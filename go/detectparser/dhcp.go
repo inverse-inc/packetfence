@@ -29,6 +29,15 @@ func (s *DhcpParser) Parse(line string) ([]ApiCall, error) {
 				continue
 			}
 
+			if s.RateLimitCache != nil {
+				rateLimitKey := mac + ":" + ip
+				if _, found := s.RateLimitCache.Get(rateLimitKey); found {
+					continue
+				}
+
+				s.RateLimitCache.Set(rateLimitKey, 1, cache.DefaultExpiration)
+			}
+
 			return []ApiCall{
 				&PfqueueApiCall{
 					Method: "update_ip4log",

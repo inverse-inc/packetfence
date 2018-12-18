@@ -71,6 +71,15 @@ func (s *SuricataMD5Parser) Parse(line string) ([]ApiCall, error) {
 		return nil, fmt.Errorf("endpoint not found")
 	}
 
+	if s.RateLimitCache != nil {
+		rateLimitKey := mac + ":" + tid
+		if _, found := s.RateLimitCache.Get(rateLimitKey); found {
+			return nil, fmt.Errorf("Already processed")
+		}
+
+		s.RateLimitCache.Set(rateLimitKey, 1, cache.DefaultExpiration)
+	}
+
 	data["mac"] = mac
 	return []ApiCall{
 		&PfqueueApiCall{

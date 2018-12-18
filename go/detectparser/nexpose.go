@@ -1,6 +1,7 @@
 package detectparser
 
 import (
+	"fmt"
 	"regexp"
 
 	cache "github.com/fdurand/go-cache"
@@ -22,6 +23,15 @@ func (s *NexposeParser) Parse(line string) ([]ApiCall, error) {
 
 		if srcip, err = sharedutils.CleanIP(srcip); err != nil {
 			return nil, nil
+		}
+
+		if s.RateLimitCache != nil {
+			rateLimitKey := dstip + ":" + srcip + ":" + matches[5]
+			if _, found := s.RateLimitCache.Get(rateLimitKey); found {
+				return nil, fmt.Errorf("Already processed")
+			}
+
+			s.RateLimitCache.Set(rateLimitKey, 1, cache.DefaultExpiration)
 		}
 
 		return []ApiCall{
