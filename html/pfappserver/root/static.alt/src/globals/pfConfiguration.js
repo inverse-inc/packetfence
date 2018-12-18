@@ -699,6 +699,7 @@ export const pfConfigurationViewFields = {
           },
           validators: {
             [i18n.t('Value required.')]: required,
+            [i18n.t('Maximum 255 characters.')]: maxLength(255),
             [i18n.t('Alphanumeric characters only.')]: alphaNum,
             [i18n.t('Source exists.')]: not(and(required, conditional(isNew || isClone), sourceExists))
           }

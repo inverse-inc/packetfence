@@ -8,6 +8,15 @@ const api = {
   getAdminRoles () {
     return apiCall({ url: 'config/admin_roles', method: 'get' })
   },
+  getBillingTiers () {
+    return apiCall({ url: 'config/billing_tiers', method: 'get' })
+  },
+  getDomains () {
+    return apiCall({ url: 'config/domains', method: 'get' })
+  },
+  getFloatingDevices () {
+    return apiCall({ url: 'config/floating_devices', method: 'get' })
+  },
   getRealms () {
     return apiCall({ url: 'config/realms', method: 'get' })
   },
@@ -19,6 +28,9 @@ const api = {
   },
   getSwitches () {
     return apiCall({ url: 'config/switches', method: 'get' })
+  },
+  getSwitchGroups () {
+    return apiCall({ url: 'config/switch_groups', method: 'get' })
   },
   getTenants () {
     return apiCall({ url: 'tenants', method: 'get' })
@@ -35,21 +47,29 @@ const types = {
   ERROR: 'error'
 }
 
-const state = {
+const state = { // set intitial states to `false` (not `[]` or `{}`) to avoid infinite loop when response is empty.
   adminRolesStatus: '',
-  adminRoles: [],
+  adminRoles: false,
+  billingTiersStatus: '',
+  billingTiers: false,
+  domainsStatus: '',
+  domains: false,
+  floatingDevicesStatus: '',
+  floatingDevices: false,
   realmsStatus: '',
-  realms: [],
+  realms: false,
   rolesStatus: '',
-  roles: [],
+  roles: false,
   sourcesStatus: '',
-  sources: [],
+  sources: false,
   switchesStatus: '',
-  switches: [],
+  switches: false,
+  switchGroupsStatus: '',
+  switchGroups: false,
   tenantsStatus: '',
-  tenants: [],
+  tenants: false,
   violationsStatus: '',
-  violations: {}
+  violations: false
 }
 
 const helpers = {
@@ -133,7 +153,7 @@ const getters = {
 
 const actions = {
   getAdminRoles: ({ state, commit }) => {
-    if (state.adminRoles.length === 0) {
+    if (!state.adminRoles) {
       return api.getAdminRoles().then(response => {
         commit('ADMIN_ROLES_UPDATED', response.data.items)
         return state.adminRoles
@@ -142,11 +162,41 @@ const actions = {
       return Promise.resolve(state.adminRoles)
     }
   },
-  getRealms: ({ state, getters, commit }) => {
-    if (getters.isLoadingRoles) {
-      return
+  getBillingTiers: ({ state, getters, commit }) => {
+    if (!state.billingTiers) {
+      commit('BILLING_TIERS_REQUEST')
+      return api.getBillingTiers().then(response => {
+        commit('BILLING_TIERS_UPDATED', response.data.items)
+        return state.billingTiers
+      })
+    } else {
+      return Promise.resolve(state.billingTiers)
     }
-    if (state.realms.length === 0) {
+  },
+  getDomains: ({ state, getters, commit }) => {
+    if (!state.domains) {
+      commit('DOMAINS_REQUEST')
+      return api.getDomains().then(response => {
+        commit('DOMAINS_UPDATED', response.data.items)
+        return state.domains
+      })
+    } else {
+      return Promise.resolve(state.domains)
+    }
+  },
+  getFloatingDevices: ({ state, getters, commit }) => {
+    if (!state.floatingDevices) {
+      commit('FLOATING_DEVICES_REQUEST')
+      return api.getFloatingDevices().then(response => {
+        commit('FLOATING_DEVICES_UPDATED', response.data.items)
+        return state.floatingDevices
+      })
+    } else {
+      return Promise.resolve(state.floatingDevices)
+    }
+  },
+  getRealms: ({ state, getters, commit }) => {
+    if (!state.realms) {
       commit('REALMS_REQUEST')
       return api.getRealms().then(response => {
         commit('REALMS_UPDATED', response.data.items)
@@ -160,7 +210,7 @@ const actions = {
     if (getters.isLoadingRoles) {
       return
     }
-    if (state.roles.length === 0) {
+    if (!state.roles) {
       commit('ROLES_REQUEST')
       return api.getRoles().then(response => {
         commit('ROLES_UPDATED', response.data.items)
@@ -171,7 +221,7 @@ const actions = {
     }
   },
   getSources: ({ state, commit }) => {
-    if (state.sources.length === 0) {
+    if (!state.sources) {
       commit('SOURCES_REQUEST')
       return api.getSources().then(response => {
         commit('SOURCES_UPDATED', response.data.items)
@@ -182,7 +232,7 @@ const actions = {
     }
   },
   getSwitches: ({ state, commit }) => {
-    if (state.switches.length === 0) {
+    if (!state.switches) {
       commit('SWICTHES_REQUEST')
       return api.getSwitches().then(response => {
         // group can be undefined
@@ -196,8 +246,19 @@ const actions = {
       return Promise.resolve(state.switches)
     }
   },
+  getSwitchGroups: ({ state, commit }) => {
+    if (!state.switchGroups) {
+      commit('SWICTH_GROUPS_REQUEST')
+      return api.getSwitchGroups().then(response => {
+        commit('SWICTH_GROUPS_UPDATED', response.data.items)
+        return state.switchGroups
+      })
+    } else {
+      return Promise.resolve(state.switchGroups)
+    }
+  },
   getTenants: ({ state, commit }) => {
-    if (state.tenants.length === 0) {
+    if (!state.tenants) {
       commit('TENANTS_REQUEST')
       return api.getTenants().then(response => {
         commit('TENANTS_UPDATED', response.data.items)
@@ -208,7 +269,7 @@ const actions = {
     }
   },
   getViolations: ({ commit, state }) => {
-    if (Object.keys(state.violations).length === 0) {
+    if (!state.violations) {
       commit('VIOLATIONS_REQUEST')
       return api.getViolations().then(response => {
         commit('VIOLATIONS_UPDATED', response.data.items)
@@ -227,6 +288,27 @@ const mutations = {
   ADMIN_ROLES_UPDATED: (state, adminRoles) => {
     state.adminRoles = adminRoles
     state.adminRolesStatus = types.SUCCESS
+  },
+  BILLING_TIERS_REQUEST: (state) => {
+    state.billingTiersStatus = types.LOADING
+  },
+  BILLING_TIERS_UPDATED: (state, billingTiers) => {
+    state.billingTiers = billingTiers
+    state.billingTiersStatus = types.SUCCESS
+  },
+  DOMAINS_REQUEST: (state) => {
+    state.domainsStatus = types.LOADING
+  },
+  DOMAINS_UPDATED: (state, domains) => {
+    state.domains = domains
+    state.domainsStatus = types.SUCCESS
+  },
+  FLOATING_DEVICES_REQUEST: (state) => {
+    state.floatingDevicesStatus = types.LOADING
+  },
+  FLOATING_DEVICES_UPDATED: (state, floatingDevices) => {
+    state.floatingDevices = floatingDevices
+    state.floatingDevicesStatus = types.SUCCESS
   },
   REALMS_REQUEST: (state) => {
     state.realmsStatus = types.LOADING
@@ -255,6 +337,13 @@ const mutations = {
   SWICTHES_UPDATED: (state, switches) => {
     state.switches = switches
     state.switchesStatus = types.SUCCESS
+  },
+  SWICTH_GROUPS_REQUEST: (state) => {
+    state.switchGroupsStatus = types.LOADING
+  },
+  SWICTH_GROUPS_UPDATED: (state, switchGroups) => {
+    state.switchGroups = switchGroups
+    state.switchGroupsStatus = types.SUCCESS
   },
   TENANTS_REQUEST: (state) => {
     state.tenantsStatus = types.LOADING

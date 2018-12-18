@@ -312,6 +312,17 @@ const route = {
         })
       }
     },
+    {
+      path: 'floating_device/:id/clone',
+      name: 'cloneFloatingDevice',
+      component: FloatingDeviceView,
+      props: (route) => ({ storeName: '$_floatingdevices', id: route.params.id, isClone: true }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_floatingdevices/getFloatingDevice', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
     /**
      *  Advanced Access Configuration
      */

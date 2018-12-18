@@ -9,14 +9,19 @@ import {
   pfConfigurationViewFields
 } from '@/globals/pfConfiguration'
 import {
-  isPrice
+  and,
+  not,
+  conditional,
+  isPrice,
+  billingTierExists
 } from '@/globals/pfValidators'
 
 const {
   required,
   alphaNum,
   integer,
-  minValue
+  minValue,
+  maxLength
 } = require('vuelidate/lib/validators')
 
 export const pfConfigurationBillingTiersListColumns = [
@@ -48,7 +53,9 @@ export const pfConfigurationBillingTierViewFields = (context = {}) => {
               },
               validators: {
                 [i18n.t('Name required.')]: required,
-                [i18n.t('Alphanumeric characters only.')]: alphaNum
+                [i18n.t('Maximum 255 characters.')]: maxLength(255),
+                [i18n.t('Alphanumeric characters only.')]: alphaNum,
+                [i18n.t('Billing Tier exists.')]: not(and(required, conditional(isNew || isClone), billingTierExists))
               }
             }
           ]
@@ -58,7 +65,10 @@ export const pfConfigurationBillingTierViewFields = (context = {}) => {
           fields: [
             {
               key: 'name',
-              component: pfFormInput
+              component: pfFormInput,
+              validators: {
+                [i18n.t('Maximum 255 characters.')]: maxLength(255)
+              }
             }
           ]
         },
@@ -79,6 +89,7 @@ export const pfConfigurationBillingTierViewFields = (context = {}) => {
               },
               validators: {
                 [i18n.t('Price required')]: required,
+                [i18n.t('Maximum 255 characters.')]: maxLength(255),
                 [i18n.t('Enter a valid price')]: isPrice,
                 [i18n.t('Enter a positive price')]: minValue(0)
               }
@@ -117,6 +128,7 @@ export const pfConfigurationBillingTierViewFields = (context = {}) => {
               },
               validators: {
                 [i18n.t('Interval required.')]: required,
+                [i18n.t('Maximum 255 characters.')]: maxLength(255),
                 [i18n.t('Integer values required.')]: integer
               }
             },

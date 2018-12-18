@@ -12,9 +12,13 @@ import {
 } from '@/globals/pfConfiguration'
 import { pfFieldType as fieldType } from '@/globals/pfField'
 import {
+  and,
+  not,
+  conditional,
   isPort,
   limitSiblingFields,
-  restrictAllSiblingFields
+  restrictAllSiblingFields,
+  switchExists
 } from '@/globals/pfValidators'
 
 const {
@@ -130,8 +134,9 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
               },
               validators: {
                 [i18n.t('Identifier required.')]: required,
+                [i18n.t('Maximum 255 characters.')]: maxLength(255),
                 [i18n.t('IP addresses only.')]: ipAddress,
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
+                [i18n.t('Switch exists.')]: not(and(required, conditional(isNew || isClone), switchExists))
               }
             }
           ]

@@ -6,12 +6,19 @@ import {
   pfConfigurationListColumns,
   pfConfigurationListFields
 } from '@/globals/pfConfiguration'
+import {
+  and,
+  not,
+  conditional,
+  floatingDeviceExists
+} from '@/globals/pfValidators'
 
 const {
   required,
   integer,
+  ipAddress,
   macAddress,
-  ipAddress
+  maxLength
 } = require('vuelidate/lib/validators')
 
 export const pfConfigurationFloatingDevicesListColumns = [
@@ -45,7 +52,9 @@ export const pfConfigurationFloatingDeviceViewFields = (context = {}) => {
               },
               validators: {
                 [i18n.t('MAC address required.')]: required,
-                [i18n.t('Enter a valid MAC address.')]: macAddress()
+                [i18n.t('Maximum 255 characters.')]: maxLength(255),
+                [i18n.t('Enter a valid MAC address.')]: macAddress(),
+                [i18n.t('Floating Device exists.')]: not(and(required, conditional(isNew || isClone), floatingDeviceExists))
               }
             }
           ]
@@ -58,6 +67,7 @@ export const pfConfigurationFloatingDeviceViewFields = (context = {}) => {
               component: pfFormInput,
               validators: {
                 [i18n.t('IP address required.')]: required,
+                [i18n.t('Maximum 255 characters.')]: maxLength(255),
                 [i18n.t('Enter a valid IP address.')]: ipAddress
               }
             }
@@ -75,6 +85,7 @@ export const pfConfigurationFloatingDeviceViewFields = (context = {}) => {
               },
               validators: {
                 [i18n.t('Native VLAN required.')]: required,
+                [i18n.t('Maximum 255 characters.')]: maxLength(255),
                 [i18n.t('Enter a valid Native VLAN.')]: integer
               }
             }
@@ -99,7 +110,10 @@ export const pfConfigurationFloatingDeviceViewFields = (context = {}) => {
           fields: [
             {
               key: 'taggedVlan',
-              component: pfFormInput
+              component: pfFormInput,
+              validators: {
+                [i18n.t('Maximum 255 characters.')]: maxLength(255)
+              }
             }
           ]
         }

@@ -7,10 +7,17 @@ import {
   pfConfigurationListColumns,
   pfConfigurationListFields
 } from '@/globals/pfConfiguration'
+import {
+  and,
+  not,
+  conditional,
+  realmExists
+} from '@/globals/pfValidators'
 
 const {
   required,
-  alphaNum
+  alphaNum,
+  maxLength
 } = require('vuelidate/lib/validators')
 
 export const pfConfigurationRealmsListColumns = [
@@ -42,7 +49,9 @@ export const pfConfigurationRealmViewFields = (context = {}) => {
               },
               validators: {
                 [i18n.t('Realm required.')]: required,
-                [i18n.t('Alphanumeric characters only.')]: alphaNum
+                [i18n.t('Maximum 255 characters.')]: maxLength(255),
+                [i18n.t('Alphanumeric characters only.')]: alphaNum,
+                [i18n.t('Realm exists.')]: not(and(required, conditional(isNew || isClone), realmExists))
               }
             }
           ]
@@ -53,7 +62,10 @@ export const pfConfigurationRealmViewFields = (context = {}) => {
           fields: [
             {
               key: 'options',
-              component: pfFormTextarea
+              component: pfFormTextarea,
+              validators: {
+                [i18n.t('Maximum 255 characters.')]: maxLength(255)
+              }
             }
           ]
         },

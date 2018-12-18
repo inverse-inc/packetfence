@@ -4,10 +4,17 @@ import {
   pfConfigurationListColumns,
   pfConfigurationListFields
 } from '@/globals/pfConfiguration'
+import {
+  and,
+  not,
+  conditional,
+  roleExists
+} from '@/globals/pfValidators'
 
 const {
   required,
-  alphaNum
+  alphaNum,
+  maxLength
 } = require('vuelidate/lib/validators')
 
 export const pfConfigurationRolesListColumns = [
@@ -39,7 +46,9 @@ export const pfConfigurationRoleViewFields = (context = {}) => {
               },
               validators: {
                 [i18n.t('Name required.')]: required,
-                [i18n.t('Alphanumeric value required.')]: alphaNum
+                [i18n.t('Maximum 255 characters.')]: maxLength(255),
+                [i18n.t('Alphanumeric value required.')]: alphaNum,
+                [i18n.t('Role exists.')]: not(and(required, conditional(isNew || isClone), roleExists))
               }
             }
           ]
@@ -49,7 +58,10 @@ export const pfConfigurationRoleViewFields = (context = {}) => {
           fields: [
             {
               key: 'notes',
-              component: pfFormInput
+              component: pfFormInput,
+              validators: {
+                [i18n.t('Maximum 255 characters.')]: maxLength(255)
+              }
             }
           ]
         }

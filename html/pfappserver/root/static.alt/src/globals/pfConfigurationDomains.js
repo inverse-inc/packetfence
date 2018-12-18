@@ -5,12 +5,17 @@ import {
   pfConfigurationListFields
 } from '@/globals/pfConfiguration'
 import {
-  isFQDN
+  and,
+  not,
+  conditional,
+  isFQDN,
+  domainExists
 } from '@/globals/pfValidators'
 
 const {
   required,
-  alphaNum
+  alphaNum,
+  maxLength
 } = require('vuelidate/lib/validators')
 
 export const pfConfigurationDomainsListColumns = [
@@ -42,7 +47,9 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
               },
               validators: {
                 [i18n.t('Name required.')]: required,
-                [i18n.t('Alphanumeric characters only.')]: alphaNum
+                [i18n.t('Maximum 255 characters.')]: maxLength(255),
+                [i18n.t('Alphanumeric characters only.')]: alphaNum,
+                [i18n.t('Domain exists.')]: not(and(required, conditional(isNew || isClone), domainExists))
               }
             }
           ]
@@ -54,7 +61,8 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
               key: 'workgroup',
               component: pfFormInput,
               validators: {
-                [i18n.t('Workgroup required.')]: required
+                [i18n.t('Workgroup required.')]: required,
+                [i18n.t('Maximum 255 characters.')]: maxLength(255)
               }
             }
           ]
@@ -68,6 +76,7 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
               component: pfFormInput,
               validators: {
                 [i18n.t('DNS name required.')]: required,
+                [i18n.t('Maximum 255 characters.')]: maxLength(255),
                 [i18n.t('Fully Qualified Domain Name required.')]: isFQDN
               }
             }
@@ -81,7 +90,8 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
               key: 'server_name',
               component: pfFormInput,
               validators: {
-                [i18n.t('Server name required.')]: required
+                [i18n.t('Server name required.')]: required,
+                [i18n.t('Maximum 255 characters.')]: maxLength(255)
               }
             }
           ]
@@ -94,7 +104,8 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
               key: 'sticky_dc',
               component: pfFormInput,
               validators: {
-                [i18n.t('Sticky DC required.')]: required
+                [i18n.t('Sticky DC required.')]: required,
+                [i18n.t('Maximum 255 characters.')]: maxLength(255)
               }
             }
           ]
@@ -107,7 +118,8 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
               key: 'ad_server',
               component: pfFormInput,
               validators: {
-                [i18n.t('Active Directory server required.')]: required
+                [i18n.t('Active Directory server required.')]: required,
+                [i18n.t('Maximum 255 characters.')]: maxLength(255)
               }
             }
           ]
@@ -118,7 +130,10 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
           fields: [
             {
               key: 'bind_dn',
-              component: pfFormInput
+              component: pfFormInput,
+              validators: {
+                [i18n.t('Maximum 255 characters.')]: maxLength(255)
+              }
             }
           ]
         },
@@ -131,6 +146,9 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
               component: pfFormInput,
               attrs: {
                 type: 'password'
+              },
+              validators: {
+                [i18n.t('Maximum 255 characters.')]: maxLength(255)
               }
             }
           ]

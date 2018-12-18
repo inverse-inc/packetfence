@@ -200,9 +200,19 @@ export const compareDate = (comparison, date = new Date(), dateFormat = 'YYYY-MM
   })
 }
 
+export const billingTierExists = (value, component) => {
+  if (!value) return true
+  return store.dispatch('config/getBillingTiers').then((response) => {
+    return (response.filter(billingTier => billingTier.id.toLowerCase() === value.toLowerCase()).length > 0)
+  }).catch(() => {
+    return true
+  })
+}
+
 export const categoryIdNumberExists = (value, component) => {
   if (!value || !/^\d+$/.test(value)) return true
   return store.dispatch('config/getRoles').then((response) => {
+    if (response.length === 0) return false
     return (response.filter(role => role.category_id === value).length > 0)
   }).catch(() => {
     return true
@@ -212,16 +222,28 @@ export const categoryIdNumberExists = (value, component) => {
 export const categoryIdStringExists = (value, component) => {
   if (!value || /^\d+$/.test(value)) return true
   return store.dispatch('config/getRoles').then((response) => {
+    if (response.length === 0) return false
     return (response.filter(role => role.name.toLowerCase() === value.toLowerCase()).length > 0)
   }).catch(() => {
     return true
   })
 }
 
-export const sourceExists = (value, component) => {
+export const domainExists = (value, component) => {
   if (!value) return true
-  return store.dispatch('config/getSources').then((response) => {
-    return (response.filter(source => source.id.toLowerCase() === value.toLowerCase()).length > 0)
+  return store.dispatch('config/getDomains').then((response) => {
+    if (response.length === 0) return false
+    return (response.filter(domain => domain.id.toLowerCase() === value.toLowerCase()).length > 0)
+  }).catch(() => {
+    return true
+  })
+}
+
+export const floatingDeviceExists = (value, component) => {
+  if (!value) return true
+  return store.dispatch('config/getFloatingDevices').then((response) => {
+    if (response.length === 0) return false
+    return (response.filter(floatingDevice => floatingDevice.id.toLowerCase() === value.toLowerCase()).length > 0)
   }).catch(() => {
     return true
   })
@@ -231,6 +253,56 @@ export const nodeExists = (value, component) => {
   if (!value || value.length !== 17) return true
   return store.dispatch('$_nodes/exists', value).then(() => {
     return false
+  }).catch(() => {
+    return true
+  })
+}
+
+export const realmExists = (value, component) => {
+  if (!value) return true
+  return store.dispatch('config/getRealms').then((response) => {
+    if (response.length === 0) return false
+    return (response.filter(realm => realm.id.toLowerCase() === value.toLowerCase()).length > 0)
+  }).catch(() => {
+    return true
+  })
+}
+
+export const roleExists = (value, component) => {
+  if (!value) return true
+  return store.dispatch('config/getRoles').then((response) => {
+    if (response.length === 0) return false
+    return (response.filter(role => role.name.toLowerCase() === value.toLowerCase()).length > 0)
+  }).catch(() => {
+    return true
+  })
+}
+
+export const sourceExists = (value, component) => {
+  if (!value) return true
+  return store.dispatch('config/getSources').then((response) => {
+    if (response.length === 0) return false
+    return (response.filter(source => source.id.toLowerCase() === value.toLowerCase()).length > 0)
+  }).catch(() => {
+    return true
+  })
+}
+
+export const switchExists = (value, component) => {
+  if (!value) return true
+  return store.dispatch('config/getSwitches').then((response) => {
+    if (response.length === 0) return false
+    return (response.filter(switche => switche.id.toLowerCase() === value.toLowerCase()).length > 0)
+  }).catch(() => {
+    return true
+  })
+}
+
+export const switchGroupExists = (value, component) => {
+  if (!value) return true
+  return store.dispatch('config/getSwitchGroups').then((response) => {
+    if (response.length === 0) return false
+    return (response.filter(switchGroup => switchGroup.id.toLowerCase() === value.toLowerCase()).length > 0)
   }).catch(() => {
     return true
   })

@@ -13,6 +13,12 @@
       <template slot="emptySearch">
         <pf-empty-table :isLoading="isLoading">{{ $t('No devices found') }}</pf-empty-table>
       </template>
+      <template slot="buttons" slot-scope="item">
+        <span class="float-right text-nowrap">
+          <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(item)">{{ $t('Clone') }}</b-button>
+          <pf-button-delete  v-if="!item.not_deletable" size="sm" variant="outline-danger" :disabled="isLoading" :confirm="$t('Delete Floating Device?')" @on-delete="remove(item)" reverse/>
+        </span>
+      </template>
     </pf-config-list>
   </b-card>
 </template>
@@ -70,6 +76,16 @@ export default {
           }
         }
       }
+    }
+  },
+  methods: {
+    clone (item) {
+      this.$router.push({ name: 'cloneFloatingDevice', params: { id: item.id } })
+    },
+    remove (item) {
+      this.$store.dispatch('$_floating_devices/deleteFloatingDevice', item.id).then(response => {
+        this.$router.go() // reload
+      })
     }
   }
 }
