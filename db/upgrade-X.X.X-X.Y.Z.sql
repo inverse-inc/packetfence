@@ -65,35 +65,35 @@ INSERT INTO sms_carrier VALUES(100128, 'Google Project Fi', '%s@msg.fi.google.co
 -- Updated freeradius acct_stop procedure
 --
 
-DROP PROCEDURE IF EXISTS acct_stop;
+DROP PROCEDURE IF EXISTS `acct_stop`;
 DELIMITER /
-CREATE PROCEDURE acct_stop (
-  IN p_timestamp datetime,
-  IN p_framedipaddress varchar(15),
-  IN p_acctsessiontime int(12),
-  IN p_acctinputoctets bigint(20),
-  IN p_acctoutputoctets bigint(20),
-  IN p_acctuniqueid varchar(32),
-  IN p_acctsessionid varchar(64),
-  IN p_username varchar(64),
-  IN p_realm varchar(64),
-  IN p_nasipaddress varchar(15),
-  IN p_nasportid varchar(32),
-  IN p_nasporttype varchar(32),
-  IN p_acctauthentic varchar(32),
-  IN p_connectinfo_stop varchar(50),
-  IN p_calledstationid varchar(50),
-  IN p_callingstationid varchar(50),
-  IN p_servicetype varchar(32),
-  IN p_framedprotocol varchar(32),
-  IN p_acctterminatecause varchar(12),
-  IN p_acctstatustype varchar(25),
-  IN p_tenant_id int
+CREATE PROCEDURE `acct_stop` (
+  IN `p_timestamp` datetime,
+  IN `p_framedipaddress` varchar(15),
+  IN `p_acctsessiontime` int(12),
+  IN `p_acctinputoctets` bigint(20) unsigned,
+  IN `p_acctoutputoctets` bigint(20) unsigned,
+  IN `p_acctuniqueid` varchar(32),
+  IN `p_acctsessionid` varchar(64),
+  IN `p_username` varchar(64),
+  IN `p_realm` varchar(64),
+  IN `p_nasipaddress` varchar(15),
+  IN `p_nasportid` varchar(32),
+  IN `p_nasporttype` varchar(32),
+  IN `p_acctauthentic` varchar(32),
+  IN `p_connectinfo_stop` varchar(50),
+  IN `p_calledstationid` varchar(50),
+  IN `p_callingstationid` varchar(50),
+  IN `p_servicetype` varchar(32),
+  IN `p_framedprotocol` varchar(32),
+  IN `p_acctterminatecause` varchar(12),
+  IN `p_acctstatustype` varchar(25),
+  IN `p_tenant_id` int(11) unsigned
 )
 BEGIN
-  DECLARE Previous_Input_Octets bigint(20);
-  DECLARE Previous_Output_Octets bigint(20);
-  DECLARE Previous_Session_Time int(12);
+  DECLARE `Previous_Input_Octets` bigint(20) unsigned;
+  DECLARE `Previous_Output_Octets` bigint(20) unsigned;
+  DECLARE `Previous_Session_Time` int(12) unsigned;
 
   # Collect traffic previous values in the radacct table
   SELECT acctinputoctets, acctoutputoctets, acctsessiontime
