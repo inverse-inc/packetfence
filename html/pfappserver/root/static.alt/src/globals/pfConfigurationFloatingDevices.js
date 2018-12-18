@@ -19,7 +19,8 @@ export const pfConfigurationFloatingDevicesListColumns = [
   pfConfigurationListColumns.ip,
   pfConfigurationListColumns.pvid,
   pfConfigurationListColumns.taggedVlan,
-  pfConfigurationListColumns.trunkPort
+  pfConfigurationListColumns.trunkPort,
+  pfConfigurationListColumns.buttons
 ]
 
 export const pfConfigurationFloatingDevicesListFields = [

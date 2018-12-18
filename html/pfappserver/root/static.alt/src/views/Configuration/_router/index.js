@@ -19,9 +19,7 @@ const RealmView = () => import(/* webpackChunkName: "Configuration" */ '../_comp
 const AuthenticationSourcesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/AuthenticationSourcesList')
 const AuthenticationSourceView = () => import(/* webpackChunkName: "Configuration" */ '../_components/AuthenticationSourceView')
 const NetworkDevicesTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/NetworkDevicesTabs')
-const SwitchesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/SwitchesList')
 const SwitchView = () => import(/* webpackChunkName: "Configuration" */ '../_components/SwitchView')
-const SwitchGroupsList = () => import(/* webpackChunkName: "Configuration" */ '../_components/SwitchGroupsList')
 const SwitchGroupView = () => import(/* webpackChunkName: "Configuration" */ '../_components/SwitchGroupView')
 
 const NetworkConfigurationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/NetworkConfigurationSection')
@@ -104,6 +102,17 @@ const route = {
       }
     },
     {
+      path: 'role/:id/clone',
+      name: 'cloneRole',
+      component: RoleView,
+      props: (route) => ({ storeName: '$_roles', id: route.params.id, isClone: true }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_roles/getRole', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
       path: 'domains',
       name: 'domains',
       component: DomainsTabs,
@@ -127,6 +136,17 @@ const route = {
       }
     },
     {
+      path: 'domain/:id/clone',
+      name: 'cloneDomain',
+      component: DomainView,
+      props: (route) => ({ storeName: '$_domains', id: route.params.id, isClone: true }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_domains/getDomain', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
       path: 'realms',
       name: 'realms',
       component: DomainsTabs,
@@ -143,6 +163,17 @@ const route = {
       name: 'realm',
       component: RealmView,
       props: (route) => ({ storeName: '$_realms', id: route.params.id }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_realms/getRealm', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'realm/:id/clone',
+      name: 'cloneRealm',
+      component: RealmView,
+      props: (route) => ({ storeName: '$_realms', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
         store.dispatch('$_realms/getRealm', to.params.id).then(object => {
           next()
@@ -207,6 +238,17 @@ const route = {
       }
     },
     {
+      path: 'switch/:id/clone',
+      name: 'cloneSwitch',
+      component: SwitchView,
+      props: (route) => ({ storeName: '$_switches', id: route.params.id, isClone: true }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_switches/getSwitch', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
       path: 'switch_groups',
       name: 'switch_groups',
       component: NetworkDevicesTabs,
@@ -223,6 +265,17 @@ const route = {
       name: 'switch_group',
       component: SwitchGroupView,
       props: (route) => ({ storeName: '$_switch_groups', id: route.params.id }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_switch_groups/getSwitchGroup', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'switch_group/:id/clone',
+      name: 'cloneSwitchGroup',
+      component: SwitchGroupView,
+      props: (route) => ({ storeName: '$_switch_groups', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
         store.dispatch('$_switch_groups/getSwitchGroup', to.params.id).then(object => {
           next()
@@ -318,6 +371,17 @@ const route = {
       name: 'billing_tier',
       component: BillingTierView,
       props: (route) => ({ storeName: '$_billing_tiers', id: route.params.id }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_billing_tiers/getBillingTier', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'billing_tier/:id/clone',
+      name: 'cloneBillingTier',
+      component: BillingTierView,
+      props: (route) => ({ storeName: '$_billing_tiers', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
         store.dispatch('$_billing_tiers/getBillingTier', to.params.id).then(object => {
           next()

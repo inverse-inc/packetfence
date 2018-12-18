@@ -15,7 +15,8 @@ const {
 
 export const pfConfigurationDomainsListColumns = [
   Object.assign(pfConfigurationListColumns.id, { label: i18n.t('Name') }), // re-label
-  pfConfigurationListColumns.workgroup
+  pfConfigurationListColumns.workgroup,
+  pfConfigurationListColumns.buttons
 ]
 
 export const pfConfigurationDomainsListFields = [

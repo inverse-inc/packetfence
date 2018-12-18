@@ -15,7 +15,8 @@
     <template slot="header" is="b-card-header">
       <b-button-close @click="close" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
       <h4 class="mb-0">
-        <span v-if="id">{{ $t('Billing Tier') }} <strong v-text="id"></strong></span>
+        <span v-if="!isNew && !isClone">{{ $t('Billing Tier {id}', { id: id }) }}</span>
+        <span v-else-if="isClone">{{ $t('Clone Billing Tier {id}', { id: id }) }}</span>
         <span v-else>{{ $t('New Billing Tier') }}</span>
       </h4>
     </template>

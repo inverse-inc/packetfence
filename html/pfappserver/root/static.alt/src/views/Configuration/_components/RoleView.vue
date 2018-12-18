@@ -4,6 +4,8 @@
     :form="getForm"
     :model="role"
     :vuelidate="$v.role"
+    :isNew="isNew"
+    :isClone="isClone"
     @validations="roleValidations = $event"
     @close="close"
     @create="create"
@@ -13,7 +15,8 @@
     <template slot="header" is="b-card-header">
       <b-button-close @click="close" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
       <h4 class="mb-0">
-        <span v-if="id">{{ $t('Role') }} <strong v-text="id"></strong></span>
+        <span v-if="!isNew && !isClone">{{ $t('Role {id}', { id: id }) }}</span>
+        <span v-else-if="isClone">{{ $t('Clone Role {id}', { id: id }) }}</span>
         <span v-else>{{ $t('New Role') }}</span>
       </h4>
     </template>
@@ -64,6 +67,10 @@ export default {
       required: true
     },
     isNew: { // from router
+      type: Boolean,
+      default: false
+    },
+    isClone: { // from router
       type: Boolean,
       default: false
     },

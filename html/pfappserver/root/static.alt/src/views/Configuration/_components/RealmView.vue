@@ -4,6 +4,8 @@
     :form="getForm"
     :model="realm"
     :vuelidate="$v.realm"
+    :isNew="isNew"
+    :isClone="isClone"
     @validations="realmValidations = $event"
     @close="close"
     @create="create"
@@ -13,7 +15,8 @@
     <template slot="header" is="b-card-header">
       <b-button-close @click="close" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
       <h4 class="mb-0">
-        <span v-if="id">{{ $t('Realm') }} <strong v-text="id"></strong></span>
+        <span v-if="!isNew && !isClone">{{ $t('Realm {id}', { id: id }) }}</span>
+        <span v-else-if="isClone">{{ $t('Clone Realm {id}', { id: id }) }}</span>
         <span v-else>{{ $t('New Realm') }}</span>
       </h4>
     </template>
@@ -67,6 +70,10 @@ export default {
       type: Boolean,
       default: false
     },
+    isClone: { // from router
+      type: Boolean,
+      default: false
+    },
     id: { // from router
       type: String,
       default: null
@@ -98,6 +105,7 @@ export default {
       }
     },
     isDeletable () {
+    console.log('notDeletable', this.isNew, this.isClone, ('not_deletable' in this.realm && this.realm.not_deletable))
       if (this.isNew || this.isClone || ('not_deletable' in this.realm && this.realm.not_deletable)) {
         return false
       }

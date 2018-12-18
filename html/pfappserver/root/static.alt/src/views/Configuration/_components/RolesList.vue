@@ -14,7 +14,11 @@
         <pf-empty-table :isLoading="isLoading">{{ $t('No roles found') }}</pf-empty-table>
       </template>
       <template slot="buttons" slot-scope="item">
-        <b-button size="sm" variant="outline-primary" :to="{ name: 'TODO' }" class="float-right">{{ $t('Traffic Shaping') }}</b-button>
+        <span class="float-right text-nowrap">
+          <b-button size="sm" variant="outline-primary" class="mr-1" :to="{ name: 'TODO' }">{{ $t('Traffic Shaping') }}</b-button>
+          <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(item)">{{ $t('Clone') }}</b-button>
+          <pf-button-delete  v-if="!item.not_deletable" size="sm" variant="outline-danger" :disabled="isLoading" :confirm="$t('Delete Role?')" @on-delete="remove(item)" reverse/>
+        </span>
       </template>
     </pf-config-list>
   </b-card>
@@ -73,6 +77,16 @@ export default {
           }
         }
       }
+    }
+  },
+  methods: {
+    clone (item) {
+      this.$router.push({ name: 'cloneRole', params: { id: item.id } })
+    },
+    remove (item) {
+      this.$store.dispatch('$_roles/deleteRole', item.id).then(response => {
+        this.$router.go() // reload
+      })
     }
   }
 }

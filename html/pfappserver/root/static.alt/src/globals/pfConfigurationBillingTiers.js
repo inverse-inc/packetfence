@@ -22,7 +22,8 @@ const {
 export const pfConfigurationBillingTiersListColumns = [
   Object.assign(pfConfigurationListColumns.id, { label: i18n.t('Identifier') }), // re-label
   pfConfigurationListColumns.name,
-  pfConfigurationListColumns.price
+  pfConfigurationListColumns.price,
+  pfConfigurationListColumns.buttons
 ]
 
 export const pfConfigurationBillingTiersListFields = [

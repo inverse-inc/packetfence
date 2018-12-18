@@ -17,7 +17,8 @@ export const pfConfigurationRealmsListColumns = [
   Object.assign(pfConfigurationListColumns.id, { label: i18n.t('Name') }), // re-label
   pfConfigurationListColumns.portal_strip_username,
   pfConfigurationListColumns.admin_strip_username,
-  pfConfigurationListColumns.radius_strip_username
+  pfConfigurationListColumns.radius_strip_username,
+  pfConfigurationListColumns.buttons
 ]
 
 export const pfConfigurationRealmsListFields = [
