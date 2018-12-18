@@ -716,9 +716,6 @@ management_ip=192.168.2.10
 [DC2 CLUSTER interface ens192]
 ip=192.168.2.10
 
-[DC2 CLUSTER interface ens224]
-ip=192.168.22.10
-
 [DC2 pf1-dc2.example.com]
 management_ip=192.168.2.11
 
@@ -746,7 +743,7 @@ RADIUS server with captive-portal
 
 WARNING: As shortly explained above, deploying a captive-portal across a layer 3 network using the cluster zones is complex and requires in-depth knowledge of networking and how PacketFence works.
 
-In order to configure a RADIUS server with a captive-portal on a layer 3 cluster, you will need at least 3 servers (5 are used in this example) with 2 interfaces (one for management and one for registration)
+In order to configure a RADIUS server with a captive-portal on a layer 3 cluster, you will need at least 3 servers (5 are used in this example) with 2 interfaces (one for management and one for registration).
 
 NOTE: Isolation is omitted in this example for brevity and should be configured the same way as registration if needed
 
@@ -825,6 +822,9 @@ management_ip=192.168.2.10
 
 [DC2 CLUSTER interface ens192]
 ip=192.168.2.10
+
+[DC2 CLUSTER interface ens224]
+ip=192.168.22.10
 
 [DC2 pf1-dc2.example.com]
 management_ip=192.168.2.11
