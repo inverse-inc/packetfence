@@ -262,14 +262,15 @@ export const userNotExists = (value, component) => {
  * All functions ignore self.
 **/
 
-// Limit the count of sibling field |key|s
-export const limitSiblingFields = (key, limit) => {
+// Limit the count of sibling field |keys|
+export const limitSiblingFields = (keys, limit = 0) => {
   return (0, _common.withParams)({
     type: 'limitSiblingFields',
-    key: key,
+    keys: keys,
     limit: limit
   }, function (value, field) {
     if (!value) return true
+    const _keys = (keys.constructor === Array) ? keys : [keys] // force Array
     let count = 0
     const { id, parent, params } = idParentParamsFromV(this.$v, field)
     if (params) {
@@ -278,10 +279,13 @@ export const limitSiblingFields = (key, limit) => {
         const [param] = params[i] // destructure
         if (!parent[param].$model) continue // ignore empty models
         if (idOfV(parent[param].$model) === id) continue // ignore (self)
-        if (parent[param].$model[key] === field[key]) {
-          count += 1 // increment count
-          if (count > limit) return false
+        // iterate through all keys, continue on 1st mismatch
+        if (_keys.find(key => {
+          return parent[param].$model[key] !== field[key]
+        })) {
+          continue // GTFO
         }
+        if (++count > limit) return false
       }
     }
     return true

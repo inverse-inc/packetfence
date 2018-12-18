@@ -48,7 +48,7 @@ export const pfConfigurationSwitchGroupActions = {
     validators: {
       type: {
         /* Don't allow elsewhere */
-        [i18n.t('Duplicate condition.')]: limitSiblingFields('type', 0)
+        [i18n.t('Duplicate condition.')]: limitSiblingFields(['type', 'value'])
       }
     }
   },
@@ -63,7 +63,9 @@ export const pfConfigurationSwitchGroupActions = {
       },
       value: {
         [i18n.t('Value required.')]: required,
-        [i18n.t('Invalid Port Number.')]: isPort
+        [i18n.t('Invalid Port Number.')]: isPort,
+        /* Don't allow duplicates */
+        [i18n.t('Duplicate Port.')]: limitSiblingFields(['type', 'value'])
       }
     }
   },
@@ -78,7 +80,9 @@ export const pfConfigurationSwitchGroupActions = {
       },
       value: {
         [i18n.t('Value required.')]: required,
-        [i18n.t('Invalid MAC Address.')]: macAddress
+        [i18n.t('Invalid MAC Address.')]: macAddress,
+        /* Don't allow duplicates */
+        [i18n.t('Duplicate MAC Address.')]: limitSiblingFields(['type', 'value'])
       }
     }
   },
@@ -92,7 +96,9 @@ export const pfConfigurationSwitchGroupActions = {
         [i18n.t('Condition conflicts with "Always".')]: restrictAllSiblingFields('type', 'always')
       },
       value: {
-        [i18n.t('Value required.')]: required
+        [i18n.t('Value required.')]: required,
+        /* Don't allow duplicates */
+        [i18n.t('Duplicate SSID.')]: limitSiblingFields(['type', 'value'])
       }
     }
   }
