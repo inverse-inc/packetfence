@@ -21,7 +21,12 @@
       scope="{isDeletable}"
     >
       <b-card-footer @mouseenter="$v.switchGroup.$touch()">
-        <pf-button-save :disabled="invalidForm" :isLoading="isLoading">{{ isNew? $t('Create') : $t('Save') }}</pf-button-save>
+        <pf-button-save :disabled="invalidForm" :isLoading="isLoading">
+          <template v-if="isNew">{{ $t('Create') }}</template>
+          <template v-else-if="isClone">{{ $t('Clone') }}</template>
+          <template v-else-if="ctrlKey">{{ $t('Save &amp; Close') }}</template>
+          <template v-else>{{ $t('Save') }}</template>
+        </pf-button-save>
         <pf-button-delete v-if="isDeletable" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Switch Group?')" @on-delete="remove()"/>
       </b-card-footer>
     </template>
@@ -32,6 +37,7 @@
 import pfConfigView from '@/components/pfConfigView'
 import pfButtonSave from '@/components/pfButtonSave'
 import pfButtonDelete from '@/components/pfButtonDelete'
+import pfMixinCtrlKey from '@/components/pfMixinCtrlKey'
 import pfMixinEscapeKey from '@/components/pfMixinEscapeKey'
 import {
   pfConfigurationSwitchGroupViewFields as fields,
@@ -44,6 +50,7 @@ export default {
   name: 'SwitchGroupView',
   mixins: [
     validationMixin,
+    pfMixinCtrlKey,
     pfMixinEscapeKey
   ],
   components: {
@@ -108,13 +115,21 @@ export default {
       this.$router.push({ name: 'switch_groups' })
     },
     create () {
+      const ctrlKey = this.ctrlKey
       this.$store.dispatch('$_switch_groups/createSwitchGroup', this.switchGroup).then(response => {
-        this.close()
+        if (ctrlKey) { // [CTRL] key pressed
+          this.close()
+        } else {
+          this.$router.push({ name: 'switch_group', params: { id: this.switchGroup.id } })
+        }
       })
     },
     save () {
+      const ctrlKey = this.ctrlKey
       this.$store.dispatch('$_switch_groups/updateSwitchGroup', this.switchGroup).then(response => {
-        this.close()
+        if (ctrlKey) { // [CTRL] key pressed
+          this.close()
+        }
       })
     },
     remove () {

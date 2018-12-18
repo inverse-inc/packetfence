@@ -23,7 +23,7 @@
     <template slot="footer"
       scope="{isDeletable}"
     >
-      <b-card-footer @mouseenter="$v.$touch()">
+      <b-card-footer @mouseenter="$v.source.$touch()">
         <pf-button-save :disabled="invalidForm" :isLoading="isLoading">
           <template v-if="isNew">{{ $t('Create') }}</template>
           <template v-else-if="isClone">{{ $t('Clone') }}</template>
@@ -108,6 +108,12 @@ export default {
         labelCols: 3,
         fields: fields(this)
       }
+    },
+    isDeletable () {
+      if (this.isNew || this.isClone || ('not_deletable' in this.source && this.source.not_deletable)) {
+        return false
+      }
+      return true
     }
   },
   methods: {
