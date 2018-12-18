@@ -70,7 +70,6 @@ func initiaLease(dhcpHandler *DHCPHandler, ConfNet pfconfigdriver.RessourseNetwo
 		}
 		if found == false {
 			// Calculate the leasetime from the date in the database
-			now := time.Now()
 			var leaseDuration time.Duration
 			if end_time.IsZero() {
 				leaseDuration = dhcpHandler.leaseDuration
