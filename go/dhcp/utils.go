@@ -29,6 +29,7 @@ func connectDB(configDatabase pfconfigdriver.PfConfDatabase) {
 
 // initiaLease fetch the database to remove already assigned ip addresses
 func initiaLease(dhcpHandler *DHCPHandler) {
+	now := time.Now()
 	// Need to calculate the end ip because of the ip per role feature
 	endip := binary.BigEndian.Uint32(dhcpHandler.start.To4()) + uint32(dhcpHandler.leaseRange) - uint32(1)
 	a := make([]byte, 4)
@@ -56,7 +57,7 @@ func initiaLease(dhcpHandler *DHCPHandler) {
 		}
 
 		// Calculate the leasetime from the date in the database
-		now := time.Now()
+
 		var leaseDuration time.Duration
 		if end_time.IsZero() {
 			leaseDuration = dhcpHandler.leaseDuration
