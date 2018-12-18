@@ -247,7 +247,8 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 					return 0, nil
 				}
 			}
-			answer, found := pf.DNSFilter.Get(mac + category + strconv.FormatBool(violation) + state.QName())
+			cacheKey := pf.MakeKeyCache(mac, category, violation, state.QName())
+			answer, found := pf.DNSFilter.Get(cacheKey)
 			if found && answer != "null" {
 				log.LoggerWContext(ctx).Debug("Get answer from the cache for " + state.QName())
 				rr, _ = dns.NewRR(answer.(string))
@@ -259,7 +260,7 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 					"mac":      mac,
 				})
 				if err != nil {
-					pf.DNSFilter.Set(mac+category+strconv.FormatBool(violation)+state.QName(), "null", cache.DefaultExpiration)
+					pf.DNSFilter.Set(cacheKey, "null", cache.DefaultExpiration)
 					break
 				}
 				var answer string
@@ -270,7 +271,7 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 					}
 				}
 				log.LoggerWContext(ctx).Debug("Get answer from pffilter for " + state.QName())
-				pf.DNSFilter.Set(mac+category+strconv.FormatBool(violation)+state.QName(), answer, cache.DefaultExpiration)
+				pf.DNSFilter.Set(cacheKey, answer, cache.DefaultExpiration)
 				rr, _ = dns.NewRR(answer)
 			}
 
@@ -640,4 +641,8 @@ func (pf *pfdns) PortalFQDNInit() error {
 	general := pfconfigdriver.Config.PfConf.General
 	pf.PortalFQDN = general.Hostname + "." + general.Domain + "."
 	return nil
+}
+
+func (pf *pfdns) MakeKeyCache(mac string, category string, violation bool, qname string) string {
+	return mac + category + strconv.FormatBool(violation) + qname
 }
