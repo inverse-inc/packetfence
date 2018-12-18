@@ -104,35 +104,70 @@ const helpers = {
 }
 
 const getters = {
-  adminRolesList: state => {
-    // Remap for b-form-select component
-    return state.adminRoles.map((item) => {
-      return { value: item.id, name: item.id }
-    })
+  isLoadingAdminRoles: state => {
+    return state.adminRolesStatus === types.LOADING
+  },
+  isLoadingBillingTiers: state => {
+    return state.billingTiersStatus === types.LOADING
+  },
+  isLoadingDomains: state => {
+    return state.domainsStatus === types.LOADING
+  },
+  isLoadingFloatingDevices: state => {
+    return state.floatingDevicesStatus === types.LOADING
+  },
+  isLoadingRealms: state => {
+    return state.realmsStatus === types.LOADING
   },
   isLoadingRoles: state => {
     return state.rolesStatus === types.LOADING
   },
+  isLoadingSources: state => {
+    return state.sourcesStatus === types.LOADING
+  },
+  isLoadingSwitches: state => {
+    return state.switchesStatus === types.LOADING
+  },
+  isLoadingSwitchGroups: state => {
+    return state.switchGroupsStatus === types.LOADING
+  },
+  isLoadingTenants: state => {
+    return state.tenantsStatus === types.LOADING
+  },
+  isLoadingViolations: state => {
+    return state.violationsStatus === types.LOADING
+  },
+  adminRolesList: state => {
+    // Remap for b-form-select component
+    if (!state.adminRoles) return []
+    return state.adminRoles.map((item) => {
+      return { value: item.id, name: item.id }
+    })
+  },
   realmsList: state => {
     // Remap for b-form-select component
+    if (!state.realms) return []
     return state.realms.map((item) => {
       return { value: item.id, name: item.id }
     })
   },
   rolesList: state => {
     // Remap for b-form-select component
+    if (!state.roles) return []
     return state.roles.map((item) => {
       return { value: item.category_id, name: item.name, text: `${item.name} - ${item.notes}` }
     })
   },
   sourcesList: state => {
     // Remap for b-form-select component
+    if (!state.sources) return []
     return state.sources.map((item) => {
       return { value: item.id, name: item.description }
     })
   },
   tenantsList: state => {
     // Remap for b-form-select component
+    if (!state.tenants) return []
     return state.tenants.map((item) => {
       return { value: item.id, name: item.name }
     })
@@ -153,6 +188,9 @@ const getters = {
 
 const actions = {
   getAdminRoles: ({ state, commit }) => {
+    if (getters.isLoadingAdminRoles) {
+      return
+    }
     if (!state.adminRoles) {
       return api.getAdminRoles().then(response => {
         commit('ADMIN_ROLES_UPDATED', response.data.items)
@@ -163,6 +201,9 @@ const actions = {
     }
   },
   getBillingTiers: ({ state, getters, commit }) => {
+    if (getters.isLoadingBillingTiers) {
+      return
+    }
     if (!state.billingTiers) {
       commit('BILLING_TIERS_REQUEST')
       return api.getBillingTiers().then(response => {
@@ -174,6 +215,9 @@ const actions = {
     }
   },
   getDomains: ({ state, getters, commit }) => {
+    if (getters.isLoadingDomains) {
+      return
+    }
     if (!state.domains) {
       commit('DOMAINS_REQUEST')
       return api.getDomains().then(response => {
@@ -185,6 +229,9 @@ const actions = {
     }
   },
   getFloatingDevices: ({ state, getters, commit }) => {
+    if (getters.isLoadingFloatingDevices) {
+      return
+    }
     if (!state.floatingDevices) {
       commit('FLOATING_DEVICES_REQUEST')
       return api.getFloatingDevices().then(response => {
@@ -196,6 +243,9 @@ const actions = {
     }
   },
   getRealms: ({ state, getters, commit }) => {
+    if (getters.isLoadingRealms) {
+      return
+    }
     if (!state.realms) {
       commit('REALMS_REQUEST')
       return api.getRealms().then(response => {
@@ -221,6 +271,9 @@ const actions = {
     }
   },
   getSources: ({ state, commit }) => {
+    if (getters.isLoadingSources) {
+      return
+    }
     if (!state.sources) {
       commit('SOURCES_REQUEST')
       return api.getSources().then(response => {
@@ -232,6 +285,9 @@ const actions = {
     }
   },
   getSwitches: ({ state, commit }) => {
+    if (getters.isLoadingSwitches) {
+      return
+    }
     if (!state.switches) {
       commit('SWICTHES_REQUEST')
       return api.getSwitches().then(response => {
@@ -247,6 +303,9 @@ const actions = {
     }
   },
   getSwitchGroups: ({ state, commit }) => {
+    if (getters.isLoadingSwitchGroups) {
+      return
+    }
     if (!state.switchGroups) {
       commit('SWICTH_GROUPS_REQUEST')
       return api.getSwitchGroups().then(response => {
@@ -258,6 +317,9 @@ const actions = {
     }
   },
   getTenants: ({ state, commit }) => {
+    if (getters.isLoadingTenants) {
+      return
+    }
     if (!state.tenants) {
       commit('TENANTS_REQUEST')
       return api.getTenants().then(response => {
@@ -269,6 +331,9 @@ const actions = {
     }
   },
   getViolations: ({ commit, state }) => {
+    if (getters.isLoadingViolations) {
+      return
+    }
     if (!state.violations) {
       commit('VIOLATIONS_REQUEST')
       return api.getViolations().then(response => {
