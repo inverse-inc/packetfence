@@ -60,7 +60,7 @@ has_field 'ip_reserved' =>
   );
 has_field 'ip_assigned' =>
   (
-   type => 'ipAssigned',
+   type => 'IPAssigned',
    label => 'IP Addresses assigned',
    messages => { required => "List of MAC:IP statically assigned." },
    tags => { after_element => \&help,

@@ -1,12 +1,12 @@
-package pfappserver::Form::Field::ipAssigned;
+package pfappserver::Form::Field::IPAssigned;
 
 =head1 NAME
 
-pfappserver::Form::Field::ipAssigned - A ipAssigned field
+pfappserver::Form::Field::IPAssigned - A IPAssigned field
 
 =head1 DESCRIPTION
 
-This field extends the default Text field and checks if the input value is an valid ipAssigned
+This field extends the default Text field and checks if the input value is an valid IPAssigned
 
 =cut
 
