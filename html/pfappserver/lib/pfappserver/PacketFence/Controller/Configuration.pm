@@ -62,6 +62,7 @@ sub section :Path :Args(1) :AdminRole('CONFIGURATION_MAIN_READ') {
         my ($status,$status_msg,$results);
 
         $c->stash->{section} = $section;
+        $c->stash(fingerbank_configured => fingerbank::Config::is_api_key_configured);
 
         my $model = $c->model('Config::Pf');
         $form = $c->form("Config::Pf", section => $section);
