@@ -132,12 +132,12 @@ sub search : Local : AdminRole('SWITCHES_READ') {
     my ($status, $status_msg, $result, $violations);
     my %search_results;
     my $model = $self->getModel($c);
-    my $form = $self->getForm($c);
+    my $form = $c->form('AdvancedSearch');
     $form->process(params => $c->request->params);
     if ($form->has_errors) {
         $status = HTTP_BAD_REQUEST;
         $status_msg = $form->field_errors;
-        $c->stash(current_view => 'JSON');
+        $c->stash(current_view => 'JSON', status_msg => $status_msg);
     } else {
         my $query = $form->value;
         $c->stash(current_view => 'JSON') if ($c->request->params->{'json'});
@@ -147,6 +147,7 @@ sub search : Local : AdminRole('SWITCHES_READ') {
             $c->stash($result);
         }
     }
+    $c->response->status($status);
 }
 
 =head2 after create
