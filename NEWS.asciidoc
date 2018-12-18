@@ -20,6 +20,7 @@ New Features
 * New Authentication Source supported: Clickatell
 * Added a random algorithm for VLAN pooling
 * Added the ability to reserve IP addresses in pfdhcp
+* Added a way to trigger a violation when device profiling detects a change in the device class
 
 Enhancements
 ++++++++++++
