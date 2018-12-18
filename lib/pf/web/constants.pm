@@ -63,6 +63,7 @@ Readonly::Scalar our $URL_ACCESS                => '/access';
 Readonly::Scalar our $URL_LOGOUT                => '/logout';
 Readonly::Scalar our $URL_BILLING               => '/billing';
 Readonly::Scalar our $URL_BILLING_CHILD         => '/billing/(.*)';
+Readonly::Scalar our $URL_SSL_INSPECTION_CHILD  => '/ssl_inspection/(.*)';
 Readonly::Scalar our $URL_CAPTIVE_PORTAL        => '/captive-portal';
 Readonly::Scalar our $URL_VIOLATION             => '/violation';
 Readonly::Scalar our $URL_RELEASE               => '/violation/release';
@@ -121,6 +122,7 @@ Readonly::Scalar our $EXT_URL_UBIQUITI              => '^/guest/s/[a-zA-Z0-9]+/'
 Readonly::Scalar our $URL_WIRELESS_PROFILE => '/wireless-profile.mobileconfig';
 Readonly::Scalar our $URL_ANDROID_PROFILE  => '/profile.xml';
 Readonly::Scalar our $URL_TLS_GENERATION   => '/tlsprofile';
+
 
 =head2 Apache Config related
 

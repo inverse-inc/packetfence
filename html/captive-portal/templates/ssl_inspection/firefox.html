@@ -1,0 +1,103 @@
+<!--Body container that sets layout and inner content-->
+<div class="u-padding">
+
+  [% INCLUDE ssl_inspection/menu.html section = "firefox" %]
+
+  <div id="guide">
+    <p>
+      [% i18n("This network employs a technology called captive portal which allows the administrator(s) to restrict network access to trusted users. In order to prevent certificate security warnings when accessing this portal, the network's filtering unit must issue to your computer or mobile device a file called an SSL certificate.") %]
+    </p>
+
+    <p>
+      [% i18n("This guide will help you install the SSL filtering certificate for browsers based on the Mozilla platform, such as Firefox.") %]
+    </p>
+
+    <div class="o-media o-media--notice u-padding-small u-padding@tablet u-margin-bottom">
+      <div class="o-media__img">[% flashIcon(level='notice', size='tiny') %]</div>
+      <p class="o-media__body">
+        [% i18n("Firefox cannot get ssl updates from our servers. If you start having web page connection issues again, you will need to come back to this page and redo steps to get the newest certificate.") %]
+      </p>
+    </div>
+
+
+    <h3 class="number"><span>[% i18n("Step") %] </span>1</h3>
+
+    <p>
+      [% i18n("Download the certificate to your device.") | none %]
+    </p>
+
+    <div class="o-layout o-layout--center u-padding-bottom">
+      <div class="o-layout__item u-1/1 u-2/3@tablet u-3/5@desktop">
+        <a href="[% ssl_path %]" class="c-btn c-btn--secondary u-1/1">[% i18n('Download Certificate') %]</a>
+      </div>
+    </div>
+
+    <h3 class="number"><span>[% i18n("Step") %] </span>2</h3>
+
+    <p>
+      [% i18n("In your firefox browser click on the <i>menu</i> botton at the top right of your browser and select <i>Options</i>.") | none %]
+    </p>
+
+    <div class="o-layout o-layout--center u-padding-bottom">
+      <div class="o-layout__item u-2/3 u-1/2@tablet u-1/3@desktop">
+        <div class="text-center">
+	  <img src="/common/ssl_inspection/firefox/SC02.png" alt="[% i18n('Firefox CA trust prompt') %]" >
+        </div>
+      </div>
+    </div>
+
+    <h3 class="number"><span>[% i18n("Step") %] </span>3</h3>
+
+    <p>
+      [% i18n("In the Options page click <i>Advanced</i> on the lefthand side. Under Requests make sure <i>Select One automatically</i> is selected and click the button <i>View Certificates</i> at the bottom.") | none %]
+    </p>
+
+    <div class="o-layout o-layout--center u-padding-bottom">
+      <div class="o-layout__item u-1/1 u-3/5@tablet u-4/5@desktop">
+	<img src="/common/ssl_inspection/firefox/SC03.png" alt="[% i18n('Firefox CA trust prompt') %]" >
+      </div>
+    </div>
+
+    <h3 class="number"><span>[% i18n("Step") %] </span>4</h3>
+
+    <p>
+      [% i18n("In the Certificate Manager window click on the <i>Authorities</i> Tab and click on <i>Import</i>.") | none %]
+    </p>
+
+    <div class="o-layout o-layout--center u-padding-bottom">
+      <div class="o-layout__item u-1/1 u-3/5@tablet u-4/5@desktop">
+	<img src="/common/ssl_inspection/firefox/SC04.png" alt="[% i18n('Firefox CA trust prompt') %]" >
+      </div>
+    </div>
+
+    <h3 class="number"><span>[% i18n("Step") %] </span>5</h3>
+
+    <p>
+      [% i18n('Browse for the certificate file you downloaded earlier and select it.') %]
+    </p>
+
+    <div class="o-layout o-layout--center u-padding-bottom">
+      <div class="o-layout__item u-1/1 u-2/3@tablet u-3/5@desktop">
+	<img src="/common/ssl_inspection/firefox/SC05.png" alt="[% i18n('Firefox CA trust prompt') %]" >
+      </div>
+    </div>
+
+    <h3 class="number"><span>[% i18n("Step") %] </span>6</h3>
+
+    <p>
+      [% i18n("On the next windows make sure to checkmark that all options and click <i>OK</i>.") | none %]
+    </p>
+
+    <div class="o-layout o-layout--center u-padding-bottom">
+      <div class="o-layout__item u-1/1 u-2/3@tablet u-3/5@desktop">
+	<img src="/common/ssl_inspection/firefox/SC06.png" alt="[% i18n('Firefox CA trust prompt') %]" >
+      </div>
+    </div>
+
+    <h3 class="number"><span>[% i18n("Step") %] </span>7</h3>
+
+    <p>
+      [% i18n("You're done! You may continue browsing as usual; in most cases, you will not notice anything different after the certificate is installed.") %]
+    </p>
+  </div>
+  [% INCLUDE ssl_inspection/common.html %]

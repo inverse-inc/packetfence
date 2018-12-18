@@ -1,0 +1,72 @@
+<!--Body container that sets layout and inner content-->
+<div class="u-padding">
+
+  [% INCLUDE ssl_inspection/menu.html section = "opera" %]
+
+  <p>
+    [% i18n("This network employs a technology called captive portal which allows the administrator(s) to restrict network access to trusted users. In order to prevent certificate security warnings when accessing this portal, the network's filtering unit must issue to your computer or mobile device a file called an SSL certificate.") %]
+  </p>
+
+  <p>
+    [% i18n("This guide will help you install the SSL filtering certificate for the Opera browser.") %]
+  </p>
+
+  <div class="o-media o-media--notice u-padding-small u-padding@tablet u-margin-bottom">
+    <div class="o-media__img">[% flashIcon(level='notice', size='tiny') %]</div>
+    <p class="o-media__body">
+      <strong>
+        [% i18n('This guide is for Opera version 12 and below. Newer versions of Opera will use your computer system\'s certificate or keychain manager instead of your browser\'s local certificate manager. If you have Opera version 15 or above, please download either the <a href="../ssl_inspection/osx">macOS</a> or <a href="../ssl_inspection/windows">Windows</a> based certificate, or any of the other platforms, depending on your system.') | none %]
+      </strong>
+    </p>
+  </div>
+
+  <h3 class="number"><span>[% i18n("Step") %] </span>1</h3>
+
+  <p>
+    [% i18n("Download the certificate to your device.") | none %]
+  </p>
+
+  <div class="o-layout o-layout--center u-padding-bottom">
+    <div class="o-layout__item u-1/1 u-2/3@tablet u-3/5@desktop">
+      <a href="[% ssl_path %]" class="c-btn c-btn--secondary u-1/1">[% i18n('Download Certificate') %]</a>
+    </div>
+  </div>
+
+  <h3 class="number"><span>[% i18n("Step") %] </span>2</h3>
+
+  <div class="o-layout o-layout--center u-padding-bottom">
+    <div class="o-layout__item u-1/1 u-2/3@tablet u-3/5@desktop">
+      <img src="/common/ssl_inspection/opera-01-install-ca.png" alt="[% i18n('Opera CA install prompt') %]">
+    </div>
+  </div>
+
+  <p>
+    [% i18n("Next, a dialogue will appear, asking if you would like to install the certificate authority. Click <i>Install</i>.") | none %]
+  </p>
+
+  <div class="o-media o-media--notice u-padding-small u-padding@tablet u-margin-bottom">
+    <div class="o-media__img">[% flashIcon(level='notice', size='tiny') %]</div>
+    <p class="o-media__body">
+      [% i18n("These images show Opera on macOS. If your computer runs Windows or Linux, the buttons may look different - but the words should be the same.") %]
+    </p>
+  </div>
+
+  <h3 class="number"><span>[% i18n("Step") %] </span>3</h3>
+
+  <div class="o-layout o-layout--center u-padding-bottom">
+    <div class="o-layout__item u-1/1 u-2/3@tablet u-3/5@desktop">
+      <img src="/common/ssl_inspection/opera-02-trust-issuer.png" alt="[% i18n('Opera issuer trust prompt') %]">
+    </div>
+  </div>
+
+  <p>
+    [% i18n("After clicking <i>Install</i>, another dialogue will appear, asking if you are <i>sure you want to trust this issuer</i>. Click <i>OK</i> here.") | none %]
+  </p>
+
+  <h3 class="number"><span>[% i18n("Step") %] </span>4</h3>
+
+  <p>
+    [% i18n("You're done! You may continue browsing as usual; in most cases, you will not notice anything different after the certificate is installed.") %]
+  </p>
+
+  [% INCLUDE ssl_inspection/common.html %]
