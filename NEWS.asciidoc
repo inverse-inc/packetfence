@@ -24,6 +24,7 @@ Enhancements
 ++++++++++++
 * Redis now only listens on localhost (#3729)
 * deprecate usage of roaring bitmap for the dhcp ip pool (#3779)
+* Email and SponsorEmail sources can have banned and allowed email domains (#3807)
 
 Bug Fixes
 +++++++++
