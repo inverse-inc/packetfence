@@ -86,7 +86,7 @@ $GOPATH/bin/govendor sync
 
 if build_mode; then
   # Create any binaries here and make sure to move them to the BINDST specified
-  for service in pfdhcp pfdns pfstats pfdetect;do
+  for service in pfdns pfstats pfdetect;do
       make $service
       mv $service $BINDST/
   done
