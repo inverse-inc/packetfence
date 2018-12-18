@@ -53,7 +53,7 @@ DROP PROCEDURE IF EXISTS ValidateVersion;
 --
 DELETE FROM sms_carrier where id=100122 and name="Google Project Fi";
 --
--- Delete Google Project Fi from SMS carriers that may have been added during 8.1 to 8.2 upgrade if patched script was used 
+-- Delete Google Project Fi from SMS carriers that may have been added during 8.1 to 8.2 upgrade if patched script was used
 --
 DELETE FROM sms_carrier where id=100128;
 
@@ -96,33 +96,33 @@ BEGIN
   DECLARE `Previous_Session_Time` int(12) unsigned;
 
   # Collect traffic previous values in the radacct table
-  SELECT acctinputoctets, acctoutputoctets, acctsessiontime
-    INTO Previous_Input_Octets, Previous_Output_Octets, Previous_Session_Time
-    FROM radacct
-    WHERE acctuniqueid = p_acctuniqueid
-    AND (acctstoptime IS NULL OR acctstoptime = 0) LIMIT 1;
+  SELECT `acctinputoctets`, `acctoutputoctets`, `acctsessiontime`
+    INTO `Previous_Input_Octets`, `Previous_Output_Octets`, `Previous_Session_Time`
+    FROM `radacct`
+    WHERE `acctuniqueid` = `p_acctuniqueid`
+    AND (`acctstoptime` IS NULL OR `acctstoptime` = 0) LIMIT 1;
 
   # Set values to 0 when no previous records
-  IF (Previous_Session_Time IS NOT NULL) THEN
+  IF (`Previous_Session_Time` IS NOT NULL) THEN
     # Update record with new traffic
-    UPDATE radacct SET
-      acctstoptime = p_timestamp,
-      acctsessiontime = p_acctsessiontime,
-      acctinputoctets = p_acctinputoctets,
-      acctoutputoctets = p_acctoutputoctets,
-      acctterminatecause = p_acctterminatecause,
-      connectinfo_stop = p_connectinfo_stop
-      WHERE acctuniqueid = p_acctuniqueid
-      AND (acctstoptime IS NULL OR acctstoptime = 0);
+    UPDATE `radacct` SET
+      `acctstoptime` = `p_timestamp`,
+      `acctsessiontime` = `p_acctsessiontime`,
+      `acctinputoctets` = `p_acctinputoctets`,
+      `acctoutputoctets` = `p_acctoutputoctets`,
+      `acctterminatecause` = `p_acctterminatecause`,
+      `connectinfo_stop` = `p_connectinfo_stop`
+      WHERE `acctuniqueid` = `p_acctuniqueid`
+      AND (`acctstoptime` IS NULL OR `acctstoptime` = 0);
 
     # Create new record in the log table
-    INSERT INTO radacct_log
-     (acctsessionid, username, nasipaddress,
-      timestamp, acctstatustype, acctinputoctets, acctoutputoctets, acctsessiontime, acctuniqueid, tenant_id)
+    INSERT INTO `radacct_log`
+     (`acctsessionid`, `username`, `nasipaddress`,
+      `timestamp`, `acctstatustype`, `acctinputoctets`, `acctoutputoctets`, `acctsessiontime`, `acctuniqueid`, `tenant_id`)
     VALUES
-     (p_acctsessionid, p_username, p_nasipaddress,
-     p_timestamp, p_acctstatustype, (p_acctinputoctets - Previous_Input_Octets), (p_acctoutputoctets - Previous_Output_Octets),
-     (p_acctsessiontime - Previous_Session_Time), p_acctuniqueid, p_tenant_id);
+     (`p_acctsessionid`, `p_username`, `p_nasipaddress`,
+     `p_timestamp`, `p_acctstatustype`, (`p_acctinputoctets` - `Previous_Input_Octets`), (`p_acctoutputoctets` - `Previous_Output_Octets`),
+     (`p_acctsessiontime` - `Previous_Session_Time`), `p_acctuniqueid`, `p_tenant_id`);
   END IF;
 END /
 DELIMITER ;
