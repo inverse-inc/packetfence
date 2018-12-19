@@ -77,6 +77,14 @@ sub index {
     else { $self->other(); }
 }
 
+sub render_instructions {
+    my ($self, $name, $args) = @_;
+
+    $self->render("ssl_inspection/$name.html", {
+        ssl_path => $self->ssl_path,
+        %$args,    
+    });
+}
 
 =head2 ios
 
@@ -87,10 +95,7 @@ ios
 sub ios {
     my ($self) = @_;
 
-    $self->render('ssl_inspection/ios.html', {
-        title => "iOS",
-	ssl_path => $self->ssl_path, 
-    });
+    $self->render_instructions("ios", { title => "iOS certificate installation" });
 }
 
 =head2 android
@@ -102,10 +107,7 @@ android
 sub android {
     my ($self) = @_;
 
-    $self->render('ssl_inspection/android.html', {
-        title => "Android",
-	ssl_path => $self->ssl_path, 
-    });
+    $self->render_instructions("android", { title => "Android certificate installation" });
 }
 
 =head2 osx
@@ -117,10 +119,7 @@ xos
 sub osx {
     my ($self) = @_;
 
-    $self->render('ssl_inspection/osx.html', {
-        title => "macOS",
-	ssl_path => $self->ssl_path, 
-    });
+    $self->render_instructions("osx", { title => "Mac OSX certificate installation" });
 }
 
 =head2 windows
@@ -132,10 +131,7 @@ Windows
 sub windows {
     my ($self) = @_;
 
-    $self->render('ssl_inspection/windows.html', {
-        title => "Windows",
-	ssl_path => $self->ssl_path, 
-    });
+    $self->render_instructions("windows", { title => "Windows certificate installation" });
 }
 
 =head2 chrome
@@ -147,10 +143,7 @@ chrome
 sub chrome {
     my ($self) = @_;
 
-    $self->render('ssl_inspection/chrome.html', {
-        title => "Chrome OS",
-	ssl_path => $self->ssl_path, 
-    });
+    $self->render_instructions("chrome", { title => "Chrome OS certificate installation" });
 }
 
 =head2 firefox
@@ -162,10 +155,7 @@ Firefox
 sub firefox {
     my ($self) = @_;
 
-    $self->render('ssl_inspection/firefox.html', {
-        title => "Firefox",
-	ssl_path => $self->ssl_path, 
-    });
+    $self->render_instructions("firefox", { title => "Firefox certificate installation" });
 }
 
 =head2 opera
@@ -177,10 +167,7 @@ Opera
 sub opera {
     my ($self) = @_;
 
-    $self->render('ssl_inspection/opera.html', {
-        title => "Opera",
-	ssl_path => $self->ssl_path, 
-    });
+    $self->render_instructions("opera", { title => "Opera certificate installation" });
 }
 
 =head2 other
@@ -192,10 +179,7 @@ other
 sub other {
     my ($self) = @_;
 
-    $self->render('ssl_inspection/other.html', {
-        title => "Other",
-	ssl_path => $self->ssl_path, 
-    });
+    $self->render_instructions("other", { title => "Certificate installation" });
 }
 
 
