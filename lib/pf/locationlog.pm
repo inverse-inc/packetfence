@@ -418,7 +418,7 @@ sub locationlog_synchronize {
             # there was no locationlog open we must insert a new one
             $mustInsert = 1;
 
-        } elsif (($locationlog_switchport[0]->{vlan} ne $vlan) # vlan changed
+        } elsif ( (defined($vlan) && ($locationlog_switchport[0]->{vlan} ne $vlan)) # vlan changed
             || (defined($mac) && (!defined($locationlog_switchport[0]->{mac})))
             || (defined($locationlog_switchport[0]->{role}) && ($locationlog_switchport[0]->{role} ne $role) ) ) { # or Role changed
 
