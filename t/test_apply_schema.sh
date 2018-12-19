@@ -64,7 +64,7 @@ for db in $UPGRADED_DB $PRISTINE_DB;do
     $MYSQLDUMP $db > "${db}.dump"
 done
 
-DIFF=$(diff "${PRISTINE_DB}.dump" "${UPGRADED_DB}.dump" | tee "${UPGRADED_DB}.diff" )
+DIFF=$(diff -w "${PRISTINE_DB}.dump" "${UPGRADED_DB}.dump" | tee "${UPGRADED_DB}.diff" )
 
 if [ -z "$DIFF" ];then
     echo "Upgrade is successful"
