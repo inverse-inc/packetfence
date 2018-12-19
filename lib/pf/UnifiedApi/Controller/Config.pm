@@ -33,12 +33,14 @@ sub list {
     }
 
     my $items = $self->do_search($search_info_or_error);
+    $items = [map {$self->cleanup_item($_)} @$items];
     $self->render(
         json => {
             items  => $items,
             nextCursor => ( @$items + ( $search_info_or_error->{cursor} // 0 ) ),
             prevCursor => ( $search_info_or_error->{cursor} // 0 ),
-        }
+        },
+        status => 200,
     );
 }
 
