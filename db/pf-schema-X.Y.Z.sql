@@ -459,7 +459,7 @@ DELIMITER ;
 
 --
 -- Table structure for table `sms_carrier`
--- 
+--
 -- Source: StatusNet
 -- Schema fetched on 2010-10-15 from:
 -- http://gitorious.org/statusnet/mainline/blobs/raw/master/db/statusnet.sql
@@ -629,7 +629,7 @@ CREATE TABLE radacct_log (
   acctsessionid varchar(64) NOT NULL default '',
   username varchar(64) NOT NULL default '',
   nasipaddress varchar(15) NOT NULL default '',
-  acctstatustype varchar(25) NOT NULL default '',  
+  acctstatustype varchar(25) NOT NULL default '',
   timestamp datetime NULL default NULL,
   acctinputoctets bigint(20) default NULL,
   acctoutputoctets bigint(20) default NULL,
@@ -690,18 +690,18 @@ IF (Previous_Session_Time IS NOT NULL) THEN
       AND (acctstoptime IS NULL OR acctstoptime = 0);
 END IF;
 
-INSERT INTO radacct 
+INSERT INTO radacct
            (
-            acctsessionid,      acctuniqueid,       username, 
-            realm,          nasipaddress,       nasportid, 
-            nasporttype,        acctstarttime,      acctupdatetime, 
-            acctstoptime,       acctsessiontime,    acctauthentic, 
-            connectinfo_start,  connectinfo_stop,   acctinputoctets, 
-            acctoutputoctets,   calledstationid,    callingstationid, 
-            acctterminatecause, servicetype,        framedprotocol, 
+            acctsessionid,      acctuniqueid,       username,
+            realm,          nasipaddress,       nasportid,
+            nasporttype,        acctstarttime,      acctupdatetime,
+            acctstoptime,       acctsessiontime,    acctauthentic,
+            connectinfo_start,  connectinfo_stop,   acctinputoctets,
+            acctoutputoctets,   calledstationid,    callingstationid,
+            acctterminatecause, servicetype,        framedprotocol,
             framedipaddress, tenant_id
-           ) 
-VALUES 
+           )
+VALUES
     (
     p_acctsessionid, p_acctuniqueid, p_username,
     p_realm, p_nasipaddress, p_nasportid,
@@ -725,64 +725,64 @@ DELIMITER ;
 
 -- Adding RADIUS Stop Stored Procedure
 
-DROP PROCEDURE IF EXISTS acct_stop;
+DROP PROCEDURE IF EXISTS `acct_stop`;
 DELIMITER /
-CREATE PROCEDURE acct_stop (
-  IN p_timestamp datetime,
-  IN p_framedipaddress varchar(15),
-  IN p_acctsessiontime int(12),
-  IN p_acctinputoctets bigint(20),
-  IN p_acctoutputoctets bigint(20),
-  IN p_acctuniqueid varchar(32),
-  IN p_acctsessionid varchar(64),
-  IN p_username varchar(64),
-  IN p_realm varchar(64),
-  IN p_nasipaddress varchar(15),
-  IN p_nasportid varchar(32),
-  IN p_nasporttype varchar(32),
-  IN p_acctauthentic varchar(32),
-  IN p_connectinfo_stop varchar(50),
-  IN p_calledstationid varchar(50),
-  IN p_callingstationid varchar(50),
-  IN p_servicetype varchar(32),
-  IN p_framedprotocol varchar(32),
-  IN p_acctterminatecause varchar(12),
-  IN p_acctstatustype varchar(25),
-  IN p_tenant_id int
+CREATE PROCEDURE `acct_stop` (
+  IN `p_timestamp` datetime,
+  IN `p_framedipaddress` varchar(15),
+  IN `p_acctsessiontime` int(12),
+  IN `p_acctinputoctets` bigint(20) unsigned,
+  IN `p_acctoutputoctets` bigint(20) unsigned,
+  IN `p_acctuniqueid` varchar(32),
+  IN `p_acctsessionid` varchar(64),
+  IN `p_username` varchar(64),
+  IN `p_realm` varchar(64),
+  IN `p_nasipaddress` varchar(15),
+  IN `p_nasportid` varchar(32),
+  IN `p_nasporttype` varchar(32),
+  IN `p_acctauthentic` varchar(32),
+  IN `p_connectinfo_stop` varchar(50),
+  IN `p_calledstationid` varchar(50),
+  IN `p_callingstationid` varchar(50),
+  IN `p_servicetype` varchar(32),
+  IN `p_framedprotocol` varchar(32),
+  IN `p_acctterminatecause` varchar(12),
+  IN `p_acctstatustype` varchar(25),
+  IN `p_tenant_id` int(11) unsigned
 )
 BEGIN
-  DECLARE Previous_Input_Octets bigint(20);
-  DECLARE Previous_Output_Octets bigint(20);
-  DECLARE Previous_Session_Time int(12);
+  DECLARE `Previous_Input_Octets` bigint(20) unsigned;
+  DECLARE `Previous_Output_Octets` bigint(20) unsigned;
+  DECLARE `Previous_Session_Time` int(12) unsigned;
 
   # Collect traffic previous values in the radacct table
-  SELECT acctinputoctets, acctoutputoctets, acctsessiontime
-    INTO Previous_Input_Octets, Previous_Output_Octets, Previous_Session_Time
-    FROM radacct
-    WHERE acctuniqueid = p_acctuniqueid
-    AND (acctstoptime IS NULL OR acctstoptime = 0) LIMIT 1;
+  SELECT `acctinputoctets`, `acctoutputoctets`, `acctsessiontime`
+    INTO `Previous_Input_Octets`, `Previous_Output_Octets`, `Previous_Session_Time`
+    FROM `radacct`
+    WHERE `acctuniqueid` = `p_acctuniqueid`
+    AND (`acctstoptime` IS NULL OR `acctstoptime` = 0) LIMIT 1;
 
   # Set values to 0 when no previous records
-  IF (Previous_Session_Time IS NOT NULL) THEN
+  IF (`Previous_Session_Time` IS NOT NULL) THEN
     # Update record with new traffic
-    UPDATE radacct SET
-      acctstoptime = p_timestamp,
-      acctsessiontime = p_acctsessiontime,
-      acctinputoctets = p_acctinputoctets,
-      acctoutputoctets = p_acctoutputoctets,
-      acctterminatecause = p_acctterminatecause,
-      connectinfo_stop = p_connectinfo_stop
-      WHERE acctuniqueid = p_acctuniqueid
-      AND (acctstoptime IS NULL OR acctstoptime = 0);
+    UPDATE `radacct` SET
+      `acctstoptime` = `p_timestamp`,
+      `acctsessiontime` = `p_acctsessiontime`,
+      `acctinputoctets` = `p_acctinputoctets`,
+      `acctoutputoctets` = `p_acctoutputoctets`,
+      `acctterminatecause` = `p_acctterminatecause`,
+      `connectinfo_stop` = `p_connectinfo_stop`
+      WHERE `acctuniqueid` = `p_acctuniqueid`
+      AND (`acctstoptime` IS NULL OR `acctstoptime` = 0);
 
     # Create new record in the log table
-    INSERT INTO radacct_log
-     (acctsessionid, username, nasipaddress,
-      timestamp, acctstatustype, acctinputoctets, acctoutputoctets, acctsessiontime, acctuniqueid, tenant_id)
+    INSERT INTO `radacct_log`
+     (`acctsessionid`, `username`, `nasipaddress`,
+      `timestamp`, `acctstatustype`, `acctinputoctets`, `acctoutputoctets`, `acctsessiontime`, `acctuniqueid`, `tenant_id`)
     VALUES
-     (p_acctsessionid, p_username, p_nasipaddress,
-     p_timestamp, p_acctstatustype, (p_acctinputoctets - Previous_Input_Octets), (p_acctoutputoctets - Previous_Output_Octets),
-     (p_acctsessiontime - Previous_Session_Time), p_acctuniqueid, p_tenant_id);
+     (`p_acctsessionid`, `p_username`, `p_nasipaddress`,
+     `p_timestamp`, `p_acctstatustype`, (`p_acctinputoctets` - `Previous_Input_Octets`), (`p_acctoutputoctets` - `Previous_Output_Octets`),
+     (`p_acctsessiontime` - `Previous_Session_Time`), `p_acctuniqueid`, `p_tenant_id`);
   END IF;
 END /
 DELIMITER ;
@@ -862,7 +862,7 @@ BEGIN
   SELECT count(callingstationid), acctinputoctets, acctoutputoctets, acctsessiontime, acctupdatetime
     INTO countmac, Previous_Input_Octets, Previous_Output_Octets, Previous_Session_Time, Previous_AcctUpdate_Time
     FROM radacct
-    WHERE (acctuniqueid = p_acctuniqueid) 
+    WHERE (acctuniqueid = p_acctuniqueid)
     AND (acctstoptime IS NULL OR acctstoptime = 0) LIMIT 1;
 
   IF (countmac = 1) THEN
@@ -874,7 +874,7 @@ BEGIN
         acctoutputoctets = p_acctoutputoctets,
         acctupdatetime = p_timestamp,
         acctinterval = timestampdiff( second, Previous_AcctUpdate_Time,  p_timestamp  )
-    WHERE acctuniqueid = p_acctuniqueid 
+    WHERE acctuniqueid = p_acctuniqueid
     AND (acctstoptime IS NULL OR acctstoptime = 0);
   ELSE
     IF (cnt = 0) THEN
@@ -909,7 +909,7 @@ BEGIN
      END IF;
    END IF;
 
- 
+
   # Create new record in the log table
   INSERT INTO radacct_log
    (acctsessionid, username, nasipaddress,
@@ -971,7 +971,7 @@ CREATE TABLE savedsearch (
 ) ENGINE=InnoDB;
 
 --
--- Table structure for table 
+-- Table structure for table
 --
 
 CREATE TABLE inline_accounting (
@@ -1039,7 +1039,7 @@ CREATE TABLE activation (
   `tenant_id` int NOT NULL DEFAULT 1,
   `pid` varchar(255) default NULL,
   `mac` varchar(17) default NULL,
-  `contact_info` varchar(255) NOT NULL, -- email or phone number were approbation request is sent 
+  `contact_info` varchar(255) NOT NULL, -- email or phone number were approbation request is sent
   `carrier_id` int(11) NULL,
   `activation_code` varchar(255) NOT NULL,
   `expiration` datetime NOT NULL,
@@ -1120,7 +1120,7 @@ CREATE TABLE radius_audit_log (
   KEY `mac` (mac),
   KEY `ip` (ip),
   KEY `user_name` (user_name),
-  KEY `auth_status` (auth_status, created_at)  
+  KEY `auth_status` (auth_status, created_at)
 ) ENGINE=InnoDB;
 
 --
@@ -1233,7 +1233,7 @@ DROP FUNCTION IF EXISTS `FREERADIUS_DECODE`;
 DELIMITER ;;
 CREATE FUNCTION `FREERADIUS_DECODE`(str text) RETURNS text CHARSET latin1
     DETERMINISTIC
-BEGIN 
+BEGIN
     DECLARE result text;
     DECLARE ind INT DEFAULT 0;
 
@@ -1263,4 +1263,3 @@ CREATE TABLE key_value_storage (
 --
 
 INSERT INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION));
-
