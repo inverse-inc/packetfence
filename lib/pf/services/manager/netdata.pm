@@ -158,7 +158,11 @@ EOT
         = defined( $management_network->tag('vip') )
         ? $management_network->tag('vip')
         : $management_network->tag('ip');
-    $tags{'db_host'}       = "$Config{'database'}{'host'}";
+    if ($Config{'database'}{'host'} ne '127.0.0.1') {
+        $tags{'db_host'}       = "$Config{'database'}{'host'}";
+    } else {
+        $tags{'db_host'}       = $tags{'management_ip'};
+    }
     $tags{'db_username'}   = "$Config{'database'}{'user'}";
     $tags{'db_password'}   = "$Config{'database'}{'pass'}";
     $tags{'db_database'}   = "$Config{'database'}{'db'}";
