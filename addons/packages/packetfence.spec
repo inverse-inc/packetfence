@@ -1216,6 +1216,7 @@ fi
 %dir                    /usr/local/pf/html/captive-portal/t
                         /usr/local/pf/html/captive-portal/t/*
                         /usr/local/pf/html/captive-portal/content/PacketFenceAgent.apk
+                        /usr/local/pf/html/captive-portal/content/sslinspection.js
 %dir                    /usr/local/pf/html/captive-portal/templates
                         /usr/local/pf/html/captive-portal/templates/*
 %dir                    /usr/local/pf/html/common
