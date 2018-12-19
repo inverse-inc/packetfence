@@ -582,43 +582,45 @@ CREATE TABLE radius_nas (
 -- Adding RADIUS accounting table
 
 CREATE TABLE radacct (
-  radacctid bigint(21) NOT NULL auto_increment,
-  `tenant_id` int NOT NULL DEFAULT 1,
-  acctsessionid varchar(64) NOT NULL default '',
-  acctuniqueid varchar(32) NOT NULL default '',
-  username varchar(64) NOT NULL default '',
-  groupname varchar(64) NOT NULL default '',
-  realm varchar(64) default '',
-  nasipaddress varchar(15) NOT NULL default '',
-  nasportid varchar(32) default NULL,
-  nasporttype varchar(32) default NULL,
-  acctstarttime datetime NULL default NULL,
-  acctupdatetime datetime NULL default NULL,
-  acctstoptime datetime NULL default NULL,
-  acctinterval int(12) default NULL,
-  acctsessiontime int(12) unsigned default NULL,
-  acctauthentic varchar(32) default NULL,
-  connectinfo_start varchar(50) default NULL,
-  connectinfo_stop varchar(50) default NULL,
-  acctinputoctets bigint(20) default NULL,
-  acctoutputoctets bigint(20) default NULL,
-  calledstationid varchar(50) NOT NULL default '',
-  callingstationid varchar(50) NOT NULL default '',
-  acctterminatecause varchar(32) NOT NULL default '',
-  servicetype varchar(32) default NULL,
-  framedprotocol varchar(32) default NULL,
-  framedipaddress varchar(15) NOT NULL default '',
-  PRIMARY KEY (radacctid),
-  KEY acctuniqueid (acctuniqueid),
-  KEY username (username),
-  KEY framedipaddress (framedipaddress),
-  KEY acctsessionid (acctsessionid),
-  KEY acctsessiontime (acctsessiontime),
-  KEY acctinterval (acctinterval),
-  KEY acctstoptime (acctstoptime),
-  KEY nasipaddress (nasipaddress),
-  KEY callingstationid (callingstationid),
-  KEY acctstart_acctstop (acctstarttime,acctstoptime)
+  `radacctid` bigint(21) NOT NULL AUTO_INCREMENT,
+  `tenant_id` int(11) NOT NULL DEFAULT '1',
+  `acctsessionid` varchar(64) NOT NULL DEFAULT '',
+  `acctuniqueid` varchar(32) NOT NULL DEFAULT '',
+  `username` varchar(64) NOT NULL DEFAULT '',
+  `groupname` varchar(64) NOT NULL DEFAULT '',
+  `realm` varchar(64) DEFAULT '',
+  `nasipaddress` varchar(15) NOT NULL DEFAULT '',
+  `nasportid` varchar(32) DEFAULT NULL,
+  `nasporttype` varchar(32) DEFAULT NULL,
+  `acctstarttime` datetime DEFAULT NULL,
+  `acctupdatetime` datetime DEFAULT NULL,
+  `acctstoptime` datetime DEFAULT NULL,
+  `acctinterval` int(12) DEFAULT NULL,
+  `acctsessiontime` int(12) unsigned DEFAULT NULL,
+  `acctauthentic` varchar(32) DEFAULT NULL,
+  `connectinfo_start` varchar(50) DEFAULT NULL,
+  `connectinfo_stop` varchar(50) DEFAULT NULL,
+  `acctinputoctets` bigint(20) DEFAULT NULL,
+  `acctoutputoctets` bigint(20) DEFAULT NULL,
+  `calledstationid` varchar(50) NOT NULL DEFAULT '',
+  `callingstationid` varchar(50) NOT NULL DEFAULT '',
+  `acctterminatecause` varchar(32) NOT NULL DEFAULT '',
+  `servicetype` varchar(32) DEFAULT NULL,
+  `framedprotocol` varchar(32) DEFAULT NULL,
+  `framedipaddress` varchar(15) NOT NULL DEFAULT '',
+  `nasidentifier` varchar(64) DEFAULT NULL,
+  `calledstationssid` varchar(64) DEFAULT NULL,
+  PRIMARY KEY (`radacctid`),
+  KEY `acctuniqueid` (`acctuniqueid`),
+  KEY `username` (`username`),
+  KEY `framedipaddress` (`framedipaddress`),
+  KEY `acctsessionid` (`acctsessionid`),
+  KEY `acctsessiontime` (`acctsessiontime`),
+  KEY `acctinterval` (`acctinterval`),
+  KEY `acctstoptime` (`acctstoptime`),
+  KEY `nasipaddress` (`nasipaddress`),
+  KEY `callingstationid` (`callingstationid`),
+  KEY `acctstart_acctstop` (`acctstarttime`,`acctstoptime`)
 ) ENGINE = INNODB;
 
 -- Adding RADIUS update log table
@@ -644,87 +646,87 @@ CREATE TABLE radacct_log (
 
 -- Adding RADIUS Updates Stored Procedure
 
-DROP PROCEDURE IF EXISTS acct_start;
+DROP PROCEDURE IF EXISTS `acct_start`;
 DELIMITER /
-CREATE PROCEDURE acct_start (
-    IN p_acctsessionid varchar(64),
-    IN p_acctuniqueid varchar(32),
-    IN p_username varchar(64),
-    IN p_realm varchar(64),
-    IN p_nasipaddress varchar(15),
-    IN p_nasportid varchar(32),
-    IN p_nasporttype varchar(32),
-    IN p_acctstarttime datetime,
-    IN p_acctupdatetime datetime,
-    IN p_acctstoptime datetime,
-    IN p_acctsessiontime int(12) unsigned,
-    IN p_acctauthentic varchar(32),
-    IN p_connectinfo_start varchar(50),
-    IN p_connectinfo_stop varchar(50),
-    IN p_acctinputoctets bigint(20),
-    IN p_acctoutputoctets bigint(20),
-    IN p_calledstationid varchar(50),
-    IN p_callingstationid varchar(50),
-    IN p_acctterminatecause varchar(32),
-    IN p_servicetype varchar(32),
-    IN p_framedprotocol varchar(32),
-    IN p_framedipaddress varchar(15),
-    IN p_acctstatustype varchar(25),
-    IN p_nasidentifier varchar(64),
-    IN p_calledstationssid varchar(64),
-    IN p_tenant_id int
+CREATE PROCEDURE `acct_start` (
+    IN `p_acctsessionid` varchar(64),
+    IN `p_acctuniqueid` varchar(32),
+    IN `p_username` varchar(64),
+    IN `p_realm` varchar(64),
+    IN `p_nasipaddress` varchar(15),
+    IN `p_nasportid` varchar(32),
+    IN `p_nasporttype` varchar(32),
+    IN `p_acctstarttime` datetime,
+    IN `p_acctupdatetime` datetime,
+    IN `p_acctstoptime` datetime,
+    IN `p_acctsessiontime` int(12) unsigned,
+    IN `p_acctauthentic` varchar(32),
+    IN `p_connectinfo_start` varchar(50),
+    IN `p_connectinfo_stop` varchar(50),
+    IN `p_acctinputoctets` bigint(20),
+    IN `p_acctoutputoctets` bigint(20),
+    IN `p_calledstationid` varchar(50),
+    IN `p_callingstationid` varchar(50),
+    IN `p_acctterminatecause` varchar(32),
+    IN `p_servicetype` varchar(32),
+    IN `p_framedprotocol` varchar(32),
+    IN `p_framedipaddress` varchar(15),
+    IN `p_acctstatustype` varchar(25),
+    IN `p_nasidentifier` varchar(64),
+    IN `p_calledstationssid` varchar(64),
+    IN `p_tenant_id` int(11) unsigned
 )
 BEGIN
 
 # We make sure there are no left over sessions for which we never received a "stop"
-DECLARE Previous_Session_Time int(12);
-SELECT acctsessiontime
-INTO Previous_Session_Time
-FROM radacct
-WHERE acctuniqueid = p_acctuniqueid
-AND (acctstoptime IS NULL OR acctstoptime = 0) LIMIT 1;
+DECLARE `Previous_Session_Time` int(12) unsigned;
+SELECT `acctsessiontime`
+INTO `Previous_Session_Time`
+FROM `radacct`
+WHERE `acctuniqueid` = `p_acctuniqueid`
+AND (`acctstoptime` IS NULL OR `acctstoptime` = 0) LIMIT 1;
 
-IF (Previous_Session_Time IS NOT NULL) THEN
-    UPDATE radacct SET
-      acctstoptime = p_acctstarttime,
-      acctterminatecause = 'UNKNOWN'
-      WHERE acctuniqueid = p_acctuniqueid
-      AND (acctstoptime IS NULL OR acctstoptime = 0);
+IF (`Previous_Session_Time` IS NOT NULL) THEN
+    UPDATE `radacct` SET
+      `acctstoptime` = `p_acctstarttime`,
+      `acctterminatecause` = 'UNKNOWN'
+      WHERE `acctuniqueid` = `p_acctuniqueid`
+      AND (`acctstoptime` IS NULL OR `acctstoptime` = 0);
 END IF;
 
-INSERT INTO radacct
+INSERT INTO `radacct`
            (
-            acctsessionid,      acctuniqueid,       username,
-            realm,              nasipaddress,       nasportid,
-            nasporttype,        acctstarttime,      acctupdatetime,
-            acctstoptime,       acctsessiontime,    acctauthentic,
-            connectinfo_start,  connectinfo_stop,   acctinputoctets,
-            acctoutputoctets,   calledstationid,    callingstationid,
-            acctterminatecause, servicetype,        framedprotocol,
-            framedipaddress,    nasidentifier,      calledstationssid,
-            tenant_id
+            `acctsessionid`,      `acctuniqueid`,       `username`,
+            `realm`,              `nasipaddress`,       `nasportid`,
+            `nasporttype`,        `acctstarttime`,      `acctupdatetime`,
+            `acctstoptime`,       `acctsessiontime`,    `acctauthentic`,
+            `connectinfo_start`,  `connectinfo_stop`,   `acctinputoctets`,
+            `acctoutputoctets`,   `calledstationid`,    `callingstationid`,
+            `acctterminatecause`, `servicetype`,        `framedprotocol`,
+            `framedipaddress`,    `nasidentifier`,      `calledstationssid`,
+            `tenant_id`
            )
 VALUES
     (
-    p_acctsessionid, p_acctuniqueid, p_username,
-    p_realm, p_nasipaddress, p_nasportid,
-    p_nasporttype, p_acctstarttime, p_acctupdatetime,
-    p_acctstoptime, p_acctsessiontime, p_acctauthentic,
-    p_connectinfo_start, p_connectinfo_stop, p_acctinputoctets,
-    p_acctoutputoctets, p_calledstationid, p_callingstationid,
-    p_acctterminatecause, p_servicetype, p_framedprotocol,
-    p_framedipaddress, p_nasidentifier, p_calledstationssid,
-    p_tenant_id
+    `p_acctsessionid`, `p_acctuniqueid`, `p_username`,
+    `p_realm`, `p_nasipaddress`, `p_nasportid`,
+    `p_nasporttype`, `p_acctstarttime`, `p_acctupdatetime`,
+    `p_acctstoptime`, `p_acctsessiontime`, `p_acctauthentic`,
+    `p_connectinfo_start`, `p_connectinfo_stop`, `p_acctinputoctets`,
+    `p_acctoutputoctets`, `p_calledstationid`, `p_callingstationid`,
+    `p_acctterminatecause`, `p_servicetype`, `p_framedprotocol`,
+    `p_framedipaddress`, `p_nasidentifier`, `p_calledstationssid`,
+    `p_tenant_id`
     );
 
 
 
-  INSERT INTO radacct_log
-   (acctsessionid, username, nasipaddress,
-    timestamp, acctstatustype, acctinputoctets, acctoutputoctets, acctsessiontime, acctuniqueid, tenant_id)
+  INSERT INTO `radacct_log`
+   (`acctsessionid`, `username`, `nasipaddress`,
+    timestamp, `acctstatustype`, `acctinputoctets`, `acctoutputoctets`, `acctsessiontime`, `acctuniqueid`, `tenant_id`)
   VALUES
-   (p_acctsessionid, p_username, p_nasipaddress,
-    p_acctstarttime, p_acctstatustype, p_acctinputoctets, p_acctoutputoctets, p_acctsessiontime, p_acctuniqueid, p_tenant_id);
+   (`p_acctsessionid`, `p_username`, `p_nasipaddress`,
+    `p_acctstarttime`, `p_acctstatustype`, `p_acctinputoctets`, `p_acctoutputoctets`, `p_acctsessiontime`, `p_acctuniqueid`, `p_tenant_id`);
 END /
 DELIMITER ;
 
@@ -732,11 +734,10 @@ DELIMITER ;
 
 DROP PROCEDURE IF EXISTS `acct_stop`;
 DELIMITER /
-<<<<<<< HEAD
 CREATE PROCEDURE `acct_stop` (
   IN `p_timestamp` datetime,
   IN `p_framedipaddress` varchar(15),
-  IN `p_acctsessiontime` int(12),
+  IN `p_acctsessiontime` int(12) unsigned,
   IN `p_acctinputoctets` bigint(20) unsigned,
   IN `p_acctoutputoctets` bigint(20) unsigned,
   IN `p_acctuniqueid` varchar(32),
@@ -797,135 +798,135 @@ DELIMITER ;
 
 -- Adding RADIUS Updates Stored Procedure
 
-DROP PROCEDURE IF EXISTS acct_update;
+DROP PROCEDURE IF EXISTS `acct_update`;
 DELIMITER /
-CREATE PROCEDURE acct_update(
-  IN p_timestamp datetime,
-  IN p_framedipaddress varchar(15),
-  IN p_acctsessiontime int(12),
-  IN p_acctinputoctets bigint(20),
-  IN p_acctoutputoctets bigint(20),
-  IN p_acctuniqueid varchar(32),
-  IN p_acctsessionid varchar(64),
-  IN p_username varchar(64),
-  IN p_realm varchar(64),
-  IN p_nasipaddress varchar(15),
-  IN p_nasportid varchar(32),
-  IN p_nasporttype varchar(32),
-  IN p_acctauthentic varchar(32),
-  IN p_connectinfo_start varchar(50),
-  IN p_calledstationid varchar(50),
-  IN p_callingstationid varchar(50),
-  IN p_servicetype varchar(32),
-  IN p_framedprotocol varchar(32),
-  IN p_acctstatustype varchar(25),
-  IN p_nasidentifier varchar(64),
-  IN p_calledstationssid varchar(64),
-  IN p_tenant_id int
+CREATE PROCEDURE `acct_update`(
+  IN `p_timestamp` datetime,
+  IN `p_framedipaddress` varchar(15),
+  IN `p_acctsessiontime` int(12) unsigned,
+  IN `p_acctinputoctets` bigint(20) unsigned,
+  IN `p_acctoutputoctets` bigint(20) unsigned,
+  IN `p_acctuniqueid` varchar(32),
+  IN `p_acctsessionid` varchar(64),
+  IN `p_username` varchar(64),
+  IN `p_realm` varchar(64),
+  IN `p_nasipaddress` varchar(15),
+  IN `p_nasportid` varchar(32),
+  IN `p_nasporttype` varchar(32),
+  IN `p_acctauthentic` varchar(32),
+  IN `p_connectinfo_start` varchar(50),
+  IN `p_calledstationid` varchar(50),
+  IN `p_callingstationid` varchar(50),
+  IN `p_servicetype` varchar(32),
+  IN `p_framedprotocol` varchar(32),
+  IN `p_acctstatustype` varchar(25),
+  IN `p_nasidentifier` varchar(64),
+  IN `p_calledstationssid` varchar(64),
+  IN `p_tenant_id` int(11) unsigned
 )
 BEGIN
-  DECLARE Previous_Input_Octets bigint(20);
-  DECLARE Previous_Output_Octets bigint(20);
-  DECLARE Previous_Session_Time int(12);
-  DECLARE Previous_AcctUpdate_Time datetime;
+  DECLARE `Previous_Input_Octets` bigint(20) unsigned;
+  DECLARE `Previous_Output_Octets` bigint(20) unsigned;
+  DECLARE `Previous_Session_Time` int(12) unsigned;
+  DECLARE `Previous_AcctUpdate_Time` datetime;
 
-  DECLARE Opened_Sessions int(12);
-  DECLARE Latest_acctstarttime datetime;
-  DECLARE cnt int(12);
-  DECLARE countmac int(12);
-  SELECT count(acctuniqueid), max(acctstarttime)
-  INTO Opened_Sessions, Latest_acctstarttime
-  FROM radacct
-  WHERE acctuniqueid = p_acctuniqueid
-  AND (acctstoptime IS NULL OR acctstoptime = 0);
+  DECLARE `Opened_Sessions` int(12) unsigned;
+  DECLARE `Latest_acctstarttime` datetime;
+  DECLARE `cnt` int(12) unsigned;
+  DECLARE `countmac` int(12) unsigned;
+  SELECT count(`acctuniqueid`), max(`acctstarttime`)
+  INTO `Opened_Sessions`, `Latest_acctstarttime`
+  FROM `radacct`
+  WHERE `acctuniqueid` = `p_acctuniqueid`
+  AND (`acctstoptime` IS NULL OR `acctstoptime` = 0);
 
-  IF (Opened_Sessions > 1) THEN
-      UPDATE radacct SET
-        acctstoptime = NOW(),
-        acctterminatecause = 'UNKNOWN'
-        WHERE acctuniqueid = p_acctuniqueid
-        AND acctstarttime < Latest_acctstarttime
-        AND (acctstoptime IS NULL OR acctstoptime = 0);
+  IF (`Opened_Sessions` > 1) THEN
+      UPDATE `radacct` SET
+        `acctstoptime` = NOW(),
+        `acctterminatecause` = 'UNKNOWN'
+        WHERE `acctuniqueid` = `p_acctuniqueid`
+        AND `acctstarttime` < `Latest_acctstarttime`
+        AND (`acctstoptime` IS NULL OR `acctstoptime` = 0);
   END IF;
   # Detect if we receive in the same time a stop before the interim update
   SELECT COUNT(*)
-  INTO cnt
-  FROM radacct
-  WHERE acctuniqueid = p_acctuniqueid
-  AND (acctstoptime = p_timestamp);
+  INTO `cnt`
+  FROM `radacct`
+  WHERE `acctuniqueid` = `p_acctuniqueid`
+  AND (`acctstoptime` = `p_timestamp`);
 
   # If there is an old closed entry then update it
-  IF (cnt = 1) THEN
-    UPDATE radacct SET
-        framedipaddress = p_framedipaddress,
-        acctsessiontime = p_acctsessiontime,
-        acctinputoctets = p_acctinputoctets,
-        acctoutputoctets = p_acctoutputoctets,
-        acctupdatetime = p_timestamp
-    WHERE acctuniqueid = p_acctuniqueid
-    AND (acctstoptime = p_timestamp);
+  IF (`cnt` = 1) THEN
+    UPDATE `radacct` SET
+        `framedipaddress` = `p_framedipaddress`,
+        `acctsessiontime` = `p_acctsessiontime`,
+        `acctinputoctets` = `p_acctinputoctets`,
+        `acctoutputoctets` = `p_acctoutputoctets`,
+        `acctupdatetime` = `p_timestamp`
+    WHERE `acctuniqueid` = `p_acctuniqueid`
+    AND (`acctstoptime` = `p_timestamp`);
   END IF;
 
   #Detect if there is an radacct entry open
-  SELECT count(callingstationid), acctinputoctets, acctoutputoctets, acctsessiontime, acctupdatetime
-    INTO countmac, Previous_Input_Octets, Previous_Output_Octets, Previous_Session_Time, Previous_AcctUpdate_Time
-    FROM radacct
-    WHERE (acctuniqueid = p_acctuniqueid)
-    AND (acctstoptime IS NULL OR acctstoptime = 0) LIMIT 1;
+  SELECT count(`callingstationid`), `acctinputoctets`, `acctoutputoctets`, `acctsessiontime`, `acctupdatetime`
+    INTO `countmac`, `Previous_Input_Octets`, `Previous_Output_Octets`, `Previous_Session_Time`, `Previous_AcctUpdate_Time`
+    FROM `radacct`
+    WHERE (`acctuniqueid` = `p_acctuniqueid`)
+    AND (`acctstoptime` IS NULL OR `acctstoptime` = 0) LIMIT 1;
 
-  IF (countmac = 1) THEN
+  IF (`countmac` = 1) THEN
     # Update record with new traffic
-    UPDATE radacct SET
-        framedipaddress = p_framedipaddress,
-        acctsessiontime = p_acctsessiontime,
-        acctinputoctets = p_acctinputoctets,
-        acctoutputoctets = p_acctoutputoctets,
-        acctupdatetime = p_timestamp,
-        acctinterval = timestampdiff( second, Previous_AcctUpdate_Time,  p_timestamp  )
-    WHERE acctuniqueid = p_acctuniqueid
-    AND (acctstoptime IS NULL OR acctstoptime = 0);
+    UPDATE `radacct` SET
+        `framedipaddress` = `p_framedipaddress`,
+        `acctsessiontime` = `p_acctsessiontime`,
+        `acctinputoctets` = `p_acctinputoctets`,
+        `acctoutputoctets` = `p_acctoutputoctets`,
+        `acctupdatetime` = `p_timestamp`,
+        `acctinterval` = timestampdiff( second, `Previous_AcctUpdate_Time`,  `p_timestamp`  )
+    WHERE `acctuniqueid` = `p_acctuniqueid`
+    AND (`acctstoptime` IS NULL OR `acctstoptime` = 0);
   ELSE
-    IF (cnt = 0) THEN
+    IF (`cnt` = 0) THEN
       # If there is no open session for this, open one.
       # Set values to 0 when no previous records
-      SET Previous_Session_Time = 0;
-      SET Previous_Input_Octets = 0;
-      SET Previous_Output_Octets = 0;
-      SET Previous_AcctUpdate_Time = p_timestamp;
-      INSERT INTO radacct
+      SET `Previous_Session_Time` = 0;
+      SET `Previous_Input_Octets` = 0;
+      SET `Previous_Output_Octets` = 0;
+      SET `Previous_AcctUpdate_Time` = p_timestamp;
+      INSERT INTO `radacct`
              (
-              acctsessionid,acctuniqueid,username,
-              realm,nasipaddress,nasportid,
-              nasporttype,acctstarttime,
-              acctupdatetime,acctsessiontime,acctauthentic,
-              connectinfo_start,acctinputoctets,
-              acctoutputoctets,calledstationid,callingstationid,
-              servicetype,framedprotocol,
-              framedipaddress, nasidentifier,
-              calledstationssid, tenant_id
+              `acctsessionid`,`acctuniqueid`,`username`,
+              `realm`,`nasipaddress`,`nasportid`,
+              `nasporttype`,`acctstarttime`,
+              `acctupdatetime`,`acctsessiontime`,`acctauthentic`,
+              `connectinfo_start`,`acctinputoctets`,
+              `acctoutputoctets`,`calledstationid`,`callingstationid`,
+              `servicetype`,`framedprotocol`,
+              `framedipaddress`, `nasidentifier`,
+              `calledstationssid`, `tenant_id`
              )
       VALUES
           (
-              p_acctsessionid,p_acctuniqueid,p_username,
-              p_realm,p_nasipaddress,p_nasportid,
-              p_nasporttype,date_sub(p_timestamp, INTERVAL p_acctsessiontime SECOND ),
-              p_timestamp,p_acctsessiontime,p_acctauthentic,
-              p_connectinfo_start,p_acctinputoctets,
-              p_acctoutputoctets,p_calledstationid,p_callingstationid,
-              p_servicetype,p_framedprotocol,
-              p_framedipaddress, p_nasidentifier, p_calledstationssid, p_tenant_id
+              `p_acctsessionid`,`p_acctuniqueid`,`p_username`,
+              `p_realm`,`p_nasipaddress`,`p_nasportid`,
+              `p_nasporttype`,date_sub(`p_timestamp`, INTERVAL `p_acctsessiontime` SECOND ),
+              `p_timestamp`,`p_acctsessiontime`,`p_acctauthentic`,
+              `p_connectinfo_start`,`p_acctinputoctets`,
+              `p_acctoutputoctets`,`p_calledstationid`,`p_callingstationid`,
+              `p_servicetype`,`p_framedprotocol`,
+              `p_framedipaddress`, `p_nasidentifier`, `p_calledstationssid`, `p_tenant_id`
           );
      END IF;
    END IF;
 
   # Create new record in the log table
-  INSERT INTO radacct_log
-   (acctsessionid, username, nasipaddress,
-    timestamp, acctstatustype, acctinputoctets, acctoutputoctets, acctsessiontime, acctuniqueid, tenant_id)
+  INSERT INTO `radacct_log`
+   (`acctsessionid`, `username`, `nasipaddress`,
+    `timestamp`, `acctstatustype`, `acctinputoctets`, `acctoutputoctets`, `acctsessiontime`, `acctuniqueid`, `tenant_id`)
   VALUES
-   (p_acctsessionid, p_username, p_nasipaddress,
-    p_timestamp, p_acctstatustype, (p_acctinputoctets - Previous_Input_Octets), (p_acctoutputoctets - Previous_Output_Octets),
-    (p_acctsessiontime - Previous_Session_Time), p_acctuniqueid, p_tenant_id);
+   (`p_acctsessionid`, `p_username`, `p_nasipaddress`,
+    `p_timestamp`, `p_acctstatustype`, (`p_acctinputoctets` - `Previous_Input_Octets`), (`p_acctoutputoctets` - `Previous_Output_Octets`),
+    (`p_acctsessiontime` - `Previous_Session_Time`), `p_acctuniqueid`, `p_tenant_id`);
 END /
 DELIMITER ;
 
