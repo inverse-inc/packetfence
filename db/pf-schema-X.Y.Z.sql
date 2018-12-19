@@ -693,7 +693,7 @@ END IF;
 INSERT INTO radacct
            (
             acctsessionid,      acctuniqueid,       username,
-            realm,          nasipaddress,       nasportid,
+            realm,              nasipaddress,       nasportid,
             nasporttype,        acctstarttime,      acctupdatetime,
             acctstoptime,       acctsessiontime,    acctauthentic,
             connectinfo_start,  connectinfo_stop,   acctinputoctets,
