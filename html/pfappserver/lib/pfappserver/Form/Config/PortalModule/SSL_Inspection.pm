@@ -28,6 +28,15 @@ has_field 'skipable' =>
              help => 'Whether or not, this message can be skipped' },
   );
 
+has_field 'ssl_mobileconfig_path' =>
+  (
+   type => 'Text',
+   label => 'SSL iOS profile URL',
+   required => 1,
+   tags => { after_element => \&help,
+             help => 'URL of an iOS mobileconfig profile to install the certificate.' },
+  );
+
 has_field 'ssl_path' =>
   (
    type => 'Text',
@@ -39,7 +48,7 @@ has_field 'ssl_path' =>
 
 
 sub child_definition {
-    return qw(ssl_path skipable);
+    return qw(ssl_path ssl_mobileconfig_path skipable);
 }
 
 sub BUILD {

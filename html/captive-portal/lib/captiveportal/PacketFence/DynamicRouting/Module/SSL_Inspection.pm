@@ -48,6 +48,7 @@ has 'skipable' => (is => 'rw', default => sub {1});
 
 has 'ssl_path' => (is => 'rw', required => 1);
 
+has 'ssl_mobileconfig_path' => (is => 'rw', required => 1);
 
 =head2 index
 
@@ -95,7 +96,7 @@ ios
 sub ios {
     my ($self) = @_;
 
-    $self->render_instructions("ios", { title => "iOS certificate installation" });
+    $self->render_instructions("ios", { title => "iOS certificate installation", ssl_path => $self->ssl_mobileconfig_path });
 }
 
 =head2 android
