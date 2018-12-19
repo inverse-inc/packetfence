@@ -1,0 +1,14 @@
+<script type="text/javascript" src="/content/sslinspection.js"></script>
+
+<div id="testFailure" class="hide">
+  <div class="o-media o-media--error u-padding u-margin-bottom">
+    <div class="o-media__img">[% flashIcon(level='error') %]</div>
+    <p class="o-media__body">[% i18n("Certificate test failed. Please download the certificate and install it by following the instructions, or contact your administrator.") %] </p>
+  </div>
+</div>
+
+<div class="o-layout o-layout--center u-padding-bottom">
+  <div class="o-layout__item u-1/1 u-2/3@tablet u-3/5@desktop">
+    <button id="test" type="button" class="c-btn c-btn--secondary c-btn--ghost u-1/1">[% i18n("Test Certificate") %]</button>
+  </div>
+</div>

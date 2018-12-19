@@ -1,0 +1,162 @@
+<!--Body container that sets layout and inner content-->
+
+<div class="u-padding">
+
+  [% INCLUDE ssl_inspection/menu.html section = "windows" %]
+
+  <p>
+    [% i18n("This network employs a technology called captive portal which allows the administrator(s) to restrict network access to trusted users. In order to prevent certificate security warnings when accessing this portal, the network's filtering unit must issue to your computer or mobile device a file called an SSL certificate.") %]
+  </p>
+
+  <p>
+    [% i18n("This guide will help you install the SSL filtering certificate for Windows-based browsers which use the operating system's built-in certificate store — this includes Internet Explorer, Chrome, and Safari.") %]
+  </p>
+
+  <h3 class="number"><span>[% i18n("Step") %] </span>1</h3>
+  <p>
+    [% i18n("Download the certificate to your device.") | none %]
+  </p>
+
+  <div class="o-layout o-layout--center u-padding-bottom">
+    <div class="o-layout__item u-1/1 u-2/3@tablet u-3/5@desktop">
+      <a href="[% ssl_path %]" class="c-btn c-btn--secondary u-1/1">[% i18n('Download Certificate') %]</a>
+    </div>
+  </div>
+  <h3 class="number"><span>[% i18n("Step") %] </span>2</h3>
+
+  <div class="o-layout o-layout--center u-padding-bottom">
+    <div class="o-layout__item u-1/1">
+      <img src="/common/ssl_inspection/windows-01-open-or-save.png" alt="[% i18n('Windows save prompt') %]" />
+    </div>
+  </div>
+
+  <p>
+    [% i18n("Depending on your browser and configuration, you will probably be asked whether you would like to open the file or save it; choose <i>Open</i>. Depending on your browser, you may then have to click <i>Open</i> a second time.") | none %]
+  </p>
+
+  <div class="o-media o-media--notice u-padding-small u-padding@tablet u-margin-bottom">
+    <div class="o-media__img">[% flashIcon(level='notice', size='tiny') %]</div>
+    <p class="o-media__body">
+      [% i18n("These images show Internet Explorer 10 running on Windows 8; you may not see exactly the same thing if you are using another browser or a different version of Windows; however, the general process and wording should be the same.") %]
+    </p>
+  </div>
+
+  <h3 class="number"><span>[% i18n("Step") %] </span>3</h3>
+
+  <div class="o-layout o-layout--center u-padding-bottom">
+    <div class="o-layout__item u-1/1 u-2/3@tablet u-3/5@desktop">
+      <img src="/common/ssl_inspection/windows-02-security-warning.png" alt="[% i18n('Windows security prompt') %]" />
+    </div>
+  </div>
+
+  <p>
+    [% i18n("Depending on your browser and configuration, you may see a <i>Security Warning</i> which asks if you're sure you want to open the file; if so, click <i>Open</i> once more.") | none %]
+  </p>
+
+  <h3 class="number"><span>[% i18n("Step") %] </span>4</h3>
+
+  <div class="o-layout o-layout--center u-padding-bottom">
+    <div class="o-layout__item u-1/1 u-2/3@tablet u-3/5@desktop">
+      <img src="/common/ssl_inspection/windows-03-install-certificate.png" alt="[% i18n('Windows Certificate dialogue') %]" />
+    </div>
+  </div>
+
+  <p>
+    [% i18n("Next, you will be presented with a <i>Certificate</i> dialogue. Click the <i>Install Certificate...</i> button near the bottom of this window.") | none %]
+  </p>
+
+  <h3 class="number"><span>[% i18n("Step") %] </span>5</h3>
+
+  <div class="o-layout o-layout--center u-padding-bottom">
+    <div class="o-layout__item u-1/1 u-2/3@tablet u-3/5@desktop">
+      <img src="/common/ssl_inspection/windows-04-certificate-wizard.png" alt="[% i18n('Windows Certificate Import Wizard') %]" />
+    </div>
+  </div>
+
+  <p>
+    [% i18n("The <i>Certificate Import Wizard</i> will open next. Depending on your configuration, you may be asked whether to install for the <i>Current User</i> or the <i>Local Machine</i>; if asked, you should normally select <i>Local Machine</i>. In either case, click <i>Next</i>.") | none %]
+  </p>
+
+  <h3 class="number"><span>[% i18n("Step") %] </span>6</h3>
+
+  <div class="o-layout o-layout--center u-padding-bottom">
+    <div class="o-layout__item u-1/1 u-2/3@tablet u-3/5@desktop">
+      <img src="/common/ssl_inspection/windows-05-certificate-store.png" alt="[% i18n('Windows Certificate Import Wizard') %]" />
+    </div>
+  </div>
+
+  <p>
+    [% i18n("The next screen will ask whether you would like to have Windows <i>automatically select a certificate store</i> or you would like to select it yourself. Opt to select yourself, by clicking on <i>Place all certificates in the following store</i>. Then, press the <i>Browse</i> button to the right.") | none %]
+  </p>
+
+  <h3 class="number"><span>[% i18n("Step") %] </span>7</h3>
+
+  <div class="o-layout o-layout--center u-padding-bottom">
+    <div class="o-layout__item u-1/1 u-2/3@tablet u-3/5@desktop">
+      <div class="text-center">
+        <img src="/common/ssl_inspection/windows-06-select-certificate-store.png" alt="[% i18n('Windows Select Certificate Store prompt') %]" />
+      </div>
+    </div>
+  </div>
+
+  <p>
+    [% i18n("The <i>Select Certificate Store</i> dialogue will open. Highlight <i>Trusted Root Certification Authorities</i> in the list, and then press <i>OK</i> at the bottom.") | none %]
+  </p>
+
+  <h3 class="number"><span>[% i18n("Step") %] </span>8</h3>
+
+  <div class="o-layout o-layout--center u-padding-bottom">
+    <div class="o-layout__item u-1/1 u-2/3@tablet u-3/5@desktop">
+      <img src="/common/ssl_inspection/windows-07-place-all-certificates.png" alt="[% i18n('Windows Certificate Import Wizard') %]" />
+    </div>
+  </div>
+
+  <p>
+    [% i18n("Back at the main wizard screen, the <i>Certificate store</i> box should now show <i>Trusted Root Certification Authorities</i>. Press <i>Next</i> again.") | none %]
+  </p>
+
+  <h3 class="number"><span>[% i18n("Step") %] </span>9</h3>
+
+  <div class="o-layout o-layout--center u-padding-bottom">
+    <div class="o-layout__item u-1/1 u-2/3@tablet u-3/5@desktop">
+      <img src="/common/ssl_inspection/windows-08-completing-wizard.png" alt="[% i18n('Windows Certificate Import Wizard') %]" />
+    </div>
+  </div>
+
+  <p>
+    [% i18n("At the <i>Completing the Certificate Import Wizard</i> screen, press the <i>Finish</i> button.") | none %]
+  </p>
+
+  <h3 class="number"><span>[% i18n("Step") %] </span>10</h3>
+
+  <div class="o-layout o-layout--center u-padding-bottom">
+    <div class="o-layout__item u-1/1 u-2/3@tablet u-3/5@desktop">
+      <img src="/common/ssl_inspection/windows-09-certificate-security-warning.png" alt="[% i18n('Windows Security Warning dialogue') %]" />
+    </div>
+  </div>
+
+  <p>
+    [% i18n("A <i>Security Warning</i> will appear, asking if you're sure you'd like to install the certificate. Click the <i>Yes</i> button.") | none %]
+  </p>
+
+  <h3 class="number"><span>[% i18n("Step") %] </span>11</h3>
+
+  <div class="o-layout o-layout--center u-padding-bottom">
+    <div class="o-layout__item u-1/1 u-2/3@tablet u-3/5@desktop">
+      <div class="text-center">
+        <img src="/common/ssl_inspection/windows-10-import-successful.png" alt="[% i18n('Windows Certificate Import Wizard') %]" />
+      </div>
+    </div>
+  </div>
+
+  <p>
+    [% i18n("A confirmation will appear, indicating that the certificate import was successful. Press <i>OK</i>.") | none %]
+  </p>
+
+  <h3 class="number"><span>[% i18n("Step") %] </span>12</h3>
+  <p>
+    [% i18n("You're done! You may close any remaining certificate windows and continue browsing as usual; in most cases, you will not notice anything different after the certificate is installed.") %]
+  </p>
+</div>
+
+[% INCLUDE ssl_inspection/common.html %]

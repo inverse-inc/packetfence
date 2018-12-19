@@ -1,0 +1,126 @@
+<!--Body container that sets layout and inner content-->
+<div class="u-padding">
+
+  [% INCLUDE ssl_inspection/menu.html section = "chrome" %]
+
+  <p>
+    [% i18n("This network employs a technology called captive portal which allows the administrator(s) to restrict network access to trusted users. In order to prevent certificate security warnings when accessing this portal, the network's filtering unit must issue to your computer or mobile device a file called an SSL certificate.") %]
+  </p>
+
+  <p>
+    [% i18n("This guide will help you install the SSL filtering certificate for Chrome OS and Chrome for Linux — this also includes Chrome-based browsers which do not use the operating system's built-in key store.") %]
+  </p>
+
+  <h3 class="number"><span>[% i18n("Step") %] </span>1</h3>
+
+  <p>
+    [% i18n("Download the certificate to your device.") | none %]
+  </p>
+
+  <div class="o-layout o-layout--center u-padding-bottom">
+    <div class="o-layout__item u-1/1 u-2/3@tablet u-3/5@desktop">
+      <a href="[% ssl_path %]" class="c-btn c-btn--secondary u-1/1">[% i18n('Download Certificate') %]</a>
+    </div>
+  </div>
+
+  <h3 class="number"><span>[% i18n("Step") %] </span>2</h3>
+
+  <div class="o-layout o-layout--center u-padding-bottom">
+    <div class="o-layout__item u-1/1">
+      <img src="/common/ssl_inspection/chrome-01-download.png" alt="[% i18n('Chrome download bar') %]" >
+    </div>
+  </div>
+
+  <p>
+    [% i18n("Depending on your configuration, you may be prompted to save the certificate. If so, select a folder to save the file in, and then click <i>Save</i>. (In Chrome OS and some other configurations, the file may simply download immediately.) When the download has finished, the icon will flash in the download bar at the bottom of the screen50") | none %]
+  </p>
+
+  <div class="o-media o-media--notice u-padding-small u-padding@tablet u-margin-bottom">
+    <div class="o-media__img">[% flashIcon(level='notice', size='tiny') %]</div>
+    <p class="o-media__body">
+      [% i18n("These images show Chrome running on Chrome OS version 47; you may not see exactly the same thing if you are using Chrome for Linux; however, the general process and wording should be the same.") %]
+    </p>
+  </div>
+
+  <h3 class="number"><span>[% i18n("Step") %] </span>3</h3>
+
+  <div class="o-layout o-layout--center u-padding-bottom">
+    <div class="o-layout__item u-1/1 u-2/3@tablet u-3/5@desktop">
+      <img src="/common/ssl_inspection/chrome-02-settings.png" alt="[% i18n('Chrome Settings menu option') %]" >
+    </div>
+  </div>
+
+  <p>
+    [% i18n("Do not double-click the file after the download has finished; instead, click the Chrome menu (usually appearing as three horizontal lines) in the top right corner. Then, click the <i>Settings</i> option.") | none %]
+  </p>
+
+  <h3 class="number"><span>[% i18n("Step") %] </span>4</h3>
+
+  <div class="o-layout o-layout--center u-padding-bottom">
+    <div class="o-layout__item u-1/1 u-2/3@tablet u-3/5@desktop">
+      <img src="/common/ssl_inspection/chrome-03-show-advanced-settings.png" alt="[% i18n('Chrome Settings page') %]" >
+    </div>
+  </div>
+
+  <p>
+    [% i18n("The Chrome Settings page will open in a new tab. If necessary, scroll all the way down to the bottom; then, click the <i>Show advanced settings</i> link.") | none %]
+  </p>
+
+  <h3 class="number"><span>[% i18n("Step") %] </span>5</h3>
+
+  <div class="o-layout o-layout--center u-padding-bottom">
+    <div class="o-layout__item u-1/1 u-2/3@tablet u-3/5@desktop">
+      <img src="/common/ssl_inspection/chrome-04-manage-certificates.png" alt="[% i18n('Chrome Settings page') %]" >
+    </div>
+  </div>
+
+  <p>
+    [% i18n("The Settings page will expand to reveal several new options. Scroll down nearly to the bottom and click the <i>Manage certificates...</i> button.") | none %]
+  </p>
+
+  <h3 class="number"><span>[% i18n("Step") %] </span>6</h3>
+
+  <div class="o-layout o-layout--center u-padding-bottom">
+    <div class="o-layout__item u-1/1 u-2/3@tablet u-3/5@desktop">
+      <img src="/common/ssl_inspection/chrome-05-import.png" alt="[% i18n('Chrome certificate manager') %]" >
+    </div>
+  </div>
+
+  <p>
+    [% i18n("When the <i>Certificate manager</i> screen appears, click the <i>Authorities</i> tab. Then, click the <i>Import...</i> button near the bottom.") | none %]
+  </p>
+
+  <h3 class="number"><span>[% i18n("Step") %] </span>7</h3>
+
+  <div class="o-layout o-layout--center u-padding-bottom">
+    <div class="o-layout__item u-1/1 u-2/3@tablet u-3/5@desktop">
+      <img src="/common/ssl_inspection/chrome-06-open.png" alt="[% i18n('Chrome file browser') %]" >
+    </div>
+  </div>
+
+  <p>
+    [% i18n("A file browser will appear, allowing you to select the certificate. Locate the certificate you downloaded previously (it may be in a folder called <i>Downloads</i>), and double-click to open it.") | none %]
+  </p>
+
+  <h3 class="number"><span>[% i18n("Step") %] </span>8</h3>
+
+  <div class="o-layout o-layout--center u-padding-bottom">
+    <div class="o-layout__item u-1/1 u-2/3@tablet u-3/5@desktop">
+      <img src="/common/ssl_inspection/chrome-07-trust.png" alt="[% i18n('Chrome certificate authority prompt') %]" >
+    </div>
+  </div>
+
+  <p>
+    [% i18n("A prompt will appear asking whether to trust the certificate authority. Select <i>Trust this certificate for identifying websites</i> and then click <i>OK</i>.") | none %]
+  </p>
+
+  <h3 class="number"><span>[% i18n("Step") %] </span>9</h3>
+
+  <p>
+    [% i18n("You're done! After trusting the CA, you can click OK, close the Settings page, and continue browsing as usual; in most cases, you will not notice anything different after the certificate is installed.") %]
+  </p>
+</div>
+
+[% INCLUDE ssl_inspection/common.html %]
+
+</div>

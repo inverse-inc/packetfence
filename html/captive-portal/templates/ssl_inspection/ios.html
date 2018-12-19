@@ -1,0 +1,80 @@
+<!--Body container that sets layout and inner content-->
+
+<div class="u-padding">
+
+  [% INCLUDE ssl_inspection/menu.html section = "ios" %]
+
+  <p>
+    [% i18n("This network employs a technology called captive portal which allows the administrator(s) to restrict network access to trusted users. In order to prevent certificate security warnings when accessing this portal, the network's filtering unit must issue to your computer or mobile device a file called an SSL certificate.") %]
+  </p>
+
+
+  <p>
+    [% i18n("This guide will help you install the SSL filtering certificate for Apple mobile devices, including the iPad, iPhone, and iPod touch. This guide is <i>not</i> primarily for district owned iPads.") | none %]
+  </p>
+
+  <h3 class="number"><span>[% i18n("Step") %] </span>1</h3>
+
+  <p>
+    [% i18n("Download the certificate to your device.") | none %]
+  </p>
+
+  <div class="o-layout o-layout--center u-padding-bottom">
+    <div class="o-layout__item u-1/1 u-2/3@tablet u-3/5@desktop">
+      <a href="[% ssl_path %]" class="c-btn c-btn--secondary u-1/1">[% i18n('Download Certificate') %]</a>
+    </div>
+  </div>
+
+  <h3 class="number"><span>[% i18n("Step") %] </span>2</h3>
+
+  <div class="o-layout o-layout--center u-padding-bottom">
+    <div class="o-layout__item u-1/1 u-2/3@tablet u-3/5@desktop">
+      <img src="/common/ssl_inspection/ios-01-not-trusted.png" alt="[% i18n('iOS certificate trust prompt') %]">
+
+    </div>
+  </div>
+
+  <p>
+    [% i18n("A screen will appear called <i>Install Profile</i>. Tap the <i>Install</i> button in the top-right corner of the screen.") | none %]
+  </p>
+
+  <div class="o-media o-media--notice u-padding-small u-padding@tablet u-margin-bottom">
+    <div class="o-media__img">[% flashIcon(level='notice', size='tiny') %]</div>
+    <p class="o-media__body">
+      [% i18n("These images show iOS 9 running on an iPad; if you have a different version of iOS, the layout and buttons may be different — but the words should be the same.) Also, you maybe presented with a warning about the unverified authenticity of the profile. You may read over this if you like; otherwise, tap <i>Install</i> again (in the top-right corner.") | none %]
+    </p>
+  </div>
+
+  <h3 class="number"><span>[% i18n("Step") %] </span>3</h3>
+
+  <div class="o-layout o-layout--center u-padding-bottom">
+    <div class="o-layout__item u-1/1 u-2/3@tablet u-4/5@desktop">
+      <img src="/common/ssl_inspection/ios-03-passcode.png" alt="[% i18n('iOS passcode prompt') %]">
+    </div>
+  </div>
+
+  <p>
+    [% i18n("If you have a passcode set, you may be required to enter it. If you don't have one set, you may be prompted to create one, depending on your device configuration.") %]
+  </p>
+
+  <h3 class="number"><span>[% i18n("Step") %] </span>4</h3>
+
+  <div class="o-layout o-layout--center u-padding-bottom">
+    <div class="o-layout__item u-1/1 u-2/3@tablet u-3/5@desktop">
+      <img src="/common/ssl_inspection/ios-04-trusted.png" alt="[% i18n('iOS trust prompt') %]">
+    </div>
+  </div>
+
+  <p>
+    [% i18n("You will see a confirmation that the profile has been installed, and that the certificate is <i>Verified</i>. Simply tap the <i>Done</i> button in the top-right corner.") | none %]
+  </p>
+
+  <h3 class="number"><span>[% i18n("Step") %] </span>5</h3>
+
+  <p>
+    [% i18n("You're done! You may close or switch away from the Settings application and continue browsing as usual; in most cases, you will not notice anything different after the certificate is installed.") %]
+  </p>
+
+  [% INCLUDE ssl_inspection/common.html %]
+
+</div>
