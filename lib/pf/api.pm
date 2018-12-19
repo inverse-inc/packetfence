@@ -81,6 +81,7 @@ sub event_add : Public {
     my $events = $postdata{'events'};
     my $srcip = pf::util::clean_ip($postdata{'srcip'});
     my $dstip = pf::util::clean_ip($postdata{'dstip'});
+    my $notes = $postdata{'notes'} || '';
     if ( !defined $events || keys %$events == 0) {
         $logger->warn("No events to add for " . (defined $srcip ? "source ip $srcip": "unknown source ip" ) . (defined $dstip ? "destination ip $dstip " : "unknown destination ip") );
         return;
@@ -101,14 +102,14 @@ sub event_add : Public {
             if (defined $srcmac) {
                 if ($net_addr->contains($source_net_ip)) {
                     while( my ($type, $id) = each %$events) {
-                        pf::violation::violation_trigger( { 'mac' => $srcmac, 'tid' => $id, 'type' => $type } );
+                        pf::violation::violation_trigger( { 'mac' => $srcmac, 'tid' => $id, 'type' => $type, 'notes' => $notes } );
                     }
                 }
             }
             if (defined $dstmac) {
                 if ($net_addr->contains($dest_net_ip)) {
                     while( my ($type, $id) = each %$events) {
-                        pf::violation::violation_trigger( { 'mac' => $dstmac, 'tid' => $id, 'type' => $type } );
+                        pf::violation::violation_trigger( { 'mac' => $dstmac, 'tid' => $id, 'type' => $type, 'notes' => $notes } );
                     }
                 }
             }
@@ -117,7 +118,7 @@ sub event_add : Public {
     else {
         if (defined $srcmac) {
             while( my ($type, $id) = each %$events) {
-                pf::violation::violation_trigger( { 'mac' => $srcmac, 'tid' => $id, 'type' => $type } );
+                pf::violation::violation_trigger( { 'mac' => $srcmac, 'tid' => $id, 'type' => $type, 'notes' => $notes } );
             }
         }
     }
