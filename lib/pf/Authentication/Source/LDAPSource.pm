@@ -126,7 +126,7 @@ sub authenticate {
     return ($FALSE, $COMMUNICATION_ERROR_MSG);
   }
 
-  my $filter = $self->_makefilter($username);
+  my $filter = $self->_makefilter(escape_filter_value($username));
 
   my $result = do {
     my $timer = pf::StatsD::Timer->new({'stat' => "${timer_stat_prefix}.search", level => 7});
