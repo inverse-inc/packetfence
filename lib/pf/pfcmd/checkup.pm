@@ -588,7 +588,7 @@ sub is_config_documented {
         my $doc = $Doc_Config{$section};
         my $type = $doc->{'type'};
 
-        next if ( $section =~ /^(proxies|passthroughs)$/ || $group =~ /^(interface|services)$/ );
+        next if ( $section =~ /^(passthroughs)$/ || $group =~ /^(interface|services)$/ );
         next if ( ( $group eq 'alerting' ) && ( $item eq 'fromaddr' ) );
         next if ( ( $group eq 'provisioning' ) && ( $item eq 'certificate') );
         next if ( $item =~ /^temporary_/i );
@@ -631,7 +631,7 @@ sub is_config_documented {
     #i.e. make sure that pf.conf does not contain more
     #than what is documented in documentation.conf
     foreach my $section (keys %Config) {
-        next if ( ($section eq "proxies") || ($section eq "passthroughs") || ($section eq "")
+        next if (  ($section eq "passthroughs") || ($section eq "")
                   || ($section =~ /^(services|interface|nessus_category_policy|nessus_scan_by_fingerprint)/));
 
         foreach my $item  (keys %{$Config{$section}}) {

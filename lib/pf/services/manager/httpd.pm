@@ -142,25 +142,6 @@ sub generateCommonConfig {
     $tags{'start_servers'} = calculate_start_servers($tags{'max_clients'});
     $tags{'min_spare_servers'} = calculate_min_spare_servers($tags{'max_clients'});
 
-    my @proxies;
-    my %proxy_configs = %{ $Config{'proxies'} };
-    foreach my $proxy ( keys %proxy_configs ) {
-        if ( $proxy =~ /^\// ) {
-            if ( ($proxy !~ /$WEB::CAPTIVE_PORTAL_RESOURCES/) && ($proxy !~ /$WEB::CAPTIVE_PORTAL_STATIC_RESOURCES/) ) {
-                push @proxies, "ProxyPassReverse $proxy $proxy_configs{$proxy}";
-                push @proxies, "ProxyPass $proxy $proxy_configs{$proxy}";
-                $logger->warn( "proxy $proxy is not relative - add path to apache rewrite exclude list!");
-            } else {
-                $logger->warn("proxy $proxy conflicts with PF paths!");
-                next;
-            }
-        } else {
-            push @proxies, "ProxyPassReverse /proxies/" . $proxy . " " . $proxy_configs{$proxy};
-            push @proxies, "ProxyPass /proxies/" . $proxy . " " . $proxy_configs{$proxy};
-        }
-    }
-    $tags{'proxies'} = join( "\n", @proxies );
-
     # Guest related URLs allowed through Apache ACL's
     my $status_only_on_production = isenabled($Config{captive_portal}{status_only_on_production});
     my $allowed_from_all_urls = '';
