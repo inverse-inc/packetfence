@@ -288,12 +288,20 @@ sub process_destination_url {
     }
 
     my $host;
+    my $path;
     eval {
-        $host = URI::URL->new($url)->host();
+        my $uri = URI::URL->new($url);
+        $host = $uri->host();
+        $path = $uri->path();
     };
     if($@) {
         get_logger->info("Invalid destination_url $url. Replacing with profile defined one.");
         $url = $self->session->{destination_url} || $self->profile->getRedirectURL;
+        goto SET_URL;
+    }
+
+    if($path eq $pf::web::constants::URL_NETWORK_LOGOFF) {
+        get_logger->info("The destination URL is pointing to the network logoff page, will leave it as is.");
         goto SET_URL;
     }
 

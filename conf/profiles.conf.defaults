@@ -30,3 +30,5 @@ device_registration=
 dpsk=disabled
 status=enabled
 unreg_on_acct_stop=disabled
+network_logoff=disabled
+network_logoff_popup=disabled

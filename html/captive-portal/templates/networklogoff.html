@@ -1,0 +1,18 @@
+<div class="c-card[% IF mod_manager_current_module %] c-card--hidden[% END %] o-layout o-layout--center u-padding">
+  <div class="o-layout__item u-1/1 u-2/3@tablet">
+
+    <div class="o-layout--center">
+      [% IF node.status == "reg" %]
+      <h4>[% i18n("When you are done with your usage of this device, please click on the Logoff button below to terminate your network session") %]</h4>
+
+      <form method="POST">
+          <button type="submit" name="submit" class="c-btn c-btn--primary u-1/1 u-margin-top">
+              [% i18n("Logoff") %]
+          </button>
+      </form>
+      [% ELSE %]
+      <h4>Your network session has been terminated. <a href="http://packetfence.org">Please click here to login again</a>. Note that it can take up to 1 minute before you can access the registration portal again.</h4>
+      [% END %]
+    </div>
+  </div>
+</div>

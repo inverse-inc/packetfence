@@ -18,6 +18,7 @@ use warnings;
 use HTML::FormHandler::Moose::Role;
 use List::MoreUtils qw(uniq);
 
+use pf::config qw($fqdn);
 use pf::authentication;
 use pf::ConfigStore::Provisioning;
 use pf::ConfigStore::BillingTiers;
@@ -51,7 +52,7 @@ The captival portal block
 
 has_block 'captive_portal' =>
   (
-    render_list => [qw(logo redirecturl always_use_redirecturl block_interval sms_pin_retry_limit sms_request_limit login_attempt_limit access_registration_when_registered)],
+    render_list => [qw(logo redirecturl always_use_redirecturl block_interval sms_pin_retry_limit sms_request_limit login_attempt_limit access_registration_when_registered network_logoff network_logoff_popup)],
   );
 
 =head1 Fields
@@ -460,6 +461,38 @@ has_field 'device_registration' =>
     options_method => \&options_device_registration,
   );
 
+
+=head2 network_logoff
+
+Controls whether or not this connection profile allows access to /networklogoff to terminate network access
+
+=cut
+
+has_field 'network_logoff' =>
+  (
+   type => 'Toggle',
+   label => 'Network Logoff',
+   checkbox_value => 'enabled',
+   unchecked_value => 'disabled',
+   tags => { after_element => \&help,
+             help => "This allows users to access the network logoff page (http://$fqdn/networklogoff) in order to terminate their network access (switch their device back to unregistered)" },
+  );
+
+=head2 network_logoff_popup
+
+Controls whether or not this connection profile will automatically open the network logoff page in a popup at the end of the registration
+
+=cut
+
+has_field 'network_logoff_popup' =>
+  (
+   type => 'Toggle',
+   label => 'Network Logoff Popup',
+   checkbox_value => 'enabled',
+   unchecked_value => 'disabled',
+   tags => { after_element => \&help,
+             help => 'When the "Network Logoff" feature is enabled, this will have it opened in a popup at the end of the registration process.' },
+  );
 
 =head2 preregistration
 
