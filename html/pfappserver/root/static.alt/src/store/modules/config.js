@@ -197,7 +197,7 @@ const getters = {
 }
 
 const actions = {
-  getAdminRoles: ({ state, commit }) => {
+  getAdminRoles: ({ state, getters, commit }) => {
     if (getters.isLoadingAdminRoles) {
       return
     }
@@ -294,7 +294,7 @@ const actions = {
       return Promise.resolve(state.roles)
     }
   },
-  getSources: ({ state, commit }) => {
+  getSources: ({ state, getters, commit }) => {
     if (getters.isLoadingSources) {
       return
     }
@@ -308,7 +308,7 @@ const actions = {
       return Promise.resolve(state.sources)
     }
   },
-  getSwitches: ({ state, commit }) => {
+  getSwitches: ({ state, getters, commit }) => {
     if (getters.isLoadingSwitches) {
       return
     }
@@ -326,7 +326,7 @@ const actions = {
       return Promise.resolve(state.switches)
     }
   },
-  getSwitchGroups: ({ state, commit }) => {
+  getSwitchGroups: ({ state, getters, commit }) => {
     if (getters.isLoadingSwitchGroups) {
       return
     }
@@ -340,7 +340,7 @@ const actions = {
       return Promise.resolve(state.switchGroups)
     }
   },
-  getTenants: ({ state, commit }) => {
+  getTenants: ({ state, getters, commit }) => {
     if (getters.isLoadingTenants) {
       return
     }
@@ -354,7 +354,7 @@ const actions = {
       return Promise.resolve(state.tenants)
     }
   },
-  getViolations: ({ commit, state }) => {
+  getViolations: ({ commit, getters, state }) => {
     if (getters.isLoadingViolations) {
       return
     }

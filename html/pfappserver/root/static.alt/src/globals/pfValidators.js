@@ -213,7 +213,7 @@ export const billingTierExists = (value, component) => {
 export const categoryIdNumberExists = (value, component) => {
   if (!value || !/^\d+$/.test(value)) return true
   return store.dispatch('config/getRoles').then((response) => {
-    if (response.length === 0) return false
+    if (response.length === 0) return true
     return (response.filter(role => role.category_id === value).length > 0)
   }).catch(() => {
     return true
@@ -223,7 +223,7 @@ export const categoryIdNumberExists = (value, component) => {
 export const categoryIdStringExists = (value, component) => {
   if (!value || /^\d+$/.test(value)) return true
   return store.dispatch('config/getRoles').then((response) => {
-    if (response.length === 0) return false
+    if (response.length === 0) return true
     return (response.filter(role => role.name.toLowerCase() === value.toLowerCase()).length > 0)
   }).catch(() => {
     return true
@@ -233,7 +233,7 @@ export const categoryIdStringExists = (value, component) => {
 export const connectionProfileExists = (value, component) => {
   if (!value) return true
   return store.dispatch('config/getConnectionProfiles').then((response) => {
-    if (response.length === 0) return false
+    if (response.length === 0) return true
     return (response.filter(connectionProfile => connectionProfile.id.toLowerCase() === value.toLowerCase()).length > 0)
   }).catch(() => {
     return true
@@ -243,7 +243,7 @@ export const connectionProfileExists = (value, component) => {
 export const domainExists = (value, component) => {
   if (!value) return true
   return store.dispatch('config/getDomains').then((response) => {
-    if (response.length === 0) return false
+    if (response.length === 0) return true
     return (response.filter(domain => domain.id.toLowerCase() === value.toLowerCase()).length > 0)
   }).catch(() => {
     return true
@@ -253,7 +253,7 @@ export const domainExists = (value, component) => {
 export const floatingDeviceExists = (value, component) => {
   if (!value) return true
   return store.dispatch('config/getFloatingDevices').then((response) => {
-    if (response.length === 0) return false
+    if (response.length === 0) return true
     return (response.filter(floatingDevice => floatingDevice.id.toLowerCase() === value.toLowerCase()).length > 0)
   }).catch(() => {
     return true
@@ -272,7 +272,7 @@ export const nodeExists = (value, component) => {
 export const realmExists = (value, component) => {
   if (!value) return true
   return store.dispatch('config/getRealms').then((response) => {
-    if (response.length === 0) return false
+    if (response.length === 0) return true
     return (response.filter(realm => realm.id.toLowerCase() === value.toLowerCase()).length > 0)
   }).catch(() => {
     return true
@@ -282,7 +282,7 @@ export const realmExists = (value, component) => {
 export const roleExists = (value, component) => {
   if (!value) return true
   return store.dispatch('config/getRoles').then((response) => {
-    if (response.length === 0) return false
+    if (response.length === 0) return true
     return (response.filter(role => role.name.toLowerCase() === value.toLowerCase()).length > 0)
   }).catch(() => {
     return true
@@ -292,7 +292,7 @@ export const roleExists = (value, component) => {
 export const sourceExists = (value, component) => {
   if (!value) return true
   return store.dispatch('config/getSources').then((response) => {
-    if (response.length === 0) return false
+    if (response.length === 0) return true
     return (response.filter(source => source.id.toLowerCase() === value.toLowerCase()).length > 0)
   }).catch(() => {
     return true
@@ -302,7 +302,7 @@ export const sourceExists = (value, component) => {
 export const switchExists = (value, component) => {
   if (!value) return true
   return store.dispatch('config/getSwitches').then((response) => {
-    if (response.length === 0) return false
+    if (response.length === 0) return true
     return (response.filter(switche => switche.id.toLowerCase() === value.toLowerCase()).length > 0)
   }).catch(() => {
     return true
@@ -312,7 +312,7 @@ export const switchExists = (value, component) => {
 export const switchGroupExists = (value, component) => {
   if (!value) return true
   return store.dispatch('config/getSwitchGroups').then((response) => {
-    if (response.length === 0) return false
+    if (response.length === 0) return true
     return (response.filter(switchGroup => switchGroup.id.toLowerCase() === value.toLowerCase()).length > 0)
   }).catch(() => {
     return true
