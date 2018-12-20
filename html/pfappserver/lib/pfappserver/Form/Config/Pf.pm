@@ -251,8 +251,8 @@ sub field_list {
 }
 
 our %FIELD_VALIDATORS = (
-    "general.hostname" => sub { validate_fqdn_not_in_passthroughs(@_, [ "passthroughs", "isolation_passthroughs" ]) },
-    "general.domain" => sub { validate_fqdn_not_in_passthroughs(@_, [ "passthroughs", "isolation_passthroughs" ]) },
+    "general.hostname" => sub { validate_pf_hostname(@_) ; validate_fqdn_not_in_passthroughs(@_, [ "passthroughs", "isolation_passthroughs" ]) },
+    "general.domain" => sub { validate_pf_domain(@_) ; validate_fqdn_not_in_passthroughs(@_, [ "passthroughs", "isolation_passthroughs" ]) },
     "fencing.passthroughs" => sub { validate_fqdn_not_in_passthroughs(@_, ["passthroughs"]) },
     "fencing.isolation_passthroughs" => sub { validate_fqdn_not_in_passthroughs(@_, ["isolation_passthroughs"]) },
 );
@@ -267,6 +267,56 @@ sub validator_for_field {
     my ($self, $field) = @_;
 
     return $FIELD_VALIDATORS{$field};
+}
+
+=head2 validate_domain_name
+
+Basic validation of allowed characters and format of a domain name
+
+ - Must begin and end with an alphanumeric character
+ - Only alphanumeric, hyphens and dots are allowed
+
+=cut
+
+sub validate_domain_name {
+    my ($self, $field, $name) = @_;
+    if($name !~ /^[a-z0-9].*[a-z0-9]$/i) {
+        $field->add_error("Name must begin and end with an alphanumeric character.");
+    }
+    foreach my $char (split(//, $name)) {
+        if($char !~ /[a-z0-9.-]/i) {
+            $field->add_error("Name must only contain alphanumeric characters.");
+            last;
+        }
+    }
+}
+
+=head2 validate_pf_hostname
+
+Validate that the hostname is valid
+
+=cut
+
+sub validate_pf_hostname {
+    my (undef, $field) = @_;
+    my $hostname = $field->form->params->{hostname};
+    $field->form->validate_domain_name($field, $hostname);
+}
+
+=head2 validate_pf_domain
+
+Validate that the domain name is valid and doesn't end with .local (iOS popup bug)
+
+=cut
+
+
+sub validate_pf_domain {
+    my (undef, $field) = @_;
+    my $domain = $field->form->params->{domain};
+    $field->form->validate_domain_name($field, $domain);
+    if($domain =~ /\.local$/) {
+        $field->add_error("The domain name cannot end with '.local' as this causes issues with Apple iOS devices");
+    }
 }
 
 =head2 validate_fqdn_field
