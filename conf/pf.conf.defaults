@@ -85,16 +85,6 @@ force_listener_update_on_ack=disabled
 # network.interfaceSNAT
 # Choose interface(s) where you want to enable snat for passthrough (by default it's the management interface)
 interfaceSNAT=
-#
-#
-# This section allows you to configure locally proxied content.  We typically use this to proxy tools like Stinger rather 
-# than having to continually download the latest version. Ex:
-# 
-# <i>tools/stinger.exe=http://download.nai.com/products/mcafee-avert/stng260.exe</i>
-# 
-# The Stinger utility could then be accessed at https://pfhostname/proxies/tools/stinger.exe.
-[proxies]
-tools/stinger.exe=http://download.nai.com/products/mcafee-avert/stng260.exe
 
 [fencing]
 # 
