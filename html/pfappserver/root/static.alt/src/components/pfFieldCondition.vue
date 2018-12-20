@@ -100,8 +100,6 @@ import { required } from 'vuelidate/lib/validators'
 
 export default {
   name: 'pf-field-condition',
-  mixins: [
-  ],
   components: {
     pfFormChosen,
     pfFormDatetime,

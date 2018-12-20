@@ -2,11 +2,14 @@ import store from '@/store'
 import ConfigurationView from '../'
 import AuthenticationSourcesStore from '../_store/sources'
 import BillingTiersStore from '../_store/billingTiers'
+import ConnectionProfilesStore from '../_store/connectionProfiles'
 import DomainsStore from '../_store/domains'
 import FloatingDevicesStore from '../_store/floatingDevices'
 import PortalModulesStore from '../_store/portalModules'
+import ProvisioningsStore from '../_store/provisionings'
 import RealmsStore from '../_store/realms'
 import RolesStore from '../_store/roles'
+import ScansStore from '../_store/scans'
 import SwitchesStore from '../_store/switches'
 import SwitchGroupsStore from '../_store/switchGroups'
 
@@ -21,6 +24,8 @@ const AuthenticationSourceView = () => import(/* webpackChunkName: "Configuratio
 const NetworkDevicesTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/NetworkDevicesTabs')
 const SwitchView = () => import(/* webpackChunkName: "Configuration" */ '../_components/SwitchView')
 const SwitchGroupView = () => import(/* webpackChunkName: "Configuration" */ '../_components/SwitchGroupView')
+const ConnectionProfilesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/ConnectionProfilesList')
+const ConnectionProfileView = () => import(/* webpackChunkName: "Configuration" */ '../_components/ConnectionProfileView')
 
 const NetworkConfigurationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/NetworkConfigurationSection')
 const FloatingDevicesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/FloatingDevicesList')
@@ -41,26 +46,35 @@ const route = {
     /**
      * Register Vuex stores
      */
-    if (!store.state.$_roles) {
-      store.registerModule('$_roles', RolesStore)
+    if (!store.state.$_billing_tiers) {
+      store.registerModule('$_billing_tiers', BillingTiersStore)
     }
     if (!store.state.$_domains) {
       store.registerModule('$_domains', DomainsStore)
     }
-    if (!store.state.$_realms) {
-      store.registerModule('$_realms', RealmsStore)
+    if (!store.state.$_connection_profiles) {
+      store.registerModule('$_connection_profiles', ConnectionProfilesStore)
     }
     if (!store.state.$_floatingdevices) {
       store.registerModule('$_floatingdevices', FloatingDevicesStore)
     }
-    if (!store.state.$_sources) {
-      store.registerModule('$_sources', AuthenticationSourcesStore)
-    }
     if (!store.state.$_portalmodules) {
       store.registerModule('$_portalmodules', PortalModulesStore)
     }
-    if (!store.state.$_billing_tiers) {
-      store.registerModule('$_billing_tiers', BillingTiersStore)
+    if (!store.state.$_provisionings) {
+      store.registerModule('$_provisionings', ProvisioningsStore)
+    }
+    if (!store.state.$_realms) {
+      store.registerModule('$_realms', RealmsStore)
+    }
+    if (!store.state.$_roles) {
+      store.registerModule('$_roles', RolesStore)
+    }
+    if (!store.state.$_scans) {
+      store.registerModule('$_scans', ScansStore)
+    }
+    if (!store.state.$_sources) {
+      store.registerModule('$_sources', AuthenticationSourcesStore)
     }
     if (!store.state.$_switches) {
       store.registerModule('$_switches', SwitchesStore)
@@ -180,6 +194,9 @@ const route = {
         })
       }
     },
+    /**
+     * Authentication Sources
+     */
     {
       path: 'sources',
       name: 'sources',
@@ -214,6 +231,9 @@ const route = {
         })
       }
     },
+    /**
+     * Switches
+     */
     {
       path: 'switches',
       name: 'switches',
@@ -248,6 +268,9 @@ const route = {
         })
       }
     },
+    /**
+     * Switch Groups
+     */
     {
       path: 'switch_groups',
       name: 'switch_groups',
@@ -278,6 +301,43 @@ const route = {
       props: (route) => ({ storeName: '$_switch_groups', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
         store.dispatch('$_switch_groups/getSwitchGroup', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    /**
+     * Connection Profiles
+     */
+    {
+      path: 'connection_profiles',
+      name: 'connection_profiles',
+      component: ConnectionProfilesList,
+      props: (route) => ({ tab: 'connection_profiles', query: route.query.query })
+    },
+    {
+      path: 'connection_profiles/new',
+      name: 'newConnectionProfile',
+      component: ConnectionProfileView,
+      props: (route) => ({ storeName: '$_connection_profiles', isNew: true })
+    },
+    {
+      path: 'connection_profile/:id',
+      name: 'connection_profile',
+      component: ConnectionProfileView,
+      props: (route) => ({ storeName: '$_connection_profiles', id: route.params.id }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_connection_profiles/getConnectionProfile', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'connection_profile/:id/clone',
+      name: 'cloneConnectionProfile',
+      component: ConnectionProfileView,
+      props: (route) => ({ storeName: '$_connection_profiles', id: route.params.id, isClone: true }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_connection_profiles/getConnectionProfile', to.params.id).then(object => {
           next()
         })
       }

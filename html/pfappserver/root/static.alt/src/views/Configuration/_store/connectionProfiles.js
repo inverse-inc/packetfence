@@ -1,5 +1,5 @@
 /**
-* "$_billing_tiers" store module
+* "$_connection_profiles" store module
 */
 import Vue from 'vue'
 import api from '../_api'
@@ -24,48 +24,39 @@ const getters = {
 }
 
 const actions = {
-  all: () => {
-    const params = {
-      sort: 'id',
-      fields: ['id', 'description'].join(',')
-    }
-    return api.billingTiers(params).then(response => {
-      return response.items
-    })
-  },
-  getBillingTier: ({ state, commit }, id) => {
+  getConnectionProfile: ({ state, commit }, id) => {
     if (state.cache[id]) {
       return Promise.resolve(state.cache[id])
     }
     commit('ITEM_REQUEST')
-    return api.billingTier(id).then(item => {
+    return api.connectionProfile(id).then(item => {
       commit('ITEM_REPLACED', item)
     }).catch((err) => {
       commit('ITEM_ERROR', err.response)
       throw err
     })
   },
-  createBillingTier: ({ commit }, data) => {
+  createConnectionProfile: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.createBillingTier(data).then(response => {
+    return api.createConnectionProfile(data).then(response => {
       commit('ITEM_REPLACED', data)
     }).catch(err => {
       commit('ITEM_ERROR', err.response)
       throw err
     })
   },
-  updateBillingTier: ({ commit }, data) => {
+  updateConnectionProfile: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.updateBillingTier(data).then(response => {
+    return api.updateConnectionProfile(data).then(response => {
       commit('ITEM_REPLACED', data)
     }).catch(err => {
       commit('ITEM_ERROR', err.response)
       throw err
     })
   },
-  deleteBillingTier: ({ commit }, data) => {
+  deleteConnectionProfile: ({ commit }, data) => {
     commit('ITEM_REQUEST', types.DELETING)
-    return api.deleteBillingTier(data).then(response => {
+    return api.deleteConnectionProfile(data).then(response => {
       commit('ITEM_DESTROYED', data)
     }).catch(err => {
       commit('ITEM_ERROR', err.response)

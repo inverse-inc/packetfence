@@ -1,5 +1,5 @@
 /**
-* "$_billing_tiers" store module
+* "$_provisionings" store module
 */
 import Vue from 'vue'
 import api from '../_api'
@@ -27,46 +27,55 @@ const actions = {
   all: () => {
     const params = {
       sort: 'id',
-      fields: ['id', 'description'].join(',')
+      fields: ['id', 'description', 'class'].join(',')
     }
-    return api.billingTiers(params).then(response => {
+    return api.provisionings(params).then(response => {
       return response.items
     })
   },
-  getBillingTier: ({ state, commit }, id) => {
+  getProvisioning: ({ state, commit }, id) => {
     if (state.cache[id]) {
       return Promise.resolve(state.cache[id])
     }
     commit('ITEM_REQUEST')
-    return api.billingTier(id).then(item => {
+    return api.provisioning(id).then(item => {
       commit('ITEM_REPLACED', item)
     }).catch((err) => {
       commit('ITEM_ERROR', err.response)
       throw err
     })
   },
-  createBillingTier: ({ commit }, data) => {
+  createProvisioning: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.createBillingTier(data).then(response => {
+    return api.createProvisioning(data).then(response => {
       commit('ITEM_REPLACED', data)
     }).catch(err => {
       commit('ITEM_ERROR', err.response)
       throw err
     })
   },
-  updateBillingTier: ({ commit }, data) => {
+  updateProvisioning: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.updateBillingTier(data).then(response => {
+    return api.updateProvisioning(data).then(response => {
       commit('ITEM_REPLACED', data)
     }).catch(err => {
       commit('ITEM_ERROR', err.response)
       throw err
     })
   },
-  deleteBillingTier: ({ commit }, data) => {
+  deleteProvisioning: ({ commit }, data) => {
     commit('ITEM_REQUEST', types.DELETING)
-    return api.deleteBillingTier(data).then(response => {
+    return api.deleteProvisioning(data).then(response => {
       commit('ITEM_DESTROYED', data)
+    }).catch(err => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
+  },
+  testProvisioning: ({ commit }, data) => {
+    commit('ITEM_REQUEST')
+    return api.testProvisioning(data).then(response => {
+      commit('ITEM_SUCCESS')
     }).catch(err => {
       commit('ITEM_ERROR', err.response)
       throw err
@@ -92,6 +101,9 @@ const mutations = {
     if (response && response.data) {
       state.message = response.data.message
     }
+  },
+  ITEM_SUCCESS: (state) => {
+    state.itemStatus = types.SUCCESS
   }
 }
 

@@ -11,6 +11,9 @@ const api = {
   getBillingTiers () {
     return apiCall({ url: 'config/billing_tiers', method: 'get' })
   },
+  getConnectionProfiles () {
+    return apiCall({ url: 'config/connection_profiles', method: 'get' })
+  },
   getDomains () {
     return apiCall({ url: 'config/domains', method: 'get' })
   },
@@ -52,6 +55,8 @@ const state = { // set intitial states to `false` (not `[]` or `{}`) to avoid in
   adminRoles: false,
   billingTiersStatus: '',
   billingTiers: false,
+  connectionProfilesStatus: '',
+  connectionProfiles: false,
   domainsStatus: '',
   domains: false,
   floatingDevicesStatus: '',
@@ -109,6 +114,9 @@ const getters = {
   },
   isLoadingBillingTiers: state => {
     return state.billingTiersStatus === types.LOADING
+  },
+  isLoadingConnectionProfiles: state => {
+    return state.connectionProfilesStatus === types.LOADING
   },
   isLoadingDomains: state => {
     return state.domainsStatus === types.LOADING
@@ -212,6 +220,20 @@ const actions = {
       })
     } else {
       return Promise.resolve(state.billingTiers)
+    }
+  },
+  getConnectionProfiles: ({ state, getters, commit }) => {
+    if (getters.isLoadingConnectionProfiles) {
+      return
+    }
+    if (!state.connectionProfiles) {
+      commit('CONNECTION_PROFILES_REQUEST')
+      return api.getConnectionProfiles().then(response => {
+        commit('CONNECTION_PROFILES_UPDATED', response.data.items)
+        return state.connectionProfiles
+      })
+    } else {
+      return Promise.resolve(state.connectionProfiles)
     }
   },
   getDomains: ({ state, getters, commit }) => {
@@ -360,6 +382,13 @@ const mutations = {
   BILLING_TIERS_UPDATED: (state, billingTiers) => {
     state.billingTiers = billingTiers
     state.billingTiersStatus = types.SUCCESS
+  },
+  CONNECTION_PROFILES_REQUEST: (state) => {
+    state.connectionProfilesStatus = types.LOADING
+  },
+  CONNECTION_PROFILES_UPDATED: (state, connectionProfiles) => {
+    state.connectionProfiles = connectionProfiles
+    state.connectionProfilesStatus = types.SUCCESS
   },
   DOMAINS_REQUEST: (state) => {
     state.domainsStatus = types.LOADING

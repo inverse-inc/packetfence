@@ -23,6 +23,7 @@ const _common = require('vuelidate/lib/validators/common')
 
 // Get the unique id of a given $v.
 const idOfV = ($v) => {
+  if ($v.constructor === String) return undefined
   const { '__ob__': { dep: { id } } } = $v
   return id || undefined
 }
@@ -113,8 +114,8 @@ export const conditional = (conditional) => {
   return (0, _common.withParams)({
     type: 'conditional',
     conditional: conditional
-  }, function () {
-    return conditional
+  }, function (value, vm) {
+    return (conditional.constructor === Function) ? conditional(value, vm) : conditional
   })
 }
 
@@ -224,6 +225,16 @@ export const categoryIdStringExists = (value, component) => {
   return store.dispatch('config/getRoles').then((response) => {
     if (response.length === 0) return false
     return (response.filter(role => role.name.toLowerCase() === value.toLowerCase()).length > 0)
+  }).catch(() => {
+    return true
+  })
+}
+
+export const connectionProfileExists = (value, component) => {
+  if (!value) return true
+  return store.dispatch('config/getConnectionProfiles').then((response) => {
+    if (response.length === 0) return false
+    return (response.filter(connectionProfile => connectionProfile.id.toLowerCase() === value.toLowerCase()).length > 0)
   }).catch(() => {
     return true
   })

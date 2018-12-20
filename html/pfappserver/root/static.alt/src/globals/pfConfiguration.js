@@ -39,6 +39,19 @@ const {
   maxValue
 } = require('vuelidate/lib/validators')
 
+export const pfConfigurationLocales = [
+  'en_US',
+  'es_ES',
+  'fr_FR',
+  'fr_CA',
+  'de_DE',
+  'he_IL',
+  'it_IT',
+  'nl_NL',
+  'pl_PL',
+  'pt_BR'
+].map(locale => { return { text: locale, value: locale } })
+
 export const pfConfigurationActions = {
   set_access_duration: {
     value: 'set_access_duration',
@@ -606,6 +619,12 @@ export const pfConfigurationListColumns = {
   radius_strip_username: {
     key: 'radius_strip_username',
     label: i18n.t('Strip RADIUS'),
+    sortable: true,
+    visible: true
+  },
+  status: {
+    key: 'status',
+    label: i18n.t('Status'),
     sortable: true,
     visible: true
   },

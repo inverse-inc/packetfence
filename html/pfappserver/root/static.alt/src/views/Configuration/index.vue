@@ -38,7 +38,8 @@ export default {
                 { name: 'Switches', path: '/configuration/switches' },
                 { name: 'Switch Groups', path: '/configuration/switch_groups' }
               ]
-            }
+            },
+            { name: 'Connection Profiles', path: '/configuration/connection_profiles' },
           ]
         },
         {
