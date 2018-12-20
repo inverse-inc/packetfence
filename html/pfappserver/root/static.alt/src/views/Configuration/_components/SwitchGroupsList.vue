@@ -89,7 +89,7 @@ export default {
       this.$router.push({ name: 'cloneSwitchGroup', params: { id: item.id } })
     },
     remove (item) {
-      this.$store.dispatch('$_switches/deleteSwitchGroup', item.id).then(response => {
+      this.$store.dispatch('$_switch_groups/deleteSwitchGroup', item.id).then(response => {
         this.$router.go() // reload
       })
     }
