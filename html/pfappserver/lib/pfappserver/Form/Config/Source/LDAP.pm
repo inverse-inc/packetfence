@@ -17,6 +17,8 @@ use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Source';
 with 'pfappserver::Base::Form::Role::Help', 'pfappserver::Base::Form::Role::InternalSource';
 
+use pf::config qw(%Config);
+
 our $META = pf::Authentication::Source::LDAPSource->meta;
 
 
@@ -109,9 +111,16 @@ has_field 'scope' =>
   );
 has_field 'usernameattribute' =>
   (
-   type => 'Text',
+   type => 'Select',
    label => 'Username Attribute',
    required => 1,
+   options_method => \&options_attributes,
+   element_class  => ['chzn-deselect', 'input-xxlarge'],
+   element_attr   => { 'data-placeholder' => 'Click to select an attribute' },
+   tags           => {
+       after_element => \&help,
+       help          => 'Main reference attribute that contain the username'
+   },
    # Default value needed for creating dummy source
    default => '',
   );
@@ -176,6 +185,32 @@ has_field 'shuffle',
              help => 'Randomly choose LDAP server to query' },
    default => $META->get_attribute('shuffle')->default,
 );
+
+has_field 'searchattributes' => (
+    type           => 'Select',
+    label          => 'Search Attributes',
+    required       => 1,
+    multiple       => 1,
+    options_method => \&options_attributes,
+    element_class  => ['chzn-deselect', 'input-xxlarge'],
+    element_attr   => { 'data-placeholder' => 'Click to select an attribute' },
+    tags           => {
+        after_element => \&help,
+        help          => 'Attributes that will use to find the dn of the user'
+    },
+    default => '',
+);
+
+=head2 options_attributes
+
+retrive the realms
+
+=cut
+
+sub options_attributes {
+    my ($self) = @_;
+    return map { $_ => $_} @{$Config{advanced}->{ldap_attributes}};
+}
 
 =head2 validate
 

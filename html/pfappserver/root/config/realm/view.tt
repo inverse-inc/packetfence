@@ -16,6 +16,8 @@
         [% form.field('portal_strip_username').render | none %]
         [% form.field('admin_strip_username').render | none %]
         [% form.field('radius_strip_username').render | none %]
+        [% form.field('permit_custom_attributes').render | none %]
+        [% form.field('ldap_source').render | none %]
   </div><!--modal-body-->
 
   <div class="modal-footer">

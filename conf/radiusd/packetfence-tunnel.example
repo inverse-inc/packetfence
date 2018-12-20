@@ -69,6 +69,8 @@ authorize {
 	suffix
 	ntdomain
 
+%%userPrincipalName%%
+
 	%%multi_domain%%
 
 	%%redis_ntlm_cache_fetch%%

@@ -165,6 +165,8 @@ our (
     %ConfigRoles,
 #device_Registration.conf
     %ConfigDeviceRegistration,
+#ldap authentication sources
+    %ConfigAuthenticationLdap,
 );
 
 BEGIN {
@@ -226,6 +228,7 @@ BEGIN {
         %ConfigSurvey
         %ConfigRoles
         %ConfigDeviceRegistration
+        %ConfigAuthenticationLdap
     );
 }
 
@@ -297,6 +300,8 @@ tie %ConfigSurvey, 'pfconfig::cached_hash', 'config::Survey';
 tie %ConfigRoles, 'pfconfig::cached_hash', 'config::Roles';
 
 tie %ConfigDeviceRegistration, 'pfconfig::cached_hash', 'config::DeviceRegistration';
+
+tie %ConfigAuthenticationLdap, 'pfconfig::cached_hash', 'resource::authentication_sources_ldap';
 
 $thread = 0;
 

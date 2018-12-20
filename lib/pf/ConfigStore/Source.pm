@@ -141,6 +141,12 @@ sub cleanupAfterRead {
     }
 
     $self->expand_list($item, $self->_fields_expanded($item));
+
+    if ($item->{type} eq 'AD' || $item->{type} eq "LDAP") {
+        $self->expand_list($item, qw(searchattributes));
+    }
+    $self->expand_list($item, qw(realms));
+
 }
 
 
@@ -160,6 +166,13 @@ sub cleanupBeforeCommit {
     }
 
     $self->flatten_list($item, $self->_fields_expanded($item));
+
+    if ($item->{type} eq 'AD' || $item->{type} eq "LDAP") {
+        $self->flatten_list($item, qw(searchattributes));
+    }
+
+    $self->flatten_list($item, qw(realms));
+
 }
 
 before rewriteConfig => sub {

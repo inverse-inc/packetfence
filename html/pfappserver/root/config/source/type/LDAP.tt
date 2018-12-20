@@ -10,6 +10,7 @@
 [% form.field('basedn').render | none %]
 [% form.field('scope').render | none %]
 [% form.field('usernameattribute').render | none %]
+[% form.field('searchattributes').render | none %]
 [% form.field('email_attribute').render | none %]
 [% form.field('binddn').render | none %]
 <div class="control-group">
