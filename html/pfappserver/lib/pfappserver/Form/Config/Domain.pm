@@ -18,6 +18,7 @@ use pf::log;
 use pf::config;
 use pf::util;
 use pf::authentication;
+use Sys::Hostname;
 
 ## Definition
 has_field 'id' =>
@@ -236,6 +237,13 @@ sub validate {
 
     if(($self->field('id')->value() // '') !~ /^[0-9a-zA-Z]+$/) {
         $self->field('id')->add_error("The id is invalid. The id can only contain alphanumeric characters.");
+    }
+
+    if($self->field('server_name')->value() eq "%h") {
+        my $hostname = [split(/\./,hostname())]->[0];
+        if(length($hostname) > $self->field('server_name')->maxlength) {
+            $self->field("server_name")->add_error("You have selected %h as the server name but this server hostname ($hostname) is longer than 14 characters. Please change the value or modify the hostname of your server to a name of 14 characters or less.");            
+        }   
     }
 
     if(isenabled($self->field('ntlm_cache')->value())) {
