@@ -100,10 +100,12 @@ const helpers = {
   },
   groupSwitches: (switches) => {
     let ret = []
-    let groups = [...new Set(switches.map(sw => sw.group))]
-    groups.forEach(function (group, index, groups) {
-      ret.push({ group: group, switches: switches.filter(sw => sw.group === group) })
-    })
+    if (switches) {
+      let groups = [...new Set(switches.map(sw => sw.group))]
+      groups.forEach(function (group, index, groups) {
+        ret.push({ group: group, switches: switches.filter(sw => sw.group === group) })
+      })
+    }
     return ret
   }
 }
