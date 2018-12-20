@@ -24,6 +24,15 @@ const getters = {
 }
 
 const actions = {
+  all: () => {
+    const params = {
+      sort: 'id',
+      fields: ['id', 'description'].join(',')
+    }
+    return api.billingTiers(params).then(response => {
+      return response.items
+    })
+  },
   getBillingTier: ({ state, commit }, id) => {
     if (state.cache[id]) {
       return Promise.resolve(state.cache[id])

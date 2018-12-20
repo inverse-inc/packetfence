@@ -15,13 +15,23 @@
     <template slot="header" is="b-card-header">
       <b-button-close @click="close" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
       <h4 class="mb-0">
-        <span v-if="id">{{ $t('Billing Tier') }} <strong v-text="id"></strong></span>
+        <span v-if="!isNew && !isClone">{{ $t('Billing Tier {id}', { id: id }) }}</span>
+        <span v-else-if="isClone">{{ $t('Clone Billing Tier {id}', { id: id }) }}</span>
         <span v-else>{{ $t('New Billing Tier') }}</span>
       </h4>
     </template>
-    <template slot="footer" is="b-card-footer" @mouseenter="$v.billingTier.$touch()">
-      <pf-button-save :disabled="invalidForm" :isLoading="isLoading">{{ isNew? $t('Create') : $t('Save') }}</pf-button-save>
-      <pf-button-delete v-if="!isNew" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Billing Tier?')" @on-delete="remove()"/>
+    <template slot="footer"
+      scope="{isDeletable}"
+    >
+      <b-card-footer @mouseenter="$v.billingTier.$touch()">
+        <pf-button-save :disabled="invalidForm" :isLoading="isLoading">
+          <template v-if="isNew">{{ $t('Create') }}</template>
+          <template v-else-if="isClone">{{ $t('Clone') }}</template>
+          <template v-else-if="ctrlKey">{{ $t('Save &amp; Close') }}</template>
+          <template v-else>{{ $t('Save') }}</template>
+        </pf-button-save>
+        <pf-button-delete v-if="isDeletable" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Billing Tier?')" @on-delete="remove()"/>
+      </b-card-footer>
     </template>
   </pf-config-view>
 </template>
@@ -30,17 +40,19 @@
 import pfConfigView from '@/components/pfConfigView'
 import pfButtonSave from '@/components/pfButtonSave'
 import pfButtonDelete from '@/components/pfButtonDelete'
+import pfMixinCtrlKey from '@/components/pfMixinCtrlKey'
 import pfMixinEscapeKey from '@/components/pfMixinEscapeKey'
 import {
   pfConfigurationBillingTierViewFields as fields,
   pfConfigurationBillingTierViewDefaults as defaults
-} from '@/globals/pfConfiguration'
+} from '@/globals/pfConfigurationBillingTiers'
 const { validationMixin } = require('vuelidate')
 
 export default {
   name: 'BillingTierView',
   mixins: [
     validationMixin,
+    pfMixinCtrlKey,
     pfMixinEscapeKey
   ],
   components: {
@@ -93,6 +105,12 @@ export default {
     },
     roles () {
       return this.$store.getters['config/rolesList']
+    },
+    isDeletable () {
+      if (this.isNew || this.isClone || ('not_deletable' in this.billingTier && this.billingTier.not_deletable)) {
+        return false
+      }
+      return true
     }
   },
   methods: {
@@ -100,13 +118,21 @@ export default {
       this.$router.push({ name: 'billing_tiers' })
     },
     create () {
+      const ctrlKey = this.ctrlKey
       this.$store.dispatch(`${this.storeName}/createBillingTier`, this.billingTier).then(response => {
-        this.close()
+        if (ctrlKey) { // [CTRL] key pressed
+          this.close()
+        } else {
+          this.$router.push({ name: 'billing_tier', params: { id: this.billingTier.id } })
+        }
       })
     },
     save () {
+      const ctrlKey = this.ctrlKey
       this.$store.dispatch(`${this.storeName}/updateBillingTier`, this.billingTier).then(response => {
-        this.close()
+        if (ctrlKey) { // [CTRL] key pressed
+          this.close()
+        }
       })
     },
     remove () {

@@ -213,6 +213,10 @@ export default {
         value: value,
         srcEvent: event
       })
+      this.$emit(
+        ((this.toggled) ? 'checked' : 'unchecked'),
+        ((this.toggled) ? this.values.checked : this.values.unchecked)
+      )
     }
   }
 }

@@ -2,11 +2,16 @@ import store from '@/store'
 import ConfigurationView from '../'
 import AuthenticationSourcesStore from '../_store/sources'
 import BillingTiersStore from '../_store/billingTiers'
+import ConnectionProfilesStore from '../_store/connectionProfiles'
 import DomainsStore from '../_store/domains'
 import FloatingDevicesStore from '../_store/floatingDevices'
 import PortalModulesStore from '../_store/portalModules'
+import ProvisioningsStore from '../_store/provisionings'
 import RealmsStore from '../_store/realms'
 import RolesStore from '../_store/roles'
+import ScansStore from '../_store/scans'
+import SwitchesStore from '../_store/switches'
+import SwitchGroupsStore from '../_store/switchGroups'
 
 const PoliciesAccessControlSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/PoliciesAccessControlSection')
 const RolesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/RolesList')
@@ -16,6 +21,11 @@ const DomainView = () => import(/* webpackChunkName: "Configuration" */ '../_com
 const RealmView = () => import(/* webpackChunkName: "Configuration" */ '../_components/RealmView')
 const AuthenticationSourcesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/AuthenticationSourcesList')
 const AuthenticationSourceView = () => import(/* webpackChunkName: "Configuration" */ '../_components/AuthenticationSourceView')
+const NetworkDevicesTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/NetworkDevicesTabs')
+const SwitchView = () => import(/* webpackChunkName: "Configuration" */ '../_components/SwitchView')
+const SwitchGroupView = () => import(/* webpackChunkName: "Configuration" */ '../_components/SwitchGroupView')
+const ConnectionProfilesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/ConnectionProfilesList')
+const ConnectionProfileView = () => import(/* webpackChunkName: "Configuration" */ '../_components/ConnectionProfileView')
 
 const NetworkConfigurationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/NetworkConfigurationSection')
 const FloatingDevicesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/FloatingDevicesList')
@@ -36,26 +46,41 @@ const route = {
     /**
      * Register Vuex stores
      */
-    if (!store.state.$_roles) {
-      store.registerModule('$_roles', RolesStore)
+    if (!store.state.$_billing_tiers) {
+      store.registerModule('$_billing_tiers', BillingTiersStore)
     }
     if (!store.state.$_domains) {
       store.registerModule('$_domains', DomainsStore)
     }
-    if (!store.state.$_realms) {
-      store.registerModule('$_realms', RealmsStore)
+    if (!store.state.$_connection_profiles) {
+      store.registerModule('$_connection_profiles', ConnectionProfilesStore)
     }
     if (!store.state.$_floatingdevices) {
       store.registerModule('$_floatingdevices', FloatingDevicesStore)
     }
-    if (!store.state.$_sources) {
-      store.registerModule('$_sources', AuthenticationSourcesStore)
-    }
     if (!store.state.$_portalmodules) {
       store.registerModule('$_portalmodules', PortalModulesStore)
     }
-    if (!store.state.$_billing_tiers) {
-      store.registerModule('$_billing_tiers', BillingTiersStore)
+    if (!store.state.$_provisionings) {
+      store.registerModule('$_provisionings', ProvisioningsStore)
+    }
+    if (!store.state.$_realms) {
+      store.registerModule('$_realms', RealmsStore)
+    }
+    if (!store.state.$_roles) {
+      store.registerModule('$_roles', RolesStore)
+    }
+    if (!store.state.$_scans) {
+      store.registerModule('$_scans', ScansStore)
+    }
+    if (!store.state.$_sources) {
+      store.registerModule('$_sources', AuthenticationSourcesStore)
+    }
+    if (!store.state.$_switches) {
+      store.registerModule('$_switches', SwitchesStore)
+    }
+    if (!store.state.$_switch_groups) {
+      store.registerModule('$_switch_groups', SwitchGroupsStore)
     }
     next()
   },
@@ -91,6 +116,17 @@ const route = {
       }
     },
     {
+      path: 'role/:id/clone',
+      name: 'cloneRole',
+      component: RoleView,
+      props: (route) => ({ storeName: '$_roles', id: route.params.id, isClone: true }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_roles/getRole', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
       path: 'domains',
       name: 'domains',
       component: DomainsTabs,
@@ -107,6 +143,17 @@ const route = {
       name: 'domain',
       component: DomainView,
       props: (route) => ({ storeName: '$_domains', id: route.params.id }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_domains/getDomain', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'domain/:id/clone',
+      name: 'cloneDomain',
+      component: DomainView,
+      props: (route) => ({ storeName: '$_domains', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
         store.dispatch('$_domains/getDomain', to.params.id).then(object => {
           next()
@@ -136,6 +183,20 @@ const route = {
         })
       }
     },
+    {
+      path: 'realm/:id/clone',
+      name: 'cloneRealm',
+      component: RealmView,
+      props: (route) => ({ storeName: '$_realms', id: route.params.id, isClone: true }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_realms/getRealm', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    /**
+     * Authentication Sources
+     */
     {
       path: 'sources',
       name: 'sources',
@@ -171,6 +232,117 @@ const route = {
       }
     },
     /**
+     * Switches
+     */
+    {
+      path: 'switches',
+      name: 'switches',
+      component: NetworkDevicesTabs,
+      props: (route) => ({ tab: 'switches', query: route.query.query })
+    },
+    {
+      path: 'switches/new/:switchGroup',
+      name: 'newSwitch',
+      component: SwitchView,
+      props: (route) => ({ storeName: '$_switches', isNew: true, switchGroup: route.params.switchGroup })
+    },
+    {
+      path: 'switch/:id',
+      name: 'switch',
+      component: SwitchView,
+      props: (route) => ({ storeName: '$_switches', id: route.params.id }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_switches/getSwitch', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'switch/:id/clone',
+      name: 'cloneSwitch',
+      component: SwitchView,
+      props: (route) => ({ storeName: '$_switches', id: route.params.id, isClone: true }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_switches/getSwitch', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    /**
+     * Switch Groups
+     */
+    {
+      path: 'switch_groups',
+      name: 'switch_groups',
+      component: NetworkDevicesTabs,
+      props: (route) => ({ tab: 'switch_groups', query: route.query.query })
+    },
+    {
+      path: 'switch_groups/new',
+      name: 'newSwitchGroup',
+      component: SwitchGroupView,
+      props: (route) => ({ storeName: '$_switch_groups', isNew: true })
+    },
+    {
+      path: 'switch_group/:id',
+      name: 'switch_group',
+      component: SwitchGroupView,
+      props: (route) => ({ storeName: '$_switch_groups', id: route.params.id }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_switch_groups/getSwitchGroup', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'switch_group/:id/clone',
+      name: 'cloneSwitchGroup',
+      component: SwitchGroupView,
+      props: (route) => ({ storeName: '$_switch_groups', id: route.params.id, isClone: true }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_switch_groups/getSwitchGroup', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    /**
+     * Connection Profiles
+     */
+    {
+      path: 'connection_profiles',
+      name: 'connection_profiles',
+      component: ConnectionProfilesList,
+      props: (route) => ({ tab: 'connection_profiles', query: route.query.query })
+    },
+    {
+      path: 'connection_profiles/new',
+      name: 'newConnectionProfile',
+      component: ConnectionProfileView,
+      props: (route) => ({ storeName: '$_connection_profiles', isNew: true })
+    },
+    {
+      path: 'connection_profile/:id',
+      name: 'connection_profile',
+      component: ConnectionProfileView,
+      props: (route) => ({ storeName: '$_connection_profiles', id: route.params.id }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_connection_profiles/getConnectionProfile', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'connection_profile/:id/clone',
+      name: 'cloneConnectionProfile',
+      component: ConnectionProfileView,
+      props: (route) => ({ storeName: '$_connection_profiles', id: route.params.id, isClone: true }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_connection_profiles/getConnectionProfile', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    /**
      * Network Configuration
      */
     {
@@ -194,6 +366,17 @@ const route = {
       name: 'floating_device',
       component: FloatingDeviceView,
       props: (route) => ({ storeName: '$_floatingdevices', id: route.params.id }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_floatingdevices/getFloatingDevice', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'floating_device/:id/clone',
+      name: 'cloneFloatingDevice',
+      component: FloatingDeviceView,
+      props: (route) => ({ storeName: '$_floatingdevices', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
         store.dispatch('$_floatingdevices/getFloatingDevice', to.params.id).then(object => {
           next()
@@ -259,6 +442,17 @@ const route = {
       name: 'billing_tier',
       component: BillingTierView,
       props: (route) => ({ storeName: '$_billing_tiers', id: route.params.id }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_billing_tiers/getBillingTier', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'billing_tier/:id/clone',
+      name: 'cloneBillingTier',
+      component: BillingTierView,
+      props: (route) => ({ storeName: '$_billing_tiers', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
         store.dispatch('$_billing_tiers/getBillingTier', to.params.id).then(object => {
           next()

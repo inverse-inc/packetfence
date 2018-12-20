@@ -13,7 +13,8 @@
         class="mx-0 px-0"
       >
         <b-button variant="outline-secondary" @click.stop="rowAdd()">{{ buttonLabel || $t('Add row') }}</b-button>
-      </b-container>
+        <small v-if="emptyText" class="ml-2">{{ emptyText }}</small>
+      </b-container>a
       <draggable v-else
         v-model="inputValue"
         :options="{handle: '.draghandle', dragClass: 'dragclass'}"
@@ -29,8 +30,10 @@
         <component
           v-model="inputValue[index]"
           v-bind="field.attrs"
+          v-on="field.listeners"
           :is="field.component"
           :key="uuids[index]"
+          :uuid="uuids[index]"
           :vuelidate="getVuelidateModel(index)"
           :ref="'component-' + index"
           @validations="setChildValidations(index, $event)"
@@ -48,12 +51,12 @@
             </div>
           </template>
           <template slot="append">
-            <icon name="minus-circle"
+            <icon name="minus-circle" v-if="canDel"
               :class="['cursor-pointer mx-1', { 'text-primary': ctrlKey, 'text-secondary': !ctrlKey }]"
               v-b-tooltip.hover.left.d300
               :title="$t((ctrlKey) ? 'Delete All' : 'Delete Row')"
               @click.native.stop.prevent="rowDel(index)"></icon>
-            <icon name="plus-circle"
+            <icon name="plus-circle" v-if="canAdd"
               :class="['cursor-pointer mx-1', { 'text-primary': ctrlKey, 'text-secondary': !ctrlKey }]"
               v-b-tooltip.hover.left.d300 :title="$t((ctrlKey) ? 'Clone Row' : 'Add Row')"
               @click.native.stop.prevent="rowAdd(index + 1)"></icon>
@@ -101,6 +104,10 @@ export default {
       type: Boolean,
       default: false
     },
+    emptyText: {
+      type: String,
+      default: null
+    },
     buttonLabel: {
       type: String
     },
@@ -110,6 +117,14 @@ export default {
     labelCols: {
       type: Number,
       default: 3
+    },
+    minFields: {
+      type: Number,
+      default: false
+    },
+    maxFields: {
+      type: Number,
+      default: false
     }
   },
   data () {
@@ -123,17 +138,28 @@ export default {
   computed: {
     inputValue: {
       get () {
+        if (this.uuids.length < this.value.length) { // only on initial load
+          this.value.forEach((_, index) => {
+            this.uuids[index] = uuidv4()
+          })
+        }
         return this.value
       },
       set (newValue) {
         this.$emit('input', newValue)
       }
+    },
+    canAdd () {
+      return (!this.maxFields || this.maxFields > this.value.length)
+    },
+    canDel () {
+      return (!this.minFields || this.minFields < this.value.length)
     }
   },
   methods: {
     rowAdd (index = 0, clone = this.ctrlKey) {
-      let inputValue = this.inputValue
-      let length = this.inputValue.length
+      let inputValue = this.inputValue || []
+      let length = inputValue.length
       let newRow = (clone && (index - 1) in inputValue)
         ? JSON.parse(JSON.stringify(inputValue[index - 1])) // clone, dereference
         : null // use placeholder
@@ -142,9 +168,9 @@ export default {
       this.uuids = [...this.uuids.slice(0, index), uuidv4(), ...this.uuids.slice(index)]
       // shift up validations
       for (let i = length; i > index; i--) {
-        this.validations[i] = this.validations[i - 1]
+        this.$set(this.validations, i, this.validations[i - 1])
       }
-      this.validations[index] = {}
+      this.$set(this.validations, index, {})
       // focus the type element in new row
       if (!clone) { // Bugfix: focusing pfFormChosen steals ctrlKey's onkeyup event
         this.$nextTick(() => { // wait until DOM updates with new row
@@ -161,15 +187,15 @@ export default {
           this.$delete(this.inputValue, i)
           this.$delete(this.uuids, i)
         }
-        this.validations = {}
+        this.$set(this, 'validations', {})
       } else {
         this.inputValue.splice(index, 1) // delete 1 row
         this.uuids.splice(index, 1)
         // shift down validations
         for (let i = index; i < length; i++) {
-          this.validations[i] = this.validations[i + 1]
+          this.$set(this.validations, i, this.validations[i + 1])
         }
-        this.validations[length] = {}
+        this.$set(this.validations, length, {})
       }
       this.emitValidations()
       this.forceUpdate()
@@ -190,15 +216,15 @@ export default {
       if (oldIndex > newIndex) {
         // shift down (not swapped)
         for (let i = oldIndex; i > newIndex; i--) {
-          this.validations[i] = this.validations[i - 1]
+          this.$set(this.validations, i, this.validations[i - 1])
         }
       } else {
         // shift up (not swapped)
         for (let i = oldIndex; i < newIndex; i++) {
-          this.validations[i] = this.validations[i + 1]
+          this.$set(this.validations, i, this.validations[i + 1])
         }
       }
-      this.validations[newIndex] = tmp
+      this.$set(this.validations, newIndex, tmp)
       this.emitValidations()
       this.forceUpdate()
     },
@@ -212,7 +238,7 @@ export default {
     /**
      * Used by child component to perform function calls on its siblings, including itself
      **/
-    onSiblings ([func, ...args]) {
+    onSiblings (func, ...args) {
       this.inputValue.forEach((_, index) => {
         const { $refs: { ['component-' + index]: component } } = this
         if (component) {
@@ -233,25 +259,26 @@ export default {
       if (focus) focus()
     },
     getVuelidateModel (index) {
-      const { vuelidate: { [index]: model } } = this
-      return model || {}
+      if (!(index in this.vuelidate)) {
+        this.$set(this.vuelidate, index, {})
+      }
+      return this.vuelidate[index]
     },
     setChildValidations (index, validations) {
-      if (!(index in this.validations)) {
-        this.validations[index] = {}
-      }
-      this.validations[index] = validations
+      this.$set(this.validations, index, validations)
       this.emitValidations()
     },
     emitValidations () {
       // build merge of local validations and child validations
       let validators = {}
-      const { field: { validators: fieldValidators } } = this
-      this.inputValue.map((_, index) => {
-        if (index in this.validations) {
-          validators[index] = { ...fieldValidators, ...this.validations[index] }
-        }
-      })
+      if (this.inputValue) {
+        const { field: { validators: fieldValidators } } = this
+        this.inputValue.map((_, index) => {
+          if (index in this.validations) {
+            validators[index] = { ...this.validations[index], ...fieldValidators }
+          }
+        })
+      }
       this.$emit('validations', validators)
     }
   },
@@ -278,6 +305,34 @@ export default {
     @include border-radius($border-radius);
     @include transition($custom-forms-transition);
     outline: 0;
+    .draghandle {
+      cursor: grab;
+    }
+    .dragclass {
+      padding-top: .25rem !important;
+      padding-bottom: .0625rem !important;
+      background-color: $primary !important;
+      path, /* svg icons */
+      * {
+        color: $white !important;
+        border-color: transparent !important;
+      }
+      /* TODO: Bugfix
+      button.btn {
+        color: $white !important;
+        border: 1px solid $white !important;
+        border-color: $white !important;
+      }
+      */
+      input,
+      select,
+      .multiselect__single {
+        color: $primary !important;
+      }
+      .pf-form-fields-input-group {
+        border-color: transparent !important;
+      }
+    }
   }
   .col-form-label {
     // Align the label with the text of the first action
@@ -300,22 +355,6 @@ export default {
     &:not(:last-child) {
       border-bottom: $input-border-width solid $input-focus-bg;
     }
-  }
-}
-.draghandle {
-  cursor: grab;
-}
-.dragclass {
-  padding-top: .25rem !important;
-  padding-bottom: .0625rem !important;
-  background-color: $primary !important;
-  path, /* svg icons */
-  * {
-    color: $white !important;
-    border-color: transparent !important;
-  }
-  .pf-form-fields-input-group {
-    border-color: transparent !important;
   }
 }
 .cursor-pointer {

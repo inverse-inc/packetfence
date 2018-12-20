@@ -1,5 +1,5 @@
 /**
-* "$_roles" store module
+* "$_switches" store module
 */
 import Vue from 'vue'
 import api from '../_api'
@@ -27,45 +27,45 @@ const actions = {
   all: () => {
     const params = {
       sort: 'id',
-      fields: ['id'].join(',')
+      fields: ['id', 'description', 'class'].join(',')
     }
-    return api.roles(params).then(response => {
+    return api.switches(params).then(response => {
       return response.items
     })
   },
-  getRole: ({ state, commit }, id) => {
+  getSwitch: ({ state, commit }, id) => {
     if (state.cache[id]) {
       return Promise.resolve(state.cache[id])
     }
     commit('ITEM_REQUEST')
-    return api.role(id).then(item => {
+    return api.switche(id).then(item => {
       commit('ITEM_REPLACED', item)
     }).catch((err) => {
       commit('ITEM_ERROR', err.response)
       throw err
     })
   },
-  createRole: ({ commit }, data) => {
+  createSwitch: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.createRole(data).then(response => {
+    return api.createSwitch(data).then(response => {
       commit('ITEM_REPLACED', data)
     }).catch(err => {
       commit('ITEM_ERROR', err.response)
       throw err
     })
   },
-  updateRole: ({ commit }, data) => {
+  updateSwitch: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.updateRole(data).then(response => {
+    return api.updateSwitch(data).then(response => {
       commit('ITEM_REPLACED', data)
     }).catch(err => {
       commit('ITEM_ERROR', err.response)
       throw err
     })
   },
-  deleteRole: ({ commit }, data) => {
+  deleteSwitch: ({ commit }, data) => {
     commit('ITEM_REQUEST', types.DELETING)
-    return api.deleteRole(data).then(response => {
+    return api.deleteSwitch(data).then(response => {
       commit('ITEM_DESTROYED', data)
     }).catch(err => {
       commit('ITEM_ERROR', err.response)
@@ -92,6 +92,9 @@ const mutations = {
     if (response && response.data) {
       state.message = response.data.message
     }
+  },
+  ITEM_SUCCESS: (state) => {
+    state.itemStatus = types.SUCCESS
   }
 }
 

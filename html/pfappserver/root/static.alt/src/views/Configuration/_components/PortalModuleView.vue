@@ -21,14 +21,18 @@
       </h4>
       <b-badge class="ml-2" variant="secondary" v-t="moduleType"></b-badge>
     </template>
-    <template slot="footer" is="b-card-footer" @mouseenter="$v.module.$touch()">
-      <pf-button-save :disabled="invalidForm" :isLoading="isLoading">
-        <icon v-if="ctrlKey" name="step-backward" class="mx-1"></icon>
-        <template v-if="isNew">{{ $t('Create') }}</template>
-        <template v-else-if="isClone">{{ $t('Clone') }}</template>
-        <template v-else>{{ $t('Save') }}</template>
-      </pf-button-save>
-      <pf-button-delete v-if="!isNew && !isClone" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Module?')" @on-delete="remove()"/>
+    <template slot="footer"
+      scope="{isDeletable}"
+    >
+      <b-card-footer @mouseenter="$v.module.$touch()">
+        <pf-button-save :disabled="invalidForm" :isLoading="isLoading">
+          <template v-if="isNew">{{ $t('Create') }}</template>
+          <template v-else-if="isClone">{{ $t('Clone') }}</template>
+          <template v-else-if="ctrlKey">{{ $t('Save &amp; Close') }}</template>
+          <template v-else>{{ $t('Save') }}</template>
+        </pf-button-save>
+        <pf-button-delete v-if="isDeletable" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Module?')" @on-delete="remove()"/>
+      </b-card-footer>
     </template>
   </pf-config-view>
 </template>
@@ -46,7 +50,7 @@ import {
 import {
   pfConfigurationPortalModuleViewFields as fields,
   pfConfigurationPortalModuleViewDefaults as defaults
-} from '@/globals/pfConfiguration'
+} from '@/globals/pfConfigurationPortalModules'
 const { validationMixin } = require('vuelidate')
 
 export default {
@@ -111,6 +115,12 @@ export default {
     },
     sources () {
       return fieldTypeValues[fieldType.SOURCE](this.$store)
+    },
+    isDeletable () {
+      if (this.isNew || this.isClone || ('not_deletable' in this.module && this.module.not_deletable)) {
+        return false
+      }
+      return true
     }
   },
   methods: {

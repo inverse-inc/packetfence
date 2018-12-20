@@ -4,6 +4,8 @@
     :form="getForm"
     :model="realm"
     :vuelidate="$v.realm"
+    :isNew="isNew"
+    :isClone="isClone"
     @validations="realmValidations = $event"
     @close="close"
     @create="create"
@@ -13,13 +15,23 @@
     <template slot="header" is="b-card-header">
       <b-button-close @click="close" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
       <h4 class="mb-0">
-        <span v-if="id">{{ $t('Realm') }} <strong v-text="id"></strong></span>
+        <span v-if="!isNew && !isClone">{{ $t('Realm {id}', { id: id }) }}</span>
+        <span v-else-if="isClone">{{ $t('Clone Realm {id}', { id: id }) }}</span>
         <span v-else>{{ $t('New Realm') }}</span>
       </h4>
     </template>
-    <template slot="footer" is="b-card-footer" @mouseenter="$v.realm.$touch()">
-      <pf-button-save :disabled="invalidForm" :isLoading="isLoading">{{ isNew? $t('Create') : $t('Save') }}</pf-button-save>
-      <pf-button-delete v-if="!isNew" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Realm?')" @on-delete="remove()"/>
+    <template slot="footer"
+      scope="{isDeletable}"
+    >
+      <b-card-footer @mouseenter="$v.realm.$touch()">
+        <pf-button-save :disabled="invalidForm" :isLoading="isLoading">
+          <template v-if="isNew">{{ $t('Create') }}</template>
+          <template v-else-if="isClone">{{ $t('Clone') }}</template>
+          <template v-else-if="ctrlKey">{{ $t('Save &amp; Close') }}</template>
+          <template v-else>{{ $t('Save') }}</template>
+        </pf-button-save>
+        <pf-button-delete v-if="isDeletable" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Realm?')" @on-delete="remove()"/>
+      </b-card-footer>
     </template>
   </pf-config-view>
 </template>
@@ -28,17 +40,19 @@
 import pfConfigView from '@/components/pfConfigView'
 import pfButtonSave from '@/components/pfButtonSave'
 import pfButtonDelete from '@/components/pfButtonDelete'
+import pfMixinCtrlKey from '@/components/pfMixinCtrlKey'
 import pfMixinEscapeKey from '@/components/pfMixinEscapeKey'
 import {
   pfConfigurationRealmViewFields as fields,
   pfConfigurationRealmViewDefaults as defaults
-} from '@/globals/pfConfiguration'
+} from '@/globals/pfConfigurationRealms'
 const { validationMixin } = require('vuelidate')
 
 export default {
   name: 'RealmView',
   mixins: [
     validationMixin,
+    pfMixinCtrlKey,
     pfMixinEscapeKey
   ],
   components: {
@@ -53,6 +67,10 @@ export default {
       required: true
     },
     isNew: { // from router
+      type: Boolean,
+      default: false
+    },
+    isClone: { // from router
       type: Boolean,
       default: false
     },
@@ -85,6 +103,12 @@ export default {
         labelCols: 3,
         fields: fields(this)
       }
+    },
+    isDeletable () {
+      if (this.isNew || this.isClone || ('not_deletable' in this.realm && this.realm.not_deletable)) {
+        return false
+      }
+      return true
     }
   },
   methods: {
@@ -92,13 +116,21 @@ export default {
       this.$router.push({ name: 'realms' })
     },
     create () {
+      const ctrlKey = this.ctrlKey
       this.$store.dispatch('$_realms/createRealm', this.realm).then(response => {
-        this.close()
+        if (ctrlKey) { // [CTRL] key pressed
+          this.close()
+        } else {
+          this.$router.push({ name: 'realm', params: { id: this.realm.id } })
+        }
       })
     },
     save () {
+      const ctrlKey = this.ctrlKey
       this.$store.dispatch('$_realms/updateRealm', this.realm).then(response => {
-        this.close()
+        if (ctrlKey) { // [CTRL] key pressed
+          this.close()
+        }
       })
     },
     remove () {

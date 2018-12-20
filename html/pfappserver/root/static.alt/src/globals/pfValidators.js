@@ -23,6 +23,7 @@ const _common = require('vuelidate/lib/validators/common')
 
 // Get the unique id of a given $v.
 const idOfV = ($v) => {
+  if ($v.constructor === String) return undefined
   const { '__ob__': { dep: { id } } } = $v
   return id || undefined
 }
@@ -113,8 +114,8 @@ export const conditional = (conditional) => {
   return (0, _common.withParams)({
     type: 'conditional',
     conditional: conditional
-  }, function () {
-    return conditional
+  }, function (value, vm) {
+    return (conditional.constructor === Function) ? conditional(value, vm) : conditional
   })
 }
 
@@ -165,7 +166,7 @@ export const isFQDN = (value) => {
 
 export const isPort = (value) => {
   if (!value) return true
-  return ~~value >= 1 && ~~value <= 65535
+  return ~~value === parseFloat(value) && ~~value >= 1 && ~~value <= 65535
 }
 
 export const isPrice = (value) => {
@@ -200,9 +201,19 @@ export const compareDate = (comparison, date = new Date(), dateFormat = 'YYYY-MM
   })
 }
 
+export const billingTierExists = (value, component) => {
+  if (!value) return true
+  return store.dispatch('config/getBillingTiers').then((response) => {
+    return (response.filter(billingTier => billingTier.id.toLowerCase() === value.toLowerCase()).length > 0)
+  }).catch(() => {
+    return true
+  })
+}
+
 export const categoryIdNumberExists = (value, component) => {
   if (!value || !/^\d+$/.test(value)) return true
   return store.dispatch('config/getRoles').then((response) => {
+    if (response.length === 0) return false
     return (response.filter(role => role.category_id === value).length > 0)
   }).catch(() => {
     return true
@@ -212,16 +223,38 @@ export const categoryIdNumberExists = (value, component) => {
 export const categoryIdStringExists = (value, component) => {
   if (!value || /^\d+$/.test(value)) return true
   return store.dispatch('config/getRoles').then((response) => {
+    if (response.length === 0) return false
     return (response.filter(role => role.name.toLowerCase() === value.toLowerCase()).length > 0)
   }).catch(() => {
     return true
   })
 }
 
-export const sourceExists = (value, component) => {
+export const connectionProfileExists = (value, component) => {
   if (!value) return true
-  return store.dispatch('config/getSources').then((response) => {
-    return (response.filter(source => source.id.toLowerCase() === value.toLowerCase()).length > 0)
+  return store.dispatch('config/getConnectionProfiles').then((response) => {
+    if (response.length === 0) return false
+    return (response.filter(connectionProfile => connectionProfile.id.toLowerCase() === value.toLowerCase()).length > 0)
+  }).catch(() => {
+    return true
+  })
+}
+
+export const domainExists = (value, component) => {
+  if (!value) return true
+  return store.dispatch('config/getDomains').then((response) => {
+    if (response.length === 0) return false
+    return (response.filter(domain => domain.id.toLowerCase() === value.toLowerCase()).length > 0)
+  }).catch(() => {
+    return true
+  })
+}
+
+export const floatingDeviceExists = (value, component) => {
+  if (!value) return true
+  return store.dispatch('config/getFloatingDevices').then((response) => {
+    if (response.length === 0) return false
+    return (response.filter(floatingDevice => floatingDevice.id.toLowerCase() === value.toLowerCase()).length > 0)
   }).catch(() => {
     return true
   })
@@ -231,6 +264,56 @@ export const nodeExists = (value, component) => {
   if (!value || value.length !== 17) return true
   return store.dispatch('$_nodes/exists', value).then(() => {
     return false
+  }).catch(() => {
+    return true
+  })
+}
+
+export const realmExists = (value, component) => {
+  if (!value) return true
+  return store.dispatch('config/getRealms').then((response) => {
+    if (response.length === 0) return false
+    return (response.filter(realm => realm.id.toLowerCase() === value.toLowerCase()).length > 0)
+  }).catch(() => {
+    return true
+  })
+}
+
+export const roleExists = (value, component) => {
+  if (!value) return true
+  return store.dispatch('config/getRoles').then((response) => {
+    if (response.length === 0) return false
+    return (response.filter(role => role.name.toLowerCase() === value.toLowerCase()).length > 0)
+  }).catch(() => {
+    return true
+  })
+}
+
+export const sourceExists = (value, component) => {
+  if (!value) return true
+  return store.dispatch('config/getSources').then((response) => {
+    if (response.length === 0) return false
+    return (response.filter(source => source.id.toLowerCase() === value.toLowerCase()).length > 0)
+  }).catch(() => {
+    return true
+  })
+}
+
+export const switchExists = (value, component) => {
+  if (!value) return true
+  return store.dispatch('config/getSwitches').then((response) => {
+    if (response.length === 0) return false
+    return (response.filter(switche => switche.id.toLowerCase() === value.toLowerCase()).length > 0)
+  }).catch(() => {
+    return true
+  })
+}
+
+export const switchGroupExists = (value, component) => {
+  if (!value) return true
+  return store.dispatch('config/getSwitchGroups').then((response) => {
+    if (response.length === 0) return false
+    return (response.filter(switchGroup => switchGroup.id.toLowerCase() === value.toLowerCase()).length > 0)
   }).catch(() => {
     return true
   })
@@ -262,14 +345,15 @@ export const userNotExists = (value, component) => {
  * All functions ignore self.
 **/
 
-// Limit the count of sibling field |key|s
-export const limitSiblingFields = (key, limit) => {
+// Limit the count of sibling field |keys|
+export const limitSiblingFields = (keys, limit = 0) => {
   return (0, _common.withParams)({
     type: 'limitSiblingFields',
-    key: key,
+    keys: keys,
     limit: limit
   }, function (value, field) {
     if (!value) return true
+    const _keys = (keys.constructor === Array) ? keys : [keys] // force Array
     let count = 0
     const { id, parent, params } = idParentParamsFromV(this.$v, field)
     if (params) {
@@ -278,10 +362,13 @@ export const limitSiblingFields = (key, limit) => {
         const [param] = params[i] // destructure
         if (!parent[param].$model) continue // ignore empty models
         if (idOfV(parent[param].$model) === id) continue // ignore (self)
-        if (parent[param].$model[key] === field[key]) {
-          count += 1 // increment count
-          if (count > limit) return false
+        // iterate through all keys, continue on 1st mismatch
+        if (_keys.find(key => {
+          return parent[param].$model[key] !== field[key]
+        })) {
+          continue // GTFO
         }
+        if (++count > limit) return false
       }
     }
     return true

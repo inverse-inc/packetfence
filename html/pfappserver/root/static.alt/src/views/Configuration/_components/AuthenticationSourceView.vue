@@ -20,14 +20,18 @@
         <span v-else>{{ $t('New {sourceType} Authentication Source', { sourceType: this.sourceType}) }}</span>
       </h4>
     </template>
-    <template slot="footer" is="b-card-footer" @mouseenter="$v.$touch()">
-      <pf-button-save :disabled="invalidForm" :isLoading="isLoading">
-        <template v-if="isNew">{{ $t('Create') }}</template>
-        <template v-else-if="isClone">{{ $t('Clone') }}</template>
-        <template v-else-if="ctrlKey">{{ $t('Save &amp; Close') }}</template>
-        <template v-else>{{ $t('Save') }}</template>
-      </pf-button-save>
-      <pf-button-delete v-if="!isNew && !isClone" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Source?')" @on-delete="remove()"/>
+    <template slot="footer"
+      scope="{isDeletable}"
+    >
+      <b-card-footer @mouseenter="$v.source.$touch()">
+        <pf-button-save :disabled="invalidForm" :isLoading="isLoading">
+          <template v-if="isNew">{{ $t('Create') }}</template>
+          <template v-else-if="isClone">{{ $t('Clone') }}</template>
+          <template v-else-if="ctrlKey">{{ $t('Save &amp; Close') }}</template>
+          <template v-else>{{ $t('Save') }}</template>
+        </pf-button-save>
+        <pf-button-delete v-if="isDeletable" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Source?')" @on-delete="remove()"/>
+      </b-card-footer>
     </template>
   </pf-config-view>
 </template>
@@ -39,9 +43,9 @@ import pfButtonDelete from '@/components/pfButtonDelete'
 import pfMixinCtrlKey from '@/components/pfMixinCtrlKey'
 import pfMixinEscapeKey from '@/components/pfMixinEscapeKey'
 import {
-  pfConfigurationAuthenticationSourcesViewFields as fields,
-  pfConfigurationAuthenticationSourcesViewDefaults as defaults
-} from '@/globals/pfConfiguration'
+  pfConfigurationAuthenticationSourceViewFields as fields,
+  pfConfigurationAuthenticationSourceViewDefaults as defaults
+} from '@/globals/pfConfigurationAuthenticationSources'
 const { validationMixin } = require('vuelidate')
 
 export default {
@@ -104,6 +108,12 @@ export default {
         labelCols: 3,
         fields: fields(this)
       }
+    },
+    isDeletable () {
+      if (this.isNew || this.isClone || ('not_deletable' in this.source && this.source.not_deletable)) {
+        return false
+      }
+      return true
     }
   },
   methods: {

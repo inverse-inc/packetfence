@@ -1,5 +1,5 @@
 /**
-* "$_roles" store module
+* "$_scans" store module
 */
 import Vue from 'vue'
 import api from '../_api'
@@ -27,46 +27,55 @@ const actions = {
   all: () => {
     const params = {
       sort: 'id',
-      fields: ['id'].join(',')
+      fields: ['id', 'description', 'class'].join(',')
     }
-    return api.roles(params).then(response => {
+    return api.scans(params).then(response => {
       return response.items
     })
   },
-  getRole: ({ state, commit }, id) => {
+  getScan: ({ state, commit }, id) => {
     if (state.cache[id]) {
       return Promise.resolve(state.cache[id])
     }
     commit('ITEM_REQUEST')
-    return api.role(id).then(item => {
+    return api.scan(id).then(item => {
       commit('ITEM_REPLACED', item)
     }).catch((err) => {
       commit('ITEM_ERROR', err.response)
       throw err
     })
   },
-  createRole: ({ commit }, data) => {
+  createScan: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.createRole(data).then(response => {
+    return api.createScan(data).then(response => {
       commit('ITEM_REPLACED', data)
     }).catch(err => {
       commit('ITEM_ERROR', err.response)
       throw err
     })
   },
-  updateRole: ({ commit }, data) => {
+  updateScan: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.updateRole(data).then(response => {
+    return api.updateScan(data).then(response => {
       commit('ITEM_REPLACED', data)
     }).catch(err => {
       commit('ITEM_ERROR', err.response)
       throw err
     })
   },
-  deleteRole: ({ commit }, data) => {
+  deleteScan: ({ commit }, data) => {
     commit('ITEM_REQUEST', types.DELETING)
-    return api.deleteRole(data).then(response => {
+    return api.deleteScan(data).then(response => {
       commit('ITEM_DESTROYED', data)
+    }).catch(err => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
+  },
+  testScan: ({ commit }, data) => {
+    commit('ITEM_REQUEST')
+    return api.testScan(data).then(response => {
+      commit('ITEM_SUCCESS')
     }).catch(err => {
       commit('ITEM_ERROR', err.response)
       throw err
@@ -92,6 +101,9 @@ const mutations = {
     if (response && response.data) {
       state.message = response.data.message
     }
+  },
+  ITEM_SUCCESS: (state) => {
+    state.itemStatus = types.SUCCESS
   }
 }
 

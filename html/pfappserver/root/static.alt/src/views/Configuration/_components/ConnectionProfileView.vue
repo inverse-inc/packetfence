@@ -2,11 +2,11 @@
   <pf-config-view
     :isLoading="isLoading"
     :form="getForm"
-    :model="role"
-    :vuelidate="$v.role"
+    :model="connectionProfile"
+    :vuelidate="$v.connectionProfile"
     :isNew="isNew"
     :isClone="isClone"
-    @validations="roleValidations = $event"
+    @validations="connectionProfileValidations = $event"
     @close="close"
     @create="create"
     @save="save"
@@ -15,22 +15,22 @@
     <template slot="header" is="b-card-header">
       <b-button-close @click="close" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
       <h4 class="mb-0">
-        <span v-if="!isNew && !isClone">{{ $t('Role {id}', { id: id }) }}</span>
-        <span v-else-if="isClone">{{ $t('Clone Role {id}', { id: id }) }}</span>
-        <span v-else>{{ $t('New Role') }}</span>
+        <span v-if="!isNew && !isClone">{{ $t('Connection Profile {id}', { id: id }) }}</span>
+        <span v-else-if="isClone">{{ $t('Clone Connection Profile {id}', { id: id }) }}</span>
+        <span v-else>{{ $t('New Connection Profile') }}</span>
       </h4>
     </template>
     <template slot="footer"
       scope="{isDeletable}"
     >
-      <b-card-footer @mouseenter="$v.role.$touch()">
+      <b-card-footer @mouseenter="$v.connectionProfile.$touch()">
         <pf-button-save :disabled="invalidForm" :isLoading="isLoading">
           <template v-if="isNew">{{ $t('Create') }}</template>
           <template v-else-if="isClone">{{ $t('Clone') }}</template>
           <template v-else-if="ctrlKey">{{ $t('Save &amp; Close') }}</template>
           <template v-else>{{ $t('Save') }}</template>
         </pf-button-save>
-        <pf-button-delete v-if="isDeletable" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Role?')" @on-delete="remove()"/>
+        <pf-button-delete v-if="isDeletable" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Connection Profile?')" @on-delete="remove()"/>
       </b-card-footer>
     </template>
   </pf-config-view>
@@ -43,13 +43,13 @@ import pfButtonDelete from '@/components/pfButtonDelete'
 import pfMixinCtrlKey from '@/components/pfMixinCtrlKey'
 import pfMixinEscapeKey from '@/components/pfMixinEscapeKey'
 import {
-  pfConfigurationRoleViewFields as fields,
-  pfConfigurationRoleViewDefaults as defaults
-} from '@/globals/pfConfigurationRoles'
+  pfConfigurationConnectionProfileViewFields as fields,
+  pfConfigurationConnectionProfileViewDefaults as defaults
+} from '@/globals/pfConfigurationConnectionProfiles'
 const { validationMixin } = require('vuelidate')
 
 export default {
-  name: 'RoleView',
+  name: 'ConnectionProfileView',
   mixins: [
     validationMixin,
     pfMixinCtrlKey,
@@ -81,21 +81,25 @@ export default {
   },
   data () {
     return {
-      role: defaults(this), // will be overloaded with the data from the store
-      roleValidations: {} // will be overloaded with data from the pfConfigView
+      connectionProfile: defaults(this), // will be overloaded with the data from the store
+      connectionProfileValidations: {}, // will be overloaded with data from the pfConfigView
+      sources: [],
+      billingTiers: [],
+      provisionings: [],
+      scans: []
     }
   },
   validations () {
     return {
-      role: this.roleValidations
+      connectionProfile: this.connectionProfileValidations
     }
   },
   computed: {
     isLoading () {
-      return this.$store.getters['$_roles/isLoading']
+      return this.$store.getters[`${this.storeName}/isLoading`]
     },
     invalidForm () {
-      return this.$v.role.$invalid || this.$store.getters['$_roles/isWaiting']
+      return this.$v.connectionProfile.$invalid || this.$store.getters[`${this.storeName}/isWaiting`]
     },
     getForm () {
       return {
@@ -103,8 +107,11 @@ export default {
         fields: fields(this)
       }
     },
+    roles () {
+      return this.$store.getters['config/rolesList']
+    },
     isDeletable () {
-      if (this.isNew || this.isClone || ('not_deletable' in this.role && this.role.not_deletable)) {
+      if (this.isNew || this.isClone || ('not_deletable' in this.connectionProfile && this.connectionProfile.not_deletable)) {
         return false
       }
       return true
@@ -112,38 +119,51 @@ export default {
   },
   methods: {
     close () {
-      this.$router.push({ name: 'roles' })
+      this.$router.push({ name: 'connection_profiles' })
     },
     create () {
       const ctrlKey = this.ctrlKey
-      this.$store.dispatch('$_roles/createRole', this.role).then(response => {
+      this.$store.dispatch(`${this.storeName}/createConnectionProfile`, this.connectionProfile).then(response => {
         if (ctrlKey) { // [CTRL] key pressed
           this.close()
         } else {
-          this.$router.push({ name: 'role', params: { id: this.role.id } })
+          this.$router.push({ name: 'connection_profile', params: { id: this.connectionProfile.id } })
         }
       })
     },
     save () {
       const ctrlKey = this.ctrlKey
-      this.$store.dispatch('$_roles/updateRole', this.role).then(response => {
+      this.$store.dispatch(`${this.storeName}/updateConnectionProfile`, this.connectionProfile).then(response => {
         if (ctrlKey) { // [CTRL] key pressed
           this.close()
         }
       })
     },
     remove () {
-      this.$store.dispatch('$_roles/deleteRole', this.id).then(response => {
+      this.$store.dispatch(`${this.storeName}/deleteConnectionProfile`, this.id).then(response => {
         this.close()
       })
     }
   },
   created () {
     if (this.id) {
-      this.$store.dispatch('$_roles/getRole', this.id).then(data => {
-        this.role = Object.assign({}, data)
+      this.$store.dispatch(`${this.storeName}/getConnectionProfile`, this.id).then(data => {
+        this.connectionProfile = Object.assign({}, data)
       })
     }
+    this.$store.dispatch('config/getRoles')
+    this.$store.dispatch('$_sources/all').then(data => {
+      this.sources = data
+    })
+    this.$store.dispatch('$_billing_tiers/all').then(data => {
+      this.billingTiers = data
+    })
+    this.$store.dispatch('$_provisionings/all').then(data => {
+      this.provisionings = data
+    })
+    this.$store.dispatch('$_scans/all').then(data => {
+      this.scans = data
+    })
   }
 }
 </script>

@@ -1,12 +1,15 @@
+<!--
+  "Switch" is a reserved word, therfore "switch" is renamed as "switche".
+-->
 <template>
   <pf-config-view
     :isLoading="isLoading"
     :form="getForm"
-    :model="role"
-    :vuelidate="$v.role"
+    :model="switche"
+    :vuelidate="$v.switche"
     :isNew="isNew"
     :isClone="isClone"
-    @validations="roleValidations = $event"
+    @validations="switcheValidations = $event"
     @close="close"
     @create="create"
     @save="save"
@@ -15,22 +18,22 @@
     <template slot="header" is="b-card-header">
       <b-button-close @click="close" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
       <h4 class="mb-0">
-        <span v-if="!isNew && !isClone">{{ $t('Role {id}', { id: id }) }}</span>
-        <span v-else-if="isClone">{{ $t('Clone Role {id}', { id: id }) }}</span>
-        <span v-else>{{ $t('New Role') }}</span>
+        <span v-if="!isNew && !isClone">{{ $t('Switch {id}', { id: id }) }}</span>
+        <span v-else-if="isClone">{{ $t('Clone Switch {id}', { id: id }) }}</span>
+        <span v-else>{{ $t('New {switchGroup} Switch', { switchGroup: this.switchGroup}) }}</span>
       </h4>
     </template>
     <template slot="footer"
       scope="{isDeletable}"
     >
-      <b-card-footer @mouseenter="$v.role.$touch()">
+      <b-card-footer @mouseenter="$v.switche.$touch()">
         <pf-button-save :disabled="invalidForm" :isLoading="isLoading">
           <template v-if="isNew">{{ $t('Create') }}</template>
           <template v-else-if="isClone">{{ $t('Clone') }}</template>
           <template v-else-if="ctrlKey">{{ $t('Save &amp; Close') }}</template>
           <template v-else>{{ $t('Save') }}</template>
         </pf-button-save>
-        <pf-button-delete v-if="isDeletable" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Role?')" @on-delete="remove()"/>
+        <pf-button-delete v-if="isDeletable" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Switch?')" @on-delete="remove()"/>
       </b-card-footer>
     </template>
   </pf-config-view>
@@ -43,13 +46,14 @@ import pfButtonDelete from '@/components/pfButtonDelete'
 import pfMixinCtrlKey from '@/components/pfMixinCtrlKey'
 import pfMixinEscapeKey from '@/components/pfMixinEscapeKey'
 import {
-  pfConfigurationRoleViewFields as fields,
-  pfConfigurationRoleViewDefaults as defaults
-} from '@/globals/pfConfigurationRoles'
+  pfConfigurationSwitchViewFields as fields,
+  pfConfigurationSwitchViewDefaults as defaults,
+  pfConfigurationSwitchViewPlaceholders as placeholders
+} from '@/globals/pfConfigurationSwitches'
 const { validationMixin } = require('vuelidate')
 
 export default {
-  name: 'RoleView',
+  name: 'SwitchView',
   mixins: [
     validationMixin,
     pfMixinCtrlKey,
@@ -77,25 +81,32 @@ export default {
     id: { // from router
       type: String,
       default: null
+    },
+    switchGroup: { // from router
+      type: String,
+      default: null
     }
   },
   data () {
     return {
-      role: defaults(this), // will be overloaded with the data from the store
-      roleValidations: {} // will be overloaded with data from the pfConfigView
+      switche: defaults(this), // will be overloaded with the data from the store
+      switcheValidations: {}, // will be overloaded with data from the pfConfigView
+      roles: [], // all roles
+      switchGroups: [], // all switch groups
+      placeholders: placeholders(this) // form placeholders
     }
   },
   validations () {
     return {
-      role: this.roleValidations
+      switche: this.switcheValidations
     }
   },
   computed: {
     isLoading () {
-      return this.$store.getters['$_roles/isLoading']
+      return this.$store.getters['$_switches/isLoading']
     },
     invalidForm () {
-      return this.$v.role.$invalid || this.$store.getters['$_roles/isWaiting']
+      return this.$v.switche.$invalid || this.$store.getters['$_switches/isWaiting']
     },
     getForm () {
       return {
@@ -104,7 +115,7 @@ export default {
       }
     },
     isDeletable () {
-      if (this.isNew || this.isClone || ('not_deletable' in this.role && this.role.not_deletable)) {
+      if (this.isNew || this.isClone || ('not_deletable' in this.switche && this.switche.not_deletable)) {
         return false
       }
       return true
@@ -112,37 +123,45 @@ export default {
   },
   methods: {
     close () {
-      this.$router.push({ name: 'roles' })
+      this.$router.push({ name: 'switches' })
     },
     create () {
       const ctrlKey = this.ctrlKey
-      this.$store.dispatch('$_roles/createRole', this.role).then(response => {
+      this.$store.dispatch('$_switches/createSwitch', this.switche).then(response => {
         if (ctrlKey) { // [CTRL] key pressed
           this.close()
         } else {
-          this.$router.push({ name: 'role', params: { id: this.role.id } })
+          this.$router.push({ name: 'switch', params: { id: this.switche.id } })
         }
       })
     },
     save () {
       const ctrlKey = this.ctrlKey
-      this.$store.dispatch('$_roles/updateRole', this.role).then(response => {
+      this.$store.dispatch('$_switches/updateSwitch', this.switche).then(response => {
         if (ctrlKey) { // [CTRL] key pressed
           this.close()
         }
       })
     },
     remove () {
-      this.$store.dispatch('$_roles/deleteRole', this.id).then(response => {
+      this.$store.dispatch('$_switches/deleteSwitch', this.id).then(response => {
         this.close()
       })
     }
   },
   created () {
+    this.$store.dispatch('$_roles/all').then(data => {
+      this.roles = data
+    })
+    this.$store.dispatch('$_switch_groups/all').then(data => {
+      this.switchGroups = data
+    })
     if (this.id) {
-      this.$store.dispatch('$_roles/getRole', this.id).then(data => {
-        this.role = Object.assign({}, data)
+      this.$store.dispatch('$_switches/getSwitch', this.id).then(data => {
+        this.switche = Object.assign({}, data)
       })
+    } else {
+      this.switche.group = this.switchGroup
     }
   }
 }

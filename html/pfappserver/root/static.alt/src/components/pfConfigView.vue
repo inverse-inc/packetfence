@@ -1,5 +1,5 @@
 <template>
-  <b-form @submit.prevent="(isNew || isClone) ? create($event) : save($event)">
+  <b-form @submit.prevent="(isNew || isClone) ? create($event) : save($event)" class="pf-config-view">
     <b-card no-body>
       <slot name="header">
         <b-card-header>
@@ -9,36 +9,49 @@
           </h4>
         </b-card-header>
       </slot>
-      <div class="card-body" v-if="form.fields">
-        <b-form-group v-for="row in form.fields" :key="[row.key].join('')" v-if="!('if' in row) || row.if"
-          :label-cols="(row.label) ? form.labelCols : 0" :label="row.label" :label-size="row.labelSize"
-          :state="isValid()" :invalid-feedback="getInvalidFeedback()"
-          class="input-element" :class="{ 'mb-0': !row.label, 'pt-3': !row.fields }"
-          horizontal
-        >
-          <b-input-group>
-            <template v-for="field in row.fields">
-              <span v-if="field.text" :key="field.index" :class="field.class">{{ field.text }}</span>
-              <component v-else-if="!('if' in field) || field.if"
-                v-bind="field.attrs"
-                :key="field.key"
-                :is="field.component || defaultComponent"
-                :isLoading="isLoading"
-                :vuelidate="getVuelidateModel(field.key)"
-                :class="getClass(row, field)"
-                :value="getValue(field.key)"
-                @input="setValue(field.key, $event)"
-                @validations="setComponentValidations(field.key, $event)"
-              ></component>
-            </template>
-          </b-input-group>
-          <b-form-text v-if="row.text" v-t="row.text"></b-form-text>
-        </b-form-group>
-      </div>
-      <slot name="footer">
+      <b-tabs v-if="form.fields[0].tab || form.fields.length > 1" v-model="tabIndex" :key="tabKey" card>
+        <b-tab v-for="(tab, t) in form.fields" :key="t" v-if="!('if' in tab) || tab.if"
+          :disabled="tab.disabled"
+          :title-link-class="{'text-danger': getTabErrorCount(t) > 0 }"
+          :title="tab.tab"
+          no-body
+        ></b-tab>
+      </b-tabs>
+      <template v-for="(tab, t) in form.fields">
+        <div class="card-body" v-if="tab.fields" v-show="t === tabIndex" :key="t">
+          <b-form-group v-for="row in tab.fields" :key="row.key" v-if="!('if' in row) || row.if"
+            :label-cols="(row.label) ? form.labelCols : 0" :label="row.label" :label-size="row.labelSize"
+            :state="isValid()" :invalid-feedback="getInvalidFeedback()"
+            class="input-element" :class="{ 'mb-0': !row.label, 'pt-3': !row.fields }"
+            horizontal
+          >
+            <b-input-group>
+              <template v-for="field in row.fields">
+                <span v-if="field.text" :key="field.index" :class="field.class">{{ field.text }}</span>
+                <component v-else-if="!('if' in field) || field.if"
+                  v-bind="field.attrs"
+                  v-on="field.listeners"
+                  :key="field.key"
+                  :is="field.component || defaultComponent"
+                  :isLoading="isLoading"
+                  :vuelidate="getVuelidateModel(field.key)"
+                  :class="getClass(row, field)"
+                  :value="getValue(field.key)"
+                  @input="setValue(field.key, $event)"
+                  @validations="setComponentValidations(field.key, $event)"
+                ></component>
+              </template>
+            </b-input-group>
+            <b-form-text v-if="row.text" v-t="row.text"></b-form-text>
+          </b-form-group>
+        </div>
+      </template>
+      <slot name="footer"
+        :isDeletable="isDeletable"
+      >
         <b-card-footer @mouseenter="vuelidate.$touch()">
           <pf-button-save :disabled="invalidForm" :isLoading="isLoading">{{ isNew? $t('Create') : $t('Save') }}</pf-button-save>
-          <pf-button-delete v-if="!isNew" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Config?')" @on-delete="remove($event)"/>
+          <pf-button-delete v-if="isDeletable" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Config?')" @on-delete="remove($event)"/>
         </b-card-footer>
       </slot>
     </b-card>
@@ -46,6 +59,7 @@
 </template>
 
 <script>
+import uuidv4 from 'uuid/v4'
 import pfButtonSave from '@/components/pfButtonSave'
 import pfButtonDelete from '@/components/pfButtonDelete'
 import pfFormInput from '@/components/pfFormInput'
@@ -86,12 +100,20 @@ export default {
   },
   data () {
     return {
+      tabIndex: 0,
+      tabKey: uuidv4(), // control tabs DOM rendering
       componentValidations: {}
     }
   },
   computed: {
     defaultComponent () {
       return pfFormInput
+    },
+    isDeletable () {
+      if (this.isNew || this.isClone || ('not_deletable' in this.model && this.model.not_deletable)) {
+        return false
+      }
+      return true
     }
   },
   methods: {
@@ -109,26 +131,23 @@ export default {
     },
     getValue (key, model = this.model) {
       if (key.includes('.')) { // handle dot-notation keys ('.')
-        const split = key.split('.')
-        const [ first, remainder ] = [ split[0], split.slice(1).join('.') ]
-        return this.getValue(remainder, model[first])
+        const [ first, ...remainder ] = key.split('.')
+        return this.getValue(remainder.join('.'), model[first])
       }
       return model[key]
     },
     setValue (key, value, model = this.model) {
       if (key.includes('.')) { // handle dot-notation keys ('.')
-        const split = key.split('.')
-        const [ first, remainder ] = [ split[0], split.slice(1).join('.') ]
+        const [ first, ...remainder ] = key.split('.')
         if (!(first in model)) this.$set(model, first, {})
-        return this.setValue(remainder, value, model[first])
+        return this.setValue(remainder.join('.'), value, model[first])
       }
       this.$set(model, key, value)
     },
     getVuelidateModel (key, model = this.vuelidate) {
       if (key.includes('.')) { // handle dot-notation keys ('.')
-        const split = key.split('.')
-        const [ first, remainder ] = [ split[0], split.slice(1).join('.') ]
-        return this.getVuelidateModel(remainder, model[first])
+        const [ first, ...remainder ] = key.split('.')
+        return this.getVuelidateModel(remainder.join(','), model[first])
       }
       return model[key]
     },
@@ -140,28 +159,26 @@ export default {
       const eachFieldValue = {}
       const setEachFieldValue = (key, value, model = eachFieldValue) => {
         if (key.includes('.')) { // handle dot-notation keys ('.')
-          const split = key.split('.')
-          const [ first, remainder ] = [ split[0], split.slice(1).join('.') ]
-          if (!(first in model)) {
-            model[first] = {}
-          }
-          setEachFieldValue(remainder, value, model[first])
+          const [ first, ...remainder ] = key.split('.')
+          if (!(first in model)) model[first] = {}
+          setEachFieldValue(remainder.join('.'), value, model[first])
           return
         }
         this.$set(model, key, value)
       }
       if (this.form.fields.length > 0) {
-        this.form.fields.forEach((row, index) => {
-          if ('fields' in row) {
-            row.fields.forEach((field, index) => {
-              if (field.key) {
-                setEachFieldValue(field.key, {})
-                if (
-                  'validators' in field && // has vuelidate validators
-                  (!('if' in field) || field.if) // is visible
-                ) {
-                  setEachFieldValue(field.key, field.validators)
-                }
+        this.form.fields.forEach(tab => {
+          if ('fields' in tab && (!('if' in tab) || tab.if)) {
+            tab.fields.forEach(row => {
+              if ('fields' in row && (!('if' in row) || row.if)) {
+                row.fields.forEach(field => {
+                  if (field.key) {
+                    setEachFieldValue(field.key, {})
+                    if ('validators' in field) {
+                      setEachFieldValue(field.key, field.validators)
+                    }
+                  }
+                })
               }
             })
           }
@@ -192,18 +209,41 @@ export default {
         c.push('mr-1') // add right-margin
       }
       return c.join(' ')
+    },
+    getTabErrorCount (tabIndex) {
+      return this.form.fields[tabIndex].fields.reduce((tabCount, tab) => {
+        if (!('fields' in tab)) return tabCount // ignore labels
+        return tab.fields.reduce((fieldCount, field) => {
+          if (field.key in this.vuelidate && this.vuelidate[field.key].$anyError) {
+            fieldCount++
+          }
+          return fieldCount
+        }, tabCount)
+      }, 0)
     }
   },
   watch: {
     model: {
       handler: function (a, b) {
+        this.$emit('validations', this.getExternalValidations())
+        this.tabKey = uuidv4() // redraw tabs
         if (this.vuelidate.$dirty) {
           this.$nextTick(() => {
             this.vuelidate.$touch()
           })
         }
       },
-      immediate: true,
+      deep: true
+    },
+    vuelidate: {
+      handler: function (a, b) {
+      /**
+       * Vue's reactive model is broken for objects/arrays.
+       * When the vuelidate model is updated redraw the tabs so they pick
+       * up on validation changes outside their initiial rendering
+      **/
+        this.tabKey = uuidv4() // redraw tabs
+      },
       deep: true
     }
   },
@@ -214,9 +254,11 @@ export default {
 </script>
 
 <style lang="scss">
-.input-group > span {
-  display: flex;
-  justify-contents: center;
-  align-items: center;
+.pf-config-view {
+  .input-group > span {
+    display: flex;
+    justify-contents: center;
+    align-items: center;
+  }
 }
 </style>

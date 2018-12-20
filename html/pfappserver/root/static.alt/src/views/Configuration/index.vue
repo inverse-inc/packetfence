@@ -32,15 +32,14 @@ export default {
                 { name: 'REALMS', path: '/configuration/realms' }
               ]
             },
-            { name: 'Authentication Sources', path: '/configuration/sources' }
-          ]
-        },
-        {
-          name: 'Advanced Access Configuration',
-          icon: 'list-alt',
-          collapsable: true,
-          items: [
-            { name: 'Billing Tiers', path: '/configuration/billing_tiers' }
+            { name: 'Authentication Sources', path: '/configuration/sources' },
+            { name: 'Network Devices',
+              items: [
+                { name: 'Switches', path: '/configuration/switches' },
+                { name: 'Switch Groups', path: '/configuration/switch_groups' }
+              ]
+            },
+            { name: 'Connection Profiles', path: '/configuration/connection_profiles' },
           ]
         },
         {
@@ -53,9 +52,10 @@ export default {
         },
         {
           name: 'Advanced Access Configuration',
-          icon: 'cogs',
+          icon: 'clipboard-list',
           collapsable: true,
           items: [
+            { name: 'Billing Tiers', path: '/configuration/billing_tiers' },
             { name: 'Portal Modules', path: '/configuration/portal_modules' }
           ]
         }

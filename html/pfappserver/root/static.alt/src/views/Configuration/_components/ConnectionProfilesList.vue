@@ -5,19 +5,19 @@
       :isLoading="isLoading"
     >
       <template slot="pageHeader">
-        <b-card-header><h4 class="mb-0" v-t="'Roles'"></h4></b-card-header>
+        <b-card-header><h4 class="mb-0" v-t="'Connection Profiles'"></h4></b-card-header>
       </template>
       <template slot="buttonAdd">
-        <b-button variant="outline-primary" :to="{ name: 'newRole' }">{{ $t('Add Role') }}</b-button>
+        <b-button variant="outline-primary" :to="{ name: 'newConnectionProfile' }">{{ $t('Add Connection Profile') }}</b-button>
       </template>
       <template slot="emptySearch">
-        <pf-empty-table :isLoading="isLoading">{{ $t('No roles found') }}</pf-empty-table>
+        <pf-empty-table :isLoading="isLoading">{{ $t('No connection profiles found') }}</pf-empty-table>
       </template>
       <template slot="buttons" slot-scope="item">
         <span class="float-right text-nowrap">
-          <b-button size="sm" variant="outline-primary" class="mr-1" :to="{ name: 'TODO' }">{{ $t('Traffic Shaping') }}</b-button>
+          <b-button size="sm" variant="outline-primary" class="mr-1" :to="{ name: 'TODO' }">{{ $t('Preview') }}</b-button>
           <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(item)">{{ $t('Clone') }}</b-button>
-          <pf-button-delete  v-if="!item.not_deletable" size="sm" variant="outline-danger" :disabled="isLoading" :confirm="$t('Delete Role?')" @on-delete="remove(item)" reverse/>
+          <pf-button-delete  v-if="!item.not_deletable" size="sm" variant="outline-danger" :disabled="isLoading" :confirm="$t('Delete Connection Profile?')" @on-delete="remove(item)" reverse/>
         </span>
       </template>
     </pf-config-list>
@@ -28,12 +28,12 @@
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import {
-  pfConfigurationRolesListColumns as columns,
-  pfConfigurationRolesListFields as fields
-} from '@/globals/pfConfigurationRoles'
+  pfConfigurationConnectionProfilesListColumns as columns,
+  pfConfigurationConnectionProfilesListFields as fields
+} from '@/globals/pfConfigurationConnectionProfiles'
 
 export default {
-  name: 'RolesList',
+  name: 'ConnectionProfilesList',
   components: {
     pfConfigList,
     pfEmptyTable
@@ -44,11 +44,11 @@ export default {
         columns: columns,
         fields: fields,
         rowClickRoute (item, index) {
-          return { name: 'role', params: { id: item.id } }
+          return { name: 'connection_profile', params: { id: item.id } }
         },
-        searchPlaceholder: this.$i18n.t('Search by name or description'),
+        searchPlaceholder: this.$i18n.t('Search by identifier or description'),
         searchableOptions: {
-          searchApiEndpoint: 'config/roles',
+          searchApiEndpoint: 'config/connection_profiles',
           defaultSortKeys: ['id'],
           defaultSearchCondition: {
             op: 'and',
@@ -56,11 +56,11 @@ export default {
               op: 'or',
               values: [
                 { field: 'id', op: 'contains', value: null },
-                { field: 'notes', op: 'contains', value: null }
+                { field: 'description', op: 'contains', value: null }
               ]
             }]
           },
-          defaultRoute: { name: 'configuration/roles' }
+          defaultRoute: { name: 'configuration/connection_profiles' }
         },
         searchableQuickCondition: (quickCondition) => {
           return {
@@ -70,7 +70,7 @@ export default {
                 op: 'or',
                 values: [
                   { field: 'id', op: 'contains', value: quickCondition },
-                  { field: 'notes', op: 'contains', value: quickCondition }
+                  { field: 'description', op: 'contains', value: quickCondition }
                 ]
               }
             ]
@@ -81,10 +81,10 @@ export default {
   },
   methods: {
     clone (item) {
-      this.$router.push({ name: 'cloneRole', params: { id: item.id } })
+      this.$router.push({ name: 'cloneConnectionProfile', params: { id: item.id } })
     },
     remove (item) {
-      this.$store.dispatch('$_roles/deleteRole', item.id).then(response => {
+      this.$store.dispatch('$_connection_profiles/deleteConnectionProfile', item.id).then(response => {
         this.$router.go() // reload
       })
     }

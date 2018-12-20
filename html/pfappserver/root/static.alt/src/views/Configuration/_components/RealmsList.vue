@@ -10,6 +10,12 @@
       <template slot="emptySearch">
         <pf-empty-table :isLoading="isLoading">{{ $t('No realms found') }}</pf-empty-table>
       </template>
+      <template slot="buttons" slot-scope="item">
+        <span class="float-right text-nowrap">
+          <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(item)">{{ $t('Clone') }}</b-button>
+          <pf-button-delete  v-if="!item.not_deletable" size="sm" variant="outline-danger" :disabled="isLoading" :confirm="$t('Delete Realm?')" @on-delete="remove(item)" reverse/>
+        </span>
+      </template>
     </pf-config-list>
   </div>
 </template>
@@ -20,7 +26,7 @@ import pfEmptyTable from '@/components/pfEmptyTable'
 import {
   pfConfigurationRealmsListColumns as columns,
   pfConfigurationRealmsListFields as fields
-} from '@/globals/pfConfiguration'
+} from '@/globals/pfConfigurationRealms'
 
 export default {
   name: 'RealmsList',
@@ -64,8 +70,17 @@ export default {
             ]
           }
         }
-
       }
+    }
+  },
+  methods: {
+    clone (item) {
+      this.$router.push({ name: 'cloneRealm', params: { id: item.id } })
+    },
+    remove (item) {
+      this.$store.dispatch('$_realms/deleteRealm', item.id).then(response => {
+        this.$router.go() // reload
+      })
     }
   }
 }

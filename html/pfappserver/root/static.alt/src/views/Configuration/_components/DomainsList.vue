@@ -18,7 +18,7 @@ import pfEmptyTable from '@/components/pfEmptyTable'
 import {
   pfConfigurationDomainsListColumns as columns,
   pfConfigurationDomainsListFields as fields
-} from '@/globals/pfConfiguration'
+} from '@/globals/pfConfigurationDomains'
 
 export default {
   name: 'DomainsList',

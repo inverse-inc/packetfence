@@ -35,6 +35,11 @@ export default {
   /**
    * Billing Tiers
    */
+  billingTiers: params => {
+    return apiCall.get('config/billing_tiers', { params }).then(response => {
+      return response.data
+    })
+  },
   billingTier: id => {
     return apiCall.get(`config/billing_tier/${id}`).then(response => {
       return response.data.item
@@ -56,6 +61,11 @@ export default {
   /**
    * Roles
    */
+  roles: params => {
+    return apiCall.get('config/roles', { params }).then(response => {
+      return response.data
+    })
+  },
   role: id => {
     return apiCall.get(`config/role/${id}`).then(response => {
       return response.data.item
@@ -159,5 +169,135 @@ export default {
     return apiCall.get(`config/portal_module/${id}`).then(response => {
       return response.data.item
     })
+  },
+  /**
+   * Switches
+   */
+  switches: params => {
+    return apiCall.get(`config/switches`, { params }).then(response => {
+      return response.data
+    })
+  },
+  switche: id => {
+    return apiCall.get(`config/switch/${id}`).then(response => {
+      return response.data.item
+    })
+  },
+  createSwitch: data => {
+    return apiCall.post('config/switches', data).then(response => {
+      return response.data
+    })
+  },
+  updateSwitch: data => {
+    return apiCall.patch(`config/switch/${data.id}`, data).then(response => {
+      return response.data
+    })
+  },
+  deleteSwitch: id => {
+    return apiCall.delete(`config/switch/${id}`)
+  },
+  /**
+   * SwitchGroups
+   */
+  switchGroups: params => {
+    return apiCall.get(`config/switch_groups`, { params }).then(response => {
+      return response.data
+    })
+  },
+  switchGroup: id => {
+    return apiCall.get(`config/switch_group/${id}`).then(response => {
+      return response.data.item
+    })
+  },
+  createSwitchGroup: data => {
+    return apiCall.post('config/switch_groups', data).then(response => {
+      return response.data
+    })
+  },
+  updateSwitchGroup: data => {
+    return apiCall.patch(`config/switch_group/${data.id}`, data).then(response => {
+      return response.data
+    })
+  },
+  deleteSwitchGroup: id => {
+    return apiCall.delete(`config/switch_group/${id}`)
+  },
+  /**
+   * Connection Profiles
+   */
+  connectionProfiles: params => {
+    return apiCall.get(`config/connection_profiles`, { params }).then(response => {
+      return response.data
+    })
+  },
+  connectionProfile: id => {
+    return apiCall.get(`config/connection_profile/${id}`).then(response => {
+      return response.data.item
+    })
+  },
+  createConnectionProfile: data => {
+    return apiCall.post('config/connection_profiles', data).then(response => {
+      return response.data
+    })
+  },
+  updateConnectionProfile: data => {
+    return apiCall.patch(`config/connection_profile/${data.id}`, data).then(response => {
+      return response.data
+    })
+  },
+  deleteConnectionProfile: id => {
+    return apiCall.delete(`config/connection_profile/${id}`)
+  },
+  /**
+   * Provisionings
+   */
+  provisionings: params => {
+    return apiCall.get(`config/provisionings`, { params }).then(response => {
+      return response.data
+    })
+  },
+  provisioning: id => {
+    return apiCall.get(`config/provisioning/${id}`).then(response => {
+      return response.data.item
+    })
+  },
+  createProvisioning: data => {
+    return apiCall.post('config/provisionings', data).then(response => {
+      return response.data
+    })
+  },
+  updateProvisioning: data => {
+    return apiCall.patch(`config/provisioning/${data.id}`, data).then(response => {
+      return response.data
+    })
+  },
+  deleteProvisioning: id => {
+    return apiCall.delete(`config/provisioning/${id}`)
+  },
+  /**
+   * Scans
+   */
+  scans: params => {
+    return apiCall.get(`config/scans`, { params }).then(response => {
+      return response.data
+    })
+  },
+  scan: id => {
+    return apiCall.get(`config/scan/${id}`).then(response => {
+      return response.data.item
+    })
+  },
+  createScan: data => {
+    return apiCall.post('config/scans', data).then(response => {
+      return response.data
+    })
+  },
+  updateScan: data => {
+    return apiCall.patch(`config/scan/${data.id}`, data).then(response => {
+      return response.data
+    })
+  },
+  deleteScan: id => {
+    return apiCall.delete(`config/scan/${id}`)
   }
 }

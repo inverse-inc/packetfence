@@ -9,6 +9,7 @@
 
       <pf-form-chosen
         v-model="localType"
+        v-on="forwardListeners"
         ref="localType"
         label="text"
         track-by="value"
@@ -60,6 +61,24 @@
         :invalid-feedback="valueInvalidFeedback"
       ></pf-form-prefix-multiplier>
 
+      <!-- Type: SUBSTRING -->
+      <pf-form-input v-if="isFieldType(substringValueType)"
+        v-model="localValue"
+        ref="localValue"
+        :vuelidate="valueVuelidateModel"
+        :invalid-feedback="valueInvalidFeedback"
+      ></pf-form-input>
+
+      <!-- Type: INTEGER -->
+      <pf-form-input v-if="isFieldType(integerValueType)"
+        v-model="localValue"
+        ref="localValue"
+        type="number"
+        step="1"
+        :vuelidate="valueVuelidateModel"
+        :invalid-feedback="valueInvalidFeedback"
+      ></pf-form-input>
+
     </b-col>
     <b-col v-if="$slots.append" cols="1" align-self="start" class="pt-1 text-center col-form-label">
       <slot name="append"></slot>
@@ -71,6 +90,7 @@
 /* eslint key-spacing: ["error", { "mode": "minimum" }] */
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormDatetime from '@/components/pfFormDatetime'
+import pfFormInput from '@/components/pfFormInput'
 import pfFormPrefixMultiplier from '@/components/pfFormPrefixMultiplier'
 import {
   pfFieldType as fieldType,
@@ -83,6 +103,7 @@ export default {
   components: {
     pfFormChosen,
     pfFormDatetime,
+    pfFormInput,
     pfFormPrefixMultiplier
   },
   props: {
@@ -256,8 +277,11 @@ export default {
       }
     },
     focusIndex (index = 0) {
-      const { [index]: { $refs: { input: { $el } } } } = Object.values(this.$refs)
-      if ('focus' in $el) $el.focus()
+      const refs = Object.values(this.$refs)
+      if (index in refs) {
+        const { $refs: { input: { $el } } } = refs[index]
+        if ($el && 'focus' in $el) $el.focus()
+      }
     },
     focusType () {
       this.focusIndex(0)

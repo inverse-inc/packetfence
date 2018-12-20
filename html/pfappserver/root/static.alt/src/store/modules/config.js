@@ -8,6 +8,18 @@ const api = {
   getAdminRoles () {
     return apiCall({ url: 'config/admin_roles', method: 'get' })
   },
+  getBillingTiers () {
+    return apiCall({ url: 'config/billing_tiers', method: 'get' })
+  },
+  getConnectionProfiles () {
+    return apiCall({ url: 'config/connection_profiles', method: 'get' })
+  },
+  getDomains () {
+    return apiCall({ url: 'config/domains', method: 'get' })
+  },
+  getFloatingDevices () {
+    return apiCall({ url: 'config/floating_devices', method: 'get' })
+  },
   getRealms () {
     return apiCall({ url: 'config/realms', method: 'get' })
   },
@@ -19,6 +31,9 @@ const api = {
   },
   getSwitches () {
     return apiCall({ url: 'config/switches', method: 'get' })
+  },
+  getSwitchGroups () {
+    return apiCall({ url: 'config/switch_groups', method: 'get' })
   },
   getTenants () {
     return apiCall({ url: 'tenants', method: 'get' })
@@ -35,21 +50,31 @@ const types = {
   ERROR: 'error'
 }
 
-const state = {
+const state = { // set intitial states to `false` (not `[]` or `{}`) to avoid infinite loop when response is empty.
   adminRolesStatus: '',
-  adminRoles: [],
+  adminRoles: false,
+  billingTiersStatus: '',
+  billingTiers: false,
+  connectionProfilesStatus: '',
+  connectionProfiles: false,
+  domainsStatus: '',
+  domains: false,
+  floatingDevicesStatus: '',
+  floatingDevices: false,
   realmsStatus: '',
-  realms: [],
+  realms: false,
   rolesStatus: '',
-  roles: [],
+  roles: false,
   sourcesStatus: '',
-  sources: [],
+  sources: false,
   switchesStatus: '',
-  switches: [],
+  switches: false,
+  switchGroupsStatus: '',
+  switchGroups: false,
   tenantsStatus: '',
-  tenants: [],
+  tenants: false,
   violationsStatus: '',
-  violations: {}
+  violations: false
 }
 
 const helpers = {
@@ -84,35 +109,73 @@ const helpers = {
 }
 
 const getters = {
-  adminRolesList: state => {
-    // Remap for b-form-select component
-    return state.adminRoles.map((item) => {
-      return { value: item.id, name: item.id }
-    })
+  isLoadingAdminRoles: state => {
+    return state.adminRolesStatus === types.LOADING
+  },
+  isLoadingBillingTiers: state => {
+    return state.billingTiersStatus === types.LOADING
+  },
+  isLoadingConnectionProfiles: state => {
+    return state.connectionProfilesStatus === types.LOADING
+  },
+  isLoadingDomains: state => {
+    return state.domainsStatus === types.LOADING
+  },
+  isLoadingFloatingDevices: state => {
+    return state.floatingDevicesStatus === types.LOADING
+  },
+  isLoadingRealms: state => {
+    return state.realmsStatus === types.LOADING
   },
   isLoadingRoles: state => {
     return state.rolesStatus === types.LOADING
   },
+  isLoadingSources: state => {
+    return state.sourcesStatus === types.LOADING
+  },
+  isLoadingSwitches: state => {
+    return state.switchesStatus === types.LOADING
+  },
+  isLoadingSwitchGroups: state => {
+    return state.switchGroupsStatus === types.LOADING
+  },
+  isLoadingTenants: state => {
+    return state.tenantsStatus === types.LOADING
+  },
+  isLoadingViolations: state => {
+    return state.violationsStatus === types.LOADING
+  },
+  adminRolesList: state => {
+    // Remap for b-form-select component
+    if (!state.adminRoles) return []
+    return state.adminRoles.map((item) => {
+      return { value: item.id, name: item.id }
+    })
+  },
   realmsList: state => {
     // Remap for b-form-select component
+    if (!state.realms) return []
     return state.realms.map((item) => {
       return { value: item.id, name: item.id }
     })
   },
   rolesList: state => {
     // Remap for b-form-select component
+    if (!state.roles) return []
     return state.roles.map((item) => {
       return { value: item.category_id, name: item.name, text: `${item.name} - ${item.notes}` }
     })
   },
   sourcesList: state => {
     // Remap for b-form-select component
+    if (!state.sources) return []
     return state.sources.map((item) => {
       return { value: item.id, name: item.description }
     })
   },
   tenantsList: state => {
     // Remap for b-form-select component
+    if (!state.tenants) return []
     return state.tenants.map((item) => {
       return { value: item.id, name: item.name }
     })
@@ -133,7 +196,10 @@ const getters = {
 
 const actions = {
   getAdminRoles: ({ state, commit }) => {
-    if (state.adminRoles.length === 0) {
+    if (getters.isLoadingAdminRoles) {
+      return
+    }
+    if (!state.adminRoles) {
       return api.getAdminRoles().then(response => {
         commit('ADMIN_ROLES_UPDATED', response.data.items)
         return state.adminRoles
@@ -142,11 +208,67 @@ const actions = {
       return Promise.resolve(state.adminRoles)
     }
   },
-  getRealms: ({ state, getters, commit }) => {
-    if (getters.isLoadingRoles) {
+  getBillingTiers: ({ state, getters, commit }) => {
+    if (getters.isLoadingBillingTiers) {
       return
     }
-    if (state.realms.length === 0) {
+    if (!state.billingTiers) {
+      commit('BILLING_TIERS_REQUEST')
+      return api.getBillingTiers().then(response => {
+        commit('BILLING_TIERS_UPDATED', response.data.items)
+        return state.billingTiers
+      })
+    } else {
+      return Promise.resolve(state.billingTiers)
+    }
+  },
+  getConnectionProfiles: ({ state, getters, commit }) => {
+    if (getters.isLoadingConnectionProfiles) {
+      return
+    }
+    if (!state.connectionProfiles) {
+      commit('CONNECTION_PROFILES_REQUEST')
+      return api.getConnectionProfiles().then(response => {
+        commit('CONNECTION_PROFILES_UPDATED', response.data.items)
+        return state.connectionProfiles
+      })
+    } else {
+      return Promise.resolve(state.connectionProfiles)
+    }
+  },
+  getDomains: ({ state, getters, commit }) => {
+    if (getters.isLoadingDomains) {
+      return
+    }
+    if (!state.domains) {
+      commit('DOMAINS_REQUEST')
+      return api.getDomains().then(response => {
+        commit('DOMAINS_UPDATED', response.data.items)
+        return state.domains
+      })
+    } else {
+      return Promise.resolve(state.domains)
+    }
+  },
+  getFloatingDevices: ({ state, getters, commit }) => {
+    if (getters.isLoadingFloatingDevices) {
+      return
+    }
+    if (!state.floatingDevices) {
+      commit('FLOATING_DEVICES_REQUEST')
+      return api.getFloatingDevices().then(response => {
+        commit('FLOATING_DEVICES_UPDATED', response.data.items)
+        return state.floatingDevices
+      })
+    } else {
+      return Promise.resolve(state.floatingDevices)
+    }
+  },
+  getRealms: ({ state, getters, commit }) => {
+    if (getters.isLoadingRealms) {
+      return
+    }
+    if (!state.realms) {
       commit('REALMS_REQUEST')
       return api.getRealms().then(response => {
         commit('REALMS_UPDATED', response.data.items)
@@ -160,7 +282,7 @@ const actions = {
     if (getters.isLoadingRoles) {
       return
     }
-    if (state.roles.length === 0) {
+    if (!state.roles) {
       commit('ROLES_REQUEST')
       return api.getRoles().then(response => {
         commit('ROLES_UPDATED', response.data.items)
@@ -171,7 +293,10 @@ const actions = {
     }
   },
   getSources: ({ state, commit }) => {
-    if (state.sources.length === 0) {
+    if (getters.isLoadingSources) {
+      return
+    }
+    if (!state.sources) {
       commit('SOURCES_REQUEST')
       return api.getSources().then(response => {
         commit('SOURCES_UPDATED', response.data.items)
@@ -182,7 +307,10 @@ const actions = {
     }
   },
   getSwitches: ({ state, commit }) => {
-    if (state.switches.length === 0) {
+    if (getters.isLoadingSwitches) {
+      return
+    }
+    if (!state.switches) {
       commit('SWICTHES_REQUEST')
       return api.getSwitches().then(response => {
         // group can be undefined
@@ -196,8 +324,25 @@ const actions = {
       return Promise.resolve(state.switches)
     }
   },
+  getSwitchGroups: ({ state, commit }) => {
+    if (getters.isLoadingSwitchGroups) {
+      return
+    }
+    if (!state.switchGroups) {
+      commit('SWICTH_GROUPS_REQUEST')
+      return api.getSwitchGroups().then(response => {
+        commit('SWICTH_GROUPS_UPDATED', response.data.items)
+        return state.switchGroups
+      })
+    } else {
+      return Promise.resolve(state.switchGroups)
+    }
+  },
   getTenants: ({ state, commit }) => {
-    if (state.tenants.length === 0) {
+    if (getters.isLoadingTenants) {
+      return
+    }
+    if (!state.tenants) {
       commit('TENANTS_REQUEST')
       return api.getTenants().then(response => {
         commit('TENANTS_UPDATED', response.data.items)
@@ -208,7 +353,10 @@ const actions = {
     }
   },
   getViolations: ({ commit, state }) => {
-    if (Object.keys(state.violations).length === 0) {
+    if (getters.isLoadingViolations) {
+      return
+    }
+    if (!state.violations) {
       commit('VIOLATIONS_REQUEST')
       return api.getViolations().then(response => {
         commit('VIOLATIONS_UPDATED', response.data.items)
@@ -227,6 +375,34 @@ const mutations = {
   ADMIN_ROLES_UPDATED: (state, adminRoles) => {
     state.adminRoles = adminRoles
     state.adminRolesStatus = types.SUCCESS
+  },
+  BILLING_TIERS_REQUEST: (state) => {
+    state.billingTiersStatus = types.LOADING
+  },
+  BILLING_TIERS_UPDATED: (state, billingTiers) => {
+    state.billingTiers = billingTiers
+    state.billingTiersStatus = types.SUCCESS
+  },
+  CONNECTION_PROFILES_REQUEST: (state) => {
+    state.connectionProfilesStatus = types.LOADING
+  },
+  CONNECTION_PROFILES_UPDATED: (state, connectionProfiles) => {
+    state.connectionProfiles = connectionProfiles
+    state.connectionProfilesStatus = types.SUCCESS
+  },
+  DOMAINS_REQUEST: (state) => {
+    state.domainsStatus = types.LOADING
+  },
+  DOMAINS_UPDATED: (state, domains) => {
+    state.domains = domains
+    state.domainsStatus = types.SUCCESS
+  },
+  FLOATING_DEVICES_REQUEST: (state) => {
+    state.floatingDevicesStatus = types.LOADING
+  },
+  FLOATING_DEVICES_UPDATED: (state, floatingDevices) => {
+    state.floatingDevices = floatingDevices
+    state.floatingDevicesStatus = types.SUCCESS
   },
   REALMS_REQUEST: (state) => {
     state.realmsStatus = types.LOADING
@@ -255,6 +431,13 @@ const mutations = {
   SWICTHES_UPDATED: (state, switches) => {
     state.switches = switches
     state.switchesStatus = types.SUCCESS
+  },
+  SWICTH_GROUPS_REQUEST: (state) => {
+    state.switchGroupsStatus = types.LOADING
+  },
+  SWICTH_GROUPS_UPDATED: (state, switchGroups) => {
+    state.switchGroups = switchGroups
+    state.switchGroupsStatus = types.SUCCESS
   },
   TENANTS_REQUEST: (state) => {
     state.tenantsStatus = types.LOADING
