@@ -1,5 +1,5 @@
 diff --git a/conf/mariadb/mariadb.conf.tt.example b/conf/mariadb/mariadb.conf.tt.example
-index 2ef5c25a8..7409c2adc 100644
+index 2ef5c25a80..7409c2adc4 100644
 --- a/conf/mariadb/mariadb.conf.tt.example
 +++ b/conf/mariadb/mariadb.conf.tt.example
 @@ -18,7 +18,7 @@ skip-networking
@@ -12,7 +12,7 @@ index 2ef5c25a8..7409c2adc 100644
  key_buffer_size = [% key_buffer_size %]M
  max_allowed_packet = [% max_allowed_packet %]M
 diff --git a/conf/monitoring/netdata.conf.example b/conf/monitoring/netdata.conf.example
-index d3a3cd9b6..fe284fcaa 100644
+index d3a3cd9b63..fe284fcaa2 100644
 --- a/conf/monitoring/netdata.conf.example
 +++ b/conf/monitoring/netdata.conf.example
 @@ -8,7 +8,7 @@
@@ -25,7 +25,7 @@ index d3a3cd9b6..fe284fcaa 100644
          # Netdata is not designed to be exposed to potentially hostile networks
          # See https://github.com/firehol/netdata/issues/164
 diff --git a/conf/pf.conf.defaults b/conf/pf.conf.defaults
-index adcd37e3f..a1e5324c9 100644
+index adcd37e3ff..a1e5324c9c 100644
 --- a/conf/pf.conf.defaults
 +++ b/conf/pf.conf.defaults
 @@ -398,7 +398,7 @@ radiusd=enabled
@@ -67,7 +67,7 @@ index adcd37e3f..a1e5324c9 100644
  #
  # Should pfdns be managed by PacketFence?
 diff --git a/conf/systemd/packetfence-etcd.service b/conf/systemd/packetfence-etcd.service
-index db0d674a5..0dc860177 100644
+index db0d674a5c..0dc8601774 100644
 --- a/conf/systemd/packetfence-etcd.service
 +++ b/conf/systemd/packetfence-etcd.service
 @@ -11,7 +11,7 @@ Restart=always
@@ -80,7 +80,7 @@ index db0d674a5..0dc860177 100644
  Slice=packetfence.slice
  
 diff --git a/conf/systemd/packetfence-haproxy-db.service b/conf/systemd/packetfence-haproxy-db.service
-index e5067dec2..cfda22305 100644
+index e5067dec24..cfda223055 100644
 --- a/conf/systemd/packetfence-haproxy-db.service
 +++ b/conf/systemd/packetfence-haproxy-db.service
 @@ -7,7 +7,7 @@ Wants=packetfence-config.service
@@ -93,7 +93,7 @@ index e5067dec2..cfda22305 100644
  ExecReload=/bin/kill -USR2 $MAINPID
  Restart=on-failure
 diff --git a/conf/systemd/packetfence-haproxy-portal.service b/conf/systemd/packetfence-haproxy-portal.service
-index 28bb594f7..4cfff9dc0 100644
+index 28bb594f78..4cfff9dc0a 100644
 --- a/conf/systemd/packetfence-haproxy-portal.service
 +++ b/conf/systemd/packetfence-haproxy-portal.service
 @@ -7,7 +7,7 @@ Wants=packetfence-config.service
@@ -106,112 +106,126 @@ index 28bb594f7..4cfff9dc0 100644
  ExecReload=/bin/kill -USR2 $MAINPID
  Restart=on-failure
 diff --git a/conf/systemd/packetfence-httpd.aaa.service b/conf/systemd/packetfence-httpd.aaa.service
-index 3ffc3abdd..74bc48aa3 100644
+index 74e396af34..bc14d6f6d9 100644
 --- a/conf/systemd/packetfence-httpd.aaa.service
 +++ b/conf/systemd/packetfence-httpd.aaa.service
-@@ -10,8 +10,8 @@ Before=packetfence-radiusd-auth.service packetfence-radiusd-acct.service packetf
+@@ -10,9 +10,9 @@ Before=packetfence-radiusd-auth.service packetfence-radiusd-acct.service packetf
  StartLimitBurst=3
  StartLimitInterval=10
  Type=notify
+-ExecStartPre=/usr/bin/rm -f /usr/local/pf/var/run/httpd.aaa.pid
 -ExecStartPre=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::httpd_aaa' -e 'pf::services::manager::httpd_aaa->new()->generateConfig()'
 -ExecStart=/usr/sbin/httpd -f /usr/local/pf/var/conf/httpd.conf.d/httpd.aaa -DFOREGROUND  -Drhel
++ExecStartPre=/bin/rm -f /usr/local/pf/var/run/httpd.aaa.pid
 +ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::httpd_aaa' -e 'pf::services::manager::httpd_aaa->new()->generateConfig()'
 +ExecStart=/usr/sbin/apache2 -f /usr/local/pf/var/conf/httpd.conf.d/httpd.aaa -DFOREGROUND  -Ddebian
  ExecReload=/bin/kill -USR1 ${MAINPID}
  PrivateTmp=true
  Restart=on-failure
 diff --git a/conf/systemd/packetfence-httpd.admin.service b/conf/systemd/packetfence-httpd.admin.service
-index d350773aa..a71dfe5b6 100644
+index 3d86c57b0c..328bfcad8b 100644
 --- a/conf/systemd/packetfence-httpd.admin.service
 +++ b/conf/systemd/packetfence-httpd.admin.service
-@@ -11,8 +11,8 @@ StartLimitInterval=10
+@@ -11,9 +11,9 @@ StartLimitInterval=10
  Type=notify
  Environment=X_PORTAL=default
  Environment=PF_SKIP_MAKE_IMMUTABLE=1
+-ExecStartPre=/usr/bin/rm -f /usr/local/pf/var/run/httpd.admin.pid
 -ExecStartPre=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::httpd_admin' -e 'pf::services::manager::httpd_admin->new()->generateConfig()'
 -ExecStart=/usr/sbin/httpd -f /usr/local/pf/var/conf/httpd.conf.d/httpd.admin -DFOREGROUND  -Drhel
++ExecStartPre=/bin/rm -f /usr/local/pf/var/run/httpd.admin.pid
 +ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::httpd_admin' -e 'pf::services::manager::httpd_admin->new()->generateConfig()'
 +ExecStart=/usr/sbin/apache2 -f /usr/local/pf/var/conf/httpd.conf.d/httpd.admin -DFOREGROUND  -Ddebian
  ExecReload=/bin/kill -USR1 ${MAINPID}
  ExecStop=/bin/kill -WINCH ${MAINPID}
  # We want systemd to give httpd some time to finish gracefully, but still want
 diff --git a/conf/systemd/packetfence-httpd.collector.service b/conf/systemd/packetfence-httpd.collector.service
-index 8972596b2..26157e204 100644
+index aa6ec54f4e..17e83c5b17 100644
 --- a/conf/systemd/packetfence-httpd.collector.service
 +++ b/conf/systemd/packetfence-httpd.collector.service
-@@ -9,8 +9,8 @@ After=packetfence-base.target packetfence-config.service packetfence-iptables.se
+@@ -9,9 +9,9 @@ After=packetfence-base.target packetfence-config.service packetfence-iptables.se
  StartLimitBurst=3
  StartLimitInterval=10
  Type=notify
+-ExecStartPre=/usr/bin/rm -f /usr/local/pf/var/run/httpd.collector.pid
 -ExecStartPre=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::httpd_collector' -e 'pf::services::manager::httpd_collector->new()->generateConfig()'
 -ExecStart=/usr/sbin/httpd -f /usr/local/pf/var/conf/httpd.conf.d/httpd.collector -DFOREGROUND  -Drhel
++ExecStartPre=/bin/rm -f /usr/local/pf/var/run/httpd.collector.pid
 +ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::httpd_collector' -e 'pf::services::manager::httpd_collector->new()->generateConfig()'
 +ExecStart=/usr/sbin/apache2 -f /usr/local/pf/var/conf/httpd.conf.d/httpd.collector -DFOREGROUND  -Ddebian
  ExecReload=/bin/kill -USR1 ${MAINPID}
  ExecStop=/bin/kill -WINCH ${MAINPID}
  # We want systemd to give httpd some time to finish gracefully, but still want
 diff --git a/conf/systemd/packetfence-httpd.parking.service b/conf/systemd/packetfence-httpd.parking.service
-index 7c7bf8c59..380ad92bc 100644
+index f893836e6c..88eb9a8451 100644
 --- a/conf/systemd/packetfence-httpd.parking.service
 +++ b/conf/systemd/packetfence-httpd.parking.service
-@@ -9,8 +9,8 @@ After=packetfence-base.target packetfence-config.service packetfence-iptables.se
+@@ -9,9 +9,9 @@ After=packetfence-base.target packetfence-config.service packetfence-iptables.se
  StartLimitBurst=3
  StartLimitInterval=10
  Type=notify
+-ExecStartPre=/usr/bin/rm -f /usr/local/pf/var/run/httpd.parking.pid
 -ExecStartPre=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::httpd_parking' -e 'pf::services::manager::httpd_parking->new()->generateConfig()'
 -ExecStart=/usr/sbin/httpd -f /usr/local/pf/var/conf/httpd.conf.d/httpd.parking -DFOREGROUND  -Drhel
++ExecStartPre=/bin/rm -f /usr/local/pf/var/run/httpd.parking.pid
 +ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::httpd_parking' -e 'pf::services::manager::httpd_parking->new()->generateConfig()'
 +ExecStart=/usr/sbin/apache2 -f /usr/local/pf/var/conf/httpd.conf.d/httpd.parking -DFOREGROUND  -Ddebian
  ExecReload=/bin/kill -USR1 ${MAINPID}
  ExecStop=/bin/kill -WINCH ${MAINPID}
  # We want systemd to give httpd some time to finish gracefully, but still want
 diff --git a/conf/systemd/packetfence-httpd.portal.service b/conf/systemd/packetfence-httpd.portal.service
-index 77b6c628b..be44bfc5c 100644
+index 2d65852f85..ad9107784b 100644
 --- a/conf/systemd/packetfence-httpd.portal.service
 +++ b/conf/systemd/packetfence-httpd.portal.service
-@@ -9,8 +9,8 @@ After=packetfence-base.target packetfence-config.service packetfence-iptables.se
+@@ -9,9 +9,9 @@ After=packetfence-base.target packetfence-config.service packetfence-iptables.se
  StartLimitBurst=3
  StartLimitInterval=10
  Type=notify
+-ExecStartPre=/usr/bin/rm -f /usr/local/pf/var/run/httpd.portal.pid
 -ExecStartPre=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::httpd_portal' -e 'pf::services::manager::httpd_portal->new()->generateConfig()'
 -ExecStart=/usr/sbin/httpd -f /usr/local/pf/var/conf/httpd.conf.d/httpd.portal -DFOREGROUND  -Drhel
++ExecStartPre=/bin/rm -f /usr/local/pf/var/run/httpd.portal.pid
 +ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::httpd_portal' -e 'pf::services::manager::httpd_portal->new()->generateConfig()'
 +ExecStart=/usr/sbin/apache2 -f /usr/local/pf/var/conf/httpd.conf.d/httpd.portal -DFOREGROUND  -Ddebian
  ExecReload=/bin/kill -USR1 ${MAINPID}
  ExecStop=/bin/kill -WINCH ${MAINPID}
  # We want systemd to give httpd some time to finish gracefully, but still want
 diff --git a/conf/systemd/packetfence-httpd.proxy.service b/conf/systemd/packetfence-httpd.proxy.service
-index 2a03c81c9..dfa6ccdef 100644
+index eb3c0fec7a..c510a331dd 100644
 --- a/conf/systemd/packetfence-httpd.proxy.service
 +++ b/conf/systemd/packetfence-httpd.proxy.service
-@@ -9,8 +9,8 @@ After=packetfence-base.target packetfence-config.service packetfence-iptables.se
+@@ -9,9 +9,9 @@ After=packetfence-base.target packetfence-config.service packetfence-iptables.se
  StartLimitBurst=3
  StartLimitInterval=10
  Type=notify
+-ExecStartPre=/usr/bin/rm -f /usr/local/pf/var/run/httpd.proxy.pid
 -ExecStartPre=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::httpd_proxy' -e 'pf::services::manager::httpd_proxy->new()->generateConfig()'
 -ExecStart=/usr/sbin/httpd -f /usr/local/pf/var/conf/httpd.conf.d/httpd.proxy -DFOREGROUND  -Drhel
++ExecStartPre=/bin/rm -f /usr/local/pf/var/run/httpd.proxy.pid
 +ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::httpd_proxy' -e 'pf::services::manager::httpd_proxy->new()->generateConfig()'
 +ExecStart=/usr/sbin/apache2 -f /usr/local/pf/var/conf/httpd.conf.d/httpd.proxy -DFOREGROUND  -Ddebian
  ExecReload=/bin/kill -USR1 ${MAINPID}
  PrivateTmp=true
  Restart=on-failure
 diff --git a/conf/systemd/packetfence-httpd.webservices.service b/conf/systemd/packetfence-httpd.webservices.service
-index 55264303a..8716edc20 100644
+index 46d01ba1ef..6a56ce1dc1 100644
 --- a/conf/systemd/packetfence-httpd.webservices.service
 +++ b/conf/systemd/packetfence-httpd.webservices.service
-@@ -9,8 +9,8 @@ After=packetfence-base.target packetfence-config.service packetfence-iptables.se
+@@ -9,9 +9,9 @@ After=packetfence-base.target packetfence-config.service packetfence-iptables.se
  StartLimitBurst=3
  StartLimitInterval=10
  Type=notify
+-ExecStartPre=/usr/bin/rm -f /usr/local/pf/var/run/httpd.webservices.pid
 -ExecStartPre=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::httpd_webservices' -e 'pf::services::manager::httpd_webservices->new()->generateConfig()'
 -ExecStart=/usr/sbin/httpd -f /usr/local/pf/var/conf/httpd.conf.d/httpd.webservices -DFOREGROUND  -Drhel
++ExecStartPre=/bin/rm -f /usr/local/pf/var/run/httpd.webservices.pid
 +ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::httpd_webservices' -e 'pf::services::manager::httpd_webservices->new()->generateConfig()'
 +ExecStart=/usr/sbin/apache2 -f /usr/local/pf/var/conf/httpd.conf.d/httpd.webservices -DFOREGROUND  -Ddebian
  ExecReload=/bin/kill -USR1 ${MAINPID}
  ExecStop=/bin/kill -WINCH ${MAINPID}
  # We want systemd to give httpd some time to finish gracefully, but still want
 diff --git a/conf/systemd/packetfence-iptables.service b/conf/systemd/packetfence-iptables.service
-index f049b9707..1b158b40f 100644
+index f049b9707e..1b158b40fc 100644
 --- a/conf/systemd/packetfence-iptables.service
 +++ b/conf/systemd/packetfence-iptables.service
 @@ -5,8 +5,8 @@ Wants=packetfence-config.service
@@ -226,7 +240,7 @@ index f049b9707..1b158b40f 100644
  
  [Install]
 diff --git a/conf/systemd/packetfence-keepalived.service b/conf/systemd/packetfence-keepalived.service
-index 18625cd87..aa9ce04b4 100644
+index 18625cd87f..aa9ce04b4b 100644
 --- a/conf/systemd/packetfence-keepalived.service
 +++ b/conf/systemd/packetfence-keepalived.service
 @@ -8,7 +8,7 @@ StartLimitBurst=3
@@ -239,7 +253,7 @@ index 18625cd87..aa9ce04b4 100644
  ExecReload=/bin/kill -HUP $MAINPID
  Restart=on-failure
 diff --git a/conf/systemd/packetfence-netdata.service b/conf/systemd/packetfence-netdata.service
-index 1245a903e..f3aaa5685 100644
+index 1245a903e9..f3aaa56856 100644
 --- a/conf/systemd/packetfence-netdata.service
 +++ b/conf/systemd/packetfence-netdata.service
 @@ -12,7 +12,7 @@ RuntimeDirectoryMode=0775
@@ -252,7 +266,7 @@ index 1245a903e..f3aaa5685 100644
  
  TimeoutSec=60
 diff --git a/conf/systemd/packetfence-pfdns.service b/conf/systemd/packetfence-pfdns.service
-index 1467e7088..adb534223 100644
+index 1467e7088f..adb534223c 100644
 --- a/conf/systemd/packetfence-pfdns.service
 +++ b/conf/systemd/packetfence-pfdns.service
 @@ -8,7 +8,7 @@ Before=packetfence-httpd.portal.service
@@ -265,7 +279,7 @@ index 1467e7088..adb534223 100644
  Restart=on-failure
  Slice=packetfence.slice
 diff --git a/conf/systemd/packetfence-pfqueue.service b/conf/systemd/packetfence-pfqueue.service
-index f14e53bfe..4fc2f0eed 100644
+index f14e53bfe7..4fc2f0eed2 100644
 --- a/conf/systemd/packetfence-pfqueue.service
 +++ b/conf/systemd/packetfence-pfqueue.service
 @@ -9,7 +9,7 @@ After=packetfence-base.target packetfence-config.service packetfence-iptables.se
@@ -278,7 +292,7 @@ index f14e53bfe..4fc2f0eed 100644
  User=pf
  Restart=on-failure
 diff --git a/conf/systemd/packetfence-radiusd-acct.service b/conf/systemd/packetfence-radiusd-acct.service
-index e91764248..3a502cbb1 100644
+index e91764248a..3a502cbb18 100644
 --- a/conf/systemd/packetfence-radiusd-acct.service
 +++ b/conf/systemd/packetfence-radiusd-acct.service
 @@ -11,10 +11,10 @@ Type=notify
@@ -296,7 +310,7 @@ index e91764248..3a502cbb1 100644
  Slice=packetfence.slice
  
 diff --git a/conf/systemd/packetfence-radiusd-auth.service b/conf/systemd/packetfence-radiusd-auth.service
-index ac97166f5..3f2702bbf 100644
+index ac97166f52..3f2702bbf2 100644
 --- a/conf/systemd/packetfence-radiusd-auth.service
 +++ b/conf/systemd/packetfence-radiusd-auth.service
 @@ -11,9 +11,9 @@ Type=notify
@@ -313,7 +327,7 @@ index ac97166f5..3f2702bbf 100644
  Slice=packetfence.slice
  
 diff --git a/conf/systemd/packetfence-radiusd-cli.service b/conf/systemd/packetfence-radiusd-cli.service
-index 2c9dd046f..29c1b4e3d 100644
+index 2c9dd046fc..29c1b4e3d4 100644
 --- a/conf/systemd/packetfence-radiusd-cli.service
 +++ b/conf/systemd/packetfence-radiusd-cli.service
 @@ -11,9 +11,9 @@ Type=notify
@@ -330,7 +344,7 @@ index 2c9dd046f..29c1b4e3d 100644
  Slice=packetfence.slice
  
 diff --git a/conf/systemd/packetfence-radiusd-eduroam.service b/conf/systemd/packetfence-radiusd-eduroam.service
-index 5873cc63d..031cd11ac 100644
+index 5873cc63df..031cd11ac5 100644
 --- a/conf/systemd/packetfence-radiusd-eduroam.service
 +++ b/conf/systemd/packetfence-radiusd-eduroam.service
 @@ -10,9 +10,9 @@ Type=notify
@@ -347,7 +361,7 @@ index 5873cc63d..031cd11ac 100644
  Slice=packetfence.slice
  
 diff --git a/conf/systemd/packetfence-radiusd-load_balancer.service b/conf/systemd/packetfence-radiusd-load_balancer.service
-index 3ac9cf7e5..98aaf1636 100644
+index 3ac9cf7e53..98aaf1636e 100644
 --- a/conf/systemd/packetfence-radiusd-load_balancer.service
 +++ b/conf/systemd/packetfence-radiusd-load_balancer.service
 @@ -11,9 +11,9 @@ Type=notify
@@ -364,7 +378,7 @@ index 3ac9cf7e5..98aaf1636 100644
  Slice=packetfence.slice
  
 diff --git a/conf/systemd/packetfence-redis_ntlm_cache.service b/conf/systemd/packetfence-redis_ntlm_cache.service
-index 5c1237d27..3d44b6872 100644
+index 5c1237d27a..3d44b68727 100644
 --- a/conf/systemd/packetfence-redis_ntlm_cache.service
 +++ b/conf/systemd/packetfence-redis_ntlm_cache.service
 @@ -6,7 +6,7 @@ After=packetfence-base.target packetfence-config.service packetfence-iptables.se
@@ -377,7 +391,7 @@ index 5c1237d27..3d44b6872 100644
  ExecStop=/bin/kill $MAINPID
  Restart=on-failure
 diff --git a/conf/systemd/packetfence-redis_queue.service b/conf/systemd/packetfence-redis_queue.service
-index fa2350a94..8c23bc41f 100644
+index fa2350a947..8c23bc41f5 100644
 --- a/conf/systemd/packetfence-redis_queue.service
 +++ b/conf/systemd/packetfence-redis_queue.service
 @@ -6,7 +6,7 @@ After=packetfence-base.target packetfence-config.service packetfence-iptables.se
@@ -390,7 +404,7 @@ index fa2350a94..8c23bc41f 100644
  ExecStop=/bin/kill $MAINPID
  Restart=on-failure
 diff --git a/conf/systemd/packetfence-routes.service b/conf/systemd/packetfence-routes.service
-index 517551b73..29ddbe5fd 100644
+index 517551b732..29ddbe5fde 100644
 --- a/conf/systemd/packetfence-routes.service
 +++ b/conf/systemd/packetfence-routes.service
 @@ -8,8 +8,8 @@ StartLimitBurst=3
@@ -405,7 +419,7 @@ index 517551b73..29ddbe5fd 100644
  
  [Install]
 diff --git a/conf/systemd/packetfence-snmptrapd.service b/conf/systemd/packetfence-snmptrapd.service
-index d4dce4261..f7be83907 100644
+index d4dce42619..f7be83907c 100644
 --- a/conf/systemd/packetfence-snmptrapd.service
 +++ b/conf/systemd/packetfence-snmptrapd.service
 @@ -7,7 +7,7 @@ Wants=packetfence-base.target packetfence-config.service packetfence-iptables.se
@@ -418,7 +432,7 @@ index d4dce4261..f7be83907 100644
  ExecReload=/bin/kill -HUP $MAINPID
  Slice=packetfence.slice
 diff --git a/conf/systemd/packetfence-tc.service b/conf/systemd/packetfence-tc.service
-index 1406b18c2..deb989c29 100644
+index 1406b18c24..deb989c295 100644
 --- a/conf/systemd/packetfence-tc.service
 +++ b/conf/systemd/packetfence-tc.service
 @@ -8,8 +8,8 @@ StartLimitBurst=3
