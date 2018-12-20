@@ -663,8 +663,8 @@ CREATE PROCEDURE `acct_start` (
     IN `p_acctauthentic` varchar(32),
     IN `p_connectinfo_start` varchar(50),
     IN `p_connectinfo_stop` varchar(50),
-    IN `p_acctinputoctets` bigint(20),
-    IN `p_acctoutputoctets` bigint(20),
+    IN `p_acctinputoctets` bigint(20) unsigned,
+    IN `p_acctoutputoctets` bigint(20) unsigned,
     IN `p_calledstationid` varchar(50),
     IN `p_callingstationid` varchar(50),
     IN `p_acctterminatecause` varchar(32),
@@ -723,7 +723,7 @@ VALUES
 
   INSERT INTO `radacct_log`
    (`acctsessionid`, `username`, `nasipaddress`,
-    timestamp, `acctstatustype`, `acctinputoctets`, `acctoutputoctets`, `acctsessiontime`, `acctuniqueid`, `tenant_id`)
+    `timestamp`, `acctstatustype`, `acctinputoctets`, `acctoutputoctets`, `acctsessiontime`, `acctuniqueid`, `tenant_id`)
   VALUES
    (`p_acctsessionid`, `p_username`, `p_nasipaddress`,
     `p_acctstarttime`, `p_acctstatustype`, `p_acctinputoctets`, `p_acctoutputoctets`, `p_acctsessiontime`, `p_acctuniqueid`, `p_tenant_id`);
@@ -755,7 +755,7 @@ CREATE PROCEDURE `acct_stop` (
   IN `p_framedprotocol` varchar(32),
   IN `p_acctterminatecause` varchar(12),
   IN `p_acctstatustype` varchar(25),
-  IN `p_nasidentifier` varchar(64),                                                                                                                                                                                                                                                
+  IN `p_nasidentifier` varchar(64),
   IN `p_calledstationssid` varchar(64),
   IN `p_tenant_id` int(11) unsigned
 )
@@ -892,7 +892,7 @@ BEGIN
       SET `Previous_Session_Time` = 0;
       SET `Previous_Input_Octets` = 0;
       SET `Previous_Output_Octets` = 0;
-      SET `Previous_AcctUpdate_Time` = p_timestamp;
+      SET `Previous_AcctUpdate_Time` = `p_timestamp`;
       INSERT INTO `radacct`
              (
               `acctsessionid`,`acctuniqueid`,`username`,
