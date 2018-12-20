@@ -84,7 +84,7 @@ has_field 'server_name' =>
    maxlength => 14,
    messages => { required => 'Please specify the server\'s name' },
    tags => { after_element => \&help,
-             help => 'This server\'s name (account name) in your Active Directory. Use \'%h\' to automatically use this server hostname' },
+             help => 'This server\'s name (account name) in your Active Directory. Use \'%h\' to automatically use this server hostname. In a cluster, you must leave %h and ensure your hostnames are less than 14 characters.' },
   );
 
 has_field 'sticky_dc' => (
