@@ -1273,7 +1273,9 @@ sub node_last_reg_non_inline_on_category {
     if ( is_error($status) ) {
         return;
     }
-    return @{ $iter->all() // [] };
+    my $all = $iter->all();
+    my $result = $all ? $all->[0] : undef;
+    return $result;
 }
 
 =back
