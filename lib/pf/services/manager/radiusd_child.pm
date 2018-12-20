@@ -179,7 +179,7 @@ EOT
 EOT
             }
             $flag = $FALSE;
-	    $tags{'userPrincipalName'} .= <<"EOT";
+        $tags{'userPrincipalName'} .= <<"EOT";
         if (Realm == \"$realm\" ) {
             $pf::config::ConfigRealm{$realm}->{ldap_source}
         }
