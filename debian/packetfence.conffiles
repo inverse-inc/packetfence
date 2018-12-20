@@ -83,6 +83,7 @@
 /usr/local/pf/conf/violations.conf
 /usr/local/pf/conf/wmi.conf
 /usr/local/pf/conf/monitoring/netdata.conf
+/usr/local/pf/conf/fingerbank-collector.env.defaults
 /usr/local/pf/html/captive-portal/captiveportal.conf
 /usr/local/pf/html/common/styles-dark.css
 /usr/local/pf/html/common/Gruntfile.js

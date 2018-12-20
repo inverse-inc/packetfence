@@ -1069,6 +1069,7 @@ fi
                         /usr/local/pf/conf/haproxy-db.conf.example
 %config(noreplace)      /usr/local/pf/conf/haproxy-portal.conf
                         /usr/local/pf/conf/haproxy-portal.conf.example
+%config                 /usr/local/pf/conf/fingerbank-collector.env.defaults
 %dir                    /usr/local/pf/conf/httpd.conf.d
 %config                 /usr/local/pf/conf/httpd.conf.d/captive-portal-common.tt
                         /usr/local/pf/conf/httpd.conf.d/captive-portal-common.tt.example
