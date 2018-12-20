@@ -339,13 +339,12 @@ Show the account details created in the pre-registration
 
 sub show_preregistration_account {
     my ($self) = @_;
-    if(my $account = $self->app->session->{local_account_info}){
-        $self->render("account.html", {account => $account, title => "Account created"});
-    }
-    else {
-        get_logger->warn("No created account found. Continuing normal portal flow");
-        $self->SUPER::execute_child();
-    }
+    captiveportal::DynamicRouting::Module::ShowLocalAccount->new(
+        id => "__TMP_ShowLocalAccount_Module__", 
+        parent => $self, 
+        app => $self->app, 
+        skipable => $FALSE
+    )->execute();
 }
 
 =head2 record_destination_url
