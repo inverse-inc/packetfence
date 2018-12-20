@@ -109,7 +109,7 @@ export default {
 </script>
 
 <style lang="scss">
-#source-add-container div[role="menu"] {
+#switch-add-container div[role="menu"] {
   overflow-x: hidden;
   overflow-y: scroll;
   max-height: 50vh;

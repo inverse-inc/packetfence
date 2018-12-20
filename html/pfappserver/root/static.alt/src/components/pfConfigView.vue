@@ -9,17 +9,16 @@
           </h4>
         </b-card-header>
       </slot>
-      <b-tabs v-if="form.fields[0].tab || form.fields.length > 1" v-model="tabIndex" :key="tabKey">
+      <b-tabs v-if="form.fields[0].tab || form.fields.length > 1" v-model="tabIndex" :key="tabKey" card>
         <b-tab v-for="(tab, t) in form.fields" :key="t" v-if="!('if' in tab) || tab.if"
           :disabled="tab.disabled"
           :title-link-class="{'text-danger': getTabErrorCount(t) > 0 }"
+          :title="tab.tab"
           no-body
-        >
-          <template slot="title">{{ tab.tab }}</template>
-        </b-tab>
+        ></b-tab>
       </b-tabs>
       <template v-for="(tab, t) in form.fields">
-        <div class="card-body" v-if="tab.fields" :class="{ 'hidden': (t !== tabIndex) }" :key="t">
+        <div class="card-body" v-if="tab.fields" v-show="t === tabIndex" :key="t">
           <b-form-group v-for="row in tab.fields" :key="row.key" v-if="!('if' in row) || row.if"
             :label-cols="(row.label) ? form.labelCols : 0" :label="row.label" :label-size="row.labelSize"
             :state="isValid()" :invalid-feedback="getInvalidFeedback()"
@@ -238,6 +237,11 @@ export default {
     },
     vuelidate: {
       handler: function (a, b) {
+      /**
+       * Vue's reactive model is broken for objects/arrays.
+       * When the vuelidate model is updated redraw the tabs so they pick
+       * up on validation changes outside their initiial rendering
+      **/
         this.tabKey = uuidv4() // redraw tabs
       },
       deep: true
@@ -255,11 +259,6 @@ export default {
     display: flex;
     justify-contents: center;
     align-items: center;
-  }
-  .card-body {
-    &.hidden {
-      display: none;
-    }
   }
 }
 </style>

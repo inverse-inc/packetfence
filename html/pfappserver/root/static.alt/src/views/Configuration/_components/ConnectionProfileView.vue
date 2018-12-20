@@ -84,7 +84,7 @@ export default {
       connectionProfile: defaults(this), // will be overloaded with the data from the store
       connectionProfileValidations: {}, // will be overloaded with data from the pfConfigView
       sources: [],
-      billing_tiers: [],
+      billingTiers: [],
       provisionings: [],
       scans: []
     }
@@ -156,7 +156,7 @@ export default {
       this.sources = data
     })
     this.$store.dispatch('$_billing_tiers/all').then(data => {
-      this.billing_tiers = data
+      this.billingTiers = data
     })
     this.$store.dispatch('$_provisionings/all').then(data => {
       this.provisionings = data

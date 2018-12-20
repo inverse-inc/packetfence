@@ -4,6 +4,7 @@ import pfFormChosen from '@/components/pfFormChosen'
 import pfFormFields from '@/components/pfFormFields'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormSelect from '@/components/pfFormSelect'
+import pfFormTextarea from '@/components/pfFormTextarea'
 import pfFormToggle from '@/components/pfFormToggle'
 import {
   pfConfigurationListColumns,
@@ -44,7 +45,7 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
     isClone = false,
     connectionProfile = {},
     sources = [],
-    billing_tiers = [],
+    billingTiers = [],
     provisionings = [],
     scans = []
   } = context
@@ -194,6 +195,64 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
           ]
         },
         {
+          if: (connectionProfile.id !== 'default'),
+          label: i18n.t('Filters'),
+          fields: [
+            {
+              key: 'filter_match_style',
+              component: pfFormChosen,
+              attrs: {
+                collapseObject: true,
+                placeholder: i18n.t('Click to select a match style'),
+                trackBy: 'value',
+                label: 'text',
+                options: [
+                  { text: i18n.t('If ALL of the following conditions are met:'), value: 'all' },
+                  { text: i18n.t('If ANY of the following conditions are met:'), value: 'any' }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          if: (connectionProfile.id !== 'default' && connectionProfile.filter_match_style),
+          label: '&nbsp;', // pad with label-column, but don't print anything
+          fields: [
+            {
+              key: 'filter',
+              component: pfFormFields,
+              attrs: {
+                buttonLabel: i18n.t('Add Filter'),
+                emptyText: i18n.t('With no filter specified, an advanced filter must be specified.'),
+                maxFields: sources.length,
+                sortable: true,
+                field: {
+                  // TODO: Complete filtering
+                },
+                invalidFeedback: [
+                  { [i18n.t('Source(s) contain one or more errors.')]: true }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          if: (connectionProfile.id !== 'default'),
+          label: i18n.t('Advanced filter'),
+          fields: [
+            {
+              key: 'advanced_filter',
+              component: pfFormTextarea,
+              attrs: {
+                rows: 3
+              },
+              validators: {
+                [i18n.t('Maximum 255 characters.')]: maxLength(255)
+              }
+            }
+          ]
+        },
+        {
           label: i18n.t('Sources'),
           fields: [
             {
@@ -243,7 +302,7 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
               attrs: {
                 buttonLabel: i18n.t('Add Billing Tier'),
                 emptyText: i18n.t('With no billing tiers specified, all billing tiers will be used.'),
-                maxFields: billing_tiers.length,
+                maxFields: billingTiers.length,
                 sortable: true,
                 field: {
                   component: pfField,
@@ -255,14 +314,14 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
                         placeholder: i18n.t('Click to select a billing tier'),
                         trackBy: 'value',
                         label: 'text',
-                        options: billing_tiers.map(billing_tier => {
+                        options: billingTiers.map(billing_tier => {
                           return { text: `${billing_tier.id} (${billing_tier.name} - ${billing_tier.description})`, value: billing_tier.id }
                         })
                       },
                       validators: {
                         [i18n.t('Billing Tier required.')]: required,
                         [i18n.t('Duplicate Billing Tier.')]: conditional((value) => {
-                          return !(connectionProfile.billing_tiers.filter(v => v === value).length > 1)
+                          return !(connectionProfile.billingTiers.filter(v => v === value).length > 1)
                         })
                       }
                     }
@@ -565,6 +624,7 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
     },
     {
       tab: i18n.t('Files'),
+      disabled: true,
       fields: []
     }
   ]

@@ -105,7 +105,6 @@ export default {
       }
     },
     isDeletable () {
-    console.log('notDeletable', this.isNew, this.isClone, ('not_deletable' in this.realm && this.realm.not_deletable))
       if (this.isNew || this.isClone || ('not_deletable' in this.realm && this.realm.not_deletable)) {
         return false
       }
