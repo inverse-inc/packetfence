@@ -564,7 +564,7 @@ func (pf *pfdns) DbInit() error {
 		return err
 	}
 
-	pf.Nodedb, err = pf.Db.Prepare("select node.status IF(ISNULL(nc.name), '', nc.name) as category from node LEFT JOIN node_category as nc on node.category_id = nc.category_id where mac = ? AND tenant_id = ?")
+	pf.Nodedb, err = pf.Db.Prepare("select node.status, IF(ISNULL(nc.name), '', nc.name) as category from node LEFT JOIN node_category as nc on node.category_id = nc.category_id where mac = ? AND tenant_id = ?")
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "pfdns: database nodedb prepared statement error: %s", err)
 		return err
