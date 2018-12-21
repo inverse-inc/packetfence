@@ -470,7 +470,6 @@ sub generate_radiusd_sqlconf {
    $tags{'db_database'} = $Config{'database'}{'db'};
    $tags{'db_username'} = $Config{'database'}{'user'};
    $tags{'db_password'} = $Config{'database'}{'pass'};
-   $tags{'hash_passwords'} = $Config{'advanced'}{'hash_passwords'} eq 'ntlm' ? 'NT-Password' : 'Cleartext-Password';
    for my $k (qw(db_username db_password)) {
       $tags{$k} = escape_freeradius_string($tags{$k});
    }
