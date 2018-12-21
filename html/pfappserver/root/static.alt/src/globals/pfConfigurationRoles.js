@@ -12,6 +12,7 @@ import {
 } from '@/globals/pfValidators'
 
 const {
+  integer,
   required,
   alphaNum,
   maxLength
@@ -61,6 +62,23 @@ export const pfConfigurationRoleViewFields = (context = {}) => {
               component: pfFormInput,
               validators: {
                 [i18n.t('Maximum 255 characters.')]: maxLength(255)
+              }
+            }
+          ]
+        },
+        {
+          label: i18n.t('Max nodes per user'),
+          text: i18n.t('The maximum number of nodes a user having this role can register. A number of 0 means unlimited number of devices.'),
+          fields: [
+            {
+              key: 'max_nodes_per_pid',
+              component: pfFormInput,
+              attrs: {
+                type: 'number'
+              },
+              validators: {
+                [i18n.t('Max nodes per user required.')]: required,
+                [i18n.t('Integer value required.')]: integer
               }
             }
           ]
