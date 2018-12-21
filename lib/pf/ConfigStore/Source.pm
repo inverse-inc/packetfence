@@ -35,6 +35,8 @@ _fields_expanded
 our %TYPE_TO_EXPANDED_FIELDS = (
     SMS => [qw(sms_carriers)],
     Eduroam => [qw(local_realm reject_realm)],
+    AD => [qw(searchattributes)],
+    LDAP => [qw(searchattributes)],
 );
 
 sub _fields_expanded {
@@ -140,19 +142,13 @@ sub cleanupAfterRead {
         }
     }
 
-    $self->expand_list($item, $self->_fields_expanded($item));
-
-    if ($item->{type} eq 'AD' || $item->{type} eq "LDAP") {
-        $self->expand_list($item, qw(searchattributes));
-    }
-    $self->expand_list($item, qw(realms));
-
     if ($item->{type} eq 'RADIUS') {
         if(ref($item->{options}) eq 'ARRAY'){
             $item->{options} = $self->join_options($item->{options});
         }
     }
-    $self->expand_list($item, qw(realms));
+
+    $self->expand_list($item, $self->_fields_expanded($item));
 }
 
 
@@ -172,12 +168,6 @@ sub cleanupBeforeCommit {
     }
 
     $self->flatten_list($item, $self->_fields_expanded($item));
-
-    if ($item->{type} eq 'AD' || $item->{type} eq "LDAP") {
-        $self->flatten_list($item, qw(searchattributes));
-    }
-
-    $self->flatten_list($item, qw(realms));
 
 }
 
