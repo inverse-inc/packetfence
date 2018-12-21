@@ -364,4 +364,11 @@ BEGIN
 END /
 DELIMITER ;
 
+--
+-- Update Freedom mobile's email pattern
+--
+
+UPDATE sms_carrier SET email_pattern="%s@txt.freedommobile.ca" WHERE id=100125;
+
+
 INSERT INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION));
