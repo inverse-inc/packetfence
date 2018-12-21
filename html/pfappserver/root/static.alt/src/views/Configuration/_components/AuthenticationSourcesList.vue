@@ -106,7 +106,7 @@ export default {
               ]
             }]
           },
-          defaultRoute: { name: 'configuration/sources' },
+          defaultRoute: { name: 'sources' },
           resultsFilter: (results) => results.filter(item => item.id !== 'local') // ignore 'local' source
         },
         searchableQuickCondition: (quickCondition) => {

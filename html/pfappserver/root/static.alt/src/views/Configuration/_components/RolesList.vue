@@ -60,7 +60,7 @@ export default {
               ]
             }]
           },
-          defaultRoute: { name: 'configuration/roles' }
+          defaultRoute: { name: 'roles' }
         },
         searchableQuickCondition: (quickCondition) => {
           return {

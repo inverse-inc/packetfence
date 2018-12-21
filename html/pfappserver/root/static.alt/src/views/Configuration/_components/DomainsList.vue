@@ -48,7 +48,7 @@ export default {
               ]
             }]
           },
-          defaultRoute: { name: 'configuration/domains' }
+          defaultRoute: { name: 'domains' }
         },
         searchableQuickCondition: (quickCondition) => {
           return {

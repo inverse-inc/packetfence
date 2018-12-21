@@ -126,7 +126,7 @@ export default {
             ]
           }]
         },
-        defaultRoute: { name: 'configuration/portal_modules' }
+        defaultRoute: { name: 'portal_modules' }
       })
     }
   },

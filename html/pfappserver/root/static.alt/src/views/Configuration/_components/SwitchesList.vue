@@ -69,7 +69,7 @@ export default {
               ]
             }]
           },
-          defaultRoute: { name: 'configuration/switches' }
+          defaultRoute: { name: 'switches' }
         },
         searchableQuickCondition: (quickCondition) => {
           return {

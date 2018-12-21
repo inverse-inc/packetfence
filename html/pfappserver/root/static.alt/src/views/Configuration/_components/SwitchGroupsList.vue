@@ -63,7 +63,7 @@ export default {
               ]
             }]
           },
-          defaultRoute: { name: 'configuration/switch_groups' }
+          defaultRoute: { name: 'switch_groups' }
         },
         searchableQuickCondition: (quickCondition) => {
           return {

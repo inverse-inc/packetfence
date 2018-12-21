@@ -55,7 +55,7 @@ export default {
               ]
             }]
           },
-          defaultRoute: { name: 'configuration/roles' }
+          defaultRoute: { name: 'realms' }
         },
         searchableQuickCondition: (quickCondition) => {
           return {

@@ -59,7 +59,7 @@ export default {
               ]
             }]
           },
-          defaultRoute: { name: 'configuration/floating_devices' }
+          defaultRoute: { name: 'floating_devices' }
         },
         searchableQuickCondition: (quickCondition) => {
           return {

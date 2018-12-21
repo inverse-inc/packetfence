@@ -60,7 +60,7 @@ export default {
               ]
             }]
           },
-          defaultRoute: { name: 'configuration/connection_profiles' }
+          defaultRoute: { name: 'connection_profiles' }
         },
         searchableQuickCondition: (quickCondition) => {
           return {

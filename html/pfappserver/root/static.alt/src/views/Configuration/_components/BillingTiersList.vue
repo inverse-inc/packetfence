@@ -60,7 +60,7 @@ export default {
               ]
             }]
           },
-          defaultRoute: { name: 'configuration/billing_tiers' }
+          defaultRoute: { name: 'billing_tiers' }
         },
         searchableQuickCondition: (quickCondition) => {
           return {
