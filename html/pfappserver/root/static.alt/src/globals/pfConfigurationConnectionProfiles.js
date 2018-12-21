@@ -321,7 +321,7 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
                       validators: {
                         [i18n.t('Billing Tier required.')]: required,
                         [i18n.t('Duplicate Billing Tier.')]: conditional((value) => {
-                          return !(connectionProfile.billingTiers.filter(v => v === value).length > 1)
+                          return !(connectionProfile.billing_tiers.filter(v => v === value).length > 1)
                         })
                       }
                     }
