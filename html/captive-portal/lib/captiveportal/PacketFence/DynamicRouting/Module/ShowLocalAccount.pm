@@ -25,7 +25,10 @@ Display the message to the user and handle the continue if applicable
 
 sub execute_child {
     my ($self) = @_;
-    if(my $account = $self->app->session->{local_account_info}){
+    if($self->app->request->param('next') && $self->skipable){
+        $self->done();
+    }
+    elsif(my $account = $self->app->session->{local_account_info}){
         $self->render("account.html", {account => $account, title => "Account created", skipable => $self->skipable});
     }
     else {
