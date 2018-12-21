@@ -1589,9 +1589,11 @@ sub isPhoneAtIfIndex {
     }
 
     if (defined($ifIndex)) {
-        $logger->debug("determining if $mac is VoIP phone through discovery protocols");
-        my @phones = $self->getPhonesDPAtIfIndex($ifIndex);
-        return ( grep( { lc($_) eq lc($mac) } @phones ) != 0 );
+        return $self->cache_distributed->compute($self->{_id} . "-SNMP-isPhoneAtIfIndex-$ifIndex-$mac", sub {
+            $logger->debug("determining if $mac is VoIP phone through discovery protocols");
+            my @phones = $self->getPhonesDPAtIfIndex($ifIndex);
+            return ( grep( { lc($_) eq lc($mac) } @phones ) != 0 );
+        });
     } else {
         return 0;
     }
