@@ -93,9 +93,9 @@ export default {
       if (!this.filter.length) {
         return this.value
       }
-      const re = new RegExp(this.filter, 'i')
-      const keys = ['name', 'caption']
       const _filterSection = (section) => {
+        const re = new RegExp(this.filter, 'i')
+        const keys = ['name', 'caption']
         if (keys.find((key) => {
           return section[key] && (re.test(section[key]) || re.test(this.$i18n.t(section[key])))
         })) {
