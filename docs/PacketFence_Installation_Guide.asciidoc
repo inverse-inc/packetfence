@@ -5333,84 +5333,13 @@ Installation
 
 Since the Suricata IDS is not packaged with the distros (except maybe Fedora, which we do not officially support), you need to build it the "old" way.
 
-The OISF provides a really well written how-to for that.  It's available here: https://redmine.openinfosecfoundation.org/projects/suricata/wiki/CentOS5
+The OISF provides a really well written how-to for that. It's available here: https://redmine.openinfosecfoundation.org/projects/suricata/wiki/CentOS5
 
-NOTE: To benefit the OPSWAT Metadefender Cloud integration, Suricata needs to be built with libnss / libnspr support. Make sure to use JSON output. More information on how to achieve this can be found there: https://redmine.openinfosecfoundation.org/projects/suricata/wiki/MD5
 
 Configuration
 +++++++++++++
 
 You will need to follow the configuration below related to the Suricata configuration (Syslog).
-
-OPSWAT Metadefender Cloud
-+++++++++++++++++++++++++
-
-It is possible to trigger violations based on threat level of downloaded files using the Metadefender Cloud integration in conjunction with the Suricata MD5 extraction feature. Without entering in the details, here are the basic steps to make it work.
-
-First, an OPSWAT portal account is required to make use of the API. Such account can be obtained through the OPSWAT portal: https://portal.opswat.com.
-
-Other requirement is a Suricata working installation built with libnss / libnspr support as described in the upper "Installation" section.
-
-Along with the OPSWAT API key for Metadefender Cloud (they call it 'License Key') and the working Suricata installation, some configuration (PacketFence based AND Suricata based) is also required.
-
-Assuming that all the steps for Suricata MD5 extraction have been followed, here's what to do next.
-
-On PacketFence, under Configuration->Integration->OPSWAT Metadefender, enter your 'Licence Key'.
-
-On the Suricata server (syslog-ng is preferred due to easier and more powerful configuration. If not installed, it might be an idea):
-
-Configure `/etc/syslog-ng/syslog-ng.conf` by adding the following to enable sending MD5 file store log entries to PacketFence:
-
-  ### PacketFence / OPSWAT Metadefender Cloud integration
-  # This line specifies where the files-json.log file is located
-  # -> Make sure to configure the right path along with the right filename
-  source s_suricata_files { file("/MY_SURICATA_LOG_FILES_PATH/files-json.log" program_override("suricata_files") flags(no-parse)); };
-  # This line tells syslog-ng to send the data read to the PacketFence management interface IP address using UDP 514
-  # -> Make sure to configure the right PacketFence management interface IP address
-  destination d_packetfence_md5 { udp("PACKETFENCE_MGMT_IP" port(514)); };
-  # This line indicates syslog-ng to use the s_suricata_files source and send it to the d_packetfence_md5 destination
-  log { source(s_suricata_files); destination(d_packetfence_md5); };
-
-A restart of the syslog-ng daemon is required
-
-  service syslog-ng restart
-
-On the PacketFence server:
-
-Modify rsyslog configuration to allow incoming UDP packets by uncommenting the following two lines in `/etc/rsyslog.conf`:
-
-  $ModLoad imudp
-  $UDPServerRun 514
-
-Configure `/etc/rsyslog.d/suricata_files.conf` so it contains the following which will redirect Suricata MD5 file store log entries and stop further processing of current matched message:
-
-  if $programname == 'suricata_files' then /usr/local/pf/var/suricata_files
-  & ~
-
-Make sure the receiving alert pipe (FIFO) exists
-
-  mkfifo /usr/local/pf/var/suricata_files
-
-Restart the rsyslog daemon
-
-  service rsyslog restart
-
-At this point, Suricata should be able to extract MD5 checksum of downloaded files and send the related log entry to PacketFence.
-
-A configuration of a new 'syslog parser' as well as some violations are the only remaining steps to make full usage of the OPSWAT Metadefender Cloud integration.
-
-Configuration of a new 'syslog parser' (Configuration->Integration->Syslog Parsers) should use the followings:
-
-  Type: suricata_md5
-  Alert pipe: the previously created alert pipe (FIFO) which is, in this case, /usr/local/pf/var/suricata_files
-
-Configuration of a new violation can use the following trigger types:
-
-  Type: metadefender
-  Triggers ID: The scan result returned by Metadefender Cloud online
-
-  Type: suricata_md5
-  Trigger ID: The MD5 hash returned by Suricata
 
 Violations
 ^^^^^^^^^^

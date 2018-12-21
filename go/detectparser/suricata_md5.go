@@ -78,10 +78,6 @@ func (s *SuricataMD5Parser) Parse(line string) ([]ApiCall, error) {
 				"type", "suricata_md5",
 			},
 		},
-		&PfqueueApiCall{
-			Method: "metadefender_process",
-			Params: []interface{}{data},
-		},
 	}, nil
 }
 

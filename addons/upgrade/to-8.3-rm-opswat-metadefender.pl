@@ -1,40 +1,42 @@
-package pf::constants::pfconf;
+#!/usr/bin/perl
 
 =head1 NAME
 
-pf::constants::pfconf -
+addons/upgrade/to-8.3-rm-opswat-metadefender.pl
+
+=cut
 
 =head1 DESCRIPTION
 
-pf::constants::pfconf
+Remove old config items for metadefender
 
 =cut
 
 use strict;
 use warnings;
-our %ALLOWED_SECTIONS = (
-    active_active     => undef,
-    advanced          => undef,
-    alerting          => undef,
-    captive_portal    => undef,
-    database          => undef,
-    database_advanced => undef,
-    fencing           => undef,
-    general           => undef,
-    inline            => undef,
-    mse_tab           => undef,
-    network           => undef,
-    node_import       => undef,
-    parking           => undef,
-    ports             => undef,
-    provisioning      => undef,
-    services          => undef,
-    snmp_traps        => undef,
-    webservices       => undef,
-    guests_admin_registration     => undef,
-    radius_authentication_methods => undef,
-    fingerbank_device_change      => undef,
-);
+use lib qw(/usr/local/pf/lib);
+use pf::IniFiles;
+use pf::file_paths qw($pf_config_file $violations_config_file);
+use pf::util;
+run_as_pf();
+my $ini = pf::IniFiles->new(-file => $pf_config_file, -allowempty => 1);
+if ($ini && $ini->SectionExists('metadefender')) {
+    $ini->DeleteSection();
+    $ini->RewriteConfig();
+}
+
+$ini = pf::IniFiles->new(-file => $violations_config_file, -allowempty => 1);
+if ($ini) {
+    for my $section ($ini->Sections()) {
+        my $trigger = $ini->val($section, "trigger");
+        next unless defined $trigger;
+        print "Upgrading $section\n";
+        $trigger = join("," , grep { !/^metadefender/} split (/\s*,\s*/, $trigger));
+        $ini->setval($section, "trigger", $trigger);
+    }
+}
+$ini->RewriteConfig();
+
 
 =head1 AUTHOR
 
@@ -63,4 +65,3 @@ USA.
 
 =cut
 
-1;

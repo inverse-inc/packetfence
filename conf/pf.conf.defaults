@@ -1031,19 +1031,6 @@ galera_replication_username=
 # Defines the replication password to be used for the MariaDB Galera cluster replication
 galera_replication_password=
 
-[metadefender]
-#
-# metadefender.api_key
-#
-# OPSWAT Metadefender Cloud Scanner API key
-api_key=
-
-#
-# metadefender.query_url_hash
-#
-# OPSWAT Metadefender Cloud Scanner URL for hash queries
-query_url_hash=https://hashlookup.metadefender.com/v2/hash/
-
 [parking]
 #
 # parking.lease_length

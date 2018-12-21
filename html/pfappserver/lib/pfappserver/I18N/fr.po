@@ -4876,22 +4876,6 @@ msgid ""
 "just <i>click through</i> violation pages."
 msgstr "Nombre de fois qu’un appareil aura la possibilité de se redonner un accès au réseau avant que cette possibilité ne soit bloquée et qu’il doive contacter le service informatique. C’est très utile pour les utilisateurs qui négligent les pages de violations. "
 
-# html/pfappserver/root/admin/configuration.tt
-msgid "OPSWAT Metadefender"
-msgstr "OPSWAT Metadefender"
-
-# conf/documentation.conf (metadefender.api_key)
-msgid "OPSWAT Metadefender Cloud Scanner API key"
-msgstr "Clé d’API de d’OPSWAT Metadefender Cloud Scanner"
-
-# conf/documentation.conf (metadefender.query_url_hash)
-msgid "OPSWAT Metadefender Cloud Scanner URL for hash queries"
-msgstr "URL pour les requêtes de hash de OPSWAT Metadefender Cloud Scanner"
-
-# html/pfappserver/root/configuration/integration.tt
-msgid "OPSWAT Metadefender:"
-msgstr "OPSWAT Metadefender"
-
 # html/pfappserver/lib/pfappserver/Form/Config/DeviceRegistration.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Scan.pm
@@ -11155,18 +11139,6 @@ msgstr "memberOf"
 # pf::Authentication::Source::ADSource (available_attributes)
 msgid "memberOf:1.2.840.113556.1.4.1941:"
 msgstr "Groupe imbriqué"
-
-# conf/documentation.conf
-msgid "metadefender"
-msgstr "OPSWAT Metadefender Cloud Scanner"
-
-# conf/documentation.conf
-msgid "metadefender.api_key"
-msgstr "Clé de l’API"
-
-# conf/documentation.conf
-msgid "metadefender.query_url_hash"
-msgstr "Hash de l’URL pour la requête"
 
 # html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
 msgid "minutes"

@@ -134,7 +134,6 @@
               [% pf_section_entry( 'mse_tab', 'Cisco Mobility Sevices Engine') | none %]
               [%- END %]
               [%- IF can_access("CONFIGURATION_MAIN_READ") %]
-              [% pf_section_entry( 'metadefender', 'OPSWAT Metadefender') | none %]
               [% pf_section_entry( 'webservices', 'Web Services') | none %]
               [%- END %]
               [%- IF can_access("PFDETECT_READ") %]

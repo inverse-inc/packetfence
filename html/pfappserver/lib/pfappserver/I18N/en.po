@@ -4486,18 +4486,6 @@ msgstr ""
 msgid "Number of times a host will be able to try and self remediate before they are locked out and have to call the help desk. This is useful for users who just <i>click through</i> violation pages."
 msgstr ""
 
-# html/pfappserver/root/admin/configuration.tt
-msgid "OPSWAT Metadefender"
-msgstr ""
-
-# conf/documentation.conf (metadefender.api_key)
-msgid "OPSWAT Metadefender Cloud Scanner API key"
-msgstr ""
-
-# conf/documentation.conf (metadefender.query_url_hash)
-msgid "OPSWAT Metadefender Cloud Scanner URL for hash queries"
-msgstr ""
-
 # html/pfappserver/root/configuration/integration.tt
 msgid "OPSWAT Metadefender:"
 msgstr ""
@@ -10325,18 +10313,6 @@ msgstr ""
 # pf::Authentication::Source::ADSource (available_attributes)
 msgid "memberOf:1.2.840.113556.1.4.1941:"
 msgstr "nested group"
-
-# conf/documentation.conf
-msgid "metadefender"
-msgstr "OPSWAT Metadefender Cloud Scanner"
-
-# conf/documentation.conf
-msgid "metadefender.api_key"
-msgstr "API key"
-
-# conf/documentation.conf
-msgid "metadefender.query_url_hash"
-msgstr "Query URL hash"
 
 # html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
 msgid "minutes"

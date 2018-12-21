@@ -47,10 +47,6 @@ func TestSuricataMD5Parse(t *testing.T) {
 						"type", "suricata_md5",
 					},
 				},
-				&PfqueueApiCall{
-					Method: "metadefender_process",
-					Params: []interface{}{testData},
-				},
 			},
 		},
 	}

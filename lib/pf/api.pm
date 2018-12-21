@@ -46,7 +46,6 @@ use fingerbank::DB;
 use File::Slurp;
 use pf::file_paths qw($captiveportal_profile_templates_path);
 use pf::CHI;
-use pf::metadefender();
 use pf::services();
 use pf::firewallsso();
 use pf::pfqueue::stats();
@@ -1260,20 +1259,6 @@ Copy a directory on this server
 sub copy_directory : Public {
     my ($class, $source_dir, $dest_dir) = @_;
     return dircopy($source_dir, $dest_dir);
-}
-
-=head2 metadefender_process
-
-=cut
-
-sub metadefender_process : Public {
-    my ( $class, $data ) = @_;
-
-    my $metadefender_scan_result_id = pf::metadefender->hash_lookup($data);
-    return if !defined($metadefender_scan_result_id);
-
-    my $violation_note = "Filename: " . $data->{'filename'} . "\n From host: " . $data->{'http_host'};
-    pf::violation::violation_trigger( { 'mac' => $data->{'mac'}, 'tid' => $metadefender_scan_result_id, 'type' => "metadefender", 'notes' => $violation_note } );
 }
 
 sub rest_ping :Public :RestPath(/rest/ping){

@@ -19,7 +19,6 @@ Namespaces:
   httpd.admin
   httpd.portal
   ldap_auth
-  metadefender
   person_lookup
   pfdns
   provisioning
