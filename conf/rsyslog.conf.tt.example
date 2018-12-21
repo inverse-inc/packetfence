@@ -23,5 +23,5 @@ if [% item.condition %] then
 [%- FOREACH action IN item.actions %]
   [% action -%]
 [%- END %]
-& stop
+stop
 [% END -%]
