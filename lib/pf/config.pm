@@ -167,6 +167,8 @@ our (
     %ConfigDeviceRegistration,
 #ldap authentication sources
     %ConfigAuthenticationLdap,
+# Radius sources
+    %ConfigAuthenticationRadius,
 );
 
 BEGIN {
@@ -229,6 +231,7 @@ BEGIN {
         %ConfigRoles
         %ConfigDeviceRegistration
         %ConfigAuthenticationLdap
+        %ConfigAuthenticationRadius
     );
 }
 
@@ -302,6 +305,8 @@ tie %ConfigRoles, 'pfconfig::cached_hash', 'config::Roles';
 tie %ConfigDeviceRegistration, 'pfconfig::cached_hash', 'config::DeviceRegistration';
 
 tie %ConfigAuthenticationLdap, 'pfconfig::cached_hash', 'resource::authentication_sources_ldap';
+
+tie %ConfigAuthenticationRadius, 'pfconfig::cached_hash', 'resource::authentication_sources_radius';
 
 $thread = 0;
 

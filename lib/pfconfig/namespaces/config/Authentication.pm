@@ -40,6 +40,7 @@ sub init {
         'resource::authentication_sources_monitored',
         'resource::guest_self_registration',
         'resource::authentication_sources_ldap',
+        'resource::authentication_sources_radius',
     ];
 }
 

@@ -2342,11 +2342,24 @@ You can have a look in the file vlan_filters.conf, there are some examples on ho
 RADIUS Filter Definition
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-We added the ability to specify filters directly in the portion of code that return the radius answer or do a call to the API.
+We added the ability to specify filters directly in the portion of code that return radius attributes or do a call to the API.
 
-These rules are only available in one scope:
+These rules are available in thoses scopes:
 
-  returnRadiusAccessAccept
+  returnRadiusAccessAccept is when you return the answer for a device access
+  returnAuthorizeRead is when you return the answer for the switch read login access
+  returnAuthorizeWrite is when you return the answer for the switch write login access
+  returnAuthorizeVoip is when you return the answer for a VoIP
+
+  packetfence.authorize call the radius filter in the packetfence authorize section
+  packetfence.authenticate call the radius filter in the packetfence authenticate section
+  packetfence.pre-proxy call the radius filter in the packetfence pre-proxy section
+  packetfence.post-proxy call the radius filter in the packetfence post-proxy section
+  packetfence-tunnel.authorize call the radius filter in the packetfence-tunnel authorize section
+  packetfence.preacct call the radius filter in the packetfence preacct section
+  packetfence.accounting call the radius filter in the packetfence accounting section
+
+All the packetfence.* scopes are covered in the file radius_filters.conf, this is advanced configuration and you must know what you are doing.
 
 And can be defined using different criteria like:
 
@@ -2628,6 +2641,39 @@ Grace Period
 ++++++++++++
 
 When using such violation feature, setting the grace period is really important.  You don't want to put it too low (ie. A user re-enable his network, and get caught after 1 bytes is transmitted!) or too high.  We recommend that you set the grace period to one interval window.
+
+
+RADIUS Proxy
+~~~~~~~~~~~~
+
+RADIUS Proxy is a way to proxy authentication and accounting requests to other radius server(s) based on the realm.
+Let's say you want to authenticate users on an Active Directory where there is a NPS server running and you don't want to join the PacketFence's server to this domain or in the case you want to integrate
+PacketFence in a Passpoint setup then this section is for you.
+
+To do that in PacketFence you need first to define the target RADIUS server(s) in Configuration -> Policies and Access Control -> Authentication Sources, and create the RADIUS source(s) (ACME1 ACME2).
+In the Source configuration, fill the mandatory fields and add the options to define the home_server in FreeRADIUS. (https://github.com/FreeRADIUS/freeradius-server/blob/v3.0.x/raddb/proxy.conf)
+
+Per example for the RADIUS Source ACME1:
+
+image::ACME1.png[scaledwidth="100%",alt="ACME RADIUS Source"]
+
+$src_ip is a way to dynamically use the correct source ip address of the system in case of multiples network interfaces.
+
+Next go in Configuration ->  Policies and Access Control -> REALMS, and add a new realm.
+
+image::acme.com.png[scaledwidth="100%",alt="ACME Realm Configuration"]
+image::acme.com.2.png[scaledwidth="100%",alt="ACME Realm Configuration"]
+
+(type definition can be found here https://wiki.freeradius.org/features/Proxy)
+
+Authorize from PacketFence will send the request to PacketFence to compute the role and access duration of the device.
+
+In this case the easiest way to achieve that is to create a Authorization source (with rules), assign this source to a connection profile where you enabled "Automatically register devices" and where 
+you defined a filter like Realm = acme.com .
+
+Click on save and restart radius (pfcmd service radiusd restart).
+
+Now when a device connect with the username bob@acme.com then the authentication and accounting requests will be forwarded to one of the ACME RADIUS servers.
 
 
 Fingerbank Integration

@@ -31,6 +31,7 @@ has 'port' => (isa => 'Maybe[Int]', is => 'rw', default => 1812);
 has 'timeout' => (isa => 'Maybe[Int]', is => 'rw', default => 1);
 has 'secret' => (isa => 'Str', is => 'rw', required => 1);
 has 'monitor' => ( isa => 'Bool', is => 'rw', default => 1 );
+has 'options' => (isa => 'Str', is => 'rw',required => 1);
 
 =head2 dynamic_routing_module
 
@@ -50,7 +51,7 @@ sub available_attributes {
   my $self = shift;
 
   my $super_attributes = $self->SUPER::available_attributes;
-  my @attributes = @{$Config{advanced}->{radius_attributes}};
+  my @attributes = @{$Config{radius_configuration}->{radius_attributes}};
   my @radius_attributes = map { { value => $_, type => $Conditions::SUBSTRING } } @attributes;
   return [@$super_attributes, @radius_attributes];
 }

@@ -2548,11 +2548,11 @@ msgstr ""
 msgid "EAP type"
 msgstr ""
 
-# conf/documentation.conf (radius_authentication_methods.eap_fast_opaque_key)
+# conf/documentation.conf (radius_configuration.eap_fast_opaque_key)
 msgid "EAP-FAST Opaque Key (32 randomized bytes)"
 msgstr ""
 
-# conf/documentation.conf (radius_authentication_methods.eap_fast_authority_identity)
+# conf/documentation.conf (radius_configuration.eap_fast_authority_identity)
 msgid "EAP-FAST authority ID"
 msgstr ""
 
@@ -2670,7 +2670,7 @@ msgstr ""
 msgid "Enabled"
 msgstr ""
 
-# conf/documentation.conf (advanced.ntlm_redis_cache)
+# conf/documentation.conf (radius_configuration.ntlm_redis_cache)
 msgid "Enables a Redis driven cache for NTLM authentication. In order for this to work, you need to setup proper NT hash syncronization between your PacketFence server and your AD.Refer to the Administration guide for more details.Applying this requires a restart of radiusd."
 msgstr ""
 
@@ -2807,7 +2807,7 @@ msgstr ""
 msgid "External Portal Enforcement"
 msgstr ""
 
-# conf/documentation.conf (radius_authentication_methods.eap_authentication_types options)
+# conf/documentation.conf (radius_configuration.eap_authentication_types options)
 msgid "FAST"
 msgstr ""
 
@@ -3012,7 +3012,7 @@ msgstr ""
 msgid "Fully qualified device name"
 msgstr ""
 
-# conf/documentation.conf (radius_authentication_methods.eap_authentication_types options)
+# conf/documentation.conf (radius_configuration.eap_authentication_types options)
 msgid "GTC"
 msgstr ""
 
@@ -3557,7 +3557,7 @@ msgstr ""
 msgid "List of OS which will be allowed to be register via the self service portal."
 msgstr ""
 
-# conf/documentation.conf (advanced.radius_attributes)
+# conf/documentation.conf (radius_configuration.radius_attributes)
 msgid "List of RADIUS attributes that can be used in the sources configuration"
 msgstr ""
 
@@ -3855,7 +3855,7 @@ msgstr "MAC Addresses - Read"
 msgid "MAC_UPDATE"
 msgstr "MAC Addresses - Update"
 
-# conf/documentation.conf (radius_authentication_methods.eap_authentication_types options)
+# conf/documentation.conf (radius_configuration.eap_authentication_types options)
 msgid "MD5"
 msgstr ""
 
@@ -3871,7 +3871,7 @@ msgstr ""
 msgid "MKEY for the iframe"
 msgstr ""
 
-# conf/documentation.conf (radius_authentication_methods.eap_authentication_types options)
+# conf/documentation.conf (radius_configuration.eap_authentication_types options)
 msgid "MSCHAPv2"
 msgstr ""
 
@@ -4686,7 +4686,7 @@ msgstr ""
 msgid "Owner"
 msgstr ""
 
-# conf/documentation.conf (radius_authentication_methods.eap_authentication_types options)
+# conf/documentation.conf (radius_configuration.eap_authentication_types options)
 msgid "PEAP"
 msgstr ""
 
@@ -5830,7 +5830,7 @@ msgstr ""
 msgid "Reconnecting to the Admin Service in "
 msgstr ""
 
-# conf/documentation.conf (advanced.record_accounting_in_sql)
+# conf/documentation.conf (radius_configuration.record_accounting_in_sql)
 msgid "Record the accounting data in the SQL tables.Requires a restart of radiusd to be effective."
 msgstr ""
 
@@ -7141,7 +7141,7 @@ msgstr ""
 msgid "Support Inquiry"
 msgstr ""
 
-# conf/documentation.conf (radius_authentication_methods.eap_authentication_types)
+# conf/documentation.conf (radius_configuration.eap_authentication_types)
 msgid "Supported EAP Authentication Methods"
 msgstr ""
 
@@ -7266,7 +7266,7 @@ msgstr ""
 msgid "System's timezone in string format. List generated from Perl library DataTime::TimeZoneWhen left empty, it will use the timezone of the server"
 msgstr ""
 
-# conf/documentation.conf (radius_authentication_methods.eap_authentication_types options)
+# conf/documentation.conf (radius_configuration.eap_authentication_types options)
 msgid "TLS"
 msgstr ""
 
@@ -7342,7 +7342,7 @@ msgstr "Traffic Shaping - Read"
 msgid "TRAFFIC_SHAPING_UPDATE"
 msgstr "Traffic Shaping - Update"
 
-# conf/documentation.conf (radius_authentication_methods.eap_authentication_types options)
+# conf/documentation.conf (radius_configuration.eap_authentication_types options)
 msgid "TTLS"
 msgstr ""
 
@@ -8392,7 +8392,7 @@ msgstr ""
 msgid "Use instead this IP address for de-authentication requests. Normally used for Wi-Fi only"
 msgstr ""
 
-# conf/documentation.conf (advanced.normalize_radius_machine_auth_username)
+# conf/documentation.conf (radius_configuration.normalize_radius_machine_auth_username)
 msgid "Use the RADIUS username instead of the TLS certificate common name when doing machine authentication."
 msgstr ""
 
@@ -9156,11 +9156,11 @@ msgid "advanced.multihost"
 msgstr "Multihost"
 
 # conf/documentation.conf
-msgid "advanced.normalize_radius_machine_auth_username"
+msgid "radius_configuration.normalize_radius_machine_auth_username"
 msgstr "RADIUS machine auth with username"
 
 # conf/documentation.conf
-msgid "advanced.ntlm_redis_cache"
+msgid "radius_configuration.ntlm_redis_cache"
 msgstr "NTLM Redis cache"
 
 # conf/documentation.conf
@@ -9176,12 +9176,36 @@ msgid "advanced.portal_csp_security_headers"
 msgstr "CSP headers for Captive portal"
 
 # conf/documentation.conf
-msgid "advanced.radius_attributes"
+msgid "radius_configuration.radius_attributes"
 msgstr "RADIUS attributes"
 
 # conf/documentation.conf
-msgid "advanced.record_accounting_in_sql"
+msgid "radius_configuration.record_accounting_in_sql"
 msgstr "Record accounting in SQL tables"
+
+# conf/documentation.conf
+msgid "radius_configuration.filter_in_packetfence_authorize"
+msgstr "Use radius filters in packetfence authorize"
+
+# conf/documentation.conf
+msgid "radius_configuration.filter_in_packetfence_pre_proxy"
+msgstr "Use radius filters in packetfence pre_proxy"
+
+# conf/documentation.conf
+msgid "radius_configuration.filter_in_packetfence_post_proxy"
+msgstr "Use radius filters in packetfence post_proxy"
+
+# conf/documentation.conf
+msgid "radius_configuration.filter_in_packetfence_preacct"
+msgstr "Use radius filters in packetfence preacct"
+
+# conf/documentation.conf
+msgid "radius_configuration.filter_in_packetfence_accounting"
+msgstr "Use radius filters in packetfence accounting"
+
+# conf/documentation.conf
+msgid "radius_configuration.filter_in_packetfence-tunnel_authorize"
+msgstr "Use radius filters in packetfence-tunnel authorize"
 
 # conf/documentation.conf
 msgid "advanced.source_to_send_sms_when_creating_users"
@@ -9689,10 +9713,10 @@ msgstr ""
 # conf/documentation.conf (advanced.disable_pf_domain_auth options)
 # conf/documentation.conf (advanced.locationlog_close_on_accounting_stop options)
 # conf/documentation.conf (advanced.multihost options)
-# conf/documentation.conf (advanced.normalize_radius_machine_auth_username options)
-# conf/documentation.conf (advanced.ntlm_redis_cache options)
+# conf/documentation.conf (radius_configuration.normalize_radius_machine_auth_username options)
+# conf/documentation.conf (radius_configuration.ntlm_redis_cache options)
 # conf/documentation.conf (advanced.portal_csp_security_headers options)
-# conf/documentation.conf (advanced.record_accounting_in_sql options)
+# conf/documentation.conf (radius_configuration.record_accounting_in_sql options)
 # conf/documentation.conf (advanced.sso_on_access_reevaluation options)
 # conf/documentation.conf (advanced.sso_on_accounting options)
 # conf/documentation.conf (advanced.sso_on_dhcp options)
@@ -9819,10 +9843,10 @@ msgstr ""
 # conf/documentation.conf (advanced.disable_pf_domain_auth options)
 # conf/documentation.conf (advanced.locationlog_close_on_accounting_stop options)
 # conf/documentation.conf (advanced.multihost options)
-# conf/documentation.conf (advanced.normalize_radius_machine_auth_username options)
-# conf/documentation.conf (advanced.ntlm_redis_cache options)
+# conf/documentation.conf (radius_configuration.normalize_radius_machine_auth_username options)
+# conf/documentation.conf (radius_configuration.ntlm_redis_cache options)
 # conf/documentation.conf (advanced.portal_csp_security_headers options)
-# conf/documentation.conf (advanced.record_accounting_in_sql options)
+# conf/documentation.conf (radius_configuration.record_accounting_in_sql options)
 # conf/documentation.conf (advanced.sso_on_access_reevaluation options)
 # conf/documentation.conf (advanced.sso_on_accounting options)
 # conf/documentation.conf (advanced.sso_on_dhcp options)
@@ -10785,19 +10809,19 @@ msgid "radius"
 msgstr ""
 
 # conf/documentation.conf
-msgid "radius_authentication_methods"
-msgstr "RADIUS Authentication Methods"
+msgid "radius_configuration"
+msgstr "RADIUS Configuration"
 
 # conf/documentation.conf
-msgid "radius_authentication_methods.eap_authentication_types"
+msgid "radius_configuration.eap_authentication_types"
 msgstr " EAP Auth Types"
 
 # conf/documentation.conf
-msgid "radius_authentication_methods.eap_fast_authority_identity"
+msgid "radius_configuration.eap_fast_authority_identity"
 msgstr "EAP FAST Authority Identity"
 
 # conf/documentation.conf
-msgid "radius_authentication_methods.eap_fast_opaque_key"
+msgid "radius_configuration.eap_fast_opaque_key"
 msgstr "EAP FAST Key"
 
 # pf::radius_audit_log (RADIUS Audit Log)

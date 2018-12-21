@@ -28,7 +28,7 @@ has_field 'realms' => (
     element_attr   => { 'data-placeholder' => 'Click to add a realm' },
     tags           => {
         after_element => \&help,
-        help          => 'Realms that will be associated with this source'
+        help          => 'Realms that will be associated with this source (For the Portal/Admin GUI/RADIUS post-auth, not for FreeRADIUS proxy)'
     },
     default => '',
 );

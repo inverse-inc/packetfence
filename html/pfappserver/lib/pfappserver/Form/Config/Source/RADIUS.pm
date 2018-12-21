@@ -2,7 +2,7 @@ package pfappserver::Form::Config::Source::RADIUS;
 
 =head1 NAME
 
-pfappserver::Form::Config::Source::RADIUS - Web form for a Kerberos user source
+pfappserver::Form::Config::Source::RADIUS - Web form for a RADIUS user source
 
 =head1 DESCRIPTION
 
@@ -32,6 +32,8 @@ has_field 'port' =>
    element_attr => {'placeholder' => '1812'},
    default => 1812,
    required => 1,
+   tags => { after_element => \&help,
+             help => 'If you use this source in the realm configuration the accounting port will be this port + 1' },
   );
 has_field 'secret' =>
   (
@@ -60,7 +62,14 @@ has_field 'monitor',
              help => 'Do you want to monitor this source?' },
    default => pf::Authentication::Source::RADIUSSource->meta->get_attribute('monitor')->default,
 );
-
+has_field 'options',
+  (
+   type => 'TextArea',
+   label => 'Options',
+   tags => { after_element => \&help,
+             help => 'Define options for FreeRADIUS home_server definition (if you use the source in the realm configuration). Need a radius restart.' },
+   default => 'type = auth+acct',
+);
 =head1 COPYRIGHT
 
 Copyright (C) 2005-2018 Inverse inc.

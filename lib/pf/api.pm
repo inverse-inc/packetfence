@@ -145,6 +145,22 @@ sub radius_authorize : Public {
     return $return;
 }
 
+sub radius_filter : Public {
+    my ($class, $scope, %radius_request) = @_;
+    my $logger = pf::log::get_logger();
+
+    my $radius = new pf::radius::custom();
+    my $return;
+    eval {
+        $return = $radius->radius_filter($scope, \%radius_request);
+    };
+    if ($@) {
+        $logger->error("radius $scope failed with error: $@");
+    }
+
+    return $return;
+}
+
 sub radius_accounting : Public {
     my ($class, %radius_request) = @_;
     my $logger = pf::log::get_logger();
@@ -1262,7 +1278,7 @@ sub copy_directory : Public {
 }
 
 sub rest_ping :Public :RestPath(/rest/ping){
-    my ($class, $args) = @_;
+    my ($class, $args, $headers) = @_;
     return "pong - ".$args->{message};
 }
 
@@ -1273,7 +1289,7 @@ RADIUS authorize method that uses REST
 =cut
 
 sub radius_rest_authorize :Public :RestPath(/radius/rest/authorize) {
-    my ($class, $radius_request) = @_;
+    my ($class, $radius_request, $headers) = @_;
     my $timer = pf::StatsD::Timer->new();
     my $logger = pf::log::get_logger();
 
@@ -1293,6 +1309,29 @@ sub radius_rest_authorize :Public :RestPath(/radius/rest/authorize) {
     return $return;
 }
 
+=head2 radius_rest_filter
+
+RADIUS filter method that uses REST
+
+=cut
+
+sub radius_rest_filter :Public :RestPath(/radius/rest/filter) {
+    my ($class, $radius_request, $headers) = @_;
+    my $timer = pf::StatsD::Timer->new();
+    my $logger = pf::log::get_logger();
+
+    my %remapped_radius_request = %{pf::radius::rest::format_request($radius_request)};
+
+    my $return;
+
+    $return = $class->radius_filter($headers->{'X-FreeRADIUS-Server'}.".".$headers->{'X-FreeRADIUS-Section'},%remapped_radius_request);
+
+    # This will die with the proper code if it is a deny
+    $return = pf::radius::rest::format_response($return);
+
+    return $return;
+}
+
 =head2 radius_rest_switch_authorize
 
 RADIUS switch authorize method that uses REST
@@ -1300,7 +1339,7 @@ RADIUS switch authorize method that uses REST
 =cut
 
 sub radius_rest_switch_authorize :Public :RestPath(/radius/rest/switch/authorize) {
-    my ($class, $radius_request) = @_;
+    my ($class, $radius_request, $headers) = @_;
     my $timer = pf::StatsD::Timer->new();
     my $logger = pf::log::get_logger();
 
@@ -1321,7 +1360,7 @@ RADIUS accounting method that uses REST
 =cut
 
 sub radius_rest_accounting :Public :RestPath(/radius/rest/accounting) {
-    my ($class, $radius_request) = @_;
+    my ($class, $radius_request, $headers) = @_;
     my $timer = pf::StatsD::Timer->new();
     my $logger = pf::log::get_logger();
 
@@ -1331,7 +1370,7 @@ sub radius_rest_accounting :Public :RestPath(/radius/rest/accounting) {
 
     my $radius = new pf::radius::custom();
     eval {
-        $return = $radius->accounting(\%remapped_radius_request);
+        $return = $radius->accounting(\%remapped_radius_request, $headers);
     };
     if ($@) {
         $logger->error("radius accounting failed with error: $@");

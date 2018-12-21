@@ -810,12 +810,6 @@ sso_on_accounting=disabled
 # Trigger Single-Sign-On (Firewall SSO) on dhcp
 sso_on_dhcp=enabled
 #
-# advanced.record_accounting_in_sql
-#
-# Record the accounting data in the SQL tables.
-# Requires a restart of radiusd to be effective.
-record_accounting_in_sql=enabled
-#
 # advanced.hash_passwords
 #
 # The algorithm to use to hash the passwords in the local database.
@@ -832,23 +826,10 @@ hashing_cost=8
 # Disable Active-Directory domain configuration from within PacketFence
 disable_pf_domain_auth=disabled
 #
-# advanced.ntlm_redis_cache
-#
-# Enables a Redis driven cache for NTLM authentication. 
-# In order for this to work, you need to setup proper NT hash syncronization between your PacketFence server and your AD.
-# Refer to the Administration guide for more details.
-# Applying this requires a restart of radiusd.
-ntlm_redis_cache=disabled
-#
 # advanced.ldap_attributes
 #
 # List of LDAP attributes that can be used in the sources configuration
 ldap_attributes=uid,cn,sAMAccountName,UserPrincipalName,department,displayName,distinguishedName,givenName,memberOf,sn,eduPersonPrimaryAffiliation,mail,postOfficeBox,description,groupMembership
-#
-# advanced.radius_attributes
-#
-# List of RADIUS attributes that can be used in the sources configuration
-radius_attributes=username,NAS-ID,Called-Station-Id,Calling-Station-Id
 #
 # advanced.pfdns_processes
 #
@@ -885,11 +866,6 @@ source_to_send_sms_when_creating_users=
 #
 # Ability to manage all active devices from a same switch port
 multihost=disabled
-#
-# advanced.normalize_radius_machine_auth_username
-#
-# Normalize the radius machine auth username
-normalize_radius_machine_auth_username=disabled
 #
 # advanced.vlan_pool_technique
 #
@@ -1077,22 +1053,82 @@ user=
 # Password of MSE server
 pass=
 
-[radius_authentication_methods]
+[radius_configuration]
 #
-# radius_authentication_methods.eap_authentication_types
+# radius_configuration.eap_authentication_types
 #
 # EAP Supported Methods. EAP-FAST is disabled by default.
 eap_authentication_types=GTC,MD5,MSCHAPv2,PEAP,TLS,TTLS
 #
-# radius_authentication_methods.eap_fast_opaque_key
+# radius_configuration.eap_fast_opaque_key
 #
 # EAP-FAST 32 bytes Opaque Key (Considered only if EAP-FAST is enabled)
 eap_fast_opaque_key=0123456789abcdef0123456789ABCDEF
 #
-# radius_authentication_methods.eap_fast_authority_identity
+# radius_configuration.eap_fast_authority_identity
 #
 # EAP-FAST authority ID (Considered only if EAP-FAST is enabled)
 eap_fast_authority_identity=1234
+#
+# radius_configuration.record_accounting_in_sql
+#
+# Record the accounting data in the SQL tables.
+# Requires a restart of radiusd to be effective.
+record_accounting_in_sql=enabled
+#
+# advanced.filter_in_packetfence_authorize
+#
+# Send the radius request in the radius filter from the radius packetfence.authorize section.
+# Requires a restart of radiusd to be effective.
+filter_in_packetfence_authorize=disabled
+#
+# radius_configuration.filter_in_packetfence_pre_proxy
+#
+# Send the radius request in the radius filter from the radius packetfence.pre_proxy section.
+# Requires a restart of radiusd to be effective.
+filter_in_packetfence_pre_proxy=disabled
+#
+# radius_configuration.filter_in_packetfence_post_proxy
+#
+# Send the radius request in the radius filter from the radius packetfence.post_proxy section.
+# Requires a restart of radiusd to be effective.
+filter_in_packetfence_post_proxy=disabled
+#
+# radius_configuration.filter_in_packetfence_preacct
+#
+# Send the radius request in the radius filter from the radius packetfence.preacct section.
+# Requires a restart of radiusd to be effective.
+filter_in_packetfence_preacct=disabled
+#
+# radius_configuration.filter_in_packetfence_accounting
+#
+# Send the radius request in the radius filter from the radius packetfence.accounting section.
+# Requires a restart of radiusd to be effective.
+filter_in_packetfence_accounting=disabled
+#
+# radius_configuration.filter_in_packetfence-tunnel_authorize
+#
+# Send the radius request in the radius filter from the radius packetfence-tunnel.authorize section.
+# Requires a restart of radiusd to be effective.
+filter_in_packetfence-tunnel_authorize=disabled
+#
+# radius_configuration.ntlm_redis_cache
+#
+# Enables a Redis driven cache for NTLM authentication. 
+# In order for this to work, you need to setup proper NT hash syncronization between your PacketFence server and your AD.
+# Refer to the Administration guide for more details.
+# Applying this requires a restart of radiusd.
+ntlm_redis_cache=disabled
+#
+# radius_configuration.radius_attributes
+#
+# List of RADIUS attributes that can be used in the sources configuration
+radius_attributes=username,NAS-Identifier,Called-Station-Id,Calling-Station-Id
+#
+# radius_configuration.normalize_radius_machine_auth_username
+#
+# Normalize the radius machine auth username
+normalize_radius_machine_auth_username=disabled
 
 [pfdhcp]
 #

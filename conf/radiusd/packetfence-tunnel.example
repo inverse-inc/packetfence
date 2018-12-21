@@ -75,6 +75,7 @@ authorize {
 
 	%%redis_ntlm_cache_fetch%%
 
+	%%authorize_filter%%
 	#
 	#  The "suffix" module takes care of stripping the domain
 	#  (e.g. "@example.com") from the User-Name attribute, and the
