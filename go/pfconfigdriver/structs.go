@@ -408,6 +408,7 @@ type PfStats struct {
 	ApiPayload              string `json:"api_payload"`
 	ApiPath                 string `json:"api_path"`
 	ApiCompile              string `json:"api_compile"`
+	Management              string `json:"management"`
 }
 
 type ClusterSummary struct {
