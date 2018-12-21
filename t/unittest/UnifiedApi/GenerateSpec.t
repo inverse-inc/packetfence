@@ -313,6 +313,14 @@ cmp_deeply(
                     type => 'string',
                     description => 'This activates automatic deregistation of devices for the profile if PacketFence receives a RADIUS accounting stop.',
                 },
+                'network_logoff' => {
+                    type => 'string',
+                    description => 'This allows users to access the network logoff page (http://$fqdn/networklogoff) in order to terminate their network access (switch their device back to unregistered)',
+                },
+                'network_logoff_popup' => {
+                    type => 'string',
+                    description => 'When the "Network Logoff" feature is enabled, this will have it opened in a popup at the end of the registration process.',
+                },
             },
             required => [
                 qw(
