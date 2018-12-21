@@ -214,10 +214,10 @@ Package: packetfence-captive-portal-javascript
 Architecture: any
 Depends: ${misc:Depends}
 Description: PacketFence captive portal javascript
-Conflicts: packetfence (<= 8.1.0)
+Conflicts: packetfence (<< 8.1.1)
 
 Package: packetfence-pfappserver-javascript
 Architecture: any
 Depends: ${misc:Depends}
 Description: PacketFence Admin javascript css
-Conflicts: packetfence (<= 8.1.0)
+Conflicts: packetfence (<< 8.1.1)
