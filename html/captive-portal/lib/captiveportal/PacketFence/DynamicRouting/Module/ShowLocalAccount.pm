@@ -13,6 +13,8 @@ Module to show a message to the user
 use Moose;
 extends 'captiveportal::DynamicRouting::Module';
 
+use pf::log;
+
 has 'template' => (is => 'rw', default => sub {'account.html'});
 
 has 'skipable' => (is => 'rw', default => sub {1});
@@ -32,7 +34,7 @@ sub execute_child {
         $self->render("account.html", {account => $account, title => "Account created", skipable => $self->skipable});
     }
     else {
-        get_logger->warn("No created account found. Continuing normal portal flow");
+        get_logger->debug("No created account found. Continuing normal portal flow");
         $self->done();
     }
 }
