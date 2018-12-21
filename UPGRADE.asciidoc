@@ -1803,6 +1803,18 @@ Once completed, update the file /usr/local/pf/conf/currently-at to match the new
 Upgrading from a version prior to X.Y.Z
 ---------------------------------------
 
+Upgrade pf.conf to rename configuration parameters
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+We moved radius_authentication_methods section to radius_configuration and moved all the radius configuration parameters in this new section.
+To upgrade your configuration execute the following script:
+
+  /usr/local/pf/addons/upgrade/to-8.3-rename-pf-conf-parameters.pl
+
+
+Database schema
+^^^^^^^^^^^^^^^
+
 Changes have been made to the database schema. You will need to update it accordingly.
 An SQL upgrade script has been provided to upgrade the database from the X.X schema to X.Y.
 
