@@ -2,7 +2,7 @@
   <b-form-row class="pf-field-action mx-0 mb-1 px-0" align-v="center"
     v-on="forwardListeners"
   >
-    <b-col v-if="$slots.prepend" cols="1" align-self="start" class="pt-1 text-center col-form-label">
+    <b-col v-if="$slots.prepend" cols="1" align-self="start" class="text-center col-form-label">
       <slot name="prepend"></slot>
     </b-col>
     <b-col cols="4" align-self="start">
@@ -80,7 +80,7 @@
       ></pf-form-input>
 
     </b-col>
-    <b-col v-if="$slots.append" cols="1" align-self="start" class="pt-1 text-center col-form-label">
+    <b-col v-if="$slots.append" cols="1" align-self="start" class="text-center col-form-label">
       <slot name="append"></slot>
     </b-col>
   </b-form-row>
@@ -303,8 +303,8 @@ export default {
 .pf-field-action {
   .pf-form-chosen {
     .col-sm-12[role="group"] {
-      padding-left: 0px;
       padding-right: 0px;
+      padding-left: 0px;
     }
   }
 }
