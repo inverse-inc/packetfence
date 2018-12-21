@@ -12,7 +12,7 @@
         </b-card-header>
       </template>
       <template slot="buttonAdd">
-        <b-dropdown id="source-add-container" :text="$t('Add Source')" variant="outline-primary" class="my-2">
+        <b-dropdown :text="$t('Add Source')" variant="outline-primary" class="my-2">
           <b-dropdown-header class="text-secondary">{{ $t('Internal') }}</b-dropdown-header>
             <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'AD' } }">Active Directory</b-dropdown-item>
             <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'EAPTLS' } }">EAPTLS</b-dropdown-item>
@@ -138,11 +138,3 @@ export default {
   }
 }
 </script>
-
-<style lang="scss">
-#source-add-container div[role="menu"] {
-  overflow-x: hidden;
-  overflow-y: scroll;
-  max-height: 50vh;
-}
-</style>

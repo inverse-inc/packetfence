@@ -8,7 +8,7 @@
         <b-card-header><h4 class="mb-0" v-t="'Switches'"></h4></b-card-header>
       </template>
       <template slot="buttonAdd">
-        <b-dropdown id="switch-add-container" :text="$t('Add Switch')" variant="outline-primary" class="my-2">
+        <b-dropdown :text="$t('Add Switch')" variant="outline-primary" class="my-2">
           <b-dropdown-header class="text-secondary">{{ $t('To group') }}</b-dropdown-header>
             <b-dropdown-item :to="{ name: 'newSwitch', params: { switchGroup: 'default' } }">{{ $t('default') }}</b-dropdown-item>
             <b-dropdown-item v-for="(switchGroup, index) in switchGroups" :key="index"
@@ -107,11 +107,3 @@ export default {
   }
 }
 </script>
-
-<style lang="scss">
-#switch-add-container div[role="menu"] {
-  overflow-x: hidden;
-  overflow-y: scroll;
-  max-height: 50vh;
-}
-</style>
