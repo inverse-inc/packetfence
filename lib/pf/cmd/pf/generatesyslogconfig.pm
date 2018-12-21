@@ -91,7 +91,7 @@ sub file_action {
 sub server_action {
     my ($data, $log) = @_;
     my $proto = $data->{proto} eq 'udp' ? '@' : '@@';
-    return "-${proto}$data->{host}:$data->{port}";
+    return "${proto}$data->{host}:$data->{port}";
 }
 
 sub section_data {
