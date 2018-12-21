@@ -2,13 +2,13 @@
 
 =head1 NAME
 
-to-8.2-pfdetect-conf.pl
+addons/upgrade/to-8.3-rm-opswat-metadefender.pl
 
 =cut
 
 =head1 DESCRIPTION
 
-Upgrade
+Remove old config items for metadefender
 
 =cut
 
