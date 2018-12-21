@@ -315,7 +315,7 @@ cmp_deeply(
                 },
                 'network_logoff' => {
                     type => 'string',
-                    description => 'This allows users to access the network logoff page (http://$fqdn/networklogoff) in order to terminate their network access (switch their device back to unregistered)',
+                    description => 'This allows users to access the network logoff page (http://pf.pfdemo.org/networklogoff) in order to terminate their network access (switch their device back to unregistered)',
                 },
                 'network_logoff_popup' => {
                     type => 'string',
