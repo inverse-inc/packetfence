@@ -212,7 +212,6 @@ EOT
     }
 
     $tags{'userPrincipalName'} = '';
-    my @realms;
     my $flag = $TRUE;
     foreach my $realm ( sort keys %pf::config::ConfigRealm ) {
         if(isenabled($pf::config::ConfigRealm{$realm}->{'permit_custom_attributes'})) {
