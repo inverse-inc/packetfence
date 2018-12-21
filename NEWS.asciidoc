@@ -30,6 +30,8 @@ Enhancements
 * Email and SponsorEmail sources can have banned and allowed email domains (#3807)
 * Improved startup time of pfdhcp
 * Removed OPSWAT Metadefender Cloud support
+* Chose hashing algorythm when creating a local user from a source
+* Define the length of the password to generate when creating a local user from a source
 
 Bug Fixes
 +++++++++
