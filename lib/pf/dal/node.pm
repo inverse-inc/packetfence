@@ -26,6 +26,7 @@ use base qw(pf::dal::_node);
 our @LOCATION_LOG_GETTERS = qw(
   last_switch
   last_port
+  last_ifDesc
   last_vlan
   last_connection_type
   last_connection_sub_type
@@ -180,6 +181,7 @@ sub _load_locationlog {
         -columns => [
             "locationlog.switch|last_switch",
             "locationlog.port|last_port",
+            "locationlog.ifDesc|last_ifDesc",
             "locationlog.vlan|last_vlan",
             "IF(ISNULL(`locationlog`.`connection_type`), '', `locationlog`.`connection_type`)|last_connection_type",
             "IF(ISNULL(`locationlog`.`connection_sub_type`), '', `locationlog`.`connection_sub_type`)|last_connection_sub_type",
