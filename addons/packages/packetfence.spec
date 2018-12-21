@@ -1019,6 +1019,8 @@ fi
                         /usr/local/pf/conf/radiusd/acct.conf.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/auth.conf
                         /usr/local/pf/conf/radiusd/auth.conf.example
+%config(noreplace)      /usr/local/pf/conf/radiusd/ldap_packetfence.conf
+                        /usr/local/pf/conf/radiusd/ldap_packetfence.conf.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/load_balancer.conf
                         /usr/local/pf/conf/radiusd/load_balancer.conf.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/rest.conf
