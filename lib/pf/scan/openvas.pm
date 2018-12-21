@@ -15,16 +15,20 @@ pf::scan::openvas is a module to add OpenVAS scanning option.
 use strict;
 use warnings;
 
+use Text::CSV;
 use pf::log;
 use MIME::Base64;
 use Readonly;
 
 use base ('pf::scan');
 
+use pf::CHI;
 use pf::constants;
 use pf::constants::scan qw($SCAN_VID $PRE_SCAN_VID $POST_SCAN_VID $STATUS_STARTED);
 use pf::config qw(%Config);
 use pf::util;
+use pf::violation;
+use Time::HiRes qw(time);
 
 sub description { 'Openvas Scanner' }
 
@@ -32,48 +36,21 @@ Readonly our $RESPONSE_OK                   => 200;
 Readonly our $RESPONSE_RESOURCE_CREATED     => 201;
 Readonly our $RESPONSE_REQUEST_SUBMITTED    => 202;
 
-=head1 METHODS
+=head2 _get_scan_id
 
-=over
-
-=item createEscalator
-
-Create an escalator which will trigger an action on the OpenVAS server once the scan will finish
+Get or generate the scan ID
 
 =cut
 
-sub createEscalator {
-    my ( $self ) = @_;
-    my $logger = get_logger();
-
-    my $name = $self->{_id};
-    my $callback = $self->_generateCallback();
-    my $command = _get_escalator_string($name, $callback);
-
-    $logger->info("Creating a new scan escalator named $name");
-
-    my $cmd = "omp -h $self->{_ip} -p $self->{_port} -u $self->{_username} -w $self->{_password} -X '$command'";
-    $logger->trace("Scan escalator creation command: $cmd");
-    my $output = pf_run($cmd);
-    chomp($output);
-    $logger->trace("Scan escalator creation output: $output");
-
-    # Fetch response status and escalator id
-    my ($response, $escalator_id) = ($output =~ /<create_escalator_response\
-            status="([0-9]+)"\      # status code
-            id="([a-zA-Z0-9\-]+)"   # escalator id
-            /x);
-
-    # Scan escalator successfully created
-    if ( defined($response) && $response eq $RESPONSE_RESOURCE_CREATED ) {
-        $logger->info("Scan escalator named $name successfully created with id: $escalator_id");
-        $self->{_escalatorId} = $escalator_id;
-        return 0;
-    }
-
-    $logger->warn("There was an error creating scan escalator named $name, here's the output: $output");
-    return;
+sub _get_scan_id {
+    my ($self) = @_;
+    $self->{_scanId} = $self->{_scanId} // $self->{_id} . time;
+    return $self->{_scanId};
 }
+
+=head1 METHODS
+
+=over
 
 =item createTarget
 
@@ -85,23 +62,20 @@ sub createTarget {
     my ( $self ) = @_;
     my $logger = get_logger();
 
-    my $name = $self->{_id};
+    my $name = $self->_get_scan_id();
     my $target_host = $self->{_scanIp};
     my $command = "<create_target><name>$name</name><hosts>$target_host</hosts></create_target>";
 
     $logger->info("Creating a new scan target named $name for host $target_host");
 
     my $cmd = "omp -h $self->{_ip} -p $self->{_port} -u $self->{_username} -w $self->{_password} -X '$command'";
-    $logger->trace("Scan target creation command: $cmd");
+    $logger->debug("Scan target creation command: $cmd");
     my $output = pf_run($cmd);
     chomp($output);
-    $logger->trace("Scan target creation output: $output");
+    $logger->debug("Scan target creation output: $output");
 
     # Fetch response status and target id
-    my ($response, $target_id) = ($output =~ /<create_target_response\
-            status="([0-9]+)"\      # status code
-            id="([a-zA-Z0-9\-]+)"   # task id
-            /x);
+    my ($target_id, $response) = ($output =~ /<create_target_response.*id="([a-zA-Z0-9\-]+)".*status="([0-9]+)"/x);
 
     # Scan target successfully created
     if ( defined($response) && $response eq $RESPONSE_RESOURCE_CREATED ) {
@@ -124,24 +98,19 @@ sub createTask {
     my ( $self )  = @_;
     my $logger = get_logger();
 
-    my $name = $self->{_id};
+    my $name = $self->_get_scan_id();
 
     $logger->info("Creating a new scan task named $name");
 
-    my $command = _get_task_string(
-        $name, $self->{_openvas_configid}, $self->{_targetId}, $self->{_escalatorId}
-    );
+    my $command = $self->_get_task_string($name, $self->{_openvas_configid}, $self->{_targetId});
     my $cmd = "omp -h $self->{_ip} -p $self->{_port} -u $self->{_username} -w $self->{_password} -X '$command'";
-    $logger->trace("Scan task creation command: $cmd");
+    $logger->debug("Scan task creation command: $cmd");
     my $output = pf_run($cmd);
     chomp($output);
-    $logger->trace("Scan task creation output: $output");
+    $logger->debug("Scan task creation output: $output");
 
     # Fetch response status and task id
-    my ($response, $task_id) = ($output =~ /<create_task_response\
-            status="([0-9]+)"\      # status code
-            id="([a-zA-Z0-9\-]*)"   # task id
-            /x);
+    my ($task_id, $response) = ($output =~ /<create_task_response.*id="([a-zA-Z0-9\-]*)".*status="([0-9]+)"/x);
 
     # Scan task successfully created
     if ( defined($response) && $response eq $RESPONSE_RESOURCE_CREATED ) {
@@ -164,46 +133,42 @@ Report processing's duty is to ensure that the proper violation will be triggere
 =cut
 
 sub processReport {
-    my ( $self ) = @_;
+    my ( $self, $task_name ) = @_;
     my $logger = get_logger();
 
-    my $name                = $self->{_id};
-    my $report_id           = $self->{_reportId};
+    my $info           = $self->getScanInfo($task_name);
+    my $report_id = $info->{report_id};
+    my $mac = $info->{mac};
     my $report_format_id    = $self->{'_openvas_reportformatid'};
     my $command             = "<get_reports report_id=\"$report_id\" format_id=\"$report_format_id\"/>";
 
-    $logger->info("Getting the scan report for the finished scan task named $name");
+    $logger->info("Getting the scan report for the finished scan task named $task_name");
 
     my $cmd = "omp -h $self->{_ip} -p $self->{_port} -u $self->{_username} -w $self->{_password} -X '$command'";
-    $logger->trace("Report fetching command: $cmd");
+    $logger->debug("Report fetching command: $cmd");
     my $output = pf_run($cmd);
     chomp($output);
-    $logger->trace("Report fetching output: $output");
+    $logger->debug("Report fetching output: $output");
 
     # Fetch response status and report
-    my ($response, $raw_report) = ($output =~ /<get_reports_response\
-            status="([0-9]+)"       # status code
-            [^\<]+[\<][^\>]+[\>]    # get to the report
-            ([a-zA-Z0-9\=]+)        # report base64 encoded
-            /x);
+    my ($response, $raw_report) = ($output =~ /<get_reports_response.*status="([0-9]+)".*"text\/csv">([a-zA-Z0-9\=\+\/]+)/x);
 
     # Scan report successfully fetched
     if ( defined($response) && $response eq $RESPONSE_OK && defined($raw_report) ) {
-        $logger->info("Report id $report_id successfully fetched for task named $name");
-        $self->{_report} = decode_base64($raw_report);   # we need to decode the base64 report
+        $logger->info("Report id $report_id successfully fetched for task named $task_name");
+        my $report = decode_base64($raw_report);   # we need to decode the base64 report
 
-        # We need to manipulate the scan report.
-        # Each line of the scan report is pushed into an arrayref
-        $self->{'_report'} = [ split("\n", $self->{'_report'}) ];
-        my $scan_vid = $POST_SCAN_VID;
-        $scan_vid = $SCAN_VID if ($self->{'_registration'});
-        $scan_vid = $PRE_SCAN_VID if ($self->{'_pre_registration'});
-        pf::scan::parse_scan_report($self,$scan_vid);
+        my $csv = Text::CSV->new ( { binary => 1, auto_diag => 2 } );
+        open my $io, "<", \$report;
+        $csv->column_names($csv->getline($io));
+        while(my $row = $csv->getline_hr($io)) {
+            violation_trigger( { 'mac' => $mac, 'tid' => $row->{'NVT OID'}, 'type' => 'OpenVAS' } );
+        }
 
         return $TRUE;
     }
 
-    $logger->warn("There was an error fetching the scan report for the task named $name, here's the output: $output");
+    $logger->warn("There was an error fetching the scan report for the task named $task_name, here's the output: $output");
     return;
 }
 
@@ -228,12 +193,12 @@ sub new {
             '_scanIp'           => undef,
             '_scanMac'          => undef,
             '_report'           => undef,
-            '_openvas_configId'         => undef,
-            '_openvas_reportFormatId'   => undef,
+            '_openvas_alertid'         => undef,
+            '_openvas_configid'         => undef,
+            '_openvas_reportformatid'   => undef,
             '_targetId'         => undef,
             '_escalatorId'      => undef,
             '_taskId'           => undef,
-            '_reportId'         => undef,
             '_status'           => undef,
             '_type'             => undef,
             '_oses'             => undef,
@@ -258,9 +223,22 @@ sub startScan {
     my $logger = get_logger();
 
     $self->createTarget();
-    $self->createEscalator();
     $self->createTask();
     $self->startTask();
+
+    my $scan_vid = $pf::constants::scan::POST_SCAN_VID;
+    $scan_vid = $pf::constants::scan::SCAN_VID if ($self->{'_registration'});
+    $scan_vid = $pf::constants::scan::PRE_SCAN_VID if ($self->{'_pre_registration'});
+
+    my $apiclient = pf::api::jsonrpcclient->new;
+    my %data = (
+       'vid' => $scan_vid,
+       'mac' => $self->{'_scanMac'},
+    );
+    $apiclient->notify('close_violation', %data );
+
+    # Clear the scan ID
+    $self->{_scanId} = undef;
 }
 
 =item startTask
@@ -273,28 +251,25 @@ sub startTask {
     my ( $self ) = @_;
     my $logger = get_logger();
 
-    my $name    = $self->{_id};
+    my $name    = $self->_get_scan_id();
     my $task_id = $self->{_taskId};
     my $command = "<start_task task_id=\"$task_id\"/>";
 
     $logger->info("Starting scan task named $name");
 
     my $cmd = "omp -h $self->{_ip} -p $self->{_port} -u $self->{_username} -w $self->{_password} -X '$command'";
-    $logger->trace("Scan task starting command: $cmd");
+    $logger->debug("Scan task starting command: $cmd");
     my $output = pf_run($cmd);
     chomp($output);
-    $logger->trace("Scan task starting output: $output");
+    $logger->debug("Scan task starting output: $output");
 
     # Fetch response status and report id
-    my ($response, $report_id) = ($output =~ /<start_task_response\
-            status="([0-9]+)"[^\<]+[\<] # status code
-            report_id>([a-zA-Z0-9\-]+)  # report id
-            /x);
+    my ($response, $report_id) = ($output =~ /<start_task_response.*status="([0-9]+)"[^\<]+[\<].*report_id>([a-zA-Z0-9\-]+)/x);
 
     # Scan task successfully started
     if ( defined($response) && $response eq $RESPONSE_REQUEST_SUBMITTED ) {
         $logger->info("Scan task named $name successfully started");
-        $self->{_reportId} = $report_id;
+        $self->setScanInfo($name, {report_id => $report_id, mac => $self->{_scanMac}, ip => $self->{_scanIp}, scan_id => $self->{_scanner_id}});
         $self->{'_status'} = $STATUS_STARTED;
         $self->statusReportSyncToDb();
         return;
@@ -303,57 +278,38 @@ sub startTask {
     $logger->warn("There was an error starting the scan task named $name, here's the output: $output");
 }
 
-=item _generateCallback
+=head2 setScanInfo
 
-Escalator callback needs to be different if we are running OpenVAS locally or remotely.
-
-Local: plain HTTP on loopback (127.0.0.1)
-
-Remote: HTTPS with fully qualified domain name on admin interface
+Set the scan info for a scan ID
 
 =cut
 
-sub _generateCallback {
-    my ( $self ) = @_;
-    my $logger = get_logger();
-
-    my $name = $self->{'_id'};
-    my $callback = "<method>HTTP Get<data>";
-    if ($self->{'_ip'} eq '127.0.0.1') {
-        $callback .= "http://127.0.0.1/scan/report/$name";
-    }
-    else {
-        $callback .= "https://$Config{general}{hostname}.$Config{general}{domain}:$Config{ports}{admin}/scan/report/$name";
-    }
-    $callback .= "<name>URL</name></data></method>";
-
-    $logger->debug("Generated OpenVAS callback is: $callback");
-    return $callback;
+sub setScanInfo {
+    my ($self, $scan_id, $info) = @_;
+    return $self->cache->set("info-$scan_id", $info);
 }
 
-=back
+=head2 getScanInfo
 
-=head1 SUBROUTINES
-
-=over
-
-=item _get_escalator_string
-
-create_escalator string creation.
+Get the scan info for a scan ID
 
 =cut
 
-sub _get_escalator_string {
-    my ($name, $callback) = @_;
+sub getScanInfo {
+    my ($self, $scan_id) = @_;
+    return $self->cache->get("info-$scan_id");
+}
 
-    return <<"EOF";
-<create_escalator>
-  <name>$name</name>
-  <condition>Always<data>High<name>level</name></data><data>changed<name>direction</name></data></condition>
-  <event>Task run status changed<data>Done<name>status</name></data></event>
-  $callback
-</create_escalator>
-EOF
+=head2 _to_single_line
+
+Take a multi-line OpenVAS XML payload and make it one line for usage with the omp command line
+
+=cut
+
+sub _to_single_line {
+    my ($self, $s) = @_;
+    $s =~ s/>\s*</></g;
+    return join("", split(/\n/, $s));
 }
 
 =item _get_task_string
@@ -363,16 +319,28 @@ create_task string creation.
 =cut
 
 sub _get_task_string {
-    my ($name, $config_id, $target_id, $escalator_id) = @_;
+    my ($self, $name, $config_id, $target_id) = @_;
 
-    return <<"EOF";
+    my $s = <<"EOF";
 <create_task>
   <name>$name</name>
   <config id=\"$config_id\"/>
   <target id=\"$target_id\"/>
-  <escalator id=\"$escalator_id\"/>
+  <alert id=\"$self->{_openvas_alertid}\"/>
 </create_task>
 EOF
+    return $self->_to_single_line($s);
+}
+
+=head2 cache
+
+Get the cache for the OpenVAS engines
+
+=cut
+
+sub cache {
+    my ($self) = @_;
+    return pf::CHI->new(namespace => "openvas_scans");
 }
 
 =back

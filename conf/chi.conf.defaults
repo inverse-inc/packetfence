@@ -150,3 +150,10 @@ expires_in=24h
 #
 # The storage to use for the namespace
 storage=distributed
+
+[namespace openvas_scans]
+#
+# namespace openvas_scans.storage
+#
+# The storage to use for the namespace
+storage=distributed
