@@ -42,7 +42,7 @@ Bug Fixes
 * Issue with the dhcp server that give sometimes a duplicate ip addresse
 * Adjusted CentOS and RHEL dependencies
 * Fixed MAC filtered lookups are cached in pfdns (#3785)
-
+* Fixed the OpenVAS integration to work with OpenVAS Manager 7.0 (OpenVAS 9)
 
 Version 8.2.1 released on 2018-12-05
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
