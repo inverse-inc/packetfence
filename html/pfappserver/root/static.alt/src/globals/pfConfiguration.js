@@ -1,7 +1,7 @@
 import i18n from '@/utils/locale'
 import bytes from '@/utils/bytes'
-import pfFieldAction from '@/components/pfFieldAction'
-import pfFieldCondition from '@/components/pfFieldCondition'
+import pfFieldTypeValue from '@/components/pfFieldTypeValue'
+import pfFieldAttributeOperatorValue from '@/components/pfFieldAttributeOperatorValue'
 import pfFieldRule from '@/components/pfFieldRule'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormFields from '@/components/pfFormFields'
@@ -813,7 +813,7 @@ export const pfConfigurationViewFields = {
               attrs: {
                 matchLabel: i18n.t('Select rule match'),
                 actions: {
-                  component: pfFieldAction,
+                  component: pfFieldTypeValue,
                   attrs: {
                     typeLabel: i18n.t('Select action type'),
                     valueLabel: i18n.t('Select action value'),
@@ -828,7 +828,7 @@ export const pfConfigurationViewFields = {
                   ]
                 },
                 conditions: {
-                  component: pfFieldCondition,
+                  component: pfFieldAttributeOperatorValue,
                   attrs: {
                     attributeLabel: i18n.t('Select attribute'),
                     operatorLabel: i18n.t('Select operator'),
@@ -1000,7 +1000,7 @@ export const pfConfigurationViewFields = {
               attrs: {
                 matchLabel: i18n.t('Select rule match'),
                 actions: {
-                  component: pfFieldAction,
+                  component: pfFieldTypeValue,
                   attrs: {
                     typeLabel: i18n.t('Select action type'),
                     valueLabel: i18n.t('Select action value'),
@@ -1017,7 +1017,7 @@ export const pfConfigurationViewFields = {
                   ]
                 },
                 conditions: {
-                  component: pfFieldCondition,
+                  component: pfFieldAttributeOperatorValue,
                   attrs: {
                     attributeLabel: i18n.t('Select attribute'),
                     operatorLabel: i18n.t('Select operator'),

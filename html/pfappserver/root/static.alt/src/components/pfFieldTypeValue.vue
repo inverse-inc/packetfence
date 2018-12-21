@@ -1,5 +1,5 @@
 <template>
-  <b-form-row class="pf-field-action mx-0 mb-1 px-0" align-v="center"
+  <b-form-row class="pf-field-type-value mx-0 mb-1 px-0" align-v="center"
     v-on="forwardListeners"
   >
     <b-col v-if="$slots.prepend" cols="1" align-self="start" class="text-center col-form-label">
@@ -99,7 +99,7 @@ import {
 import { required } from 'vuelidate/lib/validators'
 
 export default {
-  name: 'pf-field-action',
+  name: 'pf-field-type-value',
   components: {
     pfFormChosen,
     pfFormDatetime,
@@ -206,7 +206,7 @@ export default {
       if (this.fieldIndex >= 0) {
         const field = this.field
         for (const type of field.types) {
-          if (fieldTypeValues[type]) options.push(...fieldTypeValues[type](this.$store))
+          if (fieldTypeValues[type](this.$store)) options.push(...fieldTypeValues[type](this.$store))
         }
       }
       return options
@@ -292,15 +292,12 @@ export default {
   },
   created () {
     this.emitValidations()
-    this.$store.dispatch('config/getAdminRoles') // roles for actions > set_access_level
-    this.$store.dispatch('config/getRoles') // roles for actions > set_role
-    this.$store.dispatch('config/getTenants') // tenants for actions > set_tenant_id
   }
 }
 </script>
 
 <style lang="scss">
-.pf-field-action {
+.pf-field-type-value {
   .pf-form-chosen {
     .col-sm-12[role="group"] {
       padding-right: 0px;

@@ -1,11 +1,13 @@
 import i18n from '@/utils/locale'
 import pfField from '@/components/pfField'
+import pfFieldTypeMatch from '@/components/pfFieldTypeMatch'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormFields from '@/components/pfFormFields'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormSelect from '@/components/pfFormSelect'
 import pfFormTextarea from '@/components/pfFormTextarea'
 import pfFormToggle from '@/components/pfFormToggle'
+import { pfFieldType as fieldType } from '@/globals/pfField'
 import {
   pfConfigurationListColumns,
   pfConfigurationListFields,
@@ -16,16 +18,243 @@ import {
   and,
   not,
   conditional,
-  connectionProfileExists
+  connectionProfileExists,
+  isPort,
+  limitSiblingFields
 } from '@/globals/pfValidators'
 
 const {
   required,
   alphaNum,
   integer,
+  macAddress,
   maxLength,
   minLength
 } = require('vuelidate/lib/validators')
+
+export const pfConfigurationConnectionProfileFilters = {
+  connection_sub_type: {
+    value: 'connection_sub_type',
+    text: i18n.t('Connection Sub Type'),
+    types: [fieldType.CONNECTION_SUB_TYPE],
+    validators: {
+      type: {
+        /* Don't allow elsewhere */
+        [i18n.t('Duplicate filter.')]: limitSiblingFields(['type', 'match'])
+      },
+      match: {
+        [i18n.t('Match required.')]: required
+      }
+    }
+  },
+  connection_type: {
+    value: 'connection_type',
+    text: i18n.t('Connection Type'),
+    types: [fieldType.CONNECTION_TYPE],
+    validators: {
+      type: {
+        /* Don't allow elsewhere */
+        [i18n.t('Duplicate filter.')]: limitSiblingFields(['type', 'match'])
+      },
+      match: {
+        [i18n.t('Match required.')]: required
+      }
+    }
+  },
+  network: {
+    value: 'network',
+    text: i18n.t('Network'),
+    types: [fieldType.SUBSTRING],
+    validators: {
+      type: {
+        /* Don't allow elsewhere */
+        [i18n.t('Duplicate filter.')]: limitSiblingFields(['type', 'match'])
+      },
+      match: {
+        [i18n.t('Match required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  node_role: {
+    value: 'node_role',
+    text: i18n.t('Node role'),
+    types: [fieldType.ROLE],
+    validators: {
+      type: {
+        /* Don't allow elsewhere */
+        [i18n.t('Duplicate filter.')]: limitSiblingFields(['type', 'match'])
+      },
+      match: {
+        [i18n.t('Match required.')]: required
+      }
+    }
+  },
+  port: {
+    value: 'port',
+    text: i18n.t('Port'),
+    types: [fieldType.INTEGER],
+    validators: {
+      type: {
+        /* Don't allow elsewhere */
+        [i18n.t('Duplicate filter.')]: limitSiblingFields(['type', 'match'])
+      },
+      match: {
+        [i18n.t('Match required.')]: required,
+        [i18n.t('Invalid Port Number.')]: isPort
+      }
+    }
+  },
+  realm: {
+    value: 'realm',
+    text: i18n.t('Realm'),
+    types: [fieldType.REALM],
+    validators: {
+      type: {
+        /* Don't allow elsewhere */
+        [i18n.t('Duplicate filter.')]: limitSiblingFields(['type', 'match'])
+      },
+      match: {
+        [i18n.t('Match required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  ssid: {
+    value: 'ssid',
+    text: i18n.t('SSID'),
+    types: [fieldType.SUBSTRING],
+    validators: {
+      type: {
+        /* Don't allow elsewhere */
+        [i18n.t('Duplicate filter.')]: limitSiblingFields(['type', 'match'])
+      },
+      match: {
+        [i18n.t('Match required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  switch: {
+    value: 'switch',
+    text: i18n.t('Switch'),
+    types: [fieldType.SWITCHE],
+    validators: {
+      type: {
+        /* Don't allow elsewhere */
+        [i18n.t('Duplicate filter.')]: limitSiblingFields(['type', 'match'])
+      },
+      match: {
+        [i18n.t('Match required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  switch_group: {
+    value: 'switch_group',
+    text: i18n.t('Switch Group'),
+    types: [fieldType.SWITCH_GROUP],
+    validators: {
+      type: {
+        /* Don't allow elsewhere */
+        [i18n.t('Duplicate filter.')]: limitSiblingFields(['type', 'match'])
+      },
+      match: {
+        [i18n.t('Match required.')]: required
+      }
+    }
+  },
+  switch_mac: {
+    value: 'switch_mac',
+    text: i18n.t('Switch MAC'),
+    types: [fieldType.SUBSTRING],
+    validators: {
+      type: {
+        /* Don't allow elsewhere */
+        [i18n.t('Duplicate filter.')]: limitSiblingFields(['type', 'match'])
+      },
+      match: {
+        [i18n.t('Match required.')]: required,
+        [i18n.t('Invalid MAC Address.')]: macAddress
+      }
+    }
+  },
+  switch_port: {
+    value: 'switch_port',
+    text: i18n.t('Switch Port'),
+    types: [fieldType.INTEGER],
+    validators: {
+      type: {
+        /* Don't allow elsewhere */
+        [i18n.t('Duplicate filter.')]: limitSiblingFields(['type', 'match'])
+      },
+      match: {
+        [i18n.t('Match required.')]: required,
+        [i18n.t('Invalid Port Number.')]: isPort
+      }
+    }
+  },
+  tenant: {
+    value: 'tenant',
+    text: i18n.t('Tenant'),
+    types: [fieldType.TENANT],
+    validators: {
+      type: {
+        /* Don't allow elsewhere */
+        [i18n.t('Duplicate filter.')]: limitSiblingFields(['type', 'match'])
+      },
+      match: {
+        [i18n.t('Match required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  time: {
+    value: 'time',
+    text: i18n.t('Time period'),
+    types: [fieldType.SUBSTRING],
+    validators: {
+      type: {
+        /* Don't allow elsewhere */
+        [i18n.t('Duplicate filter.')]: limitSiblingFields(['type', 'match'])
+      },
+      match: {
+        [i18n.t('Match required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  uri: {
+    value: 'uri',
+    text: i18n.t('URI'),
+    types: [fieldType.SUBSTRING],
+    validators: {
+      type: {
+        /* Don't allow elsewhere */
+        [i18n.t('Duplicate filter.')]: limitSiblingFields(['type', 'match'])
+      },
+      match: {
+        [i18n.t('Match required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  vlan: {
+    value: 'vlan',
+    text: i18n.t('VLAN'),
+    types: [fieldType.SUBSTRING],
+    validators: {
+      type: {
+        /* Don't allow elsewhere */
+        [i18n.t('Duplicate filter.')]: limitSiblingFields(['type', 'match'])
+      },
+      match: {
+        [i18n.t('Match required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  }
+}
 
 export const pfConfigurationConnectionProfilesListColumns = [
   pfConfigurationListColumns.status,
@@ -227,10 +456,31 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
                 maxFields: sources.length,
                 sortable: true,
                 field: {
-                  // TODO: Complete filtering
+                  component: pfFieldTypeMatch,
+                  attrs: {
+                    typeLabel: i18n.t('Select filter type'),
+                    matchLabel: i18n.t('Select filter match'),
+                    fields: [
+                      pfConfigurationConnectionProfileFilters.connection_sub_type,
+                      pfConfigurationConnectionProfileFilters.connection_type,
+                      pfConfigurationConnectionProfileFilters.network,
+                      pfConfigurationConnectionProfileFilters.node_role,
+                      pfConfigurationConnectionProfileFilters.port,
+                      pfConfigurationConnectionProfileFilters.realm,
+                      pfConfigurationConnectionProfileFilters.ssid,
+                      pfConfigurationConnectionProfileFilters.switch,
+                      pfConfigurationConnectionProfileFilters.switch_group,
+                      pfConfigurationConnectionProfileFilters.switch_mac,
+                      pfConfigurationConnectionProfileFilters.switch_port,
+                      pfConfigurationConnectionProfileFilters.tenant,
+                      pfConfigurationConnectionProfileFilters.time,
+                      pfConfigurationConnectionProfileFilters.uri,
+                      pfConfigurationConnectionProfileFilters.vlan
+                    ]
+                  }
                 },
                 invalidFeedback: [
-                  { [i18n.t('Source(s) contain one or more errors.')]: true }
+                  { [i18n.t('Filter(s) contain one or more errors.')]: true }
                 ]
               }
             }

@@ -1,5 +1,5 @@
 import i18n from '@/utils/locale'
-import pfFieldAction from '@/components/pfFieldAction'
+import pfFieldTypeValue from '@/components/pfFieldTypeValue'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormFields from '@/components/pfFormFields'
 import pfFormInput from '@/components/pfFormInput'
@@ -101,6 +101,7 @@ export const pfConfigurationSwitchGroupActions = {
       },
       value: {
         [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255),
         /* Don't allow duplicates */
         [i18n.t('Duplicate SSID.')]: limitSiblingFields(['type', 'value'])
       }
@@ -1371,7 +1372,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
                 buttonLabel: 'Add Condition',
                 sortable: false,
                 field: {
-                  component: pfFieldAction,
+                  component: pfFieldTypeValue,
                   attrs: {
                     typeLabel: i18n.t('Select condition type'),
                     valueLabel: i18n.t('Select condition value'),
