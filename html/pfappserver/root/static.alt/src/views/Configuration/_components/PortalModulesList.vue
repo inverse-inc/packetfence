@@ -11,7 +11,7 @@
         <div class="position-relative">
           <div class="pages-row">
             <template v-for="page in pagesCount(rootModule.id)">
-            <icon class="card-bg" name="caret-right" :key="page"></icon>
+            <icon class="card-bg" name="caret-right" :key="page"><!-- force proper spacing --></icon>
             <div class="page-col" :key="page">
               <div class="page">
                 <icon class="ml-2 text-danger" name="circle" scale=".5"></icon>
@@ -43,8 +43,8 @@
       <b-tabs small card>
         <b-tab v-for="type in moduleTypes" :key="type" :title="$t(type)">
             <draggable element="b-row" :list="getModulesByType(type)" :move="validateMove"
-              :options="{ group: { name: 'portal-module', pull: 'clone', put: false }, ghostClass: 'portal-module-row-ghost', dragClass: 'portal-module-row-drag' }">
-              <portal-module :id="mid" v-for="mid in getModulesByType(type)" :module="getModule(mid)" :modules="items" :key="mid" :storeName="storeName" is-root />
+              :options="{ group: { name: 'portal-module', pull: 'clone', revertClone: true, put: false }, ghostClass: 'portal-module-row-ghost', dragClass: 'portal-module-row-drag' }">
+              <portal-module :id="mid" v-for="mid in getModulesByType(type)" :module="getModule(mid)" :modules="items" :key="mid" :storeName="storeName" v-show="mid" is-root />
             </draggable>
         </b-tab>
         <b-dropdown :text="$t('Add Module')" class="ml-3 mb-1" size="sm" variant="outline-primary" slot="tabs">
@@ -197,7 +197,7 @@ export default {
     },
     getModulesByType (type) {
       const modules = this.items.filter(module => module.type === type).map(module => module.id)
-      return modules
+      return [undefined, ...modules]
     },
     pagesCount (rootId) {
       let count = 0
@@ -239,6 +239,7 @@ export default {
         }
         return !destinationList.find(id => id === mid) && !parents.find(id => id === mid)
       }
+      return false
     },
     remove (id) {
       const index = this.items.findIndex(module => module.id === id)
