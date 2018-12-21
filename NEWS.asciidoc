@@ -22,6 +22,9 @@ New Features
 * Added the ability to reserve IP addresses in pfdhcp
 * Added a way to trigger a violation when device profiling detects a change in the device class
 * SSL Inspection Portal Module
+* RADIUS Proxy integration from admin gui
+* RADIUS Filter for pre_proxy/post_proxy/preacct/accounting/authorize
+* DUMMY Source just to compute the rules
 
 Enhancements
 ++++++++++++
