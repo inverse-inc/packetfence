@@ -1089,19 +1089,19 @@ eap_fast_authority_identity=1234
 # Requires a restart of radiusd to be effective.
 record_accounting_in_sql=enabled
 #
-# advanced.filter_in_authorize
+# advanced.filter_in_packetfence_authorize
 #
 # Send the radius request in the radius filter from the radius packetfence.authorize section.
 # Requires a restart of radiusd to be effective.
 filter_in_packetfence_authorize=disabled
 #
-# advanced.filter_in_pre_proxy
+# radius_configuration.filter_in_packetfence_pre_proxy
 #
 # Send the radius request in the radius filter from the radius packetfence.pre_proxy section.
 # Requires a restart of radiusd to be effective.
 filter_in_packetfence_pre_proxy=disabled
 #
-# advanced.filter_in_post_proxy
+# radius_configuration.filter_in_packetfence_post_proxy
 #
 # Send the radius request in the radius filter from the radius packetfence.post_proxy section.
 # Requires a restart of radiusd to be effective.
