@@ -74,7 +74,7 @@ is_deeply(
                 },
                 server_name => {
                     type => 'string',
-                    description => 'This server\'s name (account name) in your Active Directory. Use \'%h\' to automatically use this server hostname',
+                    description => 'This server\'s name (account name) in your Active Directory. Use \'%h\' to automatically use this server hostname. In a cluster, you must leave %h and ensure your hostnames are less than 14 characters.',
 				},
                 sticky_dc => {
                     type => 'string',
