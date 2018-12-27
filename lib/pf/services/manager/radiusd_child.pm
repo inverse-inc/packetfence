@@ -578,16 +578,18 @@ ldap $ldap {
         rebind = yes
     }
 EOT
-        if ($ConfigAuthenticationLdap{$ldap}->{encryption} eq "ldaps") {
+        if ($ConfigAuthenticationLdap{$ldap}->{encryption} eq "ssl") {
             $tags{'servers'} .= <<"EOT";
     tls {
         start_tls = no
+       require_cert    = 'allow'
     }
 EOT
         } elsif ($ConfigAuthenticationLdap{$ldap}->{encryption} eq "starttls") {
             $tags{'servers'} .= <<"EOT";
     tls {
         start_tls = yes
+       require_cert    = 'allow'
     }
 EOT
         }
