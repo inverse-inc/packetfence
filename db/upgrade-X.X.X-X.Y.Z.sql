@@ -64,6 +64,11 @@ DELETE FROM sms_carrier where id=100128;
 INSERT INTO sms_carrier VALUES(100128, 'Google Project Fi', '%s@msg.fi.google.com', now(), now());
 
 --
+-- Update email pattern for Free
+--
+UPDATE sms_carrier SET email_pattern = '%s@txt.freedommobile.ca' WHERE id = 100125;
+
+--
 -- Add calledstationssid and nasidentifier in radacct
 --
 ALTER TABLE `radacct`

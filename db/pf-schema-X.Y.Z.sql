@@ -553,7 +553,7 @@ VALUES
     (100122, 'Koodo Mobile', '%s@msg.koodomobile.com', now()),
     (100123, 'Chatr', '%s@pcs.rogers.com', now()),
     (100124, 'Eastlink', '%s@txt.eastlink.ca', now()),
-    (100125, 'Freedom', 'txt.freedommobile.ca', now()),
+    (100125, 'Freedom', '%s@txt.freedommobile.ca', now()),
     (100126, 'PC Mobile', '%s@msg.telus.com', now()),
     (100127, 'TBayTel', '%s@pcs.rogers.com', now()),
     (100128, 'Google Project Fi', '%s@msg.fi.google.com', now());
