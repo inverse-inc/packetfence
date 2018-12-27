@@ -1784,28 +1784,30 @@ var Verb = TypeName{
 
 // Detect the vip on management
 func detectVIP(management pfconfigdriver.ManagementNetwork) {
-	var keyConfCluster pfconfigdriver.NetInterface
-	keyConfCluster.PfconfigNS = "config::Pf(CLUSTER," + pfconfigdriver.FindClusterName(ctx) + ")"
+	if pfconfigdriver.GetClusterSummary(ctx).ClusterEnabled == 1 {
+		var keyConfCluster pfconfigdriver.NetInterface
+		keyConfCluster.PfconfigNS = "config::Pf(CLUSTER," + pfconfigdriver.FindClusterName(ctx) + ")"
 
-	keyConfCluster.PfconfigHashNS = "interface " + management.Int
-	pfconfigdriver.FetchDecodeSocket(ctx, &keyConfCluster)
-	// Nothing in keyConfCluster.Ip so we are not in cluster mode
-	if keyConfCluster.Ip == "" {
-		VIP[management.Int] = true
-		return
-	}
-
-	eth, _ := net.InterfaceByName(management.Int)
-	adresses, _ := eth.Addrs()
-
-	for _, adresse := range adresses {
-		IP, _, _ := net.ParseCIDR(adresse.String())
-		VIPIp[management.Int] = net.ParseIP(keyConfCluster.Ip)
-		if IP.Equal(VIPIp[management.Int]) {
+		keyConfCluster.PfconfigHashNS = "interface " + management.Int
+		pfconfigdriver.FetchDecodeSocket(ctx, &keyConfCluster)
+		// Nothing in keyConfCluster.Ip so we are not in cluster mode
+		if keyConfCluster.Ip == "" {
 			VIP[management.Int] = true
 			return
 		}
+
+		eth, _ := net.InterfaceByName(management.Int)
+		adresses, _ := eth.Addrs()
+
+		for _, adresse := range adresses {
+			IP, _, _ := net.ParseCIDR(adresse.String())
+			VIPIp[management.Int] = net.ParseIP(keyConfCluster.Ip)
+			if IP.Equal(VIPIp[management.Int]) {
+				VIP[management.Int] = true
+				return
+			}
+		}
+		VIP[management.Int] = false
+		return
 	}
-	VIP[management.Int] = false
-	return
 }
