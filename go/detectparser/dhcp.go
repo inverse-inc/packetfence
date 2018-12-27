@@ -3,7 +3,6 @@ package detectparser
 import (
 	"regexp"
 
-	cache "github.com/fdurand/go-cache"
 	"github.com/inverse-inc/packetfence/go/sharedutils"
 )
 
@@ -13,7 +12,7 @@ var dhcpRegexPattern2 = regexp.MustCompile(`(DHCPDISCOVER|DHCPOFFER|DHCPREQUEST|
 
 type DhcpParser struct {
 	Pattern1, Pattern2 *regexp.Regexp
-	RateLimitCache     *cache.Cache
+	RateLimitable
 }
 
 func (s *DhcpParser) Parse(line string) ([]ApiCall, error) {
@@ -29,13 +28,8 @@ func (s *DhcpParser) Parse(line string) ([]ApiCall, error) {
 				continue
 			}
 
-			if s.RateLimitCache != nil {
-				rateLimitKey := mac + ":" + ip
-				if _, found := s.RateLimitCache.Get(rateLimitKey); found {
-					continue
-				}
-
-				s.RateLimitCache.Set(rateLimitKey, 1, cache.DefaultExpiration)
+			if err := s.NotRateLimited(mac + ":" + ip); err != nil {
+				return nil, err
 			}
 
 			return []ApiCall{
@@ -55,8 +49,8 @@ func (s *DhcpParser) Parse(line string) ([]ApiCall, error) {
 
 func NewDhcpParser(config *PfdetectConfig) (Parser, error) {
 	return &DhcpParser{
-		Pattern1:       dhcpRegexPattern1.Copy(),
-		Pattern2:       dhcpRegexPattern2.Copy(),
-		RateLimitCache: config.GetCache(),
+		Pattern1:      dhcpRegexPattern1.Copy(),
+		Pattern2:      dhcpRegexPattern2.Copy(),
+		RateLimitable: RateLimitable{RateLimitCache: config.GetCache()},
 	}, nil
 }

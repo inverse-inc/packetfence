@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"regexp"
 
-	cache "github.com/fdurand/go-cache"
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/unifiedapiclient"
 )
@@ -20,7 +19,7 @@ type IPToMacResolver interface {
 type SuricataMD5Parser struct {
 	RemovePrefix   *regexp.Regexp
 	ResolverIp2Mac IPToMacResolver
-	RateLimitCache *cache.Cache
+	RateLimitable
 }
 
 func (s *SuricataMD5Parser) Parse(line string) ([]ApiCall, error) {
@@ -71,16 +70,10 @@ func (s *SuricataMD5Parser) Parse(line string) ([]ApiCall, error) {
 		return nil, fmt.Errorf("endpoint not found")
 	}
 
-	if s.RateLimitCache != nil {
-		rateLimitKey := mac + ":" + tid
-		if _, found := s.RateLimitCache.Get(rateLimitKey); found {
-			return nil, fmt.Errorf("Already processed")
-		}
-
-		s.RateLimitCache.Set(rateLimitKey, 1, cache.DefaultExpiration)
+	if err := s.NotRateLimited(mac + ":" + tid); err != nil {
+		return nil, err
 	}
 
-	data["mac"] = mac
 	return []ApiCall{
 		&PfqueueApiCall{
 			Method: "trigger_security_event",
@@ -108,8 +101,8 @@ func (*SuricataMD5Parser) IpToMac(ip string) (string, error) {
 
 func NewSuricataMD5Parser(config *PfdetectConfig) (Parser, error) {
 	p := &SuricataMD5Parser{
-		RemovePrefix:   suricataMD5RegexRemovePrefix.Copy(),
-		RateLimitCache: config.GetCache(),
+		RemovePrefix:  suricataMD5RegexRemovePrefix.Copy(),
+		RateLimitable: RateLimitable{RateLimitCache: config.GetCache()},
 	}
 	p.ResolverIp2Mac = p
 	return p, nil

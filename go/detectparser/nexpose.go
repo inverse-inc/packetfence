@@ -1,16 +1,14 @@
 package detectparser
 
 import (
-	"fmt"
 	"regexp"
 
-	cache "github.com/fdurand/go-cache"
 	"github.com/inverse-inc/packetfence/go/sharedutils"
 )
 
 type NexposeParser struct {
-	Pattern1       *regexp.Regexp
-	RateLimitCache *cache.Cache
+	Pattern1 *regexp.Regexp
+	RateLimitable
 }
 
 func (s *NexposeParser) Parse(line string) ([]ApiCall, error) {
@@ -25,13 +23,8 @@ func (s *NexposeParser) Parse(line string) ([]ApiCall, error) {
 			return nil, nil
 		}
 
-		if s.RateLimitCache != nil {
-			rateLimitKey := dstip + ":" + srcip + ":" + matches[5]
-			if _, found := s.RateLimitCache.Get(rateLimitKey); found {
-				return nil, fmt.Errorf("Already processed")
-			}
-
-			s.RateLimitCache.Set(rateLimitKey, 1, cache.DefaultExpiration)
+		if err := s.NotRateLimited(dstip + ":" + srcip + ":" + matches[5]); err != nil {
+			return nil, err
 		}
 
 		return []ApiCall{
@@ -56,7 +49,7 @@ var nexposeRegexPattern1 = regexp.MustCompile(`^(\w+\s*\d+ \d+:\d+:\d+) ([0-9.]+
 
 func NewNexposeParser(config *PfdetectConfig) (Parser, error) {
 	return &NexposeParser{
-		Pattern1:       nexposeRegexPattern1.Copy(),
-		RateLimitCache: config.GetCache(),
+		Pattern1:      nexposeRegexPattern1.Copy(),
+		RateLimitable: RateLimitable{RateLimitCache: config.GetCache()},
 	}, nil
 }

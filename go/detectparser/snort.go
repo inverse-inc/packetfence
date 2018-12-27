@@ -1,10 +1,8 @@
 package detectparser
 
 import (
-	"regexp"
-
-	cache "github.com/fdurand/go-cache"
 	"github.com/inverse-inc/packetfence/go/sharedutils"
+	"regexp"
 )
 
 var snortRegexPattern1 = regexp.MustCompile(`(.*?)\[\d+:(\d+):\d+\]\s+(.+?)\s+\[.+?(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(:\d+){0,1}\s+\-\>\s+(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(:\d+){0,1}`)
@@ -15,7 +13,7 @@ var snortRegexPattern3 = regexp.MustCompile(`^(.+?)\[\*\*\] \[\d+:(\d+):\d+\]\s+
 
 type SnortParser struct {
 	Pattern1, Pattern2, Pattern3 *regexp.Regexp
-	RateLimitCache               *cache.Cache
+	RateLimitable
 }
 
 func (s *SnortParser) Parse(line string) ([]ApiCall, error) {
@@ -25,6 +23,10 @@ func (s *SnortParser) Parse(line string) ([]ApiCall, error) {
 		srcip, _ = sharedutils.CleanIP(matches[4])
 
 		if dstip != "" && srcip != "" {
+			if err := s.NotRateLimited(dstip + ":" + srcip); err != nil {
+				return nil, err
+			}
+
 			return []ApiCall{
 				&PfqueueApiCall{
 					Method: "event_add",
@@ -45,6 +47,9 @@ func (s *SnortParser) Parse(line string) ([]ApiCall, error) {
 	if matches := s.Pattern2.FindStringSubmatch(line); matches != nil {
 		srcip, _ = sharedutils.CleanIP(matches[3])
 		if srcip != "" {
+			if err := s.NotRateLimited(srcip); err != nil {
+				return nil, err
+			}
 			return []ApiCall{
 				&PfqueueApiCall{
 					Method: "event_add",
@@ -63,6 +68,10 @@ func (s *SnortParser) Parse(line string) ([]ApiCall, error) {
 	if matches := s.Pattern3.FindStringSubmatch(line); matches != nil {
 		srcip, _ = sharedutils.CleanIP(matches[3])
 		if srcip != "" {
+			if err := s.NotRateLimited(srcip); err != nil {
+				return nil, err
+			}
+
 			return []ApiCall{
 				&PfqueueApiCall{
 					Method: "event_add",
@@ -83,9 +92,9 @@ func (s *SnortParser) Parse(line string) ([]ApiCall, error) {
 
 func NewSnortParser(config *PfdetectConfig) (Parser, error) {
 	return &SnortParser{
-		Pattern1:       snortRegexPattern1.Copy(),
-		Pattern2:       snortRegexPattern2.Copy(),
-		Pattern3:       snortRegexPattern3.Copy(),
-		RateLimitCache: config.GetCache(),
+		Pattern1:      snortRegexPattern1.Copy(),
+		Pattern2:      snortRegexPattern2.Copy(),
+		Pattern3:      snortRegexPattern3.Copy(),
+		RateLimitable: RateLimitable{RateLimitCache: config.GetCache()},
 	}, nil
 }

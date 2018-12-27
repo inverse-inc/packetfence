@@ -46,6 +46,24 @@ func (config *PfdetectConfig) GetCache() *cache.Cache {
 	return Cache
 }
 
+type RateLimitable struct {
+	RateLimitCache *cache.Cache
+}
+
+var errorRateLimit = fmt.Errorf("Already processed")
+
+func (r RateLimitable) NotRateLimited(key string) error {
+	if r.RateLimitCache == nil {
+		return nil
+	}
+	if _, found := r.RateLimitCache.Get(key); found {
+		return errorRateLimit
+	}
+
+	r.RateLimitCache.Set(key, 1, cache.DefaultExpiration)
+	return nil
+}
+
 type Parser interface {
 	Parse(string) ([]ApiCall, error)
 }

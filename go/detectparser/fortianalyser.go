@@ -1,10 +1,8 @@
 package detectparser
 
 import (
-	"fmt"
 	"regexp"
 
-	cache "github.com/fdurand/go-cache"
 	"github.com/inverse-inc/packetfence/go/sharedutils"
 )
 
@@ -13,7 +11,7 @@ var fortiAnalyserRegexPattern2 = regexp.MustCompile(`\=`)
 
 type FortiAnalyserParser struct {
 	Pattern1, Pattern2 *regexp.Regexp
-	RateLimitCache     *cache.Cache
+	RateLimitable
 }
 
 func (s *FortiAnalyserParser) Parse(line string) ([]ApiCall, error) {
@@ -41,13 +39,8 @@ func (s *FortiAnalyserParser) Parse(line string) ([]ApiCall, error) {
 		return nil, nil
 	}
 
-	if s.RateLimitCache != nil {
-		rateLimitKey := srcip + ":" + logid
-		if _, found := s.RateLimitCache.Get(rateLimitKey); found {
-			return nil, fmt.Errorf("Already processed")
-		}
-
-		s.RateLimitCache.Set(rateLimitKey, 1, cache.DefaultExpiration)
+	if err := s.NotRateLimited(srcip + ":" + logid); err != nil {
+		return nil, err
 	}
 
 	return []ApiCall{
@@ -65,8 +58,8 @@ func (s *FortiAnalyserParser) Parse(line string) ([]ApiCall, error) {
 
 func NewFortiAnalyserParser(config *PfdetectConfig) (Parser, error) {
 	return &FortiAnalyserParser{
-		Pattern1:       fortiAnalyserRegexPattern1.Copy(),
-		Pattern2:       fortiAnalyserRegexPattern2.Copy(),
-		RateLimitCache: config.GetCache(),
+		Pattern1:      fortiAnalyserRegexPattern1.Copy(),
+		Pattern2:      fortiAnalyserRegexPattern2.Copy(),
+		RateLimitable: RateLimitable{RateLimitCache: config.GetCache()},
 	}, nil
 }
