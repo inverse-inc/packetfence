@@ -19,9 +19,10 @@ $umask 0027
 
 [%- FOREACH item IN items %]
 # [% item.name %]
-if [% item.condition %] then
+if [% item.condition %] then {
 [%- FOREACH action IN item.actions %]
   [% action -%]
 [%- END %]
 stop
+}
 [% END -%]
