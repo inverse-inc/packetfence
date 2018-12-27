@@ -144,6 +144,12 @@ sub _generate_password {
     my $min = 8;
     my $max = 12;
 
+    my $absolute_min = 4;
+    if($size < $absolute_min) {
+        get_logger->warn("Password length less than $absolute_min, making the password $absolute_min long.");
+        $size = $absolute_min;
+    }
+
     $min = $max = $size if (defined $size);
 
     my $password = word($min, $max);
