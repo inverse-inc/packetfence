@@ -16,25 +16,26 @@ Version X.Y.Z released on xxxx-xx-xx
 
 New Features
 ++++++++++++
-* Added support Juniper EX2300 (JUNOS 18.2)
-* New Authentication Source supported: Clickatell
+* Added support for Juniper EX2300 (JUNOS 18.2) switches
+* Clickatell authentication source support
 * Added a random algorithm for VLAN pooling
 * Added the ability to reserve IP addresses in pfdhcp
 * Added a way to trigger a violation when device profiling detects a change in the device class
-* SSL Inspection Portal Module
-* RADIUS Proxy integration from admin gui
-* RADIUS Filter for pre_proxy/post_proxy/preacct/accounting/authorize
-* DUMMY Source just to compute the rules
+* New SSL Inspection portal module
+* RADIUS proxy integration from web admin interface
+* RADIUS filtering support for pre_proxy/post_proxy/preacct/accounting/authorize phases
 
 Enhancements
 ++++++++++++
 * Redis now only listens on localhost (#3729)
-* deprecate usage of roaring bitmap for the dhcp ip pool (#3779)
+* Deprecate usage of roaring bitmap for the DHCP IP pool (#3779)
 * Email and SponsorEmail sources can have banned and allowed email domains (#3807)
 * Improved startup time of pfdhcp
 * Removed OPSWAT Metadefender Cloud support
-* Chose hashing algorythm when creating a local user from a source
+* Chose password hashing algorithm when creating a local user from a source
 * Define the length of the password to generate when creating a local user from a source
+* New "dummy" source just to compute the rules
+
 
 Bug Fixes
 +++++++++
@@ -42,9 +43,9 @@ Bug Fixes
 * Fixed missing cache directory for NTLM auth cache (#3788)
 * Fixed working directory of NTLM auth cache sync script (#3777)
 * Handled multiple LDAP hosts properly in NTLM auth cache (#3776)
-* Issue with the dhcp server that give sometimes a duplicate ip addresse
+* Issue with the DHCP server that gives sometimes a duplicate IP address
 * Adjusted CentOS and RHEL dependencies
-* Fixed MAC filtered lookups are cached in pfdns (#3785)
+* Fixed MAC filtered lookups that were cached in pfdns (#3785)
 * Fixed the OpenVAS integration to work with OpenVAS Manager 7.0 (OpenVAS 9)
 
 Version 8.2.1 released on 2018-12-05
