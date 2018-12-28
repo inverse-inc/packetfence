@@ -188,6 +188,7 @@ sub do_sponsor_registration {
     $info{'sponsor'} = $sponsor;
     $info{'subject'} = ["%s: Guest access request", $Config{'general'}{'domain'}];
     $info{'source_id'} = $source->id;
+    $info{'lang'} = $source->lang  // $Config{'advanced'}{'language'};
 
     # TODO this portion of the code should be throttled to prevent malicious intents (spamming)
     my ( $auth_return, $err, $activation_code ) =
