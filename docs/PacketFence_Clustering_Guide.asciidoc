@@ -352,9 +352,10 @@ Once all servers are synced, go *on the first server* that should still be runni
 
 NOTE: You can check if the service is down with 'ps -edf | grep mysql', this service can be a little long to stop and it is not recommended to do the nexts step before it fully stops.
 
-Now, start `packetfence-mariadb` normally:
+Now, start `packetfence-mariadb` normally and restart `packetfence-iptables`:
 
   # systemctl restart packetfence-mariadb
+  # systemctl restart packetfence-iptables
 
 Wrapping up
 ^^^^^^^^^^^
