@@ -568,7 +568,7 @@ msgstr "Ajouter une violation"
 
 # html/pfappserver/root/config/realm/index.tt
 msgid ""
-"Adding or removing a realm requires to restart the radiusd service to be "
+"Adding, editing or removing a realm requires to restart the radiusd service to be "
 "effective."
 msgstr "L’ajout ou suppression d’un Realm nécessite le redémarrage du service de radiusd pour être appliqué."
 

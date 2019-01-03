@@ -23,7 +23,7 @@
 
     <div class="card-block">
       <div class="alert alert-warning">
-        <strong>[% l('Warning!') %]</strong> [% l('Adding or removing a realm requires to restart the radiusd service to be effective.') %]
+        <strong>[% l('Warning!') %]</strong> [% l('Adding, editing or removing a realm requires to restart the radiusd service to be effective.') %]
       </div>
 
       [% INCLUDE config/realm/list.tt %]

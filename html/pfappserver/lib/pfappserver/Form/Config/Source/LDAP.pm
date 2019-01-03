@@ -196,7 +196,7 @@ has_field 'searchattributes' => (
     element_attr   => { 'data-placeholder' => 'Click to select an attribute' },
     tags           => {
         after_element => \&help,
-        help          => 'Attributes that will use to find the dn of the user'
+        help          => 'Attributes that will be used to find the Username Attribute of the user (requires to restart the radiusd service to be effective)'
     },
     default => '',
 );

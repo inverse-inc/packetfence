@@ -567,7 +567,8 @@ ldap $ldap {
     rebind          = yes
     chase_referrals = yes
     update {
-        control:AD-Samaccountname := 'sAMAccountName'
+        control:AD-Samaccountname := "$ConfigAuthenticationLdap{$ldap}->{usernameattribute}"
+        request:AD-Samaccountname := "$ConfigAuthenticationLdap{$ldap}->{usernameattribute}"
     }
     user {
         base_dn = "\${..base_dn}"
