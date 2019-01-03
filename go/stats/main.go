@@ -242,10 +242,9 @@ func forward(c net.Conn) {
 
 var StatsdClient *statsd.Client
 
-var ctx context.Context
+var ctx = context.Background()
 
 func main() {
-	ctx := context.Background()
 	log.SetProcessName("pfstats")
 	ctx = log.LoggerNewContext(ctx)
 
