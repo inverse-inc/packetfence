@@ -1812,6 +1812,16 @@ To upgrade your configuration execute the following script:
   /usr/local/pf/addons/upgrade/to-8.3-rename-pf-conf-parameters.pl
 
 
+Upgrade authentication.conf to add searchattributes parameter
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+We added a new parameter in AD and LDAP authentication sources to be able to do 802.1x authentication with any unique ldap attributes.
+This parameter "searchattributes" need to be added in the existing authentication sources.
+To apply this configuration execute the following script:
+
+ /usr/local/pf/addons/upgrade/to-8.3-authentication-searchattributes.pl
+
+
 Database schema
 ^^^^^^^^^^^^^^^
 
