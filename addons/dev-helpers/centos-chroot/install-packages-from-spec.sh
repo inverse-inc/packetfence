@@ -10,6 +10,18 @@ REPO=packetfence-devel
 PF_REPO="--enablerepo=$REPO"
 STD_REPOS="--enablerepo=base --enablerepo=updates --enablerepo=extras"
 
+if [ ! -x /usr/bin/repoquery ];then
+    echo "Package yum-utils is not installed to run"
+    echo " yum install yum-utils"
+    exit 1
+fi
+
+if [ ! -x /usr/bin/rpmspec ];then
+    echo "Package rpm-build is not installed to run"
+    echo " yum install rpm-build"
+    exit 1
+fi
+
 YUM="yum --disablerepo=* $PF_REPO $STD_REPOS -y"
 $YUM makecache
 echo installing the packetfence dependencies from the $REPO repo
