@@ -482,7 +482,7 @@ sub send_email {
 
     my $user_locale = clean_locale(setlocale(POSIX::LC_MESSAGES));
     if ($lang) {
-        $logger->debug('We are doing sponsor activation', $user_locale);
+        $logger->debug("Updating $user_locale to $lang");
         setlocale(POSIX::LC_MESSAGES, $lang);
     }
     my $smtpserver = $Config{'alerting'}{'smtpserver'};
