@@ -23,6 +23,7 @@ authorize {
 		&control:PacketFence-RPC-Proto = ${rpc_proto}
 		&control:Tmp-Integer-0 := "%l"
 		&control:PacketFence-Request-Time := 0
+		&control:Load-Balance-Key := "%{Calling-Station-ID} %{User-Name}"
 	}
 	packetfence-set-tenant-id
 	rewrite_calling_station_id
