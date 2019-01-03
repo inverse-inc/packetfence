@@ -52,7 +52,7 @@ sub available_attributes {
       TLS-Cert-Common-Name
       TLS-Client-Cert-Subject-Alt-Name-Dns
     );
-    my @attributes = @{$Config{radius_configuration}->{radius_attributes}};
+    my @attributes = @{$Config{radius_configuration}->{radius_attributes} // []};
     my @radius_attributes = map { { value => $_, type => $Conditions::SUBSTRING } } @attributes;
     return [uniq(@$super_attributes, @own_attributes, @radius_attributes)];
 }

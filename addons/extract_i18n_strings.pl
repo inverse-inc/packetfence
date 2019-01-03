@@ -403,6 +403,7 @@ sub extract_modules {
       shared_secret_direct
       terminal_id
       transaction_key
+      options
     );
     foreach (@$types) {
         my $type = "pf::Authentication::Source::${_}Source";
