@@ -2,7 +2,6 @@
   <b-card no-body>
     <pf-config-list
       :config="config"
-      :isLoading="isLoading"
     >
       <template slot="pageHeader">
         <b-card-header>
@@ -53,8 +52,8 @@
             <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'Stripe' } }">Stripe</b-dropdown-item>
         </b-dropdown>
       </template>
-      <template slot="emptySearch">
-        <pf-empty-table :isLoading="isLoading">{{ $t('No sources found') }}</pf-empty-table>
+      <template slot="emptySearch" slot-scope="state">
+        <pf-empty-table :isLoading="state.isLoading">{{ $t('No sources found') }}</pf-empty-table>
       </template>
       <template slot="buttons" slot-scope="item">
         <span class="float-right text-nowrap">

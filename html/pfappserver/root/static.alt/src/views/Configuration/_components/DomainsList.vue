@@ -1,13 +1,12 @@
 <template>
   <pf-config-list
     :config="config"
-    :isLoading="isLoading"
   >
     <template slot="buttonAdd">
       <b-button variant="outline-primary" :to="{ name: 'newDomain' }">{{ $t('Add Domain') }}</b-button>
     </template>
-    <template slot="emptySearch">
-      <pf-empty-table :isLoading="isLoading">{{ $t('No domains found') }}</pf-empty-table>
+    <template slot="emptySearch" slot-scope="state">
+        <pf-empty-table :isLoading="state.isLoading">{{ $t('No domains found') }}</pf-empty-table>
     </template>
   </pf-config-list>
 </template>

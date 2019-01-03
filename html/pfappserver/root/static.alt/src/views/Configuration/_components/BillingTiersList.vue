@@ -2,7 +2,6 @@
   <b-card no-body>
     <pf-config-list
       :config="config"
-      :isLoading="isLoading"
     >
       <template slot="pageHeader">
         <b-card-header><h4 class="mb-0" v-t="'Billing Tiers'"></h4></b-card-header>
@@ -10,8 +9,8 @@
       <template slot="buttonAdd">
         <b-button variant="outline-primary" :to="{ name: 'newBillingTier' }">{{ $t('Add Billing Tier') }}</b-button>
       </template>
-      <template slot="emptySearch">
-        <pf-empty-table :isLoading="isLoading">{{ $t('No billing tiers found') }}</pf-empty-table>
+      <template slot="emptySearch" slot-scope="state">
+        <pf-empty-table :isLoading="state.isLoading">{{ $t('No billing tiers found') }}</pf-empty-table>
       </template>
       <template slot="buttons" slot-scope="item">
         <span class="float-right text-nowrap">

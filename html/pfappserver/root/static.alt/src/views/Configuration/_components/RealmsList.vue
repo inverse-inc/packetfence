@@ -2,13 +2,12 @@
   <div>
     <pf-config-list
       :config="config"
-      :isLoading="isLoading"
     >
       <template slot="buttonAdd">
         <b-button variant="outline-primary" :to="{ name: 'newRealm' }">{{ $t('Add Realm') }}</b-button>
       </template>
-      <template slot="emptySearch">
-        <pf-empty-table :isLoading="isLoading">{{ $t('No realms found') }}</pf-empty-table>
+      <template slot="emptySearch" slot-scope="state">
+        <pf-empty-table :isLoading="state.isLoading">{{ $t('No realms found') }}</pf-empty-table>
       </template>
       <template slot="buttons" slot-scope="item">
         <span class="float-right text-nowrap">
