@@ -477,12 +477,13 @@ Send an email with the activation code
 sub send_email {
     my ($type, $activation_code, $template, %info) = @_;
     my $logger = get_logger();
+    my $lang = $info{lang};
     my $profile = pf::Connection::ProfileFactory->_from_profile($info{portal}) // pf::Connection::ProfileFactory->_from_profile($DEFAULT_PROFILE);
 
     my $user_locale = clean_locale(setlocale(POSIX::LC_MESSAGES));
-    if ($type eq $SPONSOR_ACTIVATION) {
-        $logger->debug('We are doing sponsor activation', $user_locale);
-        setlocale(POSIX::LC_MESSAGES, $Config{'advanced'}{'language'});
+    if ($lang) {
+        $logger->debug("Updating $user_locale to $lang");
+        setlocale(POSIX::LC_MESSAGES, $lang);
     }
     my $smtpserver = $Config{'alerting'}{'smtpserver'};
     $info{'from'} = $Config{'alerting'}{'fromaddr'} || 'root@' . $fqdn;
