@@ -334,7 +334,7 @@ post-auth {
 	#update {
 	#	&reply: += &session-state:
 	#}
-	if (&control:PacketFence-Proxied-From == "True") {
+	if ("%{%{control:PacketFence-Proxied-From}:-False}" == "True") {
 %%local_realm%%
 		if (&control:PacketFence-Authorization-Status == "deny") {
 			packetfence-audit-log-reject
@@ -378,7 +378,7 @@ post-auth {
 		if (! EAP-Type || (EAP-Type != TTLS  && EAP-Type != PEAP) ) {
 			packetfence-audit-log-reject
 		}
-		if (&control:PacketFence-Proxied-From == "True") {
+	        if ("%{%{control:PacketFence-Proxied-From}:-False}" == "True") {
 			packetfence-audit-log-reject
 		}
 		attr_filter.access_reject
