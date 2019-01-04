@@ -613,11 +613,14 @@ Create the filter to search for the dn
 =cut
 
 sub _makefilter {
-  my ($self,$username) = @_;
-  my $search = join ("", map { "($_=$username)" } @{$self->{'searchattributes'}});
-  return "(|$search)";
+    my ($self,$username) = @_;
+    if (@{$self->{'searchattributes'}}) {
+        my $search = join ("", map { "($_=$username)" } @{$self->{'searchattributes'}});
+        return "(|$search)";
+    } else {
+        return "$self->{'usernameattribute'}=$username";
+    }
 }
-
 
 =head1 AUTHOR
 
