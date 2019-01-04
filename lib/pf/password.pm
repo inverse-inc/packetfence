@@ -141,8 +141,9 @@ Generates the password
 
 sub _generate_password {
     my ($size) = @_;
-    my $min = 8;
-    my $max = 12;
+
+    # Default to a size of 8 if none is requested
+    $size //= 8;
 
     my $absolute_min = 4;
     if($size < $absolute_min) {
@@ -150,12 +151,10 @@ sub _generate_password {
         $size = $absolute_min;
     }
 
-    $min = $max = $size if (defined $size);
-
-    my $password = word($min, $max);
+    my $password = word($size, $size);
     # if password is nasty generate another one (until we get a clean one)
     while(Crypt::GeneratePassword::restrict($password, undef)) {
-        $password = word($min, $max);
+        $password = word($size, $size);
     }
     return $password;
 }
