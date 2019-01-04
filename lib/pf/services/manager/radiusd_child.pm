@@ -550,7 +550,7 @@ sub generate_radiusd_ldap {
     foreach my $ldap (keys %ConfigAuthenticationLdap) {
         my $searchattributes;
         foreach my $searchattribute (@{$ConfigAuthenticationLdap{$ldap}->{searchattributes}}) {
-            $searchattributes .= '('.$searchattribute.'=%{User-Name})';
+            $searchattributes .= '('.$searchattribute.'=%{User-Name})('.$searchattribute.'=%{Stripped-User-Name})';
         }
 
         $tags{'servers'} .= <<"EOT";
