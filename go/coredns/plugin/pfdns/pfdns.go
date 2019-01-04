@@ -117,7 +117,6 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 	mac, err := pf.Ip2Mac(ctx, srcIP, ipVersion)
 	if err != nil {
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("ERROR cannot find mac for ip %s\n", srcIP))
-	} else {
 		mac = "00:00:00:00:00:00"
 	}
 
