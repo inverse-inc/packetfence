@@ -453,7 +453,6 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
               attrs: {
                 buttonLabel: i18n.t('Add Filter'),
                 emptyText: i18n.t('With no filter specified, an advanced filter must be specified.'),
-                maxFields: sources.length,
                 sortable: true,
                 field: {
                   component: pfFieldTypeMatch,
@@ -564,14 +563,14 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
                         placeholder: i18n.t('Click to select a billing tier'),
                         trackBy: 'value',
                         label: 'text',
-                        options: billingTiers.map(billingTier => {
-                          return { text: `${billingTier.id} (${billingTier.name} - ${billingTier.description})`, value: billingTier.id }
+                        options: billingTiers.map(billing_tier => {
+                          return { text: `${billing_tier.id} (${billing_tier.name} - ${billing_tier.description})`, value: billing_tier.id }
                         })
                       },
                       validators: {
                         [i18n.t('Billing Tier required.')]: required,
                         [i18n.t('Duplicate Billing Tier.')]: conditional((value) => {
-                          return !(connectionProfile.billing_tiers.filter(v => v === value).length > 1)
+                          return !(connectionProfile.billingTiers.filter(v => v === value).length > 1)
                         })
                       }
                     }
