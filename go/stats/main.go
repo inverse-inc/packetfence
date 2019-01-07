@@ -372,7 +372,7 @@ func main() {
 		pfconfigdriver.FetchDecodeSocket(ctx, &ConfStat)
 
 		if RegExpMetric.MatchString(key) {
-			if (VIP[Management.Int] && ConfStat.Management == "true") || ConfStat.Management == "false" {
+			if (VIP[Management.Int] && ConfStat.Management == "true") || (ConfStat.Management == "false" || ConfStat.Management == "") {
 				err = ProcessMetricConfig(ctx, ConfStat)
 				if err != nil {
 					log.LoggerWContext(ctx).Error("Error while processing metric config: " + err.Error())
