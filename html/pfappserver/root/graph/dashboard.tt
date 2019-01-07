@@ -426,7 +426,7 @@ END;
               </div>
               <div class="card-block">
                 <div class="row-flex">
-                    [% graph("packetfence.dhcp.used_leases", "Numbers of ip addresses assigned", {"filter_graph" => "gauge"}) | none %]
+                    [% graph("packetfence.dhcp.used_leases", "Numbers of ip addresses assigned") | none %]
                 </div>
               </div>
             </div>
@@ -436,7 +436,7 @@ END;
               </div>
               <div class="card-block">
                 <div class="row-flex">
-                    [% graph("packetfence.dhcp.percent_used_leases", "Percent of ip addresses used", {"filter_graph" => "gauge"}) | none %]
+                    [% graph("packetfence.dhcp.percent_used_leases", "Percent of ip addresses used") | none %]
                 </div>
               </div>
             </div>
