@@ -24,6 +24,7 @@ New Features
 * New SSL Inspection portal module
 * RADIUS proxy integration from web admin interface
 * RADIUS filtering support for pre_proxy/post_proxy/preacct/accounting/authorize phases
+* Updated the Windows provisioning agent to the new Golang based version
 
 Enhancements
 ++++++++++++
