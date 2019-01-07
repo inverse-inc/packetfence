@@ -614,7 +614,10 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
                       validators: {
                         [i18n.t('Provisioner required.')]: required,
                         [i18n.t('Duplicate Provisioner.')]: conditional((value) => {
-                          return !(connectionProfile.provisioners.filter(v => v === value).length > 1)
+                          if (connectionProfile.provisioners === Array) {
+                            return !(connectionProfile.provisioners.filter(v => v === value).length > 1)
+                          }
+                          return true
                         })
                       }
                     }
