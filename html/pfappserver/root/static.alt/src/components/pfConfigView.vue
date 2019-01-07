@@ -12,7 +12,7 @@
       <b-tabs v-if="form.fields[0].tab || form.fields.length > 1" v-model="tabIndex" :key="tabKey" card>
         <b-tab v-for="(tab, t) in form.fields" :key="t" v-if="!('if' in tab) || tab.if"
           :disabled="tab.disabled"
-          :title-link-class="{'text-danger': getTabErrorCount(t) > 0 }"
+          :title-link-class="{ 'text-danger': getTabErrorCount(t) > 0 }"
           :title="tab.tab"
           no-body
         ></b-tab>

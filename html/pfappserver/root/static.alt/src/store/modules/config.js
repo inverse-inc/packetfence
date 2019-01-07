@@ -148,42 +148,48 @@ const getters = {
     return state.violationsStatus === types.LOADING
   },
   adminRolesList: state => {
-    // Remap for b-form-select component
     if (!state.adminRoles) return []
     return state.adminRoles.map((item) => {
       return { value: item.id, name: item.id }
     })
   },
   realmsList: state => {
-    // Remap for b-form-select component
     if (!state.realms) return []
     return state.realms.map((item) => {
       return { value: item.id, name: item.id }
     })
   },
   rolesList: state => {
-    // Remap for b-form-select component
     if (!state.roles) return []
     return state.roles.map((item) => {
       return { value: item.category_id, name: item.name, text: `${item.name} - ${item.notes}` }
     })
   },
   sourcesList: state => {
-    // Remap for b-form-select component
     if (!state.sources) return []
     return state.sources.map((item) => {
       return { value: item.id, name: item.description }
     })
   },
+  switchGroupsList: state => {
+    if (!state.switchGroups) return []
+    return state.switchGroups.map((item) => {
+      return { value: item.id, name: item.description }
+    })
+  },
+  switchesList: state => {
+    if (!state.switches) return []
+    return state.switches.map((item) => {
+      return { value: item.id, name: item.description }
+    })
+  },
   tenantsList: state => {
-    // Remap for b-form-select component
     if (!state.tenants) return []
     return state.tenants.map((item) => {
       return { value: item.id, name: item.name }
     })
   },
   violationsList: state => {
-    // Remap for b-form-select component
     return helpers.sortViolations(state.violations).filter(violation => violation.enabled === 'Y').map((item) => {
       return { value: item.id, text: item.desc }
     })

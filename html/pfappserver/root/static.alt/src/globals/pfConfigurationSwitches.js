@@ -1,5 +1,5 @@
 import i18n from '@/utils/locale'
-import pfFieldAction from '@/components/pfFieldAction'
+import pfFieldTypeValue from '@/components/pfFieldTypeValue'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormFields from '@/components/pfFormFields'
 import pfFormInput from '@/components/pfFormInput'
@@ -1395,7 +1395,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
                 buttonLabel: 'Add Condition',
                 sortable: false,
                 field: {
-                  component: pfFieldAction,
+                  component: pfFieldTypeValue,
                   attrs: {
                     typeLabel: i18n.t('Select condition type'),
                     valueLabel: i18n.t('Select condition value'),

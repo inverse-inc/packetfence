@@ -244,7 +244,7 @@
 </template>
 
 <script>
-import pfFieldAction from '@/components/pfFieldAction'
+import pfFieldTypeValue from '@/components/pfFieldTypeValue'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormDatetime from '@/components/pfFormDatetime'
 import pfFormFields from '@/components/pfFormFields'
@@ -340,7 +340,7 @@ export default {
       expiration: null,
       actions: [],
       actionField: {
-        component: pfFieldAction,
+        component: pfFieldTypeValue,
         attrs: {
           typeLabel: this.$i18n.t('Select action type'),
           valueLabel: this.$i18n.t('Select action value'),
