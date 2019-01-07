@@ -1808,5 +1808,7 @@ func detectVIP(management pfconfigdriver.ManagementNetwork) {
 		}
 		VIP[management.Int] = false
 		return
+	} else {
+		VIP[management.Int] = true
 	}
 }
