@@ -49,7 +49,7 @@
       ></pf-form-chosen>
 
       <!-- Type: DATETIME -->
-      <pf-form-datetime v-if="isFieldType(datetimeValueType)"
+      <pf-form-datetime v-else-if="isFieldType(datetimeValueType)"
         v-model="localMatch"
         ref="localMatch"
         :config="{useCurrent: true, format: 'YYYY-MM-DD HH:mm:ss'}"
@@ -59,7 +59,7 @@
       ></pf-form-datetime>
 
       <!-- Type: PREFIXMULTIPLER -->
-      <pf-form-prefix-multiplier v-if="isFieldType(prefixmultiplerValueType)"
+      <pf-form-prefix-multiplier v-else-if="isFieldType(prefixmultiplerValueType)"
         v-model="localMatch"
         ref="localMatch"
         :vuelidate="matchVuelidateModel"
@@ -67,7 +67,7 @@
       ></pf-form-prefix-multiplier>
 
       <!-- Type: SUBSTRING -->
-      <pf-form-input v-if="isFieldType(substringValueType)"
+      <pf-form-input v-else-if="isFieldType(substringValueType)"
         v-model="localMatch"
         ref="localMatch"
         :vuelidate="matchVuelidateModel"
@@ -75,7 +75,7 @@
       ></pf-form-input>
 
       <!-- Type: INTEGER -->
-      <pf-form-input v-if="isFieldType(integerValueType)"
+      <pf-form-input v-else-if="isFieldType(integerValueType)"
         v-model="localMatch"
         ref="localMatch"
         type="number"
@@ -174,7 +174,7 @@ export default {
         // check to see if `type` exists in our available fields
         if (type && !this.fields.find(field => field.value === type)) {
           // discard
-          this.$store.dispatch('notification/danger', { message: this.$i18n.t('Action type "{type}" is not valid, ignoring...', { type: type }) })
+          this.$store.dispatch('notification/danger', { message: this.$i18n.t('Action type "{type}" is not valid, ignoring.', { type: type }) })
           this.$set(this.inputValue, 'type', this.default.type) // clear `type`
           this.$set(this.inputValue, 'match', this.default.match) // clear `value`
           return null
