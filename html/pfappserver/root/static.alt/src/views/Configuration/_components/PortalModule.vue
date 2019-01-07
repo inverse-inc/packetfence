@@ -207,9 +207,11 @@ export default {
 .portal-module-row-ghost {
   &.last::before {
     border-bottom-style: dashed !important;
+    border-bottom-color: $portal-module-connector-hover-color;
   }
   &::after {
     border-top-style: dashed !important;
+    border-top-color: $portal-module-connector-hover-color;
   }
   .portal-module, .portal-module-col {
     display: none;

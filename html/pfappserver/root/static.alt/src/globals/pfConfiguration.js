@@ -1720,6 +1720,22 @@ export const pfConfigurationViewFields = {
       }
     ]
   },
+  pid_field: {
+    label: i18n.t('PID field'),
+    text: i18n.t('Which field should be used as the PID.'),
+    fields: [
+      {
+        key: 'pid_field',
+        component: pfFormSelect,
+        attrs: {
+          options: Object.keys(schema.person)
+        },
+        validators: {
+          [i18n.t('PID field required.')]: required
+        }
+      }
+    ]
+  },
   pin_code_length: {
     label: i18n.t('PIN length'),
     text: i18n.t('The amount of digits of the PIN number.'),
@@ -2072,6 +2088,18 @@ export const pfConfigurationViewFields = {
       }
     ]
   },
+  show_first_module_on_default: {
+    label: i18n.t('Show first module when none is selected'),
+    fields: [
+      {
+        key: 'shuffle',
+        component: pfFormToggle,
+        attrs: {
+          values: { checked: 'enabled', unchecked: 'disabled' }
+        }
+      }
+    ]
+  },
   shuffle: {
     label: i18n.t('Shuffle'),
     text: i18n.t('Randomly choose LDAP server to query'),
@@ -2081,6 +2109,19 @@ export const pfConfigurationViewFields = {
         component: pfFormToggle,
         attrs: {
           values: { checked: '1', unchecked: '0' }
+        }
+      }
+    ]
+  },
+  signup_template: {
+    label: i18n.t('Signup template'),
+    text: i18n.t('The template to use for the signup'),
+    fields: [
+      {
+        key: 'signup_template',
+        component: pfFormInput,
+        validators: {
+          [i18n.t('Template required.')]: required
         }
       }
     ]
@@ -2286,6 +2327,15 @@ export const pfConfigurationViewFields = {
             { value: 'subscription', text: 'Subscription' }
           ]
         }
+      }
+    ]
+  },
+  template: {
+    label: i18n.t('Template'),
+    fields: [
+      {
+        key: 'template',
+        component: pfFormInput
       }
     ]
   },

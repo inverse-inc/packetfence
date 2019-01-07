@@ -41,44 +41,21 @@
     <!-- All portal modules grouped by type -->
     <b-card-footer class="card-footer-fixed disconnect">
       <b-tabs small card>
-        <b-tab v-for="type in moduleTypes" :key="type" :title="$t(type)">
+        <b-tab v-for="type in activeModuleTypes" :key="type">
+          <template slot="title"><icon :style="{ color: getColorByType(type) }" name="circle" scale=".5"></icon> {{ $t(type) }}</template>
             <draggable element="b-row" :list="getModulesByType(type)" :move="validateMove"
               :options="{ group: { name: 'portal-module', pull: 'clone', revertClone: true, put: false }, ghostClass: 'portal-module-row-ghost', dragClass: 'portal-module-row-drag' }">
               <portal-module :id="mid" v-for="mid in getModulesByType(type)" :module="getModule(mid)" :modules="items" :key="mid" :storeName="storeName" v-show="mid" is-root />
             </draggable>
         </b-tab>
         <b-dropdown :text="$t('Add Module')" class="ml-3 mb-1" size="sm" variant="outline-primary" slot="tabs">
-          <b-dropdown-header class="text-secondary" v-t="'Multiple'"></b-dropdown-header>
-            <b-dropdown-item :to="{ name: 'newPortalModule', params: { type: 'Choice' } }" v-t="'Choice'"></b-dropdown-item>
-            <b-dropdown-item :to="{ name: 'newPortalModule', params: { type: 'Chained' } }" v-t="'Chained'"></b-dropdown-item>
-          <b-dropdown-divider></b-dropdown-divider>
-          <b-dropdown-header class="text-secondary" v-t="'Authentication'"></b-dropdown-header>
-            <b-dropdown-item :to="{ name: 'newPortalModule', params: { type: 'Authentication::Billing' } }" v-t="'Billing'"></b-dropdown-item>
-            <b-dropdown-item :to="{ name: 'newPortalModule', params: { type: 'Authentication::Blackhole' } }" v-t="'Blackhole'"></b-dropdown-item>
-            <b-dropdown-item :to="{ name: 'newPortalModule', params: { type: 'Authentication::Email' } }" v-t="'Email'"></b-dropdown-item>
-            <b-dropdown-item :to="{ name: 'newPortalModule', params: { type: 'Authentication::Login' } }" v-t="'Login'"></b-dropdown-item>
-            <b-dropdown-item :to="{ name: 'newPortalModule', params: { type: 'Authentication::Null' } }" v-t="'Null'"></b-dropdown-item>
-            <b-dropdown-item :to="{ name: 'newPortalModule', params: { type: 'Authentication::OAuth::Facebook' } }" v-t="'Facebook'"></b-dropdown-item>
-            <b-dropdown-item :to="{ name: 'newPortalModule', params: { type: 'Authentication::OAuth::Github' } }" v-t="'Github'"></b-dropdown-item>
-            <b-dropdown-item :to="{ name: 'newPortalModule', params: { type: 'Authentication::OAuth::Google' } }" v-t="'Google'"></b-dropdown-item>
-            <b-dropdown-item :to="{ name: 'newPortalModule', params: { type: 'Authentication::OAuth::Instagram' } }" v-t="'Instagram'"></b-dropdown-item>
-            <b-dropdown-item :to="{ name: 'newPortalModule', params: { type: 'Authentication::OAuth::LinkedIn' } }" v-t="'LinkedIn'"></b-dropdown-item>
-            <b-dropdown-item :to="{ name: 'newPortalModule', params: { type: 'Authentication::OAuth::OpenID' } }" v-t="'OpenID'"></b-dropdown-item>
-            <b-dropdown-item :to="{ name: 'newPortalModule', params: { type: 'Authentication::OAuth::Pinterest' } }" v-t="'Pinterest'"></b-dropdown-item>
-            <b-dropdown-item :to="{ name: 'newPortalModule', params: { type: 'Authentication::OAuth::Twitter' } }" v-t="'Twitter'"></b-dropdown-item>
-            <b-dropdown-item :to="{ name: 'newPortalModule', params: { type: 'Authentication::OAuth::WindowsLive' } }" v-t="'WindowsLive'"></b-dropdown-item>
-            <b-dropdown-item :to="{ name: 'newPortalModule', params: { type: 'Authentication::SAML' } }" v-t="'SAML'"></b-dropdown-item>
-            <b-dropdown-item :to="{ name: 'newPortalModule', params: { type: 'Authentication::SMS' } }" v-t="'SMS'"></b-dropdown-item>
-            <b-dropdown-item :to="{ name: 'newPortalModule', params: { type: 'Authentication::Sponsor' } }" v-t="'Sponsor'"></b-dropdown-item>
-          <b-dropdown-divider></b-dropdown-divider>
-          <b-dropdown-header class="text-secondary" v-t="'Other'"></b-dropdown-header>
-            <b-dropdown-item :to="{ name: 'newPortalModule', params: { type: 'FixedRole' } }" v-t="'Fixed Role'"></b-dropdown-item>
-            <b-dropdown-item :to="{ name: 'newPortalModule', params: { type: 'Message' } }" v-t="'Message'"></b-dropdown-item>
-            <b-dropdown-item :to="{ name: 'newPortalModule', params: { type: 'Provisioning' } }" v-t="'Provisioning'"></b-dropdown-item>
-            <b-dropdown-item :to="{ name: 'newPortalModule', params: { type: 'SelectRole' } }" v-t="'Select Role'"></b-dropdown-item>
-            <b-dropdown-item :to="{ name: 'newPortalModule', params: { type: 'Survey' } }" v-t="'Survey'"></b-dropdown-item>
-            <b-dropdown-item :to="{ name: 'newPortalModule', params: { type: 'URL' } }" v-t="'URL'"></b-dropdown-item>
-        </b-dropdown>
+          <template v-for="group in moduleTypes">
+            <b-dropdown-header class="text-secondary" v-t="group.name" :key="group.name"></b-dropdown-header>
+            <b-dropdown-item v-for="type in group.types" :key="type.name" :to="{ name: 'newPortalModule', params: { type: type.type } }">
+              <icon :style="{ color: type.color }" class="mb-1" name="circle" scale=".5"></icon> {{ type.name }}
+            </b-dropdown-item>
+            <b-dropdown-divider :key="group.name"></b-dropdown-divider>
+          </template>
       </b-tabs>
     </b-card-footer>
   </b-card>
@@ -92,6 +69,7 @@ import PortalModule from './PortalModule'
 import PortalModuleButton from './PortalModuleButton'
 import pfButtonSave from '@/components/pfButtonSave'
 import pfButtonDelete from '@/components/pfButtonDelete'
+import { pfConfigurationPortalModuleTypes as moduleTypes } from '@/globals/pfConfigurationPortalModules'
 
 export default {
   name: 'PortalModulesList',
@@ -132,6 +110,7 @@ export default {
   },
   data () {
     return {
+      moduleTypes: moduleTypes(),
       tabIndex: 0,
       expand: true,
       columns: [
@@ -181,7 +160,7 @@ export default {
     rootModules () {
       return this.items.filter(module => module.type === 'Root')
     },
-    moduleTypes () {
+    activeModuleTypes () {
       let types = {}
       this.items.forEach(module => {
         if (module.type !== 'Root') {
@@ -193,11 +172,29 @@ export default {
   },
   methods: {
     getModule (id) {
-      return this.items.find(module => module.id === id)
+      let module = this.items.find(module => module.id === id)
+      if (module) {
+        module.color = this.getColorByType(module.type)
+      }
+      return module
     },
     getModulesByType (type) {
       const modules = this.items.filter(module => module.type === type).map(module => module.id)
       return [undefined, ...modules]
+    },
+    getColorByType (type) {
+      let moduleType
+      this.moduleTypes.some((group) => {
+        moduleType = group.types.find((item) => {
+          return item.type === type
+        })
+        return moduleType
+      })
+      if (moduleType) {
+        return moduleType.color
+      } else {
+        return 'black'
+      }
     },
     pagesCount (rootId) {
       let count = 0

@@ -2,7 +2,7 @@
   <div class="portal-module" :class="{ disabled: disabled }" @mouseout="delayHideButtons()">
     <transition name="slide-top-quick">
       <div class="front" @click="showButtons()" v-if="!buttonsVisible">
-        <h6 class="text-truncate">{{ module.type }}</h6>
+        <h6 class="text-truncate"><icon class="mb-1" :style="{ color: module.color }" name="circle"></icon> {{ module.type }}</h6>
         <div class="portal-module-label text-truncate">{{ module.description }}</div>
       </div>
     </transition>
@@ -138,7 +138,12 @@ export default {
 }
 
 .portal-module:hover {
+  border-color: $portal-module-connector-hover-color;
   background-color: $portal-module-hover-bg;
+  background-image: linear-gradient($portal-module-connector-hover-color, $portal-module-connector-hover-color),
+    linear-gradient($portal-module-connector-hover-color, $portal-module-connector-hover-color),
+    linear-gradient($portal-module-connector-hover-color, $portal-module-connector-hover-color),
+    linear-gradient($portal-module-connector-hover-color, $portal-module-connector-hover-color);
   + .portal-module-col::before,
   + .portal-module-col .portal-module-col::before,
   + .portal-module-col .portal-module-row::before,
