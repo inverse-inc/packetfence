@@ -190,13 +190,13 @@ sub send_email {
         To          => $email,
         Bcc         => $data->{'bcc'} || '',
         Subject     => $subject,
+        Encoding    => 'base64',
         Template    => "emails-$template.html",
         TmplOptions => \%TmplOptions,
         TmplParams  => \%vars,
-        TmplUpgrade => 1,
         ( $data->{'from'} ? ( From => $data->{'from'} ) : () ),
     );
-    $msg->attr( "Content-Type" => "text/html; charset=UTF-8;" );
+    $msg->attr( "Content-Type" => "text/html; charset=UTF-8" );
     return send_mime_lite($msg);
 }
 
