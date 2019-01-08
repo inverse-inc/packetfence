@@ -11093,7 +11093,7 @@ msgstr ""
 
 # conf/documentation.conf
 msgid "node_import"
-msgstr ""
+msgstr "Node Import"
 
 # conf/documentation.conf
 msgid "node_import.category"
