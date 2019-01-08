@@ -42,7 +42,9 @@ use pf::CHI;
 use pf::CHI::Request;
 use pf::web::util;
 use pf::SwitchFactory;
+use pf::I18N;
 pf::SwitchFactory->preloadAllModules();
+pf::I18N::setup_text_domain();
 
 extends 'Catalyst';
 

@@ -195,10 +195,6 @@ sub setupLanguage : Private {
     }
     $c->stash->{locale} = $newlocale;
     $c->session->{locale} = $newlocale;
-    delete $ENV{'LANGUAGE'}; # Make sure $LANGUAGE is empty otherwise it will override LC_MESSAGES
-    bindtextdomain( "packetfence", "$conf_dir/locale" );
-    bind_textdomain_codeset( "packetfence", "utf-8" );
-    textdomain("packetfence");
 }
 
 

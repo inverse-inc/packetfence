@@ -43,6 +43,8 @@ use pf::CHI::Request;
 use CHI::Driver::SubNamespace;
 
 use pf::config qw(%Config);
+use pf::I18N;
+pf::I18N::setup_text_domain();
 
 extends 'Catalyst';
 
