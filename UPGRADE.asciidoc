@@ -1821,6 +1821,14 @@ To apply this configuration execute the following script:
 
  /usr/local/pf/addons/upgrade/to-8.3-authentication-searchattributes.pl
 
+Adjustment to the encoding of the configuration files and templates
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Configuration and templates in the admin were previously being saved as latin1 instead of utf8.
+
+This script will convert all latin1 config file to utf8
+
+  /usr/local/pf/addons/upgrade/to-8.3-conf-latin1-to-utf8.sh
 
 Database schema
 ^^^^^^^^^^^^^^^
