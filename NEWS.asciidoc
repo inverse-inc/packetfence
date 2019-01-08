@@ -48,6 +48,7 @@ Bug Fixes
 * Adjusted CentOS and RHEL dependencies
 * Fixed MAC filtered lookups that were cached in pfdns (#3785)
 * Fixed the OpenVAS integration to work with OpenVAS Manager 7.0 (OpenVAS 9)
+* Fixed encoding of files created in the administration interface (force them to UTF-8)
 
 Version 8.2.1 released on 2018-12-05
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
