@@ -176,14 +176,14 @@ sub send_email {
     require pf::web;
 
     my %TmplOptions = (
-        INCLUDE_PATH => "$html_dir/captive-portal/templates/emails/",
         ENCODING     => 'utf8',
         %{$tmpoptions // {}},
     );
+    add_standard_include_path(\%TmplOptions);
     my %vars = (
-        %$data,
         i18n        => \&pf::web::i18n,
         i18n_format => \&pf::web::i18n_format
+        %$data,
     );
     utf8::decode($subject);
     my $msg = MIME::Lite::TT->new(
@@ -200,6 +200,21 @@ sub send_email {
     return send_mime_lite($msg);
 }
 
+
+=head2 add_standard_include_path
+
+add standard email templates include paths
+
+=cut
+
+sub add_standard_include_path {
+    my ($options) = @_;
+    $options->{INCLUDE_PATH} //= [];
+    $options->{INCLUDE_PATH} = listify($options->{INCLUDE_PATH});
+    push @{$options->{INCLUDE_PATH}},
+        "$html_dir/captive-portal/profile-templates/default/emails",
+        "$html_dir/captive-portal/templates/emails/";
+}
 
 sub get_all_internal_ips {
     my @ips;
