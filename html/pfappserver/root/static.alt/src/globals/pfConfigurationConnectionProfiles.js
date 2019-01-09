@@ -79,7 +79,7 @@ export const pfConfigurationConnectionProfileFilters = {
   node_role: {
     value: 'node_role',
     text: i18n.t('Node role'),
-    types: [fieldType.ROLE],
+    types: [fieldType.ROLE_BY_NAME],
     validators: {
       type: {
         /* Don't allow elsewhere */
@@ -278,8 +278,10 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
     provisionings = [],
     scans = []
   } = context
+
   // fields differ w/ & wo/ 'default'
   const isDefault = (connectionProfile.id === 'default')
+
   return [
     {
       tab: i18n.t('Settings'),
@@ -304,6 +306,19 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
           ]
         },
         Object.assign(pfConfigurationViewFields.description, { label: i18n.t('Profile Description') }), // re-label
+        {
+          if: !isDefault,
+          label: i18n.t('Enable profile'),
+          fields: [
+            {
+              key: 'status',
+              component: pfFormToggle,
+              attrs: {
+                values: { checked: 'enabled', unchecked: 'disabled' }
+              }
+            }
+          ]
+        },
         {
           label: i18n.t('Root Portal Module'),
           text: i18n.t('The Root Portal Module to use.'),
@@ -437,6 +452,8 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
                 placeholder: i18n.t('Click to select a match style'),
                 trackBy: 'value',
                 label: 'text',
+                allowEmpty: false,
+                clearOnSelect: false,
                 options: [
                   { text: i18n.t('If ALL of the following conditions are met:'), value: 'all' },
                   { text: i18n.t('If ANY of the following conditions are met:'), value: 'any' }
@@ -448,7 +465,7 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
                     isDefault ||
                     (!!value) ||
                     ('filter' in connectionProfile && connectionProfile.filter.length > 0) ||
-                    ('advanced_filter' in connectionProfile && connectionProfile.advanced_filter !== '')
+                    ('advanced_filter' in connectionProfile && !!connectionProfile.advanced_filter)
                   )
                 })
               }
@@ -456,7 +473,7 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
           ]
         },
         {
-          if: (!isDefault && connectionProfile.filter_match_style),
+          if: !isDefault,
           label: i18n.t('Filter'),
           fields: [
             {
@@ -499,7 +516,7 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
                   return ( // false on error, true on success
                     isDefault ||
                     (typeof value !== 'undefined' && value.length > 0) ||
-                    ('advanced_filter' in connectionProfile && connectionProfile.advanced_filter !== '')
+                    ('advanced_filter' in connectionProfile && !!connectionProfile.advanced_filter)
                   )
                 })
               }
@@ -749,7 +766,7 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
               key: 'redirecturl',
               component: pfFormInput,
               validators: {
-                [i18n.t('Logo required.')]: required,
+                [i18n.t('URL required.')]: required,
                 [i18n.t('Maximum 255 characters.')]: maxLength(255)
               }
             }
@@ -868,6 +885,32 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
           ]
         },
         {
+          label: i18n.t('Network Logoff'),
+          text: i18n.t('This allows users to access the network logoff page (http://packetfence.satkunas.com/networklogoff) in order to terminate their network access (switch their device back to unregistered).'), // TODO: build fqdn dynamically
+          fields: [
+            {
+              key: 'network_logoff',
+              component: pfFormToggle,
+              attrs: {
+                values: { checked: 'enabled', unchecked: 'disabled' }
+              }
+            }
+          ]
+        },
+        {
+          label: i18n.t('Network Logoff Popup'),
+          text: i18n.t('When the "Network Logoff" feature is enabled, this will have it opened in a popup at the end of the registration process.'),
+          fields: [
+            {
+              key: 'network_logoff_popup',
+              component: pfFormToggle,
+              attrs: {
+                values: { checked: 'enabled', unchecked: 'disabled' }
+              }
+            }
+          ]
+        },
+        {
           label: i18n.t('Languages'),
           fields: [
             {
@@ -918,6 +961,17 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
 
 export const pfConfigurationConnectionProfileViewDefaults = (context = {}) => {
   return {
-    id: null
+    id: null,
+    status: 'enabled',
+    root_module: 'default_policy',
+    dot1x_recompute_role_from_portal: 'enabled',
+    filter_match_style: 'any',
+    block_interval: {
+      interval: 10,
+      unit: 'm'
+    },
+    sms_pin_retry_limit: 0,
+    sms_request_limit: 0,
+    login_attempt_limit: 0
   }
 }

@@ -19,6 +19,10 @@
           <pf-button-delete  v-if="!item.not_deletable" size="sm" variant="outline-danger" :disabled="isLoading" :confirm="$t('Delete Connection Profile?')" @on-delete="remove(item)" reverse/>
         </span>
       </template>
+      <template slot="status" slot-scope="data">
+        <icon name="circle" :class="{ 'text-success': data.status === 'enabled', 'text-danger': data.status === 'disabled' }"
+          v-b-tooltip.hover.left.d300 :title="$t(data.status)"></icon>
+      </template>
     </pf-config-list>
   </b-card>
 </template>

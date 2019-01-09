@@ -38,11 +38,9 @@
         <template v-for="column in config.columns" :slot="'HEAD_' + column.key" slot-scope="data">
           <slot :name="'HEAD_' + column.key">{{ data.label }}</slot>
         </template>
-        <!--
         <template v-for="column in config.columns" :slot="'FOOT_' + column.key" slot-scope="data">
           <slot :name="'FOOT_' + column.key">{{ data.label }}</slot>
         </template>
-        -->
       </b-table>
     </div>
   </div>
