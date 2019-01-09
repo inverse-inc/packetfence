@@ -115,6 +115,17 @@ export default {
         return false
       }
       return true
+    },
+    keyLabelMap () {
+      let keyLabelMap = {}
+      this.getForm.fields.forEach(tab => {
+        tab.fields.forEach(row => {
+          row.fields.forEach(col => {
+            if ('key' in col) keyLabelMap[col.key] = this.$i18n.t(row.label)
+          })
+        })
+      })
+      return keyLabelMap
     }
   },
   methods: {
@@ -129,7 +140,7 @@ export default {
         } else {
           this.$router.push({ name: 'connection_profile', params: { id: this.connectionProfile.id } })
         }
-      })
+      }).catch(this.notifyError)
     },
     save () {
       const ctrlKey = this.ctrlKey
@@ -137,11 +148,19 @@ export default {
         if (ctrlKey) { // [CTRL] key pressed
           this.close()
         }
-      })
+      }).catch(this.notifyError)
     },
     remove () {
       this.$store.dispatch(`${this.storeName}/deleteConnectionProfile`, this.id).then(response => {
         this.close()
+      }).catch(this.notifyError)
+    },
+    notifyError (err) {
+      const { response: { data: { errors = [] } } } = err
+      errors.forEach((error) => {
+        error.field = this.keyLabelMap[error.field] || error.field
+        let message = this.$i18n.t('Server Error - "{field}": {message}', error)
+        this.$store.dispatch('notification/danger', { icon: 'server', url: `#${this.$route.fullPath}`, message: message })
       })
     }
   },

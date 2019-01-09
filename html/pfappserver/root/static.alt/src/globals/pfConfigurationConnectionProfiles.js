@@ -278,6 +278,8 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
     provisionings = [],
     scans = []
   } = context
+  // fields differ w/ & wo/ 'default'
+  const isDefault = (connectionProfile.id === 'default')
   return [
     {
       tab: i18n.t('Settings'),
@@ -424,7 +426,7 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
           ]
         },
         {
-          if: (connectionProfile.id !== 'default'),
+          if: !isDefault,
           label: i18n.t('Filters'),
           fields: [
             {
@@ -439,13 +441,23 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
                   { text: i18n.t('If ALL of the following conditions are met:'), value: 'all' },
                   { text: i18n.t('If ANY of the following conditions are met:'), value: 'any' }
                 ]
+              },
+              validators: {
+                [i18n.t('Filter or advanced filter required.')]: conditional((value) => {
+                  return ( // false on error, true on success
+                    isDefault ||
+                    (!!value) ||
+                    ('filter' in connectionProfile && connectionProfile.filter.length > 0) ||
+                    ('advanced_filter' in connectionProfile && connectionProfile.advanced_filter !== '')
+                  )
+                })
               }
             }
           ]
         },
         {
-          if: (connectionProfile.id !== 'default' && connectionProfile.filter_match_style),
-          label: '&nbsp;', // pad with label-column, but don't print anything
+          if: (!isDefault && connectionProfile.filter_match_style),
+          label: i18n.t('Filter'),
           fields: [
             {
               key: 'filter',
@@ -481,12 +493,21 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
                 invalidFeedback: [
                   { [i18n.t('Filter(s) contain one or more errors.')]: true }
                 ]
+              },
+              validators: {
+                [i18n.t('Filter or advanced filter required.')]: conditional((value) => {
+                  return ( // false on error, true on success
+                    isDefault ||
+                    (typeof value !== 'undefined' && value.length > 0) ||
+                    ('advanced_filter' in connectionProfile && connectionProfile.advanced_filter !== '')
+                  )
+                })
               }
             }
           ]
         },
         {
-          if: (connectionProfile.id !== 'default'),
+          if: !isDefault,
           label: i18n.t('Advanced filter'),
           fields: [
             {
@@ -496,6 +517,13 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
                 rows: 3
               },
               validators: {
+                [i18n.t('Filter or advanced filter required.')]: conditional((value) => {
+                  return ( // false on error, true on success
+                    isDefault ||
+                    (!!value) ||
+                    ('filter' in connectionProfile && connectionProfile.filter.length > 0)
+                  )
+                }),
                 [i18n.t('Maximum 255 characters.')]: maxLength(255)
               }
             }
@@ -658,7 +686,10 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
                       validators: {
                         [i18n.t('Scanner required.')]: required,
                         [i18n.t('Duplicate Scanner.')]: conditional((value) => {
-                          return !(connectionProfile.scans.filter(v => v === value).length > 1)
+                          if (connectionProfile.provisioners === Array) {
+                            return !(connectionProfile.provisioners.filter(v => v === value).length > 1)
+                          }
+                          return true
                         })
                       }
                     }
