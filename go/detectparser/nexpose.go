@@ -50,6 +50,6 @@ var nexposeRegexPattern1 = regexp.MustCompile(`^(\w+\s*\d+ \d+:\d+:\d+) ([0-9.]+
 func NewNexposeParser(config *PfdetectConfig) (Parser, error) {
 	return &NexposeParser{
 		Pattern1:      nexposeRegexPattern1.Copy(),
-		RateLimitable: RateLimitable{RateLimitCache: config.GetCache()},
+		RateLimitable: config.NewRateLimitable(),
 	}, nil
 }

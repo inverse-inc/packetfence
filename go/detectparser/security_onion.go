@@ -51,6 +51,6 @@ func NewSecurityOnionParser(config *PfdetectConfig) (Parser, error) {
 	return &SecurityOnionParser{
 		Pattern1:      securityOnionRegexPattern1.Copy(),
 		Pattern2:      securityOnionRegexPattern2.Copy(),
-		RateLimitable: RateLimitable{RateLimitCache: config.GetCache()},
+		RateLimitable: config.NewRateLimitable(),
 	}, nil
 }

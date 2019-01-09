@@ -11,11 +11,13 @@ import (
 )
 
 type PfdetectRegexRule struct {
-	Actions          []string `json:"actions"`
-	IpMacTranslation string   `json:"ip_mac_translation"`
-	LastIfMatch      string   `json:"last_if_match"`
-	Name             string   `json:"name"`
-	Regex            string   `json:"regex"`
+	Actions           []string `json:"actions"`
+	IpMacTranslation  string   `json:"ip_mac_translation"`
+	LastIfMatch       string   `json:"last_if_match"`
+	Name              string   `json:"name"`
+	Regex             string   `json:"regex"`
+	RateLimit         string   `json:"rate_limit"`
+	RateLimitTemplate string   `json:"rate_limit_template"`
 }
 
 type PfdetectConfig struct {
@@ -31,23 +33,27 @@ type PfdetectConfig struct {
 	Rules          []PfdetectRegexRule `json:"rules"`
 }
 
-func (config *PfdetectConfig) GetCache() *cache.Cache {
+func (config *PfdetectConfig) NewRateLimitable() RateLimitable {
 	if config == nil {
-		return nil
+		return RateLimitable{}
 	}
 
+	return NewRateLimitable(config.RateLimit)
+}
+
+type RateLimitable struct {
+	RateLimitCache *cache.Cache
+}
+
+func NewRateLimitable(rateLimitStr string) RateLimitable {
 	var Cache *cache.Cache = nil
-	if rateLimit, err := strconv.ParseInt(config.RateLimit, 10, 64); err != nil {
+	if rateLimit, err := strconv.ParseInt(rateLimitStr, 10, 64); err != nil {
 		if rateLimit != 0 {
 			Cache = cache.New(time.Duration(rateLimit)*time.Second, 2*time.Duration(rateLimit)*time.Second)
 		}
 	}
 
-	return Cache
-}
-
-type RateLimitable struct {
-	RateLimitCache *cache.Cache
+	return RateLimitable{RateLimitCache: Cache}
 }
 
 var errorRateLimit = fmt.Errorf("Already processed")

@@ -51,6 +51,6 @@ func NewDhcpParser(config *PfdetectConfig) (Parser, error) {
 	return &DhcpParser{
 		Pattern1:      dhcpRegexPattern1.Copy(),
 		Pattern2:      dhcpRegexPattern2.Copy(),
-		RateLimitable: RateLimitable{RateLimitCache: config.GetCache()},
+		RateLimitable: config.NewRateLimitable(),
 	}, nil
 }

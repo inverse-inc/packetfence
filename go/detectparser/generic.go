@@ -5,34 +5,32 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
-	"time"
 	"unicode"
 	"unicode/utf8"
 
-	cache "github.com/fdurand/go-cache"
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/sharedutils"
 	"github.com/inverse-inc/packetfence/go/unifiedapiclient"
 )
 
 type GenericParser struct {
-	Pattern   *regexp.Regexp
-	Rules     []GenericParserRule
-	RateLimit *cache.Cache
+	SplitPattern *regexp.Regexp
+	Rules        []GenericParserRule
 }
 
-var genericPatternRegex = regexp.MustCompile(`\s*[,=]\s*`)
+var genericSplitPatternRegex = regexp.MustCompile(`\s*[,=]\s*`)
 
 type GenericParserAction struct {
 	MethodName, ArgsTemplate string
 }
 
 type GenericParserRule struct {
+	RateLimitable
 	Match            *regexp.Regexp
+	Actions          []GenericParserAction
 	Name             string
 	LastIfMatch      bool
 	IpMacTranslation bool
-	Actions          []GenericParserAction
 }
 
 func (s *GenericParser) Parse(line string) ([]ApiCall, error) {
@@ -64,11 +62,17 @@ func (s *GenericParser) Parse(line string) ([]ApiCall, error) {
 		for _, action := range rule.Actions {
 			results = results[:0]
 			results = rule.ExpandString(results, action.ArgsTemplate, line, submatches, replacements)
+			paramsString := string(results)
+			if err := rule.NotRateLimited(action.MethodName + ":" + paramsString); err != nil {
+				log.Logger().Warn(fmt.Sprintf("Skipping method %s (%s) : %s", action.MethodName, paramsString, err))
+				continue
+			}
+
 			calls = append(
 				calls,
 				&PfqueueApiCall{
 					Method: action.MethodName,
-					Params: s.Pattern.Split(string(results), -1),
+					Params: s.SplitPattern.Split(paramsString, -1),
 				},
 			)
 		}
@@ -229,13 +233,13 @@ func NewGenericParser(config *PfdetectConfig) (Parser, error) {
 			IpMacTranslation: sharedutils.IsEnabled(rule.IpMacTranslation),
 			Match:            regexp.MustCompile(rule.Regex),
 			Actions:          MakeActions(rule.Actions),
+			RateLimitable:    NewRateLimitable(rule.RateLimit),
 		},
 		)
 	}
 
 	return &GenericParser{
-		Pattern:   genericPatternRegex.Copy(),
-		Rules:     rules,
-		RateLimit: cache.New(5*time.Second, 10*time.Second),
+		SplitPattern: genericSplitPatternRegex.Copy(),
+		Rules:        rules,
 	}, nil
 }

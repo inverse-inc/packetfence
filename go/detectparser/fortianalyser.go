@@ -60,6 +60,6 @@ func NewFortiAnalyserParser(config *PfdetectConfig) (Parser, error) {
 	return &FortiAnalyserParser{
 		Pattern1:      fortiAnalyserRegexPattern1.Copy(),
 		Pattern2:      fortiAnalyserRegexPattern2.Copy(),
-		RateLimitable: RateLimitable{RateLimitCache: config.GetCache()},
+		RateLimitable: config.NewRateLimitable(),
 	}, nil
 }

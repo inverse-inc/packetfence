@@ -102,7 +102,7 @@ func (*SuricataMD5Parser) IpToMac(ip string) (string, error) {
 func NewSuricataMD5Parser(config *PfdetectConfig) (Parser, error) {
 	p := &SuricataMD5Parser{
 		RemovePrefix:  suricataMD5RegexRemovePrefix.Copy(),
-		RateLimitable: RateLimitable{RateLimitCache: config.GetCache()},
+		RateLimitable: config.NewRateLimitable(),
 	}
 	p.ResolverIp2Mac = p
 	return p, nil

@@ -95,6 +95,6 @@ func NewSnortParser(config *PfdetectConfig) (Parser, error) {
 		Pattern1:      snortRegexPattern1.Copy(),
 		Pattern2:      snortRegexPattern2.Copy(),
 		Pattern3:      snortRegexPattern3.Copy(),
-		RateLimitable: RateLimitable{RateLimitCache: config.GetCache()},
+		RateLimitable: config.NewRateLimitable(),
 	}, nil
 }
