@@ -9782,7 +9782,7 @@ msgstr "CSP headers for Captive portal"
 
 # conf/documentation.conf
 msgid "advanced.scan_on_accounting"
-msgstr ""
+msgstr "Scan on accounting"
 
 # conf/documentation.conf
 msgid "advanced.source_to_send_sms_when_creating_users"
