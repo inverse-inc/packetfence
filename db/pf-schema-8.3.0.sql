@@ -3,8 +3,8 @@
 --
 
 SET @MAJOR_VERSION = 8;
-SET @MINOR_VERSION = 2;
-SET @SUBMINOR_VERSION = 9;
+SET @MINOR_VERSION = 3;
+SET @SUBMINOR_VERSION = 0;
 
 --
 -- The VERSION_INT to ensure proper ordering of the version in queries
