@@ -92,6 +92,12 @@ sub build_list_search_info {
     return 200, $info;
 }
 
+=head2 items
+
+items
+
+=cut
+
 sub items {
     my ($self) = @_;
     my $cs = $self->config_store;
@@ -324,6 +330,17 @@ sub sort_items {
     }
 
     $cs->commit;
+    return $self->render(json => {});
+}
+
+=head2 options
+
+options
+
+=cut
+
+sub options {
+    my ($self) = @_;
     return $self->render(json => {});
 }
 
