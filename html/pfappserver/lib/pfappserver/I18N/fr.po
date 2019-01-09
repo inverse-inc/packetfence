@@ -4,9 +4,9 @@
 # 
 # Translators:
 # Antoine Amacher <aamacher@inverse.ca>, 2015-2017
-# oeufdure <fdurand@inverse.ca>, 2014-2017
+# oeufdure <fdurand@inverse.ca>, 2014-2018
 # inverse <info@inverse.ca>, 2014,2016,2018
-# julsemaan <jsemaan@inverse.ca>, 2014
+# julsemaan <jsemaan@inverse.ca>, 2014,2019
 # Loick Pelet <lpelet.inverse@gmail.com>, 2013
 # Loick Pelet <lpelet.inverse@gmail.com>, 2013
 # Louis Munro <git@louismunro.com>, 2015,2017
@@ -15,8 +15,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2018-04-26 14:22+0000\n"
-"Last-Translator: inverse <info@inverse.ca>\n"
+"PO-Revision-Date: 2019-01-09 14:52+0000\n"
+"Last-Translator: julsemaan <jsemaan@inverse.ca>\n"
 "Language-Team: French (http://www.transifex.com/inverse/packetfence/language/fr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -568,7 +568,7 @@ msgstr "Ajouter une violation"
 
 # html/pfappserver/root/config/realm/index.tt
 msgid ""
-"Adding, editing or removing a realm requires to restart the radiusd service to be "
+"Adding or removing a realm requires to restart the radiusd service to be "
 "effective."
 msgstr "L’ajout ou suppression d’un Realm nécessite le redémarrage du service de radiusd pour être appliqué."
 
@@ -2742,12 +2742,12 @@ msgstr "Les méthodes EAP gérés par PacketFence peuvent être changés depuis 
 msgid "EAP type"
 msgstr "Type EAP"
 
-# conf/documentation.conf (radius_configuration.eap_fast_opaque_key)
+# conf/documentation.conf (radius_authentication_methods.eap_fast_opaque_key)
 msgid "EAP-FAST Opaque Key (32 randomized bytes)"
 msgstr "Clé EAP-FAST (32 octets aléatoires)"
 
 # conf/documentation.conf
-# (radius_configuration.eap_fast_authority_identity)
+# (radius_authentication_methods.eap_fast_authority_identity)
 msgid "EAP-FAST authority ID"
 msgstr "ID de l’autorité EAP-FAST"
 
@@ -2894,7 +2894,7 @@ msgstr "Activez cette option pour éviter les requêtes de mises à jour au coup
 msgid "Enabled"
 msgstr "Activer"
 
-# conf/documentation.conf (radius_configuration.ntlm_redis_cache)
+# conf/documentation.conf (advanced.ntlm_redis_cache)
 msgid ""
 "Enables a Redis driven cache for NTLM authentication. In order for this to "
 "work, you need to setup proper NT hash syncronization between your "
@@ -3038,7 +3038,7 @@ msgid "External Portal Enforcement"
 msgstr "Authentification par redirection Web"
 
 # conf/documentation.conf
-# (radius_configuration.eap_authentication_types options)
+# (radius_authentication_methods.eap_authentication_types options)
 msgid "FAST"
 msgstr "FAST"
 
@@ -3248,7 +3248,7 @@ msgid "Fully qualified device name"
 msgstr "Nom complet de l’appareil"
 
 # conf/documentation.conf
-# (radius_configuration.eap_authentication_types options)
+# (radius_authentication_methods.eap_authentication_types options)
 msgid "GTC"
 msgstr "GTC"
 
@@ -3368,7 +3368,7 @@ msgstr "Combien de temps un périphérique enregistré peut être inactif sur le
 msgid ""
 "How long can an unregistered node be inactive on the network before being "
 "deleted.<br>This shouldn't be used if you are using port-security"
-msgstr "Combien de temps un périphérique enregistré peut être inactif sur le réseau avant d’être supprimé. <br/> Cette fonctionnalité ne devrait pas être utilisé avec du port-security"
+msgstr "Combien de temps un périphérique non enregistré peut être inactif sur le réseau avant d’être supprimé. <br/> Cette fonctionnalité ne devrait pas être utilisé avec du port-security"
 
 # conf/documentation.conf (captive_portal.network_redirect_delay)
 msgid ""
@@ -3888,7 +3888,7 @@ msgid ""
 "List of OS which will be allowed to be register via the self service portal."
 msgstr "Liste des OS qui seront autorisés à s'enregistrer via le portail libre service"
 
-# conf/documentation.conf (radius_configuration.radius_attributes)
+# conf/documentation.conf (advanced.radius_attributes)
 msgid ""
 "List of RADIUS attributes that can be used in the sources configuration"
 msgstr "Liste des attributs RADIUS qui peuvent être utilisés dans la configuration des sources"
@@ -4019,6 +4019,10 @@ msgid ""
 "Location of the dhcpd binary. Only necessary to change if you are not "
 "running the RPMed version."
 msgstr "Emplacement du binaire DHCPd."
+
+# conf/documentation.conf (services.etcd_binary)
+msgid "Location of the etcd binary."
+msgstr "Emplacement du binaire etcd."
 
 # conf/documentation.conf (services.fingerbank-collector_binary)
 msgid "Location of the fingerbank-collector binary."
@@ -4226,7 +4230,7 @@ msgid "MAC_UPDATE"
 msgstr "Adresse MAC - Mise à jour"
 
 # conf/documentation.conf
-# (radius_configuration.eap_authentication_types options)
+# (radius_authentication_methods.eap_authentication_types options)
 msgid "MD5"
 msgstr "MD5"
 
@@ -4243,7 +4247,7 @@ msgid "MKEY for the iframe"
 msgstr "MKEY pour la Iframe"
 
 # conf/documentation.conf
-# (radius_configuration.eap_authentication_types options)
+# (radius_authentication_methods.eap_authentication_types options)
 msgid "MSCHAPv2"
 msgstr "MSCHAPv2"
 
@@ -4876,6 +4880,22 @@ msgid ""
 "just <i>click through</i> violation pages."
 msgstr "Nombre de fois qu’un appareil aura la possibilité de se redonner un accès au réseau avant que cette possibilité ne soit bloquée et qu’il doive contacter le service informatique. C’est très utile pour les utilisateurs qui négligent les pages de violations. "
 
+# html/pfappserver/root/admin/configuration.tt
+msgid "OPSWAT Metadefender"
+msgstr "OPSWAT Metadefender"
+
+# conf/documentation.conf (metadefender.api_key)
+msgid "OPSWAT Metadefender Cloud Scanner API key"
+msgstr "Clé d’API de d’OPSWAT Metadefender Cloud Scanner"
+
+# conf/documentation.conf (metadefender.query_url_hash)
+msgid "OPSWAT Metadefender Cloud Scanner URL for hash queries"
+msgstr "URL pour les requêtes de hash de OPSWAT Metadefender Cloud Scanner"
+
+# html/pfappserver/root/configuration/integration.tt
+msgid "OPSWAT Metadefender:"
+msgstr "OPSWAT Metadefender"
+
 # html/pfappserver/lib/pfappserver/Form/Config/DeviceRegistration.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Scan.pm
@@ -5089,7 +5109,7 @@ msgid "Owner"
 msgstr "Propriétaire"
 
 # conf/documentation.conf
-# (radius_configuration.eap_authentication_types options)
+# (radius_authentication_methods.eap_authentication_types options)
 msgid "PEAP"
 msgstr "PEAP"
 
@@ -6302,7 +6322,7 @@ msgstr "Realms qui seront rejeter"
 msgid "Reconnecting to the Admin Service in "
 msgstr "Reconnexion au  service d’administration en"
 
-# conf/documentation.conf (radius_configuration.record_accounting_in_sql)
+# conf/documentation.conf (advanced.record_accounting_in_sql)
 msgid ""
 "Record the accounting data in the SQL tables.Requires a restart of radiusd "
 "to be effective."
@@ -7165,6 +7185,10 @@ msgstr "Est-ce que Fingerbank interagit avec le web en utilisant un proxy?"
 msgid "Should api-frontend be managed by PacketFence?"
 msgstr "Est-ce api-frontend doit être géré par PacketFence ?"
 
+# conf/documentation.conf (services.etcd)
+msgid "Should etcd be managed by PacketFence?"
+msgstr "Est-ce etcd doit être géré par PacketFence ?"
+
 # conf/documentation.conf (services.haproxy-db)
 msgid ""
 "Should haproxy-db be started? Keep enabled unless you know what you're "
@@ -7690,7 +7714,7 @@ msgid "Support Inquiry"
 msgstr "Demande de support"
 
 # conf/documentation.conf
-# (radius_configuration.eap_authentication_types)
+# (radius_authentication_methods.eap_authentication_types)
 msgid "Supported EAP Authentication Methods"
 msgstr "Méthodes d’authentification EAP supportées"
 
@@ -7818,7 +7842,7 @@ msgid ""
 msgstr "Fuseau horaire du système en tant que chaîne de caractères. Liste générée à partir de la librairie Perl DateTime::TimeZone"
 
 # conf/documentation.conf
-# (radius_configuration.eap_authentication_types options)
+# (radius_authentication_methods.eap_authentication_types options)
 msgid "TLS"
 msgstr "TLS"
 
@@ -7895,7 +7919,7 @@ msgid "TRAFFIC_SHAPING_UPDATE"
 msgstr "Bande passante - Mettre à jour"
 
 # conf/documentation.conf
-# (radius_configuration.eap_authentication_types options)
+# (radius_authentication_methods.eap_authentication_types options)
 msgid "TTLS"
 msgstr "TTLS"
 
@@ -9140,7 +9164,7 @@ msgid ""
 "for Wi-Fi only"
 msgstr "Utilisez plutôt cette adresse IP pour la requête de désassociation . Normalement seulement utilisé pour le Wi-Fi."
 
-# conf/documentation.conf (radius_configuration.normalize_radius_machine_auth_username)
+# conf/documentation.conf (advanced.normalize_radius_machine_auth_username)
 msgid ""
 "Use the RADIUS username instead of the TLS certificate common name when "
 "doing machine authentication."
@@ -9974,11 +9998,11 @@ msgid "advanced.multihost"
 msgstr "Hôtes multiple"
 
 # conf/documentation.conf
-msgid "radius_configuration.normalize_radius_machine_auth_username"
+msgid "advanced.normalize_radius_machine_auth_username"
 msgstr "RADIUS machine authentification avec un nom d'utilisateur"
 
 # conf/documentation.conf
-msgid "radius_configuration.ntlm_redis_cache"
+msgid "advanced.ntlm_redis_cache"
 msgstr "Cache Redis NTLM"
 
 # conf/documentation.conf
@@ -9994,36 +10018,12 @@ msgid "advanced.portal_csp_security_headers"
 msgstr "En-têtes CSP pour le portail captif"
 
 # conf/documentation.conf
-msgid "radius_configuration.radius_attributes"
+msgid "advanced.radius_attributes"
 msgstr "Attributs RADIUS"
 
 # conf/documentation.conf
-msgid "radius_configuration.record_accounting_in_sql"
+msgid "advanced.record_accounting_in_sql"
 msgstr "Enregistrer la comptabilisation dans les tables SQL"
-
-# conf/documentation.conf
-msgid "radius_configuration.filter_in_packetfence_authorize"
-msgstr "Use radius filters in packetfence authorize"
-
-# conf/documentation.conf
-msgid "radius_configuration.filter_in_packetfence_pre_proxy"
-msgstr "Utiliser les filtres dans packetfence pre_proxy"
-
-# conf/documentation.conf
-msgid "radius_configuration.filter_in_packetfence_post_proxy"
-msgstr "Utiliser les filtres dans packetfence post_proxy"
-
-# conf/documentation.conf
-msgid "radius_configuration.filter_in_packetfence_preacct"
-msgstr "Utiliser les filtres dans packetfence preacct"
-
-# conf/documentation.conf
-msgid "radius_configuration.filter_in_packetfence_accounting"
-msgstr "Utiliser les filtres dans packetfence accounting"
-
-# conf/documentation.conf
-msgid "radius_configuration.filter_in_packetfence-tunnel_authorize"
-msgstr "Utiliser les filtres dans packetfence-tunnel authorize"
 
 # conf/documentation.conf
 msgid "advanced.source_to_send_sms_when_creating_users"
@@ -10534,11 +10534,11 @@ msgstr "dhcplistener"
 # conf/documentation.conf (advanced.locationlog_close_on_accounting_stop
 # options)
 # conf/documentation.conf (advanced.multihost options)
-# conf/documentation.conf (radius_configuration.normalize_radius_machine_auth_username
+# conf/documentation.conf (advanced.normalize_radius_machine_auth_username
 # options)
-# conf/documentation.conf (radius_configuration.ntlm_redis_cache options)
+# conf/documentation.conf (advanced.ntlm_redis_cache options)
 # conf/documentation.conf (advanced.portal_csp_security_headers options)
-# conf/documentation.conf (radius_configuration.record_accounting_in_sql options)
+# conf/documentation.conf (advanced.record_accounting_in_sql options)
 # conf/documentation.conf (advanced.sso_on_access_reevaluation options)
 # conf/documentation.conf (advanced.sso_on_accounting options)
 # conf/documentation.conf (advanced.sso_on_dhcp options)
@@ -10568,6 +10568,7 @@ msgstr "dhcplistener"
 # conf/documentation.conf (pfdhcp.mac2ip_lookup options)
 # conf/documentation.conf (provisioning.autoconfig options)
 # conf/documentation.conf (services.api-frontend options)
+# conf/documentation.conf (services.etcd options)
 # conf/documentation.conf (services.fingerbank-collector options)
 # conf/documentation.conf (services.haproxy-db options)
 # conf/documentation.conf (services.haproxy-portal options)
@@ -10668,11 +10669,11 @@ msgstr "en_US"
 # conf/documentation.conf (advanced.locationlog_close_on_accounting_stop
 # options)
 # conf/documentation.conf (advanced.multihost options)
-# conf/documentation.conf (radius_configuration.normalize_radius_machine_auth_username
+# conf/documentation.conf (advanced.normalize_radius_machine_auth_username
 # options)
-# conf/documentation.conf (radius_configuration.ntlm_redis_cache options)
+# conf/documentation.conf (advanced.ntlm_redis_cache options)
 # conf/documentation.conf (advanced.portal_csp_security_headers options)
-# conf/documentation.conf (radius_configuration.record_accounting_in_sql options)
+# conf/documentation.conf (advanced.record_accounting_in_sql options)
 # conf/documentation.conf (advanced.sso_on_access_reevaluation options)
 # conf/documentation.conf (advanced.sso_on_accounting options)
 # conf/documentation.conf (advanced.sso_on_dhcp options)
@@ -10702,6 +10703,7 @@ msgstr "en_US"
 # conf/documentation.conf (pfdhcp.mac2ip_lookup options)
 # conf/documentation.conf (provisioning.autoconfig options)
 # conf/documentation.conf (services.api-frontend options)
+# conf/documentation.conf (services.etcd options)
 # conf/documentation.conf (services.fingerbank-collector options)
 # conf/documentation.conf (services.haproxy-db options)
 # conf/documentation.conf (services.haproxy-portal options)
@@ -11164,6 +11166,18 @@ msgstr "memberOf"
 msgid "memberOf:1.2.840.113556.1.4.1941:"
 msgstr "Groupe imbriqué"
 
+# conf/documentation.conf
+msgid "metadefender"
+msgstr "OPSWAT Metadefender Cloud Scanner"
+
+# conf/documentation.conf
+msgid "metadefender.api_key"
+msgstr "Clé de l’API"
+
+# conf/documentation.conf
+msgid "metadefender.query_url_hash"
+msgstr "Hash de l’URL pour la requête"
+
 # html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
 msgid "minutes"
 msgstr "minutes"
@@ -11392,10 +11406,6 @@ msgstr "DHCP"
 # pf::factory::detect::parser (Detect Parsers)
 msgid "pfdetect_type_fortianalyser"
 msgstr "FortiAnalyzer"
-
-# pf::factory::detect::parser (Detect Parsers)
-msgid "pfdetect_type_nexpose"
-msgstr "Nexpose"
 
 # pf::factory::detect::parser (Detect Parsers)
 msgid "pfdetect_type_regex"
@@ -11631,19 +11641,19 @@ msgid "radius"
 msgstr "RADIUS"
 
 # conf/documentation.conf
-msgid "radius_configuration"
-msgstr "Configuration de RADIUS"
+msgid "radius_authentication_methods"
+msgstr "Méthodes d’authentification RADIUS"
 
 # conf/documentation.conf
-msgid "radius_configuration.eap_authentication_types"
+msgid "radius_authentication_methods.eap_authentication_types"
 msgstr "Types d’authentification EAP"
 
 # conf/documentation.conf
-msgid "radius_configuration.eap_fast_authority_identity"
+msgid "radius_authentication_methods.eap_fast_authority_identity"
 msgstr "ID de l’autorité EAP-FAST"
 
 # conf/documentation.conf
-msgid "radius_configuration.eap_fast_opaque_key"
+msgid "radius_authentication_methods.eap_fast_opaque_key"
 msgstr "Clé EAP FAST"
 
 # pf::radius_audit_log (RADIUS Audit Log)
@@ -11711,7 +11721,7 @@ msgstr "Assigner un rôle par violation"
 
 # pf::api (Allowed actions)
 msgid "role_detail"
-msgstr ""
+msgstr "Détail du rôle"
 
 # html/pfappserver/lib/pfappserver/Form/User.pm
 # html/pfappserver/root/admin/users.tt
@@ -11770,7 +11780,7 @@ msgstr "Services"
 
 # conf/documentation.conf
 msgid "services.api-frontend"
-msgstr ""
+msgstr "api-frontend"
 
 # conf/documentation.conf
 msgid "services.arp_binary"
@@ -11781,8 +11791,16 @@ msgid "services.dhcpd_binary"
 msgstr "Emplacement de DHCPd"
 
 # conf/documentation.conf
+msgid "services.etcd"
+msgstr "etcd"
+
+# conf/documentation.conf
+msgid "services.etcd_binary"
+msgstr "Emplacement du binaire etcd."
+
+# conf/documentation.conf
 msgid "services.fingerbank-collector"
-msgstr ""
+msgstr "fingerbank-collector"
 
 # conf/documentation.conf
 msgid "services.fingerbank-collector_binary"
@@ -11790,7 +11808,7 @@ msgstr "Emplacement du binaire fingerbank-collector."
 
 # conf/documentation.conf
 msgid "services.haproxy-db"
-msgstr ""
+msgstr "haproxy-db"
 
 # conf/documentation.conf
 msgid "services.haproxy-db_binary"
@@ -11798,7 +11816,7 @@ msgstr "Emplacement du binaire haproxy-db."
 
 # conf/documentation.conf
 msgid "services.haproxy-portal"
-msgstr ""
+msgstr "haproxy-portal"
 
 # conf/documentation.conf
 msgid "services.haproxy-portal_binary"
@@ -11858,7 +11876,7 @@ msgstr "Emplacement de keepalived"
 
 # conf/documentation.conf
 msgid "services.netdata"
-msgstr ""
+msgstr "netdata"
 
 # conf/documentation.conf
 msgid "services.netdata_binary"
@@ -11874,7 +11892,7 @@ msgstr "pfbandwidthd"
 
 # conf/documentation.conf
 msgid "services.pfdhcp"
-msgstr ""
+msgstr "pfdhcp"
 
 # conf/documentation.conf
 msgid "services.pfdhcp_binary"
@@ -11902,7 +11920,7 @@ msgstr "PFFilter"
 
 # conf/documentation.conf
 msgid "services.pfipset"
-msgstr ""
+msgstr "pfipset"
 
 # conf/documentation.conf
 msgid "services.pfipset_binary"
@@ -11914,7 +11932,7 @@ msgstr "pfmon"
 
 # conf/documentation.conf
 msgid "services.pfperl-api"
-msgstr ""
+msgstr "pfperl-api"
 
 # conf/documentation.conf
 msgid "services.pfqueue"
@@ -11926,7 +11944,7 @@ msgstr "pfsso"
 
 # conf/documentation.conf
 msgid "services.pfstats"
-msgstr ""
+msgstr "pfstats"
 
 # conf/documentation.conf
 msgid "services.pfstats_binary"
@@ -11982,7 +12000,7 @@ msgstr "Emplacement de smtptrapd"
 
 # conf/documentation.conf
 msgid "services.tc"
-msgstr ""
+msgstr "tc"
 
 # conf/documentation.conf
 msgid "services.tc_binary"
