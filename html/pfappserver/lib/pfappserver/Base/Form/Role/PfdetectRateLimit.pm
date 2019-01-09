@@ -18,7 +18,7 @@ with qw(pfappserver::Base::Form::Role::Help);
 has_field 'rate_limit' => (
     type    => 'Duration',
     label   => 'Rate Limit',
-    default => '5s',
+    default => '0s',
     tags    => {
         after_element => \&help,
         help => 'Rate limit requests.'
