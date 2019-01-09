@@ -63,6 +63,7 @@ $VERSION = eval $VERSION;
 __PACKAGE__->config(
     name => 'pfappserver',
     default_view =>  'HTML',
+    encoding => 'utf-8',
     use_request_uri_for_path => 1,
     setup_components => {
         search_extra => [ qw(::Form ::F) ],
