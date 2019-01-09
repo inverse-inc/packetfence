@@ -32,6 +32,7 @@ pfcmd <command> [options]
   networkconfig               | query/modify network configuration parameters
   node                        | manipulate node entries
   pfconfig                    | interact with pfconfig
+  pfqueue                     | query/modify pfqueue tasks and counters
   reload                      | rebuild fingerprint or violations tables without restart
   service                     | start/stop/restart and get PF daemon status
   schedule                    | Nessus scan scheduling
