@@ -21,12 +21,7 @@ The pf::Switch::Fortinet::FortiSwitch  module implements an object oriented inte
 
 use strict;
 use warnings;
-use pf::node;
-use pf::violation;
-use pf::locationlog;
 use pf::util;
-use LWP::UserAgent;
-use HTTP::Request::Common;
 use pf::log;
 use pf::constants;
 use pf::accounting qw(node_accounting_dynauth_attr);
@@ -43,7 +38,6 @@ use base ('pf::Switch::Fortinet');
 
 sub description { 'FortiSwitch' }
 
-sub supportsWirelessMacAuth { return $TRUE; }
 sub supportsWiredMacAuth { return $TRUE; }
 sub supportsWiredDot1x { return $TRUE; }
 
