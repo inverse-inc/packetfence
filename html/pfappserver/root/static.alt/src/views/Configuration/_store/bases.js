@@ -24,12 +24,15 @@ const getters = {
 }
 
 const actions = {
-  all: () => {
+  all: ({ commit }) => {
     const params = {
       sort: 'id',
       fields: ['id'].join(',')
     }
     return api.bases(params).then(response => {
+      response.items.forEach((item) => {
+        commit('ITEM_REPLACED', item)
+      })
       return response.items
     })
   },
@@ -40,7 +43,7 @@ const actions = {
     commit('ITEM_REQUEST')
     return api.base(id).then(item => {
       // build `fqdn` from `hostname` and `domain`
-      item.fqdn = ((item.hostname) ? item.hostname + '.' : '' ) + item.domain
+      item.fqdn = ((item.hostname) ? item.hostname + '.' : '') + item.domain
       commit('ITEM_REPLACED', item)
       return item
     }).catch((err) => {

@@ -168,6 +168,11 @@ export const isFQDN = (value) => {
   return true
 }
 
+export const isHex = (value) => {
+  if (!value) return true
+  return /^[0-9a-f]+$/i.test(value)
+}
+
 export const isPort = (value) => {
   if (!value) return true
   return ~~value === parseFloat(value) && ~~value >= 1 && ~~value <= 65535

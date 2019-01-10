@@ -28,14 +28,16 @@ const SwitchGroupView = () => import(/* webpackChunkName: "Configuration" */ '..
 const ConnectionProfilesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/ConnectionProfilesList')
 const ConnectionProfileView = () => import(/* webpackChunkName: "Configuration" */ '../_components/ConnectionProfileView')
 
+const ComplianceSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/ComplianceSection')
+const ProfilingTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/ProfilingTabs')
+
 const NetworkConfigurationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/NetworkConfigurationSection')
 const FloatingDevicesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/FloatingDevicesList')
 const FloatingDeviceView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FloatingDeviceView')
-const PortalModulesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/PortalModulesList')
-const PortalModuleView = () => import(/* webpackChunkName: "Configuration" */ '../_components/PortalModuleView')
-
 const BillingTiersList = () => import(/* webpackChunkName: "Configuration" */ '../_components/BillingTiersList')
 const BillingTierView = () => import(/* webpackChunkName: "Configuration" */ '../_components/BillingTierView')
+const PortalModulesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/PortalModulesList')
+const PortalModuleView = () => import(/* webpackChunkName: "Configuration" */ '../_components/PortalModuleView')
 
 const route = {
   path: '/configuration',
@@ -49,6 +51,8 @@ const route = {
      */
     if (!store.state.$_bases) {
       store.registerModule('$_bases', BasesStore)
+      // preload config/bases (all sections)
+      store.dispatch('$_bases/all')
     }
     if (!store.state.$_billing_tiers) {
       store.registerModule('$_billing_tiers', BillingTiersStore)
@@ -198,9 +202,6 @@ const route = {
         })
       }
     },
-    /**
-     * Authentication Sources
-     */
     {
       path: 'sources',
       name: 'sources',
@@ -235,9 +236,6 @@ const route = {
         })
       }
     },
-    /**
-     * Switches
-     */
     {
       path: 'switches',
       name: 'switches',
@@ -272,9 +270,6 @@ const route = {
         })
       }
     },
-    /**
-     * Switch Groups
-     */
     {
       path: 'switch_groups',
       name: 'switch_groups',
@@ -309,9 +304,6 @@ const route = {
         })
       }
     },
-    /**
-     * Connection Profiles
-     */
     {
       path: 'connection_profiles',
       name: 'connection_profiles',
@@ -345,6 +337,77 @@ const route = {
           next()
         })
       }
+    },
+    /**
+     * Compliance
+     */
+    {
+      path: 'compliance',
+      component: ComplianceSection
+    },
+    {
+      path: 'profiling',
+      redirect: 'profiling/general_settings'
+    },
+    {
+      path: 'profiling/general_settings',
+      name: 'profilingGeneralSettings',
+      component: ProfilingTabs,
+      props: (route) => ({ tab: 'general_settings', query: route.query.query })
+    },
+    {
+      path: 'profiling/device_change_detection',
+      name: 'profilingDeviceChangeDetection',
+      component: ProfilingTabs,
+      props: (route) => ({ tab: 'device_change_detection', query: route.query.query })
+    },
+    {
+      path: 'profiling/combinations',
+      name: 'profilingCombinations',
+      component: ProfilingTabs,
+      props: (route) => ({ tab: 'combinations', query: route.query.query })
+    },
+    {
+      path: 'profiling/devices',
+      name: 'profilingDevices',
+      component: ProfilingTabs,
+      props: (route) => ({ tab: 'devices', query: route.query.query })
+    },
+    {
+      path: 'profiling/dhcp_fingerprints',
+      name: 'profilingDhcpFingerprints',
+      component: ProfilingTabs,
+      props: (route) => ({ tab: 'dhcp_fingerprints', query: route.query.query })
+    },
+    {
+      path: 'profiling/dhcp_vendors',
+      name: 'profilingDhcpVendors',
+      component: ProfilingTabs,
+      props: (route) => ({ tab: 'dhcp_vendors', query: route.query.query })
+    },
+    {
+      path: 'profiling/dhcpv6_fingerprints',
+      name: 'profilingDhcpv6Fingerprints',
+      component: ProfilingTabs,
+      props: (route) => ({ tab: 'dhcpv6_fingerprints', query: route.query.query })
+    },
+    {
+      path: 'profiling/dhcpv6_enterprises',
+      name: 'profilingDhcpv6Enterprises',
+      component: ProfilingTabs,
+      props: (route) => ({ tab: 'dhcpv6_enterprises', query: route.query.query })
+    },
+    {
+      path: 'profiling/mac_vendors',
+      name: 'profilingMacVendors',
+      component: ProfilingTabs,
+      props: (route) => ({ tab: 'mac_vendors', query: route.query.query })
+    },
+    {
+      path: 'profiling/user_agents',
+      name: 'profilingUserAgents',
+      component: ProfilingTabs,
+      props: (route) => ({ tab: 'user_agents', query: route.query.query })
     },
     /**
      * Network Configuration
