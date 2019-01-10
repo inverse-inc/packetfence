@@ -19,7 +19,7 @@ OR   = CMP
 CMP  = ID OP ID
 CMP  = ID OP STRING
 CMP  = FACT
-OP   = '==' | '!=' | '=~' | '!~'
+OP   = '==' | '!=' | '=~' | '!~' | '>' | '>=' | '<' | '<='
 FACT = ! FACT
 FACT = '(' EXPR ')'
 FACT = ID
@@ -143,7 +143,7 @@ sub _parse_cmp {
     my $old_pos = pos();
     if (/\G\s*([a-zA-Z0-9_\.]+)/gc) {
         my $a = $1;
-        if (/\G\s*(==|!=|=~|!~)/gc) {
+        if (/\G\s*(==|!=|=~|!~|\<\=|\<|\>\=|\>)/gc) {
             my $op = $1;
             my $b;
             if (/\G\s*([a-zA-Z0-9_\.]+)/gc) {
