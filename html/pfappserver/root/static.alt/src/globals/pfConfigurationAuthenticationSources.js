@@ -620,7 +620,10 @@ export const pfConfigurationAuthenticationSourceViewFields = (context) => {
 }
 
 export const pfConfigurationAuthenticationSourceViewDefaults = (context = {}) => {
-  const { sourceType = null } = context
+  const {
+    sourceType = null,
+    general = {}
+  } = context
   switch (sourceType) {
     case 'AD':
       return {
@@ -816,7 +819,7 @@ export const pfConfigurationAuthenticationSourceViewDefaults = (context = {}) =>
       return {
         base_url: 'https://staging.eigendev.com/MiraSecure/GetToken.php',
         direct_base_url: 'https://staging.eigendev.com/OFT/EigenOFT_d.php',
-        service_fqdn: 'packetfence.satkunas.com', // TODO: build fqdn dynamically
+        service_fqdn: general.fqdn,
         currency: 'USD',
         local_account_logins: '0'
       }

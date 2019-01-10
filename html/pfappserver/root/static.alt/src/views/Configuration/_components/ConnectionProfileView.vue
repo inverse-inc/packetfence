@@ -86,7 +86,8 @@ export default {
       sources: [],
       billingTiers: [],
       provisionings: [],
-      scans: []
+      scans: [],
+      general: {}
     }
   },
   validations () {
@@ -182,6 +183,9 @@ export default {
     })
     this.$store.dispatch('$_scans/all').then(data => {
       this.scans = data
+    })
+    this.$store.dispatch('$_bases/getBase', 'general').then(data => {
+      this.general = data
     })
   }
 }

@@ -41,7 +41,7 @@ const actions = {
     commit('ITEM_REQUEST')
     return api.createConnectionProfile(data).then(response => {
       commit('ITEM_REPLACED', data)
-      return data
+      return response
     }).catch(err => {
       commit('ITEM_ERROR', err.response)
       throw err

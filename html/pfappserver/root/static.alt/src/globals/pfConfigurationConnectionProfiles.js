@@ -276,7 +276,8 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
     sources = [],
     billingTiers = [],
     provisionings = [],
-    scans = []
+    scans = [],
+    general = {}
   } = context
 
   // fields differ w/ & wo/ 'default'
@@ -886,7 +887,7 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
         },
         {
           label: i18n.t('Network Logoff'),
-          text: i18n.t('This allows users to access the network logoff page (http://packetfence.satkunas.com/networklogoff) in order to terminate their network access (switch their device back to unregistered).'), // TODO: build fqdn dynamically
+          text: i18n.t('This allows users to access the network logoff page (http://{fqdn}/networklogoff) in order to terminate their network access (switch their device back to unregistered).', general),
           fields: [
             {
               key: 'network_logoff',
