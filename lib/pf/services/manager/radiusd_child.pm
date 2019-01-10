@@ -559,7 +559,7 @@ ldap $ldap {
     server          = "$ConfigAuthenticationLdap{$ldap}->{host}"
     port            = "$ConfigAuthenticationLdap{$ldap}->{port}"
     identity        = "$ConfigAuthenticationLdap{$ldap}->{binddn}"
-    password        = "$ConfigAuthenticationLdap{$ldap}->{password}"
+    password        = $ConfigAuthenticationLdap{$ldap}->{password}
     base_dn         = "$ConfigAuthenticationLdap{$ldap}->{basedn}"
     filter          = "(userPrincipalName=%{User-Name})"
     scope           = $ConfigAuthenticationLdap{$ldap}->{scope}
