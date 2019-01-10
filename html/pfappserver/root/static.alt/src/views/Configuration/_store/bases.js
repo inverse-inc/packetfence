@@ -39,6 +39,8 @@ const actions = {
     }
     commit('ITEM_REQUEST')
     return api.base(id).then(item => {
+      // build `fqdn` from `hostname` and `domain`
+      item.fqdn = ((item.hostname) ? item.hostname + '.' : '' ) + item.domain
       commit('ITEM_REPLACED', item)
       return item
     }).catch((err) => {

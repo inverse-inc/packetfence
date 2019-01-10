@@ -1,6 +1,7 @@
 import store from '@/store'
 import ConfigurationView from '../'
 import AuthenticationSourcesStore from '../_store/sources'
+import BasesStore from '../_store/bases'
 import BillingTiersStore from '../_store/billingTiers'
 import ConnectionProfilesStore from '../_store/connectionProfiles'
 import DomainsStore from '../_store/domains'
@@ -46,6 +47,9 @@ const route = {
     /**
      * Register Vuex stores
      */
+    if (!store.state.$_bases) {
+      store.registerModule('$_bases', BasesStore)
+    }
     if (!store.state.$_billing_tiers) {
       store.registerModule('$_billing_tiers', BillingTiersStore)
     }

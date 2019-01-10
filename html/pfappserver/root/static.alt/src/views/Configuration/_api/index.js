@@ -33,6 +33,20 @@ export default {
     })
   },
   /**
+   * Bases
+   */
+  bases: params => {
+    return apiCall.get('config/bases', { params }).then(response => {
+      return response.data
+    })
+  },
+  base: id => {
+    return apiCall.get(`config/base/${id}`).then(response => {
+      response.data.item.id = id // TODO: remove once `id` is included in response
+      return response.data.item
+    })
+  },
+  /**
    * Billing Tiers
    */
   billingTiers: params => {
