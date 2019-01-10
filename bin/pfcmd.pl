@@ -22,6 +22,7 @@ $< = 0;
 
 # To ensure group permissions are properly added
 umask(0007);
+$ENV{PATH} = "/sbin:/usr/sbin:/bin:/usr/bin";
 
 use pf::cmd::pf;
 exit pf::cmd::pf->new({args => \@ARGV})->run();
