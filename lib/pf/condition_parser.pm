@@ -16,10 +16,18 @@ EXPR = OR || OR
 EXPR = OR
 OR   = CMP && CMP
 OR   = CMP
-CMP  = ID OP ID
-CMP  = ID OP STRING
+CMP  = VAL OP ID
+CMP  = VAL OP STRING
 CMP  = FACT
 OP   = '==' | '!=' | '=~' | '!~' | '>' | '>=' | '<' | '<='
+VAL  = ID
+VAL  = FUNC
+FUNC = ID '(' PARAMS ')'
+PARAMS = PARAM ',' PARAMS
+PARAMS = PARAM
+PARAM  = VAR
+PARAM  = STRING
+VAR    = ID
 FACT = ! FACT
 FACT = '(' EXPR ')'
 FACT = ID
@@ -137,12 +145,16 @@ sub _parse_or {
 =cut
 
 sub _parse_cmp {
-    # CMP  = ID OP ID
-    # CMP  = ID OP STRING
+    # CMP  = VAL OP ID
+    # CMP  = VAL OP STRING
     # CMP  = FACT
     my $old_pos = pos();
     if (/\G\s*([a-zA-Z0-9_\.]+)/gc) {
         my $a = $1;
+        if (/\G\s*\(/gc) {
+            $a = _parse_func($a);
+        }
+
         if (/\G\s*(==|!=|=~|!~|\<\=|\<|\>\=|\>)/gc) {
             my $op = $1;
             my $b;
@@ -160,6 +172,48 @@ sub _parse_cmp {
     }
     pos() = $old_pos;
     return _parse_fact();
+}
+
+
+=head2 _parse_func
+
+_parse_func
+
+=cut
+
+sub _parse_func {
+    my $f = shift;
+    my @params;
+    my $b;
+    if (/\G\s*\)/gc) {
+        return ['FUNC', $f, \@params];
+    }
+
+    push @params, _parse_param();
+    while (/\G\s*,\s*/gc) {
+        push @params, _parse_param();
+    }
+
+    if (!/\G\s*\)/gc) {
+        die format_parse_error("Function $f is not closed ", $_, pos);
+    }
+
+    return ['FUNC', $f, \@params];
+}
+
+sub _parse_param {
+    my $p;
+    if (/\G\s*([a-zA-Z0-9_\.]+)/gc) {
+        $p = ['VAR', $1];
+    } elsif (/\G\s*"((?:[^"\\]|\\"|\\\\)*?)"/gc) {
+        $p = $1;
+        $p =~ s/\\"/"/g;
+        $p =~ s/\\\\/\\/g;
+    } else {
+        die format_parse_error("Invalid parameter", $_, pos);
+    }
+
+    return $p;
 }
 
 =head2 _parse_fact
