@@ -150,7 +150,7 @@ sub commit {
 
 sub _Sections {
     my ($self) = @_;
-    return grep { /^\S+$/ }  $self->SUPER::_Sections();
+    return grep { /^\S+$/ } $self->SUPER::_Sections();
 }
 
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
