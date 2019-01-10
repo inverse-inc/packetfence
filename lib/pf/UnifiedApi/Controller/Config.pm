@@ -158,6 +158,7 @@ sub item_from_store {
 
 sub cleanup_item {
     my ($self, $item) = @_;
+    my $id = $item->{id};
     my $form = $self->form($item);
     if (!defined $form) {
         return undef;
@@ -165,7 +166,8 @@ sub cleanup_item {
 
     $form->process($self->form_process_parameters_for_cleanup($item));
     $item = $form->value;
-    $item->{not_deletable} = $self->config_store->is_section_in_import($item->{id}) ? $self->json_true : $self->json_false;
+    $item->{not_deletable} = $self->config_store->is_section_in_import($id) ? $self->json_true : $self->json_false;
+    $item->{id} = $id;
     return $item;
 }
 
