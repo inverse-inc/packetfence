@@ -110,6 +110,7 @@ Once the additionnal steps below are completed, restart packetfence-config and p
   /usr/local/pf/bin/pfcmd fixpermissions
   /usr/local/pf/bin/pfcmd pfconfig clear_backend
   service packetfence-config restart
+  /usr/local/pf/bin/pfcmd configreload hard
   /usr/local/pf/bin/pfcmd service pf restart
 
 Don't forget to edit the `/usr/local/pf/conf/currently-at` file to match the newly updated version
