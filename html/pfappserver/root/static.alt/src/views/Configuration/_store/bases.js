@@ -1,5 +1,5 @@
 /**
-* "$_realms" store module
+* "$_bases" store module
 */
 import Vue from 'vue'
 import api from '../_api'
@@ -29,49 +29,19 @@ const actions = {
       sort: 'id',
       fields: ['id'].join(',')
     }
-    return api.realms(params).then(response => {
+    return api.bases(params).then(response => {
       return response.items
     })
   },
-  getRealm: ({ state, commit }, id) => {
+  getBase: ({ state, commit }, id) => {
     if (state.cache[id]) {
       return Promise.resolve(state.cache[id])
     }
     commit('ITEM_REQUEST')
-    return api.realm(id).then(item => {
+    return api.base(id).then(item => {
       commit('ITEM_REPLACED', item)
       return item
     }).catch((err) => {
-      commit('ITEM_ERROR', err.response)
-      throw err
-    })
-  },
-  createRealm: ({ commit }, data) => {
-    commit('ITEM_REQUEST')
-    return api.createRealm(data).then(response => {
-      commit('ITEM_REPLACED', data)
-      return response
-    }).catch(err => {
-      commit('ITEM_ERROR', err.response)
-      throw err
-    })
-  },
-  updateRealm: ({ commit }, data) => {
-    commit('ITEM_REQUEST')
-    return api.updateRealm(data).then(response => {
-      commit('ITEM_REPLACED', data)
-      return response
-    }).catch(err => {
-      commit('ITEM_ERROR', err.response)
-      throw err
-    })
-  },
-  deleteRealm: ({ commit }, data) => {
-    commit('ITEM_REQUEST', types.DELETING)
-    return api.deleteRealm(data).then(response => {
-      commit('ITEM_DESTROYED', data)
-      return response
-    }).catch(err => {
       commit('ITEM_ERROR', err.response)
       throw err
     })
@@ -86,10 +56,6 @@ const mutations = {
   ITEM_REPLACED: (state, data) => {
     state.itemStatus = types.SUCCESS
     Vue.set(state.cache, data.id, data)
-  },
-  ITEM_DESTROYED: (state, id) => {
-    state.itemStatus = types.SUCCESS
-    Vue.set(state.cache, id, null)
   },
   ITEM_ERROR: (state, response) => {
     state.itemStatus = types.ERROR

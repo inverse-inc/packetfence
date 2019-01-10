@@ -41,6 +41,7 @@ const actions = {
     commit('ITEM_REQUEST')
     return api.portalModule(id).then(item => {
       commit('ITEM_REPLACED', item)
+      return item
     }).catch((err) => {
       commit('ITEM_ERROR', err.response)
       throw err

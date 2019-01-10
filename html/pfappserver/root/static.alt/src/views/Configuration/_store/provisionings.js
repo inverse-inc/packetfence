@@ -40,6 +40,7 @@ const actions = {
     commit('ITEM_REQUEST')
     return api.provisioning(id).then(item => {
       commit('ITEM_REPLACED', item)
+      return item
     }).catch((err) => {
       commit('ITEM_ERROR', err.response)
       throw err
@@ -49,6 +50,7 @@ const actions = {
     commit('ITEM_REQUEST')
     return api.createProvisioning(data).then(response => {
       commit('ITEM_REPLACED', data)
+      return response
     }).catch(err => {
       commit('ITEM_ERROR', err.response)
       throw err
@@ -58,6 +60,7 @@ const actions = {
     commit('ITEM_REQUEST')
     return api.updateProvisioning(data).then(response => {
       commit('ITEM_REPLACED', data)
+      return response
     }).catch(err => {
       commit('ITEM_ERROR', err.response)
       throw err
@@ -67,6 +70,7 @@ const actions = {
     commit('ITEM_REQUEST', types.DELETING)
     return api.deleteProvisioning(data).then(response => {
       commit('ITEM_DESTROYED', data)
+      return response
     }).catch(err => {
       commit('ITEM_ERROR', err.response)
       throw err
@@ -76,6 +80,7 @@ const actions = {
     commit('ITEM_REQUEST')
     return api.testProvisioning(data).then(response => {
       commit('ITEM_SUCCESS')
+      return response
     }).catch(err => {
       commit('ITEM_ERROR', err.response)
       throw err
