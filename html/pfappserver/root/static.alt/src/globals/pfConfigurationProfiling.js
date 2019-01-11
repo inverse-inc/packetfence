@@ -1,17 +1,8 @@
 import i18n from '@/utils/locale'
 import pfFormInput from '@/components/pfFormInput'
-import pfFormSelect from '@/components/pfFormSelect'
-import pfFormTextarea from '@/components/pfFormTextarea'
 import pfFormToggle from '@/components/pfFormToggle'
 import {
-  pfConfigurationListColumns,
-  pfConfigurationListFields
-} from '@/globals/pfConfiguration'
-import {
   and,
-  not,
-  conditional,
-  realmExists,
   isFQDN,
   isHex,
   isPort
@@ -19,15 +10,15 @@ import {
 
 const {
   required,
-  alphaNum,
   ipAddress,
   maxLength,
-  minLength,
   minValue
 } = require('vuelidate/lib/validators')
 
+/**
+ * General Settings
+**/
 export const pfConfigurationProfilingGeneralSettingsViewFields = (context = {}) => {
-  const { isNew = false, isClone = false, domains = [] } = context
   return [
     {
       tab: null, // ignore tabs
@@ -54,7 +45,6 @@ export const pfConfigurationProfilingGeneralSettingsViewFields = (context = {}) 
               key: 'upstream.host',
               component: pfFormInput,
               validators: {
-                [i18n.t('Host required.')]: required,
                 [i18n.t('Invalid Host.')]: and(maxLength(255), isFQDN)
               }
             }
@@ -72,7 +62,6 @@ export const pfConfigurationProfilingGeneralSettingsViewFields = (context = {}) 
                 step: 1
               },
               validators: {
-                [i18n.t('Port required.')]: required,
                 [i18n.t('Invalid Port.')]: isPort
               }
             }
@@ -97,10 +86,7 @@ export const pfConfigurationProfilingGeneralSettingsViewFields = (context = {}) 
           fields: [
             {
               key: 'upstream.db_path',
-              component: pfFormInput,
-              validators: {
-                [i18n.t('Path required.')]: required
-              }
+              component: pfFormInput
             }
           ]
         },
@@ -114,9 +100,6 @@ export const pfConfigurationProfilingGeneralSettingsViewFields = (context = {}) 
               attrs: {
                 type: 'number',
                 step: 1
-              },
-              validators: {
-                [i18n.t('Value required.')]: required
               }
             }
           ]
@@ -323,7 +306,53 @@ export const pfConfigurationProfilingGeneralSettingsViewDefaults = (context = {}
   return {
     upstream: {
       host: 'api.fingerbank.org',
-      port: 443
+      port: 443,
+      use_https: 'enabled',
+      db_path: '/api/v2/download/db',
+      sqlite_db_retention: 2
+    },
+    collector: {
+      host: '127.0.0.1',
+      port: 4723,
+      use_https: 'enabled',
+      inactive_endpoints_expiration: 168,
+      query_cache_time: 1440,
+      db_persistence_interval: 60,
+      cluster_resync_interval: 120
+    },
+    proxy: {
+      verify_ssl: 'enabled'
     }
   }
+}
+
+/**
+ * Device Change Detection
+**/
+export const pfConfigurationProfilingDeviceChangeDetectionViewFields = (context = {}) => {
+  return [
+    {
+      tab: null, // ignore tabs
+      fields: [
+        {
+          label: i18n.t('API Key'),
+          text: i18n.t('API key to interact with upstream Fingerbank project. Changing this value requires to restart the Fingerbank collector.'),
+          fields: [
+            {
+              key: 'upstream.api_key',
+              component: pfFormInput,
+              validators: {
+                [i18n.t('Key required.')]: required,
+                [i18n.t('Invalid Key.')]: and(maxLength(255), isHex)
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+
+export const pfConfigurationProfilingDeviceChangeDetectionViewDefaults = (context = {}) => {
+  return {}
 }

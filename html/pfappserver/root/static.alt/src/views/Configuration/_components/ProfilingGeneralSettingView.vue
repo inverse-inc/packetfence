@@ -2,9 +2,9 @@
   <pf-config-view
     :isLoading="isLoading"
     :form="getForm"
-    :model="general"
-    :vuelidate="$v.general"
-    @validations="generalValidations = $event"
+    :model="form"
+    :vuelidate="$v.form"
+    @validations="formValidations = $event"
     @save="save"
   >
     <template slot="header" is="b-card-header">
@@ -13,7 +13,7 @@
       </h4>
     </template>
     <template slot="footer">
-      <b-card-footer @mouseenter="$v.general.$touch()">
+      <b-card-footer @mouseenter="$v.form.$touch()">
         <pf-button-save :disabled="invalidForm" :isLoading="isLoading">
           <template>{{ $t('Save') }}</template>
         </pf-button-save>
@@ -25,9 +25,6 @@
 <script>
 import pfConfigView from '@/components/pfConfigView'
 import pfButtonSave from '@/components/pfButtonSave'
-import pfButtonDelete from '@/components/pfButtonDelete'
-import pfMixinCtrlKey from '@/components/pfMixinCtrlKey'
-import pfMixinEscapeKey from '@/components/pfMixinEscapeKey'
 import {
   pfConfigurationProfilingGeneralSettingsViewFields as fields,
   pfConfigurationProfilingGeneralSettingsViewDefaults as defaults
@@ -37,14 +34,11 @@ const { validationMixin } = require('vuelidate')
 export default {
   name: 'ProfilingGeneralSettingView',
   mixins: [
-    validationMixin,
-    pfMixinCtrlKey,
-    pfMixinEscapeKey
+    validationMixin
   ],
   components: {
     pfConfigView,
-    pfButtonSave,
-    pfButtonDelete
+    pfButtonSave
   },
   props: {
     storeName: { // from router
@@ -55,21 +49,21 @@ export default {
   },
   data () {
     return {
-      general: defaults(this), // will be overloaded with the data from the store
-      generalValidations: {} // will be overloaded with data from the pfConfigView
+      form: defaults(this), // will be overloaded with the data from the store
+      formValidations: {} // will be overloaded with data from the pfConfigView
     }
   },
   validations () {
     return {
-      general: this.generalValidations
+      form: this.formValidations
     }
   },
   computed: {
     isLoading () {
-      return this.$store.getters['$_TODO/isLoading']
+      return this.$store.getters['$_profiling/isGeneralSettingsLoading']
     },
     invalidForm () {
-      return this.$v.general.$invalid || this.$store.getters['$_TODO/isWaiting']
+      return this.$v.form.$invalid || this.$store.getters['$_profiling/isGeneralSettingsWaiting']
     },
     getForm () {
       return {
@@ -81,17 +75,16 @@ export default {
   methods: {
     save () {
       const ctrlKey = this.ctrlKey
-      this.$store.dispatch('$_TODO/updateTODO', this.general).then(response => {
-        if (ctrlKey) { // [CTRL] key pressed
-          this.close()
-        }
+      this.$store.dispatch('$_profiling/setGeneralSettings', this.form).then(response => {
+        // TODO - notification
       })
     }
   },
   created () {
     if (this.id) {
-      this.$store.dispatch('$_TODO/getTODO', this.id).then(data => {
-        this.general = Object.assign({}, data)
+      this.$store.dispatch('$_profiling/getGeneralSettings', this.id).then(data => {
+        this.form = Object.assign({}, data)
+        // TODO - notification
       })
     }
   }

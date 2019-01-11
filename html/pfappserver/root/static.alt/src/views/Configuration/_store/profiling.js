@@ -67,31 +67,31 @@ const state = {
 
 const getters = {
   isGeneralSettingsWaiting: state => [types.LOADING, types.DELETING].includes(state.generalSettings.status),
-  isGeneralSettingsLoading: state => state.generalSettings.status === types.LOADING
+  isGeneralSettingsLoading: state => state.generalSettings.status === types.LOADING,
 
   isDeviceChangeDetectionWaiting: state => [types.LOADING, types.DELETING].includes(state.deviceChangeDetection.status),
-  isDeviceChangeDetectionLoading: state => state.deviceChangeDetection.status === types.LOADING
+  isDeviceChangeDetectionLoading: state => state.deviceChangeDetection.status === types.LOADING,
 
   isCombinationsWaiting: state => [types.LOADING, types.DELETING].includes(state.combinations.status),
-  isCombinationsLoading: state => state.combinations.status === types.LOADING
+  isCombinationsLoading: state => state.combinations.status === types.LOADING,
 
   isDevicesWaiting: state => [types.LOADING, types.DELETING].includes(state.devices.status),
-  isDevicesLoading: state => state.devices.status === types.LOADING
+  isDevicesLoading: state => state.devices.status === types.LOADING,
 
   isDhcpFingerprintsWaiting: state => [types.LOADING, types.DELETING].includes(state.dhcpFingerprints.status),
-  isDhcpFingerprintsLoading: state => state.dhcpFingerprints.status === types.LOADING
+  isDhcpFingerprintsLoading: state => state.dhcpFingerprints.status === types.LOADING,
 
   isDhcpVendorsWaiting: state => [types.LOADING, types.DELETING].includes(state.dhcpVendors.status),
-  isDhcpVendorsLoading: state => state.dhcpVendors.status === types.LOADING
+  isDhcpVendorsLoading: state => state.dhcpVendors.status === types.LOADING,
 
   isDhcpv6FingerprintsWaiting: state => [types.LOADING, types.DELETING].includes(state.dhcpv6Fingerprints.status),
-  isDhcpv6FingerprintsLoading: state => state.dhcpv6Fingerprints.status === types.LOADING
+  isDhcpv6FingerprintsLoading: state => state.dhcpv6Fingerprints.status === types.LOADING,
 
   isDhcpv6EnterprisesWaiting: state => [types.LOADING, types.DELETING].includes(state.dhcpv6Enterprises.status),
-  isDhcpv6EnterprisesLoading: state => state.dhcpv6Enterprises.status === types.LOADING
+  isDhcpv6EnterprisesLoading: state => state.dhcpv6Enterprises.status === types.LOADING,
 
   isMacVendorsWaiting: state => [types.LOADING, types.DELETING].includes(state.macVendors.status),
-  isMacVendorsLoading: state => state.macVendors.status === types.LOADING
+  isMacVendorsLoading: state => state.macVendors.status === types.LOADING,
 
   isUserAgentsWaiting: state => [types.LOADING, types.DELETING].includes(state.userAgents.status),
   isUserAgentsLoading: state => state.userAgents.status === types.LOADING
