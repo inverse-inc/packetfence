@@ -61,9 +61,19 @@ BEGIN {
         ["a <= 6", ['<=', 'a', 6]],
         ["F() > 6", ['>', ['FUNC', 'F', []], 6]],
         ["F(\"bob\", fid) > 6", ['>', ['FUNC', 'F', ['bob', ['VAR', 'fid']]], 6]],
+        ["F(\"bob\") > 6", ['>', ['FUNC', 'F', ['bob']], 6]],
+        ["F(bob) == 6", ['==', ['FUNC', 'F', [['VAR', 'bob']]], 6]],
+        ["F(F(bob)) == 6", [ '==', ['FUNC', 'F', [['FUNC', 'F', [['VAR', 'bob']]]]], 6]],
+        ['F()', ['FUNC', 'F', []]],
+        ['F("bob", bob)', ['FUNC', 'F', ["bob", ['VAR', 'bob']]]],
     );
 
-    @INVALID_STRINGS = ('(a', '(a) b', '(a;) && b', ' a == "');
+    @INVALID_STRINGS = (
+        '(a', '(a) b',
+        '(a;) && b',
+        ' a == "',
+        'F(',
+    );
 
     $TEST_COUNT = 1 + (scalar @VALID_STRING_TESTS) + (scalar @INVALID_STRINGS);
 }
@@ -87,7 +97,7 @@ for my $test (@INVALID_STRINGS) {
 sub test_valid_string {
     my ($string, $expected) = @_;
     my ($array, $msg) = parse_condition_string($string);
-    is_deeply($expected, $array, "Check if '$string' is valid");
+    is_deeply($array, $expected, "Check if '$string' is valid");
     unless ($array){
         print "$msg\n";
     }

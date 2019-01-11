@@ -27,10 +27,12 @@ PARAMS = PARAM ',' PARAMS
 PARAMS = PARAM
 PARAM  = VAR
 PARAM  = STRING
+PARAM  = FUNC
 VAR    = ID
 FACT = ! FACT
 FACT = '(' EXPR ')'
 FACT = ID
+FACT = FUNC
 ID   = /a-zA-Z0-9_\./+
 
 =cut
@@ -102,16 +104,15 @@ sub parse_condition_string {
 
 =head2 _parse_expr
 
-Handle an 'expr' expression
+ EXPR = OR || OR
+ EXPR = OR
 
 =cut
 
 sub _parse_expr {
-    # EXPR = OR || OR
-    # EXPR = OR
     my @expr;
     push @expr, _parse_or();
-    while (/\G\s*\|{1,2}/gc) {
+    while (_or_operator()) {
         push @expr, _parse_or();
     }
 
@@ -120,18 +121,25 @@ sub _parse_expr {
     return ['OR', @expr];
 }
 
+=head2 _or_operator
+
+Consume the or operator
+
+=cut
+
+sub _or_operator { /\G\s*\|{1,2}/gc }
+
 =head2 _parse_or
 
-Handle an 'or' expression
+OR   = CMP && CMP
+OR   = CMP
 
 =cut
 
 sub _parse_or {
-    # OR   = CMP && CMP
-    # OR   = CMP
     my @expr;
     push @expr, _parse_cmp();
-    while (/\G\s*\&{1,2}/gc) {
+    while (_and_operator()) {
         push @expr, _parse_cmp();
     }
 
@@ -140,14 +148,23 @@ sub _parse_or {
     return ['AND', @expr];
 }
 
+=head2 _and_operator
+
+Consume the and operator
+
+=cut
+
+sub _and_operator { /\G\s*\&{1,2}/gc }
+
 =head2 _parse_cmp
+
+CMP  = VAL OP ID
+CMP  = VAL OP STRING
+CMP  = FACT
 
 =cut
 
 sub _parse_cmp {
-    # CMP  = VAL OP ID
-    # CMP  = VAL OP STRING
-    # CMP  = FACT
     my $old_pos = pos();
     if (/\G\s*([a-zA-Z0-9_\.]+)/gc) {
         my $a = $1;
@@ -204,7 +221,12 @@ sub _parse_func {
 sub _parse_param {
     my $p;
     if (/\G\s*([a-zA-Z0-9_\.]+)/gc) {
-        $p = ['VAR', $1];
+        my $id = $1;
+        if (/\G\s*\(/gc) {
+            $p = _parse_func($id);
+        } else {
+            $p = ['VAR', $id];
+        }
     } elsif (/\G\s*"((?:[^"\\]|\\"|\\\\)*?)"/gc) {
         $p = $1;
         $p =~ s/\\"/"/g;
@@ -218,14 +240,14 @@ sub _parse_param {
 
 =head2 _parse_fact
 
-Handle a 'fact' expression
+FACT = ! FACT
+FACT = '(' EXPR ')'
+FACT = /a-zA-Z0-9_/+
+FACT = FUNC
 
 =cut
 
 sub _parse_fact {
-    # FACT = ! FACT
-    # FACT = '(' EXPR ')'
-    # FACT = /a-zA-Z0-9_/+
     my $pos = pos();
 
     #Check if it is a not expression !
@@ -245,7 +267,14 @@ sub _parse_fact {
     }
 
     #It is a simple id
-    return $1 if (/\G\s*([a-zA-Z0-9_\.]+)/gc);
+    if (/\G\s*([a-zA-Z0-9_\.]+)/gc) {
+        my $id = $1;
+        if (/\G\s*\(/gc) {
+            return _parse_func($id);
+        }
+
+        return $id;
+    }
     #Reduce whitespace
     /\G\s*/gc;
     die format_parse_error("Invalid character(s)", $_, pos() );
