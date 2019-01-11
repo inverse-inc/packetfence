@@ -7,6 +7,7 @@ import ConnectionProfilesStore from '../_store/connectionProfiles'
 import DomainsStore from '../_store/domains'
 import FloatingDevicesStore from '../_store/floatingDevices'
 import PortalModulesStore from '../_store/portalModules'
+import ProfilingStore from '../_store/profiling'
 import ProvisioningsStore from '../_store/provisionings'
 import RealmsStore from '../_store/realms'
 import RolesStore from '../_store/roles'
@@ -30,6 +31,7 @@ const ConnectionProfileView = () => import(/* webpackChunkName: "Configuration" 
 
 const ComplianceSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/ComplianceSection')
 const ProfilingTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/ProfilingTabs')
+const ProfilingCombinationView = () => import(/* webpackChunkName: "Configuration" */ '../_components/ProfilingCombinationView')
 
 const NetworkConfigurationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/NetworkConfigurationSection')
 const FloatingDevicesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/FloatingDevicesList')
@@ -68,6 +70,9 @@ const route = {
     }
     if (!store.state.$_portalmodules) {
       store.registerModule('$_portalmodules', PortalModulesStore)
+    }
+    if (!store.state.$_profiling) {
+      store.registerModule('$_profiling', ProfilingStore)
     }
     if (!store.state.$_provisionings) {
       store.registerModule('$_provisionings', ProvisioningsStore)
@@ -366,6 +371,34 @@ const route = {
       name: 'profilingCombinations',
       component: ProfilingTabs,
       props: (route) => ({ tab: 'combinations', query: route.query.query })
+    },
+    {
+      path: 'profiling/combinations/new',
+      name: 'newCombination',
+      component: ProfilingCombinationView,
+      props: (route) => ({ storeName: '$_TODO', isNew: true })
+    },
+    {
+      path: 'profiling/combination/:id',
+      name: 'combination',
+      component: ProfilingCombinationView,
+      props: (route) => ({ storeName: '$_TODO', id: route.params.id }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_TODO/getTODO', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'profiling/combination/:id/clone',
+      name: 'cloneCombination',
+      component: ProfilingCombinationView,
+      props: (route) => ({ storeName: '$_TODO', id: route.params.id, isClone: true }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_TODO/getTODO', to.params.id).then(object => {
+          next()
+        })
+      }
     },
     {
       path: 'profiling/devices',
