@@ -74,7 +74,7 @@ has_field 'testUser',
 
 has_field 'testPassword',
   (
-   type => 'Text',
+   type => 'ObfuscatedText',
    label => 'Test Password',
    element_class => ['input-small'],
    tags => { after_element => \&help,
