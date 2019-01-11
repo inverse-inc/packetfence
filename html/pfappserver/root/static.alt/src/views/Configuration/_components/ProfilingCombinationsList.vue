@@ -56,10 +56,7 @@ export default {
             values: [{
               op: 'or',
               values: [
-                { field: 'id', op: 'contains', value: null },
-                { field: 'description', op: 'contains', value: null },
-                { field: 'type', op: 'contains', value: null },
-                { field: 'mode', op: 'contains', value: null }
+                { field: 'id', op: 'contains', value: null }
               ]
             }]
           },
@@ -72,10 +69,7 @@ export default {
               {
                 op: 'or',
                 values: [
-                  { field: 'id', op: 'contains', value: quickCondition },
-                  { field: 'description', op: 'contains', value: quickCondition },
-                  { field: 'type', op: 'contains', value: quickCondition },
-                  { field: 'mode', op: 'contains', value: quickCondition }
+                  { field: 'id', op: 'contains', value: quickCondition }
                 ]
               }
             ]

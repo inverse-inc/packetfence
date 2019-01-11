@@ -2,6 +2,10 @@ import i18n from '@/utils/locale'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormToggle from '@/components/pfFormToggle'
 import {
+  pfConfigurationListColumns,
+  pfConfigurationListFields
+} from '@/globals/pfConfiguration'
+import {
   and,
   isFQDN,
   isHex,
@@ -356,3 +360,67 @@ export const pfConfigurationProfilingDeviceChangeDetectionViewFields = (context 
 export const pfConfigurationProfilingDeviceChangeDetectionViewDefaults = (context = {}) => {
   return {}
 }
+
+export const pfConfigurationProfilingCombinationsListColumns = [
+  Object.assign(pfConfigurationListColumns.id, { label: i18n.t('Identifier') }) // re-label
+]
+
+export const pfConfigurationProfilingCombinationsListFields = [
+  Object.assign(pfConfigurationListFields.id, { text: i18n.t('Identifier') }) // re-text
+]
+
+export const pfConfigurationProfilingDevicesListColumns = [
+  Object.assign(pfConfigurationListColumns.id, { label: i18n.t('Identifier') }) // re-label
+]
+
+export const pfConfigurationProfilingDevicesListFields = [
+  Object.assign(pfConfigurationListFields.id, { text: i18n.t('Identifier') }) // re-text
+]
+
+export const pfConfigurationProfilingDhcpFingerprintsListColumns = [
+  Object.assign(pfConfigurationListColumns.id, { label: i18n.t('Identifier') }) // re-label
+]
+
+export const pfConfigurationProfilingDhcpFingerprintsListFields = [
+  Object.assign(pfConfigurationListFields.id, { text: i18n.t('Identifier') }) // re-text
+]
+
+export const pfConfigurationProfilingDhcpVendorsListColumns = [
+  Object.assign(pfConfigurationListColumns.id, { label: i18n.t('Identifier') }) // re-label
+]
+
+export const pfConfigurationProfilingDhcpVendorsListFields = [
+  Object.assign(pfConfigurationListFields.id, { text: i18n.t('Identifier') }) // re-text
+]
+
+export const pfConfigurationProfilingDhcpv6FingerprintsListColumns = [
+  Object.assign(pfConfigurationListColumns.id, { label: i18n.t('Identifier') }) // re-label
+]
+
+export const pfConfigurationProfilingDhcpv6FingerprintsListFields = [
+  Object.assign(pfConfigurationListFields.id, { text: i18n.t('Identifier') }) // re-text
+]
+
+export const pfConfigurationProfilingDhcpv6EnterprisesListColumns = [
+  Object.assign(pfConfigurationListColumns.id, { label: i18n.t('Identifier') }) // re-label
+]
+
+export const pfConfigurationProfilingDhcpv6EnterprisesListFields = [
+  Object.assign(pfConfigurationListFields.id, { text: i18n.t('Identifier') }) // re-text
+]
+
+export const pfConfigurationProfilingMacVendorsListColumns = [
+  Object.assign(pfConfigurationListColumns.id, { label: i18n.t('Identifier') }) // re-label
+]
+
+export const pfConfigurationProfilingMacVendorsListFields = [
+  Object.assign(pfConfigurationListFields.id, { text: i18n.t('Identifier') }) // re-text
+]
+
+export const pfConfigurationProfilingUserAgentsListColumns = [
+  Object.assign(pfConfigurationListColumns.id, { label: i18n.t('Identifier') }) // re-label
+]
+
+export const pfConfigurationProfilingUserAgentsListFields = [
+  Object.assign(pfConfigurationListFields.id, { text: i18n.t('Identifier') }) // re-text
+]
