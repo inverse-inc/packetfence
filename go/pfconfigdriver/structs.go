@@ -352,6 +352,8 @@ type AuthenticationSourceEduroam struct {
 	Server2Address string `json:"server2_address"`
 	Monitor        string `json:"monitor"`
 	Type           string `json:"type"`
+	TestUser       string `json:"testUser"`
+	TestPassword   string `json:"testPassword"`
 }
 
 type AuthenticationSourceRadius struct {
@@ -366,6 +368,8 @@ type AuthenticationSourceRadius struct {
 	Timeout        string `json:"timeout"`
 	Monitor        string `json:"monitor"`
 	Type           string `json:"type"`
+	TestUser       string `json:"testUser"`
+	TestPassword   string `json:"testPassword"`
 }
 
 type AuthenticationSourceLdap struct {

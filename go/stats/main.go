@@ -96,27 +96,31 @@ func (s radiustype) Test(source interface{}, ctx context.Context) {
 	radiusSource := source.(pfconfigdriver.AuthenticationSourceRadius)
 	sourceId := radiusSource.PfconfigHashNS
 	log.LoggerWContext(ctx).Info("Testing RADIUS source " + sourceId)
-	packet := radius.New(radius.CodeAccessRequest, []byte(radiusSource.Secret))
-	UserName_SetString(packet, "tim")
-	UserPassword_SetString(packet, "12345")
-	client := radius.DefaultClient
-	sources := strings.Split(radiusSource.Host, ",")
-	for num, src := range sources {
-		ctx2, cancel := context.WithTimeout(ctx, 5*time.Second)
-		defer cancel()
-		response, err := client.Exchange(ctx2, packet, src+":"+radiusSource.Port)
-		if err != nil {
-			StatsdClient.Gauge("source."+radiusSource.Type+"."+radiusSource.PfconfigHashNS+strconv.Itoa(num), 0)
-		} else {
-			StatsdClient.Gauge("source."+radiusSource.Type+"."+sourceId+strconv.Itoa(num), 1)
-			if response.Code == radius.CodeAccessAccept {
-				log.LoggerWContext(ctx).Debug(fmt.Sprintf("RADIUS test for source %s did returned an Access-Accept", sourceId))
+	if radiusSource.TestUser != "" {
+		packet := radius.New(radius.CodeAccessRequest, []byte(radiusSource.Secret))
+		UserName_SetString(packet, radiusSource.TestUser)
+		UserPassword_SetString(packet, radiusSource.TestPassword)
+		client := radius.DefaultClient
+		sources := strings.Split(radiusSource.Host, ",")
+		for num, src := range sources {
+			ctx2, cancel := context.WithTimeout(ctx, 5*time.Second)
+			defer cancel()
+			response, err := client.Exchange(ctx2, packet, src+":"+radiusSource.Port)
+			if err != nil {
+				StatsdClient.Gauge("source."+radiusSource.Type+"."+radiusSource.PfconfigHashNS+strconv.Itoa(num), 0)
 			} else {
-				log.LoggerWContext(ctx).Debug(fmt.Sprintf("RADIUS test for source %s returned a response other than an Access-Accept", sourceId))
+				StatsdClient.Gauge("source."+radiusSource.Type+"."+sourceId+strconv.Itoa(num), 1)
+				if response.Code == radius.CodeAccessAccept {
+					log.LoggerWContext(ctx).Debug(fmt.Sprintf("RADIUS test for source %s did returned an Access-Accept", sourceId))
+				} else {
+					log.LoggerWContext(ctx).Debug(fmt.Sprintf("RADIUS test for source %s returned a response other than an Access-Accept", sourceId))
+				}
 			}
 		}
+		t.Send("source." + source.(pfconfigdriver.AuthenticationSourceRadius).Type + "." + source.(pfconfigdriver.AuthenticationSourceRadius).PfconfigHashNS)
+	} else {
+		log.LoggerWContext(ctx).Warn("Undefined credentials to test RADIUS source " + sourceId)
 	}
-	t.Send("source." + source.(pfconfigdriver.AuthenticationSourceRadius).Type + "." + source.(pfconfigdriver.AuthenticationSourceRadius).PfconfigHashNS)
 }
 
 var LDAP ldaptype
@@ -167,43 +171,46 @@ type eduroamtype struct{}
 func (s eduroamtype) Test(source interface{}, ctx context.Context) {
 
 	t := StatsdClient.NewTiming()
-	packet := radius.New(radius.CodeAccessRequest, []byte(source.(pfconfigdriver.AuthenticationSourceEduroam).RadiusSecret))
-	UserName_SetString(packet, "tim")
-	UserPassword_SetString(packet, "12345")
-	client := radius.DefaultClient
-	ctx2, cancel := context.WithTimeout(ctx, 5*time.Second)
-	defer cancel()
-	response, err := client.Exchange(ctx2, packet, source.(pfconfigdriver.AuthenticationSourceEduroam).Server1Address+":1812")
+	if source.(pfconfigdriver.AuthenticationSourceEduroam).TestUser != "" {
+		packet := radius.New(radius.CodeAccessRequest, []byte(source.(pfconfigdriver.AuthenticationSourceEduroam).RadiusSecret))
+		UserName_SetString(packet, source.(pfconfigdriver.AuthenticationSourceEduroam).TestUser)
+		UserPassword_SetString(packet, source.(pfconfigdriver.AuthenticationSourceEduroam).TestPassword)
+		client := radius.DefaultClient
+		ctx2, cancel := context.WithTimeout(ctx, 5*time.Second)
+		defer cancel()
+		response, err := client.Exchange(ctx2, packet, source.(pfconfigdriver.AuthenticationSourceEduroam).Server1Address+":1812")
 
-	if err != nil {
-		StatsdClient.Gauge("source."+source.(pfconfigdriver.AuthenticationSourceEduroam).Type+"."+source.(pfconfigdriver.AuthenticationSourceEduroam).PfconfigHashNS+"1", 0)
-	} else {
-		StatsdClient.Count("source."+source.(pfconfigdriver.AuthenticationSourceEduroam).Type+"."+source.(pfconfigdriver.AuthenticationSourceEduroam).PfconfigHashNS+"1", 1)
-		if response.Code == radius.CodeAccessAccept {
-			fmt.Println("Accepted")
+		if err != nil {
+			StatsdClient.Gauge("source."+source.(pfconfigdriver.AuthenticationSourceEduroam).Type+"."+source.(pfconfigdriver.AuthenticationSourceEduroam).PfconfigHashNS+"1", 0)
 		} else {
-			fmt.Println("Denied")
+			StatsdClient.Count("source."+source.(pfconfigdriver.AuthenticationSourceEduroam).Type+"."+source.(pfconfigdriver.AuthenticationSourceEduroam).PfconfigHashNS+"1", 1)
+			if response.Code == radius.CodeAccessAccept {
+				fmt.Println("Accepted")
+			} else {
+				fmt.Println("Denied")
+			}
 		}
-	}
-	t.Send("source." + source.(pfconfigdriver.AuthenticationSourceEduroam).Type + "." + source.(pfconfigdriver.AuthenticationSourceEduroam).PfconfigHashNS + "1")
+		t.Send("source." + source.(pfconfigdriver.AuthenticationSourceEduroam).Type + "." + source.(pfconfigdriver.AuthenticationSourceEduroam).PfconfigHashNS + "1")
 
-	t = StatsdClient.NewTiming()
-	packet = radius.New(radius.CodeAccessRequest, []byte(source.(pfconfigdriver.AuthenticationSourceEduroam).RadiusSecret))
-	UserName_SetString(packet, "tim")
-	UserPassword_SetString(packet, "12345")
-	response, err = client.Exchange(ctx, packet, source.(pfconfigdriver.AuthenticationSourceEduroam).Server2Address+":1812")
-	if err != nil {
-		StatsdClient.Gauge("source."+source.(pfconfigdriver.AuthenticationSourceEduroam).Type+"."+source.(pfconfigdriver.AuthenticationSourceEduroam).PfconfigHashNS+"2", 0)
-	} else {
-		StatsdClient.Gauge("source."+source.(pfconfigdriver.AuthenticationSourceEduroam).Type+"."+source.(pfconfigdriver.AuthenticationSourceEduroam).PfconfigHashNS+"2", 1)
-		if response.Code == radius.CodeAccessAccept {
-			fmt.Println("Accepted")
+		t = StatsdClient.NewTiming()
+		packet = radius.New(radius.CodeAccessRequest, []byte(source.(pfconfigdriver.AuthenticationSourceEduroam).RadiusSecret))
+		UserName_SetString(packet, source.(pfconfigdriver.AuthenticationSourceEduroam).TestUser)
+		UserPassword_SetString(packet, source.(pfconfigdriver.AuthenticationSourceEduroam).TestPassword)
+		response, err = client.Exchange(ctx, packet, source.(pfconfigdriver.AuthenticationSourceEduroam).Server2Address+":1812")
+		if err != nil {
+			StatsdClient.Gauge("source."+source.(pfconfigdriver.AuthenticationSourceEduroam).Type+"."+source.(pfconfigdriver.AuthenticationSourceEduroam).PfconfigHashNS+"2", 0)
 		} else {
-			fmt.Println("Denied")
+			StatsdClient.Gauge("source."+source.(pfconfigdriver.AuthenticationSourceEduroam).Type+"."+source.(pfconfigdriver.AuthenticationSourceEduroam).PfconfigHashNS+"2", 1)
+			if response.Code == radius.CodeAccessAccept {
+				fmt.Println("Accepted")
+			} else {
+				fmt.Println("Denied")
+			}
 		}
+		t.Send("source." + source.(pfconfigdriver.AuthenticationSourceEduroam).Type + "." + source.(pfconfigdriver.AuthenticationSourceEduroam).PfconfigHashNS + "2")
+	} else {
+		log.LoggerWContext(ctx).Warn("Undefined credentials to test Eduroam source " + source.(pfconfigdriver.AuthenticationSourceEduroam).PfconfigHashNS)
 	}
-	t.Send("source." + source.(pfconfigdriver.AuthenticationSourceEduroam).Type + "." + source.(pfconfigdriver.AuthenticationSourceEduroam).PfconfigHashNS + "2")
-
 }
 
 func forward(c net.Conn) {

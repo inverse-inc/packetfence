@@ -60,7 +60,26 @@ has_field 'monitor',
    unchecked_value => '0',
    tags => { after_element => \&help,
              help => 'Do you want to monitor this source?' },
-   default => pf::Authentication::Source::RADIUSSource->meta->get_attribute('monitor')->default,
+   default => '',
+);
+has_field 'testUser',
+  (
+   type => 'Text',
+   label => 'Test User',
+   element_class => ['input-small'],
+   tags => { after_element => \&help,
+             help => 'If you monitor, what is the username to test the RADIUS source' },
+   default => '',
+);
+
+has_field 'testPassword',
+  (
+   type => 'Text',
+   label => 'Test Password',
+   element_class => ['input-small'],
+   tags => { after_element => \&help,
+             help => 'If you monitor, what is the password to test the RADIUS source' },
+   default => pf::Authentication::Source::RADIUSSource->meta->get_attribute('testUser')->default,
 );
 has_field 'options',
   (
