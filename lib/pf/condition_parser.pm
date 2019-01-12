@@ -28,12 +28,15 @@ PARAMS = PARAM
 PARAM  = VAR
 PARAM  = STRING
 PARAM  = FUNC
-VAR    = ID
+PARAM  = ID
+VAR    = '${' ID '}'
 FACT = ! FACT
 FACT = '(' EXPR ')'
 FACT = ID
 FACT = FUNC
 ID   = /a-zA-Z0-9_\./+
+STRING = "'" /([^'\\]|\\'|\\\\)+/  "'"
+STRING = '"' /([^"\\]|\\"|\\\\)+/  '"'
 
 =cut
 
@@ -177,13 +180,14 @@ sub _parse_cmp {
             my $b;
             if (/\G\s*([a-zA-Z0-9_\.]+)/gc) {
                 $b = $1;
-            } elsif (/\G\s*"((?:[^"\\]|\\"|\\\\)*?)"/gc) {
-                $b = $1;
-                $b =~ s/\\"/"/g;
-                $b =~ s/\\\\/\\/g;
             } else {
+                $b = _parse_string();
+            }
+
+            if (!defined $b) {
                 die format_parse_error("Invalid format", $_, pos);
             }
+
             return [$op,$a,$b];
         }
     }
@@ -191,6 +195,27 @@ sub _parse_cmp {
     return _parse_fact();
 }
 
+
+=head2 _parse_string
+
+_parse_string
+
+=cut
+
+sub _parse_string {
+    my ($self) = @_;
+    my $s = undef;
+    if (/\G\s*"((?:[^"\\]|\\"|\\\\)*?)"/gc) {
+        $s = $1;
+        $s =~ s/\\"/"/g;
+        $s =~ s/\\\\/\\/g;
+    } elsif (/\G\s*'((?:[^'\\]|\\'|\\\\)*?)'/gc) {
+        $s = $1;
+        $s =~ s/\\'/'/g;
+        $s =~ s/\\\\/\\/g;
+    }
+    return $s;
+}
 
 =head2 _parse_func
 
@@ -225,14 +250,16 @@ sub _parse_param {
         if (/\G\s*\(/gc) {
             $p = _parse_func($id);
         } else {
-            $p = ['VAR', $id];
+            $p = $id;
         }
-    } elsif (/\G\s*"((?:[^"\\]|\\"|\\\\)*?)"/gc) {
-        $p = $1;
-        $p =~ s/\\"/"/g;
-        $p =~ s/\\\\/\\/g;
+    } elsif (/\G\s*\$\{([a-zA-Z0-9_\.]+)\}/gc) {
+        $p = ['VAR', $1];
     } else {
-        die format_parse_error("Invalid parameter", $_, pos);
+        $p = _parse_string();
+    }
+
+    if (!defined $p) {
+        format_parse_error("Invalid parameter", $_, pos);
     }
 
     return $p;
