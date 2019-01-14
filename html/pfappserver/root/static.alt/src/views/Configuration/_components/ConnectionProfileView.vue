@@ -122,7 +122,7 @@ export default {
       this.getForm.fields.forEach(tab => {
         tab.fields.forEach(row => {
           row.fields.forEach(col => {
-            if ('key' in col) keyLabelMap[col.key] = this.$i18n.t(row.label)
+            if ('key' in col) keyLabelMap[col.key] = row.label
           })
         })
       })
@@ -159,7 +159,9 @@ export default {
     notifyError (err) {
       const { response: { data: { errors = [] } } } = err
       errors.forEach((error) => {
-        error.field = this.keyLabelMap[error.field] || error.field
+        if (error.field in this.keyLabelMap) {
+          error.field = this.$i18n.t(this.keyLabelMap[error.field])
+        }
         let message = this.$i18n.t('Server Error - "{field}": {message}', error)
         this.$store.dispatch('notification/danger', { icon: 'server', url: `#${this.$route.fullPath}`, message: message })
       })
