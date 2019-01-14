@@ -171,14 +171,18 @@ func main() {
 		for {
 			req, err := http.NewRequest("GET", "http://127.0.0.1:22222", nil)
 			if err != nil {
-				fmt.Println(err)
-				return
+				log.LoggerWContext(ctx).Error(err.Error())
+				continue
 			}
 			req.Close = true
 			resp, err := cli.Do(req)
-			if resp != nil {
-				resp.Body.Close()
+			time.Sleep(100 * time.Millisecond)
+			if err != nil {
+				log.LoggerWContext(ctx).Error(err.Error())
+				continue
 			}
+			defer resp.Body.Close()
+
 			if err == nil {
 				daemon.SdNotify(false, "WATCHDOG=1")
 			}
