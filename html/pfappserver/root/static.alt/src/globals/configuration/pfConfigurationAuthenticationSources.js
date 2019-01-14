@@ -6,7 +6,7 @@ import {
 } from '@/globals/configuration/pfConfiguration'
 
 export const pfConfigurationAuthenticationSourcesListColumns = [
-  Object.assign(pfConfigurationListColumns.id, { label: i18n.t('Name') }), // re-label
+  { ...pfConfigurationListColumns.id, ...{ label: i18n.t('Name') } }, // re-label
   pfConfigurationListColumns.description,
   pfConfigurationListColumns.class,
   pfConfigurationListColumns.type,
@@ -14,7 +14,7 @@ export const pfConfigurationAuthenticationSourcesListColumns = [
 ]
 
 export const pfConfigurationAuthenticationSourcesListFields = [
-  Object.assign(pfConfigurationListFields.id, { text: i18n.t('Name') }), // re-text
+  { ...pfConfigurationListFields.id, ...{ text: i18n.t('Name') } }, // re-text
   pfConfigurationListFields.description,
   pfConfigurationListFields.class,
   pfConfigurationListFields.type
@@ -235,9 +235,9 @@ export const pfConfigurationAuthenticationSourceViewFields = (context) => {
           fields: [
             pfConfigurationViewFields.id(context),
             pfConfigurationViewFields.description,
-            Object.assign(pfConfigurationViewFields.email_activation_timeout, {
+            { ...pfConfigurationViewFields.email_activation_timeout, ...{
               text: i18n.t('This is the delay given to a guest who registered by email confirmation to log into his email and click the activation link.')
-            }), // re-text
+            } }, // re-text
             pfConfigurationViewFields.allow_localdomain,
             pfConfigurationViewFields.activation_domain,
             pfConfigurationViewFields.create_local_account,
@@ -255,11 +255,11 @@ export const pfConfigurationAuthenticationSourceViewFields = (context) => {
             pfConfigurationViewFields.description,
             pfConfigurationViewFields.client_id,
             pfConfigurationViewFields.client_secret,
-            Object.assign(pfConfigurationViewFields.site, { label: i18n.t('Graph API URL') }), // re-label
-            Object.assign(pfConfigurationViewFields.access_token_path, { label: i18n.t('Graph API Token Path') }), // re-label
+            { ...pfConfigurationViewFields.site, ...{ label: i18n.t('Graph API URL') } }, // re-label
+            { ...pfConfigurationViewFields.access_token_path, ...{ label: i18n.t('Graph API Token Path') } }, // re-label
             pfConfigurationViewFields.access_token_param,
             pfConfigurationViewFields.access_scope,
-            Object.assign(pfConfigurationViewFields.protected_resource_url, { label: i18n.t('Graph API URL of logged user') }), // re-label
+            { ...pfConfigurationViewFields.protected_resource_url, ...{ label: i18n.t('Graph API URL of logged user') } }, // re-label
             pfConfigurationViewFields.redirect_url,
             pfConfigurationViewFields.domains,
             pfConfigurationViewFields.create_local_account,
@@ -277,12 +277,12 @@ export const pfConfigurationAuthenticationSourceViewFields = (context) => {
             pfConfigurationViewFields.description,
             pfConfigurationViewFields.client_id,
             pfConfigurationViewFields.client_secret,
-            Object.assign(pfConfigurationViewFields.site, { label: i18n.t('API URL') }), // re-label
+            { ...pfConfigurationViewFields.site, ...{ label: i18n.t('API URL') } }, // re-label
             pfConfigurationViewFields.authorize_path,
-            Object.assign(pfConfigurationViewFields.access_token_path, { label: i18n.t('API Token Path') }), // re-label
+            { ...pfConfigurationViewFields.access_token_path, ...{ label: i18n.t('API Token Path') } }, // re-label
             pfConfigurationViewFields.access_token_param,
             pfConfigurationViewFields.access_scope,
-            Object.assign(pfConfigurationViewFields.protected_resource_url, { label: i18n.t('API URL of logged user') }), // re-label
+            { ...pfConfigurationViewFields.protected_resource_url, ...{ label: i18n.t('API URL of logged user') } }, // re-label
             pfConfigurationViewFields.redirect_url,
             pfConfigurationViewFields.domains,
             pfConfigurationViewFields.create_local_account,
@@ -300,12 +300,12 @@ export const pfConfigurationAuthenticationSourceViewFields = (context) => {
             pfConfigurationViewFields.description,
             pfConfigurationViewFields.client_id,
             pfConfigurationViewFields.client_secret,
-            Object.assign(pfConfigurationViewFields.site, { label: i18n.t('API URL') }), // re-label
+            { ...pfConfigurationViewFields.site, ...{ label: i18n.t('API URL') } }, // re-label
             pfConfigurationViewFields.authorize_path,
-            Object.assign(pfConfigurationViewFields.access_token_path, { label: i18n.t('API Token Path') }), // re-label
+            { ...pfConfigurationViewFields.access_token_path, ...{ label: i18n.t('API Token Path') } }, // re-label
             pfConfigurationViewFields.access_token_param,
             pfConfigurationViewFields.access_scope,
-            Object.assign(pfConfigurationViewFields.protected_resource_url, { label: i18n.t('API URL of logged user') }), // re-label
+            { ...pfConfigurationViewFields.protected_resource_url, ...{ label: i18n.t('API URL of logged user') } }, // re-label
             pfConfigurationViewFields.redirect_url,
             pfConfigurationViewFields.domains,
             pfConfigurationViewFields.create_local_account,
@@ -323,11 +323,11 @@ export const pfConfigurationAuthenticationSourceViewFields = (context) => {
             pfConfigurationViewFields.description,
             pfConfigurationViewFields.client_id,
             pfConfigurationViewFields.client_secret,
-            Object.assign(pfConfigurationViewFields.site, { label: i18n.t('Graph API URL') }), // re-label
-            Object.assign(pfConfigurationViewFields.access_token_path, { label: i18n.t('Graph API Token Path') }), // re-label
+            { ...pfConfigurationViewFields.site, ...{ label: i18n.t('Graph API URL') } }, // re-label
+            { ...pfConfigurationViewFields.access_token_path, ...{ label: i18n.t('Graph API Token Path') } }, // re-label
             pfConfigurationViewFields.access_token_param,
             pfConfigurationViewFields.access_scope,
-            Object.assign(pfConfigurationViewFields.protected_resource_url, { label: i18n.t('Graph API URL of logged user') }), // re-label
+            { ...pfConfigurationViewFields.protected_resource_url, ...{ label: i18n.t('Graph API URL of logged user') } }, // re-label
             pfConfigurationViewFields.redirect_url,
             pfConfigurationViewFields.domains,
             pfConfigurationViewFields.create_local_account,
@@ -357,11 +357,11 @@ export const pfConfigurationAuthenticationSourceViewFields = (context) => {
             pfConfigurationViewFields.description,
             pfConfigurationViewFields.client_id,
             pfConfigurationViewFields.client_secret,
-            Object.assign(pfConfigurationViewFields.site, { label: i18n.t('API URL') }), // re-label
+            { ...pfConfigurationViewFields.site, ...{ label: i18n.t('API URL') } }, // re-label
             pfConfigurationViewFields.authorize_path,
-            Object.assign(pfConfigurationViewFields.access_token_path, { label: i18n.t('API Token Path') }), // re-label
+            { ...pfConfigurationViewFields.access_token_path, ...{ label: i18n.t('API Token Path') } }, // re-label
             pfConfigurationViewFields.access_token_param,
-            Object.assign(pfConfigurationViewFields.protected_resource_url, { label: i18n.t('API URL of logged user') }), // re-label
+            { ...pfConfigurationViewFields.protected_resource_url, ...{ label: i18n.t('API URL of logged user') } }, // re-label
             pfConfigurationViewFields.redirect_url,
             pfConfigurationViewFields.domains,
             pfConfigurationViewFields.create_local_account,
@@ -391,11 +391,11 @@ export const pfConfigurationAuthenticationSourceViewFields = (context) => {
             pfConfigurationViewFields.description,
             pfConfigurationViewFields.client_id,
             pfConfigurationViewFields.client_secret,
-            Object.assign(pfConfigurationViewFields.site, { label: i18n.t('API URL') }), // re-label
+            { ...pfConfigurationViewFields.site, ...{ label: i18n.t('API URL') } }, // re-label
             pfConfigurationViewFields.authorize_path,
-            Object.assign(pfConfigurationViewFields.access_token_path, { label: i18n.t('API Token Path') }), // re-label
+            { ...pfConfigurationViewFields.access_token_path, ...{ label: i18n.t('API Token Path') } }, // re-label
             pfConfigurationViewFields.access_scope,
-            Object.assign(pfConfigurationViewFields.protected_resource_url, { label: i18n.t('API URL of logged user') }), // re-label
+            { ...pfConfigurationViewFields.protected_resource_url, ...{ label: i18n.t('API URL of logged user') } }, // re-label
             pfConfigurationViewFields.redirect_url,
             pfConfigurationViewFields.domains,
             pfConfigurationViewFields.create_local_account,
@@ -413,12 +413,12 @@ export const pfConfigurationAuthenticationSourceViewFields = (context) => {
             pfConfigurationViewFields.description,
             pfConfigurationViewFields.client_id,
             pfConfigurationViewFields.client_secret,
-            Object.assign(pfConfigurationViewFields.site, { label: i18n.t('Graph API URL') }), // re-label
+            { ...pfConfigurationViewFields.site, ...{ label: i18n.t('Graph API URL') } }, // re-label
             pfConfigurationViewFields.authorize_path,
-            Object.assign(pfConfigurationViewFields.access_token_path, { label: i18n.t('Graph API Token Path') }), // re-label
+            { ...pfConfigurationViewFields.access_token_path, ...{ label: i18n.t('Graph API Token Path') } }, // re-label
             pfConfigurationViewFields.access_token_param,
             pfConfigurationViewFields.access_scope,
-            Object.assign(pfConfigurationViewFields.protected_resource_url, { label: i18n.t('API URL of logged user') }), // re-label
+            { ...pfConfigurationViewFields.protected_resource_url, ...{ label: i18n.t('API URL of logged user') } }, // re-label
             pfConfigurationViewFields.redirect_url,
             pfConfigurationViewFields.domains,
             pfConfigurationViewFields.create_local_account,
@@ -452,7 +452,7 @@ export const pfConfigurationAuthenticationSourceViewFields = (context) => {
             pfConfigurationViewFields.id(context),
             pfConfigurationViewFields.description,
             pfConfigurationViewFields.allow_localdomain,
-            Object.assign(pfConfigurationViewFields.email_activation_timeout, { text: i18n.t('Delay given to a sponsor to click the activation link.') }), // re-text
+            { ...pfConfigurationViewFields.email_activation_timeout, ...{ text: i18n.t('Delay given to a sponsor to click the activation link.') } }, // re-text
             pfConfigurationViewFields.activation_domain,
             pfConfigurationViewFields.sponsorship_bcc,
             pfConfigurationViewFields.validate_sponsor,
@@ -489,10 +489,10 @@ export const pfConfigurationAuthenticationSourceViewFields = (context) => {
             pfConfigurationViewFields.description,
             pfConfigurationViewFields.client_id,
             pfConfigurationViewFields.client_secret,
-            Object.assign(pfConfigurationViewFields.site, { label: i18n.t('API URL') }), // re-label
+            { ...pfConfigurationViewFields.site, ...{ label: i18n.t('API URL') } }, // re-label
             pfConfigurationViewFields.authorize_path,
-            Object.assign(pfConfigurationViewFields.access_token_path, { label: i18n.t('API Token Path') }), // re-label
-            Object.assign(pfConfigurationViewFields.protected_resource_url, { label: i18n.t('API URL of logged user') }), // re-label
+            { ...pfConfigurationViewFields.access_token_path, ...{ label: i18n.t('API Token Path') } }, // re-label
+            { ...pfConfigurationViewFields.protected_resource_url, ...{ label: i18n.t('API URL of logged user') } }, // re-label
             pfConfigurationViewFields.redirect_url,
             pfConfigurationViewFields.domains,
             pfConfigurationViewFields.authentication_rules(context)
@@ -508,12 +508,12 @@ export const pfConfigurationAuthenticationSourceViewFields = (context) => {
             pfConfigurationViewFields.description,
             pfConfigurationViewFields.client_id,
             pfConfigurationViewFields.client_secret,
-            Object.assign(pfConfigurationViewFields.site, { label: i18n.t('API URL') }), // re-label
+            { ...pfConfigurationViewFields.site, ...{ label: i18n.t('API URL') } }, // re-label
             pfConfigurationViewFields.authorize_path,
-            Object.assign(pfConfigurationViewFields.access_token_path, { label: i18n.t('API Token Path') }), // re-label
+            { ...pfConfigurationViewFields.access_token_path, ...{ label: i18n.t('API Token Path') } }, // re-label
             pfConfigurationViewFields.access_token_param,
             pfConfigurationViewFields.access_scope,
-            Object.assign(pfConfigurationViewFields.protected_resource_url, { label: i18n.t('API URL of logged user') }), // re-label
+            { ...pfConfigurationViewFields.protected_resource_url, ...{ label: i18n.t('API URL of logged user') } }, // re-label
             pfConfigurationViewFields.redirect_url,
             pfConfigurationViewFields.domains,
             pfConfigurationViewFields.create_local_account,

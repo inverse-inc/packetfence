@@ -258,13 +258,13 @@ export const pfConfigurationConnectionProfileFilters = {
 
 export const pfConfigurationConnectionProfilesListColumns = [
   pfConfigurationListColumns.status,
-  Object.assign(pfConfigurationListColumns.id, { label: i18n.t('Identifier') }), // re-label
+  { ...pfConfigurationListColumns.id, ...{ label: i18n.t('Identifier') } }, // re-label
   pfConfigurationListColumns.description,
   pfConfigurationListColumns.buttons
 ]
 
 export const pfConfigurationConnectionProfilesListFields = [
-  Object.assign(pfConfigurationListFields.id, { text: i18n.t('Identifier') }), // re-text
+  { ...pfConfigurationListFields.id, ...{ text: i18n.t('Identifier') } }, // re-text
   pfConfigurationListFields.description
 ]
 
@@ -347,7 +347,7 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
             }
           ]
         },
-        Object.assign(pfConfigurationViewFields.description, { label: i18n.t('Profile Description') }), // re-label
+        { ...pfConfigurationViewFields.description, ...{ label: i18n.t('Profile Description') } }, // re-label
         {
           if: !isDefault,
           label: i18n.t('Enable profile'),

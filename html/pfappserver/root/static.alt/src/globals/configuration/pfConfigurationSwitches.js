@@ -30,7 +30,7 @@ const {
 } = require('vuelidate/lib/validators')
 
 export const pfConfigurationSwitchesListColumns = [
-  Object.assign(pfConfigurationListColumns.id, { label: i18n.t('Identifier') }), // re-label
+  { ...pfConfigurationListColumns.id, ...{ label: i18n.t('Identifier') } }, // re-label
   pfConfigurationListColumns.description,
   pfConfigurationListColumns.group,
   pfConfigurationListColumns.type,
@@ -39,7 +39,7 @@ export const pfConfigurationSwitchesListColumns = [
 ]
 
 export const pfConfigurationSwitchesListFields = [
-  Object.assign(pfConfigurationListFields.id, { text: i18n.t('Identifier') }), // re-text
+  { ...pfConfigurationListFields.id, ...{ text: i18n.t('Identifier') } }, // re-text
   pfConfigurationListFields.description,
   pfConfigurationListFields.mode,
   pfConfigurationListFields.type

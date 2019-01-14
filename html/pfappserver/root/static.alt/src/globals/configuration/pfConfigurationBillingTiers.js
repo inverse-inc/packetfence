@@ -25,14 +25,14 @@ const {
 } = require('vuelidate/lib/validators')
 
 export const pfConfigurationBillingTiersListColumns = [
-  Object.assign(pfConfigurationListColumns.id, { label: i18n.t('Identifier') }), // re-label
+  { ...pfConfigurationListColumns.id, ...{ label: i18n.t('Identifier') } }, // re-label
   pfConfigurationListColumns.name,
   pfConfigurationListColumns.price,
   pfConfigurationListColumns.buttons
 ]
 
 export const pfConfigurationBillingTiersListFields = [
-  Object.assign(pfConfigurationListFields.id, { text: i18n.t('Identifier') }), // re-text
+  { ...pfConfigurationListFields.id, ...{ text: i18n.t('Identifier') } }, // re-text
   pfConfigurationListFields.description
 ]
 

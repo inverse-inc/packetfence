@@ -19,13 +19,13 @@ const {
 } = require('vuelidate/lib/validators')
 
 export const pfConfigurationDomainsListColumns = [
-  Object.assign(pfConfigurationListColumns.id, { label: i18n.t('Name') }), // re-label
+  { ...pfConfigurationListColumns.id, ...{ label: i18n.t('Name') } }, // re-label
   pfConfigurationListColumns.workgroup,
   pfConfigurationListColumns.buttons
 ]
 
 export const pfConfigurationDomainsListFields = [
-  Object.assign(pfConfigurationListFields.id, { text: i18n.t('Name') }), // re-text
+  { ...pfConfigurationListFields.id, ...{ text: i18n.t('Name') } }, // re-text
   pfConfigurationListFields.workgroup
 ]
 

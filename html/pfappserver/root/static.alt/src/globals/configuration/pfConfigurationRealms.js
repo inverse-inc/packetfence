@@ -21,7 +21,7 @@ const {
 } = require('vuelidate/lib/validators')
 
 export const pfConfigurationRealmsListColumns = [
-  Object.assign(pfConfigurationListColumns.id, { label: i18n.t('Name') }), // re-label
+  { ...pfConfigurationListColumns.id, ...{ label: i18n.t('Name') } }, // re-label
   pfConfigurationListColumns.portal_strip_username,
   pfConfigurationListColumns.admin_strip_username,
   pfConfigurationListColumns.radius_strip_username,
@@ -29,7 +29,7 @@ export const pfConfigurationRealmsListColumns = [
 ]
 
 export const pfConfigurationRealmsListFields = [
-  Object.assign(pfConfigurationListFields.id, { text: i18n.t('Name') }) // re-text
+  { ...pfConfigurationListFields.id, ...{ text: i18n.t('Name') } } // re-text
 ]
 
 export const pfConfigurationRealmListConfig = (context = {}) => {

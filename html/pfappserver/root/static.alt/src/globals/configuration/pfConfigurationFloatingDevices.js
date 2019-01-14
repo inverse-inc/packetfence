@@ -22,7 +22,7 @@ const {
 } = require('vuelidate/lib/validators')
 
 export const pfConfigurationFloatingDevicesListColumns = [
-  Object.assign(pfConfigurationListColumns.id, { label: i18n.t('MAC') }), // re-label
+  { ...pfConfigurationListColumns.id, ...{ label: i18n.t('MAC') } }, // re-label
   pfConfigurationListColumns.ip,
   pfConfigurationListColumns.pvid,
   pfConfigurationListColumns.taggedVlan,
@@ -31,7 +31,7 @@ export const pfConfigurationFloatingDevicesListColumns = [
 ]
 
 export const pfConfigurationFloatingDevicesListFields = [
-  Object.assign(pfConfigurationListFields.id, { text: i18n.t('MAC') }), // re-text
+  { ...pfConfigurationListFields.id, ...{ text: i18n.t('MAC') } }, // re-text
   pfConfigurationListFields.ip
 ]
 

@@ -362,11 +362,11 @@ export const pfConfigurationProfilingDeviceChangeDetectionViewDefaults = (contex
 }
 
 export const pfConfigurationProfilingCombinationsListColumns = [
-  Object.assign(pfConfigurationListColumns.id, { label: i18n.t('Identifier') }) // re-label
+  { ...pfConfigurationListColumns.id, ...{ label: i18n.t('Identifier') } } // re-label
 ]
 
 export const pfConfigurationProfilingCombinationsListFields = [
-  Object.assign(pfConfigurationListFields.id, { text: i18n.t('Identifier') }) // re-text
+  { ...pfConfigurationListFields.id, ...{ text: i18n.t('Identifier') } } // re-text
 ]
 
 export const pfConfigurationProfilingCombinationsListConfig = (context = {}) => {
@@ -409,11 +409,11 @@ export const pfConfigurationProfilingCombinationsListConfig = (context = {}) => 
 }
 
 export const pfConfigurationProfilingDevicesListColumns = [
-  Object.assign(pfConfigurationListColumns.id, { label: i18n.t('Identifier') }) // re-label
+  { ...pfConfigurationListColumns.id, ...{ label: i18n.t('Identifier') } } // re-label
 ]
 
 export const pfConfigurationProfilingDevicesListFields = [
-  Object.assign(pfConfigurationListFields.id, { text: i18n.t('Identifier') }) // re-text
+  { ...pfConfigurationListFields.id, ...{ text: i18n.t('Identifier') } } // re-text
 ]
 
 export const pfConfigurationProfilingDevicesListConfig = (context = {}) => {
@@ -456,11 +456,11 @@ export const pfConfigurationProfilingDevicesListConfig = (context = {}) => {
 }
 
 export const pfConfigurationProfilingDhcpFingerprintsListColumns = [
-  Object.assign(pfConfigurationListColumns.id, { label: i18n.t('Identifier') }) // re-label
+  { ...pfConfigurationListColumns.id, ...{ label: i18n.t('Identifier') } } // re-label
 ]
 
 export const pfConfigurationProfilingDhcpFingerprintsListFields = [
-  Object.assign(pfConfigurationListFields.id, { text: i18n.t('Identifier') }) // re-text
+  { ...pfConfigurationListFields.id, ...{ text: i18n.t('Identifier') } } // re-text
 ]
 
 export const pfConfigurationProfilingDhcpFingerprintsListConfig = (context = {}) => {
@@ -503,11 +503,11 @@ export const pfConfigurationProfilingDhcpFingerprintsListConfig = (context = {})
 }
 
 export const pfConfigurationProfilingDhcpVendorsListColumns = [
-  Object.assign(pfConfigurationListColumns.id, { label: i18n.t('Identifier') }) // re-label
+  { ...pfConfigurationListColumns.id, ...{ label: i18n.t('Identifier') } } // re-label
 ]
 
 export const pfConfigurationProfilingDhcpVendorsListFields = [
-  Object.assign(pfConfigurationListFields.id, { text: i18n.t('Identifier') }) // re-text
+  { ...pfConfigurationListFields.id, ...{ text: i18n.t('Identifier') } } // re-text
 ]
 
 export const pfConfigurationProfilingDhcpVendorsListConfig = (context = {}) => {
@@ -550,11 +550,11 @@ export const pfConfigurationProfilingDhcpVendorsListConfig = (context = {}) => {
 }
 
 export const pfConfigurationProfilingDhcpv6FingerprintsListColumns = [
-  Object.assign(pfConfigurationListColumns.id, { label: i18n.t('Identifier') }) // re-label
+  { ...pfConfigurationListColumns.id, ...{ label: i18n.t('Identifier') } } // re-label
 ]
 
 export const pfConfigurationProfilingDhcpv6FingerprintsListFields = [
-  Object.assign(pfConfigurationListFields.id, { text: i18n.t('Identifier') }) // re-text
+  { ...pfConfigurationListFields.id, ...{ text: i18n.t('Identifier') } } // re-text
 ]
 
 export const pfConfigurationProfilingDhcpv6FingerprintsListConfig = (context = {}) => {
@@ -597,11 +597,11 @@ export const pfConfigurationProfilingDhcpv6FingerprintsListConfig = (context = {
 }
 
 export const pfConfigurationProfilingDhcpv6EnterprisesListColumns = [
-  Object.assign(pfConfigurationListColumns.id, { label: i18n.t('Identifier') }) // re-label
+  { ...pfConfigurationListColumns.id, ...{ label: i18n.t('Identifier') } } // re-label
 ]
 
 export const pfConfigurationProfilingDhcpv6EnterprisesListFields = [
-  Object.assign(pfConfigurationListFields.id, { text: i18n.t('Identifier') }) // re-text
+  { ...pfConfigurationListFields.id, ...{ text: i18n.t('Identifier') } } // re-text
 ]
 
 export const pfConfigurationProfilingDhcpv6EnterprisesListConfig = (context = {}) => {
@@ -644,11 +644,11 @@ export const pfConfigurationProfilingDhcpv6EnterprisesListConfig = (context = {}
 }
 
 export const pfConfigurationProfilingMacVendorsListColumns = [
-  Object.assign(pfConfigurationListColumns.id, { label: i18n.t('Identifier') }) // re-label
+  { ...pfConfigurationListColumns.id, ...{ label: i18n.t('Identifier') } } // re-label
 ]
 
 export const pfConfigurationProfilingMacVendorsListFields = [
-  Object.assign(pfConfigurationListFields.id, { text: i18n.t('Identifier') }) // re-text
+  { ...pfConfigurationListFields.id, ...{ text: i18n.t('Identifier') } } // re-text
 ]
 
 export const pfConfigurationProfilingMacVendorsListConfig = (context = {}) => {
@@ -691,11 +691,11 @@ export const pfConfigurationProfilingMacVendorsListConfig = (context = {}) => {
 }
 
 export const pfConfigurationProfilingUserAgentsListColumns = [
-  Object.assign(pfConfigurationListColumns.id, { label: i18n.t('Identifier') }) // re-label
+  { ...pfConfigurationListColumns.id, ...{ label: i18n.t('Identifier') } } // re-label
 ]
 
 export const pfConfigurationProfilingUserAgentsListFields = [
-  Object.assign(pfConfigurationListFields.id, { text: i18n.t('Identifier') }) // re-text
+  { ...pfConfigurationListFields.id, ...{ text: i18n.t('Identifier') } } // re-text
 ]
 
 export const pfConfigurationProfilingUserAgentsListConfig = (context = {}) => {
