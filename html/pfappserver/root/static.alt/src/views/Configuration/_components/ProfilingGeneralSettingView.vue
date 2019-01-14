@@ -45,6 +45,10 @@ export default {
       type: String,
       default: null,
       required: true
+    },
+    id: { // from router
+      type: String,
+      default: null
     }
   },
   data () {
