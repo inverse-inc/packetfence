@@ -16,7 +16,7 @@ use strict;
 use warnings;
 #
 use lib '/usr/local/pf/lib';
-our (@VALID_STRING_TESTS, @INVALID_STRINGS, $TEST_COUNT);
+our (@VALID_STRING_TESTS, @INVALID_STRINGS, @VALID_IDS, $TEST_COUNT);
 
 BEGIN {
     #include test libs
@@ -46,6 +46,7 @@ BEGIN {
         ['!!a', ['NOT', ['NOT', 'a']]],
         ['!(a && b)',  ['NOT', ['AND', 'a', 'b']]],
         ['a == b', ['==', 'a', 'b']],
+        ['a.x', 'a.x'],
         ['a.x == b', ['==', 'a.x', 'b']],
         ['a.x == "b"', ['==', 'a.x', 'b']],
         ["a.x == 'b'", ['==', 'a.x', 'b']],
@@ -73,14 +74,21 @@ BEGIN {
         ['F(bob, ${bob})', ['FUNC', 'F', ["bob", ['VAR', 'bob']]]],
     );
 
+    @VALID_IDS = (
+        "a.x",
+        "a1.x2",
+    );
+
     @INVALID_STRINGS = (
         '(a', '(a) b',
         '(a;) && b',
         ' a == "',
+        'a.',
+        '.a',
         'F(',
     );
 
-    $TEST_COUNT = 1 + (scalar @VALID_STRING_TESTS) + (scalar @INVALID_STRINGS);
+    $TEST_COUNT = 1 + (scalar @VALID_STRING_TESTS) + (scalar @INVALID_STRINGS) + (scalar @VALID_IDS);
 }
 
 use Test::More tests => $TEST_COUNT;
@@ -97,6 +105,11 @@ for my $test (@VALID_STRING_TESTS) {
 
 for my $test (@INVALID_STRINGS) {
     test_invalid_string($test);
+}
+
+for my $test (@VALID_IDS) {
+    local $_ = $test;
+    is($test, pf::condition_parser::_parse_id(), "Check if '$test' a valid id");
 }
 
 sub test_valid_string {
