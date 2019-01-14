@@ -169,21 +169,16 @@ CMP  = FACT
 
 sub _parse_cmp {
     my $old_pos = pos();
-    if (/\G\s*([a-zA-Z0-9_\.]+)/gc) {
-        my $a = $1;
+    my $id = _parse_id();
+    if (defined $id) {
+        my $a = $id;
         if (/\G\s*\(/gc) {
-            $a = _parse_func($a);
+            $a = _parse_func($id);
         }
 
         if (/\G\s*(==|!=|=~|!~|\<\=|\<|\>\=|\>)/gc) {
             my $op = $1;
-            my $b;
-            if (/\G\s*([a-zA-Z0-9_\.]+)/gc) {
-                $b = $1;
-            } else {
-                $b = _parse_string();
-            }
-
+            my $b = _parse_id() // _parse_string();
             if (!defined $b) {
                 die format_parse_error("Invalid format", $_, pos);
             }
@@ -193,6 +188,21 @@ sub _parse_cmp {
     }
     pos() = $old_pos;
     return _parse_fact();
+}
+
+
+=head2 _parse_num
+
+_parse_num
+
+=cut
+
+sub _parse_num {
+    my $n;
+    if (/\G\s*([0-9]+)/gc) {
+        $n = $1 + 0;
+    }
+    return $n;
 }
 
 
@@ -245,15 +255,12 @@ sub _parse_func {
 
 sub _parse_param {
     my $p;
-    if (/\G\s*([a-zA-Z0-9_\.]+)/gc) {
-        my $id = $1;
+    if (defined ( $p = _parse_id())) {
         if (/\G\s*\(/gc) {
-            $p = _parse_func($id);
-        } else {
-            $p = $id;
+            $p = _parse_func($p);
         }
-    } elsif (/\G\s*\$\{([a-zA-Z0-9_\.]+)\}/gc) {
-        $p = ['VAR', $1];
+    } elsif ( defined($p = _parse_var_id())) {
+        $p = ['VAR', $p];
     } else {
         $p = _parse_string();
     }
@@ -294,8 +301,8 @@ sub _parse_fact {
     }
 
     #It is a simple id
-    if (/\G\s*([a-zA-Z0-9_\.]+)/gc) {
-        my $id = $1;
+    my $id = _parse_id();
+    if (defined $id) {
         if (/\G\s*\(/gc) {
             return _parse_func($id);
         }
@@ -305,6 +312,36 @@ sub _parse_fact {
     #Reduce whitespace
     /\G\s*/gc;
     die format_parse_error("Invalid character(s)", $_, pos() );
+}
+
+=head2 _parse_id
+
+_parse_id
+
+=cut
+
+sub _parse_id {
+    my $id;
+    if (/\G\s*([a-zA-Z0-9_]+(?:\.[a-zA-Z0-9_]+)*)/gc) {
+        $id = $1;
+    }
+
+    return $id;
+}
+
+=head2 _parse_var_id
+
+_parse_var_id
+
+=cut
+
+sub _parse_var_id {
+    my $id;
+    if (/\G\s*\$\{([a-zA-Z0-9_]+(?:[\.-][a-zA-Z0-9_]+)*)\}/gc) {
+        $id = $1;
+    }
+
+    return $id;
 }
 
 our $MARKER  = '^';
