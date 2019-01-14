@@ -32,6 +32,7 @@ const ConnectionProfileView = () => import(/* webpackChunkName: "Configuration" 
 const ComplianceSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/ComplianceSection')
 const ProfilingTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/ProfilingTabs')
 const ProfilingCombinationView = () => import(/* webpackChunkName: "Configuration" */ '../_components/ProfilingCombinationView')
+const ScansTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/ScansTabs')
 
 const NetworkConfigurationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/NetworkConfigurationSection')
 const FloatingDevicesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/FloatingDevicesList')
@@ -441,6 +442,22 @@ const route = {
       name: 'profilingUserAgents',
       component: ProfilingTabs,
       props: (route) => ({ tab: 'user_agents', query: route.query.query })
+    },
+    {
+      path: 'scans',
+      redirect: 'scans/scan_engines'
+    },
+    {
+      path: 'scans/scan_engines',
+      name: 'scanEngines',
+      component: ScansTabs,
+      props: (route) => ({ tab: 'scan_engines', query: route.query.query })
+    },
+    {
+      path: 'scans/wmi_rules',
+      name: 'wmiRules',
+      component: ScansTabs,
+      props: (route) => ({ tab: 'wmi_rules', query: route.query.query })
     },
     /**
      * Network Configuration

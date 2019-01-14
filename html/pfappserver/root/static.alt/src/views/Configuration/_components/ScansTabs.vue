@@ -1,0 +1,47 @@
+<template>
+  <b-card no-body>
+    <b-card-header>
+      <h4 class="mb-0" v-t="'Scans'"></h4>
+    </b-card-header>
+    <b-tabs ref="tabs" v-model="tabIndex" card>
+      <b-tab :title="$t('Scan Engines')" @click="changeTab('scan_engines')">
+        <scans-scan-engines-list />
+      </b-tab>
+      <b-tab :title="$t('WMI Rules')" @click="changeTab('wmi_rules')">
+        <scans-wmi-rules-list />
+      </b-tab>
+    </b-tabs>
+  </b-card>
+</template>
+
+<script>
+import ScansScanEnginesList from './ScansScanEnginesList'
+import ScansWmiRulesList from './ScansWmiRulesList'
+
+export default {
+  name: 'ProfilingTabs',
+  components: {
+    ScansScanEnginesList,
+    ScansWmiRulesList
+  },
+  props: {
+    tab: {
+      type: String,
+      default: 'scan_engines'
+    }
+  },
+  computed: {
+    tabIndex () {
+      return [
+        'scan_engines',
+        'wmi_rules'
+      ].indexOf(this.tab)
+    }
+  },
+  methods: {
+    changeTab (name) {
+      this.$router.push(`./${name}`)
+    }
+  }
+}
+</script>

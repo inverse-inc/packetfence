@@ -60,6 +60,12 @@ export default {
                 { name: 'MAC Vendors', path: '/configuration/profiling/mac_vendors' },
                 { name: 'User Agents', path: '/configuration/profiling/user_agents' }
               ]
+            },
+            { name: 'Scans',
+              items: [
+                { name: 'Scan Engines', path: '/configuration/scans/scan_engines' },
+                { name: 'WMI Rules', path: '/configuration/scans/wmi_rules' }
+              ]
             }
           ]
         },
