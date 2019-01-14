@@ -40,7 +40,7 @@ export default {
   },
   data () {
     return {
-      combinations: [], // all switch groups
+      combinations: [], // all combinations
       config: {
         columns: columns,
         fields: fields,

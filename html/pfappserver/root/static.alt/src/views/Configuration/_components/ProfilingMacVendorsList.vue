@@ -40,7 +40,7 @@ export default {
   },
   data () {
     return {
-      macVendors: [], // all switch groups
+      macVendors: [], // all mac vendors
       config: {
         columns: columns,
         fields: fields,

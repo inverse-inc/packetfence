@@ -40,7 +40,7 @@ export default {
   },
   data () {
     return {
-      dhcpv6Enterprises: [], // all switch groups
+      dhcpv6Enterprises: [], // all dhcpv6 enterprises
       config: {
         columns: columns,
         fields: fields,

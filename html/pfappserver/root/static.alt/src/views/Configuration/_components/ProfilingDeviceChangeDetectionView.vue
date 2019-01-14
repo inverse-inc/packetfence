@@ -74,7 +74,6 @@ export default {
   },
   methods: {
     save () {
-      const ctrlKey = this.ctrlKey
       this.$store.dispatch('$_profiling/setDeviceChangeDetection', this.form).then(response => {
         // TODO - notification
       })

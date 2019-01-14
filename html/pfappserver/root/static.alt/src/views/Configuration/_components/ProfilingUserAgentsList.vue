@@ -40,7 +40,7 @@ export default {
   },
   data () {
     return {
-      userAgents: [], // all switch groups
+      userAgents: [], // all user agents
       config: {
         columns: columns,
         fields: fields,

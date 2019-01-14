@@ -40,7 +40,7 @@ export default {
   },
   data () {
     return {
-      devices: [], // all switch groups
+      devices: [], // all devices
       config: {
         columns: columns,
         fields: fields,

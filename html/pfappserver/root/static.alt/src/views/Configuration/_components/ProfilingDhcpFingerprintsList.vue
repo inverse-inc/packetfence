@@ -40,7 +40,7 @@ export default {
   },
   data () {
     return {
-      dhcpFingerprints: [], // all switch groups
+      dhcpFingerprints: [], // all dhcp fingerprints
       config: {
         columns: columns,
         fields: fields,

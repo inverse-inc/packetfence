@@ -10,7 +10,7 @@
         <b-dropdown :text="$t('Add Switch')" variant="outline-primary" class="my-2">
           <b-dropdown-header class="text-secondary">{{ $t('To group') }}</b-dropdown-header>
             <b-dropdown-item :to="{ name: 'newSwitch', params: { switchGroup: 'default' } }">{{ $t('default') }}</b-dropdown-item>
-            <b-dropdown-item v-for="(switchGroup, index) in switchGroups" :key="index"
+            <b-dropdown-item v-for="(switchGroup, index) in switches" :key="index"
               :to="{ name: 'newSwitch', params: { switchGroup: switchGroup.id } }">{{ switchGroup.id }}</b-dropdown-item>
         </b-dropdown>
       </template>
@@ -45,7 +45,7 @@ export default {
   },
   data () {
     return {
-      switchGroups: [], // all switch groups
+      switches: [], // all switches
       config: {
         columns: columns,
         fields: fields,
@@ -101,7 +101,7 @@ export default {
   },
   created () {
     this.$store.dispatch('$_switch_groups/all').then(data => {
-      this.switchGroups = data
+      this.switches = data
     })
   }
 }

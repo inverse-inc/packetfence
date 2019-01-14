@@ -40,7 +40,7 @@ export default {
   },
   data () {
     return {
-      dhcpv6Fingerprints: [], // all switch groups
+      dhcpv6Fingerprints: [], // all dchpv6 fingerprints
       config: {
         columns: columns,
         fields: fields,

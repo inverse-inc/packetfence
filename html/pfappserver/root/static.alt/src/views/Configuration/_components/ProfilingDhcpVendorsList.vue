@@ -40,7 +40,7 @@ export default {
   },
   data () {
     return {
-      dhcpVendors: [], // all switch groups
+      dhcpVendors: [], // all dhcp vendors
       config: {
         columns: columns,
         fields: fields,
@@ -95,4 +95,3 @@ export default {
   }
 }
 </script>
-
