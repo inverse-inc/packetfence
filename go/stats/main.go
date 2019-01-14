@@ -18,6 +18,7 @@ import (
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/sharedutils"
 
+	"github.com/hpcloud/tail"
 	"github.com/inverse-inc/packetfence/go/log"
 	statsd "gopkg.in/alexcesaro/statsd.v2"
 	ldap "gopkg.in/ldap.v2"
@@ -352,6 +353,35 @@ func main() {
 		}
 	}()
 
+	go func() {
+		var files []string
+
+		config := tail.Config{Follow: true, ReOpen: true, Location: &tail.SeekInfo{Offset: -10, Whence: os.SEEK_END}}
+
+		done := make(chan bool)
+
+		var keyConfStats pfconfigdriver.PfconfigKeys
+		keyConfStats.PfconfigNS = "config::Stats"
+		pfconfigdriver.FetchDecodeSocket(ctx, &keyConfStats)
+
+		for _, key := range keyConfStats.Keys {
+			var ConfStat pfconfigdriver.PfStats
+			ConfStat.PfconfigHashNS = key
+
+			pfconfigdriver.FetchDecodeSocket(ctx, &ConfStat)
+			switch ConfStat.Type {
+			case "tail_file":
+				files = append(files, ConfStat.File)
+
+				go tailFile(ConfStat, config, done)
+			}
+		}
+
+		for _ = range files {
+			<-done
+		}
+	}()
+
 	var Management pfconfigdriver.ManagementNetwork
 	pfconfigdriver.FetchDecodeSocket(ctx, &Management)
 
@@ -394,6 +424,27 @@ func main() {
 		}
 
 		go forward(fd)
+	}
+}
+
+func tailFile(stats pfconfigdriver.PfStats, config tail.Config, done chan bool) {
+	defer func() { done <- true }()
+	t, err := tail.TailFile(stats.File, config)
+	if err != nil {
+		log.LoggerWContext(ctx).Error(err.Error())
+		return
+	}
+
+	rgx := regexp.MustCompile(stats.Match)
+
+	for line := range t.Lines {
+		if rgx.Match([]byte(line.Text)) {
+			StatsdClient.Gauge(stats.StatsdNS, 1)
+		}
+	}
+	err = t.Wait()
+	if err != nil {
+		log.LoggerWContext(ctx).Error(err.Error())
 	}
 }
 
