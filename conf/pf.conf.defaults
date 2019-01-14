@@ -323,6 +323,16 @@ thread_cache_size=25
 #
 # The max_allowed_packet MySQL configuration attribute (in MB). Only change if you know what you are doing. Will only affect a locally running MySQL server.
 max_allowed_packet=16
+#
+# database_advanced.performance_schema
+#
+# The performance_schema MySQL configuration attribute. Only change if you know what you are doing. Will only affect a locally running MySQL server.
+performance_schema=NO
+#
+# database_advanced.max_connect_errors
+#
+# The max_connect_errors MySQL configuration attribute. Only change if you know what you are doing. Will only affect a locally running MySQL server.
+max_connect_errors=100
 
 [services]
 # services.pfipset
