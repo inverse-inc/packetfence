@@ -8302,6 +8302,14 @@ msgstr ""
 msgid "The thread_concurrency MySQL configuration attribute. Only change if you know what you are doing. Will only affect a locally running MySQL server."
 msgstr ""
 
+# conf/documentation.conf (database_advanced.performance_schema)
+msgid "The performance_schema MySQL configuration attribute. Only change if you know what you are doing. Will only affect a locally running MySQL server."
+msgstr ""
+
+# conf/documentation.conf (database_advanced.max_connect_errors)
+msgid "The max_connect_errors MySQL configuration attribute. Only change if you know what you are doing. Will only affect a locally running MySQL server."
+msgstr ""
+
 # conf/documentation.conf (parking.threshold)
 msgid "The threshold (in seconds) after which a device will be placed in parking.A value of 0 deactivates the parking detection.The detection works by looking at the time in seconds a device has been in the registration role and comparing it with this threshold."
 msgstr ""
@@ -10221,6 +10229,14 @@ msgstr "Thread cache size"
 # conf/documentation.conf
 msgid "database_advanced.thread_concurrency"
 msgstr "Thread concurrency"
+
+# conf/documentation.conf
+msgid "database_advanced.performance_schema"
+msgstr "Performance schema"
+
+# conf/documentation.conf
+msgid "database_advanced.max_connect_errors"
+msgstr "Max connect errors"
 
 # html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
 msgid "days"
