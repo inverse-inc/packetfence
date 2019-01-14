@@ -183,7 +183,7 @@ sub send_email {
     add_standard_include_path(\%TmplOptions);
     my %vars = (
         i18n        => \&pf::web::i18n,
-        i18n_format => \&pf::web::i18n_format
+        i18n_format => \&pf::web::i18n_format,
         %$data,
     );
     utf8::decode($subject);
