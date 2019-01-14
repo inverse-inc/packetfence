@@ -32,8 +32,7 @@ import pfButtonDelete from '@/components/pfButtonDelete'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import {
-  pfConfigurationSwitchesListColumns as columns,
-  pfConfigurationSwitchesListFields as fields
+  pfConfigurationSwitchesListConfig as config
 } from '@/globals/configuration/pfConfigurationSwitches'
 
 export default {
@@ -46,47 +45,7 @@ export default {
   data () {
     return {
       switches: [], // all switches
-      config: {
-        columns: columns,
-        fields: fields,
-        rowClickRoute (item, index) {
-          return { name: 'switch', params: { id: item.id } }
-        },
-        searchPlaceholder: this.$i18n.t('Search by identifier or description'),
-        searchableOptions: {
-          searchApiEndpoint: 'config/switches',
-          defaultSortKeys: ['id'],
-          defaultSearchCondition: {
-            op: 'and',
-            values: [{
-              op: 'or',
-              values: [
-                { field: 'id', op: 'contains', value: null },
-                { field: 'description', op: 'contains', value: null },
-                { field: 'type', op: 'contains', value: null },
-                { field: 'mode', op: 'contains', value: null }
-              ]
-            }]
-          },
-          defaultRoute: { name: 'switches' }
-        },
-        searchableQuickCondition: (quickCondition) => {
-          return {
-            op: 'and',
-            values: [
-              {
-                op: 'or',
-                values: [
-                  { field: 'id', op: 'contains', value: quickCondition },
-                  { field: 'description', op: 'contains', value: quickCondition },
-                  { field: 'type', op: 'contains', value: quickCondition },
-                  { field: 'mode', op: 'contains', value: quickCondition }
-                ]
-              }
-            ]
-          }
-        }
-      }
+      config: config(this)
     }
   },
   methods: {

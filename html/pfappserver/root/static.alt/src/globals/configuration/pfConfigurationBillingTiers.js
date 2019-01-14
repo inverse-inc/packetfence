@@ -36,6 +36,49 @@ export const pfConfigurationBillingTiersListFields = [
   pfConfigurationListFields.description
 ]
 
+export const pfConfigurationBillingTiersListConfig = (context = {}) => {
+  const { $i18n } = context
+  return {
+    columns: pfConfigurationBillingTiersListColumns,
+    fields: pfConfigurationBillingTiersListFields,
+    rowClickRoute (item, index) {
+      return { name: 'billing_tier', params: { id: item.id } }
+    },
+    searchPlaceholder: $i18n.t('Search by identifier, name or description'),
+    searchableOptions: {
+      searchApiEndpoint: 'config/billing_tiers',
+      defaultSortKeys: ['id'],
+      defaultSearchCondition: {
+        op: 'and',
+        values: [{
+          op: 'or',
+          values: [
+            { field: 'id', op: 'contains', value: null },
+            { field: 'name', op: 'contains', value: null },
+            { field: 'description', op: 'contains', value: null }
+          ]
+        }]
+      },
+      defaultRoute: { name: 'billing_tiers' }
+    },
+    searchableQuickCondition: (quickCondition) => {
+      return {
+        op: 'and',
+        values: [
+          {
+            op: 'or',
+            values: [
+              { field: 'id', op: 'contains', value: quickCondition },
+              { field: 'name', op: 'contains', value: quickCondition },
+              { field: 'description', op: 'contains', value: quickCondition }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}
+
 export const pfConfigurationBillingTierViewFields = (context = {}) => {
   const { isNew = false, isClone = false } = context
   return [

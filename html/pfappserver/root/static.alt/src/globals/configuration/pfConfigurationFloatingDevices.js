@@ -35,6 +35,47 @@ export const pfConfigurationFloatingDevicesListFields = [
   pfConfigurationListFields.ip
 ]
 
+export const pfConfigurationFloatingDeviceListConfig = (context = {}) => {
+  const { $i18n } = context
+  return {
+    columns: pfConfigurationFloatingDevicesListColumns,
+    fields: pfConfigurationFloatingDevicesListFields,
+    rowClickRoute (item, index) {
+      return { name: 'floating_device', params: { id: item.id } }
+    },
+    searchPlaceholder: $i18n.t('Search by MAC or IP address'),
+    searchableOptions: {
+      searchApiEndpoint: 'config/floating_devices',
+      defaultSortKeys: ['id'],
+      defaultSearchCondition: {
+        op: 'and',
+        values: [{
+          op: 'or',
+          values: [
+            { field: 'id', op: 'contains', value: null },
+            { field: 'ip', op: 'contains', value: null }
+          ]
+        }]
+      },
+      defaultRoute: { name: 'floating_devices' }
+    },
+    searchableQuickCondition: (quickCondition) => {
+      return {
+        op: 'and',
+        values: [
+          {
+            op: 'or',
+            values: [
+              { field: 'id', op: 'contains', value: quickCondition },
+              { field: 'ip', op: 'contains', value: quickCondition }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}
+
 export const pfConfigurationFloatingDeviceViewFields = (context = {}) => {
   const { isNew = false, isClone = false } = context
   return [

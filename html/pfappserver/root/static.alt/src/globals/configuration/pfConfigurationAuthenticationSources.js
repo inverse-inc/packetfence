@@ -20,6 +20,50 @@ export const pfConfigurationAuthenticationSourcesListFields = [
   pfConfigurationListFields.type
 ]
 
+export const pfConfigurationAuthenticationSourceListConfig = (context = {}) => {
+  const { $i18n } = context
+  return {
+    columns: pfConfigurationAuthenticationSourcesListColumns,
+    fields: pfConfigurationAuthenticationSourcesListFields,
+    rowClickRoute (item, index) {
+      return { name: 'source', params: { id: item.id } }
+    },
+    searchPlaceholder: $i18n.t('Search by name or description'),
+    searchableOptions: {
+      searchApiEndpoint: 'config/sources',
+      defaultSortKeys: ['id'],
+      defaultSearchCondition: {
+        op: 'and',
+        values: [{
+          op: 'or',
+          values: [
+            { field: 'id', op: 'contains', value: null },
+            { field: 'description', op: 'contains', value: null },
+            { field: 'class', op: 'contains', value: null },
+            { field: 'type', op: 'contains', value: null }
+          ]
+        }]
+      },
+      defaultRoute: { name: 'sources' },
+      resultsFilter: (results) => results.filter(item => item.id !== 'local') // ignore 'local' source
+    },
+    searchableQuickCondition: (quickCondition) => {
+      return {
+        op: 'and',
+        values: [{
+          op: 'or',
+          values: [
+            { field: 'id', op: 'contains', value: quickCondition },
+            { field: 'description', op: 'contains', value: quickCondition },
+            { field: 'class', op: 'contains', value: quickCondition },
+            { field: 'type', op: 'contains', value: quickCondition }
+          ]
+        }]
+      }
+    }
+  }
+}
+
 export const pfConfigurationAuthenticationSourceViewFields = (context) => {
   const { sourceType = null } = context
   switch (sourceType) {

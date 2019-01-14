@@ -26,8 +26,7 @@
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import {
-  pfConfigurationBillingTiersListColumns as columns,
-  pfConfigurationBillingTiersListFields as fields
+  pfConfigurationBillingTiersListConfig as config
 } from '@/globals/configuration/pfConfigurationBillingTiers'
 
 export default {
@@ -38,45 +37,7 @@ export default {
   },
   data () {
     return {
-      config: {
-        columns: columns,
-        fields: fields,
-        rowClickRoute (item, index) {
-          return { name: 'billing_tier', params: { id: item.id } }
-        },
-        searchPlaceholder: this.$i18n.t('Search by identifier, name or description'),
-        searchableOptions: {
-          searchApiEndpoint: 'config/billing_tiers',
-          defaultSortKeys: ['id'],
-          defaultSearchCondition: {
-            op: 'and',
-            values: [{
-              op: 'or',
-              values: [
-                { field: 'id', op: 'contains', value: null },
-                { field: 'name', op: 'contains', value: null },
-                { field: 'description', op: 'contains', value: null }
-              ]
-            }]
-          },
-          defaultRoute: { name: 'billing_tiers' }
-        },
-        searchableQuickCondition: (quickCondition) => {
-          return {
-            op: 'and',
-            values: [
-              {
-                op: 'or',
-                values: [
-                  { field: 'id', op: 'contains', value: quickCondition },
-                  { field: 'name', op: 'contains', value: quickCondition },
-                  { field: 'description', op: 'contains', value: quickCondition }
-                ]
-              }
-            ]
-          }
-        }
-      }
+      config: config(this)
     }
   },
   methods: {

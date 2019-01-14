@@ -45,6 +45,51 @@ export const pfConfigurationSwitchesListFields = [
   pfConfigurationListFields.type
 ]
 
+export const pfConfigurationSwitchesListConfig = (context = {}) => {
+  const { $i18n } = context
+  return {
+    columns: pfConfigurationSwitchesListColumns,
+    fields: pfConfigurationSwitchesListFields,
+    rowClickRoute (item, index) {
+      return { name: 'switch', params: { id: item.id } }
+    },
+    searchPlaceholder: $i18n.t('Search by identifier or description'),
+    searchableOptions: {
+      searchApiEndpoint: 'config/switches',
+      defaultSortKeys: ['id'],
+      defaultSearchCondition: {
+        op: 'and',
+        values: [{
+          op: 'or',
+          values: [
+            { field: 'id', op: 'contains', value: null },
+            { field: 'description', op: 'contains', value: null },
+            { field: 'type', op: 'contains', value: null },
+            { field: 'mode', op: 'contains', value: null }
+          ]
+        }]
+      },
+      defaultRoute: { name: 'switches' }
+    },
+    searchableQuickCondition: (quickCondition) => {
+      return {
+        op: 'and',
+        values: [
+          {
+            op: 'or',
+            values: [
+              { field: 'id', op: 'contains', value: quickCondition },
+              { field: 'description', op: 'contains', value: quickCondition },
+              { field: 'type', op: 'contains', value: quickCondition },
+              { field: 'mode', op: 'contains', value: quickCondition }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}
+
 export const pfConfigurationSwitchActions = {
   always: {
     value: 'always',

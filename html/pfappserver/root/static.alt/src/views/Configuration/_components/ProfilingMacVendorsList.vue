@@ -27,8 +27,7 @@ import pfButtonDelete from '@/components/pfButtonDelete'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import {
-  pfConfigurationProfilingMacVendorsListColumns as columns,
-  pfConfigurationProfilingMacVendorsListFields as fields
+  pfConfigurationProfilingMacVendorsListConfig as config
 } from '@/globals/configuration/pfConfigurationProfiling'
 
 export default {
@@ -41,41 +40,7 @@ export default {
   data () {
     return {
       macVendors: [], // all mac vendors
-      config: {
-        columns: columns,
-        fields: fields,
-        rowClickRoute (item, index) {
-          return { name: 'macVendor', params: { id: item.id } }
-        },
-        searchPlaceholder: this.$i18n.t('Search by identifier or description'),
-        searchableOptions: {
-          searchApiEndpoint: 'config/TODO',
-          defaultSortKeys: ['id'],
-          defaultSearchCondition: {
-            op: 'and',
-            values: [{
-              op: 'or',
-              values: [
-                { field: 'id', op: 'contains', value: null }
-              ]
-            }]
-          },
-          defaultRoute: { name: 'profilingMacVendors' }
-        },
-        searchableQuickCondition: (quickCondition) => {
-          return {
-            op: 'and',
-            values: [
-              {
-                op: 'or',
-                values: [
-                  { field: 'id', op: 'contains', value: quickCondition }
-                ]
-              }
-            ]
-          }
-        }
-      }
+      config: config(this)
     }
   },
   methods: {

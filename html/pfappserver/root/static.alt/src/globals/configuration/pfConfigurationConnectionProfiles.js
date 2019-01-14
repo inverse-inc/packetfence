@@ -268,6 +268,47 @@ export const pfConfigurationConnectionProfilesListFields = [
   pfConfigurationListFields.description
 ]
 
+export const pfConfigurationConnectionProfileListConfig = (context = {}) => {
+  const { $i18n } = context
+  return {
+    columns: pfConfigurationConnectionProfilesListColumns,
+    fields: pfConfigurationConnectionProfilesListFields,
+    rowClickRoute (item, index) {
+      return { name: 'connection_profile', params: { id: item.id } }
+    },
+    searchPlaceholder: $i18n.t('Search by identifier or description'),
+    searchableOptions: {
+      searchApiEndpoint: 'config/connection_profiles',
+      defaultSortKeys: ['id'],
+      defaultSearchCondition: {
+        op: 'and',
+        values: [{
+          op: 'or',
+          values: [
+            { field: 'id', op: 'contains', value: null },
+            { field: 'description', op: 'contains', value: null }
+          ]
+        }]
+      },
+      defaultRoute: { name: 'connection_profiles' }
+    },
+    searchableQuickCondition: (quickCondition) => {
+      return {
+        op: 'and',
+        values: [
+          {
+            op: 'or',
+            values: [
+              { field: 'id', op: 'contains', value: quickCondition },
+              { field: 'description', op: 'contains', value: quickCondition }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}
+
 export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
   const {
     isNew = false,

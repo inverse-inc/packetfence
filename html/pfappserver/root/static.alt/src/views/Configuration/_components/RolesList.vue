@@ -27,8 +27,7 @@
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import {
-  pfConfigurationRolesListColumns as columns,
-  pfConfigurationRolesListFields as fields
+  pfConfigurationRoleListConfig as config
 } from '@/globals/configuration/pfConfigurationRoles'
 
 export default {
@@ -39,43 +38,7 @@ export default {
   },
   data () {
     return {
-      config: {
-        columns: columns,
-        fields: fields,
-        rowClickRoute (item, index) {
-          return { name: 'role', params: { id: item.id } }
-        },
-        searchPlaceholder: this.$i18n.t('Search by name or description'),
-        searchableOptions: {
-          searchApiEndpoint: 'config/roles',
-          defaultSortKeys: ['id'],
-          defaultSearchCondition: {
-            op: 'and',
-            values: [{
-              op: 'or',
-              values: [
-                { field: 'id', op: 'contains', value: null },
-                { field: 'notes', op: 'contains', value: null }
-              ]
-            }]
-          },
-          defaultRoute: { name: 'roles' }
-        },
-        searchableQuickCondition: (quickCondition) => {
-          return {
-            op: 'and',
-            values: [
-              {
-                op: 'or',
-                values: [
-                  { field: 'id', op: 'contains', value: quickCondition },
-                  { field: 'notes', op: 'contains', value: quickCondition }
-                ]
-              }
-            ]
-          }
-        }
-      }
+      config: config(this)
     }
   },
   methods: {

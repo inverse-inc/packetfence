@@ -27,8 +27,7 @@ import pfButtonDelete from '@/components/pfButtonDelete'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import {
-  pfConfigurationProfilingDevicesListColumns as columns,
-  pfConfigurationProfilingDevicesListFields as fields
+  pfConfigurationProfilingDevicesListConfig as config
 } from '@/globals/configuration/pfConfigurationProfiling'
 
 export default {
@@ -41,41 +40,7 @@ export default {
   data () {
     return {
       devices: [], // all devices
-      config: {
-        columns: columns,
-        fields: fields,
-        rowClickRoute (item, index) {
-          return { name: 'device', params: { id: item.id } }
-        },
-        searchPlaceholder: this.$i18n.t('Search by identifier or description'),
-        searchableOptions: {
-          searchApiEndpoint: 'config/TODO',
-          defaultSortKeys: ['id'],
-          defaultSearchCondition: {
-            op: 'and',
-            values: [{
-              op: 'or',
-              values: [
-                { field: 'id', op: 'contains', value: null }
-              ]
-            }]
-          },
-          defaultRoute: { name: 'profilingDevices' }
-        },
-        searchableQuickCondition: (quickCondition) => {
-          return {
-            op: 'and',
-            values: [
-              {
-                op: 'or',
-                values: [
-                  { field: 'id', op: 'contains', value: quickCondition }
-                ]
-              }
-            ]
-          }
-        }
-      }
+      config: config(this)
     }
   },
   methods: {

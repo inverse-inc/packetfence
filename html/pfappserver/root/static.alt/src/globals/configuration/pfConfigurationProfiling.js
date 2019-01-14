@@ -369,6 +369,45 @@ export const pfConfigurationProfilingCombinationsListFields = [
   Object.assign(pfConfigurationListFields.id, { text: i18n.t('Identifier') }) // re-text
 ]
 
+export const pfConfigurationProfilingCombinationsListConfig = (context = {}) => {
+  const { $i18n } = context
+  return {
+    columns: pfConfigurationProfilingCombinationsListColumns,
+    fields: pfConfigurationProfilingCombinationsListFields,
+    rowClickRoute (item, index) {
+      return { name: 'combination', params: { id: item.id } }
+    },
+    searchPlaceholder: $i18n.t('Search by identifier or description'),
+    searchableOptions: {
+      searchApiEndpoint: 'config/TODO',
+      defaultSortKeys: ['id'],
+      defaultSearchCondition: {
+        op: 'and',
+        values: [{
+          op: 'or',
+          values: [
+            { field: 'id', op: 'contains', value: null }
+          ]
+        }]
+      },
+      defaultRoute: { name: 'profilingCombinations' }
+    },
+    searchableQuickCondition: (quickCondition) => {
+      return {
+        op: 'and',
+        values: [
+          {
+            op: 'or',
+            values: [
+              { field: 'id', op: 'contains', value: quickCondition }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}
+
 export const pfConfigurationProfilingDevicesListColumns = [
   Object.assign(pfConfigurationListColumns.id, { label: i18n.t('Identifier') }) // re-label
 ]
@@ -376,6 +415,45 @@ export const pfConfigurationProfilingDevicesListColumns = [
 export const pfConfigurationProfilingDevicesListFields = [
   Object.assign(pfConfigurationListFields.id, { text: i18n.t('Identifier') }) // re-text
 ]
+
+export const pfConfigurationProfilingDevicesListConfig = (context = {}) => {
+  const { $i18n } = context
+  return {
+    columns: pfConfigurationProfilingDevicesListColumns,
+    fields: pfConfigurationProfilingDevicesListFields,
+    rowClickRoute (item, index) {
+      return { name: 'device', params: { id: item.id } }
+    },
+    searchPlaceholder: $i18n.t('Search by identifier or description'),
+    searchableOptions: {
+      searchApiEndpoint: 'config/TODO',
+      defaultSortKeys: ['id'],
+      defaultSearchCondition: {
+        op: 'and',
+        values: [{
+          op: 'or',
+          values: [
+            { field: 'id', op: 'contains', value: null }
+          ]
+        }]
+      },
+      defaultRoute: { name: 'profilingDevices' }
+    },
+    searchableQuickCondition: (quickCondition) => {
+      return {
+        op: 'and',
+        values: [
+          {
+            op: 'or',
+            values: [
+              { field: 'id', op: 'contains', value: quickCondition }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}
 
 export const pfConfigurationProfilingDhcpFingerprintsListColumns = [
   Object.assign(pfConfigurationListColumns.id, { label: i18n.t('Identifier') }) // re-label
@@ -385,6 +463,45 @@ export const pfConfigurationProfilingDhcpFingerprintsListFields = [
   Object.assign(pfConfigurationListFields.id, { text: i18n.t('Identifier') }) // re-text
 ]
 
+export const pfConfigurationProfilingDhcpFingerprintsListConfig = (context = {}) => {
+  const { $i18n } = context
+  return {
+    columns: pfConfigurationProfilingDhcpFingerprintsListColumns,
+    fields: pfConfigurationProfilingDhcpFingerprintsListFields,
+    rowClickRoute (item, index) {
+      return { name: 'dhcpFingerprint', params: { id: item.id } }
+    },
+    searchPlaceholder: $i18n.t('Search by identifier or description'),
+    searchableOptions: {
+      searchApiEndpoint: 'config/TODO',
+      defaultSortKeys: ['id'],
+      defaultSearchCondition: {
+        op: 'and',
+        values: [{
+          op: 'or',
+          values: [
+            { field: 'id', op: 'contains', value: null }
+          ]
+        }]
+      },
+      defaultRoute: { name: 'profilingDhcpFingerprints' }
+    },
+    searchableQuickCondition: (quickCondition) => {
+      return {
+        op: 'and',
+        values: [
+          {
+            op: 'or',
+            values: [
+              { field: 'id', op: 'contains', value: quickCondition }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}
+
 export const pfConfigurationProfilingDhcpVendorsListColumns = [
   Object.assign(pfConfigurationListColumns.id, { label: i18n.t('Identifier') }) // re-label
 ]
@@ -392,6 +509,45 @@ export const pfConfigurationProfilingDhcpVendorsListColumns = [
 export const pfConfigurationProfilingDhcpVendorsListFields = [
   Object.assign(pfConfigurationListFields.id, { text: i18n.t('Identifier') }) // re-text
 ]
+
+export const pfConfigurationProfilingDhcpVendorsListConfig = (context = {}) => {
+  const { $i18n } = context
+  return {
+    columns: pfConfigurationProfilingDhcpVendorsListColumns,
+    fields: pfConfigurationProfilingDhcpVendorsListFields,
+    rowClickRoute (item, index) {
+      return { name: 'dhcpVendor', params: { id: item.id } }
+    },
+    searchPlaceholder: $i18n.t('Search by identifier or description'),
+    searchableOptions: {
+      searchApiEndpoint: 'config/TODO',
+      defaultSortKeys: ['id'],
+      defaultSearchCondition: {
+        op: 'and',
+        values: [{
+          op: 'or',
+          values: [
+            { field: 'id', op: 'contains', value: null }
+          ]
+        }]
+      },
+      defaultRoute: { name: 'profilingDhcpVendors' }
+    },
+    searchableQuickCondition: (quickCondition) => {
+      return {
+        op: 'and',
+        values: [
+          {
+            op: 'or',
+            values: [
+              { field: 'id', op: 'contains', value: quickCondition }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}
 
 export const pfConfigurationProfilingDhcpv6FingerprintsListColumns = [
   Object.assign(pfConfigurationListColumns.id, { label: i18n.t('Identifier') }) // re-label
@@ -401,6 +557,45 @@ export const pfConfigurationProfilingDhcpv6FingerprintsListFields = [
   Object.assign(pfConfigurationListFields.id, { text: i18n.t('Identifier') }) // re-text
 ]
 
+export const pfConfigurationProfilingDhcpv6FingerprintsListConfig = (context = {}) => {
+  const { $i18n } = context
+  return {
+    columns: pfConfigurationProfilingDhcpv6FingerprintsListColumns,
+    fields: pfConfigurationProfilingDhcpv6FingerprintsListFields,
+    rowClickRoute (item, index) {
+      return { name: 'dhcpv6Fingerprint', params: { id: item.id } }
+    },
+    searchPlaceholder: $i18n.t('Search by identifier or description'),
+    searchableOptions: {
+      searchApiEndpoint: 'config/TODO',
+      defaultSortKeys: ['id'],
+      defaultSearchCondition: {
+        op: 'and',
+        values: [{
+          op: 'or',
+          values: [
+            { field: 'id', op: 'contains', value: null }
+          ]
+        }]
+      },
+      defaultRoute: { name: 'profilingDhcpv6Fingerprints' }
+    },
+    searchableQuickCondition: (quickCondition) => {
+      return {
+        op: 'and',
+        values: [
+          {
+            op: 'or',
+            values: [
+              { field: 'id', op: 'contains', value: quickCondition }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}
+
 export const pfConfigurationProfilingDhcpv6EnterprisesListColumns = [
   Object.assign(pfConfigurationListColumns.id, { label: i18n.t('Identifier') }) // re-label
 ]
@@ -408,6 +603,45 @@ export const pfConfigurationProfilingDhcpv6EnterprisesListColumns = [
 export const pfConfigurationProfilingDhcpv6EnterprisesListFields = [
   Object.assign(pfConfigurationListFields.id, { text: i18n.t('Identifier') }) // re-text
 ]
+
+export const pfConfigurationProfilingDhcpv6EnterprisesListConfig = (context = {}) => {
+  const { $i18n } = context
+  return {
+    columns: pfConfigurationProfilingDhcpv6EnterprisesListColumns,
+    fields: pfConfigurationProfilingDhcpv6EnterprisesListFields,
+    rowClickRoute (item, index) {
+      return { name: 'dhcpv6Enterprise', params: { id: item.id } }
+    },
+    searchPlaceholder: $i18n.t('Search by identifier or description'),
+    searchableOptions: {
+      searchApiEndpoint: 'config/TODO',
+      defaultSortKeys: ['id'],
+      defaultSearchCondition: {
+        op: 'and',
+        values: [{
+          op: 'or',
+          values: [
+            { field: 'id', op: 'contains', value: null }
+          ]
+        }]
+      },
+      defaultRoute: { name: 'profilingDhcpv6Enterprises' }
+    },
+    searchableQuickCondition: (quickCondition) => {
+      return {
+        op: 'and',
+        values: [
+          {
+            op: 'or',
+            values: [
+              { field: 'id', op: 'contains', value: quickCondition }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}
 
 export const pfConfigurationProfilingMacVendorsListColumns = [
   Object.assign(pfConfigurationListColumns.id, { label: i18n.t('Identifier') }) // re-label
@@ -417,6 +651,45 @@ export const pfConfigurationProfilingMacVendorsListFields = [
   Object.assign(pfConfigurationListFields.id, { text: i18n.t('Identifier') }) // re-text
 ]
 
+export const pfConfigurationProfilingMacVendorsListConfig = (context = {}) => {
+  const { $i18n } = context
+  return {
+    columns: pfConfigurationProfilingMacVendorsListColumns,
+    fields: pfConfigurationProfilingMacVendorsListFields,
+    rowClickRoute (item, index) {
+      return { name: 'macVendor', params: { id: item.id } }
+    },
+    searchPlaceholder: $i18n.t('Search by identifier or description'),
+    searchableOptions: {
+      searchApiEndpoint: 'config/TODO',
+      defaultSortKeys: ['id'],
+      defaultSearchCondition: {
+        op: 'and',
+        values: [{
+          op: 'or',
+          values: [
+            { field: 'id', op: 'contains', value: null }
+          ]
+        }]
+      },
+      defaultRoute: { name: 'profilingMacVendors' }
+    },
+    searchableQuickCondition: (quickCondition) => {
+      return {
+        op: 'and',
+        values: [
+          {
+            op: 'or',
+            values: [
+              { field: 'id', op: 'contains', value: quickCondition }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}
+
 export const pfConfigurationProfilingUserAgentsListColumns = [
   Object.assign(pfConfigurationListColumns.id, { label: i18n.t('Identifier') }) // re-label
 ]
@@ -424,3 +697,42 @@ export const pfConfigurationProfilingUserAgentsListColumns = [
 export const pfConfigurationProfilingUserAgentsListFields = [
   Object.assign(pfConfigurationListFields.id, { text: i18n.t('Identifier') }) // re-text
 ]
+
+export const pfConfigurationProfilingUserAgentsListConfig = (context = {}) => {
+  const { $i18n } = context
+  return {
+    columns: pfConfigurationProfilingUserAgentsListColumns,
+    fields: pfConfigurationProfilingUserAgentsListFields,
+    rowClickRoute (item, index) {
+      return { name: 'userAgent', params: { id: item.id } }
+    },
+    searchPlaceholder: $i18n.t('Search by identifier or description'),
+    searchableOptions: {
+      searchApiEndpoint: 'config/TODO',
+      defaultSortKeys: ['id'],
+      defaultSearchCondition: {
+        op: 'and',
+        values: [{
+          op: 'or',
+          values: [
+            { field: 'id', op: 'contains', value: null }
+          ]
+        }]
+      },
+      defaultRoute: { name: 'profilingUserAgents' }
+    },
+    searchableQuickCondition: (quickCondition) => {
+      return {
+        op: 'and',
+        values: [
+          {
+            op: 'or',
+            values: [
+              { field: 'id', op: 'contains', value: quickCondition }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}
