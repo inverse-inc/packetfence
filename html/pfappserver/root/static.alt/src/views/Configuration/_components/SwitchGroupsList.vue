@@ -29,7 +29,7 @@ import pfEmptyTable from '@/components/pfEmptyTable'
 import {
   pfConfigurationSwitchGroupsListColumns as columns,
   pfConfigurationSwitchGroupsListFields as fields
-} from '@/globals/pfConfigurationSwitchGroups'
+} from '@/globals/configuration/pfConfigurationSwitchGroups'
 
 export default {
   name: 'SwitchGroupsList',

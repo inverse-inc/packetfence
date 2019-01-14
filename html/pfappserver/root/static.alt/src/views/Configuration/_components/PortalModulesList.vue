@@ -69,7 +69,7 @@ import PortalModule from './PortalModule'
 import PortalModuleButton from './PortalModuleButton'
 import pfButtonSave from '@/components/pfButtonSave'
 import pfButtonDelete from '@/components/pfButtonDelete'
-import { pfConfigurationPortalModuleTypes as moduleTypes } from '@/globals/pfConfigurationPortalModules'
+import { pfConfigurationPortalModuleTypes as moduleTypes } from '@/globals/configuration/pfConfigurationPortalModules'
 
 export default {
   name: 'PortalModulesList',

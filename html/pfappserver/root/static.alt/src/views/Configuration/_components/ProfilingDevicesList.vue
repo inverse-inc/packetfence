@@ -29,7 +29,7 @@ import pfEmptyTable from '@/components/pfEmptyTable'
 import {
   pfConfigurationProfilingDevicesListColumns as columns,
   pfConfigurationProfilingDevicesListFields as fields
-} from '@/globals/pfConfigurationProfiling'
+} from '@/globals/configuration/pfConfigurationProfiling'
 
 export default {
   name: 'ProfilingDevicesList',

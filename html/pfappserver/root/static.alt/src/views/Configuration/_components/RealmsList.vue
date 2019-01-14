@@ -25,7 +25,7 @@ import pfEmptyTable from '@/components/pfEmptyTable'
 import {
   pfConfigurationRealmsListColumns as columns,
   pfConfigurationRealmsListFields as fields
-} from '@/globals/pfConfigurationRealms'
+} from '@/globals/configuration/pfConfigurationRealms'
 
 export default {
   name: 'RealmsList',

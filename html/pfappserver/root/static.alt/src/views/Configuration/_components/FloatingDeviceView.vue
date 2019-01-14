@@ -45,7 +45,7 @@ import pfMixinEscapeKey from '@/components/pfMixinEscapeKey'
 import {
   pfConfigurationFloatingDeviceViewFields as fields,
   pfConfigurationFloatingDeviceViewDefaults as defaults
-} from '@/globals/pfConfigurationFloatingDevices'
+} from '@/globals/configuration/pfConfigurationFloatingDevices'
 const { validationMixin } = require('vuelidate')
 
 export default {

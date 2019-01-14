@@ -72,7 +72,7 @@ import pfEmptyTable from '@/components/pfEmptyTable'
 import {
   pfConfigurationAuthenticationSourcesListColumns as columns,
   pfConfigurationAuthenticationSourcesListFields as fields
-} from '@/globals/pfConfigurationAuthenticationSources'
+} from '@/globals/configuration/pfConfigurationAuthenticationSources'
 
 export default {
   name: 'AuthenticationSourcesList',

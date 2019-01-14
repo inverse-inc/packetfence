@@ -29,7 +29,7 @@ import pfEmptyTable from '@/components/pfEmptyTable'
 import {
   pfConfigurationProfilingDhcpv6FingerprintsListColumns as columns,
   pfConfigurationProfilingDhcpv6FingerprintsListFields as fields
-} from '@/globals/pfConfigurationProfiling'
+} from '@/globals/configuration/pfConfigurationProfiling'
 
 export default {
   name: 'ProfilingDhcpv6FingerprintsList',

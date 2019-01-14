@@ -269,7 +269,7 @@ import {
   buildValidationFromTableSchemas
 } from '@/globals/pfDatabaseSchema'
 import { pfRegExp as regExp } from '@/globals/pfRegExp'
-import { pfConfigurationActions } from '@/globals/pfConfiguration'
+import { pfConfigurationActions } from '@/globals/configuration/pfConfiguration'
 
 const { validationMixin } = require('vuelidate')
 

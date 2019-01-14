@@ -13,7 +13,7 @@ import {
   pfConfigurationListFields,
   pfConfigurationViewFields,
   pfConfigurationLocales
-} from '@/globals/pfConfiguration'
+} from '@/globals/configuration/pfConfiguration'
 import {
   and,
   not,

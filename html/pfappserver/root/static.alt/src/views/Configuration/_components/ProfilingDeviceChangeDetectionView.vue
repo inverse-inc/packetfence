@@ -28,7 +28,7 @@ import pfButtonSave from '@/components/pfButtonSave'
 import {
   pfConfigurationProfilingDeviceChangeDetectionViewFields as fields,
   pfConfigurationProfilingDeviceChangeDetectionViewDefaults as defaults
-} from '@/globals/pfConfigurationProfiling'
+} from '@/globals/configuration/pfConfigurationProfiling'
 const { validationMixin } = require('vuelidate')
 
 export default {

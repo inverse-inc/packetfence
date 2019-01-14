@@ -3,7 +3,7 @@ import {
   pfConfigurationListColumns,
   pfConfigurationListFields,
   pfConfigurationViewFields
-} from '@/globals/pfConfiguration'
+} from '@/globals/configuration/pfConfiguration'
 
 export const pfConfigurationAuthenticationSourcesListColumns = [
   Object.assign(pfConfigurationListColumns.id, { label: i18n.t('Name') }), // re-label

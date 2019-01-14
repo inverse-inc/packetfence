@@ -46,7 +46,7 @@ import {
   pfConfigurationSwitchGroupViewFields as fields,
   pfConfigurationSwitchGroupViewDefaults as defaults,
   pfConfigurationSwitchGroupViewPlaceholders as placeholders
-} from '@/globals/pfConfigurationSwitchGroups'
+} from '@/globals/configuration/pfConfigurationSwitchGroups'
 const { validationMixin } = require('vuelidate')
 
 export default {

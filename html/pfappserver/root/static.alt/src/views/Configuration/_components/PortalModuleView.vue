@@ -50,7 +50,7 @@ import {
 import {
   pfConfigurationPortalModuleViewFields as fields,
   pfConfigurationPortalModuleViewDefaults as defaults
-} from '@/globals/pfConfigurationPortalModules'
+} from '@/globals/configuration/pfConfigurationPortalModules'
 const { validationMixin } = require('vuelidate')
 
 export default {

@@ -3,7 +3,7 @@ import pfFormInput from '@/components/pfFormInput'
 import {
   pfConfigurationListColumns,
   pfConfigurationListFields
-} from '@/globals/pfConfiguration'
+} from '@/globals/configuration/pfConfiguration'
 import {
   and,
   not,

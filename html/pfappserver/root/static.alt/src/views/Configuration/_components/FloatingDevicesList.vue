@@ -28,7 +28,7 @@ import pfEmptyTable from '@/components/pfEmptyTable'
 import {
   pfConfigurationFloatingDevicesListColumns as columns,
   pfConfigurationFloatingDevicesListFields as fields
-} from '@/globals/pfConfigurationFloatingDevices'
+} from '@/globals/configuration/pfConfigurationFloatingDevices'
 
 export default {
   name: 'FloatingDevicesList',

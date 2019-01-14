@@ -28,7 +28,7 @@ import pfButtonSave from '@/components/pfButtonSave'
 import {
   pfConfigurationProfilingGeneralSettingsViewFields as fields,
   pfConfigurationProfilingGeneralSettingsViewDefaults as defaults
-} from '@/globals/pfConfigurationProfiling'
+} from '@/globals/configuration/pfConfigurationProfiling'
 const { validationMixin } = require('vuelidate')
 
 export default {

@@ -34,7 +34,7 @@ import pfEmptyTable from '@/components/pfEmptyTable'
 import {
   pfConfigurationSwitchesListColumns as columns,
   pfConfigurationSwitchesListFields as fields
-} from '@/globals/pfConfigurationSwitches'
+} from '@/globals/configuration/pfConfigurationSwitches'
 
 export default {
   name: 'SwitchesList',

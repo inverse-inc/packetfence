@@ -5,7 +5,7 @@ import { pfRegExp as regExp } from '@/globals/pfRegExp'
 import {
   pfConfigurationListColumns,
   pfConfigurationListFields
-} from '@/globals/pfConfiguration'
+} from '@/globals/configuration/pfConfiguration'
 import {
   and,
   not,

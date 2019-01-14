@@ -9,7 +9,7 @@ import pfFormToggle from '@/components/pfFormToggle'
 import {
   pfConfigurationListColumns,
   pfConfigurationListFields
-} from '@/globals/pfConfiguration'
+} from '@/globals/configuration/pfConfiguration'
 import { pfFieldType as fieldType } from '@/globals/pfField'
 import {
   and,

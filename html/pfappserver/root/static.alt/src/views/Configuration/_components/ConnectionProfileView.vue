@@ -45,7 +45,7 @@ import pfMixinEscapeKey from '@/components/pfMixinEscapeKey'
 import {
   pfConfigurationConnectionProfileViewFields as fields,
   pfConfigurationConnectionProfileViewDefaults as defaults
-} from '@/globals/pfConfigurationConnectionProfiles'
+} from '@/globals/configuration/pfConfigurationConnectionProfiles'
 const { validationMixin } = require('vuelidate')
 
 export default {

@@ -33,7 +33,7 @@ import pfEmptyTable from '@/components/pfEmptyTable'
 import {
   pfConfigurationConnectionProfilesListColumns as columns,
   pfConfigurationConnectionProfilesListFields as fields
-} from '@/globals/pfConfigurationConnectionProfiles'
+} from '@/globals/configuration/pfConfigurationConnectionProfiles'
 
 export default {
   name: 'ConnectionProfilesList',
