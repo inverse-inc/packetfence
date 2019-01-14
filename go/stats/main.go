@@ -435,11 +435,24 @@ func tailFile(stats pfconfigdriver.PfStats, config tail.Config, done chan bool) 
 		return
 	}
 
-	rgx := regexp.MustCompile(stats.Match)
+	proxypassthrough := make(map[*regexp.Regexp]string)
+
+	rgxs := strings.Split(stats.Match, ",")
+	statsdns := strings.Split(stats.StatsdNS, ",")
+
+	for pos, rgx := range rgxs {
+		regex, err := regexp.Compile(rgx)
+		if err != nil {
+			continue
+		}
+		proxypassthrough[regex] = statsdns[pos]
+	}
 
 	for line := range t.Lines {
-		if rgx.Match([]byte(line.Text)) {
-			StatsdClient.Gauge(stats.StatsdNS, 1)
+		for k, v := range proxypassthrough {
+			if k.Match([]byte(line.Text)) {
+				StatsdClient.Gauge(v, 1)
+			}
 		}
 	}
 	err = t.Wait()
