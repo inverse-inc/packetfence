@@ -173,3 +173,12 @@
     type = line
     dimension = pattern 'source.packetfence.mariadb_error_log.*' '' last 1 1
 
+[packetfence.pfmon_log]
+    name = packetfence.pfmon_log
+    title = pfmon.log file events
+    family = packetfence
+    context = chart.context
+    units = Events
+    priority = 91000
+    type = line
+    dimension = pattern 'source.packetfence.pfmon_log.*' '' last 1 1
