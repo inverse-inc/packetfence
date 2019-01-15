@@ -182,3 +182,13 @@
     priority = 91000
     type = line
     dimension = pattern 'source.packetfence.pfmon_log.*' '' last 1 1
+
+[logs.fingerbank_log]
+    name = packetfence.fingerbank_log
+    title = fingerbank.log file events
+    family = packetfence
+    context = chart.context
+    units = Events
+    priority = 91000
+    type = line
+    dimension = pattern 'source.packetfence.fingerbank_log.*' '' last 1 1
