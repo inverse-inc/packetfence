@@ -19,6 +19,10 @@
           <pf-button-delete  v-if="!item.not_deletable" size="sm" variant="outline-danger" :disabled="isLoading" :confirm="$t('Delete Connection Profile?')" @on-delete="remove(item)" reverse/>
         </span>
       </template>
+      <template slot="status" slot-scope="data">
+        <icon name="circle" :class="{ 'text-success': data.status === 'enabled', 'text-danger': data.status === 'disabled' }"
+          v-b-tooltip.hover.left.d300 :title="$t(data.status)"></icon>
+      </template>
     </pf-config-list>
   </b-card>
 </template>
@@ -27,9 +31,8 @@
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import {
-  pfConfigurationConnectionProfilesListColumns as columns,
-  pfConfigurationConnectionProfilesListFields as fields
-} from '@/globals/pfConfigurationConnectionProfiles'
+  pfConfigurationConnectionProfileListConfig as config
+} from '@/globals/configuration/pfConfigurationConnectionProfiles'
 
 export default {
   name: 'ConnectionProfilesList',
@@ -39,43 +42,7 @@ export default {
   },
   data () {
     return {
-      config: {
-        columns: columns,
-        fields: fields,
-        rowClickRoute (item, index) {
-          return { name: 'connection_profile', params: { id: item.id } }
-        },
-        searchPlaceholder: this.$i18n.t('Search by identifier or description'),
-        searchableOptions: {
-          searchApiEndpoint: 'config/connection_profiles',
-          defaultSortKeys: ['id'],
-          defaultSearchCondition: {
-            op: 'and',
-            values: [{
-              op: 'or',
-              values: [
-                { field: 'id', op: 'contains', value: null },
-                { field: 'description', op: 'contains', value: null }
-              ]
-            }]
-          },
-          defaultRoute: { name: 'connection_profiles' }
-        },
-        searchableQuickCondition: (quickCondition) => {
-          return {
-            op: 'and',
-            values: [
-              {
-                op: 'or',
-                values: [
-                  { field: 'id', op: 'contains', value: quickCondition },
-                  { field: 'description', op: 'contains', value: quickCondition }
-                ]
-              }
-            ]
-          }
-        }
-      }
+      config: config(this)
     }
   },
   methods: {

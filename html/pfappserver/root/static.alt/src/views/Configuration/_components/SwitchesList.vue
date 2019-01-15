@@ -10,7 +10,7 @@
         <b-dropdown :text="$t('Add Switch')" variant="outline-primary" class="my-2">
           <b-dropdown-header class="text-secondary">{{ $t('To group') }}</b-dropdown-header>
             <b-dropdown-item :to="{ name: 'newSwitch', params: { switchGroup: 'default' } }">{{ $t('default') }}</b-dropdown-item>
-            <b-dropdown-item v-for="(switchGroup, index) in switchGroups" :key="index"
+            <b-dropdown-item v-for="(switchGroup, index) in switches" :key="index"
               :to="{ name: 'newSwitch', params: { switchGroup: switchGroup.id } }">{{ switchGroup.id }}</b-dropdown-item>
         </b-dropdown>
       </template>
@@ -32,9 +32,8 @@ import pfButtonDelete from '@/components/pfButtonDelete'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import {
-  pfConfigurationSwitchesListColumns as columns,
-  pfConfigurationSwitchesListFields as fields
-} from '@/globals/pfConfigurationSwitches'
+  pfConfigurationSwitchesListConfig as config
+} from '@/globals/configuration/pfConfigurationSwitches'
 
 export default {
   name: 'SwitchesList',
@@ -45,48 +44,8 @@ export default {
   },
   data () {
     return {
-      switchGroups: [], // all switch groups
-      config: {
-        columns: columns,
-        fields: fields,
-        rowClickRoute (item, index) {
-          return { name: 'switch', params: { id: item.id } }
-        },
-        searchPlaceholder: this.$i18n.t('Search by identifier or description'),
-        searchableOptions: {
-          searchApiEndpoint: 'config/switches',
-          defaultSortKeys: ['id'],
-          defaultSearchCondition: {
-            op: 'and',
-            values: [{
-              op: 'or',
-              values: [
-                { field: 'id', op: 'contains', value: null },
-                { field: 'description', op: 'contains', value: null },
-                { field: 'type', op: 'contains', value: null },
-                { field: 'mode', op: 'contains', value: null }
-              ]
-            }]
-          },
-          defaultRoute: { name: 'switches' }
-        },
-        searchableQuickCondition: (quickCondition) => {
-          return {
-            op: 'and',
-            values: [
-              {
-                op: 'or',
-                values: [
-                  { field: 'id', op: 'contains', value: quickCondition },
-                  { field: 'description', op: 'contains', value: quickCondition },
-                  { field: 'type', op: 'contains', value: quickCondition },
-                  { field: 'mode', op: 'contains', value: quickCondition }
-                ]
-              }
-            ]
-          }
-        }
-      }
+      switches: [], // all switches
+      config: config(this)
     }
   },
   methods: {
@@ -101,7 +60,7 @@ export default {
   },
   created () {
     this.$store.dispatch('$_switch_groups/all').then(data => {
-      this.switchGroups = data
+      this.switches = data
     })
   }
 }

@@ -6,7 +6,7 @@ import pfFormToggle from '@/components/pfFormToggle'
 import {
   pfConfigurationListColumns,
   pfConfigurationListFields
-} from '@/globals/pfConfiguration'
+} from '@/globals/configuration/pfConfiguration'
 import {
   and,
   not,
@@ -21,7 +21,7 @@ const {
 } = require('vuelidate/lib/validators')
 
 export const pfConfigurationRealmsListColumns = [
-  Object.assign(pfConfigurationListColumns.id, { label: i18n.t('Name') }), // re-label
+  { ...pfConfigurationListColumns.id, ...{ label: i18n.t('Name') } }, // re-label
   pfConfigurationListColumns.portal_strip_username,
   pfConfigurationListColumns.admin_strip_username,
   pfConfigurationListColumns.radius_strip_username,
@@ -29,8 +29,47 @@ export const pfConfigurationRealmsListColumns = [
 ]
 
 export const pfConfigurationRealmsListFields = [
-  Object.assign(pfConfigurationListFields.id, { text: i18n.t('Name') }) // re-text
+  { ...pfConfigurationListFields.id, ...{ text: i18n.t('Name') } } // re-text
 ]
+
+export const pfConfigurationRealmListConfig = (context = {}) => {
+  const { $i18n } = context
+  return {
+    columns: pfConfigurationRealmsListColumns,
+    fields: pfConfigurationRealmsListFields,
+    rowClickRoute (item, index) {
+      return { name: 'realm', params: { id: item.id } }
+    },
+    searchPlaceholder: $i18n.t('Search by name'),
+    searchableOptions: {
+      searchApiEndpoint: 'config/realms',
+      defaultSortKeys: ['id'],
+      defaultSearchCondition: {
+        op: 'and',
+        values: [{
+          op: 'or',
+          values: [
+            { field: 'id', op: 'contains', value: null }
+          ]
+        }]
+      },
+      defaultRoute: { name: 'realms' }
+    },
+    searchableQuickCondition: (quickCondition) => {
+      return {
+        op: 'and',
+        values: [
+          {
+            op: 'or',
+            values: [
+              { field: 'id', op: 'contains', value: quickCondition }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}
 
 export const pfConfigurationRealmViewFields = (context = {}) => {
   const { isNew = false, isClone = false, domains = [] } = context

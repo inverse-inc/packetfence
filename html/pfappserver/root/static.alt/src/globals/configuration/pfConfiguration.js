@@ -598,6 +598,12 @@ export const pfConfigurationListColumns = {
     sortable: true,
     visible: true
   },
+  port: {
+    key: 'port',
+    label: i18n.t('Port'),
+    sortable: true,
+    visible: true
+  },
   portal_strip_username: {
     key: 'portal_strip_username',
     label: i18n.t('Strip Portal'),
@@ -691,6 +697,11 @@ export const pfConfigurationListFields = {
   notes: {
     value: 'notes',
     text: i18n.t('Description'),
+    types: [conditionType.SUBSTRING]
+  },
+  port: {
+    value: 'port',
+    text: i18n.t('Port'),
     types: [conditionType.SUBSTRING]
   },
   type: {

@@ -23,9 +23,8 @@
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import {
-  pfConfigurationRealmsListColumns as columns,
-  pfConfigurationRealmsListFields as fields
-} from '@/globals/pfConfigurationRealms'
+  pfConfigurationRealmListConfig as config
+} from '@/globals/configuration/pfConfigurationRealms'
 
 export default {
   name: 'RealmsList',
@@ -35,41 +34,7 @@ export default {
   },
   data () {
     return {
-      config: {
-        columns: columns,
-        fields: fields,
-        rowClickRoute (item, index) {
-          return { name: 'realm', params: { id: item.id } }
-        },
-        searchPlaceholder: this.$i18n.t('Search by name'),
-        searchableOptions: {
-          searchApiEndpoint: 'config/realms',
-          defaultSortKeys: ['id'],
-          defaultSearchCondition: {
-            op: 'and',
-            values: [{
-              op: 'or',
-              values: [
-                { field: 'id', op: 'contains', value: null }
-              ]
-            }]
-          },
-          defaultRoute: { name: 'realms' }
-        },
-        searchableQuickCondition: (quickCondition) => {
-          return {
-            op: 'and',
-            values: [
-              {
-                op: 'or',
-                values: [
-                  { field: 'id', op: 'contains', value: quickCondition }
-                ]
-              }
-            ]
-          }
-        }
-      }
+      config: config(this)
     }
   },
   methods: {

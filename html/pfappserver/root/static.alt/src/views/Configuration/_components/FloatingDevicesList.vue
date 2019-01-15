@@ -26,9 +26,8 @@
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import {
-  pfConfigurationFloatingDevicesListColumns as columns,
-  pfConfigurationFloatingDevicesListFields as fields
-} from '@/globals/pfConfigurationFloatingDevices'
+  pfConfigurationFloatingDeviceListConfig as config
+} from '@/globals/configuration/pfConfigurationFloatingDevices'
 
 export default {
   name: 'FloatingDevicesList',
@@ -38,43 +37,7 @@ export default {
   },
   data () {
     return {
-      config: {
-        columns: columns,
-        fields: fields,
-        rowClickRoute (item, index) {
-          return { name: 'floating_device', params: { id: item.id } }
-        },
-        searchPlaceholder: this.$i18n.t('Search by MAC or IP address'),
-        searchableOptions: {
-          searchApiEndpoint: 'config/floating_devices',
-          defaultSortKeys: ['id'],
-          defaultSearchCondition: {
-            op: 'and',
-            values: [{
-              op: 'or',
-              values: [
-                { field: 'id', op: 'contains', value: null },
-                { field: 'ip', op: 'contains', value: null }
-              ]
-            }]
-          },
-          defaultRoute: { name: 'floating_devices' }
-        },
-        searchableQuickCondition: (quickCondition) => {
-          return {
-            op: 'and',
-            values: [
-              {
-                op: 'or',
-                values: [
-                  { field: 'id', op: 'contains', value: quickCondition },
-                  { field: 'ip', op: 'contains', value: quickCondition }
-                ]
-              }
-            ]
-          }
-        }
-      }
+      config: config(this)
     }
   },
   methods: {

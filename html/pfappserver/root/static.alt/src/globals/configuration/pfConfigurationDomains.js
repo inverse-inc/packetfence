@@ -3,7 +3,7 @@ import pfFormInput from '@/components/pfFormInput'
 import {
   pfConfigurationListColumns,
   pfConfigurationListFields
-} from '@/globals/pfConfiguration'
+} from '@/globals/configuration/pfConfiguration'
 import {
   and,
   not,
@@ -19,15 +19,56 @@ const {
 } = require('vuelidate/lib/validators')
 
 export const pfConfigurationDomainsListColumns = [
-  Object.assign(pfConfigurationListColumns.id, { label: i18n.t('Name') }), // re-label
+  { ...pfConfigurationListColumns.id, ...{ label: i18n.t('Name') } }, // re-label
   pfConfigurationListColumns.workgroup,
   pfConfigurationListColumns.buttons
 ]
 
 export const pfConfigurationDomainsListFields = [
-  Object.assign(pfConfigurationListFields.id, { text: i18n.t('Name') }), // re-text
+  { ...pfConfigurationListFields.id, ...{ text: i18n.t('Name') } }, // re-text
   pfConfigurationListFields.workgroup
 ]
+
+export const pfConfigurationDomainsListConfig = (context = {}) => {
+  const { $i18n } = context
+  return {
+    columns: pfConfigurationDomainsListColumns,
+    fields: pfConfigurationDomainsListFields,
+    rowClickRoute (item, index) {
+      return { name: 'domain', params: { id: item.id } }
+    },
+    searchPlaceholder: $i18n.t('Search by name or workgroup'),
+    searchableOptions: {
+      searchApiEndpoint: 'config/domains',
+      defaultSortKeys: ['id'],
+      defaultSearchCondition: {
+        op: 'and',
+        values: [{
+          op: 'or',
+          values: [
+            { field: 'id', op: 'contains', value: null },
+            { field: 'workgroup', op: 'contains', value: null }
+          ]
+        }]
+      },
+      defaultRoute: { name: 'domains' }
+    },
+    searchableQuickCondition: (quickCondition) => {
+      return {
+        op: 'and',
+        values: [
+          {
+            op: 'or',
+            values: [
+              { field: 'id', op: 'contains', value: quickCondition },
+              { field: 'workgroup', op: 'contains', value: quickCondition }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}
 
 export const pfConfigurationDomainViewFields = (context = {}) => {
   const { isNew = false, isClone = false } = context

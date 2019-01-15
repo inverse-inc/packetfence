@@ -70,9 +70,8 @@ import pfButtonDelete from '@/components/pfButtonDelete'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import {
-  pfConfigurationAuthenticationSourcesListColumns as columns,
-  pfConfigurationAuthenticationSourcesListFields as fields
-} from '@/globals/pfConfigurationAuthenticationSources'
+  pfConfigurationAuthenticationSourceListConfig as config
+} from '@/globals/configuration/pfConfigurationAuthenticationSources'
 
 export default {
   name: 'AuthenticationSourcesList',
@@ -83,46 +82,7 @@ export default {
   },
   data () {
     return {
-      config: {
-        columns: columns,
-        fields: fields,
-        rowClickRoute (item, index) {
-          return { name: 'source', params: { id: item.id } }
-        },
-        searchPlaceholder: this.$i18n.t('Search by name or description'),
-        searchableOptions: {
-          searchApiEndpoint: 'config/sources',
-          defaultSortKeys: ['id'],
-          defaultSearchCondition: {
-            op: 'and',
-            values: [{
-              op: 'or',
-              values: [
-                { field: 'id', op: 'contains', value: null },
-                { field: 'description', op: 'contains', value: null },
-                { field: 'class', op: 'contains', value: null },
-                { field: 'type', op: 'contains', value: null }
-              ]
-            }]
-          },
-          defaultRoute: { name: 'sources' },
-          resultsFilter: (results) => results.filter(item => item.id !== 'local') // ignore 'local' source
-        },
-        searchableQuickCondition: (quickCondition) => {
-          return {
-            op: 'and',
-            values: [{
-              op: 'or',
-              values: [
-                { field: 'id', op: 'contains', value: quickCondition },
-                { field: 'description', op: 'contains', value: quickCondition },
-                { field: 'class', op: 'contains', value: quickCondition },
-                { field: 'type', op: 'contains', value: quickCondition }
-              ]
-            }]
-          }
-        }
-      }
+      config: config(this)
     }
   },
   methods: {

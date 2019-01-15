@@ -45,7 +45,7 @@ import pfMixinEscapeKey from '@/components/pfMixinEscapeKey'
 import {
   pfConfigurationRealmViewFields as fields,
   pfConfigurationRealmViewDefaults as defaults
-} from '@/globals/pfConfigurationRealms'
+} from '@/globals/configuration/pfConfigurationRealms'
 const { validationMixin } = require('vuelidate')
 
 export default {

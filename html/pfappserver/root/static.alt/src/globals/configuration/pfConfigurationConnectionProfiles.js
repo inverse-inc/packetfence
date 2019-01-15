@@ -13,7 +13,7 @@ import {
   pfConfigurationListFields,
   pfConfigurationViewFields,
   pfConfigurationLocales
-} from '@/globals/pfConfiguration'
+} from '@/globals/configuration/pfConfiguration'
 import {
   and,
   not,
@@ -79,7 +79,7 @@ export const pfConfigurationConnectionProfileFilters = {
   node_role: {
     value: 'node_role',
     text: i18n.t('Node role'),
-    types: [fieldType.ROLE],
+    types: [fieldType.ROLE_BY_NAME],
     validators: {
       type: {
         /* Don't allow elsewhere */
@@ -258,15 +258,56 @@ export const pfConfigurationConnectionProfileFilters = {
 
 export const pfConfigurationConnectionProfilesListColumns = [
   pfConfigurationListColumns.status,
-  Object.assign(pfConfigurationListColumns.id, { label: i18n.t('Identifier') }), // re-label
+  { ...pfConfigurationListColumns.id, ...{ label: i18n.t('Identifier') } }, // re-label
   pfConfigurationListColumns.description,
   pfConfigurationListColumns.buttons
 ]
 
 export const pfConfigurationConnectionProfilesListFields = [
-  Object.assign(pfConfigurationListFields.id, { text: i18n.t('Identifier') }), // re-text
+  { ...pfConfigurationListFields.id, ...{ text: i18n.t('Identifier') } }, // re-text
   pfConfigurationListFields.description
 ]
+
+export const pfConfigurationConnectionProfileListConfig = (context = {}) => {
+  const { $i18n } = context
+  return {
+    columns: pfConfigurationConnectionProfilesListColumns,
+    fields: pfConfigurationConnectionProfilesListFields,
+    rowClickRoute (item, index) {
+      return { name: 'connection_profile', params: { id: item.id } }
+    },
+    searchPlaceholder: $i18n.t('Search by identifier or description'),
+    searchableOptions: {
+      searchApiEndpoint: 'config/connection_profiles',
+      defaultSortKeys: ['id'],
+      defaultSearchCondition: {
+        op: 'and',
+        values: [{
+          op: 'or',
+          values: [
+            { field: 'id', op: 'contains', value: null },
+            { field: 'description', op: 'contains', value: null }
+          ]
+        }]
+      },
+      defaultRoute: { name: 'connection_profiles' }
+    },
+    searchableQuickCondition: (quickCondition) => {
+      return {
+        op: 'and',
+        values: [
+          {
+            op: 'or',
+            values: [
+              { field: 'id', op: 'contains', value: quickCondition },
+              { field: 'description', op: 'contains', value: quickCondition }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}
 
 export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
   const {
@@ -276,8 +317,13 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
     sources = [],
     billingTiers = [],
     provisionings = [],
-    scans = []
+    scans = [],
+    general = {}
   } = context
+
+  // fields differ w/ & wo/ 'default'
+  const isDefault = (connectionProfile.id === 'default')
+
   return [
     {
       tab: i18n.t('Settings'),
@@ -301,7 +347,20 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
             }
           ]
         },
-        Object.assign(pfConfigurationViewFields.description, { label: i18n.t('Profile Description') }), // re-label
+        { ...pfConfigurationViewFields.description, ...{ label: i18n.t('Profile Description') } }, // re-label
+        {
+          if: !isDefault,
+          label: i18n.t('Enable profile'),
+          fields: [
+            {
+              key: 'status',
+              component: pfFormToggle,
+              attrs: {
+                values: { checked: 'enabled', unchecked: 'disabled' }
+              }
+            }
+          ]
+        },
         {
           label: i18n.t('Root Portal Module'),
           text: i18n.t('The Root Portal Module to use.'),
@@ -424,7 +483,7 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
           ]
         },
         {
-          if: (connectionProfile.id !== 'default'),
+          if: !isDefault,
           label: i18n.t('Filters'),
           fields: [
             {
@@ -435,17 +494,29 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
                 placeholder: i18n.t('Click to select a match style'),
                 trackBy: 'value',
                 label: 'text',
+                allowEmpty: false,
+                clearOnSelect: false,
                 options: [
                   { text: i18n.t('If ALL of the following conditions are met:'), value: 'all' },
                   { text: i18n.t('If ANY of the following conditions are met:'), value: 'any' }
                 ]
+              },
+              validators: {
+                [i18n.t('Filter or advanced filter required.')]: conditional((value) => {
+                  return ( // false on error, true on success
+                    isDefault ||
+                    (!!value) ||
+                    ('filter' in connectionProfile && connectionProfile.filter.length > 0) ||
+                    ('advanced_filter' in connectionProfile && !!connectionProfile.advanced_filter)
+                  )
+                })
               }
             }
           ]
         },
         {
-          if: (connectionProfile.id !== 'default' && connectionProfile.filter_match_style),
-          label: '&nbsp;', // pad with label-column, but don't print anything
+          if: !isDefault,
+          label: i18n.t('Filter'),
           fields: [
             {
               key: 'filter',
@@ -481,12 +552,21 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
                 invalidFeedback: [
                   { [i18n.t('Filter(s) contain one or more errors.')]: true }
                 ]
+              },
+              validators: {
+                [i18n.t('Filter or advanced filter required.')]: conditional((value) => {
+                  return ( // false on error, true on success
+                    isDefault ||
+                    (typeof value !== 'undefined' && value.length > 0) ||
+                    ('advanced_filter' in connectionProfile && !!connectionProfile.advanced_filter)
+                  )
+                })
               }
             }
           ]
         },
         {
-          if: (connectionProfile.id !== 'default'),
+          if: !isDefault,
           label: i18n.t('Advanced filter'),
           fields: [
             {
@@ -496,6 +576,13 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
                 rows: 3
               },
               validators: {
+                [i18n.t('Filter or advanced filter required.')]: conditional((value) => {
+                  return ( // false on error, true on success
+                    isDefault ||
+                    (!!value) ||
+                    ('filter' in connectionProfile && connectionProfile.filter.length > 0)
+                  )
+                }),
                 [i18n.t('Maximum 255 characters.')]: maxLength(255)
               }
             }
@@ -658,7 +745,10 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
                       validators: {
                         [i18n.t('Scanner required.')]: required,
                         [i18n.t('Duplicate Scanner.')]: conditional((value) => {
-                          return !(connectionProfile.scans.filter(v => v === value).length > 1)
+                          if (connectionProfile.provisioners === Array) {
+                            return !(connectionProfile.provisioners.filter(v => v === value).length > 1)
+                          }
+                          return true
                         })
                       }
                     }
@@ -718,7 +808,7 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
               key: 'redirecturl',
               component: pfFormInput,
               validators: {
-                [i18n.t('Logo required.')]: required,
+                [i18n.t('URL required.')]: required,
                 [i18n.t('Maximum 255 characters.')]: maxLength(255)
               }
             }
@@ -837,6 +927,32 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
           ]
         },
         {
+          label: i18n.t('Network Logoff'),
+          text: i18n.t('This allows users to access the network logoff page (http://{fqdn}/networklogoff) in order to terminate their network access (switch their device back to unregistered).', general),
+          fields: [
+            {
+              key: 'network_logoff',
+              component: pfFormToggle,
+              attrs: {
+                values: { checked: 'enabled', unchecked: 'disabled' }
+              }
+            }
+          ]
+        },
+        {
+          label: i18n.t('Network Logoff Popup'),
+          text: i18n.t('When the "Network Logoff" feature is enabled, this will have it opened in a popup at the end of the registration process.'),
+          fields: [
+            {
+              key: 'network_logoff_popup',
+              component: pfFormToggle,
+              attrs: {
+                values: { checked: 'enabled', unchecked: 'disabled' }
+              }
+            }
+          ]
+        },
+        {
           label: i18n.t('Languages'),
           fields: [
             {
@@ -887,6 +1003,17 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
 
 export const pfConfigurationConnectionProfileViewDefaults = (context = {}) => {
   return {
-    id: null
+    id: null,
+    status: 'enabled',
+    root_module: 'default_policy',
+    dot1x_recompute_role_from_portal: 'enabled',
+    filter_match_style: 'any',
+    block_interval: {
+      interval: 10,
+      unit: 'm'
+    },
+    sms_pin_retry_limit: 0,
+    sms_request_limit: 0,
+    login_attempt_limit: 0
   }
 }

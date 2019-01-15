@@ -9,7 +9,7 @@ import pfFormToggle from '@/components/pfFormToggle'
 import {
   pfConfigurationListColumns,
   pfConfigurationListFields
-} from '@/globals/pfConfiguration'
+} from '@/globals/configuration/pfConfiguration'
 import { pfFieldType as fieldType } from '@/globals/pfField'
 import {
   and,
@@ -30,7 +30,7 @@ const {
 } = require('vuelidate/lib/validators')
 
 export const pfConfigurationSwitchGroupsListColumns = [
-  Object.assign(pfConfigurationListColumns.id, { label: i18n.t('Identifier') }), // re-label
+  { ...pfConfigurationListColumns.id, ...{ label: i18n.t('Identifier') } }, // re-label
   pfConfigurationListColumns.description,
   pfConfigurationListColumns.type,
   pfConfigurationListColumns.mode,
@@ -38,11 +38,56 @@ export const pfConfigurationSwitchGroupsListColumns = [
 ]
 
 export const pfConfigurationSwitchGroupsListFields = [
-  Object.assign(pfConfigurationListFields.id, { text: i18n.t('Identifier') }), // re-text
+  { ...pfConfigurationListFields.id, ...{ text: i18n.t('Identifier') } }, // re-text
   pfConfigurationListFields.description,
   pfConfigurationListFields.mode,
   pfConfigurationListFields.type
 ]
+
+export const pfConfigurationSwitchGroupsListConfig = (context = {}) => {
+  const { $i18n } = context
+  return {
+    columns: pfConfigurationSwitchGroupsListColumns,
+    fields: pfConfigurationSwitchGroupsListFields,
+    rowClickRoute (item, index) {
+      return { name: 'switch_group', params: { id: item.id } }
+    },
+    searchPlaceholder: $i18n.t('Search by identifier or description'),
+    searchableOptions: {
+      searchApiEndpoint: 'config/switch_groups',
+      defaultSortKeys: ['id'],
+      defaultSearchCondition: {
+        op: 'and',
+        values: [{
+          op: 'or',
+          values: [
+            { field: 'id', op: 'contains', value: null },
+            { field: 'description', op: 'contains', value: null },
+            { field: 'type', op: 'contains', value: null },
+            { field: 'mode', op: 'contains', value: null }
+          ]
+        }]
+      },
+      defaultRoute: { name: 'switch_groups' }
+    },
+    searchableQuickCondition: (quickCondition) => {
+      return {
+        op: 'and',
+        values: [
+          {
+            op: 'or',
+            values: [
+              { field: 'id', op: 'contains', value: quickCondition },
+              { field: 'description', op: 'contains', value: quickCondition },
+              { field: 'type', op: 'contains', value: quickCondition },
+              { field: 'mode', op: 'contains', value: quickCondition }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}
 
 export const pfConfigurationSwitchGroupActions = {
   always: {

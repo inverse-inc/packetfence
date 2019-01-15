@@ -15,9 +15,8 @@
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import {
-  pfConfigurationDomainsListColumns as columns,
-  pfConfigurationDomainsListFields as fields
-} from '@/globals/pfConfigurationDomains'
+  pfConfigurationDomainsListConfig as config
+} from '@/globals/configuration/pfConfigurationDomains'
 
 export default {
   name: 'DomainsList',
@@ -27,44 +26,7 @@ export default {
   },
   data () {
     return {
-      config: {
-        columns: columns,
-        fields: fields,
-        rowClickRoute (item, index) {
-          return { name: 'domain', params: { id: item.id } }
-        },
-        searchPlaceholder: this.$i18n.t('Search by name or workgroup'),
-        searchableOptions: {
-          searchApiEndpoint: 'config/domains',
-          defaultSortKeys: ['id'],
-          defaultSearchCondition: {
-            op: 'and',
-            values: [{
-              op: 'or',
-              values: [
-                { field: 'id', op: 'contains', value: null },
-                { field: 'workgroup', op: 'contains', value: null }
-              ]
-            }]
-          },
-          defaultRoute: { name: 'domains' }
-        },
-        searchableQuickCondition: (quickCondition) => {
-          return {
-            op: 'and',
-            values: [
-              {
-                op: 'or',
-                values: [
-                  { field: 'id', op: 'contains', value: quickCondition },
-                  { field: 'workgroup', op: 'contains', value: quickCondition }
-                ]
-              }
-            ]
-          }
-        }
-
-      }
+      config: config(this)
     }
   }
 }

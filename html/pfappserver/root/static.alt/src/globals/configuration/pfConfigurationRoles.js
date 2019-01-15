@@ -3,7 +3,7 @@ import pfFormInput from '@/components/pfFormInput'
 import {
   pfConfigurationListColumns,
   pfConfigurationListFields
-} from '@/globals/pfConfiguration'
+} from '@/globals/configuration/pfConfiguration'
 import {
   and,
   not,
@@ -19,16 +19,57 @@ const {
 } = require('vuelidate/lib/validators')
 
 export const pfConfigurationRolesListColumns = [
-  Object.assign(pfConfigurationListColumns.id, { label: i18n.t('Name') }), // re-label
+  { ...pfConfigurationListColumns.id, ...{ label: i18n.t('Name') } }, // re-label
   pfConfigurationListColumns.notes,
   pfConfigurationListColumns.max_nodes_per_pid,
   pfConfigurationListColumns.buttons
 ]
 
 export const pfConfigurationRolesListFields = [
-  Object.assign(pfConfigurationListFields.id, { text: i18n.t('Name') }), // re-text
+  { ...pfConfigurationListFields.id, ...{ text: i18n.t('Name') } }, // re-text
   pfConfigurationListFields.notes
 ]
+
+export const pfConfigurationRoleListConfig = (context = {}) => {
+  const { $i18n } = context
+  return {
+    columns: pfConfigurationRolesListColumns,
+    fields: pfConfigurationRolesListFields,
+    rowClickRoute (item, index) {
+      return { name: 'role', params: { id: item.id } }
+    },
+    searchPlaceholder: $i18n.t('Search by name or description'),
+    searchableOptions: {
+      searchApiEndpoint: 'config/roles',
+      defaultSortKeys: ['id'],
+      defaultSearchCondition: {
+        op: 'and',
+        values: [{
+          op: 'or',
+          values: [
+            { field: 'id', op: 'contains', value: null },
+            { field: 'notes', op: 'contains', value: null }
+          ]
+        }]
+      },
+      defaultRoute: { name: 'roles' }
+    },
+    searchableQuickCondition: (quickCondition) => {
+      return {
+        op: 'and',
+        values: [
+          {
+            op: 'or',
+            values: [
+              { field: 'id', op: 'contains', value: quickCondition },
+              { field: 'notes', op: 'contains', value: quickCondition }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}
 
 export const pfConfigurationRoleViewFields = (context = {}) => {
   const { isNew = false, isClone = false } = context

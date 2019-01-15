@@ -1,7 +1,7 @@
 import i18n from '@/utils/locale'
 import {
   pfConfigurationViewFields
-} from '@/globals/pfConfiguration'
+} from '@/globals/configuration/pfConfiguration'
 
 const colorsList = [
   // Colors for types under `Multiple`

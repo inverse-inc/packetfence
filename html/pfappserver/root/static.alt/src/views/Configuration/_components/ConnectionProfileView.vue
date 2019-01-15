@@ -45,7 +45,7 @@ import pfMixinEscapeKey from '@/components/pfMixinEscapeKey'
 import {
   pfConfigurationConnectionProfileViewFields as fields,
   pfConfigurationConnectionProfileViewDefaults as defaults
-} from '@/globals/pfConfigurationConnectionProfiles'
+} from '@/globals/configuration/pfConfigurationConnectionProfiles'
 const { validationMixin } = require('vuelidate')
 
 export default {
@@ -86,7 +86,8 @@ export default {
       sources: [],
       billingTiers: [],
       provisionings: [],
-      scans: []
+      scans: [],
+      general: {}
     }
   },
   validations () {
@@ -115,6 +116,17 @@ export default {
         return false
       }
       return true
+    },
+    keyLabelMap () {
+      let keyLabelMap = {}
+      this.getForm.fields.forEach(tab => {
+        tab.fields.forEach(row => {
+          row.fields.forEach(col => {
+            if ('key' in col) keyLabelMap[col.key] = row.label
+          })
+        })
+      })
+      return keyLabelMap
     }
   },
   methods: {
@@ -129,7 +141,7 @@ export default {
         } else {
           this.$router.push({ name: 'connection_profile', params: { id: this.connectionProfile.id } })
         }
-      })
+      }).catch(this.notifyError)
     },
     save () {
       const ctrlKey = this.ctrlKey
@@ -137,11 +149,21 @@ export default {
         if (ctrlKey) { // [CTRL] key pressed
           this.close()
         }
-      })
+      }).catch(this.notifyError)
     },
     remove () {
       this.$store.dispatch(`${this.storeName}/deleteConnectionProfile`, this.id).then(response => {
         this.close()
+      }).catch(this.notifyError)
+    },
+    notifyError (err) {
+      const { response: { data: { errors = [] } } } = err
+      errors.forEach((error) => {
+        if (error.field in this.keyLabelMap) {
+          error.field = this.$i18n.t(this.keyLabelMap[error.field])
+        }
+        let message = this.$i18n.t('Server Error - "{field}": {message}', error)
+        this.$store.dispatch('notification/danger', { icon: 'server', url: `#${this.$route.fullPath}`, message: message })
       })
     }
   },
@@ -161,8 +183,11 @@ export default {
     this.$store.dispatch('$_provisionings/all').then(data => {
       this.provisionings = data
     })
-    this.$store.dispatch('$_scans/all').then(data => {
+    this.$store.dispatch('$_scans/allScanEngines').then(data => {
       this.scans = data
+    })
+    this.$store.dispatch('$_bases/getBase', 'general').then(data => {
+      this.general = data
     })
   }
 }
