@@ -185,9 +185,9 @@ func (s eduroamtype) Test(source interface{}, ctx context.Context) {
 		} else {
 			StatsdClient.Count("source."+source.(pfconfigdriver.AuthenticationSourceEduroam).Type+"."+source.(pfconfigdriver.AuthenticationSourceEduroam).PfconfigHashNS+"1", 1)
 			if response.Code == radius.CodeAccessAccept {
-				fmt.Println("Accepted")
+				log.LoggerWContext(ctx).Debug(fmt.Sprintf("Eduroam test for source %s did returned an Access-Accept", source.(pfconfigdriver.AuthenticationSourceEduroam).PfconfigHashNS+"1"))
 			} else {
-				fmt.Println("Denied")
+				log.LoggerWContext(ctx).Debug(fmt.Sprintf("Eduroam test for source %s returned a response other than an Access-Accept", source.(pfconfigdriver.AuthenticationSourceEduroam).PfconfigHashNS+"1"))
 			}
 		}
 		t.Send("source." + source.(pfconfigdriver.AuthenticationSourceEduroam).Type + "." + source.(pfconfigdriver.AuthenticationSourceEduroam).PfconfigHashNS + "1")
@@ -202,9 +202,9 @@ func (s eduroamtype) Test(source interface{}, ctx context.Context) {
 		} else {
 			StatsdClient.Gauge("source."+source.(pfconfigdriver.AuthenticationSourceEduroam).Type+"."+source.(pfconfigdriver.AuthenticationSourceEduroam).PfconfigHashNS+"2", 1)
 			if response.Code == radius.CodeAccessAccept {
-				fmt.Println("Accepted")
+				log.LoggerWContext(ctx).Debug(fmt.Sprintf("Eduroam test for source %s did returned an Access-Accept", source.(pfconfigdriver.AuthenticationSourceEduroam).PfconfigHashNS+"2"))
 			} else {
-				fmt.Println("Denied")
+				log.LoggerWContext(ctx).Debug(fmt.Sprintf("Eduroam test for source %s returned a response other than an Access-Accept", source.(pfconfigdriver.AuthenticationSourceEduroam).PfconfigHashNS+"2"))
 			}
 		}
 		t.Send("source." + source.(pfconfigdriver.AuthenticationSourceEduroam).Type + "." + source.(pfconfigdriver.AuthenticationSourceEduroam).PfconfigHashNS + "2")

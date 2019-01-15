@@ -68,7 +68,7 @@ has_field 'testUser',
    label => 'Test User',
    element_class => ['input-small'],
    tags => { after_element => \&help,
-             help => 'If you monitor, what is the username to test the RADIUS source' },
+             help => 'The username to use for testing when monitoring the RADIUS source' },
    default => '',
 );
 
@@ -78,8 +78,8 @@ has_field 'testPassword',
    label => 'Test Password',
    element_class => ['input-small'],
    tags => { after_element => \&help,
-             help => 'If you monitor, what is the password to test the RADIUS source' },
-   default => pf::Authentication::Source::RADIUSSource->meta->get_attribute('testUser')->default,
+             help => 'The password to use for testing when monitoring the RADIUS source' },
+   default => '',
 );
 has_field 'options',
   (
