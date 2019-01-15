@@ -166,6 +166,7 @@ sub _deauthenticateMacWithHTTP {
     my $args = {
         mac => $mac,
     };
+    my $command;
     unless ($node_info->{status} eq $STATUS_UNREGISTERED || violation_count_reevaluate_access($mac))  {
         $command = "authorize-guest";
         my $now = DateTime->now();
