@@ -80,7 +80,11 @@ export const pfConfigurationBillingTiersListConfig = (context = {}) => {
 }
 
 export const pfConfigurationBillingTierViewFields = (context = {}) => {
-  const { isNew = false, isClone = false } = context
+  const {
+    isNew = false,
+    isClone = false,
+    roles = []
+  } = context
   return [
     {
       tab: null, // ignore tabs
@@ -151,7 +155,7 @@ export const pfConfigurationBillingTierViewFields = (context = {}) => {
                 placeholder: i18n.t('Click to select a role'),
                 trackBy: 'value',
                 label: 'text',
-                options: context.roles.map(role => { return { value: role.name, text: role.name } })
+                options: roles.map(role => { return { value: role.name, text: role.name } })
               },
               validators: {
                 [i18n.t('Role required.')]: required

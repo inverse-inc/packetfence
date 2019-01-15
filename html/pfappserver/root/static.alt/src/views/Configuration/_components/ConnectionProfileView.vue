@@ -183,7 +183,7 @@ export default {
     this.$store.dispatch('$_provisionings/all').then(data => {
       this.provisionings = data
     })
-    this.$store.dispatch('$_scans/all').then(data => {
+    this.$store.dispatch('$_scans/allScanEngines').then(data => {
       this.scans = data
     })
     this.$store.dispatch('$_bases/getBase', 'general').then(data => {

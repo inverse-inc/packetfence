@@ -298,6 +298,16 @@ export const roleExists = (value, component) => {
   })
 }
 
+export const scanExists = (value, component) => {
+  if (!value) return true
+  return store.dispatch('config/getScans').then((response) => {
+    if (response.length === 0) return true
+    return (response.filter(scan => scan.id.toLowerCase() === value.toLowerCase()).length > 0)
+  }).catch(() => {
+    return true
+  })
+}
+
 export const sourceExists = (value, component) => {
   if (!value) return true
   return store.dispatch('config/getSources').then((response) => {

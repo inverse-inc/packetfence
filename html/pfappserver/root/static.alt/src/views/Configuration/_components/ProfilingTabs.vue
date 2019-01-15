@@ -34,7 +34,6 @@
       <b-tab :title="$t('User Agents')" @click="changeTab('user_agents')">
         <profiling-user-agents-list />
       </b-tab>
-
     </b-tabs>
   </b-card>
 </template>

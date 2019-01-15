@@ -26,6 +26,9 @@ const api = {
   getRoles () {
     return apiCall({ url: 'node_categories', method: 'get', params: { limit: 1000 } })
   },
+  getScans () {
+    return apiCall({ url: 'config/scans', method: 'get' })
+  },
   getSources () {
     return apiCall({ url: 'config/sources', method: 'get' })
   },
@@ -65,6 +68,8 @@ const state = { // set intitial states to `false` (not `[]` or `{}`) to avoid in
   realms: false,
   rolesStatus: '',
   roles: false,
+  scansStatus: '',
+  scans: false,
   sourcesStatus: '',
   sources: false,
   switchesStatus: '',
@@ -131,6 +136,9 @@ const getters = {
   },
   isLoadingRoles: state => {
     return state.rolesStatus === types.LOADING
+  },
+  isLoadingScans: state => {
+    return state.scansStatus === types.LOADING
   },
   isLoadingSources: state => {
     return state.sourcesStatus === types.LOADING
@@ -300,6 +308,20 @@ const actions = {
       return Promise.resolve(state.roles)
     }
   },
+  getScans: ({ state, getters, commit }) => {
+    if (getters.isLoadingScans) {
+      return
+    }
+    if (!state.scans) {
+      commit('SCANS_REQUEST')
+      return api.getScans().then(response => {
+        commit('SCANS_UPDATED', response.data.items)
+        return state.scans
+      })
+    } else {
+      return Promise.resolve(state.scans)
+    }
+  },
   getSources: ({ state, getters, commit }) => {
     if (getters.isLoadingSources) {
       return
@@ -425,6 +447,13 @@ const mutations = {
   ROLES_UPDATED: (state, roles) => {
     state.roles = roles
     state.rolesStatus = types.SUCCESS
+  },
+  SCANS_REQUEST: (state) => {
+    state.scansStatus = types.LOADING
+  },
+  SCANS_UPDATED: (state, scans) => {
+    state.scans = scans
+    state.scansStatus = types.SUCCESS
   },
   SOURCES_REQUEST: (state) => {
     state.sourcesStatus = types.LOADING

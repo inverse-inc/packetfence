@@ -33,6 +33,7 @@ const ComplianceSection = () => import(/* webpackChunkName: "Configuration" */ '
 const ProfilingTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/ProfilingTabs')
 const ProfilingCombinationView = () => import(/* webpackChunkName: "Configuration" */ '../_components/ProfilingCombinationView')
 const ScansTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/ScansTabs')
+const ScansScanEngineView = () => import(/* webpackChunkName: "Configuration" */ '../_components/ScansScanEngineView')
 
 const NetworkConfigurationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/NetworkConfigurationSection')
 const FloatingDevicesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/FloatingDevicesList')
@@ -452,6 +453,34 @@ const route = {
       name: 'scanEngines',
       component: ScansTabs,
       props: (route) => ({ tab: 'scan_engines', query: route.query.query })
+    },
+    {
+      path: 'scans/scan_engines/new/:scanType',
+      name: 'newScanEngine',
+      component: ScansScanEngineView,
+      props: (route) => ({ storeName: '$_scans', isNew: true, scanType: route.params.scanType })
+    },
+    {
+      path: 'scans/scan_engine/:id',
+      name: 'scanEngine',
+      component: ScansScanEngineView,
+      props: (route) => ({ storeName: '$_scans', id: route.params.id }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_scans/getScanEngine', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'scans/scan_engine/:id/clone',
+      name: 'cloneScanEngine',
+      component: ScansScanEngineView,
+      props: (route) => ({ storeName: '$_scans', id: route.params.id, isClone: true }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_scans/getScanEngine', to.params.id).then(object => {
+          next()
+        })
+      }
     },
     {
       path: 'scans/wmi_rules',

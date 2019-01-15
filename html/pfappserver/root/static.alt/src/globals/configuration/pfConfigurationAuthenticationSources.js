@@ -21,7 +21,10 @@ export const pfConfigurationAuthenticationSourcesListFields = [
 ]
 
 export const pfConfigurationAuthenticationSourceListConfig = (context = {}) => {
-  const { $i18n } = context
+  const {
+    $i18n,
+    roles = [], // all roles
+  } = context
   return {
     columns: pfConfigurationAuthenticationSourcesListColumns,
     fields: pfConfigurationAuthenticationSourcesListFields,

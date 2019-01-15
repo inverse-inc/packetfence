@@ -42,7 +42,6 @@ export default {
   },
   base: id => {
     return apiCall.get(`config/base/${id}`).then(response => {
-      response.data.item.id = id // TODO: remove once `id` is included in response
       return response.data.item
     })
   },
@@ -498,27 +497,27 @@ export default {
   /**
    * Scans
    */
-  scans: params => {
+  scanEngines: params => {
     return apiCall.get(`config/scans`, { params }).then(response => {
       return response.data
     })
   },
-  scan: id => {
+  scanEngine: id => {
     return apiCall.get(`config/scan/${id}`).then(response => {
       return response.data.item
     })
   },
-  createScan: data => {
+  createScanEngine: data => {
     return apiCall.post('config/scans', data).then(response => {
       return response.data
     })
   },
-  updateScan: data => {
+  updateScanEngine: data => {
     return apiCall.patch(`config/scan/${data.id}`, data).then(response => {
       return response.data
     })
   },
-  deleteScan: id => {
+  deleteScanEngine: id => {
     return apiCall.delete(`config/scan/${id}`)
   }
 }
