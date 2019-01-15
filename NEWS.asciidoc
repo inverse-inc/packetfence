@@ -20,6 +20,7 @@ New Features
 
 Enhancements
 ++++++++++++
+* Now including timeout when authorizing a web-auth user on a Unifi controler
 
 
 Bug Fixes
