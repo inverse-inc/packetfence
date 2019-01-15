@@ -195,6 +195,7 @@ END;
                 <li [% IF tab == "endpoints" %]class="active"[% END %]><a data-toggle="pill" href="#endpoints">[% l('Endpoints') %]</a></li>
                 <li [% IF tab == "portal" %]class="active"[% END %]><a data-toggle="pill" href="#portal">[% l('Portal') %]</a></li>
                 <li [% IF tab == "queue" %]class="active"[% END %]><a data-toggle="pill" href="#queue">[% l('Queue') %]</a></li>
+                <li [% IF tab == "logs" %]class="active"[% END %]><a data-toggle="pill" href="#logs">[% l('Logs') %]</a></li>
             </ul>
         </div>
     </dIV>
@@ -568,9 +569,69 @@ END;
               </div>
             </div>
           </div>
-
+        <div class="tab-pane[% IF tab == "logs" %] active[% END %]" id="logs">
+          <div class="card">
+            <div class="card-title">
+              <h2>[% l('packetfence.log') %]</h2>
+            </div>
+              <div class="card-block">
+                <div class="row-flex">
+                    [% graph("packetfence.logs.packetfence_log", "Numbers of events") | none %]
+                </div>
+              </div>
+          </div>
+          <div class="card">
+            <div class="card-title">
+              <h2>[% l('pfdhcp.log') %]</h2>
+            </div>
+              <div class="card-block">
+                <div class="row-flex">
+                    [% graph("packetfence.logs.pfdhcp_log", "Numbers of events") | none %]
+                </div>
+              </div>
+          </div>
+          <div class="card">
+            <div class="card-title">
+              <h2>[% l('load_balancer.log') %]</h2>
+            </div>
+              <div class="card-block">
+                <div class="row-flex">
+                    [% graph("packetfence.logs.load_balancer_log", "Numbers of events") | none %]
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">
+              <h2>[% l('radius.log') %]</h2>
+            </div>
+              <div class="card-block">
+                <div class="row-flex">
+                    [% graph("packetfence.logs.radius_log", "Numbers of ip addresses assigned") | none %]
+                </div>
+              </div>
+          </div>
+          <div class="card">
+            <div class="card-title">
+              <h2>[% l('mariadb_error.log') %]</h2>
+            </div>
+              <div class="card-block">
+                <div class="row-flex">
+                    [% graph("packetfence.logs.mariadb_error_log", "Numbers of ip addresses assigned") | none %]
+                </div>
+              </div>
+          </div>
+          <div class="card">
+            <div class="card-title">
+              <h2>[% l('pfmon.log') %]</h2>
+            </div>
+              <div class="card-block">
+                <div class="row-flex">
+                    [% graph("packetfence.logs.pfmon_log", "Numbers of ip addresses assigned") | none %]
+                </div>
+              </div>
+          </div>
         </div>
-        
     </div>
 
 </div>
