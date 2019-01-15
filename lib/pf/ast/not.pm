@@ -20,8 +20,8 @@ sub new {
 }
 
 sub value {
-    my ($self) = @_;
-    return ! ${$self}->value;
+    my ($self, $ctx) = @_;
+    return ! ${$self}->value($ctx);
 }
 
 =head1 AUTHOR
