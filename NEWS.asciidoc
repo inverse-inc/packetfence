@@ -24,6 +24,7 @@ Enhancements
 
 Bug Fixes
 +++++++++
+* Fixed the systemd logic in pfdhcp
 
 Version 8.3.0 released on 2019-01-09
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
