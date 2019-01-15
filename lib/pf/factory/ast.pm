@@ -21,6 +21,8 @@ use pf::ast::le;
 use pf::ast::lt;
 use pf::ast::not;
 use pf::ast::ne;
+use pf::ast::re;
+use pf::ast::not_re;
 use pf::ast::val;
 use pf::ast::var;
 use pf::condition_parser qw(parse_condition_string);
@@ -32,15 +34,15 @@ our %BINARY_AST = (
     '<=' => 'pf::ast::le',
     '>'  => 'pf::ast::gt',
     '>=' => 'pf::ast::ge',
-#    '!~' => 'pf::ast::not_re',
-#    '!=' => 'pf::ast::re',
 );
 
 our %AST_BUILDER = (
     FUNC => \&build_func_ast,
     'VAR' => \&build_var_ast,
     'NOT' => \&build_not_ast,
-    ( map { $_ => \&build_binary_ast } qw(== != =~ !~ <=  < >= >) ),
+    '=~'  => \&build_re_ast,
+    '!~'  => \&build_re_ast,
+    ( map { $_ => \&build_binary_ast } qw(== != <=  < >= >) ),
 );
 
 
@@ -54,6 +56,12 @@ sub build {
     return build_ast($ast);
 }
 
+sub build_re_ast {
+    my ($ast) = @_;
+    my ($t, $left, $re) = @$ast;
+    my $class = $t eq '=~' ? "pf::ast::re" : "pf::ast::not_re";
+    return $class->new(build_ast(ref($left) ? $left : ['VAR', $left ]), $re);
+}
 
 sub build_var_ast {
     my ($ast) = @_;
@@ -75,7 +83,7 @@ sub build_binary_ast {
         die "invalid binary ast $type";
     }
 
-    return $BINARY_AST{$type}->new(build_ast($left), build_ast($right));
+    return $BINARY_AST{$type}->new(build_ast(ref($left) ? $left : ['VAR', $left] ), build_ast($right));
 }
 
 sub build_ast {
