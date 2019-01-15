@@ -39,6 +39,7 @@ our %BINARY_AST = (
 our %AST_BUILDER = (
     FUNC => \&build_func_ast,
     'VAR' => \&build_var_ast,
+    'NOT' => \&build_not_ast,
     ( map { $_ => \&build_binary_ast } qw(== != =~ !~ <=  < >= >) ),
 );
 
@@ -94,6 +95,12 @@ sub build_ast {
     }
 
     return pf::ast::val->new($ast);
+}
+
+sub build_not_ast {
+    my ($ast) = @_;
+    my ($t, $nast) = @$ast;
+    return pf::ast::not->new(build_ast($nast));
 }
 
 sub build_func_ast {
