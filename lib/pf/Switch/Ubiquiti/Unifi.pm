@@ -22,6 +22,8 @@ use warnings;
 
 use base ('pf::Switch');
 
+use DateTime;
+use DateTime::Format::MySQL;
 use pf::violation qw(violation_count_reevaluate_access);
 use pf::constants::node qw($STATUS_UNREGISTERED);
 use pf::file_paths qw($var_dir);
@@ -161,9 +163,25 @@ sub _deauthenticateMacWithHTTP {
 
     my $site = 'default';
 
-    my $command = ($node_info->{status} eq $STATUS_UNREGISTERED || violation_count_reevaluate_access($mac)) ? "unauthorize-guest" : "authorize-guest";
+    my $args = {
+        mac => $mac,
+    };
+    unless ($node_info->{status} eq $STATUS_UNREGISTERED || violation_count_reevaluate_access($mac))  {
+        $command = "authorize-guest";
+        my $now = DateTime->now();
+        $now->set_time_zone('local');
+        
+        my $unregdate = DateTime::Format::MySQL->parse_datetime($node_info->{unregdate});
+        $unregdate->set_time_zone('local');
+        
+        $args->{minutes} = $now->delta_ms($unregdate)->in_units('minutes');
+    } else {
+        $command = "unauthorize-guest";
+    }
 
     $command = "kick-sta" if ($node_info->{last_connection_type} ne $connection_type_to_str{$WEBAUTH_WIRELESS});
+    
+    $args->{cmd} = $command;
 
     my $ua = LWP::UserAgent->new();
     $ua->cookie_jar({ file => "$var_dir/run/.ubiquiti.cookies.txt" });
@@ -183,15 +201,15 @@ sub _deauthenticateMacWithHTTP {
     $response = $ua->get("$base_url/api/self/sites");
 
     unless($response->is_success) {
-                $logger->error("Can't have the site list from the Unifi controller: ".$response->status_line);
+        $logger->error("Can't have the site list from the Unifi controller: ".$response->status_line);
         return;
     }
 
     my $json_data = decode_json($response->decoded_content());
 
-    my $switch_id = $self->{_id};
+    $args->{ap_mac} = $self->{_id};
     foreach my $entry (@{$json_data->{'data'}}) {
-        $response = $ua->post("$base_url/api/s/$entry->{'name'}/cmd/stamgr", Content => '{"cmd":"'.$command.'", "mac":"'.$mac.'", "ap_mac":"'.$switch_id.'"}');
+        $response = $ua->post("$base_url/api/s/$entry->{'name'}/cmd/stamgr", Content => encode_json($args));
         if ($response->is_success) {
             $logger->info("Deauth on site: $entry->{'desc'}");
             last;
