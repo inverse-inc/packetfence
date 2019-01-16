@@ -19,6 +19,7 @@ use pf::condition::ast;
 use pf::factory::condition::access_filter;
 use pf::filter;
 use pf::IniFiles;
+use Sort::Naturally qw(ncmp);
 use base qw(pf::config::builder);
 
 sub buildEntry {
@@ -66,7 +67,7 @@ sub preprocessRule {
 
 sub cleanupBuildData {
     my ($self, $buildData) = @_;
-    foreach my $filter_data ( @{ $buildData->{filter_data} } ) {
+    foreach my $filter_data ( sort { ncmp($a->[1]{_rule}, $b->[1]{_rule}) } @{ $buildData->{filter_data} // [] } ) {
         $self->buildFilter( $buildData, @$filter_data );
     }
 
