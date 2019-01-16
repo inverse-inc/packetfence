@@ -383,7 +383,7 @@ __PACKAGE__->log(Log::Log4perl::Catalyst->new(INSTALL_DIR . '/conf/log.conf.d/ht
 $SIG{__WARN__} = sub { __PACKAGE__->log->error(@_); };
 
 # Start the application
-__PACKAGE__->setup();
+__PACKAGE__->setup( __PACKAGE__->log->is_debug ? ('-Debug') : () );
 
 =head1 NAME
 
