@@ -719,6 +719,9 @@ export default {
   display: none;
 }
 textarea.line-numbers {
+  overflow: auto;
+  padding-top: 12px;
+  padding-left: 35px;
   /* http://i.imgur.com/2cOaJ.png */
   background: url('data:image/png;base64,\
   iVBORw0KGgoAAAANSUhEUgAAABoAAF3KCAMAAADOqCikAAAABGdBTUEAAK/INwWK6QAAABl0RVh0\
@@ -1013,14 +1016,11 @@ textarea.line-numbers {
   37jkhb6W8jeoD9/lb2T5Gx31Bv7G0P4rnt9AXy/sl/E3iry2kzYHXocTDRte2zmn+7wSKNlPbT/b\
   MF7/F2AA8iiPy4nAgBYAAAAASUVORK5CYII=') no-repeat 0px 0px;
   background-attachment: local;
-  padding-left: 35px;
-  padding-top: 12px;
   border-color:#ccc;
   font-family: monospace;
-  line-height: 16px !important;
   font-size: 14px !important;
+  line-height: 16px !important;
   white-space: nowrap;
-  overflow: auto;
   /**
     * TODO:
     * https://stackoverflow.com/questions/1995370/html-adding-line-numbers-to-textarea
@@ -1029,8 +1029,8 @@ textarea.line-numbers {
 }
 header > :not(.collapsed) {
   /* btn-primary */
-  color: #fff;
   background-color: #007bff;
+  color: #fff;
   border-color: #007bff;
   transition: all 300ms ease;
 }

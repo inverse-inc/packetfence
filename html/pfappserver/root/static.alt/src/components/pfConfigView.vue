@@ -257,7 +257,7 @@ export default {
 .pf-config-view {
   .input-group > span {
     display: flex;
-    justify-contents: center;
+    justify-content: center;
     align-items: center;
   }
 }

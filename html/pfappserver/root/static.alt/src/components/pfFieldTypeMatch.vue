@@ -310,8 +310,8 @@ export default {
 .pf-field-type-match {
   .pf-form-chosen {
     .col-sm-12[role="group"] {
-      padding-left: 0px;
       padding-right: 0px;
+      padding-left: 0px;
     }
   }
 }

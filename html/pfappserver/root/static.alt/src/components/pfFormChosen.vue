@@ -138,17 +138,17 @@ export default {
  */
 .pf-form-chosen {
   .multiselect {
+      min-height: auto;
       border-width: 1px;
       font-size: $font-size-base;
-      min-height: auto;
   }
   .multiselect__tags {
-    background-color: $input-focus-bg;
+    min-height: auto;
+    padding: $input-padding-y $input-padding-x;
     border: 1px solid $input-focus-bg;
+    background-color: $input-focus-bg;
     @include border-radius($border-radius);
     @include transition($custom-forms-transition);
-    padding: $input-padding-y $input-padding-x;
-    min-height: auto;
     outline: 0;
     .multiselect__input {
       max-width: 100%
@@ -164,22 +164,22 @@ export default {
   }
   .multiselect__input,
   .multiselect__single {
-    background-color: $input-focus-bg;
-    font-size: $font-size-base;
-    line-height: $input-line-height;
-    color: $input-color;
     padding: 0px;
     margin: 0px;
+    background-color: $input-focus-bg;
+    color: $input-color;
+    font-size: $font-size-base;
+    line-height: $input-line-height;
     &::placeholder {
       color: $input-placeholder-color;
     }
   }
   .multiselect__placeholder {
+    padding-top: 0px;
+    margin-bottom: 0px;
     color: $input-placeholder-color;
     font-size: $font-size-base;
     line-height: $input-line-height;
-    margin-bottom: 0px;
-    padding-top: 0px;
   }
   .multiselect__content-wrapper {
     border: $dropdown-border-width solid $dropdown-border-color;
@@ -204,8 +204,8 @@ export default {
     }
   }
   .multiselect__option--highlight {
-    color: $dropdown-link-active-color;
     background-color: $dropdown-link-active-bg;
+    color: $dropdown-link-active-color;
   }
   &.is-focus {
     .multiselect__tags {
