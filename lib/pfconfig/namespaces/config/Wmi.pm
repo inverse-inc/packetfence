@@ -21,6 +21,9 @@ use warnings;
 use pfconfig::namespaces::config;
 use pf::log;
 use pf::file_paths qw($wmi_config_file);
+use pf::config::builder::wmi_action;
+use pf::filter_engine;
+use pf::IniFiles;
 
 use base 'pfconfig::namespaces::config';
 
@@ -34,10 +37,10 @@ sub build_child {
     my ($self) = @_;
 
     my %tmp_cfg = %{$self->{cfg}};
+    $self->cleanup_whitespaces( \%tmp_cfg );
 
     foreach my $key ( keys %tmp_cfg){
         $self->cleanup_after_read($key, $tmp_cfg{$key});
-        $self->cleanup_whitespaces( \%tmp_cfg );
     }
 
     return \%tmp_cfg;
@@ -47,6 +50,16 @@ sub build_child {
 sub cleanup_after_read {
     my ($self, $id, $item) = @_;
     $self->expand_list($item, $self->{expandable_params});
+    my $action = $item->{action};
+    if ($action) {
+        my $ini = pf::IniFiles->new(-file => \$action, -allowempty => 1);
+        die join(" ", @pf::IniFiles::errors) if !defined($ini);;
+        my $builder = pf::config::builder::wmi_action->new();
+        my $buildData = $builder->buildData($ini);
+        if ($buildData->{filters}) {
+            $item->{filter_engine} = pf::filter_engine->new(filters => $buildData->{filters});
+        }
+    }
 }
 
 =head1 AUTHOR
