@@ -80,14 +80,12 @@
             :text="$t('The delimiting character. Leave blank to auto-detect from a list of most common delimiters.')"/>
             <pf-form-input v-model="config.newline" :column-label="$t('Newline')" placeholder="auto"
             :text="$t('The newline sequence. Leave blank to auto-detect. Must be one of \\r, \\n, or \\r\\n.')"/>
-            <b-form-group horizontal label-cols="3" :column-label="$t('Header')" class="my-1">
-              <pf-form-toggle v-model="config.header" :values="{checked: true, unchecked: false}">{{ (config.header) ? $t('Yes') : $t('No') }}</pf-form-toggle>
-              <b-form-text>{{ $t('If enbabled, the first row of parsed data will be interpreted as field names.') }}</b-form-text>
-            </b-form-group>
-            <b-form-group horizontal label-cols="3" :column-label="$t('Skip Empty Lines')" class="my-1">
-              <pf-form-toggle v-model="config.skipEmptyLines" :values="{checked: true, unchecked: false}">{{ (config.skipEmptyLines) ? $t('Yes') : $t('No') }}</pf-form-toggle>
-              <b-form-text>{{ $t('If enabled, lines that are completely empty (those which evaluate to an empty string) will be skipped.') }}</b-form-text>
-            </b-form-group>
+            <pf-form-toggle v-model="config.header" :column-label="$t('Header')"
+            :values="{checked: true, unchecked: false}" text="If enbabled, the first row of parsed data will be interpreted as field names."
+            >{{ (config.header) ? $t('Yes') : $t('No') }}</pf-form-toggle>
+            <pf-form-toggle v-model="config.skipEmptyLines" :column-label="$t('Skip Empty Lines')"
+            :values="{checked: true, unchecked: false}" text="If enabled, lines that are completely empty (those which evaluate to an empty string) will be skipped."
+            >{{ (config.skipEmptyLines) ? $t('Yes') : $t('No') }}</pf-form-toggle>
           </b-col>
           <b-col cols="6">
             <pf-form-input v-model="config.quoteChar" :column-label="$t('Quote Character')"
