@@ -14,14 +14,9 @@
           <pf-csv-parse @input="onImport" :ref="'parser-' + index" :file="file" :fields="fields" :storeName="storeName" no-init-bind-keys></pf-csv-parse>
         </b-tab>
         <template slot="tabs">
-          <li role="presentation" class="nav-item" v-b-tooltip.hover.left.d300 :title="$t('Open CSV File')" style="cursor:pointer;">
-            <div class="nav-link">
-              <pf-form-upload @load="files = $event" :multiple="true" :cumulative="true" accept="text/*, .csv">
-                <icon name="plus-circle" class="float-right mt-1 ml-3"></icon>
-                {{ $t('Open CSV File') }}
-              </pf-form-upload>
-            </div>
-          </li>
+          <pf-form-upload class="mb-1 ml-3" @load="files = $event" :multiple="true" :cumulative="true" accept="text/*, .csv">
+            {{ $t('Open CSV File') }}
+          </pf-form-upload>
         </template>
         <div slot="empty" class="text-center text-muted">
           <b-container class="my-5">
@@ -31,7 +26,6 @@
                   <b-media v-else>
                     <icon name="file" scale="2" slot="aside"></icon>
                     <h4>{{ $t('There are no open CSV files') }}</h4>
-                    <p class="font-weight-light">{{ $t('Open a new CSV file using') }} <icon name="plus-circle"></icon> {{ $t('button') }}.</p>
                   </b-media>
                 </b-col>
             </b-row>
