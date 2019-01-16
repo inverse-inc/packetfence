@@ -29,12 +29,13 @@ PARAM  = VAR
 PARAM  = STRING
 PARAM  = FUNC
 PARAM  = ID
-VAR    = '${' ID '}'
+VAR    = '${' VAR_ID '}'
+VAR_ID = /[a-zA-Z0-9_]+(?:[\.-][a-zA-Z0-9_]+)*/
 FACT = ! FACT
 FACT = '(' EXPR ')'
 FACT = ID
 FACT = FUNC
-ID   = /a-zA-Z0-9_\./+
+ID   = /[a-zA-Z0-9_]+(\.[a-zA-Z0-9_])*/
 STRING = "'" /([^'\\]|\\'|\\\\)+/  "'"
 STRING = '"' /([^"\\]|\\"|\\\\)+/  '"'
 
