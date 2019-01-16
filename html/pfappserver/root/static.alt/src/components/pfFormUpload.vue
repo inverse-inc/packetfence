@@ -58,7 +58,7 @@
  *
 -->
 <template>
-  <div class="pf-form-upload-container" :title="title">
+  <div class="pf-form-upload-container btn btn-outline-primary" :title="title">
     <label class="pf-form-upload mb-0">
       <b-form ref="uploadform" @submit.prevent>
         <!-- MUTLIPLE UPLOAD -->
