@@ -494,7 +494,7 @@ sub ldap_filter_for_conditions {
   my (@ldap_conditions, $expression);
 
   if ($params->{'username'}) {
-      $expression = '(' . $usernameattribute . '=' . $params->{'username'} . ')';
+      $expression = $self->_makefilter($params->{'username'});
   } elsif ($params->{'email'}) {
       $expression = '(|(' . $self->{'email_attribute'} . '=' . $params->{'email'} . ')(proxyAddresses=smtp:' . $params->{'email'} . ')(mailLocalAddress=' . $params->{'email'} . ')(mailAlternateAddress=' . $params->{'email'} . '))';
   }
