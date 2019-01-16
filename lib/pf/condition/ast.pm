@@ -15,6 +15,7 @@ use warnings;
 use Moose;
 extends qw(pf::condition);
 use pf::constants;
+use pf::log;
 
 =head2 ast
 
@@ -37,7 +38,14 @@ Check if the is true
 sub match {
     my ($self, $arg) = @_;
     return $FALSE if(!defined($arg));
-    return $self->ast->value($arg);
+    my $value = eval {
+        $self->ast->value($arg)
+    };
+    if ($@) {
+        get_logger()->error("Error : $@");
+    }
+
+    return $value;
 }
 
 =head1 AUTHOR
