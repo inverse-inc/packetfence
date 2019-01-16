@@ -329,6 +329,7 @@ $captiveportal_default_profile_templates_path = catdir ($captiveportal_profile_t
     $traffic_shaping_config_file,
     $syslog_config_file,
     $realm_config_file,
+    $portal_modules_config_file
 );
 
 $pffilter_socket_path = catfile($var_dir, "run/pffilter.sock");
