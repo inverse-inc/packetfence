@@ -22,7 +22,6 @@ use pfconfig::namespaces::config;
 use pf::log;
 use pf::file_paths qw($wmi_config_file);
 use pf::config::builder::wmi_action;
-use pf::filter_engine;
 use pf::IniFiles;
 
 use base 'pfconfig::namespaces::config';
@@ -56,9 +55,7 @@ sub cleanup_after_read {
         die join(" ", @pf::IniFiles::errors) if !defined($ini);;
         my $builder = pf::config::builder::wmi_action->new();
         my $buildData = $builder->buildData($ini);
-        if ($buildData->{filters}) {
-            $item->{filter_engine} = pf::filter_engine->new(filters => $buildData->{filters});
-        }
+        $item->{filters} = $buildData->{filters} // [];
     }
 }
 
