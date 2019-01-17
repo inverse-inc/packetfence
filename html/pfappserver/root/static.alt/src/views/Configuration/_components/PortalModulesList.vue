@@ -1,34 +1,33 @@
 <template>
   <b-card class="h-100" no-body>
     <!-- Visual representation of portal modules -->
-    <b-tabs class="tab-pane-scroll flex-grow-1" v-model="tabIndex" card>
+    <b-tabs class="tab-pane-scroll flex-grow-1" :class="{ minimize: minimize }" v-model="tabIndex" card>
       <b-tab v-for="rootModule in rootModules" :key="rootModule.id" :title="rootModule.description">
         <b-form-row class="justify-content-end">
-          <b-button variant="link" @click="expand = !expand"><icon :name="expand ? 'compress' : 'expand'"></icon></b-button>
+          <b-button variant="link" @click="minimize = !minimize"><icon :name="minimize ? 'expand' : 'compress'"></icon></b-button>
           <pf-button-delete class="mr-1" :disabled="isLoading" :confirm="$t('Delete Module?')" @on-delete="remove(rootModule.id)"/>
-          <pf-button-save :disabled="invalidForm" :isLoading="isLoading" v-t="Save"></pf-button-save>
+          <b-form @submit.prevent="save(rootModule)">
+            <pf-button-save :disabled="invalidForm" :isLoading="isLoading" v-t="Save"></pf-button-save>
+          </b-form>
         </b-form-row>
         <div class="position-relative">
-          <div class="pages-row">
-            <template v-for="page in pagesCount(rootModule.id)">
-            <icon class="card-bg" name="caret-right" :key="page"><!-- force proper spacing --></icon>
-            <div class="page-col" :key="page">
-              <div class="page">
-                <icon class="ml-2 text-danger" name="circle" scale=".5"></icon>
-                <icon class="ml-1 text-warning" name="circle" scale=".5"></icon>
-                <icon class="ml-1 text-success" name="circle" scale=".5"></icon>
-                <div class="float-right py-1 pr-2 text-secondary small">{{ $t('page') }} {{ page }}</div>
+          <div class="steps-row">
+            <template v-for="step in stepsCount(rootModule.id)">
+            <icon class="card-bg" name="caret-right" :key="step"><!-- force proper spacing --></icon>
+            <div class="step-col" :key="step">
+              <div class="step">
+                <div class="float-right py-1 pr-2 text-secondary small"><span :show="!minimize" v-t="step"></span> {{ step }}</div>
               </div>
             </div>
             </template>
           </div>
           <b-row align-v="center" class="pt-5">
             <icon class="connector-arrow" name="circle"></icon>
-            <portal-module :id="rootModule.id" :modules="items" :storeName="storeName" />
+            <portal-module :id="rootModule.id" :modules="items" :storeName="storeName" :minimize="minimize" />
           </b-row>
         </div>
       </b-tab>
-      <b-button class="ml-3 mb-1" variant="outline-primary" slot="tabs">{{ $t('Add Root Module') }}</b-button>
+      <b-button class="ml-3 mb-1" variant="outline-primary" slot="tabs" :to="{ name: 'newPortalModule', params: { type: 'Root' } }">{{ $t('Add Root Module') }}</b-button>
       <!-- Loading progress indicator -->
       <b-container class="my-5" v-if="isLoading && !items.length">
         <b-row class="justify-content-md-center text-secondary">
@@ -41,14 +40,14 @@
     <!-- All portal modules grouped by type -->
     <b-card-footer class="card-footer-fixed disconnect">
       <b-tabs small card>
-        <b-tab v-for="type in activeModuleTypes" :key="type">
+        <b-tab title-link-class="text-nowrap" v-for="type in activeModuleTypes" :key="type">
           <template slot="title"><icon :style="{ color: getColorByType(type) }" name="circle" scale=".5"></icon> {{ $t(type) }}</template>
             <draggable element="b-row" :list="getModulesByType(type)" :move="validateMove"
               :options="{ group: { name: 'portal-module', pull: 'clone', revertClone: true, put: false }, ghostClass: 'portal-module-row-ghost', dragClass: 'portal-module-row-drag' }">
               <portal-module :id="mid" v-for="mid in getModulesByType(type)" :module="getModule(mid)" :modules="items" :key="mid" :storeName="storeName" v-show="mid" is-root />
             </draggable>
         </b-tab>
-        <b-dropdown :text="$t('Add Module')" class="ml-3 mb-1" size="sm" variant="outline-primary" slot="tabs">
+        <b-dropdown :text="$t('Add Module')" class="text-nowrap ml-3 mb-1" size="sm" variant="outline-primary" boundary="viewport" slot="tabs">
           <template v-for="group in moduleTypes">
             <b-dropdown-header class="text-secondary" v-t="group.name" :key="group.name"></b-dropdown-header>
             <b-dropdown-item v-for="type in group.types" :key="type.name" :to="{ name: 'newPortalModule', params: { type: type.type } }">
@@ -112,7 +111,7 @@ export default {
     return {
       moduleTypes: moduleTypes(),
       tabIndex: 0,
-      expand: true,
+      minimize: false,
       columns: [
         {
           key: 'id',
@@ -196,7 +195,7 @@ export default {
         return 'black'
       }
     },
-    pagesCount (rootId) {
+    stepsCount (rootId) {
       let count = 0
       let rootModule = this.getModule(rootId)
       let _module = (id, level) => {
@@ -238,10 +237,15 @@ export default {
       }
       return false
     },
+    save (module) {
+      this.$store.dispatch(`${this.storeName}/updatePortalModule`, module)
+    },
     remove (id) {
       const index = this.items.findIndex(module => module.id === id)
       if (index >= 0) {
-        this.$delete(this.items, index)
+        this.$store.dispatch(`${this.storeName}/deletePortalModule`, id).then(response => {
+          this.$delete(this.items, index)
+        })
       }
     }
   },
@@ -278,7 +282,7 @@ export default {
 .card-bg {
   color: $card-bg;
 }
-.pages-row {
+.steps-row {
   position: absolute;
   top: 0;
   right: 0;
@@ -286,10 +290,10 @@ export default {
   left: 0;
   display: flex;
 
-  .page-col {
+  .step-col {
     min-width: $portal-module-width + $portal-module-connector-margin * 2;
-
-    .page {
+    transition: all 300ms ease;
+    .step {
       height: 100%;
       border-radius: $border-radius;
       margin: 1rem;
@@ -299,6 +303,12 @@ export default {
     }
   }
 }
+
+/* Dense version */
+.minimize .steps-row .step-col {
+  min-width: $portal-module-width/2 + $portal-module-connector-margin * 2;
+}
+
 .card-footer-fixed {
   overflow: auto;
   height: 20vh;

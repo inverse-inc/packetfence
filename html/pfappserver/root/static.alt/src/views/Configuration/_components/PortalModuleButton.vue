@@ -2,7 +2,7 @@
   <div class="portal-module" :class="{ disabled: disabled }" @mouseout="delayHideButtons()">
     <transition name="slide-top-quick">
       <div class="front" @click="showButtons()" v-if="!buttonsVisible">
-        <h6 class="text-truncate"><icon class="mb-1" :style="{ color: module.color }" name="circle"></icon> {{ module.type }}</h6>
+        <h6 class="text-truncate"><icon class="mb-1" :style="{ color: module.color }" name="circle"></icon> <span class="portal-module-type ml-1">{{ module.type }}</span></h6>
         <div class="portal-module-label text-truncate">{{ module.description }}</div>
       </div>
     </transition>
@@ -106,7 +106,7 @@ export default {
   background-position: top left, top right, bottom left, bottom right;
   background-size: 8px $portal-module-border-width;
   background-repeat: no-repeat;
-  transition: background-color 150ms ease;
+  transition: all 300ms ease;
 
   &:not(.disabled) {
     cursor: pointer;
@@ -152,6 +152,36 @@ export default {
   }
   + .portal-module-col .portal-module-row .connector-arrow {
     color: $portal-module-connector-hover-color;
+  }
+}
+
+/* Dense version */
+.minimize .portal-module {
+  flex: 0 0 $portal-module-width/2;
+  min-width: $portal-module-width/2;
+  &::before {
+    height: 1rem;
+  }
+  .front {
+    flex-direction: row;
+    margin: map-get($spacers, 1);
+  }
+  h6 {
+    flex-shrink: 0;
+    margin: 0;
+    .fa-icon {
+      margin: 0 map-get($spacers, 1) 0 0 !important;
+    }
+  }
+  .portal-module-type {
+    display: none;
+  }
+  .portal-module-label {
+    flex-grow: 1;
+    font-size: $figure-caption-font-size * .8;
+    line-height: 1em;
+    text-align: left;
+    white-space: normal;
   }
 }
 </style>

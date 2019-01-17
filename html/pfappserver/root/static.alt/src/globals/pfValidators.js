@@ -104,6 +104,11 @@ export const not = (validator) => {
   })
 }
 
+// Default vuelidate |alphaNum| replacement, accepts underscore
+export const alphaNum = () => {
+  return _common.regex('alphaNum', /^[a-zA-Z0-9_]*$/)
+}
+
 /**
  *
  * Custom functions

@@ -7,7 +7,7 @@
         <draggable v-model="children" :options="{ group: { name: path, pull: path, put: ['portal-module', path] }, ghostClass: 'portal-module-row-ghost', dragClass: 'portal-module-row-drag' }"
           @start="dragging = true" @end="dragging = false">
           <portal-module v-for="(mid, i) in children" :key="mid"
-            :id="mid" n0parentId="id" :parents="childParents" :modules="modules" :storeName="storeName" :level="level + 1" :index="i" :last="i + 1 === children.length" />
+            :id="mid" :parents="childParents" :modules="modules" :storeName="storeName" :level="level + 1" :index="i" :last="i + 1 === children.length" />
         </draggable>
       </b-col>
     </b-row>
@@ -87,7 +87,8 @@ export default {
   },
   methods: {
     remove (id) {
-      let list = [], index = -1
+      let list = []
+      let index = -1
       if (this.parents.length > 0) {
         // Disconnect module from its parent
         let [parentId] = this.parents.slice(-1)
@@ -212,6 +213,9 @@ export default {
   &::after {
     border-top-style: dashed !important;
     border-top-color: $portal-module-connector-hover-color;
+  }
+  .connector-arrow {
+    color: $portal-module-connector-hover-color;
   }
   .portal-module, .portal-module-col {
     display: none;

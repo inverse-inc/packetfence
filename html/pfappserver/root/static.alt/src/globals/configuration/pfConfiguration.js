@@ -15,6 +15,7 @@ import { pfDatabaseSchema as schema } from '@/globals/pfDatabaseSchema'
 import { pfFieldType as fieldType } from '@/globals/pfField'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
+  alphaNum,
   and,
   not,
   conditional,
@@ -29,22 +30,21 @@ import {
 } from '@/globals/pfValidators'
 
 const {
-  required,
-  alphaNum,
   integer,
-  numeric,
   ipAddress,
   maxLength,
+  maxValue,
   minValue,
-  maxValue
+  numeric,
+  required
 } = require('vuelidate/lib/validators')
 
 export const pfConfigurationLocales = [
   'en_US',
-  'es_ES',
-  'fr_FR',
-  'fr_CA',
   'de_DE',
+  'es_ES',
+  'fr_CA',
+  'fr_FR',
   'he_IL',
   'it_IT',
   'nl_NL',

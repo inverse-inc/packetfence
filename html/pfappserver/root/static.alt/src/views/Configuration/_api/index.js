@@ -183,6 +183,14 @@ export default {
       return response.data.item
     })
   },
+  updatePortalModule: data => {
+    return apiCall.patch(`config/portal_module/${data.id}`, data).then(response => {
+      return response.data
+    })
+  },
+  deletePortalModule: id => {
+    return apiCall.delete(`config/portal_module/${id}`)
+  },
   /**
    * Switches
    */
