@@ -13,12 +13,18 @@ pfappserver::Base::Form::Role::PfdetectRateLimit
 use strict;
 use warnings;
 use HTML::FormHandler::Moose::Role;
+use pf::constants::pfdetect;
 with qw(pfappserver::Base::Form::Role::Help);
 
 has_field 'rate_limit' => (
     type    => 'Duration',
     label   => 'Rate Limit',
-    default => '0s',
+    default_method => sub {
+        {
+            unit => 's',
+            interval => 0,
+        }
+    },
     tags    => {
         after_element => \&help,
         help => 'Rate limit requests.'

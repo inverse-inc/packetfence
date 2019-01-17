@@ -16,6 +16,7 @@ use pf::util qw(strip_filename_from_exceptions normalize_time);
 use Sort::Naturally qw(nsort);
 use pf::log;
 use base qw(pf::config::builder);
+use pf::constants::pfdetect;
 
 =head2 buildEntry
 
@@ -25,7 +26,7 @@ buildEntry
 
 sub buildEntry {
     my ($self, $buildData, $id, $entry) = @_;
-    $entry->{rate_limit} = normalize_time($entry->{rate_limit} // '0s');
+    $entry->{rate_limit} = normalize_time($entry->{rate_limit} // $pf::constants::pfdetect::RATE_LIMIT_DEFAULT);
     if ($entry->{type} eq 'regex') {
         my @rules;
         my @rule_ids = grep { /^$id rule/ } @{$buildData->{ini_sections}};
@@ -44,7 +45,7 @@ sub buildEntry {
                 );
                 next;
             }
-            $rule->{rate_limit} = normalize_time($rule->{rate_limit} // '0s');
+            $rule->{rate_limit} = normalize_time($rule->{rate_limit} // $pf::constants::pfdetect::RATE_LIMIT_DEFAULT);
             my @action_keys = nsort grep { /^action\d+$/ } keys %$rule;
             $rule->{actions} = [delete @$rule{@action_keys}];
             push @rules, $rule;
