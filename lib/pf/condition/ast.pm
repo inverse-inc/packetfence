@@ -16,6 +16,7 @@ use Moose;
 extends qw(pf::condition);
 use pf::constants;
 use pf::log;
+use pf::factory::ast;
 
 =head2 ast
 

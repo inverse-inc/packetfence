@@ -27,7 +27,6 @@ use pf::node;
 use pf::scan::wmi::rules;
 use pf::security_event qw(security_event_close);
 use pf::api::jsonrpcclient;
-use pf::factory::ast;
 
 sub description { 'WMI Scanner' }
 
