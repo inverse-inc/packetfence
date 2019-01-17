@@ -30,8 +30,8 @@ Depends: ${misc:Depends}, vlan,
  mariadb-server (>= 10.1),
  snmp, snmptrapfmt, snmptrapd, snmp-mibs-downloader, conntrack,
 # apache related
- apache2, apache2-utils, libapache2-mod-proxy-html,
- apache2-mpm-prefork, libapache2-mod-apreq2, libapache2-mod-perl2,
+ apache2, apache2-utils,
+ libapache2-mod-apreq2, libapache2-mod-perl2,
  libapache2-request-perl, libtie-dxhash-perl, libapache-session-perl,
  libapache-ssllookup-perl, libapache2-mod-systemd,
 # freeradius
