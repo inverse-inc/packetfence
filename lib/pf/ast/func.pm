@@ -12,6 +12,8 @@ pf::ast::func
 
 use strict;
 use warnings;
+use pf::ast::functions;
+
 sub new {
     my ($proto, $func, @values) = @_;
     my $class = ref($proto) || $proto;
@@ -20,7 +22,7 @@ sub new {
 
 sub value {
     my ($self, $ctx) = @_;
-    return $self->{func}->($ctx, map {$_->value($ctx)} @{$self->{values} // []});
+    return $pf::ast::functions::FUNCS{$self->{func}}->($ctx, map {$_->value($ctx)} @{$self->{values} // []});
 }
 
 =head1 AUTHOR
