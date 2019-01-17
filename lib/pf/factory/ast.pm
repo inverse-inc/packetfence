@@ -119,7 +119,7 @@ sub build_func_ast {
     }
 
     local $_;
-    return pf::ast::func->new($pf::ast::functions::FUNCS{$func}, map { build_ast($_) } @$args);
+    return pf::ast::func->new($func, map { build_ast($_) } @$args);
 }
 
 =head1 AUTHOR
