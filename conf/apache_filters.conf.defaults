@@ -62,3 +62,19 @@ value = /Microsoft-Server-ActiveSync
 action = 501
 redirect_url =
 
+# Deny known Windows non-browser user agents
+[windows_non_browser_uas_get]
+filter = user_agent
+method = GET
+operator = match
+value = ^Windows-Update-Agent$|^WinHttp-Autoproxy-Service/|Microsoft-CryptoAPI/[0-9.]+|^AVGINET13|^Valve/Steam|^itunes/|^Microsoft NCSI$|^Microsoft-WNS/|Microsoft BITS/|^Symantec|^Microsoft-Delivery-Optimization|^Windows-Update-Agent/|^WinHttp-Autoproxy-Service/|^WindowsShellClient/|^Windows-Media-Player/|^'Windows Store/|^autoupdate
+
+[windows_non_browser_uas_post]
+filter = user_agent
+method = GET
+operator = match
+value = ^Windows-Update-Agent$|^WinHttp-Autoproxy-Service/|Microsoft-CryptoAPI/[0-9.]+|^AVGINET13|^Valve/Steam|^itunes/|^Microsoft NCSI$|^Microsoft-WNS/|Microsoft BITS/|^Symantec|^Microsoft-Delivery-Optimization|^Windows-Update-Agent/|^WinHttp-Autoproxy-Service/|^WindowsShellClient/|^Windows-Media-Player/|^'Windows Store/|^autoupdate
+
+[501_windows_non_browser_uas:windows_non_browser_uas_get|windows_non_browser_uas_post]
+action = 501
+redirect_url =
