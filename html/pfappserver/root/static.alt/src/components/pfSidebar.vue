@@ -8,6 +8,9 @@
       <!-- filter -->
       <div class="pf-sidebar-filter d-flex align-items-center">
         <b-input-group :can="true">
+          <b-input-group-prepend>
+            <icon class="h-auto" name="search" scale=".75"></icon>
+          </b-input-group-prepend>
           <b-form-input v-model="filter" type="text" :placeholder="$t('Filter')"></b-form-input>
           <b-input-group-append v-if="filter">
             <b-btn @click="filter = ''"><icon name="times-circle"></icon></b-btn>
@@ -28,7 +31,7 @@
                 <text-highlight class="ml-5" :queries="[filter]">{{ $t(section.name) }}</text-highlight>
                 <icon class="mx-1 mt-1" name="chevron-down"></icon>
               </div>
-              <b-collapse :id="section.name" :ref="section.name" :key="section.name" visible is-nav>
+              <b-collapse :id="section.name" :ref="section.name" :key="section.name" :accordion="accordion(section.name)" :visible="isActive(section.items)" is-nav>
                 <template v-for="item in section.items">
                   <!-- single link -->
                   <pf-sidebar-item v-if="item.path" :key="item.name" :item="item" :filter="filter"></pf-sidebar-item>
@@ -38,12 +41,12 @@
                       <text-highlight class="ml-5" :queries="[filter]">{{ $t(item.name) }}</text-highlight>
                       <icon class="mx-1 mt-1" name="chevron-down"></icon>
                     </div>
-                    <b-collapse :id="`${section.name}_${item.name}`" :key="item.name" visible is-nav>
+                    <b-collapse :id="`${section.name}_${item.name}`" :key="item.name" :visible="isActive(item.items)" is-nav>
                       <pf-sidebar-item v-for="subitem in item.items" :key="subitem.name" :item="subitem" :filter="filter" indent></pf-sidebar-item>
                     </b-collapse>
                   </template>
                   <!-- non-collapsable section with items (2nd level) -->
-                  <b-nav class="pf-sidenav n0pf-sidenav-group" v-else :key="item.name" vertical>
+                  <b-nav class="pf-sidenav my-2" v-else :key="item.name" vertical>
                       <div class="pf-sidenav-group">
                         <text-highlight :queries="[filter]">{{ $t(item.name) }}</text-highlight>
                       </div>
@@ -53,7 +56,7 @@
               </b-collapse>
             </template>
             <!-- non-collapsable section with items -->
-            <b-nav v-else-if="section.items" class="pf-sidenav n0pf-sidenav-group" :key="section.name" vertical>
+            <b-nav v-else-if="section.items" class="pf-sidenav my-2" :key="section.name" vertical>
               <div class="pf-sidenav-group">
                 <text-highlight :queries="[filter]">{{ $t(section.name) }}</text-highlight>
               </div>
@@ -89,8 +92,11 @@ export default {
     }
   },
   computed: {
+    filteredMode () {
+      return this.filter.length > 0
+    },
     filteredSections () {
-      if (!this.filter.length) {
+      if (!this.filteredMode) {
         return this.value
       }
       const _filterSection = (section) => {
@@ -115,6 +121,26 @@ export default {
         return _filterSection(section)
       })
       return filteredSections.filter(section => section !== undefined)
+    }
+  },
+  methods: {
+    // Set accordion mode when *not* filtering the sidebar items
+    accordion (name) {
+      return this.filteredMode? name : 'root'
+    },
+    // Return true if the current route matches the items.
+    // Ignore current route and always return true when filtering the sidebar items so all sections are expanded.
+    isActive (items) {
+      let _find = (items) => {
+        return items.find(item => {
+          if ('items' in item) {
+            return _find(item.items)
+          }
+          return ((item.path instanceof Object && 'name' in item.path && item.path.name === this.$route.name) ||
+            item.path === this.$route.path)
+        })
+      }
+      return this.filteredMode || _find(items)
     }
   }
 }
