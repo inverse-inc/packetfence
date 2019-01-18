@@ -18,6 +18,17 @@ use Mojo::Base qw(pf::UnifiedApi::Controller::Config);
 use pf::ConfigStore::Profile;
 use pfappserver::Form::Config::Profile;
 use pfappserver::Form::Config::Profile::Default;
+use JSON::MaybeXS qw();
+use File::Find;
+use File::stat;
+use File::Spec::Functions;
+use pf::util;
+use List::Util qw(any);
+use pf::file_paths qw(
+    $captiveportal_profile_templates_path
+    $captiveportal_default_profile_templates_path
+    $captiveportal_templates_path
+);
 
 has 'config_store_class' => 'pf::ConfigStore::Profile';
 has 'form_class' => 'pfappserver::Form::Config::Profile';
@@ -29,6 +40,129 @@ sub form {
         return pfappserver::Form::Config::Profile::Default->new;
     }
     return $self->SUPER::form($item);
+}
+
+=head2 files
+
+files
+
+=cut
+
+sub files {
+    my ($self) = @_;
+    return $self->render(
+        status => 200,
+        json => profileFileListing($self->id)
+    );
+}
+
+=head2 profileFileListing
+
+profileFileListing
+
+=cut
+
+sub profileFileListing {
+    my ($id) = @_;
+    my @dirs = (catfile($captiveportal_profile_templates_path, $id));
+    if ($id eq 'default') {
+        push @dirs, $captiveportal_templates_path;
+    } else {
+        push @dirs, $captiveportal_default_profile_templates_path, $captiveportal_templates_path;
+    }
+
+    return mergePaths(@dirs);
+}
+
+=head2 mergePaths
+
+mergePaths
+
+=cut
+
+sub mergePaths {
+    my ($templateDir, @parentDirs) = @_;
+    my %paths;
+    my $root;
+    find({
+        wanted => sub {
+                my $full_path = my $path = $_;
+                #Just get the file path minus the parent directory
+                $path =~ s/^\Q$File::Find::topdir\E\/?//;
+                return if exists $paths{$path};
+                my $dir = $File::Find::dir;
+                #Just get the directory path minus the parent directory
+                $dir =~ s/^\Q$File::Find::topdir\E\/?//;
+                my $data;
+                return if $full_path =~ /\/node_modules/;
+                if (-d $full_path) {
+                    $data = { name => $path, type => 'dir', size => 0, entries => [] };
+                    $paths{$path} = $data;
+                } else {
+                    return if $full_path !~ /\.(html|mjml)$/;
+                    $data = makeFileInfo($path, $full_path, @parentDirs);
+                }
+
+                if ($path ne '') {
+                    push @{ $paths{$dir}{entries} }, $data;
+                }
+            },
+            no_chdir => 1
+        }, $templateDir, @parentDirs);
+
+    $root = $paths{''};;
+    sortEntry($root);
+    return $root;
+}
+
+sub makeFileInfo {
+    my ($short_path, $full_path, @parentPaths) = @_;
+    my $stat = stat($full_path);
+    return {
+        type  => 'file',
+        name  => $short_path,
+        size  => $stat->size,
+        mtime => $stat->mtime,
+        not_deletable => notDeletable($short_path, @parentPaths),
+    };
+}
+
+=head2 notDeletable
+
+notDeletable
+
+=cut
+
+sub notDeletable {
+    my ($short_path, @parentPaths) = @_;
+    return ( any { -f catfile($_, $short_path) } @parentPaths ) ? json_false() : json_true();
+}
+
+=head2 sortEntry
+
+Sorts the dir entries by name
+
+=cut
+
+sub sortEntry {
+    my ($root) = @_;
+    if ($root->{type} eq 'dir' && exists $root->{entries}) {
+        my $entries = $root->{entries};
+        foreach my $entry (@$entries) {
+            if ($entry->{type} eq 'dir') {
+                sortEntry($entry);
+            }
+        }
+        @$entries = sort { $a->{type} eq $b->{type} ? $a->{name} cmp $b->{name} : $a->{type} cmp $b->{type} } @$entries;
+    }
+}
+
+sub json_true {
+    return do { bless \(my $a = 1), "JSON::PP::Boolean" };
+}
+
+sub json_false {
+    return do { bless \(my $a = 0), "JSON::PP::Boolean" };
 }
 
 =head1 AUTHOR

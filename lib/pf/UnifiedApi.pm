@@ -234,7 +234,6 @@ our @API_V1_ROUTES = (
           Config::AdminRoles
           Config::Bases
           Config::BillingTiers
-          Config::ConnectionProfiles
           Config::DeviceRegistrations
           Config::Domains
           Config::Firewalls
@@ -252,6 +251,17 @@ our @API_V1_ROUTES = (
           Config::Violations
           )
     ),
+    {
+        controller => 'Config::ConnectionProfiles',
+        collection => ConfigEndpointCollection(),
+        resource   => {
+            subroutes => {
+                files => {
+                    get => 'files',
+                }
+            }
+        }
+    },
     {
         controller => 'Config::Switches',
         collection => ConfigEndpointCollection(),
