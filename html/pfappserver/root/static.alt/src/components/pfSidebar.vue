@@ -126,7 +126,7 @@ export default {
   methods: {
     // Set accordion mode when *not* filtering the sidebar items
     accordion (name) {
-      return this.filteredMode? name : 'root'
+      return this.filteredMode ? name : 'root'
     },
     // Return true if the current route matches the items.
     // Ignore current route and always return true when filtering the sidebar items so all sections are expanded.
@@ -137,7 +137,7 @@ export default {
             return _find(item.items)
           }
           return ((item.path instanceof Object && 'name' in item.path && item.path.name === this.$route.name) ||
-            item.path === this.$route.path)
+            this.$route.path.indexOf(item.path.slice(0, -1)) === 0)
         })
       }
       return this.filteredMode || _find(items)
