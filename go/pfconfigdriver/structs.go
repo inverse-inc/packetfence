@@ -274,6 +274,7 @@ type NetworkConf struct {
 	SplitNetwork            string `json:"split_network"`
 	RegNetwork              string `json:"reg_network"`
 	PortalFQDN              string `json:"portal_fqdn"`
+	Algorithm               string `json:"algorithm"`
 }
 
 type Interface struct {

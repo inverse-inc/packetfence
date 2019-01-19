@@ -4,28 +4,35 @@ import (
 	"errors"
 	"math/rand"
 	"strconv"
+	"sort"
 	"sync"
+	"time"
 )
 
 const FreeMac = "00:00:00:00:00:00"
 const FakeMac = "ff:ff:ff:ff:ff:ff"
 
 type DHCPPool struct {
-	lock     *sync.Mutex
-	free     map[uint64]bool
-	mac      map[uint64]string
-	capacity uint64
+	lock      *sync.Mutex
+	free      map[uint64]bool
+	mac       map[uint64]string
+	capacity  uint64
+	released  map[uint64]int64
+	algorithm int
 }
 
-func NewDHCPPool(capacity uint64) *DHCPPool {
+func NewDHCPPool(capacity uint64, algorithm int) *DHCPPool {
 	d := &DHCPPool{
-		lock:     &sync.Mutex{},
-		free:     make(map[uint64]bool),
-		mac:      make(map[uint64]string),
-		capacity: capacity,
+		lock:      &sync.Mutex{},
+		free:      make(map[uint64]bool),
+		mac:       make(map[uint64]string),
+		capacity:  capacity,
+		released:  make(map[uint64]int64),
+		algorithm: algorithm,
 	}
 	for i := uint64(0); i < d.capacity; i++ {
 		d.free[i] = true
+		d.released[i] = time.Now().UnixNano()
 	}
 	return d
 }
@@ -111,6 +118,7 @@ func (dp *DHCPPool) FreeIPIndex(index uint64) error {
 		return errors.New("IP is already free")
 	} else {
 		dp.free[index] = true
+		dp.released[index] = time.Now().UnixNano()
 		delete(dp.mac, index)
 		return nil
 	}
@@ -156,14 +164,38 @@ func (dp *DHCPPool) GetFreeIPIndex(mac string) (uint64, string, error) {
 	if len(dp.free) == 0 {
 		return 0, FreeMac, errors.New("DHCP pool is full")
 	}
-	index := rand.Intn(len(dp.free))
 
 	var available uint64
-	for available = range dp.free {
-		if index == 0 {
+
+	if dp.algorithm == 1 {
+		index := rand.Intn(len(dp.free))
+
+		for available = range dp.free {
+			if index == 0 {
+				break
+			}
+			index--
+		}
+	} else if dp.algorithm == 2 {
+
+		type kv struct {
+			Key   uint64
+			Value int64
+		}
+
+		var ss []kv
+		for k, v := range dp.released {
+			ss = append(ss, kv{k, v})
+		}
+
+		sort.Slice(ss, func(i, j int) bool {
+			return ss[i].Value > ss[j].Value
+		})
+
+		for _, kv := range ss {
+			available = kv.Key
 			break
 		}
-		index--
 	}
 
 	delete(dp.free, available)
