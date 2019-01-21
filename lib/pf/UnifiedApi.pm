@@ -258,7 +258,12 @@ our @API_V1_ROUTES = (
             subroutes => {
                 files => {
                     get => 'files',
-                }
+                },
+                'files/*file_name' => {
+                    put   => 'new_file',
+                    patch => 'replace_file',
+                    get   => 'get_file',
+                },
             }
         }
     },

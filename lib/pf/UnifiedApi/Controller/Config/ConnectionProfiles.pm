@@ -23,7 +23,7 @@ use File::Find;
 use File::stat;
 use File::Spec::Functions;
 use pf::util;
-use List::Util qw(any);
+use List::Util qw(any first);
 use pf::file_paths qw(
     $captiveportal_profile_templates_path
     $captiveportal_default_profile_templates_path
@@ -51,9 +51,36 @@ files
 sub files {
     my ($self) = @_;
     return $self->render(
-        status => 200,
         json => profileFileListing($self->id)
     );
+}
+
+=head2 get_file
+
+get_file
+
+=cut
+
+sub get_file {
+    my ($self) = @_;
+    my $file = $self->stash->{file_name};
+    if ($file =~ /(\/)?\.\.\//) {
+       return $self->render_error(412, "invalid characters in file '$file'");
+    }
+
+    my $id = $self->id;
+    my $path = findPath($id, $file);
+    if (!defined $path) {
+        return $self->render_error(404, "'$file' not found");
+    }
+
+    return $self->reply->file($path);
+    return $self->render( json => {file => $file, path => $path});
+}
+
+sub findPath {
+    my ($profile, $file) = @_;
+    return first { -f $_ } map { catfile($_, $file) } pathLookup($profile);
 }
 
 =head2 profileFileListing
@@ -64,14 +91,25 @@ profileFileListing
 
 sub profileFileListing {
     my ($id) = @_;
-    my @dirs = (catfile($captiveportal_profile_templates_path, $id));
-    if ($id eq 'default') {
+    return mergePaths(pathLookup($id));
+}
+
+=head2 pathLookup
+
+parent paths
+
+=cut
+
+sub pathLookup {
+    my ($profile) = @_;
+    my @dirs = (catfile($captiveportal_profile_templates_path, $profile));
+    if ($profile eq 'default') {
         push @dirs, $captiveportal_templates_path;
     } else {
         push @dirs, $captiveportal_default_profile_templates_path, $captiveportal_templates_path;
     }
 
-    return mergePaths(@dirs);
+    return @dirs;
 }
 
 =head2 mergePaths
