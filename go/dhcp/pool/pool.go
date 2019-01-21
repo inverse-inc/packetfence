@@ -167,16 +167,7 @@ func (dp *DHCPPool) GetFreeIPIndex(mac string) (uint64, string, error) {
 
 	var available uint64
 
-	if dp.algorithm == 1 {
-		index := rand.Intn(len(dp.free))
-
-		for available = range dp.free {
-			if index == 0 {
-				break
-			}
-			index--
-		}
-	} else if dp.algorithm == 2 {
+	if dp.algorithm == 2 {
 
 		type kv struct {
 			Key   uint64
@@ -195,6 +186,15 @@ func (dp *DHCPPool) GetFreeIPIndex(mac string) (uint64, string, error) {
 		for _, kv := range ss {
 			available = kv.Key
 			break
+		}
+
+	} else {
+		index := rand.Intn(len(dp.free))
+		for available = range dp.free {
+			if index == 0 {
+				break
+			}
+			index--
 		}
 	}
 
