@@ -618,7 +618,7 @@ sub _makefilter {
         my $search = join ("", map { "($_=$username)" } @{$self->{'searchattributes'}});
         return "(|$search)";
     } else {
-        return "$self->{'usernameattribute'}=$username";
+        return '(' . "$self->{'usernameattribute'}=$username" . ')';
     }
 }
 
