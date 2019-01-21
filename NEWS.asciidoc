@@ -21,7 +21,7 @@ New Features
 Enhancements
 ++++++++++++
 * Now including timeout when authorizing a web-auth user on a Unifi controler
-
+* Now shipping defaults for the apache filters
 
 Bug Fixes
 +++++++++
