@@ -50,12 +50,24 @@ sub cleanup_after_read {
     my ($self, $id, $item) = @_;
     $self->expand_list($item, $self->{expandable_params});
     my $action = $item->{action};
+    my $file = $self->{file};
     if ($action) {
         my $ini = pf::IniFiles->new(-file => \$action, -allowempty => 1);
-        die join(" ", @pf::IniFiles::errors) if !defined($ini);;
+        if (!defined($ini)) {
+            my $msg =  join(" ", @pf::IniFiles::errors);
+            get_logger->error($msg);
+            return;
+        }
+
         my $builder = pf::config::builder::wmi_action->new();
-        my $buildData = $builder->buildData($ini);
-        $item->{filters} = $buildData->{filters} // [];
+        my ($errors, $filters) = $builder->build($ini);
+        $item->{filters} = $filters // [];
+        for my $err (@{ $errors // [] }) {
+            my $error_msg =  "$file: $err->{rule}) $err->{message}";
+            get_logger->error($error_msg);
+            warn($error_msg);
+        }
+
     }
 }
 

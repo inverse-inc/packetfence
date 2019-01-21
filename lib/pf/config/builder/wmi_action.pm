@@ -61,6 +61,7 @@ sub preprocessRule {
         $self->_error($buildData, $id, "Error building rule", $msg);
         return;
     }
+
     $entry->{_rule} = $id;
     push @{ $buildData->{filter_data} }, [$conditions, $entry];
 }
@@ -71,6 +72,8 @@ sub cleanupBuildData {
         $self->buildFilter( $buildData, @$filter_data );
     }
 
+    $buildData->{old_entries} = delete $buildData->{entries};
+    $buildData->{entries} = delete $buildData->{filters};
 }
 
 sub buildFilter {
