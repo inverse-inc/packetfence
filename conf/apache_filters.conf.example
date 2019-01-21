@@ -1,84 +1,3 @@
-# Refuse empty user agent
-# Define the test
-[1]
-filter = user_agent
-method = GET
-operator = match
-value = ^$
-
-# Refuse empty user agent
-[2]
-filter = user_agent
-method = POST
-operator = match
-value = ^$
-
-[1:1|2]
-action = 501
-redirect_url =
-
-# Refuse proxy autoconfiguration
-[3]
-filter = uri
-method = GET
-operator = match
-value = /wpad.dat
-
-[3:3]
-action = 501
-redirect_url =
-
-# Accept Davlik user agent only for /generate_204 or /profile.xml uri
-[4]
-filter = user_agent
-method = GET
-operator = match
-value = Dalvik
-
-[5]
-filter = uri
-method = GET
-operator = match_not
-value = /generate_204
-
-[6]
-filter = uri
-method = GET
-operator = match_not
-value = /profile.xml
-
-[4:4&(5&6)]
-action = 501
-redirect_url =
-
-[8]
-filter = uri
-method = POST
-operator = match
-value = /Microsoft-Server-ActiveSync
-
-[5:8]
-action = 501
-redirect_url =
-
-## Only accept a list of user agents
-#[6]
-#filter = user_agent
-#method = POST
-#operator = match_not
-#value = Mozilla|Microsoft|Dalvik|collectd|CaptiveNetworkSupport|BlackBerry
-
-#[7]
-#filter = user_agent
-#method = GET
-#operator = match_not
-#value = Mozilla|Microsoft|Dalvik|collectd|CaptiveNetworkSupport|BlackBerry
-
-#[5:6|7]
-#action = 501
-#redirect_url =
-
-
 # filter can be:
 #
 #     user_agent
@@ -99,4 +18,23 @@ redirect_url =
 #
 # redirect_url can be what you want like http://www.packetfence.org/.
 # of course if you want to use redirect_url then set the action to 302.
+#
+# Examples:
+#
+## Only accept a list of user agents
+#[not_allowed_uas_post]
+#filter = user_agent
+#method = POST
+#operator = match_not
+#value = Mozilla|Microsoft|Dalvik|collectd|CaptiveNetworkSupport|BlackBerry
+
+#[not_allowed_uas_get]
+#filter = user_agent
+#method = GET
+#operator = match_not
+#value = Mozilla|Microsoft|Dalvik|collectd|CaptiveNetworkSupport|BlackBerry
+
+#[501_blacklisted_uas:not_allowed_uas_post|not_allowed_uas_get]
+#action = 501
+#redirect_url =
 
