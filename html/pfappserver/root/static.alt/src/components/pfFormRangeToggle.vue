@@ -87,14 +87,14 @@ export default {
       type: Object,
       default: false,
       validator (value) {
-        return (value.checked && value.unchecked)
+        return (value.checked || value.unchecked)
       }
     },
     labels: {
       type: Object,
       default: false,
       validator (value) {
-        return (value.checked && value.unchecked)
+        return (value.checked || value.unchecked)
       }
     },
     width: {
@@ -174,11 +174,14 @@ export default {
 
 .pf-form-range-toggle {
 
+  --handle-transition-delay: 0.3s; /* animate handle */
+
   &.is-focus [range] {
     box-shadow: 0 0 0 1px $input-focus-border-color;
 
     [handle] {
-      background-color: $input-focus-border-color;
+      /*background-color: $input-focus-border-color;*/
+      background-color: rgba(255, 255, 255, 0.6); /* [range] background-color shows through */
       box-sizing: border-box;
       border: 2px solid #fff;
     }
@@ -202,36 +205,26 @@ export default {
   }
 
   [range] {
-    --handle-transition-delay: 0.3s; /* animate handle */
     --handle-height: 16px;
     --range-height: 22px;
-
     &[index],
     &[index="0"] {
-      --range-background-color: #adb5bd;
-      path { /* SVG icon */
-        color: #adb5bd;
-        transition: color var(--range-transition-delay) ease-out;
-      }
+      --range-background-color: #adb5bd; /* default unchecked background-color */
     }
     &[index="1"] {
-      --range-background-color: var(--primary);
-      path { /* SVG icon */
-        color: var(--primary);
-        transition: color var(--range-transition-delay) ease-out;
-      }
+      --range-background-color: var(--primary); /* default checked background-color */
     }
   }
 
   [size="sm"] [range] { /* small / sm */
-    --range-height: 11px;
     --handle-height: 8px;
+    --range-height: 11px;
     width: 20px;
   }
 
   [size="lg"] [range] { /* large / lg */
-    --range-height: 44px;
     --handle-height: 32px;
+    --range-height: 44px;
     width: 80px;
   }
 

@@ -70,25 +70,25 @@ export default {
       type: String,
       default: null
     },
-    label: {
+    label: { /* inner label, flips left/right @ +/- 50% */
       type: String,
       default: null
     },
-    tooltip: {
+    tooltip: { /* set to `true` to enable tooltips */
       type: Boolean,
       default: false
     },
-    tooltipFunction: {
+    tooltipFunction: { /* tooltip string callback function */
       type: Function,
       default: (value) => { return value }
     },
-    hints: {
+    hints: { /* dots/pills in range for hints (eg: [1, [1-2], 2]) */
       type: Array,
       default: () => { return [] }
     },
-    listenInput: {
+    listenInput: { /* disable to track events manually (eg: toggle) */
       type: Boolean,
-      default: true /* disable to track events manually (eg: toggle) */
+      default: true
     },
     width: {
       type: Number,
@@ -149,7 +149,6 @@ export default {
   --range-transition-delay: 0.3s;
   --handle-height: 16px;
   --handle-background-color: var(--white);
-  --handle-transition-delay: 0s;
   --hint-background-color: var(--light);
   --tooltip-transition-delay: 0.3s;
 }
@@ -183,8 +182,10 @@ export default {
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: left var(--handle-transition-delay) ease-in-out,
-        background-color var(--handle-transition-delay) ease-out;
+      transition: left var(--handle-transition-delay, 0s) ease-in-out,
+        background-color var(--handle-transition-delay, 0s) ease-out,
+        color var(--handle-transition-delay, 0s) ease-out;
+      color: var(--range-background-color); /* SVG icon */
     }
     > [hint] {
       position: absolute;
@@ -220,8 +221,8 @@ export default {
       justify-content: center;
       font-size: .7875rem;
       text-align: center;
-      transition: left var(--handle-transition-delay) ease-in-out,
-        width var(--handle-transition-delay) ease-in-out,
+      transition: left var(--handle-transition-delay, 0s) ease-in-out,
+        width var(--handle-transition-delay, 0s) ease-in-out,
         visibility var(--tooltip-transition-delay) linear,
         opacity var(--tooltip-transition-delay) ease-in-out;
       &:after { /* tooltip arrow */
