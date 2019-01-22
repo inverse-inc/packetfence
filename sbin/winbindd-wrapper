@@ -232,6 +232,8 @@ sub child_sighandler {
         last unless $child > 0;
         my $id = delete $CHILDREN{$child};
         if($running) {
+            get_logger->error("winbindd process failed for domain $id. Will try to start the process again.");
+            sleep 5;
             run_winbindd($id);
         }
     }
