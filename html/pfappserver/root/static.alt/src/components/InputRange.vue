@@ -7,12 +7,16 @@
       :min="parseFloat(inputValue) === parseFloat(min)"
       :max="parseFloat(inputValue) === parseFloat(max)"
       :index="inputValue"
+      :style="[{ 'width': `${width}px` }, ((color) ? { '--range-background-color': color } : {})]"
     >
       <div>
         <div hint v-for="(hint, index) in hints" :key="index" :style="hintStyle(index)"></div>
         <span handle :style="{ left: `${percent(inputValue)}%` }">
-          <slot/>
+          <slot/> <!-- Icon slot -->
         </span>
+        <div v-if="label" label :style="(inputValue >= ((max - min) / 2)) ? { 'justify-content': 'flex-start' } : { 'justify-content': 'flex-end' }">
+          {{ label }}
+        </div>
         <div v-if="tooltip" tooltip :style="{ left: `${percent(inputValue)}%` }">
           <span id="value">{{ $t(tooltipFunction(inputValue)) }}</span>
         </div>
@@ -28,8 +32,8 @@
         :disabled="disabled"
         @input="input"
       />
-      <div catch-min @click="inputValue = min"><!-- catch left-side clicks outside input --></div>
-      <div catch-max @click="inputValue = max"><!-- catch right-side clicks outside input --></div>
+      <div catch-min @click="inputValue = min"><!-- catch click left of input --></div>
+      <div catch-max @click="inputValue = max"><!-- catch click right of input --></div>
     </div>
   </div>
 </template>
@@ -62,6 +66,14 @@ export default {
       type: Boolean,
       default: false
     },
+    color: { /* override default colors via JS */
+      type: String,
+      default: null
+    },
+    label: {
+      type: String,
+      default: null
+    },
     tooltip: {
       type: Boolean,
       default: false
@@ -77,6 +89,10 @@ export default {
     listenInput: {
       type: Boolean,
       default: true /* disable to track events manually (eg: toggle) */
+    },
+    width: {
+      type: Number,
+      default: 40
     }
   },
   computed: {
@@ -181,10 +197,20 @@ export default {
       border-top-right-radius: var(--handle-height) 100%;
       border-bottom-right-radius: var(--handle-height) 100%;
     }
+    > [label] {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      color: var(--hint-background-color);
+      display: flex;
+      align-items: center;
+    }
     > [tooltip] {
+      position: absolute;
       opacity: 0;
       visibility: hidden;
-      position: absolute;
       transform: translateX(-50%);
       bottom: calc(50% + (var(--handle-height) / 2) + 8px);
       min-width: var(--handle-height);

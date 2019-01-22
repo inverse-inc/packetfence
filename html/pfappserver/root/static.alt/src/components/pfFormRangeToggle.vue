@@ -9,7 +9,7 @@
       @keydown.native.space.prevent
       @keyup.native.space="toggle"
     ><!-- Vaccum tabIndex --></b-input>
-    <b-input-group>
+    <b-input-group :style="{ width: `${width}px` }">
       <label role="range" class="pf-form-range-toggle-label">
         <input-range
           v-model="inputValue"
@@ -17,8 +17,11 @@
           min="0"
           max="1"
           step="1"
+          :color="color"
+          :label="label"
           :listenInput="false"
           :tooltipFunction="tooltip"
+          :width="width"
           class="mr-2"
           tabIndex="-1"
           tooltip
@@ -65,14 +68,19 @@ export default {
       default: false
     },
     values: {
-      type: [Boolean, Object],
+      type: Object,
       default: () => {
         return { checked: true, unchecked: false }
       },
       validator (value) {
-        return (value.constructor === Object)
-          ? (value.checked && value.unchecked)
-          : value.constructor === Boolean
+        return (value.checked && value.unchecked)
+      }
+    },
+    colors: {
+      type: Object,
+      default: null,
+      validator (value) {
+        return (value.checked || value.unchecked)
       }
     },
     icons: {
@@ -81,6 +89,17 @@ export default {
       validator (value) {
         return (value.checked && value.unchecked)
       }
+    },
+    labels: {
+      type: Object,
+      default: false,
+      validator (value) {
+        return (value.checked && value.unchecked)
+      }
+    },
+    width: {
+      type: Number,
+      default: 40
     }
   },
   data () {
@@ -120,9 +139,17 @@ export default {
     unchecked () {
       return !this.checked
     },
+    color () {
+      if(this.colors === null) return null
+      return (this.inputValue === 1) ? this.colors.checked : this.colors.unchecked
+    },
     icon () {
       if (this.icons === null) return null
       return (this.inputValue === 1) ? this.icons.checked : this.icons.unchecked
+    },
+    label () {
+      if (this.labels === null) return null
+      return (this.inputValue === 1) ? this.labels.checked : this.labels.unchecked
     }
   },
   methods: {
@@ -178,18 +205,17 @@ export default {
     --handle-transition-delay: 0.3s; /* animate handle */
     --handle-height: 16px;
     --range-height: 22px;
-    width: 40px;
 
     &[index],
     &[index="0"] {
-      --range-background-color: #adb5bd !important;
+      --range-background-color: #adb5bd;
       path { /* SVG icon */
         color: #adb5bd;
         transition: color var(--range-transition-delay) ease-out;
       }
     }
     &[index="1"] {
-      --range-background-color: var(--primary) !important;
+      --range-background-color: var(--primary);
       path { /* SVG icon */
         color: var(--primary);
         transition: color var(--range-transition-delay) ease-out;
