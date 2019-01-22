@@ -21,7 +21,7 @@ use pfappserver::Form::Config::Profile::Default;
 use JSON::MaybeXS qw();
 use File::Find;
 use File::stat;
-use File::Spec::Functions;
+use File::Spec::Functions qw(catfile splitpath);
 use pf::util;
 use List::Util qw(any first);
 use pf::file_paths qw(
@@ -122,8 +122,9 @@ sub mergePaths {
     my ($templateDir, @parentDirs) = @_;
     my %paths;
     my $root;
-    find({
-        wanted => sub {
+    find(
+        {
+            wanted => sub {
                 my $full_path = my $path = $_;
                 #Just get the file path minus the parent directory
                 $path =~ s/^\Q$File::Find::topdir\E\/?//;
@@ -132,25 +133,51 @@ sub mergePaths {
                 #Just get the directory path minus the parent directory
                 $dir =~ s/^\Q$File::Find::topdir\E\/?//;
                 my $data;
-                return if $full_path =~ /\/node_modules/;
-                if (-d $full_path) {
-                    $data = { name => $path, type => 'dir', size => 0, entries => [] };
-                    $paths{$path} = $data;
-                } else {
-                    return if $full_path !~ /\.(html|mjml)$/;
-                    $data = makeFileInfo($path, $full_path, @parentDirs);
+                if ( -d $full_path ) {
+                    return if dir_excluded($path);
+                    $data = { name => file_name($path), type => 'dir', size => 0, entries => [] };
+                }
+                else {
+                    return if file_excluded($path);
+                    $data = makeFileInfo( $path, $full_path, @parentDirs );
                 }
 
-                if ($path ne '') {
+                $paths{$path} = $data;
+                if ( $path ne '' ) {
                     push @{ $paths{$dir}{entries} }, $data;
                 }
             },
             no_chdir => 1
-        }, $templateDir, @parentDirs);
+        },
+        $templateDir,
+        @parentDirs
+    );
 
     $root = $paths{''};;
     sortEntry($root);
     return $root;
+}
+
+sub file_name {
+    my ($path) = @_;
+    my (undef, undef, $file) = splitpath($path);
+    return $file;
+}
+
+=head2 file_excluded
+
+file_excluded
+
+=cut
+
+sub file_excluded {
+    my ($file) = @_;
+    return $file !~ /\.(html|mjml)$/;
+}
+
+sub dir_excluded {
+    my ($dir) = @_;
+    return $dir =~ m#/node_modules#;
 }
 
 sub makeFileInfo {
@@ -158,7 +185,7 @@ sub makeFileInfo {
     my $stat = stat($full_path);
     return {
         type  => 'file',
-        name  => $short_path,
+        name  => file_name($short_path),
         size  => $stat->size,
         mtime => $stat->mtime,
         not_deletable => notDeletable($short_path, @parentPaths),
@@ -191,6 +218,7 @@ sub sortEntry {
                 sortEntry($entry);
             }
         }
+
         @$entries = sort { $a->{type} eq $b->{type} ? $a->{name} cmp $b->{name} : $a->{type} cmp $b->{type} } @$entries;
     }
 }
