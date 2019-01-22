@@ -138,6 +138,7 @@ sub mergePaths {
                        $File::Find::prune = 1;
                        return;
                     }
+
                     $data = { name => file_name($path), type => 'dir', size => 0, entries => [] };
                 }
                 else {
@@ -175,12 +176,12 @@ file_excluded
 
 sub file_excluded {
     my ($file) = @_;
-    return $file !~ /\.(html|mjml)$/;
+    return $file !~ /\.(html|mjml)$/ || $file =~ /^\./;
 }
 
 sub dir_excluded {
     my ($dir) = @_;
-    return $dir =~ m#/node_modules#;
+    return $dir =~ /\/node_modules/ || $dir =~ /^\./;
 }
 
 sub makeFileInfo {
