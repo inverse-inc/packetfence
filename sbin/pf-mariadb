@@ -166,7 +166,7 @@ sub ping_quorum {
             $alive ++;
         }
     }
-    return ($alive > (scalar(pf::cluster::mysql_servers()) / 2));
+    return ($alive > (scalar(pf::cluster::db_enabled_hosts()) / 2));
 }
 
 =head2 test_db
