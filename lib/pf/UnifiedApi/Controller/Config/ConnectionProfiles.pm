@@ -134,7 +134,10 @@ sub mergePaths {
                 $dir =~ s/^\Q$File::Find::topdir\E\/?//;
                 my $data;
                 if ( -d $full_path ) {
-                    return if dir_excluded($path);
+                    if (dir_excluded($path)) {
+                       $File::Find::prune = 1;
+                       return;
+                    }
                     $data = { name => file_name($path), type => 'dir', size => 0, entries => [] };
                 }
                 else {
