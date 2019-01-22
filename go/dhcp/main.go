@@ -75,9 +75,6 @@ func main() {
 
 	connectDB(configDatabase)
 
-	MySQLdatabase.SetMaxIdleConns(0)
-	MySQLdatabase.SetMaxOpenConns(500)
-
 	VIP = make(map[string]bool)
 	VIPIp = make(map[string]net.IP)
 
