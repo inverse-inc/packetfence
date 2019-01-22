@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
@@ -34,8 +35,9 @@ func ConnectDb(ctx context.Context, user, pass, host, dbName string) (*sql.DB, e
 	uri := fmt.Sprintf("%s:%s@%s(%s)/%s?parseTime=true&loc=Local", user, pass, proto, host, dbName)
 
 	db, err := sql.Open("mysql", uri)
-	db.SetMaxIdleConns(0)
-	db.SetMaxOpenConns(500)
+	db.SetMaxIdleConns(5)
+	db.SetMaxOpenConns(100)
+	db.SetConnMaxLifetime(time.Minute*5);
 	if err != nil {
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("Error while connecting to DB: %s", err))
 		return nil, err
