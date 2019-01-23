@@ -230,10 +230,9 @@ sub process_packet {
         $tmp{'dhcp_vendor'} = defined($dhcp->{'options'}{'60'}) ? $dhcp->{'options'}{'60'} : '';
         $tmp{'last_dhcp'} = mysql_date();
         if (defined($dhcp->{'options'}{'12'})) {
-            $tmp{'computername'} = $dhcp->{'options'}{'12'};
-            if(isenabled($Config{network}{hostname_change_detection})){
-                $self->apiClient->notify('detect_computername_change', $dhcp->{'chaddr'}, $tmp{'computername'});
-            }
+            my $computername = $dhcp->{'options'}{'12'};
+            $tmp{'computername'} = $computername;
+            $self->hostname_change_detection($dhcp->{'chaddr'}, $computername);
         }
 
         node_modify( $dhcp->{'chaddr'}, %tmp );
@@ -264,6 +263,38 @@ sub process_packet {
     } else {
         $logger->debug( sub { "unrecognized DHCP opcode from $dhcp->{'chaddr'}: $dhcp->{op}" });
     }
+}
+
+=head2 hostname_change_detection
+
+Perform hostname change detection if configured
+
+=cut
+
+sub hostname_change_detection {
+    my ($self, $mac, $new_computername) = @_;
+    if (isenabled($Config{network}{hostname_change_detection})) {
+        do_hostname_change_detection($mac, $new_computername, $self->apiClient);
+    }
+    return;
+}
+
+=head2 do_hostname_change_detection
+
+Perform hostname change detection
+
+=cut
+
+sub do_hostname_change_detection {
+    my ($mac, $new_computername, $apiClient) = @_;
+    my $node_attributes = pf::node::node_attributes($mac);
+    my $computername = $node_attributes ? $node_attributes->{computername} : undef;
+    if ( defined($computername) && length($computername) && $computername ne $new_computername ) {
+        $logger->warn( "Computername change detected ( $computername -> $new_computername ) Possible MAC spoofing.");
+        $apiClient->notify('trigger_violation' => ('mac' => $mac, 'tid' => "hostname_change", 'type' => "internal"));
+        return 1;
+    }
+    return 0;
 }
 
 =head2 parse_dhcp_discover
