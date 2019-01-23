@@ -260,9 +260,10 @@ our @API_V1_ROUTES = (
                     get => 'files',
                 },
                 'files/*file_name' => {
-                    put   => 'new_file',
-                    patch => 'replace_file',
-                    get   => 'get_file',
+                    put    => 'new_file',
+                    patch  => 'replace_file',
+                    get    => 'get_file',
+                    delete => 'delete_file',
                 },
             }
         }
