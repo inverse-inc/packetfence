@@ -18,6 +18,8 @@ use Mojo::Base qw(pf::UnifiedApi::Controller::Config);
 use pf::ConfigStore::Profile;
 use pfappserver::Form::Config::Profile;
 use pfappserver::Form::Config::Profile::Default;
+use File::Slurp qw(write_file);
+use POSIX qw(:errno_h);
 use JSON::MaybeXS qw();
 use File::Find;
 use File::stat;
@@ -75,7 +77,102 @@ sub get_file {
     }
 
     return $self->reply->file($path);
-    return $self->render( json => {file => $file, path => $path});
+}
+
+=head2 new_file
+
+new_file
+
+=cut
+
+sub new_file {
+    my ($self) = @_;
+    my $file = $self->stash->{file_name};
+    if ($file =~ /(\/)?\.\.\//) {
+       return $self->render_error(412, "invalid characters in file '$file'");
+    }
+
+    my $path = profileFilePath($self->id, $file);
+    if (-e $path) {
+       return $self->render_error(412, "'$file' already exists");
+    }
+
+    my $content = $self->req->body;
+    eval {
+        write_file($path, {no_clobber => 1}, $content);
+    };
+    if ($@) {
+       return $self->render_error(422, "Error writing to the '$file'");
+    }
+
+    return $self->render(json => {});
+}
+
+=head2 replace_file
+
+replace_file
+
+=cut
+
+sub replace_file {
+    my ($self) = @_;
+    my $file = $self->stash->{file_name};
+    if ($file =~ /(\/)?\.\.\//) {
+       return $self->render_error(412, "invalid characters in file '$file'");
+    }
+
+    my $path = profileFilePath($self->id, $file);
+    if (!-e $path) {
+       return $self->render_error(412, "'$file' does not exists");
+    }
+
+    my $content = $self->req->body;
+    eval {
+        pf::util::safe_file_update($path, $content);
+    };
+    if ($@) {
+       return $self->render_error(422, "Error writing to the '$file'");
+    }
+
+    return $self->render(json => {});
+}
+
+=head2 delete_path
+
+delete_path
+
+=cut
+
+sub delete_file {
+    my ($self) = @_;
+    my $file = $self->stash->{file_name};
+    if ( $file =~ /(\/)?\.\.\// ) {
+        return $self->render_error( 412, "invalid characters in file '$file'" );
+    }
+
+    my $path = profileFilePath( $self->id, $file );
+    if (!unlink($path)) {
+        if ($! == ENOENT()) {
+            return $self->render_error(404, "'$file' not found");
+        }
+
+        $self->log->error("'$file': Error $!");
+        return $self->render_error(422, "Error deleting '$file'");
+    }
+
+    return $self->render(json => {});
+}
+
+=head2 profileFilePath
+
+profileFilePath
+
+=cut
+
+sub profileFilePath {
+    my ($profile, $file) = @_;
+    my $path = catfile($captiveportal_profile_templates_path, $profile, $file);
+    return $path;
 }
 
 sub findPath {
