@@ -100,6 +100,7 @@ BEGIN {
         str_to_connection_type
         validate_unregdate
         find_outgoing_srcip
+        mcmp make_string_cmp make_string_rcmp make_num_rcmp make_num_cmp
     );
 }
 
@@ -1549,6 +1550,52 @@ sub connection_type_to_str {
     }
 }
 
+=head2 mcmp
+
+Compare two items based off multiple comparsions
+
+=cut
+
+sub mcmp {
+    my ($a, $b, $cmps) = @_;
+    my $r;
+    die "No compare given" if @$cmps == 0;
+    #Stop at the first non equal comparsion
+    for my $cmp (@$cmps) {
+       $r = $cmp->($a, $b);
+       return $r if $r != 0;
+    }
+
+    return $r;
+}
+
+sub make_string_cmp {
+    my ($key) = @_;
+    return sub {
+        $_[0]->{$key} cmp $_[1]->{$key}
+    };
+}
+
+sub make_string_rcmp {
+    my ($key) = @_;
+    return sub {
+        $_[1]->{$key} cmp $_[0]->{$key}
+    };
+}
+
+sub make_num_rcmp {
+    my ($key) = @_;
+    return sub {
+        $_[1]->{$key} <=> $_[0]->{$key}
+    };
+}
+
+sub make_num_cmp {
+    my ($key) = @_;
+    return sub {
+        $_[0]->{$key} <=> $_[1]->{$key}
+    };
+}
 
 =back
 
