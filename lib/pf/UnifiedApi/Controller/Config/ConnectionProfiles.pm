@@ -255,7 +255,7 @@ sub mergePaths {
     );
 
     $root = $paths{''};;
-    sortEntry($root);
+    sortEntry($root, [make_string_cmp('type'), make_string_cmp('name')]);
     return $root;
 }
 
@@ -311,16 +311,16 @@ Sorts the dir entries by name
 =cut
 
 sub sortEntry {
-    my ($root) = @_;
+    my ($root, $cmps) = @_;
     if ($root->{type} eq 'dir' && exists $root->{entries}) {
         my $entries = $root->{entries};
         foreach my $entry (@$entries) {
             if ($entry->{type} eq 'dir') {
-                sortEntry($entry);
+                sortEntry($entry, $cmps);
             }
         }
 
-        @$entries = sort { $a->{type} eq $b->{type} ? $a->{name} cmp $b->{name} : $a->{type} cmp $b->{type} } @$entries;
+        @$entries = sort { mcmp ($a, $b, $cmps) } @$entries;
     }
 }
 
