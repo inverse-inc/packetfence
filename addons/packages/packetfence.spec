@@ -902,6 +902,7 @@ fi
                         /usr/local/pf/conf/allowed_device_oui.txt.example
 %config(noreplace)      /usr/local/pf/conf/apache_filters.conf
                         /usr/local/pf/conf/apache_filters.conf.example
+%config                 /usr/local/pf/conf/apache_filters.conf.defaults
 %config(noreplace)      /usr/local/pf/conf/authentication.conf
 %config                 /usr/local/pf/conf/caddy-services/*.conf
                         /usr/local/pf/conf/caddy-services/*.conf.example

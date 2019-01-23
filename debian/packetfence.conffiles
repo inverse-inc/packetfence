@@ -1,6 +1,7 @@
 /etc/sudoers.d/packetfence
 /usr/local/pf/conf/adminroles.conf
 /usr/local/pf/conf/apache_filters.conf
+/usr/local/pf/conf/apache_filters.conf.defaults
 /usr/local/pf/conf/authentication.conf
 /usr/local/pf/conf/profiles.conf
 /usr/local/pf/conf/pfdns.conf
