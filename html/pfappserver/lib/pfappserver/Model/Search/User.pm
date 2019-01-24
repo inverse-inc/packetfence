@@ -29,6 +29,7 @@ my %COLUMN_MAP = (
     name => \"concat(firstname,' ', lastname)",
     ip_address => 'iplog.ip',
     nodes => \"count(node.mac)",
+    sponsor => "person.sponsor",
 );
 
 our @DEFAULT_COLUMNS = (
