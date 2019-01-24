@@ -87,6 +87,7 @@ export default {
       billingTiers: [],
       provisionings: [],
       scans: [],
+      files: {},
       general: {}
     }
   },
@@ -171,6 +172,9 @@ export default {
     if (this.id) {
       this.$store.dispatch(`${this.storeName}/getConnectionProfile`, this.id).then(data => {
         this.connectionProfile = Object.assign({}, data)
+      })
+      this.$store.dispatch(`${this.storeName}/files`, this.id).then(data => {
+        this.files = data.entries
       })
     }
     this.$store.dispatch('config/getRoles')

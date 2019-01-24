@@ -66,6 +66,16 @@ const actions = {
       commit('ITEM_ERROR', err.response)
       throw err
     })
+  },
+  files: ({ state, commit }, id) => {
+    const params = {
+      id,
+      sort: 'name',
+      fields: ['name', 'size', 'entries', 'type', 'not_deletable'].join(',')
+    }
+    return api.connectionProfileFiles(params).then(response => {
+      return response
+    })
   }
 }
 

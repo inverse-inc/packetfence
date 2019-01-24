@@ -269,6 +269,11 @@ export default {
   deleteConnectionProfile: id => {
     return apiCall.delete(`config/connection_profile/${id}`)
   },
+  connectionProfileFiles: params => {
+    return apiCall.get(`config/connection_profile/${params.id}/files`, { params }).then(response => {
+      return response.data
+    })
+  },
   /**
    * Provisionings
    */

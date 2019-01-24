@@ -7,6 +7,7 @@ import pfFormInput from '@/components/pfFormInput'
 import pfFormSelect from '@/components/pfFormSelect'
 import pfFormTextarea from '@/components/pfFormTextarea'
 import pfFormToggle from '@/components/pfFormToggle'
+import pfTree from '@/components/pfTree'
 import { pfFieldType as fieldType } from '@/globals/pfField'
 import {
   pfConfigurationListColumns,
@@ -22,6 +23,7 @@ import {
   isPort,
   limitSiblingFields
 } from '@/globals/pfValidators'
+import { pfFormatters as formatter } from '@/globals/pfFormatters'
 
 const {
   required,
@@ -318,6 +320,7 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
     billingTiers = [],
     provisionings = [],
     scans = [],
+    files = {},
     general = {}
   } = context
 
@@ -995,8 +998,38 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
     },
     {
       tab: i18n.t('Files'),
-      disabled: true,
-      fields: []
+      fields: [
+        {
+          fields: [
+            {
+              key: 'files',
+              component: pfTree,
+              attrs: {
+                items: files,
+                fields: [
+                  {
+                    key: 'name',
+                    label: i18n.t('Name')
+                  },
+                  {
+                    key: 'size',
+                    label: i18n.t('Size'),
+                    formatter: formatter.fileSize,
+                    class: 'text-right'
+                  },
+                  {
+                    key: 'mtime',
+                    label: i18n.t('Last modification'),
+                    formatter: formatter.shortDateTime
+                  }
+                ],
+                childrenKey: 'entries',
+                childrenIf: (item) => item.type === 'dir' && 'entries' in item
+              }
+            }
+          ]
+        }
+      ]
     }
   ]
 }

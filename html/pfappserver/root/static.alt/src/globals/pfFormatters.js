@@ -1,4 +1,6 @@
 import store from '@/store'
+import bytes from '@/utils/bytes'
+import filters from '@/utils/filters'
 
 export const pfFormatters = {
   datetimeIgnoreZero: (value, key, item) => {
@@ -59,5 +61,12 @@ export const pfFormatters = {
       default:
         return null
     }
+  },
+  fileSize: (value, key, item) => {
+    if (value === null || value === '' || ('type' in item && item.type === 'dir')) return null
+    return bytes.toHuman(value, 2, true) + 'B'
+  },
+  shortDateTime: (value, key, item) => {
+    return filters.shortDateTime(parseInt(value) * 1000)
   }
 }
