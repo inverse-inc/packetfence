@@ -20,11 +20,11 @@
           :color="color"
           :label="label"
           :listenInput="false"
-          :tooltipFunction="tooltip"
+          :tooltip="tooltip"
+          :tooltipFunction="tooltipFunction"
           :width="width"
           class="mr-2"
           tabIndex="-1"
-          tooltip
           @click="click"
         >
           <icon v-if="icons" :name="icon"></icon>
@@ -78,21 +78,21 @@ export default {
     },
     colors: {
       type: Object,
-      default: null,
+      default: () => { return {} },
       validator (value) {
         return (value.checked && value.unchecked)
       }
     },
     icons: {
       type: Object,
-      default: false,
+      default: () => { return {} },
       validator (value) {
         return (value.checked && value.unchecked)
       }
     },
     labels: {
       type: Object,
-      default: false,
+      default: () => { return {} },
       validator (value) {
         return (value.checked && value.unchecked)
       }
@@ -100,6 +100,10 @@ export default {
     width: {
       type: Number,
       default: 40
+    },
+    tooltip: {
+      type: Boolean,
+      default: true
     }
   },
   data () {
@@ -131,14 +135,8 @@ export default {
       const { input, ...listeners } = this.$listeners
       return listeners
     },
-    checked () {
-      return parseInt(this.inputValue) === 1
-    },
-    unchecked () {
-      return !this.checked
-    },
     color () {
-      if(this.colors === null) return null
+      if (this.colors === null) return null
       return (this.inputValue === 1) ? this.colors.checked : this.colors.unchecked
     },
     icon () {
@@ -151,7 +149,7 @@ export default {
     }
   },
   methods: {
-    tooltip () {
+    tooltipFunction () {
       return (this.checked) ? this.values.checked : this.values.unchecked
     },
     click (event) {
@@ -199,6 +197,20 @@ export default {
 @import "../styles/variables";
 @import "../../node_modules/bootstrap/scss/root";
 
+@keyframes animateCursor {
+  0%, 100% { background-color: rgba(0, 0, 0, 1); }
+  10% { background-color: rgba(0, 0, 0, 0.8); }
+  20% { background-color: rgba(0, 0, 0, 0.6); }
+  30% { background-color: rgba(0, 0, 0, 0.4); }
+  40% { background-color: rgba(0, 0, 0, 0.2); }
+  50% { background-color: rgba(0, 0, 0, 0); }
+  60% { background-color: rgba(0, 0, 0, 0.2); }
+  70% { background-color: rgba(0, 0, 0, 0.4); }
+  80% { background-color: rgba(0, 0, 0, 0.6); }
+  90% { background-color: rgba(0, 0, 0, 0.8); }
+
+}
+
 .pf-form-range-toggle {
 
   --handle-transition-delay: 0.3s; /* animate handle */
@@ -208,7 +220,8 @@ export default {
 
     [handle] {
       /*background-color: $input-focus-border-color;*/
-      background-color: rgba(255, 255, 255, 0.6); /* [range] background-color shows through */
+      background-color: rgba(0, 0, 0, 1); /* [range] background-color shows through */
+      animation: animateCursor 2s infinite;
       box-sizing: border-box; /* inner border */
       border: 2px solid #fff;
     }

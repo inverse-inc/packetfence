@@ -21,11 +21,11 @@
           :hints="hints"
           :color="color"
           :label="label"
-          :tooltipFunction="tooltip"
+          :tooltip="tooltip"
+          :tooltipFunction="tooltipFunction"
           :width="width"
           class="mr-2"
           tabIndex="-1"
-          tooltip
           @click="click"
         >
           <icon v-if="icons" :name="icon"></icon>
@@ -81,26 +81,30 @@ export default {
       type: Object,
       default: () => { return {} },
       validator (value) {
-        return (value.checked && value.unchecked && 'default' in value)
+        return (value.checked || value.unchecked || 'default' in value)
       }
     },
     icons: {
       type: Object,
       default: () => { return {} },
       validator (value) {
-        return (value.checked && value.unchecked && 'default' in value)
+        return (value.checked || value.unchecked || 'default' in value)
       }
     },
     labels: {
       type: Object,
       default: () => { return {} },
       validator (value) {
-        return (value.checked && value.unchecked && 'default' in value)
+        return (value.checked || value.unchecked || 'default' in value)
       }
     },
     width: {
       type: Number,
       default: 60
+    },
+    tooltip: {
+      type: Boolean,
+      default: true
     }
   },
   data () {
@@ -145,7 +149,7 @@ export default {
       return parseInt(this.inputValue) === 0
     },
     color () {
-      if(this.colors === null) return null
+      if (this.colors === null) return null
       switch (this.inputValue) {
         case 2:
           return ('checked' in this.colors) ? this.colors.checked : null
@@ -182,10 +186,10 @@ export default {
       if ('default' in this.values && this.inputValue === 1) { /* default only */
         switch (true) {
           case (this.values.default === this.values.checked):
-            hints.push([1,2])
+            hints.push([1, 2])
             break
           case (this.values.default === this.values.unchecked):
-            hints.push([0,1])
+            hints.push([0, 1])
             break
         }
       }
@@ -193,7 +197,7 @@ export default {
     }
   },
   methods: {
-    tooltip () {
+    tooltipFunction () {
       switch (this.inputValue) {
         case 2:
           return this.values.checked
@@ -251,6 +255,19 @@ export default {
 @import "../styles/variables";
 @import "../../node_modules/bootstrap/scss/root";
 
+@keyframes animateCursor {
+  0%, 100% { background-color: rgba(0, 0, 0, 1); }
+  10% { background-color: rgba(0, 0, 0, 0.8); }
+  20% { background-color: rgba(0, 0, 0, 0.6); }
+  30% { background-color: rgba(0, 0, 0, 0.4); }
+  40% { background-color: rgba(0, 0, 0, 0.2); }
+  50% { background-color: rgba(0, 0, 0, 0); }
+  60% { background-color: rgba(0, 0, 0, 0.2); }
+  70% { background-color: rgba(0, 0, 0, 0.4); }
+  80% { background-color: rgba(0, 0, 0, 0.6); }
+  90% { background-color: rgba(0, 0, 0, 0.8); }
+}
+
 .pf-form-range-toggle {
 
   --handle-transition-delay: 0.3s; /* animate handle */
@@ -260,7 +277,8 @@ export default {
 
     [handle] {
       /*background-color: $input-focus-border-color;*/
-      background-color: rgba(255, 255, 255, 0.6); /* [range] background-color shows through */
+      background-color: rgba(0, 0, 0, 1); /* [range] background-color shows through */
+      animation: animateCursor 2s infinite;
       box-sizing: border-box; /* inner border */
       border: 2px solid #fff;
     }

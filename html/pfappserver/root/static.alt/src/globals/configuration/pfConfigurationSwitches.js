@@ -3,9 +3,10 @@ import pfFieldTypeValue from '@/components/pfFieldTypeValue'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormFields from '@/components/pfFormFields'
 import pfFormInput from '@/components/pfFormInput'
+import pfFormRangeToggleDefault from '@/components/pfFormRangeToggleDefault'
+import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import pfFormPassword from '@/components/pfFormPassword'
 import pfFormTextarea from '@/components/pfFormTextarea'
-import pfFormToggle from '@/components/pfFormToggle'
 import {
   pfConfigurationListColumns,
   pfConfigurationListFields
@@ -1096,9 +1097,11 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
           fields: [
             {
               key: 'useCoA',
-              component: pfFormToggle,
+              component: pfFormRangeToggleDefault,
               attrs: {
-                values: { checked: 'Y', unchecked: 'N' }
+                values: { checked: 'Y', unchecked: 'N', default: placeholders.useCoA },
+                icons: { checked: 'check', unchecked: 'times' },
+                colors: { checked: 'var(--primary)' }
               }
             }
           ]
@@ -1109,9 +1112,11 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
           fields: [
             {
               key: 'cliAccess',
-              component: pfFormToggle,
+              component: pfFormRangeToggleDefault,
               attrs: {
-                values: { checked: 'Y', unchecked: 'N' }
+                values: { checked: 'Y', unchecked: 'N', default: placeholders.cliAccess },
+                icons: { checked: 'check', unchecked: 'times' },
+                colors: { checked: 'var(--primary)' }
               }
             }
           ]
@@ -1122,9 +1127,11 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
           fields: [
             {
               key: 'ExternalPortalEnforcement',
-              component: pfFormToggle,
+              component: pfFormRangeToggleDefault,
               attrs: {
-                values: { checked: 'Y', unchecked: 'N' }
+                values: { checked: 'Y', unchecked: 'N', default: placeholders.ExternalPortalEnforcement },
+                icons: { checked: 'check', unchecked: 'times' },
+                colors: { checked: 'var(--primary)' }
               }
             }
           ]
@@ -1134,9 +1141,11 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
           fields: [
             {
               key: 'VoIPEnabled',
-              component: pfFormToggle,
+              component: pfFormRangeToggleDefault,
               attrs: {
-                values: { checked: 'Y', unchecked: 'N' }
+                values: { checked: 'Y', unchecked: 'N', default: placeholders.VoIPEnabled },
+                icons: { checked: 'check', unchecked: 'times' },
+                colors: { checked: 'var(--primary)' }
               }
             }
           ]
@@ -1147,9 +1156,11 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
           fields: [
             {
               key: 'VoIPLLDPDetect',
-              component: pfFormToggle,
+              component: pfFormRangeToggleDefault,
               attrs: {
-                values: { checked: 'Y', unchecked: 'N' }
+                values: { checked: 'Y', unchecked: 'N', default: placeholders.VoIPLLDPDetect },
+                icons: { checked: 'check', unchecked: 'times' },
+                colors: { checked: 'var(--primary)' }
               }
             }
           ]
@@ -1160,9 +1171,11 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
           fields: [
             {
               key: 'VoIPCDPDetect',
-              component: pfFormToggle,
+              component: pfFormRangeToggleDefault,
               attrs: {
-                values: { checked: 'Y', unchecked: 'N' }
+                values: { checked: 'Y', unchecked: 'N', default: placeholders.VoIPCDPDetect },
+                icons: { checked: 'check', unchecked: 'times' },
+                colors: { checked: 'var(--primary)' }
               }
             }
           ]
@@ -1173,9 +1186,11 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
           fields: [
             {
               key: 'VoIPDHCPDetect',
-              component: pfFormToggle,
+              component: pfFormRangeToggleDefault,
               attrs: {
-                values: { checked: 'Y', unchecked: 'N' }
+                values: { checked: 'Y', unchecked: 'N', default: placeholders.VoIPDHCPDetect },
+                icons: { checked: 'check', unchecked: 'times' },
+                colors: { checked: 'var(--primary)' }
               }
             }
           ]
@@ -1186,9 +1201,11 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
           fields: [
             {
               key: 'uplink_dynamic',
-              component: pfFormToggle,
+              component: pfFormRangeToggleDefault,
               attrs: {
-                values: { checked: 'dynamic', unchecked: null }
+                values: { checked: 'dynamic', unchecked: '', default: placeholders.uplink_dynamic },
+                icons: { checked: 'check', unchecked: 'times' },
+                colors: { checked: 'var(--primary)' }
               },
               listeners: {
                 checked: (value) => {
@@ -1281,9 +1298,12 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
           fields: [
             {
               key: 'VlanMap',
-              component: pfFormToggle,
+              component: pfFormRangeToggle,
               attrs: {
-                values: { checked: 'Y', unchecked: 'N' }
+                tooltip: false,
+                values: { checked: 'Y', unchecked: 'N' },
+                icons: { checked: 'check', unchecked: 'times' },
+                colors: { checked: 'var(--primary)' }
               }
             }
           ]
@@ -1318,9 +1338,12 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
           fields: [
             {
               key: 'RoleMap',
-              component: pfFormToggle,
+              component: pfFormRangeToggle,
               attrs: {
-                values: { checked: 'Y', unchecked: 'N' }
+                tooltip: false,
+                values: { checked: 'Y', unchecked: 'N' },
+                icons: { checked: 'check', unchecked: 'times' },
+                colors: { checked: 'var(--primary)' }
               }
             }
           ]
@@ -1355,9 +1378,12 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
           fields: [
             {
               key: 'AccessListMap',
-              component: pfFormToggle,
+              component: pfFormRangeToggle,
               attrs: {
-                values: { checked: 'Y', unchecked: 'N' }
+                tooltip: false,
+                values: { checked: 'Y', unchecked: 'N' },
+                icons: { checked: 'check', unchecked: 'times' },
+                colors: { checked: 'var(--primary)' }
               }
             }
           ]
@@ -1393,9 +1419,12 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
           fields: [
             {
               key: 'UrlMap',
-              component: pfFormToggle,
+              component: pfFormRangeToggle,
               attrs: {
-                values: { checked: 'Y', unchecked: 'N' }
+                tooltip: false,
+                values: { checked: 'Y', unchecked: 'N' },
+                icons: { checked: 'check', unchecked: 'times' },
+                colors: { checked: 'var(--primary)' }
               }
             }
           ]
@@ -2016,6 +2045,18 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
 export const pfConfigurationSwitchViewPlaceholders = (context = {}) => {
   // TODO: replace with inherited defaults from conf/switches.conf.defaults
   return {
+    id: null,
+    AccessListMap: 'N',
+    cliAccess: 'N',
+    ExternalPortalEnforcement: 'N',
+    RoleMap: 'N',
+    UrlMap: 'N',
+    useCoA: 'Y',
+    VlanMap: 'Y',
+    VoIPEnabled: 'N',
+    VoIPCDPDetect: 'Y',
+    VoIPDHCPDetect: 'Y',
+    VoIPLLDPDetect: 'Y',
     vlans: '1,2,3,4,5',
     normalVlan: '1',
     registrationVlan: '2',
@@ -2043,18 +2084,5 @@ export const pfConfigurationSwitchViewPlaceholders = (context = {}) => {
 
 export const pfConfigurationSwitchViewDefaults = (context = {}) => {
   // TODO: replace with inherited defaults from conf/switches.conf.defaults
-  return {
-    id: null,
-    AccessListMap: 'N',
-    cliAccess: 'N',
-    ExternalPortalEnforcement: 'N',
-    RoleMap: 'N',
-    UrlMap: 'N',
-    useCoA: 'Y',
-    VlanMap: 'Y',
-    VoIPEnabled: 'N',
-    VoIPCDPDetect: 'Y',
-    VoIPDHCPDetect: 'Y',
-    VoIPLLDPDetect: 'Y'
-  }
+  return {}
 }

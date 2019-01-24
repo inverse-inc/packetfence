@@ -150,7 +150,7 @@ export default {
 
 :root { /* defaults */
   --range-height: 22px;
-  --range-background-color: var(--success);
+  --range-background-color: #adb5bd;
   --range-transition-delay: 0.3s;
   --handle-height: 16px;
   --handle-background-color: var(--white);
