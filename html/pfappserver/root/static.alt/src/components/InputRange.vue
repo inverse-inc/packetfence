@@ -30,10 +30,10 @@
         :min="min"
         :step="step"
         :disabled="disabled"
-        @input="input"
+        @input="clickInput"
       />
-      <div catch-min @click="inputValue = min"><!-- catch click left of input --></div>
-      <div catch-max @click="inputValue = max"><!-- catch click right of input --></div>
+      <div catch-min @click.stop.prevent="clickMin($event)"><!-- catch click left of input --></div>
+      <div catch-max @click.stop.prevent="clickMax($event)"><!-- catch click right of input --></div>
     </div>
   </div>
 </template>
@@ -43,12 +43,7 @@ export default {
   name: 'input-range',
   props: {
     value: {
-      type: Number,
       default: null
-    },
-    tabIndex: {
-      type: Number,
-      default: 0
     },
     min: {
       type: Number,
@@ -93,6 +88,10 @@ export default {
     width: {
       type: Number,
       default: 40
+    },
+    tabIndex: {
+      type: Number,
+      default: 0
     }
   },
   computed: {
@@ -110,10 +109,16 @@ export default {
     }
   },
   methods: {
-    input ($event) {
+    clickInput ($event) {
       if (this.listenInput) {
-        this.inputValue = $event.target.value
+        this.$set(this, 'inputValue', $event.target.value)
       }
+    },
+    clickMin ($event) {
+      this.$set(this, 'inputValue', 0)
+    },
+    clickMax ($event) {
+      this.$set(this, 'inputValue', 2)
     },
     percent (value = this.inputValue) {
       if (value >= this.max) return 100
@@ -138,7 +143,7 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 @import "../../node_modules/bootstrap/scss/functions";
 @import "../styles/variables";
 @import "../../node_modules/bootstrap/scss/root";
@@ -151,6 +156,11 @@ export default {
   --handle-background-color: var(--white);
   --hint-background-color: var(--light);
   --tooltip-transition-delay: 0.3s;
+}
+
+@keyframes animateHint {
+  from { opacity: 0; left: 50%; width: var(--handle-height); }
+  to { opacity: 0.6; }
 }
 
 [range] {
@@ -182,9 +192,9 @@ export default {
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: left var(--handle-transition-delay, 0s) ease-in-out,
-        background-color var(--handle-transition-delay, 0s) ease-out,
-        color var(--handle-transition-delay, 0s) ease-out;
+      transition: left var(--handle-transition-delay, 0s) ease-in-out, /* do not animate `left` unless explicit */
+        background-color var(--range-transition-delay) ease-out,
+        color var(--range-transition-delay) ease-out;
       color: var(--range-background-color); /* SVG icon */
     }
     > [hint] {
@@ -197,6 +207,8 @@ export default {
       border-bottom-left-radius: var(--handle-height) 100%;
       border-top-right-radius: var(--handle-height) 100%;
       border-bottom-right-radius: var(--handle-height) 100%;
+      animation: animateHint var(--handle-transition-delay);
+      transition: background-color var(--range-transition-delay) ease-out;
     }
     > [label] {
       position: absolute;
@@ -217,12 +229,11 @@ export default {
       min-width: var(--handle-height);
       width: auto;
       align-items: center;
-      -webkit-justify-content: center;
       justify-content: center;
       font-size: .7875rem;
       text-align: center;
-      transition: left var(--handle-transition-delay, 0s) ease-in-out,
-        width var(--handle-transition-delay, 0s) ease-in-out,
+      transition: left var(--handle-transition-delay, 0s) ease-in-out, /* do not animate `left` unless explicit */
+        width var(--handle-transition-delay, 0s) ease-in-out, /* do not animate `width` unless explicit */
         visibility var(--tooltip-transition-delay) linear,
         opacity var(--tooltip-transition-delay) ease-in-out;
       &:after { /* tooltip arrow */
@@ -236,7 +247,7 @@ export default {
         left: 50%;
         transform: translateX(-50%);
       }
-      > span {
+      > span { /* tooltip body */
         padding: .25rem .5rem;
         color: #fff;
         text-align: center;

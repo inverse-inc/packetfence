@@ -7,7 +7,7 @@
       @focus.native="focus = true"
       @blur.native="focus = false"
       @keydown.native.space.prevent
-      @keyup.native.space="toggle"
+      @keyup.native="keyUp"
     ><!-- Vaccum tabIndex --></b-input>
     <b-input-group :style="{ width: `${width}px` }">
       <label role="range" class="pf-form-range-toggle-label">
@@ -80,21 +80,21 @@ export default {
       type: Object,
       default: null,
       validator (value) {
-        return (value.checked || value.unchecked)
+        return (value.checked && value.unchecked)
       }
     },
     icons: {
       type: Object,
       default: false,
       validator (value) {
-        return (value.checked || value.unchecked)
+        return (value.checked && value.unchecked)
       }
     },
     labels: {
       type: Object,
       default: false,
       validator (value) {
-        return (value.checked || value.unchecked)
+        return (value.checked && value.unchecked)
       }
     },
     width: {
@@ -110,22 +110,20 @@ export default {
   computed: {
     inputValue: {
       get () {
-        switch (this.values.constructor) {
-          case Boolean:
-            return (this.value === this.values) ? 1 : 0
-          case Object:
-            return (this.value === this.values.checked) ? 1 : 0
+        switch (this.value) {
+          case this.values.checked:
+            return 1
+          default:
+            return 0
         }
-        return 0
       },
       set (newValue) {
-        switch (this.values.constructor) {
-          case Boolean:
-            this.$emit('input', (newValue === 1) ? this.value : !this.value)
+        switch (newValue) {
+          case 1:
+            this.$emit('input', this.values.checked)
             break
-          case Object:
-            this.$emit('input', (newValue === 1) ? this.values.checked : this.values.unchecked)
-            break
+          default:
+            this.$emit('input', this.values.unchecked)
         }
       }
     },
@@ -153,15 +151,44 @@ export default {
     }
   },
   methods: {
-    tooltip (value) {
+    tooltip () {
       return (this.checked) ? this.values.checked : this.values.unchecked
     },
     click (event) {
       this.$refs.vacuum.$el.focus() // focus vacuum
-      this.inputValue = (this.checked) ? 0 : 1
+      this.toggle(event)
     },
     toggle (event) {
       this.inputValue = (this.inputValue === 1) ? 0 : 1
+    },
+    keyUp (event) {
+      switch (event.keyCode) {
+        case 8: // backspace
+        case 32: // space
+          this.$set(this, 'inputValue', [1, 0][this.inputValue]) // cycle
+          return
+        case 37: // arrow-left
+        case 48: // 0
+        case 96: // numpad 0
+          this.$set(this, 'inputValue', 0) // set index 0
+          return
+        case 39: // arrow-right
+        case 49: // 1
+        case 97: // numpad 1
+          this.$set(this, 'inputValue', 1) // set index 1
+          return
+      }
+      if (this.values.checked.charAt(0).toLowerCase() !== this.values.unchecked.charAt(0).toLowerCase()) {
+        // allow first character from value(s)
+        switch (String.fromCharCode(event.keyCode).toLowerCase()) {
+          case this.values.unchecked.charAt(0).toLowerCase():
+            this.$set(this, 'inputValue', 0) // set index 0
+            break
+          case this.values.checked.charAt(0).toLowerCase():
+            this.$set(this, 'inputValue', 1) // set index 1
+            break
+        }
+      }
     }
   }
 }
@@ -182,7 +209,7 @@ export default {
     [handle] {
       /*background-color: $input-focus-border-color;*/
       background-color: rgba(255, 255, 255, 0.6); /* [range] background-color shows through */
-      box-sizing: border-box;
+      box-sizing: border-box; /* inner border */
       border: 2px solid #fff;
     }
   }
