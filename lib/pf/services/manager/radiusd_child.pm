@@ -548,7 +548,7 @@ sub generate_radiusd_ldap {
     $tags{'template'}    = "$conf_dir/radiusd/ldap_packetfence.conf";
     $tags{'install_dir'} = $install_dir;
     foreach my $ldap (keys %ConfigAuthenticationLdap) {
-        my $searchattributes;
+        my $searchattributes = '';
         foreach my $searchattribute (@{$ConfigAuthenticationLdap{$ldap}->{searchattributes}}) {
             $searchattributes .= '('.$searchattribute.'=%{User-Name})('.$searchattribute.'=%{Stripped-User-Name})';
         }
