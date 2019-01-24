@@ -27,7 +27,7 @@
           tabIndex="-1"
           @click="click"
         >
-          <icon v-if="icons" :name="icon"></icon>
+          <icon v-if="icon" :name="icon"></icon>
         </input-range>
         <slot/>
       </label>
@@ -193,12 +193,13 @@ export default {
     keyUp (event) {
       switch (event.keyCode) {
         case 32: // space
+        case 39: // arrow-right
           this.$set(this, 'inputValue', [1, 2, 0][this.inputValue]) // cycle forward
           return
         case 8: // backspace
+        case 37: // arrow-left
           this.$set(this, 'inputValue', [2, 0, 1][this.inputValue]) // cycle backward
           return
-        case 37: // arrow-left
         case 48: // 0
         case 96: // numpad 0
           this.$set(this, 'inputValue', 0) // set index 0
@@ -207,25 +208,21 @@ export default {
         case 97: // numpad 1
           this.$set(this, 'inputValue', 1) // set index 1
           return
-        case 39: // arrow-right
         case 50: // 2
         case 98: // numpad 2
           this.$set(this, 'inputValue', 2) // set index 2
           return
       }
-
-
-
-      if (this.values.left.charAt(0).toLowerCase() !== this.values.right.charAt(0).toLowerCase()) {
-        // allow first character from value(s)
-        switch (String.fromCharCode(event.keyCode).toLowerCase()) {
-          case this.values.right.charAt(0).toLowerCase():
-            this.$set(this, 'inputValue', 0) // set index 0
-            break
-          case this.values.left.charAt(0).toLowerCase():
-            this.$set(this, 'inputValue', 2) // set index 2
-            break
-        }
+      switch (String.fromCharCode(event.keyCode).toLowerCase()) {
+        case this.values.left.charAt(0).toLowerCase():
+          this.$set(this, 'inputValue', 0) // set index 0
+          break
+        case this.values.middle.charAt(0).toLowerCase():
+          this.$set(this, 'inputValue', 1) // set index 1
+          break
+        case this.values.right.charAt(0).toLowerCase():
+          this.$set(this, 'inputValue', 2) // set index 2
+          break
       }
     }
   }

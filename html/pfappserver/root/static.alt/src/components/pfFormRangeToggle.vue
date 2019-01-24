@@ -27,7 +27,7 @@
           tabIndex="-1"
           @click="click"
         >
-          <icon v-if="icons" :name="icon"></icon>
+          <icon v-if="icon" :name="icon"></icon>
         </input-range>
         <slot/>
       </label>
