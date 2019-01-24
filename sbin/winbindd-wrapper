@@ -86,11 +86,11 @@ our $PARENT_PID = $$;
 
 sub start {
     Systemd::Daemon::notify( READY => 1, STATUS => "Ready", unset => 1 );
-    run_all_winbindd();
     while($running) {
-        alarm(5);
-        pause;
         run_all_winbindd();
+        alarm(1);
+        pause;
+        alarm(0);
     }
 }
 
@@ -111,6 +111,23 @@ exit(0);
 
 =head1 SUBROUTINES
 
+=head2 kill_and_wait_for_children
+
+signal children and waits for them to exit process
+
+=cut
+
+sub kill_and_wait_for_children {
+    my ($signal,$waittime) = @_;
+    signal_children($signal);
+    $ALARM_RECV = 0;
+    alarm $waittime;
+    while (((keys %CHILDREN) != 0 ) && !$ALARM_RECV) {
+        pause;
+    }
+    alarm(0);
+}
+
 =head2 cleanup
 
 cleans after children
@@ -118,7 +135,8 @@ cleans after children
 =cut
 
 sub cleanup {
-    signal_children('INT');
+    kill_and_wait_for_children('INT', 30);
+    signal_children('KILL');
 }
 
 =head2 signal_children
@@ -159,6 +177,8 @@ sub run_all_winbindd {
         my $task = shift @REGISTERED_TASKS;
         run_winbindd($task);
     }
+
+    sleep(5);
     sigprocmask(SIG_UNBLOCK, $mask);
 }
 
@@ -188,7 +208,12 @@ sub run_winbindd {
     my $log_directory = "/var/log/samba$id";
 
     my $pid = fork();
-    if($pid) {
+    if (!defined $pid) {
+        #we should just die at this point in time
+        #need to discuss the proper thing to do
+        $logger->error("Unable to fork child: $!");
+        register_task($id);
+    } elsif($pid) {
         $CHILDREN{$pid} = $id;
     } elsif ($pid == 0) {
         $SIG{CHLD} = 'DEFAULT';
@@ -198,7 +223,6 @@ sub run_winbindd {
             $logger->error("Failed to start the winbindd process $id");
             exit 1;
         }
-    } else {
     }
 }
 
