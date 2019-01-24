@@ -1,7 +1,7 @@
 <template>
   <b-form-group horizontal :label-cols="(columnLabel) ? labelCols : 0" :label="$t(columnLabel)"
     :state="isValid()" :invalid-feedback="getInvalidFeedback()"
-    class="pf-form-range-toggle" :class="{ 'is-focus': focus, 'mb-0': !columnLabel }">
+    class="pf-form-range-toggle-default" :class="{ 'is-focus': focus, 'mb-0': !columnLabel }">
     <b-input type="text" ref="vacuum" readonly :value="null"
       style="position: absolute; width: 1px; height: 1px; left: -9999px; padding: 0px; border: 0px;"
       @focus.native="focus = true"
@@ -10,7 +10,7 @@
       @keyup.native="keyUp"
     ><!-- Vaccum tabIndex --></b-input>
     <b-input-group :style="{ width: `${width}px` }">
-      <label role="range" class="pf-form-range-toggle-label">
+      <label role="range" class="pf-form-range-toggle-default-label">
         <input-range
           :value="inputValue"
           @input="inputValue = $event"
@@ -257,18 +257,14 @@ export default {
 
 @keyframes animateCursor {
   0%, 100% { background-color: rgba(0, 0, 0, 1); }
-  10% { background-color: rgba(0, 0, 0, 0.8); }
-  20% { background-color: rgba(0, 0, 0, 0.6); }
-  30% { background-color: rgba(0, 0, 0, 0.4); }
-  40% { background-color: rgba(0, 0, 0, 0.2); }
+  10%, 90% { background-color: rgba(0, 0, 0, 0.8); }
+  20%, 80% { background-color: rgba(0, 0, 0, 0.6); }
+  30%, 70% { background-color: rgba(0, 0, 0, 0.4); }
+  40%, 60% { background-color: rgba(0, 0, 0, 0.2); }
   50% { background-color: rgba(0, 0, 0, 0); }
-  60% { background-color: rgba(0, 0, 0, 0.2); }
-  70% { background-color: rgba(0, 0, 0, 0.4); }
-  80% { background-color: rgba(0, 0, 0, 0.6); }
-  90% { background-color: rgba(0, 0, 0, 0.8); }
 }
 
-.pf-form-range-toggle {
+.pf-form-range-toggle-default {
 
   --handle-transition-delay: 0.3s; /* animate handle */
 
@@ -288,7 +284,7 @@ export default {
     box-shadow: 0 0 0 1px $form-feedback-invalid-color;
   }
 
-  .pf-form-range-toggle-label {
+  .pf-form-range-toggle-default-label {
     display: inline-flex;
     align-items: center;
     /* overflow: hidden; */

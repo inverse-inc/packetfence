@@ -199,16 +199,11 @@ export default {
 
 @keyframes animateCursor {
   0%, 100% { background-color: rgba(0, 0, 0, 1); }
-  10% { background-color: rgba(0, 0, 0, 0.8); }
-  20% { background-color: rgba(0, 0, 0, 0.6); }
-  30% { background-color: rgba(0, 0, 0, 0.4); }
-  40% { background-color: rgba(0, 0, 0, 0.2); }
+  10%, 90% { background-color: rgba(0, 0, 0, 0.8); }
+  20%, 80% { background-color: rgba(0, 0, 0, 0.6); }
+  30%, 70% { background-color: rgba(0, 0, 0, 0.4); }
+  40%, 60% { background-color: rgba(0, 0, 0, 0.2); }
   50% { background-color: rgba(0, 0, 0, 0); }
-  60% { background-color: rgba(0, 0, 0, 0.2); }
-  70% { background-color: rgba(0, 0, 0, 0.4); }
-  80% { background-color: rgba(0, 0, 0, 0.6); }
-  90% { background-color: rgba(0, 0, 0, 0.8); }
-
 }
 
 .pf-form-range-toggle {
