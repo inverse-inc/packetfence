@@ -14,7 +14,7 @@ use strict;
 use warnings;
 use Moose;
 extends qw(pf::condition::multi);
-use List::MoreUtils qw(any);
+use List::Util qw(first);
 use pf::constants qw($TRUE $FALSE);
 
 has condition => (
@@ -33,11 +33,11 @@ sub match {
     my ($self, $args) = @_;
     my $condition = $self->condition;
     if (@$args == 0) {
-        return $self->match_on_empty ? $TRUE : $FALSE;
+        return $self->match_on_empty ? {} : $FALSE;
     }
 
     local $_;
-    return any {my $a = $_; $condition->match($a) } @$args
+    return first {my $a = $_; $condition->match($a) } @$args
 }
 
 

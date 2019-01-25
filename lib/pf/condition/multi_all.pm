@@ -32,12 +32,16 @@ Matches all the sub conditions
 sub match {
     my ($self, $args) = @_;
     if (@$args == 0) {
-        return $self->match_on_empty ? $TRUE : $FALSE;
+        return $self->match_on_empty ? {} : $FALSE;
     }
 
     my $condition = $self->condition;
     local $_;
-    return all {my $a = $_; $condition->match($a) } @$args
+    if (all {my $a = $_; $condition->match($a) } @$args) {
+       return $args->[0];     
+    }
+
+    return $FALSE;
 }
 
 
