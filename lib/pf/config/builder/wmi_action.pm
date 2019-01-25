@@ -18,6 +18,7 @@ use pf::factory::ast;
 use pf::condition::ast;
 use pf::factory::condition::access_filter;
 use pf::filter;
+use pf::util qw(isenabled);
 use pf::IniFiles;
 use Sort::Naturally qw(ncmp);
 use base qw(pf::config::builder);
@@ -78,11 +79,16 @@ sub cleanupBuildData {
 
 sub buildFilter {
     my ($self, $build_data, $parsed_conditions, $data) = @_;
-    my $condition = eval { $self->buildCondition($build_data, $parsed_conditions) };
-    if ($condition) {
+    my $sub_condition = eval { $self->buildCondition($build_data, $parsed_conditions) };
+    if ($sub_condition) {
+        my $match_on_empty = isenabled($data->{match_on_empty}) ? 1 : 0;
+        my $module = ($data->{match} // '') eq 'all' ? 'pf::condition::multi_all' : 'pf::condition::multi_any';
         push @{$build_data->{filters}}, pf::filter->new({
             answer    => $data,
-            condition => $condition,
+            condition => $module->new(
+                condition => $sub_condition,
+                match_on_empty => $match_on_empty,
+            ),
         });
     } else {
         $self->_error($build_data, $data->{_rule}, "Error building rule", $@)
