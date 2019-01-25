@@ -209,9 +209,7 @@ sub run_winbindd {
 
     my $pid = fork();
     if (!defined $pid) {
-        #we should just die at this point in time
-        #need to discuss the proper thing to do
-        $logger->error("Unable to fork child: $!");
+        $logger->error("Unable to fork child for '$id' retrying : Error($!)");
         register_task($id);
     } elsif($pid) {
         $CHILDREN{$pid} = $id;
