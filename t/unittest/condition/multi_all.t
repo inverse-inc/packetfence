@@ -42,7 +42,7 @@ use pf::condition::true;
     );
     ok(!$condition1->match([1..10]));
     ok(!$condition1->match([]));
-    ok($condition2->match([1..10]));
+    is($condition2->match([1..10]), 1);
     ok(!$condition2->match([]));
 }
 
@@ -57,9 +57,9 @@ use pf::condition::true;
         match_on_empty => 1,
     );
     ok(!$condition1->match([1..10]));
-    ok($condition1->match([]));
-    ok($condition2->match([1..10]));
-    ok($condition2->match([]));
+    is_deeply($condition1->match([]), {});
+    is($condition2->match([1..10]), 1);
+    is_deeply($condition2->match([]), {});
 }
 
 =head1 AUTHOR

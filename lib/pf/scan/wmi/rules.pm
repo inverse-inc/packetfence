@@ -86,8 +86,7 @@ filterResponse
 sub filterResponse {
     my ($self, $scan, $rule_config, $result) = @_;
     foreach my $filter (@{$rule_config->{filters} // []}) {
-        my $r = first { $filter->match($_) } @$result;
-        if ($r) {
+        if ( my $r =  $filter->match($result)) {
             my $answer = $filter->answer;
             if ( defined($answer->{'action'}) && $answer->{'action'} ne '' ) {
                 last if ($answer->{'action'} =~ /allow/i);
