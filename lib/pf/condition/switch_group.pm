@@ -49,7 +49,7 @@ sub match {
     return $FALSE unless defined $last_switch;
     my $switch = pf::SwitchFactory->instantiate($last_switch);
     return $FALSE if(!defined($switch) || !$switch);
-    if (defined($switch->{_group}) & $switch->{_group} eq $self->value) {
+    if (defined($switch->{_group}) && $switch->{_group} eq $self->value) {
         return $TRUE;
     } else {
         return $FALSE;
