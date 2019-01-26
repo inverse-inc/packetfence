@@ -145,6 +145,7 @@ sub ACCEPT_CONTEXT {
             };
         }
     }
+    $options->{fqdn} = $request->uri->host;
 
     $model =  $self->new(
         remoteAddress => $remoteAddress,
