@@ -48,8 +48,8 @@ type pfdns struct {
 	DNSFilter         *cache.Cache
 	IpsetCache        *cache.Cache
 	apiClient         *unifiedapiclient.Client
-	PortalFQDN        string
 	refreshLauncher   *sync.Once
+	PortalFQDN        map[*net.IPNet]string
 }
 
 // Ports array
@@ -311,10 +311,14 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 	switch state.Family() {
 	case 1:
 		rr = new(dns.A)
-		if state.QName() == pf.PortalFQDN {
-			rr.(*dns.A).Hdr = dns.RR_Header{Name: state.QName(), Rrtype: dns.TypeA, Class: state.QClass(), Ttl: 60}
-		} else {
-			rr.(*dns.A).Hdr = dns.RR_Header{Name: state.QName(), Rrtype: dns.TypeA, Class: state.QClass(), Ttl: 15}
+		for k, v := range pf.PortalFQDN {
+			if k.Contains(bIP) {
+				if state.QName() == v {
+					rr.(*dns.A).Hdr = dns.RR_Header{Name: state.QName(), Rrtype: dns.TypeA, Class: state.QClass(), Ttl: 60}
+				} else {
+					rr.(*dns.A).Hdr = dns.RR_Header{Name: state.QName(), Rrtype: dns.TypeA, Class: state.QClass(), Ttl: 15}
+				}
+			}
 		}
 		for k, v := range pf.Network {
 			if k.Contains(bIP) {
@@ -327,10 +331,14 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 		}
 	case 2:
 		rr = new(dns.AAAA)
-		if state.QName() == pf.PortalFQDN {
-			rr.(*dns.AAAA).Hdr = dns.RR_Header{Name: state.QName(), Rrtype: dns.TypeAAAA, Class: state.QClass(), Ttl: 60}
-		} else {
-			rr.(*dns.AAAA).Hdr = dns.RR_Header{Name: state.QName(), Rrtype: dns.TypeAAAA, Class: state.QClass(), Ttl: 15}
+		for k, v := range pf.PortalFQDN {
+			if k.Contains(bIP) {
+				if state.QName() == v {
+					rr.(*dns.AAAA).Hdr = dns.RR_Header{Name: state.QName(), Rrtype: dns.TypeAAAA, Class: state.QClass(), Ttl: 60}
+				} else {
+					rr.(*dns.AAAA).Hdr = dns.RR_Header{Name: state.QName(), Rrtype: dns.TypeAAAA, Class: state.QClass(), Ttl: 15}
+				}
+			}
 		}
 		for k, v := range pf.Network {
 			if k.Contains(bIP) {
@@ -624,9 +632,42 @@ func (pf *pfdns) SetPassthrough(ctx context.Context, passthrough, ip, port strin
 	return err
 }
 
-func (pf *pfdns) PortalFQDNInit() error {
+func (pf *pfdns) PortalFQDNInit(ctx context.Context) error {
 	general := pfconfigdriver.Config.PfConf.General
-	pf.PortalFQDN = general.Hostname + "." + general.Domain + "."
+
+	pf.PortalFQDN = make(map[*net.IPNet]string)
+
+	var interfaces pfconfigdriver.ListenInts
+	pfconfigdriver.FetchDecodeSocket(ctx, &interfaces)
+
+	var keyConfNet pfconfigdriver.PfconfigKeys
+	keyConfNet.PfconfigNS = "config::Network"
+	keyConfNet.PfconfigHostnameOverlay = "yes"
+	pfconfigdriver.FetchDecodeSocket(ctx, &keyConfNet)
+
+	var NetIndex net.IPNet
+
+	for _, key := range keyConfNet.Keys {
+		var ConfNet pfconfigdriver.NetworkConf
+		ConfNet.PfconfigHashNS = key
+		pfconfigdriver.FetchDecodeSocket(ctx, &ConfNet)
+
+		var fqdn string
+		if ConfNet.PortalFQDN != "" {
+			fqdn = ConfNet.PortalFQDN
+		} else {
+			fqdn = general.Hostname + "." + general.Domain
+		}
+
+		NetIndex.Mask = net.IPMask(net.ParseIP(ConfNet.Netmask))
+		NetIndex.IP = net.ParseIP(key)
+		pf.PortalFQDN[&NetIndex] = fqdn
+	}
+	NetIndex.Mask = net.IPMask(net.IPv4zero)
+	NetIndex.IP = net.IPv4zero
+
+	pf.PortalFQDN[&NetIndex] = general.Hostname + "." + general.Domain
+
 	return nil
 }
 
