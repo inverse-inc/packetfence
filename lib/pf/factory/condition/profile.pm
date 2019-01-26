@@ -73,6 +73,7 @@ our %PROFILE_FILTER_TYPE_TO_CONDITION_TYPE = (
     'tenant'              => {type => 'equals',        key  => 'tenant_id'},
     'time'                => {type => 'time'},
     'switch_group'        => {type => 'switch_group',  key  => 'last_switch'},
+    'fqdn'                => {type => 'equals',        key  => 'fqdn'},
 );
 
 sub modules {
