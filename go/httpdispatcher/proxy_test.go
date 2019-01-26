@@ -3,6 +3,7 @@ package httpdispatcher
 import (
 	"bytes"
 	"context"
+	"net"
 	"net/http/httptest"
 	"net/url"
 	"os"
@@ -24,18 +25,18 @@ func TestMain(m *testing.M) {
 	passThrough.URIException = rgx
 
 	var portalURL url.URL
-	var wisprURL url.URL
+	var NetIndex net.IPNet
+	passThrough.PortalURL = make(map[*net.IPNet]*url.URL)
 
 	portalURL.Host = "www.packetfence.org"
 	portalURL.Path = "/captive-portal"
 	portalURL.Scheme = "http"
 
-	wisprURL.Host = "www.packetfence.org"
-	wisprURL.Path = "/wispr"
-	wisprURL.Scheme = "http"
+	NetIndex.Mask = net.IPMask(net.IPv4zero)
+	NetIndex.IP = net.IPv4zero
 
-	passThrough.WisprURL = &wisprURL
-	passThrough.PortalURL = &portalURL
+	passThrough.PortalURL[&NetIndex] = &portalURL
+
 	testproxy.addToEndpointList(ctx, "127.0.0.1")
 	os.Exit(m.Run())
 }

@@ -253,6 +253,7 @@ type NetworkConf struct {
 	NextHop                 string `json:"next_hop"`
 	SplitNetwork            string `json:"split_network"`
 	RegNetwork              string `json:"reg_network"`
+	PortalFQDN              string `json:"portal_fqdn"`
 }
 
 type Interface struct {
