@@ -76,6 +76,15 @@ has_field 'dns' =>
              help => 'Should match the IP of a registration interface or the production DNS server(s) if the network is Inline L2/L3 (space delimited list of IP addresses)' },
   );
 
+has_field 'portal_fqdn' =>
+  (
+   type => 'Text',
+   label => 'Portal FQDN',
+   messages => { required => "Please specify the FQDN of the portal." },
+   tags => { after_element => \&help,
+             help => 'Define the FQDN of the portal for this network. Leaving empty will use the FQDN of the PacketFence server' },
+  );
+
 =head2 validate
 
 Make sure the ending DHCP IP address is after the starting DHCP IP address.
