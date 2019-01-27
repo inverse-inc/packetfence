@@ -147,8 +147,8 @@ sub cleanupBeforeCommit {
         $network->{named} = 'enabled' unless ($network->{named});
         $network->{dhcpd} = 'enabled' unless ($network->{dhcpd});
         $network->{fake_mac_enabled} = 'disabled' if ($network->{type} ne $pf::config::NET_TYPE_INLINE_L3);
-        if ($network->{'fqdn'} ne "") {
-            $network->{'domain-name'} = $types[0] . "." . $network->{'fqdn'};
+        if ($network->{'portal_fqdn'} ne "") {
+            $network->{'domain-name'} = $types[0] . "." . $network->{'portal_fqdn'};
         }
 	$network->{'domain-name'} = $types[0] . "." . $Config{general}{domain}
             unless $network->{'domain-name'};
