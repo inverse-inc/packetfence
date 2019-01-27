@@ -680,11 +680,11 @@ sub node_register {
     my $scan = $profile->findScan($mac);
     if (defined($scan)) {
         # triggering a violation used to communicate the scan to the user
-        if ( isenabled($scan->{'registration'})) {
+        if ( isenabled($scan->{'_registration'})) {
             $logger->debug("Triggering on registration scan");
             pf::violation::violation_add( $mac, $SCAN_VID );
         }
-        if (isenabled($scan->{'post_registration'})) {
+        if (isenabled($scan->{'_post_registration'})) {
             $logger->debug("Triggering post-registration scan");
             pf::violation::violation_add( $mac, $POST_SCAN_VID );
         }
