@@ -49,7 +49,7 @@ type pfdns struct {
 	IpsetCache        *cache.Cache
 	apiClient         *unifiedapiclient.Client
 	refreshLauncher   *sync.Once
-	PortalFQDN        map[*net.IPNet]string
+	PortalFQDN        map[int]map[*net.IPNet]*regexp.Regexp
 }
 
 // Ports array
@@ -254,7 +254,7 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 			switch Type {
 			case "dnsenforcement", "inline":
 				var status = "unreg"
-				var category string
+
 				err = pf.Nodedb.QueryRow(mac, 1).Scan(&status, &category)
 				if err != nil {
 					log.LoggerWContext(ctx).Error(fmt.Sprintf("error getting node status %s %s\n", mac, err))
@@ -311,12 +311,21 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 	switch state.Family() {
 	case 1:
 		rr = new(dns.A)
-		for k, v := range pf.PortalFQDN {
-			if k.Contains(bIP) {
-				if state.QName() == v {
-					rr.(*dns.A).Hdr = dns.RR_Header{Name: state.QName(), Rrtype: dns.TypeA, Class: state.QClass(), Ttl: 60}
-				} else {
-					rr.(*dns.A).Hdr = dns.RR_Header{Name: state.QName(), Rrtype: dns.TypeA, Class: state.QClass(), Ttl: 15}
+		var found bool
+		found = false
+		for i := 0; i <= len(pf.PortalFQDN); i++ {
+			if found {
+				break
+			}
+			for c, d := range pf.PortalFQDN[i] {
+				if c.Contains(bIP) {
+					if d.MatchString(state.QName()) {
+						rr.(*dns.A).Hdr = dns.RR_Header{Name: state.QName(), Rrtype: dns.TypeA, Class: state.QClass(), Ttl: 60}
+					} else {
+						rr.(*dns.A).Hdr = dns.RR_Header{Name: state.QName(), Rrtype: dns.TypeA, Class: state.QClass(), Ttl: 15}
+					}
+					found = true
+					break
 				}
 			}
 		}
@@ -331,12 +340,21 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 		}
 	case 2:
 		rr = new(dns.AAAA)
-		for k, v := range pf.PortalFQDN {
-			if k.Contains(bIP) {
-				if state.QName() == v {
-					rr.(*dns.AAAA).Hdr = dns.RR_Header{Name: state.QName(), Rrtype: dns.TypeAAAA, Class: state.QClass(), Ttl: 60}
-				} else {
-					rr.(*dns.AAAA).Hdr = dns.RR_Header{Name: state.QName(), Rrtype: dns.TypeAAAA, Class: state.QClass(), Ttl: 15}
+		var found bool
+		found = false
+		for i := 0; i <= len(pf.PortalFQDN); i++ {
+			if found {
+				break
+			}
+			for c, d := range pf.PortalFQDN[i] {
+				if c.Contains(bIP) {
+					if d.MatchString(state.QName()) {
+						rr.(*dns.AAAA).Hdr = dns.RR_Header{Name: state.QName(), Rrtype: dns.TypeAAAA, Class: state.QClass(), Ttl: 60}
+					} else {
+						rr.(*dns.AAAA).Hdr = dns.RR_Header{Name: state.QName(), Rrtype: dns.TypeAAAA, Class: state.QClass(), Ttl: 15}
+					}
+					found = true
+					break
 				}
 			}
 		}
@@ -635,7 +653,9 @@ func (pf *pfdns) SetPassthrough(ctx context.Context, passthrough, ip, port strin
 func (pf *pfdns) PortalFQDNInit(ctx context.Context) error {
 	general := pfconfigdriver.Config.PfConf.General
 
-	pf.PortalFQDN = make(map[*net.IPNet]string)
+	index := 0
+
+	pf.PortalFQDN = make(map[int]map[*net.IPNet]*regexp.Regexp)
 
 	var interfaces pfconfigdriver.ListenInts
 	pfconfigdriver.FetchDecodeSocket(ctx, &interfaces)
@@ -661,12 +681,18 @@ func (pf *pfdns) PortalFQDNInit(ctx context.Context) error {
 
 		NetIndex.Mask = net.IPMask(net.ParseIP(ConfNet.Netmask))
 		NetIndex.IP = net.ParseIP(key)
-		pf.PortalFQDN[&NetIndex] = fqdn
+
+		rgx, _ := regexp.Compile(".*" + fqdn)
+
+		pf.PortalFQDN[index] = make(map[*net.IPNet]*regexp.Regexp)
+		pf.PortalFQDN[index][&NetIndex] = rgx
+		index++
 	}
 	NetIndex.Mask = net.IPMask(net.IPv4zero)
 	NetIndex.IP = net.IPv4zero
-
-	pf.PortalFQDN[&NetIndex] = general.Hostname + "." + general.Domain
+	pf.PortalFQDN[index] = make(map[*net.IPNet]*regexp.Regexp)
+	rgx, _ := regexp.Compile(".*" + general.Hostname + "." + general.Domain)
+	pf.PortalFQDN[index][&NetIndex] = rgx
 
 	return nil
 }
