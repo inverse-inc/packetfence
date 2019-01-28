@@ -52,13 +52,13 @@
 #answer2 = Tunnel-Type => 13
 #answer3 = Tunnel-Private-Group-ID => 42
 #
-# This rule will return access-accept if there is no violation
+# This rule will return access-accept if there is no security_event
 #
-#[violation]
-#filter = violation
+#[security_event]
+#filter = security_event
 #operator = defined
 #
-#[2:macauth&!violation]
+#[2:macauth&!security_event]
 #scope = returnRadiusAccessAccept
 #
 # Advanced rule:
@@ -66,7 +66,7 @@
 # This rule will return the vlan id associated to the user role and Cisco-AVPair where the attributes
 # has been evaluated.
 # merge_answer mean to not merge the original answer with radius filter answer.
-#[3:macauth&!violation]
+#[3:macauth&!security_event]
 #scope = returnRadiusAccessAccept
 #merge_answer = no
 #answer1 = Tunnel-Medium-Type => 6
@@ -264,7 +264,7 @@
 #     wasInline
 #     user_role
 #     radius_request
-#     violation
+#     security_event
 #     time
 #
 # filter can be for the scopes returnAuthorizeRead and returnAuthorizeWrite

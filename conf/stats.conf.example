@@ -132,11 +132,11 @@ interval=720s
 randomize=true
 management=true
 
-[metric 'number of currently open violations']
+[metric 'number of currently open security_events']
 type=mysql_query
 statsd_type=gauge
-statsd_ns=source.packetfence.violations
-mysql_query=select count(distinct mac) from violation where status='open'
+statsd_ns=source.packetfence.security_events
+mysql_query=select count(distinct mac) from security_event where status='open'
 interval=60s
 randomize=true
 management=true

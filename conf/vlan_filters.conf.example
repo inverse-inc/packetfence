@@ -7,7 +7,7 @@
 # It is possible to trigger rules / actions within the following specific connection flow scopes
 # - RegistrationRole: Used when an endpoint is in an *UNREGISTERED* state
 # - RegisteredRole: Used when an endpoint is in a *REGISTERED* state
-# - ViolationRole: Used when a violation is open on an endpoint
+# - SecurityEventRole: Used when a security_event is open on an endpoint
 # - InlineRole: Used when the endpoint is detected connecting from an inline VLAN
 # - AutoRegister: Used to determine whether or not an endpoint should be autoregistered
 # - NodeInfoForAutoReg: Used to specify endpoint parameters when autoregistering
@@ -172,7 +172,7 @@
 #    deregister_node (require param => mac)
 #    register_node (require param => mac pid)
 #    modify_node (require param => mac)
-#    trigger_violation (require param => mac tid type)
+#    trigger_security_event (require param => mac tid type)
 #
 # Action parameter can be:
 # - The require param and optional attributes like (for action = modify_node):
@@ -312,11 +312,11 @@
 #
 # [3:3]
 # scope = RegisteredRole
-# action = trigger_violation
+# action = trigger_security_event
 # action_param = mac = $mac, tid = 1100010, type = INTERNAL
 #
-# It means that if the SSID is OpenWrt-SECURE then we send a API call to the function trigger_violation and
-# trigger the violation 1100010
+# It means that if the SSID is OpenWrt-SECURE then we send a API call to the function trigger_security_event and
+# trigger the security_event 1100010
 # action_param is computed by PacketFence so you can set static and dynamic values
 #
 #

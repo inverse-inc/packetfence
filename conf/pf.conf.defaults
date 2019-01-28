@@ -40,7 +40,7 @@ dhcp_rate_limiting=5s
 #
 # network.rogue_dhcp_detection
 #
-# Tries to identify Rogue DHCP Servers and triggers the 1100010 violation if one is found.
+# Tries to identify Rogue DHCP Servers and triggers the 1100010 security_event if one is found.
 # This feature is only available if the dhcpdetector is activated.
 rogue_dhcp_detection=enabled
 #
@@ -165,7 +165,7 @@ default_access_duration=12h
 #
 # alerting.emailaddr
 #
-# Comma-delimited list of email addresses to which notifications of rogue DHCP servers, violations with an action of "email", or any other
+# Comma-delimited list of email addresses to which notifications of rogue DHCP servers, security_events with an action of "email", or any other
 # PacketFence-related message goes to.
 emailaddr=pf@localhost
 #
@@ -182,7 +182,7 @@ smtpserver=localhost
 #
 # alerting.subjectprefix
 #
-#Subject prefix for email notifications of rogue DHCP servers, violations with an action of "email", or any other
+#Subject prefix for email notifications of rogue DHCP servers, security_events with an action of "email", or any other
 #PacketFence-related message.
 subjectprefix=PF Alert:
 #

@@ -488,36 +488,36 @@ timeout=10s
 # How long to keep a radius_audit_log_cleanup entry before deleting it
 window=1D
 
-[violation_maintenance]
+[security_event_maintenance]
 #
 # type
 #
 # The type of task to perform
-type=violation_maintenance
+type=security_event_maintenance
 #
 # description
 #
 # The description of task to perform
-description=Task that controls the execution of delayed violation.
+description=Task that controls the execution of delayed security_event.
 #
 # status
 #
-# If the task violation_maintenance is enabled
+# If the task security_event_maintenance is enabled
 status=enabled
 #
 # interval
 #
-# At which interval to run the violation maintenance pfmon task
+# At which interval to run the security_event maintenance pfmon task
 interval=60s
 #
 # batch
 #
-# How many violation_maintenance entries to clean up in one run
+# How many security_event_maintenance entries to clean up in one run
 batch=1000
 #
 # timeout
 #
-# How long a violation_maintenance job can run
+# How long a security_event_maintenance job can run
 timeout=10s
 
 [switch_cache_lldpLocalPort_description]

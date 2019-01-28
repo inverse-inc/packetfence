@@ -14,17 +14,17 @@ window=0
 delay_by=0s
 button_text=Enable Network
 snort_rules=local.rules,emerging-attack_response.rules,emerging-botcc.rules,emerging-exploit.rules,emerging-malware.rules,emerging-p2p.rules,emerging-scan.rules,emerging-shellcode.rules,emerging-trojan.rules,emerging-worm.rules
-# vlan: The vlan parameter allows you to define in what vlan a node with a violation will be put in.
+# vlan: The vlan parameter allows you to define in what vlan a node with a security_event will be put in.
 # Accepted values are the vlan names: isolation, normal, registration, macDetection, inline, voice
 # and all the roles names you defined in the node_category table. (see switches.conf)
 vlan=isolation
-# if you add a role/category here, nodes in these roles/categories will be immune to the violation
+# if you add a role/category here, nodes in these roles/categories will be immune to the security_event
 whitelisted_roles=
 template=generic
 
 [1100001]
 desc=Nessus Scan
-# On a Scan violation priority must be higher (lower number) than the special system scan violation (1200001)
+# On a Scan security_event priority must be higher (lower number) than the special system scan security_event (1200001)
 priority=4
 template=failed_scan
 max_enable=4
@@ -37,7 +37,7 @@ vlan=registration
 
 [1100002]
 desc=OpenVAS scan
-# On a scan violation priority must be higher (lower number) than the special system scan violation (1200001)
+# On a scan security_event priority must be higher (lower number) than the special system scan security_event (1200001)
 priority=4
 template=failed_scan
 max_enable=4
@@ -142,14 +142,14 @@ trigger=internal::hostname_change
 actions=log
 enabled=Y
 
-[1100020]
-desc=Wireless IPS
-trigger=internal::1100020
-actions=email_admin,log
+[1100014]
+desc=Connection transport change
+trigger=internal::connection_type_change
+actions=log
 enabled=Y
 
 #
-#  1200000 - 120099 Reserved for required administration violations
+#  1200000 - 120099 Reserved for required administration security_events
 #
 [1200001]
 priority=9
@@ -211,7 +211,7 @@ auto_enable=Y
 vlan=registration
 
 #
-# 1300000 - 1399999 Reserved for PacketFence violations
+# 1300000 - 1399999 Reserved for PacketFence security_events
 #
 [1300000]
 desc=Generic
@@ -234,13 +234,13 @@ actions=enforce_provisioning,log
 template=enforce_provisioning
 trigger=Provisioner::check
 enabled=Y
-grace=0s
+grace=15m
 delay_by=2m
 
 [1300003]
 priority=1
-desc=Parking violation
-max_enable=3
+desc=Parking security_event
+max_enable=0
 grace=10m
 actions=log,reevaluate_access
 enabled=Y
@@ -248,12 +248,42 @@ auto_enable=Y
 vlan=registration
 trigger=Internal::parking_detected
 
+[1300004]
+priority=1
+trigger=internal::node_discovered
+actions=email_admin
+desc=Node discovered
+template=bandwidth_expiration
+auto_enable=N
+enabled=N
+
+[1300005]
+priority=1
+actions=email_user,email_admin,log,reevaluate_access
+desc=Lost or Stolen
+enabled=Y
+template=banned_devices
+auto_enable=N
+user_mail_message=Your device [% mac %] as been declared as lost or stolen. Please contact your system administrator to be able to use this device again on the network.
+grace=0
+
+[1300006]
+priority=1
+trigger=internal::fingerbank_device_change
+window=
+desc=Fingerbank device class change
+enabled=Y
+access_duration=12h
+template=invalid_device_transition
+auto_enable=N
+delay_by=
+grace=
 
 #
-# 1400000 - 1499999 Reserved for local violations
+# 1400000 - 1499999 Reserved for local security_events
 #
 #
-# 2000000 - 2099999 Snort violations
+# 2000000 - 2099999 Snort security_events
 #
 [2000000]
 desc=Malware
