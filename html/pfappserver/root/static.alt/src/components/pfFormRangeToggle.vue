@@ -3,7 +3,7 @@
     :state="isValid()" :invalid-feedback="getInvalidFeedback()"
     class="pf-form-range-toggle" :class="{ 'is-focus': focus, 'mb-0': !columnLabel }">
     <b-input type="text" ref="vacuum" readonly :value="null"
-      style="position: absolute; width: 1px; height: 1px; left: -9999px; padding: 0px; border: 0px;"
+      style="overflow: hidden; width: 0px; height: 0px; margin: 0px; padding: 0px; border: 0px;"
       @focus.native="focus = true"
       @blur.native="focus = false"
       @keydown.native.space.prevent
@@ -20,8 +20,8 @@
           :color="color"
           :label="label"
           :listenInput="false"
-          :tooltip="tooltip"
-          :tooltipFunction="tooltipFunction"
+          :tooltip="Object.keys(tooltips).length > 0"
+          :tooltipFunction="tooltip"
           :width="width"
           class="mr-2"
           tabIndex="-1"
@@ -97,13 +97,16 @@ export default {
         return (value.checked && value.unchecked)
       }
     },
+    tooltips: {
+      type: Object,
+      default: () => { return {} },
+      validator (value) {
+        return (value.left || value.middle || value.right)
+      }
+    },
     width: {
       type: Number,
       default: 40
-    },
-    tooltip: {
-      type: Boolean,
-      default: true
     }
   },
   data () {
@@ -149,7 +152,7 @@ export default {
     }
   },
   methods: {
-    tooltipFunction () {
+    tooltip () {
       return (this.checked) ? this.values.checked : this.values.unchecked
     },
     click (event) {

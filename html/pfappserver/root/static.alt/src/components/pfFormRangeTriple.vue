@@ -3,7 +3,7 @@
     :state="isValid()" :invalid-feedback="getInvalidFeedback()"
     class="pf-form-range-triple" :class="{ 'is-focus': focus, 'mb-0': !columnLabel }">
     <b-input type="text" ref="vacuum" readonly :value="null"
-      style="position: absolute; width: 1px; height: 1px; left: -9999px; padding: 0px; border: 0px;"
+      style="overflow: hidden; width: 0px; height: 0px; margin: 0px; padding: 0px; border: 0px;"
       @focus.native="focus = true"
       @blur.native="focus = false"
       @keydown.native.space.prevent
@@ -20,8 +20,8 @@
           step="1"
           :color="color"
           :label="label"
-          :tooltip="tooltip"
-          :tooltipFunction="tooltipFunction"
+          :tooltip="Object.keys(tooltips).length > 0"
+          :tooltipFunction="tooltip"
           :width="width"
           class="mr-2"
           tabIndex="-1"
@@ -97,13 +97,16 @@ export default {
         return (value.left || value.middle || value.right)
       }
     },
+    tooltips: {
+      type: Object,
+      default: () => { return {} },
+      validator (value) {
+        return (value.left || value.middle || value.right)
+      }
+    },
     width: {
       type: Number,
       default: 60
-    },
-    tooltip: {
-      type: Boolean,
-      default: true
     }
   },
   data () {
@@ -176,14 +179,15 @@ export default {
     }
   },
   methods: {
-    tooltipFunction () {
+    tooltip () {
+      if (this.tooltips === null) return null
       switch (this.inputValue) {
         case 0:
-          return this.values.left
+          return ('left' in this.tooltips) ? this.tooltips.left : null
         case 1:
-          return this.values.middle
+          return ('middle' in this.tooltips) ? this.tooltips.middle : null
         case 2:
-          return this.values.right
+          return ('right' in this.tooltips) ? this.tooltips.right : null
       }
     },
     click (event) {
@@ -213,14 +217,15 @@ export default {
           this.$set(this, 'inputValue', 2) // set index 2
           return
       }
-      switch (String.fromCharCode(event.keyCode).toLowerCase()) {
-        case this.values.left.charAt(0).toLowerCase():
+      const keyCode = String.fromCharCode(event.keyCode).toLowerCase()
+      switch (true) {
+        case 'left' in this.values && this.values.left && keyCode === this.values.left.charAt(0).toLowerCase():
           this.$set(this, 'inputValue', 0) // set index 0
           break
-        case this.values.middle.charAt(0).toLowerCase():
+        case 'middle' in this.values && this.values.middle && keyCode === this.values.middle.charAt(0).toLowerCase():
           this.$set(this, 'inputValue', 1) // set index 1
           break
-        case this.values.right.charAt(0).toLowerCase():
+        case 'right' in this.values && this.values.right && keyCode === this.values.right.charAt(0).toLowerCase():
           this.$set(this, 'inputValue', 2) // set index 2
           break
       }

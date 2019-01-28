@@ -3,7 +3,7 @@
     :state="isValid()" :invalid-feedback="getInvalidFeedback()"
     class="pf-form-range-toggle-default" :class="{ 'is-focus': focus, 'mb-0': !columnLabel }">
     <b-input type="text" ref="vacuum" readonly :value="null"
-      style="position: absolute; width: 1px; height: 1px; left: -9999px; padding: 0px; border: 0px;"
+      style="overflow: hidden; width: 0px; height: 0px; margin: 0px; padding: 0px; border: 0px;"
       @focus.native="focus = true"
       @blur.native="focus = false"
       @keydown.native.space.prevent
@@ -21,8 +21,8 @@
           :hints="hints"
           :color="color"
           :label="label"
-          :tooltip="tooltip"
-          :tooltipFunction="tooltipFunction"
+          :tooltip="Object.keys(tooltips).length > 0"
+          :tooltipFunction="tooltip"
           :width="width"
           class="mr-2"
           tabIndex="-1"
@@ -98,13 +98,16 @@ export default {
         return (value.checked || value.unchecked || 'default' in value)
       }
     },
+    tooltips: {
+      type: Object,
+      default: () => { return {} },
+      validator (value) {
+        return (value.left || value.middle || value.right)
+      }
+    },
     width: {
       type: Number,
       default: 60
-    },
-    tooltip: {
-      type: Boolean,
-      default: true
     }
   },
   data () {
@@ -197,14 +200,15 @@ export default {
     }
   },
   methods: {
-    tooltipFunction () {
+    tooltip () {
+      if (this.tooltips === null) return null
       switch (this.inputValue) {
         case 2:
-          return this.values.checked
+          return ('checked' in this.tooltips) ? this.tooltips.checked : null
         case 1:
-          return this.$i18n.t('Default ({default})', { default: this.values.default || null })
+          return ('default' in this.tooltips) ? this.tooltips.default : null
         case 0:
-          return this.values.unchecked
+          return ('unchecked' in this.tooltips) ? this.tooltips.unchecked : null
       }
     },
     click (event) {

@@ -225,7 +225,7 @@ export default {
       opacity: 0;
       visibility: hidden;
       transform: translateX(-50%);
-      bottom: calc(50% + (var(--handle-height) / 2) + 8px);
+      bottom: calc(50% + (var(--handle-height) / 2) + 12px);
       min-width: var(--handle-height);
       width: auto;
       align-items: center;
