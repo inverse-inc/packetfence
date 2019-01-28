@@ -841,9 +841,9 @@ sub configreload {
 }
 
 sub load_configdata_into_db {
-    # reload violations into DB
-    require pf::violation_config;
-    pf::violation_config::loadViolationsIntoDb();
+    # reload security_events into DB
+    require pf::security_event_config;
+    pf::security_event_config::loadSecurityEventsIntoDb();
 
     require pf::SwitchFactory;
     require pf::freeradius;

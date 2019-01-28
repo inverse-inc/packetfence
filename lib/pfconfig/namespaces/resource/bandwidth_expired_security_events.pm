@@ -1,33 +1,36 @@
-package pf::UnifiedApi::Controller::Config::Violations;
+package pfconfig::namespaces::resource::bandwidth_expired_security_events;
 
 =head1 NAME
 
-pf::UnifiedApi::Controller::Config::Violations - 
+pfconfig::namespaces::resource::bandwidth_expired_security_events
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::UnifiedApi::Controller::Config::Violations
-
-
+pfconfig::namespaces::resource::bandwidth_expired_security_events
 
 =cut
 
 use strict;
 use warnings;
+use pfconfig::namespaces::FilterEngine::SecurityEvent;
+
+use base 'pfconfig::namespaces::resource';
+
+sub init {
+    my ($self) = @_;
+    $self->{_engine} = pfconfig::namespaces::FilterEngine::SecurityEvent->new;
+    $self->{_engine}->build();
+}
+
+sub build {
+    my ($self) = @_;
+
+    return $self->{_engine}->{bandwidth_expired_security_events};
+}
 
 
-use Mojo::Base qw(pf::UnifiedApi::Controller::Config);
-
-has 'config_store_class' => 'pf::ConfigStore::Violations';
-has 'form_class' => 'pfappserver::Form::Violation';
-has 'primary_key' => 'violation_id';
-
-use pf::ConfigStore::Violations;
-use pfappserver::Form::Violation;
-
- 
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
@@ -56,4 +59,8 @@ USA.
 =cut
 
 1;
+
+# vim: set shiftwidth=4:
+# vim: set expandtab:
+# vim: set backspace=indent,eol,start:
 

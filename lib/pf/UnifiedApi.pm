@@ -81,8 +81,8 @@ our @API_V1_ROUTES = (
                 map { $_ => { post => $_ } }
                     qw(
                         register deregister restart_switchport
-                        reevaluate_access apply_violation
-                        close_violation fingerbank_refresh
+                        reevaluate_access apply_security_event
+                        close_security_event fingerbank_refresh
                     )
                 ),
                 fingerbank_info => {
@@ -94,8 +94,8 @@ our @API_V1_ROUTES = (
             subroutes => {
                 map { $_ => { post => $_ } }
                   qw(
-                    search bulk_register bulk_deregister bulk_close_violations
-                    bulk_reevaluate_access bulk_restart_switchport bulk_apply_violation
+                    search bulk_register bulk_deregister bulk_close_security_events
+                    bulk_reevaluate_access bulk_restart_switchport bulk_apply_security_event
                     bulk_apply_role bulk_apply_bypass_role bulk_fingerbank_refresh
                   )
             }
@@ -106,7 +106,7 @@ our @API_V1_ROUTES = (
     ReadonlyEndpoint('NodeCategories'),
     ReadonlyEndpoint('Classes'),
     { 
-        controller => 'Violations',
+        controller => 'SecurityEvents',
         collection => {
             subroutes    => {
                 'by_mac/#search' => { get => 'by_mac' },
@@ -137,8 +137,8 @@ our @API_V1_ROUTES = (
                 'unknownprints/active'                                => { get => 'unknownprints_active' },
                 'statics'                                             => { get => 'statics_all' },
                 'statics/active'                                      => { get => 'statics_active' },
-                'openviolations'                                      => { get => 'openviolations_all' },
-                'openviolations/active'                               => { get => 'openviolations_active' },
+                'opensecurity_events'                                 => { get => 'opensecurity_events_all' },
+                'opensecurity_events/active'                          => { get => 'opensecurity_events_active' },
                 'connectiontype'                                      => { get => 'connectiontype_all' },
                 'connectiontype/#start/#end'                          => { get => 'connectiontype_range' },
                 'connectiontype/active'                               => { get => 'connectiontype_active' },
@@ -249,7 +249,7 @@ our @API_V1_ROUTES = (
           Config::SwitchGroups
           Config::SyslogForwarders
           Config::TrafficShapingPolicies
-          Config::Violations
+          Config::SecurityEvents
           )
     ),
     {

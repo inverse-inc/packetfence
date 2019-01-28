@@ -27,7 +27,7 @@ use pf::constants;
 use pf::constants::scan qw($SCAN_VID $PRE_SCAN_VID $POST_SCAN_VID $STATUS_STARTED);
 use pf::config qw(%Config);
 use pf::util;
-use pf::violation;
+use pf::security_event;
 use Time::HiRes qw(time);
 
 sub description { 'Openvas Scanner' }
@@ -128,7 +128,7 @@ sub createTask {
 Retrieve the report associated with a task.
 When retrieving a report in other format than XML, we received the report in base64 encoding.
 
-Report processing's duty is to ensure that the proper violation will be triggered.
+Report processing's duty is to ensure that the proper security_event will be triggered.
 
 =cut
 
@@ -162,7 +162,7 @@ sub processReport {
         open my $io, "<", \$report;
         $csv->column_names($csv->getline($io));
         while(my $row = $csv->getline_hr($io)) {
-            violation_trigger( { 'mac' => $mac, 'tid' => $row->{'NVT OID'}, 'type' => 'OpenVAS' } );
+            security_event_trigger( { 'mac' => $mac, 'tid' => $row->{'NVT OID'}, 'type' => 'OpenVAS' } );
         }
 
         return $TRUE;
@@ -235,7 +235,7 @@ sub startScan {
        'vid' => $scan_vid,
        'mac' => $self->{'_scanMac'},
     );
-    $apiclient->notify('close_violation', %data );
+    $apiclient->notify('close_security_event', %data );
 
     # Clear the scan ID
     $self->{_scanId} = undef;

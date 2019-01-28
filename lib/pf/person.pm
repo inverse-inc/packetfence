@@ -37,7 +37,7 @@ BEGIN {
         person_view_simple
         person_modify
         person_nodes
-        person_violations
+        person_security_events
         person_cleanup
         persons_without_nodes
         person_unassign_nodes
@@ -47,7 +47,7 @@ BEGIN {
 
 use pf::dal::person;
 use pf::dal::node;
-use pf::dal::violation;
+use pf::dal::security_event;
 use pf::error qw(is_error is_success);
 use List::MoreUtils qw(any);
 
@@ -303,13 +303,13 @@ sub person_unassign_nodes {
     return $count;
 }
 
-sub person_violations {
+sub person_security_events {
     my ($pid) = @_;
-    my ($status, $iter) = pf::dal::violation->search(
+    my ($status, $iter) = pf::dal::security_event->search(
         -where => {
             pid => $pid,
         },
-        -from => [-join => qw(violation =>{violation.mac=node.mac} node =>{violation.vid=class.vid} class)],
+        -from => [-join => qw(security_event =>{security_event.mac=node.mac} node =>{security_event.vid=class.vid} class)],
         -order_by => {-desc => 'start_date'},
     );
     if (is_error($status)) {

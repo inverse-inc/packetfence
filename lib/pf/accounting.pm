@@ -8,7 +8,7 @@ pf::accounting
 
 =head1 DESCRIPTION
 
-pf::accounting is a module to add the RADIUS accounting fonctionnalities and enable some bandwidth/session violations mechanism.
+pf::accounting is a module to add the RADIUS accounting fonctionnalities and enable some bandwidth/session security_events mechanism.
 
 =cut
 
@@ -55,16 +55,16 @@ use pf::config qw(
 );
 use pf::constants::config qw($ACCT_TIME_MODIFIER_RE);
 use pf::constants::trigger qw($TRIGGER_TYPE_ACCOUNTING);
-use pf::config::violation;
+use pf::config::security_event;
 use pf::db;
 use pf::error qw(is_error);
-use pf::violation;
+use pf::security_event;
 use pf::util;
 use pf::CHI;
 use pf::dal::radacct_log;
 use pf::dal::radacct;
 
-# This parses the specific accounting violation trigger format
+# This parses the specific accounting security_event trigger format
 Readonly our $ACCOUNTING_TRIGGER_RE => qr/
     ($BANDWIDTH_DIRECTION_RE)     # bandwidth direction
     (\d+)                         # nb of bandwidth units
@@ -87,11 +87,11 @@ Check in the accounting tables for potential bandwidth abuse
 
 sub acct_maintenance {
     my $logger = get_logger();
-    $logger->info("getting violations triggers for accounting cleanup");
+    $logger->info("getting security_events triggers for accounting cleanup");
 
     foreach my $info (@ACCOUNTING_TRIGGERS) {
         my $acct_policy = $info->{trigger};
-        my $vid = $info->{violation};
+        my $vid = $info->{security_event};
         if ($acct_policy =~ /$ACCOUNTING_TRIGGER_RE/) {
 
             my $direction = $1;
@@ -115,9 +115,9 @@ sub acct_maintenance {
                 $interval = "all";
             }
 
-            $logger->info("Found timeframed accounting policy : $acct_policy for violation $vid");
+            $logger->info("Found timeframed accounting policy : $acct_policy for security_event $vid");
 
-            # Grab the list of the mac address first without caring about the violations
+            # Grab the list of the mac address first without caring about the security_events
             my $releaseDate = "1";
             my @results;
             if ($direction eq $DIRECTION_IN) {
@@ -129,33 +129,33 @@ sub acct_maintenance {
                 @results = node_acct_maintenance_bw_total($interval, $releaseDate, $bwInBytes);
             }
 
-            # Now that we have the results, loop on the mac.  While doing that, we need to re-check from the last violation if needed.
+            # Now that we have the results, loop on the mac.  While doing that, we need to re-check from the last security_event if needed.
             foreach my $mac (@results) {
                 my $cleanedMac = clean_mac($mac->{'callingstationid'});
 
-                #Do we have a closed violation for the current mac
-                $logger->info("Looking if we have a closed violation in the present window for mac $cleanedMac and vid $vid");
+                #Do we have a closed security_event for the current mac
+                $logger->info("Looking if we have a closed security_event in the present window for mac $cleanedMac and vid $vid");
 
-                if (violation_exist_acct($cleanedMac, $vid, $interval)) {
-                    $logger->info("We have a closed violation in the interval window for node $cleanedMac, need to recalculate using the last violation release date");
-                    my @violation = violation_view_last_closed($cleanedMac,$vid);
-                    $releaseDate = $violation[0]{'release_date'};
+                if (security_event_exist_acct($cleanedMac, $vid, $interval)) {
+                    $logger->info("We have a closed security_event in the interval window for node $cleanedMac, need to recalculate using the last security_event release date");
+                    my @security_event = security_event_view_last_closed($cleanedMac,$vid);
+                    $releaseDate = $security_event[0]{'release_date'};
 
                     if ($direction eq $DIRECTION_IN) {
                          if(node_acct_maintenance_bw_inbound_exists($releaseDate,$bwInBytes,$mac->{'callingstationid'})) {
-                              violation_trigger( { 'mac' => $cleanedMac, 'tid' => $acct_policy, 'type' => $TRIGGER_TYPE_ACCOUNTING } );
+                              security_event_trigger( { 'mac' => $cleanedMac, 'tid' => $acct_policy, 'type' => $TRIGGER_TYPE_ACCOUNTING } );
                          }
                     } elsif ($direction eq $DIRECTION_OUT) {
                          if(node_acct_maintenance_bw_outbound_exists($releaseDate,$bwInBytes,$mac->{'callingstationid'})) {
-                                 violation_trigger( { 'mac' => $cleanedMac, 'tid' => $acct_policy, 'type' => $TRIGGER_TYPE_ACCOUNTING } );
+                                 security_event_trigger( { 'mac' => $cleanedMac, 'tid' => $acct_policy, 'type' => $TRIGGER_TYPE_ACCOUNTING } );
                          }
                     } else {
                          if(node_acct_maintenance_bw_total_exists($releaseDate,$bwInBytes,$mac->{'callingstationid'})) {
-                                 violation_trigger( { 'mac' => $cleanedMac, 'tid' => $acct_policy, 'type' => $TRIGGER_TYPE_ACCOUNTING } );
+                                 security_event_trigger( { 'mac' => $cleanedMac, 'tid' => $acct_policy, 'type' => $TRIGGER_TYPE_ACCOUNTING } );
                          }
                     }
                 } else {
-                    violation_trigger( { 'mac' => $cleanedMac, 'tid' => $acct_policy, 'type' => $TRIGGER_TYPE_ACCOUNTING } );
+                    security_event_trigger( { 'mac' => $cleanedMac, 'tid' => $acct_policy, 'type' => $TRIGGER_TYPE_ACCOUNTING } );
                 }
             }
         }

@@ -1,14 +1,14 @@
-package pf::violation;
+package pf::security_event;
 
 =head1 NAME
 
-pf::violation - module for violation management.
+pf::security_event - module for security_event management.
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::violation contains the functions necessary to manage violations: creation,
+pf::security_event contains the functions necessary to manage security_events: creation,
 deletion, expiration, read info, ...
 
 =head1 CONFIGURATION AND ENVIRONMENT
@@ -29,12 +29,12 @@ use fingerbank::Model::Device;
 use fingerbank::Model::DHCP_Fingerprint;
 use fingerbank::Model::DHCP_Vendor;
 use fingerbank::Model::User_Agent;
-use pf::violation_config;
+use pf::security_event_config;
 use pf::node;
 use pf::StatsD::Timer;
 
 
-# Violation status constants
+# SecurityEvent status constants
 #TODO port all hard-coded strings to these constants
 #but first I need to resolve the exporting problems..
 #ex: when trying to use these from node I get subroutines redefinitions
@@ -42,9 +42,9 @@ use pf::StatsD::Timer;
 Readonly::Scalar our $STATUS_OPEN => 'open';
 Readonly::Scalar our $STATUS_DELAYED => 'delayed';
 
-use pf::factory::condition::violation;
-pf::factory::condition::violation->modules;
-tie our $VIOLATION_FILTER_ENGINE , 'pfconfig::cached_scalar' => 'FilterEngine::Violation';
+use pf::factory::condition::security_event;
+pf::factory::condition::security_event->modules;
+tie our $SECURITY_EVENT_FILTER_ENGINE , 'pfconfig::cached_scalar' => 'FilterEngine::SecurityEvent';
 
 our %POST_OPEN_ACTIONS = (
     "1300003" => sub {
@@ -68,38 +68,38 @@ BEGIN {
     our ( @ISA, @EXPORT );
     @ISA = qw(Exporter);
     @EXPORT = qw(
-        violation_db_prepare
-        $violation_db_prepared
+        security_event_db_prepare
+        $security_event_db_prepared
 
-        violation_force_close
-        violation_close
-        violation_view
-        violation_view_all
-        violation_add
-        violation_view_open
-        violation_view_open_desc
-        violation_view_open_uniq
-        violation_view_desc
-        violation_modify
-        violation_trigger
-        violation_count
-        violation_count_reevaluate_access
-        violation_view_top
-        violation_delete
-        violation_exist_open
-        violation_exist_acct
-        violation_exist_id
-        violation_view_last_closed
-        violation_maintenance
-        violation_add_warnings
-        violation_clear_warnings
-        violation_last_warnings
-        violation_add_errors
-        violation_clear_errors
-        violation_last_errors
-        violation_run_delayed
-        violation_count_vid
-        violation_count_open_vid
+        security_event_force_close
+        security_event_close
+        security_event_view
+        security_event_view_all
+        security_event_add
+        security_event_view_open
+        security_event_view_open_desc
+        security_event_view_open_uniq
+        security_event_view_desc
+        security_event_modify
+        security_event_trigger
+        security_event_count
+        security_event_count_reevaluate_access
+        security_event_view_top
+        security_event_delete
+        security_event_exist_open
+        security_event_exist_acct
+        security_event_exist_id
+        security_event_view_last_closed
+        security_event_maintenance
+        security_event_add_warnings
+        security_event_clear_warnings
+        security_event_last_warnings
+        security_event_add_errors
+        security_event_clear_errors
+        security_event_last_errors
+        security_event_run_delayed
+        security_event_count_vid
+        security_event_count_open_vid
     );
 }
 use pf::action;
@@ -112,14 +112,14 @@ use pf::constants qw(
 );
 use pf::enforcement;
 use pf::db;
-use pf::dal::violation;
+use pf::dal::security_event;
 use pf::error qw(is_error is_success);
 use pf::constants::scan qw($SCAN_VID $POST_SCAN_VID $PRE_SCAN_VID);
 use pf::constants::role qw($REGISTRATION_ROLE);
 use pf::util;
 use pf::config::util;
 use pf::client;
-use pf::violation_config;
+use pf::security_event_config;
 
 our @ERRORS;
 our @WARNINGS;
@@ -133,12 +133,12 @@ This list is incomplete.
 =cut
 
 #
-sub violation_modify {
+sub security_event_modify {
     my ( $id, %data ) = @_;
     my $logger = get_logger();
 
     return (0) if ( !$id );
-    my ($status, $existing) = pf::dal::violation->find_or_create({
+    my ($status, $existing) = pf::dal::security_event->find_or_create({
         %data,
         id => $id,
     });
@@ -149,16 +149,16 @@ sub violation_modify {
 
     if ($status == $STATUS::CREATED) {
         $logger->warn(
-            "modify of non-existent violation $id attempted - violation added"
+            "modify of non-existent security_event $id attempted - security_event added"
         );
         return (2);
     }
 
-    # Check if the violation was open or closed
+    # Check if the security_event was open or closed
     my $was_closed = ($existing->{status} eq 'closed') ? 1 : 0;
     $existing->merge(\%data);
 
-    $logger->info( "violation for mac "
+    $logger->info( "security_event for mac "
             . $existing->{mac} . " vid "
             . $existing->{vid}
             . " modified" );
@@ -175,25 +175,25 @@ sub violation_modify {
     return (is_success($status));
 }
 
-sub violation_grace {
+sub security_event_grace {
     my ( $mac, $vid ) = @_;
-    my ($status, $iter) = pf::dal::violation->search(
+    my ($status, $iter) = pf::dal::security_event->search(
         -where => {
             'status' => "closed",
-            'violation.vid' => $vid,
+            'security_event.vid' => $vid,
             'mac' => $mac,
         },
         -columns => ['unix_timestamp(start_date)+grace_period-unix_timestamp(now())|grace'],
-        -from => [-join => qw(violation =>{violation.vid=class.vid} class)],
+        -from => [-join => qw(security_event =>{security_event.vid=class.vid} class)],
         -order_by => {-desc => "start_date"},
     );
     my $grace = $iter->next(undef);
     return ($grace ? $grace->{grace} : 0);
 }
 
-sub violation_count {
+sub security_event_count {
     my ($mac) = @_;
-    my ($status, $count) = pf::dal::violation->count(
+    my ($status, $count) = pf::dal::security_event->count(
         -where => {
             mac => $mac,
             status => "open",
@@ -203,24 +203,24 @@ sub violation_count {
     return ($count);
 }
 
-sub violation_count_reevaluate_access {
+sub security_event_count_reevaluate_access {
     my ($mac) = @_;
-    my ($status, $count) = pf::dal::violation->count(
+    my ($status, $count) = pf::dal::security_event->count(
         -where => {
             mac => $mac,
             status => "open",
             'action.action' => 'reevaluate_access',
-            'violation.vid' => { -ident => 'action.vid'},
+            'security_event.vid' => { -ident => 'action.vid'},
         },
-        -from => [qw(violation action)],
+        -from => [qw(security_event action)],
     );
 
     return ($count);
 }
 
-sub violation_count_vid {
+sub security_event_count_vid {
     my ( $mac, $vid ) = @_;
-    my ($status, $count) = pf::dal::violation->count(
+    my ($status, $count) = pf::dal::security_event->count(
         -where => {
             mac => $mac,
             vid => $vid,
@@ -230,9 +230,9 @@ sub violation_count_vid {
     return ($count);
 }
 
-sub violation_count_open_vid {
+sub security_event_count_open_vid {
     my ( $mac, $vid ) = @_;
-    my ($status, $count) = pf::dal::violation->count(
+    my ($status, $count) = pf::dal::security_event->count(
         -where => {
             mac => $mac,
             vid => $vid,
@@ -243,7 +243,7 @@ sub violation_count_open_vid {
     return ($count);
 }
 
-sub violation_exist {
+sub security_event_exist {
     my ( $mac, $vid, $start_date ) = @_;
     return _db_item({
         -where => {
@@ -257,7 +257,7 @@ sub violation_exist {
     });
 }
 
-sub violation_exist_id {
+sub security_event_exist_id {
     my ($id) = @_;
     return _db_item({
         -where => {
@@ -269,7 +269,7 @@ sub violation_exist_id {
     });
 }
 
-sub violation_exist_open {
+sub security_event_exist_open {
     my ( $mac, $vid ) = @_;
     return _db_item({
         -where => {
@@ -283,33 +283,33 @@ sub violation_exist_open {
     });
 }
 
-sub violation_view {
+sub security_event_view {
     my ($id) = @_;
     return _db_data({
         -where => {
-            'violation.mac' => {-ident => 'node.mac'},
-            'violation.id' => $id, 
+            'security_event.mac' => {-ident => 'node.mac'},
+            'security_event.id' => $id, 
         },
-        -columns => [qw(violation.id violation.mac node.computername violation.vid violation.start_date violation.release_date violation.status violation.ticket_ref violation.notes)],
-        -from => [qw(violation node)],
+        -columns => [qw(security_event.id security_event.mac node.computername security_event.vid security_event.start_date security_event.release_date security_event.status security_event.ticket_ref security_event.notes)],
+        -from => [qw(security_event node)],
     });
 }
 
-sub violation_view_top {
+sub security_event_view_top {
     my ($mac) = @_;
     return _db_item({
         -where => {
             mac => $mac,
             status => 'open',
         },
-        -columns => [qw(id mac violation.vid start_date release_date status ticket_ref notes)],
-        -from => [-join => qw(violation {violation.vid=class.vid} class)],
+        -columns => [qw(id mac security_event.vid start_date release_date status ticket_ref notes)],
+        -from => [-join => qw(security_event {security_event.vid=class.vid} class)],
         -order_by => {-asc => 'priority'},
         -limit => 1,
     });
 }
 
-sub violation_view_open {
+sub security_event_view_open {
     my ($mac) = @_;
     return _db_data({
         -where => {
@@ -322,27 +322,27 @@ sub violation_view_open {
     });
 }
 
-sub violation_view_open_desc {
+sub security_event_view_open_desc {
     my ($mac) = @_;
     return _db_data({
         -where => {
             status => "open",
             mac => $mac,
         },
-        -columns => [qw(id start_date class.description violation.vid status)],
-        -from => [-join => qw(violation <=>{violation.vid=class.vid} class)],
+        -columns => [qw(id start_date class.description security_event.vid status)],
+        -from => [-join => qw(security_event <=>{security_event.vid=class.vid} class)],
         -order_by => { -desc => 'start_date' },
     });
 }
 
-=item violation_view_open_uniq
+=item security_event_view_open_uniq
 
-Returns a list of MACs which have at least one opened violation.
-Since trap violations stay open, this has the intended effect of getting all MACs which should be isolated.
+Returns a list of MACs which have at least one opened security_event.
+Since trap security_events stay open, this has the intended effect of getting all MACs which should be isolated.
 
 =cut
 
-sub violation_view_open_uniq {
+sub security_event_view_open_uniq {
     return _db_data({
         -where => {
             status => "open",
@@ -352,26 +352,26 @@ sub violation_view_open_uniq {
     });
 }
 
-sub violation_view_desc {
+sub security_event_view_desc {
     my ($mac) = @_;
     return _db_data({
         -where => {
             mac => $mac,
         },
-        -columns => [qw(id start_date release_date class.description violation.vid status)],
-        -from => [-join => qw(violation <=>{violation.vid=class.vid} class)],
+        -columns => [qw(id start_date release_date class.description security_event.vid status)],
+        -from => [-join => qw(security_event <=>{security_event.vid=class.vid} class)],
         -order_by => {-desc => 'start_date'},
     });
 }
 
 #
-sub violation_add {
+sub security_event_add {
     my $timer = pf::StatsD::Timer->new({level => 6});
     my ( $mac, $vid, %data ) = @_;
     my $logger = get_logger();
     return (0) if ( !$vid );
-    violation_clear_warnings();
-    violation_clear_errors();
+    security_event_clear_warnings();
+    security_event_clear_errors();
 
     #defaults
     $data{start_date} = mysql_date()
@@ -381,31 +381,31 @@ sub violation_add {
     $data{notes}  = ""     if ( !defined $data{notes} );
     $data{ticket_ref} = "" if ( !defined $data{ticket_ref} );
 
-    if ( my $violation =  violation_exist_open( $mac, $vid ) ) {
-        my $msg = "violation $vid already exists for $mac, not adding again";
+    if ( my $security_event =  security_event_exist_open( $mac, $vid ) ) {
+        my $msg = "security_event $vid already exists for $mac, not adding again";
         $logger->info($msg);
-        violation_add_warnings($msg);
-        return ($violation->{vid});
+        security_event_add_warnings($msg);
+        return ($security_event->{vid});
     }
 
-    my $latest_violation = ( violation_view_open($mac) )[0];
-    my $latest_vid       = $latest_violation->{'vid'};
+    my $latest_security_event = ( security_event_view_open($mac) )[0];
+    my $latest_vid       = $latest_security_event->{'vid'};
     if ($latest_vid) {
 
-        # don't add a hostscan if violation exists
+        # don't add a hostscan if security_event exists
         if ( $vid == $SCAN_VID || $vid == $POST_SCAN_VID || $vid == $PRE_SCAN_VID) {
             $logger->warn(
-                "hostscan detected from $mac, but violation $latest_vid exists - ignoring"
+                "hostscan detected from $mac, but security_event $latest_vid exists - ignoring"
             );
             return (1);
         }
 
-        #replace UNKNOWN hostscan with known violation
+        #replace UNKNOWN hostscan with known security_event
         if ( $latest_vid == $SCAN_VID || $latest_vid == $POST_SCAN_VID || $latest_vid == $PRE_SCAN_VID) {
             $logger->info(
-                "violation $vid detected for $mac - updating existing hostscan entry"
+                "security_event $vid detected for $mac - updating existing hostscan entry"
             );
-            violation_force_close( $mac, $latest_vid );
+            security_event_force_close( $mac, $latest_vid );
         }
     }
 
@@ -414,25 +414,25 @@ sub violation_add {
         node_add_simple($mac);
     } else {
 
-        # check if we are under the grace period of a previous violation
-        my ($remaining_time) = violation_grace( $mac, $vid );
+        # check if we are under the grace period of a previous security_event
+        my ($remaining_time) = security_event_grace( $mac, $vid );
         my $force = defined $data{'force'} ? $data{'force'} : $FALSE;
         if ( $remaining_time > 0 && $force ne $TRUE ) {
-            my $msg = "$remaining_time grace remaining on violation $vid for node $mac. Not adding violation.";
-            violation_add_errors($msg);
+            my $msg = "$remaining_time grace remaining on security_event $vid for node $mac. Not adding security_event.";
+            security_event_add_errors($msg);
             $logger->info($msg);
             return (-1);
         } elsif ( $remaining_time > 0 && $force eq $TRUE ) {
-            my $msg = "Force violation $vid for node $mac even if $remaining_time grace remaining";
+            my $msg = "Force security_event $vid for node $mac even if $remaining_time grace remaining";
             $logger->info($msg);
         } else {
-            my $msg = "grace expired on violation $vid for node $mac";
+            my $msg = "grace expired on security_event $vid for node $mac";
             $logger->info($msg);
         }
     }
 
-    # insert violation into db
-    my $status = pf::dal::violation->create({
+    # insert security_event into db
+    my $status = pf::dal::security_event->create({
         mac          => $mac,
         vid          => $vid,
         start_date   => $data{start_date},
@@ -443,59 +443,59 @@ sub violation_add {
     });
     if (is_success($status)) {
         my $last_id = get_db_handle->last_insert_id(undef,undef,undef,undef);
-        $logger->info("violation $vid added for $mac");
+        $logger->info("security_event $vid added for $mac");
         if($data{status} eq 'open') {
             pf::action::action_execute( $mac, $vid, $data{notes} );
-            violation_post_open_action($mac, $vid);
+            security_event_post_open_action($mac, $vid);
         }
         return ($last_id);
     } else {
-        my $msg = "unknown error adding violation $vid for $mac";
-        violation_add_errors($msg);
+        my $msg = "unknown error adding security_event $vid for $mac";
+        security_event_add_errors($msg);
         $logger->error($msg);
     }
     return (0);
 }
 
-=item violation_add_warnings
+=item security_event_add_warnings
 
 =cut
 
-sub violation_add_warnings { push @WARNINGS,@_; }
+sub security_event_add_warnings { push @WARNINGS,@_; }
 
 
-=item violation_clear_warnings
-
-=cut
-
-sub violation_clear_warnings { @WARNINGS = (); }
-
-=item violation_last_warnings
+=item security_event_clear_warnings
 
 =cut
 
-sub violation_last_warnings { @WARNINGS }
+sub security_event_clear_warnings { @WARNINGS = (); }
 
-=item violation_add_errors
-
-=cut
-
-sub violation_add_errors { push @ERRORS,@_; }
-
-
-=item violation_clear_errors
+=item security_event_last_warnings
 
 =cut
 
-sub violation_clear_errors { @ERRORS = (); }
+sub security_event_last_warnings { @WARNINGS }
 
-=item violation_last_errors
+=item security_event_add_errors
 
 =cut
 
-sub violation_last_errors { @ERRORS }
+sub security_event_add_errors { push @ERRORS,@_; }
 
-sub info_for_violation_engine {
+
+=item security_event_clear_errors
+
+=cut
+
+sub security_event_clear_errors { @ERRORS = (); }
+
+=item security_event_last_errors
+
+=cut
+
+sub security_event_last_errors { @ERRORS }
+
+sub info_for_security_event_engine {
     # NEED TO HANDLE THE NEW TID
     my ($mac,$type,$tid) = @_;
     my $node_info = pf::node::node_view($mac);
@@ -548,7 +548,7 @@ sub info_for_violation_engine {
       last_switch => $node_info->{'last_switch'},
     };
 
-    my $trigger_info = $pf::factory::condition::violation::TRIGGER_TYPE_TO_CONDITION_TYPE{$type};
+    my $trigger_info = $pf::factory::condition::security_event::TRIGGER_TYPE_TO_CONDITION_TYPE{$type};
     if( $trigger_info->{type} ne 'includes' ){
         $info->{$trigger_info->{key}} = $tid;
     }
@@ -556,21 +556,21 @@ sub info_for_violation_engine {
     return $info;
 }
 
-=item * violation_trigger
+=item * security_event_trigger
 
-Evaluates a candidate violation and if its valid, will add it to the node and trigger a VLAN change if required
+Evaluates a candidate security_event and if its valid, will add it to the node and trigger a VLAN change if required
 
-Returns 1 if at least one violation is added, 0 otherwise.
+Returns 1 if at least one security_event is added, 0 otherwise.
 
 =cut
 
-sub violation_trigger {
+sub security_event_trigger {
     my $timer = pf::StatsD::Timer->new({level => 6});
 
     my ( $argv ) = @_;
     my $logger = get_logger();
 
-    # Making sure we have all required arguments to process a violation triggering
+    # Making sure we have all required arguments to process a security_event triggering
     my @require = qw(mac tid type);
     my @found = grep {exists $argv->{$_}} @require;
     return (0) unless pf::util::validate_argv(\@require, \@found);
@@ -579,59 +579,59 @@ sub violation_trigger {
     my $tid = $argv->{'tid'};
     my $type = $argv->{'type'};
 
-    $logger->trace("Triggering violation $type $tid for mac $mac");
+    $logger->trace("Triggering security_event $type $tid for mac $mac");
     return (0) if ( !$tid );
     $type = lc($type);
 
     if (whitelisted_mac($mac)) {
-        $logger->info("violation not added, $mac is whitelisted! trigger ${type}::${tid}");
+        $logger->info("security_event not added, $mac is whitelisted! trigger ${type}::${tid}");
         return 0;
     }
 
     if (!valid_mac($mac)) {
-        $logger->info("violation not added, MAC $mac is invalid! trigger ${type}::${tid}");
+        $logger->info("security_event not added, MAC $mac is invalid! trigger ${type}::${tid}");
         return 0;
     }
 
     if (!trappable_mac($mac)) {
-        $logger->info("violation not added, MAC $mac is not trappable! trigger ${type}::${tid}");
+        $logger->info("security_event not added, MAC $mac is not trappable! trigger ${type}::${tid}");
         return 0;
     }
 
-    my $info = info_for_violation_engine($mac,$type,$tid);
+    my $info = info_for_security_event_engine($mac,$type,$tid);
 
-    $logger->debug(sub { use Data::Dumper; "Infos for violation engine : ".Dumper($info) });
-    my @vids = $VIOLATION_FILTER_ENGINE->match_all($info);
+    $logger->debug(sub { use Data::Dumper; "Infos for security_event engine : ".Dumper($info) });
+    my @vids = $SECURITY_EVENT_FILTER_ENGINE->match_all($info);
 
-    my $addedViolation = 0;
+    my $addedSecurityEvent = 0;
     foreach my $vid (@vids) {
         if (_is_node_category_whitelisted($vid, $mac)) {
-            $logger->info("Not adding violation ${vid} node $mac is whitelisted because of its role");
+            $logger->info("Not adding security_event ${vid} node $mac is whitelisted because of its role");
             next;
         }
 
-        # we test here AND in violation_add because here we avoid a fork (and violation_add is called from elsewhere)
-        if ( violation_exist_open( $mac, $vid ) ) {
-            $logger->info("violation $vid (trigger ${type}::${tid}) already exists for $mac, not adding again");
+        # we test here AND in security_event_add because here we avoid a fork (and security_event_add is called from elsewhere)
+        if ( security_event_exist_open( $mac, $vid ) ) {
+            $logger->info("security_event $vid (trigger ${type}::${tid}) already exists for $mac, not adding again");
             next;
         }
 
-        # check if we are under the grace period of a previous violation
-        # we test here AND in violation_add because here we avoid a fork (and violation_add is called from elsewhere)
-        my ($remaining_time) = violation_grace( $mac, $vid );
+        # check if we are under the grace period of a previous security_event
+        # we test here AND in security_event_add because here we avoid a fork (and security_event_add is called from elsewhere)
+        my ($remaining_time) = security_event_grace( $mac, $vid );
         if ($remaining_time > 0) {
             $logger->info(
-                "$remaining_time grace remaining on violation $vid (trigger ${type}::${tid}) for node $mac. " .
-                "Not adding violation."
+                "$remaining_time grace remaining on security_event $vid (trigger ${type}::${tid}) for node $mac. " .
+                "Not adding security_event."
             );
             next;
         }
 
-        # if violation is of action autoreg and the node is already registered
+        # if security_event is of action autoreg and the node is already registered
         if (pf::action::action_exist($vid, $pf::action::AUTOREG) && is_node_registered($mac)) {
             $logger->debug(
-                "violation $vid triggered with action $pf::action::AUTOREG but node $mac is already registered. " .
-                "Not adding violation."
+                "security_event $vid triggered with action $pf::action::AUTOREG but node $mac is already registered. " .
+                "Not adding security_event."
             );
             next;
         }
@@ -640,12 +640,12 @@ sub violation_trigger {
         my %data;
 
         my $class = class_view($vid);
-        # Check if the violation is delayed
+        # Check if the security_event is delayed
         if ($class->{'delay_by'}) {
             $data{status} = 'delayed';
             $date = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + $class->{'delay_by'}));
         }
-        # Check if we have a window defined for the violation, and act properly
+        # Check if we have a window defined for the security_event, and act properly
         # TODO: Handle the "dynamic" keyword
         elsif (defined($class->{'window'})) {
           if ($class->{'window'} ne 'dynamic' && $class->{'window'} ne '0' ) {
@@ -676,22 +676,22 @@ sub violation_trigger {
 
         $data{'notes'} = $argv->{'notes'} if defined($argv->{'notes'});
 
-        $logger->info("calling violation_add with vid=$vid mac=$mac release_date=$date (trigger ${type}::${tid})");
-        violation_add($mac, $vid, %data);
-        $addedViolation = 1;
+        $logger->info("calling security_event_add with vid=$vid mac=$mac release_date=$date (trigger ${type}::${tid})");
+        security_event_add($mac, $vid, %data);
+        $addedSecurityEvent = 1;
     }
-    return $addedViolation;
+    return $addedSecurityEvent;
 }
 
-sub violation_delete {
+sub security_event_delete {
     my ($id) = @_;
-    my $status = pf::dal::violation->remove_by_id({id => $id});
+    my $status = pf::dal::security_event->remove_by_id({id => $id});
     return (is_success($status));
 }
 
 #return -1 on failure, because grace=0 is unlimited
 #
-sub violation_close {
+sub security_event_close {
     my ( $mac, $vid ) = @_;
     my $logger = get_logger();
     require pf::class;
@@ -702,14 +702,14 @@ sub violation_close {
         return (-1);
     }
 
-    #check the number of violations
-    my $num = violation_count_vid( $mac, $vid );
+    #check the number of security_events
+    my $num = security_event_count_vid( $mac, $vid );
     my $max = $class_info->{'max_enables'};
 
     if ( $num <= $max || $max == 0 ) {
 
         my $grace = $class_info->{'grace_period'};
-        my ($status, $rows) = pf::dal::violation->update_items(
+        my ($status, $rows) = pf::dal::security_event->update_items(
             -set => {
                 release_date => \'NOW()',
                 status => 'closed',
@@ -720,22 +720,22 @@ sub violation_close {
                 status => { "!=" => "closed"},
             }
         );
-        $logger->info("violation $vid closed for $mac");
-        violation_post_close_action($mac, $vid);
+        $logger->info("security_event $vid closed for $mac");
+        security_event_post_close_action($mac, $vid);
         return ($grace);
     }
     return (-1);
 }
 
-# use force close to definitely shut a violation
-# used for non-trap violation and to close scan violations
+# use force close to definitely shut a security_event
+# used for non-trap security_event and to close scan security_events
 #
-sub violation_force_close {
+sub security_event_force_close {
     my ( $mac, $vid ) = @_;
     my $logger = get_logger();
 
-    my $should_run_actions = violation_exist_open($mac, $vid);
-    my ($status, $rows) = pf::dal::violation->update_items(
+    my $should_run_actions = security_event_exist_open($mac, $vid);
+    my ($status, $rows) = pf::dal::security_event->update_items(
         -set => {
             release_date => \'NOW()',
             status => 'closed',
@@ -746,18 +746,18 @@ sub violation_force_close {
             status => { "!=" => "closed"},
         }
     );
-    $logger->info("violation $vid force-closed for $mac");
+    $logger->info("security_event $vid force-closed for $mac");
     if($should_run_actions) {
-        violation_post_close_action($mac, $vid);
+        security_event_post_close_action($mac, $vid);
     }
     return (1);
 }
 
-=item * violation_exist_acct - check if a closed violation exists within the accounting interval window
+=item * security_event_exist_acct - check if a closed security_event exists within the accounting interval window
 
 =cut
 
-sub violation_exist_acct {
+sub security_event_exist_acct {
     my ( $mac, $vid, $interval ) = @_;
     my $ceil;
 
@@ -787,11 +787,11 @@ sub violation_exist_acct {
     });
 }
 
-=item * violation_view_last_closed - grab the last closed violation within the accounting interval window
+=item * security_event_view_last_closed - grab the last closed security_event within the accounting interval window
 
 =cut
 
-sub violation_view_last_closed {
+sub security_event_view_last_closed {
     my ( $mac, $vid ) = @_;
 
     return _db_data({
@@ -806,7 +806,7 @@ sub violation_view_last_closed {
     });
 }
 
-=item * _is_node_category_whitelisted - is a node immune to a given violation based on its category
+=item * _is_node_category_whitelisted - is a node immune to a given security_event based on its category
 
 =cut
 
@@ -814,7 +814,7 @@ sub _is_node_category_whitelisted {
     my ($vid, $mac) = @_;
     my $logger = get_logger();
 
-    my $class = $pf::violation_config::Violation_Config{$vid};
+    my $class = $pf::security_event_config::SecurityEvent_Config{$vid};
 
     # if whitelist is empty, node is not whitelisted
     if (!defined($class->{'whitelisted_roles'}) || @{$class->{'whitelisted_roles'}} == 0) {
@@ -822,7 +822,7 @@ sub _is_node_category_whitelisted {
     }
 
     # Grabbing the node's informations (incl. role)
-    # Note: consider extracting out of here and putting in violation_trigger and passing node_info hashref instead
+    # Note: consider extracting out of here and putting in security_event_trigger and passing node_info hashref instead
     my $node_info = node_attributes($mac);
     if(!defined($node_info) || ref($node_info) ne 'HASH') {
         $logger->warn("Something went wrong trying to fetch the node info");
@@ -847,22 +847,22 @@ sub _is_node_category_whitelisted {
     return $role_found;
 }
 
-=item violation_maintenance
+=item security_event_maintenance
 
-Check if we should close violations based on release_date
+Check if we should close security_events based on release_date
 
 =cut
 
-sub violation_maintenance {
+sub security_event_maintenance {
     my ($batch,$timelimit) = @_;
     my $logger = get_logger();
 
-    $logger->debug("Looking at expired violations... batching $batch timelimit $timelimit");
+    $logger->debug("Looking at expired security_events... batching $batch timelimit $timelimit");
     my $start_time = time;
     my $end_time;
     my $rows_processed = 0;
     while(1) {
-        my ($status, $iter) = pf::dal::violation->search(
+        my ($status, $iter) = pf::dal::security_event->search(
             -where => {
                 status => ["open", "delayed"],
                 release_date => [-and => {"!=" => $ZERO_DATE}, {"<=" => \'NOW()'}],
@@ -878,12 +878,12 @@ sub violation_maintenance {
         my $client = pf::client::getClient();
         while (my $row = $iter->next(undef)) {
             if($row->{status} eq 'delayed' ) {
-                $client->notify(violation_delayed_run => ($row));
+                $client->notify(security_event_delayed_run => ($row));
             }
             else {
                 my $mac = $row->{mac};
                 my $vid = $row->{vid};
-                my $result = violation_force_close($mac,$vid);
+                my $result = security_event_force_close($mac,$vid);
                 # If close is a success, reevaluate the Access for the node
                 if ($result) {
                     pf::enforcement::reevaluate_access( $mac, "manage_vclose" );
@@ -892,28 +892,28 @@ sub violation_maintenance {
         }
         $rows_processed+=$rows;
         $end_time = time;
-        $logger->trace( sub { "processed $rows_processed violations during violation maintenance ($start_time $end_time) " });
+        $logger->trace( sub { "processed $rows_processed security_events during security_event maintenance ($start_time $end_time) " });
         last if $rows <= 0 || (($end_time - $start_time) > $timelimit);
     }
-    $logger->info(  "processed $rows_processed violations during violation maintenance ($start_time $end_time) " );
+    $logger->info(  "processed $rows_processed security_events during security_event maintenance ($start_time $end_time) " );
     return (1);
 }
 
-sub violation_run_delayed {
+sub security_event_run_delayed {
     my ($id) = @_;
-    my ($violation) = violation_view($id);
-    if($violation) {
-        _violation_run_delayed($violation);
+    my ($security_event) = security_event_view($id);
+    if($security_event) {
+        _security_event_run_delayed($security_event);
         return 1;
     }
     return 0;
 }
 
-sub _violation_run_delayed {
-    my ($violation) = @_;
+sub _security_event_run_delayed {
+    my ($security_event) = @_;
     my $logger = get_logger();
-    my $mac = $violation->{mac};
-    my $vid = $violation->{vid};
+    my $mac = $security_event->{mac};
+    my $vid = $security_event->{vid};
     my %data = (status => 'open');
     my $class = pf::class::class_view($vid);
     if (defined($class->{'window'})) {
@@ -923,32 +923,32 @@ sub _violation_run_delayed {
         }
         $data{release_date} = $date;
     }
-    $logger->info("processing delayed violation : $violation->{id}, $violation->{vid}");
-    my $notes = $violation->{vid};
-    pf::violation::violation_modify($violation->{id}, %data);
+    $logger->info("processing delayed security_event : $security_event->{id}, $security_event->{vid}");
+    my $notes = $security_event->{vid};
+    pf::security_event::security_event_modify($security_event->{id}, %data);
     pf::action::action_execute( $mac, $vid, $notes );
 }
 
-=item violation_post_open_action
+=item security_event_post_open_action
 
-Execute an action that should occur after opening the violation if necessary
+Execute an action that should occur after opening the security_event if necessary
 
 =cut
 
-sub violation_post_open_action {
+sub security_event_post_open_action {
     my ($mac, $vid) = @_;
     if(exists($POST_OPEN_ACTIONS{$vid})) {
         $POST_OPEN_ACTIONS{$vid}->({mac => $mac, vid => $vid});
     }
 }
 
-=item violation_post_close_action
+=item security_event_post_close_action
 
-Execute an action that should occur after closing the violation if necessary
+Execute an action that should occur after closing the security_event if necessary
 
 =cut
 
-sub violation_post_close_action {
+sub security_event_post_close_action {
     my ($mac, $vid) = @_;
     if(exists($POST_CLOSE_ACTIONS{$vid})) {
         $POST_CLOSE_ACTIONS{$vid}->({mac => $mac, vid => $vid});
@@ -964,7 +964,7 @@ _db_item
 
 sub _db_item {
     my ($args) = @_;
-    my ($status, $iter) = pf::dal::violation->search(%$args);
+    my ($status, $iter) = pf::dal::security_event->search(%$args);
     if (is_error($status)) {
         return (0);
     }
@@ -979,7 +979,7 @@ _db_data
 
 sub _db_data {
     my ($args) = @_;
-    my ($status, $iter) = pf::dal::violation->search(%$args);
+    my ($status, $iter) = pf::dal::security_event->search(%$args);
     if (is_error($status)) {
         return;
     }

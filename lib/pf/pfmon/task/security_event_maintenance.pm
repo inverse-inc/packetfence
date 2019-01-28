@@ -1,38 +1,41 @@
-package pf::cmd::pf::reload::violations;
+package pf::pfmon::task::security_event_maintenance;
+
 =head1 NAME
 
-pf::cmd::pf::reload::violations add documentation
+pf::pfmon::task::security_event_maintenance - class for pfmon task security_event maintenance
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::cmd::pf::reload::violations
+pf::pfmon::task::security_event_maintenance
 
 =cut
 
 use strict;
 use warnings;
-use pf::constants::exit_code qw($EXIT_SUCCESS);
-use pf::services;
-use pf::violation_config;
-use pf::constants::exit_code qw($EXIT_SUCCESS);
-use pf::log;
-use base qw(pf::cmd);
+use Moose;
+use pf::security_event;
+extends qw(pf::pfmon::task);
 
+has 'batch' => ( is => 'rw');
+has 'timeout' => ( is => 'rw', isa => 'PfInterval', coerce => 1 );
+
+=head2 run
+
+run the security_event maintenance task
+
+=cut
 
 sub run {
-    pf::violation_config::loadViolationsIntoDb;
-    get_logger()->info("Violation classes reloaded");
-    print "Violation classes reloaded\n";
-    return $EXIT_SUCCESS;
+    my ($self) = @_;
+    security_event_maintenance($self->batch, $self->timeout);
 }
 
 =head1 AUTHOR
 
-Inverse inc. <info@inverse.ca>
 
-Minor parts of this file may have been contributed. See CREDITS.
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
@@ -40,7 +43,7 @@ Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
-This program is free software; you can redistribute it and::or
+This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
@@ -58,4 +61,3 @@ USA.
 =cut
 
 1;
-

@@ -2,14 +2,14 @@ package pf::action;
 
 =head1 NAME
 
-pf::action - module to handle violation actions
+pf::action - module to handle security_event actions
 
 =cut
 
 =head1 DESCRIPTION
 
 pf::action contains the functions necessary to manage all the different
-actions (email, log, trap, ...) triggered when a violation is created,
+actions (email, log, trap, ...) triggered when a security_event is created,
 opened, closed or deleted.
 
 =head1 CONFIGURATION AND ENVIRONMENT
@@ -25,7 +25,7 @@ use Readonly;
 use pf::node;
 use pf::person;
 use pf::util;
-use pf::violation_config;
+use pf::security_event_config;
 use pf::config qw(access_duration);
 
 use pf::provisioner;
@@ -48,7 +48,7 @@ Readonly::Scalar our $CLOSE => 'close';
 Readonly::Scalar our $ROLE => 'role';
 Readonly::Scalar our $ENFORCE_PROVISIONING => 'enforce_provisioning';
 
-Readonly::Array our @VIOLATION_ACTIONS =>
+Readonly::Array our @SECURITY_EVENT_ACTIONS =>
   (
    $AUTOREG,
    $UNREG,
@@ -85,10 +85,10 @@ use pf::db;
 use pf::util;
 use pf::config::util;
 use pf::class qw(class_view);
-use pf::violation qw(violation_force_close);
+use pf::security_event qw(security_event_force_close);
 use pf::Connection::ProfileFactory;
 use pf::constants::scan qw($POST_SCAN_VID $PRE_SCAN_VID);
-use pf::file_paths qw($violation_log);
+use pf::file_paths qw($security_event_log);
 
 our $logger = get_logger();
 
@@ -224,9 +224,9 @@ sub action_execute {
         $ACTIONS{$action}->($mac, $vid, $notes);
     }
     if (!$leave_open && !($vid eq $POST_SCAN_VID || $vid eq $PRE_SCAN_VID)) {
-        $logger->info("this is a non-reevaluate-access violation, closing violation entry now");
-        require pf::violation;
-        pf::violation::violation_force_close( $mac, $vid );
+        $logger->info("this is a non-reevaluate-access security_event, closing security_event entry now");
+        require pf::security_event;
+        pf::security_event::security_event_force_close( $mac, $vid );
     }
     return (1);
 }
@@ -297,10 +297,10 @@ sub action_email_user {
         my $class_info  = class_view($vid);
         my $description = $class_info->{'description'};
 
-        my $additionnal_message = join('<br/>', split('\n', $pf::violation_config::Violation_Config{$vid}{user_mail_message}));
+        my $additionnal_message = join('<br/>', split('\n', $pf::security_event_config::SecurityEvent_Config{$vid}{user_mail_message}));
         my $to = $person->{email};
         pf::config::util::send_email(
-            'violation-triggered',
+            'security_event-triggered',
             $to,
             "$description detection on $mac",
             {
@@ -313,7 +313,7 @@ sub action_email_user {
         );
     }
     else {
-        get_logger->warn("Cannot send violation email for $vid as node we don't have the e-mail address of $node_info->{pid}");
+        get_logger->warn("Cannot send security_event email for $vid as node we don't have the e-mail address of $node_info->{pid}");
     }
 }
 
@@ -326,11 +326,11 @@ sub action_log {
     my $class_info  = class_view($vid);
     my $description = $class_info->{'description'};
 
-    #my $violation_info = violation_view($mac, $vid);
-    #my $date = $violation_info->{'start_date'};
+    #my $security_event_info = security_event_view($mac, $vid);
+    #my $date = $security_event_info->{'start_date'};
     my $date = mysql_date();
 
-    my $logfile = $violation_log;
+    my $logfile = $security_event_log;
     $logger->info(
         "$logfile $date: $description ($vid) detected on node $mac ($ip)");
     my $log_fh;
@@ -349,7 +349,7 @@ sub action_reevaluate_access {
 sub action_autoregister {
     my ($mac, $vid) = @_;
     my $logger = get_logger();
-    my $unregdate = access_duration($pf::violation_config::Violation_Config{$vid}{access_duration});
+    my $unregdate = access_duration($pf::security_event_config::SecurityEvent_Config{$vid}{access_duration});
     my ( $status, $status_msg );
 
     if(pf::node::is_node_registered($mac)){
@@ -370,22 +370,22 @@ sub action_autoregister {
 
 sub action_close {
    my ($mac, $vid) = @_;
-   #We need to fetch which violation id to close
+   #We need to fetch which security_event id to close
    my $class = class_view($vid);
 
    $logger->info("VID to close: $class->{'vclose'}");
 
    if (defined($class->{'vclose'})) {
-     my $result = violation_force_close($mac,$class->{'vclose'});
+     my $result = security_event_force_close($mac,$class->{'vclose'});
 
      # If close is a success, reevaluate the Access for the node
      if ($result) {
          pf::enforcement::reevaluate_access( $mac, "manage_vclose" );
      } else {
-        $logger->warn("No open violation was found for $mac and vid $class->{'vclose'}, won't do anything");
+        $logger->warn("No open security_event was found for $mac and vid $class->{'vclose'}, won't do anything");
      }
    } else {
-       $logger->warn("close action defined for violation $vid, but cannot tell which violation to close");
+       $logger->warn("close action defined for security_event $vid, but cannot tell which security_event to close");
    }
 }
 

@@ -7,7 +7,7 @@ pf::cmd::pf::class add documentation
 
 pfcmd class view <vid>
 
-view violation classification - to edit, use violations.conf and "pfcmd reload violations"
+view security_event classification - to edit, use security_events.conf and "pfcmd reload security_events"
 
 
 =head1 DESCRIPTION

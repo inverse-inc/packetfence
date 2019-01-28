@@ -1,15 +1,15 @@
-package pfconfig::namespaces::FilterEngine::Violation;
+package pfconfig::namespaces::FilterEngine::SecurityEvent;
 =head1 NAME
 
-pfconfig::namespaces::FilterEngine::Violation
+pfconfig::namespaces::FilterEngine::SecurityEvent
 
 =cut
 
 =head1 DESCRIPTION
 
-pfconfig::namespaces::FilterEngine::Violation
+pfconfig::namespaces::FilterEngine::SecurityEvent
 
-Creates the filter engine for triggering violations
+Creates the filter engine for triggering security_events
 
 =cut
 
@@ -17,8 +17,8 @@ use strict;
 use warnings;
 use pf::constants;
 use pfconfig::namespaces::config;
-use pfconfig::namespaces::config::Violations;
-use pf::factory::condition::violation;
+use pfconfig::namespaces::config::SecurityEvents;
+use pf::factory::condition::security_event;
 use pf::condition::any;
 use pf::condition::false;
 use pf::filter;
@@ -30,32 +30,32 @@ use base 'pfconfig::namespaces::resource';
 
 sub init {
     my ($self) = @_;
-    $self->{child_resources} = [ 'resource::accounting_triggers', 'resource::bandwidth_expired_violations' ];
+    $self->{child_resources} = [ 'resource::accounting_triggers', 'resource::bandwidth_expired_security_events' ];
 }
 
 sub build {
     my ($self) = @_;
 
-    my $config_violations = pfconfig::namespaces::config::Violations->new( $self->{cache} );
-    my %Violations_Config = %{ $config_violations->build };
+    my $config_security_events = pfconfig::namespaces::config::SecurityEvents->new( $self->{cache} );
+    my %SecurityEvents_Config = %{ $config_security_events->build };
     $self->{accounting_triggers} = [];
-    $self->{bandwidth_expired_violations} = [];
+    $self->{bandwidth_expired_security_events} = [];
     $self->{invalid_triggers} = {};
 
     my @filters;
-    while (my ($violation, $violation_config) = each %Violations_Config) {
+    while (my ($security_event, $security_event_config) = each %SecurityEvents_Config) {
         my @conditions;
-        my $violation_condition;
-        next unless (isenabled($violation_config->{enabled}) && defined($violation_config->{trigger}));
-        foreach my $trigger (split(/\s*,\s*/, $violation_config->{trigger})) {
+        my $security_event_condition;
+        next unless (isenabled($security_event_config->{enabled}) && defined($security_event_config->{trigger}));
+        foreach my $trigger (split(/\s*,\s*/, $security_event_config->{trigger})) {
             my $condition;
-            eval {$condition = pf::factory::condition::violation->instantiate($trigger);};
+            eval {$condition = pf::factory::condition::security_event->instantiate($trigger);};
             if ($@) {
                 get_logger->error("Invalid trigger $trigger. Error was : $@");
-                unless ($self->{invalid_triggers}->{$violation}) {
-                    $self->{invalid_trigger}->{$violation} = [];
+                unless ($self->{invalid_triggers}->{$security_event}) {
+                    $self->{invalid_trigger}->{$security_event} = [];
                 }
-                push @{$self->{invalid_triggers}->{$violation}}, $trigger;
+                push @{$self->{invalid_triggers}->{$security_event}}, $trigger;
             }
             else {
                 push @conditions, $condition;
@@ -64,15 +64,15 @@ sub build {
             while ($trigger =~ /(accounting::.*?)([,)&]{1}|$)/gi) {
                 push @{$self->{accounting_triggers}}, {
                     trigger   => (split('::', $1))[1],
-                    violation => $violation
+                    security_event => $security_event
                   };
             }
             if ($trigger =~ /accounting::BandwidthExpired/i) {
-                push @{$self->{bandwidth_expired_violations}}, $violation;
+                push @{$self->{bandwidth_expired_security_events}}, $security_event;
             }
         }
-        $violation_condition = pf::condition::any->new({conditions => \@conditions});
-        push @filters, pf::filter->new({answer => $violation, condition => $violation_condition});
+        $security_event_condition = pf::condition::any->new({conditions => \@conditions});
+        push @filters, pf::filter->new({answer => $security_event, condition => $security_event_condition});
     }
     my $engine = pf::filter_engine->new({ filters => \@filters });
     return $engine;

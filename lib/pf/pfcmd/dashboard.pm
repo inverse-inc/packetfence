@@ -19,9 +19,9 @@ BEGIN {
         $dashboard_db_prepared
         dashboard_db_prepare
 
-        nugget_recent_violations
-        nugget_recent_violations_opened
-        nugget_recent_violations_closed
+        nugget_recent_security_events
+        nugget_recent_security_events_opened
+        nugget_recent_security_events_closed
         nugget_recent_registrations
         nugget_current_grace
         nugget_current_activity
@@ -33,14 +33,14 @@ use pf::dal;
 use pf::error qw(is_error);
 use pf::pfcmd::report;
 
-our $nugget_recent_violations_sql =
-        qq [ select v.mac,v.start_date,c.description as violation from violation v left join class c on v.vid=c.vid where unix_timestamp(start_date) > unix_timestamp(now()) - ? * 3600 order by start_date desc limit 10 ];
+our $nugget_recent_security_events_sql =
+        qq [ select v.mac,v.start_date,c.description as security_event from security_event v left join class c on v.vid=c.vid where unix_timestamp(start_date) > unix_timestamp(now()) - ? * 3600 order by start_date desc limit 10 ];
 
-our $nugget_recent_violations_opened_sql =
-        qq [ select v.mac,v.start_date,c.description as violation from violation v left join class c on v.vid=c.vid where unix_timestamp(start_date) > unix_timestamp(now()) - ? * 3600 and v.status="open" order by start_date desc limit 10 ];
+our $nugget_recent_security_events_opened_sql =
+        qq [ select v.mac,v.start_date,c.description as security_event from security_event v left join class c on v.vid=c.vid where unix_timestamp(start_date) > unix_timestamp(now()) - ? * 3600 and v.status="open" order by start_date desc limit 10 ];
 
-our $nugget_recent_violations_closed_sql =
-        qq [ select v.mac,v.start_date,c.description as violation from violation v left join class c on v.vid=c.vid where unix_timestamp(start_date) > unix_timestamp(now()) - ? * 3600 and v.status="closed" order by start_date desc limit 10 ];
+our $nugget_recent_security_events_closed_sql =
+        qq [ select v.mac,v.start_date,c.description as security_event from security_event v left join class c on v.vid=c.vid where unix_timestamp(start_date) > unix_timestamp(now()) - ? * 3600 and v.status="closed" order by start_date desc limit 10 ];
 
 our $nugget_recent_registrations_sql =
         qq [ select n.pid,n.mac,n.regdate from node n where n.status="reg" and unix_timestamp(regdate) > unix_timestamp(now()) - ? * 3600 order by regdate desc limit 10 ];
@@ -49,9 +49,9 @@ our $nugget_current_grace_sql =
         qq [ select n.pid,n.lastskip from node n where status="grace" order by n.lastskip desc limit 10 ];
 
 
-sub nugget_recent_violations {
+sub nugget_recent_security_events {
     my ($interval) = @_;
-    return _db_data($nugget_recent_violations_sql, $interval);
+    return _db_data($nugget_recent_security_events_sql, $interval);
 }
 
 sub _db_data {
@@ -63,14 +63,14 @@ sub _db_data {
     return @{$sth->fetchall_arrayref() // []};
 }
 
-sub nugget_recent_violations_opened {
+sub nugget_recent_security_events_opened {
     my ($interval) = @_;
-    return _db_data($nugget_recent_violations_opened_sql, $interval);
+    return _db_data($nugget_recent_security_events_opened_sql, $interval);
 }
 
-sub nugget_recent_violations_closed {
+sub nugget_recent_security_events_closed {
     my ($interval) = @_;
-    return _db_data($nugget_recent_violations_closed_sql, $interval);
+    return _db_data($nugget_recent_security_events_closed_sql, $interval);
 }
 
 sub nugget_recent_registrations {

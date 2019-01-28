@@ -16,7 +16,7 @@ use strict;
 use warnings;
 
 use pf::log;
-use pf::violation;
+use pf::security_event;
 use pf::constants::parking qw($PARKING_VID $PARKING_DHCP_GROUP_NAME $PARKING_IPSET_NAME);
 use pf::constants;
 use pf::config qw(%Config);
@@ -26,14 +26,14 @@ use pf::api::unifiedapiclient;
 =head2 trigger_parking
 
 Trigger the parking actions for a device if needed
-Will check if there is already a parking violation opened, if not, will open one
+Will check if there is already a parking security_event opened, if not, will open one
 Will make sure the proper parking actions are applied
 
 =cut
 
 sub trigger_parking {
     my ($mac,$ip) = @_;
-    if(violation_count_open_vid($mac, $PARKING_VID) || violation_trigger( { mac => $mac, tid => 'parking_detected', type => 'INTERNAL' } )){
+    if(security_event_count_open_vid($mac, $PARKING_VID) || security_event_trigger( { mac => $mac, tid => 'parking_detected', type => 'INTERNAL' } )){
         park($mac,$ip);
     }
 }
@@ -64,18 +64,18 @@ sub park {
 
 =head2 unpark
 
-Attempt to unpark a device. The parking violation needs to be successfully closed for the actions to be removed.
+Attempt to unpark a device. The parking security_event needs to be successfully closed for the actions to be removed.
 
 =cut
 
 sub unpark {
     my ($mac,$ip) = @_;
-    if(violation_close($mac, $PARKING_VID) != -1){
+    if(security_event_close($mac, $PARKING_VID) != -1){
         remove_parking_actions($mac,$ip);
         return $TRUE;
     }
     else {
-        get_logger->info("Device $mac cannot be unparked since the violation cannot be closed");
+        get_logger->info("Device $mac cannot be unparked since the security_event cannot be closed");
         return $FALSE;
     }
 }

@@ -1,33 +1,33 @@
-package pf::ConfigStore::Violations;
+package pf::ConfigStore::SecurityEvents;
 
 =head1 NAME
 
-pf::ConfigStore::Violations
+pf::ConfigStore::SecurityEvents
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::ConfigStore::Violations
+pf::ConfigStore::SecurityEvents
 
 =cut
 
 use Moo;
 use namespace::autoclean;
 use pf::file_paths qw(
-    $violations_config_file
-    $violations_default_config_file
+    $security_events_config_file
+    $security_events_default_config_file
 );
 
-use pf::violation_config;
+use pf::security_event_config;
 
 extends 'pf::ConfigStore';
 
-sub configFile { $violations_config_file }
+sub configFile { $security_events_config_file }
 
-sub importConfigFile { $violations_default_config_file };
+sub importConfigFile { $security_events_default_config_file };
 
-sub pfconfigNamespace { 'config::Violations' }
+sub pfconfigNamespace { 'config::SecurityEvents' }
 
 sub default_section { 'defaults' }
 
@@ -40,9 +40,9 @@ remove
 =cut
 
 sub remove {
-    my ($self,$id,$violation) = @_;
+    my ($self,$id,$security_event) = @_;
     return undef if (int($id) < 1500000);
-    return $self->SUPER::remove($id,$violation);
+    return $self->SUPER::remove($id,$security_event);
 }
 
 =head2 listTriggers
@@ -55,11 +55,11 @@ sub listTriggers {
     my ($self) = @_;
     my ($trigger, %triggers);
     my $cachedConfig = $self->cachedConfig;
-    foreach my $violation ($cachedConfig->Sections()) {
-        $trigger = $cachedConfig->val($violation, 'trigger');
+    foreach my $security_event ($cachedConfig->Sections()) {
+        $trigger = $cachedConfig->val($security_event, 'trigger');
         if (defined($trigger)) {
-            my @violation_triggers = $self->split_list($trigger);
-            @triggers{@violation_triggers} = ();
+            my @security_event_triggers = $self->split_list($trigger);
+            @triggers{@security_event_triggers} = ();
 
         }
     }
@@ -129,18 +129,18 @@ sub deleteTrigger {
 
 =head2 cleanupAfterRead
 
-Clean up violation
+Clean up security_event
 
 =cut
 
 sub cleanupAfterRead {
-    my ($self, $id, $violation) = @_;
-    $self->expand_list($violation, qw(actions whitelisted_roles));
-    if($violation->{user_mail_message} && ref($violation->{user_mail_message}) eq 'ARRAY'){
-        $violation->{user_mail_message} = join("\n", @{$violation->{user_mail_message}});
+    my ($self, $id, $security_event) = @_;
+    $self->expand_list($security_event, qw(actions whitelisted_roles));
+    if($security_event->{user_mail_message} && ref($security_event->{user_mail_message}) eq 'ARRAY'){
+        $security_event->{user_mail_message} = join("\n", @{$security_event->{user_mail_message}});
     }
-    if ( exists $violation->{window} ) {
-        $violation->{'window_dynamic'} = $violation->{window};
+    if ( exists $security_event->{window} ) {
+        $security_event->{'window_dynamic'} = $security_event->{window};
     }
 }
 
@@ -151,18 +151,18 @@ Clean data before update or creating
 =cut
 
 sub cleanupBeforeCommit {
-    my ($self, $id, $violation) = @_;
-    $self->flatten_list($violation, qw(actions trigger whitelisted_roles));
-    if ($violation->{'window_dynamic'}) {
-        $violation->{'window'} = 'dynamic';
+    my ($self, $id, $security_event) = @_;
+    $self->flatten_list($security_event, qw(actions trigger whitelisted_roles));
+    if ($security_event->{'window_dynamic'}) {
+        $security_event->{'window'} = 'dynamic';
     }
-    delete $violation->{'window_dynamic'};
+    delete $security_event->{'window_dynamic'};
 }
 
 sub commit {
     my ( $self ) = @_;
     my ($result,$msg) = $self->SUPER::commit();
-    pf::violation_config::loadViolationsIntoDb();
+    pf::security_event_config::loadSecurityEventsIntoDb();
     return ($result,$msg);
 }
 

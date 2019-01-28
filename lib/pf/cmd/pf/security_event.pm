@@ -1,27 +1,27 @@
-package pf::cmd::pf::violation;
+package pf::cmd::pf::security_event;
 =head1 NAME
 
-pf::cmd::pf::violation
+pf::cmd::pf::security_event
 
 =head1 SYNOPSIS
 
- pfcmd violation add [--json] [--force] <mac> <vid>
- pfcmd violation close <mac> <vid>
- pfcmd violation trigger <mac> <trigger-type> <trigger-id>
+ pfcmd security_event add [--json] [--force] <mac> <vid>
+ pfcmd security_event close <mac> <vid>
+ pfcmd security_event trigger <mac> <trigger-type> <trigger-id>
 
  mac - the MAC address of the device
- vid - the violation identifier (section header in violations.conf)
- trigger-type - the type of the violation trigger (user_agent, dhcp_fingerprint, internal, suricata_event, etc)
- trigger-id - the ID of the violation trigger
+ vid - the security_event identifier (section header in security_events.conf)
+ trigger-type - the type of the security_event trigger (user_agent, dhcp_fingerprint, internal, suricata_event, etc)
+ trigger-id - the ID of the security_event trigger
 
  examples:
-  pfcmd violation add 00:11:22:33:44:55 1100007
-  pfcmd violation close 00:11:22:33:44:55 1100007
-  pfcmd violation trigger 00:11:22:33:44:55 suricata_event 'ET P2P'
+  pfcmd security_event add 00:11:22:33:44:55 1100007
+  pfcmd security_event close 00:11:22:33:44:55 1100007
+  pfcmd security_event trigger 00:11:22:33:44:55 suricata_event 'ET P2P'
 
 =head1 DESCRIPTION
 
-Add/Delete violations
+Add/Delete security_events
 
 =cut
 
@@ -32,7 +32,7 @@ use base qw(pf::base::cmd::action_cmd);
 use pf::util;
 use pf::class;
 use pf::constants qw($TRUE);
-use pf::violation;
+use pf::security_event;
 use pf::constants::exit_code qw($EXIT_SUCCESS $EXIT_FAILURE);
 use pf::cmd::help;
 use JSON::MaybeXS;
@@ -67,7 +67,7 @@ sub parse_add {
         return 0;
     }
     unless(defined(class_view($vid))) {
-        print STDERR "Invalid violation ID\n";
+        print STDERR "Invalid security_event ID\n";
         return 0;
     }
     $self->{mac} = $mac;
@@ -88,14 +88,14 @@ sub validate_mac {
 sub validate_vid {
     my ($self, $vid) = @_;
     unless(defined(class_view($vid))) {
-        print STDERR "Invalid violation ID\n";
+        print STDERR "Invalid security_event ID\n";
         $self->showHelp();
     }
 }
 
 =head2 action_close
 
-handles 'pfcmd violation close' command
+handles 'pfcmd security_event close' command
 
 =cut
 
@@ -103,7 +103,7 @@ sub action_close {
     my ($self) = @_;
     my @params = $self->action_args;
     if( @params >= 2 && $self->validate_mac($params[0]) && $self->validate_vid($params[1]) ) {
-        my ($result) = violation_force_close(@params);
+        my ($result) = security_event_force_close(@params);
     }
     else {
         print STDERR "Insuficent or invalid parameters supplied.\n";
@@ -114,7 +114,7 @@ sub action_close {
 
 =head2 action_trigger
 
-handles 'pfcmd violation trigger' command
+handles 'pfcmd security_event trigger' command
 
 =cut
 
@@ -122,7 +122,7 @@ sub action_trigger {
     my ($self) = @_;
     my @params = $self->action_args;
     if( @params >= 3 && $self->validate_mac($params[0]) ) {
-        violation_trigger({mac => $params[0], type => $params[1], tid => $params[2]});
+        security_event_trigger({mac => $params[0], type => $params[1], tid => $params[2]});
     }
     else {
         print STDERR "Insuficent or invalid parameters supplied.\n";
@@ -133,15 +133,15 @@ sub action_trigger {
 
 =head2 action_add
 
-handles 'pfcmd violation add' command
+handles 'pfcmd security_event add' command
 
 =cut
 
 sub action_add {
     my ($self) = @_;
-    my ($id) = violation_add($self->{mac}, $self->{vid}, $self->{force} ? (force => $TRUE ) : ());
-    my @warnings = violation_last_warnings();
-    my @errors   = violation_last_errors();
+    my ($id) = security_event_add($self->{mac}, $self->{vid}, $self->{force} ? (force => $TRUE ) : ());
+    my @warnings = security_event_last_warnings();
+    my @errors   = security_event_last_errors();
     if ($self->{json}) {
         my %json;
         $json{'id'}       = $id if $id > 0;

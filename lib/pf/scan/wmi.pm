@@ -25,7 +25,7 @@ use pf::scan;
 use pf::util;
 use pf::node;
 use pf::scan::wmi::rules;
-use pf::violation qw(violation_close);
+use pf::security_event qw(security_event_close);
 use pf::api::jsonrpcclient;
 
 sub description { 'WMI Scanner' }
@@ -94,7 +94,7 @@ sub startScan {
        'vid' => $scan_vid,
        'mac' => $self->{'_scanMac'},
     );
-    $apiclient->notify('close_violation', %data );
+    $apiclient->notify('close_security_event', %data );
 
     $self->setStatus($pf::constants::scan::STATUS_CLOSED);
     $self->statusReportSyncToDb();

@@ -51,7 +51,7 @@ use pf::Switch;
 use pf::SwitchFactory;
 use pf::util;
 use pf::config::util;
-use pf::violation;
+use pf::security_event;
 use pf::role::custom $ROLE_API_LEVEL;
 use pf::floatingdevice::custom;
 # constants used by this module are provided by
@@ -442,13 +442,13 @@ sub accounting {
                         $logger->info("Session status: duration is $session_time secs ($time_balance secs left)");
                     }
                     if ($time_balance == 0) {
-                        # Trigger violation
-                        my %violation_data = (
+                        # Trigger security_event
+                        my %security_event_data = (
                             'mac'   => $mac,
                             'tid'   => $ACCOUNTING_POLICY_TIME,
                             'type'  => $TRIGGER_TYPE_ACCOUNTING ,
                         );
-                        $apiclient->notify('trigger_violation', %violation_data );
+                        $apiclient->notify('trigger_security_event', %security_event_data );
                     }
                 }
                 if (defined $node_attributes->{'bandwidth_balance'} && (  $input_octets > 0 || $output_octets > 0)) {
@@ -462,13 +462,13 @@ sub accounting {
                         $logger->info("Session status: data is $total_octets octets ($bandwidth_balance octets left)");
                     }
                     if ($bandwidth_balance == 0) {
-                        # Trigger violation
-                        my %violation_data = (
+                        # Trigger security_event
+                        my %security_event_data = (
                             'mac'   => $mac,
                             'tid'   => $ACCOUNTING_POLICY_BANDWIDTH,
                             'type'  => $TRIGGER_TYPE_ACCOUNTING ,
                         );
-                        $apiclient->notify('trigger_violation', %violation_data );
+                        $apiclient->notify('trigger_security_event', %security_event_data );
                     }
                 }
             }

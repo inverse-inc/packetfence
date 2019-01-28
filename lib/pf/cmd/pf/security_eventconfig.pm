@@ -1,26 +1,26 @@
-package pf::cmd::pf::violationconfig;
+package pf::cmd::pf::security_eventconfig;
 =head1 NAME
 
-pf::cmd::pf::violationconfig add documentation
+pf::cmd::pf::security_eventconfig add documentation
 
 =head1 SYNOPSIS
 
- pfcmd violationconfig get <all|defaults|vid>
-       pfcmd violationconfig add <vid> [assignments]
-       pfcmd violationconfig edit <vid> [assignments]
-       pfcmd violationconfig delete <vid>
+ pfcmd security_eventconfig get <all|defaults|vid>
+       pfcmd security_eventconfig add <vid> [assignments]
+       pfcmd security_eventconfig edit <vid> [assignments]
+       pfcmd security_eventconfig delete <vid>
 
-query/modify violations.conf configuration file
+query/modify security_events.conf configuration file
 
 =head1 DESCRIPTION
 
-pf::cmd::pf::violationconfig
+pf::cmd::pf::security_eventconfig
 
 =cut
 
 use strict;
 use warnings;
-use pf::ConfigStore::Violations;
+use pf::ConfigStore::SecurityEvents;
 use base qw(pf::base::cmd::config_store);
 
 our @FIELDS = qw(
@@ -33,7 +33,7 @@ our @FIELDS = qw(
 
 our %VALID_FIELDS = map { $_ => 1  } @FIELDS;
 
-sub configStoreName { "pf::ConfigStore::Violations" }
+sub configStoreName { "pf::ConfigStore::SecurityEvents" }
 
 sub display_fields { @FIELDS }
 

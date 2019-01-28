@@ -117,7 +117,7 @@ use pf::web::util;
 use pf::util;
 use pf::node;
 use pf::util::radius qw(perform_coa perform_disconnect);
-use pf::violation qw(violation_count_reevaluate_access);
+use pf::security_event qw(security_event_count_reevaluate_access);
 use pf::radius::constants;
 use pf::locationlog qw(locationlog_get_session);
 
@@ -526,7 +526,7 @@ sub radiusDisconnect {
         $attributes_ref = { %$attributes_ref, %$add_attributes_ref };
 
         # Roles are configured and the user should have one.
-        # We send a regular disconnect if there is an open trapping violation
+        # We send a regular disconnect if there is an open trapping security_event
         # to ensure the VLAN is actually changed to the isolation VLAN.
         if ( $self->shouldUseCoA({role => $role}) ) {
             $logger->info("Returning ACCEPT with Role: $role");

@@ -132,7 +132,7 @@ sub _handler {
     # Captive-portal resources
     # We don't want to continue in the dispatcher if the requested URI is supposed to reach the captive-portal (Catalyst)
     # - Captive-portal itself
-    # - Violation pages
+    # - SecurityEvent pages
     # - Connection profile filters are handled by Catalyst
     # See L<pf::web::constants::CAPTIVE_PORTAL_RESOURCES>
     if ( $uri =~ /$WEB::CAPTIVE_PORTAL_RESOURCES/o ) {

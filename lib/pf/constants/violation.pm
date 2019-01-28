@@ -1,14 +1,14 @@
-package pf::constants::violation;
+package pf::constants::security_event;
 
 =head1 NAME
 
-pf::constants::violation - constants for violation
+pf::constants::security_event - constants for security_event
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::constants::violation
+pf::constants::security_event
 
 =cut
 

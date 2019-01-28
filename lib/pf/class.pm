@@ -2,13 +2,13 @@ package pf::class;
 
 =head1 NAME
 
-pf::class - module to manage the violation classes.
+pf::class - module to manage the security_event classes.
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::class contains the functions necessary to manage the violation classes.
+pf::class contains the functions necessary to manage the security_event classes.
 
 =cut
 
@@ -83,7 +83,7 @@ sub class_merge {
     my $whitelisted_roles = pop(@_);
     my $logger = get_logger();
 
-    # delete existing violation actions
+    # delete existing security_event actions
     if ( !pf::action::action_delete_all($id) ) {
         $logger->error("error deleting actions for class $id");
         return (0);

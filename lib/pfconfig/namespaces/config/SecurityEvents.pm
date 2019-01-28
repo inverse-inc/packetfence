@@ -1,16 +1,16 @@
-package pfconfig::namespaces::config::Violations;
+package pfconfig::namespaces::config::SecurityEvents;
 
 =head1 NAME
 
-pfconfig::namespaces::config::Violations
+pfconfig::namespaces::config::SecurityEvents
 
 =cut
 
 =head1 DESCRIPTION
 
-pfconfig::namespaces::config::Violations
+pfconfig::namespaces::config::SecurityEvents
 
-This module creates the configuration hash associated to violations.conf
+This module creates the configuration hash associated to security_events.conf
 
 =cut
 
@@ -19,18 +19,18 @@ use warnings;
 
 use pfconfig::namespaces::config;
 use pf::file_paths qw(
-    $violations_config_file
-    $violations_default_config_file
+    $security_events_config_file
+    $security_events_default_config_file
 );
 
 use base 'pfconfig::namespaces::config';
 
 sub init {
     my ($self) = @_;
-    $self->{file}            = $violations_config_file;
+    $self->{file}            = $security_events_config_file;
     $self->{default_section} = "defaults";
-    $self->{child_resources} = [ 'FilterEngine::Violation' ];
-    my $defaults = pf::IniFiles->new(-file => $violations_default_config_file);
+    $self->{child_resources} = [ 'FilterEngine::SecurityEvent' ];
+    my $defaults = pf::IniFiles->new(-file => $security_events_default_config_file);
     $self->{added_params}{'-import'} = $defaults;
 }
 

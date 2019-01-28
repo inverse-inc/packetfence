@@ -1,15 +1,15 @@
-package pf::factory::condition::violation;
+package pf::factory::condition::security_event;
 =head1 NAME
 
-pf::factory::condition::violation
+pf::factory::condition::security_event
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::factory::condition::violation
+pf::factory::condition::security_event
 
-Create the list of conditions for the filter engine based on the triggers of a violation
+Create the list of conditions for the filter engine based on the triggers of a security_event
 
 =cut
 

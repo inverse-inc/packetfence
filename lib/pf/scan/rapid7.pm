@@ -24,7 +24,7 @@ use pf::config;
 use pf::scan;
 use pf::util;
 use pf::node;
-use pf::violation qw(violation_close);
+use pf::security_event qw(security_event_close);
 use LWP::UserAgent;
 use HTTP::Request;
 use pf::api::jsonrpcclient;
@@ -166,7 +166,7 @@ sub startScan {
        'vid' => $scan_vid,
        'mac' => $self->{'_scanMac'},
     );
-    $apiclient->notify('close_violation', %data );
+    $apiclient->notify('close_security_event', %data );
 
     $self->setStatus($pf::constants::scan::STATUS_CLOSED);
     $self->statusReportSyncToDb();

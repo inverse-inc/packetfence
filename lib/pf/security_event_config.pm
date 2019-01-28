@@ -1,14 +1,14 @@
-package pf::violation_config;
+package pf::security_event_config;
 
 =head1 NAME
 
-pf::violation_config
+pf::security_event_config
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::violation_config
+pf::security_event_config
 
 =cut
 
@@ -24,9 +24,9 @@ use pfconfig::cached_hash;
 use pf::util;
 use pf::dal::class;
 
-our (%Violation_Config);
+our (%SecurityEvent_Config);
 
-tie %Violation_Config, 'pfconfig::cached_hash', 'config::Violations';
+tie %SecurityEvent_Config, 'pfconfig::cached_hash', 'config::SecurityEvents';
 
 
 BEGIN {
@@ -34,10 +34,10 @@ BEGIN {
     our ( @ISA, @EXPORT );
     @ISA = qw(Exporter);
     # Categorized by feature, pay attention when modifying
-    @EXPORT = qw(%Violation_Config);
+    @EXPORT = qw(%SecurityEvent_Config);
 }
 
-sub loadViolationsIntoDb {
+sub loadSecurityEventsIntoDb {
     my $logger = get_logger();
     unless(db_ping){
         $logger->error("Can't connect to db");
@@ -45,14 +45,14 @@ sub loadViolationsIntoDb {
     }
 
     if (db_readonly_mode()) {
-        my $msg = "Cannot reload violations when the database is in read only mode\n";
+        my $msg = "Cannot reload security_events when the database is in read only mode\n";
         print STDERR $msg;
         $logger->error($msg);
         return;
     }
 
     my @keys;
-    while(my ($violation,$data) = each %Violation_Config) {
+    while(my ($security_event,$data) = each %SecurityEvent_Config) {
         # parse grace, try to understand trailing signs, and convert back to seconds
         my @time_values = qw(grace delay_by);
         push (@time_values,'window') if (defined $data->{'window'} && $data->{'window'} ne "dynamic");
@@ -63,11 +63,11 @@ sub loadViolationsIntoDb {
             }
         }
 
-        $violation = 0 if ($violation eq "defaults");
+        $security_event = 0 if ($security_event eq "defaults");
 
         # be careful of the way parameters are passed, whitelists, actions are expected at the end
         class_merge(
-            $violation,
+            $security_event,
             $data->{'desc'} || '',
             $data->{'auto_enable'},
             $data->{'max_enable'},
@@ -87,12 +87,12 @@ sub loadViolationsIntoDb {
             $data->{'whitelisted_roles'} || '',
             $data->{'actions'},
         );
-        push @keys, $violation;
+        push @keys, $security_event;
     }
-    remove_deleted_violations(\@keys);
+    remove_deleted_security_events(\@keys);
 }
 
-sub remove_deleted_violations {
+sub remove_deleted_security_events {
     my ($ids) = @_;
     my ($status, $rows) = pf::dal::class->remove_items(
         -where => {

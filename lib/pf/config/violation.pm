@@ -1,14 +1,14 @@
-package pf::config::violation;
+package pf::config::security_event;
 
 =head1 NAME
 
-pf::config::violation -
+pf::config::security_event -
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::config::violation
+pf::config::security_event
 
 =cut
 
@@ -16,7 +16,7 @@ use strict;
 use warnings;
 use pfconfig::cached_array;
 
-tie our @BANDWIDTH_EXPIRED_VIOLATIONS, 'pfconfig::cached_array' => 'resource::bandwidth_expired_violations';
+tie our @BANDWIDTH_EXPIRED_SECURITY_EVENTS, 'pfconfig::cached_array' => 'resource::bandwidth_expired_security_events';
 tie our @ACCOUNTING_TRIGGERS, 'pfconfig::cached_array' => 'resource::accounting_triggers';
 
 BEGIN {
@@ -24,7 +24,7 @@ BEGIN {
     our ( @ISA, @EXPORT );
     @ISA = qw(Exporter);
     @EXPORT = qw(
-        @BANDWIDTH_EXPIRED_VIOLATIONS
+        @BANDWIDTH_EXPIRED_SECURITY_EVENTS
         @ACCOUNTING_TRIGGERS
     );
 }

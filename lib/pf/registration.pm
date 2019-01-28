@@ -22,7 +22,7 @@ use pf::StatsD::Timer;
 use pf::log;
 use pf::person;
 use pf::lookup::person;
-use pf::violation;
+use pf::security_event;
 use pf::constants::node qw($STATUS_REGISTERED);
 use pf::util;
 use pf::util::statsd qw(called);
@@ -68,10 +68,10 @@ sub finalize_node_registration {
     my ($node, $info, $options, $context) = @_;
 
     do_person_create($node, $info, $context);
-    # Closing any parking violations
-    pf::violation::violation_force_close($node->mac, $PARKING_VID);
+    # Closing any parking security_events
+    pf::security_event::security_event_force_close($node->mac, $PARKING_VID);
 
-    do_violation_scans($node, $options);
+    do_security_event_scans($node, $options);
 
     return ;
 }
@@ -96,27 +96,27 @@ sub do_person_create {
     }
 }
 
-=head2 do_violation_scans
+=head2 do_security_event_scans
 
-do violation scans for a node
+do security_event scans for a node
 
 =cut
 
-sub do_violation_scans {
+sub do_security_event_scans {
     my ($node_obj, $options) = @_;
     my $mac = $node_obj->mac;
     my $logger = get_logger();
     my $profile = pf::Connection::ProfileFactory->instantiate($node_obj, $options);
     my $scan = $profile->findScan($mac);
     if (defined($scan)) {
-        # triggering a violation used to communicate the scan to the user
+        # triggering a security_event used to communicate the scan to the user
         if ( isenabled($scan->{'registration'})) {
             $logger->debug("Triggering on registration scan");
-            pf::violation::violation_add( $mac, $SCAN_VID );
+            pf::security_event::security_event_add( $mac, $SCAN_VID );
         }
         if (isenabled($scan->{'post_registration'})) {
             $logger->debug("Triggering post-registration scan");
-            pf::violation::violation_add( $mac, $POST_SCAN_VID );
+            pf::security_event::security_event_add( $mac, $POST_SCAN_VID );
         }
     }
     return ;
