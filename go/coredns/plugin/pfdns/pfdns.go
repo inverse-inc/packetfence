@@ -33,7 +33,7 @@ type pfdns struct {
 	IP4log            *sql.Stmt // prepared statement for ip4log queries
 	IP6log            *sql.Stmt // prepared statement for ip6log queries
 	Nodedb            *sql.Stmt // prepared statement for node table queries
-	Violation         *sql.Stmt // prepared statement for violation
+	SecurityEvent     *sql.Stmt // prepared statement for security_event
 	Bh                bool      //  whether blackholing is enabled or not
 	BhIP              net.IP
 	BhCname           string
@@ -81,17 +81,17 @@ func (pf *pfdns) Ip2Mac(ctx context.Context, ip string, ipVersion int) (string, 
 	return mac, err
 }
 
-func (pf *pfdns) HasViolations(ctx context.Context, mac string) bool {
-	violation := false
-	var violationCount int
-	err := pf.Violation.QueryRow(mac, 1).Scan(&violationCount)
+func (pf *pfdns) HasSecurityEvents(ctx context.Context, mac string) bool {
+	security_event := false
+	var securityEventCount int
+	err := pf.SecurityEvent.QueryRow(mac, 1).Scan(&securityEventCount)
 	if err != nil {
-		log.LoggerWContext(ctx).Error(fmt.Sprintf("HasViolation %s %s\n", mac, err))
-	} else if violationCount != 0 {
-		violation = true
+		log.LoggerWContext(ctx).Error(fmt.Sprintf("HasSecurityEvent %s %s\n", mac, err))
+	} else if securityEventCount != 0 {
+		security_event = true
 	}
 
-	return violation
+	return security_event
 }
 
 // ServeDNS implements the middleware.Handler interface.
@@ -151,8 +151,8 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 		}
 	}
 
-	violation := pf.HasViolations(ctx, mac)
-	if violation {
+	security_event := pf.HasSecurityEvents(ctx, mac)
+	if security_event {
 		// Passthrough bypass
 		for k, v := range pf.FqdnIsolationPort {
 			if k.MatchString(state.QName()) {
@@ -234,7 +234,7 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 					log.LoggerWContext(ctx).Error(fmt.Sprintf("error getting node status %s %s\n", mac, err))
 				}
 				// Defer to the proxy middleware if the device is registered
-				if status == "reg" && !violation && category != "REJECT" {
+				if status == "reg" && !security_event && category != "REJECT" {
 					log.LoggerWContext(ctx).Debug(srcIP + " : " + mac + " serve dns " + state.QName())
 					return pf.Next.ServeDNS(ctx, w, r)
 				} else if status == "reg" && category == "REJECT" {
@@ -246,7 +246,7 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 					return 0, nil
 				}
 			}
-			cacheKey := pf.MakeKeyCache(mac, category, violation, state.QName())
+			cacheKey := pf.MakeKeyCache(mac, category, security_event, state.QName())
 			answer, found := pf.DNSFilter.Get(cacheKey)
 			if found && answer != "null" {
 				log.LoggerWContext(ctx).Debug("Get answer from the cache for " + state.QName())
@@ -570,9 +570,9 @@ func (pf *pfdns) DbInit() error {
 		return err
 	}
 
-	pf.Violation, err = pf.Db.Prepare("Select count(*) from violation, action where violation.vid=action.vid and action.action='reevaluate_access' and mac=? and status='open' AND tenant_id = ?")
+	pf.SecurityEvent, err = pf.Db.Prepare("Select count(*) from security_event, action where security_event.vid=action.vid and action.action='reevaluate_access' and mac=? and status='open' AND tenant_id = ?")
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "pfdns: database violation prepared statement error: %s", err)
+		fmt.Fprintf(os.Stderr, "pfdns: database security_event prepared statement error: %s", err)
 		return err
 	}
 
@@ -642,6 +642,6 @@ func (pf *pfdns) PortalFQDNInit() error {
 	return nil
 }
 
-func (pf *pfdns) MakeKeyCache(mac string, category string, violation bool, qname string) string {
-	return mac + category + strconv.FormatBool(violation) + qname
+func (pf *pfdns) MakeKeyCache(mac string, category string, security_event bool, qname string) string {
+	return mac + category + strconv.FormatBool(security_event) + qname
 }

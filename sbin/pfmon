@@ -47,7 +47,7 @@ use pf::db;
 use pf::services;
 use pf::util;
 use pf::services::util;
-use pf::violation qw(violation_maintenance);
+use pf::security_event qw(security_event_maintenance);
 use pf::ConfigStore::Provisioning;
 use pf::factory::provisioner;
 use pf::SwitchFactory;

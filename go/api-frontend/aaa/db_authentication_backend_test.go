@@ -164,7 +164,7 @@ import _ "github.com/go-sql-driver/mysql"
 //
 //	// Test having multiple roles
 //	ti = dab.buildTokenInfo(ctx, &ApiUser{
-//		AccessLevel: "Node Manager, Violation Manager",
+//		AccessLevel: "Node Manager, SecurityEvent Manager",
 //	})
 //
 //	if len(ti.AdminActions) != 9 {
