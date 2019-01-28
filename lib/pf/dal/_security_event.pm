@@ -1,16 +1,16 @@
-package pf::dal::_violation;
+package pf::dal::_security_event;
 
 =head1 NAME
 
-pf::dal::_violation - pf::dal implementation for the table violation
+pf::dal::_security_event - pf::dal implementation for the table security_event
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::dal::_violation
+pf::dal::_security_event
 
-pf::dal implementation for the table violation
+pf::dal implementation for the table security_event
 
 =cut
 
@@ -18,8 +18,8 @@ use strict;
 use warnings;
 
 ###
-### pf::dal::_violation is auto generated any change to this file will be lost
-### Instead change in the pf::dal::violation module
+### pf::dal::_security_event is auto generated any change to this file will be lost
+### Instead change in the pf::dal::security_event module
 ###
 
 use base qw(pf::dal);
@@ -39,7 +39,7 @@ BEGIN {
         id
         tenant_id
         mac
-        vid
+        security_event_id
         start_date
         release_date
         status
@@ -50,7 +50,7 @@ BEGIN {
     %DEFAULTS = (
         tenant_id => '1',
         mac => '',
-        vid => '',
+        security_event_id => '',
         start_date => '',
         release_date => '0000-00-00 00:00:00',
         status => 'open',
@@ -61,7 +61,7 @@ BEGIN {
     @INSERTABLE_FIELDS = qw(
         tenant_id
         mac
-        vid
+        security_event_id
         start_date
         release_date
         status
@@ -88,7 +88,7 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 0,
         },
-        vid => {
+        security_event_id => {
             type => 'INT',
             is_auto_increment => 0,
             is_primary_key => 0,
@@ -131,15 +131,15 @@ BEGIN {
     );
 
     @COLUMN_NAMES = qw(
-        violation.id
-        violation.tenant_id
-        violation.mac
-        violation.vid
-        violation.start_date
-        violation.release_date
-        violation.status
-        violation.ticket_ref
-        violation.notes
+        security_event.id
+        security_event.tenant_id
+        security_event.mac
+        security_event.security_event_id
+        security_event.start_date
+        security_event.release_date
+        security_event.status
+        security_event.ticket_ref
+        security_event.notes
     );
 
 }
@@ -150,7 +150,7 @@ use Class::XSAccessor {
 
 =head2 _defaults
 
-The default values of violation
+The default values of security_event
 
 =cut
 
@@ -160,7 +160,7 @@ sub _defaults {
 
 =head2 table_field_names
 
-Field names of violation
+Field names of security_event
 
 =cut
 
@@ -170,7 +170,7 @@ sub table_field_names {
 
 =head2 primary_keys
 
-The primary keys of violation
+The primary keys of security_event
 
 =cut
 
@@ -184,11 +184,11 @@ The table name
 
 =cut
 
-sub table { "violation" }
+sub table { "security_event" }
 
 our $FIND_SQL = do {
     my $where = join(", ", map { "$_ = ?" } @PRIMARY_KEYS);
-    "SELECT * FROM `violation` WHERE $where;";
+    "SELECT * FROM `security_event` WHERE $where;";
 };
 
 =head2 find_columns
@@ -203,7 +203,7 @@ sub find_columns {
 
 =head2 _find_one_sql
 
-The precalculated sql to find a single row violation
+The precalculated sql to find a single row security_event
 
 =cut
 
@@ -213,7 +213,7 @@ sub _find_one_sql {
 
 =head2 _updateable_fields
 
-The updateable fields for violation
+The updateable fields for security_event
 
 =cut
 
@@ -223,7 +223,7 @@ sub _updateable_fields {
 
 =head2 _insertable_fields
 
-The insertable fields for violation
+The insertable fields for security_event
 
 =cut
 
@@ -233,7 +233,7 @@ sub _insertable_fields {
 
 =head2 get_meta
 
-Get the meta data for violation
+Get the meta data for security_event
 
 =cut
 
@@ -247,7 +247,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 
