@@ -26,6 +26,7 @@ use Catalyst qw/
   Session::Store::CHI
   Session::State::MAC
   StackTrace
+  Unicode::Encoding
   /;
 
 use Try::Tiny;
@@ -83,7 +84,7 @@ our $VERSION = '0.01';
 
 __PACKAGE__->config(
     name         => 'captiveportal',
-    encoding => 'utf-8',
+    encoding     => 'UTF-8',
     # Disable deprecated behavior needed by old applications
     disable_component_resolution_regex_fallback => 1,
     'static'                                    => {
