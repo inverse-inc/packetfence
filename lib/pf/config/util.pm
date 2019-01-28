@@ -34,6 +34,7 @@ use pf::config qw(
     $HTTPS
     $HTTP
 );
+use Locale::gettext qw(gettext ngettext);
 use pf::constants::config qw($DEFAULT_SMTP_PORT $DEFAULT_SMTP_PORT_SSL $DEFAULT_SMTP_PORT_TLS %ALERTING_PORTS);
 use IO::Socket::SSL qw(SSL_VERIFY_NONE);
 use pf::constants::config qw($TIME_MODIFIER_RE);
@@ -181,8 +182,8 @@ sub send_email {
     );
     add_standard_include_path(\%TmplOptions);
     my %vars = (
-        i18n        => \&pf::web::i18n,
-        i18n_format => \&pf::web::i18n_format,
+        i18n        => \&i18n,
+        i18n_format => \&i18n_format,
         %$data,
     );
     utf8::decode($subject);
@@ -199,6 +200,43 @@ sub send_email {
     $msg->attr( "Content-Type" => "text/html; charset=UTF-8" );
     return send_mime_lite($msg);
 }
+
+sub i18n {
+    my $msgid = shift;
+
+    if(ref($msgid) eq "ARRAY"){
+        return i18n_format(@$msgid);
+    }
+
+    my $result = gettext($msgid);
+    return $result;
+}
+
+sub ni18n {
+    my $singular = shift;
+    my $plural = shift;
+    my $category = shift;
+
+    my $result = ngettext($singular, $plural, $category);
+    return $result;
+}
+
+=item i18n_format
+
+Pass message id through gettext then sprintf it.
+
+Meant to be called from the TT templates.
+
+=cut
+
+sub i18n_format {
+    my ($msgid, @args) = @_;
+
+    my $result = gettext($msgid);
+    $result = sprintf($result, @args);
+    return $result;
+}
+
 
 
 =head2 add_standard_include_path
