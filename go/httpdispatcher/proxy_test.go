@@ -26,7 +26,7 @@ func TestMain(m *testing.M) {
 
 	var portalURL url.URL
 	var NetIndex net.IPNet
-	passThrough.PortalURL = make(map[*net.IPNet]*url.URL)
+	passThrough.PortalURL = make(map[int]map[*net.IPNet]*url.URL)
 
 	portalURL.Host = "www.packetfence.org"
 	portalURL.Path = "/captive-portal"
@@ -34,8 +34,8 @@ func TestMain(m *testing.M) {
 
 	NetIndex.Mask = net.IPMask(net.IPv4zero)
 	NetIndex.IP = net.IPv4zero
-
-	passThrough.PortalURL[&NetIndex] = &portalURL
+	passThrough.PortalURL[0] = make(map[*net.IPNet]*url.URL)
+	passThrough.PortalURL[0][&NetIndex] = &portalURL
 
 	testproxy.addToEndpointList(ctx, "127.0.0.1")
 	os.Exit(m.Run())

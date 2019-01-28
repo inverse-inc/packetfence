@@ -27,9 +27,13 @@ type passthrough struct {
 	detectionmechanisms     []*regexp.Regexp
 	DetectionMecanismBypass bool
 	mutex                   sync.Mutex
-	PortalURL               map[*net.IPNet]*url.URL
+	PortalURL               map[int]map[*net.IPNet]*url.URL
 	URIException            *regexp.Regexp
 	SecureRedirect          bool
+}
+
+type fqdn struct {
+	FQDN map[*net.IPNet]*url.URL
 }
 
 var passThrough *passthrough
@@ -123,9 +127,18 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 
 		var PortalURL url.URL
-		for k, v := range passThrough.PortalURL {
-			if k.Contains(net.ParseIP(r.RemoteAddr)) {
-				PortalURL = *v
+		var found bool
+		found = false
+		for i := 0; i <= len(passThrough.PortalURL); i++ {
+			if found {
+				break
+			}
+			for c, d := range passThrough.PortalURL[i] {
+				if c.Contains(net.ParseIP(r.Header.Get("X-Forwarded-For"))) {
+					PortalURL = *d
+					found = true
+					break
+				}
 			}
 		}
 
@@ -233,7 +246,7 @@ func (p *passthrough) readConfig(ctx context.Context) {
 		scheme = "http"
 	}
 
-	p.PortalURL = make(map[*net.IPNet]*url.URL)
+	index := 0
 
 	var interfaces pfconfigdriver.ListenInts
 	pfconfigdriver.FetchDecodeSocket(ctx, &interfaces)
@@ -243,38 +256,49 @@ func (p *passthrough) readConfig(ctx context.Context) {
 	keyConfNet.PfconfigHostnameOverlay = "yes"
 	pfconfigdriver.FetchDecodeSocket(ctx, &keyConfNet)
 
-	var NetIndex net.IPNet
-	var portalURL url.URL
+	var NetIndexDefault net.IPNet
+	var portalURLDefault url.URL
 
-	p.PortalURL = make(map[*net.IPNet]*url.URL)
+	p.PortalURL = make(map[int]map[*net.IPNet]*url.URL)
 
 	for _, key := range keyConfNet.Keys {
+		var NetIndex net.IPNet
+		var portalURL url.URL
+
+		var portal_url fqdn
+		portal_url.FQDN = make(map[*net.IPNet]*url.URL)
+
 		var ConfNet pfconfigdriver.NetworkConf
 		ConfNet.PfconfigHashNS = key
 		pfconfigdriver.FetchDecodeSocket(ctx, &ConfNet)
 
-		var fqdn string
+		var portal string
 		if ConfNet.PortalFQDN != "" {
-			fqdn = ConfNet.PortalFQDN
+			portal = ConfNet.PortalFQDN
 		} else {
-			fqdn = general.Hostname + "." + general.Domain
+			portal = general.Hostname + "." + general.Domain
 		}
-		portalURL.Host = fqdn
+		portalURL.Host = portal
 		portalURL.Path = "/captive-portal"
 		portalURL.Scheme = scheme
 
 		NetIndex.Mask = net.IPMask(net.ParseIP(ConfNet.Netmask))
 		NetIndex.IP = net.ParseIP(key)
-		p.PortalURL[&NetIndex] = &portalURL
+
+		p.PortalURL[index] = make(map[*net.IPNet]*url.URL)
+		p.PortalURL[index][&NetIndex] = &portalURL
+		index++
 	}
-	NetIndex.Mask = net.IPMask(net.IPv4zero)
-	NetIndex.IP = net.IPv4zero
+	NetIndexDefault.Mask = net.IPMask(net.IPv4zero)
+	NetIndexDefault.IP = net.IPv4zero
 
-	portalURL.Host = general.Hostname + "." + general.Domain
-	portalURL.Path = "/captive-portal"
-	portalURL.Scheme = scheme
+	portalURLDefault.Host = general.Hostname + "." + general.Domain
+	portalURLDefault.Path = "/captive-portal"
+	portalURLDefault.Scheme = scheme
 
-	p.PortalURL[&NetIndex] = &portalURL
+	p.PortalURL[index] = make(map[*net.IPNet]*url.URL)
+
+	p.PortalURL[index][&NetIndexDefault] = &portalURLDefault
 }
 
 // newProxyPassthrough instantiate a passthrough and return it
