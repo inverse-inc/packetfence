@@ -13,7 +13,7 @@ extends 'pfappserver::Base::Form';
 with qw (
     pfappserver::Base::Form::Role::Help
     pfappserver::Role::Form::RolesAttribute
-    pfappserver::Role::Form::ViolationsAttribute
+    pfappserver::Role::Form::SecurityEventsAttribute
 );
 
 use pf::config qw(%ConfigPKI_Provider);
@@ -66,15 +66,15 @@ has_field 'oses' =>
    fingerbank_model => "fingerbank::Model::Device",
   );
 
-has_field 'non_compliance_violation' =>
+has_field 'non_compliance_security_event' =>
   (
    type => 'Select',
-   label => 'Non compliance violation',
-   options_method => \&options_violations,
+   label => 'Non compliance security_event',
+   options_method => \&options_security_events,
    element_class => ['chzn-deselect'],
    element_attr => {'data-placeholder' => 'None'},
    tags => { after_element => \&help,
-             help => 'Which violation should be raised when non compliance is detected' },
+             help => 'Which security_event should be raised when non compliance is detected' },
   );
 
 has_field 'pki_provider' =>
@@ -109,10 +109,10 @@ sub options_roles {
     return @roles;
 }
 
-sub options_violations {
+sub options_security_events {
     my $self = shift;
     return [
-        map { {value => $_->{id}, label => $_->{desc} } } @{$self->form->violations // []}
+        map { {value => $_->{id}, label => $_->{desc} } } @{$self->form->security_events // []}
     ];
 }
 

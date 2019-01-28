@@ -1,8 +1,8 @@
 package captiveportal::PacketFence::Controller::LostStolen;
 use Moose;
 use namespace::autoclean;
-use pf::violation;
-use pf::constants::violation qw($LOST_OR_STOLEN);
+use pf::security_event;
+use pf::constants::security_event qw($LOST_OR_STOLEN);
 use pf::node;
 use pf::util qw(strip_username);
 
@@ -37,7 +37,7 @@ sub index : Path : Args(1) {
         template => 'lost_stolen.html',
     );
     if ( $stripped_username eq $stripped_owner ) {
-        my $trigger = violation_add($mac, $LOST_OR_STOLEN);
+        my $trigger = security_event_add($mac, $LOST_OR_STOLEN);
 
         if ($trigger) {
             $c->stash(

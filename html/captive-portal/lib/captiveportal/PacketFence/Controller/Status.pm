@@ -7,8 +7,8 @@ use pf::config;
 use pf::node;
 use pf::person;
 use pf::web;
-use pf::violation qw(violation_view_open);
-use pf::constants::violation qw($LOST_OR_STOLEN);
+use pf::security_event qw(security_event_view_open);
+use pf::constants::security_event qw($LOST_OR_STOLEN);
 use pf::password qw(view);
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
@@ -65,8 +65,8 @@ sub index : Path : Args(0) {
 sub is_lost_stolen {
     my ( $mac ) = @_;
    
-    my @violations = violation_view_open($mac);
-    if ( grep {$_->{'vid'} eq $LOST_OR_STOLEN} @violations ) {
+    my @security_events = security_event_view_open($mac);
+    if ( grep {$_->{'vid'} eq $LOST_OR_STOLEN} @security_events ) {
         return $TRUE
     } else {
         return $FALSE
@@ -110,7 +110,7 @@ sub setExpiration {
             # Node has a usage duration
             $node_info->{'expiration'} = $node_info->{'last_start_timestamp'} + $node_info->{'time_balance'};
             if ( $node_info->{'expiration'} < time ) {
-                # No more access time; RADIUS accounting should have triggered a violation
+                # No more access time; RADIUS accounting should have triggered a security_event
                 delete $node_info->{'expiration'};
                 $node_info->{'time_balance'} = 0;
             }

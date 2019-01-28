@@ -1,7 +1,7 @@
-package captiveportal::PacketFence::Controller::Violation;
+package captiveportal::PacketFence::Controller::SecurityEvent;
 use Moose;
 use namespace::autoclean;
-use pf::violation;
+use pf::security_event;
 use pf::class;
 use pf::config qw(%Config);
 use pf::constants::scan qw($SCAN_VID $POST_SCAN_VID $PRE_SCAN_VID);
@@ -33,15 +33,15 @@ sub index : Path : Args(0) {
     my $portalSession = $c->portalSession;
     my $mac           = $portalSession->clientMac;
     my $logger        = $c->log;
-    my $violation = violation_view_top($mac);
-    if ($violation) {
+    my $security_event = security_event_view_top($mac);
+    if ($security_event) {
 
         $c->stash->{'user_agent'} = $c->request->user_agent;
         my $request = $c->req;
 
-        # There is a violation, redirect the user
+        # There is a security_event, redirect the user
         # FIXME: there is not enough validation below
-        my $vid      = $violation->{'vid'};
+        my $vid      = $security_event->{'vid'};
 
         if ($vid == $POST_SCAN_VID) {
             $c->response->redirect("/captive-portal");
@@ -49,7 +49,7 @@ sub index : Path : Args(0) {
 
         # detect if a system scan is in progress, if so redirect to scan in progress page
         if ($vid == $SCAN_VID || $vid == $PRE_SCAN_VID) {
-            if($violation->{'ticket_ref'} =~ /^Scan in progress, started at: (.*)$/ ){
+            if($security_event->{'ticket_ref'} =~ /^Scan in progress, started at: (.*)$/ ){
                 $logger->info("captive portal redirect to the scan in progress page");
                 $c->detach( 'Remediation', 'scan_status', [$1] );
             }
@@ -67,14 +67,14 @@ sub index : Path : Args(0) {
         }
         my $class    = class_view($vid);
 
-        # Retrieve violation template name
+        # Retrieve security_event template name
         my $subTemplate = $self->getSubTemplate( $c, $class->{'template'} );
         $logger->info("Showing the $subTemplate  remediation page.");
         my $node_info = node_view($mac);
         $c->stash(
             'auto_enable'  => ($class->{'auto_enable'} eq 'Y'),
             'enable_text'  => $class->{button_text},
-            'title'        => 'violation: quarantine established',
+            'title'        => 'security_event: quarantine established',
             'template'     => 'remediation.html',
             'sub_template' => $subTemplate,
             'redirect_url' => $class->{'redirect_url'},
@@ -99,21 +99,21 @@ sub getSubTemplate : Private {
     my ($self, $c, $template) = @_;
     my $portalSession = $c->portalSession;
     my $langs = $c->forward(Root => 'getRequestLanguages');
-    return $c->profile->findViolationTemplate($template, $langs);
+    return $c->profile->findSecurityEventTemplate($template, $langs);
 }
 
 
 sub release :Local {
     my ($self, $c) = @_;
     my $mac = $c->portalSession->clientMac;
-    my $violation = violation_view_top($mac);
-    my $vid = $violation->{vid};
-    get_logger->info("Will try to close violation $vid for $mac");
-    my $grace = violation_close($mac,$vid);
-    get_logger->info("Closing of violation $vid for $mac returned $grace");
+    my $security_event = security_event_view_top($mac);
+    my $vid = $security_event->{vid};
+    get_logger->info("Will try to close security_event $vid for $mac");
+    my $grace = security_event_close($mac,$vid);
+    get_logger->info("Closing of security_event $vid for $mac returned $grace");
 
     if ($grace != -1) {
-        my $count = violation_count($mac);
+        my $count = security_event_count($mac);
 
         my $class = class_view($vid);
         $c->session->{destination_url} = $class->{'redirect_url'} if defined($class->{'redirect_url'});
@@ -126,7 +126,7 @@ sub release :Local {
 
         $c->response->redirect("/captive-portal");
     } else {
-        get_logger->info("$mac reached maximum violations");
+        get_logger->info("$mac reached maximum security_events");
         $self->showError($c, "error: max re-enables reached");
     }
 

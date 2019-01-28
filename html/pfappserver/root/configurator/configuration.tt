@@ -52,7 +52,7 @@
               <label class="control-label" for="alerting_emailaddr"></label>
               <div class="controls">
                 <input type="text" class="input" id="alerting_emailaddr" value="[% config.${"alerting.emailaddr"} | html %]">
-                <p class="help-block">[% l('Email address to which notifications for rogue DHCP servers, violations with an action of <i>email</i>, or any other PacketFence-related messages goes to.') | none %]</p>
+                <p class="help-block">[% l('Email address to which notifications for rogue DHCP servers, security_events with an action of <i>email</i>, or any other PacketFence-related messages goes to.') | none %]</p>
               </div>
             </div>
             <div class="control-group">

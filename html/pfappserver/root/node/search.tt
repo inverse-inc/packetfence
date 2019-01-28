@@ -135,9 +135,9 @@
                             [% header( column.name ,  l(column.label), column.no_sort) | none %]
                         [% END %]
                     [% END %]
-                    [% IF items.size > 0 && items.0.violation_status %]
-                    <th class="hidden-phone" >[% l('Violation Status') %]</th>
-                    <th class="hidden-phone" >[% l('Violation Name') %]</th>
+                    [% IF items.size > 0 && items.0.security_event_status %]
+                    <th class="hidden-phone" >[% l('SecurityEvent Status') %]</th>
+                    <th class="hidden-phone" >[% l('SecurityEvent Name') %]</th>
                     [% END %]
                   </tr>
                 </thead>
@@ -163,9 +163,9 @@
                             [% END %]
                         [%- END %]
                     [% END %]
-                    [% IF node.violation_status %]
-                    <td class="hidden-phone">[% node.violation_status | html %]</td>
-                    <td class="hidden-phone">[% node.violation_name | html %]</td>
+                    [% IF node.security_event_status %]
+                    <td class="hidden-phone">[% node.security_event_status | html %]</td>
+                    <td class="hidden-phone">[% node.security_event_name | html %]</td>
                     [% END %]
                   </tr>
                   [%- END -%]

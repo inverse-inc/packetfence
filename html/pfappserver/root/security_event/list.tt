@@ -1,0 +1,87 @@
+
+
+      <div class="modal modal-large fade hide" id="modalSecurityEvent">
+      </div>
+
+      <div class="modal fade hide" id="deleteSecurityEvent">
+        <div class="modal-header">
+          <a class="close" data-dismiss="modal">&times;</a>
+          <h3><i>[% l('Delete SecurityEvent') %]</i> <span></span></h3>
+        </div>
+        <div class="modal-body">
+          <p>[% l('Deleting this security_event will remove all triggered security_events associated with this security_event.') %]</p>
+          <p>[% l('Do you wish to continue?') %]</p>
+        </div>
+        <div class="modal-footer">
+          <a href="#" class="btn" data-dismiss="modal">[% l('Cancel') %]</a>
+          <a href="#" class="btn btn-primary btn-danger" data-loading-text="[% l('Deleting') %]"><i class="icon-trash"></i> [% l('Delete') %]</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <h2>[% l('SecurityEvents') %] [% doc('_security_events') | none %]</h2>
+        </div>
+        <div class="card-block">
+      [% IF items.size -%]
+      <table class="table" id="security_events">
+        <thead>
+          <tr>
+            <th></th>
+            <th>[% l('Id') %]</th>
+            <th>[% l('Description') %]</th>
+            <th class="hidden-phone">[% l('Actions') %]</th>
+            <th class="no-wrap hidden-phone">[% l('Target Role') %]</th>
+            <th>[% l('Action') %]</th><th></th>
+          </tr>
+        </thead>
+        <tbody>
+          [% FOREACH security_event IN items %]
+          <tr[% IF security_event.enabled == 'N' %] class="muted"[% END %]>
+            <td>
+              [% IF security_event.id != 'defaults' %]
+                <div class="switch switch-mini" data-href="[% c.uri_for(c.controller.action_for('toggle'),[security_event.id], 'enabled' ) %]">
+                    <input type="checkbox" id="[% security_event.id | html %]" name="[% security_event.id | html %]"[% IF security_event.enabled != 'N' %] checked="checked"[% END %]/>
+                </div>
+              [% END %]
+            </td>
+            <td><a href="[% c.uri_for(c.controller('SecurityEvent').action_for('view'), [ security_event.id ]) %]#modalSecurityEvent">[% security_event.id | html %]</a></td>
+            <td>[% security_event.desc | html %]</td>
+            <td class="hidden-phone">[% FOREACH action IN security_event.actions %]
+              <span class="label label-info">[% l("${action}_action") %]</span>
+              [%- END %]</td>
+            <td class="hidden-phone">[% security_event.vlan | html %]</td>
+            <td class="no-wrap">
+              [%- IF can_access("SECURITY_EVENTS_CREATE") %]
+              <a class="btn btn-mini" href="[% c.uri_for(c.controller('SecurityEvent').action_for('clone'), [ security_event.id ]) %]#modalSecurityEvent">[% l('Clone') %]</a>
+              [%- END %]
+              [%- IF can_access("SECURITY_EVENTS_DELETE") %]
+              <a class="btn btn-mini btn-danger[% ' disabled' IF security_event.id == 'defaults' OR security_event.id < 1500000 %]" href="[% c.uri_for(c.controller('SecurityEvent').action_for('remove'), [ security_event.id ]) %]">[% l('Delete') %]</a>
+              [%- END %]
+              [% IF profiles.size > 1 %]
+              <div class="btn-group">[% END %]
+                <a class="btn btn-mini[% ' disabled' UNLESS security_event.template %]" target="_blank" href="[% c.uri_for(c.controller('Config::Profile').action_for('preview'), [profiles.0], 'security_events', "$security_event.template") %].html" ><i class="icon-eye"></i> [% l('Preview') %]</a>
+                [% IF profiles.size > 1 %]<a class="btn btn-mini dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></a>
+                <ul class="dropdown-menu">
+                  [% FOR profile IN profiles -%]
+                  <li><a target="_blank" href="[% c.uri_for(c.controller('Config::Profile').action_for('preview'), [profile], 'security_events', "$security_event.template") %].html" >[% profile | html %]</a></li>[% END %]
+                </ul>
+              </div>[% END %]
+            </td>
+          </tr>
+          [% END -%]
+        </tbody>
+      </table>
+      [% END -%]
+
+      <div id="noSecurityEvent" class="unwell[% ' hidden' IF items.size > 0 %]">
+        <i class="icon-legal icon-large"></i><p>[% l('No security_event defined') %]</p>
+      </div>
+      </div>
+
+      [%- IF can_access("SECURITY_EVENTS_CREATE") %]
+      <div class="form-actions">
+        <a id="createSecurityEvent" class="btn" href="[% c.uri_for(c.controller('SecurityEvent').action_for('create')) %]">[% l('Add security_event') %]</a>
+      </div>
+      [%- END %]
+      </div>

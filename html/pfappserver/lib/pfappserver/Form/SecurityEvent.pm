@@ -1,12 +1,12 @@
-package pfappserver::Form::Violation;
+package pfappserver::Form::SecurityEvent;
 
 =head1 NAME
 
-pfappserver::Form::Violation - Web form for a violation
+pfappserver::Form::SecurityEvent - Web form for a security_event
 
 =head1 DESCRIPTION
 
-Form definition to create or update a violation.
+Form definition to create or update a security_event.
 
 =cut
 
@@ -26,11 +26,11 @@ use pf::web::util;
 use pf::admin_roles;
 use pf::action;
 use pf::log;
-use pf::constants::violation qw($MAX_VID %NON_WHITELISTABLE_ROLES);
+use pf::constants::security_event qw($MAX_VID %NON_WHITELISTABLE_ROLES);
 use pf::class qw(class_next_vid);
 
 # Form select options
-has 'violations' => ( is => 'ro' );
+has 'security_events' => ( is => 'ro' );
 has 'triggers' => ( is => 'ro' );
 has 'templates' => ( is => 'ro' );
 has 'placeholders' => ( is => 'ro' );
@@ -47,9 +47,9 @@ has_field 'id' =>
    type => 'Text',
    label => 'Identifier',
    default_method => \&class_next_vid,
-   messages => { required => 'Please specify an identifier for the violation.' },
+   messages => { required => 'Please specify an identifier for the security_event.' },
    tags => { after_element => \&help,
-             help => 'Use a number above 1500000 if you want to be able to delete this violation later.' },
+             help => 'Use a number above 1500000 if you want to be able to delete this security_event later.' },
   );
 has_field 'desc' =>
   (
@@ -59,7 +59,7 @@ has_field 'desc' =>
     id => sub { $_[0] ne 'defaults' }
    },
    element_class => ['input-large'],
-   messages => { required => 'Please specify a brief description of the violation.' },
+   messages => { required => 'Please specify a brief description of the security_event.' },
   );
 has_field 'actions' =>
   (
@@ -76,16 +76,16 @@ has_field 'user_mail_message' =>
    label => 'Additionnal message for the user',
    element_class => ['input-large'],
    tags => { after_element => \&help, 
-             help => 'A message that will be added to the e-mail sent to the user regarding this violation.' }, 
+             help => 'A message that will be added to the e-mail sent to the user regarding this security_event.' }, 
   );
 has_field 'vclose' =>
   (
    type => 'Select',
-   label => 'Violation to close',
+   label => 'SecurityEvent to close',
    element_class => ['chzn-deselect hide'],
-   element_attr => {'data-placeholder' => 'Select a violation'},
+   element_attr => {'data-placeholder' => 'Select a security_event'},
    tags => { after_element => \&help,
-             help => 'When selecting the <strong>close</strong> action, triggering the violation will close this violation. This is an experimental workflow for Mobile Device Management (MDM).' },
+             help => 'When selecting the <strong>close</strong> action, triggering the security_event will close this security_event. This is an experimental workflow for Mobile Device Management (MDM).' },
   );
 has_field 'target_category' =>
   (
@@ -95,7 +95,7 @@ has_field 'target_category' =>
    element_class => ['chzn-deselect hide'],
    element_attr => {'data-placeholder' => 'Select a role'},
    tags => { after_element => \&help,
-             help => 'When selecting the <strong>role</strong> action, triggering the violation will change the node to this role.' },
+             help => 'When selecting the <strong>role</strong> action, triggering the security_event will change the node to this role.' },
   );
 has_field 'priority' =>
   (
@@ -104,7 +104,7 @@ has_field 'priority' =>
    range_start => 1,
    range_end => 10,
    tags => { after_element => \&help,
-             help => 'Range 1-10, with 1 the higest priority and 10 the lowest. Higher priority violations will be addressed first if a host has more than one.' },
+             help => 'Range 1-10, with 1 the higest priority and 10 the lowest. Higher priority security_events will be addressed first if a host has more than one.' },
   );
 has_field 'whitelisted_roles' =>
   (
@@ -115,7 +115,7 @@ has_field 'whitelisted_roles' =>
    element_class => ['chzn-select', 'input-xxlarge'],
    element_attr => {'data-placeholder' => 'Click to add a role'},
    tags => { after_element => \&help,
-             help => 'Nodes with the selected roles won\'t be affected by a violation of this type.' },
+             help => 'Nodes with the selected roles won\'t be affected by a security_event of this type.' },
   );
 has_field 'trigger' =>
   (
@@ -127,21 +127,21 @@ has_field 'auto_enable' =>
    type => 'Toggle',
    label => 'Auto Enable',
    tags => { after_element => \&help,
-             help => 'Specifies if a host can self remediate the violation (enable network button) or if they can not and must call the help desk.' },
+             help => 'Specifies if a host can self remediate the security_event (enable network button) or if they can not and must call the help desk.' },
   );
 has_field 'max_enable' =>
   (
    type => 'PosInteger',
    label => 'Max Enables',
    tags => { after_element => \&help,
-             help => 'Number of times a host will be able to try and self remediate before they are locked out and have to call the help desk. This is useful for users who just <i>click through</i> violation pages.'},
+             help => 'Number of times a host will be able to try and self remediate before they are locked out and have to call the help desk. This is useful for users who just <i>click through</i> security_event pages.'},
   );
 has_field 'grace' =>
   (
    type => 'Duration',
    label => 'Grace',
    tags => { after_element => \&help,
-             help => 'Amount of time before the violation can reoccur. This is useful to allow hosts time (in the example 2 minutes) to download tools to fix their issue, or shutoff their peer-to-peer application.' },
+             help => 'Amount of time before the security_event can reoccur. This is useful to allow hosts time (in the example 2 minutes) to download tools to fix their issue, or shutoff their peer-to-peer application.' },
   );
 has_field 'window_dynamic' =>
   (
@@ -149,35 +149,35 @@ has_field 'window_dynamic' =>
    label => 'Dynamic Window',
    checkbox_value => 'dynamic',
    tags => { after_element => \&help,
-             help => 'Only works for accounting violations.  The violation will be opened according to the time you set in the accounting violation (ie. You have an accounting violation for 10GB/month.  If you bust the bandwidth after 3 days, the violation will open and the release date will be set for the last day of the current month).' },
+             help => 'Only works for accounting security_events.  The security_event will be opened according to the time you set in the accounting security_event (ie. You have an accounting security_event for 10GB/month.  If you bust the bandwidth after 3 days, the security_event will open and the release date will be set for the last day of the current month).' },
   );
 has_field 'window' =>
   (
    type => 'Duration',
    label => 'Window',
    tags => { after_element => \&help,
-             help => 'Amount of time before a violation will be closed automatically. Instead of allowing people to reactivate the network, you may want to open a violation for a defined amount of time instead.' },
+             help => 'Amount of time before a security_event will be closed automatically. Instead of allowing people to reactivate the network, you may want to open a security_event for a defined amount of time instead.' },
   );
 has_field 'delay_by' =>
   (
    type => 'Duration',
    label => 'Delay By',
    tags => { after_element => \&help,
-             help => "Delay before triggering the violation." },
+             help => "Delay before triggering the security_event." },
   );
 has_field 'template' =>
   (
    type => 'Select',
    label => 'Template',
    tags => { after_element => \&help,
-             help => 'HTML template the host will be redirected to while in violation. You can create new templates from the <em>Connection Profiles</em> configuration section.' }
+             help => 'HTML template the host will be redirected to while in security_event. You can create new templates from the <em>Connection Profiles</em> configuration section.' }
   );
 has_field 'button_text' =>
   (
    type => 'Text',
    label => 'Button Text',
    tags => { after_element => \&help,
-             help => 'Text displayed on the violation form to hosts.' },
+             help => 'Text displayed on the security_event form to hosts.' },
   );
 has_field 'vlan' =>
   (
@@ -187,7 +187,7 @@ has_field 'vlan' =>
    element_class => ['chzn-deselect'],
    element_attr => {'data-placeholder' => 'Select a Role'},
    tags => { after_element => \&help,
-             help => 'Destination Role where PacketFence should put the client when a violation of this type is open (only for <em>Change network access on violation</em> action).' }
+             help => 'Destination Role where PacketFence should put the client when a security_event of this type is open (only for <em>Change network access on security_event</em> action).' }
   );
 has_field 'redirect_url' =>
   (
@@ -238,7 +238,7 @@ around 'has_errors'  => sub {
 
 =head2 update_fields
 
-For violations other than the default, add placeholders with values from default violation.
+For security_events other than the default, add placeholders with values from default security_event.
 
 =cut
 
@@ -276,7 +276,7 @@ sub update_fields {
 sub options_actions {
     my $self = shift;
 
-    my @actions = map { $_ => $self->_localize("${_}_action") } @pf::action::VIOLATION_ACTIONS;
+    my @actions = map { $_ => $self->_localize("${_}_action") } @pf::action::SECURITY_EVENT_ACTIONS;
 
     return @actions;
 }
@@ -288,10 +288,10 @@ sub options_actions {
 sub options_vclose {
     my $self = shift;
 
-    # $self->violations comes from pfappserver::Model::Config::Violations->readAll
-    my @violations = map { $_->{id} => $_->{desc} || $_->{id} } @{$self->form->violations} if ($self->form->violations);
+    # $self->security_events comes from pfappserver::Model::Config::SecurityEvents->readAll
+    my @security_events = map { $_->{id} => $_->{desc} || $_->{id} } @{$self->form->security_events} if ($self->form->security_events);
 
-    return ('' => '', @violations);
+    return ('' => '', @security_events);
 }
 
 =head2 options_whitelisted_roles
@@ -341,7 +341,7 @@ sub options_template {
 
 Make sure the ID is a positive integer, unless its 'defaults'
 
-Make sure a violation is specified if the close action is selected.
+Make sure a security_event is specified if the close action is selected.
 
 Make sure a role is specified if the role action is selected.
 
@@ -350,12 +350,12 @@ Make sure a role is specified if the role action is selected.
 sub validate {
     my $self = shift;
 
-    # If the close action is selected, make sure a valid closing violation (vclose) is specified
+    # If the close action is selected, make sure a valid closing security_event (vclose) is specified
     if (grep {$_ eq 'close'} @{$self->value->{actions}}) {
         my $vclose = $self->value->{vclose};
-        my @vids = map { $_->{id} } @{$self->violations};
+        my @vids = map { $_->{id} } @{$self->security_events};
         unless (defined $vclose && grep {$_ eq $vclose} @vids) {
-            $self->field('vclose')->add_error('Specify a violation to close.');
+            $self->field('vclose')->add_error('Specify a security_event to close.');
         }
     }
 
@@ -382,7 +382,7 @@ sub validate_id {
     return if $val eq 'defaults';
 
     if($val <= 0 || $val > $MAX_VID) {
-        $field->add_error('The violation ID should be between 1 and 2000000000');
+        $field->add_error('The security_event ID should be between 1 and 2000000000');
         return;
     }
 }

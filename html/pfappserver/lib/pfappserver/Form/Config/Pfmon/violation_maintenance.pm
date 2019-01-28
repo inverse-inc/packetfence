@@ -1,12 +1,12 @@
-package pfappserver::Form::Config::Pfmon::violation_maintenance;
+package pfappserver::Form::Config::Pfmon::security_event_maintenance;
 
 =head1 NAME
 
-pfappserver::Form::Config::Pfmon::violation_maintenance - Web form for violation_maintenance pfmon task
+pfappserver::Form::Config::Pfmon::security_event_maintenance - Web form for security_event_maintenance pfmon task
 
 =head1 DESCRIPTION
 
-Web form for violation_maintenance pfmon task
+Web form for security_event_maintenance pfmon task
 
 =cut
 
@@ -39,7 +39,7 @@ default value of type
 =cut
 
 sub default_type {
-    return "violation_maintenance";
+    return "security_event_maintenance";
 }
 
 has_block  definition =>

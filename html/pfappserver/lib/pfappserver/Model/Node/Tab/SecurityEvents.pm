@@ -1,14 +1,14 @@
-package pfappserver::Model::Node::Tab::Violations;
+package pfappserver::Model::Node::Tab::SecurityEvents;
 
 =head1 NAME
 
-pfappserver::Model::Node::Tab::Violations -
+pfappserver::Model::Node::Tab::SecurityEvents -
 
 =cut
 
 =head1 DESCRIPTION
 
-pfappserver::Model::Node::Tab::Violations
+pfappserver::Model::Node::Tab::SecurityEvents
 
 =cut
 
@@ -16,7 +16,7 @@ use strict;
 use warnings;
 use pf::config qw(%Config);
 use pf::error qw(is_error is_success);
-use pf::violation;
+use pf::security_event;
 use base qw(pfappserver::Base::Model::Node::Tab);
 
 =head2 process_view
@@ -30,25 +30,25 @@ sub process_view {
     my $mac = $c->stash->{mac};
     our @items;
     eval {
-        @items = violation_view_desc($mac);
-        for my $violation (@items) {
-            if ($violation->{release_date} eq '0000-00-00 00:00:00' ) {
-                $violation->{release_date} = '';
+        @items = security_event_view_desc($mac);
+        for my $security_event (@items) {
+            if ($security_event->{release_date} eq '0000-00-00 00:00:00' ) {
+                $security_event->{release_date} = '';
             }
         }
     };
     if ($@) {
-        my $status_msg = "Can't fetch violations from database.";
+        my $status_msg = "Can't fetch security_events from database.";
         $c->log->error($status_msg);
         return ($STATUS::INTERNAL_SERVER_ERROR, { status_msg => $status_msg });
     }
-    my (undef, $result) = $c->model('Config::Violations')->readAll();
-    my @violations = grep { $_->{id} ne 'defaults' } @$result; # remove defaults
+    my (undef, $result) = $c->model('Config::SecurityEvents')->readAll();
+    my @security_events = grep { $_->{id} ne 'defaults' } @$result; # remove defaults
 
     # Check for multihost
     my @multihost = pf::node::check_multihost($mac);
 
-    return ($STATUS::OK, { items => \@items, violations => \@violations, multihost => \@multihost });
+    return ($STATUS::OK, { items => \@items, security_events => \@security_events, multihost => \@multihost });
 }
 
 =head2 process_tab
@@ -59,13 +59,13 @@ Process tab
 
 sub process_tab {
     my ($self, $c, $vid, @args) = @_;
-    my ($status, $result) = $c->model('Config::Violations')->hasId($vid);
+    my ($status, $result) = $c->model('Config::SecurityEvents')->hasId($vid);
     return ($status, $result) if is_error($status);
 
-    ($status, $result) = $c->model('Node')->addViolation($c->stash->{mac}, $vid);
+    ($status, $result) = $c->model('Node')->addSecurityEvent($c->stash->{mac}, $vid);
     return ($status, $result) if is_error($status);
 
-    $c->controller->audit_current_action($c, status => $status, mac => $c->stash->{mac}, violation_id => $vid);
+    $c->controller->audit_current_action($c, status => $status, mac => $c->stash->{mac}, security_event_id => $vid);
 
     return $self->process_view($c, @args);
 }

@@ -130,9 +130,9 @@ const actions = {
         commit('NODE_UPDATED', { mac, prop: 'locations', data: items })
       })
 
-      // Fetch violations
-      api.violations(mac).then(items => {
-        commit('NODE_UPDATED', { mac, prop: 'violations', data: items })
+      // Fetch security_events
+      api.security_events(mac).then(items => {
+        commit('NODE_UPDATED', { mac, prop: 'security_events', data: items })
       })
 
       // Fetch fingerbank
@@ -248,10 +248,10 @@ const actions = {
       })
     })
   },
-  clearViolationNode: ({ commit }, data) => {
+  clearSecurityEventNode: ({ commit }, data) => {
     commit('NODE_REQUEST')
     return new Promise((resolve, reject) => {
-      api.clearViolationNode(data).then(response => {
+      api.clearSecurityEventNode(data).then(response => {
         commit('NODE_REPLACED', data)
         resolve(response)
       }).catch(err => {
@@ -260,9 +260,9 @@ const actions = {
       })
     })
   },
-  applyViolationBulkNodes: ({ commit }, data) => {
+  applySecurityEventBulkNodes: ({ commit }, data) => {
     return new Promise((resolve, reject) => {
-      api.applyViolationBulkNodes(data).then(response => {
+      api.applySecurityEventBulkNodes(data).then(response => {
         resolve(response)
       }).catch(err => {
         commit('NODE_ERROR', err.response)
@@ -270,9 +270,9 @@ const actions = {
       })
     })
   },
-  clearViolationBulkNodes: ({ commit }, data) => {
+  clearSecurityEventBulkNodes: ({ commit }, data) => {
     return new Promise((resolve, reject) => {
-      api.clearViolationBulkNodes(data).then(response => {
+      api.clearSecurityEventBulkNodes(data).then(response => {
         resolve(response)
       }).catch(err => {
         commit('NODE_ERROR', err.response)

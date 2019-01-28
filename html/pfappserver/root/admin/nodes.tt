@@ -22,8 +22,8 @@
     <option value="switch_port_desc">[% l('Source Switch Port Description') %]</option>
     <option value="ssid">[% l('SSID') %]</option>
     <option value="user_agent">[% l('User Agent') %]</option>
-    <option value="violation">[% l('Violation Name') %]</option>
-    <option value="violation_status">[% l('Violation Status') %]</option>
+    <option value="security_event">[% l('SecurityEvent Name') %]</option>
+    <option value="security_event_status">[% l('SecurityEvent Status') %]</option>
     <option value="voip">[% l('VoIP') %]</option>
   </select>
   <select name="searches.0.op"[% ' disabled="disabled"' IF disabled %] class="span3" >
@@ -63,11 +63,11 @@
 
       <input id="default_value" name="default_value" type="text" class="span6" placeholder="[% l('String...') %]">
 
-      <select id="violation_status_op" name="" class="span3" >
+      <select id="security_event_status_op" name="" class="span3" >
         <option value="equal">[% l('is') %]</option>
       </select>
 
-      <select id="violation_status_value" name="online_value" class="span2" >
+      <select id="security_event_status_value" name="online_value" class="span2" >
         <option value="open">[% l('Open') %]</option>
         <option value="closed">[% l('Closed') %]</option>
       </select>
@@ -148,17 +148,17 @@
               [%- IF can_access("NODES_READ") -%]
               <li class="nav-header">[% l('Standard Searches') %]</li>
               <li>
-                <a href="#" data-toggle="pf-search-form" data-target="advanced">[% l('Open Violations') %]</a>
+                <a href="#" data-toggle="pf-search-form" data-target="advanced">[% l('Open SecurityEvents') %]</a>
                 <form>
-                    <input type="hidden" name="searches.0.name" value="violation_status"/>
+                    <input type="hidden" name="searches.0.name" value="security_event_status"/>
                     <input type="hidden" name="searches.0.op" value="is"/>
                     <input type="hidden" name="searches.0.value" value="open"/>
                 </form>
               </li>
               <li>
-                <a href="#" data-toggle="pf-search-form" data-target="advanced">[% l('Closed Violations') %]</a>
+                <a href="#" data-toggle="pf-search-form" data-target="advanced">[% l('Closed SecurityEvents') %]</a>
                 <form>
-                    <input type="hidden" name="searches.0.name" value="violation_status"/>
+                    <input type="hidden" name="searches.0.name" value="security_event_status"/>
                     <input type="hidden" name="searches.0.op" value="is"/>
                     <input type="hidden" name="searches.0.value" value="closed"/>
                 </form>

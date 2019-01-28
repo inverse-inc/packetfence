@@ -22,7 +22,7 @@
             <li><a href="#userCustomFields" data-toggle="tab">[% l('Custom Fields') %]</a></li>
             [%- IF can_access("NODES_READ") %]
             <li><a href="#userDevices" data-href="[% c.uri_for(c.controller('User').action_for('nodes'), [user.pid]) %]" data-toggle="tab">[% l('Devices') %]</a></li>
-            <li><a href="#userViolations" data-href="[% c.uri_for(c.controller('User').action_for('violations'), [user.pid]) %]" data-toggle="tab">[% l('Violations') %]</a></li>
+            <li><a href="#userSecurityEvents" data-href="[% c.uri_for(c.controller('User').action_for('security_events'), [user.pid]) %]" data-toggle="tab">[% l('SecurityEvents') %]</a></li>
             [%- END %]
           </ul>
 
@@ -132,7 +132,7 @@
             <div class="tab-pane fade" id="userDevices">
             </div><!--tab-pane-->
 
-            <div class="tab-pane fade" id="userViolations">
+            <div class="tab-pane fade" id="userSecurityEvents">
             </div><!--tab-pane-->
             [%- END %]
 

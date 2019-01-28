@@ -1,27 +1,27 @@
-package pfappserver::Role::Form::ViolationsAttribute;
+package pfappserver::Role::Form::SecurityEventsAttribute;
 
 =head1 NAME
 
-pfappserver::Role::Form::ViolationsAttribute -
+pfappserver::Role::Form::SecurityEventsAttribute -
 
 =cut
 
 =head1 DESCRIPTION
 
-pfappserver::Role::Form::ViolationsAttribute
+pfappserver::Role::Form::SecurityEventsAttribute
 
 =cut
 
 use strict;
 use warnings;
 use HTML::FormHandler::Moose::Role;
-use pf::ConfigStore::Violations;
+use pf::ConfigStore::SecurityEvents;
 
-has violations => ( is => 'rw', builder => '_build_violations');
+has security_events => ( is => 'rw', builder => '_build_security_events');
 
-sub _build_violations {
+sub _build_security_events {
     my ($self) = @_;
-    my $cs = pf::ConfigStore::Violations->new;
+    my $cs = pf::ConfigStore::SecurityEvents->new;
     return $cs->readAll;
 }
 

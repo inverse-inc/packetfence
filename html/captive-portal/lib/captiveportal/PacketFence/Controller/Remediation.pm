@@ -2,7 +2,7 @@ package captiveportal::PacketFence::Controller::Remediation;
 use Moose;
 use namespace::autoclean;
 use pf::web;
-use pf::violation;
+use pf::security_event;
 use pf::class;
 use pf::node;
 use List::Util qw(first);
@@ -37,24 +37,24 @@ sub index : Path : Args(0) {
     $c->stash->{'user_agent'} = $c->request->user_agent;
     my $request = $c->req;
 
-    # check for open violations
-    my $violation = $self->getViolation($c);
+    # check for open security_events
+    my $security_event = $self->getSecurityEvent($c);
 
-    if ($violation) {
+    if ($security_event) {
 
-        # There is a violation, redirect the user
+        # There is a security_event, redirect the user
         # FIXME: there is not enough validation below
-        my $vid      = $violation->{'vid'};
+        my $vid      = $security_event->{'vid'};
         my $class = class_view($vid);
 
-        # Retrieve violation template name
+        # Retrieve security_event template name
         my $template = $class->{'template'};
 
         my $node_info = node_view($mac);
         $c->stash(
-            'title'        => "violation: quarantine established",
+            'title'        => "security_event: quarantine established",
             'template'     => 'remediation.html',
-            'notes'        => $violation->{'notes'},
+            'notes'        => $security_event->{'notes'},
             map { $_ => $node_info->{$_} }
               qw(dhcp_fingerprint last_switch last_port
               last_vlan last_connection_type last_ssid username)
@@ -62,10 +62,10 @@ sub index : Path : Args(0) {
 
         # Find the subtemplate
         my $langs = $c->forward(Root => 'getLanguages');
-        $c->stash->{sub_template} = $c->profile->findViolationTemplate($template, $langs);
+        $c->stash->{sub_template} = $c->profile->findSecurityEventTemplate($template, $langs);
 
     } else {
-        $logger->info( "No open violation for " . $mac );
+        $logger->info( "No open security_event for " . $mac );
 
         # TODO - rework to not show "Your computer was not found in the PacketFence database. Please reboot to solve this issue."
         $self->showError( $c, "error: not found in the database" );
@@ -88,14 +88,14 @@ sub scan_status : Private {
     );
 }
 
-sub getViolation {
+sub getSecurityEvent {
     my ( $self, $c ) = @_;
-    my $violation     = $c->stash->{violation};
-    unless($violation) {
+    my $security_event     = $c->stash->{security_event};
+    unless($security_event) {
         my $mac           = $c->portalSession->clientMac;
-        $c->stash->{violation} = $violation = violation_view_top($mac);
+        $c->stash->{security_event} = $security_event = security_event_view_top($mac);
     }
-    return $violation;
+    return $security_event;
 }
 
 =head1 AUTHOR

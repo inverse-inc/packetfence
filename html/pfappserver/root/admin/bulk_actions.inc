@@ -4,7 +4,7 @@
     <i class="icon-angle-down"></i>
   </a>
   <ul class="dropdown-menu">
-    <li class="disabled"><a class="bulk_action" data-target="[% c.uri_for(c.controller.action_for('bulk_close'))  %]" >[% l('Clear Violation') %]</a></li>
+    <li class="disabled"><a class="bulk_action" data-target="[% c.uri_for(c.controller.action_for('bulk_close'))  %]" >[% l('Clear SecurityEvent') %]</a></li>
     <li class="disabled"><a class="bulk_action" data-target="[% c.uri_for(c.controller.action_for('bulk_register'))  %]" >[% l('Register') %]</a></li>
     <li class="disabled"><a class="bulk_action" data-target="[% c.uri_for(c.controller.action_for('bulk_deregister'))  %]">[% l('Deregister') %]</a></li>
     [% IF bulk_type == 'node' %]
@@ -36,11 +36,11 @@
     [% END %]
     <li class="divider"></li>
     <li class="dropdown-submenu">
-      <a  tabindex="-1">[% l('Apply Violation') %]</a>
-      <ul class="dropdown-menu" id="apply_violations">
-        [% FOREACH violation IN violations %]
-        [% NEXT IF violation.id =='default' || violation.enabled != 'Y'%]
-        <li class="disabled"><a class="bulk_action" data-target="[% c.uri_for(c.controller.action_for('bulk_apply_violation'),[violation.id])  %]">[% violation.desc %]</a></li>
+      <a  tabindex="-1">[% l('Apply SecurityEvent') %]</a>
+      <ul class="dropdown-menu" id="apply_security_events">
+        [% FOREACH security_event IN security_events %]
+        [% NEXT IF security_event.id =='default' || security_event.enabled != 'Y'%]
+        <li class="disabled"><a class="bulk_action" data-target="[% c.uri_for(c.controller.action_for('bulk_apply_security_event'),[security_event.id])  %]">[% security_event.desc %]</a></li>
         [% END %]
       </ul>
     </li>

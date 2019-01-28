@@ -5,25 +5,25 @@
 [% UNLESS action_uri%]
 [% SET action_uri = c.req.uri %]
 [% END %]
-<form name="violation" class="form-horizontal" action="[% action_uri %]">
+<form name="security_event" class="form-horizontal" action="[% action_uri %]">
   [%- IF item.id %]<input type="hidden" name="id" value="[% item.id | html %]">[% END %]
   <div class="modal-header">
     <a class="close" data-dismiss="modal">&times;</a>
-    <h3>[% IF item %]<i>[% l('Violation') %]</i> [% ( item.desc || item.id ) | html %][% ELSE %][% l('New Violation') %][% END %]</h3>
+    <h3>[% IF item %]<i>[% l('SecurityEvent') %]</i> [% ( item.desc || item.id ) | html %][% ELSE %][% l('New SecurityEvent') %][% END %]</h3>
   </div>
 
   <div class="modal-body">
 
     <ul class="nav nav-tabs">
-      <li class="active"><a href="#violationDefinition" data-toggle="tab">[% l('Definition') %]</a></li>
-      <li><a href="#violationTriggers" data-toggle="tab">[% l('Triggers') %]</a></li>
-      <li><a href="#violationRemediation" data-toggle="tab">[% l('Remediation') %]</a></li>
-      <li><a href="#violationAdvanced" data-toggle="tab">[% l('Advanced') %]</a></li>
+      <li class="active"><a href="#security_eventDefinition" data-toggle="tab">[% l('Definition') %]</a></li>
+      <li><a href="#security_eventTriggers" data-toggle="tab">[% l('Triggers') %]</a></li>
+      <li><a href="#security_eventRemediation" data-toggle="tab">[% l('Remediation') %]</a></li>
+      <li><a href="#security_eventAdvanced" data-toggle="tab">[% l('Advanced') %]</a></li>
     </ul>
 
     <div class="tab-content">
 
-      <div class="tab-pane fade in active" id="violationDefinition">
+      <div class="tab-pane fade in active" id="security_eventDefinition">
         [% form.field('enabled').render | none %]
         [% form.field('id').render | none UNLESS item.id %]
         [% form.field('desc').render | none %]
@@ -37,7 +37,7 @@
         [% form.field('whitelisted_roles').render | none %]
       </div><!-- tab-pane -->
 
-      <div class="tab-pane fade" id="violationTriggers">
+      <div class="tab-pane fade" id="security_eventTriggers">
         <div class="alert alert-error hide"></div>
         <div id="viewTriggers">
           <div class="control-group">
@@ -121,7 +121,7 @@
                 <div class="control-group">
                   <label class="control-label">Search Fingerbank :</label>
                   <div class="controls">
-                    <input type="text" class="fingerbank-type-ahead" data-type-ahead-for="[% fingerbank_map.$type %]" data-btn="#fingerbank_trigger_add_[% type %]" data-add-action="violationsView.add_fingerbank_trigger">
+                    <input type="text" class="fingerbank-type-ahead" data-type-ahead-for="[% fingerbank_map.$type %]" data-btn="#fingerbank_trigger_add_[% type %]" data-add-action="security_eventsView.add_fingerbank_trigger">
                     <button class="btn add_fingerbank_trigger" id="fingerbank_trigger_add_[% type %]" data-trigger-type="[% type %]">[% l('Add') %]</button>
                   </div>
                 </div>
@@ -185,7 +185,7 @@
 
       </div><!--tab-pane-->
 
-      <div class="tab-pane fade" id="violationRemediation">
+      <div class="tab-pane fade" id="security_eventRemediation">
         [% form.field('auto_enable').render | none %]
         [% form.field('max_enable').render | none %]
         [% form.field('grace').render | none %]
@@ -196,7 +196,7 @@
         [% form.field('button_text').render | none %]
       </div><!--tab-pane-->
       
-      <div class="tab-pane fade" id="violationAdvanced">
+      <div class="tab-pane fade" id="security_eventAdvanced">
         [% form.field('vlan').render | none %]
         [% form.field('redirect_url').render | none %]
       </div><!--tab-pane-->
@@ -206,7 +206,7 @@
 
   <div class="modal-footer">
     <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>
-    [% IF can_access("VIOLATIONS_UPDATE") %]<button class="btn btn-primary" id="violationSubmit" data-loading-text="[% l('Saving') %]">[% l('Save') %]</button>[% END %]
+    [% IF can_access("SECURITY_EVENTS_UPDATE") %]<button class="btn btn-primary" id="security_eventSubmit" data-loading-text="[% l('Saving') %]">[% l('Save') %]</button>[% END %]
   </div>
 
 </form>

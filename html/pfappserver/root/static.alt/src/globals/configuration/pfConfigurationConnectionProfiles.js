@@ -807,7 +807,7 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
         },
         {
           label: i18n.t('Redirection URL'),
-          text: i18n.t('Default URL to redirect to on registration/mitigation release. This is only used if a per-violation redirect URL is not defined.'),
+          text: i18n.t('Default URL to redirect to on registration/mitigation release. This is only used if a per-security_event redirect URL is not defined.'),
           fields: [
             {
               key: 'redirecturl',

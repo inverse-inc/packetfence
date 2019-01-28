@@ -2,9 +2,9 @@
 
 $(function() { // DOM ready
 
-    /* Show a violation from the received HTML */
-    function showViolation(data) {
-        var modal = $('#modalViolation');
+    /* Show a security_event from the received HTML */
+    function showSecurityEvent(data) {
+        var modal = $('#modalSecurityEvent');
         modal.empty();
         modal.append(data);
         modal.find('.switch').bootstrapSwitch();
@@ -12,14 +12,14 @@ $(function() { // DOM ready
         modal.find('.chzn-deselect').chosen({allow_single_deselect: true, width: ''});
         modal.one('shown', function() {
             var data = modal.find('.event_triggers').first()[0];
-            violationsView.event_triggers = JSON.parse(data.textContent || data.innerHTML);
+            security_eventsView.event_triggers = JSON.parse(data.textContent || data.innerHTML);
             $('#actions').trigger('change');
         });
         $('.trigger option').each(function(elem){
           var jthis = $(this);
           var infos = jthis.val().split('::');
           if(infos[0].toLowerCase() == "accounting") {
-            var new_value = violationsView.prettify_accounting(infos[0], infos[1]);
+            var new_value = security_eventsView.prettify_accounting(infos[0], infos[1]);
             jthis.html(new_value);
             jthis.closest('select').trigger("chosen:updated");
           }
@@ -27,8 +27,8 @@ $(function() { // DOM ready
         modal.modal('show');
     }
 
-    /* Show a violation */
-    $('#section').on('click', '[href*="#modalViolation"]', function(event) {
+    /* Show a security_event */
+    $('#section').on('click', '[href*="#modalSecurityEvent"]', function(event) {
         var url = $(this).attr('href');
         var section = $('#section');
         var loader = section.prev('.loader');
@@ -41,7 +41,7 @@ $(function() { // DOM ready
                 section.fadeTo('fast', 1.0);
             })
             .done(function(data) {
-                showViolation(data);
+                showSecurityEvent(data);
             })
             .fail(function(jqXHR) {
                 var status_msg = getStatusMsg(jqXHR);
@@ -52,8 +52,8 @@ $(function() { // DOM ready
         return false;
     });
 
-    /* Create a violation */
-    $('#section').on('click', '#createViolation', function(event) {
+    /* Create a security_event */
+    $('#section').on('click', '#createSecurityEvent', function(event) {
         var url = $(this).attr('href');
         var section = $('#section');
         var loader = section.prev('.loader');
@@ -66,7 +66,7 @@ $(function() { // DOM ready
                 section.fadeTo('fast', 1.0);
             })
             .done(function(data) {
-                showViolation(data);
+                showSecurityEvent(data);
             })
             .fail(function(jqXHR) {
                 $("body,html").animate({scrollTop:0}, 'fast');
@@ -78,10 +78,10 @@ $(function() { // DOM ready
     });
 
     $('#section').on('change', '#viewTriggers select', function(){
-      violationsView.recompute_triggers();
+      security_eventsView.recompute_triggers();
     });
 
-    /* Delete a violation */
+    /* Delete a security_event */
     $('#section').on('click', '[href*="/delete"]', function(e) {
         e.preventDefault();
         if ($(this).hasClass('disabled'))
@@ -92,7 +92,7 @@ $(function() { // DOM ready
         var cells = row.find('td');
         var name = $(cells[1]).text();
         if (!name) name = $(cells[0]).text();
-        var modal = $('#deleteViolation');
+        var modal = $('#deleteSecurityEvent');
         var confirm_link = modal.find('a.btn-primary').first();
         modal.find('h3 span').html(name);
         modal.modal('show');
@@ -109,9 +109,9 @@ $(function() { // DOM ready
                     row.remove();
                     var table = $('#section table');
                     if (table.find('tbody tr').length === 0) {
-                        // No more violations
+                        // No more security_events
                         table.remove();
-                        $('#noViolation').removeClass('hidden');
+                        $('#noSecurityEvent').removeClass('hidden');
                     }
                 })
                 .fail(function(jqXHR) {
@@ -165,7 +165,7 @@ $(function() { // DOM ready
 
     });
 
-    $('body').on('switch-change', '#violations .switch', function(event, value) {
+    $('body').on('switch-change', '#security_events .switch', function(event, value) {
         event.preventDefault();
         var t = $(event.target);
         if (t.attr('processing')) {
@@ -190,11 +190,11 @@ $(function() { // DOM ready
     });
 
 
-    /* Modal Editor: save a violation */
-    $('body').on('submit', 'form[name="violation"]', function(event) {
+    /* Modal Editor: save a security_event */
+    $('body').on('submit', 'form[name="security_event"]', function(event) {
         var form = $(this),
         btn = form.find('.btn-primary'),
-        modal = $('#modalViolation'),
+        modal = $('#modalSecurityEvent'),
         modal_body = modal.find('.modal-body'),
         valid = isFormValid(form);
 
@@ -253,7 +253,7 @@ $(function() { // DOM ready
         if(!$('#viewTriggers').find('select').length){
           $('#noTrigger').removeClass('hide');
         }
-        violationsView.recompute_triggers();
+        security_eventsView.recompute_triggers();
         return false;
     });
 
@@ -262,8 +262,8 @@ $(function() { // DOM ready
         event.preventDefault();
         var jthis = $(event.target);
         $('#viewTriggers').slideUp(function(){
-          $('#editedTrigger').html(ViolationsView.add_combined_trigger_form());
-          violationsView.previous_trigger_options = $('#editedTrigger .triggerButtons').html();
+          $('#editedTrigger').html(SecurityEventsView.add_combined_trigger_form());
+          security_eventsView.previous_trigger_options = $('#editedTrigger .triggerButtons').html();
           $('#editedTrigger .triggerButtons').html('<a href="#backEditTrigger" class="pull-left btn btn-default"><i class="icon  icon-chevron-left"></i></a>');
           $('#editedTrigger .chzn-select').chosen({inherit_select_classes: true, width: ''});
           $('#editTrigger').slideDown();
@@ -279,7 +279,7 @@ $(function() { // DOM ready
         $('#viewTriggers').slideUp(function(){
           var triggers = jthis.closest('.control-group');
           triggers.appendTo('#editedTrigger');
-          violationsView.previous_trigger_options = $('#editedTrigger .triggerButtons').html();
+          security_eventsView.previous_trigger_options = $('#editedTrigger .triggerButtons').html();
           $('#editedTrigger .triggerButtons').html('<a href="#backEditTrigger" class="pull-left btn btn-default"><i class="icon  icon-chevron-left"></i></a>');
           $('#editTrigger').slideDown();
         });
@@ -295,14 +295,14 @@ $(function() { // DOM ready
           var triggers = jthis.closest('.control-group');
           if(triggers.find("select option:selected").length){
             $('#noTrigger').addClass('hide');
-            triggers.find('.triggerButtons').html(violationsView.previous_trigger_options);
+            triggers.find('.triggerButtons').html(security_eventsView.previous_trigger_options);
             triggers.appendTo('#viewTriggers');
           }
           $('#editedTrigger').html('');
           $('#viewTriggers').slideDown();
         });
         
-        violationsView.recompute_triggers();
+        security_eventsView.recompute_triggers();
         return false;
     });
 
@@ -319,7 +319,7 @@ $(function() { // DOM ready
         var type_name = type_select.text();
         var value = type + "::" + id;
         var value_pretty = type_name + " : " + id;
-        violationsView.append_trigger(value, value_pretty);
+        security_eventsView.append_trigger(value, value_pretty);
     });
 
     $('body').on('click', '.add_accounting_trigger', function(event){
@@ -330,7 +330,7 @@ $(function() { // DOM ready
       var trigger_window = $('#accounting_widget_window').find(':selected').val();    
       var tid = trigger_direction+trigger_amount+trigger_unit+trigger_window;
       var trigger = "accounting::"+tid;
-      violationsView.append_trigger(trigger, violationsView.prettify_accounting("accounting",tid));
+      security_eventsView.append_trigger(trigger, security_eventsView.prettify_accounting("accounting",tid));
     });
 
     /* Modal Editor: add a trigger to a combined trigger from a widget */
@@ -344,15 +344,15 @@ $(function() { // DOM ready
         var type_name = type_select.html();
         var value = type + "::" + id;
         var value_pretty = type_name + " : " + tid.html();
-        violationsView.append_trigger(value, value_pretty);
+        security_eventsView.append_trigger(value, value_pretty);
     });
 
     
-    $('body').on('click', '#violationSubmit', function(event) {
+    $('body').on('click', '#security_eventSubmit', function(event) {
         event.preventDefault();
         $('#editTrigger .control-group select').not('#trigger_type').not('.trigger_widget_select').appendTo('#viewTriggers');
-        violationsView.recompute_triggers();
-        $('[name="violation"]').submit();
+        security_eventsView.recompute_triggers();
+        $('[name="security_event"]').submit();
         return false;
     });
 
@@ -363,7 +363,7 @@ $(function() { // DOM ready
     });
 
     $('body').on('click', '.trigger_widget a', function(){
-        var modal = $('#modalViolation');
+        var modal = $('#modalSecurityEvent');
         modal.modal('hide');
         window.location = $(this).attr('href'); 
     });
@@ -371,9 +371,9 @@ $(function() { // DOM ready
 
 });
 
-var ViolationsView = function(){};
+var SecurityEventsView = function(){};
 
-ViolationsView.prototype.recompute_triggers = function() {
+SecurityEventsView.prototype.recompute_triggers = function() {
   var grouped = {};
   $('#viewTriggers select').find(':selected').each(function(){
       var option = $(this);
@@ -402,7 +402,7 @@ ViolationsView.prototype.recompute_triggers = function() {
 
 };
 
-ViolationsView.add_combined_trigger_form = function(){
+SecurityEventsView.add_combined_trigger_form = function(){
   var form = [
   '<div class="control-group">',
   '  <span class="triggerButtons">',
@@ -420,7 +420,7 @@ ViolationsView.add_combined_trigger_form = function(){
   return form.join(' ');
 };
 
-ViolationsView.prototype.prettify_accounting = function(type, value) {
+SecurityEventsView.prototype.prettify_accounting = function(type, value) {
   var lc_type = type.toLowerCase();
   var lc_value = value.toLowerCase();
   var lc_trigger = lc_type+"::"+lc_value;
@@ -448,7 +448,7 @@ ViolationsView.prototype.prettify_accounting = function(type, value) {
   return pretty;
 };
 
-ViolationsView.prototype.append_trigger = function(value,value_pretty){
+SecurityEventsView.prototype.append_trigger = function(value,value_pretty){
   var that = this;
   if(!value_pretty) value_pretty = value;
 
@@ -482,9 +482,9 @@ ViolationsView.prototype.append_trigger = function(value,value_pretty){
 
 };
 
-ViolationsView.prototype.add_fingerbank_trigger = function(search, id, display){
+SecurityEventsView.prototype.add_fingerbank_trigger = function(search, id, display){
   var that = this;
-  violationsView.append_trigger(search.model_stripped()+"::"+id, search.model_stripped() + " " + display);
+  security_eventsView.append_trigger(search.model_stripped()+"::"+id, search.model_stripped() + " " + display);
 };
 
-var violationsView = new ViolationsView();
+var security_eventsView = new SecurityEventsView();

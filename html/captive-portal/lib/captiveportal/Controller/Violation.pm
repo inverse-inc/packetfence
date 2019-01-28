@@ -1,11 +1,11 @@
-package captiveportal::Controller::Violation;
+package captiveportal::Controller::SecurityEvent;
 use Moose;
 
-BEGIN { extends 'captiveportal::PacketFence::Controller::Violation'; }
+BEGIN { extends 'captiveportal::PacketFence::Controller::SecurityEvent'; }
 
 =head1 NAME
 
-captiveportal::Controller::Violation - Violation Controller for captiveportal
+captiveportal::Controller::SecurityEvent - SecurityEvent Controller for captiveportal
 
 =head1 DESCRIPTION
 

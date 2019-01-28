@@ -24,7 +24,7 @@
               <li class="nav-header">[% l('Nodes') %]</li>
               [% list_entry('graph/nodes', 'Nodes States') | none %]
               [% list_entry('graph/os', 'Operating Systems') | none %]
-              [% list_entry('graph/violations', 'Violations') | none %]
+              [% list_entry('graph/security_events', 'SecurityEvents') | none %]
               <li class="nav-header">[% l('Connections') %]</li>
               [% list_entry('graph/connectiontype', 'Types') | none %]
               [% list_entry('graph/ssid','SSIDs') | none %]

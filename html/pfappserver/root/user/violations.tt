@@ -24,6 +24,6 @@
 </table>
 [% ELSE %]
   <div id="noResult" class="unwell">
-    <i class="icon-legal icon-large"></i><p>[% l('No violation found') %]</p>
+    <i class="icon-legal icon-large"></i><p>[% l('No security_event found') %]</p>
   </div>
 [% END %]

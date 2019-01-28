@@ -1,18 +1,18 @@
-package pfappserver::Controller::Violation;
+package pfappserver::Controller::SecurityEvent;
 
 =head1 NAME
 
-pfappserver::Controller::Violation
+pfappserver::Controller::SecurityEvent
 
 =head1 DESCRIPTION
 
-Place all customization for Controller::Violation here
+Place all customization for Controller::SecurityEvent here
 
 =cut
 
 use Moose;
 
-BEGIN { extends 'pfappserver::PacketFence::Controller::Violation'; }
+BEGIN { extends 'pfappserver::PacketFence::Controller::SecurityEvent'; }
 
 =head1 AUTHOR
 

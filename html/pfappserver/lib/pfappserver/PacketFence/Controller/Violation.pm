@@ -1,8 +1,8 @@
-package pfappserver::PacketFence::Controller::Violation;
+package pfappserver::PacketFence::Controller::SecurityEvent;
 
 =head1 NAME
 
-pfappserver::PacketFence::Controller::Violation - Catalyst Controller
+pfappserver::PacketFence::Controller::SecurityEvent - Catalyst Controller
 
 =head1 DESCRIPTION
 
@@ -24,8 +24,8 @@ use pf::config;
 use pf::constants::role qw(@ROLES);
 use pf::Switch::constants;
 use pf::constants::trigger qw($TRIGGER_MAP);
-use pfappserver::Form::Violation;
-use pf::factory::condition::violation;
+use pfappserver::Form::SecurityEvent;
+use pf::factory::condition::security_event;
 use Switch;
 use pf::fingerbank;
 use fingerbank::Model::Device;
@@ -47,15 +47,15 @@ BEGIN {
 __PACKAGE__->config(
     action => {
         # Reconfigure the object action from pfappserver::Base::Controller::Crud
-        object => { Chained => '/', PathPart => 'violation', CaptureArgs => 1 },
+        object => { Chained => '/', PathPart => 'security_event', CaptureArgs => 1 },
         # Configure access rights
-        view   => { AdminRole => 'VIOLATIONS_READ' },
-        list   => { AdminRole => 'VIOLATIONS_READ' },
-        create => { AdminRole => 'VIOLATIONS_CREATE' },
-        clone  => { AdminRole => 'VIOLATIONS_CREATE' },
-        update => { AdminRole => 'VIOLATIONS_UPDATE' },
-        toggle => { AdminRole => 'VIOLATIONS_UPDATE' },
-        remove => { AdminRole => 'VIOLATIONS_DELETE' },
+        view   => { AdminRole => 'SECURITY_EVENTS_READ' },
+        list   => { AdminRole => 'SECURITY_EVENTS_READ' },
+        create => { AdminRole => 'SECURITY_EVENTS_CREATE' },
+        clone  => { AdminRole => 'SECURITY_EVENTS_CREATE' },
+        update => { AdminRole => 'SECURITY_EVENTS_UPDATE' },
+        toggle => { AdminRole => 'SECURITY_EVENTS_UPDATE' },
+        remove => { AdminRole => 'SECURITY_EVENTS_DELETE' },
     },
 );
 
@@ -70,28 +70,28 @@ Setting the current form instance and model
 sub begin :Private {
     my ($self, $c) = @_;
     my ($status, $result);
-    my ($model, $violations, $violation_default, $roles, $triggers, $templates);
+    my ($model, $security_events, $security_event_default, $roles, $triggers, $templates);
 
-    $model =  $c->model('Config::Violations');
+    $model =  $c->model('Config::SecurityEvents');
     ($status, $result) = $model->readAll();
     if (is_success($status)) {
-        $violations = $result;
+        $security_events = $result;
     }
     my @roles = map {{ name => $_ }} @ROLES;
     ($status, $result) = $c->model('Config::Roles')->listFromDB();
     if (is_success($status)) {
         push(@roles, @$result);
     }
-    ($status, $violation_default) = $model->read('defaults');
+    ($status, $security_event_default) = $model->read('defaults');
     $triggers = $model->listTriggers();
     $templates = $model->availableTemplates();
     $c->stash(
-        trigger_types => [sort(keys(%pf::factory::condition::violation::TRIGGER_TYPE_TO_CONDITION_TYPE))],
+        trigger_types => [sort(keys(%pf::factory::condition::security_event::TRIGGER_TYPE_TO_CONDITION_TYPE))],
         current_model_instance => $model,
         current_form_instance =>
-              $c->form("Violation",
-                       violations => $violations,
-                       placeholders => $violation_default,
+              $c->form("SecurityEvent",
+                       security_events => $security_events,
+                       placeholders => $security_event_default,
                        roles => \@roles,
                        triggers => $triggers,
                        templates => $templates,
@@ -106,13 +106,13 @@ sub begin :Private {
 sub index :Path :Args(0) {
     my ($self, $c) = @_;
 
-    $c->stash->{template} = 'violation/list.tt';
+    $c->stash->{template} = 'security_event/list.tt';
     $c->forward('list');
 }
 
 =head2 toggle
 
-toggle on or off the violation
+toggle on or off the security_event
 
 =cut
 sub toggle : Chained('object') :PathPart('toggle') :Args(1) {
@@ -212,7 +212,7 @@ after view => sub {
             ($c->stash->{splitted_triggers}, $c->stash->{pretty_triggers}) =
                 $self->parse_triggers($c->stash->{item}->{trigger});
             $c->stash->{trigger_map} = $pf::constants::trigger::TRIGGER_MAP;
-            $c->stash->{json_event_triggers} = encode_json([ map { ($pf::factory::condition::violation::TRIGGER_TYPE_TO_CONDITION_TYPE{$_}{event}) ? $_ : () } keys %pf::factory::condition::violation::TRIGGER_TYPE_TO_CONDITION_TYPE ]);
+            $c->stash->{json_event_triggers} = encode_json([ map { ($pf::factory::condition::security_event::TRIGGER_TYPE_TO_CONDITION_TYPE{$_}{event}) ? $_ : () } keys %pf::factory::condition::security_event::TRIGGER_TYPE_TO_CONDITION_TYPE ]);
             $c->stash->{action_uri} = $c->uri_for($self->action_for('update'), [$c->stash->{id}]);
         } else {
             $c->stash->{action_uri} = $c->uri_for($self->action_for('create'));
@@ -227,9 +227,9 @@ after view => sub {
 after [qw(create clone)] => sub {
     my ($self, $c) = @_;
     $c->stash->{trigger_map} = $pf::constants::trigger::TRIGGER_MAP;
-    $c->stash->{json_event_triggers} = encode_json([ map { ($pf::factory::condition::violation::TRIGGER_TYPE_TO_CONDITION_TYPE{$_}{event}) ? $_ : () } keys %pf::factory::condition::violation::TRIGGER_TYPE_TO_CONDITION_TYPE ]);
+    $c->stash->{json_event_triggers} = encode_json([ map { ($pf::factory::condition::security_event::TRIGGER_TYPE_TO_CONDITION_TYPE{$_}{event}) ? $_ : () } keys %pf::factory::condition::security_event::TRIGGER_TYPE_TO_CONDITION_TYPE ]);
     if (!(is_success($c->response->status) && $c->request->method eq 'POST' )) {
-        $c->stash->{template} = 'violation/view.tt';
+        $c->stash->{template} = 'security_event/view.tt';
     }
     if ($c->request->method eq 'POST' ) {
         pf::fingerbank::clear_cache();
@@ -249,7 +249,7 @@ after list => sub {
     my ($self, $c) = @_;
 
     if (is_success($c->response->status)) {
-        # Sort violations by id and keep the defaults template at the top
+        # Sort security_events by id and keep the defaults template at the top
         my @items = sort {
             if ($a->{id} eq 'defaults') {
                 -1;

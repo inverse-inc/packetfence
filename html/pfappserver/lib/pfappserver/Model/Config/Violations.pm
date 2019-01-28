@@ -1,14 +1,14 @@
-package pfappserver::Model::Config::Violations;
+package pfappserver::Model::Config::SecurityEvents;
 
 =head1 NAME
 
-pfappserver::Model::Config::Violations
+pfappserver::Model::Config::SecurityEvents
 
 =cut
 
 =head1 DESCRIPTION
 
-pfappserver::Model::Config::Violations
+pfappserver::Model::Config::SecurityEvents
 
 =cut
 
@@ -16,14 +16,14 @@ use Moose;
 use namespace::autoclean;
 
 use pf::config qw(%CAPTIVE_PORTAL %Profiles_Config);
-use pf::violation_config;
+use pf::security_event_config;
 use HTTP::Status qw(:constants is_error is_success);
-use pf::ConfigStore::Violations;
+use pf::ConfigStore::SecurityEvents;
 use List::MoreUtils qw(uniq);
 
 extends 'pfappserver::Base::Model::Config';
 
-sub _buildConfigStore { pf::ConfigStore::Violations->new }
+sub _buildConfigStore { pf::ConfigStore::SecurityEvents->new }
 
 =head1 Methods
 
@@ -37,7 +37,7 @@ sub availableTemplates {
     my @dirs = map { uniq(@{pf::Connection::ProfileFactory->_from_profile($_)->{_template_paths}}) } keys(%Profiles_Config);
     my @templates;
     foreach my $dir (@dirs) {
-        next unless opendir(my $dh, $dir . '/violations');
+        next unless opendir(my $dh, $dir . '/security_events');
         push @templates, grep { /^[^\.]+\.html$/ } readdir($dh);
         s/\.html// for @templates;
         closedir($dh);
@@ -65,7 +65,7 @@ sub addTrigger {
     my ($status,$status_msg) = $self->hasId($id);
     if(is_success($status)) {
         my $result = $self->configStore->addTrigger($id,$trigger);
-        $status_msg = $result == 1  ? "Successfully added trigger to violation" : 'Trigger already included.';
+        $status_msg = $result == 1  ? "Successfully added trigger to security_event" : 'Trigger already included.';
     }
     return ($status,$status_msg);
 }
@@ -79,7 +79,7 @@ sub deleteTrigger {
     my ($status,$status_msg) = $self->hasId($id);
     if(is_success($status)) {
         my $result = $self->configStore->deleteTrigger($id,$trigger);
-        $status_msg = $result == 1  ? "Successfully deleted trigger from violation" : 'Trigger already excluded.';
+        $status_msg = $result == 1  ? "Successfully deleted trigger from security_event" : 'Trigger already excluded.';
     }
     return ($status,$status_msg);
 }

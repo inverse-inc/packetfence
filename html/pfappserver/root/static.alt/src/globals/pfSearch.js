@@ -13,7 +13,7 @@ export const pfSearchConditionType = {
   NODE_STATUS:             'node_status',
   ONLINE:                  'online',
   ROLE:                    'role',
-  VIOLATION:               'violation'
+  SECURITY_EVENT:               'security_event'
 }
 
 export const pfSearchConditionValue = {
@@ -74,7 +74,7 @@ pfConditionOperators[pfSearchConditionType.ROLE] = {
   'equals':                pfSearchConditionValue.SELECT,
   'not_equals':            pfSearchConditionValue.SELECT
 }
-pfConditionOperators[pfSearchConditionType.VIOLATION] = {
+pfConditionOperators[pfSearchConditionType.SECURITY_EVENT] = {
   'equals':                pfSearchConditionValue.SELECT,
   'not_equals':            pfSearchConditionValue.SELECT
 }
@@ -159,8 +159,8 @@ pfSearchConditionValues[pfSearchConditionType.ONLINE] = [
 pfSearchConditionValues[pfSearchConditionType.ROLE] = (store) => {
   return store.getters['config/rolesList']
 }
-pfSearchConditionValues[pfSearchConditionType.VIOLATION] = (store) => {
-  return store.getters['config/violationsList']
+pfSearchConditionValues[pfSearchConditionType.SECURITY_EVENT] = (store) => {
+  return store.getters['config/security_eventsList']
 }
 
 export const pfSearchConditionFormatter = {

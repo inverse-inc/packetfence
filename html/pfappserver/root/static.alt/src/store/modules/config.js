@@ -111,8 +111,8 @@ const api = {
   getTenants () {
     return apiCall({ url: 'tenants', method: 'get' })
   },
-  getViolations () {
-    return apiCall({ url: 'config/violations', method: 'get' })
+  getSecurityEvents () {
+    return apiCall({ url: 'config/security_events', method: 'get' })
   }
 }
 
@@ -194,30 +194,30 @@ const state = { // set intitial states to `false` (not `[]` or `{}`) to avoid in
   switchGroups: false,
   tenantsStatus: '',
   tenants: false,
-  violationsStatus: '',
-  violations: false
+  security_eventsStatus: '',
+  security_events: false
 }
 
 const helpers = {
-  sortViolations: (violations) => {
-    let sortedIds = Object.keys(violations).sort((a, b) => {
+  sortSecurityEvents: (security_events) => {
+    let sortedIds = Object.keys(security_events).sort((a, b) => {
       if (a === 'defaults') {
         return a
-      } else if (!violations[a].desc && !violations[b].desc) {
+      } else if (!security_events[a].desc && !security_events[b].desc) {
         return a.localeCompare(b)
-      } else if (!violations[b].desc) {
+      } else if (!security_events[b].desc) {
         return a
-      } else if (!violations[a].desc) {
+      } else if (!security_events[a].desc) {
         return b
       } else {
-        return violations[a].desc.localeCompare(violations[b].desc)
+        return security_events[a].desc.localeCompare(security_events[b].desc)
       }
     })
-    let sortedViolations = []
+    let sortedSecurityEvents = []
     for (let id of sortedIds) {
-      sortedViolations.push(violations[id])
+      sortedSecurityEvents.push(security_events[id])
     }
-    return sortedViolations
+    return sortedSecurityEvents
   },
   groupSwitches: (switches) => {
     let ret = []
@@ -337,8 +337,8 @@ const getters = {
   isLoadingTenants: state => {
     return state.tenantsStatus === types.LOADING
   },
-  isLoadingViolations: state => {
-    return state.violationsStatus === types.LOADING
+  isLoadingSecurityEvents: state => {
+    return state.security_eventsStatus === types.LOADING
   },
   accessDurationsList: state => {
     if (!state.baseGuestsAdminRegistration) return []
@@ -444,13 +444,13 @@ const getters = {
       return { value: item.id, name: item.name }
     })
   },
-  violationsList: state => {
-    return helpers.sortViolations(state.violations).filter(violation => violation.enabled === 'Y').map((item) => {
+  security_eventsList: state => {
+    return helpers.sortSecurityEvents(state.security_events).filter(security_event => security_event.enabled === 'Y').map((item) => {
       return { value: item.id, text: item.desc }
     })
   },
-  sortedViolations: state => {
-    return helpers.sortViolations(state.violations)
+  sortedSecurityEvents: state => {
+    return helpers.sortSecurityEvents(state.security_events)
   },
   groupedSwitches: state => {
     return helpers.groupSwitches(state.switches)
@@ -952,18 +952,18 @@ const actions = {
       return Promise.resolve(state.tenants)
     }
   },
-  getViolations: ({ commit, getters, state }) => {
-    if (getters.isLoadingViolations) {
+  getSecurityEvents: ({ commit, getters, state }) => {
+    if (getters.isLoadingSecurityEvents) {
       return
     }
-    if (!state.violations) {
-      commit('VIOLATIONS_REQUEST')
-      return api.getViolations().then(response => {
-        commit('VIOLATIONS_UPDATED', response.data.items)
-        return state.violations
+    if (!state.security_events) {
+      commit('SECURITY_EVENTS_REQUEST')
+      return api.getSecurityEvents().then(response => {
+        commit('SECURITY_EVENTS_UPDATED', response.data.items)
+        return state.security_events
       })
     } else {
-      return Promise.resolve(state.violations)
+      return Promise.resolve(state.security_events)
     }
   }
 }
@@ -1214,16 +1214,16 @@ const mutations = {
     state.tenants = tenants
     state.tenantsStatus = types.SUCCESS
   },
-  VIOLATIONS_REQUEST: (state) => {
-    state.violationsStatus = types.LOADING
+  SECURITY_EVENTS_REQUEST: (state) => {
+    state.security_eventsStatus = types.LOADING
   },
-  VIOLATIONS_UPDATED: (state, violations) => {
+  SECURITY_EVENTS_UPDATED: (state, security_events) => {
     let ref = {}
-    for (let violation of violations) {
-      ref[violation.id] = Object.assign({}, violation)
+    for (let security_event of security_events) {
+      ref[security_event.id] = Object.assign({}, security_event)
     }
-    state.violations = ref
-    state.violationsStatus = types.SUCCESS
+    state.security_events = ref
+    state.security_eventsStatus = types.SUCCESS
   }
 }
 

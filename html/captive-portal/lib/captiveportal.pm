@@ -91,7 +91,7 @@ __PACKAGE__->config(
         mime_types => { woff => 'font/woff' },
 
         # Include static content from captive portal in order to render previews of
-        # remediation pages (see pfappserver::Controller::Violation)
+        # remediation pages (see pfappserver::Controller::SecurityEvent)
         include_path => [
             \&loadCustomStatic,
             INSTALL_DIR . '/html/captive-portal',

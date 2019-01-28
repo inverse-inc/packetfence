@@ -1,0 +1,47 @@
+[%- IF items.size %]
+<table class="table table-condensed">
+    <thead>
+      <tr>
+        <th>[% l('Description') %]</th>
+        <th>[% l('Start Date') %]</th>
+        <th>[% l('Release Date') %]</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+    [%- FOR item IN items %]
+    <tr[% ' class="muted"' IF item.status == 'closed' %]>
+      <td>[% '<i class="icon-clock-o"></i>' IF item.status == 'delayed' %] [% item.description | html %]</td>
+      <td>[% item.start_date | html %]</td>
+      <td>[% item.release_date | html %]</td>
+      <td>
+        [% IF can_access("NODES_UPDATE") %]
+            [% IF item.status == 'open' %]
+                <a href="[% c.uri_for(c.controller('Node').action_for('closeSecurityEvent'), [item.id]) %]" class="btn btn-mini">[% l('Release') %]</a>
+            [% ELSIF item.status == 'delayed'%]
+                <a href="[% c.uri_for(c.controller('Node').action_for('runSecurityEvent'), [item.id]) %]" class="btn btn-mini">[% l('Run Now') %]</a>
+                <a href="[% c.uri_for(c.controller('Node').action_for('closeSecurityEvent'), [item.id]) %]" class="btn btn-mini">[% l('Close') %]</a>
+            [% END %]
+        [% END %]
+      </td>
+    </tr>
+    [%- END %]
+    </tbody>
+</table>
+[%- ELSE %]
+  <div id="noResult" class="unwell">
+    <i class="icon-legal icon-large"></i><p>[% l('No security_event found') %]</p>
+  </div>
+[%- END %]
+[%- IF can_access("NODES_UPDATE") %]
+  <hr />
+  <div class="controls pull-right">
+  <select name="vid" id="vid" class="" data-placeholder="[% l('Select a security_event') %]">
+      [%- FOREACH security_event IN security_events %]
+      [% IF security_event.desc %]<option trigger_url=[% c.uri_for(c.controller('Node').action_for('triggerSecurityEvent'), [mac] security_event.id, {tenant_id => tenant_id})  %] value="[% security_event.id | html %]">[% security_event.desc | html %]</option>[% END %]
+      [%- END -%]
+  </select>
+  [% IF multihost.size %]<a id="addSecurityEvent" class="btn btn-warning" href="[% c.uri_for(c.controller('Node').action_for('triggerSecurityEvent_multihost'), [mac]) %]">[% l('Trigger (All Devices)') %]</a>[% END %]
+  <button type="button" id="addSecurityEvent" class="btn btn-warning">[% l('Trigger') %]</button>
+</div>
+[%- END %]
