@@ -206,12 +206,12 @@ func (d *Interfaces) readConfig() {
 
 							// Initialize hardware cache
 							// Add 10 minutes to the expiration as a buffer so the IP addresses don't get reused too fast
-							hwcache := cache.New((time.Duration(seconds)*time.Second)+(600*time.Second), 10*time.Second)
+							hwcache := cache.New((time.Duration(seconds) * time.Second), 10*time.Second)
 
 							hwcache.OnEvicted(func(nic string, pool interface{}) {
 								go func() {
-									// Always wait 10 minutes before releasing the IP again
-									time.Sleep(10 * time.Minute)
+									// Always wait 30 seconds before releasing the IP again
+									time.Sleep(30 * time.Second)
 									log.LoggerWContext(ctx).Info(nic + " " + dhcp.IPAdd(DHCPScope.start, pool.(int)).String() + " Added back in the pool " + DHCPScope.role + " on index " + strconv.Itoa(pool.(int)))
 									DHCPScope.available.FreeIPIndex(uint64(pool.(int)))
 								}()
@@ -271,8 +271,8 @@ func (d *Interfaces) readConfig() {
 
 						hwcache.OnEvicted(func(nic string, pool interface{}) {
 							go func() {
-								// Always wait 10 minutes before releasing the IP again
-								time.Sleep(10 * time.Minute)
+								// Always wait 30 seconds before releasing the IP again
+								time.Sleep(30 * time.Second)
 								log.LoggerWContext(ctx).Info(nic + " " + dhcp.IPAdd(DHCPScope.start, pool.(int)).String() + " Added back in the pool " + DHCPScope.role + " on index " + strconv.Itoa(pool.(int)))
 								DHCPScope.available.FreeIPIndex(uint64(pool.(int)))
 							}()
