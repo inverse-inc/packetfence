@@ -386,7 +386,7 @@ my $sb = pf::UnifiedApi::Search::Builder::Nodes->new();
 }
 
 {
-    my @f = qw(mac violation.open_count violation.close_count);
+    my @f = qw(mac security_event.open_count security_event.close_count);
 
     my %search_info = (
         dal => $dal,
@@ -399,8 +399,8 @@ my $sb = pf::UnifiedApi::Search::Builder::Nodes->new();
             200,
             [
                 'node.mac',
-                \"COUNT(violation_open.id) AS `violation.open_count`",
-                \"COUNT(violation_close.id) AS `violation.close_count`",
+                \"COUNT(security_event_open.id) AS `security_event.open_count`",
+                \"COUNT(security_event_close.id) AS `security_event.close_count`",
             ],
         ],
         'Return the columns'
@@ -422,8 +422,8 @@ my $sb = pf::UnifiedApi::Search::Builder::Nodes->new();
             200,
             [
                 -join => 'node',
-                @pf::UnifiedApi::Search::Builder::Nodes::VIOLATION_OPEN_JOIN,
-                @pf::UnifiedApi::Search::Builder::Nodes::VIOLATION_CLOSED_JOIN,
+                @pf::UnifiedApi::Search::Builder::Nodes::SECURITY_EVENT_OPEN_JOIN,
+                @pf::UnifiedApi::Search::Builder::Nodes::SECURITY_EVENT_CLOSED_JOIN,
             ]
         ],
         'Return the joined tables'
@@ -437,7 +437,7 @@ my $sb = pf::UnifiedApi::Search::Builder::Nodes->new();
             200,
             [qw(node.tenant_id node.mac)],
         ],
-        "violation.open_count Group by",
+        "security_event.open_count Group by",
     )
 }
 

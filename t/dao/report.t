@@ -50,8 +50,8 @@ my @methods = qw(
     report_active_reg
     report_registered_all
     report_registered_active
-    report_openviolations_all
-    report_openviolations_active
+    report_opensecurity_events_all
+    report_opensecurity_events_active
     report_statics_all
     report_statics_active
     report_unknownprints_all

@@ -2,13 +2,13 @@
 
 =head1 NAME
 
-Violations
+SecurityEvents
 
 =cut
 
 =head1 DESCRIPTION
 
-unit test for Violations
+unit test for SecurityEvents
 
 =cut
 
@@ -33,9 +33,9 @@ use Test::Mojo;
 use Test::NoWarnings;
 my $t = Test::Mojo->new('pf::UnifiedApi');
 
-my $collection_base_url = '/api/v1/config/violations';
+my $collection_base_url = '/api/v1/config/security_events';
 
-my $base_url = '/api/v1/config/violation';
+my $base_url = '/api/v1/config/security_event';
 my $limit = 10;
 $t->get_ok("$collection_base_url?limit=$limit")
   ->status_is(200);

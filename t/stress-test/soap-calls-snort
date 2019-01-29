@@ -54,9 +54,9 @@ sub soap_requests {
       );
       my $result = $soap->event_add($date, $srcip, "detect", $sid);
       if ($result->fault) {
-        print ("warning thread $tid connection #$i violation could not be added: " . $result->faultcode . " - " . $result->faultstring . " - " . $result->faultdetail."\n");
+        print ("warning thread $tid connection #$i security_event could not be added: " . $result->faultcode . " - " . $result->faultstring . " - " . $result->faultdetail."\n");
       } else {
-        # syslog("info", "added violation $sid for $srcip");
+        # syslog("info", "added security_event $sid for $srcip");
       }
     };
     if ($@) {
