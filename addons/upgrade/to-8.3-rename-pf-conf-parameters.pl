@@ -16,7 +16,7 @@ use strict;
 use warnings;
 use lib qw(/usr/local/pf/lib);
 use pf::IniFiles;
-use pf::file_paths qw($pf_config_file $violations_config_file);
+use pf::file_paths qw($pf_config_file $security_events_config_file);
 use pf::util;
 run_as_pf();
 
