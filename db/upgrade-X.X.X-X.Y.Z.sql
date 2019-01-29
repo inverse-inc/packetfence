@@ -49,4 +49,32 @@ call ValidateVersion;
 
 DROP PROCEDURE IF EXISTS `ValidateVersion`;
 
+
+alter table class change vid security_event_id int(11) NOT NULL;
+alter table action change vid security_event_id int(11) NOT NULL;
+
+CREATE TABLE security_event (
+  id int NOT NULL AUTO_INCREMENT,
+  tenant_id int NOT NULL DEFAULT 1,
+  mac varchar(17) NOT NULL,
+  security_event_id int(11) NOT NULL,
+  start_date datetime NOT NULL,
+  release_date datetime default "0000-00-00 00:00:00",
+  status varchar(10) default "open",
+  ticket_ref varchar(255) default NULL,
+  notes text,
+  KEY security_event_id (security_event_id),
+  KEY status (status),
+  KEY uniq_mac_status_id (mac,status,security_event_id),
+  KEY security_event_release_date (release_date),
+  CONSTRAINT `tenant_id_mac_fkey_node` FOREIGN KEY (`tenant_id`, `mac`) REFERENCES `node` (`tenant_id`, `mac`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `security_event_id_fkey_class` FOREIGN KEY (`security_event_id`) REFERENCES `class` (`security_event_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `security_event_tenant_id` FOREIGN KEY(`tenant_id`) REFERENCES `tenant` (`id`),
+  PRIMARY KEY (id)
+) ENGINE=InnoDB;
+
+insert into security_event select id, tenant_id, mac, vid, start_date, release_date, status, ticket_ref, notes from violation;
+
+drop table violation;
+
 INSERT INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION)); 
