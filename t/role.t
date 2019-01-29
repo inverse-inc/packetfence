@@ -51,7 +51,7 @@ isa_ok($role_obj, 'pf::role');
 can_ok($role_obj, qw(
     fetchRoleForNode
     doWeActOnThisTrap
-    getSecurityEventRole
+    getIsolationRole
     getRegistrationRole
     getRegisteredRole
     getNodeInfoForAutoReg

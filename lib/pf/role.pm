@@ -78,7 +78,7 @@ Answers the question: What VLAN should a given node be put into?
 
 This sub is meant to be overridden in lib/pf/role/custom.pm if the default
 version doesn't do the right thing for you. However it is very generic,
-maybe what you are looking for needs to be done in getSecurityEventRole,
+maybe what you are looking for needs to be done in getIsolationRole,
 getRegistrationRole or getRegisteredRole.
 
 =cut
@@ -117,7 +117,7 @@ sub fetchRoleForNode {
     }
 
     # security_event handling
-    my $answer = $self->getSecurityEventRole($args);
+    my $answer = $self->getIsolationRole($args);
     $answer->{wasInline} = 0;
     if (defined($answer->{role}) && $answer->{role} ne "0" ) {
         return $answer;
@@ -185,7 +185,7 @@ sub doWeActOnThisTrap {
     return $weActOnThisTrap;
 }
 
-=head2 getSecurityEventRole
+=head2 getIsolationRole
 
 Returns the security_event role for a node (if any)
 
@@ -203,7 +203,7 @@ Return values:
 
 =cut
 
-sub getSecurityEventRole {
+sub getIsolationRole {
     my $timer = pf::StatsD::Timer->new;
     require pf::security_event;
     # $args->{'switch'} is the switch object (pf::Switch)
