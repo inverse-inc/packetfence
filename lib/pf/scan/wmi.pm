@@ -80,18 +80,18 @@ sub startScan {
     my $rule_tester = new pf::scan::wmi::rules;
     my $result = $rule_tester->test($self);
  
-    my $scan_vid = $pf::constants::scan::POST_SCAN_VID;
-    $scan_vid = $pf::constants::scan::SCAN_VID if ($self->{'_registration'});
-    $scan_vid = $pf::constants::scan::PRE_SCAN_VID if ($self->{'_pre_registration'});
+    my $scan_security_event_id = $pf::constants::scan::POST_SCAN_SECURITY_EVENT_ID;
+    $scan_security_event_id = $pf::constants::scan::SCAN_SECURITY_EVENT_ID if ($self->{'_registration'});
+    $scan_security_event_id = $pf::constants::scan::PRE_SCAN_SECURITY_EVENT_ID if ($self->{'_pre_registration'});
 
     if (!$result) {
         $logger->warn("WMI scan didnt start");
-        return $scan_vid;
+        return $scan_security_event_id;
     }
 
     my $apiclient = pf::api::jsonrpcclient->new;
     my %data = (
-       'vid' => $scan_vid,
+       'security_event_id' => $scan_security_event_id,
        'mac' => $self->{'_scanMac'},
     );
     $apiclient->notify('close_security_event', %data );

@@ -200,7 +200,7 @@ sub person_view_all {
     my %where;
     my %search  = (
             -where => \%where,
-            -group_by => 'person.vid',
+            -group_by => 'person.pid',
     );
 
     if ( defined( $params{'where'} ) ) {
@@ -309,7 +309,7 @@ sub person_security_events {
         -where => {
             pid => $pid,
         },
-        -from => [-join => qw(security_event =>{security_event.mac=node.mac} node =>{security_event.vid=class.vid} class)],
+        -from => [-join => qw(security_event =>{security_event.mac=node.mac} node =>{security_event.security_event_id=class.security_event_id} class)],
         -order_by => {-desc => 'start_date'},
     );
     if (is_error($status)) {

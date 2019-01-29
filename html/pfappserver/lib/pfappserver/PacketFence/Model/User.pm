@@ -765,7 +765,7 @@ sub bulkCloseSecurityEvents {
     my $count = 0;
     foreach my $mac (map {$_->{mac}} map {person_nodes($_)} @ids  ) {
         foreach my $security_event (security_event_view_open_desc($mac)) {
-            if (security_event_force_close( $mac, $security_event->{vid})) {
+            if (security_event_force_close( $mac, $security_event->{security_event_id})) {
                 pf::enforcement::reevaluate_access($mac, 'manage_vclose');
                 $count++;
             }

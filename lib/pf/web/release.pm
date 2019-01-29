@@ -24,7 +24,7 @@ use pf::file_paths qw($bin_dir);
 use pf::ip4log;
 use pf::node;
 use pf::Portal::Session;
-use pf::constants::scan qw($SCAN_VID);
+use pf::constants::scan qw($SCAN_SECURITY_EVENT_ID);
 use pf::util;
 use pf::security_event;
 use pf::web;
@@ -74,24 +74,24 @@ sub handler
 
   my $security_events = security_event_view_top($mac);
   # is security_events valid
-  if (!defined($security_events) || ref($security_events) ne 'HASH' || !defined($security_events->{'vid'})) {
+  if (!defined($security_events) || ref($security_events) ne 'HASH' || !defined($security_events->{'security_event_id'})) {
     # not valid, we should not be here then, lets tell the user to re-open his browser
     pf::web::generate_error_page($portalSession, i18n("release: reopen browser"), $r);
     return Apache2::Const::OK;
   }
 
-  my $vid = $security_events->{'vid'};
+  my $security_event_id = $security_events->{'security_event_id'};
 
   # is class valid? if so, let's grab some related info that we will need
   my ($class_redirect_url, $class_max_enable_url);
-  my $class = class_view($vid);
+  my $class = class_view($security_event_id);
   if (defined($class) && ref($class) eq 'HASH') {
     $class_redirect_url = $class->{'redirect_url'} if defined($class->{'redirect_url'});
     $class_max_enable_url = $class->{'max_enable_url'} if defined($class->{'max_enable_url'});
   }
 
   # scan code...
-  if ($vid == $SCAN_VID) {
+  if ($security_event_id == $SCAN_SECURITY_EVENT_ID) {
     # detect if a system scan is in progress, if so redirect to scan in progress page
     # this should only happen if the user explicitly put /release in his browser address
     if ($security_events->{'ticket_ref'} =~ /^Scan in progress, started at: (.*)$/) {
@@ -111,9 +111,9 @@ sub handler
     return Apache2::Const::OK;
   }
 
-  $logger->info("Will try to close security_event $vid for $mac");
-  my $grace = security_event_close($mac,$vid);
-  $logger->info("Closing of security_event $vid for $mac returned $grace");
+  $logger->info("Will try to close security_event $security_event_id for $mac");
+  my $grace = security_event_close($mac,$security_event_id);
+  $logger->info("Closing of security_event $security_event_id for $mac returned $grace");
 
   if ($grace != -1) {
     my $count = security_event_count($mac);

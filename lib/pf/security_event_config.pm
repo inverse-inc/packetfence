@@ -96,7 +96,7 @@ sub remove_deleted_security_events {
     my ($ids) = @_;
     my ($status, $rows) = pf::dal::class->remove_items(
         -where => {
-            vid => { -not_in => $ids }
+            security_event_id => { -not_in => $ids }
         }
     );
 }

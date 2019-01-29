@@ -38,7 +38,7 @@ use pf::constants::role qw($VOICE_ROLE $REJECT_ROLE);
 use pf::util;
 use pf::config::util;
 use pf::floatingdevice::custom;
-use pf::constants::scan qw($POST_SCAN_VID);
+use pf::constants::scan qw($POST_SCAN_SECURITY_EVENT_ID);
 use pf::authentication;
 use pf::Authentication::constants;
 use pf::Connection::ProfileFactory;
@@ -236,7 +236,7 @@ sub getSecurityEventRole {
     $logger->trace("What is the highest priority security_event for this host?");
     my $top_security_event = pf::security_event::security_event_view_top($args->{'mac'});
     # fetching top security_event failed
-    if (!$top_security_event || !defined($top_security_event->{'vid'})) {
+    if (!$top_security_event || !defined($top_security_event->{'security_event_id'})) {
 
         $logger->warn("Could not find highest priority open security_event. ".
                       "Setting target role");
@@ -245,20 +245,20 @@ sub getSecurityEventRole {
     }
 
     # get security_event id
-    my $vid = $top_security_event->{'vid'};
+    my $security_event_id = $top_security_event->{'security_event_id'};
 
     # Scan security_event that must be done in the production vlan
-    if ($vid == $POST_SCAN_VID) {
+    if ($security_event_id == $POST_SCAN_SECURITY_EVENT_ID) {
         return ({ role => 0});
     }
 
     # find security_event class based on security_event id
     require pf::class;
-    my $class = pf::class::class_view($vid);
+    my $class = pf::class::class_view($security_event_id);
     # finding security_event class based on security_event id failed
     if (!$class || !defined($class->{'vlan'})) {
 
-        $logger->warn("Could not find class entry for security_event $vid. ".
+        $logger->warn("Could not find class entry for security_event $security_event_id. ".
                       "Setting target role to isolation");
         $pf::StatsD::statsd->increment(called() . ".error" );
         return ({role => $role});
@@ -269,11 +269,11 @@ sub getSecurityEventRole {
 
     # example of a specific security_event that packetfence should block instead of isolate
     # ex: block iPods / iPhones because they tend to overload controllers, radius and captive portal in isolation vlan
-    # if ($vid == '1100004') { return -1; }
+    # if ($security_event_id == '1100004') { return -1; }
 
     # Asking the switch to give us its configured vlan number for the vlan returned for the security_event
     if (defined($role)) {
-        $logger->info("highest priority security_event is $vid. Target Role for security_event: $role");
+        $logger->info("highest priority security_event is $security_event_id. Target Role for security_event: $role");
     }
     return ({role => $role});
 }
@@ -386,7 +386,7 @@ sub getRegisteredRole {
     my $scan = $profile->findScan($args->{'mac'},$args->{'node_info'});
     if (defined($scan) && isenabled($scan->{'post_registration'})) {
         $logger->info("Triggering scan check");
-        pf::security_event::security_event_add( $args->{'mac'}, $POST_SCAN_VID );
+        pf::security_event::security_event_add( $args->{'mac'}, $POST_SCAN_SECURITY_EVENT_ID );
     }
 
     $logger->debug("Trying to determine VLAN from role.");

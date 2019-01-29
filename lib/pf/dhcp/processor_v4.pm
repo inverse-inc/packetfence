@@ -56,7 +56,7 @@ use pf::parking;
 use pf::cluster;
 use pf::dhcp_option82 qw(dhcp_option82_insert_or_update);
 use pf::security_event;
-use pf::constants::parking qw($PARKING_VID);
+use pf::constants::parking qw($PARKING_SECURITY_EVENT_ID);
 
 has 'src_mac' => ('is' => 'ro');
 has 'dest_mac' => ('is' => 'ro');
@@ -445,7 +445,7 @@ sub checkForParking {
         return;
     }
 
-    if(security_event_count_open_vid($client_mac, $PARKING_VID)) {
+    if(security_event_count_open_security_event_id($client_mac, $PARKING_SECURITY_EVENT_ID)) {
         pf::parking::trigger_parking($client_mac, $client_ip);
     }
 

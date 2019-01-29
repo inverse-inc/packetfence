@@ -240,9 +240,9 @@ sub process_transaction {
         }
 
         # Close security_events that use the 'Accounting::BandwidthExpired' trigger
-        foreach my $vid (@BANDWIDTH_EXPIRED_SECURITY_EVENTS){
+        foreach my $security_event_id (@BANDWIDTH_EXPIRED_SECURITY_EVENTS){
             # Close any existing security_event
-            security_event_force_close($mac, $vid);
+            security_event_force_close($mac, $security_event_id);
         }
     }
 

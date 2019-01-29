@@ -223,7 +223,7 @@ sub default_query {
 our @SECURITY_EVENT_JOINS_SPECS = (
     '=>{security_event_status.mac=node.mac}',
     'security_event|security_event_status',
-    '=>{security_event_status.vid=security_event_status_class.vid}',
+    '=>{security_event_status.security_event_id=security_event_status_class.security_event_id}',
     'class|security_event_status_class',
 );
 

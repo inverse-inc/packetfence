@@ -5,12 +5,12 @@ pf::cmd::pf::security_event
 
 =head1 SYNOPSIS
 
- pfcmd security_event add [--json] [--force] <mac> <vid>
- pfcmd security_event close <mac> <vid>
+ pfcmd security_event add [--json] [--force] <mac> <security_event_id>
+ pfcmd security_event close <mac> <security_event_id>
  pfcmd security_event trigger <mac> <trigger-type> <trigger-id>
 
  mac - the MAC address of the device
- vid - the security_event identifier (section header in security_events.conf)
+ security_event_id - the security_event identifier (section header in security_events.conf)
  trigger-type - the type of the security_event trigger (user_agent, dhcp_fingerprint, internal, suricata_event, etc)
  trigger-id - the ID of the security_event trigger
 
@@ -61,17 +61,17 @@ sub parse_add {
         print STDERR "Not enough parameters\n";
         return 0;
     }
-    my ($mac, $vid) = @params;
+    my ($mac, $security_event_id) = @params;
     unless (valid_mac($mac)) {
         print STDERR "'$mac' MAC address is invalid\n";
         return 0;
     }
-    unless(defined(class_view($vid))) {
+    unless(defined(class_view($security_event_id))) {
         print STDERR "Invalid security_event ID\n";
         return 0;
     }
     $self->{mac} = $mac;
-    $self->{vid} = $vid;
+    $self->{security_event_id} = $security_event_id;
     $self->{json} = $options{'--json'};
     $self->{force} = $options{'--force'};
     return 1;
@@ -85,9 +85,9 @@ sub validate_mac {
     }
 }
 
-sub validate_vid {
-    my ($self, $vid) = @_;
-    unless(defined(class_view($vid))) {
+sub validate_security_event_id {
+    my ($self, $security_event_id) = @_;
+    unless(defined(class_view($security_event_id))) {
         print STDERR "Invalid security_event ID\n";
         $self->showHelp();
     }
@@ -102,7 +102,7 @@ handles 'pfcmd security_event close' command
 sub action_close {
     my ($self) = @_;
     my @params = $self->action_args;
-    if( @params >= 2 && $self->validate_mac($params[0]) && $self->validate_vid($params[1]) ) {
+    if( @params >= 2 && $self->validate_mac($params[0]) && $self->validate_security_event_id($params[1]) ) {
         my ($result) = security_event_force_close(@params);
     }
     else {
@@ -139,7 +139,7 @@ handles 'pfcmd security_event add' command
 
 sub action_add {
     my ($self) = @_;
-    my ($id) = security_event_add($self->{mac}, $self->{vid}, $self->{force} ? (force => $TRUE ) : ());
+    my ($id) = security_event_add($self->{mac}, $self->{security_event_id}, $self->{force} ? (force => $TRUE ) : ());
     my @warnings = security_event_last_warnings();
     my @errors   = security_event_last_errors();
     if ($self->{json}) {

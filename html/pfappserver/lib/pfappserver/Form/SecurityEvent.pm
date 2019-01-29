@@ -26,8 +26,8 @@ use pf::web::util;
 use pf::admin_roles;
 use pf::action;
 use pf::log;
-use pf::constants::security_event qw($MAX_VID %NON_WHITELISTABLE_ROLES);
-use pf::class qw(class_next_vid);
+use pf::constants::security_event qw($MAX_SECURITY_EVENT_ID %NON_WHITELISTABLE_ROLES);
+use pf::class qw(class_next_security_event_id);
 
 # Form select options
 has 'security_events' => ( is => 'ro' );
@@ -46,7 +46,7 @@ has_field 'id' =>
   (
    type => 'Text',
    label => 'Identifier',
-   default_method => \&class_next_vid,
+   default_method => \&class_next_security_event_id,
    messages => { required => 'Please specify an identifier for the security_event.' },
    tags => { after_element => \&help,
              help => 'Use a number above 1500000 if you want to be able to delete this security_event later.' },
@@ -381,7 +381,7 @@ sub validate_id {
     my $val = $field->value;
     return if $val eq 'defaults';
 
-    if($val <= 0 || $val > $MAX_VID) {
+    if($val <= 0 || $val > $MAX_SECURITY_EVENT_ID) {
         $field->add_error('The security_event ID should be between 1 and 2000000000');
         return;
     }

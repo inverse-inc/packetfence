@@ -34,13 +34,13 @@ use pf::error qw(is_error);
 use pf::pfcmd::report;
 
 our $nugget_recent_security_events_sql =
-        qq [ select v.mac,v.start_date,c.description as security_event from security_event v left join class c on v.vid=c.vid where unix_timestamp(start_date) > unix_timestamp(now()) - ? * 3600 order by start_date desc limit 10 ];
+        qq [ select v.mac,v.start_date,c.description as security_event from security_event v left join class c on v.security_event_id=c.security_event_id where unix_timestamp(start_date) > unix_timestamp(now()) - ? * 3600 order by start_date desc limit 10 ];
 
 our $nugget_recent_security_events_opened_sql =
-        qq [ select v.mac,v.start_date,c.description as security_event from security_event v left join class c on v.vid=c.vid where unix_timestamp(start_date) > unix_timestamp(now()) - ? * 3600 and v.status="open" order by start_date desc limit 10 ];
+        qq [ select v.mac,v.start_date,c.description as security_event from security_event v left join class c on v.security_event_id=c.security_event_id where unix_timestamp(start_date) > unix_timestamp(now()) - ? * 3600 and v.status="open" order by start_date desc limit 10 ];
 
 our $nugget_recent_security_events_closed_sql =
-        qq [ select v.mac,v.start_date,c.description as security_event from security_event v left join class c on v.vid=c.vid where unix_timestamp(start_date) > unix_timestamp(now()) - ? * 3600 and v.status="closed" order by start_date desc limit 10 ];
+        qq [ select v.mac,v.start_date,c.description as security_event from security_event v left join class c on v.security_event_id=c.security_event_id where unix_timestamp(start_date) > unix_timestamp(now()) - ? * 3600 and v.status="closed" order by start_date desc limit 10 ];
 
 our $nugget_recent_registrations_sql =
         qq [ select n.pid,n.mac,n.regdate from node n where n.status="reg" and unix_timestamp(regdate) > unix_timestamp(now()) - ? * 3600 order by regdate desc limit 10 ];

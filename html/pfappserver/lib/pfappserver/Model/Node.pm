@@ -389,9 +389,9 @@ sub security_events {
 =cut
 
 sub addSecurityEvent {
-    my ($self, $mac, $vid) = @_;
+    my ($self, $mac, $security_event_id) = @_;
 
-    if (security_event_add($mac, $vid, ('force' => $TRUE))) {
+    if (security_event_add($mac, $security_event_id, ('force' => $TRUE))) {
         return ($STATUS::OK, 'The security_event was successfully added.');
     }
     else {
@@ -450,7 +450,7 @@ sub _closeSecurityEvent{
     my $result;
     my $security_event = security_event_exist_id($id);
     if ($security_event) {
-        if (security_event_force_close($security_event->{mac}, $security_event->{vid})) {
+        if (security_event_force_close($security_event->{mac}, $security_event->{security_event_id})) {
             pf::enforcement::reevaluate_access($security_event->{mac}, "admin_modify");
             $result = 1;
         }

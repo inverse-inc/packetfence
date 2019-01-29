@@ -248,7 +248,7 @@
             </template>
             <b-table stacked="sm" :items="node.security_events" :fields="security_eventFields" striped>
                 <template slot="description" slot-scope="security_event">
-                    {{ security_eventDescription(security_event.item.vid) }}
+                    {{ security_eventDescription(security_event.item.security_event_id) }}
                 </template>
                 <template slot="status" slot-scope="security_event">
                   <b-badge pill variant="success" v-if="security_event.item.status === 'open'">{{ $t('open') }}</b-badge>
@@ -706,11 +706,11 @@ export default {
             content: _this.$i18n.t('SecurityEvents')
           })
           _this.addVisItem({
-            id: 'security_event' + security_event.vid,
+            id: 'security_event' + security_event.security_event_id,
             group: _this.mac + '-security_event',
             start: new Date(security_event.start_date),
             end: (security_event.release_date !== '0000-00-00 00:00:00' && security_event.release_date !== security_event.start_date) ? new Date(security_event.release_date) : null,
-            content: _this.security_eventDescription(security_event.vid)
+            content: _this.security_eventDescription(security_event.security_event_id)
           })
         })
       } catch (e) {

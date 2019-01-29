@@ -25,7 +25,7 @@ use pf::config qw(
     %ConfigFloatingDevices
     $WIRED_SNMP_TRAPS
     %Config
-    $WIPS_VID
+    $WIPS_SECURITY_EVENT_ID
     $VOIP
 );
 use pf::constants qw($TRUE $FALSE);

@@ -17,13 +17,13 @@ use warnings;
 use base qw(Exporter);
 use Readonly;
 
-our @EXPORT_OK = qw($PARKING_DHCP_GROUP_NAME $PARKING_IPSET_NAME $PARKING_VID);
+our @EXPORT_OK = qw($PARKING_DHCP_GROUP_NAME $PARKING_IPSET_NAME $PARKING_SECURITY_EVENT_ID);
 
 Readonly our $PARKING_DHCP_GROUP_NAME => "parking";
 
 Readonly our $PARKING_IPSET_NAME => "parking";
 
-Readonly our $PARKING_VID => 1300003;
+Readonly our $PARKING_SECURITY_EVENT_ID => 1300003;
  
 =head1 AUTHOR
 

@@ -28,8 +28,8 @@ use pf::util;
 use pf::util::statsd qw(called);
 use pf::dal::person;
 use pf::Connection::ProfileFactory; 
-use pf::constants::scan qw($SCAN_VID $POST_SCAN_VID);
-use pf::constants::parking qw($PARKING_VID);
+use pf::constants::scan qw($SCAN_SECURITY_EVENT_ID $POST_SCAN_SECURITY_EVENT_ID);
+use pf::constants::parking qw($PARKING_SECURITY_EVENT_ID);
 
 =head2 setup_node_for_registration
 
@@ -69,7 +69,7 @@ sub finalize_node_registration {
 
     do_person_create($node, $info, $context);
     # Closing any parking security_events
-    pf::security_event::security_event_force_close($node->mac, $PARKING_VID);
+    pf::security_event::security_event_force_close($node->mac, $PARKING_SECURITY_EVENT_ID);
 
     do_security_event_scans($node, $options);
 
@@ -112,11 +112,11 @@ sub do_security_event_scans {
         # triggering a security_event used to communicate the scan to the user
         if ( isenabled($scan->{'registration'})) {
             $logger->debug("Triggering on registration scan");
-            pf::security_event::security_event_add( $mac, $SCAN_VID );
+            pf::security_event::security_event_add( $mac, $SCAN_SECURITY_EVENT_ID );
         }
         if (isenabled($scan->{'post_registration'})) {
             $logger->debug("Triggering post-registration scan");
-            pf::security_event::security_event_add( $mac, $POST_SCAN_VID );
+            pf::security_event::security_event_add( $mac, $POST_SCAN_SECURITY_EVENT_ID );
         }
     }
     return ;

@@ -228,8 +228,8 @@ sub bulk_close_security_events {
             mac => { -in => $items},
             status => "open",
         },
-        -columns => [qw(security_event.vid mac)],
-        -from => [-join => qw(security_event <=>{security_event.vid=class.vid} class)],
+        -columns => [qw(security_event.security_event_id mac)],
+        -from => [-join => qw(security_event <=>{security_event.security_event_id=class.security_event_id} class)],
         -order_by => { -desc => 'start_date' },
         -with_class => undef,
     );
@@ -243,7 +243,7 @@ sub bulk_close_security_events {
     for my $security_event (@$security_events) {
         my $mac = $security_event->{mac};
         my $index = $indexes->{$mac};
-        if (security_event_force_close($mac, $security_event->{vid})) {
+        if (security_event_force_close($mac, $security_event->{security_event_id})) {
             pf::enforcement::reevaluate_access($mac, "admin_modify");
             $results->[$index]{status} = "success";
         } else {
@@ -274,7 +274,7 @@ sub close_security_event {
     }
 
     my $result = 0;
-    if (security_event_force_close($mac, $security_event->{vid})) {
+    if (security_event_force_close($mac, $security_event->{security_event_id})) {
         pf::enforcement::reevaluate_access($mac, "admin_modify");
         $result = 1;
     }
@@ -388,10 +388,10 @@ sub bulk_apply_security_event {
     }
 
     my $items = $data->{items} // [];
-    my $vid = $data->{vid};
+    my $security_event_id = $data->{security_event_id};
     my ($indexes, $results) = bulk_init_results($items);
     for my $mac (@$items) {
-        my ($last_id) = security_event_add($mac, $vid, ( 'force' => $TRUE ));
+        my ($last_id) = security_event_add($mac, $security_event_id, ( 'force' => $TRUE ));
         $results->[$indexes->{$mac}]{status} = $last_id > 0 ? "success" : "failed";
     }
 
@@ -411,8 +411,8 @@ sub apply_security_event {
         return $self->render(json => $data, status => $status);
     }
     my $mac = $self->param('node_id');
-    my $vid = $data->{vid};
-    my ($last_id) = security_event_add($mac, $vid, ( 'force' => $TRUE ));
+    my $security_event_id = $data->{security_event_id};
+    my ($last_id) = security_event_add($mac, $security_event_id, ( 'force' => $TRUE ));
 
     return $self->render(status => 200, json => { security_event_id => $last_id });
 }

@@ -98,8 +98,8 @@ BEGIN {
         security_event_clear_errors
         security_event_last_errors
         security_event_run_delayed
-        security_event_count_vid
-        security_event_count_open_vid
+        security_event_count_security_event_id
+        security_event_count_open_security_event_id
     );
 }
 use pf::action;
@@ -114,7 +114,7 @@ use pf::enforcement;
 use pf::db;
 use pf::dal::security_event;
 use pf::error qw(is_error is_success);
-use pf::constants::scan qw($SCAN_VID $POST_SCAN_VID $PRE_SCAN_VID);
+use pf::constants::scan qw($SCAN_SECURITY_EVENT_ID $POST_SCAN_SECURITY_EVENT_ID $PRE_SCAN_SECURITY_EVENT_ID);
 use pf::constants::role qw($REGISTRATION_ROLE);
 use pf::util;
 use pf::config::util;
@@ -159,8 +159,8 @@ sub security_event_modify {
     $existing->merge(\%data);
 
     $logger->info( "security_event for mac "
-            . $existing->{mac} . " vid "
-            . $existing->{vid}
+            . $existing->{mac} . " security_event_id "
+            . $existing->{security_event_id}
             . " modified" );
 
     # Handle the release date case on the modify (from the GUI)
@@ -176,15 +176,15 @@ sub security_event_modify {
 }
 
 sub security_event_grace {
-    my ( $mac, $vid ) = @_;
+    my ( $mac, $security_event_id ) = @_;
     my ($status, $iter) = pf::dal::security_event->search(
         -where => {
             'status' => "closed",
-            'security_event.vid' => $vid,
+            'security_event.security_event_id' => $security_event_id,
             'mac' => $mac,
         },
         -columns => ['unix_timestamp(start_date)+grace_period-unix_timestamp(now())|grace'],
-        -from => [-join => qw(security_event =>{security_event.vid=class.vid} class)],
+        -from => [-join => qw(security_event =>{security_event.security_event_id=class.security_event_id} class)],
         -order_by => {-desc => "start_date"},
     );
     my $grace = $iter->next(undef);
@@ -210,7 +210,7 @@ sub security_event_count_reevaluate_access {
             mac => $mac,
             status => "open",
             'action.action' => 'reevaluate_access',
-            'security_event.vid' => { -ident => 'action.vid'},
+            'security_event.security_event_id' => { -ident => 'action.security_event_id'},
         },
         -from => [qw(security_event action)],
     );
@@ -218,24 +218,24 @@ sub security_event_count_reevaluate_access {
     return ($count);
 }
 
-sub security_event_count_vid {
-    my ( $mac, $vid ) = @_;
+sub security_event_count_security_event_id {
+    my ( $mac, $security_event_id ) = @_;
     my ($status, $count) = pf::dal::security_event->count(
         -where => {
             mac => $mac,
-            vid => $vid,
+            security_event_id => $security_event_id,
         }
     );
 
     return ($count);
 }
 
-sub security_event_count_open_vid {
-    my ( $mac, $vid ) = @_;
+sub security_event_count_open_security_event_id {
+    my ( $mac, $security_event_id ) = @_;
     my ($status, $count) = pf::dal::security_event->count(
         -where => {
             mac => $mac,
-            vid => $vid,
+            security_event_id => $security_event_id,
             status => "open",
         }
     );
@@ -244,14 +244,14 @@ sub security_event_count_open_vid {
 }
 
 sub security_event_exist {
-    my ( $mac, $vid, $start_date ) = @_;
+    my ( $mac, $security_event_id, $start_date ) = @_;
     return _db_item({
         -where => {
             mac => $mac,
-            vid => $vid,
+            security_event_id => $security_event_id,
             start_date => $start_date
         },
-        -columns => [qw(id mac vid start_date release_date status ticket_ref notes)],
+        -columns => [qw(id mac security_event_id start_date release_date status ticket_ref notes)],
         -limit => 1,
         -no_default_join => 1,
     });
@@ -263,21 +263,21 @@ sub security_event_exist_id {
         -where => {
             id => $id,
         },
-        -columns => [qw(id mac vid start_date release_date status ticket_ref notes)],
+        -columns => [qw(id mac security_event_id start_date release_date status ticket_ref notes)],
         -limit => 1,
         -no_default_join => 1,
     });
 }
 
 sub security_event_exist_open {
-    my ( $mac, $vid ) = @_;
+    my ( $mac, $security_event_id ) = @_;
     return _db_item({
         -where => {
-            vid => $vid,
+            security_event_id => $security_event_id,
             mac => $mac,
             status => 'open',
         },
-        -columns => [qw(id mac vid start_date release_date status ticket_ref notes)],
+        -columns => [qw(id mac security_event_id start_date release_date status ticket_ref notes)],
         -no_default_join => 1,
         -limit => 1,
     });
@@ -290,7 +290,7 @@ sub security_event_view {
             'security_event.mac' => {-ident => 'node.mac'},
             'security_event.id' => $id, 
         },
-        -columns => [qw(security_event.id security_event.mac node.computername security_event.vid security_event.start_date security_event.release_date security_event.status security_event.ticket_ref security_event.notes)],
+        -columns => [qw(security_event.id security_event.mac node.computername security_event.security_event_id security_event.start_date security_event.release_date security_event.status security_event.ticket_ref security_event.notes)],
         -from => [qw(security_event node)],
     });
 }
@@ -302,8 +302,8 @@ sub security_event_view_top {
             mac => $mac,
             status => 'open',
         },
-        -columns => [qw(id mac security_event.vid start_date release_date status ticket_ref notes)],
-        -from => [-join => qw(security_event {security_event.vid=class.vid} class)],
+        -columns => [qw(id mac security_event.security_event_id start_date release_date status ticket_ref notes)],
+        -from => [-join => qw(security_event {security_event.security_event_id=class.security_event_id} class)],
         -order_by => {-asc => 'priority'},
         -limit => 1,
     });
@@ -316,7 +316,7 @@ sub security_event_view_open {
             status => "open",
             mac => $mac,
         },
-        -columns => [qw(id mac vid start_date release_date status ticket_ref notes)],
+        -columns => [qw(id mac security_event_id start_date release_date status ticket_ref notes)],
         -order_by => { -desc => 'start_date' },
         -no_default_join => 1,
     });
@@ -329,8 +329,8 @@ sub security_event_view_open_desc {
             status => "open",
             mac => $mac,
         },
-        -columns => [qw(id start_date class.description security_event.vid status)],
-        -from => [-join => qw(security_event <=>{security_event.vid=class.vid} class)],
+        -columns => [qw(id start_date class.description security_event.security_event_id status)],
+        -from => [-join => qw(security_event <=>{security_event.security_event_id=class.security_event_id} class)],
         -order_by => { -desc => 'start_date' },
     });
 }
@@ -358,8 +358,8 @@ sub security_event_view_desc {
         -where => {
             mac => $mac,
         },
-        -columns => [qw(id start_date release_date class.description security_event.vid status)],
-        -from => [-join => qw(security_event <=>{security_event.vid=class.vid} class)],
+        -columns => [qw(id start_date release_date class.description security_event.security_event_id status)],
+        -from => [-join => qw(security_event <=>{security_event.security_event_id=class.security_event_id} class)],
         -order_by => {-desc => 'start_date'},
     });
 }
@@ -367,9 +367,9 @@ sub security_event_view_desc {
 #
 sub security_event_add {
     my $timer = pf::StatsD::Timer->new({level => 6});
-    my ( $mac, $vid, %data ) = @_;
+    my ( $mac, $security_event_id, %data ) = @_;
     my $logger = get_logger();
-    return (0) if ( !$vid );
+    return (0) if ( !$security_event_id );
     security_event_clear_warnings();
     security_event_clear_errors();
 
@@ -381,31 +381,31 @@ sub security_event_add {
     $data{notes}  = ""     if ( !defined $data{notes} );
     $data{ticket_ref} = "" if ( !defined $data{ticket_ref} );
 
-    if ( my $security_event =  security_event_exist_open( $mac, $vid ) ) {
-        my $msg = "security_event $vid already exists for $mac, not adding again";
+    if ( my $security_event =  security_event_exist_open( $mac, $security_event_id ) ) {
+        my $msg = "security_event $security_event_id already exists for $mac, not adding again";
         $logger->info($msg);
         security_event_add_warnings($msg);
-        return ($security_event->{vid});
+        return ($security_event->{security_event_id});
     }
 
     my $latest_security_event = ( security_event_view_open($mac) )[0];
-    my $latest_vid       = $latest_security_event->{'vid'};
-    if ($latest_vid) {
+    my $latest_security_event_id       = $latest_security_event->{'security_event_id'};
+    if ($latest_security_event_id) {
 
         # don't add a hostscan if security_event exists
-        if ( $vid == $SCAN_VID || $vid == $POST_SCAN_VID || $vid == $PRE_SCAN_VID) {
+        if ( $security_event_id == $SCAN_SECURITY_EVENT_ID || $security_event_id == $POST_SCAN_SECURITY_EVENT_ID || $security_event_id == $PRE_SCAN_SECURITY_EVENT_ID) {
             $logger->warn(
-                "hostscan detected from $mac, but security_event $latest_vid exists - ignoring"
+                "hostscan detected from $mac, but security_event $latest_security_event_id exists - ignoring"
             );
             return (1);
         }
 
         #replace UNKNOWN hostscan with known security_event
-        if ( $latest_vid == $SCAN_VID || $latest_vid == $POST_SCAN_VID || $latest_vid == $PRE_SCAN_VID) {
+        if ( $latest_security_event_id == $SCAN_SECURITY_EVENT_ID || $latest_security_event_id == $POST_SCAN_SECURITY_EVENT_ID || $latest_security_event_id == $PRE_SCAN_SECURITY_EVENT_ID) {
             $logger->info(
-                "security_event $vid detected for $mac - updating existing hostscan entry"
+                "security_event $security_event_id detected for $mac - updating existing hostscan entry"
             );
-            security_event_force_close( $mac, $latest_vid );
+            security_event_force_close( $mac, $latest_security_event_id );
         }
     }
 
@@ -415,18 +415,18 @@ sub security_event_add {
     } else {
 
         # check if we are under the grace period of a previous security_event
-        my ($remaining_time) = security_event_grace( $mac, $vid );
+        my ($remaining_time) = security_event_grace( $mac, $security_event_id );
         my $force = defined $data{'force'} ? $data{'force'} : $FALSE;
         if ( $remaining_time > 0 && $force ne $TRUE ) {
-            my $msg = "$remaining_time grace remaining on security_event $vid for node $mac. Not adding security_event.";
+            my $msg = "$remaining_time grace remaining on security_event $security_event_id for node $mac. Not adding security_event.";
             security_event_add_errors($msg);
             $logger->info($msg);
             return (-1);
         } elsif ( $remaining_time > 0 && $force eq $TRUE ) {
-            my $msg = "Force security_event $vid for node $mac even if $remaining_time grace remaining";
+            my $msg = "Force security_event $security_event_id for node $mac even if $remaining_time grace remaining";
             $logger->info($msg);
         } else {
-            my $msg = "grace expired on security_event $vid for node $mac";
+            my $msg = "grace expired on security_event $security_event_id for node $mac";
             $logger->info($msg);
         }
     }
@@ -434,7 +434,7 @@ sub security_event_add {
     # insert security_event into db
     my $status = pf::dal::security_event->create({
         mac          => $mac,
-        vid          => $vid,
+        security_event_id          => $security_event_id,
         start_date   => $data{start_date},
         release_date => $data{release_date},
         status       => $data{status},
@@ -443,14 +443,14 @@ sub security_event_add {
     });
     if (is_success($status)) {
         my $last_id = get_db_handle->last_insert_id(undef,undef,undef,undef);
-        $logger->info("security_event $vid added for $mac");
+        $logger->info("security_event $security_event_id added for $mac");
         if($data{status} eq 'open') {
-            pf::action::action_execute( $mac, $vid, $data{notes} );
-            security_event_post_open_action($mac, $vid);
+            pf::action::action_execute( $mac, $security_event_id, $data{notes} );
+            security_event_post_open_action($mac, $security_event_id);
         }
         return ($last_id);
     } else {
-        my $msg = "unknown error adding security_event $vid for $mac";
+        my $msg = "unknown error adding security_event $security_event_id for $mac";
         security_event_add_errors($msg);
         $logger->error($msg);
     }
@@ -601,36 +601,36 @@ sub security_event_trigger {
     my $info = info_for_security_event_engine($mac,$type,$tid);
 
     $logger->debug(sub { use Data::Dumper; "Infos for security_event engine : ".Dumper($info) });
-    my @vids = $SECURITY_EVENT_FILTER_ENGINE->match_all($info);
+    my @security_event_ids = $SECURITY_EVENT_FILTER_ENGINE->match_all($info);
 
     my $addedSecurityEvent = 0;
-    foreach my $vid (@vids) {
-        if (_is_node_category_whitelisted($vid, $mac)) {
-            $logger->info("Not adding security_event ${vid} node $mac is whitelisted because of its role");
+    foreach my $security_event_id (@security_event_ids) {
+        if (_is_node_category_whitelisted($security_event_id, $mac)) {
+            $logger->info("Not adding security_event ${security_event_id} node $mac is whitelisted because of its role");
             next;
         }
 
         # we test here AND in security_event_add because here we avoid a fork (and security_event_add is called from elsewhere)
-        if ( security_event_exist_open( $mac, $vid ) ) {
-            $logger->info("security_event $vid (trigger ${type}::${tid}) already exists for $mac, not adding again");
+        if ( security_event_exist_open( $mac, $security_event_id ) ) {
+            $logger->info("security_event $security_event_id (trigger ${type}::${tid}) already exists for $mac, not adding again");
             next;
         }
 
         # check if we are under the grace period of a previous security_event
         # we test here AND in security_event_add because here we avoid a fork (and security_event_add is called from elsewhere)
-        my ($remaining_time) = security_event_grace( $mac, $vid );
+        my ($remaining_time) = security_event_grace( $mac, $security_event_id );
         if ($remaining_time > 0) {
             $logger->info(
-                "$remaining_time grace remaining on security_event $vid (trigger ${type}::${tid}) for node $mac. " .
+                "$remaining_time grace remaining on security_event $security_event_id (trigger ${type}::${tid}) for node $mac. " .
                 "Not adding security_event."
             );
             next;
         }
 
         # if security_event is of action autoreg and the node is already registered
-        if (pf::action::action_exist($vid, $pf::action::AUTOREG) && is_node_registered($mac)) {
+        if (pf::action::action_exist($security_event_id, $pf::action::AUTOREG) && is_node_registered($mac)) {
             $logger->debug(
-                "security_event $vid triggered with action $pf::action::AUTOREG but node $mac is already registered. " .
+                "security_event $security_event_id triggered with action $pf::action::AUTOREG but node $mac is already registered. " .
                 "Not adding security_event."
             );
             next;
@@ -639,7 +639,7 @@ sub security_event_trigger {
         my $date = 0;
         my %data;
 
-        my $class = class_view($vid);
+        my $class = class_view($security_event_id);
         # Check if the security_event is delayed
         if ($class->{'delay_by'}) {
             $data{status} = 'delayed';
@@ -676,8 +676,8 @@ sub security_event_trigger {
 
         $data{'notes'} = $argv->{'notes'} if defined($argv->{'notes'});
 
-        $logger->info("calling security_event_add with vid=$vid mac=$mac release_date=$date (trigger ${type}::${tid})");
-        security_event_add($mac, $vid, %data);
+        $logger->info("calling security_event_add with security_event_id=$security_event_id mac=$mac release_date=$date (trigger ${type}::${tid})");
+        security_event_add($mac, $security_event_id, %data);
         $addedSecurityEvent = 1;
     }
     return $addedSecurityEvent;
@@ -692,10 +692,10 @@ sub security_event_delete {
 #return -1 on failure, because grace=0 is unlimited
 #
 sub security_event_close {
-    my ( $mac, $vid ) = @_;
+    my ( $mac, $security_event_id ) = @_;
     my $logger = get_logger();
     require pf::class;
-    my $class_info = pf::class::class_view($vid);
+    my $class_info = pf::class::class_view($security_event_id);
 
     # check auto_enable = 'N'
     if ( $class_info->{'auto_enable'} =~ /^N$/i ) {
@@ -703,7 +703,7 @@ sub security_event_close {
     }
 
     #check the number of security_events
-    my $num = security_event_count_vid( $mac, $vid );
+    my $num = security_event_count_security_event_id( $mac, $security_event_id );
     my $max = $class_info->{'max_enables'};
 
     if ( $num <= $max || $max == 0 ) {
@@ -716,12 +716,12 @@ sub security_event_close {
             },
             -where => {
                 mac => $mac,
-                vid => $vid,
+                security_event_id => $security_event_id,
                 status => { "!=" => "closed"},
             }
         );
-        $logger->info("security_event $vid closed for $mac");
-        security_event_post_close_action($mac, $vid);
+        $logger->info("security_event $security_event_id closed for $mac");
+        security_event_post_close_action($mac, $security_event_id);
         return ($grace);
     }
     return (-1);
@@ -731,10 +731,10 @@ sub security_event_close {
 # used for non-trap security_event and to close scan security_events
 #
 sub security_event_force_close {
-    my ( $mac, $vid ) = @_;
+    my ( $mac, $security_event_id ) = @_;
     my $logger = get_logger();
 
-    my $should_run_actions = security_event_exist_open($mac, $vid);
+    my $should_run_actions = security_event_exist_open($mac, $security_event_id);
     my ($status, $rows) = pf::dal::security_event->update_items(
         -set => {
             release_date => \'NOW()',
@@ -742,13 +742,13 @@ sub security_event_force_close {
         },
         -where => {
             mac => $mac,
-            vid => $vid,
+            security_event_id => $security_event_id,
             status => { "!=" => "closed"},
         }
     );
-    $logger->info("security_event $vid force-closed for $mac");
+    $logger->info("security_event $security_event_id force-closed for $mac");
     if($should_run_actions) {
-        security_event_post_close_action($mac, $vid);
+        security_event_post_close_action($mac, $security_event_id);
     }
     return (1);
 }
@@ -758,7 +758,7 @@ sub security_event_force_close {
 =cut
 
 sub security_event_exist_acct {
-    my ( $mac, $vid, $interval ) = @_;
+    my ( $mac, $security_event_id, $interval ) = @_;
     my $ceil;
 
     if ($interval eq "daily") {
@@ -776,7 +776,7 @@ sub security_event_exist_acct {
     return _db_item({
         -where => {
             mac => $mac,
-            vid => $vid,
+            security_event_id => $security_event_id,
             release_date => {
                 ">=" => $ceil,
                 "<=" => \'NOW()',
@@ -792,16 +792,16 @@ sub security_event_exist_acct {
 =cut
 
 sub security_event_view_last_closed {
-    my ( $mac, $vid ) = @_;
+    my ( $mac, $security_event_id ) = @_;
 
     return _db_data({
         -where => {
             mac => $mac,
-            vid => $vid,
+            security_event_id => $security_event_id,
             status => "closed",
         },
         -order_by => {-desc => 'release_date'} ,
-        -columns => [qw(mac vid release_date)],
+        -columns => [qw(mac security_event_id release_date)],
         -no_default_join => 1,
     });
 }
@@ -811,10 +811,10 @@ sub security_event_view_last_closed {
 =cut
 
 sub _is_node_category_whitelisted {
-    my ($vid, $mac) = @_;
+    my ($security_event_id, $mac) = @_;
     my $logger = get_logger();
 
-    my $class = $pf::security_event_config::SecurityEvent_Config{$vid};
+    my $class = $pf::security_event_config::SecurityEvent_Config{$security_event_id};
 
     # if whitelist is empty, node is not whitelisted
     if (!defined($class->{'whitelisted_roles'}) || @{$class->{'whitelisted_roles'}} == 0) {
@@ -868,7 +868,7 @@ sub security_event_maintenance {
                 release_date => [-and => {"!=" => $ZERO_DATE}, {"<=" => \'NOW()'}],
             },
            -limit => $batch,
-           -columns => [qw(id mac vid notes status)],
+           -columns => [qw(id mac security_event_id notes status)],
            -no_default_join => 1,
         );
         if (is_error($status)) {
@@ -882,8 +882,8 @@ sub security_event_maintenance {
             }
             else {
                 my $mac = $row->{mac};
-                my $vid = $row->{vid};
-                my $result = security_event_force_close($mac,$vid);
+                my $security_event_id = $row->{security_event_id};
+                my $result = security_event_force_close($mac,$security_event_id);
                 # If close is a success, reevaluate the Access for the node
                 if ($result) {
                     pf::enforcement::reevaluate_access( $mac, "manage_vclose" );
@@ -913,9 +913,9 @@ sub _security_event_run_delayed {
     my ($security_event) = @_;
     my $logger = get_logger();
     my $mac = $security_event->{mac};
-    my $vid = $security_event->{vid};
+    my $security_event_id = $security_event->{security_event_id};
     my %data = (status => 'open');
-    my $class = pf::class::class_view($vid);
+    my $class = pf::class::class_view($security_event_id);
     if (defined($class->{'window'})) {
         my $date = 0;
         if ($class->{'window'} ne 'dynamic' && $class->{'window'} ne '0' ) {
@@ -923,10 +923,10 @@ sub _security_event_run_delayed {
         }
         $data{release_date} = $date;
     }
-    $logger->info("processing delayed security_event : $security_event->{id}, $security_event->{vid}");
-    my $notes = $security_event->{vid};
+    $logger->info("processing delayed security_event : $security_event->{id}, $security_event->{security_event_id}");
+    my $notes = $security_event->{security_event_id};
     pf::security_event::security_event_modify($security_event->{id}, %data);
-    pf::action::action_execute( $mac, $vid, $notes );
+    pf::action::action_execute( $mac, $security_event_id, $notes );
 }
 
 =item security_event_post_open_action
@@ -936,9 +936,9 @@ Execute an action that should occur after opening the security_event if necessar
 =cut
 
 sub security_event_post_open_action {
-    my ($mac, $vid) = @_;
-    if(exists($POST_OPEN_ACTIONS{$vid})) {
-        $POST_OPEN_ACTIONS{$vid}->({mac => $mac, vid => $vid});
+    my ($mac, $security_event_id) = @_;
+    if(exists($POST_OPEN_ACTIONS{$security_event_id})) {
+        $POST_OPEN_ACTIONS{$security_event_id}->({mac => $mac, security_event_id => $security_event_id});
     }
 }
 
@@ -949,9 +949,9 @@ Execute an action that should occur after closing the security_event if necessar
 =cut
 
 sub security_event_post_close_action {
-    my ($mac, $vid) = @_;
-    if(exists($POST_CLOSE_ACTIONS{$vid})) {
-        $POST_CLOSE_ACTIONS{$vid}->({mac => $mac, vid => $vid});
+    my ($mac, $security_event_id) = @_;
+    if(exists($POST_CLOSE_ACTIONS{$security_event_id})) {
+        $POST_CLOSE_ACTIONS{$security_event_id}->({mac => $mac, security_event_id => $security_event_id});
     }
 }
 

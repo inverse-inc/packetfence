@@ -66,7 +66,7 @@ sub is_lost_stolen {
     my ( $mac ) = @_;
    
     my @security_events = security_event_view_open($mac);
-    if ( grep {$_->{'vid'} eq $LOST_OR_STOLEN} @security_events ) {
+    if ( grep {$_->{'security_event_id'} eq $LOST_OR_STOLEN} @security_events ) {
         return $TRUE
     } else {
         return $FALSE

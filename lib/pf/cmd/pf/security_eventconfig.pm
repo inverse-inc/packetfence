@@ -5,10 +5,10 @@ pf::cmd::pf::security_eventconfig add documentation
 
 =head1 SYNOPSIS
 
- pfcmd security_eventconfig get <all|defaults|vid>
-       pfcmd security_eventconfig add <vid> [assignments]
-       pfcmd security_eventconfig edit <vid> [assignments]
-       pfcmd security_eventconfig delete <vid>
+ pfcmd security_eventconfig get <all|defaults|security_event_id>
+       pfcmd security_eventconfig add <security_event_id> [assignments]
+       pfcmd security_eventconfig edit <security_event_id> [assignments]
+       pfcmd security_eventconfig delete <security_event_id>
 
 query/modify security_events.conf configuration file
 
@@ -24,7 +24,7 @@ use pf::ConfigStore::SecurityEvents;
 use base qw(pf::base::cmd::config_store);
 
 our @FIELDS = qw(
-  vid desc enabled actions user_mail_message
+  security_event_id desc enabled actions user_mail_message
   vclose target_category priority whitelisted_roles
   trigger auto_enable max_enable grace
   window_dynamic window delay_by template
@@ -42,7 +42,7 @@ sub is_valid_field {
     return defined $field_name && exists $VALID_FIELDS{$field_name};
 }
 
-sub idKey { 'vid' }
+sub idKey { 'security_event_id' }
 
 =head1 AUTHOR
 

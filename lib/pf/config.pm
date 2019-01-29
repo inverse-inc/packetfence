@@ -188,7 +188,7 @@ BEGIN {
         %ConfigNetworks %ConfigAuthentication %ConfigOAuth
         %ConfigFloatingDevices
         $ACCOUNTING_POLICY_TIME $ACCOUNTING_POLICY_BANDWIDTH
-        $WIPS_VID $thread $fqdn $reverse_fqdn
+        $WIPS_SECURITY_EVENT_ID $thread $fqdn $reverse_fqdn
         $IF_INTERNAL $IF_ENFORCEMENT_VLAN $IF_ENFORCEMENT_INLINE $IF_ENFORCEMENT_DNS
         $WIRELESS_802_1X $WIRELESS_MAC_AUTH $WIRED_802_1X $WIRED_MAC_AUTH $WIRED_SNMP_TRAPS $UNKNOWN $INLINE $WEBAUTH $WEBAUTH_WIRED $WEBAUTH_WIRELESS
         $NET_TYPE_INLINE $NET_TYPE_INLINE_L2 $NET_TYPE_INLINE_L3
@@ -318,7 +318,7 @@ Readonly::Scalar our $ACCOUNTING_POLICY_TIME => 'TimeExpired';
 Readonly::Scalar our $ACCOUNTING_POLICY_BANDWIDTH => 'BandwidthExpired';
 
 
-Readonly our $WIPS_VID => '1100020';
+Readonly our $WIPS_SECURITY_EVENT_ID => '1100020';
 
 # OS Specific
 Readonly::Scalar our $OS => os_detection();

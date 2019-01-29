@@ -165,10 +165,10 @@ sub report_db_prepare {
         qq [SELECT * FROM node,ip4log WHERE (dhcp_fingerprint="" OR dhcp_fingerprint IS NULL) AND node.mac=ip4log.mac and (ip4log.end_time=0 or ip4log.end_time > now()) ]);
 
     $report_statements->{'report_opensecurity_events_all_sql'} = get_db_handle()->prepare(
-        qq [SELECT n.pid as owner, n.mac as mac, v.status as status, v.start_date as start_date, c.description as security_event from security_event v LEFT JOIN node n ON v.mac=n.mac LEFT JOIN class c on c.vid=v.vid WHERE v.status="open" order by n.pid ]);
+        qq [SELECT n.pid as owner, n.mac as mac, v.status as status, v.start_date as start_date, c.description as security_event from security_event v LEFT JOIN node n ON v.mac=n.mac LEFT JOIN class c on c.security_event_id=v.security_event_id WHERE v.status="open" order by n.pid ]);
 
     $report_statements->{'report_opensecurity_events_active_sql'} = get_db_handle()->prepare(
-        qq [SELECT n.pid as owner, n.mac as mac, v.status as status, v.start_date as start_date, c.description as security_event from (security_event v, ip4log i) LEFT JOIN node n ON v.mac=n.mac LEFT JOIN class c on c.vid=v.vid WHERE v.status="open" and n.mac=i.mac and (i.end_time=0 or i.end_time > now()) order by n.pid ]);
+        qq [SELECT n.pid as owner, n.mac as mac, v.status as status, v.start_date as start_date, c.description as security_event from (security_event v, ip4log i) LEFT JOIN node n ON v.mac=n.mac LEFT JOIN class c on c.security_event_id=v.security_event_id WHERE v.status="open" and n.mac=i.mac and (i.end_time=0 or i.end_time > now()) order by n.pid ]);
 
     $report_statements->{'report_connectiontype_sql'} = get_db_handle()->prepare(qq[
         SELECT connection_type, connection_type as connection_type_orig, COUNT(DISTINCT mac) AS connections,

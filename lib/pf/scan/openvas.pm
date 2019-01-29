@@ -24,7 +24,7 @@ use base ('pf::scan');
 
 use pf::CHI;
 use pf::constants;
-use pf::constants::scan qw($SCAN_VID $PRE_SCAN_VID $POST_SCAN_VID $STATUS_STARTED);
+use pf::constants::scan qw($SCAN_SECURITY_EVENT_ID $PRE_SCAN_SECURITY_EVENT_ID $POST_SCAN_SECURITY_EVENT_ID $STATUS_STARTED);
 use pf::config qw(%Config);
 use pf::util;
 use pf::security_event;
@@ -226,13 +226,13 @@ sub startScan {
     $self->createTask();
     $self->startTask();
 
-    my $scan_vid = $pf::constants::scan::POST_SCAN_VID;
-    $scan_vid = $pf::constants::scan::SCAN_VID if ($self->{'_registration'});
-    $scan_vid = $pf::constants::scan::PRE_SCAN_VID if ($self->{'_pre_registration'});
+    my $scan_security_event_id = $pf::constants::scan::POST_SCAN_SECURITY_EVENT_ID;
+    $scan_security_event_id = $pf::constants::scan::SCAN_SECURITY_EVENT_ID if ($self->{'_registration'});
+    $scan_security_event_id = $pf::constants::scan::PRE_SCAN_SECURITY_EVENT_ID if ($self->{'_pre_registration'});
 
     my $apiclient = pf::api::jsonrpcclient->new;
     my %data = (
-       'vid' => $scan_vid,
+       'security_event_id' => $scan_security_event_id,
        'mac' => $self->{'_scanMac'},
     );
     $apiclient->notify('close_security_event', %data );

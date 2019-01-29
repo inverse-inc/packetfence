@@ -24,7 +24,7 @@ use Readonly;
 use pf::StatsD::Timer;
 use pf::util::statsd qw(called);
 use pf::error qw(is_success is_error);
-use pf::constants::parking qw($PARKING_VID);
+use pf::constants::parking qw($PARKING_SECURITY_EVENT_ID);
 use CHI::Memoize qw(memoized);
 use pf::dal::node;
 use pf::config::tenant;
@@ -90,7 +90,7 @@ use pf::config qw(
 );
 use pf::db;
 use pf::nodecategory;
-use pf::constants::scan qw($SCAN_VID $POST_SCAN_VID);
+use pf::constants::scan qw($SCAN_SECURITY_EVENT_ID $POST_SCAN_SECURITY_EVENT_ID);
 use pf::util;
 use pf::Connection::ProfileFactory;
 use pf::ipset;
@@ -674,7 +674,7 @@ sub node_register {
     # Closing any parking security_events
     # loading pf::security_event here to prevent circular dependency
     require pf::security_event;
-    pf::security_event::security_event_force_close($mac, $PARKING_VID);
+    pf::security_event::security_event_force_close($mac, $PARKING_SECURITY_EVENT_ID);
 
     my $profile = pf::Connection::ProfileFactory->instantiate($mac);
     my $scan = $profile->findScan($mac);
@@ -682,11 +682,11 @@ sub node_register {
         # triggering a security_event used to communicate the scan to the user
         if ( isenabled($scan->{'registration'})) {
             $logger->debug("Triggering on registration scan");
-            pf::security_event::security_event_add( $mac, $SCAN_VID );
+            pf::security_event::security_event_add( $mac, $SCAN_SECURITY_EVENT_ID );
         }
         if (isenabled($scan->{'post_registration'})) {
             $logger->debug("Triggering post-registration scan");
-            pf::security_event::security_event_add( $mac, $POST_SCAN_VID );
+            pf::security_event::security_event_add( $mac, $POST_SCAN_SECURITY_EVENT_ID );
         }
     }
 
@@ -916,8 +916,8 @@ sub node_update_bandwidth {
         return (undef);
     }
     if ($rows) {
-        foreach my $vid (@BANDWIDTH_EXPIRED_SECURITY_EVENTS){
-            pf::security_event::security_event_force_close($mac, $vid);
+        foreach my $security_event_id (@BANDWIDTH_EXPIRED_SECURITY_EVENTS){
+            pf::security_event::security_event_force_close($mac, $security_event_id);
         }
     }
     return ($rows);

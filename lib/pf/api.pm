@@ -542,12 +542,12 @@ sub release_all_security_events : Public:AllowedAsAction($mac){
     die "Missing MAC address" unless($mac);
     my $closed_security_event = 0;
     foreach my $security_event (pf::security_event::security_event_view_open($mac)){
-        $logger->info("Releasing security_event $security_event->{vid} for $mac though release_all_security_events");
-        if(pf::security_event::security_event_force_close($mac,$security_event->{vid})){
+        $logger->info("Releasing security_event $security_event->{security_event_id} for $mac though release_all_security_events");
+        if(pf::security_event::security_event_force_close($mac,$security_event->{security_event_id})){
             $closed_security_event += 1;
         }
         else {
-            $logger->error("Cannot close security_event $security_event->{vid} for $mac");
+            $logger->error("Cannot close security_event $security_event->{security_event_id} for $mac");
         }
     }
     return $closed_security_event;
@@ -978,22 +978,22 @@ sub trigger_scan :Public :Fork :AllowedAsAction($ip, mac, $mac, net_type, TYPE) 
         my $profile = pf::Connection::ProfileFactory->instantiate($postdata{'mac'});
         my $scanner = $profile->findScan($postdata{'mac'});
         if (defined($scanner) && pf::util::isenabled($scanner->{'_post_registration'})) {
-            $added = pf::security_event::security_event_add( $postdata{'mac'}, $pf::constants::scan::POST_SCAN_VID );
+            $added = pf::security_event::security_event_add( $postdata{'mac'}, $pf::constants::scan::POST_SCAN_SECURITY_EVENT_ID );
         }
         return if ($added == 0 || $added == -1);
         sleep $pf::config::Config{'fencing'}{'wait_for_redirect'};
-        pf::scan::run_scan($postdata{'ip'}, $postdata{'mac'}) if ($added ne $pf::constants::scan::POST_SCAN_VID);
+        pf::scan::run_scan($postdata{'ip'}, $postdata{'mac'}) if ($added ne $pf::constants::scan::POST_SCAN_SECURITY_EVENT_ID);
     }
     else {
         my $profile = pf::Connection::ProfileFactory->instantiate($postdata{'mac'});
         my $scanner = $profile->findScan($postdata{'mac'});
         # pre_registration
         if (defined($scanner) && pf::util::isenabled($scanner->{'_pre_registration'})) {
-            $added = pf::security_event::security_event_add( $postdata{'mac'}, $pf::constants::scan::PRE_SCAN_VID );
+            $added = pf::security_event::security_event_add( $postdata{'mac'}, $pf::constants::scan::PRE_SCAN_SECURITY_EVENT_ID );
         }
         return if ($added == 0 || $added == -1);
         sleep $pf::config::Config{'fencing'}{'wait_for_redirect'};
-        pf::scan::run_scan($postdata{'ip'}, $postdata{'mac'}) if  ($added ne $pf::constants::scan::PRE_SCAN_VID && $added ne $pf::constants::scan::SCAN_VID);
+        pf::scan::run_scan($postdata{'ip'}, $postdata{'mac'}) if  ($added ne $pf::constants::scan::PRE_SCAN_SECURITY_EVENT_ID && $added ne $pf::constants::scan::SCAN_SECURITY_EVENT_ID);
     }
     return;
 }
@@ -1019,19 +1019,19 @@ Close a security_event
 
 =cut
 
-sub close_security_event :Public :AllowedAsAction(mac, $mac, vid , VID) {
+sub close_security_event :Public :AllowedAsAction(mac, $mac, security_event_id , SECURITY_EVENT_ID) {
     my ($class, %postdata )  = @_;
-    my @require = qw(mac vid);
+    my @require = qw(mac security_event_id);
     my @found = grep {exists $postdata{$_}} @require;
     return unless pf::util::validate_argv(\@require,  \@found);
 
     my $logger = pf::log::get_logger();
 
     if(defined($postdata{force}) && $postdata{force}) {
-        return pf::security_event::security_event_force_close($postdata{'mac'}, $postdata{'vid'})
+        return pf::security_event::security_event_force_close($postdata{'mac'}, $postdata{'security_event_id'})
     }
     else {
-        my $grace = pf::security_event::security_event_close($postdata{'mac'}, $postdata{'vid'});
+        my $grace = pf::security_event::security_event_close($postdata{'mac'}, $postdata{'security_event_id'});
         if ( $grace == -1 ) {
             $logger->warn("Problem trying to close security_event");
             return $pf::config::FALSE;

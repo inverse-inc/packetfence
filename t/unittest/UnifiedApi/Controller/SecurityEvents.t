@@ -42,7 +42,7 @@ $t->get_ok('/api/v1/security_events' => json => { })
 #setup
 my $mac = '00:01:02:03:04:05';
 my $tenant_id = 1;
-my $vid = 1300000; #'Generic' SecurityEvent
+my $security_event_id = 1300000; #'Generic' SecurityEvent
 my $dt_format = DateTime::Format::Strptime->new(pattern => '%Y-%m-%d %H:%M:%S');
 my $dt_start = DateTime->now(time_zone=>'local');
 my $dt_release = DateTime->now(time_zone=>'local')->add(seconds => 7200);
@@ -53,7 +53,7 @@ my $dt_release = DateTime->now(time_zone=>'local')->add(seconds => 7200);
 #insert known data (security_event)
 my %values = (
     mac          => $mac,
-    vid          => $vid,
+    security_event_id          => $security_event_id,
     start_date   => $dt_format->format_datetime($dt_start),
     release_date => $dt_format->format_datetime($dt_release),
     status       => 'open',
@@ -61,7 +61,7 @@ my %values = (
     ticket_ref   => 'test ticket_ref',
 );
 
-#my $security_event_status = pf::security_event::security_event_add($mac, $vid, (
+#my $security_event_status = pf::security_event::security_event_add($mac, $security_event_id, (
 #    start_date   => $dt_format->format_datetime($dt_start),
 #    release_date => $dt_format->format_datetime($dt_release),
 #    status       => 'open',
@@ -83,7 +83,7 @@ my $id = $t->tx->res->json->{items}[0]{id};
 #run unittest, use $id
 $t->get_ok("/api/v1/security_event/$id")
   ->status_is(200)
-  ->json_is('/item/vid',$values{vid})
+  ->json_is('/item/security_event_id',$values{security_event_id})
   ->json_is('/item/status','open')
   ->json_is('/item/release_date',$values{release_date})
   ->json_is('/item/ticket_ref',$values{ticket_ref})

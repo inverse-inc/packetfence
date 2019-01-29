@@ -81,7 +81,7 @@ Parse a scan report from the scan object and trigger security_events if needed
 =cut
 
 sub parse_scan_report {
-    my ( $scan, $scan_vid ) = @_;
+    my ( $scan, $scan_security_event_id ) = @_;
     my $logger = get_logger();
 
     $logger->debug("Scan report to analyze. Scan id: $scan");
@@ -134,14 +134,14 @@ sub parse_scan_report {
     #   Do nothing
 
     # The way we accomplish the above workflow is to differentiate by checking if special security_event exists or not
-    if ( my $security_event_id = security_event_exist_open($mac, $scan_vid) ) {
+    if ( my $security_event_id = security_event_exist_open($mac, $scan_security_event_id) ) {
         $logger->trace("Scan is completed and there is an open scan security_event. We have something to do!");
 
         # We passed the scan so we can close the scan security_event
         if ( !$failed_scan ) {
             my $apiclient = pf::api::jsonrpcclient->new;
             my %data = (
-               'vid' => $scan_vid,
+               'security_event_id' => $scan_security_event_id,
                'mac' => $mac,
                'reason' => 'manage_vclose',
             );
@@ -257,7 +257,7 @@ sub run_scan {
 
         my $apiclient = pf::api::jsonrpcclient->new;
         my %data = (
-           'vid' => $failed_scan,
+           'security_event_id' => $failed_scan,
            'mac' => $host_mac,
         );
         $apiclient->notify('close_security_event', %data );

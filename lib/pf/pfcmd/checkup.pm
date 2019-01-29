@@ -766,17 +766,17 @@ sub security_events {
     # Check for deprecated actions and attributes
     my @deprecated_actions = qw(trap email popup);
     my @deprecated_attr = qw(whitelisted_categories);
-    while(my ($vid, $config) = each %pf::security_event_config::SecurityEvent_Config ){
+    while(my ($security_event_id, $config) = each %pf::security_event_config::SecurityEvent_Config ){
         foreach my $attr (@deprecated_attr){
             if(exists $config->{$attr}){
-                add_problem($WARN, "SecurityEvent attribute $attr is deprecated in security_event $vid. Please adjust your configuration according to the upgrade guide.");
+                add_problem($WARN, "SecurityEvent attribute $attr is deprecated in security_event $security_event_id. Please adjust your configuration according to the upgrade guide.");
             }
         }
 
         my @actions = split(/\s*,\s*/, $config->{actions});
         foreach my $action (@deprecated_actions){
             if(List::MoreUtils::any {$_ eq $action} @actions){
-                add_problem($WARN, "SecurityEvent action $action is deprecated in security_event $vid. Please adjust your configuration according to the upgrade guide.");
+                add_problem($WARN, "SecurityEvent action $action is deprecated in security_event $security_event_id. Please adjust your configuration according to the upgrade guide.");
             }
         }
     }

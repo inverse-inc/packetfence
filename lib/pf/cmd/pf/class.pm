@@ -5,7 +5,7 @@ pf::cmd::pf::class add documentation
 
 =head1 SYNOPSIS
 
-pfcmd class view <vid>
+pfcmd class view <security_event_id>
 
 view security_event classification - to edit, use security_events.conf and "pfcmd reload security_events"
 

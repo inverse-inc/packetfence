@@ -179,12 +179,12 @@ our %ALLOWED_JOIN_FIELDS = (
         group_by => 1,
         column_spec => \"COUNT(security_event_open.id) AS `security_event.open_count`",
     },
-    'security_event.open_vid' => {
+    'security_event.open_security_event_id' => {
         namespace => 'security_event_open',
         join_spec => \@SECURITY_EVENT_OPEN_JOIN,
-        rewrite_query => \&rewrite_security_event_open_vid,
+        rewrite_query => \&rewrite_security_event_open_security_event_id,
         group_by => 1,
-        column_spec => \"GROUP_CONCAT(security_event_open.vid) AS `security_event.open_vid`"
+        column_spec => \"GROUP_CONCAT(security_event_open.security_event_id) AS `security_event.open_security_event_id`"
     },
     'security_event.close_count' => {
         namespace => 'security_event_close',
@@ -193,12 +193,12 @@ our %ALLOWED_JOIN_FIELDS = (
         group_by => 1,
         column_spec => \"COUNT(security_event_close.id) AS `security_event.close_count`",
     },
-    'security_event.close_vid' => {
+    'security_event.close_security_event_id' => {
         namespace => 'security_event_close',
         join_spec => \@SECURITY_EVENT_CLOSED_JOIN,
-        rewrite_query => \&rewrite_security_event_close_vid,
+        rewrite_query => \&rewrite_security_event_close_security_event_id,
         group_by => 1,
-        column_spec => \"GROUP_CONCAT(security_event_close.vid) AS `security_event.close_vid`"
+        column_spec => \"GROUP_CONCAT(security_event_close.security_event_id) AS `security_event.close_security_event_id`"
     },
 );
 
@@ -208,9 +208,9 @@ sub non_searchable {
     return (422, { msg => "$q->{field} is not searchable" });
 }
 
-sub rewrite_security_event_open_vid {
+sub rewrite_security_event_open_security_event_id {
     my ($self, $s, $q) = @_;
-    $q->{field} = 'security_event_open.vid';
+    $q->{field} = 'security_event_open.security_event_id';
     return (200, $q);
 }
 
@@ -220,9 +220,9 @@ sub rewrite_security_event_open_count {
     return (200, $q);
 }
 
-sub rewrite_security_event_close_vid {
+sub rewrite_security_event_close_security_event_id {
     my ($self, $s, $q) = @_;
-    $q->{field} = 'security_event_close.vid';
+    $q->{field} = 'security_event_close.security_event_id';
     return (200, $q);
 }
 

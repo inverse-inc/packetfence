@@ -44,8 +44,8 @@ sub index : Path : Args(0) {
 
         # There is a security_event, redirect the user
         # FIXME: there is not enough validation below
-        my $vid      = $security_event->{'vid'};
-        my $class = class_view($vid);
+        my $security_event_id      = $security_event->{'security_event_id'};
+        my $class = class_view($security_event_id);
 
         # Retrieve security_event template name
         my $template = $class->{'template'};

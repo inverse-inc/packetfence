@@ -331,7 +331,7 @@ export default {
           icon: 'user-secret'
         },
         {
-          value: 'security_event.open_vid',
+          value: 'security_event.open_security_event_id',
           text: this.$i18n.t('SecurityEvent Open'),
           types: [conditionType.SECURITY_EVENT],
           icon: 'exclamation-triangle'
@@ -343,7 +343,7 @@ export default {
           icon: 'exclamation-triangle'
         },
         {
-          value: 'security_event.close_vid',
+          value: 'security_event.close_security_event_id',
           text: this.$i18n.t('SecurityEvent Closed'),
           types: [conditionType.SECURITY_EVENT],
           icon: 'exclamation-circle'
@@ -628,7 +628,7 @@ export default {
           visible: false
         },
         {
-          key: 'security_event.open_vid',
+          key: 'security_event.open_security_event_id',
           label: this.$i18n.t('SecurityEvent Open'),
           sortable: true,
           visible: false,
@@ -643,7 +643,7 @@ export default {
           class: 'text-nowrap'
         },
         {
-          key: 'security_event.close_vid',
+          key: 'security_event.close_security_event_id',
           label: this.$i18n.t('SecurityEvent Closed'),
           sortable: true,
           visible: false,
@@ -889,7 +889,7 @@ export default {
     applyBulkSecurityEvent (security_event) {
       const macs = this.selectValues.map(item => item.mac)
       if (macs.length > 0) {
-        this.$store.dispatch(`${this.storeName}/applySecurityEventBulkNodes`, { items: macs, vid: security_event.id }).then(response => {
+        this.$store.dispatch(`${this.storeName}/applySecurityEventBulkNodes`, { items: macs, security_event_id: security_event.id }).then(response => {
           response.items.forEach((item, _index, items) => {
             let index = this.tableValues.findIndex(node => node.mac === item.mac)
             this.setRowVariant(index, convert.statusToVariant({ status: item.status }))

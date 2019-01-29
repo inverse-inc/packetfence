@@ -102,7 +102,7 @@ $t->post_ok('/api/v1/nodes/bulk_apply_role' => json => { category_id => 1,  item
   ->json_is('/items/0/mac', $mac)
   ->json_is('/items/0/status', 'skipped');
 
-$t->post_ok("/api/v1/node/$mac/apply_security_event" => json => { vid => '1100013' })
+$t->post_ok("/api/v1/node/$mac/apply_security_event" => json => { security_event_id => '1100013' })
   ->status_is(200);
 
 $t->post_ok('/api/v1/nodes/search' => json => { fields => [qw(mac security_event.open_count)] })

@@ -91,7 +91,7 @@ sub acct_maintenance {
 
     foreach my $info (@ACCOUNTING_TRIGGERS) {
         my $acct_policy = $info->{trigger};
-        my $vid = $info->{security_event};
+        my $security_event_id = $info->{security_event};
         if ($acct_policy =~ /$ACCOUNTING_TRIGGER_RE/) {
 
             my $direction = $1;
@@ -115,7 +115,7 @@ sub acct_maintenance {
                 $interval = "all";
             }
 
-            $logger->info("Found timeframed accounting policy : $acct_policy for security_event $vid");
+            $logger->info("Found timeframed accounting policy : $acct_policy for security_event $security_event_id");
 
             # Grab the list of the mac address first without caring about the security_events
             my $releaseDate = "1";
@@ -134,11 +134,11 @@ sub acct_maintenance {
                 my $cleanedMac = clean_mac($mac->{'callingstationid'});
 
                 #Do we have a closed security_event for the current mac
-                $logger->info("Looking if we have a closed security_event in the present window for mac $cleanedMac and vid $vid");
+                $logger->info("Looking if we have a closed security_event in the present window for mac $cleanedMac and security_event_id $security_event_id");
 
-                if (security_event_exist_acct($cleanedMac, $vid, $interval)) {
+                if (security_event_exist_acct($cleanedMac, $security_event_id, $interval)) {
                     $logger->info("We have a closed security_event in the interval window for node $cleanedMac, need to recalculate using the last security_event release date");
-                    my @security_event = security_event_view_last_closed($cleanedMac,$vid);
+                    my @security_event = security_event_view_last_closed($cleanedMac,$security_event_id);
                     $releaseDate = $security_event[0]{'release_date'};
 
                     if ($direction eq $DIRECTION_IN) {

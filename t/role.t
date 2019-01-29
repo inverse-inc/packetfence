@@ -65,7 +65,7 @@ my $switch = pf::SwitchFactory->instantiate('192.168.0.1');
 my $mock = new Test::MockModule('pf::role');
 my $mock_security_event = new Test::MockModule('pf::security_event');
 # emulate the presence of a security_event
-# TODO this is a cheap test, the false in view_top is to avoid the cascade of vid, class, etc. checking
+# TODO this is a cheap test, the false in view_top is to avoid the cascade of security_event_id, class, etc. checking
 # mocked node_attributes returns security_event node
 $mock->mock('node_attributes', sub {
     return { mac => 'bb:bb:cc:dd:ee:ff', pid => 1, detect_date => '', regdate => '', unregdate => '', category => 'default',

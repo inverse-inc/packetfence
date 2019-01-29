@@ -4,7 +4,7 @@ use namespace::autoclean;
 use pf::security_event;
 use pf::class;
 use pf::config qw(%Config);
-use pf::constants::scan qw($SCAN_VID $POST_SCAN_VID $PRE_SCAN_VID);
+use pf::constants::scan qw($SCAN_SECURITY_EVENT_ID $POST_SCAN_SECURITY_EVENT_ID $PRE_SCAN_SECURITY_EVENT_ID);
 use pf::log;
 use pf::web;
 use pf::node;
@@ -41,14 +41,14 @@ sub index : Path : Args(0) {
 
         # There is a security_event, redirect the user
         # FIXME: there is not enough validation below
-        my $vid      = $security_event->{'vid'};
+        my $security_event_id      = $security_event->{'security_event_id'};
 
-        if ($vid == $POST_SCAN_VID) {
+        if ($security_event_id == $POST_SCAN_SECURITY_EVENT_ID) {
             $c->response->redirect("/captive-portal");
         }
 
         # detect if a system scan is in progress, if so redirect to scan in progress page
-        if ($vid == $SCAN_VID || $vid == $PRE_SCAN_VID) {
+        if ($security_event_id == $SCAN_SECURITY_EVENT_ID || $security_event_id == $PRE_SCAN_SECURITY_EVENT_ID) {
             if($security_event->{'ticket_ref'} =~ /^Scan in progress, started at: (.*)$/ ){
                 $logger->info("captive portal redirect to the scan in progress page");
                 $c->detach( 'Remediation', 'scan_status', [$1] );
@@ -65,7 +65,7 @@ sub index : Path : Args(0) {
                 $c->detach();
             }
         }
-        my $class    = class_view($vid);
+        my $class    = class_view($security_event_id);
 
         # Retrieve security_event template name
         my $subTemplate = $self->getSubTemplate( $c, $class->{'template'} );
@@ -107,15 +107,15 @@ sub release :Local {
     my ($self, $c) = @_;
     my $mac = $c->portalSession->clientMac;
     my $security_event = security_event_view_top($mac);
-    my $vid = $security_event->{vid};
-    get_logger->info("Will try to close security_event $vid for $mac");
-    my $grace = security_event_close($mac,$vid);
-    get_logger->info("Closing of security_event $vid for $mac returned $grace");
+    my $security_event_id = $security_event->{security_event_id};
+    get_logger->info("Will try to close security_event $security_event_id for $mac");
+    my $grace = security_event_close($mac,$security_event_id);
+    get_logger->info("Closing of security_event $security_event_id for $mac returned $grace");
 
     if ($grace != -1) {
         my $count = security_event_count($mac);
 
-        my $class = class_view($vid);
+        my $class = class_view($security_event_id);
         $c->session->{destination_url} = $class->{'redirect_url'} if defined($class->{'redirect_url'});
 
         get_logger->info("$mac enabled for $grace minutes");

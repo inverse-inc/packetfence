@@ -411,7 +411,7 @@ NodeView.prototype.triggerSecurityEvent = function(e) {
     var modal = $('#modalNode');
     var modal_body = modal.find('.modal-body');
     var btn = $(e.target);
-    var option = modal.find('#vid').find(':selected');
+    var option = modal.find('#security_event_id').find(':selected');
     var href = option.attr("trigger_url");
     var pane = $('#nodeSecurityEvents');
     resetAlert(pane);

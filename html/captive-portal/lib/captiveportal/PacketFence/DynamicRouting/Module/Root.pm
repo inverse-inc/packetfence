@@ -32,7 +32,7 @@ use pf::config qw($default_pid);
 use pf::constants qw($TRUE $FALSE);
 use pf::util;
 use pf::security_event;
-use pf::constants::scan qw($POST_SCAN_VID);
+use pf::constants::scan qw($POST_SCAN_SECURITY_EVENT_ID);
 use pf::inline;
 use pf::Portal::Session;
 use pf::SwitchFactory;
@@ -170,7 +170,7 @@ sub handle_security_events {
 
     return 1 unless(defined($security_event));
 
-    return 1 if ($security_event->{vid} == $POST_SCAN_VID);
+    return 1 if ($security_event->{security_event_id} == $POST_SCAN_SECURITY_EVENT_ID);
 
     $self->app->redirect("/security_event");
     return 0;

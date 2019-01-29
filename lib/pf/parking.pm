@@ -17,7 +17,7 @@ use warnings;
 
 use pf::log;
 use pf::security_event;
-use pf::constants::parking qw($PARKING_VID $PARKING_DHCP_GROUP_NAME $PARKING_IPSET_NAME);
+use pf::constants::parking qw($PARKING_SECURITY_EVENT_ID $PARKING_DHCP_GROUP_NAME $PARKING_IPSET_NAME);
 use pf::constants;
 use pf::config qw(%Config);
 use pf::util;
@@ -33,7 +33,7 @@ Will make sure the proper parking actions are applied
 
 sub trigger_parking {
     my ($mac,$ip) = @_;
-    if(security_event_count_open_vid($mac, $PARKING_VID) || security_event_trigger( { mac => $mac, tid => 'parking_detected', type => 'INTERNAL' } )){
+    if(security_event_count_open_security_event_id($mac, $PARKING_SECURITY_EVENT_ID) || security_event_trigger( { mac => $mac, tid => 'parking_detected', type => 'INTERNAL' } )){
         park($mac,$ip);
     }
 }
@@ -70,7 +70,7 @@ Attempt to unpark a device. The parking security_event needs to be successfully 
 
 sub unpark {
     my ($mac,$ip) = @_;
-    if(security_event_close($mac, $PARKING_VID) != -1){
+    if(security_event_close($mac, $PARKING_SECURITY_EVENT_ID) != -1){
         remove_parking_actions($mac,$ip);
         return $TRUE;
     }

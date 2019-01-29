@@ -58,14 +58,14 @@ Process tab
 =cut
 
 sub process_tab {
-    my ($self, $c, $vid, @args) = @_;
-    my ($status, $result) = $c->model('Config::SecurityEvents')->hasId($vid);
+    my ($self, $c, $security_event_id, @args) = @_;
+    my ($status, $result) = $c->model('Config::SecurityEvents')->hasId($security_event_id);
     return ($status, $result) if is_error($status);
 
-    ($status, $result) = $c->model('Node')->addSecurityEvent($c->stash->{mac}, $vid);
+    ($status, $result) = $c->model('Node')->addSecurityEvent($c->stash->{mac}, $security_event_id);
     return ($status, $result) if is_error($status);
 
-    $c->controller->audit_current_action($c, status => $status, mac => $c->stash->{mac}, security_event_id => $vid);
+    $c->controller->audit_current_action($c, status => $status, mac => $c->stash->{mac}, security_event_id => $security_event_id);
 
     return $self->process_view($c, @args);
 }
