@@ -391,11 +391,6 @@ sub setup_api_v1_routes {
     my ($self) = @_;
     my $r = $self->routes;
     my $api_v1_route = $r->any("/api/v1")->name("api.v1");
-    $api_v1_route->options('/*', sub {
-        my ($c) = @_;
-        $c->res->headers->header('Access-Control-Allow-Methods' => 'GET, OPTIONS, POST, DELETE, PUT, PATCH');
-        $c->respond_to(any => { data => '', status => 200 });
-    });
     foreach my $route ($self->api_v1_routes) {
         $api_v1_route->rest_routes($route);
     }
