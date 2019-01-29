@@ -33,7 +33,7 @@ our %DEFAULT_RESOURCE_OPTIONS = (
             action => 'remove',
         },
         OPTIONS => {
-            action => 'options',
+            action => 'resource_options',
         },
     },
 );

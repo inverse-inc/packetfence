@@ -341,7 +341,69 @@ options
 
 sub options {
     my ($self) = @_;
-    return $self->render(json => {});
+    my $form = $self->form;
+    my %defaults;
+    my %placeholders;
+    my %output = (
+        defaults => \%defaults,
+        placeholders => \%placeholders,
+    );
+
+    for my $field ($form->fields) {
+        my $name = $field->name;
+        $defaults{$name} = $self->field_default($field);
+        $placeholders{$name} = $self->field_placeholder($field);
+    }
+
+    return $self->render(json => \%output);
+}
+
+=head2 resource_options
+
+resource_options
+
+=cut
+
+sub resource_options {
+    my ($self) = @_;
+    my $form = $self->form;
+    my %defaults;
+    my %placeholders;
+    my %output = (
+        defaults => \%defaults,
+        placeholders => \%placeholders,
+    );
+
+    for my $field ($form->fields) {
+        my $name = $field->name;
+        $defaults{$name} = $self->field_default($field);
+        $placeholders{$name} = $self->field_placeholder($field);
+    }
+
+    return $self->render(json => \%output);
+}
+
+=head2 field_default
+
+field_default
+
+=cut
+
+sub field_default {
+    my ($self, $field) = @_;
+    return $field->default;
+}
+
+=head2 field_placeholder
+
+field_placeholder
+
+=cut
+
+sub field_placeholder {
+    my ($self, $field) = @_;
+    my $element_attr = $field->element_attr // {};
+    return $element_attr->{placeholder};
 }
 
 sub form_parameters {
