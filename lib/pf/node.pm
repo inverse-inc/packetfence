@@ -40,6 +40,7 @@ use pf::config qw(
     %Config
     $INLINE
     %connection_type_to_str
+    $VOIP
 );
 
 use constant NODE => 'node';
@@ -859,7 +860,7 @@ sub node_cleanup {
         foreach my $row ( node_expire_lastseen($delete_time) ) {
             my $mac = $row->{'mac'};
             my $tenant_id = $row->{'tenant_id'};
-            if (isdisabled($voip) && $row->{'voip'} eq 'yes') {
+            if (isdisabled($voip) && $row->{'voip'} eq $VOIP) {
                 next;
             }
             $logger->info("mac $mac not seen for $delete_time seconds, deleting");
@@ -877,7 +878,7 @@ sub node_cleanup {
         foreach my $row ( node_unreg_lastseen($unreg_time) ) {
             my $mac = $row->{'mac'};
             my $tenant_id = $row->{'tenant_id'};
-            if (isdisabled($voip) && $row->{'voip'} eq 'yes') {
+            if (isdisabled($voip) && $row->{'voip'} eq $VOIP) {
                 next;
             }
             $logger->info("mac $mac not seen for $unreg_time seconds, unregistering");
