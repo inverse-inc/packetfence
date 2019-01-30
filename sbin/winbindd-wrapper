@@ -86,6 +86,7 @@ our $PARENT_PID = $$;
 
 sub start {
     Systemd::Daemon::notify( READY => 1, STATUS => "Ready", unset => 1 );
+    registertasks();
     while($running) {
         run_all_winbindd();
         alarm(1);
@@ -180,6 +181,18 @@ sub run_all_winbindd {
 
     sleep(5);
     sigprocmask(SIG_UNBLOCK, $mask);
+}
+
+=head2 register_task
+
+register_task
+
+=cut
+
+sub register_task {
+    my ($task) = @_;
+    push @REGISTERED_TASKS, $task;
+    return ;
 }
 
 =head2 registertasks
