@@ -132,7 +132,7 @@ interval=720s
 randomize=true
 management=true
 
-[metric 'number of currently open security_events']
+[metric 'number of currently open security events']
 type=mysql_query
 statsd_type=gauge
 statsd_ns=source.packetfence.security_events

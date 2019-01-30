@@ -65,7 +65,7 @@ sub addTrigger {
     my ($status,$status_msg) = $self->hasId($id);
     if(is_success($status)) {
         my $result = $self->configStore->addTrigger($id,$trigger);
-        $status_msg = $result == 1  ? "Successfully added trigger to security_event" : 'Trigger already included.';
+        $status_msg = $result == 1  ? "Successfully added trigger to security event" : 'Trigger already included.';
     }
     return ($status,$status_msg);
 }
@@ -79,7 +79,7 @@ sub deleteTrigger {
     my ($status,$status_msg) = $self->hasId($id);
     if(is_success($status)) {
         my $result = $self->configStore->deleteTrigger($id,$trigger);
-        $status_msg = $result == 1  ? "Successfully deleted trigger from security_event" : 'Trigger already excluded.';
+        $status_msg = $result == 1  ? "Successfully deleted trigger from security event" : 'Trigger already excluded.';
     }
     return ($status,$status_msg);
 }

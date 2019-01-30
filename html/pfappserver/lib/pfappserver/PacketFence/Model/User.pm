@@ -192,7 +192,7 @@ sub nodes {
 
 =head2 security_events
 
-Return the security_events associated to the person ID.
+Return the security events associated to the person ID.
 
 =cut
 
@@ -208,7 +208,7 @@ sub security_events {
         map { $_->{release_date} = '' if ($_->{release_date} eq '0000-00-00 00:00:00') } @security_events;
     };
     if ($@) {
-        $status_msg = "Can't fetch security_events from database.";
+        $status_msg = "Can't fetch security events from database.";
         $logger->error($status_msg);
         return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
     }
@@ -753,7 +753,7 @@ sub bulkApplySecurityEvent {
         my ($last_id) = security_event_add( $mac, $security_event_id);
         $count++ if $last_id > 0;;
     }
-    return ($STATUS::OK, ["[_1] security_event(s) were opened.",$count]);
+    return ($STATUS::OK, ["[_1] security event(s) were opened.",$count]);
 }
 
 =head2 closeSecurityEvents
@@ -771,7 +771,7 @@ sub bulkCloseSecurityEvents {
             }
         }
     }
-    return ($STATUS::OK, ["[_1] security_event(s) were closed.",$count]);
+    return ($STATUS::OK, ["[_1] security event(s) were closed.",$count]);
 }
 
 =head2 bulkDelete

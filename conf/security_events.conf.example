@@ -14,17 +14,17 @@ window=0
 delay_by=0s
 button_text=Enable Network
 snort_rules=local.rules,emerging-attack_response.rules,emerging-botcc.rules,emerging-exploit.rules,emerging-malware.rules,emerging-p2p.rules,emerging-scan.rules,emerging-shellcode.rules,emerging-trojan.rules,emerging-worm.rules
-# vlan: The vlan parameter allows you to define in what vlan a node with a security_event will be put in.
+# vlan: The vlan parameter allows you to define in what vlan a node with a security event will be put in.
 # Accepted values are the vlan names: isolation, normal, registration, macDetection, inline, voice
 # and all the roles names you defined in the node_category table. (see switches.conf)
 vlan=isolation
-# if you add a role/category here, nodes in these roles/categories will be immune to the security_event
+# if you add a role/category here, nodes in these roles/categories will be immune to the security event
 whitelisted_roles=
 template=generic
 
 [1100001]
 desc=Nessus Scan
-# On a Scan security_event priority must be higher (lower number) than the special system scan security_event (1200001)
+# On a Scan security event priority must be higher (lower number) than the special system scan security event (1200001)
 priority=4
 template=failed_scan
 max_enable=4
@@ -37,7 +37,7 @@ vlan=registration
 
 [1100002]
 desc=OpenVAS scan
-# On a scan security_event priority must be higher (lower number) than the special system scan security_event (1200001)
+# On a scan security event priority must be higher (lower number) than the special system scan security event (1200001)
 priority=4
 template=failed_scan
 max_enable=4
@@ -149,7 +149,7 @@ actions=email_admin,log
 enabled=Y
 
 #
-#  1200000 - 120099 Reserved for required administration security_events
+#  1200000 - 120099 Reserved for required administration security events
 #
 [1200001]
 priority=9
@@ -211,7 +211,7 @@ auto_enable=Y
 vlan=registration
 
 #
-# 1300000 - 1399999 Reserved for PacketFence security_events
+# 1300000 - 1399999 Reserved for PacketFence security events
 #
 [1300000]
 desc=Generic
@@ -239,7 +239,7 @@ delay_by=2m
 
 [1300003]
 priority=1
-desc=Parking security_event
+desc=Parking security event
 max_enable=3
 grace=10m
 actions=log,reevaluate_access
@@ -250,10 +250,10 @@ trigger=Internal::parking_detected
 
 
 #
-# 1400000 - 1499999 Reserved for local security_events
+# 1400000 - 1499999 Reserved for local security events
 #
 #
-# 2000000 - 2099999 Snort security_events
+# 2000000 - 2099999 Snort security events
 #
 [2000000]
 desc=Malware

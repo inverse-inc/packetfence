@@ -357,7 +357,7 @@ sub availableStatus {
 
 =head2 security_events
 
-Return the open security_events associated to the MAC.
+Return the open security events associated to the MAC.
 
 =cut
 
@@ -373,7 +373,7 @@ sub security_events {
         map { $_->{release_date} = '' if ($_->{release_date} eq $ZERO_DATE) } @security_events;
     };
     if ($@) {
-        $status_msg = "Can't fetch security_events from database.";
+        $status_msg = "Can't fetch security events from database.";
         $logger->error($status_msg);
         return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
     }
@@ -392,10 +392,10 @@ sub addSecurityEvent {
     my ($self, $mac, $security_event_id) = @_;
 
     if (security_event_add($mac, $security_event_id, ('force' => $TRUE))) {
-        return ($STATUS::OK, 'The security_event was successfully added.');
+        return ($STATUS::OK, 'The security event was successfully added.');
     }
     else {
-        return ($STATUS::INTERNAL_SERVER_ERROR, 'An error occurred while adding the security_event.');
+        return ($STATUS::INTERNAL_SERVER_ERROR, 'An error occurred while adding the security event.');
     }
 }
 
@@ -406,9 +406,9 @@ sub addSecurityEvent {
 sub closeSecurityEvent {
     my ($self, $id) = @_;
     if($self->_closeSecurityEvent($id)) {
-        return ($STATUS::OK, 'The security_event was successfully closed.');
+        return ($STATUS::OK, 'The security event was successfully closed.');
     }
-    return ($STATUS::INTERNAL_SERVER_ERROR, 'An error occurred while closing the security_event.');
+    return ($STATUS::INTERNAL_SERVER_ERROR, 'An error occurred while closing the security event.');
 }
 
 =head2 runSecurityEvent
@@ -418,9 +418,9 @@ sub closeSecurityEvent {
 sub runSecurityEvent {
     my ($self, $id) = @_;
     if(security_event_run_delayed($id)) {
-        return ($STATUS::OK, 'The security_event was successfully ran');
+        return ($STATUS::OK, 'The security event was successfully ran');
     }
-    return ($STATUS::INTERNAL_SERVER_ERROR, 'An error occurred while running the security_event.');
+    return ($STATUS::INTERNAL_SERVER_ERROR, 'An error occurred while running the security event.');
 }
 
 =head2 closeSecurityEvents
@@ -436,7 +436,7 @@ sub bulkCloseSecurityEvents {
             $count++ if $self->_closeSecurityEvent($security_event->{id});
         }
     }
-    return ($STATUS::OK, ["[_1] security_event(s) were closed.",$count]);
+    return ($STATUS::OK, ["[_1] security event(s) were closed.",$count]);
 }
 
 =head2 _closeSecurityEvent
@@ -469,7 +469,7 @@ sub bulkApplySecurityEvent {
         my ($last_id) = security_event_add( $mac, $security_event_id, ('force' => $TRUE) );
         $count++ if $last_id > 0;;
     }
-    return ($STATUS::OK, ["[_1] security_event(s) were opened.",$count]);
+    return ($STATUS::OK, ["[_1] security event(s) were opened.",$count]);
 }
 
 

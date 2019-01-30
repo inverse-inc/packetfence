@@ -30,13 +30,13 @@
 </table>
 [%- ELSE %]
   <div id="noResult" class="unwell">
-    <i class="icon-legal icon-large"></i><p>[% l('No security_event found') %]</p>
+    <i class="icon-legal icon-large"></i><p>[% l('No security event found') %]</p>
   </div>
 [%- END %]
 [%- IF can_access("NODES_UPDATE") %]
   <hr />
   <div class="controls pull-right">
-  <select name="security_event_id" id="security_event_id" class="" data-placeholder="[% l('Select a security_event') %]">
+  <select name="security_event_id" id="security_event_id" class="" data-placeholder="[% l('Select a security event') %]">
       [%- FOREACH security_event IN security_events %]
       [% IF security_event.desc %]<option trigger_url=[% c.uri_for(c.controller('Node').action_for('triggerSecurityEvent'), [mac] security_event.id, {tenant_id => tenant_id})  %] value="[% security_event.id | html %]">[% security_event.desc | html %]</option>[% END %]
       [%- END -%]

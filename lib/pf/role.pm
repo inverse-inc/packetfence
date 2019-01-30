@@ -224,7 +224,7 @@ sub getIsolationRole {
                    "it might belong into another VLAN (isolation or other).");
 
     # Vlan Filter
-    my $role = $self->filterVlan('SecurityEventRole',$args);
+    my $role = $self->filterVlan('IsolationRole',$args);
     if ($role) {
         return ({role => $role});
     }

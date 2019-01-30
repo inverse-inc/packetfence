@@ -278,12 +278,12 @@ END;
                 <div class="span3 card">
                     <div class="counter_over_chart">
                         <div id="packetfence_security_events"></div>
-                        <div class="counter_chart_title">[% l('Open SecurityEvents') %]</div>
+                        <div class="counter_chart_title">[% l('Open Security Events') %]</div>
                     </div>
                     [%
                     graph(
                       "statsd_gauge_source.packetfence.security_events", 
-                      "Open security_events", 
+                      "Open security events", 
                       {
                         "nocluster" => 1, 
                         "chart_library" => "dygraph", 
@@ -479,11 +479,11 @@ END;
           </div>
           <div class="card">
             <div class="card-title">
-              <h2>[% l('Device SecurityEvents') %]</h2>
+              <h2>[% l('Device Security Events') %]</h2>
             </div>
             <div class="card-block">
               <div class="row-flex">
-                [% graph("statsd_gauge_source.packetfence.security_events", "Currently open security_events", {"nocluster" => 1, "filter_graph" => "gauge"}) | none %]
+                [% graph("statsd_gauge_source.packetfence.security_events", "Currently open security events", {"nocluster" => 1, "filter_graph" => "gauge"}) | none %]
               </div>
             </div>
           </div>

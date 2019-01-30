@@ -116,7 +116,7 @@
               [% pf_section_entry( 'scans', 'Scans', subsections.scans) | none %]
               [%- END %]
               [%- IF can_access("SECURITY_EVENTS_READ") %]
-              [% list_entry('SecurityEvent', 'index', 'SecurityEvents') | none %]
+              [% list_entry('SecurityEvent', 'index', 'Security Events') | none %]
               [%- END %]
             </ul>
           </div>

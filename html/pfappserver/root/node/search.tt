@@ -136,8 +136,8 @@
                         [% END %]
                     [% END %]
                     [% IF items.size > 0 && items.0.security_event_status %]
-                    <th class="hidden-phone" >[% l('SecurityEvent Status') %]</th>
-                    <th class="hidden-phone" >[% l('SecurityEvent Name') %]</th>
+                    <th class="hidden-phone" >[% l('Security Event Status') %]</th>
+                    <th class="hidden-phone" >[% l('Security Event Name') %]</th>
                     [% END %]
                   </tr>
                 </thead>
