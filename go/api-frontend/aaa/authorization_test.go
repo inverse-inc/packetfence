@@ -249,11 +249,7 @@ func TestTokenAuthorizationMiddlewareBearerRequestIsAuthorized(t *testing.T) {
 		t.Error("Request without X-PacketFence-Tenant-Id didn't get the header set to the token tenant ID")
 	}
 
-	if req.Header.Get("X-PacketFEnce-Admin-Roles-Groups") != "UsersRead" {
-		t.Error("Didn't set the admin roles group header properly")
-	}
-
-	if req.Header.Get("X-PacketFEnce-Admin-Roles") != "USERS_READ" {
+	if req.Header.Get("X-PacketFEnce-Admin-Roles") != "UsersRead" {
 		t.Error("Didn't set the admin roles header properly")
 	}
 

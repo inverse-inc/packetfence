@@ -124,21 +124,13 @@ func (tam *TokenAuthorizationMiddleware) BearerRequestIsAuthorized(ctx context.C
 		}
 	}
 
-	roles := make([]string, len(tokenInfo.AdminActions()))
+	roles := make([]string, len(tokenInfo.AdminRoles))
 	i := 0
-	for r, _ := range tokenInfo.AdminActions() {
-		roles[i] = r
-		i++
-	}
-	r.Header.Set("X-PacketFence-Admin-Roles", strings.Join(roles, ","))
-
-	roles = make([]string, len(tokenInfo.AdminRoles))
-	i = 0
 	for r, _ := range tokenInfo.AdminRoles {
 		roles[i] = r
 		i++
 	}
-	r.Header.Set("X-PacketFence-Admin-Roles-Groups", strings.Join(roles, ","))
+	r.Header.Set("X-PacketFence-Admin-Roles", strings.Join(roles, ","))
 
 	return tam.IsAuthorized(ctx, r.Method, r.URL.Path, tenantId, tokenInfo)
 }
