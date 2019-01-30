@@ -250,6 +250,7 @@ sub child_sighandler {
         last unless $child > 0;
         my $id = delete $CHILDREN{$child};
         if (defined $id) {
+            $logger->warn("Re-registering $id");
             register_task($id);
         }
     }
