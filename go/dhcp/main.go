@@ -606,7 +606,7 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 					GlobalMacCache.Set(p.CHAddr().String(), reqIP.String(), leaseDuration+(time.Duration(15)*time.Second))
 					// Update the cache
 					log.LoggerWContext(ctx).Info("DHCPACK on " + reqIP.String() + " to " + clientMac + " (" + clientHostname + ")")
-					handler.hwcache.Set(p.CHAddr().String(), Index, leaseDuration+(time.Duration(15)*time.Second))
+					handler.hwcache.Set(p.CHAddr().String(), Index, leaseDuration+(time.Duration(30)*time.Second))
 					handler.available.ReserveIPIndex(uint64(Index), p.CHAddr().String())
 
 				} else {
