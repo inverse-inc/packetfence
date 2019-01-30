@@ -124,8 +124,16 @@ func (tam *TokenAuthorizationMiddleware) BearerRequestIsAuthorized(ctx context.C
 		}
 	}
 
-	roles := make([]string, len(tokenInfo.AdminRolesGroups))
+	roles := make([]string, len(tokenInfo.AdminRoles()))
 	i := 0
+	for r, _ := range tokenInfo.AdminRoles() {
+		roles[i] = r
+		i++
+	}
+	r.Header.Set("X-PacketFence-Admin-Roles", strings.Join(roles, ","))
+
+	roles = make([]string, len(tokenInfo.AdminRolesGroups))
+	i = 0
 	for r, _ := range tokenInfo.AdminRolesGroups {
 		roles[i] = r
 		i++

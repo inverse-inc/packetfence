@@ -253,6 +253,10 @@ func TestTokenAuthorizationMiddlewareBearerRequestIsAuthorized(t *testing.T) {
 		t.Error("Didn't set the admin roles group header properly")
 	}
 
+	if req.Header.Get("X-PacketFEnce-Admin-Roles") != "USERS_READ" {
+		t.Error("Didn't set the admin roles header properly")
+	}
+
 	// Test valid token with scoped tenant ID with X-PacketFence-Tenant-Id header
 	backend.StoreTokenInfo(token, &TokenInfo{
 		AdminRolesGroups: map[string]bool{
