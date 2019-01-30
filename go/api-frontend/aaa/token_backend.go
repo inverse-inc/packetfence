@@ -3,7 +3,7 @@ package aaa
 import "github.com/inverse-inc/packetfence/go/pfconfigdriver"
 
 type TokenBackend interface {
-	AdminRolesForToken(token string) map[string]bool
+	AdminActionsForToken(token string) map[string]bool
 	TenantIdForToken(token string) int
 	TokenInfoForToken(token string) *TokenInfo
 	StoreTokenInfo(token string, ti *TokenInfo) error
@@ -16,15 +16,15 @@ const (
 )
 
 type TokenInfo struct {
-	AdminRolesGroups map[string]bool
-	TenantId         int
-	Username         string
+	AdminRoles map[string]bool
+	TenantId   int
+	Username   string
 }
 
-func (ti *TokenInfo) AdminRoles() map[string]bool {
+func (ti *TokenInfo) AdminActions() map[string]bool {
 	adminRolesMap := make(map[string]bool)
 
-	for role, _ := range ti.AdminRolesGroups {
+	for role, _ := range ti.AdminRoles {
 		for role, _ := range pfconfigdriver.Config.AdminRoles.Element[role].Actions {
 			adminRolesMap[role] = true
 		}

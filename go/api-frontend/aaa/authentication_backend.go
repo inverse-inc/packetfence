@@ -14,17 +14,17 @@ type AuthenticationBackend interface {
 type MemAuthenticationBackend struct {
 	validUsers map[string]string
 	// The admin roles that will apply to *ALL* users of this backend
-	adminRolesGroups map[string]bool
-	sem              *sync.RWMutex
+	adminRoles map[string]bool
+	sem        *sync.RWMutex
 }
 
-func NewMemAuthenticationBackend(validUsers map[string]string, adminRolesGroups map[string]bool) *MemAuthenticationBackend {
+func NewMemAuthenticationBackend(validUsers map[string]string, adminRoles map[string]bool) *MemAuthenticationBackend {
 	pfconfigdriver.PfconfigPool.AddStruct(context.Background(), &pfconfigdriver.Config.AdminRoles)
 
 	mab := &MemAuthenticationBackend{
-		validUsers:       validUsers,
-		adminRolesGroups: adminRolesGroups,
-		sem:              &sync.RWMutex{},
+		validUsers: validUsers,
+		adminRoles: adminRoles,
+		sem:        &sync.RWMutex{},
 	}
 
 	return mab
@@ -49,8 +49,8 @@ func (mab *MemAuthenticationBackend) Authenticate(ctx context.Context, username,
 	if storedPass, found := mab.validUsers[username]; found {
 		if password == storedPass {
 			return true, &TokenInfo{
-				AdminRolesGroups: mab.adminRolesGroups,
-				TenantId:         AccessAllTenants,
+				AdminRoles: mab.adminRoles,
+				TenantId:   AccessAllTenants,
 			}, nil
 		} else {
 			return false, nil, nil

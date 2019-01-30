@@ -28,7 +28,7 @@ import _ "github.com/go-sql-driver/mysql"
 //		t.Error("Auth failed for a valid user", err)
 //	}
 //
-//	if len(ti.AdminRoles) != 4 {
+//	if len(ti.AdminActions) != 4 {
 //		t.Error("Wrong count of admin roles for user")
 //	}
 //
@@ -140,7 +140,7 @@ import _ "github.com/go-sql-driver/mysql"
 //		AccessLevel: "Node Manager",
 //	})
 //
-//	if len(ti.AdminRoles) != 4 {
+//	if len(ti.AdminActions) != 4 {
 //		t.Error("Wrong amount of admin roles")
 //	}
 //
@@ -154,7 +154,7 @@ import _ "github.com/go-sql-driver/mysql"
 //		TenantId:    1,
 //	})
 //
-//	if len(ti.AdminRoles) != 4 {
+//	if len(ti.AdminActions) != 4 {
 //		t.Error("Wrong amount of admin roles")
 //	}
 //
@@ -167,7 +167,7 @@ import _ "github.com/go-sql-driver/mysql"
 //		AccessLevel: "Node Manager, Violation Manager",
 //	})
 //
-//	if len(ti.AdminRoles) != 9 {
+//	if len(ti.AdminActions) != 9 {
 //		t.Error("Wrong amount of admin roles")
 //	}
 //
@@ -176,7 +176,7 @@ import _ "github.com/go-sql-driver/mysql"
 //		AccessLevel: "Vidange",
 //	})
 //
-//	if len(ti.AdminRoles) != 0 {
+//	if len(ti.AdminActions) != 0 {
 //		t.Error("Wrong amount of admin roles")
 //	}
 //
@@ -185,14 +185,14 @@ import _ "github.com/go-sql-driver/mysql"
 //		AccessLevel: "Node Manager, Vidange",
 //	})
 //
-//	if len(ti.AdminRoles) != 4 {
+//	if len(ti.AdminActions) != 4 {
 //		t.Error("Wrong amount of admin roles")
 //	}
 //
 //	// Test having no roles at all
 //	ti = dab.buildTokenInfo(ctx, &ApiUser{})
 //
-//	if len(ti.AdminRoles) != 0 {
+//	if len(ti.AdminActions) != 0 {
 //		t.Error("Wrong amount of admin roles")
 //	}
 //}

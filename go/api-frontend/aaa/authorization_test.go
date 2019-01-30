@@ -20,7 +20,7 @@ func TestTokenAuthorizationMiddlewareIsAuthorized(t *testing.T) {
 
 	// Test a valid GET
 	res, err = m.IsAuthorized(ctx, "GET", "/api/v1/nodes", 0, &TokenInfo{
-		AdminRolesGroups: map[string]bool{
+		AdminRoles: map[string]bool{
 			"NodesRead": true,
 		},
 	})
@@ -31,7 +31,7 @@ func TestTokenAuthorizationMiddlewareIsAuthorized(t *testing.T) {
 
 	// Test a valid GET with a parameter
 	res, err = m.IsAuthorized(ctx, "GET", "/api/v1/node/00:11:22:33:44:55", 0, &TokenInfo{
-		AdminRolesGroups: map[string]bool{
+		AdminRoles: map[string]bool{
 			"NodesRead": true,
 		},
 	})
@@ -42,7 +42,7 @@ func TestTokenAuthorizationMiddlewareIsAuthorized(t *testing.T) {
 
 	// Test a valid POST
 	res, err = m.IsAuthorized(ctx, "POST", "/api/v1/nodes", 0, &TokenInfo{
-		AdminRolesGroups: map[string]bool{
+		AdminRoles: map[string]bool{
 			"NodesCreate": true,
 		},
 	})
@@ -53,7 +53,7 @@ func TestTokenAuthorizationMiddlewareIsAuthorized(t *testing.T) {
 
 	// Test a valid PUT
 	res, err = m.IsAuthorized(ctx, "PUT", "/api/v1/nodes", 0, &TokenInfo{
-		AdminRolesGroups: map[string]bool{
+		AdminRoles: map[string]bool{
 			"NodesUpdate": true,
 		},
 	})
@@ -64,7 +64,7 @@ func TestTokenAuthorizationMiddlewareIsAuthorized(t *testing.T) {
 
 	// Test a valid PATCH
 	res, err = m.IsAuthorized(ctx, "PATCH", "/api/v1/nodes", 0, &TokenInfo{
-		AdminRolesGroups: map[string]bool{
+		AdminRoles: map[string]bool{
 			"NodesUpdate": true,
 		},
 	})
@@ -75,7 +75,7 @@ func TestTokenAuthorizationMiddlewareIsAuthorized(t *testing.T) {
 
 	// Test a valid DELETE
 	res, err = m.IsAuthorized(ctx, "DELETE", "/api/v1/nodes", 0, &TokenInfo{
-		AdminRolesGroups: map[string]bool{
+		AdminRoles: map[string]bool{
 			"NodesDelete": true,
 		},
 	})
@@ -86,7 +86,7 @@ func TestTokenAuthorizationMiddlewareIsAuthorized(t *testing.T) {
 
 	// Test an invalid GET
 	res, err = m.IsAuthorized(ctx, "GET", "/api/v1/nodes", 0, &TokenInfo{
-		AdminRolesGroups: map[string]bool{
+		AdminRoles: map[string]bool{
 			"SystemRead": true,
 		},
 	})
@@ -97,7 +97,7 @@ func TestTokenAuthorizationMiddlewareIsAuthorized(t *testing.T) {
 
 	// Test an invalid POST
 	res, err = m.IsAuthorized(ctx, "POST", "/api/v1/nodes", 0, &TokenInfo{
-		AdminRolesGroups: map[string]bool{
+		AdminRoles: map[string]bool{
 			"SystemRead": true,
 		},
 	})
@@ -108,7 +108,7 @@ func TestTokenAuthorizationMiddlewareIsAuthorized(t *testing.T) {
 
 	// Test an invalid PUT
 	res, err = m.IsAuthorized(ctx, "PUT", "/api/v1/nodes", 0, &TokenInfo{
-		AdminRolesGroups: map[string]bool{
+		AdminRoles: map[string]bool{
 			"SystemRead": true,
 		},
 	})
@@ -119,7 +119,7 @@ func TestTokenAuthorizationMiddlewareIsAuthorized(t *testing.T) {
 
 	// Test an invalid PATCH
 	res, err = m.IsAuthorized(ctx, "PATCH", "/api/v1/nodes", 0, &TokenInfo{
-		AdminRolesGroups: map[string]bool{
+		AdminRoles: map[string]bool{
 			"SystemRead": true,
 		},
 	})
@@ -130,7 +130,7 @@ func TestTokenAuthorizationMiddlewareIsAuthorized(t *testing.T) {
 
 	// Test an invalid DELETE
 	res, err = m.IsAuthorized(ctx, "DELETE", "/api/v1/nodes", 0, &TokenInfo{
-		AdminRolesGroups: map[string]bool{
+		AdminRoles: map[string]bool{
 			"SystemRead": true,
 		},
 	})
@@ -141,7 +141,7 @@ func TestTokenAuthorizationMiddlewareIsAuthorized(t *testing.T) {
 
 	// Test empty roles
 	res, err = m.IsAuthorized(ctx, "GET", "/api/v1/nodes", 0, &TokenInfo{
-		AdminRolesGroups: map[string]bool{},
+		AdminRoles: map[string]bool{},
 	})
 
 	if res {
@@ -150,7 +150,7 @@ func TestTokenAuthorizationMiddlewareIsAuthorized(t *testing.T) {
 
 	// Test valid universal tenant ID
 	res, err = m.IsAuthorized(ctx, "DELETE", "/api/v1/nodes", 1, &TokenInfo{
-		AdminRolesGroups: map[string]bool{
+		AdminRoles: map[string]bool{
 			"NodesDelete": true,
 		},
 		TenantId: 0,
@@ -162,7 +162,7 @@ func TestTokenAuthorizationMiddlewareIsAuthorized(t *testing.T) {
 
 	// Test valid scoped tenant ID
 	res, err = m.IsAuthorized(ctx, "DELETE", "/api/v1/nodes", 1, &TokenInfo{
-		AdminRolesGroups: map[string]bool{
+		AdminRoles: map[string]bool{
 			"NodesDelete": true,
 		},
 		TenantId: 1,
@@ -174,7 +174,7 @@ func TestTokenAuthorizationMiddlewareIsAuthorized(t *testing.T) {
 
 	// Test invalid scoped tenant ID
 	res, err = m.IsAuthorized(ctx, "DELETE", "/api/v1/nodes", 1, &TokenInfo{
-		AdminRolesGroups: map[string]bool{
+		AdminRoles: map[string]bool{
 			"NodesDelete": true,
 		},
 		TenantId: 2,
@@ -186,7 +186,7 @@ func TestTokenAuthorizationMiddlewareIsAuthorized(t *testing.T) {
 
 	// Test invalid scoped tenant ID
 	res, err = m.IsAuthorized(ctx, "DELETE", "/api/v1/nodes", 1, &TokenInfo{
-		AdminRolesGroups: map[string]bool{
+		AdminRoles: map[string]bool{
 			"NodesDelete": true,
 		},
 		TenantId: -1,
@@ -218,7 +218,7 @@ func TestTokenAuthorizationMiddlewareBearerRequestIsAuthorized(t *testing.T) {
 
 	// Test valid token with valid role
 	backend.StoreTokenInfo(token, &TokenInfo{
-		AdminRolesGroups: map[string]bool{
+		AdminRoles: map[string]bool{
 			"UsersRead": true,
 		},
 	})
@@ -231,7 +231,7 @@ func TestTokenAuthorizationMiddlewareBearerRequestIsAuthorized(t *testing.T) {
 
 	// Test valid token with scoped tenant ID without X-PacketFence-Tenant-Id header
 	backend.StoreTokenInfo(token, &TokenInfo{
-		AdminRolesGroups: map[string]bool{
+		AdminRoles: map[string]bool{
 			"UsersRead": true,
 		},
 		TenantId: 1,
@@ -259,7 +259,7 @@ func TestTokenAuthorizationMiddlewareBearerRequestIsAuthorized(t *testing.T) {
 
 	// Test valid token with scoped tenant ID with X-PacketFence-Tenant-Id header
 	backend.StoreTokenInfo(token, &TokenInfo{
-		AdminRolesGroups: map[string]bool{
+		AdminRoles: map[string]bool{
 			"UsersRead": true,
 		},
 		TenantId: 0,
@@ -275,7 +275,7 @@ func TestTokenAuthorizationMiddlewareBearerRequestIsAuthorized(t *testing.T) {
 
 	// Test valid token with wrong scoped X-PacketFence-Tenant-Id
 	backend.StoreTokenInfo(token, &TokenInfo{
-		AdminRolesGroups: map[string]bool{
+		AdminRoles: map[string]bool{
 			"UsersRead": true,
 		},
 		TenantId: 1,
@@ -300,7 +300,7 @@ func TestTokenAuthorizationMiddlewareBearerRequestIsAuthorized(t *testing.T) {
 
 	// Test valid scoped tenant ID for configuration namespace
 	res, err = m.IsAuthorized(ctx, "DELETE", "/api/v1/config/firewall/1", 1, &TokenInfo{
-		AdminRolesGroups: map[string]bool{
+		AdminRoles: map[string]bool{
 			"FirewallSSODelete": true,
 		},
 		TenantId: AccessAllTenants,
@@ -312,7 +312,7 @@ func TestTokenAuthorizationMiddlewareBearerRequestIsAuthorized(t *testing.T) {
 
 	// Test invalid scoped tenant ID
 	res, err = m.IsAuthorized(ctx, "DELETE", "/api/v1/config/firewall/1", 1, &TokenInfo{
-		AdminRolesGroups: map[string]bool{
+		AdminRoles: map[string]bool{
 			"FirewallSSODelete": true,
 		},
 		TenantId: 2,
@@ -332,20 +332,20 @@ func addBearerTokenToTestRequest(r *http.Request, token string, tenantId int) {
 	}
 }
 
-func BenchmarkIsAuthorizedAdminRolesStatic(b *testing.B) {
+func BenchmarkIsAuthorizedAdminActionsStatic(b *testing.B) {
 	ctx := log.LoggerNewContext(context.Background())
 
 	m := NewTokenAuthorizationMiddleware(NewMemTokenBackend(1 * time.Second))
 	for n := 0; n < b.N; n++ {
-		m.isAuthorizedAdminRoles(ctx, "GET", "/api/v1/nodes", map[string]bool{"NODES_READ": true})
+		m.isAuthorizedAdminActions(ctx, "GET", "/api/v1/nodes", map[string]bool{"NODES_READ": true})
 	}
 }
 
-func BenchmarkIsAuthorizedAdminRolesDynamic(b *testing.B) {
+func BenchmarkIsAuthorizedAdminActionsDynamic(b *testing.B) {
 	ctx := log.LoggerNewContext(context.Background())
 
 	m := NewTokenAuthorizationMiddleware(NewMemTokenBackend(1 * time.Second))
 	for n := 0; n < b.N; n++ {
-		m.isAuthorizedAdminRoles(ctx, "GET", "/api/v1/node/00:11:22:33:44:55", map[string]bool{"NODES_READ": true})
+		m.isAuthorizedAdminActions(ctx, "GET", "/api/v1/node/00:11:22:33:44:55", map[string]bool{"NODES_READ": true})
 	}
 }

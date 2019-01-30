@@ -82,15 +82,15 @@ func (dab *DbAuthenticationBackend) Authenticate(ctx context.Context, username, 
 }
 
 func (dab *DbAuthenticationBackend) buildTokenInfo(ctx context.Context, apiUser *ApiUser) *TokenInfo {
-	adminRolesGroups := strings.Split(apiUser.AccessLevel, ",")
+	adminRoles := strings.Split(apiUser.AccessLevel, ",")
 
-	adminRolesGroupsMap := make(map[string]bool)
+	adminRolesMap := make(map[string]bool)
 
-	for _, role := range adminRolesGroups {
+	for _, role := range adminRoles {
 		// Trim it of any leading or suffix spaces
 		role = strings.Trim(role, " ")
-		adminRolesGroupsMap[role] = true
+		adminRolesMap[role] = true
 	}
 
-	return &TokenInfo{AdminRolesGroups: adminRolesGroupsMap, TenantId: apiUser.TenantId}
+	return &TokenInfo{AdminRoles: adminRolesMap, TenantId: apiUser.TenantId}
 }
