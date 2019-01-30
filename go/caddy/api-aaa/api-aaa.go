@@ -29,9 +29,10 @@ func init() {
 }
 
 type PrettyTokenInfo struct {
-	AdminRoles []string `json:"admin_roles"`
-	TenantId   int      `json:"tenant_id"`
-	Username   string   `json:"username"`
+	AdminRoles       []string `json:"admin_roles"`
+	AdminRolesGroups []string `json:"admin_roles_groups"`
+	TenantId         int      `json:"tenant_id"`
+	Username         string   `json:"username"`
 }
 
 type ApiAAAHandler struct {
@@ -156,14 +157,21 @@ func (h ApiAAAHandler) handleTokenInfo(w http.ResponseWriter, r *http.Request, p
 	if info != nil {
 		// We'll want to render the roles as an array, not as a map
 		prettyInfo := PrettyTokenInfo{
-			AdminRoles: make([]string, len(info.AdminRoles)),
-			TenantId:   info.TenantId,
-			Username:   info.Username,
+			AdminRoles:       make([]string, len(info.AdminRoles())),
+			AdminRolesGroups: make([]string, len(info.AdminRolesGroups)),
+			TenantId:         info.TenantId,
+			Username:         info.Username,
 		}
 
 		i := 0
-		for r, _ := range info.AdminRoles {
+		for r, _ := range info.AdminRoles() {
 			prettyInfo.AdminRoles[i] = r
+			i++
+		}
+
+		i = 0
+		for r, _ := range info.AdminRolesGroups {
+			prettyInfo.AdminRolesGroups[i] = r
 			i++
 		}
 
