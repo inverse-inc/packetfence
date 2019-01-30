@@ -249,6 +249,10 @@ func TestTokenAuthorizationMiddlewareBearerRequestIsAuthorized(t *testing.T) {
 		t.Error("Request without X-PacketFence-Tenant-Id didn't get the header set to the token tenant ID")
 	}
 
+	if req.Header.Get("X-PacketFEnce-Admin-Roles-Groups") != "UsersRead" {
+		t.Error("Didn't set the admin roles group header properly")
+	}
+
 	// Test valid token with scoped tenant ID with X-PacketFence-Tenant-Id header
 	backend.StoreTokenInfo(token, &TokenInfo{
 		AdminRolesGroups: map[string]bool{
@@ -291,9 +295,9 @@ func TestTokenAuthorizationMiddlewareBearerRequestIsAuthorized(t *testing.T) {
 	}
 
 	// Test valid scoped tenant ID for configuration namespace
-	res, err = m.IsAuthorized(ctx, "DELETE", "/api/v1/config/security_events", 1, &TokenInfo{
+	res, err = m.IsAuthorized(ctx, "DELETE", "/api/v1/config/firewall/1", 1, &TokenInfo{
 		AdminRolesGroups: map[string]bool{
-			"SecurityEventsDelete": true,
+			"FirewallSSODelete": true,
 		},
 		TenantId: AccessAllTenants,
 	})
@@ -303,9 +307,9 @@ func TestTokenAuthorizationMiddlewareBearerRequestIsAuthorized(t *testing.T) {
 	}
 
 	// Test invalid scoped tenant ID
-	res, err = m.IsAuthorized(ctx, "DELETE", "/api/v1/config/security_events", 1, &TokenInfo{
+	res, err = m.IsAuthorized(ctx, "DELETE", "/api/v1/config/firewall/1", 1, &TokenInfo{
 		AdminRolesGroups: map[string]bool{
-			"SecurityEventsDelete": true,
+			"FirewallSSODelete": true,
 		},
 		TenantId: 2,
 	})
