@@ -1,11 +1,12 @@
 <template>
   <pf-config-view
-    :isLoading="isLoading"
+    :is-loading="isLoading"
     :form="getForm"
     :model="connectionProfile"
     :vuelidate="$v.connectionProfile"
     :isNew="isNew"
     :isClone="isClone"
+    :initialTabIndex="tabIndex"
     @validations="connectionProfileValidations = $event"
     @close="close"
     @create="create"
@@ -77,6 +78,10 @@ export default {
     id: { // from router
       type: String,
       default: null
+    },
+    tabIndex: { // from router
+      type: Number,
+      default: 0
     }
   },
   data () {
@@ -87,8 +92,8 @@ export default {
       billingTiers: [],
       provisionings: [],
       scans: [],
-      files: {},
-      general: {}
+      general: {},
+      files: []
     }
   },
   validations () {
@@ -171,9 +176,16 @@ export default {
   created () {
     if (this.id) {
       this.$store.dispatch(`${this.storeName}/getConnectionProfile`, this.id).then(data => {
-        this.connectionProfile = Object.assign({}, data)
+        this.connectionProfile = Object.assign(this.connectionProfile, data)
       })
       this.$store.dispatch(`${this.storeName}/files`, this.id).then(data => {
+        const _walk = (item, path) => {
+          Object.assign(item, { path })
+          if ('entries' in item) {
+            item.entries.forEach(entry => _walk(entry, path ? [path, item.name].join('/') : item.name))
+          }
+        }
+        data.entries.forEach(item => _walk(item, ''))
         this.files = data.entries
       })
     }

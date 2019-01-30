@@ -33,7 +33,7 @@
                   v-on="field.listeners"
                   :key="field.key"
                   :is="field.component || defaultComponent"
-                  :isLoading="isLoading"
+                  :is-loading="isLoading"
                   :vuelidate="getVuelidateModel(field.key)"
                   :class="getClass(row, field)"
                   :value="getValue(field.key)"
@@ -50,7 +50,7 @@
         :isDeletable="isDeletable"
       >
         <b-card-footer @mouseenter="vuelidate.$touch()">
-          <pf-button-save :disabled="invalidForm" :isLoading="isLoading">{{ isNew? $t('Create') : $t('Save') }}</pf-button-save>
+          <pf-button-save :disabled="invalidForm" :is-loading="isLoading">{{ isNew? $t('Create') : $t('Save') }}</pf-button-save>
           <pf-button-delete v-if="isDeletable" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Config?')" @on-delete="remove($event)"/>
         </b-card-footer>
       </slot>
@@ -96,12 +96,16 @@ export default {
     },
     isClone: {
       type: Boolean
+    },
+    initialTabIndex: {
+      type: Number,
+      default: 0
     }
   },
   data () {
     return {
-      tabIndex: 0,
       tabKey: uuidv4(), // control tabs DOM rendering
+      tabIndex: this.initialTabIndex,
       componentValidations: {}
     }
   },

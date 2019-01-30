@@ -15,6 +15,7 @@ import ScansStore from '../_store/scans'
 import SwitchesStore from '../_store/switches'
 import SwitchGroupsStore from '../_store/switchGroups'
 
+/* Policies Access Control */
 const PoliciesAccessControlSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/PoliciesAccessControlSection')
 const RolesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/RolesList')
 const RoleView = () => import(/* webpackChunkName: "Configuration" */ '../_components/RoleView')
@@ -28,16 +29,21 @@ const SwitchView = () => import(/* webpackChunkName: "Configuration" */ '../_com
 const SwitchGroupView = () => import(/* webpackChunkName: "Configuration" */ '../_components/SwitchGroupView')
 const ConnectionProfilesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/ConnectionProfilesList')
 const ConnectionProfileView = () => import(/* webpackChunkName: "Configuration" */ '../_components/ConnectionProfileView')
+const ConnectionProfileFileView = () => import(/* webpackChunkName: "Configuration" */ '../_components/ConnectionProfileFileView')
 
+/* Compliance */
 const ComplianceSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/ComplianceSection')
 const ProfilingTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/ProfilingTabs')
 const ProfilingCombinationView = () => import(/* webpackChunkName: "Configuration" */ '../_components/ProfilingCombinationView')
 const ScansTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/ScansTabs')
 const ScansScanEngineView = () => import(/* webpackChunkName: "Configuration" */ '../_components/ScansScanEngineView')
 
+/* Network Configuration */
 const NetworkConfigurationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/NetworkConfigurationSection')
 const FloatingDevicesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/FloatingDevicesList')
 const FloatingDeviceView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FloatingDeviceView')
+
+/* Advanced Access Configuration */
 const BillingTiersList = () => import(/* webpackChunkName: "Configuration" */ '../_components/BillingTiersList')
 const BillingTierView = () => import(/* webpackChunkName: "Configuration" */ '../_components/BillingTierView')
 const PortalModulesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/PortalModulesList')
@@ -344,6 +350,23 @@ const route = {
           next()
         })
       }
+    },
+    {
+      path: 'connection_profile/:id/files',
+      name: 'connectionProfileFiles',
+      component: ConnectionProfileView,
+      props: (route) => ({ storeName: '$_connection_profiles', id: route.params.id, tabIndex: 2 }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_connection_profiles/getConnectionProfile', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'connection_profile/:id/files/:filename',
+      name: 'connectionProfileFile',
+      component: ConnectionProfileFileView,
+      props: (route) => ({ storeName: '$_connection_profiles', id: route.params.id, filename: route.params.filename })
     },
     /**
      * Compliance

@@ -274,6 +274,19 @@ export default {
       return response.data
     })
   },
+  connectionProfileFile: params => {
+    return apiCall.get(`config/connection_profile/${params.id}/files/${params.filename}`).then(response => {
+      return response.data
+    })
+  },
+  updateConnectionProfileFile: params => {
+    return apiCall.patch(`config/connection_profile/${params.id}/files/${params.filename}`, params.content).then(response => {
+      return response.data
+    })
+  },
+  deleteConnectionProfileFile: params => {
+    return apiCall.delete(`config/connection_profile/${params.id}/files/${params.filename}`)
+  },
   /**
    * Provisionings
    */

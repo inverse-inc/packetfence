@@ -313,14 +313,16 @@ export const pfConfigurationConnectionProfileListConfig = (context = {}) => {
 
 export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
   const {
+    $router = {},
     isNew = false,
     isClone = false,
+    storeName = null,
     connectionProfile = {},
     sources = [],
     billingTiers = [],
     provisionings = [],
     scans = [],
-    files = {},
+    files = [],
     general = {}
   } = context
 
@@ -1009,7 +1011,8 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
                 fields: [
                   {
                     key: 'name',
-                    label: i18n.t('Name')
+                    label: i18n.t('Name'),
+                    class: 'w-50'
                   },
                   {
                     key: 'size',
@@ -1020,11 +1023,14 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
                   {
                     key: 'mtime',
                     label: i18n.t('Last modification'),
-                    formatter: formatter.shortDateTime
+                    formatter: formatter.shortDateTime,
+                    class: 'text-right'
                   }
                 ],
+                isLoadingStoreGetter: [storeName, 'isLoadingFiles'].join('/'),
                 childrenKey: 'entries',
-                childrenIf: (item) => item.type === 'dir' && 'entries' in item
+                childrenIf: (item) => item.type === 'dir' && 'entries' in item,
+                onNodeClick: (item) => $router.push({ name: 'connectionProfileFile', params: { id: connectionProfile.id, filename: item.path ? [item.path, item.name].join('/') : item.name } })
               }
             }
           ]
