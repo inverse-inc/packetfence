@@ -33,6 +33,7 @@ import pfFormRangeTriple from '@/components/pfFormRangeTriple'
 import {
   pfConfigurationAccessDurationViewFields as fields,
   pfConfigurationAccessDurationViewDefaults as defaults,
+  pfConfigurationAccessDurationViewPlaceholders as placeholders,
   pfConfigurationAccessDurationSerialize as serialize,
   pfConfigurationAccessDurationDeserialize as deserialize
 } from '@/globals/configuration/pfConfigurationAccessDuration'
@@ -63,7 +64,8 @@ export default {
   data () {
     return {
       form: defaults(this), // will be overloaded with the data from the store
-      formValidations: {} // will be overloaded with data from the pfConfigView
+      formValidations: {}, // will be overloaded with data from the pfConfigView
+      placeholders: placeholders(this) // form placeholders
     }
   },
   validations () {

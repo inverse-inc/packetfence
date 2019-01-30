@@ -48,7 +48,8 @@ export const pfConfigurationAccessDurationDeserialize = (csv = '') => {
 
 export const pfConfigurationAccessDurationViewFields = (context = {}) => {
   const {
-    form
+    form,
+    placeholders
   } = context
   console.log('form.access_duration_choices', form.access_duration_choices)
   return [
@@ -83,7 +84,7 @@ export const pfConfigurationAccessDurationViewFields = (context = {}) => {
               key: 'default_access_duration',
               component: pfFormChosen,
               attrs: {
-                placeholder: i18n.t('Choose Access Duration'),
+                placeholder: i18n.t('Choose Access Duration (default: "{default}")', { default: placeholders.default_access_duration }),
                 collapseObject: true,
                 trackBy: 'value',
                 label: 'text',
@@ -104,4 +105,10 @@ export const pfConfigurationAccessDurationViewFields = (context = {}) => {
 
 export const pfConfigurationAccessDurationViewDefaults = (context = {}) => {
   return {}
+}
+
+export const pfConfigurationAccessDurationViewPlaceholders = (context = {}) => {
+  return {
+    default_access_duration: '12h'
+  }
 }
