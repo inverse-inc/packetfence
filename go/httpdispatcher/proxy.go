@@ -117,7 +117,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !(passThrough.checkProxyPassthrough(ctx, host) || ((passThrough.checkDetectionMechanisms(ctx, fqdn.String()) || passThrough.URIException.MatchString(r.RequestURI)) && passThrough.DetectionMecanismBypass)) {
-		if r.Method != "GET" {
+		if r.Method != "GET" && r.Method != "HEAD" {
 			log.LoggerWContext(ctx).Debug(fmt.Sprintln(host, "FORBIDDEN"))
 			w.WriteHeader(http.StatusNotImplemented)
 			return
@@ -130,8 +130,9 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		passThrough.PortalURL.RawQuery = "destination_url=" + r.Header.Get("X-Forwarded-Proto") + "://" + host + r.RequestURI
 		w.Header().Set("Location", passThrough.PortalURL.String())
 		w.WriteHeader(http.StatusFound)
-		t := template.New("foo")
-		t, _ = t.Parse(`
+		if r.Method != "HEAD" {
+			t := template.New("foo")
+			t, _ = t.Parse(`
 <html>
 <head><title>302 Moved Temporarily</title></head>
 <body>
@@ -152,8 +153,8 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			</WISPAccessGatewayParam>-->
 	</body>
 </html>`)
-		t.Execute(w, passThrough)
-
+			t.Execute(w, passThrough)
+		}
 		log.LoggerWContext(ctx).Debug(fmt.Sprintln(host, "REDIRECT"))
 		return
 	}
