@@ -202,7 +202,7 @@ export default {
     this.$store.dispatch('$_scans/allScanEngines').then(data => {
       this.scans = data
     })
-    this.$store.dispatch('$_bases/getBase', 'general').then(data => {
+    this.$store.dispatch('$_bases/getGeneral').then(data => {
       this.general = data
     })
   }

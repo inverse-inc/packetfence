@@ -48,6 +48,7 @@ const BillingTiersList = () => import(/* webpackChunkName: "Configuration" */ '.
 const BillingTierView = () => import(/* webpackChunkName: "Configuration" */ '../_components/BillingTierView')
 const PortalModulesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/PortalModulesList')
 const PortalModuleView = () => import(/* webpackChunkName: "Configuration" */ '../_components/PortalModuleView')
+const AccessDurationView = () => import(/* webpackChunkName: "Configuration" */ '../_components/AccessDurationView')
 
 const route = {
   path: '/configuration',
@@ -627,6 +628,12 @@ const route = {
           next()
         })
       }
+    },
+    {
+      path: 'access_duration',
+      name: 'access_duration',
+      component: AccessDurationView,
+      props: (route) => ({ storeName: '$_bases', query: route.query.query })
     }
   ]
 }

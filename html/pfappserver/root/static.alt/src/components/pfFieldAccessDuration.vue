@@ -155,10 +155,6 @@ export default {
     },
     drag: {
       type: Boolean
-    },
-    date: {
-      type: Date,
-      default: () => { return new Date() }
     }
   },
   data () {
@@ -364,6 +360,9 @@ export default {
   },
   created () {
     this.emitValidations()
+    setInterval(() => {
+      this.date = new Date()
+    }, 1000)
   }
 }
 </script>

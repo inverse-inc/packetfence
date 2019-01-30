@@ -165,7 +165,7 @@ export default {
     this.$store.dispatch('$_realms/all').then(data => {
       this.realms = data
     })
-    this.$store.dispatch('$_bases/getBase', 'general').then(data => {
+    this.$store.dispatch('$_bases/getGeneral').then(data => {
       this.general = data
       this.source = defaults(this) // re-overload `source` form
     })

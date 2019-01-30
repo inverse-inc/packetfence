@@ -45,6 +45,11 @@ export default {
       return response.data.item
     })
   },
+  updateBase: data => {
+    return apiCall.patch(`config/base/${data.id}`, data).then(response => {
+      return response.data
+    })
+  },
   /**
    * Billing Tiers
    */

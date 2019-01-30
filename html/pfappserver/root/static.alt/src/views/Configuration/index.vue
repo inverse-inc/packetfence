@@ -83,7 +83,8 @@ export default {
           collapsable: true,
           items: [
             { name: 'Billing Tiers', path: '/configuration/billing_tiers' },
-            { name: 'Portal Modules', path: '/configuration/portal_modules' }
+            { name: 'Portal Modules', path: '/configuration/portal_modules' },
+            { name: 'Access Duration', path: '/configuration/access_duration' }
           ]
         }
       ]

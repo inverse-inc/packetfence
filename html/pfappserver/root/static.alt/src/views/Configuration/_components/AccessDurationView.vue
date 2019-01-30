@@ -1,0 +1,108 @@
+<template>
+  <pf-config-view
+    :isLoading="isLoading"
+    :form="getForm"
+    :model="form"
+    :vuelidate="$v.form"
+    @validations="formValidations = $event"
+    @save="save"
+  >
+    <template slot="header" is="b-card-header">
+      <h4 class="mb-0">
+        <span>{{ $t('Access Duration') }}</span>
+      </h4>
+    </template>
+    <template slot="footer">
+      <b-card-footer @mouseenter="$v.form.$touch()">
+        <pf-button-save :disabled="invalidForm" :isLoading="isLoading">
+          <template>{{ $t('Save') }}</template>
+        </pf-button-save>
+      </b-card-footer>
+    </template>
+  </pf-config-view>
+</template>
+
+<script>
+import pfConfigView from '@/components/pfConfigView'
+import pfButtonSave from '@/components/pfButtonSave'
+import InputRange from '@/components/InputRange'
+import pfFormToggle from '@/components/pfFormToggle'
+import pfFormRangeToggle from '@/components/pfFormRangeToggle'
+import pfFormRangeToggleDefault from '@/components/pfFormRangeToggleDefault'
+import pfFormRangeTriple from '@/components/pfFormRangeTriple'
+import {
+  pfConfigurationAccessDurationViewFields as fields,
+  pfConfigurationAccessDurationViewDefaults as defaults,
+  pfConfigurationAccessDurationSerialize as serialize,
+  pfConfigurationAccessDurationDeserialize as deserialize
+} from '@/globals/configuration/pfConfigurationAccessDuration'
+
+const { validationMixin } = require('vuelidate')
+
+export default {
+  name: 'ProfilingGeneralSettingView',
+  mixins: [
+    validationMixin
+  ],
+  components: {
+    pfConfigView,
+    pfButtonSave,
+    InputRange,
+    pfFormToggle,
+    pfFormRangeToggle,
+    pfFormRangeToggleDefault,
+    pfFormRangeTriple
+  },
+  props: {
+    storeName: { // from router
+      type: String,
+      default: null,
+      required: true
+    }
+  },
+  data () {
+    return {
+      form: defaults(this), // will be overloaded with the data from the store
+      formValidations: {} // will be overloaded with data from the pfConfigView
+    }
+  },
+  validations () {
+    return {
+      form: this.formValidations
+    }
+  },
+  computed: {
+    isLoading () {
+      return this.$store.getters['$_bases/isLoading']
+    },
+    invalidForm () {
+      return this.$v.form.$invalid || this.$store.getters['$_bases/isWaiting']
+    },
+    getForm () {
+      return {
+        labelCols: 3,
+        fields: fields(this)
+      }
+    }
+  },
+  methods: {
+    save () {
+      let form = JSON.parse(JSON.stringify(this.form)) // dereference
+      // re-join access_duration_choices
+      form.access_duration_choices = serialize(form.access_duration_choices)
+      this.$store.dispatch('$_bases/updateGuestsAdminRegistration', form).then(response => {
+        // TODO - notification
+      })
+    }
+  },
+  created () {
+    this.$store.dispatch('$_bases/getGuestsAdminRegistration').then(data => {
+      if ('access_duration_choices' in data) {
+        // split and map access_duration_choices
+        data.access_duration_choices = deserialize(data.access_duration_choices)
+      }
+      this.form = Object.assign({}, data)
+    })
+  }
+}
+</script>

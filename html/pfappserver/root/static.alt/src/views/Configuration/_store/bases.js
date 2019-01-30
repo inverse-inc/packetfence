@@ -42,11 +42,52 @@ const actions = {
     }
     commit('ITEM_REQUEST')
     return api.base(id).then(item => {
+      if (id === 'general') {
+        // build `fqdn` from `hostname` and `domain`
+        item.fqdn = ((item.hostname) ? item.hostname + '.' : '') + item.domain
+      }
+      commit('ITEM_REPLACED', item)
+      return item
+    }).catch((err) => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
+  },
+  getGeneral: ({ state, commit }) => {
+    if (state.cache['general']) {
+      return Promise.resolve(state.cache['general'])
+    }
+    commit('ITEM_REQUEST')
+    return api.base('general').then(item => {
       // build `fqdn` from `hostname` and `domain`
       item.fqdn = ((item.hostname) ? item.hostname + '.' : '') + item.domain
       commit('ITEM_REPLACED', item)
       return item
     }).catch((err) => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
+  },
+  getGuestsAdminRegistration: ({ state, commit }) => {
+    if (state.cache['guests_admin_registration']) {
+      return Promise.resolve(state.cache['guests_admin_registration'])
+    }
+    commit('ITEM_REQUEST')
+    return api.base('guests_admin_registration').then(item => {
+      commit('ITEM_REPLACED', item)
+      return item
+    }).catch((err) => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
+  },
+  updateGuestsAdminRegistration: ({ commit }, data) => {
+    commit('ITEM_REQUEST')
+    data.id = 'guests_admin_registration'
+    return api.updateBase(data).then(response => {
+      commit('ITEM_REPLACED', data)
+      return response
+    }).catch(err => {
       commit('ITEM_ERROR', err.response)
       throw err
     })
