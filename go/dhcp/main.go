@@ -181,7 +181,7 @@ func main() {
 				log.LoggerWContext(ctx).Error(err.Error())
 				continue
 			}
-			defer resp.Body.Close()
+			resp.Body.Close()
 
 			if err == nil {
 				daemon.SdNotify(false, "WATCHDOG=1")
