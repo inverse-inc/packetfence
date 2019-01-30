@@ -5,6 +5,7 @@ import pfFormFields from '@/components/pfFormFields'
 
 export const pfConfigurationAccessDurationSerialize = (arr = []) => {
   return arr.map(duration => {
+    if (!duration) return
     const {
       interval = '',
       unit = '',
@@ -51,7 +52,6 @@ export const pfConfigurationAccessDurationViewFields = (context = {}) => {
     form,
     placeholders
   } = context
-  console.log('form.access_duration_choices', form.access_duration_choices)
   return [
     {
       tab: null,
