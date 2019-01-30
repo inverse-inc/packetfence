@@ -40,7 +40,7 @@ func (mtb *MemTokenBackend) TenantIdForToken(token string) int {
 
 func (mtb *MemTokenBackend) AdminRolesForToken(token string) map[string]bool {
 	if ti := mtb.TokenInfoForToken(token); ti != nil {
-		return ti.AdminRoles
+		return ti.AdminRoles()
 	} else {
 		return make(map[string]bool)
 	}

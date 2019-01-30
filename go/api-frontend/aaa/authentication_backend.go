@@ -3,6 +3,8 @@ package aaa
 import (
 	"context"
 	"sync"
+
+	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 )
 
 type AuthenticationBackend interface {
@@ -12,16 +14,20 @@ type AuthenticationBackend interface {
 type MemAuthenticationBackend struct {
 	validUsers map[string]string
 	// The admin roles that will apply to *ALL* users of this backend
-	adminRoles map[string]bool
-	sem        *sync.RWMutex
+	adminRolesGroups map[string]bool
+	sem              *sync.RWMutex
 }
 
-func NewMemAuthenticationBackend(validUsers map[string]string, adminRoles map[string]bool) *MemAuthenticationBackend {
-	return &MemAuthenticationBackend{
-		validUsers: validUsers,
-		adminRoles: adminRoles,
-		sem:        &sync.RWMutex{},
+func NewMemAuthenticationBackend(validUsers map[string]string, adminRolesGroups map[string]bool) *MemAuthenticationBackend {
+	pfconfigdriver.PfconfigPool.AddStruct(context.Background(), &pfconfigdriver.Config.AdminRoles)
+
+	mab := &MemAuthenticationBackend{
+		validUsers:       validUsers,
+		adminRolesGroups: adminRolesGroups,
+		sem:              &sync.RWMutex{},
 	}
+
+	return mab
 }
 
 func (mab *MemAuthenticationBackend) SetUser(username, password string) {
@@ -43,8 +49,8 @@ func (mab *MemAuthenticationBackend) Authenticate(ctx context.Context, username,
 	if storedPass, found := mab.validUsers[username]; found {
 		if password == storedPass {
 			return true, &TokenInfo{
-				AdminRoles: mab.adminRoles,
-				TenantId:   AccessAllTenants,
+				AdminRolesGroups: mab.adminRolesGroups,
+				TenantId:         AccessAllTenants,
 			}, nil
 		} else {
 			return false, nil, nil

@@ -78,7 +78,7 @@ func buildApiAAAHandler(ctx context.Context) (ApiAAAHandler, error) {
 	if pfconfigdriver.Config.UnifiedApiSystemUser.User != "" {
 		apiAAA.systemBackend = aaa.NewMemAuthenticationBackend(
 			map[string]string{},
-			pfconfigdriver.Config.AdminRoles.Element["ALL"].Actions,
+			map[string]bool{"ALL": true},
 		)
 		apiAAA.systemBackend.SetUser(pfconfigdriver.Config.UnifiedApiSystemUser.User, pfconfigdriver.Config.UnifiedApiSystemUser.Pass)
 		apiAAA.authentication.AddAuthenticationBackend(apiAAA.systemBackend)
@@ -87,7 +87,7 @@ func buildApiAAAHandler(ctx context.Context) (ApiAAAHandler, error) {
 	// Backend for the pf.conf webservices user
 	apiAAA.webservicesBackend = aaa.NewMemAuthenticationBackend(
 		map[string]string{},
-		pfconfigdriver.Config.AdminRoles.Element["ALL"].Actions,
+		map[string]bool{"ALL": true},
 	)
 	apiAAA.authentication.AddAuthenticationBackend(apiAAA.webservicesBackend)
 

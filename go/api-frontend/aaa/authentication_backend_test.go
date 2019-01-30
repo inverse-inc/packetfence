@@ -9,7 +9,7 @@ import (
 
 func TestMemAuthenticationBackend(t *testing.T) {
 	ctx := log.LoggerNewContext(context.Background())
-	mab := NewMemAuthenticationBackend(map[string]string{"bob": "garauge"}, map[string]bool{"SYSTEM_READ": true})
+	mab := NewMemAuthenticationBackend(map[string]string{"bob": "garauge"}, map[string]bool{"ALL": true})
 
 	if mab.validUsers["bob"] != "garauge" {
 		t.Error("User wasn't set properly in constructor")
@@ -28,7 +28,7 @@ func TestMemAuthenticationBackend(t *testing.T) {
 		t.Error("User was unauthenticated although it presented valid credentials. error:", err)
 	}
 
-	if !tokenInfo.AdminRoles["SYSTEM_READ"] {
+	if !tokenInfo.AdminRoles()["SYSTEM_READ"] {
 		t.Error("User doesn't have the right admin roles")
 	}
 
@@ -47,7 +47,7 @@ func TestMemAuthenticationBackend(t *testing.T) {
 		t.Error("User was unauthenticated although it presented valid credentials. error:", err)
 	}
 
-	if !tokenInfo.AdminRoles["SYSTEM_READ"] {
+	if !tokenInfo.AdminRoles()["SYSTEM_READ"] {
 		t.Error("User doesn't have the right admin roles")
 	}
 

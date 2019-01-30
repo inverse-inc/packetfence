@@ -28,9 +28,8 @@ func TestMemTokenBackend(t *testing.T) {
 	}
 
 	b.StoreTokenInfo(token, &TokenInfo{
-		AdminRoles: map[string]bool{
-			"USERS_READ":  true,
-			"SYSTEM_READ": true,
+		AdminRolesGroups: map[string]bool{
+			"Node Manager": true,
 		},
 		TenantId: 1,
 	})
@@ -47,7 +46,7 @@ func TestMemTokenBackend(t *testing.T) {
 
 	roles = b.AdminRolesForToken(token)
 
-	if len(roles) != 2 {
+	if len(roles) != 4 {
 		t.Error("Got the wrong amount of roles for an existant token", spew.Sdump(roles))
 	}
 

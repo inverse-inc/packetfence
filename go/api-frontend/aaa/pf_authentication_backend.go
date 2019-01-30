@@ -78,17 +78,15 @@ func (pfab *PfAuthenticationBackend) Authenticate(ctx context.Context, username,
 }
 
 func (pfab *PfAuthenticationBackend) buildTokenInfo(ctx context.Context, data *PfAuthenticationReply) *TokenInfo {
-	adminRoles := data.Roles
+	adminRolesGroups := data.Roles
 
-	adminRolesMap := make(map[string]bool)
+	adminRolesGroupsMap := make(map[string]bool)
 
-	for _, role := range adminRoles {
+	for _, role := range adminRolesGroups {
 		// Trim it of any leading or suffix spaces
 		role = strings.Trim(role, " ")
-		for role, _ := range pfconfigdriver.Config.AdminRoles.Element[role].Actions {
-			adminRolesMap[role] = true
-		}
+		adminRolesGroupsMap[role] = true
 	}
 
-	return &TokenInfo{AdminRoles: adminRolesMap, TenantId: data.TenantId}
+	return &TokenInfo{AdminRolesGroups: adminRolesGroupsMap, TenantId: data.TenantId}
 }
