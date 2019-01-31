@@ -66,14 +66,14 @@ sub graph_db_prepare {
          qq [ SELECT 'Detected Nodes' as series, DATE_FORMAT(detect_date,"%Y/%m") AS mydate, count(*) AS count FROM node WHERE detect_date BETWEEN ? AND ? GROUP BY mydate ORDER BY mydate]);
 
     $graph_statements->{'graph_security_events_all_day_sql'} = get_db_handle()->prepare(qq[
-         SELECT 'SecurityEvents' AS series, DATE_FORMAT(start_date,'%Y/%m/%d') AS mydate, count(*) AS count
+         SELECT 'Security Events' AS series, DATE_FORMAT(start_date,'%Y/%m/%d') AS mydate, count(*) AS count
          FROM security_event
          WHERE start_date BETWEEN ? AND ?
          GROUP BY mydate ORDER BY mydate
     ]);
 
     $graph_statements->{'graph_security_events_all_month_sql'} = get_db_handle()->prepare(qq[
-         SELECT 'SecurityEvents' AS series, DATE_FORMAT(start_date,'%Y/%m') AS mydate, count(*) AS count
+         SELECT 'Security Events' AS series, DATE_FORMAT(start_date,'%Y/%m') AS mydate, count(*) AS count
          FROM security_event
          WHERE start_date BETWEEN ? AND ?
          GROUP BY mydate ORDER BY mydate

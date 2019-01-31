@@ -16,7 +16,7 @@
             </template>
             <b-dropdown-item @click="applyBulkClearSecurityEvent()">
               <icon class="position-absolute mt-1" name="ban"></icon>
-              <span class="ml-4">{{ $t('Clear SecurityEvent') }}</span>
+              <span class="ml-4">{{ $t('Clear Security Event') }}</span>
             </b-dropdown-item>
             <b-dropdown-item @click="applyBulkRegister()">
               <icon class="position-absolute mt-1" name="plus-circle"></icon>
@@ -332,25 +332,25 @@ export default {
         },
         {
           value: 'security_event.open_security_event_id',
-          text: this.$i18n.t('SecurityEvent Open'),
+          text: this.$i18n.t('Security Event Open'),
           types: [conditionType.SECURITY_EVENT],
           icon: 'exclamation-triangle'
         },
         {
           value: 'security_event.open_count',
-          text: this.$i18n.t('SecurityEvent Open Count [Issue #3400]'),
+          text: this.$i18n.t('Security Event Open Count [Issue #3400]'),
           types: [conditionType.INTEGER],
           icon: 'exclamation-triangle'
         },
         {
           value: 'security_event.close_security_event_id',
-          text: this.$i18n.t('SecurityEvent Closed'),
+          text: this.$i18n.t('Security Event Closed'),
           types: [conditionType.SECURITY_EVENT],
           icon: 'exclamation-circle'
         },
         {
           value: 'security_event.close_count',
-          text: this.$i18n.t('SecurityEvent Close Count [Issue #3400]'),
+          text: this.$i18n.t('Security Event Close Count [Issue #3400]'),
           types: [conditionType.INTEGER],
           icon: 'exclamation-circle'
         },
@@ -629,7 +629,7 @@ export default {
         },
         {
           key: 'security_event.open_security_event_id',
-          label: this.$i18n.t('SecurityEvent Open'),
+          label: this.$i18n.t('Security Event Open'),
           sortable: true,
           visible: false,
           class: 'text-nowrap',
@@ -637,14 +637,14 @@ export default {
         },
         {
           key: 'security_event.open_count',
-          label: this.$i18n.t('SecurityEvent Open Count'),
+          label: this.$i18n.t('Security Event Open Count'),
           sortable: true,
           visible: false,
           class: 'text-nowrap'
         },
         {
           key: 'security_event.close_security_event_id',
-          label: this.$i18n.t('SecurityEvent Closed'),
+          label: this.$i18n.t('Security Event Closed'),
           sortable: true,
           visible: false,
           class: 'text-nowrap',
@@ -652,7 +652,7 @@ export default {
         },
         {
           key: 'security_event.close_count',
-          label: this.$i18n.t('SecurityEvent Closed Count'),
+          label: this.$i18n.t('Security Event Closed Count'),
           sortable: true,
           visible: false,
           class: 'text-nowrap'

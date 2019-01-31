@@ -769,14 +769,14 @@ sub security_events {
     while(my ($security_event_id, $config) = each %pf::security_event_config::SecurityEvent_Config ){
         foreach my $attr (@deprecated_attr){
             if(exists $config->{$attr}){
-                add_problem($WARN, "SecurityEvent attribute $attr is deprecated in security_event $security_event_id. Please adjust your configuration according to the upgrade guide.");
+                add_problem($WARN, "Security Event attribute $attr is deprecated in security_event $security_event_id. Please adjust your configuration according to the upgrade guide.");
             }
         }
 
         my @actions = split(/\s*,\s*/, $config->{actions});
         foreach my $action (@deprecated_actions){
             if(List::MoreUtils::any {$_ eq $action} @actions){
-                add_problem($WARN, "SecurityEvent action $action is deprecated in security_event $security_event_id. Please adjust your configuration according to the upgrade guide.");
+                add_problem($WARN, "Security Event action $action is deprecated in security_event $security_event_id. Please adjust your configuration according to the upgrade guide.");
             }
         }
     }

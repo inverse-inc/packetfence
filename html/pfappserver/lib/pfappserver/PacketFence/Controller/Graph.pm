@@ -43,7 +43,7 @@ Readonly::Scalar our $REPORTS => 'reports';
 Readonly::Scalar our $GRAPH_REGISTERED_NODES => 'Registered Nodes';
 Readonly::Scalar our $GRAPH_UNREGISTERED_NODES => 'Unregistered Nodes';
 Readonly::Scalar our $GRAPH_NEW_NODES => 'New Nodes';
-Readonly::Scalar our $GRAPH_SECURITY_EVENTS => 'SecurityEvents';
+Readonly::Scalar our $GRAPH_SECURITY_EVENTS => 'Security Events';
 Readonly::Scalar our $GRAPH_WIRED_CONNECTIONS => 'Wired Connections';
 Readonly::Scalar our $GRAPH_WIRELESS_CONNECTIONS => 'Wireless Connections';
 Readonly::Array our @GRAPHS =>
@@ -801,7 +801,7 @@ sub security_events :Local :AdminRole('REPORTS') {
     my ($self, $c, $start, $end) = @_;
 
     $self->_saveRange($c, $REPORTS, $start, $end);
-    $self->_graphLine($c, $c->loc('SecurityEvents'), $REPORTS);
+    $self->_graphLine($c, $c->loc('Security Events'), $REPORTS);
 }
 
 =head2 os

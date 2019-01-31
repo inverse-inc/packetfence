@@ -6,7 +6,7 @@
       <div class="modal fade hide" id="deleteSecurityEvent">
         <div class="modal-header">
           <a class="close" data-dismiss="modal">&times;</a>
-          <h3><i>[% l('Delete SecurityEvent') %]</i> <span></span></h3>
+          <h3><i>[% l('Delete Security Event') %]</i> <span></span></h3>
         </div>
         <div class="modal-body">
           <p>[% l('Deleting this security event will remove all triggered security events associated with this security event.') %]</p>
@@ -20,7 +20,7 @@
 
       <div class="card">
         <div class="card-title">
-          <h2>[% l('SecurityEvents') %] [% doc('_security_events') | none %]</h2>
+          <h2>[% l('Security Events') %] [% doc('_security_events') | none %]</h2>
         </div>
         <div class="card-block">
       [% IF items.size -%]

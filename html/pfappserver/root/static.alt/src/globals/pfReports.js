@@ -470,7 +470,7 @@ export const pfReportColumns = {
   },
   security_event: {
     key: 'security_event',
-    label: i18n.t('SecurityEvent'),
+    label: i18n.t('Security Event'),
     class: 'text-nowrap',
     sortable: true,
     visible: true

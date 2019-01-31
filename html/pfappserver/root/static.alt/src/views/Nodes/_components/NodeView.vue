@@ -242,9 +242,9 @@
             </b-table>
         </b-tab>
 
-        <b-tab title="SecurityEvents">
+        <b-tab title="Security Events">
             <template slot="title">
-              {{ $t('SecurityEvents') }} <b-badge pill v-if="node.security_events && node.security_events.length > 0" variant="light" class="ml-1">{{ node.security_events.length }}</b-badge>
+              {{ $t('Security Events') }} <b-badge pill v-if="node.security_events && node.security_events.length > 0" variant="light" class="ml-1">{{ node.security_events.length }}</b-badge>
             </template>
             <b-table stacked="sm" :items="node.security_events" :fields="security_eventFields" striped>
                 <template slot="description" slot-scope="security_event">
@@ -415,7 +415,7 @@ export default {
       security_eventFields: [
         {
           key: 'description',
-          label: this.$i18n.t('SecurityEvent')
+          label: this.$i18n.t('Security Event')
         },
         {
           key: 'start_date',
@@ -703,7 +703,7 @@ export default {
         node.security_events.forEach(function (security_event, index, security_events) {
           _this.addVisGroup({
             id: _this.mac + '-security_event',
-            content: _this.$i18n.t('SecurityEvents')
+            content: _this.$i18n.t('Security Events')
           })
           _this.addVisItem({
             id: 'security_event' + security_event.security_event_id,

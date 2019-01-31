@@ -81,7 +81,7 @@ has_field 'user_mail_message' =>
 has_field 'vclose' =>
   (
    type => 'Select',
-   label => 'SecurityEvent to close',
+   label => 'Security Event to close',
    element_class => ['chzn-deselect hide'],
    element_attr => {'data-placeholder' => 'Select a security event'},
    tags => { after_element => \&help,

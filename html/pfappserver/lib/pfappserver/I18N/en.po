@@ -805,7 +805,7 @@ msgid "Apply Role"
 msgstr ""
 
 # html/pfappserver/root/admin/bulk_actions.inc
-msgid "Apply SecurityEvent"
+msgid "Apply Security Event"
 msgstr ""
 
 # conf/documentation.conf (provisioning.category)
@@ -1291,7 +1291,7 @@ msgid "Cisco Mobility Sevices Engine"
 msgstr ""
 
 # html/pfappserver/root/admin/bulk_actions.inc
-msgid "Clear SecurityEvent"
+msgid "Clear Security Event"
 msgstr ""
 
 # html/pfappserver/root/admin/wrapper.tt
@@ -1522,7 +1522,7 @@ msgid "Closed"
 msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
-msgid "Closed SecurityEvents"
+msgid "Closed Security Events"
 msgstr ""
 
 # html/pfappserver/root/admin/configuration.tt
@@ -2382,7 +2382,7 @@ msgid "Delete User Agent"
 msgstr ""
 
 # html/pfappserver/root/security_event/list.tt
-msgid "Delete SecurityEvent"
+msgid "Delete Security Event"
 msgstr ""
 
 # html/pfappserver/root/config/wrix/index.tt
@@ -2528,7 +2528,7 @@ msgid "Device Type"
 msgstr ""
 
 # html/pfappserver/root/graph/dashboard.tt
-msgid "Device SecurityEvents"
+msgid "Device Security Events"
 msgstr ""
 
 # html/pfappserver/root/user/nodes.tt
@@ -4545,7 +4545,7 @@ msgid "New VLAN for"
 msgstr ""
 
 # html/pfappserver/root/security_event/view.tt
-msgid "New SecurityEvent"
+msgid "New Security Event"
 msgstr ""
 
 # html/pfappserver/root/config/wrix/view.tt
@@ -4863,7 +4863,7 @@ msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/graph/dashboard.tt
-msgid "Open SecurityEvents"
+msgid "Open Security Events"
 msgstr ""
 
 # pf::Authentication::Source::OpenIDSource (name)
@@ -9089,23 +9089,23 @@ msgstr ""
 
 # pf::admin_roles (Actions groups)
 msgid "SECURITY_EVENTS"
-msgstr "SecurityEvents"
+msgstr "Security Events"
 
 # pf::admin_roles (Actions)
 msgid "SECURITY_EVENTS_CREATE"
-msgstr "SecurityEvents - Create"
+msgstr "Security Events - Create"
 
 # pf::admin_roles (Actions)
 msgid "SECURITY_EVENTS_DELETE"
-msgstr "SecurityEvents - Delete"
+msgstr "Security Events - Delete"
 
 # pf::admin_roles (Actions)
 msgid "SECURITY_EVENTS_READ"
-msgstr "SecurityEvents - Read"
+msgstr "Security Events - Read"
 
 # pf::admin_roles (Actions)
 msgid "SECURITY_EVENTS_UPDATE"
-msgstr "SecurityEvents - Update"
+msgstr "Security Events - Update"
 
 # html/pfappserver/lib/pfappserver/Form/Interface/Create.pm
 msgid "VLAN ID (must be a number bellow 4096)"
@@ -9171,21 +9171,21 @@ msgstr ""
 
 # html/pfappserver/root/security_event/preview.tt
 # html/pfappserver/root/security_event/view.tt
-msgid "SecurityEvent"
+msgid "Security Event"
 msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/node/search.tt
-msgid "SecurityEvent Name"
+msgid "Security Event Name"
 msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/node/search.tt
-msgid "SecurityEvent Status"
+msgid "Security Event Status"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
-msgid "SecurityEvent to close"
+msgid "Security Event to close"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
@@ -9194,11 +9194,11 @@ msgstr ""
 # html/pfappserver/root/user/view.tt
 # html/pfappserver/root/security_event/list.tt
 # pfappserver::PacketFence::Controller::Graph (graph type)
-msgid "SecurityEvents"
+msgid "Security Events"
 msgstr ""
 
 # html/pfappserver/root/configuration/compliance.tt
-msgid "SecurityEvents:"
+msgid "Security Events:"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Interface/Create.pm

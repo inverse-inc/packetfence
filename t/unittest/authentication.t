@@ -118,7 +118,7 @@ is( pf::authentication::match(
         {username => 'user@domain.com', rule_class => 'administration', context => $pf::constants::realm::ADMIN_CONTEXT},
         'set_access_level'
     ),
-    'SecurityEvent Manager',
+    'Security Event Manager',
     "Return action in first matching source"
 );
 
@@ -232,7 +232,7 @@ is_deeply(
     pf::authentication::match("htpasswd1", { username => 'match_action', rule_class => 'administration', context => $pf::constants::realm::ADMIN_CONTEXT }, undef, \$source_id_ref),
     [
         pf::Authentication::Action->new({
-            'value' => 'SecurityEvent Manager',
+            'value' => 'Security Event Manager',
             'type'  => 'set_access_level',
             'class' => 'administration',
         })
@@ -245,7 +245,7 @@ is(
         "htpasswd1", {username => 'match_action', rule_class => 'administration', context => $pf::constants::realm::ADMIN_CONTEXT},
         'set_access_level', \$source_id_ref
     ),
-    'SecurityEvent Manager',
+    'Security Event Manager',
     "match first rule htpasswd1 by username with action"
 );
 
@@ -270,7 +270,7 @@ is(
         'set_access_level',
         \$source_id_ref
     ),
-    'SecurityEvent Manager',
+    'Security Event Manager',
     "match time period condition ",
 );
 

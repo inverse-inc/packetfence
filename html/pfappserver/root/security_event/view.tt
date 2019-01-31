@@ -9,7 +9,7 @@
   [%- IF item.id %]<input type="hidden" name="id" value="[% item.id | html %]">[% END %]
   <div class="modal-header">
     <a class="close" data-dismiss="modal">&times;</a>
-    <h3>[% IF item %]<i>[% l('SecurityEvent') %]</i> [% ( item.desc || item.id ) | html %][% ELSE %][% l('New SecurityEvent') %][% END %]</h3>
+    <h3>[% IF item %]<i>[% l('Security Event') %]</i> [% ( item.desc || item.id ) | html %][% ELSE %][% l('New Security Event') %][% END %]</h3>
   </div>
 
   <div class="modal-body">

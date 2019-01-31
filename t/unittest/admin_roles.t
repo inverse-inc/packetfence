@@ -39,7 +39,7 @@ is_deeply(
 
 is_deeply(
     [admin_allowed_options(['User Manager',"Alt User Manager"], 'allowed_access_levels')],
-    ['User Manager', 'Node Manager', 'NONE','SecurityEvent Manager'],
+    ['User Manager', 'Node Manager', 'NONE','Security Event Manager'],
     "Alt User Manager and User Manager allowed options for access levels"
 );
  
