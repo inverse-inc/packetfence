@@ -344,15 +344,18 @@ sub options {
     my $form = $self->form;
     my %defaults;
     my %placeholders;
+    my %allowed_values;
     my %output = (
         defaults => \%defaults,
         placeholders => \%placeholders,
+        allowed_values => \%allowed_values,
     );
 
     for my $field ($form->fields) {
         my $name = $field->name;
         $defaults{$name} = $self->field_default($field);
         $placeholders{$name} = $self->field_placeholder($field);
+        $allowed_values{$name} = $self->field_allowed_values($field);
     }
 
     return $self->render(json => \%output);
@@ -369,15 +372,18 @@ sub resource_options {
     my $form = $self->form;
     my %defaults;
     my %placeholders;
+    my %allowed_values;
     my %output = (
         defaults => \%defaults,
         placeholders => \%placeholders,
+        allowed_values => \%allowed_values,
     );
 
     for my $field ($form->fields) {
         my $name = $field->name;
         $defaults{$name} = $self->field_default($field);
         $placeholders{$name} = $self->field_placeholder($field);
+        $allowed_values{$name} = $self->field_allowed_values($field);
     }
 
     return $self->render(json => \%output);
@@ -404,6 +410,17 @@ sub field_placeholder {
     my ($self, $field) = @_;
     my $element_attr = $field->element_attr // {};
     return $element_attr->{placeholder};
+}
+
+=head2 field_allowed_values
+
+field_allowed_values
+
+=cut
+
+sub field_allowed_values {
+    my ($self) = @_;
+    return undef;
 }
 
 sub form_parameters {
