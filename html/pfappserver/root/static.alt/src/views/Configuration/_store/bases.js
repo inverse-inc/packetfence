@@ -66,6 +66,17 @@ const actions = {
       throw err
     })
   },
+  updateActiveActive: ({ commit }, data) => {
+    commit('ITEM_REQUEST')
+    data.id = 'active_active'
+    return api.updateBase(data).then(response => {
+      commit('ITEM_REPLACED', data)
+      return response
+    }).catch(err => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
+  },
   getAdvanced: ({ state, commit }) => {
     if (state.cache['advanced']) {
       return Promise.resolve(state.cache['advanced'])
@@ -75,6 +86,17 @@ const actions = {
       commit('ITEM_REPLACED', item)
       return item
     }).catch((err) => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
+  },
+  updateAdvanced: ({ commit }, data) => {
+    commit('ITEM_REQUEST')
+    data.id = 'advanced'
+    return api.updateBase(data).then(response => {
+      commit('ITEM_REPLACED', data)
+      return response
+    }).catch(err => {
       commit('ITEM_ERROR', err.response)
       throw err
     })
@@ -92,6 +114,17 @@ const actions = {
       throw err
     })
   },
+  updateAlerting: ({ commit }, data) => {
+    commit('ITEM_REQUEST')
+    data.id = 'alerting'
+    return api.updateBase(data).then(response => {
+      commit('ITEM_REPLACED', data)
+      return response
+    }).catch(err => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
+  },
   getCaptivePortal: ({ state, commit }) => {
     if (state.cache['captive_portal']) {
       return Promise.resolve(state.cache['captive_portal'])
@@ -101,6 +134,17 @@ const actions = {
       commit('ITEM_REPLACED', item)
       return item
     }).catch((err) => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
+  },
+  updateCaptivePortal: ({ commit }, data) => {
+    commit('ITEM_REQUEST')
+    data.id = 'captive_portal'
+    return api.updateBase(data).then(response => {
+      commit('ITEM_REPLACED', data)
+      return response
+    }).catch(err => {
       commit('ITEM_ERROR', err.response)
       throw err
     })
@@ -118,6 +162,17 @@ const actions = {
       throw err
     })
   },
+  updateDatabase: ({ commit }, data) => {
+    commit('ITEM_REQUEST')
+    data.id = 'database'
+    return api.updateBase(data).then(response => {
+      commit('ITEM_REPLACED', data)
+      return response
+    }).catch(err => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
+  },
   getDatabaseAdvanced: ({ state, commit }) => {
     if (state.cache['database_advanced']) {
       return Promise.resolve(state.cache['database_advanced'])
@@ -127,6 +182,17 @@ const actions = {
       commit('ITEM_REPLACED', item)
       return item
     }).catch((err) => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
+  },
+  updateDatabaseAdvanced: ({ commit }, data) => {
+    commit('ITEM_REQUEST')
+    data.id = 'database_advanced'
+    return api.updateBase(data).then(response => {
+      commit('ITEM_REPLACED', data)
+      return response
+    }).catch(err => {
       commit('ITEM_ERROR', err.response)
       throw err
     })
@@ -144,6 +210,17 @@ const actions = {
       throw err
     })
   },
+  updateDatabaseEncryption: ({ commit }, data) => {
+    commit('ITEM_REQUEST')
+    data.id = 'database_encryption'
+    return api.updateBase(data).then(response => {
+      commit('ITEM_REPLACED', data)
+      return response
+    }).catch(err => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
+  },
   getFencing: ({ state, commit }) => {
     if (state.cache['fencing']) {
       return Promise.resolve(state.cache['fencing'])
@@ -157,6 +234,17 @@ const actions = {
       throw err
     })
   },
+  updateFencing: ({ commit }, data) => {
+    commit('ITEM_REQUEST')
+    data.id = 'fencing'
+    return api.updateBase(data).then(response => {
+      commit('ITEM_REPLACED', data)
+      return response
+    }).catch(err => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
+  },
   getFingerbankDeviceChange: ({ state, commit }) => {
     if (state.cache['fingerbank_device_change']) {
       return Promise.resolve(state.cache['fingerbank_device_change'])
@@ -166,6 +254,17 @@ const actions = {
       commit('ITEM_REPLACED', item)
       return item
     }).catch((err) => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
+  },
+  updateFingerbankDeviceChange: ({ commit }, data) => {
+    commit('ITEM_REQUEST')
+    data.id = 'fingerbank_device_change'
+    return api.updateBase(data).then(response => {
+      commit('ITEM_REPLACED', data)
+      return response
+    }).catch(err => {
       commit('ITEM_ERROR', err.response)
       throw err
     })
@@ -185,6 +284,17 @@ const actions = {
       throw err
     })
   },
+  updateGeneral: ({ commit }, data) => {
+    commit('ITEM_REQUEST')
+    data.id = 'general'
+    return api.updateBase(data).then(response => {
+      commit('ITEM_REPLACED', data)
+      return response
+    }).catch(err => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
+  },
   getGuestsAdminRegistration: ({ state, commit }) => {
     if (state.cache['guests_admin_registration']) {
       return Promise.resolve(state.cache['guests_admin_registration'])
@@ -194,6 +304,17 @@ const actions = {
       commit('ITEM_REPLACED', item)
       return item
     }).catch((err) => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
+  },
+  updateGuestsAdminRegistration: ({ commit }, data) => {
+    commit('ITEM_REQUEST')
+    data.id = 'guests_admin_registration'
+    return api.updateBase(data).then(response => {
+      commit('ITEM_REPLACED', data)
+      return response
+    }).catch(err => {
       commit('ITEM_ERROR', err.response)
       throw err
     })
@@ -211,6 +332,17 @@ const actions = {
       throw err
     })
   },
+  updateInline: ({ commit }, data) => {
+    commit('ITEM_REQUEST')
+    data.id = 'inline'
+    return api.updateBase(data).then(response => {
+      commit('ITEM_REPLACED', data)
+      return response
+    }).catch(err => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
+  },
   getMseTab: ({ state, commit }) => {
     if (state.cache['mse_tab']) {
       return Promise.resolve(state.cache['mse_tab'])
@@ -220,6 +352,17 @@ const actions = {
       commit('ITEM_REPLACED', item)
       return item
     }).catch((err) => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
+  },
+  updateMseTab: ({ commit }, data) => {
+    commit('ITEM_REQUEST')
+    data.id = 'mse_tab'
+    return api.updateBase(data).then(response => {
+      commit('ITEM_REPLACED', data)
+      return response
+    }).catch(err => {
       commit('ITEM_ERROR', err.response)
       throw err
     })
@@ -237,6 +380,17 @@ const actions = {
       throw err
     })
   },
+  updateNetwork: ({ commit }, data) => {
+    commit('ITEM_REQUEST')
+    data.id = 'network'
+    return api.updateBase(data).then(response => {
+      commit('ITEM_REPLACED', data)
+      return response
+    }).catch(err => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
+  },
   getNodeImport: ({ state, commit }) => {
     if (state.cache['node_import']) {
       return Promise.resolve(state.cache['node_import'])
@@ -246,6 +400,17 @@ const actions = {
       commit('ITEM_REPLACED', item)
       return item
     }).catch((err) => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
+  },
+  updateNodeImport: ({ commit }, data) => {
+    commit('ITEM_REQUEST')
+    data.id = 'node_import'
+    return api.updateBase(data).then(response => {
+      commit('ITEM_REPLACED', data)
+      return response
+    }).catch(err => {
       commit('ITEM_ERROR', err.response)
       throw err
     })
@@ -263,6 +428,17 @@ const actions = {
       throw err
     })
   },
+  updateParking: ({ commit }, data) => {
+    commit('ITEM_REQUEST')
+    data.id = 'parking'
+    return api.updateBase(data).then(response => {
+      commit('ITEM_REPLACED', data)
+      return response
+    }).catch(err => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
+  },
   getPFDHCP: ({ state, commit }) => {
     if (state.cache['pfdhcp']) {
       return Promise.resolve(state.cache['pf_dhcp'])
@@ -272,6 +448,17 @@ const actions = {
       commit('ITEM_REPLACED', item)
       return item
     }).catch((err) => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
+  },
+  updatePFDHCP: ({ commit }, data) => {
+    commit('ITEM_REQUEST')
+    data.id = 'pfdhcp'
+    return api.updateBase(data).then(response => {
+      commit('ITEM_REPLACED', data)
+      return response
+    }).catch(err => {
       commit('ITEM_ERROR', err.response)
       throw err
     })
@@ -289,6 +476,17 @@ const actions = {
       throw err
     })
   },
+  updatePorts: ({ commit }, data) => {
+    commit('ITEM_REQUEST')
+    data.id = 'ports'
+    return api.updateBase(data).then(response => {
+      commit('ITEM_REPLACED', data)
+      return response
+    }).catch(err => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
+  },
   getProvisioning: ({ state, commit }) => {
     if (state.cache['provisioning']) {
       return Promise.resolve(state.cache['provisioning'])
@@ -298,6 +496,17 @@ const actions = {
       commit('ITEM_REPLACED', item)
       return item
     }).catch((err) => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
+  },
+  updateProvisioning: ({ commit }, data) => {
+    commit('ITEM_REQUEST')
+    data.id = 'provisioning'
+    return api.updateBase(data).then(response => {
+      commit('ITEM_REPLACED', data)
+      return response
+    }).catch(err => {
       commit('ITEM_ERROR', err.response)
       throw err
     })
@@ -315,6 +524,17 @@ const actions = {
       throw err
     })
   },
+  updateRadiusConfiguration: ({ commit }, data) => {
+    commit('ITEM_REQUEST')
+    data.id = 'radius_configuration'
+    return api.updateBase(data).then(response => {
+      commit('ITEM_REPLACED', data)
+      return response
+    }).catch(err => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
+  },
   getServices: ({ state, commit }) => {
     if (state.cache['services']) {
       return Promise.resolve(state.cache['services'])
@@ -324,6 +544,17 @@ const actions = {
       commit('ITEM_REPLACED', item)
       return item
     }).catch((err) => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
+  },
+  updateServices: ({ commit }, data) => {
+    commit('ITEM_REQUEST')
+    data.id = 'services'
+    return api.updateBase(data).then(response => {
+      commit('ITEM_REPLACED', data)
+      return response
+    }).catch(err => {
       commit('ITEM_ERROR', err.response)
       throw err
     })
@@ -341,6 +572,17 @@ const actions = {
       throw err
     })
   },
+  updateSNMPTraps: ({ commit }, data) => {
+    commit('ITEM_REQUEST')
+    data.id = 'snmp_traps'
+    return api.updateBase(data).then(response => {
+      commit('ITEM_REPLACED', data)
+      return response
+    }).catch(err => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
+  },
   getWebServices: ({ state, commit }) => {
     if (state.cache['web_services']) {
       return Promise.resolve(state.cache['web_services'])
@@ -350,248 +592,6 @@ const actions = {
       commit('ITEM_REPLACED', item)
       return item
     }).catch((err) => {
-      commit('ITEM_ERROR', err.response)
-      throw err
-    })
-  },
-  updateActiveActive: ({ commit }, data) => {
-    commit('ITEM_REQUEST')
-    data.id = 'active_active'
-    return api.updateBase(data).then(response => {
-      commit('ITEM_REPLACED', data)
-      return response
-    }).catch(err => {
-      commit('ITEM_ERROR', err.response)
-      throw err
-    })
-  },
-  updateAdvanced: ({ commit }, data) => {
-    commit('ITEM_REQUEST')
-    data.id = 'advanced'
-    return api.updateBase(data).then(response => {
-      commit('ITEM_REPLACED', data)
-      return response
-    }).catch(err => {
-      commit('ITEM_ERROR', err.response)
-      throw err
-    })
-  },
-  updateAlerting: ({ commit }, data) => {
-    commit('ITEM_REQUEST')
-    data.id = 'alerting'
-    return api.updateBase(data).then(response => {
-      commit('ITEM_REPLACED', data)
-      return response
-    }).catch(err => {
-      commit('ITEM_ERROR', err.response)
-      throw err
-    })
-  },
-  updateCaptivePortal: ({ commit }, data) => {
-    commit('ITEM_REQUEST')
-    data.id = 'captive_portal'
-    return api.updateBase(data).then(response => {
-      commit('ITEM_REPLACED', data)
-      return response
-    }).catch(err => {
-      commit('ITEM_ERROR', err.response)
-      throw err
-    })
-  },
-  updateDatabase: ({ commit }, data) => {
-    commit('ITEM_REQUEST')
-    data.id = 'database'
-    return api.updateBase(data).then(response => {
-      commit('ITEM_REPLACED', data)
-      return response
-    }).catch(err => {
-      commit('ITEM_ERROR', err.response)
-      throw err
-    })
-  },
-  updateDatabaseAdvanced: ({ commit }, data) => {
-    commit('ITEM_REQUEST')
-    data.id = 'database_advanced'
-    return api.updateBase(data).then(response => {
-      commit('ITEM_REPLACED', data)
-      return response
-    }).catch(err => {
-      commit('ITEM_ERROR', err.response)
-      throw err
-    })
-  },
-  updateDatabaseEncryption: ({ commit }, data) => {
-    commit('ITEM_REQUEST')
-    data.id = 'database_encryption'
-    return api.updateBase(data).then(response => {
-      commit('ITEM_REPLACED', data)
-      return response
-    }).catch(err => {
-      commit('ITEM_ERROR', err.response)
-      throw err
-    })
-  },
-  updateFencing: ({ commit }, data) => {
-    commit('ITEM_REQUEST')
-    data.id = 'fencing'
-    return api.updateBase(data).then(response => {
-      commit('ITEM_REPLACED', data)
-      return response
-    }).catch(err => {
-      commit('ITEM_ERROR', err.response)
-      throw err
-    })
-  },
-  updateFingerbankDeviceChange: ({ commit }, data) => {
-    commit('ITEM_REQUEST')
-    data.id = 'fingerbank_device_change'
-    return api.updateBase(data).then(response => {
-      commit('ITEM_REPLACED', data)
-      return response
-    }).catch(err => {
-      commit('ITEM_ERROR', err.response)
-      throw err
-    })
-  },
-  updateGeneral: ({ commit }, data) => {
-    commit('ITEM_REQUEST')
-    data.id = 'general'
-    return api.updateBase(data).then(response => {
-      commit('ITEM_REPLACED', data)
-      return response
-    }).catch(err => {
-      commit('ITEM_ERROR', err.response)
-      throw err
-    })
-  },
-  updateGuestsAdminRegistration: ({ commit }, data) => {
-    commit('ITEM_REQUEST')
-    data.id = 'guests_admin_registration'
-    return api.updateBase(data).then(response => {
-      commit('ITEM_REPLACED', data)
-      return response
-    }).catch(err => {
-      commit('ITEM_ERROR', err.response)
-      throw err
-    })
-  },
-  updateInline: ({ commit }, data) => {
-    commit('ITEM_REQUEST')
-    data.id = 'inline'
-    return api.updateBase(data).then(response => {
-      commit('ITEM_REPLACED', data)
-      return response
-    }).catch(err => {
-      commit('ITEM_ERROR', err.response)
-      throw err
-    })
-  },
-  updateMseTab: ({ commit }, data) => {
-    commit('ITEM_REQUEST')
-    data.id = 'mse_tab'
-    return api.updateBase(data).then(response => {
-      commit('ITEM_REPLACED', data)
-      return response
-    }).catch(err => {
-      commit('ITEM_ERROR', err.response)
-      throw err
-    })
-  },
-  updateNetwork: ({ commit }, data) => {
-    commit('ITEM_REQUEST')
-    data.id = 'network'
-    return api.updateBase(data).then(response => {
-      commit('ITEM_REPLACED', data)
-      return response
-    }).catch(err => {
-      commit('ITEM_ERROR', err.response)
-      throw err
-    })
-  },
-  updateNodeImport: ({ commit }, data) => {
-    commit('ITEM_REQUEST')
-    data.id = 'node_import'
-    return api.updateBase(data).then(response => {
-      commit('ITEM_REPLACED', data)
-      return response
-    }).catch(err => {
-      commit('ITEM_ERROR', err.response)
-      throw err
-    })
-  },
-  updateParking: ({ commit }, data) => {
-    commit('ITEM_REQUEST')
-    data.id = 'parking'
-    return api.updateBase(data).then(response => {
-      commit('ITEM_REPLACED', data)
-      return response
-    }).catch(err => {
-      commit('ITEM_ERROR', err.response)
-      throw err
-    })
-  },
-  updatePFDHCP: ({ commit }, data) => {
-    commit('ITEM_REQUEST')
-    data.id = 'pfdhcp'
-    return api.updateBase(data).then(response => {
-      commit('ITEM_REPLACED', data)
-      return response
-    }).catch(err => {
-      commit('ITEM_ERROR', err.response)
-      throw err
-    })
-  },
-  updatePorts: ({ commit }, data) => {
-    commit('ITEM_REQUEST')
-    data.id = 'ports'
-    return api.updateBase(data).then(response => {
-      commit('ITEM_REPLACED', data)
-      return response
-    }).catch(err => {
-      commit('ITEM_ERROR', err.response)
-      throw err
-    })
-  },
-  updateProvisioning: ({ commit }, data) => {
-    commit('ITEM_REQUEST')
-    data.id = 'provisioning'
-    return api.updateBase(data).then(response => {
-      commit('ITEM_REPLACED', data)
-      return response
-    }).catch(err => {
-      commit('ITEM_ERROR', err.response)
-      throw err
-    })
-  },
-  updateRadiusConfiguration: ({ commit }, data) => {
-    commit('ITEM_REQUEST')
-    data.id = 'radius_configuration'
-    return api.updateBase(data).then(response => {
-      commit('ITEM_REPLACED', data)
-      return response
-    }).catch(err => {
-      commit('ITEM_ERROR', err.response)
-      throw err
-    })
-  },
-  updateServices: ({ commit }, data) => {
-    commit('ITEM_REQUEST')
-    data.id = 'services'
-    return api.updateBase(data).then(response => {
-      commit('ITEM_REPLACED', data)
-      return response
-    }).catch(err => {
-      commit('ITEM_ERROR', err.response)
-      throw err
-    })
-  },
-  updateSNMPTraps: ({ commit }, data) => {
-    commit('ITEM_REQUEST')
-    data.id = 'snmp_traps'
-    return api.updateBase(data).then(response => {
-      commit('ITEM_REPLACED', data)
-      return response
-    }).catch(err => {
       commit('ITEM_ERROR', err.response)
       throw err
     })
