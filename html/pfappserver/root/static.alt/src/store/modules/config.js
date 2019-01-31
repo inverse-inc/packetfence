@@ -8,6 +8,75 @@ const api = {
   getAdminRoles () {
     return apiCall({ url: 'config/admin_roles', method: 'get' })
   },
+  getBaseActiveActive () {
+    return apiCall({ url: 'config/base/active_active', method: 'get' })
+  },
+  getBaseAdvanced () {
+    return apiCall({ url: 'config/base/advanced', method: 'get' })
+  },
+  getBaseAlerting () {
+    return apiCall({ url: 'config/base/alerting', method: 'get' })
+  },
+  getBaseCaptivePortal () {
+    return apiCall({ url: 'config/base/captive_portal', method: 'get' })
+  },
+  getBaseDatabase () {
+    return apiCall({ url: 'config/base/database', method: 'get' })
+  },
+  getBaseDatabaseAdvanced () {
+    return apiCall({ url: 'config/base/database_advanced', method: 'get' })
+  },
+  getBaseDatabaseEncryption () {
+    return apiCall({ url: 'config/base/database_encryption', method: 'get' })
+  },
+  getBaseFencing () {
+    return apiCall({ url: 'config/base/fencing', method: 'get' })
+  },
+  getBaseFingerbankDeviceChange () {
+    return apiCall({ url: 'config/base/fingerbank_device_change', method: 'get' })
+  },
+  getBaseGeneral () {
+    return apiCall({ url: 'config/base/general', method: 'get' })
+  },
+  getBaseGuestsAdminRegistration () {
+    return apiCall({ url: 'config/base/guests_admin_registration', method: 'get' })
+  },
+  getBaseInline () {
+    return apiCall({ url: 'config/base/inline', method: 'get' })
+  },
+  getBaseMseTab () {
+    return apiCall({ url: 'config/base/mse_tab', method: 'get' })
+  },
+  getBaseNetwork () {
+    return apiCall({ url: 'config/base/network', method: 'get' })
+  },
+  getBaseNodeImport () {
+    return apiCall({ url: 'config/base/node_import', method: 'get' })
+  },
+  getBaseParking () {
+    return apiCall({ url: 'config/base/parking', method: 'get' })
+  },
+  getBasePFDHCP () {
+    return apiCall({ url: 'config/base/pfdhcp', method: 'get' })
+  },
+  getBasePorts () {
+    return apiCall({ url: 'config/base/ports', method: 'get' })
+  },
+  getBaseProvisioning () {
+    return apiCall({ url: 'config/base/provisioning', method: 'get' })
+  },
+  getBaseRadiusConfiguration () {
+    return apiCall({ url: 'config/base/radius_configuration', method: 'get' })
+  },
+  getBaseServices () {
+    return apiCall({ url: 'config/base/services', method: 'get' })
+  },
+  getBaseSNMPTraps () {
+    return apiCall({ url: 'config/base/snmp_traps', method: 'get' })
+  },
+  getBaseWebServices () {
+    return apiCall({ url: 'config/base/web_services', method: 'get' })
+  },
   getBillingTiers () {
     return apiCall({ url: 'config/billing_tiers', method: 'get' })
   },
@@ -56,6 +125,52 @@ const types = {
 const state = { // set intitial states to `false` (not `[]` or `{}`) to avoid infinite loop when response is empty.
   adminRolesStatus: '',
   adminRoles: false,
+  baseActiveActiveStatus: '',
+  baseActiveActive: false,
+  baseAdvancedStatus: '',
+  baseAdvanced: false,
+  baseAlertingStatus: '',
+  baseAlerting: false,
+  baseCaptivePortalStatus: '',
+  baseCaptivePortal: false,
+  baseDatabaseStatus: '',
+  baseDatabase: false,
+  baseDatabaseAdvancedStatus: '',
+  baseDatabaseAdvanced: false,
+  baseDatabaseEncryptionStatus: '',
+  baseDatabaseEncryption: false,
+  baseFencingStatus: '',
+  baseFencing: false,
+  baseFingerbankDeviceChangeStatus: '',
+  baseFingerbankDeviceChange: false,
+  baseGeneralStatus: '',
+  baseGeneral: false,
+  baseGuestsAdminRegistrationStatus: '',
+  baseGuestsAdminRegistration: false,
+  baseInlineStatus: '',
+  baseInline: false,
+  baseMseTabStatus: '',
+  baseMseTab: false,
+  baseNetworkStatus: '',
+  baseNetwork: false,
+  baseNodeImportStatus: '',
+  baseNodeImport: false,
+  baseParkingStatus: '',
+  baseParking: false,
+  basePFDHCPStatus: '',
+  basePFDHCP: false,
+  basePortsStatus: '',
+  basePorts: false,
+  baseProvisioningStatus: '',
+  baseProvisioning: false,
+  baseRadiusConfigurationStatus: '',
+  baseRadiusConfiguration: false,
+  baseServicesStatus: '',
+  baseServices: false,
+  baseSNMPTrapsStatus: '',
+  baseSNMPTraps: false,
+  baseWebServicesStatus: '',
+  baseWebServices: false,
   billingTiersStatus: '',
   billingTiers: false,
   connectionProfilesStatus: '',
@@ -118,6 +233,75 @@ const helpers = {
 const getters = {
   isLoadingAdminRoles: state => {
     return state.adminRolesStatus === types.LOADING
+  },
+  isLoadingBaseActiveActive: state => {
+    return state.baseActiveActiveStatus === types.LOADING
+  },
+  isLoadingBaseAdvanced: state => {
+    return state.baseAdvancedStatus === types.LOADING
+  },
+  isLoadingBaseAlerting: state => {
+    return state.baseAlertingStatus === types.LOADING
+  },
+  isLoadingBaseCaptivePortal: state => {
+    return state.baseCaptivePortalStatus === types.LOADING
+  },
+  isLoadingBaseDatabase: state => {
+    return state.baseDatabaseStatus === types.LOADING
+  },
+  isLoadingBaseDatabaseAdvanced: state => {
+    return state.baseDatabaseAdvancedStatus === types.LOADING
+  },
+  isLoadingBaseDatabaseEncryption: state => {
+    return state.baseDatabaseEncryptionStatus === types.LOADING
+  },
+  isLoadingBaseFencing: state => {
+    return state.baseFencingStatus === types.LOADING
+  },
+  isLoadingBaseFingerbankDeviceChange: state => {
+    return state.baseFingerbankDeviceChangeStatus === types.LOADING
+  },
+  isLoadingBaseGeneral: state => {
+    return state.baseGeneralStatus === types.LOADING
+  },
+  isLoadingBaseGuestsAdminRegistration: state => {
+    return state.baseGuestsAdminRegistrationStatus === types.LOADING
+  },
+  isLoadingBaseInline: state => {
+    return state.baseInlineStatus === types.LOADING
+  },
+  isLoadingBaseMseTab: state => {
+    return state.baseMseTabStatus === types.LOADING
+  },
+  isLoadingBaseNetwork: state => {
+    return state.baseNetworkStatus === types.LOADING
+  },
+  isLoadingBaseNodeImport: state => {
+    return state.baseNodeImportStatus === types.LOADING
+  },
+  isLoadingBaseParking: state => {
+    return state.baseParkingStatus === types.LOADING
+  },
+  isLoadingBasePFDHCP: state => {
+    return state.basePFDHCPStatus === types.LOADING
+  },
+  isLoadingBasePorts: state => {
+    return state.basePortsStatus === types.LOADING
+  },
+  isLoadingBaseProvisioning: state => {
+    return state.baseProvisioningStatus === types.LOADING
+  },
+  isLoadingBaseRadiusConfiguration: state => {
+    return state.baseRadiusConfigurationStatus === types.LOADING
+  },
+  isLoadingBaseServices: state => {
+    return state.baseServicesStatus === types.LOADING
+  },
+  isLoadingBaseSNMPTraps: state => {
+    return state.baseSNMPTrapsStatus === types.LOADING
+  },
+  isLoadingBaseWebServices: state => {
+    return state.baseWebServicesStatus === types.LOADING
   },
   isLoadingBillingTiers: state => {
     return state.billingTiersStatus === types.LOADING
@@ -222,6 +406,305 @@ const actions = {
       })
     } else {
       return Promise.resolve(state.adminRoles)
+    }
+  },
+  getBaseActiveActive: ({ state, getters, commit }) => {
+    if (getters.isLoadingBaseActiveActive) {
+      return
+    }
+    if (!state.baseActiveActive) {
+      return api.getBaseActiveActive().then(response => {
+        commit('BASE_ACTIVE_ACTIVE', response.data.item)
+        return state.baseActiveActive
+      })
+    } else {
+      return Promise.resolve(state.baseActiveActive)
+    }
+  },
+  getBaseAdvanced: ({ state, getters, commit }) => {
+    if (getters.isLoadingBaseAdvanced) {
+      return
+    }
+    if (!state.baseAdvanced) {
+      return api.getBaseAdvanced().then(response => {
+        commit('BASE_ADVANCED', response.data.item)
+        return state.baseAdvanced
+      })
+    } else {
+      return Promise.resolve(state.baseAdvanced)
+    }
+  },
+  getBaseAlerting: ({ state, getters, commit }) => {
+    if (getters.isLoadingBaseAlerting) {
+      return
+    }
+    if (!state.baseAlerting) {
+      return api.getBaseAlerting().then(response => {
+        commit('BASE_ALERTING', response.data.item)
+        return state.baseAlerting
+      })
+    } else {
+      return Promise.resolve(state.baseAlerting)
+    }
+  },
+  getBaseCaptivePortal: ({ state, getters, commit }) => {
+    if (getters.isLoadingBaseCaptivePortal) {
+      return
+    }
+    if (!state.baseCaptivePortal) {
+      return api.getBaseCaptivePortal().then(response => {
+        commit('BASE_CAPTIVE_PORTAL', response.data.item)
+        return state.baseCaptivePortal
+      })
+    } else {
+      return Promise.resolve(state.baseCaptivePortal)
+    }
+  },
+  getBaseDatabase: ({ state, getters, commit }) => {
+    if (getters.isLoadingBaseDatabase) {
+      return
+    }
+    if (!state.baseDatabase) {
+      return api.getBaseDatabase().then(response => {
+        commit('BASE_DATABASE', response.data.item)
+        return state.baseDatabase
+      })
+    } else {
+      return Promise.resolve(state.baseDatabase)
+    }
+  },
+  getBaseDatabaseAdvanced: ({ state, getters, commit }) => {
+    if (getters.isLoadingBaseDatabaseAdvanced) {
+      return
+    }
+    if (!state.baseDatabaseAdvanced) {
+      return api.getBaseDatabaseAdvanced().then(response => {
+        commit('BASE_DATABASE_ADVANCED', response.data.item)
+        return state.baseDatabaseAdvanced
+      })
+    } else {
+      return Promise.resolve(state.baseDatabaseAdvanced)
+    }
+  },
+  getBaseDatabaseEncryption: ({ state, getters, commit }) => {
+    if (getters.isLoadingBaseDatabaseEncryption) {
+      return
+    }
+    if (!state.baseDatabaseEncryption) {
+      return api.getBaseDatabaseEncryption().then(response => {
+        commit('BASE_DATABASE_ENCRYPTION', response.data.item)
+        return state.baseDatabaseEncryption
+      })
+    } else {
+      return Promise.resolve(state.baseDatabaseEncryption)
+    }
+  },
+  getBaseFencing: ({ state, getters, commit }) => {
+    if (getters.isLoadingBaseFencing) {
+      return
+    }
+    if (!state.baseFencing) {
+      return api.getBaseFencing().then(response => {
+        commit('BASE_FENCING', response.data.item)
+        return state.baseFencing
+      })
+    } else {
+      return Promise.resolve(state.baseFencing)
+    }
+  },
+  getBaseFingerbankDeviceChange: ({ state, getters, commit }) => {
+    if (getters.isLoadingBaseFingerbankDeviceChange) {
+      return
+    }
+    if (!state.baseFingerbankDeviceChange) {
+      return api.getBaseFingerbankDeviceChange().then(response => {
+        commit('BASE_FINGERBANK_DEVICE_CHANGE', response.data.item)
+        return state.baseFingerbankDeviceChange
+      })
+    } else {
+      return Promise.resolve(state.baseFingerbankDeviceChange)
+    }
+  },
+  getBaseGeneral: ({ state, getters, commit }) => {
+    if (getters.isLoadingBaseGeneral) {
+      return
+    }
+    if (!state.baseGeneral) {
+      return api.getBaseGeneral().then(response => {
+        commit('BASE_GENERAL', response.data.item)
+        return state.baseGeneral
+      })
+    } else {
+      return Promise.resolve(state.baseGeneral)
+    }
+  },
+  getBaseGuestsAdminRegistration: ({ state, getters, commit }) => {
+    if (getters.isLoadingBaseGuestsAdminRegistration) {
+      return
+    }
+    if (!state.baseGuestsAdminRegistration) {
+      return api.getBaseGuestsAdminRegistration().then(response => {
+        commit('BASE_GUESTS_ADMIN_REGISTRATION', response.data.item)
+        return state.baseGuestsAdminRegistration
+      })
+    } else {
+      return Promise.resolve(state.baseGuestsAdminRegistration)
+    }
+  },
+  getBaseInline: ({ state, getters, commit }) => {
+    if (getters.isLoadingBaseInline) {
+      return
+    }
+    if (!state.baseInline) {
+      return api.getBaseInline().then(response => {
+        commit('BASE_INLINE', response.data.item)
+        return state.baseInline
+      })
+    } else {
+      return Promise.resolve(state.baseInline)
+    }
+  },
+  getBaseMseTab: ({ state, getters, commit }) => {
+    if (getters.isLoadingBaseMseTab) {
+      return
+    }
+    if (!state.baseMseTab) {
+      return api.getBaseMseTab().then(response => {
+        commit('BASE_MSE_TAB', response.data.item)
+        return state.baseMseTab
+      })
+    } else {
+      return Promise.resolve(state.baseMseTab)
+    }
+  },
+  getBaseNetwork: ({ state, getters, commit }) => {
+    if (getters.isLoadingBaseNetwork) {
+      return
+    }
+    if (!state.baseNetwork) {
+      return api.getBaseNetwork().then(response => {
+        commit('BASE_NETWORK', response.data.item)
+        return state.baseNetwork
+      })
+    } else {
+      return Promise.resolve(state.baseNetwork)
+    }
+  },
+  getBaseNodeImport: ({ state, getters, commit }) => {
+    if (getters.isLoadingBaseNodeImport) {
+      return
+    }
+    if (!state.baseNodeImport) {
+      return api.getBaseNodeImport().then(response => {
+        commit('BASE_NODE_IMPORT', response.data.item)
+        return state.baseNodeImport
+      })
+    } else {
+      return Promise.resolve(state.baseNodeImport)
+    }
+  },
+  getBaseParking: ({ state, getters, commit }) => {
+    if (getters.isLoadingBaseParking) {
+      return
+    }
+    if (!state.baseParking) {
+      return api.getBaseParking().then(response => {
+        commit('BASE_PARKING', response.data.item)
+        return state.baseParking
+      })
+    } else {
+      return Promise.resolve(state.baseParking)
+    }
+  },
+  getBasePFDHCP: ({ state, getters, commit }) => {
+    if (getters.isLoadingBasePFDHCP) {
+      return
+    }
+    if (!state.basePFDHCP) {
+      return api.getBasePFDHCP().then(response => {
+        commit('BASE_PFDHCP', response.data.item)
+        return state.basePFDHCP
+      })
+    } else {
+      return Promise.resolve(state.basePFDHCP)
+    }
+  },
+  getBasePorts: ({ state, getters, commit }) => {
+    if (getters.isLoadingBasePorts) {
+      return
+    }
+    if (!state.basePorts) {
+      return api.getBasePorts().then(response => {
+        commit('BASE_PORTS', response.data.item)
+        return state.basePorts
+      })
+    } else {
+      return Promise.resolve(state.basePorts)
+    }
+  },
+  getBaseProvisioning: ({ state, getters, commit }) => {
+    if (getters.isLoadingBaseProvisioning) {
+      return
+    }
+    if (!state.baseProvisioning) {
+      return api.getBaseProvisioning().then(response => {
+        commit('BASE_PROVISIONING', response.data.item)
+        return state.baseProvisioning
+      })
+    } else {
+      return Promise.resolve(state.baseProvisioning)
+    }
+  },
+  getBaseRadiusConfiguration: ({ state, getters, commit }) => {
+    if (getters.isLoadingBaseRadiusConfiguration) {
+      return
+    }
+    if (!state.baseRadiusConfiguration) {
+      return api.getBaseRadiusConfiguration().then(response => {
+        commit('BASE_RADIUS_CONFIGURATION', response.data.item)
+        return state.baseRadiusConfiguration
+      })
+    } else {
+      return Promise.resolve(state.baseRadiusConfiguration)
+    }
+  },
+  getBaseServices: ({ state, getters, commit }) => {
+    if (getters.isLoadingBaseServices) {
+      return
+    }
+    if (!state.baseServices) {
+      return api.getBaseServices().then(response => {
+        commit('BASE_SERVICES', response.data.item)
+        return state.baseServices
+      })
+    } else {
+      return Promise.resolve(state.baseServices)
+    }
+  },
+  getBaseSNMPTraps: ({ state, getters, commit }) => {
+    if (getters.isLoadingBaseSNMPTraps) {
+      return
+    }
+    if (!state.baseSNMPTraps) {
+      return api.getBaseSNMPTraps().then(response => {
+        commit('BASE_SNMP_TRAPS', response.data.item)
+        return state.baseSNMPTraps
+      })
+    } else {
+      return Promise.resolve(state.baseSNMPTraps)
+    }
+  },
+  getBaseWebServices: ({ state, getters, commit }) => {
+    if (getters.isLoadingBaseWebServices) {
+      return
+    }
+    if (!state.baseWebServices) {
+      return api.getBaseWebServices().then(response => {
+        commit('BASE_WEB_SERVICES', response.data.item)
+        return state.baseWebServices
+      })
+    } else {
+      return Promise.resolve(state.baseWebServices)
     }
   },
   getBillingTiers: ({ state, getters, commit }) => {
@@ -405,6 +888,167 @@ const mutations = {
   ADMIN_ROLES_UPDATED: (state, adminRoles) => {
     state.adminRoles = adminRoles
     state.adminRolesStatus = types.SUCCESS
+  },
+  BASE_ACTIVE_ACTIVE_REQUEST: (state) => {
+    state.baseActiveActiveStatus = types.LOADING
+  },
+  BASE_ACTIVE_ACTIVE_UPDATED: (state, baseActiveActive) => {
+    state.baseActiveActive = baseActiveActive
+    state.baseActiveActiveStatus = types.SUCCESS
+  },
+  BASE_ADVANCED_REQUEST: (state) => {
+    state.baseAdvancedStatus = types.LOADING
+  },
+  BASE_ADVANCED_UPDATED: (state, baseAdvanced) => {
+    state.baseAdvanced = baseAdvanced
+    state.baseAdvancedStatus = types.SUCCESS
+  },
+  BASE_ALERTING_REQUEST: (state) => {
+    state.baseAlertingStatus = types.LOADING
+  },
+  BASE_ALERTING_UPDATED: (state, baseAlerting) => {
+    state.baseAlerting = baseAlerting
+    state.baseAlertingStatus = types.SUCCESS
+  },
+  BASE_CAPTIVE_PORTAL_REQUEST: (state) => {
+    state.baseCaptivePortalStatus = types.LOADING
+  },
+  BASE_CAPTIVE_PORTAL_UPDATED: (state, baseCaptivePortal) => {
+    state.baseCaptivePortal = baseCaptivePortal
+    state.baseCaptivePortalStatus = types.SUCCESS
+  },
+  BASE_DATABASE_REQUEST: (state) => {
+    state.baseDatabaseStatus = types.LOADING
+  },
+  BASE_DATABASE_UPDATED: (state, baseDatabase) => {
+    state.baseDatabase = baseDatabase
+    state.baseDatabaseStatus = types.SUCCESS
+  },
+  BASE_DATABASE_ADVANCED_REQUEST: (state) => {
+    state.baseDatabaseAdvancedStatus = types.LOADING
+  },
+  BASE_DATABASE_ADVANCED_UPDATED: (state, baseDatabaseAdvanced) => {
+    state.baseDatabaseAdvanced = baseDatabaseAdvanced
+    state.baseDatabaseAdvancedStatus = types.SUCCESS
+  },
+  BASE_DATABASE_ENCRYPTION_REQUEST: (state) => {
+    state.baseDatabaseEncryptionStatus = types.LOADING
+  },
+  BASE_DATABASE_ENCRYPTION_UPDATED: (state, baseDatabaseEncryption) => {
+    state.baseDatabaseEncryption = baseDatabaseEncryption
+    state.baseDatabaseEncryptionStatus = types.SUCCESS
+  },
+  BASE_FENCING_REQUEST: (state) => {
+    state.baseFencingStatus = types.LOADING
+  },
+  BASE_FENCING_UPDATED: (state, baseFencing) => {
+    state.baseFencing = baseFencing
+    state.baseFencingStatus = types.SUCCESS
+  },
+  BASE_FINGERBANK_DEVICE_CHANGE_REQUEST: (state) => {
+    state.baseFingerbankDeviceChangeStatus = types.LOADING
+  },
+  BASE_FINGERBANK_DEVICE_CHANGE_UPDATED: (state, baseFingerbankDeviceChange) => {
+    state.baseFingerbankDeviceChange = baseFingerbankDeviceChange
+    state.baseFingerbankDeviceChangeStatus = types.SUCCESS
+  },
+  BASE_GENERAL_REQUEST: (state) => {
+    state.baseGeneralStatus = types.LOADING
+  },
+  BASE_GENERAL_UPDATED: (state, baseGeneral) => {
+    state.baseGeneral = baseGeneral
+    state.baseGeneralStatus = types.SUCCESS
+  },
+  BASE_GUESTS_ADMIN_REGISTRATION_REQUEST: (state) => {
+    state.baseGuestsAdminRegistrationStatus = types.LOADING
+  },
+  BASE_GUESTS_ADMIN_REGISTRATION_UPDATED: (state, baseGuestsAdminRegistration) => {
+    state.baseGuestsAdminRegistration = baseGuestsAdminRegistration
+    state.baseGuestsAdminRegistrationStatus = types.SUCCESS
+  },
+  BASE_INLINE_REQUEST: (state) => {
+    state.baseInlineStatus = types.LOADING
+  },
+  BASE_INLINE_UPDATED: (state, baseInline) => {
+    state.baseInline = baseInline
+    state.baseInlineStatus = types.SUCCESS
+  },
+  BASE_MSE_TAB_REQUEST: (state) => {
+    state.baseMseTabStatus = types.LOADING
+  },
+  BASE_MSE_TAB_UPDATED: (state, baseMseTab) => {
+    state.baseMseTab = baseMseTab
+    state.baseMseTabStatus = types.SUCCESS
+  },
+  BASE_NETWORK_REQUEST: (state) => {
+    state.baseNetworkStatus = types.LOADING
+  },
+  BASE_NETWORK_UPDATED: (state, baseNetwork) => {
+    state.baseNetwork = baseNetwork
+    state.baseNetworkStatus = types.SUCCESS
+  },
+  BASE_NODE_IMPORT_REQUEST: (state) => {
+    state.baseNodeImportStatus = types.LOADING
+  },
+  BASE_NODE_IMPORT_UPDATED: (state, baseNodeImport) => {
+    state.baseNodeImport = baseNodeImport
+    state.baseNodeImportStatus = types.SUCCESS
+  },
+  BASE_PARKING_REQUEST: (state) => {
+    state.baseParkingStatus = types.LOADING
+  },
+  BASE_PARKING_UPDATED: (state, baseParking) => {
+    state.baseParking = baseParking
+    state.baseParkingStatus = types.SUCCESS
+  },
+  BASE_PFDHCP_REQUEST: (state) => {
+    state.basePFDHCPStatus = types.LOADING
+  },
+  BASE_PFDHCP_UPDATED: (state, basePFDHCP) => {
+    state.basePFDHCP = basePFDHCP
+    state.basePFDHCPStatus = types.SUCCESS
+  },
+  BASE_PORTS_REQUEST: (state) => {
+    state.basePortsStatus = types.LOADING
+  },
+  BASE_PORTS_UPDATED: (state, basePorts) => {
+    state.basePorts = basePorts
+    state.basePortsStatus = types.SUCCESS
+  },
+  BASE_PROVISIONING_REQUEST: (state) => {
+    state.baseProvisioningStatus = types.LOADING
+  },
+  BASE_PROVISIONING_UPDATED: (state, baseProvisioning) => {
+    state.baseProvisioning = baseProvisioning
+    state.baseProvisioningStatus = types.SUCCESS
+  },
+  BASE_RADIUS_CONFIGURATION_REQUEST: (state) => {
+    state.baseRadiusConfigurationStatus = types.LOADING
+  },
+  BASE_RADIUS_CONFIGURATION_UPDATED: (state, baseRadiusConfiguration) => {
+    state.baseRadiusConfiguration = baseRadiusConfiguration
+    state.baseRadiusConfigurationStatus = types.SUCCESS
+  },
+  BASE_SERVICES_REQUEST: (state) => {
+    state.baseServicesStatus = types.LOADING
+  },
+  BASE_SERVICES_UPDATED: (state, baseServices) => {
+    state.baseServices = baseServices
+    state.baseServicesStatus = types.SUCCESS
+  },
+  BASE_SNMP_TRAPS_REQUEST: (state) => {
+    state.baseSNMPTrapsStatus = types.LOADING
+  },
+  BASE_SNMP_TRAPS_UPDATED: (state, baseSNMPTraps) => {
+    state.baseSNMPTraps = baseSNMPTraps
+    state.baseSNMPTrapsStatus = types.SUCCESS
+  },
+  BASE_WEBSERVICES_REQUEST: (state) => {
+    state.baseWebServicesStatus = types.LOADING
+  },
+  BASE_WEBSERVICES_UPDATED: (state, baseWebServices) => {
+    state.baseWebServices = baseWebServices
+    state.baseWebServicesStatus = types.SUCCESS
   },
   BILLING_TIERS_REQUEST: (state) => {
     state.billingTiersStatus = types.LOADING
