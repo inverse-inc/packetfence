@@ -122,13 +122,13 @@ conf/provisioning.conf
 conf/portal_modules.conf
 conf/popup.msg
 conf/profiles.conf
+conf/security_events.conf
 conf/snmptrapd.conf
 conf/snort.conf
 conf/snort.conf.pre_snort-2.8
 conf/suricata.yaml
 conf/suricata_categories.txt
 conf/ui-global.conf
-conf/violations.conf
 conf/allowed_device_oui.txt
 conf/apache_filters.conf
 conf/firewall_sso.conf
