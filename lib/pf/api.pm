@@ -514,6 +514,16 @@ sub security_event_delayed_run : Public {
     return ;
 }
 
+=head2 trigger_violation
+
+For backward compatibility purposes. Points to the new name of the subroutine (trigger_security_event)
+
+=cut
+
+sub trigger_violation :Public {
+  return trigger_security_event(@_);
+}
+
 =head2 trigger_security_event
 
 Trigger a security_event
