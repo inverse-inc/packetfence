@@ -99,7 +99,7 @@ export default {
   },
   created () {
     this.$store.dispatch('$_bases/getGuestsAdminRegistration').then(data => {
-      if ('access_duration_choices' in data) {
+      if ('access_duration_choices' in data && data.access_duration_choices.constructor === String) {
         // split and map access_duration_choices
         data.access_duration_choices = deserialize(data.access_duration_choices)
       }

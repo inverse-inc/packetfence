@@ -162,7 +162,7 @@ export const pfConfigurationActions = {
   set_time_balance: {
     value: 'set_time_balance',
     text: i18n.t('Time balance'),
-    types: [fieldType.DURATION],
+    types: [fieldType.TIME_BALANCE],
     validators: {
       type: {
         /* Don't allow elsewhere */

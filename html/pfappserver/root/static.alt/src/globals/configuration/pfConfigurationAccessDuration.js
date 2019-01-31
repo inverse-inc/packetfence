@@ -24,13 +24,16 @@ export const pfConfigurationAccessDurationSerialize = (arr = []) => {
 }
 
 export const pfConfigurationAccessDurationDeserialize = (csv = '') => {
+  if (!csv) return []
   return csv.split(',').map((duration) => {
     // destructure duration using regular expression
     const [
+      // eslint-disable-next-line no-unused-vars
       _, // ignore
       interval, // \d+
       unit, // [smhDWMY]{1}
       base, // [FR]
+      // eslint-disable-next-line no-unused-vars
       __, // ignore
       extendedInterval, // [+-]\d+
       extendedUnit // [smhDWMY]{1}

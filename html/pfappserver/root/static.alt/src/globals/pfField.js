@@ -5,23 +5,24 @@ export const pfFieldType = {
   NONE:                    'none',
   INTEGER:                 'integer',
   SUBSTRING:               'substring',
-  CONNECTION_TYPE:         'connectiontype',
-  CONNECTION_SUB_TYPE:     'connectionsubtype',
+  CONNECTION_TYPE:         'connection_type',
+  CONNECTION_SUB_TYPE:     'connection_sub_type',
   DATE:                    'date',
   DATETIME:                'datetime',
-  PREFIXMULTIPLIER:        'prefixmultiplier',
-  DURATION:                'duration',
-  SELECTMANY:              'selectmany',
   GENDER:                  'gender',
+  PREFIXMULTIPLIER:        'prefixmultiplier',
+  SELECTMANY:              'selectmany',
+  TIME_BALANCE:            'time_balance',
   YESNO:                   'yesno',
   /* Promise based field types */
   ADMINROLE:               'adminrole',
+  DURATION:                'duration',
   REALM:                   'realm',
   ROLE:                    'role',
   ROLE_BY_NAME:            'role_by_name',
   SOURCE:                  'source',
   SWITCHE:                 'switche',
-  SWITCH_GROUP:            'switchgroup',
+  SWITCH_GROUP:            'switch_group',
   TENANT:                  'tenant'
 }
 
@@ -33,6 +34,9 @@ pfFieldTypeValues[pfFieldType.ADMINROLE] = (store) => {
   }
   store.dispatch('config/getAdminRoles')
   return store.getters['config/adminRolesList']
+}
+pfFieldTypeValues[pfFieldType.DURATION] = (store) => {
+  return store.getters['config/accessDurationsList']
 }
 pfFieldTypeValues[pfFieldType.REALM] = (store) => {
   if (store === undefined) {
@@ -156,7 +160,14 @@ pfFieldTypeValues[pfFieldType.CONNECTION_SUB_TYPE] = () => {
     { name: 'Zonelabs', value: 'Zonelabs' }
   ]
 }
-pfFieldTypeValues[pfFieldType.DURATION] = () => {
+pfFieldTypeValues[pfFieldType.GENDER] = () => {
+  return [
+    { name: i18n.t('Male'), value: 'm' },
+    { name: i18n.t('Female'), value: 'f' },
+    { name: i18n.t('Other'), value: 'o' }
+  ]
+}
+pfFieldTypeValues[pfFieldType.TIME_BALANCE] = () => {
   return [
     { name: i18n.t('1 hour'), value: '1h' },
     { name: i18n.t('3 hours'), value: '3h' },
@@ -165,13 +176,6 @@ pfFieldTypeValues[pfFieldType.DURATION] = () => {
     { name: i18n.t('2 days'), value: '2D' },
     { name: i18n.t('3 days'), value: '3D' },
     { name: i18n.t('5 days'), value: '5D' }
-  ]
-}
-pfFieldTypeValues[pfFieldType.GENDER] = () => {
-  return [
-    { name: i18n.t('Male'), value: 'm' },
-    { name: i18n.t('Female'), value: 'f' },
-    { name: i18n.t('Other'), value: 'o' }
   ]
 }
 pfFieldTypeValues[pfFieldType.YESNO] = () => {

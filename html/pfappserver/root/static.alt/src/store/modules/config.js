@@ -3,6 +3,7 @@
  * "config" store module
  */
 import apiCall from '@/utils/api'
+import i18n from '@/utils/locale'
 
 const api = {
   getAdminRoles () {
@@ -338,6 +339,68 @@ const getters = {
   },
   isLoadingViolations: state => {
     return state.violationsStatus === types.LOADING
+  },
+  accessDurationsList: state => {
+    if (!state.baseGuestsAdminRegistration) return []
+    const unit2str = (unit, isPlural = false) => {
+      const plural = (isPlural) ? 's' : ''
+      switch (unit) {
+        case 's': return i18n.t('second' + plural)
+        case 'm': return i18n.t('minute' + plural)
+        case 'h': return i18n.t('hour' + plural)
+        case 'D': return i18n.t('day' + plural)
+        case 'W': return i18n.t('week' + plural)
+        case 'M': return i18n.t('month' + plural)
+        case 'Y': return i18n.t('year' + plural)
+      }
+    }
+    const unit2seconds = (unit) => {
+      let seconds = 1
+      // eslint no-fallthrough: ["error", { "commentPattern": "break[\\s\\w]*omitted" }]
+      switch (unit) { // compound seconds w/ fallthrough
+        case 'Y': seconds *= 12
+          // break omitted
+        case 'M': seconds *= 30.4375 // leap-year
+          // break omitted
+        case 'W': seconds *= 7
+          // break omitted
+        case 'D': seconds *= 24
+          // break omitted
+        case 'h': seconds *= 60
+          // break omitted
+        case 'm': seconds *= 60
+          // break omitted
+      }
+      return seconds
+    }
+    return state.baseGuestsAdminRegistration.access_duration_choices.split(',').map((duration) => {
+      // destructure duration using regular expression
+      const [
+        // eslint-disable-next-line no-unused-vars
+        _, // ignore
+        interval, // \d+
+        unit, // [smhDWMY]{1}
+        base, // [FR]
+        // eslint-disable-next-line no-unused-vars
+        __, // ignore
+        extendedInterval, // [+-]\d+
+        extendedUnit // [smhDWMY]{1}
+      ] = duration.match(/(\d+)([smhDWMY]){1}([FR])?(([+-]\d+)([smhDWMY]){1})?/)
+      let name = interval + ' ' + unit2str(unit, Math.abs(interval) > 1)
+      if (base && extendedInterval && extendedUnit) {
+        let baseStr = ''
+        switch (base) {
+          case 'F': baseStr = unit2str('D'); break // relative to start of day
+          case 'R': baseStr = unit2str(unit); break // relative to start of period (unit)
+        }
+        name += ' (@' + baseStr + ' ' + extendedInterval + ' ' + unit2str(extendedUnit, Math.abs(extendedInterval) > 1) + ')'
+      }
+      // fwd `sort`ing
+      const sort = (~~interval * unit2seconds(unit)) + (~~extendedInterval * unit2seconds(extendedUnit))
+      return { name: name, value: duration, sort: sort }
+    }).sort((a, b) => {
+      return (a.sort > b.sort) ? 1 : -1
+    })
   },
   adminRolesList: state => {
     if (!state.adminRoles) return []
