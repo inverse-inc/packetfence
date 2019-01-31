@@ -400,6 +400,7 @@ const actions = {
       return
     }
     if (!state.adminRoles) {
+      commit('ADMIN_ROLES_REQUEST')
       return api.getAdminRoles().then(response => {
         commit('ADMIN_ROLES_UPDATED', response.data.items)
         return state.adminRoles
@@ -413,8 +414,9 @@ const actions = {
       return
     }
     if (!state.baseActiveActive) {
+      commit('BASE_ACTIVE_ACTIVE_REQUEST')
       return api.getBaseActiveActive().then(response => {
-        commit('BASE_ACTIVE_ACTIVE', response.data.item)
+        commit('BASE_ACTIVE_ACTIVE_UPDATED', response.data.item)
         return state.baseActiveActive
       })
     } else {
@@ -426,8 +428,9 @@ const actions = {
       return
     }
     if (!state.baseAdvanced) {
+      commit('BASE_ADVANCED_REQUEST')
       return api.getBaseAdvanced().then(response => {
-        commit('BASE_ADVANCED', response.data.item)
+        commit('BASE_ADVANCED_UPDATED', response.data.item)
         return state.baseAdvanced
       })
     } else {
@@ -439,8 +442,9 @@ const actions = {
       return
     }
     if (!state.baseAlerting) {
+      commit('BASE_ALERTING_REQUEST')
       return api.getBaseAlerting().then(response => {
-        commit('BASE_ALERTING', response.data.item)
+        commit('BASE_ALERTING_UPDATED', response.data.item)
         return state.baseAlerting
       })
     } else {
@@ -452,8 +456,9 @@ const actions = {
       return
     }
     if (!state.baseCaptivePortal) {
+      commit('BASE_CAPTIVE_PORTAL_REQUEST')
       return api.getBaseCaptivePortal().then(response => {
-        commit('BASE_CAPTIVE_PORTAL', response.data.item)
+        commit('BASE_CAPTIVE_PORTAL_UPDATED', response.data.item)
         return state.baseCaptivePortal
       })
     } else {
@@ -465,8 +470,9 @@ const actions = {
       return
     }
     if (!state.baseDatabase) {
+      commit('BASE_DATABASE_REQUEST')
       return api.getBaseDatabase().then(response => {
-        commit('BASE_DATABASE', response.data.item)
+        commit('BASE_DATABASE_UPDATED', response.data.item)
         return state.baseDatabase
       })
     } else {
@@ -478,8 +484,9 @@ const actions = {
       return
     }
     if (!state.baseDatabaseAdvanced) {
+      commit('BASE_DATABASE_ADVANCED_REQUEST')
       return api.getBaseDatabaseAdvanced().then(response => {
-        commit('BASE_DATABASE_ADVANCED', response.data.item)
+        commit('BASE_DATABASE_ADVANCED_UPDATED', response.data.item)
         return state.baseDatabaseAdvanced
       })
     } else {
@@ -491,8 +498,9 @@ const actions = {
       return
     }
     if (!state.baseDatabaseEncryption) {
+      commit('BASE_DATABASE_ENCRYPTION_REQUEST')
       return api.getBaseDatabaseEncryption().then(response => {
-        commit('BASE_DATABASE_ENCRYPTION', response.data.item)
+        commit('BASE_DATABASE_ENCRYPTION_UPDATED', response.data.item)
         return state.baseDatabaseEncryption
       })
     } else {
@@ -504,8 +512,9 @@ const actions = {
       return
     }
     if (!state.baseFencing) {
+      commit('BASE_FENCING_REQUEST')
       return api.getBaseFencing().then(response => {
-        commit('BASE_FENCING', response.data.item)
+        commit('BASE_FENCING_UPDATED', response.data.item)
         return state.baseFencing
       })
     } else {
@@ -517,8 +526,9 @@ const actions = {
       return
     }
     if (!state.baseFingerbankDeviceChange) {
+      commit('BASE_FINGERBANK_DEVICE_CHANGE_REQUEST')
       return api.getBaseFingerbankDeviceChange().then(response => {
-        commit('BASE_FINGERBANK_DEVICE_CHANGE', response.data.item)
+        commit('BASE_FINGERBANK_DEVICE_CHANGE_UPDATED', response.data.item)
         return state.baseFingerbankDeviceChange
       })
     } else {
@@ -530,8 +540,9 @@ const actions = {
       return
     }
     if (!state.baseGeneral) {
+      commit('BASE_GENERAL_REQUEST')
       return api.getBaseGeneral().then(response => {
-        commit('BASE_GENERAL', response.data.item)
+        commit('BASE_GENERAL_UPDATED', response.data.item)
         return state.baseGeneral
       })
     } else {
@@ -543,8 +554,9 @@ const actions = {
       return
     }
     if (!state.baseGuestsAdminRegistration) {
+      commit('BASE_GUESTS_ADMIN_REGISTRATION_REQUEST')
       return api.getBaseGuestsAdminRegistration().then(response => {
-        commit('BASE_GUESTS_ADMIN_REGISTRATION', response.data.item)
+        commit('BASE_GUESTS_ADMIN_REGISTRATION_UPDATED', response.data.item)
         return state.baseGuestsAdminRegistration
       })
     } else {
@@ -556,8 +568,9 @@ const actions = {
       return
     }
     if (!state.baseInline) {
+      commit('BASE_INLINE_REQUEST')
       return api.getBaseInline().then(response => {
-        commit('BASE_INLINE', response.data.item)
+        commit('BASE_INLINE_UPDATED', response.data.item)
         return state.baseInline
       })
     } else {
@@ -569,8 +582,9 @@ const actions = {
       return
     }
     if (!state.baseMseTab) {
+      commit('BASE_MSE_TAB_REQUEST')
       return api.getBaseMseTab().then(response => {
-        commit('BASE_MSE_TAB', response.data.item)
+        commit('BASE_MSE_TAB_UPDATED', response.data.item)
         return state.baseMseTab
       })
     } else {
@@ -582,8 +596,9 @@ const actions = {
       return
     }
     if (!state.baseNetwork) {
+      commit('BASE_NETWORK_REQUEST')
       return api.getBaseNetwork().then(response => {
-        commit('BASE_NETWORK', response.data.item)
+        commit('BASE_NETWORK_UPDATED', response.data.item)
         return state.baseNetwork
       })
     } else {
@@ -595,8 +610,9 @@ const actions = {
       return
     }
     if (!state.baseNodeImport) {
+      commit('BASE_NODE_IMPORT_REQUEST')
       return api.getBaseNodeImport().then(response => {
-        commit('BASE_NODE_IMPORT', response.data.item)
+        commit('BASE_NODE_IMPORT_UPDATED', response.data.item)
         return state.baseNodeImport
       })
     } else {
@@ -608,8 +624,9 @@ const actions = {
       return
     }
     if (!state.baseParking) {
+      commit('BASE_PARKING_REQUEST')
       return api.getBaseParking().then(response => {
-        commit('BASE_PARKING', response.data.item)
+        commit('BASE_PARKING_UPDATED', response.data.item)
         return state.baseParking
       })
     } else {
@@ -621,8 +638,9 @@ const actions = {
       return
     }
     if (!state.basePFDHCP) {
+      commit('BASE_PFDHCP_REQUEST')
       return api.getBasePFDHCP().then(response => {
-        commit('BASE_PFDHCP', response.data.item)
+        commit('BASE_PFDHCP_UPDATED', response.data.item)
         return state.basePFDHCP
       })
     } else {
@@ -634,8 +652,9 @@ const actions = {
       return
     }
     if (!state.basePorts) {
+      commit('BASE_PORTS_REQUEST')
       return api.getBasePorts().then(response => {
-        commit('BASE_PORTS', response.data.item)
+        commit('BASE_PORTS_UPDATED', response.data.item)
         return state.basePorts
       })
     } else {
@@ -647,8 +666,9 @@ const actions = {
       return
     }
     if (!state.baseProvisioning) {
+      commit('BASE_PROVISIONING_REQUEST')
       return api.getBaseProvisioning().then(response => {
-        commit('BASE_PROVISIONING', response.data.item)
+        commit('BASE_PROVISIONING_UPDATED', response.data.item)
         return state.baseProvisioning
       })
     } else {
@@ -660,8 +680,9 @@ const actions = {
       return
     }
     if (!state.baseRadiusConfiguration) {
+      commit('BASE_RADIUS_CONFIGURATION_REQUEST')
       return api.getBaseRadiusConfiguration().then(response => {
-        commit('BASE_RADIUS_CONFIGURATION', response.data.item)
+        commit('BASE_RADIUS_CONFIGURATION_UPDATED', response.data.item)
         return state.baseRadiusConfiguration
       })
     } else {
@@ -673,8 +694,9 @@ const actions = {
       return
     }
     if (!state.baseServices) {
+      commit('BASE_SERVICES_REQUEST')
       return api.getBaseServices().then(response => {
-        commit('BASE_SERVICES', response.data.item)
+        commit('BASE_SERVICES_UPDATED', response.data.item)
         return state.baseServices
       })
     } else {
@@ -686,8 +708,9 @@ const actions = {
       return
     }
     if (!state.baseSNMPTraps) {
+      commit('BASE_SNMP_TRAPS_REQUEST')
       return api.getBaseSNMPTraps().then(response => {
-        commit('BASE_SNMP_TRAPS', response.data.item)
+        commit('BASE_SNMP_TRAPS_UPDATED', response.data.item)
         return state.baseSNMPTraps
       })
     } else {
@@ -699,8 +722,9 @@ const actions = {
       return
     }
     if (!state.baseWebServices) {
+      commit('BASE_WEB_SERVICES_REQUEST')
       return api.getBaseWebServices().then(response => {
-        commit('BASE_WEB_SERVICES', response.data.item)
+        commit('BASE_WEB_SERVICES_UPDATED', response.data.item)
         return state.baseWebServices
       })
     } else {
