@@ -47,14 +47,14 @@ export default {
           name: 'Standard Searches',
           items: [
             {
-              name: 'Open SecurityEvents',
+              name: 'Open Security Events',
               path: {
                 name: 'search',
                 query: { query: JSON.stringify({ op: 'and', values: [{ op: 'or', values: [{ field: 'security_event.open_count', op: 'greater_than_equals', value: '1' }] }] }) }
               }
             },
             {
-              name: 'Closed SecurityEvents',
+              name: 'Closed Security Events',
               path: {
                 name: 'search',
                 query: { query: JSON.stringify({ op: 'and', values: [{ op: 'or', values: [{ field: 'security_event.close_count', op: 'greater_than_equals', value: '1' }] }] }) }

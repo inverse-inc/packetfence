@@ -69,7 +69,7 @@ has_field 'critical_issues_threshold' =>
    type => 'PosInteger',
    default => 0,
    tags => { after_element => \&help,
-             help => 'Raise the non compliance security_event the number of critical issues is greater or equal than this. 0 deactivates it' },
+             help => 'Raise the non compliance security event the number of critical issues is greater or equal than this. 0 deactivates it' },
   );
 
 has_block definition =>

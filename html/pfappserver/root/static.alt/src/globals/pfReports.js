@@ -728,7 +728,7 @@ export const pfReportCategories = [
     ]
   },
   {
-    name: i18n.t('SecurityEvents'),
+    name: i18n.t('Security Events'),
     reports: [
       {
         name: i18n.t('Open'),

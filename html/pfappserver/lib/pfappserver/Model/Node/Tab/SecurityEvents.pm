@@ -38,7 +38,7 @@ sub process_view {
         }
     };
     if ($@) {
-        my $status_msg = "Can't fetch security_events from database.";
+        my $status_msg = "Can't fetch security events from database.";
         $c->log->error($status_msg);
         return ($STATUS::INTERNAL_SERVER_ERROR, { status_msg => $status_msg });
     }

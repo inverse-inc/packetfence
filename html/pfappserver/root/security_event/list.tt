@@ -9,7 +9,7 @@
           <h3><i>[% l('Delete SecurityEvent') %]</i> <span></span></h3>
         </div>
         <div class="modal-body">
-          <p>[% l('Deleting this security_event will remove all triggered security_events associated with this security_event.') %]</p>
+          <p>[% l('Deleting this security event will remove all triggered security events associated with this security event.') %]</p>
           <p>[% l('Do you wish to continue?') %]</p>
         </div>
         <div class="modal-footer">
@@ -75,7 +75,7 @@
       [% END -%]
 
       <div id="noSecurityEvent" class="unwell[% ' hidden' IF items.size > 0 %]">
-        <i class="icon-legal icon-large"></i><p>[% l('No security_event defined') %]</p>
+        <i class="icon-legal icon-large"></i><p>[% l('No security event defined') %]</p>
       </div>
       </div>
 

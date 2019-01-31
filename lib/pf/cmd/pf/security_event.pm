@@ -10,9 +10,9 @@ pf::cmd::pf::security_event
  pfcmd security_event trigger <mac> <trigger-type> <trigger-id>
 
  mac - the MAC address of the device
- security_event_id - the security_event identifier (section header in security_events.conf)
- trigger-type - the type of the security_event trigger (user_agent, dhcp_fingerprint, internal, suricata_event, etc)
- trigger-id - the ID of the security_event trigger
+ security_event_id - the security event identifier (section header in security_events.conf)
+ trigger-type - the type of the security event trigger (user_agent, dhcp_fingerprint, internal, suricata_event, etc)
+ trigger-id - the ID of the security event trigger
 
  examples:
   pfcmd security_event add 00:11:22:33:44:55 1100007
@@ -67,7 +67,7 @@ sub parse_add {
         return 0;
     }
     unless(defined(class_view($security_event_id))) {
-        print STDERR "Invalid security_event ID\n";
+        print STDERR "Invalid security event ID\n";
         return 0;
     }
     $self->{mac} = $mac;
@@ -88,7 +88,7 @@ sub validate_mac {
 sub validate_security_event_id {
     my ($self, $security_event_id) = @_;
     unless(defined(class_view($security_event_id))) {
-        print STDERR "Invalid security_event ID\n";
+        print STDERR "Invalid security event ID\n";
         $self->showHelp();
     }
 }

@@ -57,7 +57,7 @@
               <span class="ml-4"><em>{{ $t('None') }}</em></span>
             </b-dropdown-item>
             <b-dropdown-divider></b-dropdown-divider>
-            <b-dropdown-header>{{ $t('Apply SecurityEvent') }}</b-dropdown-header>
+            <b-dropdown-header>{{ $t('Apply Security Event') }}</b-dropdown-header>
             <b-dropdown-item v-for="security_event in security_events" v-if="security_event.enabled ==='Y'" :key="security_event.id" @click="applyBulkSecurityEvent(security_event)" v-b-tooltip.hover.left :title="security_event.id">
               <span>{{security_event.desc}}</span>
             </b-dropdown-item>

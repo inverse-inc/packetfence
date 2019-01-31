@@ -49,11 +49,11 @@ export default {
           name: 'Standard Searches',
           items: [
             {
-              name: 'Open SecurityEvents',
+              name: 'Open Security Events',
               path: 'search/opensecurity_events'
             },
             {
-              name: 'Closed SecurityEvents',
+              name: 'Closed Security Events',
               path: 'search/closedsecurity_events'
             }
           ]
