@@ -74,7 +74,7 @@ has_field 'non_compliance_security_event' =>
    element_class => ['chzn-deselect'],
    element_attr => {'data-placeholder' => 'None'},
    tags => { after_element => \&help,
-             help => 'Which security_event should be raised when non compliance is detected' },
+             help => 'Which security event should be raised when non compliance is detected' },
   );
 
 has_field 'pki_provider' =>

@@ -52,7 +52,7 @@ sub index : Path : Args(0) {
 
         my $node_info = node_view($mac);
         $c->stash(
-            'title'        => "security_event: quarantine established",
+            'title'        => "security event: quarantine established",
             'template'     => 'remediation.html',
             'notes'        => $security_event->{'notes'},
             map { $_ => $node_info->{$_} }

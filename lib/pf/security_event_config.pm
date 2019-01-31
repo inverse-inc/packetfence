@@ -45,7 +45,7 @@ sub loadSecurityEventsIntoDb {
     }
 
     if (db_readonly_mode()) {
-        my $msg = "Cannot reload security_events when the database is in read only mode\n";
+        my $msg = "Cannot reload security events when the database is in read only mode\n";
         print STDERR $msg;
         $logger->error($msg);
         return;

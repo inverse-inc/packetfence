@@ -270,7 +270,7 @@ sub close_security_event {
     my $security_event_id = $data->{security_event_id};
     my $security_event = security_event_exist_id($security_event_id);
     if (!$security_event || $security_event->{mac} ne $mac ) {
-        return $self->render_error(404, "Error finding security_event");
+        return $self->render_error(404, "Error finding security event");
     }
 
     my $result = 0;
@@ -280,7 +280,7 @@ sub close_security_event {
     }
 
     unless ($result) {
-        return $self->render_error(500, "Unable to close security_event");
+        return $self->render_error(500, "Unable to close security event");
     }
 
     return $self->render(json => {}, status => 200);

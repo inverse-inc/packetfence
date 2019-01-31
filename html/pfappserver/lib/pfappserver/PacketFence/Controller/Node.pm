@@ -553,7 +553,7 @@ sub triggerSecurityEvent_multihost :Chained('object') :PathPart('trigger_multiho
         $c->log->info("Doing multihost 'triggerSecurityEvent' called with MAC '" . $c->stash->{mac} . "'");
         my @mac = pf::node::check_multihost($c->stash->{mac});
         foreach my $mac ( @mac ) {
-            $c->log->info("Multihost 'triggerSecurityEvent' for MAC '$mac' with security_event ID '$id'");
+            $c->log->info("Multihost 'triggerSecurityEvent' for MAC '$mac' with security event ID '$id'");
             $c->stash->{mac} = $mac;
             ( $status, $result ) = $self->_triggerSecurityEvent($c, $id);
             if ( is_error($status) ) {

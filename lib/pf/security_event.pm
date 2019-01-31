@@ -403,7 +403,7 @@ sub security_event_add {
         #replace UNKNOWN hostscan with known security_event
         if ( $latest_security_event_id == $SCAN_SECURITY_EVENT_ID || $latest_security_event_id == $POST_SCAN_SECURITY_EVENT_ID || $latest_security_event_id == $PRE_SCAN_SECURITY_EVENT_ID) {
             $logger->info(
-                "security_event $security_event_id detected for $mac - updating existing hostscan entry"
+                "security event $security_event_id detected for $mac - updating existing hostscan entry"
             );
             security_event_force_close( $mac, $latest_security_event_id );
         }
@@ -418,15 +418,15 @@ sub security_event_add {
         my ($remaining_time) = security_event_grace( $mac, $security_event_id );
         my $force = defined $data{'force'} ? $data{'force'} : $FALSE;
         if ( $remaining_time > 0 && $force ne $TRUE ) {
-            my $msg = "$remaining_time grace remaining on security_event $security_event_id for node $mac. Not adding security_event.";
+            my $msg = "$remaining_time grace remaining on security event $security_event_id for node $mac. Not adding security_event.";
             security_event_add_errors($msg);
             $logger->info($msg);
             return (-1);
         } elsif ( $remaining_time > 0 && $force eq $TRUE ) {
-            my $msg = "Force security_event $security_event_id for node $mac even if $remaining_time grace remaining";
+            my $msg = "Force security event $security_event_id for node $mac even if $remaining_time grace remaining";
             $logger->info($msg);
         } else {
-            my $msg = "grace expired on security_event $security_event_id for node $mac";
+            my $msg = "grace expired on security event $security_event_id for node $mac";
             $logger->info($msg);
         }
     }
@@ -443,14 +443,14 @@ sub security_event_add {
     });
     if (is_success($status)) {
         my $last_id = get_db_handle->last_insert_id(undef,undef,undef,undef);
-        $logger->info("security_event $security_event_id added for $mac");
+        $logger->info("security event $security_event_id added for $mac");
         if($data{status} eq 'open') {
             pf::action::action_execute( $mac, $security_event_id, $data{notes} );
             security_event_post_open_action($mac, $security_event_id);
         }
         return ($last_id);
     } else {
-        my $msg = "unknown error adding security_event $security_event_id for $mac";
+        my $msg = "unknown error adding security event $security_event_id for $mac";
         security_event_add_errors($msg);
         $logger->error($msg);
     }

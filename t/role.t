@@ -77,7 +77,7 @@ $mock_security_event->mock('security_event_view_top', sub { return $FALSE; });
 
 my $role;
 $role = $role_obj->fetchRoleForNode({ mac => 'bb:bb:cc:dd:ee:ff', switch => $switch, ifIndex => '1001'});
-is($role->{role}, 'isolation', "determine vlan for node with security_event");
+is($role->{role}, 'isolation', "determine vlan for node with security event");
 
 # security_event_count_reevaluate_access will return 0
 $mock_security_event->mock('security_event_count_reevaluate_access', sub { return (0); });

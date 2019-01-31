@@ -2798,7 +2798,7 @@ sub handleReAssignVlanTrapForWiredMacAuth {
             $message{'message'} .= "Notes: " . $node_info->{'notes'} . "\n";
             $message{'message'} .= "Switch: " . $switch_ip . "\n";
             $message{'message'} .= "Port (ifIndex): " . $ifIndex . "\n\n";
-            $message{'message'} .= "The security_event details are\n";
+            $message{'message'} .= "The security event details are\n";
 
             foreach my $security_event (@security_events) {
                 $message{'message'} .= "Description: "

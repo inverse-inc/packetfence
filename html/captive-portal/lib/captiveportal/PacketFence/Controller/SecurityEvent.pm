@@ -74,7 +74,7 @@ sub index : Path : Args(0) {
         $c->stash(
             'auto_enable'  => ($class->{'auto_enable'} eq 'Y'),
             'enable_text'  => $class->{button_text},
-            'title'        => 'security_event: quarantine established',
+            'title'        => 'security event: quarantine established',
             'template'     => 'remediation.html',
             'sub_template' => $subTemplate,
             'redirect_url' => $class->{'redirect_url'},

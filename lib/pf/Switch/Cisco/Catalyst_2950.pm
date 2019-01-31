@@ -1056,7 +1056,7 @@ sub dot1xPortReauthenticate {
         $message{'message'} .= "Notes: " . $node_info->{'notes'} . "\n";
         $message{'message'} .= "Switch: " . $self->{'_ip'} . "\n";
         $message{'message'} .= "Port (ifIndex): " . $ifIndex . "\n\n";
-        $message{'message'} .= "The security_event details are\n";
+        $message{'message'} .= "The security event details are\n";
 
         foreach my $security_event (@security_events) {
             $message{'message'} .= "Description: " . $security_event->{'description'} . "\n";

@@ -706,7 +706,7 @@ is_deeply(
             },
         ]),
     ],
-    "Find additional columns for security_event status",
+    "Find additional columns for security event status",
 );
 
 =head1 AUTHOR

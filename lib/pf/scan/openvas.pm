@@ -128,7 +128,7 @@ sub createTask {
 Retrieve the report associated with a task.
 When retrieving a report in other format than XML, we received the report in base64 encoding.
 
-Report processing's duty is to ensure that the proper security_event will be triggered.
+Report processing's duty is to ensure that the proper security event will be triggered.
 
 =cut
 

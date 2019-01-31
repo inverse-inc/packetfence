@@ -899,7 +899,7 @@ export default {
             }
           })
           this.$store.dispatch('notification/info', {
-            message: response.items.length + ' ' + this.$i18n.t('node security_events created'),
+            message: response.items.length + ' ' + this.$i18n.t('node security events created'),
             success: response.items.filter(item => item.status === 'success').length,
             skipped: response.items.filter(item => item.status === 'skipped').length,
             failed: response.items.filter(item => item.status === 'failed').length

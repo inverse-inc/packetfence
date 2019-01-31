@@ -107,7 +107,7 @@ msgid "A manual start from the command line will be required. Are you sure you w
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
-msgid "A message that will be added to the e-mail sent to the user regarding this security_event."
+msgid "A message that will be added to the e-mail sent to the user regarding this security event."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
@@ -535,7 +535,7 @@ msgid "Add to Duration Choices"
 msgstr ""
 
 # html/pfappserver/root/security_event/list.tt
-msgid "Add security_event"
+msgid "Add security event"
 msgstr ""
 
 # html/pfappserver/root/config/realm/index.tt
@@ -722,11 +722,11 @@ msgid "Amount of requests on invalid URLs after which the rate limiting will kic
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
-msgid "Amount of time before a security_event will be closed automatically. Instead of allowing people to reactivate the network, you may want to open a security_event for a defined amount of time instead."
+msgid "Amount of time before a security event will be closed automatically. Instead of allowing people to reactivate the network, you may want to open a security event for a defined amount of time instead."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
-msgid "Amount of time before the security_event can reoccur. This is useful to allow hosts time (in the example 2 minutes) to download tools to fix their issue, or shutoff their peer-to-peer application."
+msgid "Amount of time before the security event can reoccur. This is useful to allow hosts time (in the example 2 minutes) to download tools to fix their issue, or shutoff their peer-to-peer application."
 msgstr ""
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (upstream.sqlite_db_retention)
@@ -1635,7 +1635,7 @@ msgid "Comma-delimited list of domains to be used with apache passthroughs. The 
 msgstr ""
 
 # conf/documentation.conf (alerting.emailaddr)
-msgid "Comma-delimited list of email addresses to which notifications of rogue DHCP servers, security_events with an action of <i>email</i>, or any other PacketFence-related message goes to."
+msgid "Comma-delimited list of email addresses to which notifications of rogue DHCP servers, security events with an action of <i>email</i>, or any other PacketFence-related message goes to."
 msgstr ""
 
 # conf/documentation.conf (inline.interfaceSNAT)
@@ -2128,7 +2128,7 @@ msgid "Default Role"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
-msgid "Default URL to redirect to on registration/mitigation release. This is only used if a per-security_event redirect URL is not defined."
+msgid "Default URL to redirect to on registration/mitigation release. This is only used if a per security event redirect URL is not defined."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Node/Create/Import.pm
@@ -2214,7 +2214,7 @@ msgid "Delay By"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
-msgid "Delay before triggering the security_event."
+msgid "Delay before triggering the security event."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Source/SponsorEmail.pm
@@ -2407,7 +2407,7 @@ msgid "Deleting"
 msgstr ""
 
 # html/pfappserver/root/security_event/list.tt
-msgid "Deleting this security_event will remove all triggered security_events associated with this security_event."
+msgid "Deleting this security event will remove all triggered security events associated with this security event."
 msgstr ""
 
 # html/pfappserver/root/admin/bulk_actions.inc
@@ -2448,7 +2448,7 @@ msgid "Description"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
-msgid "Destination Role where PacketFence should put the client when a security_event of this type is open (only for <em>Change network access on security_event</em> action)."
+msgid "Destination Role where PacketFence should put the client when a security event of this type is open (only for <em>Change network access on security event</em> action)."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
@@ -2733,11 +2733,11 @@ msgid "Email address"
 msgstr ""
 
 # conf/documentation.conf (alerting.fromaddr)
-msgid "Email address from which notifications of rogue DHCP servers, security_events with an action of <i>email</i>, or any other PacketFence-related message are sent.Empty means <code>root@&lt;server-domain-name&gt;</code>."
+msgid "Email address from which notifications of rogue DHCP servers, security events with an action of <i>email</i>, or any other PacketFence-related message are sent.Empty means <code>root@&lt;server-domain-name&gt;</code>."
 msgstr ""
 
 # html/pfappserver/root/configurator/configuration.tt
-msgid "Email address to which notifications for rogue DHCP servers, security_events with an action of <i>email</i>, or any other PacketFence-related messages goes to."
+msgid "Email address to which notifications for rogue DHCP servers, security events with an action of <i>email</i>, or any other PacketFence-related messages goes to."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Source/Potd.pm
@@ -3229,7 +3229,7 @@ msgid "Group name"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
-msgid "HTML template the host will be redirected to while in security_event. You can create new templates from the <em>Connection Profiles</em> configuration section."
+msgid "HTML template the host will be redirected to while in security event. You can create new templates from the <em>Connection Profiles</em> configuration section."
 msgstr ""
 
 # pf::Authentication::Source::HTTPSource (name)
@@ -4664,12 +4664,12 @@ msgid "No user found"
 msgstr ""
 
 # html/pfappserver/root/security_event/list.tt
-msgid "No security_event defined"
+msgid "No security event defined"
 msgstr ""
 
 # html/pfappserver/root/node/security_events.tt
 # html/pfappserver/root/user/security_events.tt
-msgid "No security_event found"
+msgid "No security event found"
 msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
@@ -4717,11 +4717,11 @@ msgid "Nodes with the selected roles will be affected"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
-msgid "Nodes with the selected roles won't be affected by a security_event of this type."
+msgid "Nodes with the selected roles won't be affected by a security event of this type."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning.pm
-msgid "Non compliance security_event"
+msgid "Non compliance security event"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Pf.pm
@@ -4763,7 +4763,7 @@ msgid "Null"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
-msgid "Number of times a host will be able to try and self remediate before they are locked out and have to call the help desk. This is useful for users who just <i>click through</i> security_event pages."
+msgid "Number of times a host will be able to try and self remediate before they are locked out and have to call the help desk. This is useful for users who just <i>click through</i> security event pages."
 msgstr ""
 
 # pf::Authentication::Source::OAuthSource (name)
@@ -4854,7 +4854,7 @@ msgid "Online/Offline"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
-msgid "Only works for accounting security_events.  The security_event will be opened according to the time you set in the accounting security_event (ie. You have an accounting security_event for 10GB/month.  If you bust the bandwidth after 3 days, the security_event will open and the release date will be set for the last day of the current month)."
+msgid "Only works for accounting security events.  The security event will be opened according to the time you set in the accounting security event (ie. You have an accounting security event for 10GB/month.  If you bust the bandwidth after 3 days, the security event will open and the release date will be set for the last day of the current month)."
 msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
@@ -5399,7 +5399,7 @@ msgid "Please specify a billing tier identifier"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
-msgid "Please specify a brief description of the security_event."
+msgid "Please specify a brief description of the security event."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Pfdetect.pm
@@ -5437,7 +5437,7 @@ msgid "Please specify an identifier for the rule."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
-msgid "Please specify an identifier for the security_event."
+msgid "Please specify an identifier for the security event."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
@@ -6025,7 +6025,7 @@ msgid "Radius Configuration"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/opswat.pm
-msgid "Raise the non compliance security_event the number of critical issues is greater or equal than this. 0 deactivates it"
+msgid "Raise the non compliance security event the number of critical issues is greater or equal than this. 0 deactivates it"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Source/LDAP.pm
@@ -6033,7 +6033,7 @@ msgid "Randomly choose LDAP server to query"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
-msgid "Range 1-10, with 1 the higest priority and 10 the lowest. Higher priority security_events will be addressed first if a host has more than one."
+msgid "Range 1-10, with 1 the higest priority and 10 the lowest. Higher priority security events will be addressed first if a host has more than one."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Network.pm
@@ -6975,7 +6975,7 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
 # html/pfappserver/root/node/security_events.tt
-msgid "Select a security_event"
+msgid "Select a security event"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
@@ -7406,7 +7406,7 @@ msgid "Sources:"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
-msgid "Specifies if a host can self remediate the security_event (enable network button) or if they can not and must call the help desk."
+msgid "Specifies if a host can self remediate the security event (enable network button) or if they can not and must call the help desk."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
@@ -7591,7 +7591,7 @@ msgid "Sub Location Type"
 msgstr ""
 
 # conf/documentation.conf (alerting.subjectprefix)
-msgid "Subject prefix for email notifications of rogue DHCP servers, security_events with an action of <i>email</i>, or any other PacketFence-related message."
+msgid "Subject prefix for email notifications of rogue DHCP servers, security events with an action of <i>email</i>, or any other PacketFence-related message."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Source/LDAP.pm
@@ -7927,7 +7927,7 @@ msgid "Testing..."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
-msgid "Text displayed on the security_event form to hosts."
+msgid "Text displayed on the security event form to hosts."
 msgstr ""
 
 # conf/documentation.conf (webservices.aaa_port)
@@ -8669,7 +8669,7 @@ msgid "Tree View"
 msgstr ""
 
 # conf/documentation.conf (network.rogue_dhcp_detection)
-msgid "Tries to identify Rogue DHCP Servers and triggers the 1100010 security_event if one is found. This feature is only available if the dhcpdetector is activated."
+msgid "Tries to identify Rogue DHCP Servers and triggers the 1100010 security event if one is found. This feature is only available if the dhcpdetector is activated."
 msgstr ""
 
 # html/pfappserver/root/node/security_events.tt
@@ -8960,7 +8960,7 @@ msgid "Use CoA when available to deauthenticate the user. When disabled, RADIUS 
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
-msgid "Use a number above 1500000 if you want to be able to delete this security_event later."
+msgid "Use a number above 1500000 if you want to be able to delete this security event later."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
@@ -9393,11 +9393,11 @@ msgid "When rogue DHCP server detection is enabled, this parameter defines how o
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
-msgid "When selecting the <strong>close</strong> action, triggering the security_event will close this security_event. This is an experimental workflow for Mobile Device Management (MDM)."
+msgid "When selecting the <strong>close</strong> action, triggering the security event will close this security event. This is an experimental workflow for Mobile Device Management (MDM)."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
-msgid "When selecting the <strong>role</strong> action, triggering the security_event will change the node to this role."
+msgid "When selecting the <strong>role</strong> action, triggering the security event will change the node to this role."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Interface.pm
@@ -9494,7 +9494,7 @@ msgid "Which roles should have access to this module to select the role"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning.pm
-msgid "Which security_event should be raised when non compliance is detected"
+msgid "Which security event should be raised when non compliance is detected"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
@@ -9640,7 +9640,7 @@ msgid "You must specify the radius shared secret"
 msgstr ""
 
 # html/pfappserver/root/configurator/services.tt
-msgid "You will now be redirected to the administration interface where you can configure security_events and monitor your new NAC."
+msgid "You will now be redirected to the administration interface where you can configure security events and monitor your new NAC."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Config/Profile.pm
@@ -9915,7 +9915,7 @@ msgstr "Auto Registration"
 
 # pf::action (SECURITY_EVENT_ACTIONS)
 msgid "autoreg_action"
-msgstr "Register node on security_event"
+msgstr "Register node on security event"
 
 # pfappserver::Model::Node::Tab::MSE (MSE Tab)
 msgid "band"
@@ -10027,11 +10027,11 @@ msgstr "cell phone"
 
 # pf::action (SECURITY_EVENT_ACTIONS)
 msgid "close_action"
-msgstr "Close security_event"
+msgstr "Close security event"
 
 # pf::api (Allowed actions)
 msgid "close_security_event"
-msgstr "Close security_event"
+msgstr "Close security event"
 
 # pf::Authentication::Source::ADSource (available_attributes)
 # pf::Authentication::Source::LDAPSource (available_attributes)
@@ -10404,11 +10404,11 @@ msgstr ""
 
 # pf::action (SECURITY_EVENT_ACTIONS)
 msgid "email_admin_action"
-msgstr "Email security_event to administrator"
+msgstr "Email security event to administrator"
 
 # pf::action (SECURITY_EVENT_ACTIONS)
 msgid "email_user_action"
-msgstr "Email security_event to user"
+msgstr "Email security event to user"
 
 # conf/documentation.conf (advanced.language options)
 msgid "en_US"
@@ -10525,7 +10525,7 @@ msgstr ""
 
 # pf::action (SECURITY_EVENT_ACTIONS)
 msgid "enforce_provisioning_action"
-msgstr "Evaluate provisioning policies on security_event"
+msgstr "Evaluate provisioning policies on security event"
 
 # pf::Authentication::constants (Conditions)
 msgid "equals"
@@ -10541,7 +10541,7 @@ msgstr "Event Type"
 
 # pf::action (SECURITY_EVENT_ACTIONS)
 msgid "external_action"
-msgstr "Send security_event to external"
+msgstr "Send security event to external"
 
 # conf/documentation.conf
 msgid "fencing"
@@ -10875,7 +10875,7 @@ msgstr ""
 
 # pf::action (SECURITY_EVENT_ACTIONS)
 msgid "log_action"
-msgstr "Log security_event"
+msgstr "Log security event"
 
 # pf::Authentication::constants (Conditions)
 msgid "lower"
@@ -11501,7 +11501,7 @@ msgstr "Reevaluate access by MAC"
 
 # pf::action (SECURITY_EVENT_ACTIONS)
 msgid "reevaluate_access_action"
-msgstr "Change network access on security_event"
+msgstr "Change network access on security event"
 
 # html/pfappserver/root/admin/nodes.tt
 # pfappserver::Model::Node (availableStatus)
@@ -11522,7 +11522,7 @@ msgstr "Registration"
 
 # pf::api (Allowed actions)
 msgid "release_all_security_events"
-msgstr "Release all security_events for node by MAC"
+msgstr "Release all security events for node by MAC"
 
 # pf::radius_audit_log (RADIUS Audit Log)
 msgid "request_time"
@@ -11535,7 +11535,7 @@ msgstr "Role"
 
 # pf::action (SECURITY_EVENT_ACTIONS)
 msgid "role_action"
-msgstr "Assign role on security_event"
+msgstr "Assign role on security event"
 
 # pf::api (Allowed actions)
 msgid "role_detail"
@@ -11985,7 +11985,7 @@ msgstr "Launch a scan for the device"
 
 # pf::api (Allowed actions)
 msgid "trigger_security_event"
-msgstr "Trigger a security_event"
+msgstr "Trigger a security event"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Realm.pm
 msgid "type"
@@ -12007,7 +12007,7 @@ msgstr "unregistered"
 
 # pf::action (SECURITY_EVENT_ACTIONS)
 msgid "unreg_action"
-msgstr "Deregister node on security_event"
+msgstr "Deregister node on security event"
 
 # pf::api (Allowed actions)
 msgid "unreg_node_for_pid"
