@@ -164,8 +164,8 @@ func (h ApiAAAHandler) handleTokenInfo(w http.ResponseWriter, r *http.Request, p
 		}
 
 		i := 0
-		for r, _ := range info.AdminRoles() {
-			prettyInfo.AdminRoles[i] = r
+		for r, _ := range info.AdminActions() {
+			prettyInfo.AdminActions[i] = r
 			i++
 		}
 
