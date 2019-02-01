@@ -41,7 +41,7 @@ export default {
         {
           name: 'Import',
           path: '/nodes/import',
-          can: 'create nodes'
+          can: 'import nodes'
         },
         {
           name: 'Standard Searches',
