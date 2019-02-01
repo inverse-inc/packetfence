@@ -22,7 +22,7 @@
             <p style="padding-bottom: 20px">[% i18n("Hello") %]</p>
             <p>[% i18n("You have been detected doing malicious activity on the network.") %]</p>
             <p>[% i18n_format("Security Event %s was detected on your device.", description) %]</p>
-            <p>[% i18n("Here is the information of the infringing device") %]</p>
+            <p>[% i18n("Here is the device information") %]</p>
           </mj-text>
         </mj-column>
       </mj-section>

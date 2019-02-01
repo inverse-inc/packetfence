@@ -246,9 +246,9 @@
             <template slot="title">
               {{ $t('Security Events') }} <b-badge pill v-if="node.security_events && node.security_events.length > 0" variant="light" class="ml-1">{{ node.security_events.length }}</b-badge>
             </template>
-            <b-table stacked="sm" :items="node.security_events" :fields="security_eventFields" striped>
+            <b-table stacked="sm" :items="node.security_events" :fields="securityEventFields" striped>
                 <template slot="description" slot-scope="security_event">
-                    {{ security_eventDescription(security_event.item.security_event_id) }}
+                    {{ securityEventDescription(security_event.item.security_event_id) }}
                 </template>
                 <template slot="status" slot-scope="security_event">
                   <b-badge pill variant="success" v-if="security_event.item.status === 'open'">{{ $t('open') }}</b-badge>
@@ -412,7 +412,7 @@ export default {
           class: 'text-nowrap'
         }
       ],
-      security_eventFields: [
+      securityEventFields: [
         {
           key: 'description',
           label: this.$i18n.t('Security Event')
@@ -548,7 +548,7 @@ export default {
         return eapType[type]
       }
     },
-    security_eventDescription (id) {
+    securityEventDescription (id) {
       return this.$store.state.config.security_events[id].desc
     },
     save () {
@@ -710,7 +710,7 @@ export default {
             group: _this.mac + '-security_event',
             start: new Date(security_event.start_date),
             end: (security_event.release_date !== '0000-00-00 00:00:00' && security_event.release_date !== security_event.start_date) ? new Date(security_event.release_date) : null,
-            content: _this.security_eventDescription(security_event.security_event_id)
+            content: _this.securityEventDescription(security_event.security_event_id)
           })
         })
       } catch (e) {

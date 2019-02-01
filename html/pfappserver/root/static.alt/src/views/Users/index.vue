@@ -50,11 +50,11 @@ export default {
           items: [
             {
               name: 'Open Security Events',
-              path: 'search/opensecurity_events'
+              path: 'search/open_security_events'
             },
             {
               name: 'Closed Security Events',
-              path: 'search/closedsecurity_events'
+              path: 'search/closed_security_events'
             }
           ]
         }
