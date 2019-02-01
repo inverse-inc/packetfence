@@ -7,7 +7,7 @@ import {
   pfConfigurationListColumns,
   pfConfigurationListFields,
   pfConfigurationViewFields
-} from '@/globals/pfConfiguration'
+} from '@/globals/configuration/pfConfiguration'
 import {
   and,
   not,
@@ -25,19 +25,66 @@ const {
 } = require('vuelidate/lib/validators')
 
 export const pfConfigurationBillingTiersListColumns = [
-  Object.assign(pfConfigurationListColumns.id, { label: i18n.t('Identifier') }), // re-label
+  { ...pfConfigurationListColumns.id, ...{ label: i18n.t('Identifier') } }, // re-label
   pfConfigurationListColumns.name,
   pfConfigurationListColumns.price,
   pfConfigurationListColumns.buttons
 ]
 
 export const pfConfigurationBillingTiersListFields = [
-  Object.assign(pfConfigurationListFields.id, { text: i18n.t('Identifier') }), // re-text
+  { ...pfConfigurationListFields.id, ...{ text: i18n.t('Identifier') } }, // re-text
   pfConfigurationListFields.description
 ]
 
+export const pfConfigurationBillingTiersListConfig = (context = {}) => {
+  const { $i18n } = context
+  return {
+    columns: pfConfigurationBillingTiersListColumns,
+    fields: pfConfigurationBillingTiersListFields,
+    rowClickRoute (item, index) {
+      return { name: 'billing_tier', params: { id: item.id } }
+    },
+    searchPlaceholder: $i18n.t('Search by identifier, name or description'),
+    searchableOptions: {
+      searchApiEndpoint: 'config/billing_tiers',
+      defaultSortKeys: ['id'],
+      defaultSearchCondition: {
+        op: 'and',
+        values: [{
+          op: 'or',
+          values: [
+            { field: 'id', op: 'contains', value: null },
+            { field: 'name', op: 'contains', value: null },
+            { field: 'description', op: 'contains', value: null }
+          ]
+        }]
+      },
+      defaultRoute: { name: 'billing_tiers' }
+    },
+    searchableQuickCondition: (quickCondition) => {
+      return {
+        op: 'and',
+        values: [
+          {
+            op: 'or',
+            values: [
+              { field: 'id', op: 'contains', value: quickCondition },
+              { field: 'name', op: 'contains', value: quickCondition },
+              { field: 'description', op: 'contains', value: quickCondition }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}
+
 export const pfConfigurationBillingTierViewFields = (context = {}) => {
-  const { isNew = false, isClone = false } = context
+  const {
+    isNew = false,
+    isClone = false,
+    roles = []
+  } = context
   return [
     {
       tab: null, // ignore tabs
@@ -108,7 +155,7 @@ export const pfConfigurationBillingTierViewFields = (context = {}) => {
                 placeholder: i18n.t('Click to select a role'),
                 trackBy: 'value',
                 label: 'text',
-                options: context.roles.map(role => { return { value: role.name, text: role.name } })
+                options: roles.map(role => { return { value: role.name, text: role.name } })
               },
               validators: {
                 [i18n.t('Role required.')]: required

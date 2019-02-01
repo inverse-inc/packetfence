@@ -219,11 +219,11 @@ export default {
  */
 .pf-form-prefix-multiplier {
   .pf-form-prefix-multiplier-input-group {
-    background-color: $input-focus-bg;
+    padding: 1px;
     border: 1px solid $input-focus-bg;
+    background-color: $input-focus-bg;
     @include border-radius($border-radius);
     @include transition($custom-forms-transition);
-    padding: 1px;
     outline: 0;
 
     * {
@@ -256,8 +256,8 @@ export default {
  * Add btn-primary color(s) on hover
  */
 .btn-group[rel=prefixButtonGroup] button:hover {
-  color: $input-btn-hover-text-color;
   background-color: $input-btn-hover-bg-color;
+  color: $input-btn-hover-text-color;
   border-color: $input-btn-hover-bg-color;
 }
 </style>

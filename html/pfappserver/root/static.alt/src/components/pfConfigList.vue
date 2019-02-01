@@ -27,8 +27,8 @@
       <b-table class="table-clickable"
         :items="items" :fields="visibleColumns" :sort-by="sortBy" :sort-desc="sortDesc"
         @sort-changed="onSortingChanged" @row-clicked="onRowClick"
-        show-empty responsive hover fixed>
-        <slot name="emptySearch" slot="empty">
+        show-empty responsive :hover="items.length > 0" fixed>
+        <slot name="emptySearch" slot="empty" v-bind="{ isLoading }">
           <pf-empty-table :isLoading="isLoading">{{ $t('No results found') }}</pf-empty-table>
         </slot>
         <!-- Proxy all possible column slots ([field], HEAD_[field], FOOT_[field]) into b-table slots -->
@@ -38,11 +38,9 @@
         <template v-for="column in config.columns" :slot="'HEAD_' + column.key" slot-scope="data">
           <slot :name="'HEAD_' + column.key">{{ data.label }}</slot>
         </template>
-        <!--
         <template v-for="column in config.columns" :slot="'FOOT_' + column.key" slot-scope="data">
           <slot :name="'FOOT_' + column.key">{{ data.label }}</slot>
         </template>
-        -->
       </b-table>
     </div>
   </div>

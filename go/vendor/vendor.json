@@ -201,11 +201,6 @@
 			"revision": "cf0198ac7d92634998b3f3f2b616553fda07d7b0"
 		},
 		{
-			"checksumSHA1": "RFnAYMiZSJG51dKxpwbneK30Wh0=",
-			"path": "github.com/fdurand/go-ipset",
-			"revision": "9a266eccec047c1e13fd3f514a7d8dc859cb51ab"
-		},
-		{
 			"checksumSHA1": "VdXZPcDRHK1T7XjBu2KW8Mb8S6w=",
 			"path": "github.com/flynn/go-shlex",
 			"revision": "3f9db97f856818214da2e1057f8ad84803971cff",
@@ -414,6 +409,12 @@
 			"path": "github.com/inconshreveable/log15",
 			"revision": "0decfc6c20d9ca0ad143b0e89dcaa20f810b4fb3",
 			"revisionTime": "2016-11-12T20:41:34Z"
+		},
+		{
+			"checksumSHA1": "/k5Xp8M6CJ3w9DcKrCGgS221gZw=",
+			"path": "github.com/inverse-inc/go-ipset",
+			"revision": "3b787d33ec19ef4e074fed7fb7eacb86c4744261",
+			"revisionTime": "2018-12-06T17:07:14Z"
 		},
 		{
 			"path": "github.com/inverse-inc/packetfence/go/caddy/pfipset",

@@ -5,7 +5,7 @@ import { pfRegExp as regExp } from '@/globals/pfRegExp'
 import {
   pfConfigurationListColumns,
   pfConfigurationListFields
-} from '@/globals/pfConfiguration'
+} from '@/globals/configuration/pfConfiguration'
 import {
   and,
   not,
@@ -22,7 +22,7 @@ const {
 } = require('vuelidate/lib/validators')
 
 export const pfConfigurationFloatingDevicesListColumns = [
-  Object.assign(pfConfigurationListColumns.id, { label: i18n.t('MAC') }), // re-label
+  { ...pfConfigurationListColumns.id, ...{ label: i18n.t('MAC') } }, // re-label
   pfConfigurationListColumns.ip,
   pfConfigurationListColumns.pvid,
   pfConfigurationListColumns.taggedVlan,
@@ -31,9 +31,50 @@ export const pfConfigurationFloatingDevicesListColumns = [
 ]
 
 export const pfConfigurationFloatingDevicesListFields = [
-  Object.assign(pfConfigurationListFields.id, { text: i18n.t('MAC') }), // re-text
+  { ...pfConfigurationListFields.id, ...{ text: i18n.t('MAC') } }, // re-text
   pfConfigurationListFields.ip
 ]
+
+export const pfConfigurationFloatingDeviceListConfig = (context = {}) => {
+  const { $i18n } = context
+  return {
+    columns: pfConfigurationFloatingDevicesListColumns,
+    fields: pfConfigurationFloatingDevicesListFields,
+    rowClickRoute (item, index) {
+      return { name: 'floating_device', params: { id: item.id } }
+    },
+    searchPlaceholder: $i18n.t('Search by MAC or IP address'),
+    searchableOptions: {
+      searchApiEndpoint: 'config/floating_devices',
+      defaultSortKeys: ['id'],
+      defaultSearchCondition: {
+        op: 'and',
+        values: [{
+          op: 'or',
+          values: [
+            { field: 'id', op: 'contains', value: null },
+            { field: 'ip', op: 'contains', value: null }
+          ]
+        }]
+      },
+      defaultRoute: { name: 'floating_devices' }
+    },
+    searchableQuickCondition: (quickCondition) => {
+      return {
+        op: 'and',
+        values: [
+          {
+            op: 'or',
+            values: [
+              { field: 'id', op: 'contains', value: quickCondition },
+              { field: 'ip', op: 'contains', value: quickCondition }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}
 
 export const pfConfigurationFloatingDeviceViewFields = (context = {}) => {
   const { isNew = false, isClone = false } = context

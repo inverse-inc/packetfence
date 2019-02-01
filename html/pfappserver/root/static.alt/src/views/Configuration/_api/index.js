@@ -33,6 +33,19 @@ export default {
     })
   },
   /**
+   * Bases
+   */
+  bases: params => {
+    return apiCall.get('config/bases', { params }).then(response => {
+      return response.data
+    })
+  },
+  base: id => {
+    return apiCall.get(`config/base/${id}`).then(response => {
+      return response.data.item
+    })
+  },
+  /**
    * Billing Tiers
    */
   billingTiers: params => {
@@ -170,6 +183,14 @@ export default {
       return response.data.item
     })
   },
+  updatePortalModule: data => {
+    return apiCall.patch(`config/portal_module/${data.id}`, data).then(response => {
+      return response.data
+    })
+  },
+  deletePortalModule: id => {
+    return apiCall.delete(`config/portal_module/${id}`)
+  },
   /**
    * Switches
    */
@@ -248,6 +269,24 @@ export default {
   deleteConnectionProfile: id => {
     return apiCall.delete(`config/connection_profile/${id}`)
   },
+  connectionProfileFiles: params => {
+    return apiCall.get(`config/connection_profile/${params.id}/files`, { params }).then(response => {
+      return response.data
+    })
+  },
+  connectionProfileFile: params => {
+    return apiCall.get(`config/connection_profile/${params.id}/files/${params.filename}`).then(response => {
+      return response.data
+    })
+  },
+  updateConnectionProfileFile: params => {
+    return apiCall.patch(`config/connection_profile/${params.id}/files/${params.filename}`, params.content).then(response => {
+      return response.data
+    })
+  },
+  deleteConnectionProfileFile: params => {
+    return apiCall.delete(`config/connection_profile/${params.id}/files/${params.filename}`)
+  },
   /**
    * Provisionings
    */
@@ -275,29 +314,236 @@ export default {
     return apiCall.delete(`config/provisioning/${id}`)
   },
   /**
+   * Fingerbank Profiling
+   */
+  profilingGeneralSettings: params => {
+    return apiCall.get(`config/TODO`, { params }).then(response => {
+      return response.data.item
+    })
+  },
+  profilingUpdateGeneralSettings: params => {
+    return apiCall.get(`config/TODO`, { params }).then(response => {
+      return response.data
+    })
+  },
+  profilingDeviceChangeDetection: params => {
+    return apiCall.get(`config/TODO`, { params }).then(response => {
+      return response.data.item
+    })
+  },
+  profilingUpdateDeviceChangeDetection: params => {
+    return apiCall.get(`config/TODO`, { params }).then(response => {
+      return response.data
+    })
+  },
+  profilingCombinations: params => {
+    return apiCall.get(`config/TODO`, { params }).then(response => {
+      return response.data
+    })
+  },
+  profilingCombination: id => {
+    return apiCall.get(`config/TODO/${id}`).then(response => {
+      return response.data.item
+    })
+  },
+  profilingCreateCombination: data => {
+    return apiCall.post('config/TODO', data).then(response => {
+      return response.data
+    })
+  },
+  profilingUpdateCombination: data => {
+    return apiCall.patch(`config/TODO/${data.id}`, data).then(response => {
+      return response.data
+    })
+  },
+  profilingDeleteCombination: id => {
+    return apiCall.delete(`config/TODO/${id}`)
+  },
+  profilingDevices: params => {
+    return apiCall.get(`config/TODO`, { params }).then(response => {
+      return response.data
+    })
+  },
+  profilingDevice: id => {
+    return apiCall.get(`config/TODO/${id}`).then(response => {
+      return response.data.item
+    })
+  },
+  profilingCreateDevice: data => {
+    return apiCall.post('config/TODO', data).then(response => {
+      return response.data
+    })
+  },
+  profilingUpdateDevice: data => {
+    return apiCall.patch(`config/TODO/${data.id}`, data).then(response => {
+      return response.data
+    })
+  },
+  profilingDeleteDevice: id => {
+    return apiCall.delete(`config/TODO/${id}`)
+  },
+  profilingDhcpFingerprints: params => {
+    return apiCall.get(`config/TODO`, { params }).then(response => {
+      return response.data
+    })
+  },
+  profilingDhcpFingerprint: id => {
+    return apiCall.get(`config/TODO/${id}`).then(response => {
+      return response.data.item
+    })
+  },
+  profilingCreateDhcpFingerprint: data => {
+    return apiCall.post('config/TODO', data).then(response => {
+      return response.data
+    })
+  },
+  profilingUpdateDhcpFingerprint: data => {
+    return apiCall.patch(`config/TODO/${data.id}`, data).then(response => {
+      return response.data
+    })
+  },
+  profilingDeleteDhcpFingerprint: id => {
+    return apiCall.delete(`config/TODO/${id}`)
+  },
+  profilingDhcpVendors: params => {
+    return apiCall.get(`config/TODO`, { params }).then(response => {
+      return response.data
+    })
+  },
+  profilingDhcpVendor: id => {
+    return apiCall.get(`config/TODO/${id}`).then(response => {
+      return response.data.item
+    })
+  },
+  profilingCreateDhcpVendor: data => {
+    return apiCall.post('config/TODO', data).then(response => {
+      return response.data
+    })
+  },
+  profilingUpdateDhcpVendor: data => {
+    return apiCall.patch(`config/TODO/${data.id}`, data).then(response => {
+      return response.data
+    })
+  },
+  profilingDeleteDhcpVendor: id => {
+    return apiCall.delete(`config/TODO/${id}`)
+  },
+  profilingDhcpv6Fingerprints: params => {
+    return apiCall.get(`config/TODO`, { params }).then(response => {
+      return response.data
+    })
+  },
+  profilingDhcpv6Fingerprint: id => {
+    return apiCall.get(`config/TODO/${id}`).then(response => {
+      return response.data.item
+    })
+  },
+  profilingCreateDhcpv6Fingerprint: data => {
+    return apiCall.post('config/TODO', data).then(response => {
+      return response.data
+    })
+  },
+  profilingUpdateDhcpv6Fingerprint: data => {
+    return apiCall.patch(`config/TODO/${data.id}`, data).then(response => {
+      return response.data
+    })
+  },
+  profilingDeleteDhcpv6Fingerprint: id => {
+    return apiCall.delete(`config/TODO/${id}`)
+  },
+  profilingDhcpv6Enterprises: params => {
+    return apiCall.get(`config/TODO`, { params }).then(response => {
+      return response.data
+    })
+  },
+  profilingDhcpv6Enterprise: id => {
+    return apiCall.get(`config/TODO/${id}`).then(response => {
+      return response.data.item
+    })
+  },
+  profilingCreateDhcpv6Enterprise: data => {
+    return apiCall.post('config/TODO', data).then(response => {
+      return response.data
+    })
+  },
+  profilingUpdateDhcpv6Enterprise: data => {
+    return apiCall.patch(`config/TODO/${data.id}`, data).then(response => {
+      return response.data
+    })
+  },
+  profilingDeleteDhcpv6Enterprise: id => {
+    return apiCall.delete(`config/TODO/${id}`)
+  },
+  profilingMacVendors: params => {
+    return apiCall.get(`config/TODO`, { params }).then(response => {
+      return response.data
+    })
+  },
+  profilingMacVendor: id => {
+    return apiCall.get(`config/TODO/${id}`).then(response => {
+      return response.data.item
+    })
+  },
+  profilingCreateMacVendor: data => {
+    return apiCall.post('config/TODO', data).then(response => {
+      return response.data
+    })
+  },
+  profilingUpdateMacVendor: data => {
+    return apiCall.patch(`config/TODO/${data.id}`, data).then(response => {
+      return response.data
+    })
+  },
+  profilingDeleteMacVendor: id => {
+    return apiCall.delete(`config/TODO/${id}`)
+  },
+  profilingUserAgents: params => {
+    return apiCall.get(`config/TODO`, { params }).then(response => {
+      return response.data
+    })
+  },
+  profilingUserAgent: id => {
+    return apiCall.get(`config/TODO/${id}`).then(response => {
+      return response.data.item
+    })
+  },
+  profilingCreateUserAgent: data => {
+    return apiCall.post('config/TODO', data).then(response => {
+      return response.data
+    })
+  },
+  profilingUpdateUserAgent: data => {
+    return apiCall.patch(`config/TODO/${data.id}`, data).then(response => {
+      return response.data
+    })
+  },
+  profilingDeleteUserAgent: id => {
+    return apiCall.delete(`config/TODO/${id}`)
+  },
+  /**
    * Scans
    */
-  scans: params => {
+  scanEngines: params => {
     return apiCall.get(`config/scans`, { params }).then(response => {
       return response.data
     })
   },
-  scan: id => {
+  scanEngine: id => {
     return apiCall.get(`config/scan/${id}`).then(response => {
       return response.data.item
     })
   },
-  createScan: data => {
+  createScanEngine: data => {
     return apiCall.post('config/scans', data).then(response => {
       return response.data
     })
   },
-  updateScan: data => {
+  updateScanEngine: data => {
     return apiCall.patch(`config/scan/${data.id}`, data).then(response => {
       return response.data
     })
   },
-  deleteScan: id => {
+  deleteScanEngine: id => {
     return apiCall.delete(`config/scan/${id}`)
   }
 }

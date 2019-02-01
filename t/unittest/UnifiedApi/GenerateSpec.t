@@ -74,7 +74,7 @@ is_deeply(
                 },
                 server_name => {
                     type => 'string',
-                    description => 'This server\'s name (account name) in your Active Directory. Use \'%h\' to automatically use this server hostname',
+                    description => 'This server\'s name (account name) in your Active Directory. Use \'%h\' to automatically use this server hostname. In a cluster, you must leave %h and ensure your hostnames are less than 14 characters.',
 				},
                 sticky_dc => {
                     type => 'string',
@@ -312,6 +312,14 @@ cmp_deeply(
                 'unreg_on_acct_stop' => {
                     type => 'string',
                     description => 'This activates automatic deregistation of devices for the profile if PacketFence receives a RADIUS accounting stop.',
+                },
+                'network_logoff' => {
+                    type => 'string',
+                    description => 'This allows users to access the network logoff page (http://pf.pfdemo.org/networklogoff) in order to terminate their network access (switch their device back to unregistered)',
+                },
+                'network_logoff_popup' => {
+                    type => 'string',
+                    description => 'When the "Network Logoff" feature is enabled, this will have it opened in a popup at the end of the registration process.',
                 },
             },
             required => [

@@ -1,5 +1,5 @@
 import i18n from '@/utils/locale'
-import pfFieldAction from '@/components/pfFieldAction'
+import pfFieldTypeValue from '@/components/pfFieldTypeValue'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormFields from '@/components/pfFormFields'
 import pfFormInput from '@/components/pfFormInput'
@@ -9,7 +9,7 @@ import pfFormToggle from '@/components/pfFormToggle'
 import {
   pfConfigurationListColumns,
   pfConfigurationListFields
-} from '@/globals/pfConfiguration'
+} from '@/globals/configuration/pfConfiguration'
 import { pfFieldType as fieldType } from '@/globals/pfField'
 import {
   and,
@@ -18,7 +18,7 @@ import {
   isPort,
   limitSiblingFields,
   restrictAllSiblingFields,
-  switchExists
+  switchGroupExists
 } from '@/globals/pfValidators'
 
 const {
@@ -29,23 +29,67 @@ const {
   maxLength
 } = require('vuelidate/lib/validators')
 
-export const pfConfigurationSwitchesListColumns = [
-  Object.assign(pfConfigurationListColumns.id, { label: i18n.t('Identifier') }), // re-label
+export const pfConfigurationSwitchGroupsListColumns = [
+  { ...pfConfigurationListColumns.id, ...{ label: i18n.t('Identifier') } }, // re-label
   pfConfigurationListColumns.description,
-  pfConfigurationListColumns.group,
   pfConfigurationListColumns.type,
   pfConfigurationListColumns.mode,
   pfConfigurationListColumns.buttons
 ]
 
-export const pfConfigurationSwitchesListFields = [
-  Object.assign(pfConfigurationListFields.id, { text: i18n.t('Identifier') }), // re-text
+export const pfConfigurationSwitchGroupsListFields = [
+  { ...pfConfigurationListFields.id, ...{ text: i18n.t('Identifier') } }, // re-text
   pfConfigurationListFields.description,
   pfConfigurationListFields.mode,
   pfConfigurationListFields.type
 ]
 
-export const pfConfigurationSwitchActions = {
+export const pfConfigurationSwitchGroupsListConfig = (context = {}) => {
+  const { $i18n } = context
+  return {
+    columns: pfConfigurationSwitchGroupsListColumns,
+    fields: pfConfigurationSwitchGroupsListFields,
+    rowClickRoute (item, index) {
+      return { name: 'switch_group', params: { id: item.id } }
+    },
+    searchPlaceholder: $i18n.t('Search by identifier or description'),
+    searchableOptions: {
+      searchApiEndpoint: 'config/switch_groups',
+      defaultSortKeys: ['id'],
+      defaultSearchCondition: {
+        op: 'and',
+        values: [{
+          op: 'or',
+          values: [
+            { field: 'id', op: 'contains', value: null },
+            { field: 'description', op: 'contains', value: null },
+            { field: 'type', op: 'contains', value: null },
+            { field: 'mode', op: 'contains', value: null }
+          ]
+        }]
+      },
+      defaultRoute: { name: 'switch_groups' }
+    },
+    searchableQuickCondition: (quickCondition) => {
+      return {
+        op: 'and',
+        values: [
+          {
+            op: 'or',
+            values: [
+              { field: 'id', op: 'contains', value: quickCondition },
+              { field: 'description', op: 'contains', value: quickCondition },
+              { field: 'type', op: 'contains', value: quickCondition },
+              { field: 'mode', op: 'contains', value: quickCondition }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}
+
+export const pfConfigurationSwitchGroupActions = {
   always: {
     value: 'always',
     text: i18n.t('Always'),
@@ -53,7 +97,7 @@ export const pfConfigurationSwitchActions = {
     validators: {
       type: {
         /* Don't allow elsewhere */
-        [i18n.t('Duplicate condition.')]: limitSiblingFields(['type'])
+        [i18n.t('Duplicate condition.')]: limitSiblingFields(['type', 'value'])
       }
     }
   },
@@ -102,6 +146,7 @@ export const pfConfigurationSwitchActions = {
       },
       value: {
         [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255),
         /* Don't allow duplicates */
         [i18n.t('Duplicate SSID.')]: limitSiblingFields(['type', 'value'])
       }
@@ -109,14 +154,13 @@ export const pfConfigurationSwitchActions = {
   }
 }
 
-export const pfConfigurationSwitchViewFields = (context = {}) => {
+export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
   let {
     isNew = false,
     isClone = false,
     placeholders = {}, // form placeholders
-    switche = {}, // form
-    roles = [], // all roles
-    switchGroups = [] // all switchGroups
+    switchGroup = {}, // form
+    roles = [] // all roles
   } = context
 
   return [
@@ -136,7 +180,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
                 [i18n.t('Identifier required.')]: required,
                 [i18n.t('Maximum 255 characters.')]: maxLength(255),
                 [i18n.t('IP addresses only.')]: ipAddress,
-                [i18n.t('Switch exists.')]: not(and(required, conditional(isNew || isClone), switchExists))
+                [i18n.t('Switch Group exists.')]: not(and(required, conditional(isNew || isClone), switchGroupExists))
               }
             }
           ]
@@ -981,28 +1025,6 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
           ]
         },
         {
-          label: i18n.t('Switch Group'),
-          fields: [
-            {
-              key: 'group',
-              component: pfFormChosen,
-              attrs: {
-                placeholder: ('group' in placeholders)
-                  ? i18n.t('Choose group (default: "{default}")', { default: placeholders.group })
-                  : i18n.t('Choose group'),
-                label: 'text',
-                trackBy: 'value',
-                collapseObject: true,
-                allowEmpty: false,
-                options: [
-                  { value: 'default', text: i18n.t('None') }, // prepend null option
-                  ...switchGroups.map(group => { return { value: group.id, text: `${group.id} - ${group.description}` } })
-                ]
-              }
-            }
-          ]
-        },
-        {
           label: i18n.t('Deauthentication Method'),
           fields: [
             {
@@ -1147,7 +1169,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
               },
               listeners: {
                 checked: (value) => {
-                  switche.uplink = null // clear uplink
+                  switchGroup.uplink = null // clear uplink
                 }
               }
             }
@@ -1156,7 +1178,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
         {
           label: i18n.t('Static Uplinks'),
           text: i18n.t('Comma-separated list of the switch uplinks.'),
-          if: (switche.uplink_dynamic !== 'dynamic'),
+          if: (switchGroup.uplink_dynamic !== 'dynamic'),
           fields: [
             {
               key: 'uplink',
@@ -1252,7 +1274,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
         ].map(role => {
           return {
             label: i18n.t(role),
-            if: (switche.VlanMap === 'Y'),
+            if: (switchGroup.VlanMap === 'Y'),
             fields: [
               {
                 key: `${role}Vlan`,
@@ -1289,7 +1311,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
         ].map(role => {
           return {
             label: i18n.t(role),
-            if: (switche.RoleMap === 'Y'),
+            if: (switchGroup.RoleMap === 'Y'),
             fields: [
               {
                 key: `${role}Role`,
@@ -1326,7 +1348,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
         ].map(role => {
           return {
             label: i18n.t(role),
-            if: (switche.AccessListMap === 'Y'),
+            if: (switchGroup.AccessListMap === 'Y'),
             fields: [
               {
                 key: `${role}AccessList`,
@@ -1364,7 +1386,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
         ].map(role => {
           return {
             label: i18n.t(role),
-            if: (switche.UrlMap === 'Y'),
+            if: (switchGroup.UrlMap === 'Y'),
             fields: [
               {
                 key: `${role}Url`,
@@ -1395,15 +1417,15 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
                 buttonLabel: 'Add Condition',
                 sortable: false,
                 field: {
-                  component: pfFieldAction,
+                  component: pfFieldTypeValue,
                   attrs: {
                     typeLabel: i18n.t('Select condition type'),
                     valueLabel: i18n.t('Select condition value'),
                     fields: [
-                      pfConfigurationSwitchActions.always,
-                      pfConfigurationSwitchActions.port,
-                      pfConfigurationSwitchActions.mac,
-                      pfConfigurationSwitchActions.ssid
+                      pfConfigurationSwitchGroupActions.always,
+                      pfConfigurationSwitchGroupActions.port,
+                      pfConfigurationSwitchGroupActions.mac,
+                      pfConfigurationSwitchGroupActions.ssid
                     ]
                   }
                 },
@@ -1968,7 +1990,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
   ]
 }
 
-export const pfConfigurationSwitchViewPlaceholders = (context = {}) => {
+export const pfConfigurationSwitchGroupViewPlaceholders = (context = {}) => {
   // TODO: replace with inherited defaults from conf/switches.conf.defaults
   return {
     vlans: '1,2,3,4,5',
@@ -1996,7 +2018,7 @@ export const pfConfigurationSwitchViewPlaceholders = (context = {}) => {
   }
 }
 
-export const pfConfigurationSwitchViewDefaults = (context = {}) => {
+export const pfConfigurationSwitchGroupViewDefaults = (context = {}) => {
   // TODO: replace with inherited defaults from conf/switches.conf.defaults
   return {
     id: null,

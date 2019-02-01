@@ -35,6 +35,8 @@ _fields_expanded
 our %TYPE_TO_EXPANDED_FIELDS = (
     SMS => [qw(sms_carriers)],
     Eduroam => [qw(local_realm reject_realm)],
+    AD => [qw(searchattributes)],
+    LDAP => [qw(searchattributes)],
 );
 
 sub _fields_expanded {
@@ -140,13 +142,13 @@ sub cleanupAfterRead {
         }
     }
 
-    $self->expand_list($item, $self->_fields_expanded($item));
-
-    if ($item->{type} eq 'AD' || $item->{type} eq "LDAP") {
-        $self->expand_list($item, qw(searchattributes));
+    if ($item->{type} eq 'RADIUS') {
+        if(ref($item->{options}) eq 'ARRAY'){
+            $item->{options} = $self->join_options($item->{options});
+        }
     }
-    $self->expand_list($item, qw(realms));
 
+    $self->expand_list($item, $self->_fields_expanded($item));
 }
 
 
@@ -167,12 +169,6 @@ sub cleanupBeforeCommit {
 
     $self->flatten_list($item, $self->_fields_expanded($item));
 
-    if ($item->{type} eq 'AD' || $item->{type} eq "LDAP") {
-        $self->flatten_list($item, qw(searchattributes));
-    }
-
-    $self->flatten_list($item, qw(realms));
-
 }
 
 before rewriteConfig => sub {
@@ -181,10 +177,15 @@ before rewriteConfig => sub {
     $config->ReorderByGroup();
 };
 
+=head2 join_options
+
+Join options in array with a newline
+
+=cut
 
 sub join_options {
-    my ($self, $options) = @_;
-    return join("\n", @$options);
+    my ($self,$options) = @_;
+    return join("\n",@$options);
 }
 
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};

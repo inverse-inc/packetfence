@@ -41,7 +41,28 @@ const actions = {
     commit('ITEM_REQUEST')
     return api.portalModule(id).then(item => {
       commit('ITEM_REPLACED', item)
+      return item
     }).catch((err) => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
+  },
+  updatePortalModule: ({ commit }, data) => {
+    commit('ITEM_REQUEST')
+    return api.updatePortalModule(data).then(response => {
+      commit('ITEM_REPLACED', data)
+      return response
+    }).catch(err => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
+  },
+  deletePortalModule: ({ commit }, data) => {
+    commit('ITEM_REQUEST', types.DELETING)
+    return api.deletePortalModule(data).then(response => {
+      commit('ITEM_DESTROYED', data)
+      return response
+    }).catch(err => {
       commit('ITEM_ERROR', err.response)
       throw err
     })

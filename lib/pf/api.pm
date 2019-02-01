@@ -46,7 +46,6 @@ use fingerbank::DB;
 use File::Slurp;
 use pf::file_paths qw($captiveportal_profile_templates_path);
 use pf::CHI;
-use pf::metadefender();
 use pf::services();
 use pf::firewallsso();
 use pf::pfqueue::stats();
@@ -141,6 +140,22 @@ sub radius_authorize : Public {
     };
     if ($@) {
         $logger->error("radius authorize failed with error: $@");
+    }
+
+    return $return;
+}
+
+sub radius_filter : Public {
+    my ($class, $scope, %radius_request) = @_;
+    my $logger = pf::log::get_logger();
+
+    my $radius = new pf::radius::custom();
+    my $return;
+    eval {
+        $return = $radius->radius_filter($scope, \%radius_request);
+    };
+    if ($@) {
+        $logger->error("radius $scope failed with error: $@");
     }
 
     return $return;
@@ -1262,22 +1277,8 @@ sub copy_directory : Public {
     return dircopy($source_dir, $dest_dir);
 }
 
-=head2 metadefender_process
-
-=cut
-
-sub metadefender_process : Public {
-    my ( $class, $data ) = @_;
-
-    my $metadefender_scan_result_id = pf::metadefender->hash_lookup($data);
-    return if !defined($metadefender_scan_result_id);
-
-    my $violation_note = "Filename: " . $data->{'filename'} . "\n From host: " . $data->{'http_host'};
-    pf::violation::violation_trigger( { 'mac' => $data->{'mac'}, 'tid' => $metadefender_scan_result_id, 'type' => "metadefender", 'notes' => $violation_note } );
-}
-
 sub rest_ping :Public :RestPath(/rest/ping){
-    my ($class, $args) = @_;
+    my ($class, $args, $headers) = @_;
     return "pong - ".$args->{message};
 }
 
@@ -1288,7 +1289,7 @@ RADIUS authorize method that uses REST
 =cut
 
 sub radius_rest_authorize :Public :RestPath(/radius/rest/authorize) {
-    my ($class, $radius_request) = @_;
+    my ($class, $radius_request, $headers) = @_;
     my $timer = pf::StatsD::Timer->new();
     my $logger = pf::log::get_logger();
 
@@ -1308,6 +1309,29 @@ sub radius_rest_authorize :Public :RestPath(/radius/rest/authorize) {
     return $return;
 }
 
+=head2 radius_rest_filter
+
+RADIUS filter method that uses REST
+
+=cut
+
+sub radius_rest_filter :Public :RestPath(/radius/rest/filter) {
+    my ($class, $radius_request, $headers) = @_;
+    my $timer = pf::StatsD::Timer->new();
+    my $logger = pf::log::get_logger();
+
+    my %remapped_radius_request = %{pf::radius::rest::format_request($radius_request)};
+
+    my $return;
+
+    $return = $class->radius_filter($headers->{'X-FreeRADIUS-Server'}.".".$headers->{'X-FreeRADIUS-Section'},%remapped_radius_request);
+
+    # This will die with the proper code if it is a deny
+    $return = pf::radius::rest::format_response($return);
+
+    return $return;
+}
+
 =head2 radius_rest_switch_authorize
 
 RADIUS switch authorize method that uses REST
@@ -1315,7 +1339,7 @@ RADIUS switch authorize method that uses REST
 =cut
 
 sub radius_rest_switch_authorize :Public :RestPath(/radius/rest/switch/authorize) {
-    my ($class, $radius_request) = @_;
+    my ($class, $radius_request, $headers) = @_;
     my $timer = pf::StatsD::Timer->new();
     my $logger = pf::log::get_logger();
 
@@ -1336,7 +1360,7 @@ RADIUS accounting method that uses REST
 =cut
 
 sub radius_rest_accounting :Public :RestPath(/radius/rest/accounting) {
-    my ($class, $radius_request) = @_;
+    my ($class, $radius_request, $headers) = @_;
     my $timer = pf::StatsD::Timer->new();
     my $logger = pf::log::get_logger();
 
@@ -1346,7 +1370,7 @@ sub radius_rest_accounting :Public :RestPath(/radius/rest/accounting) {
 
     my $radius = new pf::radius::custom();
     eval {
-        $return = $radius->accounting(\%remapped_radius_request);
+        $return = $radius->accounting(\%remapped_radius_request, $headers);
     };
     if ($@) {
         $logger->error("radius accounting failed with error: $@");

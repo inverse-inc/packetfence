@@ -43,7 +43,9 @@ use pf::CHI;
 use pf::CHI::Request;
 use pf::web::util;
 use pf::SwitchFactory;
+use pf::I18N;
 pf::SwitchFactory->preloadAllModules();
+pf::I18N::setup_text_domain();
 
 extends 'Catalyst';
 
@@ -62,6 +64,7 @@ $VERSION = eval $VERSION;
 __PACKAGE__->config(
     name => 'pfappserver',
     default_view =>  'HTML',
+    encoding => 'UTF-8',
     use_request_uri_for_path => 1,
     setup_components => {
         search_extra => [ qw(::Form ::F) ],
@@ -381,7 +384,7 @@ __PACKAGE__->log(Log::Log4perl::Catalyst->new(INSTALL_DIR . '/conf/log.conf.d/ht
 $SIG{__WARN__} = sub { __PACKAGE__->log->error(@_); };
 
 # Start the application
-__PACKAGE__->setup();
+__PACKAGE__->setup( __PACKAGE__->log->is_debug ? ('-Debug') : () );
 
 =head1 NAME
 

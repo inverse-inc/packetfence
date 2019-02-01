@@ -12,7 +12,7 @@
       <b-tabs v-if="form.fields[0].tab || form.fields.length > 1" v-model="tabIndex" :key="tabKey" card>
         <b-tab v-for="(tab, t) in form.fields" :key="t" v-if="!('if' in tab) || tab.if"
           :disabled="tab.disabled"
-          :title-link-class="{'text-danger': getTabErrorCount(t) > 0 }"
+          :title-link-class="{ 'text-danger': getTabErrorCount(t) > 0 }"
           :title="tab.tab"
           no-body
         ></b-tab>
@@ -20,7 +20,7 @@
       <template v-for="(tab, t) in form.fields">
         <div class="card-body" v-if="tab.fields" v-show="t === tabIndex" :key="t">
           <b-form-group v-for="row in tab.fields" :key="row.key" v-if="!('if' in row) || row.if"
-            :label-cols="(row.label) ? form.labelCols : 0" :label="row.label" :label-size="row.labelSize"
+            :label-cols="(row.label && row.fields) ? form.labelCols : 0" :label="row.label" :label-size="row.labelSize" :label-class="[(row.label && row.fields) ? '' : 'text-left', (row.fields) ? '' : 'offset-sm-3']"
             :state="isValid()" :invalid-feedback="getInvalidFeedback()"
             class="input-element" :class="{ 'mb-0': !row.label, 'pt-3': !row.fields }"
             horizontal
@@ -33,7 +33,7 @@
                   v-on="field.listeners"
                   :key="field.key"
                   :is="field.component || defaultComponent"
-                  :isLoading="isLoading"
+                  :is-loading="isLoading"
                   :vuelidate="getVuelidateModel(field.key)"
                   :class="getClass(row, field)"
                   :value="getValue(field.key)"
@@ -50,7 +50,7 @@
         :isDeletable="isDeletable"
       >
         <b-card-footer @mouseenter="vuelidate.$touch()">
-          <pf-button-save :disabled="invalidForm" :isLoading="isLoading">{{ isNew? $t('Create') : $t('Save') }}</pf-button-save>
+          <pf-button-save :disabled="invalidForm" :is-loading="isLoading">{{ isNew? $t('Create') : $t('Save') }}</pf-button-save>
           <pf-button-delete v-if="isDeletable" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Config?')" @on-delete="remove($event)"/>
         </b-card-footer>
       </slot>
@@ -96,12 +96,16 @@ export default {
     },
     isClone: {
       type: Boolean
+    },
+    initialTabIndex: {
+      type: Number,
+      default: 0
     }
   },
   data () {
     return {
-      tabIndex: 0,
       tabKey: uuidv4(), // control tabs DOM rendering
+      tabIndex: this.initialTabIndex,
       componentValidations: {}
     }
   },
@@ -257,7 +261,7 @@ export default {
 .pf-config-view {
   .input-group > span {
     display: flex;
-    justify-contents: center;
+    justify-content: center;
     align-items: center;
   }
 }

@@ -17,7 +17,7 @@
       <h4 class="d-inline mb-0">
         <span v-if="!isNew && !isClone" v-html="$t('Portal Module {id}', { id: strong(id) })"></span>
         <span v-else-if="isClone" v-html="$t('Clone Portal Module {id}', { id: strong(id) })"></span>
-        <span v-else v-html="$t('New {moduleType} Portal Module', { moduleType: strong(moduleType) })"></span>
+        <span v-else v-html="$t('New Portal Module')"></span>
       </h4>
       <b-badge class="ml-2" variant="secondary" v-t="moduleType"></b-badge>
     </template>
@@ -50,7 +50,7 @@ import {
 import {
   pfConfigurationPortalModuleViewFields as fields,
   pfConfigurationPortalModuleViewDefaults as defaults
-} from '@/globals/pfConfigurationPortalModules'
+} from '@/globals/configuration/pfConfigurationPortalModules'
 const { validationMixin } = require('vuelidate')
 
 export default {

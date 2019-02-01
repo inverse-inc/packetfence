@@ -140,13 +140,15 @@ rest {
 	#  5xx    server error  no            fail
 	#  xxx    -             no            invalid
 	authorize {
-		uri = "${..connect_uri}/user/%{User-Name}/mac/%{Called-Station-ID}?action=authorize"
-		method = 'get'
+		uri = "${..connect_uri}/radius/rest/filter"
+		method = 'post'
+		body = 'json'
 		tls = ${..tls}
 	}
 	authenticate {
-		uri = "${..connect_uri}/user/%{User-Name}/mac/%{Called-Station-ID}?action=authenticate"
-		method = 'get'
+		uri = "${..connect_uri}/radius/rest/filter"
+		method = 'post'
+		body = 'json'
 		tls = ${..tls}
 	}
 
@@ -157,6 +159,12 @@ rest {
 	#  2xx    successful    yes           ok/updated
 	#  5xx    server error  no            fail
 	#  xxx    -             no            invalid
+	preacct {
+		uri = "${..connect_uri}/radius/rest/filter"
+		method = 'post'
+		body = 'json'
+		tls = ${..tls}
+	}
 	accounting {
 		uri = "${..connect_uri}/radius/rest/accounting"
 		method = 'post'
@@ -166,10 +174,21 @@ rest {
 	post-auth {
 		uri = "${..connect_uri}/radius/rest/authorize"
 		method = 'post'
-        body = 'json'
+		body = 'json'
 		tls = ${..tls}
 	}
-
+	pre-proxy {
+		uri = "${..connect_uri}/radius/rest/filter"
+		method = 'post'
+		body = 'json'
+		tls = ${..tls}
+	}
+	post-proxy {
+		uri = "${..connect_uri}/radius/rest/filter"
+		method = 'post'
+		body = 'json'
+		tls = ${..tls}
+	}
 	#
 	#  The connection pool is new for 3.0, and will be used in many
 	#  modules, for all kinds of connection-related activity.

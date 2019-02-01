@@ -29,6 +29,7 @@ use pfconfig::cached_hash;
 use pf::authentication;
 use pf::cluster;
 use pf::util;
+use Socket;
 
 use pf::constants qw($TRUE $FALSE);
 
@@ -123,11 +124,52 @@ Generates the packetfence and packetfence-tunnel configuration file
 sub generate_radiusd_sitesconf {
     my %tags;
 
-    if(isenabled($Config{advanced}{record_accounting_in_sql})){
+    if(isenabled($Config{radius_configuration}{record_accounting_in_sql})){
         $tags{'accounting_sql'} = "sql";
     }
     else {
         $tags{'accounting_sql'} = "# sql not activated because explicitly disabled in pf.conf";
+    }
+    if(isenabled($Config{radius_configuration}{filter_in_packetfence_authorize})){
+        $tags{'authorize_filter'} = "rest";
+    }
+    else {
+        $tags{'authorize_filter'} = "# filter not activated because explicitly disabled in pf.conf";
+    }
+    if(isenabled($Config{radius_configuration}{filter_in_packetfence_pre_proxy})){
+        $tags{'pre_proxy_filter'} = "rest";
+    }
+    else {
+        $tags{'pre_proxy_filter'} = "# filter not activated because explicitly disabled in pf.conf";
+    }
+    if(isenabled($Config{radius_configuration}{filter_in_packetfence_post_proxy})){
+        $tags{'post_proxy_filter'} = "rest";
+    }
+    else {
+        $tags{'post_proxy_filter'} = "# filter not activated because explicitly disabled in pf.conf";
+    }
+    if(isenabled($Config{radius_configuration}{filter_in_packetfence_preacct})){
+        $tags{'preacct_filter'} = "rest";
+    }
+    else {
+        $tags{'preacct_filter'} = "# filter not activated because explicitly disabled in pf.conf";
+    }
+
+    $tags{'local_realm'} = '';
+    my @realms;
+    foreach my $realm ( sort keys %pf::config::ConfigRealm ) {
+        if (isenabled($pf::config::ConfigRealm{$realm}->{'radius_auth_compute_in_pf'})) {
+            push (@realms, "Realm == \"$realm\"");
+        }
+    }
+    if (@realms) {
+        $tags{'local_realm'} .= 'if ( ';
+        $tags{'local_realm'} .=  join(' || ', @realms);
+        $tags{'local_realm'} .= ' ) {'."\n";
+        $tags{'local_realm'} .= <<"EOT";
+    rest
+}
+EOT
     }
 
     $tags{'template'}    = "$conf_dir/raddb/sites-enabled/packetfence";
@@ -144,8 +186,13 @@ sub generate_radiusd_sitesconf {
     else {
         $tags{'multi_domain'} = '# packetfence-multi-domain not activated because no domains configured';
     }
-
-    if(isenabled($Config{advanced}{ntlm_redis_cache})) {
+    if(isenabled($Config{radius_configuration}{'filter_in_packetfence-tunnel_authorize'})){
+        $tags{'authorize_filter'} = "rest";
+    }
+    else {
+        $tags{'authorize_filter'} = "# filter not activated because explicitly disabled in pf.conf";
+    }
+    if(isenabled($Config{radius_configuration}{ntlm_redis_cache})) {
         my $username_prefix = "NTHASH:%{%{PacketFence-Domain}:-''}";
         $tags{'redis_ntlm_cache_fetch'} = <<EOT
 if(User-Name =~ /^host\\//) {
@@ -165,7 +212,6 @@ EOT
     }
 
     $tags{'userPrincipalName'} = '';
-    my @realms;
     my $flag = $TRUE;
     foreach my $realm ( sort keys %pf::config::ConfigRealm ) {
         if(isenabled($pf::config::ConfigRealm{$realm}->{'permit_custom_attributes'})) {
@@ -317,7 +363,7 @@ EOT
         $tags{'socket_file'} = "$var_dir/run/radiusd-eduroam.sock";
         parse_template( \%tags, $tags{template}, "$install_dir/raddb/eduroam.conf" );
 
-       # Eduroam configuration
+        # Eduroam configuration
         %tags = ();
         $tags{'template'} = "$conf_dir/raddb/sites-available/eduroam";
         $tags{'local_realm'} = '';
@@ -444,12 +490,12 @@ Generates the eap.conf configuration file
 
 sub generate_radiusd_eapconf {
     my ($self, $tt) = @_;
-    my $radius_authentication_methods = $Config{radius_authentication_methods};
+    my $radius_configuration = $Config{radius_configuration};
     my %vars = (
         install_dir => $install_dir,
-        eap_fast_opaque_key => $radius_authentication_methods->{eap_fast_opaque_key},
-        eap_fast_authority_identity => $radius_authentication_methods->{eap_fast_authority_identity},
-        (map { $_ => 1 } (split ( /\s*,\s*/, $radius_authentication_methods->{eap_authentication_types} // ''))),
+        eap_fast_opaque_key => $radius_configuration->{eap_fast_opaque_key},
+        eap_fast_authority_identity => $radius_configuration->{eap_fast_authority_identity},
+        (map { $_ => 1 } (split ( /\s*,\s*/, $radius_configuration->{eap_authentication_types} // ''))),
     );
 
     $tt->process("$conf_dir/radiusd/eap.conf", \%vars, "$install_dir/raddb/mods-enabled/eap") or die $tt->error();
@@ -470,7 +516,6 @@ sub generate_radiusd_sqlconf {
    $tags{'db_database'} = $Config{'database'}{'db'};
    $tags{'db_username'} = $Config{'database'}{'user'};
    $tags{'db_password'} = $Config{'database'}{'pass'};
-   $tags{'hash_passwords'} = $Config{'advanced'}{'hash_passwords'} eq 'ntlm' ? 'NT-Password' : 'Cleartext-Password';
    for my $k (qw(db_username db_password)) {
       $tags{$k} = escape_freeradius_string($tags{$k});
    }
@@ -503,9 +548,9 @@ sub generate_radiusd_ldap {
     $tags{'template'}    = "$conf_dir/radiusd/ldap_packetfence.conf";
     $tags{'install_dir'} = $install_dir;
     foreach my $ldap (keys %ConfigAuthenticationLdap) {
-        my $searchattributes;
+        my $searchattributes = '';
         foreach my $searchattribute (@{$ConfigAuthenticationLdap{$ldap}->{searchattributes}}) {
-            $searchattributes .= '('.$searchattribute.'=%{User-Name})';
+            $searchattributes .= '('.$searchattribute.'=%{User-Name})('.$searchattribute.'=%{Stripped-User-Name})';
         }
 
         $tags{'servers'} .= <<"EOT";
@@ -514,7 +559,7 @@ ldap $ldap {
     server          = "$ConfigAuthenticationLdap{$ldap}->{host}"
     port            = "$ConfigAuthenticationLdap{$ldap}->{port}"
     identity        = "$ConfigAuthenticationLdap{$ldap}->{binddn}"
-    password        = "$ConfigAuthenticationLdap{$ldap}->{password}"
+    password        = $ConfigAuthenticationLdap{$ldap}->{password}
     base_dn         = "$ConfigAuthenticationLdap{$ldap}->{basedn}"
     filter          = "(userPrincipalName=%{User-Name})"
     scope           = $ConfigAuthenticationLdap{$ldap}->{scope}
@@ -523,6 +568,7 @@ ldap $ldap {
     chase_referrals = yes
     update {
         control:AD-Samaccountname := 'sAMAccountName'
+        request:PacketFence-UserNameAttribute := "$ConfigAuthenticationLdap{$ldap}->{usernameattribute}"
     }
     user {
         base_dn = "\${..base_dn}"
@@ -533,16 +579,18 @@ ldap $ldap {
         rebind = yes
     }
 EOT
-        if ($ConfigAuthenticationLdap{$ldap}->{encryption} eq "ldaps") {
+        if ($ConfigAuthenticationLdap{$ldap}->{encryption} eq "ssl") {
             $tags{'servers'} .= <<"EOT";
     tls {
         start_tls = no
+       require_cert    = 'allow'
     }
 EOT
         } elsif ($ConfigAuthenticationLdap{$ldap}->{encryption} eq "starttls") {
             $tags{'servers'} .= <<"EOT";
     tls {
         start_tls = yes
+       require_cert    = 'allow'
     }
 EOT
         }
@@ -568,16 +616,86 @@ sub generate_radiusd_proxy {
     $tags{'template'} = "$conf_dir/radiusd/proxy.conf.inc";
     $tags{'install_dir'} = $install_dir;
     $tags{'config'} = '';
+    $tags{'radius_sources'} = '';
+    my @radius_sources;
 
     foreach my $realm ( sort keys %pf::config::ConfigRealm ) {
         my $options = $pf::config::ConfigRealm{$realm}->{'options'} || '';
         $tags{'config'} .= <<"EOT";
 realm $realm {
 $options
+EOT
+        if ($pf::config::ConfigRealm{$realm}->{'radius_auth'} ) {
+            $tags{'config'} .= <<"EOT";
+auth_pool = auth_pool_$realm
+EOT
+        }
+        if ($pf::config::ConfigRealm{$realm}->{'radius_acct'}) {
+            $tags{'config'} .= <<"EOT";
+acct_pool = acct_pool_$realm
+EOT
+        }
+        if($pf::config::ConfigRealm{$realm}->{'radius_auth'} || $pf::config::ConfigRealm{$realm}->{'radius_acct'}) {
+            $tags{'config'} .= <<"EOT";
 }
 EOT
-    }
+        }
+        if ($pf::config::ConfigRealm{$realm}->{'radius_auth'} ) {
+            $tags{'config'} .= <<"EOT";
+home_server_pool auth_pool_$realm {
+type = $pf::config::ConfigRealm{$realm}->{'radius_auth_proxy_type'}
+EOT
+            push(@radius_sources, split(',',$pf::config::ConfigRealm{$realm}->{'radius_auth'}));
+            foreach my $radius (split(',',$pf::config::ConfigRealm{$realm}->{'radius_auth'})) {
 
+                $tags{'config'} .= <<"EOT";
+home_server = $radius
+EOT
+            }
+            $tags{'config'} .= <<"EOT";
+}
+EOT
+        }
+        if ($pf::config::ConfigRealm{$realm}->{'radius_acct'}) {
+            $tags{'config'} .= <<"EOT";
+
+home_server_pool acct_pool_$realm {
+type = $pf::config::ConfigRealm{$realm}->{'radius_acct_proxy_type'}
+EOT
+            push(@radius_sources,split(',',$pf::config::ConfigRealm{$realm}->{'radius_acct'}));
+            foreach my $radius (split(',',$pf::config::ConfigRealm{$realm}->{'radius_acct'})) {
+
+                $tags{'config'} .= <<"EOT";
+home_server = $radius
+EOT
+            }
+            $tags{'config'} .= <<"EOT";
+}
+EOT
+        }
+         if(!$pf::config::ConfigRealm{$realm}->{'radius_auth'} && !$pf::config::ConfigRealm{$realm}->{'radius_acct'}) {
+            $tags{'config'} .= <<"EOT";
+}
+EOT
+        }
+    }
+    foreach my $radius (uniq @radius_sources) {
+        my $source = pf::authentication::getAuthenticationSource($radius);
+        my @addresses = gethostbyname($source->{'host'});
+        my @ips = map { inet_ntoa($_) } @addresses[4 .. $#addresses];
+        my $src_ip = pf::util::find_outgoing_srcip($ips[0]);
+        $source->{'options'} =~ s/\$src_ip/$src_ip/;
+        $tags{'radius_sources'} .= <<"EOT";
+
+home_server $radius {
+ipaddr = $source->{'host'}
+port = $source->{'port'}
+secret = $source->{'secret'}
+$source->{'options'}
+}
+
+EOT
+    }
     # Eduroam configuration
     if ( @{pf::authentication::getAuthenticationSourcesByType('Eduroam')} ) {
         my @eduroam_authentication_source = @{pf::authentication::getAuthenticationSourcesByType('Eduroam')};

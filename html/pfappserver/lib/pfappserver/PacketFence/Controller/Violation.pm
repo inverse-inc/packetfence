@@ -27,6 +27,7 @@ use pf::constants::trigger qw($TRIGGER_MAP);
 use pfappserver::Form::Violation;
 use pf::factory::condition::violation;
 use Switch;
+use pf::fingerbank;
 use fingerbank::Model::Device;
 use fingerbank::Model::DHCP_Fingerprint;
 use fingerbank::Model::DHCP_Vendor;
@@ -230,6 +231,14 @@ after [qw(create clone)] => sub {
     if (!(is_success($c->response->status) && $c->request->method eq 'POST' )) {
         $c->stash->{template} = 'violation/view.tt';
     }
+    if ($c->request->method eq 'POST' ) {
+        pf::fingerbank::clear_cache();
+    }
+};
+
+after [qw(update)] => sub {
+    my ($self, $c) = @_;
+    pf::fingerbank::clear_cache();
 };
 
 =head2 after list

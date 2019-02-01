@@ -1,8 +1,8 @@
 <template>
-  <b-form-row class="pf-field-condition mx-0 mb-1 px-0" align-v="center"
+  <b-form-row class="pf-field-attribute-operator-value mx-0 mb-1 px-0" align-v="center"
     v-on="forwardListeners"
   >
-    <b-col v-if="$slots.prepend" cols="1" align-self="start" class="pt-1 text-center col-form-label">
+    <b-col v-if="$slots.prepend" cols="1" align-self="start" class="text-center col-form-label">
       <slot name="prepend"></slot>
     </b-col>
     <b-col cols="3" align-self="start">
@@ -79,7 +79,7 @@
       ></pf-form-chosen>
 
     </b-col>
-    <b-col v-if="$slots.append" cols="1" align-self="start" class="pt-1 text-center col-form-label">
+    <b-col v-if="$slots.append" cols="1" align-self="start" class="text-center col-form-label">
       <slot name="append"></slot>
     </b-col>
   </b-form-row>
@@ -99,7 +99,7 @@ import {
 import { required } from 'vuelidate/lib/validators'
 
 export default {
-  name: 'pf-field-condition',
+  name: 'pf-field-attribute-operator-value',
   components: {
     pfFormChosen,
     pfFormDatetime,
@@ -324,11 +324,11 @@ export default {
 </script>
 
 <style lang="scss">
-.pf-field-condition {
+.pf-field-attribute-operator-value {
   .pf-form-chosen {
     .col-sm-12[role="group"] {
-      padding-left: 0px;
       padding-right: 0px;
+      padding-left: 0px;
     }
   }
 }

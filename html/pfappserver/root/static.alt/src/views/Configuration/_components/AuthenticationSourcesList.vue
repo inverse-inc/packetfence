@@ -2,7 +2,6 @@
   <b-card no-body>
     <pf-config-list
       :config="config"
-      :isLoading="isLoading"
     >
       <template slot="pageHeader">
         <b-card-header>
@@ -12,7 +11,7 @@
         </b-card-header>
       </template>
       <template slot="buttonAdd">
-        <b-dropdown id="source-add-container" :text="$t('Add Source')" variant="outline-primary" class="my-2">
+        <b-dropdown :text="$t('Add Source')" variant="outline-primary" class="my-2">
           <b-dropdown-header class="text-secondary">{{ $t('Internal') }}</b-dropdown-header>
             <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'AD' } }">Active Directory</b-dropdown-item>
             <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'EAPTLS' } }">EAPTLS</b-dropdown-item>
@@ -53,8 +52,8 @@
             <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'Stripe' } }">Stripe</b-dropdown-item>
         </b-dropdown>
       </template>
-      <template slot="emptySearch">
-        <pf-empty-table :isLoading="isLoading">{{ $t('No sources found') }}</pf-empty-table>
+      <template slot="emptySearch" slot-scope="state">
+        <pf-empty-table :isLoading="state.isLoading">{{ $t('No sources found') }}</pf-empty-table>
       </template>
       <template slot="buttons" slot-scope="item">
         <span class="float-right text-nowrap">
@@ -71,9 +70,8 @@ import pfButtonDelete from '@/components/pfButtonDelete'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import {
-  pfConfigurationAuthenticationSourcesListColumns as columns,
-  pfConfigurationAuthenticationSourcesListFields as fields
-} from '@/globals/pfConfigurationAuthenticationSources'
+  pfConfigurationAuthenticationSourceListConfig as config
+} from '@/globals/configuration/pfConfigurationAuthenticationSources'
 
 export default {
   name: 'AuthenticationSourcesList',
@@ -84,46 +82,7 @@ export default {
   },
   data () {
     return {
-      config: {
-        columns: columns,
-        fields: fields,
-        rowClickRoute (item, index) {
-          return { name: 'source', params: { id: item.id } }
-        },
-        searchPlaceholder: this.$i18n.t('Search by name or description'),
-        searchableOptions: {
-          searchApiEndpoint: 'config/sources',
-          defaultSortKeys: ['id'],
-          defaultSearchCondition: {
-            op: 'and',
-            values: [{
-              op: 'or',
-              values: [
-                { field: 'id', op: 'contains', value: null },
-                { field: 'description', op: 'contains', value: null },
-                { field: 'class', op: 'contains', value: null },
-                { field: 'type', op: 'contains', value: null }
-              ]
-            }]
-          },
-          defaultRoute: { name: 'configuration/sources' },
-          resultsFilter: (results) => results.filter(item => item.id !== 'local') // ignore 'local' source
-        },
-        searchableQuickCondition: (quickCondition) => {
-          return {
-            op: 'and',
-            values: [{
-              op: 'or',
-              values: [
-                { field: 'id', op: 'contains', value: quickCondition },
-                { field: 'description', op: 'contains', value: quickCondition },
-                { field: 'class', op: 'contains', value: quickCondition },
-                { field: 'type', op: 'contains', value: quickCondition }
-              ]
-            }]
-          }
-        }
-      }
+      config: config(this)
     }
   },
   methods: {
@@ -138,11 +97,3 @@ export default {
   }
 }
 </script>
-
-<style lang="scss">
-#source-add-container div[role="menu"] {
-  overflow-x: hidden;
-  overflow-y: scroll;
-  max-height: 50vh;
-}
-</style>

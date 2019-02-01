@@ -59,7 +59,7 @@ sub cleanupBeforeCommit {
 =cut
 
 sub _fields_expanded {
-    return qw(categories);
+    return qw(categories radius_acct radius_auth);
 }
 
 

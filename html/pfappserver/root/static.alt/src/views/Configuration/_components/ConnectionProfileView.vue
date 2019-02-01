@@ -1,11 +1,12 @@
 <template>
   <pf-config-view
-    :isLoading="isLoading"
+    :is-loading="isLoading"
     :form="getForm"
     :model="connectionProfile"
     :vuelidate="$v.connectionProfile"
     :isNew="isNew"
     :isClone="isClone"
+    :initialTabIndex="tabIndex"
     @validations="connectionProfileValidations = $event"
     @close="close"
     @create="create"
@@ -45,7 +46,7 @@ import pfMixinEscapeKey from '@/components/pfMixinEscapeKey'
 import {
   pfConfigurationConnectionProfileViewFields as fields,
   pfConfigurationConnectionProfileViewDefaults as defaults
-} from '@/globals/pfConfigurationConnectionProfiles'
+} from '@/globals/configuration/pfConfigurationConnectionProfiles'
 const { validationMixin } = require('vuelidate')
 
 export default {
@@ -77,6 +78,10 @@ export default {
     id: { // from router
       type: String,
       default: null
+    },
+    tabIndex: { // from router
+      type: Number,
+      default: 0
     }
   },
   data () {
@@ -86,7 +91,9 @@ export default {
       sources: [],
       billingTiers: [],
       provisionings: [],
-      scans: []
+      scans: [],
+      general: {},
+      files: []
     }
   },
   validations () {
@@ -115,6 +122,17 @@ export default {
         return false
       }
       return true
+    },
+    keyLabelMap () {
+      let keyLabelMap = {}
+      this.getForm.fields.forEach(tab => {
+        tab.fields.forEach(row => {
+          row.fields.forEach(col => {
+            if ('key' in col) keyLabelMap[col.key] = row.label
+          })
+        })
+      })
+      return keyLabelMap
     }
   },
   methods: {
@@ -129,7 +147,7 @@ export default {
         } else {
           this.$router.push({ name: 'connection_profile', params: { id: this.connectionProfile.id } })
         }
-      })
+      }).catch(this.notifyError)
     },
     save () {
       const ctrlKey = this.ctrlKey
@@ -137,18 +155,38 @@ export default {
         if (ctrlKey) { // [CTRL] key pressed
           this.close()
         }
-      })
+      }).catch(this.notifyError)
     },
     remove () {
       this.$store.dispatch(`${this.storeName}/deleteConnectionProfile`, this.id).then(response => {
         this.close()
+      }).catch(this.notifyError)
+    },
+    notifyError (err) {
+      const { response: { data: { errors = [] } } } = err
+      errors.forEach((error) => {
+        if (error.field in this.keyLabelMap) {
+          error.field = this.$i18n.t(this.keyLabelMap[error.field])
+        }
+        let message = this.$i18n.t('Server Error - "{field}": {message}', error)
+        this.$store.dispatch('notification/danger', { icon: 'server', url: `#${this.$route.fullPath}`, message: message })
       })
     }
   },
   created () {
     if (this.id) {
       this.$store.dispatch(`${this.storeName}/getConnectionProfile`, this.id).then(data => {
-        this.connectionProfile = Object.assign({}, data)
+        this.connectionProfile = Object.assign(this.connectionProfile, data)
+      })
+      this.$store.dispatch(`${this.storeName}/files`, this.id).then(data => {
+        const _walk = (item, path) => {
+          Object.assign(item, { path })
+          if ('entries' in item) {
+            item.entries.forEach(entry => _walk(entry, path ? [path, item.name].join('/') : item.name))
+          }
+        }
+        data.entries.forEach(item => _walk(item, ''))
+        this.files = data.entries
       })
     }
     this.$store.dispatch('config/getRoles')
@@ -161,8 +199,11 @@ export default {
     this.$store.dispatch('$_provisionings/all').then(data => {
       this.provisionings = data
     })
-    this.$store.dispatch('$_scans/all').then(data => {
+    this.$store.dispatch('$_scans/allScanEngines').then(data => {
       this.scans = data
+    })
+    this.$store.dispatch('$_bases/getBase', 'general').then(data => {
+      this.general = data
     })
   }
 }

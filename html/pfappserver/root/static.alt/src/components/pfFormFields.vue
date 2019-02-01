@@ -138,7 +138,7 @@ export default {
   computed: {
     inputValue: {
       get () {
-        if (this.uuids.length < this.value.length) { // only on initial load
+        if (this.value && this.uuids.length < this.value.length) { // only on initial load
           this.value.forEach((_, index) => {
             this.uuids[index] = uuidv4()
           })

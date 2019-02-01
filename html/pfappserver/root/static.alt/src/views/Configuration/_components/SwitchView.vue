@@ -49,7 +49,7 @@ import {
   pfConfigurationSwitchViewFields as fields,
   pfConfigurationSwitchViewDefaults as defaults,
   pfConfigurationSwitchViewPlaceholders as placeholders
-} from '@/globals/pfConfigurationSwitches'
+} from '@/globals/configuration/pfConfigurationSwitches'
 const { validationMixin } = require('vuelidate')
 
 export default {

@@ -8,7 +8,7 @@
     v-if="visible" v-bind="$attrs" :to="item.path"
     :key="item.name" :exact="isQuery" :exact-active-class="isQuery ? 'secondary' : null">
     <div class="pf-sidebar-item" :class="{ 'ml-3': indent }">
-      <div>
+      <div class="text-truncate">
         <text-highlight :queries="[filter]">{{ $t(item.name) }}</text-highlight>
         <text-highlight class="figure-caption text-nowrap" v-if="item.caption" :queries="[filter]">{{ $t(item.caption) }}</text-highlight>
       </div>

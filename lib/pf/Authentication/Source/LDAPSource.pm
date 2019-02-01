@@ -494,7 +494,7 @@ sub ldap_filter_for_conditions {
   my (@ldap_conditions, $expression);
 
   if ($params->{'username'}) {
-      $expression = '(' . $usernameattribute . '=' . $params->{'username'} . ')';
+      $expression = $self->_makefilter($params->{'username'});
   } elsif ($params->{'email'}) {
       $expression = '(|(' . $self->{'email_attribute'} . '=' . $params->{'email'} . ')(proxyAddresses=smtp:' . $params->{'email'} . ')(mailLocalAddress=' . $params->{'email'} . ')(mailAlternateAddress=' . $params->{'email'} . '))';
   }
@@ -613,11 +613,14 @@ Create the filter to search for the dn
 =cut
 
 sub _makefilter {
-  my ($self,$username) = @_;
-  my $search = join ("", map { "($_=$username)" } @{$self->{'searchattributes'}});
-  return "(|$search)";
+    my ($self,$username) = @_;
+    if (@{$self->{'searchattributes'}}) {
+        my $search = join ("", map { "($_=$username)" } @{$self->{'searchattributes'}});
+        return "(|$search)";
+    } else {
+        return '(' . "$self->{'usernameattribute'}=$username" . ')';
+    }
 }
-
 
 =head1 AUTHOR
 

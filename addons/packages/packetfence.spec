@@ -91,7 +91,7 @@ Requires: httpd, mod_ssl
 Requires: mod_perl, mod_proxy_html
 requires: libapreq2
 Requires: redis
-Requires: freeradius >= 3.0.15-4, freeradius-mysql, freeradius-perl, freeradius-ldap, freeradius-utils, freeradius-redis, freeradius-rest, freeradius-radsniff >= 3.0.15-4
+Requires: freeradius >= 3.0.18, freeradius-mysql, freeradius-perl, freeradius-ldap, freeradius-utils, freeradius-redis, freeradius-rest, freeradius-radsniff >= 3.0.18
 Requires: make
 Requires: net-tools
 Requires: sscep
@@ -303,6 +303,9 @@ Requires: perl(DateTime::TimeZone)
 Requires: samba-winbind-clients, samba-winbind
 Requires: libdrm >= 2.4.74
 Requires: netdata, fping, MySQL-python
+#OpenVAS
+Requires: openvas-cli
+Requires: openvas-libraries
 
 # pki
 Requires: perl(Crypt::SMIME)
@@ -899,6 +902,7 @@ fi
                         /usr/local/pf/conf/allowed_device_oui.txt.example
 %config(noreplace)      /usr/local/pf/conf/apache_filters.conf
                         /usr/local/pf/conf/apache_filters.conf.example
+%config                 /usr/local/pf/conf/apache_filters.conf.defaults
 %config(noreplace)      /usr/local/pf/conf/authentication.conf
 %config                 /usr/local/pf/conf/caddy-services/*.conf
                         /usr/local/pf/conf/caddy-services/*.conf.example
@@ -1019,6 +1023,8 @@ fi
                         /usr/local/pf/conf/radiusd/acct.conf.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/auth.conf
                         /usr/local/pf/conf/radiusd/auth.conf.example
+%config(noreplace)      /usr/local/pf/conf/radiusd/ldap_packetfence.conf
+                        /usr/local/pf/conf/radiusd/ldap_packetfence.conf.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/load_balancer.conf
                         /usr/local/pf/conf/radiusd/load_balancer.conf.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/rest.conf
@@ -1366,6 +1372,9 @@ fi
 %exclude                /usr/local/pf/addons/pfconfig/pfconfig.init
 
 %changelog
+* Wed Jan 09 2019 Inverse <info@inverse.ca> - 8.3.0-1
+- New release 8.3.0
+
 * Wed Nov 07 2018 Inverse <info@inverse.ca> - 8.2.0-1
 - New release 8.2.0
 

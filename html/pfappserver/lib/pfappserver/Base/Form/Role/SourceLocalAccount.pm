@@ -14,6 +14,7 @@ pfappserver::Base::Form::Role::SourceLocalAccount
 
 use strict;
 use warnings;
+use pf::config qw(%Config);
 use namespace::autoclean;
 use HTML::FormHandler::Moose::Role;
 with 'pfappserver::Base::Form::Role::Help';
@@ -40,8 +41,37 @@ has_field 'local_account_logins' => (
     },
 );
 
+has_field 'hash_passwords' => (
+    type => 'Select',
+    label => 'Database passwords hashing method',
+    options =>
+    [
+     { value => 'plaintext', label => 'Plaintext' },
+     { value => 'ntlm', label => 'NTLM' },
+     { value => 'bcrypt', label => 'Bcrypt' },
+    ],
+    required => 1,
+    element_class => ['input-small'],
+    default_method => sub { $Config{advanced}{hash_passwords} },
+    tags => {
+        after_element => \&help_list,
+        help => 'The algorithm used to hash the passwords in the database.This will only affect newly created or reset passwords.'
+    },
+);
+
+has_field 'password_length' => (
+   type => 'IntRange',
+   label => 'Password length',
+   required => 1,
+   default => 8,
+   range_start => 4,
+   range_end => 15,
+   tags => { after_element => \&help,
+             help => 'The length of the password to generate.' },
+);
+
 has_block 'local_account' => (
-    render_list => [qw(create_local_account local_account_logins)],
+    render_list => [qw(create_local_account hash_passwords password_length local_account_logins)],
 );
 
 =head2 default_from_attribute
@@ -84,4 +114,3 @@ USA.
 =cut
 
 1;
-

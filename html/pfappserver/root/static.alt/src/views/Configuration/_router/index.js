@@ -1,11 +1,13 @@
 import store from '@/store'
 import ConfigurationView from '../'
 import AuthenticationSourcesStore from '../_store/sources'
+import BasesStore from '../_store/bases'
 import BillingTiersStore from '../_store/billingTiers'
 import ConnectionProfilesStore from '../_store/connectionProfiles'
 import DomainsStore from '../_store/domains'
 import FloatingDevicesStore from '../_store/floatingDevices'
 import PortalModulesStore from '../_store/portalModules'
+import ProfilingStore from '../_store/profiling'
 import ProvisioningsStore from '../_store/provisionings'
 import RealmsStore from '../_store/realms'
 import RolesStore from '../_store/roles'
@@ -13,6 +15,7 @@ import ScansStore from '../_store/scans'
 import SwitchesStore from '../_store/switches'
 import SwitchGroupsStore from '../_store/switchGroups'
 
+/* Policies Access Control */
 const PoliciesAccessControlSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/PoliciesAccessControlSection')
 const RolesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/RolesList')
 const RoleView = () => import(/* webpackChunkName: "Configuration" */ '../_components/RoleView')
@@ -26,15 +29,25 @@ const SwitchView = () => import(/* webpackChunkName: "Configuration" */ '../_com
 const SwitchGroupView = () => import(/* webpackChunkName: "Configuration" */ '../_components/SwitchGroupView')
 const ConnectionProfilesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/ConnectionProfilesList')
 const ConnectionProfileView = () => import(/* webpackChunkName: "Configuration" */ '../_components/ConnectionProfileView')
+const ConnectionProfileFileView = () => import(/* webpackChunkName: "Configuration" */ '../_components/ConnectionProfileFileView')
 
+/* Compliance */
+const ComplianceSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/ComplianceSection')
+const ProfilingTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/ProfilingTabs')
+const ProfilingCombinationView = () => import(/* webpackChunkName: "Configuration" */ '../_components/ProfilingCombinationView')
+const ScansTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/ScansTabs')
+const ScansScanEngineView = () => import(/* webpackChunkName: "Configuration" */ '../_components/ScansScanEngineView')
+
+/* Network Configuration */
 const NetworkConfigurationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/NetworkConfigurationSection')
 const FloatingDevicesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/FloatingDevicesList')
 const FloatingDeviceView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FloatingDeviceView')
-const PortalModulesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/PortalModulesList')
-const PortalModuleView = () => import(/* webpackChunkName: "Configuration" */ '../_components/PortalModuleView')
 
+/* Advanced Access Configuration */
 const BillingTiersList = () => import(/* webpackChunkName: "Configuration" */ '../_components/BillingTiersList')
 const BillingTierView = () => import(/* webpackChunkName: "Configuration" */ '../_components/BillingTierView')
+const PortalModulesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/PortalModulesList')
+const PortalModuleView = () => import(/* webpackChunkName: "Configuration" */ '../_components/PortalModuleView')
 
 const route = {
   path: '/configuration',
@@ -46,6 +59,11 @@ const route = {
     /**
      * Register Vuex stores
      */
+    if (!store.state.$_bases) {
+      store.registerModule('$_bases', BasesStore)
+      // preload config/bases (all sections)
+      store.dispatch('$_bases/all')
+    }
     if (!store.state.$_billing_tiers) {
       store.registerModule('$_billing_tiers', BillingTiersStore)
     }
@@ -60,6 +78,9 @@ const route = {
     }
     if (!store.state.$_portalmodules) {
       store.registerModule('$_portalmodules', PortalModulesStore)
+    }
+    if (!store.state.$_profiling) {
+      store.registerModule('$_profiling', ProfilingStore)
     }
     if (!store.state.$_provisionings) {
       store.registerModule('$_provisionings', ProvisioningsStore)
@@ -194,9 +215,6 @@ const route = {
         })
       }
     },
-    /**
-     * Authentication Sources
-     */
     {
       path: 'sources',
       name: 'sources',
@@ -231,9 +249,6 @@ const route = {
         })
       }
     },
-    /**
-     * Switches
-     */
     {
       path: 'switches',
       name: 'switches',
@@ -268,9 +283,6 @@ const route = {
         })
       }
     },
-    /**
-     * Switch Groups
-     */
     {
       path: 'switch_groups',
       name: 'switch_groups',
@@ -305,9 +317,6 @@ const route = {
         })
       }
     },
-    /**
-     * Connection Profiles
-     */
     {
       path: 'connection_profiles',
       name: 'connection_profiles',
@@ -341,6 +350,166 @@ const route = {
           next()
         })
       }
+    },
+    {
+      path: 'connection_profile/:id/files',
+      name: 'connectionProfileFiles',
+      component: ConnectionProfileView,
+      props: (route) => ({ storeName: '$_connection_profiles', id: route.params.id, tabIndex: 2 }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_connection_profiles/getConnectionProfile', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'connection_profile/:id/files/:filename',
+      name: 'connectionProfileFile',
+      component: ConnectionProfileFileView,
+      props: (route) => ({ storeName: '$_connection_profiles', id: route.params.id, filename: route.params.filename })
+    },
+    /**
+     * Compliance
+     */
+    {
+      path: 'compliance',
+      component: ComplianceSection
+    },
+    {
+      path: 'profiling',
+      redirect: 'profiling/general_settings'
+    },
+    {
+      path: 'profiling/general_settings',
+      name: 'profilingGeneralSettings',
+      component: ProfilingTabs,
+      props: (route) => ({ tab: 'general_settings', query: route.query.query })
+    },
+    {
+      path: 'profiling/device_change_detection',
+      name: 'profilingDeviceChangeDetection',
+      component: ProfilingTabs,
+      props: (route) => ({ tab: 'device_change_detection', query: route.query.query })
+    },
+    {
+      path: 'profiling/combinations',
+      name: 'profilingCombinations',
+      component: ProfilingTabs,
+      props: (route) => ({ tab: 'combinations', query: route.query.query })
+    },
+    {
+      path: 'profiling/combinations/new',
+      name: 'newCombination',
+      component: ProfilingCombinationView,
+      props: (route) => ({ storeName: '$_TODO', isNew: true })
+    },
+    {
+      path: 'profiling/combination/:id',
+      name: 'combination',
+      component: ProfilingCombinationView,
+      props: (route) => ({ storeName: '$_TODO', id: route.params.id }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_TODO/getTODO', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'profiling/combination/:id/clone',
+      name: 'cloneCombination',
+      component: ProfilingCombinationView,
+      props: (route) => ({ storeName: '$_TODO', id: route.params.id, isClone: true }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_TODO/getTODO', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'profiling/devices',
+      name: 'profilingDevices',
+      component: ProfilingTabs,
+      props: (route) => ({ tab: 'devices', query: route.query.query })
+    },
+    {
+      path: 'profiling/dhcp_fingerprints',
+      name: 'profilingDhcpFingerprints',
+      component: ProfilingTabs,
+      props: (route) => ({ tab: 'dhcp_fingerprints', query: route.query.query })
+    },
+    {
+      path: 'profiling/dhcp_vendors',
+      name: 'profilingDhcpVendors',
+      component: ProfilingTabs,
+      props: (route) => ({ tab: 'dhcp_vendors', query: route.query.query })
+    },
+    {
+      path: 'profiling/dhcpv6_fingerprints',
+      name: 'profilingDhcpv6Fingerprints',
+      component: ProfilingTabs,
+      props: (route) => ({ tab: 'dhcpv6_fingerprints', query: route.query.query })
+    },
+    {
+      path: 'profiling/dhcpv6_enterprises',
+      name: 'profilingDhcpv6Enterprises',
+      component: ProfilingTabs,
+      props: (route) => ({ tab: 'dhcpv6_enterprises', query: route.query.query })
+    },
+    {
+      path: 'profiling/mac_vendors',
+      name: 'profilingMacVendors',
+      component: ProfilingTabs,
+      props: (route) => ({ tab: 'mac_vendors', query: route.query.query })
+    },
+    {
+      path: 'profiling/user_agents',
+      name: 'profilingUserAgents',
+      component: ProfilingTabs,
+      props: (route) => ({ tab: 'user_agents', query: route.query.query })
+    },
+    {
+      path: 'scans',
+      redirect: 'scans/scan_engines'
+    },
+    {
+      path: 'scans/scan_engines',
+      name: 'scanEngines',
+      component: ScansTabs,
+      props: (route) => ({ tab: 'scan_engines', query: route.query.query })
+    },
+    {
+      path: 'scans/scan_engines/new/:scanType',
+      name: 'newScanEngine',
+      component: ScansScanEngineView,
+      props: (route) => ({ storeName: '$_scans', isNew: true, scanType: route.params.scanType })
+    },
+    {
+      path: 'scans/scan_engine/:id',
+      name: 'scanEngine',
+      component: ScansScanEngineView,
+      props: (route) => ({ storeName: '$_scans', id: route.params.id }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_scans/getScanEngine', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'scans/scan_engine/:id/clone',
+      name: 'cloneScanEngine',
+      component: ScansScanEngineView,
+      props: (route) => ({ storeName: '$_scans', id: route.params.id, isClone: true }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_scans/getScanEngine', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'scans/wmi_rules',
+      name: 'wmiRules',
+      component: ScansTabs,
+      props: (route) => ({ tab: 'wmi_rules', query: route.query.query })
     },
     /**
      * Network Configuration

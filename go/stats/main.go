@@ -25,6 +25,9 @@ import (
 	. "layeh.com/radius/rfc2865"
 )
 
+var VIP map[string]bool
+var VIPIp map[string]net.IP
+
 type TypeName struct {
 	Typename map[*regexp.Regexp]Types
 }
@@ -239,12 +242,14 @@ func forward(c net.Conn) {
 
 var StatsdClient *statsd.Client
 
-var ctx context.Context
+var ctx = context.Background()
 
 func main() {
-	ctx := context.Background()
 	log.SetProcessName("pfstats")
 	ctx = log.LoggerNewContext(ctx)
+
+	VIP = make(map[string]bool)
+	VIPIp = make(map[string]net.IP)
 
 	go func() {
 		var err error
@@ -341,6 +346,15 @@ func main() {
 		}
 	}()
 
+	var Management pfconfigdriver.ManagementNetwork
+	pfconfigdriver.FetchDecodeSocket(ctx, &Management)
+
+	go func() {
+		for {
+			detectVIP(Management)
+			time.Sleep(3 * time.Second)
+		}
+	}()
 	var keyConfStats pfconfigdriver.PfconfigKeys
 	keyConfStats.PfconfigNS = "config::Stats"
 	keyConfStats.PfconfigHostnameOverlay = "yes"
@@ -358,9 +372,11 @@ func main() {
 		pfconfigdriver.FetchDecodeSocket(ctx, &ConfStat)
 
 		if RegExpMetric.MatchString(key) {
-			err = ProcessMetricConfig(ctx, ConfStat)
-			if err != nil {
-				log.LoggerWContext(ctx).Error("Error while processing metric config: " + err.Error())
+			if (VIP[Management.Int] && ConfStat.Management == "true") || (ConfStat.Management == "false" || ConfStat.Management == "") {
+				err = ProcessMetricConfig(ctx, ConfStat)
+				if err != nil {
+					log.LoggerWContext(ctx).Error("Error while processing metric config: " + err.Error())
+				}
 			}
 		}
 	}
@@ -1763,4 +1779,36 @@ var Verb = TypeName{
 			},
 		},
 	},
+}
+
+// Detect the vip on management
+func detectVIP(management pfconfigdriver.ManagementNetwork) {
+	if pfconfigdriver.GetClusterSummary(ctx).ClusterEnabled == 1 {
+		var keyConfCluster pfconfigdriver.NetInterface
+		keyConfCluster.PfconfigNS = "config::Pf(CLUSTER," + pfconfigdriver.FindClusterName(ctx) + ")"
+
+		keyConfCluster.PfconfigHashNS = "interface " + management.Int
+		pfconfigdriver.FetchDecodeSocket(ctx, &keyConfCluster)
+		// Nothing in keyConfCluster.Ip so we are not in cluster mode
+		if keyConfCluster.Ip == "" {
+			VIP[management.Int] = true
+			return
+		}
+
+		eth, _ := net.InterfaceByName(management.Int)
+		adresses, _ := eth.Addrs()
+
+		for _, adresse := range adresses {
+			IP, _, _ := net.ParseCIDR(adresse.String())
+			VIPIp[management.Int] = net.ParseIP(keyConfCluster.Ip)
+			if IP.Equal(VIPIp[management.Int]) {
+				VIP[management.Int] = true
+				return
+			}
+		}
+		VIP[management.Int] = false
+		return
+	} else {
+		VIP[management.Int] = true
+	}
 }

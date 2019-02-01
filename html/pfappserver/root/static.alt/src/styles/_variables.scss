@@ -1,4 +1,6 @@
-$body-bg:                             #eeeeee;
+$gray-500:                            #939da3;
+$gray-700:                            #4c555a;
+$body-bg:                             #f5f7f9;
 $font-size-base:                      0.9rem; // Assumes the browser default, typically `16px`
 $card-cap-bg:                         #ffffff; // Card -- header background color
 $headings-font-weight:                200;
@@ -24,6 +26,6 @@ $portal-module-connector-margin:      1.5rem;
 $portal-module-connector-width:       2px;
 $portal-module-width:                 12rem;
 $portal-module-height:                3rem;
-$portal-module-border-color:          #ffb1bb;
-$portal-module-border-width:          3px;
-$portal-module-hover-bg:              lighten($portal-module-border-color, 7%);
+$portal-module-border-color:          #c4c4c4;
+$portal-module-border-width:          2px;
+$portal-module-hover-bg:              lighten($portal-module-border-color, 12%);

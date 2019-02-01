@@ -22,7 +22,6 @@ our %ALLOWED_SECTIONS = (
     fencing           => undef,
     general           => undef,
     inline            => undef,
-    metadefender      => undef,
     mse_tab           => undef,
     network           => undef,
     node_import       => undef,
@@ -35,6 +34,7 @@ our %ALLOWED_SECTIONS = (
     guests_admin_registration     => undef,
     radius_authentication_methods => undef,
     fingerbank_device_change      => undef,
+    radius_configuration => undef,
 );
 
 =head1 AUTHOR

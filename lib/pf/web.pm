@@ -106,8 +106,8 @@ sub i18n_format {
     my ($msgid, @args) = @_;
 
     my $result = gettext($msgid);
-    utf8::decode($result);
     $result = sprintf($result, @args);
+    utf8::decode($result);
     return $result;
 }
 

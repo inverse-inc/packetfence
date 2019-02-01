@@ -140,6 +140,7 @@ PerlLoadModule pf::web::apache2_version
 PerlLoadModule pf::web::dispatcher
 PerlLoadModule pf::WebAPI::InitHandler
 PerlLoadModule pf::web::billinghook
+PerlLoadModule pf::web::openvashook
 PerlPostConfigHandler pf::WebAPI::InitHandler->post_config
 
 # The TransHandler handles the 'captive-portal' core piece redirecting to the
@@ -257,6 +258,10 @@ NameVirtualHost [% vhost %]:80
         Allow from all
         [% END %]
         SetHandler default-handler
+     </Location>
+     <Location /hook/openvas >
+        SetHandler modperl
+        PerlResponseHandler pf::web::openvashook
      </Location>
      <Location /hook/billing >
         SetHandler modperl

@@ -456,7 +456,9 @@ sub check_device_class_change {
         $apiclient->notify('trigger_violation', %violation_data);
     }
     else {
-        $logger->debug("Endpoint has made a valid device class transition from $node_before->{device_class} to $node_after->{device_class}");
+        my $before = $node_before->{device_class} // "Unknown";
+        my $after = $node_after->{device_class} // "Unknown";
+        $logger->debug("Endpoint has made a valid device class transition from $before to $after");
     }
 }
 

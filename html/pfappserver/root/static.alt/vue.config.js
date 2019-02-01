@@ -1,5 +1,5 @@
 module.exports = {
-  baseUrl: '/static/alt',
+  publicPath: '/static/alt',
   outputDir: 'dist',
   indexPath: '../../admin/v-index.tt',
   css: {

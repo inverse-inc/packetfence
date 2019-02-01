@@ -39,7 +39,34 @@ export default {
                 { name: 'Switch Groups', path: '/configuration/switch_groups' }
               ]
             },
-            { name: 'Connection Profiles', path: '/configuration/connection_profiles' },
+            { name: 'Connection Profiles', path: '/configuration/connection_profiles' }
+          ]
+        },
+        {
+          name: 'Compliance',
+          icon: 'shield-alt',
+          collapsable: true,
+          items: [
+            { name: 'Fingerbank Profiling',
+              items: [
+                { name: 'General Settings', path: '/configuration/profiling/general_settings' },
+                { name: 'Device change detection', path: '/configuration/profiling/device_change_detection' },
+                { name: 'Combinations', path: '/configuration/profiling/combinations' },
+                { name: 'Devices', path: '/configuration/profiling/devices' },
+                { name: 'DHCP Fingerprints', path: '/configuration/profiling/dhcp_fingerprints' },
+                { name: 'DHCP Vendors', path: '/configuration/profiling/dhcp_vendors' },
+                { name: 'DHCPv6 Fingerprints', path: '/configuration/profiling/dhcpv6_fingerprints' },
+                { name: 'DHCPv6 Enterprises', path: '/configuration/profiling/dhcpv6_enterprises' },
+                { name: 'MAC Vendors', path: '/configuration/profiling/mac_vendors' },
+                { name: 'User Agents', path: '/configuration/profiling/user_agents' }
+              ]
+            },
+            { name: 'Scans',
+              items: [
+                { name: 'Scan Engines', path: '/configuration/scans/scan_engines' },
+                { name: 'WMI Rules', path: '/configuration/scans/wmi_rules' }
+              ]
+            }
           ]
         },
         {

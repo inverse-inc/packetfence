@@ -162,7 +162,7 @@ sub do_sponsor_registration {
         return;
     }
 
-    if ((any { $_ eq 'email' } @{$self->required_fields // []}) && !$self->isEmailAllowed($email)) {
+    if ((any { $_ eq 'email' } @{$self->required_fields // []}) && !$source->isEmailAllowed($email)) {
         $logger->warn("EmailSource ($source->{id}) failed to authenticate PID '$email' is banned");
         $self->app->flash->{error} = $pf::constants::authentication::messages::EMAIL_UNAUTHORIZED;
         $self->prompt_fields();
@@ -188,6 +188,7 @@ sub do_sponsor_registration {
     $info{'sponsor'} = $sponsor;
     $info{'subject'} = ["%s: Guest access request", $Config{'general'}{'domain'}];
     $info{'source_id'} = $source->id;
+    $info{'lang'} = $source->lang  // $Config{'advanced'}{'language'};
 
     # TODO this portion of the code should be throttled to prevent malicious intents (spamming)
     my ( $auth_return, $err, $activation_code ) =

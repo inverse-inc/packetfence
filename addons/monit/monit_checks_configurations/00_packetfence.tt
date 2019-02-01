@@ -20,7 +20,7 @@ CHECK PROCESS packetfence-config MATCHING "pfconfig"
     stop program  = "[% SERVICE_BIN %] packetfence-config stop"
     if 3 restarts within 10 cycles then alert
 
-CHECK PROCESS packetfence-redis-cache MATCHING "redis-server \*:6379"
+CHECK PROCESS packetfence-redis-cache MATCHING "redis-server 127.0.0.1:6379"
     group PacketFence
     start program = "[% SERVICE_BIN %] packetfence-redis-cache restart" with timeout 60 seconds
     stop program  = "[% SERVICE_BIN %] packetfence-redis-cache stop"
@@ -134,7 +134,7 @@ CHECK PROCESS packetfence-radiusd-auth MATCHING "pf/raddb -n auth"
     if failed host 127.0.0.1 port 18121 type udp protocol radius secret adminsecret for 5 cycles then alert
     if 3 restarts within 10 cycles then alert
 
-CHECK PROCESS packetfence-redis_queue MATCHING "redis-server \*:6379"
+CHECK PROCESS packetfence-redis_queue MATCHING "redis-server 127.0.0.1:6379"
     group PacketFence
     start program = "/usr/local/pf/bin/pfcmd service redis_queue restart" with timeout 60 seconds
     stop program = "/usr/local/pf/bin/pfcmd service redis_queue stop"

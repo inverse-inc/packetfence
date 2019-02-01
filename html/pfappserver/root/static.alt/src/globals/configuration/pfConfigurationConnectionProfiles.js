@@ -1,54 +1,334 @@
 import i18n from '@/utils/locale'
 import pfField from '@/components/pfField'
+import pfFieldTypeMatch from '@/components/pfFieldTypeMatch'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormFields from '@/components/pfFormFields'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormSelect from '@/components/pfFormSelect'
 import pfFormTextarea from '@/components/pfFormTextarea'
 import pfFormToggle from '@/components/pfFormToggle'
+import pfTree from '@/components/pfTree'
+import { pfFieldType as fieldType } from '@/globals/pfField'
 import {
   pfConfigurationListColumns,
   pfConfigurationListFields,
   pfConfigurationViewFields,
   pfConfigurationLocales
-} from '@/globals/pfConfiguration'
+} from '@/globals/configuration/pfConfiguration'
 import {
   and,
   not,
   conditional,
-  connectionProfileExists
+  connectionProfileExists,
+  isPort,
+  limitSiblingFields
 } from '@/globals/pfValidators'
+import { pfFormatters as formatter } from '@/globals/pfFormatters'
 
 const {
   required,
   alphaNum,
   integer,
+  macAddress,
   maxLength,
   minLength
 } = require('vuelidate/lib/validators')
 
+export const pfConfigurationConnectionProfileFilters = {
+  connection_sub_type: {
+    value: 'connection_sub_type',
+    text: i18n.t('Connection Sub Type'),
+    types: [fieldType.CONNECTION_SUB_TYPE],
+    validators: {
+      type: {
+        /* Don't allow elsewhere */
+        [i18n.t('Duplicate filter.')]: limitSiblingFields(['type', 'match'])
+      },
+      match: {
+        [i18n.t('Match required.')]: required
+      }
+    }
+  },
+  connection_type: {
+    value: 'connection_type',
+    text: i18n.t('Connection Type'),
+    types: [fieldType.CONNECTION_TYPE],
+    validators: {
+      type: {
+        /* Don't allow elsewhere */
+        [i18n.t('Duplicate filter.')]: limitSiblingFields(['type', 'match'])
+      },
+      match: {
+        [i18n.t('Match required.')]: required
+      }
+    }
+  },
+  network: {
+    value: 'network',
+    text: i18n.t('Network'),
+    types: [fieldType.SUBSTRING],
+    validators: {
+      type: {
+        /* Don't allow elsewhere */
+        [i18n.t('Duplicate filter.')]: limitSiblingFields(['type', 'match'])
+      },
+      match: {
+        [i18n.t('Match required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  node_role: {
+    value: 'node_role',
+    text: i18n.t('Node role'),
+    types: [fieldType.ROLE_BY_NAME],
+    validators: {
+      type: {
+        /* Don't allow elsewhere */
+        [i18n.t('Duplicate filter.')]: limitSiblingFields(['type', 'match'])
+      },
+      match: {
+        [i18n.t('Match required.')]: required
+      }
+    }
+  },
+  port: {
+    value: 'port',
+    text: i18n.t('Port'),
+    types: [fieldType.INTEGER],
+    validators: {
+      type: {
+        /* Don't allow elsewhere */
+        [i18n.t('Duplicate filter.')]: limitSiblingFields(['type', 'match'])
+      },
+      match: {
+        [i18n.t('Match required.')]: required,
+        [i18n.t('Invalid Port Number.')]: isPort
+      }
+    }
+  },
+  realm: {
+    value: 'realm',
+    text: i18n.t('Realm'),
+    types: [fieldType.REALM],
+    validators: {
+      type: {
+        /* Don't allow elsewhere */
+        [i18n.t('Duplicate filter.')]: limitSiblingFields(['type', 'match'])
+      },
+      match: {
+        [i18n.t('Match required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  ssid: {
+    value: 'ssid',
+    text: i18n.t('SSID'),
+    types: [fieldType.SUBSTRING],
+    validators: {
+      type: {
+        /* Don't allow elsewhere */
+        [i18n.t('Duplicate filter.')]: limitSiblingFields(['type', 'match'])
+      },
+      match: {
+        [i18n.t('Match required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  switch: {
+    value: 'switch',
+    text: i18n.t('Switch'),
+    types: [fieldType.SWITCHE],
+    validators: {
+      type: {
+        /* Don't allow elsewhere */
+        [i18n.t('Duplicate filter.')]: limitSiblingFields(['type', 'match'])
+      },
+      match: {
+        [i18n.t('Match required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  switch_group: {
+    value: 'switch_group',
+    text: i18n.t('Switch Group'),
+    types: [fieldType.SWITCH_GROUP],
+    validators: {
+      type: {
+        /* Don't allow elsewhere */
+        [i18n.t('Duplicate filter.')]: limitSiblingFields(['type', 'match'])
+      },
+      match: {
+        [i18n.t('Match required.')]: required
+      }
+    }
+  },
+  switch_mac: {
+    value: 'switch_mac',
+    text: i18n.t('Switch MAC'),
+    types: [fieldType.SUBSTRING],
+    validators: {
+      type: {
+        /* Don't allow elsewhere */
+        [i18n.t('Duplicate filter.')]: limitSiblingFields(['type', 'match'])
+      },
+      match: {
+        [i18n.t('Match required.')]: required,
+        [i18n.t('Invalid MAC Address.')]: macAddress
+      }
+    }
+  },
+  switch_port: {
+    value: 'switch_port',
+    text: i18n.t('Switch Port'),
+    types: [fieldType.INTEGER],
+    validators: {
+      type: {
+        /* Don't allow elsewhere */
+        [i18n.t('Duplicate filter.')]: limitSiblingFields(['type', 'match'])
+      },
+      match: {
+        [i18n.t('Match required.')]: required,
+        [i18n.t('Invalid Port Number.')]: isPort
+      }
+    }
+  },
+  tenant: {
+    value: 'tenant',
+    text: i18n.t('Tenant'),
+    types: [fieldType.TENANT],
+    validators: {
+      type: {
+        /* Don't allow elsewhere */
+        [i18n.t('Duplicate filter.')]: limitSiblingFields(['type', 'match'])
+      },
+      match: {
+        [i18n.t('Match required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  time: {
+    value: 'time',
+    text: i18n.t('Time period'),
+    types: [fieldType.SUBSTRING],
+    validators: {
+      type: {
+        /* Don't allow elsewhere */
+        [i18n.t('Duplicate filter.')]: limitSiblingFields(['type', 'match'])
+      },
+      match: {
+        [i18n.t('Match required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  uri: {
+    value: 'uri',
+    text: i18n.t('URI'),
+    types: [fieldType.SUBSTRING],
+    validators: {
+      type: {
+        /* Don't allow elsewhere */
+        [i18n.t('Duplicate filter.')]: limitSiblingFields(['type', 'match'])
+      },
+      match: {
+        [i18n.t('Match required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  vlan: {
+    value: 'vlan',
+    text: i18n.t('VLAN'),
+    types: [fieldType.SUBSTRING],
+    validators: {
+      type: {
+        /* Don't allow elsewhere */
+        [i18n.t('Duplicate filter.')]: limitSiblingFields(['type', 'match'])
+      },
+      match: {
+        [i18n.t('Match required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  }
+}
+
 export const pfConfigurationConnectionProfilesListColumns = [
   pfConfigurationListColumns.status,
-  Object.assign(pfConfigurationListColumns.id, { label: i18n.t('Identifier') }), // re-label
+  { ...pfConfigurationListColumns.id, ...{ label: i18n.t('Identifier') } }, // re-label
   pfConfigurationListColumns.description,
   pfConfigurationListColumns.buttons
 ]
 
 export const pfConfigurationConnectionProfilesListFields = [
-  Object.assign(pfConfigurationListFields.id, { text: i18n.t('Identifier') }), // re-text
+  { ...pfConfigurationListFields.id, ...{ text: i18n.t('Identifier') } }, // re-text
   pfConfigurationListFields.description
 ]
 
+export const pfConfigurationConnectionProfileListConfig = (context = {}) => {
+  const { $i18n } = context
+  return {
+    columns: pfConfigurationConnectionProfilesListColumns,
+    fields: pfConfigurationConnectionProfilesListFields,
+    rowClickRoute (item, index) {
+      return { name: 'connection_profile', params: { id: item.id } }
+    },
+    searchPlaceholder: $i18n.t('Search by identifier or description'),
+    searchableOptions: {
+      searchApiEndpoint: 'config/connection_profiles',
+      defaultSortKeys: ['id'],
+      defaultSearchCondition: {
+        op: 'and',
+        values: [{
+          op: 'or',
+          values: [
+            { field: 'id', op: 'contains', value: null },
+            { field: 'description', op: 'contains', value: null }
+          ]
+        }]
+      },
+      defaultRoute: { name: 'connection_profiles' }
+    },
+    searchableQuickCondition: (quickCondition) => {
+      return {
+        op: 'and',
+        values: [
+          {
+            op: 'or',
+            values: [
+              { field: 'id', op: 'contains', value: quickCondition },
+              { field: 'description', op: 'contains', value: quickCondition }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}
+
 export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
   const {
+    $router = {},
     isNew = false,
     isClone = false,
+    storeName = null,
     connectionProfile = {},
     sources = [],
     billingTiers = [],
     provisionings = [],
-    scans = []
+    scans = [],
+    files = [],
+    general = {}
   } = context
+
+  // fields differ w/ & wo/ 'default'
+  const isDefault = (connectionProfile.id === 'default')
+
   return [
     {
       tab: i18n.t('Settings'),
@@ -72,7 +352,20 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
             }
           ]
         },
-        Object.assign(pfConfigurationViewFields.description, { label: i18n.t('Profile Description') }), // re-label
+        { ...pfConfigurationViewFields.description, ...{ label: i18n.t('Profile Description') } }, // re-label
+        {
+          if: !isDefault,
+          label: i18n.t('Enable profile'),
+          fields: [
+            {
+              key: 'status',
+              component: pfFormToggle,
+              attrs: {
+                values: { checked: 'enabled', unchecked: 'disabled' }
+              }
+            }
+          ]
+        },
         {
           label: i18n.t('Root Portal Module'),
           text: i18n.t('The Root Portal Module to use.'),
@@ -195,7 +488,7 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
           ]
         },
         {
-          if: (connectionProfile.id !== 'default'),
+          if: !isDefault,
           label: i18n.t('Filters'),
           fields: [
             {
@@ -206,17 +499,29 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
                 placeholder: i18n.t('Click to select a match style'),
                 trackBy: 'value',
                 label: 'text',
+                allowEmpty: false,
+                clearOnSelect: false,
                 options: [
                   { text: i18n.t('If ALL of the following conditions are met:'), value: 'all' },
                   { text: i18n.t('If ANY of the following conditions are met:'), value: 'any' }
                 ]
+              },
+              validators: {
+                [i18n.t('Filter or advanced filter required.')]: conditional((value) => {
+                  return ( // false on error, true on success
+                    isDefault ||
+                    (!!value) ||
+                    ('filter' in connectionProfile && connectionProfile.filter.length > 0) ||
+                    ('advanced_filter' in connectionProfile && !!connectionProfile.advanced_filter)
+                  )
+                })
               }
             }
           ]
         },
         {
-          if: (connectionProfile.id !== 'default' && connectionProfile.filter_match_style),
-          label: '&nbsp;', // pad with label-column, but don't print anything
+          if: !isDefault,
+          label: i18n.t('Filter'),
           fields: [
             {
               key: 'filter',
@@ -224,20 +529,49 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
               attrs: {
                 buttonLabel: i18n.t('Add Filter'),
                 emptyText: i18n.t('With no filter specified, an advanced filter must be specified.'),
-                maxFields: sources.length,
                 sortable: true,
                 field: {
-                  // TODO: Complete filtering
+                  component: pfFieldTypeMatch,
+                  attrs: {
+                    typeLabel: i18n.t('Select filter type'),
+                    matchLabel: i18n.t('Select filter match'),
+                    fields: [
+                      pfConfigurationConnectionProfileFilters.connection_sub_type,
+                      pfConfigurationConnectionProfileFilters.connection_type,
+                      pfConfigurationConnectionProfileFilters.network,
+                      pfConfigurationConnectionProfileFilters.node_role,
+                      pfConfigurationConnectionProfileFilters.port,
+                      pfConfigurationConnectionProfileFilters.realm,
+                      pfConfigurationConnectionProfileFilters.ssid,
+                      pfConfigurationConnectionProfileFilters.switch,
+                      pfConfigurationConnectionProfileFilters.switch_group,
+                      pfConfigurationConnectionProfileFilters.switch_mac,
+                      pfConfigurationConnectionProfileFilters.switch_port,
+                      pfConfigurationConnectionProfileFilters.tenant,
+                      pfConfigurationConnectionProfileFilters.time,
+                      pfConfigurationConnectionProfileFilters.uri,
+                      pfConfigurationConnectionProfileFilters.vlan
+                    ]
+                  }
                 },
                 invalidFeedback: [
-                  { [i18n.t('Source(s) contain one or more errors.')]: true }
+                  { [i18n.t('Filter(s) contain one or more errors.')]: true }
                 ]
+              },
+              validators: {
+                [i18n.t('Filter or advanced filter required.')]: conditional((value) => {
+                  return ( // false on error, true on success
+                    isDefault ||
+                    (typeof value !== 'undefined' && value.length > 0) ||
+                    ('advanced_filter' in connectionProfile && !!connectionProfile.advanced_filter)
+                  )
+                })
               }
             }
           ]
         },
         {
-          if: (connectionProfile.id !== 'default'),
+          if: !isDefault,
           label: i18n.t('Advanced filter'),
           fields: [
             {
@@ -247,6 +581,13 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
                 rows: 3
               },
               validators: {
+                [i18n.t('Filter or advanced filter required.')]: conditional((value) => {
+                  return ( // false on error, true on success
+                    isDefault ||
+                    (!!value) ||
+                    ('filter' in connectionProfile && connectionProfile.filter.length > 0)
+                  )
+                }),
                 [i18n.t('Maximum 255 characters.')]: maxLength(255)
               }
             }
@@ -314,14 +655,17 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
                         placeholder: i18n.t('Click to select a billing tier'),
                         trackBy: 'value',
                         label: 'text',
-                        options: billingTiers.map(billing_tier => {
-                          return { text: `${billing_tier.id} (${billing_tier.name} - ${billing_tier.description})`, value: billing_tier.id }
+                        options: billingTiers.map(billingTier => {
+                          return { text: `${billingTier.id} (${billingTier.name} - ${billingTier.description})`, value: billingTier.id }
                         })
                       },
                       validators: {
                         [i18n.t('Billing Tier required.')]: required,
                         [i18n.t('Duplicate Billing Tier.')]: conditional((value) => {
-                          return !(connectionProfile.billingTiers.filter(v => v === value).length > 1)
+                          if (connectionProfile.billingTiers === Array) {
+                            return !(connectionProfile.billingTiers.filter(v => v === value).length > 1)
+                          }
+                          return true
                         })
                       }
                     }
@@ -362,7 +706,10 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
                       validators: {
                         [i18n.t('Provisioner required.')]: required,
                         [i18n.t('Duplicate Provisioner.')]: conditional((value) => {
-                          return !(connectionProfile.provisioners.filter(v => v === value).length > 1)
+                          if (connectionProfile.provisioners === Array) {
+                            return !(connectionProfile.provisioners.filter(v => v === value).length > 1)
+                          }
+                          return true
                         })
                       }
                     }
@@ -403,7 +750,10 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
                       validators: {
                         [i18n.t('Scanner required.')]: required,
                         [i18n.t('Duplicate Scanner.')]: conditional((value) => {
-                          return !(connectionProfile.scans.filter(v => v === value).length > 1)
+                          if (connectionProfile.provisioners === Array) {
+                            return !(connectionProfile.provisioners.filter(v => v === value).length > 1)
+                          }
+                          return true
                         })
                       }
                     }
@@ -463,7 +813,7 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
               key: 'redirecturl',
               component: pfFormInput,
               validators: {
-                [i18n.t('Logo required.')]: required,
+                [i18n.t('URL required.')]: required,
                 [i18n.t('Maximum 255 characters.')]: maxLength(255)
               }
             }
@@ -582,6 +932,32 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
           ]
         },
         {
+          label: i18n.t('Network Logoff'),
+          text: i18n.t('This allows users to access the network logoff page (http://{fqdn}/networklogoff) in order to terminate their network access (switch their device back to unregistered).', general),
+          fields: [
+            {
+              key: 'network_logoff',
+              component: pfFormToggle,
+              attrs: {
+                values: { checked: 'enabled', unchecked: 'disabled' }
+              }
+            }
+          ]
+        },
+        {
+          label: i18n.t('Network Logoff Popup'),
+          text: i18n.t('When the "Network Logoff" feature is enabled, this will have it opened in a popup at the end of the registration process.'),
+          fields: [
+            {
+              key: 'network_logoff_popup',
+              component: pfFormToggle,
+              attrs: {
+                values: { checked: 'enabled', unchecked: 'disabled' }
+              }
+            }
+          ]
+        },
+        {
           label: i18n.t('Languages'),
           fields: [
             {
@@ -624,14 +1000,59 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
     },
     {
       tab: i18n.t('Files'),
-      disabled: true,
-      fields: []
+      fields: [
+        {
+          fields: [
+            {
+              key: 'files',
+              component: pfTree,
+              attrs: {
+                items: files,
+                fields: [
+                  {
+                    key: 'name',
+                    label: i18n.t('Name'),
+                    class: 'w-50'
+                  },
+                  {
+                    key: 'size',
+                    label: i18n.t('Size'),
+                    formatter: formatter.fileSize,
+                    class: 'text-right'
+                  },
+                  {
+                    key: 'mtime',
+                    label: i18n.t('Last modification'),
+                    formatter: formatter.shortDateTime,
+                    class: 'text-right'
+                  }
+                ],
+                isLoadingStoreGetter: [storeName, 'isLoadingFiles'].join('/'),
+                childrenKey: 'entries',
+                childrenIf: (item) => item.type === 'dir' && 'entries' in item,
+                onNodeClick: (item) => $router.push({ name: 'connectionProfileFile', params: { id: connectionProfile.id, filename: item.path ? [item.path, item.name].join('/') : item.name } })
+              }
+            }
+          ]
+        }
+      ]
     }
   ]
 }
 
 export const pfConfigurationConnectionProfileViewDefaults = (context = {}) => {
   return {
-    id: null
+    id: null,
+    status: 'enabled',
+    root_module: 'default_policy',
+    dot1x_recompute_role_from_portal: 'enabled',
+    filter_match_style: 'any',
+    block_interval: {
+      interval: 10,
+      unit: 'm'
+    },
+    sms_pin_retry_limit: 0,
+    sms_request_limit: 0,
+    login_attempt_limit: 0
   }
 }

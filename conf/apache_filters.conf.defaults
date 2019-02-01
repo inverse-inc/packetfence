@@ -1,0 +1,80 @@
+# Refuse empty user agent
+# Define the test
+[empty_ua_get]
+filter = user_agent
+method = GET
+operator = match
+value = ^$
+
+# Refuse empty user agent
+[empty_ua_post]
+filter = user_agent
+method = POST
+operator = match
+value = ^$
+
+[empty_ua_501:empty_ua_get|empty_ua_post]
+action = 501
+redirect_url =
+
+# Refuse proxy autoconfiguration
+[wpad_dat]
+filter = uri
+method = GET
+operator = match
+value = /wpad.dat
+
+[wpad_dat_501:wpad_dat]
+action = 501
+redirect_url =
+
+# Accept Davlik user agent only for /generate_204 or /profile.xml uri
+[dalvik_get]
+filter = user_agent
+method = GET
+operator = match
+value = Dalvik
+
+[not_generate_204]
+filter = uri
+method = GET
+operator = match_not
+value = /generate_204
+
+[not_profile_xml]
+filter = uri
+method = GET
+operator = match_not
+value = /profile.xml
+
+[dalvik_501:dalvik_get&(not_generate_204&not_profile_xml)]
+action = 501
+redirect_url =
+
+# Deny ActiveSync requests
+[active_sync]
+filter = uri
+method = POST
+operator = match
+value = /Microsoft-Server-ActiveSync
+
+[active_sync_501:active_sync]
+action = 501
+redirect_url =
+
+# Deny known Windows non-browser user agents
+[windows_non_browser_uas_get]
+filter = user_agent
+method = GET
+operator = match
+value = ^Windows-Update-Agent$|^WinHttp-Autoproxy-Service/|Microsoft-CryptoAPI/[0-9.]+|^AVGINET13|^Valve/Steam|^itunes/|^Microsoft NCSI$|^Microsoft-WNS/|Microsoft BITS/|^Symantec|^Microsoft-Delivery-Optimization|^Windows-Update-Agent/|^WinHttp-Autoproxy-Service/|^WindowsShellClient/|^Windows-Media-Player/|^'Windows Store/|^autoupdate
+
+[windows_non_browser_uas_post]
+filter = user_agent
+method = GET
+operator = match
+value = ^Windows-Update-Agent$|^WinHttp-Autoproxy-Service/|Microsoft-CryptoAPI/[0-9.]+|^AVGINET13|^Valve/Steam|^itunes/|^Microsoft NCSI$|^Microsoft-WNS/|Microsoft BITS/|^Symantec|^Microsoft-Delivery-Optimization|^Windows-Update-Agent/|^WinHttp-Autoproxy-Service/|^WindowsShellClient/|^Windows-Media-Player/|^'Windows Store/|^autoupdate
+
+[501_windows_non_browser_uas:windows_non_browser_uas_get|windows_non_browser_uas_post]
+action = 501
+redirect_url =

@@ -75,9 +75,6 @@ func main() {
 
 	connectDB(configDatabase)
 
-	MySQLdatabase.SetMaxIdleConns(0)
-	MySQLdatabase.SetMaxOpenConns(500)
-
 	VIP = make(map[string]bool)
 	VIPIp = make(map[string]net.IP)
 
@@ -174,14 +171,18 @@ func main() {
 		for {
 			req, err := http.NewRequest("GET", "http://127.0.0.1:22222", nil)
 			if err != nil {
-				fmt.Println(err)
-				return
+				log.LoggerWContext(ctx).Error(err.Error())
+				continue
 			}
 			req.Close = true
 			resp, err := cli.Do(req)
-			if resp != nil {
-				resp.Body.Close()
+			time.Sleep(100 * time.Millisecond)
+			if err != nil {
+				log.LoggerWContext(ctx).Error(err.Error())
+				continue
 			}
+			resp.Body.Close()
+
 			if err == nil {
 				daemon.SdNotify(false, "WATCHDOG=1")
 			}
@@ -600,12 +601,20 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 
 					answer.D = dhcp.ReplyPacket(p, dhcp.ACK, handler.ip.To4(), reqIP, leaseDuration,
 						GlobalOptions.SelectOrderOrAll(options[dhcp.OptionParameterRequestList]))
+					var cacheDuration time.Duration
+					if leaseDuration < time.Duration(60)*time.Second {
+						cacheDuration = time.Duration(61) * time.Second
+					} else {
+						cacheDuration = leaseDuration + (time.Duration(60) * time.Second)
+					}
+
 					// Update Global Caches
-					GlobalIpCache.Set(reqIP.String(), p.CHAddr().String(), leaseDuration+(time.Duration(15)*time.Second))
-					GlobalMacCache.Set(p.CHAddr().String(), reqIP.String(), leaseDuration+(time.Duration(15)*time.Second))
+					GlobalIpCache.Set(reqIP.String(), p.CHAddr().String(), cacheDuration)
+					GlobalMacCache.Set(p.CHAddr().String(), reqIP.String(), cacheDuration)
 					// Update the cache
 					log.LoggerWContext(ctx).Info("DHCPACK on " + reqIP.String() + " to " + clientMac + " (" + clientHostname + ")")
-					handler.hwcache.Set(p.CHAddr().String(), Index, leaseDuration+(time.Duration(15)*time.Second))
+
+					handler.hwcache.Set(p.CHAddr().String(), Index, cacheDuration)
 					handler.available.ReserveIPIndex(uint64(Index), p.CHAddr().String())
 
 				} else {

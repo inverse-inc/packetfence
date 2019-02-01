@@ -672,7 +672,7 @@ sub is_section_in_import {
     my $ini = $self->cachedConfig;
     my $imported = $ini->{imported};
     return $FALSE unless $imported;
-    return $ini->SectionExists($section) ? $TRUE : $FALSE;
+    return $imported->SectionExists($section) ? $TRUE : $FALSE;
 }
 
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};

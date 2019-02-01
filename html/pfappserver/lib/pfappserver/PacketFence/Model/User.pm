@@ -279,6 +279,9 @@ sub mail {
     # Fetch user information
     ($status, $status_msg) = $self->read($c, $pids);
     if (is_success($status)) {
+        my $lang = $Config{advanced}{language};
+        my $user_locale = clean_locale(setlocale(POSIX::LC_MESSAGES));
+        setlocale(POSIX::LC_MESSAGES, "$lang.utf8");
         foreach my $user (@$status_msg) {
             # we overwrite the password found in the database with the one in the session for the same user
             my $pid = $user->{'pid'};
@@ -300,6 +303,7 @@ sub mail {
                 $logger->error($@);
             }
         }
+        setlocale(POSIX::LC_MESSAGES, $user_locale);
     }
 
     if (@users) {

@@ -4,9 +4,9 @@
 # 
 # Translators:
 # Antoine Amacher <aamacher@inverse.ca>, 2015-2017
-# oeufdure <fdurand@inverse.ca>, 2014-2017
+# oeufdure <fdurand@inverse.ca>, 2014-2018
 # inverse <info@inverse.ca>, 2014,2016,2018
-# julsemaan <jsemaan@inverse.ca>, 2014
+# julsemaan <jsemaan@inverse.ca>, 2014,2019
 # Loick Pelet <lpelet.inverse@gmail.com>, 2013
 # Loick Pelet <lpelet.inverse@gmail.com>, 2013
 # Louis Munro <git@louismunro.com>, 2015,2017
@@ -15,8 +15,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2018-04-26 14:22+0000\n"
-"Last-Translator: inverse <info@inverse.ca>\n"
+"PO-Revision-Date: 2019-01-09 14:52+0000\n"
+"Last-Translator: julsemaan <jsemaan@inverse.ca>\n"
 "Language-Team: French (http://www.transifex.com/inverse/packetfence/language/fr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -3368,7 +3368,7 @@ msgstr "Combien de temps un périphérique enregistré peut être inactif sur le
 msgid ""
 "How long can an unregistered node be inactive on the network before being "
 "deleted.<br>This shouldn't be used if you are using port-security"
-msgstr "Combien de temps un périphérique enregistré peut être inactif sur le réseau avant d’être supprimé. <br/> Cette fonctionnalité ne devrait pas être utilisé avec du port-security"
+msgstr "Combien de temps un périphérique non enregistré peut être inactif sur le réseau avant d’être supprimé. <br/> Cette fonctionnalité ne devrait pas être utilisé avec du port-security"
 
 # conf/documentation.conf (captive_portal.network_redirect_delay)
 msgid ""
@@ -4019,6 +4019,10 @@ msgid ""
 "Location of the dhcpd binary. Only necessary to change if you are not "
 "running the RPMed version."
 msgstr "Emplacement du binaire DHCPd."
+
+# conf/documentation.conf (services.etcd_binary)
+msgid "Location of the etcd binary."
+msgstr "Emplacement du binaire etcd."
 
 # conf/documentation.conf (services.fingerbank-collector_binary)
 msgid "Location of the fingerbank-collector binary."
@@ -7180,6 +7184,10 @@ msgstr "Est-ce que Fingerbank interagit avec le web en utilisant un proxy?"
 # conf/documentation.conf (services.api-frontend)
 msgid "Should api-frontend be managed by PacketFence?"
 msgstr "Est-ce api-frontend doit être géré par PacketFence ?"
+
+# conf/documentation.conf (services.etcd)
+msgid "Should etcd be managed by PacketFence?"
+msgstr "Est-ce etcd doit être géré par PacketFence ?"
 
 # conf/documentation.conf (services.haproxy-db)
 msgid ""
@@ -10560,6 +10568,7 @@ msgstr "dhcplistener"
 # conf/documentation.conf (pfdhcp.mac2ip_lookup options)
 # conf/documentation.conf (provisioning.autoconfig options)
 # conf/documentation.conf (services.api-frontend options)
+# conf/documentation.conf (services.etcd options)
 # conf/documentation.conf (services.fingerbank-collector options)
 # conf/documentation.conf (services.haproxy-db options)
 # conf/documentation.conf (services.haproxy-portal options)
@@ -10694,6 +10703,7 @@ msgstr "en_US"
 # conf/documentation.conf (pfdhcp.mac2ip_lookup options)
 # conf/documentation.conf (provisioning.autoconfig options)
 # conf/documentation.conf (services.api-frontend options)
+# conf/documentation.conf (services.etcd options)
 # conf/documentation.conf (services.fingerbank-collector options)
 # conf/documentation.conf (services.haproxy-db options)
 # conf/documentation.conf (services.haproxy-portal options)
@@ -11398,10 +11408,6 @@ msgid "pfdetect_type_fortianalyser"
 msgstr "FortiAnalyzer"
 
 # pf::factory::detect::parser (Detect Parsers)
-msgid "pfdetect_type_nexpose"
-msgstr "Nexpose"
-
-# pf::factory::detect::parser (Detect Parsers)
 msgid "pfdetect_type_regex"
 msgstr "regex"
 
@@ -11715,7 +11721,7 @@ msgstr "Assigner un rôle par violation"
 
 # pf::api (Allowed actions)
 msgid "role_detail"
-msgstr ""
+msgstr "Détail du rôle"
 
 # html/pfappserver/lib/pfappserver/Form/User.pm
 # html/pfappserver/root/admin/users.tt
@@ -11774,7 +11780,7 @@ msgstr "Services"
 
 # conf/documentation.conf
 msgid "services.api-frontend"
-msgstr ""
+msgstr "api-frontend"
 
 # conf/documentation.conf
 msgid "services.arp_binary"
@@ -11785,8 +11791,16 @@ msgid "services.dhcpd_binary"
 msgstr "Emplacement de DHCPd"
 
 # conf/documentation.conf
+msgid "services.etcd"
+msgstr "etcd"
+
+# conf/documentation.conf
+msgid "services.etcd_binary"
+msgstr "Emplacement du binaire etcd."
+
+# conf/documentation.conf
 msgid "services.fingerbank-collector"
-msgstr ""
+msgstr "fingerbank-collector"
 
 # conf/documentation.conf
 msgid "services.fingerbank-collector_binary"
@@ -11794,7 +11808,7 @@ msgstr "Emplacement du binaire fingerbank-collector."
 
 # conf/documentation.conf
 msgid "services.haproxy-db"
-msgstr ""
+msgstr "haproxy-db"
 
 # conf/documentation.conf
 msgid "services.haproxy-db_binary"
@@ -11802,7 +11816,7 @@ msgstr "Emplacement du binaire haproxy-db."
 
 # conf/documentation.conf
 msgid "services.haproxy-portal"
-msgstr ""
+msgstr "haproxy-portal"
 
 # conf/documentation.conf
 msgid "services.haproxy-portal_binary"
@@ -11862,7 +11876,7 @@ msgstr "Emplacement de keepalived"
 
 # conf/documentation.conf
 msgid "services.netdata"
-msgstr ""
+msgstr "netdata"
 
 # conf/documentation.conf
 msgid "services.netdata_binary"
@@ -11878,7 +11892,7 @@ msgstr "pfbandwidthd"
 
 # conf/documentation.conf
 msgid "services.pfdhcp"
-msgstr ""
+msgstr "pfdhcp"
 
 # conf/documentation.conf
 msgid "services.pfdhcp_binary"
@@ -11906,7 +11920,7 @@ msgstr "PFFilter"
 
 # conf/documentation.conf
 msgid "services.pfipset"
-msgstr ""
+msgstr "pfipset"
 
 # conf/documentation.conf
 msgid "services.pfipset_binary"
@@ -11918,7 +11932,7 @@ msgstr "pfmon"
 
 # conf/documentation.conf
 msgid "services.pfperl-api"
-msgstr ""
+msgstr "pfperl-api"
 
 # conf/documentation.conf
 msgid "services.pfqueue"
@@ -11930,7 +11944,7 @@ msgstr "pfsso"
 
 # conf/documentation.conf
 msgid "services.pfstats"
-msgstr ""
+msgstr "pfstats"
 
 # conf/documentation.conf
 msgid "services.pfstats_binary"
@@ -11986,7 +12000,7 @@ msgstr "Emplacement de smtptrapd"
 
 # conf/documentation.conf
 msgid "services.tc"
-msgstr ""
+msgstr "tc"
 
 # conf/documentation.conf
 msgid "services.tc_binary"

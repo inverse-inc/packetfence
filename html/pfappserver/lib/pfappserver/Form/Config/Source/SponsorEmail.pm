@@ -20,6 +20,7 @@ with qw(
 
 use pfappserver::Form::Field::Duration;
 use pf::Authentication::Source::SponsorEmailSource;
+use pf::config qw(%Doc_Config);
 
 # Form fields
 
@@ -64,6 +65,27 @@ has_field 'validate_sponsor' =>
    tags => { after_element => \&help,
              help => 'Force sponsor to authenticate when validating a guest request.' },
   );
+
+has_field 'lang' =>
+  (
+   type => 'Select',
+   label => 'Language for sponsor email',
+   default => '',
+   options_method => \&lang_options,
+   tags => { after_element => \&help,
+             help => 'Language for sponsor email.' },
+  );
+
+sub lang_options {
+    return (
+        { value => '', label => 'Default' },
+        (
+            map { { value => $_, label => $_ } }
+              grep { $_ ne 'none' }
+              @{ $Doc_Config{'advanced.language'}{options} }
+        )
+    );
+}
 
 =head1 COPYRIGHT
 

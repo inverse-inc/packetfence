@@ -53,7 +53,7 @@ func TestTokenAuthenticationMiddlewareLogin(t *testing.T) {
 			"bob": "garauge",
 		},
 		map[string]bool{
-			"SYSTEM_READ": true,
+			"ALL": true,
 		},
 	))
 

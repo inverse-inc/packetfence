@@ -104,6 +104,11 @@ export const not = (validator) => {
   })
 }
 
+// Default vuelidate |alphaNum| replacement, accepts underscore
+export const alphaNum = () => {
+  return _common.regex('alphaNum', /^[a-zA-Z0-9_]*$/)
+}
+
 /**
  *
  * Custom functions
@@ -115,7 +120,11 @@ export const conditional = (conditional) => {
     type: 'conditional',
     conditional: conditional
   }, function (value, vm) {
-    return (conditional.constructor === Function) ? conditional(value, vm) : conditional
+    return (conditional.constructor === Function)
+      ? (typeof value === 'undefined')
+        ? conditional(undefined, vm)
+        : conditional(JSON.parse(JSON.stringify(value)), vm) // dereference value
+      : conditional
   })
 }
 
@@ -162,6 +171,11 @@ export const isFQDN = (value) => {
     }
   }
   return true
+}
+
+export const isHex = (value) => {
+  if (!value) return true
+  return /^[0-9a-f]+$/i.test(value)
 }
 
 export const isPort = (value) => {
@@ -284,6 +298,16 @@ export const roleExists = (value, component) => {
   return store.dispatch('config/getRoles').then((response) => {
     if (response.length === 0) return true
     return (response.filter(role => role.name.toLowerCase() === value.toLowerCase()).length > 0)
+  }).catch(() => {
+    return true
+  })
+}
+
+export const scanExists = (value, component) => {
+  if (!value) return true
+  return store.dispatch('config/getScans').then((response) => {
+    if (response.length === 0) return true
+    return (response.filter(scan => scan.id.toLowerCase() === value.toLowerCase()).length > 0)
   }).catch(() => {
     return true
   })

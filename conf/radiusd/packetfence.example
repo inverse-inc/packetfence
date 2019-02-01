@@ -23,6 +23,7 @@ authorize {
 		&control:PacketFence-RPC-Proto = ${rpc_proto}
 		&control:Tmp-Integer-0 := "%l"
 		&control:PacketFence-Request-Time := 0
+		&control:Load-Balance-Key := "%{Calling-Station-ID} %{User-Name}"
 	}
 	packetfence-set-tenant-id
 	rewrite_calling_station_id
@@ -55,6 +56,7 @@ authorize {
 	#  'raddb/huntgroups' files.
 	preprocess
 
+
 	#
 	#  If you are using multiple kinds of realms, you probably
 	#  want to set "ignore_null = yes" for all of them.
@@ -62,6 +64,7 @@ authorize {
 	#  the other styles won't be checked.
 	#
 	suffix
+	%%authorize_filter%%
 	ntdomain
 
 	#
@@ -243,6 +246,7 @@ preacct {
 	#  home server as authentication requests.
 	#	IPASS
 	suffix
+	%%preacct_filter%%
 	ntdomain
 
 	#
@@ -330,6 +334,15 @@ post-auth {
 	#update {
 	#	&reply: += &session-state:
 	#}
+	if ("%{%{control:PacketFence-Proxied-From}:-False}" == "True") {
+%%local_realm%%
+		if (&control:PacketFence-Authorization-Status == "deny") {
+			packetfence-audit-log-reject
+			reject
+		} else {
+			packetfence-audit-log-accept
+		}
+	}
 
 	# If the request has not been handled inside the inner-tunnel
 	# send it to packetfence
@@ -365,6 +378,9 @@ post-auth {
 		if (! EAP-Type || (EAP-Type != TTLS  && EAP-Type != PEAP) ) {
 			packetfence-audit-log-reject
 		}
+	        if ("%{%{control:PacketFence-Proxied-From}:-False}" == "True") {
+			packetfence-audit-log-reject
+		}
 		attr_filter.access_reject
 		attr_filter.packetfence_post_auth
 
@@ -388,6 +404,7 @@ post-auth {
 #  Only a few modules currently have this method.
 #
 pre-proxy {
+	%%pre_proxy_filter%%
 }
 
 #
@@ -430,5 +447,10 @@ post-proxy {
 #	Post-Proxy-Type Fail-Accounting {
 #			detail
 #	}
+	update control {
+		PacketFence-Proxied-From := "True"
+	}
+
+	%%post_proxy_filter%%
 }
 }

@@ -42,6 +42,8 @@ ATTRIBUTE       PacketFence-Proxied-To                26       string
 ATTRIBUTE       PacketFence-Authorization-Status      27       string
 ATTRIBUTE       PacketFence-Tenant-Id                 28       integer
 ATTRIBUTE       PacketFence-ShortName                 29       string
+ATTRIBUTE       PacketFence-Proxied-From              30       string 
+ATTRIBUTE       PacketFence-UserNameAttribute         31       string
 
 END-VENDOR      Inverse
 

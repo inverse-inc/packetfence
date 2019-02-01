@@ -189,14 +189,13 @@ has_field 'shuffle',
 has_field 'searchattributes' => (
     type           => 'Select',
     label          => 'Search Attributes',
-    required       => 1,
     multiple       => 1,
     options_method => \&options_attributes,
     element_class  => ['chzn-deselect', 'input-xxlarge'],
     element_attr   => { 'data-placeholder' => 'Click to select an attribute' },
     tags           => {
         after_element => \&help,
-        help          => 'Attributes that will use to find the dn of the user'
+        help          => 'Other attributes that can be used as the username (requires to restart the radiusd service to be effective)'
     },
     default => '',
 );

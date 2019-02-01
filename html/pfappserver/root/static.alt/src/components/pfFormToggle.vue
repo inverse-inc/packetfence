@@ -231,26 +231,26 @@ $colorUnchecked: $gray-500;
 $margin: 3px;
 
 .vue-js-switch {
+  position: relative;
   display: inline-flex;
   align-items: center;
-  position: relative;
   overflow: hidden;
   padding-top: calc(#{$input-padding-y} + #{$input-border-width});
   vertical-align: middle;
   margin: 0;
   user-select: none;
+  color: rgba(0, 0, 0, 0.65);
   font-size: 10px;
   font-weight: 600;
   text-transform: uppercase;
-  color: rgba(0, 0, 0, 0.65);
   cursor: pointer;
   .v-switch-input {
     display: none;
   }
   .v-switch-label {
     position: absolute;
-    font-weight: 600;
     color: white;
+    font-weight: 600;
     &.v-left {
       left: 10px;
     }
@@ -259,20 +259,20 @@ $margin: 3px;
     }
   }
   .v-switch-core {
-    display: inline-block;
     position: relative;
+    display: inline-block;
     box-sizing: border-box;
+    margin: 0 $margin 0 0;
     background-color: $colorUnchecked;
     outline: 0;
-    margin: 0 $margin 0 0;
     transition: border-color .3s, background-color .3s;
     user-select: none;
     .v-switch-button {
-      display: block;
       position: absolute;
-      overflow: hidden;
       top: 0;
       left: 0;
+      display: block;
+      overflow: hidden;
       transition: transform 300ms;
       transform: translate3d($margin, $margin, 0);
       border-radius: 100%;
@@ -291,9 +291,9 @@ $margin: 3px;
 .v-switch-wrapper {
   &.is-focus {
     .v-switch-button {
-      background-color: $input-focus-border-color;
       box-sizing: border-box;
       border: 2px solid #fff;
+      background-color: $input-focus-border-color;
     }
   }
 }

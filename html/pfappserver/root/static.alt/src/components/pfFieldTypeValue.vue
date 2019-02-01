@@ -1,8 +1,8 @@
 <template>
-  <b-form-row class="pf-field-action mx-0 mb-1 px-0" align-v="center"
+  <b-form-row class="pf-field-type-value mx-0 mb-1 px-0" align-v="center"
     v-on="forwardListeners"
   >
-    <b-col v-if="$slots.prepend" cols="1" align-self="start" class="pt-1 text-center col-form-label">
+    <b-col v-if="$slots.prepend" cols="1" align-self="start" class="text-center col-form-label">
       <slot name="prepend"></slot>
     </b-col>
     <b-col cols="4" align-self="start">
@@ -44,7 +44,7 @@
       ></pf-form-chosen>
 
       <!-- Type: DATETIME -->
-      <pf-form-datetime v-if="isFieldType(datetimeValueType)"
+      <pf-form-datetime v-else-if="isFieldType(datetimeValueType)"
         v-model="localValue"
         ref="localValue"
         :config="{useCurrent: true, format: 'YYYY-MM-DD HH:mm:ss'}"
@@ -54,7 +54,7 @@
       ></pf-form-datetime>
 
       <!-- Type: PREFIXMULTIPLER -->
-      <pf-form-prefix-multiplier v-if="isFieldType(prefixmultiplerValueType)"
+      <pf-form-prefix-multiplier v-else-if="isFieldType(prefixmultiplerValueType)"
         v-model="localValue"
         ref="localValue"
         :vuelidate="valueVuelidateModel"
@@ -62,7 +62,7 @@
       ></pf-form-prefix-multiplier>
 
       <!-- Type: SUBSTRING -->
-      <pf-form-input v-if="isFieldType(substringValueType)"
+      <pf-form-input v-else-if="isFieldType(substringValueType)"
         v-model="localValue"
         ref="localValue"
         :vuelidate="valueVuelidateModel"
@@ -70,7 +70,7 @@
       ></pf-form-input>
 
       <!-- Type: INTEGER -->
-      <pf-form-input v-if="isFieldType(integerValueType)"
+      <pf-form-input v-else-if="isFieldType(integerValueType)"
         v-model="localValue"
         ref="localValue"
         type="number"
@@ -80,7 +80,7 @@
       ></pf-form-input>
 
     </b-col>
-    <b-col v-if="$slots.append" cols="1" align-self="start" class="pt-1 text-center col-form-label">
+    <b-col v-if="$slots.append" cols="1" align-self="start" class="text-center col-form-label">
       <slot name="append"></slot>
     </b-col>
   </b-form-row>
@@ -99,7 +99,7 @@ import {
 import { required } from 'vuelidate/lib/validators'
 
 export default {
-  name: 'pf-field-action',
+  name: 'pf-field-type-value',
   components: {
     pfFormChosen,
     pfFormDatetime,
@@ -164,7 +164,7 @@ export default {
         // check to see if `type` exists in our available fields
         if (type && !this.fields.find(field => field.value === type)) {
           // discard
-          this.$store.dispatch('notification/danger', { message: this.$i18n.t('Action type "{type}" is not valid, ignoring...', { type: type }) })
+          this.$store.dispatch('notification/danger', { message: this.$i18n.t('Action type "{type}" is not valid, ignoring.', { type: type }) })
           this.$set(this.inputValue, 'type', this.default.type) // clear `type`
           this.$set(this.inputValue, 'value', this.default.value) // clear `value`
           return null
@@ -206,7 +206,7 @@ export default {
       if (this.fieldIndex >= 0) {
         const field = this.field
         for (const type of field.types) {
-          if (fieldTypeValues[type]) options.push(...fieldTypeValues[type](this.$store))
+          if (fieldTypeValues[type](this.$store)) options.push(...fieldTypeValues[type](this.$store))
         }
       }
       return options
@@ -292,19 +292,16 @@ export default {
   },
   created () {
     this.emitValidations()
-    this.$store.dispatch('config/getAdminRoles') // roles for actions > set_access_level
-    this.$store.dispatch('config/getRoles') // roles for actions > set_role
-    this.$store.dispatch('config/getTenants') // tenants for actions > set_tenant_id
   }
 }
 </script>
 
 <style lang="scss">
-.pf-field-action {
+.pf-field-type-value {
   .pf-form-chosen {
     .col-sm-12[role="group"] {
-      padding-left: 0px;
       padding-right: 0px;
+      padding-left: 0px;
     }
   }
 }

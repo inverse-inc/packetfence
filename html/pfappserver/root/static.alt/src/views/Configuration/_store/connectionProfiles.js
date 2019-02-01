@@ -15,12 +15,19 @@ const types = {
 const state = {
   cache: {}, // items details
   message: '',
-  itemStatus: ''
+  itemStatus: '',
+  files: {
+    message: '',
+    status: '',
+    cache: {}
+  }
 }
 
 const getters = {
   isWaiting: state => [types.LOADING, types.DELETING].includes(state.itemStatus),
-  isLoading: state => state.itemStatus === types.LOADING
+  isLoading: state => state.itemStatus === types.LOADING,
+  isWaitingFiles: state => [types.LOADING, types.DELETING].includes(state.files.tatus),
+  isLoadingFiles: state => state.files.status === types.LOADING
 }
 
 const actions = {
@@ -31,6 +38,7 @@ const actions = {
     commit('ITEM_REQUEST')
     return api.connectionProfile(id).then(item => {
       commit('ITEM_REPLACED', item)
+      return item
     }).catch((err) => {
       commit('ITEM_ERROR', err.response)
       throw err
@@ -40,6 +48,7 @@ const actions = {
     commit('ITEM_REQUEST')
     return api.createConnectionProfile(data).then(response => {
       commit('ITEM_REPLACED', data)
+      return response
     }).catch(err => {
       commit('ITEM_ERROR', err.response)
       throw err
@@ -49,6 +58,7 @@ const actions = {
     commit('ITEM_REQUEST')
     return api.updateConnectionProfile(data).then(response => {
       commit('ITEM_REPLACED', data)
+      return response
     }).catch(err => {
       commit('ITEM_ERROR', err.response)
       throw err
@@ -58,8 +68,71 @@ const actions = {
     commit('ITEM_REQUEST', types.DELETING)
     return api.deleteConnectionProfile(data).then(response => {
       commit('ITEM_DESTROYED', data)
+      return response
     }).catch(err => {
       commit('ITEM_ERROR', err.response)
+      throw err
+    })
+  },
+  files: ({ state, commit }, id) => {
+    const params = {
+      id,
+      sort: 'name',
+      fields: ['name', 'size', 'entries', 'type', 'not_deletable'].join(',')
+    }
+    commit('FILE_REQUEST')
+    return api.connectionProfileFiles(params).then(response => {
+      commit('FILE_REPLACED', { id, files: response })
+      return response
+    })
+  },
+  getFile: ({ state, commit, dispatch }, params) => {
+    commit('FILE_REQUEST')
+    return api.connectionProfileFile(params).then(content => {
+      // Retrieve metadata ..
+      let filePromise
+      if (state.files.cache[params.id]) {
+        // .. from cache
+        filePromise = Promise.resolve(state.files.cache[params.id])
+      } else {
+        // .. from server
+        filePromise = dispatch('files', params.id)
+      }
+      return filePromise.then(() => {
+        let paths = params.filename.split('/')
+        let meta = state.files.cache[params.id]
+        for (let path of paths) {
+          if (path) {
+            if (meta && 'entries' in meta) {
+              meta = meta.entries.find(item => item.name === path)
+            }
+          }
+        }
+        commit('FILE_SUCCESS')
+        return { meta, content }
+      })
+    }).catch((err) => {
+      commit('FILE_ERROR', err.response)
+      throw err
+    })
+  },
+  updateFile: ({ commit }, data) => {
+    commit('FILE_REQUEST')
+    return api.updateConnectionProfileFile(data).then(response => {
+      commit('FILE_SUCCESS', data)
+      return response
+    }).catch(err => {
+      commit('FILE_ERROR', err.response)
+      throw err
+    })
+  },
+  deleteFile: ({ commit, dispatch }, params) => {
+    commit('FILE_REQUEST', types.DELETING)
+    return api.deleteConnectionProfileFile(params).then(response => {
+      commit('FILE_DESTROYED')
+      return dispatch('files', params.id)
+    }).catch(err => {
+      commit('FILE_ERROR', err.response)
       throw err
     })
   }
@@ -82,6 +155,26 @@ const mutations = {
     state.itemStatus = types.ERROR
     if (response && response.data) {
       state.message = response.data.message
+    }
+  },
+  FILE_REQUEST: (state, type) => {
+    state.files.status = type || types.LOADING
+    state.files.message = ''
+  },
+  FILE_SUCCESS: (state) => {
+    state.files.status = types.SUCCESS
+  },
+  FILE_REPLACED: (state, data) => {
+    state.files.status = types.SUCCESS
+    Vue.set(state.files.cache, data.id, data.files)
+  },
+  FILE_DESTROYED: (state, id) => {
+    state.files.status = types.SUCCESS
+  },
+  FILE_ERROR: (state, response) => {
+    state.files.status = types.ERROR
+    if (response && response.data) {
+      state.files.message = response.data.message
     }
   }
 }

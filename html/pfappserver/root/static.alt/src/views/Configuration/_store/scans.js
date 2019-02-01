@@ -24,58 +24,63 @@ const getters = {
 }
 
 const actions = {
-  all: () => {
+  allScanEngines: () => {
     const params = {
       sort: 'id',
       fields: ['id', 'description', 'class'].join(',')
     }
-    return api.scans(params).then(response => {
+    return api.scanEngines(params).then(response => {
       return response.items
     })
   },
-  getScan: ({ state, commit }, id) => {
+  getScanEngine: ({ state, commit }, id) => {
     if (state.cache[id]) {
       return Promise.resolve(state.cache[id])
     }
     commit('ITEM_REQUEST')
-    return api.scan(id).then(item => {
+    return api.scanEngine(id).then(item => {
       commit('ITEM_REPLACED', item)
+      return item
     }).catch((err) => {
       commit('ITEM_ERROR', err.response)
       throw err
     })
   },
-  createScan: ({ commit }, data) => {
+  createScanEngine: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.createScan(data).then(response => {
+    return api.createScanEngine(data).then(response => {
       commit('ITEM_REPLACED', data)
+      return response
     }).catch(err => {
       commit('ITEM_ERROR', err.response)
       throw err
     })
   },
-  updateScan: ({ commit }, data) => {
+  updateScanEngine: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.updateScan(data).then(response => {
+    return api.updateScanEngine(data).then(response => {
       commit('ITEM_REPLACED', data)
+      return response
     }).catch(err => {
       commit('ITEM_ERROR', err.response)
       throw err
     })
   },
-  deleteScan: ({ commit }, data) => {
+  deleteScanEngine: ({ commit }, data) => {
     commit('ITEM_REQUEST', types.DELETING)
-    return api.deleteScan(data).then(response => {
+    return api.deleteScanEngine(data).then(response => {
       commit('ITEM_DESTROYED', data)
+      return response
     }).catch(err => {
       commit('ITEM_ERROR', err.response)
       throw err
     })
   },
-  testScan: ({ commit }, data) => {
+  testScanEngine: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.testScan(data).then(response => {
+    return api.testScanEngine(data).then(response => {
       commit('ITEM_SUCCESS')
+      return response
     }).catch(err => {
       commit('ITEM_ERROR', err.response)
       throw err

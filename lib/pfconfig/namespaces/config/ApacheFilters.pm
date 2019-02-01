@@ -18,13 +18,19 @@ use strict;
 use warnings;
 
 use pfconfig::namespaces::config;
-use pf::file_paths qw($apache_filters_config_file);
+use pf::file_paths qw(
+    $apache_filters_config_file
+    $apache_filters_config_default_file
+);
 
 use base 'pfconfig::namespaces::config';
 
 sub init {
     my ($self) = @_;
     $self->{file} = $apache_filters_config_file;
+
+    my $defaults = pf::IniFiles->new( -file => $apache_filters_config_default_file );
+    $self->{added_params}->{'-import'} = $defaults;
 }
 
 sub build_child {

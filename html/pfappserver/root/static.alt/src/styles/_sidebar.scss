@@ -49,8 +49,13 @@ $sidebar-item-padding-right: map-get($spacers, 1);
   padding: 1rem ($grid-gutter-width / 2);
 
   .form-control:focus {
-    border-color: $gray-500;
-    box-shadow: 0 0 0 3px rgba($gray-500, .25);
+    border: 0;
+  }
+
+  .input-group-prepend, .input-group-append, .btn {
+    background-color: $input-bg;
+    border-color: $input-bg;
+    color: $body-color;
   }
 }
 
@@ -62,7 +67,7 @@ $sidebar-item-padding-right: map-get($spacers, 1);
 .pf-sidenav-group {
   display: block;
   padding: $sidebar-item-padding-y $sidebar-item-padding-right $sidebar-item-padding-y $sidebar-item-padding-left;
-  color: $gray-600;
+  color: $gray-500;
   font-weight: 400;
 
   &[role=button] {
@@ -108,7 +113,7 @@ $sidebar-item-padding-right: map-get($spacers, 1);
 .pf-sidebar .nav li > a {
   display: block;
   padding: $sidebar-item-padding-y $sidebar-item-padding-right $sidebar-item-padding-y $sidebar-item-padding-left;
-  color: rgba(0,0,0,.65);
+  color: $gray-700;
 
   &:hover {
     background-color: transparent;
@@ -136,7 +141,7 @@ $sidebar-item-padding-right: map-get($spacers, 1);
 
 // Collapsable sections
 .pf-sidenav .navbar-collapse {
-  background-color: rgba(0, 0, 0, 0.125);
+  background-color: rgba(0, 0, 0, 0.05);
 }
 
 .pf-sidenav .collapsed svg:last-child {

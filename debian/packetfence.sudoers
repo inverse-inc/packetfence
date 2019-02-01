@@ -1,2 +1,6 @@
 pf ALL=NOPASSWD: /bin/systemctl, /sbin/iptables, /usr/sbin/ipset, /sbin/ipset, /sbin/ip, /sbin/vconfig, /sbin/route, /usr/bin/systemctl, /usr/bin/tee, /usr/local/pf/sbin/pfdhcplistener, /bin/kill, /usr/sbin/freeradius, /usr/sbin/chroot, /usr/local/pf/bin/pfcmd, /usr/sbin/conntrack
 Defaults !requiretty
+# Do not log commands that starts by '/sbin/ip netns exec'
+# i.e. net ads join, testjoin and leave
+Cmnd_Alias NETADS = /sbin/ip netns exec *
+Defaults!NETADS !syslog

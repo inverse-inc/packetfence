@@ -7,13 +7,13 @@
         <slot name="prepend"></slot>
       </b-col>
       <b-col cols="10"
-        class="collapse-handle py-1"
+        class="collapse-handle d-flex align-items-center"
         :class="(valid) ? 'text-primary' : 'text-danger'"
         @click.prevent="click($event)"
       >
-        <icon v-if="visible" name="chevron-circle-down" :class="['mr-3', { 'text-primary': ctrlKey, 'text-dark': !ctrlKey }]"></icon>
-        <icon v-else name="chevron-circle-right" :class="['mr-3', { 'text-primary': ctrlKey, 'text-dark': !ctrlKey }]"></icon>
-        <span>{{ $t('Rule') }} - {{ localId || $t('New') }} ( {{ localDescription }} )</span>
+        <icon v-if="visible" name="chevron-circle-down" class="mr-2" :class="{ 'text-primary': ctrlKey, 'text-secondary': !ctrlKey }"></icon>
+        <icon v-else name="chevron-circle-right" class="mr-2" :class="{ 'text-primary': ctrlKey, 'text-secondary': !ctrlKey }"></icon>
+        <div>{{ localId || $t('New rule') }} <span v-if="localDescription">( {{ localDescription }} )</span></div>
       </b-col>
       <b-col v-if="$slots.append" cols="1" align-self="start" class="py-1 text-center col-form-label">
         <slot name="append"></slot>
@@ -315,8 +315,8 @@ export default {
   }
   .pf-form-chosen {
     .col-sm-12[role="group"] {
-      padding-left: 0px;
       padding-right: 0px;
+      padding-left: 0px;
     }
   }
 }

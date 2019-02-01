@@ -99,6 +99,7 @@ BEGIN {
         connection_type_to_str
         str_to_connection_type
         validate_unregdate
+        find_outgoing_srcip
     );
 }
 
@@ -1446,6 +1447,27 @@ sub find_outgoing_interface {
         return $interface_src[6];
     } else {
         return $interface_src[2];
+    }
+}
+
+=head2 find_outgoing_srcip
+
+Find the src_ip to reach the target
+
+=cut
+
+sub find_outgoing_srcip {
+    my ($target) = @_;
+    my @src_ip;
+
+    @src_ip = split(" ", pf_run("sudo ip route get $target"));
+
+    if ($src_ip[1] eq 'via') {
+        return $src_ip[6];
+    } elsif($src_ip[0] eq 'local') {
+        return $src_ip[5];
+    } else {
+        return $src_ip[4];
     }
 }
 

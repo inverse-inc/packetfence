@@ -141,15 +141,20 @@ Generates the password
 
 sub _generate_password {
     my ($size) = @_;
-    my $min = 8;
-    my $max = 12;
 
-    $min = $max = $size if (defined $size);
+    # Default to a size of 8 if none is requested
+    $size //= 8;
 
-    my $password = word($min, $max);
+    my $absolute_min = 4;
+    if($size < $absolute_min) {
+        get_logger->warn("Password length less than $absolute_min, making the password $absolute_min long.");
+        $size = $absolute_min;
+    }
+
+    my $password = word($size, $size);
     # if password is nasty generate another one (until we get a clean one)
     while(Crypt::GeneratePassword::restrict($password, undef)) {
-        $password = word($min, $max);
+        $password = word($size, $size);
     }
     return $password;
 }
@@ -195,7 +200,8 @@ sub generate {
     $password ||= _generate_password($options->{'password_length'});
 
     # hash password
-    $data{'password'} = _hash_password( $password, algorithm => $Config{'advanced'}{'hash_passwords'}, );
+    my $hash = $options->{'hash_passwords'} || $Config{'advanced'}{'hash_passwords'};
+    $data{'password'} = _hash_password( $password, algorithm => $hash, );
 
     $data{'login_remaining'} = $login_amount;
 

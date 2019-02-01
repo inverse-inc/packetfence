@@ -35,7 +35,7 @@ Depends: ${misc:Depends}, vlan,
  libapache2-request-perl, libtie-dxhash-perl, libapache-session-perl,
  libapache-ssllookup-perl, libapache2-mod-systemd,
 # freeradius
- freeradius (>= 3.0.15.6), freeradius-ldap, 
+ freeradius (>= 3.0.18), freeradius-ldap,
  freeradius-mysql, freeradius-utils, freeradius-rest, freeradius-redis,
 # systemd sd_notify support
  libsystemd-daemon-perl,
@@ -214,10 +214,10 @@ Package: packetfence-captive-portal-javascript
 Architecture: any
 Depends: ${misc:Depends}
 Description: PacketFence captive portal javascript
-Conflicts: packetfence (<= 8.1.0)
+Conflicts: packetfence (<< 8.1.1)
 
 Package: packetfence-pfappserver-javascript
 Architecture: any
 Depends: ${misc:Depends}
 Description: PacketFence Admin javascript css
-Conflicts: packetfence (<= 8.1.0)
+Conflicts: packetfence (<< 8.1.1)

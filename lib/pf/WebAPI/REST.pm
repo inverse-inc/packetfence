@@ -104,7 +104,7 @@ sub handler {
 
     my $object;
     eval {
-        $object = $method_sub->($self->dispatch_to, @args);
+        $object = $method_sub->($self->dispatch_to, @args,$r->headers_in());
         unless(ref($object) eq "ARRAY" || ref($object) eq "HASH"){
             $object = {result => $object};
         }

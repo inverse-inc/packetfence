@@ -41,13 +41,21 @@ has_field 'type' =>
 
 has_block definition =>
   (
-   render_list => [ qw(id ip type username password port openvas_configid openvas_reportformatid categories oses duration pre_registration registration post_registration) ],
+   render_list => [ qw(id ip type username password port openvas_alertid openvas_configid openvas_reportformatid categories oses duration pre_registration registration post_registration) ],
+  );
+
+has_field 'openvas_alertid' =>
+  (
+   type => 'Text',
+   label => 'Alert ID',
+   tags => { after_element => \&help,
+             help => 'ID of the alert configuration on the OpenVAS server' },
   );
 
 has_field 'openvas_configid' =>
   (
    type => 'Text',
-   label => 'OpenVAS config ID',
+   label => 'Scan config ID',
    tags => { after_element => \&help,
              help => 'ID of the scanning configuration on the OpenVAS server' },
   );
@@ -55,10 +63,10 @@ has_field 'openvas_configid' =>
 has_field 'openvas_reportformatid' =>
   (
    type => 'Text',
-   label => 'OpenVAS report format',
-   default => 'f5c2a364-47d2-4700-b21d-0a7693daddab',
+   label => 'Report format ID',
+   default => '',
    tags => { after_element => \&help,
-             help => 'ID of the .NBE report format on the OpenVAS server' },
+             help => 'ID of the "CSV Results" report format on the OpenVAS server' },
   );
 
 =over

@@ -1,7 +1,7 @@
 import i18n from '@/utils/locale'
 import bytes from '@/utils/bytes'
-import pfFieldAction from '@/components/pfFieldAction'
-import pfFieldCondition from '@/components/pfFieldCondition'
+import pfFieldTypeValue from '@/components/pfFieldTypeValue'
+import pfFieldAttributeOperatorValue from '@/components/pfFieldAttributeOperatorValue'
 import pfFieldRule from '@/components/pfFieldRule'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormFields from '@/components/pfFormFields'
@@ -15,6 +15,7 @@ import { pfDatabaseSchema as schema } from '@/globals/pfDatabaseSchema'
 import { pfFieldType as fieldType } from '@/globals/pfField'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
+  alphaNum,
   and,
   not,
   conditional,
@@ -29,22 +30,21 @@ import {
 } from '@/globals/pfValidators'
 
 const {
-  required,
-  alphaNum,
   integer,
-  numeric,
   ipAddress,
   maxLength,
+  maxValue,
   minValue,
-  maxValue
+  numeric,
+  required
 } = require('vuelidate/lib/validators')
 
 export const pfConfigurationLocales = [
   'en_US',
-  'es_ES',
-  'fr_FR',
-  'fr_CA',
   'de_DE',
+  'es_ES',
+  'fr_CA',
+  'fr_FR',
   'he_IL',
   'it_IT',
   'nl_NL',
@@ -598,6 +598,12 @@ export const pfConfigurationListColumns = {
     sortable: true,
     visible: true
   },
+  port: {
+    key: 'port',
+    label: i18n.t('Port'),
+    sortable: true,
+    visible: true
+  },
   portal_strip_username: {
     key: 'portal_strip_username',
     label: i18n.t('Strip Portal'),
@@ -691,6 +697,11 @@ export const pfConfigurationListFields = {
   notes: {
     value: 'notes',
     text: i18n.t('Description'),
+    types: [conditionType.SUBSTRING]
+  },
+  port: {
+    value: 'port',
+    text: i18n.t('Port'),
     types: [conditionType.SUBSTRING]
   },
   type: {
@@ -813,7 +824,7 @@ export const pfConfigurationViewFields = {
               attrs: {
                 matchLabel: i18n.t('Select rule match'),
                 actions: {
-                  component: pfFieldAction,
+                  component: pfFieldTypeValue,
                   attrs: {
                     typeLabel: i18n.t('Select action type'),
                     valueLabel: i18n.t('Select action value'),
@@ -828,7 +839,7 @@ export const pfConfigurationViewFields = {
                   ]
                 },
                 conditions: {
-                  component: pfFieldCondition,
+                  component: pfFieldAttributeOperatorValue,
                   attrs: {
                     attributeLabel: i18n.t('Select attribute'),
                     operatorLabel: i18n.t('Select operator'),
@@ -1000,7 +1011,7 @@ export const pfConfigurationViewFields = {
               attrs: {
                 matchLabel: i18n.t('Select rule match'),
                 actions: {
-                  component: pfFieldAction,
+                  component: pfFieldTypeValue,
                   attrs: {
                     typeLabel: i18n.t('Select action type'),
                     valueLabel: i18n.t('Select action value'),
@@ -1017,7 +1028,7 @@ export const pfConfigurationViewFields = {
                   ]
                 },
                 conditions: {
-                  component: pfFieldCondition,
+                  component: pfFieldAttributeOperatorValue,
                   attrs: {
                     attributeLabel: i18n.t('Select attribute'),
                     operatorLabel: i18n.t('Select operator'),
@@ -1720,6 +1731,22 @@ export const pfConfigurationViewFields = {
       }
     ]
   },
+  pid_field: {
+    label: i18n.t('PID field'),
+    text: i18n.t('Which field should be used as the PID.'),
+    fields: [
+      {
+        key: 'pid_field',
+        component: pfFormSelect,
+        attrs: {
+          options: Object.keys(schema.person)
+        },
+        validators: {
+          [i18n.t('PID field required.')]: required
+        }
+      }
+    ]
+  },
   pin_code_length: {
     label: i18n.t('PIN length'),
     text: i18n.t('The amount of digits of the PIN number.'),
@@ -2072,6 +2099,18 @@ export const pfConfigurationViewFields = {
       }
     ]
   },
+  show_first_module_on_default: {
+    label: i18n.t('Show first module when none is selected'),
+    fields: [
+      {
+        key: 'shuffle',
+        component: pfFormToggle,
+        attrs: {
+          values: { checked: 'enabled', unchecked: 'disabled' }
+        }
+      }
+    ]
+  },
   shuffle: {
     label: i18n.t('Shuffle'),
     text: i18n.t('Randomly choose LDAP server to query'),
@@ -2081,6 +2120,19 @@ export const pfConfigurationViewFields = {
         component: pfFormToggle,
         attrs: {
           values: { checked: '1', unchecked: '0' }
+        }
+      }
+    ]
+  },
+  signup_template: {
+    label: i18n.t('Signup template'),
+    text: i18n.t('The template to use for the signup'),
+    fields: [
+      {
+        key: 'signup_template',
+        component: pfFormInput,
+        validators: {
+          [i18n.t('Template required.')]: required
         }
       }
     ]
@@ -2286,6 +2338,15 @@ export const pfConfigurationViewFields = {
             { value: 'subscription', text: 'Subscription' }
           ]
         }
+      }
+    ]
+  },
+  template: {
+    label: i18n.t('Template'),
+    fields: [
+      {
+        key: 'template',
+        component: pfFormInput
       }
     ]
   },

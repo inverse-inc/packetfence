@@ -45,7 +45,7 @@ import pfMixinEscapeKey from '@/components/pfMixinEscapeKey'
 import {
   pfConfigurationAuthenticationSourceViewFields as fields,
   pfConfigurationAuthenticationSourceViewDefaults as defaults
-} from '@/globals/pfConfigurationAuthenticationSources'
+} from '@/globals/configuration/pfConfigurationAuthenticationSources'
 const { validationMixin } = require('vuelidate')
 
 export default {
@@ -85,10 +85,11 @@ export default {
   },
   data () {
     return {
+      source: defaults(this), // will be overloaded with the data from the store
+      sourceValidations: {}, // will be overloaded with data from the pfConfigView,
       realms: [], // all realms
       sources: [], // all sources
-      source: defaults(this), // will be overloaded with the data from the store
-      sourceValidations: {} // will be overloaded with data from the pfConfigView
+      general: {}
     }
   },
   validations () {
@@ -163,6 +164,10 @@ export default {
     })
     this.$store.dispatch('$_realms/all').then(data => {
       this.realms = data
+    })
+    this.$store.dispatch('$_bases/getBase', 'general').then(data => {
+      this.general = data
+      this.source = defaults(this) // re-overload `source` form
     })
   }
 }

@@ -29,9 +29,10 @@ func init() {
 }
 
 type PrettyTokenInfo struct {
-	AdminRoles []string `json:"admin_roles"`
-	TenantId   int      `json:"tenant_id"`
-	Username   string   `json:"username"`
+	AdminActions []string `json:"admin_actions"`
+	AdminRoles   []string `json:"admin_roles"`
+	TenantId     int      `json:"tenant_id"`
+	Username     string   `json:"username"`
 }
 
 type ApiAAAHandler struct {
@@ -78,7 +79,7 @@ func buildApiAAAHandler(ctx context.Context) (ApiAAAHandler, error) {
 	if pfconfigdriver.Config.UnifiedApiSystemUser.User != "" {
 		apiAAA.systemBackend = aaa.NewMemAuthenticationBackend(
 			map[string]string{},
-			pfconfigdriver.Config.AdminRoles.Element["ALL"].Actions,
+			map[string]bool{"ALL": true},
 		)
 		apiAAA.systemBackend.SetUser(pfconfigdriver.Config.UnifiedApiSystemUser.User, pfconfigdriver.Config.UnifiedApiSystemUser.Pass)
 		apiAAA.authentication.AddAuthenticationBackend(apiAAA.systemBackend)
@@ -87,7 +88,7 @@ func buildApiAAAHandler(ctx context.Context) (ApiAAAHandler, error) {
 	// Backend for the pf.conf webservices user
 	apiAAA.webservicesBackend = aaa.NewMemAuthenticationBackend(
 		map[string]string{},
-		pfconfigdriver.Config.AdminRoles.Element["ALL"].Actions,
+		map[string]bool{"ALL": true},
 	)
 	apiAAA.authentication.AddAuthenticationBackend(apiAAA.webservicesBackend)
 
@@ -156,12 +157,19 @@ func (h ApiAAAHandler) handleTokenInfo(w http.ResponseWriter, r *http.Request, p
 	if info != nil {
 		// We'll want to render the roles as an array, not as a map
 		prettyInfo := PrettyTokenInfo{
-			AdminRoles: make([]string, len(info.AdminRoles)),
-			TenantId:   info.TenantId,
-			Username:   info.Username,
+			AdminActions: make([]string, len(info.AdminActions())),
+			AdminRoles:   make([]string, len(info.AdminRoles)),
+			TenantId:     info.TenantId,
+			Username:     info.Username,
 		}
 
 		i := 0
+		for r, _ := range info.AdminActions() {
+			prettyInfo.AdminActions[i] = r
+			i++
+		}
+
+		i = 0
 		for r, _ := range info.AdminRoles {
 			prettyInfo.AdminRoles[i] = r
 			i++

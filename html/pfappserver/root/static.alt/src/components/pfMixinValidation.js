@@ -89,19 +89,19 @@ export default {
     },
     getInvalidFeedback () {
       let feedback = []
-      if (this.invalidFeedback) {
-        // add manually defined feedback
-        return this.stringifyFeedback(this.invalidFeedback)
-      }
       if (this.vuelidate) {
-        // add automatically generated feedback
+        // automatically generated feedback
         if ('$params' in this.vuelidate) {
           Object.entries(this.vuelidate.$params).forEach(([param, validator]) => {
             if (this.vuelidate[param] === false) feedback.push(param)
           })
         }
-        return feedback.join('\n')
       }
+      if (feedback.length === 0 && this.invalidFeedback) {
+        // manually defined feedback
+        feedback.push(this.stringifyFeedback(this.invalidFeedback))
+      }
+      return feedback.join('\n')
     }
   },
   created () {

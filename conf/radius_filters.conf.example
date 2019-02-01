@@ -16,12 +16,21 @@
 # RLM_MODULE_UPDATED
 # RLM_MODULE_NUMCODES
 #
-# you can use 4 scopes in the radius filter:
+# you can use scopes in the radius filter:
 # returnRadiusAccessAccept is when you return the answer for a device access
 # returnAuthorizeRead is when you return the answer for the switch read login access
 # returnAuthorizeWrite is when you return the answer for the switch write login access
 # returnAuthorizeVoip  is when you return the answer for a VoIP
 #
+# Specific scopes just to use radius filter to change the logic of Freeradius on the fly
+#
+# packetfence.authorize call the radius filter in the packetfence authorize section
+# packetfence.authenticate call the radius filter in the packetfence authenticate section
+# packetfence.pre-proxy call the radius filter in the packetfence pre-proxy section
+# packetfence.post-proxy call the radius filter in the packetfence post-proxy section
+# packetfence-tunnel.authorize call the radius filter in the packetfence-tunnel authorize section
+# packetfence.preacct call the radius filter in the packetfence preacct section
+# packetfence.accounting call the radius filter in the packetfence accounting section
 # Make a simple rule like this:
 #
 #[macauth]
@@ -144,6 +153,68 @@
 #scope = returnRadiusAccessAccept
 #merge_answer = yes
 #answer1 = Session-Timeout => 300
+#
+#
+#### authorize example ####
+#
+# There is some cases where you want to override the radius flow, like changing the value of Proxy-To-Realm to force the request to be sent to a specific Realm bases on the username.
+#
+#[acme]
+#filter = radius_request.User-Name
+#operator = regex
+#value = ^bobacme.*
+#
+#[1:acme]
+#scope=packetfence.authorize
+#merge_answer = yes
+#answer1 = control:Proxy-To-Realm => ACME
+#
+#### preacct example ####
+#
+# There is some cases where you want to override the radius flow, like changing the value of Proxy-To-Realm to force the request to be sent to a specific Realm bases on the username (for accounting).
+#
+#[acme]
+#filter = radius_request.User-Name
+#operator = regex
+#value = ^bobacme.*
+#
+#[1:acme]
+#scope=packetfence.preacct
+#merge_answer = yes
+#answer1 = control:Proxy-To-Realm => ACME
+#
+#### pre-proxy example ####
+#
+# There is some cases where you want to modify the radius request before sending it to a remote radius server.
+# In this example we will rewrite the username based on the NAS-Identifier value.
+#
+#[Building1]
+#filter = radius_request.NAS-Identifier
+#operator = is
+#value = Building1
+#
+#[1:Building1]
+#scope=packetfence.pre-proxy
+#merge_answer = yes
+#answer1 = proxy-request:User-Name => Building1!${radius_request.User-Name}
+#
+#### post-proxy example ####
+#
+# In this example we will add the vlan 33 for all the answers of the remote radius server
+#
+#[all]
+#filter = mac
+#operator = regex
+#value = .*
+#
+#[1:all]
+#scope=packetfence.post-proxy
+#merge_answer=yes
+#answer1 = reply:Tunnel-Private-Group-Id => 33
+#answer2 = reply:Tunnel-Type => 13
+#answer3 = reply:Tunnel-Medium-Type => 6
+#
+#
 #
 # filter can be for the scope returnRadiusAccessAccept:
 #     node_info.autoreg

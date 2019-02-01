@@ -195,6 +195,14 @@ before rewriteConfig => sub {
     $config->{sects} = \@newSections;
 };
 
+=head2 _Sections
+
+=cut
+
+sub _Sections {
+    my ($self) = @_;
+    return grep { /^\S+$/ } $self->SUPER::_Sections();
+}
 
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 

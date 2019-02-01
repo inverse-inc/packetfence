@@ -10,14 +10,27 @@
 
   <div class="modal-body">
         [% form.field('id').render | none UNLESS item.id %]
-        [% form.field('options').render | none %]
+        <h2 style="text-align: center;"><span>NTLM Auth Configuration</span></h2>
+        <div class="card-block">
         [% form.field('domain').render | none %]
-        [% form.field('source').render | none %]
+        </div>
+        <h2 style="text-align: center;"><span>Freeradius Proxy Configuration</span></h2>
+        <div class="card-block">
+        [% form.field('options').render | none %]
+        [% form.field('radius_auth').render | none %]
+        [% form.field('radius_auth_proxy_type').render | none %]
+        [% form.field('radius_auth_compute_in_pf').render | none %]
+        [% form.field('radius_acct').render | none %]
+        [% form.field('radius_acct_proxy_type').render | none %]
+        </div>
+        <h2 style="text-align: center;"><span>Stripping Configuration</span></h2>
+        <div class="card-block">
         [% form.field('portal_strip_username').render | none %]
         [% form.field('admin_strip_username').render | none %]
         [% form.field('radius_strip_username').render | none %]
         [% form.field('permit_custom_attributes').render | none %]
         [% form.field('ldap_source').render | none %]
+        </div>
   </div><!--modal-body-->
 
   <div class="modal-footer">

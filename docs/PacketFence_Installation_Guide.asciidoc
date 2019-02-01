@@ -2342,11 +2342,24 @@ You can have a look in the file vlan_filters.conf, there are some examples on ho
 RADIUS Filter Definition
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-We added the ability to specify filters directly in the portion of code that return the radius answer or do a call to the API.
+We added the ability to specify filters directly in the portion of code that return radius attributes or do a call to the API.
 
-These rules are only available in one scope:
+These rules are available in thoses scopes:
 
-  returnRadiusAccessAccept
+  returnRadiusAccessAccept is when you return the answer for a device access
+  returnAuthorizeRead is when you return the answer for the switch read login access
+  returnAuthorizeWrite is when you return the answer for the switch write login access
+  returnAuthorizeVoip is when you return the answer for a VoIP
+
+  packetfence.authorize call the radius filter in the packetfence authorize section
+  packetfence.authenticate call the radius filter in the packetfence authenticate section
+  packetfence.pre-proxy call the radius filter in the packetfence pre-proxy section
+  packetfence.post-proxy call the radius filter in the packetfence post-proxy section
+  packetfence-tunnel.authorize call the radius filter in the packetfence-tunnel authorize section
+  packetfence.preacct call the radius filter in the packetfence preacct section
+  packetfence.accounting call the radius filter in the packetfence accounting section
+
+All the packetfence.* scopes are covered in the file radius_filters.conf, this is advanced configuration and you must know what you are doing.
 
 And can be defined using different criteria like:
 
@@ -2499,9 +2512,11 @@ EAP Guest Authentication on Email, Sponsor and SMS Registration
 
 This section will allow local credentials created during guest registration to be used in 802.1X EAP-PEAP connections.
 
+Caution: Be sure to select `plaintext` or `ntlm` as the "Database passwords hashing method" to make it work.
+
 First create a guest SSID with the guest access you want to use (Email, Sponsor or SMS, ...) and activate 'Create local account' on that source.
 
-At the end of the guest registration, PacketFence will send an email with the credentials for Email and Sponsor. For SMS the phone number and the PIN code should be used.
+At the end of the guest registration, PacketFence will send an email with the credentials for Email and Sponsor and SMS.
 
 NOTE: This option doesn't currently work with the 'Reuse dot1x credentials' option of the captive portal.
 
@@ -2555,7 +2570,7 @@ Restart the radiusd service in order to apply the change.
 
 /usr/local/pf/bin/pfcmd service radiusd restart
 
-CAUTION: You will need to disable password hashing in the database for local authentication to work. In the administration interface, go in 'Configuration -> System Configuration -> Main Configuration ->Advanced' and set 'Database passwords hashing method' to `plaintext` or `ntlm`. Don't use `bcrypt`.
+CAUTION: Take care of the "Database passwords hashing method" that has been configured in "Configuration -> System Configuration -> Main Configuration ->Advanced" or in the authentication source configuration (when you enabled "create local account") , the hash method must be `plaintext` or `ntlm` to be able to work.
 
 Limit Brute Force EAP Authentication
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -2626,6 +2641,39 @@ Grace Period
 ++++++++++++
 
 When using such violation feature, setting the grace period is really important.  You don't want to put it too low (ie. A user re-enable his network, and get caught after 1 bytes is transmitted!) or too high.  We recommend that you set the grace period to one interval window.
+
+
+RADIUS Proxy
+~~~~~~~~~~~~
+
+RADIUS Proxy is a way to proxy authentication and accounting requests to other radius server(s) based on the realm.
+Let's say you want to authenticate users on an Active Directory where there is a NPS server running and you don't want to join the PacketFence's server to this domain or in the case you want to integrate
+PacketFence in a Passpoint setup then this section is for you.
+
+To do that in PacketFence you need first to define the target RADIUS server(s) in Configuration -> Policies and Access Control -> Authentication Sources, and create the RADIUS source(s) (ACME1 ACME2).
+In the Source configuration, fill the mandatory fields and add the options to define the home_server in FreeRADIUS. (https://github.com/FreeRADIUS/freeradius-server/blob/v3.0.x/raddb/proxy.conf)
+
+Per example for the RADIUS Source ACME1:
+
+image::ACME1.png[scaledwidth="100%",alt="ACME RADIUS Source"]
+
+$src_ip is a way to dynamically use the correct source ip address of the system in case of multiples network interfaces.
+
+Next go in Configuration ->  Policies and Access Control -> REALMS, and add a new realm.
+
+image::acme.com.png[scaledwidth="100%",alt="ACME Realm Configuration"]
+image::acme.com.2.png[scaledwidth="100%",alt="ACME Realm Configuration"]
+
+(type definition can be found here https://wiki.freeradius.org/features/Proxy)
+
+Authorize from PacketFence will send the request to PacketFence to compute the role and access duration of the device.
+
+In this case the easiest way to achieve that is to create a Authorization source (with rules), assign this source to a connection profile where you enabled "Automatically register devices" and where 
+you defined a filter like Realm = acme.com .
+
+Click on save and restart radius (pfcmd service radiusd restart).
+
+Now when a device connect with the username bob@acme.com then the authentication and accounting requests will be forwarded to one of the ACME RADIUS servers.
 
 
 Fingerbank Integration
@@ -3129,13 +3177,57 @@ NOTE: You may run into some issue while using Nessus with the Net::Nessus::XMLRP
 OpenVAS
 ^^^^^^^
 
-Please visit http://www.openvas.org/install-packages.html#openvas4_centos_atomic to configure the correct repository to be able to install the latest OpenVAS scanning engine.
+Requirements
+++++++++++++
 
-Once installed, please make sure to follow the instructions to correctly configure the scanning engine and create a scan configuration that will fit your needs. You'll also need to create a user for PacketFence to be able to communicate with the server.
+You will first need to install OpenVAS along with XYZ and ABC in order to manage OpenVAS remotely via the `omp` command line.
 
-It is important to get the correct scan config ID and NBE report format ID to populate the parameters in the PacketFence configuration file. The easiest way to get these IDs is by downloading both of the scan configuration and report format from the OpenVAS web gui and retrieve the IDs in the filenames.
+In order to validate proper connectivity from PacketFence to OpenVAS for remote management, execute the following command (replacing admin by the user you wish to use for PacketFence to communicate with OpenVAS):
 
-For example `report-format-f5c2a364-47d2-4700-b21d-0a7693daddab.xml` gives report format ID `f5c2a364-47d2-4700-b21d-0a7693daddab`.
+  # omp -u admin -p 9390 -X "<get_version/>" 
+
+The output of the above command should provide you the version of OpenVAS. Otherwise, ensure all the necessary components are in place for management through the `omp` command line client and that PacketFence is able to communicate with OpenVAS on port 9390.
+
+Configuring the alert
++++++++++++++++++++++
+
+You will need to configure an alert policy in OpenVAS to inform PacketFence of the completion of a task. The httpd.portal daemon takes care of handling this callback so you'll want to make sure that you have "portal" in your additionnal listening daemons on your management interface in PacketFence.
+
+In order to create the alert policy, go in the Greenbone Security Assistant, then in "Configuration->Alerts" and create a new alert with the following configuration
+
+image::openvas/alert.png[alt="OpenVAS alert"]
+
+Where:
+
+ * Name is of the value of your choosing
+ * Ensure the event is set to "Task run status changed to: Done"
+ * Ensure the condition is set to "Always"
+ * Method is set to "HTTP Get"
+ * HTTP Get URL is set to: http://PF_MANAGEMENT_IP/hook/openvas?task=$n
+ ** In the URL above, only change PF_MANAGEMENT_IP to the management IP of your PacketFence server. Leave the rest of the URL untouched as this exact URL and format is expected by PacketFence.
+
+Collecting the identifiers
+++++++++++++++++++++++++++
+
+Once you have connectivity working between PacketFence and OpenVAS, use the Greebone Security Assistant to obtain the following information for configuring PacketFence
+
+*Alert ID*
+
+Navigate to "Configuration->Alerts", then click on the alert you've configured above to view it, and note down the ID of the alert.
+
+image::openvas/alert-id.png[alt="OpenVAS alert ID"]
+
+*Scan config ID*
+
+Navigate to "Configuration->Scan Configs" and then select the scan configuration you would like to use to scan the hosts. In this scan config view, note down the ID.
+
+image::openvas/scan-config-id.png[alt="OpenVAS scan config ID"]
+
+*Report format ID* 
+
+Navigate to "Configuration->Report Formats" and then select the "CSV Results" report format. In this view, note down the ID.
+
+image::openvas/report-format-id.png[alt="OpenVAS report format ID"]
 
 WMI
 ^^^
@@ -3182,7 +3274,9 @@ Specific to OpenVAS:
   Username: Username to connect to OpenVAS scan
   Password: Password to connect to OpenVAS scan
   Port of the service: port to connect (default 9390)
-  OpenVAS config ID: the ID of scanning configuration on the OpenVAS server
+  Alert ID: the ID of the alert configuration on the OpenVAS server
+  Scan config ID: the ID of the scanning configuration on the OpenVAS server
+  Report format ID: the ID of the report format for the "CSV Results"
 
 Specific to WMI:
 
@@ -5333,84 +5427,13 @@ Installation
 
 Since the Suricata IDS is not packaged with the distros (except maybe Fedora, which we do not officially support), you need to build it the "old" way.
 
-The OISF provides a really well written how-to for that.  It's available here: https://redmine.openinfosecfoundation.org/projects/suricata/wiki/CentOS5
+The OISF provides a really well written how-to for that. It's available here: https://redmine.openinfosecfoundation.org/projects/suricata/wiki/CentOS5
 
-NOTE: To benefit the OPSWAT Metadefender Cloud integration, Suricata needs to be built with libnss / libnspr support. Make sure to use JSON output. More information on how to achieve this can be found there: https://redmine.openinfosecfoundation.org/projects/suricata/wiki/MD5
 
 Configuration
 +++++++++++++
 
 You will need to follow the configuration below related to the Suricata configuration (Syslog).
-
-OPSWAT Metadefender Cloud
-+++++++++++++++++++++++++
-
-It is possible to trigger violations based on threat level of downloaded files using the Metadefender Cloud integration in conjunction with the Suricata MD5 extraction feature. Without entering in the details, here are the basic steps to make it work.
-
-First, an OPSWAT portal account is required to make use of the API. Such account can be obtained through the OPSWAT portal: https://portal.opswat.com.
-
-Other requirement is a Suricata working installation built with libnss / libnspr support as described in the upper "Installation" section.
-
-Along with the OPSWAT API key for Metadefender Cloud (they call it 'License Key') and the working Suricata installation, some configuration (PacketFence based AND Suricata based) is also required.
-
-Assuming that all the steps for Suricata MD5 extraction have been followed, here's what to do next.
-
-On PacketFence, under Configuration->Integration->OPSWAT Metadefender, enter your 'Licence Key'.
-
-On the Suricata server (syslog-ng is preferred due to easier and more powerful configuration. If not installed, it might be an idea):
-
-Configure `/etc/syslog-ng/syslog-ng.conf` by adding the following to enable sending MD5 file store log entries to PacketFence:
-
-  ### PacketFence / OPSWAT Metadefender Cloud integration
-  # This line specifies where the files-json.log file is located
-  # -> Make sure to configure the right path along with the right filename
-  source s_suricata_files { file("/MY_SURICATA_LOG_FILES_PATH/files-json.log" program_override("suricata_files") flags(no-parse)); };
-  # This line tells syslog-ng to send the data read to the PacketFence management interface IP address using UDP 514
-  # -> Make sure to configure the right PacketFence management interface IP address
-  destination d_packetfence_md5 { udp("PACKETFENCE_MGMT_IP" port(514)); };
-  # This line indicates syslog-ng to use the s_suricata_files source and send it to the d_packetfence_md5 destination
-  log { source(s_suricata_files); destination(d_packetfence_md5); };
-
-A restart of the syslog-ng daemon is required
-
-  service syslog-ng restart
-
-On the PacketFence server:
-
-Modify rsyslog configuration to allow incoming UDP packets by uncommenting the following two lines in `/etc/rsyslog.conf`:
-
-  $ModLoad imudp
-  $UDPServerRun 514
-
-Configure `/etc/rsyslog.d/suricata_files.conf` so it contains the following which will redirect Suricata MD5 file store log entries and stop further processing of current matched message:
-
-  if $programname == 'suricata_files' then /usr/local/pf/var/suricata_files
-  & ~
-
-Make sure the receiving alert pipe (FIFO) exists
-
-  mkfifo /usr/local/pf/var/suricata_files
-
-Restart the rsyslog daemon
-
-  service rsyslog restart
-
-At this point, Suricata should be able to extract MD5 checksum of downloaded files and send the related log entry to PacketFence.
-
-A configuration of a new 'syslog parser' as well as some violations are the only remaining steps to make full usage of the OPSWAT Metadefender Cloud integration.
-
-Configuration of a new 'syslog parser' (Configuration->Integration->Syslog Parsers) should use the followings:
-
-  Type: suricata_md5
-  Alert pipe: the previously created alert pipe (FIFO) which is, in this case, /usr/local/pf/var/suricata_files
-
-Configuration of a new violation can use the following trigger types:
-
-  Type: metadefender
-  Triggers ID: The scan result returned by Metadefender Cloud online
-
-  Type: suricata_md5
-  Trigger ID: The MD5 hash returned by Suricata
 
 Violations
 ^^^^^^^^^^
