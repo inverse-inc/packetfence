@@ -124,6 +124,14 @@ func (tam *TokenAuthorizationMiddleware) BearerRequestIsAuthorized(ctx context.C
 		}
 	}
 
+	roles := make([]string, len(tokenInfo.AdminRoles))
+	i := 0
+	for r, _ := range tokenInfo.AdminRoles {
+		roles[i] = r
+		i++
+	}
+	r.Header.Set("X-PacketFence-Admin-Roles", strings.Join(roles, ","))
+
 	return tam.IsAuthorized(ctx, r.Method, r.URL.Path, tenantId, tokenInfo)
 }
 
@@ -133,7 +141,7 @@ func (tam *TokenAuthorizationMiddleware) IsAuthorized(ctx context.Context, metho
 		return false, errors.New("Invalid token info")
 	}
 
-	authAdminRoles, err := tam.isAuthorizedAdminRoles(ctx, method, path, tokenInfo.AdminRoles)
+	authAdminRoles, err := tam.isAuthorizedAdminActions(ctx, method, path, tokenInfo.AdminActions())
 	if !authAdminRoles || err != nil {
 		return authAdminRoles, err
 	}
@@ -171,7 +179,7 @@ func (tam *TokenAuthorizationMiddleware) isAuthorizedTenantId(ctx context.Contex
 	}
 }
 
-func (tam *TokenAuthorizationMiddleware) isAuthorizedAdminRoles(ctx context.Context, method, path string, roles map[string]bool) (bool, error) {
+func (tam *TokenAuthorizationMiddleware) isAuthorizedAdminActions(ctx context.Context, method, path string, roles map[string]bool) (bool, error) {
 
 	var baseAdminRole string
 	for _, o := range pathAdminRolesMap {

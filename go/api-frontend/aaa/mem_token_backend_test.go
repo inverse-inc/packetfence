@@ -21,7 +21,7 @@ func TestMemTokenBackend(t *testing.T) {
 		t.Error("Got a tenant ID for an inexisting token")
 	}
 
-	roles := b.AdminRolesForToken(token)
+	roles := b.AdminActionsForToken(token)
 
 	if len(roles) != 0 {
 		t.Error("Got some roles for an existant token", spew.Sdump(roles))
@@ -29,8 +29,7 @@ func TestMemTokenBackend(t *testing.T) {
 
 	b.StoreTokenInfo(token, &TokenInfo{
 		AdminRoles: map[string]bool{
-			"USERS_READ":  true,
-			"SYSTEM_READ": true,
+			"Node Manager": true,
 		},
 		TenantId: 1,
 	})
@@ -45,9 +44,9 @@ func TestMemTokenBackend(t *testing.T) {
 		t.Error("Got an invalid tenant ID for a valid token")
 	}
 
-	roles = b.AdminRolesForToken(token)
+	roles = b.AdminActionsForToken(token)
 
-	if len(roles) != 2 {
+	if len(roles) != 4 {
 		t.Error("Got the wrong amount of roles for an existant token", spew.Sdump(roles))
 	}
 
@@ -64,7 +63,7 @@ func TestMemTokenBackend(t *testing.T) {
 		t.Error("Got a tenant ID for an expired token")
 	}
 
-	roles = b.AdminRolesForToken(token)
+	roles = b.AdminActionsForToken(token)
 
 	if len(roles) != 0 {
 		t.Error("Got some roles for an expired token", spew.Sdump(roles))

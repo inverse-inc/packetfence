@@ -3,6 +3,8 @@ package aaa
 import (
 	"context"
 	"sync"
+
+	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 )
 
 type AuthenticationBackend interface {
@@ -17,11 +19,15 @@ type MemAuthenticationBackend struct {
 }
 
 func NewMemAuthenticationBackend(validUsers map[string]string, adminRoles map[string]bool) *MemAuthenticationBackend {
-	return &MemAuthenticationBackend{
+	pfconfigdriver.PfconfigPool.AddStruct(context.Background(), &pfconfigdriver.Config.AdminRoles)
+
+	mab := &MemAuthenticationBackend{
 		validUsers: validUsers,
 		adminRoles: adminRoles,
 		sem:        &sync.RWMutex{},
 	}
+
+	return mab
 }
 
 func (mab *MemAuthenticationBackend) SetUser(username, password string) {

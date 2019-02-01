@@ -89,9 +89,7 @@ func (dab *DbAuthenticationBackend) buildTokenInfo(ctx context.Context, apiUser 
 	for _, role := range adminRoles {
 		// Trim it of any leading or suffix spaces
 		role = strings.Trim(role, " ")
-		for role, _ := range pfconfigdriver.Config.AdminRoles.Element[role].Actions {
-			adminRolesMap[role] = true
-		}
+		adminRolesMap[role] = true
 	}
 
 	return &TokenInfo{AdminRoles: adminRolesMap, TenantId: apiUser.TenantId}
