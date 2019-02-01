@@ -240,7 +240,7 @@ sub mergePaths {
                 }
                 else {
                     return if file_excluded($path);
-                    $data = makeFileInfo( $path, $full_path, @parentDirs );
+                    $data = makeFileInfo( $path, $full_path, $templateDir, @parentDirs );
                 }
 
                 $paths{$path} = $data;
@@ -282,14 +282,15 @@ sub dir_excluded {
 }
 
 sub makeFileInfo {
-    my ($short_path, $full_path, @parentPaths) = @_;
+    my ($short_path, $full_path, $templateDir, @parentPaths) = @_;
     my $stat = stat($full_path);
     return {
         type  => 'file',
         name  => file_name($short_path),
         size  => $stat->size,
         mtime => $stat->mtime,
-        not_deletable => notDeletable($short_path, @parentPaths),
+        not_deletable => notDeletable($short_path, $full_path, $templateDir, @parentPaths),
+        not_revertable => notRevertable($short_path, @parentPaths),
     };
 }
 
@@ -300,6 +301,11 @@ notDeletable
 =cut
 
 sub notDeletable {
+    my ($short_path, $full_path, $templateDir, @parentPaths) = @_;
+    return ( $full_path ne catfile($templateDir, $short_path) ? json_true() : json_false());
+}
+
+sub notRevertable {
     my ($short_path, @parentPaths) = @_;
     return ( any { -f catfile($_, $short_path) } @parentPaths ) ? json_false() : json_true();
 }
