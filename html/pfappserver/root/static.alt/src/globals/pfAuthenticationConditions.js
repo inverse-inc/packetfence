@@ -165,4 +165,3 @@ export const pfAuthenticationConditionValuesForOperator = (types, operator, stor
     return values
   }
 }
-

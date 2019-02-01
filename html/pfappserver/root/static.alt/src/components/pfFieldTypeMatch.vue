@@ -24,7 +24,7 @@
     </b-col>
     <b-col cols="6" align-self="start" class="pl-1">
 
-      <!-- Types: CONNECTION_SUB_TYPE, CONNECTION_TYPE, DURATION, ADMINROLE, REALM, ROLE, ROLE_BY_NAME, TENANT, REALM, SWITCH, SWITCH_GROUP -->
+      <!-- Types: CONNECTION_SUB_TYPE, CONNECTION_TYPE, DURATION, ADMINROLE, REALM, ROLE, ROLE_BY_NAME, TENANT, REALM, SWITCH, SWITCH_GROUP, TIME_BALANCE -->
       <pf-form-chosen v-if="
           isFieldType(connectionSubTypeValueType) ||
           isFieldType(connectionTypeValueType) ||
@@ -35,7 +35,8 @@
           isFieldType(roleByNameValueType) ||
           isFieldType(tenantValueType) ||
           isFieldType(switchValueType) ||
-          isFieldType(switchGroupValueType)
+          isFieldType(switchGroupValueType) ||
+          isFieldType(timeBalanceValueType)
         "
         v-model="localMatch"
         ref="localMatch"
@@ -143,9 +144,10 @@ export default {
       connectionTypeValueType:    fieldType.CONNECTION_TYPE,
       datetimeValueType:          fieldType.DATETIME,
       prefixmultiplerValueType:   fieldType.PREFIXMULTIPLIER,
-      durationValueType:          fieldType.DURATION,
+      timeBalanceValueType:       fieldType.TIME_BALANCE,
       /* Promise based field types */
       adminroleValueType:         fieldType.ADMINROLE,
+      durationValueType:          fieldType.DURATION,
       realmValueType:             fieldType.REALM,
       roleValueType:              fieldType.ROLE,
       roleByNameValueType:        fieldType.ROLE_BY_NAME,

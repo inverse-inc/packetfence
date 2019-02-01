@@ -36,6 +36,7 @@
           :uuid="uuids[index]"
           :vuelidate="getVuelidateModel(index)"
           :ref="'component-' + index"
+          :drag="drag"
           @validations="setChildValidations(index, $event)"
           @mouseenter="onMouseEnter(index)"
           @mousemove="onMouseEnter(index)"
