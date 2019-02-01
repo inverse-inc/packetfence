@@ -67,7 +67,7 @@ export const pfConfigurationAccessDurationViewFields = (context = {}) => {
               key: 'access_duration_choices',
               component: pfFormFields,
               attrs: {
-                buttonLabel: 'Add Access Duration',
+                buttonLabel: i18n.t('Add Access Duration'),
                 sortable: true,
                 field: {
                   component: pfFieldAccessDuration

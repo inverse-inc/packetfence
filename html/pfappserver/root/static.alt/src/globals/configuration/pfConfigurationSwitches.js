@@ -1101,7 +1101,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
               attrs: {
                 values: { checked: 'Y', unchecked: 'N', default: placeholders.useCoA },
                 icons: { checked: 'check', unchecked: 'times' },
-                colors: { checked: 'var(--primary)', default: (placeholders.useCoA === 'Y') ? 'var(--primary)' : '#adb5bd' },
+                colors: { checked: 'var(--primary)', default: (placeholders.useCoA === 'Y') ? 'var(--primary)' : '' },
                 tooltips: { checked: i18n.t('Y'), unchecked: i18n.t('N'), default: i18n.t('Default ({default})', { default: placeholders.useCoA }) }
               }
             }
@@ -1117,7 +1117,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
               attrs: {
                 values: { checked: 'Y', unchecked: 'N', default: placeholders.cliAccess },
                 icons: { checked: 'check', unchecked: 'times' },
-                colors: { checked: 'var(--primary)', default: (placeholders.cliAccess === 'Y') ? 'var(--primary)' : '#adb5bd' },
+                colors: { checked: 'var(--primary)', default: (placeholders.cliAccess === 'Y') ? 'var(--primary)' : '' },
                 tooltips: { checked: i18n.t('Y'), unchecked: i18n.t('N'), default: i18n.t('Default ({default})', { default: placeholders.cliAccess }) }
               }
             }
@@ -1133,7 +1133,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
               attrs: {
                 values: { checked: 'Y', unchecked: 'N', default: placeholders.ExternalPortalEnforcement },
                 icons: { checked: 'check', unchecked: 'times' },
-                colors: { checked: 'var(--primary)', default: (placeholders.ExternalPortalEnforcement === 'Y') ? 'var(--primary)' : '#adb5bd' },
+                colors: { checked: 'var(--primary)', default: (placeholders.ExternalPortalEnforcement === 'Y') ? 'var(--primary)' : '' },
                 tooltips: { checked: i18n.t('Y'), unchecked: i18n.t('N'), default: i18n.t('Default ({default})', { default: placeholders.ExternalPortalEnforcement }) }
               }
             }
@@ -1148,7 +1148,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
               attrs: {
                 values: { checked: 'Y', unchecked: 'N', default: placeholders.VoIPEnabled },
                 icons: { checked: 'check', unchecked: 'times' },
-                colors: { checked: 'var(--primary)', default: (placeholders.VoIPEnabled === 'Y') ? 'var(--primary)' : '#adb5bd' },
+                colors: { checked: 'var(--primary)', default: (placeholders.VoIPEnabled === 'Y') ? 'var(--primary)' : '' },
                 tooltips: { checked: i18n.t('Y'), unchecked: i18n.t('N'), default: i18n.t('Default ({default})', { default: placeholders.VoIPEnabled }) }
               }
             }
@@ -1164,7 +1164,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
               attrs: {
                 values: { checked: 'Y', unchecked: 'N', default: placeholders.VoIPLLDPDetect },
                 icons: { checked: 'check', unchecked: 'times' },
-                colors: { checked: 'var(--primary)', default: (placeholders.VoIPLLDPDetect === 'Y') ? 'var(--primary)' : '#adb5bd' },
+                colors: { checked: 'var(--primary)', default: (placeholders.VoIPLLDPDetect === 'Y') ? 'var(--primary)' : '' },
                 tooltips: { checked: i18n.t('Y'), unchecked: i18n.t('N'), default: i18n.t('Default ({default})', { default: placeholders.VoIPLLDPDetect }) }
               }
             }
@@ -1180,7 +1180,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
               attrs: {
                 values: { checked: 'Y', unchecked: 'N', default: placeholders.VoIPCDPDetect },
                 icons: { checked: 'check', unchecked: 'times' },
-                colors: { checked: 'var(--primary)', default: (placeholders.VoIPCDPDetect === 'Y') ? 'var(--primary)' : '#adb5bd' },
+                colors: { checked: 'var(--primary)', default: (placeholders.VoIPCDPDetect === 'Y') ? 'var(--primary)' : '' },
                 tooltips: { checked: i18n.t('Y'), unchecked: i18n.t('N'), default: i18n.t('Default ({default})', { default: placeholders.VoIPCDPDetect }) }
               }
             }
@@ -1196,7 +1196,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
               attrs: {
                 values: { checked: 'Y', unchecked: 'N', default: placeholders.VoIPDHCPDetect },
                 icons: { checked: 'check', unchecked: 'times' },
-                colors: { checked: 'var(--primary)', default: (placeholders.VoIPDHCPDetect === 'Y') ? 'var(--primary)' : '#adb5bd' },
+                colors: { checked: 'var(--primary)', default: (placeholders.VoIPDHCPDetect === 'Y') ? 'var(--primary)' : '' },
                 tooltips: { checked: i18n.t('Y'), unchecked: i18n.t('N'), default: i18n.t('Default ({default})', { default: placeholders.VoIPDHCPDetect }) }
               }
             }
@@ -1212,7 +1212,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
               attrs: {
                 values: { checked: 'dynamic', unchecked: '', default: placeholders.uplink_dynamic },
                 icons: { checked: 'check', unchecked: 'times' },
-                colors: { checked: 'var(--primary)', default: (placeholders.uplink_dynamic === 'Y') ? 'var(--primary)' : '#adb5bd' },
+                colors: { checked: 'var(--primary)', default: (placeholders.uplink_dynamic === 'Y') ? 'var(--primary)' : '' },
                 tooltips: { checked: i18n.t('Y'), unchecked: i18n.t('N'), default: i18n.t('Default ({default})', { default: placeholders.uplink_dynamic }) }
               },
               listeners: {

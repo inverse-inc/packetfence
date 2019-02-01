@@ -51,11 +51,7 @@
         }"
         class="mr-1"
         width="80"
-      ><!--
-        <span v-if="localBase === 'F'" v-t="'Relative day'"></span>
-        <span v-else-if="localBase === 'R'" v-t="'Relative period'"></span>
-        <span v-else v-t="'Absolute'"></span>
-      --></pf-form-range-triple>
+      ></pf-form-range-triple>
 
     </b-col>
     <b-col cols="1" align-self="start">

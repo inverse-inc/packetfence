@@ -1,23 +1,22 @@
 <template>
-  <div style="width:100%" class="input-range"> <!-- external style applied here -->
-    <div id="range"
-      range
-      :enabled="!disabled"
+  <div class="w-100 input-range"> <!-- external style applied here -->
+    <div
       :disabled="disabled"
       :min="parseFloat(inputValue) === parseFloat(min)"
       :max="parseFloat(inputValue) === parseFloat(max)"
       :index="inputValue"
       :style="[{ 'width': `${width}px` }, ((color) ? { '--range-background-color': color } : {})]"
+      class="range"
     >
       <div>
-        <div hint v-for="(hint, index) in hints" :key="index" :style="hintStyle(index)"></div>
-        <span handle :style="{ left: `${percent(inputValue)}%` }">
+        <div v-for="(hint, index) in hints" :key="index" class="hint" :style="hintStyle(index)"></div>
+        <span class="handle" :style="{ left: `${percent(inputValue)}%` }">
           <slot/> <!-- Icon slot -->
         </span>
-        <div v-if="label" label :style="(inputValue >= ((max - min) / 2)) ? { 'justify-content': 'flex-start' } : { 'justify-content': 'flex-end' }">
+        <div v-if="label" class="label" :style="(inputValue >= ((max - min) / 2)) ? { 'justify-content': 'flex-start' } : { 'justify-content': 'flex-end' }">
           {{ label }}
         </div>
-        <div v-if="tooltip" tooltip :style="{ left: `${percent(inputValue)}%` }">
+        <div v-if="tooltip" class="tooltip" :style="{ left: `${percent(inputValue)}%` }">
           <span id="value">{{ $t(tooltipFunction(inputValue)) }}</span>
         </div>
       </div>
@@ -32,8 +31,8 @@
         :disabled="disabled"
         @input="clickInput"
       />
-      <div catch-min @click.stop.prevent="clickMin($event)"><!-- catch click left of input --></div>
-      <div catch-max @click.stop.prevent="clickMax($event)"><!-- catch click right of input --></div>
+      <div class="catch-min" @click.stop.prevent="clickMin($event)"><!-- catch click left of input --></div>
+      <div class="catch-max" @click.stop.prevent="clickMax($event)"><!-- catch click right of input --></div>
     </div>
   </div>
 </template>
@@ -150,7 +149,7 @@ export default {
 
 :root { /* defaults */
   --range-height: 22px;
-  --range-background-color: #adb5bd;
+  --range-background-color: #{$input-placeholder-color};
   --range-transition-delay: 0.3s;
   --handle-height: 16px;
   --handle-background-color: var(--white);
@@ -163,12 +162,12 @@ export default {
   to { opacity: 0.6; }
 }
 
-[range] {
+.range {
   position: relative;
   height: var(--range-height);
   box-shadow: 0 0 0 1px transparent; /* pseudo border */
   border-radius: calc(var(--range-height) / 2);
-  background-color: var(--range-background-color);
+  background-color: var(--range-background-color, $input-placeholder-color);
   text-align: left;
   margin: 0px;
   transition: background-color var(--range-transition-delay) ease-out,
@@ -179,7 +178,7 @@ export default {
     left: calc(var(--range-height) / 2);
     right: calc(var(--range-height) / 2);
     height: var(--range-height);
-    > [handle] {
+    > .handle {
       position: absolute;
       top: calc((var(--range-height) - var(--handle-height)) / 2);
       height: var(--handle-height);
@@ -195,9 +194,9 @@ export default {
       transition: left var(--handle-transition-delay, 0s) ease-in-out, /* do not animate `left` unless explicit */
         background-color var(--range-transition-delay) ease-out,
         color var(--range-transition-delay) ease-out;
-      color: var(--range-background-color); /* SVG icon */
+      color: var(--range-background-color, $input-placeholder-color); /* SVG icon */
     }
-    > [hint] {
+    > .hint {
       position: absolute;
       top: calc((var(--range-height) - var(--handle-height)) / 2);
       height: var(--handle-height);
@@ -210,7 +209,7 @@ export default {
       animation: animateHint var(--handle-transition-delay);
       transition: background-color var(--range-transition-delay) ease-out;
     }
-    > [label] {
+    > .label {
       position: absolute;
       top: 0;
       left: 0;
@@ -220,7 +219,7 @@ export default {
       display: flex;
       align-items: center;
     }
-    > [tooltip] {
+    > .tooltip {
       position: absolute;
       opacity: 0;
       visibility: hidden;
@@ -334,34 +333,34 @@ export default {
       display: none;
     }
   }
-  > [catch-min] {
+  > .catch-min {
     position: absolute;
     left: 0px;
     top: calc((var(--range-height) - var(--handle-height)) / 2);
     height: var(--handle-height);
     width: calc(var(--range-height) / 2);
   }
-  > [catch-max] {
+  > .catch-max {
     position: absolute;
     left: calc(100% - (var(--range-height) / 2));
     top: calc((var(--range-height) - var(--handle-height)) / 2);
     height: var(--handle-height);
     width: calc(var(--range-height) / 2);
   }
-  > div > [hint],
+  > div > .hint,
   &[disabled] {
     opacity: 0.6;
   }
-  &[enabled] {
-    &:not([min]) > [catch-min] {
+  &:not([disabled]) {
+    &:not([min]) > .catch-min {
       cursor: move; /* fallback if w-resize cursor is unsupported */
       cursor: w-resize;
     }
-    &:not([max]) > [catch-max] {
+    &:not([max]) > .catch-max {
       cursor: move; /* fallback if e-resize cursor is unsupported */
       cursor: e-resize;
     }
-    &:hover > div > [tooltip] {
+    &:hover > div > .tooltip {
       opacity: 1;
       visibility: visible;
     }

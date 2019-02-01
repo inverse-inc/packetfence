@@ -345,13 +345,13 @@ const getters = {
     const unit2str = (unit, isPlural = false) => {
       const plural = (isPlural) ? 's' : ''
       switch (unit) {
-        case 's': return i18n.t('second' + plural)
-        case 'm': return i18n.t('minute' + plural)
-        case 'h': return i18n.t('hour' + plural)
-        case 'D': return i18n.t('day' + plural)
-        case 'W': return i18n.t('week' + plural)
-        case 'M': return i18n.t('month' + plural)
-        case 'Y': return i18n.t('year' + plural)
+        case 's': return (plural) ? i18n.t('seconds') : i18n.t('second')
+        case 'm': return (plural) ? i18n.t('minutes') : i18n.t('minute')
+        case 'h': return (plural) ? i18n.t('hours') : i18n.t('hour')
+        case 'D': return (plural) ? i18n.t('days') : i18n.t('day')
+        case 'W': return (plural) ? i18n.t('weeks') : i18n.t('week')
+        case 'M': return (plural) ? i18n.t('months') : i18n.t('month')
+        case 'Y': return (plural) ? i18n.t('years') : i18n.t('year')
       }
     }
     const unit2seconds = (unit) => {

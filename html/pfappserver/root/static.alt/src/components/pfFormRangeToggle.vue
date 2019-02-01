@@ -213,10 +213,10 @@ export default {
 
   --handle-transition-delay: 0.3s; /* animate handle */
 
-  &.is-focus [range] {
+  &.is-focus .range {
     box-shadow: 0 0 0 1px $input-focus-border-color;
 
-    [handle] {
+    .handle {
       /*background-color: $input-focus-border-color;*/
       background-color: rgba(0, 0, 0, 1); /* [range] background-color shows through */
       animation: animateCursor 2s infinite;
@@ -225,7 +225,7 @@ export default {
     }
   }
 
-  &.is-invalid [range] {
+  &.is-invalid .range {
     box-shadow: 0 0 0 1px $form-feedback-invalid-color;
   }
 
@@ -242,7 +242,7 @@ export default {
     text-transform: uppercase;
   }
 
-  [range] {
+  .range {
     --handle-height: 16px;
     --range-height: 22px;
     &[index],
@@ -254,13 +254,13 @@ export default {
     }
   }
 
-  [size="sm"] [range] { /* small / sm */
+  [size="sm"] .range { /* small / sm */
     --handle-height: 8px;
     --range-height: 11px;
     width: 20px;
   }
 
-  [size="lg"] [range] { /* large / lg */
+  [size="lg"] .range { /* large / lg */
     --handle-height: 32px;
     --range-height: 44px;
     width: 80px;
