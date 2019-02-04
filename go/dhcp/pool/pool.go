@@ -3,6 +3,7 @@ package pool
 import (
 	"errors"
 	"math/rand"
+	"strconv"
 	"sync"
 )
 
@@ -27,6 +28,56 @@ func NewDHCPPool(capacity uint64) *DHCPPool {
 		d.free[i] = true
 	}
 	return d
+}
+
+// Compare what we have in the cache with what we have in the pool
+func (dp *DHCPPool) GetIssues(macs []string) ([]string, map[uint64]string) {
+	dp.lock.Lock()
+	defer dp.lock.Unlock()
+	var found bool
+	found = false
+	var inPoolNotInCache []string
+	var duplicateInPool map[uint64]string
+	duplicateInPool = make(map[uint64]string)
+
+	var count int
+	var saveindex uint64
+	for i := uint64(0); i < dp.capacity; i++ {
+		if dp.free[i] {
+			continue
+		}
+		for _, mac := range macs {
+			if dp.mac[i] == mac {
+				found = true
+			}
+		}
+		if !found {
+			inPoolNotInCache = append(inPoolNotInCache, dp.mac[i]+", "+strconv.Itoa(int(i)))
+		}
+	}
+	for _, mac := range macs {
+		count = 0
+		saveindex = 0
+
+		for i := uint64(0); i < dp.capacity; i++ {
+			if dp.free[i] {
+				continue
+			}
+			if dp.mac[i] == mac {
+				if count == 0 {
+					saveindex = i
+				}
+				if count == 1 {
+					duplicateInPool[saveindex] = mac
+					duplicateInPool[i] = mac
+				} else if count > 1 {
+					duplicateInPool[i] = mac
+				}
+				count++
+			}
+		}
+	}
+	return inPoolNotInCache, duplicateInPool
 }
 
 // Reserves an IP in the pool, returns an error if the IP has already been reserved

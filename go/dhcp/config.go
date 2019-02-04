@@ -209,7 +209,7 @@ func (d *Interfaces) readConfig() {
 							DHCPScope.available = available
 
 							// Initialize hardware cache
-							hwcache := cache.New(time.Duration(seconds)*time.Second, 10*time.Second)
+							hwcache := cache.New(time.Duration(seconds)*time.Second, 2*time.Second)
 
 							hwcache.OnEvicted(func(nic string, pool interface{}) {
 								go func() {
@@ -270,7 +270,7 @@ func (d *Interfaces) readConfig() {
 						DHCPScope.available = available
 
 						// Initialize hardware cache
-						hwcache := cache.New(time.Duration(seconds)*time.Second, 10*time.Second)
+						hwcache := cache.New(time.Duration(seconds)*time.Second, 2*time.Second)
 
 						hwcache.OnEvicted(func(nic string, pool interface{}) {
 							go func() {
