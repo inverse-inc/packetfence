@@ -55,8 +55,8 @@ use DateTime::Format::MySQL;
 use pf::parking;
 use pf::cluster;
 use pf::dhcp_option82 qw(dhcp_option82_insert_or_update);
-use pf::violation;
-use pf::constants::parking qw($PARKING_VID);
+use pf::security_event;
+use pf::constants::parking qw($PARKING_SECURITY_EVENT_ID);
 
 has 'src_mac' => ('is' => 'ro');
 has 'dest_mac' => ('is' => 'ro');
@@ -223,7 +223,7 @@ sub process_packet {
         }
 
         # updating the node first
-        # in case the fingerprint generates a violation and that autoreg uses fingerprint to auto-categorize nodes
+        # in case the fingerprint generates a security_event and that autoreg uses fingerprint to auto-categorize nodes
         # see #1216 for details
         my %tmp;
         $tmp{'dhcp_fingerprint'} = defined($dhcp->{'options'}{'55'}) ? $dhcp->{'options'}{'55'} : '';
@@ -445,7 +445,7 @@ sub checkForParking {
         return;
     }
 
-    if(violation_count_open_vid($client_mac, $PARKING_VID)) {
+    if(security_event_count_open_security_event_id($client_mac, $PARKING_SECURITY_EVENT_ID)) {
         pf::parking::trigger_parking($client_mac, $client_ip);
     }
 
@@ -495,7 +495,7 @@ sub checkForParking {
         # This doesn't work against SNMP as there is no reauthentication, so
         # the locationlog entries will always be old.
         unless( $connection->isSNMP() ){
-            $logger->warn("$client_mac STUCK on the registration role for $diff seconds $client_ip. Triggering parking violation");
+            $logger->warn("$client_mac STUCK on the registration role for $diff seconds $client_ip. Triggering parking security_event");
             pf::parking::trigger_parking($client_mac, $client_ip);
         }
         else {
@@ -573,7 +573,7 @@ sub rogue_dhcp_handling {
            'tid' => $ROGUE_DHCP_TRIGGER,
            'type' => 'INTERNAL',
         );
-        $self->apiClient->notify('trigger_violation', %data );
+        $self->apiClient->notify('trigger_security_event', %data );
     } else {
         $logger->info("Unable to find MAC based on IP $dhcp_srv_ip for rogue DHCP server");
         $dhcp_srv_mac = 'unknown';

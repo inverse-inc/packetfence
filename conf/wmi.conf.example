@@ -1,4 +1,4 @@
-# Detect installed software and trigger a violation
+# Detect installed software and trigger a security event
 [Software_Installed]
 namespace=ROOT\cimv2
 request=select * from Win32_Product
@@ -9,7 +9,7 @@ operator = match
 value = Google
 
 [1:Google]
-action=trigger_violation
+action=trigger_security_event
 action_param = mac = $mac, tid = 888888, type = INTERNAL
 EOT
 

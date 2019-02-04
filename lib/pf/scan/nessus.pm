@@ -24,7 +24,7 @@ use pf::config;
 use pf::scan;
 use pf::util;
 use pf::node;
-use pf::constants::scan qw($SCAN_VID $PRE_SCAN_VID $POST_SCAN_VID $STATUS_STARTED);
+use pf::constants::scan qw($SCAN_SECURITY_EVENT_ID $PRE_SCAN_SECURITY_EVENT_ID $POST_SCAN_SECURITY_EVENT_ID $STATUS_STARTED);
 
 use Net::Nessus::XMLRPC;
 
@@ -99,13 +99,13 @@ sub startScan {
     my $scanname = "pf-".$hostaddr."-".$nessus_clientpolicy;
     my $scanid = $n->scan_new($polid, $scanname, $hostaddr);
 
-    my $scan_vid = $POST_SCAN_VID;
-    $scan_vid = $SCAN_VID if ($self->{'_registration'});
-    $scan_vid = $PRE_SCAN_VID if ($self->{'_pre_registration'});
+    my $scan_security_event_id = $POST_SCAN_SECURITY_EVENT_ID;
+    $scan_security_event_id = $SCAN_SECURITY_EVENT_ID if ($self->{'_registration'});
+    $scan_security_event_id = $PRE_SCAN_SECURITY_EVENT_ID if ($self->{'_pre_registration'});
 
     if ( $scanid eq "") {
         $logger->warn("Nessus scan doesnt start");
-        return $scan_vid;
+        return $scan_security_event_id;
     }
     $logger->info("executing Nessus scan with this policy ".$nessus_clientpolicy);
     $self->{'_status'} = $STATUS_STARTED;
@@ -131,7 +131,7 @@ sub startScan {
     # Clean the report
     $self->{'_report'} = [ split("\n", $self->{'_report'}) ];
 
-    pf::scan::parse_scan_report($self,$scan_vid);
+    pf::scan::parse_scan_report($self,$scan_security_event_id);
 }
 
 =back

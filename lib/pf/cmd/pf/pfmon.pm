@@ -45,7 +45,7 @@ pfcmd pfmon <task> [options...]
 
 =item radius_audit_log_cleanup
 
-=item violation_maintenance
+=item security_event_maintenance
 
 =back
 

@@ -148,7 +148,7 @@ has_field 'redirecturl' =>
    type => 'Text',
    label => 'Redirection URL',
    tags => { after_element => \&help,
-             help => 'Default URL to redirect to on registration/mitigation release. This is only used if a per-violation redirect URL is not defined.' },
+             help => 'Default URL to redirect to on registration/mitigation release. This is only used if a per security event redirect URL is not defined.' },
   );
 
 =head2 always_use_redirecturl

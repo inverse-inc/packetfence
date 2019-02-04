@@ -19,7 +19,7 @@ use pf::dal::class;
 
 has dal => 'pf::dal::class';
 has url_param_name => 'class_id';
-has primary_key => 'vid';
+has primary_key => 'security_event_id';
 
 =head1 AUTHOR
 

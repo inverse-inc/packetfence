@@ -8,7 +8,7 @@ pf::lookup::node
 
 define this function to return whatever data you'd like
 it's called via "pfcmd lookup node <mac>", through the administrative GUI,
-or as the content of a violation action
+or as the content of a security_event action
 
 =cut
 

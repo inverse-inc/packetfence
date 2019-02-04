@@ -51,8 +51,8 @@ use pf::constants::trigger qw($TRIGGER_TYPE_ACCOUNTING);
 use pf::dal::inline_accounting;
 use pf::error qw(is_error is_success);
 use pf::dal::node;
-use pf::violation;
-use pf::config::violation;
+use pf::security_event;
+use pf::config::security_event;
 use pf::constants qw(
     $ZERO_DATE
 );
@@ -122,9 +122,9 @@ sub inline_accounting_maintenance {
     my $status;
     my $rows;
 
-    # Check if there's at least a violation using an accounting
-    if (@BANDWIDTH_EXPIRED_VIOLATIONS > 0) {
-        $logger->debug("There is an accounting violation. analyzing inline accounting data");
+    # Check if there's at least a security_event using an accounting
+    if (@BANDWIDTH_EXPIRED_SECURITY_EVENTS > 0) {
+        $logger->debug("There is an accounting security_event. analyzing inline accounting data");
 
         # Disable AutoCommit since we perform a SELECT .. FOR UPDATE statement
         my $dbh = pf::dal->get_dbh();
@@ -143,9 +143,9 @@ sub inline_accounting_maintenance {
         if (is_success($status)) {
             while (my $row = $iter->next(undef)) {
                 my ($mac, $ip, $bandwidth_balance, $bandwidth_consumed) = @{$row}{qw(mac ip bandwidth_balance bandwidth_consumed)};
-                $logger->debug("Node $mac/$ip has no more bandwidth (balance $bandwidth_balance, consumed $bandwidth_consumed), triggering violation");
-                # Trigger violation for this node
-                if (violation_trigger( { 'mac' => $mac, 'tid' => $ACCOUNTING_POLICY_BANDWIDTH, 'type' => $TRIGGER_TYPE_ACCOUNTING } )) {
+                $logger->debug("Node $mac/$ip has no more bandwidth (balance $bandwidth_balance, consumed $bandwidth_consumed), triggering security_event");
+                # Trigger security_event for this node
+                if (security_event_trigger( { 'mac' => $mac, 'tid' => $ACCOUNTING_POLICY_BANDWIDTH, 'type' => $TRIGGER_TYPE_ACCOUNTING } )) {
                     pf::dal::inline_accounting->update_items(
                         -set => {
                             status => $INACTIVE

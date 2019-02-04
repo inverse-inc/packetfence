@@ -38,7 +38,7 @@ __PACKAGE__->config(
         bulk_register        => { AdminRole => 'USERS_UPDATE' },
         bulk_deregister      => { AdminRole => 'USERS_UPDATE' },
         bulk_apply_role      => { AdminRole => 'USERS_UPDATE' },
-        bulk_apply_violation => { AdminRole => 'USERS_UPDATE' },
+        bulk_apply_security_event => { AdminRole => 'USERS_UPDATE' },
         bulk_delete          => { AdminRole => 'USERS_DELETE' },
     },
     action_args => {
@@ -174,15 +174,15 @@ sub update :Chained('object') :PathPart('update') :Args(0) :AdminRole('USERS_UPD
     $c->stash->{current_view} = 'JSON';
 }
 
-=head2 violations
+=head2 security_events
 
-Show violations for user
+Show security_events for user
 
 =cut
 
-sub violations :Chained('object') :PathPart :Args(0) :AdminRole('NODES_READ') {
+sub security_events :Chained('object') :PathPart :Args(0) :AdminRole('NODES_READ') {
     my ($self, $c) = @_;
-    my ($status, $result) = $self->getModel($c)->violations($c->stash->{user}->{pid});
+    my ($status, $result) = $self->getModel($c)->security_events($c->stash->{user}->{pid});
     if (is_success($status)) {
         $c->stash->{items} = $result;
     } else {
@@ -414,13 +414,13 @@ sub advanced_search :Local :Args() :AdminRoleAny(USERS_READ) :AdminRoleAny(USERS
         }
         $c->stash(current_view => 'JSON') if ($c->request->params->{'json'});
     }
-    my ( $roles, $violations );
+    my ( $roles, $security_events );
     (undef, $roles) = $c->model('Config::Roles')->listFromDB();
-    (undef, $violations) = $c->model('Config::Violations')->readAll();
+    (undef, $security_events) = $c->model('Config::SecurityEvents')->readAll();
     $c->stash(
         status_msg => $status_msg,
         roles => $roles,
-        violations => $violations,
+        security_events => $security_events,
     );
 
     if($c->request->param('export')) { 

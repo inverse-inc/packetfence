@@ -24,7 +24,7 @@ use Readonly;
 use pf::StatsD::Timer;
 use pf::util::statsd qw(called);
 use pf::error qw(is_success is_error);
-use pf::constants::parking qw($PARKING_VID);
+use pf::constants::parking qw($PARKING_SECURITY_EVENT_ID);
 use CHI::Memoize qw(memoized);
 use pf::dal::node;
 use pf::config::tenant;
@@ -81,7 +81,7 @@ BEGIN {
 }
 
 use pf::constants;
-use pf::config::violation;
+use pf::config::security_event;
 use pf::config qw(
     %connection_type_to_str
     $INLINE
@@ -90,7 +90,7 @@ use pf::config qw(
 );
 use pf::db;
 use pf::nodecategory;
-use pf::constants::scan qw($SCAN_VID $POST_SCAN_VID);
+use pf::constants::scan qw($SCAN_SECURITY_EVENT_ID $POST_SCAN_SECURITY_EVENT_ID);
 use pf::util;
 use pf::Connection::ProfileFactory;
 use pf::ipset;
@@ -439,12 +439,12 @@ sub node_view_all {
 #           locationlog.stripped_user_name as stripped_user_name, locationlog.realm as realm,
 #           locationlog.switch_mac as last_switch_mac,
 #           ip4log.ip as last_ip,
-#           COUNT(DISTINCT violation.id) as nbopenviolations,
+#           COUNT(DISTINCT security_event.id) as nbopensecurity_events,
 #           node.notes
 #       FROM node
 #           LEFT JOIN node_category as nr on node.bypass_role_id = nr.category_id
 #           LEFT JOIN node_category as nc on node.category_id = nc.category_id
-#           LEFT JOIN violation ON node.mac=violation.mac AND violation.status = 'open'
+#           LEFT JOIN security_event ON node.mac=security_event.mac AND security_event.status = 'open'
 #           LEFT JOIN locationlog ON node.mac=locationlog.mac AND  = 0
 #           LEFT JOIN ip4log ON node.mac=ip4log.mac AND (ip4log. = $ZERO_DATE OR ip4log.end_time > NOW())
 #       GROUP BY node.mac
@@ -467,7 +467,7 @@ sub node_view_all {
           locationlog.switch_mac|last_switch_mac
           ip4log.ip|last_ip
           ),
-        \"COUNT(DISTINCT violation.id) as nbopenviolations",
+        \"COUNT(DISTINCT security_event.id) as nbopensecurity_events",
         'node.notes'
     ];
 
@@ -483,7 +483,7 @@ sub node_view_all {
                 '%2$s.status' => 'open',
             },
         },
-        'violation',
+        'security_event',
         {
             operator  => '=>',
             condition => {
@@ -671,22 +671,22 @@ sub node_register {
     }
     $pf::StatsD::statsd->increment( called() . ".called" );
 
-    # Closing any parking violations
-    # loading pf::violation here to prevent circular dependency
-    require pf::violation;
-    pf::violation::violation_force_close($mac, $PARKING_VID);
+    # Closing any parking security_events
+    # loading pf::security_event here to prevent circular dependency
+    require pf::security_event;
+    pf::security_event::security_event_force_close($mac, $PARKING_SECURITY_EVENT_ID);
 
     my $profile = pf::Connection::ProfileFactory->instantiate($mac);
     my $scan = $profile->findScan($mac);
     if (defined($scan)) {
-        # triggering a violation used to communicate the scan to the user
+        # triggering a security_event used to communicate the scan to the user
         if ( isenabled($scan->{'registration'})) {
             $logger->debug("Triggering on registration scan");
-            pf::violation::violation_add( $mac, $SCAN_VID );
+            pf::security_event::security_event_add( $mac, $SCAN_SECURITY_EVENT_ID );
         }
         if (isenabled($scan->{'post_registration'})) {
             $logger->debug("Triggering post-registration scan");
-            pf::violation::violation_add( $mac, $POST_SCAN_VID );
+            pf::security_event::security_event_add( $mac, $POST_SCAN_SECURITY_EVENT_ID );
         }
     }
 
@@ -772,8 +772,8 @@ sub nodes_maintenance {
 
 =item nodes_registered_not_violators
 
-Returns a list of MACs which are registered and don't have any open violation.
-Since trap violations stay open, this has the intended effect of getting all MACs which should be allowed through.
+Returns a list of MACs which are registered and don't have any open security_event.
+Since trap security_events stay open, this has the intended effect of getting all MACs which should be allowed through.
 
 =cut
 
@@ -784,8 +784,8 @@ sub nodes_registered_not_violators {
         },
         -columns  => [qw(node.mac node.category_id)],
         -group_by => 'node.mac',
-        -having => 'count(violation.mac)=0',
-        -from => [-join => 'node', "=>{node.mac=violation.mac,violation.status='open'}", "violation"],
+        -having => 'count(security_event.mac)=0',
+        -from => [-join => 'node', "=>{node.mac=security_event.mac,security_event.status='open'}", "security_event"],
     );
     if (is_error($status)) {
         return;
@@ -890,7 +890,7 @@ sub node_cleanup {
 
 =item * node_update_bandwidth - update the bandwidth balance of a node
 
-Updates the bandwidth balance of a node and close the violations that use the bandwidth trigger.
+Updates the bandwidth balance of a node and close the security_events that use the bandwidth trigger.
 
 =cut
 
@@ -916,8 +916,8 @@ sub node_update_bandwidth {
         return (undef);
     }
     if ($rows) {
-        foreach my $vid (@BANDWIDTH_EXPIRED_VIOLATIONS){
-            pf::violation::violation_force_close($mac, $vid);
+        foreach my $security_event_id (@BANDWIDTH_EXPIRED_SECURITY_EVENTS){
+            pf::security_event::security_event_force_close($mac, $security_event_id);
         }
     }
     return ($rows);

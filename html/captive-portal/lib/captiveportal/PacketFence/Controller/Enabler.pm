@@ -1,7 +1,7 @@
 package captiveportal::PacketFence::Controller::Enabler;
 use Moose;
 use namespace::autoclean;
-use pf::violation;
+use pf::security_event;
 use pf::class;
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
@@ -29,17 +29,17 @@ sub index : Path : Args(0) {
 
     $c->stash->{'user_agent'} = $c->request->user_agent;
 
-    # check for open violations
-    my $violation = violation_view_top($mac);
+    # check for open security_events
+    my $security_event = security_event_view_top($mac);
 
-    if ($violation) {
+    if ($security_event) {
 
-        # There is a violation, redirect the user
+        # There is a security_event, redirect the user
         # FIXME: there is not enough validation below
-        my $vid   = $violation->{'vid'};
-        my $class = class_view($vid);
+        my $security_event_id   = $security_event->{'security_event_id'};
+        my $class = class_view($security_event_id);
         $c->stash(
-            violation_id => $vid,
+            security_event_id => $security_event_id,
             enable_text  => $class->{button_text},
             template     => 'enabler.html',
         );

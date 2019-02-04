@@ -1,0 +1,357 @@
+# Most of the snort rules are from Emerging Threats (http://www.emergingthreats.net/)
+#
+# In order to use different rulesets, please point the variable snort_rules,
+# defined below (in [defaults]), to your local file(s).
+#
+[defaults]
+priority=4
+max_enable=3
+actions=email_admin,log
+auto_enable=Y
+enabled=N
+grace=120m
+window=0
+delay_by=0s
+button_text=Enable Network
+snort_rules=local.rules,emerging-attack_response.rules,emerging-botcc.rules,emerging-exploit.rules,emerging-malware.rules,emerging-p2p.rules,emerging-scan.rules,emerging-shellcode.rules,emerging-trojan.rules,emerging-worm.rules
+# vlan: The vlan parameter allows you to define in what vlan a node with a security event will be put in.
+# Accepted values are the vlan names: isolation, normal, registration, macDetection, inline, voice
+# and all the roles names you defined in the node_category table. (see switches.conf)
+vlan=isolation
+# if you add a role/category here, nodes in these roles/categories will be immune to the security event
+whitelisted_roles=
+template=generic
+
+[1100001]
+desc=Nessus Scan
+# On a Scan security event priority must be higher (lower number) than the special system scan security event (1200001)
+priority=4
+template=failed_scan
+max_enable=4
+button_text=Scan my computer again
+trigger=Nessus::10861,Nessus::10943,Nessus::11177,Nessus::11231,Nessus::11302,Nessus::11304,Nessus::11528,Nessus::11595,Nessus::11664,Nessus::11787,Nessus::11790,Nessus::11803,Nessus::11808,Nessus::11835,Nessus::11878,Nessus::11886,Nessus::11887,Nessus::11921,Nessus::12051,Nessus::12052,Nessus::12054,Nessus::12092,Nessus::12208,Nessus::12209,Nessus::13641,Nessus::13852,Nessus::14724,Nessus::15460,Nessus::15894,Nessus::15970,Nessus::16324,Nessus::16326,Nessus::16327,Nessus::16328,Nessus::16329,Nessus::18020,Nessus::18021,Nessus::18023,Nessus::18025,Nessus::18027,Nessus::18028,Nessus::18215,Nessus::18482,Nessus::18483,Nessus::18490,Nessus::18502,Nessus::18681,Nessus::18682,Nessus::19401,Nessus::19402,Nessus::19406,Nessus::19408,Nessus::20005,Nessus::20172,Nessus::20299,Nessus::20368,Nessus::20382,Nessus::20389,Nessus::20390,Nessus::20904,Nessus::20905,Nessus::21213,Nessus::21332,Nessus::21685,Nessus::21687,Nessus::22030,Nessus::22034,Nessus::22183,Nessus::22184,Nessus::22185,Nessus::22186,Nessus::22187,Nessus::22192,Nessus::22194,Nessus::22332,Nessus::22449,Nessus::22530,Nessus::23644,Nessus::23646,Nessus::23647,Nessus::23833,Nessus::23835,Nessus::23837,Nessus::23838,Nessus::23999,Nessus::24000
+actions=reevaluate_access,email_admin,log
+enabled=Y
+# for faster remediation, it is recommended to leave an offending client in the registration vlan (where it is scanned)
+vlan=registration
+
+[1100002]
+desc=OpenVAS scan
+# On a scan security event priority must be higher (lower number) than the special system scan security event (1200001)
+priority=4
+template=failed_scan
+max_enable=4
+button_text=Scan my computer again
+trigger=OpenVAS::1.3.6.1.4.1.25623.1.0.90023,OpenVAS::1.3.6.1.4.1.25623.1.0.14259,OpenVAS::1.3.6.1.4.1.25623.1.0.800618,OpenVAS::1.3.6.1.4.1.25623.1.0.90011
+actions=reevaluate_access,email_admin,log
+enabled=Y
+# for faster remediation, it is recommended to leave an offending client in the registration vlan (where it is scanned)
+vlan=registration
+
+#
+# Example config to block a whole class of devices based on their MAC address vendor
+# Trigger format: The number is the ID of the MAC vendor from the 'MAC Vendor' list in Fingerbank (either 'upstream' or 'local' or both)
+#
+# The below example blocks MAC Vendor ID 42 which is 'IMC Networks corp.'
+#
+[1100003]
+desc=MAC Vendor isolation example
+template=banned_devices
+trigger=MAC_VENDOR::42
+actions=reevaluate_access,email_admin,log
+enabled=N
+
+#
+# Example config to block a device based on it's type or class
+# Trigger format: The number is the ID of the device (type or class or both) from the 'Device' list in Fingerbank (either 'upstream' or 'local' or both)
+#
+# The below example blocks Windows 95, 98, 98SE, NT4 and ME.
+#
+[1100004]
+desc=Ancient OS isolation example
+template=banned_os
+trigger=DEVICE::28,DEVICE::29,DEVICE::30,DEVICE::31,DEVICE::32
+actions=reevaluate_access,email_admin,log
+enabled=N
+
+#
+# Example config to block a specific Browser User Agent
+# Trigger format: The number is the ID of the user-agent from the 'User Agent' list in Fingerbank (either 'upstream' or 'local' or both)
+#
+# The below example blocks user-agents IDs 101 and 102.
+#
+[1100005]
+desc=Browser isolation example
+template=banned_devices
+trigger=USER_AGENT::101,USER_AGENT::102
+actions=reevaluate_access,email_admin,log
+enabled=N
+
+[1100006]
+desc=P2P Isolation (snort example)
+template=p2p
+trigger=suricata_event::ET P2P
+actions=reevaluate_access,email_admin,log
+enabled=N
+
+[1100007]
+desc=Auto-register Device example
+priority=1
+trigger=DEVICE::3,DEVICE::6,DEVICE::7,DEVICE::8,DEVICE::10,DEVICE::12,DEVICE::13
+actions=log,autoreg
+enabled=N
+
+[1100008]
+desc=Disable NATing Routers and APs
+template=nat
+trigger=Detect::1100005,Detect::1100006,Detect::1100007,DEVICE::4
+actions=reevaluate_access,email_admin,log
+enabled=N
+
+[1100009]
+desc=MAC isolation example
+template=banned_devices
+trigger=MAC::^01:23:45
+actions=email_admin,log
+enabled=N
+
+[1100010]
+desc=Rogue DHCP
+template=roguedhcp
+trigger=internal::1100010
+actions=email_admin,log
+enabled=Y
+
+[1100011]
+desc=Bandwidth Limit example (20GB/month)
+template=bandwidth_limit
+trigger=Accounting::TOT20GBM
+grace=0
+window=dynamic
+
+[1100012]
+desc=Device based Bandwidth Limit example (Android, 1GB/month)
+template=bandwidth_limit
+trigger=(Device::202&Accounting::TOT1GBM)
+grace=0
+window=dynamic
+
+[1100013]
+desc=Hostname change
+trigger=internal::hostname_change
+actions=log
+enabled=Y
+
+[1100020]
+desc=Wireless IPS
+trigger=internal::1100020
+actions=email_admin,log
+enabled=Y
+
+#
+#  1200000 - 120099 Reserved for required administration security events
+#
+[1200001]
+priority=9
+desc=System Scan
+# someone should always be able to try to scan its system again
+max_enable=0
+grace=1s
+template=system_scan
+actions=reevaluate_access,log
+button_text=Scan
+enabled=Y
+auto_enable=Y
+# Scan is taking place in the registration vlan don't change this value. 
+vlan=registration
+
+[1200002]
+priority=9
+desc=Time Expiration
+max_enable=1
+grace=0
+template=time_expiration
+trigger=Accounting::TimeExpired
+actions=reevaluate_access,log
+enabled=Y
+auto_enable=N
+vlan=registration
+
+[1200003]
+priority=9
+desc=Bandwidth Limit
+max_enable=1
+grace=0
+template=bandwidth_expiration
+trigger=Accounting::BandwidthExpired
+actions=reevaluate_access,log
+enabled=Y
+auto_enable=N
+vlan=registration
+
+[1200004]
+priority=9
+desc=Post Reg System Scan 
+# someone should always be able to try to scan its system again
+max_enable=0
+grace=1h
+actions=log
+enabled=Y
+auto_enable=Y
+
+[1200005]
+priority=9
+desc=Pre Reg System Scan
+# someone should always be able to try to scan its system again
+max_enable=0
+grace=1h
+actions=log
+enabled=Y
+auto_enable=Y
+vlan=registration
+
+#
+# 1300000 - 1399999 Reserved for PacketFence security events
+#
+[1300000]
+desc=Generic
+priority=8
+actions=reevaluate_access,log
+template=generic
+enabled=Y
+
+[1300001]
+desc=Spam
+priority=6
+actions=reevaluate_access,log
+template=spam
+enabled=Y
+
+[1300002]
+desc=Provisioning Enforcement
+priority=6
+actions=enforce_provisioning,log
+template=enforce_provisioning
+trigger=Provisioner::check
+enabled=Y
+grace=0s
+delay_by=2m
+
+[1300003]
+priority=1
+desc=Parking security event
+max_enable=3
+grace=10m
+actions=log,reevaluate_access
+enabled=Y
+auto_enable=Y
+vlan=registration
+trigger=Internal::parking_detected
+
+
+#
+# 1400000 - 1499999 Reserved for local security events
+#
+#
+# 2000000 - 2099999 Snort security events
+#
+[2000000]
+desc=Malware
+priority=4
+template=malware
+enabled=N
+actions=reevaluate_access,email_admin,log
+trigger=suricata_event::ET MALWARE
+
+[2000032]
+desc=LSASS Exploit
+priority=4
+template=lsass
+redirect_url=/proxies/tools/stinger.exe
+enabled=N
+trigger=Detect::2000032,Detect::2000033,Detect::2000046,Detect::2001286,Detect::2001337,Detect::2001302
+
+[2002030]
+desc=IRC Trojan
+priority=3
+auto_enable=N
+template=trojan
+enabled=N
+trigger=suricata_event::ET TROJAN
+actions=reevaluate_access,email_admin,log
+
+# The following signatures replace the generic portscan detector.  It was notoriously noisy, expecially
+# for BitTorrent clients.  These new signatures look for most of the "worm-like" scanning behaviors.
+[2002201]
+desc=Zotob (W32.Zotob and variants)
+priority=4
+template=zotob
+enabled=N
+trigger=Detect::2002201,Detect::2002203
+
+[2001904]
+desc=Telnet Scan
+priority=6
+template=scanning
+enabled=N
+auto_enable=N
+trigger=Detect::2001904
+
+[2001972]
+desc=Remote Desktop Scan
+priority=6
+template=scanning
+enabled=N
+auto_enable=N
+trigger=Detect::2001972
+
+[2001569]
+desc=NetBIOS Scan
+priority=6
+template=scanning
+enabled=N
+auto_enable=N
+trigger=Detect::2001569,Detect::2001579,Detect::2001580,Detect::2001581,Detect::2001582,Detect::2001583
+
+#
+# 3000000 - 3099999 Device bans
+#
+[3000001]
+desc=Block all mobile devices
+template=banned_devices
+actions=email_admin,log,reevaluate_access
+enabled=N
+priority=10
+trigger=DEVICE::11
+
+[3000002]
+desc=Block Apple iPod, iPhone or iPad
+template=banned_devices
+actions=reevaluate_access,email_admin,log
+enabled=N
+priority=10
+trigger=DEVICE::193
+
+[3000003]
+desc=Block BlackBerries
+template=banned_devices
+actions=reevaluate_access,email_admin,log
+enabled=N
+priority=10
+trigger=DEVICE::192
+
+[3000004]
+desc=Block PS3 and PSP
+template=banned_devices
+actions=reevaluate_access,email_admin,log
+enabled=N
+priority=10
+trigger=DEVICE::274
+
+[3000005]
+desc=Block Slingbox
+template=banned_devices
+actions=reevaluate_access,email_admin,log
+enabled=N
+priority=10
+trigger=DEVICE::143

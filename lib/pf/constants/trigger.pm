@@ -32,7 +32,7 @@ our @EXPORT_OK = qw(
         $TRIGGER_MAP
 );
 
-# Violation trigger types
+# SecurityEvent trigger types
 Readonly::Scalar our $TRIGGER_TYPE_ACCOUNTING => 'accounting';
 Readonly::Scalar our $TRIGGER_TYPE_DETECT => 'detect';
 Readonly::Scalar our $TRIGGER_TYPE_INTERNAL => 'internal';

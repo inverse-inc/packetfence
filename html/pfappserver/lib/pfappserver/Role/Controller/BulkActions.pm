@@ -28,7 +28,7 @@ sub bulk_close : Local {
     my $request = $c->request;
     if ($request->method eq 'POST') {
         my @ids = $request->param('items');
-        ($status, $status_msg) = $self->getModel($c)->bulkCloseViolations(@ids);
+        ($status, $status_msg) = $self->getModel($c)->bulkCloseSecurityEvents(@ids);
         $self->audit_current_action($c, status => $status, ids => \@ids);
     }
     else {
@@ -105,18 +105,18 @@ sub bulk_apply_role : Local : Args(1) {
     $c->stash->{status_msg} = $status_msg;
 }
 
-=head2 bulk_apply_violation
+=head2 bulk_apply_security_event
 
 =cut
 
-sub bulk_apply_violation : Local : Args(1) {
-    my ( $self, $c, $violation ) = @_;
+sub bulk_apply_security_event : Local : Args(1) {
+    my ( $self, $c, $security_event ) = @_;
     $c->stash->{current_view} = 'JSON';
     my ( $status, $status_msg );
     my $request = $c->request;
     if ($request->method eq 'POST') {
         my @ids = $request->param('items');
-        ($status, $status_msg) = $self->getModel($c)->bulkApplyViolation($violation,@ids);
+        ($status, $status_msg) = $self->getModel($c)->bulkApplySecurityEvent($security_event,@ids);
         $self->audit_current_action($c, status => $status, ids => \@ids);
     }
     else {

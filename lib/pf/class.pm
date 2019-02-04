@@ -2,13 +2,13 @@ package pf::class;
 
 =head1 NAME
 
-pf::class - module to manage the violation classes.
+pf::class - module to manage the security_event classes.
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::class contains the functions necessary to manage the violation classes.
+pf::class contains the functions necessary to manage the security_event classes.
 
 =cut
 
@@ -25,7 +25,7 @@ BEGIN {
     @EXPORT = qw(
         class_view       class_view_all
         class_add        class_delete
-        class_merge      class_next_vid
+        class_merge      class_next_security_event_id
     );
 }
 
@@ -35,13 +35,13 @@ use pf::error qw(is_error is_success);
 
 sub class_exist {
     my ($id) = @_;
-    my $status = pf::dal::class->exists({vid => $id});
+    my $status = pf::dal::class->exists({security_event_id => $id});
     return (is_success($id));
 }
 
 sub class_view {
     my ($id) = @_;
-    my ($status, $item) = pf::dal::class->find({vid => $id});
+    my ($status, $item) = pf::dal::class->find({security_event_id => $id});
     if (is_error($status)) {
         return (0);
     }
@@ -50,7 +50,7 @@ sub class_view {
 
 sub class_view_all {
     my ($status, $item) = pf::dal::class->search(
-        -group_by => 'class.vid',
+        -group_by => 'class.security_event_id',
     );
     if (is_error($status)) {
         return;
@@ -61,7 +61,7 @@ sub class_view_all {
 sub class_add {
     my $logger = get_logger();
     my %values;
-    @values{qw(vid description auto_enable max_enables grace_period window vclose priority template max_enable_url redirect_url button_text enabled vlan target_category delay_by external_command)} = @_;
+    @values{qw(security_event_id description auto_enable max_enables grace_period window vclose priority template max_enable_url redirect_url button_text enabled vlan target_category delay_by external_command)} = @_;
     my $status = pf::dal::class->create(\%values);
     if ($status == $STATUS::CONFLICT) {
         return (2);
@@ -72,7 +72,7 @@ sub class_add {
 sub class_delete {
     my ($id) = @_;
     my $logger = get_logger();
-    my $status = pf::dal::class->remove_by_id({vid => $id});
+    my $status = pf::dal::class->remove_by_id({security_event_id => $id});
     $logger->debug("class $id deleted");
     return (is_success($status));
 }
@@ -83,13 +83,13 @@ sub class_merge {
     my $whitelisted_roles = pop(@_);
     my $logger = get_logger();
 
-    # delete existing violation actions
+    # delete existing security_event actions
     if ( !pf::action::action_delete_all($id) ) {
         $logger->error("error deleting actions for class $id");
         return (0);
     }
     my %values;
-    @values{qw(vid description auto_enable max_enables grace_period window vclose priority template max_enable_url redirect_url button_text enabled vlan target_category delay_by external_command)} = @_;
+    @values{qw(security_event_id description auto_enable max_enables grace_period window vclose priority template max_enable_url redirect_url button_text enabled vlan target_category delay_by external_command)} = @_;
     my $item = pf::dal::class->new(\%values);
     my $status = $item->save();
 
@@ -101,9 +101,9 @@ sub class_merge {
 
 }
 
-sub class_next_vid {
+sub class_next_security_event_id {
     my ($status, $iter) = pf::dal::class->search(
-        -columns => ['MAX(`vid`+1)|auto_increment_id'],
+        -columns => ['MAX(`security_event_id`+1)|auto_increment_id'],
         -with_class => undef,
         -from => 'class'
     );

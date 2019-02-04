@@ -99,11 +99,11 @@ $t->get_ok('/api/v1/reports/statics/active' => json => {  })
   ->json_has('/items')
   ->status_is(200);
 
-$t->get_ok('/api/v1/reports/openviolations' => json => {  })
+$t->get_ok('/api/v1/reports/opensecurity_events' => json => {  })
   ->json_has('/items')
   ->status_is(200);
 
-$t->get_ok('/api/v1/reports/openviolations/active' => json => {  })
+$t->get_ok('/api/v1/reports/opensecurity_events/active' => json => {  })
   ->json_has('/items')
   ->status_is(200);
 

@@ -25,7 +25,7 @@ use pf::config qw(
     $IPTABLES_MARK_ISOLATION
 );
 use pf::node qw(node_attributes);
-use pf::violation qw(violation_count_reevaluate_access);
+use pf::security_event qw(security_event_count_reevaluate_access);
 use Try::Tiny;
 use NetAddr::IP;
 use pf::util;
@@ -125,11 +125,11 @@ sub fetchMarkForNode {
     my ($self, $mac) = @_;
     my $logger = get_logger(ref($self));
 
-    # Violation first
-    my $open_violation_count = pf::violation::violation_count_reevaluate_access($mac);
-    if ($open_violation_count != 0) {
+    # SecurityEvent first
+    my $open_security_event_count = pf::security_event::security_event_count_reevaluate_access($mac);
+    if ($open_security_event_count != 0) {
         $logger->info(
-            "has $open_violation_count open violations(s) with action=trap; it needs to firewalled"
+            "has $open_security_event_count open security_events(s) with action=trap; it needs to firewalled"
         );
         return $IPTABLES_MARK_ISOLATION;
     }
@@ -156,7 +156,7 @@ sub fetchMarkForNode {
         return $IPTABLES_MARK_UNREG;
     }
 
-    # At this point, we are registered and we don't have a violation: allow through
+    # At this point, we are registered and we don't have a security_event: allow through
     $logger->debug("should be allowed through firewall");
     return $IPTABLES_MARK_REG;
 }

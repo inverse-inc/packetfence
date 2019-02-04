@@ -76,7 +76,7 @@ __PACKAGE__->config(
             woff => 'font/woff'
         },
         # Include static content from captive portal in order to render previews of
-        # remediation pages (see pfappserver::Controller::Violation)
+        # remediation pages (see pfappserver::Controller::SecurityEvent)
         include_path => [
             pfappserver->config->{root},
             INSTALL_DIR . '/html/pfappserver/root',
@@ -88,7 +88,7 @@ __PACKAGE__->config(
             'admin',
             'pfappserver',
             'templates',
-            'violations',
+            'security_events',
         ],
         ignore_extensions => [ qw/cgi php inc tt html xml/ ],
     },

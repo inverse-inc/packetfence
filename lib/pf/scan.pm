@@ -38,7 +38,7 @@ use pf::scan::nessus;
 use pf::scan::openvas;
 use pf::scan::wmi;
 use pf::util;
-use pf::violation qw(violation_close violation_exist_open violation_trigger violation_modify);
+use pf::security_event qw(security_event_close security_event_exist_open security_event_trigger security_event_modify);
 use pf::Connection::ProfileFactory;
 use pf::api::jsonrpcclient;
 use Text::CSV_XS;
@@ -76,12 +76,12 @@ sub instantiate_scan_engine {
 
 =item parse_scan_report
 
-Parse a scan report from the scan object and trigger violations if needed
+Parse a scan report from the scan object and trigger security_events if needed
 
 =cut
 
 sub parse_scan_report {
-    my ( $scan, $scan_vid ) = @_;
+    my ( $scan, $scan_security_event_id ) = @_;
     my $logger = get_logger();
 
     $logger->debug("Scan report to analyze. Scan id: $scan");
@@ -90,7 +90,7 @@ sub parse_scan_report {
 
     my ($mac, $ip, $type) = @{$scan}{qw(_scanMac _scanIp _type)};
 
-    # Trigger a violation for each vulnerability
+    # Trigger a security_event for each vulnerability
     my $failed_scan = 0;
 
     my $csv = Text::CSV_XS->new ({ binary => 1, sep_char => ',' });
@@ -98,11 +98,11 @@ sub parse_scan_report {
     my $row = $csv->getline($io);
     if ($row->[0] eq 'Plugin ID') {
         while (my $row = $csv->getline($io)) {
-            $logger->info("Calling violation_trigger for ip: $ip, mac: $mac, type: $type, trigger: ".$row->[0]);
-            my $violation_added = violation_trigger( { 'mac' => $mac, 'tid' => $row->[0], 'type' => $type } );
+            $logger->info("Calling security_event_trigger for ip: $ip, mac: $mac, type: $type, trigger: ".$row->[0]);
+            my $security_event_added = security_event_trigger( { 'mac' => $mac, 'tid' => $row->[0], 'type' => $type } );
 
-            # If a violation has been added, consider the scan failed
-            if ( $violation_added ) {
+            # If a security_event has been added, consider the scan failed
+            if ( $security_event_added ) {
                 $failed_scan = 1;
             }
         }
@@ -112,46 +112,46 @@ sub parse_scan_report {
             Parse::Nessus::NBE::nstatvulns(@$scan_report, $SEVERITY_WARNING),
             Parse::Nessus::NBE::nstatvulns(@$scan_report, $SEVERITY_INFO),
         );
-        # Trigger a violation for each vulnerability
+        # Trigger a security_event for each vulnerability
         foreach my $current_vuln (@count_vulns) {
             # Parse nstatvulns format
             my ( $trigger_id, $number ) = split(/\|/, $current_vuln);
 
-            $logger->info("Calling violation_trigger for ip: $ip, mac: $mac, type: $type, trigger: $trigger_id");
-            my $violation_added = violation_trigger( { 'mac' => $mac, 'tid' => $trigger_id, 'type' => $type } );
+            $logger->info("Calling security_event_trigger for ip: $ip, mac: $mac, type: $type, trigger: $trigger_id");
+            my $security_event_added = security_event_trigger( { 'mac' => $mac, 'tid' => $trigger_id, 'type' => $type } );
 
-            # If a violation has been added, consider the scan failed
-            if ( $violation_added ) {
+            # If a security_event has been added, consider the scan failed
+            if ( $security_event_added ) {
                 $failed_scan = 1;
             }
         }
     }
 
     # If scan is requested because of registration scanning
-    #   Clear scan violation if the host didn't generate any violation
-    #   Otherwise we keep the violation and clear the ticket_ref (so we can re-scan once he remediates)
+    #   Clear scan security_event if the host didn't generate any security_event
+    #   Otherwise we keep the security_event and clear the ticket_ref (so we can re-scan once he remediates)
     # If the scan came from elsewhere
     #   Do nothing
 
-    # The way we accomplish the above workflow is to differentiate by checking if special violation exists or not
-    if ( my $violation_id = violation_exist_open($mac, $scan_vid) ) {
-        $logger->trace("Scan is completed and there is an open scan violation. We have something to do!");
+    # The way we accomplish the above workflow is to differentiate by checking if special security_event exists or not
+    if ( my $security_event_id = security_event_exist_open($mac, $scan_security_event_id) ) {
+        $logger->trace("Scan is completed and there is an open scan security_event. We have something to do!");
 
-        # We passed the scan so we can close the scan violation
+        # We passed the scan so we can close the scan security_event
         if ( !$failed_scan ) {
             my $apiclient = pf::api::jsonrpcclient->new;
             my %data = (
-               'vid' => $scan_vid,
+               'security_event_id' => $scan_security_event_id,
                'mac' => $mac,
                'reason' => 'manage_vclose',
             );
-            $apiclient->notify('close_violation', %data );
+            $apiclient->notify('close_security_event', %data );
             $apiclient->notify('reevaluate_access', %data );
-        # Scan completed but a violation has been found
-        # HACK: we empty the violation's ticket_ref field which we use to track if scan is in progress or not
+        # Scan completed but a security_event has been found
+        # HACK: we empty the security_event's ticket_ref field which we use to track if scan is in progress or not
         } else {
-            $logger->debug("Modifying violation id $violation_id to empty its ticket_ref field");
-            violation_modify($violation_id, (ticket_ref => ""));
+            $logger->debug("Modifying security_event id $security_event_id to empty its ticket_ref field");
+            security_event_modify($security_event_id, (ticket_ref => ""));
         }
     }
 
@@ -257,10 +257,10 @@ sub run_scan {
 
         my $apiclient = pf::api::jsonrpcclient->new;
         my %data = (
-           'vid' => $failed_scan,
+           'security_event_id' => $failed_scan,
            'mac' => $host_mac,
         );
-        $apiclient->notify('close_violation', %data );
+        $apiclient->notify('close_security_event', %data );
     }
 }
 

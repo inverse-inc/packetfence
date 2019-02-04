@@ -94,14 +94,14 @@ sub statics_active {
     $self->render(json => { items => [report_statics_active()]});
 }
 
-sub openviolations_all {
+sub opensecurity_events_all {
     my ($self) = @_;
-    $self->render(json => { items => [report_openviolations_all()]});
+    $self->render(json => { items => [report_opensecurity_events_all()]});
 }
 
-sub openviolations_active {
+sub opensecurity_events_active {
     my ($self) = @_;
-    $self->render(json => { items => [report_openviolations_active()]});
+    $self->render(json => { items => [report_opensecurity_events_active()]});
 }
 
 sub connectiontype_all {

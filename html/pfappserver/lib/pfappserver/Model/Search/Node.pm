@@ -220,32 +220,32 @@ sub default_query {
     );
 }
 
-our @VIOLATION_JOINS_SPECS = (
-    '=>{violation_status.mac=node.mac}',
-    'violation|violation_status',
-    '=>{violation_status.vid=violation_status_class.vid}',
-    'class|violation_status_class',
+our @SECURITY_EVENT_JOINS_SPECS = (
+    '=>{security_event_status.mac=node.mac}',
+    'security_event|security_event_status',
+    '=>{security_event_status.security_event_id=security_event_status_class.security_event_id}',
+    'class|security_event_status_class',
 );
 
-our @VIOLATION_ADDITIONAL_COLUMNS = (
-    'violation_status.status|violation_status',
-    'violation_status_class.description|violation_name',
+our @SECURITY_EVENT_ADDITIONAL_COLUMNS = (
+    'security_event_status.status|security_event_status',
+    'security_event_status_class.description|security_event_name',
 );
 
 our %SEARCH_NAME_TO_TABLE_NAME = (
-    'violation' => {
-        'full_name'  => 'violation_status_class.description',
-        'joins_id'   => 'violation_joins',
-        'joins'      => \@VIOLATION_JOINS_SPECS,
-        'columns'    => \@VIOLATION_ADDITIONAL_COLUMNS,
-        'columns_id' => 'violation',
+    'security_event' => {
+        'full_name'  => 'security_event_status_class.description',
+        'joins_id'   => 'security_event_joins',
+        'joins'      => \@SECURITY_EVENT_JOINS_SPECS,
+        'columns'    => \@SECURITY_EVENT_ADDITIONAL_COLUMNS,
+        'columns_id' => 'security_event',
     },
-    'violation_status' => {
-        'full_name'  => 'violation_status.status',
-        'joins_id'   => 'violation_joins',
-        'joins'      => \@VIOLATION_JOINS_SPECS,
-        'columns'    => \@VIOLATION_ADDITIONAL_COLUMNS,
-        'columns_id' => 'violation',
+    'security_event_status' => {
+        'full_name'  => 'security_event_status.status',
+        'joins_id'   => 'security_event_joins',
+        'joins'      => \@SECURITY_EVENT_JOINS_SPECS,
+        'columns'    => \@SECURITY_EVENT_ADDITIONAL_COLUMNS,
+        'columns_id' => 'security_event',
     },
     'person_name' => {
         'full_name' => 'node.pid'

@@ -44,7 +44,7 @@ use pf::config qw(
     $SELFREG_MODE_SPONSOR
     is_inline_enforcement_enabled
 );
-use pf::violation_config;
+use pf::security_event_config;
 use pf::util;
 use pf::config::util;
 use pf::services;
@@ -160,7 +160,7 @@ sub sanity_check {
     is_config_documented();
     extensions();
     permissions();
-    violations();
+    security_events();
     switches();
     connection_profiles();
     guests();
@@ -752,40 +752,40 @@ sub apache {
     }
 }
 
-=item violations
+=item security_events
 
-Checking for violations configurations
+Checking for security_events configurations
 
 =cut
 
-sub violations {
-    require pfconfig::namespaces::FilterEngine::Violation;
-    require pf::violation_config;
+sub security_events {
+    require pfconfig::namespaces::FilterEngine::SecurityEvent;
+    require pf::security_event_config;
     require List::MoreUtils;
 
     # Check for deprecated actions and attributes
     my @deprecated_actions = qw(trap email popup);
     my @deprecated_attr = qw(whitelisted_categories);
-    while(my ($vid, $config) = each %pf::violation_config::Violation_Config ){
+    while(my ($security_event_id, $config) = each %pf::security_event_config::SecurityEvent_Config ){
         foreach my $attr (@deprecated_attr){
             if(exists $config->{$attr}){
-                add_problem($WARN, "Violation attribute $attr is deprecated in violation $vid. Please adjust your configuration according to the upgrade guide.");
+                add_problem($WARN, "Security Event attribute $attr is deprecated in security event $security_event_id. Please adjust your configuration according to the upgrade guide.");
             }
         }
 
         my @actions = split(/\s*,\s*/, $config->{actions});
         foreach my $action (@deprecated_actions){
             if(List::MoreUtils::any {$_ eq $action} @actions){
-                add_problem($WARN, "Violation action $action is deprecated in violation $vid. Please adjust your configuration according to the upgrade guide.");
+                add_problem($WARN, "Security Event action $action is deprecated in security event $security_event_id. Please adjust your configuration according to the upgrade guide.");
             }
         }
     }
 
-    my $engine = pfconfig::namespaces::FilterEngine::Violation->new;
+    my $engine = pfconfig::namespaces::FilterEngine::SecurityEvent->new;
     $engine->build();
-    while (my ($violation, $triggers) = each %{$engine->{invalid_triggers}}) {
+    while (my ($security_event, $triggers) = each %{$engine->{invalid_triggers}}) {
         foreach my $trigger (@$triggers){
-            add_problem($WARN, "Invalid trigger $trigger for violation $violation");
+            add_problem($WARN, "Invalid trigger $trigger for security event $security_event");
         }
     }
 }

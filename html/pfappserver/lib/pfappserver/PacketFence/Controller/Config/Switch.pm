@@ -126,7 +126,7 @@ sub search : Local : AdminRole('SWITCHES_READ') {
         $c->request->param("searches.0.value", "");
     }
 
-    my ($status, $status_msg, $result, $violations);
+    my ($status, $status_msg, $result, $security_events);
     my %search_results;
     my $model = $self->getModel($c);
     my $form = $c->form('AdvancedSearch');

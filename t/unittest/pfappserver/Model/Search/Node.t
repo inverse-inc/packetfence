@@ -33,11 +33,11 @@ use pf::dal::node;
 
 my $DEFAULT_LIKE_FORMAT = '%%%s%%';
 
-my @VIOLATION_JOINS = (
-    '=>{violation_status.mac=node.mac}',
-    'violation|violation_status',
-    '=>{violation_status.vid=violation_status_class.vid}',
-    'class|violation_status_class',
+my @SECURITY_EVENT_JOINS = (
+    '=>{security_event_status.mac=node.mac}',
+    'security_event|security_event_status',
+    '=>{security_event_status.security_event_id=security_event_status_class.security_event_id}',
+    'class|security_event_status_class',
 );
 
 my $params = {
@@ -654,11 +654,11 @@ is_deeply(
 );
 
 is_deeply(
-    \@pfappserver::Model::Search::Node::VIOLATION_JOINS_SPECS,
+    \@pfappserver::Model::Search::Node::SECURITY_EVENT_JOINS_SPECS,
     [
         pfappserver::Model::Search::Node->make_additionial_joins([
             {
-                name => 'violation_status',
+                name => 'security_event_status',
                 op => 'equal',
                 value => 'asas',
             }
@@ -669,16 +669,16 @@ is_deeply(
 );
 
 is_deeply(
-    \@pfappserver::Model::Search::Node::VIOLATION_JOINS_SPECS,
+    \@pfappserver::Model::Search::Node::SECURITY_EVENT_JOINS_SPECS,
     [
         pfappserver::Model::Search::Node->make_additionial_joins([
             {
-                name => 'violation_status',
+                name => 'security_event_status',
                 op => 'equal',
                 value => 'asas',
             },
             {
-                name => 'violation',
+                name => 'security_event',
                 op => 'equal',
                 value => 'asas',
             }
@@ -696,17 +696,17 @@ is_deeply(
 );
 
 is_deeply(
-    \@pfappserver::Model::Search::Node::VIOLATION_ADDITIONAL_COLUMNS,
+    \@pfappserver::Model::Search::Node::SECURITY_EVENT_ADDITIONAL_COLUMNS,
     [
         pfappserver::Model::Search::Node->make_additionial_columns([
             {
-                name => 'violation_status',
+                name => 'security_event_status',
                 op => 'equal',
                 value => 'asas',
             },
         ]),
     ],
-    "Find additional columns for violation status",
+    "Find additional columns for security event status",
 );
 
 =head1 AUTHOR

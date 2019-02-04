@@ -58,7 +58,7 @@ ok ($form, "Create a new form");
 
 ok (ref $form->roles eq 'ARRAY', "Roles attribute is set");
 
-ok (ref $form->violations eq 'ARRAY', "Violations attribute is set");
+ok (ref $form->security_events eq 'ARRAY', "Security Events attribute is set");
 
 {
 

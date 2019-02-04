@@ -5,9 +5,9 @@ pf::cmd::pf::reload add documentation
 
 =head1 SYNOPSIS
 
-pfcmd reload <fingerprints|violations>
+pfcmd reload <fingerprints|security_events>
 
-reload fingerprints or violations database tables without restart
+reload fingerprints or security_events database tables without restart
 
 
 =head1 DESCRIPTION

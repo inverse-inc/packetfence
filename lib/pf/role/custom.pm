@@ -24,7 +24,7 @@ use pf::config;
 use pf::node qw(node_attributes node_exist node_modify);
 use pf::Switch::constants;
 use pf::util;
-use pf::violation qw(violation_count_reevaluate_access violation_exist_open violation_view_top);
+use pf::security_event qw(security_event_count_reevaluate_access security_event_exist_open security_event_view_top);
 
 use pf::authentication;
 use pf::Authentication::constants;
@@ -48,12 +48,12 @@ See pf::role::shouldAutoRegister for full original method.
 #sub shouldAutoRegister{
 #    #$mac is MAC address
 #    #$switch_in_autoreg_mode is set to 1 if switch is in registration mode
-#    #$violation_autoreg is set to 1 if called from a violation with autoreg action
+#    #$security_event_autoreg is set to 1 if called from a security_event with autoreg action
 #    #$isPhone is set to 1 if device is considered an IP Phone.
 #    #$conn_type is set to the connnection type expressed as the constant in pf::config
 #    #$user_name is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
 #    #$ssid is set to the wireless ssid (will be empty if radius and not wireless, undef if not radius)
-#    my ($self, $mac, $switch_in_autoreg_mode, $violation_autoreg, $isPhone, $conn_type, $user_name, $ssid, $eap_type, $switch, $port, $radius_request) = @_;
+#    my ($self, $mac, $switch_in_autoreg_mode, $security_event_autoreg, $isPhone, $conn_type, $user_name, $ssid, $eap_type, $switch, $port, $radius_request) = @_;
 #
 #    my $logger = get_logger();
 #    # CUSTOM: We want to auto-register 802.1x connections
@@ -65,7 +65,7 @@ See pf::role::shouldAutoRegister for full original method.
 #    # \CUSTOM
 #
 #    # Otherwise, call parent method
-#    return $self->SUPER::shouldAutoRegister($mac, $switch_in_autoreg_mode, $violation_autoreg, $isPhone, $conn_type, $user_name, $ssid, $eap_type, $switch, $port, $radius_request);
+#    return $self->SUPER::shouldAutoRegister($mac, $switch_in_autoreg_mode, $security_event_autoreg, $isPhone, $conn_type, $user_name, $ssid, $eap_type, $switch, $port, $radius_request);
 #}
 
 

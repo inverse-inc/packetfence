@@ -4,9 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"regexp"
+
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/unifiedapiclient"
-	"regexp"
 )
 
 var suricataMD5RegexRemovePrefix = regexp.MustCompile(`^[^\{]*`)
@@ -71,7 +72,7 @@ func (s *SuricataMD5Parser) Parse(line string) ([]ApiCall, error) {
 	data["mac"] = mac
 	return []ApiCall{
 		&PfqueueApiCall{
-			Method: "trigger_violation",
+			Method: "trigger_security_event",
 			Params: []interface{}{
 				"mac", mac,
 				"tid", tid,

@@ -38,7 +38,7 @@ use pf::constants::role qw($VOICE_ROLE $REJECT_ROLE);
 use pf::util;
 use pf::config::util;
 use pf::floatingdevice::custom;
-use pf::constants::scan qw($POST_SCAN_VID);
+use pf::constants::scan qw($POST_SCAN_SECURITY_EVENT_ID);
 use pf::authentication;
 use pf::Authentication::constants;
 use pf::Connection::ProfileFactory;
@@ -78,7 +78,7 @@ Answers the question: What VLAN should a given node be put into?
 
 This sub is meant to be overridden in lib/pf/role/custom.pm if the default
 version doesn't do the right thing for you. However it is very generic,
-maybe what you are looking for needs to be done in getViolationRole,
+maybe what you are looking for needs to be done in getIsolationRole,
 getRegistrationRole or getRegisteredRole.
 
 =cut
@@ -116,8 +116,8 @@ sub fetchRoleForNode {
         }
     }
 
-    # violation handling
-    my $answer = $self->getViolationRole($args);
+    # security_event handling
+    my $answer = $self->getIsolationRole($args);
     $answer->{wasInline} = 0;
     if (defined($answer->{role}) && $answer->{role} ne "0" ) {
         return $answer;
@@ -125,13 +125,13 @@ sub fetchRoleForNode {
         return $answer;
     }
 
-    # there were no violation, now onto registration handling
+    # there were no security_event, now onto registration handling
     $answer = $self->getRegistrationRole($args);
     if (defined($answer->{role}) && $answer->{role} ne "0") {
         return $answer;
     }
 
-    # no violation, not unregistered, we are now handling a normal vlan
+    # no security_event, not unregistered, we are now handling a normal vlan
     $answer = $self->getRegisteredRole($args);
     $logger->info("PID: \"" .$node_info->{pid}. "\", Status: " .$node_info->{status}. " Returned VLAN: ".(defined $answer->{vlan} ? $answer->{vlan} : "(undefined)").", Role: " . (defined $answer->{role} ? $answer->{role} : "(undefined)") );
     return $answer;
@@ -185,9 +185,9 @@ sub doWeActOnThisTrap {
     return $weActOnThisTrap;
 }
 
-=head2 getViolationRole
+=head2 getIsolationRole
 
-Returns the violation role for a node (if any)
+Returns the security_event role for a node (if any)
 
 This sub is meant to be overridden in lib/pf/role/custom.pm if you have specific isolation needs.
 
@@ -195,7 +195,7 @@ Return values:
 
 =head2 * -1 means kick-out the node (not always supported)
 
-=head2 * 0 means no violation for this node
+=head2 * 0 means no security_event for this node
 
 =head2 * undef means there was an error
 
@@ -203,9 +203,9 @@ Return values:
 
 =cut
 
-sub getViolationRole {
+sub getIsolationRole {
     my $timer = pf::StatsD::Timer->new;
-    require pf::violation;
+    require pf::security_event;
     # $args->{'switch'} is the switch object (pf::Switch)
     # $args->{'ifIndex'} is the ifIndex of the computer connected to
     # $args->{'mac'} is the mac connected
@@ -215,16 +215,16 @@ sub getViolationRole {
     my ($self, $args) = @_;
     my $logger = $self->logger;
 
-    my $open_violation_count = pf::violation::violation_count_reevaluate_access($args->{'mac'});
-    if ($open_violation_count == 0) {
+    my $open_security_event_count = pf::security_event::security_event_count_reevaluate_access($args->{'mac'});
+    if ($open_security_event_count == 0) {
         return ({ role => 0});
     }
 
-    $logger->debug("has $open_violation_count open violations(s) with action=trap; ".
+    $logger->debug("has $open_security_event_count open security_events(s) with action=trap; ".
                    "it might belong into another VLAN (isolation or other).");
 
     # Vlan Filter
-    my $role = $self->filterVlan('ViolationRole',$args);
+    my $role = $self->filterVlan('IsolationRole',$args);
     if ($role) {
         return ({role => $role});
     }
@@ -232,48 +232,48 @@ sub getViolationRole {
     # By default we assume that we put the user in isolation role unless proven otherwise
     $role = "isolation";
 
-    # fetch top violation
-    $logger->trace("What is the highest priority violation for this host?");
-    my $top_violation = pf::violation::violation_view_top($args->{'mac'});
-    # fetching top violation failed
-    if (!$top_violation || !defined($top_violation->{'vid'})) {
+    # fetch top security_event
+    $logger->trace("What is the highest priority security_event for this host?");
+    my $top_security_event = pf::security_event::security_event_view_top($args->{'mac'});
+    # fetching top security_event failed
+    if (!$top_security_event || !defined($top_security_event->{'security_event_id'})) {
 
-        $logger->warn("Could not find highest priority open violation. ".
+        $logger->warn("Could not find highest priority open security_event. ".
                       "Setting target role");
         $pf::StatsD::statsd->increment(called() . ".error" );
         return ({role => $role});
     }
 
-    # get violation id
-    my $vid = $top_violation->{'vid'};
+    # get security_event id
+    my $security_event_id = $top_security_event->{'security_event_id'};
 
-    # Scan violation that must be done in the production vlan
-    if ($vid == $POST_SCAN_VID) {
+    # Scan security_event that must be done in the production vlan
+    if ($security_event_id == $POST_SCAN_SECURITY_EVENT_ID) {
         return ({ role => 0});
     }
 
-    # find violation class based on violation id
+    # find security_event class based on security_event id
     require pf::class;
-    my $class = pf::class::class_view($vid);
-    # finding violation class based on violation id failed
+    my $class = pf::class::class_view($security_event_id);
+    # finding security_event class based on security_event id failed
     if (!$class || !defined($class->{'vlan'})) {
 
-        $logger->warn("Could not find class entry for violation $vid. ".
+        $logger->warn("Could not find class entry for security_event $security_event_id. ".
                       "Setting target role to isolation");
         $pf::StatsD::statsd->increment(called() . ".error" );
         return ({role => $role});
     }
 
-    # override violation destination vlan
+    # override security_event destination vlan
     $role = $class->{'vlan'};
 
-    # example of a specific violation that packetfence should block instead of isolate
+    # example of a specific security_event that packetfence should block instead of isolate
     # ex: block iPods / iPhones because they tend to overload controllers, radius and captive portal in isolation vlan
-    # if ($vid == '1100004') { return -1; }
+    # if ($security_event_id == '1100004') { return -1; }
 
-    # Asking the switch to give us its configured vlan number for the vlan returned for the violation
+    # Asking the switch to give us its configured vlan number for the vlan returned for the security_event
     if (defined($role)) {
-        $logger->info("highest priority violation is $vid. Target Role for violation: $role");
+        $logger->info("highest priority security_event is $security_event_id. Target Role for security_event: $role");
     }
     return ({role => $role});
 }
@@ -354,7 +354,7 @@ Return values:
 
 sub getRegisteredRole {
     my $timer = pf::StatsD::Timer->new;
-    require pf::violation;
+    require pf::security_event;
     #$args->{'switch'} is the switch object (pf::Switch)
     #$args->{'ifIndex'} is the ifIndex of the computer connected to
     #$args->{'mac'} is the mac connected
@@ -380,13 +380,13 @@ sub getRegisteredRole {
     my $provisioner = $profile->findProvisioner($args->{'mac'},$args->{'node_info'});
     if (defined($provisioner) && $provisioner->{enforce}) {
         $logger->info("Triggering provisioner check");
-        pf::violation::violation_trigger( { 'mac' => $args->{'mac'}, 'tid' => $TRIGGER_ID_PROVISIONER, 'type' => $TRIGGER_TYPE_PROVISIONER } );
+        pf::security_event::security_event_trigger( { 'mac' => $args->{'mac'}, 'tid' => $TRIGGER_ID_PROVISIONER, 'type' => $TRIGGER_TYPE_PROVISIONER } );
     }
 
     my $scan = $profile->findScan($args->{'mac'},$args->{'node_info'});
     if (defined($scan) && isenabled($scan->{'post_registration'})) {
         $logger->info("Triggering scan check");
-        pf::violation::violation_add( $args->{'mac'}, $POST_SCAN_VID );
+        pf::security_event::security_event_add( $args->{'mac'}, $POST_SCAN_SECURITY_EVENT_ID );
     }
 
     $logger->debug("Trying to determine VLAN from role.");
@@ -527,7 +527,7 @@ Returns an anonymous hash that is meant for node_register()
 sub getNodeInfoForAutoReg {
     my $timer = pf::StatsD::Timer->new;
     #$args->{'switch'}_in_autoreg_mode is set to 1 if switch is in registration mode
-    #$violation_autoreg is set to 1 if called from a violation with autoreg action
+    #$security_event_autoreg is set to 1 if called from a security_event with autoreg action
     #$isPhone is set to 1 if device is considered an IP Phone.
     #$conn_type is set to the connnection type expressed as the constant in pf::config
     #$args->{'user_name'} is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
@@ -552,10 +552,10 @@ sub getNodeInfoForAutoReg {
         $node_info{'category'} = $role;
     }
 
-    # if we are called from a violation with action=autoreg, say so
-    if (defined($args->{'violation_autoreg'}) && $args->{'$violation_autoreg'}) {
-        $node_info{'notes'} = 'AUTO-REGISTERED by violation';
-        $node_info{'autoreg'} = 'no'; # This flag has not to be used for violation autoreg
+    # if we are called from a security_event with action=autoreg, say so
+    if (defined($args->{'security_event_autoreg'}) && $args->{'$security_event_autoreg'}) {
+        $node_info{'notes'} = 'AUTO-REGISTERED by security_event';
+        $node_info{'autoreg'} = 'no'; # This flag has not to be used for security_event autoreg
     }
 
     # this might look circular but if a VoIP dhcp fingerprint was seen, we'll set node.voip to VOIP
@@ -624,7 +624,7 @@ sub getNodeInfoForAutoReg {
 Do we auto-register this node?
 
 By default we register automatically when the switch is configured to (registration mode),
-when there is a violation with action autoreg and when the device is a phone.
+when there is a security_event with action autoreg and when the device is a phone.
 
 This sub is meant to be overridden in lib/pf/role/custom.pm if the default
 version doesn't do the right thing for you.
@@ -637,7 +637,7 @@ sub shouldAutoRegister {
     my $timer = pf::StatsD::Timer->new;
     #$args->{'mac'} is MAC address
     #$args->{'switch'}_in_autoreg_mode is set to 1 if switch is in registration mode
-    #$args->{'violation_autoreg'} is set to 1 if called from a violation with autoreg action
+    #$args->{'security_event_autoreg'} is set to 1 if called from a security_event with autoreg action
     #$args->{'isPhone'} is set to 1 if device is considered an IP Phone.
     #$args->{'connection'}_type is set to the connnection type expressed as the constant in pf::config
     #$args->{'user_name'} is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
@@ -654,9 +654,9 @@ sub shouldAutoRegister {
         $logger->trace("returned yes because it's from the switch's config (" . $args->{'switch'}->{_id} . ")");
         return $TRUE;
 
-    # if we have a violation action set to autoreg
-    } elsif (defined($args->{'violation_autoreg'}) && $args->{'violation_autoreg'}) {
-        $logger->trace("returned yes because it's from a violation with action autoreg");
+    # if we have a security_event action set to autoreg
+    } elsif (defined($args->{'security_event_autoreg'}) && $args->{'security_event_autoreg'}) {
+        $logger->trace("returned yes because it's from a security_event with action autoreg");
         return $TRUE;
     }
 

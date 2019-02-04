@@ -344,7 +344,7 @@ sub extract_modules {
         }
     }
 
-    const('pf::config', 'VALID_TRIGGER_TYPES', keys(%pf::factory::condition::violation::TRIGGER_TYPE_TO_CONDITION_TYPE));
+    const('pf::config', 'VALID_TRIGGER_TYPES', keys(%pf::factory::condition::security_event::TRIGGER_TYPE_TO_CONDITION_TYPE));
     const('pf::config', 'Inline triggers', [$pf::config::MAC, $pf::config::PORT, $pf::config::SSID, $pf::config::ALWAYS]);
     const('pf::config', 'Network types', [$pf::config::NET_TYPE_VLAN_REG, $pf::config::NET_TYPE_VLAN_ISOL, $pf::config::NET_TYPE_INLINE, 'management', 'other']);
     const('pf::radius_audit_log', 'RADIUS Audit Log', \@pf::radius_audit_log::FIELDS);
@@ -352,8 +352,8 @@ sub extract_modules {
     const('pf::factory::detect::parser', 'Detect Parsers', [map { "pfdetect_type_$_"  } @pf::constants::pfdetect::TYPES]);
     const('pf::factory::scan', 'Scans Engine', [map { /^pf::scan(.*)/; my $x = $1;  $x =~ s/(::)/_/g; "scan_type$x"  } @pf::factory::scan::MODULES]);
 
-    my @values = map { "${_}_action" } @pf::action::VIOLATION_ACTIONS;
-    const('pf::action', 'VIOLATION_ACTIONS', \@values);
+    my @values = map { "${_}_action" } @pf::action::SECURITY_EVENT_ACTIONS;
+    const('pf::action', 'SECURITY_EVENT_ACTIONS', \@values);
 
     @values = ();
     map {

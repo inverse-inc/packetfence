@@ -468,9 +468,9 @@ export const pfReportColumns = {
     sortable: true,
     visible: true
   },
-  violation: {
-    key: 'violation',
-    label: i18n.t('Violation'),
+  security_event: {
+    key: 'security_event',
+    label: i18n.t('Security Event'),
     class: 'text-nowrap',
     sortable: true,
     visible: true
@@ -728,18 +728,18 @@ export const pfReportCategories = [
     ]
   },
   {
-    name: i18n.t('Violations'),
+    name: i18n.t('Security Events'),
     reports: [
       {
         name: i18n.t('Open'),
         tabs: [
           {
             name: i18n.t('All'),
-            path: 'openviolations'
+            path: 'opensecurity_events'
           },
           {
             name: i18n.t('Active'),
-            path: 'openviolations/active'
+            path: 'opensecurity_events/active'
           }
         ],
         columns: [
@@ -747,7 +747,7 @@ export const pfReportCategories = [
           pfReportColumns.owner,
           pfReportColumns.start_date,
           pfReportColumns.status,
-          pfReportColumns.violation
+          pfReportColumns.security_event
         ]
       }
     ]

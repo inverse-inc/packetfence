@@ -15,7 +15,7 @@ ok(defined($result->{http_host}), "checking that http method is recognised so we
 is($result->{dstip}, "172.20.20.211", "checking destination IP is properly parsed.");
 is($result->{md5}, "0806b949be8f93127a9fbf909221a121", "checking that md5 is properly parsed.");
 
-$apiclient->notify('trigger_violation', ( 'mac' => $data->{mac}, 'tid' => $data->{md5}, 'type' => 'suricata_md5' ));   # Process Suricata MD5 based violations
+$apiclient->notify('trigger_security_event', ( 'mac' => $data->{mac}, 'tid' => $data->{md5}, 'type' => 'suricata_md5' ));   # Process Suricata MD5 based security_events
 
 */
 
@@ -40,7 +40,7 @@ func TestSuricataMD5Parse(t *testing.T) {
 			Line: `Jul  7 15:48:02 Thierry-SecurityOnion suricata_files: ` + testLine,
 			Calls: []ApiCall{
 				&PfqueueApiCall{
-					Method: "trigger_violation",
+					Method: "trigger_security_event",
 					Params: []interface{}{
 						"mac", "00:11:22:33:44:55",
 						"tid", "0806b949be8f93127a9fbf909221a121",

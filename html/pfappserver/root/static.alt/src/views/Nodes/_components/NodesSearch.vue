@@ -14,9 +14,9 @@
             <template slot="button-content">
               <icon name="cogs" v-b-tooltip.hover.right :title="$t('Actions')"></icon>
             </template>
-            <b-dropdown-item @click="applyBulkClearViolation()">
+            <b-dropdown-item @click="applyBulkClearSecurityEvent()">
               <icon class="position-absolute mt-1" name="ban"></icon>
-              <span class="ml-4">{{ $t('Clear Violation') }}</span>
+              <span class="ml-4">{{ $t('Clear Security Event') }}</span>
             </b-dropdown-item>
             <b-dropdown-item @click="applyBulkRegister()">
               <icon class="position-absolute mt-1" name="plus-circle"></icon>
@@ -57,9 +57,9 @@
               <span class="ml-4"><em>{{ $t('None') }}</em></span>
             </b-dropdown-item>
             <b-dropdown-divider></b-dropdown-divider>
-            <b-dropdown-header>{{ $t('Apply Violation') }}</b-dropdown-header>
-            <b-dropdown-item v-for="violation in violations" v-if="violation.enabled ==='Y'" :key="violation.id" @click="applyBulkViolation(violation)" v-b-tooltip.hover.left :title="violation.id">
-              <span>{{violation.desc}}</span>
+            <b-dropdown-header>{{ $t('Apply Security Event') }}</b-dropdown-header>
+            <b-dropdown-item v-for="security_event in security_events" v-if="security_event.enabled ==='Y'" :key="security_event.id" @click="applyBulkSecurityEvent(security_event)" v-b-tooltip.hover.left :title="security_event.id">
+              <span>{{security_event.desc}}</span>
             </b-dropdown-item>
           </b-dropdown>
           <b-dropdown size="sm" variant="link" :disabled="isLoading" no-caret no-flip>
@@ -331,26 +331,26 @@ export default {
           icon: 'user-secret'
         },
         {
-          value: 'violation.open_vid',
-          text: this.$i18n.t('Violation Open'),
-          types: [conditionType.VIOLATION],
+          value: 'security_event.open_security_event_id',
+          text: this.$i18n.t('Security Event Open'),
+          types: [conditionType.SECURITY_EVENT],
           icon: 'exclamation-triangle'
         },
         {
-          value: 'violation.open_count',
-          text: this.$i18n.t('Violation Open Count [Issue #3400]'),
+          value: 'security_event.open_count',
+          text: this.$i18n.t('Security Event Open Count [Issue #3400]'),
           types: [conditionType.INTEGER],
           icon: 'exclamation-triangle'
         },
         {
-          value: 'violation.close_vid',
-          text: this.$i18n.t('Violation Closed'),
-          types: [conditionType.VIOLATION],
+          value: 'security_event.close_security_event_id',
+          text: this.$i18n.t('Security Event Closed'),
+          types: [conditionType.SECURITY_EVENT],
           icon: 'exclamation-circle'
         },
         {
-          value: 'violation.close_count',
-          text: this.$i18n.t('Violation Close Count [Issue #3400]'),
+          value: 'security_event.close_count',
+          text: this.$i18n.t('Security Event Close Count [Issue #3400]'),
           types: [conditionType.INTEGER],
           icon: 'exclamation-circle'
         },
@@ -628,31 +628,31 @@ export default {
           visible: false
         },
         {
-          key: 'violation.open_vid',
-          label: this.$i18n.t('Violation Open'),
+          key: 'security_event.open_security_event_id',
+          label: this.$i18n.t('Security Event Open'),
           sortable: true,
           visible: false,
           class: 'text-nowrap',
-          formatter: formatter.violationIdsToDescCsv
+          formatter: formatter.security_eventIdsToDescCsv
         },
         {
-          key: 'violation.open_count',
-          label: this.$i18n.t('Violation Open Count'),
+          key: 'security_event.open_count',
+          label: this.$i18n.t('Security Event Open Count'),
           sortable: true,
           visible: false,
           class: 'text-nowrap'
         },
         {
-          key: 'violation.close_vid',
-          label: this.$i18n.t('Violation Closed'),
+          key: 'security_event.close_security_event_id',
+          label: this.$i18n.t('Security Event Closed'),
           sortable: true,
           visible: false,
           class: 'text-nowrap',
-          formatter: formatter.violationIdsToDescCsv
+          formatter: formatter.security_eventIdsToDescCsv
         },
         {
-          key: 'violation.close_count',
-          label: this.$i18n.t('Violation Closed Count'),
+          key: 'security_event.close_count',
+          label: this.$i18n.t('Security Event Closed Count'),
           sortable: true,
           visible: false,
           class: 'text-nowrap'
@@ -667,8 +667,8 @@ export default {
     roles () {
       return this.$store.state.config.roles
     },
-    violations () {
-      return this.$store.getters['config/sortedViolations']
+    security_events () {
+      return this.$store.getters['config/sortedSecurityEvents']
     }
   },
   methods: {
@@ -678,10 +678,10 @@ export default {
     pfMixinSearchableAdvancedMode (condition) {
       return (condition.values.length > 1 || condition.values[0].values.length > 1)
     },
-    applyBulkClearViolation () {
+    applyBulkClearSecurityEvent () {
       const macs = this.selectValues.map(item => item.mac)
       if (macs.length > 0) {
-        this.$store.dispatch(`${this.storeName}/clearViolationBulkNodes`, { items: macs }).then(response => {
+        this.$store.dispatch(`${this.storeName}/clearSecurityEventBulkNodes`, { items: macs }).then(response => {
           response.items.forEach((item, _index, items) => {
             let index = this.tableValues.findIndex(node => node.mac === item.mac)
             this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
@@ -886,10 +886,10 @@ export default {
         })
       }
     },
-    applyBulkViolation (violation) {
+    applyBulkSecurityEvent (security_event) {
       const macs = this.selectValues.map(item => item.mac)
       if (macs.length > 0) {
-        this.$store.dispatch(`${this.storeName}/applyViolationBulkNodes`, { items: macs, vid: violation.id }).then(response => {
+        this.$store.dispatch(`${this.storeName}/applySecurityEventBulkNodes`, { items: macs, security_event_id: security_event.id }).then(response => {
           response.items.forEach((item, _index, items) => {
             let index = this.tableValues.findIndex(node => node.mac === item.mac)
             this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
@@ -899,7 +899,7 @@ export default {
             }
           })
           this.$store.dispatch('notification/info', {
-            message: response.items.length + ' ' + this.$i18n.t('node violations created'),
+            message: response.items.length + ' ' + this.$i18n.t('node security events created'),
             success: response.items.filter(item => item.status === 'success').length,
             skipped: response.items.filter(item => item.status === 'skipped').length,
             failed: response.items.filter(item => item.status === 'failed').length
@@ -915,7 +915,7 @@ export default {
   },
   created () {
     this.$store.dispatch('config/getRoles')
-    this.$store.dispatch('config/getViolations')
+    this.$store.dispatch('config/getSecurityEvents')
   }
 }
 </script>

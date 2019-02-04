@@ -20,7 +20,7 @@ use pf::config();
 use pf::node();
 use pf::locationlog();
 use pf::ip4log();
-use pf::violation();
+use pf::security_event();
 use pf::util();
 use pf::radius::custom();
 

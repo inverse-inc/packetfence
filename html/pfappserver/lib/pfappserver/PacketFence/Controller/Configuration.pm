@@ -169,14 +169,14 @@ sub users :Local {
     $c->go('Controller::User', 'create');
 }
 
-=head2 violations
+=head2 security_events
 
 =cut
 
-sub violations :Local {
+sub security_events :Local {
     my ($self, $c) = @_;
 
-    $c->go('Controller::Violation', 'index');
+    $c->go('Controller::SecurityEvent', 'index');
 }
 
 =head2 domains

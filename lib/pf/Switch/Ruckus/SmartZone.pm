@@ -20,7 +20,7 @@ use pf::constants;
 use pf::util;
 use LWP::UserAgent;
 use pf::node;
-use pf::violation;
+use pf::security_event;
 use pf::ip4log;
 use JSON::MaybeXS qw(encode_json);
 use pf::config qw ($WEBAUTH_WIRELESS);
@@ -95,7 +95,7 @@ sub deauthenticateMacWebservices {
     my $ip = pf::ip4log::mac2ip($mac);
     my $node_info = node_view($mac);
     my $payload;
-    if($node_info->{status} eq "unreg" || violation_count_reevaluate_access($mac)) {
+    if($node_info->{status} eq "unreg" || security_event_count_reevaluate_access($mac)) {
         $payload = encode_json({
          "Vendor"=> "ruckus",
          "RequestPassword"=> $webservicesPassword,

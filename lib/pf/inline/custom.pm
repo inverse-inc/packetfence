@@ -20,7 +20,7 @@ use base ('pf::inline');
 use pf::config;
 use pf::iptables;
 use pf::node qw(node_attributes);
-use pf::violation qw(violation_count_reevaluate_access);
+use pf::security_event qw(security_event_count_reevaluate_access);
 
 our $VERSION = 1.01;
 

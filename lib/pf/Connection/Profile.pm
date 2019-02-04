@@ -137,7 +137,7 @@ sub findFirstTemplate {
     return undef;
 }
 
-sub findViolationTemplate {
+sub findSecurityEventTemplate {
     my ($self, $template, $langs) = @_;
     my @new_langs;
     for my $lang (@$langs) {
@@ -146,7 +146,7 @@ sub findViolationTemplate {
             push @new_langs, lc($1);
         }
     }
-    my @subTemplates  = ((map {"violations/${template}.${_}.html"} @new_langs), "violations/$template.html");
+    my @subTemplates  = ((map {"security_events/${template}.${_}.html"} @new_langs), "security_events/$template.html");
     return $self->findFirstTemplate(\@subTemplates);
 }
 

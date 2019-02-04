@@ -457,7 +457,7 @@ Add fake profile data for a preview
 sub add_fake_profile_data {
     my ($self, $c, $template, @pathparts) = @_;
     $self->SUPER::add_fake_profile_data($c);
-    if ($template eq 'remediation.html' && $pathparts[0] eq 'violations' ) {
+    if ($template eq 'remediation.html' && $pathparts[0] eq 'security_events' ) {
         $c->stash( sub_template => catfile(@pathparts) );
     }
 }

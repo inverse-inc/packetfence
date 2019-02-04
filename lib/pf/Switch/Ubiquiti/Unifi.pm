@@ -24,7 +24,7 @@ use base ('pf::Switch');
 
 use DateTime;
 use DateTime::Format::MySQL;
-use pf::violation qw(violation_count_reevaluate_access);
+use pf::security_event qw(security_event_count_reevaluate_access);
 use pf::constants::node qw($STATUS_UNREGISTERED);
 use pf::file_paths qw($var_dir);
 use pf::constants;
@@ -167,7 +167,7 @@ sub _deauthenticateMacWithHTTP {
         mac => $mac,
     };
     my $command;
-    unless ($node_info->{status} eq $STATUS_UNREGISTERED || violation_count_reevaluate_access($mac))  {
+    unless ($node_info->{status} eq $STATUS_UNREGISTERED || security_event_count_reevaluate_access($mac))  {
         $command = "authorize-guest";
         my $now = DateTime->now();
         $now->set_time_zone('local');

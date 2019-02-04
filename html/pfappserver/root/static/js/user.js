@@ -34,7 +34,7 @@ Users.prototype.post = function(options) {
         });
 };
 
-Users.prototype.toggleViolation = function(options) {
+Users.prototype.toggleSecurityEvent = function(options) {
     var action = options.status? "open" : "close";
     var url = ['/node',
                action,
@@ -50,7 +50,7 @@ Users.prototype.toggleViolation = function(options) {
  */
 var UserView = function(options) {
     this.users = options.users;
-    this.disableToggleViolation = false;
+    this.disableToggleSecurityEvent = false;
 
     var read = $.proxy(this.readUser, this);
     options.parent.on('click', '[href*="user"][href$="/read"]', read);
@@ -77,13 +77,13 @@ var UserView = function(options) {
 
     this.proxyClick($('body'), '#modalUser #smsPassword', this.smsPassword);
 
-    this.proxyFor($('body'), 'show', 'a[data-toggle="tab"][href="#userViolations"]', this.updateTab);
+    this.proxyFor($('body'), 'show', 'a[data-toggle="tab"][href="#userSecurityEvents"]', this.updateTab);
 
     this.proxyFor($('body'), 'show', 'a[data-toggle="tab"][href="#userDevices"]', this.updateTab);
 
     this.proxyClick($('body'), '#modalUser [href$="/read"]', this.readNode);
 
-    this.proxyFor($('body'), 'switch-change', '#modalUser .switch', this.toggleViolation);
+    this.proxyFor($('body'), 'switch-change', '#modalUser .switch', this.toggleSecurityEvent);
 
     /* Update the advanced search form to the next page or resort the query */
     this.proxyClick($('body'), '[href*="/user/advanced_search"]', this.changeOrderAdvanced);
@@ -457,32 +457,32 @@ UserView.prototype.readNode = function(e) {
     });
 };
 
-UserView.prototype.toggleViolation = function(e) {
+UserView.prototype.toggleSecurityEvent = function(e) {
     e.preventDefault();
 
     // Ignore event if it occurs while processing a toggling
-    if (this.disableToggleViolation) return;
-    this.disableToggleViolation = true;
+    if (this.disableToggleSecurityEvent) return;
+    this.disableToggleSecurityEvent = true;
 
     var that = this;
     var btn = $(e.target);
     var name = btn.find('input:checkbox').attr('name');
     var status = btn.bootstrapSwitch('status');
-    var pane = $('#userViolations');
+    var pane = $('#userSecurityEvents');
     resetAlert(pane.parent());
-    this.users.toggleViolation({
+    this.users.toggleSecurityEvent({
         name: name,
         status: status,
         success: function(data) {
             showSuccess(pane.children().first(), data.status_msg);
-            that.disableToggleViolation = false;
+            that.disableToggleSecurityEvent = false;
         },
         error: function(jqXHR) {
             var status_msg = getStatusMsg(jqXHR);
             showError(pane.children().first(), status_msg);
             // Restore switch state
             btn.bootstrapSwitch('setState', !status, true);
-            that.disableToggleViolation = false;
+            that.disableToggleSecurityEvent = false;
         }
     });
 };

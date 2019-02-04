@@ -304,7 +304,7 @@ sub valid_mac {
 =item  macoui2nb
 
 Extract the OUI (Organizational Unique Identifier) from a MAC address then
-converts it into a decimal value. To be used to generate vendormac violations.
+converts it into a decimal value. To be used to generate vendormac security_events.
 
 in: MAC address (of xx:xx:xx:xx:xx format)
 
@@ -322,7 +322,7 @@ sub macoui2nb {
 
 =item  mac2nb
 
-Converts a MAC address into a decimal value. To be used to generate mac violations.
+Converts a MAC address into a decimal value. To be used to generate mac security_events.
 
 in: MAC address (of xx:xx:xx:xx:xx format)
 

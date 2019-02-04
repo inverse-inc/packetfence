@@ -13,7 +13,7 @@ use pf::util;
 use pf::Portal::Session;
 use pf::web;
 use pf::node;
-use pf::violation;
+use pf::security_event;
 use pf::class;
 use Cache::FileCache;
 use List::Util qw(first);
@@ -27,7 +27,7 @@ use pf::StatsD::Timer;
 use File::Slurp qw(read_file);
 use pf::error;
 use pf::parking;
-use pf::constants::parking qw($PARKING_VID);
+use pf::constants::parking qw($PARKING_SECURITY_EVENT_ID);
 use pf::db;
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
@@ -84,7 +84,7 @@ Check if the device is in parking and if it should be redirected to the parking 
 
 sub checkForParking :Private {
     my ($self, $c) = @_;
-    if (isenabled($Config{parking}{show_parking_portal}) && violation_count_open_vid($c->portalSession->clientMac, $PARKING_VID)) {
+    if (isenabled($Config{parking}{show_parking_portal}) && security_event_count_open_security_event_id($c->portalSession->clientMac, $PARKING_SECURITY_EVENT_ID)) {
         get_logger->warn("Client should not have reached the normal portal as it is in parking. Retriggering parking actions.");
         pf::parking::park($c->portalSession->clientMac, $c->portalSession->clientIP->normalizedIP);
         # Redirecting back to the portal so it is caught by the parking portal

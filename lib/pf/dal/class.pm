@@ -23,7 +23,7 @@ use Class::XSAccessor {
 };
 
 sub find_from_tables {
-    [-join => qw(class =>{class.vid=action.vid} action)],
+    [-join => qw(class =>{class.security_event_id=action.security_event_id} action)],
 }
 
 our @COLUMN_NAMES = (
@@ -41,7 +41,7 @@ find_select_args
 sub find_select_args {
     my ($self, @args) = @_;
     my $select_args = $self->SUPER::find_select_args(@args);
-    $select_args->{'-group_by'} = 'class.vid';
+    $select_args->{'-group_by'} = 'class.security_event_id';
     return $select_args;
 }
 
