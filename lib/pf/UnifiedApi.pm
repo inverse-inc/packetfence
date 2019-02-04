@@ -18,6 +18,8 @@ use Mojo::Base 'Mojolicious';
 use pf::dal;
 use pf::util qw(add_jitter);
 use pf::file_paths qw($log_conf_dir);
+use pf::SwitchFactory;
+pf::SwitchFactory->preloadAllModules();
 use MojoX::Log::Log4perl;
 use pf::UnifiedApi::Controller;
 our $MAX_REQUEST_HANDLED = 2000;
