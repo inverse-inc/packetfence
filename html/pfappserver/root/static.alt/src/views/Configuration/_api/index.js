@@ -534,6 +534,32 @@ export default {
     return apiCall.delete(`config/TODO/${id}`)
   },
   /**
+   * Firewalls
+   */
+  firewalls: params => {
+    return apiCall.get('config/firewalls', { params }).then(response => {
+      return response.data
+    })
+  },
+  firewall: id => {
+    return apiCall.get(`config/firewall/${id}`).then(response => {
+      return response.data.item
+    })
+  },
+  createFirewall: data => {
+    return apiCall.post('config/firewalls', data).then(response => {
+      return response.data
+    })
+  },
+  updateFirewall: data => {
+    return apiCall.patch(`config/firewall/${data.id}`, data).then(response => {
+      return response.data
+    })
+  },
+  deleteFirewall: id => {
+    return apiCall.delete(`config/firewall/${id}`)
+  },
+  /**
    * Scans
    */
   scanEngines: params => {

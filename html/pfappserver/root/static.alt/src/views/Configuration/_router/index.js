@@ -5,6 +5,7 @@ import BasesStore from '../_store/bases'
 import BillingTiersStore from '../_store/billingTiers'
 import ConnectionProfilesStore from '../_store/connectionProfiles'
 import DomainsStore from '../_store/domains'
+import FirewallsStore from '../_store/firewalls'
 import FloatingDevicesStore from '../_store/floatingDevices'
 import PortalModulesStore from '../_store/portalModules'
 import ProfilingStore from '../_store/profiling'
@@ -37,6 +38,11 @@ const ProfilingTabs = () => import(/* webpackChunkName: "Configuration" */ '../_
 const ProfilingCombinationView = () => import(/* webpackChunkName: "Configuration" */ '../_components/ProfilingCombinationView')
 const ScansTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/ScansTabs')
 const ScansScanEngineView = () => import(/* webpackChunkName: "Configuration" */ '../_components/ScansScanEngineView')
+
+/* Integration */
+const IntegrationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/IntegrationSection')
+const FirewallsList = () => import(/* webpackChunkName: "Configuration" */ '../_components/FirewallsList')
+const FirewallView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FirewallView')
 
 /* Network Configuration */
 const NetworkConfigurationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/NetworkConfigurationSection')
@@ -73,6 +79,9 @@ const route = {
     }
     if (!store.state.$_connection_profiles) {
       store.registerModule('$_connection_profiles', ConnectionProfilesStore)
+    }
+    if (!store.state.$_firewalls) {
+      store.registerModule('$_firewalls', FirewallsStore)
     }
     if (!store.state.$_floatingdevices) {
       store.registerModule('$_floatingdevices', FloatingDevicesStore)
@@ -511,6 +520,47 @@ const route = {
       name: 'wmiRules',
       component: ScansTabs,
       props: (route) => ({ tab: 'wmi_rules', query: route.query.query })
+    },
+    /**
+     * Integration
+     */
+    {
+      path: 'integration',
+      component: IntegrationSection
+    },
+    {
+      path: 'firewalls',
+      name: 'firewalls',
+      component: FirewallsList,
+      props: (route) => ({ query: route.query.query })
+    },
+    {
+      path: 'firewalls/new/:firewallType',
+      name: 'newFirewall',
+      component: FirewallView,
+      props: (route) => ({ storeName: '$_firewalls', isNew: true, firewallType: route.params.firewallType })
+    },
+    {
+      path: 'firewall/:id',
+      name: 'firewall',
+      component: FirewallView,
+      props: (route) => ({ storeName: '$_firewalls', id: route.params.id }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_firewalls/getFirewall', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'firewall/:id/clone',
+      name: 'cloneFirewall',
+      component: FirewallView,
+      props: (route) => ({ storeName: '$_firewalls', id: route.params.id, isClone: true }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_firewalls/getFirewall', to.params.id).then(object => {
+          next()
+        })
+      }
     },
     /**
      * Network Configuration

@@ -87,6 +87,9 @@ const api = {
   getDomains () {
     return apiCall({ url: 'config/domains', method: 'get' })
   },
+  getFirewalls () {
+    return apiCall({ url: 'config/firewalls', method: 'get' })
+  },
   getFloatingDevices () {
     return apiCall({ url: 'config/floating_devices', method: 'get' })
   },
@@ -178,6 +181,8 @@ const state = { // set intitial states to `false` (not `[]` or `{}`) to avoid in
   connectionProfiles: false,
   domainsStatus: '',
   domains: false,
+  firewallsStatus: '',
+  firewalls: false,
   floatingDevicesStatus: '',
   floatingDevices: false,
   realmsStatus: '',
@@ -312,6 +317,9 @@ const getters = {
   },
   isLoadingDomains: state => {
     return state.domainsStatus === types.LOADING
+  },
+  isLoadingFirewalls: state => {
+    return state.firewallsStatus === types.LOADING
   },
   isLoadingFloatingDevices: state => {
     return state.floatingDevicesStatus === types.LOADING
@@ -836,6 +844,20 @@ const actions = {
       return Promise.resolve(state.domains)
     }
   },
+  getFirewalls: ({ state, getters, commit }) => {
+    if (getters.isLoadingFirewalls) {
+      return
+    }
+    if (!state.firewalls) {
+      commit('FIREWALLS_REQUEST')
+      return api.getFirewalls().then(response => {
+        commit('FIREWALLS_UPDATED', response.data.items)
+        return state.firewalls
+      })
+    } else {
+      return Promise.resolve(state.firewalls)
+    }
+  },
   getFloatingDevices: ({ state, getters, commit }) => {
     if (getters.isLoadingFloatingDevices) {
       return
@@ -1157,6 +1179,13 @@ const mutations = {
   DOMAINS_UPDATED: (state, domains) => {
     state.domains = domains
     state.domainsStatus = types.SUCCESS
+  },
+  FIREWALLS_REQUEST: (state) => {
+    state.firewallsStatus = types.LOADING
+  },
+  FIREWALLS_UPDATED: (state, firewalls) => {
+    state.firewalls = firewalls
+    state.firewallsStatus = types.SUCCESS
   },
   FLOATING_DEVICES_REQUEST: (state) => {
     state.floatingDevicesStatus = types.LOADING

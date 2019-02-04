@@ -70,6 +70,14 @@ export default {
           ]
         },
         {
+          name: 'Integration',
+          icon: 'puzzle-piece',
+          collapsable: true,
+          items: [
+            { name: 'Firewall SSO', path: '/configuration/firewalls' }
+          ]
+        },
+        {
           name: 'Network Configuration',
           icon: 'project-diagram',
           collapsable: true,

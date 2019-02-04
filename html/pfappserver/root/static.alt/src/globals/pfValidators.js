@@ -264,6 +264,16 @@ export const domainExists = (value, component) => {
   })
 }
 
+export const firewallExists = (value, component) => {
+  if (!value) return true
+  return store.dispatch('config/getFirewalls').then((response) => {
+    if (response.length === 0) return true
+    return (response.filter(firewall => firewall.id.toLowerCase() === value.toLowerCase()).length > 0)
+  }).catch(() => {
+    return true
+  })
+}
+
 export const floatingDeviceExists = (value, component) => {
   if (!value) return true
   return store.dispatch('config/getFloatingDevices').then((response) => {
