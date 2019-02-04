@@ -353,6 +353,7 @@ sub options {
 
     for my $field ($form->fields) {
         my $name = $field->name;
+        next if $name eq 'id';
         $defaults{$name} = $self->field_default($field);
         $placeholders{$name} = $self->field_placeholder($field);
         $allowed_values{$name} = $self->field_allowed_values($field);
@@ -378,15 +379,34 @@ sub resource_options {
         placeholders => \%placeholders,
         allowed_values => \%allowed_values,
     );
-
+    my $inherited_values = $self->inherited_values;
     for my $field ($form->fields) {
         my $name = $field->name;
-        $defaults{$name} = $self->field_default($field);
-        $placeholders{$name} = $self->field_placeholder($field);
+        next if $name eq 'id';
+        $defaults{$name} = $self->field_default($field, $inherited_values);
+        $placeholders{$name} = $self->field_resource_placeholder($field, $inherited_values);
         $allowed_values{$name} = $self->field_allowed_values($field);
     }
 
     return $self->render(json => \%output);
+}
+
+=head2 inherited_values
+
+inherited_values
+
+=cut
+
+sub inherited_values {
+    my ($self) = @_;
+    my $cs = $self->config_store;
+    my $default_section = $cs->default_section;
+    my $inherited_values;
+    if ($default_section) {
+        $inherited_values = $self->cleanup_item($cs->read($default_section, 'id'));
+    }
+
+    return $inherited_values;
 }
 
 =head2 field_default
@@ -396,8 +416,14 @@ field_default
 =cut
 
 sub field_default {
-    my ($self, $field) = @_;
-    return $field->default;
+    my ($self, $field, $inherited_values) = @_;
+    my $name = $field->name;
+    my $value;
+    if ($inherited_values) {
+        $value = $inherited_values->{$name};
+    }
+
+    return $value // $field->default;
 }
 
 =head2 field_placeholder
@@ -408,8 +434,39 @@ field_placeholder
 
 sub field_placeholder {
     my ($self, $field) = @_;
-    my $element_attr = $field->element_attr // {};
-    return $element_attr->{placeholder};
+    my $name = $field->name;
+    my $cs = $self->config_store;
+    my $default_section = $cs->default_section;
+    my $value;
+    if ($default_section) {
+        my $item = $self->cleanup_item($cs->read($default_section, 'id'));
+        $value = $item->{$name};
+    }
+
+    return $value // do {
+        my $element_attr = $field->element_attr // {};
+        $element_attr->{$name};
+    };
+}
+
+=head2 field_resource_placeholder
+
+field_resource_placeholder
+
+=cut
+
+sub field_resource_placeholder {
+    my ($self, $field, $inherited_values) = @_;
+    my $name = $field->name;
+    my $value;
+    if ($inherited_values) {
+        $value = $inherited_values->{$name};
+    }
+
+    return $value // do {
+        my $element_attr = $field->element_attr // {};
+        $element_attr->{$name};
+    };
 }
 
 =head2 field_allowed_values
@@ -419,8 +476,22 @@ field_allowed_values
 =cut
 
 sub field_allowed_values {
-    my ($self) = @_;
+    my ($self, $field) = @_;
+    if ($field->isa('HTML::FormHandler::Field::Select')) {
+        return $field->options;
+    }
+
+    if ($field->isa('HTML::FormHandler::Field::Repeatable')) {
+        $field->init_state;
+        my $element = $field->clone_element($field->name);
+        if ($element->isa('HTML::FormHandler::Field::Select') ) {
+            $element->_load_options();
+            return $element->options;
+        }
+    }
+
     return undef;
+
 }
 
 sub form_parameters {
