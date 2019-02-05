@@ -7,10 +7,6 @@ const {
 } = require('vuelidate/lib/validators')
 
 export const pfConfigurationWebServicesViewFields = (context = {}) => {
-  const {
-    form,
-    placeholders
-  } = context
   return [
     {
       tab: null,

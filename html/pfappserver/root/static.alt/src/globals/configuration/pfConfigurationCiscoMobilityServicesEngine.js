@@ -8,10 +8,6 @@ const {
 } = require('vuelidate/lib/validators')
 
 export const pfConfigurationCiscoMobilityServicesEngineViewFields = (context = {}) => {
-  const {
-    form,
-    placeholders
-  } = context
   return [
     {
       tab: null,
