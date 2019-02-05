@@ -74,7 +74,8 @@ export default {
           icon: 'puzzle-piece',
           collapsable: true,
           items: [
-            { name: 'Firewall SSO', path: '/configuration/firewalls' }
+            { name: 'Firewall SSO', path: '/configuration/firewalls' },
+            { name: 'Cisco Mobility Services Engine', path: '/configuration/mse' }
           ]
         },
         {
