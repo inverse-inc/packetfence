@@ -358,10 +358,16 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 						log.LoggerWContext(ctx).Debug("The IP asked by the device is available in the pool")
 						free = int(element)
 					} else if returnedMac == FreeMac {
+						log.LoggerWContext(ctx).Debug("The IP asked by the device is available in the pool")
 						// The ip is free use it
 						err, returnedMac = handler.available.ReserveIPIndex(uint64(element), p.CHAddr().String())
 						// Reserve the ip
-						if err != nil && returnedMac == p.CHAddr().String() {
+						if err != nil {
+							// The ip is not available
+							firstTry = false
+							goto retry
+						}
+						if returnedMac == p.CHAddr().String() {
 							log.LoggerWContext(ctx).Debug("The IP asked by the device is available in the pool")
 							free = int(element)
 						}
