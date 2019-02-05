@@ -3,14 +3,21 @@ package pf::ssl;
 use strict;
 use warnings;
 
+use File::Temp qw(tempfile);
 use pf::constants qw($TRUE $FALSE);
-use File::Slurp qw(write_file);
+use File::Slurp qw(read_file write_file);
 use LWP::UserAgent;
 use pf::util;
 use pf::log;
 
+use Crypt::OpenSSL::RSA;
 use Crypt::OpenSSL::X509;
-use Crypt::OpenSSL::PKCS12;
+use Crypt::OpenSSL::PKCS10;
+
+sub rsa_from_string {
+    my ($key) = @_;
+    return Crypt::OpenSSL::RSA->new_private_key($key);
+}
 
 sub x509_from_string {
     my ($cert) = @_;
@@ -48,8 +55,51 @@ sub cn_from_dn {
     }
 }
 
-sub validate_cert_key_match {
+sub rsa_modulus_md5 {
+    my ($rsa) = @_;
+    return openssl_modulus_md5("rsa", $rsa->get_private_key_string());
+}
 
+sub x509_modulus_md5 {
+    my ($x509) = @_;
+    return openssl_modulus_md5("x509", $x509->as_string());
+}
+
+sub openssl_modulus_md5 {
+    my ($type, $data) = @_;
+    my $result = `echo "$data" | openssl $type -noout -modulus | openssl md5 | awk '{ print \$2 }'`;
+    chomp($result);
+    if($? != 0) {
+        get_logger->error("Unable to get modulus: $result");
+        return undef;
+    }
+    else {
+        return $result;
+    }
+}
+
+sub validate_cert_key_match {
+    my ($cert, $key) = @_;
+    my $cert_mod = x509_modulus_md5($cert);
+    unless(defined($cert_mod)) {
+        my $msg = "Unable to determine modulus of certificate ". $cert->subject();
+        get_logger->error($msg);
+        return (undef, $msg)
+    }
+
+    my $key_mod = rsa_modulus_md5($key);
+    unless(defined($key_mod)) {
+        my $msg = "Unable to determine modulus of key";
+        get_logger->error($msg);
+        return (undef, $msg)
+    }
+
+    if($cert_mod ne $key_mod) {
+        return ($FALSE, "Modulus don't match. Key modulus MD5 '$key_mod' and certificate modulus MD5 '$cert_mod' aren't the same");
+    }
+    else {
+        return ($TRUE);
+    }
 }
 
 sub fetch_all_intermediates {
@@ -119,8 +169,57 @@ sub install_file {
     return ($TRUE);
 }
 
-sub convert_der_to_pem {
+sub generate_csr {
+    my ($rsa, $info) = @_;
 
+    my $required = ["country", "state", "locality", "organization_name", "common_name"];
+
+    foreach my $field (@$required) {
+        my $value = $info->{$field};
+        if(!defined($value) || length($value) == 0) {
+            my $msg = "$field must be specified.";
+            get_logger->error($msg);
+            return ($FALSE, );
+        }
+    }
+    
+    if(length($info->{country}) != 2) {
+        return ($FALSE, "Country length must be exactly 2.");
+    }
+
+    my $subject = "/C=$info->{country}/ST=$info->{state}/L=$info->{locality}/O=$info->{organization_name}/CN=$info->{common_name}";
+
+    get_logger->info("Generating CSR with subject $subject");
+
+    my $csr = Crypt::OpenSSL::PKCS10->new_from_rsa($rsa);
+    $csr->set_subject($subject);
+    $csr->sign();
+    
+    return ($TRUE, $csr);
+}
+
+sub verify_chain {
+    my ($cert, $intermediates) = @_;
+    my $cert_str = $cert->as_string();
+
+    my (undef, $tmpinter) = tempfile();
+    my $bundle = "";
+    foreach my $inter (@$intermediates) {
+        $bundle .= $inter->as_string();
+    }
+    write_file($tmpinter, $bundle);
+
+    my $result = `/bin/bash -c "echo '$cert_str' | openssl verify -verbose -CAfile <(cat /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem $tmpinter)"`;
+    unlink $tmpinter;
+
+    if($? != 0) {
+        get_logger->error("Chain verification failed");
+        return ($FALSE, $result);
+    }
+    else {
+        get_logger->info("Chain verification succeeded");
+        return ($TRUE, $result);
+    }
 }
 
 1;
