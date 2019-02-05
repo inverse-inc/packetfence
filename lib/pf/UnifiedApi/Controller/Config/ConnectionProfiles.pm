@@ -86,7 +86,7 @@ get_file
 sub get_file {
     my ($self) = @_;
     my $file = $self->stash->{file_name};
-    if ($file =~ /(\/)?\.\.\//) {
+    if (!valid_file_path($file)) {
        return $self->render_error(412, "invalid characters in file '$file'");
     }
 
@@ -108,7 +108,7 @@ new_file
 sub new_file {
     my ($self) = @_;
     my $file = $self->stash->{file_name};
-    if ($file =~ /(\/)?\.\.\//) {
+    if (!valid_file_path($file)) {
        return $self->render_error(412, "invalid characters in file '$file'");
     }
 
@@ -137,7 +137,7 @@ replace_file
 sub replace_file {
     my ($self) = @_;
     my $file = $self->stash->{file_name};
-    if ($file =~ /(\/)?\.\.\//) {
+    if (!valid_file_path($file)) {
        return $self->render_error(412, "invalid characters in file '$file'");
     }
 
@@ -157,6 +157,19 @@ sub replace_file {
     return $self->render(json => {});
 }
 
+
+=head2 valid_file_path
+
+valid_file_path
+
+=cut
+
+sub valid_file_path {
+    my ($path) = @_;
+    return $path !~ /(\/)?\.\.\//;
+}
+
+
 =head2 delete_path
 
 delete_path
@@ -166,7 +179,7 @@ delete_path
 sub delete_file {
     my ($self) = @_;
     my $file = $self->stash->{file_name};
-    if ( $file =~ /(\/)?\.\.\// ) {
+    if (!valid_file_path($file)) {
         return $self->render_error( 412, "invalid characters in file '$file'" );
     }
 
