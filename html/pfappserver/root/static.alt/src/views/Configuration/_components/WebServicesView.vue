@@ -9,7 +9,7 @@
   >
     <template slot="header" is="b-card-header">
       <h4 class="mb-0">
-        <span>{{ $t('Cisco Mobility Services Engine') }}</span>
+        <span>{{ $t('Web Services') }}</span>
       </h4>
     </template>
     <template slot="footer">
@@ -26,15 +26,15 @@
 import pfConfigView from '@/components/pfConfigView'
 import pfButtonSave from '@/components/pfButtonSave'
 import {
-  pfConfigurationCiscoMobilityServicesEngineViewFields as fields,
-  pfConfigurationCiscoMobilityServicesEngineViewDefaults as defaults,
-  pfConfigurationCiscoMobilityServicesEngineViewPlaceholders as placeholders
-} from '@/globals/configuration/pfConfigurationCiscoMobilityServicesEngine'
+  pfConfigurationWebServicesViewFields as fields,
+  pfConfigurationWebServicesViewDefaults as defaults,
+  pfConfigurationWebServicesViewPlaceholders as placeholders
+} from '@/globals/configuration/pfConfigurationWebServices'
 
 const { validationMixin } = require('vuelidate')
 
 export default {
-  name: 'CiscoMobilityServicesEngineView',
+  name: 'WebServicesView',
   mixins: [
     validationMixin
   ],
@@ -78,13 +78,13 @@ export default {
   methods: {
     save () {
       let form = JSON.parse(JSON.stringify(this.form)) // dereference
-      this.$store.dispatch('$_bases/updateMseTab', form).then(response => {
+      this.$store.dispatch('$_bases/updateWebServices', form).then(response => {
         // TODO - notification
       })
     }
   },
   created () {
-    this.$store.dispatch('$_bases/getMseTab').then(data => {
+    this.$store.dispatch('$_bases/getWebServices').then(data => {
       this.form = Object.assign({}, data)
     })
   }

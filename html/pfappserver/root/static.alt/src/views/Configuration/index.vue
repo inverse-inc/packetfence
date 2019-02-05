@@ -75,7 +75,8 @@ export default {
           collapsable: true,
           items: [
             { name: 'Firewall SSO', path: '/configuration/firewalls' },
-            { name: 'Cisco Mobility Services Engine', path: '/configuration/mse' }
+            { name: 'Cisco Mobility Services Engine', path: '/configuration/mse' },
+            { name: 'Web Services', path: '/configuration/webservices' }
           ]
         },
         {

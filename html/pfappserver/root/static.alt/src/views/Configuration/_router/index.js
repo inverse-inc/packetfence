@@ -44,7 +44,7 @@ const IntegrationSection = () => import(/* webpackChunkName: "Configuration" */ 
 const FirewallsList = () => import(/* webpackChunkName: "Configuration" */ '../_components/FirewallsList')
 const FirewallView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FirewallView')
 const CiscoMobilityServicesEngineView = () => import(/* webpackChunkName: "Configuration" */ '../_components/CiscoMobilityServicesEngineView')
-
+const WebServicesView = () => import(/* webpackChunkName: "Configuration" */ '../_components/WebServicesView')
 
 /* Network Configuration */
 const NetworkConfigurationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/NetworkConfigurationSection')
@@ -568,6 +568,12 @@ const route = {
       path: 'mse',
       name: 'mse',
       component: CiscoMobilityServicesEngineView,
+      props: (route) => ({ storeName: '$_bases', query: route.query.query })
+    },
+    {
+      path: 'webservices',
+      name: 'webservices',
+      component: WebServicesView,
       props: (route) => ({ storeName: '$_bases', query: route.query.query })
     },
     /**

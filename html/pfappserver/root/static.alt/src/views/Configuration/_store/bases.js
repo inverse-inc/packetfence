@@ -584,11 +584,11 @@ const actions = {
     })
   },
   getWebServices: ({ state, commit }) => {
-    if (state.cache['web_services']) {
-      return Promise.resolve(state.cache['web_services'])
+    if (state.cache['webservices']) {
+      return Promise.resolve(state.cache['webservices'])
     }
     commit('ITEM_REQUEST')
-    return api.base('web_services').then(item => {
+    return api.base('webservices').then(item => {
       commit('ITEM_REPLACED', item)
       return item
     }).catch((err) => {
@@ -598,7 +598,7 @@ const actions = {
   },
   updateWebServices: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    data.id = 'web_services'
+    data.id = 'webservices'
     return api.updateBase(data).then(response => {
       commit('ITEM_REPLACED', data)
       return response
