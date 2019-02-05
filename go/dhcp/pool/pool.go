@@ -142,7 +142,7 @@ func (dp *DHCPPool) GetMACIndex(index uint64) (uint64, string, error) {
 	}
 
 	if _, free := dp.free[index]; free {
-		return index, FreeMac, errors.New("Index is free")
+		return index, FreeMac, nil
 	} else {
 		return index, dp.mac[index], nil
 	}
