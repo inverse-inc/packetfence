@@ -360,7 +360,7 @@ Now, start `packetfence-mariadb` normally and restart `packetfence-iptables`:
 Wrapping up
 ^^^^^^^^^^^
 
-Now start PacketFence *on all servers*:
+Now restart PacketFence *on all servers*:
 
   # /usr/local/pf/bin/pfcmd service pf restart
 
@@ -369,6 +369,10 @@ Disable the access to the configurator by setting the `currently-at` file on eac
   # /usr/local/pf/bin/pfcmd version > /usr/local/pf/conf/currently-at
 
 Next, make sure to join domains through 'Configuration/Policies And Access Control/Domains/Active Directory Domains' on each node.
+
+You should now reboot *each server one by one* waiting for the one you rebooted to come back online before proceeding to the next one. After each reboot, ensure the database sync is fine by performing the checks outlined in "Checking the MariaDB sync".
+
+  # reboot
 
 Securing the cluster: Keepalived secret
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
