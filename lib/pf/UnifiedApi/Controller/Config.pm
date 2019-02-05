@@ -351,12 +351,21 @@ sub options {
         allowed_values => \%allowed_values,
     );
 
-    for my $field ($form->fields) {
-        my $name = $field->name;
-        next if $name eq 'id';
-        $defaults{$name} = $self->field_default($field);
-        $placeholders{$name} = $self->field_placeholder($field);
-        $allowed_values{$name} = $self->field_allowed_values($field);
+    if ($form) {
+        for my $field ($form->fields) {
+            my $name = $field->name;
+            next if $name eq 'id';
+            $defaults{$name} = $self->field_default($field);
+            $placeholders{$name} = $self->field_placeholder($field);
+            $allowed_values{$name} = $self->field_allowed_values($field);
+        }
+    } else {
+
+        if ($self->can("type_lookup")) {
+            $allowed_values{type} = [
+                map { { value => $_, label => $_ } } keys %{$self->type_lookup}
+            ];
+        }
     }
 
     return $self->render(json => \%output);
@@ -370,7 +379,7 @@ resource_options
 
 sub resource_options {
     my ($self) = @_;
-    my $form = $self->form;
+    my $form = $self->form($self->item);
     my %defaults;
     my %placeholders;
     my %allowed_values;
