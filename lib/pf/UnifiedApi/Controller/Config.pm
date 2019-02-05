@@ -363,12 +363,23 @@ sub options {
 
         if ($self->can("type_lookup")) {
             $allowed_values{type} = [
-                map { { value => $_, label => $_ } } keys %{$self->type_lookup}
+                map { $self->type_meta_info($_) } keys %{$self->type_lookup}
             ];
         }
     }
 
     return $self->render(json => \%output);
+}
+
+=head2 type_meta_info
+
+type_meta_info
+
+=cut
+
+sub type_meta_info {
+    my ($self, $type) = @_;
+    return {value => $type, label => $type};
 }
 
 =head2 resource_options
