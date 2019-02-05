@@ -25,7 +25,7 @@ use File::Find;
 use File::stat;
 use File::Spec::Functions qw(catfile splitpath);
 use pf::util;
-use List::Util qw(any first);
+use List::Util qw(any first none);
 use pf::file_paths qw(
     $captiveportal_profile_templates_path
     $captiveportal_default_profile_templates_path
@@ -35,6 +35,11 @@ use pf::file_paths qw(
 has 'config_store_class' => 'pf::ConfigStore::Profile';
 has 'form_class' => 'pfappserver::Form::Config::Profile';
 has 'primary_key' => 'connection_profile_id';
+
+my %NUMERICAL_SORTS = (
+    mtime => undef,
+    size => undef,
+);
 
 sub form {
     my ($self, $item) = @_;
@@ -52,9 +57,24 @@ files
 
 sub files {
     my ($self) = @_;
+    my $file_listing_info = $self->file_listing_info();
+    my $cmps = make_compare_functions($file_listing_info->{sort});
     return $self->render(
-        json => profileFileListing($self->id)
+        json => profileFileListing($self->id, $cmps)
     );
+}
+
+=head2 file_listing_info
+
+file_listing_info
+
+=cut
+
+sub file_listing_info {
+    my ($self) = @_;
+    my $params = $self->req->query_params->to_hash;
+    $params->{sort} = [expand_csv($params->{sort} // "type,name")];
+    return $params;
 }
 
 =head2 get_file
@@ -180,15 +200,52 @@ sub findPath {
     return first { -f $_ } map { catfile($_, $file) } pathLookup($profile);
 }
 
+=head2 make_compare_functions
+
+make_compare_functions
+
+=cut
+
+sub make_compare_functions {
+    my ($sort_names) = @_;
+    [map { make_compare_function($_) } @$sort_names];
+}
+
+=head2 make_compare_function
+
+make_compare_function
+
+=cut
+
+sub make_compare_function {
+    my ($order_by) = @_;
+    my $direction = 'asc';
+    if ($order_by =~ /^([^ ]+) (DESC|ASC)$/i ) {
+       $order_by = $1;
+       $direction = lc($2);
+    }
+
+    if ($direction eq 'desc') {
+        return exists $NUMERICAL_SORTS{$order_by}
+          ? make_num_rcmp($order_by)
+          : make_string_rcmp($order_by);
+    }
+
+    return exists $NUMERICAL_SORTS{$order_by}
+      ? make_num_cmp($order_by)
+      : make_string_cmp($order_by);
+}
+
 =head2 profileFileListing
 
 profileFileListing
 
 =cut
-
 sub profileFileListing {
-    my ($id) = @_;
-    return mergePaths(pathLookup($id));
+    my ($id, $cmps) = @_;
+    my $entries = mergePaths(pathLookup($id));
+    sortEntry($entries, $cmps // [] );
+    return $entries;
 }
 
 =head2 pathLookup
@@ -236,7 +293,7 @@ sub mergePaths {
                        return;
                     }
 
-                    $data = { name => file_name($path), type => 'dir', size => 0, entries => [] };
+                    $data = { name => file_name($path), type => 'dir', size => 0, mtime => 0, entries => [] };
                 }
                 else {
                     return if file_excluded($path);
@@ -255,7 +312,6 @@ sub mergePaths {
     );
 
     $root = $paths{''};;
-    sortEntry($root, [make_string_cmp('type'), make_string_cmp('name')]);
     return $root;
 }
 
@@ -290,7 +346,7 @@ sub makeFileInfo {
         size  => $stat->size,
         mtime => $stat->mtime,
         not_deletable => notDeletable($short_path, $full_path, $templateDir, @parentPaths),
-        not_revertable => notRevertable($short_path, @parentPaths),
+        not_revertable => notRevertable($short_path, $full_path, $templateDir, @parentPaths),
     };
 }
 
@@ -302,12 +358,18 @@ notDeletable
 
 sub notDeletable {
     my ($short_path, $full_path, $templateDir, @parentPaths) = @_;
-    return ( $full_path ne catfile($templateDir, $short_path) ? json_true() : json_false());
+    return ( $full_path eq catfile( $templateDir, $short_path )
+          && ( none { -f catfile( $_, $short_path ) } @parentPaths ) )
+      ? json_false()
+      : json_true();
 }
 
 sub notRevertable {
-    my ($short_path, @parentPaths) = @_;
-    return ( any { -f catfile($_, $short_path) } @parentPaths ) ? json_false() : json_true();
+    my ($short_path, $full_path, $templateDir, @parentPaths) = @_;
+    return ( $full_path eq catfile( $templateDir, $short_path )
+          && ( any { -f catfile( $_, $short_path ) } @parentPaths ) )
+      ? json_false()
+      : json_true();
 }
 
 =head2 sortEntry
