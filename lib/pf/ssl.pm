@@ -56,20 +56,19 @@ sub fetch_all_intermediates {
     my ($x509, $chain) = @_;
     $chain //= [];
 
-    print "Getting intermediate for ".$x509->subject() . "\n";
+    get_logger->info("Getting intermediate for ".$x509->subject());
     
     my $ca_info_ext = $x509->extensions_by_oid()->{"1.3.6.1.5.5.7.1.1"};
     unless($ca_info_ext) {
-        print "Unable to read CA extension for certificate. Assuming end of the chain has been reached\n";
+        get_logger->warn("Unable to read CA extension for certificate. Assuming end of the chain has been reached");
         return ($TRUE, $chain);
     }
 
     my $ca_info = $ca_info_ext->to_string;
-    print $ca_info . "\n";
     if($ca_info =~ /CA Issuers\s*-\s*URI:(.*)\n/) {
         my $url = $1;
         
-        print "Downloading $url \n";
+        get_logger->info("Downloading certificate at $url");
 
         my ($res, $cert) = download_file($url);
         unless($res) {
@@ -78,7 +77,7 @@ sub fetch_all_intermediates {
 
         my $inter = x509_from_string($cert);
         unless(defined($inter)) {
-            print "Unable to load certificate as x509. Assuming end of the chain has been reached.\n";
+            get_logger->warn("Unable to load certificate as x509. Assuming end of the chain has been reached/");
             return ($TRUE, $chain);
         }
 
@@ -88,12 +87,12 @@ sub fetch_all_intermediates {
             return fetch_all_intermediates($inter, $chain);
         }
         else {
-            print "Reached the top of the signing chain\n";
+            get_logger->info("Reached the top of the signing chain");
             return ($TRUE, $chain);
         }
     }
     else {
-        print "Unable to find CA issuer certificate download link in certificate data. Assuming top of the chain was reached. \n";
+        get_logger->warn("Unable to find CA issuer certificate download link in certificate data. Assuming top of the chain was reached.");
         return ($TRUE, $chain);
     }
 }
