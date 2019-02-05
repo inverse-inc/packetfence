@@ -12,9 +12,29 @@ use pf::log;
 use Crypt::OpenSSL::X509;
 use Crypt::OpenSSL::PKCS12;
 
-sub x509_from_pem_string {
+sub x509_from_string {
     my ($cert) = @_;
-    return Crypt::OpenSSL::X509->new_from_string($cert);
+   
+    my %encodings = (
+        PEM => Crypt::OpenSSL::X509::FORMAT_PEM, 
+        ASN1 => Crypt::OpenSSL::X509::FORMAT_ASN1,
+    );
+
+    while(my ($encoding_str, $encoding) = each(%encodings)) {
+        my $x509;
+        eval {
+            $x509 = Crypt::OpenSSL::X509->new_from_string($cert, $encoding);
+        };
+        if($@) {
+            get_logger->info("Certificate is not $encoding_str encoded. Trying next encoding.");
+        }
+        else {
+            return $x509;
+        }
+    }
+
+    get_logger->warn("Certificate cannot be decoded with known encodings: ".join(", ", keys(%encodings)));
+    return undef;
 }
 
 sub cn_from_dn {
@@ -56,11 +76,8 @@ sub fetch_all_intermediates {
             return ($FALSE, "Unable to download intermediate certificate $url: $cert");
         }
 
-        my $inter;
-        eval {
-            $inter = Crypt::OpenSSL::X509->new_from_string($cert, Crypt::OpenSSL::X509::FORMAT_ASN1);
-        };
-        if($@) {
+        my $inter = x509_from_string($cert);
+        unless(defined($inter)) {
             print "Unable to load certificate as x509. Assuming end of the chain has been reached.\n";
             return ($TRUE, $chain);
         }
