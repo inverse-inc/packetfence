@@ -31,6 +31,7 @@ use pf::file_paths qw(
     $captiveportal_default_profile_templates_path
     $captiveportal_templates_path
 );
+use pf::error qw(is_error);
 
 has 'config_store_class' => 'pf::ConfigStore::Profile';
 has 'form_class' => 'pfappserver::Form::Config::Profile';
@@ -41,11 +42,16 @@ my %NUMERICAL_SORTS = (
     size => undef,
 );
 
+my %ALLOWED_SORTS = (
+    map { $_ => undef } qw(mtime size type name)
+);
+
 sub form {
     my ($self, $item) = @_;
     if ( ($item->{id} // '') eq 'default') {
         return pfappserver::Form::Config::Profile::Default->new;
     }
+
     return $self->SUPER::form($item);
 }
 
@@ -57,11 +63,44 @@ files
 
 sub files {
     my ($self) = @_;
-    my $file_listing_info = $self->file_listing_info();
-    my $cmps = make_compare_functions($file_listing_info->{sort});
+    my ($status, $file_listing_info_or_error) = $self->file_listing_info();
+    if (is_error($status)) {
+        return $self->render_error($status, $file_listing_info_or_error);
+    }
+
+    ($status, my $cmps_or_error) = $self->build_compare_functions($file_listing_info_or_error);
+    if (is_error($status)) {
+        return $self->render_error($status, $cmps_or_error);
+    }
+
     return $self->render(
-        json => profileFileListing($self->id, $cmps)
+        json => profileFileListing($self->id, $cmps_or_error)
     );
+}
+
+=head2 build_compare_functions
+
+build_compare_functions
+
+=cut
+
+sub build_compare_functions {
+    my ($self, $file_listing_info) = @_;
+    my $sort = $file_listing_info->{sort};
+    my @invalid_sort_specs;
+    for my $sort_spec (@$sort) {
+        my $s = $sort_spec;
+        $s =~ s/  *(DESC|ASC)$//i;
+        if (!exists $ALLOWED_SORTS{$s}) {
+            push @invalid_sort_specs, $sort_spec;
+        }
+    }
+
+    if (@invalid_sort_specs) {
+        return 422, "Invalid sort spec given '" . join(", ", @invalid_sort_specs) . "'";
+    }
+
+    return 200, make_compare_functions($sort);
 }
 
 =head2 file_listing_info
@@ -74,7 +113,7 @@ sub file_listing_info {
     my ($self) = @_;
     my $params = $self->req->query_params->to_hash;
     $params->{sort} = [expand_csv($params->{sort} // "type,name")];
-    return $params;
+    return 200, $params;
 }
 
 =head2 get_file
