@@ -140,16 +140,10 @@ replace a filter
 
 sub replace {
     my ($self) = @_;
-    my $id = $self->stash->{filter_id};
-    my ($status, $errors)  = $self->isFilterValid();
-    if (is_error($status)) {
-        return $self->render_error($status, "Invalid $id file" ,$errors);
-    }
-
-    my $body = $self->req->body;
-    $body .= "\n" if $body !~ m/\n\z/s;
-    pf::util::safe_file_update($self->fileName, $body);
-    return $self->render(status => $status, json => {});
+    my $data = $self->parse_json;
+    
+    use Data::Dumper ; print Dumper($data);
+    $self->render(json => $data, status => 200)
 }
 
 =head1 AUTHOR

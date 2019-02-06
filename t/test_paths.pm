@@ -48,6 +48,10 @@ BEGIN {
     $pf::file_paths::pf_config_file = catfile($test_dir,'data/pf.conf');
     $pf::file_paths::realm_config_file = catfile($test_dir,'data/realm.conf');
 
+    $pf::file_paths::server_cert = catfile($test_dir,'data/server.crt');
+    $pf::file_paths::server_key = catfile($test_dir,'data/server.key');
+    $pf::file_paths::server_pem = catfile($test_dir,'data/server.pem');
+
     $pfconfig::constants::CONFIG_FILE_PATH = catfile($test_paths::test_dir, 'data/pfconfig.conf');
     $pfconfig::constants::SOCKET_PATH = "/usr/local/pf/var/run/pfconfig-test.sock";
 

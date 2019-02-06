@@ -162,11 +162,15 @@ sub download_file {
 
 sub install_file {
     my ($filename, $content) = @_;
-    unless(write_file($filename, $content)) {
-        return ($FALSE, "Error writing file $filename")
+    eval {
+        pf::util::safe_file_update($filename, $content);
+    };
+    if($@) {
+        return ($FALSE, $@);
     }
-    pf_chown($filename);
-    return ($TRUE);
+    else {
+        return ($TRUE);
+    }
 }
 
 sub generate_csr {
@@ -227,8 +231,8 @@ sub x509_info {
     return {
         subject => $x509->subject(),
         issuer => $x509->issuer(),
-        notBefore => $x509->notBefore(),
-        notAfter => $x509->notAfter(),
+        not_before => $x509->notBefore(),
+        not_after => $x509->notAfter(),
     };
 }
 
