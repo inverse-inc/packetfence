@@ -141,8 +141,57 @@ replace a filter
 sub replace {
     my ($self) = @_;
     my $data = $self->parse_json;
+
+    my $cert;
+    my @cas;
+    my $key;
+    eval {
+        $cert = pf::ssl::x509_from_string($data->{certificate}) or die "Failed to parse certificate\n";
+        $key = pf::ssl::rsa_from_string($data->{private_key}) or die "Failed to parse private key\n";
+        
+        if(exists($data->{intermediates})) {
+            @cas = map { pf::ssl::x509_from_string($_) or die "Failed to parse one of the certificate CAs\n" } @{$data->{intermediates}};
+        }
+        else {
+            my ($res, $certs) = pf::ssl::fetch_all_intermediates($cert);
+            if($res) {
+                @cas = @$certs;
+            }
+            else {
+                my $msg = "Unable to fetch intermediate certificates ($certs). You will have to upload your intermediate chain manually in x509 (Apache) format.";
+                $self->log->error($msg);
+                return $self->render_error("422", $msg);
+            }
+        }
+    };
+    if($@) {
+        my $msg = $@;
+        chomp($msg);
+        $self->log->error($msg);
+        return $self->render_error("500", $msg);
+    }
+
+    my ($chain_res, $chain_msg) = pf::ssl::verify_chain($cert, \@cas);
+    unless($chain_res) {
+        my $msg = "Failed verifying chain: $chain_msg.";
+        if(exists($data->{intermediates})) {
+            $msg .= " Ensure the intermediates certificate file you provided contains all the intermediate certificate authorities in x509 (Apache) format.";
+        }
+        else {
+            $msg .= " Unable to fetch all the intermediates through the information contained in the certificate. You will have to upload the intermediate chain manually in x509 (Apache) format.";
+        }
+
+        $self->log->error($msg);
+        return $self->render_error("422", $msg);
+    }
+
+    my ($key_match_res, $key_match_msg) = pf::ssl::validate_cert_key_match($cert, $key);
+    unless($key_match_res) {
+        my $msg = "Certificate and private key do not match";
+        $self->log->error($msg);
+        return $self->render_error("422", $msg);
+    }
     
-    use Data::Dumper ; print Dumper($data);
     $self->render(json => $data, status => 200)
 }
 
