@@ -28,6 +28,8 @@ use pf::file_paths qw(
     $radius_server_key
 );
 
+my $CERT_DELIMITER = "-----END CERTIFICATE-----";
+
 my %CERTS_MAP = (
     http => {
         cert_file => $server_cert,
@@ -70,28 +72,31 @@ sub resource_info {
     my $config = $self->resource_config($certificate_id);
     
     my $certs = read_file($config->{cert_file});
-    my @certs = map { $_ . "-----END CERTIFICATE-----" } split("-----END CERTIFICATE-----", $certs);
+    my @certs = map { $_ . $CERT_DELIMITER} split($CERT_DELIMITER, $certs);
 
     # The last element should be discarded due to the way the certs are extracted (split) above
     pop @certs;
 
+    if(exists($config->{ca_file})) {
+        my $ca = read_file($config->{ca_file});
+        push @certs, $ca;
+    }
+
     my $cert = shift @certs;
 
     my $x509_cert = pf::ssl::x509_from_string($cert);
-    my @inters = map { pf::ssl::x509_from_string($_) } @certs;
+    my @cas = map { pf::ssl::x509_from_string($_) } @certs;
 
     my $key = read_file($config->{key_file});
     my $rsa_key = pf::ssl::rsa_from_string($key);
 
-    return {
-        certificate => {
-            file => $config->{cert_file},
-            %{pf::ssl::x509_info($x509_cert)},
-        },
-        intermediates => [ map {pf::ssl::x509_info($_)} @inters ],
-        chain_is_valid => $self->tuple_return_to_hash(pf::ssl::verify_chain($x509_cert, \@inters)),
+    my $data = {
+        certificate => pf::ssl::x509_info($x509_cert),
+        cas => [ map {pf::ssl::x509_info($_)} @cas ],
+        chain_is_valid => $self->tuple_return_to_hash(pf::ssl::verify_chain($x509_cert, \@cas)),
         cert_key_match => $self->tuple_return_to_hash(pf::ssl::validate_cert_key_match($x509_cert, $rsa_key)),
     };
+
 }
 
 sub tuple_return_to_hash {
