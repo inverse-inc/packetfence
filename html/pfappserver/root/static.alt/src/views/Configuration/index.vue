@@ -76,7 +76,8 @@ export default {
           items: [
             { name: 'Firewall SSO', path: '/configuration/firewalls' },
             { name: 'Cisco Mobility Services Engine', path: '/configuration/mse' },
-            { name: 'Web Services', path: '/configuration/webservices' }
+            { name: 'Web Services', path: '/configuration/webservices' },
+            { name: 'Syslog Parsers', path: '/configuration/pfdetect' }
           ]
         },
         {

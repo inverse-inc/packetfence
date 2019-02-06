@@ -333,6 +333,16 @@ export const sourceExists = (value, component) => {
   })
 }
 
+export const syslogParserExists = (value, component) => {
+  if (!value) return true
+  return store.dispatch('config/getSyslogParsers').then((response) => {
+    if (response.length === 0) return true
+    return (response.filter(syslogParser => syslogParser.id.toLowerCase() === value.toLowerCase()).length > 0)
+  }).catch(() => {
+    return true
+  })
+}
+
 export const switchExists = (value, component) => {
   if (!value) return true
   return store.dispatch('config/getSwitches').then((response) => {

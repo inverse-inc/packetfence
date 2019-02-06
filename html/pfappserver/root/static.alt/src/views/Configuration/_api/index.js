@@ -584,5 +584,31 @@ export default {
   },
   deleteScanEngine: id => {
     return apiCall.delete(`config/scan/${id}`)
+  },
+  /**
+   * Syslog Parsers
+   */
+  syslogParsers: params => {
+    return apiCall.get('config/syslog_parsers', { params }).then(response => {
+      return response.data
+    })
+  },
+  syslogParser: id => {
+    return apiCall.get(`config/syslog_parser/${id}`).then(response => {
+      return response.data.item
+    })
+  },
+  createSyslogParser: data => {
+    return apiCall.post('config/syslog_parsers', data).then(response => {
+      return response.data
+    })
+  },
+  updateSyslogParser: data => {
+    return apiCall.patch(`config/syslog_parser/${data.id}`, data).then(response => {
+      return response.data
+    })
+  },
+  deleteSyslogParser: id => {
+    return apiCall.delete(`config/syslog_parser/${id}`)
   }
 }

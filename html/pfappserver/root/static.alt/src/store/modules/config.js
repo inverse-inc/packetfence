@@ -111,6 +111,9 @@ const api = {
   getSwitchGroups () {
     return apiCall({ url: 'config/switch_groups', method: 'get' })
   },
+  getSyslogParsers () {
+    return apiCall({ url: 'config/syslog_parsers', method: 'get' })
+  },
   getTenants () {
     return apiCall({ url: 'tenants', method: 'get' })
   },
@@ -197,6 +200,8 @@ const state = { // set intitial states to `false` (not `[]` or `{}`) to avoid in
   switches: false,
   switchGroupsStatus: '',
   switchGroups: false,
+  syslogParsersStatus: '',
+  syslogParsers: false,
   tenantsStatus: '',
   tenants: false,
   security_eventsStatus: '',
@@ -341,6 +346,9 @@ const getters = {
   },
   isLoadingSwitchGroups: state => {
     return state.switchGroupsStatus === types.LOADING
+  },
+  isLoadingSyslogParsers: state => {
+    return state.syslogParsersStatus === types.LOADING
   },
   isLoadingTenants: state => {
     return state.tenantsStatus === types.LOADING
@@ -960,6 +968,20 @@ const actions = {
       return Promise.resolve(state.switchGroups)
     }
   },
+  getSyslogParsers: ({ state, getters, commit }) => {
+    if (getters.isLoadingSyslogParsers) {
+      return
+    }
+    if (!state.syslogParsers) {
+      commit('SYSLOG_PARSERS_REQUEST')
+      return api.getSyslogParsers().then(response => {
+        commit('SYSLOG_PARSERS_UPDATED', response.data.items)
+        return state.syslogParsers
+      })
+    } else {
+      return Promise.resolve(state.syslogParsers)
+    }
+  },
   getTenants: ({ state, getters, commit }) => {
     if (getters.isLoadingTenants) {
       return
@@ -1235,6 +1257,13 @@ const mutations = {
   SWICTH_GROUPS_UPDATED: (state, switchGroups) => {
     state.switchGroups = switchGroups
     state.switchGroupsStatus = types.SUCCESS
+  },
+  SYSLOG_PARSERS_REQUEST: (state) => {
+    state.syslogParsersStatus = types.LOADING
+  },
+  SYSLOG_PARSERS_UPDATED: (state, syslogParsers) => {
+    state.syslogParsers = syslogParsers
+    state.syslogParsersStatus = types.SUCCESS
   },
   TENANTS_REQUEST: (state) => {
     state.tenantsStatus = types.LOADING

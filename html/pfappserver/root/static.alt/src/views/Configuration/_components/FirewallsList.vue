@@ -38,7 +38,7 @@ import pfButtonDelete from '@/components/pfButtonDelete'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import {
-  pfConfigurationFirewallListConfig as config
+  pfConfigurationFirewallsListConfig as config
 } from '@/globals/configuration/pfConfigurationFirewalls'
 
 export default {

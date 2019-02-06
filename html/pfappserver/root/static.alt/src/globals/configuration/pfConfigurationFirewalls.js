@@ -37,7 +37,7 @@ export const pfConfigurationFirewallsListFields = [
   pfConfigurationListFields.port
 ]
 
-export const pfConfigurationFirewallListConfig = (context = {}) => {
+export const pfConfigurationFirewallsListConfig = (context = {}) => {
   return {
     columns: pfConfigurationFirewallsListColumns,
     fields: pfConfigurationFirewallsListFields,

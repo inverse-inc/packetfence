@@ -13,6 +13,7 @@ import ProvisioningsStore from '../_store/provisionings'
 import RealmsStore from '../_store/realms'
 import RolesStore from '../_store/roles'
 import ScansStore from '../_store/scans'
+import SyslogParsersStore from '../_store/syslogParsers'
 import SwitchesStore from '../_store/switches'
 import SwitchGroupsStore from '../_store/switchGroups'
 
@@ -45,6 +46,8 @@ const FirewallsList = () => import(/* webpackChunkName: "Configuration" */ '../_
 const FirewallView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FirewallView')
 const CiscoMobilityServicesEngineView = () => import(/* webpackChunkName: "Configuration" */ '../_components/CiscoMobilityServicesEngineView')
 const WebServicesView = () => import(/* webpackChunkName: "Configuration" */ '../_components/WebServicesView')
+const SyslogParsersList = () => import(/* webpackChunkName: "Configuration" */ '../_components/SyslogParsersList')
+const SyslogParserView = () => import(/* webpackChunkName: "Configuration" */ '../_components/SyslogParserView')
 
 /* Network Configuration */
 const NetworkConfigurationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/NetworkConfigurationSection')
@@ -108,6 +111,9 @@ const route = {
     }
     if (!store.state.$_sources) {
       store.registerModule('$_sources', AuthenticationSourcesStore)
+    }
+    if (!store.state.$_syslog_parsers) {
+      store.registerModule('$_syslog_parsers', SyslogParsersStore)
     }
     if (!store.state.$_switches) {
       store.registerModule('$_switches', SwitchesStore)
@@ -575,6 +581,40 @@ const route = {
       name: 'webservices',
       component: WebServicesView,
       props: (route) => ({ storeName: '$_bases', query: route.query.query })
+    },
+    {
+      path: 'pfdetect',
+      name: 'syslogParsers',
+      component: SyslogParsersList,
+      props: (route) => ({ query: route.query.query })
+    },
+    {
+      path: 'pfdetect/new/:syslogParserType',
+      name: 'newSyslogParser',
+      component: SyslogParserView,
+      props: (route) => ({ storeName: '$_syslog_parsers', isNew: true, syslogParserType: route.params.syslogParserType })
+    },
+    {
+      path: 'pfdetect/:id',
+      name: 'syslogParser',
+      component: SyslogParserView,
+      props: (route) => ({ storeName: '$_syslog_parsers', id: route.params.id }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_syslog_parsers/getSyslogParser', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'pfdetect/:id/clone',
+      name: 'cloneSyslogParser',
+      component: SyslogParserView,
+      props: (route) => ({ storeName: '$_syslog_parsers', id: route.params.id, isClone: true }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_syslog_parsers/getSyslogParser', to.params.id).then(object => {
+          next()
+        })
+      }
     },
     /**
      * Network Configuration
