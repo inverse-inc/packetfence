@@ -222,4 +222,14 @@ sub verify_chain {
     }
 }
 
+sub x509_info {
+    my ($x509) = @_;
+    return {
+        subject => $x509->subject(),
+        issuer => $x509->issuer(),
+        notBefore => $x509->notBefore(),
+        notAfter => $x509->notAfter(),
+    };
+}
+
 1;
