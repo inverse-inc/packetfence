@@ -82,13 +82,26 @@ sub resource_info {
         push @certs, $ca;
     }
 
+    # The server certificate is the first of the whole chain
     my $cert = shift @certs;
-
-    my $x509_cert = pf::ssl::x509_from_string($cert);
-    my @cas = map { pf::ssl::x509_from_string($_) } @certs;
-
+    
     my $key = read_file($config->{key_file});
-    my $rsa_key = pf::ssl::rsa_from_string($key);
+
+    my $x509_cert;
+    my @cas;
+    my $rsa_key;
+    eval {
+        $x509_cert = pf::ssl::x509_from_string($cert) or die "Failed to parse certificate\n";
+        @cas = map { pf::ssl::x509_from_string($_) or die "Failed to parse one of the certificate CAs\n" } @certs;
+        $rsa_key = pf::ssl::rsa_from_string($key) or die "Failed to parse private key\n";
+    };
+    if($@) {
+        my $msg = $@;
+        chomp($msg);
+        $self->log->error($msg);
+        $self->render_error("500", $msg);
+        return undef;
+    }
 
     my $data = {
         certificate => pf::ssl::x509_info($x509_cert),
@@ -97,6 +110,7 @@ sub resource_info {
         cert_key_match => $self->tuple_return_to_hash(pf::ssl::validate_cert_key_match($x509_cert, $rsa_key)),
     };
 
+    return $data;
 }
 
 sub tuple_return_to_hash {
@@ -113,7 +127,9 @@ get a filter
 
 sub get {
     my ($self) = @_;
-    return $self->render(json => $self->resource_info, status => 200);
+    if(my $info = $self->resource_info) {
+        return $self->render(json => $info, status => 200);
+    }
 }
 
 =head2 replace
