@@ -43,6 +43,47 @@ sub type_lookup {
     return {}
 }
 
+=head2 options
+
+options
+
+=cut
+
+sub options {
+    my ($self) = @_;
+    my $params = $self->req->query_params->to_hash;
+    my $form = $self->form( { type => $params->{type} } );
+    return $self->render(
+        json => (
+              $form
+            ? $self->options_from_form($form)
+            : $self->options_with_no_type
+        )
+    );
+}
+
+
+=head2 options_with_no_type
+
+options_with_no_type
+
+=cut
+
+sub options_with_no_type {
+    my ($self) = @_;
+    my %allowed_values;
+    my %output = (
+        defaults => {},
+        placeholders => {},
+        allowed_values => \%allowed_values,
+    );
+
+    $allowed_values{type} = [
+        map { $self->type_meta_info($_) } keys %{$self->type_lookup}
+    ];
+    return \%output;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

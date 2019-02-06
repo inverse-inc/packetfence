@@ -185,6 +185,46 @@ sub form_process_parameters_for_cleanup {
     );
 }
 
+=head2 type_meta_info
+
+type_meta_info
+
+=cut
+
+sub type_meta_info {
+    my ($self, $type) = @_;
+    my $class = "pf::Authentication::Source::${type}Source";
+    return {
+        value => $type,
+        label => $type,
+        class => $class->meta->find_attribute_by_name('class')->default
+    };
+}
+
+sub options_with_no_type {
+    my ($self) = @_;
+    my $output = $self->SUPER::options_with_no_type();
+    my $types = delete $output->{allowed_values}{type};
+    my %groups;
+    for my $type (@$types) {
+        my $class = $type->{class};
+        next if $type->{value} eq 'SQL';
+        push @{$groups{$class}{options}}, {
+            value => $type->{value},
+            label => $type->{label},
+        };
+    }
+    my @new_types;
+    for my $class (sort keys %groups) {
+        my $group = $groups{$class};
+        $group->{group} = $class;
+        push @new_types, $group;
+    }
+
+    $output->{allowed_values}{type} = \@new_types;
+    return $output;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

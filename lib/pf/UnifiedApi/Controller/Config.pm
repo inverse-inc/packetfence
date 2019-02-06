@@ -342,6 +342,17 @@ options
 sub options {
     my ($self) = @_;
     my $form = $self->form;
+    return $self->render(json => $self->options_from_form($form));
+}
+
+=head2 options_from_form
+
+options_from_form
+
+=cut
+
+sub options_from_form {
+    my ($self, $form) = @_;
     my %defaults;
     my %placeholders;
     my %allowed_values;
@@ -351,24 +362,15 @@ sub options {
         allowed_values => \%allowed_values,
     );
 
-    if ($form) {
-        for my $field ($form->fields) {
-            my $name = $field->name;
-            next if $name eq 'id';
-            $defaults{$name} = $self->field_default($field);
-            $placeholders{$name} = $self->field_placeholder($field);
-            $allowed_values{$name} = $self->field_allowed_values($field);
-        }
-    } else {
-
-        if ($self->can("type_lookup")) {
-            $allowed_values{type} = [
-                map { $self->type_meta_info($_) } keys %{$self->type_lookup}
-            ];
-        }
+    for my $field ($form->fields) {
+        my $name = $field->name;
+        next if $name eq 'id';
+        $defaults{$name} = $self->field_default($field);
+        $placeholders{$name} = $self->field_placeholder($field);
+        $allowed_values{$name} = $self->field_allowed_values($field);
     }
 
-    return $self->render(json => \%output);
+    return \%output;
 }
 
 =head2 type_meta_info
