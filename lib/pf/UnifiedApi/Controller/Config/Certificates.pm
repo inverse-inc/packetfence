@@ -143,25 +143,33 @@ sub replace {
     my $data = $self->parse_json;
 
     my $cert;
+    my @intermediate_cas;
     my @cas;
+    my $ca;
     my $key;
     eval {
-        $cert = pf::ssl::x509_from_string($data->{certificate}) or die "Failed to parse certificate\n";
+        $cert = pf::ssl::x509_from_string($data->{certificate}) or die "Failed to parse server certificate\n";
         $key = pf::ssl::rsa_from_string($data->{private_key}) or die "Failed to parse private key\n";
         
         if(exists($data->{intermediates})) {
-            @cas = map { pf::ssl::x509_from_string($_) or die "Failed to parse one of the certificate CAs\n" } @{$data->{intermediates}};
+            @intermediate_cas = map { pf::ssl::x509_from_string($_) or die "Failed to parse one of the certificate CAs\n" } @{$data->{intermediates}};
         }
         else {
             my ($res, $certs) = pf::ssl::fetch_all_intermediates($cert);
             if($res) {
-                @cas = @$certs;
+                @intermediate_cas = @$certs;
+                @cas = @intermediate_cas;
             }
             else {
                 my $msg = "Unable to fetch intermediate certificates ($certs). You will have to upload your intermediate chain manually in x509 (Apache) format.";
                 $self->log->error($msg);
                 return $self->render_error("422", $msg);
             }
+        }
+
+        if($data->{ca}) {
+            $ca = pf::ssl::x509_from_string($data->{ca}) or die "Failed to parse CA certificate\n";
+            push @cas, $ca;
         }
     };
     if($@) {
@@ -191,8 +199,36 @@ sub replace {
         $self->log->error($msg);
         return $self->render_error("422", $msg);
     }
+
+    my $config = $self->resource_config();
+    my %to_install = (
+        cert_file => join("\n", map { $_->as_string() } ($cert, @intermediate_cas)),
+        key_file => $key->get_private_key_string(),
+        ca_file => $ca,
+    );
+
+    my @errors;
+    while(my ($k, $content) = each(%to_install)) {
+        my $file = $config->{$k};
+        next unless(defined($file));
+
+        my ($res,$msg) = pf::ssl::install_file($file, $content);
+        if($res) {
+            $self->log->info("Installed file $file successfully");
+        }
+        else {
+            my $msg = "Failed installing file $file: $msg";
+            $self->log->error($msg);
+            push @errors, $msg;
+        }
+    }
     
-    $self->render(json => $data, status => 200)
+    if(scalar(@errors) > 0) {
+        $self->render_error(422, join(", ", @errors));
+    }
+    else {
+        $self->render(status => 200)
+    }
 }
 
 =head1 AUTHOR
