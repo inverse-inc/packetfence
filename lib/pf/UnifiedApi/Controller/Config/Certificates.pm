@@ -76,13 +76,13 @@ sub resource_config {
     return $self->certs_map->{$certificate_id};
 }
 
-=head2 read_from_disk
+=head2 read_from_files
 
-Read the certificate data from disk and put it in a hash that matches the expected input format when using PUT
+Read the certificate data from files and put it in a hash that matches the expected input format when using PUT
 
 =cut
 
-sub read_from_disk {
+sub read_from_files {
     my ($self, $certificate_id) = @_;
     $certificate_id //= $self->stash->{certificate_id};
     my $config = $self->resource_config($certificate_id);
@@ -100,27 +100,27 @@ sub read_from_disk {
     
     my $key = read_file($config->{key_file});
 
-    my $disk_data = {
+    my $files_data = {
         private_key => $key,
         certificate => $cert,
         intermediate_cas => \@certs,
         ca => $ca,
     };
 
-    return $disk_data;
+    return $files_data;
 }
 
-=head2 objects_from_disk
+=head2 objects_from_files
 
-Read the certificates from the disk and instantiate the Crypt::OpenSSL::* objects
+Read the certificates from the files and instantiate the Crypt::OpenSSL::* objects
 
 =cut
 
-sub objects_from_disk {
+sub objects_from_files {
     my ($self, $certificate_id) = @_;
     $certificate_id //= $self->stash->{certificate_id};
     
-    return $self->objects_from_payload($self->read_from_disk($certificate_id));
+    return $self->objects_from_payload($self->read_from_files($certificate_id));
 }
 
 =head2 get
@@ -131,8 +131,8 @@ Get a certificate resource
 
 sub get {
     my ($self) = @_;
-    my $disk_data = $self->read_from_disk();
-    $self->render(json => $disk_data, status => 200);
+    my $files_data = $self->read_from_files();
+    $self->render(json => $files_data, status => 200);
 }
 
 =head2 resource_info
@@ -146,7 +146,7 @@ sub resource_info {
     $certificate_id //= $self->stash->{certificate_id};
     my $config = $self->resource_config($certificate_id);
 
-    my ($x509_cert, $x509_intermediate_cas, $x509_cas, $x509_ca, $rsa_key) = $self->objects_from_disk($certificate_id);
+    my ($x509_cert, $x509_intermediate_cas, $x509_cas, $x509_ca, $rsa_key) = $self->objects_from_files($certificate_id);
     unless(defined($x509_cert)) {
         return;
     }
