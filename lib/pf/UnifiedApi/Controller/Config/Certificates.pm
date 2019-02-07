@@ -98,7 +98,20 @@ sub read_from_disk {
         ca => $ca,
     };
 
-    return $self->objects_from_payload($disk_data);
+    return $disk_data;
+}
+
+sub objects_from_disk {
+    my ($self, $certificate_id) = @_;
+    $certificate_id //= $self->stash->{certificate_id};
+    
+    return $self->objects_from_payload($self->read_from_disk($certificate_id));
+}
+
+sub get {
+    my ($self) = @_;
+    my $disk_data = $self->read_from_disk();
+    $self->render(json => $disk_data, status => 200);
 }
 
 =head2 resource_info
@@ -112,7 +125,7 @@ sub resource_info {
     $certificate_id //= $self->stash->{certificate_id};
     my $config = $self->resource_config($certificate_id);
 
-    my ($x509_cert, $x509_intermediate_cas, $x509_cas, $x509_ca, $rsa_key) = $self->read_from_disk($certificate_id);
+    my ($x509_cert, $x509_intermediate_cas, $x509_cas, $x509_ca, $rsa_key) = $self->objects_from_disk($certificate_id);
     unless(defined($x509_cert)) {
         return;
     }
