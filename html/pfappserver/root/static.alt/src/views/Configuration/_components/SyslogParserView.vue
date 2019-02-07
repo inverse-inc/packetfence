@@ -19,7 +19,6 @@
         <span v-else-if="isClone">{{ $t('Clone Syslog Parser {id}', { id: id }) }}</span>
         <span v-else>{{ $t('New {syslogParserType} Syslog Parser', { syslogParserType: this.syslogParserType}) }}</span>
       </h4>
-      <pre>{{ JSON.stringify(syslogParser, null, 2) }}</pre>
     </template>
     <template slot="footer"
       scope="{isDeletable}"
@@ -87,7 +86,8 @@ export default {
   data () {
     return {
       syslogParser: defaults(this), // will be overloaded with the data from the store
-      syslogParserValidations: {} // will be overloaded with data from the pfConfigView,
+      syslogParserValidations: {}, // will be overloaded with data from the pfConfigView,
+      dryRunResponseHtml: '' // will be overloaded with data from dryRun
     }
   },
   validations () {
@@ -113,6 +113,19 @@ export default {
         return false
       }
       return true
+    },
+    keyLabelMap () {
+      let keyLabelMap = {}
+      this.getForm.fields.forEach(tab => {
+        tab.fields.forEach(row => {
+          if ('fields' in row) {
+            row.fields.forEach(col => {
+              if ('key' in col) keyLabelMap[col.key] = row.label
+            })
+          }
+        })
+      })
+      return keyLabelMap
     }
   },
   methods: {
@@ -144,6 +157,37 @@ export default {
     },
     setValidations (validations) {
       this.$set(this, 'syslogParserValidations', validations)
+    },
+    dryRunTest (event) {
+      let form = JSON.parse(JSON.stringify(this.syslogParser)) // dereference
+      if ('lines' in form) {
+        form.lines = form.lines.split('\n') // split lines by \n
+      }
+      this.$store.dispatch(`${this.storeName}/dryRunSyslogParser`, form).then(response => {
+        let html = []
+        html.push(`<h5>${this.$i18n.t('Results')}</h5>`)
+        html.push('<pre>')
+        response.items.forEach((item, lIndex) => {
+          html.push(`<code>${this.$i18n.t('Line')} ${lIndex + 1}\t- <strong>${item.line}</strong></code><br/>`)
+          item.matches.forEach((match, mIndex) => {
+            match.actions.forEach((action, aIndex) => {
+              html.push(`\t- ${match.rule.name}: ${action.api_method}(${action.api_parameters.map(param => '\'' + param + '\'').join(', ')})<br/>`)
+            })
+          })
+        })
+        html.push('</pre>')
+        this.dryRunResponseHtml = html.join('')
+      }).catch(err => {
+        let html = []
+        const { response: { data: { errors = [] } } } = err
+        errors.forEach((error) => {
+          if (error.field in this.keyLabelMap) {
+            error.field = this.$i18n.t(this.keyLabelMap[error.field])
+          }
+          html.push(this.$i18n.t('Server Error - "{field}": {message}', error) + '<br/>')
+        })
+        this.dryRunResponseHtml = html.join('')
+      })
     }
   },
   created () {

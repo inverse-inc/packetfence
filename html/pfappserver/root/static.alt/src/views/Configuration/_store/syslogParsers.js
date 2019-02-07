@@ -6,6 +6,7 @@ import api from '../_api'
 
 const types = {
   LOADING: 'loading',
+  DRYRUN: 'dryrun',
   DELETING: 'deleting',
   SUCCESS: 'success',
   ERROR: 'error'
@@ -19,7 +20,7 @@ const state = {
 }
 
 const getters = {
-  isWaiting: state => [types.LOADING, types.DELETING].includes(state.itemStatus),
+  isWaiting: state => [types.LOADING, types.DRYRUN, types.DELETING].includes(state.itemStatus),
   isLoading: state => state.itemStatus === types.LOADING
 }
 
@@ -75,6 +76,16 @@ const actions = {
       commit('ITEM_ERROR', err.response)
       throw err
     })
+  },
+  dryRunSyslogParser: ({ commit }, data) => {
+    commit('ITEM_REQUEST', types.DRYRUN)
+    return api.dryRunSyslogParser(data).then(response => {
+      commit('ITEM_SUCCESS')
+      return response
+    }).catch(err => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
   }
 }
 
@@ -90,6 +101,9 @@ const mutations = {
   ITEM_DESTROYED: (state, id) => {
     state.itemStatus = types.SUCCESS
     Vue.set(state.cache, id, null)
+  },
+  ITEM_SUCCESS: (state) => {
+    state.itemStatus = types.SUCCESS
   },
   ITEM_ERROR: (state, response) => {
     state.itemStatus = types.ERROR

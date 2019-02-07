@@ -610,5 +610,10 @@ export default {
   },
   deleteSyslogParser: id => {
     return apiCall.delete(`config/syslog_parser/${id}`)
+  },
+  dryRunSyslogParser: data => {
+    return apiCall.post('config/syslog_parsers/dry_run', data).then(response => {
+      return response.data
+    })
   }
 }

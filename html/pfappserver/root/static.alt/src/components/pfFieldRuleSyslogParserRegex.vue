@@ -13,7 +13,7 @@
       >
         <icon v-if="visible" name="chevron-circle-down" class="mr-2" :class="{ 'text-primary': ctrlKey, 'text-secondary': !ctrlKey }"></icon>
         <icon v-else name="chevron-circle-right" class="mr-2" :class="{ 'text-primary': ctrlKey, 'text-secondary': !ctrlKey }"></icon>
-        <div>{{ localId || $t('New rule') }} <span v-if="localRegex">( {{ localRegex }} )</span></div>
+        <div>{{ localName || $t('New rule') }}</div>
       </b-col>
       <b-col v-if="$slots.append" cols="1" align-self="start" class="py-1 text-center col-form-label">
         <slot name="append"></slot>
@@ -27,10 +27,10 @@
       >
         <b-col class="text-left py-0 px-2" align-self="start">
           <pf-form-input :column-label="$t('Name')" label-cols="2"
-            v-model="localId"
-            ref="localId"
-            :vuelidate="idVuelidateModel"
-            :invalid-feedback="idInvalidFeedback"
+            v-model="localName"
+            ref="localName"
+            :vuelidate="nameVuelidateModel"
+            :invalid-feedback="nameInvalidFeedback"
             class="mb-1 mr-2"
           ></pf-form-input>
           <pf-form-input :column-label="$t('Regex')" label-cols="2"
@@ -107,7 +107,7 @@ export default {
   },
   data () {
     return {
-      default:           { id: null, regex: null, actions: [], last_if_match: 'disabled', ip_mac_translation: 'disabled' }, // default value
+      default:           { name: null, regex: null, actions: [], last_if_match: 'disabled', ip_mac_translation: 'enabled' }, // default value
       uuid:              uuidv4(), // unique id for multiple instances of this component
       actionValidations: {} // overloaded from actions (pf-form-fields) child component
     }
@@ -133,12 +133,12 @@ export default {
         this.$emit('input', newValue)
       }
     },
-    localId: {
+    localName: {
       get () {
-        return (this.inputValue && 'id' in this.inputValue) ? this.inputValue.id : this.default.id
+        return (this.inputValue && 'name' in this.inputValue) ? this.inputValue.name : this.default.name
       },
-      set (newId) {
-        this.$set(this.inputValue, 'id', newId || this.default.id)
+      set (newName) {
+        this.$set(this.inputValue, 'name', newName || this.default.name)
         this.emitValidations()
       }
     },
@@ -178,11 +178,11 @@ export default {
         this.emitValidations()
       }
     },
-    idVuelidateModel () {
-      return this.getVuelidateModel('id')
+    nameVuelidateModel () {
+      return this.getVuelidateModel('name')
     },
-    idInvalidFeedback () {
-      return this.getInvalidFeedback('id')
+    nameInvalidFeedback () {
+      return this.getInvalidFeedback('name')
     },
     regexVuelidateModel () {
       return this.getVuelidateModel('regex')
@@ -276,7 +276,7 @@ export default {
       })
     },
     focusId () {
-      const { $refs: { localId: { $refs: { input: { $el } } } } } = this
+      const { $refs: { localName: { $refs: { input: { $el } } } } } = this
       $el.focus()
     }
   },

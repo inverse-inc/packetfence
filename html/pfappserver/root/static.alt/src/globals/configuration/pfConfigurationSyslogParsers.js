@@ -1,9 +1,12 @@
 import i18n from '@/utils/locale'
+import pfButton from '@/components/pfButton'
 import pfFieldApiMethodParameters from '@/components/pfFieldApiMethodParameters'
 import pfFieldRuleSyslogParserRegex from '@/components/pfFieldRuleSyslogParserRegex'
 import pfFormFields from '@/components/pfFormFields'
+import pfFormHtml from '@/components/pfFormHtml'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
+import pfFormTextarea from '@/components/pfFormTextarea'
 import { pfFieldType as fieldType } from '@/globals/pfField'
 import {
   pfConfigurationListColumns,
@@ -84,9 +87,9 @@ export const pfConfigurationSyslogParserRegexRuleActions = {
       }
     }
   },
-  close_violation: {
-    value: 'close_violation',
-    text: i18n.t('Close violation'),
+  close_security_event: {
+    value: 'close_security_event',
+    text: i18n.t('Close security event'),
     types: [fieldType.SUBSTRING],
     defaultApiParameters: 'mac, $mac, vid, VID',
     validators: {
@@ -172,9 +175,9 @@ export const pfConfigurationSyslogParserRegexRuleActions = {
       }
     }
   },
-  release_all_violations: {
-    value: 'release_all_violations',
-    text: i18n.t('Release all violations for node by MAC'),
+  release_all_security_events: {
+    value: 'release_all_security_events',
+    text: i18n.t('Release all security events for node by MAC'),
     types: [fieldType.SUBSTRING],
     defaultApiParameters: '$mac',
     validators: {
@@ -205,9 +208,9 @@ export const pfConfigurationSyslogParserRegexRuleActions = {
       }
     }
   },
-  trigger_violation: {
-    value: 'trigger_violation',
-    text: i18n.t('Trigger a violation'),
+  trigger_security_event: {
+    value: 'trigger_security_event',
+    text: i18n.t('Trigger a security event'),
     types: [fieldType.SUBSTRING],
     defaultApiParameters: 'mac, $mac, tid, TYPEID, type, TYPE',
     validators: {
@@ -266,7 +269,11 @@ export const pfConfigurationSyslogParserViewFields = (context) => {
   const {
     isNew = false,
     isClone = false,
-    syslogParserType = null
+    invalidForm = false,
+    syslogParserType = null,
+    syslogParser: form = {},
+    dryRunTest = () => {},
+    dryRunResponseHtml = null // html from dry run
   } = context
   return [
     {
@@ -337,17 +344,17 @@ export const pfConfigurationSyslogParserViewFields = (context) => {
                           pfConfigurationSyslogParserRegexRuleActions.role_detail,
                           pfConfigurationSyslogParserRegexRuleActions.modify_person,
                           pfConfigurationSyslogParserRegexRuleActions.register_node_ip,
-                          pfConfigurationSyslogParserRegexRuleActions.update_ip6log,
                           pfConfigurationSyslogParserRegexRuleActions.add_person,
+                          pfConfigurationSyslogParserRegexRuleActions.update_ip6log,
                           pfConfigurationSyslogParserRegexRuleActions.unreg_node_for_pid,
                           pfConfigurationSyslogParserRegexRuleActions.trigger_scan,
-                          pfConfigurationSyslogParserRegexRuleActions.release_all_violations,
-                          pfConfigurationSyslogParserRegexRuleActions.close_violation,
                           pfConfigurationSyslogParserRegexRuleActions.reevaluate_access,
                           pfConfigurationSyslogParserRegexRuleActions.update_ip4log,
                           pfConfigurationSyslogParserRegexRuleActions.update_role_configuration,
-                          pfConfigurationSyslogParserRegexRuleActions.trigger_violation,
+                          pfConfigurationSyslogParserRegexRuleActions.trigger_security_event,
+                          pfConfigurationSyslogParserRegexRuleActions.release_all_security_events,
                           pfConfigurationSyslogParserRegexRuleActions.modify_node,
+                          pfConfigurationSyslogParserRegexRuleActions.close_security_event,
                           pfConfigurationSyslogParserRegexRuleActions.register_node,
                           pfConfigurationSyslogParserRegexRuleActions.dynamic_register_node
                         ]
@@ -358,10 +365,10 @@ export const pfConfigurationSyslogParserViewFields = (context) => {
                     }
                   },
                   validators: {
-                    id: {
+                    name: {
                       [i18n.t('Name required.')]: required,
                       [i18n.t('Maximum 255 characters.')]: maxLength(255),
-                      [i18n.t('Duplicate name.')]: limitSiblingFields('id', 0)
+                      [i18n.t('Duplicate name.')]: limitSiblingFields('name', 0)
                     },
                     regex: {
                       [i18n.t('Regex required.')]: required,
@@ -372,6 +379,57 @@ export const pfConfigurationSyslogParserViewFields = (context) => {
                 invalidFeedback: [
                   { [i18n.t('Rule(s) contain one or more errors.')]: true }
                 ]
+              }
+            }
+          ]
+        },
+        {
+          if: ['regex'].includes(syslogParserType), // 'regex' only
+          label: i18n.t('Test Syslog Parser'),
+          labelSize: 'lg'
+        },
+        {
+          if: ['regex'].includes(syslogParserType), // 'regex' only
+          label: i18n.t('Sample Log Lines'),
+          fields: [
+            {
+              key: 'lines',
+              component: pfFormTextarea,
+              attrs: {
+                rows: 3
+              },
+              validators: {
+                [i18n.t('Maximum 255 characters.')]: maxLength(255)
+              }
+            }
+          ]
+        },
+        {
+          if: ['regex'].includes(syslogParserType), // 'regex' only
+          label: null,
+          fields: [
+            {
+              component: pfFormHtml,
+              attrs: {
+                html: dryRunResponseHtml
+              }
+            }
+          ]
+        },
+        {
+          if: ['regex'].includes(syslogParserType), // 'regex' only
+          label: null,
+          fields: [
+            {
+              component: pfButton,
+              attrs: {
+                variant: 'outline-warning',
+                label: i18n.t('Test Dry Run'),
+                class: 'col-sm-2',
+                disabled: !(form.lines && !invalidForm),
+                click: (event) => {
+                  dryRunTest(event)
+                }
               }
             }
           ]

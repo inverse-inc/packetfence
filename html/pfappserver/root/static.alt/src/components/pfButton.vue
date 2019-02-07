@@ -15,7 +15,7 @@
 
 <script>
 export default {
-  name: 'pf-button-save',
+  name: 'pf-button',
   props: {
     label: {
       type: String,

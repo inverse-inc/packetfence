@@ -20,7 +20,7 @@
       <template v-for="(tab, t) in form.fields">
         <div class="card-body" v-if="tab.fields" v-show="t === tabIndex" :key="t">
           <b-form-group v-for="row in tab.fields" :key="row.key" v-if="!('if' in row) || row.if"
-            :label-cols="(row.label && row.fields) ? form.labelCols : 0" :label="row.label" :label-size="row.labelSize" :label-class="[(row.label && row.fields) ? '' : 'text-left', (row.fields) ? '' : 'offset-sm-3']"
+            :label-cols="('label' in row && row.fields) ? form.labelCols : 0" :label="row.label" :label-size="row.labelSize" :label-class="[(row.label && row.fields) ? '' : 'text-left', (row.fields) ? '' : 'offset-sm-3']"
             :state="isValid()" :invalid-feedback="getInvalidFeedback()"
             class="input-element" :class="{ 'mb-0': !row.label, 'pt-3': !row.fields }"
             horizontal
@@ -134,11 +134,13 @@ export default {
       this.$emit('remove', event)
     },
     getValue (key, model = this.model) {
-      if (key.includes('.')) { // handle dot-notation keys ('.')
-        const [ first, ...remainder ] = key.split('.')
-        return this.getValue(remainder.join('.'), model[first])
+      if (key) {
+        if (key.includes('.')) { // handle dot-notation keys ('.')
+          const [ first, ...remainder ] = key.split('.')
+          return this.getValue(remainder.join('.'), model[first])
+        }
+        return model[key]
       }
-      return model[key]
     },
     setValue (key, value, model = this.model) {
       if (key.includes('.')) { // handle dot-notation keys ('.')
@@ -149,11 +151,13 @@ export default {
       this.$set(model, key, value)
     },
     getVuelidateModel (key, model = this.vuelidate) {
-      if (key.includes('.')) { // handle dot-notation keys ('.')
-        const [ first, ...remainder ] = key.split('.')
-        return this.getVuelidateModel(remainder.join(','), model[first])
+      if (key) {
+        if (key.includes('.')) { // handle dot-notation keys ('.')
+          const [ first, ...remainder ] = key.split('.')
+          return this.getVuelidateModel(remainder.join(','), model[first])
+        }
+        return model[key]
       }
-      return model[key]
     },
     setComponentValidations (key, validations) {
       this.$set(this.componentValidations, key, validations)
