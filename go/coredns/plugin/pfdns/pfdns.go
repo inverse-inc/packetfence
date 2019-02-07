@@ -570,7 +570,7 @@ func (pf *pfdns) DbInit() error {
 		return err
 	}
 
-	pf.SecurityEvent, err = pf.Db.Prepare("Select count(*) from security_event, action where security_event.vid=action.vid and action.action='reevaluate_access' and mac=? and status='open' AND tenant_id = ?")
+	pf.SecurityEvent, err = pf.Db.Prepare("Select count(*) from security_event, action where security_event.security_event_id=action.security_event_id and action.action='reevaluate_access' and mac=? and status='open' AND tenant_id = ?")
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "pfdns: database security_event prepared statement error: %s", err)
 		return err
