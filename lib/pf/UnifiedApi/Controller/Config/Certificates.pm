@@ -76,6 +76,12 @@ sub resource_config {
     return $self->certs_map->{$certificate_id};
 }
 
+=head2 read_from_disk
+
+Read the certificate data from disk and put it in a hash that matches the expected input format when using PUT
+
+=cut
+
 sub read_from_disk {
     my ($self, $certificate_id) = @_;
     $certificate_id //= $self->stash->{certificate_id};
@@ -104,12 +110,24 @@ sub read_from_disk {
     return $disk_data;
 }
 
+=head2 objects_from_disk
+
+Read the certificates from the disk and instantiate the Crypt::OpenSSL::* objects
+
+=cut
+
 sub objects_from_disk {
     my ($self, $certificate_id) = @_;
     $certificate_id //= $self->stash->{certificate_id};
     
     return $self->objects_from_payload($self->read_from_disk($certificate_id));
 }
+
+=head2 get
+
+Get a certificate resource
+
+=cut
 
 sub get {
     my ($self) = @_;
