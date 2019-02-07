@@ -191,6 +191,7 @@ sub objects_from_payload {
         
         if(exists($data->{intermediate_cas})) {
             @intermediate_cas = map { pf::ssl::x509_from_string($_) or die "Failed to parse one of the certificate CAs\n" } @{$data->{intermediate_cas}};
+            @cas = @intermediate_cas;
         }
         else {
             my ($res, $certs) = pf::ssl::fetch_all_intermediates($cert);
@@ -231,6 +232,7 @@ sub replace {
     my ($self) = @_;
     my $data = $self->parse_json;
     my $params = $self->req->query_params->to_hash;
+
 
     my ($cert, $intermediate_cas, $cas, $ca, $key) = $self->objects_from_payload($data);
     unless(defined($cert)) {
