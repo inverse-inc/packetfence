@@ -142,11 +142,6 @@ $t->put_ok("/api/v1/config/certificate/http" => json => { certificate => $cert, 
 $t->put_ok("/api/v1/config/certificate/http" => json => { certificate => $new_cert, private_key => $new_key })
     ->status_is(200);
 
-$t->get_ok('/api/v1/config/certificate/http')
-  ->status_is(200)
-  ->json_is('/certificate', $new_cert)
-  ->json_is('/private_key', $new_key);
-
 my $radius_cert = <<EOT;
 -----BEGIN CERTIFICATE-----
 MIID2jCCAsKgAwIBAgIBAzANBgkqhkiG9w0BAQsFADCBkzELMAkGA1UEBhMCRlIx
