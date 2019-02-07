@@ -12,7 +12,7 @@
 # Usage: migrate-to-locationlog_archive.sh <days>
 # Where <days> is the number of days to migrate the records of.
 #
-# Copyright (C) 2005-2018 Inverse inc.
+# Copyright (C) 2005-2019 Inverse inc.
 #
 # Author: Inverse inc. <info@inverse.ca>
 #

@@ -43,7 +43,7 @@ sub clone :Chained('object') :PathPart('clone') :Args(0) {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

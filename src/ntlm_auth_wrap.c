@@ -4,7 +4,7 @@ WARNING: We cheat and do no bother to free memory allocated to strings here.
 The process is meant to be very short lived and never reused. */
 
 /*  
-  Copyright (C) 2005-2018 Inverse inc.
+  Copyright (C) 2005-2019 Inverse inc.
   
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License
