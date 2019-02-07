@@ -54,7 +54,7 @@ END {
 
 #insert known data
 #run tests
-use Test::More tests => 57;
+use Test::More tests => 27;
 use Test::Mojo;
 use Test::NoWarnings;
 my $t = Test::Mojo->new('pf::UnifiedApi');
@@ -328,9 +328,13 @@ $t->put_ok("/api/v1/config/certificate/radius" => json => { certificate => $radi
 $t->put_ok("/api/v1/config/certificate/radius" => json => { certificate => $new_radius_cert, private_key => $new_radius_key, ca => $radius_ca_cert })
   ->status_is(422);
 
-# Provide cert from another CA with the chain check ignore flag
+# Provide cert from another CA with the chain check ignore flag set to false
 $t->put_ok("/api/v1/config/certificate/radius?check_chain=false" => json => { certificate => $new_radius_cert, private_key => $new_radius_key, ca => $radius_ca_cert })
   ->status_is(200);
+
+# Provide cert from another CA with the chain check ignore flag set to true
+$t->put_ok("/api/v1/config/certificate/radius?check_chain=true" => json => { certificate => $new_radius_cert, private_key => $new_radius_key, ca => $radius_ca_cert })
+  ->status_is(422);
 
 # Provide cert from another CA with the new CA
 $t->put_ok("/api/v1/config/certificate/radius" => json => { certificate => $new_radius_cert, private_key => $new_radius_key, ca => $new_radius_ca_cert })

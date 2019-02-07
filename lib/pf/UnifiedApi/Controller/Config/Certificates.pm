@@ -17,6 +17,7 @@ pf::UnifiedApi::Controller::Config::Certificates
 use strict;
 use warnings;
 use pf::ssl;
+use pf::util;
 use File::Slurp qw(read_file);
 use pf::error qw(is_error);
 use Mojo::Base qw(pf::UnifiedApi::Controller::RestRoute);
@@ -180,7 +181,7 @@ sub replace {
         return $self->render_error("500", $msg);
     }
 
-    if(!defined($params->{check_chain}) || $params->{check_chain} eq "true") {
+    if(!defined($params->{check_chain}) || isenabled($params->{check_chain})) {
         my ($chain_res, $chain_msg) = pf::ssl::verify_chain($cert, \@cas);
         unless($chain_res) {
             my $msg = "Failed verifying chain: $chain_msg.";
