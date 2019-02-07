@@ -91,7 +91,14 @@ sub read_from_disk {
     
     my $key = read_file($config->{key_file});
 
-    return ($key, $cert, \@certs, $ca);
+    my $disk_data = {
+        private_key => $key,
+        certificate => $cert,
+        intermediate_cas => \@certs,
+        ca => $ca,
+    };
+
+    return $self->objects_from_payload($disk_data);
 }
 
 =head2 resource_info
@@ -105,34 +112,15 @@ sub resource_info {
     $certificate_id //= $self->stash->{certificate_id};
     my $config = $self->resource_config($certificate_id);
 
-    my ($key, $cert, $intermediates, $ca) = $self->read_from_disk($certificate_id);
-
-    my $x509_cert;
-    my $x509_ca;
-    my @x509_intermediate_cas;
-    my @x509_cas;
-    my $rsa_key;
-    eval {
-        $x509_cert = pf::ssl::x509_from_string($cert) or die "Failed to parse certificate\n";
-        @x509_intermediate_cas = map { pf::ssl::x509_from_string($_) or die "Failed to parse one of the certificate CAs\n" } @$intermediates;
-        if(defined($ca)) {
-            $x509_ca = pf::ssl::x509_from_string($ca) or die "Failed to parse the certificate CA\n"; 
-            @x509_cas = (@x509_intermediate_cas, $x509_ca);
-        }
-        $rsa_key = pf::ssl::rsa_from_string($key) or die "Failed to parse private key\n";
-    };
-    if($@) {
-        my $msg = $@;
-        chomp($msg);
-        $self->log->error($msg);
-        $self->render_error("500", $msg);
-        return undef;
+    my ($x509_cert, $x509_intermediate_cas, $x509_cas, $x509_ca, $rsa_key) = $self->read_from_disk($certificate_id);
+    unless(defined($x509_cert)) {
+        return;
     }
 
     my $data = {
         certificate => pf::ssl::x509_info($x509_cert),
-        intermediate_cas => [ map {pf::ssl::x509_info($_)} @x509_intermediate_cas ],
-        chain_is_valid => $self->tuple_return_to_hash(pf::ssl::verify_chain($x509_cert, \@x509_cas)),
+        intermediate_cas => [ map {pf::ssl::x509_info($_)} @$x509_intermediate_cas ],
+        chain_is_valid => $self->tuple_return_to_hash(pf::ssl::verify_chain($x509_cert, $x509_cas)),
         cert_key_match => $self->tuple_return_to_hash(pf::ssl::validate_cert_key_match($x509_cert, $rsa_key)),
     };
     if($x509_ca) {
@@ -167,13 +155,13 @@ sub info {
     }
 }
 
-=head2 objects_from_put_payload
+=head2 objects_from_payload
 
-Instantiate the Crypt::OpenSSL::* objects from a PUT payload
+Instantiate the Crypt::OpenSSL::* objects from a hash payload
 
 =cut
 
-sub objects_from_put_payload {
+sub objects_from_payload {
     my ($self, $data) = @_;
     
     my $cert;
@@ -185,8 +173,8 @@ sub objects_from_put_payload {
         $cert = pf::ssl::x509_from_string($data->{certificate}) or die "Failed to parse server certificate\n";
         $key = pf::ssl::rsa_from_string($data->{private_key}) or die "Failed to parse private key\n";
         
-        if(exists($data->{intermediates})) {
-            @intermediate_cas = map { pf::ssl::x509_from_string($_) or die "Failed to parse one of the certificate CAs\n" } @{$data->{intermediates}};
+        if(exists($data->{intermediate_cas})) {
+            @intermediate_cas = map { pf::ssl::x509_from_string($_) or die "Failed to parse one of the certificate CAs\n" } @{$data->{intermediate_cas}};
         }
         else {
             my ($res, $certs) = pf::ssl::fetch_all_intermediates($cert);
@@ -228,7 +216,7 @@ sub replace {
     my $data = $self->parse_json;
     my $params = $self->req->query_params->to_hash;
 
-    my ($cert, $intermediate_cas, $cas, $ca, $key) = $self->objects_from_put_payload($data);
+    my ($cert, $intermediate_cas, $cas, $ca, $key) = $self->objects_from_payload($data);
     unless(defined($cert)) {
         return;
     }
@@ -237,7 +225,7 @@ sub replace {
         my ($chain_res, $chain_msg) = pf::ssl::verify_chain($cert, $cas);
         unless($chain_res) {
             my $msg = "Failed verifying chain: $chain_msg.";
-            if(exists($data->{intermediates})) {
+            if(exists($data->{intermediate_cas})) {
                 $msg .= " Ensure the intermediates certificate file you provided contains all the intermediate certificate authorities in x509 (Apache) format.";
             }
             else {
