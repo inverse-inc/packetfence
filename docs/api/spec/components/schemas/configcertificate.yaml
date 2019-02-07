@@ -1,0 +1,50 @@
+ConfigCertificateInfo:
+  properties:
+    certificate:
+      description: The server certficate for the resource
+      type: object
+      $ref: '#/components/schemas/ConfigCertificateDetails'
+    ca:
+      description: The CA certficate for the resource (if applicable)
+      type: object
+      $ref: '#/components/schemas/ConfigCertificateDetails'
+    intermediate_cas:
+      description: The list of certificate authorities for the server certificate
+      type: array
+      items:
+        $ref: '#/components/schemas/ConfigCertificateDetails'
+    chain_is_valid:
+      description: Information about whether or not the certificate chain is valid
+      type: object
+      $ref: '#/components/schemas/ConfigCertificateReturnValue'
+    cert_key_match:
+      description: Information about whether or not the certificate and private key match
+      type: object
+      $ref: '#/components/schemas/ConfigCertificateReturnValue'
+  type: object
+
+ConfigCertificateReturnValue:
+  properties:
+    success:
+      type: boolean
+      description: "Whether or not the operation has succeeded"
+    result:
+      type: string
+      description: "The value (usually error or success message)"
+
+
+ConfigCertificateDetails:
+  properties:
+    subject:
+      type: string
+      description: "The subject of the certificate"
+    issuer:
+      type: string
+      description: "The issuer of the certificate"
+    not_before:
+      type: string
+      description: "The start date at which the certificate can be used"
+    not_after:
+      type: string
+      description: "The date until which the certificate can be used"
+
