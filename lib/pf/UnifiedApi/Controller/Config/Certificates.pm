@@ -23,6 +23,7 @@ use Mojo::Base qw(pf::UnifiedApi::Controller::RestRoute);
 use pf::file_paths qw(
     $server_cert
     $server_key
+    $server_pem
     $radius_server_cert
     $radius_ca_cert
     $radius_server_key
@@ -34,13 +35,12 @@ my %CERTS_MAP = (
     http => {
         cert_file => $server_cert,
         key_file => $server_key,
-        handle_update => \&http_update,
+        bundle_file => $server_pem,
     },
     radius => {
         cert_file => $radius_server_cert,
         ca_file => $radius_ca_cert,
         key_file => $radius_server_key,
-        handle_update => \&radius_update,
     },
 );
 
@@ -141,6 +141,7 @@ replace a filter
 sub replace {
     my ($self) = @_;
     my $data = $self->parse_json;
+    my $params = $self->req->query_params->to_hash;
 
     my $cert;
     my @intermediate_cas;
@@ -179,18 +180,20 @@ sub replace {
         return $self->render_error("500", $msg);
     }
 
-    my ($chain_res, $chain_msg) = pf::ssl::verify_chain($cert, \@cas);
-    unless($chain_res) {
-        my $msg = "Failed verifying chain: $chain_msg.";
-        if(exists($data->{intermediates})) {
-            $msg .= " Ensure the intermediates certificate file you provided contains all the intermediate certificate authorities in x509 (Apache) format.";
-        }
-        else {
-            $msg .= " Unable to fetch all the intermediates through the information contained in the certificate. You will have to upload the intermediate chain manually in x509 (Apache) format.";
-        }
+    if(!defined($params->{check_chain}) || $params->{check_chain} eq "true") {
+        my ($chain_res, $chain_msg) = pf::ssl::verify_chain($cert, \@cas);
+        unless($chain_res) {
+            my $msg = "Failed verifying chain: $chain_msg.";
+            if(exists($data->{intermediates})) {
+                $msg .= " Ensure the intermediates certificate file you provided contains all the intermediate certificate authorities in x509 (Apache) format.";
+            }
+            else {
+                $msg .= " Unable to fetch all the intermediates through the information contained in the certificate. You will have to upload the intermediate chain manually in x509 (Apache) format.";
+            }
 
-        $self->log->error($msg);
-        return $self->render_error("422", $msg);
+            $self->log->error($msg);
+            return $self->render_error("422", $msg);
+        }
     }
 
     my ($key_match_res, $key_match_msg) = pf::ssl::validate_cert_key_match($cert, $key);
@@ -206,6 +209,7 @@ sub replace {
         key_file => $key->get_private_key_string(),
         ca_file => $ca,
     );
+    $to_install{bundle_file} = join("\n", $to_install{cert_file}, $to_install{key_file});
 
     my @errors;
     while(my ($k, $content) = each(%to_install)) {
@@ -227,7 +231,7 @@ sub replace {
         $self->render_error(422, join(", ", @errors));
     }
     else {
-        $self->render(status => 200)
+        $self->render(json => {}, status => 200)
     }
 }
 

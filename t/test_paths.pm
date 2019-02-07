@@ -52,6 +52,10 @@ BEGIN {
     $pf::file_paths::server_key = catfile($test_dir,'data/server.key');
     $pf::file_paths::server_pem = catfile($test_dir,'data/server.pem');
 
+    $pf::file_paths::radius_server_cert = catfile($test_dir,'data/radius_server.crt');
+    $pf::file_paths::radius_server_key = catfile($test_dir,'data/radius_server.key');
+    $pf::file_paths::radius_ca_cert = catfile($test_dir,'data/radius_ca.pem');
+
     $pfconfig::constants::CONFIG_FILE_PATH = catfile($test_paths::test_dir, 'data/pfconfig.conf');
     $pfconfig::constants::SOCKET_PATH = "/usr/local/pf/var/run/pfconfig-test.sock";
 
