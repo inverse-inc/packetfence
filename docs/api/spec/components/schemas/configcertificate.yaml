@@ -66,3 +66,21 @@ ConfigCertificateDetails:
       type: string
       description: "The date until which the certificate can be used"
 
+ConfigCertificateCSR:
+  properties:
+    country:
+      description: The country for the certificate
+      type: string
+    state:
+      description: The state for the certificate
+      type: string
+    locality:
+      description: The locality for the certificate
+      type: string
+    organization_name:
+      description: The organization name for the certificate
+      type: string
+    common_name:
+      description: The common name for the certificate
+      type: string
+  type: object
