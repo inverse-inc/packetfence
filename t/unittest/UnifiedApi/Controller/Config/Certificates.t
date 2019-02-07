@@ -59,7 +59,7 @@ use Test::Mojo;
 use Test::NoWarnings;
 my $t = Test::Mojo->new('pf::UnifiedApi');
 
-$t->get_ok('/api/v1/config/certificate/http')
+$t->get_ok('/api/v1/config/certificate/http/info')
   ->status_is(200)
   ->json_is('/certificate/subject', "C=CA, ST=Quebec, L=Montreal, O=Inverse Inc., CN=pf.inverse.ca")
   ->json_is('/certificate/issuer', "C=CA, ST=Quebec, L=Montreal, O=Inverse Inc., CN=pf.inverse.ca")

@@ -73,13 +73,7 @@ sub resource_config {
     return $CERTS_MAP{$certificate_id};
 }
 
-=head2 resource_info
-    
-Get a resource information including certificate information, chain validation and cert/key match
-
-=cut
-
-sub resource_info {
+sub read_from_disk {
     my ($self, $certificate_id) = @_;
     $certificate_id //= $self->stash->{certificate_id};
     my $config = $self->resource_config($certificate_id);
@@ -90,22 +84,41 @@ sub resource_info {
     # The last element should be discarded due to the way the certs are extracted (split) above
     pop @certs;
 
-    if(exists($config->{ca_file})) {
-        my $ca = read_file($config->{ca_file});
-        push @certs, $ca;
-    }
+    my $ca = defined($config->{ca_file}) ? read_file($config->{ca_file}) : undef;
 
     # The server certificate is the first of the whole chain
     my $cert = shift @certs;
     
     my $key = read_file($config->{key_file});
 
+    return ($key, $cert, \@certs, $ca);
+}
+
+=head2 resource_info
+    
+Get a resource information including certificate information, chain validation and cert/key match
+
+=cut
+
+sub resource_info {
+    my ($self, $certificate_id) = @_;
+    $certificate_id //= $self->stash->{certificate_id};
+    my $config = $self->resource_config($certificate_id);
+
+    my ($key, $cert, $intermediates, $ca) = $self->read_from_disk($certificate_id);
+
     my $x509_cert;
-    my @cas;
+    my $x509_ca;
+    my @x509_intermediate_cas;
+    my @x509_cas;
     my $rsa_key;
     eval {
         $x509_cert = pf::ssl::x509_from_string($cert) or die "Failed to parse certificate\n";
-        @cas = map { pf::ssl::x509_from_string($_) or die "Failed to parse one of the certificate CAs\n" } @certs;
+        @x509_intermediate_cas = map { pf::ssl::x509_from_string($_) or die "Failed to parse one of the certificate CAs\n" } @$intermediates;
+        if(defined($ca)) {
+            $x509_ca = pf::ssl::x509_from_string($ca) or die "Failed to parse the certificate CA\n"; 
+            @x509_cas = (@x509_intermediate_cas, $x509_ca);
+        }
         $rsa_key = pf::ssl::rsa_from_string($key) or die "Failed to parse private key\n";
     };
     if($@) {
@@ -118,10 +131,13 @@ sub resource_info {
 
     my $data = {
         certificate => pf::ssl::x509_info($x509_cert),
-        cas => [ map {pf::ssl::x509_info($_)} @cas ],
-        chain_is_valid => $self->tuple_return_to_hash(pf::ssl::verify_chain($x509_cert, \@cas)),
+        intermediate_cas => [ map {pf::ssl::x509_info($_)} @x509_intermediate_cas ],
+        chain_is_valid => $self->tuple_return_to_hash(pf::ssl::verify_chain($x509_cert, \@x509_cas)),
         cert_key_match => $self->tuple_return_to_hash(pf::ssl::validate_cert_key_match($x509_cert, $rsa_key)),
     };
+    if($x509_ca) {
+        $data->{ca} = pf::ssl::x509_info($x509_ca);
+    }
 
     return $data;
 }
@@ -144,7 +160,7 @@ get a certificate bundle
 
 =cut
 
-sub get {
+sub info {
     my ($self) = @_;
     if(my $info = $self->resource_info) {
         return $self->render(json => $info, status => 200);
