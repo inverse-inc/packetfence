@@ -159,6 +159,7 @@ export default {
       this.$set(this, 'syslogParserValidations', validations)
     },
     dryRunTest (event) {
+      this.dryRunResponseHtml = null
       let form = JSON.parse(JSON.stringify(this.syslogParser)) // dereference
       if ('lines' in form) {
         form.lines = form.lines.split('\n') // split lines by \n
@@ -169,11 +170,15 @@ export default {
         html.push('<pre>')
         response.items.forEach((item, lIndex) => {
           html.push(`<code>${this.$i18n.t('Line')} ${lIndex + 1}\t- <strong>${item.line}</strong></code><br/>`)
-          item.matches.forEach((match, mIndex) => {
-            match.actions.forEach((action, aIndex) => {
-              html.push(`\t- ${match.rule.name}: ${action.api_method}(${action.api_parameters.map(param => '\'' + param + '\'').join(', ')})<br/>`)
+          if (item.matches.length > 0) {
+            item.matches.forEach((match, mIndex) => {
+              match.actions.forEach((action, aIndex) => {
+                html.push(`\t- ${match.rule.name}: ${action.api_method}(${action.api_parameters.map(param => '\'' + param + '\'').join(', ')})<br/>`)
+              })
             })
-          })
+          } else {
+            html.push(`\t- ${this.$i18n.t('No Rules Matched')}<br/>`)
+          }
         })
         html.push('</pre>')
         this.dryRunResponseHtml = html.join('')
