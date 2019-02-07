@@ -43,6 +43,7 @@ use pf::config qw(
     %ConfigFloatingDevices
     $WIRELESS_MAC_AUTH
     $WIRELESS_802_1X
+    $WEBAUTH_VPN
 );
 use pf::client;
 use pf::locationlog;
@@ -819,6 +820,7 @@ sub switch_access {
 
     $logger->debug("instantiating switch");
     my $switch = pf::SwitchFactory->instantiate({ switch_mac => $switch_mac, switch_ip => $switch_ip, controllerIp => $switch_ip}, {radius_request => $radius_request});
+    my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id, $ifDesc) = $switch->parseRequest($radius_request);
 
     # is switch object correct?
     if (!$switch) {
@@ -827,7 +829,7 @@ sub switch_access {
         );
         return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "Switch is not managed by PacketFence") ];
     }
-    if ( isdisabled($switch->{_cliAccess})) {
+    if ( isdisabled($switch->{_cliAccess}) && !$switch->supportVPN()) {
         $logger->warn("CLI Access is not permit on this switch $switch->{_id}");
         return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "CLI Access is not allowed by PacketFence on this switch") ];
     }
@@ -838,13 +840,46 @@ sub switch_access {
         source_ip => $source_ip,
         stripped_user_name => $stripped_user_name,
         realm => $realm,
-        user_name => $radius_request->{'User-Name'},
+        nas_port_type => $nas_port_type,
+        eap_type => $eap_type // '',
+        mac => $mac,
+        ifIndex => $port,
+        ifDesc => $ifDesc,
+        user_name => $user_name,
+        nas_port_id => $nas_port_type // '',
+        session_id => $session_id,
         radius_request => $radius_request,
     };
 
-    my ( $return, $message, $source_id, $extra ) = pf::authentication::authenticate( { 
-            'username' =>  $radius_request->{'User-Name'}, 
-            'password' =>  $radius_request->{'User-Password'}, 
+    my $role_obj = new pf::role::custom();
+
+    my ($status_code, $node_obj) = pf::dal::node->find_or_create({"mac" => $mac});
+    if (is_error($status_code)) {
+        $node_obj = pf::dal::node->new({"mac" => $mac});
+    }
+    $node_obj->_load_locationlog;
+    # update last_seen of MAC address as some activity from it has been seen
+    $node_obj->update_last_seen();
+
+    if (defined($session_id)) {
+        $node_obj->sessionid($session_id);
+    }
+
+    $args->{'node_info'} = $node_obj;
+    $args->{'fingerbank_info'} = pf::node::fingerbank_info($mac, $node_obj);
+
+    my $role = $role_obj->fetchRoleForNode($args);
+    $args->{'user_role'} = $role->{role};
+    my $status = $node_obj->save;
+    if (is_error($status)) {
+        $logger->error("Cannot save $mac error ($status)");
+    }
+    $switch->synchronize_locationlog($port, undef, $mac,
+        $args->{'isPhone'} ? $VOIP : $NO_VOIP, $WEBAUTH_VPN, undef, $user_name, undef, $stripped_user_name, $realm, $args->{'user_role'}, $ifDesc
+    );
+    my ( $return, $message, $source_id, $extra ) = pf::authentication::authenticate( {
+            'username' =>  $radius_request->{'User-Name'},
+            'password' =>  $radius_request->{'User-Password'},
             'rule_class' => $Rules::ADMIN,
             'context' => $pf::constants::realm::RADIUS_CONTEXT,
         }, @{pf::authentication::getInternalAuthenticationSources()} );
@@ -858,6 +893,9 @@ sub switch_access {
                     return $switch->returnAuthorizeWrite($args);
                 }
                 if (exists $pf::config::ConfigAdminRoles{$value}->{'ACTIONS'}->{'SWITCH_LOGIN_READ'}) {
+                    return $switch->returnAuthorizeRead($args);
+                }
+                if (exists $pf::config::ConfigAdminRoles{$value}->{'ACTIONS'}->{'VPN_LOGIN'}) {
                     return $switch->returnAuthorizeRead($args);
                 }
             }

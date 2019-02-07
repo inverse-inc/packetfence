@@ -290,6 +290,13 @@ sub supportsMABFloatingDevices {
     return $FALSE;
 }
 
+=item supportVPN
+
+=cut
+
+sub supportVPN { return $FALSE; }
+
+
 sub new {
     my ($class, $argv) = @_;
     my $self = bless {
