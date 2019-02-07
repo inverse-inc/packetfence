@@ -13,6 +13,7 @@ import ProvisioningsStore from '../_store/provisionings'
 import RealmsStore from '../_store/realms'
 import RolesStore from '../_store/roles'
 import ScansStore from '../_store/scans'
+import SyslogForwardersStore from '../_store/syslogForwarders'
 import SyslogParsersStore from '../_store/syslogParsers'
 import SwitchesStore from '../_store/switches'
 import SwitchGroupsStore from '../_store/switchGroups'
@@ -48,6 +49,8 @@ const CiscoMobilityServicesEngineView = () => import(/* webpackChunkName: "Confi
 const WebServicesView = () => import(/* webpackChunkName: "Configuration" */ '../_components/WebServicesView')
 const SyslogParsersList = () => import(/* webpackChunkName: "Configuration" */ '../_components/SyslogParsersList')
 const SyslogParserView = () => import(/* webpackChunkName: "Configuration" */ '../_components/SyslogParserView')
+const SyslogForwardersList = () => import(/* webpackChunkName: "Configuration" */ '../_components/SyslogForwardersList')
+const SyslogForwarderView = () => import(/* webpackChunkName: "Configuration" */ '../_components/SyslogForwarderView')
 
 /* Network Configuration */
 const NetworkConfigurationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/NetworkConfigurationSection')
@@ -114,6 +117,9 @@ const route = {
     }
     if (!store.state.$_syslog_parsers) {
       store.registerModule('$_syslog_parsers', SyslogParsersStore)
+    }
+    if (!store.state.$_syslog_forwarders) {
+      store.registerModule('$_syslog_forwarders', SyslogForwardersStore)
     }
     if (!store.state.$_switches) {
       store.registerModule('$_switches', SwitchesStore)
@@ -612,6 +618,40 @@ const route = {
       props: (route) => ({ storeName: '$_syslog_parsers', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
         store.dispatch('$_syslog_parsers/getSyslogParser', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'syslog',
+      name: 'syslogForwarders',
+      component: SyslogForwardersList,
+      props: (route) => ({ query: route.query.query })
+    },
+    {
+      path: 'syslog/new',
+      name: 'newSyslogForwarder',
+      component: SyslogForwarderView,
+      props: (route) => ({ storeName: '$_syslog_forwarders', isNew: true })
+    },
+    {
+      path: 'syslog/:id',
+      name: 'syslogForwarder',
+      component: SyslogForwarderView,
+      props: (route) => ({ storeName: '$_syslog_forwarders', id: route.params.id }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_syslog_forwarders/getSyslogForwarder', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'syslog/:id/clone',
+      name: 'cloneSyslogForwarder',
+      component: SyslogForwarderView,
+      props: (route) => ({ storeName: '$_syslog_forwarders', id: route.params.id, isClone: true }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_syslog_forwarders/getSyslogForwarder', to.params.id).then(object => {
           next()
         })
       }

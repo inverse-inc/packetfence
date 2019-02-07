@@ -111,6 +111,9 @@ const api = {
   getSwitchGroups () {
     return apiCall({ url: 'config/switch_groups', method: 'get' })
   },
+  getSyslogForwarders () {
+    return apiCall({ url: 'config/syslog_forwarders', method: 'get' })
+  },
   getSyslogParsers () {
     return apiCall({ url: 'config/syslog_parsers', method: 'get' })
   },
@@ -200,6 +203,8 @@ const state = { // set intitial states to `false` (not `[]` or `{}`) to avoid in
   switches: false,
   switchGroupsStatus: '',
   switchGroups: false,
+  syslogForwardersStatus: '',
+  syslogForwarders: false,
   syslogParsersStatus: '',
   syslogParsers: false,
   tenantsStatus: '',
@@ -346,6 +351,9 @@ const getters = {
   },
   isLoadingSwitchGroups: state => {
     return state.switchGroupsStatus === types.LOADING
+  },
+  isLoadingSyslogForwarders: state => {
+    return state.syslogForwardersStatus === types.LOADING
   },
   isLoadingSyslogParsers: state => {
     return state.syslogParsersStatus === types.LOADING
@@ -968,6 +976,20 @@ const actions = {
       return Promise.resolve(state.switchGroups)
     }
   },
+  getSyslogForwarders: ({ state, getters, commit }) => {
+    if (getters.isLoadingSyslogForwarders) {
+      return
+    }
+    if (!state.syslogForwarders) {
+      commit('SYSLOG_FORWARDERS_REQUEST')
+      return api.getSyslogForwarders().then(response => {
+        commit('SYSLOG_FORWARDERS_UPDATED', response.data.items)
+        return state.syslogForwarders
+      })
+    } else {
+      return Promise.resolve(state.syslogForwarders)
+    }
+  },
   getSyslogParsers: ({ state, getters, commit }) => {
     if (getters.isLoadingSyslogParsers) {
       return
@@ -1257,6 +1279,13 @@ const mutations = {
   SWICTH_GROUPS_UPDATED: (state, switchGroups) => {
     state.switchGroups = switchGroups
     state.switchGroupsStatus = types.SUCCESS
+  },
+  SYSLOG_FORWARDERS_REQUEST: (state) => {
+    state.syslogForwardersStatus = types.LOADING
+  },
+  SYSLOG_FORWARDERS_UPDATED: (state, syslogForwarders) => {
+    state.syslogForwarders = syslogForwarders
+    state.syslogForwardersStatus = types.SUCCESS
   },
   SYSLOG_PARSERS_REQUEST: (state) => {
     state.syslogParsersStatus = types.LOADING

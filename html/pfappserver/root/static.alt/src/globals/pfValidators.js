@@ -333,6 +333,16 @@ export const sourceExists = (value, component) => {
   })
 }
 
+export const syslogForwarderExists = (value, component) => {
+  if (!value) return true
+  return store.dispatch('config/getSyslogForwarders').then((response) => {
+    if (response.length === 0) return true
+    return (response.filter(syslogForwarder => syslogForwarder.id.toLowerCase() === value.toLowerCase()).length > 0)
+  }).catch(() => {
+    return true
+  })
+}
+
 export const syslogParserExists = (value, component) => {
   if (!value) return true
   return store.dispatch('config/getSyslogParsers').then((response) => {
