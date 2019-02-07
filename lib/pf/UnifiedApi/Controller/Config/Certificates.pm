@@ -61,11 +61,23 @@ sub resource {
     return 1;
 }
 
+=head2 resource_config
+
+Get the configuration associated to a resource
+
+=cut
+
 sub resource_config {
     my ($self, $certificate_id) = @_;
     $certificate_id //= $self->stash->{certificate_id};
     return $CERTS_MAP{$certificate_id};
 }
+
+=head2 resource_info
+    
+Get a resource information including certificate information, chain validation and cert/key match
+
+=cut
 
 sub resource_info {
     my ($self, $certificate_id) = @_;
@@ -114,6 +126,12 @@ sub resource_info {
     return $data;
 }
 
+=head2 tuple_return_to_hash
+
+Transform a tuple return value (as seen in pf::ssl::*) into a hash for adding it to the HTTP response
+
+=cut
+
 sub tuple_return_to_hash {
     my ($self, @values) = @_;
     return {success => $values[0], result => $values[1]};
@@ -122,7 +140,7 @@ sub tuple_return_to_hash {
 
 =head2 get
 
-get a filter
+get a certificate bundle
 
 =cut
 
@@ -132,6 +150,12 @@ sub get {
         return $self->render(json => $info, status => 200);
     }
 }
+
+=head2 objects_from_put_payload
+
+Instantiate the Crypt::OpenSSL::* objects from a PUT payload
+
+=cut
 
 sub objects_from_put_payload {
     my ($self, $data) = @_;
@@ -179,7 +203,7 @@ sub objects_from_put_payload {
 
 =head2 replace
 
-replace a filter
+replace a certificate bundle (key, certs, etc)
 
 =cut
 
@@ -223,7 +247,7 @@ sub replace {
     );
     $to_install{bundle_file} = join("\n", $to_install{cert_file}, $to_install{key_file});
 
-    my @errors = $self->install_to_file(%to_install);
+    my @errors = $self->install_to_file(undef, %to_install);
     
     if(scalar(@errors) > 0) {
         $self->render_error(422, join(", ", @errors));
@@ -233,10 +257,16 @@ sub replace {
     }
 }
 
+=head2 install_to_file
+
+Install a set of files to the resource file paths
+
+=cut
+
 sub install_to_file {
-    my ($self, %to_install) = @_;
+    my ($self, $id, %to_install) = @_;
     
-    my $config = $self->resource_config();
+    my $config = $self->resource_config($id);
 
     my @errors;
     while(my ($k, $content) = each(%to_install)) {

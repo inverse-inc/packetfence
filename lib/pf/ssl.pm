@@ -1,5 +1,17 @@
 package pf::ssl;
 
+=head1 NAME
+
+pf::ssl
+
+=cut
+
+=head1 DESCRIPTION
+
+Helper functions to manipulate certificates and keys
+
+=cut
+
 use strict;
 use warnings;
 
@@ -14,10 +26,22 @@ use Crypt::OpenSSL::RSA;
 use Crypt::OpenSSL::X509;
 use Crypt::OpenSSL::PKCS10;
 
+=head2 rsa_from_string
+
+Get a Crypt::OpenSSL::RSA from a PEM string
+
+=cut
+
 sub rsa_from_string {
     my ($key) = @_;
     return Crypt::OpenSSL::RSA->new_private_key($key);
 }
+
+=head2 x509_from_string
+
+Get a Crypt::OpenSSL::RSA from a PEM or ASN1 string
+
+=cut
 
 sub x509_from_string {
     my ($cert) = @_;
@@ -44,6 +68,12 @@ sub x509_from_string {
     return undef;
 }
 
+=head2 cn_from_dn
+
+Extract a CN from a DN as seen in certificates
+
+=cut
+
 sub cn_from_dn {
     my ($dn) = @_;
     if($dn =~ /CN=(.*?)(\/|$)/) {
@@ -55,15 +85,33 @@ sub cn_from_dn {
     }
 }
 
+=head2 rsa_modulus_md5
+
+Get the modulus MD5 of an RSA key
+
+=cut
+
 sub rsa_modulus_md5 {
     my ($rsa) = @_;
     return openssl_modulus_md5("rsa", $rsa->get_private_key_string());
 }
 
+=head2 x509_modulus_md5
+
+Get the modulus MD5 of an x509 certificate
+
+=cut
+
 sub x509_modulus_md5 {
     my ($x509) = @_;
     return openssl_modulus_md5("x509", $x509->as_string());
 }
+
+=head2 openssl_modulus_md5
+
+Get the modulus MD5 through OpenSSL
+
+=cut
 
 sub openssl_modulus_md5 {
     my ($type, $data) = @_;
@@ -77,6 +125,12 @@ sub openssl_modulus_md5 {
         return $result;
     }
 }
+
+=head2 validate_cert_key_match
+
+Given a Crypt::OpenSSL::X509 and a Crypt::OpenSSL::RSA, validate that the certificate should be used with the key (same modulus)
+
+=cut
 
 sub validate_cert_key_match {
     my ($cert, $key) = @_;
@@ -101,6 +155,12 @@ sub validate_cert_key_match {
         return ($TRUE);
     }
 }
+
+=head2 fetch_all_intermediates
+
+Fetch all the intermediates associated to a Crypt::OpenSSL::X509 object
+
+=cut
 
 sub fetch_all_intermediates {
     my ($x509, $chain) = @_;
@@ -147,6 +207,12 @@ sub fetch_all_intermediates {
     }
 }
 
+=head2 download_file
+
+Download a file
+
+=cut
+
 sub download_file {
     my ($url) = @_;
     my $ua = LWP::UserAgent->new;
@@ -160,6 +226,12 @@ sub download_file {
     }
 }
 
+=head2 install_file
+
+Install a file on the filesystem ensuring proper permissions will be maintained
+
+=cut
+
 sub install_file {
     my ($filename, $content) = @_;
     eval {
@@ -172,6 +244,12 @@ sub install_file {
         return ($TRUE);
     }
 }
+
+=head2 generate_csr
+
+Generate a CSR given a set of information
+
+=cut
 
 sub generate_csr {
     my ($rsa, $info) = @_;
@@ -202,6 +280,13 @@ sub generate_csr {
     return ($TRUE, $csr);
 }
 
+=head2 verify_chain
+
+Given a Crypt::OpenSSL::X509 certificate and an array of Crypt::OpenSSL::X509 intermediates, validate that the whole signing chain is valid.
+Will include the built-in CAs while performing the verification
+
+=cut
+
 sub verify_chain {
     my ($cert, $intermediates) = @_;
     my $cert_str = $cert->as_string();
@@ -226,6 +311,12 @@ sub verify_chain {
     }
 }
 
+=head2 x509_info
+
+Basic information of a Crypt::OpenSSL::X509 object as a hash value
+
+=cut
+
 sub x509_info {
     my ($x509) = @_;
     return {
@@ -236,4 +327,32 @@ sub x509_info {
     };
 }
 
+=head1 AUTHOR
+
+Inverse inc. <info@inverse.ca>
+
+=head1 COPYRIGHT
+
+Copyright (C) 2005-2018 Inverse inc.
+
+=head1 LICENSE
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+USA.
+
+=cut
+
 1;
+
