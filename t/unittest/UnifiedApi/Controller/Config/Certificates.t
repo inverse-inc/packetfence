@@ -54,7 +54,7 @@ END {
 
 #insert known data
 #run tests
-use Test::More tests => 27;
+use Test::More tests => 31;
 use Test::Mojo;
 use Test::NoWarnings;
 my $t = Test::Mojo->new('pf::UnifiedApi');
@@ -338,6 +338,20 @@ $t->put_ok("/api/v1/config/certificate/radius?check_chain=true" => json => { cer
 
 # Provide cert from another CA with the new CA
 $t->put_ok("/api/v1/config/certificate/radius" => json => { certificate => $new_radius_cert, private_key => $new_radius_key, ca => $new_radius_ca_cert })
+  ->status_is(200);
+
+# test CSR with missing information
+$t->post_ok("/api/v1/config/certificate/radius/generate_csr" => json => {})
+  ->status_is(422);
+
+# test CSR with valid information
+$t->post_ok("/api/v1/config/certificate/radius/generate_csr" => json => {
+        "country" => "CA", 
+        "state" => "Quebec", 
+        "locality" => "Montreal", 
+        "organization_name" => "Inverse Inc.", 
+        "common_name" => "csrtest.inverse.ca",
+    })
   ->status_is(200);
 
 =head1 AUTHOR

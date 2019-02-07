@@ -261,7 +261,7 @@ sub generate_csr {
         if(!defined($value) || length($value) == 0) {
             my $msg = "$field must be specified.";
             get_logger->error($msg);
-            return ($FALSE, );
+            return ($FALSE, $msg);
         }
     }
     

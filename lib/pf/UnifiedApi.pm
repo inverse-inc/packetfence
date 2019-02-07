@@ -289,7 +289,11 @@ our @API_V1_ROUTES = (
                 get => 'get',
                 put => 'replace',
             },
-            subroutes => undef,
+            subroutes => {
+                generate_csr => {
+                    post => 'generate_csr',
+                }
+            }
         },
     },
     {

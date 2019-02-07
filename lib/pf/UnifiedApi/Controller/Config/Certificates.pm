@@ -287,6 +287,28 @@ sub install_to_file {
     return @errors;
 }
 
+=head2 generate_csr
+
+Generate a CSR request for a certificate resource
+
+=cut
+
+sub generate_csr {
+    my ($self) = @_;
+    my $data = $self->parse_json();
+    my $config = $self->resource_config();
+    my $key_str = read_file($config->{key_file});
+    my $rsa = pf::ssl::rsa_from_string($key_str);
+    my ($res, $csr) = pf::ssl::generate_csr($rsa, $data);
+
+    if($res) {
+        $self->render(json => {csr => $csr->get_pem_req()}, status => 200);
+    }
+    else {
+        $self->render_error(422, $csr);
+    }
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
