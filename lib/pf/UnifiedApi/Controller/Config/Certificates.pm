@@ -133,17 +133,9 @@ sub get {
     }
 }
 
-=head2 replace
-
-replace a filter
-
-=cut
-
-sub replace {
-    my ($self) = @_;
-    my $data = $self->parse_json;
-    my $params = $self->req->query_params->to_hash;
-
+sub objects_from_put_payload {
+    my ($self, $data) = @_;
+    
     my $cert;
     my @intermediate_cas;
     my @cas;
@@ -178,11 +170,31 @@ sub replace {
         my $msg = $@;
         chomp($msg);
         $self->log->error($msg);
-        return $self->render_error("500", $msg);
+        $self->render_error("500", $msg);
+        return (undef);
+    }
+
+    return ($cert, \@intermediate_cas, \@cas, $ca, $key);
+}
+
+=head2 replace
+
+replace a filter
+
+=cut
+
+sub replace {
+    my ($self) = @_;
+    my $data = $self->parse_json;
+    my $params = $self->req->query_params->to_hash;
+
+    my ($cert, $intermediate_cas, $cas, $ca, $key) = $self->objects_from_put_payload($data);
+    unless(defined($cert)) {
+        return;
     }
 
     if(!defined($params->{check_chain}) || isenabled($params->{check_chain})) {
-        my ($chain_res, $chain_msg) = pf::ssl::verify_chain($cert, \@cas);
+        my ($chain_res, $chain_msg) = pf::ssl::verify_chain($cert, $cas);
         unless($chain_res) {
             my $msg = "Failed verifying chain: $chain_msg.";
             if(exists($data->{intermediates})) {
@@ -204,13 +216,27 @@ sub replace {
         return $self->render_error("422", $msg);
     }
 
-    my $config = $self->resource_config();
     my %to_install = (
-        cert_file => join("\n", map { $_->as_string() } ($cert, @intermediate_cas)),
+        cert_file => join("\n", map { $_->as_string() } ($cert, @$intermediate_cas)),
         key_file => $key->get_private_key_string(),
         ca_file => $ca,
     );
     $to_install{bundle_file} = join("\n", $to_install{cert_file}, $to_install{key_file});
+
+    my @errors = $self->install_to_file(%to_install);
+    
+    if(scalar(@errors) > 0) {
+        $self->render_error(422, join(", ", @errors));
+    }
+    else {
+        $self->render(json => {}, status => 200)
+    }
+}
+
+sub install_to_file {
+    my ($self, %to_install) = @_;
+    
+    my $config = $self->resource_config();
 
     my @errors;
     while(my ($k, $content) = each(%to_install)) {
@@ -227,13 +253,8 @@ sub replace {
             push @errors, $msg;
         }
     }
-    
-    if(scalar(@errors) > 0) {
-        $self->render_error(422, join(", ", @errors));
-    }
-    else {
-        $self->render(json => {}, status => 200)
-    }
+
+    return @errors;
 }
 
 =head1 AUTHOR
