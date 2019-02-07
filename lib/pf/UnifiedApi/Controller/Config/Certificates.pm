@@ -32,18 +32,21 @@ use pf::file_paths qw(
 
 my $CERT_DELIMITER = "-----END CERTIFICATE-----";
 
-my %CERTS_MAP = (
-    http => {
-        cert_file => $server_cert,
-        key_file => $server_key,
-        bundle_file => $server_pem,
-    },
-    radius => {
-        cert_file => $radius_server_cert,
-        ca_file => $radius_ca_cert,
-        key_file => $radius_server_key,
-    },
-);
+
+sub certs_map {
+    return {
+        http => {
+            cert_file => $server_cert,
+            key_file => $server_key,
+            bundle_file => $server_pem,
+        },
+        radius => {
+            cert_file => $radius_server_cert,
+            ca_file => $radius_ca_cert,
+            key_file => $radius_server_key,
+        },
+    };
+}
 
 =head2 resource
 
@@ -70,7 +73,7 @@ Get the configuration associated to a resource
 sub resource_config {
     my ($self, $certificate_id) = @_;
     $certificate_id //= $self->stash->{certificate_id};
-    return $CERTS_MAP{$certificate_id};
+    return $self->certs_map->{$certificate_id};
 }
 
 sub read_from_disk {
