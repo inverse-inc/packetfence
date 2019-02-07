@@ -1483,6 +1483,30 @@
             ],
             "description" : "List"
          },
+         "ConfigCertificate" : {
+            "properties" : {
+               "ca" : {
+                  "description" : "The CA certficate for the resource (if applicable)",
+                  "type" : "string"
+               },
+               "certificate" : {
+                  "description" : "The server certficate for the resource in x509 PEM encoded format",
+                  "type" : "string"
+               },
+               "intermediate_cas" : {
+                  "description" : "The list of certificate authorities for the server certificate",
+                  "items" : {
+                     "type" : "string"
+                  },
+                  "type" : "array"
+               },
+               "private_key" : {
+                  "description" : "The RSA server key for the resource in PEM encoded format",
+                  "type" : "string"
+               }
+            },
+            "type" : "object"
+         },
          "ConfigCertificateDetails" : {
             "properties" : {
                "issuer" : {
@@ -16228,11 +16252,17 @@
                   "content" : {
                      "application/json" : {
                         "schema" : {
-                           "$ref" : "#/components/schemas/ConfigCertificateInfo"
+                           "$ref" : "#/components/schemas/ConfigCertificate"
                         }
                      }
                   },
                   "description" : "Item"
+               },
+               "404" : {
+                  "$ref" : "#/components/responses/NotFound"
+               },
+               "422" : {
+                  "$ref" : "#/components/responses/UnprocessableEntity"
                }
             }
          },
@@ -16260,6 +16290,40 @@
             "responses" : {
                "200" : {
                   "$ref" : "#/components/responses/Message"
+               },
+               "404" : {
+                  "$ref" : "#/components/responses/NotFound"
+               },
+               "422" : {
+                  "$ref" : "#/components/responses/UnprocessableEntity"
+               }
+            }
+         }
+      },
+      "/config/certificate/{certificate_id}/info" : {
+         "description" : "pf::UnifiedApi::Controller::Config::Certificates",
+         "get" : {
+            "description" : "Get an item",
+            "operationId" : "api.v1.Config::Certificates.get",
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "certificate_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/ConfigCertificateInfo"
+                        }
+                     }
+                  },
+                  "description" : "Item"
                }
             }
          }
