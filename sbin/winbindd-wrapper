@@ -23,7 +23,6 @@ use File::Basename qw(basename);
 use POSIX qw(:signal_h pause :sys_wait_h SIG_BLOCK SIG_UNBLOCK);
 use Pod::Usage;
 use Fcntl qw(:flock);
-use Linux::Prctl qw(set_pdeathsig);
 use Systemd::Daemon qw{ -soft };
 
 #pf::log must always be initilized first
@@ -137,8 +136,7 @@ cleans after children
 =cut
 
 sub cleanup {
-#    signal_children('INT');
-#    signal_children('INT');
+    signal_children('TERM');
 }
 
 =head2 signal_children
@@ -230,9 +228,8 @@ sub run_winbindd {
     } elsif ($pid == 0) {
         $SIG{CHLD} = 'DEFAULT';
         $IS_CHILD = 1;
-        set_pdeathsig(SIGTERM());
         Log::Log4perl::MDC->put('tid', $$);
-        unless(exec("sudo chroot $chroot_path $binary -s $config_file -l $log_directory --foreground")) {
+        unless(exec("chroot $chroot_path $binary -s $config_file -l $log_directory --foreground")) {
             $logger->error("Failed to start the winbindd process $id");
             exit 1;
         }
