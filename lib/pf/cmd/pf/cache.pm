@@ -25,6 +25,7 @@ Namespaces:
   route_int
   switch
   switch.overlay
+  local_mac
 
 Options:
 
