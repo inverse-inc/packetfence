@@ -886,10 +886,10 @@ export default {
         })
       }
     },
-    applyBulkSecurityEvent (security_event) {
+    applyBulkSecurityEvent (securityEvent) {
       const macs = this.selectValues.map(item => item.mac)
       if (macs.length > 0) {
-        this.$store.dispatch(`${this.storeName}/applySecurityEventBulkNodes`, { items: macs, security_event_id: security_event.id }).then(response => {
+        this.$store.dispatch(`${this.storeName}/applySecurityEventBulkNodes`, { items: macs, security_event_id: securityEvent.id }).then(response => {
           response.items.forEach((item, _index, items) => {
             let index = this.tableValues.findIndex(node => node.mac === item.mac)
             this.setRowVariant(index, convert.statusToVariant({ status: item.status }))

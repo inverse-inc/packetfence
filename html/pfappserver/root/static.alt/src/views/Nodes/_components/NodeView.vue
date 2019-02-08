@@ -700,17 +700,17 @@ export default {
         // noop
       }
       try {
-        node.security_events.forEach(function (security_event, index, security_events) {
+        node.security_events.forEach(function (securityEvent, index, securityEvents) {
           _this.addVisGroup({
             id: _this.mac + '-security_event',
             content: _this.$i18n.t('Security Events')
           })
           _this.addVisItem({
-            id: 'security_event' + security_event.security_event_id,
+            id: 'security_event' + securityEvent.security_event_id,
             group: _this.mac + '-security_event',
-            start: new Date(security_event.start_date),
-            end: (security_event.release_date !== '0000-00-00 00:00:00' && security_event.release_date !== security_event.start_date) ? new Date(security_event.release_date) : null,
-            content: _this.securityEventDescription(security_event.security_event_id)
+            start: new Date(securityEvent.start_date),
+            end: (securityEvent.release_date !== '0000-00-00 00:00:00' && securityEvent.release_date !== securityEvent.start_date) ? new Date(securityEvent.release_date) : null,
+            content: _this.securityEventDescription(securityEvent.security_event_id)
           })
         })
       } catch (e) {
