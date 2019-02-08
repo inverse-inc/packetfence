@@ -10,6 +10,7 @@ import (
 	"os"
 	"regexp"
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/inverse-inc/packetfence/go/coredns/plugin"
@@ -48,6 +49,7 @@ type pfdns struct {
 	IpsetCache        *cache.Cache
 	apiClient         *unifiedapiclient.Client
 	PortalFQDN        string
+	refreshLauncher   *sync.Once
 }
 
 // Ports array
@@ -94,8 +96,32 @@ func (pf *pfdns) HasSecurityEvents(ctx context.Context, mac string) bool {
 	return security_event
 }
 
+func (pf *pfdns) RefreshPfconfig(ctx context.Context) {
+	id, err := pfconfigdriver.PfconfigPool.ReadLock(ctx)
+	if err == nil {
+		defer pfconfigdriver.PfconfigPool.ReadUnlock(ctx, id)
+
+		// We launch the refresh job once, the first time a request comes in
+		// This ensures that the pool will run with a context that represents a request (log level for instance)
+		pf.refreshLauncher.Do(func() {
+			ctx := ctx
+			go func(ctx context.Context) {
+				for {
+					pfconfigdriver.PfconfigPool.Refresh(ctx)
+					time.Sleep(1 * time.Second)
+				}
+			}(ctx)
+		})
+	} else {
+		panic("Unable to obtain pfconfigpool lock in pfdns middleware")
+	}
+}
+
 // ServeDNS implements the middleware.Handler interface.
 func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) (int, error) {
+
+	pf.RefreshPfconfig(ctx)
+
 	state := request.Request{W: w, Req: r}
 	a := new(dns.Msg)
 	a.SetReply(r)
@@ -448,44 +474,6 @@ func (pf *pfdns) WebservicesInit() error {
 	pf.Webservices = webservices
 	return nil
 
-}
-
-func (pf *pfdns) PassthrouthsInit() error {
-	var ctx = context.Background()
-
-	pfconfigdriver.FetchDecodeSocket(ctx, &pfconfigdriver.Config.Passthroughs.Registration)
-
-	pf.FqdnPort = make(map[*regexp.Regexp][]string)
-
-	for k, v := range pfconfigdriver.Config.Passthroughs.Registration.Wildcard {
-		rgx, _ := regexp.Compile(".*" + k)
-		pf.FqdnPort[rgx] = v
-	}
-
-	for k, v := range pfconfigdriver.Config.Passthroughs.Registration.Normal {
-		rgx, _ := regexp.Compile("^" + k + ".$")
-		pf.FqdnPort[rgx] = v
-	}
-	return nil
-}
-
-func (pf *pfdns) PassthrouthsIsolationInit() error {
-	var ctx = context.Background()
-
-	pfconfigdriver.FetchDecodeSocket(ctx, &pfconfigdriver.Config.Passthroughs.Isolation)
-
-	pf.FqdnIsolationPort = make(map[*regexp.Regexp][]string)
-
-	for k, v := range pfconfigdriver.Config.Passthroughs.Isolation.Wildcard {
-		rgx, _ := regexp.Compile(".*" + k)
-		pf.FqdnIsolationPort[rgx] = v
-	}
-
-	for k, v := range pfconfigdriver.Config.Passthroughs.Isolation.Normal {
-		rgx, _ := regexp.Compile("^" + k + ".$")
-		pf.FqdnIsolationPort[rgx] = v
-	}
-	return nil
 }
 
 // detectType of each network
