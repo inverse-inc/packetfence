@@ -20,7 +20,6 @@
         <span v-else-if="isClone">{{ $t('Clone Connection Profile {id}', { id: id }) }}</span>
         <span v-else>{{ $t('New Connection Profile') }}</span>
       </h4>
-      <pre>{{ JSON.stringify(connectionProfile, null, 2) }}</pre>
     </template>
     <template slot="footer"
       scope="{isDeletable}"
