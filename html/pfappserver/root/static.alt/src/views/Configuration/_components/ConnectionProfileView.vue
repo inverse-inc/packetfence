@@ -20,6 +20,7 @@
         <span v-else-if="isClone">{{ $t('Clone Connection Profile {id}', { id: id }) }}</span>
         <span v-else>{{ $t('New Connection Profile') }}</span>
       </h4>
+      <pre>{{ JSON.stringify(connectionProfile, null, 2) }}</pre>
     </template>
     <template slot="footer"
       scope="{isDeletable}"
@@ -187,7 +188,7 @@ export default {
   created () {
     if (this.id) {
       this.$store.dispatch(`${this.storeName}/getConnectionProfile`, this.id).then(data => {
-        this.connectionProfile = Object.assign(this.connectionProfile, data)
+        this.connectionProfile = { ...this.connectionProfile, ...data }
       })
       this.$store.dispatch(`${this.storeName}/files`, { id: this.id, sort: ['type', 'name'] }).then(data => {
         this.files = data.entries
