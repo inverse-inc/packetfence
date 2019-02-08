@@ -121,11 +121,11 @@ export default {
     },
     minFields: {
       type: Number,
-      default: false
+      default: 0
     },
     maxFields: {
       type: Number,
-      default: false
+      default: 0
     }
   },
   data () {

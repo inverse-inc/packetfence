@@ -100,11 +100,6 @@ import pfFormChosen from '@/components/pfFormChosen'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormRangeTriple from '@/components/pfFormRangeTriple'
 import {
-  pfAuthenticationConditionType as authenticationConditionType,
-  pfAuthenticationConditionOperators as authenticationConditionOperators,
-  pfAuthenticationConditionValues as authenticationConditionValues
-} from '@/globals/pfAuthenticationConditions'
-import {
   required,
   integer,
   minValue
