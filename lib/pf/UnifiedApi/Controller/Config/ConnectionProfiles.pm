@@ -158,7 +158,9 @@ sub new_file {
 
     my $content = $self->req->body;
     eval {
-        write_file($path, {no_clobber => 1}, $content);
+        my (undef, $file_parent_dir, undef) = fileparse($path);
+        pf_make_dir($file_parent_dir);
+        write_file($path, {binmode => ':uft8', no_clobber => 1}, $content);
     };
     if ($@) {
        return $self->render_error(422, "Error writing to the '$file'");
