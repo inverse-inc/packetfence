@@ -58,10 +58,23 @@ sub description { 'Cisco ASA Firewall' }
 
 # CAPABILITIES
 # access technology supported
-sub supportsRoleBasedEnforcement { return $TRUE; }
 
 sub supportsExternalPortal { return $TRUE; }
-sub supportVPN { return $TRUE; }
+sub supportsVPN { return $TRUE; }
+
+sub vpnAttributes {
+    my ( $self, %radius_request ) = @_;
+
+    my @require = qw(ASA-TunnelGroupName);
+    my @found = grep {exists $radius_request{$_}} @require;
+
+    if (pf::util::validate_argv(\@require,  \@found)) {
+        return $TRUE;
+    } else {
+        return $FALSE;
+    }
+}
+
 
 =item deauthenticateMacDefault
 
@@ -104,7 +117,7 @@ sub deauthTechniques {
     return $method,$tech{$method};
 }
 
-=item returnAuthorizeWrite
+=item returnAuthorizeVPN
 
 Return radius attributes to allow write access
 
@@ -135,8 +148,6 @@ sub returnAuthorizeVPN {
             if (isenabled($self->{_RoleMap}) && $self->supportsRoleBasedEnforcement()) {
                 my $role_map = $self->getRoleByName($args->{'user_role'});
                 $role = $role_map if (defined($role_map));
-                # remove the role if any as we push the redirection ACL along with it's role
-                delete $radius_reply_ref->{$self->returnRoleAttribute()};
             }
             $logger->info("Adding web authentication redirection to reply using role: '$role' and URL: '$redirect_url'");
             push @av_pairs, "url-redirect-acl=$role";
@@ -165,9 +176,11 @@ Uses L<pf::util::radius> for the low-level RADIUS stuff.
 # TODO consider whether we should handle retries or not?
 
 
+
 sub radiusDisconnect {
     my ($self, $mac, $add_attributes_ref) = @_;
     my $logger = $self->logger;
+
     # initialize
     $mac = clean_mac($mac);
     $add_attributes_ref = {} if (!defined($add_attributes_ref));
@@ -207,9 +220,38 @@ sub radiusDisconnect {
 
         $logger->debug("network device (".$self->{'_id'}.") supports roles. Evaluating role to be returned");
         my $roleResolver = pf::roles::custom->instance();
-        my $role = $roleResolver->getRoleForNode($mac, $self);
+        my $role;
 
         my $node_info = node_view($mac);
+
+        if ($node_info->{status} eq 'unreg') {
+            $role = 'registration';
+        } else {
+            $role = $roleResolver->getRoleForNode($mac, $self);
+        }
+
+        my $args = {
+           mac => $mac,
+           user_role => $role,
+           node_info => $node_info,
+        };
+        $args->{'unfiltered'} = $TRUE;
+        my @super_reply = @{$self->returnRadiusAccessAccept($args)};
+        my $status = shift @super_reply;
+        my %radius_reply = @super_reply;
+        my $radius_reply_ref = \%radius_reply;
+
+        my @vsa;
+        if (defined($radius_reply_ref->{'Cisco-AVPair'})) {
+            foreach my $avpair (@{$radius_reply_ref->{'Cisco-AVPair'}}) {
+                my $coa_attributes = {vendor => "Cisco",attribute => "Cisco-AVPair",value => $avpair };
+                push @vsa, $coa_attributes;
+
+            }
+        }
+        push @vsa, {vendor => "Cisco",attribute => "Cisco-AVPair",value => "audit-session-id=$node_info->{'sessionid'}" };
+        my $vsa = \@vsa;
+
         # transforming MAC to the expected format 00-11-22-33-CA-FE
         $mac = uc($mac);
         $mac =~ s/:/-/g;
@@ -229,13 +271,6 @@ sub radiusDisconnect {
         # to ensure the VLAN is actually changed to the isolation VLAN.
         $logger->info("Returning ACCEPT with Role: $role");
 
-        my $vsa = [
-            {
-            vendor => "Cisco",
-            attribute => "Cisco-AVPair",
-            value => "audit-session-id=$node_info->{'sessionid'}",
-            }
-         ];
         $response = perform_coa($connection_info, $attributes_ref, $vsa);
     } catch {
         chomp;
@@ -253,6 +288,45 @@ sub radiusDisconnect {
     );
     return;
 }
+
+sub returnRadiusAccessAccept {
+    my ($self, $args) = @_;
+    my $logger = $self->logger;
+
+    $args->{'unfiltered'} = $TRUE;
+    my @super_reply = @{$self->SUPER::returnRadiusAccessAccept($args)};
+    my $status = shift @super_reply;
+    my %radius_reply = @super_reply;
+    my $radius_reply_ref = \%radius_reply;
+    return [$status, %$radius_reply_ref] if($status == $RADIUS::RLM_MODULE_USERLOCK);
+
+    my @av_pairs = defined($radius_reply_ref->{'Cisco-AVPair'}) ? @{$radius_reply_ref->{'Cisco-AVPair'}} : ();
+
+    my $role = $self->getRoleByName($args->{'user_role'});
+    if ( isenabled($self->{_UrlMap}) && $self->externalPortalEnforcement ) {
+        if ( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined($self->getUrlByName($args->{'user_role'}) ) ) {
+            $args->{'session_id'} = "sid".$self->setSession($args);
+            my $redirect_url = $self->getUrlByName($args->{'user_role'});
+            $redirect_url .= '/' unless $redirect_url =~ m(\/$);
+            $redirect_url .= $args->{'session_id'};
+            $redirect_url .= "?";
+            #override role if a role in role map is define
+            if (isenabled($self->{_RoleMap}) && $self->supportsRoleBasedEnforcement()) {
+                my $role_map = $self->getRoleByName($args->{'user_role'});
+                $role = $role_map if (defined($role_map));
+            }
+            $logger->info("Adding web authentication redirection to reply using role: '$role' and URL: '$redirect_url'");
+            push @av_pairs, "url-redirect-acl=$role";
+            push @av_pairs, "url-redirect=".$redirect_url;
+        }
+    }
+    $radius_reply_ref->{'Cisco-AVPair'} = \@av_pairs;
+    my $filter = pf::access_filter::radius->new;
+    my $rule = $filter->test('returnRadiusAccessAccept', $args);
+    ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
+    return [$status, %$radius_reply_ref];
+}
+
 
 =item parseRequest
 

@@ -294,8 +294,9 @@ sub supportsMABFloatingDevices {
 
 =cut
 
-sub supportVPN { return $FALSE; }
+sub supportsVPN { return $FALSE; }
 
+sub vpnAttributes { return $FALSE; }
 
 sub new {
     my ($class, $argv) = @_;
