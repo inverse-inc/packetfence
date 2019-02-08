@@ -633,7 +633,7 @@ export default {
           sortable: true,
           visible: false,
           class: 'text-nowrap',
-          formatter: formatter.security_eventIdsToDescCsv
+          formatter: formatter.securityEventIdsToDescCsv
         },
         {
           key: 'security_event.open_count',
@@ -648,7 +648,7 @@ export default {
           sortable: true,
           visible: false,
           class: 'text-nowrap',
-          formatter: formatter.security_eventIdsToDescCsv
+          formatter: formatter.securityEventIdsToDescCsv
         },
         {
           key: 'security_event.close_count',

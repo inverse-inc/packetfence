@@ -22,10 +22,10 @@ export const pfFormatters = {
     if (!value) return null
     return store.state.config.roles.filter(role => role.category_id === item.bypass_role_id).map(role => role.name)[0]
   },
-  security_eventIdsToDescCsv: (value, key, item) => {
+  securityEventIdsToDescCsv: (value, key, item) => {
     if (!value) return null
     const uVids = [...new Set(value.split(',').filter(item => item))]
-    return store.getters['config/sortedSecurityEvents'].filter(security_event => uVids.includes(security_event.id)).map(security_event => security_event.desc).join(', ')
+    return store.getters['config/sortedSecurityEvents'].filter(securityEvent => uVids.includes(securityEvent.id)).map(securityEvent => securityEvent.desc).join(', ')
   },
   yesNoFromString: (value, key, item) => {
     if (value === null || value === '') return null
