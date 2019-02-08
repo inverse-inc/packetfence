@@ -32,7 +32,7 @@ import {
 const { validationMixin } = require('vuelidate')
 
 export default {
-  name: 'ProfilingGeneralSettingView',
+  name: 'ProfilingDeviceChangeDetectionView',
   mixins: [
     validationMixin
   ],

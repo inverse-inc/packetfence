@@ -9,7 +9,7 @@
   >
     <template slot="header" is="b-card-header">
       <h4 class="mb-0">
-        <span>{{ $t('Access Duration') }}</span>
+        <span>{{ $t('Captive Portal') }}</span>
       </h4>
     </template>
     <template slot="footer">
@@ -26,17 +26,15 @@
 import pfConfigView from '@/components/pfConfigView'
 import pfButtonSave from '@/components/pfButtonSave'
 import {
-  pfConfigurationAccessDurationViewFields as fields,
-  pfConfigurationAccessDurationViewDefaults as defaults,
-  pfConfigurationAccessDurationViewPlaceholders as placeholders,
-  pfConfigurationAccessDurationSerialize as serialize,
-  pfConfigurationAccessDurationDeserialize as deserialize
-} from '@/globals/configuration/pfConfigurationAccessDuration'
+  pfConfigurationCaptivePortalViewFields as fields,
+  pfConfigurationCaptivePortalViewDefaults as defaults,
+  pfConfigurationCaptivePortalViewPlaceholders as placeholders
+} from '@/globals/configuration/pfConfigurationCaptivePortal'
 
 const { validationMixin } = require('vuelidate')
 
 export default {
-  name: 'AccessDurationView',
+  name: 'CaptivePortalView',
   mixins: [
     validationMixin
   ],
@@ -79,20 +77,13 @@ export default {
   },
   methods: {
     save () {
-      let form = JSON.parse(JSON.stringify(this.form)) // dereference
-      // re-join access_duration_choices
-      form.access_duration_choices = serialize(form.access_duration_choices)
-      this.$store.dispatch('$_bases/updateGuestsAdminRegistration', form).then(response => {
+      this.$store.dispatch('$_bases/updateCaptivePortal', this.form).then(response => {
         // TODO - notification
       })
     }
   },
   created () {
-    this.$store.dispatch('$_bases/getGuestsAdminRegistration').then(data => {
-      if ('access_duration_choices' in data && data.access_duration_choices.constructor === String) {
-        // split and map access_duration_choices
-        data.access_duration_choices = deserialize(data.access_duration_choices)
-      }
+    this.$store.dispatch('$_bases/getCaptivePortal').then(data => {
       this.form = Object.assign({}, data)
     })
   }
