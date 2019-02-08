@@ -398,7 +398,7 @@ sub makeFileInfo {
         size  => $stat->size,
         mtime => $stat->mtime,
         not_deletable => notDeletable($short_path, $full_path, $templateDir, @parentPaths),
-        not_revertable => notRevertable($short_path, $full_path, $templateDir, @parentPaths),
+        not_revertible => notRevertible($short_path, $full_path, $templateDir, @parentPaths),
     };
 }
 
@@ -416,7 +416,7 @@ sub notDeletable {
       : json_true();
 }
 
-sub notRevertable {
+sub notRevertible {
     my ($short_path, $full_path, $templateDir, @parentPaths) = @_;
     return ( $full_path eq catfile( $templateDir, $short_path )
           && ( any { -f catfile( $_, $short_path ) } @parentPaths ) )
