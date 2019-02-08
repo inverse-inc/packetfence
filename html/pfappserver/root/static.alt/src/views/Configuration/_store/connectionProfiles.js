@@ -74,15 +74,22 @@ const actions = {
       throw err
     })
   },
-  files: ({ state, commit }, id) => {
+  files: ({ state, commit }, data) => {
     const params = {
-      id,
-      sort: 'name',
-      fields: ['name', 'size', 'entries', 'type', 'not_deletable'].join(',')
+      id: data.id,
+      sort: data.sort.join(','),
+      fields: ['name', 'size', 'entries', 'type', 'not_deletable', 'not_revertible'].join(',')
     }
     commit('FILE_REQUEST')
     return api.connectionProfileFiles(params).then(response => {
-      commit('FILE_REPLACED', { id, files: response })
+      const _walk = (item, path) => {
+        Object.assign(item, { path })
+        if ('entries' in item) {
+          item.entries.forEach(entry => _walk(entry, path ? [path, item.name].join('/') : item.name))
+        }
+      }
+      response.entries.forEach(item => _walk(item, ''))
+      commit('FILE_REPLACED', { id: data.id, files: response })
       return response
     })
   },
@@ -112,6 +119,16 @@ const actions = {
         return { meta, content }
       })
     }).catch((err) => {
+      commit('FILE_ERROR', err.response)
+      throw err
+    })
+  },
+  createFile: ({ commit }, data) => {
+    commit('FILE_REQUEST')
+    return api.createConnectionProfileFile(data).then(response => {
+      commit('FILE_SUCCESS', data)
+      return response
+    }).catch(err => {
       commit('FILE_ERROR', err.response)
       throw err
     })

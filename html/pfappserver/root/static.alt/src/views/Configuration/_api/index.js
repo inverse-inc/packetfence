@@ -274,6 +274,9 @@ export default {
   deleteConnectionProfile: id => {
     return apiCall.delete(`config/connection_profile/${id}`)
   },
+  /**
+   * Connection Profiles Files
+   */
   connectionProfileFiles: params => {
     return apiCall.get(`config/connection_profile/${params.id}/files`, { params }).then(response => {
       return response.data
@@ -281,6 +284,11 @@ export default {
   },
   connectionProfileFile: params => {
     return apiCall.get(`config/connection_profile/${params.id}/files/${params.filename}`).then(response => {
+      return response.data
+    })
+  },
+  createConnectionProfileFile: params => {
+    return apiCall.put(`config/connection_profile/${params.id}/files/${params.filename}`, params.content).then(response => {
       return response.data
     })
   },

@@ -323,7 +323,8 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
     provisionings = [],
     scans = [],
     files = [],
-    general = {}
+    general = {},
+    sortFiles = null
   } = context
 
   // fields differ w/ & wo/ 'default'
@@ -1012,24 +1013,29 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
                   {
                     key: 'name',
                     label: i18n.t('Name'),
-                    class: 'w-50'
+                    class: 'w-50',
+                    sortable: true
                   },
                   {
                     key: 'size',
                     label: i18n.t('Size'),
                     formatter: formatter.fileSize,
-                    class: 'text-right'
+                    class: 'text-right',
+                    sortable: true
                   },
                   {
                     key: 'mtime',
                     label: i18n.t('Last modification'),
                     formatter: formatter.shortDateTime,
-                    class: 'text-right'
+                    class: 'text-right',
+                    sortable: true
                   }
                 ],
                 isLoadingStoreGetter: [storeName, 'isLoadingFiles'].join('/'),
                 childrenKey: 'entries',
                 childrenIf: (item) => item.type === 'dir' && 'entries' in item,
+                sortBy: 'name',
+                onSortingChanged: sortFiles,
                 onNodeClick: (item) => $router.push({ name: 'connectionProfileFile', params: { id: connectionProfile.id, filename: item.path ? [item.path, item.name].join('/') : item.name } })
               }
             }

@@ -38,8 +38,9 @@
           </div>
       </div>
       <b-card-footer>
-        <pf-button-save :disabled="invalidForm" :isLoading="isLoading">{{ $t('Save') }}</pf-button-save>
-        <pf-button-delete v-if="deletable" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Config?')" @on-delete="remove($event)"/>
+        <pf-button-save :disabled="invalidForm" :isLoading="!invalidForm && isLoading">{{ $t('Save') }}</pf-button-save>
+        <pf-button-delete v-if="deletable" class="ml-1" :disabled="isLoading" :confirm="$t('Delete file?')" @on-delete="remove($event)"/>
+        <pf-button-delete v-else-if="revertible" class="ml-1" :disabled="isLoading" :confirm="$t('Discard changes?')" @on-delete="remove($event)">{{ $t('Revert') }}</pf-button-delete>
       </b-card-footer>
     </b-card>
   </b-form>
@@ -80,7 +81,8 @@ export default {
   },
   data () {
     return {
-      deletable: true,
+      deletable: false,
+      revertible: false,
       content: '',
       showLines: true,
       editor: null,
@@ -124,14 +126,17 @@ export default {
     },
     save () {
       const ctrlKey = this.ctrlKey
-      const data = {
+      const params = {
         id: this.id,
         filename: this.filename,
         content: this.content
       }
-      this.$store.dispatch(`${this.storeName}/updateFile`, data).then(response => {
+      const action = this.deletable || this.revertible ? 'update' : 'create'
+      this.$store.dispatch(`${this.storeName}/${action}File`, params).then(response => {
         if (ctrlKey) { // [CTRL] key pressed
           this.close()
+        } else {
+          this.revertible = true
         }
       })
     },
@@ -147,6 +152,7 @@ export default {
       this.$store.dispatch(`${this.storeName}/getFile`, { id: this.id, filename: this.filename }).then(data => {
         this.content = data.content
         this.deletable = !data.meta.not_deletable
+        this.revertible = !data.meta.not_revertible
         this.$nextTick(() => {
           // Enable save button upon modification
           this.editor.on('change', (e) => { this.invalidForm = false })

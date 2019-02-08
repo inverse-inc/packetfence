@@ -1,7 +1,7 @@
 <template>
-  <b-table :items="items" :fields="fields" :class="'table-clickable table-rowindent-' + level"
-    small fixed hover show-empty
-    @row-clicked="onRowClick">
+  <b-table :items="items" :fields="fields" :class="'table-clickable table-rowindent-' + level" :sort-by="sortBy" :sort-desc="false"
+    small fixed hover show-empty no-local-sorting
+    @sort-changed="onSortingChanged" @row-clicked="onRowClick">
     <template slot="name" slot-scope="row">
       <div class="text-lowercase" variant="link"
         v-if="childrenIf(row.item)"
@@ -59,6 +59,14 @@ export default {
     childrenIf: {
       type: Function,
       default: (item) => this.childrenKey in item
+    },
+    sortBy: {
+      type: String,
+      default: null
+    },
+    onSortingChanged: {
+      type: Function,
+      default: null
     },
     onNodeClick: {
       type: Function,

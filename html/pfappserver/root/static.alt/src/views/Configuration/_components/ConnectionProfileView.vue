@@ -171,6 +171,17 @@ export default {
         let message = this.$i18n.t('Server Error - "{field}": {message}', error)
         this.$store.dispatch('notification/danger', { icon: 'server', url: `#${this.$route.fullPath}`, message: message })
       })
+    },
+    sortFiles (params) {
+      let sort = [
+        'type',
+        params.sortDesc ? `${params.sortBy} DESC` : params.sortBy
+      ]
+      if (params.sortBy !== 'name') sort.push('name')
+      this.$store.dispatch(`${this.storeName}/files`, { id: this.id, sort }).then(data => {
+        this.files = data.entries
+      })
+
     }
   },
   created () {
@@ -178,14 +189,7 @@ export default {
       this.$store.dispatch(`${this.storeName}/getConnectionProfile`, this.id).then(data => {
         this.connectionProfile = Object.assign(this.connectionProfile, data)
       })
-      this.$store.dispatch(`${this.storeName}/files`, this.id).then(data => {
-        const _walk = (item, path) => {
-          Object.assign(item, { path })
-          if ('entries' in item) {
-            item.entries.forEach(entry => _walk(entry, path ? [path, item.name].join('/') : item.name))
-          }
-        }
-        data.entries.forEach(item => _walk(item, ''))
+      this.$store.dispatch(`${this.storeName}/files`, { id: this.id, sort: ['type', 'name'] }).then(data => {
         this.files = data.entries
       })
     }
