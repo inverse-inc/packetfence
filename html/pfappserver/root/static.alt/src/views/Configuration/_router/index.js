@@ -17,6 +17,7 @@ import SyslogForwardersStore from '../_store/syslogForwarders'
 import SyslogParsersStore from '../_store/syslogParsers'
 import SwitchesStore from '../_store/switches'
 import SwitchGroupsStore from '../_store/switchGroups'
+import WrixLocationsStore from '../_store/wrixLocations'
 
 /* Policies Access Control */
 const PoliciesAccessControlSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/PoliciesAccessControlSection')
@@ -51,6 +52,8 @@ const SyslogParsersList = () => import(/* webpackChunkName: "Configuration" */ '
 const SyslogParserView = () => import(/* webpackChunkName: "Configuration" */ '../_components/SyslogParserView')
 const SyslogForwardersList = () => import(/* webpackChunkName: "Configuration" */ '../_components/SyslogForwardersList')
 const SyslogForwarderView = () => import(/* webpackChunkName: "Configuration" */ '../_components/SyslogForwarderView')
+const WrixLocationsList = () => import(/* webpackChunkName: "Configuration" */ '../_components/WrixLocationsList')
+const WrixLocationView = () => import(/* webpackChunkName: "Configuration" */ '../_components/WrixLocationView')
 
 /* Network Configuration */
 const NetworkConfigurationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/NetworkConfigurationSection')
@@ -126,6 +129,9 @@ const route = {
     }
     if (!store.state.$_switch_groups) {
       store.registerModule('$_switch_groups', SwitchGroupsStore)
+    }
+    if (!store.state.$_wrix_locations) {
+      store.registerModule('$_wrix_locations', WrixLocationsStore)
     }
     next()
   },
@@ -652,6 +658,40 @@ const route = {
       props: (route) => ({ storeName: '$_syslog_forwarders', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
         store.dispatch('$_syslog_forwarders/getSyslogForwarder', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'wrix',
+      name: 'wrixLocations',
+      component: WrixLocationsList,
+      props: (route) => ({ query: route.query.query })
+    },
+    {
+      path: 'wrix/new',
+      name: 'newWrixLocation',
+      component: WrixLocationView,
+      props: (route) => ({ storeName: '$_wrix_locations', isNew: true })
+    },
+    {
+      path: 'wrix/:id',
+      name: 'wrixLocation',
+      component: WrixLocationView,
+      props: (route) => ({ storeName: '$_wrix_locations', id: route.params.id }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_wrix_locations/getWrixLocation', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'wrix/:id/clone',
+      name: 'cloneWrixLocation',
+      component: WrixLocationView,
+      props: (route) => ({ storeName: '$_wrix_locations', id: route.params.id, isClone: true }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_wrix_locations/getWrixLocation', to.params.id).then(object => {
           next()
         })
       }

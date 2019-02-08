@@ -156,11 +156,16 @@ export const pfConfigurationSyslogForwarderViewFields = (context) => {
           fields: [
             {
               key: 'proto',
-              component: pfFormInput,
+              component: pfFormChosen,
+              attrs: {
+                collapseObject: true,
+                placeholder: i18n.t('Click to add a proto'),
+                trackBy: 'value',
+                label: 'text',
+                options: ['udp', 'tcp'].map(proto => { return { value: proto, text: proto } })
+              },
               validators: {
-                [i18n.t('Value required.')]: required,
-                [i18n.t('Maximum 255 characters.')]: maxLength(255),
-                [i18n.t('Syslog Forwarder exists.')]: not(and(required, conditional(isNew || isClone), syslogForwarderExists))
+                [i18n.t('Value required.')]: required
               }
             }
           ]

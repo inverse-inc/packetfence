@@ -391,6 +391,16 @@ export const userNotExists = (value, component) => {
   })
 }
 
+export const wrixLocationExists = (value, component) => {
+  if (!value) return true
+  return store.dispatch('config/getWrixLocations').then((response) => {
+    if (response.length === 0) return true
+    return (response.filter(wrixLocation => wrixLocation.id.toLowerCase() === value.toLowerCase()).length > 0)
+  }).catch(() => {
+    return true
+  })
+}
+
 /**
  * Field functions
  *

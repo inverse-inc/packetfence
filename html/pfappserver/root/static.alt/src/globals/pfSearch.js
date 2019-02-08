@@ -160,7 +160,7 @@ pfSearchConditionValues[pfSearchConditionType.ROLE] = (store) => {
   return store.getters['config/rolesList']
 }
 pfSearchConditionValues[pfSearchConditionType.SECURITY_EVENT] = (store) => {
-  return store.getters['config/security_eventsList']
+  return store.getters['config/securityEventsList']
 }
 
 export const pfSearchConditionFormatter = {

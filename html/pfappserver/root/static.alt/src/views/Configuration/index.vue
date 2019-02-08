@@ -78,7 +78,8 @@ export default {
             { name: 'Cisco Mobility Services Engine', path: '/configuration/mse' },
             { name: 'Web Services', path: '/configuration/webservices' },
             { name: 'Syslog Parsers', path: '/configuration/pfdetect' },
-            { name: 'Syslog Forwarding', path: '/configuration/syslog' }
+            { name: 'Syslog Forwarding', path: '/configuration/syslog' },
+            { name: 'Wrix', path: '/configuration/wrix' }
           ]
         },
         {

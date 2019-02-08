@@ -121,7 +121,10 @@ const api = {
     return apiCall({ url: 'tenants', method: 'get' })
   },
   getSecurityEvents () {
-    return apiCall({ url: 'config/security_events', method: 'get' })
+    return apiCall({ url: 'config/securityEvents', method: 'get' })
+  },
+  getWrixLocations () {
+    return apiCall({ url: 'wrix_locations', method: 'get' })
   }
 }
 
@@ -209,28 +212,30 @@ const state = { // set intitial states to `false` (not `[]` or `{}`) to avoid in
   syslogParsers: false,
   tenantsStatus: '',
   tenants: false,
-  security_eventsStatus: '',
-  security_events: false
+  securityEventsStatus: '',
+  securityEvents: false,
+  wrixLocationsStatus: '',
+  wrixLocations: false
 }
 
 const helpers = {
-  sortSecurityEvents: (security_events) => {
-    let sortedIds = Object.keys(security_events).sort((a, b) => {
+  sortSecurityEvents: (securityEvents) => {
+    let sortedIds = Object.keys(securityEvents).sort((a, b) => {
       if (a === 'defaults') {
         return a
-      } else if (!security_events[a].desc && !security_events[b].desc) {
+      } else if (!securityEvents[a].desc && !securityEvents[b].desc) {
         return a.localeCompare(b)
-      } else if (!security_events[b].desc) {
+      } else if (!securityEvents[b].desc) {
         return a
-      } else if (!security_events[a].desc) {
+      } else if (!securityEvents[a].desc) {
         return b
       } else {
-        return security_events[a].desc.localeCompare(security_events[b].desc)
+        return securityEvents[a].desc.localeCompare(securityEvents[b].desc)
       }
     })
     let sortedSecurityEvents = []
     for (let id of sortedIds) {
-      sortedSecurityEvents.push(security_events[id])
+      sortedSecurityEvents.push(securityEvents[id])
     }
     return sortedSecurityEvents
   },
@@ -343,6 +348,9 @@ const getters = {
   isLoadingScans: state => {
     return state.scansStatus === types.LOADING
   },
+  isLoadingSecurityEvents: state => {
+    return state.securityEventsStatus === types.LOADING
+  },
   isLoadingSources: state => {
     return state.sourcesStatus === types.LOADING
   },
@@ -361,8 +369,8 @@ const getters = {
   isLoadingTenants: state => {
     return state.tenantsStatus === types.LOADING
   },
-  isLoadingSecurityEvents: state => {
-    return state.security_eventsStatus === types.LOADING
+  isLoadingWrixLocations: state => {
+    return state.wrixLocationsStatus === types.LOADING
   },
   accessDurationsList: state => {
     if (!state.baseGuestsAdminRegistration) return []
@@ -468,13 +476,13 @@ const getters = {
       return { value: item.id, name: item.name }
     })
   },
-  security_eventsList: state => {
-    return helpers.sortSecurityEvents(state.security_events).filter(security_event => security_event.enabled === 'Y').map((item) => {
+  securityEventsList: state => {
+    return helpers.sortSecurityEvents(state.securityEvents).filter(securityEvent => securityEvent.enabled === 'Y').map((item) => {
       return { value: item.id, text: item.desc }
     })
   },
   sortedSecurityEvents: state => {
-    return helpers.sortSecurityEvents(state.security_events)
+    return helpers.sortSecurityEvents(state.securityEvents)
   },
   groupedSwitches: state => {
     return helpers.groupSwitches(state.switches)
@@ -1022,14 +1030,28 @@ const actions = {
     if (getters.isLoadingSecurityEvents) {
       return
     }
-    if (!state.security_events) {
+    if (!state.securityEvents) {
       commit('SECURITY_EVENTS_REQUEST')
       return api.getSecurityEvents().then(response => {
         commit('SECURITY_EVENTS_UPDATED', response.data.items)
-        return state.security_events
+        return state.securityEvents
       })
     } else {
-      return Promise.resolve(state.security_events)
+      return Promise.resolve(state.securityEvents)
+    }
+  },
+  getWrixLocations: ({ commit, getters, state }) => {
+    if (getters.isLoadingWrixLocations) {
+      return
+    }
+    if (!state.wrixLocations) {
+      commit('WRIX_LOCATIONS_REQUEST')
+      return api.getWrixLocations().then(response => {
+        commit('WRIX_LOCATIONS_UPDATED', response.data.items)
+        return state.wrixLocations
+      })
+    } else {
+      return Promise.resolve(state.wrixLocations)
     }
   }
 }
@@ -1302,15 +1324,22 @@ const mutations = {
     state.tenantsStatus = types.SUCCESS
   },
   SECURITY_EVENTS_REQUEST: (state) => {
-    state.security_eventsStatus = types.LOADING
+    state.securityEventsStatus = types.LOADING
   },
-  SECURITY_EVENTS_UPDATED: (state, security_events) => {
+  SECURITY_EVENTS_UPDATED: (state, securityEvents) => {
     let ref = {}
-    for (let security_event of security_events) {
-      ref[security_event.id] = Object.assign({}, security_event)
+    for (let securityEvent of securityEvents) {
+      ref[securityEvent.id] = Object.assign({}, securityEvent)
     }
-    state.security_events = ref
-    state.security_eventsStatus = types.SUCCESS
+    state.securityEvents = ref
+    state.securityEventsStatus = types.SUCCESS
+  },
+  WRIX_LOCATIONS_REQUEST: (state) => {
+    state.wrixLocationsStatus = types.LOADING
+  },
+  WRIX_LOCATIONS_UPDATED: (state, wrixLocations) => {
+    state.wrixLocations = wrixLocations
+    state.wrixLocationsStatus = types.SUCCESS
   }
 }
 
