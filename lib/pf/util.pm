@@ -44,8 +44,7 @@ use Fcntl qw(:DEFAULT);
 use Net::Ping;
 use Crypt::OpenSSL::X509;
 use Date::Parse;
-
-our ( %local_mac );
+use pf::CHI;
 
 BEGIN {
     use Exporter ();
@@ -432,19 +431,20 @@ sub isempty {
     return $FALSE;
 }
 
-# TODO port to IO::Interface::Simple?
 sub getlocalmac {
     my ($dev) = @_;
     return (-1) if ( !$dev );
-    return ( $local_mac{$dev} ) if ( defined $local_mac{$dev} );
-    foreach (`LC_ALL=C /sbin/ifconfig -a`) {
-        if (/^$dev.+HWaddr\s+(\w\w:\w\w:\w\w:\w\w:\w\w:\w\w)/i) {
-            # cache the value
-            $local_mac{$dev} = clean_mac($1);
-            return $local_mac{$dev};
+    my $chi = pf::CHI->new(namespace => 'local_mac');
+    my $mac = $chi->compute($dev, sub {
+        foreach (`LC_ALL=C /sbin/ifconfig -a $dev`) {
+            if (/ether\s+(\w\w:\w\w:\w\w:\w\w:\w\w:\w\w)/i) {
+                # cache the value
+                return clean_mac($1);
+            }
         }
-    }
-    return (0);
+        return (0);
+    });
+    return $mac;
 }
 
 sub ip2int {
