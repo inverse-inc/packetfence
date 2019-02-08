@@ -137,7 +137,7 @@ export default {
             return _find(item.items)
           }
           return ((item.path instanceof Object && 'name' in item.path && item.path.name === this.$route.name) ||
-            this.$route.path.indexOf(item.path.slice(0, -1)) === 0)
+            (item.path instanceof String && this.$route.path.indexOf(item.path.slice(0, -1)) === 0))
         })
       }
       return this.filteredMode || _find(items)
