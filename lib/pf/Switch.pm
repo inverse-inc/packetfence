@@ -290,7 +290,7 @@ sub supportsMABFloatingDevices {
     return $FALSE;
 }
 
-=item supportVPN
+=item supportsVPN
 
 =cut
 
