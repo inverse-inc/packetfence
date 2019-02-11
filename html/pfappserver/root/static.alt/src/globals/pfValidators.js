@@ -215,6 +215,118 @@ export const compareDate = (comparison, date = new Date(), dateFormat = 'YYYY-MM
   })
 }
 
+export const hasBillingTiers = (value, component) => {
+  return store.dispatch('config/getBillingTiers').then((response) => {
+    return (response.length > 0)
+  }).catch(() => {
+    return true
+  })
+}
+
+export const hasConnectionProfiles = (value, component) => {
+  return store.dispatch('config/getConnectionProfiles').then((response) => {
+    return (response.length > 0)
+  }).catch(() => {
+    return true
+  })
+}
+
+export const hasDomains = (value, component) => {
+  return store.dispatch('config/getDomains').then((response) => {
+    return (response.length > 0)
+  }).catch(() => {
+    return true
+  })
+}
+
+export const hasFirewalls = (value, component) => {
+  return store.dispatch('config/getFirewalls').then((response) => {
+    return (response.length > 0)
+  }).catch(() => {
+    return true
+  })
+}
+
+export const hasFloatingDevices = (value, component) => {
+  return store.dispatch('config/getFloatingDevices').then((response) => {
+    return (response.length > 0)
+  }).catch(() => {
+    return true
+  })
+}
+
+export const hasRealms = (value, component) => {
+  return store.dispatch('config/getRealms').then((response) => {
+    return (response.length > 0)
+  }).catch(() => {
+    return true
+  })
+}
+
+export const hasRoles = (value, component) => {
+  return store.dispatch('config/getRoles').then((response) => {
+    return (response.length > 0)
+  }).catch(() => {
+    return true
+  })
+}
+
+export const hasScans = (value, component) => {
+  return store.dispatch('config/getScans').then((response) => {
+    return (response.length > 0)
+  }).catch(() => {
+    return true
+  })
+}
+
+export const hasSources = (value, component) => {
+  return store.dispatch('config/getSources').then((response) => {
+    return (response.length > 0)
+  }).catch(() => {
+    return true
+  })
+}
+
+export const hasSwitches = (value, component) => {
+  return store.dispatch('config/getSwitches').then((response) => {
+    return (response.length > 0)
+  }).catch(() => {
+    return true
+  })
+}
+
+export const hasSwitchGroups = (value, component) => {
+  return store.dispatch('config/getSwitchGroups').then((response) => {
+    return (response.length > 0)
+  }).catch(() => {
+    return true
+  })
+}
+
+export const hasSyslogForwarders = (value, component) => {
+  return store.dispatch('config/getSyslogForwarders').then((response) => {
+    return (response.length > 0)
+  }).catch(() => {
+    return true
+  })
+}
+
+export const hasSyslogParsers = (value, component) => {
+  return store.dispatch('config/getSyslogParsers').then((response) => {
+    return (response.length > 0)
+  }).catch(() => {
+    return true
+  })
+}
+
+export const hasWrixLocations = (value, component) => {
+  return store.dispatch('config/getWrixLocations').then((response) => {
+    return (response.length > 0)
+  }).catch(() => {
+    return true
+  })
+}
+
 export const billingTierExists = (value, component) => {
   if (!value) return true
   return store.dispatch('config/getBillingTiers').then((response) => {
@@ -333,26 +445,6 @@ export const sourceExists = (value, component) => {
   })
 }
 
-export const syslogForwarderExists = (value, component) => {
-  if (!value) return true
-  return store.dispatch('config/getSyslogForwarders').then((response) => {
-    if (response.length === 0) return true
-    return (response.filter(syslogForwarder => syslogForwarder.id.toLowerCase() === value.toLowerCase()).length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const syslogParserExists = (value, component) => {
-  if (!value) return true
-  return store.dispatch('config/getSyslogParsers').then((response) => {
-    if (response.length === 0) return true
-    return (response.filter(syslogParser => syslogParser.id.toLowerCase() === value.toLowerCase()).length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
 export const switchExists = (value, component) => {
   if (!value) return true
   return store.dispatch('config/getSwitches').then((response) => {
@@ -373,6 +465,26 @@ export const switchGroupExists = (value, component) => {
   })
 }
 
+
+export const syslogForwarderExists = (value, component) => {
+  if (!value) return true
+  return store.dispatch('config/getSyslogForwarders').then((response) => {
+    if (response.length === 0) return true
+    return (response.filter(syslogForwarder => syslogForwarder.id.toLowerCase() === value.toLowerCase()).length > 0)
+  }).catch(() => {
+    return true
+  })
+}
+
+export const syslogParserExists = (value, component) => {
+  if (!value) return true
+  return store.dispatch('config/getSyslogParsers').then((response) => {
+    if (response.length === 0) return true
+    return (response.filter(syslogParser => syslogParser.id.toLowerCase() === value.toLowerCase()).length > 0)
+  }).catch(() => {
+    return true
+  })
+}
 export const userExists = (value, component) => {
   if (!value) return true
   return store.dispatch('$_users/exists', value).then(results => {

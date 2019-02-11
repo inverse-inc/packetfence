@@ -11,6 +11,7 @@ import {
   and,
   not,
   conditional,
+  hasRealms,
   realmExists
 } from '@/globals/pfValidators'
 
@@ -90,7 +91,7 @@ export const pfConfigurationRealmViewFields = (context = {}) => {
                 [i18n.t('Realm required.')]: required,
                 [i18n.t('Maximum 255 characters.')]: maxLength(255),
                 [i18n.t('Alphanumeric characters only.')]: alphaNum,
-                [i18n.t('Realm exists.')]: not(and(required, conditional(isNew || isClone), realmExists))
+                [i18n.t('Realm exists.')]: not(and(required, conditional(isNew || isClone), hasRealms, realmExists))
               }
             }
           ]

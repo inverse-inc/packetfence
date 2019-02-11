@@ -15,6 +15,7 @@ import {
   and,
   not,
   conditional,
+  hasScans,
   scanExists,
   isFQDN,
   isPort
@@ -124,7 +125,7 @@ export const pfConfigurationScanEngineViewFields = (context = {}) => {
                 [i18n.t('Name required.')]: required,
                 [i18n.t('Maximum 255 characters.')]: maxLength(255),
                 [i18n.t('Alphanumeric characters only.')]: alphaNum,
-                [i18n.t('Name exists.')]: not(and(required, conditional(isNew || isClone), scanExists))
+                [i18n.t('Name exists.')]: not(and(required, conditional(isNew || isClone), hasScans, scanExists))
               }
             }
           ]

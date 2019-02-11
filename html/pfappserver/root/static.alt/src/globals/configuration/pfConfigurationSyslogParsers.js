@@ -16,6 +16,7 @@ import {
   and,
   not,
   conditional,
+  hasSyslogParsers,
   syslogParserExists,
   limitSiblingFields
 } from '@/globals/pfValidators'
@@ -291,7 +292,7 @@ export const pfConfigurationSyslogParserViewFields = (context) => {
               validators: {
                 [i18n.t('Value required.')]: required,
                 [i18n.t('Maximum 255 characters.')]: maxLength(255),
-                [i18n.t('Syslog Parser exists.')]: not(and(required, conditional(isNew || isClone), syslogParserExists))
+                [i18n.t('Syslog Parser exists.')]: not(and(required, conditional(isNew || isClone), hasSyslogParsers, syslogParserExists))
               }
             }
           ]

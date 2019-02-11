@@ -14,6 +14,7 @@ import {
   conditional,
   isFQDN,
   isPort,
+  hasFirewalls,
   firewallExists
 } from '@/globals/pfValidators'
 
@@ -101,7 +102,7 @@ export const pfConfigurationFirewallViewFields = (context) => {
                 [i18n.t('Value required.')]: required,
                 [i18n.t('Maximum 255 characters.')]: maxLength(255),
                 [i18n.t('Invalid Hostname or IP Address.')]: or(isFQDN, ipAddress),
-                [i18n.t('Firewall exists.')]: not(and(required, conditional(isNew || isClone), firewallExists))
+                [i18n.t('Firewall exists.')]: not(and(required, conditional(isNew || isClone), hasFirewalls, firewallExists))
               }
             }
           ]

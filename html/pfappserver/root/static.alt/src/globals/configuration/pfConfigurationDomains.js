@@ -14,6 +14,7 @@ import {
   not,
   conditional,
   isFQDN,
+  hasDomains,
   domainExists
 } from '@/globals/pfValidators'
 
@@ -101,7 +102,7 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
                 [i18n.t('Value required.')]: required,
                 [i18n.t('Maximum 255 characters.')]: maxLength(255),
                 [i18n.t('Alphanumeric characters only.')]: alphaNum,
-                [i18n.t('Domain exists.')]: not(and(required, conditional(isNew || isClone), domainExists))
+                [i18n.t('Domain exists.')]: not(and(required, conditional(isNew || isClone), hasDomains, domainExists))
               }
             }
           ]
@@ -177,6 +178,19 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
           ]
         },
         {
+          label: i18n.t('DNS server(s)'),
+          text: i18n.t('The IP address(es) of the DNS server(s) for this domain. Comma delimited if multiple.'),
+          fields: [
+            {
+              key: 'dns_servers',
+              component: pfFormInput,
+              validators: {
+                [i18n.t('Value required.')]: required
+              }
+            }
+          ]
+        },
+        {
           label: i18n.t('Username'),
           text: i18n.t('The username of a Domain Admin to use to join the server to the domain.'),
           fields: [
@@ -184,6 +198,7 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
               key: 'bind_dn',
               component: pfFormInput,
               validators: {
+                [i18n.t('Value required.')]: required,
                 [i18n.t('Maximum 255 characters.')]: maxLength(255)
               }
             }
@@ -197,6 +212,7 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
               key: 'bind_pass',
               component: pfFormPassword,
               validators: {
+                [i18n.t('Value required.')]: required,
                 [i18n.t('Maximum 255 characters.')]: maxLength(255)
               }
             }

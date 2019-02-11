@@ -22,6 +22,7 @@ import {
   compareDate,
   isDateFormat,
   isPort,
+  hasSources,
   sourceExists,
   requireAllSiblingFields,
   requireAnySiblingFields,
@@ -737,7 +738,7 @@ export const pfConfigurationViewFields = {
             [i18n.t('Value required.')]: required,
             [i18n.t('Maximum 255 characters.')]: maxLength(255),
             [i18n.t('Alphanumeric characters only.')]: alphaNum,
-            [i18n.t('Source exists.')]: not(and(required, conditional(isNew || isClone), sourceExists))
+            [i18n.t('Source exists.')]: not(and(required, conditional(isNew || isClone), hasSources, sourceExists))
           }
         }
       ]

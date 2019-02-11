@@ -10,6 +10,7 @@ import {
   and,
   not,
   conditional,
+  hasFloatingDevices,
   floatingDeviceExists
 } from '@/globals/pfValidators'
 
@@ -95,7 +96,7 @@ export const pfConfigurationFloatingDeviceViewFields = (context = {}) => {
                 [i18n.t('MAC address required.')]: required,
                 [i18n.t('Maximum 255 characters.')]: maxLength(255),
                 [i18n.t('Enter a valid MAC address.')]: macAddress(),
-                [i18n.t('Floating Device exists.')]: not(and(required, conditional(isNew || isClone), floatingDeviceExists))
+                [i18n.t('Floating Device exists.')]: not(and(required, conditional(isNew || isClone), hasFloatingDevices, floatingDeviceExists))
               }
             }
           ]

@@ -8,6 +8,7 @@ import {
   and,
   not,
   conditional,
+  hasRoles,
   roleExists
 } from '@/globals/pfValidators'
 
@@ -90,7 +91,7 @@ export const pfConfigurationRoleViewFields = (context = {}) => {
                 [i18n.t('Name required.')]: required,
                 [i18n.t('Maximum 255 characters.')]: maxLength(255),
                 [i18n.t('Alphanumeric value required.')]: alphaNum,
-                [i18n.t('Role exists.')]: not(and(required, conditional(isNew || isClone), roleExists))
+                [i18n.t('Role exists.')]: not(and(required, conditional(isNew || isClone), hasRoles, roleExists))
               }
             }
           ]

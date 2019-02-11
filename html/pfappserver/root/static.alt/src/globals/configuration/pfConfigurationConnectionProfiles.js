@@ -19,6 +19,7 @@ import {
   and,
   not,
   conditional,
+  hasConnectionProfiles,
   connectionProfileExists,
   isPort,
   limitSiblingFields
@@ -348,7 +349,7 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
                 [i18n.t('Name required.')]: required,
                 [i18n.t('Maximum 255 characters.')]: maxLength(255),
                 [i18n.t('Alphanumeric characters only.')]: alphaNum,
-                [i18n.t('Connection Profile exists.')]: not(and(required, conditional(isNew || isClone), connectionProfileExists))
+                [i18n.t('Connection Profile exists.')]: not(and(required, conditional(isNew || isClone), hasConnectionProfiles, connectionProfileExists))
               }
             }
           ]

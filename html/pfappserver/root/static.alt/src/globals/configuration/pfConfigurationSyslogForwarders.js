@@ -13,6 +13,7 @@ import {
   conditional,
   isFQDN,
   isPort,
+  hasSyslogForwarders,
   syslogForwarderExists
 } from '@/globals/pfValidators'
 
@@ -146,7 +147,7 @@ export const pfConfigurationSyslogForwarderViewFields = (context) => {
               validators: {
                 [i18n.t('Value required.')]: required,
                 [i18n.t('Maximum 255 characters.')]: maxLength(255),
-                [i18n.t('Syslog Forwarder exists.')]: not(and(required, conditional(isNew || isClone), syslogForwarderExists))
+                [i18n.t('Syslog Forwarder exists.')]: not(and(required, conditional(isNew || isClone), hasSyslogForwarders, syslogForwarderExists))
               }
             }
           ]
