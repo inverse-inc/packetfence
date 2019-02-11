@@ -3074,6 +3074,34 @@ sub parseRequestUsername {
     }
 }
 
+=item parseVPNRequest
+
+Takes FreeRADIUS' RAD_REQUEST hash and process it to return
+NAS Port type
+Network Device IP
+EAP
+NAS-Port (port)
+User-Name
+
+=cut
+
+sub parseVPNRequest {
+    my ( $self, $radius_request ) = @_;
+    my $logger = $self->logger;
+
+    my $client_ip       = ref($radius_request->{'Calling-Station-Id'}) eq 'ARRAY'
+                           ? clean_ip($radius_request->{'Calling-Station-Id'}[0])
+                           : clean_ip($radius_request->{'Calling-Station-Id'});
+
+    my $user_name       = $radius_request->{'PacketFence-UserNameAttribute'} || $radius_request->{'TLS-Client-Cert-Subject-Alt-Name-Upn'} || $radius_request->{'TLS-Client-Cert-Common-Name'} || $radius_request->{'User-Name'};
+    my $nas_port_type   = $radius_request->{'NAS-Port-Type'};
+    my $port            = $radius_request->{'NAS-Port'};
+    my $eap_type        = ( exists($radius_request->{'EAP-Type'}) ? $radius_request->{'EAP-Type'} : 0 );
+    my $nas_port_id     = ( defined($radius_request->{'NAS-Port-Id'}) ? $radius_request->{'NAS-Port-Id'} : undef );
+
+    return ($nas_port_type, $eap_type, undef, $port, $user_name, $nas_port_id, undef, $nas_port_id);
+}
+
 =item getAcceptForm
 
 Get the accept form that will trigger the device registration on the switch

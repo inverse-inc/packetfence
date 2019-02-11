@@ -2,11 +2,11 @@ package pf::Switch::Fortinet::FortiGate;
 
 =head1 NAME
 
-pf::Switch::Fortinet::FortiGate - Object oriented module to FortiGate using the external captive portal
+pf::Switch::Fortinet::FortiGate - Object oriented module to FortiGate using the external captive portal and VPN
 
 =head1 SYNOPSIS
 
-The pf::Switch::Fortinet::FortiGate  module implements an object oriented interface to interact with the FortiGate captive portal
+The pf::Switch::Fortinet::FortiGate  module implements an object oriented interface to interact with the FortiGate captive portal and with VPN
 
 =head1 STATUS
 
@@ -47,6 +47,7 @@ sub supportsWebFormRegistration { return $TRUE }
 sub supportsWirelessMacAuth { return $TRUE; }
 sub supportsWiredMacAuth { return $TRUE; }
 sub supportsWirelessDot1x { return $TRUE; }
+sub supportsVPN { return $TRUE; }
 
 =item getIfIndexByNasPortId
 
@@ -189,6 +190,75 @@ return a constant since there is no api for this
 sub getVersion {
     my ($self) = @_;
     return 0;
+}
+
+=item vpnAttributes
+
+Determine if the radius request is a VPN request
+
+=cut
+
+
+sub vpnAttributes {
+    my ( $self, %radius_request ) = @_;
+
+    my @require = qw(Fortinet-Vdom-Name);
+    my @found = grep {exists $radius_request{$_}} @require;
+
+    if (pf::util::validate_argv(\@require,  \@found)) {
+        return $TRUE;
+    } else {
+        return $FALSE;
+    }
+}
+
+
+=item returnAuthorizeVPN
+
+Return radius attributes to allow VPN access
+
+=cut
+
+sub returnRadiusAuthorizeVPN {
+    my ($self, $args) = @_;
+    my $logger = $self->logger;
+
+
+    my $radius_reply_ref = {};
+    my $status;
+    # should this node be kicked out?
+    my $kick = $self->handleRadiusDeny($args);
+    return $kick if (defined($kick));
+
+    my $node = $args->{'node_info'};
+    my $filter = pf::access_filter::radius->new;
+    my $rule = $filter->test('returnRadiusAccessAccept', $args);
+    $logger->info("Returning ACCEPT");
+    ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
+    return [$status, %$radius_reply_ref];
+}
+
+=item parseVPNRequest
+
+Redefinition of pf::Switch::parseVPNRequest due to specific attribute being used
+
+=cut
+
+sub parseVPNRequest {
+    my ( $self, $radius_request ) = @_;
+    my $logger = $self->logger;
+
+    my $client_ip       = ref($radius_request->{'Calling-Station-Id'}) eq 'ARRAY'
+                           ? clean_ip($radius_request->{'Calling-Station-Id'}[0])
+                           : clean_ip($radius_request->{'Calling-Station-Id'});
+
+    my $user_name       = $radius_request->{'PacketFence-UserNameAttribute'} || $radius_request->{'TLS-Client-Cert-Subject-Alt-Name-Upn'} || $radius_request->{'TLS-Client-Cert-Common-Name'} || $radius_request->{'User-Name'};
+    my $nas_port_type   = $radius_request->{'NAS-Port-Type'};
+    my $port            = $radius_request->{'NAS-Port'};
+    my $eap_type        = ( exists($radius_request->{'EAP-Type'}) ? $radius_request->{'EAP-Type'} : 0 );
+    my $nas_port_id     = ( defined($radius_request->{'NAS-Port-Id'}) ? $radius_request->{'NAS-Port-Id'} : undef );
+
+    return ($nas_port_type, $eap_type, undef, $port, $user_name, $nas_port_id, undef, $nas_port_id);
 }
 
 

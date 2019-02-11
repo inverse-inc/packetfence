@@ -43,7 +43,7 @@ use pf::config qw(
     %ConfigFloatingDevices
     $WIRELESS_MAC_AUTH
     $WIRELESS_802_1X
-    $WEBAUTH_VPN
+    $VPN
 );
 use pf::client;
 use pf::locationlog;
@@ -861,41 +861,43 @@ sub switch_access {
 
     if ($switch->vpnAttributes($radius_request)) {
 
-        my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id, $ifDesc) = $switch->parseRequest($radius_request);
-        $args->{'nas_port_type'} = $nas_port_type;
+        my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id, $ifDesc) = $switch->parseVPNRequest($radius_request);
+        $args->{'nas_port_type'} = $nas_port_type // '';
         $args->{'eap_type'} = $eap_type // '';
-        $args->{'mac'} = $mac;
-        $args->{'ifIndex'} = $port;
-        $args->{'ifDesc'} = $ifDesc;
+        $args->{'mac'} = $mac // '';
+        $args->{'ifIndex'} = $port // '';
+        $args->{'ifDesc'} = $ifDesc // '';
         $args->{'nas_port_id'} = $nas_port_type // '';
-        $args->{'session_id'} = $session_id;
+        $args->{'session_id'} = $session_id // '';
 
-        my $role_obj = new pf::role::custom();
+        if (defined($mac)) {
+            my $role_obj = new pf::role::custom();
 
-        my ($status_code, $node_obj) = pf::dal::node->find_or_create({"mac" => $mac});
-        if (is_error($status_code)) {
-            $node_obj = pf::dal::node->new({"mac" => $mac});
+            my ($status_code, $node_obj) = pf::dal::node->find_or_create({"mac" => $mac});
+            if (is_error($status_code)) {
+                $node_obj = pf::dal::node->new({"mac" => $mac});
+            }
+            $node_obj->_load_locationlog;
+            # update last_seen of MAC address as some activity from it has been seen
+            $node_obj->update_last_seen();
+
+            if (defined($session_id)) {
+                $node_obj->sessionid($session_id);
+            }
+
+            $args->{'node_info'} = $node_obj;
+            $args->{'fingerbank_info'} = pf::node::fingerbank_info($mac, $node_obj);
+
+            my $role = $role_obj->fetchRoleForNode($args);
+            $args->{'user_role'} = $role->{role};
+            my $status = $node_obj->save;
+            if (is_error($status)) {
+                $logger->error("Cannot save $mac error ($status)");
+            }
+            $switch->synchronize_locationlog($port, undef, $mac,
+                $args->{'isPhone'} ? $VOIP : $NO_VOIP, $VPN, undef, $user_name, undef, $stripped_user_name, $realm, $args->{'user_role'}, $ifDesc
+            );
         }
-        $node_obj->_load_locationlog;
-        # update last_seen of MAC address as some activity from it has been seen
-        $node_obj->update_last_seen();
-
-        if (defined($session_id)) {
-            $node_obj->sessionid($session_id);
-        }
-
-        $args->{'node_info'} = $node_obj;
-        $args->{'fingerbank_info'} = pf::node::fingerbank_info($mac, $node_obj);
-
-        my $role = $role_obj->fetchRoleForNode($args);
-        $args->{'user_role'} = $role->{role};
-        my $status = $node_obj->save;
-        if (is_error($status)) {
-            $logger->error("Cannot save $mac error ($status)");
-        }
-        $switch->synchronize_locationlog($port, undef, $mac,
-            $args->{'isPhone'} ? $VOIP : $NO_VOIP, $WEBAUTH_VPN, undef, $user_name, undef, $stripped_user_name, $realm, $args->{'user_role'}, $ifDesc
-        );
         return $switch->returnAuthorizeVPN($args);
 
     } else {
@@ -917,9 +919,6 @@ sub switch_access {
                 $logger->info("User $args->{'user_name'} has no role (Switches CLI - Read or Switches CLI - Write) to permit to login in $args->{'switch'}{'_id'}");
                 return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "User has no role defined in PacketFence to allow switch login (SWITCH_LOGIN_READ or SWITCH_LOGIN_WRITE)") ];
             }
-        } else {
-            $logger->info("User $args->{'user_name'} tried to login in $args->{'switch'}{'_id'} but authentication failed");
-            return [ $RADIUS::RLM_MODULE_FAIL, ( 'Reply-Message' => "Authentication failed on PacketFence" ) ];
         }
     }
 }

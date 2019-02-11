@@ -125,7 +125,7 @@ sub deauthTechniques {
 
 =item returnAuthorizeVPN
 
-Return radius attributes to allow write access
+Return radius attributes to allow VPN access
 
 =cut
 
@@ -343,13 +343,13 @@ sub radiusDisconnect {
     return;
 }
 
-=item parseRequest
+=item parseVPNRequest
 
-Redefinition of pf::Switch::parseRequest due to specific attribute being used for webauth
+Redefinition of pf::Switch::parseVPNRequest due to specific attribute being used
 
 =cut
 
-sub parseRequest {
+sub parseVPNRequest {
     my ( $self, $radius_request ) = @_;
     my $logger = $self->logger;
 
