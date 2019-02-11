@@ -1,5 +1,8 @@
 import i18n from '@/utils/locale'
+import pfFormHtml from '@/components/pfFormHtml'
 import pfFormInput from '@/components/pfFormInput'
+import pfFormPassword from '@/components/pfFormPassword'
+import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import {
   pfConfigurationListColumns,
   pfConfigurationListFields
@@ -87,7 +90,7 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
                 disabled: (!isNew && !isClone)
               },
               validators: {
-                [i18n.t('Name required.')]: required,
+                [i18n.t('Value required.')]: required,
                 [i18n.t('Maximum 255 characters.')]: maxLength(255),
                 [i18n.t('Alphanumeric characters only.')]: alphaNum,
                 [i18n.t('Domain exists.')]: not(and(required, conditional(isNew || isClone), domainExists))
@@ -102,7 +105,7 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
               key: 'workgroup',
               component: pfFormInput,
               validators: {
-                [i18n.t('Workgroup required.')]: required,
+                [i18n.t('Value required.')]: required,
                 [i18n.t('Maximum 255 characters.')]: maxLength(255)
               }
             }
@@ -116,7 +119,7 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
               key: 'dns_name',
               component: pfFormInput,
               validators: {
-                [i18n.t('DNS name required.')]: required,
+                [i18n.t('Value required.')]: required,
                 [i18n.t('Maximum 255 characters.')]: maxLength(255),
                 [i18n.t('Fully Qualified Domain Name required.')]: isFQDN
               }
@@ -131,7 +134,7 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
               key: 'server_name',
               component: pfFormInput,
               validators: {
-                [i18n.t('Server name required.')]: required,
+                [i18n.t('Value required.')]: required,
                 [i18n.t('Maximum 255 characters.')]: maxLength(255)
               }
             }
@@ -145,7 +148,7 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
               key: 'sticky_dc',
               component: pfFormInput,
               validators: {
-                [i18n.t('Sticky DC required.')]: required,
+                [i18n.t('Value required.')]: required,
                 [i18n.t('Maximum 255 characters.')]: maxLength(255)
               }
             }
@@ -159,7 +162,7 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
               key: 'ad_server',
               component: pfFormInput,
               validators: {
-                [i18n.t('Active Directory server required.')]: required,
+                [i18n.t('Value required.')]: required,
                 [i18n.t('Maximum 255 characters.')]: maxLength(255)
               }
             }
@@ -184,12 +187,50 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
           fields: [
             {
               key: 'bind_pass',
-              component: pfFormInput,
-              attrs: {
-                type: 'password'
-              },
+              component: pfFormPassword,
               validators: {
                 [i18n.t('Maximum 255 characters.')]: maxLength(255)
+              }
+            }
+          ]
+        },
+        {
+          label: i18n.t('OU'),
+          text: i18n.t(`Precreate the computer account in a specific OU. The OU string read from top to bottom without RDNs and delimited by a '/'. E.g. "Computers/Servers/Unix".`),
+          fields: [
+            {
+              key: 'ou',
+              component: pfFormInput,
+              validators: {
+                [i18n.t('Value required.')]: required,
+                [i18n.t('Maximum 255 characters.')]: maxLength(255)
+              }
+            }
+          ]
+        },
+        {
+          label: i18n.t('Allow on registration'),
+          text: i18n.t('If this option is enabled, the device will be able to reach the Active Directory from the registration VLAN.'),
+          fields: [
+            {
+              key: 'registration',
+              component: pfFormRangeToggle,
+              attrs: {
+                values: { checked: '1', unchecked: '0' }
+              }
+            }
+          ]
+        },
+        {
+          label: null, /* no label */
+          fields: [
+            {
+              component: pfFormHtml,
+              attrs: {
+                html: `<div class="p-3 bg-warning text-secondary">
+                  <strong>${i18n.t('Note')}</strong>
+                  ${i18n.t('"Allow on registration" option requires passthroughs to be enabled as well as configured to allow both the domain DNS name and each domain controllers DNS name (or *.dns name)')}\n${i18n.t('Example: inverse.local, *.inverse.local')}
+                </div>`
               }
             }
           ]
