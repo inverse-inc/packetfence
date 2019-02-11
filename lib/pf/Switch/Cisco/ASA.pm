@@ -97,7 +97,7 @@ sub deauthenticateMacDefault {
         return 1;
     }
 
-    $logger->debug("Change the state of  $mac using RADIUS CoA");
+    $logger->debug("Change the state of $mac using RADIUS CoA");
     # TODO push Login-User => 1 (RFC2865) in pf::radius::constants if someone ever reads this
     # (not done because it doesn't exist in current branch)
     return $self->radiusDisconnect( $mac, { 'Service-Type' => 'Login-User'} );
@@ -246,7 +246,7 @@ sub radiusDisconnect {
         return;
     }
 
-    $logger->info("CoAticating");
+    $logger->info("Sending CoA");
 
     # Where should we send the RADIUS CoA-Request?
     # to network device by default
@@ -380,7 +380,7 @@ sub parseRequest {
 
 =item parseExternalPortalRequest
 
-Parse external portal request using URI and it's parameters then return an hash reference with the appropriate parameters
+Parse external portal request using URI and its parameters then return a hash reference with the appropriate parameters
 
 See L<pf::web::externalportal::handle>
 
@@ -393,7 +393,7 @@ sub parseExternalPortalRequest {
     # Using a hash to contain external portal parameters
     my %params = ();
 
-    # Cisco WLC uses external portal session ID handling process
+    # Cisco ASA uses external portal session ID handling process
     my $uri = $r->uri;
     return unless ($uri =~ /.*sid(.*[^\/])/);
     my $session_id = $1;
@@ -463,7 +463,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 
