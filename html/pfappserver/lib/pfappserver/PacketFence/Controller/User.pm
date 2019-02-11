@@ -19,11 +19,6 @@ use namespace::autoclean;
 use POSIX;
 use SQL::Abstract::More;
 use JSON::MaybeXS;
-use pfappserver::Form::User;
-use pfappserver::Form::User::Create;
-use pfappserver::Form::User::Create::Single;
-use pfappserver::Form::User::Create::Multiple;
-use pfappserver::Form::User::Create::Import;
 use pf::admin_roles;
 use pf::authentication qw(getAuthenticationSource);
 use pf::config qw(%Config);
@@ -103,7 +98,7 @@ sub view :Chained('object') :PathPart('read') :Args(0) :AdminRoleAny(USERS_READ)
     my ($form);
     my $user = $c->stash->{user};
 
-    $form = pfappserver::Form::User->new(ctx => $c, init_object => $user);
+    $form = $self->getForm($c, 'User', init_object => $user);
     $form->process();
     $form->field('actions')->add_extra unless @{$user->{actions}}; # an action must be chosen
     $c->stash->{form} = $form;
@@ -157,7 +152,7 @@ sub update :Chained('object') :PathPart('update') :Args(0) :AdminRole('USERS_UPD
 
     my ($form, $status, $message);
 
-    $form = pfappserver::Form::User->new(ctx => $c, init_object => $c->stash->{user});
+    $form = $self->getForm($c, "User", init_object => $c->stash->{user});
     $form->process(params => $c->request->params);
     if ($form->has_errors) {
         $status = HTTP_BAD_REQUEST;
@@ -255,10 +250,10 @@ sub create :Local :AdminRoleAny('USERS_CREATE') :AdminRoleAny('USERS_CREATE_MULI
         @roles = @$result;
     }
 
-    $form = pfappserver::Form::User::Create->new(ctx => $c, roles => \@roles);
-    $form_single = pfappserver::Form::User::Create::Single->new(ctx => $c);
-    $form_multiple = pfappserver::Form::User::Create::Multiple->new(ctx => $c);
-    $form_import = pfappserver::Form::User::Create::Import->new(ctx => $c);
+    $form = $self->getForm($c, "User::Create", roles => \@roles);
+    $form_single = $self->getForm($c, "User::Create::Single");
+    $form_multiple = $self->getForm($c, "User::Create::Multiple");
+    $form_import = $self->getForm($c, "User::Create::Import");
 
     if (scalar(keys %{$c->request->params}) > 1) {
         # We consider the request parameters only if we have at least two entries.

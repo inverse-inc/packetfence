@@ -23,10 +23,6 @@ use pf::config qw(%Config);
 use pf::util;
 use pf::violation;
 
-use pfappserver::Form::Node;
-use pfappserver::Form::Node::Create::Import;
-
-
 BEGIN { extends 'pfappserver::Base::Controller'; }
 with 'pfappserver::Role::Controller::BulkActions';
 
@@ -174,8 +170,8 @@ sub create :Local : AdminRole('NODES_CREATE') {
     my %allowed_roles = map { $_->{name} => undef } @$roles;
     $node_status = $c->model('Node')->availableStatus();
 
-    $form_single = pfappserver::Form::Node->new(ctx => $c, status => $node_status, roles => $roles);
-    $form_import = pfappserver::Form::Node::Create::Import->new(ctx => $c, roles => $roles);
+    $form_single = $self->getForm($c, "Node", status => $node_status, roles => $roles);
+    $form_import = $self->getForm($c, "Node::Create::Import", roles => $roles);
 
     if (scalar(keys %{$c->request->params}) > 1) {
         # We consider the request parameters only if we have at least two entries.
