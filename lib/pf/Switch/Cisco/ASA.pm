@@ -58,8 +58,14 @@ sub description { 'Cisco ASA Firewall' }
 
 # CAPABILITIES
 # access technology supported
+sub supportsRadiusDynamicVlanAssignment { return $TRUE; }
+
+sub supportsAccessListBasedEnforcement { return $TRUE }
 
 sub supportsExternalPortal { return $TRUE; }
+
+sub supportsRoleBasedEnforcement { return $TRUE; }
+
 sub supportsVPN { return $TRUE; }
 
 sub vpnAttributes {
@@ -136,6 +142,52 @@ sub returnAuthorizeVPN {
 
     my @av_pairs = defined($radius_reply_ref->{'Cisco-AVPair'}) ? @{$radius_reply_ref->{'Cisco-AVPair'}} : ();
 
+    if (isenabled($self->{_VlanMap}) && $self->supportsRadiusDynamicVlanAssignment ) {
+        if( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined($self->getVlanByName($args->{'user_role'}))) {
+            my $vlan = $self->getVlanByName($args->{'user_role'});
+            $args->{'vlan'} = $vlan;
+            my $vlanpool = new pf::role::pool;
+            $vlan = $vlanpool->getVlanFromPool($args);
+            push(@av_pairs, "Tunnel-Medium-Type=$RADIUS::ETHERNET;Tunnel-Type=$RADIUS::VLAN;Tunnel-Private-Group-ID=$vlan");
+            delete $radius_reply_ref->{'Tunnel-Medium-Type'};
+            delete $radius_reply_ref->{'Tunnel-Type'};
+            delete $radius_reply_ref->{'Tunnel-Type'};
+        }
+    }
+    if ( isenabled($self->{_RoleMap}) && $self->supportsRoleBasedEnforcement()) {
+        $logger->debug("Network device (".$self->{'_id'}.") supports roles. Evaluating role to be returned");
+        my $role;
+        if ( defined($args->{'user_role'}) && $args->{'user_role'} ne "" ) {
+            $role = $self->getRoleByName($args->{'user_role'});
+        }
+        if ( defined($role) && $role ne "" ) {
+            push(@av_pairs, $self->returnRoleAttribute."=".$self->returnRoleAttributes($role));
+            $logger->info(
+                "(".$self->{'_id'}.") Added role $role to the returned RADIUS Access-Accept"
+            );
+            delete $radius_reply_ref->{$self->returnRoleAttribute};
+        }
+        else {
+            $logger->debug("(".$self->{'_id'}.") Received undefined role. No Role added to RADIUS Access-Accept");
+        }
+    }
+    if ( isenabled($self->{_AccessListMap}) && $self->supportsAccessListBasedEnforcement ){
+        if( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined($self->getAccessListByName($args->{'user_role'}))){
+            my $access_list = $self->getAccessListByName($args->{'user_role'});
+            if ($access_list) {
+                my $acl_num = 101;
+                while($access_list =~ /([^\n]+)\n?/g){
+                    push(@av_pairs, $self->returnAccessListAttribute($acl_num)."=".$1);
+                    $acl_num ++;
+                    $logger->info("(".$self->{'_id'}.") Adding access list : $1 to the RADIUS reply");
+                }
+                $logger->info("(".$self->{'_id'}.") Added access lists to the RADIUS reply.");
+            } else {
+                $logger->info("(".$self->{'_id'}.") No access lists defined for this role ".$args->{'user_role'});
+            }
+        }
+    }
+
     my $role = $self->getRoleByName($args->{'user_role'});
     if ( isenabled($self->{_UrlMap}) && $self->externalPortalEnforcement ) {
         if ( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined($self->getUrlByName($args->{'user_role'}) ) ) {
@@ -148,6 +200,8 @@ sub returnAuthorizeVPN {
             if (isenabled($self->{_RoleMap}) && $self->supportsRoleBasedEnforcement()) {
                 my $role_map = $self->getRoleByName($args->{'user_role'});
                 $role = $role_map if (defined($role_map));
+                # remove the role if any as we push the redirection ACL along with it's role
+                delete $radius_reply_ref->{$self->returnRoleAttribute()};
             }
             $logger->info("Adding web authentication redirection to reply using role: '$role' and URL: '$redirect_url'");
             push @av_pairs, "url-redirect-acl=$role";
@@ -227,7 +281,7 @@ sub radiusDisconnect {
         if ($node_info->{status} eq 'unreg') {
             $role = 'registration';
         } else {
-            $role = $roleResolver->getRoleForNode($mac, $self);
+            $role = $node_info->{category};
         }
 
         my $args = {
@@ -235,6 +289,7 @@ sub radiusDisconnect {
            user_role => $role,
            node_info => $node_info,
         };
+
         $args->{'unfiltered'} = $TRUE;
         my @super_reply = @{$self->returnAuthorizeVPN($args)};
         my $status = shift @super_reply;
@@ -376,6 +431,29 @@ sub parseExternalPortalRequest {
     return \%params;
 }
 
+
+=head2 returnAccessListAttribute
+
+Returns the attribute to use when pushing an ACL using RADIUS
+
+=cut
+
+sub returnAccessListAttribute {
+    my ($self, $acl_num) = @_;
+    return "ip:inacl#$acl_num";
+}
+
+=head2 returnRoleAttribute
+
+What RADIUS Attribute (usually VSA) should the role be returned into.
+
+=cut
+
+sub returnRoleAttribute {
+    my ($self) = @_;
+
+    return 'Filter-Id';
+}
 
 =back
 
