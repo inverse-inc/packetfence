@@ -23,7 +23,11 @@ use pf::node;
 use pf::security_event;
 use pf::ip4log;
 use JSON::MaybeXS qw(encode_json);
-use pf::config qw ($WEBAUTH_WIRELESS);
+use pf::config qw (
+    $WEBAUTH_WIRELESS
+    %connection_type_to_str
+);
+use pf::util::radius qw(perform_disconnect);
 
 sub description { 'Ruckus SmartZone Wireless Controllers' }
 sub supportsWebFormRegistration { return $FALSE; }
@@ -71,13 +75,106 @@ sub deauthTechniques {
     my $logger = $self->logger;
     my $default = $SNMP::HTTP;
     my %tech = (
-        $SNMP::HTTP => 'deauthenticateMacWebservices',
+        $SNMP::HTTP => 'deauth',
     );
 
     if (!defined($method) || !defined($tech{$method})) {
         $method = $default;
     }
     return $method,$tech{$method};
+}
+
+=head2 deauth
+
+Deauthenticate a client using HTTP or RADIUS depending on the connection type
+
+=cut
+
+sub deauth {
+    my ($self, $mac) = @_;
+    my $node_info = node_view($mac);
+    if ($node_info->{last_connection_type} eq $connection_type_to_str{$WEBAUTH_WIRELESS}) {
+        $self->deauthenticateMacWebservices($mac);
+    }
+    else {
+        $self->deauthenticateMacDefault($mac);
+    }
+}
+
+=head2 radiusDisconnect
+
+Send a RADIUS disconnect to the controller/AP
+
+=cut
+
+sub radiusDisconnect {
+    my ($self, $mac, $add_attributes_ref) = @_;
+    my $logger = $self->logger();
+
+    # initialize
+    $add_attributes_ref = {} if (!defined($add_attributes_ref));
+
+    if (!defined($self->{'_radiusSecret'})) {
+        $logger->warn(
+            "Unable to perform RADIUS Disconnect-Request on $self->{'_id'}: RADIUS Shared Secret not configured"
+        );
+        return;
+    }
+
+    $logger->info("deauthenticating");
+
+    # Where should we send the RADIUS Disconnect-Request?
+    # to network device by default
+    my $send_disconnect_to = $self->{'_ip'};
+    my $nas_ip_address = $self->{_switchIp};
+    # but if controllerIp is set, we send there
+    if (defined($self->{'_controllerIp'}) && $self->{'_controllerIp'} ne '') {
+        $logger->info("controllerIp is set, we will use controller $self->{_controllerIp} to perform deauth");
+        $send_disconnect_to = $self->{'_controllerIp'};
+    }
+
+    my $response;
+    try {
+        my $connection_info = {
+            nas_ip => $send_disconnect_to,
+            secret => $self->{'_radiusSecret'},
+            LocalAddr => $self->deauth_source_ip($send_disconnect_to),
+        };
+
+        if (defined($self->{'_disconnectPort'}) && $self->{'_disconnectPort'} ne '') {
+            $connection_info->{'nas_port'} = $self->{'_disconnectPort'};
+        }
+
+        # transforming MAC to the expected format 00-11-22-33-CA-FE
+        $mac = uc($mac);
+        $mac =~ s/:/-/g;
+
+        # Standard Attributes
+        my $attributes_ref = {
+            'Calling-Station-Id' => $mac,
+            # Use the IP address of the IP address at all times for the NAS-IP-Address even when sending to the controller
+            'NAS-IP-Address' => $self->{_ip},
+        };
+
+        # merging additional attributes provided by caller to the standard attributes
+        $attributes_ref = { %$attributes_ref, %$add_attributes_ref };
+
+        $response = perform_disconnect($connection_info, $attributes_ref);
+    } catch {
+        chomp;
+        $logger->warn("Unable to perform RADIUS Disconnect-Request: $_");
+        $logger->error("Wrong RADIUS secret or unreachable network device...") if ($_ =~ /^Timeout/);
+    };
+    return if (!defined($response));
+
+    return $TRUE if ( ($response->{'Code'} eq 'Disconnect-ACK') || ($response->{'Code'} eq 'CoA-ACK') );
+
+    $logger->warn(
+        "Unable to perform RADIUS Disconnect-Request."
+        . ( defined($response->{'Code'}) ? " $response->{'Code'}" : 'no RADIUS code' ) . ' received'
+        . ( defined($response->{'Error-Cause'}) ? " with Error-Cause: $response->{'Error-Cause'}." : '' )
+    );
+    return;
 }
 
 =head2 deauthenticateMacWebservices
