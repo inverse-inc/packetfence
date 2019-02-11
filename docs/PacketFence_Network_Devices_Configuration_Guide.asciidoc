@@ -6365,7 +6365,6 @@ In this example we assume that the Cisco ASA have 2 interfaces, one Management (
 Before trying to configure PacketFence with the Cisco ASA first be sure that when you connect with Anyconnect and when the VPN is up that your device is able to reach internet.
 
  ip local pool VPN_POOL 192.168.255.10-192.168.255.254 mask 255.255.255.0
-
  !
  interface GigabitEthernet0/0
   nameif MANAGEMENT
