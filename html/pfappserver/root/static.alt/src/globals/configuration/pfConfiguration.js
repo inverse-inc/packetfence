@@ -598,6 +598,12 @@ export const pfConfigurationListColumns = {
     sortable: true,
     visible: true
   },
+  ntlm_cache: {
+    key: 'ntlm_cache',
+    label: i18n.t('NTLM Cache'),
+    sortable: true,
+    visible: true
+  },
   port: {
     key: 'port',
     label: i18n.t('Port'),

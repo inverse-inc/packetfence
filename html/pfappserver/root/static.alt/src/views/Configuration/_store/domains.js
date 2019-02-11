@@ -27,7 +27,7 @@ const actions = {
   all: () => {
     const params = {
       sort: 'id',
-      fields: ['id', 'workgroup'].join(',')
+      fields: ['id', 'workgroup', 'ntlm_cache'].join(',')
     }
     return api.domains(params).then(response => {
       return response.items
