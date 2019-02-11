@@ -16,7 +16,6 @@ use warnings;
 use HTTP::Status qw(:constants is_error is_success);
 use namespace::autoclean;
 use Moose;
-use pfappserver::Form::SavedSearch;
 use pf::admin_roles;
 use pf::constants qw($TRUE $FALSE);
 use List::MoreUtils qw(none);

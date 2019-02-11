@@ -32,7 +32,6 @@ use pf::config qw(
     %Doc_Config
 );
 use pf::admin_roles;
-use pfappserver::Form::Config::Pf;
 use pf::constants::pfconf;
 
 BEGIN {extends 'pfappserver::Base::Controller'; }

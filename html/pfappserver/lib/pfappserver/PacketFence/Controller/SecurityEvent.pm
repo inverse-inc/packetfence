@@ -24,7 +24,6 @@ use pf::config;
 use pf::constants::role qw(@ROLES);
 use pf::Switch::constants;
 use pf::constants::trigger qw($TRIGGER_MAP);
-use pfappserver::Form::SecurityEvent;
 use pf::factory::condition::security_event;
 use Switch;
 use pf::fingerbank;
