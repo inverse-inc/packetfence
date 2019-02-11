@@ -160,7 +160,7 @@ sub new_file {
     eval {
         my (undef, $file_parent_dir, undef) = splitpath($path);
         pf_make_dir($file_parent_dir);
-        write_file($path, {binmode => ':uft8', no_clobber => 1}, $content);
+        write_file($path, {binmode => ':utf8', no_clobber => 1}, $content);
     };
     if ($@) {
        return $self->render_error(422, "Error writing to the '$file'");
