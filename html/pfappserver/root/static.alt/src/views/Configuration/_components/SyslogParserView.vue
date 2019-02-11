@@ -14,11 +14,12 @@
   >
     <template slot="header" is="b-card-header">
       <b-button-close @click="close" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
-      <h4 class="mb-0">
+      <h4 class="d-inline mb-0">
         <span v-if="!isNew && !isClone">{{ $t('Syslog Parser {id}', { id: id }) }}</span>
         <span v-else-if="isClone">{{ $t('Clone Syslog Parser {id}', { id: id }) }}</span>
-        <span v-else>{{ $t('New {syslogParserType} Syslog Parser', { syslogParserType: this.syslogParserType}) }}</span>
+        <span v-else>{{ $t('New Syslog Parser') }}</span>
       </h4>
+      <b-badge class="ml-2" variant="secondary" v-t="syslogParserType"></b-badge>
     </template>
     <template slot="footer"
       scope="{isDeletable}"

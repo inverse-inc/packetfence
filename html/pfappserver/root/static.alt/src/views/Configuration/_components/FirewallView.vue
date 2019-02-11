@@ -14,11 +14,12 @@
   >
     <template slot="header" is="b-card-header">
       <b-button-close @click="close" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
-      <h4 class="mb-0">
+      <h4 class="d-inline mb-0">
         <span v-if="!isNew && !isClone">{{ $t('Firewall SSO {id}', { id: id }) }}</span>
         <span v-else-if="isClone">{{ $t('Clone Firewall SSO {id}', { id: id }) }}</span>
-        <span v-else>{{ $t('New {firewallType} Firewall SSO', { firewallType: this.firewallType}) }}</span>
+        <span v-else>{{ $t('New Firewall SSO') }}</span>
       </h4>
+      <b-badge class="ml-2" variant="secondary" v-t="firewallType"></b-badge>
     </template>
     <template slot="footer"
       scope="{isDeletable}"
