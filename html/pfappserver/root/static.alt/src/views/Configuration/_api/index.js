@@ -84,9 +84,19 @@ export default {
       return response.data
     })
   },
+  rolesOptions: () => {
+    return apiCall.options('config/roles').then(response => {
+      return response.data
+    })
+  },
   role: id => {
     return apiCall.get(`config/role/${id}`).then(response => {
       return response.data.item
+    })
+  },
+  roleOptions: id => {
+    return apiCall.options(`config/role/${id}`).then(response => {
+      return response.data
     })
   },
   createRole: data => {

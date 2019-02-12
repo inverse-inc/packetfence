@@ -33,12 +33,54 @@ import {
 const {
   integer,
   ipAddress,
+  minLength,
   maxLength,
   maxValue,
   minValue,
   numeric,
   required
 } = require('vuelidate/lib/validators')
+
+export const pfConfigurationValidatorsFromMeta = (meta = {}, fieldName = 'Value') => {
+  let validators = {}
+  Object.keys(meta).forEach(key => {
+    switch (key) {
+      case 'min_value':
+        validators = { ...validators, ...{ [i18n.t('Minimum {minValue}.', { minValue: meta[key] })]: minValue(meta[key]) } }
+        break
+      case 'max_value':
+        validators = { ...validators, ...{ [i18n.t('Maximum {maxValue}.', { maxValue: meta[key] })]: maxValue(meta[key]) } }
+        break
+      case 'min_length':
+        validators = { ...validators, ...{ [i18n.t('Minimum {minLength} characters.', { minLength: meta[key] })]: minLength(meta[key]) } }
+        break
+      case 'max_length':
+        validators = { ...validators, ...{ [i18n.t('Maximum {minLength} characters.', { maxLength: meta[key] })]: maxLength(meta[key]) } }
+        break
+      case 'required':
+        if (meta[key]) {
+          validators = { ...validators, ...{ [i18n.t('{fieldName} required.', { fieldName: fieldName })]: required } }
+        }
+        break
+      case 'type':
+        switch (meta[key]) {
+          case 'integer':
+            validators = { ...validators, ...{ [i18n.t('Integers only.')]: integer } }
+            break
+          case 'string': // ignore
+            break
+          default:
+            throw new Error(`Unhandled meta type: ${meta[key]}`) // TODO: remove post-devel
+            // break
+        }
+        break
+      default:
+        throw new Error(`Unhandled meta: ${key}`) // TODO: remove post-devel
+        // break
+    }
+  })
+  return validators
+}
 
 export const pfConfigurationLocales = [
   'en_US',

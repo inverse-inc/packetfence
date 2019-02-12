@@ -2,11 +2,11 @@
   <pf-config-view
     :isLoading="isLoading"
     :form="getForm"
-    :model="role"
-    :vuelidate="$v.role"
+    :model="form"
+    :vuelidate="$v.form"
     :isNew="isNew"
     :isClone="isClone"
-    @validations="roleValidations = $event"
+    @validations="formValidations = $event"
     @close="close"
     @create="create"
     @save="save"
@@ -23,7 +23,7 @@
     <template slot="footer"
       scope="{isDeletable}"
     >
-      <b-card-footer @mouseenter="$v.role.$touch()">
+      <b-card-footer @mouseenter="$v.form.$touch()">
         <pf-button-save :disabled="invalidForm" :isLoading="isLoading">
           <template v-if="isNew">{{ $t('Create') }}</template>
           <template v-else-if="isClone">{{ $t('Clone') }}</template>
@@ -31,6 +31,7 @@
           <template v-else>{{ $t('Save') }}</template>
         </pf-button-save>
         <pf-button-delete v-if="isDeletable" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Role?')" @on-delete="remove()"/>
+        <b-button class="ml-1" variant="outline-primary" @click="init()">{{ $t('Reset') }}</b-button>
       </b-card-footer>
     </template>
   </pf-config-view>
@@ -43,8 +44,7 @@ import pfButtonDelete from '@/components/pfButtonDelete'
 import pfMixinCtrlKey from '@/components/pfMixinCtrlKey'
 import pfMixinEscapeKey from '@/components/pfMixinEscapeKey'
 import {
-  pfConfigurationRoleViewFields as fields,
-  pfConfigurationRoleViewDefaults as defaults
+  pfConfigurationRoleViewFields as fields
 } from '@/globals/configuration/pfConfigurationRoles'
 const { validationMixin } = require('vuelidate')
 
@@ -81,13 +81,14 @@ export default {
   },
   data () {
     return {
-      role: defaults(this), // will be overloaded with the data from the store
-      roleValidations: {} // will be overloaded with data from the pfConfigView
+      form: {}, // will be overloaded with the data from the store
+      formValidations: {}, // will be overloaded with data from the pfConfigView
+      options: {}
     }
   },
   validations () {
     return {
-      role: this.roleValidations
+      form: this.formValidations
     }
   },
   computed: {
@@ -95,7 +96,7 @@ export default {
       return this.$store.getters['$_roles/isLoading']
     },
     invalidForm () {
-      return this.$v.role.$invalid || this.$store.getters['$_roles/isWaiting']
+      return this.$v.form.$invalid || this.$store.getters['$_roles/isWaiting']
     },
     getForm () {
       return {
@@ -104,29 +105,44 @@ export default {
       }
     },
     isDeletable () {
-      if (this.isNew || this.isClone || ('not_deletable' in this.role && this.role.not_deletable)) {
+      if (this.isNew || this.isClone || ('not_deletable' in this.form && this.form.not_deletable)) {
         return false
       }
       return true
     }
   },
   methods: {
+    init () {
+      this.$store.dispatch('$_roles/options', this.id).then(options => {
+        // store options
+        this.options = Object.assign({}, options)
+        if (this.id) {
+          // existing
+          this.$store.dispatch('$_roles/getRole', this.id).then(form => {
+            this.form = Object.assign({}, form)
+          })
+        } else {
+          // new
+          this.form = Object.assign({}, options.defaults) // set defaults
+        }
+      })
+    },
     close () {
       this.$router.push({ name: 'roles' })
     },
     create () {
       const ctrlKey = this.ctrlKey
-      this.$store.dispatch('$_roles/createRole', this.role).then(response => {
+      this.$store.dispatch('$_roles/createRole', this.form).then(response => {
         if (ctrlKey) { // [CTRL] key pressed
           this.close()
         } else {
-          this.$router.push({ name: 'role', params: { id: this.role.id } })
+          this.$router.push({ name: 'role', params: { id: this.form.id } })
         }
       })
     },
     save () {
       const ctrlKey = this.ctrlKey
-      this.$store.dispatch('$_roles/updateRole', this.role).then(response => {
+      this.$store.dispatch('$_roles/updateRole', this.form).then(response => {
         if (ctrlKey) { // [CTRL] key pressed
           this.close()
         }
@@ -139,11 +155,7 @@ export default {
     }
   },
   created () {
-    if (this.id) {
-      this.$store.dispatch('$_roles/getRole', this.id).then(data => {
-        this.role = Object.assign({}, data)
-      })
-    }
+    this.init()
   }
 }
 </script>
