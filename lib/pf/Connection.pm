@@ -9,16 +9,20 @@ use pf::config qw(
     $WIRELESS_802_1X
     $WIRED_MAC_AUTH
     $WIRED_802_1X
+    $VIRTUAL_CLI
+    $VIRTUAL_VPN
 );
 use pf::log;
 
 has 'type'          => (is => 'rw', isa => 'Str');                  # Printable string to display the type of a connection
 has 'subType'       => (is => 'rw', isa => 'Str');                  # Printable string to display the sub type of a connection
-has 'transport'     => (is => 'rw', isa => 'Str');                  # Wired or wireless
+has 'transport'     => (is => 'rw', isa => 'Str');                  # Wired or Wireless or Virtual
 has 'isEAP'         => (is => 'rw', isa => 'Bool', default => 0);   # 0: NoEAP / 1: EAP
 has 'isSNMP'        => (is => 'rw', isa => 'Bool', default => 0);   # 0: NoSNMP | 1: SNMP
 has 'isMacAuth'     => (is => 'rw', isa => 'Bool', default => 0);   # 0: NoMacAuth | 1: MacAuth
 has 'is8021X'       => (is => 'rw', isa => 'Bool', default => 0);   # 0: No8021X | 1: 8021X
+has 'isVPN'         => (is => 'rw', isa => 'Bool', default => 0);   # 0: NoVPN | 1: VPN
+has 'isCLI'         => (is => 'rw', isa => 'Bool', default => 0);   # 0: NoCLI | 1: CLI
 has '8021XAuth'     => (is => 'rw', isa => 'Str');                  # Authentication used for 8021X connection
 has 'enforcement'   => (is => 'rw', isa => 'Str');                  # PacketFence enforcement technique
 
@@ -52,6 +56,12 @@ sub _attributesToString {
     # Handling 802.1X
     $type .= ( $self->is8021X ) ? "-8021X" : "";
 
+    # Handling VPN
+    $type .= ( $self->isVPN ) ? "-VPN" : "";
+
+    # Handling CLI
+    $type .= ( $self->isCLI ) ? "-CLI" : "";
+
     $self->type($type);
 }
 
@@ -67,6 +77,10 @@ sub _stringToAttributes {
     # We set the transport type
     ( lc($type) =~ /^wireless/ ) ? $self->transport("Wireless") : $self->transport("Wired");
 
+    if (lc($type) =~/^virtual/ ) {
+            $self->transport("Virtual");
+    }
+
     # We check if SNMP
     ( (lc($type) =~ /^wired/) && (lc($type) =~ /^snmp/) ) ? $self->isSNMP($TRUE) : $self->isSNMP($FALSE);
 
@@ -79,6 +93,12 @@ sub _stringToAttributes {
 
     # We check if 802.1X
     ( lc($type) =~ /^8021x/ ) ? $self->is8021X($TRUE) : $self->is8021X($FALSE);
+
+    # We check if VPN
+    ( lc($type) =~ /^vpn/ ) ? $self->isVPN($TRUE) : $self->isVPN($FALSE);
+
+    # We check if CLI
+    ( lc($type) =~ /^cli/ ) ? $self->isCLI($TRUE) : $self->isCLI($FALSE);
 }
 
 =head2 backwardCompatibleToAttributes
@@ -94,6 +114,10 @@ sub backwardCompatibleToAttributes {
 
     # We set the transport type
     ( lc($type) =~ /^wireless-802\.11/ ) ? $self->transport("Wireless") : $self->transport("Wired");
+
+    if (lc($type) =~/^virtual/ ) {
+            $self->transport("Virtual");
+    }
 
     # We check if SNMP. If so, we return immediately while setting the flag
     if ( (lc($type) =~ /^snmp/) ) { 
@@ -115,6 +139,14 @@ sub backwardCompatibleToAttributes {
     }
     else {
         $self->isEAP($FALSE) ; $self->is8021X($FALSE) ; $self->isMacAuth($TRUE);
+    }
+    if ( lc($type) =~ /vpn$/ ) {
+        $self->isMacAuth($FALSE);
+        $self->isVPN($TRUE);
+    }
+    if ( lc($type) =~ /cli$/ ) {
+        $self->isMacAuth($FALSE);
+        $self->isCLI($TRUE);
     }
 }
 
@@ -139,6 +171,12 @@ sub attributesToBackwardCompatible {
     # Wired 802.1X
     return $WIRED_802_1X if ( (lc($self->transport) eq "wired") && ($self->is8021X) );
 
+    # Virtual VPN
+    return $VIRTUAL_VPN if ( (lc($self->transport) eq "virtual") && ($self->isVPN) );
+
+    # Virtual CLI
+    return $VIRTUAL_CLI if ( (lc($self->transport) eq "virtual") && ($self->isCLI) );
+
     # Default
     return;
 }
@@ -158,6 +196,9 @@ sub identifyType {
             $nas_port_type = $RADIUS::NAS_port_type{$nas_port_type};
         }
         $self->transport($nas_port_type =~ /^wireless/i ? "Wireless" : "Wired");
+        if ($nas_port_type =~ /^virtual/i) {
+		$self->transport("Virtual");
+        }
     }
     else {
         $self->transport("Wired");

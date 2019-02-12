@@ -43,7 +43,7 @@ use pf::config qw(
     %ConfigFloatingDevices
     $WIRELESS_MAC_AUTH
     $WIRELESS_802_1X
-    $VPN
+    $VIRTUAL_VPN
 );
 use pf::client;
 use pf::locationlog;
@@ -895,7 +895,7 @@ sub switch_access {
                 $logger->error("Cannot save $mac error ($status)");
             }
             $switch->synchronize_locationlog($port, undef, $mac,
-                $args->{'isPhone'} ? $VOIP : $NO_VOIP, $VPN, undef, $user_name, undef, $stripped_user_name, $realm, $args->{'user_role'}, $ifDesc
+                $args->{'isPhone'} ? $VOIP : $NO_VOIP, $VIRTUAL_VPN, undef, $user_name, undef, $stripped_user_name, $realm, $args->{'user_role'}, $ifDesc
             );
         }
         return $switch->returnAuthorizeVPN($args);

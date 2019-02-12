@@ -38,7 +38,7 @@ use base ('pf::Switch::Cisco');
 use pf::constants;
 use pf::config qw(
     $MAC
-    $WEBAUTH_VPN
+    $VIRTUAL_VPN
 );
 use pf::web::util;
 use pf::util;
@@ -426,7 +426,7 @@ sub parseExternalPortalRequest {
         client_ip               => $client_ip,
         redirect_url            => $redirect_url,
         synchronize_locationlog => $FALSE,
-        connection_type         => $WEBAUTH_VPN,
+        connection_type         => $VIRTUAL_VPN,
     );
     return \%params;
 }
