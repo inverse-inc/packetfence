@@ -62,7 +62,6 @@ sub options {
     );
 }
 
-
 =head2 options_with_no_type
 
 options_with_no_type
@@ -82,6 +81,20 @@ sub options_with_no_type {
         map { $self->type_meta_info($_) } keys %{$self->type_lookup}
     ];
     return \%output;
+}
+
+=head2 type_meta_info
+
+type_meta_info
+
+=cut
+
+sub type_meta_info {
+    my ($self, $type) = @_;
+    return {
+        value => $type,
+        label => $type,
+    };
 }
 
 =head1 AUTHOR

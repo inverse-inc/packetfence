@@ -16,6 +16,7 @@ use strict;
 use warnings;
 use Mojo::Base qw(pf::UnifiedApi::Controller::RestRoute);
 use pf::UnifiedApi::OpenAPI::Generator::Config;
+use pf::UnifiedApi::GenerateSpec;
 use Mojo::Util qw(url_unescape);
 use pf::util qw(expand_csv);
 use pf::error qw(is_error);
@@ -353,13 +354,12 @@ options_from_form
 
 sub options_from_form {
     my ($self, $form) = @_;
-    my %defaults;
-    my %placeholders;
-    my %allowed_values;
+    my (%defaults, %placeholders, %allowed, %meta);
     my %output = (
         defaults => \%defaults,
         placeholders => \%placeholders,
-        allowed_values => \%allowed_values,
+        allowed => \%allowed,
+        meta => \%meta,
     );
 
     for my $field ($form->fields) {
@@ -367,21 +367,72 @@ sub options_from_form {
         next if $name eq 'id';
         $defaults{$name} = $self->field_default($field);
         $placeholders{$name} = $self->field_placeholder($field);
-        $allowed_values{$name} = $self->field_allowed_values($field);
+        $allowed{$name} = $self->field_allowed($field);
+        $meta{$name} = $self->field_meta($field);
     }
 
     return \%output;
 }
 
-=head2 type_meta_info
+=head2 field_meta
 
-type_meta_info
+field_meta
 
 =cut
 
-sub type_meta_info {
-    my ($self, $type) = @_;
-    return {value => $type, label => $type};
+sub field_meta {
+    my ($self, $field) = @_;
+    return {
+        type     => $self->field_type($field),
+        required => $self->field_is_required($field),
+        $self->field_extra_meta($field),
+    };
+}
+
+=head2 field_extra_meta
+
+field_extra_meta
+
+=cut
+
+sub field_extra_meta {
+    my ($self, $field) = @_;
+    my %extra;
+    if ($field->isa("HTML::FormHandler::Field::Text")) {
+        my $min = $field->minlength;
+        my $max = $field->maxlength;
+        if ($min) {
+            $extra{min_length} = $min;
+        }
+
+        if (defined $max) {
+            $extra{max_length} = $max;
+        }
+    }
+
+    return %extra;
+}
+
+=head2 field_type
+
+field_type
+
+=cut
+
+sub field_type {
+    my ($self, $field) = @_;
+    return pf::UnifiedApi::GenerateSpec::fieldType($field);
+}
+
+=head2 field_is_required
+
+field_is_required
+
+=cut
+
+sub field_is_required {
+    my ($self, $field) = @_;
+    return  $field->required ? $self->json_true() : $self->json_false();
 }
 
 =head2 resource_options
@@ -393,13 +444,12 @@ resource_options
 sub resource_options {
     my ($self) = @_;
     my $form = $self->form($self->item);
-    my %defaults;
-    my %placeholders;
-    my %allowed_values;
+    my (%defaults, %placeholders, %allowed_values, %meta);
     my %output = (
         defaults => \%defaults,
         placeholders => \%placeholders,
         allowed_values => \%allowed_values,
+        meta => \%meta,
     );
     my $inherited_values = $self->inherited_values;
     for my $field ($form->fields) {
@@ -407,7 +457,8 @@ sub resource_options {
         next if $name eq 'id';
         $defaults{$name} = $self->field_default($field, $inherited_values);
         $placeholders{$name} = $self->field_resource_placeholder($field, $inherited_values);
-        $allowed_values{$name} = $self->field_allowed_values($field);
+        $allowed_values{$name} = $self->field_allowed($field);
+        $meta{$name} = $self->field_meta($field);
     }
 
     return $self->render(json => \%output);
@@ -491,13 +542,13 @@ sub field_resource_placeholder {
     };
 }
 
-=head2 field_allowed_values
+=head2 field_allowed
 
-field_allowed_values
+field_allowed
 
 =cut
 
-sub field_allowed_values {
+sub field_allowed {
     my ($self, $field) = @_;
     if ($field->isa('HTML::FormHandler::Field::Select')) {
         return $field->options;
@@ -505,7 +556,7 @@ sub field_allowed_values {
 
     if ($field->isa('HTML::FormHandler::Field::Repeatable')) {
         $field->init_state;
-        my $element = $field->clone_element($field->name);
+        my $element = $field->clone_element($field->name . "_temp");
         if ($element->isa('HTML::FormHandler::Field::Select') ) {
             $element->_load_options();
             return $element->options;
@@ -513,7 +564,6 @@ sub field_allowed_values {
     }
 
     return undef;
-
 }
 
 sub form_parameters {
