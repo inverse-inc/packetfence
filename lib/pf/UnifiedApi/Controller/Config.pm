@@ -399,18 +399,58 @@ sub field_extra_meta {
     my ($self, $field) = @_;
     my %extra;
     if ($field->isa("HTML::FormHandler::Field::Text")) {
-        my $min = $field->minlength;
-        my $max = $field->maxlength;
-        if ($min) {
-            $extra{min_length} = $min;
-        }
+        $self->field_text_meta($field, \%extra);
+    }
 
-        if (defined $max) {
-            $extra{max_length} = $max;
-        }
+    if ($field->isa("HTML::FormHandler::Field::Integer") || $field->isa("HTML::FormHandler::Field::IntRange")) {
+        $self->field_integer_meta($field, \%extra);
     }
 
     return %extra;
+}
+
+=head2 field_integer_meta
+
+field_integer_meta
+
+=cut
+
+sub field_integer_meta {
+    my ($self, $field, $extra) = @_;
+    my $min = $field->range_start;
+    my $max = $field->range_end;
+    if (defined $min) {
+        $extra->{min_value} = $min;
+    } elsif ($field->isa("HTML::FormHandler::Field::PosInteger")) {
+        $extra->{min_value} = 0;
+    }
+
+    if (defined $max) {
+        $extra->{max_value} = $max;
+    }
+
+    return ;
+}
+
+=head2 field_text_meta
+
+field_text_meta
+
+=cut
+
+sub field_text_meta {
+    my ($self, $field, $extra) = @_;
+    my $min = $field->minlength;
+    my $max = $field->maxlength;
+    if ($min) {
+        $extra->{min_length} = $min;
+    }
+
+    if (defined $max) {
+        $extra->{max_length} = $max;
+    }
+
+    return ;
 }
 
 =head2 field_type
