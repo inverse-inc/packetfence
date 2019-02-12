@@ -3152,7 +3152,7 @@ Used to override L<pf::Connection::identifyType> behavior if needed on a per swi
 =cut
 
 sub identifyConnectionType {
-    my ( $self, $connection ) = @_;
+    my ( $self, $radius_request ) = @_;
     my $logger = get_logger();
 
     return;

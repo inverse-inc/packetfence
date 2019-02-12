@@ -71,7 +71,7 @@ sub format_request {
     my ($request) = @_;
     # transform the request according to what radius_authorize expects
     my %remapped_radius_request = map {
-        $_ => ( exists $ALLOWED_MULTIPLE{$_} ) ? $request->{$_}{value} : $request->{$_}{value}[0]
+        (@{$request->{$_}->{value}} > 1) ? ($_ => $request->{$_}->{value}) : ($_ => $request->{$_}->{value}[0]);
     } keys %{$request};
     return \%remapped_radius_request;
 }

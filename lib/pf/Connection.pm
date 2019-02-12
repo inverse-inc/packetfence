@@ -186,7 +186,7 @@ sub attributesToBackwardCompatible {
 =cut
 
 sub identifyType {
-    my ( $self, $nas_port_type, $eap_type, $mac, $user_name, $switch ) = @_;
+    my ( $self, $nas_port_type, $eap_type, $mac, $user_name, $switch, $radius_request ) = @_;
 
     # We first identify the transport mode using the NAS-Port-Type attribute of the RADIUS Access-Request as per RFC2875
     # Assumption: If NAS-Port-Type is either undefined or does not contain "Wireless", we treat is as "Wired"
@@ -229,7 +229,7 @@ sub identifyType {
     }
 
     # Override connection type using custom switch module
-    $switch->identifyConnectionType($self);
+    $switch->identifyConnectionType($self, $radius_request);
 
     # We create the printable string for type
     $self->_attributesToString;
