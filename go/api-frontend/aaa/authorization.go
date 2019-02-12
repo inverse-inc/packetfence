@@ -71,6 +71,7 @@ var pathAdminRolesMap = []adminRoleMapping{
 
 var methodSuffixMap = map[string]string{
 	"GET":    "_READ",
+	"OPTIONS":    "_READ",
 	"POST":   "_CREATE",
 	"PUT":    "_UPDATE",
 	"PATCH":  "_UPDATE",
