@@ -29,6 +29,7 @@ use pfappserver::Form::Config::Source::AD;
 use pfappserver::Form::Config::Source::AuthorizeNet;
 use pfappserver::Form::Config::Source::Blackhole;
 use pfappserver::Form::Config::Source::Authorization;
+use pfappserver::Form::Config::Source::Clickatell;
 use pfappserver::Form::Config::Source::EAPTLS;
 use pfappserver::Form::Config::Source::Eduroam;
 use pfappserver::Form::Config::Source::Email;
@@ -56,14 +57,16 @@ use pfappserver::Form::Config::Source::Stripe;
 use pfappserver::Form::Config::Source::Twilio;
 use pfappserver::Form::Config::Source::Twitter;
 use pfappserver::Form::Config::Source::WindowsLive;
+use pfappserver::Form::Config::Source::Potd;
 
 our %TYPES_TO_FORMS = (
     map { $_ => "pfappserver::Form::Config::Source::$_" } qw(
       AdminProxy
       AD
+      Authorization
       AuthorizeNet
       Blackhole
-      Authorization
+      Clickatell
       EAPTLS
       Eduroam
       Email
@@ -82,16 +85,17 @@ our %TYPES_TO_FORMS = (
       OpenID
       Paypal
       Pinterest
+      Potd
       RADIUS
       SAML
       SMS
-      SQL
       SponsorEmail
+      SQL
       Stripe
       Twilio
       Twitter
       WindowsLive
-    )
+      )
 );
 
 sub type_lookup {
