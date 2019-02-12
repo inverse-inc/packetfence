@@ -225,7 +225,9 @@ sub identifyType {
     }
     # We can safely assume that every NoEAP connection in a RADIUS context is a mac authentication connection
     else {
-        $self->isMacAuth($TRUE);
+        if (lc($self->transport) ne "virtual") {
+            $self->isMacAuth($TRUE);
+        }
     }
 
     # Override connection type using custom switch module

@@ -822,6 +822,11 @@ sub switch_access {
     my $switch = pf::SwitchFactory->instantiate({ switch_mac => $switch_mac, switch_ip => $switch_ip, controllerIp => $switch_ip}, {radius_request => $radius_request});
     my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id, $ifDesc) = $switch->parseRequest($radius_request);
 
+    my $connection = pf::Connection->new;
+    $connection->identifyType($nas_port_type, $eap_type, $mac, $user_name, $switch, $radius_request);
+    my $connection_type = $connection->attributesToBackwardCompatible;
+    my $connection_sub_type = $connection->subType;
+
     # is switch object correct?
     if (!$switch) {
         $logger->warn(
@@ -831,10 +836,8 @@ sub switch_access {
     }
     if ( isdisabled($switch->{_cliAccess}) && !$switch->supportsVPN()) {
         $logger->warn("CLI Access is not permit on this switch $switch->{_id}");
-        return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "CLI Access is not allowed by PacketFence on this switch") ];
+        return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "CLI or VPN Access is not allowed by PacketFence on this switch") ];
     }
-
-
 
     my $args = {
         switch => $switch,
@@ -847,21 +850,23 @@ sub switch_access {
         radius_request => $radius_request,
     };
 
-    my ( $return, $message, $source_id, $extra ) = pf::authentication::authenticate( {
-            'username' =>  $radius_request->{'User-Name'},
-            'password' =>  $radius_request->{'User-Password'},
-            'rule_class' => $Rules::ADMIN,
-            'context' => $pf::constants::realm::RADIUS_CONTEXT,
-        }, @{pf::authentication::getInternalAuthenticationSources()} );
+    my $options = {};
 
-    if ( !( defined($return) && $return == $TRUE ) ) {
-        $logger->info("User $args->{'user_name'} tried to login in $args->{'switch'}{'_id'} but authentication failed");
-        return [ $RADIUS::RLM_MODULE_FAIL, ( 'Reply-Message' => "Authentication failed on PacketFence" ) ];
-    }
+    $options->{'last_connection_sub_type'} = $connection_sub_type;
+    $options->{'last_connection_type'}     = connection_type_to_str($connection_type);
+    $options->{'last_switch'}              = $switch->{_id};
+    $options->{'last_port'}                = $args->{'switch'}->{switch_port} if (defined($args->{'switch'}->{switch_port}));
+    $options->{'last_vlan'}                = $args->{'vlan'} if (defined($args->{'vlan'}));
+    $options->{'last_ssid'}                = $args->{'ssid'} if (defined($args->{'ssid'}));
+    $options->{'last_dot1x_username'}      = $args->{'user_name'} if (defined($args->{'user_name'}));
+    $options->{'realm'}                    = $args->{'realm'} if (defined($args->{'realm'}));
+    $options->{'radius_request'}           = $args->{'radius_request'};
 
-    if ($switch->vpnAttributes($radius_request)) {
+    my @sources = @{pf::authentication::getInternalAuthenticationSources()};
 
-        my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id, $ifDesc) = $switch->parseVPNRequest($radius_request);
+    if ($connection->isVPN()) {
+        ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id, $ifDesc) = $switch->parseVPNRequest($radius_request);
+
         $args->{'nas_port_type'} = $nas_port_type // '';
         $args->{'eap_type'} = $eap_type // '';
         $args->{'mac'} = $mac // '';
@@ -887,6 +892,11 @@ sub switch_access {
 
             $args->{'node_info'} = $node_obj;
             $args->{'fingerbank_info'} = pf::node::fingerbank_info($mac, $node_obj);
+            $options->{'fingerbank_info'} = $args->{'fingerbank_info'};
+
+            my $profile = pf::Connection::ProfileFactory->instantiate($args->{'mac'},$options);
+            $args->{'profile'} = $profile;
+            @sources = $profile->getFilteredAuthenticationSources($args->{'stripped_user_name'}, $args->{'realm'});
 
             my $role = $role_obj->fetchRoleForNode($args);
             $args->{'user_role'} = $role->{role};
@@ -898,27 +908,36 @@ sub switch_access {
                 $args->{'isPhone'} ? $VOIP : $NO_VOIP, $VIRTUAL_VPN, undef, $user_name, undef, $stripped_user_name, $realm, $args->{'user_role'}, $ifDesc
             );
         }
+    }
+    my ( $return, $message, $source_id, $extra ) = pf::authentication::authenticate( {
+            'username' =>  $radius_request->{'User-Name'},
+            'password' =>  $radius_request->{'User-Password'},
+            'rule_class' => $Rules::ADMIN,
+            'context' => $pf::constants::realm::RADIUS_CONTEXT,
+        }, @sources );
+
+    if ( !( defined($return) && $return == $TRUE ) ) {
+        $logger->info("User $args->{'user_name'} tried to login in $args->{'switch'}{'_id'} but authentication failed");
+        return [ $RADIUS::RLM_MODULE_FAIL, ( 'Reply-Message' => "Authentication failed on PacketFence" ) ];
+    }
+    if ($connection->isVPN()) {
         return $switch->returnAuthorizeVPN($args);
-
     } else {
-
-        if ( defined($return) && $return == $TRUE ) {
-            my $matched = pf::authentication::match2($source_id, { username => $radius_request->{'User-Name'}, 'rule_class' => $Rules::ADMIN, 'context' => $pf::constants::realm::RADIUS_CONTEXT }, $extra);
-            my $value = $matched->{values}{$Actions::SET_ACCESS_LEVEL} if $matched;
-            if ($value) {
-                my @values = split(',', $value);
-                foreach $value (@values) {
-                    if (exists $pf::config::ConfigAdminRoles{$value}->{'ACTIONS'}->{'SWITCH_LOGIN_WRITE'}) {
-                        return $switch->returnAuthorizeWrite($args);
-                    }
-                    if (exists $pf::config::ConfigAdminRoles{$value}->{'ACTIONS'}->{'SWITCH_LOGIN_READ'}) {
-                        return $switch->returnAuthorizeRead($args);
-                    }
+        my $matched = pf::authentication::match2($source_id, { username => $radius_request->{'User-Name'}, 'rule_class' => $Rules::ADMIN, 'context' => $pf::constants::realm::RADIUS_CONTEXT }, $extra);
+        my $value = $matched->{values}{$Actions::SET_ACCESS_LEVEL} if $matched;
+        if ($value) {
+            my @values = split(',', $value);
+            foreach $value (@values) {
+                if (exists $pf::config::ConfigAdminRoles{$value}->{'ACTIONS'}->{'SWITCH_LOGIN_WRITE'}) {
+                    return $switch->returnAuthorizeWrite($args);
                 }
-            } else {
-                $logger->info("User $args->{'user_name'} has no role (Switches CLI - Read or Switches CLI - Write) to permit to login in $args->{'switch'}{'_id'}");
-                return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "User has no role defined in PacketFence to allow switch login (SWITCH_LOGIN_READ or SWITCH_LOGIN_WRITE)") ];
+                if (exists $pf::config::ConfigAdminRoles{$value}->{'ACTIONS'}->{'SWITCH_LOGIN_READ'}) {
+                    return $switch->returnAuthorizeRead($args);
+                }
             }
+        } else {
+            $logger->info("User $args->{'user_name'} has no role (Switches CLI - Read or Switches CLI - Write) to permit to login in $args->{'switch'}{'_id'}");
+            return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "User has no role defined in PacketFence to allow switch login (SWITCH_LOGIN_READ or SWITCH_LOGIN_WRITE)") ];
         }
     }
 }

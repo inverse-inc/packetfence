@@ -68,16 +68,23 @@ sub supportsRoleBasedEnforcement { return $TRUE; }
 
 sub supportsVPN { return $TRUE; }
 
-sub vpnAttributes {
-    my ( $self, %radius_request ) = @_;
+=item identifyConnectionType
+
+Determine Connection Type based on radius attributes
+
+=cut
+
+sub identifyConnectionType {
+    my ( $self, $connection, $radius_request ) = @_;
 
     my @require = qw(ASA-TunnelGroupName);
-    my @found = grep {exists $radius_request{$_}} @require;
+    my @found = grep {exists $radius_request->{$_}} @require;
 
     if (pf::util::validate_argv(\@require,  \@found)) {
-        return $TRUE;
+        $connection->isVPN($TRUE);
+        $connection->isCLI($FALSE);
     } else {
-        return $FALSE;
+        $connection->isVPN($FALSE);
     }
 }
 

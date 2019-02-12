@@ -192,23 +192,25 @@ sub getVersion {
     return 0;
 }
 
-=item vpnAttributes
+=item identifyConnectionType
 
-Determine if the radius request is a VPN request
+Determine Connection Type based on radius attributes
 
 =cut
 
 
-sub vpnAttributes {
-    my ( $self, %radius_request ) = @_;
+sub identifyConnectionType {
+    my ( $self, $connection, $radius_request ) = @_;
+    my $logger = $self->logger;
 
     my @require = qw(Fortinet-Vdom-Name);
-    my @found = grep {exists $radius_request{$_}} @require;
+    my @found = grep {exists $radius_request->{$_}} @require;
 
     if (pf::util::validate_argv(\@require,  \@found)) {
-        return $TRUE;
+        $connection->isVPN($TRUE);
+        $connection->isCLI($FALSE);
     } else {
-        return $FALSE;
+        $connection->isVPN($FALSE);
     }
 }
 
