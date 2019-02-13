@@ -319,7 +319,7 @@ export const hasSyslogParsers = (value, component) => {
   })
 }
 
-export const hasWrixLocations = (value, component) => {
+export const hasWRIXLocations = (value, component) => {
   return store.dispatch('config/getWrixLocations').then((response) => {
     return (response.length > 0)
   }).catch(() => {
@@ -503,7 +503,7 @@ export const userNotExists = (value, component) => {
   })
 }
 
-export const wrixLocationExists = (value, component) => {
+export const WRIXLocationExists = (value, component) => {
   if (!value) return true
   return store.dispatch('config/getWrixLocations').then((response) => {
     if (response.length === 0) return true

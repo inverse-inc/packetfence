@@ -10,8 +10,8 @@ import {
   and,
   not,
   conditional,
-  hasWrixLocations,
-  wrixLocationExists
+  hasWRIXLocations,
+  WRIXLocationExists
 } from '@/globals/pfValidators'
 
 const {
@@ -131,7 +131,7 @@ export const pfConfigurationWrixLocationViewFields = (context) => {
               validators: {
                 [i18n.t('Value required.')]: required,
                 [i18n.t('Maximum 255 characters.')]: maxLength(255),
-                [i18n.t('WRIX Location exists.')]: not(and(required, conditional(isNew || isClone), hasWrixLocations, wrixLocationExists))
+                [i18n.t('WRIX Location exists.')]: not(and(required, conditional(isNew || isClone), hasWRIXLocations, WRIXLocationExists))
               }
             }
           ]
