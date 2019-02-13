@@ -185,9 +185,10 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
             {
               key: 'dns_servers',
               component: pfFormInput,
-              validators: {
-                [i18n.t('Value required.')]: required
-              }
+              attrs: {
+                placeholder: placeholders.dns_servers
+              },
+              validators: pfConfigurationValidatorsFromMeta(meta.dns_servers, 'DNS server(s)')
             }
           ]
         },
@@ -212,10 +213,10 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
             {
               key: 'bind_pass',
               component: pfFormPassword,
-              validators: {
-                [i18n.t('Value required.')]: required,
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
+              attrs: {
+                placeholder: placeholders.bind_pass
+              },
+              validators: pfConfigurationValidatorsFromMeta(meta.bind_pass, 'Password')
             }
           ]
         },
@@ -226,10 +227,10 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
             {
               key: 'ou',
               component: pfFormInput,
-              validators: {
-                [i18n.t('Value required.')]: required,
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
+              attrs: {
+                placeholder: placeholders.ou
+              },
+              validators: pfConfigurationValidatorsFromMeta(meta.ou, 'OU')
             }
           ]
         },
@@ -287,15 +288,12 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
               component: pfFormChosen,
               attrs: {
                 collapseObject: true,
-                placeholder: i18n.t('Click to select a source'),
+                placeholder: placeholders.ntlm_cache_source,
+                label: 'label',
                 trackBy: 'value',
-                label: 'text',
-                options: sources.filter(source => {
-                  return source.type === "AD"
-                }).map(source => {
-                  return { text: `${source.id} (${source.type} - ${source.description})`, value: source.id }
-                })
-              }
+                options: allowed.ntlm_cache_source
+              },
+              validators: pfConfigurationValidatorsFromMeta(meta.ntlm_cache_source, 'Source')
             }
           ]
         },
@@ -307,8 +305,10 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
               key: 'ntlm_cache_filter',
               component: pfFormTextarea,
               attrs: {
-                rows: 3
-              }
+                rows: 3,
+                placeholder: placeholders.ntlm_cache_filter
+              },
+              validators: pfConfigurationValidatorsFromMeta(meta.ntlm_cache_filter, 'LDAP filter')
             }
           ]
         },
@@ -321,11 +321,10 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
               component: pfFormInput,
               attrs: {
                 type: 'number',
-                step: 1
+                step: 1,
+                placeholder: placeholders.ntlm_cache_expiry
               },
-              validators: {
-                [i18n.t('Positive numbers only.')]: numeric
-              }
+              validators: pfConfigurationValidatorsFromMeta(meta.ntlm_cache_expiry, 'Expiration')
             }
           ]
         },
@@ -365,10 +364,6 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
               }
-                type: 'password',
-                placeholder: placeholders.bind_pass
-              },
-              validators: pfConfigurationValidatorsFromMeta(meta.bind_pass, 'Password')
             }
           ]
         }

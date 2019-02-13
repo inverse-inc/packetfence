@@ -120,7 +120,7 @@ export default {
       return response.data
     })
   },
-  domainssOptions: () => {
+  domainsOptions: () => {
     return apiCall.options('config/domains').then(response => {
       return response.data
     })
