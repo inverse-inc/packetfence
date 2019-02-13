@@ -1,7 +1,7 @@
 package aaa
 
 import (
-    "strings"    
+	"strings"
 )
 
 var publicPaths = []string{
@@ -10,10 +10,10 @@ var publicPaths = []string{
 }
 
 func IsPathPublic(path string) bool {
-    for _, s := range publicPaths {
-        if strings.HasPrefix(path, s) {
-            return true
-        }
-    }
-    return false;
+	for _, s := range publicPaths {
+		if strings.HasPrefix(path, s) {
+			return true
+		}
+	}
+	return false
 }
