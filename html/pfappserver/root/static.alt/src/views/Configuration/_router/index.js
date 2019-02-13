@@ -5,6 +5,7 @@ import BasesStore from '../_store/bases'
 import BillingTiersStore from '../_store/billingTiers'
 import ConnectionProfilesStore from '../_store/connectionProfiles'
 import DomainsStore from '../_store/domains'
+import FirewallsStore from '../_store/firewalls'
 import FloatingDevicesStore from '../_store/floatingDevices'
 import PortalModulesStore from '../_store/portalModules'
 import ProfilingStore from '../_store/profiling'
@@ -12,8 +13,11 @@ import ProvisioningsStore from '../_store/provisionings'
 import RealmsStore from '../_store/realms'
 import RolesStore from '../_store/roles'
 import ScansStore from '../_store/scans'
+import SyslogForwardersStore from '../_store/syslogForwarders'
+import SyslogParsersStore from '../_store/syslogParsers'
 import SwitchesStore from '../_store/switches'
 import SwitchGroupsStore from '../_store/switchGroups'
+import WrixLocationsStore from '../_store/wrixLocations'
 
 /* Policies Access Control */
 const PoliciesAccessControlSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/PoliciesAccessControlSection')
@@ -38,17 +42,31 @@ const ProfilingCombinationView = () => import(/* webpackChunkName: "Configuratio
 const ScansTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/ScansTabs')
 const ScansScanEngineView = () => import(/* webpackChunkName: "Configuration" */ '../_components/ScansScanEngineView')
 
-/* Network Configuration */
-const NetworkConfigurationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/NetworkConfigurationSection')
-const FloatingDevicesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/FloatingDevicesList')
-const FloatingDeviceView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FloatingDeviceView')
+/* Integration */
+const IntegrationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/IntegrationSection')
+const FirewallsList = () => import(/* webpackChunkName: "Configuration" */ '../_components/FirewallsList')
+const FirewallView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FirewallView')
+const CiscoMobilityServicesEngineView = () => import(/* webpackChunkName: "Configuration" */ '../_components/CiscoMobilityServicesEngineView')
+const WebServicesView = () => import(/* webpackChunkName: "Configuration" */ '../_components/WebServicesView')
+const SyslogParsersList = () => import(/* webpackChunkName: "Configuration" */ '../_components/SyslogParsersList')
+const SyslogParserView = () => import(/* webpackChunkName: "Configuration" */ '../_components/SyslogParserView')
+const SyslogForwardersList = () => import(/* webpackChunkName: "Configuration" */ '../_components/SyslogForwardersList')
+const SyslogForwarderView = () => import(/* webpackChunkName: "Configuration" */ '../_components/SyslogForwarderView')
+const WrixLocationsList = () => import(/* webpackChunkName: "Configuration" */ '../_components/WrixLocationsList')
+const WrixLocationView = () => import(/* webpackChunkName: "Configuration" */ '../_components/WrixLocationView')
 
 /* Advanced Access Configuration */
+const CaptivePortalView = () => import(/* webpackChunkName: "Configuration" */ '../_components/CaptivePortalView')
 const BillingTiersList = () => import(/* webpackChunkName: "Configuration" */ '../_components/BillingTiersList')
 const BillingTierView = () => import(/* webpackChunkName: "Configuration" */ '../_components/BillingTierView')
 const PortalModulesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/PortalModulesList')
 const PortalModuleView = () => import(/* webpackChunkName: "Configuration" */ '../_components/PortalModuleView')
 const AccessDurationView = () => import(/* webpackChunkName: "Configuration" */ '../_components/AccessDurationView')
+
+/* Network Configuration */
+const NetworkConfigurationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/NetworkConfigurationSection')
+const FloatingDevicesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/FloatingDevicesList')
+const FloatingDeviceView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FloatingDeviceView')
 
 const route = {
   path: '/configuration',
@@ -74,6 +92,9 @@ const route = {
     if (!store.state.$_connection_profiles) {
       store.registerModule('$_connection_profiles', ConnectionProfilesStore)
     }
+    if (!store.state.$_firewalls) {
+      store.registerModule('$_firewalls', FirewallsStore)
+    }
     if (!store.state.$_floatingdevices) {
       store.registerModule('$_floatingdevices', FloatingDevicesStore)
     }
@@ -98,11 +119,20 @@ const route = {
     if (!store.state.$_sources) {
       store.registerModule('$_sources', AuthenticationSourcesStore)
     }
+    if (!store.state.$_syslog_parsers) {
+      store.registerModule('$_syslog_parsers', SyslogParsersStore)
+    }
+    if (!store.state.$_syslog_forwarders) {
+      store.registerModule('$_syslog_forwarders', SyslogForwardersStore)
+    }
     if (!store.state.$_switches) {
       store.registerModule('$_switches', SwitchesStore)
     }
     if (!store.state.$_switch_groups) {
       store.registerModule('$_switch_groups', SwitchGroupsStore)
+    }
+    if (!store.state.$_wrix_locations) {
+      store.registerModule('$_wrix_locations', WrixLocationsStore)
     }
     next()
   },
@@ -513,6 +543,161 @@ const route = {
       props: (route) => ({ tab: 'wmi_rules', query: route.query.query })
     },
     /**
+     * Integration
+     */
+    {
+      path: 'integration',
+      component: IntegrationSection
+    },
+    {
+      path: 'firewalls',
+      name: 'firewalls',
+      component: FirewallsList,
+      props: (route) => ({ query: route.query.query })
+    },
+    {
+      path: 'firewalls/new/:firewallType',
+      name: 'newFirewall',
+      component: FirewallView,
+      props: (route) => ({ storeName: '$_firewalls', isNew: true, firewallType: route.params.firewallType })
+    },
+    {
+      path: 'firewall/:id',
+      name: 'firewall',
+      component: FirewallView,
+      props: (route) => ({ storeName: '$_firewalls', id: route.params.id }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_firewalls/getFirewall', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'firewall/:id/clone',
+      name: 'cloneFirewall',
+      component: FirewallView,
+      props: (route) => ({ storeName: '$_firewalls', id: route.params.id, isClone: true }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_firewalls/getFirewall', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'mse',
+      name: 'mse',
+      component: CiscoMobilityServicesEngineView,
+      props: (route) => ({ storeName: '$_bases', query: route.query.query })
+    },
+    {
+      path: 'webservices',
+      name: 'webservices',
+      component: WebServicesView,
+      props: (route) => ({ storeName: '$_bases', query: route.query.query })
+    },
+    {
+      path: 'pfdetect',
+      name: 'syslogParsers',
+      component: SyslogParsersList,
+      props: (route) => ({ query: route.query.query })
+    },
+    {
+      path: 'pfdetect/new/:syslogParserType',
+      name: 'newSyslogParser',
+      component: SyslogParserView,
+      props: (route) => ({ storeName: '$_syslog_parsers', isNew: true, syslogParserType: route.params.syslogParserType })
+    },
+    {
+      path: 'pfdetect/:id',
+      name: 'syslogParser',
+      component: SyslogParserView,
+      props: (route) => ({ storeName: '$_syslog_parsers', id: route.params.id }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_syslog_parsers/getSyslogParser', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'pfdetect/:id/clone',
+      name: 'cloneSyslogParser',
+      component: SyslogParserView,
+      props: (route) => ({ storeName: '$_syslog_parsers', id: route.params.id, isClone: true }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_syslog_parsers/getSyslogParser', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'syslog',
+      name: 'syslogForwarders',
+      component: SyslogForwardersList,
+      props: (route) => ({ query: route.query.query })
+    },
+    {
+      path: 'syslog/new',
+      name: 'newSyslogForwarder',
+      component: SyslogForwarderView,
+      props: (route) => ({ storeName: '$_syslog_forwarders', isNew: true })
+    },
+    {
+      path: 'syslog/:id',
+      name: 'syslogForwarder',
+      component: SyslogForwarderView,
+      props: (route) => ({ storeName: '$_syslog_forwarders', id: route.params.id }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_syslog_forwarders/getSyslogForwarder', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'syslog/:id/clone',
+      name: 'cloneSyslogForwarder',
+      component: SyslogForwarderView,
+      props: (route) => ({ storeName: '$_syslog_forwarders', id: route.params.id, isClone: true }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_syslog_forwarders/getSyslogForwarder', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'wrix',
+      name: 'wrixLocations',
+      component: WrixLocationsList,
+      props: (route) => ({ query: route.query.query })
+    },
+    {
+      path: 'wrix/new',
+      name: 'newWrixLocation',
+      component: WrixLocationView,
+      props: (route) => ({ storeName: '$_wrix_locations', isNew: true })
+    },
+    {
+      path: 'wrix/:id',
+      name: 'wrixLocation',
+      component: WrixLocationView,
+      props: (route) => ({ storeName: '$_wrix_locations', id: route.params.id }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_wrix_locations/getWrixLocation', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'wrix/:id/clone',
+      name: 'cloneWrixLocation',
+      component: WrixLocationView,
+      props: (route) => ({ storeName: '$_wrix_locations', id: route.params.id, isClone: true }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_wrix_locations/getWrixLocation', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    /**
      * Network Configuration
      */
     {
@@ -556,6 +741,12 @@ const route = {
     /**
      *  Advanced Access Configuration
      */
+    {
+      path: 'captive_portal',
+      name: 'captive_portal',
+      component: CaptivePortalView,
+      props: (route) => ({ storeName: '$_bases', query: route.query.query })
+    },
     {
       path: 'portal_modules',
       name: 'portal_modules',

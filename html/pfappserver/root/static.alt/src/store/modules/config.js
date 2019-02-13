@@ -87,6 +87,9 @@ const api = {
   getDomains () {
     return apiCall({ url: 'config/domains', method: 'get' })
   },
+  getFirewalls () {
+    return apiCall({ url: 'config/firewalls', method: 'get' })
+  },
   getFloatingDevices () {
     return apiCall({ url: 'config/floating_devices', method: 'get' })
   },
@@ -108,11 +111,20 @@ const api = {
   getSwitchGroups () {
     return apiCall({ url: 'config/switch_groups', method: 'get' })
   },
+  getSyslogForwarders () {
+    return apiCall({ url: 'config/syslog_forwarders', method: 'get' })
+  },
+  getSyslogParsers () {
+    return apiCall({ url: 'config/syslog_parsers', method: 'get' })
+  },
   getTenants () {
     return apiCall({ url: 'tenants', method: 'get' })
   },
   getSecurityEvents () {
-    return apiCall({ url: 'config/security_events', method: 'get' })
+    return apiCall({ url: 'config/securityEvents', method: 'get' })
+  },
+  getWrixLocations () {
+    return apiCall({ url: 'wrix_locations', method: 'get' })
   }
 }
 
@@ -178,6 +190,8 @@ const state = { // set intitial states to `false` (not `[]` or `{}`) to avoid in
   connectionProfiles: false,
   domainsStatus: '',
   domains: false,
+  firewallsStatus: '',
+  firewalls: false,
   floatingDevicesStatus: '',
   floatingDevices: false,
   realmsStatus: '',
@@ -192,30 +206,36 @@ const state = { // set intitial states to `false` (not `[]` or `{}`) to avoid in
   switches: false,
   switchGroupsStatus: '',
   switchGroups: false,
+  syslogForwardersStatus: '',
+  syslogForwarders: false,
+  syslogParsersStatus: '',
+  syslogParsers: false,
   tenantsStatus: '',
   tenants: false,
-  security_eventsStatus: '',
-  security_events: false
+  securityEventsStatus: '',
+  securityEvents: false,
+  wrixLocationsStatus: '',
+  wrixLocations: false
 }
 
 const helpers = {
-  sortSecurityEvents: (security_events) => {
-    let sortedIds = Object.keys(security_events).sort((a, b) => {
+  sortSecurityEvents: (securityEvents) => {
+    let sortedIds = Object.keys(securityEvents).sort((a, b) => {
       if (a === 'defaults') {
         return a
-      } else if (!security_events[a].desc && !security_events[b].desc) {
+      } else if (!securityEvents[a].desc && !securityEvents[b].desc) {
         return a.localeCompare(b)
-      } else if (!security_events[b].desc) {
+      } else if (!securityEvents[b].desc) {
         return a
-      } else if (!security_events[a].desc) {
+      } else if (!securityEvents[a].desc) {
         return b
       } else {
-        return security_events[a].desc.localeCompare(security_events[b].desc)
+        return securityEvents[a].desc.localeCompare(securityEvents[b].desc)
       }
     })
     let sortedSecurityEvents = []
     for (let id of sortedIds) {
-      sortedSecurityEvents.push(security_events[id])
+      sortedSecurityEvents.push(securityEvents[id])
     }
     return sortedSecurityEvents
   },
@@ -313,6 +333,9 @@ const getters = {
   isLoadingDomains: state => {
     return state.domainsStatus === types.LOADING
   },
+  isLoadingFirewalls: state => {
+    return state.firewallsStatus === types.LOADING
+  },
   isLoadingFloatingDevices: state => {
     return state.floatingDevicesStatus === types.LOADING
   },
@@ -325,6 +348,9 @@ const getters = {
   isLoadingScans: state => {
     return state.scansStatus === types.LOADING
   },
+  isLoadingSecurityEvents: state => {
+    return state.securityEventsStatus === types.LOADING
+  },
   isLoadingSources: state => {
     return state.sourcesStatus === types.LOADING
   },
@@ -334,11 +360,17 @@ const getters = {
   isLoadingSwitchGroups: state => {
     return state.switchGroupsStatus === types.LOADING
   },
+  isLoadingSyslogForwarders: state => {
+    return state.syslogForwardersStatus === types.LOADING
+  },
+  isLoadingSyslogParsers: state => {
+    return state.syslogParsersStatus === types.LOADING
+  },
   isLoadingTenants: state => {
     return state.tenantsStatus === types.LOADING
   },
-  isLoadingSecurityEvents: state => {
-    return state.security_eventsStatus === types.LOADING
+  isLoadingWrixLocations: state => {
+    return state.wrixLocationsStatus === types.LOADING
   },
   accessDurationsList: state => {
     if (!state.baseGuestsAdminRegistration) return []
@@ -444,13 +476,13 @@ const getters = {
       return { value: item.id, name: item.name }
     })
   },
-  security_eventsList: state => {
-    return helpers.sortSecurityEvents(state.security_events).filter(security_event => security_event.enabled === 'Y').map((item) => {
+  securityEventsList: state => {
+    return helpers.sortSecurityEvents(state.securityEvents).filter(securityEvent => securityEvent.enabled === 'Y').map((item) => {
       return { value: item.id, text: item.desc }
     })
   },
   sortedSecurityEvents: state => {
-    return helpers.sortSecurityEvents(state.security_events)
+    return helpers.sortSecurityEvents(state.securityEvents)
   },
   groupedSwitches: state => {
     return helpers.groupSwitches(state.switches)
@@ -836,6 +868,20 @@ const actions = {
       return Promise.resolve(state.domains)
     }
   },
+  getFirewalls: ({ state, getters, commit }) => {
+    if (getters.isLoadingFirewalls) {
+      return
+    }
+    if (!state.firewalls) {
+      commit('FIREWALLS_REQUEST')
+      return api.getFirewalls().then(response => {
+        commit('FIREWALLS_UPDATED', response.data.items)
+        return state.firewalls
+      })
+    } else {
+      return Promise.resolve(state.firewalls)
+    }
+  },
   getFloatingDevices: ({ state, getters, commit }) => {
     if (getters.isLoadingFloatingDevices) {
       return
@@ -938,6 +984,34 @@ const actions = {
       return Promise.resolve(state.switchGroups)
     }
   },
+  getSyslogForwarders: ({ state, getters, commit }) => {
+    if (getters.isLoadingSyslogForwarders) {
+      return
+    }
+    if (!state.syslogForwarders) {
+      commit('SYSLOG_FORWARDERS_REQUEST')
+      return api.getSyslogForwarders().then(response => {
+        commit('SYSLOG_FORWARDERS_UPDATED', response.data.items)
+        return state.syslogForwarders
+      })
+    } else {
+      return Promise.resolve(state.syslogForwarders)
+    }
+  },
+  getSyslogParsers: ({ state, getters, commit }) => {
+    if (getters.isLoadingSyslogParsers) {
+      return
+    }
+    if (!state.syslogParsers) {
+      commit('SYSLOG_PARSERS_REQUEST')
+      return api.getSyslogParsers().then(response => {
+        commit('SYSLOG_PARSERS_UPDATED', response.data.items)
+        return state.syslogParsers
+      })
+    } else {
+      return Promise.resolve(state.syslogParsers)
+    }
+  },
   getTenants: ({ state, getters, commit }) => {
     if (getters.isLoadingTenants) {
       return
@@ -956,14 +1030,28 @@ const actions = {
     if (getters.isLoadingSecurityEvents) {
       return
     }
-    if (!state.security_events) {
+    if (!state.securityEvents) {
       commit('SECURITY_EVENTS_REQUEST')
       return api.getSecurityEvents().then(response => {
         commit('SECURITY_EVENTS_UPDATED', response.data.items)
-        return state.security_events
+        return state.securityEvents
       })
     } else {
-      return Promise.resolve(state.security_events)
+      return Promise.resolve(state.securityEvents)
+    }
+  },
+  getWrixLocations: ({ commit, getters, state }) => {
+    if (getters.isLoadingWrixLocations) {
+      return
+    }
+    if (!state.wrixLocations) {
+      commit('WRIX_LOCATIONS_REQUEST')
+      return api.getWrixLocations().then(response => {
+        commit('WRIX_LOCATIONS_UPDATED', response.data.items)
+        return state.wrixLocations
+      })
+    } else {
+      return Promise.resolve(state.wrixLocations)
     }
   }
 }
@@ -1158,6 +1246,13 @@ const mutations = {
     state.domains = domains
     state.domainsStatus = types.SUCCESS
   },
+  FIREWALLS_REQUEST: (state) => {
+    state.firewallsStatus = types.LOADING
+  },
+  FIREWALLS_UPDATED: (state, firewalls) => {
+    state.firewalls = firewalls
+    state.firewallsStatus = types.SUCCESS
+  },
   FLOATING_DEVICES_REQUEST: (state) => {
     state.floatingDevicesStatus = types.LOADING
   },
@@ -1207,6 +1302,20 @@ const mutations = {
     state.switchGroups = switchGroups
     state.switchGroupsStatus = types.SUCCESS
   },
+  SYSLOG_FORWARDERS_REQUEST: (state) => {
+    state.syslogForwardersStatus = types.LOADING
+  },
+  SYSLOG_FORWARDERS_UPDATED: (state, syslogForwarders) => {
+    state.syslogForwarders = syslogForwarders
+    state.syslogForwardersStatus = types.SUCCESS
+  },
+  SYSLOG_PARSERS_REQUEST: (state) => {
+    state.syslogParsersStatus = types.LOADING
+  },
+  SYSLOG_PARSERS_UPDATED: (state, syslogParsers) => {
+    state.syslogParsers = syslogParsers
+    state.syslogParsersStatus = types.SUCCESS
+  },
   TENANTS_REQUEST: (state) => {
     state.tenantsStatus = types.LOADING
   },
@@ -1215,15 +1324,22 @@ const mutations = {
     state.tenantsStatus = types.SUCCESS
   },
   SECURITY_EVENTS_REQUEST: (state) => {
-    state.security_eventsStatus = types.LOADING
+    state.securityEventsStatus = types.LOADING
   },
-  SECURITY_EVENTS_UPDATED: (state, security_events) => {
+  SECURITY_EVENTS_UPDATED: (state, securityEvents) => {
     let ref = {}
-    for (let security_event of security_events) {
-      ref[security_event.id] = Object.assign({}, security_event)
+    for (let securityEvent of securityEvents) {
+      ref[securityEvent.id] = Object.assign({}, securityEvent)
     }
-    state.security_events = ref
-    state.security_eventsStatus = types.SUCCESS
+    state.securityEvents = ref
+    state.securityEventsStatus = types.SUCCESS
+  },
+  WRIX_LOCATIONS_REQUEST: (state) => {
+    state.wrixLocationsStatus = types.LOADING
+  },
+  WRIX_LOCATIONS_UPDATED: (state, wrixLocations) => {
+    state.wrixLocations = wrixLocations
+    state.wrixLocationsStatus = types.SUCCESS
   }
 }
 

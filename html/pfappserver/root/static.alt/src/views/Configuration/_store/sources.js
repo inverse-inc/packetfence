@@ -33,6 +33,16 @@ const actions = {
       return response.items
     })
   },
+  getAuthenticationSourcesByType: ({ state, commit }, type) => {
+    const params = {
+      sort: 'id',
+      fields: ['id', 'description', 'class'].join(','),
+      type: type
+    }
+    return api.authenticationSources(params).then(response => {
+      return response.items
+    })
+  },
   getAuthenticationSource: ({ state, commit }, id) => {
     if (state.cache[id]) {
       return Promise.resolve(state.cache[id])

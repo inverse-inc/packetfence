@@ -13,6 +13,7 @@ import {
   not,
   conditional,
   isPrice,
+  hasBillingTiers,
   billingTierExists
 } from '@/globals/pfValidators'
 
@@ -102,7 +103,7 @@ export const pfConfigurationBillingTierViewFields = (context = {}) => {
                 [i18n.t('Name required.')]: required,
                 [i18n.t('Maximum 255 characters.')]: maxLength(255),
                 [i18n.t('Alphanumeric characters only.')]: alphaNum,
-                [i18n.t('Billing Tier exists.')]: not(and(required, conditional(isNew || isClone), billingTierExists))
+                [i18n.t('Billing Tier exists.')]: not(and(required, conditional(isNew || isClone), hasBillingTiers, billingTierExists))
               }
             }
           ]

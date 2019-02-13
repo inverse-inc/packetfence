@@ -27,8 +27,7 @@
         <pf-button-save :disabled="invalidForm" :isLoading="isLoading">
           <template v-if="isNew">{{ $t('Create') }}</template>
           <template v-else-if="isClone">{{ $t('Clone') }}</template>
-          <template v-else-if="ctrlKey">{{ $t('Save &amp; Close') }}</template>
-          <template v-else>{{ $t('Save') }}</template>
+          <template v-else>{{ $t('Save and Join') }}</template>
         </pf-button-save>
         <pf-button-delete v-if="isDeletable" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Domain?')" @on-delete="remove()"/>
       </b-card-footer>
@@ -40,7 +39,6 @@
 import pfConfigView from '@/components/pfConfigView'
 import pfButtonSave from '@/components/pfButtonSave'
 import pfButtonDelete from '@/components/pfButtonDelete'
-import pfMixinCtrlKey from '@/components/pfMixinCtrlKey'
 import pfMixinEscapeKey from '@/components/pfMixinEscapeKey'
 import {
   pfConfigurationDomainViewFields as fields,
@@ -52,7 +50,6 @@ export default {
   name: 'DomainView',
   mixins: [
     validationMixin,
-    pfMixinCtrlKey,
     pfMixinEscapeKey
   ],
   components: {
@@ -82,7 +79,8 @@ export default {
   data () {
     return {
       domain: defaults(this), // will be overloaded with the data from the store
-      domainValidations: {} // will be overloaded with data from the pfConfigView
+      domainValidations: {}, // will be overloaded with data from the pfConfigView
+      sources: []
     }
   },
   validations () {
@@ -115,21 +113,13 @@ export default {
       this.$router.push({ name: 'domains' })
     },
     create () {
-      const ctrlKey = this.ctrlKey
       this.$store.dispatch('$_domains/createDomain', this.domain).then(response => {
-        if (ctrlKey) { // [CTRL] key pressed
-          this.close()
-        } else {
-          this.$router.push({ name: 'domain', params: { id: this.domain.id } })
-        }
+        this.$router.push({ name: 'domain', params: { id: this.domain.id } })
       })
     },
     save () {
-      const ctrlKey = this.ctrlKey
       this.$store.dispatch('$_domains/updateDomain', this.domain).then(response => {
-        if (ctrlKey) { // [CTRL] key pressed
-          this.close()
-        }
+        this.close()
       })
     },
     remove () {
@@ -144,6 +134,9 @@ export default {
         this.domain = Object.assign({}, data)
       })
     }
+    this.$store.dispatch('$_sources/all').then(data => {
+      this.sources = data
+    })
   }
 }
 </script>

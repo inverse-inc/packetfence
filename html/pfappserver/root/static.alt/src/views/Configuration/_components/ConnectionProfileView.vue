@@ -28,7 +28,7 @@
         <pf-button-save :disabled="invalidForm" :isLoading="isLoading">
           <template v-if="isNew">{{ $t('Create') }}</template>
           <template v-else-if="isClone">{{ $t('Clone') }}</template>
-          <template v-else-if="ctrlKey">{{ $t('Save &amp; Close') }}</template>
+          <template v-else-if="ctrlKey">{{ $t('Save & Close') }}</template>
           <template v-else>{{ $t('Save') }}</template>
         </pf-button-save>
         <pf-button-delete v-if="isDeletable" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Connection Profile?')" @on-delete="remove()"/>
@@ -187,7 +187,7 @@ export default {
   created () {
     if (this.id) {
       this.$store.dispatch(`${this.storeName}/getConnectionProfile`, this.id).then(data => {
-        this.connectionProfile = Object.assign(this.connectionProfile, data)
+        this.connectionProfile = { ...this.connectionProfile, ...data }
       })
       this.$store.dispatch(`${this.storeName}/files`, { id: this.id, sort: ['type', 'name'] }).then(data => {
         this.files = data.entries

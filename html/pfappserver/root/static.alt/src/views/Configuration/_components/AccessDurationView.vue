@@ -25,11 +25,6 @@
 <script>
 import pfConfigView from '@/components/pfConfigView'
 import pfButtonSave from '@/components/pfButtonSave'
-import InputRange from '@/components/InputRange'
-import pfFormToggle from '@/components/pfFormToggle'
-import pfFormRangeToggle from '@/components/pfFormRangeToggle'
-import pfFormRangeToggleDefault from '@/components/pfFormRangeToggleDefault'
-import pfFormRangeTriple from '@/components/pfFormRangeTriple'
 import {
   pfConfigurationAccessDurationViewFields as fields,
   pfConfigurationAccessDurationViewDefaults as defaults,
@@ -41,18 +36,13 @@ import {
 const { validationMixin } = require('vuelidate')
 
 export default {
-  name: 'ProfilingGeneralSettingView',
+  name: 'AccessDurationView',
   mixins: [
     validationMixin
   ],
   components: {
     pfConfigView,
-    pfButtonSave,
-    InputRange,
-    pfFormToggle,
-    pfFormRangeToggle,
-    pfFormRangeToggleDefault,
-    pfFormRangeTriple
+    pfButtonSave
   },
   props: {
     storeName: { // from router

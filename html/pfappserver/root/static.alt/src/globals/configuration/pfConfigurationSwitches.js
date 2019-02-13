@@ -19,6 +19,7 @@ import {
   isPort,
   limitSiblingFields,
   restrictAllSiblingFields,
+  hasSwitches,
   switchExists
 } from '@/globals/pfValidators'
 
@@ -182,7 +183,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
                 [i18n.t('Identifier required.')]: required,
                 [i18n.t('Maximum 255 characters.')]: maxLength(255),
                 [i18n.t('IP addresses only.')]: ipAddress,
-                [i18n.t('Switch exists.')]: not(and(required, conditional(isNew || isClone), switchExists))
+                [i18n.t('Switch exists.')]: not(and(required, conditional(isNew || isClone), hasSwitches, switchExists))
               }
             }
           ]
