@@ -11470,6 +11470,10 @@ msgstr "RADIUS attributes"
 msgid "radius_configuration.record_accounting_in_sql"
 msgstr "Record accounting in SQL tables"
 
+# conf/documentation.conf
+msgid "radius_configuration.username_attributes"
+msgstr "Username attributes"
+
 # pf::radius_audit_log (RADIUS Audit Log)
 msgid "radius_reply"
 msgstr "RADIUS Reply"
