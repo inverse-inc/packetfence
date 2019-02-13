@@ -2,11 +2,11 @@
   <pf-config-view
     :isLoading="isLoading"
     :form="getForm"
-    :model="domain"
-    :vuelidate="$v.domain"
+    :model="form"
+    :vuelidate="$v.form"
     :isNew="isNew"
     :isClone="isClone"
-    @validations="domainValidations = $event"
+    @validations="formValidations = $event"
     @close="close"
     @create="create"
     @save="save"
@@ -23,13 +23,14 @@
     <template slot="footer"
       scope="{isDeletable}"
     >
-      <b-card-footer @mouseenter="$v.domain.$touch()">
+      <b-card-footer @mouseenter="$v.form.$touch()">
         <pf-button-save :disabled="invalidForm" :isLoading="isLoading">
           <template v-if="isNew">{{ $t('Create') }}</template>
           <template v-else-if="isClone">{{ $t('Clone') }}</template>
           <template v-else>{{ $t('Save and Join') }}</template>
         </pf-button-save>
         <pf-button-delete v-if="isDeletable" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Domain?')" @on-delete="remove()"/>
+        <b-button class="ml-1" variant="outline-primary" @click="init()">{{ $t('Reset') }}</b-button>
       </b-card-footer>
     </template>
   </pf-config-view>
@@ -41,8 +42,7 @@ import pfButtonSave from '@/components/pfButtonSave'
 import pfButtonDelete from '@/components/pfButtonDelete'
 import pfMixinEscapeKey from '@/components/pfMixinEscapeKey'
 import {
-  pfConfigurationDomainViewFields as fields,
-  pfConfigurationDomainViewDefaults as defaults
+  pfConfigurationDomainViewFields as fields
 } from '@/globals/configuration/pfConfigurationDomains'
 const { validationMixin } = require('vuelidate')
 
@@ -78,14 +78,15 @@ export default {
   },
   data () {
     return {
-      domain: defaults(this), // will be overloaded with the data from the store
-      domainValidations: {}, // will be overloaded with data from the pfConfigView
+      form: {}, // will be overloaded with the data from the store
+      formValidations: {}, // will be overloaded with data from the pfConfigView
+      options: {},
       sources: []
     }
   },
   validations () {
     return {
-      domain: this.domainValidations
+      form: this.formValidations
     }
   },
   computed: {
@@ -93,7 +94,7 @@ export default {
       return this.$store.getters['$_domains/isLoading']
     },
     invalidForm () {
-      return this.$v.domain.$invalid || this.$store.getters['$_domains/isWaiting']
+      return this.$v.form.$invalid || this.$store.getters['$_domains/isWaiting']
     },
     getForm () {
       return {
@@ -102,24 +103,42 @@ export default {
       }
     },
     isDeletable () {
-      if (this.isNew || this.isClone || ('not_deletable' in this.domain && this.domain.not_deletable)) {
+      if (this.isNew || this.isClone || ('not_deletable' in this.form && this.form.not_deletable)) {
         return false
       }
       return true
     }
   },
   methods: {
+    init () {
+      this.$store.dispatch('$_domains/options', this.id).then(options => {
+        // store options
+        this.options = Object.assign({}, options)
+        if (this.id) {
+          // existing
+          this.$store.dispatch('$_domains/getDomain', this.id).then(form => {
+            this.form = Object.assign({}, form)
+          })
+        } else {
+          // new
+          this.form = Object.assign({}, options.defaults) // set defaults
+        }
+      })
+    },
     close () {
       this.$router.push({ name: 'domains' })
     },
     create () {
-      this.$store.dispatch('$_domains/createDomain', this.domain).then(response => {
-        this.$router.push({ name: 'domain', params: { id: this.domain.id } })
+      this.$store.dispatch('$_domains/createDomain', this.form).then(response => {
+        this.$router.push({ name: 'domain', params: { id: this.form.id } })
       })
     },
     save () {
-      this.$store.dispatch('$_domains/updateDomain', this.domain).then(response => {
-        this.close()
+      const ctrlKey = this.ctrlKey
+      this.$store.dispatch('$_domains/updateDomain', this.form).then(response => {
+        if (ctrlKey) { // [CTRL] key pressed
+          this.close()
+        }
       })
     },
     remove () {
@@ -129,14 +148,7 @@ export default {
     }
   },
   created () {
-    if (this.id) {
-      this.$store.dispatch('$_domains/getDomain', this.id).then(data => {
-        this.domain = Object.assign({}, data)
-      })
-    }
-    this.$store.dispatch('$_sources/all').then(data => {
-      this.sources = data
-    })
+    this.init()
   }
 }
 </script>

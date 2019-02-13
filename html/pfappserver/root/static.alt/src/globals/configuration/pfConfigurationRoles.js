@@ -14,10 +14,7 @@ import {
 } from '@/globals/pfValidators'
 
 const {
-  integer,
-  required,
-  alphaNum,
-  maxLength
+  required
 } = require('vuelidate/lib/validators')
 
 export const pfConfigurationRolesListColumns = [
@@ -77,7 +74,7 @@ export const pfConfigurationRoleViewFields = (context = {}) => {
     isNew = false,
     isClone = false,
     options: {
-      allowed_values = {},
+      allowed = {},
       meta = {},
       placeholders = {}
     }

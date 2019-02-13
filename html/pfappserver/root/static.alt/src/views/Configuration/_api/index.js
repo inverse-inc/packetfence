@@ -120,9 +120,19 @@ export default {
       return response.data
     })
   },
+  domainssOptions: () => {
+    return apiCall.options('config/domains').then(response => {
+      return response.data
+    })
+  },
   domain: id => {
     return apiCall.get(`config/domain/${id}`).then(response => {
       return response.data.item
+    })
+  },
+  domainOptions: id => {
+    return apiCall.options(`config/domain/${id}`).then(response => {
+      return response.data
     })
   },
   createDomain: data => {

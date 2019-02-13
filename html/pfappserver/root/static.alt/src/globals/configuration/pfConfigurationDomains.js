@@ -7,22 +7,19 @@ import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import pfFormTextarea from '@/components/pfFormTextarea'
 import {
   pfConfigurationListColumns,
-  pfConfigurationListFields
+  pfConfigurationListFields,
+  pfConfigurationValidatorsFromMeta
 } from '@/globals/configuration/pfConfiguration'
 import {
   and,
   not,
   conditional,
-  isFQDN,
   hasDomains,
   domainExists
 } from '@/globals/pfValidators'
 
 const {
-  required,
-  alphaNum,
-  numeric,
-  maxLength
+  required
 } = require('vuelidate/lib/validators')
 
 export const pfConfigurationDomainsListColumns = [
@@ -38,14 +35,13 @@ export const pfConfigurationDomainsListFields = [
 ]
 
 export const pfConfigurationDomainsListConfig = (context = {}) => {
-  const { $i18n } = context
   return {
     columns: pfConfigurationDomainsListColumns,
     fields: pfConfigurationDomainsListFields,
     rowClickRoute (item, index) {
       return { name: 'domain', params: { id: item.id } }
     },
-    searchPlaceholder: $i18n.t('Search by name or workgroup'),
+    searchPlaceholder: i18n.t('Search by name or workgroup'),
     searchableOptions: {
       searchApiEndpoint: 'config/domains',
       defaultSortKeys: ['id'],
@@ -82,7 +78,12 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
   const {
     isNew = false,
     isClone = false,
-    sources = []
+    sources = [],
+    options: {
+      allowed = {},
+      meta = {},
+      placeholders = {}
+    }
   } = context
   return [
     {
@@ -90,7 +91,7 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
       fields: [
         {
           label: i18n.t('Identifier'),
-          text: i18n.t('Specify a unique identifier for your configuration.<br/>This doesn\'t have to be related to your domain.'),
+          text: i18n.t(`Specify a unique identifier for your configuration.<br/>This doesn't have to be related to your domain.`),
           fields: [
             {
               key: 'id',
@@ -99,10 +100,11 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
                 disabled: (!isNew && !isClone)
               },
               validators: {
-                [i18n.t('Value required.')]: required,
-                [i18n.t('Maximum 255 characters.')]: maxLength(255),
-                [i18n.t('Alphanumeric characters only.')]: alphaNum,
-                [i18n.t('Domain exists.')]: not(and(required, conditional(isNew || isClone), hasDomains, domainExists))
+                ...pfConfigurationValidatorsFromMeta(meta.id, 'Identifier'),
+                ...{ // TODO: remove once meta is available for `id`
+                  [i18n.t('Name required.')]: required,
+                  [i18n.t('Role exists.')]: not(and(required, conditional(isNew || isClone), hasDomains, domainExists))
+                }
               }
             }
           ]
@@ -113,10 +115,10 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
             {
               key: 'workgroup',
               component: pfFormInput,
-              validators: {
-                [i18n.t('Value required.')]: required,
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
+              attrs: {
+                placeholder: placeholders.workgroup
+              },
+              validators: pfConfigurationValidatorsFromMeta(meta.workgroup, 'Workgroup')
             }
           ]
         },
@@ -127,39 +129,38 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
             {
               key: 'dns_name',
               component: pfFormInput,
-              validators: {
-                [i18n.t('Value required.')]: required,
-                [i18n.t('Maximum 255 characters.')]: maxLength(255),
-                [i18n.t('Fully Qualified Domain Name required.')]: isFQDN
-              }
+              attrs: {
+                placeholder: placeholders.dns_name
+              },
+              validators: pfConfigurationValidatorsFromMeta(meta.dns_name, 'DNS name')
             }
           ]
         },
         {
-          label: i18n.t('This server\'s name'),
-          text: i18n.t('This server\'s name (account name) in your Active Directory. Use \'%h\' to automatically use this server hostname.'),
+          label: i18n.t(`This server's name`),
+          text: i18n.t(`This server's name (account name) in your Active Directory. Use '%h' to automatically use this server hostname.`),
           fields: [
             {
               key: 'server_name',
               component: pfFormInput,
-              validators: {
-                [i18n.t('Value required.')]: required,
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
+              attrs: {
+                placeholder: placeholders.server_name
+              },
+              validators: pfConfigurationValidatorsFromMeta(meta.server_name, 'Server name')
             }
           ]
         },
         {
           label: i18n.t('Sticky DC'),
-          text: i18n.t('This is used to specify a sticky domain controller to connect to. If not specified, default \'*\' will be used to connect to any available domain controller.'),
+          text: i18n.t(`This is used to specify a sticky domain controller to connect to. If not specified, default '*' will be used to connect to any available domain controller.`),
           fields: [
             {
               key: 'sticky_dc',
               component: pfFormInput,
-              validators: {
-                [i18n.t('Value required.')]: required,
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
+              attrs: {
+                placeholder: placeholders.sticky_dc
+              },
+              validators: pfConfigurationValidatorsFromMeta(meta.sticky_dc, 'Sticky DC')
             }
           ]
         },
@@ -170,10 +171,10 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
             {
               key: 'ad_server',
               component: pfFormInput,
-              validators: {
-                [i18n.t('Value required.')]: required,
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
+              attrs: {
+                placeholder: placeholders.ad_server
+              },
+              validators: pfConfigurationValidatorsFromMeta(meta.ad_server, 'Server')
             }
           ]
         },
@@ -197,10 +198,10 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
             {
               key: 'bind_dn',
               component: pfFormInput,
-              validators: {
-                [i18n.t('Value required.')]: required,
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
+              attrs: {
+                placeholder: placeholders.bind_dn
+              },
+              validators: pfConfigurationValidatorsFromMeta(meta.bind_dn, 'Username')
             }
           ]
         },
@@ -364,17 +365,14 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
               }
+                type: 'password',
+                placeholder: placeholders.bind_pass
+              },
+              validators: pfConfigurationValidatorsFromMeta(meta.bind_pass, 'Password')
             }
           ]
         }
       ]
     }
   ]
-}
-
-export const pfConfigurationDomainViewDefaults = (context = {}) => {
-  return {
-    id: null,
-    ad_server: '%h'
-  }
 }
