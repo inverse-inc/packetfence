@@ -75,9 +75,10 @@ const actions = {
     })
   },
   files: ({ state, commit }, data) => {
+    const sort = 'sort' in data ? data.sort.join(',') : 'type,name'
     const params = {
       id: data.id,
-      sort: data.sort.join(','),
+      sort,
       fields: ['name', 'size', 'entries', 'type', 'not_deletable', 'not_revertible'].join(',')
     }
     commit('FILE_REQUEST')
@@ -103,7 +104,7 @@ const actions = {
         filePromise = Promise.resolve(state.files.cache[params.id])
       } else {
         // .. from server
-        filePromise = dispatch('files', params.id)
+        filePromise = dispatch('files', { id: params.id })
       }
       return filePromise.then(() => {
         let paths = params.filename.split('/')
@@ -147,7 +148,7 @@ const actions = {
     commit('FILE_REQUEST', types.DELETING)
     return api.deleteConnectionProfileFile(params).then(response => {
       commit('FILE_DESTROYED')
-      return dispatch('files', params.id)
+      return dispatch('files', { id: params.id })
     }).catch(err => {
       commit('FILE_ERROR', err.response)
       throw err

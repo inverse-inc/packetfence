@@ -1,5 +1,6 @@
 <template>
-  <b-table :items="items" :fields="fields" :class="'table-clickable table-rowindent-' + level" :sort-by="sortBy" :sort-desc="false"
+  <div>
+  <b-table :items="items" :fields="fields" :class="'mb-0 table-clickable table-rowindent-' + level" :sort-by="sortBy" :sort-desc="false"
     small fixed hover show-empty no-local-sorting
     @sort-changed="onSortingChanged" @row-clicked="onRowClick">
     <template slot="name" slot-scope="row">
@@ -19,11 +20,13 @@
       <pf-tree
         v-if="childrenIf(row.item)"
         class="table-headless bg-transparent mb-0"
+        :path="fullPath(row.item)"
         :items="row.item[childrenKey]"
         :fields="fields"
         :children-key="childrenKey"
         :children-if="childrenIf"
         :on-node-click="onNodeClick"
+        :on-node-create="onNodeCreate"
         :level="level + 1"></pf-tree>
       </transition>
     </template>
@@ -38,12 +41,20 @@
       <div v-else class="font-weight-light text-secondary">{{ $t('Directory is empty') }}</div>
     </template>
   </b-table>
+    <div :class="'my-1 indent-' + level" v-if="onNodeCreate">
+      <b-button size="sm" variant="outline-secondary" @click="onNodeCreate(path)">{{ $t('New') }}</b-button>
+    </div>
+  </div>
 </template>
 
 <script>
 export default {
   name: 'pf-tree',
   props: {
+    path: {
+      type: String,
+      default: ''
+    },
     items: {
       type: Array,
       default: () => []
@@ -72,6 +83,10 @@ export default {
       type: Function,
       default: null
     },
+    onNodeCreate: {
+      type: Function,
+      default: null
+    },
     level: {
       type: Number,
       default: 0
@@ -96,6 +111,9 @@ export default {
       } else if (typeof this.onNodeClick === 'function') {
         return this.onNodeClick(item)
       }
+    },
+    fullPath (item) {
+      return [item.path, item.name].filter(e => e).join('/')
     }
   }
 }
@@ -118,7 +136,8 @@ export default {
 }
 
 @for $i from 1 through 5 {
-    .table-rowindent-#{$i} td:first-child {
+    .table-rowindent-#{$i} td:first-child,
+    .indent-#{$i} {
         padding-left: $i * 2rem;
     }
 }

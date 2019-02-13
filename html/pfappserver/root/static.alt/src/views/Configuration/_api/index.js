@@ -283,7 +283,8 @@ export default {
     })
   },
   connectionProfileFile: params => {
-    return apiCall.get(`config/connection_profile/${params.id}/files/${params.filename}`).then(response => {
+    const get = params.quiet ? 'getQuiet' : 'get'
+    return apiCall[get](`config/connection_profile/${params.id}/files/${params.filename}`).then(response => {
       return response.data
     })
   },

@@ -215,6 +215,16 @@ export const compareDate = (comparison, date = new Date(), dateFormat = 'YYYY-MM
   })
 }
 
+export const isFilenameWithExtension = (extensions = ['html']) => {
+  return (0, _common.withParams)({
+    type: 'isFilenameWithExtension',
+    extensions: extensions
+  }, function (value) {
+    const re = RegExp('^[a-zA-Z0-9_]*\\.(' + extensions.join('|') + ')$')
+    return re.test(value)
+  })
+}
+
 export const hasBillingTiers = (value, component) => {
   return store.dispatch('config/getBillingTiers').then((response) => {
     return (response.length > 0)
@@ -464,7 +474,6 @@ export const switchGroupExists = (value, component) => {
     return true
   })
 }
-
 
 export const syslogForwarderExists = (value, component) => {
   if (!value) return true

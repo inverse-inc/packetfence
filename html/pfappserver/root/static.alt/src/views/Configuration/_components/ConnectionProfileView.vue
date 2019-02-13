@@ -181,7 +181,6 @@ export default {
       this.$store.dispatch(`${this.storeName}/files`, { id: this.id, sort }).then(data => {
         this.files = data.entries
       })
-
     }
   },
   created () {

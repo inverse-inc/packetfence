@@ -1009,6 +1009,7 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
               key: 'files',
               component: pfTree,
               attrs: {
+                path: '',
                 items: files,
                 fields: [
                   {
@@ -1037,7 +1038,8 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
                 childrenIf: (item) => item.type === 'dir' && 'entries' in item,
                 sortBy: 'name',
                 onSortingChanged: sortFiles,
-                onNodeClick: (item) => $router.push({ name: 'connectionProfileFile', params: { id: connectionProfile.id, filename: item.path ? [item.path, item.name].join('/') : item.name } })
+                onNodeClick: (item) => $router.push({ name: 'connectionProfileFile', params: { id: connectionProfile.id, filename: item.path ? [item.path, item.name].join('/') : item.name } }),
+                onNodeCreate: (path) => $router.push({ name: 'newConnectionProfileFile', params: { id: connectionProfile.id, path } })
               }
             }
           ]

@@ -394,6 +394,12 @@ const route = {
       }
     },
     {
+      path: 'connection_profile/:id/files/:path/new',
+      name: 'newConnectionProfileFile',
+      component: ConnectionProfileFileView,
+      props: (route) => ({ storeName: '$_connection_profiles', id: route.params.id, filename: route.params.path, isNew: true })
+    },
+    {
       path: 'connection_profile/:id/files/:filename',
       name: 'connectionProfileFile',
       component: ConnectionProfileFileView,
