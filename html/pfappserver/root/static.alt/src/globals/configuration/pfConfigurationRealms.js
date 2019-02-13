@@ -17,9 +17,7 @@ import {
 } from '@/globals/pfValidators'
 
 const {
-  required,
-  alphaNum,
-  maxLength
+  required
 } = require('vuelidate/lib/validators')
 
 export const pfConfigurationRealmsListColumns = [
@@ -107,18 +105,7 @@ export const pfConfigurationRealmViewFields = (context = {}) => {
           ]
         },
         {
-          label: i18n.t('Realm Options'),
-          text: i18n.t('You can add FreeRADIUS options in the realm definition.'),
-          fields: [
-            {
-              key: 'options',
-              component: pfFormTextarea,
-              attrs: {
-                placeholder: placeholders.options
-              },
-              validators: pfConfigurationValidatorsFromMeta(meta.options, 'Realm options')
-            }
-          ]
+          label: i18n.t('NTLM Auth Configuration'), labelSize: 'lg'
         },
         {
           label: i18n.t('Domain'),
@@ -137,6 +124,111 @@ export const pfConfigurationRealmViewFields = (context = {}) => {
               validators: pfConfigurationValidatorsFromMeta(meta.domain, 'Domain')
             }
           ]
+        },
+        {
+          label: i18n.t('Freeradius Proxy Configuration'), labelSize: 'lg'
+        },
+        {
+          label: i18n.t('Realm Options'),
+          text: i18n.t('You can add FreeRADIUS options in the realm definition.'),
+          fields: [
+            {
+              key: 'options',
+              component: pfFormTextarea,
+              attrs: {
+                placeholder: placeholders.options
+              },
+              validators: pfConfigurationValidatorsFromMeta(meta.options, 'Realm options')
+            }
+          ]
+        },
+        {
+          label: i18n.t('RADIUS AUTH'),
+          text: i18n.t('The RADIUS Server(s) to proxy authentication.'),
+          fields: [
+            {
+              key: 'radius_auth',
+              component: pfFormChosen,
+              attrs: {
+                collapseObject: true,
+                placeholder: placeholders.radius_auth,
+                label: 'label',
+                trackBy: 'value',
+                options: allowed.radius_auth
+              },
+              validators: pfConfigurationValidatorsFromMeta(meta.radius_auth, 'RADIUS AUTH')
+            }
+          ]
+        },
+        {
+          label: i18n.t('Type'),
+          text: i18n.t('Home server pool type.'),
+          fields: [
+            {
+              key: 'radius_auth_proxy_type',
+              component: pfFormChosen,
+              attrs: {
+                collapseObject: true,
+                placeholder: placeholders.radius_auth_proxy_type,
+                label: 'label',
+                trackBy: 'value',
+                options: allowed.radius_auth_proxy_type
+              },
+              validators: pfConfigurationValidatorsFromMeta(meta.radius_auth_proxy_type, 'Type')
+            }
+          ]
+        },
+        {
+          label: i18n.t('Authorize from PacketFence'),
+          text: i18n.t('Should we forward the request to PacketFence to have a dynamic answer or do we use the remote proxy server answered attributes?'),
+          fields: [
+            {
+              key: 'radius_auth_compute_in_pf',
+              component: pfFormRangeToggle,
+              attrs: {
+                values: { checked: 'enabled', unchecked: 'disabled' }
+              }
+            }
+          ]
+        },
+        {
+          label: i18n.t('RADIUS ACCT'),
+          text: i18n.t('The RADIUS Server(s) to proxy authentication.'),
+          fields: [
+            {
+              key: 'radius_acct_chosen',
+              component: pfFormChosen,
+              attrs: {
+                collapseObject: true,
+                placeholder: placeholders.radius_acct_chosen,
+                label: 'label',
+                trackBy: 'value',
+                options: allowed.radius_acct_chosen
+              },
+              validators: pfConfigurationValidatorsFromMeta(meta.radius_acct_chosen, 'RADIUS ACCT')
+            }
+          ]
+        },
+        {
+          label: i18n.t('Type'),
+          text: i18n.t('Home server pool type.'),
+          fields: [
+            {
+              key: 'radius_acct_proxy_type',
+              component: pfFormChosen,
+              attrs: {
+                collapseObject: true,
+                placeholder: placeholders.radius_acct_proxy_type,
+                label: 'label',
+                trackBy: 'value',
+                options: allowed.radius_acct_proxy_type
+              },
+              validators: pfConfigurationValidatorsFromMeta(meta.radius_acct_proxy_type, 'Type')
+            }
+          ]
+        },
+        {
+          label: i18n.t('Stripping Configuration'), labelSize: 'lg'
         },
         {
           label: i18n.t('Strip on the portal'),
@@ -187,6 +279,24 @@ export const pfConfigurationRealmViewFields = (context = {}) => {
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
               }
+            }
+          ]
+        },
+        {
+          label: i18n.t('LDAP source'),
+          text: i18n.t('The LDAP Server to query the custom attributes.'),
+          fields: [
+            {
+              key: 'ldap_source',
+              component: pfFormChosen,
+              attrs: {
+                collapseObject: true,
+                placeholder: placeholders.ldap_source,
+                label: 'label',
+                trackBy: 'value',
+                options: allowed.ldap_source
+              },
+              validators: pfConfigurationValidatorsFromMeta(meta.ldap_source, 'LDAP source')
             }
           ]
         }

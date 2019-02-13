@@ -67,6 +67,7 @@ export const pfConfigurationValidatorsFromMeta = (meta = {}, fieldName = 'Value'
           case 'integer':
             validators = { ...validators, ...{ [i18n.t('Integers only.')]: integer } }
             break
+          case 'array': // ignore
           case 'string': // ignore
             break
           default:
