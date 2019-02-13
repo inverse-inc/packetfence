@@ -208,7 +208,7 @@ sub type_meta_info {
 sub options_with_no_type {
     my ($self) = @_;
     my $output = $self->SUPER::options_with_no_type();
-    my $types = delete $output->{allowed_values}{type};
+    my $types = delete $output->{allowed}{type};
     my %groups;
     for my $type (@$types) {
         my $class = $type->{class};
@@ -225,7 +225,7 @@ sub options_with_no_type {
         push @new_types, $group;
     }
 
-    $output->{allowed_values}{type} = \@new_types;
+    $output->{allowed}{type} = \@new_types;
     return $output;
 }
 

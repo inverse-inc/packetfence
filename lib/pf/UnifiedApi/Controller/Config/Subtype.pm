@@ -70,14 +70,14 @@ options_with_no_type
 
 sub options_with_no_type {
     my ($self) = @_;
-    my %allowed_values;
+    my %allowed;
     my %output = (
         defaults => {},
         placeholders => {},
-        allowed_values => \%allowed_values,
+        allowed=> \%allowed,
     );
 
-    $allowed_values{type} = [
+    $allowed{type} = [
         map { $self->type_meta_info($_) } keys %{$self->type_lookup}
     ];
     return \%output;

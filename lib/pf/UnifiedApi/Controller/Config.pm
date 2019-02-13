@@ -484,11 +484,11 @@ resource_options
 sub resource_options {
     my ($self) = @_;
     my $form = $self->form($self->item);
-    my (%defaults, %placeholders, %allowed_values, %meta);
+    my (%defaults, %placeholders, %allowed, %meta);
     my %output = (
         defaults => \%defaults,
         placeholders => \%placeholders,
-        allowed_values => \%allowed_values,
+        allowed => \%allowed,
         meta => \%meta,
     );
     my $inherited_values = $self->inherited_values;
@@ -497,7 +497,7 @@ sub resource_options {
         next if $name eq 'id';
         $defaults{$name} = $self->field_default($field, $inherited_values);
         $placeholders{$name} = $self->field_resource_placeholder($field, $inherited_values);
-        $allowed_values{$name} = $self->field_allowed($field);
+        $allowed{$name} = $self->field_allowed($field);
         $meta{$name} = $self->field_meta($field);
     }
 
