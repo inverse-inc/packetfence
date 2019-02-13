@@ -31,7 +31,7 @@ sub form_parameters {
     my ($self, $item) = @_;
     my $name = $self->id // $item->{id};
     if (!defined $name) {
-        return undef;
+        return [];
     }
     return [section => $name];
 }
