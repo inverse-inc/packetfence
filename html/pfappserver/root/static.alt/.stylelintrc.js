@@ -1,5 +1,5 @@
 module.exports = {
   extends: [
-    'stylelint-config-idiomatic-css',
-  ],
-};
+    'stylelint-config-idiomatic-css'
+  ]
+}
