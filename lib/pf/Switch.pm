@@ -3040,7 +3040,7 @@ sub parseRequest {
     my $client_mac      = ref($radius_request->{'Calling-Station-Id'}) eq 'ARRAY'
                            ? clean_mac($radius_request->{'Calling-Station-Id'}[0])
                            : clean_mac($radius_request->{'Calling-Station-Id'});
-    my $user_name       = $self->parseRequestUsername();
+    my $user_name       = $self->parseRequestUsername($radius_request);
     my $nas_port_type   = ( defined($radius_request->{'NAS-Port-Type'}) ? $radius_request->{'NAS-Port-Type'} : ( defined($radius_request->{'Called-Station-SSID'}) ? "Wireless-802.11" : undef ) );
     my $port            = $radius_request->{'NAS-Port'};
     my $eap_type        = ( exists($radius_request->{'EAP-Type'}) ? $radius_request->{'EAP-Type'} : 0 );
@@ -3059,7 +3059,9 @@ sub parseRequestUsername {
     my ($self, $radius_request) = @_;
     foreach my $attribute (@{$Config{radius_configuration}{username_attributes}}) {
         if(exists($radius_request->{$attribute})) {
-            return $radius_request->{$attribute};
+            my $user_name = $radius_request->{$attribute};
+            get_logger->debug("Extracting username '$user_name' from RADIUS attribute $attribute");
+            return $user_name;
         }
     }
 }

@@ -2918,7 +2918,7 @@ User-Name
 sub parseRequest {
     my ($self, $radius_request) = @_;
     my $client_mac = clean_mac($radius_request->{'Calling-Station-Id'});
-    my $user_name       = $self->parseRequestUsername();
+    my $user_name       = $self->parseRequestUsername($radius_request);
     my $nas_port_type = $radius_request->{'NAS-Port-Type'};
     my $port = $radius_request->{'NAS-Port'};
     my $eap_type = 0;
