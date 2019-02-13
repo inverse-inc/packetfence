@@ -37,10 +37,6 @@ export const pfConfigurationCaptivePortalURLs = [
 ]
 
 export const pfConfigurationCaptivePortalViewFields = (context = {}) => {
-  const {
-    form,
-    placeholders
-  } = context
   return [
     {
       tab: null,
@@ -67,6 +63,19 @@ export const pfConfigurationCaptivePortalViewFields = (context = {}) => {
               component: pfFormInput,
               validators: {
                 [i18n.t('Invalid IP Address.')]: ipAddress
+              }
+            }
+          ]
+        },
+        {
+          label: i18n.t('Detection image path'),
+          text: i18n.t('This is the path where the gif is on the webserver to detect if the network access has been enabled.'),
+          fields: [
+            {
+              key: 'image_path',
+              component: pfFormInput,
+              validators: {
+                [i18n.t('Maximum 255 characters.')]: maxLength(255)
               }
             }
           ]
@@ -156,19 +165,6 @@ export const pfConfigurationCaptivePortalViewFields = (context = {}) => {
           ]
         },
         {
-          label: i18n.t('IMG path'),
-          text: i18n.t('This is the path where the gif is on the webserver to detect if the network accesshas been enabled.'),
-          fields: [
-            {
-              key: 'image_path',
-              component: pfFormInput,
-              validators: {
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
-            }
-          ]
-        },
-        {
           label: i18n.t('Request timeout'),
           text: i18n.t('The amount of seconds before a request times out in the captive portal.'),
           fields: [
@@ -196,7 +192,7 @@ export const pfConfigurationCaptivePortalViewFields = (context = {}) => {
                 rows: 3
               },
               validators: {
-                 [i18n.t('Maximum 255 characters.')]: maxLength(255)
+                [i18n.t('Maximum 255 characters.')]: maxLength(255)
               }
             }
           ]
@@ -271,7 +267,7 @@ export const pfConfigurationCaptivePortalViewFields = (context = {}) => {
                 rows: 5
               },
               validators: {
-                 [i18n.t('Maximum 255 characters.')]: maxLength(255)
+                [i18n.t('Maximum 255 characters.')]: maxLength(255)
               }
             }
           ]
@@ -330,7 +326,7 @@ export const pfConfigurationCaptivePortalViewFields = (context = {}) => {
                 rows: 5
               },
               validators: {
-                 [i18n.t('Maximum 255 characters.')]: maxLength(255)
+                [i18n.t('Maximum 255 characters.')]: maxLength(255)
               }
             }
           ]

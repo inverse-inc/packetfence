@@ -14,7 +14,6 @@ export const pfConfigurationCiscoMobilityServicesEngineViewFields = (context = {
       fields: [
         {
           label: i18n.t('Enable MSE'),
-          text: i18n.t('Enable MSE.'),
           fields: [
             {
               key: 'enabled',
@@ -27,7 +26,6 @@ export const pfConfigurationCiscoMobilityServicesEngineViewFields = (context = {
         },
         {
           label: i18n.t('URL of MSE service'),
-          text: i18n.t('URL of MSE service.'),
           fields: [
             {
               key: 'url',

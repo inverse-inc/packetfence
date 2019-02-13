@@ -153,14 +153,14 @@ export const pfConfigurationSyslogForwarderViewFields = (context) => {
           ]
         },
         {
-          label: i18n.t('Proto'),
+          label: i18n.t('Protocol'),
           fields: [
             {
               key: 'proto',
               component: pfFormChosen,
               attrs: {
                 collapseObject: true,
-                placeholder: i18n.t('Click to add a proto'),
+                placeholder: i18n.t('Click to add a protocol'),
                 trackBy: 'value',
                 label: 'text',
                 options: ['udp', 'tcp'].map(proto => { return { value: proto, text: proto } })

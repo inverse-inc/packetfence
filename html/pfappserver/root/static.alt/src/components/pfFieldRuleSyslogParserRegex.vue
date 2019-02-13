@@ -1,6 +1,6 @@
 <template>
   <b-container fluid class="px-0">
-    <b-form-row class="pf-field-rule mx-0 mb-1 px-0" align-v="center"
+    <b-form-row class="pf-field-rule pf-field-rule-syslog-parser-regex mx-0 mb-1 px-0" align-v="center"
       v-on="forwardListeners"
     >
       <b-col v-if="$slots.prepend" cols="1" align-self="start" class="py-1 text-center col-form-label">
@@ -287,7 +287,7 @@ export default {
 </script>
 
 <style lang="scss">
-.pf-field-rule {
+.pf-field-rule-syslog-parser-regex {
   .collapse-handle {
     cursor: pointer;
   }

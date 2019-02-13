@@ -79,7 +79,7 @@ export default {
             { name: 'Web Services', path: '/configuration/webservices' },
             { name: 'Syslog Parsers', path: '/configuration/pfdetect' },
             { name: 'Syslog Forwarding', path: '/configuration/syslog' },
-            { name: 'Wrix', path: '/configuration/wrix' }
+            { name: 'WRIX', path: '/configuration/wrix' }
           ]
         },
         {

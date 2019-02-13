@@ -15,9 +15,9 @@
     <template slot="header" is="b-card-header">
       <b-button-close @click="close" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
       <h4 class="mb-0">
-        <span v-if="!isNew && !isClone">{{ $t('Wrix Location {id}', { id: id }) }}</span>
-        <span v-else-if="isClone">{{ $t('Clone Wrix Location {id}', { id: id }) }}</span>
-        <span v-else>{{ $t('New Wrix Location') }}</span>
+        <span v-if="!isNew && !isClone">{{ $t('WRIX Location {id}', { id: id }) }}</span>
+        <span v-else-if="isClone">{{ $t('Clone WRIX Location {id}', { id: id }) }}</span>
+        <span v-else>{{ $t('New WRIX Location') }}</span>
       </h4>
     </template>
     <template slot="footer"
@@ -27,10 +27,10 @@
         <pf-button-save :disabled="invalidForm" :isLoading="isLoading">
           <template v-if="isNew">{{ $t('Create') }}</template>
           <template v-else-if="isClone">{{ $t('Clone') }}</template>
-          <template v-else-if="ctrlKey">{{ $t('Save &amp; Close') }}</template>
+          <template v-else-if="ctrlKey">{{ $t('Save & Close') }}</template>
           <template v-else>{{ $t('Save') }}</template>
         </pf-button-save>
-        <pf-button-delete v-if="isDeletable" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Wrix Location?')" @on-delete="remove()"/>
+        <pf-button-delete v-if="isDeletable" class="ml-1" :disabled="isLoading" :confirm="$t('Delete WRIX Location?')" @on-delete="remove()"/>
       </b-card-footer>
     </template>
   </pf-config-view>

@@ -81,7 +81,7 @@ export const pfConfigurationWrixLocationsListConfig = (context = {}) => {
     rowClickRoute (item, index) {
       return { name: 'wrixLocation', params: { id: item.id } }
     },
-    searchPlaceholder: i18n.t('Search by Wrix Identifier'),
+    searchPlaceholder: i18n.t('Search by WRIX Identifier'),
     searchableOptions: {
       searchApiEndpoint: 'wrix_locations',
       defaultSortKeys: ['id'],
@@ -131,7 +131,7 @@ export const pfConfigurationWrixLocationViewFields = (context) => {
               validators: {
                 [i18n.t('Value required.')]: required,
                 [i18n.t('Maximum 255 characters.')]: maxLength(255),
-                [i18n.t('Wrix Location exists.')]: not(and(required, conditional(isNew || isClone), hasWrixLocations, wrixLocationExists))
+                [i18n.t('WRIX Location exists.')]: not(and(required, conditional(isNew || isClone), hasWrixLocations, wrixLocationExists))
               }
             }
           ]

@@ -5,19 +5,19 @@
     >
       <template slot="pageHeader">
         <b-card-header>
-          <h4 class="mb-3" v-t="'Wrix'"></h4>
+          <h4 class="mb-3" v-t="'WRIX'"></h4>
         </b-card-header>
       </template>
       <template slot="buttonAdd">
-        <b-button variant="outline-primary" :to="{ name: 'newWrixLocation' }">{{ $t('Add Wrix Location') }}</b-button>
+        <b-button variant="outline-primary" :to="{ name: 'newWrixLocation' }">{{ $t('Add WRIX Location') }}</b-button>
       </template>
       <template slot="emptySearch" slot-scope="state">
-        <pf-empty-table :isLoading="state.isLoading">{{ $t('No wrix locations found') }}</pf-empty-table>
+        <pf-empty-table :isLoading="state.isLoading">{{ $t('No WRIX locations found') }}</pf-empty-table>
       </template>
       <template slot="buttons" slot-scope="item">
         <span class="float-right text-nowrap">
           <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(item)">{{ $t('Clone') }}</b-button>
-          <pf-button-delete  v-if="!item.not_deletable" size="sm" variant="outline-danger" :disabled="isLoading" :confirm="$t('Delete Wrix Location?')" @on-delete="remove(item)" reverse/>
+          <pf-button-delete  v-if="!item.not_deletable" size="sm" variant="outline-danger" :disabled="isLoading" :confirm="$t('Delete WRIX Location?')" @on-delete="remove(item)" reverse/>
         </span>
       </template>
       <template slot="status" slot-scope="data">
