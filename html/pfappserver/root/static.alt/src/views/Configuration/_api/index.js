@@ -156,9 +156,19 @@ export default {
       return response.data
     })
   },
+  realmsOptions: () => {
+    return apiCall.options('config/realms').then(response => {
+      return response.data
+    })
+  },
   realm: id => {
     return apiCall.get(`config/realm/${id}`).then(response => {
       return response.data.item
+    })
+  },
+  realmOptions: id => {
+    return apiCall.options(`config/realm/${id}`).then(response => {
+      return response.data
     })
   },
   createRealm: data => {

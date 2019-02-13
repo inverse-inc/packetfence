@@ -30,7 +30,7 @@
           <template v-else>{{ $t('Save and Join') }}</template>
         </pf-button-save>
         <pf-button-delete v-if="isDeletable" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Domain?')" @on-delete="remove()"/>
-        <b-button class="ml-1" variant="outline-primary" @click="init()">{{ $t('Reset') }}</b-button>
+        <b-button :disabled="isLoading" class="ml-1" variant="outline-primary" @click="init()">{{ $t('Reset') }}</b-button>
       </b-card-footer>
     </template>
   </pf-config-view>
@@ -80,8 +80,7 @@ export default {
     return {
       form: {}, // will be overloaded with the data from the store
       formValidations: {}, // will be overloaded with data from the pfConfigView
-      options: {},
-      sources: []
+      options: {}
     }
   },
   validations () {
@@ -91,10 +90,10 @@ export default {
   },
   computed: {
     isLoading () {
-      return this.$store.getters['$_domains/isLoading']
+      return this.$store.getters[`${this.storeName}/isLoading`]
     },
     invalidForm () {
-      return this.$v.form.$invalid || this.$store.getters['$_domains/isWaiting']
+      return this.$v.form.$invalid || this.$store.getters[`${this.storeName}/isWaiting`]
     },
     getForm () {
       return {
@@ -111,12 +110,12 @@ export default {
   },
   methods: {
     init () {
-      this.$store.dispatch('$_domains/options', this.id).then(options => {
+      this.$store.dispatch(`${this.storeName}/options`, this.id).then(options => {
         // store options
         this.options = Object.assign({}, options)
         if (this.id) {
           // existing
-          this.$store.dispatch('$_domains/getDomain', this.id).then(form => {
+          this.$store.dispatch(`${this.storeName}/getDomain`, this.id).then(form => {
             this.form = Object.assign({}, form)
           })
         } else {
@@ -129,20 +128,20 @@ export default {
       this.$router.push({ name: 'domains' })
     },
     create () {
-      this.$store.dispatch('$_domains/createDomain', this.form).then(response => {
+      this.$store.dispatch(`${this.storeName}/createDomain`, this.form).then(response => {
         this.$router.push({ name: 'domain', params: { id: this.form.id } })
       })
     },
     save () {
       const ctrlKey = this.ctrlKey
-      this.$store.dispatch('$_domains/updateDomain', this.form).then(response => {
+      this.$store.dispatch(`${this.storeName}/updateDomain`, this.form).then(response => {
         if (ctrlKey) { // [CTRL] key pressed
           this.close()
         }
       })
     },
     remove () {
-      this.$store.dispatch('$_domains/deleteDomain', this.id).then(response => {
+      this.$store.dispatch(`${this.storeName}/deleteDomain`, this.id).then(response => {
         this.close()
       })
     }

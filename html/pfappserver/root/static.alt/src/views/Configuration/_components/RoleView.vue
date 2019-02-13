@@ -31,7 +31,7 @@
           <template v-else>{{ $t('Save') }}</template>
         </pf-button-save>
         <pf-button-delete v-if="isDeletable" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Role?')" @on-delete="remove()"/>
-        <b-button class="ml-1" variant="outline-primary" @click="init()">{{ $t('Reset') }}</b-button>
+        <b-button :disabled="isLoading" class="ml-1" variant="outline-primary" @click="init()">{{ $t('Reset') }}</b-button>
       </b-card-footer>
     </template>
   </pf-config-view>
@@ -93,10 +93,10 @@ export default {
   },
   computed: {
     isLoading () {
-      return this.$store.getters['$_roles/isLoading']
+      return this.$store.getters[`${this.storeName}/isLoading`]
     },
     invalidForm () {
-      return this.$v.form.$invalid || this.$store.getters['$_roles/isWaiting']
+      return this.$v.form.$invalid || this.$store.getters[`${this.storeName}/isWaiting`]
     },
     getForm () {
       return {
@@ -113,12 +113,12 @@ export default {
   },
   methods: {
     init () {
-      this.$store.dispatch('$_roles/options', this.id).then(options => {
+      this.$store.dispatch(`${this.storeName}/options`, this.id).then(options => {
         // store options
         this.options = Object.assign({}, options)
         if (this.id) {
           // existing
-          this.$store.dispatch('$_roles/getRole', this.id).then(form => {
+          this.$store.dispatch(`${this.storeName}/getRole`, this.id).then(form => {
             this.form = Object.assign({}, form)
           })
         } else {
@@ -132,7 +132,7 @@ export default {
     },
     create () {
       const ctrlKey = this.ctrlKey
-      this.$store.dispatch('$_roles/createRole', this.form).then(response => {
+      this.$store.dispatch(`${this.storeName}/createRole`, this.form).then(response => {
         if (ctrlKey) { // [CTRL] key pressed
           this.close()
         } else {
@@ -142,14 +142,14 @@ export default {
     },
     save () {
       const ctrlKey = this.ctrlKey
-      this.$store.dispatch('$_roles/updateRole', this.form).then(response => {
+      this.$store.dispatch(`${this.storeName}/updateRole`, this.form).then(response => {
         if (ctrlKey) { // [CTRL] key pressed
           this.close()
         }
       })
     },
     remove () {
-      this.$store.dispatch('$_roles/deleteRole', this.id).then(response => {
+      this.$store.dispatch(`${this.storeName}/deleteRole`, this.id).then(response => {
         this.close()
       })
     }

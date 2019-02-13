@@ -78,7 +78,6 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
   const {
     isNew = false,
     isClone = false,
-    sources = [],
     options: {
       allowed = {},
       meta = {},

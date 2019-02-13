@@ -2,11 +2,11 @@
   <pf-config-view
     :isLoading="isLoading"
     :form="getForm"
-    :model="realm"
-    :vuelidate="$v.realm"
+    :model="form"
+    :vuelidate="$v.form"
     :isNew="isNew"
     :isClone="isClone"
-    @validations="realmValidations = $event"
+    @validations="formValidations = $event"
     @close="close"
     @create="create"
     @save="save"
@@ -23,7 +23,7 @@
     <template slot="footer"
       scope="{isDeletable}"
     >
-      <b-card-footer @mouseenter="$v.realm.$touch()">
+      <b-card-footer @mouseenter="$v.form.$touch()">
         <pf-button-save :disabled="invalidForm" :isLoading="isLoading">
           <template v-if="isNew">{{ $t('Create') }}</template>
           <template v-else-if="isClone">{{ $t('Clone') }}</template>
@@ -31,6 +31,7 @@
           <template v-else>{{ $t('Save') }}</template>
         </pf-button-save>
         <pf-button-delete v-if="isDeletable" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Realm?')" @on-delete="remove()"/>
+        <b-button :disabled="isLoading" class="ml-1" variant="outline-primary" @click="init()">{{ $t('Reset') }}</b-button>
       </b-card-footer>
     </template>
   </pf-config-view>
@@ -43,8 +44,7 @@ import pfButtonDelete from '@/components/pfButtonDelete'
 import pfMixinCtrlKey from '@/components/pfMixinCtrlKey'
 import pfMixinEscapeKey from '@/components/pfMixinEscapeKey'
 import {
-  pfConfigurationRealmViewFields as fields,
-  pfConfigurationRealmViewDefaults as defaults
+  pfConfigurationRealmViewFields as fields
 } from '@/globals/configuration/pfConfigurationRealms'
 const { validationMixin } = require('vuelidate')
 
@@ -81,22 +81,22 @@ export default {
   },
   data () {
     return {
-      domains: [],
-      realm: defaults(this), // will be overloaded with the data from the store
-      realmValidations: {} // will be overloaded with data from the pfConfigView
+      form: {}, // will be overloaded with the data from the store
+      formValidations: {}, // will be overloaded with data from the pfConfigView
+      options: {}
     }
   },
   validations () {
     return {
-      realm: this.realmValidations
+      form: this.formValidations
     }
   },
   computed: {
     isLoading () {
-      return this.$store.getters['$_realms/isLoading']
+      return this.$store.getters[`${this.storeName}/isLoading`]
     },
     invalidForm () {
-      return this.$v.realm.$invalid || this.$store.getters['$_realms/isWaiting']
+      return this.$v.form.$invalid || this.$store.getters[`${this.storeName}/isWaiting`]
     },
     getForm () {
       return {
@@ -105,54 +105,57 @@ export default {
       }
     },
     isDeletable () {
-      if (this.isNew || this.isClone || ('not_deletable' in this.realm && this.realm.not_deletable)) {
+      if (this.isNew || this.isClone || ('not_deletable' in this.form && this.form.not_deletable)) {
         return false
       }
       return true
     }
   },
   methods: {
+    init () {
+      this.$store.dispatch(`${this.storeName}/options`, this.id).then(options => {
+        // store options
+        this.options = Object.assign({}, options)
+        if (this.id) {
+          // existing
+          this.$store.dispatch(`${this.storeName}/getRealm`, this.id).then(form => {
+            this.form = Object.assign({}, form)
+          })
+        } else {
+          // new
+          this.form = Object.assign({}, options.defaults) // set defaults
+        }
+      })
+    },
     close () {
       this.$router.push({ name: 'realms' })
     },
     create () {
       const ctrlKey = this.ctrlKey
-      this.$store.dispatch('$_realms/createRealm', this.realm).then(response => {
+      this.$store.dispatch(`${this.storeName}/createRealm`, this.form).then(response => {
         if (ctrlKey) { // [CTRL] key pressed
           this.close()
         } else {
-          this.$router.push({ name: 'realm', params: { id: this.realm.id } })
+          this.$router.push({ name: 'realm', params: { id: this.form.id } })
         }
       })
     },
     save () {
       const ctrlKey = this.ctrlKey
-      this.$store.dispatch('$_realms/updateRealm', this.realm).then(response => {
+      this.$store.dispatch(`${this.storeName}/updateRealm`, this.form).then(response => {
         if (ctrlKey) { // [CTRL] key pressed
           this.close()
         }
       })
     },
     remove () {
-      this.$store.dispatch('$_realms/deleteRealm', this.id).then(response => {
+      this.$store.dispatch(`${this.storeName}/deleteRealm`, this.id).then(response => {
         this.close()
       })
     }
   },
-  mounted () {
-    this.$store.dispatch('$_domains/all').then(items => {
-      this.domains = items.map(domain => domain.id)
-      if (this.isNew && this.domains.length > 0) {
-        this.realm.domain = this.domains[0]
-      }
-    })
-  },
   created () {
-    if (this.id) {
-      this.$store.dispatch('$_realms/getRealm', this.id).then(data => {
-        this.realm = Object.assign({}, data)
-      })
-    }
+    this.init()
   }
 }
 </script>

@@ -1,11 +1,12 @@
 import i18n from '@/utils/locale'
+import pfFormChosen from '@/components/pfFormChosen'
 import pfFormInput from '@/components/pfFormInput'
-import pfFormSelect from '@/components/pfFormSelect'
+import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import pfFormTextarea from '@/components/pfFormTextarea'
-import pfFormToggle from '@/components/pfFormToggle'
 import {
   pfConfigurationListColumns,
-  pfConfigurationListFields
+  pfConfigurationListFields,
+  pfConfigurationValidatorsFromMeta
 } from '@/globals/configuration/pfConfiguration'
 import {
   and,
@@ -73,7 +74,15 @@ export const pfConfigurationRealmListConfig = (context = {}) => {
 }
 
 export const pfConfigurationRealmViewFields = (context = {}) => {
-  const { isNew = false, isClone = false, domains = [] } = context
+  const {
+    isNew = false,
+    isClone = false,
+    options: {
+      allowed = {},
+      meta = {},
+      placeholders = {}
+    }
+  } = context
   return [
     {
       tab: null, // ignore tabs
@@ -88,10 +97,11 @@ export const pfConfigurationRealmViewFields = (context = {}) => {
                 disabled: (!isNew && !isClone)
               },
               validators: {
-                [i18n.t('Realm required.')]: required,
-                [i18n.t('Maximum 255 characters.')]: maxLength(255),
-                [i18n.t('Alphanumeric characters only.')]: alphaNum,
-                [i18n.t('Realm exists.')]: not(and(required, conditional(isNew || isClone), hasRealms, realmExists))
+                ...pfConfigurationValidatorsFromMeta(meta.id, 'Identifier'),
+                ...{ // TODO: remove once meta is available for `id`
+                  [i18n.t('Name required.')]: required,
+                  [i18n.t('Role exists.')]: not(and(required, conditional(isNew || isClone), hasRealms, realmExists))
+                }
               }
             }
           ]
@@ -103,9 +113,10 @@ export const pfConfigurationRealmViewFields = (context = {}) => {
             {
               key: 'options',
               component: pfFormTextarea,
-              validators: {
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
+              attrs: {
+                placeholder: placeholders.options
+              },
+              validators: pfConfigurationValidatorsFromMeta(meta.options, 'Realm options')
             }
           ]
         },
@@ -115,10 +126,15 @@ export const pfConfigurationRealmViewFields = (context = {}) => {
           fields: [
             {
               key: 'domain',
-              component: pfFormSelect,
+              component: pfFormChosen,
               attrs: {
-                options: domains
-              }
+                collapseObject: true,
+                placeholder: placeholders.domain,
+                label: 'label',
+                trackBy: 'value',
+                options: allowed.domain
+              },
+              validators: pfConfigurationValidatorsFromMeta(meta.domain, 'Domain')
             }
           ]
         },
@@ -128,7 +144,7 @@ export const pfConfigurationRealmViewFields = (context = {}) => {
           fields: [
             {
               key: 'portal_strip_username',
-              component: pfFormToggle,
+              component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
               }
@@ -141,7 +157,7 @@ export const pfConfigurationRealmViewFields = (context = {}) => {
           fields: [
             {
               key: 'admin_strip_username',
-              component: pfFormToggle,
+              component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
               }
@@ -154,7 +170,7 @@ export const pfConfigurationRealmViewFields = (context = {}) => {
           fields: [
             {
               key: 'radius_strip_username',
-              component: pfFormToggle,
+              component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
               }
@@ -167,7 +183,7 @@ export const pfConfigurationRealmViewFields = (context = {}) => {
           fields: [
             {
               key: 'permit_custom_attributes',
-              component: pfFormToggle,
+              component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
               }
