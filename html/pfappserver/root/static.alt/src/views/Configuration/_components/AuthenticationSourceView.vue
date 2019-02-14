@@ -2,8 +2,8 @@
   <pf-config-view
     :isLoading="isLoading"
     :form="getForm"
-    :model="source"
-    :vuelidate="$v.source"
+    :model="form"
+    :vuelidate="$v.form"
     :isNew="isNew"
     :isClone="isClone"
     @validations="setValidations($event)"
@@ -24,7 +24,7 @@
     <template slot="footer"
       scope="{isDeletable}"
     >
-      <b-card-footer @mouseenter="$v.source.$touch()">
+      <b-card-footer @mouseenter="$v.form.$touch()">
         <pf-button-save :disabled="invalidForm" :isLoading="isLoading">
           <template v-if="isNew">{{ $t('Create') }}</template>
           <template v-else-if="isClone">{{ $t('Clone') }}</template>
@@ -32,6 +32,7 @@
           <template v-else>{{ $t('Save') }}</template>
         </pf-button-save>
         <pf-button-delete v-if="isDeletable" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Source?')" @on-delete="remove()"/>
+        <b-button :disabled="isLoading" class="ml-1" variant="outline-primary" @click="init()">{{ $t('Reset') }}</b-button>
       </b-card-footer>
     </template>
   </pf-config-view>
@@ -44,8 +45,7 @@ import pfButtonDelete from '@/components/pfButtonDelete'
 import pfMixinCtrlKey from '@/components/pfMixinCtrlKey'
 import pfMixinEscapeKey from '@/components/pfMixinEscapeKey'
 import {
-  pfConfigurationAuthenticationSourceViewFields as fields,
-  pfConfigurationAuthenticationSourceViewDefaults as defaults
+  pfConfigurationAuthenticationSourceViewFields as fields
 } from '@/globals/configuration/pfConfigurationAuthenticationSources'
 const { validationMixin } = require('vuelidate')
 
@@ -86,16 +86,14 @@ export default {
   },
   data () {
     return {
-      source: defaults(this), // will be overloaded with the data from the store
-      sourceValidations: {}, // will be overloaded with data from the pfConfigView,
-      realms: [], // all realms
-      sources: [], // all sources
-      general: {}
+      form: {}, // will be overloaded with the data from the store
+      formValidations: {}, // will be overloaded with data from the pfConfigView,
+      options: {}
     }
   },
   validations () {
     return {
-      source: this.sourceValidations
+      form: this.formValidations
     }
   },
   computed: {
@@ -112,29 +110,48 @@ export default {
       }
     },
     isDeletable () {
-      if (this.isNew || this.isClone || ('not_deletable' in this.source && this.source.not_deletable)) {
+      if (this.isNew || this.isClone || ('not_deletable' in this.form && this.form.not_deletable)) {
         return false
       }
       return true
     }
   },
   methods: {
+    init () {
+      if (this.id) {
+        // existing
+        this.$store.dispatch(`${this.storeName}/optionsById`, this.id).then(options => {
+          this.options = Object.assign({}, options) // store options
+          this.$store.dispatch(`${this.storeName}/getAuthenticationSource`, this.id).then(form => {
+            this.form = Object.assign({}, form) // set form
+            this.sourceType = form.type
+          })
+        })
+      } else {
+        // new
+        this.$store.dispatch(`${this.storeName}/optionsBySourceType`, this.sourceType).then(options => {
+          this.options = Object.assign({}, options) // store options
+          this.form = Object.assign({}, options.defaults) // set defaults
+          this.form.type = this.sourceType
+        })
+      }
+    },
     close (event) {
       this.$router.push({ name: 'sources' })
     },
     create (event) {
       const ctrlKey = this.ctrlKey
-      this.$store.dispatch(`${this.storeName}/createAuthenticationSource`, this.source).then(response => {
+      this.$store.dispatch(`${this.storeName}/createAuthenticationSource`, this.form).then(response => {
         if (ctrlKey) { // [CTRL] key pressed
           this.close()
         } else {
-          this.$router.push({ name: 'source', params: { id: this.source.id } })
+          this.$router.push({ name: 'source', params: { id: this.form.id } })
         }
       })
     },
     save (event) {
       const ctrlKey = this.ctrlKey
-      this.$store.dispatch(`${this.storeName}/updateAuthenticationSource`, this.source).then(response => {
+      this.$store.dispatch(`${this.storeName}/updateAuthenticationSource`, this.form).then(response => {
         if (ctrlKey) { // [CTRL] key pressed
           this.close()
         }
@@ -146,30 +163,11 @@ export default {
       })
     },
     setValidations (validations) {
-      this.$set(this, 'sourceValidations', validations)
+      this.$set(this, 'formValidations', validations)
     }
   },
   created () {
-    if (this.id) {
-      this.$store.dispatch(`${this.storeName}/getAuthenticationSource`, this.id).then(data => {
-        this.sourceType = data.type
-        this.source = Object.assign({}, data)
-        if (this.isClone) {
-          this.source.id = null
-        }
-      })
-    }
-    this.source.type = this.sourceType
-    this.$store.dispatch('$_sources/all').then(data => {
-      this.sources = data
-    })
-    this.$store.dispatch('$_realms/all').then(data => {
-      this.realms = data
-    })
-    this.$store.dispatch('$_bases/getGeneral').then(data => {
-      this.general = data
-      this.source = defaults(this) // re-overload `source` form
-    })
+    this.init()
   }
 }
 </script>

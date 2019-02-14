@@ -9,9 +9,19 @@ export default {
       return response.data
     })
   },
+  authenticationSourcesOptions: sourceType => {
+    return apiCall.options(`config/sources?type=${sourceType}`).then(response => {
+      return response.data
+    })
+  },
   authenticationSource: id => {
     return apiCall.get(`config/source/${id}`).then(response => {
       return response.data.item
+    })
+  },
+  authenticationSourceOptions: id => {
+    return apiCall.options(`config/source/${id}`).then(response => {
+      return response.data
     })
   },
   createAuthenticationSource: data => {
