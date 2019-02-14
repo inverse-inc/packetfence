@@ -58,7 +58,7 @@ export const pfConfigurationSwitchesListConfig = (context = {}) => {
     },
     searchPlaceholder: $i18n.t('Search by identifier or description'),
     searchableOptions: {
-      searchApiEndpoint: 'config/forms',
+      searchApiEndpoint: 'config/switches',
       defaultSortKeys: ['id'],
       defaultSearchCondition: {
         op: 'and',
@@ -167,7 +167,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
       placeholders = {}
     },
     form = {},
-    roles = []
+    roles = [] // all roles
   } = context
 
   return [
@@ -679,7 +679,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
               attrs: {
                 placeholder: placeholders.radiusSecret
               },
-              validators: pfConfigurationValidatorsFromMeta(meta.radiusSecret)
+              validators: pfConfigurationValidatorsFromMeta(meta.radiusSecret, 'Secret')
             }
           ]
         }
@@ -700,7 +700,8 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
                 trackBy: 'value',
                 collapseObject: true,
                 options: allowed.SNMPVersion
-              }
+              },
+              validators: pfConfigurationValidatorsFromMeta(meta.SNMPVersion, 'Version')
             }
           ]
         },

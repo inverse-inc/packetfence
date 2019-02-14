@@ -2096,7 +2096,7 @@ export const pfConfigurationAuthenticationSourceViewFields = (context) => {
           ]
         }
       ]
-    case 'POTD':
+    case 'Potd':
       return [
         {
           tab: null, // ignore tabs

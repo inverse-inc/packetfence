@@ -280,9 +280,19 @@ export default {
       return response.data
     })
   },
+  switchGroupsOptions: () => {
+    return apiCall.options('config/switch_groups').then(response => {
+      return response.data
+    })
+  },
   switchGroup: id => {
     return apiCall.get(`config/switch_group/${id}`).then(response => {
       return response.data.item
+    })
+  },
+  switchGroupOptions: id => {
+    return apiCall.options(`config/switch_group/${id}`).then(response => {
+      return response.data
     })
   },
   createSwitchGroup: data => {
