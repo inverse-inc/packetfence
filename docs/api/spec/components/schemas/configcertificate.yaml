@@ -59,6 +59,9 @@ ConfigCertificateDetails:
     issuer:
       type: string
       description: "The issuer of the certificate"
+    serial:
+      type: string
+      description: "The serial of the certificate"
     not_before:
       type: string
       description: "The start date at which the certificate can be used"

@@ -54,7 +54,7 @@ END {
 
 #insert known data
 #run tests
-use Test::More tests => 31;
+use Test::More tests => 32;
 use Test::Mojo;
 use Test::NoWarnings;
 my $t = Test::Mojo->new('pf::UnifiedApi');
@@ -63,6 +63,7 @@ $t->get_ok('/api/v1/config/certificate/http/info')
   ->status_is(200)
   ->json_is('/certificate/subject', "C=CA, ST=Quebec, L=Montreal, O=Inverse Inc., CN=pf.inverse.ca")
   ->json_is('/certificate/issuer', "C=CA, ST=Quebec, L=Montreal, O=Inverse Inc., CN=pf.inverse.ca")
+  ->json_is('/certificate/serial', 'DB0B5ACDB06F40BF')
   ->json_is('/chain_is_valid/success', 1)
   ->json_is('/cert_key_match/success', 1)
   ->json_is('/certificate/not_before', "Feb  6 15:35:02 2019 GMT")

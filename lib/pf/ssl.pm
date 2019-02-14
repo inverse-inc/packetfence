@@ -324,6 +324,7 @@ sub x509_info {
         issuer => $x509->issuer(),
         not_before => $x509->notBefore(),
         not_after => $x509->notAfter(),
+        serial => $x509->serial(),
     };
 }
 
