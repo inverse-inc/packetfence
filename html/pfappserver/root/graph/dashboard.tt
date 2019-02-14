@@ -69,6 +69,11 @@ END;
           [% IF options.filter_graph %]
           data-filter-graph="[% options.filter_graph %]"
           [% END %]
+          [% END %]
+          [% IF options.dimension_graph %]
+          data-dimensions="[% options.dimension_graph %]"
+          [% END %]
+
           data-hide-missing="true"
           [% options.additional_html_tags.join(" ") | none %]
           ></div>
@@ -307,12 +312,14 @@ END;
               </div>
               <div class="card-block">
                 <div class="row-flex">
-                  [% graph("system.cpu", "CPU usage", {"width" => halfGridSize, "valuerange" => "[0, 100]"}) | none %]
+                  [% graph("system.cpu", "CPU usage", {"dimension_graph" => "user,system", "width" => halfGridSize, "valuerange" => "[0, 100]"}) | none %]
+                  [% graph("system.cpu", "IO Wait/Soft IRQ", {"dimension_graph" => "iowait,softirq", "width" => halfGridSize, "valuerange" => "[0, 100]"}) | none %]
                   [% graph("system.load", "System Load Average", {"width" => halfGridSize}) | none %]
                   [% graph("system.io", "Disk I/O", {"width" => halfGridSize}) | none %]
                   [% graph("disk_space._", "Disk Space Usage for /", {"width" => halfGridSize}) | none %]
                   [% graph("system.ram", "System RAM", {"width" => halfGridSize}) | none %]
-                  [% graph("system.swap", "System Swap", {"width" => halfGridSize}) | none %]
+                  [% graph("system.swap", "System Swap Used", {"dimension_graph" => "used", "width" => halfGridSize}) | none %]
+                  [% graph("system.swapio", "Swap IO", {"width" => halfGridSize}) | none %]
                 </div>
               </div>
             </div>
