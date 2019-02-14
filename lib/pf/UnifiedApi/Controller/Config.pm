@@ -364,7 +364,6 @@ sub options_from_form {
 
     for my $field ($form->fields) {
         my $name = $field->name;
-        next if $name eq 'id';
         $defaults{$name} = $self->field_default($field);
         $placeholders{$name} = $self->field_placeholder($field);
         $allowed{$name} = $self->field_allowed($field);
