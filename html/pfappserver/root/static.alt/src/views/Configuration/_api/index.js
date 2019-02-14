@@ -244,9 +244,19 @@ export default {
       return response.data
     })
   },
+  switchesOptions: switchGroup => {
+    return apiCall.options(`config/switches?type=${switchGroup}`).then(response => {
+      return response.data
+    })
+  },
   switche: id => {
     return apiCall.get(`config/switch/${id}`).then(response => {
       return response.data.item
+    })
+  },
+  switchOptions: id => {
+    return apiCall.options(`config/switch/${id}`).then(response => {
+      return response.data
     })
   },
   createSwitch: data => {

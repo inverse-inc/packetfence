@@ -524,7 +524,7 @@ export const pfConfigurationAuthenticationSourceFields = {
             placeholder: placeholders.authorization_source_id,
             collapseObject: true,
             trackBy: 'value',
-            label: 'text',
+            label: 'label',
             options: allowed.authorization_source_id
           },
           validators: pfConfigurationValidatorsFromMeta(meta.authorization_source_id, 'Source')
