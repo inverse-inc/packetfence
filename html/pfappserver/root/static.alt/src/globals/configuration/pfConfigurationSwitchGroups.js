@@ -178,7 +178,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
               component: pfFormInput,
               attrs: {
                 disabled: (!isNew && !isClone),
-                placeholder: placeholders.id
+                placeholder: i18n.t(placeholders.id)
               },
               validators: {
                 ...pfConfigurationValidatorsFromMeta(meta.id),
@@ -197,7 +197,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
               key: 'notes',
               component: pfFormInput,
               attrs: {
-                placeholder: placeholders.notes
+                placeholder: i18n.t(placeholders.notes)
               },
               validators: pfConfigurationValidatorsFromMeta(meta.notes, 'Description')
             }
@@ -210,7 +210,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
               key: 'type',
               component: pfFormChosen,
               attrs: {
-                placeholder: placeholders.type,
+                placeholder: i18n.t(placeholders.type),
                 groupLabel: 'group',
                 groupValues: 'options',
                 label: 'label',
@@ -229,7 +229,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
               key: 'mode',
               component: pfFormChosen,
               attrs: {
-                placeholder: placeholders.mode,
+                placeholder: i18n.t(placeholders.mode),
                 label: 'label',
                 trackBy: 'value',
                 collapseObject: true,
@@ -247,7 +247,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
               key: 'deauthMethod',
               component: pfFormChosen,
               attrs: {
-                placeholder: placeholders.deauthMethod,
+                placeholder: i18n.t(placeholders.placeholders.deauthMethod),
                 label: 'label',
                 trackBy: 'value',
                 collapseObject: true,
@@ -373,7 +373,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
               key: 'uplink',
               component: pfFormInput,
               attrs: {
-                placeholder: placeholders.uplink
+                placeholder: i18n.t(placeholders.uplink)
               },
               validators: pfConfigurationValidatorsFromMeta(meta.uplink, 'Uplinks')
             }
@@ -387,7 +387,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
               key: 'controllerIp',
               component: pfFormInput,
               attrs: {
-                placeholder: placeholders.controllerIp
+                placeholder: i18n.t(placeholders.controllerIp)
               },
               validators: pfConfigurationValidatorsFromMeta(meta.controllerIp, 'IP')
             }
@@ -401,7 +401,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
               key: 'disconnectPort',
               component: pfFormInput,
               attrs: {
-                placeholder: placeholders.disconnectPort,
+                placeholder: i18n.t(placeholders.disconnectPort),
                 type: 'number',
                 step: 1
               },
@@ -417,7 +417,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
               key: 'coaPort',
               component: pfFormInput,
               attrs: {
-                placeholder: placeholders.coaPort,
+                placeholder: i18n.t(placeholders.coaPort),
                 type: 'number',
                 step: 1
               },
@@ -618,7 +618,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
               key: 'radiusSecret',
               component: pfFormPassword,
               attrs: {
-                placeholder: placeholders.radiusSecret
+                placeholder: i18n.t(placeholders.radiusSecret)
               },
               validators: pfConfigurationValidatorsFromMeta(meta.radiusSecret, 'Secret')
             }
@@ -636,7 +636,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
               key: 'SNMPVersion',
               component: pfFormChosen,
               attrs: {
-                placeholder: placeholders.SNMPVersion,
+                placeholder: i18n.t(placeholders.SNMPVersion),
                 label: 'label',
                 trackBy: 'value',
                 collapseObject: true,
@@ -653,7 +653,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
               key: 'SNMPCommunityRead',
               component: pfFormInput,
               attrs: {
-                placeholder: placeholders.SNMPCommunityRead
+                placeholder: i18n.t(placeholders.SNMPCommunityRead)
               },
               validators: pfConfigurationValidatorsFromMeta(meta.SNMPCommunityRead)
             }
@@ -666,7 +666,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
               key: 'SNMPCommunityWrite',
               component: pfFormInput,
               attrs: {
-                placeholder: placeholders.private
+                placeholder: i18n.t(placeholders.private)
               },
               validators: pfConfigurationValidatorsFromMeta(meta.SNMPCommunityWrite)
             }
@@ -679,7 +679,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
               key: 'SNMPEngineID',
               component: pfFormInput,
               attrs: {
-                placeholder: placeholders.SNMPEngineID
+                placeholder: i18n.t(placeholders.SNMPEngineID)
               },
               validators: pfConfigurationValidatorsFromMeta(meta.SNMPEngineID)
             }
@@ -692,7 +692,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
               key: 'SNMPUserNameRead',
               component: pfFormInput,
               attrs: {
-                placeholder: placeholders.SNMPUserNameRead
+                placeholder: i18n.t(placeholders.SNMPUserNameRead)
               },
               validators: pfConfigurationValidatorsFromMeta(meta.SNMPUserNameRead)
             }
@@ -705,7 +705,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
               key: 'SNMPAuthProtocolRead',
               component: pfFormInput,
               attrs: {
-                placeholder: placeholders.SNMPAuthProtocolRead
+                placeholder: i18n.t(placeholders.SNMPAuthProtocolRead)
               },
               validators: pfConfigurationValidatorsFromMeta(meta.SNMPAuthProtocolRead)
             }
@@ -718,7 +718,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
               key: 'SNMPAuthPasswordRead',
               component: pfFormPassword,
               attrs: {
-                placeholder: placeholders.SNMPAuthPasswordRead
+                placeholder: i18n.t(placeholders.SNMPAuthPasswordRead)
               },
               validators: pfConfigurationValidatorsFromMeta(meta.SNMPAuthPasswordRead)
             }
@@ -731,7 +731,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
               key: 'SNMPPrivProtocolRead',
               component: pfFormInput,
               attrs: {
-                placeholder: placeholders.SNMPPrivProtocolRead
+                placeholder: i18n.t(placeholders.SNMPPrivProtocolRead)
               },
               validators: pfConfigurationValidatorsFromMeta(meta.SNMPPrivProtocolRead)
             }
@@ -744,7 +744,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
               key: 'SNMPPrivPasswordRead',
               component: pfFormPassword,
               attrs: {
-                placeholder: placeholders.SNMPPrivPasswordRead
+                placeholder: i18n.t(placeholders.SNMPPrivPasswordRead)
               },
               validators: pfConfigurationValidatorsFromMeta(meta.SNMPPrivPasswordRead)
             }
@@ -757,7 +757,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
               key: 'SNMPUserNameWrite',
               component: pfFormInput,
               attrs: {
-                placeholder: placeholders.SNMPUserNameWrite
+                placeholder: i18n.t(placeholders.SNMPUserNameWrite)
               },
               validators: pfConfigurationValidatorsFromMeta(meta.SNMPUserNameWrite)
             }
@@ -770,7 +770,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
               key: 'SNMPAuthProtocolWrite',
               component: pfFormInput,
               attrs: {
-                placeholder: placeholders.SNMPAuthProtocolWrite
+                placeholder: i18n.t(placeholders.SNMPAuthProtocolWrite)
               },
               validators: pfConfigurationValidatorsFromMeta(meta.SNMPAuthProtocolWrite)
             }
@@ -783,7 +783,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
               key: 'SNMPAuthPasswordWrite',
               component: pfFormPassword,
               attrs: {
-                placeholder: placeholders.SNMPAuthPasswordWrite
+                placeholder: i18n.t(placeholders.SNMPAuthPasswordWrite)
               },
               validators: pfConfigurationValidatorsFromMeta(meta.SNMPAuthPasswordWrite)
             }
@@ -796,7 +796,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
               key: 'SNMPPrivProtocolWrite',
               component: pfFormInput,
               attrs: {
-                placeholder: placeholders.SNMPPrivProtocolWrite
+                placeholder: i18n.t(placeholders.SNMPPrivProtocolWrite)
               },
               validators: pfConfigurationValidatorsFromMeta(meta.SNMPPrivProtocolWrite)
             }
@@ -809,7 +809,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
               key: 'SNMPPrivPasswordWrite',
               component: pfFormPassword,
               attrs: {
-                placeholder: placeholders.SNMPPrivPasswordWrite
+                placeholder: i18n.t(placeholders.SNMPPrivPasswordWrite)
               },
               validators: pfConfigurationValidatorsFromMeta(meta.SNMPPrivPasswordWrite)
             }
@@ -822,7 +822,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
               key: 'SNMPVersionTrap',
               component: pfFormChosen,
               attrs: {
-                placeholder: placeholders.SNMPVersionTrap,
+                placeholder: i18n.t(placeholders.SNMPVersionTrap),
                 label: 'label',
                 trackBy: 'value',
                 collapseObject: true,
@@ -838,7 +838,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
               key: 'SNMPCommunityTrap',
               component: pfFormInput,
               attrs: {
-                placeholder: placeholders.SNMPCommunityTrap
+                placeholder: i18n.t(placeholders.SNMPCommunityTrap)
               },
               validators: pfConfigurationValidatorsFromMeta(meta.SNMPCommunityTrap)
             }
@@ -851,7 +851,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
               key: 'SNMPUserNameTrap',
               component: pfFormInput,
               attrs: {
-                placeholder: placeholders.SNMPUserNameTrap
+                placeholder: i18n.t(placeholders.SNMPUserNameTrap)
               },
               validators: pfConfigurationValidatorsFromMeta(meta.SNMPUserNameTrap)
             }
@@ -864,7 +864,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
               key: 'SNMPAuthProtocolTrap',
               component: pfFormInput,
               attrs: {
-                placeholder: placeholders.SNMPAuthProtocolTrap
+                placeholder: i18n.t(placeholders.SNMPAuthProtocolTrap)
               },
               validators: pfConfigurationValidatorsFromMeta(meta.SNMPAuthProtocolTrap)
             }
@@ -877,7 +877,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
               key: 'SNMPAuthPasswordTrap',
               component: pfFormPassword,
               attrs: {
-                placeholder: placeholders.SNMPAuthPasswordTrap
+                placeholder: i18n.t(placeholders.SNMPAuthPasswordTrap)
               },
               validators: pfConfigurationValidatorsFromMeta(meta.SNMPAuthPasswordTrap)
             }
@@ -890,7 +890,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
               key: 'SNMPPrivProtocolTrap',
               component: pfFormInput,
               attrs: {
-                placeholder: placeholders.SNMPPrivProtocolTrap
+                placeholder: i18n.t(placeholders.SNMPPrivProtocolTrap)
               },
               validators: pfConfigurationValidatorsFromMeta(meta.SNMPPrivProtocolTrap)
             }
@@ -903,7 +903,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
               key: 'SNMPPrivPasswordTrap',
               component: pfFormPassword,
               attrs: {
-                placeholder: placeholders.SNMPPrivPasswordTrap
+                placeholder: i18n.t(placeholders.SNMPPrivPasswordTrap)
               },
               validators: pfConfigurationValidatorsFromMeta(meta.SNMPPrivPasswordTrap)
             }
@@ -917,7 +917,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
               key: 'macSearchesMaxNb',
               component: pfFormInput,
               attrs: {
-                placeholder: placeholders.macSearchesMaxNb,
+                placeholder: i18n.t(placeholders.macSearchesMaxNb),
                 type: 'number',
                 step: 1
               },
@@ -933,7 +933,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
               key: 'macSearchesSleepInterval',
               component: pfFormInput,
               attrs: {
-                placeholder: placeholders.macSearchesSleepInterval,
+                placeholder: i18n.t(placeholders.macSearchesSleepInterval),
                 type: 'number',
                 step: 1
               },
@@ -953,7 +953,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
               key: 'cliTransport',
               component: pfFormChosen,
               attrs: {
-                placeholder: placeholders.cliTransport,
+                placeholder: i18n.t(placeholders.cliTransport),
                 label: 'label',
                 trackBy: 'value',
                 collapseObject: true,
@@ -969,7 +969,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
               key: 'cliUser',
               component: pfFormInput,
               attrs: {
-                placeholder: placeholders.cliUser
+                placeholder: i18n.t(placeholders.cliUser)
               },
               validators: pfConfigurationValidatorsFromMeta(meta.cliUser)
             }
@@ -982,7 +982,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
               key: 'cliPwd',
               component: pfFormPassword,
               attrs: {
-                placeholder: placeholders.cliPwd
+                placeholder: i18n.t(placeholders.cliPwd)
               },
               validators: pfConfigurationValidatorsFromMeta(meta.cliPwd)
             }
@@ -995,7 +995,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
               key: 'cliEnablePwd',
               component: pfFormPassword,
               attrs: {
-                placeholder: placeholders.cliEnablePwd
+                placeholder: i18n.t(placeholders.cliEnablePwd)
               },
               validators: pfConfigurationValidatorsFromMeta(meta.cliEnablePwd)
             }
@@ -1013,7 +1013,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
               key: 'wsTransport',
               component: pfFormChosen,
               attrs: {
-                placeholder: placeholders.wsTransport,
+                placeholder: i18n.t(placeholders.wsTransport),
                 label: 'label',
                 trackBy: 'value',
                 collapseObject: true,
@@ -1030,7 +1030,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
               key: 'wsUser',
               component: pfFormInput,
               attrs: {
-                placeholder: placeholders.wsUser
+                placeholder: i18n.t(placeholders.wsUser)
               },
               validators: pfConfigurationValidatorsFromMeta(meta.wsUser)
             }
@@ -1043,7 +1043,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
               key: 'wsPwd',
               component: pfFormPassword,
               attrs: {
-                placeholder: placeholders.wsPwd
+                placeholder: i18n.t(placeholders.wsPwd)
               },
               validators: pfConfigurationValidatorsFromMeta(meta.wsPwd)
             }

@@ -74,7 +74,6 @@ export const pfConfigurationRoleViewFields = (context = {}) => {
     isNew = false,
     isClone = false,
     options: {
-      allowed = {},
       meta = {},
       placeholders = {}
     }
@@ -92,7 +91,7 @@ export const pfConfigurationRoleViewFields = (context = {}) => {
               component: pfFormInput,
               attrs: {
                 disabled: (!isNew && !isClone),
-                placeholder: placeholders.id
+                placeholder: i18n.t(placeholders.id)
               },
               validators: {
                 ...pfConfigurationValidatorsFromMeta(meta.id, 'Name'),
@@ -111,7 +110,7 @@ export const pfConfigurationRoleViewFields = (context = {}) => {
               key: 'notes',
               component: pfFormInput,
               attrs: {
-                placeholder: placeholders.notes
+                placeholder: i18n.t(placeholders.notes)
               },
               validators: pfConfigurationValidatorsFromMeta(meta.notes, 'Description')
             }
@@ -126,7 +125,7 @@ export const pfConfigurationRoleViewFields = (context = {}) => {
               component: pfFormInput,
               attrs: {
                 type: 'number',
-                placeholder: placeholders.max_nodes_per_pid
+                placeholder: i18n.t(placeholders.max_nodes_per_pid)
               },
               validators: pfConfigurationValidatorsFromMeta(meta.max_nodes_per_pid, 'Max nodes per user')
             }

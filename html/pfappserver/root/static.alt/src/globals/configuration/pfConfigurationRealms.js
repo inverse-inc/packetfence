@@ -116,7 +116,7 @@ export const pfConfigurationRealmViewFields = (context = {}) => {
               component: pfFormChosen,
               attrs: {
                 collapseObject: true,
-                placeholder: placeholders.domain,
+                placeholder: i18n.t(placeholders.domain),
                 label: 'label',
                 trackBy: 'value',
                 options: allowed.domain
@@ -136,7 +136,7 @@ export const pfConfigurationRealmViewFields = (context = {}) => {
               key: 'options',
               component: pfFormTextarea,
               attrs: {
-                placeholder: placeholders.options
+                placeholder: i18n.t(placeholders.options)
               },
               validators: pfConfigurationValidatorsFromMeta(meta.options, 'Realm options')
             }
@@ -151,7 +151,7 @@ export const pfConfigurationRealmViewFields = (context = {}) => {
               component: pfFormChosen,
               attrs: {
                 collapseObject: true,
-                placeholder: placeholders.radius_auth,
+                placeholder: i18n.t(placeholders.radius_auth),
                 label: 'label',
                 trackBy: 'value',
                 options: allowed.radius_auth
@@ -169,7 +169,7 @@ export const pfConfigurationRealmViewFields = (context = {}) => {
               component: pfFormChosen,
               attrs: {
                 collapseObject: true,
-                placeholder: placeholders.radius_auth_proxy_type,
+                placeholder: i18n.t(placeholders.radius_auth_proxy_type),
                 label: 'label',
                 trackBy: 'value',
                 options: allowed.radius_auth_proxy_type
@@ -200,7 +200,7 @@ export const pfConfigurationRealmViewFields = (context = {}) => {
               component: pfFormChosen,
               attrs: {
                 collapseObject: true,
-                placeholder: placeholders.radius_acct_chosen,
+                placeholder: i18n.t(placeholders.radius_acct_chosen),
                 label: 'label',
                 trackBy: 'value',
                 options: allowed.radius_acct_chosen
@@ -218,7 +218,7 @@ export const pfConfigurationRealmViewFields = (context = {}) => {
               component: pfFormChosen,
               attrs: {
                 collapseObject: true,
-                placeholder: placeholders.radius_acct_proxy_type,
+                placeholder: i18n.t(placeholders.radius_acct_proxy_type),
                 label: 'label',
                 trackBy: 'value',
                 options: allowed.radius_acct_proxy_type
@@ -291,7 +291,7 @@ export const pfConfigurationRealmViewFields = (context = {}) => {
               component: pfFormChosen,
               attrs: {
                 collapseObject: true,
-                placeholder: placeholders.ldap_source,
+                placeholder: i18n.t(placeholders.ldap_source),
                 label: 'label',
                 trackBy: 'value',
                 options: allowed.ldap_source

@@ -99,7 +99,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           component: pfFormInput,
           attrs: {
             disabled: (!isNew && !isClone),
-            placeholder: placeholders.id
+            placeholder: i18n.t(placeholders.id)
           },
           validators: {
             ...pfConfigurationValidatorsFromMeta(meta.id, 'Name'),
@@ -121,7 +121,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'scope',
           component: pfFormInput,
           attrs: {
-            placeholder: placeholders.id
+            placeholder: i18n.t(placeholders.access_scope)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.scope, 'Scope')
         }
@@ -136,7 +136,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'access_token_param',
           component: pfFormInput,
           attrs: {
-            placeholder: placeholders.access_token_param
+            placeholder: i18n.t(placeholders.access_token_param)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.access_token_param, 'Parameter')
         }
@@ -151,7 +151,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'access_token_path',
           component: pfFormInput,
           attrs: {
-            placeholder: placeholders.access_token_path
+            placeholder: i18n.t(placeholders.access_token_path)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.access_token_path)
         }
@@ -167,7 +167,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'account_sid',
           component: pfFormInput,
           attrs: {
-            placeholder: placeholders.account_sid
+            placeholder: i18n.t(placeholders.account_sid)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.account_sid, 'SID')
         }
@@ -183,7 +183,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'activation_domain',
           component: pfFormInput,
           attrs: {
-            placeholder: placeholders.activation_domain
+            placeholder: i18n.t(placeholders.activation_domain)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.activation_domain, 'Host')
         }
@@ -304,7 +304,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'api_key',
           component: pfFormInput,
           attrs: {
-            placeholder: placeholders.api_key
+            placeholder: i18n.t(placeholders.api_key)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.api_key, 'Key')
         }
@@ -319,7 +319,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'api_login_id',
           component: pfFormInput,
           attrs: {
-            placeholder: placeholders.api_login_id
+            placeholder: i18n.t(placeholders.api_login_id)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.api_login_id, 'ID')
         }
@@ -334,7 +334,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'username',
           component: pfFormInput,
           attrs: {
-            placeholder: placeholders.username
+            placeholder: i18n.t(placeholders.username)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.username, 'Username')
         }
@@ -349,7 +349,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'password',
           component: pfFormPassword,
           attrs: {
-            placeholder: placeholders.password
+            placeholder: i18n.t(placeholders.password)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.password, 'Password')
         }
@@ -366,7 +366,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           component: pfFormInput,
           attrs: {
             type: 'number',
-            placeholder: placeholders.auth_listening_port
+            placeholder: i18n.t(placeholders.auth_listening_port)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.auth_listening_port, 'Port')
         }
@@ -382,7 +382,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'auth_token',
           component: pfFormInput,
           attrs: {
-            placeholder: placeholders.auth_token
+            placeholder: i18n.t(placeholders.auth_token)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.auth_token, 'Token')
         }
@@ -397,7 +397,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'authenticate_realm',
           component: pfFormInput,
           attrs: {
-            placeholder: placeholders.authenticate_realm
+            placeholder: i18n.t(placeholders.authenticate_realm)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.authenticate_realm, 'Realm')
         }
@@ -505,7 +505,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'authentication_url',
           component: pfFormInput,
           attrs: {
-            placeholder: placeholders.authentication_url
+            placeholder: i18n.t(placeholders.authentication_url)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.authentication_url, 'URL')
         }
@@ -521,7 +521,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'authorization_source_id',
           component: pfFormChosen,
           attrs: {
-            placeholder: placeholders.authorization_source_id,
+            placeholder: i18n.t(placeholders.authorization_source_id),
             collapseObject: true,
             trackBy: 'value',
             label: 'label',
@@ -540,7 +540,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'authorize_path',
           component: pfFormInput,
           attrs: {
-            placeholder: placeholders.authorize_path
+            placeholder: i18n.t(placeholders.authorize_path)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.authorize_path, 'Path')
         }
@@ -556,7 +556,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'authorization_url',
           component: pfFormInput,
           attrs: {
-            placeholder: placeholders.authorization_url
+            placeholder: i18n.t(placeholders.authorization_url)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.authorization_url, 'URL')
         }
@@ -572,7 +572,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           component: pfFormChosen,
           attrs: {
             collapseObject: true,
-            placeholder: placeholders.base_url,
+            placeholder: i18n.t(placeholders.base_url),
             trackBy: 'value',
             label: 'label',
             options: allowed.base_url
@@ -590,7 +590,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'basedn',
           component: pfFormInput,
           attrs: {
-            placeholder: placeholders.basedn
+            placeholder: i18n.t(placeholders.basedn)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.basedn, 'Base DN')
         }
@@ -606,7 +606,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'binddn',
           component: pfFormInput,
           attrs: {
-            placeholder: placeholders.binddn
+            placeholder: i18n.t(placeholders.binddn)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.bindnd, 'Bind DN')
         }
@@ -637,7 +637,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'cert_file',
           component: pfFormInput,
           attrs: {
-            placeholder: placeholders.cert_file
+            placeholder: i18n.t(placeholders.cert_file)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.cert_file, 'File')
         }
@@ -652,7 +652,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'cert_id',
           component: pfFormInput,
           attrs: {
-            placeholder: placeholders.cert_id
+            placeholder: i18n.t(placeholders.cert_id)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.cert_id, 'ID')
         }
@@ -667,7 +667,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'client_id',
           component: pfFormInput,
           attrs: {
-            placeholder: placeholders.client_id
+            placeholder: i18n.t(placeholders.client_id)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.client_id, 'ID')
         }
@@ -682,7 +682,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'client_secret',
           component: pfFormInput,
           attrs: {
-            placeholder: placeholders.client_secret
+            placeholder: i18n.t(placeholders.client_secret)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.client_secret, 'Secret')
         }
@@ -699,7 +699,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           component: pfFormInput,
           attrs: {
             type: 'number',
-            placeholder: placeholders.connection_timeout
+            placeholder: i18n.t(placeholders.connection_timeout)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.connection_timeout, 'Timeout')
         }
@@ -730,7 +730,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           component: pfFormChosen,
           attrs: {
             collapseObject: true,
-            placeholder: placeholders.currency,
+            placeholder: i18n.t(placeholders.currency),
             trackBy: 'value',
             label: 'label',
             options: allowed.currency
@@ -748,7 +748,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'description',
           component: pfFormInput,
           attrs: {
-            placeholder: placeholders.description
+            placeholder: i18n.t(placeholders.description)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.description, 'Description')
         }
@@ -763,7 +763,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'direct_base_url',
           component: pfFormInput,
           attrs: {
-            placeholder: placeholders.direct_base_url
+            placeholder: i18n.t(placeholders.direct_base_url)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.direct_base_url, 'URL')
         }
@@ -779,7 +779,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'domains',
           component: pfFormInput,
           attrs: {
-            placeholder: placeholders.domain
+            placeholder: i18n.t(placeholders.domain)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.domains, 'Domains')
         }
@@ -797,7 +797,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           attrs: {
             type: 'number',
             placeholder: ('email_activation_timeout' in placeholders)
-              ? placeholders.email_activation_timeout.interval
+              ? i18n.t(placeholders.email_activation_timeout.interval)
               : ''
           },
           validators: ('email_activation_timeout' in meta)
@@ -810,7 +810,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           attrs: {
             collapseObject: true,
             placeholder: ('email_activation_timeout' in placeholders)
-              ? placeholders.email_activation_timeout.unit
+              ? i18n.t(placeholders.email_activation_timeout.unit)
               : '',
             trackBy: 'value',
             label: 'label',
@@ -834,7 +834,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'email_address',
           component: pfFormInput,
           attrs: {
-            placeholder: placeholders.email_address
+            placeholder: i18n.t(placeholders.email_address)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.email_address, 'Email')
         }
@@ -850,7 +850,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'email_attribute',
           component: pfFormInput,
           attrs: {
-            placeholder: placeholders.email_attribute
+            placeholder: i18n.t(placeholders.email_attribute)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.email_attribute, 'Attribute')
         }
@@ -879,7 +879,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'group_header',
           component: pfFormInput,
           attrs: {
-            placeholder: placeholders.group_header
+            placeholder: i18n.t(placeholders.group_header)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.group_header, 'Header')
         }
@@ -894,7 +894,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'host',
           component: pfFormInput,
           attrs: {
-            placeholder: placeholders.host
+            placeholder: i18n.t(placeholders.host)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.host, 'Host')
         }
@@ -910,7 +910,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           component: pfFormInput,
           attrs: {
             class: 'col-sm-4',
-            placeholder: placeholders.host
+            placeholder: i18n.t(placeholders.host)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.host, 'Host')
         },
@@ -924,7 +924,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           attrs: {
             class: 'col-sm-1',
             type: 'number',
-            placeholder: placeholders.port
+            placeholder: i18n.t(placeholders.port)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.port, 'Port')
         },
@@ -933,7 +933,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           component: pfFormChosen,
           attrs: {
             collapseObject: true,
-            placeholder: placeholders.encryption,
+            placeholder: i18n.t(placeholders.encryption),
             trackBy: 'value',
             label: 'label',
             options: allowed.encryption
@@ -951,7 +951,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'identity_token',
           component: pfFormInput,
           attrs: {
-            placeholder: placeholders.identity_token
+            placeholder: i18n.t(placeholders.identity_token)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.identity_token, 'Token')
         }
@@ -967,7 +967,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'idp_ca_cert_path',
           component: pfFormInput,
           attrs: {
-            placeholder: placeholders.idp_ca_cert_path
+            placeholder: i18n.t(placeholders.idp_ca_cert_path)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.idp_ca_cert_path, 'Path')
         }
@@ -982,7 +982,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'idp_cert_path',
           component: pfFormInput,
           attrs: {
-            placeholder: placeholders.idp_cert_path
+            placeholder: i18n.t(placeholders.idp_cert_path)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.idp_cert_path, 'Path')
         }
@@ -997,7 +997,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'idp_entity_id',
           component: pfFormInput,
           attrs: {
-            placeholder: placeholders.idp_entity_id
+            placeholder: i18n.t(placeholders.idp_entity_id)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.idp_entity_id, 'ID')
         }
@@ -1012,7 +1012,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'idp_metadata_path',
           component: pfFormInput,
           attrs: {
-            placeholder: placeholders.idp_metadata_path
+            placeholder: i18n.t(placeholders.idp_metadata_path)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.idp_metadata_path, 'Path')
         }
@@ -1028,7 +1028,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'key_file',
           component: pfFormInput,
           attrs: {
-            placeholder: placeholders.key_file
+            placeholder: i18n.t(placeholders.key_file)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.key_file, 'File')
         }
@@ -1045,7 +1045,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           component: pfFormInput,
           attrs: {
             type: 'number',
-            placeholder: placeholders.local_account_logins
+            placeholder: i18n.t(placeholders.local_account_logins)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.local_account_logins, 'Logins')
         }
@@ -1062,7 +1062,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           component: pfFormChosen,
           attrs: {
             collapseObject: true,
-            placeholder: placeholders.local_realm,
+            placeholder: i18n.t(placeholders.local_realm),
             trackBy: 'value',
             label: 'label',
             multiple: true,
@@ -1083,7 +1083,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'merchant_id',
           component: pfFormInput,
           attrs: {
-            placeholder: placeholders.merchant_id
+            placeholder: i18n.t(placeholders.merchant_id)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.merchant_id, 'ID')
         }
@@ -1099,7 +1099,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           component: pfFormTextarea,
           attrs: {
             rows: 5,
-            placeholder: placeholders.message
+            placeholder: i18n.t(placeholders.message)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.message, 'Message')
         }
@@ -1136,7 +1136,7 @@ export const pfConfigurationAuthenticationSourceFields = {
                 throw err
               })
             },
-            placeholder: placeholders.password
+            placeholder: i18n.t(placeholders.password)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.password, 'Password')
         }
@@ -1152,7 +1152,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'password_email_update',
           component: pfFormInput,
           attrs: {
-            placeholder: placeholders.password_email_update
+            placeholder: i18n.t(placeholders.password_email_update)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.password_email_update, 'Email')
         }
@@ -1186,7 +1186,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           attrs: {
             type: 'number',
             placeholder: ('password_rotation' in placeholders)
-              ? placeholders.password_rotation.interval
+              ? i18n.t(placeholders.password_rotation.interval)
               : ''
           },
           validators: ('password_rotation' in meta)
@@ -1199,7 +1199,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           attrs: {
             collapseObject: true,
             placeholder: ('password_rotation' in placeholders)
-              ? placeholders.password_rotation.unit
+              ? i18n.t(placeholders.password_rotation.unit)
               : '',
             trackBy: 'value',
             label: 'label',
@@ -1222,7 +1222,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'path',
           component: pfFormInput,
           attrs: {
-            placeholder: placeholders.path
+            placeholder: i18n.t(placeholders.path)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.path, 'Path')
         }
@@ -1238,7 +1238,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           component: pfFormChosen,
           attrs: {
             collapseObject: true,
-            placeholder: placeholders.payment_type,
+            placeholder: i18n.t(placeholders.payment_type),
             trackBy: 'value',
             label: 'label',
             options: allowed.payment_type
@@ -1257,7 +1257,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'paypal_cert_file',
           component: pfFormInput,
           attrs: {
-            placeholder: placeholders.paypal_cert_file
+            placeholder: i18n.t(placeholders.paypal_cert_file)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.paypal_cert_file, 'File')
         }
@@ -1274,7 +1274,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           component: pfFormInput,
           attrs: {
             type: 'number',
-            placeholder: placeholders.pin_code_length
+            placeholder: i18n.t(placeholders.pin_code_length)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.pin_code_length, 'Length')
         }
@@ -1289,7 +1289,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'protected_resource_url',
           component: pfFormInput,
           attrs: {
-            placeholder: placeholders.protected_resource_url
+            placeholder: i18n.t(placeholders.protected_resource_url)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.protected_resource_url, 'URL')
         }
@@ -1305,7 +1305,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           component: pfFormChosen,
           attrs: {
             collapseObject: true,
-            placeholder: placeholders.protocol,
+            placeholder: i18n.t(placeholders.protocol),
             trackBy: 'value',
             label: 'label',
             options: allowed.protocol
@@ -1317,7 +1317,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           component: pfFormInput,
           attrs: {
             class: 'col-sm-4',
-            placeholder: placeholders.ip
+            placeholder: i18n.t(placeholders.ip)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.ip, 'IP')
         },
@@ -1331,7 +1331,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           attrs: {
             class: 'col-sm-1',
             type: 'number',
-            placeholder: placeholders.port
+            placeholder: i18n.t(placeholders.port)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.port, 'Port')
         }
@@ -1348,7 +1348,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           component: pfFormTextarea,
           attrs: {
             rows: 5,
-            placeholder: placeholders.proxy_addresses
+            placeholder: i18n.t(placeholders.proxy_addresses)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.proxy_addresses, 'Addresses')
         }
@@ -1363,7 +1363,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'public_client_key',
           component: pfFormInput,
           attrs: {
-            placeholder: placeholders.public_client_key
+            placeholder: i18n.t(placeholders.public_client_key)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.public_client_key, 'Key')
         }
@@ -1378,7 +1378,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'publishable_key',
           component: pfFormInput,
           attrs: {
-            placeholder: placeholders.publishable_key
+            placeholder: i18n.t(placeholders.publishable_key)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.publishable_key, 'Key')
         }
@@ -1394,7 +1394,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'radius_secret',
           component: pfFormInput,
           attrs: {
-            placeholder: placeholders.radius_secret
+            placeholder: i18n.t(placeholders.radius_secret)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.radius_secret, 'Secret')
         }
@@ -1411,7 +1411,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           component: pfFormInput,
           attrs: {
             type: 'number',
-            placeholder: placeholders.read_timeout
+            placeholder: i18n.t(placeholders.read_timeout)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.read_timeout, 'Timeout')
         }
@@ -1428,7 +1428,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           component: pfFormChosen,
           attrs: {
             collapseObject: true,
-            placeholder: placeholders.realms,
+            placeholder: i18n.t(placeholders.realms),
             trackBy: 'value',
             label: 'label',
             multiple: true,
@@ -1450,7 +1450,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'redirect_url',
           component: pfFormInput,
           attrs: {
-            placeholder: placeholders.redirect_url
+            placeholder: i18n.t(placeholders.redirect_url)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.redirect_url, 'URL')
         }
@@ -1467,7 +1467,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           component: pfFormChosen,
           attrs: {
             collapseObject: true,
-            placeholder: placeholders.reject_realm,
+            placeholder: i18n.t(placeholders.reject_realm),
             trackBy: 'value',
             label: 'label',
             multiple: true,
@@ -1489,7 +1489,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           component: pfFormChosen,
           attrs: {
             collapseObject: true,
-            placeholder: placeholders.scope,
+            placeholder: i18n.t(placeholders.scope),
             trackBy: 'value',
             label: 'label',
             options: allowed.scope
@@ -1507,7 +1507,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'secret',
           component: pfFormPassword,
           attrs: {
-            placeholder: placeholders.secret
+            placeholder: i18n.t(placeholders.secret)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.secret, 'Secret')
         }
@@ -1522,7 +1522,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'secret_key',
           component: pfFormInput,
           attrs: {
-            placeholder: placeholders.secret_key
+            placeholder: i18n.t(placeholders.secret_key)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.secret_key, 'Key')
         }
@@ -1552,7 +1552,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'server1_address',
           component: pfFormInput,
           attrs: {
-            placeholder: placeholders.server1_address
+            placeholder: i18n.t(placeholders.server1_address)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.server1_address, 'Address')
         }
@@ -1568,7 +1568,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           component: pfFormInput,
           attrs: {
             type: 'number',
-            placeholder: placeholders.server1_port
+            placeholder: i18n.t(placeholders.server1_port)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.server1_port, 'Port')
         }
@@ -1584,7 +1584,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'server2_address',
           component: pfFormInput,
           attrs: {
-            placeholder: placeholders.server2_address
+            placeholder: i18n.t(placeholders.server2_address)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.server2_address, 'Address')
         }
@@ -1600,7 +1600,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           component: pfFormInput,
           attrs: {
             type: 'number',
-            placeholder: placeholders.server2_port
+            placeholder: i18n.t(placeholders.server2_port)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.server2_port, 'Port')
         }
@@ -1615,7 +1615,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'service_fqdn',
           component: pfFormInput,
           attrs: {
-            placeholder: placeholders.service_fqdn
+            placeholder: i18n.t(placeholders.service_fqdn)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.service_fqdn, 'FQDN')
         }
@@ -1631,7 +1631,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'shared_secret',
           component: pfFormInput,
           attrs: {
-            placeholder: placeholders.shared_secret
+            placeholder: i18n.t(placeholders.shared_secret)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.shared_secret, 'Secret')
         }
@@ -1647,7 +1647,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'shared_secret_direct',
           component: pfFormInput,
           attrs: {
-            placeholder: placeholders.shared_secret_direct
+            placeholder: i18n.t(placeholders.shared_secret_direct)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.shared_secret_direct, 'Secret')
         }
@@ -1677,7 +1677,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'site',
           component: pfFormInput,
           attrs: {
-            placeholder: placeholders.site
+            placeholder: i18n.t(placeholders.site)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.site, 'URL')
         }
@@ -1695,7 +1695,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           attrs: {
             type: 'number',
             placeholder: ('sms_activation_timeout' in placeholders)
-              ? placeholders.sms_activation_timeout.interval
+              ? i18n.t(placeholders.sms_activation_timeout.interval)
               : ''
           },
           validators: ('sms_activation_timeout' in meta)
@@ -1708,7 +1708,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           attrs: {
             collapseObject: true,
             placeholder: ('sms_activation_timeout' in placeholders)
-              ? placeholders.sms_activation_timeout.unit
+              ? i18n.t(placeholders.sms_activation_timeout.unit)
               : '',
             trackBy: 'value',
             label: 'label',
@@ -1733,7 +1733,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           component: pfFormChosen,
           attrs: {
             collapseObject: true,
-            placeholder: placeholders.sms_carriers,
+            placeholder: i18n.t(placeholders.sms_carriers),
             trackBy: 'value',
             label: 'label',
             multiple: true,
@@ -1754,7 +1754,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'sp_entity_id',
           component: pfFormInput,
           attrs: {
-            placeholder: placeholders.sp_entity_id
+            placeholder: i18n.t(placeholders.sp_entity_id)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.sp_entity_id, 'ID')
         }
@@ -1769,7 +1769,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'sp_key_path',
           component: pfFormInput,
           attrs: {
-            placeholder: placeholders.sp_key_path
+            placeholder: i18n.t(placeholders.sp_key_path)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.sp_key_path, 'Path')
         }
@@ -1785,7 +1785,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'sponsorship_bcc',
           component: pfFormInput,
           attrs: {
-            placeholder: placeholders.sponsorship_bcc
+            placeholder: i18n.t(placeholders.sponsorship_bcc)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.sponsorship_bcc, 'BCC')
         }
@@ -1801,7 +1801,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           component: pfFormChosen,
           attrs: {
             collapseObject: true,
-            placeholder: placeholders.style,
+            placeholder: i18n.t(placeholders.style),
             trackBy: 'value',
             label: 'label',
             options: allowed.style
@@ -1820,7 +1820,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'terminal_group_id',
           component: pfFormInput,
           attrs: {
-            placeholder: placeholders.terminal_group_id
+            placeholder: i18n.t(placeholders.terminal_group_id)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.terminal_group_id, 'ID')
         }
@@ -1836,7 +1836,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'terminal_id',
           component: pfFormInput,
           attrs: {
-            placeholder: placeholders.terminal_id
+            placeholder: i18n.t(placeholders.terminal_id)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.terminal_id, 'ID')
         }
@@ -1866,7 +1866,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           component: pfFormInput,
           attrs: {
             type: 'number',
-            placeholder: placeholders.timeout
+            placeholder: i18n.t(placeholders.timeout)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.timeout, 'Timeout')
         }
@@ -1881,7 +1881,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'transaction_key',
           component: pfFormInput,
           attrs: {
-            placeholder: placeholders.transaction_key
+            placeholder: i18n.t(placeholders.transaction_key)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.transaction_key, 'Key')
         }
@@ -1897,7 +1897,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'twilio_phone_number',
           component: pfFormInput,
           attrs: {
-            placeholder: placeholders.twilio_phone_number
+            placeholder: i18n.t(placeholders.twilio_phone_number)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.twilio_phone_number, 'Phone')
         }
@@ -1912,7 +1912,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'user_header',
           component: pfFormInput,
           attrs: {
-            placeholder: placeholders.user_header
+            placeholder: i18n.t(placeholders.user_header)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.user_header, 'Header')
         }
@@ -1927,7 +1927,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'username_attribute',
           component: pfFormInput,
           attrs: {
-            placeholder: placeholders.username_attribute
+            placeholder: i18n.t(placeholders.username_attribute)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.username_attribute, 'Attribute')
         }
@@ -1942,7 +1942,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'usernameattribute',
           component: pfFormInput,
           attrs: {
-            placeholder: placeholders.usernameattribute
+            placeholder: i18n.t(placeholders.usernameattribute)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.usernameattribute, 'Attribute')
         }
@@ -1974,7 +1974,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           component: pfFormInput,
           attrs: {
             type: 'number',
-            placeholder: placeholders.write_timeout
+            placeholder: i18n.t(placeholders.write_timeout)
           },
           validators: pfConfigurationValidatorsFromMeta(meta.write_timeout, 'Timeout')
         }
