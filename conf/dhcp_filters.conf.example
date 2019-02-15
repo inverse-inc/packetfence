@@ -21,8 +21,15 @@
 #
 # Filter can be:
 #     options.optionVendorClassIdentifier
+#         Like: MSFT 5.0, android-dhcp-8.1.0
 #     options.optionDHCPMessageType
+#         1 for Discover
+#         3 for Request
+#         4 for Decline
+#         7 for Release
+#         8 for Inform
 #     options.optionClientIdentifier
+#         is the mac of teh device like 001122334455
 #     options.optionParameterRequestList
 #     options.optionMaximumDHCPMessageSize
 #     node_info.autoreg
