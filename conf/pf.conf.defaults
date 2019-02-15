@@ -1129,6 +1129,12 @@ radius_attributes=username,NAS-Identifier,Called-Station-Id,Calling-Station-Id
 #
 # Normalize the radius machine auth username
 normalize_radius_machine_auth_username=disabled
+#
+# radius_configuration.username_attributes
+#
+# Which attributes to use to get the username from a RADIUS request
+# The order of the attributes are listed in this configuration parameter is followed while performing the lookup
+username_attributes=PacketFence-UserNameAttribute,TLS-Client-Cert-Subject-Alt-Name-Upn,TLS-Client-Cert-Common-Name,User-Name
 
 [pfdhcp]
 #
