@@ -23,7 +23,7 @@ The list of rule
 =cut
 
 has_field 'rules' => (
-    'type' => 'DynamicList',
+    type => 'DynamicList',
     do_wrapper => 1,
     sortable => 1,
     do_label => 1,
@@ -37,13 +37,13 @@ has_field 'rules.contains' => (
 );
 
 has_field 'loglines' => (
-    'type' => 'TextArea',
-    'is_inactive' => 1,
+    type => 'TextArea',
+    inactive => 1,
 );
 
 has_field 'lines' => (
-    'type' => 'Repeatable',
-    'is_inactive' => 1,
+    type => 'Repeatable',
+    inactive => 1,
 );
 
 has_field 'lines.contains' => (
