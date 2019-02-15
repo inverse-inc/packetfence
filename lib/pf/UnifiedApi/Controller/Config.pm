@@ -348,7 +348,6 @@ sub options {
 
 =head2 options_from_form
 
-options_from_form
 
 =cut
 
@@ -380,11 +379,12 @@ field_meta
 =cut
 
 sub field_meta {
-    my ($self, $field) = @_;
+    my ($self, $field, $no_array) = @_;
+    my $type = $self->field_type($field, $no_array);
     return {
-        type     => $self->field_type($field),
+        type     => $type,
         required => $self->field_is_required($field),
-        $self->field_extra_meta($field),
+        $self->field_extra_meta($field, $type),
     };
 }
 
@@ -395,14 +395,24 @@ field_extra_meta
 =cut
 
 sub field_extra_meta {
-    my ($self, $field) = @_;
+    my ($self, $field, $type) = @_;
     my %extra;
-    if ($field->isa("HTML::FormHandler::Field::Text")) {
-        $self->field_text_meta($field, \%extra);
-    }
+    if ($type eq 'array') {
+        $extra{item} = $self->field_meta_array_items($field, 1);
+    } elsif ($type eq 'object') {
+        my %p;
+        $extra{properties} = \%p;
+        for my $f ($field->fields) {
+            $p{$f->name} = $self->field_meta($f);
+        }
+    } else {
+        if ($field->isa("HTML::FormHandler::Field::Text")) {
+            $self->field_text_meta($field, \%extra);
+        }
 
-    if ($field->isa("HTML::FormHandler::Field::Integer") || $field->isa("HTML::FormHandler::Field::IntRange")) {
-        $self->field_integer_meta($field, \%extra);
+        if ($field->isa("HTML::FormHandler::Field::Integer") || $field->isa("HTML::FormHandler::Field::IntRange")) {
+            $self->field_integer_meta($field, \%extra);
+        }
     }
 
     return %extra;
@@ -459,8 +469,8 @@ field_type
 =cut
 
 sub field_type {
-    my ($self, $field) = @_;
-    return pf::UnifiedApi::GenerateSpec::fieldType($field);
+    my ($self, $field, $no_array) = @_;
+    return pf::UnifiedApi::GenerateSpec::fieldType($field, $no_array);
 }
 
 =head2 field_is_required
@@ -559,6 +569,17 @@ sub field_placeholder {
         my $element_attr = $field->element_attr // {};
         $element_attr->{$name};
     };
+}
+
+sub field_meta_array_items {
+    my ($self, $field) = @_;
+    if ($field->isa('HTML::FormHandler::Field::Repeatable')) {
+        $field->init_state;
+        my $element = $field->clone_element($field->name . "_temp");
+        return $self->field_meta($element);
+    }
+
+    return $self->field_meta($field, 1);
 }
 
 =head2 field_resource_placeholder
