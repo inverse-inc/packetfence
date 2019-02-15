@@ -593,7 +593,7 @@ sub parseRequest {
     my $port            = $radius_request->{'NAS-Port'};
     my $eap_type        = ( exists($radius_request->{'EAP-Type'}) ? $radius_request->{'EAP-Type'} : 0 );
     my $nas_port_id     = ( defined($radius_request->{'NAS-Port-Id'}) ? $radius_request->{'NAS-Port-Id'} : undef );
-    my $session_id = $switch->getCiscoAvPairAttribute($radius_request, 'audit-session-id');
+    my $session_id = $self->getCiscoAvPairAttribute($radius_request, 'audit-session-id');
 
     return ($nas_port_type, $eap_type, $client_mac, $port, $user_name, $nas_port_id, $session_id, $nas_port_id);
 }
