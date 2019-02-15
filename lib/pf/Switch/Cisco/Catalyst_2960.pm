@@ -405,6 +405,8 @@ sub radiusDisconnect {
             nas_ip => $send_disconnect_to,
             secret => $self->{'_radiusSecret'},
             LocalAddr => $self->deauth_source_ip($send_disconnect_to),
+            #TODO: remove this as a default or make this configurable in the switch config
+            add_message_authenticator => $TRUE,
         };
 
         $logger->debug("network device (".$self->{'_id'}.") supports roles. Evaluating role to be returned");
