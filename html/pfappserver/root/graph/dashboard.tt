@@ -69,7 +69,6 @@ END;
           [% IF options.filter_graph %]
           data-filter-graph="[% options.filter_graph %]"
           [% END %]
-          [% END %]
           [% IF options.dimension_graph %]
           data-dimensions="[% options.dimension_graph %]"
           [% END %]
