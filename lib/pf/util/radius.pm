@@ -38,6 +38,7 @@ BEGIN {
     @EXPORT_OK = qw(perform_disconnect perform_coa perform_rsso);
 }
 
+use pf::constants qw($TRUE);
 use Net::Radius::Packet;
 use Net::Radius::Dictionary;
 use IO::Select;
@@ -116,6 +117,11 @@ sub perform_dynauth {
     # avoids unnecessary warnings
     $radius_request->set_authenticator("");
 
+    use Data::Dumper ; print Dumper($radius_request->authenticator());
+    $radius_request->set_attr("Message-Authenticator", pack("H*", "0" x 32));
+    
+    use Data::Dumper ; print Dumper($radius_request->attr("Message-Authenticator"));
+
     # pushing attributes
     # TODO deal with attribute merging
     foreach my $attr (keys %$attributes) {
@@ -128,9 +134,20 @@ sub perform_dynauth {
     foreach my $vsa_ref (@$vsa) {
         $radius_request->set_vsattr($vsa_ref->{'vendor'}, $vsa_ref->{'attribute'}, $vsa_ref->{'value'});
     }
+    use File::Slurp qw(write_file);
+
+    my $packet_data = auth_resp($radius_request->pack(), $connection_info->{'secret'});
+    write_file("/tmp/packet-before.raw", $packet_data);
+
+    use Digest::HMAC_MD5 qw(hmac_md5 hmac_md5_hex);
+    my $auth_radius_request = Net::Radius::Packet->new($dictionary, $packet_data);
+    $auth_radius_request->set_attr("Message-Authenticator", hmac_md5($packet_data, $connection_info->{'secret'}), $TRUE);
+
+    my $signed_packet_data = $auth_radius_request->pack();
+    write_file("/tmp/packet.raw", $signed_packet_data);
 
     # applying shared-secret signing then send
-    $socket->send(auth_resp($radius_request->pack(), $connection_info->{'secret'}));
+    $socket->send($signed_packet_data);
 
     # Listen for the response.
     # Using IO::Select because otherwise we can't do timeout without using alarm()
