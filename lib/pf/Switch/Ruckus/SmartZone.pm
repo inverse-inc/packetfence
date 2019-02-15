@@ -15,6 +15,7 @@ use warnings;
 
 use base ('pf::Switch::Ruckus');
 
+use Try::Tiny;
 use pf::accounting qw(node_accounting_dynauth_attr);
 use pf::constants;
 use pf::util;
