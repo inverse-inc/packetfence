@@ -400,11 +400,7 @@ sub field_extra_meta {
     if ($type eq 'array') {
         $extra{item} = $self->field_meta_array_items($field, 1);
     } elsif ($type eq 'object') {
-        my %p;
-        $extra{properties} = \%p;
-        for my $f ($field->fields) {
-            $p{$f->name} = $self->field_meta($f);
-        }
+        $extra{properties} = $self->field_meta_object_properties($field);
     } else {
         if ($field->isa("HTML::FormHandler::Field::Text")) {
             $self->field_text_meta($field, \%extra);
@@ -416,6 +412,22 @@ sub field_extra_meta {
     }
 
     return %extra;
+}
+
+=head2 field_meta_object_properties
+
+field_meta_object_properties
+
+=cut
+
+sub field_meta_object_properties {
+    my ($self, $field) = @_;
+    my %p;
+    for my $f ($field->fields) {
+        $p{$f->name} = $self->field_meta($f);
+    }
+
+    return \%p;
 }
 
 =head2 field_integer_meta
