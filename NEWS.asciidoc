@@ -22,6 +22,7 @@ Enhancements
 ++++++++++++
 * Now including timeout when authorizing a web-auth user on a Unifi controler
 * Now shipping defaults for the apache filters
+* Allow to configure the RADIUS attributes and their lookup order for extracting the username
 
 Bug Fixes
 +++++++++
