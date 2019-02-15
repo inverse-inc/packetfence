@@ -382,8 +382,11 @@ sub field_meta {
     my ($self, $field, $no_array) = @_;
     my $type = $self->field_type($field, $no_array);
     return {
-        type     => $type,
-        required => $self->field_is_required($field),
+        type        => $type,
+        required    => $self->field_is_required($field),
+        placeholder => $self->field_placeholder($field),
+        default     => $self->field_default($field),
+        allowed     => $self->field_allowed($field),
         $self->field_extra_meta($field, $type),
     };
 }
@@ -515,7 +518,7 @@ sub resource_options {
     my $inherited_values = $self->inherited_values;
     for my $field ($form->fields) {
         my $name = $field->name;
-        next if $name eq 'id';
+        next if $self->isResourceFieldSkippable($field);
         $defaults{$name} = $self->field_default($field, $inherited_values);
         $placeholders{$name} = $self->field_resource_placeholder($field, $inherited_values);
         $allowed{$name} = $self->field_allowed($field);
@@ -523,6 +526,17 @@ sub resource_options {
     }
 
     return $self->render(json => \%output);
+}
+
+=head2 isResourceFieldSkippable
+
+isResourceFieldSkippable
+
+=cut
+
+sub isResourceFieldSkippable {
+    my ($self, $field) = @_;
+    return $field->name eq 'id';
 }
 
 =head2 inherited_values
@@ -579,7 +593,7 @@ sub field_placeholder {
 
     return $value // do {
         my $element_attr = $field->element_attr // {};
-        $element_attr->{$name};
+        $element_attr->{$name}
     };
 }
 
@@ -607,11 +621,12 @@ sub field_resource_placeholder {
     if ($inherited_values) {
         $value = $inherited_values->{$name};
     }
-
-    return $value // do {
+    $value //= do {
         my $element_attr = $field->element_attr // {};
-        $element_attr->{$name};
+        $element_attr->{$name}
     };
+
+    return $value;
 }
 
 =head2 field_allowed
@@ -622,8 +637,9 @@ field_allowed
 
 sub field_allowed {
     my ($self, $field) = @_;
+    my $allowed;
     if ($field->isa('HTML::FormHandler::Field::Select')) {
-        return $field->options;
+        $allowed = $field->options;
     }
 
     if ($field->isa('HTML::FormHandler::Field::Repeatable')) {
@@ -631,11 +647,11 @@ sub field_allowed {
         my $element = $field->clone_element($field->name . "_temp");
         if ($element->isa('HTML::FormHandler::Field::Select') ) {
             $element->_load_options();
-            return $element->options;
+            $allowed = $element->options;
         }
     }
 
-    return undef;
+    return $allowed;
 }
 
 sub form_parameters {
