@@ -3683,6 +3683,33 @@ sub setCurrentTenant {
     pf::dal->set_tenant($self->{_TenantId});
 }
 
+=head2 getCiscoAvPairAttribute
+
+getCiscoAvPairAttribute
+
+=cut
+
+sub getCiscoAvPairAttribute {
+    my ($self, $radius_request, $attr) = @_;
+    my $logger = $self->logger;
+    my $avpair = listify($radius_request->{'Cisco-AVPair'} // []);
+    foreach my $ciscoAVPair (@{$avpair}) {
+        $logger->trace("Cisco-AVPair: $ciscoAVPair $attr");
+        if ($ciscoAVPair =~ /^\Q$attr\E=(.*)$/ig) {
+            return $1;
+        } else {
+            $logger->info("Unable to extract $attr of Cisco-AVPair: $ciscoAVPair");
+        }
+    }
+
+    $logger->warn(
+        "Unable to extract $attr for module " . ref($self) . ". SSID-based VLAN assignments won't work. "
+        . "Make sure you enable Vendor Specific Attributes (VSA) on the AP if you want them to work."
+    );
+
+    return ;
+}
+
 =back
 
 =head1 AUTHOR
