@@ -202,3 +202,51 @@ api_compile=$.items[*].network, $.items[*].percentused
 interval=60s
 randomize=true
 management=false
+
+[metric 'Error in packetfence.log']
+type=tail_file
+file=/usr/local/pf/logs/packetfence.log
+match=ERROR,httpd.portal.*Unable to match MAC address to IP.*ip2mac.*
+statsd_ns=source.packetfence.packetfence_log.error,source.packetfence.packetfence_log.portal.ip2mac
+
+[metric 'DHCP messages in pfdhcp.log']
+type=tail_file
+file=/usr/local/pf/logs/pfdhcp.log
+match=DHCPDISCOVER,DHCPOFFER,DHCPREQUEST,DHCPACK,DHCPNAK,DHCPDECLINE,DHCPRELEASE,DHCPINFORM
+statsd_ns=source.packetfence.pfdhcp_log.dhcpdiscover,source.packetfence.pfdhcp_log.dhcpoffer,source.packetfence.pfdhcp_log.dhcprequest,source.packetfence.pfdhcp_log.dhcpack,source.packetfence.pfdhcp_log.dhcpnak,source.packetfence.pfdhcp_log.dhcpdecline,source.packetfence.pfdhcp_log.dhcprelease,source.packetfence.pfdhcp_log.dhcpinform
+
+[metric 'RADIUS load_balancer.log']
+type=tail_file
+file=/usr/local/pf/logs/radius-load_balancer.log
+match=unknown client,invalid Message-Authenticator
+statsd_ns=source.packetfence.radius_load_balancer_log.unknown_client,source.packetfence.radius_load_balancer_log.invalid_message_authenticator
+
+[metric 'RADIUS radius.log']
+type=tail_file
+file=/usr/local/pf/logs/radius.log
+match=unknown client,invalid Message-Authenticator,0xc0000072,c000006d,0xc0000001,sql_reject,Ignoring duplicate packet
+statsd_ns=source.packetfence.radius_log.unknown_client,source.packetfence.radius_log.invalid_message_authenticator,source.packetfence.radius_log.account_disabled,source.packetfence.radius_log.bad_username_or_password,source.packetfence.radius_log.reading_winbind_reply_failed,source.packetfence.radius_log.sql_reject,source.packetfence.radius_log.duplicate_packet
+
+[metric 'RADIUS radius-acct.log']
+type=tail_file
+file=/usr/local/pf/logs/radius-acct.log
+match=ERROR
+statsd_ns=source.packetfence.radius_acct_log.error
+
+[metric 'Mariadb mariadb_error.log']
+type=tail_file
+file=/usr/local/pf/logs/mariadb_error.log
+match=DESYNCED
+statsd_ns=source.packetfence.mariadb_error_log.desynced
+
+[metric 'Events in pfmon.log']
+type=tail_file
+file=/usr/local/pf/logs/pfmon.log
+match=ERROR,WARNING
+statsd_ns=source.packetfence.pfmon_log.error,source.packetfence.pfmon_log.warning
+
+[metric 'Events in fingerbank.log']
+type=tail_file
+file=/usr/local/pf/logs/fingerbank.log
+match=An error occured while interrogating upstream Fingerbank project
+statsd_ns=source.packetfence.fingerbank_log.api_error
