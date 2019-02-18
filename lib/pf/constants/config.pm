@@ -173,8 +173,8 @@ Readonly our %connection_type => (
     'Inline'                => $INLINE,
     'Ethernet-Web-Auth'     => $WEBAUTH_WIRED,
     'Wireless-Web-Auth'     => $WEBAUTH_WIRELESS,
-    'VPN'                   => $VIRTUAL_VPN,
-    'CLI'                   => $VIRTUAL_CLI,
+    'VPN-Access'            => $VIRTUAL_VPN,
+    'CLI-Access'            => $VIRTUAL_CLI,
 );
 Readonly our %connection_group => (
     'Wireless'              => $WIRELESS,
