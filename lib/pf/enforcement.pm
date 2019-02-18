@@ -44,6 +44,7 @@ use pf::config qw(
     $WIRED
     $WIRELESS
     $WEBAUTH
+    $VIRTUAL
 );
 use pf::inline::custom $INLINE_API_LEVEL;
 use pf::iptables;
@@ -166,7 +167,7 @@ sub _vlan_reevaluation {
                 $client->notify( 'ReAssignVlan', %data );
             }
         }
-        elsif ( ( ( $conn_type & $WIRELESS ) == $WIRELESS ) || ( ( $conn_type & $WEBAUTH ) == $WEBAUTH ) ) {
+        elsif ( ( ( $conn_type & $WIRELESS ) == $WIRELESS ) || ( ( $conn_type & $WEBAUTH ) == $WEBAUTH ) || ( ( $conn_type & $VIRTUAL ) == $VIRTUAL ) ) {
             $logger->debug("Calling API with desAssociate request on switch (".$switch_id.")");
             if ($cluster_deauth) {
                 $client->notify( 'desAssociate_in_queue', %data );
