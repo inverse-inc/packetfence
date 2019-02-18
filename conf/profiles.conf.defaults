@@ -32,3 +32,4 @@ status=enabled
 unreg_on_acct_stop=disabled
 network_logoff=disabled
 network_logoff_popup=disabled
+dot1x_unset_on_unmatch=disabled

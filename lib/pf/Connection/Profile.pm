@@ -506,6 +506,17 @@ sub dot1xRecomputeRoleFromPortal {
     return $self->{'_dot1x_recompute_role_from_portal'};
 }
 
+=item dot1xUnsetOnUnmatch
+
+On autoreg if no authentication source return a role then unset the current node one
+
+=cut
+
+sub dot1xUnsetOnUnmatch {
+    my ($self) = @_;
+    return $self->{'_dot1x_unset_on_unmatch'};
+}
+
 =item getScans
 
 Returns the Scans IDs for the profile

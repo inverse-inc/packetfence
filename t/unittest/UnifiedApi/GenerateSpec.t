@@ -185,6 +185,10 @@ cmp_deeply(
                         description => 'Billing tier',
                     },
                 },
+                "dot1x_unset_on_unmatch" => {
+                    type => 'string',
+                    description => "When enabled, PacketFence will unset the role of the device if no authentication sources returned one.",
+                },
                 'block_interval' => {
                     type => 'object',
                     description => 'The amount of time a user is blocked after reaching the defined limit for login, sms request and sms pin retry.',

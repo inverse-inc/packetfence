@@ -135,7 +135,7 @@ The main definition block
 
 has_block 'definition' =>
   (
-    render_list => [qw(id description status root_module preregistration autoregister reuse_dot1x_credentials dot1x_recompute_role_from_portal dpsk default_psk_key unreg_on_acct_stop)],
+    render_list => [qw(id description status root_module preregistration autoregister reuse_dot1x_credentials dot1x_recompute_role_from_portal dot1x_unset_on_unmatch dpsk default_psk_key unreg_on_acct_stop)],
   );
 
 

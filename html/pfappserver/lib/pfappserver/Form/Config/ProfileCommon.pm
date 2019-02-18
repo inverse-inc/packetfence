@@ -41,7 +41,7 @@ The main definition block
 
 has_block 'definition' =>
   (
-    render_list => [qw(id description root_module preregistration autoregister reuse_dot1x_credentials dot1x_recompute_role_from_portal dpsk default_psk_key unreg_on_acct_stop)],
+    render_list => [qw(id description root_module preregistration autoregister reuse_dot1x_credentials dot1x_recompute_role_from_portal dot1x_unset_on_unmatch dpsk default_psk_key unreg_on_acct_stop)],
   );
 
 =head2 captive_portal
@@ -355,6 +355,20 @@ has_field 'dot1x_recompute_role_from_portal' =>
     default => 'enabled',
     tags => { after_element => \&help,
              help => 'When enabled, PacketFence will not use the role initialy computed on the portal but will use the dot1x username to recompute the role.' },
+  );
+
+=head2 dot1x_unset_on_unmatch
+
+=cut
+
+has_field 'dot1x_unset_on_unmatch' =>
+  (
+    type => 'Checkbox',
+    checkbox_value => 'enabled',
+    unchecked_value => 'disabled',
+    default => 'disabled',
+    tags => { after_element => \&help,
+             help => 'When enabled, PacketFence will unset the role of the device if no authentication sources returned one.' },
   );
 
 =head2 block_interval
