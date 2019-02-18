@@ -487,7 +487,7 @@ sub findProvisioner {
 
     $node_attributes ||= node_attributes($mac);
     my $os = $node_attributes->{'device_type'};
-    unless(defined $os){
+    if(!defined($os) && any { scalar(@{$_->oses}) > 0 } @provisioners){
         $logger->warn("Can't find provisioner for $mac since we don't have it's OS");
         return;
     }
