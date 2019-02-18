@@ -610,9 +610,9 @@ sub getNodeInfoForAutoReg {
             }
             %node_info = (%node_info, (source  => $source, portal => $profile->getName));
         }
-	if (!defined($role) && isenabled($profile->dot1xUnsetOnUnmatch)) {
-	    %node_info = (%node_info, (category => ''));
-	}
+        if (!defined($role) && isenabled($profile->dot1xUnsetOnUnmatch)) {
+            %node_info = (%node_info, (category => ''));
+        }
         $node_info{'pid'} = $args->{'user_name'};
     }
 
