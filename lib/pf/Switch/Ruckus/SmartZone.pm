@@ -74,9 +74,9 @@ Return the reference to the deauth technique or the default deauth technique.
 sub deauthTechniques {
     my ($self, $method) = @_;
     my $logger = $self->logger;
-    my $default = $SNMP::HTTP;
+    my $default = $SNMP::RADIUS;
     my %tech = (
-        $SNMP::HTTP => 'deauth',
+        $SNMP::RADIUS => 'deauth',
     );
 
     if (!defined($method) || !defined($tech{$method})) {
