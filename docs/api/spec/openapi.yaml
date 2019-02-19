@@ -1311,6 +1311,10 @@ components:
           description: When enabled, PacketFence will not use the role initialy computed
             on the portal but will use the dot1x username to recompute the role.
           type: string
+        dot1x_unset_on_unmatch:
+          description: When enabled, PacketFence will unset the role of the device
+            if no authentication sources returned one.
+          type: string
         dpsk:
           description: This enables the Dynamic PSK feature on this connection profile.
             It means that the RADIUS server will answer requests with specific attributes
