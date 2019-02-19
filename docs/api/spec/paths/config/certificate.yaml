@@ -50,6 +50,13 @@
       name: certificate_id
       schema:
         type: string
+    - in: query
+      name: check_chain
+      schema:
+        type: string
+        enum:
+          - enabled
+          - disabled
     requestBody:
       content:
         application/json:
