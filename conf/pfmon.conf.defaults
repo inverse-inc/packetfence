@@ -339,7 +339,11 @@ delete_window=0D
 #
 # How long to keep an inactive node before unregistering it
 unreg_window=0D
-
+#
+# voip
+#
+# Enable voip device cleanup
+voip=enabled
 
 [nodes_maintenance]
 #

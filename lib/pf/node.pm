@@ -40,6 +40,7 @@ use pf::config qw(
     %Config
     $INLINE
     %connection_type_to_str
+    $VOIP
 );
 
 use constant NODE => 'node';
@@ -851,7 +852,7 @@ Cleanup nodes that should be deleted or unregistered based on the maintenance pa
 
 sub node_cleanup {
     my $timer = pf::StatsD::Timer->new;
-    my ($delete_time, $unreg_time) = @_;
+    my ($delete_time, $unreg_time,$voip) = @_;
     my $logger = get_logger();
     $logger->debug("calling node_cleanup with delete_time=$delete_time unreg_time=$unreg_time");
     
@@ -859,8 +860,10 @@ sub node_cleanup {
         foreach my $row ( node_expire_lastseen($delete_time) ) {
             my $mac = $row->{'mac'};
             my $tenant_id = $row->{'tenant_id'};
+            if (isdisabled($voip) && $row->{'voip'} eq $VOIP) {
+                next;
+            }
             $logger->info("mac $mac not seen for $delete_time seconds, deleting");
-
             require pf::locationlog;
             pf::locationlog::locationlog_update_end_mac($mac, $tenant_id);
             node_delete($mac, $tenant_id);
@@ -875,6 +878,9 @@ sub node_cleanup {
         foreach my $row ( node_unreg_lastseen($unreg_time) ) {
             my $mac = $row->{'mac'};
             my $tenant_id = $row->{'tenant_id'};
+            if (isdisabled($voip) && $row->{'voip'} eq $VOIP) {
+                next;
+            }
             $logger->info("mac $mac not seen for $unreg_time seconds, unregistering");
             pf::dal->set_tenant($tenant_id);
             node_deregister($mac);
