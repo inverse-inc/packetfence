@@ -4,7 +4,6 @@ import (
 	"context"
 	"regexp"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/inverse-inc/packetfence/go/log"
 
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
@@ -27,8 +26,6 @@ func (pf *pfdns) PassthroughsInit() error {
 
 	pfconfigdriver.FetchDecodeSocket(ctx, &pfconfigdriver.Config.Passthroughs.Registration)
 
-	spew.Dump(pfconfigdriver.Config.Passthroughs.Registration)
-
 	pf.FqdnPort = make(map[*regexp.Regexp][]string)
 
 	for k, v := range pfconfigdriver.Config.Passthroughs.Registration.Wildcard {
@@ -40,8 +37,6 @@ func (pf *pfdns) PassthroughsInit() error {
 		rgx, _ := regexp.Compile("^" + k + ".$")
 		pf.FqdnPort[rgx] = v
 	}
-
-	spew.Dump(pf.FqdnPort)
 
 	return nil
 }
