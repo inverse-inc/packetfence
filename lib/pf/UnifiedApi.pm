@@ -199,6 +199,15 @@ our @API_V1_ROUTES = (
             },
         },
     },    
+    {
+        controller => 'Cluster',
+        allow_singular => 1,
+        collection => {
+            subroutes => {
+                'servers' => {get => "servers"},
+            },
+        },
+    },
     { 
         controller => 'Services',
         resource   => {
