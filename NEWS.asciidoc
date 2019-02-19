@@ -24,6 +24,7 @@ Enhancements
 * Now shipping defaults for the apache filters
 * Allow to configure the RADIUS attributes and their lookup order for extracting the username
 * conf/stats.conf has a default file now
+* Voip configuration parameter in node_cleanup task to bypass voip devices
 
 Bug Fixes
 +++++++++
