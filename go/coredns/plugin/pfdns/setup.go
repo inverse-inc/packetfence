@@ -3,6 +3,7 @@ package pfdns
 import (
 	"context"
 	"net"
+	"sync"
 	"time"
 
 	"github.com/inverse-inc/packetfence/go/caddy/caddy"
@@ -45,10 +46,10 @@ func setuppfdns(c *caddy.Controller) error {
 	if err := pf.DbInit(); err != nil {
 		return c.Errf("pfdns: unable to initialize database connection")
 	}
-	if err := pf.PassthrouthsInit(); err != nil {
+	if err := pf.PassthroughsInit(); err != nil {
 		return c.Errf("pfdns: unable to initialize passthrough")
 	}
-	if err := pf.PassthrouthsIsolationInit(); err != nil {
+	if err := pf.PassthroughsIsolationInit(); err != nil {
 		return c.Errf("pfdns: unable to initialize isolation passthrough")
 	}
 
@@ -78,6 +79,9 @@ func setuppfdns(c *caddy.Controller) error {
 	pf.IpsetCache = cache.New(1*time.Hour, 10*time.Second)
 
 	pf.apiClient = unifiedapiclient.NewFromConfig(context.Background())
+
+	pf.refreshLauncher = &sync.Once{}
+	pfconfigdriver.PfconfigPool.AddRefreshable(ctx, pf)
 
 	dnsserver.GetConfig(c).AddPlugin(
 		func(next plugin.Handler) plugin.Handler {
