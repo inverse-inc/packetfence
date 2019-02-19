@@ -41,7 +41,6 @@ performance_schema = [% performance_schema %]
 # max_connect_errors
 max_connect_errors = [% max_connect_errors %]
 
->>>>>>> Update mysql configuration with new params
 # Point the following paths to a dedicated disk
 #tmpdir   = /tmp/
 
