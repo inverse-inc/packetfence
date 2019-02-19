@@ -478,7 +478,7 @@ END;
               <div class="row-flex">
                 [% FOREACH scope IN ["hour", "day", "week", "month", "year"] %]
                   [% width = scope == "year" ? gridSize : halfGridSize %]
-                  [% graph("statsd_gauge_source.packetfence.devices.registered_last_" _ scope, "New registered devices during the past " _ scope, {"width" => width, "filter_graph" => "gauge"}) | none %]
+                  [% graph("statsd_gauge_source.packetfence.devices.registered_last_" _ scope, "New registered devices during the past " _ scope, {"nocluster" => 1, "width" => width, "filter_graph" => "gauge"}) | none %]
                 [% END %]
               </div>
             </div>
