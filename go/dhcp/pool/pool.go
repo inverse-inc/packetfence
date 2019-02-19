@@ -3,14 +3,17 @@ package pool
 import (
 	"errors"
 	"math/rand"
-	"strconv"
 	"sort"
+	"strconv"
 	"sync"
 	"time"
 )
 
 const FreeMac = "00:00:00:00:00:00"
 const FakeMac = "ff:ff:ff:ff:ff:ff"
+
+const Random = 1
+const OldestReleased = 2
 
 type DHCPPool struct {
 	lock      *sync.Mutex
@@ -167,7 +170,7 @@ func (dp *DHCPPool) GetFreeIPIndex(mac string) (uint64, string, error) {
 
 	var available uint64
 
-	if dp.algorithm == 2 {
+	if dp.algorithm == OldestReleased {
 
 		type kv struct {
 			Key   uint64

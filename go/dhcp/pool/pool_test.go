@@ -6,7 +6,7 @@ import (
 
 func TestReserveIPIndex(t *testing.T) {
 	cap := uint64(5)
-	algo := int(1)
+	algo := Random
 	dp := NewDHCPPool(cap, algo)
 
 	var err error
@@ -49,7 +49,7 @@ func TestReserveIPIndex(t *testing.T) {
 
 func TestFreeIPIndex(t *testing.T) {
 	cap := uint64(5)
-	algo := int(1)
+	algo := Random
 	dp := NewDHCPPool(cap, algo)
 
 	var err error
@@ -95,7 +95,7 @@ func TestFreeIPIndex(t *testing.T) {
 
 func TestGetFreeIPIndex(t *testing.T) {
 	cap := uint64(1000)
-	algo := int(1)
+	algo := Random
 	dp := NewDHCPPool(cap, algo)
 
 	var err error
@@ -161,7 +161,7 @@ func TestGetFreeIPIndex(t *testing.T) {
 
 func TestFreeIPsRemaining(t *testing.T) {
 	cap := uint64(1000)
-	algo := int(1)
+	algo := Random
 	dp := NewDHCPPool(cap, algo)
 
 	var expected uint64
@@ -210,7 +210,7 @@ func TestFreeIPsRemaining(t *testing.T) {
 
 func TestCapacity(t *testing.T) {
 	cap := uint64(1000)
-	algo := int(1)
+	algo := Random
 	dp := NewDHCPPool(cap, algo)
 
 	if dp.Capacity() != cap {
