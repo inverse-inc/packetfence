@@ -129,12 +129,13 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		var PortalURL url.URL
 		var found bool
 		found = false
+		srcIP := net.ParseIP(r.Header.Get("X-Forwarded-For"))
 		for i := 0; i <= len(passThrough.PortalURL); i++ {
 			if found {
 				break
 			}
 			for c, d := range passThrough.PortalURL[i] {
-				if c.Contains(net.ParseIP(r.Header.Get("X-Forwarded-For"))) {
+				if c.Contains(srcIP) {
 					PortalURL = *d
 					found = true
 					break

@@ -665,8 +665,6 @@ func (pf *pfdns) PortalFQDNInit(ctx context.Context) error {
 	keyConfNet.PfconfigHostnameOverlay = "yes"
 	pfconfigdriver.FetchDecodeSocket(ctx, &keyConfNet)
 
-	var NetIndex net.IPNet
-
 	for _, key := range keyConfNet.Keys {
 		var ConfNet pfconfigdriver.NetworkConf
 		ConfNet.PfconfigHashNS = key
@@ -678,7 +676,7 @@ func (pf *pfdns) PortalFQDNInit(ctx context.Context) error {
 		} else {
 			fqdn = general.Hostname + "." + general.Domain
 		}
-
+		NetIndex := net.IPNet{}
 		NetIndex.Mask = net.IPMask(net.ParseIP(ConfNet.Netmask))
 		NetIndex.IP = net.ParseIP(key)
 
@@ -688,6 +686,7 @@ func (pf *pfdns) PortalFQDNInit(ctx context.Context) error {
 		pf.PortalFQDN[index][&NetIndex] = rgx
 		index++
 	}
+	NetIndex := net.IPNet{}
 	NetIndex.Mask = net.IPMask(net.IPv4zero)
 	NetIndex.IP = net.IPv4zero
 	pf.PortalFQDN[index] = make(map[*net.IPNet]*regexp.Regexp)
