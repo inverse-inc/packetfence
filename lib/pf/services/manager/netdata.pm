@@ -168,6 +168,7 @@ EOT
     $tags{'db_database'}   = "$Config{'database'}{'db'}";
 
     $tags{'active_active_ip'} = pf::cluster::management_cluster_ip() || $management_network->tag('vip') || $management_network->tag('ip');
+    $tags{'statsd_listen_port'} = $Config{'advanced'}{'statsd_listen_port'};
 
     parse_template( \%tags, "$conf_dir/monitoring/netdata.conf", "$generated_conf_dir/monitoring/netdata.conf" );
     parse_template( \%tags, "$conf_dir/monitoring/apps_groups.conf", "$generated_conf_dir/monitoring/apps_groups.conf" );
