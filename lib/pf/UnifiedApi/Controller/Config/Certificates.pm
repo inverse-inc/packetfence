@@ -21,6 +21,7 @@ use pf::util;
 use File::Slurp qw(read_file);
 use pf::error qw(is_error);
 use Mojo::Base qw(pf::UnifiedApi::Controller::RestRoute);
+use pf::ConfigStore::Pf;
 use pf::file_paths qw(
     $server_cert
     $server_key
@@ -250,7 +251,9 @@ sub replace {
     my ($self) = @_;
     my $data = $self->parse_json;
     my $params = $self->req->query_params->to_hash;
-
+    
+    # Explicitely disable Let's Encrypt if manually managing certs
+    $self->certificate_lets_encrypt($self->stash->{certificate_id}, "disabled");
 
     my ($cert, $intermediate_cas, $cas, $ca, $key) = $self->objects_from_payload($data);
     unless(defined($cert)) {
@@ -346,6 +349,63 @@ sub generate_csr {
     }
     else {
         $self->render_error(422, $csr);
+    }
+}
+
+=head2 certificate_lets_encrypt
+
+Gets or sets the Let's Encrypt flag for a certificate resource
+
+=cut
+
+sub certificate_lets_encrypt {
+    my ($self, $type, $param) = @_;
+
+    my $cs = pf::ConfigStore::Pf->new;
+    if(defined($param)) {
+        # We are setting the parameter
+        $cs->update(lets_encrypt => {$type => $param});
+        return $cs->commit();
+    }
+    else {
+        # We are getting the parameter
+        return $cs->read("lets_encrypt")->{$type};
+    }
+}
+
+sub lets_encrypt_replace {
+    my ($self) = @_;
+
+    my $data = $self->parse_json();
+    my $config = $self->resource_config();
+
+    # Explicitely enable Let's Encrypt if using this API call
+    $self->certificate_lets_encrypt($self->stash->{certificate_id}, "enabled");
+
+    my ($result, $bundle) = pf::lets_encrypt::obtain_bundle($config->{key_file}, $data->{common_name});
+
+    unless($result) {
+        return $self->render_error(422, $bundle);
+    }
+
+    my (undef, undef, undef, undef, $rsa_key) = $self->objects_from_files();
+
+    my $cert = $bundle->{certificate};
+    my $intermediate_cas = $bundle->{intermediate_cas};
+
+    my %to_install = (
+        cert_file => join("\n", map { $_->as_string() } ($bundle->, @$intermediate_cas)),
+        key_file => $rsa_key->get_private_key_string(),
+    );
+    $to_install{bundle_file} = join("\n", $to_install{cert_file}, $to_install{key_file});
+
+    my @errors = $self->install_to_file(undef, %to_install);
+    
+    if(scalar(@errors) > 0) {
+        $self->render_error(422, join(", ", @errors));
+    }
+    else {
+        $self->render(json => {}, status => 200)
     }
 }
 

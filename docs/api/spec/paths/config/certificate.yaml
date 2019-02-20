@@ -21,6 +21,29 @@
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
 
+/config/certificate/{certificate_id}/lets_encrypt:
+  description: pf::UnifiedApi::Controller::Config::Certificates
+  put:
+    description: Generate a CSR for a certificate resource
+    operationId: api.v1.Config::Certificates.lets_encrypt_update
+    parameters:
+    - in: path
+      name: certificate_id
+      schema:
+        type: string
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ConfigCertificateLetsEncrypt'
+    responses:
+      '200':
+        $ref: '#/components/responses/Message'
+      '404':
+        $ref: '#/components/responses/NotFound'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+
 /config/certificate/{certificate_id}:
   description: pf::UnifiedApi::Controller::Config::Certificates
   get:
