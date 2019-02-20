@@ -88,6 +88,11 @@ sub process {
     my ( $mac, $force ) = @_;
     my $logger = pf::log::get_logger;
 
+    unless(fingerbank::Config::is_api_key_configured()) {
+        $logger->debug("Skipping Fingerbank processing because no API key is configured");
+        return $FALSE;
+    }
+
     $force //= $FALSE;
     
     my $node_before = node_attributes($mac);
