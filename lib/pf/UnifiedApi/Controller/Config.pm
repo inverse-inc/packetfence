@@ -105,14 +105,14 @@ sub config_store {
 }
 
 sub form {
-    my ($self, $item) = @_;
+    my ($self, $item, @args) = @_;
     my $parameters = $self->form_parameters($item);
     if (!defined $parameters) {
         $self->render_error(422, "Invalid request");
         return undef;
     }
 
-    $self->form_class->new(@$parameters);
+    $self->form_class->new(@$parameters, @args);
 }
 
 sub resource {
