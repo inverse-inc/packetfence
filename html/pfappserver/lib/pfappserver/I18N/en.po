@@ -9825,6 +9825,10 @@ msgid "advanced.active_directory_os_join_check_bypass"
 msgstr "Disable OS AD join check"
 
 # conf/documentation.conf
+msgid "advanced.statsd_listen_port"
+msgstr "Statsd listen port"
+
+# conf/documentation.conf
 msgid "alerting"
 msgstr "Alerting"
 
