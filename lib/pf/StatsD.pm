@@ -24,6 +24,7 @@ use base "Etsy::StatsD";
 use Sys::Hostname;
 use POSIX;
 use Readonly;
+use pf::config qw(%Config);
 
 our $VERSION = 1.000000;
 our @EXPORT = qw($statsd);
@@ -32,7 +33,7 @@ our $statsd;
 Readonly my $GRAPHITE_DELIMITER => ".";
 Readonly my $STATSD_DELIMITER   => ":";
 Readonly my $STATSD_HOST   => "127.0.0.1";
-Readonly my $STATSD_PORT   => 8125;
+Readonly my $STATSD_PORT   => $Config{'advanced'}{'statsd_listen_port'};
 
 initStatsd();
 
