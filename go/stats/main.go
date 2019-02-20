@@ -256,7 +256,13 @@ func main() {
 		var connected bool
 
 		for !connected {
-			StatsdClient, err = statsd.New()
+			var keyConfAdvanced pfconfigdriver.PfConfAdvanced
+			keyConfAdvanced.PfconfigNS = "config::Pf"
+			keyConfAdvanced.PfconfigHostnameOverlay = "yes"
+			pfconfigdriver.FetchDecodeSocket(ctx, &keyConfAdvanced)
+			Options := statsd.Network(keyConfAdvanced.StatsdListenPort)
+
+			StatsdClient, err = statsd.New(Options)
 			if err != nil {
 				log.LoggerWContext(ctx).Error("Error while creating statsd client: " + err.Error())
 				time.Sleep(1 * time.Second)

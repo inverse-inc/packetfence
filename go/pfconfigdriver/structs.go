@@ -417,3 +417,31 @@ type ClusterSummary struct {
 	ClusterEnabled   int `json:"cluster_enabled"`
 	MultiZoneEnabled int `json:"multi_zone_enabled"`
 }
+
+type PfConfAdvanced struct {
+	StructConfig
+	PfconfigMethod                   string `val:"hash_element"`
+	PfconfigNS                       string `val:"config::Pf"`
+	PfconfigHashNS                   string `val:"advanced"`
+	HashingCost                      string `val:"hashing_cost"`
+	FilterInPacketfenceAccounting    string `val:"filter_in_packetfence_accounting"`
+	ScanOnAccounting                 string `val:"scan_on_accounting"`
+	PffilterProcesses                string `val:"pffilter_processes"`
+	UpdateIplogWithAccounting        string `val:"update_iplog_with_accounting"`
+	AdminCspSecurityHeaders          string `val:"admin_csp_security_headers"`
+	LdapAttributes                   string `val:"ldap_attributes"`
+	PfdnsProcesses                   string `val:"pfdns_processes"`
+	Multihost                        string `val:"multihost"`
+	SsoOnAccessReevaluation          string `val:"sso_on_access_reevaluation"`
+	VlanPoolTechnique                string `val:"vlan_pool_technique"`
+	DisablePfDomainAuth              string `val:"disable_pf_domain_auth"`
+	TimingStatsLevel                 string `val:"timing_stats_level"`
+	SsoOnDhcp                        string `val:"sso_on_dhcp"`
+	Language                         string `val:"language"`
+	StatsdListenPort                 string `val:"statsd_listen_port"`
+	SsoOnAccounting                  string `val:"sso_on_accounting"`
+	LocationlogCloseOnAccountingStop string `val:"locationlog_close_on_accounting_stop"`
+	PortalCspSecurityHeaders         string `val:"portal_csp_security_headers"`
+	HashPasswords                    string `val:"hash_passwords"`
+	SourceToSendSmsWhenCreatingUsers string `val:"source_to_send_sms_when_creating_users"`
+}
