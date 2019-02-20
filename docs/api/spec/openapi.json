@@ -389,6 +389,28 @@
                }
             ]
          },
+         "ClusterServer" : {
+            "properties" : {
+               "host" : {
+                  "type" : "string"
+               },
+               "management_ip" : {
+                  "type" : "string"
+               }
+            }
+         },
+         "ClusterServers" : {
+            "properties" : {
+               "items" : {
+                  "description" : "Items",
+                  "items" : {
+                     "$ref" : "#/components/schemas/ClusterServer"
+                  },
+                  "type" : "array"
+               }
+            },
+            "type" : "object"
+         },
          "ConfigAdminRole" : {
             "properties" : {
                "actions" : {
@@ -15724,6 +15746,23 @@
                   "$ref" : "#/components/responses/UnprocessableEntity"
                }
             }
+         }
+      },
+      "/cluster/servers" : {
+         "get" : {
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/ClusterServers"
+                        }
+                     }
+                  },
+                  "description" : "List of the servers in the cluster"
+               }
+            },
+            "summary" : "Returns a list of the servers in the cluster"
          }
       },
       "/config/admin_role/{admin_role_id}" : {
