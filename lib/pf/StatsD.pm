@@ -24,16 +24,19 @@ use base "Etsy::StatsD";
 use Sys::Hostname;
 use POSIX;
 use Readonly;
-use pf::config qw(%Config);
+use pf::file_paths qw($pf_default_file $pf_config_file);
 
 our $VERSION = 1.000000;
 our @EXPORT = qw($statsd);
 our $statsd;
 
+our $pf_default_config = pf::IniFiles->new( -file => $pf_default_file) or die "Cannot open $pf_default_file";
+our $pf_config = pf::IniFiles->new( -file => $pf_config_file, -allowempty => 1, -import => $pf_default_config) or die "Cannot open $pf_config_file";
+
 Readonly my $GRAPHITE_DELIMITER => ".";
 Readonly my $STATSD_DELIMITER   => ":";
 Readonly my $STATSD_HOST   => "127.0.0.1";
-Readonly my $STATSD_PORT   => $Config{'advanced'}{'statsd_listen_port'};
+Readonly my $STATSD_PORT   => $pf_config->val( 'advanced','statsd_listen_port');
 
 initStatsd();
 
