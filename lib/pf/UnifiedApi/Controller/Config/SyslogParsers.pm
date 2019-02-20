@@ -73,8 +73,7 @@ sub dry_run {
         return $self->render_error(422, "Type of $new_data->{type} does not support dry_run");
     }
 
-    $form->field('lines')->is_active(1);
-    $form->process( params => $new_data, posted => 1 );
+    $form->process( params => $new_data, posted => 1, active => [qw(lines)]);
     if ($form->has_errors) {
         return $self->render_error(422, "Unable to validate", $self->format_form_errors($form));
     }
