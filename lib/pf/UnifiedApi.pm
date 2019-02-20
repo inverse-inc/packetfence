@@ -310,6 +310,23 @@ our @API_V1_ROUTES = (
         collection => ConfigEndpointCollection( test => { post => 'test' } ),
     },
     {
+        controller => 'Config::Certificates',
+        resource => {
+            http_methods => {
+                get => 'get',
+                put => 'replace',
+            },
+            subroutes => {
+                info => {
+                    get => 'info',
+                },
+                generate_csr => {
+                    post => 'generate_csr',
+                },
+            }
+        },
+    },
+    {
         controller => 'Translations',
         collection => {
             http_methods => {
