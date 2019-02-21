@@ -37,12 +37,15 @@ use pf::config qw(
     $management_network
     @internal_nets
     is_type_inline
+    $NET_TYPE_INLINE_L3
 );
+use pf::file_paths qw($generated_conf_dir $conf_dir);
 use pf::node qw(nodes_registered_not_violators node_view node_deregister $STATUS_REGISTERED);
 use pf::nodecategory;
 use pf::util;
 use pf::ip4log;
 use pf::authentication;
+use pf::constants qw ($TRUE $FALSE);
 use pf::constants::parking qw($PARKING_IPSET_NAME);
 use pf::constants::node qw($STATUS_UNREGISTERED);
 use pf::api::unifiedapiclient;

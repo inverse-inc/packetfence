@@ -580,67 +580,7 @@ tc=enabled
 #
 # services.tc_binary
 #
-# location of the yc binary. only necessary to change if you are not running the rpmed version.                                                                                                                  
-tc_binary=/usr/sbin/tc
-# Location of the snmptrapd binary. Only necessary to change if you are not using the RPMed version.
-snmptrapd_binary=/usr/sbin/snmptrapd
-# 
-# services.radiusd_binary
-# 
-# Location of the named binary. Only necessary to change if you are not running the RPMed version.
-radiusd_binary=/usr/sbin/radiusd
-# 
-# services.arp_binary
-# 
-# location of the arp binary. only necessary to change if you are not running the rpmed version.
-arp_binary=/sbin/arp
-# 
-# services.carbon-cache_binary
-# 
-# Location of the carbon cache binary. Only necessary to change if you are not running the pre-packaged version.
-carbon-cache_binary=/usr/bin/carbon-cache
-# 
-# services.carbon-relay_binary
-# 
-# Location of the carbon relay binary. Only necessary to change if you are not running the pre-packaged version.
-carbon-relay_binary=/usr/bin/carbon-relay
-# 
-# services.statsd_binary
-# 
-# Location of the statsd (node) binary. Only necessary to change if you are not running the pre-packaged version.
-statsd_binary=/usr/bin/node
-# 
-# services.collectd_binary
-# 
-# Location of the collectd binary. Only necessary to change if you are not running the pre-packaged version.
-collectd_binary=/usr/sbin/collectd
-# 
-# services.radsniff_binary
-# 
-# Location of the radsniff binary. Only necessary to change if you are not running the pre-packaged version.
-radsniff_binary=/usr/bin/radsniff
-# 
-# services.p0f_binary
-# 
-# Location of the p0f binary. Only necessary to change if you are not running the pre-packaged version.
-p0f_binary=/usr/local/bin/p0f
-# 
-# services.ipset_binary
-# 
-# location of the ipset binary. only necessary to change if you are not running the rpmed version.
-ipset_binary=/usr/sbin/ipset
-# 
-# services.iptables_binary
-# 
-# location of the iptables binary. only necessary to change if you are not running the rpmed version.
-iptables_binary=/sbin/iptables
-# 
-# services.winbindd_binary
-# 
-# location of the iptables binary. only necessary to change if you are not running the rpmed version.
-winbindd_binary=/usr/sbin/winbindd
-#
-# location of the yc binary. only necessary to change if you are not running the rpmed version.
+# location of the tc binary. only necessary to change if you are not running the rpmed version.
 tc_binary=/usr/sbin/tc
 # services.pfdns
 #

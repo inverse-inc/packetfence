@@ -53,6 +53,7 @@ use pf::config qw(
     is_inline_enforcement_enabled
     is_type_inline
     @radius_ints
+    $NET_TYPE_INLINE_L3
 );
 use pf::file_paths qw($generated_conf_dir $conf_dir);
 use pf::util;

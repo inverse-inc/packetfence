@@ -13,6 +13,7 @@ Service manager for ipset
 =cut
 
 use Moo;
+use pf::ipset;
 
 extends 'pf::services::manager';
 
@@ -25,6 +26,30 @@ has '+launcher' => ( default => sub { "ipset" } );
 has '+stopDependsOnServices' => ( is => 'ro', default => sub { ["iptables"] } );
 
 has 'runningServices' => ( is => 'rw', default => sub { 0 } );
+
+=head2 start
+
+Wrapper around systemctl. systemctl should in turn call the actuall _start.
+
+=cut
+
+sub start {
+    my ($self,$quick) = @_;
+    system('sudo systemctl start packetfence-ipset');
+    return $? == 0;
+}
+
+=head2 stop
+
+Wrapper around systemctl. systemctl should in turn call the actual _stop.
+
+=cut
+
+sub stop {
+    my ($self) = @_;
+    system('sudo systemctl stop packetfence-ipset');
+    return 1;
+}
 
 
 =head2 startService
@@ -47,7 +72,7 @@ sub startService {
 
     # Populate inline related sets
     # TODO: This is go into pf::enforcement::inline or related...
-    pf::ipset::populate_inline if pf::config::is_inline_enforcement_enabled();
+    pf::ipset::populate_inline() if pf::config::is_inline_enforcement_enabled();
 
     # Since ipset is not a running service, it doesn't have a PID associated to it.
     # We use -1 as a PID for theses kind of "services"
@@ -58,13 +83,28 @@ sub startService {
     return 1;
 }
 
-=head2 stop
+=head2 _start
+
+start the service (called from systemd)
+
+=cut
+
+sub _start {
+    my ($self) = @_;
+    my $result = 0;
+    unless ( $self->isAlive() ) {
+        $result = $self->startService();
+    }
+    return $result;
+}
+
+=head2 _stop
 
 "Stop" ipset by flushing sets
 
 =cut
 
-sub stop {
+sub _stop {
     my ( $self ) = @_;
 
     # Flushing PacketFence sets
