@@ -7,7 +7,7 @@ use pf::constants qw($TRUE $FALSE);
 use pf::error qw(is_error);
 use Crypt::LE;
 use Data::Dumper;
-use File::Slurp qw(write_file);
+use File::Slurp qw(read_file write_file);
 use pf::log;
 use pf::ssl;
     
@@ -27,7 +27,8 @@ sub obtain_certificate {
     my ($key_path, $domain) = @_;
 
     my $le = Crypt::LE->new(debug => 2, logger => get_logger);
-    $le->load_account_key($key_path);
+    $le->generate_account_key();
+    $le->load_csr_key($key_path);
     $le->generate_csr($domain);
     $le->register();
     $le->accept_tos();
@@ -36,10 +37,10 @@ sub obtain_certificate {
     $le->verify_challenge();
     my $status = $le->request_certificate();
     if(is_error($status)) {
-        return ($FALSE, $le->error()->{detail});
+        return ($FALSE, $le->error_details());
     }
     else {
-        return $le->certificate();
+        return ($TRUE, $le->certificate());
     }
 }
 
@@ -52,13 +53,13 @@ sub obtain_bundle {
     }
 
     my $x509 = pf::ssl::x509_from_string($data);
-    my ($result, $chain) = pf::ssl::fetch_all_intermediates($x509); 
+    ($result, my $chain) = pf::ssl::fetch_all_intermediates($x509); 
 
     unless($result) {
         return ($result, $chain);
     }
 
-    return ($result, {certificate => $x509, intermediate_cas => $chain});
+    return ($result, {certificate => $x509, intermediate_cas => $chain });
 }
 
 1;

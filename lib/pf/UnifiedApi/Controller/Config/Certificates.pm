@@ -17,6 +17,7 @@ pf::UnifiedApi::Controller::Config::Certificates
 use strict;
 use warnings;
 use pf::ssl;
+use pf::ssl::lets_encrypt;
 use pf::util;
 use File::Slurp qw(read_file);
 use pf::error qw(is_error);
@@ -30,6 +31,7 @@ use pf::file_paths qw(
     $radius_ca_cert
     $radius_server_key
 );
+use pf::log;
 
 my $CERT_DELIMITER = "-----END CERTIFICATE-----";
 
@@ -379,10 +381,12 @@ sub lets_encrypt_replace {
     my $data = $self->parse_json();
     my $config = $self->resource_config();
 
+    get_logger->info("Performing Let's Encrypt configuration for domain $data->{common_name} using key $config->{key_file}");
+
     # Explicitely enable Let's Encrypt if using this API call
     $self->certificate_lets_encrypt($self->stash->{certificate_id}, "enabled");
 
-    my ($result, $bundle) = pf::lets_encrypt::obtain_bundle($config->{key_file}, $data->{common_name});
+    my ($result, $bundle) = pf::ssl::lets_encrypt::obtain_bundle($config->{key_file}, $data->{common_name});
 
     unless($result) {
         return $self->render_error(422, $bundle);
@@ -394,8 +398,7 @@ sub lets_encrypt_replace {
     my $intermediate_cas = $bundle->{intermediate_cas};
 
     my %to_install = (
-        cert_file => join("\n", map { $_->as_string() } ($bundle->, @$intermediate_cas)),
-        key_file => $rsa_key->get_private_key_string(),
+        cert_file => join("\n", map { $_->as_string() } ($cert, @$intermediate_cas)),
     );
     $to_install{bundle_file} = join("\n", $to_install{cert_file}, $to_install{key_file});
 
