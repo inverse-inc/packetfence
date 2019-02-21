@@ -267,13 +267,24 @@ reads a section without doing post-read cleanup
 
 sub readRaw {
     my ($self, $id, $idKey ) = @_;
+    return $self->readAllFromSection($id, $idKey, $self->cachedConfig);
+}
+
+=head2 readAllFromSection
+
+readAllFromSection
+
+=cut
+
+sub readAllFromSection {
+    my ($self, $id, $idKey, $config) = @_;
     my $data;
-    my $config = $self->cachedConfig;
     $id = $self->_formatSectionName($id);
     if ( $config->SectionExists($id) ) {
         $data = {};
-        my @default_params = $config->Parameters($self->default_section)
-            if (defined $self->default_section && length($self->default_section));
+        my $default_section = $self->default_section;
+        my @default_params = $config->Parameters($default_section)
+            if (defined $default_section && length($default_section));
         $data->{$idKey} = $self->_cleanupId($id) if defined $idKey;
         foreach my $param (uniq $config->Parameters($id), @default_params) {
             my $val;
@@ -287,6 +298,22 @@ sub readRaw {
         }
     }
     return $data;
+}
+
+=head2 readFromImported
+
+readFromImported
+
+=cut
+
+sub readFromImported {
+    my ($self, $id, $idKey) = @_;
+    my $config = $self->cachedConfig();
+    if ($config->{imported}) {
+        return $self->readAllFromSection($id, $idKey, $config->{imported});
+    }
+
+    return {};
 }
 
 =head2 update
