@@ -79,8 +79,7 @@ sub identifyConnectionType {
 
     my @require = qw(ASA-TunnelGroupName);
     my @found = grep {exists $radius_request->{$_}} @require;
-
-    if (pf::util::validate_argv(\@require,  \@found)) {
+    if (@require == @found) {
         $connection->isVPN($TRUE);
         $connection->isCLI($FALSE);
     } else {
@@ -413,7 +412,7 @@ sub parseExternalPortalRequest {
     my $client_mac = $locationlog->{mac};
     my $client_ip = defined($r->headers_in->{'X-Forwarded-For'}) ? $r->headers_in->{'X-Forwarded-For'} : $r->connection->remote_ip;
 
-    my $redirect_url;
+    my $redirect_url = '';
     if ( defined($req->param('redirect')) ) {
         $redirect_url = $req->param('redirect');
     }
@@ -424,7 +423,7 @@ sub parseExternalPortalRequest {
         $redirect_url = $r->headers_in->{'Referer'};
     }
 
-    if($redirect_url !~ /^http/) {
+    if($redirect_url ne '' && $redirect_url !~ /^http/) {
         $redirect_url = "http://".$redirect_url;
     }
 
@@ -433,7 +432,7 @@ sub parseExternalPortalRequest {
         switch_id               => $switch_id,
         client_mac              => $client_mac,
         client_ip               => $client_ip,
-        redirect_url            => $redirect_url,
+        redirect_url            => $redirect_url || '',
         synchronize_locationlog => $FALSE,
         connection_type         => $VIRTUAL_VPN,
     );

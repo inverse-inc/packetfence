@@ -206,7 +206,7 @@ sub identifyConnectionType {
     my @require = qw(Fortinet-Vdom-Name);
     my @found = grep {exists $radius_request->{$_}} @require;
 
-    if (pf::util::validate_argv(\@require,  \@found)) {
+    if (@require == @found) {
         $connection->isVPN($TRUE);
         $connection->isCLI($FALSE);
     } else {
