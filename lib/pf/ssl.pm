@@ -351,6 +351,7 @@ sub x509_info {
     my ($x509) = @_;
     return {
         subject => $x509->subject(),
+        common_name => cn_from_dn($x509->subject()),
         issuer => $x509->issuer(),
         not_before => $x509->notBefore(),
         not_after => $x509->notAfter(),
