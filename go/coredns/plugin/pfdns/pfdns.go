@@ -676,22 +676,22 @@ func (pf *pfdns) PortalFQDNInit(ctx context.Context) error {
 		} else {
 			fqdn = general.Hostname + "." + general.Domain
 		}
-		NetIndex := net.IPNet{}
+		NetIndex := &net.IPNet{}
 		NetIndex.Mask = net.IPMask(net.ParseIP(ConfNet.Netmask))
 		NetIndex.IP = net.ParseIP(key)
 
 		rgx, _ := regexp.Compile(".*" + fqdn)
 
 		pf.PortalFQDN[index] = make(map[*net.IPNet]*regexp.Regexp)
-		pf.PortalFQDN[index][&NetIndex] = rgx
+		pf.PortalFQDN[index][NetIndex] = rgx
 		index++
 	}
-	NetIndex := net.IPNet{}
+	NetIndex := &net.IPNet{}
 	NetIndex.Mask = net.IPMask(net.IPv4zero)
 	NetIndex.IP = net.IPv4zero
 	pf.PortalFQDN[index] = make(map[*net.IPNet]*regexp.Regexp)
 	rgx, _ := regexp.Compile(".*" + general.Hostname + "." + general.Domain)
-	pf.PortalFQDN[index][&NetIndex] = rgx
+	pf.PortalFQDN[index][NetIndex] = rgx
 
 	return nil
 }
