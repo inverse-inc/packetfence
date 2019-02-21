@@ -549,7 +549,12 @@ resourceInheritedValues
 
 sub resourceInheritedValues {
     my ($self) = @_;
-    return $self->config_store->readFromImported($self->id, 'id');
+    my $values = $self->config_store->readFromImported($self->id, 'id');
+    if ($values) {
+        $values = $self->cleanup_item($values);
+    }
+
+    return $values;
 }
 
 =head2 field_default
