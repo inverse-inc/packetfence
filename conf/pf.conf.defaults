@@ -1215,3 +1215,7 @@ radius=disabled
 # lets_encrypt.http
 # Whether or not Let's Encrypt should be enabled for HTTP certificate management
 http=disabled
+#
+# lets_encrypt.live
+# Whether or not Let's Encrypt should be using the live ACME API. Put to disabled only for testing since the certificates that will be issued will not be valid.
+live=enabled

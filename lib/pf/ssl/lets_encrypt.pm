@@ -3,6 +3,7 @@ package pf::ssl::lets_encrypt;
 use strict;
 use warnings;
 
+use pf::config qw(%Config);
 use pf::ConfigStore::Pf;
 use pf::constants qw($TRUE $FALSE);
 use pf::error qw(is_error);
@@ -11,6 +12,7 @@ use Data::Dumper;
 use File::Slurp qw(read_file write_file);
 use pf::log;
 use pf::ssl;
+use pf::util;
     
 sub process_challenge {
    my ($challenge) = @_;
@@ -27,7 +29,11 @@ sub process_challenge {
 sub obtain_certificate {
     my ($key_path, $domain) = @_;
 
-    my $le = Crypt::LE->new(debug => 2, logger => get_logger);
+    my $le = Crypt::LE->new(
+        debug => 2, 
+        logger => get_logger,
+        live => isenabled($Config{lets_encrypt}{live}),
+    );
     $le->generate_account_key();
     $le->load_csr_key($key_path);
     $le->generate_csr($domain);
