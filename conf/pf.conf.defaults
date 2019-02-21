@@ -1219,3 +1219,8 @@ http=disabled
 # lets_encrypt.live
 # Whether or not Let's Encrypt should be using the live ACME API. Put to disabled only for testing since the certificates that will be issued will not be valid.
 live=enabled
+#
+# lets_encrypt.test_uri
+# The URI to use to test that the portal is available publicly
+# TODO: change it
+test_uri=https://support.inverse.ca/~jsemaan/test.php
