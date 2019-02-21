@@ -25,6 +25,7 @@ use File::Slurp qw(read_file write_file);
 use pf::log;
 use pf::ssl;
 use pf::util;
+use URI::Escape::XS qw(uri_escape);
     
 sub process_challenge {
    my ($challenge) = @_;
@@ -116,6 +117,22 @@ sub resource_state {
         # We are getting the parameter
         return $cs->read("lets_encrypt")->{$type};
     }
+}
+
+=head2 test_domain
+
+Test a domain exposes the acme-challenge directory through the domain testing service
+
+=cut
+
+sub test_domain {
+    my ($domain) = @_;
+    
+    my $ua = LWP::UserAgent->new;
+
+    my $response = $ua->get($Config{lets_encrypt}{test_uri} . "?domain=".uri_escape($domain));
+    
+    return ($response->is_success, $response->decoded_content);
 }
 
 =head1 AUTHOR
