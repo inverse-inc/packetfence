@@ -26,6 +26,27 @@ use Crypt::OpenSSL::RSA;
 use Crypt::OpenSSL::X509;
 use Crypt::OpenSSL::PKCS10;
 
+=head2 certs_map
+
+The configuration map of each certificate resource
+
+=cut
+
+sub certs_map {
+    return {
+        http => {
+            cert_file => $server_cert,
+            key_file => $server_key,
+            bundle_file => $server_pem,
+        },
+        radius => {
+            cert_file => $radius_server_cert,
+            ca_file => $radius_ca_cert,
+            key_file => $radius_server_key,
+        },
+    };
+}
+
 =head2 rsa_from_string
 
 Get a Crypt::OpenSSL::RSA from a PEM string

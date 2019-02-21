@@ -36,21 +36,6 @@ use pf::log;
 my $CERT_DELIMITER = "-----END CERTIFICATE-----";
 
 
-sub certs_map {
-    return {
-        http => {
-            cert_file => $server_cert,
-            key_file => $server_key,
-            bundle_file => $server_pem,
-        },
-        radius => {
-            cert_file => $radius_server_cert,
-            ca_file => $radius_ca_cert,
-            key_file => $radius_server_key,
-        },
-    };
-}
-
 =head2 resource
 
 Validate the resource
@@ -76,7 +61,7 @@ Get the configuration associated to a resource
 sub resource_config {
     my ($self, $certificate_id) = @_;
     $certificate_id //= $self->stash->{certificate_id};
-    return $self->certs_map->{$certificate_id};
+    return pf::ssl::certs_map()->{$certificate_id};
 }
 
 =head2 read_from_files
