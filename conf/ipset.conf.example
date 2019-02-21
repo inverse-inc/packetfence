@@ -6,8 +6,6 @@
 create %%SET_STATUS_CHECK%% hash:ip
 
 ## Captive portal related sets
-# mod_evasive for hammering devices
-create %%SET_PORTAL_DENY%% hash:ip timeout 300
 # Parking feature for stale devices
 create %%SET_PORTAL_PARKING%% hash:ip
 

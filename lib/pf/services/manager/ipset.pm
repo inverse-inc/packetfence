@@ -23,8 +23,6 @@ has '+shouldCheckup' => ( default => sub { 1 } );
 
 has '+launcher' => ( default => sub { "ipset" } );
 
-has '+stopDependsOnServices' => ( is => 'ro', default => sub { ["iptables"] } );
-
 has 'runningServices' => ( is => 'rw', default => sub { 0 } );
 
 =head2 start

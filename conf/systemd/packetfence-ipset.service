@@ -1,0 +1,16 @@
+[Unit]
+Description=PacketFence Ipset configuration
+Wants=packetfence-config.service
+After=packetfence-config.service
+
+[Service]
+StartLimitBurst=3
+StartLimitInterval=10
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::ipset' -e 'pf::services::manager::ipset->new()->_start()'
+ExecStop=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::ipset' -e 'pf::services::manager::ipset->new()->_stop()'
+Slice=packetfence.slice
+
+[Install]
+WantedBy=packetfence.target

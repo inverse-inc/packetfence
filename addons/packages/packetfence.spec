@@ -469,6 +469,7 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.portal.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-httpd.portal.service
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.proxy.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-httpd.proxy.service
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.webservices.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-httpd.webservices.service
+%{__install} -D -m0644 conf/systemd/packetfence-ipset.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-ipset.service
 %{__install} -D -m0644 conf/systemd/packetfence-iptables.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-iptables.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfperl-api.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-pfperl-api.service
 %{__install} -D -m0644 conf/systemd/packetfence-keepalived.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-keepalived.service

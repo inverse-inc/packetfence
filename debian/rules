@@ -231,6 +231,7 @@ endif
 	dh_installinit --name=packetfence-httpd.portal
 	dh_installinit --name=packetfence-httpd.proxy
 	dh_installinit --name=packetfence-httpd.webservices
+	dh_installinit --name=packetfence-ipset
 	dh_installinit --name=packetfence-iptables
 	dh_installinit --name=packetfence-keepalived
 	dh_installinit --name=packetfence-mariadb

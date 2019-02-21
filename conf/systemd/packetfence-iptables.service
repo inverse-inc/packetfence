@@ -1,6 +1,6 @@
 [Unit]
 Description=PacketFence Iptables configuration
-Wants=packetfence-config.service
+Wants=packetfence-config.service,packetfence-ipset.service
 
 [Service]
 StartLimitBurst=3
