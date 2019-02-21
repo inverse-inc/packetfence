@@ -336,7 +336,7 @@ sub sort_items {
 
 =head2 options
 
-options
+Handle the option HTTP method
 
 =cut
 
@@ -348,6 +348,7 @@ sub options {
 
 =head2 options_from_form
 
+Get the options from the form
 
 =cut
 
@@ -375,7 +376,7 @@ sub options_from_form {
 
 =head2 field_meta
 
-field_meta
+Get a field's meta data
 
 =cut
 
@@ -394,7 +395,7 @@ sub field_meta {
 
 =head2 field_extra_meta
 
-field_extra_meta
+Get the extra meta data for a field
 
 =cut
 
@@ -420,7 +421,7 @@ sub field_extra_meta {
 
 =head2 field_meta_object_properties
 
-field_meta_object_properties
+Get the properties of a field
 
 =cut
 
@@ -436,7 +437,7 @@ sub field_meta_object_properties {
 
 =head2 field_integer_meta
 
-field_integer_meta
+Update integer field meta data
 
 =cut
 
@@ -459,7 +460,7 @@ sub field_integer_meta {
 
 =head2 field_text_meta
 
-field_text_meta
+Update text field meta data
 
 =cut
 
@@ -480,7 +481,7 @@ sub field_text_meta {
 
 =head2 field_type
 
-field_type
+Find the field type
 
 =cut
 
@@ -491,7 +492,7 @@ sub field_type {
 
 =head2 field_is_required
 
-field_is_required
+Check if the field is required
 
 =cut
 
@@ -502,7 +503,7 @@ sub field_is_required {
 
 =head2 resource_options
 
-resource_options
+Create the resource options
 
 =cut
 
@@ -532,7 +533,7 @@ sub resource_options {
 
 =head2 isResourceFieldSkippable
 
-isResourceFieldSkippable
+Check if a Resource Field is Skippable
 
 =cut
 
@@ -543,7 +544,7 @@ sub isResourceFieldSkippable {
 
 =head2 resourceInheritedValues
 
-resourceInheritedValues
+Get the resource inherited values
 
 =cut
 
@@ -559,7 +560,7 @@ sub resourceInheritedValues {
 
 =head2 field_default
 
-field_default
+Get the default value of a field
 
 =cut
 
@@ -570,7 +571,7 @@ sub field_default {
 
 =head2 default_values
 
-default_values
+Get the default values from the config section
 
 =cut
 
@@ -588,7 +589,7 @@ sub default_values {
 
 =head2 field_placeholder
 
-field_placeholder
+Get the placeholder for the field
 
 =cut
 
@@ -609,6 +610,12 @@ sub field_placeholder {
     };
 }
 
+=head2 field_meta_array_items
+
+Get the meta for the items of the array
+
+=cut
+
 sub field_meta_array_items {
     my ($self, $field) = @_;
     if ($field->isa('HTML::FormHandler::Field::Repeatable')) {
@@ -622,7 +629,7 @@ sub field_meta_array_items {
 
 =head2 field_resource_placeholder
 
-field_resource_placeholder
+The place holder for the field
 
 =cut
 
@@ -643,7 +650,7 @@ sub field_resource_placeholder {
 
 =head2 field_allowed
 
-field_allowed
+The allowed fields
 
 =cut
 
@@ -665,6 +672,12 @@ sub field_allowed {
 
     return $allowed;
 }
+
+=head2 form_parameters
+
+The form parameters should be overridded
+
+=cut
 
 sub form_parameters {
     []
