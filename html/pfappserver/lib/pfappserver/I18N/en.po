@@ -9814,7 +9814,7 @@ msgstr "VLAN pool technique"
 
 # conf/documentation.conf
 msgid "advanced.active_directory_os_join_check_bypass"
-msgstr "Disable AS AD join"
+msgstr "Disable OS AD join check"
 
 # conf/documentation.conf
 msgid "alerting"

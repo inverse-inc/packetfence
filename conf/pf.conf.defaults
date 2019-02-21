@@ -874,8 +874,9 @@ vlan_pool_technique = username_hash
 #
 # active_directory_os_join_check_bypass
 #
-# Ability to disable the check if the os has been join to a domain.
-active_directory_os_join_check_bypass=disable
+# Enable to bypass the operating system domain join verification.
+active_directory_os_join_check_bypass=disabled
+
 [provisioning]
 #
 # provisioning.autoconfig
