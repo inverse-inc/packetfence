@@ -25,6 +25,7 @@ use Sys::Hostname;
 use POSIX;
 use Readonly;
 use pf::file_paths qw($pf_default_file $pf_config_file);
+use pf::IniFiles;
 
 our $VERSION = 1.000000;
 our @EXPORT = qw($statsd);
