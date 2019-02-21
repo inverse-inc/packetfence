@@ -361,9 +361,10 @@ sub options_from_form {
         meta => \%meta,
     );
 
+    my $defaultValues = $self->default_values;
     for my $field ($form->fields) {
         my $name = $field->name;
-        $defaults{$name} = $self->field_default($field);
+        $defaults{$name} = $self->field_default($field, $defaultValues);
         $placeholders{$name} = $self->field_placeholder($field);
         $allowed{$name} = $self->field_allowed($field);
         $meta{$name} = $self->field_meta($field);
@@ -515,12 +516,13 @@ sub resource_options {
         allowed => \%allowed,
         meta => \%meta,
     );
-    my $inherited_values = $self->inherited_values;
+    my $inheritedValues = $self->resourceInheritedValues;
+    my $defaultValues = $self->default_values;
     for my $field ($form->fields) {
         my $name = $field->name;
         next if $self->isResourceFieldSkippable($field);
-        $defaults{$name} = $self->field_default($field, $inherited_values);
-        $placeholders{$name} = $self->field_resource_placeholder($field, $inherited_values);
+        $defaults{$name} = $self->field_default($field, $defaultValues);
+        $placeholders{$name} = $self->field_resource_placeholder($field, $inheritedValues);
         $allowed{$name} = $self->field_allowed($field);
         $meta{$name} = $self->field_meta($field);
     }
@@ -539,22 +541,15 @@ sub isResourceFieldSkippable {
     return $field->name eq 'id';
 }
 
-=head2 inherited_values
+=head2 resourceInheritedValues
 
-inherited_values
+resourceInheritedValues
 
 =cut
 
-sub inherited_values {
+sub resourceInheritedValues {
     my ($self) = @_;
-    my $cs = $self->config_store;
-    my $default_section = $cs->default_section;
-    my $inherited_values;
-    if ($default_section) {
-        $inherited_values = $self->cleanup_item($cs->read($default_section, 'id'));
-    }
-
-    return $inherited_values;
+    return $self->config_store->readFromImported($self->id, 'id');
 }
 
 =head2 field_default
@@ -564,14 +559,26 @@ field_default
 =cut
 
 sub field_default {
-    my ($self, $field, $inherited_values) = @_;
-    my $name = $field->name;
-    my $value;
-    if ($inherited_values) {
-        $value = $inherited_values->{$name};
+    my ($self, $field, $inheritedValues) = @_;
+    return $field->default // $inheritedValues ? $inheritedValues->{$field->name} : undef;
+}
+
+=head2 default_values
+
+default_values
+
+=cut
+
+sub default_values {
+    my ($self) = @_;
+    my $cs = $self->config_store;
+    my $default_section = $cs->default_section;
+    my $defaultValues;
+    if ($default_section) {
+        $defaultValues = $self->cleanup_item($cs->read($default_section, 'id'));
     }
 
-    return $value // $field->default;
+    return $defaultValues;
 }
 
 =head2 field_placeholder
