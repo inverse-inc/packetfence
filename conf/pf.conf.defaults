@@ -385,11 +385,6 @@ radiusd_binary=/usr/sbin/radiusd
 # Should ipset be managed by PacketFence?
 ipset=enabled
 #
-# services.ipset_order
-#
-# Order in which to start this server
-ipset_order=04
-#
 # services.iptables
 #
 # Should iptables be managed by PacketFence?

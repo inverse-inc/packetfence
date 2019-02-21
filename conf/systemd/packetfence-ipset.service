@@ -1,7 +1,7 @@
 [Unit]
 Description=PacketFence Ipset configuration
 Wants=packetfence-config.service
-After=packetfence-config.service
+After=packetfence-config.service,packetfence-iptables.service
 
 [Service]
 StartLimitBurst=3
