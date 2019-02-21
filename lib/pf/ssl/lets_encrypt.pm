@@ -3,6 +3,7 @@ package pf::ssl::lets_encrypt;
 use strict;
 use warnings;
 
+use pf::ConfigStore::Pf;
 use pf::constants qw($TRUE $FALSE);
 use pf::error qw(is_error);
 use Crypt::LE;
@@ -60,6 +61,31 @@ sub obtain_bundle {
     }
 
     return ($result, {certificate => $x509, intermediate_cas => $chain });
+}
+
+=head2 certificate_lets_encrypt
+
+Gets or sets the Let's Encrypt flag for a certificate resource
+
+=cut
+
+sub resource_state {
+    my ($type, $param) = @_;
+
+    unless(exists(pf::ssl::certs_map()->{$type})) {
+        return ($FALSE, "Resource $type doesn't exist")
+    }
+
+    my $cs = pf::ConfigStore::Pf->new;
+    if(defined($param)) {
+        # We are setting the parameter
+        $cs->update(lets_encrypt => {$type => $param});
+        return $cs->commit();
+    }
+    else {
+        # We are getting the parameter
+        return $cs->read("lets_encrypt")->{$type};
+    }
 }
 
 1;
