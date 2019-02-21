@@ -300,6 +300,12 @@ sub generate_csr {
     }
 }
 
+=head2 lets_encrypt_replace
+
+Handle a PUT call to enable Let's Encrypt for a certificate resource
+
+=cut
+
 sub lets_encrypt_replace {
     my ($self) = @_;
 
