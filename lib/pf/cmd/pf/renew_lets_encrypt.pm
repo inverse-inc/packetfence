@@ -33,21 +33,45 @@ use base qw(pf::base::cmd::action_cmd);
 
 sub default_action { 'all' }
 
+=head2 action_http
+
+Renew the HTTP certificate resource
+
+=cut
+
 sub action_http {
     my ($self) = @_;
     $self->renew_lets_encrypt("http");
 }
+
+=head2 action_radius
+
+Renew the RADIUS certificate resource
+
+=cut
 
 sub action_radius {
     my ($self) = @_;
     $self->renew_lets_encrypt("radius");
 }
 
+=head2 action_all
+
+Renew all certificate resources
+
+=cut
+
 sub action_all {
     my ($self) = @_;
     $self->renew_lets_encrypt();
 }
 
+
+=head2 renew_lets_encrypt
+
+Renew one or more certificate resources
+
+=cut
 
 sub renew_lets_encrypt {
     my ($self,$resource)  = @_;
