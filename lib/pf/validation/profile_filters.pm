@@ -46,6 +46,7 @@ our %ALLOWED_TYPES = (
     'time' => 1,
     'tenant' => 1,
     'advanced' => 1,
+    'fqdn' => 1,
 );
 
 our %TYPE_VALIDATOR = (

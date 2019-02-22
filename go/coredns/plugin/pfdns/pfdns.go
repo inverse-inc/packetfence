@@ -48,8 +48,8 @@ type pfdns struct {
 	DNSFilter         *cache.Cache
 	IpsetCache        *cache.Cache
 	apiClient         *unifiedapiclient.Client
-	PortalFQDN        string
 	refreshLauncher   *sync.Once
+	PortalFQDN        map[int]map[*net.IPNet]*regexp.Regexp
 }
 
 // Ports array
@@ -254,7 +254,7 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 			switch Type {
 			case "dnsenforcement", "inline":
 				var status = "unreg"
-				var category string
+
 				err = pf.Nodedb.QueryRow(mac, 1).Scan(&status, &category)
 				if err != nil {
 					log.LoggerWContext(ctx).Error(fmt.Sprintf("error getting node status %s %s\n", mac, err))
@@ -311,10 +311,23 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 	switch state.Family() {
 	case 1:
 		rr = new(dns.A)
-		if state.QName() == pf.PortalFQDN {
-			rr.(*dns.A).Hdr = dns.RR_Header{Name: state.QName(), Rrtype: dns.TypeA, Class: state.QClass(), Ttl: 60}
-		} else {
-			rr.(*dns.A).Hdr = dns.RR_Header{Name: state.QName(), Rrtype: dns.TypeA, Class: state.QClass(), Ttl: 15}
+		var found bool
+		found = false
+		for i := 0; i <= len(pf.PortalFQDN); i++ {
+			if found {
+				break
+			}
+			for c, d := range pf.PortalFQDN[i] {
+				if c.Contains(bIP) {
+					if d.MatchString(state.QName()) {
+						rr.(*dns.A).Hdr = dns.RR_Header{Name: state.QName(), Rrtype: dns.TypeA, Class: state.QClass(), Ttl: 60}
+					} else {
+						rr.(*dns.A).Hdr = dns.RR_Header{Name: state.QName(), Rrtype: dns.TypeA, Class: state.QClass(), Ttl: 15}
+					}
+					found = true
+					break
+				}
+			}
 		}
 		for k, v := range pf.Network {
 			if k.Contains(bIP) {
@@ -327,10 +340,23 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 		}
 	case 2:
 		rr = new(dns.AAAA)
-		if state.QName() == pf.PortalFQDN {
-			rr.(*dns.AAAA).Hdr = dns.RR_Header{Name: state.QName(), Rrtype: dns.TypeAAAA, Class: state.QClass(), Ttl: 60}
-		} else {
-			rr.(*dns.AAAA).Hdr = dns.RR_Header{Name: state.QName(), Rrtype: dns.TypeAAAA, Class: state.QClass(), Ttl: 15}
+		var found bool
+		found = false
+		for i := 0; i <= len(pf.PortalFQDN); i++ {
+			if found {
+				break
+			}
+			for c, d := range pf.PortalFQDN[i] {
+				if c.Contains(bIP) {
+					if d.MatchString(state.QName()) {
+						rr.(*dns.AAAA).Hdr = dns.RR_Header{Name: state.QName(), Rrtype: dns.TypeAAAA, Class: state.QClass(), Ttl: 60}
+					} else {
+						rr.(*dns.AAAA).Hdr = dns.RR_Header{Name: state.QName(), Rrtype: dns.TypeAAAA, Class: state.QClass(), Ttl: 15}
+					}
+					found = true
+					break
+				}
+			}
 		}
 		for k, v := range pf.Network {
 			if k.Contains(bIP) {
@@ -624,9 +650,49 @@ func (pf *pfdns) SetPassthrough(ctx context.Context, passthrough, ip, port strin
 	return err
 }
 
-func (pf *pfdns) PortalFQDNInit() error {
+func (pf *pfdns) PortalFQDNInit(ctx context.Context) error {
 	general := pfconfigdriver.Config.PfConf.General
-	pf.PortalFQDN = general.Hostname + "." + general.Domain + "."
+
+	index := 0
+
+	pf.PortalFQDN = make(map[int]map[*net.IPNet]*regexp.Regexp)
+
+	var interfaces pfconfigdriver.ListenInts
+	pfconfigdriver.FetchDecodeSocket(ctx, &interfaces)
+
+	var keyConfNet pfconfigdriver.PfconfigKeys
+	keyConfNet.PfconfigNS = "config::Network"
+	keyConfNet.PfconfigHostnameOverlay = "yes"
+	pfconfigdriver.FetchDecodeSocket(ctx, &keyConfNet)
+
+	for _, key := range keyConfNet.Keys {
+		var ConfNet pfconfigdriver.NetworkConf
+		ConfNet.PfconfigHashNS = key
+		pfconfigdriver.FetchDecodeSocket(ctx, &ConfNet)
+
+		var fqdn string
+		if ConfNet.PortalFQDN != "" {
+			fqdn = ConfNet.PortalFQDN
+		} else {
+			fqdn = general.Hostname + "." + general.Domain
+		}
+		NetIndex := &net.IPNet{}
+		NetIndex.Mask = net.IPMask(net.ParseIP(ConfNet.Netmask))
+		NetIndex.IP = net.ParseIP(key)
+
+		rgx, _ := regexp.Compile(".*" + fqdn)
+
+		pf.PortalFQDN[index] = make(map[*net.IPNet]*regexp.Regexp)
+		pf.PortalFQDN[index][NetIndex] = rgx
+		index++
+	}
+	NetIndex := &net.IPNet{}
+	NetIndex.Mask = net.IPMask(net.IPv4zero)
+	NetIndex.IP = net.IPv4zero
+	pf.PortalFQDN[index] = make(map[*net.IPNet]*regexp.Regexp)
+	rgx, _ := regexp.Compile(".*" + general.Hostname + "." + general.Domain)
+	pf.PortalFQDN[index][NetIndex] = rgx
+
 	return nil
 }
 

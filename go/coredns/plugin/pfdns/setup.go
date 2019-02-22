@@ -69,7 +69,7 @@ func setuppfdns(c *caddy.Controller) error {
 		return c.Errf("pfdns: unable to initialize Network Type")
 	}
 
-	if err := pf.PortalFQDNInit(); err != nil {
+	if err := pf.PortalFQDNInit(ctx); err != nil {
 		return c.Errf("pfdns: unable to initialize Portal FQDN")
 	}
 

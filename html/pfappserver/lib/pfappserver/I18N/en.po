@@ -11358,6 +11358,10 @@ msgstr "URI"
 msgid "profile.filter.vlan"
 msgstr "VLAN"
 
+# profile.filter (Portal Profile Filters)
+msgid "profile.filter.fqdn"
+msgstr "Full Qualified Domain Name"
+
 # conf/documentation.conf
 msgid "provisioning"
 msgstr "Provisioning"
