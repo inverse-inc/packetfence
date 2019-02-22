@@ -272,7 +272,7 @@ sub readRaw {
 
 =head2 readAllFromSection
 
-readAllFromSection
+read all parameters from a section
 
 =cut
 
@@ -302,7 +302,7 @@ sub readAllFromSection {
 
 =head2 readFromImported
 
-readFromImported
+read from the parameters from a section
 
 =cut
 
