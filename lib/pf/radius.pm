@@ -67,6 +67,8 @@ use pf::registration;
 use pf::access_filter::switch;
 use pf::role::pool;
 use pf::dal;
+use pf::security_event;
+use pf::constants::security_event qw($LOST_OR_STOLEN);
 
 our $VERSION = 1.03;
 
@@ -334,6 +336,8 @@ sub authorize {
     $RAD_REPLY_REF = $switch->returnRadiusAccessAccept($args);
 
 CLEANUP:
+    # If the device is lost or stolen, then ensure we execute the actions of the violation so the emails can be sent on connection
+    $self->check_lost_stolen($mac);
     if ($do_auto_reg) {
         pf::registration::finalize_node_registration($node_obj, {}, $options, $pf::constants::realm::RADIUS_CONTEXT);
     }
@@ -1029,6 +1033,21 @@ sub radius_filter {
     my $rule = $filter->test($scope, $args);
     my ($reply, $status) = $filter->handleAnswerInRule($rule,$args,\%RAD_REPLY_REF);
     return [$status, %$reply];
+}
+
+=head2 check_lost_stolen
+
+Check if device is lost or stolen and execute the actions (including email)
+
+=cut
+
+sub check_lost_stolen {
+    my ($self, $mac) = @_;
+    my $is_lost_stolen = security_event_exist_open($mac, $LOST_OR_STOLEN);
+
+    if($is_lost_stolen) {
+        pf::action::action_execute( $mac, $LOST_OR_STOLEN, "Endpoint has just connected on the network" );
+    }
 }
 
 =back
