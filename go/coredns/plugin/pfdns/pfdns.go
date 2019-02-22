@@ -30,27 +30,27 @@ import (
 )
 
 type pfdns struct {
-	RedirectIP        net.IP
-	Db                *sql.DB
-	IP4log            *sql.Stmt // prepared statement for ip4log queries
-	IP6log            *sql.Stmt // prepared statement for ip6log queries
-	Nodedb            *sql.Stmt // prepared statement for node table queries
-	SecurityEvent     *sql.Stmt // prepared statement for security_event
-	Bh                bool      //  whether blackholing is enabled or not
-	BhIP              net.IP
-	BhCname           string
-	Next              plugin.Handler
-	Webservices       pfconfigdriver.PfConfWebservices
-	FqdnPort          map[*regexp.Regexp][]string
-	FqdnIsolationPort map[*regexp.Regexp][]string
-	FqdnDomainPort    map[*regexp.Regexp][]string
-	Network           map[*net.IPNet]net.IP
-	NetworkType       map[*net.IPNet]string
-	DNSFilter         *cache.Cache
-	IpsetCache        *cache.Cache
-	apiClient         *unifiedapiclient.Client
-	refreshLauncher   *sync.Once
-	PortalFQDN        map[int]map[*net.IPNet]*regexp.Regexp
+	RedirectIP          net.IP
+	Db                  *sql.DB
+	IP4log              *sql.Stmt // prepared statement for ip4log queries
+	IP6log              *sql.Stmt // prepared statement for ip6log queries
+	Nodedb              *sql.Stmt // prepared statement for node table queries
+	SecurityEvent       *sql.Stmt // prepared statement for security_event
+	Bh                  bool      //  whether blackholing is enabled or not
+	BhIP                net.IP
+	BhCname             string
+	Next                plugin.Handler
+	Webservices         pfconfigdriver.PfConfWebservices
+	FqdnPort            map[*regexp.Regexp][]string
+	FqdnIsolationPort   map[*regexp.Regexp][]string
+	FqdnDomainPort      map[*regexp.Regexp][]string
+	Network             map[*net.IPNet]net.IP
+	NetworkType         map[*net.IPNet]string
+	DNSFilter           *cache.Cache
+	IpsetCache          *cache.Cache
+	apiClient           *unifiedapiclient.Client
+	refreshLauncher     *sync.Once
+	PortalFQDN          map[int]map[*net.IPNet]*regexp.Regexp
 	mutex               sync.Mutex
 	detectionmechanisms []*regexp.Regexp
 }
@@ -751,4 +751,4 @@ func (pf *pfdns) checkDetectionMechanisms(ctx context.Context, e string) bool {
 		}
 	}
 	return false
-
+}
