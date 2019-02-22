@@ -9,8 +9,8 @@ pf::cmd::pf::renew_lets_encrypt add documentation
 
 Renews Let's Encrypt certificates
 
-  http   | Renews the certificate for the HTTP resource if its enabled
-  radius | Renews the certificate for the RADIUS resource if its enabled
+  http   | Renews the certificate for the HTTP resource if it is enabled
+  radius | Renews the certificate for the RADIUS resource if it is enabled
   all    | Renews all the Let's Encrypt certificates that are enabled
 
   defaults to all

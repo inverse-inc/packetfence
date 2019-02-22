@@ -1217,7 +1217,7 @@ radius=disabled
 http=disabled
 #
 # lets_encrypt.live
-# Whether or not Let's Encrypt should be using the live ACME API. Put to disabled only for testing since the certificates that will be issued will not be valid.
+# Whether or not Let's Encrypt should be using the live ACME API. Set to disabled only for testing since the certificates that will be issued will not be valid.
 live=enabled
 #
 # lets_encrypt.test_uri
