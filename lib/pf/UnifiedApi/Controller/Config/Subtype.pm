@@ -45,7 +45,7 @@ sub type_lookup {
 
 =head2 options
 
-options
+Handle the OPTIONS HTTP method
 
 =cut
 
@@ -64,7 +64,7 @@ sub options {
 
 =head2 options_with_no_type
 
-options_with_no_type
+Return options with no type information
 
 =cut
 
@@ -78,18 +78,18 @@ sub options_with_no_type {
     );
 
     $allowed{type} = [
-        map { $self->type_meta_info($_) } keys %{$self->type_lookup}
+        map { $self->type_allowed_info($_) } keys %{$self->type_lookup}
     ];
     return \%output;
 }
 
-=head2 type_meta_info
+=head2 type_allowed_info
 
-type_meta_info
+Create the type's allowed info
 
 =cut
 
-sub type_meta_info {
+sub type_allowed_info {
     my ($self, $type) = @_;
     return {
         value => $type,

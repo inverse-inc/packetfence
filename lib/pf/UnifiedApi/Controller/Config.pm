@@ -336,7 +336,7 @@ sub sort_items {
 
 =head2 options
 
-Handle the option HTTP method
+Handle the OPTIONS HTTP method
 
 =cut
 
