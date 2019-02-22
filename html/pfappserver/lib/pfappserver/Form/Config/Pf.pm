@@ -42,6 +42,7 @@ sub field_list {
 
     my $list = [];
     my $section = $self->section;
+    return [] if !defined $section;
     my $default_pf_config = pf::IniFiles->new(-file => $pf_default_file, -allowempty => 1);
     my @section_fields = $default_pf_config->Parameters($section);
     foreach my $name (@section_fields) {

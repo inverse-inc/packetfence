@@ -16,6 +16,7 @@ use strict;
 use warnings;
 use Mojo::Base qw(pf::UnifiedApi::Controller::RestRoute);
 use pf::UnifiedApi::OpenAPI::Generator::Config;
+use pf::UnifiedApi::GenerateSpec;
 use Mojo::Util qw(url_unescape);
 use pf::util qw(expand_csv);
 use pf::error qw(is_error);
@@ -91,6 +92,12 @@ sub build_list_search_info {
     };
     return 200, $info;
 }
+
+=head2 items
+
+items
+
+=cut
 
 sub items {
     my ($self) = @_;
@@ -326,6 +333,354 @@ sub sort_items {
     $cs->commit;
     return $self->render(json => {});
 }
+
+=head2 options
+
+Handle the OPTIONS HTTP method
+
+=cut
+
+sub options {
+    my ($self) = @_;
+    my $form = $self->form;
+    return $self->render(json => $self->options_from_form($form));
+}
+
+=head2 options_from_form
+
+Get the options from the form
+
+=cut
+
+sub options_from_form {
+    my ($self, $form) = @_;
+    my (%defaults, %placeholders, %allowed, %meta);
+    my %output = (
+        defaults => \%defaults,
+        placeholders => \%placeholders,
+        allowed => \%allowed,
+        meta => \%meta,
+    );
+
+    my $defaultValues = $self->default_values;
+    for my $field ($form->fields) {
+        my $name = $field->name;
+        $defaults{$name} = $self->field_default($field, $defaultValues);
+        $placeholders{$name} = $self->field_placeholder($field);
+        $allowed{$name} = $self->field_allowed($field);
+        $meta{$name} = $self->field_meta($field);
+    }
+
+    return \%output;
+}
+
+=head2 field_meta
+
+Get a field's meta data
+
+=cut
+
+sub field_meta {
+    my ($self, $field, $no_array) = @_;
+    my $type = $self->field_type($field, $no_array);
+    return {
+        type        => $type,
+        required    => $self->field_is_required($field),
+        placeholder => $self->field_placeholder($field),
+        default     => $self->field_default($field),
+        allowed     => $self->field_allowed($field),
+        $self->field_extra_meta($field, $type),
+    };
+}
+
+=head2 field_extra_meta
+
+Get the extra meta data for a field
+
+=cut
+
+sub field_extra_meta {
+    my ($self, $field, $type) = @_;
+    my %extra;
+    if ($type eq 'array') {
+        $extra{item} = $self->field_meta_array_items($field, 1);
+    } elsif ($type eq 'object') {
+        $extra{properties} = $self->field_meta_object_properties($field);
+    } else {
+        if ($field->isa("HTML::FormHandler::Field::Text")) {
+            $self->field_text_meta($field, \%extra);
+        }
+
+        if ($field->isa("HTML::FormHandler::Field::Integer") || $field->isa("HTML::FormHandler::Field::IntRange")) {
+            $self->field_integer_meta($field, \%extra);
+        }
+    }
+
+    return %extra;
+}
+
+=head2 field_meta_object_properties
+
+Get the properties of a field
+
+=cut
+
+sub field_meta_object_properties {
+    my ($self, $field) = @_;
+    my %p;
+    for my $f ($field->fields) {
+        $p{$f->name} = $self->field_meta($f);
+    }
+
+    return \%p;
+}
+
+=head2 field_integer_meta
+
+Update integer field meta data
+
+=cut
+
+sub field_integer_meta {
+    my ($self, $field, $extra) = @_;
+    my $min = $field->range_start;
+    my $max = $field->range_end;
+    if (defined $min) {
+        $extra->{min_value} = $min;
+    } elsif ($field->isa("HTML::FormHandler::Field::PosInteger")) {
+        $extra->{min_value} = 0;
+    }
+
+    if (defined $max) {
+        $extra->{max_value} = $max;
+    }
+
+    return ;
+}
+
+=head2 field_text_meta
+
+Update text field meta data
+
+=cut
+
+sub field_text_meta {
+    my ($self, $field, $extra) = @_;
+    my $min = $field->minlength;
+    my $max = $field->maxlength;
+    if ($min) {
+        $extra->{min_length} = $min;
+    }
+
+    if (defined $max) {
+        $extra->{max_length} = $max;
+    }
+
+    return ;
+}
+
+=head2 field_type
+
+Find the field type
+
+=cut
+
+sub field_type {
+    my ($self, $field, $no_array) = @_;
+    return pf::UnifiedApi::GenerateSpec::fieldType($field, $no_array);
+}
+
+=head2 field_is_required
+
+Check if the field is required
+
+=cut
+
+sub field_is_required {
+    my ($self, $field) = @_;
+    return  $field->required ? $self->json_true() : $self->json_false();
+}
+
+=head2 resource_options
+
+Create the resource options
+
+=cut
+
+sub resource_options {
+    my ($self) = @_;
+    my $form = $self->form($self->item);
+    my (%defaults, %placeholders, %allowed, %meta);
+    my %output = (
+        defaults => \%defaults,
+        placeholders => \%placeholders,
+        allowed => \%allowed,
+        meta => \%meta,
+    );
+    my $inheritedValues = $self->resourceInheritedValues;
+    my $defaultValues = $self->default_values;
+    for my $field ($form->fields) {
+        my $name = $field->name;
+        next if $self->isResourceFieldSkippable($field);
+        $defaults{$name} = $self->field_default($field, $defaultValues);
+        $placeholders{$name} = $self->field_resource_placeholder($field, $inheritedValues);
+        $allowed{$name} = $self->field_allowed($field);
+        $meta{$name} = $self->field_meta($field);
+    }
+
+    return $self->render(json => \%output);
+}
+
+=head2 isResourceFieldSkippable
+
+Check if a Resource Field is Skippable
+
+=cut
+
+sub isResourceFieldSkippable {
+    my ($self, $field) = @_;
+    return $field->name eq 'id';
+}
+
+=head2 resourceInheritedValues
+
+Get the resource inherited values
+
+=cut
+
+sub resourceInheritedValues {
+    my ($self) = @_;
+    my $values = $self->config_store->readFromImported($self->id, 'id');
+    if ($values) {
+        $values = $self->cleanup_item($values);
+    }
+
+    return $values;
+}
+
+=head2 field_default
+
+Get the default value of a field
+
+=cut
+
+sub field_default {
+    my ($self, $field, $inheritedValues) = @_;
+    return $field->default // $inheritedValues ? $inheritedValues->{$field->name} : undef;
+}
+
+=head2 default_values
+
+Get the default values from the config section
+
+=cut
+
+sub default_values {
+    my ($self) = @_;
+    my $cs = $self->config_store;
+    my $default_section = $cs->default_section;
+    my $defaultValues;
+    if ($default_section) {
+        $defaultValues = $self->cleanup_item($cs->read($default_section, 'id'));
+    }
+
+    return $defaultValues;
+}
+
+=head2 field_placeholder
+
+Get the placeholder for the field
+
+=cut
+
+sub field_placeholder {
+    my ($self, $field) = @_;
+    my $name = $field->name;
+    my $cs = $self->config_store;
+    my $default_section = $cs->default_section;
+    my $value;
+    if ($default_section) {
+        my $item = $self->cleanup_item($cs->read($default_section, 'id'));
+        $value = $item->{$name};
+    }
+
+    if (!defined $value ) {
+        my $element_attr = $field->element_attr // {};
+        $value = $element_attr->{$name}
+    };
+
+    return $value;
+}
+
+=head2 field_meta_array_items
+
+Get the meta for the items of the array
+
+=cut
+
+sub field_meta_array_items {
+    my ($self, $field) = @_;
+    if ($field->isa('HTML::FormHandler::Field::Repeatable')) {
+        $field->init_state;
+        my $element = $field->clone_element($field->name . "_temp");
+        return $self->field_meta($element);
+    }
+
+    return $self->field_meta($field, 1);
+}
+
+=head2 field_resource_placeholder
+
+The place holder for the field
+
+=cut
+
+sub field_resource_placeholder {
+    my ($self, $field, $inherited_values) = @_;
+    my $name = $field->name;
+    my $value;
+    if ($inherited_values) {
+        $value = $inherited_values->{$name};
+    }
+
+    if (!defined $value) {
+        my $element_attr = $field->element_attr // {};
+        $value = $element_attr->{$name};
+    }
+
+    return $value;
+}
+
+=head2 field_allowed
+
+The allowed fields
+
+=cut
+
+sub field_allowed {
+    my ($self, $field) = @_;
+    my $allowed;
+    if ($field->isa('HTML::FormHandler::Field::Select')) {
+        $allowed = $field->options;
+    }
+
+    if ($field->isa('HTML::FormHandler::Field::Repeatable')) {
+        $field->init_state;
+        my $element = $field->clone_element($field->name . "_temp");
+        if ($element->isa('HTML::FormHandler::Field::Select') ) {
+            $element->_load_options();
+            $allowed = $element->options;
+        }
+    }
+
+    return $allowed;
+}
+
+=head2 form_parameters
+
+The form parameters should be overridded
+
+=cut
 
 sub form_parameters {
     []

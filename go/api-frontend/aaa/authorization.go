@@ -70,11 +70,12 @@ var pathAdminRolesMap = []adminRoleMapping{
 }
 
 var methodSuffixMap = map[string]string{
-	"GET":    "_READ",
-	"POST":   "_CREATE",
-	"PUT":    "_UPDATE",
-	"PATCH":  "_UPDATE",
-	"DELETE": "_DELETE",
+	"GET":     "_READ",
+	"OPTIONS": "_READ",
+	"POST":    "_CREATE",
+	"PUT":     "_UPDATE",
+	"PATCH":   "_UPDATE",
+	"DELETE":  "_DELETE",
 }
 
 type TokenAuthorizationMiddleware struct {

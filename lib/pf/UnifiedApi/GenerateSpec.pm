@@ -16,6 +16,8 @@ use strict;
 use warnings;
 our %FIELDS_TYPES_TO_SCHEMA_TYPES = (
     PosInteger => 'integer',
+    Integer    => 'integer',
+    IntRange   => 'integer',
 );
 use Lingua::EN::Inflexion qw(noun);
 
