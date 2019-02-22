@@ -656,13 +656,13 @@ sub _db_items {
     return @{$iter->all(undef) // []};
 }
 
-=head2 accounting_cleanup
+=head2 cleanup
 
 Perform cleanup of the accounting tables
 
 =cut
 
-sub accounting_cleanup {
+sub cleanup {
     my $timer = pf::StatsD::Timer->new( { sample_rate => 0.2 } );
     my ( $expire_seconds, $batch, $time_limit ) = @_;
     my $logger = get_logger();
