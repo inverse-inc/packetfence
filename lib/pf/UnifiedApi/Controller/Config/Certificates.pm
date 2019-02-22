@@ -23,6 +23,7 @@ use File::Slurp qw(read_file);
 use pf::error qw(is_error);
 use Mojo::Base qw(pf::UnifiedApi::Controller::RestRoute);
 use pf::log;
+use pf::constants;
 
 my $CERT_DELIMITER = "-----END CERTIFICATE-----";
 
@@ -298,6 +299,28 @@ sub generate_csr {
     else {
         $self->render_error(422, $csr);
     }
+}
+
+=head2 lets_encrypt_test
+
+Test public connectivity (accessible through the Internet) of a specific domain and ensure that the acme-challenge directory is available
+
+=cut
+
+sub lets_encrypt_test {
+    my ($self) = @_;
+
+    my $params = $self->req->query_params->to_hash;
+
+    if(my $domain = $params->{domain}) {
+        my ($res, $msg) = pf::ssl::lets_encrypt::test_domain($domain);
+        $res = $res ? $TRUE : $FALSE;
+        $self->render(json => $self->tuple_return_to_hash($res, $msg), status => $res ? 200 : 422);
+    }
+    else {
+        $self->render_error(422, "Missing domain parameter");
+    }
+
 }
 
 =head2 lets_encrypt_replace

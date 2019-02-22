@@ -21,6 +21,27 @@
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
 
+/config/certificates/lets_encrypt/test:
+  description: pf::UnifiedApi::Controller::Config::Certificates
+  get:
+    description: Test if a specific domain is available for a Let's Encrypt HTTP challenge through PacketFence
+    operationId: api.v1.Config::Certificates.lets_encrypt_test
+    parameters:
+    - in: query
+      name: domain
+      schema:
+        type: string
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigCertificateReturnValue'
+      '404':
+        $ref: '#/components/responses/NotFound'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+
 /config/certificate/{certificate_id}/lets_encrypt:
   description: pf::UnifiedApi::Controller::Config::Certificates
   put:
