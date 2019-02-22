@@ -15,6 +15,7 @@ Helper functions to interface with Crypt::LE
 use strict;
 use warnings;
 
+use pf::file_paths qw($acme_challenge_dir);
 use pf::config qw(%Config);
 use pf::ConfigStore::Pf;
 use pf::constants qw($TRUE $FALSE);
@@ -27,6 +28,10 @@ use pf::ssl;
 use pf::util;
 use URI::Escape::XS qw(uri_escape);
     
+use Data::UUID;
+
+my $UUID_GENERATOR = Data::UUID->new;
+
 sub process_challenge {
    my ($challenge) = @_;
 
@@ -130,7 +135,13 @@ sub test_domain {
     
     my $ua = LWP::UserAgent->new;
 
-    my $response = $ua->get($Config{lets_encrypt}{test_uri} . "?domain=".uri_escape($domain));
+    my $uuid = $UUID_GENERATOR->create_str;
+    my $file = "$acme_challenge_dir/$uuid.txt";
+    write_file($file, "Success");
+
+    my $response = $ua->get($Config{lets_encrypt}{test_uri} . "?domain=".uri_escape($domain)."&uuid=".uri_escape($uuid));
+
+    unlink $file;
     
     return ($response->is_success, $response->decoded_content);
 }
