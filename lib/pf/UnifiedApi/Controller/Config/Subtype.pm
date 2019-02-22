@@ -58,7 +58,8 @@ sub options {
               $form
             ? $self->options_from_form($form)
             : $self->options_with_no_type
-        )
+        ),
+        status => 200
     );
 }
 
