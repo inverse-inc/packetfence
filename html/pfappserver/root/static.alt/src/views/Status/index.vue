@@ -9,7 +9,6 @@
 
 <script>
 import pfSidebar from '@/components/pfSidebar'
-import store from './_store'
 
 export default {
   name: 'Status',
@@ -42,10 +41,6 @@ export default {
     }
   },
   created () {
-    // Register store module only once
-    if (!this.$store.state.$_status) {
-      this.$store.registerModule('$_status', store)
-    }
   }
 }
 </script>
