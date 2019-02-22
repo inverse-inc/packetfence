@@ -1173,6 +1173,31 @@ sub batch_remove {
 }
 
 
+=head2 batch_update
+
+Batch update rows
+
+=cut
+
+sub batch_update {
+    my ($proto, $params, $time_limit) = @_;
+    my $logger = get_logger();
+    $logger->debug("calling batch_update with timelimit=$time_limit");
+    my $start_time = time;
+    my $end_time;
+    my $rows_updated = 0;
+    my $table = $proto->table;
+    while (1) {
+        my ($status, $rows) = $proto->update_items(%$params);
+        $end_time = time;
+        $rows_updated+=$rows if $rows > 0;
+        $logger->trace( sub { "updated $rows_updated entries from $table for batch_update ($start_time $end_time) " });
+        last if $rows <= 0 || (( $end_time - $start_time) > $time_limit );
+    }
+    $logger->info("updated $rows_updated entries from $table for batch_update ($start_time $end_time) ");
+    return $STATUS::OK, $rows_updated;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
