@@ -75,6 +75,11 @@ dhcpoption82logger=disabled
 #Possibilities are: DHCPOFFER,DHCPREQUEST,DHCPDECLINE,DHCPACK,DHCPRELEASE
 dhcp_filter_by_message_types=DHCPREQUEST,DHCPACK
 #
+# network.dhcp_process_ipv6
+#
+# Enable/disable ipv6 dhcp packets processing by pfdhcplistener.
+dhcp_process_ipv6=enabled
+#
 # network.force_listener_update_on_ack
 #
 # This will only do the iplog update and other DHCP related task on a DHCPACK.
