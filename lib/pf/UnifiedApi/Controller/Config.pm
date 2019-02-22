@@ -604,10 +604,12 @@ sub field_placeholder {
         $value = $item->{$name};
     }
 
-    return $value // do {
+    if (!defined $value ) {
         my $element_attr = $field->element_attr // {};
-        $element_attr->{$name}
+        $value = $element_attr->{$name}
     };
+
+    return $value;
 }
 
 =head2 field_meta_array_items
@@ -640,10 +642,11 @@ sub field_resource_placeholder {
     if ($inherited_values) {
         $value = $inherited_values->{$name};
     }
-    $value //= do {
+
+    if (!defined $value) {
         my $element_attr = $field->element_attr // {};
-        $element_attr->{$name}
-    };
+        $value = $element_attr->{$name};
+    }
 
     return $value;
 }
