@@ -23,6 +23,18 @@ has 'primary_key' => 'syslog_forwarder_id';
 
 use pf::ConfigStore::Syslog;
 use pfappserver::Form::Config::Syslog;
+use pfappserver::Form::Config::Syslog::file;
+use pfappserver::Form::Config::Syslog::server;
+
+our %TYPES_TO_FORMS = (
+    map { $_ => "pfappserver::Form::Config::Syslog::$_" } qw(
+        file server
+      )
+);
+
+sub type_lookup {
+    return \%TYPES_TO_FORMS;
+}
 
  
 =head1 AUTHOR
