@@ -25,6 +25,16 @@ has_field 'id' =>
    accept => ['default'],
    required => 1,
    messages => { required => 'Please specify the MAC address of the floating device.' },
+   tags => {
+     option_patterns => sub {
+       [
+         {
+           name  => "Mac Address",
+           regex => "[0-9A-Fa-f][0-9A-Fa-f](:[0-9A-Fa-f][0-9A-Fa-f]){5}",
+         },
+       ]
+     }
+   }
   );
 has_field 'ip' =>
   (

@@ -58,7 +58,13 @@ $t->options_ok("/api/v1/config/floating_devices")
                 default     => undef,
                 placeholder => undef,
                 required => $true,
-                type     => "string"
+                type     => "string",
+                patterns => [
+                    {
+                        name => "Mac Address",
+                        regex => "[0-9A-Fa-f][0-9A-Fa-f](:[0-9A-Fa-f][0-9A-Fa-f]){5}",
+                    },
+                ],
             },
             ip => {
                 allowed     => undef,

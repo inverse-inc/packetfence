@@ -476,6 +476,11 @@ sub field_text_meta {
         $extra->{max_length} = $max;
     }
 
+    my $patterns = $field->get_tag("option_patterns");
+    if ($patterns) {
+        $extra->{patterns} = $patterns;
+    }
+
     return ;
 }
 
