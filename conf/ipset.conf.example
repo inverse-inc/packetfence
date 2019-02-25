@@ -12,6 +12,8 @@ create %%SET_PORTAL_PARKING%% hash:ip
 ## pfdns related sets
 # Passthroughs / OAuth
 create %%SET_PASSTHROUGHS%% hash:ip,port
+# Isolation Passthroughs
+create %%SET_ISOL_PASSTHROUGHS%% hash:ip,port
 
 # Inline enforcement related sets
 %%inline%%

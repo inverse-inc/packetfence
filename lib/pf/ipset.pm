@@ -51,8 +51,9 @@ use pf::constants::node qw($STATUS_UNREGISTERED);
 use pf::api::unifiedapiclient;
 use pf::config::cluster;
 
-Readonly our $SET_PASSTHROUGHS      => 'PF_passthroughs';
-Readonly our $SET_PORTAL_PARKING    => 'PF_portal_parking';
+Readonly our $SET_PASSTHROUGHS      => 'pfsession_passthrough';
+Readonly our $SET_ISOL_PASSTRHOUGHS => 'pfsession_isol_passthrough';
+Readonly our $SET_PORTAL_PARKING    => 'parking';
 Readonly our $SET_STATUS_CHECK      => 'PF_status_check';
 
 Readonly my $FW_TABLE_FILTER => 'filter';
@@ -123,6 +124,7 @@ sub generate {
     $sets{'SET_STATUS_CHECK'}   .= $SET_STATUS_CHECK;
     $sets{'SET_PORTAL_PARKING'} .= $SET_PORTAL_PARKING;
     $sets{'SET_PASSTHROUGHS'}   .= $SET_PASSTHROUGHS;
+    $sets{'SET_ISOL_PASSTHROUGHS'}   .= $SET_ISOL_PASSTHROUGHS;
 
     # Inline enforcement technique specific sets
     my @roles = pf::nodecategory::nodecategory_view_all;
