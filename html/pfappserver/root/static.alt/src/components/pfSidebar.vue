@@ -131,16 +131,16 @@ export default {
     // Return true if the current route matches the items.
     // Ignore current route and always return true when filtering the sidebar items so all sections are expanded.
     isActive (items) {
-      let _find = (items) => {
+      const _find = (items) => {
         return items.find(item => {
           if ('items' in item) {
-            return _find(item.items)
+            return _find(item.items) !== undefined
           }
           return ((item.path instanceof Object && 'name' in item.path && item.path.name === this.$route.name) ||
-            (item.path instanceof String && this.$route.path.indexOf(item.path.slice(0, -1)) === 0))
+            (item.path.constructor === String && this.$route.path.indexOf(item.path.slice(0, -1)) === 0))
         })
       }
-      return this.filteredMode || _find(items)
+      return this.filteredMode || _find(items) !== undefined
     }
   }
 }
