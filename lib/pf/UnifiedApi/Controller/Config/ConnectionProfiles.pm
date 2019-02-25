@@ -225,7 +225,12 @@ sub delete_file {
     }
 
     my $path = profileFilePath( $self->id, $file );
-    if (!unlink($path)) {
+    if (-d $path) {
+        if (!rmdir($path)) {
+            $self->log->error("'$file': Error $!");
+            return $self->render_error(422, "Error deleting '$file'");
+        }
+    } elsif (!unlink($path)) {
         if ($! == ENOENT()) {
             return $self->render_error(404, "'$file' not found");
         }
