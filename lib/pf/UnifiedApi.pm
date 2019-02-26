@@ -1368,7 +1368,7 @@ setup_api_v1_services_routes
 sub setup_api_v1_services_routes {
     my ($self, $root) = @_;
     my $collection_route = $root->any("/services")->name("api.v1.Config.Services");
-    $collection_route->any(['POST'])->to("Services#list")->name("api.v1.Config.Services.list");
+    $collection_route->any(['GET'])->to("Services#list")->name("api.v1.Config.Services.list");
     $self->add_subroutes($collection_route, "Services", "GET", qw(cluster_status));
     my $resource_route = $root->under("/service/#service_id")->to("Services#resource")->name("api.v1.Config.Services.resource");
     $self->add_subroutes($resource_route, "Services", "GET", qw(status));
