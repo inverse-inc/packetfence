@@ -103,8 +103,6 @@ our @API_V1_ROUTES = (
             }
         }
     },
-    { controller => 'Tenants' },
-    { controller => 'Locationlogs' },
     ReadonlyEndpoint('NodeCategories'),
     ReadonlyEndpoint('Classes'),
     { 
@@ -167,8 +165,6 @@ our @API_V1_ROUTES = (
             },
         },
     },
-    { controller => 'DhcpOption82s' },
-    { controller => 'AuthLogs' },
     {
         controller  => 'Ip4logs',
         collection => {
@@ -229,7 +225,6 @@ our @API_V1_ROUTES = (
             },
         },
     },
-    { controller => 'RadiusAuditLogs' },
     { 
         controller => 'Authentication',
         allow_singular => 1,
@@ -239,109 +234,6 @@ our @API_V1_ROUTES = (
             },
         },      
     },
-    (
-        map { ConfigEndpoint($_) }
-          qw(
-          Config::AdminRoles
-          Config::Bases
-          Config::BillingTiers
-          Config::DeviceRegistrations
-          Config::Domains
-          Config::Firewalls
-          Config::FloatingDevices
-          Config::MaintenanceTasks
-          Config::PkiProviders
-          Config::PortalModules
-          Config::Provisionings
-          Config::Realms
-          Config::Roles
-          Config::Scans
-          Config::SwitchGroups
-          Config::SyslogForwarders
-          Config::TrafficShapingPolicies
-          Config::SecurityEvents
-          )
-    ),
-    {
-        controller => 'Config::ConnectionProfiles',
-        collection => ConfigEndpointCollection(),
-        resource   => {
-            subroutes => {
-                files => {
-                    get => 'files',
-                },
-                'files/*file_name' => {
-                    put    => 'new_file',
-                    patch  => 'replace_file',
-                    get    => 'get_file',
-                    delete => 'delete_file',
-                },
-            }
-        }
-    },
-    {
-        controller => 'Config::Switches',
-        collection => ConfigEndpointCollection(),
-        resource   => {
-            subroutes => {
-                invalidate_cache => {
-                    post => 'invalidate_cache',
-                }
-            }
-        }
-    },
-    {
-        controller => 'Config::Filters',
-        collection => undef,
-        resource => {
-            http_methods => {
-                get => 'get',
-                put => 'replace',
-            },
-            subroutes => undef,
-        },
-    },
-    {
-        controller => 'Config::SyslogParsers',
-        collection => ConfigEndpointCollection( dry_run => { post => 'dry_run' } ),
-    },
-    {
-        controller => 'Config::Sources',
-        collection => ConfigEndpointCollection( test => { post => 'test' } ),
-    },
-    {
-        controller => 'Config::Certificates',
-        resource => {
-            http_methods => {
-                get => 'get',
-                put => 'replace',
-            },
-            subroutes => {
-                info => {
-                    get => 'info',
-                },
-                generate_csr => {
-                    post => 'generate_csr',
-                },
-            }
-        },
-    },
-    {
-        controller => 'Translations',
-        collection => {
-            http_methods => {
-                get => "list",
-            },
-            subroutes => undef,
-        },
-        resource => {
-            http_methods => {
-                get => "get",
-            },
-            subroutes => undef,
-        },
-    },
-    'WrixLocations',
     {
         controller => 'Queues',
         collection => {
@@ -422,11 +314,15 @@ sub setup_api_v1_routes {
     foreach my $route ($self->api_v1_routes) {
         $api_v1_route->rest_routes($route);
     }
+
+    $self->setup_api_v1_crud_routes($api_v1_route);
+    $self->setup_api_v1_config_routes($api_v1_route->any("/config")->name("api.v1.Config"));
+    $self->setup_api_v1_translations_routes($api_v1_route);
 }
 
 sub api_v1_routes {
     my ($self) = @_;
-    return $self->api_v1_default_routes, $self->api_v1_custom_routes;
+    return $self->api_v1_default_routes;
 }
 
 sub api_v1_default_routes {
@@ -459,41 +355,6 @@ sub set_tenant_id {
     }
 }
 
-=head2 ConfigEndpoint
-
-ConfigEndpoint
-
-=cut
-
-sub ConfigEndpoint {
-    my ($config) = @_;
-    return {
-        controller => $config,
-        collection => ConfigEndpointCollection(),
-    };
-}
-
-=head2 ConfigEndpointCollection
-
-ConfigEndpointCollection
-
-=cut
-
-sub ConfigEndpointCollection {
-    my @args = @_;
-    return {
-        subroutes => {
-            ( map { $_ => { post => $_ } } qw(search) ),
-            'sort_items' => {
-                patch => {
-                    action => 'sort_items',
-                }
-            },
-            @args,
-        }
-    };
-}
-
 =head2 ReadonlyEndpoint
 
 ReadonlyEndpoint
@@ -518,6 +379,779 @@ sub ReadonlyEndpoint {
             },
         },
     },
+}
+
+=head2 setup_api_v1_crud_routes
+
+setup_api_v1_crud_routes
+
+=cut
+
+sub setup_api_v1_crud_routes {
+    my ($self, $root) = @_;
+    $self->setup_api_v1_tenants_routes($root);
+    $self->setup_api_v1_locationlogs_routes($root);
+    $self->setup_api_v1_dhcp_option82s_routes($root);
+    $self->setup_api_v1_auth_logs_routes($root);
+    $self->setup_api_v1_radius_audit_logs_routes($root);
+    $self->setup_api_v1_wrix_locations_routes($root);
+    return;
+}
+
+=head2 setup_api_v1_config_routes
+
+setup api v1 config routes
+
+=cut
+
+sub setup_api_v1_config_routes {
+    my ($self, $root) = @_;
+    $self->setup_api_v1_config_admin_roles_routes($root);
+    $self->setup_api_v1_config_bases_routes($root);
+    $self->setup_api_v1_config_billing_tiers_routes($root);
+    $self->setup_api_v1_config_certificates_routes($root);
+    $self->setup_api_v1_config_connection_profiles_routes($root);
+    $self->setup_api_v1_config_device_registrations_routes($root);
+    $self->setup_api_v1_config_domains_routes($root);
+    $self->setup_api_v1_config_filters_routes($root);
+    $self->setup_api_v1_config_firewalls_routes($root);
+    $self->setup_api_v1_config_floating_devices_routes($root);
+    $self->setup_api_v1_config_maintenance_tasks_routes($root);
+    $self->setup_api_v1_config_pki_providers_routes($root);
+    $self->setup_api_v1_config_portal_modules_routes($root);
+    $self->setup_api_v1_config_provisionings_routes($root);
+    $self->setup_api_v1_config_realms_routes($root);
+    $self->setup_api_v1_config_roles_routes($root);
+    $self->setup_api_v1_config_scans_routes($root);
+    $self->setup_api_v1_config_security_events_routes($root);
+    $self->setup_api_v1_config_sources_routes($root);
+    $self->setup_api_v1_config_switches_routes($root);
+    $self->setup_api_v1_config_switch_groups_routes($root);
+    $self->setup_api_v1_config_syslog_forwarders_routes($root);
+    $self->setup_api_v1_config_syslog_parsers_routes($root);
+    $self->setup_api_v1_config_traffic_shaping_policies_routes($root);
+    return;
+}
+
+=head2 setup_api_v1_tenants_routes
+
+setup_api_v1_tenants_routes
+
+=cut
+
+sub setup_api_v1_tenants_routes {
+    my ($self, $root) = @_;
+    my ($collection_route, $resource_route) =
+      $self->setup_api_v1_std_crud_routes(
+        $root,
+        "Tenants",
+        "/tenants",
+        "/tenant/#tenant_id",
+        "api.v1.Tenant",
+    );
+
+    return ($collection_route, $resource_route);
+}
+
+=head2 setup_api_v1_locationlogs_routes
+
+setup_api_v1_locationlogs_routes
+
+=cut
+
+sub setup_api_v1_locationlogs_routes {
+    my ($self, $root) = @_;
+    my ($collection_route, $resource_route) =
+      $self->setup_api_v1_std_crud_routes(
+        $root,
+        "Locationlogs",
+        "/locationlogs",
+        "/locationlog/#locationlog_id",
+        "api.v1.Locationlogs",
+    );
+
+    return ($collection_route, $resource_route);
+}
+
+=head2 setup_api_v1_dhcp_option82s_routes
+
+setup_api_v1_dhcp_option82s_routes
+
+=cut
+
+sub setup_api_v1_dhcp_option82s_routes {
+    my ($self, $root) = @_;
+    my ($collection_route, $resource_route) =
+      $self->setup_api_v1_std_crud_routes(
+        $root,
+        "DhcpOption82s",
+        "/dhcp_option82s",
+        "/dhcp_option82/#dhcp_option82_id",
+        "api.v1.DhcpOption82s",
+    );
+
+    return ($collection_route, $resource_route);
+}
+
+=head2 setup_api_v1_auth_logs_routes
+
+setup_api_v1_auth_logs_routes
+
+=cut
+
+sub setup_api_v1_auth_logs_routes {
+    my ($self, $root) = @_;
+    my ($collection_route, $resource_route) =
+      $self->setup_api_v1_std_crud_routes(
+        $root,
+        "AuthLogs",
+        "/auth_logs",
+        "/auth_log/#auth_log_id",
+        "api.v1.AuthLogs",
+    );
+
+    return ($collection_route, $resource_route);
+}
+
+=head2 setup_api_v1_radius_audit_logs_routes
+
+setup_api_v1_radius_audit_logs_routes
+
+=cut
+
+sub setup_api_v1_radius_audit_logs_routes {
+    my ($self, $root) = @_;
+    my ($collection_route, $resource_route) =
+      $self->setup_api_v1_std_crud_routes(
+        $root,
+        "RadiusAuditLogs",
+        "/radius_audit_logs",
+        "/radius_audit_log/#radius_audit_log_id",
+        "api.v1.RadiusAuditLogs",
+    );
+
+    return ($collection_route, $resource_route);
+}
+
+=head2 setup_api_v1_wrix_locations_routes
+
+setup_api_v1_wrix_locations_routes
+
+=cut
+
+sub setup_api_v1_wrix_locations_routes {
+    my ($self, $root) = @_;
+    my ($collection_route, $resource_route) =
+      $self->setup_api_v1_std_crud_routes(
+        $root,
+        "WrixLocations",
+        "/wrix_Locations",
+        "/wrix_location/#wrix_location_id",
+        "api.v1.WrixLocations",
+    );
+
+    return ($collection_route, $resource_route);
+}
+
+=head2 setup_api_v1_std_crud_routes
+
+setup_api_v1_std_crud_routes
+
+=cut
+
+sub setup_api_v1_std_crud_routes {
+    my ($self, $root, $controller, $collection_path, $resource_path, $name) = @_;
+    my $collection_route = $root->any($collection_path)->name($name);
+    $self->setup_api_v1_std_crud_collection_routes($collection_route, $name, $controller);
+    my $resource_route = $root->under($resource_path)->to("${controller}#resource")->name("${name}.resource");
+    $self->setup_api_v1_std_crud_resource_routes($resource_route, "${name}.resource", $controller);
+    return ($collection_route, $resource_route);
+}
+
+=head2 setup_api_v1_std_crud_collection_routes
+
+setup_api_v1_std_crud_collection_routes
+
+=cut
+
+sub setup_api_v1_std_crud_collection_routes {
+    my ($self, $root, $name, $controller) = @_;
+    $root->any(['GET'])->to("$controller#list" => {})->name("${name}.list");
+    $root->any(['POST'])->to("$controller#create" => {})->name("${name}.create");
+#    $root->any(['OPTIONS'])->to("$controller#options" => {})->name("${name}.options");
+    $root->any(['POST'] => "/search")->to("$controller#search" => {})->name("${name}.search");
+    return ;
+}
+
+=head2 setup_api_v1_std_crud_resource_routes
+
+setup_api_v1_std_crud_resource_routes
+
+=cut
+
+sub setup_api_v1_std_crud_resource_routes {
+    my ($self, $root, $name, $controller) = @_;
+    $root->any(['GET'])->to("$controller#get" => {})->name("${name}.get");
+    $root->any(['PATCH'])->to("$controller#update" => {})->name("${name}.update");
+    $root->any(['PUT'])->to("$controller#replace" => {})->name("${name}.replace");
+    $root->any(['DELETE'])->to("$controller#remove" => {})->name("${name}.remove");
+#    $root->any(['OPTIONS'])->to("$controller#resource_options" => {})->name("${name}.resource_options");
+    return ;
+}
+
+=head2 setup_api_v1_std_config_routes
+
+setup_api_v1_std_config_routes
+
+=cut
+
+sub setup_api_v1_std_config_routes {
+    my ($self, $root, $controller, $collection_path, $resource_path, $name) = @_;
+    my $collection_route = $root->any($collection_path)->name($name);
+    $self->setup_api_v1_std_config_collection_routes($collection_route, $name, $controller);
+    my $resource_route = $root->under($resource_path)->to("${controller}#resource")->name("${name}.resource");
+    $self->setup_api_v1_std_config_resource_routes($resource_route, "${name}.resource", $controller);
+    return ($collection_route, $resource_route);
+}
+
+=head2 setup_api_v1_std_config_collection_routes
+
+setup_api_v1_standard_config_collection_routes
+
+=cut
+
+sub setup_api_v1_std_config_collection_routes {
+    my ($self, $root, $name, $controller) = @_;
+    $root->any(['GET'])->to("$controller#list" => {})->name("${name}.list");
+    $root->any(['POST'])->to("$controller#create" => {})->name("${name}.create");
+    $root->any(['OPTIONS'])->to("$controller#options" => {})->name("${name}.options");
+    $root->any(['POST'] => "/search")->to("$controller#search" => {})->name("${name}.search");
+    return ;
+}
+
+=head2 setup_api_v1_std_config_resource_routes
+
+setup_api_v1_std_config_resource_routes
+
+=cut
+
+sub setup_api_v1_std_config_resource_routes {
+    my ($self, $root, $name, $controller) = @_;
+    $root->any(['GET'])->to("$controller#get" => {})->name("${name}.get");
+    $root->any(['PATCH'])->to("$controller#update" => {})->name("${name}.update");
+    $root->any(['PUT'])->to("$controller#replace" => {})->name("${name}.replace");
+    $root->any(['DELETE'])->to("$controller#remove" => {})->name("${name}.remove");
+    $root->any(['OPTIONS'])->to("$controller#resource_options" => {})->name("${name}.resource_options");
+    return ;
+}
+
+=head2 setup_api_v1_config_admin_roles_routes
+
+ setup_api_v1_config_admin_roles_routes
+
+=cut
+
+sub setup_api_v1_config_admin_roles_routes {
+    my ($self, $root) = @_;
+    my ($collection_route, $resource_route) =
+      $self->setup_api_v1_std_config_routes(
+        $root,
+        "Config::AdminRoles",
+        "/admin_roles",
+        "/admin_role/#admin_role_id",
+        "api.v1.Config.AdminRoles"
+    );
+
+    return ($collection_route, $resource_route);
+}
+
+
+=head2 setup_api_v1_config_bases_routes
+
+ setup_api_v1_config_bases_routes
+
+=cut
+
+sub setup_api_v1_config_bases_routes {
+    my ($self, $root) = @_;
+    my ($collection_route, $resource_route) =
+      $self->setup_api_v1_std_config_routes(
+        $root,
+        "Config::Bases",
+        "/bases",
+        "/base/#base_id",
+        "api.v1.Config.Bases"
+    );
+
+    return ($collection_route, $resource_route);
+}
+
+
+=head2 setup_api_v1_config_billing_tiers_routes
+
+ setup_api_v1_config_billing_tiers_routes
+
+=cut
+
+sub setup_api_v1_config_billing_tiers_routes {
+    my ($self, $root) = @_;
+    my ($collection_route, $resource_route) =
+      $self->setup_api_v1_std_config_routes(
+        $root,
+        "Config::BillingTiers",
+        "/billing_tiers",
+        "/billing_tiers/#billing_tier_id",
+        "api.v1.Config.BillingTiers"
+    );
+
+    return ($collection_route, $resource_route);
+}
+
+
+=head2 setup_api_v1_config_device_registrations_routes
+
+ setup_api_v1_config_device_registrations_routes
+
+=cut
+
+sub setup_api_v1_config_device_registrations_routes {
+    my ($self, $root) = @_;
+    my ($collection_route, $resource_route) =
+      $self->setup_api_v1_std_config_routes(
+        $root,
+        "Config::DeviceRegistrations",
+        "/device_registrations",
+        "/device_registration/#device_registration_id",
+        "api.v1.Config.DeviceRegistrations"
+    );
+
+    return ($collection_route, $resource_route);
+}
+
+
+=head2 setup_api_v1_config_domains_routes
+
+ setup_api_v1_config_domains_routes
+
+=cut
+
+sub setup_api_v1_config_domains_routes {
+    my ($self, $root) = @_;
+    my ($collection_route, $resource_route) =
+      $self->setup_api_v1_std_config_routes(
+        $root,
+        "Config::Domains",
+        "/domains",
+        "/domain/#domain_id",
+        "api.v1.Config.Domains"
+    );
+
+    return ($collection_route, $resource_route);
+}
+
+
+=head2 setup_api_v1_config_floating_devices_routes
+
+ setup_api_v1_config_floating_devices_routes
+
+=cut
+
+sub setup_api_v1_config_floating_devices_routes {
+    my ( $self, $root ) = @_;
+    my ( $collection_route, $resource_route ) =
+      $self->setup_api_v1_std_config_routes(
+        $root,
+        "Config::FloatingDevices",
+        "/floating_devices",
+        "/floating_device/#floating_device_id",
+        "api.v1.Config.FloatingDevices"
+      );
+
+    return ($collection_route, $resource_route);
+}
+
+
+=head2 setup_api_v1_config_maintenance_tasks_routes
+
+ setup_api_v1_config_maintenance_tasks_routes
+
+=cut
+
+sub setup_api_v1_config_maintenance_tasks_routes {
+    my ($self, $root) = @_;
+    my ($collection_route, $resource_route) =
+      $self->setup_api_v1_std_config_routes(
+        $root,
+        "Config::MaintenanceTasks",
+        "/maintenance_tasks",
+        "/maintenance_task/#maintenance_task_id",
+        "api.v1.Config.MaintenanceTasks"
+      );
+
+    return ($collection_route, $resource_route);
+}
+
+
+=head2 setup_api_v1_config_pki_providers_routes
+
+ setup_api_v1_config_pki_providers_routes
+
+=cut
+
+sub setup_api_v1_config_pki_providers_routes {
+    my ($self, $root) = @_;
+    my ($collection_route, $resource_route) =
+      $self->setup_api_v1_std_config_routes(
+        $root,
+        "Config::PkiProviders",
+        "/pki_providers",
+        "/pki_provider/#pki_provider_id",
+        "api.v1.Config.PkiProviders"
+    );
+
+    return ($collection_route, $resource_route);
+}
+
+=head2 setup_api_v1_config_portal_modules_routes
+
+ setup_api_v1_config_portal_modules_routes
+
+=cut
+
+sub setup_api_v1_config_portal_modules_routes {
+    my ($self, $root) = @_;
+    my ($collection_route, $resource_route) =
+      $self->setup_api_v1_std_config_routes(
+        $root,
+        "Config::PortalModules",
+        "/portal_modules",
+        "/portal_module/#portal_module_id",
+        "api.v1.Config.PortalModules"
+    );
+
+    return ($collection_route, $resource_route);
+}
+
+=head2 setup_api_v1_config_provisionings_routes
+
+ setup_api_v1_config_provisionings_routes
+
+=cut
+
+sub setup_api_v1_config_provisionings_routes {
+    my ($self, $root) = @_;
+    my ($collection_route, $resource_route) =
+      $self->setup_api_v1_std_config_routes(
+        $root,
+        "Config::Provisionings",
+        "/provisionings",
+        "/provisioning/#provisioning_id",
+        "api.v1.Config.Provisionings"
+    );
+
+    return ($collection_route, $resource_route);
+}
+
+=head2 setup_api_v1_config_realms_routes
+
+ setup_api_v1_config_realms_routes
+
+=cut
+
+sub setup_api_v1_config_realms_routes {
+    my ($self, $root) = @_;
+    my ($collection_route, $resource_route) =
+      $self->setup_api_v1_std_config_routes(
+        $root,
+        "Config::Realms",
+        "/realms",
+        "/realm/#realm_id",
+        "api.v1.Config.Realms"
+    );
+
+    return ($collection_route, $resource_route);
+}
+
+=head2 setup_api_v1_config_roles_routes
+
+ setup_api_v1_config_roles_routes
+
+=cut
+
+sub setup_api_v1_config_roles_routes {
+    my ($self, $root) = @_;
+    my ($collection_route, $resource_route) =
+      $self->setup_api_v1_std_config_routes(
+        $root,
+        "Config::Roles",
+        "/roles",
+        "/role/#role_id",
+        "api.v1.Config.Roles"
+    );
+
+    return ($collection_route, $resource_route);
+}
+
+=head2 setup_api_v1_config_scans_routes
+
+ setup_api_v1_config_scans_routes
+
+=cut
+
+sub setup_api_v1_config_scans_routes {
+    my ($self, $root) = @_;
+    my ($collection_route, $resource_route) =
+      $self->setup_api_v1_std_config_routes(
+        $root,
+        "Config::Scans",
+        "/scans",
+        "/scan/#scan_id",
+        "api.v1.Config.Scans"
+    );
+
+    return ($collection_route, $resource_route);
+}
+
+=head2 setup_api_v1_config_switch_groups_routes
+
+ setup_api_v1_config_switch_groups_routes
+
+=cut
+
+sub setup_api_v1_config_switch_groups_routes {
+    my ($self, $root) = @_;
+    my ($collection_route, $resource_route) =
+      $self->setup_api_v1_std_config_routes(
+        $root,
+        "Config::SwitchGroups",
+        "/switch_groups",
+        "/switch_group/#switch_group_id",
+        "api.v1.Config.SwitchGroups"
+    );
+
+    return ($collection_route, $resource_route);
+}
+
+=head2 setup_api_v1_config_syslog_forwarders_routes
+
+ setup_api_v1_config_syslog_forwarders_routes
+
+=cut
+
+sub setup_api_v1_config_syslog_forwarders_routes {
+    my ($self, $root) = @_;
+    my ($collection_route, $resource_route) =
+      $self->setup_api_v1_std_config_routes(
+        $root,
+        "Config::SyslogForwarders",
+        "/syslog_forwarders",
+        "/syslog_forwarder/#syslog_forwarder_id",
+        "api.v1.Config.SyslogForwarders"
+    );
+
+    return ($collection_route, $resource_route);
+}
+
+=head2 setup_api_v1_config_traffic_shaping_policies_routes
+
+ setup_api_v1_config_traffic_shaping_policies_routes
+
+=cut
+
+sub setup_api_v1_config_traffic_shaping_policies_routes {
+    my ($self, $root) = @_;
+    my ($collection_route, $resource_route) =
+      $self->setup_api_v1_std_config_routes(
+        $root,
+        "Config::TrafficShapingPolicies",
+        "/traffic_shaping_policies",
+        "/traffic_shaping_policy/#traffic_shaping_policy_id",
+        "api.v1.Config.TrafficShapingPolicies"
+    );
+
+    return ($collection_route, $resource_route);
+}
+
+=head2 setup_api_v1_config_security_events_routes
+
+ setup_api_v1_config_security_events_routes
+
+=cut
+
+sub setup_api_v1_config_security_events_routes {
+    my ($self, $root) = @_;
+    my ($collection_route, $resource_route) =
+      $self->setup_api_v1_std_config_routes(
+        $root,
+        "Config::SecurityEvents",
+        "/security_events",
+        "/security_event/#security_event_id",
+        "api.v1.Config.SecurityEvents"
+    );
+
+    return ($collection_route, $resource_route);
+}
+
+=head2 setup_api_v1_config_firewalls_routes
+
+setup_api_v1_config_firewalls_routes
+
+=cut
+
+sub setup_api_v1_config_firewalls_routes {
+    my ($self, $root) = @_;
+    my ($collection_route, $resource_route) =
+      $self->setup_api_v1_std_config_routes(
+        $root,
+        "Config::Firewalls",
+        "/firewalls",
+        "/firewall/#firewall_id",
+        "api.v1.Config.Firewalls"
+    );
+
+    return ($collection_route, $resource_route);
+}
+
+=head2 setup_api_v1_config_connection_profiles_routes
+
+setup_api_v1_config_connection_profiles_routes
+
+=cut
+
+sub setup_api_v1_config_connection_profiles_routes {
+    my ($self, $root) = @_;
+    my $controller = "Config::ConnectionProfiles";
+    my ($collection_route, $resource_route) =
+      $self->setup_api_v1_std_config_routes(
+        $root,
+        $controller,
+        "/connection_profiles",
+        "/connection_profile/#connection_profile_id",
+        "api.v1.Config.ConnectionProfiles"
+    );
+
+    my $name = "api.v1.Config.ConnectionProfiles.resource.files";
+    my $files_route = $resource_route->any("/files")->name($name);
+    $files_route->any(['GET'])->to("$controller#files" => {})->name("${name}.dir");
+    my $file_route = $files_route->any("/*file_name")->name("${name}.file");
+    $files_route->any(['GET'])->to("$controller#get_file" => {})->name("${name}.file.get");
+    $files_route->any(['PATCH'])->to("$controller#replace_file" => {})->name("${name}.file.replace");
+    $files_route->any(['PUT'])->to("$controller#new_file" => {})->name("${name}.file.new");
+    $files_route->any(['DELETE'])->to("$controller#delete_file" => {})->name("${name}.file.delete");
+
+    return ($collection_route, $resource_route);
+}
+
+=head2 setup_api_v1_config_switches_routes
+
+setup_api_v1_config_switches_routes
+
+=cut
+
+sub setup_api_v1_config_switches_routes {
+    my ($self, $root) = @_;
+    my ($collection_route, $resource_route) =
+      $self->setup_api_v1_std_config_routes(
+        $root,
+        "Config::Switches",
+        "/switches",
+        "/switch/#switch_id",
+        "api.v1.Config.Switches"
+    );
+
+    $resource_route->any(['POST'] => "/invalidate_cache")->to("Config::Switches#invalidate_cache")->name("api.v1.Config.Switches.invalidate_cache");
+
+    return ($collection_route, $resource_route);
+}
+
+=head2 setup_api_v1_config_sources_routes
+
+setup_api_v1_config_sources_routes
+
+=cut
+
+sub setup_api_v1_config_sources_routes {
+    my ($self, $root) = @_;
+    my ($collection_route, $resource_route) =
+      $self->setup_api_v1_std_config_routes(
+        $root,
+        "Config::Sources",
+        "/sources",
+        "/source/#source_id",
+        "api.v1.Config.Source"
+    );
+
+    $collection_route->any(['POST'] => "/test")->to("Config::Sources#test")->name("api.v1.Config.Sources.test");
+
+    return ($collection_route, $resource_route);
+}
+
+=head2 setup_api_v1_config_syslog_parsers_routes
+
+setup_api_v1_config_syslog_parsers_routes
+
+=cut
+
+sub setup_api_v1_config_syslog_parsers_routes {
+    my ($self, $root) = @_;
+    my ($collection_route, $resource_route) =
+      $self->setup_api_v1_std_config_routes(
+        $root,
+        "Config::SyslogParsers",
+        "/syslog_parsers",
+        "/syslog_parser/#syslog_parser_id",
+        "api.v1.Config.SyslogParsers"
+    );
+
+    $collection_route->any(['POST'] => "/dry_run")->to("Config::SyslogParsers#dry_run")->name("api.v1.Config.SyslogParsers.dry_run");
+
+    return ($collection_route, $resource_route);
+}
+
+=head2 setup_api_v1_config_filters_routes
+
+setup_api_v1_config_filters_routes
+
+=cut
+
+sub setup_api_v1_config_filters_routes {
+    my ($self, $root) = @_;
+    my $resource_route = $root->any("/filter/#filter_id")->name("api.v1.Config.Filters.resource");
+    $resource_route->any(['GET'])->to("Config::Filters#get")->name("api.v1.Config.Filters.resource.get");
+    $resource_route->any(['PUT'])->to("Config::Filters#replace")->name("api.v1.Config.Filters.resource.replace");
+
+    return (undef, $resource_route);
+}
+
+=head2 setup_api_v1_config_certificates_routes
+
+setup_api_v1_config_certificates_routes
+
+=cut
+
+sub setup_api_v1_config_certificates_routes {
+    my ($self, $root) = @_;
+    my $resource_route = $root->any("/certificate/#certificate_id")->name("api.v1.Config.Certificates.resource");
+    $resource_route->any(['GET'])->to("Config::Certificates#get")->name("api.v1.Config.Certificates.resource.get");
+    $resource_route->any(['PUT'])->to("Config::Certificates#replace")->name("api.v1.Config.Certificates.resource.replace");
+    $resource_route->any(['GET'] => "/info")->to("Config::Certificates#info")->name("api.v1.Config.Certificates.resource.info");
+    $resource_route->any(['POST'] => "/generate_csr")->to("Config::Certificates#generate_csr")->name("api.v1.Config.Certificates.resource.generate_csr");
+
+    return (undef, $resource_route);
+}
+
+=head2 setup_api_v1_translations_routes
+
+setup_api_v1_translations_routes
+
+=cut
+
+sub setup_api_v1_translations_routes {
+    my ($self, $root) = @_;
+    my $collection_route = $root->any(['GET'] => "/translations")->to("Translations#list")->name("api.v1.Config.Translations.list");
+    my $resource_route = $root->under("/translation/#translation_id")->to("Translations#resource")->name("api.v1.Config.Translations.resource");
+    $resource_route->any(['GET'])->to("Translations#get")->name("api.v1.Config.Translations.resource.get");
+    return ($collection_route, $resource_route);
 }
 
 =head1 AUTHOR
@@ -548,4 +1182,3 @@ USA.
 =cut
 
 1;
-
