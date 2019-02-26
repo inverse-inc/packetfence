@@ -259,7 +259,7 @@ sub render_create {
 sub make_location_url {
     my ($self, $obj) = @_;
     my $parent_route = $self->match->endpoint->parent->name;
-    my $url = $self->url_for("$parent_route.get", {$self->url_param_name => $obj->{$self->primary_key}});
+    my $url = $self->url_for("$parent_route.resource.get", {$self->url_param_name => $obj->{$self->primary_key}});
     return "$url";
 }
 
