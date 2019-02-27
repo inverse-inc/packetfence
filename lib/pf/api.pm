@@ -1096,7 +1096,7 @@ sub dynamic_register_node : Public :AllowedAsAction(mac, $mac, username, $userna
             'category' => $role,
             'autoreg' => 'no',
             'pid' => $postdata{'username'},
-            'source'  => \$source,
+            'source'  => $source,
             'portal'  => $profile->getName,
             'status' => 'reg',
         );
