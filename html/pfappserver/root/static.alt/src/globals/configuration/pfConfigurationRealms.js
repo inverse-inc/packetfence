@@ -6,6 +6,8 @@ import pfFormTextarea from '@/components/pfFormTextarea'
 import {
   pfConfigurationListColumns,
   pfConfigurationListFields,
+  pfConfigurationAllowedFromMeta,
+  pfConfigurationPlaceholderFromMeta,
   pfConfigurationValidatorsFromMeta
 } from '@/globals/configuration/pfConfiguration'
 import {
@@ -76,9 +78,7 @@ export const pfConfigurationRealmViewFields = (context = {}) => {
     isNew = false,
     isClone = false,
     options: {
-      allowed = {},
-      meta = {},
-      placeholders = {}
+      meta = {}
     }
   } = context
   return [
@@ -116,10 +116,10 @@ export const pfConfigurationRealmViewFields = (context = {}) => {
               component: pfFormChosen,
               attrs: {
                 collapseObject: true,
-                placeholder: i18n.t(placeholders.domain),
+                placeholder: pfConfigurationPlaceholderFromMeta(meta, 'domain'),
                 label: 'label',
                 trackBy: 'value',
-                options: allowed.domain
+                options: pfConfigurationAllowedFromMeta(meta, 'domain')
               },
               validators: pfConfigurationValidatorsFromMeta(meta.domain, 'Domain')
             }
@@ -136,7 +136,7 @@ export const pfConfigurationRealmViewFields = (context = {}) => {
               key: 'options',
               component: pfFormTextarea,
               attrs: {
-                placeholder: i18n.t(placeholders.options)
+                placeholder: pfConfigurationPlaceholderFromMeta(meta, 'options')
               },
               validators: pfConfigurationValidatorsFromMeta(meta.options, 'Realm options')
             }
@@ -151,10 +151,10 @@ export const pfConfigurationRealmViewFields = (context = {}) => {
               component: pfFormChosen,
               attrs: {
                 collapseObject: true,
-                placeholder: i18n.t(placeholders.radius_auth),
+                placeholder: pfConfigurationPlaceholderFromMeta(meta, 'radius_auth'),
                 label: 'label',
                 trackBy: 'value',
-                options: allowed.radius_auth
+                options: pfConfigurationAllowedFromMeta(meta, 'radius_auth')
               },
               validators: pfConfigurationValidatorsFromMeta(meta.radius_auth, 'RADIUS AUTH')
             }
@@ -169,10 +169,10 @@ export const pfConfigurationRealmViewFields = (context = {}) => {
               component: pfFormChosen,
               attrs: {
                 collapseObject: true,
-                placeholder: i18n.t(placeholders.radius_auth_proxy_type),
+                placeholder: pfConfigurationPlaceholderFromMeta(meta, 'radius_auth_proxy_type'),
                 label: 'label',
                 trackBy: 'value',
-                options: allowed.radius_auth_proxy_type
+                options: pfConfigurationAllowedFromMeta(meta, 'radius_auth_proxy_type')
               },
               validators: pfConfigurationValidatorsFromMeta(meta.radius_auth_proxy_type, 'Type')
             }
@@ -200,10 +200,10 @@ export const pfConfigurationRealmViewFields = (context = {}) => {
               component: pfFormChosen,
               attrs: {
                 collapseObject: true,
-                placeholder: i18n.t(placeholders.radius_acct_chosen),
+                placeholder: pfConfigurationPlaceholderFromMeta(meta, 'radius_acct_chosen'),
                 label: 'label',
                 trackBy: 'value',
-                options: allowed.radius_acct_chosen
+                options: pfConfigurationAllowedFromMeta(meta, 'radius_acct_chosen')
               },
               validators: pfConfigurationValidatorsFromMeta(meta.radius_acct_chosen, 'RADIUS ACCT')
             }
@@ -218,10 +218,10 @@ export const pfConfigurationRealmViewFields = (context = {}) => {
               component: pfFormChosen,
               attrs: {
                 collapseObject: true,
-                placeholder: i18n.t(placeholders.radius_acct_proxy_type),
+                placeholder: pfConfigurationPlaceholderFromMeta(meta, 'radius_acct_proxy_type'),
                 label: 'label',
                 trackBy: 'value',
-                options: allowed.radius_acct_proxy_type
+                options: pfConfigurationAllowedFromMeta(meta, 'radius_acct_proxy_type')
               },
               validators: pfConfigurationValidatorsFromMeta(meta.radius_acct_proxy_type, 'Type')
             }
@@ -291,10 +291,10 @@ export const pfConfigurationRealmViewFields = (context = {}) => {
               component: pfFormChosen,
               attrs: {
                 collapseObject: true,
-                placeholder: i18n.t(placeholders.ldap_source),
+                placeholder: pfConfigurationPlaceholderFromMeta(meta, 'ldap_source'),
                 label: 'label',
                 trackBy: 'value',
-                options: allowed.ldap_source
+                options: pfConfigurationAllowedFromMeta(meta, 'ldap_source')
               },
               validators: pfConfigurationValidatorsFromMeta(meta.ldap_source, 'LDAP source')
             }
@@ -303,13 +303,4 @@ export const pfConfigurationRealmViewFields = (context = {}) => {
       ]
     }
   ]
-}
-
-export const pfConfigurationRealmViewDefaults = (context = {}) => {
-  return {
-    id: null,
-    portal_strip_username: 'enabled',
-    admin_strip_username: 'enabled',
-    radius_strip_username: 'enabled'
-  }
 }
