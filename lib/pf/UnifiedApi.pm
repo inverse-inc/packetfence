@@ -1050,16 +1050,28 @@ sub setup_api_v1_config_connection_profiles_routes {
         "api.v1.Config.ConnectionProfiles"
     );
 
+    $self->setup_api_v1_config_connection_profiles_files_routes($controller, $resource_route);
+    return ($collection_route, $resource_route);
+}
+
+=head2 setup_api_v1_config_connection_profiles_files_routes
+
+setup_api_v1_config_connection_profiles_files_routes
+
+=cut
+
+sub setup_api_v1_config_connection_profiles_files_routes {
+    my ($self, $controller, $root) = @_;
     my $name = "api.v1.Config.ConnectionProfiles.resource.files";
-    my $files_route = $resource_route->any("/files")->name($name);
+    my $files_route = $root->any("/files")->name($name);
     $files_route->any(['GET'])->to("$controller#files" => {})->name("${name}.dir");
     my $file_route = $files_route->any("/*file_name")->name("${name}.file");
-    $files_route->any(['GET'])->to("$controller#get_file" => {})->name("${name}.file.get");
-    $files_route->any(['PATCH'])->to("$controller#replace_file" => {})->name("${name}.file.replace");
-    $files_route->any(['PUT'])->to("$controller#new_file" => {})->name("${name}.file.new");
-    $files_route->any(['DELETE'])->to("$controller#delete_file" => {})->name("${name}.file.delete");
+    $file_route->any(['GET'])->to("$controller#get_file" => {})->name("${name}.file.get");
+    $file_route->any(['PATCH'])->to("$controller#replace_file" => {})->name("${name}.file.replace");
+    $file_route->any(['PUT'])->to("$controller#new_file" => {})->name("${name}.file.new");
+    $file_route->any(['DELETE'])->to("$controller#delete_file" => {})->name("${name}.file.delete");
 
-    return ($collection_route, $resource_route);
+    return ;
 }
 
 =head2 setup_api_v1_config_switches_routes
