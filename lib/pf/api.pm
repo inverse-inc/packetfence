@@ -1079,7 +1079,6 @@ sub dynamic_register_node : Public :AllowedAsAction(mac, $mac, username, $userna
         context => $pf::constants::realm::RADIUS_CONTEXT,
     };
 
-    my $source;
     my $matched = pf::authentication::match2([@sources], $params);
     unless ($matched) {
         $logger->warn("Did not find any actions to match");
@@ -1090,6 +1089,7 @@ sub dynamic_register_node : Public :AllowedAsAction(mac, $mac, username, $userna
     my $unregdate = $values->{$Actions::SET_UNREG_DATE};
     my $time_balance =  $values->{$Actions::SET_TIME_BALANCE};
     my $bandwidth_balance =  $values->{$Actions::SET_BANDWIDTH_BALANCE};
+    my $source = $matched->{source_id};
     if (defined $unregdate) {
         my %info = (
             'unregdate' => $unregdate,
