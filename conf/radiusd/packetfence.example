@@ -406,6 +406,7 @@ post-auth {
 #  Only a few modules currently have this method.
 #
 pre-proxy {
+	attr_filter.packetfence_pre_proxy
 	%%pre_proxy_filter%%
 }
 

@@ -209,3 +209,19 @@ packetfence-control-ntlm-failure {
   }
 }
 
+last-regexp = '(.*)(.)'
+
+packetfence-balanced-key-policy {
+    if (&PacketFence-KeyBalanced && (&PacketFence-KeyBalanced =~ /^${policy.last-regexp}$/i)) {
+        update {
+            &request:PacketFence-KeyBalanced := "%{md5:%{2}%{1}}"
+            &control:Load-Balance-Key := "%{md5:%{2}%{1}}"
+        }
+    }
+    else {
+        update {
+            &request:PacketFence-KeyBalanced := "%{md5:%{Calling-Station-Id}%{User-Name}}"
+            &control:Load-Balance-Key := "%{md5:%{Calling-Station-Id}%{User-Name}}"
+        }
+    }
+}

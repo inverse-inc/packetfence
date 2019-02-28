@@ -1197,6 +1197,10 @@ ocsp_timeout = 0
 #
 # Treat OCSP response errors as 'soft' failures and still accept the certificate.
 ocsp_softfail = no
+# radius_configuration.forward_key_balanced
+#
+# Send in the proxy request the attribute PacketFence-KeyBalanced to randomize the load balance in the next PacketFence RADIUS server
+PacketFence-KeyBalanced=disabled
 
 [pfdhcp]
 #

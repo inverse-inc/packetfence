@@ -58,3 +58,14 @@ attr_filter attr_filter.packetfence_post_auth {
 	relaxed = yes
 	filename = ${modconfdir}/${.:name}/packetfence-post-auth
 }
+
+# Delete all PacketFence specific attributes from the reply
+#
+attr_filter attr_filter.packetfence_pre_proxy {
+        key = "%{User-Name}"
+        # relaxed means that we allow attributes that do not match the filters
+        # otherwise they would be filtered out.
+        relaxed = yes
+        filename = ${modconfdir}/${.:name}/packetfence-pre-proxy
+}
+

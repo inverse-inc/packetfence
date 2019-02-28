@@ -762,6 +762,14 @@ nostrip
 EOT
     }
     parse_template( \%tags, "$conf_dir/radiusd/proxy.conf.loadbalancer", "$install_dir/raddb/proxy.conf.loadbalancer" );
+
+    if(isenabled($Config{radius_configuration}{forward_key_balanced})){
+	   $tags{'PacketFence-KeyBalanced'} = "PacketFence-KeyBalanced                !* ANY,";
+    } else {
+        $tags{'PacketFence-KeyBalanced'} = "";
+    }
+
+    parse_template( \%tags, "$conf_dir/radiusd/packetfence-pre-proxy", "$install_dir/raddb/mods-config/attr_filter/packetfence-pre-proxy" );
 }
 
 =head2 generate_radiusd_cluster
