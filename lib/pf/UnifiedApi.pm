@@ -720,7 +720,7 @@ sub setup_api_v1_config_billing_tiers_routes {
         $root,
         "Config::BillingTiers",
         "/billing_tiers",
-        "/billing_tiers/#billing_tier_id",
+        "/billing_tier/#billing_tier_id",
         "api.v1.Config.BillingTiers"
     );
 
