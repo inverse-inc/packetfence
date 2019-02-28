@@ -3,6 +3,7 @@ import pfFormInput from '@/components/pfFormInput'
 import {
   pfConfigurationListColumns,
   pfConfigurationListFields,
+  pfConfigurationPlaceholderFromMeta,
   pfConfigurationValidatorsFromMeta
 } from '@/globals/configuration/pfConfiguration'
 import {
@@ -74,8 +75,7 @@ export const pfConfigurationRoleViewFields = (context = {}) => {
     isNew = false,
     isClone = false,
     options: {
-      meta = {},
-      placeholders = {}
+      meta = {}
     }
   } = context
 
@@ -91,7 +91,7 @@ export const pfConfigurationRoleViewFields = (context = {}) => {
               component: pfFormInput,
               attrs: {
                 disabled: (!isNew && !isClone),
-                placeholder: i18n.t(placeholders.id)
+                placeholder: pfConfigurationPlaceholderFromMeta(meta, 'id')
               },
               validators: {
                 ...pfConfigurationValidatorsFromMeta(meta.id, 'Name'),
@@ -110,7 +110,7 @@ export const pfConfigurationRoleViewFields = (context = {}) => {
               key: 'notes',
               component: pfFormInput,
               attrs: {
-                placeholder: i18n.t(placeholders.notes)
+                placeholder: pfConfigurationPlaceholderFromMeta(meta, 'notes')
               },
               validators: pfConfigurationValidatorsFromMeta(meta.notes, 'Description')
             }
@@ -125,7 +125,7 @@ export const pfConfigurationRoleViewFields = (context = {}) => {
               component: pfFormInput,
               attrs: {
                 type: 'number',
-                placeholder: i18n.t(placeholders.max_nodes_per_pid)
+                placeholder: pfConfigurationPlaceholderFromMeta(meta, 'max_nodes_per_pid')
               },
               validators: pfConfigurationValidatorsFromMeta(meta.max_nodes_per_pid, 'Max nodes per user')
             }
