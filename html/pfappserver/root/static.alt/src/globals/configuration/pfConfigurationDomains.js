@@ -8,6 +8,8 @@ import pfFormTextarea from '@/components/pfFormTextarea'
 import {
   pfConfigurationListColumns,
   pfConfigurationListFields,
+  pfConfigurationAllowedFromMeta,
+  pfConfigurationPlaceholderFromMeta,
   pfConfigurationValidatorsFromMeta
 } from '@/globals/configuration/pfConfiguration'
 import {
@@ -79,9 +81,7 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
     isNew = false,
     isClone = false,
     options: {
-      allowed = {},
-      meta = {},
-      placeholders = {}
+      meta = {}
     }
   } = context
   return [
@@ -115,7 +115,7 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
               key: 'workgroup',
               component: pfFormInput,
               attrs: {
-                placeholder: i18n.t(placeholders.workgroup)
+                placeholder: pfConfigurationPlaceholderFromMeta(meta, 'workgroup')
               },
               validators: pfConfigurationValidatorsFromMeta(meta.workgroup, 'Workgroup')
             }
@@ -129,7 +129,7 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
               key: 'dns_name',
               component: pfFormInput,
               attrs: {
-                placeholder: i18n.t(placeholders.dns_name)
+                placeholder: pfConfigurationPlaceholderFromMeta(meta, 'dns_name')
               },
               validators: pfConfigurationValidatorsFromMeta(meta.dns_name, 'DNS name')
             }
@@ -143,7 +143,7 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
               key: 'server_name',
               component: pfFormInput,
               attrs: {
-                placeholder: i18n.t(placeholders.server_name)
+                placeholder: pfConfigurationPlaceholderFromMeta(meta, 'server_name')
               },
               validators: pfConfigurationValidatorsFromMeta(meta.server_name, 'Server name')
             }
@@ -157,7 +157,7 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
               key: 'sticky_dc',
               component: pfFormInput,
               attrs: {
-                placeholder: i18n.t(placeholders.sticky_dc)
+                placeholder: pfConfigurationPlaceholderFromMeta(meta, 'sticky_dc')
               },
               validators: pfConfigurationValidatorsFromMeta(meta.sticky_dc, 'Sticky DC')
             }
@@ -171,7 +171,7 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
               key: 'ad_server',
               component: pfFormInput,
               attrs: {
-                placeholder: i18n.t(placeholders.ad_server)
+                placeholder: pfConfigurationPlaceholderFromMeta(meta, 'ad_server')
               },
               validators: pfConfigurationValidatorsFromMeta(meta.ad_server, 'Server')
             }
@@ -185,7 +185,7 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
               key: 'dns_servers',
               component: pfFormInput,
               attrs: {
-                placeholder: i18n.t(placeholders.dns_servers)
+                placeholder: pfConfigurationPlaceholderFromMeta(meta, 'dns_servers')
               },
               validators: pfConfigurationValidatorsFromMeta(meta.dns_servers, 'DNS server(s)')
             }
@@ -199,7 +199,7 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
               key: 'bind_dn',
               component: pfFormInput,
               attrs: {
-                placeholder: i18n.t(placeholders.bind_dn)
+                placeholder: pfConfigurationPlaceholderFromMeta(meta, 'bind_dn')
               },
               validators: pfConfigurationValidatorsFromMeta(meta.bind_dn, 'Username')
             }
@@ -213,7 +213,7 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
               key: 'bind_pass',
               component: pfFormPassword,
               attrs: {
-                placeholder: i18n.t(placeholders.bind_pass)
+                placeholder: pfConfigurationPlaceholderFromMeta(meta, 'bind_pass')
               },
               validators: pfConfigurationValidatorsFromMeta(meta.bind_pass, 'Password')
             }
@@ -227,7 +227,7 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
               key: 'ou',
               component: pfFormInput,
               attrs: {
-                placeholder: i18n.t(placeholders.ou)
+                placeholder: pfConfigurationPlaceholderFromMeta(meta, 'ou')
               },
               validators: pfConfigurationValidatorsFromMeta(meta.ou, 'OU')
             }
@@ -287,10 +287,10 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
               component: pfFormChosen,
               attrs: {
                 collapseObject: true,
-                placeholder: i18n.t(placeholders.ntlm_cache_source),
+                placeholder: pfConfigurationPlaceholderFromMeta(meta, 'ntlm_cache_source'),
                 label: 'label',
                 trackBy: 'value',
-                options: allowed.ntlm_cache_source
+                options: pfConfigurationAllowedFromMeta(meta, 'ntlm_cache_source', [])
               },
               validators: pfConfigurationValidatorsFromMeta(meta.ntlm_cache_source, 'Source')
             }
@@ -305,7 +305,7 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
               component: pfFormTextarea,
               attrs: {
                 rows: 3,
-                placeholder: i18n.t(placeholders.ntlm_cache_filter)
+                placeholder: pfConfigurationPlaceholderFromMeta(meta, 'ntlm_cache_filter')
               },
               validators: pfConfigurationValidatorsFromMeta(meta.ntlm_cache_filter, 'LDAP filter')
             }
@@ -321,7 +321,7 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
               attrs: {
                 type: 'number',
                 step: 1,
-                placeholder: i18n.t(placeholders.ntlm_cache_expiry)
+                placeholder: pfConfigurationPlaceholderFromMeta(meta, 'ntlm_cache_expiry')
               },
               validators: pfConfigurationValidatorsFromMeta(meta.ntlm_cache_expiry, 'Expiration')
             }

@@ -120,7 +120,9 @@ export default {
           })
         } else {
           // new
-          this.form = Object.assign({}, options.defaults) // set defaults
+          Object.keys(options.meta).forEach(key => {
+            this.$set(this.form, key, options.meta[key].default) // set defaults
+          })
         }
       })
     },
