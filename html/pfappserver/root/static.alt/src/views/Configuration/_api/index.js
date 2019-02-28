@@ -250,12 +250,12 @@ export default {
     })
   },
   switche: id => {
-    return apiCall.get(`config/switch/${id.replace('/', '%2F')}`).then(response => {
+    return apiCall.get(`config/switch/${encodeURIComponent(id)}`).then(response => {
       return response.data.item
     })
   },
   switchOptions: id => {
-    return apiCall.options(`config/switch/${id.replace('/', '%2F')}`).then(response => {
+    return apiCall.options(`config/switch/${encodeURIComponent(id)}`).then(response => {
       return response.data
     })
   },
@@ -265,12 +265,12 @@ export default {
     })
   },
   updateSwitch: data => {
-    return apiCall.patch(`config/switch/${data.id.replace('/', '%2F')}`, data).then(response => {
+    return apiCall.patch(`config/switch/${data.encodeURIComponent(id)}`, data).then(response => {
       return response.data
     })
   },
   deleteSwitch: id => {
-    return apiCall.delete(`config/switch/${id.replace('/', '%2F')}`)
+    return apiCall.delete(`config/switch/${encodeURIComponent(id)}`)
   },
   /**
    * SwitchGroups
@@ -286,12 +286,12 @@ export default {
     })
   },
   switchGroup: id => {
-    return apiCall.get(`config/switch_group/${id.replace('/', '%2F')}`).then(response => {
+    return apiCall.get(`config/switch_group/${encodeURIComponent(id)}`).then(response => {
       return response.data.item
     })
   },
   switchGroupOptions: id => {
-    return apiCall.options(`config/switch_group/${id.replace('/', '%2F')}`).then(response => {
+    return apiCall.options(`config/switch_group/${encodeURIComponent(id)}`).then(response => {
       return response.data
     })
   },
@@ -301,12 +301,12 @@ export default {
     })
   },
   updateSwitchGroup: data => {
-    return apiCall.patch(`config/switch_group/${data.id.replace('/', '%2F')}`, data).then(response => {
+    return apiCall.patch(`config/switch_group/${data.encodeURIComponent(id)}`, data).then(response => {
       return response.data
     })
   },
   deleteSwitchGroup: id => {
-    return apiCall.delete(`config/switch_group/${id.replace('/', '%2F')}`)
+    return apiCall.delete(`config/switch_group/${encodeURIComponent(id)}`)
   },
   /**
    * Connection Profiles
