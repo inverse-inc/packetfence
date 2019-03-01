@@ -44,8 +44,8 @@ server pf.cluster {
         }
 
         authorize {
+                packetfence-balanced-key-policy
                 update control {
-                        Load-Balance-Key := "%{Calling-Station-Id}"
                         Proxy-To-Realm := "packetfence"
                 }
                 if(!NAS-IP-Address || NAS-IP-Address == "0.0.0.0"){
