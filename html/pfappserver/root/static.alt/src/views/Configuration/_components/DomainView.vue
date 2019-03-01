@@ -42,6 +42,9 @@ import pfButtonSave from '@/components/pfButtonSave'
 import pfButtonDelete from '@/components/pfButtonDelete'
 import pfMixinEscapeKey from '@/components/pfMixinEscapeKey'
 import {
+  pfConfigurationDefaultsFromMeta as defaults
+} from '@/globals/configuration/pfConfiguration'
+import {
   pfConfigurationDomainViewFields as fields
 } from '@/globals/configuration/pfConfigurationDomains'
 const { validationMixin } = require('vuelidate')
@@ -120,9 +123,7 @@ export default {
           })
         } else {
           // new
-          Object.keys(options.meta).forEach(key => {
-            this.$set(this.form, key, options.meta[key].default) // set defaults
-          })
+          this.form = defaults(options.meta) // set defaults
         }
       })
     },

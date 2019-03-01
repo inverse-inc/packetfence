@@ -44,6 +44,9 @@ import pfButtonDelete from '@/components/pfButtonDelete'
 import pfMixinCtrlKey from '@/components/pfMixinCtrlKey'
 import pfMixinEscapeKey from '@/components/pfMixinEscapeKey'
 import {
+  pfConfigurationDefaultsFromMeta as defaults
+} from '@/globals/configuration/pfConfiguration'
+import {
   pfConfigurationRealmViewFields as fields
 } from '@/globals/configuration/pfConfigurationRealms'
 const { validationMixin } = require('vuelidate')
@@ -123,9 +126,7 @@ export default {
           })
         } else {
           // new
-          Object.keys(options.meta).forEach(key => {
-            this.$set(this.form, key, options.meta[key].default) // set defaults
-          })
+          this.form = defaults(options.meta) // set defaults
         }
       })
     },

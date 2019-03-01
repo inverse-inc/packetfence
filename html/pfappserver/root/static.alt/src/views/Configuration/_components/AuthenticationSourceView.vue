@@ -45,6 +45,9 @@ import pfButtonDelete from '@/components/pfButtonDelete'
 import pfMixinCtrlKey from '@/components/pfMixinCtrlKey'
 import pfMixinEscapeKey from '@/components/pfMixinEscapeKey'
 import {
+  pfConfigurationDefaultsFromMeta as defaults
+} from '@/globals/configuration/pfConfiguration'
+import {
   pfConfigurationAuthenticationSourceViewFields as fields
 } from '@/globals/configuration/pfConfigurationAuthenticationSources'
 const { validationMixin } = require('vuelidate')
@@ -131,7 +134,7 @@ export default {
         // new
         this.$store.dispatch(`${this.storeName}/optionsBySourceType`, this.sourceType).then(options => {
           this.options = Object.assign({}, options) // store options
-          this.form = Object.assign({}, options.defaults) // set defaults
+          this.form = defaults(options.meta) // set defaults
           this.form.type = this.sourceType
         })
       }

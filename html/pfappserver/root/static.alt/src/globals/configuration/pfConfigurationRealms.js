@@ -6,8 +6,7 @@ import pfFormTextarea from '@/components/pfFormTextarea'
 import {
   pfConfigurationListColumns,
   pfConfigurationListFields,
-  pfConfigurationAllowedFromMeta,
-  pfConfigurationPlaceholderFromMeta,
+  pfConfigurationAttributesFromMeta,
   pfConfigurationValidatorsFromMeta
 } from '@/globals/configuration/pfConfiguration'
 import {
@@ -92,12 +91,14 @@ export const pfConfigurationRealmViewFields = (context = {}) => {
               key: 'id',
               component: pfFormInput,
               attrs: {
-                disabled: (!isNew && !isClone)
+                ...pfConfigurationAttributesFromMeta(meta, 'id'),
+                ...{
+                  disabled: (!isNew && !isClone)
+                }
               },
               validators: {
-                ...pfConfigurationValidatorsFromMeta(meta.id, 'Identifier'),
-                ...{ // TODO: remove once meta is available for `id`
-                  [i18n.t('Name required.')]: required,
+                ...pfConfigurationValidatorsFromMeta(meta, 'id', 'Identifier'),
+                ...{
                   [i18n.t('Role exists.')]: not(and(required, conditional(isNew || isClone), hasRealms, realmExists))
                 }
               }
@@ -114,14 +115,8 @@ export const pfConfigurationRealmViewFields = (context = {}) => {
             {
               key: 'domain',
               component: pfFormChosen,
-              attrs: {
-                collapseObject: true,
-                placeholder: pfConfigurationPlaceholderFromMeta(meta, 'domain'),
-                label: 'label',
-                trackBy: 'value',
-                options: pfConfigurationAllowedFromMeta(meta, 'domain')
-              },
-              validators: pfConfigurationValidatorsFromMeta(meta.domain, 'Domain')
+              attrs: pfConfigurationAttributesFromMeta(meta, 'domain'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'domain', 'Domain')
             }
           ]
         },
@@ -135,10 +130,8 @@ export const pfConfigurationRealmViewFields = (context = {}) => {
             {
               key: 'options',
               component: pfFormTextarea,
-              attrs: {
-                placeholder: pfConfigurationPlaceholderFromMeta(meta, 'options')
-              },
-              validators: pfConfigurationValidatorsFromMeta(meta.options, 'Realm options')
+              attrs: pfConfigurationAttributesFromMeta(meta, 'options'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'options', 'Realm options')
             }
           ]
         },
@@ -149,14 +142,8 @@ export const pfConfigurationRealmViewFields = (context = {}) => {
             {
               key: 'radius_auth',
               component: pfFormChosen,
-              attrs: {
-                collapseObject: true,
-                placeholder: pfConfigurationPlaceholderFromMeta(meta, 'radius_auth'),
-                label: 'label',
-                trackBy: 'value',
-                options: pfConfigurationAllowedFromMeta(meta, 'radius_auth')
-              },
-              validators: pfConfigurationValidatorsFromMeta(meta.radius_auth, 'RADIUS AUTH')
+              attrs: pfConfigurationAttributesFromMeta(meta, 'radius_auth'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'radius_auth', 'RADIUS AUTH')
             }
           ]
         },
@@ -167,14 +154,8 @@ export const pfConfigurationRealmViewFields = (context = {}) => {
             {
               key: 'radius_auth_proxy_type',
               component: pfFormChosen,
-              attrs: {
-                collapseObject: true,
-                placeholder: pfConfigurationPlaceholderFromMeta(meta, 'radius_auth_proxy_type'),
-                label: 'label',
-                trackBy: 'value',
-                options: pfConfigurationAllowedFromMeta(meta, 'radius_auth_proxy_type')
-              },
-              validators: pfConfigurationValidatorsFromMeta(meta.radius_auth_proxy_type, 'Type')
+              attrs: pfConfigurationAttributesFromMeta(meta, 'radius_auth_proxy_type'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'radius_auth_proxy_type', 'Type')
             }
           ]
         },
@@ -198,14 +179,8 @@ export const pfConfigurationRealmViewFields = (context = {}) => {
             {
               key: 'radius_acct_chosen',
               component: pfFormChosen,
-              attrs: {
-                collapseObject: true,
-                placeholder: pfConfigurationPlaceholderFromMeta(meta, 'radius_acct_chosen'),
-                label: 'label',
-                trackBy: 'value',
-                options: pfConfigurationAllowedFromMeta(meta, 'radius_acct_chosen')
-              },
-              validators: pfConfigurationValidatorsFromMeta(meta.radius_acct_chosen, 'RADIUS ACCT')
+              attrs: pfConfigurationAttributesFromMeta(meta, 'radius_acct_chosen'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'radius_acct_chosen', 'RADIUS ACCT')
             }
           ]
         },
@@ -216,14 +191,8 @@ export const pfConfigurationRealmViewFields = (context = {}) => {
             {
               key: 'radius_acct_proxy_type',
               component: pfFormChosen,
-              attrs: {
-                collapseObject: true,
-                placeholder: pfConfigurationPlaceholderFromMeta(meta, 'radius_acct_proxy_type'),
-                label: 'label',
-                trackBy: 'value',
-                options: pfConfigurationAllowedFromMeta(meta, 'radius_acct_proxy_type')
-              },
-              validators: pfConfigurationValidatorsFromMeta(meta.radius_acct_proxy_type, 'Type')
+              attrs: pfConfigurationAttributesFromMeta(meta, 'radius_acct_proxy_type'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'radius_acct_proxy_type', 'Type')
             }
           ]
         },
@@ -289,14 +258,8 @@ export const pfConfigurationRealmViewFields = (context = {}) => {
             {
               key: 'ldap_source',
               component: pfFormChosen,
-              attrs: {
-                collapseObject: true,
-                placeholder: pfConfigurationPlaceholderFromMeta(meta, 'ldap_source'),
-                label: 'label',
-                trackBy: 'value',
-                options: pfConfigurationAllowedFromMeta(meta, 'ldap_source')
-              },
-              validators: pfConfigurationValidatorsFromMeta(meta.ldap_source, 'LDAP source')
+              attrs: pfConfigurationAttributesFromMeta(meta, 'ldap_source'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'ldap_source', 'LDAP source')
             }
           ]
         }

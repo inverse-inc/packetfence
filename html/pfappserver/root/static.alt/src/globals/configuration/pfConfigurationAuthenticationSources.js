@@ -7,13 +7,13 @@ import pfFormFields from '@/components/pfFormFields'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormPassword from '@/components/pfFormPassword'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
-import pfFormSelect from '@/components/pfFormSelect'
 import pfFormTextarea from '@/components/pfFormTextarea'
 import {
   pfConfigurationActions,
   pfConfigurationConditions,
   pfConfigurationListColumns,
   pfConfigurationListFields,
+  pfConfigurationAttributesFromMeta,
   pfConfigurationValidatorsFromMeta
 } from '@/globals/configuration/pfConfiguration'
 import {
@@ -90,7 +90,7 @@ export const pfConfigurationAuthenticationSourceListConfig = (context = {}) => {
 }
 
 export const pfConfigurationAuthenticationSourceFields = {
-  id: ({ isNew = false, isClone = false, options: { meta = {}, placeholders = {} } } = {}) => {
+  id: ({ isNew = false, isClone = false, options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Name'),
       fields: [
@@ -98,13 +98,14 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'id',
           component: pfFormInput,
           attrs: {
-            disabled: (!isNew && !isClone),
-            placeholder: i18n.t(placeholders.id)
+            ...pfConfigurationAttributesFromMeta(meta, 'id'),
+            ...{
+              disabled: (!isNew && !isClone)
+            }
           },
           validators: {
-            ...pfConfigurationValidatorsFromMeta(meta.id, 'Name'),
-            ...{ // TODO: remove once meta is available for `id`
-              [i18n.t('Name required.')]: required,
+            ...pfConfigurationValidatorsFromMeta(meta, 'id', 'Name'),
+            ...{
               [i18n.t('Source exists.')]: not(and(required, conditional(isNew || isClone), hasSources, sourceExists))
             }
           }
@@ -112,7 +113,7 @@ export const pfConfigurationAuthenticationSourceFields = {
       ]
     }
   },
-  access_scope: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  access_scope: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Scope'),
       text: i18n.t('The permissions the application requests.'),
@@ -120,45 +121,39 @@ export const pfConfigurationAuthenticationSourceFields = {
         {
           key: 'scope',
           component: pfFormInput,
-          attrs: {
-            placeholder: i18n.t(placeholders.access_scope)
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.scope, 'Scope')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'scope'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'scope', 'Scope')
         }
       ]
     }
   },
-  access_token_param: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  access_token_param: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Access Token Parameter'),
       fields: [
         {
           key: 'access_token_param',
           component: pfFormInput,
-          attrs: {
-            placeholder: i18n.t(placeholders.access_token_param)
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.access_token_param, 'Parameter')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'access_token_param'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'access_token_param', 'Parameter')
         }
       ]
     }
   },
-  access_token_path: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  access_token_path: ({ options: { meta = {} } } = {}) => {
     return {
       label: null, // multiple occurances w/ different strings, nullify for overload
       fields: [
         {
           key: 'access_token_path',
           component: pfFormInput,
-          attrs: {
-            placeholder: i18n.t(placeholders.access_token_path)
-          },
+          attrs: pfConfigurationAttributesFromMeta(meta, 'access_token_path'),
           validators: pfConfigurationValidatorsFromMeta(meta.access_token_path)
         }
       ]
     }
   },
-  account_sid: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  account_sid: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Account SID'),
       text: i18n.t('Twilio Account SID'),
@@ -166,15 +161,13 @@ export const pfConfigurationAuthenticationSourceFields = {
         {
           key: 'account_sid',
           component: pfFormInput,
-          attrs: {
-            placeholder: i18n.t(placeholders.account_sid)
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.account_sid, 'SID')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'account_sid'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'account_sid', 'SID')
         }
       ]
     }
   },
-  activation_domain: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  activation_domain: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Host in activation link'),
       text: i18n.t('Set this value if you want to change the hostname in the validation link. Changing this requires to restart haproxy to be fully effective.'),
@@ -182,15 +175,13 @@ export const pfConfigurationAuthenticationSourceFields = {
         {
           key: 'activation_domain',
           component: pfFormInput,
-          attrs: {
-            placeholder: i18n.t(placeholders.activation_domain)
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.activation_domain, 'Host')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'activation_domain'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'activation_domain', 'Host')
         }
       ]
     }
   },
-  administration_rules: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  administration_rules: ({ options: { meta = {} } } = {}) => {
     return {
       label: 'Administration Rules',
       fields: [
@@ -280,7 +271,7 @@ export const pfConfigurationAuthenticationSourceFields = {
       ]
     }
   },
-  allow_localdomain: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  allow_localdomain: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Allow Local Domain'),
       text: i18n.t('Accept self-registration with email address from the local domain'),
@@ -295,7 +286,7 @@ export const pfConfigurationAuthenticationSourceFields = {
       ]
     }
   },
-  api_key: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  api_key: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('API Key'),
       text: i18n.t('Kickbox.io API key.'),
@@ -303,60 +294,52 @@ export const pfConfigurationAuthenticationSourceFields = {
         {
           key: 'api_key',
           component: pfFormInput,
-          attrs: {
-            placeholder: i18n.t(placeholders.api_key)
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.api_key, 'Key')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'api_key'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'api_key', 'Key')
         }
       ]
     }
   },
-  api_login_id: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  api_login_id: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('API login ID'),
       fields: [
         {
           key: 'api_login_id',
           component: pfFormInput,
-          attrs: {
-            placeholder: i18n.t(placeholders.api_login_id)
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.api_login_id, 'ID')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'api_login_id'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'api_login_id', 'ID')
         }
       ]
     }
   },
-  api_username: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  api_username: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('API username (basic auth)'),
       fields: [
         {
           key: 'username',
           component: pfFormInput,
-          attrs: {
-            placeholder: i18n.t(placeholders.username)
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.username, 'Username')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'username'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'username', 'Username')
         }
       ]
     }
   },
-  api_password: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  api_password: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('API password (basic auth)'),
       fields: [
         {
           key: 'password',
           component: pfFormPassword,
-          attrs: {
-            placeholder: i18n.t(placeholders.password)
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.password, 'Password')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'password'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'password', 'Password')
         }
       ]
     }
   },
-  auth_listening_port: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  auth_listening_port: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Authentication listening port'),
       text: i18n.t('PacketFence Eduroam RADIUS virtual server authentication listening port'),
@@ -364,16 +347,13 @@ export const pfConfigurationAuthenticationSourceFields = {
         {
           key: 'auth_listening_port',
           component: pfFormInput,
-          attrs: {
-            type: 'number',
-            placeholder: i18n.t(placeholders.auth_listening_port)
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.auth_listening_port, 'Port')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'auth_listening_port'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'auth_listening_port', 'Port')
         }
       ]
     }
   },
-  auth_token: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  auth_token: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Auth Token'),
       text: i18n.t('Twilio Auth Token'),
@@ -381,30 +361,26 @@ export const pfConfigurationAuthenticationSourceFields = {
         {
           key: 'auth_token',
           component: pfFormInput,
-          attrs: {
-            placeholder: i18n.t(placeholders.auth_token)
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.auth_token, 'Token')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'auth_token'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'auth_token', 'Token')
         }
       ]
     }
   },
-  authenticate_realm: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  authenticate_realm: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Realm to use to authenticate'),
       fields: [
         {
           key: 'authenticate_realm',
           component: pfFormInput,
-          attrs: {
-            placeholder: i18n.t(placeholders.authenticate_realm)
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.authenticate_realm, 'Realm')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'authenticate_realm'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'authenticate_realm', 'Realm')
         }
       ]
     }
   },
-  authentication_rules: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  authentication_rules: ({ options: { meta = {} } } = {}) => {
     return {
       label: 'Authentication Rules',
       fields: [
@@ -496,7 +472,7 @@ export const pfConfigurationAuthenticationSourceFields = {
       ]
     }
   },
-  authentication_url: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  authentication_url: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Authentication URL'),
       text: i18n.t('Note : The URL is always prefixed by a slash (/)'),
@@ -504,15 +480,13 @@ export const pfConfigurationAuthenticationSourceFields = {
         {
           key: 'authentication_url',
           component: pfFormInput,
-          attrs: {
-            placeholder: i18n.t(placeholders.authentication_url)
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.authentication_url, 'URL')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'authentication_url'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'authentication_url', 'URL')
         }
       ]
     }
   },
-  authorization_source_id: ({ options: { allowed = {}, meta = {}, placeholders = {} } } = {}) => {
+  authorization_source_id: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Authorization source'),
       text: i18n.t('The source to use for authorization (rule matching)'),
@@ -520,34 +494,26 @@ export const pfConfigurationAuthenticationSourceFields = {
         {
           key: 'authorization_source_id',
           component: pfFormChosen,
-          attrs: {
-            placeholder: i18n.t(placeholders.authorization_source_id),
-            collapseObject: true,
-            trackBy: 'value',
-            label: 'label',
-            options: allowed.authorization_source_id
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.authorization_source_id, 'Source')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'authorization_source_id'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'authorization_source_id', 'Source')
         }
       ]
     }
   },
-  authorize_path: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  authorize_path: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('API Authorize Path'),
       fields: [
         {
           key: 'authorize_path',
           component: pfFormInput,
-          attrs: {
-            placeholder: i18n.t(placeholders.authorize_path)
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.authorize_path, 'Path')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'authorize_path'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'authorize_path', 'Path')
         }
       ]
     }
   },
-  authorization_url: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  authorization_url: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Authorization URL'),
       text: i18n.t('Note : The URL is always prefixed by a slash (/)'),
@@ -555,49 +521,39 @@ export const pfConfigurationAuthenticationSourceFields = {
         {
           key: 'authorization_url',
           component: pfFormInput,
-          attrs: {
-            placeholder: i18n.t(placeholders.authorization_url)
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.authorization_url, 'URL')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'authorization_url'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'authorization_url', 'URL')
         }
       ]
     }
   },
-  base_url: ({ options: { allowed = {}, meta = {}, placeholders = {} } } = {}) => {
+  base_url: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Iframe Base URL'),
       fields: [
         {
           key: 'base_url',
           component: pfFormChosen,
-          attrs: {
-            collapseObject: true,
-            placeholder: i18n.t(placeholders.base_url),
-            trackBy: 'value',
-            label: 'label',
-            options: allowed.base_url
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.base_url, 'URL')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'base_url'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'base_url', 'URL')
         }
       ]
     }
   },
-  basedn: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  basedn: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Base DN'),
       fields: [
         {
           key: 'basedn',
           component: pfFormInput,
-          attrs: {
-            placeholder: i18n.t(placeholders.basedn)
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.basedn, 'Base DN')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'basedn'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'basedn', 'Base DN')
         }
       ]
     }
   },
-  binddn: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  binddn: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Bind DN'),
       text: i18n.t('Leave this field empty if you want to perform an anonymous bind.'),
@@ -605,15 +561,13 @@ export const pfConfigurationAuthenticationSourceFields = {
         {
           key: 'binddn',
           component: pfFormInput,
-          attrs: {
-            placeholder: i18n.t(placeholders.binddn)
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.bindnd, 'Bind DN')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'binddn'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'bindnd', 'Bind DN')
         }
       ]
     }
   },
-  cache_match: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  cache_match: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Cache match'),
       text: i18n.t('Will cache results of matching a rule'),
@@ -628,7 +582,7 @@ export const pfConfigurationAuthenticationSourceFields = {
       ]
     }
   },
-  cert_file: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  cert_file: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Cert file'),
       text: i18n.t('The path to the certificate you submitted to Paypal.'),
@@ -636,60 +590,52 @@ export const pfConfigurationAuthenticationSourceFields = {
         {
           key: 'cert_file',
           component: pfFormInput,
-          attrs: {
-            placeholder: i18n.t(placeholders.cert_file)
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.cert_file, 'File')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'cert_file'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'cert_file', 'File')
         }
       ]
     }
   },
-  cert_id: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  cert_id: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Cert ID'),
       fields: [
         {
           key: 'cert_id',
           component: pfFormInput,
-          attrs: {
-            placeholder: i18n.t(placeholders.cert_id)
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.cert_id, 'ID')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'cert_id'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'cert_id', 'ID')
         }
       ]
     }
   },
-  client_id: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  client_id: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('App ID'),
       fields: [
         {
           key: 'client_id',
           component: pfFormInput,
-          attrs: {
-            placeholder: i18n.t(placeholders.client_id)
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.client_id, 'ID')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'client_id'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'client_id', 'ID')
         }
       ]
     }
   },
-  client_secret: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  client_secret: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('App Secret'),
       fields: [
         {
           key: 'client_secret',
           component: pfFormInput,
-          attrs: {
-            placeholder: i18n.t(placeholders.client_secret)
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.client_secret, 'Secret')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'client_secret'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'client_secret', 'Secret')
         }
       ]
     }
   },
-  connection_timeout: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  connection_timeout: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Connection timeout'),
       text: i18n.t('LDAP connection Timeout'),
@@ -697,16 +643,13 @@ export const pfConfigurationAuthenticationSourceFields = {
         {
           key: 'connection_timeout',
           component: pfFormInput,
-          attrs: {
-            type: 'number',
-            placeholder: i18n.t(placeholders.connection_timeout)
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.connection_timeout, 'Timeout')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'connection_timeout'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'connection_timeout', 'Timeout')
         }
       ]
     }
   },
-  create_local_account: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  create_local_account: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Create Local Account'),
       text: i18n.t('Create a local account on the PacketFence system based on the username provided.'),
@@ -721,56 +664,46 @@ export const pfConfigurationAuthenticationSourceFields = {
       ]
     }
   },
-  currency: ({ options: { allowed = {}, meta = {}, placeholders = {} } } = {}) => {
+  currency: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Currency'),
       fields: [
         {
           key: 'currency',
           component: pfFormChosen,
-          attrs: {
-            collapseObject: true,
-            placeholder: i18n.t(placeholders.currency),
-            trackBy: 'value',
-            label: 'label',
-            options: allowed.currency
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.currency, 'Currency')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'currency'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'currency', 'Currency')
         }
       ]
     }
   },
-  description: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  description: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Description'),
       fields: [
         {
           key: 'description',
           component: pfFormInput,
-          attrs: {
-            placeholder: i18n.t(placeholders.description)
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.description, 'Description')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'description'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'description', 'Description')
         }
       ]
     }
   },
-  direct_base_url: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  direct_base_url: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Direct Base url'),
       fields: [
         {
           key: 'direct_base_url',
           component: pfFormInput,
-          attrs: {
-            placeholder: i18n.t(placeholders.direct_base_url)
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.direct_base_url, 'URL')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'direct_base_url'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'direct_base_url', 'URL')
         }
       ]
     }
   },
-  domains: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  domains: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Authorized domains'),
       text: i18n.t('Comma separated list of domains that will be resolve with the correct IP addresses.'),
@@ -778,15 +711,13 @@ export const pfConfigurationAuthenticationSourceFields = {
         {
           key: 'domains',
           component: pfFormInput,
-          attrs: {
-            placeholder: i18n.t(placeholders.domain)
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.domains, 'Domains')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'domains'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'domains', 'Domains')
         }
       ]
     }
   },
-  email_activation_timeout: ({ options: { allowed = {}, meta = {}, placeholders = {} } } = {}) => {
+  email_activation_timeout: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Email Activation Timeout'),
       text: null, // multiple occurances w/ different strings, nullify for overload
@@ -794,38 +725,19 @@ export const pfConfigurationAuthenticationSourceFields = {
         {
           key: 'email_activation_timeout.interval',
           component: pfFormInput,
-          attrs: {
-            type: 'number',
-            placeholder: ('email_activation_timeout' in placeholders)
-              ? i18n.t(placeholders.email_activation_timeout.interval)
-              : ''
-          },
-          validators: ('email_activation_timeout' in meta)
-            ? pfConfigurationValidatorsFromMeta(meta.email_activation_timeout.interval, 'Interval')
-            : {}
+          attrs: pfConfigurationAttributesFromMeta(meta, 'email_activation_timeout.interval'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'email_activation_timeout.interval', 'Interval')
         },
         {
           key: 'email_activation_timeout.unit',
           component: pfFormChosen,
-          attrs: {
-            collapseObject: true,
-            placeholder: ('email_activation_timeout' in placeholders)
-              ? i18n.t(placeholders.email_activation_timeout.unit)
-              : '',
-            trackBy: 'value',
-            label: 'label',
-            options: ('email_activation_timeout' in allowed)
-              ? allowed.email_activation_timeout.unit
-              : []
-          },
-          validators: ('email_activation_timeout' in meta)
-            ? pfConfigurationValidatorsFromMeta(meta.email_activation_timeout.unit, 'Unit')
-            : {}
+          attrs: pfConfigurationAttributesFromMeta(meta, 'email_activation_timeout.unit'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'email_activation_timeout.unit', 'Unit')
         }
       ]
     }
   },
-  email_address: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  email_address: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Email address'),
       text: i18n.t('The email address associated to your paypal account.'),
@@ -833,15 +745,13 @@ export const pfConfigurationAuthenticationSourceFields = {
         {
           key: 'email_address',
           component: pfFormInput,
-          attrs: {
-            placeholder: i18n.t(placeholders.email_address)
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.email_address, 'Email')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'email_address'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'email_address', 'Email')
         }
       ]
     }
   },
-  email_attribute: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  email_attribute: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Email Attribute'),
       text: i18n.t('LDAP attribute name that stores the email address against which the filter will match.'),
@@ -849,15 +759,13 @@ export const pfConfigurationAuthenticationSourceFields = {
         {
           key: 'email_attribute',
           component: pfFormInput,
-          attrs: {
-            placeholder: i18n.t(placeholders.email_attribute)
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.email_attribute, 'Attribute')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'email_attribute'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'email_attribute', 'Attribute')
         }
       ]
     }
   },
-  email_required: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  email_required: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Email required'),
       fields: [
@@ -871,22 +779,33 @@ export const pfConfigurationAuthenticationSourceFields = {
       ]
     }
   },
-  group_header: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  group_header: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Group header '),
       fields: [
         {
           key: 'group_header',
           component: pfFormInput,
-          attrs: {
-            placeholder: i18n.t(placeholders.group_header)
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.group_header, 'Header')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'group_header'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'group_header', 'Header')
         }
       ]
     }
   },
-  host: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  host: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Host'),
+      fields: [
+        {
+          key: 'host',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'host'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'host', 'Host')
+        }
+      ]
+    }
+  },
+  host_port_encryption: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Host'),
       fields: [
@@ -894,25 +813,12 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'host',
           component: pfFormInput,
           attrs: {
-            placeholder: i18n.t(placeholders.host)
+            ...pfConfigurationAttributesFromMeta(meta, 'host'),
+            ...{
+              class: 'col-sm-4'
+            }
           },
-          validators: pfConfigurationValidatorsFromMeta(meta.host, 'Host')
-        }
-      ]
-    }
-  },
-  host_port_encryption: ({ options: { allowed = {}, meta = {}, placeholders = {} } } = {}) => {
-    return {
-      label: i18n.t('Host'),
-      fields: [
-        {
-          key: 'host',
-          component: pfFormInput,
-          attrs: {
-            class: 'col-sm-4',
-            placeholder: i18n.t(placeholders.host)
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.host, 'Host')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'host', 'Host')
         },
         {
           text: ':',
@@ -922,43 +828,36 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'port',
           component: pfFormInput,
           attrs: {
-            class: 'col-sm-1',
-            type: 'number',
-            placeholder: i18n.t(placeholders.port)
+            ...pfConfigurationAttributesFromMeta(meta, 'port'),
+            ...{
+              class: 'col-sm-1'
+            }
           },
-          validators: pfConfigurationValidatorsFromMeta(meta.port, 'Port')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'port', 'Port')
         },
         {
           key: 'encryption',
           component: pfFormChosen,
-          attrs: {
-            collapseObject: true,
-            placeholder: i18n.t(placeholders.encryption),
-            trackBy: 'value',
-            label: 'label',
-            options: allowed.encryption
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.encryption, 'Encryption')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'encryption'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'encryption', 'Encryption')
         }
       ]
     }
   },
-  identity_token: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  identity_token: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Identity token'),
       fields: [
         {
           key: 'identity_token',
           component: pfFormInput,
-          attrs: {
-            placeholder: i18n.t(placeholders.identity_token)
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.identity_token, 'Token')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'identity_token'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'identity_token', 'Token')
         }
       ]
     }
   },
-  idp_ca_cert_path: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  idp_ca_cert_path: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Path to Identity Provider CA cert (x509)'),
       text: i18n.t('If your Identity Provider uses a self-signed certificate, put the path to its certificate here instead.'),
@@ -966,60 +865,52 @@ export const pfConfigurationAuthenticationSourceFields = {
         {
           key: 'idp_ca_cert_path',
           component: pfFormInput,
-          attrs: {
-            placeholder: i18n.t(placeholders.idp_ca_cert_path)
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.idp_ca_cert_path, 'Path')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'idp_ca_cert_path'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'idp_ca_cert_path', 'Path')
         }
       ]
     }
   },
-  idp_cert_path: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  idp_cert_path: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Path to Identity Provider cert (x509)'),
       fields: [
         {
           key: 'idp_cert_path',
           component: pfFormInput,
-          attrs: {
-            placeholder: i18n.t(placeholders.idp_cert_path)
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.idp_cert_path, 'Path')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'idp_cert_path'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'idp_cert_path', 'Path')
         }
       ]
     }
   },
-  idp_entity_id: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  idp_entity_id: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Identity Provider entity ID'),
       fields: [
         {
           key: 'idp_entity_id',
           component: pfFormInput,
-          attrs: {
-            placeholder: i18n.t(placeholders.idp_entity_id)
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.idp_entity_id, 'ID')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'idp_entity_id'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'idp_entity_id', 'ID')
         }
       ]
     }
   },
-  idp_metadata_path: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  idp_metadata_path: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Path to Identity Provider metadata'),
       fields: [
         {
           key: 'idp_metadata_path',
           component: pfFormInput,
-          attrs: {
-            placeholder: i18n.t(placeholders.idp_metadata_path)
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.idp_metadata_path, 'Path')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'idp_metadata_path'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'idp_metadata_path', 'Path')
         }
       ]
     }
   },
-  key_file: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  key_file: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Key file'),
       text: i18n.t('The path to the associated key of the certificate you submitted to Paypal.'),
@@ -1027,15 +918,13 @@ export const pfConfigurationAuthenticationSourceFields = {
         {
           key: 'key_file',
           component: pfFormInput,
-          attrs: {
-            placeholder: i18n.t(placeholders.key_file)
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.key_file, 'File')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'key_file'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'key_file', 'File')
         }
       ]
     }
   },
-  local_account_logins: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  local_account_logins: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Amount of logins for the local account'),
       text: i18n.t('The amount of times, the local account can be used after its created. 0 means infinite.'),
@@ -1043,16 +932,13 @@ export const pfConfigurationAuthenticationSourceFields = {
         {
           key: 'local_account_logins',
           component: pfFormInput,
-          attrs: {
-            type: 'number',
-            placeholder: i18n.t(placeholders.local_account_logins)
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.local_account_logins, 'Logins')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'local_account_logins'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'local_account_logins', 'Logins')
         }
       ]
     }
   },
-  local_realm: ({ options: { allowed = {}, meta = {}, placeholders = {} } } = {}) => {
+  local_realm: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Local Realms'),
       text: i18n.t('Realms that will be authenticate locally'),
@@ -1060,37 +946,26 @@ export const pfConfigurationAuthenticationSourceFields = {
         {
           key: 'local_realm',
           component: pfFormChosen,
-          attrs: {
-            collapseObject: true,
-            placeholder: i18n.t(placeholders.local_realm),
-            trackBy: 'value',
-            label: 'label',
-            multiple: true,
-            clearOnSelect: false,
-            closeOnSelect: false,
-            options: allowed.local_realm
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.local_realm, 'Realms')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'local_realm'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'local_realm', 'Realms')
         }
       ]
     }
   },
-  merchant_id: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  merchant_id: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Merchant ID'),
       fields: [
         {
           key: 'merchant_id',
           component: pfFormInput,
-          attrs: {
-            placeholder: i18n.t(placeholders.merchant_id)
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.merchant_id, 'ID')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'merchant_id'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'merchant_id', 'ID')
         }
       ]
     }
   },
-  message: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  message: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('SMS text message ($pin will be replaced by the PIN number)'),
       fields: [
@@ -1098,15 +973,17 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'message',
           component: pfFormTextarea,
           attrs: {
-            rows: 5,
-            placeholder: i18n.t(placeholders.message)
+            ...pfConfigurationAttributesFromMeta(meta, 'message'),
+            ...{
+              rows: 5
+            }
           },
-          validators: pfConfigurationValidatorsFromMeta(meta.message, 'Message')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'message', 'Message')
         }
       ]
     }
   },
-  monitor: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  monitor: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Monitor'),
       text: i18n.t('Do you want to monitor this source?'),
@@ -1121,7 +998,7 @@ export const pfConfigurationAuthenticationSourceFields = {
       ]
     }
   },
-  password: ({ $store = {}, form = {}, options: { meta = {}, placeholders = {} } } = {}) => {
+  password: ({ $store = {}, form = {}, options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Password'),
       fields: [
@@ -1129,21 +1006,23 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'password',
           component: pfFormPassword,
           attrs: {
-            test: () => {
-              return $store.dispatch('$_sources/testAuthenticationSource', form).then(response => {
-                return response
-              }).catch(err => {
-                throw err
-              })
-            },
-            placeholder: i18n.t(placeholders.password)
+            ...pfConfigurationAttributesFromMeta(meta, 'password'),
+            ...{
+              test: () => {
+                return $store.dispatch('$_sources/testAuthenticationSource', form).then(response => {
+                  return response
+                }).catch(err => {
+                  throw err
+                })
+              }
+            }
           },
-          validators: pfConfigurationValidatorsFromMeta(meta.password, 'Password')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'password', 'Password')
         }
       ]
     }
   },
-  password_email_update: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  password_email_update: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Email'),
       text: i18n.t('Email addresses to send the new generated password.'),
@@ -1151,31 +1030,27 @@ export const pfConfigurationAuthenticationSourceFields = {
         {
           key: 'password_email_update',
           component: pfFormInput,
-          attrs: {
-            placeholder: i18n.t(placeholders.password_email_update)
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.password_email_update, 'Email')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'password_email_update'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'password_email_update', 'Email')
         }
       ]
     }
   },
-  password_length: ({ options: { allowed = {}, meta = {}, placeholders = {} } } = {}) => {
+  password_length: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Password length '),
       text: i18n.t('The length of the password to generate.'),
       fields: [
         {
           key: 'password_length',
-          component: pfFormSelect,
-          attrs: {
-            options: Array(15).fill().map((_, i) => { return { value: i + 1, text: i + 1 } })
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.password_length, 'Length')
+          component: pfFormChosen,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'password_length'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'password_length', 'Length')
         }
       ]
     }
   },
-  password_rotation: ({ options: { allowed = {}, meta = {}, placeholders = {} } } = {}) => {
+  password_rotation: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Password Rotation Period'),
       text: i18n.t('Period of time after the password must be rotated.'),
@@ -1183,72 +1058,45 @@ export const pfConfigurationAuthenticationSourceFields = {
         {
           key: 'password_rotation.interval',
           component: pfFormInput,
-          attrs: {
-            type: 'number',
-            placeholder: ('password_rotation' in placeholders)
-              ? i18n.t(placeholders.password_rotation.interval)
-              : ''
-          },
-          validators: ('password_rotation' in meta)
-            ? pfConfigurationValidatorsFromMeta(meta.password_rotation.interval, 'Interval')
-            : {}
+          attrs: pfConfigurationAttributesFromMeta(meta, 'password_rotation.interval'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'password_rotation.interval', 'Interval')
         },
         {
           key: 'password_rotation.unit',
           component: pfFormChosen,
-          attrs: {
-            collapseObject: true,
-            placeholder: ('password_rotation' in placeholders)
-              ? i18n.t(placeholders.password_rotation.unit)
-              : '',
-            trackBy: 'value',
-            label: 'label',
-            options: ('password_rotation' in allowed)
-              ? allowed.password_rotation.unit
-              : []
-          },
-          validators: ('password_rotation' in meta)
-            ? pfConfigurationValidatorsFromMeta(meta.password_rotation.unit, 'Unit')
-            : {}
+          attrs: pfConfigurationAttributesFromMeta(meta, 'password_rotation.unit'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'password_rotation.unit', 'Unit')
         }
       ]
     }
   },
-  path: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  path: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('File Path'),
       fields: [
         {
           key: 'path',
           component: pfFormInput,
-          attrs: {
-            placeholder: i18n.t(placeholders.path)
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.path, 'Path')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'path'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'path', 'Path')
         }
       ]
     }
   },
-  payment_type: ({ options: { allowed = {}, meta = {}, placeholders = {} } } = {}) => {
+  payment_type: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Payment type'),
       fields: [
         {
           key: 'payment_type',
           component: pfFormChosen,
-          attrs: {
-            collapseObject: true,
-            placeholder: i18n.t(placeholders.payment_type),
-            trackBy: 'value',
-            label: 'label',
-            options: allowed.payment_type
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.payment_type, 'Type')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'payment_type'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'payment_type', 'Type')
         }
       ]
     }
   },
-  paypal_cert_file: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  paypal_cert_file: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Paypal cert file'),
       text: i18n.t('The path to the Paypal certificate you downloaded.'),
@@ -1256,15 +1104,13 @@ export const pfConfigurationAuthenticationSourceFields = {
         {
           key: 'paypal_cert_file',
           component: pfFormInput,
-          attrs: {
-            placeholder: i18n.t(placeholders.paypal_cert_file)
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.paypal_cert_file, 'File')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'paypal_cert_file'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'paypal_cert_file', 'File')
         }
       ]
     }
   },
-  pin_code_length: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  pin_code_length: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('PIN length'),
       text: i18n.t('The amount of digits of the PIN number.'),
@@ -1272,54 +1118,45 @@ export const pfConfigurationAuthenticationSourceFields = {
         {
           key: 'pin_code_length',
           component: pfFormInput,
-          attrs: {
-            type: 'number',
-            placeholder: i18n.t(placeholders.pin_code_length)
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.pin_code_length, 'Length')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'pin_code_length'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'pin_code_length', 'Length')
         }
       ]
     }
   },
-  protected_resource_url: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  protected_resource_url: ({ options: { meta = {} } } = {}) => {
     return {
       label: null, // multiple occurances w/ different strings, nullify for overload
       fields: [
         {
           key: 'protected_resource_url',
           component: pfFormInput,
-          attrs: {
-            placeholder: i18n.t(placeholders.protected_resource_url)
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.protected_resource_url, 'URL')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'protected_resource_url'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'protected_resource_url', 'URL')
         }
       ]
     }
   },
-  protocol_ip_port: ({ options: { allowed = {}, meta = {}, placeholders = {} } } = {}) => {
+  protocol_ip_port: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Host'),
       fields: [
         {
           key: 'protocol',
           component: pfFormChosen,
-          attrs: {
-            collapseObject: true,
-            placeholder: i18n.t(placeholders.protocol),
-            trackBy: 'value',
-            label: 'label',
-            options: allowed.protocol
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.protocol, 'Protocol')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'protocol'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'protocol', 'Protocol')
         },
         {
           key: 'ip',
           component: pfFormInput,
           attrs: {
-            class: 'col-sm-4',
-            placeholder: i18n.t(placeholders.ip)
+            ...pfConfigurationAttributesFromMeta(meta, 'ip'),
+            ...{
+              class: 'col-sm-4'
+            }
           },
-          validators: pfConfigurationValidatorsFromMeta(meta.ip, 'IP')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'ip', 'IP')
         },
         {
           text: ':',
@@ -1329,16 +1166,17 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'port',
           component: pfFormInput,
           attrs: {
-            class: 'col-sm-1',
-            type: 'number',
-            placeholder: i18n.t(placeholders.port)
+            ...pfConfigurationAttributesFromMeta(meta, 'port'),
+            ...{
+              class: 'col-sm-1'
+            }
           },
-          validators: pfConfigurationValidatorsFromMeta(meta.port, 'Port')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'port', 'Port')
         }
       ]
     }
   },
-  proxy_addresses: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  proxy_addresses: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Proxy addresses'),
       text: i18n.t('A comma seperated list of IP Address'),
@@ -1347,45 +1185,43 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'proxy_addresses',
           component: pfFormTextarea,
           attrs: {
-            rows: 5,
-            placeholder: i18n.t(placeholders.proxy_addresses)
+            ...pfConfigurationAttributesFromMeta(meta, 'proxy_addresses'),
+            ...{
+              rows: 5
+            }
           },
-          validators: pfConfigurationValidatorsFromMeta(meta.proxy_addresses, 'Addresses')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'proxy_addresses', 'Addresses')
         }
       ]
     }
   },
-  public_client_key: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  public_client_key: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Public Client Key'),
       fields: [
         {
           key: 'public_client_key',
           component: pfFormInput,
-          attrs: {
-            placeholder: i18n.t(placeholders.public_client_key)
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.public_client_key, 'Key')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'public_client_key'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'public_client_key', 'Key')
         }
       ]
     }
   },
-  publishable_key: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  publishable_key: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Publishable key'),
       fields: [
         {
           key: 'publishable_key',
           component: pfFormInput,
-          attrs: {
-            placeholder: i18n.t(placeholders.publishable_key)
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.publishable_key, 'Key')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'publishable_key'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'publishable_key', 'Key')
         }
       ]
     }
   },
-  radius_secret: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  radius_secret: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('RADIUS secret'),
       text: i18n.t('Eduroam RADIUS secret'),
@@ -1393,15 +1229,13 @@ export const pfConfigurationAuthenticationSourceFields = {
         {
           key: 'radius_secret',
           component: pfFormInput,
-          attrs: {
-            placeholder: i18n.t(placeholders.radius_secret)
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.radius_secret, 'Secret')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'radius_secret'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'radius_secret', 'Secret')
         }
       ]
     }
   },
-  read_timeout: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  read_timeout: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Response timeout'),
       text: i18n.t('LDAP response timeout'),
@@ -1409,16 +1243,13 @@ export const pfConfigurationAuthenticationSourceFields = {
         {
           key: 'read_timeout',
           component: pfFormInput,
-          attrs: {
-            type: 'number',
-            placeholder: i18n.t(placeholders.read_timeout)
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.read_timeout, 'Timeout')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'read_timeout'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'read_timeout', 'Timeout')
         }
       ]
     }
   },
-  realms: ({ options: { allowed = {}, meta = {}, placeholders = {} } } = {}) => {
+  realms: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Associated Realms'),
       text: i18n.t('Realms that will be associated with this source'),
@@ -1426,22 +1257,13 @@ export const pfConfigurationAuthenticationSourceFields = {
         {
           key: 'realms',
           component: pfFormChosen,
-          attrs: {
-            collapseObject: true,
-            placeholder: i18n.t(placeholders.realms),
-            trackBy: 'value',
-            label: 'label',
-            multiple: true,
-            clearOnSelect: false,
-            closeOnSelect: false,
-            options: allowed.realms
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.realms, 'Realms')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'realms'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'realms', 'Realms')
         }
       ]
     }
   },
-  redirect_url: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  redirect_url: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Portal URL'),
       text: i18n.t('The hostname must be the one of your captive portal.'),
@@ -1449,15 +1271,13 @@ export const pfConfigurationAuthenticationSourceFields = {
         {
           key: 'redirect_url',
           component: pfFormInput,
-          attrs: {
-            placeholder: i18n.t(placeholders.redirect_url)
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.redirect_url, 'URL')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'redirect_url'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'redirect_url', 'URL')
         }
       ]
     }
   },
-  reject_realm: ({ options: { allowed = {}, meta = {}, placeholders = {} } } = {}) => {
+  reject_realm: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Reject Realms'),
       text: i18n.t('Realms that will be rejected'),
@@ -1465,71 +1285,52 @@ export const pfConfigurationAuthenticationSourceFields = {
         {
           key: 'reject_realm',
           component: pfFormChosen,
-          attrs: {
-            collapseObject: true,
-            placeholder: i18n.t(placeholders.reject_realm),
-            trackBy: 'value',
-            label: 'label',
-            multiple: true,
-            clearOnSelect: false,
-            closeOnSelect: false,
-            options: allowed.reject_realm
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.reject_realm, 'Realms')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'reject_realm'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'reject_realm', 'Realms')
         }
       ]
     }
   },
-  scope: ({ options: { allowed = {}, meta = {}, placeholders = {} } } = {}) => {
+  scope: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Scope'),
       fields: [
         {
           key: 'scope',
           component: pfFormChosen,
-          attrs: {
-            collapseObject: true,
-            placeholder: i18n.t(placeholders.scope),
-            trackBy: 'value',
-            label: 'label',
-            options: allowed.scope
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.scope, 'Scope')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'scope'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'scope', 'Scope')
         }
       ]
     }
   },
-  secret: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  secret: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Secret'),
       fields: [
         {
           key: 'secret',
           component: pfFormPassword,
-          attrs: {
-            placeholder: i18n.t(placeholders.secret)
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.secret, 'Secret')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'secret'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'secret', 'Secret')
         }
       ]
     }
   },
-  secret_key: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  secret_key: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Secret key'),
       fields: [
         {
           key: 'secret_key',
           component: pfFormInput,
-          attrs: {
-            placeholder: i18n.t(placeholders.secret_key)
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.secret_key, 'Key')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'secret_key'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'secret_key', 'Key')
         }
       ]
     }
   },
-  send_email_confirmation: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  send_email_confirmation: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Send billing confirmation'),
       fields: [
@@ -1543,7 +1344,7 @@ export const pfConfigurationAuthenticationSourceFields = {
       ]
     }
   },
-  server1_address: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  server1_address: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Server 1 address'),
       text: i18n.t('Eduroam server 1 address'),
@@ -1551,31 +1352,26 @@ export const pfConfigurationAuthenticationSourceFields = {
         {
           key: 'server1_address',
           component: pfFormInput,
-          attrs: {
-            placeholder: i18n.t(placeholders.server1_address)
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.server1_address, 'Address')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'server1_address'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'server1_address', 'Address')
         }
       ]
     }
   },
-  server1_port: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  server1_port: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Eduroam server 1 port'),
       fields: [
         {
           key: 'server1_port',
           component: pfFormInput,
-          attrs: {
-            type: 'number',
-            placeholder: i18n.t(placeholders.server1_port)
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.server1_port, 'Port')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'server1_port'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'server1_port', 'Port')
         }
       ]
     }
   },
-  server2_address: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  server2_address: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Server 2 address'),
       text: i18n.t('Eduroam server 1 address'),
@@ -1583,46 +1379,39 @@ export const pfConfigurationAuthenticationSourceFields = {
         {
           key: 'server2_address',
           component: pfFormInput,
-          attrs: {
-            placeholder: i18n.t(placeholders.server2_address)
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.server2_address, 'Address')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'server2_address'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'server2_address', 'Address')
         }
       ]
     }
   },
-  server2_port: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  server2_port: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Eduroam server 2 port'),
       fields: [
         {
           key: 'server2_port',
           component: pfFormInput,
-          attrs: {
-            type: 'number',
-            placeholder: i18n.t(placeholders.server2_port)
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.server2_port, 'Port')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'server2_port'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'server2_port', 'Port')
         }
       ]
     }
   },
-  service_fqdn: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  service_fqdn: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Service FQDN'),
       fields: [
         {
           key: 'service_fqdn',
           component: pfFormInput,
-          attrs: {
-            placeholder: i18n.t(placeholders.service_fqdn)
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.service_fqdn, 'FQDN')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'service_fqdn'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'service_fqdn', 'FQDN')
         }
       ]
     }
   },
-  shared_secret: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  shared_secret: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Shared Secret'),
       text: i18n.t('MKEY for the iframe'),
@@ -1630,15 +1419,13 @@ export const pfConfigurationAuthenticationSourceFields = {
         {
           key: 'shared_secret',
           component: pfFormInput,
-          attrs: {
-            placeholder: i18n.t(placeholders.shared_secret)
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.shared_secret, 'Secret')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'shared_secret'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'shared_secret', 'Secret')
         }
       ]
     }
   },
-  shared_secret_direct: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  shared_secret_direct: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Shared Secret Direct'),
       text: i18n.t('MKEY for Mirapay Direct'),
@@ -1646,15 +1433,13 @@ export const pfConfigurationAuthenticationSourceFields = {
         {
           key: 'shared_secret_direct',
           component: pfFormInput,
-          attrs: {
-            placeholder: i18n.t(placeholders.shared_secret_direct)
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.shared_secret_direct, 'Secret')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'shared_secret_direct'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'shared_secret_direct', 'Secret')
         }
       ]
     }
   },
-  shuffle: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  shuffle: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Shuffle'),
       text: i18n.t('Randomly choose LDAP server to query'),
@@ -1669,22 +1454,20 @@ export const pfConfigurationAuthenticationSourceFields = {
       ]
     }
   },
-  site: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  site: ({ options: { meta = {} } } = {}) => {
     return {
       label: null, // multiple occurances w/ different strings, nullify for overload
       fields: [
         {
           key: 'site',
           component: pfFormInput,
-          attrs: {
-            placeholder: i18n.t(placeholders.site)
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.site, 'URL')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'site'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'site', 'URL')
         }
       ]
     }
   },
-  sms_activation_timeout: ({ options: { allowed = {}, meta = {}, placeholders = {} } } = {}) => {
+  sms_activation_timeout: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('SMS Activation Timeout '),
       text: i18n.t('This is the delay given to a guest who registered by SMS confirmation to fill the PIN code.'),
@@ -1692,38 +1475,19 @@ export const pfConfigurationAuthenticationSourceFields = {
         {
           key: 'sms_activation_timeout.interval',
           component: pfFormInput,
-          attrs: {
-            type: 'number',
-            placeholder: ('sms_activation_timeout' in placeholders)
-              ? i18n.t(placeholders.sms_activation_timeout.interval)
-              : ''
-          },
-          validators: ('sms_activation_timeout' in meta)
-            ? pfConfigurationValidatorsFromMeta(meta.sms_activation_timeout.interval, 'Interval')
-            : {}
+          attrs: pfConfigurationAttributesFromMeta(meta, 'sms_activation_timeout.interval'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'sms_activation_timeout.interval')
         },
         {
           key: 'sms_activation_timeout.unit',
           component: pfFormChosen,
-          attrs: {
-            collapseObject: true,
-            placeholder: ('sms_activation_timeout' in placeholders)
-              ? i18n.t(placeholders.sms_activation_timeout.unit)
-              : '',
-            trackBy: 'value',
-            label: 'label',
-            options: ('sms_activation_timeout' in allowed)
-              ? allowed.sms_activation_timeout.unit
-              : []
-          },
-          validators: ('sms_activation_timeout' in meta)
-            ? pfConfigurationValidatorsFromMeta(meta.sms_activation_timeout.unit, 'Unit')
-            : {}
+          attrs: pfConfigurationAttributesFromMeta(meta, 'sms_activation_timeout.unit'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'sms_activation_timeout.unit', 'Unit')
         }
       ]
     }
   },
-  sms_carriers: ({ options: { allowed = {}, meta = {}, placeholders = {} } } = {}) => {
+  sms_carriers: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('SMS Carriers'),
       text: i18n.t('List of phone carriers available to the user'),
@@ -1731,52 +1495,39 @@ export const pfConfigurationAuthenticationSourceFields = {
         {
           key: 'sms_carriers',
           component: pfFormChosen,
-          attrs: {
-            collapseObject: true,
-            placeholder: i18n.t(placeholders.sms_carriers),
-            trackBy: 'value',
-            label: 'label',
-            multiple: true,
-            clearOnSelect: false,
-            closeOnSelect: false,
-            options: allowed.sms_carriers
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.sms_carriers, 'Carriers')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'sms_carriers'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'sms_carriers', 'Carriers')
         }
       ]
     }
   },
-  sp_entity_id: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  sp_entity_id: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Service Provider entity ID'),
       fields: [
         {
           key: 'sp_entity_id',
           component: pfFormInput,
-          attrs: {
-            placeholder: i18n.t(placeholders.sp_entity_id)
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.sp_entity_id, 'ID')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'sp_entity_id'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'sp_entity_id', 'ID')
         }
       ]
     }
   },
-  sp_key_path: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  sp_key_path: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Path to Service Provider key (x509)'),
       fields: [
         {
           key: 'sp_key_path',
           component: pfFormInput,
-          attrs: {
-            placeholder: i18n.t(placeholders.sp_key_path)
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.sp_key_path, 'Path')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'sp_key_path'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'sp_key_path', 'Path')
         }
       ]
     }
   },
-  sponsorship_bcc: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  sponsorship_bcc: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Sponsorship BCC'),
       text: i18n.t('Sponsors requesting access and access confirmation emails are BCC\'ed to this address. Multiple destinations can be comma separated.'),
@@ -1784,34 +1535,26 @@ export const pfConfigurationAuthenticationSourceFields = {
         {
           key: 'sponsorship_bcc',
           component: pfFormInput,
-          attrs: {
-            placeholder: i18n.t(placeholders.sponsorship_bcc)
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.sponsorship_bcc, 'BCC')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'sponsorship_bcc'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'sponsorship_bcc', 'BCC')
         }
       ]
     }
   },
-  style: ({ options: { allowed = {}, meta = {}, placeholders = {} } } = {}) => {
+  style: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Style'),
       fields: [
         {
           key: 'style',
           component: pfFormChosen,
-          attrs: {
-            collapseObject: true,
-            placeholder: i18n.t(placeholders.style),
-            trackBy: 'value',
-            label: 'label',
-            options: allowed.style
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.style, 'Style')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'style'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'style', 'Style')
         }
       ]
     }
   },
-  terminal_group_id: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  terminal_group_id: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Terminal Group ID'),
       text: i18n.t('Terminal Group ID for Mirapay Direct'),
@@ -1819,15 +1562,13 @@ export const pfConfigurationAuthenticationSourceFields = {
         {
           key: 'terminal_group_id',
           component: pfFormInput,
-          attrs: {
-            placeholder: i18n.t(placeholders.terminal_group_id)
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.terminal_group_id, 'ID')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'terminal_group_id'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'terminal_group_id', 'ID')
         }
       ]
     }
   },
-  terminal_id: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  terminal_id: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Terminal ID'),
       text: i18n.t('Terminal ID for Mirapay Direct'),
@@ -1835,15 +1576,13 @@ export const pfConfigurationAuthenticationSourceFields = {
         {
           key: 'terminal_id',
           component: pfFormInput,
-          attrs: {
-            placeholder: i18n.t(placeholders.terminal_id)
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.terminal_id, 'ID')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'terminal_id'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'terminal_id', 'ID')
         }
       ]
     }
   },
-  test_mode: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  test_mode: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Test mode'),
       fields: [
@@ -1857,38 +1596,33 @@ export const pfConfigurationAuthenticationSourceFields = {
       ]
     }
   },
-  timeout: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  timeout: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Timeout'),
       fields: [
         {
           key: 'timeout',
           component: pfFormInput,
-          attrs: {
-            type: 'number',
-            placeholder: i18n.t(placeholders.timeout)
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.timeout, 'Timeout')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'timeout'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'timeout', 'Timeout')
         }
       ]
     }
   },
-  transaction_key: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  transaction_key: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Transaction key'),
       fields: [
         {
           key: 'transaction_key',
           component: pfFormInput,
-          attrs: {
-            placeholder: i18n.t(placeholders.transaction_key)
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.transaction_key, 'Key')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'transaction_key'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'transaction_key', 'Key')
         }
       ]
     }
   },
-  twilio_phone_number: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  twilio_phone_number: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Phone Number (From)'),
       text: i18n.t('Twilio provided phone number which will show as the sender'),
@@ -1896,60 +1630,52 @@ export const pfConfigurationAuthenticationSourceFields = {
         {
           key: 'twilio_phone_number',
           component: pfFormInput,
-          attrs: {
-            placeholder: i18n.t(placeholders.twilio_phone_number)
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.twilio_phone_number, 'Phone')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'twilio_phone_number'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'twilio_phone_number', 'Phone')
         }
       ]
     }
   },
-  user_header: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  user_header: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('User header '),
       fields: [
         {
           key: 'user_header',
           component: pfFormInput,
-          attrs: {
-            placeholder: i18n.t(placeholders.user_header)
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.user_header, 'Header')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'user_header'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'user_header', 'Header')
         }
       ]
     }
   },
-  username_attribute: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  username_attribute: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Attribute of the username in the SAML response'),
       fields: [
         {
           key: 'username_attribute',
           component: pfFormInput,
-          attrs: {
-            placeholder: i18n.t(placeholders.username_attribute)
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.username_attribute, 'Attribute')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'username_attribute'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'username_attribute', 'Attribute')
         }
       ]
     }
   },
-  usernameattribute: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  usernameattribute: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Username Attribute'),
       fields: [
         {
           key: 'usernameattribute',
           component: pfFormInput,
-          attrs: {
-            placeholder: i18n.t(placeholders.usernameattribute)
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.usernameattribute, 'Attribute')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'usernameattribute'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'usernameattribute', 'Attribute')
         }
       ]
     }
   },
-  validate_sponsor: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  validate_sponsor: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Sponsor Validation'),
       text: i18n.t('Force sponsor to authenticate when validating a guest request.'),
@@ -1964,7 +1690,7 @@ export const pfConfigurationAuthenticationSourceFields = {
       ]
     }
   },
-  write_timeout: ({ options: { meta = {}, placeholders = {} } } = {}) => {
+  write_timeout: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Request timeout'),
       text: i18n.t('LDAP request timeout'),
@@ -1972,11 +1698,8 @@ export const pfConfigurationAuthenticationSourceFields = {
         {
           key: 'write_timeout',
           component: pfFormInput,
-          attrs: {
-            type: 'number',
-            placeholder: i18n.t(placeholders.write_timeout)
-          },
-          validators: pfConfigurationValidatorsFromMeta(meta.write_timeout, 'Timeout')
+          attrs: pfConfigurationAttributesFromMeta(meta, 'write_timeout'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'write_timeout', 'Timeout')
         }
       ]
     }

@@ -8,8 +8,7 @@ import pfFormTextarea from '@/components/pfFormTextarea'
 import {
   pfConfigurationListColumns,
   pfConfigurationListFields,
-  pfConfigurationAllowedFromMeta,
-  pfConfigurationPlaceholderFromMeta,
+  pfConfigurationAttributesFromMeta,
   pfConfigurationValidatorsFromMeta
 } from '@/globals/configuration/pfConfiguration'
 import {
@@ -96,12 +95,14 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
               key: 'id',
               component: pfFormInput,
               attrs: {
-                disabled: (!isNew && !isClone)
+                ...pfConfigurationAttributesFromMeta(meta, 'id'),
+                ...{
+                  disabled: (!isNew && !isClone)
+                }
               },
               validators: {
-                ...pfConfigurationValidatorsFromMeta(meta.id, 'Identifier'),
-                ...{ // TODO: remove once meta is available for `id`
-                  [i18n.t('Name required.')]: required,
+                ...pfConfigurationValidatorsFromMeta(meta, 'id', 'Identifier'),
+                ...{
                   [i18n.t('Role exists.')]: not(and(required, conditional(isNew || isClone), hasDomains, domainExists))
                 }
               }
@@ -114,10 +115,8 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
             {
               key: 'workgroup',
               component: pfFormInput,
-              attrs: {
-                placeholder: pfConfigurationPlaceholderFromMeta(meta, 'workgroup')
-              },
-              validators: pfConfigurationValidatorsFromMeta(meta.workgroup, 'Workgroup')
+              attrs: pfConfigurationAttributesFromMeta(meta, 'workgroup'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'workgroup', 'Workgroup')
             }
           ]
         },
@@ -128,10 +127,8 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
             {
               key: 'dns_name',
               component: pfFormInput,
-              attrs: {
-                placeholder: pfConfigurationPlaceholderFromMeta(meta, 'dns_name')
-              },
-              validators: pfConfigurationValidatorsFromMeta(meta.dns_name, 'DNS name')
+              attrs: pfConfigurationAttributesFromMeta(meta, 'dns_name'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'dns_name', 'DNS name')
             }
           ]
         },
@@ -142,10 +139,8 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
             {
               key: 'server_name',
               component: pfFormInput,
-              attrs: {
-                placeholder: pfConfigurationPlaceholderFromMeta(meta, 'server_name')
-              },
-              validators: pfConfigurationValidatorsFromMeta(meta.server_name, 'Server name')
+              attrs: pfConfigurationAttributesFromMeta(meta, 'server_name'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'server_name', 'Server name')
             }
           ]
         },
@@ -156,10 +151,8 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
             {
               key: 'sticky_dc',
               component: pfFormInput,
-              attrs: {
-                placeholder: pfConfigurationPlaceholderFromMeta(meta, 'sticky_dc')
-              },
-              validators: pfConfigurationValidatorsFromMeta(meta.sticky_dc, 'Sticky DC')
+              attrs: pfConfigurationAttributesFromMeta(meta, 'sticky_dc'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'sticky_dc', 'Sticky DC')
             }
           ]
         },
@@ -170,10 +163,8 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
             {
               key: 'ad_server',
               component: pfFormInput,
-              attrs: {
-                placeholder: pfConfigurationPlaceholderFromMeta(meta, 'ad_server')
-              },
-              validators: pfConfigurationValidatorsFromMeta(meta.ad_server, 'Server')
+              attrs: pfConfigurationAttributesFromMeta(meta, 'ad_server'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'ad_server', 'Server')
             }
           ]
         },
@@ -184,10 +175,8 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
             {
               key: 'dns_servers',
               component: pfFormInput,
-              attrs: {
-                placeholder: pfConfigurationPlaceholderFromMeta(meta, 'dns_servers')
-              },
-              validators: pfConfigurationValidatorsFromMeta(meta.dns_servers, 'DNS server(s)')
+              attrs: pfConfigurationAttributesFromMeta(meta, 'dns_servers'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'dns_servers', 'DNS server(s)')
             }
           ]
         },
@@ -198,10 +187,8 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
             {
               key: 'bind_dn',
               component: pfFormInput,
-              attrs: {
-                placeholder: pfConfigurationPlaceholderFromMeta(meta, 'bind_dn')
-              },
-              validators: pfConfigurationValidatorsFromMeta(meta.bind_dn, 'Username')
+              attrs: pfConfigurationAttributesFromMeta(meta, 'bind_dn'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'bind_dn', 'Username')
             }
           ]
         },
@@ -212,10 +199,8 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
             {
               key: 'bind_pass',
               component: pfFormPassword,
-              attrs: {
-                placeholder: pfConfigurationPlaceholderFromMeta(meta, 'bind_pass')
-              },
-              validators: pfConfigurationValidatorsFromMeta(meta.bind_pass, 'Password')
+              attrs: pfConfigurationAttributesFromMeta(meta, 'bind_pass'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'bind_pass', 'Password')
             }
           ]
         },
@@ -226,10 +211,8 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
             {
               key: 'ou',
               component: pfFormInput,
-              attrs: {
-                placeholder: pfConfigurationPlaceholderFromMeta(meta, 'ou')
-              },
-              validators: pfConfigurationValidatorsFromMeta(meta.ou, 'OU')
+              attrs: pfConfigurationAttributesFromMeta(meta, 'ou'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'ou', 'OU')
             }
           ]
         },
@@ -285,14 +268,8 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
             {
               key: 'ntlm_cache_source',
               component: pfFormChosen,
-              attrs: {
-                collapseObject: true,
-                placeholder: pfConfigurationPlaceholderFromMeta(meta, 'ntlm_cache_source'),
-                label: 'label',
-                trackBy: 'value',
-                options: pfConfigurationAllowedFromMeta(meta, 'ntlm_cache_source', [])
-              },
-              validators: pfConfigurationValidatorsFromMeta(meta.ntlm_cache_source, 'Source')
+              attrs: pfConfigurationAttributesFromMeta(meta, 'ntlm_cache_source'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'ntlm_cache_source', 'Source')
             }
           ]
         },
@@ -304,10 +281,12 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
               key: 'ntlm_cache_filter',
               component: pfFormTextarea,
               attrs: {
-                rows: 3,
-                placeholder: pfConfigurationPlaceholderFromMeta(meta, 'ntlm_cache_filter')
+                ...pfConfigurationAttributesFromMeta(meta, 'ntlm_cache_filter'),
+                ...{
+                  rows: 3
+                }
               },
-              validators: pfConfigurationValidatorsFromMeta(meta.ntlm_cache_filter, 'LDAP filter')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'ntlm_cache_filter', 'LDAP filter')
             }
           ]
         },
@@ -318,12 +297,8 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
             {
               key: 'ntlm_cache_expiry',
               component: pfFormInput,
-              attrs: {
-                type: 'number',
-                step: 1,
-                placeholder: pfConfigurationPlaceholderFromMeta(meta, 'ntlm_cache_expiry')
-              },
-              validators: pfConfigurationValidatorsFromMeta(meta.ntlm_cache_expiry, 'Expiration')
+              attrs: pfConfigurationAttributesFromMeta(meta, 'ntlm_cache_expiry'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'ntlm_cache_expiry', 'Expiration')
             }
           ]
         },

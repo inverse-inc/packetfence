@@ -3,7 +3,7 @@ import pfFormInput from '@/components/pfFormInput'
 import {
   pfConfigurationListColumns,
   pfConfigurationListFields,
-  pfConfigurationPlaceholderFromMeta,
+  pfConfigurationAttributesFromMeta,
   pfConfigurationValidatorsFromMeta
 } from '@/globals/configuration/pfConfiguration'
 import {
@@ -90,13 +90,14 @@ export const pfConfigurationRoleViewFields = (context = {}) => {
               key: 'id',
               component: pfFormInput,
               attrs: {
-                disabled: (!isNew && !isClone),
-                placeholder: pfConfigurationPlaceholderFromMeta(meta, 'id')
+                ...pfConfigurationAttributesFromMeta(meta, 'id'),
+                ...{
+                  disabled: (!isNew && !isClone)
+                }
               },
               validators: {
-                ...pfConfigurationValidatorsFromMeta(meta.id, 'Name'),
-                ...{ // TODO: remove once meta is available for `id`
-                  [i18n.t('Name required.')]: required,
+                ...pfConfigurationValidatorsFromMeta(meta, 'id', 'Name'),
+                ...{
                   [i18n.t('Role exists.')]: not(and(required, conditional(isNew || isClone), hasRoles, roleExists))
                 }
               }
@@ -109,10 +110,8 @@ export const pfConfigurationRoleViewFields = (context = {}) => {
             {
               key: 'notes',
               component: pfFormInput,
-              attrs: {
-                placeholder: pfConfigurationPlaceholderFromMeta(meta, 'notes')
-              },
-              validators: pfConfigurationValidatorsFromMeta(meta.notes, 'Description')
+              attrs: pfConfigurationAttributesFromMeta(meta, 'notes'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'notes', 'Description')
             }
           ]
         },
@@ -123,11 +122,8 @@ export const pfConfigurationRoleViewFields = (context = {}) => {
             {
               key: 'max_nodes_per_pid',
               component: pfFormInput,
-              attrs: {
-                type: 'number',
-                placeholder: pfConfigurationPlaceholderFromMeta(meta, 'max_nodes_per_pid')
-              },
-              validators: pfConfigurationValidatorsFromMeta(meta.max_nodes_per_pid, 'Max nodes per user')
+              attrs: pfConfigurationAttributesFromMeta(meta, 'max_nodes_per_pid'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'max_nodes_per_pid', 'Max nodes per user')
             }
           ]
         }

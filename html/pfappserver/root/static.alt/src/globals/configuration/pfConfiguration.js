@@ -32,45 +32,108 @@ const {
   required
 } = require('vuelidate/lib/validators')
 
-export const pfConfigurationValidatorsFromMeta = (meta = {}, fieldName = 'Value') => {
-  let validators = {}
+export const pfConfigurationAttributesFromMeta = (meta = {}, key = null) => {
+  let attrs = {}
+  if (Object.keys(meta).length > 0) {
+    while (key.includes('.')) { // handle dot-notation keys ('.')
+      let [ first, ...remainder ] = key.split('.')
+      if (!(first in meta)) return {}
+      key = remainder.join('.')
+      let { [first]: { properties: _meta } } = meta
+      meta = _meta // swap ref to child
+    }
+    const { [key]: { allowed, placeholder, type } = {} } = meta
+    if (allowed) attrs.options = allowed
+    if (placeholder) attrs.placeholder = placeholder
+    switch (type) {
+      case 'array':
+        attrs.multiple = true // pfFormChosen
+        attrs.clearOnSelect = false // pfFormChosen
+        attrs.closeOnSelect = false // pfFormChosen
+        break
+      case 'integer':
+        attrs.type = 'number' // pfFormInput
+        attrs.step = 1 // pfFormInput
+        break
+    }
+  }
+  return attrs
+}
+
+export const pfConfigurationDefaultsFromMeta = (meta = {}) => {
+  let defaults = {}
   Object.keys(meta).forEach(key => {
-    switch (key) {
-      case 'min_value':
-        validators = { ...validators, ...{ [i18n.t('Minimum {minValue}.', { minValue: meta[key] })]: minValue(meta[key]) } }
-        break
-      case 'max_value':
-        validators = { ...validators, ...{ [i18n.t('Maximum {maxValue}.', { maxValue: meta[key] })]: maxValue(meta[key]) } }
-        break
-      case 'min_length':
-        validators = { ...validators, ...{ [i18n.t('Minimum {minLength} characters.', { minLength: meta[key] })]: minLength(meta[key]) } }
-        break
-      case 'max_length':
-        validators = { ...validators, ...{ [i18n.t('Maximum {minLength} characters.', { maxLength: meta[key] })]: maxLength(meta[key]) } }
-        break
-      case 'required':
-        if (meta[key]) {
-          validators = { ...validators, ...{ [i18n.t('{fieldName} required.', { fieldName: fieldName })]: required } }
-        }
-        break
-      case 'type':
-        switch (meta[key]) {
-          case 'integer':
-            validators = { ...validators, ...{ [i18n.t('Integers only.')]: integer } }
-            break
-          case 'array': // ignore
-          case 'string': // ignore
-            break
-          default:
-            throw new Error(`Unhandled meta type: ${meta[key]}`) // TODO: remove post-devel
-            // break
-        }
-        break
-      default:
-        throw new Error(`Unhandled meta: ${key}`) // TODO: remove post-devel
-        // break
+    if ('properties' in meta[key]) { // handle dot-notation keys ('.')
+      Object.keys(meta[key].properties).forEach(property => {
+        defaults[`${key}.${property}`] = meta[key].properties[property].default
+      })
+    } else {
+      defaults[key] = meta[key].default
     }
   })
+  return defaults
+}
+
+export const pfConfigurationValidatorsFromMeta = (meta = {}, key = null, fieldName = 'Value') => {
+  let validators = {}
+  if (Object.keys(meta).length > 0) {
+    while (key.includes('.')) { // handle dot-notation keys ('.')
+      let [ first, ...remainder ] = key.split('.')
+      if (!(first in meta)) return {}
+      key = remainder.join('.')
+      let { [first]: { properties: _meta } } = meta
+      meta = _meta // swap ref to child
+    }
+    if (key in meta) {
+      Object.keys(meta[key]).forEach(property => {
+        switch (property) {
+          case 'allowed': // ignore
+          case 'default': // ignore
+          case 'placeholder': // ignore
+            break
+          case 'item': // ignore
+            // TODO
+            break
+          case 'min_value':
+            validators = { ...validators, ...{ [i18n.t('Minimum {minValue}.', { minValue: meta[key].min_value })]: minValue(meta[key].min_value) } }
+            break
+          case 'max_value':
+            validators = { ...validators, ...{ [i18n.t('Maximum {maxValue}.', { maxValue: meta[key].max_value })]: maxValue(meta[key].max_value) } }
+            break
+          case 'min_length':
+            validators = { ...validators, ...{ [i18n.t('Minimum {minLength} characters.', { minLength: meta[key].min_length })]: minLength(meta[key].min_length) } }
+            break
+          case 'max_length':
+            validators = { ...validators, ...{ [i18n.t('Maximum {maxLength} characters.', { maxLength: meta[key].max_length })]: maxLength(meta[key].max_length) } }
+            break
+          case 'pattern':
+            // TODO
+            break
+          case 'required':
+            if (meta[key].required === true) { // only if `true`
+              validators = { ...validators, ...{ [i18n.t('{fieldName} required.', { fieldName: fieldName })]: required } }
+            }
+            break
+          case 'type':
+            switch (meta[key].type) {
+              case 'integer':
+                validators = { ...validators, ...{ [i18n.t('Integers only.')]: integer } }
+                break
+              case 'array': // ignore
+              case 'string': // ignore
+                break
+              default: // TODO: remove post-devel
+                throw new Error(`Unhandled meta type: ${meta[key].type}`)
+                // break
+            }
+            break
+          default: // TODO: remove post-devel
+            throw new Error(`Unhandled meta: ${property}`)
+            // break
+        }
+      })
+    }
+  }
   return validators
 }
 
