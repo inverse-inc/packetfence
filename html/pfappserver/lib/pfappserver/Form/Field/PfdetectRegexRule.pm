@@ -15,8 +15,7 @@ use HTML::FormHandler::Moose;
 extends 'HTML::FormHandler::Field::Compound';
 with 'pfappserver::Base::Form::Role::Help';
 use namespace::autoclean;
-use PPIx::Regexp;
-use pf::util qw(isenabled);
+use pf::util qw(isenabled strip_filename_from_exceptions);
 
 =head2 name
 
@@ -108,12 +107,20 @@ Validate the rule is valid
 
 sub validate {
     my ($self) = @_;
-    use re::engine::RE2 -strict => 1;
     my $rule = $self->value;
-    my $re = eval {qr/$rule->{regex}/};
+    my $regex = $rule->{regex};
+    my $re = eval {
+        use re::engine::RE2 -strict => 1;
+        qr/$regex/
+    };
     if ($@) {
-        $self->field('regex')->add_error("$rule->{regex} is an invalid RE2 regex");
+        my $error = strip_filename_from_exceptions($@);
+        $error =~ s/(\[|\])/~$1/g;
+        $regex =~ s/(\[|\])/~$1/g;
+        $self->field('regex')->add_error("Invalid RE2 regex : $error");
+        return;
     }
+
     my $captures = $re->named_captures();
     my $ip_mac_translation = isenabled($rule->{ip_mac_translation});
     foreach my $action_field ($self->field('actions')->fields()) {
@@ -125,6 +132,7 @@ sub validate {
             $api_parameters_field->add_error("$replace is not a named capture");
         }
     }
+
     return;
 }
 
