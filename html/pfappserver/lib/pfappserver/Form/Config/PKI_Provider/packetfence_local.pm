@@ -23,7 +23,10 @@ has_field 'id' => (
         after_element   => \&help,
         help            => 'The unique ID of the PKI provider',
     },
-   apply => [ pfappserver::Base::Form::id_validator('PKI provider name') ]
+   apply => [ pfappserver::Base::Form::id_validator('PKI provider name') ],
+   tags => {
+      option_pattern => \&pfappserver::Base::Form::id_pattern,
+   },
 );
 
 has_field 'type' => (

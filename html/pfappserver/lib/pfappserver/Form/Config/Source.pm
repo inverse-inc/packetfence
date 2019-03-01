@@ -42,6 +42,9 @@ has_field 'id' =>
    required => 1,
    messages => { required => 'Please specify the name of the source entry' },
    apply => [ pfappserver::Base::Form::id_validator('source name') ],
+   tags => {
+      option_pattern => \&pfappserver::Base::Form::id_pattern,
+   },
   );
 
 has_field 'type' => (

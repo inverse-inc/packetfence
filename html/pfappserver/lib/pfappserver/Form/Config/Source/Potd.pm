@@ -36,6 +36,9 @@ has_field 'id' =>
            }
        }
    },
+   tags => {
+      option_pattern => \&pfappserver::Base::Form::id_pattern,
+   },
   );
 
 has_field 'password_rotation' =>

@@ -176,7 +176,11 @@ $t->options_ok("/api/v1/config/syslog_parsers?type=regex")
                 default     => undef,
                 placeholder => undef,
                 required    => $true,
-                type        => "string"
+                type        => "string",
+                pattern     => {
+                    regex   => "^[a-zA-Z0-9][a-zA-Z0-9\._-]*\$",
+                    message => "The id is invalid. The id can only contain alphanumeric characters, dashes, period and underscores.",
+                },
             },
             lines => {
                 allowed => undef,
