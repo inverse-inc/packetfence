@@ -200,7 +200,7 @@ sub type_meta_info {
     my $class = "pf::Authentication::Source::${type}Source";
     return {
         value => $type,
-        label => $type,
+        text => $type,
         class => $class->meta->find_attribute_by_name('class')->default
     };
 }
@@ -215,7 +215,7 @@ sub options_with_no_type {
         next if $type->{value} eq 'SQL';
         push @{$groups{$class}{options}}, {
             value => $type->{value},
-            label => $type->{label},
+            text => $type->{text},
         };
     }
     my @new_types;

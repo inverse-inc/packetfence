@@ -94,7 +94,7 @@ sub type_allowed_info {
     my ($self, $type) = @_;
     return {
         value => $type,
-        label => $type,
+        text => $type,
     };
 }
 

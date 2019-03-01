@@ -60,7 +60,7 @@ $t->options_ok("/api/v1/config/floating_devices")
                 required => $true,
                 type     => "string",
                 pattern => {
-                    message => "id must be a MAC Address",
+                    message => "Mac Address",
                     regex => "[0-9A-Fa-f][0-9A-Fa-f](:[0-9A-Fa-f][0-9A-Fa-f]){5}",
                 },
             },
@@ -113,31 +113,31 @@ $t->options_ok("/api/v1/config/syslog_parsers")
         allowed => {
             type => [
                 {
-                    label => "suricata_md5",
+                    text => "suricata_md5",
                     value => "suricata_md5"
                 },
                 {
-                    label => "security_onion",
+                    text => "security_onion",
                     value => "security_onion"
                 },
                 {
-                    label => "regex",
+                    text => "regex",
                     value => "regex"
                 },
                 {
-                    label => "fortianalyser",
+                    text => "fortianalyser",
                     value => "fortianalyser"
                 },
                 {
-                    label => "suricata",
+                    text => "suricata",
                     value => "suricata"
                 },
                 {
-                    label => "dhcp",
+                    text => "dhcp",
                     value => "dhcp"
                 },
                 {
-                    label => "snort",
+                    text => "snort",
                     value => "snort"
                 }
             ]
@@ -318,1387 +318,1387 @@ $t->options_ok("/api/v1/config/base/general")
             hostname    => undef,
             timezone    => [
                 {
-                    label => "",
+                    text => "",
                     value => ""
                 },
                 {
-                    label => "Africa/Abidjan",
+                    text => "Africa/Abidjan",
                     value => "Africa/Abidjan"
                 },
                 {
-                    label => "Africa/Accra",
+                    text => "Africa/Accra",
                     value => "Africa/Accra"
                 },
                 {
-                    label => "Africa/Algiers",
+                    text => "Africa/Algiers",
                     value => "Africa/Algiers"
                 },
                 {
-                    label => "Africa/Bissau",
+                    text => "Africa/Bissau",
                     value => "Africa/Bissau"
                 },
                 {
-                    label => "Africa/Cairo",
+                    text => "Africa/Cairo",
                     value => "Africa/Cairo"
                 },
                 {
-                    label => "Africa/Casablanca",
+                    text => "Africa/Casablanca",
                     value => "Africa/Casablanca"
                 },
                 {
-                    label => "Africa/Ceuta",
+                    text => "Africa/Ceuta",
                     value => "Africa/Ceuta"
                 },
                 {
-                    label => "Africa/El_Aaiun",
+                    text => "Africa/El_Aaiun",
                     value => "Africa/El_Aaiun"
                 },
                 {
-                    label => "Africa/Johannesburg",
+                    text => "Africa/Johannesburg",
                     value => "Africa/Johannesburg"
                 },
                 {
-                    label => "Africa/Khartoum",
+                    text => "Africa/Khartoum",
                     value => "Africa/Khartoum"
                 },
                 {
-                    label => "Africa/Lagos",
+                    text => "Africa/Lagos",
                     value => "Africa/Lagos"
                 },
                 {
-                    label => "Africa/Maputo",
+                    text => "Africa/Maputo",
                     value => "Africa/Maputo"
                 },
                 {
-                    label => "Africa/Monrovia",
+                    text => "Africa/Monrovia",
                     value => "Africa/Monrovia"
                 },
                 {
-                    label => "Africa/Nairobi",
+                    text => "Africa/Nairobi",
                     value => "Africa/Nairobi"
                 },
                 {
-                    label => "Africa/Ndjamena",
+                    text => "Africa/Ndjamena",
                     value => "Africa/Ndjamena"
                 },
                 {
-                    label => "Africa/Tripoli",
+                    text => "Africa/Tripoli",
                     value => "Africa/Tripoli"
                 },
                 {
-                    label => "Africa/Tunis",
+                    text => "Africa/Tunis",
                     value => "Africa/Tunis"
                 },
                 {
-                    label => "Africa/Windhoek",
+                    text => "Africa/Windhoek",
                     value => "Africa/Windhoek"
                 },
                 {
-                    label => "America/Adak",
+                    text => "America/Adak",
                     value => "America/Adak"
                 },
                 {
-                    label => "America/Anchorage",
+                    text => "America/Anchorage",
                     value => "America/Anchorage"
                 },
                 {
-                    label => "America/Araguaina",
+                    text => "America/Araguaina",
                     value => "America/Araguaina"
                 },
                 {
-                    label => "America/Argentina/Buenos_Aires",
+                    text => "America/Argentina/Buenos_Aires",
                     value => "America/Argentina/Buenos_Aires"
                 },
                 {
-                    label => "America/Argentina/Catamarca",
+                    text => "America/Argentina/Catamarca",
                     value => "America/Argentina/Catamarca"
                 },
                 {
-                    label => "America/Argentina/Cordoba",
+                    text => "America/Argentina/Cordoba",
                     value => "America/Argentina/Cordoba"
                 },
                 {
-                    label => "America/Argentina/Jujuy",
+                    text => "America/Argentina/Jujuy",
                     value => "America/Argentina/Jujuy"
                 },
                 {
-                    label => "America/Argentina/La_Rioja",
+                    text => "America/Argentina/La_Rioja",
                     value => "America/Argentina/La_Rioja"
                 },
                 {
-                    label => "America/Argentina/Mendoza",
+                    text => "America/Argentina/Mendoza",
                     value => "America/Argentina/Mendoza"
                 },
                 {
-                    label => "America/Argentina/Rio_Gallegos",
+                    text => "America/Argentina/Rio_Gallegos",
                     value => "America/Argentina/Rio_Gallegos"
                 },
                 {
-                    label => "America/Argentina/Salta",
+                    text => "America/Argentina/Salta",
                     value => "America/Argentina/Salta"
                 },
                 {
-                    label => "America/Argentina/San_Juan",
+                    text => "America/Argentina/San_Juan",
                     value => "America/Argentina/San_Juan"
                 },
                 {
-                    label => "America/Argentina/San_Luis",
+                    text => "America/Argentina/San_Luis",
                     value => "America/Argentina/San_Luis"
                 },
                 {
-                    label => "America/Argentina/Tucuman",
+                    text => "America/Argentina/Tucuman",
                     value => "America/Argentina/Tucuman"
                 },
                 {
-                    label => "America/Argentina/Ushuaia",
+                    text => "America/Argentina/Ushuaia",
                     value => "America/Argentina/Ushuaia"
                 },
                 {
-                    label => "America/Asuncion",
+                    text => "America/Asuncion",
                     value => "America/Asuncion"
                 },
                 {
-                    label => "America/Atikokan",
+                    text => "America/Atikokan",
                     value => "America/Atikokan"
                 },
                 {
-                    label => "America/Bahia",
+                    text => "America/Bahia",
                     value => "America/Bahia"
                 },
                 {
-                    label => "America/Bahia_Banderas",
+                    text => "America/Bahia_Banderas",
                     value => "America/Bahia_Banderas"
                 },
                 {
-                    label => "America/Barbados",
+                    text => "America/Barbados",
                     value => "America/Barbados"
                 },
                 {
-                    label => "America/Belem",
+                    text => "America/Belem",
                     value => "America/Belem"
                 },
                 {
-                    label => "America/Belize",
+                    text => "America/Belize",
                     value => "America/Belize"
                 },
                 {
-                    label => "America/Blanc-Sablon",
+                    text => "America/Blanc-Sablon",
                     value => "America/Blanc-Sablon"
                 },
                 {
-                    label => "America/Boa_Vista",
+                    text => "America/Boa_Vista",
                     value => "America/Boa_Vista"
                 },
                 {
-                    label => "America/Bogota",
+                    text => "America/Bogota",
                     value => "America/Bogota"
                 },
                 {
-                    label => "America/Boise",
+                    text => "America/Boise",
                     value => "America/Boise"
                 },
                 {
-                    label => "America/Cambridge_Bay",
+                    text => "America/Cambridge_Bay",
                     value => "America/Cambridge_Bay"
                 },
                 {
-                    label => "America/Campo_Grande",
+                    text => "America/Campo_Grande",
                     value => "America/Campo_Grande"
                 },
                 {
-                    label => "America/Cancun",
+                    text => "America/Cancun",
                     value => "America/Cancun"
                 },
                 {
-                    label => "America/Caracas",
+                    text => "America/Caracas",
                     value => "America/Caracas"
                 },
                 {
-                    label => "America/Cayenne",
+                    text => "America/Cayenne",
                     value => "America/Cayenne"
                 },
                 {
-                    label => "America/Chicago",
+                    text => "America/Chicago",
                     value => "America/Chicago"
                 },
                 {
-                    label => "America/Chihuahua",
+                    text => "America/Chihuahua",
                     value => "America/Chihuahua"
                 },
                 {
-                    label => "America/Costa_Rica",
+                    text => "America/Costa_Rica",
                     value => "America/Costa_Rica"
                 },
                 {
-                    label => "America/Creston",
+                    text => "America/Creston",
                     value => "America/Creston"
                 },
                 {
-                    label => "America/Cuiaba",
+                    text => "America/Cuiaba",
                     value => "America/Cuiaba"
                 },
                 {
-                    label => "America/Curacao",
+                    text => "America/Curacao",
                     value => "America/Curacao"
                 },
                 {
-                    label => "America/Danmarkshavn",
+                    text => "America/Danmarkshavn",
                     value => "America/Danmarkshavn"
                 },
                 {
-                    label => "America/Dawson",
+                    text => "America/Dawson",
                     value => "America/Dawson"
                 },
                 {
-                    label => "America/Dawson_Creek",
+                    text => "America/Dawson_Creek",
                     value => "America/Dawson_Creek"
                 },
                 {
-                    label => "America/Denver",
+                    text => "America/Denver",
                     value => "America/Denver"
                 },
                 {
-                    label => "America/Detroit",
+                    text => "America/Detroit",
                     value => "America/Detroit"
                 },
                 {
-                    label => "America/Edmonton",
+                    text => "America/Edmonton",
                     value => "America/Edmonton"
                 },
                 {
-                    label => "America/Eirunepe",
+                    text => "America/Eirunepe",
                     value => "America/Eirunepe"
                 },
                 {
-                    label => "America/El_Salvador",
+                    text => "America/El_Salvador",
                     value => "America/El_Salvador"
                 },
                 {
-                    label => "America/Fort_Nelson",
+                    text => "America/Fort_Nelson",
                     value => "America/Fort_Nelson"
                 },
                 {
-                    label => "America/Fortaleza",
+                    text => "America/Fortaleza",
                     value => "America/Fortaleza"
                 },
                 {
-                    label => "America/Glace_Bay",
+                    text => "America/Glace_Bay",
                     value => "America/Glace_Bay"
                 },
                 {
-                    label => "America/Godthab",
+                    text => "America/Godthab",
                     value => "America/Godthab"
                 },
                 {
-                    label => "America/Goose_Bay",
+                    text => "America/Goose_Bay",
                     value => "America/Goose_Bay"
                 },
                 {
-                    label => "America/Grand_Turk",
+                    text => "America/Grand_Turk",
                     value => "America/Grand_Turk"
                 },
                 {
-                    label => "America/Guatemala",
+                    text => "America/Guatemala",
                     value => "America/Guatemala"
                 },
                 {
-                    label => "America/Guayaquil",
+                    text => "America/Guayaquil",
                     value => "America/Guayaquil"
                 },
                 {
-                    label => "America/Guyana",
+                    text => "America/Guyana",
                     value => "America/Guyana"
                 },
                 {
-                    label => "America/Halifax",
+                    text => "America/Halifax",
                     value => "America/Halifax"
                 },
                 {
-                    label => "America/Havana",
+                    text => "America/Havana",
                     value => "America/Havana"
                 },
                 {
-                    label => "America/Hermosillo",
+                    text => "America/Hermosillo",
                     value => "America/Hermosillo"
                 },
                 {
-                    label => "America/Indiana/Indianapolis",
+                    text => "America/Indiana/Indianapolis",
                     value => "America/Indiana/Indianapolis"
                 },
                 {
-                    label => "America/Indiana/Knox",
+                    text => "America/Indiana/Knox",
                     value => "America/Indiana/Knox"
                 },
                 {
-                    label => "America/Indiana/Marengo",
+                    text => "America/Indiana/Marengo",
                     value => "America/Indiana/Marengo"
                 },
                 {
-                    label => "America/Indiana/Petersburg",
+                    text => "America/Indiana/Petersburg",
                     value => "America/Indiana/Petersburg"
                 },
                 {
-                    label => "America/Indiana/Tell_City",
+                    text => "America/Indiana/Tell_City",
                     value => "America/Indiana/Tell_City"
                 },
                 {
-                    label => "America/Indiana/Vevay",
+                    text => "America/Indiana/Vevay",
                     value => "America/Indiana/Vevay"
                 },
                 {
-                    label => "America/Indiana/Vincennes",
+                    text => "America/Indiana/Vincennes",
                     value => "America/Indiana/Vincennes"
                 },
                 {
-                    label => "America/Indiana/Winamac",
+                    text => "America/Indiana/Winamac",
                     value => "America/Indiana/Winamac"
                 },
                 {
-                    label => "America/Inuvik",
+                    text => "America/Inuvik",
                     value => "America/Inuvik"
                 },
                 {
-                    label => "America/Iqaluit",
+                    text => "America/Iqaluit",
                     value => "America/Iqaluit"
                 },
                 {
-                    label => "America/Jamaica",
+                    text => "America/Jamaica",
                     value => "America/Jamaica"
                 },
                 {
-                    label => "America/Juneau",
+                    text => "America/Juneau",
                     value => "America/Juneau"
                 },
                 {
-                    label => "America/Kentucky/Louisville",
+                    text => "America/Kentucky/Louisville",
                     value => "America/Kentucky/Louisville"
                 },
                 {
-                    label => "America/Kentucky/Monticello",
+                    text => "America/Kentucky/Monticello",
                     value => "America/Kentucky/Monticello"
                 },
                 {
-                    label => "America/La_Paz",
+                    text => "America/La_Paz",
                     value => "America/La_Paz"
                 },
                 {
-                    label => "America/Lima",
+                    text => "America/Lima",
                     value => "America/Lima"
                 },
                 {
-                    label => "America/Los_Angeles",
+                    text => "America/Los_Angeles",
                     value => "America/Los_Angeles"
                 },
                 {
-                    label => "America/Maceio",
+                    text => "America/Maceio",
                     value => "America/Maceio"
                 },
                 {
-                    label => "America/Managua",
+                    text => "America/Managua",
                     value => "America/Managua"
                 },
                 {
-                    label => "America/Manaus",
+                    text => "America/Manaus",
                     value => "America/Manaus"
                 },
                 {
-                    label => "America/Martinique",
+                    text => "America/Martinique",
                     value => "America/Martinique"
                 },
                 {
-                    label => "America/Matamoros",
+                    text => "America/Matamoros",
                     value => "America/Matamoros"
                 },
                 {
-                    label => "America/Mazatlan",
+                    text => "America/Mazatlan",
                     value => "America/Mazatlan"
                 },
                 {
-                    label => "America/Menominee",
+                    text => "America/Menominee",
                     value => "America/Menominee"
                 },
                 {
-                    label => "America/Merida",
+                    text => "America/Merida",
                     value => "America/Merida"
                 },
                 {
-                    label => "America/Metlakatla",
+                    text => "America/Metlakatla",
                     value => "America/Metlakatla"
                 },
                 {
-                    label => "America/Mexico_City",
+                    text => "America/Mexico_City",
                     value => "America/Mexico_City"
                 },
                 {
-                    label => "America/Miquelon",
+                    text => "America/Miquelon",
                     value => "America/Miquelon"
                 },
                 {
-                    label => "America/Moncton",
+                    text => "America/Moncton",
                     value => "America/Moncton"
                 },
                 {
-                    label => "America/Monterrey",
+                    text => "America/Monterrey",
                     value => "America/Monterrey"
                 },
                 {
-                    label => "America/Montevideo",
+                    text => "America/Montevideo",
                     value => "America/Montevideo"
                 },
                 {
-                    label => "America/Nassau",
+                    text => "America/Nassau",
                     value => "America/Nassau"
                 },
                 {
-                    label => "America/New_York",
+                    text => "America/New_York",
                     value => "America/New_York"
                 },
                 {
-                    label => "America/Nipigon",
+                    text => "America/Nipigon",
                     value => "America/Nipigon"
                 },
                 {
-                    label => "America/Nome",
+                    text => "America/Nome",
                     value => "America/Nome"
                 },
                 {
-                    label => "America/Noronha",
+                    text => "America/Noronha",
                     value => "America/Noronha"
                 },
                 {
-                    label => "America/North_Dakota/Beulah",
+                    text => "America/North_Dakota/Beulah",
                     value => "America/North_Dakota/Beulah"
                 },
                 {
-                    label => "America/North_Dakota/Center",
+                    text => "America/North_Dakota/Center",
                     value => "America/North_Dakota/Center"
                 },
                 {
-                    label => "America/North_Dakota/New_Salem",
+                    text => "America/North_Dakota/New_Salem",
                     value => "America/North_Dakota/New_Salem"
                 },
                 {
-                    label => "America/Ojinaga",
+                    text => "America/Ojinaga",
                     value => "America/Ojinaga"
                 },
                 {
-                    label => "America/Panama",
+                    text => "America/Panama",
                     value => "America/Panama"
                 },
                 {
-                    label => "America/Pangnirtung",
+                    text => "America/Pangnirtung",
                     value => "America/Pangnirtung"
                 },
                 {
-                    label => "America/Paramaribo",
+                    text => "America/Paramaribo",
                     value => "America/Paramaribo"
                 },
                 {
-                    label => "America/Phoenix",
+                    text => "America/Phoenix",
                     value => "America/Phoenix"
                 },
                 {
-                    label => "America/Port-au-Prince",
+                    text => "America/Port-au-Prince",
                     value => "America/Port-au-Prince"
                 },
                 {
-                    label => "America/Port_of_Spain",
+                    text => "America/Port_of_Spain",
                     value => "America/Port_of_Spain"
                 },
                 {
-                    label => "America/Porto_Velho",
+                    text => "America/Porto_Velho",
                     value => "America/Porto_Velho"
                 },
                 {
-                    label => "America/Puerto_Rico",
+                    text => "America/Puerto_Rico",
                     value => "America/Puerto_Rico"
                 },
                 {
-                    label => "America/Punta_Arenas",
+                    text => "America/Punta_Arenas",
                     value => "America/Punta_Arenas"
                 },
                 {
-                    label => "America/Rainy_River",
+                    text => "America/Rainy_River",
                     value => "America/Rainy_River"
                 },
                 {
-                    label => "America/Rankin_Inlet",
+                    text => "America/Rankin_Inlet",
                     value => "America/Rankin_Inlet"
                 },
                 {
-                    label => "America/Recife",
+                    text => "America/Recife",
                     value => "America/Recife"
                 },
                 {
-                    label => "America/Regina",
+                    text => "America/Regina",
                     value => "America/Regina"
                 },
                 {
-                    label => "America/Resolute",
+                    text => "America/Resolute",
                     value => "America/Resolute"
                 },
                 {
-                    label => "America/Rio_Branco",
+                    text => "America/Rio_Branco",
                     value => "America/Rio_Branco"
                 },
                 {
-                    label => "America/Santarem",
+                    text => "America/Santarem",
                     value => "America/Santarem"
                 },
                 {
-                    label => "America/Santiago",
+                    text => "America/Santiago",
                     value => "America/Santiago"
                 },
                 {
-                    label => "America/Santo_Domingo",
+                    text => "America/Santo_Domingo",
                     value => "America/Santo_Domingo"
                 },
                 {
-                    label => "America/Sao_Paulo",
+                    text => "America/Sao_Paulo",
                     value => "America/Sao_Paulo"
                 },
                 {
-                    label => "America/Scoresbysund",
+                    text => "America/Scoresbysund",
                     value => "America/Scoresbysund"
                 },
                 {
-                    label => "America/Sitka",
+                    text => "America/Sitka",
                     value => "America/Sitka"
                 },
                 {
-                    label => "America/St_Johns",
+                    text => "America/St_Johns",
                     value => "America/St_Johns"
                 },
                 {
-                    label => "America/Swift_Current",
+                    text => "America/Swift_Current",
                     value => "America/Swift_Current"
                 },
                 {
-                    label => "America/Tegucigalpa",
+                    text => "America/Tegucigalpa",
                     value => "America/Tegucigalpa"
                 },
                 {
-                    label => "America/Thule",
+                    text => "America/Thule",
                     value => "America/Thule"
                 },
                 {
-                    label => "America/Thunder_Bay",
+                    text => "America/Thunder_Bay",
                     value => "America/Thunder_Bay"
                 },
                 {
-                    label => "America/Tijuana",
+                    text => "America/Tijuana",
                     value => "America/Tijuana"
                 },
                 {
-                    label => "America/Toronto",
+                    text => "America/Toronto",
                     value => "America/Toronto"
                 },
                 {
-                    label => "America/Vancouver",
+                    text => "America/Vancouver",
                     value => "America/Vancouver"
                 },
                 {
-                    label => "America/Whitehorse",
+                    text => "America/Whitehorse",
                     value => "America/Whitehorse"
                 },
                 {
-                    label => "America/Winnipeg",
+                    text => "America/Winnipeg",
                     value => "America/Winnipeg"
                 },
                 {
-                    label => "America/Yakutat",
+                    text => "America/Yakutat",
                     value => "America/Yakutat"
                 },
                 {
-                    label => "America/Yellowknife",
+                    text => "America/Yellowknife",
                     value => "America/Yellowknife"
                 },
                 {
-                    label => "Antarctica/Casey",
+                    text => "Antarctica/Casey",
                     value => "Antarctica/Casey"
                 },
                 {
-                    label => "Antarctica/Davis",
+                    text => "Antarctica/Davis",
                     value => "Antarctica/Davis"
                 },
                 {
-                    label => "Antarctica/DumontDUrville",
+                    text => "Antarctica/DumontDUrville",
                     value => "Antarctica/DumontDUrville"
                 },
                 {
-                    label => "Antarctica/Macquarie",
+                    text => "Antarctica/Macquarie",
                     value => "Antarctica/Macquarie"
                 },
                 {
-                    label => "Antarctica/Mawson",
+                    text => "Antarctica/Mawson",
                     value => "Antarctica/Mawson"
                 },
                 {
-                    label => "Antarctica/Palmer",
+                    text => "Antarctica/Palmer",
                     value => "Antarctica/Palmer"
                 },
                 {
-                    label => "Antarctica/Rothera",
+                    text => "Antarctica/Rothera",
                     value => "Antarctica/Rothera"
                 },
                 {
-                    label => "Antarctica/Syowa",
+                    text => "Antarctica/Syowa",
                     value => "Antarctica/Syowa"
                 },
                 {
-                    label => "Antarctica/Troll",
+                    text => "Antarctica/Troll",
                     value => "Antarctica/Troll"
                 },
                 {
-                    label => "Antarctica/Vostok",
+                    text => "Antarctica/Vostok",
                     value => "Antarctica/Vostok"
                 },
                 {
-                    label => "Asia/Almaty",
+                    text => "Asia/Almaty",
                     value => "Asia/Almaty"
                 },
                 {
-                    label => "Asia/Amman",
+                    text => "Asia/Amman",
                     value => "Asia/Amman"
                 },
                 {
-                    label => "Asia/Anadyr",
+                    text => "Asia/Anadyr",
                     value => "Asia/Anadyr"
                 },
                 {
-                    label => "Asia/Aqtau",
+                    text => "Asia/Aqtau",
                     value => "Asia/Aqtau"
                 },
                 {
-                    label => "Asia/Aqtobe",
+                    text => "Asia/Aqtobe",
                     value => "Asia/Aqtobe"
                 },
                 {
-                    label => "Asia/Ashgabat",
+                    text => "Asia/Ashgabat",
                     value => "Asia/Ashgabat"
                 },
                 {
-                    label => "Asia/Atyrau",
+                    text => "Asia/Atyrau",
                     value => "Asia/Atyrau"
                 },
                 {
-                    label => "Asia/Baghdad",
+                    text => "Asia/Baghdad",
                     value => "Asia/Baghdad"
                 },
                 {
-                    label => "Asia/Baku",
+                    text => "Asia/Baku",
                     value => "Asia/Baku"
                 },
                 {
-                    label => "Asia/Bangkok",
+                    text => "Asia/Bangkok",
                     value => "Asia/Bangkok"
                 },
                 {
-                    label => "Asia/Barnaul",
+                    text => "Asia/Barnaul",
                     value => "Asia/Barnaul"
                 },
                 {
-                    label => "Asia/Beirut",
+                    text => "Asia/Beirut",
                     value => "Asia/Beirut"
                 },
                 {
-                    label => "Asia/Bishkek",
+                    text => "Asia/Bishkek",
                     value => "Asia/Bishkek"
                 },
                 {
-                    label => "Asia/Brunei",
+                    text => "Asia/Brunei",
                     value => "Asia/Brunei"
                 },
                 {
-                    label => "Asia/Chita",
+                    text => "Asia/Chita",
                     value => "Asia/Chita"
                 },
                 {
-                    label => "Asia/Choibalsan",
+                    text => "Asia/Choibalsan",
                     value => "Asia/Choibalsan"
                 },
                 {
-                    label => "Asia/Colombo",
+                    text => "Asia/Colombo",
                     value => "Asia/Colombo"
                 },
                 {
-                    label => "Asia/Damascus",
+                    text => "Asia/Damascus",
                     value => "Asia/Damascus"
                 },
                 {
-                    label => "Asia/Dhaka",
+                    text => "Asia/Dhaka",
                     value => "Asia/Dhaka"
                 },
                 {
-                    label => "Asia/Dili",
+                    text => "Asia/Dili",
                     value => "Asia/Dili"
                 },
                 {
-                    label => "Asia/Dubai",
+                    text => "Asia/Dubai",
                     value => "Asia/Dubai"
                 },
                 {
-                    label => "Asia/Dushanbe",
+                    text => "Asia/Dushanbe",
                     value => "Asia/Dushanbe"
                 },
                 {
-                    label => "Asia/Famagusta",
+                    text => "Asia/Famagusta",
                     value => "Asia/Famagusta"
                 },
                 {
-                    label => "Asia/Gaza",
+                    text => "Asia/Gaza",
                     value => "Asia/Gaza"
                 },
                 {
-                    label => "Asia/Hebron",
+                    text => "Asia/Hebron",
                     value => "Asia/Hebron"
                 },
                 {
-                    label => "Asia/Ho_Chi_Minh",
+                    text => "Asia/Ho_Chi_Minh",
                     value => "Asia/Ho_Chi_Minh"
                 },
                 {
-                    label => "Asia/Hong_Kong",
+                    text => "Asia/Hong_Kong",
                     value => "Asia/Hong_Kong"
                 },
                 {
-                    label => "Asia/Hovd",
+                    text => "Asia/Hovd",
                     value => "Asia/Hovd"
                 },
                 {
-                    label => "Asia/Irkutsk",
+                    text => "Asia/Irkutsk",
                     value => "Asia/Irkutsk"
                 },
                 {
-                    label => "Asia/Jakarta",
+                    text => "Asia/Jakarta",
                     value => "Asia/Jakarta"
                 },
                 {
-                    label => "Asia/Jayapura",
+                    text => "Asia/Jayapura",
                     value => "Asia/Jayapura"
                 },
                 {
-                    label => "Asia/Jerusalem",
+                    text => "Asia/Jerusalem",
                     value => "Asia/Jerusalem"
                 },
                 {
-                    label => "Asia/Kabul",
+                    text => "Asia/Kabul",
                     value => "Asia/Kabul"
                 },
                 {
-                    label => "Asia/Kamchatka",
+                    text => "Asia/Kamchatka",
                     value => "Asia/Kamchatka"
                 },
                 {
-                    label => "Asia/Karachi",
+                    text => "Asia/Karachi",
                     value => "Asia/Karachi"
                 },
                 {
-                    label => "Asia/Kathmandu",
+                    text => "Asia/Kathmandu",
                     value => "Asia/Kathmandu"
                 },
                 {
-                    label => "Asia/Khandyga",
+                    text => "Asia/Khandyga",
                     value => "Asia/Khandyga"
                 },
                 {
-                    label => "Asia/Kolkata",
+                    text => "Asia/Kolkata",
                     value => "Asia/Kolkata"
                 },
                 {
-                    label => "Asia/Krasnoyarsk",
+                    text => "Asia/Krasnoyarsk",
                     value => "Asia/Krasnoyarsk"
                 },
                 {
-                    label => "Asia/Kuala_Lumpur",
+                    text => "Asia/Kuala_Lumpur",
                     value => "Asia/Kuala_Lumpur"
                 },
                 {
-                    label => "Asia/Kuching",
+                    text => "Asia/Kuching",
                     value => "Asia/Kuching"
                 },
                 {
-                    label => "Asia/Macau",
+                    text => "Asia/Macau",
                     value => "Asia/Macau"
                 },
                 {
-                    label => "Asia/Magadan",
+                    text => "Asia/Magadan",
                     value => "Asia/Magadan"
                 },
                 {
-                    label => "Asia/Makassar",
+                    text => "Asia/Makassar",
                     value => "Asia/Makassar"
                 },
                 {
-                    label => "Asia/Manila",
+                    text => "Asia/Manila",
                     value => "Asia/Manila"
                 },
                 {
-                    label => "Asia/Nicosia",
+                    text => "Asia/Nicosia",
                     value => "Asia/Nicosia"
                 },
                 {
-                    label => "Asia/Novokuznetsk",
+                    text => "Asia/Novokuznetsk",
                     value => "Asia/Novokuznetsk"
                 },
                 {
-                    label => "Asia/Novosibirsk",
+                    text => "Asia/Novosibirsk",
                     value => "Asia/Novosibirsk"
                 },
                 {
-                    label => "Asia/Omsk",
+                    text => "Asia/Omsk",
                     value => "Asia/Omsk"
                 },
                 {
-                    label => "Asia/Oral",
+                    text => "Asia/Oral",
                     value => "Asia/Oral"
                 },
                 {
-                    label => "Asia/Pontianak",
+                    text => "Asia/Pontianak",
                     value => "Asia/Pontianak"
                 },
                 {
-                    label => "Asia/Pyongyang",
+                    text => "Asia/Pyongyang",
                     value => "Asia/Pyongyang"
                 },
                 {
-                    label => "Asia/Qatar",
+                    text => "Asia/Qatar",
                     value => "Asia/Qatar"
                 },
                 {
-                    label => "Asia/Qyzylorda",
+                    text => "Asia/Qyzylorda",
                     value => "Asia/Qyzylorda"
                 },
                 {
-                    label => "Asia/Riyadh",
+                    text => "Asia/Riyadh",
                     value => "Asia/Riyadh"
                 },
                 {
-                    label => "Asia/Sakhalin",
+                    text => "Asia/Sakhalin",
                     value => "Asia/Sakhalin"
                 },
                 {
-                    label => "Asia/Samarkand",
+                    text => "Asia/Samarkand",
                     value => "Asia/Samarkand"
                 },
                 {
-                    label => "Asia/Seoul",
+                    text => "Asia/Seoul",
                     value => "Asia/Seoul"
                 },
                 {
-                    label => "Asia/Shanghai",
+                    text => "Asia/Shanghai",
                     value => "Asia/Shanghai"
                 },
                 {
-                    label => "Asia/Singapore",
+                    text => "Asia/Singapore",
                     value => "Asia/Singapore"
                 },
                 {
-                    label => "Asia/Srednekolymsk",
+                    text => "Asia/Srednekolymsk",
                     value => "Asia/Srednekolymsk"
                 },
                 {
-                    label => "Asia/Taipei",
+                    text => "Asia/Taipei",
                     value => "Asia/Taipei"
                 },
                 {
-                    label => "Asia/Tashkent",
+                    text => "Asia/Tashkent",
                     value => "Asia/Tashkent"
                 },
                 {
-                    label => "Asia/Tbilisi",
+                    text => "Asia/Tbilisi",
                     value => "Asia/Tbilisi"
                 },
                 {
-                    label => "Asia/Tehran",
+                    text => "Asia/Tehran",
                     value => "Asia/Tehran"
                 },
                 {
-                    label => "Asia/Thimphu",
+                    text => "Asia/Thimphu",
                     value => "Asia/Thimphu"
                 },
                 {
-                    label => "Asia/Tokyo",
+                    text => "Asia/Tokyo",
                     value => "Asia/Tokyo"
                 },
                 {
-                    label => "Asia/Tomsk",
+                    text => "Asia/Tomsk",
                     value => "Asia/Tomsk"
                 },
                 {
-                    label => "Asia/Ulaanbaatar",
+                    text => "Asia/Ulaanbaatar",
                     value => "Asia/Ulaanbaatar"
                 },
                 {
-                    label => "Asia/Urumqi",
+                    text => "Asia/Urumqi",
                     value => "Asia/Urumqi"
                 },
                 {
-                    label => "Asia/Ust-Nera",
+                    text => "Asia/Ust-Nera",
                     value => "Asia/Ust-Nera"
                 },
                 {
-                    label => "Asia/Vladivostok",
+                    text => "Asia/Vladivostok",
                     value => "Asia/Vladivostok"
                 },
                 {
-                    label => "Asia/Yakutsk",
+                    text => "Asia/Yakutsk",
                     value => "Asia/Yakutsk"
                 },
                 {
-                    label => "Asia/Yangon",
+                    text => "Asia/Yangon",
                     value => "Asia/Yangon"
                 },
                 {
-                    label => "Asia/Yekaterinburg",
+                    text => "Asia/Yekaterinburg",
                     value => "Asia/Yekaterinburg"
                 },
                 {
-                    label => "Asia/Yerevan",
+                    text => "Asia/Yerevan",
                     value => "Asia/Yerevan"
                 },
                 {
-                    label => "Atlantic/Azores",
+                    text => "Atlantic/Azores",
                     value => "Atlantic/Azores"
                 },
                 {
-                    label => "Atlantic/Bermuda",
+                    text => "Atlantic/Bermuda",
                     value => "Atlantic/Bermuda"
                 },
                 {
-                    label => "Atlantic/Canary",
+                    text => "Atlantic/Canary",
                     value => "Atlantic/Canary"
                 },
                 {
-                    label => "Atlantic/Cape_Verde",
+                    text => "Atlantic/Cape_Verde",
                     value => "Atlantic/Cape_Verde"
                 },
                 {
-                    label => "Atlantic/Faroe",
+                    text => "Atlantic/Faroe",
                     value => "Atlantic/Faroe"
                 },
                 {
-                    label => "Atlantic/Madeira",
+                    text => "Atlantic/Madeira",
                     value => "Atlantic/Madeira"
                 },
                 {
-                    label => "Atlantic/Reykjavik",
+                    text => "Atlantic/Reykjavik",
                     value => "Atlantic/Reykjavik"
                 },
                 {
-                    label => "Atlantic/South_Georgia",
+                    text => "Atlantic/South_Georgia",
                     value => "Atlantic/South_Georgia"
                 },
                 {
-                    label => "Atlantic/Stanley",
+                    text => "Atlantic/Stanley",
                     value => "Atlantic/Stanley"
                 },
                 {
-                    label => "Australia/Adelaide",
+                    text => "Australia/Adelaide",
                     value => "Australia/Adelaide"
                 },
                 {
-                    label => "Australia/Brisbane",
+                    text => "Australia/Brisbane",
                     value => "Australia/Brisbane"
                 },
                 {
-                    label => "Australia/Broken_Hill",
+                    text => "Australia/Broken_Hill",
                     value => "Australia/Broken_Hill"
                 },
                 {
-                    label => "Australia/Currie",
+                    text => "Australia/Currie",
                     value => "Australia/Currie"
                 },
                 {
-                    label => "Australia/Darwin",
+                    text => "Australia/Darwin",
                     value => "Australia/Darwin"
                 },
                 {
-                    label => "Australia/Eucla",
+                    text => "Australia/Eucla",
                     value => "Australia/Eucla"
                 },
                 {
-                    label => "Australia/Hobart",
+                    text => "Australia/Hobart",
                     value => "Australia/Hobart"
                 },
                 {
-                    label => "Australia/Lindeman",
+                    text => "Australia/Lindeman",
                     value => "Australia/Lindeman"
                 },
                 {
-                    label => "Australia/Lord_Howe",
+                    text => "Australia/Lord_Howe",
                     value => "Australia/Lord_Howe"
                 },
                 {
-                    label => "Australia/Melbourne",
+                    text => "Australia/Melbourne",
                     value => "Australia/Melbourne"
                 },
                 {
-                    label => "Australia/Perth",
+                    text => "Australia/Perth",
                     value => "Australia/Perth"
                 },
                 {
-                    label => "Australia/Sydney",
+                    text => "Australia/Sydney",
                     value => "Australia/Sydney"
                 },
                 {
-                    label => "Europe/Amsterdam",
+                    text => "Europe/Amsterdam",
                     value => "Europe/Amsterdam"
                 },
                 {
-                    label => "Europe/Andorra",
+                    text => "Europe/Andorra",
                     value => "Europe/Andorra"
                 },
                 {
-                    label => "Europe/Astrakhan",
+                    text => "Europe/Astrakhan",
                     value => "Europe/Astrakhan"
                 },
                 {
-                    label => "Europe/Athens",
+                    text => "Europe/Athens",
                     value => "Europe/Athens"
                 },
                 {
-                    label => "Europe/Belgrade",
+                    text => "Europe/Belgrade",
                     value => "Europe/Belgrade"
                 },
                 {
-                    label => "Europe/Berlin",
+                    text => "Europe/Berlin",
                     value => "Europe/Berlin"
                 },
                 {
-                    label => "Europe/Brussels",
+                    text => "Europe/Brussels",
                     value => "Europe/Brussels"
                 },
                 {
-                    label => "Europe/Bucharest",
+                    text => "Europe/Bucharest",
                     value => "Europe/Bucharest"
                 },
                 {
-                    label => "Europe/Budapest",
+                    text => "Europe/Budapest",
                     value => "Europe/Budapest"
                 },
                 {
-                    label => "Europe/Chisinau",
+                    text => "Europe/Chisinau",
                     value => "Europe/Chisinau"
                 },
                 {
-                    label => "Europe/Copenhagen",
+                    text => "Europe/Copenhagen",
                     value => "Europe/Copenhagen"
                 },
                 {
-                    label => "Europe/Dublin",
+                    text => "Europe/Dublin",
                     value => "Europe/Dublin"
                 },
                 {
-                    label => "Europe/Gibraltar",
+                    text => "Europe/Gibraltar",
                     value => "Europe/Gibraltar"
                 },
                 {
-                    label => "Europe/Helsinki",
+                    text => "Europe/Helsinki",
                     value => "Europe/Helsinki"
                 },
                 {
-                    label => "Europe/Istanbul",
+                    text => "Europe/Istanbul",
                     value => "Europe/Istanbul"
                 },
                 {
-                    label => "Europe/Kaliningrad",
+                    text => "Europe/Kaliningrad",
                     value => "Europe/Kaliningrad"
                 },
                 {
-                    label => "Europe/Kiev",
+                    text => "Europe/Kiev",
                     value => "Europe/Kiev"
                 },
                 {
-                    label => "Europe/Kirov",
+                    text => "Europe/Kirov",
                     value => "Europe/Kirov"
                 },
                 {
-                    label => "Europe/Lisbon",
+                    text => "Europe/Lisbon",
                     value => "Europe/Lisbon"
                 },
                 {
-                    label => "Europe/London",
+                    text => "Europe/London",
                     value => "Europe/London"
                 },
                 {
-                    label => "Europe/Luxembourg",
+                    text => "Europe/Luxembourg",
                     value => "Europe/Luxembourg"
                 },
                 {
-                    label => "Europe/Madrid",
+                    text => "Europe/Madrid",
                     value => "Europe/Madrid"
                 },
                 {
-                    label => "Europe/Malta",
+                    text => "Europe/Malta",
                     value => "Europe/Malta"
                 },
                 {
-                    label => "Europe/Minsk",
+                    text => "Europe/Minsk",
                     value => "Europe/Minsk"
                 },
                 {
-                    label => "Europe/Monaco",
+                    text => "Europe/Monaco",
                     value => "Europe/Monaco"
                 },
                 {
-                    label => "Europe/Moscow",
+                    text => "Europe/Moscow",
                     value => "Europe/Moscow"
                 },
                 {
-                    label => "Europe/Oslo",
+                    text => "Europe/Oslo",
                     value => "Europe/Oslo"
                 },
                 {
-                    label => "Europe/Paris",
+                    text => "Europe/Paris",
                     value => "Europe/Paris"
                 },
                 {
-                    label => "Europe/Prague",
+                    text => "Europe/Prague",
                     value => "Europe/Prague"
                 },
                 {
-                    label => "Europe/Riga",
+                    text => "Europe/Riga",
                     value => "Europe/Riga"
                 },
                 {
-                    label => "Europe/Rome",
+                    text => "Europe/Rome",
                     value => "Europe/Rome"
                 },
                 {
-                    label => "Europe/Samara",
+                    text => "Europe/Samara",
                     value => "Europe/Samara"
                 },
                 {
-                    label => "Europe/Saratov",
+                    text => "Europe/Saratov",
                     value => "Europe/Saratov"
                 },
                 {
-                    label => "Europe/Simferopol",
+                    text => "Europe/Simferopol",
                     value => "Europe/Simferopol"
                 },
                 {
-                    label => "Europe/Sofia",
+                    text => "Europe/Sofia",
                     value => "Europe/Sofia"
                 },
                 {
-                    label => "Europe/Stockholm",
+                    text => "Europe/Stockholm",
                     value => "Europe/Stockholm"
                 },
                 {
-                    label => "Europe/Tallinn",
+                    text => "Europe/Tallinn",
                     value => "Europe/Tallinn"
                 },
                 {
-                    label => "Europe/Tirane",
+                    text => "Europe/Tirane",
                     value => "Europe/Tirane"
                 },
                 {
-                    label => "Europe/Ulyanovsk",
+                    text => "Europe/Ulyanovsk",
                     value => "Europe/Ulyanovsk"
                 },
                 {
-                    label => "Europe/Uzhgorod",
+                    text => "Europe/Uzhgorod",
                     value => "Europe/Uzhgorod"
                 },
                 {
-                    label => "Europe/Vienna",
+                    text => "Europe/Vienna",
                     value => "Europe/Vienna"
                 },
                 {
-                    label => "Europe/Vilnius",
+                    text => "Europe/Vilnius",
                     value => "Europe/Vilnius"
                 },
                 {
-                    label => "Europe/Volgograd",
+                    text => "Europe/Volgograd",
                     value => "Europe/Volgograd"
                 },
                 {
-                    label => "Europe/Warsaw",
+                    text => "Europe/Warsaw",
                     value => "Europe/Warsaw"
                 },
                 {
-                    label => "Europe/Zaporozhye",
+                    text => "Europe/Zaporozhye",
                     value => "Europe/Zaporozhye"
                 },
                 {
-                    label => "Europe/Zurich",
+                    text => "Europe/Zurich",
                     value => "Europe/Zurich"
                 },
                 {
-                    label => "Indian/Chagos",
+                    text => "Indian/Chagos",
                     value => "Indian/Chagos"
                 },
                 {
-                    label => "Indian/Christmas",
+                    text => "Indian/Christmas",
                     value => "Indian/Christmas"
                 },
                 {
-                    label => "Indian/Cocos",
+                    text => "Indian/Cocos",
                     value => "Indian/Cocos"
                 },
                 {
-                    label => "Indian/Kerguelen",
+                    text => "Indian/Kerguelen",
                     value => "Indian/Kerguelen"
                 },
                 {
-                    label => "Indian/Mahe",
+                    text => "Indian/Mahe",
                     value => "Indian/Mahe"
                 },
                 {
-                    label => "Indian/Maldives",
+                    text => "Indian/Maldives",
                     value => "Indian/Maldives"
                 },
                 {
-                    label => "Indian/Mauritius",
+                    text => "Indian/Mauritius",
                     value => "Indian/Mauritius"
                 },
                 {
-                    label => "Indian/Reunion",
+                    text => "Indian/Reunion",
                     value => "Indian/Reunion"
                 },
                 {
-                    label => "Pacific/Apia",
+                    text => "Pacific/Apia",
                     value => "Pacific/Apia"
                 },
                 {
-                    label => "Pacific/Auckland",
+                    text => "Pacific/Auckland",
                     value => "Pacific/Auckland"
                 },
                 {
-                    label => "Pacific/Bougainville",
+                    text => "Pacific/Bougainville",
                     value => "Pacific/Bougainville"
                 },
                 {
-                    label => "Pacific/Chatham",
+                    text => "Pacific/Chatham",
                     value => "Pacific/Chatham"
                 },
                 {
-                    label => "Pacific/Chuuk",
+                    text => "Pacific/Chuuk",
                     value => "Pacific/Chuuk"
                 },
                 {
-                    label => "Pacific/Easter",
+                    text => "Pacific/Easter",
                     value => "Pacific/Easter"
                 },
                 {
-                    label => "Pacific/Efate",
+                    text => "Pacific/Efate",
                     value => "Pacific/Efate"
                 },
                 {
-                    label => "Pacific/Enderbury",
+                    text => "Pacific/Enderbury",
                     value => "Pacific/Enderbury"
                 },
                 {
-                    label => "Pacific/Fakaofo",
+                    text => "Pacific/Fakaofo",
                     value => "Pacific/Fakaofo"
                 },
                 {
-                    label => "Pacific/Fiji",
+                    text => "Pacific/Fiji",
                     value => "Pacific/Fiji"
                 },
                 {
-                    label => "Pacific/Funafuti",
+                    text => "Pacific/Funafuti",
                     value => "Pacific/Funafuti"
                 },
                 {
-                    label => "Pacific/Galapagos",
+                    text => "Pacific/Galapagos",
                     value => "Pacific/Galapagos"
                 },
                 {
-                    label => "Pacific/Gambier",
+                    text => "Pacific/Gambier",
                     value => "Pacific/Gambier"
                 },
                 {
-                    label => "Pacific/Guadalcanal",
+                    text => "Pacific/Guadalcanal",
                     value => "Pacific/Guadalcanal"
                 },
                 {
-                    label => "Pacific/Guam",
+                    text => "Pacific/Guam",
                     value => "Pacific/Guam"
                 },
                 {
-                    label => "Pacific/Honolulu",
+                    text => "Pacific/Honolulu",
                     value => "Pacific/Honolulu"
                 },
                 {
-                    label => "Pacific/Kiritimati",
+                    text => "Pacific/Kiritimati",
                     value => "Pacific/Kiritimati"
                 },
                 {
-                    label => "Pacific/Kosrae",
+                    text => "Pacific/Kosrae",
                     value => "Pacific/Kosrae"
                 },
                 {
-                    label => "Pacific/Kwajalein",
+                    text => "Pacific/Kwajalein",
                     value => "Pacific/Kwajalein"
                 },
                 {
-                    label => "Pacific/Majuro",
+                    text => "Pacific/Majuro",
                     value => "Pacific/Majuro"
                 },
                 {
-                    label => "Pacific/Marquesas",
+                    text => "Pacific/Marquesas",
                     value => "Pacific/Marquesas"
                 },
                 {
-                    label => "Pacific/Nauru",
+                    text => "Pacific/Nauru",
                     value => "Pacific/Nauru"
                 },
                 {
-                    label => "Pacific/Niue",
+                    text => "Pacific/Niue",
                     value => "Pacific/Niue"
                 },
                 {
-                    label => "Pacific/Norfolk",
+                    text => "Pacific/Norfolk",
                     value => "Pacific/Norfolk"
                 },
                 {
-                    label => "Pacific/Noumea",
+                    text => "Pacific/Noumea",
                     value => "Pacific/Noumea"
                 },
                 {
-                    label => "Pacific/Pago_Pago",
+                    text => "Pacific/Pago_Pago",
                     value => "Pacific/Pago_Pago"
                 },
                 {
-                    label => "Pacific/Palau",
+                    text => "Pacific/Palau",
                     value => "Pacific/Palau"
                 },
                 {
-                    label => "Pacific/Pitcairn",
+                    text => "Pacific/Pitcairn",
                     value => "Pacific/Pitcairn"
                 },
                 {
-                    label => "Pacific/Pohnpei",
+                    text => "Pacific/Pohnpei",
                     value => "Pacific/Pohnpei"
                 },
                 {
-                    label => "Pacific/Port_Moresby",
+                    text => "Pacific/Port_Moresby",
                     value => "Pacific/Port_Moresby"
                 },
                 {
-                    label => "Pacific/Rarotonga",
+                    text => "Pacific/Rarotonga",
                     value => "Pacific/Rarotonga"
                 },
                 {
-                    label => "Pacific/Tahiti",
+                    text => "Pacific/Tahiti",
                     value => "Pacific/Tahiti"
                 },
                 {
-                    label => "Pacific/Tarawa",
+                    text => "Pacific/Tarawa",
                     value => "Pacific/Tarawa"
                 },
                 {
-                    label => "Pacific/Tongatapu",
+                    text => "Pacific/Tongatapu",
                     value => "Pacific/Tongatapu"
                 },
                 {
-                    label => "Pacific/Wake",
+                    text => "Pacific/Wake",
                     value => "Pacific/Wake"
                 },
                 {
-                    label => "Pacific/Wallis",
+                    text => "Pacific/Wallis",
                     value => "Pacific/Wallis"
                 }
             ]
@@ -1734,1387 +1734,1387 @@ $t->options_ok("/api/v1/config/base/general")
             timezone => {
                 allowed => [
                     {
-                        label => "",
+                        text => "",
                         value => ""
                     },
                     {
-                        label => "Africa/Abidjan",
+                        text => "Africa/Abidjan",
                         value => "Africa/Abidjan"
                     },
                     {
-                        label => "Africa/Accra",
+                        text => "Africa/Accra",
                         value => "Africa/Accra"
                     },
                     {
-                        label => "Africa/Algiers",
+                        text => "Africa/Algiers",
                         value => "Africa/Algiers"
                     },
                     {
-                        label => "Africa/Bissau",
+                        text => "Africa/Bissau",
                         value => "Africa/Bissau"
                     },
                     {
-                        label => "Africa/Cairo",
+                        text => "Africa/Cairo",
                         value => "Africa/Cairo"
                     },
                     {
-                        label => "Africa/Casablanca",
+                        text => "Africa/Casablanca",
                         value => "Africa/Casablanca"
                     },
                     {
-                        label => "Africa/Ceuta",
+                        text => "Africa/Ceuta",
                         value => "Africa/Ceuta"
                     },
                     {
-                        label => "Africa/El_Aaiun",
+                        text => "Africa/El_Aaiun",
                         value => "Africa/El_Aaiun"
                     },
                     {
-                        label => "Africa/Johannesburg",
+                        text => "Africa/Johannesburg",
                         value => "Africa/Johannesburg"
                     },
                     {
-                        label => "Africa/Khartoum",
+                        text => "Africa/Khartoum",
                         value => "Africa/Khartoum"
                     },
                     {
-                        label => "Africa/Lagos",
+                        text => "Africa/Lagos",
                         value => "Africa/Lagos"
                     },
                     {
-                        label => "Africa/Maputo",
+                        text => "Africa/Maputo",
                         value => "Africa/Maputo"
                     },
                     {
-                        label => "Africa/Monrovia",
+                        text => "Africa/Monrovia",
                         value => "Africa/Monrovia"
                     },
                     {
-                        label => "Africa/Nairobi",
+                        text => "Africa/Nairobi",
                         value => "Africa/Nairobi"
                     },
                     {
-                        label => "Africa/Ndjamena",
+                        text => "Africa/Ndjamena",
                         value => "Africa/Ndjamena"
                     },
                     {
-                        label => "Africa/Tripoli",
+                        text => "Africa/Tripoli",
                         value => "Africa/Tripoli"
                     },
                     {
-                        label => "Africa/Tunis",
+                        text => "Africa/Tunis",
                         value => "Africa/Tunis"
                     },
                     {
-                        label => "Africa/Windhoek",
+                        text => "Africa/Windhoek",
                         value => "Africa/Windhoek"
                     },
                     {
-                        label => "America/Adak",
+                        text => "America/Adak",
                         value => "America/Adak"
                     },
                     {
-                        label => "America/Anchorage",
+                        text => "America/Anchorage",
                         value => "America/Anchorage"
                     },
                     {
-                        label => "America/Araguaina",
+                        text => "America/Araguaina",
                         value => "America/Araguaina"
                     },
                     {
-                        label => "America/Argentina/Buenos_Aires",
+                        text => "America/Argentina/Buenos_Aires",
                         value => "America/Argentina/Buenos_Aires"
                     },
                     {
-                        label => "America/Argentina/Catamarca",
+                        text => "America/Argentina/Catamarca",
                         value => "America/Argentina/Catamarca"
                     },
                     {
-                        label => "America/Argentina/Cordoba",
+                        text => "America/Argentina/Cordoba",
                         value => "America/Argentina/Cordoba"
                     },
                     {
-                        label => "America/Argentina/Jujuy",
+                        text => "America/Argentina/Jujuy",
                         value => "America/Argentina/Jujuy"
                     },
                     {
-                        label => "America/Argentina/La_Rioja",
+                        text => "America/Argentina/La_Rioja",
                         value => "America/Argentina/La_Rioja"
                     },
                     {
-                        label => "America/Argentina/Mendoza",
+                        text => "America/Argentina/Mendoza",
                         value => "America/Argentina/Mendoza"
                     },
                     {
-                        label => "America/Argentina/Rio_Gallegos",
+                        text => "America/Argentina/Rio_Gallegos",
                         value => "America/Argentina/Rio_Gallegos"
                     },
                     {
-                        label => "America/Argentina/Salta",
+                        text => "America/Argentina/Salta",
                         value => "America/Argentina/Salta"
                     },
                     {
-                        label => "America/Argentina/San_Juan",
+                        text => "America/Argentina/San_Juan",
                         value => "America/Argentina/San_Juan"
                     },
                     {
-                        label => "America/Argentina/San_Luis",
+                        text => "America/Argentina/San_Luis",
                         value => "America/Argentina/San_Luis"
                     },
                     {
-                        label => "America/Argentina/Tucuman",
+                        text => "America/Argentina/Tucuman",
                         value => "America/Argentina/Tucuman"
                     },
                     {
-                        label => "America/Argentina/Ushuaia",
+                        text => "America/Argentina/Ushuaia",
                         value => "America/Argentina/Ushuaia"
                     },
                     {
-                        label => "America/Asuncion",
+                        text => "America/Asuncion",
                         value => "America/Asuncion"
                     },
                     {
-                        label => "America/Atikokan",
+                        text => "America/Atikokan",
                         value => "America/Atikokan"
                     },
                     {
-                        label => "America/Bahia",
+                        text => "America/Bahia",
                         value => "America/Bahia"
                     },
                     {
-                        label => "America/Bahia_Banderas",
+                        text => "America/Bahia_Banderas",
                         value => "America/Bahia_Banderas"
                     },
                     {
-                        label => "America/Barbados",
+                        text => "America/Barbados",
                         value => "America/Barbados"
                     },
                     {
-                        label => "America/Belem",
+                        text => "America/Belem",
                         value => "America/Belem"
                     },
                     {
-                        label => "America/Belize",
+                        text => "America/Belize",
                         value => "America/Belize"
                     },
                     {
-                        label => "America/Blanc-Sablon",
+                        text => "America/Blanc-Sablon",
                         value => "America/Blanc-Sablon"
                     },
                     {
-                        label => "America/Boa_Vista",
+                        text => "America/Boa_Vista",
                         value => "America/Boa_Vista"
                     },
                     {
-                        label => "America/Bogota",
+                        text => "America/Bogota",
                         value => "America/Bogota"
                     },
                     {
-                        label => "America/Boise",
+                        text => "America/Boise",
                         value => "America/Boise"
                     },
                     {
-                        label => "America/Cambridge_Bay",
+                        text => "America/Cambridge_Bay",
                         value => "America/Cambridge_Bay"
                     },
                     {
-                        label => "America/Campo_Grande",
+                        text => "America/Campo_Grande",
                         value => "America/Campo_Grande"
                     },
                     {
-                        label => "America/Cancun",
+                        text => "America/Cancun",
                         value => "America/Cancun"
                     },
                     {
-                        label => "America/Caracas",
+                        text => "America/Caracas",
                         value => "America/Caracas"
                     },
                     {
-                        label => "America/Cayenne",
+                        text => "America/Cayenne",
                         value => "America/Cayenne"
                     },
                     {
-                        label => "America/Chicago",
+                        text => "America/Chicago",
                         value => "America/Chicago"
                     },
                     {
-                        label => "America/Chihuahua",
+                        text => "America/Chihuahua",
                         value => "America/Chihuahua"
                     },
                     {
-                        label => "America/Costa_Rica",
+                        text => "America/Costa_Rica",
                         value => "America/Costa_Rica"
                     },
                     {
-                        label => "America/Creston",
+                        text => "America/Creston",
                         value => "America/Creston"
                     },
                     {
-                        label => "America/Cuiaba",
+                        text => "America/Cuiaba",
                         value => "America/Cuiaba"
                     },
                     {
-                        label => "America/Curacao",
+                        text => "America/Curacao",
                         value => "America/Curacao"
                     },
                     {
-                        label => "America/Danmarkshavn",
+                        text => "America/Danmarkshavn",
                         value => "America/Danmarkshavn"
                     },
                     {
-                        label => "America/Dawson",
+                        text => "America/Dawson",
                         value => "America/Dawson"
                     },
                     {
-                        label => "America/Dawson_Creek",
+                        text => "America/Dawson_Creek",
                         value => "America/Dawson_Creek"
                     },
                     {
-                        label => "America/Denver",
+                        text => "America/Denver",
                         value => "America/Denver"
                     },
                     {
-                        label => "America/Detroit",
+                        text => "America/Detroit",
                         value => "America/Detroit"
                     },
                     {
-                        label => "America/Edmonton",
+                        text => "America/Edmonton",
                         value => "America/Edmonton"
                     },
                     {
-                        label => "America/Eirunepe",
+                        text => "America/Eirunepe",
                         value => "America/Eirunepe"
                     },
                     {
-                        label => "America/El_Salvador",
+                        text => "America/El_Salvador",
                         value => "America/El_Salvador"
                     },
                     {
-                        label => "America/Fort_Nelson",
+                        text => "America/Fort_Nelson",
                         value => "America/Fort_Nelson"
                     },
                     {
-                        label => "America/Fortaleza",
+                        text => "America/Fortaleza",
                         value => "America/Fortaleza"
                     },
                     {
-                        label => "America/Glace_Bay",
+                        text => "America/Glace_Bay",
                         value => "America/Glace_Bay"
                     },
                     {
-                        label => "America/Godthab",
+                        text => "America/Godthab",
                         value => "America/Godthab"
                     },
                     {
-                        label => "America/Goose_Bay",
+                        text => "America/Goose_Bay",
                         value => "America/Goose_Bay"
                     },
                     {
-                        label => "America/Grand_Turk",
+                        text => "America/Grand_Turk",
                         value => "America/Grand_Turk"
                     },
                     {
-                        label => "America/Guatemala",
+                        text => "America/Guatemala",
                         value => "America/Guatemala"
                     },
                     {
-                        label => "America/Guayaquil",
+                        text => "America/Guayaquil",
                         value => "America/Guayaquil"
                     },
                     {
-                        label => "America/Guyana",
+                        text => "America/Guyana",
                         value => "America/Guyana"
                     },
                     {
-                        label => "America/Halifax",
+                        text => "America/Halifax",
                         value => "America/Halifax"
                     },
                     {
-                        label => "America/Havana",
+                        text => "America/Havana",
                         value => "America/Havana"
                     },
                     {
-                        label => "America/Hermosillo",
+                        text => "America/Hermosillo",
                         value => "America/Hermosillo"
                     },
                     {
-                        label => "America/Indiana/Indianapolis",
+                        text => "America/Indiana/Indianapolis",
                         value => "America/Indiana/Indianapolis"
                     },
                     {
-                        label => "America/Indiana/Knox",
+                        text => "America/Indiana/Knox",
                         value => "America/Indiana/Knox"
                     },
                     {
-                        label => "America/Indiana/Marengo",
+                        text => "America/Indiana/Marengo",
                         value => "America/Indiana/Marengo"
                     },
                     {
-                        label => "America/Indiana/Petersburg",
+                        text => "America/Indiana/Petersburg",
                         value => "America/Indiana/Petersburg"
                     },
                     {
-                        label => "America/Indiana/Tell_City",
+                        text => "America/Indiana/Tell_City",
                         value => "America/Indiana/Tell_City"
                     },
                     {
-                        label => "America/Indiana/Vevay",
+                        text => "America/Indiana/Vevay",
                         value => "America/Indiana/Vevay"
                     },
                     {
-                        label => "America/Indiana/Vincennes",
+                        text => "America/Indiana/Vincennes",
                         value => "America/Indiana/Vincennes"
                     },
                     {
-                        label => "America/Indiana/Winamac",
+                        text => "America/Indiana/Winamac",
                         value => "America/Indiana/Winamac"
                     },
                     {
-                        label => "America/Inuvik",
+                        text => "America/Inuvik",
                         value => "America/Inuvik"
                     },
                     {
-                        label => "America/Iqaluit",
+                        text => "America/Iqaluit",
                         value => "America/Iqaluit"
                     },
                     {
-                        label => "America/Jamaica",
+                        text => "America/Jamaica",
                         value => "America/Jamaica"
                     },
                     {
-                        label => "America/Juneau",
+                        text => "America/Juneau",
                         value => "America/Juneau"
                     },
                     {
-                        label => "America/Kentucky/Louisville",
+                        text => "America/Kentucky/Louisville",
                         value => "America/Kentucky/Louisville"
                     },
                     {
-                        label => "America/Kentucky/Monticello",
+                        text => "America/Kentucky/Monticello",
                         value => "America/Kentucky/Monticello"
                     },
                     {
-                        label => "America/La_Paz",
+                        text => "America/La_Paz",
                         value => "America/La_Paz"
                     },
                     {
-                        label => "America/Lima",
+                        text => "America/Lima",
                         value => "America/Lima"
                     },
                     {
-                        label => "America/Los_Angeles",
+                        text => "America/Los_Angeles",
                         value => "America/Los_Angeles"
                     },
                     {
-                        label => "America/Maceio",
+                        text => "America/Maceio",
                         value => "America/Maceio"
                     },
                     {
-                        label => "America/Managua",
+                        text => "America/Managua",
                         value => "America/Managua"
                     },
                     {
-                        label => "America/Manaus",
+                        text => "America/Manaus",
                         value => "America/Manaus"
                     },
                     {
-                        label => "America/Martinique",
+                        text => "America/Martinique",
                         value => "America/Martinique"
                     },
                     {
-                        label => "America/Matamoros",
+                        text => "America/Matamoros",
                         value => "America/Matamoros"
                     },
                     {
-                        label => "America/Mazatlan",
+                        text => "America/Mazatlan",
                         value => "America/Mazatlan"
                     },
                     {
-                        label => "America/Menominee",
+                        text => "America/Menominee",
                         value => "America/Menominee"
                     },
                     {
-                        label => "America/Merida",
+                        text => "America/Merida",
                         value => "America/Merida"
                     },
                     {
-                        label => "America/Metlakatla",
+                        text => "America/Metlakatla",
                         value => "America/Metlakatla"
                     },
                     {
-                        label => "America/Mexico_City",
+                        text => "America/Mexico_City",
                         value => "America/Mexico_City"
                     },
                     {
-                        label => "America/Miquelon",
+                        text => "America/Miquelon",
                         value => "America/Miquelon"
                     },
                     {
-                        label => "America/Moncton",
+                        text => "America/Moncton",
                         value => "America/Moncton"
                     },
                     {
-                        label => "America/Monterrey",
+                        text => "America/Monterrey",
                         value => "America/Monterrey"
                     },
                     {
-                        label => "America/Montevideo",
+                        text => "America/Montevideo",
                         value => "America/Montevideo"
                     },
                     {
-                        label => "America/Nassau",
+                        text => "America/Nassau",
                         value => "America/Nassau"
                     },
                     {
-                        label => "America/New_York",
+                        text => "America/New_York",
                         value => "America/New_York"
                     },
                     {
-                        label => "America/Nipigon",
+                        text => "America/Nipigon",
                         value => "America/Nipigon"
                     },
                     {
-                        label => "America/Nome",
+                        text => "America/Nome",
                         value => "America/Nome"
                     },
                     {
-                        label => "America/Noronha",
+                        text => "America/Noronha",
                         value => "America/Noronha"
                     },
                     {
-                        label => "America/North_Dakota/Beulah",
+                        text => "America/North_Dakota/Beulah",
                         value => "America/North_Dakota/Beulah"
                     },
                     {
-                        label => "America/North_Dakota/Center",
+                        text => "America/North_Dakota/Center",
                         value => "America/North_Dakota/Center"
                     },
                     {
-                        label => "America/North_Dakota/New_Salem",
+                        text => "America/North_Dakota/New_Salem",
                         value => "America/North_Dakota/New_Salem"
                     },
                     {
-                        label => "America/Ojinaga",
+                        text => "America/Ojinaga",
                         value => "America/Ojinaga"
                     },
                     {
-                        label => "America/Panama",
+                        text => "America/Panama",
                         value => "America/Panama"
                     },
                     {
-                        label => "America/Pangnirtung",
+                        text => "America/Pangnirtung",
                         value => "America/Pangnirtung"
                     },
                     {
-                        label => "America/Paramaribo",
+                        text => "America/Paramaribo",
                         value => "America/Paramaribo"
                     },
                     {
-                        label => "America/Phoenix",
+                        text => "America/Phoenix",
                         value => "America/Phoenix"
                     },
                     {
-                        label => "America/Port-au-Prince",
+                        text => "America/Port-au-Prince",
                         value => "America/Port-au-Prince"
                     },
                     {
-                        label => "America/Port_of_Spain",
+                        text => "America/Port_of_Spain",
                         value => "America/Port_of_Spain"
                     },
                     {
-                        label => "America/Porto_Velho",
+                        text => "America/Porto_Velho",
                         value => "America/Porto_Velho"
                     },
                     {
-                        label => "America/Puerto_Rico",
+                        text => "America/Puerto_Rico",
                         value => "America/Puerto_Rico"
                     },
                     {
-                        label => "America/Punta_Arenas",
+                        text => "America/Punta_Arenas",
                         value => "America/Punta_Arenas"
                     },
                     {
-                        label => "America/Rainy_River",
+                        text => "America/Rainy_River",
                         value => "America/Rainy_River"
                     },
                     {
-                        label => "America/Rankin_Inlet",
+                        text => "America/Rankin_Inlet",
                         value => "America/Rankin_Inlet"
                     },
                     {
-                        label => "America/Recife",
+                        text => "America/Recife",
                         value => "America/Recife"
                     },
                     {
-                        label => "America/Regina",
+                        text => "America/Regina",
                         value => "America/Regina"
                     },
                     {
-                        label => "America/Resolute",
+                        text => "America/Resolute",
                         value => "America/Resolute"
                     },
                     {
-                        label => "America/Rio_Branco",
+                        text => "America/Rio_Branco",
                         value => "America/Rio_Branco"
                     },
                     {
-                        label => "America/Santarem",
+                        text => "America/Santarem",
                         value => "America/Santarem"
                     },
                     {
-                        label => "America/Santiago",
+                        text => "America/Santiago",
                         value => "America/Santiago"
                     },
                     {
-                        label => "America/Santo_Domingo",
+                        text => "America/Santo_Domingo",
                         value => "America/Santo_Domingo"
                     },
                     {
-                        label => "America/Sao_Paulo",
+                        text => "America/Sao_Paulo",
                         value => "America/Sao_Paulo"
                     },
                     {
-                        label => "America/Scoresbysund",
+                        text => "America/Scoresbysund",
                         value => "America/Scoresbysund"
                     },
                     {
-                        label => "America/Sitka",
+                        text => "America/Sitka",
                         value => "America/Sitka"
                     },
                     {
-                        label => "America/St_Johns",
+                        text => "America/St_Johns",
                         value => "America/St_Johns"
                     },
                     {
-                        label => "America/Swift_Current",
+                        text => "America/Swift_Current",
                         value => "America/Swift_Current"
                     },
                     {
-                        label => "America/Tegucigalpa",
+                        text => "America/Tegucigalpa",
                         value => "America/Tegucigalpa"
                     },
                     {
-                        label => "America/Thule",
+                        text => "America/Thule",
                         value => "America/Thule"
                     },
                     {
-                        label => "America/Thunder_Bay",
+                        text => "America/Thunder_Bay",
                         value => "America/Thunder_Bay"
                     },
                     {
-                        label => "America/Tijuana",
+                        text => "America/Tijuana",
                         value => "America/Tijuana"
                     },
                     {
-                        label => "America/Toronto",
+                        text => "America/Toronto",
                         value => "America/Toronto"
                     },
                     {
-                        label => "America/Vancouver",
+                        text => "America/Vancouver",
                         value => "America/Vancouver"
                     },
                     {
-                        label => "America/Whitehorse",
+                        text => "America/Whitehorse",
                         value => "America/Whitehorse"
                     },
                     {
-                        label => "America/Winnipeg",
+                        text => "America/Winnipeg",
                         value => "America/Winnipeg"
                     },
                     {
-                        label => "America/Yakutat",
+                        text => "America/Yakutat",
                         value => "America/Yakutat"
                     },
                     {
-                        label => "America/Yellowknife",
+                        text => "America/Yellowknife",
                         value => "America/Yellowknife"
                     },
                     {
-                        label => "Antarctica/Casey",
+                        text => "Antarctica/Casey",
                         value => "Antarctica/Casey"
                     },
                     {
-                        label => "Antarctica/Davis",
+                        text => "Antarctica/Davis",
                         value => "Antarctica/Davis"
                     },
                     {
-                        label => "Antarctica/DumontDUrville",
+                        text => "Antarctica/DumontDUrville",
                         value => "Antarctica/DumontDUrville"
                     },
                     {
-                        label => "Antarctica/Macquarie",
+                        text => "Antarctica/Macquarie",
                         value => "Antarctica/Macquarie"
                     },
                     {
-                        label => "Antarctica/Mawson",
+                        text => "Antarctica/Mawson",
                         value => "Antarctica/Mawson"
                     },
                     {
-                        label => "Antarctica/Palmer",
+                        text => "Antarctica/Palmer",
                         value => "Antarctica/Palmer"
                     },
                     {
-                        label => "Antarctica/Rothera",
+                        text => "Antarctica/Rothera",
                         value => "Antarctica/Rothera"
                     },
                     {
-                        label => "Antarctica/Syowa",
+                        text => "Antarctica/Syowa",
                         value => "Antarctica/Syowa"
                     },
                     {
-                        label => "Antarctica/Troll",
+                        text => "Antarctica/Troll",
                         value => "Antarctica/Troll"
                     },
                     {
-                        label => "Antarctica/Vostok",
+                        text => "Antarctica/Vostok",
                         value => "Antarctica/Vostok"
                     },
                     {
-                        label => "Asia/Almaty",
+                        text => "Asia/Almaty",
                         value => "Asia/Almaty"
                     },
                     {
-                        label => "Asia/Amman",
+                        text => "Asia/Amman",
                         value => "Asia/Amman"
                     },
                     {
-                        label => "Asia/Anadyr",
+                        text => "Asia/Anadyr",
                         value => "Asia/Anadyr"
                     },
                     {
-                        label => "Asia/Aqtau",
+                        text => "Asia/Aqtau",
                         value => "Asia/Aqtau"
                     },
                     {
-                        label => "Asia/Aqtobe",
+                        text => "Asia/Aqtobe",
                         value => "Asia/Aqtobe"
                     },
                     {
-                        label => "Asia/Ashgabat",
+                        text => "Asia/Ashgabat",
                         value => "Asia/Ashgabat"
                     },
                     {
-                        label => "Asia/Atyrau",
+                        text => "Asia/Atyrau",
                         value => "Asia/Atyrau"
                     },
                     {
-                        label => "Asia/Baghdad",
+                        text => "Asia/Baghdad",
                         value => "Asia/Baghdad"
                     },
                     {
-                        label => "Asia/Baku",
+                        text => "Asia/Baku",
                         value => "Asia/Baku"
                     },
                     {
-                        label => "Asia/Bangkok",
+                        text => "Asia/Bangkok",
                         value => "Asia/Bangkok"
                     },
                     {
-                        label => "Asia/Barnaul",
+                        text => "Asia/Barnaul",
                         value => "Asia/Barnaul"
                     },
                     {
-                        label => "Asia/Beirut",
+                        text => "Asia/Beirut",
                         value => "Asia/Beirut"
                     },
                     {
-                        label => "Asia/Bishkek",
+                        text => "Asia/Bishkek",
                         value => "Asia/Bishkek"
                     },
                     {
-                        label => "Asia/Brunei",
+                        text => "Asia/Brunei",
                         value => "Asia/Brunei"
                     },
                     {
-                        label => "Asia/Chita",
+                        text => "Asia/Chita",
                         value => "Asia/Chita"
                     },
                     {
-                        label => "Asia/Choibalsan",
+                        text => "Asia/Choibalsan",
                         value => "Asia/Choibalsan"
                     },
                     {
-                        label => "Asia/Colombo",
+                        text => "Asia/Colombo",
                         value => "Asia/Colombo"
                     },
                     {
-                        label => "Asia/Damascus",
+                        text => "Asia/Damascus",
                         value => "Asia/Damascus"
                     },
                     {
-                        label => "Asia/Dhaka",
+                        text => "Asia/Dhaka",
                         value => "Asia/Dhaka"
                     },
                     {
-                        label => "Asia/Dili",
+                        text => "Asia/Dili",
                         value => "Asia/Dili"
                     },
                     {
-                        label => "Asia/Dubai",
+                        text => "Asia/Dubai",
                         value => "Asia/Dubai"
                     },
                     {
-                        label => "Asia/Dushanbe",
+                        text => "Asia/Dushanbe",
                         value => "Asia/Dushanbe"
                     },
                     {
-                        label => "Asia/Famagusta",
+                        text => "Asia/Famagusta",
                         value => "Asia/Famagusta"
                     },
                     {
-                        label => "Asia/Gaza",
+                        text => "Asia/Gaza",
                         value => "Asia/Gaza"
                     },
                     {
-                        label => "Asia/Hebron",
+                        text => "Asia/Hebron",
                         value => "Asia/Hebron"
                     },
                     {
-                        label => "Asia/Ho_Chi_Minh",
+                        text => "Asia/Ho_Chi_Minh",
                         value => "Asia/Ho_Chi_Minh"
                     },
                     {
-                        label => "Asia/Hong_Kong",
+                        text => "Asia/Hong_Kong",
                         value => "Asia/Hong_Kong"
                     },
                     {
-                        label => "Asia/Hovd",
+                        text => "Asia/Hovd",
                         value => "Asia/Hovd"
                     },
                     {
-                        label => "Asia/Irkutsk",
+                        text => "Asia/Irkutsk",
                         value => "Asia/Irkutsk"
                     },
                     {
-                        label => "Asia/Jakarta",
+                        text => "Asia/Jakarta",
                         value => "Asia/Jakarta"
                     },
                     {
-                        label => "Asia/Jayapura",
+                        text => "Asia/Jayapura",
                         value => "Asia/Jayapura"
                     },
                     {
-                        label => "Asia/Jerusalem",
+                        text => "Asia/Jerusalem",
                         value => "Asia/Jerusalem"
                     },
                     {
-                        label => "Asia/Kabul",
+                        text => "Asia/Kabul",
                         value => "Asia/Kabul"
                     },
                     {
-                        label => "Asia/Kamchatka",
+                        text => "Asia/Kamchatka",
                         value => "Asia/Kamchatka"
                     },
                     {
-                        label => "Asia/Karachi",
+                        text => "Asia/Karachi",
                         value => "Asia/Karachi"
                     },
                     {
-                        label => "Asia/Kathmandu",
+                        text => "Asia/Kathmandu",
                         value => "Asia/Kathmandu"
                     },
                     {
-                        label => "Asia/Khandyga",
+                        text => "Asia/Khandyga",
                         value => "Asia/Khandyga"
                     },
                     {
-                        label => "Asia/Kolkata",
+                        text => "Asia/Kolkata",
                         value => "Asia/Kolkata"
                     },
                     {
-                        label => "Asia/Krasnoyarsk",
+                        text => "Asia/Krasnoyarsk",
                         value => "Asia/Krasnoyarsk"
                     },
                     {
-                        label => "Asia/Kuala_Lumpur",
+                        text => "Asia/Kuala_Lumpur",
                         value => "Asia/Kuala_Lumpur"
                     },
                     {
-                        label => "Asia/Kuching",
+                        text => "Asia/Kuching",
                         value => "Asia/Kuching"
                     },
                     {
-                        label => "Asia/Macau",
+                        text => "Asia/Macau",
                         value => "Asia/Macau"
                     },
                     {
-                        label => "Asia/Magadan",
+                        text => "Asia/Magadan",
                         value => "Asia/Magadan"
                     },
                     {
-                        label => "Asia/Makassar",
+                        text => "Asia/Makassar",
                         value => "Asia/Makassar"
                     },
                     {
-                        label => "Asia/Manila",
+                        text => "Asia/Manila",
                         value => "Asia/Manila"
                     },
                     {
-                        label => "Asia/Nicosia",
+                        text => "Asia/Nicosia",
                         value => "Asia/Nicosia"
                     },
                     {
-                        label => "Asia/Novokuznetsk",
+                        text => "Asia/Novokuznetsk",
                         value => "Asia/Novokuznetsk"
                     },
                     {
-                        label => "Asia/Novosibirsk",
+                        text => "Asia/Novosibirsk",
                         value => "Asia/Novosibirsk"
                     },
                     {
-                        label => "Asia/Omsk",
+                        text => "Asia/Omsk",
                         value => "Asia/Omsk"
                     },
                     {
-                        label => "Asia/Oral",
+                        text => "Asia/Oral",
                         value => "Asia/Oral"
                     },
                     {
-                        label => "Asia/Pontianak",
+                        text => "Asia/Pontianak",
                         value => "Asia/Pontianak"
                     },
                     {
-                        label => "Asia/Pyongyang",
+                        text => "Asia/Pyongyang",
                         value => "Asia/Pyongyang"
                     },
                     {
-                        label => "Asia/Qatar",
+                        text => "Asia/Qatar",
                         value => "Asia/Qatar"
                     },
                     {
-                        label => "Asia/Qyzylorda",
+                        text => "Asia/Qyzylorda",
                         value => "Asia/Qyzylorda"
                     },
                     {
-                        label => "Asia/Riyadh",
+                        text => "Asia/Riyadh",
                         value => "Asia/Riyadh"
                     },
                     {
-                        label => "Asia/Sakhalin",
+                        text => "Asia/Sakhalin",
                         value => "Asia/Sakhalin"
                     },
                     {
-                        label => "Asia/Samarkand",
+                        text => "Asia/Samarkand",
                         value => "Asia/Samarkand"
                     },
                     {
-                        label => "Asia/Seoul",
+                        text => "Asia/Seoul",
                         value => "Asia/Seoul"
                     },
                     {
-                        label => "Asia/Shanghai",
+                        text => "Asia/Shanghai",
                         value => "Asia/Shanghai"
                     },
                     {
-                        label => "Asia/Singapore",
+                        text => "Asia/Singapore",
                         value => "Asia/Singapore"
                     },
                     {
-                        label => "Asia/Srednekolymsk",
+                        text => "Asia/Srednekolymsk",
                         value => "Asia/Srednekolymsk"
                     },
                     {
-                        label => "Asia/Taipei",
+                        text => "Asia/Taipei",
                         value => "Asia/Taipei"
                     },
                     {
-                        label => "Asia/Tashkent",
+                        text => "Asia/Tashkent",
                         value => "Asia/Tashkent"
                     },
                     {
-                        label => "Asia/Tbilisi",
+                        text => "Asia/Tbilisi",
                         value => "Asia/Tbilisi"
                     },
                     {
-                        label => "Asia/Tehran",
+                        text => "Asia/Tehran",
                         value => "Asia/Tehran"
                     },
                     {
-                        label => "Asia/Thimphu",
+                        text => "Asia/Thimphu",
                         value => "Asia/Thimphu"
                     },
                     {
-                        label => "Asia/Tokyo",
+                        text => "Asia/Tokyo",
                         value => "Asia/Tokyo"
                     },
                     {
-                        label => "Asia/Tomsk",
+                        text => "Asia/Tomsk",
                         value => "Asia/Tomsk"
                     },
                     {
-                        label => "Asia/Ulaanbaatar",
+                        text => "Asia/Ulaanbaatar",
                         value => "Asia/Ulaanbaatar"
                     },
                     {
-                        label => "Asia/Urumqi",
+                        text => "Asia/Urumqi",
                         value => "Asia/Urumqi"
                     },
                     {
-                        label => "Asia/Ust-Nera",
+                        text => "Asia/Ust-Nera",
                         value => "Asia/Ust-Nera"
                     },
                     {
-                        label => "Asia/Vladivostok",
+                        text => "Asia/Vladivostok",
                         value => "Asia/Vladivostok"
                     },
                     {
-                        label => "Asia/Yakutsk",
+                        text => "Asia/Yakutsk",
                         value => "Asia/Yakutsk"
                     },
                     {
-                        label => "Asia/Yangon",
+                        text => "Asia/Yangon",
                         value => "Asia/Yangon"
                     },
                     {
-                        label => "Asia/Yekaterinburg",
+                        text => "Asia/Yekaterinburg",
                         value => "Asia/Yekaterinburg"
                     },
                     {
-                        label => "Asia/Yerevan",
+                        text => "Asia/Yerevan",
                         value => "Asia/Yerevan"
                     },
                     {
-                        label => "Atlantic/Azores",
+                        text => "Atlantic/Azores",
                         value => "Atlantic/Azores"
                     },
                     {
-                        label => "Atlantic/Bermuda",
+                        text => "Atlantic/Bermuda",
                         value => "Atlantic/Bermuda"
                     },
                     {
-                        label => "Atlantic/Canary",
+                        text => "Atlantic/Canary",
                         value => "Atlantic/Canary"
                     },
                     {
-                        label => "Atlantic/Cape_Verde",
+                        text => "Atlantic/Cape_Verde",
                         value => "Atlantic/Cape_Verde"
                     },
                     {
-                        label => "Atlantic/Faroe",
+                        text => "Atlantic/Faroe",
                         value => "Atlantic/Faroe"
                     },
                     {
-                        label => "Atlantic/Madeira",
+                        text => "Atlantic/Madeira",
                         value => "Atlantic/Madeira"
                     },
                     {
-                        label => "Atlantic/Reykjavik",
+                        text => "Atlantic/Reykjavik",
                         value => "Atlantic/Reykjavik"
                     },
                     {
-                        label => "Atlantic/South_Georgia",
+                        text => "Atlantic/South_Georgia",
                         value => "Atlantic/South_Georgia"
                     },
                     {
-                        label => "Atlantic/Stanley",
+                        text => "Atlantic/Stanley",
                         value => "Atlantic/Stanley"
                     },
                     {
-                        label => "Australia/Adelaide",
+                        text => "Australia/Adelaide",
                         value => "Australia/Adelaide"
                     },
                     {
-                        label => "Australia/Brisbane",
+                        text => "Australia/Brisbane",
                         value => "Australia/Brisbane"
                     },
                     {
-                        label => "Australia/Broken_Hill",
+                        text => "Australia/Broken_Hill",
                         value => "Australia/Broken_Hill"
                     },
                     {
-                        label => "Australia/Currie",
+                        text => "Australia/Currie",
                         value => "Australia/Currie"
                     },
                     {
-                        label => "Australia/Darwin",
+                        text => "Australia/Darwin",
                         value => "Australia/Darwin"
                     },
                     {
-                        label => "Australia/Eucla",
+                        text => "Australia/Eucla",
                         value => "Australia/Eucla"
                     },
                     {
-                        label => "Australia/Hobart",
+                        text => "Australia/Hobart",
                         value => "Australia/Hobart"
                     },
                     {
-                        label => "Australia/Lindeman",
+                        text => "Australia/Lindeman",
                         value => "Australia/Lindeman"
                     },
                     {
-                        label => "Australia/Lord_Howe",
+                        text => "Australia/Lord_Howe",
                         value => "Australia/Lord_Howe"
                     },
                     {
-                        label => "Australia/Melbourne",
+                        text => "Australia/Melbourne",
                         value => "Australia/Melbourne"
                     },
                     {
-                        label => "Australia/Perth",
+                        text => "Australia/Perth",
                         value => "Australia/Perth"
                     },
                     {
-                        label => "Australia/Sydney",
+                        text => "Australia/Sydney",
                         value => "Australia/Sydney"
                     },
                     {
-                        label => "Europe/Amsterdam",
+                        text => "Europe/Amsterdam",
                         value => "Europe/Amsterdam"
                     },
                     {
-                        label => "Europe/Andorra",
+                        text => "Europe/Andorra",
                         value => "Europe/Andorra"
                     },
                     {
-                        label => "Europe/Astrakhan",
+                        text => "Europe/Astrakhan",
                         value => "Europe/Astrakhan"
                     },
                     {
-                        label => "Europe/Athens",
+                        text => "Europe/Athens",
                         value => "Europe/Athens"
                     },
                     {
-                        label => "Europe/Belgrade",
+                        text => "Europe/Belgrade",
                         value => "Europe/Belgrade"
                     },
                     {
-                        label => "Europe/Berlin",
+                        text => "Europe/Berlin",
                         value => "Europe/Berlin"
                     },
                     {
-                        label => "Europe/Brussels",
+                        text => "Europe/Brussels",
                         value => "Europe/Brussels"
                     },
                     {
-                        label => "Europe/Bucharest",
+                        text => "Europe/Bucharest",
                         value => "Europe/Bucharest"
                     },
                     {
-                        label => "Europe/Budapest",
+                        text => "Europe/Budapest",
                         value => "Europe/Budapest"
                     },
                     {
-                        label => "Europe/Chisinau",
+                        text => "Europe/Chisinau",
                         value => "Europe/Chisinau"
                     },
                     {
-                        label => "Europe/Copenhagen",
+                        text => "Europe/Copenhagen",
                         value => "Europe/Copenhagen"
                     },
                     {
-                        label => "Europe/Dublin",
+                        text => "Europe/Dublin",
                         value => "Europe/Dublin"
                     },
                     {
-                        label => "Europe/Gibraltar",
+                        text => "Europe/Gibraltar",
                         value => "Europe/Gibraltar"
                     },
                     {
-                        label => "Europe/Helsinki",
+                        text => "Europe/Helsinki",
                         value => "Europe/Helsinki"
                     },
                     {
-                        label => "Europe/Istanbul",
+                        text => "Europe/Istanbul",
                         value => "Europe/Istanbul"
                     },
                     {
-                        label => "Europe/Kaliningrad",
+                        text => "Europe/Kaliningrad",
                         value => "Europe/Kaliningrad"
                     },
                     {
-                        label => "Europe/Kiev",
+                        text => "Europe/Kiev",
                         value => "Europe/Kiev"
                     },
                     {
-                        label => "Europe/Kirov",
+                        text => "Europe/Kirov",
                         value => "Europe/Kirov"
                     },
                     {
-                        label => "Europe/Lisbon",
+                        text => "Europe/Lisbon",
                         value => "Europe/Lisbon"
                     },
                     {
-                        label => "Europe/London",
+                        text => "Europe/London",
                         value => "Europe/London"
                     },
                     {
-                        label => "Europe/Luxembourg",
+                        text => "Europe/Luxembourg",
                         value => "Europe/Luxembourg"
                     },
                     {
-                        label => "Europe/Madrid",
+                        text => "Europe/Madrid",
                         value => "Europe/Madrid"
                     },
                     {
-                        label => "Europe/Malta",
+                        text => "Europe/Malta",
                         value => "Europe/Malta"
                     },
                     {
-                        label => "Europe/Minsk",
+                        text => "Europe/Minsk",
                         value => "Europe/Minsk"
                     },
                     {
-                        label => "Europe/Monaco",
+                        text => "Europe/Monaco",
                         value => "Europe/Monaco"
                     },
                     {
-                        label => "Europe/Moscow",
+                        text => "Europe/Moscow",
                         value => "Europe/Moscow"
                     },
                     {
-                        label => "Europe/Oslo",
+                        text => "Europe/Oslo",
                         value => "Europe/Oslo"
                     },
                     {
-                        label => "Europe/Paris",
+                        text => "Europe/Paris",
                         value => "Europe/Paris"
                     },
                     {
-                        label => "Europe/Prague",
+                        text => "Europe/Prague",
                         value => "Europe/Prague"
                     },
                     {
-                        label => "Europe/Riga",
+                        text => "Europe/Riga",
                         value => "Europe/Riga"
                     },
                     {
-                        label => "Europe/Rome",
+                        text => "Europe/Rome",
                         value => "Europe/Rome"
                     },
                     {
-                        label => "Europe/Samara",
+                        text => "Europe/Samara",
                         value => "Europe/Samara"
                     },
                     {
-                        label => "Europe/Saratov",
+                        text => "Europe/Saratov",
                         value => "Europe/Saratov"
                     },
                     {
-                        label => "Europe/Simferopol",
+                        text => "Europe/Simferopol",
                         value => "Europe/Simferopol"
                     },
                     {
-                        label => "Europe/Sofia",
+                        text => "Europe/Sofia",
                         value => "Europe/Sofia"
                     },
                     {
-                        label => "Europe/Stockholm",
+                        text => "Europe/Stockholm",
                         value => "Europe/Stockholm"
                     },
                     {
-                        label => "Europe/Tallinn",
+                        text => "Europe/Tallinn",
                         value => "Europe/Tallinn"
                     },
                     {
-                        label => "Europe/Tirane",
+                        text => "Europe/Tirane",
                         value => "Europe/Tirane"
                     },
                     {
-                        label => "Europe/Ulyanovsk",
+                        text => "Europe/Ulyanovsk",
                         value => "Europe/Ulyanovsk"
                     },
                     {
-                        label => "Europe/Uzhgorod",
+                        text => "Europe/Uzhgorod",
                         value => "Europe/Uzhgorod"
                     },
                     {
-                        label => "Europe/Vienna",
+                        text => "Europe/Vienna",
                         value => "Europe/Vienna"
                     },
                     {
-                        label => "Europe/Vilnius",
+                        text => "Europe/Vilnius",
                         value => "Europe/Vilnius"
                     },
                     {
-                        label => "Europe/Volgograd",
+                        text => "Europe/Volgograd",
                         value => "Europe/Volgograd"
                     },
                     {
-                        label => "Europe/Warsaw",
+                        text => "Europe/Warsaw",
                         value => "Europe/Warsaw"
                     },
                     {
-                        label => "Europe/Zaporozhye",
+                        text => "Europe/Zaporozhye",
                         value => "Europe/Zaporozhye"
                     },
                     {
-                        label => "Europe/Zurich",
+                        text => "Europe/Zurich",
                         value => "Europe/Zurich"
                     },
                     {
-                        label => "Indian/Chagos",
+                        text => "Indian/Chagos",
                         value => "Indian/Chagos"
                     },
                     {
-                        label => "Indian/Christmas",
+                        text => "Indian/Christmas",
                         value => "Indian/Christmas"
                     },
                     {
-                        label => "Indian/Cocos",
+                        text => "Indian/Cocos",
                         value => "Indian/Cocos"
                     },
                     {
-                        label => "Indian/Kerguelen",
+                        text => "Indian/Kerguelen",
                         value => "Indian/Kerguelen"
                     },
                     {
-                        label => "Indian/Mahe",
+                        text => "Indian/Mahe",
                         value => "Indian/Mahe"
                     },
                     {
-                        label => "Indian/Maldives",
+                        text => "Indian/Maldives",
                         value => "Indian/Maldives"
                     },
                     {
-                        label => "Indian/Mauritius",
+                        text => "Indian/Mauritius",
                         value => "Indian/Mauritius"
                     },
                     {
-                        label => "Indian/Reunion",
+                        text => "Indian/Reunion",
                         value => "Indian/Reunion"
                     },
                     {
-                        label => "Pacific/Apia",
+                        text => "Pacific/Apia",
                         value => "Pacific/Apia"
                     },
                     {
-                        label => "Pacific/Auckland",
+                        text => "Pacific/Auckland",
                         value => "Pacific/Auckland"
                     },
                     {
-                        label => "Pacific/Bougainville",
+                        text => "Pacific/Bougainville",
                         value => "Pacific/Bougainville"
                     },
                     {
-                        label => "Pacific/Chatham",
+                        text => "Pacific/Chatham",
                         value => "Pacific/Chatham"
                     },
                     {
-                        label => "Pacific/Chuuk",
+                        text => "Pacific/Chuuk",
                         value => "Pacific/Chuuk"
                     },
                     {
-                        label => "Pacific/Easter",
+                        text => "Pacific/Easter",
                         value => "Pacific/Easter"
                     },
                     {
-                        label => "Pacific/Efate",
+                        text => "Pacific/Efate",
                         value => "Pacific/Efate"
                     },
                     {
-                        label => "Pacific/Enderbury",
+                        text => "Pacific/Enderbury",
                         value => "Pacific/Enderbury"
                     },
                     {
-                        label => "Pacific/Fakaofo",
+                        text => "Pacific/Fakaofo",
                         value => "Pacific/Fakaofo"
                     },
                     {
-                        label => "Pacific/Fiji",
+                        text => "Pacific/Fiji",
                         value => "Pacific/Fiji"
                     },
                     {
-                        label => "Pacific/Funafuti",
+                        text => "Pacific/Funafuti",
                         value => "Pacific/Funafuti"
                     },
                     {
-                        label => "Pacific/Galapagos",
+                        text => "Pacific/Galapagos",
                         value => "Pacific/Galapagos"
                     },
                     {
-                        label => "Pacific/Gambier",
+                        text => "Pacific/Gambier",
                         value => "Pacific/Gambier"
                     },
                     {
-                        label => "Pacific/Guadalcanal",
+                        text => "Pacific/Guadalcanal",
                         value => "Pacific/Guadalcanal"
                     },
                     {
-                        label => "Pacific/Guam",
+                        text => "Pacific/Guam",
                         value => "Pacific/Guam"
                     },
                     {
-                        label => "Pacific/Honolulu",
+                        text => "Pacific/Honolulu",
                         value => "Pacific/Honolulu"
                     },
                     {
-                        label => "Pacific/Kiritimati",
+                        text => "Pacific/Kiritimati",
                         value => "Pacific/Kiritimati"
                     },
                     {
-                        label => "Pacific/Kosrae",
+                        text => "Pacific/Kosrae",
                         value => "Pacific/Kosrae"
                     },
                     {
-                        label => "Pacific/Kwajalein",
+                        text => "Pacific/Kwajalein",
                         value => "Pacific/Kwajalein"
                     },
                     {
-                        label => "Pacific/Majuro",
+                        text => "Pacific/Majuro",
                         value => "Pacific/Majuro"
                     },
                     {
-                        label => "Pacific/Marquesas",
+                        text => "Pacific/Marquesas",
                         value => "Pacific/Marquesas"
                     },
                     {
-                        label => "Pacific/Nauru",
+                        text => "Pacific/Nauru",
                         value => "Pacific/Nauru"
                     },
                     {
-                        label => "Pacific/Niue",
+                        text => "Pacific/Niue",
                         value => "Pacific/Niue"
                     },
                     {
-                        label => "Pacific/Norfolk",
+                        text => "Pacific/Norfolk",
                         value => "Pacific/Norfolk"
                     },
                     {
-                        label => "Pacific/Noumea",
+                        text => "Pacific/Noumea",
                         value => "Pacific/Noumea"
                     },
                     {
-                        label => "Pacific/Pago_Pago",
+                        text => "Pacific/Pago_Pago",
                         value => "Pacific/Pago_Pago"
                     },
                     {
-                        label => "Pacific/Palau",
+                        text => "Pacific/Palau",
                         value => "Pacific/Palau"
                     },
                     {
-                        label => "Pacific/Pitcairn",
+                        text => "Pacific/Pitcairn",
                         value => "Pacific/Pitcairn"
                     },
                     {
-                        label => "Pacific/Pohnpei",
+                        text => "Pacific/Pohnpei",
                         value => "Pacific/Pohnpei"
                     },
                     {
-                        label => "Pacific/Port_Moresby",
+                        text => "Pacific/Port_Moresby",
                         value => "Pacific/Port_Moresby"
                     },
                     {
-                        label => "Pacific/Rarotonga",
+                        text => "Pacific/Rarotonga",
                         value => "Pacific/Rarotonga"
                     },
                     {
-                        label => "Pacific/Tahiti",
+                        text => "Pacific/Tahiti",
                         value => "Pacific/Tahiti"
                     },
                     {
-                        label => "Pacific/Tarawa",
+                        text => "Pacific/Tarawa",
                         value => "Pacific/Tarawa"
                     },
                     {
-                        label => "Pacific/Tongatapu",
+                        text => "Pacific/Tongatapu",
                         value => "Pacific/Tongatapu"
                     },
                     {
-                        label => "Pacific/Wake",
+                        text => "Pacific/Wake",
                         value => "Pacific/Wake"
                     },
                     {
-                        label => "Pacific/Wallis",
+                        text => "Pacific/Wallis",
                         value => "Pacific/Wallis"
                     }
                 ],
@@ -3162,4 +3162,3 @@ USA.
 =cut
 
 1;
-

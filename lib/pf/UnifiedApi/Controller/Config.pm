@@ -678,6 +678,16 @@ sub field_allowed {
         }
     }
 
+    if ($allowed) {
+        $allowed = [
+            map {
+                my $h = {%$_};
+                $h->{text} = delete $h->{label};
+                $h
+            } @$allowed
+        ];
+    }
+
     return $allowed;
 }
 
