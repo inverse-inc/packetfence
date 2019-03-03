@@ -2,9 +2,10 @@ package log
 
 import (
 	"context"
+	"testing"
+
 	"github.com/cevaris/ordered_map"
 	log "github.com/inconshreveable/log15"
-	"testing"
 )
 
 func init() {

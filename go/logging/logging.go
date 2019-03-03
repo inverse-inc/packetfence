@@ -2,10 +2,10 @@ package logging
 
 import (
 	"context"
-	log "github.com/inconshreveable/log15"
-	"github.com/nu7hatch/gouuid"
 	"os"
 	"strconv"
+
+	log "github.com/inconshreveable/log15"
 )
 
 const requestUuidKey = "request-uuid"
