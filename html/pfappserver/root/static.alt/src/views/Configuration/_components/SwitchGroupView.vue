@@ -44,6 +44,9 @@ import pfButtonDelete from '@/components/pfButtonDelete'
 import pfMixinCtrlKey from '@/components/pfMixinCtrlKey'
 import pfMixinEscapeKey from '@/components/pfMixinEscapeKey'
 import {
+  pfConfigurationDefaultsFromMeta as defaults
+} from '@/globals/configuration/pfConfiguration'
+import {
   pfConfigurationSwitchGroupViewFields as fields
 } from '@/globals/configuration/pfConfigurationSwitchGroups'
 const { validationMixin } = require('vuelidate')
@@ -127,7 +130,7 @@ export default {
           })
         } else {
           // new
-          this.form = Object.assign({}, options.defaults) // set defaults
+          this.form = defaults(options.meta) // set defaults
         }
       })
     },
