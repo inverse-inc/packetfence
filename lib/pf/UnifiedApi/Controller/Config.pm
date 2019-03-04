@@ -679,16 +679,42 @@ sub field_allowed {
     }
 
     if ($allowed) {
-        $allowed = [
-            map {
-                my $h = {%$_};
-                $h->{text} = delete $h->{label};
-                $h
-            } @$allowed
-        ];
+        $allowed = $self->map_options($allowed);
     }
 
     return $allowed;
+}
+
+
+=head2 map_options
+
+map_options
+
+=cut
+
+sub map_options {
+    my ($self, $options) = @_;
+    return [ map { $self->map_option($_) } @$options ];
+}
+
+=head2 map_option
+
+map_option
+
+=cut
+
+sub map_option {
+    my ($self, $option) = @_;
+    my %hash = %$option;
+    if (exists $hash{label}) {
+        $hash{text} = delete $hash{label};
+    }
+
+    if (exists $hash{options}) {
+       $hash{options} = $self->map_options($hash{options});
+    }
+
+    return \%hash;
 }
 
 =head2 form_parameters

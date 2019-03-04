@@ -26,6 +26,7 @@ Enhancements
 * conf/stats.conf has a default file now
 * Voip configuration parameter in node_cleanup task to bypass voip devices
 * Adding/removing passthroughs doesn't require to restart pfdns anymore (#3127)
+* Added support for RADIUS disconnect on Ruckus SmartZone
 
 Bug Fixes
 +++++++++
