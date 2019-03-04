@@ -17,6 +17,7 @@ Version X.Y.Z released on xxxx-xx-xx
 New Features
 ++++++++++++
 * Add 802.1x + CoA support for FortiSwitch
+* Add module to manage PICOS white box switches.
 
 Enhancements
 ++++++++++++
@@ -34,6 +35,9 @@ Bug Fixes
 * Fixed winbindd respawning extremelly fast when failing to start
 * Fixed winbindd processes not being killed on latest version of samba
 * Allow disabling processing of ipv6 packets in the pfdhcplistener
+* fixed untainted variable (#3920)
+* fixed on-registration scanning (#3963)
+
 
 Version 8.3.0 released on 2019-01-09
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
