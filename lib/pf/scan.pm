@@ -98,7 +98,7 @@ sub parse_scan_report {
     my $row = $csv->getline($io);
     if ($row->[0] eq 'Plugin ID') {
         while (my $row = $csv->getline($io)) {
-            $logger->info("Calling security_event_trigger for ip: $ip, mac: $mac, type: $type, trigger: ".$row->[0]);
+            $logger->info("Calling security_event_trigger for ip test: $ip, mac: $mac, type: $type, trigger: ".$row->[0]);
             my $security_event_added = security_event_trigger( { 'mac' => $mac, 'tid' => $row->[0], 'type' => $type } );
 
             # If a security_event has been added, consider the scan failed
