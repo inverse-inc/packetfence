@@ -316,9 +316,19 @@ export default {
       return response.data
     })
   },
+  connectionProfilesOptions: () => {
+    return apiCall.options('config/connection_profiles').then(response => {
+      return response.data
+    })
+  },
   connectionProfile: id => {
     return apiCall.get(`config/connection_profile/${id}`).then(response => {
       return response.data.item
+    })
+  },
+  connectionProfileOptions: id => {
+    return apiCall.options(`config/connection_profile/${id}`).then(response => {
+      return response.data
     })
   },
   createConnectionProfile: data => {

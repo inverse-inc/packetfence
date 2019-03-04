@@ -4,7 +4,6 @@ import pfFieldTypeMatch from '@/components/pfFieldTypeMatch'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormFields from '@/components/pfFormFields'
 import pfFormInput from '@/components/pfFormInput'
-import pfFormSelect from '@/components/pfFormSelect'
 import pfFormTextarea from '@/components/pfFormTextarea'
 import pfFormToggle from '@/components/pfFormToggle'
 import pfTree from '@/components/pfTree'
@@ -13,6 +12,8 @@ import {
   pfConfigurationListColumns,
   pfConfigurationListFields,
   pfConfigurationViewFields,
+  pfConfigurationAttributesFromMeta,
+  pfConfigurationValidatorsFromMeta,
   pfConfigurationLocales
 } from '@/globals/configuration/pfConfiguration'
 import {
@@ -28,11 +29,8 @@ import { pfFormatters as formatter } from '@/globals/pfFormatters'
 
 const {
   required,
-  alphaNum,
-  integer,
   macAddress,
-  maxLength,
-  minLength
+  maxLength
 } = require('vuelidate/lib/validators')
 
 export const pfConfigurationConnectionProfileFilters = {
@@ -318,18 +316,17 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
     isNew = false,
     isClone = false,
     storeName = null,
-    connectionProfile = {},
-    sources = [],
-    billingTiers = [],
-    provisionings = [],
-    scans = [],
+    form = {},
     files = [],
-    general = {},
-    sortFiles = null
+    sortFiles = null,
+    options: {
+      meta = {}
+    },
+    general = {}
   } = context
 
   // fields differ w/ & wo/ 'default'
-  const isDefault = (connectionProfile.id === 'default')
+  const isDefault = (form.id === 'default')
 
   return [
     {
@@ -343,13 +340,16 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
               key: 'id',
               component: pfFormInput,
               attrs: {
-                disabled: (!isNew && !isClone)
+                ...pfConfigurationAttributesFromMeta(meta, 'id'),
+                ...{
+                  disabled: (!isNew && !isClone)
+                }
               },
               validators: {
-                [i18n.t('Name required.')]: required,
-                [i18n.t('Maximum 255 characters.')]: maxLength(255),
-                [i18n.t('Alphanumeric characters only.')]: alphaNum,
-                [i18n.t('Connection Profile exists.')]: not(and(required, conditional(isNew || isClone), hasConnectionProfiles, connectionProfileExists))
+                ...pfConfigurationValidatorsFromMeta(meta, 'id', 'Name'),
+                ...{
+                  [i18n.t('Connection Profile exists.')]: not(and(required, conditional(isNew || isClone), hasConnectionProfiles, connectionProfileExists))
+                }
               }
             }
           ]
@@ -375,25 +375,8 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
             {
               key: 'root_module',
               component: pfFormChosen,
-              attrs: {
-                collapseObject: true,
-                placeholder: i18n.t('Click to select'),
-                trackBy: 'value',
-                label: 'text',
-                options: [
-                  {
-                    text: i18n.t('Default portal policy'),
-                    value: 'default_policy'
-                  },
-                  {
-                    text: i18n.t('Default pending policy'),
-                    value: 'default_pending_policy'
-                  }
-                ]
-              },
-              validators: {
-                [i18n.t('Role required.')]: required
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'root_module'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'root_module')
             }
           ]
         },
@@ -469,10 +452,8 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
             {
               key: 'default_psk_key',
               component: pfFormInput,
-              validators: {
-                [i18n.t('Minimum 8 characters.')]: minLength(8),
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'default_psk_key'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'default_psk_key')
             }
           ]
         },
@@ -496,28 +477,8 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
             {
               key: 'filter_match_style',
               component: pfFormChosen,
-              attrs: {
-                collapseObject: true,
-                placeholder: i18n.t('Click to select a match style'),
-                trackBy: 'value',
-                label: 'text',
-                allowEmpty: false,
-                clearOnSelect: false,
-                options: [
-                  { text: i18n.t('If ALL of the following conditions are met:'), value: 'all' },
-                  { text: i18n.t('If ANY of the following conditions are met:'), value: 'any' }
-                ]
-              },
-              validators: {
-                [i18n.t('Filter or advanced filter required.')]: conditional((value) => {
-                  return ( // false on error, true on success
-                    isDefault ||
-                    (!!value) ||
-                    ('filter' in connectionProfile && connectionProfile.filter.length > 0) ||
-                    ('advanced_filter' in connectionProfile && !!connectionProfile.advanced_filter)
-                  )
-                })
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'filter_match_style'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'filter_match_style')
             }
           ]
         },
@@ -559,15 +520,6 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
                 invalidFeedback: [
                   { [i18n.t('Filter(s) contain one or more errors.')]: true }
                 ]
-              },
-              validators: {
-                [i18n.t('Filter or advanced filter required.')]: conditional((value) => {
-                  return ( // false on error, true on success
-                    isDefault ||
-                    (typeof value !== 'undefined' && value.length > 0) ||
-                    ('advanced_filter' in connectionProfile && !!connectionProfile.advanced_filter)
-                  )
-                })
               }
             }
           ]
@@ -580,18 +532,12 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
               key: 'advanced_filter',
               component: pfFormTextarea,
               attrs: {
-                rows: 3
+                ...pfConfigurationAttributesFromMeta(meta, 'advanced_filter'),
+                ...{
+                  rows: 3
+                }
               },
-              validators: {
-                [i18n.t('Filter or advanced filter required.')]: conditional((value) => {
-                  return ( // false on error, true on success
-                    isDefault ||
-                    (!!value) ||
-                    ('filter' in connectionProfile && connectionProfile.filter.length > 0)
-                  )
-                }),
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
+              validators: pfConfigurationValidatorsFromMeta(meta, 'advanced_filter')
             }
           ]
         },
@@ -604,28 +550,14 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
               attrs: {
                 buttonLabel: i18n.t('Add Source'),
                 emptyText: i18n.t('With no source specified, all internal and external sources will be used.'),
-                maxFields: sources.length,
                 sortable: true,
                 field: {
                   component: pfField,
                   attrs: {
                     field: {
                       component: pfFormChosen,
-                      attrs: {
-                        collapseObject: true,
-                        placeholder: i18n.t('Click to select a source'),
-                        trackBy: 'value',
-                        label: 'text',
-                        options: sources.map(source => {
-                          return { text: `${source.id} (${source.type} - ${source.description})`, value: source.id }
-                        })
-                      },
-                      validators: {
-                        [i18n.t('Source required.')]: required,
-                        [i18n.t('Duplicate Source.')]: conditional((value) => {
-                          return !(connectionProfile.sources.filter(v => v === value).length > 1)
-                        })
-                      }
+                      attrs: pfConfigurationAttributesFromMeta(meta, 'sources'),
+                      validators: pfConfigurationValidatorsFromMeta(meta, 'sources')
                     }
                   }
                 },
@@ -645,31 +577,14 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
               attrs: {
                 buttonLabel: i18n.t('Add Billing Tier'),
                 emptyText: i18n.t('With no billing tiers specified, all billing tiers will be used.'),
-                maxFields: billingTiers.length,
                 sortable: true,
                 field: {
                   component: pfField,
                   attrs: {
                     field: {
                       component: pfFormChosen,
-                      attrs: {
-                        collapseObject: true,
-                        placeholder: i18n.t('Click to select a billing tier'),
-                        trackBy: 'value',
-                        label: 'text',
-                        options: billingTiers.map(billingTier => {
-                          return { text: `${billingTier.id} (${billingTier.name} - ${billingTier.description})`, value: billingTier.id }
-                        })
-                      },
-                      validators: {
-                        [i18n.t('Billing Tier required.')]: required,
-                        [i18n.t('Duplicate Billing Tier.')]: conditional((value) => {
-                          if (connectionProfile.billingTiers === Array) {
-                            return !(connectionProfile.billingTiers.filter(v => v === value).length > 1)
-                          }
-                          return true
-                        })
-                      }
+                      attrs: pfConfigurationAttributesFromMeta(meta, 'billing_tiers'),
+                      validators: pfConfigurationValidatorsFromMeta(meta, 'billing_tiers')
                     }
                   }
                 },
@@ -689,31 +604,14 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
               attrs: {
                 buttonLabel: i18n.t('Add Provisioner'),
                 emptyText: i18n.t('With no provisioners specified, the provisioners of the default profile will be used.'),
-                maxFields: provisionings.length,
                 sortable: true,
                 field: {
                   component: pfField,
                   attrs: {
                     field: {
                       component: pfFormChosen,
-                      attrs: {
-                        collapseObject: true,
-                        placeholder: i18n.t('Click to select a provisioner'),
-                        trackBy: 'value',
-                        label: 'text',
-                        options: provisionings.map(provisioning => {
-                          return { text: `${provisioning.id} (${provisioning.type} - ${provisioning.description})`, value: provisioning.id }
-                        })
-                      },
-                      validators: {
-                        [i18n.t('Provisioner required.')]: required,
-                        [i18n.t('Duplicate Provisioner.')]: conditional((value) => {
-                          if (connectionProfile.provisioners === Array) {
-                            return !(connectionProfile.provisioners.filter(v => v === value).length > 1)
-                          }
-                          return true
-                        })
-                      }
+                      attrs: pfConfigurationAttributesFromMeta(meta, 'provisioners'),
+                      validators: pfConfigurationValidatorsFromMeta(meta, 'provisioners')
                     }
                   }
                 },
@@ -733,31 +631,14 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
               attrs: {
                 buttonLabel: i18n.t('Add Scanner'),
                 emptyText: i18n.t('With no scan specified, the scan engine will not be triggered.'),
-                maxFields: scans.length,
                 sortable: true,
                 field: {
                   component: pfField,
                   attrs: {
                     field: {
                       component: pfFormChosen,
-                      attrs: {
-                        collapseObject: true,
-                        placeholder: i18n.t('Click to select a scanner'),
-                        trackBy: 'value',
-                        label: 'text',
-                        options: scans.map(scan => {
-                          return { text: `${scan.id} (${scan.type} - ${scan.description})`, value: scan.id }
-                        })
-                      },
-                      validators: {
-                        [i18n.t('Scanner required.')]: required,
-                        [i18n.t('Duplicate Scanner.')]: conditional((value) => {
-                          if (connectionProfile.provisioners === Array) {
-                            return !(connectionProfile.provisioners.filter(v => v === value).length > 1)
-                          }
-                          return true
-                        })
-                      }
+                      attrs: pfConfigurationAttributesFromMeta(meta, 'scans'),
+                      validators: pfConfigurationValidatorsFromMeta(meta, 'scans')
                     }
                   }
                 },
@@ -774,18 +655,8 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
             {
               key: 'device_registration',
               component: pfFormChosen,
-              attrs: {
-                collapseObject: true,
-                placeholder: i18n.t('Click to select'),
-                trackBy: 'value',
-                label: 'text',
-                options: [
-                  {
-                    text: i18n.t('default'),
-                    value: 'default'
-                  }
-                ]
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'device_registration'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'device_registration')
             }
           ]
         }
@@ -800,10 +671,8 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
             {
               key: 'logo',
               component: pfFormInput,
-              validators: {
-                [i18n.t('Logo required.')]: required,
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'logo'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'logo')
             }
           ]
         },
@@ -814,10 +683,8 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
             {
               key: 'redirecturl',
               component: pfFormInput,
-              validators: {
-                [i18n.t('URL required.')]: required,
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'redirecturl'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'redirecturl')
             }
           ]
         },
@@ -841,28 +708,14 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
             {
               key: 'block_interval.interval',
               component: pfFormInput,
-              attrs: {
-                type: 'number'
-              },
-              validators: {
-                [i18n.t('Maximum 255 characters.')]: maxLength(255),
-                [i18n.t('Integer values required.')]: integer
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'block_interval.interval'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'block_interval.interval')
             },
             {
               key: 'block_interval.unit',
-              component: pfFormSelect,
-              attrs: {
-                options: [
-                  { value: 's', text: i18n.t('seconds') },
-                  { value: 'm', text: i18n.t('minutes') },
-                  { value: 'h', text: i18n.t('hours') },
-                  { value: 'D', text: i18n.t('days') },
-                  { value: 'W', text: i18n.t('weeks') },
-                  { value: 'M', text: i18n.t('months') },
-                  { value: 'Y', text: i18n.t('years') }
-                ]
-              }
+              component: pfFormChosen,
+              attrs: pfConfigurationAttributesFromMeta(meta, 'block_interval.unit'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'block_interval.unit')
             }
           ]
         },
@@ -873,14 +726,8 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
             {
               key: 'sms_pin_retry_limit',
               component: pfFormInput,
-              attrs: {
-                type: 'number',
-                step: 1
-              },
-              validators: {
-                [i18n.t('Maximum 255 characters.')]: maxLength(255),
-                [i18n.t('Integer values required.')]: integer
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'sms_pin_retry_limit'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'sms_pin_retry_limit')
             }
           ]
         },
@@ -891,14 +738,8 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
             {
               key: 'sms_request_limit',
               component: pfFormInput,
-              attrs: {
-                type: 'number',
-                step: 1
-              },
-              validators: {
-                [i18n.t('Maximum 255 characters.')]: maxLength(255),
-                [i18n.t('Integer values required.')]: integer
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'sms_request_limit'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'sms_request_limit')
             }
           ]
         },
@@ -909,14 +750,8 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
             {
               key: 'login_attempt_limit',
               component: pfFormInput,
-              attrs: {
-                type: 'number',
-                step: 1
-              },
-              validators: {
-                [i18n.t('Maximum 255 characters.')]: maxLength(255),
-                [i18n.t('Integer values required.')]: integer
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'login_attempt_limit'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'login_attempt_limit')
             }
           ]
         },
@@ -985,7 +820,7 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
                       validators: {
                         [i18n.t('Locale required.')]: required,
                         [i18n.t('Duplicate locale.')]: conditional((value) => {
-                          return !(connectionProfile.locale.filter(v => v === value).length > 1)
+                          return !(form.locale.filter(v => v === value).length > 1)
                         })
                       }
                     }
@@ -1038,8 +873,8 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
                 childrenIf: (item) => item.type === 'dir' && 'entries' in item,
                 sortBy: 'name',
                 onSortingChanged: sortFiles,
-                onNodeClick: (item) => $router.push({ name: 'connectionProfileFile', params: { id: connectionProfile.id, filename: item.path ? [item.path, item.name].join('/') : item.name } }),
-                onNodeCreate: (path) => $router.push({ name: 'newConnectionProfileFile', params: { id: connectionProfile.id, path } })
+                onNodeClick: (item) => $router.push({ name: 'connectionProfileFile', params: { id: form.id, filename: item.path ? [item.path, item.name].join('/') : item.name } }),
+                onNodeCreate: (path) => $router.push({ name: 'newConnectionProfileFile', params: { id: form.id, path } })
               }
             }
           ]
@@ -1047,21 +882,4 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
       ]
     }
   ]
-}
-
-export const pfConfigurationConnectionProfileViewDefaults = (context = {}) => {
-  return {
-    id: null,
-    status: 'enabled',
-    root_module: 'default_policy',
-    dot1x_recompute_role_from_portal: 'enabled',
-    filter_match_style: 'any',
-    block_interval: {
-      interval: 10,
-      unit: 'm'
-    },
-    sms_pin_retry_limit: 0,
-    sms_request_limit: 0,
-    login_attempt_limit: 0
-  }
 }

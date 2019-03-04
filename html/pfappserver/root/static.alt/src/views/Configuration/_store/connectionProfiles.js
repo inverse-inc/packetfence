@@ -31,6 +31,17 @@ const getters = {
 }
 
 const actions = {
+  options: ({}, id) => {
+    if (id) {
+      return api.connectionProfileOptions(id).then(response => {
+        return response
+      })
+    } else {
+      return api.connectionProfilesOptions().then(response => {
+        return response
+      })
+    }
+  },
   getConnectionProfile: ({ state, commit }, id) => {
     if (state.cache[id]) {
       return Promise.resolve(state.cache[id])
