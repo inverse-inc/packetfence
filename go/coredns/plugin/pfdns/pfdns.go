@@ -421,7 +421,7 @@ func (pf *pfdns) detectVIP() error {
 	var keyConfCluster pfconfigdriver.NetInterface
 	keyConfCluster.PfconfigNS = "config::Pf(CLUSTER," + pfconfigdriver.FindClusterName(ctx) + ")"
 
-	for _, v := range append(interfaces.Element, DNSinterfaces.Element...) {
+	for _, v := range sharedutils.RemoveDuplicates(append(interfaces.Element, DNSinterfaces.Element...)) {
 
 		keyConfCluster.PfconfigHashNS = "interface " + v
 		pfconfigdriver.FetchDecodeSocket(ctx, &keyConfCluster)
