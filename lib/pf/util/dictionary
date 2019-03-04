@@ -255,3 +255,16 @@ VENDOR          Cisco                           9
 VENDORATTR      Cisco                           Cisco-AVPair    1       string
 VENDORATTR      Cisco                           Cisco-NAS-Port  2       string
 
+#
+# Pica8 RADIUS attributes
+# For general information please visit:
+# http://www.pica8.com
+#
+
+VENDOR          Pica8                           35098
+
+#
+#       Standard attribute
+#
+
+VENDORATTR      Pica8                           Pica8-AVPair    1       string
