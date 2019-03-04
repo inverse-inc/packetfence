@@ -681,11 +681,11 @@ sub node_register {
     my $scan = $profile->findScan($mac);
     if (defined($scan)) {
         # triggering a security_event used to communicate the scan to the user
-        if ( isenabled($scan->{'registration'})) {
+        if ( isenabled($scan->{'_registration'})) {
             $logger->debug("Triggering on registration scan");
             pf::security_event::security_event_add( $mac, $SCAN_SECURITY_EVENT_ID );
         }
-        if (isenabled($scan->{'post_registration'})) {
+        if (isenabled($scan->{'_post_registration'})) {
             $logger->debug("Triggering post-registration scan");
             pf::security_event::security_event_add( $mac, $POST_SCAN_SECURITY_EVENT_ID );
         }
