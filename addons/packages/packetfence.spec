@@ -407,7 +407,7 @@ for TRANSLATION in de en es fr he_IL it nl pl_PL pt_BR; do
       --output-file conf/locale/$TRANSLATION/LC_MESSAGES/packetfence.mo
 done
 
-%if "%{builddoc}" == "1"
+%if %{builddoc} == 1
     # generating custom XSL for titlepage
     xsltproc -o docs/docbook/xsl/titlepage-fo.xsl \
         /usr/share/sgml/docbook/xsl-stylesheets/template/titlepage.xsl \
