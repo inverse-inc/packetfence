@@ -17,6 +17,7 @@ Version X.Y.Z released on xxxx-xx-xx
 New Features
 ++++++++++++
 * Add 802.1x + CoA support for FortiSwitch
+* Add module to manage PICOS white box switches.
 
 Enhancements
 ++++++++++++
