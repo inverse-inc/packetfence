@@ -1,9 +1,35 @@
 import i18n from '@/utils/locale'
+import pfFieldTypeValue from '@/components/pfFieldTypeValue'
+import pfFieldAttributeOperatorValue from '@/components/pfFieldAttributeOperatorValue'
+import pfFieldRule from '@/components/pfFieldRule'
+import pfFormChosen from '@/components/pfFormChosen'
+import pfFormFields from '@/components/pfFormFields'
+import pfFormInput from '@/components/pfFormInput'
+import pfFormPassword from '@/components/pfFormPassword'
+import pfFormRangeToggle from '@/components/pfFormRangeToggle'
+import pfFormTextarea from '@/components/pfFormTextarea'
 import {
+  pfConfigurationActions,
+  pfConfigurationConditions,
   pfConfigurationListColumns,
   pfConfigurationListFields,
-  pfConfigurationViewFields
+  pfConfigurationAttributesFromMeta,
+  pfConfigurationValidatorsFromMeta
 } from '@/globals/configuration/pfConfiguration'
+import {
+  alphaNum,
+  and,
+  not,
+  conditional,
+  hasSources,
+  sourceExists,
+  limitSiblingFields
+} from '@/globals/pfValidators'
+
+const {
+  maxLength,
+  required
+} = require('vuelidate/lib/validators')
 
 export const pfConfigurationAuthenticationSourcesListColumns = [
   { ...pfConfigurationListColumns.id, ...{ label: i18n.t('Name') } }, // re-label
@@ -63,6 +89,1623 @@ export const pfConfigurationAuthenticationSourceListConfig = (context = {}) => {
   }
 }
 
+export const pfConfigurationAuthenticationSourceFields = {
+  id: ({ isNew = false, isClone = false, options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Name'),
+      fields: [
+        {
+          key: 'id',
+          component: pfFormInput,
+          attrs: {
+            ...pfConfigurationAttributesFromMeta(meta, 'id'),
+            ...{
+              disabled: (!isNew && !isClone)
+            }
+          },
+          validators: {
+            ...pfConfigurationValidatorsFromMeta(meta, 'id', 'Name'),
+            ...{
+              [i18n.t('Source exists.')]: not(and(required, conditional(isNew || isClone), hasSources, sourceExists))
+            }
+          }
+        }
+      ]
+    }
+  },
+  access_scope: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Scope'),
+      text: i18n.t('The permissions the application requests.'),
+      fields: [
+        {
+          key: 'scope',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'scope'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'scope', 'Scope')
+        }
+      ]
+    }
+  },
+  access_token_param: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Access Token Parameter'),
+      fields: [
+        {
+          key: 'access_token_param',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'access_token_param'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'access_token_param', 'Parameter')
+        }
+      ]
+    }
+  },
+  access_token_path: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: null, // multiple occurances w/ different strings, nullify for overload
+      fields: [
+        {
+          key: 'access_token_path',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'access_token_path'),
+          validators: pfConfigurationValidatorsFromMeta(meta.access_token_path)
+        }
+      ]
+    }
+  },
+  account_sid: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Account SID'),
+      text: i18n.t('Twilio Account SID'),
+      fields: [
+        {
+          key: 'account_sid',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'account_sid'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'account_sid', 'SID')
+        }
+      ]
+    }
+  },
+  activation_domain: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Host in activation link'),
+      text: i18n.t('Set this value if you want to change the hostname in the validation link. Changing this requires to restart haproxy to be fully effective.'),
+      fields: [
+        {
+          key: 'activation_domain',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'activation_domain'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'activation_domain', 'Host')
+        }
+      ]
+    }
+  },
+  administration_rules: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: 'Administration Rules',
+      fields: [
+        {
+          key: 'administration_rules',
+          component: pfFormFields,
+          attrs: {
+            buttonLabel: 'Add Rule - New ( )',
+            sortable: true,
+            field: {
+              component: pfFieldRule,
+              attrs: {
+                matchLabel: i18n.t('Select rule match'),
+                actions: {
+                  component: pfFieldTypeValue,
+                  attrs: {
+                    typeLabel: i18n.t('Select action type'),
+                    valueLabel: i18n.t('Select action value'),
+                    fields: [
+                      pfConfigurationActions.set_access_level,
+                      pfConfigurationActions.mark_as_sponsor,
+                      pfConfigurationActions.set_tenant_id
+                    ]
+                  },
+                  invalidFeedback: [
+                    { [i18n.t('Action(s) contain one or more errors.')]: true }
+                  ]
+                },
+                conditions: {
+                  component: pfFieldAttributeOperatorValue,
+                  attrs: {
+                    attributeLabel: i18n.t('Select attribute'),
+                    operatorLabel: i18n.t('Select operator'),
+                    valueLabel: i18n.t('Select value'),
+                    fields: [
+                      pfConfigurationConditions.ssid,
+                      pfConfigurationConditions.current_time,
+                      pfConfigurationConditions.current_time_period,
+                      pfConfigurationConditions.connection_type,
+                      pfConfigurationConditions.computer_name,
+                      pfConfigurationConditions.mac,
+                      pfConfigurationConditions.realm,
+                      pfConfigurationConditions.cn,
+                      pfConfigurationConditions.department,
+                      pfConfigurationConditions.description,
+                      pfConfigurationConditions.displayName,
+                      pfConfigurationConditions.distinguishedName,
+                      pfConfigurationConditions.eduPersonPrimaryAffiliation,
+                      pfConfigurationConditions.givenName,
+                      pfConfigurationConditions.groupMembership,
+                      pfConfigurationConditions.mail,
+                      pfConfigurationConditions.memberOf,
+                      pfConfigurationConditions.nested_group,
+                      pfConfigurationConditions.postOfficeBox,
+                      pfConfigurationConditions.sAMAccountName,
+                      pfConfigurationConditions.sAMAccountType,
+                      pfConfigurationConditions.sn,
+                      pfConfigurationConditions.uid,
+                      pfConfigurationConditions.userAccountControl
+                    ]
+                  },
+                  invalidFeedback: [
+                    { [i18n.t('Condition(s) contain one or more errors.')]: true }
+                  ]
+                }
+              },
+              validators: {
+                id: {
+                  [i18n.t('Name required.')]: required,
+                  [i18n.t('Alphanumeric characters only.')]: alphaNum,
+                  [i18n.t('Maximum 255 characters.')]: maxLength(255),
+                  [i18n.t('Duplicate name.')]: limitSiblingFields('id', 0)
+                },
+                description: {
+                  [i18n.t('Maximum 255 characters.')]: maxLength(255)
+                },
+                match: {
+                  [i18n.t('Match required.')]: required
+                }
+              }
+            },
+            invalidFeedback: [
+              { [i18n.t('Rule(s) contain one or more errors.')]: true }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  allow_localdomain: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Allow Local Domain'),
+      text: i18n.t('Accept self-registration with email address from the local domain'),
+      fields: [
+        {
+          key: 'allow_localdomain',
+          component: pfFormRangeToggle,
+          attrs: {
+            values: { checked: 'yes', unchecked: 'no' }
+          }
+        }
+      ]
+    }
+  },
+  api_key: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('API Key'),
+      text: i18n.t('Kickbox.io API key.'),
+      fields: [
+        {
+          key: 'api_key',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'api_key'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'api_key', 'Key')
+        }
+      ]
+    }
+  },
+  api_login_id: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('API login ID'),
+      fields: [
+        {
+          key: 'api_login_id',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'api_login_id'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'api_login_id', 'ID')
+        }
+      ]
+    }
+  },
+  api_username: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('API username (basic auth)'),
+      fields: [
+        {
+          key: 'username',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'username'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'username', 'Username')
+        }
+      ]
+    }
+  },
+  api_password: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('API password (basic auth)'),
+      fields: [
+        {
+          key: 'password',
+          component: pfFormPassword,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'password'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'password', 'Password')
+        }
+      ]
+    }
+  },
+  auth_listening_port: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Authentication listening port'),
+      text: i18n.t('PacketFence Eduroam RADIUS virtual server authentication listening port'),
+      fields: [
+        {
+          key: 'auth_listening_port',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'auth_listening_port'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'auth_listening_port', 'Port')
+        }
+      ]
+    }
+  },
+  auth_token: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Auth Token'),
+      text: i18n.t('Twilio Auth Token'),
+      fields: [
+        {
+          key: 'auth_token',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'auth_token'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'auth_token', 'Token')
+        }
+      ]
+    }
+  },
+  authenticate_realm: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Realm to use to authenticate'),
+      fields: [
+        {
+          key: 'authenticate_realm',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'authenticate_realm'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'authenticate_realm', 'Realm')
+        }
+      ]
+    }
+  },
+  authentication_rules: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: 'Authentication Rules',
+      fields: [
+        {
+          key: 'authentication_rules',
+          component: pfFormFields,
+          attrs: {
+            buttonLabel: 'Add Rule - New ( )',
+            sortable: true,
+            field: {
+              component: pfFieldRule,
+              attrs: {
+                matchLabel: i18n.t('Select rule match'),
+                actions: {
+                  component: pfFieldTypeValue,
+                  attrs: {
+                    typeLabel: i18n.t('Select action type'),
+                    valueLabel: i18n.t('Select action value'),
+                    fields: [
+                      pfConfigurationActions.set_role_by_name,
+                      pfConfigurationActions.set_access_duration,
+                      pfConfigurationActions.set_unreg_date,
+                      pfConfigurationActions.set_time_balance,
+                      pfConfigurationActions.set_bandwidth_balance
+                    ]
+                  },
+                  invalidFeedback: [
+                    { [i18n.t('Action(s) contain one or more errors.')]: true }
+                  ]
+                },
+                conditions: {
+                  component: pfFieldAttributeOperatorValue,
+                  attrs: {
+                    attributeLabel: i18n.t('Select attribute'),
+                    operatorLabel: i18n.t('Select operator'),
+                    valueLabel: i18n.t('Select value'),
+                    fields: [
+                      pfConfigurationConditions.ssid,
+                      pfConfigurationConditions.current_time,
+                      pfConfigurationConditions.current_time_period,
+                      pfConfigurationConditions.connection_type,
+                      pfConfigurationConditions.computer_name,
+                      pfConfigurationConditions.mac,
+                      pfConfigurationConditions.realm,
+                      pfConfigurationConditions.cn,
+                      pfConfigurationConditions.department,
+                      pfConfigurationConditions.description,
+                      pfConfigurationConditions.displayName,
+                      pfConfigurationConditions.distinguishedName,
+                      pfConfigurationConditions.eduPersonPrimaryAffiliation,
+                      pfConfigurationConditions.givenName,
+                      pfConfigurationConditions.groupMembership,
+                      pfConfigurationConditions.mail,
+                      pfConfigurationConditions.memberOf,
+                      pfConfigurationConditions.nested_group,
+                      pfConfigurationConditions.postOfficeBox,
+                      pfConfigurationConditions.sAMAccountName,
+                      pfConfigurationConditions.sAMAccountType,
+                      pfConfigurationConditions.sn,
+                      pfConfigurationConditions.uid,
+                      pfConfigurationConditions.userAccountControl
+                    ]
+                  },
+                  invalidFeedback: [
+                    { [i18n.t('Condition(s) contain one or more errors.')]: true }
+                  ]
+                }
+              },
+              validators: {
+                id: {
+                  [i18n.t('Name required.')]: required,
+                  [i18n.t('Alphanumeric characters only.')]: alphaNum,
+                  [i18n.t('Maximum 255 characters.')]: maxLength(255),
+                  [i18n.t('Duplicate name.')]: limitSiblingFields('id', 0)
+                },
+                description: {
+                  [i18n.t('Maximum 255 characters.')]: maxLength(255)
+                },
+                match: {
+                  [i18n.t('Match required.')]: required
+                }
+              }
+            },
+            invalidFeedback: [
+              { [i18n.t('Rule(s) contain one or more errors.')]: true }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  authentication_url: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Authentication URL'),
+      text: i18n.t('Note : The URL is always prefixed by a slash (/)'),
+      fields: [
+        {
+          key: 'authentication_url',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'authentication_url'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'authentication_url', 'URL')
+        }
+      ]
+    }
+  },
+  authorization_source_id: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Authorization source'),
+      text: i18n.t('The source to use for authorization (rule matching)'),
+      fields: [
+        {
+          key: 'authorization_source_id',
+          component: pfFormChosen,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'authorization_source_id'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'authorization_source_id', 'Source')
+        }
+      ]
+    }
+  },
+  authorize_path: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('API Authorize Path'),
+      fields: [
+        {
+          key: 'authorize_path',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'authorize_path'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'authorize_path', 'Path')
+        }
+      ]
+    }
+  },
+  authorization_url: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Authorization URL'),
+      text: i18n.t('Note : The URL is always prefixed by a slash (/)'),
+      fields: [
+        {
+          key: 'authorization_url',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'authorization_url'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'authorization_url', 'URL')
+        }
+      ]
+    }
+  },
+  base_url: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Iframe Base URL'),
+      fields: [
+        {
+          key: 'base_url',
+          component: pfFormChosen,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'base_url'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'base_url', 'URL')
+        }
+      ]
+    }
+  },
+  basedn: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Base DN'),
+      fields: [
+        {
+          key: 'basedn',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'basedn'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'basedn', 'Base DN')
+        }
+      ]
+    }
+  },
+  binddn: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Bind DN'),
+      text: i18n.t('Leave this field empty if you want to perform an anonymous bind.'),
+      fields: [
+        {
+          key: 'binddn',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'binddn'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'bindnd', 'Bind DN')
+        }
+      ]
+    }
+  },
+  cache_match: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Cache match'),
+      text: i18n.t('Will cache results of matching a rule'),
+      fields: [
+        {
+          key: 'cache_match',
+          component: pfFormRangeToggle,
+          attrs: {
+            values: { checked: '1', unchecked: '0' }
+          }
+        }
+      ]
+    }
+  },
+  cert_file: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Cert file'),
+      text: i18n.t('The path to the certificate you submitted to Paypal.'),
+      fields: [
+        {
+          key: 'cert_file',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'cert_file'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'cert_file', 'File')
+        }
+      ]
+    }
+  },
+  cert_id: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Cert ID'),
+      fields: [
+        {
+          key: 'cert_id',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'cert_id'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'cert_id', 'ID')
+        }
+      ]
+    }
+  },
+  client_id: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('App ID'),
+      fields: [
+        {
+          key: 'client_id',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'client_id'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'client_id', 'ID')
+        }
+      ]
+    }
+  },
+  client_secret: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('App Secret'),
+      fields: [
+        {
+          key: 'client_secret',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'client_secret'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'client_secret', 'Secret')
+        }
+      ]
+    }
+  },
+  connection_timeout: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Connection timeout'),
+      text: i18n.t('LDAP connection Timeout'),
+      fields: [
+        {
+          key: 'connection_timeout',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'connection_timeout'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'connection_timeout', 'Timeout')
+        }
+      ]
+    }
+  },
+  create_local_account: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Create Local Account'),
+      text: i18n.t('Create a local account on the PacketFence system based on the username provided.'),
+      fields: [
+        {
+          key: 'create_local_account',
+          component: pfFormRangeToggle,
+          attrs: {
+            values: { checked: 'yes', unchecked: 'no' }
+          }
+        }
+      ]
+    }
+  },
+  currency: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Currency'),
+      fields: [
+        {
+          key: 'currency',
+          component: pfFormChosen,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'currency'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'currency', 'Currency')
+        }
+      ]
+    }
+  },
+  description: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Description'),
+      fields: [
+        {
+          key: 'description',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'description'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'description', 'Description')
+        }
+      ]
+    }
+  },
+  direct_base_url: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Direct Base url'),
+      fields: [
+        {
+          key: 'direct_base_url',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'direct_base_url'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'direct_base_url', 'URL')
+        }
+      ]
+    }
+  },
+  domains: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Authorized domains'),
+      text: i18n.t('Comma separated list of domains that will be resolve with the correct IP addresses.'),
+      fields: [
+        {
+          key: 'domains',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'domains'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'domains', 'Domains')
+        }
+      ]
+    }
+  },
+  email_activation_timeout: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Email Activation Timeout'),
+      text: null, // multiple occurances w/ different strings, nullify for overload
+      fields: [
+        {
+          key: 'email_activation_timeout.interval',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'email_activation_timeout.interval'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'email_activation_timeout.interval', 'Interval')
+        },
+        {
+          key: 'email_activation_timeout.unit',
+          component: pfFormChosen,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'email_activation_timeout.unit'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'email_activation_timeout.unit', 'Unit')
+        }
+      ]
+    }
+  },
+  email_address: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Email address'),
+      text: i18n.t('The email address associated to your paypal account.'),
+      fields: [
+        {
+          key: 'email_address',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'email_address'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'email_address', 'Email')
+        }
+      ]
+    }
+  },
+  email_attribute: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Email Attribute'),
+      text: i18n.t('LDAP attribute name that stores the email address against which the filter will match.'),
+      fields: [
+        {
+          key: 'email_attribute',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'email_attribute'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'email_attribute', 'Attribute')
+        }
+      ]
+    }
+  },
+  email_required: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Email required'),
+      fields: [
+        {
+          key: 'email_required',
+          component: pfFormRangeToggle,
+          attrs: {
+            values: { checked: 'yes', unchecked: 'no' }
+          }
+        }
+      ]
+    }
+  },
+  group_header: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Group header '),
+      fields: [
+        {
+          key: 'group_header',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'group_header'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'group_header', 'Header')
+        }
+      ]
+    }
+  },
+  host: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Host'),
+      fields: [
+        {
+          key: 'host',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'host'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'host', 'Host')
+        }
+      ]
+    }
+  },
+  host_port_encryption: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Host'),
+      fields: [
+        {
+          key: 'host',
+          component: pfFormInput,
+          attrs: {
+            ...pfConfigurationAttributesFromMeta(meta, 'host'),
+            ...{
+              class: 'col-sm-4'
+            }
+          },
+          validators: pfConfigurationValidatorsFromMeta(meta, 'host', 'Host')
+        },
+        {
+          text: ':',
+          class: 'mx-1 font-weight-bold'
+        },
+        {
+          key: 'port',
+          component: pfFormInput,
+          attrs: {
+            ...pfConfigurationAttributesFromMeta(meta, 'port'),
+            ...{
+              class: 'col-sm-1'
+            }
+          },
+          validators: pfConfigurationValidatorsFromMeta(meta, 'port', 'Port')
+        },
+        {
+          key: 'encryption',
+          component: pfFormChosen,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'encryption'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'encryption', 'Encryption')
+        }
+      ]
+    }
+  },
+  identity_token: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Identity token'),
+      fields: [
+        {
+          key: 'identity_token',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'identity_token'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'identity_token', 'Token')
+        }
+      ]
+    }
+  },
+  idp_ca_cert_path: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Path to Identity Provider CA cert (x509)'),
+      text: i18n.t('If your Identity Provider uses a self-signed certificate, put the path to its certificate here instead.'),
+      fields: [
+        {
+          key: 'idp_ca_cert_path',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'idp_ca_cert_path'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'idp_ca_cert_path', 'Path')
+        }
+      ]
+    }
+  },
+  idp_cert_path: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Path to Identity Provider cert (x509)'),
+      fields: [
+        {
+          key: 'idp_cert_path',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'idp_cert_path'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'idp_cert_path', 'Path')
+        }
+      ]
+    }
+  },
+  idp_entity_id: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Identity Provider entity ID'),
+      fields: [
+        {
+          key: 'idp_entity_id',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'idp_entity_id'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'idp_entity_id', 'ID')
+        }
+      ]
+    }
+  },
+  idp_metadata_path: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Path to Identity Provider metadata'),
+      fields: [
+        {
+          key: 'idp_metadata_path',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'idp_metadata_path'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'idp_metadata_path', 'Path')
+        }
+      ]
+    }
+  },
+  key_file: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Key file'),
+      text: i18n.t('The path to the associated key of the certificate you submitted to Paypal.'),
+      fields: [
+        {
+          key: 'key_file',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'key_file'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'key_file', 'File')
+        }
+      ]
+    }
+  },
+  local_account_logins: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Amount of logins for the local account'),
+      text: i18n.t('The amount of times, the local account can be used after its created. 0 means infinite.'),
+      fields: [
+        {
+          key: 'local_account_logins',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'local_account_logins'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'local_account_logins', 'Logins')
+        }
+      ]
+    }
+  },
+  local_realm: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Local Realms'),
+      text: i18n.t('Realms that will be authenticate locally'),
+      fields: [
+        {
+          key: 'local_realm',
+          component: pfFormChosen,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'local_realm'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'local_realm', 'Realms')
+        }
+      ]
+    }
+  },
+  merchant_id: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Merchant ID'),
+      fields: [
+        {
+          key: 'merchant_id',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'merchant_id'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'merchant_id', 'ID')
+        }
+      ]
+    }
+  },
+  message: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('SMS text message ($pin will be replaced by the PIN number)'),
+      fields: [
+        {
+          key: 'message',
+          component: pfFormTextarea,
+          attrs: {
+            ...pfConfigurationAttributesFromMeta(meta, 'message'),
+            ...{
+              rows: 5
+            }
+          },
+          validators: pfConfigurationValidatorsFromMeta(meta, 'message', 'Message')
+        }
+      ]
+    }
+  },
+  monitor: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Monitor'),
+      text: i18n.t('Do you want to monitor this source?'),
+      fields: [
+        {
+          key: 'monitor',
+          component: pfFormRangeToggle,
+          attrs: {
+            values: { checked: '1', unchecked: '0' }
+          }
+        }
+      ]
+    }
+  },
+  password: ({ $store = {}, form = {}, options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Password'),
+      fields: [
+        {
+          key: 'password',
+          component: pfFormPassword,
+          attrs: {
+            ...pfConfigurationAttributesFromMeta(meta, 'password'),
+            ...{
+              test: () => {
+                return $store.dispatch('$_sources/testAuthenticationSource', form).then(response => {
+                  return response
+                }).catch(err => {
+                  throw err
+                })
+              }
+            }
+          },
+          validators: pfConfigurationValidatorsFromMeta(meta, 'password', 'Password')
+        }
+      ]
+    }
+  },
+  password_email_update: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Email'),
+      text: i18n.t('Email addresses to send the new generated password.'),
+      fields: [
+        {
+          key: 'password_email_update',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'password_email_update'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'password_email_update', 'Email')
+        }
+      ]
+    }
+  },
+  password_length: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Password length '),
+      text: i18n.t('The length of the password to generate.'),
+      fields: [
+        {
+          key: 'password_length',
+          component: pfFormChosen,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'password_length'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'password_length', 'Length')
+        }
+      ]
+    }
+  },
+  password_rotation: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Password Rotation Period'),
+      text: i18n.t('Period of time after the password must be rotated.'),
+      fields: [
+        {
+          key: 'password_rotation.interval',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'password_rotation.interval'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'password_rotation.interval', 'Interval')
+        },
+        {
+          key: 'password_rotation.unit',
+          component: pfFormChosen,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'password_rotation.unit'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'password_rotation.unit', 'Unit')
+        }
+      ]
+    }
+  },
+  path: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('File Path'),
+      fields: [
+        {
+          key: 'path',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'path'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'path', 'Path')
+        }
+      ]
+    }
+  },
+  payment_type: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Payment type'),
+      fields: [
+        {
+          key: 'payment_type',
+          component: pfFormChosen,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'payment_type'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'payment_type', 'Type')
+        }
+      ]
+    }
+  },
+  paypal_cert_file: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Paypal cert file'),
+      text: i18n.t('The path to the Paypal certificate you downloaded.'),
+      fields: [
+        {
+          key: 'paypal_cert_file',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'paypal_cert_file'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'paypal_cert_file', 'File')
+        }
+      ]
+    }
+  },
+  pin_code_length: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('PIN length'),
+      text: i18n.t('The amount of digits of the PIN number.'),
+      fields: [
+        {
+          key: 'pin_code_length',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'pin_code_length'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'pin_code_length', 'Length')
+        }
+      ]
+    }
+  },
+  protected_resource_url: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: null, // multiple occurances w/ different strings, nullify for overload
+      fields: [
+        {
+          key: 'protected_resource_url',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'protected_resource_url'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'protected_resource_url', 'URL')
+        }
+      ]
+    }
+  },
+  protocol_ip_port: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Host'),
+      fields: [
+        {
+          key: 'protocol',
+          component: pfFormChosen,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'protocol'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'protocol', 'Protocol')
+        },
+        {
+          key: 'ip',
+          component: pfFormInput,
+          attrs: {
+            ...pfConfigurationAttributesFromMeta(meta, 'ip'),
+            ...{
+              class: 'col-sm-4'
+            }
+          },
+          validators: pfConfigurationValidatorsFromMeta(meta, 'ip', 'IP')
+        },
+        {
+          text: ':',
+          class: 'mx-1 font-weight-bold'
+        },
+        {
+          key: 'port',
+          component: pfFormInput,
+          attrs: {
+            ...pfConfigurationAttributesFromMeta(meta, 'port'),
+            ...{
+              class: 'col-sm-1'
+            }
+          },
+          validators: pfConfigurationValidatorsFromMeta(meta, 'port', 'Port')
+        }
+      ]
+    }
+  },
+  proxy_addresses: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Proxy addresses'),
+      text: i18n.t('A comma seperated list of IP Address'),
+      fields: [
+        {
+          key: 'proxy_addresses',
+          component: pfFormTextarea,
+          attrs: {
+            ...pfConfigurationAttributesFromMeta(meta, 'proxy_addresses'),
+            ...{
+              rows: 5
+            }
+          },
+          validators: pfConfigurationValidatorsFromMeta(meta, 'proxy_addresses', 'Addresses')
+        }
+      ]
+    }
+  },
+  public_client_key: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Public Client Key'),
+      fields: [
+        {
+          key: 'public_client_key',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'public_client_key'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'public_client_key', 'Key')
+        }
+      ]
+    }
+  },
+  publishable_key: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Publishable key'),
+      fields: [
+        {
+          key: 'publishable_key',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'publishable_key'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'publishable_key', 'Key')
+        }
+      ]
+    }
+  },
+  radius_secret: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('RADIUS secret'),
+      text: i18n.t('Eduroam RADIUS secret'),
+      fields: [
+        {
+          key: 'radius_secret',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'radius_secret'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'radius_secret', 'Secret')
+        }
+      ]
+    }
+  },
+  read_timeout: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Response timeout'),
+      text: i18n.t('LDAP response timeout'),
+      fields: [
+        {
+          key: 'read_timeout',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'read_timeout'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'read_timeout', 'Timeout')
+        }
+      ]
+    }
+  },
+  realms: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Associated Realms'),
+      text: i18n.t('Realms that will be associated with this source'),
+      fields: [
+        {
+          key: 'realms',
+          component: pfFormChosen,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'realms'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'realms', 'Realms')
+        }
+      ]
+    }
+  },
+  redirect_url: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Portal URL'),
+      text: i18n.t('The hostname must be the one of your captive portal.'),
+      fields: [
+        {
+          key: 'redirect_url',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'redirect_url'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'redirect_url', 'URL')
+        }
+      ]
+    }
+  },
+  reject_realm: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Reject Realms'),
+      text: i18n.t('Realms that will be rejected'),
+      fields: [
+        {
+          key: 'reject_realm',
+          component: pfFormChosen,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'reject_realm'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'reject_realm', 'Realms')
+        }
+      ]
+    }
+  },
+  scope: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Scope'),
+      fields: [
+        {
+          key: 'scope',
+          component: pfFormChosen,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'scope'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'scope', 'Scope')
+        }
+      ]
+    }
+  },
+  secret: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Secret'),
+      fields: [
+        {
+          key: 'secret',
+          component: pfFormPassword,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'secret'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'secret', 'Secret')
+        }
+      ]
+    }
+  },
+  secret_key: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Secret key'),
+      fields: [
+        {
+          key: 'secret_key',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'secret_key'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'secret_key', 'Key')
+        }
+      ]
+    }
+  },
+  send_email_confirmation: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Send billing confirmation'),
+      fields: [
+        {
+          key: 'send_email_confirmation',
+          component: pfFormRangeToggle,
+          attrs: {
+            values: { checked: 'enabled', unchecked: 'disabled' }
+          }
+        }
+      ]
+    }
+  },
+  server1_address: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Server 1 address'),
+      text: i18n.t('Eduroam server 1 address'),
+      fields: [
+        {
+          key: 'server1_address',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'server1_address'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'server1_address', 'Address')
+        }
+      ]
+    }
+  },
+  server1_port: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Eduroam server 1 port'),
+      fields: [
+        {
+          key: 'server1_port',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'server1_port'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'server1_port', 'Port')
+        }
+      ]
+    }
+  },
+  server2_address: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Server 2 address'),
+      text: i18n.t('Eduroam server 1 address'),
+      fields: [
+        {
+          key: 'server2_address',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'server2_address'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'server2_address', 'Address')
+        }
+      ]
+    }
+  },
+  server2_port: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Eduroam server 2 port'),
+      fields: [
+        {
+          key: 'server2_port',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'server2_port'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'server2_port', 'Port')
+        }
+      ]
+    }
+  },
+  service_fqdn: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Service FQDN'),
+      fields: [
+        {
+          key: 'service_fqdn',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'service_fqdn'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'service_fqdn', 'FQDN')
+        }
+      ]
+    }
+  },
+  shared_secret: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Shared Secret'),
+      text: i18n.t('MKEY for the iframe'),
+      fields: [
+        {
+          key: 'shared_secret',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'shared_secret'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'shared_secret', 'Secret')
+        }
+      ]
+    }
+  },
+  shared_secret_direct: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Shared Secret Direct'),
+      text: i18n.t('MKEY for Mirapay Direct'),
+      fields: [
+        {
+          key: 'shared_secret_direct',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'shared_secret_direct'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'shared_secret_direct', 'Secret')
+        }
+      ]
+    }
+  },
+  shuffle: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Shuffle'),
+      text: i18n.t('Randomly choose LDAP server to query'),
+      fields: [
+        {
+          key: 'shuffle',
+          component: pfFormRangeToggle,
+          attrs: {
+            values: { checked: '1', unchecked: '0' }
+          }
+        }
+      ]
+    }
+  },
+  site: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: null, // multiple occurances w/ different strings, nullify for overload
+      fields: [
+        {
+          key: 'site',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'site'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'site', 'URL')
+        }
+      ]
+    }
+  },
+  sms_activation_timeout: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('SMS Activation Timeout '),
+      text: i18n.t('This is the delay given to a guest who registered by SMS confirmation to fill the PIN code.'),
+      fields: [
+        {
+          key: 'sms_activation_timeout.interval',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'sms_activation_timeout.interval'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'sms_activation_timeout.interval')
+        },
+        {
+          key: 'sms_activation_timeout.unit',
+          component: pfFormChosen,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'sms_activation_timeout.unit'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'sms_activation_timeout.unit', 'Unit')
+        }
+      ]
+    }
+  },
+  sms_carriers: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('SMS Carriers'),
+      text: i18n.t('List of phone carriers available to the user'),
+      fields: [
+        {
+          key: 'sms_carriers',
+          component: pfFormChosen,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'sms_carriers'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'sms_carriers', 'Carriers')
+        }
+      ]
+    }
+  },
+  sp_entity_id: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Service Provider entity ID'),
+      fields: [
+        {
+          key: 'sp_entity_id',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'sp_entity_id'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'sp_entity_id', 'ID')
+        }
+      ]
+    }
+  },
+  sp_key_path: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Path to Service Provider key (x509)'),
+      fields: [
+        {
+          key: 'sp_key_path',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'sp_key_path'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'sp_key_path', 'Path')
+        }
+      ]
+    }
+  },
+  sponsorship_bcc: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Sponsorship BCC'),
+      text: i18n.t('Sponsors requesting access and access confirmation emails are BCC\'ed to this address. Multiple destinations can be comma separated.'),
+      fields: [
+        {
+          key: 'sponsorship_bcc',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'sponsorship_bcc'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'sponsorship_bcc', 'BCC')
+        }
+      ]
+    }
+  },
+  style: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Style'),
+      fields: [
+        {
+          key: 'style',
+          component: pfFormChosen,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'style'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'style', 'Style')
+        }
+      ]
+    }
+  },
+  terminal_group_id: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Terminal Group ID'),
+      text: i18n.t('Terminal Group ID for Mirapay Direct'),
+      fields: [
+        {
+          key: 'terminal_group_id',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'terminal_group_id'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'terminal_group_id', 'ID')
+        }
+      ]
+    }
+  },
+  terminal_id: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Terminal ID'),
+      text: i18n.t('Terminal ID for Mirapay Direct'),
+      fields: [
+        {
+          key: 'terminal_id',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'terminal_id'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'terminal_id', 'ID')
+        }
+      ]
+    }
+  },
+  test_mode: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Test mode'),
+      fields: [
+        {
+          key: 'test_mode',
+          component: pfFormRangeToggle,
+          attrs: {
+            values: { checked: '1', unchecked: '0' }
+          }
+        }
+      ]
+    }
+  },
+  timeout: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Timeout'),
+      fields: [
+        {
+          key: 'timeout',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'timeout'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'timeout', 'Timeout')
+        }
+      ]
+    }
+  },
+  transaction_key: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Transaction key'),
+      fields: [
+        {
+          key: 'transaction_key',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'transaction_key'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'transaction_key', 'Key')
+        }
+      ]
+    }
+  },
+  twilio_phone_number: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Phone Number (From)'),
+      text: i18n.t('Twilio provided phone number which will show as the sender'),
+      fields: [
+        {
+          key: 'twilio_phone_number',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'twilio_phone_number'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'twilio_phone_number', 'Phone')
+        }
+      ]
+    }
+  },
+  user_header: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('User header '),
+      fields: [
+        {
+          key: 'user_header',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'user_header'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'user_header', 'Header')
+        }
+      ]
+    }
+  },
+  username_attribute: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Attribute of the username in the SAML response'),
+      fields: [
+        {
+          key: 'username_attribute',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'username_attribute'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'username_attribute', 'Attribute')
+        }
+      ]
+    }
+  },
+  usernameattribute: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Username Attribute'),
+      fields: [
+        {
+          key: 'usernameattribute',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'usernameattribute'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'usernameattribute', 'Attribute')
+        }
+      ]
+    }
+  },
+  validate_sponsor: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Sponsor Validation'),
+      text: i18n.t('Force sponsor to authenticate when validating a guest request.'),
+      fields: [
+        {
+          key: 'validate_sponsor',
+          component: pfFormRangeToggle,
+          attrs: {
+            values: { checked: 'yes', unchecked: 'no' }
+          }
+        }
+      ]
+    }
+  },
+  write_timeout: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Request timeout'),
+      text: i18n.t('LDAP request timeout'),
+      fields: [
+        {
+          key: 'write_timeout',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'write_timeout'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'write_timeout', 'Timeout')
+        }
+      ]
+    }
+  }
+}
+
 export const pfConfigurationAuthenticationSourceViewFields = (context) => {
   const { sourceType = null } = context
   switch (sourceType) {
@@ -71,24 +1714,24 @@ export const pfConfigurationAuthenticationSourceViewFields = (context) => {
         {
           tab: null, // ignore tabs
           fields: [
-            pfConfigurationViewFields.id(context),
-            pfConfigurationViewFields.description,
-            pfConfigurationViewFields.host_port_encryption,
-            pfConfigurationViewFields.connection_timeout,
-            pfConfigurationViewFields.write_timeout,
-            pfConfigurationViewFields.read_timeout,
-            pfConfigurationViewFields.basedn,
-            pfConfigurationViewFields.scope,
-            pfConfigurationViewFields.usernameattribute,
-            pfConfigurationViewFields.email_attribute,
-            pfConfigurationViewFields.binddn,
-            pfConfigurationViewFields.password(context),
-            pfConfigurationViewFields.cache_match,
-            pfConfigurationViewFields.monitor,
-            pfConfigurationViewFields.shuffle,
-            pfConfigurationViewFields.realms(context),
-            pfConfigurationViewFields.authentication_rules(context),
-            pfConfigurationViewFields.administration_rules(context)
+            pfConfigurationAuthenticationSourceFields.id(context),
+            pfConfigurationAuthenticationSourceFields.description(context),
+            pfConfigurationAuthenticationSourceFields.host_port_encryption(context),
+            pfConfigurationAuthenticationSourceFields.connection_timeout(context),
+            pfConfigurationAuthenticationSourceFields.write_timeout(context),
+            pfConfigurationAuthenticationSourceFields.read_timeout(context),
+            pfConfigurationAuthenticationSourceFields.basedn(context),
+            pfConfigurationAuthenticationSourceFields.scope(context),
+            pfConfigurationAuthenticationSourceFields.usernameattribute(context),
+            pfConfigurationAuthenticationSourceFields.email_attribute(context),
+            pfConfigurationAuthenticationSourceFields.binddn(context),
+            pfConfigurationAuthenticationSourceFields.password(context),
+            pfConfigurationAuthenticationSourceFields.cache_match(context),
+            pfConfigurationAuthenticationSourceFields.monitor(context),
+            pfConfigurationAuthenticationSourceFields.shuffle(context),
+            pfConfigurationAuthenticationSourceFields.realms(context),
+            pfConfigurationAuthenticationSourceFields.authentication_rules(context),
+            pfConfigurationAuthenticationSourceFields.administration_rules(context)
           ]
         }
       ]
@@ -97,11 +1740,11 @@ export const pfConfigurationAuthenticationSourceViewFields = (context) => {
         {
           tab: null, // ignore tabs
           fields: [
-            pfConfigurationViewFields.id(context),
-            pfConfigurationViewFields.description,
-            pfConfigurationViewFields.realms(context),
-            pfConfigurationViewFields.authentication_rules(context),
-            pfConfigurationViewFields.administration_rules(context)
+            pfConfigurationAuthenticationSourceFields.id(context),
+            pfConfigurationAuthenticationSourceFields.description(context),
+            pfConfigurationAuthenticationSourceFields.realms(context),
+            pfConfigurationAuthenticationSourceFields.authentication_rules(context),
+            pfConfigurationAuthenticationSourceFields.administration_rules(context)
           ]
         }
       ]
@@ -110,12 +1753,12 @@ export const pfConfigurationAuthenticationSourceViewFields = (context) => {
         {
           tab: null, // ignore tabs
           fields: [
-            pfConfigurationViewFields.id(context),
-            pfConfigurationViewFields.description,
-            pfConfigurationViewFields.path,
-            pfConfigurationViewFields.realms(context),
-            pfConfigurationViewFields.authentication_rules(context),
-            pfConfigurationViewFields.administration_rules(context)
+            pfConfigurationAuthenticationSourceFields.id(context),
+            pfConfigurationAuthenticationSourceFields.description(context),
+            pfConfigurationAuthenticationSourceFields.path(context),
+            pfConfigurationAuthenticationSourceFields.realms(context),
+            pfConfigurationAuthenticationSourceFields.authentication_rules(context),
+            pfConfigurationAuthenticationSourceFields.administration_rules(context)
           ]
         }
       ]
@@ -124,14 +1767,14 @@ export const pfConfigurationAuthenticationSourceViewFields = (context) => {
         {
           tab: null, // ignore tabs
           fields: [
-            pfConfigurationViewFields.id(context),
-            pfConfigurationViewFields.description,
-            pfConfigurationViewFields.protocol_ip_port,
-            pfConfigurationViewFields.api_username,
-            pfConfigurationViewFields.api_password,
-            pfConfigurationViewFields.authentication_url,
-            pfConfigurationViewFields.authorization_url,
-            pfConfigurationViewFields.realms(context)
+            pfConfigurationAuthenticationSourceFields.id(context),
+            pfConfigurationAuthenticationSourceFields.description(context),
+            pfConfigurationAuthenticationSourceFields.protocol_ip_port(context),
+            pfConfigurationAuthenticationSourceFields.api_username(context),
+            pfConfigurationAuthenticationSourceFields.api_password(context),
+            pfConfigurationAuthenticationSourceFields.authentication_url(context),
+            pfConfigurationAuthenticationSourceFields.authorization_url(context),
+            pfConfigurationAuthenticationSourceFields.realms(context)
           ]
         }
       ]
@@ -140,13 +1783,13 @@ export const pfConfigurationAuthenticationSourceViewFields = (context) => {
         {
           tab: null, // ignore tabs
           fields: [
-            pfConfigurationViewFields.id(context),
-            pfConfigurationViewFields.description,
-            pfConfigurationViewFields.host,
-            pfConfigurationViewFields.authenticate_realm,
-            pfConfigurationViewFields.realms(context),
-            pfConfigurationViewFields.authentication_rules(context),
-            pfConfigurationViewFields.administration_rules(context)
+            pfConfigurationAuthenticationSourceFields.id(context),
+            pfConfigurationAuthenticationSourceFields.description(context),
+            pfConfigurationAuthenticationSourceFields.host(context),
+            pfConfigurationAuthenticationSourceFields.authenticate_realm(context),
+            pfConfigurationAuthenticationSourceFields.realms(context),
+            pfConfigurationAuthenticationSourceFields.authentication_rules(context),
+            pfConfigurationAuthenticationSourceFields.administration_rules(context)
           ]
         }
       ]
@@ -155,40 +1798,40 @@ export const pfConfigurationAuthenticationSourceViewFields = (context) => {
         {
           tab: null, // ignore tabs
           fields: [
-            pfConfigurationViewFields.id(context),
-            pfConfigurationViewFields.description,
-            pfConfigurationViewFields.host_port_encryption,
-            pfConfigurationViewFields.connection_timeout,
-            pfConfigurationViewFields.write_timeout,
-            pfConfigurationViewFields.read_timeout,
-            pfConfigurationViewFields.basedn,
-            pfConfigurationViewFields.scope,
-            pfConfigurationViewFields.usernameattribute,
-            pfConfigurationViewFields.email_attribute,
-            pfConfigurationViewFields.binddn,
-            pfConfigurationViewFields.password(context),
-            pfConfigurationViewFields.cache_match,
-            pfConfigurationViewFields.monitor,
-            pfConfigurationViewFields.shuffle,
-            pfConfigurationViewFields.realms(context),
-            pfConfigurationViewFields.authentication_rules(context),
-            pfConfigurationViewFields.administration_rules(context)
+            pfConfigurationAuthenticationSourceFields.id(context),
+            pfConfigurationAuthenticationSourceFields.description(context),
+            pfConfigurationAuthenticationSourceFields.host_port_encryption(context),
+            pfConfigurationAuthenticationSourceFields.connection_timeout(context),
+            pfConfigurationAuthenticationSourceFields.write_timeout(context),
+            pfConfigurationAuthenticationSourceFields.read_timeout(context),
+            pfConfigurationAuthenticationSourceFields.basedn(context),
+            pfConfigurationAuthenticationSourceFields.scope(context),
+            pfConfigurationAuthenticationSourceFields.usernameattribute(context),
+            pfConfigurationAuthenticationSourceFields.email_attribute(context),
+            pfConfigurationAuthenticationSourceFields.binddn(context),
+            pfConfigurationAuthenticationSourceFields.password(context),
+            pfConfigurationAuthenticationSourceFields.cache_match(context),
+            pfConfigurationAuthenticationSourceFields.monitor(context),
+            pfConfigurationAuthenticationSourceFields.shuffle(context),
+            pfConfigurationAuthenticationSourceFields.realms(context),
+            pfConfigurationAuthenticationSourceFields.authentication_rules(context),
+            pfConfigurationAuthenticationSourceFields.administration_rules(context)
           ]
         }
       ]
-    case 'POTD':
+    case 'Potd':
       return [
         {
           tab: null, // ignore tabs
           fields: [
-            pfConfigurationViewFields.id(context),
-            pfConfigurationViewFields.description,
-            pfConfigurationViewFields.password_rotation,
-            pfConfigurationViewFields.password_email_update,
-            pfConfigurationViewFields.password_length,
-            pfConfigurationViewFields.realms(context),
-            pfConfigurationViewFields.authentication_rules(context),
-            pfConfigurationViewFields.administration_rules(context)
+            pfConfigurationAuthenticationSourceFields.id(context),
+            pfConfigurationAuthenticationSourceFields.description(context),
+            pfConfigurationAuthenticationSourceFields.password_rotation(context),
+            pfConfigurationAuthenticationSourceFields.password_email_update(context),
+            pfConfigurationAuthenticationSourceFields.password_length(context),
+            pfConfigurationAuthenticationSourceFields.realms(context),
+            pfConfigurationAuthenticationSourceFields.authentication_rules(context),
+            pfConfigurationAuthenticationSourceFields.administration_rules(context)
           ]
         }
       ]
@@ -197,15 +1840,15 @@ export const pfConfigurationAuthenticationSourceViewFields = (context) => {
         {
           tab: null, // ignore tabs
           fields: [
-            pfConfigurationViewFields.id(context),
-            pfConfigurationViewFields.description,
-            pfConfigurationViewFields.host,
-            pfConfigurationViewFields.secret,
-            pfConfigurationViewFields.timeout,
-            pfConfigurationViewFields.monitor,
-            pfConfigurationViewFields.realms(context),
-            pfConfigurationViewFields.authentication_rules(context),
-            pfConfigurationViewFields.administration_rules(context)
+            pfConfigurationAuthenticationSourceFields.id(context),
+            pfConfigurationAuthenticationSourceFields.description(context),
+            pfConfigurationAuthenticationSourceFields.host(context),
+            pfConfigurationAuthenticationSourceFields.secret(context),
+            pfConfigurationAuthenticationSourceFields.timeout(context),
+            pfConfigurationAuthenticationSourceFields.monitor(context),
+            pfConfigurationAuthenticationSourceFields.realms(context),
+            pfConfigurationAuthenticationSourceFields.authentication_rules(context),
+            pfConfigurationAuthenticationSourceFields.administration_rules(context)
           ]
         }
       ]
@@ -214,16 +1857,16 @@ export const pfConfigurationAuthenticationSourceViewFields = (context) => {
         {
           tab: null, // ignore tabs
           fields: [
-            pfConfigurationViewFields.id(context),
-            pfConfigurationViewFields.description,
-            pfConfigurationViewFields.sp_entity_id,
-            pfConfigurationViewFields.sp_key_path,
-            pfConfigurationViewFields.idp_entity_id,
-            pfConfigurationViewFields.idp_metadata_path,
-            pfConfigurationViewFields.idp_cert_path,
-            pfConfigurationViewFields.idp_ca_cert_path,
-            pfConfigurationViewFields.username_attribute,
-            pfConfigurationViewFields.authorization_source_id(context)
+            pfConfigurationAuthenticationSourceFields.id(context),
+            pfConfigurationAuthenticationSourceFields.description(context),
+            pfConfigurationAuthenticationSourceFields.sp_entity_id(context),
+            pfConfigurationAuthenticationSourceFields.sp_key_path(context),
+            pfConfigurationAuthenticationSourceFields.idp_entity_id(context),
+            pfConfigurationAuthenticationSourceFields.idp_metadata_path(context),
+            pfConfigurationAuthenticationSourceFields.idp_cert_path(context),
+            pfConfigurationAuthenticationSourceFields.idp_ca_cert_path(context),
+            pfConfigurationAuthenticationSourceFields.username_attribute(context),
+            pfConfigurationAuthenticationSourceFields.authorization_source_id(context)
           ]
         }
       ]
@@ -232,17 +1875,17 @@ export const pfConfigurationAuthenticationSourceViewFields = (context) => {
         {
           tab: null, // ignore tabs
           fields: [
-            pfConfigurationViewFields.id(context),
-            pfConfigurationViewFields.description,
+            pfConfigurationAuthenticationSourceFields.id(context),
+            pfConfigurationAuthenticationSourceFields.description(context),
             {
-              ...pfConfigurationViewFields.email_activation_timeout,
+              ...pfConfigurationAuthenticationSourceFields.email_activation_timeout(context),
               ...{ text: i18n.t('This is the delay given to a guest who registered by email confirmation to log into his email and click the activation link.') }
             }, // re-text
-            pfConfigurationViewFields.allow_localdomain,
-            pfConfigurationViewFields.activation_domain,
-            pfConfigurationViewFields.create_local_account,
-            pfConfigurationViewFields.local_account_logins,
-            pfConfigurationViewFields.authentication_rules(context)
+            pfConfigurationAuthenticationSourceFields.allow_localdomain(context),
+            pfConfigurationAuthenticationSourceFields.activation_domain(context),
+            pfConfigurationAuthenticationSourceFields.create_local_account(context),
+            pfConfigurationAuthenticationSourceFields.local_account_logins(context),
+            pfConfigurationAuthenticationSourceFields.authentication_rules(context)
           ]
         }
       ]
@@ -251,20 +1894,20 @@ export const pfConfigurationAuthenticationSourceViewFields = (context) => {
         {
           tab: null, // ignore tabs
           fields: [
-            pfConfigurationViewFields.id(context),
-            pfConfigurationViewFields.description,
-            pfConfigurationViewFields.client_id,
-            pfConfigurationViewFields.client_secret,
-            { ...pfConfigurationViewFields.site, ...{ label: i18n.t('Graph API URL') } }, // re-label
-            { ...pfConfigurationViewFields.access_token_path, ...{ label: i18n.t('Graph API Token Path') } }, // re-label
-            pfConfigurationViewFields.access_token_param,
-            pfConfigurationViewFields.access_scope,
-            { ...pfConfigurationViewFields.protected_resource_url, ...{ label: i18n.t('Graph API URL of logged user') } }, // re-label
-            pfConfigurationViewFields.redirect_url,
-            pfConfigurationViewFields.domains,
-            pfConfigurationViewFields.create_local_account,
-            pfConfigurationViewFields.local_account_logins,
-            pfConfigurationViewFields.authentication_rules(context)
+            pfConfigurationAuthenticationSourceFields.id(context),
+            pfConfigurationAuthenticationSourceFields.description(context),
+            pfConfigurationAuthenticationSourceFields.client_id(context),
+            pfConfigurationAuthenticationSourceFields.client_secret(context),
+            { ...pfConfigurationAuthenticationSourceFields.site(context), ...{ label: i18n.t('Graph API URL') } }, // re-label
+            { ...pfConfigurationAuthenticationSourceFields.access_token_path(context), ...{ label: i18n.t('Graph API Token Path') } }, // re-label
+            pfConfigurationAuthenticationSourceFields.access_token_param(context),
+            pfConfigurationAuthenticationSourceFields.access_scope(context),
+            { ...pfConfigurationAuthenticationSourceFields.protected_resource_url(context), ...{ label: i18n.t('Graph API URL of logged user') } }, // re-label
+            pfConfigurationAuthenticationSourceFields.redirect_url(context),
+            pfConfigurationAuthenticationSourceFields.domains(context),
+            pfConfigurationAuthenticationSourceFields.create_local_account(context),
+            pfConfigurationAuthenticationSourceFields.local_account_logins(context),
+            pfConfigurationAuthenticationSourceFields.authentication_rules(context)
           ]
         }
       ]
@@ -273,21 +1916,21 @@ export const pfConfigurationAuthenticationSourceViewFields = (context) => {
         {
           tab: null, // ignore tabs
           fields: [
-            pfConfigurationViewFields.id(context),
-            pfConfigurationViewFields.description,
-            pfConfigurationViewFields.client_id,
-            pfConfigurationViewFields.client_secret,
-            { ...pfConfigurationViewFields.site, ...{ label: i18n.t('API URL') } }, // re-label
-            pfConfigurationViewFields.authorize_path,
-            { ...pfConfigurationViewFields.access_token_path, ...{ label: i18n.t('API Token Path') } }, // re-label
-            pfConfigurationViewFields.access_token_param,
-            pfConfigurationViewFields.access_scope,
-            { ...pfConfigurationViewFields.protected_resource_url, ...{ label: i18n.t('API URL of logged user') } }, // re-label
-            pfConfigurationViewFields.redirect_url,
-            pfConfigurationViewFields.domains,
-            pfConfigurationViewFields.create_local_account,
-            pfConfigurationViewFields.local_account_logins,
-            pfConfigurationViewFields.authentication_rules(context)
+            pfConfigurationAuthenticationSourceFields.id(context),
+            pfConfigurationAuthenticationSourceFields.description(context),
+            pfConfigurationAuthenticationSourceFields.client_id(context),
+            pfConfigurationAuthenticationSourceFields.client_secret(context),
+            { ...pfConfigurationAuthenticationSourceFields.site(context), ...{ label: i18n.t('API URL') } }, // re-label
+            pfConfigurationAuthenticationSourceFields.authorize_path(context),
+            { ...pfConfigurationAuthenticationSourceFields.access_token_path(context), ...{ label: i18n.t('API Token Path') } }, // re-label
+            pfConfigurationAuthenticationSourceFields.access_token_param(context),
+            pfConfigurationAuthenticationSourceFields.access_scope(context),
+            { ...pfConfigurationAuthenticationSourceFields.protected_resource_url(context), ...{ label: i18n.t('API URL of logged user') } }, // re-label
+            pfConfigurationAuthenticationSourceFields.redirect_url(context),
+            pfConfigurationAuthenticationSourceFields.domains(context),
+            pfConfigurationAuthenticationSourceFields.create_local_account(context),
+            pfConfigurationAuthenticationSourceFields.local_account_logins(context),
+            pfConfigurationAuthenticationSourceFields.authentication_rules(context)
           ]
         }
       ]
@@ -296,21 +1939,21 @@ export const pfConfigurationAuthenticationSourceViewFields = (context) => {
         {
           tab: null, // ignore tabs
           fields: [
-            pfConfigurationViewFields.id(context),
-            pfConfigurationViewFields.description,
-            pfConfigurationViewFields.client_id,
-            pfConfigurationViewFields.client_secret,
-            { ...pfConfigurationViewFields.site, ...{ label: i18n.t('API URL') } }, // re-label
-            pfConfigurationViewFields.authorize_path,
-            { ...pfConfigurationViewFields.access_token_path, ...{ label: i18n.t('API Token Path') } }, // re-label
-            pfConfigurationViewFields.access_token_param,
-            pfConfigurationViewFields.access_scope,
-            { ...pfConfigurationViewFields.protected_resource_url, ...{ label: i18n.t('API URL of logged user') } }, // re-label
-            pfConfigurationViewFields.redirect_url,
-            pfConfigurationViewFields.domains,
-            pfConfigurationViewFields.create_local_account,
-            pfConfigurationViewFields.local_account_logins,
-            pfConfigurationViewFields.authentication_rules(context)
+            pfConfigurationAuthenticationSourceFields.id(context),
+            pfConfigurationAuthenticationSourceFields.description(context),
+            pfConfigurationAuthenticationSourceFields.client_id(context),
+            pfConfigurationAuthenticationSourceFields.client_secret(context),
+            { ...pfConfigurationAuthenticationSourceFields.site(context), ...{ label: i18n.t('API URL') } }, // re-label
+            pfConfigurationAuthenticationSourceFields.authorize_path(context),
+            { ...pfConfigurationAuthenticationSourceFields.access_token_path(context), ...{ label: i18n.t('API Token Path') } }, // re-label
+            pfConfigurationAuthenticationSourceFields.access_token_param(context),
+            pfConfigurationAuthenticationSourceFields.access_scope(context),
+            { ...pfConfigurationAuthenticationSourceFields.protected_resource_url(context), ...{ label: i18n.t('API URL of logged user') } }, // re-label
+            pfConfigurationAuthenticationSourceFields.redirect_url(context),
+            pfConfigurationAuthenticationSourceFields.domains(context),
+            pfConfigurationAuthenticationSourceFields.create_local_account(context),
+            pfConfigurationAuthenticationSourceFields.local_account_logins(context),
+            pfConfigurationAuthenticationSourceFields.authentication_rules(context)
           ]
         }
       ]
@@ -319,20 +1962,20 @@ export const pfConfigurationAuthenticationSourceViewFields = (context) => {
         {
           tab: null, // ignore tabs
           fields: [
-            pfConfigurationViewFields.id(context),
-            pfConfigurationViewFields.description,
-            pfConfigurationViewFields.client_id,
-            pfConfigurationViewFields.client_secret,
-            { ...pfConfigurationViewFields.site, ...{ label: i18n.t('Graph API URL') } }, // re-label
-            { ...pfConfigurationViewFields.access_token_path, ...{ label: i18n.t('Graph API Token Path') } }, // re-label
-            pfConfigurationViewFields.access_token_param,
-            pfConfigurationViewFields.access_scope,
-            { ...pfConfigurationViewFields.protected_resource_url, ...{ label: i18n.t('Graph API URL of logged user') } }, // re-label
-            pfConfigurationViewFields.redirect_url,
-            pfConfigurationViewFields.domains,
-            pfConfigurationViewFields.create_local_account,
-            pfConfigurationViewFields.local_account_logins,
-            pfConfigurationViewFields.authentication_rules(context)
+            pfConfigurationAuthenticationSourceFields.id(context),
+            pfConfigurationAuthenticationSourceFields.description(context),
+            pfConfigurationAuthenticationSourceFields.client_id(context),
+            pfConfigurationAuthenticationSourceFields.client_secret(context),
+            { ...pfConfigurationAuthenticationSourceFields.site(context), ...{ label: i18n.t('Graph API URL') } }, // re-label
+            { ...pfConfigurationAuthenticationSourceFields.access_token_path(context), ...{ label: i18n.t('Graph API Token Path') } }, // re-label
+            pfConfigurationAuthenticationSourceFields.access_token_param(context),
+            pfConfigurationAuthenticationSourceFields.access_scope(context),
+            { ...pfConfigurationAuthenticationSourceFields.protected_resource_url(context), ...{ label: i18n.t('Graph API URL of logged user') } }, // re-label
+            pfConfigurationAuthenticationSourceFields.redirect_url(context),
+            pfConfigurationAuthenticationSourceFields.domains(context),
+            pfConfigurationAuthenticationSourceFields.create_local_account(context),
+            pfConfigurationAuthenticationSourceFields.local_account_logins(context),
+            pfConfigurationAuthenticationSourceFields.authentication_rules(context)
           ]
         }
       ]
@@ -341,10 +1984,10 @@ export const pfConfigurationAuthenticationSourceViewFields = (context) => {
         {
           tab: null, // ignore tabs
           fields: [
-            pfConfigurationViewFields.id(context),
-            pfConfigurationViewFields.description,
-            pfConfigurationViewFields.api_key,
-            pfConfigurationViewFields.authentication_rules(context)
+            pfConfigurationAuthenticationSourceFields.id(context),
+            pfConfigurationAuthenticationSourceFields.description(context),
+            pfConfigurationAuthenticationSourceFields.api_key(context),
+            pfConfigurationAuthenticationSourceFields.authentication_rules(context)
           ]
         }
       ]
@@ -353,20 +1996,20 @@ export const pfConfigurationAuthenticationSourceViewFields = (context) => {
         {
           tab: null, // ignore tabs
           fields: [
-            pfConfigurationViewFields.id(context),
-            pfConfigurationViewFields.description,
-            pfConfigurationViewFields.client_id,
-            pfConfigurationViewFields.client_secret,
-            { ...pfConfigurationViewFields.site, ...{ label: i18n.t('API URL') } }, // re-label
-            pfConfigurationViewFields.authorize_path,
-            { ...pfConfigurationViewFields.access_token_path, ...{ label: i18n.t('API Token Path') } }, // re-label
-            pfConfigurationViewFields.access_token_param,
-            { ...pfConfigurationViewFields.protected_resource_url, ...{ label: i18n.t('API URL of logged user') } }, // re-label
-            pfConfigurationViewFields.redirect_url,
-            pfConfigurationViewFields.domains,
-            pfConfigurationViewFields.create_local_account,
-            pfConfigurationViewFields.local_account_logins,
-            pfConfigurationViewFields.authentication_rules(context)
+            pfConfigurationAuthenticationSourceFields.id(context),
+            pfConfigurationAuthenticationSourceFields.description(context),
+            pfConfigurationAuthenticationSourceFields.client_id(context),
+            pfConfigurationAuthenticationSourceFields.client_secret(context),
+            { ...pfConfigurationAuthenticationSourceFields.site(context), ...{ label: i18n.t('API URL') } }, // re-label
+            pfConfigurationAuthenticationSourceFields.authorize_path(context),
+            { ...pfConfigurationAuthenticationSourceFields.access_token_path(context), ...{ label: i18n.t('API Token Path') } }, // re-label
+            pfConfigurationAuthenticationSourceFields.access_token_param(context),
+            { ...pfConfigurationAuthenticationSourceFields.protected_resource_url(context), ...{ label: i18n.t('API URL of logged user') } }, // re-label
+            pfConfigurationAuthenticationSourceFields.redirect_url(context),
+            pfConfigurationAuthenticationSourceFields.domains(context),
+            pfConfigurationAuthenticationSourceFields.create_local_account(context),
+            pfConfigurationAuthenticationSourceFields.local_account_logins(context),
+            pfConfigurationAuthenticationSourceFields.authentication_rules(context)
           ]
         }
       ]
@@ -375,10 +2018,10 @@ export const pfConfigurationAuthenticationSourceViewFields = (context) => {
         {
           tab: null, // ignore tabs
           fields: [
-            pfConfigurationViewFields.id(context),
-            pfConfigurationViewFields.description,
-            pfConfigurationViewFields.email_required,
-            pfConfigurationViewFields.authentication_rules(context)
+            pfConfigurationAuthenticationSourceFields.id(context),
+            pfConfigurationAuthenticationSourceFields.description(context),
+            pfConfigurationAuthenticationSourceFields.email_required(context),
+            pfConfigurationAuthenticationSourceFields.authentication_rules(context)
           ]
         }
       ]
@@ -387,20 +2030,20 @@ export const pfConfigurationAuthenticationSourceViewFields = (context) => {
         {
           tab: null, // ignore tabs
           fields: [
-            pfConfigurationViewFields.id(context),
-            pfConfigurationViewFields.description,
-            pfConfigurationViewFields.client_id,
-            pfConfigurationViewFields.client_secret,
-            { ...pfConfigurationViewFields.site, ...{ label: i18n.t('API URL') } }, // re-label
-            pfConfigurationViewFields.authorize_path,
-            { ...pfConfigurationViewFields.access_token_path, ...{ label: i18n.t('API Token Path') } }, // re-label
-            pfConfigurationViewFields.access_scope,
-            { ...pfConfigurationViewFields.protected_resource_url, ...{ label: i18n.t('API URL of logged user') } }, // re-label
-            pfConfigurationViewFields.redirect_url,
-            pfConfigurationViewFields.domains,
-            pfConfigurationViewFields.create_local_account,
-            pfConfigurationViewFields.local_account_logins,
-            pfConfigurationViewFields.authentication_rules(context)
+            pfConfigurationAuthenticationSourceFields.id(context),
+            pfConfigurationAuthenticationSourceFields.description(context),
+            pfConfigurationAuthenticationSourceFields.client_id(context),
+            pfConfigurationAuthenticationSourceFields.client_secret(context),
+            { ...pfConfigurationAuthenticationSourceFields.site(context), ...{ label: i18n.t('API URL') } }, // re-label
+            pfConfigurationAuthenticationSourceFields.authorize_path(context),
+            { ...pfConfigurationAuthenticationSourceFields.access_token_path(context), ...{ label: i18n.t('API Token Path') } }, // re-label
+            pfConfigurationAuthenticationSourceFields.access_scope(context),
+            { ...pfConfigurationAuthenticationSourceFields.protected_resource_url(context), ...{ label: i18n.t('API URL of logged user') } }, // re-label
+            pfConfigurationAuthenticationSourceFields.redirect_url(context),
+            pfConfigurationAuthenticationSourceFields.domains(context),
+            pfConfigurationAuthenticationSourceFields.create_local_account(context),
+            pfConfigurationAuthenticationSourceFields.local_account_logins(context),
+            pfConfigurationAuthenticationSourceFields.authentication_rules(context)
           ]
         }
       ]
@@ -409,21 +2052,21 @@ export const pfConfigurationAuthenticationSourceViewFields = (context) => {
         {
           tab: null, // ignore tabs
           fields: [
-            pfConfigurationViewFields.id(context),
-            pfConfigurationViewFields.description,
-            pfConfigurationViewFields.client_id,
-            pfConfigurationViewFields.client_secret,
-            { ...pfConfigurationViewFields.site, ...{ label: i18n.t('Graph API URL') } }, // re-label
-            pfConfigurationViewFields.authorize_path,
-            { ...pfConfigurationViewFields.access_token_path, ...{ label: i18n.t('Graph API Token Path') } }, // re-label
-            pfConfigurationViewFields.access_token_param,
-            pfConfigurationViewFields.access_scope,
-            { ...pfConfigurationViewFields.protected_resource_url, ...{ label: i18n.t('API URL of logged user') } }, // re-label
-            pfConfigurationViewFields.redirect_url,
-            pfConfigurationViewFields.domains,
-            pfConfigurationViewFields.create_local_account,
-            pfConfigurationViewFields.local_account_logins,
-            pfConfigurationViewFields.authentication_rules(context)
+            pfConfigurationAuthenticationSourceFields.id(context),
+            pfConfigurationAuthenticationSourceFields.description(context),
+            pfConfigurationAuthenticationSourceFields.client_id(context),
+            pfConfigurationAuthenticationSourceFields.client_secret(context),
+            { ...pfConfigurationAuthenticationSourceFields.site(context), ...{ label: i18n.t('Graph API URL') } }, // re-label
+            pfConfigurationAuthenticationSourceFields.authorize_path(context),
+            { ...pfConfigurationAuthenticationSourceFields.access_token_path(context), ...{ label: i18n.t('Graph API Token Path') } }, // re-label
+            pfConfigurationAuthenticationSourceFields.access_token_param(context),
+            pfConfigurationAuthenticationSourceFields.access_scope(context),
+            { ...pfConfigurationAuthenticationSourceFields.protected_resource_url(context), ...{ label: i18n.t('API URL of logged user') } }, // re-label
+            pfConfigurationAuthenticationSourceFields.redirect_url(context),
+            pfConfigurationAuthenticationSourceFields.domains(context),
+            pfConfigurationAuthenticationSourceFields.create_local_account(context),
+            pfConfigurationAuthenticationSourceFields.local_account_logins(context),
+            pfConfigurationAuthenticationSourceFields.authentication_rules(context)
           ]
         }
       ]
@@ -432,15 +2075,15 @@ export const pfConfigurationAuthenticationSourceViewFields = (context) => {
         {
           tab: null, // ignore tabs
           fields: [
-            pfConfigurationViewFields.id(context),
-            pfConfigurationViewFields.description,
-            pfConfigurationViewFields.sms_carriers,
-            pfConfigurationViewFields.sms_activation_timeout,
-            pfConfigurationViewFields.message,
-            pfConfigurationViewFields.pin_code_length,
-            pfConfigurationViewFields.create_local_account,
-            pfConfigurationViewFields.local_account_logins,
-            pfConfigurationViewFields.authentication_rules(context)
+            pfConfigurationAuthenticationSourceFields.id(context),
+            pfConfigurationAuthenticationSourceFields.description(context),
+            pfConfigurationAuthenticationSourceFields.sms_carriers(context),
+            pfConfigurationAuthenticationSourceFields.sms_activation_timeout(context),
+            pfConfigurationAuthenticationSourceFields.message(context),
+            pfConfigurationAuthenticationSourceFields.pin_code_length(context),
+            pfConfigurationAuthenticationSourceFields.create_local_account(context),
+            pfConfigurationAuthenticationSourceFields.local_account_logins(context),
+            pfConfigurationAuthenticationSourceFields.authentication_rules(context)
           ]
         }
       ]
@@ -449,16 +2092,16 @@ export const pfConfigurationAuthenticationSourceViewFields = (context) => {
         {
           tab: null, // ignore tabs
           fields: [
-            pfConfigurationViewFields.id(context),
-            pfConfigurationViewFields.description,
-            pfConfigurationViewFields.allow_localdomain,
-            { ...pfConfigurationViewFields.email_activation_timeout, ...{ text: i18n.t('Delay given to a sponsor to click the activation link.') } }, // re-text
-            pfConfigurationViewFields.activation_domain,
-            pfConfigurationViewFields.sponsorship_bcc,
-            pfConfigurationViewFields.validate_sponsor,
-            pfConfigurationViewFields.create_local_account,
-            pfConfigurationViewFields.local_account_logins,
-            pfConfigurationViewFields.authentication_rules(context)
+            pfConfigurationAuthenticationSourceFields.id(context),
+            pfConfigurationAuthenticationSourceFields.description(context),
+            pfConfigurationAuthenticationSourceFields.allow_localdomain(context),
+            { ...pfConfigurationAuthenticationSourceFields.email_activation_timeout(context), ...{ text: i18n.t('Delay given to a sponsor to click the activation link.') } }, // re-text
+            pfConfigurationAuthenticationSourceFields.activation_domain(context),
+            pfConfigurationAuthenticationSourceFields.sponsorship_bcc(context),
+            pfConfigurationAuthenticationSourceFields.validate_sponsor(context),
+            pfConfigurationAuthenticationSourceFields.create_local_account(context),
+            pfConfigurationAuthenticationSourceFields.local_account_logins(context),
+            pfConfigurationAuthenticationSourceFields.authentication_rules(context)
           ]
         }
       ]
@@ -467,16 +2110,16 @@ export const pfConfigurationAuthenticationSourceViewFields = (context) => {
         {
           tab: null, // ignore tabs
           fields: [
-            pfConfigurationViewFields.id(context),
-            pfConfigurationViewFields.description,
-            pfConfigurationViewFields.account_sid,
-            pfConfigurationViewFields.auth_token,
-            pfConfigurationViewFields.twilio_phone_number,
-            pfConfigurationViewFields.message,
-            pfConfigurationViewFields.pin_code_length,
-            pfConfigurationViewFields.create_local_account,
-            pfConfigurationViewFields.local_account_logins,
-            pfConfigurationViewFields.authentication_rules(context)
+            pfConfigurationAuthenticationSourceFields.id(context),
+            pfConfigurationAuthenticationSourceFields.description(context),
+            pfConfigurationAuthenticationSourceFields.account_sid(context),
+            pfConfigurationAuthenticationSourceFields.auth_token(context),
+            pfConfigurationAuthenticationSourceFields.twilio_phone_number(context),
+            pfConfigurationAuthenticationSourceFields.message(context),
+            pfConfigurationAuthenticationSourceFields.pin_code_length(context),
+            pfConfigurationAuthenticationSourceFields.create_local_account(context),
+            pfConfigurationAuthenticationSourceFields.local_account_logins(context),
+            pfConfigurationAuthenticationSourceFields.authentication_rules(context)
           ]
         }
       ]
@@ -485,17 +2128,17 @@ export const pfConfigurationAuthenticationSourceViewFields = (context) => {
         {
           tab: null, // ignore tabs
           fields: [
-            pfConfigurationViewFields.id(context),
-            pfConfigurationViewFields.description,
-            pfConfigurationViewFields.client_id,
-            pfConfigurationViewFields.client_secret,
-            { ...pfConfigurationViewFields.site, ...{ label: i18n.t('API URL') } }, // re-label
-            pfConfigurationViewFields.authorize_path,
-            { ...pfConfigurationViewFields.access_token_path, ...{ label: i18n.t('API Token Path') } }, // re-label
-            { ...pfConfigurationViewFields.protected_resource_url, ...{ label: i18n.t('API URL of logged user') } }, // re-label
-            pfConfigurationViewFields.redirect_url,
-            pfConfigurationViewFields.domains,
-            pfConfigurationViewFields.authentication_rules(context)
+            pfConfigurationAuthenticationSourceFields.id(context),
+            pfConfigurationAuthenticationSourceFields.description(context),
+            pfConfigurationAuthenticationSourceFields.client_id(context),
+            pfConfigurationAuthenticationSourceFields.client_secret(context),
+            { ...pfConfigurationAuthenticationSourceFields.site(context), ...{ label: i18n.t('API URL') } }, // re-label
+            pfConfigurationAuthenticationSourceFields.authorize_path(context),
+            { ...pfConfigurationAuthenticationSourceFields.access_token_path(context), ...{ label: i18n.t('API Token Path') } }, // re-label
+            { ...pfConfigurationAuthenticationSourceFields.protected_resource_url(context), ...{ label: i18n.t('API URL of logged user') } }, // re-label
+            pfConfigurationAuthenticationSourceFields.redirect_url(context),
+            pfConfigurationAuthenticationSourceFields.domains(context),
+            pfConfigurationAuthenticationSourceFields.authentication_rules(context)
           ]
         }
       ]
@@ -504,21 +2147,21 @@ export const pfConfigurationAuthenticationSourceViewFields = (context) => {
         {
           tab: null, // ignore tabs
           fields: [
-            pfConfigurationViewFields.id(context),
-            pfConfigurationViewFields.description,
-            pfConfigurationViewFields.client_id,
-            pfConfigurationViewFields.client_secret,
-            { ...pfConfigurationViewFields.site, ...{ label: i18n.t('API URL') } }, // re-label
-            pfConfigurationViewFields.authorize_path,
-            { ...pfConfigurationViewFields.access_token_path, ...{ label: i18n.t('API Token Path') } }, // re-label
-            pfConfigurationViewFields.access_token_param,
-            pfConfigurationViewFields.access_scope,
-            { ...pfConfigurationViewFields.protected_resource_url, ...{ label: i18n.t('API URL of logged user') } }, // re-label
-            pfConfigurationViewFields.redirect_url,
-            pfConfigurationViewFields.domains,
-            pfConfigurationViewFields.create_local_account,
-            pfConfigurationViewFields.local_account_logins,
-            pfConfigurationViewFields.authentication_rules(context)
+            pfConfigurationAuthenticationSourceFields.id(context),
+            pfConfigurationAuthenticationSourceFields.description(context),
+            pfConfigurationAuthenticationSourceFields.client_id(context),
+            pfConfigurationAuthenticationSourceFields.client_secret(context),
+            { ...pfConfigurationAuthenticationSourceFields.site(context), ...{ label: i18n.t('API URL') } }, // re-label
+            pfConfigurationAuthenticationSourceFields.authorize_path(context),
+            { ...pfConfigurationAuthenticationSourceFields.access_token_path(context), ...{ label: i18n.t('API Token Path') } }, // re-label
+            pfConfigurationAuthenticationSourceFields.access_token_param(context),
+            pfConfigurationAuthenticationSourceFields.access_scope(context),
+            { ...pfConfigurationAuthenticationSourceFields.protected_resource_url(context), ...{ label: i18n.t('API URL of logged user') } }, // re-label
+            pfConfigurationAuthenticationSourceFields.redirect_url(context),
+            pfConfigurationAuthenticationSourceFields.domains(context),
+            pfConfigurationAuthenticationSourceFields.create_local_account(context),
+            pfConfigurationAuthenticationSourceFields.local_account_logins(context),
+            pfConfigurationAuthenticationSourceFields.authentication_rules(context)
           ]
         }
       ]
@@ -527,12 +2170,12 @@ export const pfConfigurationAuthenticationSourceViewFields = (context) => {
         {
           tab: null, // ignore tabs
           fields: [
-            pfConfigurationViewFields.id(context),
-            pfConfigurationViewFields.description,
-            pfConfigurationViewFields.proxy_addresses,
-            pfConfigurationViewFields.user_header,
-            pfConfigurationViewFields.group_header,
-            pfConfigurationViewFields.administration_rules(context)
+            pfConfigurationAuthenticationSourceFields.id(context),
+            pfConfigurationAuthenticationSourceFields.description(context),
+            pfConfigurationAuthenticationSourceFields.proxy_addresses(context),
+            pfConfigurationAuthenticationSourceFields.user_header(context),
+            pfConfigurationAuthenticationSourceFields.group_header(context),
+            pfConfigurationAuthenticationSourceFields.administration_rules(context)
           ]
         }
       ]
@@ -541,8 +2184,8 @@ export const pfConfigurationAuthenticationSourceViewFields = (context) => {
         {
           tab: null, // ignore tabs
           fields: [
-            pfConfigurationViewFields.id(context),
-            pfConfigurationViewFields.description
+            pfConfigurationAuthenticationSourceFields.id(context),
+            pfConfigurationAuthenticationSourceFields.description(context)
           ]
         }
       ]
@@ -551,18 +2194,18 @@ export const pfConfigurationAuthenticationSourceViewFields = (context) => {
         {
           tab: null, // ignore tabs
           fields: [
-            pfConfigurationViewFields.id(context),
-            pfConfigurationViewFields.description,
-            pfConfigurationViewFields.server1_address,
-            pfConfigurationViewFields.server1_port,
-            pfConfigurationViewFields.server2_address,
-            pfConfigurationViewFields.server2_port,
-            pfConfigurationViewFields.radius_secret,
-            pfConfigurationViewFields.auth_listening_port,
-            pfConfigurationViewFields.reject_realm(context),
-            pfConfigurationViewFields.local_realm(context),
-            pfConfigurationViewFields.monitor,
-            pfConfigurationViewFields.authentication_rules(context)
+            pfConfigurationAuthenticationSourceFields.id(context),
+            pfConfigurationAuthenticationSourceFields.description(context),
+            pfConfigurationAuthenticationSourceFields.server1_address(context),
+            pfConfigurationAuthenticationSourceFields.server1_port(context),
+            pfConfigurationAuthenticationSourceFields.server2_address(context),
+            pfConfigurationAuthenticationSourceFields.server2_port(context),
+            pfConfigurationAuthenticationSourceFields.radius_secret(context),
+            pfConfigurationAuthenticationSourceFields.auth_listening_port(context),
+            pfConfigurationAuthenticationSourceFields.reject_realm(context),
+            pfConfigurationAuthenticationSourceFields.local_realm(context),
+            pfConfigurationAuthenticationSourceFields.monitor(context),
+            pfConfigurationAuthenticationSourceFields.authentication_rules(context)
           ]
         }
       ]
@@ -571,17 +2214,17 @@ export const pfConfigurationAuthenticationSourceViewFields = (context) => {
         {
           tab: null, // ignore tabs
           fields: [
-            pfConfigurationViewFields.id(context),
-            pfConfigurationViewFields.description,
-            pfConfigurationViewFields.api_login_id,
-            pfConfigurationViewFields.transaction_key,
-            pfConfigurationViewFields.public_client_key,
-            pfConfigurationViewFields.domains,
-            pfConfigurationViewFields.currency,
-            pfConfigurationViewFields.test_mode,
-            pfConfigurationViewFields.send_email_confirmation,
-            pfConfigurationViewFields.create_local_account,
-            pfConfigurationViewFields.local_account_logins
+            pfConfigurationAuthenticationSourceFields.id(context),
+            pfConfigurationAuthenticationSourceFields.description(context),
+            pfConfigurationAuthenticationSourceFields.api_login_id(context),
+            pfConfigurationAuthenticationSourceFields.transaction_key(context),
+            pfConfigurationAuthenticationSourceFields.public_client_key(context),
+            pfConfigurationAuthenticationSourceFields.domains(context),
+            pfConfigurationAuthenticationSourceFields.currency(context),
+            pfConfigurationAuthenticationSourceFields.test_mode(context),
+            pfConfigurationAuthenticationSourceFields.send_email_confirmation(context),
+            pfConfigurationAuthenticationSourceFields.create_local_account(context),
+            pfConfigurationAuthenticationSourceFields.local_account_logins(context)
           ]
         }
       ]
@@ -590,24 +2233,24 @@ export const pfConfigurationAuthenticationSourceViewFields = (context) => {
         {
           tab: null, // ignore tabs
           fields: [
-            pfConfigurationViewFields.id(context),
-            pfConfigurationViewFields.description,
+            pfConfigurationAuthenticationSourceFields.id(context),
+            pfConfigurationAuthenticationSourceFields.description(context),
             { label: i18n.t('MiraPay iframe settings'), labelSize: 'lg' },
-            pfConfigurationViewFields.base_url,
-            pfConfigurationViewFields.merchant_id,
-            pfConfigurationViewFields.shared_secret,
+            pfConfigurationAuthenticationSourceFields.base_url(context),
+            pfConfigurationAuthenticationSourceFields.merchant_id(context),
+            pfConfigurationAuthenticationSourceFields.shared_secret(context),
             { label: i18n.t('MiraPay direct settings'), labelSize: 'lg' },
-            pfConfigurationViewFields.direct_base_url,
-            pfConfigurationViewFields.terminal_id,
-            pfConfigurationViewFields.shared_secret_direct,
-            pfConfigurationViewFields.terminal_group_id,
+            pfConfigurationAuthenticationSourceFields.direct_base_url(context),
+            pfConfigurationAuthenticationSourceFields.terminal_id(context),
+            pfConfigurationAuthenticationSourceFields.shared_secret_direct(context),
+            pfConfigurationAuthenticationSourceFields.terminal_group_id(context),
             { label: i18n.t('Additional settings'), labelSize: 'lg' },
-            pfConfigurationViewFields.service_fqdn,
-            pfConfigurationViewFields.currency,
-            pfConfigurationViewFields.test_mode,
-            pfConfigurationViewFields.send_email_confirmation,
-            pfConfigurationViewFields.create_local_account,
-            pfConfigurationViewFields.local_account_logins
+            pfConfigurationAuthenticationSourceFields.service_fqdn(context),
+            pfConfigurationAuthenticationSourceFields.currency(context),
+            pfConfigurationAuthenticationSourceFields.test_mode(context),
+            pfConfigurationAuthenticationSourceFields.send_email_confirmation(context),
+            pfConfigurationAuthenticationSourceFields.create_local_account(context),
+            pfConfigurationAuthenticationSourceFields.local_account_logins(context)
           ]
         }
       ]
@@ -616,21 +2259,21 @@ export const pfConfigurationAuthenticationSourceViewFields = (context) => {
         {
           tab: null, // ignore tabs
           fields: [
-            pfConfigurationViewFields.id(context),
-            pfConfigurationViewFields.description,
-            pfConfigurationViewFields.currency,
-            pfConfigurationViewFields.send_email_confirmation,
-            pfConfigurationViewFields.test_mode,
-            pfConfigurationViewFields.identity_token,
-            pfConfigurationViewFields.cert_id,
-            pfConfigurationViewFields.cert_file,
-            pfConfigurationViewFields.key_file,
-            pfConfigurationViewFields.paypal_cert_file,
-            pfConfigurationViewFields.email_address,
-            pfConfigurationViewFields.payment_type,
-            pfConfigurationViewFields.domains,
-            pfConfigurationViewFields.create_local_account,
-            pfConfigurationViewFields.local_account_logins
+            pfConfigurationAuthenticationSourceFields.id(context),
+            pfConfigurationAuthenticationSourceFields.description(context),
+            pfConfigurationAuthenticationSourceFields.currency(context),
+            pfConfigurationAuthenticationSourceFields.send_email_confirmation(context),
+            pfConfigurationAuthenticationSourceFields.test_mode(context),
+            pfConfigurationAuthenticationSourceFields.identity_token(context),
+            pfConfigurationAuthenticationSourceFields.cert_id(context),
+            pfConfigurationAuthenticationSourceFields.cert_file(context),
+            pfConfigurationAuthenticationSourceFields.key_file(context),
+            pfConfigurationAuthenticationSourceFields.paypal_cert_file(context),
+            pfConfigurationAuthenticationSourceFields.email_address(context),
+            pfConfigurationAuthenticationSourceFields.payment_type(context),
+            pfConfigurationAuthenticationSourceFields.domains(context),
+            pfConfigurationAuthenticationSourceFields.create_local_account(context),
+            pfConfigurationAuthenticationSourceFields.local_account_logins(context)
           ]
         }
       ]
@@ -639,17 +2282,17 @@ export const pfConfigurationAuthenticationSourceViewFields = (context) => {
         {
           tab: null, // ignore tabs
           fields: [
-            pfConfigurationViewFields.id(context),
-            pfConfigurationViewFields.description,
-            pfConfigurationViewFields.currency,
-            pfConfigurationViewFields.send_email_confirmation,
-            pfConfigurationViewFields.test_mode,
-            pfConfigurationViewFields.secret_key,
-            pfConfigurationViewFields.publishable_key,
-            pfConfigurationViewFields.style,
-            pfConfigurationViewFields.domains,
-            pfConfigurationViewFields.create_local_account,
-            pfConfigurationViewFields.local_account_logins
+            pfConfigurationAuthenticationSourceFields.id(context),
+            pfConfigurationAuthenticationSourceFields.description(context),
+            pfConfigurationAuthenticationSourceFields.currency(context),
+            pfConfigurationAuthenticationSourceFields.send_email_confirmation(context),
+            pfConfigurationAuthenticationSourceFields.test_mode(context),
+            pfConfigurationAuthenticationSourceFields.secret_key(context),
+            pfConfigurationAuthenticationSourceFields.publishable_key(context),
+            pfConfigurationAuthenticationSourceFields.style(context),
+            pfConfigurationAuthenticationSourceFields.domains(context),
+            pfConfigurationAuthenticationSourceFields.create_local_account(context),
+            pfConfigurationAuthenticationSourceFields.local_account_logins(context)
           ]
         }
       ]
@@ -660,232 +2303,5 @@ export const pfConfigurationAuthenticationSourceViewFields = (context) => {
           fields: []
         }
       ]
-  }
-}
-
-export const pfConfigurationAuthenticationSourceViewDefaults = (context = {}) => {
-  const {
-    sourceType = null,
-    general = {}
-  } = context
-  switch (sourceType) {
-    case 'AD':
-      return {
-        port: '389',
-        encryption: 'none',
-        connection_timeout: '1',
-        write_timeout: '5',
-        read_timeout: '10',
-        scope: 'sub',
-        usernameattribute: 'sAMAccountName',
-        email_attribute: 'mail',
-        cache_match: '1',
-        authentication_rules: [],
-        administration_rules: []
-      }
-    case 'HTTP':
-      return {
-        protocol: 'http',
-        ip: '127.0.0.1',
-        port: '10000'
-      }
-    case 'LDAP':
-      return {
-        port: '389',
-        encryption: 'none',
-        connection_timeout: '1',
-        write_timeout: '5',
-        read_timeout: '10',
-        scope: 'sub',
-        email_attribute: 'mail',
-        monitor: '1'
-      }
-    case 'POTD':
-      return {
-        'password_rotation.interval': '10',
-        'password_rotation.unit': 'm',
-        password_length: '8'
-      }
-    case 'RADIUS':
-      return {
-        host: '127.0.0.1',
-        port: '1812',
-        timeout: '1'
-      }
-    case 'SAML':
-      return {
-        username_attribute: 'urn:oid:0.9.2342.19200300.100.1.1',
-        authorization_source_id: 'local'
-      }
-    case 'Email':
-      return {
-        'email_activation_timeout.interval': '10',
-        'email_activation_timeout.unit': 'm',
-        allow_localdomain: 'yes',
-        local_account_logins: '0'
-      }
-    case 'Facebook':
-      return {
-        site: 'https://graph.facebook.com',
-        access_token_path: '/oauth/access_token',
-        access_token_param: 'access_token',
-        scope: 'email',
-        protected_resource_url: 'https://graph.facebook.com/me?fields=id,name,email,first_name,last_name',
-        redirect_url: 'https://<hostname>/oauth2/callback',
-        domains: '*.facebook.com,*.fbcdn.net,*.akamaihd.net,*.akamaiedge.net,*.edgekey.net,*.akamai.net',
-        local_account_logins: '0'
-      }
-    case 'Github':
-      return {
-        site: 'https://github.com',
-        authorize_path: '/login/oauth/authorize',
-        access_token_path: '/login/oauth/access_token',
-        access_token_param: 'access_token',
-        scope: 'user,user:email',
-        protected_resource_url: 'https://api.github.com/user',
-        redirect_url: 'https://<hostname>/oauth2/callback',
-        domains: 'api.github.com,*.github.com,github.com',
-        local_account_logins: '0'
-      }
-    case 'Google':
-      return {
-        client_id: 'YOUR_API_ID.apps.googleusercontent.com',
-        site: 'https://accounts.google.com',
-        authorize_path: '/o/oauth2/auth',
-        access_token_path: '/o/oauth2/token',
-        access_token_param: 'oauth_token',
-        scope: 'https://www.googleapis.com/auth/userinfo.email',
-        protected_resource_url: 'https://www.googleapis.com/oauth2/v2/userinfo',
-        redirect_url: 'https://<hostname>/oauth2/callback',
-        domains: '*.google.com,*.gstatic.com,googleapis.com,accounts.youtube.com,*.googleusercontent.com',
-        local_account_logins: '0'
-      }
-    case 'Instagram':
-      return {
-        site: 'https://api.instagram.com',
-        access_token_path: '/oauth/access_token',
-        access_token_param: 'access_token',
-        scope: 'basic',
-        protected_resource_url: 'https://api.instagram.com/v1/users/self/?access_token=',
-        redirect_url: 'https://<hostname>/oauth2/callback',
-        domains: '*.instagram.com,*.cdninstagram.com,*.fbcdn.net',
-        local_account_logins: '0'
-      }
-    case 'LinkedIn':
-      return {
-        site: 'https://www.linkedin.com',
-        authorize_path: '/oauth/v2/authorization',
-        access_token_path: '/oauth/v2/accessToken',
-        access_token_param: 'code',
-        protected_resource_url: 'https://api.linkedin.com/v1/people/~/email-address',
-        redirect_url: 'https://<hostname>/oauth2/callback',
-        domains: 'www.linkedin.com,api.linkedin.com,*.licdn.com,platform.linkedin.com',
-        local_account_logins: '0'
-      }
-    case 'OpenID':
-      return {
-        scope: 'openid',
-        redirect_url: 'https://<hostname>/oauth2/callback',
-        local_account_logins: '0'
-      }
-    case 'Pinterest':
-      return {
-        site: 'https://api.pinterest.com',
-        authorize_path: '/oauth/',
-        access_token_path: '/v1/oauth/token',
-        access_token_param: 'access_token',
-        scope: 'read_public',
-        protected_resource_url: 'https://api.pinterest.com/v1/me',
-        redirect_url: 'https://<hostname>/oauth2/callback',
-        domains: '*.pinterest.com,*.api.pinterest.com,*.akamaiedge.net,*.pinimg.com,*.fastlylb.net',
-        local_account_logins: '0'
-      }
-    case 'SMS':
-      return {
-        sms_carriers: ['100056', '100057', '100058', '100059', '100060', '100061', '100062', '100063', '100064', '100065', '100066', '100067', '100068', '100069', '100070', '100071', '100072', '100073', '100074', '100075', '100076', '100077', '100078', '100079', '100080', '100081', '100082', '100083', '100084', '100085', '100086', '100087', '100088', '100089', '100090', '100091', '100092', '100093', '100094', '100095', '100096', '100097', '100098', '100099', '100100', '100101', '100102', '100103', '100104', '100105', '100106', '100107', '100108', '100109', '100110', '100111', '100112', '100113', '100114', '100115', '100116', '100117', '100118', '100119', '100120', '100121', '100122', '100123', '100124', '100125', '100126', '100127'],
-        'sms_activation_timeout.interval': '10',
-        'sms_activation_timeout.unit': 'm',
-        'message': 'PIN: $pin',
-        pin_code_length: '6',
-        local_account_logins: '0'
-      }
-    case 'SponsorEmail':
-      return {
-        allow_localdomain: 'yes',
-        'email_activation_timeout.interval': '30',
-        'email_activation_timeout.unit': 'm',
-        validate_sponsor: 'yes',
-        local_account_logins: '0'
-      }
-    case 'Twilio':
-      return {
-        pin_code_length: '6',
-        local_account_logins: '0'
-      }
-    case 'Twitter':
-      return {
-        client_id: '<CONSUMER KEY>',
-        site: 'https://api.twitter.com',
-        authorize_path: '/oauth/authenticate',
-        access_token_path: '/oauth/request_token',
-        protected_resource_url: 'https://api.twitter.com/oauth/access_token',
-        redirect_url: 'https://<hostname>/oauth2/callback',
-        domains: '*.twitter.com,twitter.com,*.twimg.com,twimg.com'
-      }
-    case 'WindowsLive':
-      return {
-        site: 'https://login.live.com',
-        authorize_path: '/oauth20_authorize.srf',
-        access_token_path: '/oauth20_token.srf',
-        access_token_param: 'oauth_token',
-        scope: 'wl.basic,wl.emails',
-        protected_resource_url: 'https://apis.live.net/v5.0/me',
-        redirect_url: 'https://<hostname>/oauth2/callback',
-        domains: 'login.live.com,auth.gfx.ms,account.live.com',
-        local_account_logins: '0'
-      }
-    case 'Eduroam':
-      return {
-        server1_port: '1812',
-        server2_port: '1812',
-        auth_listening_port: '11812',
-        monitor: '1'
-      }
-    case 'AuthorizeNet':
-      return {
-        domains: '*.authorize.net',
-        currency: 'USD',
-        local_account_logins: '0'
-      }
-    case 'Mirapay':
-      return {
-        base_url: 'https://staging.eigendev.com/MiraSecure/GetToken.php',
-        direct_base_url: 'https://staging.eigendev.com/OFT/EigenOFT_d.php',
-        service_fqdn: general.fqdn,
-        currency: 'USD',
-        local_account_logins: '0'
-      }
-    case 'Paypal':
-      return {
-        currency: 'USD',
-        payment_type: '_xclick',
-        domains: '*.paypal.com,*.paypalobjects.com',
-        local_account_logins: '0'
-      }
-    case 'Stripe':
-      return {
-        currency: 'USD',
-        style: 'charge',
-        domains: '*.stripe.com',
-        local_account_logins: '0'
-      }
-    case 'EAPTLS':
-    case 'Htpasswd':
-    case 'Kerberos':
-    case 'Null':
-    case 'AdminProxy':
-    case 'Blackhole':
-    default:
-      return {}
   }
 }

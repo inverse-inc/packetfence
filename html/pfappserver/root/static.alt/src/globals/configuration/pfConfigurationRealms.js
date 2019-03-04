@@ -1,11 +1,13 @@
 import i18n from '@/utils/locale'
+import pfFormChosen from '@/components/pfFormChosen'
 import pfFormInput from '@/components/pfFormInput'
-import pfFormSelect from '@/components/pfFormSelect'
+import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import pfFormTextarea from '@/components/pfFormTextarea'
-import pfFormToggle from '@/components/pfFormToggle'
 import {
   pfConfigurationListColumns,
-  pfConfigurationListFields
+  pfConfigurationListFields,
+  pfConfigurationAttributesFromMeta,
+  pfConfigurationValidatorsFromMeta
 } from '@/globals/configuration/pfConfiguration'
 import {
   and,
@@ -16,9 +18,7 @@ import {
 } from '@/globals/pfValidators'
 
 const {
-  required,
-  alphaNum,
-  maxLength
+  required
 } = require('vuelidate/lib/validators')
 
 export const pfConfigurationRealmsListColumns = [
@@ -73,7 +73,13 @@ export const pfConfigurationRealmListConfig = (context = {}) => {
 }
 
 export const pfConfigurationRealmViewFields = (context = {}) => {
-  const { isNew = false, isClone = false, domains = [] } = context
+  const {
+    isNew = false,
+    isClone = false,
+    options: {
+      meta = {}
+    }
+  } = context
   return [
     {
       tab: null, // ignore tabs
@@ -85,16 +91,37 @@ export const pfConfigurationRealmViewFields = (context = {}) => {
               key: 'id',
               component: pfFormInput,
               attrs: {
-                disabled: (!isNew && !isClone)
+                ...pfConfigurationAttributesFromMeta(meta, 'id'),
+                ...{
+                  disabled: (!isNew && !isClone)
+                }
               },
               validators: {
-                [i18n.t('Realm required.')]: required,
-                [i18n.t('Maximum 255 characters.')]: maxLength(255),
-                [i18n.t('Alphanumeric characters only.')]: alphaNum,
-                [i18n.t('Realm exists.')]: not(and(required, conditional(isNew || isClone), hasRealms, realmExists))
+                ...pfConfigurationValidatorsFromMeta(meta, 'id', 'Identifier'),
+                ...{
+                  [i18n.t('Role exists.')]: not(and(required, conditional(isNew || isClone), hasRealms, realmExists))
+                }
               }
             }
           ]
+        },
+        {
+          label: i18n.t('NTLM Auth Configuration'), labelSize: 'lg'
+        },
+        {
+          label: i18n.t('Domain'),
+          text: i18n.t('The domain to use for the authentication in that realm.'),
+          fields: [
+            {
+              key: 'domain',
+              component: pfFormChosen,
+              attrs: pfConfigurationAttributesFromMeta(meta, 'domain'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'domain', 'Domain')
+            }
+          ]
+        },
+        {
+          label: i18n.t('Freeradius Proxy Configuration'), labelSize: 'lg'
         },
         {
           label: i18n.t('Realm Options'),
@@ -103,24 +130,74 @@ export const pfConfigurationRealmViewFields = (context = {}) => {
             {
               key: 'options',
               component: pfFormTextarea,
-              validators: {
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
+              attrs: pfConfigurationAttributesFromMeta(meta, 'options'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'options', 'Realm options')
+            }
+          ]
+        },
+        {
+          label: i18n.t('RADIUS AUTH'),
+          text: i18n.t('The RADIUS Server(s) to proxy authentication.'),
+          fields: [
+            {
+              key: 'radius_auth',
+              component: pfFormChosen,
+              attrs: pfConfigurationAttributesFromMeta(meta, 'radius_auth'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'radius_auth', 'RADIUS AUTH')
+            }
+          ]
+        },
+        {
+          label: i18n.t('Type'),
+          text: i18n.t('Home server pool type.'),
+          fields: [
+            {
+              key: 'radius_auth_proxy_type',
+              component: pfFormChosen,
+              attrs: pfConfigurationAttributesFromMeta(meta, 'radius_auth_proxy_type'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'radius_auth_proxy_type', 'Type')
+            }
+          ]
+        },
+        {
+          label: i18n.t('Authorize from PacketFence'),
+          text: i18n.t('Should we forward the request to PacketFence to have a dynamic answer or do we use the remote proxy server answered attributes?'),
+          fields: [
+            {
+              key: 'radius_auth_compute_in_pf',
+              component: pfFormRangeToggle,
+              attrs: {
+                values: { checked: 'enabled', unchecked: 'disabled' }
               }
             }
           ]
         },
         {
-          label: i18n.t('Domain'),
-          text: i18n.t('The domain to use for the authentication in that realm.'),
+          label: i18n.t('RADIUS ACCT'),
+          text: i18n.t('The RADIUS Server(s) to proxy authentication.'),
           fields: [
             {
-              key: 'domain',
-              component: pfFormSelect,
-              attrs: {
-                options: domains
-              }
+              key: 'radius_acct_chosen',
+              component: pfFormChosen,
+              attrs: pfConfigurationAttributesFromMeta(meta, 'radius_acct_chosen'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'radius_acct_chosen', 'RADIUS ACCT')
             }
           ]
+        },
+        {
+          label: i18n.t('Type'),
+          text: i18n.t('Home server pool type.'),
+          fields: [
+            {
+              key: 'radius_acct_proxy_type',
+              component: pfFormChosen,
+              attrs: pfConfigurationAttributesFromMeta(meta, 'radius_acct_proxy_type'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'radius_acct_proxy_type', 'Type')
+            }
+          ]
+        },
+        {
+          label: i18n.t('Stripping Configuration'), labelSize: 'lg'
         },
         {
           label: i18n.t('Strip on the portal'),
@@ -128,7 +205,7 @@ export const pfConfigurationRealmViewFields = (context = {}) => {
           fields: [
             {
               key: 'portal_strip_username',
-              component: pfFormToggle,
+              component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
               }
@@ -141,7 +218,7 @@ export const pfConfigurationRealmViewFields = (context = {}) => {
           fields: [
             {
               key: 'admin_strip_username',
-              component: pfFormToggle,
+              component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
               }
@@ -154,7 +231,7 @@ export const pfConfigurationRealmViewFields = (context = {}) => {
           fields: [
             {
               key: 'radius_strip_username',
-              component: pfFormToggle,
+              component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
               }
@@ -167,23 +244,26 @@ export const pfConfigurationRealmViewFields = (context = {}) => {
           fields: [
             {
               key: 'permit_custom_attributes',
-              component: pfFormToggle,
+              component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
               }
+            }
+          ]
+        },
+        {
+          label: i18n.t('LDAP source'),
+          text: i18n.t('The LDAP Server to query the custom attributes.'),
+          fields: [
+            {
+              key: 'ldap_source',
+              component: pfFormChosen,
+              attrs: pfConfigurationAttributesFromMeta(meta, 'ldap_source'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'ldap_source', 'LDAP source')
             }
           ]
         }
       ]
     }
   ]
-}
-
-export const pfConfigurationRealmViewDefaults = (context = {}) => {
-  return {
-    id: null,
-    portal_strip_username: 'enabled',
-    admin_strip_username: 'enabled',
-    radius_strip_username: 'enabled'
-  }
 }

@@ -19,7 +19,7 @@
             <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'HTTP' } }">HTTP</b-dropdown-item>
             <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'Kerberos' } }">Kerberos</b-dropdown-item>
             <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'LDAP' } }">LDAP</b-dropdown-item>
-            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'POTD' } }">{{ $t('Password Of The Day') }}</b-dropdown-item>
+            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'Potd' } }">{{ $t('Password Of The Day') }}</b-dropdown-item>
             <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'RADIUS' } }">RADIUS</b-dropdown-item>
             <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'SAML' } }">SAML</b-dropdown-item>
           <b-dropdown-divider></b-dropdown-divider>

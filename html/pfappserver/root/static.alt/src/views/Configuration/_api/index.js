@@ -9,9 +9,19 @@ export default {
       return response.data
     })
   },
+  authenticationSourcesOptions: sourceType => {
+    return apiCall.options(`config/sources?type=${sourceType}`).then(response => {
+      return response.data
+    })
+  },
   authenticationSource: id => {
     return apiCall.get(`config/source/${id}`).then(response => {
       return response.data.item
+    })
+  },
+  authenticationSourceOptions: id => {
+    return apiCall.options(`config/source/${id}`).then(response => {
+      return response.data
     })
   },
   createAuthenticationSource: data => {
@@ -84,9 +94,19 @@ export default {
       return response.data
     })
   },
+  rolesOptions: () => {
+    return apiCall.options('config/roles').then(response => {
+      return response.data
+    })
+  },
   role: id => {
     return apiCall.get(`config/role/${id}`).then(response => {
       return response.data.item
+    })
+  },
+  roleOptions: id => {
+    return apiCall.options(`config/role/${id}`).then(response => {
+      return response.data
     })
   },
   createRole: data => {
@@ -110,9 +130,19 @@ export default {
       return response.data
     })
   },
+  domainsOptions: () => {
+    return apiCall.options('config/domains').then(response => {
+      return response.data
+    })
+  },
   domain: id => {
     return apiCall.get(`config/domain/${id}`).then(response => {
       return response.data.item
+    })
+  },
+  domainOptions: id => {
+    return apiCall.options(`config/domain/${id}`).then(response => {
+      return response.data
     })
   },
   createDomain: data => {
@@ -136,9 +166,19 @@ export default {
       return response.data
     })
   },
+  realmsOptions: () => {
+    return apiCall.options('config/realms').then(response => {
+      return response.data
+    })
+  },
   realm: id => {
     return apiCall.get(`config/realm/${id}`).then(response => {
       return response.data.item
+    })
+  },
+  realmOptions: id => {
+    return apiCall.options(`config/realm/${id}`).then(response => {
+      return response.data
     })
   },
   createRealm: data => {
@@ -204,9 +244,19 @@ export default {
       return response.data
     })
   },
+  switchesOptions: switchGroup => {
+    return apiCall.options(`config/switches?type=${switchGroup}`).then(response => {
+      return response.data
+    })
+  },
   switche: id => {
-    return apiCall.get(`config/switch/${id}`).then(response => {
+    return apiCall.get(`config/switch/${encodeURIComponent(id)}`).then(response => {
       return response.data.item
+    })
+  },
+  switchOptions: id => {
+    return apiCall.options(`config/switch/${encodeURIComponent(id)}`).then(response => {
+      return response.data
     })
   },
   createSwitch: data => {
@@ -215,12 +265,12 @@ export default {
     })
   },
   updateSwitch: data => {
-    return apiCall.patch(`config/switch/${data.id}`, data).then(response => {
+    return apiCall.patch(`config/switch/${data.encodeURIComponent(id)}`, data).then(response => {
       return response.data
     })
   },
   deleteSwitch: id => {
-    return apiCall.delete(`config/switch/${id}`)
+    return apiCall.delete(`config/switch/${encodeURIComponent(id)}`)
   },
   /**
    * SwitchGroups
@@ -230,9 +280,19 @@ export default {
       return response.data
     })
   },
+  switchGroupsOptions: () => {
+    return apiCall.options('config/switch_groups').then(response => {
+      return response.data
+    })
+  },
   switchGroup: id => {
-    return apiCall.get(`config/switch_group/${id}`).then(response => {
+    return apiCall.get(`config/switch_group/${encodeURIComponent(id)}`).then(response => {
       return response.data.item
+    })
+  },
+  switchGroupOptions: id => {
+    return apiCall.options(`config/switch_group/${encodeURIComponent(id)}`).then(response => {
+      return response.data
     })
   },
   createSwitchGroup: data => {
@@ -241,12 +301,12 @@ export default {
     })
   },
   updateSwitchGroup: data => {
-    return apiCall.patch(`config/switch_group/${data.id}`, data).then(response => {
+    return apiCall.patch(`config/switch_group/${data.encodeURIComponent(id)}`, data).then(response => {
       return response.data
     })
   },
   deleteSwitchGroup: id => {
-    return apiCall.delete(`config/switch_group/${id}`)
+    return apiCall.delete(`config/switch_group/${encodeURIComponent(id)}`)
   },
   /**
    * Connection Profiles
@@ -256,9 +316,19 @@ export default {
       return response.data
     })
   },
+  connectionProfilesOptions: () => {
+    return apiCall.options('config/connection_profiles').then(response => {
+      return response.data
+    })
+  },
   connectionProfile: id => {
     return apiCall.get(`config/connection_profile/${id}`).then(response => {
       return response.data.item
+    })
+  },
+  connectionProfileOptions: id => {
+    return apiCall.options(`config/connection_profile/${id}`).then(response => {
+      return response.data
     })
   },
   createConnectionProfile: data => {

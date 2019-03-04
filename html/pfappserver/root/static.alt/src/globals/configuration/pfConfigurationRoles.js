@@ -2,7 +2,9 @@ import i18n from '@/utils/locale'
 import pfFormInput from '@/components/pfFormInput'
 import {
   pfConfigurationListColumns,
-  pfConfigurationListFields
+  pfConfigurationListFields,
+  pfConfigurationAttributesFromMeta,
+  pfConfigurationValidatorsFromMeta
 } from '@/globals/configuration/pfConfiguration'
 import {
   and,
@@ -13,10 +15,7 @@ import {
 } from '@/globals/pfValidators'
 
 const {
-  integer,
-  required,
-  alphaNum,
-  maxLength
+  required
 } = require('vuelidate/lib/validators')
 
 export const pfConfigurationRolesListColumns = [
@@ -32,14 +31,13 @@ export const pfConfigurationRolesListFields = [
 ]
 
 export const pfConfigurationRoleListConfig = (context = {}) => {
-  const { $i18n } = context
   return {
     columns: pfConfigurationRolesListColumns,
     fields: pfConfigurationRolesListFields,
     rowClickRoute (item, index) {
       return { name: 'role', params: { id: item.id } }
     },
-    searchPlaceholder: $i18n.t('Search by name or description'),
+    searchPlaceholder: i18n.t('Search by name or description'),
     searchableOptions: {
       searchApiEndpoint: 'config/roles',
       defaultSortKeys: ['id'],
@@ -73,7 +71,14 @@ export const pfConfigurationRoleListConfig = (context = {}) => {
 }
 
 export const pfConfigurationRoleViewFields = (context = {}) => {
-  const { isNew = false, isClone = false } = context
+  const {
+    isNew = false,
+    isClone = false,
+    options: {
+      meta = {}
+    }
+  } = context
+
   return [
     {
       tab: null, // ignore tabs
@@ -85,13 +90,16 @@ export const pfConfigurationRoleViewFields = (context = {}) => {
               key: 'id',
               component: pfFormInput,
               attrs: {
-                disabled: (!isNew && !isClone)
+                ...pfConfigurationAttributesFromMeta(meta, 'id'),
+                ...{
+                  disabled: (!isNew && !isClone)
+                }
               },
               validators: {
-                [i18n.t('Name required.')]: required,
-                [i18n.t('Maximum 255 characters.')]: maxLength(255),
-                [i18n.t('Alphanumeric value required.')]: alphaNum,
-                [i18n.t('Role exists.')]: not(and(required, conditional(isNew || isClone), hasRoles, roleExists))
+                ...pfConfigurationValidatorsFromMeta(meta, 'id', 'Name'),
+                ...{
+                  [i18n.t('Role exists.')]: not(and(required, conditional(isNew || isClone), hasRoles, roleExists))
+                }
               }
             }
           ]
@@ -102,9 +110,8 @@ export const pfConfigurationRoleViewFields = (context = {}) => {
             {
               key: 'notes',
               component: pfFormInput,
-              validators: {
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'notes'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'notes', 'Description')
             }
           ]
         },
@@ -115,23 +122,12 @@ export const pfConfigurationRoleViewFields = (context = {}) => {
             {
               key: 'max_nodes_per_pid',
               component: pfFormInput,
-              attrs: {
-                type: 'number'
-              },
-              validators: {
-                [i18n.t('Max nodes per user required.')]: required,
-                [i18n.t('Integer value required.')]: integer
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'max_nodes_per_pid'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'max_nodes_per_pid', 'Max nodes per user')
             }
           ]
         }
       ]
     }
   ]
-}
-
-export const pfConfigurationRoleViewDefaults = (context = {}) => {
-  return {
-    id: null
-  }
 }
