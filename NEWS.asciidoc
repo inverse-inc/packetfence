@@ -35,6 +35,7 @@ Bug Fixes
 * Fixed winbindd respawning extremelly fast when failing to start
 * Fixed winbindd processes not being killed on latest version of samba
 * Allow disabling processing of ipv6 packets in the pfdhcplistener
+* fixed untainted variable (#3920)
 
 Version 8.3.0 released on 2019-01-09
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
