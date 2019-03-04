@@ -69,6 +69,10 @@ END;
           [% IF options.filter_graph %]
           data-filter-graph="[% options.filter_graph %]"
           [% END %]
+          [% IF options.dimension_graph %]
+          data-dimensions="[% options.dimension_graph %]"
+          [% END %]
+
           data-hide-missing="true"
           [% options.additional_html_tags.join(" ") | none %]
           ></div>
@@ -277,13 +281,13 @@ END;
                 </div>
                 <div class="span3 card">
                     <div class="counter_over_chart">
-                        <div id="packetfence_violations"></div>
-                        <div class="counter_chart_title">[% l('Open Violations') %]</div>
+                        <div id="packetfence_security_events"></div>
+                        <div class="counter_chart_title">[% l('Open Security Events') %]</div>
                     </div>
                     [%
                     graph(
-                      "statsd_gauge_source.packetfence.violations", 
-                      "Open violations", 
+                      "statsd_gauge_source.packetfence.security_events", 
+                      "Open security events", 
                       {
                         "nocluster" => 1, 
                         "chart_library" => "dygraph", 
@@ -291,7 +295,7 @@ END;
                         "height" => "100px"
                         "additional_html_tags" => [
                           'data-decimal-digits="0"', 
-                          'data-show-value-of-gauge-at="packetfence_violations"', 
+                          'data-show-value-of-gauge-at="packetfence_security_events"', 
                           'data-dygraph-theme="sparkline"', 
                           'data-dygraph-type="area"',
                           'data-dimensions="gauge"',
@@ -307,12 +311,14 @@ END;
               </div>
               <div class="card-block">
                 <div class="row-flex">
-                  [% graph("system.cpu", "CPU usage", {"width" => halfGridSize, "valuerange" => "[0, 100]"}) | none %]
+                  [% graph("system.cpu", "CPU usage", {"dimension_graph" => "user,system", "width" => halfGridSize, "valuerange" => "[0, 100]"}) | none %]
+                  [% graph("system.cpu", "IO Wait/Soft IRQ", {"dimension_graph" => "iowait,softirq", "width" => halfGridSize, "valuerange" => "[0, 100]"}) | none %]
                   [% graph("system.load", "System Load Average", {"width" => halfGridSize}) | none %]
                   [% graph("system.io", "Disk I/O", {"width" => halfGridSize}) | none %]
                   [% graph("disk_space._", "Disk Space Usage for /", {"width" => halfGridSize}) | none %]
                   [% graph("system.ram", "System RAM", {"width" => halfGridSize}) | none %]
-                  [% graph("system.swap", "System Swap", {"width" => halfGridSize}) | none %]
+                  [% graph("system.swap", "System Swap Used", {"dimension_graph" => "used", "width" => halfGridSize}) | none %]
+                  [% graph("system.swapio", "Swap IO", {"width" => halfGridSize}) | none %]
                 </div>
               </div>
             </div>
@@ -472,18 +478,18 @@ END;
               <div class="row-flex">
                 [% FOREACH scope IN ["hour", "day", "week", "month", "year"] %]
                   [% width = scope == "year" ? gridSize : halfGridSize %]
-                  [% graph("statsd_gauge_source.packetfence.devices.registered_last_" _ scope, "New registered devices during the past " _ scope, {"width" => width, "filter_graph" => "gauge"}) | none %]
+                  [% graph("statsd_gauge_source.packetfence.devices.registered_last_" _ scope, "New registered devices during the past " _ scope, {"nocluster" => 1, "width" => width, "filter_graph" => "gauge"}) | none %]
                 [% END %]
               </div>
             </div>
           </div>
           <div class="card">
             <div class="card-title">
-              <h2>[% l('Device Violations') %]</h2>
+              <h2>[% l('Device Security Events') %]</h2>
             </div>
             <div class="card-block">
               <div class="row-flex">
-                [% graph("statsd_gauge_source.packetfence.violations", "Currently open violations", {"nocluster" => 1, "filter_graph" => "gauge"}) | none %]
+                [% graph("statsd_gauge_source.packetfence.security_events", "Currently open security events", {"nocluster" => 1, "filter_graph" => "gauge"}) | none %]
               </div>
             </div>
           </div>

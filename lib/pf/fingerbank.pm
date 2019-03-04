@@ -48,7 +48,7 @@ use pf::util qw(isdisabled isenabled);
 # Do not remove, even if its not explicitely used. When taking collector requests out of the cache, this must be imported.
 use URI::http;
 
-our @fingerbank_based_violation_triggers = ('Device', 'DHCP_Fingerprint', 'DHCP_Vendor', 'MAC_Vendor', 'User_Agent');
+our @fingerbank_based_security_event_triggers = ('Device', 'DHCP_Fingerprint', 'DHCP_Vendor', 'MAC_Vendor', 'User_Agent');
 
 our %ACTION_MAP = (
     "update-upstream-db" => sub {
@@ -87,6 +87,11 @@ sub process {
     my $timer = pf::StatsD::Timer->new();
     my ( $mac, $force ) = @_;
     my $logger = pf::log::get_logger;
+
+    unless(fingerbank::Config::is_api_key_configured()) {
+        $logger->debug("Skipping Fingerbank processing because no API key is configured");
+        return $FALSE;
+    }
 
     $force //= $FALSE;
     
@@ -143,7 +148,7 @@ sub process {
         my $node_after = node_attributes($mac);
 
         check_device_class_change($node_before, $node_after);
-        _trigger_new_dhcp_violation($mac);
+        _trigger_new_dhcp_security_event($mac);
         return $query_success;
     }
 }
@@ -248,30 +253,30 @@ sub _query {
     return $fingerbank->match($args);
 }
 
-=head2 _trigger_violations
+=head2 _trigger_security_events
 
 =cut
 
-sub _trigger_new_dhcp_violation {
+sub _trigger_new_dhcp_security_event {
     my $timer = pf::StatsD::Timer->new({level => 7});
     my ( $mac ) = @_;
     my $logger = pf::log::get_logger;
 
     my $apiclient = pf::client::getClient;
 
-    my %violation_data = (
+    my %security_event_data = (
         'mac'   => $mac,
         'tid'   => 'new_dhcp_info',
         'type'  => 'internal',
     );
 
-    $apiclient->notify('trigger_violation', %violation_data);
+    $apiclient->notify('trigger_security_event', %security_event_data);
 
 }
 
 =head2 _parse_parents
 
-Parsing the parents into an array of IDs to be able to trigger violations based on them.
+Parsing the parents into an array of IDs to be able to trigger security_events based on them.
 
 Also, looking at the top-level parent to determine the device class
 
@@ -429,7 +434,7 @@ sub device_name_to_device_id {
 
 =head2 check_device_class_change
 
-Check for a device class change and trigger any violation if necessary
+Check for a device class change and trigger any security_event if necessary
 
 =cut
 
@@ -446,14 +451,14 @@ sub check_device_class_change {
         $logger->info("Endpoint has changed device class, triggering internal::fingerbank_device_change");
         my $apiclient = pf::client::getClient;
 
-        my %violation_data = (
+        my %security_event_data = (
             'mac'   => $node_before->{mac},
             'tid'   => 'fingerbank_device_change',
             'type'  => 'internal',
             'notes' => "Previous device detected: ".$node_before->{device_class},
         );
 
-        $apiclient->notify('trigger_violation', %violation_data);
+        $apiclient->notify('trigger_security_event', %security_event_data);
     }
     else {
         my $before = $node_before->{device_class} // "Unknown";
@@ -595,7 +600,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

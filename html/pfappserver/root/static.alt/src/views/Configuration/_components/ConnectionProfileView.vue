@@ -1,11 +1,12 @@
 <template>
   <pf-config-view
-    :isLoading="isLoading"
+    :is-loading="isLoading"
     :form="getForm"
     :model="connectionProfile"
     :vuelidate="$v.connectionProfile"
     :isNew="isNew"
     :isClone="isClone"
+    :initialTabIndex="tabIndex"
     @validations="connectionProfileValidations = $event"
     @close="close"
     @create="create"
@@ -27,7 +28,7 @@
         <pf-button-save :disabled="invalidForm" :isLoading="isLoading">
           <template v-if="isNew">{{ $t('Create') }}</template>
           <template v-else-if="isClone">{{ $t('Clone') }}</template>
-          <template v-else-if="ctrlKey">{{ $t('Save &amp; Close') }}</template>
+          <template v-else-if="ctrlKey">{{ $t('Save & Close') }}</template>
           <template v-else>{{ $t('Save') }}</template>
         </pf-button-save>
         <pf-button-delete v-if="isDeletable" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Connection Profile?')" @on-delete="remove()"/>
@@ -77,6 +78,10 @@ export default {
     id: { // from router
       type: String,
       default: null
+    },
+    tabIndex: { // from router
+      type: Number,
+      default: 0
     }
   },
   data () {
@@ -87,8 +92,8 @@ export default {
       billingTiers: [],
       provisionings: [],
       scans: [],
-      files: {},
-      general: {}
+      general: {},
+      files: []
     }
   },
   validations () {
@@ -166,14 +171,24 @@ export default {
         let message = this.$i18n.t('Server Error - "{field}": {message}', error)
         this.$store.dispatch('notification/danger', { icon: 'server', url: `#${this.$route.fullPath}`, message: message })
       })
+    },
+    sortFiles (params) {
+      let sort = [
+        'type',
+        params.sortDesc ? `${params.sortBy} DESC` : params.sortBy
+      ]
+      if (params.sortBy !== 'name') sort.push('name')
+      this.$store.dispatch(`${this.storeName}/files`, { id: this.id, sort }).then(data => {
+        this.files = data.entries
+      })
     }
   },
   created () {
     if (this.id) {
       this.$store.dispatch(`${this.storeName}/getConnectionProfile`, this.id).then(data => {
-        this.connectionProfile = Object.assign({}, data)
+        this.connectionProfile = { ...this.connectionProfile, ...data }
       })
-      this.$store.dispatch(`${this.storeName}/files`, this.id).then(data => {
+      this.$store.dispatch(`${this.storeName}/files`, { id: this.id, sort: ['type', 'name'] }).then(data => {
         this.files = data.entries
       })
     }
@@ -190,7 +205,7 @@ export default {
     this.$store.dispatch('$_scans/allScanEngines').then(data => {
       this.scans = data
     })
-    this.$store.dispatch('$_bases/getBase', 'general').then(data => {
+    this.$store.dispatch('$_bases/getGeneral').then(data => {
       this.general = data
     })
   }

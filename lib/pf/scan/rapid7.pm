@@ -24,7 +24,7 @@ use pf::config;
 use pf::scan;
 use pf::util;
 use pf::node;
-use pf::violation qw(violation_close);
+use pf::security_event qw(security_event_close);
 use LWP::UserAgent;
 use HTTP::Request;
 use pf::api::jsonrpcclient;
@@ -149,13 +149,13 @@ sub startScan {
     my $response = $self->runScanTemplate("Automatic scan started from PacketFence", $self->{_scanIp}, $self->{_template_id});
     my $result = $response->is_success;
  
-    my $scan_vid = $pf::constants::scan::POST_SCAN_VID;
-    $scan_vid = $pf::constants::scan::SCAN_VID if ($self->{'_registration'});
-    $scan_vid = $pf::constants::scan::PRE_SCAN_VID if ($self->{'_pre_registration'});
+    my $scan_security_event_id = $pf::constants::scan::POST_SCAN_SECURITY_EVENT_ID;
+    $scan_security_event_id = $pf::constants::scan::SCAN_SECURITY_EVENT_ID if ($self->{'_registration'});
+    $scan_security_event_id = $pf::constants::scan::PRE_SCAN_SECURITY_EVENT_ID if ($self->{'_pre_registration'});
 
     if (!$result) {
         $logger->warn("Rapid7 scan didnt start: ".$response->status_line);
-        return $scan_vid;
+        return $scan_security_event_id;
     }
     else {
         $logger->info("Started rapid7 scan for ".$self->{_scanMac});
@@ -163,10 +163,10 @@ sub startScan {
 
     my $apiclient = pf::api::jsonrpcclient->new;
     my %data = (
-       'vid' => $scan_vid,
+       'security_event_id' => $scan_security_event_id,
        'mac' => $self->{'_scanMac'},
     );
-    $apiclient->notify('close_violation', %data );
+    $apiclient->notify('close_security_event', %data );
 
     $self->setStatus($pf::constants::scan::STATUS_CLOSED);
     $self->statusReportSyncToDb();
@@ -347,12 +347,12 @@ sub assetTopVulnerabilities {
     my @vulnerabilities_with_details;
     
     foreach my $vulnerability (@$vulnerabilities) {
-        my $vid = $vulnerability->{id};
-        if(my $details = $self->vulnerabilityDetails($vid)) {
+        my $security_event_id = $vulnerability->{id};
+        if(my $details = $self->vulnerabilityDetails($security_event_id)) {
             push @vulnerabilities_with_details, $details;
         }
         else {
-            $logger->error("Failed to the details of vulnerability $vid");
+            $logger->error("Failed to the details of vulnerability $security_event_id");
         }
     }
 
@@ -423,7 +423,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

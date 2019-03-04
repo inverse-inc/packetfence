@@ -1,14 +1,14 @@
 <template>
-  <b-table :items="items" :fields="fields" :class="'table-clickable table-rowindent-' + level"
-    small fixed hover
-    @row-clicked="onRowClick">
+  <div>
+  <b-table :items="items" :fields="fields" :class="'mb-0 table-clickable table-rowindent-' + level" :sort-by="sortBy" :sort-desc="false"
+    small fixed hover show-empty no-local-sorting
+    @sort-changed="onSortingChanged" @row-clicked="onRowClick">
     <template slot="name" slot-scope="row">
       <div class="text-lowercase" variant="link"
         v-if="childrenIf(row.item)"
-        :disabled="row.item[childrenKey].length === 0"
-        n0click.stop="row.toggleDetails">
+        :disabled="row.item[childrenKey].length === 0">
         <icon class="mr-1" name="regular/folder-open" v-if="row.detailsShowing"></icon>
-        <icon class="mr-1" name="regular/folder" v-else></icon>  {{ row.item.name }}
+        <icon class="mr-1" name="regular/folder" v-else></icon> {{ row.item.name }}
       </div>
       <div class="text-lowercase" variant="link"
         v-else>
@@ -20,20 +20,41 @@
       <pf-tree
         v-if="childrenIf(row.item)"
         class="table-headless bg-transparent mb-0"
+        :path="fullPath(row.item)"
         :items="row.item[childrenKey]"
         :fields="fields"
-        :childrenKey="childrenKey"
-        :childrenIf="childrenIf"
+        :children-key="childrenKey"
+        :children-if="childrenIf"
+        :on-node-click="onNodeClick"
+        :on-node-create="onNodeCreate"
         :level="level + 1"></pf-tree>
       </transition>
     </template>
+    <template slot="empty">
+      <b-container v-if="isLoading" class="my-5">
+        <b-row class="justify-content-md-center">
+          <b-col cols="12" md="auto">
+            <icon name="circle-notch" scale="1.5" spin></icon>
+          </b-col>
+        </b-row>
+      </b-container>
+      <div v-else class="font-weight-light text-secondary">{{ $t('Directory is empty') }}</div>
+    </template>
   </b-table>
+    <div :class="'my-1 indent-' + level" v-if="onNodeCreate">
+      <b-button size="sm" variant="outline-secondary" @click="onNodeCreate(path)">{{ $t('New') }}</b-button>
+    </div>
+  </div>
 </template>
 
 <script>
 export default {
   name: 'pf-tree',
   props: {
+    path: {
+      type: String,
+      default: ''
+    },
     items: {
       type: Array,
       default: () => []
@@ -50,18 +71,49 @@ export default {
       type: Function,
       default: (item) => this.childrenKey in item
     },
+    sortBy: {
+      type: String,
+      default: null
+    },
+    onSortingChanged: {
+      type: Function,
+      default: null
+    },
+    onNodeClick: {
+      type: Function,
+      default: null
+    },
+    onNodeCreate: {
+      type: Function,
+      default: null
+    },
     level: {
       type: Number,
       default: 0
+    },
+    isLoadingStoreGetter: {
+      type: String,
+      default: null
+    }
+  },
+  computed: {
+    isLoading () {
+      if (this.isLoadingStoreGetter) {
+        return this.$store.getters[this.isLoadingStoreGetter]
+      }
+      return false
     }
   },
   methods: {
     onRowClick (item, index) {
       if (this.childrenIf(item)) {
         this.$set(item, '_showDetails', !item._showDetails)
-      } else {
-        // TODO: open file
+      } else if (typeof this.onNodeClick === 'function') {
+        return this.onNodeClick(item)
       }
+    },
+    fullPath (item) {
+      return [item.path, item.name].filter(e => e).join('/')
     }
   }
 }
@@ -75,8 +127,17 @@ export default {
     display: none;
 }
 
+.b-table-details:hover {
+  background-color: transparent !important;
+}
+
+.b-table-details > td {
+  padding: 0;
+}
+
 @for $i from 1 through 5 {
-    .table-rowindent-#{$i} td:first-child {
+    .table-rowindent-#{$i} td:first-child,
+    .indent-#{$i} {
         padding-left: $i * 2rem;
     }
 }

@@ -58,7 +58,7 @@ ok ($form, "Create a new form");
 
 ok (ref $form->roles eq 'ARRAY', "Roles attribute is set");
 
-ok (ref $form->violations eq 'ARRAY', "Violations attribute is set");
+ok (ref $form->security_events eq 'ARRAY', "Security Events attribute is set");
 
 {
 
@@ -75,7 +75,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

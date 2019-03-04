@@ -109,10 +109,10 @@ our @ADMIN_ACTIONS = qw(
     USERS_SOURCES_READ
     USERS_SOURCES_UPDATE
 
-    VIOLATIONS_CREATE
-    VIOLATIONS_DELETE
-    VIOLATIONS_READ
-    VIOLATIONS_UPDATE
+    SECURITY_EVENTS_CREATE
+    SECURITY_EVENTS_DELETE
+    SECURITY_EVENTS_READ
+    SECURITY_EVENTS_UPDATE
 
     RADIUS_LOG_READ
 
@@ -189,7 +189,7 @@ our @ADMIN_ACTIONS = qw(
 
 # Actions not allowed in readonly mode
 # Any actions that will update the database is not allowed
-our %ADMIN_NOT_IN_READONLY = map { $_ => 1} grep { !/_READ$/ && /^(NODES_|SWITCHES_|VIOLATIONS_|WRIX_|USERS_|USERS_ROLES_)/ && !/^USERS_SOURCES_/ && $_ ne 'USERS_READ_SPONSORED' } @ADMIN_ACTIONS ;
+our %ADMIN_NOT_IN_READONLY = map { $_ => 1} grep { !/_READ$/ && /^(NODES_|SWITCHES_|SECURITY_EVENTS_|WRIX_|USERS_|USERS_ROLES_)/ && !/^USERS_SOURCES_/ && $_ ne 'USERS_READ_SPONSORED' } @ADMIN_ACTIONS ;
 
 =head1 AUTHOR
 
@@ -197,7 +197,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

@@ -16,16 +16,26 @@ Version X.Y.Z released on xxxx-xx-xx
 
 New Features
 ++++++++++++
-
+* Add 802.1x + CoA support for FortiSwitch
+* Add module to manage PICOS white box switches.
 
 Enhancements
 ++++++++++++
 * Now including timeout when authorizing a web-auth user on a Unifi controler
 * Now shipping defaults for the apache filters
+* Allow to configure the RADIUS attributes and their lookup order for extracting the username
+* conf/stats.conf has a default file now
+* Voip configuration parameter in node_cleanup task to bypass voip devices
+* Adding/removing passthroughs doesn't require to restart pfdns anymore (#3127)
+* Added support for RADIUS disconnect on Ruckus SmartZone
 
 Bug Fixes
 +++++++++
 * Fixed the systemd logic in pfdhcp
+* Fixed winbindd respawning extremelly fast when failing to start
+* Fixed winbindd processes not being killed on latest version of samba
+* Allow disabling processing of ipv6 packets in the pfdhcplistener
+* fixed untainted variable (#3920)
 
 Version 8.3.0 released on 2019-01-09
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

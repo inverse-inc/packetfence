@@ -28,7 +28,10 @@ has_field 'id' =>
    messages => { required => 'Please specify the name of the PKI provider' },
    tags => { after_element => \&help,
              help => 'The unique id of the PKI provider'},
-   apply => [ pfappserver::Base::Form::id_validator('PKI provider name') ]
+   apply => [ pfappserver::Base::Form::id_validator('PKI provider name') ],
+   tags => {
+      option_pattern => \&pfappserver::Base::Form::id_pattern,
+   },
   );
 
 has_field 'type' =>
@@ -137,7 +140,7 @@ has_block definition =>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

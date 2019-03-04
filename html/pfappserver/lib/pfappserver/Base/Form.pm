@@ -177,10 +177,23 @@ sub id_validator {
    };   
 }
 
+=head2 id_pattern
+
+id_pattern
+
+=cut
+
+sub id_pattern {
+    return {
+        regex => "^[a-zA-Z0-9][a-zA-Z0-9\._-]*\$",
+        message =>
+            "The id is invalid. The id can only contain alphanumeric characters, dashes, period and underscores."
+    };
+}
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

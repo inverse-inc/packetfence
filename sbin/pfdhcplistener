@@ -362,7 +362,7 @@ sub process_pkt {
             }
 
             # IPv6 processing
-            elsif ( $l2->{type} eq ETH_TYPE_IPv6 ) {
+            elsif ( $l2->{type} eq ETH_TYPE_IPv6 && isenabled($Config{network}{dhcp_process_ipv6})) {
                 $pf::StatsD::statsd->increment("pfdhcplistener_$statsd_interface\::process_pkt_ipv6.count" );
 
                 # TODO: Rate-limiting for IPv6 just as for IPv4
@@ -634,7 +634,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

@@ -16,6 +16,7 @@ use CHI;
 use Cache::FileCache;
 use Template::AutoFilter;
 use pf::constants;
+use pf::web::constants;
 use pf::log;
 use Locale::gettext qw(gettext ngettext);
 use captiveportal::Base::I18N;
@@ -300,7 +301,7 @@ sub process_destination_url {
         goto SET_URL;
     }
 
-    if($path eq $pf::web::constants::URL_NETWORK_LOGOFF) {
+    if($path eq $WEB::URL_NETWORK_LOGOFF) {
         get_logger->info("The destination URL is pointing to the network logoff page, will leave it as is.");
         goto SET_URL;
     }
@@ -559,7 +560,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

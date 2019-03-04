@@ -27,7 +27,10 @@ has_field 'id' =>
    label => 'Billing Tier',
    required => 1,
    messages => { required => 'Please specify a billing tier identifier' },
-   apply => [ pfappserver::Base::Form::id_validator('billing tier') ]
+   apply => [ pfappserver::Base::Form::id_validator('billing tier') ],
+   tags => {
+      option_pattern => \&pfappserver::Base::Form::id_pattern,
+   }
   );
 
 has_field 'name' =>
@@ -104,7 +107,7 @@ sub options_roles {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

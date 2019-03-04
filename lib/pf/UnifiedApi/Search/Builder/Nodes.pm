@@ -118,28 +118,28 @@ our @NODE_CATEGORY_ROLE_JOIN = (
     '=>{node.bypass_role_id=node_category_bypass_role.category_id}', 'node_category|node_category_bypass_role',
 );
 
-our @VIOLATION_OPEN_JOIN = (
+our @SECURITY_EVENT_OPEN_JOIN = (
     {
         operator  => '=>',
         condition => {
             'node.mac' => { '=' => { -ident => '%2$s.mac' } },
             'node.tenant_id' => { '=' => { -ident => '%2$s.tenant_id' } },
-            'violation_open.status' => { '=' => "open" },
+            'security_event_open.status' => { '=' => "open" },
         },
     },
-    'violation|violation_open',
+    'security_event|security_event_open',
 );
 
-our @VIOLATION_CLOSED_JOIN = (
+our @SECURITY_EVENT_CLOSED_JOIN = (
     {
         operator  => '=>',
         condition => {
             'node.mac' => { '=' => { -ident => '%2$s.mac' } },
             'node.tenant_id' => { '=' => { -ident => '%2$s.tenant_id' } },
-            'violation_close.status' => { '=' => "closed" },
+            'security_event_close.status' => { '=' => "closed" },
         },
     },
-    'violation|violation_close',
+    'security_event|security_event_close',
 );
 
 our %ALLOWED_JOIN_FIELDS = (
@@ -172,33 +172,33 @@ our %ALLOWED_JOIN_FIELDS = (
     },
     map_dal_fields_to_join_spec("pf::dal::radacct", \@RADACCT_JOIN, \%RADACCT_WHERE),
     map_dal_fields_to_join_spec("pf::dal::locationlog", \@LOCATION_LOG_JOIN, \%LOCATION_LOG_WHERE),
-    'violation.open_count' => {
-        namespace => 'violation_open',
-        join_spec => \@VIOLATION_OPEN_JOIN,
-        rewrite_query => \&rewrite_violation_open_count,
+    'security_event.open_count' => {
+        namespace => 'security_event_open',
+        join_spec => \@SECURITY_EVENT_OPEN_JOIN,
+        rewrite_query => \&rewrite_security_event_open_count,
         group_by => 1,
-        column_spec => \"COUNT(violation_open.id) AS `violation.open_count`",
+        column_spec => \"COUNT(security_event_open.id) AS `security_event.open_count`",
     },
-    'violation.open_vid' => {
-        namespace => 'violation_open',
-        join_spec => \@VIOLATION_OPEN_JOIN,
-        rewrite_query => \&rewrite_violation_open_vid,
+    'security_event.open_security_event_id' => {
+        namespace => 'security_event_open',
+        join_spec => \@SECURITY_EVENT_OPEN_JOIN,
+        rewrite_query => \&rewrite_security_event_open_security_event_id,
         group_by => 1,
-        column_spec => \"GROUP_CONCAT(violation_open.vid) AS `violation.open_vid`"
+        column_spec => \"GROUP_CONCAT(security_event_open.security_event_id) AS `security_event.open_security_event_id`"
     },
-    'violation.close_count' => {
-        namespace => 'violation_close',
-        join_spec => \@VIOLATION_CLOSED_JOIN,
-        rewrite_query => \&rewrite_violation_close_count,
+    'security_event.close_count' => {
+        namespace => 'security_event_close',
+        join_spec => \@SECURITY_EVENT_CLOSED_JOIN,
+        rewrite_query => \&rewrite_security_event_close_count,
         group_by => 1,
-        column_spec => \"COUNT(violation_close.id) AS `violation.close_count`",
+        column_spec => \"COUNT(security_event_close.id) AS `security_event.close_count`",
     },
-    'violation.close_vid' => {
-        namespace => 'violation_close',
-        join_spec => \@VIOLATION_CLOSED_JOIN,
-        rewrite_query => \&rewrite_violation_close_vid,
+    'security_event.close_security_event_id' => {
+        namespace => 'security_event_close',
+        join_spec => \@SECURITY_EVENT_CLOSED_JOIN,
+        rewrite_query => \&rewrite_security_event_close_security_event_id,
         group_by => 1,
-        column_spec => \"GROUP_CONCAT(violation_close.vid) AS `violation.close_vid`"
+        column_spec => \"GROUP_CONCAT(security_event_close.security_event_id) AS `security_event.close_security_event_id`"
     },
 );
 
@@ -208,27 +208,27 @@ sub non_searchable {
     return (422, { msg => "$q->{field} is not searchable" });
 }
 
-sub rewrite_violation_open_vid {
+sub rewrite_security_event_open_security_event_id {
     my ($self, $s, $q) = @_;
-    $q->{field} = 'violation_open.vid';
+    $q->{field} = 'security_event_open.security_event_id';
     return (200, $q);
 }
 
-sub rewrite_violation_open_count {
+sub rewrite_security_event_open_count {
     my ($self, $s, $q) = @_;
-    $q->{field} = 'COUNT(violation_open.id)';
+    $q->{field} = 'COUNT(security_event_open.id)';
     return (200, $q);
 }
 
-sub rewrite_violation_close_vid {
+sub rewrite_security_event_close_security_event_id {
     my ($self, $s, $q) = @_;
-    $q->{field} = 'violation_close.vid';
+    $q->{field} = 'security_event_close.security_event_id';
     return (200, $q);
 }
 
-sub rewrite_violation_close_count {
+sub rewrite_security_event_close_count {
     my ($self, $s, $q) = @_;
-    $q->{field} = 'COUNT(violation_close.id)';
+    $q->{field} = 'COUNT(security_event_close.id)';
     return (200, $q);
 }
 
@@ -312,7 +312,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

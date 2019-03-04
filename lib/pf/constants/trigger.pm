@@ -32,7 +32,7 @@ our @EXPORT_OK = qw(
         $TRIGGER_MAP
 );
 
-# Violation trigger types
+# SecurityEvent trigger types
 Readonly::Scalar our $TRIGGER_TYPE_ACCOUNTING => 'accounting';
 Readonly::Scalar our $TRIGGER_TYPE_DETECT => 'detect';
 Readonly::Scalar our $TRIGGER_TYPE_INTERNAL => 'internal';
@@ -91,7 +91,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

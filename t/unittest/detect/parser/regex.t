@@ -38,13 +38,13 @@ my $config = {
             regex => qr/from: (?<scrip>\d{1,3}(\.\d{1,3}){3}), to: (?<dstip>\d{1,3}(\.\d{1,3}){3}), mac: (?<mac>[a-fA-F0-9]{12})/,
             name => 'from to',
             last_if_match => 0,
-            actions => ['modify_node: $scrip, $dstip, $mac', 'violation_log: bob, bob'],
+            actions => ['modify_node: $scrip, $dstip, $mac', 'security_event_log: bob, bob'],
         },
         {
             regex => qr/from: (?<scrip>\d{1,3}(\.\d{1,3}){3}), to: (?<dstip>\d{1,3}(\.\d{1,3}){3})/,
             name => 'from to',
             last_if_match => 1,
-            actions => ['modify_node: $scrip, $dstip', 'violation_log: bob, bob'],
+            actions => ['modify_node: $scrip, $dstip', 'security_event_log: bob, bob'],
         },
     ],
 };
@@ -61,7 +61,7 @@ is_deeply(
             rule => $config->{rules}[1],
             actions => [
                 { api_method => 'modify_node', api_parameters => ['1.2.3.4', '1.2.3.5']},
-                { api_method => 'violation_log', api_parameters => ['bob', 'bob']}
+                { api_method => 'security_event_log', api_parameters => ['bob', 'bob']}
             ],
         }
     ],
@@ -78,7 +78,7 @@ is_deeply(
             rule => $config->{rules}[0],
             actions => [
                 { api_method => 'modify_node', api_parameters => ['1.2.3.4', '1.2.3.5', 'aa:bb:cc:dd:ee:ff']}, 
-                { api_method => 'violation_log', api_parameters => ['bob', 'bob']}
+                { api_method => 'security_event_log', api_parameters => ['bob', 'bob']}
             ],
         },
         {
@@ -86,7 +86,7 @@ is_deeply(
             rule => $config->{rules}[1],
             actions => [
                 {api_method => 'modify_node', api_parameters =>['1.2.3.4', '1.2.3.5']},
-                {api_method => 'violation_log', api_parameters => ['bob', 'bob']}
+                {api_method => 'security_event_log', api_parameters => ['bob', 'bob']}
             ],
         }
     ],
@@ -99,7 +99,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

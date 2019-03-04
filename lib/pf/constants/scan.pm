@@ -17,9 +17,9 @@ use warnings;
 use base qw(Exporter);
 
 our @EXPORT_OK = qw(
-  $SCAN_VID
-  $POST_SCAN_VID
-  $PRE_SCAN_VID
+  $SCAN_SECURITY_EVENT_ID
+  $POST_SCAN_SECURITY_EVENT_ID
+  $PRE_SCAN_SECURITY_EVENT_ID
   $SEVERITY_HOLE
   $SEVERITY_WARNING
   $SEVERITY_INFO
@@ -31,9 +31,9 @@ our @EXPORT_OK = qw(
 
 use Readonly;
 
-Readonly our $SCAN_VID => '1200001';
-Readonly our $POST_SCAN_VID => '1200004';
-Readonly our $PRE_SCAN_VID => '1200005';
+Readonly our $SCAN_SECURITY_EVENT_ID => '1200001';
+Readonly our $POST_SCAN_SECURITY_EVENT_ID => '1200004';
+Readonly our $PRE_SCAN_SECURITY_EVENT_ID => '1200005';
 Readonly our $SEVERITY_HOLE     => 1;
 Readonly our $SEVERITY_WARNING  => 2;
 Readonly our $SEVERITY_INFO     => 3;
@@ -48,7 +48,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

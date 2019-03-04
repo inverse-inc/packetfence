@@ -446,6 +446,7 @@ export default {
     this.$store.dispatch('config/getAdminRoles')
     this.$store.dispatch('config/getRoles')
     this.$store.dispatch('config/getTenants')
+    this.$store.dispatch('config/getBaseGuestsAdminRegistration') // for access durations
   }
 }
 </script>

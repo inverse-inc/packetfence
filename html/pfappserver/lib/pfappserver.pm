@@ -28,6 +28,7 @@ use Catalyst qw/
     Session::Store::CHI
     Session::State::Cookie
     StackTrace
+    Unicode::Encoding
 /;
 
 use Try::Tiny;
@@ -63,7 +64,7 @@ $VERSION = eval $VERSION;
 __PACKAGE__->config(
     name => 'pfappserver',
     default_view =>  'HTML',
-    encoding => 'utf-8',
+    encoding => 'UTF-8',
     use_request_uri_for_path => 1,
     setup_components => {
         search_extra => [ qw(::Form ::F) ],
@@ -75,7 +76,7 @@ __PACKAGE__->config(
             woff => 'font/woff'
         },
         # Include static content from captive portal in order to render previews of
-        # remediation pages (see pfappserver::Controller::Violation)
+        # remediation pages (see pfappserver::Controller::SecurityEvent)
         include_path => [
             pfappserver->config->{root},
             INSTALL_DIR . '/html/pfappserver/root',
@@ -87,7 +88,7 @@ __PACKAGE__->config(
             'admin',
             'pfappserver',
             'templates',
-            'violations',
+            'security_events',
         ],
         ignore_extensions => [ qw/cgi php inc tt html xml/ ],
     },
@@ -407,7 +408,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

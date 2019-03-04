@@ -15,7 +15,7 @@ pf::access_filter::radius deny, rewrite radius answer based on rules.
 use strict;
 use warnings;
 
-use pf::violation qw (violation_view_top);
+use pf::security_event qw (security_event_view_top);
 use pf::locationlog qw(locationlog_set_session);
 use pf::util qw(isenabled generate_session_id);
 use pf::CHI;
@@ -40,7 +40,7 @@ sub test {
     my ($self, $scope, $args) = @_;
     my $engine = $self->getEngineForScope($scope);
     if ($engine) {
-        $args->{'violation'} =  violation_view_top($args->{'mac'});
+        $args->{'security_event'} =  security_event_view_top($args->{'mac'});
         my $answer = $engine->match_first($args);
         $self->logger->info("Match rule $answer->{_rule}") if defined $answer;
         return $answer;
@@ -230,7 +230,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

@@ -1041,9 +1041,9 @@ sub dot1xPortReauthenticate {
         {}
     );
 
-    require pf::violation;
-    my @violations = pf::violation::violation_view_open_desc($mac);
-    if ( scalar(@violations) > 0 ) {
+    require pf::security_event;
+    my @security_events = pf::security_event::security_event_view_open_desc($mac);
+    if ( scalar(@security_events) > 0 ) {
         my %message;
         $message{'subject'} = "VLAN isolation of $mac behind VoIP phone";
         $message{'message'} = "The following computer has been isolated behind a VoIP phone\n";
@@ -1056,11 +1056,11 @@ sub dot1xPortReauthenticate {
         $message{'message'} .= "Notes: " . $node_info->{'notes'} . "\n";
         $message{'message'} .= "Switch: " . $self->{'_ip'} . "\n";
         $message{'message'} .= "Port (ifIndex): " . $ifIndex . "\n\n";
-        $message{'message'} .= "The violation details are\n";
+        $message{'message'} .= "The security event details are\n";
 
-        foreach my $violation (@violations) {
-            $message{'message'} .= "Description: " . $violation->{'description'} . "\n";
-            $message{'message'} .= "Start: " . $violation->{'start_date'} . "\n";
+        foreach my $security_event (@security_events) {
+            $message{'message'} .= "Description: " . $security_event->{'description'} . "\n";
+            $message{'message'} .= "Start: " . $security_event->{'start_date'} . "\n";
         }
         $logger->info("sending email to admin regarding isolation of $mac behind VoIP phone");
         pfmailer(%message);
@@ -1189,7 +1189,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

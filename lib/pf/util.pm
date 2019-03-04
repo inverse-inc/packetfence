@@ -44,8 +44,7 @@ use Fcntl qw(:DEFAULT);
 use Net::Ping;
 use Crypt::OpenSSL::X509;
 use Date::Parse;
-
-our ( %local_mac );
+use pf::CHI;
 
 BEGIN {
     use Exporter ();
@@ -100,6 +99,7 @@ BEGIN {
         str_to_connection_type
         validate_unregdate
         find_outgoing_srcip
+        mcmp make_string_cmp make_string_rcmp make_num_rcmp make_num_cmp
     );
 }
 
@@ -304,7 +304,7 @@ sub valid_mac {
 =item  macoui2nb
 
 Extract the OUI (Organizational Unique Identifier) from a MAC address then
-converts it into a decimal value. To be used to generate vendormac violations.
+converts it into a decimal value. To be used to generate vendormac security_events.
 
 in: MAC address (of xx:xx:xx:xx:xx format)
 
@@ -322,7 +322,7 @@ sub macoui2nb {
 
 =item  mac2nb
 
-Converts a MAC address into a decimal value. To be used to generate mac violations.
+Converts a MAC address into a decimal value. To be used to generate mac security_events.
 
 in: MAC address (of xx:xx:xx:xx:xx format)
 
@@ -433,19 +433,20 @@ sub isempty {
     return $FALSE;
 }
 
-# TODO port to IO::Interface::Simple?
 sub getlocalmac {
     my ($dev) = @_;
     return (-1) if ( !$dev );
-    return ( $local_mac{$dev} ) if ( defined $local_mac{$dev} );
-    foreach (`LC_ALL=C /sbin/ifconfig -a`) {
-        if (/^$dev.+HWaddr\s+(\w\w:\w\w:\w\w:\w\w:\w\w:\w\w)/i) {
-            # cache the value
-            $local_mac{$dev} = clean_mac($1);
-            return $local_mac{$dev};
+    my $chi = pf::CHI->new(namespace => 'local_mac');
+    my $mac = $chi->compute($dev, sub {
+        foreach (`LC_ALL=C /sbin/ifconfig -a $dev`) {
+            if (/ether\s+(\w\w:\w\w:\w\w:\w\w:\w\w:\w\w)/i) {
+                # cache the value
+                return clean_mac($1);
+            }
         }
-    }
-    return (0);
+        return (0);
+    });
+    return $mac;
 }
 
 sub ip2int {
@@ -1549,6 +1550,52 @@ sub connection_type_to_str {
     }
 }
 
+=head2 mcmp
+
+Compare two items based off multiple comparsions
+
+=cut
+
+sub mcmp {
+    my ($a, $b, $cmps) = @_;
+    my $r;
+    die "No compare given" if @$cmps == 0;
+    #Stop at the first non equal comparsion
+    for my $cmp (@$cmps) {
+       $r = $cmp->($a, $b);
+       return $r if $r != 0;
+    }
+
+    return $r;
+}
+
+sub make_string_cmp {
+    my ($key) = @_;
+    return sub {
+        $_[0]->{$key} cmp $_[1]->{$key}
+    };
+}
+
+sub make_string_rcmp {
+    my ($key) = @_;
+    return sub {
+        $_[1]->{$key} cmp $_[0]->{$key}
+    };
+}
+
+sub make_num_rcmp {
+    my ($key) = @_;
+    return sub {
+        $_[1]->{$key} <=> $_[0]->{$key}
+    };
+}
+
+sub make_num_cmp {
+    my ($key) = @_;
+    return sub {
+        $_[0]->{$key} <=> $_[1]->{$key}
+    };
+}
 
 =back
 
@@ -1560,7 +1607,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

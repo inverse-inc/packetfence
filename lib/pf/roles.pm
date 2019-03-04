@@ -30,7 +30,7 @@ use pf::log;
 
 use pf::config;
 use pf::node qw(node_attributes);
-use pf::violation qw(violation_count_reevaluate_access);
+use pf::security_event qw(security_event_count_reevaluate_access);
 
 our $VERSION = 0.90;
 
@@ -87,10 +87,10 @@ sub getRoleForNode {
     my ($self, $mac, $switch) = @_;
     my $logger = $self->logger;
 
-    # Violation first
-    my $open_violation_count = violation_count_reevaluate_access($mac);
-    if ($open_violation_count != 0) {
-        $logger->info("MAC: $mac has $open_violation_count open violations(s) with action=trap; no role returned");
+    # SecurityEvent first
+    my $open_security_event_count = security_event_count_reevaluate_access($mac);
+    if ($open_security_event_count != 0) {
+        $logger->info("MAC: $mac has $open_security_event_count open security_events(s) with action=trap; no role returned");
         return;
     }
 
@@ -107,7 +107,7 @@ sub getRoleForNode {
         return;
     }
 
-    # At this point, we are registered, we don't have a violation: perform Role lookup
+    # At this point, we are registered, we don't have a security_event: perform Role lookup
     return $self->performRoleLookup($node_attributes, $switch);
 }
 
@@ -177,7 +177,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

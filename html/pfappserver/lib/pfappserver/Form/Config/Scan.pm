@@ -97,7 +97,7 @@ has_field 'post_registration' =>
    type => 'Checkbox',
    label => 'Scan after registration',
    tags => { after_element => \&help,
-             help => 'If this option is enabled, the PF system will scan host after on the production vlan.' },
+             help => 'If this option is enabled, the PF system will scan host after on the production vlan. This will not work for devices that are in an inline VLAN.' },
   );
 
 has_field 'oses' =>
@@ -169,7 +169,7 @@ sub options_categories {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

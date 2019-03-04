@@ -11,6 +11,7 @@ import {
   and,
   not,
   conditional,
+  hasRealms,
   realmExists
 } from '@/globals/pfValidators'
 
@@ -90,7 +91,7 @@ export const pfConfigurationRealmViewFields = (context = {}) => {
                 [i18n.t('Realm required.')]: required,
                 [i18n.t('Maximum 255 characters.')]: maxLength(255),
                 [i18n.t('Alphanumeric characters only.')]: alphaNum,
-                [i18n.t('Realm exists.')]: not(and(required, conditional(isNew || isClone), realmExists))
+                [i18n.t('Realm exists.')]: not(and(required, conditional(isNew || isClone), hasRealms, realmExists))
               }
             }
           ]
@@ -149,11 +150,23 @@ export const pfConfigurationRealmViewFields = (context = {}) => {
         },
         {
           label: i18n.t('Strip in RADIUS authorization'),
-          text: i18n.t('Should the usernames matching this realm be stripped when used in the authorization phase of 802.1x.' +
-            ' Note that this doesn\'t control the stripping in FreeRADIUS, use the options above for that.'),
+          text: i18n.t(`Should the usernames matching this realm be stripped when used in the authorization phase of 802.1x.\nNote that this doesn't control the stripping in FreeRADIUS, use the options above for that.`),
           fields: [
             {
               key: 'radius_strip_username',
+              component: pfFormToggle,
+              attrs: {
+                values: { checked: 'enabled', unchecked: 'disabled' }
+              }
+            }
+          ]
+        },
+        {
+          label: i18n.t('Custom attributes'),
+          text: i18n.t('Allow to use custom attributes to authenticate 802.1x users (attributes are defined in the source).'),
+          fields: [
+            {
+              key: 'permit_custom_attributes',
               component: pfFormToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }

@@ -59,7 +59,7 @@ my @whitelist = (
     'identifyConnectionType', 'logger', 'returnRoleAttributes', 'cachedSNMPRequest', 'getRelayAgentInfoOptRemoteIdSub', 'TO_JSON',
     'normalizeTrap', 'findTrapNormalizer', '_findTrapNormalizer', 'linkDownTrapNormalizer', 'linkUpTrapNormalizer', 'dot11DeauthenticateTrapNormalizer', 
     'findTrapVarWithBase', 'getIfIndexFromTrap', 'findTrapOID', 'getMacFromTrapVariablesForOIDBase', 'extractMacFromVariable', 
-    'handleTrap', 'getExclusiveLock', 'getExclusiveLockForScope', 'cache_distributed', 'setCurrentTenant', 'cachedSNMPTable'
+    'handleTrap', 'getExclusiveLock', 'getExclusiveLockForScope', 'cache_distributed', 'setCurrentTenant', 'cachedSNMPTable', 'parseRequestUsername', 'getCiscoAvPairAttribute'
 );
 
 my @missing_subs;
@@ -92,7 +92,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

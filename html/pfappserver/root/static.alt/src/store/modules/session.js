@@ -108,7 +108,7 @@ const actions = {
   getTokenInfo: ({ commit, dispatch }) => {
     return api.getTokenInfo().then(response => {
       commit('USERNAME_UPDATED', response.data.item.username)
-      return response.data.item.admin_roles
+      return response.data.item.admin_actions
     })
   },
   getTenants: ({ commit }) => {

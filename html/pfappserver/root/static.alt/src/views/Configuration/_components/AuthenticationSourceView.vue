@@ -14,11 +14,12 @@
   >
     <template slot="header" is="b-card-header">
       <b-button-close @click="close" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
-      <h4 class="mb-0">
+      <h4 class="d-inline mb-0">
         <span v-if="!isNew && !isClone">{{ $t('Authentication Source {id}', { id: id }) }}</span>
         <span v-else-if="isClone">{{ $t('Clone Authentication Source {id}', { id: id }) }}</span>
-        <span v-else>{{ $t('New {sourceType} Authentication Source', { sourceType: this.sourceType}) }}</span>
+        <span v-else>{{ $t('New Authentication Source') }}</span>
       </h4>
+      <b-badge class="ml-2" variant="secondary" v-t="sourceType"></b-badge>
     </template>
     <template slot="footer"
       scope="{isDeletable}"
@@ -27,7 +28,7 @@
         <pf-button-save :disabled="invalidForm" :isLoading="isLoading">
           <template v-if="isNew">{{ $t('Create') }}</template>
           <template v-else-if="isClone">{{ $t('Clone') }}</template>
-          <template v-else-if="ctrlKey">{{ $t('Save &amp; Close') }}</template>
+          <template v-else-if="ctrlKey">{{ $t('Save & Close') }}</template>
           <template v-else>{{ $t('Save') }}</template>
         </pf-button-save>
         <pf-button-delete v-if="isDeletable" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Source?')" @on-delete="remove()"/>
@@ -165,7 +166,7 @@ export default {
     this.$store.dispatch('$_realms/all').then(data => {
       this.realms = data
     })
-    this.$store.dispatch('$_bases/getBase', 'general').then(data => {
+    this.$store.dispatch('$_bases/getGeneral').then(data => {
       this.general = data
       this.source = defaults(this) // re-overload `source` form
     })

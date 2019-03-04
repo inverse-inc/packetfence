@@ -1,0 +1,89 @@
+ConfigCertificate:
+  properties:
+    certificate:
+      description: The server certficate for the resource in x509 PEM encoded format
+      type: string
+    private_key:
+      description: The RSA server key for the resource in PEM encoded format
+      type: string
+    ca:
+      description: The CA certficate for the resource (if applicable)
+      type: string
+    intermediate_cas:
+      description: The list of certificate authorities for the server certificate
+      type: array
+      items:
+        type: string
+  type: object
+
+ConfigCertificateInfo:
+  properties:
+    certificate:
+      description: The server certficate for the resource
+      type: object
+      $ref: '#/components/schemas/ConfigCertificateDetails'
+    ca:
+      description: The CA certficate for the resource (if applicable)
+      type: object
+      $ref: '#/components/schemas/ConfigCertificateDetails'
+    intermediate_cas:
+      description: The list of certificate authorities for the server certificate
+      type: array
+      items:
+        $ref: '#/components/schemas/ConfigCertificateDetails'
+    chain_is_valid:
+      description: Information about whether or not the certificate chain is valid
+      type: object
+      $ref: '#/components/schemas/ConfigCertificateReturnValue'
+    cert_key_match:
+      description: Information about whether or not the certificate and private key match
+      type: object
+      $ref: '#/components/schemas/ConfigCertificateReturnValue'
+  type: object
+
+ConfigCertificateReturnValue:
+  properties:
+    success:
+      type: boolean
+      description: "Whether or not the operation has succeeded"
+    result:
+      type: string
+      description: "The value (usually error or success message)"
+
+
+ConfigCertificateDetails:
+  properties:
+    subject:
+      type: string
+      description: "The subject of the certificate"
+    issuer:
+      type: string
+      description: "The issuer of the certificate"
+    serial:
+      type: string
+      description: "The serial of the certificate"
+    not_before:
+      type: string
+      description: "The start date at which the certificate can be used"
+    not_after:
+      type: string
+      description: "The date until which the certificate can be used"
+
+ConfigCertificateCSR:
+  properties:
+    country:
+      description: The country for the certificate
+      type: string
+    state:
+      description: The state for the certificate
+      type: string
+    locality:
+      description: The locality for the certificate
+      type: string
+    organization_name:
+      description: The organization name for the certificate
+      type: string
+    common_name:
+      description: The common name for the certificate
+      type: string
+  type: object

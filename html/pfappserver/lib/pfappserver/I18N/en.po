@@ -1,5 +1,5 @@
 # English translations for PacketFence package.
-# Copyright (C) 2005-2018 Inverse inc.
+# Copyright (C) 2005-2019 Inverse inc.
 # This file is distributed under the same license as the PacketFence package.
 #
 msgid ""
@@ -106,8 +106,8 @@ msgstr ""
 msgid "A manual start from the command line will be required. Are you sure you want to continue?"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Violation.pm
-msgid "A message that will be added to the e-mail sent to the user regarding this violation."
+# html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
+msgid "A message that will be added to the e-mail sent to the user regarding this security event."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
@@ -259,7 +259,7 @@ msgstr ""
 msgid "Access Code"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Violation.pm
+# html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
 # html/pfappserver/root/admin/configuration.tt
 msgid "Access Duration"
 msgstr ""
@@ -303,7 +303,7 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Field/SourceRule.pm
 # html/pfappserver/root/admin/bulk_actions.inc
 # html/pfappserver/root/config/fingerbank/header.tt
-# html/pfappserver/root/violation/list.tt
+# html/pfappserver/root/security_event/list.tt
 msgid "Action"
 msgstr ""
 
@@ -312,7 +312,7 @@ msgid "Action that PacketFence will take if the snmp_traps.trap_limit_threshold 
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/AdminRoles.pm
-# html/pfappserver/lib/pfappserver/Form/Violation.pm
+# html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
 # html/pfappserver/root/config/adminroles/view.tt
 # html/pfappserver/root/config/fingerbank/combination/list.tt
 # html/pfappserver/root/config/fingerbank/device/list.tt
@@ -325,7 +325,7 @@ msgstr ""
 # html/pfappserver/root/config/fingerbank/user_agent/list.tt
 # html/pfappserver/root/user/create.tt
 # html/pfappserver/root/user/view.tt
-# html/pfappserver/root/violation/list.tt
+# html/pfappserver/root/security_event/list.tt
 msgid "Actions"
 msgstr ""
 
@@ -354,7 +354,7 @@ msgid "Active-Active Clustering"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Widget/Field/FingerbankSelect.pm
-# html/pfappserver/root/violation/view.tt
+# html/pfappserver/root/security_event/view.tt
 msgid "Add"
 msgstr ""
 
@@ -534,8 +534,8 @@ msgstr ""
 msgid "Add to Duration Choices"
 msgstr ""
 
-# html/pfappserver/root/violation/list.tt
-msgid "Add violation"
+# html/pfappserver/root/security_event/list.tt
+msgid "Add security event"
 msgstr ""
 
 # html/pfappserver/root/config/realm/index.tt
@@ -546,7 +546,7 @@ msgstr ""
 msgid "Additionnal listening daemon(s)"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Violation.pm
+# html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
 msgid "Additionnal message for the user"
 msgstr ""
 
@@ -608,7 +608,7 @@ msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/users.tt
-# html/pfappserver/root/violation/view.tt
+# html/pfappserver/root/security_event/view.tt
 msgid "Advanced"
 msgstr ""
 
@@ -721,12 +721,12 @@ msgstr ""
 msgid "Amount of requests on invalid URLs after which the rate limiting will kick in for this device.Requires to restart haproxy-portal in order to apply the change."
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Violation.pm
-msgid "Amount of time before a violation will be closed automatically. Instead of allowing people to reactivate the network, you may want to open a violation for a defined amount of time instead."
+# html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
+msgid "Amount of time before a security event will be closed automatically. Instead of allowing people to reactivate the network, you may want to open a security event for a defined amount of time instead."
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Violation.pm
-msgid "Amount of time before the violation can reoccur. This is useful to allow hosts time (in the example 2 minutes) to download tools to fix their issue, or shutoff their peer-to-peer application."
+# html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
+msgid "Amount of time before the security event can reoccur. This is useful to allow hosts time (in the example 2 minutes) to download tools to fix their issue, or shutoff their peer-to-peer application."
 msgstr ""
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (upstream.sqlite_db_retention)
@@ -805,7 +805,7 @@ msgid "Apply Role"
 msgstr ""
 
 # html/pfappserver/root/admin/bulk_actions.inc
-msgid "Apply Violation"
+msgid "Apply Security Event"
 msgstr ""
 
 # conf/documentation.conf (provisioning.category)
@@ -934,7 +934,7 @@ msgstr ""
 msgid "Authorized domains"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Violation.pm
+# html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
 msgid "Auto Enable"
 msgstr ""
 
@@ -1043,7 +1043,7 @@ msgstr ""
 msgid "Broadcast network"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Violation.pm
+# html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
 msgid "Button Text"
 msgstr ""
 
@@ -1192,7 +1192,7 @@ msgstr ""
 # html/pfappserver/root/interface/list.tt
 # html/pfappserver/root/service/status.tt
 # html/pfappserver/root/user/list.tt
-# html/pfappserver/root/violation/list.tt
+# html/pfappserver/root/security_event/list.tt
 msgid "Cancel"
 msgstr ""
 
@@ -1291,7 +1291,7 @@ msgid "Cisco Mobility Sevices Engine"
 msgstr ""
 
 # html/pfappserver/root/admin/bulk_actions.inc
-msgid "Clear Violation"
+msgid "Clear Security Event"
 msgstr ""
 
 # html/pfappserver/root/admin/wrapper.tt
@@ -1314,7 +1314,7 @@ msgstr ""
 msgid "Click to add a daemon"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Violation.pm
+# html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
 msgid "Click to add a duration"
 msgstr ""
 
@@ -1336,7 +1336,7 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/PortalModule/SelectRole.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Scan.pm
-# html/pfappserver/lib/pfappserver/Form/Violation.pm
+# html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
 msgid "Click to add a role"
 msgstr ""
 
@@ -1348,7 +1348,7 @@ msgid "Click to add an OS"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/AdminRoles.pm
-# html/pfappserver/lib/pfappserver/Form/Violation.pm
+# html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
 msgid "Click to add an action"
 msgstr ""
 
@@ -1467,7 +1467,7 @@ msgstr ""
 # html/pfappserver/root/config/syslog/list.tt
 # html/pfappserver/root/config/wmi/list.tt
 # html/pfappserver/root/config/wrix/list.tt
-# html/pfappserver/root/violation/list.tt
+# html/pfappserver/root/security_event/list.tt
 msgid "Clone"
 msgstr ""
 
@@ -1506,10 +1506,10 @@ msgstr ""
 # html/pfappserver/root/dhcpoption82/view.tt
 # html/pfappserver/root/interface/view.tt
 # html/pfappserver/root/node/view.tt
-# html/pfappserver/root/node/violations.tt
+# html/pfappserver/root/node/security_events.tt
 # html/pfappserver/root/user/list_password.tt
 # html/pfappserver/root/user/view.tt
-# html/pfappserver/root/violation/view.tt
+# html/pfappserver/root/security_event/view.tt
 msgid "Close"
 msgstr ""
 
@@ -1522,7 +1522,7 @@ msgid "Closed"
 msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
-msgid "Closed Violations"
+msgid "Closed Security Events"
 msgstr ""
 
 # html/pfappserver/root/admin/configuration.tt
@@ -1635,7 +1635,7 @@ msgid "Comma-delimited list of domains to be used with apache passthroughs. The 
 msgstr ""
 
 # conf/documentation.conf (alerting.emailaddr)
-msgid "Comma-delimited list of email addresses to which notifications of rogue DHCP servers, violations with an action of <i>email</i>, or any other PacketFence-related message goes to."
+msgid "Comma-delimited list of email addresses to which notifications of rogue DHCP servers, security events with an action of <i>email</i>, or any other PacketFence-related message goes to."
 msgstr ""
 
 # conf/documentation.conf (inline.interfaceSNAT)
@@ -2098,7 +2098,7 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Source/SponsorEmail.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
-# html/pfappserver/lib/pfappserver/Form/Violation.pm
+# html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
 # html/pfappserver/root/admin/nodes.tt
 msgid "Default"
 msgstr ""
@@ -2128,7 +2128,7 @@ msgid "Default Role"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
-msgid "Default URL to redirect to on registration/mitigation release. This is only used if a per-violation redirect URL is not defined."
+msgid "Default URL to redirect to on registration/mitigation release. This is only used if a per security event redirect URL is not defined."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Node/Create/Import.pm
@@ -2205,16 +2205,16 @@ msgid "Defines what attribute of the node to use as the common name during the c
 msgstr ""
 
 # html/pfappserver/root/config/switch/view.tt
-# html/pfappserver/root/violation/view.tt
+# html/pfappserver/root/security_event/view.tt
 msgid "Definition"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Violation.pm
+# html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
 msgid "Delay By"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Violation.pm
-msgid "Delay before triggering the violation."
+# html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
+msgid "Delay before triggering the security event."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Source/SponsorEmail.pm
@@ -2284,7 +2284,7 @@ msgstr ""
 # html/pfappserver/root/config/wrix/list.tt
 # html/pfappserver/root/interface/list.tt
 # html/pfappserver/root/user/view.tt
-# html/pfappserver/root/violation/list.tt
+# html/pfappserver/root/security_event/list.tt
 msgid "Delete"
 msgstr ""
 
@@ -2381,8 +2381,8 @@ msgstr ""
 msgid "Delete User Agent"
 msgstr ""
 
-# html/pfappserver/root/violation/list.tt
-msgid "Delete Violation"
+# html/pfappserver/root/security_event/list.tt
+msgid "Delete Security Event"
 msgstr ""
 
 # html/pfappserver/root/config/wrix/index.tt
@@ -2402,12 +2402,12 @@ msgid "Delete traffic shaping policy entry"
 msgstr ""
 
 # html/pfappserver/root/config/networks/view.tt
-# html/pfappserver/root/violation/list.tt
+# html/pfappserver/root/security_event/list.tt
 msgid "Deleting"
 msgstr ""
 
-# html/pfappserver/root/violation/list.tt
-msgid "Deleting this violation will remove all triggered violations associated with this violation."
+# html/pfappserver/root/security_event/list.tt
+msgid "Deleting this security event will remove all triggered security events associated with this security event."
 msgstr ""
 
 # html/pfappserver/root/admin/bulk_actions.inc
@@ -2427,7 +2427,7 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/Roles.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Source.pm
 # html/pfappserver/lib/pfappserver/Form/Field/SourceRule.pm
-# html/pfappserver/lib/pfappserver/Form/Violation.pm
+# html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
 # html/pfappserver/root/config/adminroles/list.tt
 # html/pfappserver/root/config/deviceregistration/list.tt
 # html/pfappserver/root/config/fingerbank/device/upstream/list.tt
@@ -2441,17 +2441,17 @@ msgstr ""
 # html/pfappserver/root/config/switch/list.tt
 # html/pfappserver/root/config/syslog/list.tt
 # html/pfappserver/root/config/trafficshaping/list.tt
-# html/pfappserver/root/node/violations.tt
-# html/pfappserver/root/user/violations.tt
-# html/pfappserver/root/violation/list.tt
+# html/pfappserver/root/node/security_events.tt
+# html/pfappserver/root/user/security_events.tt
+# html/pfappserver/root/security_event/list.tt
 msgid "Description"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Violation.pm
-msgid "Destination Role where PacketFence should put the client when a violation of this type is open (only for <em>Change network access on violation</em> action)."
+# html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
+msgid "Destination Role where PacketFence should put the client when a security event of this type is open (only for <em>Change network access on security event</em> action)."
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Violation.pm
+# html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
 msgid "Destination URL where PacketFence will forward the device. By default it will use the Redirection URL from the connection profile configuration."
 msgstr ""
 
@@ -2528,7 +2528,7 @@ msgid "Device Type"
 msgstr ""
 
 # html/pfappserver/root/graph/dashboard.tt
-msgid "Device Violations"
+msgid "Device Security Events"
 msgstr ""
 
 # html/pfappserver/root/user/nodes.tt
@@ -2581,7 +2581,7 @@ msgstr ""
 msgid "Do you want to monitor this source?"
 msgstr ""
 
-# html/pfappserver/root/violation/list.tt
+# html/pfappserver/root/security_event/list.tt
 msgid "Do you wish to continue?"
 msgstr ""
 
@@ -2634,7 +2634,7 @@ msgstr ""
 msgid "Dynamic Uplinks"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Violation.pm
+# html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
 msgid "Dynamic Window"
 msgstr ""
 
@@ -2733,11 +2733,11 @@ msgid "Email address"
 msgstr ""
 
 # conf/documentation.conf (alerting.fromaddr)
-msgid "Email address from which notifications of rogue DHCP servers, violations with an action of <i>email</i>, or any other PacketFence-related message are sent.Empty means <code>root@&lt;server-domain-name&gt;</code>."
+msgid "Email address from which notifications of rogue DHCP servers, security events with an action of <i>email</i>, or any other PacketFence-related message are sent.Empty means <code>root@&lt;server-domain-name&gt;</code>."
 msgstr ""
 
 # html/pfappserver/root/configurator/configuration.tt
-msgid "Email address to which notifications for rogue DHCP servers, violations with an action of <i>email</i>, or any other PacketFence-related messages goes to."
+msgid "Email address to which notifications for rogue DHCP servers, security events with an action of <i>email</i>, or any other PacketFence-related messages goes to."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Source/Potd.pm
@@ -2811,7 +2811,7 @@ msgid "Enable this to debounce updates to the Firewall.<br/>By default, PacketFe
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Pfdetect.pm
-# html/pfappserver/lib/pfappserver/Form/Violation.pm
+# html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
 msgid "Enabled"
 msgstr ""
 
@@ -2885,7 +2885,7 @@ msgstr ""
 msgid "Enter the MySQL root account credentials"
 msgstr ""
 
-# html/pfappserver/root/violation/view.tt
+# html/pfappserver/root/security_event/view.tt
 msgid "Enter the trigger ID"
 msgstr ""
 
@@ -2944,7 +2944,7 @@ msgstr ""
 msgid "External"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Violation.pm
+# html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
 msgid "External Command"
 msgstr ""
 
@@ -3198,7 +3198,7 @@ msgstr ""
 msgid "Google"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Violation.pm
+# html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
 msgid "Grace"
 msgstr ""
 
@@ -3228,8 +3228,8 @@ msgstr ""
 msgid "Group name"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Violation.pm
-msgid "HTML template the host will be redirected to while in violation. You can create new templates from the <em>Connection Profiles</em> configuration section."
+# html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
+msgid "HTML template the host will be redirected to while in security event. You can create new templates from the <em>Connection Profiles</em> configuration section."
 msgstr ""
 
 # pf::Authentication::Source::HTTPSource (name)
@@ -3439,7 +3439,7 @@ msgstr ""
 # html/pfappserver/root/config/deviceregistration/list.tt
 # html/pfappserver/root/config/provisioning/list.tt
 # html/pfappserver/root/config/wrix/search_form.tt
-# html/pfappserver/root/violation/list.tt
+# html/pfappserver/root/security_event/list.tt
 msgid "Id"
 msgstr ""
 
@@ -3449,7 +3449,7 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
 # html/pfappserver/lib/pfappserver/Form/Config/PortalModule.pm
-# html/pfappserver/lib/pfappserver/Form/Violation.pm
+# html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
 # html/pfappserver/root/config/portal_module/list_view.tt
 # html/pfappserver/root/config/switch/list.tt
 msgid "Identifier"
@@ -4052,7 +4052,7 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Node.pm
 # html/pfappserver/root/config/floatingdevice/list.tt
 # html/pfappserver/root/user/nodes.tt
-# html/pfappserver/root/user/violations.tt
+# html/pfappserver/root/user/security_events.tt
 # pf::admin_roles (Actions groups)
 msgid "MAC"
 msgstr ""
@@ -4154,7 +4154,7 @@ msgstr ""
 msgid "Matches"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Violation.pm
+# html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
 msgid "Max Enables"
 msgstr ""
 
@@ -4544,8 +4544,8 @@ msgstr ""
 msgid "New VLAN for"
 msgstr ""
 
-# html/pfappserver/root/violation/view.tt
-msgid "New Violation"
+# html/pfappserver/root/security_event/view.tt
+msgid "New Security Event"
 msgstr ""
 
 # html/pfappserver/root/config/wrix/view.tt
@@ -4663,13 +4663,13 @@ msgstr ""
 msgid "No user found"
 msgstr ""
 
-# html/pfappserver/root/violation/list.tt
-msgid "No violation defined"
+# html/pfappserver/root/security_event/list.tt
+msgid "No security event defined"
 msgstr ""
 
-# html/pfappserver/root/node/violations.tt
-# html/pfappserver/root/user/violations.tt
-msgid "No violation found"
+# html/pfappserver/root/node/security_events.tt
+# html/pfappserver/root/user/security_events.tt
+msgid "No security event found"
 msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
@@ -4716,12 +4716,12 @@ msgstr ""
 msgid "Nodes with the selected roles will be affected"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Violation.pm
-msgid "Nodes with the selected roles won't be affected by a violation of this type."
+# html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
+msgid "Nodes with the selected roles won't be affected by a security event of this type."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning.pm
-msgid "Non compliance violation"
+msgid "Non compliance security event"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Pf.pm
@@ -4762,8 +4762,8 @@ msgstr ""
 msgid "Null"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Violation.pm
-msgid "Number of times a host will be able to try and self remediate before they are locked out and have to call the help desk. This is useful for users who just <i>click through</i> violation pages."
+# html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
+msgid "Number of times a host will be able to try and self remediate before they are locked out and have to call the help desk. This is useful for users who just <i>click through</i> security event pages."
 msgstr ""
 
 # pf::Authentication::Source::OAuthSource (name)
@@ -4853,8 +4853,8 @@ msgstr ""
 msgid "Online/Offline"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Violation.pm
-msgid "Only works for accounting violations.  The violation will be opened according to the time you set in the accounting violation (ie. You have an accounting violation for 10GB/month.  If you bust the bandwidth after 3 days, the violation will open and the release date will be set for the last day of the current month)."
+# html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
+msgid "Only works for accounting security events.  The security event will be opened according to the time you set in the accounting security event (ie. You have an accounting security event for 10GB/month.  If you bust the bandwidth after 3 days, the security event will open and the release date will be set for the last day of the current month)."
 msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
@@ -4863,7 +4863,7 @@ msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/graph/dashboard.tt
-msgid "Open Violations"
+msgid "Open Security Events"
 msgstr ""
 
 # pf::Authentication::Source::OpenIDSource (name)
@@ -5398,8 +5398,8 @@ msgstr ""
 msgid "Please specify a billing tier identifier"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Violation.pm
-msgid "Please specify a brief description of the violation."
+# html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
+msgid "Please specify a brief description of the security event."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Pfdetect.pm
@@ -5436,8 +5436,8 @@ msgstr ""
 msgid "Please specify an identifier for the rule."
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Violation.pm
-msgid "Please specify an identifier for the violation."
+# html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
+msgid "Please specify an identifier for the security event."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
@@ -5472,7 +5472,7 @@ msgstr ""
 msgid "Please specify the MAC address of the floating device."
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Violation.pm
+# html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
 msgid "Please specify the command you want to execute."
 msgstr ""
 
@@ -5722,7 +5722,7 @@ msgstr ""
 # html/pfappserver/root/config/profile/files.tt
 # html/pfappserver/root/config/profile/index.tt
 # html/pfappserver/root/config/profile/view.tt
-# html/pfappserver/root/violation/list.tt
+# html/pfappserver/root/security_event/list.tt
 msgid "Preview"
 msgstr ""
 
@@ -5740,7 +5740,7 @@ msgstr ""
 msgid "Print with AUP"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Violation.pm
+# html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
 msgid "Priority"
 msgstr ""
 
@@ -6025,15 +6025,15 @@ msgid "Radius Configuration"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/opswat.pm
-msgid "Raise the non compliance violation the number of critical issues is greater or equal than this. 0 deactivates it"
+msgid "Raise the non compliance security event the number of critical issues is greater or equal than this. 0 deactivates it"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Source/LDAP.pm
 msgid "Randomly choose LDAP server to query"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Violation.pm
-msgid "Range 1-10, with 1 the higest priority and 10 the lowest. Higher priority violations will be addressed first if a host has more than one."
+# html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
+msgid "Range 1-10, with 1 the higest priority and 10 the lowest. Higher priority security events will be addressed first if a host has more than one."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Network.pm
@@ -6217,7 +6217,7 @@ msgid "Record the accounting data in the SQL tables.Requires a restart of radius
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
-# html/pfappserver/lib/pfappserver/Form/Violation.pm
+# html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
 msgid "Redirection URL"
 msgstr ""
 
@@ -6296,12 +6296,12 @@ msgstr ""
 msgid "Relative to the beginning of the period"
 msgstr ""
 
-# html/pfappserver/root/node/violations.tt
+# html/pfappserver/root/node/security_events.tt
 msgid "Release"
 msgstr ""
 
-# html/pfappserver/root/node/violations.tt
-# html/pfappserver/root/user/violations.tt
+# html/pfappserver/root/node/security_events.tt
+# html/pfappserver/root/user/security_events.tt
 msgid "Release Date"
 msgstr ""
 
@@ -6313,7 +6313,7 @@ msgstr ""
 msgid "Remaining Bandwidth"
 msgstr ""
 
-# html/pfappserver/root/violation/view.tt
+# html/pfappserver/root/security_event/view.tt
 msgid "Remediation"
 msgstr ""
 
@@ -6444,7 +6444,7 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/TrafficShaping.pm
 # html/pfappserver/lib/pfappserver/Form/Node.pm
 # html/pfappserver/lib/pfappserver/Form/Node/Create/Import.pm
-# html/pfappserver/lib/pfappserver/Form/Violation.pm
+# html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
 # html/pfappserver/root/config/roles/read.tt
 # html/pfappserver/root/node/search.tt
 msgid "Role"
@@ -6531,7 +6531,7 @@ msgstr ""
 msgid "Rules Actions"
 msgstr ""
 
-# html/pfappserver/root/node/violations.tt
+# html/pfappserver/root/node/security_events.tt
 msgid "Run Now"
 msgstr ""
 
@@ -6767,7 +6767,7 @@ msgstr "System - Update"
 # html/pfappserver/root/interface/view.tt
 # html/pfappserver/root/node/view.tt
 # html/pfappserver/root/user/view.tt
-# html/pfappserver/root/violation/view.tt
+# html/pfappserver/root/security_event/view.tt
 msgid "Save"
 msgstr ""
 
@@ -6840,7 +6840,7 @@ msgstr ""
 # html/pfappserver/root/interface/view.tt
 # html/pfappserver/root/node/view.tt
 # html/pfappserver/root/user/view.tt
-# html/pfappserver/root/violation/view.tt
+# html/pfappserver/root/security_event/view.tt
 msgid "Saving"
 msgstr ""
 
@@ -6960,12 +6960,12 @@ msgstr ""
 msgid "Security type"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Violation.pm
+# html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
 msgid "Select a Role"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Pf.pm
-# html/pfappserver/lib/pfappserver/Form/Violation.pm
+# html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
 msgid "Select a role"
 msgstr ""
 
@@ -6973,9 +6973,9 @@ msgstr ""
 msgid "Select a timezone"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Violation.pm
-# html/pfappserver/root/node/violations.tt
-msgid "Select a violation"
+# html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
+# html/pfappserver/root/node/security_events.tt
+msgid "Select a security event"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
@@ -7078,7 +7078,7 @@ msgstr ""
 msgid "Set inline mode if any of the following conditions are met:"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Violation.pm
+# html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
 msgid "Set role"
 msgstr ""
 
@@ -7405,15 +7405,15 @@ msgstr ""
 msgid "Sources:"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Violation.pm
-msgid "Specifies if a host can self remediate the violation (enable network button) or if they can not and must call the help desk."
+# html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
+msgid "Specifies if a host can self remediate the security event (enable network button) or if they can not and must call the help desk."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
 msgid "Specify a unique identifier for your configuration.<br/>This doesn't have to be related to your domain"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Violation.pm
+# html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
 msgid "Specify the access duration for the new registered node."
 msgstr ""
 
@@ -7460,8 +7460,8 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/DynamicReportSearch.pm
 # html/pfappserver/lib/pfappserver/Form/RadiusLogSearch.pm
-# html/pfappserver/root/node/violations.tt
-# html/pfappserver/root/user/violations.tt
+# html/pfappserver/root/node/security_events.tt
+# html/pfappserver/root/user/security_events.tt
 msgid "Start Date"
 msgstr ""
 
@@ -7517,7 +7517,7 @@ msgstr ""
 # html/pfappserver/root/node/search.tt
 # html/pfappserver/root/service/status.tt
 # html/pfappserver/root/user/nodes.tt
-# html/pfappserver/root/user/violations.tt
+# html/pfappserver/root/user/security_events.tt
 msgid "Status"
 msgstr ""
 
@@ -7591,7 +7591,7 @@ msgid "Sub Location Type"
 msgstr ""
 
 # conf/documentation.conf (alerting.subjectprefix)
-msgid "Subject prefix for email notifications of rogue DHCP servers, violations with an action of <i>email</i>, or any other PacketFence-related message."
+msgid "Subject prefix for email notifications of rogue DHCP servers, security events with an action of <i>email</i>, or any other PacketFence-related message."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Source/LDAP.pm
@@ -7850,7 +7850,7 @@ msgstr ""
 msgid "Tagged VLANs"
 msgstr ""
 
-# html/pfappserver/root/violation/list.tt
+# html/pfappserver/root/security_event/list.tt
 msgid "Target Role"
 msgstr ""
 
@@ -7873,7 +7873,7 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/PortalModule/Message.pm
 # html/pfappserver/lib/pfappserver/Form/Config/PortalModule/SelectRole.pm
 # html/pfappserver/lib/pfappserver/Form/Config/PortalModule/Survey.pm
-# html/pfappserver/lib/pfappserver/Form/Violation.pm
+# html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
 msgid "Template"
 msgstr ""
 
@@ -7926,8 +7926,8 @@ msgstr ""
 msgid "Testing..."
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Violation.pm
-msgid "Text displayed on the violation form to hosts."
+# html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
+msgid "Text displayed on the security event form to hosts."
 msgstr ""
 
 # conf/documentation.conf (webservices.aaa_port)
@@ -8669,14 +8669,14 @@ msgid "Tree View"
 msgstr ""
 
 # conf/documentation.conf (network.rogue_dhcp_detection)
-msgid "Tries to identify Rogue DHCP Servers and triggers the 1100010 violation if one is found. This feature is only available if the dhcpdetector is activated."
+msgid "Tries to identify Rogue DHCP Servers and triggers the 1100010 security event if one is found. This feature is only available if the dhcpdetector is activated."
 msgstr ""
 
-# html/pfappserver/root/node/violations.tt
+# html/pfappserver/root/node/security_events.tt
 msgid "Trigger"
 msgstr ""
 
-# html/pfappserver/root/node/violations.tt
+# html/pfappserver/root/node/security_events.tt
 msgid "Trigger (All Devices)"
 msgstr ""
 
@@ -8696,7 +8696,7 @@ msgstr ""
 msgid "Trigger scan engines on accounting"
 msgstr ""
 
-# html/pfappserver/root/violation/view.tt
+# html/pfappserver/root/security_event/view.tt
 msgid "Triggers"
 msgstr ""
 
@@ -8959,8 +8959,8 @@ msgstr ""
 msgid "Use CoA when available to deauthenticate the user. When disabled, RADIUS Disconnect will be used instead if it is available."
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Violation.pm
-msgid "Use a number above 1500000 if you want to be able to delete this violation later."
+# html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
+msgid "Use a number above 1500000 if you want to be able to delete this security event later."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
@@ -9088,24 +9088,24 @@ msgid "Users"
 msgstr ""
 
 # pf::admin_roles (Actions groups)
-msgid "VIOLATIONS"
-msgstr "Violations"
+msgid "SECURITY_EVENTS"
+msgstr "Security Events"
 
 # pf::admin_roles (Actions)
-msgid "VIOLATIONS_CREATE"
-msgstr "Violations - Create"
+msgid "SECURITY_EVENTS_CREATE"
+msgstr "Security Events - Create"
 
 # pf::admin_roles (Actions)
-msgid "VIOLATIONS_DELETE"
-msgstr "Violations - Delete"
+msgid "SECURITY_EVENTS_DELETE"
+msgstr "Security Events - Delete"
 
 # pf::admin_roles (Actions)
-msgid "VIOLATIONS_READ"
-msgstr "Violations - Read"
+msgid "SECURITY_EVENTS_READ"
+msgstr "Security Events - Read"
 
 # pf::admin_roles (Actions)
-msgid "VIOLATIONS_UPDATE"
-msgstr "Violations - Update"
+msgid "SECURITY_EVENTS_UPDATE"
+msgstr "Security Events - Update"
 
 # html/pfappserver/lib/pfappserver/Form/Interface/Create.pm
 msgid "VLAN ID (must be a number bellow 4096)"
@@ -9169,36 +9169,36 @@ msgstr ""
 msgid "Version Trap"
 msgstr ""
 
-# html/pfappserver/root/violation/preview.tt
-# html/pfappserver/root/violation/view.tt
-msgid "Violation"
+# html/pfappserver/root/security_event/preview.tt
+# html/pfappserver/root/security_event/view.tt
+msgid "Security Event"
 msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/node/search.tt
-msgid "Violation Name"
+msgid "Security Event Name"
 msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/node/search.tt
-msgid "Violation Status"
+msgid "Security Event Status"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Violation.pm
-msgid "Violation to close"
+# html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
+msgid "Security Event to close"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
 # html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/admin/reports.tt
 # html/pfappserver/root/user/view.tt
-# html/pfappserver/root/violation/list.tt
+# html/pfappserver/root/security_event/list.tt
 # pfappserver::PacketFence::Controller::Graph (graph type)
-msgid "Violations"
+msgid "Security Events"
 msgstr ""
 
 # html/pfappserver/root/configuration/compliance.tt
-msgid "Violations:"
+msgid "Security Events:"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Interface/Create.pm
@@ -9392,12 +9392,12 @@ msgstr ""
 msgid "When rogue DHCP server detection is enabled, this parameter defines how often to email administrators.  With its default setting of 10, it will email administrators the details of the previous 10 DHCP offers."
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Violation.pm
-msgid "When selecting the <strong>close</strong> action, triggering the violation will close this violation. This is an experimental workflow for Mobile Device Management (MDM)."
+# html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
+msgid "When selecting the <strong>close</strong> action, triggering the security event will close this security event. This is an experimental workflow for Mobile Device Management (MDM)."
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Violation.pm
-msgid "When selecting the <strong>role</strong> action, triggering the violation will change the node to this role."
+# html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
+msgid "When selecting the <strong>role</strong> action, triggering the security event will change the node to this role."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Interface.pm
@@ -9494,10 +9494,10 @@ msgid "Which roles should have access to this module to select the role"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning.pm
-msgid "Which violation should be raised when non compliance is detected"
+msgid "Which security event should be raised when non compliance is detected"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Violation.pm
+# html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
 msgid "Whitelisted Roles"
 msgstr ""
 
@@ -9521,7 +9521,7 @@ msgstr ""
 msgid "Will rate-limit DHCP packets that contain the same information.For example, a DHCPREQUEST for the same MAC/IP will only be processed once in the timeframe configured below.This is independant of the DHCP server/relay handling the packet and is only based on the IP, MAC Address and DHCP type inside the packet.A value of 0 will disable the rate limitation."
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Violation.pm
+# html/pfappserver/lib/pfappserver/Form/SecurityEvent.pm
 msgid "Window"
 msgstr ""
 
@@ -9640,7 +9640,7 @@ msgid "You must specify the radius shared secret"
 msgstr ""
 
 # html/pfappserver/root/configurator/services.tt
-msgid "You will now be redirected to the administration interface where you can configure violations and monitor your new NAC."
+msgid "You will now be redirected to the administration interface where you can configure security events and monitor your new NAC."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Config/Profile.pm
@@ -9913,9 +9913,9 @@ msgstr "Auth Type"
 msgid "auto_reg"
 msgstr "Auto Registration"
 
-# pf::action (VIOLATION_ACTIONS)
+# pf::action (SECURITY_EVENT_ACTIONS)
 msgid "autoreg_action"
-msgstr "Register node on violation"
+msgstr "Register node on security event"
 
 # pfappserver::Model::Node::Tab::MSE (MSE Tab)
 msgid "band"
@@ -10025,13 +10025,13 @@ msgstr "WISPr redirection capabilities"
 msgid "cell_phone"
 msgstr "cell phone"
 
-# pf::action (VIOLATION_ACTIONS)
+# pf::action (SECURITY_EVENT_ACTIONS)
 msgid "close_action"
-msgstr "Close violation"
+msgstr "Close security event"
 
 # pf::api (Allowed actions)
-msgid "close_violation"
-msgstr "Close violation"
+msgid "close_security_event"
+msgstr "Close security event"
 
 # pf::Authentication::Source::ADSource (available_attributes)
 # pf::Authentication::Source::LDAPSource (available_attributes)
@@ -10402,13 +10402,13 @@ msgstr ""
 msgid "email"
 msgstr ""
 
-# pf::action (VIOLATION_ACTIONS)
+# pf::action (SECURITY_EVENT_ACTIONS)
 msgid "email_admin_action"
-msgstr "Email violation to administrator"
+msgstr "Email security event to administrator"
 
-# pf::action (VIOLATION_ACTIONS)
+# pf::action (SECURITY_EVENT_ACTIONS)
 msgid "email_user_action"
-msgstr "Email violation to user"
+msgstr "Email security event to user"
 
 # conf/documentation.conf (advanced.language options)
 msgid "en_US"
@@ -10523,9 +10523,9 @@ msgstr ""
 msgid "ends with"
 msgstr ""
 
-# pf::action (VIOLATION_ACTIONS)
+# pf::action (SECURITY_EVENT_ACTIONS)
 msgid "enforce_provisioning_action"
-msgstr "Evaluate provisioning policies on violation"
+msgstr "Evaluate provisioning policies on security event"
 
 # pf::Authentication::constants (Conditions)
 msgid "equals"
@@ -10539,9 +10539,9 @@ msgstr ""
 msgid "event_type"
 msgstr "Event Type"
 
-# pf::action (VIOLATION_ACTIONS)
+# pf::action (SECURITY_EVENT_ACTIONS)
 msgid "external_action"
-msgstr "Send violation to external"
+msgstr "Send security event to external"
 
 # conf/documentation.conf
 msgid "fencing"
@@ -10873,9 +10873,9 @@ msgstr "Last Located Time"
 msgid "lastname"
 msgstr ""
 
-# pf::action (VIOLATION_ACTIONS)
+# pf::action (SECURITY_EVENT_ACTIONS)
 msgid "log_action"
-msgstr "Log violation"
+msgstr "Log security event"
 
 # pf::Authentication::constants (Conditions)
 msgid "lower"
@@ -11358,6 +11358,10 @@ msgstr "URI"
 msgid "profile.filter.vlan"
 msgstr "VLAN"
 
+# profile.filter (Portal Profile Filters)
+msgid "profile.filter.fqdn"
+msgstr "Full Qualified Domain Name"
+
 # conf/documentation.conf
 msgid "provisioning"
 msgstr "Provisioning"
@@ -11470,6 +11474,10 @@ msgstr "RADIUS attributes"
 msgid "radius_configuration.record_accounting_in_sql"
 msgstr "Record accounting in SQL tables"
 
+# conf/documentation.conf
+msgid "radius_configuration.username_attributes"
+msgstr "Username attributes"
+
 # pf::radius_audit_log (RADIUS Audit Log)
 msgid "radius_reply"
 msgstr "RADIUS Reply"
@@ -11499,9 +11507,9 @@ msgstr "Reason"
 msgid "reevaluate_access"
 msgstr "Reevaluate access by MAC"
 
-# pf::action (VIOLATION_ACTIONS)
+# pf::action (SECURITY_EVENT_ACTIONS)
 msgid "reevaluate_access_action"
-msgstr "Change network access on violation"
+msgstr "Change network access on security event"
 
 # html/pfappserver/root/admin/nodes.tt
 # pfappserver::Model::Node (availableStatus)
@@ -11521,8 +11529,8 @@ msgid "registration"
 msgstr "Registration"
 
 # pf::api (Allowed actions)
-msgid "release_all_violations"
-msgstr "Release all violations for node by MAC"
+msgid "release_all_security_events"
+msgstr "Release all security events for node by MAC"
 
 # pf::radius_audit_log (RADIUS Audit Log)
 msgid "request_time"
@@ -11533,9 +11541,9 @@ msgstr ""
 msgid "role"
 msgstr "Role"
 
-# pf::action (VIOLATION_ACTIONS)
+# pf::action (SECURITY_EVENT_ACTIONS)
 msgid "role_action"
-msgstr "Assign role on violation"
+msgstr "Assign role on security event"
 
 # pf::api (Allowed actions)
 msgid "role_detail"
@@ -11984,8 +11992,8 @@ msgid "trigger_scan"
 msgstr "Launch a scan for the device"
 
 # pf::api (Allowed actions)
-msgid "trigger_violation"
-msgstr "Trigger a violation"
+msgid "trigger_security_event"
+msgstr "Trigger a security event"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Realm.pm
 msgid "type"
@@ -12005,9 +12013,9 @@ msgstr ""
 msgid "unreg"
 msgstr "unregistered"
 
-# pf::action (VIOLATION_ACTIONS)
+# pf::action (SECURITY_EVENT_ACTIONS)
 msgid "unreg_action"
-msgstr "Deregister node on violation"
+msgstr "Deregister node on security event"
 
 # pf::api (Allowed actions)
 msgid "unreg_node_for_pid"

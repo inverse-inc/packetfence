@@ -21,6 +21,10 @@ use Apache2::Const -compile =>
 use pf::api::error;
 use pf::radius::constants;
 
+my %ALLOWED_MULTIPLE = (
+    'Cisco-AVPair' => undef
+);
+
 =head2 format_response
 
 Format a PacketFence RADIUS response to the format expected by the FreeRADIUS REST module
@@ -67,7 +71,7 @@ sub format_request {
     my ($request) = @_;
     # transform the request according to what radius_authorize expects
     my %remapped_radius_request = map {
-        $_ => $request->{$_}->{value}->[0];
+        $_ => ( exists $ALLOWED_MULTIPLE{$_} ) ? $request->{$_}{value} : $request->{$_}{value}[0]
     } keys %{$request};
     return \%remapped_radius_request;
 }
@@ -78,7 +82,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

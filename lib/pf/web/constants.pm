@@ -65,8 +65,8 @@ Readonly::Scalar our $URL_BILLING               => '/billing';
 Readonly::Scalar our $URL_BILLING_CHILD         => '/billing/(.*)';
 Readonly::Scalar our $URL_SSL_INSPECTION_CHILD  => '/ssl_inspection/(.*)';
 Readonly::Scalar our $URL_CAPTIVE_PORTAL        => '/captive-portal';
-Readonly::Scalar our $URL_VIOLATION             => '/violation';
-Readonly::Scalar our $URL_RELEASE               => '/violation/release';
+Readonly::Scalar our $URL_SECURITY_EVENT        => '/security_event';
+Readonly::Scalar our $URL_RELEASE               => '/security_event/release';
 Readonly::Scalar our $URL_REMEDIATION           => '/remediation';
 Readonly::Scalar our $URL_ENABLER               => '/enabler';
 Readonly::Scalar our $URL_WISPR                 => '/wispr';
@@ -264,7 +264,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

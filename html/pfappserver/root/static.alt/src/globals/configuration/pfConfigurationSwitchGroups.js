@@ -18,6 +18,7 @@ import {
   isPort,
   limitSiblingFields,
   restrictAllSiblingFields,
+  hasSwitchGroups,
   switchGroupExists
 } from '@/globals/pfValidators'
 
@@ -180,7 +181,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
                 [i18n.t('Identifier required.')]: required,
                 [i18n.t('Maximum 255 characters.')]: maxLength(255),
                 [i18n.t('IP addresses only.')]: ipAddress,
-                [i18n.t('Switch Group exists.')]: not(and(required, conditional(isNew || isClone), switchGroupExists))
+                [i18n.t('Switch Group exists.')]: not(and(required, conditional(isNew || isClone), hasSwitchGroups, switchGroupExists))
               }
             }
           ]

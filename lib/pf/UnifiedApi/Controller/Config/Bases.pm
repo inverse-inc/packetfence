@@ -31,7 +31,7 @@ sub form_parameters {
     my ($self, $item) = @_;
     my $name = $self->id // $item->{id};
     if (!defined $name) {
-        return undef;
+        return [];
     }
     return [section => $name];
 }
@@ -51,7 +51,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

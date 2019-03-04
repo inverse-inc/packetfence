@@ -137,7 +137,7 @@ sub findFirstTemplate {
     return undef;
 }
 
-sub findViolationTemplate {
+sub findSecurityEventTemplate {
     my ($self, $template, $langs) = @_;
     my @new_langs;
     for my $lang (@$langs) {
@@ -146,7 +146,7 @@ sub findViolationTemplate {
             push @new_langs, lc($1);
         }
     }
-    my @subTemplates  = ((map {"violations/${template}.${_}.html"} @new_langs), "violations/$template.html");
+    my @subTemplates  = ((map {"security_events/${template}.${_}.html"} @new_langs), "security_events/$template.html");
     return $self->findFirstTemplate(\@subTemplates);
 }
 
@@ -487,7 +487,7 @@ sub findProvisioner {
 
     $node_attributes ||= node_attributes($mac);
     my $os = $node_attributes->{'device_type'};
-    unless(defined $os){
+    if(!defined($os) && any { scalar(@{$_->oses}) > 0 } @provisioners){
         $logger->warn("Can't find provisioner for $mac since we don't have it's OS");
         return;
     }
@@ -504,6 +504,17 @@ Reuse dot1x credentials when authenticating
 sub dot1xRecomputeRoleFromPortal {
     my ($self) = @_;
     return $self->{'_dot1x_recompute_role_from_portal'};
+}
+
+=item dot1xUnsetOnUnmatch
+
+On autoreg if no authentication source return a role then unset the current node one
+
+=cut
+
+sub dot1xUnsetOnUnmatch {
+    my ($self) = @_;
+    return $self->{'_dot1x_unset_on_unmatch'};
 }
 
 =item getScans
@@ -639,7 +650,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

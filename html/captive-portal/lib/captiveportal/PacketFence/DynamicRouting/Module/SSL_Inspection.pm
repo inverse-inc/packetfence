@@ -19,8 +19,8 @@ use Tie::IxHash;
 use pf::log;
 use List::Util qw(first);
 use pf::config;
-use pf::violation;
-use pf::config::violation;
+use pf::security_event;
+use pf::config::security_event;
 use pf::config::util;
 use pf::web::guest;
 use pf::util;
@@ -191,7 +191,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

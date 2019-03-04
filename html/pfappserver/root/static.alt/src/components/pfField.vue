@@ -25,13 +25,6 @@
 
 <script>
 /* eslint key-spacing: ["error", { "mode": "minimum" }] */
-import {
-  pfAuthenticationConditionType as authenticationConditionType,
-  pfAuthenticationConditionOperators as authenticationConditionOperators,
-  pfAuthenticationConditionValues as authenticationConditionValues
-} from '@/globals/pfAuthenticationConditions'
-import { required } from 'vuelidate/lib/validators'
-
 export default {
   name: 'pf-field',
   props: {

@@ -23,11 +23,11 @@ BEGIN {
         graph_unregistered
         graph_registered
         graph_detected
-        graph_violations_all
+        graph_security_events_all
         graph_wired
         graph_wireless
 
-        graph_violations
+        graph_security_events
         graph_nodes
     );
 }
@@ -65,65 +65,65 @@ sub graph_db_prepare {
     $graph_statements->{'graph_detected_month_sql'} = get_db_handle()->prepare(
          qq [ SELECT 'Detected Nodes' as series, DATE_FORMAT(detect_date,"%Y/%m") AS mydate, count(*) AS count FROM node WHERE detect_date BETWEEN ? AND ? GROUP BY mydate ORDER BY mydate]);
 
-    $graph_statements->{'graph_violations_all_day_sql'} = get_db_handle()->prepare(qq[
-         SELECT 'Violations' AS series, DATE_FORMAT(start_date,'%Y/%m/%d') AS mydate, count(*) AS count
-         FROM violation
+    $graph_statements->{'graph_security_events_all_day_sql'} = get_db_handle()->prepare(qq[
+         SELECT 'Security Events' AS series, DATE_FORMAT(start_date,'%Y/%m/%d') AS mydate, count(*) AS count
+         FROM security_event
          WHERE start_date BETWEEN ? AND ?
          GROUP BY mydate ORDER BY mydate
     ]);
 
-    $graph_statements->{'graph_violations_all_month_sql'} = get_db_handle()->prepare(qq[
-         SELECT 'Violations' AS series, DATE_FORMAT(start_date,'%Y/%m') AS mydate, count(*) AS count
-         FROM violation
+    $graph_statements->{'graph_security_events_all_month_sql'} = get_db_handle()->prepare(qq[
+         SELECT 'Security Events' AS series, DATE_FORMAT(start_date,'%Y/%m') AS mydate, count(*) AS count
+         FROM security_event
          WHERE start_date BETWEEN ? AND ?
          GROUP BY mydate ORDER BY mydate
     ]);
 
-    $graph_statements->{'graph_violations_day_sql'} = get_db_handle()->prepare(<<"    SQL");
+    $graph_statements->{'graph_security_events_day_sql'} = get_db_handle()->prepare(<<"    SQL");
         SELECT mydate, (
-            SELECT COUNT(*) FROM violation
-            WHERE vid = myvid
+            SELECT COUNT(*) FROM security_event
+            WHERE security_event_id = my_security_event_id
                 AND DATE_FORMAT(start_date,'%Y/%m/%d') = mydate
             ) AS count,
             description AS series
         FROM (
-            SELECT DISTINCT DATE_FORMAT(start_date, '%Y/%m/%d') AS mydate, v.vid AS myvid, c.description
-            FROM violation AS v
-            LEFT JOIN class AS c USING (vid)
+            SELECT DISTINCT DATE_FORMAT(start_date, '%Y/%m/%d') AS mydate, v.security_event_id AS my_security_event_id, c.description
+            FROM security_event AS v
+            LEFT JOIN class AS c USING (security_event_id)
             WHERE v.start_date BETWEEN ? AND ?
         ) AS tmp
-        GROUP BY myvid, mydate ORDER BY mydate
+        GROUP BY my_security_event_id, mydate ORDER BY mydate
     SQL
 
-    $graph_statements->{'graph_violations_month_sql'} = get_db_handle()->prepare(<<"    SQL");
+    $graph_statements->{'graph_security_events_month_sql'} = get_db_handle()->prepare(<<"    SQL");
         SELECT mydate, (
-            SELECT COUNT(*) FROM violation
-            WHERE vid = myvid
+            SELECT COUNT(*) FROM security_event
+            WHERE security_event_id = my_security_event_id
                 AND DATE_FORMAT(start_date,'%Y/%m') = mydate
             ) AS count,
             description AS series
         FROM (
-            SELECT DISTINCT DATE_FORMAT(start_date, '%Y/%m') AS mydate, v.vid AS myvid, c.description
-            FROM violation AS v
-            LEFT JOIN class AS c USING (vid)
+            SELECT DISTINCT DATE_FORMAT(start_date, '%Y/%m') AS mydate, v.security_event_id AS my_security_event_id, c.description
+            FROM security_event AS v
+            LEFT JOIN class AS c USING (security_event_id)
             WHERE v.start_date BETWEEN ? AND ?
         ) AS tmp
-        GROUP BY myvid, mydate ORDER BY mydate
+        GROUP BY my_security_event_id, mydate ORDER BY mydate
     SQL
 
-    $graph_statements->{'graph_violations_year_sql'} = get_db_handle()->prepare(<<"    SQL");
+    $graph_statements->{'graph_security_events_year_sql'} = get_db_handle()->prepare(<<"    SQL");
         SELECT mydate, (
-            SELECT COUNT(*) FROM violation 
-            WHERE vid=myvid 
+            SELECT COUNT(*) FROM security_event 
+            WHERE security_event_id=my_security_event_id 
                 AND DATE_FORMAT(start_date,"%Y") <= mydate 
                 AND (DATE_FORMAT(release_date,"%Y") >= mydate OR release_date=0)
             ) AS count,
             description AS series 
         FROM (
-            SELECT DISTINCT DATE_FORMAT(start_date, "%Y") AS mydate, v.vid AS myvid, c.description 
-            FROM violation AS v LEFT JOIN class AS c USING (vid)
+            SELECT DISTINCT DATE_FORMAT(start_date, "%Y") AS mydate, v.security_event_id AS my_security_event_id, c.description 
+            FROM security_event AS v LEFT JOIN class AS c USING (security_event_id)
         ) AS tmp 
-        GROUP BY myvid, mydate ORDER BY mydate
+        GROUP BY my_security_event_id, mydate ORDER BY mydate
     SQL
 
     $graph_statements->{'graph_wired_day_sql'} = get_db_handle()->prepare(<<"    SQL");
@@ -168,7 +168,7 @@ sub graph_db_prepare {
 
     # graph_activity_current
     # graph_nodes_current
-    # graph_violations_current
+    # graph_security_events_current
     $graph_db_prepared = 1;
     return 1;
 }
@@ -199,19 +199,19 @@ sub graph_detected {
     return (db_data(GRAPH, $graph_statements, $graph, $start, $end));
 }
 
-sub graph_violations_all {
+sub graph_security_events_all {
     my ($start, $end, $interval) = @_;
 
     $interval ||= 'day';
-    my $graph = "graph_violations_all_${interval}_sql";
+    my $graph = "graph_security_events_all_${interval}_sql";
     return (db_data(GRAPH, $graph_statements, $graph, $start, $end));
 }
 
-sub graph_violations {
+sub graph_security_events {
     my ($start, $end, $interval) = @_;
 
     $interval ||= 'day';
-    my $graph = "graph_violations_${interval}_sql";
+    my $graph = "graph_security_events_${interval}_sql";
     return (db_data(GRAPH, $graph_statements, $graph, $start, $end));
 }
 
@@ -250,7 +250,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

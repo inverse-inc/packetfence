@@ -209,12 +209,10 @@ func (d *Interfaces) readConfig() {
 							DHCPScope.available = available
 
 							// Initialize hardware cache
-							hwcache := cache.New(time.Duration(seconds)*time.Second, 10*time.Second)
+							hwcache := cache.New(time.Duration(seconds)*time.Second, 2*time.Second)
 
 							hwcache.OnEvicted(func(nic string, pool interface{}) {
 								go func() {
-									// Always wait 30 seconds before releasing the IP again
-									time.Sleep(30 * time.Second)
 									log.LoggerWContext(ctx).Info(nic + " " + dhcp.IPAdd(DHCPScope.start, pool.(int)).String() + " Added back in the pool " + DHCPScope.role + " on index " + strconv.Itoa(pool.(int)))
 									DHCPScope.available.FreeIPIndex(uint64(pool.(int)))
 								}()
@@ -272,12 +270,10 @@ func (d *Interfaces) readConfig() {
 						DHCPScope.available = available
 
 						// Initialize hardware cache
-						hwcache := cache.New(time.Duration(seconds)*time.Second, 10*time.Second)
+						hwcache := cache.New(time.Duration(seconds)*time.Second, 2*time.Second)
 
 						hwcache.OnEvicted(func(nic string, pool interface{}) {
 							go func() {
-								// Always wait 30 seconds before releasing the IP again
-								time.Sleep(30 * time.Second)
 								log.LoggerWContext(ctx).Info(nic + " " + dhcp.IPAdd(DHCPScope.start, pool.(int)).String() + " Added back in the pool " + DHCPScope.role + " on index " + strconv.Itoa(pool.(int)))
 								DHCPScope.available.FreeIPIndex(uint64(pool.(int)))
 							}()

@@ -19,6 +19,7 @@ import {
   and,
   not,
   conditional,
+  hasConnectionProfiles,
   connectionProfileExists,
   isPort,
   limitSiblingFields
@@ -313,15 +314,18 @@ export const pfConfigurationConnectionProfileListConfig = (context = {}) => {
 
 export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
   const {
+    $router = {},
     isNew = false,
     isClone = false,
+    storeName = null,
     connectionProfile = {},
     sources = [],
     billingTiers = [],
     provisionings = [],
     scans = [],
-    files = {},
-    general = {}
+    files = [],
+    general = {},
+    sortFiles = null
   } = context
 
   // fields differ w/ & wo/ 'default'
@@ -345,7 +349,7 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
                 [i18n.t('Name required.')]: required,
                 [i18n.t('Maximum 255 characters.')]: maxLength(255),
                 [i18n.t('Alphanumeric characters only.')]: alphaNum,
-                [i18n.t('Connection Profile exists.')]: not(and(required, conditional(isNew || isClone), connectionProfileExists))
+                [i18n.t('Connection Profile exists.')]: not(and(required, conditional(isNew || isClone), hasConnectionProfiles, connectionProfileExists))
               }
             }
           ]
@@ -805,7 +809,7 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
         },
         {
           label: i18n.t('Redirection URL'),
-          text: i18n.t('Default URL to redirect to on registration/mitigation release. This is only used if a per-violation redirect URL is not defined.'),
+          text: i18n.t('Default URL to redirect to on registration/mitigation release. This is only used if a per-security event redirect URL is not defined.'),
           fields: [
             {
               key: 'redirecturl',
@@ -1005,26 +1009,37 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
               key: 'files',
               component: pfTree,
               attrs: {
+                path: '',
                 items: files,
                 fields: [
                   {
                     key: 'name',
-                    label: i18n.t('Name')
+                    label: i18n.t('Name'),
+                    class: 'w-50',
+                    sortable: true
                   },
                   {
                     key: 'size',
                     label: i18n.t('Size'),
                     formatter: formatter.fileSize,
-                    class: 'text-right'
+                    class: 'text-right',
+                    sortable: true
                   },
                   {
                     key: 'mtime',
                     label: i18n.t('Last modification'),
-                    formatter: formatter.shortDateTime
+                    formatter: formatter.shortDateTime,
+                    class: 'text-right',
+                    sortable: true
                   }
                 ],
+                isLoadingStoreGetter: [storeName, 'isLoadingFiles'].join('/'),
                 childrenKey: 'entries',
-                childrenIf: (item) => item.type === 'dir' && 'entries' in item
+                childrenIf: (item) => item.type === 'dir' && 'entries' in item,
+                sortBy: 'name',
+                onSortingChanged: sortFiles,
+                onNodeClick: (item) => $router.push({ name: 'connectionProfileFile', params: { id: connectionProfile.id, filename: item.path ? [item.path, item.name].join('/') : item.name } }),
+                onNodeCreate: (path) => $router.push({ name: 'newConnectionProfileFile', params: { id: connectionProfile.id, path } })
               }
             }
           ]

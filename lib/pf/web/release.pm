@@ -24,9 +24,9 @@ use pf::file_paths qw($bin_dir);
 use pf::ip4log;
 use pf::node;
 use pf::Portal::Session;
-use pf::constants::scan qw($SCAN_VID);
+use pf::constants::scan qw($SCAN_SECURITY_EVENT_ID);
 use pf::util;
-use pf::violation;
+use pf::security_event;
 use pf::web;
 use pf::enforcement;
 # called last to allow redefinitions
@@ -72,29 +72,29 @@ sub handler
     }
   }
 
-  my $violations = violation_view_top($mac);
-  # is violations valid
-  if (!defined($violations) || ref($violations) ne 'HASH' || !defined($violations->{'vid'})) {
+  my $security_events = security_event_view_top($mac);
+  # is security_events valid
+  if (!defined($security_events) || ref($security_events) ne 'HASH' || !defined($security_events->{'security_event_id'})) {
     # not valid, we should not be here then, lets tell the user to re-open his browser
     pf::web::generate_error_page($portalSession, i18n("release: reopen browser"), $r);
     return Apache2::Const::OK;
   }
 
-  my $vid = $violations->{'vid'};
+  my $security_event_id = $security_events->{'security_event_id'};
 
   # is class valid? if so, let's grab some related info that we will need
   my ($class_redirect_url, $class_max_enable_url);
-  my $class = class_view($vid);
+  my $class = class_view($security_event_id);
   if (defined($class) && ref($class) eq 'HASH') {
     $class_redirect_url = $class->{'redirect_url'} if defined($class->{'redirect_url'});
     $class_max_enable_url = $class->{'max_enable_url'} if defined($class->{'max_enable_url'});
   }
 
   # scan code...
-  if ($vid == $SCAN_VID) {
+  if ($security_event_id == $SCAN_SECURITY_EVENT_ID) {
     # detect if a system scan is in progress, if so redirect to scan in progress page
     # this should only happen if the user explicitly put /release in his browser address
-    if ($violations->{'ticket_ref'} =~ /^Scan in progress, started at: (.*)$/) {
+    if ($security_events->{'ticket_ref'} =~ /^Scan in progress, started at: (.*)$/) {
       $logger->info("captive portal redirect to the scan in progress page");
       pf::web::generate_scan_status_page($portalSession, $1, $r);
       return Apache2::Const::OK;
@@ -103,7 +103,7 @@ sub handler
     # Start scan in cleanup phase to avoid browser to hang on connection
     my $cmd = $bin_dir."/pfcmd schedule now $ip 1>/dev/null 2>&1";
     $logger->info("scanning $ip by calling $cmd");
-    $r->pool->cleanup_register(\&scan, [$logger, $violations, $cmd]);
+    $r->pool->cleanup_register(\&scan, [$logger, $security_events, $cmd]);
 
     $logger->trace("parent part, redirecting to scan started page");
     pf::web::generate_scan_start_page($portalSession, $r);
@@ -111,12 +111,12 @@ sub handler
     return Apache2::Const::OK;
   }
 
-  $logger->info("Will try to close violation $vid for $mac");
-  my $grace = violation_close($mac,$vid);
-  $logger->info("Closing of violation $vid for $mac returned $grace");
+  $logger->info("Will try to close security_event $security_event_id for $mac");
+  my $grace = security_event_close($mac,$security_event_id);
+  $logger->info("Closing of security_event $security_event_id for $mac returned $grace");
 
   if ($grace != -1) {
-    my $count = violation_count($mac);
+    my $count = security_event_count($mac);
 
     $logger->info("$mac enabled for $grace minutes");
     if ($count == 0) {
@@ -141,7 +141,7 @@ sub handler
       return Apache2::Const::REDIRECT;
     }
   } else {
-    $logger->info("$mac reached maximum violations");
+    $logger->info("$mac reached maximum security_events");
     if ($class_max_enable_url) {
       print $cgi->redirect($class_max_enable_url);
       return Apache2::Const::REDIRECT;
@@ -156,11 +156,11 @@ sub handler
 
 sub scan {
   my $args = shift;
-  my ($logger, $violations, $cmd) = @{$args};
+  my ($logger, $security_events, $cmd) = @{$args};
 
-  # HACK: add a start date in the violation's ticket_ref to track the fact that the scan is in progress
-  my $currentScanViolationId = $violations->{'id'};
-  violation_modify($currentScanViolationId, (ticket_ref => "Scan in progress, started at: ".mysql_date()));
+  # HACK: add a start date in the security_event's ticket_ref to track the fact that the scan is in progress
+  my $currentScanSecurityEventId = $security_events->{'id'};
+  security_event_modify($currentScanSecurityEventId, (ticket_ref => "Scan in progress, started at: ".mysql_date()));
 
   # requesting the scan
   $logger->trace("cleanup phase, forking $cmd");
@@ -177,7 +177,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

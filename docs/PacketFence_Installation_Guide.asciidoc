@@ -3844,7 +3844,7 @@ apt-get install python-impacket
 PacketFence Configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-First of all, you will need to enable the NTLM caching globally by enabling 'NTLM Redis cache' in 'Configuration->System Configuration->Main Configuration->Advanced'. You then need to restart radiusd.
+First of all, you will need to enable the NTLM caching globally by enabling 'NTLM Redis cache' in 'Configuration->System Configuration->Radius Configuration'. You then need to restart radiusd.
 
 Once that is done, you need to configure PacketFence to start caching the credentials. In order to do so, go in 'Configuration->Policies and Access Control->Domains->Active Directory Domains' and select the domain you want to cache the credentials for.
 
@@ -3862,7 +3862,7 @@ image::domain-ntlm-cache-2.png[scaledwidth="100%",alt="Domain NTLM cache"]
 
 Once done, click 'Save' to commit your changes.
 
-After that, you will need to enable the `redis_ntlm_cache` service which is used by PacketFence to store the cached credentials. In order to do so, go in Configuration->Main Configuration->Services' and enable 'redis_ntlm_cache' and save the changes.
+After that, you will need to enable the `redis_ntlm_cache` service which is used by PacketFence to store the cached credentials. In order to do so, go in 'Configuration->System Configuration->Main Configuration->Services' and enable 'redis_ntlm_cache' and save the changes.
 
 Next, start the service via pfcmd:
 

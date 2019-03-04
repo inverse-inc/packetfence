@@ -32,7 +32,7 @@ use pf::ip4log();
 use pf::fingerbank;
 use pf::Connection::ProfileFactory();
 use pf::radius::custom();
-use pf::violation();
+use pf::security_event();
 use pf::util();
 use pf::node();
 use pf::locationlog();
@@ -101,14 +101,14 @@ sub event_add : Public {
             if (defined $srcmac) {
                 if ($net_addr->contains($source_net_ip)) {
                     while( my ($type, $id) = each %$events) {
-                        pf::violation::violation_trigger( { 'mac' => $srcmac, 'tid' => $id, 'type' => $type, 'notes' => $notes } );
+                        pf::security_event::security_event_trigger( { 'mac' => $srcmac, 'tid' => $id, 'type' => $type, 'notes' => $notes } );
                     }
                 }
             }
             if (defined $dstmac) {
                 if ($net_addr->contains($dest_net_ip)) {
                     while( my ($type, $id) = each %$events) {
-                        pf::violation::violation_trigger( { 'mac' => $dstmac, 'tid' => $id, 'type' => $type, 'notes' => $notes } );
+                        pf::security_event::security_event_trigger( { 'mac' => $dstmac, 'tid' => $id, 'type' => $type, 'notes' => $notes } );
                     }
                 }
             }
@@ -117,7 +117,7 @@ sub event_add : Public {
     else {
         if (defined $srcmac) {
             while( my ($type, $id) = each %$events) {
-                pf::violation::violation_trigger( { 'mac' => $srcmac, 'tid' => $id, 'type' => $type, 'notes' => $notes } );
+                pf::security_event::security_event_trigger( { 'mac' => $srcmac, 'tid' => $id, 'type' => $type, 'notes' => $notes } );
             }
         }
     }
@@ -453,10 +453,10 @@ sub _reassignSNMPConnections {
         _node_determine_and_set_into_VLAN( $mac, $switch, $ifIndex, $connection_type );
 
         # We treat phones differently. We never bounce their ports except if there is an outstanding
-        # violation.
+        # security_event.
         if ( $switch->hasPhoneAtIfIndex($ifIndex)  ) {
-            my @violations = pf::violation::violation_view_open_desc($mac);
-            if ( scalar(@violations) == 0 ) {
+            my @security_events = pf::security_event::security_event_view_open_desc($mac);
+            if ( scalar(@security_events) == 0 ) {
                 $logger->warn("VLAN changed and is behind VoIP phone. Not bouncing the port!");
                 return;
             }
@@ -502,55 +502,65 @@ sub _node_determine_and_set_into_VLAN {
 }
 
 
-=head2 violation_delayed_run
+=head2 security_event_delayed_run
 
-runs the delayed violation now
+runs the delayed security_event now
 
 =cut
 
-sub violation_delayed_run : Public {
-    my ($self, $violation) = @_;
-    pf::violation::_violation_run_delayed($violation);
+sub security_event_delayed_run : Public {
+    my ($self, $security_event) = @_;
+    pf::security_event::_security_event_run_delayed($security_event);
     return ;
 }
 
 =head2 trigger_violation
 
-Trigger a violation
+For backward compatibility purposes. Points to the new name of the subroutine (trigger_security_event)
 
 =cut
 
-sub trigger_violation : Public :AllowedAsAction(mac, $mac, tid, TYPEID, type, TYPE) {
+sub trigger_violation :Public {
+  return trigger_security_event(@_);
+}
+
+=head2 trigger_security_event
+
+Trigger a security_event
+
+=cut
+
+sub trigger_security_event : Public :AllowedAsAction(mac, $mac, tid, TYPEID, type, TYPE) {
     my ($class, %postdata )  = @_;
     my @require = qw(mac tid type);
     my @found = grep {exists $postdata{$_}} @require;
     return unless pf::util::validate_argv(\@require,  \@found);
 
-    return (pf::violation::violation_trigger( { 'mac' => $postdata{'mac'}, 'tid' => $postdata{'tid'}, 'type' => $postdata{'type'}, 'notes' => $postdata{'notes'} } ));
+    return (pf::security_event::security_event_trigger( { 'mac' => $postdata{'mac'}, 'tid' => $postdata{'tid'}, 'type' => $postdata{'type'}, 'notes' => $postdata{'notes'} } ));
 }
 
-=head2 release_all_violations
+=head2 release_all_security_events
 
-Release all violations for a node
+Release all security_events for a node
 
 =cut
 
-sub release_all_violations : Public:AllowedAsAction($mac){
+sub release_all_security_events : Public:AllowedAsAction($mac){
     my ($class, $mac) = @_;
     my $logger = pf::log::get_logger;
     $mac = pf::util::clean_mac($mac);
     die "Missing MAC address" unless($mac);
-    my $closed_violation = 0;
-    foreach my $violation (pf::violation::violation_view_open($mac)){
-        $logger->info("Releasing violation $violation->{vid} for $mac though release_all_violations");
-        if(pf::violation::violation_force_close($mac,$violation->{vid})){
-            $closed_violation += 1;
+    my $closed_security_event = 0;
+    foreach my $security_event (pf::security_event::security_event_view_open($mac)){
+        $logger->info("Releasing security_event $security_event->{security_event_id} for $mac though release_all_security_events");
+        if(pf::security_event::security_event_force_close($mac,$security_event->{security_event_id})){
+            $closed_security_event += 1;
         }
         else {
-            $logger->error("Cannot close violation $violation->{vid} for $mac");
+            $logger->error("Cannot close security_event $security_event->{security_event_id} for $mac");
         }
     }
-    return $closed_violation;
+    return $closed_security_event;
 }
 
 
@@ -978,22 +988,22 @@ sub trigger_scan :Public :Fork :AllowedAsAction($ip, mac, $mac, net_type, TYPE) 
         my $profile = pf::Connection::ProfileFactory->instantiate($postdata{'mac'});
         my $scanner = $profile->findScan($postdata{'mac'});
         if (defined($scanner) && pf::util::isenabled($scanner->{'_post_registration'})) {
-            $added = pf::violation::violation_add( $postdata{'mac'}, $pf::constants::scan::POST_SCAN_VID );
+            $added = pf::security_event::security_event_add( $postdata{'mac'}, $pf::constants::scan::POST_SCAN_SECURITY_EVENT_ID );
         }
         return if ($added == 0 || $added == -1);
         sleep $pf::config::Config{'fencing'}{'wait_for_redirect'};
-        pf::scan::run_scan($postdata{'ip'}, $postdata{'mac'}) if ($added ne $pf::constants::scan::POST_SCAN_VID);
+        pf::scan::run_scan($postdata{'ip'}, $postdata{'mac'}) if ($added ne $pf::constants::scan::POST_SCAN_SECURITY_EVENT_ID);
     }
     else {
         my $profile = pf::Connection::ProfileFactory->instantiate($postdata{'mac'});
         my $scanner = $profile->findScan($postdata{'mac'});
         # pre_registration
         if (defined($scanner) && pf::util::isenabled($scanner->{'_pre_registration'})) {
-            $added = pf::violation::violation_add( $postdata{'mac'}, $pf::constants::scan::PRE_SCAN_VID );
+            $added = pf::security_event::security_event_add( $postdata{'mac'}, $pf::constants::scan::PRE_SCAN_SECURITY_EVENT_ID );
         }
         return if ($added == 0 || $added == -1);
         sleep $pf::config::Config{'fencing'}{'wait_for_redirect'};
-        pf::scan::run_scan($postdata{'ip'}, $postdata{'mac'}) if  ($added ne $pf::constants::scan::PRE_SCAN_VID && $added ne $pf::constants::scan::SCAN_VID);
+        pf::scan::run_scan($postdata{'ip'}, $postdata{'mac'}) if  ($added ne $pf::constants::scan::PRE_SCAN_SECURITY_EVENT_ID && $added ne $pf::constants::scan::SCAN_SECURITY_EVENT_ID);
     }
     return;
 }
@@ -1013,27 +1023,27 @@ sub start_scan : Public {
     pf::scan::run_scan($postdata{'ip'}, $postdata{'mac'});
 }
 
-=head2 close_violation
+=head2 close_security_event
 
-Close a violation
+Close a security_event
 
 =cut
 
-sub close_violation :Public :AllowedAsAction(mac, $mac, vid , VID) {
+sub close_security_event :Public :AllowedAsAction(mac, $mac, security_event_id , SECURITY_EVENT_ID) {
     my ($class, %postdata )  = @_;
-    my @require = qw(mac vid);
+    my @require = qw(mac security_event_id);
     my @found = grep {exists $postdata{$_}} @require;
     return unless pf::util::validate_argv(\@require,  \@found);
 
     my $logger = pf::log::get_logger();
 
     if(defined($postdata{force}) && $postdata{force}) {
-        return pf::violation::violation_force_close($postdata{'mac'}, $postdata{'vid'})
+        return pf::security_event::security_event_force_close($postdata{'mac'}, $postdata{'security_event_id'})
     }
     else {
-        my $grace = pf::violation::violation_close($postdata{'mac'}, $postdata{'vid'});
+        my $grace = pf::security_event::security_event_close($postdata{'mac'}, $postdata{'security_event_id'});
         if ( $grace == -1 ) {
-            $logger->warn("Problem trying to close violation");
+            $logger->warn("Problem trying to close security_event");
             return $pf::config::FALSE;
         }
         return $pf::config::TRUE;
@@ -1069,7 +1079,6 @@ sub dynamic_register_node : Public :AllowedAsAction(mac, $mac, username, $userna
         context => $pf::constants::realm::RADIUS_CONTEXT,
     };
 
-    my $source;
     my $matched = pf::authentication::match2([@sources], $params);
     unless ($matched) {
         $logger->warn("Did not find any actions to match");
@@ -1080,13 +1089,14 @@ sub dynamic_register_node : Public :AllowedAsAction(mac, $mac, username, $userna
     my $unregdate = $values->{$Actions::SET_UNREG_DATE};
     my $time_balance =  $values->{$Actions::SET_TIME_BALANCE};
     my $bandwidth_balance =  $values->{$Actions::SET_BANDWIDTH_BALANCE};
+    my $source = $matched->{source_id};
     if (defined $unregdate) {
         my %info = (
             'unregdate' => $unregdate,
             'category' => $role,
             'autoreg' => 'no',
             'pid' => $postdata{'username'},
-            'source'  => \$source,
+            'source'  => $source,
             'portal'  => $profile->getName,
             'status' => 'reg',
         );
@@ -1161,7 +1171,7 @@ sub throw : Public {
 =head2 detect_computername_change
 
 Will determine if a hostname has changed from what is currently stored in the DB
-Will try to trigger a violation with the trigger internal::hostname_change
+Will try to trigger a security_event with the trigger internal::hostname_change
 
 =cut
 
@@ -1177,7 +1187,7 @@ sub detect_computername_change : Public {
               "( ".$node_attributes->{computername}." -> $new_computername ).".
               "Possible MAC spoofing.");
 
-            pf::violation::violation_trigger( { 'mac' => $mac, 'tid' => "hostname_change", 'type' => "internal" } );
+            pf::security_event::security_event_trigger( { 'mac' => $mac, 'tid' => "hostname_change", 'type' => "internal" } );
             return 1;
         }
     }
@@ -1187,7 +1197,7 @@ sub detect_computername_change : Public {
 =head2 detect_computername_change
 
 Will determine if a connection type transport has changed between requests
-Will try to trigger a violation with the trigger internal::connection_type_change
+Will try to trigger a security_event with the trigger internal::connection_type_change
 
 =cut
 
@@ -1203,7 +1213,7 @@ sub detect_connection_type_transport_change : Public {
         my $current_transport = $current_connection->transport;
         if($old_transport ne $current_transport) {
             $logger->info("Device transport has changed from $old_transport to $current_transport.");
-            pf::violation::violation_trigger( { 'mac' => $mac, 'tid' => "connection_type_change", 'type' => "internal" } );
+            pf::security_event::security_event_trigger( { 'mac' => $mac, 'tid' => "connection_type_change", 'type' => "internal" } );
         }
         else {
             $logger->debug("Device transport hasn't changed ($old_transport)");
@@ -1767,7 +1777,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

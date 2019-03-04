@@ -2785,8 +2785,8 @@ sub handleReAssignVlanTrapForWiredMacAuth {
         );
         # TODO perform CoA (when implemented)
 
-        my @violations = violation_view_open_desc($mac);
-        if ( scalar(@violations) > 0 ) {
+        my @security_events = security_event_view_open_desc($mac);
+        if ( scalar(@security_events) > 0 ) {
             my %message;
             $message{'subject'} = "VLAN isolation of $mac behind VoIP phone";
             $message{'message'} = "The following computer has been isolated behind a VoIP phone\n";
@@ -2798,13 +2798,13 @@ sub handleReAssignVlanTrapForWiredMacAuth {
             $message{'message'} .= "Notes: " . $node_info->{'notes'} . "\n";
             $message{'message'} .= "Switch: " . $switch_ip . "\n";
             $message{'message'} .= "Port (ifIndex): " . $ifIndex . "\n\n";
-            $message{'message'} .= "The violation details are\n";
+            $message{'message'} .= "The security event details are\n";
 
-            foreach my $violation (@violations) {
+            foreach my $security_event (@security_events) {
                 $message{'message'} .= "Description: "
-                    . $violation->{'description'} . "\n";
+                    . $security_event->{'description'} . "\n";
                 $message{'message'} .= "Start: "
-                    . $violation->{'start_date'} . "\n";
+                    . $security_event->{'start_date'} . "\n";
             }
             $logger->info(
                 "sending email to admin regarding isolation of $mac behind VoIP phone"
@@ -2918,7 +2918,7 @@ User-Name
 sub parseRequest {
     my ($self, $radius_request) = @_;
     my $client_mac = clean_mac($radius_request->{'Calling-Station-Id'});
-    my $user_name       = $radius_request->{'PacketFence-UserNameAttribute'} || $radius_request->{'TLS-Client-Cert-Subject-Alt-Name-Upn'} || $radius_request->{'TLS-Client-Cert-Common-Name'} || $radius_request->{'User-Name'};
+    my $user_name       = $self->parseRequestUsername($radius_request);
     my $nas_port_type = $radius_request->{'NAS-Port-Type'};
     my $port = $radius_request->{'NAS-Port'};
     my $eap_type = 0;
@@ -3213,7 +3213,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

@@ -14,7 +14,6 @@ use HTTP::Status qw(:constants is_error is_success);
 use Moose;  # automatically turns on strict and warnings
 use namespace::autoclean;
 
-use pfappserver::Form::Config::Switch;
 use pf::authentication;
 
 BEGIN {
@@ -163,7 +162,7 @@ sub saml_metadata :Local :Args(1) {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

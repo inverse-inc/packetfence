@@ -1,8 +1,30 @@
-.netdata-container-with-legend {
-    .netdata-legend-value,
-    .netdata-legend-toolbox,
-    .netdata-legend-toolbox-button,
-    .netdata-legend-resize-handler {
-        background-color: $body-bg;
-    }
+// .netdata-container-with-legend {
+//     .netdata-legend-value,
+//     .netdata-legend-toolbox,
+//     .netdata-legend-toolbox-button,
+//     .netdata-legend-resize-handler {
+//         background-color: $body-bg;
+//     }
+// }
+
+.pf-counter-over-chart {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: 75%; // 50% would be centered
+    margin: auto map-get($spacers, 4);
+    line-height: 1em;
+}
+
+.pf-counter-chart-title,
+.dygraph-title,
+.gaugeChartTitle,
+.netdata-d3pie-chart [class$=title] {
+    color: $gray-700;
+    fill: $gray-700;
+    font-size: $font-size-sm;
+    line-height: 1em;
+    text-transform: uppercase;
 }

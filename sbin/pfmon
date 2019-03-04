@@ -47,7 +47,7 @@ use pf::db;
 use pf::services;
 use pf::util;
 use pf::services::util;
-use pf::violation qw(violation_maintenance);
+use pf::security_event qw(security_event_maintenance);
 use pf::ConfigStore::Provisioning;
 use pf::factory::provisioner;
 use pf::SwitchFactory;
@@ -426,7 +426,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

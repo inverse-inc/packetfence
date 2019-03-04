@@ -1308,8 +1308,8 @@ FingerbankSearch.setup = function() {
             }
           });
           if (search.add_action) {
-            if (search.add_action == 'violationsView.add_fingerbank_trigger')
-              violationsView.add_fingerbank_trigger(search, id, display);
+            if (search.add_action == 'security_eventsView.add_fingerbank_trigger')
+              security_eventsView.add_fingerbank_trigger(search, id, display);
             else
               console.warn("Unhandled add-action \"" + search.add_action + "\"");
           }

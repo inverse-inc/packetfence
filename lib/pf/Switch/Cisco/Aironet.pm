@@ -203,34 +203,7 @@ Overriding default extractSsid because on Aironet AP SSID is in the Cisco-AVPair
 # Same as in pf::Switch::Cisco::Aironet_WDS. Please keep both in sync. Once Moose push in a role.
 sub extractSsid {
     my ($self, $radius_request) = @_;
-    my $logger = $self->logger;
-
-    if (defined($radius_request->{'Cisco-AVPair'})) {
-        if (ref($radius_request->{'Cisco-AVPair'}) eq 'ARRAY') {
-            foreach my $ciscoAVPair (@{$radius_request->{'Cisco-AVPair'}}) {
-                $logger->trace("Cisco-AVPair: ".$ciscoAVPair);
-
-                if ($ciscoAVPair =~ /^ssid=(.*)$/) { # ex: Cisco-AVPair = "ssid=PacketFence-Secure"
-                    return $1;
-                } else {
-                    $logger->info("Unable to extract SSID of Cisco-AVPair: ".$ciscoAVPair);
-                }
-            }
-        } else {
-            if ($radius_request->{'Cisco-AVPair'} =~ /^ssid=(.*)$/) { # ex: Cisco-AVPair = "ssid=PacketFence-Secure"
-                return $1;
-            } else {
-                $logger->info("Unable to extract SSID of Cisco-AVPair: ".$radius_request->{'Cisco-AVPair'});
-
-            }
-        }
-    }
-
-    $logger->warn(
-        "Unable to extract SSID for module " . ref($self) . ". SSID-based VLAN assignments won't work. "
-        . "Make sure you enable Vendor Specific Attributes (VSA) on the AP if you want them to work."
-    );
-    return;
+    return $self->getCiscoAvPairAttribute($radius_request, 'ssid');
 }
 
 =item deauthTechniques
@@ -263,7 +236,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

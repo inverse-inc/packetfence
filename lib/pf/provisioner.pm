@@ -99,13 +99,13 @@ If the provisioner has to be enforced on each connection
 
 has enforce => (is => 'rw', default => sub { 1 });
 
-=head2 non_compliance_violation
+=head2 non_compliance_security_event
 
-Which violation should be raised when a device is not compliant
+Which security_event should be raised when a device is not compliant
 
 =cut
 
-has non_compliance_violation => (is => 'rw' );
+has non_compliance_security_event => (is => 'rw' );
 
 =head2 pki_provider
 
@@ -226,7 +226,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

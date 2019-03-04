@@ -15,12 +15,19 @@ const types = {
 const state = {
   cache: {}, // items details
   message: '',
-  itemStatus: ''
+  itemStatus: '',
+  files: {
+    message: '',
+    status: '',
+    cache: {}
+  }
 }
 
 const getters = {
   isWaiting: state => [types.LOADING, types.DELETING].includes(state.itemStatus),
-  isLoading: state => state.itemStatus === types.LOADING
+  isLoading: state => state.itemStatus === types.LOADING,
+  isWaitingFiles: state => [types.LOADING, types.DELETING].includes(state.files.tatus),
+  isLoadingFiles: state => state.files.status === types.LOADING
 }
 
 const actions = {
@@ -67,14 +74,84 @@ const actions = {
       throw err
     })
   },
-  files: ({ state, commit }, id) => {
+  files: ({ state, commit }, data) => {
+    const sort = 'sort' in data ? data.sort.join(',') : 'type,name'
     const params = {
-      id,
-      sort: 'name',
-      fields: ['name', 'size', 'entries', 'type', 'not_deletable'].join(',')
+      id: data.id,
+      sort,
+      fields: ['name', 'size', 'entries', 'type', 'not_deletable', 'not_revertible'].join(',')
     }
+    commit('FILE_REQUEST')
     return api.connectionProfileFiles(params).then(response => {
+      const _walk = (item, path) => {
+        Object.assign(item, { path })
+        if ('entries' in item) {
+          item.entries.forEach(entry => _walk(entry, path ? [path, item.name].join('/') : item.name))
+        }
+      }
+      response.entries.forEach(item => _walk(item, ''))
+      commit('FILE_REPLACED', { id: data.id, files: response })
       return response
+    })
+  },
+  getFile: ({ state, commit, dispatch }, params) => {
+    commit('FILE_REQUEST')
+    return api.connectionProfileFile(params).then(content => {
+      // Retrieve metadata ..
+      let filePromise
+      if (state.files.cache[params.id]) {
+        // .. from cache
+        filePromise = Promise.resolve(state.files.cache[params.id])
+      } else {
+        // .. from server
+        filePromise = dispatch('files', { id: params.id })
+      }
+      return filePromise.then(() => {
+        let paths = params.filename.split('/')
+        let meta = state.files.cache[params.id]
+        for (let path of paths) {
+          if (path) {
+            if (meta && 'entries' in meta) {
+              meta = meta.entries.find(item => item.name === path)
+            }
+          }
+        }
+        commit('FILE_SUCCESS')
+        return { meta, content }
+      })
+    }).catch((err) => {
+      commit('FILE_ERROR', err.response)
+      throw err
+    })
+  },
+  createFile: ({ commit }, data) => {
+    commit('FILE_REQUEST')
+    return api.createConnectionProfileFile(data).then(response => {
+      commit('FILE_SUCCESS', data)
+      return response
+    }).catch(err => {
+      commit('FILE_ERROR', err.response)
+      throw err
+    })
+  },
+  updateFile: ({ commit }, data) => {
+    commit('FILE_REQUEST')
+    return api.updateConnectionProfileFile(data).then(response => {
+      commit('FILE_SUCCESS', data)
+      return response
+    }).catch(err => {
+      commit('FILE_ERROR', err.response)
+      throw err
+    })
+  },
+  deleteFile: ({ commit, dispatch }, params) => {
+    commit('FILE_REQUEST', types.DELETING)
+    return api.deleteConnectionProfileFile(params).then(response => {
+      commit('FILE_DESTROYED')
+      return dispatch('files', { id: params.id })
+    }).catch(err => {
+      commit('FILE_ERROR', err.response)
+      throw err
     })
   }
 }
@@ -96,6 +173,26 @@ const mutations = {
     state.itemStatus = types.ERROR
     if (response && response.data) {
       state.message = response.data.message
+    }
+  },
+  FILE_REQUEST: (state, type) => {
+    state.files.status = type || types.LOADING
+    state.files.message = ''
+  },
+  FILE_SUCCESS: (state) => {
+    state.files.status = types.SUCCESS
+  },
+  FILE_REPLACED: (state, data) => {
+    state.files.status = types.SUCCESS
+    Vue.set(state.files.cache, data.id, data.files)
+  },
+  FILE_DESTROYED: (state, id) => {
+    state.files.status = types.SUCCESS
+  },
+  FILE_ERROR: (state, response) => {
+    state.files.status = types.ERROR
+    if (response && response.data) {
+      state.files.message = response.data.message
     }
   }
 }

@@ -7,7 +7,7 @@
 # - compressed mysqldump to $BACKUP_DIRECTORY, rotate and clean
 # - archive locationlog_archive entries older than a year the first day of each month
 #
-# Copyright (C) 2005-2018 Inverse inc.
+# Copyright (C) 2005-2019 Inverse inc.
 #
 # Author: Inverse inc. <info@inverse.ca>
 #

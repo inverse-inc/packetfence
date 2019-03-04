@@ -26,6 +26,7 @@ use Catalyst qw/
   Session::Store::CHI
   Session::State::MAC
   StackTrace
+  Unicode::Encoding
   /;
 
 use Try::Tiny;
@@ -83,14 +84,14 @@ our $VERSION = '0.01';
 
 __PACKAGE__->config(
     name         => 'captiveportal',
-    encoding => 'utf-8',
+    encoding     => 'UTF-8',
     # Disable deprecated behavior needed by old applications
     disable_component_resolution_regex_fallback => 1,
     'static'                                    => {
         mime_types => { woff => 'font/woff' },
 
         # Include static content from captive portal in order to render previews of
-        # remediation pages (see pfappserver::Controller::Violation)
+        # remediation pages (see pfappserver::Controller::SecurityEvent)
         include_path => [
             \&loadCustomStatic,
             INSTALL_DIR . '/html/captive-portal',
@@ -277,7 +278,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

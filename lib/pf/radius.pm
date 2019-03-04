@@ -51,7 +51,7 @@ use pf::Switch;
 use pf::SwitchFactory;
 use pf::util;
 use pf::config::util;
-use pf::violation;
+use pf::security_event;
 use pf::role::custom $ROLE_API_LEVEL;
 use pf::floatingdevice::custom;
 # constants used by this module are provided by
@@ -67,6 +67,8 @@ use pf::registration;
 use pf::access_filter::switch;
 use pf::role::pool;
 use pf::dal;
+use pf::security_event;
+use pf::constants::security_event qw($LOST_OR_STOLEN);
 
 our $VERSION = 1.03;
 
@@ -334,6 +336,8 @@ sub authorize {
     $RAD_REPLY_REF = $switch->returnRadiusAccessAccept($args);
 
 CLEANUP:
+    # If the device is lost or stolen, then ensure we execute the actions of the violation so the emails can be sent on connection
+    $self->check_lost_stolen($mac);
     if ($do_auto_reg) {
         pf::registration::finalize_node_registration($node_obj, {}, $options, $pf::constants::realm::RADIUS_CONTEXT);
     }
@@ -442,13 +446,13 @@ sub accounting {
                         $logger->info("Session status: duration is $session_time secs ($time_balance secs left)");
                     }
                     if ($time_balance == 0) {
-                        # Trigger violation
-                        my %violation_data = (
+                        # Trigger security_event
+                        my %security_event_data = (
                             'mac'   => $mac,
                             'tid'   => $ACCOUNTING_POLICY_TIME,
                             'type'  => $TRIGGER_TYPE_ACCOUNTING ,
                         );
-                        $apiclient->notify('trigger_violation', %violation_data );
+                        $apiclient->notify('trigger_security_event', %security_event_data );
                     }
                 }
                 if (defined $node_attributes->{'bandwidth_balance'} && (  $input_octets > 0 || $output_octets > 0)) {
@@ -462,13 +466,13 @@ sub accounting {
                         $logger->info("Session status: data is $total_octets octets ($bandwidth_balance octets left)");
                     }
                     if ($bandwidth_balance == 0) {
-                        # Trigger violation
-                        my %violation_data = (
+                        # Trigger security_event
+                        my %security_event_data = (
                             'mac'   => $mac,
                             'tid'   => $ACCOUNTING_POLICY_BANDWIDTH,
                             'type'  => $TRIGGER_TYPE_ACCOUNTING ,
                         );
-                        $apiclient->notify('trigger_violation', %violation_data );
+                        $apiclient->notify('trigger_security_event', %security_event_data );
                     }
                 }
             }
@@ -1031,6 +1035,21 @@ sub radius_filter {
     return [$status, %$reply];
 }
 
+=head2 check_lost_stolen
+
+Check if device is lost or stolen and execute the actions (including email)
+
+=cut
+
+sub check_lost_stolen {
+    my ($self, $mac) = @_;
+    my $is_lost_stolen = security_event_exist_open($mac, $LOST_OR_STOLEN);
+
+    if($is_lost_stolen) {
+        pf::action::action_execute( $mac, $LOST_OR_STOLEN, "Endpoint has just connected on the network" );
+    }
+}
+
 =back
 
 =head1 AUTHOR
@@ -1039,7 +1058,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

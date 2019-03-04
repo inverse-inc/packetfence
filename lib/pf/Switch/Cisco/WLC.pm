@@ -117,7 +117,7 @@ use pf::web::util;
 use pf::util;
 use pf::node;
 use pf::util::radius qw(perform_coa perform_disconnect);
-use pf::violation qw(violation_count_reevaluate_access);
+use pf::security_event qw(security_event_count_reevaluate_access);
 use pf::radius::constants;
 use pf::locationlog qw(locationlog_get_session);
 
@@ -526,7 +526,7 @@ sub radiusDisconnect {
         $attributes_ref = { %$attributes_ref, %$add_attributes_ref };
 
         # Roles are configured and the user should have one.
-        # We send a regular disconnect if there is an open trapping violation
+        # We send a regular disconnect if there is an open trapping security_event
         # to ensure the VLAN is actually changed to the isolation VLAN.
         if ( $self->shouldUseCoA({role => $role}) ) {
             $logger->info("Returning ACCEPT with Role: $role");
@@ -588,18 +588,13 @@ sub parseRequest {
     my $client_mac      = ref($radius_request->{'Calling-Station-Id'}) eq 'ARRAY'
                            ? clean_mac($radius_request->{'Calling-Station-Id'}[0])
                            : clean_mac($radius_request->{'Calling-Station-Id'});
-    my $user_name       = $radius_request->{'PacketFence-UserNameAttribute'} || $radius_request->{'TLS-Client-Cert-Subject-Alt-Name-Upn'} || $radius_request->{'TLS-Client-Cert-Common-Name'} || $radius_request->{'User-Name'};
+    my $user_name       = $self->parseRequestUsername($radius_request);
     my $nas_port_type   = $radius_request->{'NAS-Port-Type'};
     my $port            = $radius_request->{'NAS-Port'};
     my $eap_type        = ( exists($radius_request->{'EAP-Type'}) ? $radius_request->{'EAP-Type'} : 0 );
     my $nas_port_id     = ( defined($radius_request->{'NAS-Port-Id'}) ? $radius_request->{'NAS-Port-Id'} : undef );
+    my $session_id = $self->getCiscoAvPairAttribute($radius_request, 'audit-session-id');
 
-    my $session_id;
-    if (defined($radius_request->{'Cisco-AVPair'})) {
-        if ($radius_request->{'Cisco-AVPair'} =~ /audit-session-id=(.*)/ig ) {
-            $session_id =$1;
-        }
-    }
     return ($nas_port_type, $eap_type, $client_mac, $port, $user_name, $nas_port_id, $session_id, $nas_port_id);
 }
 
@@ -665,7 +660,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

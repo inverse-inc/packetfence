@@ -33,22 +33,22 @@ our @COLUMN_NAMES;
 
 BEGIN {
     @FIELD_NAMES = qw(
-        vid
+        security_event_id
         action
     );
 
     %DEFAULTS = (
-        vid => '',
+        security_event_id => '',
         action => '',
     );
 
     @INSERTABLE_FIELDS = qw(
-        vid
+        security_event_id
         action
     );
 
     %FIELDS_META = (
-        vid => {
+        security_event_id => {
             type => 'INT',
             is_auto_increment => 0,
             is_primary_key => 1,
@@ -63,12 +63,12 @@ BEGIN {
     );
 
     @PRIMARY_KEYS = qw(
-        vid
+        security_event_id
         action
     );
 
     @COLUMN_NAMES = qw(
-        action.vid
+        action.security_event_id
         action.action
     );
 
@@ -177,7 +177,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

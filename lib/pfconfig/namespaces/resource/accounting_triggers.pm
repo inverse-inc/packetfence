@@ -14,13 +14,13 @@ pfconfig::namespaces::resource::accouting_triggers
 
 use strict;
 use warnings;
-use pfconfig::namespaces::FilterEngine::Violation;
+use pfconfig::namespaces::FilterEngine::SecurityEvent;
 
 use base 'pfconfig::namespaces::resource';
 
 sub init {
     my ($self) = @_;
-    $self->{_engine} = pfconfig::namespaces::FilterEngine::Violation->new;
+    $self->{_engine} = pfconfig::namespaces::FilterEngine::SecurityEvent->new;
     $self->{_engine}->build();
 }
 
@@ -37,7 +37,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

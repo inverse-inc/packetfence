@@ -22,6 +22,8 @@ has 'delete_window' => ( is => 'rw', isa => 'PfInterval', coerce => 1 );
 
 has 'unreg_window' => ( is => 'rw', isa => 'PfInterval', coerce => 1 );
 
+has 'voip' => (is => 'ro', isa => 'Str');
+
 =head2 run
 
 run the node cleanup task
@@ -30,7 +32,7 @@ run the node cleanup task
 
 sub run {
     my ($self) = @_;
-    node_cleanup($self->delete_window, $self->unreg_window);
+    node_cleanup($self->delete_window, $self->unreg_window, $self->voip);
 }
 
 =head1 AUTHOR
@@ -40,7 +42,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

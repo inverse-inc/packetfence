@@ -1,7 +1,7 @@
 <template>
   <b-card class="mt-3" no-body>
     <b-card-header>
-      <h4 v-t="'Services'"></h4>
+      <h4 class="mb-0" v-t="'Services'"></h4>
     </b-card-header>
     <div class="card-body">
     <b-table small="true" :fields="fields" :items="services">
@@ -29,13 +29,18 @@ import pfFormToggle from '@/components/pfFormToggle'
 export default {
   name: 'Services',
   components: {
-    'pf-form-toggle': pfFormToggle
+    pfFormToggle
   },
   props: {
+    storeName: { // from router
+      type: String,
+      default: null,
+      required: true
+    }
   },
   computed: {
     services () {
-      return this.$store.state.$_status.services
+      return this.$store.state[this.storeName].services
     }
   },
   data () {
@@ -53,7 +58,7 @@ export default {
     }
   },
   created () {
-    this.$store.dispatch('$_status/getServices')
+    this.$store.dispatch(`${this.storeName}/getServices`)
   }
 }
 </script>

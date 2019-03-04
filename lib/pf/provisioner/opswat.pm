@@ -24,7 +24,7 @@ use pf::log;
 use pf::ip4log;
 use pf::ConfigStore::Provisioning;
 use DateTime::Format::RFC3339;
-use pf::violation;
+use pf::security_event;
 
 =head1 Atrributes
 
@@ -94,7 +94,7 @@ has agent_download_uri => (is => 'rw');
 
 =head2 critical_issues_threshold
 
-The amount of critical issues to be detected by opswat before raising the non_compliance_violation
+The amount of critical issues to be detected by opswat before raising the non_compliance_security_event
 
 =cut
 
@@ -269,8 +269,8 @@ sub verify_compliance {
     my $info = $self->get_device_info($mac);
     if($info != $pf::provisioner::COMMUNICATION_FAILED){
         if($self->{critical_issues_threshold} != 0 && defined($info->{total_critical_issue}) && $info->{total_critical_issue} >= $self->{critical_issues_threshold}){
-            $logger->info("Device $mac is not compliant. Raising violation");
-            pf::violation::violation_add($mac, $self->{non_compliance_violation}, ());
+            $logger->info("Device $mac is not compliant. Raising security_event");
+            pf::security_event::security_event_add($mac, $self->{non_compliance_security_event}, ());
         }
     }
     else{
@@ -366,7 +366,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

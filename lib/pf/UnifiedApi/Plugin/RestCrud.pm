@@ -31,7 +31,10 @@ our %DEFAULT_RESOURCE_OPTIONS = (
         },
         DELETE => {
             action => 'remove',
-        }
+        },
+        OPTIONS => {
+            action => 'resource_options',
+        },
     },
 );
 
@@ -49,16 +52,20 @@ our %DEFAULT_COLLECTION_OPTIONS = (
         },
         POST => {
             action => 'create',
-        }
+        },
+        OPTIONS => {
+            action => 'options',
+        },
     },
 );
 
 our %ALLOWED_METHODS = (
-    POST   => 1,
-    GET    => 1,
-    PATCH  => 1,
-    PUT    => 1,
-    DELETE => 1,
+    POST    => 1,
+    GET     => 1,
+    PATCH   => 1,
+    PUT     => 1,
+    DELETE  => 1,
+    OPTIONS => 1,
 );
 
 sub register {
@@ -312,7 +319,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

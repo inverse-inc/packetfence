@@ -17,13 +17,13 @@ import (
             regex => qr/from: (?<scrip>\d{1,3}(\.\d{1,3}){3}), to: (?<dstip>\d{1,3}(\.\d{1,3}){3}), mac: (?<mac>[a-fA-F0-9]{12})/,
             name => 'from to',
             last_if_match => 0,
-            actions => ['modify_node: $scrip, $dstip, $mac', 'violation_log: bob, bob'],
+            actions => ['modify_node: $scrip, $dstip, $mac', 'security_event_log: bob, bob'],
         },
         {
             regex => qr/from: (?<scrip>\d{1,3}(\.\d{1,3}){3}), to: (?<dstip>\d{1,3}(\.\d{1,3}){3})/,
             name => 'from to',
             last_if_match => 1,
-            actions => ['modify_node: $scrip, $dstip', 'violation_log: bob, bob'],
+            actions => ['modify_node: $scrip, $dstip', 'security_event_log: bob, bob'],
         },
 
 */
@@ -37,7 +37,7 @@ func TestGenericParse(t *testing.T) {
 					Params: []string{"1.2.3.4", "1.2.3.5", "aa:bb:cc:dd:ee:ff"},
 				},
 				&PfqueueApiCall{
-					Method: "violation_log",
+					Method: "security_event_log",
 					Params: []string{"bob", "bob"},
 				},
 			},
@@ -49,7 +49,7 @@ func TestGenericParse(t *testing.T) {
 			PfdetectRegexRule{
 				Regex:   `from: (?P<scrip>\d{1,3}(\.\d{1,3}){3}), to: (?P<dstip>\d{1,3}(\.\d{1,3}){3}), mac: (?P<mac>[a-fA-F0-9]{12})`,
 				Name:    "from to",
-				Actions: []string{"modify_node: $scrip, $dstip, $mac", "violation_log: bob, bob"},
+				Actions: []string{"modify_node: $scrip, $dstip, $mac", "security_event_log: bob, bob"},
 			},
 		},
 	})

@@ -22,7 +22,7 @@ use pf::ip4log;
 use pf::node
   qw(node_attributes node_modify node_register node_view is_max_reg_nodes_reached);
 use pf::util;
-use pf::violation qw(violation_count);
+use pf::security_event qw(security_event_count);
 use pf::web::constants;
 use pf::web;
 BEGIN { extends 'Catalyst::Controller'; }
@@ -66,7 +66,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

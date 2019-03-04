@@ -31,6 +31,15 @@ has_field 'delete_window' => (
              help => 'How long can an unregistered node be inactive on the network before being deleted.<br>This shouldn\'t be used if you are using port-security' },
 );
 
+has_field 'voip' =>  (
+   type => 'Toggle',
+   checkbox_value => 'enabled',
+   unchecked_value => 'disabled',
+   default_method => \&default_field_method,
+    tags => { after_element => \&help,
+             help => 'Enable voip device cleanup' },
+);
+
 =head2 default_type
 
 default value of type
@@ -43,13 +52,13 @@ sub default_type {
 
 has_block  definition =>
   (
-    render_list => [qw(type status interval unreg_window delete_window)],
+    render_list => [qw(type status voip interval unreg_window delete_window)],
   );
 
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

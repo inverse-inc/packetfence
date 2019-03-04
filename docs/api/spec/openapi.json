@@ -389,6 +389,28 @@
                }
             ]
          },
+         "ClusterServer" : {
+            "properties" : {
+               "host" : {
+                  "type" : "string"
+               },
+               "management_ip" : {
+                  "type" : "string"
+               }
+            }
+         },
+         "ClusterServers" : {
+            "properties" : {
+               "items" : {
+                  "description" : "Items",
+                  "items" : {
+                     "$ref" : "#/components/schemas/ClusterServer"
+                  },
+                  "type" : "array"
+               }
+            },
+            "type" : "object"
+         },
          "ConfigAdminRole" : {
             "properties" : {
                "actions" : {
@@ -1483,6 +1505,123 @@
             ],
             "description" : "List"
          },
+         "ConfigCertificate" : {
+            "properties" : {
+               "ca" : {
+                  "description" : "The CA certficate for the resource (if applicable)",
+                  "type" : "string"
+               },
+               "certificate" : {
+                  "description" : "The server certficate for the resource in x509 PEM encoded format",
+                  "type" : "string"
+               },
+               "intermediate_cas" : {
+                  "description" : "The list of certificate authorities for the server certificate",
+                  "items" : {
+                     "type" : "string"
+                  },
+                  "type" : "array"
+               },
+               "private_key" : {
+                  "description" : "The RSA server key for the resource in PEM encoded format",
+                  "type" : "string"
+               }
+            },
+            "type" : "object"
+         },
+         "ConfigCertificateCSR" : {
+            "properties" : {
+               "common_name" : {
+                  "description" : "The common name for the certificate",
+                  "type" : "string"
+               },
+               "country" : {
+                  "description" : "The country for the certificate",
+                  "type" : "string"
+               },
+               "locality" : {
+                  "description" : "The locality for the certificate",
+                  "type" : "string"
+               },
+               "organization_name" : {
+                  "description" : "The organization name for the certificate",
+                  "type" : "string"
+               },
+               "state" : {
+                  "description" : "The state for the certificate",
+                  "type" : "string"
+               }
+            },
+            "type" : "object"
+         },
+         "ConfigCertificateDetails" : {
+            "properties" : {
+               "issuer" : {
+                  "description" : "The issuer of the certificate",
+                  "type" : "string"
+               },
+               "not_after" : {
+                  "description" : "The date until which the certificate can be used",
+                  "type" : "string"
+               },
+               "not_before" : {
+                  "description" : "The start date at which the certificate can be used",
+                  "type" : "string"
+               },
+               "serial" : {
+                  "description" : "The serial of the certificate",
+                  "type" : "string"
+               },
+               "subject" : {
+                  "description" : "The subject of the certificate",
+                  "type" : "string"
+               }
+            }
+         },
+         "ConfigCertificateInfo" : {
+            "properties" : {
+               "ca" : {
+                  "$ref" : "#/components/schemas/ConfigCertificateDetails",
+                  "description" : "The CA certficate for the resource (if applicable)",
+                  "type" : "object"
+               },
+               "cert_key_match" : {
+                  "$ref" : "#/components/schemas/ConfigCertificateReturnValue",
+                  "description" : "Information about whether or not the certificate and private key match",
+                  "type" : "object"
+               },
+               "certificate" : {
+                  "$ref" : "#/components/schemas/ConfigCertificateDetails",
+                  "description" : "The server certficate for the resource",
+                  "type" : "object"
+               },
+               "chain_is_valid" : {
+                  "$ref" : "#/components/schemas/ConfigCertificateReturnValue",
+                  "description" : "Information about whether or not the certificate chain is valid",
+                  "type" : "object"
+               },
+               "intermediate_cas" : {
+                  "description" : "The list of certificate authorities for the server certificate",
+                  "items" : {
+                     "$ref" : "#/components/schemas/ConfigCertificateDetails"
+                  },
+                  "type" : "array"
+               }
+            },
+            "type" : "object"
+         },
+         "ConfigCertificateReturnValue" : {
+            "properties" : {
+               "result" : {
+                  "description" : "The value (usually error or success message)",
+                  "type" : "string"
+               },
+               "success" : {
+                  "description" : "Whether or not the operation has succeeded",
+                  "type" : "boolean"
+               }
+            }
+         },
          "ConfigConnectionProfile" : {
             "properties" : {
                "access_registration_when_registered" : {
@@ -1537,6 +1676,10 @@
                },
                "dot1x_recompute_role_from_portal" : {
                   "description" : "When enabled, PacketFence will not use the role initialy computed on the portal but will use the dot1x username to recompute the role.",
+                  "type" : "string"
+               },
+               "dot1x_unset_on_unmatch" : {
+                  "description" : "When enabled, PacketFence will unset the role of the device if no authentication sources returned one.",
                   "type" : "string"
                },
                "dpsk" : {
@@ -15722,6 +15865,23 @@
             }
          }
       },
+      "/cluster/servers" : {
+         "get" : {
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/ClusterServers"
+                        }
+                     }
+                  },
+                  "description" : "List of the servers in the cluster"
+               }
+            },
+            "summary" : "Returns a list of the servers in the cluster"
+         }
+      },
       "/config/admin_role/{admin_role_id}" : {
          "delete" : {
             "description" : "Remove an item",
@@ -16141,6 +16301,148 @@
                },
                "422" : {
                   "$ref" : "#/components/responses/UnprocessableEntity"
+               }
+            }
+         }
+      },
+      "/config/certificate/{certificate_id}" : {
+         "description" : "pf::UnifiedApi::Controller::Config::Certificates",
+         "get" : {
+            "description" : "Get an item",
+            "operationId" : "api.v1.Config::Certificates.get",
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "certificate_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/ConfigCertificate"
+                        }
+                     }
+                  },
+                  "description" : "Item"
+               },
+               "404" : {
+                  "$ref" : "#/components/responses/NotFound"
+               },
+               "422" : {
+                  "$ref" : "#/components/responses/UnprocessableEntity"
+               }
+            }
+         },
+         "put" : {
+            "description" : "Replace an item",
+            "operationId" : "api.v1.Config::Certificates.replace",
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "certificate_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               },
+               {
+                  "in" : "query",
+                  "name" : "check_chain",
+                  "schema" : {
+                     "enum" : [
+                        "enabled",
+                        "disabled"
+                     ],
+                     "type" : "string"
+                  }
+               }
+            ],
+            "requestBody" : {
+               "content" : {
+                  "application/json" : {
+                     "schema" : {
+                        "$ref" : "#/components/schemas/ConfigCertificate"
+                     }
+                  }
+               }
+            },
+            "responses" : {
+               "200" : {
+                  "$ref" : "#/components/responses/Message"
+               },
+               "404" : {
+                  "$ref" : "#/components/responses/NotFound"
+               },
+               "422" : {
+                  "$ref" : "#/components/responses/UnprocessableEntity"
+               }
+            }
+         }
+      },
+      "/config/certificate/{certificate_id}/generate_csr" : {
+         "description" : "pf::UnifiedApi::Controller::Config::Certificates",
+         "put" : {
+            "description" : "Generate a CSR for a certificate resource",
+            "operationId" : "api.v1.Config::Certificates.generate_csr",
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "certificate_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
+            "requestBody" : {
+               "content" : {
+                  "application/json" : {
+                     "schema" : {
+                        "$ref" : "#/components/schemas/ConfigCertificateCSR"
+                     }
+                  }
+               }
+            },
+            "responses" : {
+               "200" : {
+                  "$ref" : "#/components/responses/Message"
+               },
+               "404" : {
+                  "$ref" : "#/components/responses/NotFound"
+               },
+               "422" : {
+                  "$ref" : "#/components/responses/UnprocessableEntity"
+               }
+            }
+         }
+      },
+      "/config/certificate/{certificate_id}/info" : {
+         "description" : "pf::UnifiedApi::Controller::Config::Certificates",
+         "get" : {
+            "description" : "Get an item",
+            "operationId" : "api.v1.Config::Certificates.get",
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "certificate_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/ConfigCertificateInfo"
+                        }
+                     }
+                  },
+                  "description" : "Item"
                }
             }
          }

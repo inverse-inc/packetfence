@@ -10,6 +10,7 @@ import (
 	"os"
 	"regexp"
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/inverse-inc/packetfence/go/coredns/plugin"
@@ -33,7 +34,7 @@ type pfdns struct {
 	IP4log            *sql.Stmt // prepared statement for ip4log queries
 	IP6log            *sql.Stmt // prepared statement for ip6log queries
 	Nodedb            *sql.Stmt // prepared statement for node table queries
-	Violation         *sql.Stmt // prepared statement for violation
+	SecurityEvent     *sql.Stmt // prepared statement for security_event
 	Bh                bool      //  whether blackholing is enabled or not
 	BhIP              net.IP
 	BhCname           string
@@ -47,7 +48,8 @@ type pfdns struct {
 	DNSFilter         *cache.Cache
 	IpsetCache        *cache.Cache
 	apiClient         *unifiedapiclient.Client
-	PortalFQDN        string
+	refreshLauncher   *sync.Once
+	PortalFQDN        map[int]map[*net.IPNet]*regexp.Regexp
 }
 
 // Ports array
@@ -81,21 +83,45 @@ func (pf *pfdns) Ip2Mac(ctx context.Context, ip string, ipVersion int) (string, 
 	return mac, err
 }
 
-func (pf *pfdns) HasViolations(ctx context.Context, mac string) bool {
-	violation := false
-	var violationCount int
-	err := pf.Violation.QueryRow(mac, 1).Scan(&violationCount)
+func (pf *pfdns) HasSecurityEvents(ctx context.Context, mac string) bool {
+	security_event := false
+	var securityEventCount int
+	err := pf.SecurityEvent.QueryRow(mac, 1).Scan(&securityEventCount)
 	if err != nil {
-		log.LoggerWContext(ctx).Error(fmt.Sprintf("HasViolation %s %s\n", mac, err))
-	} else if violationCount != 0 {
-		violation = true
+		log.LoggerWContext(ctx).Error(fmt.Sprintf("HasSecurityEvent %s %s\n", mac, err))
+	} else if securityEventCount != 0 {
+		security_event = true
 	}
 
-	return violation
+	return security_event
+}
+
+func (pf *pfdns) RefreshPfconfig(ctx context.Context) {
+	id, err := pfconfigdriver.PfconfigPool.ReadLock(ctx)
+	if err == nil {
+		defer pfconfigdriver.PfconfigPool.ReadUnlock(ctx, id)
+
+		// We launch the refresh job once, the first time a request comes in
+		// This ensures that the pool will run with a context that represents a request (log level for instance)
+		pf.refreshLauncher.Do(func() {
+			ctx := ctx
+			go func(ctx context.Context) {
+				for {
+					pfconfigdriver.PfconfigPool.Refresh(ctx)
+					time.Sleep(1 * time.Second)
+				}
+			}(ctx)
+		})
+	} else {
+		panic("Unable to obtain pfconfigpool lock in pfdns middleware")
+	}
 }
 
 // ServeDNS implements the middleware.Handler interface.
 func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) (int, error) {
+
+	pf.RefreshPfconfig(ctx)
+
 	state := request.Request{W: w, Req: r}
 	a := new(dns.Msg)
 	a.SetReply(r)
@@ -151,8 +177,8 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 		}
 	}
 
-	violation := pf.HasViolations(ctx, mac)
-	if violation {
+	security_event := pf.HasSecurityEvents(ctx, mac)
+	if security_event {
 		// Passthrough bypass
 		for k, v := range pf.FqdnIsolationPort {
 			if k.MatchString(state.QName()) {
@@ -228,13 +254,13 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 			switch Type {
 			case "dnsenforcement", "inline":
 				var status = "unreg"
-				var category string
+
 				err = pf.Nodedb.QueryRow(mac, 1).Scan(&status, &category)
 				if err != nil {
 					log.LoggerWContext(ctx).Error(fmt.Sprintf("error getting node status %s %s\n", mac, err))
 				}
 				// Defer to the proxy middleware if the device is registered
-				if status == "reg" && !violation && category != "REJECT" {
+				if status == "reg" && !security_event && category != "REJECT" {
 					log.LoggerWContext(ctx).Debug(srcIP + " : " + mac + " serve dns " + state.QName())
 					return pf.Next.ServeDNS(ctx, w, r)
 				} else if status == "reg" && category == "REJECT" {
@@ -246,7 +272,7 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 					return 0, nil
 				}
 			}
-			cacheKey := pf.MakeKeyCache(mac, category, violation, state.QName())
+			cacheKey := pf.MakeKeyCache(mac, category, security_event, state.QName())
 			answer, found := pf.DNSFilter.Get(cacheKey)
 			if found && answer != "null" {
 				log.LoggerWContext(ctx).Debug("Get answer from the cache for " + state.QName())
@@ -285,10 +311,23 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 	switch state.Family() {
 	case 1:
 		rr = new(dns.A)
-		if state.QName() == pf.PortalFQDN {
-			rr.(*dns.A).Hdr = dns.RR_Header{Name: state.QName(), Rrtype: dns.TypeA, Class: state.QClass(), Ttl: 60}
-		} else {
-			rr.(*dns.A).Hdr = dns.RR_Header{Name: state.QName(), Rrtype: dns.TypeA, Class: state.QClass(), Ttl: 15}
+		var found bool
+		found = false
+		for i := 0; i <= len(pf.PortalFQDN); i++ {
+			if found {
+				break
+			}
+			for c, d := range pf.PortalFQDN[i] {
+				if c.Contains(bIP) {
+					if d.MatchString(state.QName()) {
+						rr.(*dns.A).Hdr = dns.RR_Header{Name: state.QName(), Rrtype: dns.TypeA, Class: state.QClass(), Ttl: 60}
+					} else {
+						rr.(*dns.A).Hdr = dns.RR_Header{Name: state.QName(), Rrtype: dns.TypeA, Class: state.QClass(), Ttl: 15}
+					}
+					found = true
+					break
+				}
+			}
 		}
 		for k, v := range pf.Network {
 			if k.Contains(bIP) {
@@ -301,10 +340,23 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 		}
 	case 2:
 		rr = new(dns.AAAA)
-		if state.QName() == pf.PortalFQDN {
-			rr.(*dns.AAAA).Hdr = dns.RR_Header{Name: state.QName(), Rrtype: dns.TypeAAAA, Class: state.QClass(), Ttl: 60}
-		} else {
-			rr.(*dns.AAAA).Hdr = dns.RR_Header{Name: state.QName(), Rrtype: dns.TypeAAAA, Class: state.QClass(), Ttl: 15}
+		var found bool
+		found = false
+		for i := 0; i <= len(pf.PortalFQDN); i++ {
+			if found {
+				break
+			}
+			for c, d := range pf.PortalFQDN[i] {
+				if c.Contains(bIP) {
+					if d.MatchString(state.QName()) {
+						rr.(*dns.AAAA).Hdr = dns.RR_Header{Name: state.QName(), Rrtype: dns.TypeAAAA, Class: state.QClass(), Ttl: 60}
+					} else {
+						rr.(*dns.AAAA).Hdr = dns.RR_Header{Name: state.QName(), Rrtype: dns.TypeAAAA, Class: state.QClass(), Ttl: 15}
+					}
+					found = true
+					break
+				}
+			}
 		}
 		for k, v := range pf.Network {
 			if k.Contains(bIP) {
@@ -450,44 +502,6 @@ func (pf *pfdns) WebservicesInit() error {
 
 }
 
-func (pf *pfdns) PassthrouthsInit() error {
-	var ctx = context.Background()
-
-	pfconfigdriver.FetchDecodeSocket(ctx, &pfconfigdriver.Config.Passthroughs.Registration)
-
-	pf.FqdnPort = make(map[*regexp.Regexp][]string)
-
-	for k, v := range pfconfigdriver.Config.Passthroughs.Registration.Wildcard {
-		rgx, _ := regexp.Compile(".*" + k)
-		pf.FqdnPort[rgx] = v
-	}
-
-	for k, v := range pfconfigdriver.Config.Passthroughs.Registration.Normal {
-		rgx, _ := regexp.Compile("^" + k + ".$")
-		pf.FqdnPort[rgx] = v
-	}
-	return nil
-}
-
-func (pf *pfdns) PassthrouthsIsolationInit() error {
-	var ctx = context.Background()
-
-	pfconfigdriver.FetchDecodeSocket(ctx, &pfconfigdriver.Config.Passthroughs.Isolation)
-
-	pf.FqdnIsolationPort = make(map[*regexp.Regexp][]string)
-
-	for k, v := range pfconfigdriver.Config.Passthroughs.Isolation.Wildcard {
-		rgx, _ := regexp.Compile(".*" + k)
-		pf.FqdnIsolationPort[rgx] = v
-	}
-
-	for k, v := range pfconfigdriver.Config.Passthroughs.Isolation.Normal {
-		rgx, _ := regexp.Compile("^" + k + ".$")
-		pf.FqdnIsolationPort[rgx] = v
-	}
-	return nil
-}
-
 // detectType of each network
 func (pf *pfdns) detectType() error {
 	var ctx = context.Background()
@@ -570,9 +584,9 @@ func (pf *pfdns) DbInit() error {
 		return err
 	}
 
-	pf.Violation, err = pf.Db.Prepare("Select count(*) from violation, action where violation.vid=action.vid and action.action='reevaluate_access' and mac=? and status='open' AND tenant_id = ?")
+	pf.SecurityEvent, err = pf.Db.Prepare("Select count(*) from security_event, action where security_event.security_event_id=action.security_event_id and action.action='reevaluate_access' and mac=? and status='open' AND tenant_id = ?")
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "pfdns: database violation prepared statement error: %s", err)
+		fmt.Fprintf(os.Stderr, "pfdns: database security_event prepared statement error: %s", err)
 		return err
 	}
 
@@ -636,12 +650,52 @@ func (pf *pfdns) SetPassthrough(ctx context.Context, passthrough, ip, port strin
 	return err
 }
 
-func (pf *pfdns) PortalFQDNInit() error {
+func (pf *pfdns) PortalFQDNInit(ctx context.Context) error {
 	general := pfconfigdriver.Config.PfConf.General
-	pf.PortalFQDN = general.Hostname + "." + general.Domain + "."
+
+	index := 0
+
+	pf.PortalFQDN = make(map[int]map[*net.IPNet]*regexp.Regexp)
+
+	var interfaces pfconfigdriver.ListenInts
+	pfconfigdriver.FetchDecodeSocket(ctx, &interfaces)
+
+	var keyConfNet pfconfigdriver.PfconfigKeys
+	keyConfNet.PfconfigNS = "config::Network"
+	keyConfNet.PfconfigHostnameOverlay = "yes"
+	pfconfigdriver.FetchDecodeSocket(ctx, &keyConfNet)
+
+	for _, key := range keyConfNet.Keys {
+		var ConfNet pfconfigdriver.NetworkConf
+		ConfNet.PfconfigHashNS = key
+		pfconfigdriver.FetchDecodeSocket(ctx, &ConfNet)
+
+		var fqdn string
+		if ConfNet.PortalFQDN != "" {
+			fqdn = ConfNet.PortalFQDN
+		} else {
+			fqdn = general.Hostname + "." + general.Domain
+		}
+		NetIndex := &net.IPNet{}
+		NetIndex.Mask = net.IPMask(net.ParseIP(ConfNet.Netmask))
+		NetIndex.IP = net.ParseIP(key)
+
+		rgx, _ := regexp.Compile(".*" + fqdn)
+
+		pf.PortalFQDN[index] = make(map[*net.IPNet]*regexp.Regexp)
+		pf.PortalFQDN[index][NetIndex] = rgx
+		index++
+	}
+	NetIndex := &net.IPNet{}
+	NetIndex.Mask = net.IPMask(net.IPv4zero)
+	NetIndex.IP = net.IPv4zero
+	pf.PortalFQDN[index] = make(map[*net.IPNet]*regexp.Regexp)
+	rgx, _ := regexp.Compile(".*" + general.Hostname + "." + general.Domain)
+	pf.PortalFQDN[index][NetIndex] = rgx
+
 	return nil
 }
 
-func (pf *pfdns) MakeKeyCache(mac string, category string, violation bool, qname string) string {
-	return mac + category + strconv.FormatBool(violation) + qname
+func (pf *pfdns) MakeKeyCache(mac string, category string, security_event bool, qname string) string {
+	return mac + category + strconv.FormatBool(security_event) + qname
 }

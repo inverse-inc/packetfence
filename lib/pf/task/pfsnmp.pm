@@ -25,11 +25,11 @@ use pf::config qw(
     %ConfigFloatingDevices
     $WIRED_SNMP_TRAPS
     %Config
-    $WIPS_VID
+    $WIPS_SECURITY_EVENT_ID
     $VOIP
 );
 use pf::constants qw($TRUE $FALSE);
-use pf::violation;
+use pf::security_event;
 use pf::node;
 use pf::util;
 use pf::config::util;
@@ -790,10 +790,10 @@ sub node_update_PF {
     }
 
     #should we auto-register?
-    if ($role_obj->shouldAutoRegister({mac => $mac, switch => $switch, violation_autoreg => 0, isPhone => $isPhone, connection_type => $WIRED_SNMP_TRAPS})) {
+    if ($role_obj->shouldAutoRegister({mac => $mac, switch => $switch, security_event_autoreg => 0, isPhone => $isPhone, connection_type => $WIRED_SNMP_TRAPS})) {
         # auto-register
         my %autoreg_node_defaults = $role_obj->getNodeInfoForAutoReg({ switch => $switch, ifIndex => $switch_port,
-            mac => $mac, vlan => $vlan, violation_autoreg => 0, isPhone => $isPhone, connection_type => $WIRED_SNMP_TRAPS});
+            mac => $mac, vlan => $vlan, security_event_autoreg => 0, isPhone => $isPhone, connection_type => $WIRED_SNMP_TRAPS});
         $logger->debug("auto-registering node $mac");
         if (!node_register($mac, $autoreg_node_defaults{'pid'}, %autoreg_node_defaults)) {
             $logger->error("auto-registration of node $mac failed");
@@ -888,7 +888,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

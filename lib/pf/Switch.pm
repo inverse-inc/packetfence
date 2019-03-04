@@ -1589,9 +1589,11 @@ sub isPhoneAtIfIndex {
     }
 
     if (defined($ifIndex)) {
-        $logger->debug("determining if $mac is VoIP phone through discovery protocols");
-        my @phones = $self->getPhonesDPAtIfIndex($ifIndex);
-        return ( grep( { lc($_) eq lc($mac) } @phones ) != 0 );
+        return $self->cache_distributed->compute($self->{_id} . "-SNMP-isPhoneAtIfIndex-$ifIndex-$mac", sub {
+            $logger->debug("determining if $mac is VoIP phone through discovery protocols");
+            my @phones = $self->getPhonesDPAtIfIndex($ifIndex);
+            return ( grep( { lc($_) eq lc($mac) } @phones ) != 0 );
+        });
     } else {
         return 0;
     }
@@ -3038,13 +3040,30 @@ sub parseRequest {
     my $client_mac      = ref($radius_request->{'Calling-Station-Id'}) eq 'ARRAY'
                            ? clean_mac($radius_request->{'Calling-Station-Id'}[0])
                            : clean_mac($radius_request->{'Calling-Station-Id'});
-    my $user_name       = $radius_request->{'PacketFence-UserNameAttribute'} || $radius_request->{'TLS-Client-Cert-Subject-Alt-Name-Upn'} || $radius_request->{'TLS-Client-Cert-Common-Name'} || $radius_request->{'User-Name'};
+    my $user_name       = $self->parseRequestUsername($radius_request);
     my $nas_port_type   = ( defined($radius_request->{'NAS-Port-Type'}) ? $radius_request->{'NAS-Port-Type'} : ( defined($radius_request->{'Called-Station-SSID'}) ? "Wireless-802.11" : undef ) );
     my $port            = $radius_request->{'NAS-Port'};
     my $eap_type        = ( exists($radius_request->{'EAP-Type'}) ? $radius_request->{'EAP-Type'} : 0 );
     my $nas_port_id     = ( defined($radius_request->{'NAS-Port-Id'}) ? $radius_request->{'NAS-Port-Id'} : undef );
 
     return ($nas_port_type, $eap_type, $client_mac, $port, $user_name, $nas_port_id, undef, $nas_port_id);
+}
+
+=item parseRequestUsername
+
+Parse the username from the RADIUS request
+
+=cut
+
+sub parseRequestUsername {
+    my ($self, $radius_request) = @_;
+    foreach my $attribute (@{$Config{radius_configuration}{username_attributes}}) {
+        if(exists($radius_request->{$attribute})) {
+            my $user_name = $radius_request->{$attribute};
+            get_logger->debug("Extracting username '$user_name' from RADIUS attribute $attribute");
+            return $user_name;
+        }
+    }
 }
 
 =item getAcceptForm
@@ -3664,6 +3683,33 @@ sub setCurrentTenant {
     pf::dal->set_tenant($self->{_TenantId});
 }
 
+=head2 getCiscoAvPairAttribute
+
+getCiscoAvPairAttribute
+
+=cut
+
+sub getCiscoAvPairAttribute {
+    my ($self, $radius_request, $attr) = @_;
+    my $logger = $self->logger;
+    my $avpair = listify($radius_request->{'Cisco-AVPair'} // []);
+    foreach my $ciscoAVPair (@{$avpair}) {
+        $logger->trace("Cisco-AVPair: $ciscoAVPair $attr");
+        if ($ciscoAVPair =~ /^\Q$attr\E=(.*)$/ig) {
+            return $1;
+        } else {
+            $logger->info("Unable to extract $attr of Cisco-AVPair: $ciscoAVPair");
+        }
+    }
+
+    $logger->warn(
+        "Unable to extract $attr for module " . ref($self) . ". SSID-based VLAN assignments won't work. "
+        . "Make sure you enable Vendor Specific Attributes (VSA) on the AP if you want them to work."
+    );
+
+    return ;
+}
+
 =back
 
 =head1 AUTHOR
@@ -3672,7 +3718,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

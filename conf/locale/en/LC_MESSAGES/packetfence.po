@@ -1,5 +1,5 @@
 # English translations for PacketFence package.
-# Copyright (C) 2005-2018 Inverse inc.
+# Copyright (C) 2005-2019 Inverse inc.
 # This file is distributed under the same license as the PacketFence package.
 #
 msgid ""

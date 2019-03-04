@@ -22,6 +22,7 @@ import {
   compareDate,
   isDateFormat,
   isPort,
+  hasSources,
   sourceExists,
   requireAllSiblingFields,
   requireAnySiblingFields,
@@ -162,7 +163,7 @@ export const pfConfigurationActions = {
   set_time_balance: {
     value: 'set_time_balance',
     text: i18n.t('Time balance'),
-    types: [fieldType.DURATION],
+    types: [fieldType.TIME_BALANCE],
     validators: {
       type: {
         /* Don't allow elsewhere */
@@ -598,6 +599,12 @@ export const pfConfigurationListColumns = {
     sortable: true,
     visible: true
   },
+  ntlm_cache: {
+    key: 'ntlm_cache',
+    label: i18n.t('NTLM Cache'),
+    sortable: true,
+    visible: true
+  },
   port: {
     key: 'port',
     label: i18n.t('Port'),
@@ -731,7 +738,7 @@ export const pfConfigurationViewFields = {
             [i18n.t('Value required.')]: required,
             [i18n.t('Maximum 255 characters.')]: maxLength(255),
             [i18n.t('Alphanumeric characters only.')]: alphaNum,
-            [i18n.t('Source exists.')]: not(and(required, conditional(isNew || isClone), sourceExists))
+            [i18n.t('Source exists.')]: not(and(required, conditional(isNew || isClone), hasSources, sourceExists))
           }
         }
       ]

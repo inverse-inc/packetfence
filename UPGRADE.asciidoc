@@ -1846,6 +1846,22 @@ Once completed, update the file /usr/local/pf/conf/currently-at to match the new
 Upgrading from a version prior to X.Y.Z
 ---------------------------------------
 
+Necessity to use MariaDB
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+NOTE: This only applies to users using an external database server. If your database is hosted on the same server as PacketFence whether you are in cluster or standalone, this requires no attention.
+
+Users hosting an external database for PacketFence will need to run a recent version of MariaDB as it will be the only supported database backend. Failure to use MariaDB may result in errors in the database migration script.
+
+In order to migrate to MariaDB, it is suggested to create a new database server and perform an export of the data through mysqldump and import it in the new server.
+
+The recommended MariaDB version for PacketFence is currently 10.1.21
+
+A recent version of MySQL can also work but going forward, the only tested database engine will be MariaDB.
+
+Database schema
+^^^^^^^^^^^^^^^
+
 Changes have been made to the database schema. You will need to update it accordingly.
 An SQL upgrade script has been provided to upgrade the database from the X.X schema to X.Y.
 

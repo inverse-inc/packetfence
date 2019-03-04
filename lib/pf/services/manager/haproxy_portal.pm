@@ -41,6 +41,10 @@ has '+name' => (default => sub { 'haproxy-portal' } );
 
 has '+haproxy_config_template' => (default => sub { "$conf_dir/haproxy-portal.conf" });
 
+my $host_id = $pf::config::cluster::host_id;
+
+tie our %NetworkConfig, 'pfconfig::cached_hash', "resource::network_config($host_id)";
+
 sub generateConfig {
     my ($self,$quick) = @_;
     my $logger = get_logger();
@@ -220,7 +224,7 @@ EOT
     push @portal_hosts, map { $_->{activation_domain} ? $_->{activation_domain} : () } @{getAllAuthenticationSources()};
     push @portal_hosts, @{$Config{captive_portal}->{other_domain_names}};
     push @portal_hosts, map {$_->portal_domain_name ? $_->portal_domain_name : ()} @{pf::dal::tenant->search->all};
-
+    push @portal_hosts, map { $NetworkConfig{$_}->{portal_fqdn} ? $NetworkConfig{$_}->{portal_fqdn} : () } keys %NetworkConfig;
 
     # Escape special chars for lua matches
     @portal_hosts = map { $_ =~ s/([.-])/%$1/g ; $_ } @portal_hosts;
@@ -248,7 +252,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

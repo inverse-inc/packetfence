@@ -59,13 +59,13 @@ export default {
       return response.data.items
     })
   },
-  violations: mac => {
+  security_events: mac => {
     const search = {
       query: { op: 'and', values: [ { field: 'mac', op: 'equals', value: mac } ] },
       limit: 100,
       cursor: '0'
     }
-    return apiCall.post('violations/search', search).then(response => {
+    return apiCall.post('security_events/search', search).then(response => {
       return response.data.items
     })
   },
@@ -102,18 +102,18 @@ export default {
       return response.data
     })
   },
-  clearViolationNode: mac => {
-    return apiCall.post(`node/${mac}/closeviolations`).then(response => {
+  clearSecurityEventNode: mac => {
+    return apiCall.post(`node/${mac}/closesecurity_events`).then(response => {
       return response.data
     })
   },
-  applyViolationBulkNodes: body => {
-    return apiCall.post('nodes/bulk_apply_violation', body).then(response => {
+  applySecurityEventBulkNodes: body => {
+    return apiCall.post('nodes/bulk_apply_security_event', body).then(response => {
       return response.data
     })
   },
-  clearViolationBulkNodes: body => {
-    return apiCall.post('nodes/bulk_close_violations', body).then(response => {
+  clearSecurityEventBulkNodes: body => {
+    return apiCall.post('nodes/bulk_close_security_events', body).then(response => {
       return response.data
     })
   },

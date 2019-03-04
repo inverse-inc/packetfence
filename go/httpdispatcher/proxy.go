@@ -27,10 +27,13 @@ type passthrough struct {
 	detectionmechanisms     []*regexp.Regexp
 	DetectionMecanismBypass bool
 	mutex                   sync.Mutex
-	WisprURL                *url.URL
-	PortalURL               *url.URL
+	PortalURL               map[int]map[*net.IPNet]*url.URL
 	URIException            *regexp.Regexp
 	SecureRedirect          bool
+}
+
+type fqdn struct {
+	FQDN map[*net.IPNet]*url.URL
 }
 
 var passThrough *passthrough
@@ -117,26 +120,44 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !(passThrough.checkProxyPassthrough(ctx, host) || ((passThrough.checkDetectionMechanisms(ctx, fqdn.String()) || passThrough.URIException.MatchString(r.RequestURI)) && passThrough.DetectionMecanismBypass)) {
-		if r.Method != "GET" {
+		if r.Method != "GET" && r.Method != "HEAD" {
 			log.LoggerWContext(ctx).Debug(fmt.Sprintln(host, "FORBIDDEN"))
 			w.WriteHeader(http.StatusNotImplemented)
 			return
 		}
 
+		var PortalURL url.URL
+		var found bool
+		found = false
+		srcIP := net.ParseIP(r.Header.Get("X-Forwarded-For"))
+		for i := 0; i <= len(passThrough.PortalURL); i++ {
+			if found {
+				break
+			}
+			for c, d := range passThrough.PortalURL[i] {
+				if c.Contains(srcIP) {
+					PortalURL = *d
+					found = true
+					break
+				}
+			}
+		}
+
 		if (passThrough.checkDetectionMechanisms(ctx, fqdn.String()) || passThrough.URIException.MatchString(r.RequestURI)) && passThrough.SecureRedirect {
-			passThrough.PortalURL.Scheme = "http"
+			PortalURL.Scheme = "http"
 		}
 		log.LoggerWContext(ctx).Debug(fmt.Sprintln(host, "Redirect to the portal"))
-		passThrough.PortalURL.RawQuery = "destination_url=" + r.Header.Get("X-Forwarded-Proto") + "://" + host + r.RequestURI
-		w.Header().Set("Location", passThrough.PortalURL.String())
+		PortalURL.RawQuery = "destination_url=" + r.Header.Get("X-Forwarded-Proto") + "://" + host + r.RequestURI
+		w.Header().Set("Location", PortalURL.String())
 		w.WriteHeader(http.StatusFound)
-		t := template.New("foo")
-		t, _ = t.Parse(`
+		if r.Method != "HEAD" {
+			t := template.New("foo")
+			t, _ = t.Parse(`
 <html>
 <head><title>302 Moved Temporarily</title></head>
 <body>
 	<h1>Moved</h1>
-		<p>The document has moved <a href="{{.PortalURL.String}}">here</a>.</p>
+		<p>The document has moved <a href="{{.String}}">here</a>.</p>
 		<!--<?xml version="1.0" encoding="UTF-8"?>
 			<WISPAccessGatewayParam xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.wballiance.net/wispr/wispr_2_0.xsd">
 				<Redirect>
@@ -147,13 +168,13 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					<VersionHigh>2.0</VersionHigh>
 					<AccessLocation>CDATA[[isocc=,cc=,ac=,network=PacketFence,]]</AccessLocation>
 					<LocationName>CDATA[[PacketFence]]</LocationName>
-					<LoginURL>{{.WisprURL.String}}</LoginURL>
+					<LoginURL>{{.String}}</LoginURL>
 				</Redirect>
 			</WISPAccessGatewayParam>-->
 	</body>
 </html>`)
-		t.Execute(w, passThrough)
-
+			t.Execute(w, &PortalURL)
+		}
 		log.LoggerWContext(ctx).Debug(fmt.Sprintln(host, "REDIRECT"))
 		return
 	}
@@ -226,20 +247,59 @@ func (p *passthrough) readConfig(ctx context.Context) {
 		scheme = "http"
 	}
 
-	var portalURL url.URL
-	var wisprURL url.URL
+	index := 0
 
-	portalURL.Host = general.Hostname + "." + general.Domain
-	portalURL.Path = "/captive-portal"
-	portalURL.Scheme = scheme
+	var interfaces pfconfigdriver.ListenInts
+	pfconfigdriver.FetchDecodeSocket(ctx, &interfaces)
 
-	wisprURL.Host = general.Hostname + "." + general.Domain
-	wisprURL.Path = "/wispr"
-	wisprURL.Scheme = scheme
+	var keyConfNet pfconfigdriver.PfconfigKeys
+	keyConfNet.PfconfigNS = "config::Network"
+	keyConfNet.PfconfigHostnameOverlay = "yes"
+	pfconfigdriver.FetchDecodeSocket(ctx, &keyConfNet)
 
-	p.WisprURL = &wisprURL
-	p.PortalURL = &portalURL
+	var NetIndexDefault net.IPNet
+	var portalURLDefault url.URL
 
+	p.PortalURL = make(map[int]map[*net.IPNet]*url.URL)
+
+	for _, key := range keyConfNet.Keys {
+		var NetIndex net.IPNet
+		var portalURL url.URL
+
+		var portal_url fqdn
+		portal_url.FQDN = make(map[*net.IPNet]*url.URL)
+
+		var ConfNet pfconfigdriver.NetworkConf
+		ConfNet.PfconfigHashNS = key
+		pfconfigdriver.FetchDecodeSocket(ctx, &ConfNet)
+
+		var portal string
+		if ConfNet.PortalFQDN != "" {
+			portal = ConfNet.PortalFQDN
+		} else {
+			portal = general.Hostname + "." + general.Domain
+		}
+		portalURL.Host = portal
+		portalURL.Path = "/captive-portal"
+		portalURL.Scheme = scheme
+
+		NetIndex.Mask = net.IPMask(net.ParseIP(ConfNet.Netmask))
+		NetIndex.IP = net.ParseIP(key)
+
+		p.PortalURL[index] = make(map[*net.IPNet]*url.URL)
+		p.PortalURL[index][&NetIndex] = &portalURL
+		index++
+	}
+	NetIndexDefault.Mask = net.IPMask(net.IPv4zero)
+	NetIndexDefault.IP = net.IPv4zero
+
+	portalURLDefault.Host = general.Hostname + "." + general.Domain
+	portalURLDefault.Path = "/captive-portal"
+	portalURLDefault.Scheme = scheme
+
+	p.PortalURL[index] = make(map[*net.IPNet]*url.URL)
+
+	p.PortalURL[index][&NetIndexDefault] = &portalURLDefault
 }
 
 // newProxyPassthrough instantiate a passthrough and return it

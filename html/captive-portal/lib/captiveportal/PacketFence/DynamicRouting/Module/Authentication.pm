@@ -24,6 +24,7 @@ use captiveportal::Form::Authentication;
 use pf::locationlog;
 use captiveportal::Base::Actions;
 use pf::constants::realm;
+use pf::constants::role qw($REJECT_ROLE);
 
 has 'source' => (is => 'rw', isa => 'pf::Authentication::Source|Undef');
 
@@ -148,7 +149,11 @@ sub execute_actions {
 
     $self->SUPER::execute_actions();
 
-    unless(defined($self->new_node_info->{category}) && ( defined($self->new_node_info->{time_balance}) || defined($self->new_node_info->{bandwidth_balance}) || defined($self->new_node_info->{unregdate}))){
+    unless(
+        defined($self->new_node_info->{category}) && 
+        $self->new_node_info->{category} ne $REJECT_ROLE && 
+        ( defined($self->new_node_info->{time_balance}) || defined($self->new_node_info->{bandwidth_balance}) || defined($self->new_node_info->{unregdate}))
+    ){
         $self->app->flash->{error} = "You do not have permission to register a device with this username";
 
         # Make sure the current source is not remembered since it failed...
@@ -372,7 +377,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

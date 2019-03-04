@@ -74,7 +74,7 @@ Hash::Merge::specify_behavior(
     'PF_CHI_MERGE'
 );
 
-our @CACHE_NAMESPACES = qw(configfilesdata configfiles httpd.admin httpd.portal pfdns switch.overlay ldap_auth fingerbank firewall_sso switch accounting clustering person_lookup route_int provisioning switch_distributed pfdhcp_api openvas_scans);
+our @CACHE_NAMESPACES = qw(configfilesdata configfiles httpd.admin httpd.portal pfdns switch.overlay ldap_auth fingerbank firewall_sso switch accounting clustering person_lookup route_int provisioning switch_distributed pfdhcp_api openvas_scans local_mac);
 
 our $chi_default_config = pf::IniFiles->new( -file => $chi_defaults_config_file) or die "Cannot open $chi_defaults_config_file";
 
@@ -263,7 +263,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

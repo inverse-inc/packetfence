@@ -18,6 +18,7 @@ use strict;
 use warnings;
 
 use Config::IniFiles;
+use Symbol 'gensym','qualify_to_ref';   # For the 'any data type' hack
 use base qw(Config::IniFiles);
 use Time::HiRes qw(stat time);
 
@@ -423,6 +424,51 @@ sub GetFileNameForError {
 
     return $cf;
 }
+sub _make_filehandle {
+  my $self = shift;
+
+  #
+  # This code is 'borrowed' from Lincoln D. Stein's GD.pm module
+  # with modification for this module. Thanks Lincoln!
+  #
+
+  no strict 'refs';
+  my $thing = shift;
+
+  if (ref($thing) eq "SCALAR") {
+      if (eval { require IO::Scalar; $IO::Scalar::VERSION >= 2.109; }) {
+          return IO::Scalar->new($thing);
+      } else {
+          warn "SCALAR reference as file descriptor requires IO::stringy ".
+            "v2.109 or later" if ($^W);
+          return;
+      }
+  }
+
+  return $thing if defined(fileno $thing);
+
+  # otherwise try qualifying it into caller's package
+  my $fh = qualify_to_ref($thing,caller(1));
+  return $fh if defined(fileno $fh);
+
+  # otherwise treat it as a file to open
+  $fh = gensym;
+  open($fh, "<:encoding(UTF-8)", $thing) || return;
+
+  return $fh;
+} # end _make_filehandle
+
+=head2 OutputConfigToFileHandle
+
+OutputConfigToFileHandle
+
+=cut
+
+sub OutputConfigToFileHandle {
+    my ($self, $fh, @args) = @_;
+    binmode($fh, ":encoding(UTF-8)");
+    return $self->SUPER::OutputConfigToFileHandle($fh, @args) ;
+}
 
 =head1 AUTHOR
 
@@ -431,7 +477,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

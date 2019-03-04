@@ -92,7 +92,7 @@ sub pre_save {
 sub after_create_hook {
     my ($self) = @_;
     my $apiclient = pf::api::queue->new(queue => 'general');
-    $apiclient->notify_delayed($NODE_DISCOVERED_TRIGGER_DELAY, "trigger_violation", mac => $self->{mac}, type => "internal", tid => "node_discovered");
+    $apiclient->notify_delayed($NODE_DISCOVERED_TRIGGER_DELAY, "trigger_security_event", mac => $self->{mac}, type => "internal", tid => "node_discovered");
     return ;
 }
 
@@ -241,7 +241,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

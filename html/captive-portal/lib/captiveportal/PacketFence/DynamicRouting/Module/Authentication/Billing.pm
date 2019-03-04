@@ -22,8 +22,8 @@ use Tie::IxHash;
 use pf::log;
 use List::Util qw(first);
 use pf::config;
-use pf::violation;
-use pf::config::violation;
+use pf::security_event;
+use pf::config::security_event;
 use pf::config::util;
 use pf::web::guest;
 use pf::util;
@@ -239,10 +239,10 @@ sub process_transaction {
             $logger->info("Usage duration for $mac is now " . $info->{'time_balance'});
         }
 
-        # Close violations that use the 'Accounting::BandwidthExpired' trigger
-        foreach my $vid (@BANDWIDTH_EXPIRED_VIOLATIONS){
-            # Close any existing violation
-            violation_force_close($mac, $vid);
+        # Close security_events that use the 'Accounting::BandwidthExpired' trigger
+        foreach my $security_event_id (@BANDWIDTH_EXPIRED_SECURITY_EVENTS){
+            # Close any existing security_event
+            security_event_force_close($mac, $security_event_id);
         }
     }
 
@@ -393,7 +393,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

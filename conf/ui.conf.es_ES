@@ -1,9 +1,9 @@
 [ui]
-display=status,person,node,violation,scan,administration,configuration
+display=status,person,node,security_event,scan,administration,configuration
 status=Estado
 person=Persona
 node=Nodo
-violation=Violación
+security_event=Violación
 configuration=Configuración
 scan=Análisis
 administration=Administración
@@ -31,14 +31,14 @@ import=Importar
 useragent=Agente-Usuario
 accounting=Cuenta
 
-[ui.violation]
+[ui.security_event]
 display=view,add
 view=Ver
 add=Agregar
 
 [ui.configuration]
-display=main,interfaces,networks,switches,floatingnetworkdevice,violation,fingerprint,useragent,captive-portal
-violation=Violación
+display=main,interfaces,networks,switches,floatingnetworkdevice,security_event,fingerprint,useragent,captive-portal
+security_event=Violación
 switches=Switches
 floatingnetworkdevice=Dispositivo de Red Flotante
 fingerprint=Fingerprint
@@ -54,7 +54,7 @@ display=remediation
 remediation=Plantillas de Remediación
 
 [ui.status.reports]
-display=ipmachistory,locationhistoryswitch,locationhistorymac,ifoctetshistoryswitch,ifoctetshistorymac,ifoctetshistoryuser,active,inactive,registered,unregistered,os,osclass,unknownprints,unknownuseragents,openviolations,statics,connectiontype,connectiontypereg,ssid
+display=ipmachistory,locationhistoryswitch,locationhistorymac,ifoctetshistoryswitch,ifoctetshistorymac,ifoctetshistoryuser,active,inactive,registered,unregistered,os,osclass,unknownprints,unknownuseragents,opensecurity_events,statics,connectiontype,connectiontypereg,ssid
 ipmachistory=Historial IP - MAC 
 locationhistoryswitch=Historial Ubicación (switch)
 locationhistorymac=Historial Ubicación (MAC)
@@ -69,7 +69,7 @@ os=SO
 osclass=Clase de SO
 unknownprints=Fingerprints Desconocidos
 unknownuseragents=Agentes de Usuario Desconocidos
-openviolations=Violaciones abiertas
+opensecurity_events=Violaciones abiertas
 statics=Probables IPs Estáticas
 connectiontype=Tipos de Conexión (Todas)
 connectiontypereg=Tipos de Conexión (Registradas)
@@ -95,9 +95,9 @@ adduser=Agregar Usuario
 ui_options=Opciones UI 
 
 [ui.status.graphs]
-display=unregistered, violations, nodes,ifoctetshistoryswitch,ifoctetshistorymac,ifoctetshistoryuser,traps
+display=unregistered, security_events, nodes,ifoctetshistoryswitch,ifoctetshistorymac,ifoctetshistoryuser,traps
 unregistered=Nodos no registrados
-violations=Violaciones
+security_events=Violaciones
 nodes=Total Nodos
 ifoctetshistoryswitch= Cuenta (Switch)
 ifoctetshistorymac= Cuenta (MAC)
@@ -105,10 +105,10 @@ ifoctetshistoryuser= Cuenta (User)
 traps=SNMP Traps
 
 [ui.status.nuggets]
-display=recent_violations,recent_violations_opened,recent_violations_closed,recent_registrations,current_grace,current_activity,current_node_status
-recent_violations=Violaciones Recientes
-recent_violations_opened=Violaciones Recientes Abiertas
-recent_violations_closed=Violaciones Recientes Cerradas
+display=recent_security_events,recent_security_events_opened,recent_security_events_closed,recent_registrations,current_grace,current_activity,current_node_status
+recent_security_events=Violaciones Recientes
+recent_security_events_opened=Violaciones Recientes Abiertas
+recent_security_events_closed=Violaciones Recientes Cerradas
 recent_registrations=Registros Recientes
 current_grace=Grace Actual
 current_activity=Actividad Actual
@@ -225,7 +225,7 @@ notes=Notas
 command=nodecategory edit
 
 [ui.node.view]
-display=mac,computername,pid,category,status,bypass_vlan,nbopenviolations,voip,detect_date,regdate,unregdate,last_connection_type,last_switch,last_port,last_vlan,last_ssid,last_dot1x_username,user_agent,dhcp_fingerprint,last_arp,last_dhcp,lastskip,notes
+display=mac,computername,pid,category,status,bypass_vlan,nbopensecurity_events,voip,detect_date,regdate,unregdate,last_connection_type,last_switch,last_port,last_vlan,last_ssid,last_dot1x_username,user_agent,dhcp_fingerprint,last_arp,last_dhcp,lastskip,notes
 mac=MAC
 pid=Identificador
 category=Categoría
@@ -246,7 +246,7 @@ last_connection_type=Última conexión
 last_dot1x_username=Último Nombre de Usuario 802.1x
 last_ssid=Último SSID
 dhcp_fingerprint=SO (DHCP)
-nbopenviolations=# Viol.
+nbopensecurity_events=# Security events.
 lastskip=Lastskip
 bypass_vlan=Bypass VLAN
 command=node view
@@ -306,7 +306,7 @@ location=Locación
 description=Descripción
 command=switchlocation view
 
-[ui.violation.add]
+[ui.security_event.add]
 display=-id,mac,vid,-start_date,-release_date,status,notes
 id=ID
 mac=MAC
@@ -315,9 +315,9 @@ start_date=Fecha Inicio
 release_date=Fecha Liberación
 status=Status
 notes=Notas
-command=violation add
+command=security_event add
 
-[ui.violation.view]
+[ui.security_event.view]
 display=id,mac,computername,status,vid,start_date,release_date,notes
 id=ID
 vid=Descripción
@@ -327,9 +327,9 @@ start_date=Fecha Inicio
 release_date=Fecha Liberación
 status=Estado
 notes=Notas
-command=violation view
+command=security_event view
 
-[ui.configuration.violation]
+[ui.configuration.security_event]
 display=vid,desc,enabled,auto_enable,actions,max_enable,grace,priority,url,button_text,trigger,vlan,whitelisted_categories
 vid=Identificador
 desc=Description
@@ -344,9 +344,9 @@ actions=Acciones
 trigger=Trigger
 vlan=VLAN Objetivo
 whitelisted_categories=Categorías Whitelisted 
-command=violationconfig get
+command=security_eventconfig get
 
-[ui.configuration.violation.add]
+[ui.configuration.security_event.add]
 display=vid,desc,enabled,auto_enable,actions,max_enable,grace,priority,url,button_text,trigger,vlan,whitelisted_categories
 vid=Identificador
 desc=Descripción
@@ -361,7 +361,7 @@ actions=Acciones
 trigger=Trigger
 vlan=VLAN Objetivo
 whitelisted_categories=Categorías Whitelisted 
-command=violationconfig add
+command=security_eventconfig add
 
 [ui.configuration.fingerprint]
 display=id,classid,class,os,fingerprint
@@ -467,14 +467,14 @@ pvid=VLAN Nativa
 taggedVlan=Vlans Etiquetadas
 command=floatingnetworkdeviceconfig get
 
-[ui.status.reports.openviolations]
-display=violation,owner,status,start_date,mac
+[ui.status.reports.opensecurity_events]
+display=security_event,owner,status,start_date,mac
 mac=MAC
 start_date=Fecha Inicio
 owner=Propietario
 status=Estado
-violation=Violación
-command=report openviolations
+security_event=Violación
+command=report opensecurity_events
 
 [ui.status.reports.active]
 display=mac,ip,pid,regdate,unregdate,lastskip,status,user_agent,computername,notes,start_time,end_time,last_dhcp,detect_date,last_arp,os

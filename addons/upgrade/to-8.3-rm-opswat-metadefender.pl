@@ -16,7 +16,7 @@ use strict;
 use warnings;
 use lib qw(/usr/local/pf/lib);
 use pf::IniFiles;
-use pf::file_paths qw($pf_config_file $violations_config_file);
+use pf::file_paths qw($pf_config_file $security_events_config_file);
 use pf::util;
 run_as_pf();
 my $ini = pf::IniFiles->new(-file => $pf_config_file, -allowempty => 1);
@@ -25,7 +25,7 @@ if ($ini && $ini->SectionExists('metadefender')) {
     $ini->RewriteConfig();
 }
 
-$ini = pf::IniFiles->new(-file => $violations_config_file, -allowempty => 1);
+$ini = pf::IniFiles->new(-file => $security_events_config_file, -allowempty => 1);
 if ($ini) {
     for my $section ($ini->Sections()) {
         my $trigger = $ini->val($section, "trigger");
@@ -44,7 +44,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

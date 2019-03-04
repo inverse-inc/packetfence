@@ -32,7 +32,6 @@ use pf::config qw(
     %Doc_Config
 );
 use pf::admin_roles;
-use pfappserver::Form::Config::Pf;
 use pf::constants::pfconf;
 
 BEGIN {extends 'pfappserver::Base::Controller'; }
@@ -169,14 +168,14 @@ sub users :Local {
     $c->go('Controller::User', 'create');
 }
 
-=head2 violations
+=head2 security_events
 
 =cut
 
-sub violations :Local {
+sub security_events :Local {
     my ($self, $c) = @_;
 
-    $c->go('Controller::Violation', 'index');
+    $c->go('Controller::SecurityEvent', 'index');
 }
 
 =head2 domains
@@ -558,7 +557,7 @@ sub test_smtp : Local {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

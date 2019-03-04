@@ -24,13 +24,14 @@
     </b-col>
     <b-col cols="6" align-self="start" class="pl-1">
 
-      <!-- Types: ADMINROLE, ROLE, ROLE_BY_NAME, TENANT, DURATION -->
+      <!-- Types: ADMINROLE, ROLE, ROLE_BY_NAME, TENANT, DURATION, TIME_BALANCE -->
       <pf-form-chosen v-if="
           isFieldType(adminroleValueType) ||
           isFieldType(roleValueType) ||
           isFieldType(roleByNameValueType) ||
           isFieldType(tenantValueType) ||
-          isFieldType(durationValueType)
+          isFieldType(durationValueType) ||
+          isFieldType(timeBalanceValueType)
         "
         v-model="localValue"
         ref="localValue"
@@ -136,9 +137,10 @@ export default {
       /* Custom element field types */
       datetimeValueType:        fieldType.DATETIME,
       prefixmultiplerValueType: fieldType.PREFIXMULTIPLIER,
-      durationValueType:        fieldType.DURATION,
+      timeBalanceValueType:     fieldType.TIME_BALANCE,
       /* Promise based field types */
       adminroleValueType:       fieldType.ADMINROLE,
+      durationValueType:        fieldType.DURATION,
       roleValueType:            fieldType.ROLE,
       roleByNameValueType:      fieldType.ROLE_BY_NAME,
       tenantValueType:          fieldType.TENANT

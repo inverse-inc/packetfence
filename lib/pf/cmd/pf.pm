@@ -15,7 +15,7 @@ pfcmd <command> [options]
  Commands
   cache                       | manage the cache subsystem
   checkup                     | perform a sanity checkup and report any problems
-  class                       | view violation classes
+  class                       | view security event classes
   configreload                | reload the configution
   connectionprofileconfig     | query/modify connection profile configuration parameters
   fingerbank                  | Fingerbank related commands
@@ -33,13 +33,13 @@ pfcmd <command> [options]
   node                        | manipulate node entries
   pfconfig                    | interact with pfconfig
   pfqueue                     | query/modify pfqueue tasks and counters
-  reload                      | rebuild fingerprint or violations tables without restart
+  reload                      | rebuild fingerprint or security events tables without restart
   service                     | start/stop/restart and get PF daemon status
   schedule                    | Nessus scan scheduling
   switchconfig                | query/modify switches.conf configuration parameters
   version                     | output version information
-  violation                   | manipulate violations
-  violationconfig             | query/modify violations.conf configuration parameters
+  security_event              | manipulate security events
+  security_eventconfig        | query/modify security_events.conf configuration parameters
 
 Please view "pfcmd help <command>" for details on each option
 
@@ -65,7 +65,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

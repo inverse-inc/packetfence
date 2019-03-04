@@ -905,7 +905,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 High Performance MySQL Tuning Script
 Copyright (C) 2006-2011 Major Hayden - major@mhtx.net
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 For the latest updates, please visit http://mysqltuner.com/
 Git repository available at http://github.com/rackerhacker/MySQLTuner-perl

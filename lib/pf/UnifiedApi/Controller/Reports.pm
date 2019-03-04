@@ -94,14 +94,14 @@ sub statics_active {
     $self->render(json => { items => [report_statics_active()]});
 }
 
-sub openviolations_all {
+sub opensecurity_events_all {
     my ($self) = @_;
-    $self->render(json => { items => [report_openviolations_all()]});
+    $self->render(json => { items => [report_opensecurity_events_all()]});
 }
 
-sub openviolations_active {
+sub opensecurity_events_active {
     my ($self) = @_;
-    $self->render(json => { items => [report_openviolations_active()]});
+    $self->render(json => { items => [report_opensecurity_events_active()]});
 }
 
 sub connectiontype_all {
@@ -253,7 +253,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

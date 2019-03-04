@@ -56,7 +56,7 @@ use pf::config qw(
 );
 use pf::file_paths qw($generated_conf_dir $conf_dir);
 use pf::util;
-use pf::violation qw(violation_view_open_uniq violation_count);
+use pf::security_event qw(security_event_view_open_uniq security_event_count);
 use pf::authentication;
 use pf::cluster;
 use pf::ConfigStore::Provisioning;
@@ -422,6 +422,13 @@ sub generate_passthrough_rules {
 
     # add passthroughs required by the provisionings
     generate_provisioning_passthroughs();
+
+    $logger->info("Adding IP based passthrough for connectivitycheck.gstatic.com");
+    # Allow the host for the onboarding of devices
+    my $cmd = untaint_chain("sudo ipset --add pfsession_passthrough 172.217.13.99,80 2>&1");
+    pf_run($cmd);
+    $cmd = untaint_chain("sudo ipset --add pfsession_passthrough 172.217.13.99,443 2>&1");
+    pf_run($cmd);
 
     $logger->info("Adding NAT Masquerade statement.");
     my ($SNAT_ip, $mgmt_int);
@@ -793,7 +800,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

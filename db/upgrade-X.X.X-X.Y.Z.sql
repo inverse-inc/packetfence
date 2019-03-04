@@ -49,4 +49,49 @@ call ValidateVersion;
 
 DROP PROCEDURE IF EXISTS `ValidateVersion`;
 
+ALTER TABLE class 
+  CHANGE vid security_event_id INT(11) NOT NULL; 
+
+ALTER TABLE action 
+  CHANGE vid security_event_id INT(11) NOT NULL; 
+
+CREATE TABLE security_event 
+  ( 
+     id                INT NOT NULL auto_increment, 
+     tenant_id         INT NOT NULL DEFAULT 1, 
+     mac               VARCHAR(17) NOT NULL, 
+     security_event_id INT(11) NOT NULL, 
+     start_date        DATETIME NOT NULL, 
+     release_date      DATETIME DEFAULT "0000-00-00 00:00:00", 
+     status            VARCHAR(10) DEFAULT "open", 
+     ticket_ref        VARCHAR(255) DEFAULT NULL, 
+     notes             TEXT, 
+     KEY security_event_id (security_event_id), 
+     KEY status (status), 
+     KEY uniq_mac_status_id (mac, status, security_event_id), 
+     KEY security_event_release_date (release_date), 
+     CONSTRAINT `tenant_id_mac_fkey_node` FOREIGN KEY (`tenant_id`, `mac`) 
+     REFERENCES `node` (`tenant_id`, `mac`) ON DELETE CASCADE ON UPDATE CASCADE, 
+     CONSTRAINT `security_event_id_fkey_class` FOREIGN KEY (`security_event_id`) 
+     REFERENCES `class` (`security_event_id`) ON DELETE CASCADE ON UPDATE 
+     CASCADE, 
+     CONSTRAINT `security_event_tenant_id` FOREIGN KEY(`tenant_id`) REFERENCES 
+     `tenant` (`id`), 
+     PRIMARY KEY (id) 
+  ) ENGINE=INNODB; 
+
+INSERT INTO security_event 
+SELECT id, 
+       tenant_id, 
+       mac, 
+       vid, 
+       start_date, 
+       release_date, 
+       status, 
+       ticket_ref, 
+       notes 
+FROM   violation; 
+
+DROP TABLE violation; 
+
 INSERT INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION)); 

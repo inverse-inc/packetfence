@@ -21,17 +21,13 @@ export const pfConfigurationAuthenticationSourcesListFields = [
 ]
 
 export const pfConfigurationAuthenticationSourceListConfig = (context = {}) => {
-  const {
-    $i18n,
-    roles = [], // all roles
-  } = context
   return {
     columns: pfConfigurationAuthenticationSourcesListColumns,
     fields: pfConfigurationAuthenticationSourcesListFields,
     rowClickRoute (item, index) {
       return { name: 'source', params: { id: item.id } }
     },
-    searchPlaceholder: $i18n.t('Search by name or description'),
+    searchPlaceholder: i18n.t('Search by name or description'),
     searchableOptions: {
       searchApiEndpoint: 'config/sources',
       defaultSortKeys: ['id'],
@@ -238,9 +234,10 @@ export const pfConfigurationAuthenticationSourceViewFields = (context) => {
           fields: [
             pfConfigurationViewFields.id(context),
             pfConfigurationViewFields.description,
-            { ...pfConfigurationViewFields.email_activation_timeout, ...{
-              text: i18n.t('This is the delay given to a guest who registered by email confirmation to log into his email and click the activation link.')
-            } }, // re-text
+            {
+              ...pfConfigurationViewFields.email_activation_timeout,
+              ...{ text: i18n.t('This is the delay given to a guest who registered by email confirmation to log into his email and click the activation link.') }
+            }, // re-text
             pfConfigurationViewFields.allow_localdomain,
             pfConfigurationViewFields.activation_domain,
             pfConfigurationViewFields.create_local_account,
@@ -674,7 +671,6 @@ export const pfConfigurationAuthenticationSourceViewDefaults = (context = {}) =>
   switch (sourceType) {
     case 'AD':
       return {
-        id: null,
         port: '389',
         encryption: 'none',
         connection_timeout: '1',
@@ -695,7 +691,6 @@ export const pfConfigurationAuthenticationSourceViewDefaults = (context = {}) =>
       }
     case 'LDAP':
       return {
-        id: null,
         port: '389',
         encryption: 'none',
         connection_timeout: '1',

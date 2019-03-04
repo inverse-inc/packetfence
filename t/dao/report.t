@@ -50,8 +50,8 @@ my @methods = qw(
     report_active_reg
     report_registered_all
     report_registered_active
-    report_openviolations_all
-    report_openviolations_active
+    report_opensecurity_events_all
+    report_opensecurity_events_active
     report_statics_all
     report_statics_active
     report_unknownprints_all
@@ -80,7 +80,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

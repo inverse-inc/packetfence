@@ -46,6 +46,7 @@ our %ALLOWED_TYPES = (
     'time' => 1,
     'tenant' => 1,
     'advanced' => 1,
+    'fqdn' => 1,
 );
 
 our %TYPE_VALIDATOR = (
@@ -222,7 +223,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

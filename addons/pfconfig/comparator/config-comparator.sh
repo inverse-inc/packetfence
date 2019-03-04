@@ -5,7 +5,7 @@
 # - This will compare the generated configuration in different modules in two different branches.
 # - Note that the pfconfig data that is seen is the one running in the service
 #
-# Copyright (C) 2005-2018 Inverse inc.
+# Copyright (C) 2005-2019 Inverse inc.
 #
 # Author: Inverse inc. <info@inverse.ca>
 #

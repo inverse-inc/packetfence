@@ -25,7 +25,7 @@ use pf::scan;
 use pf::util;
 use pf::node;
 use pf::scan::wmi::rules;
-use pf::violation qw(violation_close);
+use pf::security_event qw(security_event_close);
 use pf::api::jsonrpcclient;
 
 sub description { 'WMI Scanner' }
@@ -80,21 +80,21 @@ sub startScan {
     my $rule_tester = new pf::scan::wmi::rules;
     my $result = $rule_tester->test($self);
  
-    my $scan_vid = $pf::constants::scan::POST_SCAN_VID;
-    $scan_vid = $pf::constants::scan::SCAN_VID if ($self->{'_registration'});
-    $scan_vid = $pf::constants::scan::PRE_SCAN_VID if ($self->{'_pre_registration'});
+    my $scan_security_event_id = $pf::constants::scan::POST_SCAN_SECURITY_EVENT_ID;
+    $scan_security_event_id = $pf::constants::scan::SCAN_SECURITY_EVENT_ID if ($self->{'_registration'});
+    $scan_security_event_id = $pf::constants::scan::PRE_SCAN_SECURITY_EVENT_ID if ($self->{'_pre_registration'});
 
     if (!$result) {
         $logger->warn("WMI scan didnt start");
-        return $scan_vid;
+        return $scan_security_event_id;
     }
 
     my $apiclient = pf::api::jsonrpcclient->new;
     my %data = (
-       'vid' => $scan_vid,
+       'security_event_id' => $scan_security_event_id,
        'mac' => $self->{'_scanMac'},
     );
-    $apiclient->notify('close_violation', %data );
+    $apiclient->notify('close_security_event', %data );
 
     $self->setStatus($pf::constants::scan::STATUS_CLOSED);
     $self->statusReportSyncToDb();
@@ -109,7 +109,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

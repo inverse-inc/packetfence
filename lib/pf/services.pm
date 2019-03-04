@@ -14,7 +14,7 @@ to generate or validate some configuration files.
 =head1 CONFIGURATION AND ENVIRONMENT
 
 Read the following configuration files: F<dhcpd_vlan.conf>,
-F<networks.conf>, F<violations.conf> and F<switches.conf>.
+F<networks.conf>, F<security_events.conf> and F<switches.conf>.
 
 Generate the following configuration file: F<snmptrapd.conf>.
 
@@ -138,7 +138,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

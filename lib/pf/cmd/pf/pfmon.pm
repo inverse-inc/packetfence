@@ -45,7 +45,7 @@ pfcmd pfmon <task> [options...]
 
 =item radius_audit_log_cleanup
 
-=item violation_maintenance
+=item security_event_maintenance
 
 =back
 
@@ -127,7 +127,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

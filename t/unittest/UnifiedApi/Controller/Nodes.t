@@ -102,12 +102,12 @@ $t->post_ok('/api/v1/nodes/bulk_apply_role' => json => { category_id => 1,  item
   ->json_is('/items/0/mac', $mac)
   ->json_is('/items/0/status', 'skipped');
 
-$t->post_ok("/api/v1/node/$mac/apply_violation" => json => { vid => '1100013' })
+$t->post_ok("/api/v1/node/$mac/apply_security_event" => json => { security_event_id => '1100013' })
   ->status_is(200);
 
-$t->post_ok('/api/v1/nodes/search' => json => { fields => [qw(mac violation.open_count)] })
+$t->post_ok('/api/v1/nodes/search' => json => { fields => [qw(mac security_event.open_count)] })
   ->status_is(200)
-  ->json_has('/items/0/violation.open_count');
+  ->json_has('/items/0/security_event.open_count');
 
 $t->post_ok('/api/v1/nodes/search' => json => { fields => [qw(mac)], with_total_count => \1 })
   ->status_is(200)
@@ -119,7 +119,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

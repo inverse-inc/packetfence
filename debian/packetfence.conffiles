@@ -82,7 +82,7 @@
 /usr/local/pf/conf/ui.conf
 /usr/local/pf/conf/ui.conf.es_ES
 /usr/local/pf/conf/ui-global.conf
-/usr/local/pf/conf/violations.conf
+/usr/local/pf/conf/security_events.conf
 /usr/local/pf/conf/wmi.conf
 /usr/local/pf/conf/monitoring/netdata.conf
 /usr/local/pf/conf/fingerbank-collector.env.defaults
@@ -135,7 +135,7 @@
 /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Remediation.pm
 /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Root.pm
 /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Status.pm
-/usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Violation.pm
+/usr/local/pf/html/captive-portal/lib/captiveportal/Controller/SecurityEvent.pm
 /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/WirelessProfile.pm
 /usr/local/pf/html/captive-portal/lib/captiveportal/Form/Authentication.pm
 /usr/local/pf/html/captive-portal/lib/captiveportal/Form/Field/AUP.pm
@@ -168,7 +168,7 @@
 /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/SavedSearch/User.pm
 /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Service.pm
 /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/User.pm
-/usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Violation.pm
+/usr/local/pf/html/pfappserver/lib/pfappserver/Controller/SecurityEvent.pm
 /usr/local/pf/lib/pf/floatingdevice/custom.pm
 /usr/local/pf/lib/pf/inline/custom.pm
 /usr/local/pf/lib/pf/lookup/node.pm

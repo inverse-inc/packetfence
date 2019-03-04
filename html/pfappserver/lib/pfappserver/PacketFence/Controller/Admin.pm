@@ -16,7 +16,6 @@ use warnings;
 use HTTP::Status qw(:constants is_error is_success);
 use namespace::autoclean;
 use Moose;
-use pfappserver::Form::SavedSearch;
 use pf::admin_roles;
 use pf::constants qw($TRUE $FALSE);
 use List::MoreUtils qw(none);
@@ -455,7 +454,7 @@ sub fixpermissions :Chained('object') :PathPart('fixpermissions') :Args(0) {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

@@ -3,13 +3,25 @@ import api from '../_api'
 
 const STORAGE_CHARTS_KEY = 'dashboard-charts'
 
+const types = {
+  LOADING: 'loading',
+  DELETING: 'deleting',
+  SUCCESS: 'success',
+  ERROR: 'error'
+}
+
 const state = {
   allCharts: [],
+  allChartsStatus: '',
   charts: localStorage.getItem(STORAGE_CHARTS_KEY) ? JSON.parse(localStorage.getItem(STORAGE_CHARTS_KEY)) : [],
-  services: []
+  services: [],
+  servicesStatus: '',
+  cluster: null,
+  clusterStatus: ''
 }
 
 const getters = {
+  isLoading: state => state.allChartsStatus === types.LOADING,
   allModules: state => {
     let modules = []
     let unasignedCharts = false
@@ -28,12 +40,19 @@ const getters = {
 }
 
 const actions = {
-  allCharts: ({ commit }, query) => {
-    api.charts().then(charts => {
-      commit('ALL_CHARTS_SUCCESS', charts)
-    }).catch(err => {
-      commit('session/CHARTS_ERROR', err.response, { root: true })
-    })
+  allCharts: ({ state, commit }) => {
+    if (state.allCharts.length > 0) {
+      return Promise.resolve(state.allCharts)
+    }
+    if (state.allChartsStatus !== types.LOADING) {
+      commit('ALL_CHARTS_REQUEST')
+      return api.charts().then(charts => {
+        commit('ALL_CHARTS_UPDATED', charts)
+      }).catch(err => {
+        commit('ALL_CHARTS_ERROR')
+        commit('session/CHARTS_ERROR', err.response, { root: true })
+      })
+    }
   },
   addChart: ({ state, commit }, definition) => {
     let chart = {
@@ -47,23 +66,51 @@ const actions = {
     localStorage.setItem(STORAGE_CHARTS_KEY, JSON.stringify(state.charts))
   },
   getServices: ({ state, commit }) => {
-    api.services().then(services => {
-      commit('SERVICES_UPDATED', services)
-      for (let [index, service] of state.services.entries()) {
-        commit('SERVICE_REQUEST', index)
-        api.service(service.name, 'status').then(status => {
-          commit('SERVICE_UPDATED', { index, status })
-        })
-      }
-    }).catch(err => {
-      commit('session/API_ERROR', err.response, { root: true })
-    })
+    if (state.services.length > 0) {
+      return Promise.resolve(state.services)
+    }
+    if (state.servicesStatus !== types.LOADING) {
+      commit('SERVICES_REQUEST')
+      return api.services().then(services => {
+        commit('SERVICES_UPDATED', services)
+        for (let [index, service] of state.services.entries()) {
+          commit('SERVICE_REQUEST', index)
+          api.service(service.name, 'status').then(status => {
+            commit('SERVICE_UPDATED', { index, status })
+          })
+        }
+      }).catch(err => {
+        commit('SERVICES_ERROR')
+        commit('session/API_ERROR', err.response, { root: true })
+      })
+    }
+  },
+  getCluster: ({ state, commit }) => {
+    if (state.cluster) {
+      return state.cluster
+    }
+    if (state.clusterStatus !== types.LOADING) {
+      commit('CLUSTER_REQUEST')
+      return api.cluster().then(servers => {
+        commit('CLUSTER_UPDATED', servers)
+        return servers
+      }).catch(() => {
+        commit('CLUSTER_ERROR')
+      })
+    }
   }
 }
 
 const mutations = {
-  ALL_CHARTS_SUCCESS: (state, charts) => {
+  ALL_CHARTS_REQUEST: (state) => {
+    state.allChartsStatus = types.LOADING
+  },
+  ALL_CHARTS_UPDATED: (state, charts) => {
+    state.allChartsStatus = types.SUCCESS
     state.allCharts = charts
+  },
+  ALL_CHARTS_ERROR: (state) => {
+    state.allChartsStatus = types.ERROR
   },
   CHARTS_UPDATED: (state, chart) => {
     if (state.charts.filter(c => c.id === chart.id).length) {
@@ -73,10 +120,17 @@ const mutations = {
       state.charts.push(chart)
     }
   },
+  SERVICES_REQUEST: (state) => {
+    state.servicesStatus = types.LOADING
+  },
   SERVICES_UPDATED: (state, services) => {
+    state.servicesStatus = types.SUCCESS
     state.services = services.map(name => {
       return { name }
     })
+  },
+  SERVICES_ERROR: (state) => {
+    state.servicesStatus = types.ERROR
   },
   SERVICE_REQUEST: (state, index) => {
     Vue.set(state.services, index, Object.assign(state.services[index], { loading: true }))
@@ -86,6 +140,20 @@ const mutations = {
     data.status.alive = data.status.alive === 1
     data.status.loading = false
     Vue.set(state.services, data.index, Object.assign(state.services[data.index], data.status))
+  },
+  CLUSTER_REQUEST: (state) => {
+    state.clusterStatus = types.LOADING
+  },
+  CLUSTER_UPDATED: (state, servers) => {
+    state.clusterStatus = types.SUCCESS
+    if (servers.length > 0) {
+      state.cluster = servers
+    } else {
+      state.cluster = [{ host: 'localhost', management_ip: '127.0.0.1' }]
+    }
+  },
+  CLUSTER_ERROR: (state) => {
+    state.clusterStatus = types.ERROR
   }
 }
 

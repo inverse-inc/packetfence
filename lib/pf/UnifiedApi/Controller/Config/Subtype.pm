@@ -43,13 +43,68 @@ sub type_lookup {
     return {}
 }
 
+=head2 options
+
+Handle the OPTIONS HTTP method
+
+=cut
+
+sub options {
+    my ($self) = @_;
+    my $params = $self->req->query_params->to_hash;
+    my $form = $self->form( { type => $params->{type} } );
+    return $self->render(
+        json => (
+              $form
+            ? $self->options_from_form($form)
+            : $self->options_with_no_type
+        ),
+        status => 200
+    );
+}
+
+=head2 options_with_no_type
+
+Return options with no type information
+
+=cut
+
+sub options_with_no_type {
+    my ($self) = @_;
+    my %allowed;
+    my %output = (
+        defaults => {},
+        placeholders => {},
+        allowed=> \%allowed,
+    );
+
+    $allowed{type} = [
+        map { $self->type_allowed_info($_) } keys %{$self->type_lookup}
+    ];
+    return \%output;
+}
+
+=head2 type_allowed_info
+
+Create the type's allowed info
+
+=cut
+
+sub type_allowed_info {
+    my ($self, $type) = @_;
+    return {
+        value => $type,
+        text => $type,
+    };
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

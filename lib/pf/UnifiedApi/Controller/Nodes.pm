@@ -19,11 +19,11 @@ use pf::dal::node;
 use pf::fingerbank;
 use pf::node;
 use pf::constants qw($TRUE);
-use pf::dal::violation;
+use pf::dal::security_event;
 use pf::error qw(is_error);
 use pf::locationlog qw(locationlog_history_mac locationlog_view_open_mac);
 use pf::UnifiedApi::Search::Builder::Nodes;
-use pf::violation;
+use pf::security_event;
 use pf::Connection;
 use pf::SwitchFactory;
 
@@ -209,13 +209,13 @@ sub fingerbank_refresh {
     return $self->render(json => {}, status => 200);
 }
 
-=head2 bulk_close_violations
+=head2 bulk_close_security_events
 
-bulk_close_violations
+bulk_close_security_events
 
 =cut
 
-sub bulk_close_violations {
+sub bulk_close_security_events {
     my ($self) = @_;
     my ($status, $data) = $self->parse_json;
     if (is_error($status)) {
@@ -223,13 +223,13 @@ sub bulk_close_violations {
     }
 
     my $items = $data->{items} // [];
-    ($status, my $iter) = pf::dal::violation->search(
+    ($status, my $iter) = pf::dal::security_event->search(
         -where => {
             mac => { -in => $items},
             status => "open",
         },
-        -columns => [qw(violation.vid mac)],
-        -from => [-join => qw(violation <=>{violation.vid=class.vid} class)],
+        -columns => [qw(security_event.security_event_id mac)],
+        -from => [-join => qw(security_event <=>{security_event.security_event_id=class.security_event_id} class)],
         -order_by => { -desc => 'start_date' },
         -with_class => undef,
     );
@@ -239,11 +239,11 @@ sub bulk_close_violations {
     }
 
     my ($indexes, $results) = bulk_init_results($items);
-    my $violations = $iter->all;
-    for my $violation (@$violations) {
-        my $mac = $violation->{mac};
+    my $security_events = $iter->all;
+    for my $security_event (@$security_events) {
+        my $mac = $security_event->{mac};
         my $index = $indexes->{$mac};
-        if (violation_force_close($mac, $violation->{vid})) {
+        if (security_event_force_close($mac, $security_event->{security_event_id})) {
             pf::enforcement::reevaluate_access($mac, "admin_modify");
             $results->[$index]{status} = "success";
         } else {
@@ -254,33 +254,33 @@ sub bulk_close_violations {
     return $self->render(status => 200, json => { items => $results });
 }
 
-=head2 close_violation
+=head2 close_security_event
 
-close_violation
+close_security_event
 
 =cut
 
-sub close_violation {
+sub close_security_event {
     my ($self) = @_;
     my ($status, $data) = $self->parse_json;
     if (is_error($status)) {
         return $self->render(json => $data, status => $status);
     }
     my $mac = $self->param('node_id');
-    my $violation_id = $data->{violation_id};
-    my $violation = violation_exist_id($violation_id);
-    if (!$violation || $violation->{mac} ne $mac ) {
-        return $self->render_error(404, "Error finding violation");
+    my $security_event_id = $data->{security_event_id};
+    my $security_event = security_event_exist_id($security_event_id);
+    if (!$security_event || $security_event->{mac} ne $mac ) {
+        return $self->render_error(404, "Error finding security event");
     }
 
     my $result = 0;
-    if (violation_force_close($mac, $violation->{vid})) {
+    if (security_event_force_close($mac, $security_event->{security_event_id})) {
         pf::enforcement::reevaluate_access($mac, "admin_modify");
         $result = 1;
     }
 
     unless ($result) {
-        return $self->render_error(500, "Unable to close violation");
+        return $self->render_error(500, "Unable to close security event");
     }
 
     return $self->render(json => {}, status => 200);
@@ -374,13 +374,13 @@ sub bulk_restart_switchport {
     return $self->render(status => 200, json => { items => $results });
 }
 
-=head2 bulk_apply_violation
+=head2 bulk_apply_security_event
 
-bulk_apply_violation
+bulk_apply_security_event
 
 =cut
 
-sub bulk_apply_violation {
+sub bulk_apply_security_event {
     my ($self) = @_;
     my ($status, $data) = $self->parse_json;
     if (is_error($status)) {
@@ -388,33 +388,33 @@ sub bulk_apply_violation {
     }
 
     my $items = $data->{items} // [];
-    my $vid = $data->{vid};
+    my $security_event_id = $data->{security_event_id};
     my ($indexes, $results) = bulk_init_results($items);
     for my $mac (@$items) {
-        my ($last_id) = violation_add($mac, $vid, ( 'force' => $TRUE ));
+        my ($last_id) = security_event_add($mac, $security_event_id, ( 'force' => $TRUE ));
         $results->[$indexes->{$mac}]{status} = $last_id > 0 ? "success" : "failed";
     }
 
     return $self->render( status => 200, json => { items => $results } );
 }
 
-=head2 apply_violation
+=head2 apply_security_event
 
-apply_violation
+apply_security_event
 
 =cut
 
-sub apply_violation {
+sub apply_security_event {
     my ($self) = @_;
     my ($status, $data) = $self->parse_json;
     if (is_error($status)) {
         return $self->render(json => $data, status => $status);
     }
     my $mac = $self->param('node_id');
-    my $vid = $data->{vid};
-    my ($last_id) = violation_add($mac, $vid, ( 'force' => $TRUE ));
+    my $security_event_id = $data->{security_event_id};
+    my ($last_id) = security_event_add($mac, $security_event_id, ( 'force' => $TRUE ));
 
-    return $self->render(status => 200, json => { violation_id => $last_id });
+    return $self->render(status => 200, json => { security_event_id => $last_id });
 }
 
 =head2 bulk_apply_role
@@ -554,7 +554,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

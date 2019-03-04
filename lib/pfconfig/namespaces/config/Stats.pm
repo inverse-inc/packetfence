@@ -20,7 +20,7 @@ use warnings;
 
 use pfconfig::namespaces::config;
 use pf::log;
-use pf::file_paths qw($stats_config_file);
+use pf::file_paths qw($stats_config_file $stats_config_default_file);
 
 use base 'pfconfig::namespaces::config';
 
@@ -30,6 +30,8 @@ sub init {
 
     $self->{file} = $stats_config_file;
     
+    my $defaults = pf::IniFiles->new( -file => $stats_config_default_file );
+    $self->{added_params}->{'-import'} = $defaults;
 }
 
 sub build_child {
@@ -48,7 +50,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

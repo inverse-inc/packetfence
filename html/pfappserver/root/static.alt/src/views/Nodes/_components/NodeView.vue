@@ -242,17 +242,17 @@
             </b-table>
         </b-tab>
 
-        <b-tab title="Violations">
+        <b-tab title="Security Events">
             <template slot="title">
-              {{ $t('Violations') }} <b-badge pill v-if="node.violations && node.violations.length > 0" variant="light" class="ml-1">{{ node.violations.length }}</b-badge>
+              {{ $t('Security Events') }} <b-badge pill v-if="node.security_events && node.security_events.length > 0" variant="light" class="ml-1">{{ node.security_events.length }}</b-badge>
             </template>
-            <b-table stacked="sm" :items="node.violations" :fields="violationFields" striped>
-                <template slot="description" slot-scope="violation">
-                    {{ violationDescription(violation.item.vid) }}
+            <b-table stacked="sm" :items="node.security_events" :fields="securityEventFields" striped>
+                <template slot="description" slot-scope="security_event">
+                    {{ securityEventDescription(security_event.item.security_event_id) }}
                 </template>
-                <template slot="status" slot-scope="violation">
-                  <b-badge pill variant="success" v-if="violation.item.status === 'open'">{{ $t('open') }}</b-badge>
-                  <b-badge pill variant="danger" v-else-if="violation.item.status === 'closed'">{{ $t('closed') }}</b-badge>
+                <template slot="status" slot-scope="security_event">
+                  <b-badge pill variant="success" v-if="security_event.item.status === 'open'">{{ $t('open') }}</b-badge>
+                  <b-badge pill variant="danger" v-else-if="security_event.item.status === 'closed'">{{ $t('closed') }}</b-badge>
                   <b-badge pill variant="secondary" v-else>{{ $t('unknown') }}</b-badge>
                 </template>
             </b-table>
@@ -412,10 +412,10 @@ export default {
           class: 'text-nowrap'
         }
       ],
-      violationFields: [
+      securityEventFields: [
         {
           key: 'description',
-          label: this.$i18n.t('Violation')
+          label: this.$i18n.t('Security Event')
         },
         {
           key: 'start_date',
@@ -493,8 +493,8 @@ export default {
       // prepend a null value to roles
       return [{ value: null, text: this.$i18n.t('No Role') }, ...this.$store.getters['config/rolesList']]
     },
-    violations () {
-      return this.$store.getters['config/sortedViolations']
+    security_events () {
+      return this.$store.getters['config/sortedSecurityEvents']
     },
     statuses () {
       return conditionValues[conditionType.NODE_STATUS]
@@ -548,8 +548,8 @@ export default {
         return eapType[type]
       }
     },
-    violationDescription (id) {
-      return this.$store.state.config.violations[id].desc
+    securityEventDescription (id) {
+      return this.$store.state.config.security_events[id].desc
     },
     save () {
       this.$store.dispatch('$_nodes/updateNode', this.nodeContent).then(response => {
@@ -700,17 +700,17 @@ export default {
         // noop
       }
       try {
-        node.violations.forEach(function (violation, index, violations) {
+        node.security_events.forEach(function (securityEvent, index, securityEvents) {
           _this.addVisGroup({
-            id: _this.mac + '-violation',
-            content: _this.$i18n.t('Violations')
+            id: _this.mac + '-security_event',
+            content: _this.$i18n.t('Security Events')
           })
           _this.addVisItem({
-            id: 'violation' + violation.vid,
-            group: _this.mac + '-violation',
-            start: new Date(violation.start_date),
-            end: (violation.release_date !== '0000-00-00 00:00:00' && violation.release_date !== violation.start_date) ? new Date(violation.release_date) : null,
-            content: _this.violationDescription(violation.vid)
+            id: 'security_event' + securityEvent.security_event_id,
+            group: _this.mac + '-security_event',
+            start: new Date(securityEvent.start_date),
+            end: (securityEvent.release_date !== '0000-00-00 00:00:00' && securityEvent.release_date !== securityEvent.start_date) ? new Date(securityEvent.release_date) : null,
+            content: _this.securityEventDescription(securityEvent.security_event_id)
           })
         })
       } catch (e) {
@@ -772,7 +772,7 @@ export default {
       },
       deep: true
     },
-    'node.violations': {
+    'node.security_events': {
       handler: function (a, b) {
         this.redrawVis()
       },
@@ -784,7 +784,7 @@ export default {
       },
       deep: true
     },
-    violations (a, b) {
+    security_events (a, b) {
       if (a !== b) this.redrawVis()
     }
   },
@@ -793,7 +793,7 @@ export default {
       this.nodeContent = Object.assign({}, data)
     })
     this.$store.dispatch('config/getRoles')
-    this.$store.dispatch('config/getViolations')
+    this.$store.dispatch('config/getSecurityEvents')
   },
   mounted () {
     this.setupVis()

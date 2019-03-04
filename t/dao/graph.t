@@ -48,10 +48,10 @@ ok(graph_unregistered('day'), 'graph unregistered day');
 ok(graph_unregistered('month'), 'graph unregistered month');
 ok(graph_unregistered('year'), 'graph unregistered year');
 
-# TODO re-enable violation testing once we will have a test database with full configuration loaded in it
-#ok(graph_violations('day'), 'graph violations day');
-#ok(graph_violations('month'), 'graph violations month');
-#ok(graph_violations('year'), 'graph violations year');
+# TODO re-enable security_event testing once we will have a test database with full configuration loaded in it
+#ok(graph_security_events('day'), 'graph security_events day');
+#ok(graph_security_events('month'), 'graph security_events month');
+#ok(graph_security_events('year'), 'graph security_events year');
 
 # graph_nodes needs to be evaluated in an array context to give useful output
 my @tmp;
@@ -67,7 +67,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

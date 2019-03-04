@@ -24,7 +24,10 @@ has_field 'id' =>
    label => 'Detector',
    required => 1,
    messages => { required => 'Please specify a detector id' },
-   apply => [ pfappserver::Base::Form::id_validator('detector id') ]
+   apply => [ pfappserver::Base::Form::id_validator('detector id') ],
+   tags => {
+      option_pattern => \&pfappserver::Base::Form::id_pattern,
+   },
   );
 
 =head2 status
@@ -66,7 +69,7 @@ has_block definition =>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

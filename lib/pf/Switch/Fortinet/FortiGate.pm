@@ -23,7 +23,7 @@ Not doing deauthentication in web auth
 use strict;
 use warnings;
 use pf::node;
-use pf::violation;
+use pf::security_event;
 use pf::locationlog;
 use pf::util;
 use LWP::UserAgent;
@@ -110,9 +110,9 @@ sub returnRadiusAccessAccept {
     my $rule = $filter->test('returnRadiusAccessAccept', $args);
 
     if ( $self->externalPortalEnforcement ) {
-        my $violation = pf::violation::violation_view_top($args->{'mac'});
-        # if user is unregistered or is in violation then we reject him to show him the captive portal
-        if ( $node->{status} eq $pf::node::STATUS_UNREGISTERED || defined($violation) ){
+        my $security_event = pf::security_event::security_event_view_top($args->{'mac'});
+        # if user is unregistered or is in security_event then we reject him to show him the captive portal
+        if ( $node->{status} eq $pf::node::STATUS_UNREGISTERED || defined($security_event) ){
             $logger->info("[$args->{'mac'}] is unregistered. Refusing access to force the eCWP");
             $args->{user_role} = $REJECT_ROLE;
             $self->handleRadiusDeny();
@@ -198,7 +198,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

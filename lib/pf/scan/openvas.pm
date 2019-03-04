@@ -24,10 +24,10 @@ use base ('pf::scan');
 
 use pf::CHI;
 use pf::constants;
-use pf::constants::scan qw($SCAN_VID $PRE_SCAN_VID $POST_SCAN_VID $STATUS_STARTED);
+use pf::constants::scan qw($SCAN_SECURITY_EVENT_ID $PRE_SCAN_SECURITY_EVENT_ID $POST_SCAN_SECURITY_EVENT_ID $STATUS_STARTED);
 use pf::config qw(%Config);
 use pf::util;
-use pf::violation;
+use pf::security_event;
 use Time::HiRes qw(time);
 
 sub description { 'Openvas Scanner' }
@@ -128,7 +128,7 @@ sub createTask {
 Retrieve the report associated with a task.
 When retrieving a report in other format than XML, we received the report in base64 encoding.
 
-Report processing's duty is to ensure that the proper violation will be triggered.
+Report processing's duty is to ensure that the proper security event will be triggered.
 
 =cut
 
@@ -162,7 +162,7 @@ sub processReport {
         open my $io, "<", \$report;
         $csv->column_names($csv->getline($io));
         while(my $row = $csv->getline_hr($io)) {
-            violation_trigger( { 'mac' => $mac, 'tid' => $row->{'NVT OID'}, 'type' => 'OpenVAS' } );
+            security_event_trigger( { 'mac' => $mac, 'tid' => $row->{'NVT OID'}, 'type' => 'OpenVAS' } );
         }
 
         return $TRUE;
@@ -226,16 +226,16 @@ sub startScan {
     $self->createTask();
     $self->startTask();
 
-    my $scan_vid = $pf::constants::scan::POST_SCAN_VID;
-    $scan_vid = $pf::constants::scan::SCAN_VID if ($self->{'_registration'});
-    $scan_vid = $pf::constants::scan::PRE_SCAN_VID if ($self->{'_pre_registration'});
+    my $scan_security_event_id = $pf::constants::scan::POST_SCAN_SECURITY_EVENT_ID;
+    $scan_security_event_id = $pf::constants::scan::SCAN_SECURITY_EVENT_ID if ($self->{'_registration'});
+    $scan_security_event_id = $pf::constants::scan::PRE_SCAN_SECURITY_EVENT_ID if ($self->{'_pre_registration'});
 
     my $apiclient = pf::api::jsonrpcclient->new;
     my %data = (
-       'vid' => $scan_vid,
+       'security_event_id' => $scan_security_event_id,
        'mac' => $self->{'_scanMac'},
     );
-    $apiclient->notify('close_violation', %data );
+    $apiclient->notify('close_security_event', %data );
 
     # Clear the scan ID
     $self->{_scanId} = undef;
@@ -351,7 +351,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

@@ -63,8 +63,17 @@ has_field 'ip_assigned' =>
    type => 'IPAssigned',
    label => 'IP Addresses assigned',
    messages => { required => "List of MAC:IP statically assigned." },
-   tags => { after_element => \&help,
-             help => 'List like 00:11:22:33:44:55:192.168.0.12,11:22:33:44:55:66:192.168.0.13' },
+   tags => {
+      after_element => \&help,
+      help =>
+        'List like 00:11:22:33:44:55:192.168.0.12,11:22:33:44:55:66:192.168.0.13',
+      option_pattern => sub {
+          {
+              message => "Must be a list of mac list ip address",
+              regex   => "^[0-9A-Fa-f][0-9A-Fa-f](:[0-9A-Fa-f][0-9A-Fa-f]){5}:\d{1,3}(.\d{1,3}){3}(,[0-9A-Fa-f][0-9A-Fa-f](:[0-9A-Fa-f][0-9A-Fa-f]){5}:\d{1,3}(.\d{1,3}){3})*\$",
+          };
+      }
+   },
   );
 has_field 'dns' =>
   (
@@ -74,6 +83,15 @@ has_field 'dns' =>
    messages => { required => "Please specify the DNS server's IP address(es)." },
    tags => { after_element => \&help,
              help => 'Should match the IP of a registration interface or the production DNS server(s) if the network is Inline L2/L3 (space delimited list of IP addresses)' },
+  );
+
+has_field 'portal_fqdn' =>
+  (
+   type => 'Text',
+   label => 'Portal FQDN',
+   messages => { required => "Please specify the FQDN of the portal." },
+   tags => { after_element => \&help,
+             help => 'Define the FQDN of the portal for this network. Leaving empty will use the FQDN of the PacketFence server' },
   );
 
 =head2 validate
@@ -99,7 +117,7 @@ sub validate {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

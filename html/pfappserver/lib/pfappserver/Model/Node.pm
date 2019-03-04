@@ -36,7 +36,7 @@ use pf::person;
 use pf::enforcement qw(reevaluate_access);
 use pf::util;
 use pf::config::util;
-use pf::violation;
+use pf::security_event;
 use pf::SwitchFactory;
 use pf::Connection;
 use Text::CSV;
@@ -355,25 +355,25 @@ sub availableStatus {
              $pf::node::STATUS_PENDING ];
 }
 
-=head2 violations
+=head2 security_events
 
-Return the open violations associated to the MAC.
+Return the open security events associated to the MAC.
 
 =cut
 
-sub violations {
+sub security_events {
     my ($self, $mac) = @_;
 
     my $logger = get_logger();
     my ($status, $status_msg);
 
-    my @violations;
+    my @security_events;
     eval {
-        @violations = violation_view_desc($mac);
-        map { $_->{release_date} = '' if ($_->{release_date} eq $ZERO_DATE) } @violations;
+        @security_events = security_event_view_desc($mac);
+        map { $_->{release_date} = '' if ($_->{release_date} eq $ZERO_DATE) } @security_events;
     };
     if ($@) {
-        $status_msg = "Can't fetch violations from database.";
+        $status_msg = "Can't fetch security events from database.";
         $logger->error($status_msg);
         return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
     }
@@ -381,95 +381,95 @@ sub violations {
     # Check for multihost
     my @multihost = pf::node::check_multihost($mac);
 
-    return ($STATUS::OK, { 'violations' => \@violations, 'multihost' => \@multihost });
+    return ($STATUS::OK, { 'security_events' => \@security_events, 'multihost' => \@multihost });
 }
 
-=head2 addViolation
+=head2 addSecurityEvent
 
 =cut
 
-sub addViolation {
-    my ($self, $mac, $vid) = @_;
+sub addSecurityEvent {
+    my ($self, $mac, $security_event_id) = @_;
 
-    if (violation_add($mac, $vid, ('force' => $TRUE))) {
-        return ($STATUS::OK, 'The violation was successfully added.');
+    if (security_event_add($mac, $security_event_id, ('force' => $TRUE))) {
+        return ($STATUS::OK, 'The security event was successfully added.');
     }
     else {
-        return ($STATUS::INTERNAL_SERVER_ERROR, 'An error occurred while adding the violation.');
+        return ($STATUS::INTERNAL_SERVER_ERROR, 'An error occurred while adding the security event.');
     }
 }
 
-=head2 closeViolation
+=head2 closeSecurityEvent
 
 =cut
 
-sub closeViolation {
+sub closeSecurityEvent {
     my ($self, $id) = @_;
-    if($self->_closeViolation($id)) {
-        return ($STATUS::OK, 'The violation was successfully closed.');
+    if($self->_closeSecurityEvent($id)) {
+        return ($STATUS::OK, 'The security event was successfully closed.');
     }
-    return ($STATUS::INTERNAL_SERVER_ERROR, 'An error occurred while closing the violation.');
+    return ($STATUS::INTERNAL_SERVER_ERROR, 'An error occurred while closing the security event.');
 }
 
-=head2 runViolation
+=head2 runSecurityEvent
 
 =cut
 
-sub runViolation {
+sub runSecurityEvent {
     my ($self, $id) = @_;
-    if(violation_run_delayed($id)) {
-        return ($STATUS::OK, 'The violation was successfully ran');
+    if(security_event_run_delayed($id)) {
+        return ($STATUS::OK, 'The security event was successfully ran');
     }
-    return ($STATUS::INTERNAL_SERVER_ERROR, 'An error occurred while running the violation.');
+    return ($STATUS::INTERNAL_SERVER_ERROR, 'An error occurred while running the security event.');
 }
 
-=head2 closeViolations
+=head2 closeSecurityEvents
 
 =cut
 
-sub bulkCloseViolations {
+sub bulkCloseSecurityEvents {
     my ($self, @macs) = @_;
     my $count = 0;
 
     foreach my $mac (@macs) {
-        foreach my $violation (violation_view_open_desc($mac)) {
-            $count++ if $self->_closeViolation($violation->{id});
+        foreach my $security_event (security_event_view_open_desc($mac)) {
+            $count++ if $self->_closeSecurityEvent($security_event->{id});
         }
     }
-    return ($STATUS::OK, ["[_1] violation(s) were closed.",$count]);
+    return ($STATUS::OK, ["[_1] security event(s) were closed.",$count]);
 }
 
-=head2 _closeViolation
+=head2 _closeSecurityEvent
 
 helper function for doing a force close
 
 =cut
 
-sub _closeViolation{
+sub _closeSecurityEvent{
     my ($self,$id) = @_;
     my $result;
-    my $violation = violation_exist_id($id);
-    if ($violation) {
-        if (violation_force_close($violation->{mac}, $violation->{vid})) {
-            pf::enforcement::reevaluate_access($violation->{mac}, "admin_modify");
+    my $security_event = security_event_exist_id($id);
+    if ($security_event) {
+        if (security_event_force_close($security_event->{mac}, $security_event->{security_event_id})) {
+            pf::enforcement::reevaluate_access($security_event->{mac}, "admin_modify");
             $result = 1;
         }
     }
     return $result;
 }
 
-=head2 bulkApplyViolation
+=head2 bulkApplySecurityEvent
 
 =cut
 
-sub bulkApplyViolation {
-    my ($self, $violation_id, @macs) = @_;
+sub bulkApplySecurityEvent {
+    my ($self, $security_event_id, @macs) = @_;
     my $count = 0;
     foreach my $mac (@macs) {
-        my ($last_id) = violation_add( $mac, $violation_id, ('force' => $TRUE) );
+        my ($last_id) = security_event_add( $mac, $security_event_id, ('force' => $TRUE) );
         $count++ if $last_id > 0;;
     }
-    return ($STATUS::OK, ["[_1] violation(s) were opened.",$count]);
+    return ($STATUS::OK, ["[_1] security event(s) were opened.",$count]);
 }
 
 
@@ -740,7 +740,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

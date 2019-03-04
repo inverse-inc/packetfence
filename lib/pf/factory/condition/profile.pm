@@ -73,6 +73,7 @@ our %PROFILE_FILTER_TYPE_TO_CONDITION_TYPE = (
     'tenant'              => {type => 'equals',        key  => 'tenant_id'},
     'time'                => {type => 'time'},
     'switch_group'        => {type => 'switch_group',  key  => 'last_switch'},
+    'fqdn'                => {type => 'equals',        key  => 'fqdn'},
 );
 
 sub modules {
@@ -225,7 +226,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

@@ -182,10 +182,10 @@ sub generate_mangle_rules {
         }
     }
 
-    # mark all open violations
+    # mark all open security_events
     # TODO performance: only those whose's last connection_type is inline?
-    require pf::violation;
-    my @macarray = pf::violation::violation_view_open_uniq();
+    require pf::security_event;
+    my @macarray = pf::security_event::security_event_view_open_uniq();
     if ( $macarray[0] ) {
         foreach my $row (@macarray) {
             foreach my $network ( keys %ConfigNetworks ) {
@@ -388,9 +388,9 @@ sub update_node {
     my $src_ip = new NetAddr::IP::Lite clean_ip($srcip);
     my $old_ip = new NetAddr::IP::Lite clean_ip($oldip);
     my $id = $view_mac->{'category_id'};
-    my $open_violation_count = pf::violation::violation_count_reevaluate_access($srcmac);
+    my $open_security_event_count = pf::security_event::security_event_count_reevaluate_access($srcmac);
     my $mark = $IPTABLES_MARK_UNREG if ($view_mac->{'status'} eq $STATUS_UNREGISTERED) // $IPTABLES_MARK_REG;
-    if ($open_violation_count != 0) {
+    if ($open_security_event_count != 0) {
         $mark = $IPTABLES_MARK_ISOLATION;
     }
     if ($view_mac->{'last_connection_type'} eq $connection_type_to_str{$INLINE}) {
@@ -499,7 +499,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

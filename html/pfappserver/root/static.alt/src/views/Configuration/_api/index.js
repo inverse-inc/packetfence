@@ -45,6 +45,11 @@ export default {
       return response.data.item
     })
   },
+  updateBase: data => {
+    return apiCall.patch(`config/base/${data.id}`, data).then(response => {
+      return response.data
+    })
+  },
   /**
    * Billing Tiers
    */
@@ -269,10 +274,32 @@ export default {
   deleteConnectionProfile: id => {
     return apiCall.delete(`config/connection_profile/${id}`)
   },
+  /**
+   * Connection Profiles Files
+   */
   connectionProfileFiles: params => {
     return apiCall.get(`config/connection_profile/${params.id}/files`, { params }).then(response => {
       return response.data
     })
+  },
+  connectionProfileFile: params => {
+    const get = params.quiet ? 'getQuiet' : 'get'
+    return apiCall[get](`config/connection_profile/${params.id}/files/${params.filename}`).then(response => {
+      return response.data
+    })
+  },
+  createConnectionProfileFile: params => {
+    return apiCall.put(`config/connection_profile/${params.id}/files/${params.filename}`, params.content).then(response => {
+      return response.data
+    })
+  },
+  updateConnectionProfileFile: params => {
+    return apiCall.patch(`config/connection_profile/${params.id}/files/${params.filename}`, params.content).then(response => {
+      return response.data
+    })
+  },
+  deleteConnectionProfileFile: params => {
+    return apiCall.delete(`config/connection_profile/${params.id}/files/${params.filename}`)
   },
   /**
    * Provisionings
@@ -508,6 +535,32 @@ export default {
     return apiCall.delete(`config/TODO/${id}`)
   },
   /**
+   * Firewalls
+   */
+  firewalls: params => {
+    return apiCall.get('config/firewalls', { params }).then(response => {
+      return response.data
+    })
+  },
+  firewall: id => {
+    return apiCall.get(`config/firewall/${id}`).then(response => {
+      return response.data.item
+    })
+  },
+  createFirewall: data => {
+    return apiCall.post('config/firewalls', data).then(response => {
+      return response.data
+    })
+  },
+  updateFirewall: data => {
+    return apiCall.patch(`config/firewall/${data.id}`, data).then(response => {
+      return response.data
+    })
+  },
+  deleteFirewall: id => {
+    return apiCall.delete(`config/firewall/${id}`)
+  },
+  /**
    * Scans
    */
   scanEngines: params => {
@@ -532,5 +585,88 @@ export default {
   },
   deleteScanEngine: id => {
     return apiCall.delete(`config/scan/${id}`)
+  },
+  /**
+   * Syslog Parsers
+   */
+  syslogParsers: params => {
+    return apiCall.get('config/syslog_parsers', { params }).then(response => {
+      return response.data
+    })
+  },
+  syslogParser: id => {
+    return apiCall.get(`config/syslog_parser/${id}`).then(response => {
+      return response.data.item
+    })
+  },
+  createSyslogParser: data => {
+    return apiCall.post('config/syslog_parsers', data).then(response => {
+      return response.data
+    })
+  },
+  updateSyslogParser: data => {
+    return apiCall.patch(`config/syslog_parser/${data.id}`, data).then(response => {
+      return response.data
+    })
+  },
+  deleteSyslogParser: id => {
+    return apiCall.delete(`config/syslog_parser/${id}`)
+  },
+  dryRunSyslogParser: data => {
+    return apiCall.post('config/syslog_parsers/dry_run', data).then(response => {
+      return response.data
+    })
+  },
+  /**
+   * Syslog Forwarders
+   */
+  syslogForwarders: params => {
+    return apiCall.get('config/syslog_forwarders', { params }).then(response => {
+      return response.data
+    })
+  },
+  syslogForwarder: id => {
+    return apiCall.get(`config/syslog_forwarder/${id}`).then(response => {
+      return response.data.item
+    })
+  },
+  createSyslogForwarder: data => {
+    return apiCall.post('config/syslog_forwarders', data).then(response => {
+      return response.data
+    })
+  },
+  updateSyslogForwarder: data => {
+    return apiCall.patch(`config/syslog_forwarder/${data.id}`, data).then(response => {
+      return response.data
+    })
+  },
+  deleteSyslogForwarder: id => {
+    return apiCall.delete(`config/syslog_forwarder/${id}`)
+  },
+  /**
+   * Wrix Locations
+   */
+  wrixLocations: params => {
+    return apiCall.get('wrix_locations', { params }).then(response => {
+      return response.data
+    })
+  },
+  wrixLocation: id => {
+    return apiCall.get(`wrix_location/${id}`).then(response => {
+      return response.data.item
+    })
+  },
+  createWrixLocation: data => {
+    return apiCall.post('wrix_locations', data).then(response => {
+      return response.data
+    })
+  },
+  updateWrixLocation: data => {
+    return apiCall.patch(`wrix_location/${data.id}`, data).then(response => {
+      return response.data
+    })
+  },
+  deleteWrixLocation: id => {
+    return apiCall.delete(`wrix_location/${id}`)
   }
 }

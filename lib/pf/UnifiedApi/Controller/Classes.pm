@@ -19,7 +19,7 @@ use pf::dal::class;
 
 has dal => 'pf::dal::class';
 has url_param_name => 'class_id';
-has primary_key => 'vid';
+has primary_key => 'security_event_id';
 
 =head1 AUTHOR
 
@@ -27,7 +27,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

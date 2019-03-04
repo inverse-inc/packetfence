@@ -20,7 +20,7 @@ use pf::config();
 use pf::node();
 use pf::locationlog();
 use pf::ip4log();
-use pf::violation();
+use pf::security_event();
 use pf::util();
 use pf::radius::custom();
 
@@ -32,7 +32,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

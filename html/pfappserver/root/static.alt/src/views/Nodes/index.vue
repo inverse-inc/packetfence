@@ -41,23 +41,23 @@ export default {
         {
           name: 'Import',
           path: '/nodes/import',
-          can: 'import nodes'
+          can: 'create nodes'
         },
         {
           name: 'Standard Searches',
           items: [
             {
-              name: 'Open Violations',
+              name: 'Open Security Events',
               path: {
                 name: 'search',
-                query: { query: JSON.stringify({ op: 'and', values: [{ op: 'or', values: [{ field: 'violation.open_count', op: 'greater_than_equals', value: '1' }] }] }) }
+                query: { query: JSON.stringify({ op: 'and', values: [{ op: 'or', values: [{ field: 'security_event.open_count', op: 'greater_than_equals', value: '1' }] }] }) }
               }
             },
             {
-              name: 'Closed Violations',
+              name: 'Closed Security Events',
               path: {
                 name: 'search',
-                query: { query: JSON.stringify({ op: 'and', values: [{ op: 'or', values: [{ field: 'violation.close_count', op: 'greater_than_equals', value: '1' }] }] }) }
+                query: { query: JSON.stringify({ op: 'and', values: [{ op: 'or', values: [{ field: 'security_event.close_count', op: 'greater_than_equals', value: '1' }] }] }) }
               }
             },
             {

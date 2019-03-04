@@ -31,8 +31,8 @@ use pf::node;
 use pf::config qw($default_pid);
 use pf::constants qw($TRUE $FALSE);
 use pf::util;
-use pf::violation;
-use pf::constants::scan qw($POST_SCAN_VID);
+use pf::security_event;
+use pf::constants::scan qw($POST_SCAN_SECURITY_EVENT_ID);
 use pf::inline;
 use pf::Portal::Session;
 use pf::SwitchFactory;
@@ -83,8 +83,8 @@ Reevaluate the access of the user and show the release page
 
 sub release {
     my ($self) = @_;
-    # One last check for the violations
-    return unless($self->handle_violations());
+    # One last check for the security_events
+    return unless($self->handle_security_events());
 
     return $self->app->redirect("http://" . $self->app->request->header("host") . "/access?lang=".$self->app->session->{lang}) unless($self->app->request->path eq "access");
 
@@ -156,23 +156,23 @@ sub unknown_state {
     }
 }
 
-=head2 handle_violations
+=head2 handle_security_events
 
-Check if the user has a violation and redirect him to the proper page if he does
+Check if the user has a security_event and redirect him to the proper page if he does
 
 =cut
 
-sub handle_violations {
+sub handle_security_events {
     my ($self) = @_;
     my $mac           = $self->current_mac;
 
-    my $violation = violation_view_top($mac);
+    my $security_event = security_event_view_top($mac);
 
-    return 1 unless(defined($violation));
+    return 1 unless(defined($security_event));
 
-    return 1 if ($violation->{vid} == $POST_SCAN_VID);
+    return 1 if ($security_event->{security_event_id} == $POST_SCAN_SECURITY_EVENT_ID);
 
-    $self->app->redirect("/violation");
+    $self->app->redirect("/security_event");
     return 0;
 }
 
@@ -202,10 +202,10 @@ sub execute_child {
 
     return unless($self->validate_mac);
 
-    # Make sure there are no outstanding violations
-    return unless($self->handle_violations());
+    # Make sure there are no outstanding security_events
+    return unless($self->handle_security_events());
 
-    # The user should be released, he is already registered and doesn't have any violation
+    # The user should be released, he is already registered and doesn't have any security_event
     # HACK alert : E-mail registration has the user registered but still going in the portal
     # release_bypass is there for that. If it is set, it will keep the user in the portal
     my $node = node_view($self->current_mac);
@@ -367,7 +367,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

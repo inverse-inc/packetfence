@@ -34,7 +34,7 @@ INSERT INTO `tenant` VALUES (1, 'default', NULL, NULL);
 --
 
 CREATE TABLE class (
-  vid int(11) NOT NULL,
+  security_event_id int(11) NOT NULL,
   description varchar(255) NOT NULL default "none",
   auto_enable char(1) NOT NULL default "Y",
   max_enables int(11) NOT NULL default 0,
@@ -51,7 +51,7 @@ CREATE TABLE class (
   target_category varchar(255),
   delay_by int(11) NOT NULL default 0,
   external_command varchar(255) DEFAULT NULL,
-  PRIMARY KEY (vid)
+  PRIMARY KEY (security_event_id)
 ) ENGINE=InnoDB;
 
 --
@@ -194,33 +194,33 @@ CREATE TABLE node (
 --
 
 CREATE TABLE action (
-  vid int(11) NOT NULL,
+  security_event_id int(11) NOT NULL,
   action varchar(255) NOT NULL,
-  PRIMARY KEY (vid,action),
-  CONSTRAINT `FOREIGN` FOREIGN KEY (`vid`) REFERENCES `class` (`vid`) ON DELETE CASCADE ON UPDATE CASCADE
+  PRIMARY KEY (security_event_id,action),
+  CONSTRAINT `FOREIGN` FOREIGN KEY (`security_event_id`) REFERENCES `class` (`security_event_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB;
 
 --
--- Table structure for table `violation`
+-- Table structure for table `security_event`
 --
 
-CREATE TABLE violation (
+CREATE TABLE security_event (
   id int NOT NULL AUTO_INCREMENT,
   tenant_id int NOT NULL DEFAULT 1,
   mac varchar(17) NOT NULL,
-  vid int(11) NOT NULL,
+  security_event_id int(11) NOT NULL,
   start_date datetime NOT NULL,
   release_date datetime default "0000-00-00 00:00:00",
   status varchar(10) default "open",
   ticket_ref varchar(255) default NULL,
   notes text,
-  KEY vid (vid),
+  KEY security_event_id (security_event_id),
   KEY status (status),
-  KEY ind1 (mac,status,vid),
-  KEY violation_release_date (release_date),
-  CONSTRAINT `0_60` FOREIGN KEY (`tenant_id`, `mac`) REFERENCES `node` (`tenant_id`, `mac`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `0_61` FOREIGN KEY (`vid`) REFERENCES `class` (`vid`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `violation_tenant_id` FOREIGN KEY(`tenant_id`) REFERENCES `tenant` (`id`),
+  KEY uniq_mac_status_id (mac,status,security_event_id),
+  KEY security_event_release_date (release_date),
+  CONSTRAINT `tenant_id_mac_fkey_node` FOREIGN KEY (`tenant_id`, `mac`) REFERENCES `node` (`tenant_id`, `mac`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `security_event_id_fkey_class` FOREIGN KEY (`security_event_id`) REFERENCES `class` (`security_event_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `security_event_tenant_id` FOREIGN KEY(`tenant_id`) REFERENCES `tenant` (`id`),
   PRIMARY KEY (id)
 ) ENGINE=InnoDB;
 

@@ -26,6 +26,9 @@ has_field 'id' =>
              'The id is invalid. A portal module id can only contain alphanumeric characters, dashes, and or underscores'
        }
    ],
+   tags => {
+      option_pattern => \&pfappserver::Base::Form::id_pattern,
+   },
    messages => { required => 'Please specify an identifier' },
   );
 
@@ -143,7 +146,7 @@ sub dynamic_tables {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

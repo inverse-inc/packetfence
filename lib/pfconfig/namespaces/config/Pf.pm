@@ -121,7 +121,7 @@ sub build_child {
         $Config{$group}{$item} = normalize_time( $Config{$group}{$item} ) if ( $Config{$group}{$item} );
     }
 
-    foreach my $val ("fencing.passthroughs", "fencing.isolation_passthroughs", "captive_portal.other_domain_names") {
+    foreach my $val ("fencing.passthroughs", "fencing.isolation_passthroughs", "captive_portal.other_domain_names", "radius_configuration.username_attributes") {
         my ( $group, $item ) = split( /\./, $val );
         $Config{$group}{$item} = [ split( /\s*,\s*/, $Config{$group}{$item}  // '' ) ];
     }
@@ -172,7 +172,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

@@ -53,7 +53,7 @@ Source: http://www.packetfence.org/downloads/PacketFence/src/%{real_name}-%{vers
 %endif
 
 # Log related globals
-%global logfiles packetfence.log snmptrapd.log pfdetect pfmon violation.log httpd.admin.audit.log
+%global logfiles packetfence.log snmptrapd.log pfdetect pfmon security_event.log httpd.admin.audit.log
 %global logdir /usr/local/pf/logs
 
 BuildRequires: gettext, httpd, ipset-devel, pkgconfig
@@ -685,7 +685,7 @@ else
 fi
 
 #Check if log files exist and create them with the correct owner
-for fic_log in packetfence.log redis_cache.log violation.log httpd.admin.audit.log
+for fic_log in packetfence.log redis_cache.log security_event.log httpd.admin.audit.log
 do
 if [ ! -e /usr/local/pf/logs/$fic_log ]; then
   touch /usr/local/pf/logs/$fic_log
@@ -935,6 +935,7 @@ fi
                         /usr/local/pf/conf/redis_ntlm_cache.conf.example
 %config(noreplace)      /usr/local/pf/conf/stats.conf
                         /usr/local/pf/conf/stats.conf.example
+%config                 /usr/local/pf/conf/stats.conf.defaults
 %config(noreplace)      /usr/local/pf/conf/floating_network_device.conf
 %config(noreplace)      /usr/local/pf/conf/guest-managers.conf
                         /usr/local/pf/conf/git_commit_id
@@ -1132,8 +1133,8 @@ fi
 %config                 /usr/local/pf/conf/ui.conf
 %config                 /usr/local/pf/conf/ui.conf.es_ES
 %config(noreplace)      /usr/local/pf/conf/ui-global.conf
-%config(noreplace)      /usr/local/pf/conf/violations.conf
-%config                 /usr/local/pf/conf/violations.conf.defaults
+%config(noreplace)      /usr/local/pf/conf/security_events.conf
+%config                 /usr/local/pf/conf/security_events.conf.defaults
 %config(noreplace)      /usr/local/pf/conf/wmi.conf
                         /usr/local/pf/conf/wmi.conf.example
 %config(noreplace)      /usr/local/pf/conf/report.conf
@@ -1258,7 +1259,7 @@ fi
 %config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/SavedSearch/User.pm
 %config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Service.pm
 %config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/User.pm
-%config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Violation.pm
+%config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/SecurityEvent.pm
                         /usr/local/pf/lib
 %exclude                /usr/local/pf/lib/pfconfig*
 %config(noreplace)      /usr/local/pf/lib/pf/floatingdevice/custom.pm
@@ -1283,7 +1284,7 @@ fi
 # logfiles
 %ghost                  %logdir/packetfence.log
 %ghost                  %logdir/snmptrapd.log
-%ghost                  %logdir/violation.log
+%ghost                  %logdir/security_event.log
 %ghost                  %logdir/httpd.admin.audit.log
 %ghost                  %logdir/pfdetect
 %ghost                  %logdir/pfmon

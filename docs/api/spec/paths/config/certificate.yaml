@@ -1,0 +1,89 @@
+/config/certificate/{certificate_id}/generate_csr:
+  description: pf::UnifiedApi::Controller::Config::Certificates
+  put:
+    description: Generate a CSR for a certificate resource
+    operationId: api.v1.Config::Certificates.generate_csr
+    parameters:
+    - in: path
+      name: certificate_id
+      schema:
+        type: string
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ConfigCertificateCSR'
+    responses:
+      '200':
+        $ref: '#/components/responses/Message'
+      '404':
+        $ref: '#/components/responses/NotFound'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+
+/config/certificate/{certificate_id}:
+  description: pf::UnifiedApi::Controller::Config::Certificates
+  get:
+    description: Get an item
+    operationId: api.v1.Config::Certificates.get
+    parameters:
+    - in: path
+      name: certificate_id
+      schema:
+        type: string
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigCertificate'
+        description: Item
+      '404':
+        $ref: '#/components/responses/NotFound'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+  put:
+    description: Replace an item
+    operationId: api.v1.Config::Certificates.replace
+    parameters:
+    - in: path
+      name: certificate_id
+      schema:
+        type: string
+    - in: query
+      name: check_chain
+      schema:
+        type: string
+        enum:
+          - enabled
+          - disabled
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ConfigCertificate'
+    responses:
+      '200':
+        $ref: '#/components/responses/Message'
+      '404':
+        $ref: '#/components/responses/NotFound'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+
+/config/certificate/{certificate_id}/info:
+  description: pf::UnifiedApi::Controller::Config::Certificates
+  get:
+    description: Get an item
+    operationId: api.v1.Config::Certificates.get
+    parameters:
+    - in: path
+      name: certificate_id
+      schema:
+        type: string
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigCertificateInfo'
+        description: Item

@@ -49,12 +49,12 @@ export default {
           name: 'Standard Searches',
           items: [
             {
-              name: 'Open Violations',
-              path: 'search/openviolations'
+              name: 'Open Security Events',
+              path: 'search/open_security_events'
             },
             {
-              name: 'Closed Violations',
-              path: 'search/closedviolations'
+              name: 'Closed Security Events',
+              path: 'search/closed_security_events'
             }
           ]
         }

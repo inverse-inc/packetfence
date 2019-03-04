@@ -108,7 +108,7 @@ Different IP based tasks processing part of the DHCP flow
 - Firewall SSO
 - Inline enforcement
 - Conformity scan
-- Parking violation
+- Parking security_event
 - iplog
 
 =cut
@@ -155,7 +155,7 @@ sub processIPTasks {
         $self->apiClient->notify('trigger_scan', %iptasks_arguments );
     }
 
-    # Parking violation
+    # Parking security_event
     $self->checkForParking($iptasks_arguments{'mac'}, $iptasks_arguments{'ip'});
     if ( $iptasks_arguments{'oldmac'} && $iptasks_arguments{'oldmac'} ne $iptasks_arguments{'mac'} ) {
         # Remove the actions that were for the previous MAC address
@@ -207,7 +207,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

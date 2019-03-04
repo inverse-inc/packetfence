@@ -5,9 +5,9 @@ pf::cmd::pf::class add documentation
 
 =head1 SYNOPSIS
 
-pfcmd class view <vid>
+pfcmd class view <security_event_id>
 
-view violation classification - to edit, use violations.conf and "pfcmd reload violations"
+view security_event classification - to edit, use security_events.conf and "pfcmd reload security_events"
 
 
 =head1 DESCRIPTION
@@ -28,7 +28,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

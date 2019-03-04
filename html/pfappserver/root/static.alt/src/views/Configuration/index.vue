@@ -70,11 +70,16 @@ export default {
           ]
         },
         {
-          name: 'Network Configuration',
-          icon: 'project-diagram',
+          name: 'Integration',
+          icon: 'puzzle-piece',
           collapsable: true,
           items: [
-            { name: 'Floating Devices', path: '/configuration/floating_devices' }
+            { name: 'Firewall SSO', path: '/configuration/firewalls' },
+            { name: 'Cisco Mobility Services Engine', path: '/configuration/mse' },
+            { name: 'Web Services', path: '/configuration/webservices' },
+            { name: 'Syslog Parsers', path: '/configuration/pfdetect' },
+            { name: 'Syslog Forwarding', path: '/configuration/syslog' },
+            { name: 'WRIX', path: '/configuration/wrix' }
           ]
         },
         {
@@ -82,8 +87,18 @@ export default {
           icon: 'clipboard-list',
           collapsable: true,
           items: [
+            { name: 'Captive Portal', path: '/configuration/captive_portal' },
             { name: 'Billing Tiers', path: '/configuration/billing_tiers' },
-            { name: 'Portal Modules', path: '/configuration/portal_modules' }
+            { name: 'Portal Modules', path: '/configuration/portal_modules' },
+            { name: 'Access Duration', path: '/configuration/access_duration' }
+          ]
+        },
+        {
+          name: 'Network Configuration',
+          icon: 'project-diagram',
+          collapsable: true,
+          items: [
+            { name: 'Floating Devices', path: '/configuration/floating_devices' }
           ]
         }
       ]

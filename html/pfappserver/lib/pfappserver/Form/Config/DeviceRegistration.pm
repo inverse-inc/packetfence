@@ -22,7 +22,10 @@ has_field 'id' =>
    label => 'Profile Name',
    required => 1,
    messages => { required => 'Please specify a name of the Device Registration entry.' },
-   apply => [ pfappserver::Base::Form::id_validator('device registration ID') ]
+   apply => [ pfappserver::Base::Form::id_validator('device registration ID') ],
+   tags => {
+      option_pattern => \&pfappserver::Base::Form::id_pattern,
+   }
   );
 
 has_field 'description' =>
@@ -72,7 +75,7 @@ sub options_roles {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

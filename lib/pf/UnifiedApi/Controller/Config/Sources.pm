@@ -29,6 +29,7 @@ use pfappserver::Form::Config::Source::AD;
 use pfappserver::Form::Config::Source::AuthorizeNet;
 use pfappserver::Form::Config::Source::Blackhole;
 use pfappserver::Form::Config::Source::Authorization;
+use pfappserver::Form::Config::Source::Clickatell;
 use pfappserver::Form::Config::Source::EAPTLS;
 use pfappserver::Form::Config::Source::Eduroam;
 use pfappserver::Form::Config::Source::Email;
@@ -56,14 +57,16 @@ use pfappserver::Form::Config::Source::Stripe;
 use pfappserver::Form::Config::Source::Twilio;
 use pfappserver::Form::Config::Source::Twitter;
 use pfappserver::Form::Config::Source::WindowsLive;
+use pfappserver::Form::Config::Source::Potd;
 
 our %TYPES_TO_FORMS = (
     map { $_ => "pfappserver::Form::Config::Source::$_" } qw(
       AdminProxy
       AD
+      Authorization
       AuthorizeNet
       Blackhole
-      Authorization
+      Clickatell
       EAPTLS
       Eduroam
       Email
@@ -82,16 +85,17 @@ our %TYPES_TO_FORMS = (
       OpenID
       Paypal
       Pinterest
+      Potd
       RADIUS
       SAML
       SMS
-      SQL
       SponsorEmail
+      SQL
       Stripe
       Twilio
       Twitter
       WindowsLive
-    )
+      )
 );
 
 sub type_lookup {
@@ -185,13 +189,53 @@ sub form_process_parameters_for_cleanup {
     );
 }
 
+=head2 type_meta_info
+
+type_meta_info
+
+=cut
+
+sub type_meta_info {
+    my ($self, $type) = @_;
+    my $class = "pf::Authentication::Source::${type}Source";
+    return {
+        value => $type,
+        text => $type,
+        class => $class->meta->find_attribute_by_name('class')->default
+    };
+}
+
+sub options_with_no_type {
+    my ($self) = @_;
+    my $output = $self->SUPER::options_with_no_type();
+    my $types = delete $output->{allowed}{type};
+    my %groups;
+    for my $type (@$types) {
+        my $class = $type->{class};
+        next if $type->{value} eq 'SQL';
+        push @{$groups{$class}{options}}, {
+            value => $type->{value},
+            text => $type->{text},
+        };
+    }
+    my @new_types;
+    for my $class (sort keys %groups) {
+        my $group = $groups{$class};
+        $group->{group} = $class;
+        push @new_types, $group;
+    }
+
+    $output->{allowed}{type} = \@new_types;
+    return $output;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

@@ -7,11 +7,11 @@
                       <h4 class="mb-0" v-t="'Login to PacketFence Administration'"></h4>
                     </b-card-header>
                     <b-card-body>
-                        <b-alert :variant="message.level" :show="message.text">
+                        <b-alert :variant="message.level" :show="message.text" fade>
                             {{ $t(message.text) }}
                         </b-alert>
                         <b-form-group :label="$t('Username')" label-for="username" horizontal>
-                            <b-form-input id="username" ref="username" type="text" v-model="username" required></b-form-input>
+                            <b-form-input id="username" ref="username" type="text" v-model="username" v-autofocus required></b-form-input>
                         </b-form-group>
                         <b-form-group :label="$t('Password')" label-for="password" horizontal>
                             <b-form-input id="password" type="password" v-model="password" required></b-form-input>
@@ -29,6 +29,13 @@
 <script>
 export default {
   name: 'Login',
+  directives: {
+    autofocus: {
+      inserted: (el) => {
+        el.focus()
+      }
+    }
+  },
   data () {
     return {
       username: '',

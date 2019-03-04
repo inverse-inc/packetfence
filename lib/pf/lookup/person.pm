@@ -9,7 +9,7 @@ pf::lookup::person - lookup person information
 The lookup_person function is called via
 "pfcmd lookup person E<lt>pidE<gt>"
 through the administrative GUI,
-or as the content of a violation action
+or as the content of a security_event action
 
 Define this function to return whatever data you'd like.
 
@@ -99,7 +99,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

@@ -448,7 +448,7 @@ Copyright (C) 2002  The FreeRADIUS server project
 
 Copyright (C) 2002  Boian Jordanov <bjordanov@orbitel.bg>
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

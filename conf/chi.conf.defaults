@@ -128,7 +128,7 @@ storage=distributed
 #
 # Amount of time from the current time to expire an entry
 # Make sure to adjust according to pfmon switch_cache_lldpLocalPort_description.interval
-expires_in=15m
+expires_in=48h
 
 [storage person_lookup]
 #

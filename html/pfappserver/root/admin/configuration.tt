@@ -12,7 +12,7 @@
         'app/client/fineuploader',
         'css/jqtree',
         'admin/config/switches',
-        'admin/config/violations',
+        'admin/config/security_events',
         ] -%]
 
 [% MACRO list_entry(controller_name, action, description) BLOCK %]
@@ -115,8 +115,8 @@
               [%- IF can_access("SCAN_READ","WMI_READ","CONFIGURATION_MAIN_READ") %]
               [% pf_section_entry( 'scans', 'Scans', subsections.scans) | none %]
               [%- END %]
-              [%- IF can_access("VIOLATIONS_READ") %]
-              [% list_entry('Violation', 'index', 'Violations') | none %]
+              [%- IF can_access("SECURITY_EVENTS_READ") %]
+              [% list_entry('Security Event', 'index', 'Security Events') | none %]
               [%- END %]
             </ul>
           </div>

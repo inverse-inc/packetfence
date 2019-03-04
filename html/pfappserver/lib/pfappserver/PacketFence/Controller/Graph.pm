@@ -43,7 +43,7 @@ Readonly::Scalar our $REPORTS => 'reports';
 Readonly::Scalar our $GRAPH_REGISTERED_NODES => 'Registered Nodes';
 Readonly::Scalar our $GRAPH_UNREGISTERED_NODES => 'Unregistered Nodes';
 Readonly::Scalar our $GRAPH_NEW_NODES => 'New Nodes';
-Readonly::Scalar our $GRAPH_VIOLATIONS => 'Violations';
+Readonly::Scalar our $GRAPH_SECURITY_EVENTS => 'Security Events';
 Readonly::Scalar our $GRAPH_WIRED_CONNECTIONS => 'Wired Connections';
 Readonly::Scalar our $GRAPH_WIRELESS_CONNECTIONS => 'Wireless Connections';
 Readonly::Array our @GRAPHS =>
@@ -51,7 +51,7 @@ Readonly::Array our @GRAPHS =>
    $GRAPH_REGISTERED_NODES,
    $GRAPH_UNREGISTERED_NODES,
    $GRAPH_NEW_NODES,
-   $GRAPH_VIOLATIONS,
+   $GRAPH_SECURITY_EVENTS,
    $GRAPH_WIRED_CONNECTIONS,
    $GRAPH_WIRELESS_CONNECTIONS
   );
@@ -263,8 +263,8 @@ sub _dashboardCounters :Private {
        nodes_new   => $self->_graphCounter($c, 'node', $GRAPH_NEW_NODES,
                                            { value => 'detect',
                                              between => ['detect_date', $start, $end] }),
-       violations  => $self->_graphCounter($c, 'violation', $GRAPH_VIOLATIONS,
-                                           { value => 'violations',
+       security_events  => $self->_graphCounter($c, 'security_event', $GRAPH_SECURITY_EVENTS,
+                                           { value => 'security_events',
                                              between => ['start_date', $start, $end] }),
        wired       => $self->_graphCounter($c, 'locationlog', $GRAPH_WIRED_CONNECTIONS,
                                            { value => 'wired',
@@ -720,21 +720,21 @@ sub wireless :Local :Args(2) :AdminRole('REPORTS') {
     $self->_graphLine($c, $c->loc($GRAPH_WIRELESS_CONNECTIONS), $DASHBOARD);
 }
 
-=head2 violations_all
+=head2 security_events_all
 
-Number of violations triggered per day for a specific period.
+Number of security_events triggered per day for a specific period.
 
-Tightly coupled to pf::pfcmd::graph::graph_violations_all.
+Tightly coupled to pf::pfcmd::graph::graph_security_events_all.
 
 Used in the dashboard.
 
 =cut
 
-sub violations_all :Local :Args(2) :AdminRole('REPORTS') {
+sub security_events_all :Local :Args(2) :AdminRole('REPORTS') {
     my ($self, $c, $start, $end) = @_;
 
     $self->_saveActiveGraph($c);
-    $self->_graphLine($c, $c->loc($GRAPH_VIOLATIONS), $DASHBOARD);
+    $self->_graphLine($c, $c->loc($GRAPH_SECURITY_EVENTS), $DASHBOARD);
 }
 
 =head2 nodes
@@ -787,21 +787,21 @@ sub nodes :Local :AdminRole('REPORTS') {
     }
 }
 
-=head2 violations
+=head2 security_events
 
-Number of nodes by violation type per day for a specific period.
+Number of nodes by security_event type per day for a specific period.
 
-Tightly coupled to pf::pfcmd::graph::graph_violations.
+Tightly coupled to pf::pfcmd::graph::graph_security_events.
 
 Defined as a report.
 
 =cut
 
-sub violations :Local :AdminRole('REPORTS') {
+sub security_events :Local :AdminRole('REPORTS') {
     my ($self, $c, $start, $end) = @_;
 
     $self->_saveRange($c, $REPORTS, $start, $end);
-    $self->_graphLine($c, $c->loc('Violations'), $REPORTS);
+    $self->_graphLine($c, $c->loc('Security Events'), $REPORTS);
 }
 
 =head2 os
@@ -1105,7 +1105,7 @@ sub _generate_timeout_group {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

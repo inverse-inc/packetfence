@@ -99,11 +99,11 @@ $t->get_ok('/api/v1/reports/statics/active' => json => {  })
   ->json_has('/items')
   ->status_is(200);
 
-$t->get_ok('/api/v1/reports/openviolations' => json => {  })
+$t->get_ok('/api/v1/reports/opensecurity_events' => json => {  })
   ->json_has('/items')
   ->status_is(200);
 
-$t->get_ok('/api/v1/reports/openviolations/active' => json => {  })
+$t->get_ok('/api/v1/reports/opensecurity_events/active' => json => {  })
   ->json_has('/items')
   ->status_is(200);
 
@@ -263,7 +263,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

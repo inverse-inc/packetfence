@@ -39,7 +39,7 @@ is_deeply(
 
 is_deeply(
     [admin_allowed_options(['User Manager',"Alt User Manager"], 'allowed_access_levels')],
-    ['User Manager', 'Node Manager', 'NONE','Violation Manager'],
+    ['User Manager', 'Node Manager', 'NONE','Security Event Manager'],
     "Alt User Manager and User Manager allowed options for access levels"
 );
  
@@ -49,7 +49,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

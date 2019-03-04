@@ -24,7 +24,10 @@ has_field 'id' =>
    label => 'Name',
    required => 1,
    messages => { required => 'Please specify a name for the scan engine' },
-   apply => [ pfappserver::Base::Form::id_validator('name') ]
+   apply => [ pfappserver::Base::Form::id_validator('name') ],
+   tags => {
+      option_pattern => \&pfappserver::Base::Form::id_pattern,
+   },
   );
 
 has_field 'on_tab' =>
@@ -91,7 +94,7 @@ sub filter_deflate {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

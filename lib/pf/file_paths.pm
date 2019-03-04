@@ -50,7 +50,7 @@ our (
     $profiles_config_file, $profiles_default_config_file,
     #Other configuraton files variables
     $switches_config_file, $switches_default_config_file,
-    $violations_config_file, $violations_default_config_file,
+    $security_events_config_file, $security_events_default_config_file,
     $authentication_config_file,
     $chi_config_file, $chi_defaults_config_file,
     $ui_config_file, $floating_devices_file, $log_config_file,
@@ -89,7 +89,7 @@ our (
     $roles_default_config_file,
     $dns_filters_config_file, $dns_filters_default_config_file,
     $admin_audit_log,
-    $violation_log,
+    $security_event_log,
     $portal_modules_config_file, $portal_modules_default_config_file,
     $captiveportal_templates_path,
     $captiveportal_profile_templates_path,
@@ -101,6 +101,7 @@ our (
     $pfmon_config_file, $pfmon_default_config_file,
     $switch_filters_config_file,
     $stats_config_file,
+    $stats_config_default_file,
     $traffic_shaping_config_file,
     $pf_admin_i18n_dir,
     $syslog_config_file,
@@ -130,7 +131,7 @@ BEGIN {
         $unified_api_system_pass_file
         $profiles_config_file $profiles_default_config_file
         $switches_config_file $switches_default_config_file
-        $violations_config_file $violations_default_config_file
+        $security_events_config_file $security_events_default_config_file
         $authentication_config_file
         $chi_config_file $chi_defaults_config_file
         $ui_config_file $floating_devices_file $log_config_file
@@ -170,7 +171,7 @@ BEGIN {
         $roles_default_config_file
         $dns_filters_config_file $dns_filters_default_config_file
         $admin_audit_log
-        $violation_log
+        $security_event_log
         $portal_modules_config_file $portal_modules_default_config_file
         $captiveportal_templates_path
         $captiveportal_profile_templates_path
@@ -182,6 +183,7 @@ BEGIN {
         $pfmon_config_file $pfmon_default_config_file
         $switch_filters_config_file
         $stats_config_file
+        $stats_config_default_file
         $traffic_shaping_config_file
         $pf_admin_i18n_dir
         $syslog_config_file
@@ -242,12 +244,12 @@ $switches_default_config_file   = catfile($conf_dir, "switches.conf.defaults");
 $profiles_config_file   = catfile($conf_dir, "profiles.conf");
 $profiles_default_config_file   = catfile($conf_dir, "profiles.conf.defaults");
 $floating_devices_file  = catfile($conf_dir, "floating_network_device.conf");  # TODO: To be deprecated. See $floating_devices_config_file
-$violations_config_file = catfile($conf_dir, "violations.conf");
-$violations_default_config_file = catfile($conf_dir, "violations.conf.defaults");
+$security_events_config_file = catfile($conf_dir, "security_events.conf");
+$security_events_default_config_file = catfile($conf_dir, "security_events.conf.defaults");
 $dhcp_fingerprints_file = catfile($conf_dir, "dhcp_fingerprints.conf");
 $admin_roles_config_file = catfile($conf_dir, "adminroles.conf");
 
-$violations_config_file       = catfile($conf_dir, "violations.conf");
+$security_events_config_file       = catfile($conf_dir, "security_events.conf");
 $authentication_config_file   = catfile($conf_dir, "authentication.conf");
 $floating_devices_config_file = catfile($conf_dir, "floating_network_device.conf"); # TODO: Adjust to /floating_devices.conf when $floating_devices_file will be deprecated
 $wrix_config_file = catfile($conf_dir, "wrix.conf");
@@ -285,13 +287,14 @@ $roles_default_config_file = catfile($conf_dir,"roles.conf.defaults");
 $dns_filters_config_file = catfile($conf_dir,"dns_filters.conf");
 $dns_filters_default_config_file = catfile($conf_dir,"dns_filters.conf.defaults");
 $admin_audit_log = catfile($log_dir, "httpd.admin.audit.log");
-$violation_log = catfile($log_dir, "violation.log");
+$security_event_log = catfile($log_dir, "security_event.log");
 $portal_modules_config_file = catfile($conf_dir,"portal_modules.conf");
 $portal_modules_default_config_file = catfile($conf_dir,"portal_modules.conf.defaults");
 $pfmon_config_file = catfile($conf_dir,"pfmon.conf");
 $pfmon_default_config_file = catfile($conf_dir,"pfmon.conf.defaults");
 $switch_filters_config_file = catfile($conf_dir,"switch_filters.conf"); 
-$stats_config_file = catfile($conf_dir,"stats.conf");
+$stats_config_file = catfile($conf_dir, "stats.conf");
+$stats_config_default_file = catfile($conf_dir, "stats.conf.defaults");
 
 $oui_url               = 'http://standards.ieee.org/regauth/oui/oui.txt';
 $dhcp_fingerprints_url = 'http://www.packetfence.org/dhcp_fingerprints.conf';
@@ -315,7 +318,7 @@ $captiveportal_default_profile_templates_path = catdir ($captiveportal_profile_t
 
 @stored_config_files = (
     $pf_config_file, $network_config_file,
-    $switches_config_file, $violations_config_file,
+    $switches_config_file, $security_events_config_file,
     $authentication_config_file, $floating_devices_config_file,
     $dhcp_fingerprints_file, $profiles_config_file,
     $oui_file, $floating_devices_file,
@@ -358,7 +361,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

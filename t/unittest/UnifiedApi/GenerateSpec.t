@@ -185,6 +185,10 @@ cmp_deeply(
                         description => 'Billing tier',
                     },
                 },
+                "dot1x_unset_on_unmatch" => {
+                    type => 'string',
+                    description => "When enabled, PacketFence will unset the role of the device if no authentication sources returned one.",
+                },
                 'block_interval' => {
                     type => 'object',
                     description => 'The amount of time a user is blocked after reaching the defined limit for login, sms request and sms pin retry.',
@@ -263,7 +267,7 @@ cmp_deeply(
                 },
                 'redirecturl' => {
                     type => 'string',
-                    description => 'Default URL to redirect to on registration/mitigation release. This is only used if a per-violation redirect URL is not defined.',
+                    description => 'Default URL to redirect to on registration/mitigation release. This is only used if a per security event redirect URL is not defined.',
                 },
                 'reuse_dot1x_credentials' => {
                     type => 'string',
@@ -510,18 +514,6 @@ cmp_deeply(
                         type => 'string',
                         description => 'Alert pipe',
                     },
-                    loglines => {
-                        type => 'string',
-                        description => 'Loglines',
-                    },
-                    lines => {
-                        type => 'array',
-                        items => {
-                            type => 'string',
-                            description => 'Line',
-                        },
-                        description => 'Lines',
-                    },
                     rules => {
                         type => 'array',
                         items => {
@@ -582,7 +574,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

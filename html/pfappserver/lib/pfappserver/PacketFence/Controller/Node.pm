@@ -21,7 +21,7 @@ use namespace::autoclean;
 use POSIX;
 use pf::config qw(%Config);
 use pf::util;
-use pf::violation;
+use pf::security_event;
 
 use pfappserver::Form::Node;
 use pfappserver::Form::Node::Create::Import;
@@ -36,7 +36,7 @@ __PACKAGE__->config(
         bulk_register        => { AdminRole => 'NODES_UPDATE' },
         bulk_deregister      => { AdminRole => 'NODES_UPDATE' },
         bulk_apply_role      => { AdminRole => 'NODES_UPDATE' },
-        bulk_apply_violation => { AdminRole => 'NODES_UPDATE' },
+        bulk_apply_security_event => { AdminRole => 'NODES_UPDATE' },
         bulk_restart_switchport => { AdminRole => 'NODES_UPDATE' },
         bulk_reevaluate_access  => { AdminRole => 'NODES_UPDATE' },
     },
@@ -72,7 +72,7 @@ Perform an advanced search using the Search::Node model
 
 sub search :Local :Args() :AdminRole('NODES_READ') {
     my ($self, $c) = @_;
-    my ($status, $status_msg, $result, $violations);
+    my ($status, $status_msg, $result, $security_events);
     my %search_results;
     my $model = $self->getModel($c);
     my $form = $self->getForm($c);
@@ -107,11 +107,11 @@ sub search :Local :Args() :AdminRole('NODES_READ') {
     }
 
     (undef, $result) = $c->model('Config::Roles')->listFromDB();
-    (undef, $violations ) = $c->model('Config::Violations')->readAll();
+    (undef, $security_events ) = $c->model('Config::SecurityEvents')->readAll();
     $c->stash(
         status_msg => $status_msg,
         roles => $self->get_allowed_node_roles($c),
-        violations => $violations,
+        security_events => $security_events,
         by => $by,
         direction => $direction,
     );
@@ -289,7 +289,7 @@ sub view :Chained('object') :PathPart('read') :Args(0) :AdminRole('NODES_READ') 
 
     # Form initialization :
     # Retrieve node details and status
-    our @tabs = qw(Location Violations);
+    our @tabs = qw(Location SecurityEvents);
     if (isenabled($Config{mse_tab}{enabled}) && admin_can([$c->user->roles], 'MSE_READ')) {
         push @tabs, 'MSE';
     }
@@ -463,19 +463,19 @@ sub restart_switchport :Chained('object') :PathPart('restart_switchport') :Args(
     $c->stash->{current_view} = 'JSON';
 }
 
-=head2 violations
+=head2 security_events
 
 =cut
 
-sub violations :Chained('object') :PathPart :Args(0) :AdminRole('NODES_READ') {
+sub security_events :Chained('object') :PathPart :Args(0) :AdminRole('NODES_READ') {
     my ($self, $c) = @_;
-    my ($status, $result) = $c->model('Node')->violations($c->stash->{mac});
+    my ($status, $result) = $c->model('Node')->security_events($c->stash->{mac});
     if (is_success($status)) {
-        $c->stash->{items} = $result->{'violations'};
+        $c->stash->{items} = $result->{'security_events'};
         $c->stash->{multihost} = $result->{'multihost'};
-        (undef, $result) = $c->model('Config::Violations')->readAll();
-        my @violations = grep { $_->{id} ne 'defaults' } @$result; # remove defaults
-        $c->stash->{violations} = \@violations;
+        (undef, $result) = $c->model('Config::SecurityEvents')->readAll();
+        my @security_events = grep { $_->{id} ne 'defaults' } @$result; # remove defaults
+        $c->stash->{security_events} = \@security_events;
     }
     else {
         $c->response->status($status);
@@ -519,43 +519,43 @@ sub runRapid7Scan :Chained('object') :PathPart('runRapid7Scan') :Args(1) :AdminR
 
 }
 
-=head2 triggerViolation
+=head2 triggerSecurityEvent
 
 =cut
 
-sub triggerViolation :Chained('object') :PathPart('trigger') :Args(1) :AdminRole('NODES_UPDATE') {
+sub triggerSecurityEvent :Chained('object') :PathPart('trigger') :Args(1) :AdminRole('NODES_UPDATE') {
     my ( $self, $c, $id ) = @_;
 
-    my ( $status, $result ) = $c->model('Config::Violations')->hasId($id);
+    my ( $status, $result ) = $c->model('Config::SecurityEvents')->hasId($id);
     if ( is_success($status) ) {
-        ( $status, $result ) = $self->_triggerViolation($c, $id);
+        ( $status, $result ) = $self->_triggerSecurityEvent($c, $id);
     }
 
     $c->response->status($status);
     $c->stash->{status_msg} = $result;
     if (is_success($status)) {
-        $c->forward('violations');
+        $c->forward('security_events');
     }
     else {
         $c->stash->{current_view} = 'JSON';
     }
 }
 
-=head2 triggerViolation_multihost
+=head2 triggerSecurityEvent_multihost
 
 =cut
 
-sub triggerViolation_multihost :Chained('object') :PathPart('trigger_multihost') :Args(1) :AdminRole('NODES_UPDATE') {
+sub triggerSecurityEvent_multihost :Chained('object') :PathPart('trigger_multihost') :Args(1) :AdminRole('NODES_UPDATE') {
     my ( $self, $c, $id ) = @_;
 
-    my ( $status, $result ) = $c->model('Config::Violations')->hasId($id);
+    my ( $status, $result ) = $c->model('Config::SecurityEvents')->hasId($id);
     if ( is_success($status) ) {
-        $c->log->info("Doing multihost 'triggerViolation' called with MAC '" . $c->stash->{mac} . "'");
+        $c->log->info("Doing multihost 'triggerSecurityEvent' called with MAC '" . $c->stash->{mac} . "'");
         my @mac = pf::node::check_multihost($c->stash->{mac});
         foreach my $mac ( @mac ) {
-            $c->log->info("Multihost 'triggerViolation' for MAC '$mac' with violation ID '$id'");
+            $c->log->info("Multihost 'triggerSecurityEvent' for MAC '$mac' with security event ID '$id'");
             $c->stash->{mac} = $mac;
-            ( $status, $result ) = $self->_triggerViolation($c, $id);
+            ( $status, $result ) = $self->_triggerSecurityEvent($c, $id);
             if ( is_error($status) ) {
                 $c->stash->{current_view} = 'JSON';
                 return;
@@ -566,53 +566,53 @@ sub triggerViolation_multihost :Chained('object') :PathPart('trigger_multihost')
     $c->response->status($status);
     $c->stash->{status_msg} = $result;
     if (is_success($status)) {
-        $c->forward('violations');
+        $c->forward('security_events');
     }
     else {
         $c->stash->{current_view} = 'JSON';
     }        
 }
 
-=head2 _triggerViolation
+=head2 _triggerSecurityEvent
 
 =cut
 
-sub _triggerViolation {
+sub _triggerSecurityEvent {
     my ( $self, $c, $id ) = @_;
 
     my ( $status, $result );
-    ( $status, $result ) = $c->model('Node')->addViolation($c->stash->{mac}, $id);
-    $self->audit_current_action($c, status => $status, mac => $c->stash->{mac}, violation_id => $id);
+    ( $status, $result ) = $c->model('Node')->addSecurityEvent($c->stash->{mac}, $id);
+    $self->audit_current_action($c, status => $status, mac => $c->stash->{mac}, security_event_id => $id);
 
     return ( $status, $result );
 }
 
-=head2 closeViolation
+=head2 closeSecurityEvent
 
 =cut
 
-sub closeViolation :Path('close') :Args(1) :AdminRole('NODES_UPDATE') {
+sub closeSecurityEvent :Path('close') :Args(1) :AdminRole('NODES_UPDATE') {
     my ($self, $c, $id) = @_;
-    my ($status, $result) = $c->model('Node')->closeViolation($id);
-    my @violation = violation_view($id);
-    if (@violation) {
-        $self->audit_current_action($c, status => $status, mac => $violation[0]->{mac});
+    my ($status, $result) = $c->model('Node')->closeSecurityEvent($id);
+    my @security_event = security_event_view($id);
+    if (@security_event) {
+        $self->audit_current_action($c, status => $status, mac => $security_event[0]->{mac});
     }
     $c->response->status($status);
     $c->stash->{status_msg} = $result;
     $c->stash->{current_view} = 'JSON';
 }
 
-=head2 runViolation
+=head2 runSecurityEvent
 
 =cut
 
-sub runViolation :Path('run') :Args(1) :AdminRole('NODES_UPDATE') {
+sub runSecurityEvent :Path('run') :Args(1) :AdminRole('NODES_UPDATE') {
     my ($self, $c, $id) = @_;
-    my ($status, $result) = $c->model('Node')->runViolation($id);
-    my @violation = violation_view($id);
-    if (@violation) {
-        $self->audit_current_action($c, status => $status, mac => $violation[0]->{mac});
+    my ($status, $result) = $c->model('Node')->runSecurityEvent($id);
+    my @security_event = security_event_view($id);
+    if (@security_event) {
+        $self->audit_current_action($c, status => $status, mac => $security_event[0]->{mac});
     }
     $c->response->status($status);
     $c->stash->{status_msg} = $result;
@@ -728,7 +728,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 

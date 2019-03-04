@@ -1,3 +1,0 @@
-<div id='nodeViolations'>
-[% INCLUDE node/violations.tt %]
-</div>

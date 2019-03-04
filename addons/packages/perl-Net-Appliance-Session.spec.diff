@@ -7,7 +7,7 @@
 # http://packetfence.org/bugs/view.php?id=1556
 #
 # Olivier Bilodeau <obilodeau@inverse.ca>
-# Copyright (C) 2005-2018 Inverse inc.
+# Copyright (C) 2005-2019 Inverse inc.
 #
 --- perl-Net-Appliance-Session.spec     2012-09-26 13:40:14.000000000 -0400
 +++ SPECS/perl-Net-Appliance-Session.spec       2012-09-26 13:38:08.000000000 -0400
