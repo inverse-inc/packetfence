@@ -28,6 +28,7 @@ Enhancements
 * Voip configuration parameter in node_cleanup task to bypass voip devices
 * Adding/removing passthroughs doesn't require to restart pfdns anymore (#3127)
 * Added support for RADIUS disconnect on Ruckus SmartZone
+* Disable AD join os check option
 
 Bug Fixes
 +++++++++
