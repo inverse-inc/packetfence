@@ -506,7 +506,6 @@ done
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/conf/radiusd
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/conf/ssl
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/conf/ssl/acme-challenge
-%{__install} -D -m0644 conf/ssl/acme-challenge/success.txt $RPM_BUILD_ROOT/usr/local/pf/conf/ssl/acme-challenge/success.txt
 %{__install} -d -m2775 $RPM_BUILD_ROOT%logdir
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/raddb/sites-enabled
 %{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/var
@@ -1065,7 +1064,6 @@ fi
                         /usr/local/pf/conf/scan.conf.example
 %dir                    /usr/local/pf/conf/ssl
 %dir                    /usr/local/pf/conf/ssl/acme-challenge
-%config                 /usr/local/pf/conf/ssl/acme-challenge/success.txt
 %dir                    /usr/local/pf/conf/systemd
 %config                 /usr/local/pf/conf/systemd/*
 %config(noreplace)      /usr/local/pf/conf/switches.conf
