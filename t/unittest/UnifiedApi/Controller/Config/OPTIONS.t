@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 13;
+use Test::More tests => 15;
 
 #This test will running last
 use Test::Mojo;
@@ -110,41 +110,42 @@ $t->options_ok("/api/v1/config/syslog_parsers")
   ->status_is(200)
   ->json_is(
     {
-        allowed => {
-            type => [
-                {
-                    text => "suricata_md5",
-                    value => "suricata_md5"
-                },
-                {
-                    text => "security_onion",
-                    value => "security_onion"
-                },
-                {
-                    text => "regex",
-                    value => "regex"
-                },
-                {
-                    text => "fortianalyser",
-                    value => "fortianalyser"
-                },
-                {
-                    text => "suricata",
-                    value => "suricata"
-                },
-                {
-                    text => "dhcp",
-                    value => "dhcp"
-                },
-                {
-                    text => "snort",
-                    value => "snort"
-                }
-            ]
+        meta => {
+            type => {
+                allowed => [
+                    {
+                        text  => "suricata_md5",
+                        value => "suricata_md5"
+                    },
+                    {
+                        text  => "security_onion",
+                        value => "security_onion"
+                    },
+                    {
+                        text  => "regex",
+                        value => "regex"
+                    },
+                    {
+                        text  => "fortianalyser",
+                        value => "fortianalyser"
+                    },
+                    {
+                        text  => "suricata",
+                        value => "suricata"
+                    },
+                    {
+                        text  => "dhcp",
+                        value => "dhcp"
+                    },
+                    {
+                        text  => "snort",
+                        value => "snort"
+                    }
+                ],
+                type => 'string',
+            }
         },
-        defaults     => {},
-        placeholders => {},
-        status       => 200
+        status => 200
     }
 );
 
@@ -3137,6 +3138,9 @@ $t->options_ok("/api/v1/config/base/general")
         status => 200
     }
 );
+
+$t->options_ok("/api/v1/config/scan/test1")
+  ->status_is(200);
 
 =head1 AUTHOR
 

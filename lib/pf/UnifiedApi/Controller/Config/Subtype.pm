@@ -15,6 +15,7 @@ pf::UnifiedApi::Controller::Config::Subtype
 use strict;
 use warnings;
 use Mojo::Base qw(pf::UnifiedApi::Controller::Config);
+use pf::error qw(is_error);
 
 sub form_class_by_type {
     my ($self, $type) = @_;
@@ -26,17 +27,15 @@ sub form {
     my ($self, $item) = @_;
     my $type = $item->{type};
     if ( !defined $type ) {
-        $self->render_error(422, "Unable to validate", [{ type => "type field is required"}]);
-        return undef;
+        return 422, "Unable to validate: 'type field is required'";
     }
+
     my $class = $self->form_class_by_type($type);
-
     if ( !$class  ){
-        $self->render_error(422, "Unable to validate", [{ type => "type field is invalid '$type'"}]);
-        return undef;
+        return 422, "Unable to validate: 'type field is invalid '$type''";
     }
 
-    return $class->new;
+    return 200, $class->new;
 }
 
 sub type_lookup {
@@ -52,12 +51,12 @@ Handle the OPTIONS HTTP method
 sub options {
     my ($self) = @_;
     my $params = $self->req->query_params->to_hash;
-    my $form = $self->form( { type => $params->{type} } );
+    my ($status, $form) = $self->form( { type => $params->{type} } );
     return $self->render(
         json => (
-              $form
-            ? $self->options_from_form($form)
-            : $self->options_with_no_type
+              is_error($status)
+            ? $self->options_with_no_type
+            : $self->options_from_form($form)
         ),
         status => 200
     );
@@ -73,14 +72,16 @@ sub options_with_no_type {
     my ($self) = @_;
     my %allowed;
     my %output = (
-        defaults => {},
-        placeholders => {},
-        allowed=> \%allowed,
+        meta => {
+            type => {
+                allowed => [
+                    map { $self->type_allowed_info($_) } keys %{$self->type_lookup}
+                ],
+                type => "string",
+            },
+        }
     );
 
-    $allowed{type} = [
-        map { $self->type_allowed_info($_) } keys %{$self->type_lookup}
-    ];
     return \%output;
 }
 

@@ -115,11 +115,11 @@ sub form {
     my ($self, $item, @args) = @_;
     my $parameters = $self->form_parameters($item);
     if (!defined $parameters) {
-        $self->render_error(422, "Invalid request");
-        return undef;
+        return 422, "Invalid requests";
     }
 
-    $self->form_class->new(@$parameters, @args);
+    my $form = $self->form_class->new(@$parameters, @args);
+    return 200, $form;
 }
 
 sub resource {
@@ -166,8 +166,8 @@ sub item_from_store {
 sub cleanup_item {
     my ($self, $item) = @_;
     my $id = $item->{id};
-    my $form = $self->form($item);
-    if (!defined $form) {
+    my ($status, $form) = $self->form($item);
+    if (is_error($status)) {
         return undef;
     }
 
@@ -210,8 +210,8 @@ sub create {
 
 sub validate_item {
     my ($self, $item) = @_;
-    my $form = $self->form($item);
-    if (!defined $form) {
+    my ($status, $form) = $self->form($item);
+    if (is_error($status)) {
         $self->render_error(422, "Unable to validate invalid no valid formater");
         return undef;
     }
@@ -342,7 +342,11 @@ Handle the OPTIONS HTTP method
 
 sub options {
     my ($self) = @_;
-    my $form = $self->form;
+    my ($status, $form) = $self->form;
+    if (is_error($status)) {
+        return $self->render_error($status, $form);
+    }
+
     return $self->render(json => $self->options_from_form($form));
 }
 
@@ -514,7 +518,11 @@ Create the resource options
 
 sub resource_options {
     my ($self) = @_;
-    my $form = $self->form($self->item);
+    my ($status, $form) = $self->form($self->item);
+    if (is_error($status)) {
+        return $self->render_error($status, $form);
+    }
+
     my (%defaults, %placeholders, %allowed, %meta);
     my %output = (
         defaults => \%defaults,
