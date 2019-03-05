@@ -1,33 +1,23 @@
 import i18n from '@/utils/locale'
-import pfFieldTypeValue from '@/components/pfFieldTypeValue'
-import pfFieldAttributeOperatorValue from '@/components/pfFieldAttributeOperatorValue'
-import pfFieldRule from '@/components/pfFieldRule'
 import pfFormChosen from '@/components/pfFormChosen'
-import pfFormFields from '@/components/pfFormFields'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormPassword from '@/components/pfFormPassword'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
-import pfFormTextarea from '@/components/pfFormTextarea'
 import {
-  pfConfigurationActions,
-  pfConfigurationConditions,
   pfConfigurationListColumns,
   pfConfigurationListFields,
   pfConfigurationAttributesFromMeta,
   pfConfigurationValidatorsFromMeta
 } from '@/globals/configuration/pfConfiguration'
 import {
-  alphaNum,
   and,
   not,
   conditional,
   hasPkiProviders,
-  pkiProviderExists,
-  limitSiblingFields
+  pkiProviderExists
 } from '@/globals/pfValidators'
 
 const {
-  maxLength,
   required
 } = require('vuelidate/lib/validators')
 
