@@ -6,7 +6,7 @@ DynamicRouting::Module::ShowLocalAccount
 
 =head1 DESCRIPTION
 
-Module to show a message to the user
+Module to show a Local Account Information to the user
 
 =cut
 
@@ -45,7 +45,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 
