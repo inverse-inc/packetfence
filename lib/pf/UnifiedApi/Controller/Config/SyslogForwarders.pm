@@ -15,7 +15,7 @@ pf::UnifiedApi::Controller::Config::SyslogForwarders
 use strict;
 use warnings;
 
-use Mojo::Base qw(pf::UnifiedApi::Controller::Config);
+use Mojo::Base qw(pf::UnifiedApi::Controller::Config::Subtype);
 
 has 'config_store_class' => 'pf::ConfigStore::Syslog';
 has 'form_class' => 'pfappserver::Form::Config::Syslog';
