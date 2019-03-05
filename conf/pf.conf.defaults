@@ -876,6 +876,11 @@ multihost=disabled
 #
 # The algorithm used to calculate the VLAN in a VLAN pool.
 vlan_pool_technique = username_hash
+#
+# active_directory_os_join_check_bypass
+#
+# Enable to bypass the operating system domain join verification.
+active_directory_os_join_check_bypass=disabled
 
 [provisioning]
 #
