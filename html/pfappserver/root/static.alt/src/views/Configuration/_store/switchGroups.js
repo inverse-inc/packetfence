@@ -33,6 +33,17 @@ const actions = {
       return response.items
     })
   },
+  options: ({}, id) => {
+    if (id) {
+      return api.switchGroupOptions(id).then(response => {
+        return response
+      })
+    } else {
+      return api.switchGroupsOptions().then(response => {
+        return response
+      })
+    }
+  },
   getSwitchGroup: ({ state, commit }, id) => {
     if (state.cache[id]) {
       return Promise.resolve(state.cache[id])

@@ -33,6 +33,17 @@ const actions = {
       return response.items
     })
   },
+  options: ({}, id) => {
+    if (id) {
+      return api.domainOptions(id).then(response => {
+        return response
+      })
+    } else {
+      return api.domainsOptions().then(response => {
+        return response
+      })
+    }
+  },
   getDomain: ({ state, commit }, id) => {
     if (state.cache[id]) {
       return Promise.resolve(state.cache[id])

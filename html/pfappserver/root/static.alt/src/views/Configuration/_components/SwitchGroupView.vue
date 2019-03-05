@@ -2,11 +2,11 @@
   <pf-config-view
     :isLoading="isLoading"
     :form="getForm"
-    :model="switchGroup"
-    :vuelidate="$v.switchGroup"
+    :model="form"
+    :vuelidate="$v.form"
     :isNew="isNew"
     :isClone="isClone"
-    @validations="switchGroupValidations = $event"
+    @validations="formValidations = $event"
     @close="close"
     @create="create"
     @save="save"
@@ -23,7 +23,7 @@
     <template slot="footer"
       scope="{isDeletable}"
     >
-      <b-card-footer @mouseenter="$v.switchGroup.$touch()">
+      <b-card-footer @mouseenter="$v.form.$touch()">
         <pf-button-save :disabled="invalidForm" :isLoading="isLoading">
           <template v-if="isNew">{{ $t('Create') }}</template>
           <template v-else-if="isClone">{{ $t('Clone') }}</template>
@@ -31,6 +31,7 @@
           <template v-else>{{ $t('Save') }}</template>
         </pf-button-save>
         <pf-button-delete v-if="isDeletable" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Switch Group?')" @on-delete="remove()"/>
+        <b-button :disabled="isLoading" class="ml-1" variant="outline-primary" @click="init()">{{ $t('Reset') }}</b-button>
       </b-card-footer>
     </template>
   </pf-config-view>
@@ -43,9 +44,10 @@ import pfButtonDelete from '@/components/pfButtonDelete'
 import pfMixinCtrlKey from '@/components/pfMixinCtrlKey'
 import pfMixinEscapeKey from '@/components/pfMixinEscapeKey'
 import {
-  pfConfigurationSwitchGroupViewFields as fields,
-  pfConfigurationSwitchGroupViewDefaults as defaults,
-  pfConfigurationSwitchGroupViewPlaceholders as placeholders
+  pfConfigurationDefaultsFromMeta as defaults
+} from '@/globals/configuration/pfConfiguration'
+import {
+  pfConfigurationSwitchGroupViewFields as fields
 } from '@/globals/configuration/pfConfigurationSwitchGroups'
 const { validationMixin } = require('vuelidate')
 
@@ -82,23 +84,23 @@ export default {
   },
   data () {
     return {
-      switchGroup: defaults(this), // will be overloaded with the data from the store
-      switchGroupValidations: {}, // will be overloaded with data from the pfConfigView
-      roles: [], // all roles
-      placeholders: placeholders(this) // form placeholders
+      form: {}, // will be overloaded with the data from the store
+      formValidations: {}, // will be overloaded with data from the pfConfigView
+      options: {},
+      roles: [] // all roles
     }
   },
   validations () {
     return {
-      switchGroup: this.switchGroupValidations
+      form: this.formValidations
     }
   },
   computed: {
     isLoading () {
-      return this.$store.getters['$_switch_groups/isLoading']
+      return this.$store.getters[`${this.storeName}/isLoading`]
     },
     invalidForm () {
-      return this.$v.switchGroup.$invalid || this.$store.getters['$_switch_groups/isWaiting']
+      return this.$v.form.$invalid || this.$store.getters[`${this.storeName}/isWaiting`]
     },
     getForm () {
       return {
@@ -107,49 +109,60 @@ export default {
       }
     },
     isDeletable () {
-      if (this.isNew || this.isClone || ('not_deletable' in this.switchGroup && this.switchGroup.not_deletable)) {
+      if (this.isNew || this.isClone || ('not_deletable' in this.form && this.form.not_deletable)) {
         return false
       }
       return true
     }
   },
   methods: {
+    init () {
+      this.$store.dispatch('$_roles/all').then(data => {
+        this.roles = data
+      })
+      this.$store.dispatch(`${this.storeName}/options`, this.id).then(options => {
+        // store options
+        this.options = Object.assign({}, options)
+        if (this.id) {
+          // existing
+          this.$store.dispatch(`${this.storeName}/getSwitchGroup`, this.id).then(form => {
+            this.form = Object.assign({}, form)
+          })
+        } else {
+          // new
+          this.form = defaults(options.meta) // set defaults
+        }
+      })
+    },
     close () {
       this.$router.push({ name: 'switch_groups' })
     },
     create () {
       const ctrlKey = this.ctrlKey
-      this.$store.dispatch('$_switch_groups/createSwitchGroup', this.switchGroup).then(response => {
+      this.$store.dispatch(`${this.storeName}/createSwitchGroup`, this.form).then(response => {
         if (ctrlKey) { // [CTRL] key pressed
           this.close()
         } else {
-          this.$router.push({ name: 'switch_group', params: { id: this.switchGroup.id } })
+          this.$router.push({ name: 'switch_group', params: { id: this.form.id } })
         }
       })
     },
     save () {
       const ctrlKey = this.ctrlKey
-      this.$store.dispatch('$_switch_groups/updateSwitchGroup', this.switchGroup).then(response => {
+      this.$store.dispatch(`${this.storeName}/updateSwitchGroup`, this.form).then(response => {
         if (ctrlKey) { // [CTRL] key pressed
           this.close()
         }
       })
     },
     remove () {
-      this.$store.dispatch('$_switch_groups/deleteSwitchGroup', this.id).then(response => {
+      this.$store.dispatch(`${this.storeName}/deleteSwitchGroup`, this.id).then(response => {
         this.close()
       })
     }
   },
   created () {
-    this.$store.dispatch('$_roles/all').then(data => {
-      this.roles = data
-    })
-    if (this.id) {
-      this.$store.dispatch('$_switch_groups/getSwitchGroup', this.id).then(data => {
-        this.switchGroup = Object.assign({}, data)
-      })
-    }
+    this.init()
   }
 }
 </script>

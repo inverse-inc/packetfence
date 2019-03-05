@@ -13,6 +13,7 @@
         :multiple="multiple"
         :options="options"
         :trackBy="trackBy"
+        :label="label"
         :groupValues="groupValues"
         :state="isValid()"
         @input.native="validate()"
@@ -75,6 +76,10 @@ export default {
       type: String,
       default: 'value'
     },
+    label: {
+      type: String,
+      default: 'text'
+    },
     groupValues: {
       type: String
     },
@@ -82,7 +87,7 @@ export default {
     // https://github.com/shentao/vue-multiselect/issues/385#issuecomment-418881148
     collapseObject: {
       type: Boolean,
-      default: false
+      default: true
     }
   },
   data () {

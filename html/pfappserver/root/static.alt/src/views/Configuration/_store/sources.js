@@ -33,6 +33,16 @@ const actions = {
       return response.items
     })
   },
+  optionsById: ({}, id) => {
+    return api.authenticationSourceOptions(id).then(response => {
+      return response
+    })
+  },
+  optionsBySourceType: ({}, sourceType) => {
+    return api.authenticationSourcesOptions(sourceType).then(response => {
+      return response
+    })
+  },
   getAuthenticationSourcesByType: ({ state, commit }, type) => {
     const params = {
       sort: 'id',
