@@ -2,11 +2,11 @@
   <pf-config-view
     :isLoading="isLoading"
     :form="getForm"
-    :model="floatingDevice"
-    :vuelidate="$v.floatingDevice"
+    :model="form"
+    :vuelidate="$v.form"
     :isNew="isNew"
     :isClone="isClone"
-    @validations="floatingDeviceValidations = $event"
+    @validations="formValidations = $event"
     @close="close"
     @create="create"
     @save="save"
@@ -23,7 +23,7 @@
     <template slot="footer"
       scope="{isDeletable}"
     >
-      <b-card-footer @mouseenter="$v.floatingDevice.$touch()">
+      <b-card-footer @mouseenter="$v.form.$touch()">
         <pf-button-save :disabled="invalidForm" :isLoading="isLoading">
           <template v-if="isNew">{{ $t('Create') }}</template>
           <template v-else-if="isClone">{{ $t('Clone') }}</template>
@@ -31,6 +31,7 @@
           <template v-else>{{ $t('Save') }}</template>
         </pf-button-save>
         <pf-button-delete v-if="isDeletable" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Floating Device?')" @on-delete="remove()"/>
+        <b-button :disabled="isLoading" class="ml-1" variant="outline-primary" @click="init()">{{ $t('Reset') }}</b-button>
       </b-card-footer>
     </template>
   </pf-config-view>
@@ -43,8 +44,10 @@ import pfButtonDelete from '@/components/pfButtonDelete'
 import pfMixinCtrlKey from '@/components/pfMixinCtrlKey'
 import pfMixinEscapeKey from '@/components/pfMixinEscapeKey'
 import {
-  pfConfigurationFloatingDeviceViewFields as fields,
-  pfConfigurationFloatingDeviceViewDefaults as defaults
+  pfConfigurationDefaultsFromMeta as defaults
+} from '@/globals/configuration/pfConfiguration'
+import {
+  pfConfigurationFloatingDeviceViewFields as fields
 } from '@/globals/configuration/pfConfigurationFloatingDevices'
 const { validationMixin } = require('vuelidate')
 
@@ -81,13 +84,14 @@ export default {
   },
   data () {
     return {
-      floatingDevice: defaults(this), // will be overloaded with the data from the store
-      floatingDeviceValidations: {} // will be overloaded with data from the pfConfigView
+      form: {}, // will be overloaded with the data from the store
+      formValidations: {}, // will be overloaded with data from the pfConfigView
+      options: {}
     }
   },
   validations () {
     return {
-      floatingDevice: this.floatingDeviceValidations
+      form: this.formValidations
     }
   },
   computed: {
@@ -95,7 +99,7 @@ export default {
       return this.$store.getters['$_floatingdevices/isLoading']
     },
     invalidForm () {
-      return this.$v.floatingDevice.$invalid || this.$store.getters['$_floatingdevices/isWaiting']
+      return this.$v.form.$invalid || this.$store.getters['$_floatingdevices/isWaiting']
     },
     getForm () {
       return {
@@ -104,29 +108,44 @@ export default {
       }
     },
     isDeletable () {
-      if (this.isNew || this.isClone || ('not_deletable' in this.floatingDevice && this.floatingDevice.not_deletable)) {
+      if (this.isNew || this.isClone || ('not_deletable' in this.form && this.form.not_deletable)) {
         return false
       }
       return true
     }
   },
   methods: {
+    init () {
+      this.$store.dispatch(`${this.storeName}/options`, this.id).then(options => {
+        // store options
+        this.options = Object.assign({}, options)
+        if (this.id) {
+          // existing
+          this.$store.dispatch(`${this.storeName}/getFloatingDevice`, this.id).then(form => {
+            this.form = Object.assign({}, form)
+          })
+        } else {
+          // new
+          this.form = defaults(options.meta) // set defaults
+        }
+      })
+    },
     close () {
       this.$router.push({ name: 'floating_devices' })
     },
     create () {
       const ctrlKey = this.ctrlKey
-      this.$store.dispatch('$_floatingdevices/createFloatingDevice', this.floatingDevice).then(response => {
+      this.$store.dispatch('$_floatingdevices/createFloatingDevice', this.form).then(response => {
         if (ctrlKey) { // [CTRL] key pressed
           this.close()
         } else {
-          this.$router.push({ name: 'floating_device', params: { id: this.floatingDevice.id } })
+          this.$router.push({ name: 'floating_device', params: { id: this.form.id } })
         }
       })
     },
     save () {
       const ctrlKey = this.ctrlKey
-      this.$store.dispatch('$_floatingdevices/updateFloatingDevice', this.floatingDevice).then(response => {
+      this.$store.dispatch('$_floatingdevices/updateFloatingDevice', this.form).then(response => {
         if (ctrlKey) { // [CTRL] key pressed
           this.close()
         }
@@ -139,11 +158,7 @@ export default {
     }
   },
   created () {
-    if (this.id) {
-      this.$store.dispatch('$_floatingdevices/getFloatingDevice', this.id).then(data => {
-        this.floatingDevice = Object.assign({}, data)
-      })
-    }
+    this.init()
   }
 }
 </script>

@@ -4,7 +4,9 @@ import pfFormToggle from '@/components/pfFormToggle'
 import { pfRegExp as regExp } from '@/globals/pfRegExp'
 import {
   pfConfigurationListColumns,
-  pfConfigurationListFields
+  pfConfigurationListFields,
+  pfConfigurationAttributesFromMeta,
+  pfConfigurationValidatorsFromMeta
 } from '@/globals/configuration/pfConfiguration'
 import {
   and,
@@ -78,7 +80,13 @@ export const pfConfigurationFloatingDeviceListConfig = (context = {}) => {
 }
 
 export const pfConfigurationFloatingDeviceViewFields = (context = {}) => {
-  const { isNew = false, isClone = false } = context
+  const {
+    isNew = false,
+    isClone = false,
+    options: {
+      meta = {}
+    }
+  } = context
   return [
     {
       tab: null, // ignore tabs
@@ -90,13 +98,16 @@ export const pfConfigurationFloatingDeviceViewFields = (context = {}) => {
               key: 'id',
               component: pfFormInput,
               attrs: {
-                disabled: (!isNew && !isClone)
+                ...pfConfigurationAttributesFromMeta(meta, 'id'),
+                ...{
+                  disabled: (!isNew && !isClone)
+                }
               },
               validators: {
-                [i18n.t('MAC address required.')]: required,
-                [i18n.t('Maximum 255 characters.')]: maxLength(255),
-                [i18n.t('Enter a valid MAC address.')]: macAddress(),
-                [i18n.t('Floating Device exists.')]: not(and(required, conditional(isNew || isClone), hasFloatingDevices, floatingDeviceExists))
+                ...pfConfigurationValidatorsFromMeta(meta, 'id', 'MAC'),
+                ...{
+                  [i18n.t('Floating Device exists.')]: not(and(required, conditional(isNew || isClone), hasFloatingDevices, floatingDeviceExists))
+                }
               }
             }
           ]
@@ -107,11 +118,8 @@ export const pfConfigurationFloatingDeviceViewFields = (context = {}) => {
             {
               key: 'ip',
               component: pfFormInput,
-              validators: {
-                [i18n.t('IP address required.')]: required,
-                [i18n.t('Maximum 255 characters.')]: maxLength(255),
-                [i18n.t('Enter a valid IP address.')]: ipAddress
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'ip'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'ip')
             }
           ]
         },
@@ -122,14 +130,8 @@ export const pfConfigurationFloatingDeviceViewFields = (context = {}) => {
             {
               key: 'pvid',
               component: pfFormInput,
-              attrs: {
-                filter: regExp.integerPositive
-              },
-              validators: {
-                [i18n.t('Native VLAN required.')]: required,
-                [i18n.t('Maximum 255 characters.')]: maxLength(255),
-                [i18n.t('Enter a valid Native VLAN.')]: integer
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'pvid'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'pvid')
             }
           ]
         },
@@ -153,19 +155,12 @@ export const pfConfigurationFloatingDeviceViewFields = (context = {}) => {
             {
               key: 'taggedVlan',
               component: pfFormInput,
-              validators: {
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'taggedVlan'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'taggedVlan')
             }
           ]
         }
       ]
     }
   ]
-}
-
-export const pfConfigurationFloatingDeviceViewDefaults = (context = {}) => {
-  return {
-    id: null
-  }
 }

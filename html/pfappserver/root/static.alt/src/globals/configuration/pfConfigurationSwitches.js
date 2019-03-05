@@ -70,7 +70,7 @@ export const pfConfigurationSwitchesListConfig = (context = {}) => {
           ]
         }]
       },
-      defaultRoute: { name: 'forms' }
+      defaultRoute: { name: 'switches' }
     },
     searchableQuickCondition: (quickCondition) => {
       return {
@@ -212,7 +212,13 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
             {
               key: 'type',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'type'),
+              attrs: {
+                ...pfConfigurationAttributesFromMeta(meta, 'type'),
+                ...{
+                  groupLabel: 'group',
+                  groupValues: 'options'
+                }
+              },
               validators: pfConfigurationValidatorsFromMeta(meta, 'type')
             }
           ]

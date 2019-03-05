@@ -4,11 +4,12 @@ import pfFormChosen from '@/components/pfFormChosen'
 import pfFormFields from '@/components/pfFormFields'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormPassword from '@/components/pfFormPassword'
-import pfFormSelect from '@/components/pfFormSelect'
 import pfFormToggle from '@/components/pfFormToggle'
 import {
   pfConfigurationListColumns,
-  pfConfigurationListFields
+  pfConfigurationListFields,
+  pfConfigurationAttributesFromMeta,
+  pfConfigurationValidatorsFromMeta
 } from '@/globals/configuration/pfConfiguration'
 import {
   or,
@@ -105,8 +106,9 @@ export const pfConfigurationScanEngineViewFields = (context = {}) => {
     isNew = false,
     isClone = false,
     scanType = null, // from router,
-    roles = [],
-    scanEngine = {} // the form
+    options: {
+      meta = {}
+    }
   } = context
   return [
     {
@@ -119,13 +121,16 @@ export const pfConfigurationScanEngineViewFields = (context = {}) => {
               key: 'id',
               component: pfFormInput,
               attrs: {
-                disabled: (!isNew && !isClone)
+                ...pfConfigurationAttributesFromMeta(meta, 'id'),
+                ...{
+                  disabled: (!isNew && !isClone)
+                }
               },
               validators: {
-                [i18n.t('Name required.')]: required,
-                [i18n.t('Maximum 255 characters.')]: maxLength(255),
-                [i18n.t('Alphanumeric characters only.')]: alphaNum,
-                [i18n.t('Name exists.')]: not(and(required, conditional(isNew || isClone), hasScans, scanExists))
+                ...pfConfigurationValidatorsFromMeta(meta, 'id', 'Name'),
+                ...{
+                  [i18n.t('Name exists.')]: not(and(required, conditional(isNew || isClone), hasScans, scanExists))
+                }
               }
             }
           ]
@@ -136,11 +141,8 @@ export const pfConfigurationScanEngineViewFields = (context = {}) => {
             {
               key: 'ip',
               component: pfFormInput,
-              validators: {
-                [i18n.t('Hostname or IP Address required.')]: required,
-                [i18n.t('Maximum 255 characters.')]: maxLength(255),
-                [i18n.t('Invalid Hostname or IP Address.')]: or(isFQDN, ipAddress)
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'ip'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'ip')
             }
           ]
         },
@@ -150,10 +152,8 @@ export const pfConfigurationScanEngineViewFields = (context = {}) => {
             {
               key: 'username',
               component: pfFormInput,
-              validators: {
-                [i18n.t('Username required.')]: required,
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'username'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'username')
             }
           ]
         },
@@ -163,10 +163,8 @@ export const pfConfigurationScanEngineViewFields = (context = {}) => {
             {
               key: 'password',
               component: pfFormPassword,
-              validators: {
-                [i18n.t('Password required.')]: required,
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'password'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'password')
             }
           ]
         },
@@ -178,14 +176,8 @@ export const pfConfigurationScanEngineViewFields = (context = {}) => {
             {
               key: 'port',
               component: pfFormInput,
-              attrs: {
-                type: 'number',
-                step: 1
-              },
-              validators: {
-                [i18n.t('Maximum 255 characters.')]: maxLength(255),
-                [i18n.t('Invalid Port.')]: isPort
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'port'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'port')
             }
           ]
         },
@@ -197,9 +189,8 @@ export const pfConfigurationScanEngineViewFields = (context = {}) => {
             {
               key: 'nessus_clientpolicy',
               component: pfFormInput,
-              validators: {
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'nessus_clientpolicy'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'nessus_clientpolicy')
             }
           ]
         },
@@ -211,9 +202,8 @@ export const pfConfigurationScanEngineViewFields = (context = {}) => {
             {
               key: 'scannername',
               component: pfFormInput,
-              validators: {
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'scannername'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'scannername')
             }
           ]
         },
@@ -225,9 +215,8 @@ export const pfConfigurationScanEngineViewFields = (context = {}) => {
             {
               key: 'openvas_alertid',
               component: pfFormInput,
-              validators: {
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'openvas_alertid'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'openvas_alertid')
             }
           ]
         },
@@ -239,9 +228,8 @@ export const pfConfigurationScanEngineViewFields = (context = {}) => {
             {
               key: 'openvas_configid',
               component: pfFormInput,
-              validators: {
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'openvas_configid'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'openvas_configid')
             }
           ]
         },
@@ -253,9 +241,8 @@ export const pfConfigurationScanEngineViewFields = (context = {}) => {
             {
               key: 'openvas_reportformatid',
               component: pfFormInput,
-              validators: {
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'openvas_reportformatid'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'openvas_reportformatid')
             }
           ]
         },
@@ -280,10 +267,9 @@ export const pfConfigurationScanEngineViewFields = (context = {}) => {
           fields: [
             {
               key: 'engine_id',
-              component: pfFormSelect,
-              attrs: {
-                disabled: true // TODO - Populate scan engines
-              }
+              component: pfFormChosen,
+              attrs: pfConfigurationAttributesFromMeta(meta, 'engine_id'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'engine_id')
             }
           ]
         },
@@ -294,10 +280,9 @@ export const pfConfigurationScanEngineViewFields = (context = {}) => {
           fields: [
             {
               key: 'template_id',
-              component: pfFormSelect,
-              attrs: {
-                disabled: true // TODO - Populate scan templates
-              }
+              component: pfFormChosen,
+              attrs: pfConfigurationAttributesFromMeta(meta, 'template_id'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'template_id')
             }
           ]
         },
@@ -308,10 +293,9 @@ export const pfConfigurationScanEngineViewFields = (context = {}) => {
           fields: [
             {
               key: 'site_id',
-              component: pfFormSelect,
-              attrs: {
-                disabled: true // TODO - Populate sites
-              }
+              component: pfFormChosen,
+              attrs: pfConfigurationAttributesFromMeta(meta, 'site_id'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'site_id')
             }
           ]
         },
@@ -322,16 +306,8 @@ export const pfConfigurationScanEngineViewFields = (context = {}) => {
             {
               key: 'categories',
               component: pfFormChosen,
-              attrs: {
-                collapseObject: true,
-                placeholder: i18n.t('Click to add a role'),
-                trackBy: 'value',
-                label: 'text',
-                multiple: true,
-                clearOnSelect: false,
-                closeOnSelect: false,
-                options: roles.map(role => { return { value: role.id, text: role.id } })
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'categories'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'categories')
             }
           ]
         },
@@ -342,16 +318,8 @@ export const pfConfigurationScanEngineViewFields = (context = {}) => {
             {
               key: 'oses',
               component: pfFormChosen,
-              attrs: {
-                collapseObject: true,
-                placeholder: i18n.t('Click to add an OS'),
-                trackBy: 'value',
-                label: 'text',
-                multiple: true,
-                clearOnSelect: false,
-                closeOnSelect: false,
-                options: [] // TODO: Add fingerbank search
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'oses'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'oses')
             }
           ]
         },
@@ -362,29 +330,14 @@ export const pfConfigurationScanEngineViewFields = (context = {}) => {
             {
               key: 'duration.interval',
               component: pfFormInput,
-              attrs: {
-                type: 'number',
-                step: 1
-              },
-              validators: {
-                [i18n.t('Integer values required.')]: integer,
-                [i18n.t('Positive values required.')]: minValue(0)
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'duration.interval'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'duration.interval')
             },
             {
               key: 'duration.unit',
-              component: pfFormSelect,
-              attrs: {
-                options: [
-                  { value: 's', text: i18n.t('seconds') },
-                  { value: 'm', text: i18n.t('minutes') },
-                  { value: 'h', text: i18n.t('hours') },
-                  { value: 'D', text: i18n.t('days') },
-                  { value: 'W', text: i18n.t('weeks') },
-                  { value: 'M', text: i18n.t('months') },
-                  { value: 'Y', text: i18n.t('years') }
-                ]
-              }
+              component: pfFormChosen,
+              attrs: pfConfigurationAttributesFromMeta(meta, 'duration.unit'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'duration.unit')
             }
           ]
         },
@@ -451,12 +404,6 @@ export const pfConfigurationScanEngineViewFields = (context = {}) => {
                         trackBy: 'value',
                         label: 'text',
                         options: pfConfigurationScanEngineWmiRules
-                      },
-                      validators: {
-                        [i18n.t('Rule required.')]: required,
-                        [i18n.t('Duplicate Rule.')]: conditional((value) => {
-                          return !(scanEngine.wmi_rules.filter(v => v === value).length > 1)
-                        })
                       }
                     }
                   }
@@ -471,35 +418,4 @@ export const pfConfigurationScanEngineViewFields = (context = {}) => {
       ]
     }
   ]
-}
-
-export const pfConfigurationScanEngineViewDefaults = (context = {}) => {
-  const { scanType = null } = context
-  switch (scanType) {
-    case 'nessus':
-      return {
-        id: null,
-        port: 8834
-      }
-    case 'nessus6':
-      return {
-        id: null,
-        port: 8834,
-        scannername: 'Local Scanner'
-      }
-    case 'openvas':
-      return {
-        id: null,
-        port: 9390
-      }
-    case 'rapid7':
-      return {
-        id: null,
-        port: 3780
-      }
-    default:
-      return {
-        id: null
-      }
-  }
 }

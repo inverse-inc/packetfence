@@ -647,10 +647,10 @@ const route = {
       props: (route) => ({ query: route.query.query })
     },
     {
-      path: 'syslog/new',
+      path: 'syslog/new/:syslogForwarderType',
       name: 'newSyslogForwarder',
       component: SyslogForwarderView,
-      props: (route) => ({ storeName: '$_syslog_forwarders', isNew: true })
+      props: (route) => ({ storeName: '$_syslog_forwarders', isNew: true, syslogForwarderType: route.params.syslogForwarderType })
     },
     {
       path: 'syslog/:id',

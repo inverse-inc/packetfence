@@ -5,7 +5,9 @@ import pfFormPassword from '@/components/pfFormPassword'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import {
   pfConfigurationListColumns,
-  pfConfigurationListFields
+  pfConfigurationListFields,
+  pfConfigurationAttributesFromMeta,
+  pfConfigurationValidatorsFromMeta
 } from '@/globals/configuration/pfConfiguration'
 import {
   and,
@@ -83,7 +85,9 @@ export const pfConfigurationFirewallViewFields = (context) => {
     isNew = false,
     isClone = false,
     firewallType = null,
-    roles = []
+    options: {
+      meta = {}
+    }
   } = context
   return [
     {
@@ -96,13 +100,16 @@ export const pfConfigurationFirewallViewFields = (context) => {
               key: 'id',
               component: pfFormInput,
               attrs: {
-                disabled: (!isNew && !isClone)
+                ...pfConfigurationAttributesFromMeta(meta, 'id'),
+                ...{
+                  disabled: (!isNew && !isClone)
+                }
               },
               validators: {
-                [i18n.t('Value required.')]: required,
-                [i18n.t('Maximum 255 characters.')]: maxLength(255),
-                [i18n.t('Invalid Hostname or IP Address.')]: or(isFQDN, ipAddress),
-                [i18n.t('Firewall exists.')]: not(and(required, conditional(isNew || isClone), hasFirewalls, firewallExists))
+                ...pfConfigurationValidatorsFromMeta(meta, 'id'),
+                ...{
+                  [i18n.t('Firewall exists.')]: not(and(required, conditional(isNew || isClone), hasFirewalls, firewallExists))
+                }
               }
             }
           ]
@@ -114,10 +121,8 @@ export const pfConfigurationFirewallViewFields = (context) => {
             {
               key: 'username',
               component: pfFormInput,
-              validators: {
-                [i18n.t('Value required.')]: required,
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'username'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'username')
             }
           ]
         },
@@ -128,10 +133,8 @@ export const pfConfigurationFirewallViewFields = (context) => {
             {
               key: 'password',
               component: pfFormPassword,
-              validators: {
-                [i18n.t('Value required.')]: required,
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'password'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'password')
             }
           ]
         },
@@ -142,10 +145,8 @@ export const pfConfigurationFirewallViewFields = (context) => {
             {
               key: 'password',
               component: pfFormPassword,
-              validators: {
-                [i18n.t('Value required.')]: required,
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'password'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'password')
             }
           ]
         },
@@ -157,13 +158,8 @@ export const pfConfigurationFirewallViewFields = (context) => {
             {
               key: 'port',
               component: pfFormInput,
-              attrs: {
-                type: 'number',
-                step: 1
-              },
-              validators: {
-                [i18n.t('Invalid Port Number.')]: isPort
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'port'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'port')
             }
           ]
         },
@@ -175,14 +171,8 @@ export const pfConfigurationFirewallViewFields = (context) => {
             {
               key: 'vsys',
               component: pfFormInput,
-              attrs: {
-                type: 'number',
-                step: 1
-              },
-              validators: {
-                [i18n.t('Positive numbers only.')]: numeric,
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'vsys'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'vsys')
             }
           ]
         },
@@ -193,16 +183,8 @@ export const pfConfigurationFirewallViewFields = (context) => {
             {
               key: 'transport',
               component: pfFormChosen,
-              attrs: {
-                collapseObject: true,
-                placeholder: i18n.t('Click to add a transport'),
-                trackBy: 'value',
-                label: 'text',
-                options: [
-                  { value: 'syslog', text: 'Syslog' },
-                  { value: 'http', text: 'HTTP' }
-                ]
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'transport'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'transport')
             }
           ]
         },
@@ -214,13 +196,8 @@ export const pfConfigurationFirewallViewFields = (context) => {
             {
               key: 'port',
               component: pfFormInput,
-              attrs: {
-                type: 'number',
-                step: 1
-              },
-              validators: {
-                [i18n.t('Invalid Port Number.')]: isPort
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'port'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'port')
             }
           ]
         },
@@ -232,9 +209,8 @@ export const pfConfigurationFirewallViewFields = (context) => {
             {
               key: 'password',
               component: pfFormInput,
-              validators: {
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'password'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'password')
             }
           ]
         },
@@ -246,9 +222,8 @@ export const pfConfigurationFirewallViewFields = (context) => {
             {
               key: 'nac_name',
               component: pfFormInput,
-              validators: {
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'nac_name'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'nac_name')
             }
           ]
         },
@@ -259,16 +234,8 @@ export const pfConfigurationFirewallViewFields = (context) => {
             {
               key: 'categories',
               component: pfFormChosen,
-              attrs: {
-                collapseObject: true,
-                placeholder: i18n.t('Click to add a role'),
-                trackBy: 'value',
-                label: 'text',
-                multiple: true,
-                clearOnSelect: false,
-                closeOnSelect: false,
-                options: roles.map(role => { return { value: role.id, text: role.id } })
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'categories'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'categories')
             }
           ]
         },
@@ -279,9 +246,8 @@ export const pfConfigurationFirewallViewFields = (context) => {
             {
               key: 'networks',
               component: pfFormInput,
-              validators: {
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'networks'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'networks')
             }
           ]
         },
@@ -305,14 +271,8 @@ export const pfConfigurationFirewallViewFields = (context) => {
             {
               key: 'cache_timeout',
               component: pfFormInput,
-              attrs: {
-                type: 'number',
-                step: 1
-              },
-              validators: {
-                [i18n.t('Positive numbers only.')]: numeric,
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'cache_timeout'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'cache_timeout')
             }
           ]
         },
@@ -323,9 +283,8 @@ export const pfConfigurationFirewallViewFields = (context) => {
             {
               key: 'username_format',
               component: pfFormInput,
-              validators: {
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'username_format'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'username_format')
             }
           ]
         },
@@ -336,67 +295,12 @@ export const pfConfigurationFirewallViewFields = (context) => {
             {
               key: 'default_realm',
               component: pfFormInput,
-              validators: {
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'default_realm'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'default_realm')
             }
           ]
         }
       ]
     }
   ]
-}
-
-export const pfConfigurationFirewallViewDefaults = (context = {}) => {
-  const {
-    firewallType = null
-  } = context
-  switch (firewallType) {
-    case 'BarracudaNG':
-      return {
-        port: 22,
-        username_format: '$pf_username'
-      }
-    case 'Checkpoint':
-      return {
-        port: 1813,
-        username_format: '$pf_username'
-      }
-    case 'FortiGate':
-      return {
-        port: 1813,
-        username_format: '$pf_username'
-      }
-    case 'Iboss':
-      return {
-        password: 'XS832CF2A',
-        port: 8015,
-        nac_name: 'PacketFence',
-        username_format: '$pf_username'
-      }
-    case 'JuniperSRX':
-      return {
-        port: 8443,
-        username_format: '$pf_username'
-      }
-    case 'PaloAlto':
-      return {
-        vsys: 1,
-        transport: 'http',
-        port: 443,
-        username_format: '$pf_username'
-      }
-    case 'WatchGuard':
-      return {
-        port: 1813,
-        username_format: '$pf_username'
-      }
-    case 'JSONRPC':
-      return {
-        port: 9090,
-        username_format: '$pf_username'
-      }
-    default:
-      return {}
-  }
 }

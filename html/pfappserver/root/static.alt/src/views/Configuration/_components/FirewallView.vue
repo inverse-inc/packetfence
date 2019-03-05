@@ -2,8 +2,8 @@
   <pf-config-view
     :isLoading="isLoading"
     :form="getForm"
-    :model="firewall"
-    :vuelidate="$v.firewall"
+    :model="form"
+    :vuelidate="$v.form"
     :isNew="isNew"
     :isClone="isClone"
     @validations="setValidations($event)"
@@ -24,7 +24,7 @@
     <template slot="footer"
       scope="{isDeletable}"
     >
-      <b-card-footer @mouseenter="$v.firewall.$touch()">
+      <b-card-footer @mouseenter="$v.form.$touch()">
         <pf-button-save :disabled="invalidForm" :isLoading="isLoading">
           <template v-if="isNew">{{ $t('Create') }}</template>
           <template v-else-if="isClone">{{ $t('Clone') }}</template>
@@ -32,6 +32,7 @@
           <template v-else>{{ $t('Save') }}</template>
         </pf-button-save>
         <pf-button-delete v-if="isDeletable" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Firewall?')" @on-delete="remove()"/>
+        <b-button :disabled="isLoading" class="ml-1" variant="outline-primary" @click="init()">{{ $t('Reset') }}</b-button>
       </b-card-footer>
     </template>
   </pf-config-view>
@@ -44,8 +45,10 @@ import pfButtonDelete from '@/components/pfButtonDelete'
 import pfMixinCtrlKey from '@/components/pfMixinCtrlKey'
 import pfMixinEscapeKey from '@/components/pfMixinEscapeKey'
 import {
-  pfConfigurationFirewallViewFields as fields,
-  pfConfigurationFirewallViewDefaults as defaults
+  pfConfigurationDefaultsFromMeta as defaults
+} from '@/globals/configuration/pfConfiguration'
+import {
+  pfConfigurationFirewallViewFields as fields
 } from '@/globals/configuration/pfConfigurationFirewalls'
 const { validationMixin } = require('vuelidate')
 
@@ -67,7 +70,7 @@ export default {
       default: null,
       required: true
     },
-    firewallType: { // from router (or firewall)
+    firewallType: { // from router (or form)
       type: String,
       default: null
     },
@@ -86,14 +89,14 @@ export default {
   },
   data () {
     return {
-      firewall: defaults(this), // will be overloaded with the data from the store
-      firewallValidations: {}, // will be overloaded with data from the pfConfigView,
-      roles: [] // all roles
+      form: {}, // will be overloaded with the data from the store
+      formValidations: {}, // will be overloaded with data from the pfConfigView,
+      options: {}
     }
   },
   validations () {
     return {
-      firewall: this.firewallValidations
+      form: this.formValidations
     }
   },
   computed: {
@@ -110,29 +113,48 @@ export default {
       }
     },
     isDeletable () {
-      if (this.isNew || this.isClone || ('not_deletable' in this.firewall && this.firewall.not_deletable)) {
+      if (this.isNew || this.isClone || ('not_deletable' in this.form && this.form.not_deletable)) {
         return false
       }
       return true
     }
   },
   methods: {
+    init () {
+      if (this.id) {
+        // existing
+        this.$store.dispatch(`${this.storeName}/optionsById`, this.id).then(options => {
+          this.options = Object.assign({}, options) // store options
+          this.$store.dispatch(`${this.storeName}/getFirewall`, this.id).then(form => {
+            this.form = Object.assign({}, form) // set form
+            this.firewallType = form.type
+          })
+        })
+      } else {
+        // new
+        this.$store.dispatch(`${this.storeName}/optionsByFirewallType`, this.firewallType).then(options => {
+          this.options = Object.assign({}, options) // store options
+          this.form = defaults(options.meta) // set defaults
+          this.form.type = this.firewallType
+        })
+      }
+    },
     close (event) {
       this.$router.push({ name: 'firewalls' })
     },
     create (event) {
       const ctrlKey = this.ctrlKey
-      this.$store.dispatch(`${this.storeName}/createFirewall`, this.firewall).then(response => {
+      this.$store.dispatch(`${this.storeName}/createFirewall`, this.form).then(response => {
         if (ctrlKey) { // [CTRL] key pressed
           this.close()
         } else {
-          this.$router.push({ name: 'firewall', params: { id: this.firewall.id } })
+          this.$router.push({ name: 'firewall', params: { id: this.form.id } })
         }
       })
     },
     save (event) {
       const ctrlKey = this.ctrlKey
-      this.$store.dispatch(`${this.storeName}/updateFirewall`, this.firewall).then(response => {
+      this.$store.dispatch(`${this.storeName}/updateFirewall`, this.form).then(response => {
         if (ctrlKey) { // [CTRL] key pressed
           this.close()
         }
@@ -144,23 +166,11 @@ export default {
       })
     },
     setValidations (validations) {
-      this.$set(this, 'firewallValidations', validations)
+      this.$set(this, 'formValidations', validations)
     }
   },
   created () {
-    if (this.id) {
-      this.$store.dispatch(`${this.storeName}/getFirewall`, this.id).then(data => {
-        this.firewallType = data.type
-        this.firewall = Object.assign({}, data)
-        if (this.isClone) {
-          this.firewall.id = null
-        }
-      })
-    }
-    this.firewall.type = this.firewallType
-    this.$store.dispatch('$_roles/all').then(data => {
-      this.roles = data
-    })
+    this.init()
   }
 }
 </script>

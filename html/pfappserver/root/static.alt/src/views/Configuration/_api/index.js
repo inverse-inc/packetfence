@@ -68,9 +68,19 @@ export default {
       return response.data
     })
   },
+  billingTiersOptions: () => {
+    return apiCall.options('config/billing_tiers').then(response => {
+      return response.data
+    })
+  },
   billingTier: id => {
     return apiCall.get(`config/billing_tier/${id}`).then(response => {
       return response.data.item
+    })
+  },
+  billingTierOptions: id => {
+    return apiCall.options(`config/billing_tier/${id}`).then(response => {
+      return response.data
     })
   },
   createBillingTier: data => {
@@ -197,9 +207,24 @@ export default {
   /**
    * Floating Devices
    */
+  floatingDevices: params => {
+    return apiCall.get('config/floating_devices', { params }).then(response => {
+      return response.data
+    })
+  },
+  floatingDevicesOptions: () => {
+    return apiCall.options('config/floating_devices').then(response => {
+      return response.data
+    })
+  },
   floatingDevice: id => {
     return apiCall.get(`config/floating_device/${id}`).then(response => {
       return response.data.item
+    })
+  },
+  floatingDeviceOptions: id => {
+    return apiCall.options(`config/floating_device/${id}`).then(response => {
+      return response.data
     })
   },
   createFloatingDevice: data => {
@@ -645,9 +670,19 @@ export default {
       return response.data
     })
   },
+  firewallsOptions: firewallType => {
+    return apiCall.options(`config/firewalls?type=${firewallType}`).then(response => {
+      return response.data
+    })
+  },
   firewall: id => {
     return apiCall.get(`config/firewall/${id}`).then(response => {
       return response.data.item
+    })
+  },
+  firewallOptions: id => {
+    return apiCall.options(`config/firewall/${id}`).then(response => {
+      return response.data
     })
   },
   createFirewall: data => {
@@ -671,9 +706,19 @@ export default {
       return response.data
     })
   },
+  scanEnginesOptions: scanType => {
+    return apiCall.options(`config/scans?type=${scanType}`).then(response => {
+      return response.data
+    })
+  },
   scanEngine: id => {
     return apiCall.get(`config/scan/${id}`).then(response => {
       return response.data.item
+    })
+  },
+  scanEngineOptions: id => {
+    return apiCall.options(`config/scan/${id}`).then(response => {
+      return response.data
     })
   },
   createScanEngine: data => {
@@ -697,9 +742,19 @@ export default {
       return response.data
     })
   },
+  syslogParsersOptions: syslogParserType => {
+    return apiCall.options(`config/syslog_parsers?type=${syslogParserType}`).then(response => {
+      return response.data
+    })
+  },
   syslogParser: id => {
     return apiCall.get(`config/syslog_parser/${id}`).then(response => {
       return response.data.item
+    })
+  },
+  syslogParserOptions: id => {
+    return apiCall.options(`config/syslog_parser/${id}`).then(response => {
+      return response.data
     })
   },
   createSyslogParser: data => {
@@ -728,9 +783,19 @@ export default {
       return response.data
     })
   },
+  syslogForwardersOptions: syslogForwarderType => {
+    return apiCall.options(`config/syslog_forwarders?type=${syslogForwarderType}`).then(response => {
+      return response.data
+    })
+  },
   syslogForwarder: id => {
     return apiCall.get(`config/syslog_forwarder/${id}`).then(response => {
       return response.data.item
+    })
+  },
+  syslogForwarderOptions: id => {
+    return apiCall.options(`config/syslog_forwarder/${id}`).then(response => {
+      return response.data
     })
   },
   createSyslogForwarder: data => {

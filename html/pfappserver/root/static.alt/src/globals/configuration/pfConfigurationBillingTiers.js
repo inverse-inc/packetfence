@@ -1,12 +1,13 @@
 import i18n from '@/utils/locale'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormInput from '@/components/pfFormInput'
-import pfFormSelect from '@/components/pfFormSelect'
 import pfFormToggle from '@/components/pfFormToggle'
 import {
   pfConfigurationListColumns,
   pfConfigurationListFields,
-  pfConfigurationViewFields
+  pfConfigurationViewFields,
+  pfConfigurationAttributesFromMeta,
+  pfConfigurationValidatorsFromMeta
 } from '@/globals/configuration/pfConfiguration'
 import {
   and,
@@ -84,7 +85,9 @@ export const pfConfigurationBillingTierViewFields = (context = {}) => {
   const {
     isNew = false,
     isClone = false,
-    roles = []
+    options: {
+      meta = {}
+    }
   } = context
   return [
     {
@@ -97,13 +100,16 @@ export const pfConfigurationBillingTierViewFields = (context = {}) => {
               key: 'id',
               component: pfFormInput,
               attrs: {
-                disabled: (!isNew && !isClone)
+                ...pfConfigurationAttributesFromMeta(meta, 'id'),
+                ...{
+                  disabled: (!isNew && !isClone)
+                }
               },
               validators: {
-                [i18n.t('Name required.')]: required,
-                [i18n.t('Maximum 255 characters.')]: maxLength(255),
-                [i18n.t('Alphanumeric characters only.')]: alphaNum,
-                [i18n.t('Billing Tier exists.')]: not(and(required, conditional(isNew || isClone), hasBillingTiers, billingTierExists))
+                ...pfConfigurationValidatorsFromMeta(meta, 'id', 'Name'),
+                ...{
+                  [i18n.t('Billing Tier exists.')]: not(and(required, conditional(isNew || isClone), hasBillingTiers, billingTierExists))
+                }
               }
             }
           ]
@@ -114,9 +120,8 @@ export const pfConfigurationBillingTierViewFields = (context = {}) => {
             {
               key: 'name',
               component: pfFormInput,
-              validators: {
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'name'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'name', 'Name')
             }
           ]
         },
@@ -129,18 +134,16 @@ export const pfConfigurationBillingTierViewFields = (context = {}) => {
               key: 'price',
               component: pfFormInput,
               attrs: {
-                type: 'number',
-                step: '0.01',
-                formatter: (value) => {
-                  return parseFloat(value).toFixed(2)
+                ...pfConfigurationAttributesFromMeta(meta, 'price'),
+                ...{
+                  type: 'number',
+                  step: '0.01',
+                  formatter: (value) => {
+                    return parseFloat(value).toFixed(2)
+                  }
                 }
               },
-              validators: {
-                [i18n.t('Price required')]: required,
-                [i18n.t('Maximum 255 characters.')]: maxLength(255),
-                [i18n.t('Enter a valid price')]: isPrice,
-                [i18n.t('Enter a positive price')]: minValue(0)
-              }
+              validators: pfConfigurationValidatorsFromMeta(meta, 'price', 'Price')
             }
           ]
         },
@@ -151,52 +154,26 @@ export const pfConfigurationBillingTierViewFields = (context = {}) => {
             {
               key: 'role',
               component: pfFormChosen,
-              attrs: {
-                collapseObject: true,
-                placeholder: i18n.t('Click to select a role'),
-                trackBy: 'value',
-                label: 'text',
-                options: roles.map(role => { return { value: role.name, text: role.name } })
-              },
-              validators: {
-                [i18n.t('Role required.')]: required
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'role'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'role', 'Role')
             }
           ]
         },
         {
           label: i18n.t('Access Duration'),
-          text: null, // multiple occurances w/ different strings, nullify for overload
+          text: i18n.t('The access duration of the devices that use this tier.'),
           fields: [
             {
               key: 'access_duration.interval',
               component: pfFormInput,
-              attrs: {
-                type: 'number'
-              },
-              validators: {
-                [i18n.t('Interval required.')]: required,
-                [i18n.t('Maximum 255 characters.')]: maxLength(255),
-                [i18n.t('Integer values required.')]: integer
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'access_duration.interval'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'access_duration.interval', 'Interval')
             },
             {
               key: 'access_duration.unit',
-              component: pfFormSelect,
-              attrs: {
-                options: [
-                  { value: 's', text: i18n.t('seconds') },
-                  { value: 'm', text: i18n.t('minutes') },
-                  { value: 'h', text: i18n.t('hours') },
-                  { value: 'D', text: i18n.t('days') },
-                  { value: 'W', text: i18n.t('weeks') },
-                  { value: 'M', text: i18n.t('months') },
-                  { value: 'Y', text: i18n.t('years') }
-                ]
-              },
-              validators: {
-                [i18n.t('Units required.')]: required
-              }
+              component: pfFormChosen,
+              attrs: pfConfigurationAttributesFromMeta(meta, 'access_duration.unit'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'access_duration.unit', 'Unit')
             }
           ]
         },
@@ -216,10 +193,4 @@ export const pfConfigurationBillingTierViewFields = (context = {}) => {
       ]
     }
   ]
-}
-
-export const pfConfigurationBillingTierViewDefaults = (context = {}) => {
-  return {
-    id: null
-  }
 }
