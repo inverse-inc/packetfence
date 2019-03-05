@@ -8,6 +8,7 @@ import ConnectionProfilesStore from '../_store/connectionProfiles'
 import DomainsStore from '../_store/domains'
 import FirewallsStore from '../_store/firewalls'
 import FloatingDevicesStore from '../_store/floatingDevices'
+import PkiProvidersStore from '../_store/pkiProviders'
 import PortalModulesStore from '../_store/portalModules'
 import ProfilingStore from '../_store/profiling'
 import ProvisioningsStore from '../_store/provisionings'
@@ -63,6 +64,8 @@ const BillingTierView = () => import(/* webpackChunkName: "Configuration" */ '..
 const PortalModulesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/PortalModulesList')
 const PortalModuleView = () => import(/* webpackChunkName: "Configuration" */ '../_components/PortalModuleView')
 const AccessDurationView = () => import(/* webpackChunkName: "Configuration" */ '../_components/AccessDurationView')
+const PkiProvidersList = () => import(/* webpackChunkName: "Configuration" */ '../_components/PkiProvidersList')
+const PkiProviderView = () => import(/* webpackChunkName: "Configuration" */ '../_components/PkiProviderView')
 
 /* Network Configuration */
 const NetworkConfigurationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/NetworkConfigurationSection')
@@ -102,6 +105,9 @@ const route = {
     }
     if (!store.state.$_floatingdevices) {
       store.registerModule('$_floatingdevices', FloatingDevicesStore)
+    }
+    if (!store.state.$_pki_providers) {
+      store.registerModule('$_pki_providers', PkiProvidersStore)
     }
     if (!store.state.$_portalmodules) {
       store.registerModule('$_portalmodules', PortalModulesStore)
@@ -759,6 +765,74 @@ const route = {
       props: (route) => ({ storeName: '$_bases', query: route.query.query })
     },
     {
+      path: 'billing_tiers',
+      name: 'billing_tiers',
+      component: BillingTiersList,
+      props: (route) => ({ query: route.query.query })
+    },
+    {
+      path: 'billing_tiers/new',
+      name: 'newBillingTier',
+      component: BillingTierView,
+      props: (route) => ({ storeName: '$_billing_tiers', isNew: true })
+    },
+    {
+      path: 'billing_tier/:id',
+      name: 'billing_tier',
+      component: BillingTierView,
+      props: (route) => ({ storeName: '$_billing_tiers', id: route.params.id }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_billing_tiers/getBillingTier', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'billing_tier/:id/clone',
+      name: 'cloneBillingTier',
+      component: BillingTierView,
+      props: (route) => ({ storeName: '$_billing_tiers', id: route.params.id, isClone: true }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_billing_tiers/getBillingTier', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'pki_providers',
+      name: 'pki_providers',
+      component: PkiProvidersList,
+      props: (route) => ({ query: route.query.query })
+    },
+    {
+      path: 'pki_providers/new/:providerType',
+      name: 'newPkiProvider',
+      component: PkiProviderView,
+      props: (route) => ({ storeName: '$_pki_providers', isNew: true, providerType: route.params.providerType })
+    },
+    {
+      path: 'pki_provider/:id',
+      name: 'pki_provider',
+      component: PkiProviderView,
+      props: (route) => ({ storeName: '$_pki_providers', id: route.params.id }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_pki_providers/getPkiProvider', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'pki_provider/:id/clone',
+      name: 'clonePkiProvider',
+      component: PkiProviderView,
+      props: (route) => ({ storeName: '$_pki_providers', id: route.params.id, isClone: true }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_pki_providers/getPkiProvider', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
       path: 'portal_modules',
       name: 'portal_modules',
       component: PortalModulesList,
@@ -793,40 +867,6 @@ const route = {
       props: (route) => ({ storeName: '$_portalmodules', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
         store.dispatch('$_portalmodules/getPortalModule', to.params.id).then(object => {
-          next()
-        })
-      }
-    },
-    {
-      path: 'billing_tiers',
-      name: 'billing_tiers',
-      component: BillingTiersList,
-      props: (route) => ({ query: route.query.query })
-    },
-    {
-      path: 'billing_tiers/new',
-      name: 'newBillingTier',
-      component: BillingTierView,
-      props: (route) => ({ storeName: '$_billing_tiers', isNew: true })
-    },
-    {
-      path: 'billing_tier/:id',
-      name: 'billing_tier',
-      component: BillingTierView,
-      props: (route) => ({ storeName: '$_billing_tiers', id: route.params.id }),
-      beforeEnter: (to, from, next) => {
-        store.dispatch('$_billing_tiers/getBillingTier', to.params.id).then(object => {
-          next()
-        })
-      }
-    },
-    {
-      path: 'billing_tier/:id/clone',
-      name: 'cloneBillingTier',
-      component: BillingTierView,
-      props: (route) => ({ storeName: '$_billing_tiers', id: route.params.id, isClone: true }),
-      beforeEnter: (to, from, next) => {
-        store.dispatch('$_billing_tiers/getBillingTier', to.params.id).then(object => {
           next()
         })
       }

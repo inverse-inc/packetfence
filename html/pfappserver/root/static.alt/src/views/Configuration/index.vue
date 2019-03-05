@@ -89,6 +89,7 @@ export default {
           items: [
             { name: this.$i18n.t('Captive Portal'), path: '/configuration/captive_portal' },
             { name: this.$i18n.t('Billing Tiers'), path: '/configuration/billing_tiers' },
+            { name: this.$i18n.t('PKI Providers'), path: '/configuration/pki_providers' },
             { name: this.$i18n.t('Portal Modules'), path: '/configuration/portal_modules' },
             { name: this.$i18n.t('Access Duration'), path: '/configuration/access_duration' }
           ]

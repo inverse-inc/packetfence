@@ -93,6 +93,9 @@ const api = {
   getFloatingDevices () {
     return apiCall({ url: 'config/floating_devices', method: 'get' })
   },
+  getPkiProviders () {
+    return apiCall({ url: 'config/pki_providers', method: 'get' })
+  },
   getRealms () {
     return apiCall({ url: 'config/realms', method: 'get' })
   },
@@ -194,6 +197,8 @@ const state = { // set intitial states to `false` (not `[]` or `{}`) to avoid in
   firewalls: false,
   floatingDevicesStatus: '',
   floatingDevices: false,
+  pkiProvidersStatus: '',
+  pkiProviders: false,
   realmsStatus: '',
   realms: false,
   rolesStatus: '',
@@ -338,6 +343,9 @@ const getters = {
   },
   isLoadingFloatingDevices: state => {
     return state.floatingDevicesStatus === types.LOADING
+  },
+  isLoadingPkiProviders: state => {
+    return state.pkiProvidersStatus === types.LOADING
   },
   isLoadingRealms: state => {
     return state.realmsStatus === types.LOADING
@@ -896,6 +904,20 @@ const actions = {
       return Promise.resolve(state.floatingDevices)
     }
   },
+  getPkiProviders: ({ state, getters, commit }) => {
+    if (getters.isLoadingPkiProviders) {
+      return
+    }
+    if (!state.pkiProviders) {
+      commit('PKI_PROVIDERS_REQUEST')
+      return api.getPkiProviders().then(response => {
+        commit('PKI_PROVIDERS_UPDATED', response.data.items)
+        return state.pkiProviders
+      })
+    } else {
+      return Promise.resolve(state.pkiProviders)
+    }
+  },
   getRealms: ({ state, getters, commit }) => {
     if (getters.isLoadingRealms) {
       return
@@ -1259,6 +1281,13 @@ const mutations = {
   FLOATING_DEVICES_UPDATED: (state, floatingDevices) => {
     state.floatingDevices = floatingDevices
     state.floatingDevicesStatus = types.SUCCESS
+  },
+  PKI_PROVIDERS_REQUEST: (state) => {
+    state.pkiProvidersStatus = types.LOADING
+  },
+  PKI_PROVIDERS_UPDATED: (state, pkiProviders) => {
+    state.pkiProviders = pkiProviders
+    state.pkiProvidersStatus = types.SUCCESS
   },
   REALMS_REQUEST: (state) => {
     state.realmsStatus = types.LOADING
