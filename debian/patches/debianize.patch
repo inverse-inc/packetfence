@@ -1,5 +1,5 @@
 diff --git a/conf/mariadb/mariadb.conf.tt.example b/conf/mariadb/mariadb.conf.tt.example
-index 2ef5c25a80..7409c2adc4 100644
+index bb086a415b..0fd81ca226 100644
 --- a/conf/mariadb/mariadb.conf.tt.example
 +++ b/conf/mariadb/mariadb.conf.tt.example
 @@ -18,7 +18,7 @@ skip-networking
@@ -25,10 +25,10 @@ index d3a3cd9b63..fe284fcaa2 100644
          # Netdata is not designed to be exposed to potentially hostile networks
          # See https://github.com/firehol/netdata/issues/164
 diff --git a/conf/pf.conf.defaults b/conf/pf.conf.defaults
-index 544e1b69cf..72dc49037e 100644
+index 4ad29d68d3..5cbf5c7419 100644
 --- a/conf/pf.conf.defaults
 +++ b/conf/pf.conf.defaults
-@@ -388,7 +388,7 @@ radiusd=enabled
+@@ -393,7 +393,7 @@ radiusd=enabled
  # services.radiusd_binary
  # 
  # Location of the named binary. Only necessary to change if you are not running the RPMed version.
@@ -37,7 +37,7 @@ index 544e1b69cf..72dc49037e 100644
  #
  # services.iptables
  #
-@@ -453,7 +453,7 @@ httpd_proxy=enabled
+@@ -458,7 +458,7 @@ httpd_proxy=enabled
  # services.httpd_binary
  #
  # Location of the apache binary. Only necessary to change if you are not running the RPMed version.
@@ -46,7 +46,7 @@ index 544e1b69cf..72dc49037e 100644
  #
  # services.snmptrapd
  #
-@@ -551,7 +551,7 @@ openssl_binary=/usr/bin/openssl
+@@ -556,7 +556,7 @@ openssl_binary=/usr/bin/openssl
  # services.arp_binary
  # 
  # location of the arp binary. only necessary to change if you are not running the rpmed version.
@@ -55,7 +55,7 @@ index 544e1b69cf..72dc49037e 100644
  
  #
  # services.routes
-@@ -580,8 +580,8 @@ tc=enabled
+@@ -585,8 +585,8 @@ tc=enabled
  #
  # services.tc_binary
  #
@@ -419,16 +419,16 @@ index d4dce42619..f7be83907c 100644
  ExecReload=/bin/kill -HUP $MAINPID
  Slice=packetfence.slice
 diff --git a/conf/systemd/packetfence-tc.service b/conf/systemd/packetfence-tc.service
-index 1406b18c24..deb989c295 100644
+index c7ed27739c..6890cac415 100644
 --- a/conf/systemd/packetfence-tc.service
 +++ b/conf/systemd/packetfence-tc.service
 @@ -8,8 +8,8 @@ StartLimitBurst=3
  StartLimitInterval=10
  Type=oneshot
  RemainAfterExit=yes
--ExecStart=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::tc' -e 'pf::services::manager::tc->new()->_start()'
+-ExecStart=/bin/perl -I/usr/local/pf/lib -Mpf::db -Mpf::services::manager::tc -e 'my $db ; while(!$db) { eval { $db = db_connect() } ; sleep 1 } ; pf::services::manager::tc->new()->_start()'
 -ExecStop=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::tc' -e 'pf::services::manager::tc->new()->_stop()'
-+ExecStart=/usr/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::tc' -e 'pf::services::manager::tc->new()->_start()'
++ExecStart=/usr/bin/perl -I/usr/local/pf/lib -Mpf::db -Mpf::services::manager::tc -e 'my $db ; while(!$db) { eval { $db = db_connect() } ; sleep 1 } ; pf::services::manager::tc->new()->_start()'
 +ExecStop=/usr/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::tc' -e 'pf::services::manager::tc->new()->_stop()'
  Slice=packetfence.slice
  
