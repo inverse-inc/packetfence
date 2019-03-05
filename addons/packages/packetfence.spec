@@ -291,8 +291,8 @@ Requires: perl(Linux::Distribution)
 Requires: perl(Pod::Markdown)
 # configuration-wizard
 Requires: vconfig
-# wmi nthash cache
-Requires: python-impacket, perl(Inline::Python)
+# wmi
+Requires: wmi, perl(Net::WMIClient)
 # SAML
 Requires: lasso-perl 
 # Captive Portal Dynamic Routing
