@@ -360,18 +360,12 @@ sub options_from_form {
     my ($self, $form) = @_;
     my (%defaults, %placeholders, %allowed, %meta);
     my %output = (
-        defaults => \%defaults,
-        placeholders => \%placeholders,
-        allowed => \%allowed,
         meta => \%meta,
     );
 
     my $defaultValues = $self->default_values;
     for my $field ($form->fields) {
         my $name = $field->name;
-        $defaults{$name} = $self->field_default($field, $defaultValues);
-        $placeholders{$name} = $self->field_placeholder($field);
-        $allowed{$name} = $self->field_allowed($field);
         $meta{$name} = $self->field_meta($field);
     }
 
@@ -525,9 +519,6 @@ sub resource_options {
 
     my (%defaults, %placeholders, %allowed, %meta);
     my %output = (
-        defaults => \%defaults,
-        placeholders => \%placeholders,
-        allowed => \%allowed,
         meta => \%meta,
     );
     my $inheritedValues = $self->resourceInheritedValues;
@@ -535,9 +526,6 @@ sub resource_options {
     for my $field ($form->fields) {
         my $name = $field->name;
         next if $self->isResourceFieldSkippable($field);
-        $defaults{$name} = $self->field_default($field, $defaultValues);
-        $placeholders{$name} = $self->field_resource_placeholder($field, $inheritedValues);
-        $allowed{$name} = $self->field_allowed($field);
         $meta{$name} = $self->field_meta($field);
     }
 
