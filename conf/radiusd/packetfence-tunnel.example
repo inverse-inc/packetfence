@@ -20,13 +20,14 @@ server packetfence-tunnel {
 #  Make *sure* that 'preprocess' comes before any realm if you
 #  need to setup hints for the remote radius server
 authorize {
-    # TTLS does not send an EAP-Message to be parsed so the eap module
-    # cannot assign the EAP-Type
-    if ( outer.EAP-Type == TTLS) {
-        update request {
-            &EAP-Type := TTLS
-        }
+  # TTLS does not send an EAP-Message to be parsed so the eap module
+  # cannot assign the EAP-Type
+  if ( outer.EAP-Type == TTLS) {
+    update request {
+      &EAP-Type := TTLS
     }
+  }
+  packetfence-set-realm-if-machine
 	packetfence-set-tenant-id
 	#
 	#  Take a User-Name, and perform some checks on it, for spaces and other
@@ -111,7 +112,7 @@ authorize {
 	# Check if PacketFence local (SQL) authentication is enabled.
 	# Run the packetfence-local-auth policy if it is.
 	rewrite_called_station_id
-    
+
 	# Uncomment the following line to enable local PEAP authentication
 	# packetfence-local-auth
 
@@ -468,7 +469,7 @@ authorize {
 	# Check if PacketFence local (SQL) authentication is enabled.
 	# Run the packetfence-local-auth policy if it is.
 	rewrite_called_station_id
-    
+
 	# Uncomment the following line to enable local PEAP authentication
 	# packetfence-local-auth
 
