@@ -274,9 +274,7 @@ func RemoveDuplicates(elements []string) []string {
 	result := []string{}
 
 	for v := range elements {
-		if encountered[elements[v]] == true {
-			// Do not add duplicate.
-		} else {
+		if encountered[elements[v]] != true {
 			// Record this element as an encountered element.
 			encountered[elements[v]] = true
 			// Append to result slice.

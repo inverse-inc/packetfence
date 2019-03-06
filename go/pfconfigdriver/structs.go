@@ -219,7 +219,7 @@ type ListenInts struct {
 type DHCPInts struct {
 	StructConfig
 	PfconfigMethod          string `val:"element"`
-	PfconfigNS              string `val:"interfaces::dhcpd_ints"`
+	PfconfigNS              string `val:"interfaces::dhcp_ints"`
 	PfconfigArray           string `val:"yes"`
 	PfconfigHostnameOverlay string `val:"yes"`
 	Element                 []string

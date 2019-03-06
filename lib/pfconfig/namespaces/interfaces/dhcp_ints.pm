@@ -1,14 +1,14 @@
-package pfconfig::namespaces::interfaces::dhcpd_ints;
+package pfconfig::namespaces::interfaces::dhcp_ints;
 
 =head1 NAME
 
-pfconfig::namespaces::interfaces::dhcpd_ints
+pfconfig::namespaces::interfaces::dhcp_ints
 
 =cut
 
 =head1 DESCRIPTION
 
-Return all the interfaces where pfdhcpd must run
+Return all the interfaces where pfdhcpd daemon must run
 
 =cut
 
@@ -25,7 +25,7 @@ sub init {
 sub build {
     my ($self) = @_;
     my $interfaces = $self->{_interfaces};
-    return $interfaces->{dhcpd_ints} // [];
+    return $interfaces->{dhcp_ints} // [];
 }
 
 

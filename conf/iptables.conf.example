@@ -21,7 +21,7 @@
 -A input-management-if --protocol tcp --match tcp --dport %%web_admin_port%% --jump ACCEPT
 # Webservices
 -A input-management-if --protocol tcp --match tcp --dport %%webservices_port%% --jump ACCEPT
-# AAA 
+# AAA
 -A input-management-if --protocol tcp --match tcp --dport %%aaa_port%% --jump ACCEPT
 # Unified API
 -A input-management-if --protocol tcp --match tcp --dport %%unifiedapi_port%% --jump ACCEPT
@@ -89,16 +89,16 @@
 -A input-dns-if --protocol tcp --match tcp --dport 53 --jump ACCEPT
 -A input-dns-if --protocol udp --match udp --dport 53 --jump ACCEPT
 
-:input-dhcpd-if - [0:0]
--A input-dhcpd-if --protocol udp --match udp --dport 67  --jump ACCEPT
--A input-dhcpd-if --protocol tcp --match tcp --dport 67  --jump ACCEPT
+:input-dhcp-if - [0:0]
+-A input-dhcp-if --protocol udp --match udp --dport 67  --jump ACCEPT
+-A input-dhcp-if --protocol tcp --match tcp --dport 67  --jump ACCEPT
 
 
 :input-internal-vlan-if - [0:0]
 # DNS
 -A input-internal-vlan-if --protocol tcp --match tcp --dport 53  --jump ACCEPT
 -A input-internal-vlan-if --protocol udp --match udp --dport 53  --jump ACCEPT
-# HTTP (captive-portal) 
+# HTTP (captive-portal)
 -A input-internal-vlan-if --protocol tcp --match tcp --dport 80  --jump ACCEPT
 -A input-internal-vlan-if --protocol tcp --match tcp --dport 443 --jump ACCEPT
 -A input-internal-vlan-if --protocol tcp --match tcp --dport 647 --jump ACCEPT
@@ -114,7 +114,7 @@
 # DHCP
 -A input-internal-isol_vlan-if --protocol udp --match udp --dport 67  --jump ACCEPT
 -A input-internal-isol_vlan-if --protocol tcp --match tcp --dport 67  --jump ACCEPT
-# HTTP (captive-portal) 
+# HTTP (captive-portal)
 -A input-internal-isol_vlan-if --protocol tcp --match tcp --dport 80  --jump ACCEPT
 -A input-internal-isol_vlan-if --protocol tcp --match tcp --dport 443 --jump ACCEPT
 -A input-internal-isol_vlan-if --protocol tcp --match tcp --dport 647 --jump ACCEPT
@@ -126,7 +126,7 @@
 # DNS
 -A input-internal-inline-if --protocol tcp --match tcp --dport 53  --jump ACCEPT
 -A input-internal-inline-if --protocol udp --match udp --dport 53  --jump ACCEPT
-# HTTP (captive-portal) 
+# HTTP (captive-portal)
 # prevent registered users from reaching it
 # TODO: Must work in dispatcher and Catalyst to redirect registered client out of the portal
 #-A input-internal-inline-if --protocol tcp --match tcp --dport 80  --match mark --mark 0x1 --jump DROP
@@ -226,7 +226,7 @@ COMMIT
 # - allowing through instead of doing NAT (make sure you have the proper return route)
 # - traffic out on some interface other than management
 # - overloading on multiple IP addresses
-# Comment the next two lines and do it here on the POSTROUTING chain. 
+# Comment the next two lines and do it here on the POSTROUTING chain.
 # Make sure to adjust the FORWARD rules also to allow traffic back-in.
 %%nat_postrouting_vlan%%
 
@@ -235,4 +235,3 @@ COMMIT
 #
 %%domain_postrouting%%
 COMMIT
-

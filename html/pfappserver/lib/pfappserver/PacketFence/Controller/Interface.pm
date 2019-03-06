@@ -248,10 +248,10 @@ sub view :Chained('object') :PathPart('read') :Args(0) :AdminRole('INTERFACES_RE
             $interface_ref->{$interface}->{'type'} =~ s/,radius//;
         }
     }
-    if ( $interface_ref->{$interface}->{'type'} =~ 'dhcpd') {
-        if ($interface_ref->{$interface}->{'type'} !~ /^dhcpd/i ) {
-            push @{$interface_ref->{$interface}->{'additional_listening_daemons'}}, "dhcpd";
-            $interface_ref->{$interface}->{'type'} =~ s/,dhcpd//;
+    if ( $interface_ref->{$interface}->{'type'} =~ 'dhcp') {
+        if ($interface_ref->{$interface}->{'type'} !~ /^dhcp/i ) {
+            push @{$interface_ref->{$interface}->{'additional_listening_daemons'}}, "dhcp";
+            $interface_ref->{$interface}->{'type'} =~ s/,dhcp//;
         }
     }
     if ( $interface_ref->{$interface}->{'type'} =~ 'dns') {
