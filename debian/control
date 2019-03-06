@@ -26,7 +26,7 @@ Pre-Depends:  ca-certificates,
 Breaks: libdata-alias-perl
 Depends: ${misc:Depends}, vlan,
  packetfence-ntlm-wrapper (>= ${source:Version}), packetfence-doc (>= ${source:Version}), packetfence-golang-daemon (>= ${source:Version}),
- openssl, openssl-blacklist, openssl-blacklist-extra,
+ openssl,
  mariadb-server (>= 10.1),
  snmp, snmptrapfmt, snmptrapd, snmp-mibs-downloader, conntrack,
 # apache related
