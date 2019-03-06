@@ -73,7 +73,7 @@ func setuppfdns(c *caddy.Controller) error {
 		return c.Errf("pfdns: unable to initialize Portal FQDN")
 	}
 
-	if err := pf.MakeDetectionMecanism(); err != nil {
+	if err := pf.MakeDetectionMecanism(ctx); err != nil {
 		return c.Errf("pfdns: unable to initialize Detection Mecanism List")
 	}
 

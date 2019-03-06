@@ -52,7 +52,7 @@ type pfdns struct {
 	refreshLauncher     *sync.Once
 	PortalFQDN          map[int]map[*net.IPNet]*regexp.Regexp
 	mutex               sync.Mutex
-	detectionmechanisms []*regexp.Regexp
+	detectionMechanisms []*regexp.Regexp
 }
 
 // Ports array
@@ -714,38 +714,41 @@ func (pf *pfdns) MakeKeyCache(mac string, category string, security_event bool, 
 	return mac + category + strconv.FormatBool(security_event) + qname
 }
 
-func (pf *pfdns) MakeDetectionMecanism() error {
+func (pf *pfdns) MakeDetectionMecanism(ctx context.Context) error {
 	portal := pfconfigdriver.Config.PfConf.CaptivePortal
-	pf.detectionmechanisms = make([]*regexp.Regexp, 0)
+	pf.detectionMechanisms = make([]*regexp.Regexp, 0)
 	var err error
 	for _, v := range portal.DetectionMecanismUrls {
 		fqdn, err := url.Parse(v)
 		if err != nil {
+			log.LoggerWContext(ctx).Error(fmt.Sprintf("Not able to parse the url %s", err))
 			continue
 		}
-		err = pf.addDetectionMechanismsToList(fqdn.Host)
+		err = pf.addDetectionMechanismsToList(ctx, fqdn.Host)
 	}
 	return err
 }
 
 // addDetectionMechanismsToList add all detection mechanisms in a list
-func (pf *pfdns) addDetectionMechanismsToList(r string) error {
+func (pf *pfdns) addDetectionMechanismsToList(ctx context.Context, r string) error {
 	rgx, err := regexp.Compile(r)
 	if err == nil {
 		pf.mutex.Lock()
-		pf.detectionmechanisms = append(pf.detectionmechanisms, rgx)
+		pf.detectionMechanisms = append(pf.detectionMechanisms, rgx)
 		pf.mutex.Unlock()
+	} else {
+		log.LoggerWContext(ctx).Error(fmt.Sprintf("Not able to compile the regexp %s", err))
 	}
 	return err
 }
 
 // checkDetectionMechanisms compare the url to the detection mechanisms regex
 func (pf *pfdns) checkDetectionMechanisms(ctx context.Context, e string) bool {
-	if pf.detectionmechanisms == nil {
+	if pf.detectionMechanisms == nil {
 		return false
 	}
 
-	for _, rgx := range pf.detectionmechanisms {
+	for _, rgx := range pf.detectionMechanisms {
 		if rgx.MatchString(e) {
 			return true
 		}
