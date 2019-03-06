@@ -882,5 +882,41 @@ export default {
   },
   deletePkiProvider: id => {
     return apiCall.delete(`config/pki_provider/${id}`)
+  },
+  /**
+   * Device Registration
+   */
+  deviceRegistrations: params => {
+    return apiCall.get('config/device_registrations', { params }).then(response => {
+      return response.data
+    })
+  },
+  deviceRegistrationsOptions: () => {
+    return apiCall.options('config/device_registrations').then(response => {
+      return response.data
+    })
+  },
+  deviceRegistration: id => {
+    return apiCall.get(`config/device_registration/${id}`).then(response => {
+      return response.data.item
+    })
+  },
+  deviceRegistrationOptions: id => {
+    return apiCall.options(`config/device_registration/${id}`).then(response => {
+      return response.data
+    })
+  },
+  createDeviceRegistration: data => {
+    return apiCall.post('config/device_registrations', data).then(response => {
+      return response.data
+    })
+  },
+  updateDeviceRegistration: data => {
+    return apiCall.patch(`config/device_registration/${data.id}`, data).then(response => {
+      return response.data
+    })
+  },
+  deleteDeviceRegistration: id => {
+    return apiCall.delete(`config/device_registration/${id}`)
   }
 }

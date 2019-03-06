@@ -241,6 +241,14 @@ export const hasConnectionProfiles = (value, component) => {
   })
 }
 
+export const hasDeviceRegistrations = (value, component) => {
+  return store.dispatch('config/getDeviceRegistrations').then((response) => {
+    return (response.length > 0)
+  }).catch(() => {
+    return true
+  })
+}
+
 export const hasDomains = (value, component) => {
   return store.dispatch('config/getDomains').then((response) => {
     return (response.length > 0)
@@ -387,6 +395,16 @@ export const connectionProfileExists = (value, component) => {
   return store.dispatch('config/getConnectionProfiles').then((response) => {
     if (response.length === 0) return true
     return (response.filter(connectionProfile => connectionProfile.id.toLowerCase() === value.toLowerCase()).length > 0)
+  }).catch(() => {
+    return true
+  })
+}
+
+export const deviceRegistrationExists = (value, component) => {
+  if (!value) return true
+  return store.dispatch('config/getDeviceRegistrations').then((response) => {
+    if (response.length === 0) return true
+    return (response.filter(deviceRegistration => deviceRegistration.id.toLowerCase() === value.toLowerCase()).length > 0)
   }).catch(() => {
     return true
   })

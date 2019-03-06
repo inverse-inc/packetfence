@@ -733,5 +733,12 @@ export const pfConfigurationProvisioningViewFields = (context) => {
           ]
         }
       ]
+    default:
+      return [
+        {
+          tab: null, // ignore tabs
+          fields: []
+        }
+      ]
   }
 }

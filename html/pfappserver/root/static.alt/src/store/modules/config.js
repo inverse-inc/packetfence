@@ -84,6 +84,9 @@ const api = {
   getConnectionProfiles () {
     return apiCall({ url: 'config/connection_profiles', method: 'get' })
   },
+  getDeviceRegistrations () {
+    return apiCall({ url: 'config/device_registrations', method: 'get' })
+  },
   getDomains () {
     return apiCall({ url: 'config/domains', method: 'get' })
   },
@@ -194,6 +197,8 @@ const state = { // set intitial states to `false` (not `[]` or `{}`) to avoid in
   billingTiers: false,
   connectionProfilesStatus: '',
   connectionProfiles: false,
+  deviceRegistrationsStatus: '',
+  deviceRegistrations: false,
   domainsStatus: '',
   domains: false,
   firewallsStatus: '',
@@ -339,6 +344,9 @@ const getters = {
   },
   isLoadingConnectionProfiles: state => {
     return state.connectionProfilesStatus === types.LOADING
+  },
+  isLoadingDeviceRegistrations: state => {
+    return state.deviceRegistrationsStatus === types.LOADING
   },
   isLoadingDomains: state => {
     return state.domainsStatus === types.LOADING
@@ -870,6 +878,20 @@ const actions = {
       return Promise.resolve(state.connectionProfiles)
     }
   },
+  getDeviceRegistrations: ({ state, getters, commit }) => {
+    if (getters.isLoadingDeviceRegistrations) {
+      return
+    }
+    if (!state.deviceRegistrations) {
+      commit('DEVICE_REGISTRATIONS_REQUEST')
+      return api.getDeviceRegistrations().then(response => {
+        commit('DEVICE_REGISTRATIONS_UPDATED', response.data.items)
+        return state.deviceRegistrations
+      })
+    } else {
+      return Promise.resolve(state.deviceRegistrations)
+    }
+  },
   getDomains: ({ state, getters, commit }) => {
     if (getters.isLoadingDomains) {
       return
@@ -1282,6 +1304,13 @@ const mutations = {
   CONNECTION_PROFILES_UPDATED: (state, connectionProfiles) => {
     state.connectionProfiles = connectionProfiles
     state.connectionProfilesStatus = types.SUCCESS
+  },
+  DEVICE_REGISTRATIONS_REQUEST: (state) => {
+    state.deviceRegistrationsStatus = types.LOADING
+  },
+  DEVICE_REGISTRATIONS_UPDATED: (state, deviceRegistrations) => {
+    state.deviceRegistrations = deviceRegistrations
+    state.deviceRegistrationsStatus = types.SUCCESS
   },
   DOMAINS_REQUEST: (state) => {
     state.domainsStatus = types.LOADING

@@ -5,6 +5,7 @@ import BasesStore from '../_store/bases'
 import BillingTiersStore from '../_store/billingTiers'
 import CertificatesStore from '../_store/certificates'
 import ConnectionProfilesStore from '../_store/connectionProfiles'
+import DeviceRegistrationsStore from '../_store/deviceRegistrations'
 import DomainsStore from '../_store/domains'
 import FirewallsStore from '../_store/firewalls'
 import FloatingDevicesStore from '../_store/floatingDevices'
@@ -68,6 +69,8 @@ const PortalModuleView = () => import(/* webpackChunkName: "Configuration" */ '.
 const AccessDurationView = () => import(/* webpackChunkName: "Configuration" */ '../_components/AccessDurationView')
 const ProvisioningsList = () => import(/* webpackChunkName: "Configuration" */ '../_components/ProvisioningsList')
 const ProvisioningView = () => import(/* webpackChunkName: "Configuration" */ '../_components/ProvisioningView')
+const DeviceRegistrationsList = () => import(/* webpackChunkName: "Configuration" */ '../_components/DeviceRegistrationsList')
+const DeviceRegistrationView = () => import(/* webpackChunkName: "Configuration" */ '../_components/DeviceRegistrationView')
 
 /* Network Configuration */
 const NetworkConfigurationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/NetworkConfigurationSection')
@@ -101,6 +104,9 @@ const route = {
     }
     if (!store.state.$_connection_profiles) {
       store.registerModule('$_connection_profiles', ConnectionProfilesStore)
+    }
+    if (!store.state.$_device_registrations) {
+      store.registerModule('$_device_registrations', DeviceRegistrationsStore)
     }
     if (!store.state.$_firewalls) {
       store.registerModule('$_firewalls', FirewallsStore)
@@ -916,6 +922,40 @@ const route = {
     /**
      *  Network Configuration
      */
+    {
+      path: 'device_registrations',
+      name: 'device_registrations',
+      component: DeviceRegistrationsList,
+      props: (route) => ({ query: route.query.query })
+    },
+    {
+      path: 'device_registrations/new',
+      name: 'newDeviceRegistration',
+      component: DeviceRegistrationView,
+      props: (route) => ({ storeName: '$_device_registrations', isNew: true })
+    },
+    {
+      path: 'device_registration/:id',
+      name: 'device_registration',
+      component: DeviceRegistrationView,
+      props: (route) => ({ storeName: '$_device_registrations', id: route.params.id }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_device_registrations/getDeviceRegistration', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'device_registration/:id/clone',
+      name: 'cloneDeviceRegistration',
+      component: DeviceRegistrationView,
+      props: (route) => ({ storeName: '$_device_registrations', id: route.params.id, isClone: true }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_device_registrations/getDeviceRegistration', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
     {
       path: 'certificates',
       redirect: 'certificate/http'
