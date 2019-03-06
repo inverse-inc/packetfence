@@ -31,6 +31,7 @@ Enhancements
 * Disable AD join os check option
 * Disable dns lookup in mariadb configuration
 * Enable performance_schema if needed
+* Display local account in the captive portal during registration if applicable (#3615)
 
 Bug Fixes
 +++++++++
