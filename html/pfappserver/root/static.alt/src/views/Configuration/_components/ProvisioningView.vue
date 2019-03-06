@@ -15,11 +15,11 @@
     <template slot="header" is="b-card-header">
       <b-button-close @click="close" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
       <h4 class="d-inline mb-0">
-        <span v-if="!isNew && !isClone">{{ $t('PKI Provider {id}', { id: id }) }}</span>
-        <span v-else-if="isClone">{{ $t('Clone PKI Provider {id}', { id: id }) }}</span>
-        <span v-else>{{ $t('New PKI Provider') }}</span>
+        <span v-if="!isNew && !isClone">{{ $t('Provisioner {id}', { id: id }) }}</span>
+        <span v-else-if="isClone">{{ $t('Clone Provisioner {id}', { id: id }) }}</span>
+        <span v-else>{{ $t('New Provisioner') }}</span>
       </h4>
-      <b-badge class="ml-2" variant="secondary" v-t="providerType"></b-badge>
+      <b-badge class="ml-2" variant="secondary" v-t="provisioningType"></b-badge>
     </template>
     <template slot="footer"
       scope="{isDeletable}"
@@ -31,7 +31,7 @@
           <template v-else-if="ctrlKey">{{ $t('Save & Close') }}</template>
           <template v-else>{{ $t('Save') }}</template>
         </pf-button-save>
-        <pf-button-delete v-if="isDeletable" class="ml-1" :disabled="isLoading" :confirm="$t('Delete PKI Provider?')" @on-delete="remove()"/>
+        <pf-button-delete v-if="isDeletable" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Provisioner?')" @on-delete="remove()"/>
         <b-button :disabled="isLoading" class="ml-1" variant="outline-primary" @click="init()">{{ $t('Reset') }}</b-button>
       </b-card-footer>
     </template>
@@ -48,12 +48,12 @@ import {
   pfConfigurationDefaultsFromMeta as defaults
 } from '@/globals/configuration/pfConfiguration'
 import {
-  pfConfigurationPkiProviderViewFields as fields
-} from '@/globals/configuration/pfConfigurationPkiProviders'
+  pfConfigurationProvisioningViewFields as fields
+} from '@/globals/configuration/pfConfigurationProvisionings'
 const { validationMixin } = require('vuelidate')
 
 export default {
-  name: 'PkiProviderView',
+  name: 'ProvisioningView',
   mixins: [
     validationMixin,
     pfMixinCtrlKey,
@@ -70,7 +70,7 @@ export default {
       default: null,
       required: true
     },
-    providerType: { // from router (or source)
+    provisioningType: { // from router (or source)
       type: String,
       default: null
     },
@@ -125,43 +125,43 @@ export default {
         // existing
         this.$store.dispatch(`${this.storeName}/optionsById`, this.id).then(options => {
           this.options = Object.assign({}, options) // store options
-          this.$store.dispatch(`${this.storeName}/getPkiProvider`, this.id).then(form => {
+          this.$store.dispatch(`${this.storeName}/getProvisioning`, this.id).then(form => {
             this.form = Object.assign({}, form) // set form
-            this.providerType = form.type
+            this.provisioningType = form.type
           })
         })
       } else {
         // new
-        this.$store.dispatch(`${this.storeName}/optionsByProviderType`, this.providerType).then(options => {
+        this.$store.dispatch(`${this.storeName}/optionsByProvisioningType`, this.provisioningType).then(options => {
           this.options = Object.assign({}, options) // store options
           this.form = defaults(options.meta) // set defaults
-          this.form.type = this.providerType
+          this.form.type = this.provisioningType
         })
       }
     },
     close (event) {
-      this.$router.push({ name: 'pki_providers' })
+      this.$router.push({ name: 'provisionings' })
     },
     create (event) {
       const ctrlKey = this.ctrlKey
-      this.$store.dispatch(`${this.storeName}/createPkiProvider`, this.form).then(response => {
+      this.$store.dispatch(`${this.storeName}/createProvisioning`, this.form).then(response => {
         if (ctrlKey) { // [CTRL] key pressed
           this.close()
         } else {
-          this.$router.push({ name: 'pki_provider', params: { id: this.form.id } })
+          this.$router.push({ name: 'provisioning', params: { id: this.form.id } })
         }
       })
     },
     save (event) {
       const ctrlKey = this.ctrlKey
-      this.$store.dispatch(`${this.storeName}/updatePkiProvider`, this.form).then(response => {
+      this.$store.dispatch(`${this.storeName}/updateProvisioning`, this.form).then(response => {
         if (ctrlKey) { // [CTRL] key pressed
           this.close()
         }
       })
     },
     remove (event) {
-      this.$store.dispatch(`${this.storeName}/deletePkiProvider`, this.id).then(response => {
+      this.$store.dispatch(`${this.storeName}/deleteProvisioning`, this.id).then(response => {
         this.close()
       })
     },

@@ -61,11 +61,13 @@ const WrixLocationView = () => import(/* webpackChunkName: "Configuration" */ '.
 const CaptivePortalView = () => import(/* webpackChunkName: "Configuration" */ '../_components/CaptivePortalView')
 const BillingTiersList = () => import(/* webpackChunkName: "Configuration" */ '../_components/BillingTiersList')
 const BillingTierView = () => import(/* webpackChunkName: "Configuration" */ '../_components/BillingTierView')
+const PkiProvidersList = () => import(/* webpackChunkName: "Configuration" */ '../_components/PkiProvidersList')
+const PkiProviderView = () => import(/* webpackChunkName: "Configuration" */ '../_components/PkiProviderView')
 const PortalModulesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/PortalModulesList')
 const PortalModuleView = () => import(/* webpackChunkName: "Configuration" */ '../_components/PortalModuleView')
 const AccessDurationView = () => import(/* webpackChunkName: "Configuration" */ '../_components/AccessDurationView')
-const PkiProvidersList = () => import(/* webpackChunkName: "Configuration" */ '../_components/PkiProvidersList')
-const PkiProviderView = () => import(/* webpackChunkName: "Configuration" */ '../_components/PkiProviderView')
+const ProvisioningsList = () => import(/* webpackChunkName: "Configuration" */ '../_components/ProvisioningsList')
+const ProvisioningView = () => import(/* webpackChunkName: "Configuration" */ '../_components/ProvisioningView')
 
 /* Network Configuration */
 const NetworkConfigurationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/NetworkConfigurationSection')
@@ -828,6 +830,40 @@ const route = {
       props: (route) => ({ storeName: '$_pki_providers', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
         store.dispatch('$_pki_providers/getPkiProvider', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'provisionings',
+      name: 'provisionings',
+      component: ProvisioningsList,
+      props: (route) => ({ query: route.query.query })
+    },
+    {
+      path: 'provisionings/new/:provisioningType',
+      name: 'newProvisioning',
+      component: ProvisioningView,
+      props: (route) => ({ storeName: '$_provisionings', isNew: true, provisioningType: route.params.provisioningType })
+    },
+    {
+      path: 'provisioning/:id',
+      name: 'provisioning',
+      component: ProvisioningView,
+      props: (route) => ({ storeName: '$_provisionings', id: route.params.id }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_provisionings/getProvisioning', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'provisioning/:id/clone',
+      name: 'cloneProvisioning',
+      component: ProvisioningView,
+      props: (route) => ({ storeName: '$_provisionings', id: route.params.id, isClone: true }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_provisionings/getProvisioning', to.params.id).then(object => {
           next()
         })
       }

@@ -437,9 +437,19 @@ export default {
       return response.data
     })
   },
+  provisioningsOptions: provisioningType => {
+    return apiCall.options(`config/provisionings?type=${provisioningType}`).then(response => {
+      return response.data
+    })
+  },
   provisioning: id => {
     return apiCall.get(`config/provisioning/${id}`).then(response => {
       return response.data.item
+    })
+  },
+  provisioningOptions: id => {
+    return apiCall.options(`config/provisioning/${id}`).then(response => {
+      return response.data
     })
   },
   createProvisioning: data => {

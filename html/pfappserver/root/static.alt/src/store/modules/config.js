@@ -96,6 +96,9 @@ const api = {
   getPkiProviders () {
     return apiCall({ url: 'config/pki_providers', method: 'get' })
   },
+  getProvisionings () {
+    return apiCall({ url: 'config/provisionings', method: 'get' })
+  },
   getRealms () {
     return apiCall({ url: 'config/realms', method: 'get' })
   },
@@ -199,6 +202,8 @@ const state = { // set intitial states to `false` (not `[]` or `{}`) to avoid in
   floatingDevices: false,
   pkiProvidersStatus: '',
   pkiProviders: false,
+  provisioningsStatus: '',
+  provisionings: false,
   realmsStatus: '',
   realms: false,
   rolesStatus: '',
@@ -346,6 +351,9 @@ const getters = {
   },
   isLoadingPkiProviders: state => {
     return state.pkiProvidersStatus === types.LOADING
+  },
+  isLoadingProvisionings: state => {
+    return state.provisioningsStatus === types.LOADING
   },
   isLoadingRealms: state => {
     return state.realmsStatus === types.LOADING
@@ -918,6 +926,20 @@ const actions = {
       return Promise.resolve(state.pkiProviders)
     }
   },
+  getProvisionings: ({ state, getters, commit }) => {
+    if (getters.isLoadingProvisionings) {
+      return
+    }
+    if (!state.provisionings) {
+      commit('PROVISIONINGS_REQUEST')
+      return api.getProvisionings().then(response => {
+        commit('PROVISIONINGS_UPDATED', response.data.items)
+        return state.provisionings
+      })
+    } else {
+      return Promise.resolve(state.provisionings)
+    }
+  },
   getRealms: ({ state, getters, commit }) => {
     if (getters.isLoadingRealms) {
       return
@@ -1288,6 +1310,13 @@ const mutations = {
   PKI_PROVIDERS_UPDATED: (state, pkiProviders) => {
     state.pkiProviders = pkiProviders
     state.pkiProvidersStatus = types.SUCCESS
+  },
+  PROVISIONINGS_REQUEST: (state) => {
+    state.provisioningsStatus = types.LOADING
+  },
+  PROVISIONINGS_UPDATED: (state, provisionings) => {
+    state.provisionings = provisionings
+    state.provisioningsStatus = types.SUCCESS
   },
   REALMS_REQUEST: (state) => {
     state.realmsStatus = types.LOADING
