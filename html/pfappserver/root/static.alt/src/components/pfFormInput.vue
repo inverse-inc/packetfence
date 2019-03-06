@@ -13,8 +13,7 @@
         @input.native="validate()"
         @keyup.native="onChange($event)"
         @change.native="onChange($event)"
-      >
-      </b-form-input>
+      />
       <b-input-group-append v-if="readonly || disabled">
         <b-button class="input-group-text" tabindex="-1" disabled><icon name="lock"></icon></b-button>
       </b-input-group-append>
@@ -56,7 +55,7 @@ export default {
     },
     formatter: {
       type: Function,
-      default: false
+      default: null
     }
   },
   computed: {

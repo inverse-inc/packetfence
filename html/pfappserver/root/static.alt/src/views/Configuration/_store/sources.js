@@ -33,12 +33,12 @@ const actions = {
       return response.items
     })
   },
-  optionsById: ({}, id) => {
+  optionsById: (context, id) => {
     return api.authenticationSourceOptions(id).then(response => {
       return response
     })
   },
-  optionsBySourceType: ({}, sourceType) => {
+  optionsBySourceType: (context, sourceType) => {
     return api.authenticationSourcesOptions(sourceType).then(response => {
       return response
     })
