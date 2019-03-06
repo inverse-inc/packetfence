@@ -265,7 +265,7 @@ export default {
     })
   },
   updateSwitch: data => {
-    return apiCall.patch(`config/switch/${data.encodeURIComponent(id)}`, data).then(response => {
+    return apiCall.patch(`config/switch/${data.encodeURIComponent(data.id)}`, data).then(response => {
       return response.data
     })
   },
@@ -301,7 +301,7 @@ export default {
     })
   },
   updateSwitchGroup: data => {
-    return apiCall.patch(`config/switch_group/${data.encodeURIComponent(id)}`, data).then(response => {
+    return apiCall.patch(`config/switch_group/${data.encodeURIComponent(data.id)}`, data).then(response => {
       return response.data
     })
   },

@@ -31,7 +31,7 @@ const getters = {
 }
 
 const actions = {
-  options: ({}, id) => {
+  options: (context, id) => {
     if (id) {
       return api.connectionProfileOptions(id).then(response => {
         return response

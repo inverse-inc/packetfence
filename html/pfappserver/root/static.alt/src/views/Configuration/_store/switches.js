@@ -33,12 +33,12 @@ const actions = {
       return response.items
     })
   },
-  optionsById: ({}, id) => {
+  optionsById: (context, id) => {
     return api.switchOptions(id).then(response => {
       return response
     })
   },
-  optionsBySwitchGroup: ({}, switchGroup) => {
+  optionsBySwitchGroup: (context, switchGroup) => {
     return api.switchesOptions(switchGroup).then(response => {
       return response
     })
