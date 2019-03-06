@@ -21,7 +21,6 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/goji/httpauth"
 	"github.com/gorilla/mux"
-	"github.com/inverse-inc/packetfence/go/filter_client"
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/sharedutils"
@@ -290,6 +289,7 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 		defer recoverName(options)
 
 		answer.Local = handler.layer2
+
 		var Options map[string]string
 		Options = make(map[string]string)
 		for option, value := range options {
@@ -457,20 +457,6 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 
 			var info interface{}
 			var err error
-			Filter, found := GlobalFilterCache.Get(p.CHAddr().String() + "" + msgType.String())
-			if found && Filter != "null" {
-				info = Filter
-			} else {
-				info, err = pffilter.FilterDhcp(msgType.String(), map[string]interface{}{
-					"mac":     p.CHAddr().String(),
-					"options": Options,
-				})
-				if err != nil {
-					GlobalFilterCache.Set(p.CHAddr().String()+""+msgType.String(), "null", cache.DefaultExpiration)
-				} else {
-					GlobalFilterCache.Set(p.CHAddr().String()+""+msgType.String(), info, cache.DefaultExpiration)
-				}
-			}
 
 			answer.IP = dhcp.IPAdd(handler.start, free)
 			answer.Iface = h.intNet
@@ -500,19 +486,14 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 				}
 			}
 
+			info = GetFromGlobalFilterCache(msgType.String(), p.CHAddr().String(), Options)
+
 			// Add options on the fly from pffilter
-			for key, value := range info.(map[string]interface{}) {
-				if key == "reject" {
-					log.LoggerWContext(ctx).Info("DHCPNAK on to " + clientMac)
-					answer.D = dhcp.ReplyPacket(p, dhcp.NAK, handler.ip.To4(), nil, 0, nil)
-					return answer
-				}
-				if s, ok := value.(string); ok {
-					var opcode dhcp.OptionCode
-					intvalue, _ := strconv.Atoi(key)
-					opcode = dhcp.OptionCode(intvalue)
-					GlobalOptions[opcode] = Tlv.Tlvlist[int(opcode)].Transform.Encode(s)
-				}
+			reject := AddPffilterDevicesOptions(info, GlobalOptions)
+			if reject != nil {
+				log.LoggerWContext(ctx).Info("DHCPNAK on to " + clientMac)
+				answer.D = dhcp.ReplyPacket(p, dhcp.NAK, handler.ip.To4(), nil, 0, nil)
+				return answer
 			}
 
 			// Add device (mac) options on the fly
@@ -616,23 +597,6 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 				if Reply {
 
 					var info interface{}
-					var err error
-					Filter, found := GlobalFilterCache.Get(p.CHAddr().String() + "" + msgType.String())
-					if found && Filter != "null" {
-						info = Filter
-					} else {
-						info, err = pffilter.FilterDhcp(msgType.String(), map[string]interface{}{
-							"mac":     p.CHAddr().String(),
-							"options": Options,
-						})
-						if err != nil {
-							GlobalFilterCache.Set(p.CHAddr().String()+""+msgType.String(), "null", cache.DefaultExpiration)
-						} else {
-							GlobalFilterCache.Set(p.CHAddr().String()+""+msgType.String(), info, cache.DefaultExpiration)
-						}
-					}
-
-					// Add options on the fly from pffilter
 
 					var GlobalOptions dhcp.Options
 					var options = make(map[dhcp.OptionCode][]byte)
@@ -646,45 +610,18 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 					GlobalOptions = options
 					leaseDuration := handler.leaseDuration
 
-					// Add network options on the fly
-					x, err := decodeOptions(NetScope.IP.String())
-					if err == nil {
-						for key, value := range x {
-							if key == dhcp.OptionIPAddressLeaseTime {
-								seconds, _ := strconv.Atoi(string(value))
-								leaseDuration = time.Duration(seconds) * time.Second
-								continue
-							}
-							GlobalOptions[key] = value
-						}
-					}
+					// Add network options
+					AddDevicesOptions(NetScope.IP.String(), &leaseDuration, GlobalOptions)
+					// Add device options
+					AddDevicesOptions(p.CHAddr().String(), &leaseDuration, GlobalOptions)
 
-					// Add devices options on the fly
-					x, err = decodeOptions(p.CHAddr().String())
-					if err == nil {
-						for key, value := range x {
-							if key == dhcp.OptionIPAddressLeaseTime {
-								seconds, _ := strconv.Atoi(string(value))
-								leaseDuration = time.Duration(seconds) * time.Second
-								continue
-							}
-							GlobalOptions[key] = value
-						}
-					}
-
+					info = GetFromGlobalFilterCache(msgType.String(), p.CHAddr().String(), Options)
 					// Add options on the fly from pffilter
-					for key, value := range info.(map[string]interface{}) {
-						if key == "reject" {
-							log.LoggerWContext(ctx).Info("DHCPNAK on " + reqIP.String() + " to " + clientMac)
-							answer.D = dhcp.ReplyPacket(p, dhcp.NAK, handler.ip.To4(), nil, 0, nil)
-							return answer
-						}
-						if s, ok := value.(string); ok {
-							var opcode dhcp.OptionCode
-							intvalue, _ := strconv.Atoi(key)
-							opcode = dhcp.OptionCode(intvalue)
-							GlobalOptions[opcode] = Tlv.Tlvlist[int(opcode)].Transform.Encode(s)
-						}
+					reject := AddPffilterDevicesOptions(info, GlobalOptions)
+					if reject != nil {
+						log.LoggerWContext(ctx).Info("DHCPNAK on " + reqIP.String() + " to " + clientMac)
+						answer.D = dhcp.ReplyPacket(p, dhcp.NAK, handler.ip.To4(), nil, 0, nil)
+						return answer
 					}
 
 					answer.D = dhcp.ReplyPacket(p, dhcp.ACK, handler.ip.To4(), reqIP, leaseDuration,
