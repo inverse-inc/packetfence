@@ -216,6 +216,29 @@ export default {
     return apiCall.delete(`config/floating_device/${id}`)
   },
   /**
+   * SSL Certificates
+   */
+  certificate: id => {
+    return apiCall.get(`config/certificate/${id}`).then(response => {
+      return response.data
+    })
+  },
+  certificateInfo: id => {
+    return apiCall.get(`config/certificate/${id}/info`).then(response => {
+      return response.data
+    })
+  },
+  createCertificate: data => {
+    return apiCall.put(`config/certificate/${data.id}`, data).then(response => {
+      return response.data
+    })
+  },
+  generateCertificateSigningRequest: data => {
+    return apiCall.post(`config/certificate/${data.id}/generate_csr`, data).then(response => {
+      return response.data
+    })
+  },
+  /**
    * Portal Modules
    */
   portalModules: params => {

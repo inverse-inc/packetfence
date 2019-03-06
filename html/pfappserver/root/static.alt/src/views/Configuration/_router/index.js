@@ -3,6 +3,7 @@ import ConfigurationView from '../'
 import AuthenticationSourcesStore from '../_store/sources'
 import BasesStore from '../_store/bases'
 import BillingTiersStore from '../_store/billingTiers'
+import CertificatesStore from '../_store/certificates'
 import ConnectionProfilesStore from '../_store/connectionProfiles'
 import DomainsStore from '../_store/domains'
 import FirewallsStore from '../_store/firewalls'
@@ -67,6 +68,7 @@ const AccessDurationView = () => import(/* webpackChunkName: "Configuration" */ 
 const NetworkConfigurationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/NetworkConfigurationSection')
 const FloatingDevicesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/FloatingDevicesList')
 const FloatingDeviceView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FloatingDeviceView')
+const CertificatesView = () => import(/* webpackChunkName: "Configuration" */ '../_components/CertificatesView')
 
 const route = {
   path: '/configuration',
@@ -88,6 +90,9 @@ const route = {
     }
     if (!store.state.$_domains) {
       store.registerModule('$_domains', DomainsStore)
+    }
+    if (!store.state.$_certificates) {
+      store.registerModule('$_certificates', CertificatesStore)
     }
     if (!store.state.$_connection_profiles) {
       store.registerModule('$_connection_profiles', ConnectionProfilesStore)
@@ -831,6 +836,19 @@ const route = {
       name: 'access_duration',
       component: AccessDurationView,
       props: (route) => ({ storeName: '$_bases', query: route.query.query })
+    },
+    /**
+     *  Network Configuration
+     */
+    {
+      path: 'certificates',
+      redirect: 'certificate/http'
+    },
+    {
+      path: 'certificate/:id',
+      name: 'certificate',
+      component: CertificatesView,
+      props: (route) => ({ storeName: '$_certificates', id: route.params.id })
     }
   ]
 }
