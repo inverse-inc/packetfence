@@ -703,7 +703,7 @@ sub map_option {
     my ($self, $option) = @_;
     my %hash = %$option;
     if (exists $hash{label}) {
-        $hash{text} = delete $hash{label};
+        $hash{text} = (delete $hash{label} // '') . "";
     }
 
     if (exists $hash{options}) {
