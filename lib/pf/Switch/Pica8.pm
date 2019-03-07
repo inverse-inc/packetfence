@@ -76,7 +76,6 @@ sub description { return "Pica8" }
 sub supportsWiredDot1x { return $TRUE; }
 sub supportsWiredMacAuth { return $TRUE; }
 sub supportsRadiusDynamicVlanAssignment { return $TRUE; }
-sub supportsRoleBasedEnforcement { return $TRUE; }
 sub supportsExternalPortal { return $TRUE; }
 
 =item setAdminStatus - bounce host port with radius CoA technique
