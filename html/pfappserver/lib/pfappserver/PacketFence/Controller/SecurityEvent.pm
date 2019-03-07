@@ -212,6 +212,7 @@ after view => sub {
                 $self->parse_triggers($c->stash->{item}->{trigger});
             $c->stash->{trigger_map} = $pf::constants::trigger::TRIGGER_MAP;
             $c->stash->{json_event_triggers} = encode_json([ map { ($pf::factory::condition::security_event::TRIGGER_TYPE_TO_CONDITION_TYPE{$_}{event}) ? $_ : () } keys %pf::factory::condition::security_event::TRIGGER_TYPE_TO_CONDITION_TYPE ]);
+            $c->stash->{template} = 'security_event/view.tt';
             $c->stash->{action_uri} = $c->uri_for($self->action_for('update'), [$c->stash->{id}]);
         } else {
             $c->stash->{action_uri} = $c->uri_for($self->action_for('create'));

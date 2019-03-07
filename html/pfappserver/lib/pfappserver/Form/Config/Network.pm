@@ -70,7 +70,8 @@ has_field 'ip_assigned' =>
       option_pattern => sub {
           {
               message => "Must be a list of mac list ip address",
-              regex   => "^[0-9A-Fa-f][0-9A-Fa-f](:[0-9A-Fa-f][0-9A-Fa-f]){5}:\d{1,3}(.\d{1,3}){3}(,[0-9A-Fa-f][0-9A-Fa-f](:[0-9A-Fa-f][0-9A-Fa-f]){5}:\d{1,3}(.\d{1,3}){3})*\$",
+              regex   => "^[0-9A-Fa-f][0-9A-Fa-f](:[0-9A-Fa-f][0-9A-Fa-f]){5}:\\d{1,3}(.\\d{1,3}){3}(,[0-9A-Fa-f][0-9A-Fa-f](:[0-9A-Fa-f][0-9A-Fa-f]){5}:\\d{1,3}(.\\d{1,3}){3})*\$"
+,
           };
       }
    },
