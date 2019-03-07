@@ -17,6 +17,12 @@ fi
 BAD=$2
 GOOD=$3
 
+TMP_SCRIPT=$(mktemp)
+cp "$TEST_DIR/bisect-run.sh" "$TMP_SCRIPT"
+chmod 0755 $TMP_SCRIPT
+
 git bisect start "$BAD" "$GOOD"
-git bisect run "$TEST_DIR/bisect-run.sh" "$TEST"
+git bisect run "$TMP_SCRIPT" "$TEST"
 git bisect reset
+
+rm -rf $TMP_SCRIPT
