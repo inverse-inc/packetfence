@@ -74,6 +74,7 @@ const DeviceRegistrationView = () => import(/* webpackChunkName: "Configuration"
 
 /* Network Configuration */
 const NetworkConfigurationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/NetworkConfigurationSection')
+const SnmpTrapView = () => import(/* webpackChunkName: "Configuration" */ '../_components/SnmpTrapView')
 const FloatingDevicesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/FloatingDevicesList')
 const FloatingDeviceView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FloatingDeviceView')
 const CertificatesView = () => import(/* webpackChunkName: "Configuration" */ '../_components/CertificatesView')
@@ -723,47 +724,6 @@ const route = {
       }
     },
     /**
-     * Network Configuration
-     */
-    {
-      path: 'networkconfiguration',
-      component: NetworkConfigurationSection
-    },
-    {
-      path: 'floating_devices',
-      name: 'floating_devices',
-      component: FloatingDevicesList,
-      props: (route) => ({ query: route.query.query })
-    },
-    {
-      path: 'floating_devices/new',
-      name: 'newFloatingDevice',
-      component: FloatingDeviceView,
-      props: (route) => ({ storeName: '$_floatingdevices', isNew: true })
-    },
-    {
-      path: 'floating_device/:id',
-      name: 'floating_device',
-      component: FloatingDeviceView,
-      props: (route) => ({ storeName: '$_floatingdevices', id: route.params.id }),
-      beforeEnter: (to, from, next) => {
-        store.dispatch('$_floatingdevices/getFloatingDevice', to.params.id).then(object => {
-          next()
-        })
-      }
-    },
-    {
-      path: 'floating_device/:id/clone',
-      name: 'cloneFloatingDevice',
-      component: FloatingDeviceView,
-      props: (route) => ({ storeName: '$_floatingdevices', id: route.params.id, isClone: true }),
-      beforeEnter: (to, from, next) => {
-        store.dispatch('$_floatingdevices/getFloatingDevice', to.params.id).then(object => {
-          next()
-        })
-      }
-    },
-    /**
      *  Advanced Access Configuration
      */
     {
@@ -955,6 +915,53 @@ const route = {
           next()
         })
       }
+    },
+    /**
+     * Network Configuration
+     */
+    {
+      path: 'networkconfiguration',
+      component: NetworkConfigurationSection
+    },
+    {
+      path: 'floating_devices',
+      name: 'floating_devices',
+      component: FloatingDevicesList,
+      props: (route) => ({ query: route.query.query })
+    },
+    {
+      path: 'floating_devices/new',
+      name: 'newFloatingDevice',
+      component: FloatingDeviceView,
+      props: (route) => ({ storeName: '$_floatingdevices', isNew: true })
+    },
+    {
+      path: 'floating_device/:id',
+      name: 'floating_device',
+      component: FloatingDeviceView,
+      props: (route) => ({ storeName: '$_floatingdevices', id: route.params.id }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_floatingdevices/getFloatingDevice', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'floating_device/:id/clone',
+      name: 'cloneFloatingDevice',
+      component: FloatingDeviceView,
+      props: (route) => ({ storeName: '$_floatingdevices', id: route.params.id, isClone: true }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_floatingdevices/getFloatingDevice', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'snmp_traps',
+      name: 'snmp_traps',
+      component: SnmpTrapView,
+      props: (route) => ({ storeName: '$_bases', query: route.query.query })
     },
     {
       path: 'certificates',

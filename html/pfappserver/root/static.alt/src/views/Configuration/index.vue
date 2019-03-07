@@ -101,6 +101,7 @@ export default {
           icon: 'project-diagram',
           collapsable: true,
           items: [
+            { name: this.$i18n.t('SNMP'), path: '/configuration/snmp_traps' },
             { name: this.$i18n.t('Floating Devices'), path: '/configuration/floating_devices' },
             { name: this.$i18n.t('SSL Certificates'), path: '/configuration/certificates' }
           ]
