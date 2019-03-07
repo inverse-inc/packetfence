@@ -124,7 +124,7 @@ Readonly our $DEFAULT_SMTP_PORT => 25;
 Readonly our $DEFAULT_SMTP_PORT_SSL => 465;
 Readonly our $DEFAULT_SMTP_PORT_TLS => 587;
 
-Readonly our %ALERTING_PORTS = (
+Readonly our %ALERTING_PORTS => (
     none => $DEFAULT_SMTP_PORT,
     ssl => $DEFAULT_SMTP_PORT_SSL,
     starttls => $DEFAULT_SMTP_PORT_TLS,
