@@ -45,7 +45,7 @@ inner-server: inner-server.pem inner-server.vrfy
 .PHONY: verify
 verify: server.vrfy client.vrfy
 
-passwords.mk: server.cnf ca.cnf client.cnf inner-server.cnf
+passwords.mk: server.cnf ca.cnf client.cnf
 	@echo "PASSWORD_SERVER	= '$(shell grep output_password server.cnf | sed 's/.*=//;s/^ *//')'"		> $@
 	@echo "PASSWORD_INNER	= '$(shell grep output_password inner-server.cnf | sed 's/.*=//;s/^ *//')'"	>> $@
 	@echo "PASSWORD_CA	= '$(shell grep output_password ca.cnf | sed 's/.*=//;s/^ *//')'"		>> $@
