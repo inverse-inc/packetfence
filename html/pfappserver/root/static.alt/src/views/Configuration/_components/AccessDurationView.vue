@@ -80,13 +80,13 @@ export default {
     init () {
       this.$store.dispatch('$_bases/optionsGuestsAdminRegistration').then(options => {
         // store options
-        this.options = Object.assign({}, options)
+        this.options = JSON.parse(JSON.stringify(options))
         this.$store.dispatch('$_bases/getGuestsAdminRegistration').then(data => {
           if ('access_duration_choices' in data && data.access_duration_choices.constructor === String) {
             // split and map access_duration_choices
             data.access_duration_choices = deserialize(data.access_duration_choices)
           }
-          this.form = Object.assign({}, data)
+          this.form = JSON.parse(JSON.stringify(data))
         })
       })
     },

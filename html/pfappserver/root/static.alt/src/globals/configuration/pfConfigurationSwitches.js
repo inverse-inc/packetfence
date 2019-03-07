@@ -189,7 +189,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
               validators: {
                 ...pfConfigurationValidatorsFromMeta(meta, 'id'),
                 ...{
-                  [i18n.t('Role exists.')]: not(and(required, conditional(isNew || isClone), hasSwitches, switchExists))
+                  [i18n.t('Switch exists.')]: not(and(required, conditional(isNew || isClone), hasSwitches, switchExists))
                 }
               }
             }

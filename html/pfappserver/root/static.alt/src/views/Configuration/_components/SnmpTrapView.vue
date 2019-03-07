@@ -78,9 +78,9 @@ export default {
     init () {
       this.$store.dispatch('$_bases/optionsSNMPTraps').then(options => {
         // store options
-        this.options = Object.assign({}, options)
+        this.options = JSON.parse(JSON.stringify(options))
         this.$store.dispatch('$_bases/getSNMPTraps').then(data => {
-          this.form = Object.assign({}, data)
+          this.form = JSON.parse(JSON.stringify(data))
         })
       })
     },

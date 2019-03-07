@@ -78,9 +78,9 @@ export default {
     init () {
       this.$store.dispatch('$_bases/optionsCaptivePortal').then(options => {
         // store options
-        this.options = Object.assign({}, options)
+        this.options = JSON.parse(JSON.stringify(options))
         this.$store.dispatch('$_bases/getCaptivePortal').then(data => {
-          this.form = Object.assign({}, data)
+          this.form = JSON.parse(JSON.stringify(data))
         })
       })
     },
