@@ -283,7 +283,7 @@ sub replace {
     my %to_install = (
         cert_file => join("\n", map { $_->as_string() } ($cert, @$intermediate_cas)),
         key_file => $key->get_private_key_string(),
-        ca_file => $ca->as_string(),
+        ca_file => ($ca ? $ca->as_string() : ""),
     );
     $to_install{bundle_file} = join("\n", $to_install{cert_file}, $to_install{key_file});
 
