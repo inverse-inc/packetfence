@@ -89,7 +89,7 @@ case "$1" in
 	    if [ ! -f /usr/local/pf/raddb/certs/dh ]; then
 	        echo "Building default RADIUS certificates..."
 	        cd /usr/local/pf/raddb/certs
-	        make
+	        /sbin/runuser -g radiusd -c 'umask 007; ./bootstrap' > /dev/null 2>&1 || :
 	    else
 	        echo "DH already exists, won't touch it!"
         fi
