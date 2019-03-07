@@ -140,6 +140,11 @@ export default {
       this.$store.dispatch('$_bases/getGeneral').then(data => {
         this.general = data
       })
+      if (this.id) {
+        this.$store.dispatch(`${this.storeName}/files`, { id: this.id, sort: ['type', 'name'] }).then(data => {
+          this.files = data.entries
+        })
+      }
       this.$store.dispatch(`${this.storeName}/options`, this.id).then(options => {
         // store options
         this.options = Object.assign({}, options)
@@ -147,9 +152,6 @@ export default {
           // existing
           this.$store.dispatch(`${this.storeName}/getConnectionProfile`, this.id).then(form => {
             this.form = Object.assign({}, form)
-          })
-          this.$store.dispatch(`${this.storeName}/files`, { id: this.id, sort: ['type', 'name'] }).then(data => {
-            this.files = data.entries
           })
         } else {
           // new
@@ -202,6 +204,12 @@ export default {
       this.$store.dispatch(`${this.storeName}/files`, { id: this.id, sort }).then(data => {
         this.files = data.entries
       })
+    },
+    createDirectory (items, path, name) {
+      items.push({ type: 'dir', name, size: 0, mtime: 0, path, entries: [] })
+    },
+    deleteDirectory (path) {
+      this.$store.dispatch(`${this.storeName}/deleteFile`, { id: this.id, filename: path })
     }
   },
   created () {

@@ -32,7 +32,14 @@ query_cache_size = [% query_cache_size %]M
 # Try number of CPU's*2 for thread_concurrency
 thread_concurrency = [% thread_concurrency %]
 
+# Disable DNS lookup
 skip-name-resolve
+
+# Performance schema
+performance_schema = [% performance_schema %]
+
+# max_connect_errors
+max_connect_errors = [% max_connect_errors %]
 
 # Point the following paths to a dedicated disk
 #tmpdir   = /tmp/

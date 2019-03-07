@@ -9,7 +9,7 @@
             <span>/ {{ path }}</span>
           </h4>
           <b-form-group
-            class="col ml-2 my-0"
+            class="col col-md-4 ml-2 my-0"
             v-if="isNew"
             :invalid-feedback="invalidFeedbackFilename"
             :state="validFilename">
@@ -155,7 +155,9 @@ export default {
         this.content = data.content
         this.deletable = !data.meta.not_deletable
         this.revertible = !data.meta.not_revertible
-        this.$nextTick(() => this.contentModified = false)
+        this.$nextTick(() => {
+          this.contentModified = false
+        })
         return data
       })
     },
@@ -202,6 +204,7 @@ export default {
             this.revertible = true
           }
           this.contentModified = false
+          this.$store.dispatch('notification/info', { message: this.$i18n.t('{filename} saved', { filename: this.filename }) })
         }
       })
     },

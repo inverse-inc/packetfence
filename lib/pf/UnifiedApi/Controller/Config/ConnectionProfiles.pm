@@ -49,7 +49,7 @@ my %ALLOWED_SORTS = (
 sub form {
     my ($self, $item) = @_;
     if ( ($item->{id} // '') eq 'default') {
-        return pfappserver::Form::Config::Profile::Default->new;
+        return 200, pfappserver::Form::Config::Profile::Default->new;
     }
 
     return $self->SUPER::form($item);

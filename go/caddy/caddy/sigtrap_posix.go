@@ -13,9 +13,13 @@ import (
 func trapSignalsPosix() {
 	go func() {
 		sigchan := make(chan os.Signal, 1)
-		signal.Notify(sigchan, syscall.SIGTERM, syscall.SIGHUP, syscall.SIGQUIT, syscall.SIGUSR1)
+		signal.Notify(sigchan, syscall.SIGTERM, syscall.SIGHUP, syscall.SIGQUIT, syscall.SIGUSR1, syscall.SIGPIPE)
 
 		for sig := range sigchan {
+            if sig == syscall.SIGPIPE {
+                continue;
+            }
+
 			switch sig {
 			case syscall.SIGTERM:
 				log.Println("[INFO] SIGTERM: Terminating process")

@@ -33,7 +33,7 @@ const actions = {
       return response.items
     })
   },
-  options: ({}, id) => {
+  options: (context, id) => {
     if (id) {
       return api.realmOptions(id).then(response => {
         return response

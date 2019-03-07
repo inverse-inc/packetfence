@@ -1,5 +1,5 @@
 <template>
-    <b-row class="my-1" align-v="center">
+    <b-row class="my-1" :align-v="alignV">
         <b-col sm="3" class="col-form-label"><label class="mb-0" :for="id" v-t="columnLabel"></label></b-col>
         <b-col sm="9"><slot/></b-col>
     </b-row>
@@ -15,6 +15,10 @@ export default {
     },
     columnLabel: {
       type: String
+    },
+    alignV: {
+      type: String,
+      default: 'center'
     }
   },
   mounted () {

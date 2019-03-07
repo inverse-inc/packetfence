@@ -42,6 +42,14 @@
       [% END %]
       [% END %]
     </ul>
+      
+    <div class="o-layout__item u-1/1 u-margin-bottom">
+      [% IF skipable %]
+      <a href="/captive-portal?next=next" class="c-btn c-btn--tertiary u-margin-top">
+        [% i18n("Continue") %]
+      </a>
+      [% END %]
+    </div>
   </div>
 
 </div>

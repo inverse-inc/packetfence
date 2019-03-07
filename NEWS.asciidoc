@@ -28,6 +28,10 @@ Enhancements
 * Voip configuration parameter in node_cleanup task to bypass voip devices
 * Adding/removing passthroughs doesn't require to restart pfdns anymore (#3127)
 * Added support for RADIUS disconnect on Ruckus SmartZone
+* Disable AD join os check option
+* Disable dns lookup in mariadb configuration
+* Enable performance_schema if needed
+* Display local account in the captive portal during registration if applicable (#3615)
 
 Bug Fixes
 +++++++++

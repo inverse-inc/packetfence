@@ -1,42 +1,18 @@
-package pf::UnifiedApi::Controller::Config::SyslogForwarders;
+package captiveportal::DynamicRouting::Module::ShowLocalAccount;
+use Moose;
+
+BEGIN { extends 'captiveportal::PacketFence::DynamicRouting::Module::ShowLocalAccount'; }
 
 =head1 NAME
 
-pf::UnifiedApi::Controller::Config::SyslogForwarders - 
-
-=cut
+captiveportal::DynamicRouting::Module::ShowLocalAccount - Controller to show local account for captiveportal
 
 =head1 DESCRIPTION
 
-pf::UnifiedApi::Controller::Config::SyslogForwarders
+[enter your description here]
 
 =cut
 
-use strict;
-use warnings;
-
-use Mojo::Base qw(pf::UnifiedApi::Controller::Config::Subtype);
-
-has 'config_store_class' => 'pf::ConfigStore::Syslog';
-has 'form_class' => 'pfappserver::Form::Config::Syslog';
-has 'primary_key' => 'syslog_forwarder_id';
-
-use pf::ConfigStore::Syslog;
-use pfappserver::Form::Config::Syslog;
-use pfappserver::Form::Config::Syslog::file;
-use pfappserver::Form::Config::Syslog::server;
-
-our %TYPES_TO_FORMS = (
-    map { $_ => "pfappserver::Form::Config::Syslog::$_" } qw(
-        file server
-      )
-);
-
-sub type_lookup {
-    return \%TYPES_TO_FORMS;
-}
-
- 
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
@@ -63,6 +39,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 USA.
 
 =cut
+
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;
 

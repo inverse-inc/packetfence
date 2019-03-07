@@ -19,6 +19,7 @@ use warnings;
 
 
 use Mojo::Base qw(pf::UnifiedApi::Controller::Config::Subtype);
+use pf::error qw(is_error);
 
 has 'config_store_class' => 'pf::ConfigStore::Pfdetect';
 has 'form_class' => 'pfappserver::Form::Config::Pfdetect';
@@ -64,8 +65,8 @@ sub dry_run {
         return $self->render_error( 400, "Bad Request : $error" );
     }
 
-    my $form = $self->form($new_data);
-    if ( !defined $form ) {
+    my ($status, $form) = $self->form($new_data);
+    if ( is_error($status) ) {
         return $self->render_error( 422, "Cannot determine the valid type" );
     }
 

@@ -115,9 +115,9 @@ sub test {
         return $self->render_error(400, "Bad Request : $error");
     }
 
-    my $form = $self->form($new_data);
-    if (!defined $form) {
-        return $self->render_error(422, "Cannot determine the valid type");
+    my ($status, $form) = $self->form($new_data);
+    if ( is_error($status)) {
+        return $self->render_error($status, "Cannot determine the valid type");
     }
 
     $form->process(params => $new_data, posted => 1);

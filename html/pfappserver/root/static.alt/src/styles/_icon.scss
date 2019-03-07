@@ -7,3 +7,19 @@
     height: 1em;
     max-height: 100%;
 }
+
+/**
+ * Align icon when inside a button
+ */
+.btn .fa-icon {
+    height: auto;
+    vertical-align: text-bottom;
+}
+
+/**
+ * White drop shadow on SVG icon
+ */
+.fa-overlap {
+    margin-left: -.5em;
+    filter: drop-shadow(0 0 2px #FFF);
+}
