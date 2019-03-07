@@ -67,7 +67,7 @@ sub cleanupAfterRead {
             $data->{$key} = POSIX::strftime("%Y-%m-%d", localtime($time));
         } elsif ($type eq 'multi') {
             my $value = $data->{$key};
-            my @values = split( /\s*,\s*/, $value ) if $value;
+            my @values = split( /\s*,\s*/, $value // '');
             $data->{$key} = \@values;
         } elsif ( $type eq 'list' ) {
             my $value = $data->{$key};
