@@ -17,6 +17,7 @@
         <pf-button-save :disabled="invalidForm" :isLoading="isLoading">
           <template>{{ $t('Save') }}</template>
         </pf-button-save>
+        <b-button :disabled="isLoading" class="ml-1" variant="outline-primary" @click="init()">{{ $t('Reset') }}</b-button>
       </b-card-footer>
     </template>
   </pf-config-view>
@@ -27,8 +28,6 @@ import pfConfigView from '@/components/pfConfigView'
 import pfButtonSave from '@/components/pfButtonSave'
 import {
   pfConfigurationAccessDurationViewFields as fields,
-  pfConfigurationAccessDurationViewDefaults as defaults,
-  pfConfigurationAccessDurationViewPlaceholders as placeholders,
   pfConfigurationAccessDurationSerialize as serialize,
   pfConfigurationAccessDurationDeserialize as deserialize
 } from '@/globals/configuration/pfConfigurationAccessDuration'
@@ -53,9 +52,9 @@ export default {
   },
   data () {
     return {
-      form: defaults(this), // will be overloaded with the data from the store
+      form: {}, // will be overloaded with the data from the store
       formValidations: {}, // will be overloaded with data from the pfConfigView
-      placeholders: placeholders(this) // form placeholders
+      options: {}
     }
   },
   validations () {
@@ -78,6 +77,19 @@ export default {
     }
   },
   methods: {
+    init () {
+      this.$store.dispatch('$_bases/optionsGuestsAdminRegistration').then(options => {
+        // store options
+        this.options = Object.assign({}, options)
+        this.$store.dispatch('$_bases/getGuestsAdminRegistration').then(data => {
+          if ('access_duration_choices' in data && data.access_duration_choices.constructor === String) {
+            // split and map access_duration_choices
+            data.access_duration_choices = deserialize(data.access_duration_choices)
+          }
+          this.form = Object.assign({}, data)
+        })
+      })
+    },
     save () {
       let form = JSON.parse(JSON.stringify(this.form)) // dereference
       // re-join access_duration_choices
@@ -88,13 +100,7 @@ export default {
     }
   },
   created () {
-    this.$store.dispatch('$_bases/getGuestsAdminRegistration').then(data => {
-      if ('access_duration_choices' in data && data.access_duration_choices.constructor === String) {
-        // split and map access_duration_choices
-        data.access_duration_choices = deserialize(data.access_duration_choices)
-      }
-      this.form = Object.assign({}, data)
-    })
+    this.init()
   }
 }
 </script>

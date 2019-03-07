@@ -2,6 +2,10 @@ import i18n from '@/utils/locale'
 import pfFieldAccessDuration from '@/components/pfFieldAccessDuration'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormFields from '@/components/pfFormFields'
+import {
+  pfConfigurationAttributesFromMeta,
+  pfConfigurationValidatorsFromMeta
+} from '@/globals/configuration/pfConfiguration'
 
 export const pfConfigurationAccessDurationSerialize = (arr = []) => {
   return arr.map(duration => {
@@ -52,8 +56,10 @@ export const pfConfigurationAccessDurationDeserialize = (csv = '') => {
 
 export const pfConfigurationAccessDurationViewFields = (context = {}) => {
   const {
-    form,
-    placeholders
+    form = {},
+    options: {
+      meta = {}
+    }
   } = context
   return [
     {
@@ -87,31 +93,21 @@ export const pfConfigurationAccessDurationViewFields = (context = {}) => {
               key: 'default_access_duration',
               component: pfFormChosen,
               attrs: {
-                placeholder: i18n.t('Choose Access Duration (default: "{default}")', { default: placeholders.default_access_duration }),
-                collapseObject: true,
-                trackBy: 'value',
-                label: 'text',
-                options: ('access_duration_choices' in form && form.access_duration_choices) // could be undefined or null
-                  ? form.access_duration_choices.map(duration => {
-                    const strDuration = pfConfigurationAccessDurationSerialize([duration])
-                    return { text: strDuration, value: strDuration }
-                  })
-                  : []
-              }
+                ...pfConfigurationAttributesFromMeta(meta, 'default_access_duration'),
+                ...{
+                  options: ('access_duration_choices' in form && form.access_duration_choices) // could be undefined or null
+                    ? form.access_duration_choices.map(duration => {
+                      const strDuration = pfConfigurationAccessDurationSerialize([duration])
+                      return { text: strDuration, value: strDuration }
+                    })
+                    : []
+                }
+              },
+              validators: pfConfigurationValidatorsFromMeta(meta, 'default_access_duration', 'Default')
             }
           ]
         }
       ]
     }
   ]
-}
-
-export const pfConfigurationAccessDurationViewDefaults = (context = {}) => {
-  return {}
-}
-
-export const pfConfigurationAccessDurationViewPlaceholders = (context = {}) => {
-  return {
-    default_access_duration: '12h'
-  }
 }

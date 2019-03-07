@@ -4,6 +4,10 @@ import pfFormHtml from '@/components/pfFormHtml'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import pfFormTextarea from '@/components/pfFormTextarea'
+import {
+  pfConfigurationAttributesFromMeta,
+  pfConfigurationValidatorsFromMeta
+} from '@/globals/configuration/pfConfiguration'
 
 const {
   ipAddress,
@@ -37,6 +41,11 @@ export const pfConfigurationCaptivePortalURLs = [
 ]
 
 export const pfConfigurationCaptivePortalViewFields = (context = {}) => {
+  const {
+    options: {
+      meta = {}
+    }
+  } = context
   return [
     {
       tab: null,
@@ -61,9 +70,8 @@ export const pfConfigurationCaptivePortalViewFields = (context = {}) => {
             {
               key: 'network_detection_ip',
               component: pfFormInput,
-              validators: {
-                [i18n.t('Invalid IP Address.')]: ipAddress
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'network_detection_ip'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'network_detection_ip', 'IP')
             }
           ]
         },
@@ -74,9 +82,8 @@ export const pfConfigurationCaptivePortalViewFields = (context = {}) => {
             {
               key: 'image_path',
               component: pfFormInput,
-              validators: {
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'image_path'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'image_path', 'Path')
             }
           ]
         },
@@ -87,24 +94,14 @@ export const pfConfigurationCaptivePortalViewFields = (context = {}) => {
             {
               key: 'network_detection_initial_delay.interval',
               component: pfFormInput,
-              attrs: {
-                type: 'number',
-                step: 1
-              },
-              validators: {
-                [i18n.t('Positive numbers only.')]: numeric
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'network_detection_initial_delay.interval'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'network_detection_initial_delay.interval', 'Interval')
             },
             {
               key: 'network_detection_initial_delay.unit',
               component: pfFormChosen,
-              attrs: {
-                placeholder: i18n.t('Choose Unit'),
-                collapseObject: true,
-                trackBy: 'value',
-                label: 'text',
-                options: pfConfigurationCaptivePortalChosenUnits
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'network_detection_initial_delay.unit'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'network_detection_initial_delay.unit', 'Unit')
             }
           ]
         },
@@ -115,24 +112,14 @@ export const pfConfigurationCaptivePortalViewFields = (context = {}) => {
             {
               key: 'network_detection_retry_delay.interval',
               component: pfFormInput,
-              attrs: {
-                type: 'number',
-                step: 1
-              },
-              validators: {
-                [i18n.t('Positive numbers only.')]: numeric
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'network_detection_retry_delay.interval'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'network_detection_retry_delay.interval', 'Interval')
             },
             {
               key: 'network_detection_retry_delay.unit',
               component: pfFormChosen,
-              attrs: {
-                placeholder: i18n.t('Choose Unit'),
-                collapseObject: true,
-                trackBy: 'value',
-                label: 'text',
-                options: pfConfigurationCaptivePortalChosenUnits
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'network_detection_retry_delay.unit'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'network_detection_retry_delay.unit', 'Unit')
             }
           ]
         },
@@ -143,24 +130,14 @@ export const pfConfigurationCaptivePortalViewFields = (context = {}) => {
             {
               key: 'network_redirect_delay.interval',
               component: pfFormInput,
-              attrs: {
-                type: 'number',
-                step: 1
-              },
-              validators: {
-                [i18n.t('Positive numbers only.')]: numeric
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'network_redirect_delay.interval'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'network_redirect_delay.interval', 'Interval')
             },
             {
               key: 'network_redirect_delay.unit',
               component: pfFormChosen,
-              attrs: {
-                placeholder: i18n.t('Choose Unit'),
-                collapseObject: true,
-                trackBy: 'value',
-                label: 'text',
-                options: pfConfigurationCaptivePortalChosenUnits
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'network_redirect_delay.unit'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'network_redirect_delay.unit', 'Unit')
             }
           ]
         },
@@ -171,13 +148,8 @@ export const pfConfigurationCaptivePortalViewFields = (context = {}) => {
             {
               key: 'request_timeout',
               component: pfFormInput,
-              attrs: {
-                type: 'number',
-                step: 1
-              },
-              validators: {
-                [i18n.t('Positive numbers only.')]: numeric
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'request_timeout'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'request_timeout', 'Timeout')
             }
           ]
         },
@@ -186,14 +158,15 @@ export const pfConfigurationCaptivePortalViewFields = (context = {}) => {
           text: i18n.t('If the captive portal is put behind load-balancer(s) that act at Layer 7 (HTTP level) effectively doing reverse proxying then the captive portal no longer sees the IP of the node trying to access the portal. In that case, the load-balancers must do SSL offloading and add a X-Forwarded-By header in the HTTP traffic they forward to PacketFence. Most do by default. Then in this parameter you must specify the IP of the various load balancers. This will instruct the captive portal to look for client IPs in the X-Forwarded-For instead of the actual TCP session when it matches an IP in the list. Format is a comma separated list of IPs. Note: Apache access log format is not changed to automatically log the X-Forwarded-By header. Modify conf/httpd.conf.d/captive-portal-common.conf to use load balanced combined instead of combined in CustomLog statement.'),
           fields: [
             {
-              key: 'request_timeout',
+              key: 'loadbalancers_ip',
               component: pfFormTextarea,
               attrs: {
-                rows: 3
+                ...pfConfigurationAttributesFromMeta(meta, 'loadbalancers_ip'),
+                ...{
+                  rows: 3
+                }
               },
-              validators: {
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
+              validators: pfConfigurationValidatorsFromMeta(meta, 'loadbalancers_ip', 'IP')
             }
           ]
         },
@@ -264,11 +237,12 @@ export const pfConfigurationCaptivePortalViewFields = (context = {}) => {
               key: 'detection_mecanism_urls',
               component: pfFormTextarea,
               attrs: {
-                rows: 5
+                ...pfConfigurationAttributesFromMeta(meta, 'detection_mecanism_urls'),
+                ...{
+                  rows: 5
+                }
               },
-              validators: {
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
+              validators: pfConfigurationValidatorsFromMeta(meta, 'detection_mecanism_urls', 'URL')
             }
           ]
         },
@@ -305,13 +279,8 @@ export const pfConfigurationCaptivePortalViewFields = (context = {}) => {
             {
               key: 'rate_limiting_threshold',
               component: pfFormInput,
-              attrs: {
-                type: 'number',
-                step: 1
-              },
-              validators: {
-                [i18n.t('Positive numbers only.')]: numeric
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'rate_limiting_threshold'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'rate_limiting_threshold', 'Threshold')
             }
           ]
         },
@@ -323,23 +292,16 @@ export const pfConfigurationCaptivePortalViewFields = (context = {}) => {
               key: 'other_domain_names',
               component: pfFormTextarea,
               attrs: {
-                rows: 5
+                ...pfConfigurationAttributesFromMeta(meta, 'other_domain_names'),
+                ...{
+                  rows: 5
+                }
               },
-              validators: {
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
+              validators: pfConfigurationValidatorsFromMeta(meta, 'other_domain_names', 'Domains')
             }
           ]
         }
       ]
     }
   ]
-}
-
-export const pfConfigurationCaptivePortalViewDefaults = (context = {}) => {
-  return {}
-}
-
-export const pfConfigurationCaptivePortalViewPlaceholders = (context = {}) => {
-  return {}
 }

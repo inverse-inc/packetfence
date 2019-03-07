@@ -66,6 +66,11 @@ const actions = {
       throw err
     })
   },
+  optionsActiveActive: () => {
+    return api.baseOptions('active_active').then(response => {
+      return response
+    })
+  },
   updateActiveActive: ({ commit }, data) => {
     commit('ITEM_REQUEST')
     data.id = 'active_active'
@@ -88,6 +93,11 @@ const actions = {
     }).catch((err) => {
       commit('ITEM_ERROR', err.response)
       throw err
+    })
+  },
+  optionsAdvanced: () => {
+    return api.baseOptions('advanced').then(response => {
+      return response
     })
   },
   updateAdvanced: ({ commit }, data) => {
@@ -114,6 +124,11 @@ const actions = {
       throw err
     })
   },
+  optionsAlerting: () => {
+    return api.baseOptions('alerting').then(response => {
+      return response
+    })
+  },
   updateAlerting: ({ commit }, data) => {
     commit('ITEM_REQUEST')
     data.id = 'alerting'
@@ -136,6 +151,11 @@ const actions = {
     }).catch((err) => {
       commit('ITEM_ERROR', err.response)
       throw err
+    })
+  },
+  optionsCaptivePortal: () => {
+    return api.baseOptions('captive_portal').then(response => {
+      return response
     })
   },
   updateCaptivePortal: ({ commit }, data) => {
@@ -162,6 +182,11 @@ const actions = {
       throw err
     })
   },
+  optionsDatabase: () => {
+    return api.baseOptions('database').then(response => {
+      return response
+    })
+  },
   updateDatabase: ({ commit }, data) => {
     commit('ITEM_REQUEST')
     data.id = 'database'
@@ -184,6 +209,11 @@ const actions = {
     }).catch((err) => {
       commit('ITEM_ERROR', err.response)
       throw err
+    })
+  },
+  optionsDatabaseAdvanced: () => {
+    return api.baseOptions('database_advanced').then(response => {
+      return response
     })
   },
   updateDatabaseAdvanced: ({ commit }, data) => {
@@ -210,6 +240,11 @@ const actions = {
       throw err
     })
   },
+  optionsDatabaseEncryption: () => {
+    return api.baseOptions('database_encryption').then(response => {
+      return response
+    })
+  },
   updateDatabaseEncryption: ({ commit }, data) => {
     commit('ITEM_REQUEST')
     data.id = 'database_encryption'
@@ -234,6 +269,11 @@ const actions = {
       throw err
     })
   },
+  optionsFencing: () => {
+    return api.baseOptions('fencing').then(response => {
+      return response
+    })
+  },
   updateFencing: ({ commit }, data) => {
     commit('ITEM_REQUEST')
     data.id = 'fencing'
@@ -256,6 +296,11 @@ const actions = {
     }).catch((err) => {
       commit('ITEM_ERROR', err.response)
       throw err
+    })
+  },
+  optionsFingerbankDeviceChange: () => {
+    return api.baseOptions('fingerbank_device_change').then(response => {
+      return response
     })
   },
   updateFingerbankDeviceChange: ({ commit }, data) => {
@@ -284,6 +329,11 @@ const actions = {
       throw err
     })
   },
+  optionsGeneral: () => {
+    return api.baseOptions('general').then(response => {
+      return response
+    })
+  },
   updateGeneral: ({ commit }, data) => {
     commit('ITEM_REQUEST')
     data.id = 'general'
@@ -306,6 +356,11 @@ const actions = {
     }).catch((err) => {
       commit('ITEM_ERROR', err.response)
       throw err
+    })
+  },
+  optionsGuestsAdminRegistration: () => {
+    return api.baseOptions('guests_admin_registration').then(response => {
+      return response
     })
   },
   updateGuestsAdminRegistration: ({ commit }, data) => {
@@ -332,6 +387,11 @@ const actions = {
       throw err
     })
   },
+  optionsInline: () => {
+    return api.baseOptions('inline').then(response => {
+      return response
+    })
+  },
   updateInline: ({ commit }, data) => {
     commit('ITEM_REQUEST')
     data.id = 'inline'
@@ -354,6 +414,11 @@ const actions = {
     }).catch((err) => {
       commit('ITEM_ERROR', err.response)
       throw err
+    })
+  },
+  optionsMseTab: () => {
+    return api.baseOptions('mse_tab').then(response => {
+      return response
     })
   },
   updateMseTab: ({ commit }, data) => {
@@ -380,6 +445,11 @@ const actions = {
       throw err
     })
   },
+  optionsNetwork: () => {
+    return api.baseOptions('network').then(response => {
+      return response
+    })
+  },
   updateNetwork: ({ commit }, data) => {
     commit('ITEM_REQUEST')
     data.id = 'network'
@@ -402,6 +472,11 @@ const actions = {
     }).catch((err) => {
       commit('ITEM_ERROR', err.response)
       throw err
+    })
+  },
+  optionsNodeImport: () => {
+    return api.baseOptions('node_import').then(response => {
+      return response
     })
   },
   updateNodeImport: ({ commit }, data) => {
@@ -428,6 +503,11 @@ const actions = {
       throw err
     })
   },
+  optionsParking: () => {
+    return api.baseOptions('parking').then(response => {
+      return response
+    })
+  },
   updateParking: ({ commit }, data) => {
     commit('ITEM_REQUEST')
     data.id = 'parking'
@@ -450,6 +530,11 @@ const actions = {
     }).catch((err) => {
       commit('ITEM_ERROR', err.response)
       throw err
+    })
+  },
+  optionsPFDHCP: () => {
+    return api.baseOptions('pf_dhcp').then(response => {
+      return response
     })
   },
   updatePFDHCP: ({ commit }, data) => {
@@ -476,6 +561,11 @@ const actions = {
       throw err
     })
   },
+  optionsPorts: () => {
+    return api.baseOptions('ports').then(response => {
+      return response
+    })
+  },
   updatePorts: ({ commit }, data) => {
     commit('ITEM_REQUEST')
     data.id = 'ports'
@@ -498,6 +588,11 @@ const actions = {
     }).catch((err) => {
       commit('ITEM_ERROR', err.response)
       throw err
+    })
+  },
+  optionsProvisioning: () => {
+    return api.baseOptions('provisioning').then(response => {
+      return response
     })
   },
   updateProvisioning: ({ commit }, data) => {
@@ -524,6 +619,11 @@ const actions = {
       throw err
     })
   },
+  optionsRadiusConfiguration: () => {
+    return api.baseOptions('radius_configuration').then(response => {
+      return response
+    })
+  },
   updateRadiusConfiguration: ({ commit }, data) => {
     commit('ITEM_REQUEST')
     data.id = 'radius_configuration'
@@ -546,6 +646,11 @@ const actions = {
     }).catch((err) => {
       commit('ITEM_ERROR', err.response)
       throw err
+    })
+  },
+  optionsServices: () => {
+    return api.baseOptions('services').then(response => {
+      return response
     })
   },
   updateServices: ({ commit }, data) => {
@@ -572,6 +677,11 @@ const actions = {
       throw err
     })
   },
+  optionsSNMPTraps: () => {
+    return api.baseOptions('snmp_traps').then(response => {
+      return response
+    })
+  },
   updateSNMPTraps: ({ commit }, data) => {
     commit('ITEM_REQUEST')
     data.id = 'snmp_traps'
@@ -594,6 +704,11 @@ const actions = {
     }).catch((err) => {
       commit('ITEM_ERROR', err.response)
       throw err
+    })
+  },
+  optionsWebServices: () => {
+    return api.baseOptions('webservices').then(response => {
+      return response
     })
   },
   updateWebServices: ({ commit }, data) => {

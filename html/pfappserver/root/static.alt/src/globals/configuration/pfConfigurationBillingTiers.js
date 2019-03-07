@@ -1,7 +1,7 @@
 import i18n from '@/utils/locale'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormInput from '@/components/pfFormInput'
-import pfFormToggle from '@/components/pfFormToggle'
+import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import {
   pfConfigurationListColumns,
   pfConfigurationListFields,
@@ -183,7 +183,7 @@ export const pfConfigurationBillingTierViewFields = (context = {}) => {
           fields: [
             {
               key: 'use_time_balance',
-              component: pfFormToggle,
+              component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
               }
