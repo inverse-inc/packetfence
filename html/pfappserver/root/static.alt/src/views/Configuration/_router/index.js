@@ -83,6 +83,9 @@ const FloatingDevicesList = () => import(/* webpackChunkName: "Configuration" */
 const FloatingDeviceView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FloatingDeviceView')
 const CertificatesView = () => import(/* webpackChunkName: "Configuration" */ '../_components/CertificatesView')
 
+/* Main Configuration */
+const MainTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/MainTabs')
+
 const route = {
   path: '/configuration',
   name: 'configuration',
@@ -1063,6 +1066,39 @@ const route = {
       name: 'certificate',
       component: CertificatesView,
       props: (route) => ({ storeName: '$_certificates', id: route.params.id })
+    },
+    /**
+     * Main Configuration
+     */
+    {
+      path: 'general',
+      name: 'general',
+      component: MainTabs,
+      props: (route) => ({ tab: 'general', query: route.query.query })
+    },
+    {
+      path: 'alerting',
+      name: 'alerting',
+      component: MainTabs,
+      props: (route) => ({ tab: 'alerting', query: route.query.query })
+    },
+    {
+      path: 'advanced',
+      name: 'advanced',
+      component: MainTabs,
+      props: (route) => ({ tab: 'advanced', query: route.query.query })
+    },
+    {
+      path: 'maintenance',
+      name: 'maintenance',
+      component: MainTabs,
+      props: (route) => ({ tab: 'maintenance', query: route.query.query })
+    },
+    {
+      path: 'services',
+      name: 'services',
+      component: MainTabs,
+      props: (route) => ({ tab: 'services', query: route.query.query })
     }
   ]
 }

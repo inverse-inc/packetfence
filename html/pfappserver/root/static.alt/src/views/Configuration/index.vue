@@ -115,6 +115,22 @@ export default {
             { name: this.$i18n.t('Floating Devices'), path: '/configuration/floating_devices' },
             { name: this.$i18n.t('SSL Certificates'), path: '/configuration/certificates' }
           ]
+        },
+        {
+          name: this.$i18n.t('System Configuration'),
+          icon: 'cogs',
+          collapsable: true,
+          items: [
+            { name: this.$i18n.t('Main Configuration'),
+              items: [
+                { name: this.$i18n.t('General Configuration'), path: '/configuration/general' },
+                { name: this.$i18n.t('Alerting'), path: '/configuration/alerting' },
+                { name: this.$i18n.t('Advanced'), path: '/configuration/advanced' },
+                { name: this.$i18n.t('Maintenance'), path: '/configuration/maintenance' },
+                { name: this.$i18n.t('Services'), path: '/configuration/services' }
+              ]
+            }
+          ]
         }
       ]
     }
