@@ -45,7 +45,7 @@
 /config/certificate/{certificate_id}/lets_encrypt:
   description: pf::UnifiedApi::Controller::Config::Certificates
   put:
-    description: Generate a CSR for a certificate resource
+    description: Configure Let's Encrypt for a certificate resource
     operationId: api.v1.Config::Certificates.lets_encrypt_update
     parameters:
     - in: path

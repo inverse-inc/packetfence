@@ -61,7 +61,7 @@ ConfigCertificateDetails:
   properties:
     common_name:
       type: string
-      description: "The common name (CN) of the certificate"
+      description: "The common name of the certificate"
     subject:
       type: string
       description: "The subject of the certificate"
