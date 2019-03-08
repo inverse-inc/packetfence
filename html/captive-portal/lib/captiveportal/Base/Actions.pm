@@ -21,6 +21,7 @@ use pf::authentication;
 use pf::config;
 use pf::Authentication::constants;
 use pf::util;
+use pf::constants;
 use pf::constants::realm;
 
 our %AUTHENTICATION_ACTIONS = (
@@ -37,7 +38,7 @@ our %AUTHENTICATION_ACTIONS = (
     default_actions => \&execute_default_actions,
     on_failure => sub {},
     on_success => sub {},
-    destination_url => sub {$_[0]->app->session->{destination_url} = $_[1];},
+    destination_url => sub {$_[0]->app->session->{destination_url} = $_[1];$_[0]->app->session->{portal_module_force_destination_url} = $TRUE},
 );
 
 =head2 authentication_match_wrapper
