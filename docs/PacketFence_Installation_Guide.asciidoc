@@ -4338,6 +4338,12 @@ Then you need to provide the routed networks information to PacketFence. You can
    named=enabled
    dhcpd=enabled
 
+
+`packetfence-routes` service will use this file to add static routes
+corresponding to routed networks (192.168.20.0/24 and 192.168.30.0/24) in
+PacketFence's server routing table. The `next_hop` statement in each routed
+network section defines next hop for such routes.
+
 DHCP clients on the registration and isolation networks receive the PF
 server IP as their DNS server (dns=x.x.x.x), and PF spoofs DNS responses to
 force clients via the portal.  However, clients could manually configure
