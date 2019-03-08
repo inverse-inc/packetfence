@@ -112,6 +112,7 @@ Get a certificate resource
 sub get {
     my ($self) = @_;
     my $files_data = $self->read_from_files();
+    $files_data->{lets_encrypt} = isenabled(pf::ssl::lets_encrypt::resource_state($self->stash->{certificate_id})) ? $self->json_true : $self->json_false;
     $self->render(json => $files_data, status => 200);
 }
 
