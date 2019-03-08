@@ -2,7 +2,7 @@ package pf::ssl::lets_encrypt;
 
 =head1 NAME
 
-pf::ssl
+pf::ssl::lets_encrypt
 
 =cut
 
@@ -21,7 +21,6 @@ use pf::ConfigStore::Pf;
 use pf::constants qw($TRUE $FALSE);
 use pf::error qw(is_error);
 use Crypt::LE;
-use Data::Dumper;
 use File::Slurp qw(read_file write_file);
 use pf::log;
 use pf::ssl;
@@ -40,7 +39,7 @@ sub process_challenge {
    my $fname = $challenge->{token};
    my $content = "$challenge->{token}.$challenge->{fingerprint}";
    $logger->info("A file '$fname' with the text: $challenge->{token}.$challenge->{fingerprint} will be created for the Let's Encrypt challenge");
-   write_file("/usr/local/pf/conf/ssl/acme-challenge/$fname", $content);
+   write_file("$acme_challenge_dir/$fname", $content);
    return 1;
 };
 
