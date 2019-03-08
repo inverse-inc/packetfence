@@ -52,7 +52,7 @@ export default {
   },
   computed: {
     tabIndex () {
-      return ['network', 'interfaces', 'inline', 'traffic_shapingss', 'fencing', 'parking'].indexOf(this.tab)
+      return ['network', 'interfaces', 'inline', 'traffic_shapings', 'fencing', 'parking'].indexOf(this.tab)
     }
   },
   methods: {

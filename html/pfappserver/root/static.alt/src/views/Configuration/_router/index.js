@@ -20,6 +20,7 @@ import SyslogForwardersStore from '../_store/syslogForwarders'
 import SyslogParsersStore from '../_store/syslogParsers'
 import SwitchesStore from '../_store/switches'
 import SwitchGroupsStore from '../_store/switchGroups'
+import TrafficShapingPoliciesStore from '../_store/trafficShapingPolicies'
 import WrixLocationsStore from '../_store/wrixLocations'
 
 /* Policies Access Control */
@@ -153,6 +154,9 @@ const route = {
     }
     if (!store.state.$_switch_groups) {
       store.registerModule('$_switch_groups', SwitchGroupsStore)
+    }
+    if (!store.state.$_traffic_shaping_policies) {
+      store.registerModule('$_traffic_shaping_policies', TrafficShapingPoliciesStore)
     }
     if (!store.state.$_wrix_locations) {
       store.registerModule('$_wrix_locations', WrixLocationsStore)
@@ -979,13 +983,13 @@ const route = {
       path: 'traffic_shapings',
       name: 'traffic_shapings',
       component: NetworksTabs,
-      props: (route) => ({ tab: 'trafficshaping', query: route.query.query })
+      props: (route) => ({ tab: 'traffic_shapings', query: route.query.query })
     },
     {
-      path: 'traffic_shaping/new',
+      path: 'traffic_shaping/new/:role',
       name: 'newTrafficShaping',
       component: TrafficShapingView,
-      props: (route) => ({ storeName: '$_traffic_shaping_policies', isNew: true })
+      props: (route) => ({ storeName: '$_traffic_shaping_policies', isNew: true, role: route.params.role })
     },
     {
       path: 'traffic_shaping/:id',
@@ -993,7 +997,7 @@ const route = {
       component: TrafficShapingView,
       props: (route) => ({ storeName: '$_traffic_shaping_policies', id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_traffic_shaping_policies/getTODO', to.params.id).then(object => {
+        store.dispatch('$_traffic_shaping_policies/getTrafficShapingPolicy', to.params.id).then(object => {
           next()
         })
       }
@@ -1004,7 +1008,7 @@ const route = {
       component: TrafficShapingView,
       props: (route) => ({ storeName: '$_traffic_shaping_policies', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_traffic_shaping_policies/getTODO', to.params.id).then(object => {
+        store.dispatch('$_traffic_shaping_policies/getTrafficShapingPolicy', to.params.id).then(object => {
           next()
         })
       }

@@ -129,6 +129,9 @@ const api = {
   getTenants () {
     return apiCall({ url: 'tenants', method: 'get' })
   },
+  getTrafficShapingPolicies () {
+    return apiCall({ url: 'config/traffic_shaping_policies', method: 'get' })
+  },
   getSecurityEvents () {
     return apiCall({ url: 'config/securityEvents', method: 'get' })
   },
@@ -227,6 +230,8 @@ const state = { // set intitial states to `false` (not `[]` or `{}`) to avoid in
   syslogParsers: false,
   tenantsStatus: '',
   tenants: false,
+  trafficShapingPoliciesStatus: '',
+  trafficShapingPolicies: false,
   securityEventsStatus: '',
   securityEvents: false,
   wrixLocationsStatus: '',
@@ -392,6 +397,9 @@ const getters = {
   },
   isLoadingTenants: state => {
     return state.tenantsStatus === types.LOADING
+  },
+  isLoadingTrafficShapingPolicies: state => {
+    return state.trafficShapingPoliciesStatus === types.LOADING
   },
   isLoadingWrixLocations: state => {
     return state.wrixLocationsStatus === types.LOADING
@@ -1004,6 +1012,20 @@ const actions = {
       return Promise.resolve(state.scans)
     }
   },
+  getSecurityEvents: ({ commit, getters, state }) => {
+    if (getters.isLoadingSecurityEvents) {
+      return
+    }
+    if (!state.securityEvents) {
+      commit('SECURITY_EVENTS_REQUEST')
+      return api.getSecurityEvents().then(response => {
+        commit('SECURITY_EVENTS_UPDATED', response.data.items)
+        return state.securityEvents
+      })
+    } else {
+      return Promise.resolve(state.securityEvents)
+    }
+  },
   getSources: ({ state, getters, commit }) => {
     if (getters.isLoadingSources) {
       return
@@ -1092,18 +1114,18 @@ const actions = {
       return Promise.resolve(state.tenants)
     }
   },
-  getSecurityEvents: ({ commit, getters, state }) => {
-    if (getters.isLoadingSecurityEvents) {
+  getTrafficShapingPolicies: ({ state, getters, commit }) => {
+    if (getters.isLoadingTrafficShapingPolicies) {
       return
     }
-    if (!state.securityEvents) {
-      commit('SECURITY_EVENTS_REQUEST')
-      return api.getSecurityEvents().then(response => {
-        commit('SECURITY_EVENTS_UPDATED', response.data.items)
-        return state.securityEvents
+    if (!state.trafficShapingPolicies) {
+      commit('TRAFFIC_SHAPING_POLICIES_REQUEST')
+      return api.getTrafficShapingPolicies().then(response => {
+        commit('TRAFFIC_SHAPING_POLICIES_UPDATED', response.data.items)
+        return state.trafficShapingPolicies
       })
     } else {
-      return Promise.resolve(state.securityEvents)
+      return Promise.resolve(state.trafficShapingPolicies)
     }
   },
   getWrixLocations: ({ commit, getters, state }) => {
@@ -1368,6 +1390,17 @@ const mutations = {
     state.scans = scans
     state.scansStatus = types.SUCCESS
   },
+  SECURITY_EVENTS_REQUEST: (state) => {
+    state.securityEventsStatus = types.LOADING
+  },
+  SECURITY_EVENTS_UPDATED: (state, securityEvents) => {
+    let ref = {}
+    for (let securityEvent of securityEvents) {
+      ref[securityEvent.id] = Object.assign({}, securityEvent)
+    }
+    state.securityEvents = ref
+    state.securityEventsStatus = types.SUCCESS
+  },
   SOURCES_REQUEST: (state) => {
     state.sourcesStatus = types.LOADING
   },
@@ -1410,16 +1443,12 @@ const mutations = {
     state.tenants = tenants
     state.tenantsStatus = types.SUCCESS
   },
-  SECURITY_EVENTS_REQUEST: (state) => {
-    state.securityEventsStatus = types.LOADING
+  TRAFFIC_SHAPING_POLICIES_REQUEST: (state) => {
+    state.trafficShapingPoliciesStatus = types.LOADING
   },
-  SECURITY_EVENTS_UPDATED: (state, securityEvents) => {
-    let ref = {}
-    for (let securityEvent of securityEvents) {
-      ref[securityEvent.id] = Object.assign({}, securityEvent)
-    }
-    state.securityEvents = ref
-    state.securityEventsStatus = types.SUCCESS
+  TRAFFIC_SHAPING_POLICIES_UPDATED: (state, trafficShapingPolicies) => {
+    state.trafficShapingPolicies = trafficShapingPolicies
+    state.trafficShapingPoliciesStatus = types.SUCCESS
   },
   WRIX_LOCATIONS_REQUEST: (state) => {
     state.wrixLocationsStatus = types.LOADING
