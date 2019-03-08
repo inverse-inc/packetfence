@@ -9,7 +9,7 @@
   >
     <template slot="header" is="b-card-header">
       <h4 class="mb-0">
-        <span>{{ $t('SNMP') }}</span>
+        <span>{{ $t('Parking') }}</span>
       </h4>
     </template>
     <template slot="footer">
@@ -27,13 +27,13 @@
 import pfConfigView from '@/components/pfConfigView'
 import pfButtonSave from '@/components/pfButtonSave'
 import {
-  pfConfigurationSnmpTrapViewFields as fields
-} from '@/globals/configuration/pfConfigurationSnmpTrap'
+  pfConfigurationParkingViewFields as fields
+} from '@/globals/configuration/pfConfigurationParking'
 
 const { validationMixin } = require('vuelidate')
 
 export default {
-  name: 'SnmpTrapView',
+  name: 'ParkingView',
   mixins: [
     validationMixin
   ],
@@ -69,17 +69,17 @@ export default {
   },
   methods: {
     init () {
-      this.$store.dispatch('$_bases/optionsSNMPTraps').then(options => {
+      this.$store.dispatch('$_bases/optionsParking').then(options => {
         // store options
         this.options = JSON.parse(JSON.stringify(options))
-        this.$store.dispatch('$_bases/getSNMPTraps').then(data => {
+        this.$store.dispatch('$_bases/getParking').then(data => {
           this.form = JSON.parse(JSON.stringify(data))
         })
       })
     },
     save () {
       let form = JSON.parse(JSON.stringify(this.form)) // dereference
-      this.$store.dispatch('$_bases/updateSNMPTraps', form).then(response => {
+      this.$store.dispatch('$_bases/updateParking', form).then(response => {
         // TODO - notification
       })
     }

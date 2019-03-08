@@ -74,6 +74,9 @@ const DeviceRegistrationView = () => import(/* webpackChunkName: "Configuration"
 
 /* Network Configuration */
 const NetworkConfigurationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/NetworkConfigurationSection')
+const NetworksTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/NetworksTabs')
+const InterfaceView = () => import(/* webpackChunkName: "Configuration" */ '../_components/InterfaceView')
+const TrafficShapingView = () => import(/* webpackChunkName: "Configuration" */ '../_components/TrafficShapingView')
 const SnmpTrapView = () => import(/* webpackChunkName: "Configuration" */ '../_components/SnmpTrapView')
 const FloatingDevicesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/FloatingDevicesList')
 const FloatingDeviceView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FloatingDeviceView')
@@ -879,9 +882,6 @@ const route = {
       component: AccessDurationView,
       props: (route) => ({ storeName: '$_bases', query: route.query.query })
     },
-    /**
-     *  Network Configuration
-     */
     {
       path: 'device_registrations',
       name: 'device_registrations',
@@ -922,6 +922,104 @@ const route = {
     {
       path: 'networkconfiguration',
       component: NetworkConfigurationSection
+    },
+    {
+      path: 'networks',
+      name: 'networks',
+      component: NetworksTabs,
+      props: (route) => ({ tab: 'network', query: route.query.query })
+    },
+    {
+      path: 'network',
+      name: 'network',
+      component: NetworksTabs,
+      props: (route) => ({ tab: 'network', query: route.query.query })
+    },
+    {
+      path: 'interfaces',
+      name: 'interfaces',
+      component: NetworksTabs,
+      props: (route) => ({ tab: 'interfaces', query: route.query.query })
+    },
+    {
+      path: 'interfaces/new',
+      name: 'newInterface',
+      component: InterfaceView,
+      props: (route) => ({ storeName: '$_TODO', isNew: true })
+    },
+    {
+      path: 'interface/:id',
+      name: 'interface',
+      component: InterfaceView,
+      props: (route) => ({ storeName: '$_TODO', id: route.params.id }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_TODO/getTODO', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'interface/:id/clone',
+      name: 'cloneInterface',
+      component: InterfaceView,
+      props: (route) => ({ storeName: '$_TODO', id: route.params.id, isClone: true }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_TODO/getTODO', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'inline',
+      name: 'inline',
+      component: NetworksTabs,
+      props: (route) => ({ tab: 'inline', query: route.query.query })
+    },
+    {
+      path: 'traffic_shapings',
+      name: 'traffic_shapings',
+      component: NetworksTabs,
+      props: (route) => ({ tab: 'trafficshaping', query: route.query.query })
+    },
+    {
+      path: 'traffic_shaping/new',
+      name: 'newTrafficShaping',
+      component: TrafficShapingView,
+      props: (route) => ({ storeName: '$_traffic_shaping_policies', isNew: true })
+    },
+    {
+      path: 'traffic_shaping/:id',
+      name: 'traffic_shaping',
+      component: TrafficShapingView,
+      props: (route) => ({ storeName: '$_traffic_shaping_policies', id: route.params.id }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_traffic_shaping_policies/getTODO', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'traffic_shaping/:id/clone',
+      name: 'cloneTrafficShaping',
+      component: TrafficShapingView,
+      props: (route) => ({ storeName: '$_traffic_shaping_policies', id: route.params.id, isClone: true }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_traffic_shaping_policies/getTODO', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'fencing',
+      name: 'fencing',
+      component: NetworksTabs,
+      props: (route) => ({ tab: 'fencing', query: route.query.query })
+    },
+    {
+      path: 'parking',
+      name: 'parking',
+      component: NetworksTabs,
+      props: (route) => ({ tab: 'parking', query: route.query.query })
     },
     {
       path: 'floating_devices',

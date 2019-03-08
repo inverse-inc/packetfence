@@ -101,6 +101,16 @@ export default {
           icon: 'project-diagram',
           collapsable: true,
           items: [
+            { name: this.$i18n.t('Networks'),
+              items: [
+                { name: this.$i18n.t('Network Settings'), path: '/configuration/network' },
+                { name: this.$i18n.t('Interfaces'), path: '/configuration/interfaces' },
+                { name: this.$i18n.t('Inline'), path: '/configuration/inline' },
+                { name: this.$i18n.t('Inline Traffic Shaping'), path: '/configuration/traffic_shapings' },
+                { name: this.$i18n.t('Fencing'), path: '/configuration/fencing' },
+                { name: this.$i18n.t('Device Parking'), path: '/configuration/parking' }
+              ]
+            },
             { name: this.$i18n.t('SNMP'), path: '/configuration/snmp_traps' },
             { name: this.$i18n.t('Floating Devices'), path: '/configuration/floating_devices' },
             { name: this.$i18n.t('SSL Certificates'), path: '/configuration/certificates' }
