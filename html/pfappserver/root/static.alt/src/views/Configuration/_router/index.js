@@ -1003,17 +1003,6 @@ const route = {
       }
     },
     {
-      path: 'traffic_shaping/:id/clone',
-      name: 'cloneTrafficShaping',
-      component: TrafficShapingView,
-      props: (route) => ({ storeName: '$_traffic_shaping_policies', id: route.params.id, isClone: true }),
-      beforeEnter: (to, from, next) => {
-        store.dispatch('$_traffic_shaping_policies/getTrafficShapingPolicy', to.params.id).then(object => {
-          next()
-        })
-      }
-    },
-    {
       path: 'fencing',
       name: 'fencing',
       component: NetworksTabs,

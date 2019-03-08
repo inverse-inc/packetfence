@@ -5,7 +5,6 @@
     :model="form"
     :vuelidate="$v.form"
     :isNew="isNew"
-    :isClone="isClone"
     @validations="formValidations = $event"
     @close="close"
     @create="create"
@@ -15,8 +14,7 @@
     <template slot="header" is="b-card-header">
       <b-button-close @click="close" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
       <h4 class="mb-0">
-        <span v-if="!isNew && !isClone">{{ $t('Traffic Shaping Policy {id}', { id: id }) }}</span>
-        <span v-else-if="isClone">{{ $t('Clone Traffic Shaping Policy {id}', { id: id }) }}</span>
+        <span v-if="!isNew">{{ $t('Traffic Shaping Policy {id}', { id: id }) }}</span>
         <span v-else>{{ $t('New Traffic Shaping Policy') }}</span>
       </h4>
     </template>
@@ -26,7 +24,6 @@
       <b-card-footer @mouseenter="$v.form.$touch()">
         <pf-button-save :disabled="invalidForm" :isLoading="isLoading">
           <template v-if="isNew">{{ $t('Create') }}</template>
-          <template v-else-if="isClone">{{ $t('Clone') }}</template>
           <template v-else>{{ $t('Save') }}</template>
         </pf-button-save>
         <pf-button-delete v-if="isDeletable" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Traffic Shaping Policy?')" @on-delete="remove()"/>
@@ -70,10 +67,6 @@ export default {
       type: Boolean,
       default: false
     },
-    isClone: { // from router
-      type: Boolean,
-      default: false
-    },
     id: { // from router
       type: String,
       default: null
@@ -109,7 +102,7 @@ export default {
       }
     },
     isDeletable () {
-      if (this.isNew || this.isClone || ('not_deletable' in this.form && this.form.not_deletable)) {
+      if (this.isNew || ('not_deletable' in this.form && this.form.not_deletable)) {
         return false
       }
       return true
