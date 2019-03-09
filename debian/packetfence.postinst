@@ -165,7 +165,7 @@ case "$1" in
         /bin/systemctl start packetfence-httpd.admin
         systemctl enable packetfence-iptables
         /usr/local/pf/bin/pfcmd service pf updatesystemd
-        /usr/bin/mysql -uroot -e "update mysql.user set plugin="" WHERE user IN ('root')"
+        /usr/bin/mysql -uroot -e "update mysql.user set plugin='' where User='root'"
         /usr/bin/mysql -uroot -e "flush privileges"
         echo Installation complete
         echo "* Please fire up your Web browser and go to https://@ip_packetfence:1443/configurator to complete your PacketFence configuration."
