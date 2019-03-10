@@ -20,7 +20,7 @@ endif
 #
 #  Set the passwords
 #
-include passwords.mk
+-include passwords.mk
 
 ######################################################################
 #
