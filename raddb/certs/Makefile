@@ -82,8 +82,8 @@ ca.der: ca.pem
 #
 ######################################################################
 server.csr server.key: server.cnf
-	$(OPENSSL) req -new  -out server.csr -keyout server.key -config ./server.cnf
-	chmod g+r server.key
+	$(OPENSSL) req -new  -out server.csr -nodes -keyout server.key -config ./server.cnf
+	chmod go+r server.key
 
 server.crt: server.csr ca.key ca.pem
 	$(OPENSSL) ca -batch -keyfile ca.key -cert ca.pem -in server.csr  -key $(PASSWORD_CA) -out server.crt -extensions xpserver_ext -extfile xpextensions -config ./server.cnf
