@@ -135,7 +135,8 @@ export default {
                 { name: this.$i18n.t('General'), path: '/configuration/database' },
                 { name: this.$i18n.t('Advanced'), path: '/configuration/database_advanced' }
               ]
-            }
+            },
+            { name: this.$i18n.t('Cluster'), path: '/configuration/active_active' }
           ]
         }
       ]

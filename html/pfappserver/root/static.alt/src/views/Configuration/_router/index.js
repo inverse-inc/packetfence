@@ -86,6 +86,7 @@ const CertificatesView = () => import(/* webpackChunkName: "Configuration" */ '.
 /* Main Configuration */
 const MainTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/MainTabs')
 const DatabaseTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/DatabaseTabs')
+const ActiveActiveView = () => import(/* webpackChunkName: "Configuration" */ '../_components/ActiveActiveView')
 
 const route = {
   path: '/configuration',
@@ -1112,6 +1113,12 @@ const route = {
       name: 'database_advanced',
       component: DatabaseTabs,
       props: (route) => ({ tab: 'database_advanced', query: route.query.query })
+    },
+    {
+      path: 'active_active',
+      name: 'active_active',
+      component: ActiveActiveView,
+      props: (route) => ({ query: route.query.query })
     }
   ]
 }
