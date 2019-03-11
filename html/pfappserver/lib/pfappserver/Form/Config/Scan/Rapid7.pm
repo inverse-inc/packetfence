@@ -36,7 +36,7 @@ has_field 'host' =>
 
 has_field 'port' =>
   (
-   type => 'PosInteger',
+   type => 'Port',
    label => 'Port of the API',
    tags => { after_element => \&help,
              help => 'If you use an alternative port, please specify' },

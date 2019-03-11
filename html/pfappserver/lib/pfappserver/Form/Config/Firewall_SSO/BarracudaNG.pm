@@ -28,7 +28,7 @@ has_field 'username' =>
 
 has_field 'port' =>
   (
-   type => 'PosInteger',
+   type => 'Port',
    label => 'Port of the service',
    tags => { after_element => \&help,
              help => 'If you use an alternative port, please specify' },

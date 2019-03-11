@@ -46,7 +46,7 @@ has_field 'host' => (
 );
 
 has_field 'port' => (
-    type    => 'Text',
+    type    => 'Port',
     label   => 'Port',
     default => '9393',
     tags    => {

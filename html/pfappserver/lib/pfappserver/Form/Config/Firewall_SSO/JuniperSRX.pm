@@ -44,7 +44,7 @@ has_field 'password' =>
   );
 has_field 'port' =>
   (
-   type => 'PosInteger',
+   type => 'Port',
    label => 'Port of the service',
    default => 8443,
    tags => { after_element => \&help,

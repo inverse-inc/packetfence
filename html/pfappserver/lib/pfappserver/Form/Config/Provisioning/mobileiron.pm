@@ -48,7 +48,7 @@ has_field boarding_host => (
 );
 
 has_field boarding_port => (
-    type => 'Text',
+    type => 'Port',
     required => 1,
 );
 

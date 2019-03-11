@@ -34,7 +34,7 @@ has_field 'host' =>
 
 has_field 'port' =>
   (
-   type => 'PosInteger',
+   type => 'Port',
    required => 1,
   );
 
