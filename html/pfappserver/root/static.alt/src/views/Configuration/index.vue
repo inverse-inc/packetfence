@@ -129,6 +129,12 @@ export default {
                 { name: this.$i18n.t('Maintenance'), path: '/configuration/maintenance' },
                 { name: this.$i18n.t('Services'), path: '/configuration/services' }
               ]
+            },
+            { name: this.$i18n.t('Database'),
+              items: [
+                { name: this.$i18n.t('General'), path: '/configuration/database' },
+                { name: this.$i18n.t('Advanced'), path: '/configuration/database_advanced' }
+              ]
             }
           ]
         }
