@@ -607,8 +607,12 @@ sub field_placeholder {
 
     if (!defined $value ) {
         my $element_attr = $field->element_attr // {};
-        $value = $element_attr->{$name}
+        $value = $element_attr->{placeholder}
     };
+
+    if (!defined $value) {
+        $value = $field->get_tag('defaults');
+    }
 
     return $value;
 }
