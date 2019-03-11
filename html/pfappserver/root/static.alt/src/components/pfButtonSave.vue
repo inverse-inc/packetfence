@@ -1,5 +1,5 @@
 <template>
-  <b-button :style="{ minWidth: btnWidth }" ref="saveButton" variant="primary" type="submit" v-bind="$attrs">
+  <b-button :style="{ minWidth: btnWidth }" ref="saveButton" :variant="variant" type="submit" v-bind="$attrs">
     <icon name="circle-notch" spin v-if="isLoading"></icon>
     <template v-else>
       <slot>{{ $t('Save') }}</slot>
@@ -14,6 +14,10 @@ export default {
     isLoading: {
       type: Boolean,
       default: false
+    },
+    variant: {
+      type: String,
+      default: 'primary'
     }
   },
   data () {
@@ -21,8 +25,14 @@ export default {
       btnWidth: 0
     }
   },
-  mounted () {
-    this.btnWidth = (this.$refs.saveButton.clientWidth + 2) + 'px'
+  watch: {
+    isLoading: {
+      handler: function (newValue) {
+        if (newValue) {
+          this.btnWidth = (this.$refs.saveButton.clientWidth + 2) + 'px'
+        }
+      }
+    }
   }
 }
 </script>

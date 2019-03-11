@@ -14,35 +14,16 @@ const types = {
 const state = {
   cache: { info: {}, certificate: {} }, // items details
   message: '',
-  itemStatus: ''
+  itemStatus: '',
+  testStatus: ''
 }
 
 const getters = {
-  isLoading: state => state.itemStatus === types.LOADING
+  isLoading: state => state.itemStatus === types.LOADING,
+  isTesting: state => state.testStatus === types.LOADING
 }
 
 const actions = {
-  // getCertificate: ({ state, commit }, id) => {
-  //   if (state.cache[id]) {
-  //     return Promise.resolve(state.cache[id])
-  //   }
-  //   commit('ITEM_REQUEST')
-  //   return api.certificate(id).then(item => {
-  //     // Fetch extracted information about the certificate
-  //     return api.certificateInfo(id).then(info => {
-  //       item.id = id
-  //       item.info = info
-  //       commit('ITEM_REPLACED', item)
-  //       return item
-  //     }).catch((err) => {
-  //       commit('ITEM_ERROR', err.response)
-  //       throw err
-  //     })
-  //   }).catch((err) => {
-  //     commit('ITEM_ERROR', err.response)
-  //     throw err
-  //   })
-  // },
   getCertificate: ({ state, commit }, id) => {
     if (state.cache.certificate[id]) {
       return Promise.resolve(state.cache.certificate[id])
@@ -85,6 +66,26 @@ const actions = {
     commit('ITEM_REQUEST')
     return api.generateCertificateSigningRequest(data).then(response => {
       commit('ITEM_SUCCESS')
+      return response.csr
+    }).catch(err => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
+  },
+  testLetsEncrypt: ({ commit }, domain) => {
+    commit('TEST_STATUS', types.LOADING)
+    return api.testLetsEncrypt(domain).then(response => {
+      commit('TEST_STATUS', types.SUCCESS)
+      return response.result
+    }).catch(err => {
+      commit('TEST_STATUS', types.ERROR)
+      throw err.message
+    })
+  },
+  createLetsEncryptCertificate: ({ commit }, data) => {
+    commit('ITEM_REQUEST')
+    return api.createLetsEncryptCertificate(data).then(response => {
+      commit('ITEM_SUCCESS')
       return response
     }).catch(err => {
       commit('ITEM_ERROR', err.response)
@@ -115,6 +116,9 @@ const mutations = {
     if (response && response.data) {
       state.message = response.data.message
     }
+  },
+  TEST_STATUS: (state, type) => {
+    state.testStatus = type || types.LOADING
   }
 }
 

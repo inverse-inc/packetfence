@@ -67,6 +67,11 @@ export default {
         this.$emit('input', newValue)
       }
     }
+  },
+  methods: {
+    focus () {
+      this.$refs.input.focus()
+    }
   }
 }
 </script>
