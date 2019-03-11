@@ -682,6 +682,10 @@ sub field_allowed {
         $allowed = $self->map_options($allowed);
     }
 
+    if (!defined) {
+        $allowed = $field->get_tag("options_allowed");
+    }
+
     return $allowed;
 }
 
