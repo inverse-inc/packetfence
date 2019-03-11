@@ -30,6 +30,12 @@ has_field 'id' =>
    messages => { required => 'Please specify the name of the pfmon entry' },
   );
 
+has_field 'description' =>
+  (
+   type => 'Text',
+   inactive => 1,
+  );
+
 has_field 'type' =>
   (
    type => 'Hidden',

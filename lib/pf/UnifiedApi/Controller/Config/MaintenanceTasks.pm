@@ -70,6 +70,22 @@ sub type_lookup {
     return \%TYPES_TO_FORMS;
 }
 
+=head2 form_process_parameters_for_cleanup
+
+form_process_parameters_for_cleanup
+
+=cut
+
+sub form_process_parameters_for_cleanup {
+    my ($self, $item) = @_;
+    return (
+        $self->SUPER::form_process_parameters_for_cleanup($item),
+        active => [
+            qw(description)
+        ],
+    );
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
