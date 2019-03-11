@@ -27,17 +27,17 @@ sub stats {
         $queue{$item->{name}} = { count => $item->{count}, outstanding => [], expired => [] };
     }
     foreach my $item (@{ $stats->counters }) {
-        push $queue{$item->{queue}}{outstanding}, { name => $item->{name}, count => $item->{count} };
+        push @{ $queue{$item->{queue}}{outstanding} }, { name => $item->{name}, count => $item->{count} };
     }
     foreach my $item (@{ $stats->miss_counters }) {
-        push $queue{$item->{queue}}{expired}, { name => $item->{name}, count => $item->{count} };
+        push @{ $queue{$item->{queue}}{expired} }, { name => $item->{name}, count => $item->{count} };
     }
     #build json
     my $json = [];
     while( my( $key, $value ) = each %queue ){
         # rebuild hash,
         #   replace empty []'s w/ undef
-        push $json, { queue => $key, stats => $value };
+        push @{ $json }, { queue => $key, stats => $value };
     }
     
     return $self->render(status => 200, json => { items => $json });
