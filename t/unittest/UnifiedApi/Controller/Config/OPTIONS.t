@@ -273,21 +273,21 @@ $t->options_ok("/api/v1/config/base/general")
             dhcpservers => {
                 allowed     => undef,
                 default     => undef,
-                placeholder => undef,
+                placeholder => '127.0.0.1',
                 required    => $false,
                 type        => "string"
             },
             domain => {
                 allowed     => undef,
                 default     => undef,
-                placeholder => undef,
+                placeholder => 'packetfence.org',
                 required    => $false,
                 type        => "string"
             },
             hostname => {
                 allowed     => undef,
                 default     => undef,
-                placeholder => undef,
+                placeholder => 'packetfence',
                 required    => $false,
                 type        => "string"
             },

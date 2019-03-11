@@ -612,6 +612,9 @@ sub field_placeholder {
 
     if (!defined $value) {
         $value = $field->get_tag('defaults');
+        if ($value eq '') {
+            $value = undef;
+        }
     }
 
     return $value;
@@ -682,8 +685,8 @@ sub field_allowed {
         $allowed = $self->map_options($allowed);
     }
 
-    if (!defined) {
-        $allowed = $field->get_tag("options_allowed");
+    if (!defined $allowed) {
+        $allowed = $field->get_tag("options_allowed") || undef;
     }
 
     return $allowed;
