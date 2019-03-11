@@ -381,14 +381,19 @@ Get a field's meta data
 sub field_meta {
     my ($self, $field, $no_array) = @_;
     my $type = $self->field_type($field, $no_array);
-    return {
+    my $meta = {
         type        => $type,
         required    => $self->field_is_required($field),
         placeholder => $self->field_placeholder($field),
         default     => $self->field_default($field),
-        allowed     => $self->field_allowed($field),
         $self->field_extra_meta($field, $type),
     };
+
+    if ($type ne 'array' && $type ne 'object') {
+        $meta->{allowed}  = $self->field_allowed($field);
+    }
+
+    return $meta;
 }
 
 =head2 field_extra_meta
@@ -713,6 +718,10 @@ map_option
 sub map_option {
     my ($self, $option) = @_;
     my %hash = %$option;
+    if (exists $hash{value} && defined $hash{value} && $hash{value} eq '') {
+        return;
+    }
+
     if (exists $hash{label}) {
         $hash{text} = (delete $hash{label} // '') . "";
     }
