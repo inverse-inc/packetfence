@@ -19,7 +19,8 @@ import {
   requireAllSiblingFields,
   requireAnySiblingFields,
   restrictAllSiblingFields,
-  limitSiblingFields
+  limitSiblingFields,
+  isPattern
 } from '@/globals/pfValidators'
 
 const {
@@ -42,20 +43,24 @@ export const pfConfigurationAttributesFromMeta = (meta = {}, key = null) => {
       let { [first]: { properties: _meta } } = meta
       meta = _meta // swap ref to child
     }
-    const { [key]: { allowed, placeholder, type } = {} } = meta
-    if (allowed) attrs.options = allowed
-    if (placeholder) attrs.placeholder = placeholder
+    const { [key]: { allowed, placeholder, type, item } = {} } = meta
     switch (type) {
       case 'array':
         attrs.multiple = true // pfFormChosen
         attrs.clearOnSelect = false // pfFormChosen
         attrs.closeOnSelect = false // pfFormChosen
+        if (item && 'allowed' in item) attrs.options = item.allowed
         break
       case 'integer':
         attrs.type = 'number' // pfFormInput
         attrs.step = 1 // pfFormInput
+        if (allowed) attrs.options = allowed
+        break
+      default:
+        if (allowed) attrs.options = allowed
         break
     }
+    if (placeholder) attrs.placeholder = placeholder
   }
   return attrs
 }
@@ -107,7 +112,7 @@ export const pfConfigurationValidatorsFromMeta = (meta = {}, key = null, fieldNa
             validators = { ...validators, ...{ [i18n.t('Maximum {maxLength} characters.', { maxLength: meta[key].max_length })]: maxLength(meta[key].max_length) } }
             break
           case 'pattern':
-            // TODO
+            validators = { ...validators, ...{ [i18n.t('Invalid {fieldName}.', { fieldName: meta[key].pattern.message })]: isPattern(meta[key].pattern.regex) } }
             break
           case 'required':
             if (meta[key].required === true) { // only if `true`

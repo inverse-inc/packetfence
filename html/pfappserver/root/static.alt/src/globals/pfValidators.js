@@ -178,6 +178,16 @@ export const isHex = (value) => {
   return /^[0-9a-f]+$/i.test(value)
 }
 
+export const isPattern = (pattern) => {
+  return (0, _common.withParams)({
+    type: 'isPattern',
+    pattern: pattern
+  }, function (value) {
+    const re = new RegExp(`^${pattern}$`)
+    return !(0, _common.req)(value) || re.test(value)
+  })
+}
+
 export const isPort = (value) => {
   if (!value) return true
   return ~~value === parseFloat(value) && ~~value >= 1 && ~~value <= 65535
