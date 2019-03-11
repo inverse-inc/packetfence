@@ -87,6 +87,7 @@ const CertificatesView = () => import(/* webpackChunkName: "Configuration" */ '.
 const MainTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/MainTabs')
 const DatabaseTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/DatabaseTabs')
 const ActiveActiveView = () => import(/* webpackChunkName: "Configuration" */ '../_components/ActiveActiveView')
+const RadiusView = () => import(/* webpackChunkName: "Configuration" */ '../_components/RadiusView')
 
 const route = {
   path: '/configuration',
@@ -1118,6 +1119,12 @@ const route = {
       path: 'active_active',
       name: 'active_active',
       component: ActiveActiveView,
+      props: (route) => ({ query: route.query.query })
+    },
+    {
+      path: 'radius',
+      name: 'radius',
+      component: RadiusView,
       props: (route) => ({ query: route.query.query })
     }
   ]

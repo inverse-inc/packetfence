@@ -136,7 +136,8 @@ export default {
                 { name: this.$i18n.t('Advanced'), path: '/configuration/database_advanced' }
               ]
             },
-            { name: this.$i18n.t('Cluster'), path: '/configuration/active_active' }
+            { name: this.$i18n.t('Cluster'), path: '/configuration/active_active' },
+            { name: this.$i18n.t('Radius Configuration'), path: '/configuration/radius' }
           ]
         }
       ]
