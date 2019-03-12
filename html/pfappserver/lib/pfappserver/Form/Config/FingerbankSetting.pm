@@ -14,8 +14,10 @@ use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
 with 'pfappserver::Base::Form::Role::Help';
 with 'pfappserver::Base::Form::Role::Defaults';
+use pfconfig::cached_hash;
 use pf::log;
 tie our %Doc_Config, 'pfconfig::cached_hash', 'config::FingerbankDoc';
+tie our %Defaults, 'pfconfig::cached_hash', 'config::FingerbankSettingsDefaults';
 
 has 'section' => ( is => 'ro' );
 
@@ -32,6 +34,9 @@ sub build_field_info {
         id   => $name,
         name => $name,
         type => $self->field_type( $section, $name, $doc ),
+        element_attr => {
+            placeholder => $Defaults{$section}{$name}
+        },
         tags => {
             after_element => \&help,
             help => do {
@@ -115,7 +120,6 @@ sub field_list {
     foreach my $name (keys %{$Doc_Config{$section}} ) {
         push @list, $self->build_field_info($section, $name);
     }
-    use Data::Dumper;print Dumper(\@list);
 
     return \@list;
 }
