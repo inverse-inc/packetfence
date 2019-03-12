@@ -1,0 +1,30 @@
+<form method="post" action="[% post_uri %]">
+
+  <div class="o-layout o-layout--center u-padding">
+
+    <div class="o-layout__item">
+
+      [% IF choose_access_duration.size > 1 %]
+      <div class="input-container">
+        <label>[% i18n("Access duration") %]</label>
+        <select name="access_duration">
+          <option value="">[% i18n('Select access duration') %]</option>
+          [% FOREACH access_duration IN choose_access_duration %]
+          <option value='[% access_duration.value %]'>[% access_duration.label %]</option>
+          [% END %]
+        </select>
+      </div>
+      [% END %]
+
+      [%# submit %]
+      <div class="u-margin-top">
+        <button type="submit" name="submit" class="c-btn c-btn--primary u-1/1">
+          [% i18n('Validate') %]
+        </button>
+      </div>
+      
+  </div>
+</div>
+
+</form>
+

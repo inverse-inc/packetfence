@@ -165,15 +165,21 @@ sub doSponsorRegistration : Private {
             }
             # Verify if the user has the role mark as sponsor
             my $source_match = $c->user_session->{source_match} || $c->user_session->{source_id};
-            my $value = pf::authentication::match($source_match, {username => $c->user_session->{"username"}, rule_class => $Rules::ADMIN, 'context' => $pf::constants::realm::PORTAL_CONTEXT}, $Actions::MARK_AS_SPONSOR);
-            unless (defined $value) {
+            my $matched = pf::authentication::match2($source_match, {username => $c->user_session->{"username"}, rule_class => $Rules::ADMIN, 'context' => $pf::constants::realm::PORTAL_CONTEXT});
+            my $values = $matched->{values};
+
+            unless (defined $values->{$Actions::MARK_AS_SPONSOR}) {
                 $c->log->error( $c->user_session->{"username"} . " does not have permission to sponsor a user"  );
                 $c->user_session->{username} = undef;
                 $self->showError($c,"does not have permission to sponsor a user");
                 $c->detach('login');
             }
+            if ($values->{$Actions::CHOOSE_ACCESS_DURATION}) {
+                my @options_duration = map { { value => $_, label => $_ } } split(',', $values->{$Actions::CHOOSE_ACCESS_DURATION});
+                $c->stash->{choose_access_duration} = \@options_duration;
+                $c->detach('choose_access_duration');
+            }
         }
-
         # handling log out (not exposed to the UI at this point)
         # TODO: if we ever expose it, we'll need to alter the form action to make sure to trim it
         # otherwise we'll submit our authentication but with ?action=logout so it'll delete the session right away
@@ -227,6 +233,22 @@ sub doSponsorRegistration : Private {
         );
         $self->showError($c, "No active sponsor source for this Connection Profile.");
     }
+}
+
+=head2 choose_access_duration
+
+=cut
+
+sub choose_access_duration : Private {
+    my ( $self, $c ) = @_;
+    if ( $c->has_errors ) {
+        $c->stash->{txt_auth_error} = join(' ', grep { ref ($_) eq '' } @{$c->error});
+        $c->clear_errors;
+    }
+    $c->stash(
+        title => "Choose the access duration",
+        template => $pf::web::guest::SPONSOR_CHOOSE_ACCESS_DURATION_TEMPLATE,
+    );
 }
 
 =head1 AUTHOR
