@@ -1,5 +1,5 @@
 <template>
-    <b-row class="my-1" :align-v="alignV">
+    <b-row :class="rowClass" :align-v="alignV">
         <b-col sm="3" class="col-form-label"><label class="mb-0" :for="id" v-t="columnLabel"></label></b-col>
         <b-col sm="9"><slot/></b-col>
     </b-row>
@@ -12,6 +12,10 @@ export default {
   props: {
     id: {
       type: String
+    },
+    rowClass: {
+      type: String,
+      default: 'my-1'
     },
     columnLabel: {
       type: String

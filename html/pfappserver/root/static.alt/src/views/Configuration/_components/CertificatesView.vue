@@ -31,7 +31,6 @@
             <pf-form-input :column-label="$t('Common Name')" ref="common_name" v-show="isEnabled(certs[id].lets_encrypt)"
               v-model="$v.certs[id].common_name.$model" :vuelidate="$v.certs[id].common_name" />
             <pf-form-row v-show="isEnabled(certs[id].lets_encrypt)">
-              <!-- <b-button size="sm" variant="outline-secondary" @click="testLetsEncrypt(id)" :disabled="$v.certs[id].common_name.$invalid">{{ $t('Test public access') }}</b-button> -->
               <b-form inline @submit.prevent="testLetsEncrypt(id)">
                 <pf-button-save variant="outline-secondary" size="sm" :disabled="$v.certs[id].common_name.$invalid || isTestingLetsEncrypt" :isLoading="isTestingLetsEncrypt">{{ $t('Test public access') }}</pf-button-save>
                 <span class="ml-3" :class="'text-' + letsEncryptState">{{ letsEncryptMsg }}</span>
@@ -41,10 +40,25 @@
             <template v-if="!isEnabled(certs[id].lets_encrypt)">
               <pf-form-textarea rows="6" max-rows="6" :column-label="$t('Certificate')"
                 v-model.trim="$v.certs[id].certificate.$model" :vuelidate="$v.certs[id].certificate"></pf-form-textarea>
+              <pf-form-row row-class="mt-0 mb-3">
+                <pf-form-upload class="btn-outline-secondary btn-sm" @load="certs[id].certificate = $event[0].result" :multiple="false" accept="text/*">
+                  {{ $t('Choose Certificate') }}
+                </pf-form-upload>
+              </pf-form-row>
               <pf-form-textarea rows="6" max-rows="6" :column-label="$t('Certificate Authority')"
                 v-model.trim="certs[id].ca" v-if="'ca' in certs[id]"></pf-form-textarea>
+              <pf-form-row row-class="mt-0 mb-3">
+                <pf-form-upload class="btn-outline-secondary btn-sm" @load="certs[id].ca = $event[0].result" :multiple="false" accept="text/*">
+                  {{ $t('Choose Certificate Authority') }}
+                </pf-form-upload>
+              </pf-form-row>
               <pf-form-textarea rows="6" max-rows="6" :column-label="$t('Private Key')"
                 v-model.trim="$v.certs[id].private_key.$model" :vuelidate="$v.certs[id].private_key"></pf-form-textarea>
+              <pf-form-row row-class="mt-0 mb-3">
+                <pf-form-upload class="btn-outline-secondary btn-sm" @load="certs[id].private_key = $event[0].result" :multiple="false" accept="text/*">
+                  {{ $t('Choose Private Key') }}
+                </pf-form-upload>
+              </pf-form-row>
               <pf-form-range-toggle
                 v-model="find_intermediate_cas"
                 :column-label="$t('Find intermediate CA certificates automatically')"
@@ -56,6 +70,11 @@
                 :button-label="$t('Add certificate')"
                 :field="caCertificateField"
               ></pf-form-fields>
+              <pf-form-row row-class="mt-0 mb-3">
+                <pf-form-upload class="btn-outline-secondary btn-sm" @load="loadIntermediateCAs(certs[id], $event)" :multiple="true" accept="text/*">
+                  {{ $t('Choose Intermediate CA certificate(s)') }}
+                </pf-form-upload>
+              </pf-form-row>
             </template>
             <b-form-row @mouseenter="$v.certs[id].$touch()">
               <pf-button-save :disabled="$v.certs[id].$invalid" :isLoading="isLoading" v-t="'Save'"></pf-button-save>
@@ -138,6 +157,7 @@ import pfFormInput from '@/components/pfFormInput'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import pfFormRow from '@/components/pfFormRow'
 import pfFormTextarea from '@/components/pfFormTextarea'
+import pfFormUpload from '@/components/pfFormUpload'
 const {
   minLength,
   required
@@ -155,7 +175,8 @@ export default {
     pfFormInput,
     pfFormRangeToggle,
     pfFormRow,
-    pfFormTextarea
+    pfFormTextarea,
+    pfFormUpload
   },
   props: {
     storeName: { // from router
@@ -268,6 +289,12 @@ export default {
       }).catch(err => {
         this.letsEncryptMsg = err
         this.letsEncryptState = 'danger'
+      })
+    },
+    loadIntermediateCAs (cert, files) {
+      cert.intermediate_cas = []
+      files.forEach(file => {
+        cert.intermediate_cas.push(file.result)
       })
     },
     save (id) {
