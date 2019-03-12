@@ -204,6 +204,7 @@ sub setup_api_v1_config_routes {
     $self->setup_api_v1_config_device_registrations_routes($root);
     $self->setup_api_v1_config_domains_routes($root);
     $self->setup_api_v1_config_filters_routes($root);
+    $self->setup_api_v1_config_fingerbank_settings_routes($root);
     $self->setup_api_v1_config_firewalls_routes($root);
     $self->setup_api_v1_config_floating_devices_routes($root);
     $self->setup_api_v1_config_maintenance_tasks_routes($root);
@@ -1153,6 +1154,26 @@ sub setup_api_v1_config_filters_routes {
     $resource_route->any(['PUT'])->to("Config::Filters#replace")->name("api.v1.Config.Filters.resource.replace");
 
     return (undef, $resource_route);
+}
+
+=head2 setup_api_v1_config_fingerbank_settings_routes
+
+setup_api_v1_config_fingerbank_settings_routes
+
+=cut
+
+sub setup_api_v1_config_fingerbank_settings_routes {
+    my ($self, $root) = @_;
+    my ($collection_route, $resource_route) =
+      $self->setup_api_v1_std_config_routes(
+        $root,
+        "Config::FingerbankSettings",
+        "/fingerbank_settings",
+        "/fingerbank_setting/#fingerbank_setting_id",
+        "api.v1.Config.SyslogParsers"
+    );
+
+    return ($collection_route, $resource_route);
 }
 
 =head2 setup_api_v1_config_certificates_routes

@@ -19,7 +19,6 @@ use strict;
 use warnings;
 use File::Spec::Functions;
 
-
 our (
     #Directories
     $install_dir, $bin_dir, $sbin_dir, $conf_dir, $lib_dir, $html_dir, $users_cert_dir, $log_dir, $generated_conf_dir, $var_dir,
@@ -108,6 +107,10 @@ our (
     $syslog_default_config_file,
     $rsyslog_packetfence_config_file,
     $fingerbank_collector_env_defaults_file,
+    $fingerbank_config_directory,
+    $fingerbank_config_file,
+    $fingerbank_default_config_file,
+    $fingerbank_doc_file,
 );
 
 BEGIN {
@@ -190,28 +193,36 @@ BEGIN {
         $syslog_default_config_file
         $rsyslog_packetfence_config_file
         $fingerbank_collector_env_defaults_file
+        $fingerbank_config_directory
+        $fingerbank_config_file
+        $fingerbank_default_config_file
+        $fingerbank_doc_file
     );
 }
 
 $install_dir = '/usr/local/pf';
+$fingerbank_config_directory = '/usr/local/fingerbank/conf';
+$fingerbank_config_file = catdir($fingerbank_config_directory, 'fingerbank.conf');
+$fingerbank_default_config_file = catdir($fingerbank_config_directory, 'fingerbank.conf.defaults');
+$fingerbank_doc_file = catdir($fingerbank_config_directory, 'fingerbank.conf.doc');
 
 # TODO bug#920 all application config data should use Readonly to avoid accidental post-startup alterration
-$bin_dir  = catdir( $install_dir,"bin" );
-$sbin_dir = catdir( $install_dir,"sbin" );
-$conf_dir = catdir( $install_dir,"conf" );
-$var_dir  = catdir( $install_dir,"var" );
-$lib_dir  = catdir( $install_dir,"lib" );
-$html_dir = catdir( $install_dir,"html" );
-$log_dir  = catdir( $install_dir,"logs" );
-$log_conf_dir  = catdir( $conf_dir,"log.conf.d" );
+$bin_dir  = catdir($install_dir, "bin");
+$sbin_dir = catdir($install_dir, "sbin");
+$conf_dir = catdir($install_dir, "conf");
+$var_dir  = catdir($install_dir, "var");
+$lib_dir  = catdir($install_dir, "lib");
+$html_dir = catdir($install_dir, "html");
+$log_dir  = catdir($install_dir, "logs");
+$log_conf_dir  = catdir($conf_dir,"log.conf.d");
 
-$generated_conf_dir   = catdir( $var_dir,"conf");
-$tt_compile_cache_dir = catdir( $var_dir,"tt_compile_cache");
+$generated_conf_dir   = catdir($var_dir, "conf");
+$tt_compile_cache_dir = catdir($var_dir, "tt_compile_cache");
 $control_dir  = catdir( $var_dir, "control");
-$switch_control_dir  = catdir( $var_dir, "switch_control");
-$pfconfig_cache_dir = catdir( $var_dir,"cache/pfconfig");
-$domains_chroot_dir = catdir( "/chroots");
-$domains_ntlm_cache_users_dir = catdir( $var_dir, "cache/ntlm_cache_users");
+$switch_control_dir  = catdir($var_dir, "switch_control");
+$pfconfig_cache_dir = catdir($var_dir, "cache/pfconfig");
+$domains_chroot_dir = catdir("/chroots");
+$domains_ntlm_cache_users_dir = catdir($var_dir, "cache/ntlm_cache_users");
 $systemd_unit_dir   = "/usr/lib/systemd/system"; 
 
 $pfcmd_binary = catfile( $bin_dir, "pfcmd" );
