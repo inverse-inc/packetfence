@@ -50,7 +50,7 @@
         <b-tab :title="$t('CSV File Contents')">
           <b-form-textarea
           :disabled="isLoading"
-          class="line-numbers" size="sm" rows="1" max-rows="40"
+          class="line-numbers" size="sm" rows="10" max-rows="40"
           v-model="file.result"
           v-on:input="parseDebounce"
           ></b-form-textarea>
