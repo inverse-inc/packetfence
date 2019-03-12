@@ -61,6 +61,15 @@ our %ACTION_FIELD_OPTIONS = (
         type    => 'Hidden',
         default => '1'
     },
+    $Actions::CHOOSE_ACCESS_DURATION => {
+        type           => 'Select',
+        do_label       => 0,
+        wrapper        => 0,
+        multiple       => 1,
+        element_class => ['chzn-select'],
+        element_attr => {'data-placeholder' => 'Click to add a access duration'},
+        options_method => \&options_durations,
+    },
     $Actions::SET_ACCESS_LEVEL => {
         type          => 'Select',
         do_label      => 0,
