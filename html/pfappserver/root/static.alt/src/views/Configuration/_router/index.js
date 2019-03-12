@@ -1,5 +1,6 @@
 import store from '@/store'
 import ConfigurationView from '../'
+import AdminRolesStore from '../_store/adminRoles'
 import AuthenticationSourcesStore from '../_store/sources'
 import BasesStore from '../_store/bases'
 import BillingTiersStore from '../_store/billingTiers'
@@ -88,6 +89,8 @@ const MainTabs = () => import(/* webpackChunkName: "Configuration" */ '../_compo
 const DatabaseTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/DatabaseTabs')
 const ActiveActiveView = () => import(/* webpackChunkName: "Configuration" */ '../_components/ActiveActiveView')
 const RadiusView = () => import(/* webpackChunkName: "Configuration" */ '../_components/RadiusView')
+const AdminRolesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/AdminRolesList')
+const AdminRoleView = () => import(/* webpackChunkName: "Configuration" */ '../_components/AdminRoleView')
 
 const route = {
   path: '/configuration',
@@ -99,6 +102,9 @@ const route = {
     /**
      * Register Vuex stores
      */
+    if (!store.state.$_admin_roles) {
+      store.registerModule('$_admin_roles', AdminRolesStore)
+    }
     if (!store.state.$_bases) {
       store.registerModule('$_bases', BasesStore)
       // preload config/bases (all sections)
@@ -1126,6 +1132,40 @@ const route = {
       name: 'radius',
       component: RadiusView,
       props: (route) => ({ query: route.query.query })
+    },
+    {
+      path: 'admin_roles',
+      name: 'admin_roles',
+      component: AdminRolesList,
+      props: (route) => ({ query: route.query.query })
+    },
+    {
+      path: 'admin_roles/new',
+      name: 'newAdminRole',
+      component: AdminRoleView,
+      props: (route) => ({ storeName: '$_admin_roles', isNew: true })
+    },
+    {
+      path: 'admin_role/:id',
+      name: 'admin_role',
+      component: AdminRoleView,
+      props: (route) => ({ storeName: '$_admin_roles', id: route.params.id }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_admin_roles/getAdminRole', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'admin_role/:id/clone',
+      name: 'cloneAdminRole',
+      component: AdminRoleView,
+      props: (route) => ({ storeName: '$_admin_roles', id: route.params.id, isClone: true }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_admin_roles/getAdminRole', to.params.id).then(object => {
+          next()
+        })
+      }
     }
   ]
 }

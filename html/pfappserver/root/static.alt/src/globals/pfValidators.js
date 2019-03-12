@@ -235,6 +235,14 @@ export const isFilenameWithExtension = (extensions = ['html']) => {
   })
 }
 
+export const hasAdminRoles = (value, component) => {
+  return store.dispatch('config/getAdminRoles').then((response) => {
+    return (response.length > 0)
+  }).catch(() => {
+    return true
+  })
+}
+
 export const hasBillingTiers = (value, component) => {
   return store.dispatch('config/getBillingTiers').then((response) => {
     return (response.length > 0)
@@ -374,6 +382,15 @@ export const hasTrafficShapingPolicies = (value, component) => {
 export const hasWRIXLocations = (value, component) => {
   return store.dispatch('config/getWrixLocations').then((response) => {
     return (response.length > 0)
+  }).catch(() => {
+    return true
+  })
+}
+
+export const adminRoleExists = (value, component) => {
+  if (!value) return true
+  return store.dispatch('config/getAdminRoles').then((response) => {
+    return (response.filter(adminRole => adminRole.id.toLowerCase() === value.toLowerCase()).length > 0)
   }).catch(() => {
     return true
   })

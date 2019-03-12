@@ -4,19 +4,21 @@
       :config="config"
     >
       <template slot="pageHeader">
-        <b-card-header><h4 class="mb-0" v-t="'Roles'"></h4></b-card-header>
+        <b-card-header>
+          <h4 class="mb-0" v-t="'Admin Roles'"></h4>
+          <p v-t="'Define roles with specific access rights to the Web administration interface. Roles are assigned to users depending on their authentication source.'"></p>
+        </b-card-header>
       </template>
       <template slot="buttonAdd">
-        <b-button variant="outline-primary" :to="{ name: 'newRole' }">{{ $t('Add Role') }}</b-button>
+        <b-button variant="outline-primary" :to="{ name: 'newAdminRole' }">{{ $t('Add Admin Role') }}</b-button>
       </template>
       <template slot="emptySearch" slot-scope="state">
-        <pf-empty-table :isLoading="state.isLoading">{{ $t('No roles found') }}</pf-empty-table>
+        <pf-empty-table :isLoading="state.isLoading">{{ $t('No admin roles found') }}</pf-empty-table>
       </template>
       <template slot="buttons" slot-scope="item">
         <span class="float-right text-nowrap">
-          <b-button size="sm" variant="outline-primary" class="mr-1" :to="{ name: 'TODO' }">{{ $t('Traffic Shaping') }}</b-button>
           <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(item)">{{ $t('Clone') }}</b-button>
-          <pf-button-delete  v-if="!item.not_deletable" size="sm" variant="outline-danger" :disabled="isLoading" :confirm="$t('Delete Role?')" @on-delete="remove(item)" reverse/>
+          <pf-button-delete  v-if="!item.not_deletable" size="sm" variant="outline-danger" :disabled="isLoading" :confirm="$t('Delete Admin Role?')" @on-delete="remove(item)" reverse/>
         </span>
       </template>
     </pf-config-list>
@@ -28,11 +30,11 @@ import pfButtonDelete from '@/components/pfButtonDelete'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import {
-  pfConfigurationRoleListConfig as config
-} from '@/globals/configuration/pfConfigurationRoles'
+  pfConfigurationAdminRoleListConfig as config
+} from '@/globals/configuration/pfConfigurationAdminRoles'
 
 export default {
-  name: 'RolesList',
+  name: 'AdminRolesList',
   components: {
     pfButtonDelete,
     pfConfigList,
@@ -45,10 +47,10 @@ export default {
   },
   methods: {
     clone (item) {
-      this.$router.push({ name: 'cloneRole', params: { id: item.id } })
+      this.$router.push({ name: 'cloneAdminRole', params: { id: item.id } })
     },
     remove (item) {
-      this.$store.dispatch('$_roles/deleteRole', item.id).then(response => {
+      this.$store.dispatch('$_admin_roles/deleteAdminRole', item.id).then(response => {
         this.$router.go() // reload
       })
     }
