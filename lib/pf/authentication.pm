@@ -75,6 +75,7 @@ BEGIN {
             getAllAuthenticationSources
             deleteAuthenticationSource
             getAuthenticationClassByType
+            getInternalAuthenticationSources
             %guest_self_registration
        );
 }

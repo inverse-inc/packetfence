@@ -16,11 +16,13 @@ with qw(
   pfappserver::Base::Form::Role::Help
   pfappserver::Base::Form::Role::SourceLocalAccount
   pfappserver::Base::Form::Role::EmailFiltering
+  pfappserver::Base::Form::Role::SourcesAssociated
 );
 
 use pfappserver::Form::Field::Duration;
 use pf::Authentication::Source::SponsorEmailSource;
 use pf::config qw(%Config %Doc_Config);
+use pf::authentication;
 
 # Form fields
 
