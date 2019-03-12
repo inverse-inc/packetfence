@@ -1,6 +1,5 @@
 import i18n from '@/utils/locale'
 import pfFormChosen from '@/components/pfFormChosen'
-import pfFormHtml from '@/components/pfFormHtml'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import pfFormTextarea from '@/components/pfFormTextarea'
@@ -8,25 +7,6 @@ import {
   pfConfigurationAttributesFromMeta,
   pfConfigurationValidatorsFromMeta
 } from '@/globals/configuration/pfConfiguration'
-
-export const pfConfigurationAdvancedLdapAttributes = [
-  'uid',
-  'cn',
-  'sAMAccountName',
-  'servicePrincipalName',
-  'UserPrincipalName',
-  'department',
-  'displayName',
-  'distinguishedName',
-  'givenName',
-  'memberOf',
-  'sn',
-  'eduPersonPrimaryAffiliation',
-  'mail',
-  'postOfficeBox',
-  'description',
-  'groupMembership'
-]
 
 export const pfConfigurationAdvancedViewFields = (context = {}) => {
   const {
@@ -154,26 +134,6 @@ export const pfConfigurationAdvancedViewFields = (context = {}) => {
         },
         {
           label: i18n.t('LDAP Attributes'),
-          fields: [
-            {
-              component: pfFormHtml,
-              attrs: {
-                html: () => {
-                  let html = []
-                  html.push('<div class="bg-light p-3 text-white">')
-                  html.push(`<strong class="mr-1 text-dark">${i18n.t('Built-in LDAP Attributes:')}</strong> `)
-                  pfConfigurationAdvancedLdapAttributes.forEach(attribute => {
-                    html.push(`<span class="badge badge-info mr-1">${attribute}</span> `)
-                  })
-                  html.push('</div>')
-                  return html.join('')
-                }
-              }
-            }
-          ]
-        },
-        {
-          label: null,
           text: i18n.t('List of LDAP attributes that can be used in the sources configuration.'),
           fields: [
             {
@@ -182,6 +142,8 @@ export const pfConfigurationAdvancedViewFields = (context = {}) => {
               attrs: {
                 ...pfConfigurationAttributesFromMeta(meta, 'ldap_attributes'),
                 ...{
+                  placeholderHtml: true,
+                  labelHtml: i18n.t('Built-in LDAP Attributes'),
                   rows: 3
                 }
               },

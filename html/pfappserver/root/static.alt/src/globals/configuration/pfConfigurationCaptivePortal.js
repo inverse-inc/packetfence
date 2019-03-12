@@ -1,6 +1,5 @@
 import i18n from '@/utils/locale'
 import pfFormChosen from '@/components/pfFormChosen'
-import pfFormHtml from '@/components/pfFormHtml'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import pfFormTextarea from '@/components/pfFormTextarea'
@@ -8,37 +7,6 @@ import {
   pfConfigurationAttributesFromMeta,
   pfConfigurationValidatorsFromMeta
 } from '@/globals/configuration/pfConfiguration'
-
-const {
-  ipAddress,
-  numeric,
-  maxLength
-} = require('vuelidate/lib/validators')
-
-/* TODO: make dynamic */
-export const pfConfigurationCaptivePortalChosenUnits = [
-  { value: 's', text: i18n.t('seconds') },
-  { value: 'm', text: i18n.t('minutes') },
-  { value: 'h', text: i18n.t('hours') },
-  { value: 'D', text: i18n.t('days') },
-  { value: 'W', text: i18n.t('weeks') },
-  { value: 'M', text: i18n.t('months') },
-  { value: 'Y', text: i18n.t('years') }
-]
-
-/* TODO: make dynamic */
-export const pfConfigurationCaptivePortalURLs = [
-  'http://www.gstatic.com/generate_204',
-  'http://clients3.google.com/generate_204',
-  'http://www.apple.com/library/test/success',
-  'http://connectivitycheck.android.com/generate_204',
-  'http://connectivitycheck.gstatic.com/generate_204',
-  'http://www.msftncsi.com/ncsi.txt',
-  'http://www.appleiphonecell.com',
-  'http://captive.apple.com',
-  'http://captive.roku.com/ok',
-  'http://detectportal.firefox.com/success.txt'
-]
 
 export const pfConfigurationCaptivePortalViewFields = (context = {}) => {
   const {
@@ -211,26 +179,6 @@ export const pfConfigurationCaptivePortalViewFields = (context = {}) => {
         },
         {
           label: i18n.t('Captive Portal detection mechanism URLs'),
-          fields: [
-            {
-              component: pfFormHtml,
-              attrs: {
-                html: () => {
-                  let html = []
-                  html.push('<div class="bg-light p-3 text-white">')
-                  html.push(`<strong class="mr-1 text-dark">${i18n.t('Built-in Captive Portal detection mechanism URLs:')}</strong> `)
-                  pfConfigurationCaptivePortalURLs.forEach(url => {
-                    html.push(`<span class="badge badge-info mr-1">${url}</span> `)
-                  })
-                  html.push('</div>')
-                  return html.join('')
-                }
-              }
-            }
-          ]
-        },
-        {
-          label: null,
           text: i18n.t('Comma-delimited list of URLs known to be used by devices to detect the presence of a captive portal and trigger their captive portal mechanism.'),
           fields: [
             {
@@ -239,6 +187,8 @@ export const pfConfigurationCaptivePortalViewFields = (context = {}) => {
               attrs: {
                 ...pfConfigurationAttributesFromMeta(meta, 'detection_mecanism_urls'),
                 ...{
+                  placeholderHtml: true,
+                  labelHtml: i18n.t('Built-in Captive Portal detection mechanism URLs'),
                   rows: 5
                 }
               },

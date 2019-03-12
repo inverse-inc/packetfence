@@ -1,5 +1,4 @@
 import i18n from '@/utils/locale'
-import pfFormHtml from '@/components/pfFormHtml'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormTextarea from '@/components/pfFormTextarea'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
@@ -7,46 +6,6 @@ import {
   pfConfigurationAttributesFromMeta,
   pfConfigurationValidatorsFromMeta
 } from '@/globals/configuration/pfConfiguration'
-
-export const pfConfigurationFencingProxyPassthroughs = [
-  'crl.geotrust.com',
-  'ocsp.geotrust.com',
-  'crl.thawte.com',
-  'ocsp.thawte.com',
-  'crl.comodoca.com',
-  'ocsp.comodoca.com',
-  'crl.incommon.org',
-  'ocsp.incommon.org',
-  'crl.usertrust.com',
-  'ocsp.usertrust.com',
-  'mscrl.microsoft.com',
-  'crl.microsoft.com',
-  'ocsp.apple.com',
-  'ocsp.digicert.com',
-  'ocsp.entrust.com',
-  'srvintl-crl.verisign.com',
-  'ocsp.verisign.com',
-  'ctldl.windowsupdate.com',
-  'crl.globalsign.net',
-  'pki.google.com',
-  'www.microsoft.com',
-  'crl.godaddy.com',
-  'ocsp.godaddy.com',
-  'certificates.godaddy.com',
-  'crl.globalsign.com',
-  'secure.globalsign.com',
-  'cacerts.digicert.com',
-  'crt.comodoca.com',
-  'crl.incommon-rsa.org',
-  'crl.quovadisglobal.com',
-  'cert.incommon.org',
-  'crt.usertrust.com',
-  'crl.verisign.com',
-  'crl.starfieldtech.com',
-  'developer.apple.com',
-  'ts-crl.ws.symantec.com',
-  'certificates.intel.com',
-]
 
 export const pfConfigurationFencingViewFields = (context = {}) => {
   const {
@@ -136,26 +95,6 @@ export const pfConfigurationFencingViewFields = (context = {}) => {
         },
         {
           label: i18n.t('Proxy Passthroughs'),
-          fields: [
-            {
-              component: pfFormHtml,
-              attrs: {
-                html: () => {
-                  let html = []
-                  html.push('<div class="bg-light p-3 text-white">')
-                  html.push(`<strong class="mr-1 text-dark">${i18n.t('Built-in Proxy Passthroughs:')}</strong> `)
-                  pfConfigurationFencingProxyPassthroughs.forEach(url => {
-                    html.push(`<span class="badge badge-info mr-1">${url}</span> `)
-                  })
-                  html.push('</div>')
-                  return html.join('')
-                }
-              }
-            }
-          ]
-        },
-        {
-          label: null,
           text: i18n.t('Comma-delimited list of domains to be used with apache passthroughs. The configuration parameter passthrough must be enabled for passthroughs to be effective.'),
           fields: [
             {
@@ -164,6 +103,8 @@ export const pfConfigurationFencingViewFields = (context = {}) => {
               attrs: {
                 ...pfConfigurationAttributesFromMeta(meta, 'proxy_passthroughs'),
                 ...{
+                  placeholderHtml: true,
+                  labelHtml: i18n.t('Built-in Proxy Passthroughs'),
                   rows: 3
                 }
               },

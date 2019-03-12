@@ -1,6 +1,5 @@
 import i18n from '@/utils/locale'
 import pfFormChosen from '@/components/pfFormChosen'
-import pfFormHtml from '@/components/pfFormHtml'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import pfFormTextarea from '@/components/pfFormTextarea'
@@ -8,13 +7,6 @@ import {
   pfConfigurationAttributesFromMeta,
   pfConfigurationValidatorsFromMeta
 } from '@/globals/configuration/pfConfiguration'
-
-export const pfConfigurationRadiusAttributes = [
-  'username',
-  'NAS-Identifier',
-  'Called-Station-Id',
-  'Calling-Station-Id'
-]
 
 export const pfConfigurationRadiusViewFields = (context = {}) => {
   const {
@@ -168,26 +160,6 @@ export const pfConfigurationRadiusViewFields = (context = {}) => {
         },
         {
           label: i18n.t('RADIUS attributes'),
-          fields: [
-            {
-              component: pfFormHtml,
-              attrs: {
-                html: () => {
-                  let html = []
-                  html.push('<div class="bg-light p-3 text-white">')
-                  html.push(`<strong class="mr-1 text-dark">${i18n.t('Built-in RADIUS Attributes:')}</strong> `)
-                  pfConfigurationRadiusAttributes.forEach(attribute => {
-                    html.push(`<span class="badge badge-info mr-1">${attribute}</span> `)
-                  })
-                  html.push('</div>')
-                  return html.join('')
-                }
-              }
-            }
-          ]
-        },
-        {
-          label: null,
           text: i18n.t('List of RADIUS attributes that can be used in the sources configuration.'),
           fields: [
             {
@@ -196,6 +168,8 @@ export const pfConfigurationRadiusViewFields = (context = {}) => {
               attrs: {
                 ...pfConfigurationAttributesFromMeta(meta, 'radius_attributes'),
                 ...{
+                  placeholderHtml: true,
+                  labelHtml: i18n.t('Built-in RADIUS Attributes'),
                   rows: 3
                 }
               },
