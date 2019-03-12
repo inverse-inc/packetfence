@@ -7,7 +7,7 @@
         v-model="inputValue"
         :size="size"
         @focus="suspendInterrupt($event)"
-        @blur="startInterrupt($event)" />
+        @blur="stopInterrupt($event)" />
       <b-button
         type="submit"
         :variant="variant"
@@ -22,7 +22,7 @@
       :variant="variant"
       :size="size"
       :disabled="disabled"
-      @click.stop="startInterrupt($event)">
+      @click="startInterrupt($event)">
       <slot>{{ $t('Confirm') }}</slot>
     </b-button>
   </b-form>
@@ -80,7 +80,9 @@ export default {
       if (this.timerStop) clearTimeout(this.timerStop)
       this.interrupt = true
       this.$nextTick(() => {
-        this.$refs.input.$el.focus()
+        if (this.$refs.input) {
+          this.$refs.input.focus()
+        }
       })
       this.timerStop = setTimeout(this.stopInterrupt, this.timeout)
     },
@@ -89,15 +91,11 @@ export default {
     },
     stopInterrupt (event) {
       if (this.timerStop) clearTimeout(this.timerStop)
-      if (this.inputValue) {
-        // Keep the input field visible
-        this.startInterrupt(event)
-      } else {
-        this.interrupt = false
-      }
+      this.interrupt = false
     },
     onConfirm (event) {
       if (this.timerStop) clearTimeout(this.timerStop)
+      this.$refs.input.$el.blur()
       this.interrupt = false
       // emit to parent
       this.$emit('on-confirm', event)

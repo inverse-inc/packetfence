@@ -47,7 +47,7 @@
     </b-table>
     <div :class="'my-1 indent-' + level" v-if="showActions">
       <b-button size="sm" variant="outline-danger" class="mr-1" v-if="deletable" @click="onDelete(path)">{{ $t('Delete') }}</b-button>
-      <pf-button-prompt size="sm" variant="outline-secondary" class="mr-1" v-model="newContainerName" v-if="onContainerCreate" @on-confirm="onContainerCreate(items, path, newContainerName)">{{ containerCreateLabel }}</pf-button-prompt>
+      <pf-button-prompt size="sm" variant="outline-secondary" class="mr-1" v-model="newContainerName" v-if="onContainerCreate" @on-confirm="createContainer()">{{ containerCreateLabel }}</pf-button-prompt>
       <b-button size="sm" variant="outline-secondary" v-if="onNodeCreate" @click="onNodeCreate(path)">{{ nodeCreateLabel }}</b-button>
     </div>
   </div>
@@ -150,6 +150,10 @@ export default {
       } else if (typeof this.onNodeClick === 'function') {
         return this.onNodeClick(item)
       }
+    },
+    createContainer () {
+      this.onContainerCreate(this.items, this.path, this.newContainerName)
+      this.newContainerName = ''
     },
     fullPath (item) {
       return [item.path, item.name].filter(e => e).join('/')

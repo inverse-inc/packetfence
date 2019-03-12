@@ -206,7 +206,9 @@ export default {
       })
     },
     createDirectory (items, path, name) {
-      items.push({ type: 'dir', name, size: 0, mtime: 0, path, entries: [] })
+      if (name) {
+        items.push({ type: 'dir', name, size: 0, mtime: 0, path, entries: [] })
+      }
     },
     deleteDirectory (path) {
       this.$store.dispatch(`${this.storeName}/deleteFile`, { id: this.id, filename: path })
