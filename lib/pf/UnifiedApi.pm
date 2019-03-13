@@ -395,8 +395,8 @@ sub setup_api_v1_users_routes {
     $self->add_subroutes($resource_route, "Users", "POST", qw(unassign_nodes));
     $self->add_subroutes($collection_route, "Users", "POST", 
           qw(
-          bulk_register bulk_deregister bulk_close_violations
-          bulk_reevaluate_access bulk_apply_violation
+          bulk_register bulk_deregister bulk_close_security_events
+          bulk_reevaluate_access bulk_apply_security_event
           bulk_apply_role bulk_apply_bypass_role bulk_fingerbank_refresh
           )
     );

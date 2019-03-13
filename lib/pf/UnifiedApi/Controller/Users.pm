@@ -155,8 +155,8 @@ sub bulk_close_security_events {
             'node.pid' => { -in => $items},
             'security_event.status' => "open",
         },
-        -columns => [qw(security_event.vid security_event.mac node.pid)],
-        -from => [-join => qw(security_event <=>{security_event.vid=class.vid} class), '=>{security_event.tenant_id=node.tenant_id,security_event.mac=node.mac}', 'node'],
+        -columns => [qw(security_event.security_event_id security_event.mac node.pid)],
+        -from => [-join => qw(security_event <=>{security_event.security_event_id=class.security_event_id} class), '=>{security_event.tenant_id=node.tenant_id,security_event.mac=node.mac}', 'node'],
         -with_class => undef,
     );
 
@@ -170,7 +170,7 @@ sub bulk_close_security_events {
         my $pid = delete $security_event->{pid};
         my $mac = $security_event->{mac};
         my $index = $indexes->{$pid};
-        if (security_event_force_close($mac, $security_event->{vid})) {
+        if (security_event_force_close($mac, $security_event->{security_event_id})) {
             pf::enforcement::reevaluate_access($mac, "admin_modify");
             $security_event->{status} = 200;
         } else {
@@ -197,7 +197,7 @@ sub bulk_apply_security_event {
     }
 
     my $items = $data->{items} // [];
-    my $vid = $data->{vid};
+    my $security_event_id = $data->{security_event_id};
     ($status, my $iter) = pf::dal::node->search(
         -columns => [qw(mac pid)],
         -where => {
@@ -210,20 +210,20 @@ sub bulk_apply_security_event {
         return $self->render_error($status, "Error finding nodes");
     }
 
-    my ($indexes, $results) = bulk_init_results($items, 'violations');
+    my ($indexes, $results) = bulk_init_results($items, 'security_events');
     my $nodes = $iter->all;
     for my $node (@$nodes) {
         my $pid = delete $node->{pid};
         my $mac = $node->{mac};
-        $node->{'vid'} = $vid;
-        my ($last_id) = violation_add($mac, $vid, ( 'force' => $TRUE ));
+        $node->{'security_event_id'} = $security_event_id;
+        my ($last_id) = security_event_add($mac, $security_event_id, ( 'force' => $TRUE ));
         if ($last_id > 0) {
             $node->{status} = 200;
-            $node->{violation_id} = $last_id;
+            $node->{security_event_id} = $last_id;
         } else {
             $node->{status} = 422;
         }
-        push @{$results->[$indexes->{$pid}]{violations}}, $node;
+        push @{$results->[$indexes->{$pid}]{security_events}}, $node;
     }
 
     return $self->render(json => { items => $results });

@@ -55,10 +55,10 @@ $t->post_ok( "/api/v1/users/bulk_register" => json => { items => \@pids } )
 $t->post_ok( "/api/v1/users/bulk_deregister" => json => { items => \@pids } )
  ->status_is(200);
 
-$t->post_ok( "/api/v1/users/bulk_apply_violation" => json => { items => \@pids, vid => 1100013 } )
+$t->post_ok( "/api/v1/users/bulk_apply_security_event" => json => { items => \@pids, vid => 1100013 } )
  ->status_is(200);
 
-$t->post_ok( "/api/v1/users/bulk_close_violations" => json => { items => \@pids } )
+$t->post_ok( "/api/v1/users/bulk_close_security_events" => json => { items => \@pids } )
  ->status_is(200);
 
 $t->post_ok( "/api/v1/users/bulk_reevaluate_access" => json => { items => \@pids } )
