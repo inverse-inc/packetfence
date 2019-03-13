@@ -8,16 +8,17 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"net/url"
 	"os"
 	"runtime"
 	"strings"
 	"sync"
 	"time"
 
-	"github.com/lucas-clemente/quic-go/h2quic"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddyhttp/staticfiles"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddytls"
+	"github.com/lucas-clemente/quic-go/h2quic"
 )
 
 // Server is the HTTP server implementation.
@@ -259,7 +260,7 @@ func (s *Server) serveHTTP(w http.ResponseWriter, r *http.Request) (int, error) 
 	// the URL path, so a request to example.com/foo/blog on the site
 	// defined as example.com/foo appears as /blog instead of /foo/blog.
 	if pathPrefix != "/" {
- 		r.URL = trimPathPrefix(r.URL, pathPrefix)
+		r.URL = trimPathPrefix(r.URL, pathPrefix)
 	}
 
 	// Apply the path-based request body size limit

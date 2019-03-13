@@ -282,12 +282,6 @@ SetEnvIf Request_URI "netdata" is_netdata
 
       ProxyPassMatch "^/api/(.*)" "https://127.0.0.1:9999/api/$1" connectiontimeout=5 timeout=30 keepalive=on
 
-      # make sure the user did not forget to add a trailing /
-      # for HTTP (if the virtualhost is HTTP, use this)
-      RewriteRule "^/api/([A-Za-z0-9\._-]+)$" http://%{HTTP_HOST}/api/$1/ [L,R=301]
-      # for HTTPS (if the virtualhost is HTTPS, use this)
-      RewriteRule "^/api/([A-Za-z0-9\._-]+)$" https://%{HTTP_HOST}/api/$1/ [L,R=301]
-
       <Location /portal_preview >
           SetEnv X_PORTAL default
           RewriteEngine on
