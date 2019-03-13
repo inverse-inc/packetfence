@@ -1,9 +1,8 @@
 <form method="post" action="[% post_uri %]">
 
-  <div class="o-layout o-layout--center u-padding">
+   <div class="o-layout o-layout--center u-padding">
 
-    <div class="o-layout__item">
-
+    <div class="o-layout__item u-1/1 u-2/3@tablet u-3/5@desktop">
       [% IF choose_access_duration.size > 1 %]
       <div class="input-container">
         <label>[% i18n("Access duration") %]</label>
@@ -22,9 +21,7 @@
           [% i18n('Validate') %]
         </button>
       </div>
-      
   </div>
 </div>
 
 </form>
-
