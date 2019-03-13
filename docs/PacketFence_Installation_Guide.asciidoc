@@ -5281,6 +5281,22 @@ The Content-Security-Policy HTTP response header tells modern browsers what can 
 
 If, for some reason the portal is modified with content that needs to be accessed from PacketFence generated web pages, CSP can be deactivated through *Configuration -> System Configuration -> Main Configuration -> Advanced -> CSP Security Headers*.
 
+Database Encryption
+~~~~~~~~~~~~~~~~~~~
+
+For security reasons you may need to encrypt a part or the whole database. Starting from PacketFence 8.1 you can encrypt the database.
+
+First you need to choose between two Key Manager, the first one is the File Key Manager ( https://mariadb.com/kb/en/library/encryption-key-management/#file-key-management-plugin ) and the other one is
+the AWS Key Management ( https://mariadb.com/kb/en/library/aws-key-management-encryption-plugin-setup-guide/ ).
+
+Follow the previous link and after that go in Configuration -> System Configuration -> Database -> Encryption and fill the appropriates fields.
+
+Once done restart your database ( systemctl restart packetfence-mariadb ) and connect to it.
+
+If you want to encrypt a table then do :
+
+ ALTER TABLE person ENCRYPTED=YES encryption_key_id=1;
+
 
 include::includes/additional-info.asciidoc[]
 
@@ -5310,10 +5326,10 @@ The node view option shows all information contained in the node database table 
   52:54:00:12:35:02|1|2008-10-23 17:32:16||||unreg||||2008-10-23 21:12:21|||||
 
 [appendix]
-Restoring a Percona XtraBackup dump
------------------------------------
+Restoring a Percona XtraBackup or MariaDB Backup dump
+-----------------------------------------------------
 
-If you enabled Percona XtraBackup for your nightly backup, you can use the following instructions to restore it. In this example we will be restoring `/root/backup/packetfence-db-dump-innobackup-2016-12-20_00h31.xbstream.gz`
+If you enabled Percona XtraBackup or MariaDB Backup for your nightly backup, you can use the following instructions to restore it. In this example we will be restoring `/root/backup/packetfence-db-dump-innobackup-2016-12-20_00h31.xbstream.gz`
 
 First, create a restore directory, move the backup to it and gunzip the backup:
 
@@ -5351,14 +5367,30 @@ Next, apply the innodb log:
 
   # innobackupex --apply-log ./
 
+or
+
+ # mariabackup --apply-log-only
+
+
 We will now stop MySQL, move the existing data directory and replace it by the data that was extracted:
 
 NOTE: On Debian the service will be called `mysql` and on CentOS 7 `mariadb`. Make sure you adjust the commands above to your environment.
+
+For XtraBackup:
 
   # service packetfence-mariadb stop
   # mv /var/lib/mysql /var/lib/mysql.bak
   # mkdir /var/lib/mysql
   # mv * /var/lib/mysql
+  # chown -R mysql: /var/lib/mysql
+  # service packetfence-mariadb start
+
+For MariaDB Backup:
+
+  # service packetfence-mariadb stop
+  # mv /var/lib/mysql /var/lib/mysql.bak
+  # mkdir /var/lib/mysql
+  # mariabackup --innobackupex --defaults-file=/usr/local/pf/var/conf/mariadb.conf      --move-back --force-non-empty-directories ./
   # chown -R mysql: /var/lib/mysql
   # service packetfence-mariadb start
 

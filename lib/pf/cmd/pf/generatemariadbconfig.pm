@@ -51,6 +51,13 @@ sub _run {
         server_ip => $management_network ? $management_network->{Tvip} // $management_network->{Tip} : "",
         performance_schema => $Config{database_advanced}{performance_schema},
         max_connect_errors => $Config{database_advanced}{max_connect_errors},
+        aws => $Config{database_encryption}{aws},
+        aws_master_key_id => $Config{database_encryption}{aws_master_key_id},
+        aws_region => $Config{database_encryption}{aws_region},
+        file_key_management => $Config{database_encryption}{file_key_management},
+        file_key_management_filename => $Config{database_encryption}{file_key_management_filename},
+        file_management_filekey => $Config{database_encryption}{file_management_filekey},
+        file_key_management_encryption_algorithm => $Config{database_encryption}{file_key_management_encryption_algorithm},
     );
 
     # Only generate cluster configuration if there is more than 1 enabled host in the cluster

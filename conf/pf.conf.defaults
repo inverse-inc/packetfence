@@ -339,6 +339,47 @@ performance_schema=NO
 # The max_connect_errors MySQL configuration attribute. Only change if you know what you are doing. Will only affect a locally running MySQL server.
 max_connect_errors=100
 
+[database_encryption]
+#
+# database_encryption.aws
+#
+# Enable AWS encryption plugin in MariaDB.
+aws=disabled
+#
+# database_encryption.aws_master_key_id
+#
+# AWS Master Key ID, should be something like alias/something.
+aws_master_key_id = alias/something
+#
+# database_encryption.aws_region
+#
+# AWS Region where is your master key, per example us-east-1.
+aws_region = us-east-1
+#
+# database_encryption.file_key_management
+#
+# Enable File_key_management encryption plugin in MariaDB.
+#
+file_key_management = disabled
+#
+# database_encryption.file_key_management_filename
+#
+# Path of the file that contain the keys.
+#
+file_key_management_filename = /etc/mysql/keys.enc
+#
+# database_encryption.file_management_filekey
+#
+# Path of the file that contain the password to decrypt the Key Management filename.
+#
+file_management_filekey = FILE:/etc/mysql/.key
+#
+# database_encryption.file_key_management_encryption_algorithm
+#
+# Which encryption algorithm to use.
+#
+file_key_management_encryption_algorithm = aes_cbc
+
 [services]
 # services.pfipset
 #

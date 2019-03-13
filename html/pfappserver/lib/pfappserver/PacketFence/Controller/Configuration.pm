@@ -354,6 +354,12 @@ sub all_subsections : Private {
                     action_args => ['database_advanced'],
                     name => 'Advanced', 
                 },
+                database_encryption => {
+                    controller => 'Controller::Configuration',
+                    action => 'section',
+                    action_args => ['database_encryption'],
+                    name => 'Encryption',
+                },
             );
             return \%map;
         }->(),

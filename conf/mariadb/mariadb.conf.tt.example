@@ -8,8 +8,27 @@
 # this is read by the standalone daemon and embedded servers
 [server]
 
+
+[mariadb]
+[% IF aws == "enabled" %]
+#aws key management
+aws-key-management-master-key-id = [% aws_master_key_id %]
+aws-key-management-region = [% aws_region %]
+!include /etc/my.cnf.d/enable_encryption.preset
+plugin_load_add=aws_key_management
+[% END %]
+
+[% IF file_key_management == "enabled" %]
+# File Key Management
+plugin_load_add = file_key_management.so
+file_key_management_filename = [% file_key_management_filename %]
+file_key_management_filekey = [% file_management_filekey %]
+file_key_management_encryption_algorithm = [% file_key_management_encryption_algorithm %]
+[% END %]
+
 # this is only for the mysqld standalone daemon
 [mysqld]
+datadir=/var/lib/mysql
 
 [% IF server_ip.length %]
 bind-address=[% server_ip %]
@@ -129,7 +148,8 @@ innodb_log_group_home_dir = /var/lib/mysql
  #You can set .._buffer_pool_size up to 50 - 80 %
  #of RAM but beware of setting memory usage too high
 innodb_buffer_pool_size = [% innodb_buffer_pool_size %]M
-innodb_additional_mem_pool_size = [% innodb_additional_mem_pool_size %]M
+# Not supported in MariaDB 10.2
+#innodb_additional_mem_pool_size = [% innodb_additional_mem_pool_size %]M
 innodb_log_buffer_size = 8M
 
 innodb_flush_log_at_trx_commit = 2

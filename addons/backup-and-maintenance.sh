@@ -29,7 +29,8 @@ BACKUP_DB_FILENAME='packetfence-db-dump'
 BACKUP_PF_FILENAME='packetfence-files-dump'
 ARCHIVE_DIRECTORY=$BACKUP_DIRECTORY
 ARCHIVE_DB_FILENAME='packetfence-archive'
-PERCONA_XTRABACKUP_INSTALLED=0
+MARIADB_BACKUP_INSTALLED=0
+MARIADB_BACKUP_BINARY='mariabackup'
 BACKUPRC=1
 
 # For replication
@@ -103,7 +104,14 @@ if [ $SHOULD_BACKUP -eq 1 ] && { [ -f /var/run/mysqld/mysqld.pid ] || [ -f /var/
     # Check to see if Percona XtraBackup is installed
     if hash innobackupex 2>/dev/null; then
         echo -e "Percona XtraBackup is available. Will proceed using it for DB backup to avoid locking tables and easier recovery process. \n"
-        PERCONA_XTRABACKUP_INSTALLED=1
+        MARIADB_BACKUP_INSTALLED=1
+        MARIADB_BACKUP_BINARY='innobackupex'
+    fi
+    # Check to see if MariaDB Backup is installed
+    if hash mariabackup 2>/dev/null; then
+        echo -e "Mariadb Backup is available. Will proceed using it for DB backup to avoid locking tables and easier recovery process. \n"
+        MARIADB_BACKUP_INSTALLED=1
+        MARIADB_BACKUP_BINARY='mariabackup'
     fi
 
     BACKUPS_AVAILABLE_SPACE=`df --output=avail $BACKUP_DIRECTORY | awk 'NR == 2 { print $1  }'`
@@ -115,15 +123,23 @@ if [ $SHOULD_BACKUP -eq 1 ] && { [ -f /var/run/mysqld/mysqld.pid ] || [ -f /var/
              mysql -u$REP_USER -p$REP_PWD -e 'set global wsrep_desync=ON;'
         fi
 
-        if [ $PERCONA_XTRABACKUP_INSTALLED -eq 1 ]; then
+        if [ $MARIADB_BACKUP_INSTALLED -eq 1 ]; then
             find $BACKUP_DIRECTORY -name "$BACKUP_DB_FILENAME-innobackup-*.xbstream.gz" -mtime +$NB_DAYS_TO_KEEP_DB -delete
             echo "----- Backup started on `date +%F_%Hh%M` -----" >> /usr/local/pf/logs/innobackup.log
             INNO_TMP="/tmp/pf-innobackups"
             mkdir -p $INNO_TMP
             if [ $IS_CLUSTER -eq 1 ]; then
-                innobackupex --user=$REP_USER --password=$REP_PWD  --no-timestamp --stream=xbstream --tmpdir=$INNO_TMP $INNO_TMP 2>> /usr/local/pf/logs/innobackup.log | gzip - > $BACKUP_DIRECTORY/$BACKUP_DB_FILENAME-innobackup-`date +%F_%Hh%M`.xbstream.gz
+                if [ "$MARIADB_BACKUP_BINARY" == "mariabackup" ]; then
+                    $MARIADB_BACKUP_BINARY --user=$REP_USER --password=$REP_PWD  --no-timestamp --stream=xbstream --tmpdir=$INNO_TMP --backup 2>> /usr/local/pf/logs/innobackup.log | gzip - > $BACKUP_DIRECTORY/$BACKUP_DB_FILENAME-innobackup-`date +%F_%Hh%M`.xbstream.gz
+                else
+                    $MARIADB_BACKUP_BINARY --user=$REP_USER --password=$REP_PWD  --no-timestamp --stream=xbstream --tmpdir=$INNO_TMP $INNO_TMP 2>> /usr/local/pf/logs/innobackup.log | gzip - > $BACKUP_DIRECTORY/$BACKUP_DB_FILENAME-innobackup-`date +%F_%Hh%M`.xbstream.gz
+                fi
             else
-                innobackupex --user=$DB_USER --password=$DB_PWD  --no-timestamp --stream=xbstream --tmpdir=$INNO_TMP $INNO_TMP 2>> /usr/local/pf/logs/innobackup.log | gzip - > $BACKUP_DIRECTORY/$BACKUP_DB_FILENAME-innobackup-`date +%F_%Hh%M`.xbstream.gz
+                if [ "$MARIADB_BACKUP_BINARY" == "mariabackup" ]; then
+                    $MARIADB_BACKUP_BINARY --user=$DB_USER --password=$DB_PWD  --no-timestamp --stream=xbstream --tmpdir=$INNO_TMP --backup 2>> /usr/local/pf/logs/innobackup.log | gzip - > $BACKUP_DIRECTORY/$BACKUP_DB_FILENAME-innobackup-`date +%F_%Hh%M`.xbstream.gz
+                else
+                    $MARIADB_BACKUP_BINARY --user=$DB_USER --password=$DB_PWD  --no-timestamp --stream=xbstream --tmpdir=$INNO_TMP $INNO_TMP 2>> /usr/local/pf/logs/innobackup.log | gzip - > $BACKUP_DIRECTORY/$BACKUP_DB_FILENAME-innobackup-`date +%F_%Hh%M`.xbstream.gz
+                fi
             fi
             tail -1 /usr/local/pf/logs/innobackup.log | grep 'completed OK!'
             BACKUPRC=$?

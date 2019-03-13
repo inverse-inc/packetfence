@@ -8208,6 +8208,34 @@ msgid ""
 "server."
 msgstr "L’attribut de configuration key_buffer_size (en MB) de MySQL. Le changer uniquement si vous savez ce que vous faites. Ceci affectera uniquement une version local du serveur MySQL."
 
+# conf/documentation.conf (database_encryption.aws)
+msgid "Enable AWS encryption plugin in MariaDB. https://mariadb.com/kb/en/library/aws-key-management-encryption-plugin-setup-guide/"
+msgstr "Activer le plugin d'encryption AWS pour MariaDB. https://mariadb.com/kb/en/library/aws-key-management-encryption-plugin-setup-guide/"
+
+# conf/documentation.conf (database_encryption.aws_master_key_id)
+msgid "AWS Master Key ID, should be something like alias/something."
+msgstr "Identifiant de la clée maitre, devrait être du genre alias/nom"
+
+# conf/documentation.conf (database_encryption.aws_region)
+msgid "AWS Region where is your master key, per example us-east-1."
+msgstr "Région de la clée maitre, par example us-east-1"
+
+# conf/documentation.conf (database_encryption.file_key_management)
+msgid "Enable File_key encryption plugin in MariaDB. https://mariadb.com/kb/en/library/encryption-key-management/"
+msgstr "Activer le plugin d'encryption basé sur un fichier de clés pour MariaDB. https://mariadb.com/kb/en/library/encryption-key-management/"
+
+# conf/documentation.conf (database_encryption.file_key_management_filename)
+msgid "Path of the file that contain the keys."
+msgstr "Chemin vers le fichier contenant les clés"
+
+# conf/documentation.conf (database_encryption.file_management_filekey)
+msgid "Path of the file that contain the password to decrypt the Key Management filename."
+msgstr "Chemin vers le fichier contenant le mot de passe pour décrypter le fichier de clés"
+
+# conf/documentation.conf (database_encryption.file_key_management_encryption_algorithm)
+msgid "Which encryption algorithm to use."
+msgstr "Type d'algorithme d'encryption à utiliser"
+
 # html/pfappserver/root/configurator/services.tt
 msgid ""
 "The last step of this configuration wizard is to start the PacketFence "
@@ -10482,6 +10510,34 @@ msgstr "Performance schema"
 # conf/documentation.conf
 msgid "database_advanced.max_connect_errors"
 msgstr "Nombre maximum d’erreurs de connection"
+
+# conf/documentation.conf
+msgid "database_encryption.aws"
+msgstr "Activer AWS"
+
+# conf/documentation.conf
+msgid "database_encryption.aws_master_key_id"
+msgstr "Master Key ID"
+
+# conf/documentation.conf
+msgid "database_encryption.aws_region"
+msgstr "Region"
+
+# conf/documentation.conf
+msgid "database_encryption.file_key_management"
+msgstr "Activer File Key"
+
+# conf/documentation.conf
+msgid "database_encryption.file_key_management_filename"
+msgstr "Chemin du fichier de clés"
+
+# conf/documentation.conf
+msgid "database_encryption.file_management_filekey"
+msgstr "Chemin du fichier de mot de passe"
+
+# conf/documentation.conf
+msgid "database_encryption.file_key_management_encryption_algorithm"
+msgstr "Algorithme d'encryption"
 
 # html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
 msgid "days"
