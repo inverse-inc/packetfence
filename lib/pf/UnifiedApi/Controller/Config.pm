@@ -672,6 +672,10 @@ The allowed fields
 
 sub field_allowed {
     my ($self, $field) = @_;
+    if ($field->isa("pfappserver::Form::Field::FingerbankSelect") || $field->isa("pfappserver::Form::Field::FingerbankField")) {
+        return undef;
+    }
+
     my $allowed;
     if ($field->isa('HTML::FormHandler::Field::Select')) {
         $allowed = $field->options;
