@@ -197,7 +197,7 @@
       <b-form-row>
         <b-col sm="12">
 
-          <b-form-group horizontal label-cols="3" :label="$t('Registration Window')">
+          <b-form-group label-cols="3" :label="$t('Registration Window')">
             <b-row align-v="center">
               <b-col>
                 <pf-form-datetime v-model="valid_from"

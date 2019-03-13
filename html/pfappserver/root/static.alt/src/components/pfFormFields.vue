@@ -1,5 +1,5 @@
 <template>
-  <b-form-group :horizontal="columnLabel" :label-cols="(columnLabel) ? labelCols : 0" :label="$t(columnLabel)"
+  <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="$t(columnLabel)"
     :state="isValid()" :invalid-feedback="getInvalidFeedback()"
     class="pf-form-fields" :class="{ 'mb-0': !columnLabel }">
     <b-input-group class="pf-form-fields-input-group">

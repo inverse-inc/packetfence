@@ -85,7 +85,7 @@
         <!-- View mode -->
         <transition name="fade" mode="out-in" appear>
           <b-form v-show="!editMode[id]">
-            <b-form-group label-cols-md="3" label-size="lg" horizontal :label="$t('Certificate')">
+            <b-form-group label-cols-md="3" label-size="lg" :label="$t('Certificate')">
               <b-container fluid>
                 <b-row align-v="center" v-if="info[id].cert_key_match.success">
                   <b-col sm="3" class="col-form-label"><icon class="text-success" name="circle"></icon></b-col>
@@ -108,14 +108,14 @@
                 </pf-form-row>
               </b-container>
             </b-form-group>
-            <b-form-group label-cols-md="3" label-size="lg" horizontal :label="$t('Certificate Authority')" v-if="info[id].ca">
+            <b-form-group label-cols-md="3" label-size="lg" :label="$t('Certificate Authority')" v-if="info[id].ca">
               <b-container fluid>
                 <pf-form-row align-v="baseline" v-for="(value, key) in info[id].ca" :key="key" :column-label="$t(key)">
                   {{ value }}
                 </pf-form-row>
               </b-container>
             </b-form-group>
-            <b-form-group label-cols-md="3" label-size="lg" horizontal v-for="(intermediate, index) in info[id].intermediate_cas" :key="intermediate">
+            <b-form-group label-cols-md="3" label-size="lg" v-for="(intermediate, index) in info[id].intermediate_cas" :key="intermediate">
               <template slot="label">{{ $t('Intermediate') }} <b-badge>{{ index + 1 }}</b-badge></template>
               <b-container fluid>
                 <pf-form-row class="align-items-baseline" v-for="(value, key) in intermediate" :key="key" :column-label="$t(key)">

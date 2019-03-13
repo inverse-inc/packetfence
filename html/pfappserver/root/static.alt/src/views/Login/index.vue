@@ -10,10 +10,10 @@
                         <b-alert :variant="message.level" :show="message.text" fade>
                             {{ $t(message.text) }}
                         </b-alert>
-                        <b-form-group :label="$t('Username')" label-for="username" horizontal>
+                        <b-form-group :label="$t('Username')" label-for="username" label-cols="4">
                             <b-form-input id="username" ref="username" type="text" v-model="username" v-autofocus required></b-form-input>
                         </b-form-group>
-                        <b-form-group :label="$t('Password')" label-for="password" horizontal>
+                        <b-form-group :label="$t('Password')" label-for="password" label-cols="4">
                             <b-form-input id="password" type="password" v-model="password" required></b-form-input>
                         </b-form-group>
                     </b-card-body>
