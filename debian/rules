@@ -79,6 +79,7 @@ install: build
 	# Install empty directories not in our tarball since the git move
 	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons
 	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/conf/ssl
+	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/conf/ssl/acme-challenge
 	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/raddb/sites-enabled
 	install -d -m2770 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/logs
 	install -d -m2770 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/conf

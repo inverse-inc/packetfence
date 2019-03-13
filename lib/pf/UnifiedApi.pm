@@ -1163,11 +1163,15 @@ setup_api_v1_config_certificates_routes
 
 sub setup_api_v1_config_certificates_routes {
     my ($self, $root) = @_;
+    
+    $root->any("/certificates/lets_encrypt/test")->any(['GET'])->to("Config::Certificates#lets_encrypt_test")->name("api.v1.Config.Certificates.list.lets_encrypt_test");
+
     my $resource_route = $root->any("/certificate/#certificate_id")->name("api.v1.Config.Certificates.resource");
     $resource_route->any(['GET'])->to("Config::Certificates#get")->name("api.v1.Config.Certificates.resource.get");
     $resource_route->any(['PUT'])->to("Config::Certificates#replace")->name("api.v1.Config.Certificates.resource.replace");
     $resource_route->any(['GET'] => "/info")->to("Config::Certificates#info")->name("api.v1.Config.Certificates.resource.info");
     $resource_route->any(['POST'] => "/generate_csr")->to("Config::Certificates#generate_csr")->name("api.v1.Config.Certificates.resource.generate_csr");
+    $resource_route->any(['PUT'] => "/lets_encrypt")->to("Config::Certificates#lets_encrypt_replace")->name("api.v1.Config.Certificates.resource.lets_encrypt_replace");
 
     return (undef, $resource_route);
 }

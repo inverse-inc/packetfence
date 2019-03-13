@@ -17,36 +17,16 @@ pf::UnifiedApi::Controller::Config::Certificates
 use strict;
 use warnings;
 use pf::ssl;
+use pf::ssl::lets_encrypt;
 use pf::util;
 use File::Slurp qw(read_file);
 use pf::error qw(is_error);
 use Mojo::Base qw(pf::UnifiedApi::Controller::RestRoute);
-use pf::file_paths qw(
-    $server_cert
-    $server_key
-    $server_pem
-    $radius_server_cert
-    $radius_ca_cert
-    $radius_server_key
-);
+use pf::log;
+use pf::constants;
 
 my $CERT_DELIMITER = "-----END CERTIFICATE-----";
 
-
-sub certs_map {
-    return {
-        http => {
-            cert_file => $server_cert,
-            key_file => $server_key,
-            bundle_file => $server_pem,
-        },
-        radius => {
-            cert_file => $radius_server_cert,
-            ca_file => $radius_ca_cert,
-            key_file => $radius_server_key,
-        },
-    };
-}
 
 =head2 resource
 
@@ -73,7 +53,7 @@ Get the configuration associated to a resource
 sub resource_config {
     my ($self, $certificate_id) = @_;
     $certificate_id //= $self->stash->{certificate_id};
-    return $self->certs_map->{$certificate_id};
+    return pf::ssl::certs_map()->{$certificate_id};
 }
 
 =head2 read_from_files
@@ -132,6 +112,7 @@ Get a certificate resource
 sub get {
     my ($self) = @_;
     my $files_data = $self->read_from_files();
+    $files_data->{lets_encrypt} = isenabled(pf::ssl::lets_encrypt::resource_state($self->stash->{certificate_id})) ? $self->json_true : $self->json_false;
     $self->render(json => $files_data, status => 200);
 }
 
@@ -250,7 +231,9 @@ sub replace {
     my ($self) = @_;
     my $data = $self->parse_json;
     my $params = $self->req->query_params->to_hash;
-
+    
+    # Explicitely disable Let's Encrypt if manually managing certs
+    pf::ssl::lets_encrypt::resource_state($self->stash->{certificate_id}, "disabled");
 
     my ($cert, $intermediate_cas, $cas, $ca, $key) = $self->objects_from_payload($data);
     unless(defined($cert)) {
@@ -287,7 +270,7 @@ sub replace {
     );
     $to_install{bundle_file} = join("\n", $to_install{cert_file}, $to_install{key_file});
 
-    my @errors = $self->install_to_file(undef, %to_install);
+    my @errors = pf::ssl::install_to_file($self->stash->{certificate_id}, %to_install);
     
     if(scalar(@errors) > 0) {
         $self->render_error(422, join(", ", @errors));
@@ -295,36 +278,6 @@ sub replace {
     else {
         $self->render(json => {}, status => 200)
     }
-}
-
-=head2 install_to_file
-
-Install a set of files to the resource file paths
-
-=cut
-
-sub install_to_file {
-    my ($self, $id, %to_install) = @_;
-    
-    my $config = $self->resource_config($id);
-
-    my @errors;
-    while(my ($k, $content) = each(%to_install)) {
-        my $file = $config->{$k};
-        next unless(defined($file));
-
-        my ($res,$msg) = pf::ssl::install_file($file, $content);
-        if($res) {
-            $self->log->info("Installed file $file successfully");
-        }
-        else {
-            my $msg = "Failed installing file $file: $msg";
-            $self->log->error($msg);
-            push @errors, $msg;
-        }
-    }
-
-    return @errors;
 }
 
 =head2 generate_csr
@@ -346,6 +299,71 @@ sub generate_csr {
     }
     else {
         $self->render_error(422, $csr);
+    }
+}
+
+=head2 lets_encrypt_test
+
+Test public connectivity (accessible through the Internet) of a specific domain and ensure that the acme-challenge directory is available
+
+=cut
+
+sub lets_encrypt_test {
+    my ($self) = @_;
+
+    my $params = $self->req->query_params->to_hash;
+
+    if(my $domain = $params->{domain}) {
+        my ($res, $msg) = pf::ssl::lets_encrypt::test_domain($domain);
+        $res = $res ? $TRUE : $FALSE;
+        $self->render(json => $self->tuple_return_to_hash($res, $msg), status => $res ? 200 : 422);
+    }
+    else {
+        $self->render_error(422, "Missing domain parameter");
+    }
+
+}
+
+=head2 lets_encrypt_replace
+
+Handle a PUT call to enable Let's Encrypt for a certificate resource
+
+=cut
+
+sub lets_encrypt_replace {
+    my ($self) = @_;
+
+    my $data = $self->parse_json();
+    my $config = $self->resource_config();
+
+    get_logger->info("Performing Let's Encrypt configuration for domain $data->{common_name} using key $config->{key_file}");
+
+    # Explicitely enable Let's Encrypt if using this API call
+    pf::ssl::lets_encrypt::resource_state($self->stash->{certificate_id}, "enabled");
+
+    my ($result, $bundle) = pf::ssl::lets_encrypt::obtain_bundle($config->{key_file}, $data->{common_name});
+
+    unless($result) {
+        return $self->render_error(422, $bundle);
+    }
+
+    my $cert = $bundle->{certificate};
+    my $intermediate_cas = $bundle->{intermediate_cas};
+    my $key_str = read_file($config->{key_file});
+
+    my %to_install = (
+        cert_file => join("\n", map { $_->as_string() } ($cert, @$intermediate_cas)),
+        key_file => $key_str,
+    );
+    $to_install{bundle_file} = join("\n", $to_install{cert_file}, $to_install{key_file});
+
+    my @errors = pf::ssl::install_to_file($self->stash->{certificate_id}, %to_install);
+    
+    if(scalar(@errors) > 0) {
+        $self->render_error(422, join(", ", @errors));
+    }
+    else {
+        $self->render(json => {}, status => 200)
     }
 }
 

@@ -26,6 +26,36 @@ use Crypt::OpenSSL::RSA;
 use Crypt::OpenSSL::X509;
 use Crypt::OpenSSL::PKCS10;
 
+use pf::file_paths qw(
+    $server_cert
+    $server_key
+    $server_pem
+    $radius_server_cert
+    $radius_ca_cert
+    $radius_server_key
+);
+
+=head2 certs_map
+
+The configuration map of each certificate resource
+
+=cut
+
+sub certs_map {
+    return {
+        http => {
+            cert_file => $server_cert,
+            key_file => $server_key,
+            bundle_file => $server_pem,
+        },
+        radius => {
+            cert_file => $radius_server_cert,
+            ca_file => $radius_ca_cert,
+            key_file => $radius_server_key,
+        },
+    };
+}
+
 =head2 rsa_from_string
 
 Get a Crypt::OpenSSL::RSA from a PEM string
@@ -321,11 +351,42 @@ sub x509_info {
     my ($x509) = @_;
     return {
         subject => $x509->subject(),
+        common_name => cn_from_dn($x509->subject()),
         issuer => $x509->issuer(),
         not_before => $x509->notBefore(),
         not_after => $x509->notAfter(),
         serial => $x509->serial(),
     };
+}
+
+=head2 install_to_file
+
+Install a set of files to the resource file paths
+
+=cut
+
+sub install_to_file {
+    my ($id, %to_install) = @_;
+    
+    my $config = pf::ssl::certs_map->{$id};
+
+    my @errors;
+    while(my ($k, $content) = each(%to_install)) {
+        my $file = $config->{$k};
+        next unless(defined($file));
+
+        my ($res,$msg) = pf::ssl::install_file($file, $content);
+        if($res) {
+            get_logger->info("Installed file $file successfully");
+        }
+        else {
+            my $msg = "Failed installing file $file: $msg";
+            get_logger->error($msg);
+            push @errors, $msg;
+        }
+    }
+
+    return @errors;
 }
 
 =head1 AUTHOR

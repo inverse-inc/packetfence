@@ -19,3 +19,7 @@
   root /usr/local/pf/html/captive-portal/content
 }
 
+:8889/.well-known/acme-challenge {
+  root /usr/local/pf/conf/ssl/acme-challenge
+}
+

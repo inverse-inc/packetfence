@@ -6,6 +6,9 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 # Database backup and maintenance script
 30 00 * * * root /usr/local/pf/addons/database-backup-and-maintenance.sh
 
+# Renew any Let's Encrypt certificates the first of the month
+1 0 1 * * root /usr/local/pf/bin/pfcmd renew_lets_encrypt
+
 # Active / Passive synchronization
 #SYNC_SERVER_IP=X.X.X.X
 # Synchronization for /usr/local/pf
