@@ -42,7 +42,7 @@ has 'with_aup' => ('is' => 'rw', default => sub {1});
 
 has 'aup_template' => (is => 'rw', default => sub {'aup_text.html'});
 
-has '+actions' => (default => sub {{"on_success" => [], "on_failure" => [], "destination_url" => [], "role_from_source" => [], "unregdate_from_source" => [], "time_balance_from_source" => [], "bandwidth_balance_from_source" => []}});
+has '+actions' => (default => sub {{"on_success" => [], "on_failure" => [], "destination_url" => [], "role_from_source" => [], "unregdate_from_source" => [], "time_balance_from_source" => [], "bandwidth_balance_from_source" => [], "unregdate_from_sponsor_source" => []}});
 
 has 'signup_template' => ('is' => 'rw', default => sub {'signin.html'});
 
@@ -68,6 +68,7 @@ sub available_actions {
         'bandwidth_balance_from_source',
         'on_failure',
         'on_success',
+        'unregdate_from_sponsor_source',
     ];
 }
 

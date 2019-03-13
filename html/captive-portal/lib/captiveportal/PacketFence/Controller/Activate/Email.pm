@@ -124,6 +124,22 @@ sub login : Private {
     );
 }
 
+=head2 choose_access_duration
+
+=cut
+
+sub choose_access_duration : Private {
+    my ( $self, $c ) = @_;
+    if ( $c->has_errors ) {
+        $c->stash->{txt_auth_error} = join(' ', grep { ref ($_) eq '' } @{$c->error});
+        $c->clear_errors;
+    }
+    $c->stash(
+        title => "Choose the access duration",
+        template => $pf::web::guest::SPONSOR_CHOOSE_ACCESS_DURATION_TEMPLATE,
+    );
+}
+
 =head2 doSponsorRegistration
 
 =cut
@@ -175,9 +191,13 @@ sub doSponsorRegistration : Private {
                 $c->detach('login');
             }
             if ($values->{$Actions::CHOOSE_ACCESS_DURATION}) {
-                my @options_duration = map { { value => $_, label => $_ } } split(',', $values->{$Actions::CHOOSE_ACCESS_DURATION});
-                $c->stash->{choose_access_duration} = \@options_duration;
-                $c->detach('choose_access_duration');
+                if ($request->param("access_duration")) {
+                    pf::activation::set_unregdate('sponsor',$activation_record->{'activation_code'}, pf::config::access_duration($request->param("access_duration")));
+                } else {
+                    my @options_duration = map { { value => $_, label => $_ } } split(',', $values->{$Actions::CHOOSE_ACCESS_DURATION});
+                    $c->stash->{choose_access_duration} = \@options_duration;
+                    $c->detach('choose_access_duration');
+                }
             }
         }
         # handling log out (not exposed to the UI at this point)
@@ -233,22 +253,6 @@ sub doSponsorRegistration : Private {
         );
         $self->showError($c, "No active sponsor source for this Connection Profile.");
     }
-}
-
-=head2 choose_access_duration
-
-=cut
-
-sub choose_access_duration : Private {
-    my ( $self, $c ) = @_;
-    if ( $c->has_errors ) {
-        $c->stash->{txt_auth_error} = join(' ', grep { ref ($_) eq '' } @{$c->error});
-        $c->clear_errors;
-    }
-    $c->stash(
-        title => "Choose the access duration",
-        template => $pf::web::guest::SPONSOR_CHOOSE_ACCESS_DURATION_TEMPLATE,
-    );
 }
 
 =head1 AUTHOR

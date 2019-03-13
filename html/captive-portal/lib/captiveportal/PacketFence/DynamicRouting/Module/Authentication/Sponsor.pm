@@ -130,6 +130,7 @@ sub check_activation {
     if($record->{status} eq "verified"){
         get_logger->info("Activation record has been validated.");
         $self->session->{sponsor_activated} = $TRUE;
+        $self->session->{unregdate} = $record->{'unregdate'};
         $self->app->response_code(200);
         $self->app->template_output('');
     }
