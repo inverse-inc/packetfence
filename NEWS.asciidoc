@@ -18,6 +18,7 @@ New Features
 ++++++++++++
 * Add 802.1x + CoA support for FortiSwitch
 * Add module to manage PICOS white box switches.
+* DHCP Filter to reply custom attributes in the OFFER and or ACK (deprecate old DHCP Filter)
 
 Enhancements
 ++++++++++++
