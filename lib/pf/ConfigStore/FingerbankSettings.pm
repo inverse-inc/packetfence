@@ -38,10 +38,6 @@ Delete an existing item
 
 sub remove { return; }
 
-=head2 cleanupAfterRead
-
-=cut
-
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 =head1 COPYRIGHT
