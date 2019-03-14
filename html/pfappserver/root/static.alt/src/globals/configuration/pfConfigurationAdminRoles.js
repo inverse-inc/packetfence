@@ -30,8 +30,7 @@ export const pfConfigurationAdminRolesListColumns = [
 
 export const pfConfigurationAdminRolesListFields = [
   { ...pfConfigurationListFields.id, ...{ text: i18n.t('Role Name') } }, // re-text
-  pfConfigurationListFields.description,
-  pfConfigurationListFields.notes
+  pfConfigurationListFields.description
 ]
 
 export const pfConfigurationAdminRoleListConfig = (context = {}) => {
