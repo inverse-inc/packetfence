@@ -410,7 +410,7 @@ export const pfConfigurationMaintenanceTaskViewFields = (context) => {
           ]
         }
       ]
-    case '	cluster_check':
+    case 'cluster_check':
       return [
         {
           tab: null, // ignore tabs

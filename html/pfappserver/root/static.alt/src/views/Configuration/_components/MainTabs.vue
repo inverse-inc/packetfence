@@ -13,7 +13,7 @@
       <b-tab :title="$t('Advanced')" @click="changeTab('advanced')">
         <advanced-view />
       </b-tab>
-      <b-tab :title="$t('Maintenance')" @click="changeTab('maintenance')">
+      <b-tab :title="$t('Maintenance')" @click="changeTab('maintenance_tasks')">
         <maintenance-tasks-list />
       </b-tab>
       <b-tab :title="$t('Services')" @click="changeTab('services')">
@@ -47,7 +47,7 @@ export default {
   },
   computed: {
     tabIndex () {
-      return ['general', 'alerting', 'advanced', 'maintenance', 'services'].indexOf(this.tab)
+      return ['general', 'alerting', 'advanced', 'maintenance_tasks', 'services'].indexOf(this.tab)
     }
   },
   methods: {

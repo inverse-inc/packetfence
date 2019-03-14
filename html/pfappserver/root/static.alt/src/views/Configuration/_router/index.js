@@ -1143,13 +1143,13 @@ const route = {
       props: (route) => ({ tab: 'advanced', query: route.query.query })
     },
     {
-      path: 'maintenance',
+      path: 'maintenance_tasks',
       name: 'maintenance_tasks',
       component: MainTabs,
-      props: (route) => ({ tab: 'maintenance', query: route.query.query })
+      props: (route) => ({ tab: 'maintenance_tasks', query: route.query.query })
     },
     {
-      path: 'maintenance/:id',
+      path: 'maintenance_task/:id',
       name: 'maintenance_task',
       component: MaintenanceTaskView,
       props: (route) => ({ storeName: '$_maintenance_tasks', id: route.params.id }),
