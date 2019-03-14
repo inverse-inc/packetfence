@@ -1170,7 +1170,7 @@ sub setup_api_v1_config_fingerbank_settings_routes {
         "Config::FingerbankSettings",
         "/fingerbank_settings",
         "/fingerbank_setting/#fingerbank_setting_id",
-        "api.v1.Config.SyslogParsers"
+        "api.v1.Config.FingerbankSettings"
     );
 
     return ($collection_route, $resource_route);
