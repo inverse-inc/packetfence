@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"net"
+	"net/url"
 	"os"
 	"regexp"
 	"strconv"
@@ -29,27 +30,29 @@ import (
 )
 
 type pfdns struct {
-	RedirectIP        net.IP
-	Db                *sql.DB
-	IP4log            *sql.Stmt // prepared statement for ip4log queries
-	IP6log            *sql.Stmt // prepared statement for ip6log queries
-	Nodedb            *sql.Stmt // prepared statement for node table queries
-	SecurityEvent     *sql.Stmt // prepared statement for security_event
-	Bh                bool      //  whether blackholing is enabled or not
-	BhIP              net.IP
-	BhCname           string
-	Next              plugin.Handler
-	Webservices       pfconfigdriver.PfConfWebservices
-	FqdnPort          map[*regexp.Regexp][]string
-	FqdnIsolationPort map[*regexp.Regexp][]string
-	FqdnDomainPort    map[*regexp.Regexp][]string
-	Network           map[*net.IPNet]net.IP
-	NetworkType       map[*net.IPNet]string
-	DNSFilter         *cache.Cache
-	IpsetCache        *cache.Cache
-	apiClient         *unifiedapiclient.Client
-	refreshLauncher   *sync.Once
-	PortalFQDN        map[int]map[*net.IPNet]*regexp.Regexp
+	RedirectIP          net.IP
+	Db                  *sql.DB
+	IP4log              *sql.Stmt // prepared statement for ip4log queries
+	IP6log              *sql.Stmt // prepared statement for ip6log queries
+	Nodedb              *sql.Stmt // prepared statement for node table queries
+	SecurityEvent       *sql.Stmt // prepared statement for security_event
+	Bh                  bool      //  whether blackholing is enabled or not
+	BhIP                net.IP
+	BhCname             string
+	Next                plugin.Handler
+	Webservices         pfconfigdriver.PfConfWebservices
+	FqdnPort            map[*regexp.Regexp][]string
+	FqdnIsolationPort   map[*regexp.Regexp][]string
+	FqdnDomainPort      map[*regexp.Regexp][]string
+	Network             map[*net.IPNet]net.IP
+	NetworkType         map[*net.IPNet]string
+	DNSFilter           *cache.Cache
+	IpsetCache          *cache.Cache
+	apiClient           *unifiedapiclient.Client
+	refreshLauncher     *sync.Once
+	PortalFQDN          map[int]map[*net.IPNet]*regexp.Regexp
+	mutex               sync.Mutex
+	detectionMechanisms []*regexp.Regexp
 }
 
 // Ports array
@@ -153,6 +156,13 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("error getting node status %s %s\n", mac, err))
 	}
 
+	var PortalDetection bool
+	PortalDetection = false
+	if pf.checkDetectionMechanisms(ctx, state.QName()) {
+		PortalDetection = true
+		log.LoggerWContext(ctx).Debug("Portal Detection Mechanisms detected " + state.QName())
+	}
+
 	// Domain bypass
 	for k, v := range pf.FqdnDomainPort {
 		if k.MatchString(state.QName()) {
@@ -180,7 +190,35 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 	security_event := pf.HasSecurityEvents(ctx, mac)
 	if security_event {
 		// Passthrough bypass
-		for k, v := range pf.FqdnIsolationPort {
+		if !(PortalDetection) {
+
+			for k, v := range pf.FqdnIsolationPort {
+				if k.MatchString(state.QName()) {
+					answer, err := pf.LocalResolver(state)
+					if err != nil {
+						log.LoggerWContext(ctx).Error("Local resolver error for fqdn" + state.QName() + " with the following error" + err.Error())
+					} else {
+						for _, ans := range append(answer.Answer, answer.Extra...) {
+							switch ansb := ans.(type) {
+							case *dns.A:
+								for _, valeur := range v {
+									if err := pf.SetPassthrough(ctx, "passthrough_isolation", ansb.A.String(), valeur, false); err != nil {
+										log.LoggerWContext(ctx).Error(fmt.Sprintf("Not able to contact Unified API to adjust passthroughs: %s", err))
+									}
+								}
+							}
+						}
+						log.LoggerWContext(ctx).Debug(srcIP + " : " + mac + " isolation passthrough  for fqdn " + state.QName())
+						w.WriteMsg(answer)
+					}
+					return 0, nil
+				}
+			}
+		}
+	}
+	// Passthrough bypass
+	if !(PortalDetection) {
+		for k, v := range pf.FqdnPort {
 			if k.MatchString(state.QName()) {
 				answer, err := pf.LocalResolver(state)
 				if err != nil {
@@ -190,42 +228,18 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 						switch ansb := ans.(type) {
 						case *dns.A:
 							for _, valeur := range v {
-								if err := pf.SetPassthrough(ctx, "passthrough_isolation", ansb.A.String(), valeur, false); err != nil {
-									log.LoggerWContext(ctx).Error(fmt.Sprintf("Not able to contact Unified API to adjust passthroughs: %s", err))
+								if err := pf.SetPassthrough(ctx, "passthrough", ansb.A.String(), valeur, false); err != nil {
+									log.LoggerWContext(ctx).Error(fmt.Sprintf("Not able to contact Unified API to adjust passthroughs %s", err))
 								}
 							}
 						}
+
 					}
-					log.LoggerWContext(ctx).Debug(srcIP + " : " + mac + " isolation passthrough  for fqdn " + state.QName())
 					w.WriteMsg(answer)
+					log.LoggerWContext(ctx).Debug(srcIP + " : " + mac + " passthrough for fqdn " + state.QName())
 				}
 				return 0, nil
 			}
-		}
-	}
-
-	// Passthrough bypass
-	for k, v := range pf.FqdnPort {
-		if k.MatchString(state.QName()) {
-			answer, err := pf.LocalResolver(state)
-			if err != nil {
-				log.LoggerWContext(ctx).Error("Local resolver error for fqdn" + state.QName() + " with the following error" + err.Error())
-			} else {
-				for _, ans := range append(answer.Answer, answer.Extra...) {
-					switch ansb := ans.(type) {
-					case *dns.A:
-						for _, valeur := range v {
-							if err := pf.SetPassthrough(ctx, "passthrough", ansb.A.String(), valeur, false); err != nil {
-								log.LoggerWContext(ctx).Error(fmt.Sprintf("Not able to contact Unified API to adjust passthroughs %s", err))
-							}
-						}
-					}
-
-				}
-				w.WriteMsg(answer)
-				log.LoggerWContext(ctx).Debug(srcIP + " : " + mac + " passthrough for fqdn " + state.QName())
-			}
-			return 0, nil
 		}
 	}
 
@@ -698,4 +712,46 @@ func (pf *pfdns) PortalFQDNInit(ctx context.Context) error {
 
 func (pf *pfdns) MakeKeyCache(mac string, category string, security_event bool, qname string) string {
 	return mac + category + strconv.FormatBool(security_event) + qname
+}
+
+func (pf *pfdns) MakeDetectionMecanism(ctx context.Context) error {
+	portal := pfconfigdriver.Config.PfConf.CaptivePortal
+	pf.detectionMechanisms = make([]*regexp.Regexp, 0)
+	var err error
+	for _, v := range portal.DetectionMecanismUrls {
+		fqdn, err := url.Parse(v)
+		if err != nil {
+			log.LoggerWContext(ctx).Error(fmt.Sprintf("Not able to parse the url %s", err))
+			continue
+		}
+		err = pf.addDetectionMechanismsToList(ctx, fqdn.Host)
+	}
+	return err
+}
+
+// addDetectionMechanismsToList add all detection mechanisms in a list
+func (pf *pfdns) addDetectionMechanismsToList(ctx context.Context, r string) error {
+	rgx, err := regexp.Compile(r)
+	if err == nil {
+		pf.mutex.Lock()
+		pf.detectionMechanisms = append(pf.detectionMechanisms, rgx)
+		pf.mutex.Unlock()
+	} else {
+		log.LoggerWContext(ctx).Error(fmt.Sprintf("Not able to compile the regexp %s", err))
+	}
+	return err
+}
+
+// checkDetectionMechanisms compare the url to the detection mechanisms regex
+func (pf *pfdns) checkDetectionMechanisms(ctx context.Context, e string) bool {
+	if pf.detectionMechanisms == nil {
+		return false
+	}
+
+	for _, rgx := range pf.detectionMechanisms {
+		if rgx.MatchString(e) {
+			return true
+		}
+	}
+	return false
 }
