@@ -104,8 +104,6 @@ sub deauthenticateMacDefault {
     }
 
     $logger->debug("Change the state of $mac using RADIUS CoA");
-    # TODO push Login-User => 1 (RFC2865) in pf::radius::constants if someone ever reads this
-    # (not done because it doesn't exist in current branch)
     return $self->radiusDisconnect( $mac, { 'Service-Type' => 'Login-User'} );
 }
 
@@ -366,7 +364,7 @@ sub parseVPNRequest {
                            ? clean_ip($radius_request->{'Calling-Station-Id'}[0])
                            : clean_ip($radius_request->{'Calling-Station-Id'});
 
-    my $user_name       = $radius_request->{'PacketFence-UserNameAttribute'} || $radius_request->{'TLS-Client-Cert-Subject-Alt-Name-Upn'} || $radius_request->{'TLS-Client-Cert-Common-Name'} || $radius_request->{'User-Name'};
+    my $user_name       = $self->parseRequestUsername($radius_request);
     my $nas_port_type   = $radius_request->{'NAS-Port-Type'};
     my $port            = $radius_request->{'NAS-Port'};
     my $eap_type        = ( exists($radius_request->{'EAP-Type'}) ? $radius_request->{'EAP-Type'} : 0 );
