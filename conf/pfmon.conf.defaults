@@ -619,7 +619,7 @@ description=Controls the cleanup of the accounting tables (raddact and radacct_l
 #
 # status
 #
-# If the task auth_log_cleanup is enabled
+# If the task acct_cleanup is enabled
 status=enabled
 #
 # interval
@@ -634,11 +634,11 @@ batch=100
 #
 # timeout
 #
-# How long a auth_log_cleanup job can run
+# How long a acct_cleanup job can run
 timeout=10s
 #
 # window
 #
-# How long to keep a auth_log_cleanup entry before deleting it
+# How long to keep a acct_cleanup entry before deleting it
 window=1D
 
