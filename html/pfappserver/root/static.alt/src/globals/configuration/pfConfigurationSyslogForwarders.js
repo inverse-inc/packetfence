@@ -4,7 +4,9 @@ import pfFormInput from '@/components/pfFormInput'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import {
   pfConfigurationListColumns,
-  pfConfigurationListFields
+  pfConfigurationListFields,
+  pfConfigurationAttributesFromMeta,
+  pfConfigurationValidatorsFromMeta
 } from '@/globals/configuration/pfConfiguration'
 import {
   and,
@@ -23,52 +25,6 @@ const {
   number,
   required
 } = require('vuelidate/lib/validators')
-
-export const pfConfigurationSyslogForwardersLogs = [
-  'fingerbank.log',
-  'httpd.aaa.error',
-  'httpd.aaa.access',
-  'httpd.admin.access',
-  'httpd.admin.catalyst',
-  'httpd.admin.error',
-  'httpd.admin.log',
-  'httpd.collector.error',
-  'httpd.collector.log',
-  'httpd.parking.error',
-  'httpd.parking.access',
-  'httpd.portal.error',
-  'httpd.portal.access',
-  'httpd.portal.catalyst',
-  'httpd.proxy.error',
-  'httpd.proxy.access',
-  'httpd.webservices.error',
-  'httpd.webservices.access',
-  'httpd.api-frontend.access',
-  'api-frontend.log',
-  'pfstats.log',
-  'packetfence.log',
-  'pfbandwidthd.log',
-  'pfconfig.log',
-  'pfdetect.log',
-  'pfdhcplistener.log',
-  'pfdns.log',
-  'pffilter.log',
-  'pfmon.log',
-  'pfsso.log',
-  'radius-acct.log',
-  'radius-cli.log',
-  'radius-eduroam.log',
-  'radius-load_balancer.log',
-  'radius.log',
-  'redis_cache.log',
-  'redis_ntlm_cache.log',
-  'redis_queue.log',
-  'redis_server.log',
-  'mariadb_error.log',
-  'haproxy_portal.log',
-  'haproxy_db.log',
-  'etcd.log'
-]
 
 export const pfConfigurationSyslogForwardersListColumns = [
   { ...pfConfigurationListColumns.id, ...{ label: i18n.t('Syslog Name') } }, // re-label
@@ -129,7 +85,10 @@ export const pfConfigurationSyslogForwarderViewFields = (context) => {
   const {
     isNew = false,
     isClone = false,
-    syslogForwarder: form = {}
+    form = {},
+    options: {
+      meta = {}
+    }
   } = context
   return [
     {
@@ -142,63 +101,53 @@ export const pfConfigurationSyslogForwarderViewFields = (context) => {
               key: 'id',
               component: pfFormInput,
               attrs: {
-                disabled: (!isNew && !isClone)
+                ...pfConfigurationAttributesFromMeta(meta, 'id'),
+                ...{
+                  disabled: (!isNew && !isClone)
+                }
               },
               validators: {
-                [i18n.t('Value required.')]: required,
-                [i18n.t('Maximum 255 characters.')]: maxLength(255),
-                [i18n.t('Syslog Forwarder exists.')]: not(and(required, conditional(isNew || isClone), hasSyslogForwarders, syslogForwarderExists))
+                ...pfConfigurationValidatorsFromMeta(meta, 'id'),
+                ...{
+                  [i18n.t('Syslog Forwarder exists.')]: not(and(required, conditional(isNew || isClone), hasSyslogForwarders, syslogForwarderExists))
+                }
               }
             }
           ]
         },
         {
+          if: ['server'].includes(form.type),
           label: i18n.t('Protocol'),
           fields: [
             {
               key: 'proto',
               component: pfFormChosen,
-              attrs: {
-                collapseObject: true,
-                placeholder: i18n.t('Click to add a protocol'),
-                trackBy: 'value',
-                label: 'text',
-                options: ['udp', 'tcp'].map(proto => { return { value: proto, text: proto } })
-              },
-              validators: {
-                [i18n.t('Value required.')]: required
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'proto'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'proto')
             }
           ]
         },
         {
+          if: ['server'].includes(form.type),
           label: i18n.t('Host'),
           fields: [
             {
               key: 'host',
               component: pfFormInput,
-              validators: {
-                [i18n.t('Value required.')]: required,
-                [i18n.t('Maximum 255 characters.')]: maxLength(255),
-                [i18n.t('Invalid Hostname or IP Address.')]: or(isFQDN, ipAddress)
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'host'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'host')
             }
           ]
         },
         {
+          if: ['server'].includes(form.type),
           label: i18n.t('Port'),
           fields: [
             {
               key: 'port',
               component: pfFormInput,
-              attrs: {
-                type: number,
-                step: 1
-              },
-              validators: {
-                [i18n.t('Value required.')]: required,
-                [i18n.t('Invalid Port Number.')]: isPort
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'port'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'port')
             }
           ]
         },
@@ -221,27 +170,12 @@ export const pfConfigurationSyslogForwarderViewFields = (context) => {
             {
               key: 'logs',
               component: pfFormChosen,
-              attrs: {
-                collapseObject: true,
-                placeholder: i18n.t('Click to add a log'),
-                trackBy: 'value',
-                label: 'text',
-                multiple: true,
-                clearOnSelect: false,
-                closeOnSelect: false,
-                options: pfConfigurationSyslogForwardersLogs.map(log => { return { value: log, text: log } })
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'logs'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'logs')
             }
           ]
         }
       ]
     }
   ]
-}
-
-export const pfConfigurationSyslogForwarderViewDefaults = (context = {}) => {
-  return {
-    all_logs: 'enabled',
-    logs: pfConfigurationSyslogForwardersLogs
-  }
 }

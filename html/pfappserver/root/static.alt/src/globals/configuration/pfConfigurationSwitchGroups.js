@@ -184,7 +184,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
               validators: {
                 ...pfConfigurationValidatorsFromMeta(meta, 'id'),
                 ...{
-                  [i18n.t('Role exists.')]: not(and(required, conditional(isNew || isClone), hasSwitchGroups, switchGroupExists))
+                  [i18n.t('Switch Group exists.')]: not(and(required, conditional(isNew || isClone), hasSwitchGroups, switchGroupExists))
                 }
               }
             }

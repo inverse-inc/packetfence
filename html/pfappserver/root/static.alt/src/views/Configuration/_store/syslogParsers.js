@@ -34,6 +34,16 @@ const actions = {
       return response.items
     })
   },
+  optionsById: ({}, id) => {
+    return api.syslogParserOptions(id).then(response => {
+      return response
+    })
+  },
+  optionsBySyslogParserType: ({}, syslogParserType) => {
+    return api.syslogParsersOptions(syslogParserType).then(response => {
+      return response
+    })
+  },
   getSyslogParser: ({ state, commit }, id) => {
     if (state.cache[id]) {
       return Promise.resolve(state.cache[id])

@@ -89,8 +89,11 @@ export default {
           items: [
             { name: this.$i18n.t('Captive Portal'), path: '/configuration/captive_portal' },
             { name: this.$i18n.t('Billing Tiers'), path: '/configuration/billing_tiers' },
+            { name: this.$i18n.t('PKI Providers'), path: '/configuration/pki_providers' },
+            { name: this.$i18n.t('Provisioners'), path: '/configuration/provisionings' },
             { name: this.$i18n.t('Portal Modules'), path: '/configuration/portal_modules' },
-            { name: this.$i18n.t('Access Duration'), path: '/configuration/access_duration' }
+            { name: this.$i18n.t('Access Duration'), path: '/configuration/access_duration' },
+            { name: this.$i18n.t('Device Registration'), path: '/configuration/device_registrations' }
           ]
         },
         {
@@ -98,8 +101,44 @@ export default {
           icon: 'project-diagram',
           collapsable: true,
           items: [
+            { name: this.$i18n.t('Networks'),
+              items: [
+                { name: this.$i18n.t('Network Settings'), path: '/configuration/network' },
+                { name: this.$i18n.t('Interfaces'), path: '/configuration/interfaces' },
+                { name: this.$i18n.t('Inline'), path: '/configuration/inline' },
+                { name: this.$i18n.t('Inline Traffic Shaping'), path: '/configuration/traffic_shapings' },
+                { name: this.$i18n.t('Fencing'), path: '/configuration/fencing' },
+                { name: this.$i18n.t('Device Parking'), path: '/configuration/parking' }
+              ]
+            },
+            { name: this.$i18n.t('SNMP'), path: '/configuration/snmp_traps' },
             { name: this.$i18n.t('Floating Devices'), path: '/configuration/floating_devices' },
             { name: this.$i18n.t('SSL Certificates'), path: '/configuration/certificates' }
+          ]
+        },
+        {
+          name: this.$i18n.t('System Configuration'),
+          icon: 'cogs',
+          collapsable: true,
+          items: [
+            { name: this.$i18n.t('Main Configuration'),
+              items: [
+                { name: this.$i18n.t('General Configuration'), path: '/configuration/general' },
+                { name: this.$i18n.t('Alerting'), path: '/configuration/alerting' },
+                { name: this.$i18n.t('Advanced'), path: '/configuration/advanced' },
+                { name: this.$i18n.t('Maintenance'), path: '/configuration/maintenance' },
+                { name: this.$i18n.t('Services'), path: '/configuration/services' }
+              ]
+            },
+            { name: this.$i18n.t('Database'),
+              items: [
+                { name: this.$i18n.t('General'), path: '/configuration/database' },
+                { name: this.$i18n.t('Advanced'), path: '/configuration/database_advanced' }
+              ]
+            },
+            { name: this.$i18n.t('Cluster'), path: '/configuration/active_active' },
+            { name: this.$i18n.t('Radius Configuration'), path: '/configuration/radius' },
+            { name: this.$i18n.t('Admin Access'), path: '/configuration/admin_roles' }
           ]
         }
       ]

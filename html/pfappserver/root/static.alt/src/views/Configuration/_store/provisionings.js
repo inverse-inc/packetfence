@@ -33,6 +33,16 @@ const actions = {
       return response.items
     })
   },
+  optionsById: ({}, id) => {
+    return api.provisioningOptions(id).then(response => {
+      return response
+    })
+  },
+  optionsByProvisioningType: ({}, provisioningType) => {
+    return api.provisioningsOptions(provisioningType).then(response => {
+      return response
+    })
+  },
   getProvisioning: ({ state, commit }, id) => {
     if (state.cache[id]) {
       return Promise.resolve(state.cache[id])

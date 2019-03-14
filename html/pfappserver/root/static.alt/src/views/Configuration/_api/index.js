@@ -55,6 +55,11 @@ export default {
       return response.data.item
     })
   },
+  baseOptions: id => {
+    return apiCall.options(`config/base/${id}`).then(response => {
+      return response.data
+    })
+  },
   updateBase: data => {
     return apiCall.patch(`config/base/${data.id}`, data).then(response => {
       return response.data
@@ -68,9 +73,19 @@ export default {
       return response.data
     })
   },
+  billingTiersOptions: () => {
+    return apiCall.options('config/billing_tiers').then(response => {
+      return response.data
+    })
+  },
   billingTier: id => {
     return apiCall.get(`config/billing_tier/${id}`).then(response => {
       return response.data.item
+    })
+  },
+  billingTierOptions: id => {
+    return apiCall.options(`config/billing_tier/${id}`).then(response => {
+      return response.data
     })
   },
   createBillingTier: data => {
@@ -197,9 +212,24 @@ export default {
   /**
    * Floating Devices
    */
+  floatingDevices: params => {
+    return apiCall.get('config/floating_devices', { params }).then(response => {
+      return response.data
+    })
+  },
+  floatingDevicesOptions: () => {
+    return apiCall.options('config/floating_devices').then(response => {
+      return response.data
+    })
+  },
   floatingDevice: id => {
     return apiCall.get(`config/floating_device/${id}`).then(response => {
       return response.data.item
+    })
+  },
+  floatingDeviceOptions: id => {
+    return apiCall.options(`config/floating_device/${id}`).then(response => {
+      return response.data
     })
   },
   createFloatingDevice: data => {
@@ -298,7 +328,7 @@ export default {
     })
   },
   updateSwitch: data => {
-    return apiCall.patch(`config/switch/${data.encodeURIComponent(data.id)}`, data).then(response => {
+    return apiCall.patch(`config/switch/${encodeURIComponent(data.id)}`, data).then(response => {
       return response.data
     })
   },
@@ -334,7 +364,7 @@ export default {
     })
   },
   updateSwitchGroup: data => {
-    return apiCall.patch(`config/switch_group/${data.encodeURIComponent(data.id)}`, data).then(response => {
+    return apiCall.patch(`config/switch_group/${encodeURIComponent(data.id)}`, data).then(response => {
       return response.data
     })
   },
@@ -412,9 +442,19 @@ export default {
       return response.data
     })
   },
+  provisioningsOptions: provisioningType => {
+    return apiCall.options(`config/provisionings?type=${provisioningType}`).then(response => {
+      return response.data
+    })
+  },
   provisioning: id => {
     return apiCall.get(`config/provisioning/${id}`).then(response => {
       return response.data.item
+    })
+  },
+  provisioningOptions: id => {
+    return apiCall.options(`config/provisioning/${id}`).then(response => {
+      return response.data
     })
   },
   createProvisioning: data => {
@@ -645,9 +685,19 @@ export default {
       return response.data
     })
   },
+  firewallsOptions: firewallType => {
+    return apiCall.options(`config/firewalls?type=${firewallType}`).then(response => {
+      return response.data
+    })
+  },
   firewall: id => {
     return apiCall.get(`config/firewall/${id}`).then(response => {
       return response.data.item
+    })
+  },
+  firewallOptions: id => {
+    return apiCall.options(`config/firewall/${id}`).then(response => {
+      return response.data
     })
   },
   createFirewall: data => {
@@ -671,9 +721,19 @@ export default {
       return response.data
     })
   },
+  scanEnginesOptions: scanType => {
+    return apiCall.options(`config/scans?type=${scanType}`).then(response => {
+      return response.data
+    })
+  },
   scanEngine: id => {
     return apiCall.get(`config/scan/${id}`).then(response => {
       return response.data.item
+    })
+  },
+  scanEngineOptions: id => {
+    return apiCall.options(`config/scan/${id}`).then(response => {
+      return response.data
     })
   },
   createScanEngine: data => {
@@ -697,9 +757,19 @@ export default {
       return response.data
     })
   },
+  syslogParsersOptions: syslogParserType => {
+    return apiCall.options(`config/syslog_parsers?type=${syslogParserType}`).then(response => {
+      return response.data
+    })
+  },
   syslogParser: id => {
     return apiCall.get(`config/syslog_parser/${id}`).then(response => {
       return response.data.item
+    })
+  },
+  syslogParserOptions: id => {
+    return apiCall.options(`config/syslog_parser/${id}`).then(response => {
+      return response.data
     })
   },
   createSyslogParser: data => {
@@ -728,9 +798,19 @@ export default {
       return response.data
     })
   },
+  syslogForwardersOptions: syslogForwarderType => {
+    return apiCall.options(`config/syslog_forwarders?type=${syslogForwarderType}`).then(response => {
+      return response.data
+    })
+  },
   syslogForwarder: id => {
     return apiCall.get(`config/syslog_forwarder/${id}`).then(response => {
       return response.data.item
+    })
+  },
+  syslogForwarderOptions: id => {
+    return apiCall.options(`config/syslog_forwarder/${id}`).then(response => {
+      return response.data
     })
   },
   createSyslogForwarder: data => {
@@ -771,5 +851,149 @@ export default {
   },
   deleteWrixLocation: id => {
     return apiCall.delete(`wrix_location/${id}`)
+  },
+  /**
+   * PKI Providers
+   */
+  pkiProviders: params => {
+    return apiCall.get('config/pki_providers', { params }).then(response => {
+      return response.data
+    })
+  },
+  pkiProvidersOptions: providerType => {
+    return apiCall.options(`config/pki_providers?type=${providerType}`).then(response => {
+      return response.data
+    })
+  },
+  pkiProvider: id => {
+    return apiCall.get(`config/pki_provider/${id}`).then(response => {
+      return response.data.item
+    })
+  },
+  pkiProviderOptions: id => {
+    return apiCall.options(`config/pki_provider/${id}`).then(response => {
+      return response.data
+    })
+  },
+  createPkiProvider: data => {
+    return apiCall.post('config/pki_providers', data).then(response => {
+      return response.data
+    })
+  },
+  updatePkiProvider: data => {
+    return apiCall.patch(`config/pki_provider/${data.id}`, data).then(response => {
+      return response.data
+    })
+  },
+  deletePkiProvider: id => {
+    return apiCall.delete(`config/pki_provider/${id}`)
+  },
+  /**
+   * Device Registration
+   */
+  deviceRegistrations: params => {
+    return apiCall.get('config/device_registrations', { params }).then(response => {
+      return response.data
+    })
+  },
+  deviceRegistrationsOptions: () => {
+    return apiCall.options('config/device_registrations').then(response => {
+      return response.data
+    })
+  },
+  deviceRegistration: id => {
+    return apiCall.get(`config/device_registration/${id}`).then(response => {
+      return response.data.item
+    })
+  },
+  deviceRegistrationOptions: id => {
+    return apiCall.options(`config/device_registration/${id}`).then(response => {
+      return response.data
+    })
+  },
+  createDeviceRegistration: data => {
+    return apiCall.post('config/device_registrations', data).then(response => {
+      return response.data
+    })
+  },
+  updateDeviceRegistration: data => {
+    return apiCall.patch(`config/device_registration/${data.id}`, data).then(response => {
+      return response.data
+    })
+  },
+  deleteDeviceRegistration: id => {
+    return apiCall.delete(`config/device_registration/${id}`)
+  },
+  /**
+   * Traffic Shaping Policies
+   */
+  trafficShapingPolicies: params => {
+    return apiCall.get('config/traffic_shaping_policies', { params }).then(response => {
+      return response.data
+    })
+  },
+  trafficShapingPoliciesOptions: () => {
+    return apiCall.options('config/traffic_shaping_policies').then(response => {
+      return response.data
+    })
+  },
+  trafficShapingPolicy: id => {
+    return apiCall.get(`config/traffic_shaping_policy/${id}`).then(response => {
+      return response.data.item
+    })
+  },
+  trafficShapingPolicyOptions: id => {
+    return apiCall.options(`config/traffic_shaping_policy/${id}`).then(response => {
+      return response.data
+    })
+  },
+  createTrafficShapingPolicy: data => {
+    return apiCall.post('config/traffic_shaping_policies', data).then(response => {
+      return response.data
+    })
+  },
+  updateTrafficShapingPolicy: data => {
+    return apiCall.patch(`config/traffic_shaping_policy/${data.id}`, data).then(response => {
+      return response.data
+    })
+  },
+  deleteTrafficShapingPolicy: id => {
+    return apiCall.delete(`config/traffic_shaping_policy/${id}`)
+  },
+  /**
+   * Admin Roles
+   */
+  adminRoles: params => {
+    return apiCall.get('config/admin_roles', { params }).then(response => {
+      return response.data
+    })
+  },
+  adminRolesOptions: () => {
+    return apiCall.options('config/admin_roles').then(response => {
+      return response.data
+    })
+  },
+  adminRole: id => {
+    return apiCall.get(`config/admin_role/${id}`).then(response => {
+      return response.data.item
+    })
+  },
+  adminRoleOptions: id => {
+    return apiCall.options(`config/admin_role/${id}`).then(response => {
+      return response.data
+    })
+  },
+  createAdminRole: data => {
+    return apiCall.post('config/admin_roles', data).then(response => {
+      return response.data
+    })
+  },
+  updateAdminRole: data => {
+    return apiCall.patch(`config/admin_role/${data.id}`, data).then(response => {
+      return response.data
+    })
+  },
+  deleteAdminRole: id => {
+    return apiCall.delete(`config/admin_role/${id}`)
   }
 }

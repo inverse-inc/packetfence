@@ -33,6 +33,16 @@ const actions = {
       return response.items
     })
   },
+  optionsById: ({}, id) => {
+    return api.scanEngineOptions(id).then(response => {
+      return response
+    })
+  },
+  optionsByScanType: ({}, scanType) => {
+    return api.scanEnginesOptions(scanType).then(response => {
+      return response
+    })
+  },
   getScanEngine: ({ state, commit }, id) => {
     if (state.cache[id]) {
       return Promise.resolve(state.cache[id])

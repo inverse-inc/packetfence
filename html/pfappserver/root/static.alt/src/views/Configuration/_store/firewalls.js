@@ -33,6 +33,16 @@ const actions = {
       return response.items
     })
   },
+  optionsById: ({}, id) => {
+    return api.firewallOptions(id).then(response => {
+      return response
+    })
+  },
+  optionsByFirewallType: ({}, firewallType) => {
+    return api.firewallsOptions(firewallType).then(response => {
+      return response
+    })
+  },
   getFirewall: ({ state, commit }, id) => {
     if (state.cache[id]) {
       return Promise.resolve(state.cache[id])

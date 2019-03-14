@@ -2,11 +2,11 @@
   <pf-config-view
     :isLoading="isLoading"
     :form="getForm"
-    :model="billingTier"
-    :vuelidate="$v.billingTier"
+    :model="form"
+    :vuelidate="$v.form"
     :isNew="isNew"
     :isClone="isClone"
-    @validations="billingTierValidations = $event"
+    @validations="formValidations = $event"
     @close="close"
     @create="create"
     @save="save"
@@ -23,7 +23,7 @@
     <template slot="footer"
       scope="{isDeletable}"
     >
-      <b-card-footer @mouseenter="$v.billingTier.$touch()">
+      <b-card-footer @mouseenter="$v.form.$touch()">
         <pf-button-save :disabled="invalidForm" :isLoading="isLoading">
           <template v-if="isNew">{{ $t('Create') }}</template>
           <template v-else-if="isClone">{{ $t('Clone') }}</template>
@@ -31,6 +31,7 @@
           <template v-else>{{ $t('Save') }}</template>
         </pf-button-save>
         <pf-button-delete v-if="isDeletable" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Billing Tier?')" @on-delete="remove()"/>
+        <b-button :disabled="isLoading" class="ml-1" variant="outline-primary" @click="init()">{{ $t('Reset') }}</b-button>
       </b-card-footer>
     </template>
   </pf-config-view>
@@ -43,8 +44,10 @@ import pfButtonDelete from '@/components/pfButtonDelete'
 import pfMixinCtrlKey from '@/components/pfMixinCtrlKey'
 import pfMixinEscapeKey from '@/components/pfMixinEscapeKey'
 import {
-  pfConfigurationBillingTierViewFields as fields,
-  pfConfigurationBillingTierViewDefaults as defaults
+  pfConfigurationDefaultsFromMeta as defaults
+} from '@/globals/configuration/pfConfiguration'
+import {
+  pfConfigurationBillingTierViewFields as fields
 } from '@/globals/configuration/pfConfigurationBillingTiers'
 const { validationMixin } = require('vuelidate')
 
@@ -81,13 +84,14 @@ export default {
   },
   data () {
     return {
-      billingTier: defaults(this), // will be overloaded with the data from the store
-      billingTierValidations: {} // will be overloaded with data from the pfConfigView
+      form: {}, // will be overloaded with the data from the store
+      formValidations: {}, // will be overloaded with data from the pfConfigView
+      options: {}
     }
   },
   validations () {
     return {
-      billingTier: this.billingTierValidations
+      form: this.formValidations
     }
   },
   computed: {
@@ -95,7 +99,7 @@ export default {
       return this.$store.getters[`${this.storeName}/isLoading`]
     },
     invalidForm () {
-      return this.$v.billingTier.$invalid || this.$store.getters[`${this.storeName}/isWaiting`]
+      return this.$v.form.$invalid || this.$store.getters[`${this.storeName}/isWaiting`]
     },
     getForm () {
       return {
@@ -107,29 +111,44 @@ export default {
       return this.$store.getters['config/rolesList']
     },
     isDeletable () {
-      if (this.isNew || this.isClone || ('not_deletable' in this.billingTier && this.billingTier.not_deletable)) {
+      if (this.isNew || this.isClone || ('not_deletable' in this.form && this.form.not_deletable)) {
         return false
       }
       return true
     }
   },
   methods: {
+    init () {
+      this.$store.dispatch(`${this.storeName}/options`, this.id).then(options => {
+        // store options
+        this.options = Object.assign({}, options)
+        if (this.id) {
+          // existing
+          this.$store.dispatch(`${this.storeName}/getBillingTier`, this.id).then(form => {
+            this.form = Object.assign({}, form)
+          })
+        } else {
+          // new
+          this.form = defaults(options.meta) // set defaults
+        }
+      })
+    },
     close () {
       this.$router.push({ name: 'billing_tiers' })
     },
     create () {
       const ctrlKey = this.ctrlKey
-      this.$store.dispatch(`${this.storeName}/createBillingTier`, this.billingTier).then(response => {
+      this.$store.dispatch(`${this.storeName}/createBillingTier`, this.form).then(response => {
         if (ctrlKey) { // [CTRL] key pressed
           this.close()
         } else {
-          this.$router.push({ name: 'billing_tier', params: { id: this.billingTier.id } })
+          this.$router.push({ name: 'billing_tier', params: { id: this.form.id } })
         }
       })
     },
     save () {
       const ctrlKey = this.ctrlKey
-      this.$store.dispatch(`${this.storeName}/updateBillingTier`, this.billingTier).then(response => {
+      this.$store.dispatch(`${this.storeName}/updateBillingTier`, this.form).then(response => {
         if (ctrlKey) { // [CTRL] key pressed
           this.close()
         }
@@ -142,12 +161,7 @@ export default {
     }
   },
   created () {
-    if (this.id) {
-      this.$store.dispatch(`${this.storeName}/getBillingTier`, this.id).then(data => {
-        this.billingTier = Object.assign({}, data)
-      })
-    }
-    this.$store.dispatch('config/getRoles')
+    this.init()
   }
 }
 </script>

@@ -33,6 +33,16 @@ const actions = {
       return response.items
     })
   },
+  optionsById: ({}, id) => {
+    return api.syslogForwarderOptions(id).then(response => {
+      return response
+    })
+  },
+  optionsBySyslogForwarderType: ({}, syslogForwarderType) => {
+    return api.syslogForwardersOptions(syslogForwarderType).then(response => {
+      return response
+    })
+  },
   getSyslogForwarder: ({ state, commit }, id) => {
     if (state.cache[id]) {
       return Promise.resolve(state.cache[id])

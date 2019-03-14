@@ -17,6 +17,7 @@
         <pf-button-save :disabled="invalidForm" :isLoading="isLoading">
           <template>{{ $t('Save') }}</template>
         </pf-button-save>
+        <b-button :disabled="isLoading" class="ml-1" variant="outline-primary" @click="init()">{{ $t('Reset') }}</b-button>
       </b-card-footer>
     </template>
   </pf-config-view>
@@ -26,9 +27,7 @@
 import pfConfigView from '@/components/pfConfigView'
 import pfButtonSave from '@/components/pfButtonSave'
 import {
-  pfConfigurationCiscoMobilityServicesEngineViewFields as fields,
-  pfConfigurationCiscoMobilityServicesEngineViewDefaults as defaults,
-  pfConfigurationCiscoMobilityServicesEngineViewPlaceholders as placeholders
+  pfConfigurationCiscoMobilityServicesEngineViewFields as fields
 } from '@/globals/configuration/pfConfigurationCiscoMobilityServicesEngine'
 
 const { validationMixin } = require('vuelidate')
@@ -51,9 +50,9 @@ export default {
   },
   data () {
     return {
-      form: defaults(this), // will be overloaded with the data from the store
+      form: {}, // will be overloaded with the data from the store
       formValidations: {}, // will be overloaded with data from the pfConfigView
-      placeholders: placeholders(this) // form placeholders
+      options: {}
     }
   },
   validations () {
@@ -76,6 +75,15 @@ export default {
     }
   },
   methods: {
+    init () {
+      this.$store.dispatch('$_bases/optionsMseTab').then(options => {
+        // store options
+        this.options = JSON.parse(JSON.stringify(options))
+        this.$store.dispatch('$_bases/getMseTab').then(data => {
+          this.form = JSON.parse(JSON.stringify(data))
+        })
+      })
+    },
     save () {
       let form = JSON.parse(JSON.stringify(this.form)) // dereference
       this.$store.dispatch('$_bases/updateMseTab', form).then(response => {
@@ -84,9 +92,7 @@ export default {
     }
   },
   created () {
-    this.$store.dispatch('$_bases/getMseTab').then(data => {
-      this.form = Object.assign({}, data)
-    })
+    this.init()
   }
 }
 </script>

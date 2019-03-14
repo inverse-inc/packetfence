@@ -156,7 +156,7 @@ export const pfConfigurationAuthenticationSourceFields = {
   account_sid: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Account SID'),
-      text: i18n.t('Twilio Account SID'),
+      text: i18n.t('Twilio Account SID.'),
       fields: [
         {
           key: 'account_sid',
@@ -274,7 +274,7 @@ export const pfConfigurationAuthenticationSourceFields = {
   allow_localdomain: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Allow Local Domain'),
-      text: i18n.t('Accept self-registration with email address from the local domain'),
+      text: i18n.t('Accept self-registration with email address from the local domain.'),
       fields: [
         {
           key: 'allow_localdomain',
@@ -342,7 +342,7 @@ export const pfConfigurationAuthenticationSourceFields = {
   auth_listening_port: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Authentication listening port'),
-      text: i18n.t('PacketFence Eduroam RADIUS virtual server authentication listening port'),
+      text: i18n.t('PacketFence Eduroam RADIUS virtual server authentication listening port.'),
       fields: [
         {
           key: 'auth_listening_port',
@@ -356,7 +356,7 @@ export const pfConfigurationAuthenticationSourceFields = {
   auth_token: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Auth Token'),
-      text: i18n.t('Twilio Auth Token'),
+      text: i18n.t('Twilio Auth Token.'),
       fields: [
         {
           key: 'auth_token',
@@ -475,7 +475,7 @@ export const pfConfigurationAuthenticationSourceFields = {
   authentication_url: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Authentication URL'),
-      text: i18n.t('Note : The URL is always prefixed by a slash (/)'),
+      text: i18n.t('Note : The URL is always prefixed by a slash (/).'),
       fields: [
         {
           key: 'authentication_url',
@@ -489,7 +489,7 @@ export const pfConfigurationAuthenticationSourceFields = {
   authorization_source_id: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Authorization source'),
-      text: i18n.t('The source to use for authorization (rule matching)'),
+      text: i18n.t('The source to use for authorization (rule matching).'),
       fields: [
         {
           key: 'authorization_source_id',
@@ -516,7 +516,7 @@ export const pfConfigurationAuthenticationSourceFields = {
   authorization_url: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Authorization URL'),
-      text: i18n.t('Note : The URL is always prefixed by a slash (/)'),
+      text: i18n.t('Note : The URL is always prefixed by a slash (/).'),
       fields: [
         {
           key: 'authorization_url',
@@ -570,7 +570,7 @@ export const pfConfigurationAuthenticationSourceFields = {
   cache_match: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Cache match'),
-      text: i18n.t('Will cache results of matching a rule'),
+      text: i18n.t('Will cache results of matching a rule.'),
       fields: [
         {
           key: 'cache_match',
@@ -638,7 +638,7 @@ export const pfConfigurationAuthenticationSourceFields = {
   connection_timeout: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Connection timeout'),
-      text: i18n.t('LDAP connection Timeout'),
+      text: i18n.t('LDAP connection Timeout.'),
       fields: [
         {
           key: 'connection_timeout',
@@ -941,7 +941,7 @@ export const pfConfigurationAuthenticationSourceFields = {
   local_realm: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Local Realms'),
-      text: i18n.t('Realms that will be authenticate locally'),
+      text: i18n.t('Realms that will be authenticate locally.'),
       fields: [
         {
           key: 'local_realm',
@@ -1179,7 +1179,7 @@ export const pfConfigurationAuthenticationSourceFields = {
   proxy_addresses: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Proxy addresses'),
-      text: i18n.t('A comma seperated list of IP Address'),
+      text: i18n.t('A comma seperated list of IP Address.'),
       fields: [
         {
           key: 'proxy_addresses',
@@ -1224,7 +1224,7 @@ export const pfConfigurationAuthenticationSourceFields = {
   radius_secret: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('RADIUS secret'),
-      text: i18n.t('Eduroam RADIUS secret'),
+      text: i18n.t('Eduroam RADIUS secret.'),
       fields: [
         {
           key: 'radius_secret',
@@ -1238,7 +1238,7 @@ export const pfConfigurationAuthenticationSourceFields = {
   read_timeout: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Response timeout'),
-      text: i18n.t('LDAP response timeout'),
+      text: i18n.t('LDAP response timeout.'),
       fields: [
         {
           key: 'read_timeout',
@@ -1252,7 +1252,7 @@ export const pfConfigurationAuthenticationSourceFields = {
   realms: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Associated Realms'),
-      text: i18n.t('Realms that will be associated with this source'),
+      text: i18n.t('Realms that will be associated with this source.'),
       fields: [
         {
           key: 'realms',
@@ -1280,7 +1280,7 @@ export const pfConfigurationAuthenticationSourceFields = {
   reject_realm: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Reject Realms'),
-      text: i18n.t('Realms that will be rejected'),
+      text: i18n.t('Realms that will be rejected.'),
       fields: [
         {
           key: 'reject_realm',
@@ -1347,7 +1347,7 @@ export const pfConfigurationAuthenticationSourceFields = {
   server1_address: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Server 1 address'),
-      text: i18n.t('Eduroam server 1 address'),
+      text: i18n.t('Eduroam server 1 address.'),
       fields: [
         {
           key: 'server1_address',
@@ -1374,7 +1374,7 @@ export const pfConfigurationAuthenticationSourceFields = {
   server2_address: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Server 2 address'),
-      text: i18n.t('Eduroam server 1 address'),
+      text: i18n.t('Eduroam server 1 address.'),
       fields: [
         {
           key: 'server2_address',
@@ -1414,7 +1414,7 @@ export const pfConfigurationAuthenticationSourceFields = {
   shared_secret: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Shared Secret'),
-      text: i18n.t('MKEY for the iframe'),
+      text: i18n.t('MKEY for the iframe.'),
       fields: [
         {
           key: 'shared_secret',
@@ -1428,7 +1428,7 @@ export const pfConfigurationAuthenticationSourceFields = {
   shared_secret_direct: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Shared Secret Direct'),
-      text: i18n.t('MKEY for Mirapay Direct'),
+      text: i18n.t('MKEY for Mirapay Direct.'),
       fields: [
         {
           key: 'shared_secret_direct',
@@ -1442,7 +1442,7 @@ export const pfConfigurationAuthenticationSourceFields = {
   shuffle: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Shuffle'),
-      text: i18n.t('Randomly choose LDAP server to query'),
+      text: i18n.t('Randomly choose LDAP server to query.'),
       fields: [
         {
           key: 'shuffle',
@@ -1490,7 +1490,7 @@ export const pfConfigurationAuthenticationSourceFields = {
   sms_carriers: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('SMS Carriers'),
-      text: i18n.t('List of phone carriers available to the user'),
+      text: i18n.t('List of phone carriers available to the user.'),
       fields: [
         {
           key: 'sms_carriers',
@@ -1557,7 +1557,7 @@ export const pfConfigurationAuthenticationSourceFields = {
   terminal_group_id: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Terminal Group ID'),
-      text: i18n.t('Terminal Group ID for Mirapay Direct'),
+      text: i18n.t('Terminal Group ID for Mirapay Direct.'),
       fields: [
         {
           key: 'terminal_group_id',
@@ -1571,7 +1571,7 @@ export const pfConfigurationAuthenticationSourceFields = {
   terminal_id: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Terminal ID'),
-      text: i18n.t('Terminal ID for Mirapay Direct'),
+      text: i18n.t('Terminal ID for Mirapay Direct.'),
       fields: [
         {
           key: 'terminal_id',
@@ -1625,7 +1625,7 @@ export const pfConfigurationAuthenticationSourceFields = {
   twilio_phone_number: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Phone Number (From)'),
-      text: i18n.t('Twilio provided phone number which will show as the sender'),
+      text: i18n.t('Twilio provided phone number which will show as the sender.'),
       fields: [
         {
           key: 'twilio_phone_number',
@@ -1693,7 +1693,7 @@ export const pfConfigurationAuthenticationSourceFields = {
   write_timeout: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Request timeout'),
-      text: i18n.t('LDAP request timeout'),
+      text: i18n.t('LDAP request timeout.'),
       fields: [
         {
           key: 'write_timeout',

@@ -125,7 +125,7 @@ export default {
         }
       },
       set (newValue) {
-        switch (newValue) {
+        switch (parseInt(newValue)) {
           case 1:
             this.$emit('input', this.values.checked)
             break
