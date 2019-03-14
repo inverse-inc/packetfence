@@ -41,6 +41,7 @@ use pfappserver::Form::Config::Pfmon::provisioning_compliance_poll;
 use pfappserver::Form::Config::Pfmon::radius_audit_log_cleanup;
 use pfappserver::Form::Config::Pfmon::switch_cache_lldpLocalPort_description;
 use pfappserver::Form::Config::Pfmon::security_event_maintenance;
+use pfappserver::Form::Config::Pfmon::password_of_the_day;
 
 our %TYPES_TO_FORMS = (
     map { $_ => "pfappserver::Form::Config::Pfmon::$_" } qw(
@@ -63,6 +64,7 @@ our %TYPES_TO_FORMS = (
       radius_audit_log_cleanup
       switch_cache_lldpLocalPort_description
       security_event_maintenance
+      password_of_the_day
     )
 );
 
