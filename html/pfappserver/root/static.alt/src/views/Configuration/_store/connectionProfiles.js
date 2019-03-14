@@ -31,6 +31,15 @@ const getters = {
 }
 
 const actions = {
+  all: () => {
+    const params = {
+      sort: 'id',
+      fields: ['id'].join(',')
+    }
+    return api.connectionProfiles(params).then(response => {
+      return response.items
+    })
+  },
   options: (context, id) => {
     if (id) {
       return api.connectionProfileOptions(id).then(response => {
