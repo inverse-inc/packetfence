@@ -124,16 +124,16 @@ export default {
       if (this.id) {
         // existing
         this.$store.dispatch(`${this.storeName}/optionsById`, this.id).then(options => {
-          this.options = Object.assign({}, options) // store options
+          this.options = JSON.parse(JSON.stringify(options)) // store options
           this.$store.dispatch(`${this.storeName}/getProvisioning`, this.id).then(form => {
-            this.form = Object.assign({}, form) // set form
+            this.form = JSON.parse(JSON.stringify(form)) // set form
             this.provisioningType = form.type
           })
         })
       } else {
         // new
         this.$store.dispatch(`${this.storeName}/optionsByProvisioningType`, this.provisioningType).then(options => {
-          this.options = Object.assign({}, options) // store options
+          this.options = JSON.parse(JSON.stringify(options)) // store options
           this.form = defaults(options.meta) // set defaults
           this.form.type = this.provisioningType
         })

@@ -147,11 +147,11 @@ export default {
       }
       this.$store.dispatch(`${this.storeName}/options`, this.id).then(options => {
         // store options
-        this.options = Object.assign({}, options)
+        this.options = JSON.parse(JSON.stringify(options))
         if (this.id) {
           // existing
           this.$store.dispatch(`${this.storeName}/getConnectionProfile`, this.id).then(form => {
-            this.form = Object.assign({}, form)
+            this.form = JSON.parse(JSON.stringify(form))
           })
         } else {
           // new
