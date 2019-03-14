@@ -6,13 +6,18 @@ import (
 	"math/rand"
 	"net"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
+	cache "github.com/fdurand/go-cache"
+	"github.com/go-errors/errors"
 	"github.com/inverse-inc/packetfence/go/db"
+	"github.com/inverse-inc/packetfence/go/filter_client"
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/sharedutils"
+	dhcp "github.com/krolaw/dhcp4"
 )
 
 type NodeInfo struct {
@@ -318,4 +323,56 @@ func AssignIP(dhcpHandler *DHCPHandler, ipRange string) (map[string]uint32, []ne
 		}
 	}
 	return couple, iplist
+}
+
+func AddDevicesOptions(object string, leaseDuration *time.Duration, GlobalOptions map[dhcp.OptionCode][]byte) {
+	x, err := decodeOptions(object)
+	if err == nil {
+		for key, value := range x {
+			if key == dhcp.OptionIPAddressLeaseTime {
+				seconds, _ := strconv.Atoi(string(value))
+				*leaseDuration = time.Duration(seconds) * time.Second
+				continue
+			}
+			GlobalOptions[key] = value
+		}
+	}
+}
+
+func AddPffilterDevicesOptions(info interface{}, GlobalOptions map[dhcp.OptionCode][]byte) error {
+	var err error
+	for key, value := range info.(map[string]interface{}) {
+		if key == "reject" {
+			err = errors.New("Rejected from pffilter")
+			return err
+		}
+		if s, ok := value.(string); ok {
+			var opcode dhcp.OptionCode
+			intvalue, _ := strconv.Atoi(key)
+			opcode = dhcp.OptionCode(intvalue)
+			GlobalOptions[opcode] = Tlv.Tlvlist[int(opcode)].Transform.Encode(s)
+		}
+	}
+	return nil
+}
+
+func GetFromGlobalFilterCache(msgType string, mac string, Options map[string]string) interface{} {
+	var info interface{}
+	var err error
+	pffilter := filter_client.NewClient()
+	Filter, found := GlobalFilterCache.Get(mac + "" + msgType)
+	if found && Filter != "null" {
+		info = Filter
+	} else {
+		info, err = pffilter.FilterDhcp(msgType, map[string]interface{}{
+			"mac":     mac,
+			"options": Options,
+		})
+		if err != nil {
+			GlobalFilterCache.Set(mac+""+msgType, "null", cache.DefaultExpiration)
+		} else {
+			GlobalFilterCache.Set(mac+""+msgType, info, cache.DefaultExpiration)
+		}
+	}
+	return info
 }

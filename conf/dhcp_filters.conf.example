@@ -1,47 +1,299 @@
-# Dhcp filter configuration
+# Dhcp FILTERS configuration
+# ==========================
+#
+# Scopes
+# ------
+#
+# It's possible to return custom attributes in the dhcp answer in the specific scopes
+# - Discover: Rewrite the dhcp Offer
+# - Request: Rewrite the dhcp ACK
+#
+# A "Dhcp filter" configuration is mainly constituted of two (2) parts; rules(s)/condition(s) and action(s)
+# Some working examples covering useful use cases can be found at the bottom of this file
 # 
-# you are able to take an action based on the dhcp information. 
+# Rule(s)/Condition(s)
+# --------------------
+# Structure example of a rule/condition
+# [NAMEOFRULE]
+# filter = FILTER
+# operator = OPERATOR
+# value = VALUE
 #
-# Make a simple rule like this:
-#
-#[VIVIDE9]
-#filter = computername
-#operator = regex
-#value = ^VIVIDE9
-#
-#[mac]
-#filter = mac
-#operator = regex
-#value = ^00:0b:ab
-#
-#[dhcp_fingerprint]
-#filter = dhcp_fingerprint
-#operator = is
-#value = 1,15,3,6,44,46,47,31,33,249,43
-#
-#[dhcp_vendor]
-#filter = dhcp_vendor
-#operator = is
-#value = MSFT 5.0
-#
-#This rule will change the device type and device class for this specific MAC address
-#
-#[1:VIVIDE9&mac&dhcp_fingerprint&dhcp_vendor]
-#scope = Fingerbank
-#action = modify_node
-#action_param = mac = $mac,  device_type = GE Vivid e9,  device_class = Medical
-#
-# filter can be:
+# Filter can be:
+#     options.optionVendorClassIdentifier
+#         Like: MSFT 5.0, android-dhcp-8.1.0
+#     options.optionDHCPMessageType
+#         1 for Discover
+#         3 for Request
+#         4 for Decline
+#         7 for Release
+#         8 for Inform
+#     options.optionClientIdentifier
+#         is the mac of teh device like 001122334455
+#     options.optionParameterRequestList
+#     options.optionMaximumDHCPMessageSize
+#     node_info.autoreg
+#     node_info.status
+#     node_info.bypass_vlan
+#     node_info.bandwidth_balance
+#     node_info.regdate
+#     node_info.bypass_role
+#     node_info.device_class
+#     node_info.device_type
+#     node_info.device_version
+#     node_info.device_score
+#     node_info.pid
+#     node_info.machine_account
+#     node_info.category
+#     node_info.mac
+#     node_info.last_arp
+#     node_info.lastskip
+#     node_info.last_dhcp
+#     node_info.user_agent
+#     node_info.computername
+#     node_info.dhcp_fingerprint
+#     node_info.detect_date
+#     node_info.voip
+#     node_info.notes
+#     node_info.time_balance
+#     node_info.sessionid
+#     node_info.dhcp_vendor
+#     node_info.unregdate
+#     fingerbank_info.device_name
+#     fingerbank_info.device_fq
+#     fingerbank_info.device_hierarchy_names
+#     fingerbank_info.device_hierarchy_ids
+#     fingerbank_info.score
+#     fingerbank_info.version
+#     fingerbank_info.mobile
 #     mac
-#     computername
-#     dhcp_fingerprint
-#     dhcp_vendor
 #
-# operator can be:
+# For the options filter, you can use all the attributes you can have
+# in the DHCP request (run tcpdump to see what are the attributes)
+# 
+# Operator can be:
 #     is
 #     is_not
 #     match
 #     match_not
 #     defined
+#     not_defined
 #     regex
+#     date_is_before
+#     date_is_after
+#     time
 #
+# Example of Value can be :
+#
+#           'fingerbank_info' => {
+#                                 'device_fq' => 'Phone, Tablet or Wearable/Generic Android/LGE Android/Nexus 5X',
+#                                 'device_name' => 'Nexus 5X',
+#                                 'version' => '8.1.0',
+#                                 'score' => '75',
+#                                 'mobile' => 1,
+#                                 'device_hierarchy_names' => [
+#                                                               'Nexus 5X',
+#                                                               'LGE Android',
+#                                                               'Generic Android',
+#                                                               'Phone, Tablet or Wearable'
+#                                                             ],
+#                                 'device_hierarchy_ids' => [
+#                                                             7939,
+#                                                             2805,
+#                                                             202,
+#                                                             11
+#                                                           ]
+#                               },
+#          'violation' => undef,
+#          'node_info' => {
+#                           'autoreg' => 'no',
+#                           'last_port' => '1',
+#                           'device_class' => 'Android OS',
+#                           'bandwidth_balance' => undef,
+#                           'bypass_role' => undef,
+#                           'device_type' => 'Nexus 5X',
+#                           'pid' => 'default',
+#                           'dhcp6_enterprise' => '',
+#                           'last_seen' => '2018-10-22 15:50:55',
+#                           'dhcp6_fingerprint' => '',
+#                           'category' => undef,
+#                           'mac' => '78:f8:82:9f:11:9d',
+#                           'lastskip' => '0000-00-00 00:00:00',
+#                           'last_dhcp' => '2018-10-22 12:23:20',
+#                           'user_agent' => 'Mozilla/5.0 (Linux; Android 8.1.0; Nexus 5X Build/OPM7.181005.003) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Mobile Safari/537.36',
+#                           'dhcp_fingerprint' => '1,3,6,15,26,28,51,58,59,43',
+#                           'computername' => '',
+#                           'detect_date' => '2018-10-15 16:07:37',
+#                           'last_connection_sub_type' => '',
+#                           'last_vlan' => '135',
+#                           'bypass_role_id' => undef,
+#                           'last_role' => 'registration',
+#                           'last_switch' => '172.20.110.250',
+#                           'dhcp_vendor' => 'android-dhcp-8.1.0',
+#                           'unregdate' => '0000-00-00 00:00:00',
+#                           'device_version' => '8.1.0',
+#                           'status' => 'unreg',
+#                           'bypass_vlan' => undef,
+#                           'regdate' => '0000-00-00 00:00:00',
+#                           'last_dot1x_username' => '78f8829f119d',
+#                           'category_id' => undef,
+#                           'tenant_id' => '1',
+#                           'last_connection_type' => 'Wireless-802.11-NoEAP',
+#                           'machine_account' => undef,
+#                           'realm' => 'null',
+#                           'last_ssid' => 'baguettefence',
+#                           'last_arp' => '0000-00-00 00:00:00',
+#                           'device_score' => '75',
+#                           'last_start_timestamp' => '1539634057',
+#                           'stripped_user_name' => '78f8829f119d',
+#                           'voip' => 'no',
+#                           'device_manufacturer' => 'LG Electronics',
+#                           'notes' => undef,
+#                           'time_balance' => undef,
+#                           'last_switch_mac' => '74:26:ac:cf:7d:60',
+#                           'last_start_time' => '2018-10-15 16:07:37',
+#                           'sessionid' => 'fa6e14ac0000048c9f29ce5b'
+#          'options' => {
+#                         'optionVendorClassIdentifier' => 'android-dhcp-8.1.0',
+#                         'optionDHCPMessageType' => '1',
+#                         'optionClientIdentifier' => '0178f8829f119d',
+#                         'optionParameterRequestList' => '1,3,6,15,26,28,51,58,59,43',
+#                         'optionMaximumDHCPMessageSize' => '1500'
+#                       },
+#          'mac' => '78:f8:82:9f:11:9d'
+#
+# Actions
+# -------
+# Structure example of an action
+# [NAMEOFTHEACTION:RULE1&RULE2&RULE3]
+# scope = Request
+# answer1 = 5 => 172.20.135.4
+# answer2 = 51 => 300
+# action = ACTION
+# action_param = ACTION PARAMETERS
+#
+#
+# Make sure to note the followings when defining an action:
+# - Actions are triggered on a first hit match, based on the order in the 'dhcp_filters.conf' file
+# - Action names must be unique
+# - Action definitions (what's inside []) contains the unique name, ':' delimiter, and some valid rule(s)/condition(s) names appended using boolean operators
+#
+# Scope can be:
+# - see beginning of this file for possible scope. They are usually extensions points of endpoint connection flow
+#
+#
+# Answer can be:
+# - the dhcp option number and the value associated or the special value to reject the dhcp request "Reject => True"
+#
+# 1 OptionSubnetMask
+# 2 OptionTimeOffset
+# 3 OptionRouter
+# 4 OptionTimeServer
+# 5 OptionNameServer
+# 6 OptionDomainNameServer
+# 7 OptionLogServer
+# 8 OptionCookieServer
+# 9 OptionLPRServer
+# 10 OptionImpressServer
+# 11 OptionResourceLocationServer
+# 12 OptionHostName
+# 13 OptionBootFileSize
+# 14 OptionMeritDumpFile
+# 15 OptionDomainName
+# 16 OptionSwapServer
+# 17 OptionRootPath
+# 18 OptionExtensionsPath
+# 19 OptionIPForwardingEnableDisable
+# 20 OptionNonLocalSourceRoutingEnableDisable
+# 21 OptionPolicyFilter
+# 22 OptionMaximumDatagramReassemblySize
+# 23 OptionDefaultIPTimeToLive
+# 24 OptionPathMTUAgingTimeout
+# 25 OptionPathMTUPlateauTable
+# 26 OptionInterfaceMTU
+# 27 OptionAllSubnetsAreLocal
+# 28 OptionBroadcastAddress
+# 29 OptionPerformMaskDiscovery
+# 30 OptionMaskSupplier
+# 31 OptionPerformRouterDiscovery
+# 32 OptionRouterSolicitationAddress
+# 33 OptionStaticRoute
+# 34 OptionTrailerEncapsulation
+# 35 OptionARPCacheTimeout
+# 36 OptionEthernetEncapsulation
+# 37 OptionTCPDefaultTTL
+# 38 OptionTCPKeepaliveInterval
+# 39 OptionTCPKeepaliveGarbage
+# 40 OptionNetworkInformationServiceDomain
+# 41 OptionNetworkInformationServers
+# 42 OptionNetworkTimeProtocolServers
+# 43 OptionVendorSpecificInformation
+# 44 OptionNetBIOSOverTCPIPNameServer
+# 45 OptionNetBIOSOverTCPIPDatagramDistributionServer
+# 46 OptionNetBIOSOverTCPIPNodeType
+# 47 OptionNetBIOSOverTCPIPScope
+# 48 OptionXWindowSystemFontServer
+# 49 OptionXWindowSystemDisplayManager
+# 50 OptionRequestedIPAddress
+# 51 OptionIPAddressLeaseTime
+# 52 OptionOverload
+# 53 OptionDHCPMessageType
+# 54 OptionServerIdentifier
+# 55 OptionParameterRequestList
+# 56 OptionMessage
+# 57 OptionMaximumDHCPMessageSize
+# 58 OptionRenewalTimeValue
+# 59 OptionRebindingTimeValue
+# 60 OptionVendorClassIdentifier
+# 61 OptionClientIdentifier
+# 62 OptionNetwareIPDomain
+# 63 OptionNetwareIPInformation
+# 64 OptionNetworkInformationServicePlusDomain
+# 65 OptionNetworkInformationServicePlusServers
+# 66 OptionTFTPServerName
+# 67 OptionBootFileName
+# 68 OptionMobileIPHomeAgent
+# 69 OptionSimpleMailTransportProtocol
+# 70 OptionPostOfficeProtocolServer
+# 71 OptionNetworkNewsTransportProtocol
+# 72 OptionDefaultWorldWideWebServer
+# 73 OptionDefaultFingerServer
+# 74 OptionDefaultInternetRelayChatServer
+# 75 OptionStreetTalkServer
+# 76 OptionStreetTalkDirectoryAssistance
+# 77 OptionUserClass
+# 82 OptionRelayAgentInformation
+# 93 OptionClientArchitecture
+# 100 OptionTZPOSIXString
+# 101 OptionTZDatabaseString
+# 121 OptionClasslessRouteFormat
+#
+# Action can be:
+#    deregister_node (require param => mac)
+#    register_node (require param => mac pid)
+#    modify_node (require param => mac)
+#    trigger_violation (require param => mac tid type)
+#
+# Action parameter can be:
+# - The require param and optional attributes like (for action = modify_node):
+#    action_param = mac = $mac
+#
+#
+# EXAMPLES
+# --------
+#
+#[android_by_name]
+#filter = fingerbank_info.device_hierarchy_names
+#operator = includes
+#value = Generic Android
+
+#[1:android_by_name]
+#scope = Discover
+#answer1 = 5 => 172.20.135.4
+#answer2 = 51 => 300
+
+#[2:android_by_name]
+#scope = Request
+#answer1 = 5 => 172.20.135.4
+#answer2 = 51 => 300
+
