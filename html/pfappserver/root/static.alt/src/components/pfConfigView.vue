@@ -20,7 +20,6 @@
       <template v-for="(tab, t) in form.fields">
         <div class="card-body" v-if="tab.fields" v-show="t === tabIndex" :key="t">
           <b-form-group v-for="row in tab.fields" :key="row.key" v-if="!('if' in row) || row.if"
-            :horizontal="('label' in row && row.fields)"
             :label-cols="('label' in row && row.fields) ? form.labelCols : 0" :label="row.label" :label-size="row.labelSize" :label-class="[(row.label && row.fields) ? '' : 'text-left', (row.fields) ? '' : 'offset-sm-3']"
             :state="isValid()" :invalid-feedback="getInvalidFeedback()"
             class="input-element" :class="{ 'mb-0': !row.label, 'pt-3': !row.fields }"
