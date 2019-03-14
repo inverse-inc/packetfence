@@ -1,7 +1,7 @@
 <template>
   <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="$t(columnLabel)"
     :state="isValid()" :invalid-feedback="getInvalidFeedback()" :class="{ 'mb-0': !columnLabel }">
-    <b-input-group v-if="placeholder && placeholderHtml" v-html="getPlaceholderHtml" class="mb-1" style="display: block"></b-input-group>
+    <b-input-group v-if="placeholder && placeholderHtml" v-html="getPlaceholderHtml" class="mb-1 d-block"></b-input-group>
     <b-form-textarea
       ref="input"
       v-model="inputValue"
