@@ -14,9 +14,9 @@
       </template>
       <template slot="buttons" slot-scope="item">
         <span class="float-right text-nowrap">
-          <b-button size="sm" variant="outline-primary" class="mr-1" :to="{ name: 'TODO' }">{{ $t('Traffic Shaping') }}</b-button>
           <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(item)">{{ $t('Clone') }}</b-button>
           <pf-button-delete  v-if="!item.not_deletable" size="sm" variant="outline-danger" :disabled="isLoading" :confirm="$t('Delete Role?')" @on-delete="remove(item)" reverse/>
+          <b-button size="sm" variant="outline-primary" class="mr-1" :to="{ name: 'TODO' }">{{ $t('Traffic Shaping') }}</b-button>
         </span>
       </template>
     </pf-config-list>

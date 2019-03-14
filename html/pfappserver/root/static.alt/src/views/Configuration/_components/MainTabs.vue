@@ -14,7 +14,7 @@
         <advanced-view />
       </b-tab>
       <b-tab :title="$t('Maintenance')" @click="changeTab('maintenance')">
-        <maintenance-view />
+        <maintenance-tasks-list />
       </b-tab>
       <b-tab :title="$t('Services')" @click="changeTab('services')">
         <services-view />
@@ -27,7 +27,7 @@
 import GeneralView from './GeneralView'
 import AlertingView from './AlertingView'
 import AdvancedView from './AdvancedView'
-import MaintenanceView from './MaintenanceView'
+import MaintenanceTasksList from './MaintenanceTasksList'
 import ServicesView from './ServicesView'
 
 export default {
@@ -36,7 +36,7 @@ export default {
     GeneralView,
     AlertingView,
     AdvancedView,
-    MaintenanceView,
+    MaintenanceTasksList,
     ServicesView
   },
   props: {

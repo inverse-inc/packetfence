@@ -66,7 +66,8 @@ export default {
                 { name: this.$i18n.t('Scan Engines'), path: '/configuration/scans/scan_engines' },
                 { name: this.$i18n.t('WMI Rules'), path: '/configuration/scans/wmi_rules' }
               ]
-            }
+            },
+            { name: this.$i18n.t('Security Events'), path: '/configuration/security_events' }
           ]
         },
         {
