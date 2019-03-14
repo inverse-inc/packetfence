@@ -12,9 +12,8 @@ NAME		= pf
 PREFIX		= /usr/local
 INSTALL		= /usr/bin/install -c -D -m0644
 
-wheezy := $(shell (dpkg-distribution --is_wheezy && echo "yes") || echo "no")
 jessie := $(shell (dpkg-distribution --is_jessie && echo "yes") || echo "no")
-precise:= $(shell (dpkg-distribution --is_precise && echo "yes") || echo "no")
+stretch := $(shell (dpkg-distribution --is_stretch && echo "yes") || echo "no")
 
 configure: configure-stamp
 configure-stamp:
@@ -94,15 +93,9 @@ install: build
 	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/webadmin_cache
 	install -d -m2770 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/cache/configfiles
 	install -d -m2770 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/cache/configfilesdata
-#ifeq ($(jessie),yes)
 	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/ssl_mutex
-#endif
 	touch $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/cache_control
 	#Configurator integration
-#ifneq (,$(filter yes,$(wheezy) $(precise)))
-#	install -d -m0700 $(CURDIR)/debian/packetfence/etc/init.d
-#endif
-#ifeq ($(jessie),yes)
 	install -d -m0700 $(CURDIR)/debian/packetfence/lib/systemd/system
 	install -d -m0700 $(CURDIR)/debian/packetfence/etc/systemd/system
 	install -m0644 $(CURDIR)/debian/packetfence.target $(CURDIR)/debian/packetfence/etc/systemd/system
@@ -114,7 +107,6 @@ install: build
 	install -m0644 $(CURDIR)/debian/packetfence.slice $(CURDIR)/debian/packetfence/etc/systemd/system
 	install -m0644 $(CURDIR)/debian/packetfence-base.slice $(CURDIR)/debian/packetfence/etc/systemd/system
 	install -m0644 $(CURDIR)/debian/ifup@.service $(CURDIR)/debian/packetfence/etc/systemd/system
-#endif
 	install -d -m0700 $(CURDIR)/debian/packetfence/etc/default
 	# copy the rsyslog systemd drop in
 	install -d -m0755 $(CURDIR)/debian/packetfence/etc/systemd/system/rsyslog.service.d/
@@ -139,20 +131,13 @@ install: build
 	mv bin/ntlm_auth_wrapper $(CURDIR)/debian/packetfence-ntlm-wrapper$(PREFIX)/$(NAME)/bin
 	# packetfence-config
 	install -d $(CURDIR)/debian/packetfence-config$(PREFIX)/$(NAME)/sbin
-#ifeq ($(jessie),yes)
 	install -d -m0700 $(CURDIR)/debian/packetfence-config/lib/systemd/system
-#endif
 	install -d -m0700 $(CURDIR)/debian/packetfence-config$(PREFIX)/$(NAME)/conf
 	install -d -m2770 $(CURDIR)/debian/packetfence-config$(PREFIX)/$(NAME)/var/cache/pfconfig
 	install -m0755 sbin/pfconfig $(CURDIR)/debian/packetfence-config$(PREFIX)/$(NAME)/sbin
 	install -m0600 conf/pfconfig.conf.example $(CURDIR)/debian/packetfence-config$(PREFIX)/$(NAME)/conf/pfconfig.conf
 	# packetfence-redis-cache
-#ifneq (,$(filter yes,$(wheezy) $(precise)))
-#	install -d -m0700 $(CURDIR)/debian/packetfence-redis-cache/etc/init.d
-#endif
-#ifeq ($(jessie),yes)
 	install -d -m0700 $(CURDIR)/debian/packetfence-redis-cache/lib/systemd/system
-#endif
 	install -d -m2770 $(CURDIR)/debian/packetfence-redis-cache$(PREFIX)/$(NAME)/var/run
 	install -d -m0700 $(CURDIR)/debian/packetfence-redis-cache$(PREFIX)/$(NAME)/conf
 	install -d -m2770 $(CURDIR)/debian/packetfence-redis-cache$(PREFIX)/$(NAME)/logs
@@ -218,9 +203,7 @@ binary-arch: build install
 #	dh_installpam
 #	dh_installmime
 #	dh_python
-ifeq ($(jessie),yes)
 	dh_systemd_enable
-endif
 	dh_installinit --no-restart-on-upgrade
 	dh_installinit --name=packetfence-haproxy-portal
 	dh_installinit --name=packetfence-haproxy-db
@@ -304,10 +287,10 @@ endif
 	dh_installdeb
 	dh_shlibdeps
 ifeq ($(jessie),yes)
-	dh_gencontrol -- '-Vpacketfence:dist=libscalar-list-utils-perl (>= 1.41-1),libfile-fcntllock-perl,libjson-xs-perl,libmoo-perl,libnet-dns-perl,python-twisted-bin,python-twisted-core,libconfig-inifiles-perl'
+	dh_gencontrol -- '-Vpacketfence:dist=openssl-blacklist,openssl-blacklist-extra,libapache2-mod-proxy-html,apache2-mpm-prefork'
 endif
-ifneq (,$(filter yes,$(wheezy) $(precise)))
-	dh_gencontrol -- '-Vpacketfence:dist=libscalar-list-utils-perl (>= 1.42),apache2.2-common,libjson-xs-perl (>= 3),libmoo-perl (=1.004002-1),libnet-dns-perl (=0.66-3),freeradius-utils (>=3.0),python-twisted-bin (<=13.0), python-twisted-core (<=13.0),libconfig-inifiles-perl (>= 2.88)'
+ifeq ($(stretch),yes)
+	dh_gencontrol -- '-Vpacketfence:dist=libclass-xsaccessor-perl,acl'
 endif
 	dh_md5sums
 	dh_builddeb

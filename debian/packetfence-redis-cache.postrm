@@ -27,6 +27,9 @@ fi
 if $(dpkg-distribution --is_precise) ; then
     DIST=precise
 fi
+if $(dpkg-distribution --is_stretch) ; then
+    DIST=stretch
+fi
 
 case "$1" in
     upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)
@@ -44,12 +47,6 @@ case "$1" in
             else
                 update-rc.d packetfence-redis-cache remove > /dev/null 2>&1
             fi
-        fi
-        if [ ${DIST} = "jessie" ] ; then
-            set +e
-            systemctl stop packetfence-redis-cache
-            systemctl disable packetfence-redis-cache
-            set -e
         fi
     ;;
     purge)
