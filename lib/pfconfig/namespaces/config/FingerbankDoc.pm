@@ -10,7 +10,7 @@ pfconfig::namespaces::config::FingerbankDoc
 
 pfconfig::namespaces::config::FingerbankDoc
 
-This module creates the configuration hash associated to documentation.conf
+This module creates the configuration hash associated to fingerbank.conf.doc
 
 =cut
 
