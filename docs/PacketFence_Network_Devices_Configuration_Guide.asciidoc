@@ -6356,9 +6356,9 @@ Cisco ASA
 AnyConnect
 ^^^^^^^^^^
 
-PacketFence supports Cisco ASA VPN with anyconnect.
+PacketFence supports Cisco ASA VPN with AnyConnect.
 
-You can force the VPN user to authenticate first on the captive portal and based on the role of the device allow it and/or set dynamic ACL.
+You can force VPN users to authenticate first on the captive portal and based on the role of the device allow it and/or set dynamic ACL.
 
 In this example we assume that the Cisco ASA have 2 interfaces, one Management (192.168.2.1) where the VPN is activated and another one Registration (192.168.1.6) that is facing the PacketFence server (192.168.1.5).
 
