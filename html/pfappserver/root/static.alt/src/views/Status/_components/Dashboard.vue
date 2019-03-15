@@ -601,11 +601,101 @@ export default {
               })
             }
           ] // groups
-        } // Queue section
+        }, // Queue section
+        {
+          name: this.$i18n.t('Logs'),
+          groups: [
+            {
+              name: this.$i18n.t('packetfence.log'),
+              items: [
+                {
+                  title: this.$i18n.t('Numbers of events'),
+                  metric: 'packetfence.logs.packetfence_log',
+                  mode: modes.COMBINED,
+                  library: libs.DYGRAPH,
+                  cols: 12
+                }
+              ]
+            },
+            {
+              name: this.$i18n.t('pfdhcp.log'),
+              items: [
+                {
+                  title: this.$i18n.t('Numbers of events'),
+                  metric: 'packetfence.logs.pfdhcp_log',
+                  mode: modes.COMBINED,
+                  library: libs.DYGRAPH,
+                  cols: 12
+                }
+              ]
+            },
+            {
+              name: this.$i18n.t('load_balancer.log'),
+              items: [
+                {
+                  title: this.$i18n.t('Numbers of events'),
+                  metric: 'packetfence.logs.load_balancer_log',
+                  mode: modes.COMBINED,
+                  library: libs.DYGRAPH,
+                  cols: 12
+                }
+              ]
+            },
+            {
+              name: this.$i18n.t('radius.log'),
+              items: [
+                {
+                  title: this.$i18n.t('Numbers of events'),
+                  metric: 'packetfence.logs.radius_log',
+                  mode: modes.COMBINED,
+                  library: libs.DYGRAPH,
+                  cols: 12
+                }
+              ]
+            },
+            {
+              name: this.$i18n.t('mariadb_error.log'),
+              items: [
+                {
+                  title: this.$i18n.t('Numbers of events'),
+                  metric: 'packetfence.logs.mariadb_error_log',
+                  mode: modes.COMBINED,
+                  library: libs.DYGRAPH,
+                  cols: 12
+                }
+              ]
+            },
+            {
+              name: this.$i18n.t('pfmon.log'),
+              items: [
+                {
+                  title: this.$i18n.t('Numbers of events'),
+                  metric: 'packetfence.logs.pfmon_log',
+                  mode: modes.COMBINED,
+                  library: libs.DYGRAPH,
+                  cols: 12
+                }
+              ]
+            },
+            {
+              name: this.$i18n.t('fingerbank.log'),
+              items: [
+                {
+                  title: this.$i18n.t('Numbers of events'),
+                  metric: 'packetfence.logs.fingerbank_log',
+                  mode: modes.COMBINED,
+                  library: libs.DYGRAPH,
+                  cols: 12
+                }
+              ]
+            },
+          ] // groups
+        } // Logs section
       ],
       sections: [],
       pingNetdataInterval: 1000 * 30, // ms
       alarmsInterval: 1000 * 60
+      ]
     }
   },
   computed: {
