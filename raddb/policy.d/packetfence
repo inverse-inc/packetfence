@@ -33,6 +33,15 @@ packetfence-local-auth {
 
 }
 
+#Set the realm if it's machine authentication
+packetfence-set-realm-if-machine {
+    if (User-Name =~ /host\/([a-z0-9\-_]*)[\.](.*)/i) {
+        update {
+            &request:Realm := "%{2}"
+        }
+    }
+}
+
 #Update the PacketFence-Tenant-Id defaulting to the default tenant_id
 packetfence-set-tenant-id {
     if(!NAS-IP-Address || NAS-IP-Address == "0.0.0.0"){
