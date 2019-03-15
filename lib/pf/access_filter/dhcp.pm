@@ -40,7 +40,7 @@ sub test {
         $args->{'security_event'} =  security_event_view_top($args->{'mac'});
         $args->{'fingerbank_info'} = pf::node::fingerbank_info($args->{mac});
         $args->{'node_info'} = pf::node::node_view($args->{mac});
-	my $answer = $engine->match_first($args);
+        my $answer = $engine->match_first($args);
         $self->logger->info("Match rule $answer->{_rule}") if defined $answer;
         return $answer;
     }
