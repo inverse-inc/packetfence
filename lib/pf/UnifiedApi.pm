@@ -1149,11 +1149,12 @@ setup_api_v1_config_filters_routes
 
 sub setup_api_v1_config_filters_routes {
     my ($self, $root) = @_;
-    my $resource_route = $root->any("/filter/#filter_id")->name("api.v1.Config.Filters.resource");
-    $resource_route->any(['GET'])->to("Config::Filters#get")->name("api.v1.Config.Filters.resource.get");
-    $resource_route->any(['PUT'])->to("Config::Filters#replace")->name("api.v1.Config.Filters.resource.replace");
+    my $collection_route = $root->any(['GET'] => '/filters')->to(controller => "Config::Filters", action => 'list')->name("api.v1.Config.Filters.list");
+    my $resource_route = $root->under("/filter/#filter_id")->to(controller => "Config::Filters", action => "resource")->name("api.v1.Config.Filters.resource");
+    $resource_route->any(['GET'])->to(action => "get")->name("api.v1.Config.Filters.resource.get");
+    $resource_route->any(['PUT'])->to(action=> "replace")->name("api.v1.Config.Filters.resource.replace");
 
-    return (undef, $resource_route);
+    return ($collection_route, $resource_route);
 }
 
 =head2 setup_api_v1_config_fingerbank_settings_routes

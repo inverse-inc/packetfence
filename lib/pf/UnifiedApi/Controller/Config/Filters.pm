@@ -121,6 +121,21 @@ sub isFilterValid {
     return (200, undef);
 }
 
+=head2 list
+
+list
+
+=cut
+
+sub list {
+    my ($self) = @_;
+    return $self->render( json => {
+        items => [
+           map { my $id = $_; $id =~ s/-filters//; { id => $id } } keys %CONFIGSTORE_MAP
+        ],
+    } );
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
@@ -149,4 +164,3 @@ USA.
 =cut
 
 1;
-
