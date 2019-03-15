@@ -20,7 +20,7 @@ Create the account in PAN-OS
 ++++++++++++++++++++++++++++
 Now you have created the role, you will associate an user with it.
 
-Go to *Device -> Administrator -> Add*.
+Go to *Device -> Administrators -> Add*.
 
 [options="compact"]
 * *Name*: xmluser
