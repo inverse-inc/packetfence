@@ -13,7 +13,7 @@ pf::access_filter::dhcp
 use strict;
 use warnings;
 
-use pf::violation qw (violation_view_top);
+use pf::security_event qw (security_event_view_top);
 use pf::util qw(isenabled generate_session_id);
 use pf::CHI;
 use Scalar::Util qw(reftype);
@@ -37,7 +37,7 @@ sub test {
     my $logger = $self->logger;
     my $engine = $self->getEngineForScope($scope);
     if ($engine) {
-        $args->{'violation'} =  violation_view_top($args->{'mac'});
+        $args->{'security_event'} =  security_event_view_top($args->{'mac'});
         $args->{'fingerbank_info'} = pf::node::fingerbank_info($args->{mac});
         $args->{'node_info'} = pf::node::node_view($args->{mac});
 	my $answer = $engine->match_first($args);
