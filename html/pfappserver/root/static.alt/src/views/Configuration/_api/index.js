@@ -871,8 +871,33 @@ export default {
       return response.data.items
     })
   },
-  service: (name, action) => {
-    return apiCall.get(`service/${name}/${action}`).then(response => {
+  service: name => {
+    return apiCall.get(`service/${name}/status`).then(response => {
+      return response.data
+    })
+  },
+  disableService: name => {
+    return apiCall.post(`service/${name}/disable`).then(response => {
+      return response.data
+    })
+  },
+  enableService: name => {
+    return apiCall.post(`service/${name}/enable`).then(response => {
+      return response.data
+    })
+  },
+  restartService: name => {
+    return apiCall.post(`service/${name}/restart`).then(response => {
+      return response.data
+    })
+  },
+  startService: name => {
+    return apiCall.post(`service/${name}/start`).then(response => {
+      return response.data
+    })
+  },
+  stopService: name => {
+    return apiCall.post(`service/${name}/stop`).then(response => {
       return response.data
     })
   },
