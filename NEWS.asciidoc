@@ -43,6 +43,7 @@ Bug Fixes
 * Allow disabling processing of ipv6 packets in the pfdhcplistener
 * fixed untainted variable (#3920)
 * fixed on-registration scanning (#3963)
+* Set the realm in the radius request when it's machine authentication
 
 
 Version 8.3.0 released on 2019-01-09
