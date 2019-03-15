@@ -2190,8 +2190,8 @@ In order to enable Device Sensor feature, you need to add the following paramete
 
 This configuration will make the switch send information about DHCP, LLDP and CDP of the endpoint in the RADIUS accounting packets.
 
-Cisco Small Business
-~~~~~~~~~~~~~~~~~~~~
+Cisco Small Business (SMB)
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The Cisco Small Business switches support MAC based authentication (MAB) as well as 802.1X and VoIP. Both technologies can be combined and will work correctly together on the same switchport.
 
@@ -2265,6 +2265,14 @@ Once you have configured your switchports, you must configure the switch in Pack
 * 'SNMP->Version': `v2c`
 * 'SNMP->Community Read': `public`
 * 'SNMP->Community Write': `private`
+
+
+AAA commands
+^^^^^^^^^^^^
+
+  show dot1x
+  show dot1x users
+
 
 D-Link
 ~~~~~~
@@ -3698,10 +3706,7 @@ protocols {
             interface {
                 access-ports {
                     supplicant multiple;
-                    mac-radius {
-                        restrict;
-                        flap-on-disconnect;
-                    }
+                    mac-radius;
                 }
             }
         }
@@ -3826,6 +3831,31 @@ protocols {
 Ctrl-D
 # commit comment "packetfenced dot1x"
 ----
+
+
+MAC Authentication configuration
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+----
+protocols {
+    dot1x {
+        authenticator {
+            authentication-profile-name packetfence;
+            interface {
+                access-ports {
+                    supplicant multiple;
+                    mac-radius {
+                        restrict;
+                    }
+                }
+            }
+        }
+    }
+}
+Ctrl-D
+# commit comment "packetfenced mac auth"
+----
+
 
 Configuration for MAC authentication floating devices
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
