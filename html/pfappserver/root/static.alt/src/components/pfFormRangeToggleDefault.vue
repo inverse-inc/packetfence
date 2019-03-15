@@ -1,5 +1,5 @@
 <template>
-  <b-form-group horizontal :label-cols="(columnLabel) ? labelCols : 0" :label="$t(columnLabel)"
+  <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="$t(columnLabel)"
     :state="isValid()" :invalid-feedback="getInvalidFeedback()"
     class="pf-form-range-toggle-default" :class="{ 'is-focus': focus, 'mb-0': !columnLabel }">
     <b-input type="text" ref="vacuum" readonly :value="null"

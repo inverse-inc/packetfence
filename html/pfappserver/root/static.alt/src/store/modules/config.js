@@ -84,6 +84,9 @@ const api = {
   getConnectionProfiles () {
     return apiCall({ url: 'config/connection_profiles', method: 'get' })
   },
+  getDeviceRegistrations () {
+    return apiCall({ url: 'config/device_registrations', method: 'get' })
+  },
   getDomains () {
     return apiCall({ url: 'config/domains', method: 'get' })
   },
@@ -92,6 +95,12 @@ const api = {
   },
   getFloatingDevices () {
     return apiCall({ url: 'config/floating_devices', method: 'get' })
+  },
+  getPkiProviders () {
+    return apiCall({ url: 'config/pki_providers', method: 'get' })
+  },
+  getProvisionings () {
+    return apiCall({ url: 'config/provisionings', method: 'get' })
   },
   getRealms () {
     return apiCall({ url: 'config/realms', method: 'get' })
@@ -119,6 +128,9 @@ const api = {
   },
   getTenants () {
     return apiCall({ url: 'tenants', method: 'get' })
+  },
+  getTrafficShapingPolicies () {
+    return apiCall({ url: 'config/traffic_shaping_policies', method: 'get' })
   },
   getSecurityEvents () {
     return apiCall({ url: 'config/securityEvents', method: 'get' })
@@ -188,12 +200,18 @@ const state = { // set intitial states to `false` (not `[]` or `{}`) to avoid in
   billingTiers: false,
   connectionProfilesStatus: '',
   connectionProfiles: false,
+  deviceRegistrationsStatus: '',
+  deviceRegistrations: false,
   domainsStatus: '',
   domains: false,
   firewallsStatus: '',
   firewalls: false,
   floatingDevicesStatus: '',
   floatingDevices: false,
+  pkiProvidersStatus: '',
+  pkiProviders: false,
+  provisioningsStatus: '',
+  provisionings: false,
   realmsStatus: '',
   realms: false,
   rolesStatus: '',
@@ -212,6 +230,8 @@ const state = { // set intitial states to `false` (not `[]` or `{}`) to avoid in
   syslogParsers: false,
   tenantsStatus: '',
   tenants: false,
+  trafficShapingPoliciesStatus: '',
+  trafficShapingPolicies: false,
   securityEventsStatus: '',
   securityEvents: false,
   wrixLocationsStatus: '',
@@ -330,6 +350,9 @@ const getters = {
   isLoadingConnectionProfiles: state => {
     return state.connectionProfilesStatus === types.LOADING
   },
+  isLoadingDeviceRegistrations: state => {
+    return state.deviceRegistrationsStatus === types.LOADING
+  },
   isLoadingDomains: state => {
     return state.domainsStatus === types.LOADING
   },
@@ -338,6 +361,12 @@ const getters = {
   },
   isLoadingFloatingDevices: state => {
     return state.floatingDevicesStatus === types.LOADING
+  },
+  isLoadingPkiProviders: state => {
+    return state.pkiProvidersStatus === types.LOADING
+  },
+  isLoadingProvisionings: state => {
+    return state.provisioningsStatus === types.LOADING
   },
   isLoadingRealms: state => {
     return state.realmsStatus === types.LOADING
@@ -368,6 +397,9 @@ const getters = {
   },
   isLoadingTenants: state => {
     return state.tenantsStatus === types.LOADING
+  },
+  isLoadingTrafficShapingPolicies: state => {
+    return state.trafficShapingPoliciesStatus === types.LOADING
   },
   isLoadingWrixLocations: state => {
     return state.wrixLocationsStatus === types.LOADING
@@ -854,6 +886,20 @@ const actions = {
       return Promise.resolve(state.connectionProfiles)
     }
   },
+  getDeviceRegistrations: ({ state, getters, commit }) => {
+    if (getters.isLoadingDeviceRegistrations) {
+      return
+    }
+    if (!state.deviceRegistrations) {
+      commit('DEVICE_REGISTRATIONS_REQUEST')
+      return api.getDeviceRegistrations().then(response => {
+        commit('DEVICE_REGISTRATIONS_UPDATED', response.data.items)
+        return state.deviceRegistrations
+      })
+    } else {
+      return Promise.resolve(state.deviceRegistrations)
+    }
+  },
   getDomains: ({ state, getters, commit }) => {
     if (getters.isLoadingDomains) {
       return
@@ -896,6 +942,34 @@ const actions = {
       return Promise.resolve(state.floatingDevices)
     }
   },
+  getPkiProviders: ({ state, getters, commit }) => {
+    if (getters.isLoadingPkiProviders) {
+      return
+    }
+    if (!state.pkiProviders) {
+      commit('PKI_PROVIDERS_REQUEST')
+      return api.getPkiProviders().then(response => {
+        commit('PKI_PROVIDERS_UPDATED', response.data.items)
+        return state.pkiProviders
+      })
+    } else {
+      return Promise.resolve(state.pkiProviders)
+    }
+  },
+  getProvisionings: ({ state, getters, commit }) => {
+    if (getters.isLoadingProvisionings) {
+      return
+    }
+    if (!state.provisionings) {
+      commit('PROVISIONINGS_REQUEST')
+      return api.getProvisionings().then(response => {
+        commit('PROVISIONINGS_UPDATED', response.data.items)
+        return state.provisionings
+      })
+    } else {
+      return Promise.resolve(state.provisionings)
+    }
+  },
   getRealms: ({ state, getters, commit }) => {
     if (getters.isLoadingRealms) {
       return
@@ -936,6 +1010,20 @@ const actions = {
       })
     } else {
       return Promise.resolve(state.scans)
+    }
+  },
+  getSecurityEvents: ({ commit, getters, state }) => {
+    if (getters.isLoadingSecurityEvents) {
+      return
+    }
+    if (!state.securityEvents) {
+      commit('SECURITY_EVENTS_REQUEST')
+      return api.getSecurityEvents().then(response => {
+        commit('SECURITY_EVENTS_UPDATED', response.data.items)
+        return state.securityEvents
+      })
+    } else {
+      return Promise.resolve(state.securityEvents)
     }
   },
   getSources: ({ state, getters, commit }) => {
@@ -1026,18 +1114,18 @@ const actions = {
       return Promise.resolve(state.tenants)
     }
   },
-  getSecurityEvents: ({ commit, getters, state }) => {
-    if (getters.isLoadingSecurityEvents) {
+  getTrafficShapingPolicies: ({ state, getters, commit }) => {
+    if (getters.isLoadingTrafficShapingPolicies) {
       return
     }
-    if (!state.securityEvents) {
-      commit('SECURITY_EVENTS_REQUEST')
-      return api.getSecurityEvents().then(response => {
-        commit('SECURITY_EVENTS_UPDATED', response.data.items)
-        return state.securityEvents
+    if (!state.trafficShapingPolicies) {
+      commit('TRAFFIC_SHAPING_POLICIES_REQUEST')
+      return api.getTrafficShapingPolicies().then(response => {
+        commit('TRAFFIC_SHAPING_POLICIES_UPDATED', response.data.items)
+        return state.trafficShapingPolicies
       })
     } else {
-      return Promise.resolve(state.securityEvents)
+      return Promise.resolve(state.trafficShapingPolicies)
     }
   },
   getWrixLocations: ({ commit, getters, state }) => {
@@ -1239,6 +1327,13 @@ const mutations = {
     state.connectionProfiles = connectionProfiles
     state.connectionProfilesStatus = types.SUCCESS
   },
+  DEVICE_REGISTRATIONS_REQUEST: (state) => {
+    state.deviceRegistrationsStatus = types.LOADING
+  },
+  DEVICE_REGISTRATIONS_UPDATED: (state, deviceRegistrations) => {
+    state.deviceRegistrations = deviceRegistrations
+    state.deviceRegistrationsStatus = types.SUCCESS
+  },
   DOMAINS_REQUEST: (state) => {
     state.domainsStatus = types.LOADING
   },
@@ -1260,6 +1355,20 @@ const mutations = {
     state.floatingDevices = floatingDevices
     state.floatingDevicesStatus = types.SUCCESS
   },
+  PKI_PROVIDERS_REQUEST: (state) => {
+    state.pkiProvidersStatus = types.LOADING
+  },
+  PKI_PROVIDERS_UPDATED: (state, pkiProviders) => {
+    state.pkiProviders = pkiProviders
+    state.pkiProvidersStatus = types.SUCCESS
+  },
+  PROVISIONINGS_REQUEST: (state) => {
+    state.provisioningsStatus = types.LOADING
+  },
+  PROVISIONINGS_UPDATED: (state, provisionings) => {
+    state.provisionings = provisionings
+    state.provisioningsStatus = types.SUCCESS
+  },
   REALMS_REQUEST: (state) => {
     state.realmsStatus = types.LOADING
   },
@@ -1280,6 +1389,17 @@ const mutations = {
   SCANS_UPDATED: (state, scans) => {
     state.scans = scans
     state.scansStatus = types.SUCCESS
+  },
+  SECURITY_EVENTS_REQUEST: (state) => {
+    state.securityEventsStatus = types.LOADING
+  },
+  SECURITY_EVENTS_UPDATED: (state, securityEvents) => {
+    let ref = {}
+    for (let securityEvent of securityEvents) {
+      ref[securityEvent.id] = Object.assign({}, securityEvent)
+    }
+    state.securityEvents = ref
+    state.securityEventsStatus = types.SUCCESS
   },
   SOURCES_REQUEST: (state) => {
     state.sourcesStatus = types.LOADING
@@ -1323,16 +1443,12 @@ const mutations = {
     state.tenants = tenants
     state.tenantsStatus = types.SUCCESS
   },
-  SECURITY_EVENTS_REQUEST: (state) => {
-    state.securityEventsStatus = types.LOADING
+  TRAFFIC_SHAPING_POLICIES_REQUEST: (state) => {
+    state.trafficShapingPoliciesStatus = types.LOADING
   },
-  SECURITY_EVENTS_UPDATED: (state, securityEvents) => {
-    let ref = {}
-    for (let securityEvent of securityEvents) {
-      ref[securityEvent.id] = Object.assign({}, securityEvent)
-    }
-    state.securityEvents = ref
-    state.securityEventsStatus = types.SUCCESS
+  TRAFFIC_SHAPING_POLICIES_UPDATED: (state, trafficShapingPolicies) => {
+    state.trafficShapingPolicies = trafficShapingPolicies
+    state.trafficShapingPoliciesStatus = types.SUCCESS
   },
   WRIX_LOCATIONS_REQUEST: (state) => {
     state.wrixLocationsStatus = types.LOADING

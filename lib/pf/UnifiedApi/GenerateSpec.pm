@@ -16,6 +16,7 @@ use strict;
 use warnings;
 our %FIELDS_TYPES_TO_SCHEMA_TYPES = (
     PosInteger => 'integer',
+    Port       => 'integer',
     Integer    => 'integer',
     IntRange   => 'integer',
 );

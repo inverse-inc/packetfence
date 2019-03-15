@@ -23,7 +23,6 @@
             :label-cols="('label' in row && row.fields) ? form.labelCols : 0" :label="row.label" :label-size="row.labelSize" :label-class="[(row.label && row.fields) ? '' : 'text-left', (row.fields) ? '' : 'offset-sm-3']"
             :state="isValid()" :invalid-feedback="getInvalidFeedback()"
             class="input-element" :class="{ 'mb-0': !row.label, 'pt-3': !row.fields }"
-            horizontal
           >
             <b-input-group>
               <template v-for="field in row.fields">

@@ -145,7 +145,6 @@ $t->options_ok("/api/v1/config/syslog_parsers?type=regex")
                 },
             },
             lines => {
-                allowed => undef,
                 default => undef,
                 item    => {
                     allowed     => undef,
@@ -173,18 +172,14 @@ $t->options_ok("/api/v1/config/syslog_parsers?type=regex")
                 type        => "string"
             },
             rules => {
-                allowed => undef,
                 default => undef,
                 item    => {
-                    allowed     => undef,
                     default     => undef,
                     placeholder => undef,
                     properties  => {
                         actions => {
-                            allowed => undef,
                             default => undef,
                             item    => {
-                                allowed     => undef,
                                 default     => undef,
                                 placeholder => undef,
                                 properties  => {
@@ -273,30 +268,26 @@ $t->options_ok("/api/v1/config/base/general")
             dhcpservers => {
                 allowed     => undef,
                 default     => undef,
-                placeholder => undef,
+                placeholder => '127.0.0.1',
                 required    => $false,
                 type        => "string"
             },
             domain => {
                 allowed     => undef,
                 default     => undef,
-                placeholder => undef,
+                placeholder => 'packetfence.org',
                 required    => $false,
                 type        => "string"
             },
             hostname => {
                 allowed     => undef,
                 default     => undef,
-                placeholder => undef,
+                placeholder => 'packetfence',
                 required    => $false,
                 type        => "string"
             },
             timezone => {
                 allowed => [
-                    {
-                        text => "",
-                        value => ""
-                    },
                     {
                         text => "Africa/Abidjan",
                         value => "Africa/Abidjan"

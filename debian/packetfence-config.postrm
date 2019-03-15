@@ -27,6 +27,9 @@ fi
 if $(dpkg-distribution --is_precise) ; then
     DIST=precise
 fi
+if $(dpkg-distribution --is_stretch) ; then
+    DIST=stretch
+fi
 
 case "$1" in
     upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)
@@ -34,12 +37,6 @@ case "$1" in
 
     remove)
 
-        if [ ${DIST} = "jessie" ] ; then
-            set +e
-            systemctl stop packetfence-config
-            systemctl disable packetfence-config
-            set -e
-        fi
         if [ ${DIST} = "wheezy" ] || [ ${DIST} = "precise" ]; then
             if [ -x /etc/init.d/packetfence-config ]; then
                 invoke-rc.d packetfence-config stop

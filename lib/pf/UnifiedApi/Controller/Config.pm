@@ -381,14 +381,19 @@ Get a field's meta data
 sub field_meta {
     my ($self, $field, $no_array) = @_;
     my $type = $self->field_type($field, $no_array);
-    return {
+    my $meta = {
         type        => $type,
         required    => $self->field_is_required($field),
         placeholder => $self->field_placeholder($field),
         default     => $self->field_default($field),
-        allowed     => $self->field_allowed($field),
         $self->field_extra_meta($field, $type),
     };
+
+    if ($type ne 'array' && $type ne 'object') {
+        $meta->{allowed}  = $self->field_allowed($field);
+    }
+
+    return $meta;
 }
 
 =head2 field_extra_meta
@@ -607,8 +612,15 @@ sub field_placeholder {
 
     if (!defined $value ) {
         my $element_attr = $field->element_attr // {};
-        $value = $element_attr->{$name}
+        $value = $element_attr->{placeholder}
     };
+
+    if (!defined $value) {
+        $value = $field->get_tag('defaults');
+        if ($value eq '') {
+            $value = undef;
+        }
+    }
 
     return $value;
 }
@@ -660,6 +672,10 @@ The allowed fields
 
 sub field_allowed {
     my ($self, $field) = @_;
+    if ($field->isa("pfappserver::Form::Field::FingerbankSelect") || $field->isa("pfappserver::Form::Field::FingerbankField")) {
+        return undef;
+    }
+
     my $allowed;
     if ($field->isa('HTML::FormHandler::Field::Select')) {
         $allowed = $field->options;
@@ -676,6 +692,10 @@ sub field_allowed {
 
     if ($allowed) {
         $allowed = $self->map_options($allowed);
+    }
+
+    if (!defined $allowed) {
+        $allowed = $field->get_tag("options_allowed") || undef;
     }
 
     return $allowed;
@@ -702,6 +722,10 @@ map_option
 sub map_option {
     my ($self, $option) = @_;
     my %hash = %$option;
+    if (exists $hash{value} && defined $hash{value} && $hash{value} eq '') {
+        return;
+    }
+
     if (exists $hash{label}) {
         $hash{text} = (delete $hash{label} // '') . "";
     }

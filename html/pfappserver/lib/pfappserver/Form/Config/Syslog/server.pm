@@ -30,7 +30,7 @@ has_field host => (
 );
 
 has_field port => (
-    type => 'PosInteger',
+    type => 'Port',
     default => '514',
     required => 1,
 );

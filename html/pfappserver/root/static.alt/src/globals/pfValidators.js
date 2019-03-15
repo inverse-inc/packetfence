@@ -178,6 +178,16 @@ export const isHex = (value) => {
   return /^[0-9a-f]+$/i.test(value)
 }
 
+export const isPattern = (pattern) => {
+  return (0, _common.withParams)({
+    type: 'isPattern',
+    pattern: pattern
+  }, function (value) {
+    const re = new RegExp(`^${pattern}$`)
+    return !(0, _common.req)(value) || re.test(value)
+  })
+}
+
 export const isPort = (value) => {
   if (!value) return true
   return ~~value === parseFloat(value) && ~~value >= 1 && ~~value <= 65535
@@ -225,6 +235,14 @@ export const isFilenameWithExtension = (extensions = ['html']) => {
   })
 }
 
+export const hasAdminRoles = (value, component) => {
+  return store.dispatch('config/getAdminRoles').then((response) => {
+    return (response.length > 0)
+  }).catch(() => {
+    return true
+  })
+}
+
 export const hasBillingTiers = (value, component) => {
   return store.dispatch('config/getBillingTiers').then((response) => {
     return (response.length > 0)
@@ -235,6 +253,14 @@ export const hasBillingTiers = (value, component) => {
 
 export const hasConnectionProfiles = (value, component) => {
   return store.dispatch('config/getConnectionProfiles').then((response) => {
+    return (response.length > 0)
+  }).catch(() => {
+    return true
+  })
+}
+
+export const hasDeviceRegistrations = (value, component) => {
+  return store.dispatch('config/getDeviceRegistrations').then((response) => {
     return (response.length > 0)
   }).catch(() => {
     return true
@@ -259,6 +285,22 @@ export const hasFirewalls = (value, component) => {
 
 export const hasFloatingDevices = (value, component) => {
   return store.dispatch('config/getFloatingDevices').then((response) => {
+    return (response.length > 0)
+  }).catch(() => {
+    return true
+  })
+}
+
+export const hasPkiProviders = (value, component) => {
+  return store.dispatch('config/getPkiProviders').then((response) => {
+    return (response.length > 0)
+  }).catch(() => {
+    return true
+  })
+}
+
+export const hasProvisionings = (value, component) => {
+  return store.dispatch('config/getProvisionings').then((response) => {
     return (response.length > 0)
   }).catch(() => {
     return true
@@ -329,9 +371,26 @@ export const hasSyslogParsers = (value, component) => {
   })
 }
 
+export const hasTrafficShapingPolicies = (value, component) => {
+  return store.dispatch('config/getTrafficShapingPolicies').then((response) => {
+    return (response.length > 0)
+  }).catch(() => {
+    return true
+  })
+}
+
 export const hasWRIXLocations = (value, component) => {
   return store.dispatch('config/getWrixLocations').then((response) => {
     return (response.length > 0)
+  }).catch(() => {
+    return true
+  })
+}
+
+export const adminRoleExists = (value, component) => {
+  if (!value) return true
+  return store.dispatch('config/getAdminRoles').then((response) => {
+    return (response.filter(adminRole => adminRole.id.toLowerCase() === value.toLowerCase()).length > 0)
   }).catch(() => {
     return true
   })
@@ -376,6 +435,16 @@ export const connectionProfileExists = (value, component) => {
   })
 }
 
+export const deviceRegistrationExists = (value, component) => {
+  if (!value) return true
+  return store.dispatch('config/getDeviceRegistrations').then((response) => {
+    if (response.length === 0) return true
+    return (response.filter(deviceRegistration => deviceRegistration.id.toLowerCase() === value.toLowerCase()).length > 0)
+  }).catch(() => {
+    return true
+  })
+}
+
 export const domainExists = (value, component) => {
   if (!value) return true
   return store.dispatch('config/getDomains').then((response) => {
@@ -410,6 +479,26 @@ export const nodeExists = (value, component) => {
   if (!value || value.length !== 17) return true
   return store.dispatch('$_nodes/exists', value).then(() => {
     return false
+  }).catch(() => {
+    return true
+  })
+}
+
+export const pkiProviderExists = (value, component) => {
+  if (!value) return true
+  return store.dispatch('config/getPkiProviders').then((response) => {
+    if (response.length === 0) return true
+    return (response.filter(provider => provider.id.toLowerCase() === value.toLowerCase()).length > 0)
+  }).catch(() => {
+    return true
+  })
+}
+
+export const provisioningExists = (value, component) => {
+  if (!value) return true
+  return store.dispatch('config/getProvisionings').then((response) => {
+    if (response.length === 0) return true
+    return (response.filter(provisioning => provisioning.id.toLowerCase() === value.toLowerCase()).length > 0)
   }).catch(() => {
     return true
   })
@@ -494,6 +583,17 @@ export const syslogParserExists = (value, component) => {
     return true
   })
 }
+
+export const trafficShapingPolicyExists = (value, component) => {
+  if (!value) return true
+  return store.dispatch('config/getTrafficShapingPolicies').then((response) => {
+    if (response.length === 0) return true
+    return (response.filter(trafficShapingPolicy => trafficShapingPolicy.id.toLowerCase() === value.toLowerCase()).length > 0)
+  }).catch(() => {
+    return true
+  })
+}
+
 export const userExists = (value, component) => {
   if (!value) return true
   return store.dispatch('$_users/exists', value).then(results => {

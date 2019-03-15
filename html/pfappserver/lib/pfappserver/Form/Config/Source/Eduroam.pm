@@ -35,7 +35,7 @@ has_field 'server1_address' => (
 );
 
 has_field 'server1_port' => (
-    type            => 'PosInteger',
+    type            => 'Port',
     label           => 'Eduroam server 1 port',
     element_attr    => {
         placeholder     => pf::Authentication::Source::EduroamSource->meta->get_attribute('server1_port')->default,
@@ -56,7 +56,7 @@ has_field 'server2_address' => (
 );
 
 has_field 'server2_port' => (
-    type            => 'PosInteger',
+    type            => 'Port',
     label           => 'Eduroam server 2 port',
     element_attr    => {
         placeholder     => pf::Authentication::Source::EduroamSource->meta->get_attribute('server2_port')->default,
@@ -77,7 +77,7 @@ has_field 'radius_secret' => (
 );
 
 has_field 'auth_listening_port' => (
-    type            => 'PosInteger',
+    type            => 'Port',
     label           => 'Authentication listening port',
     tags            => {
         after_element   => \&help,

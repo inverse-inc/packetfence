@@ -9778,11 +9778,11 @@ msgstr "Multihost"
 
 # conf/documentation.conf
 msgid "advanced.pfdns_processes"
-msgstr "PFDNS Processes"
+msgstr "pfdns Processes"
 
 # conf/documentation.conf
 msgid "advanced.pffilter_processes"
-msgstr "PFFilter Processes"
+msgstr "pffilter Processes"
 
 # conf/documentation.conf
 msgid "advanced.portal_csp_security_headers"

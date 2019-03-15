@@ -41,6 +41,7 @@ use pfappserver::Form::Config::Pfmon::provisioning_compliance_poll;
 use pfappserver::Form::Config::Pfmon::radius_audit_log_cleanup;
 use pfappserver::Form::Config::Pfmon::switch_cache_lldpLocalPort_description;
 use pfappserver::Form::Config::Pfmon::security_event_maintenance;
+use pfappserver::Form::Config::Pfmon::password_of_the_day;
 
 our %TYPES_TO_FORMS = (
     map { $_ => "pfappserver::Form::Config::Pfmon::$_" } qw(
@@ -63,11 +64,28 @@ our %TYPES_TO_FORMS = (
       radius_audit_log_cleanup
       switch_cache_lldpLocalPort_description
       security_event_maintenance
+      password_of_the_day
     )
 );
 
 sub type_lookup {
     return \%TYPES_TO_FORMS;
+}
+
+=head2 form_process_parameters_for_cleanup
+
+form_process_parameters_for_cleanup
+
+=cut
+
+sub form_process_parameters_for_cleanup {
+    my ($self, $item) = @_;
+    return (
+        $self->SUPER::form_process_parameters_for_cleanup($item),
+        active => [
+            qw(description)
+        ],
+    );
 }
 
 =head1 AUTHOR

@@ -24,6 +24,7 @@
 </template>
 
 <script>
+import pfButtonDelete from '@/components/pfButtonDelete'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import {
@@ -33,6 +34,7 @@ import {
 export default {
   name: 'RolesList',
   components: {
+    pfButtonDelete,
     pfConfigList,
     pfEmptyTable
   },

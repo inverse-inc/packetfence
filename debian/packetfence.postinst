@@ -30,6 +30,9 @@ fi
 if $(dpkg-distribution --is_precise) ; then
     DIST=precise
 fi
+if $(dpkg-distribution --is_stretch) ; then
+    DIST=stretch
+fi
 
 case "$1" in
     configure)
@@ -104,7 +107,7 @@ case "$1" in
 
         # managing services
         set +e
-        for service in apache2 snmptrapfmt freeradius apparmor haproxy keepalived redis-server smbd samba winbind nmbd mysql snmpd netdata; do
+        for service in apache2 snmptrapfmt freeradius apparmor haproxy keepalived redis-server smbd samba winbind nmbd mysql snmpd netdata collectd; do
 
             if [ -e "/etc/init.d/"$service ] ; then
                 invoke-rc.d $service stop  > /dev/null 2>&1
@@ -114,7 +117,7 @@ case "$1" in
                     update-rc.d $service remove > /dev/null 2>&1
                 fi
             fi
-            if [ ${DIST} = "jessie" ] ; then
+            if [ ${DIST} = "jessie" ] || [ ${DIST} = "stretch" ]; then
                 if [ -e "/lib/systemd/system/"$service".service" ] ; then
                     systemctl stop $service
                     systemctl disable $service
@@ -162,6 +165,8 @@ case "$1" in
         /bin/systemctl start packetfence-httpd.admin
         systemctl enable packetfence-iptables
         /usr/local/pf/bin/pfcmd service pf updatesystemd
+        /usr/bin/mysql -uroot -e "update mysql.user set plugin='' where User='root'"
+        /usr/bin/mysql -uroot -e "flush privileges"
         echo Installation complete
         echo "* Please fire up your Web browser and go to https://@ip_packetfence:1443/configurator to complete your PacketFence configuration."
         echo "* Please stop your iptables service if you don't have access to configurator."

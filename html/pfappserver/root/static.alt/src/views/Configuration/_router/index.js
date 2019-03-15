@@ -1,13 +1,16 @@
 import store from '@/store'
 import ConfigurationView from '../'
+import AdminRolesStore from '../_store/adminRoles'
 import AuthenticationSourcesStore from '../_store/sources'
 import BasesStore from '../_store/bases'
 import BillingTiersStore from '../_store/billingTiers'
 import CertificatesStore from '../_store/certificates'
 import ConnectionProfilesStore from '../_store/connectionProfiles'
+import DeviceRegistrationsStore from '../_store/deviceRegistrations'
 import DomainsStore from '../_store/domains'
 import FirewallsStore from '../_store/firewalls'
 import FloatingDevicesStore from '../_store/floatingDevices'
+import PkiProvidersStore from '../_store/pkiProviders'
 import PortalModulesStore from '../_store/portalModules'
 import ProfilingStore from '../_store/profiling'
 import ProvisioningsStore from '../_store/provisionings'
@@ -18,6 +21,7 @@ import SyslogForwardersStore from '../_store/syslogForwarders'
 import SyslogParsersStore from '../_store/syslogParsers'
 import SwitchesStore from '../_store/switches'
 import SwitchGroupsStore from '../_store/switchGroups'
+import TrafficShapingPoliciesStore from '../_store/trafficShapingPolicies'
 import WrixLocationsStore from '../_store/wrixLocations'
 
 /* Policies Access Control */
@@ -60,15 +64,33 @@ const WrixLocationView = () => import(/* webpackChunkName: "Configuration" */ '.
 const CaptivePortalView = () => import(/* webpackChunkName: "Configuration" */ '../_components/CaptivePortalView')
 const BillingTiersList = () => import(/* webpackChunkName: "Configuration" */ '../_components/BillingTiersList')
 const BillingTierView = () => import(/* webpackChunkName: "Configuration" */ '../_components/BillingTierView')
+const PkiProvidersList = () => import(/* webpackChunkName: "Configuration" */ '../_components/PkiProvidersList')
+const PkiProviderView = () => import(/* webpackChunkName: "Configuration" */ '../_components/PkiProviderView')
 const PortalModulesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/PortalModulesList')
 const PortalModuleView = () => import(/* webpackChunkName: "Configuration" */ '../_components/PortalModuleView')
 const AccessDurationView = () => import(/* webpackChunkName: "Configuration" */ '../_components/AccessDurationView')
+const ProvisioningsList = () => import(/* webpackChunkName: "Configuration" */ '../_components/ProvisioningsList')
+const ProvisioningView = () => import(/* webpackChunkName: "Configuration" */ '../_components/ProvisioningView')
+const DeviceRegistrationsList = () => import(/* webpackChunkName: "Configuration" */ '../_components/DeviceRegistrationsList')
+const DeviceRegistrationView = () => import(/* webpackChunkName: "Configuration" */ '../_components/DeviceRegistrationView')
 
 /* Network Configuration */
 const NetworkConfigurationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/NetworkConfigurationSection')
+const NetworksTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/NetworksTabs')
+const InterfaceView = () => import(/* webpackChunkName: "Configuration" */ '../_components/InterfaceView')
+const TrafficShapingView = () => import(/* webpackChunkName: "Configuration" */ '../_components/TrafficShapingView')
+const SnmpTrapView = () => import(/* webpackChunkName: "Configuration" */ '../_components/SnmpTrapView')
 const FloatingDevicesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/FloatingDevicesList')
 const FloatingDeviceView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FloatingDeviceView')
 const CertificatesView = () => import(/* webpackChunkName: "Configuration" */ '../_components/CertificatesView')
+
+/* Main Configuration */
+const MainTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/MainTabs')
+const DatabaseTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/DatabaseTabs')
+const ActiveActiveView = () => import(/* webpackChunkName: "Configuration" */ '../_components/ActiveActiveView')
+const RadiusView = () => import(/* webpackChunkName: "Configuration" */ '../_components/RadiusView')
+const AdminRolesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/AdminRolesList')
+const AdminRoleView = () => import(/* webpackChunkName: "Configuration" */ '../_components/AdminRoleView')
 
 const route = {
   path: '/configuration',
@@ -80,6 +102,9 @@ const route = {
     /**
      * Register Vuex stores
      */
+    if (!store.state.$_admin_roles) {
+      store.registerModule('$_admin_roles', AdminRolesStore)
+    }
     if (!store.state.$_bases) {
       store.registerModule('$_bases', BasesStore)
       // preload config/bases (all sections)
@@ -97,11 +122,17 @@ const route = {
     if (!store.state.$_connection_profiles) {
       store.registerModule('$_connection_profiles', ConnectionProfilesStore)
     }
+    if (!store.state.$_device_registrations) {
+      store.registerModule('$_device_registrations', DeviceRegistrationsStore)
+    }
     if (!store.state.$_firewalls) {
       store.registerModule('$_firewalls', FirewallsStore)
     }
     if (!store.state.$_floatingdevices) {
       store.registerModule('$_floatingdevices', FloatingDevicesStore)
+    }
+    if (!store.state.$_pki_providers) {
+      store.registerModule('$_pki_providers', PkiProvidersStore)
     }
     if (!store.state.$_portalmodules) {
       store.registerModule('$_portalmodules', PortalModulesStore)
@@ -135,6 +166,9 @@ const route = {
     }
     if (!store.state.$_switch_groups) {
       store.registerModule('$_switch_groups', SwitchGroupsStore)
+    }
+    if (!store.state.$_traffic_shaping_policies) {
+      store.registerModule('$_traffic_shaping_policies', TrafficShapingPoliciesStore)
     }
     if (!store.state.$_wrix_locations) {
       store.registerModule('$_wrix_locations', WrixLocationsStore)
@@ -647,10 +681,10 @@ const route = {
       props: (route) => ({ query: route.query.query })
     },
     {
-      path: 'syslog/new',
+      path: 'syslog/new/:syslogForwarderType',
       name: 'newSyslogForwarder',
       component: SyslogForwarderView,
-      props: (route) => ({ storeName: '$_syslog_forwarders', isNew: true })
+      props: (route) => ({ storeName: '$_syslog_forwarders', isNew: true, syslogForwarderType: route.params.syslogForwarderType })
     },
     {
       path: 'syslog/:id',
@@ -709,47 +743,6 @@ const route = {
       }
     },
     /**
-     * Network Configuration
-     */
-    {
-      path: 'networkconfiguration',
-      component: NetworkConfigurationSection
-    },
-    {
-      path: 'floating_devices',
-      name: 'floating_devices',
-      component: FloatingDevicesList,
-      props: (route) => ({ query: route.query.query })
-    },
-    {
-      path: 'floating_devices/new',
-      name: 'newFloatingDevice',
-      component: FloatingDeviceView,
-      props: (route) => ({ storeName: '$_floatingdevices', isNew: true })
-    },
-    {
-      path: 'floating_device/:id',
-      name: 'floating_device',
-      component: FloatingDeviceView,
-      props: (route) => ({ storeName: '$_floatingdevices', id: route.params.id }),
-      beforeEnter: (to, from, next) => {
-        store.dispatch('$_floatingdevices/getFloatingDevice', to.params.id).then(object => {
-          next()
-        })
-      }
-    },
-    {
-      path: 'floating_device/:id/clone',
-      name: 'cloneFloatingDevice',
-      component: FloatingDeviceView,
-      props: (route) => ({ storeName: '$_floatingdevices', id: route.params.id, isClone: true }),
-      beforeEnter: (to, from, next) => {
-        store.dispatch('$_floatingdevices/getFloatingDevice', to.params.id).then(object => {
-          next()
-        })
-      }
-    },
-    /**
      *  Advanced Access Configuration
      */
     {
@@ -757,6 +750,108 @@ const route = {
       name: 'captive_portal',
       component: CaptivePortalView,
       props: (route) => ({ storeName: '$_bases', query: route.query.query })
+    },
+    {
+      path: 'billing_tiers',
+      name: 'billing_tiers',
+      component: BillingTiersList,
+      props: (route) => ({ query: route.query.query })
+    },
+    {
+      path: 'billing_tiers/new',
+      name: 'newBillingTier',
+      component: BillingTierView,
+      props: (route) => ({ storeName: '$_billing_tiers', isNew: true })
+    },
+    {
+      path: 'billing_tier/:id',
+      name: 'billing_tier',
+      component: BillingTierView,
+      props: (route) => ({ storeName: '$_billing_tiers', id: route.params.id }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_billing_tiers/getBillingTier', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'billing_tier/:id/clone',
+      name: 'cloneBillingTier',
+      component: BillingTierView,
+      props: (route) => ({ storeName: '$_billing_tiers', id: route.params.id, isClone: true }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_billing_tiers/getBillingTier', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'pki_providers',
+      name: 'pki_providers',
+      component: PkiProvidersList,
+      props: (route) => ({ query: route.query.query })
+    },
+    {
+      path: 'pki_providers/new/:providerType',
+      name: 'newPkiProvider',
+      component: PkiProviderView,
+      props: (route) => ({ storeName: '$_pki_providers', isNew: true, providerType: route.params.providerType })
+    },
+    {
+      path: 'pki_provider/:id',
+      name: 'pki_provider',
+      component: PkiProviderView,
+      props: (route) => ({ storeName: '$_pki_providers', id: route.params.id }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_pki_providers/getPkiProvider', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'pki_provider/:id/clone',
+      name: 'clonePkiProvider',
+      component: PkiProviderView,
+      props: (route) => ({ storeName: '$_pki_providers', id: route.params.id, isClone: true }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_pki_providers/getPkiProvider', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'provisionings',
+      name: 'provisionings',
+      component: ProvisioningsList,
+      props: (route) => ({ query: route.query.query })
+    },
+    {
+      path: 'provisionings/new/:provisioningType',
+      name: 'newProvisioning',
+      component: ProvisioningView,
+      props: (route) => ({ storeName: '$_provisionings', isNew: true, provisioningType: route.params.provisioningType })
+    },
+    {
+      path: 'provisioning/:id',
+      name: 'provisioning',
+      component: ProvisioningView,
+      props: (route) => ({ storeName: '$_provisionings', id: route.params.id }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_provisionings/getProvisioning', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'provisioning/:id/clone',
+      name: 'cloneProvisioning',
+      component: ProvisioningView,
+      props: (route) => ({ storeName: '$_provisionings', id: route.params.id, isClone: true }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_provisionings/getProvisioning', to.params.id).then(object => {
+          next()
+        })
+      }
     },
     {
       path: 'portal_modules',
@@ -798,48 +893,179 @@ const route = {
       }
     },
     {
-      path: 'billing_tiers',
-      name: 'billing_tiers',
-      component: BillingTiersList,
-      props: (route) => ({ query: route.query.query })
-    },
-    {
-      path: 'billing_tiers/new',
-      name: 'newBillingTier',
-      component: BillingTierView,
-      props: (route) => ({ storeName: '$_billing_tiers', isNew: true })
-    },
-    {
-      path: 'billing_tier/:id',
-      name: 'billing_tier',
-      component: BillingTierView,
-      props: (route) => ({ storeName: '$_billing_tiers', id: route.params.id }),
-      beforeEnter: (to, from, next) => {
-        store.dispatch('$_billing_tiers/getBillingTier', to.params.id).then(object => {
-          next()
-        })
-      }
-    },
-    {
-      path: 'billing_tier/:id/clone',
-      name: 'cloneBillingTier',
-      component: BillingTierView,
-      props: (route) => ({ storeName: '$_billing_tiers', id: route.params.id, isClone: true }),
-      beforeEnter: (to, from, next) => {
-        store.dispatch('$_billing_tiers/getBillingTier', to.params.id).then(object => {
-          next()
-        })
-      }
-    },
-    {
       path: 'access_duration',
       name: 'access_duration',
       component: AccessDurationView,
       props: (route) => ({ storeName: '$_bases', query: route.query.query })
     },
+    {
+      path: 'device_registrations',
+      name: 'device_registrations',
+      component: DeviceRegistrationsList,
+      props: (route) => ({ query: route.query.query })
+    },
+    {
+      path: 'device_registrations/new',
+      name: 'newDeviceRegistration',
+      component: DeviceRegistrationView,
+      props: (route) => ({ storeName: '$_device_registrations', isNew: true })
+    },
+    {
+      path: 'device_registration/:id',
+      name: 'device_registration',
+      component: DeviceRegistrationView,
+      props: (route) => ({ storeName: '$_device_registrations', id: route.params.id }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_device_registrations/getDeviceRegistration', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'device_registration/:id/clone',
+      name: 'cloneDeviceRegistration',
+      component: DeviceRegistrationView,
+      props: (route) => ({ storeName: '$_device_registrations', id: route.params.id, isClone: true }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_device_registrations/getDeviceRegistration', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
     /**
-     *  Network Configuration
+     * Network Configuration
      */
+    {
+      path: 'networkconfiguration',
+      component: NetworkConfigurationSection
+    },
+    {
+      path: 'networks',
+      name: 'networks',
+      component: NetworksTabs,
+      props: (route) => ({ tab: 'network', query: route.query.query })
+    },
+    {
+      path: 'network',
+      name: 'network',
+      component: NetworksTabs,
+      props: (route) => ({ tab: 'network', query: route.query.query })
+    },
+    {
+      path: 'interfaces',
+      name: 'interfaces',
+      component: NetworksTabs,
+      props: (route) => ({ tab: 'interfaces', query: route.query.query })
+    },
+    {
+      path: 'interfaces/new',
+      name: 'newInterface',
+      component: InterfaceView,
+      props: (route) => ({ storeName: '$_TODO', isNew: true })
+    },
+    {
+      path: 'interface/:id',
+      name: 'interface',
+      component: InterfaceView,
+      props: (route) => ({ storeName: '$_TODO', id: route.params.id }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_TODO/getTODO', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'interface/:id/clone',
+      name: 'cloneInterface',
+      component: InterfaceView,
+      props: (route) => ({ storeName: '$_TODO', id: route.params.id, isClone: true }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_TODO/getTODO', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'inline',
+      name: 'inline',
+      component: NetworksTabs,
+      props: (route) => ({ tab: 'inline', query: route.query.query })
+    },
+    {
+      path: 'traffic_shapings',
+      name: 'traffic_shapings',
+      component: NetworksTabs,
+      props: (route) => ({ tab: 'traffic_shapings', query: route.query.query })
+    },
+    {
+      path: 'traffic_shaping/new/:role',
+      name: 'newTrafficShaping',
+      component: TrafficShapingView,
+      props: (route) => ({ storeName: '$_traffic_shaping_policies', isNew: true, role: route.params.role })
+    },
+    {
+      path: 'traffic_shaping/:id',
+      name: 'traffic_shaping',
+      component: TrafficShapingView,
+      props: (route) => ({ storeName: '$_traffic_shaping_policies', id: route.params.id }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_traffic_shaping_policies/getTrafficShapingPolicy', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'fencing',
+      name: 'fencing',
+      component: NetworksTabs,
+      props: (route) => ({ tab: 'fencing', query: route.query.query })
+    },
+    {
+      path: 'parking',
+      name: 'parking',
+      component: NetworksTabs,
+      props: (route) => ({ tab: 'parking', query: route.query.query })
+    },
+    {
+      path: 'floating_devices',
+      name: 'floating_devices',
+      component: FloatingDevicesList,
+      props: (route) => ({ query: route.query.query })
+    },
+    {
+      path: 'floating_devices/new',
+      name: 'newFloatingDevice',
+      component: FloatingDeviceView,
+      props: (route) => ({ storeName: '$_floatingdevices', isNew: true })
+    },
+    {
+      path: 'floating_device/:id',
+      name: 'floating_device',
+      component: FloatingDeviceView,
+      props: (route) => ({ storeName: '$_floatingdevices', id: route.params.id }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_floatingdevices/getFloatingDevice', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'floating_device/:id/clone',
+      name: 'cloneFloatingDevice',
+      component: FloatingDeviceView,
+      props: (route) => ({ storeName: '$_floatingdevices', id: route.params.id, isClone: true }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_floatingdevices/getFloatingDevice', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'snmp_traps',
+      name: 'snmp_traps',
+      component: SnmpTrapView,
+      props: (route) => ({ storeName: '$_bases', query: route.query.query })
+    },
     {
       path: 'certificates',
       redirect: 'certificate/http'
@@ -849,6 +1075,97 @@ const route = {
       name: 'certificate',
       component: CertificatesView,
       props: (route) => ({ storeName: '$_certificates', id: route.params.id })
+    },
+    /**
+     * Main Configuration
+     */
+    {
+      path: 'general',
+      name: 'general',
+      component: MainTabs,
+      props: (route) => ({ tab: 'general', query: route.query.query })
+    },
+    {
+      path: 'alerting',
+      name: 'alerting',
+      component: MainTabs,
+      props: (route) => ({ tab: 'alerting', query: route.query.query })
+    },
+    {
+      path: 'advanced',
+      name: 'advanced',
+      component: MainTabs,
+      props: (route) => ({ tab: 'advanced', query: route.query.query })
+    },
+    {
+      path: 'maintenance',
+      name: 'maintenance',
+      component: MainTabs,
+      props: (route) => ({ tab: 'maintenance', query: route.query.query })
+    },
+    {
+      path: 'services',
+      name: 'services',
+      component: MainTabs,
+      props: (route) => ({ tab: 'services', query: route.query.query })
+    },
+    {
+      path: 'database',
+      name: 'database',
+      component: DatabaseTabs,
+      props: (route) => ({ tab: 'database', query: route.query.query })
+    },
+    {
+      path: 'database_advanced',
+      name: 'database_advanced',
+      component: DatabaseTabs,
+      props: (route) => ({ tab: 'database_advanced', query: route.query.query })
+    },
+    {
+      path: 'active_active',
+      name: 'active_active',
+      component: ActiveActiveView,
+      props: (route) => ({ query: route.query.query })
+    },
+    {
+      path: 'radius',
+      name: 'radius',
+      component: RadiusView,
+      props: (route) => ({ query: route.query.query })
+    },
+    {
+      path: 'admin_roles',
+      name: 'admin_roles',
+      component: AdminRolesList,
+      props: (route) => ({ query: route.query.query })
+    },
+    {
+      path: 'admin_roles/new',
+      name: 'newAdminRole',
+      component: AdminRoleView,
+      props: (route) => ({ storeName: '$_admin_roles', isNew: true })
+    },
+    {
+      path: 'admin_role/:id',
+      name: 'admin_role',
+      component: AdminRoleView,
+      props: (route) => ({ storeName: '$_admin_roles', id: route.params.id }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_admin_roles/getAdminRole', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'admin_role/:id/clone',
+      name: 'cloneAdminRole',
+      component: AdminRoleView,
+      props: (route) => ({ storeName: '$_admin_roles', id: route.params.id, isClone: true }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_admin_roles/getAdminRole', to.params.id).then(object => {
+          next()
+        })
+      }
     }
   ]
 }

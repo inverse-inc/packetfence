@@ -2,12 +2,17 @@ import i18n from '@/utils/locale'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormPassword from '@/components/pfFormPassword'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
-
-const {
-  maxLength
-} = require('vuelidate/lib/validators')
+import {
+  pfConfigurationAttributesFromMeta,
+  pfConfigurationValidatorsFromMeta
+} from '@/globals/configuration/pfConfiguration'
 
 export const pfConfigurationCiscoMobilityServicesEngineViewFields = (context = {}) => {
+  const {
+    options: {
+      meta = {}
+    }
+  } = context
   return [
     {
       tab: null,
@@ -30,9 +35,8 @@ export const pfConfigurationCiscoMobilityServicesEngineViewFields = (context = {
             {
               key: 'url',
               component: pfFormInput,
-              validators: {
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'url'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'url', 'URL')
             }
           ]
         },
@@ -43,9 +47,8 @@ export const pfConfigurationCiscoMobilityServicesEngineViewFields = (context = {
             {
               key: 'user',
               component: pfFormInput,
-              validators: {
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'user'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'user', 'Username')
             }
           ]
         },
@@ -56,21 +59,12 @@ export const pfConfigurationCiscoMobilityServicesEngineViewFields = (context = {
             {
               key: 'pass',
               component: pfFormPassword,
-              validators: {
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'pass'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'pass', 'Password')
             }
           ]
         }
       ]
     }
   ]
-}
-
-export const pfConfigurationCiscoMobilityServicesEngineViewDefaults = (context = {}) => {
-  return {}
-}
-
-export const pfConfigurationCiscoMobilityServicesEngineViewPlaceholders = (context = {}) => {
-  return {}
 }

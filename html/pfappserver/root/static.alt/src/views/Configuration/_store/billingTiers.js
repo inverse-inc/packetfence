@@ -33,6 +33,17 @@ const actions = {
       return response.items
     })
   },
+  options: ({}, id) => {
+    if (id) {
+      return api.billingTierOptions(id).then(response => {
+        return response
+      })
+    } else {
+      return api.billingTiersOptions().then(response => {
+        return response
+      })
+    }
+  },
   getBillingTier: ({ state, commit }, id) => {
     if (state.cache[id]) {
       return Promise.resolve(state.cache[id])

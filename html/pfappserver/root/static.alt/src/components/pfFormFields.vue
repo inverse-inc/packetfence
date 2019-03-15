@@ -1,5 +1,5 @@
 <template>
-  <b-form-group horizontal :label-cols="(columnLabel) ? labelCols : 0" :label="$t(columnLabel)"
+  <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="$t(columnLabel)"
     :state="isValid()" :invalid-feedback="getInvalidFeedback()"
     class="pf-form-fields" :class="{ 'mb-0': !columnLabel }">
     <b-input-group class="pf-form-fields-input-group">
@@ -10,7 +10,7 @@
       <input type="text" name="vaccum" :value="null" style="position: absolute; width: 1px; height: 1px; padding: 0px; border: 0px; visibility: hidden;" />
 
       <b-container v-if="!inputValue || inputValue.length === 0"
-        class="mx-0 px-0"
+        class="mx-1 px-0"
       >
         <b-button variant="outline-secondary" @click.stop="rowAdd()">{{ buttonLabel || $t('Add row') }}</b-button>
         <small v-if="emptyText" class="ml-2">{{ emptyText }}</small>

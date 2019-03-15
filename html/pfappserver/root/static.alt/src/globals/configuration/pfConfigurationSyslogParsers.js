@@ -10,7 +10,9 @@ import pfFormTextarea from '@/components/pfFormTextarea'
 import { pfFieldType as fieldType } from '@/globals/pfField'
 import {
   pfConfigurationListColumns,
-  pfConfigurationListFields
+  pfConfigurationListFields,
+  pfConfigurationAttributesFromMeta,
+  pfConfigurationValidatorsFromMeta
 } from '@/globals/configuration/pfConfiguration'
 import {
   and,
@@ -272,9 +274,12 @@ export const pfConfigurationSyslogParserViewFields = (context) => {
     isClone = false,
     invalidForm = false,
     syslogParserType = null,
-    syslogParser: form = {},
+    form = {},
     dryRunTest = () => {},
-    dryRunResponseHtml = null // html from dry run
+    dryRunResponseHtml = null, // html from dry run
+    options: {
+      meta = {}
+    }
   } = context
   return [
     {
@@ -287,12 +292,16 @@ export const pfConfigurationSyslogParserViewFields = (context) => {
               key: 'id',
               component: pfFormInput,
               attrs: {
-                disabled: (!isNew && !isClone)
+                ...pfConfigurationAttributesFromMeta(meta, 'id', 'Detector'),
+                ...{
+                  disabled: (!isNew && !isClone)
+                }
               },
               validators: {
-                [i18n.t('Value required.')]: required,
-                [i18n.t('Maximum 255 characters.')]: maxLength(255),
-                [i18n.t('Syslog Parser exists.')]: not(and(required, conditional(isNew || isClone), hasSyslogParsers, syslogParserExists))
+                ...pfConfigurationValidatorsFromMeta(meta, 'id'),
+                ...{
+                  [i18n.t('Syslog Parser exists.')]: not(and(required, conditional(isNew || isClone), hasSyslogParsers, syslogParserExists))
+                }
               }
             }
           ]
@@ -315,10 +324,8 @@ export const pfConfigurationSyslogParserViewFields = (context) => {
             {
               key: 'path',
               component: pfFormInput,
-              validators: {
-                [i18n.t('Value required.')]: required,
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'path'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'path')
             }
           ]
         },
@@ -397,11 +404,12 @@ export const pfConfigurationSyslogParserViewFields = (context) => {
               key: 'lines',
               component: pfFormTextarea,
               attrs: {
-                rows: 3
+                ...pfConfigurationAttributesFromMeta(meta, 'lines'),
+                ...{
+                  rows: 3
+                }
               },
-              validators: {
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
+              validators: pfConfigurationValidatorsFromMeta(meta, 'lines')
             }
           ]
         },

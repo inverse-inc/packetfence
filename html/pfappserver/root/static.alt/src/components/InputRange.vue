@@ -114,10 +114,10 @@ export default {
       }
     },
     clickMin ($event) {
-      this.$set(this, 'inputValue', 0)
+      this.$set(this, 'inputValue', this.min)
     },
     clickMax ($event) {
-      this.$set(this, 'inputValue', 2)
+      this.$set(this, 'inputValue', this.max)
     },
     percent (value = this.inputValue) {
       if (value >= this.max) return 100

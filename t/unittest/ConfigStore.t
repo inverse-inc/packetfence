@@ -193,11 +193,11 @@ ok($configStore->cachedConfig->exists("section2","param3"),"Updated parameter wi
 
 $configStore->update("section2",{param3 => 'value3'});
 
-ok(!$configStore->cachedConfig->exists("section2","param3"),"Updated parameter with a value equal to the default value");
+ok($configStore->cachedConfig->exists("section2","param3"),"Updated parameter with a value equal to the default value");
 
 $configStore->create("section4",{%section, param3 => 'value3', 'param4' => 'newvalue'});
 
-ok(!$configStore->cachedConfig->exists("section4","param3"),"Created section with a parameter value different than the default value");
+ok($configStore->cachedConfig->exists("section4","param3"),"Created section with a parameter value different than the default value");
 
 ok($configStore->cachedConfig->exists("section4","param4"),"Created section with a parameter value equal to the default value");
 

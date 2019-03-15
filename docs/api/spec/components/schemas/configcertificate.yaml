@@ -1,5 +1,11 @@
 ConfigCertificate:
   properties:
+    lets_encrypt:
+      description: Whether or not Let's Encrypt is enabled for the certificate resource
+      type: string
+      enum:
+        - enabled
+        - disabled
     certificate:
       description: The server certficate for the resource in x509 PEM encoded format
       type: string
@@ -53,6 +59,9 @@ ConfigCertificateReturnValue:
 
 ConfigCertificateDetails:
   properties:
+    common_name:
+      type: string
+      description: "The common name of the certificate"
     subject:
       type: string
       description: "The subject of the certificate"
@@ -83,6 +92,13 @@ ConfigCertificateCSR:
     organization_name:
       description: The organization name for the certificate
       type: string
+    common_name:
+      description: The common name for the certificate
+      type: string
+  type: object
+
+ConfigCertificateLetsEncrypt:
+  properties:
     common_name:
       description: The common name for the certificate
       type: string

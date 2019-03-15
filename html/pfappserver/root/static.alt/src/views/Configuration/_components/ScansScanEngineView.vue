@@ -2,11 +2,11 @@
   <pf-config-view
     :isLoading="isLoading"
     :form="getForm"
-    :model="scanEngine"
-    :vuelidate="$v.scanEngine"
+    :model="form"
+    :vuelidate="$v.form"
     :isNew="isNew"
     :isClone="isClone"
-    @validations="scanEngineValidations = $event"
+    @validations="formValidations = $event"
     @close="close"
     @create="create"
     @save="save"
@@ -24,7 +24,7 @@
     <template slot="footer"
       scope="{isDeletable}"
     >
-      <b-card-footer @mouseenter="$v.scanEngine.$touch()">
+      <b-card-footer @mouseenter="$v.form.$touch()">
         <pf-button-save :disabled="invalidForm" :isLoading="isLoading">
           <template v-if="isNew">{{ $t('Create') }}</template>
           <template v-else-if="isClone">{{ $t('Clone') }}</template>
@@ -32,6 +32,7 @@
           <template v-else>{{ $t('Save') }}</template>
         </pf-button-save>
         <pf-button-delete v-if="isDeletable" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Scan Engine?')" @on-delete="remove()"/>
+        <b-button :disabled="isLoading" class="ml-1" variant="outline-primary" @click="init()">{{ $t('Reset') }}</b-button>
       </b-card-footer>
     </template>
   </pf-config-view>
@@ -44,8 +45,10 @@ import pfButtonDelete from '@/components/pfButtonDelete'
 import pfMixinCtrlKey from '@/components/pfMixinCtrlKey'
 import pfMixinEscapeKey from '@/components/pfMixinEscapeKey'
 import {
-  pfConfigurationScanEngineViewFields as fields,
-  pfConfigurationScanEngineViewDefaults as defaults
+  pfConfigurationDefaultsFromMeta as defaults
+} from '@/globals/configuration/pfConfiguration'
+import {
+  pfConfigurationScanEngineViewFields as fields
 } from '@/globals/configuration/pfConfigurationScans'
 const { validationMixin } = require('vuelidate')
 
@@ -86,23 +89,22 @@ export default {
   },
   data () {
     return {
-      scanEngine: defaults(this), // will be overloaded with the data from the store
-      scanEngineValidations: {}, // will be overloaded with data from the pfConfigView
-      roles: [], // all roles
-      switchGroups: [] // all switch groups
+      form: {}, // will be overloaded with the data from the store
+      formValidations: {}, // will be overloaded with data from the pfConfigView
+      options: {}
     }
   },
   validations () {
     return {
-      scanEngine: this.scanEngineValidations
+      form: this.formValidations
     }
   },
   computed: {
     isLoading () {
-      return this.$store.getters['$_scanEngines/isLoading']
+      return this.$store.getters['$_scans/isLoading']
     },
     invalidForm () {
-      return this.$v.scanEngine.$invalid || this.$store.getters['$_scanEngines/isWaiting']
+      return this.$v.form.$invalid || this.$store.getters['$_scans/isWaiting']
     },
     getForm () {
       return {
@@ -111,54 +113,61 @@ export default {
       }
     },
     isDeletable () {
-      if (this.isNew || this.isClone || ('not_deletable' in this.scanEngine && this.scanEngine.not_deletable)) {
+      if (this.isNew || this.isClone || ('not_deletable' in this.form && this.form.not_deletable)) {
         return false
       }
       return true
     }
   },
   methods: {
+    init () {
+      if (this.id) {
+        // existing
+        this.$store.dispatch(`${this.storeName}/optionsById`, this.id).then(options => {
+          this.options = Object.assign({}, options) // store options
+          this.$store.dispatch(`${this.storeName}/getScanEngine`, this.id).then(form => {
+            this.form = Object.assign({}, form) // set form
+            this.scanType = form.type
+          })
+        })
+      } else {
+        // new
+        this.$store.dispatch(`${this.storeName}/optionsByScanType`, this.scanType).then(options => {
+          this.options = Object.assign({}, options) // store options
+          this.form = defaults(options.meta) // set defaults
+          this.form.type = this.scanType
+        })
+      }
+    },
     close () {
       this.$router.push({ name: 'scanEngines' })
     },
     create () {
       const ctrlKey = this.ctrlKey
-      this.$store.dispatch('$_scanEngines/createSwitch', this.scanEngine).then(response => {
+      this.$store.dispatch('$_scans/createScanEngine', this.form).then(response => {
         if (ctrlKey) { // [CTRL] key pressed
           this.close()
         } else {
-          this.$router.push({ name: 'switch', params: { id: this.scanEngine.id } })
+          this.$router.push({ name: 'scanEngine', params: { id: this.form.id } })
         }
       })
     },
     save () {
       const ctrlKey = this.ctrlKey
-      this.$store.dispatch('$_scanEngines/updateSwitch', this.scanEngine).then(response => {
+      this.$store.dispatch('$_scans/updateScanEngine', this.form).then(response => {
         if (ctrlKey) { // [CTRL] key pressed
           this.close()
         }
       })
     },
     remove () {
-      this.$store.dispatch('$_scanEngines/deleteSwitch', this.id).then(response => {
+      this.$store.dispatch('$_scans/deleteScanEngine', this.id).then(response => {
         this.close()
       })
     }
   },
   created () {
-    this.$store.dispatch('$_roles/all').then(data => {
-      this.roles = data
-    })
-    this.$store.dispatch('$_switch_groups/all').then(data => {
-      this.switchGroups = data
-    })
-    if (this.id) {
-      this.$store.dispatch('$_scans/getScanEngine', this.id).then(data => {
-        this.scanEngine = Object.assign({}, data)
-      })
-    } else {
-      this.scanEngine.type = this.scanType
-    }
+    this.init()
   }
 }
 </script>

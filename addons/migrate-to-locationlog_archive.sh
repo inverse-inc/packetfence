@@ -4,7 +4,7 @@
 #
 # Only useful if your locationlog is too big and you want to slowly move it 
 # into locationlog_archive and you do not want to do it in one batch like the 
-# database-backup-and-maintenance script would do
+# backup-and-maintenance script would do
 #
 # It will proceed day by day starting by the older entries first and sleeping 
 # for 5 minutes between each batch.

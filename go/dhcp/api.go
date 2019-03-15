@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/binary"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -68,6 +69,11 @@ type Info struct {
 	Status  string `json:"status"`
 	Mac     string `json:"mac,omitempty"`
 	Network string `json:"network,omitempty"`
+}
+
+type OptionsFromFilter struct {
+	Option dhcp.OptionCode `json:"option"`
+	Type   string          `json:"type"`
 }
 
 func handleIP2Mac(res http.ResponseWriter, req *http.Request) {
@@ -275,13 +281,13 @@ func handleRemoveNetworkOptions(res http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func decodeOptions(b string) (map[dhcp.OptionCode][]byte, bool) {
+func decodeOptions(b string) (map[dhcp.OptionCode][]byte, error) {
 	var options []Options
 	_, value := MysqlGet(b)
 	decodedValue := sharedutils.ConvertToByte(value)
 	var dhcpOptions = make(map[dhcp.OptionCode][]byte)
 	if err := json.Unmarshal(decodedValue, &options); err != nil {
-		return dhcpOptions, false
+		return dhcpOptions, errors.New("Unable to decode the option")
 	}
 	for _, option := range options {
 		var Value interface{}
@@ -297,7 +303,7 @@ func decodeOptions(b string) (map[dhcp.OptionCode][]byte, bool) {
 			dhcpOptions[option.Option] = []byte(Value.(string))
 		}
 	}
-	return dhcpOptions, true
+	return dhcpOptions, nil
 }
 
 func (h *Interface) handleApiReq(Request ApiReq) interface{} {
@@ -318,14 +324,14 @@ func (h *Interface) handleApiReq(Request ApiReq) interface{} {
 			for option, value := range v.dhcpHandler.options {
 				key := []byte(option.String())
 				key[0] = key[0] | ('a' - 'A')
-				Options[string(key)] = Tlv.Tlvlist[int(option)].Decode.String(value)
+				Options[string(key)] = Tlv.Tlvlist[int(option)].Transform.String(value)
 			}
 
 			// Add network options on the fly
 			x, err := decodeOptions(v.network.IP.String())
-			if err {
+			if err == nil {
 				for key, value := range x {
-					Options[key.String()] = Tlv.Tlvlist[int(key)].Decode.String(value)
+					Options[key.String()] = Tlv.Tlvlist[int(key)].Transform.String(value)
 				}
 			}
 

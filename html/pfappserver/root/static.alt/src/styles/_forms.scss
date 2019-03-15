@@ -6,7 +6,7 @@
     font-weight: 500;
     line-height: $font-size-base / $font-size-sm * $line-height-base;
 
-    &[class*=col-sm-] {
+    &[class*=col-]:not([class*=offset-]) {
         @include media-breakpoint-up(sm) {
             text-align: right;
         }

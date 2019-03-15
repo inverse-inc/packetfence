@@ -26,6 +26,9 @@ fi
 if $(dpkg-distribution --is_precise) ; then
     DIST=precise
 fi
+if $(dpkg-distribution --is_stretch) ; then
+    DIST=stretch
+fi
 
 case "$1" in
     configure)
@@ -37,7 +40,7 @@ case "$1" in
         if [ ${DIST} = "wheezy" ] || [ ${DIST} = "precise" ]; then
             update-rc.d packetfence-redis-cache defaults 60 || exit 0
         fi
-        if [ ${DIST} = "jessie" ] ; then
+        if [ ${DIST} = "jessie" ] || [ ${DIST} = "stretch" ]; then
             systemctl enable packetfence-redis-cache
         fi
 	set +e
@@ -52,7 +55,7 @@ case "$1" in
 			fi
 		fi
             fi
-            if [ ${DIST} = "jessie" ] ; then
+            if [ ${DIST} = "jessie" ] || [ ${DIST} = "stretch" ]; then
                 systemctl disable $service
             fi
 	done

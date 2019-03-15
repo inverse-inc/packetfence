@@ -322,7 +322,9 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
     options: {
       meta = {}
     },
-    general = {}
+    general = {},
+    createDirectory = null,
+    deleteDirectory = null
   } = context
 
   // fields differ w/ & wo/ 'default'
@@ -837,6 +839,7 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
     },
     {
       tab: i18n.t('Files'),
+      disabled: isNew,
       fields: [
         {
           fields: [
@@ -874,7 +877,9 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
                 sortBy: 'name',
                 onSortingChanged: sortFiles,
                 onNodeClick: (item) => $router.push({ name: 'connectionProfileFile', params: { id: form.id, filename: item.path ? [item.path, item.name].join('/') : item.name } }),
-                onNodeCreate: (path) => $router.push({ name: 'newConnectionProfileFile', params: { id: form.id, path } })
+                onNodeCreate: (path) => $router.push({ name: 'newConnectionProfileFile', params: { id: form.id, path } }),
+                onContainerCreate: createDirectory,
+                onDelete: deleteDirectory
               }
             }
           ]

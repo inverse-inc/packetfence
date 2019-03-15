@@ -645,7 +645,7 @@ Manual backups
 In case you need to make a "manual" backup, you can type the following command:
 
 ----
-/usr/local/pf/addons/database-backup-and-maintenance.sh
+/usr/local/pf/addons/backup-and-maintenance.sh
 ----
 
 As the daily automatic backups, you will find the files in:

@@ -61,7 +61,7 @@ case "$1" in
         /bin/systemctl stop mariadb
         # journald 
         /usr/bin/install -d -g systemd-journal /var/log/journal
-        /usr/bin/setfacl -R -nm g:adm:rx,d:g:adm:rx /var/log/journal
+        /bin/setfacl -R -nm g:adm:rx,d:g:adm:rx /var/log/journal
         echo "RateLimitInterval=0" >> /etc/systemd/journald.conf
         echo "RateLimitBurst=0" >> /etc/systemd/journald.conf
         echo "ForwardToWall=no" >> /etc/systemd/journald.conf
@@ -123,7 +123,7 @@ case "$1" in
         if dpkg --compare-versions "$2" lt "7"; then
             # journald 
             /usr/bin/install -d -g systemd-journal /var/log/journal
-            /usr/bin/setfacl -R -nm g:adm:rx,d:g:adm:rx /var/log/journal
+            /bin/setfacl -R -nm g:adm:rx,d:g:adm:rx /var/log/journal
             echo "RateLimitInterval=0" >> /etc/systemd/journald.conf
             echo "RateLimitBurst=0" >> /etc/systemd/journald.conf
             echo "ForwardToWall=no" >> /etc/systemd/journald.conf

@@ -35,6 +35,8 @@ var MySQLdatabase *sql.DB
 var GlobalIpCache *cache.Cache
 var GlobalMacCache *cache.Cache
 
+var GlobalFilterCache *cache.Cache
+
 var GlobalTransactionCache *cache.Cache
 var GlobalTransactionLock *timedlock.RWLock
 
@@ -68,6 +70,9 @@ func main() {
 	GlobalTransactionCache = cache.New(5*time.Minute, 10*time.Minute)
 	GlobalTransactionLock = timedlock.NewRWLock()
 	RequestGlobalTransactionCache = cache.New(5*time.Minute, 10*time.Minute)
+
+	//  Initialize GlobalFilterCache
+	GlobalFilterCache = cache.New(2*time.Minute, 4*time.Minute)
 
 	// Read DB config
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Database)
@@ -282,9 +287,18 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 	if VIP[h.Name] {
 
 		defer recoverName(options)
+
 		answer.Local = handler.layer2
 
-		log.LoggerWContext(ctx).Info(p.CHAddr().String() + " " + msgType.String() + " xID " + sharedutils.ByteToString(p.XId()))
+		var Options map[string]string
+		Options = make(map[string]string)
+		for option, value := range options {
+			key := []byte(option.String())
+			key[0] = key[0] | ('a' - 'A')
+			Options[string(key)] = Tlv.Tlvlist[int(option)].Transform.String(value)
+		}
+
+		log.LoggerWContext(ctx).Debug(p.CHAddr().String() + " " + msgType.String() + " xID " + sharedutils.ByteToString(p.XId()))
 
 		id, _ := GlobalTransactionLock.Lock()
 
@@ -441,6 +455,9 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 
 		reply:
 
+			var info interface{}
+			var err error
+
 			answer.IP = dhcp.IPAdd(handler.start, free)
 			answer.Iface = h.intNet
 			// Add options on the fly
@@ -458,7 +475,7 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 
 			// Add network options on the fly
 			x, err := decodeOptions(NetScope.IP.String())
-			if err {
+			if err == nil {
 				for key, value := range x {
 					if key == dhcp.OptionIPAddressLeaseTime {
 						seconds, _ := strconv.Atoi(string(value))
@@ -469,9 +486,19 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 				}
 			}
 
+			info = GetFromGlobalFilterCache(msgType.String(), p.CHAddr().String(), Options)
+
+			// Add options on the fly from pffilter
+			reject := AddPffilterDevicesOptions(info, GlobalOptions)
+			if reject != nil {
+				log.LoggerWContext(ctx).Info("DHCPNAK on to " + clientMac)
+				answer.D = dhcp.ReplyPacket(p, dhcp.NAK, handler.ip.To4(), nil, 0, nil)
+				return answer
+			}
+
 			// Add device (mac) options on the fly
 			x, err = decodeOptions(p.CHAddr().String())
-			if err {
+			if err == nil {
 				for key, value := range x {
 					if key == dhcp.OptionIPAddressLeaseTime {
 						seconds, _ := strconv.Atoi(string(value))
@@ -569,6 +596,8 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 
 				if Reply {
 
+					var info interface{}
+
 					var GlobalOptions dhcp.Options
 					var options = make(map[dhcp.OptionCode][]byte)
 					for key, value := range handler.options {
@@ -581,30 +610,18 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 					GlobalOptions = options
 					leaseDuration := handler.leaseDuration
 
-					// Add network options on the fly
-					x, err := decodeOptions(NetScope.IP.String())
-					if err {
-						for key, value := range x {
-							if key == dhcp.OptionIPAddressLeaseTime {
-								seconds, _ := strconv.Atoi(string(value))
-								leaseDuration = time.Duration(seconds) * time.Second
-								continue
-							}
-							GlobalOptions[key] = value
-						}
-					}
+					// Add network options
+					AddDevicesOptions(NetScope.IP.String(), &leaseDuration, GlobalOptions)
+					// Add device options
+					AddDevicesOptions(p.CHAddr().String(), &leaseDuration, GlobalOptions)
 
-					// Add devices options on the fly
-					x, err = decodeOptions(p.CHAddr().String())
-					if err {
-						for key, value := range x {
-							if key == dhcp.OptionIPAddressLeaseTime {
-								seconds, _ := strconv.Atoi(string(value))
-								leaseDuration = time.Duration(seconds) * time.Second
-								continue
-							}
-							GlobalOptions[key] = value
-						}
+					info = GetFromGlobalFilterCache(msgType.String(), p.CHAddr().String(), Options)
+					// Add options on the fly from pffilter
+					reject := AddPffilterDevicesOptions(info, GlobalOptions)
+					if reject != nil {
+						log.LoggerWContext(ctx).Info("DHCPNAK on " + reqIP.String() + " to " + clientMac)
+						answer.D = dhcp.ReplyPacket(p, dhcp.NAK, handler.ip.To4(), nil, 0, nil)
+						return answer
 					}
 
 					answer.D = dhcp.ReplyPacket(p, dhcp.ACK, handler.ip.To4(), reqIP, leaseDuration,

@@ -18,6 +18,7 @@ New Features
 ++++++++++++
 * Add 802.1x + CoA support for FortiSwitch
 * Add module to manage PICOS white box switches.
+* DHCP Filter to reply custom attributes in the OFFER and or ACK (deprecate old DHCP Filter)
 
 Enhancements
 ++++++++++++
@@ -32,6 +33,7 @@ Enhancements
 * Disable dns lookup in mariadb configuration
 * Enable performance_schema if needed
 * Display local account in the captive portal during registration if applicable (#3615)
+* Exception for portal detecion url in pfdns
 
 Bug Fixes
 +++++++++

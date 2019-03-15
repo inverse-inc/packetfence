@@ -1,5 +1,5 @@
 <template>
-  <b-form-group horizontal :label-cols="(columnLabel) ? labelCols : 0" :label="$t(columnLabel)"
+  <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="$t(columnLabel)"
     :state="isValid()" :invalid-feedback="getInvalidFeedback()"
     class="pf-form-input" :class="{ 'mb-0': !columnLabel }">
     <b-input-group>
@@ -66,6 +66,11 @@ export default {
       set (newValue) {
         this.$emit('input', newValue)
       }
+    }
+  },
+  methods: {
+    focus () {
+      this.$refs.input.focus()
     }
   }
 }

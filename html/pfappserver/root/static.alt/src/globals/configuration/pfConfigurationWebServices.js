@@ -1,12 +1,17 @@
 import i18n from '@/utils/locale'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormPassword from '@/components/pfFormPassword'
-
-const {
-  maxLength
-} = require('vuelidate/lib/validators')
+import {
+  pfConfigurationAttributesFromMeta,
+  pfConfigurationValidatorsFromMeta
+} from '@/globals/configuration/pfConfiguration'
 
 export const pfConfigurationWebServicesViewFields = (context = {}) => {
+  const {
+    options: {
+      meta = {}
+    }
+  } = context
   return [
     {
       tab: null,
@@ -18,9 +23,8 @@ export const pfConfigurationWebServicesViewFields = (context = {}) => {
             {
               key: 'user',
               component: pfFormInput,
-              validators: {
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'user'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'user', 'Username')
             }
           ]
         },
@@ -31,21 +35,12 @@ export const pfConfigurationWebServicesViewFields = (context = {}) => {
             {
               key: 'pass',
               component: pfFormPassword,
-              validators: {
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'pass'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'pass', 'Password')
             }
           ]
         }
       ]
     }
   ]
-}
-
-export const pfConfigurationWebServicesViewDefaults = (context = {}) => {
-  return {}
-}
-
-export const pfConfigurationWebServicesViewPlaceholders = (context = {}) => {
-  return {}
 }

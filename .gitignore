@@ -82,6 +82,7 @@ conf/radiusd/eap.conf
 conf/radiusd/eduroam
 conf/radiusd/eduroam-cluster
 conf/radiusd/eduroam.conf
+conf/radiusd/ldap_packetfence.conf
 conf/radiusd/load_balancer.conf
 conf/radiusd/packetfence
 conf/radiusd/packetfence-cli

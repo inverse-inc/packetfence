@@ -37,6 +37,17 @@ const actions = {
       throw err
     })
   },
+  options: ({}, id) => {
+    if (id) {
+      return api.floatingDeviceOptions(id).then(response => {
+        return response
+      })
+    } else {
+      return api.floatingDevicesOptions().then(response => {
+        return response
+      })
+    }
+  },
   createFloatingDevice: ({ commit }, data) => {
     commit('ITEM_REQUEST')
     return api.createFloatingDevice(data).then(response => {

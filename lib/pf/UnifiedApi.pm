@@ -204,6 +204,7 @@ sub setup_api_v1_config_routes {
     $self->setup_api_v1_config_device_registrations_routes($root);
     $self->setup_api_v1_config_domains_routes($root);
     $self->setup_api_v1_config_filters_routes($root);
+    $self->setup_api_v1_config_fingerbank_settings_routes($root);
     $self->setup_api_v1_config_firewalls_routes($root);
     $self->setup_api_v1_config_floating_devices_routes($root);
     $self->setup_api_v1_config_maintenance_tasks_routes($root);
@@ -1155,6 +1156,26 @@ sub setup_api_v1_config_filters_routes {
     return (undef, $resource_route);
 }
 
+=head2 setup_api_v1_config_fingerbank_settings_routes
+
+setup_api_v1_config_fingerbank_settings_routes
+
+=cut
+
+sub setup_api_v1_config_fingerbank_settings_routes {
+    my ($self, $root) = @_;
+    my ($collection_route, $resource_route) =
+      $self->setup_api_v1_std_config_routes(
+        $root,
+        "Config::FingerbankSettings",
+        "/fingerbank_settings",
+        "/fingerbank_setting/#fingerbank_setting_id",
+        "api.v1.Config.FingerbankSettings"
+    );
+
+    return ($collection_route, $resource_route);
+}
+
 =head2 setup_api_v1_config_certificates_routes
 
 setup_api_v1_config_certificates_routes
@@ -1163,11 +1184,15 @@ setup_api_v1_config_certificates_routes
 
 sub setup_api_v1_config_certificates_routes {
     my ($self, $root) = @_;
+    
+    $root->any("/certificates/lets_encrypt/test")->any(['GET'])->to("Config::Certificates#lets_encrypt_test")->name("api.v1.Config.Certificates.list.lets_encrypt_test");
+
     my $resource_route = $root->any("/certificate/#certificate_id")->name("api.v1.Config.Certificates.resource");
     $resource_route->any(['GET'])->to("Config::Certificates#get")->name("api.v1.Config.Certificates.resource.get");
     $resource_route->any(['PUT'])->to("Config::Certificates#replace")->name("api.v1.Config.Certificates.resource.replace");
     $resource_route->any(['GET'] => "/info")->to("Config::Certificates#info")->name("api.v1.Config.Certificates.resource.info");
     $resource_route->any(['POST'] => "/generate_csr")->to("Config::Certificates#generate_csr")->name("api.v1.Config.Certificates.resource.generate_csr");
+    $resource_route->any(['PUT'] => "/lets_encrypt")->to("Config::Certificates#lets_encrypt_replace")->name("api.v1.Config.Certificates.resource.lets_encrypt_replace");
 
     return (undef, $resource_route);
 }

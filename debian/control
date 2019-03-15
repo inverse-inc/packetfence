@@ -26,12 +26,12 @@ Pre-Depends:  ca-certificates,
 Breaks: libdata-alias-perl
 Depends: ${misc:Depends}, vlan,
  packetfence-ntlm-wrapper (>= ${source:Version}), packetfence-doc (>= ${source:Version}), packetfence-golang-daemon (>= ${source:Version}),
- openssl, openssl-blacklist, openssl-blacklist-extra,
+ openssl,
  mariadb-server (>= 10.1),
  snmp, snmptrapfmt, snmptrapd, snmp-mibs-downloader, conntrack,
 # apache related
- apache2, apache2-utils, libapache2-mod-proxy-html,
- apache2-mpm-prefork, libapache2-mod-apreq2, libapache2-mod-perl2,
+ apache2, apache2-utils,
+ libapache2-mod-apreq2, libapache2-mod-perl2,
  libapache2-request-perl, libtie-dxhash-perl, libapache-session-perl,
  libapache-ssllookup-perl, libapache2-mod-systemd,
 # freeradius
@@ -142,6 +142,8 @@ Depends: ${misc:Depends}, vlan,
  libnet-syslog-perl,
 # for packaging
  dpkg-distribution,
+# wmi and nthash cache
+ libscalar-list-utils-perl (>= 1.41-1),libfile-fcntllock-perl,libjson-xs-perl,libmoo-perl,libnet-dns-perl,python-twisted-bin,python-twisted-core,libconfig-inifiles-perl,
 # Distribution specific
  ${packetfence:dist}
 Description: PacketFence network registration / worm mitigation system
