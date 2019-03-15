@@ -3896,6 +3896,10 @@ Ctrl-D
 # commit comment "configured for floating devices"
 ----
 
+NOTE: `flap-on-disconnect` option takes effect only
+when the `restrict` option is also set.
+
+
 LG-Ericsson
 ~~~~~~~~~~~
 
