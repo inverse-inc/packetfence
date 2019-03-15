@@ -629,7 +629,7 @@ interval=60s
 #
 # batch
 #
-# How many auth_log_cleanup entries to clean up in one run
+# How many acct_cleanup entries to clean up in one run
 batch=100
 #
 # timeout
