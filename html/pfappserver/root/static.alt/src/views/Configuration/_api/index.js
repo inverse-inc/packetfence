@@ -2,6 +2,19 @@ import apiCall from '@/utils/api'
 
 export default {
   /**
+   * Services
+   */
+  services: () => {
+    return apiCall.get('services').then(response => {
+      return response.data.items
+    })
+  },
+  service: (name, action) => {
+    return apiCall.get(`service/${name}/${action}`).then(response => {
+      return response.data
+    })
+  },
+  /**
    * Authentication Sources
    */
   authenticationSources: params => {
