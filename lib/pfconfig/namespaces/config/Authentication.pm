@@ -26,6 +26,7 @@ use pf::Authentication::constants;
 use pf::Authentication::Action;
 use pf::Authentication::Condition;
 use pf::Authentication::Rule;
+use Sort::Naturally qw(nsort);
 use pf::constants::authentication;
 
 use base 'pfconfig::namespaces::config';
@@ -75,13 +76,20 @@ sub build_child {
         # Parse rules
         foreach my $rule_id ( $self->GroupMembers($source_id) ) {
             my ($id) = $rule_id =~ m/$source_id rule (\S+)$/;
+            my $rule_config = $cfg{$rule_id};
+            my $class = $rule_config->{class};
+            if (ref($class) || (defined $class && $class =~ /\n/s)) {
+                print STDERR "rule '$rule_id' seems to be defined multiple times skipping rule\n";
+                next;
+            }
 
             my $current_rule = pf::Authentication::Rule->new( { match => $Rules::ANY, id => $id } );
             my %current_rule_config = ();
 
-            foreach my $parameter ( sort( keys( %{ $cfg{$rule_id} } ) ) ) {
+            foreach my $parameter ( nsort keys( %$rule_config ) ) {
+                my $config_value = $rule_config->{$parameter};
                 if ( $parameter =~ m/condition(\d+)/ ) {
-                    my ( $attribute, $operator, $value ) = split( ',', $cfg{$rule_id}{$parameter}, 3 );
+                    my ( $attribute, $operator, $value ) = split( ',', $config_value, 3 );
 
                     $current_rule->add_condition(
                         pf::Authentication::Condition->new(
@@ -92,10 +100,10 @@ sub build_child {
                         )
                     );
 
-                    $current_rule_config{'conditions'}{$parameter} = $cfg{$rule_id}{$parameter};
+                    $current_rule_config{'conditions'}{$parameter} = $config_value;
                 }
                 elsif ( $parameter =~ m/action(\d+)/ ) {
-                    my ( $type, $value ) = split( '=', $cfg{$rule_id}{$parameter}, 2 );
+                    my ( $type, $value ) = split( '=', $config_value, 2 );
 
                     if ( defined $value ) {
                         $current_rule->add_action(
@@ -118,19 +126,9 @@ sub build_child {
                         );
                     }
 
-                    $current_rule_config{'actions'}{$parameter} = $cfg{$rule_id}{$parameter};
-                }
-                elsif ( $parameter =~ m/match/ ) {
-                    $current_rule->{'match'} = $cfg{$rule_id}{$parameter};
-                    $current_rule_config{'match'} = $cfg{$rule_id}{$parameter};
-                }
-                elsif ( $parameter =~ m/description/ ) {
-                    $current_rule->{'description'} = $cfg{$rule_id}{$parameter};
-                    $current_rule_config{'description'} = $cfg{$rule_id}{$parameter};
-                }
-                elsif ( $parameter =~ m/class/ ) {
-                    $current_rule->{'class'} = $cfg{$rule_id}{$parameter};
-                    $current_rule_config{'class'} = $cfg{$rule_id}{$parameter};
+                    $current_rule_config{'actions'}{$parameter} = $config_value;
+                } else {
+                    $current_rule->{$parameter} = $current_rule_config{$parameter} = $config_value;
                 }
             }
 
