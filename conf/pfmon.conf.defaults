@@ -605,3 +605,40 @@ status=enabled
 # At which interval to run the password of the day pfmon task
 interval=60s
 
+[acct_cleanup]
+#
+# type
+#
+# The type of task to perform
+type=acct_cleanup
+#
+# description
+#
+# The description of task to perform
+description=Controls the cleanup of the accounting tables (raddact and radacct_log). Entries older than the window will be removed from the table.
+#
+# status
+#
+# If the task acct_cleanup is enabled
+status=enabled
+#
+# interval
+#
+# At which interval to run the auth log cleanup pfmon task
+interval=60s
+#
+# batch
+#
+# How many acct_cleanup entries to clean up in one run
+batch=100
+#
+# timeout
+#
+# How long a acct_cleanup job can run
+timeout=10s
+#
+# window
+#
+# How long to keep a acct_cleanup entry before deleting it
+window=1D
+
