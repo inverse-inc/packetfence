@@ -89,6 +89,7 @@ export default {
           collapsable: true,
           items: [
             { name: this.$i18n.t('Captive Portal'), path: '/configuration/captive_portal' },
+            { name: this.$i18n.t('Filter Engines'), path: '/configuration/filters' },
             { name: this.$i18n.t('Billing Tiers'), path: '/configuration/billing_tiers' },
             { name: this.$i18n.t('PKI Providers'), path: '/configuration/pki_providers' },
             { name: this.$i18n.t('Provisioners'), path: '/configuration/provisionings' },

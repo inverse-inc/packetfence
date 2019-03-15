@@ -282,6 +282,25 @@ export default {
   },
 
   /**
+   * Filters
+   */
+  filters: params => {
+    return apiCall.get('config/filters', { params }).then(response => {
+      return response.data
+    })
+  },
+  filter: id => {
+    return apiCall.get(`config/filter/${id}`).then(response => {
+      return response.data
+    })
+  },
+  updateFilter: (id, filter) => {
+    return apiCall.put(`config/filter/${id}`, filter).then(response => {
+      return response.data
+    })
+  },
+
+  /**
    * Fingerbank Profiling
    */
   profilingGeneralSettings: params => {

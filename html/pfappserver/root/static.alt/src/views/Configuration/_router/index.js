@@ -8,6 +8,7 @@ import CertificatesStore from '../_store/certificates'
 import ConnectionProfilesStore from '../_store/connectionProfiles'
 import DeviceRegistrationsStore from '../_store/deviceRegistrations'
 import DomainsStore from '../_store/domains'
+import FiltersStore from '../_store/filters'
 import FirewallsStore from '../_store/firewalls'
 import FloatingDevicesStore from '../_store/floatingDevices'
 import MaintenanceTasksStore from '../_store/maintenanceTasks'
@@ -66,6 +67,8 @@ const WrixLocationView = () => import(/* webpackChunkName: "Configuration" */ '.
 
 /* Advanced Access Configuration */
 const CaptivePortalView = () => import(/* webpackChunkName: "Configuration" */ '../_components/CaptivePortalView')
+const FilterEngineTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/FilterEngineTabs')
+const FilterEngineView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FilterEngineView')
 const BillingTiersList = () => import(/* webpackChunkName: "Configuration" */ '../_components/BillingTiersList')
 const BillingTierView = () => import(/* webpackChunkName: "Configuration" */ '../_components/BillingTierView')
 const PkiProvidersList = () => import(/* webpackChunkName: "Configuration" */ '../_components/PkiProvidersList')
@@ -129,6 +132,9 @@ const route = {
     }
     if (!store.state.$_device_registrations) {
       store.registerModule('$_device_registrations', DeviceRegistrationsStore)
+    }
+    if (!store.state.$_filters) {
+      store.registerModule('$_filters', FiltersStore)
     }
     if (!store.state.$_firewalls) {
       store.registerModule('$_firewalls', FirewallsStore)
@@ -795,6 +801,12 @@ const route = {
       name: 'captive_portal',
       component: CaptivePortalView,
       props: (route) => ({ storeName: '$_bases', query: route.query.query })
+    },
+    {
+      path: 'filters',
+      name: 'filters',
+      component: FilterEngineTabs,
+      props: (route) => ({ storeName: '$_filters', query: route.query.query })
     },
     {
       path: 'billing_tiers',
