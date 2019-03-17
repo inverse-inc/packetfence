@@ -52,7 +52,7 @@ CREATE TABLE class (
   delay_by int(11) NOT NULL default 0,
   external_command varchar(255) DEFAULT NULL,
   PRIMARY KEY (security_event_id)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 --
 -- Table structure for table `person`
@@ -95,7 +95,7 @@ CREATE TABLE person (
   `potd` enum('no','yes') NOT NULL DEFAULT 'no',
   PRIMARY KEY (`tenant_id`, `pid`),
   CONSTRAINT `person_tenant_id` FOREIGN KEY(`tenant_id`) REFERENCES `tenant` (`id`)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 
 --
@@ -109,7 +109,7 @@ CREATE TABLE `node_category` (
   `notes` varchar(255) default NULL,
   PRIMARY KEY (`category_id`),
   UNIQUE KEY node_category_name (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 --
 -- Insert 'default' category
@@ -187,7 +187,7 @@ CREATE TABLE node (
   CONSTRAINT `0_57` FOREIGN KEY (`tenant_id`, `pid`) REFERENCES `person` (`tenant_id`, `pid`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `node_category_key` FOREIGN KEY (`category_id`) REFERENCES `node_category` (`category_id`),
   CONSTRAINT `node_tenant_id` FOREIGN KEY(`tenant_id`) REFERENCES `tenant` (`id`)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 --
 -- Table structure for table `action`
@@ -222,7 +222,7 @@ CREATE TABLE security_event (
   CONSTRAINT `security_event_id_fkey_class` FOREIGN KEY (`security_event_id`) REFERENCES `class` (`security_event_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `security_event_tenant_id` FOREIGN KEY(`tenant_id`) REFERENCES `tenant` (`id`),
   PRIMARY KEY (id)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 --
 -- Table structure for table `ip4log`
@@ -379,7 +379,7 @@ CREATE TABLE `locationlog` (
   KEY `locationlog_view_mac` (`mac`, `end_time`),
   KEY `locationlog_end_time` ( `end_time`),
   KEY `locationlog_view_switchport` (`switch`,`port`,`end_time`,`vlan`)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE `locationlog_archive` (
   `id` int NOT NULL PRIMARY KEY AUTO_INCREMENT,
@@ -404,7 +404,7 @@ CREATE TABLE `locationlog_archive` (
   KEY `locationlog_archive_view_mac` (`mac`, `end_time`),
   KEY `locationlog_end_time` ( `end_time`),
   KEY `locationlog_view_switchport` (`switch`,`port`,`end_time`,`vlan`)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE `userlog` (
   `tenant_id` int NOT NULL DEFAULT 1,
@@ -415,7 +415,7 @@ CREATE TABLE `userlog` (
   PRIMARY KEY (`tenant_id`, `mac`,`start_time`),
   KEY `pid` (`pid`),
   CONSTRAINT `userlog_ibfk_1` FOREIGN KEY (`tenant_id`, `mac`) REFERENCES `node` (`tenant_id`, `mac`) ON DELETE CASCADE
-) ENGINE=InnoDB;
+) ENGINE=InnoDB CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 --
 -- Table structure for table `password`
@@ -434,7 +434,7 @@ CREATE TABLE `password` (
   `unregdate` datetime NOT NULL default "0000-00-00 00:00:00",
   `login_remaining` int DEFAULT NULL,
   PRIMARY KEY (tenant_id, pid)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 --
 -- Insert default users

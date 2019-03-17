@@ -53,7 +53,7 @@ Test all the rules
 sub test {
     my ($self, $rules) = @_;
     my $logger = $self->logger;
-
+    
     my @rules = split("\n",$rules->{'_wmi_rules'});
     my $success = 0;
     foreach my $rule  ( @rules ) {

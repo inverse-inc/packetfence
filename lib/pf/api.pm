@@ -52,7 +52,7 @@ use pf::pfqueue::stats();
 use pf::pfqueue::producer::redis();
 
 use List::MoreUtils qw(uniq);
-use List::Util qw(pairmap);
+use List::Util qw(pairmap any);
 use File::Copy::Recursive qw(dircopy);
 use NetAddr::IP;
 
@@ -981,30 +981,99 @@ sub trigger_scan :Public :Fork :AllowedAsAction($ip, mac, $mac, net_type, TYPE) 
 
     return unless scalar keys %pf::config::ConfigScan;
     my $logger = pf::log::get_logger();
+    my $profile = pf::Connection::ProfileFactory->instantiate($postdata{'mac'});
+    my @scanners = $profile->findScans($postdata{'mac'});
     my $added;
-    # post_registration (production vlan)
-    # We sleep until (we hope) the device has had time issue an ACK.
-    if (pf::util::is_prod_interface($postdata{'net_type'})) {
-        my $profile = pf::Connection::ProfileFactory->instantiate($postdata{'mac'});
-        my $scanner = $profile->findScan($postdata{'mac'});
-        if (defined($scanner) && pf::util::isenabled($scanner->{'_post_registration'})) {
+
+    return unless scalar(@scanners) > 0; # return if there's no scanners available
+
+    if ( $postdata{'net_type'} eq 'registration' ) { # On Registration Scans
+
+        if( any { pf::util::isenabled($_->{'_registration'}) } @scanners ) {
+            $added = pf::security_event::security_event_add( $postdata{'mac'}, $pf::constants::scan::SCAN_SECURITY_EVENT_ID );
+        }
+
+        return if (!defined($added) || $added == 0 || $added == -1);
+
+        return if(pf::security_event::security_event_scaning($postdata{'mac'},$pf::constants::scan::SCAN_SECURITY_EVENT_ID));
+
+        iter_block:{
+        
+            my $current_scan = pop @scanners;
+            
+            return if (!defined($current_scan));
+
+            if(pf::util::isenabled($current_scan->{'_registration'})){
+
+                $logger->info("On Regestration Scan - Current Scan Engine is : $current_scan");
+
+                sleep $pf::config::Config{'fencing'}{'wait_for_redirect'};
+
+                pf::scan::run_scan($postdata{'ip'}, $postdata{'mac'}, $current_scan);
+            }
+
+            redo iter_block;
+        }
+
+    } elsif ( pf::util::is_prod_interface($postdata{'net_type'}) ) { # Post Registration Scans
+
+        if( any { pf::util::isenabled($_->{'_post_registration'}) } @scanners ) {
             $added = pf::security_event::security_event_add( $postdata{'mac'}, $pf::constants::scan::POST_SCAN_SECURITY_EVENT_ID );
         }
-        return if ($added == 0 || $added == -1);
-        sleep $pf::config::Config{'fencing'}{'wait_for_redirect'};
-        pf::scan::run_scan($postdata{'ip'}, $postdata{'mac'}) if ($added ne $pf::constants::scan::POST_SCAN_SECURITY_EVENT_ID);
-    }
-    else {
-        my $profile = pf::Connection::ProfileFactory->instantiate($postdata{'mac'});
-        my $scanner = $profile->findScan($postdata{'mac'});
-        # pre_registration
-        if (defined($scanner) && pf::util::isenabled($scanner->{'_pre_registration'})) {
-            $added = pf::security_event::security_event_add( $postdata{'mac'}, $pf::constants::scan::PRE_SCAN_SECURITY_EVENT_ID );
+
+        return if (!defined($added) || $added == 0 || $added == -1);
+
+        return if(pf::security_event::security_event_scaning($postdata{'mac'},$pf::constants::scan::POST_SCAN_SECURITY_EVENT_ID));
+
+
+        iter_block:{
+        
+            my $current_scan = pop @scanners;
+            
+            return if (!defined($current_scan));
+
+            if(pf::util::isenabled($current_scan->{'_post_registration'})){
+
+                $logger->info("Post Regestration Scan - Current Scan Engine is : $current_scan");
+
+                sleep $pf::config::Config{'fencing'}{'wait_for_redirect'};
+
+                pf::scan::run_scan($postdata{'ip'}, $postdata{'mac'}, $current_scan);
+            }
+
+            redo iter_block;
         }
-        return if ($added == 0 || $added == -1);
-        sleep $pf::config::Config{'fencing'}{'wait_for_redirect'};
-        pf::scan::run_scan($postdata{'ip'}, $postdata{'mac'}) if  ($added ne $pf::constants::scan::PRE_SCAN_SECURITY_EVENT_ID && $added ne $pf::constants::scan::SCAN_SECURITY_EVENT_ID);
+
+    } else { # Pre Registration Scans
+
+        if (any { pf::util::isenabled($_->{'_pre_registration'}) } @scanners ) {
+                $added = pf::security_event::security_event_add( $postdata{'mac'}, $pf::constants::scan::PRE_SCAN_SECURITY_EVENT_ID );
+            }
+
+        return if (!defined($added) || $added == 0 || $added == -1);
+
+        return if(pf::security_event::security_event_scaning($postdata{'mac'},$pf::constants::scan::PRE_SCAN_SECURITY_EVENT_ID));
+
+
+        iter_block:{ 
+            
+            my $current_scan = pop @scanners;
+
+            return if (!defined($current_scan));
+
+            if(pf::util::isenabled($current_scan->{'_pre_registration'})){
+                
+                $logger->info("Pre Regestration Scan - Current Scan Engine is : $current_scan");
+
+                sleep $pf::config::Config{'fencing'}{'wait_for_redirect'};
+
+                pf::scan::run_scan($postdata{'ip'}, $postdata{'mac'}, $current_scan);
+            }
+
+            redo iter_block;
+        }
     }
+    
     return;
 }
 

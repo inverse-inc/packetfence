@@ -17,6 +17,7 @@ use HTTP::Status qw(:constants is_error is_success);
 use Moose;
 use namespace::autoclean;
 use POSIX;
+use utf8;
 use SQL::Abstract::More;
 use JSON::MaybeXS;
 use pfappserver::Form::User;
@@ -56,7 +57,7 @@ __PACKAGE__->config(
 
 sub index :Path :Args(0) :AdminRoleAny(USERS_READ) :AdminRoleAny(USERS_READ_SPONSORED) {
     my ( $self, $c ) = @_;
-
+    
     $c->go('simple_search');
 }
 
@@ -409,7 +410,7 @@ sub advanced_search :Local :Args() :AdminRoleAny(USERS_READ) :AdminRoleAny(USERS
         my $query = $form->value;
         ($status, $result) = $model->search($c, $query);
         if (is_success($status)) {
-            $c->stash(form => $form);
+            $c->stash(form => $form);  
             $c->stash($result);
         }
         $c->stash(current_view => 'JSON') if ($c->request->params->{'json'});

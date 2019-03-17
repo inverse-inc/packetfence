@@ -565,6 +565,33 @@ sub findScan {
     return first { $_->match($os,$node_attributes) } @scanners;
 }
 
+=item findScans
+
+return all scans that match the device
+
+=cut
+
+sub findScans {
+    my $timer = pf::StatsD::Timer->new({level => 7});
+    my ($self, $mac, $node_attributes) = @_;
+    my $logger = get_logger();
+    my @scanners = $self->scanObjects;
+    unless(@scanners){
+        $logger->trace("No scan engine configured for connection profile");
+        return;
+    }
+
+    $node_attributes ||= node_attributes($mac);
+    my $os = $node_attributes->{'device_type'};
+    
+    unless(defined $os){
+        $logger->warn("Can't find scan engine for $mac since we don't have it's OS");
+        return;
+    }
+
+    return grep { $_->match($os,$node_attributes) } @scanners;
+}
+
 =item getFilteredAuthenticationSources
 
 Return a list of authentication sources for the given connection profile filtered for a given username / realm

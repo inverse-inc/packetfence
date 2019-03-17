@@ -4,12 +4,19 @@
 #
 # See the examples of server my.cnf files in /usr/share/mysql/
 #
+[client]
+default-character-set = utf8mb4
+[mysql]
+default-character-set = utf8mb4
 
 # this is read by the standalone daemon and embedded servers
 [server]
 
 # this is only for the mysqld standalone daemon
 [mysqld]
+character-set-client-handshake = FALSE
+character-set-server = utf8mb4
+collation-server = utf8mb4_unicode_ci
 
 [% IF server_ip.length %]
 bind-address=[% server_ip %]

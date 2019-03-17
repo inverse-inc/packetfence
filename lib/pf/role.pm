@@ -18,6 +18,7 @@ use warnings;
 use pf::log;
 
 use pf::constants;
+use List::Util qw(any);
 use Scalar::Util qw(blessed);
 use pf::constants::trigger qw($TRIGGER_ID_PROVISIONER $TRIGGER_TYPE_PROVISIONER);
 use pf::config qw(
@@ -381,12 +382,7 @@ sub getRegisteredRole {
     if (defined($provisioner) && $provisioner->{enforce}) {
         $logger->info("Triggering provisioner check");
         pf::security_event::security_event_trigger( { 'mac' => $args->{'mac'}, 'tid' => $TRIGGER_ID_PROVISIONER, 'type' => $TRIGGER_TYPE_PROVISIONER } );
-    }
-
-    my $scan = $profile->findScan($args->{'mac'},$args->{'node_info'});
-    if (defined($scan) && isenabled($scan->{'post_registration'})) {
-        $logger->info("Triggering scan check");
-        pf::security_event::security_event_add( $args->{'mac'}, $POST_SCAN_SECURITY_EVENT_ID );
+        
     }
 
     $logger->debug("Trying to determine VLAN from role.");

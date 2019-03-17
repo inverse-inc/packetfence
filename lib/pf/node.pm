@@ -19,6 +19,7 @@ Read the F<pf.conf> configuration file.
 
 use strict;
 use warnings;
+use List::Util qw(pairmap any);
 use pf::log;
 use Readonly;
 use pf::StatsD::Timer;
@@ -678,19 +679,23 @@ sub node_register {
     pf::security_event::security_event_force_close($mac, $PARKING_SECURITY_EVENT_ID);
 
     my $profile = pf::Connection::ProfileFactory->instantiate($mac);
-    my $scan = $profile->findScan($mac);
-    if (defined($scan)) {
-        # triggering a security_event used to communicate the scan to the user
-        if ( isenabled($scan->{'_registration'})) {
-            $logger->debug("Triggering on registration scan");
-            pf::security_event::security_event_add( $mac, $SCAN_SECURITY_EVENT_ID );
-        }
-        if (isenabled($scan->{'_post_registration'})) {
-            $logger->debug("Triggering post-registration scan");
-            pf::security_event::security_event_add( $mac, $POST_SCAN_SECURITY_EVENT_ID );
-        }
+
+    my @scanners = $profile->findScans($mac);
+
+    return (1) unless scalar(@scanners) > 0;
+
+    if ( any { isenabled($_->{'_registration'}) } @scanners) {
+        # trigger Scan for On Registration scanners
+        $logger->debug("Triggering On Registration Scan");
+        pf::api::trigger_scan('pf::api',ip => pf::ip4log::mac2ip($mac) , mac => $mac , net_type => 'registration');
     }
 
+    if ( any { isenabled($_->{'_post_registration'}) } @scanners) {
+        # trigger Event for Post Registration scanners
+        $logger->debug("Triggering Post Registration Scan Event");
+        pf::security_event::security_event_add( $mac, $POST_SCAN_SECURITY_EVENT_ID );
+    }
+    
     return (1);
 }
 

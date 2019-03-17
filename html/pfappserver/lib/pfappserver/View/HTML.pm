@@ -11,6 +11,7 @@ use Template::AutoFilter::Parser;
 __PACKAGE__->config(
     TEMPLATE_EXTENSION => '.tt',
     PRE_PROCESS => 'macros.inc',
+    ENCODING     => 'utf-8',
     FILTERS => {
         css => \&css_filter,
         css_escape => \&css_escape_filter,
