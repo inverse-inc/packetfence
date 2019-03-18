@@ -108,7 +108,7 @@ sub parseWmi {
     my $scan_result = $scan->runWmi($scan_config, $rule_config);
     if ($scan_result =~ /ACCESS_DENIED/) {
         $rule_config->{item_exist} = "Access denied";
-    }elsif ($scan_result =~ /$WMI_NS_ERR/ || !@$scan_result) {
+    }elsif ($scan_result =~ /$WMI_NS_ERR/ || !$scan_result) {
         $rule_config->{item_exist} = 'No';
     }elsif ($scan_result =~ /TIMEOUT/ || $scan_result =~ /UNREACHABLE/) {
         $rule_config->{item_exist} = 'Request failed';
