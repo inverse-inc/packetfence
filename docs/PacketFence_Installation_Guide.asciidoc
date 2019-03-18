@@ -256,7 +256,11 @@ First open PacketFence's configurator - you can access it from https://@ip_of_pa
  * Step 6 - Fingerbank - provide your Fingerbank API key. Fingerbank is used to accurately identify Internet of Things (IoT) devices, medical devices, industrial and robotics equipment and more on your network. It is recommended to have a key for your PacketFence deployment. Without a Fingerbank API key, device profiling will not be available in PacketFence
  * Step 7 - Confirmation - start all services.
 
-Once all services are started, you will automatically be redirected to the PacketFence's web admin interface. It is located at https://@ip_of_packetfence:1443/admin
+Once all services are started, you will automatically be redirected to the
+PacketFence's web admin interface. It is located at
+https://@ip_of_packetfence:1443/admin. PacketFence's configurator also creates
+the file `/usr/local/pf/conf/currently-at` to prevent new access to
+configurator.
 
 Open that link and log in using the username/password specified in Step 5.
 
