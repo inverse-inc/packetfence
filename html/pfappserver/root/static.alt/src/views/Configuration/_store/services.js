@@ -42,7 +42,8 @@ const actions = {
       commit('SERVICE_STATUS', { id, response })
       return state.cache[id]
     }).catch((err) => {
-      commit('SERVICE_ERROR', err.response)
+      const { response } = err
+      commit('SERVICE_ERROR', { id, response })
       throw err
     })
   },
@@ -52,7 +53,8 @@ const actions = {
       commit('SERVICE_DISABLED', { id, response })
       return state.cache[id]
     }).catch((err) => {
-      commit('SERVICE_ERROR', err.response)
+      const { response } = err
+      commit('SERVICE_ERROR', { id, response })
       throw err
     })
   },
@@ -62,7 +64,8 @@ const actions = {
       commit('SERVICE_ENABLED', { id, response })
       return state.cache[id]
     }).catch((err) => {
-      commit('SERVICE_ERROR', err.response)
+      const { response } = err
+      commit('SERVICE_ERROR', { id, response })
       throw err
     })
   },
@@ -72,7 +75,8 @@ const actions = {
       commit('SERVICE_RESTARTED', { id, response })
       return state.cache[id]
     }).catch((err) => {
-      commit('SERVICE_ERROR', err.response)
+      const { response } = err
+      commit('SERVICE_ERROR', { id, response })
       throw err
     })
   },
@@ -82,7 +86,8 @@ const actions = {
       commit('SERVICE_STARTED', { id, response })
       return state.cache[id]
     }).catch((err) => {
-      commit('SERVICE_ERROR', err.response)
+      const { response } = err
+      commit('SERVICE_ERROR', { id, response })
       throw err
     })
   },
@@ -92,7 +97,8 @@ const actions = {
       commit('SERVICE_STOPPED', { id, response })
       return state.cache[id]
     }).catch((err) => {
-      commit('SERVICE_ERROR', err.response)
+      const { response } = err
+      commit('SERVICE_ERROR', { id, response })
       throw err
     })
   }
@@ -139,7 +145,6 @@ const mutations = {
   },
   SERVICE_RESTARTING: (state, id) => {
     Vue.set(state.cache, id, (state.cache[id] || {}))
-    Vue.set(state.cache[id], 'pid', 0)
     Vue.set(state.cache[id], 'status', types.RESTARTING)
     state.requestStatus = types.LOADING
   },
@@ -152,7 +157,6 @@ const mutations = {
   },
   SERVICE_STARTING: (state, id) => {
     Vue.set(state.cache, id, (state.cache[id] || {}))
-    Vue.set(state.cache[id], 'pid', 0)
     Vue.set(state.cache[id], 'status', types.STARTING)
     state.requestStatus = types.LOADING
   },
@@ -165,17 +169,19 @@ const mutations = {
   },
   SERVICE_STOPPING: (state, id) => {
     Vue.set(state.cache, id, (state.cache[id] || {}))
-    Vue.set(state.cache[id], 'pid', 0)
     Vue.set(state.cache[id], 'status', types.STOPPING)
     state.requestStatus = types.LOADING
   },
   SERVICE_STOPPED: (state, data) => {
     const { id, response } = data
+    Vue.set(state.cache[id], 'pid', 0)
     Vue.set(state.cache[id], 'alive', false)
     Vue.set(state.cache[id], 'status', types.SUCCESS)
     state.requestStatus = types.SUCCESS
   },
-  SERVICE_ERROR: (state, response) => {
+  SERVICE_ERROR: (state, data) => {
+    const { id, response } = data
+    Vue.set(state.cache[id], 'status', types.ERROR)
     state.requestStatus = types.ERROR
     if (response && response.data) {
       state.message = response.data.message
