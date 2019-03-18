@@ -5026,7 +5026,7 @@ Where :
 ** `active-active`: Will add some checks for active-active clustering related services
 ** `os-winbind`: Will add a check for the operating system winbindd process. Use it when the winbind/samba configuration is made outside PacketFence
 ** `os-checks`: Will add some OS best-practices checks
-* `smtpserver`: SMTP server, use _localhost_ if a SMTP relay is not required.
+* `mailserver`: SMTP server, use _localhost_ if a SMTP relay is not required.
 
 CAUTION: A MTA is needed to correctly relay emails from monit. If _localhost_ is used as `smtpserver`, make sure that a MTA is installed and configured on the server. 
 
