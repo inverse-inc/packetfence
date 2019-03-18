@@ -20,6 +20,7 @@ import RealmsStore from '../_store/realms'
 import RolesStore from '../_store/roles'
 import ScansStore from '../_store/scans'
 import SecurityEventsStore from '../_store/securityEvents'
+import ServicesStore from '../_store/services'
 import SyslogForwardersStore from '../_store/syslogForwarders'
 import SyslogParsersStore from '../_store/syslogParsers'
 import SwitchesStore from '../_store/switches'
@@ -168,6 +169,9 @@ const route = {
     }
     if (!store.state.$_security_events) {
       store.registerModule('$_security_events', SecurityEventsStore)
+    }
+    if (!store.state.$_services) {
+      store.registerModule('$_services', ServicesStore)
     }
     if (!store.state.$_sources) {
       store.registerModule('$_sources', AuthenticationSourcesStore)
