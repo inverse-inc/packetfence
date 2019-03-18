@@ -6153,7 +6153,7 @@ Ruckus Roles
 Roles Configuration
 +++++++++++++++++++
 
-On the Ruckus you can define roles, this roles links all users to the internal WLAN and permits access to all WLANs by default but you can limit their access to certain WLANs.
+Ruckus allows you to define roles. These roles link all users to the internal WLAN and permit access to all WLAN by default. You can still limit access to certain WLAN.
 
 To create a new user Role:
 
@@ -6169,12 +6169,12 @@ image::Ruckus_CreateNewRole.png[scaledwidth="100%",alt="Create new role"]
 
 
 [float]
-PacketFence configuration
+PacketFence Configuration
 +++++++++++++++++++++++++
 
 On the PacketFence side you need to use role by switch role and add the Group Attribute you created on the Ruckus side.
 
-So when a device will connect on the ssid, PacketFence will return a vlan id and a RuckusUserGroup attribute and if the role is allowed on the WLAN then the device i will be allowed.
+So when a device will connect on the SSID, PacketFence will return a VLAN identifier and a RuckusUserGroup attribute and if the role is allowed on the WLAN then the device will be authorized on the WLAN.
 In the case that the role is not allowed on the WLAN then the device will not be allowed to connect.
 
 
