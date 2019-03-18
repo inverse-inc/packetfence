@@ -6146,6 +6146,39 @@ Example:
 
 To apply the configuration, restart PacketFence using the following command: service packetfence restart
 
+Ruckus Roles
+^^^^^^^^^^^^
+
+[float]
+Roles Configuration
++++++++++++++++++++
+
+On the Ruckus you can define roles, this roles links all users to the internal WLAN and permits access to all WLANs by default but you can limit their access to certain WLANs.
+
+To create a new user Role:
+
+ 1 - Go to Admin & Services > System > Roles. The Roles page appears, displaying a Default role in the Roles table.
+ 2 - Click Create New.
+ 3 - Enter a Name and a short Description for this role.
+ 4 - Choose the options for this role from the following:
+
+    Group Attributes: Fill in this field only if you are creating a user role based on Group attributes extracted from an Active Directory server. Enter the User Group name here. Active Directory/LDAP users with the same group attributes are automatically mapped to this user role.
+    Allow All WLANs: You have two options: (1) Allow Access to all WLANs, or (2) Specify WLAN Access. If you select the second option, you must specify the WLANs by clicking the check box next to each one.
+
+image::Ruckus_Roles.png[scaledwidth="100%",alt="Ruckus Roles"
+image::Ruckus_CreateNewRole.png[scaledwidth="100%",alt="Create new role"
+
+
+[float]
+PacketFence configuration
++++++++++++++++++++++++++
+
+On the PacketFence side you need to use role by switch role and add the Group Attribute you created on the Ruckus side.
+
+So when a device will connect on the ssid, PacketFence will return a vlan id and a RuckusUserGroup attribute and if the role is allowed on the WLAN then the device i will be allowed.
+In the case that the role is not allowed on the WLAN then the device will not be allowed to connect.
+
+
 Ruckus SmartZone
 ~~~~~~~~~~~~~~~~
 
