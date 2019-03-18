@@ -71,237 +71,81 @@ our %ALLOWED_METHODS = (
 sub register {
     my ($self, $app, $config) = @_;
     my $routes = $app->routes;
-    $routes->add_shortcut( rest_routes => \&register_rest_routes);
+    $routes->add_shortcut( register_sub_actions => \&register_actions);
+    $routes->add_shortcut( register_sub_action => \&register_action);
 }
 
-sub register_rest_routes {
-    my ($routes, $config) = @_;
-    my $options = munge_options($routes, $config);
-    if (!defined $options) {
-        return die "Route options is invalid";
-    }
+=head2 register_actions
 
-    my $name_prefix = $options->{name_prefix};
-    my $collection_options = $options->{collection};
-    if (defined $collection_options) {
-        my $r = $routes->any($collection_options->{path})->name($name_prefix);
-        register_collection_routes($r, $options, $collection_options);
+$route->register_actions({
+    method => 'GET',
+    actions => ['action1', ...],
+})
+
+=cut
+
+sub register_actions {
+    my ($route, $args) = @_;
+    my $method = $args->{method};
+    if (!defined $method || !exists $ALLOWED_METHODS{$method}) {
+        die "invalid method given ". ($method // "undef" );
     }
-    my $resource_options = $options->{resource};
-    if (defined $resource_options) {
-        my $r = $routes->under($resource_options->{path} => [ $resource_options->{url_param_key} => qr/[^\/]+/])->to("$options->{controller}#resource")->name("$name_prefix.resource");
-        register_resource_routes($r, $options, $resource_options);
+    my %subroutes;
+    for my $action (@{$args->{actions}}) {
+        $subroutes{$action} = $route->register_sub_action({method => $method, action => $action});
     }
+    return \%subroutes;
 }
 
-sub register_child_routes {
-    my ($route, $options) = @_;
-    my $name_prefix = delete $options->{parent};
-    my $parent_name = $route->name;
-    if ($parent_name) {
-        $name_prefix = "$parent_name.$name_prefix";
-    }
-    my $r = $route->find($name_prefix);
-    return $r->rest_routes( $options);
-}
+=head2 register_action
 
-sub register_collection_routes {
-    my ($r, $options, $collection_options) = @_;
-    my ($controller, $name_prefix) = @{$options}{qw(controller name_prefix)};
-    register_http_methods($r, $controller, $name_prefix, $collection_options->{http_methods});
-    register_subroutes($r, $controller, $name_prefix, $collection_options->{subroutes});
-}
+my $new_route = $route->register_action({
+    method => 'GET',
+    action => 'action',
+    controller => 'Controller',
+    path   => '/action_path',
+    name   => 'name',
+});
 
-sub register_http_methods {
-    my ($r, $controller, $name_prefix, $http_methods) = @_;
-    while (my ($v, $d) = each %{$http_methods // {} }) {
-        my $a = delete $d->{action};
-        $r->any([$v])->to("$controller#$a" => $d)->name("$name_prefix.$a");
-    }
-}
+The minimum needed
 
-sub register_resource_routes {
-    my ($r, $options, $resource_options) = @_;
-    my ($controller, $name_prefix) = @{$options}{qw(controller name_prefix)};
-    register_http_methods($r, $controller, $name_prefix, $resource_options->{http_methods});
-    register_subroutes($r, $controller, $name_prefix, $resource_options->{subroutes});
-    register_children($r, $options, $resource_options);
-}
+my $new_route = $route->register_action({
+    method => 'GET',
+    action => 'action',
+});
 
-sub register_children {
-    my ($r, $options, $resource_options) = @_;
-    for my $child (@{$resource_options->{children} // []}) {
-        $r->rest_routes($child);
-    }
-}
+Is the same as
 
-sub register_subroutes {
-    my ($r, $controller, $name_prefix, $subroutes) = @_;
-    while (my ($subroute_name, $http_methods) = each %{$subroutes}) {
-        if (!defined $http_methods || keys %{$http_methods} == 0 ) {
-            die "Cannot register sub route ${name_prefix}.$subroute_name invalid http methods defined";
-        }
-        my $subroute = $r->any("/$subroute_name");
-        register_http_methods($subroute, $controller, $name_prefix, $http_methods);
-    }
-}
+my $new_route = $route->register_action({
+    method => 'GET',
+    action => 'action',
+    path   => '/action',
+    name   => 'action',
+});
 
-sub munge_options {
-    my ($route, $options) = @_;
-    if (!ref($options)) {
-        $options = { controller => $options };
+If no controller is defined then will use the parent route controller
+
+=cut
+
+sub register_action {
+    my ($route, $args) = @_;
+    my $method = $args->{method};
+    if (!defined $method || !exists $ALLOWED_METHODS{$method}) {
+        die "invalid method given ". ($method // "undef" );
     }
 
-    my $controller = $options->{controller};
-    if (!defined $controller || $controller eq '' ) {
-        die "Controller not given";
+    my $action = $args->{action};
+    if (!defined $action) {
+        die "no action is defined"
     }
 
-    my $controller_for_name = $options->{subcontroller} // $controller;
-    my $decamelized = decamelize($controller_for_name);
-    my @paths = split(/-/,$decamelized);
-    my $short_name = pop @paths;
-    if (@paths) {
-        unshift @paths, '';
-    }
-
-    my $base_url = join ('/', @paths);
-    my $noun = noun($short_name);
-    if (!$options->{allow_singular} && $noun->is_singular) {
-        die "$controller cannot be singular noun";
-    }
-
-    my $name_prefix = $options->{name_prefix} // munge_name_prefix_option( $route, $options );
-    %$options = (
-        %$options,
-        short_name  => $short_name,
-        noun        => $noun,
-        decamelized => $decamelized,
-        base_url    => $base_url,
-        name_prefix => $name_prefix
-    );
-    my $resource = munge_resource_options( $route, $options );
-    $options->{resource} = $resource;
-
-    return {
-        controller  => $controller,
-        name_prefix => $name_prefix,
-        parent_path => munge_parent_path( $route, $options),
-        resource    => $resource,
-        collection  => munge_collection_options( $route, $options ),
-    };
-}
-
-sub munge_parent_path {
-    my ($route, $options) = @_;
-    my $path_part = $route->pattern->unparsed || '';
-    my $parent_path = $options->{parent_path} // '';
-    return "${parent_path}${path_part}";
-}
-
-sub munge_name_prefix_option {
-    my ($route, $options) = @_;
-    my $name_prefix = $options->{subcontroller} // $options->{controller};
-    my $parent_name = $options->{parent_name} // $route->name;
-    if ($parent_name) {
-        $name_prefix = "$parent_name.$name_prefix";
-    }
-    return $name_prefix;
-}
-
-sub munge_resource_options {
-    my ($route, $options) = @_;
-    my $resource = munge_standard_options($options, 'resource', \%DEFAULT_RESOURCE_OPTIONS);
-    if (!defined $resource) {
-        return undef;
-    }
-    if (!defined $resource->{http_methods}) {
-        die "$options->{controller}.resources.http_methods is undefined";
-    }
-    my $singular = $options->{noun}->singular();
-    my $url_param_key = "${singular}_id";
-    $resource->{url_param_key} //= $url_param_key;
-    my $base_path = "$options->{base_url}/$singular";
-    $resource->{base_path} = $base_path;
-    $resource->{path} //= "$base_path/#$url_param_key";
-    $resource->{children} = munge_children_options( $route, $options, $resource );
-    return $resource;
-}
-
-sub clean_subroutes {
-    my ($subroutes) = @_;
-    my %hash;
-    while (my ($k, $v) = each %{$subroutes // {}}) {
-        $hash{$k} = cleanup_http_methods($v);
-    }
-    return \%hash;
-}
-
-sub cleanup_http_methods {
-    my ($methods) = @_;
-    if (!defined $methods) {
-        return undef;
-    }
-    my %temp;
-    while (my ($k, $v) = each %$methods) {
-        $k = uc($k);
-        if (exists $ALLOWED_METHODS{$k}) {
-            $temp{$k} = ref($v) ? clone ($v) : {action => $v};
-        }
-    }
-    return \%temp;
-}
-
-sub add_defaults {
-    my ($hash, $defaults) = @_;
-    while (my ($k, $v) = each %$defaults) {
-        if (!exists $hash->{$k}) {
-            $hash->{$k} = clone($v);
-        }
-    }
-}
-
-sub munge_standard_options {
-    my ($options, $name, $defaults) = @_;
-    my $suboptions = exists $options->{$name} ?
-        $options->{$name} :
-        $defaults;
-    if (!defined $suboptions) {
-        return undef;
-    }
-    $suboptions = clone($suboptions);
-    add_defaults($suboptions, $defaults);
-    my $http_methods = $suboptions->{http_methods};
-    if (defined $http_methods && keys %$http_methods == 0 ) {
-        die "$name.http_methods is empty for $options->{controller}";
-    }
-    $suboptions->{subroutes} = clean_subroutes($suboptions->{subroutes});
-    $suboptions->{http_methods} = cleanup_http_methods($suboptions->{http_methods});
-    return $suboptions;
-}
-
-sub munge_collection_options {
-    my ($route, $options) = @_;
-    my $collection = munge_standard_options($options, 'collection', \%DEFAULT_COLLECTION_OPTIONS);
-    if (!defined $collection) {
-        return undef;
-    }
-    $collection->{path} //= "$options->{base_url}/$options->{short_name}";
-    return $collection;
-}
-
-sub munge_child_options {
-    my ($route, $parent_options, $child_options, $resource) = @_;
-    my $parent_name = $parent_options->{name_prefix};
-    if (!ref($child_options)) {
-        $child_options = { controller => $child_options };
-    }
-    $child_options->{parent_name} = $parent_name;
-    $child_options->{parent_path} = $resource->{path};
-    if ($child_options->{controller} =~ /^\Q$parent_options->{controller}\E::(.*)/) {
-        $child_options->{subcontroller} //= $1;
-    }
-    return $child_options;
+    my $path = $args->{path} // "/$action";
+    my $controller = $args->{controller};
+    my $name = $args->{name} // $action;
+    return
+      $route->any([$method] => $path)
+            ->to( action => $action, ( defined $controller ? ( controller => $controller ) : () ))
+            ->name( $route->name . ".$name" );
 }
 
 sub munge_children_options {

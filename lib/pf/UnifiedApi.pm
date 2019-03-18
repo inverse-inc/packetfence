@@ -50,9 +50,11 @@ sub startup {
     $self->hook(after_dispatch => \&after_dispatch_cb);
     $self->hook(before_render => \&before_render_cb);
     $self->plugin('pf::UnifiedApi::Plugin::RestCrud');
-    $self->setup_api_v1_routes();
+    my $routes = $self->routes;
+    $routes->to(action => 'unknown_action');
+    $self->setup_api_v1_routes($routes->any("/api/v1")->name("api.v1"));
     $self->custom_startup_hook();
-    $self->routes->any( '/*', sub {
+    $routes->any( '/*', sub {
         my ($c) = @_;
         return $c->unknown_action;
     });
@@ -103,12 +105,11 @@ sub before_dispatch_cb {
 }
 
 sub setup_api_v1_routes {
-    my ($self) = @_;
-    my $r = $self->routes;
-    my $api_v1_route = $r->any("/api/v1")->name("api.v1");
+    my ($self, $api_v1_route) = @_;
     $self->setup_api_v1_crud_routes($api_v1_route);
     $self->setup_api_v1_config_routes($api_v1_route->any("/config")->name("api.v1.Config"));
-    $self->setup_api_v1_reports_routes($api_v1_route);
+    $self->setup_api_v1_fingerbank_routes($api_v1_route->any("/fingerbank")->name("api.v1.Fingerbank"));
+    $self->setup_api_v1_reports_routes($api_v1_route->any("/reports")->name("api.v1.Reports"));
     $self->setup_api_v1_services_routes($api_v1_route);
     $self->setup_api_v1_cluster_routes($api_v1_route);
     $self->setup_api_v1_authentication_routes($api_v1_route);
@@ -411,7 +412,7 @@ sub setup_api_v1_users_routes {
         "api.v1.Users.resource.Nodes.Locationlogs"
     );
 
-    my $password_route = $resource_route->any("/password");
+    my $password_route = $resource_route->any("/password")->name("api.v1.Users.resource.Password");
     $password_route->any(['GET'])->to("Users::Password#get")->name("api.v1.Users.resource.Password.get");
     $password_route->any(['DELETE'])->to("Users::Password#remove")->name("api.v1.Users.resource.Password.remove");
     $password_route->any(['PATCH'])->to("Users::Password#update")->name("api.v1.Users.resource.Password.update");
@@ -438,22 +439,26 @@ sub setup_api_v1_nodes_routes {
         "api.v1.Nodes"
     );
 
-    $self->add_subroutes(
-        $resource_route, "Nodes", 'POST',
-        qw( register deregister restart_switchport reevaluate_access apply_security_event close_security_event fingerbank_refresh)
-    );
-    $self->add_subroutes(
-        $resource_route, "Nodes", 'GET',
-        qw(fingerbank_info)
-    );
-    $self->add_subroutes(
-        $collection_route, "Nodes", 'POST',
+    $resource_route->register_sub_actions({
+        method => 'POST',
+        actions => [ qw( register deregister restart_switchport reevaluate_access apply_security_event close_security_event fingerbank_refresh)],
+    });
+
+    $resource_route->register_sub_actions({
+        method => 'GET',
+        actions => [ qw(fingerbank_info) ],
+    });
+
+    $collection_route->register_sub_actions({
+        method => 'POST',
+        actions => [
         qw(
           bulk_register bulk_deregister bulk_close_security_events
           bulk_reevaluate_access bulk_restart_switchport bulk_apply_security_event
           bulk_apply_role bulk_apply_bypass_role bulk_fingerbank_refresh
           )
-    );
+        ],
+    });
 
     return ( $collection_route, $resource_route );
 }
@@ -1185,15 +1190,16 @@ setup_api_v1_config_certificates_routes
 
 sub setup_api_v1_config_certificates_routes {
     my ($self, $root) = @_;
-    
-    $root->any("/certificates/lets_encrypt/test")->any(['GET'])->to("Config::Certificates#lets_encrypt_test")->name("api.v1.Config.Certificates.list.lets_encrypt_test");
+    my $root_name = $root->name;
+    $root->any("/certificates/lets_encrypt/test")->any(['GET'])->to("Config::Certificates#lets_encrypt_test")->name("${root_name}.Certificates.list.lets_encrypt_test");
 
-    my $resource_route = $root->any("/certificate/#certificate_id")->name("api.v1.Config.Certificates.resource");
-    $resource_route->any(['GET'])->to("Config::Certificates#get")->name("api.v1.Config.Certificates.resource.get");
-    $resource_route->any(['PUT'])->to("Config::Certificates#replace")->name("api.v1.Config.Certificates.resource.replace");
-    $resource_route->any(['GET'] => "/info")->to("Config::Certificates#info")->name("api.v1.Config.Certificates.resource.info");
-    $resource_route->any(['POST'] => "/generate_csr")->to("Config::Certificates#generate_csr")->name("api.v1.Config.Certificates.resource.generate_csr");
-    $resource_route->any(['PUT'] => "/lets_encrypt")->to("Config::Certificates#lets_encrypt_replace")->name("api.v1.Config.Certificates.resource.lets_encrypt_replace");
+    my $resource_route = $root->under("/certificate/#certificate_id")->to(controller => "Config::Certificates", action => 'resource')->name("${root_name}.Certificates.resource");
+    my $resource_name = $resource_route->name;
+    $resource_route->any(['GET'] => '')->to(action => "get")->name("${resource_name}.get");
+    $resource_route->any(['PUT'])->to(action => "replace")->name("${resource_name}.replace");
+    $resource_route->any(['GET'] => "/info")->to(action => "info")->name("${resource_name}.info");
+    $resource_route->any(['POST'] => "/generate_csr")->to(action => "generate_csr")->name("${resource_name}.generate_csr");
+    $resource_route->any(['PUT'] => "/lets_encrypt")->to(action => "lets_encrypt_replace")->name("${resource_name}.lets_encrypt_replace");
 
     return (undef, $resource_route);
 }
@@ -1206,9 +1212,15 @@ setup_api_v1_translations_routes
 
 sub setup_api_v1_translations_routes {
     my ($self, $root) = @_;
-    my $collection_route = $root->any(['GET'] => "/translations")->to("Translations#list")->name("api.v1.Config.Translations.list");
-    my $resource_route = $root->under("/translation/#translation_id")->to("Translations#resource")->name("api.v1.Config.Translations.resource");
-    $resource_route->any(['GET'])->to("Translations#get")->name("api.v1.Config.Translations.resource.get");
+    my $collection_route =
+      $root->any( ['GET'] => "/translations" )
+      ->to(controller => "Translations", action => "list")
+      ->name("api.v1.Config.Translations.list");
+    my $resource_route =
+      $root->under("/translation/#translation_id")
+      ->to(controller => "Translations", action => "resource")
+      ->name("api.v1.Config.Translations.resource");
+    $resource_route->any(['GET'])->to(action => "get")->name("api.v1.Config.Translations.resource.get");
     return ($collection_route, $resource_route);
 }
 
@@ -1219,169 +1231,168 @@ setup_api_v1_reports_routes
 =cut
 
 sub setup_api_v1_reports_routes {
-    my ( $self, $root ) = @_;
-    my $collection_route = $root->any("/reports");
-    $collection_route
+    my ($self, $root) = @_;
+    $root
       ->any(['GET'] => "/os")
       ->to("Reports#os_all")
       ->name("api.v1.Reports.os_all");
-    $collection_route
+    $root
       ->any(['GET'] => "/os/#start/#end")
       ->to("Reports#os_range")
       ->name("api.v1.Reports.os_range");
-    $collection_route
+    $root
       ->any(['GET'] => "/os/active")
       ->to("Reports#os_active")
       ->name("api.v1.Reports.os_active");
-    $collection_route
+    $root
       ->any(['GET'] => "/osclass")
       ->to("Reports#osclass_all")
       ->name("api.v1.Reports.osclass_all");
-    $collection_route
+    $root
       ->any(['GET'] => "/osclass/active")
       ->to("Reports#osclass_active")
       ->name("api.v1.Reports.osclass_active");
-    $collection_route
+    $root
       ->any(['GET'] => "/inactive")
       ->to("Reports#inactive_all")
       ->name("api.v1.Reports.inactive_all");
-    $collection_route
+    $root
       ->any(['GET'] => "/active")
       ->to("Reports#active_all")
       ->name("api.v1.Reports.active_all");
-    $collection_route
+    $root
       ->any(['GET'] => "/unregistered")
       ->to("Reports#unregistered_all")
       ->name("api.v1.Reports.unregistered_all");
-    $collection_route
+    $root
       ->any(['GET'] => "/unregistered/active")
       ->to("Reports#unregistered_active")
       ->name("api.v1.Reports.unregistered_active");
-    $collection_route
+    $root
       ->any(['GET'] => "/registered")
       ->to("Reports#registered_all")
       ->name("api.v1.Reports.registered_all");
-    $collection_route
+    $root
       ->any(['GET'] => "/registered/active")
       ->to("Reports#registered_active")
       ->name("api.v1.Reports.registered_active");
-    $collection_route
+    $root
       ->any(['GET'] => "/unknownprints")
       ->to("Reports#unknownprints_all")
       ->name("api.v1.Reports.unknownprints_all");
-    $collection_route
+    $root
       ->any(['GET'] => "/unknownprints/active")
       ->to("Reports#unknownprints_active")
       ->name("api.v1.Reports.unknownprints_active");
-    $collection_route
+    $root
       ->any(['GET'] => "/statics")
       ->to("Reports#statics_all")
       ->name("api.v1.Reports.statics_all");
-    $collection_route
+    $root
       ->any(['GET'] => "/statics/active")
       ->to("Reports#statics_active")
       ->name("api.v1.Reports.statics_active");
-    $collection_route
+    $root
       ->any(['GET'] => "/opensecurity_events")
       ->to("Reports#opensecurity_events_all")
       ->name("api.v1.Reports.opensecurity_events_all");
-    $collection_route
+    $root
       ->any(['GET'] => "/opensecurity_events/active")
       ->to("Reports#opensecurity_events_active")
       ->name("api.v1.Reports.opensecurity_events_active");
-    $collection_route
+    $root
       ->any(['GET'] => "/connectiontype")
       ->to("Reports#connectiontype_all")
       ->name("api.v1.Reports.connectiontype_all");
-    $collection_route
+    $root
       ->any(['GET'] => "/connectiontype/#start/#end")
       ->to("Reports#connectiontype_range")
       ->name("api.v1.Reports.connectiontype_range");
-    $collection_route
+    $root
       ->any(['GET'] => "/connectiontype/active")
       ->to("Reports#connectiontype_active")
       ->name("api.v1.Reports.connectiontype_active");
-    $collection_route
+    $root
       ->any(['GET'] => "/connectiontypereg")
       ->to("Reports#connectiontypereg_all")
       ->name("api.v1.Reports.connectiontypereg_all");
-    $collection_route
+    $root
       ->any(['GET'] => "/connectiontypereg/active")
       ->to("Reports#connectiontypereg_active")
       ->name("api.v1.Reports.connectiontypereg_active");
-    $collection_route
+    $root
       ->any(['GET'] => "/ssid")
       ->to("Reports#ssid_all")
       ->name("api.v1.Reports.ssid_all");
-    $collection_route
+    $root
       ->any(['GET'] => "/ssid/#start/#end")
       ->to("Reports#ssid_range")
       ->name("api.v1.Reports.ssid_range");
-    $collection_route
+    $root
       ->any(['GET'] => "/ssid/active")
       ->to("Reports#ssid_active")
       ->name("api.v1.Reports.ssid_active");
-    $collection_route
+    $root
       ->any(['GET'] => "/osclassbandwidth")
       ->to("Reports#osclassbandwidth_all")
       ->name("api.v1.Reports.osclassbandwidth_all");
-    $collection_route
+    $root
       ->any(['GET'] => "/osclassbandwidth/#start/#end")
       ->to("Reports#osclassbandwidth_range")
       ->name("api.v1.Reports.osclassbandwidth_range");
-    $collection_route
+    $root
       ->any(['GET'] => "/osclassbandwidth/day")
       ->to("Reports#osclassbandwidth_day")
       ->name("api.v1.Reports.osclassbandwidth_day");
-    $collection_route
+    $root
       ->any(['GET'] => "/osclassbandwidth/week")
       ->to("Reports#osclassbandwidth_week")
       ->name("api.v1.Reports.osclassbandwidth_week");
-    $collection_route
+    $root
       ->any(['GET'] => "/osclassbandwidth/month")
       ->to("Reports#osclassbandwidth_month")
       ->name("api.v1.Reports.osclassbandwidth_month");
-    $collection_route
+    $root
       ->any(['GET'] => "/osclassbandwidth/year")
       ->to("Reports#osclassbandwidth_year")
       ->name("api.v1.Reports.osclassbandwidth_year");
-    $collection_route
+    $root
       ->any(['GET'] => "/nodebandwidth")
       ->to("Reports#nodebandwidth_all")
       ->name("api.v1.Reports.nodebandwidth_all");
-    $collection_route
+    $root
       ->any(['GET'] => "/nodebandwidth/#start/#end")
       ->to("Reports#nodebandwidth_range")
       ->name("api.v1.Reports.nodebandwidth_range");
-    $collection_route
+    $root
       ->any(['GET'] => "/topauthenticationfailures/mac/#start/#end")
       ->to("Reports#topauthenticationfailures_by_mac")
       ->name("api.v1.Reports.topauthenticationfailures_by_mac");
-    $collection_route
+    $root
       ->any(['GET'] => "/topauthenticationfailures/ssid/#start/#end")
       ->to("Reports#topauthenticationfailures_by_ssid")
       ->name("api.v1.Reports.topauthenticationfailures_by_ssid");
-    $collection_route
+    $root
       ->any(['GET'] => "/topauthenticationfailures/username/#start/#end")
       ->to("Reports#topauthenticationfailures_by_username")
       ->name("api.v1.Reports.topauthenticationfailures_by_username");
-    $collection_route
+    $root
       ->any(['GET'] => "/topauthenticationsuccesses/mac/#start/#end")
       ->to("Reports#topauthenticationsuccesses_by_mac")
       ->name("api.v1.Reports.topauthenticationsuccesses_by_mac");
-    $collection_route
+    $root
       ->any(['GET'] => "/topauthenticationsuccesses/ssid/#start/#end")
       ->to("Reports#topauthenticationsuccesses_by_ssid")
       ->name("api.v1.Reports.topauthenticationsuccesses_by_ssid");
-    $collection_route
+    $root
       ->any(['GET'] => "/topauthenticationsuccesses/username/#start/#end")
       ->to("Reports#topauthenticationsuccesses_by_username")
       ->name("api.v1.Reports.topauthenticationsuccesses_by_username");
-    $collection_route
+    $root
       ->any(['GET'] => "/topauthenticationsuccesses/computername/#start/#end")
       ->to("Reports#topauthenticationsuccesses_by_computername")
       ->name("api.v1.Reports.topauthenticationsuccesses_by_computername");
-    return ( $collection_route, undef );
+    return ( undef, undef );
 }
 
 =head2 setup_api_v1_cluster_routes
@@ -1392,8 +1403,8 @@ setup_api_v1_cluster_routes
 
 sub setup_api_v1_cluster_routes {
     my ($self, $root) = @_;
-    my $resource_route = $root->any("/cluster");
-    $resource_route->any(['GET'] => "/servers")->to("Cluster#servers")->name("api.v1.Cluster.servers");
+    my $resource_route = $root->any("/cluster")->to(controller => "Cluster")->name("api.v1.Cluster");;
+    $resource_route->any(['GET'] => "/servers")->to(action => "servers")->name("api.v1.Cluster.servers");
     return (undef, $resource_route);
 }
 
@@ -1422,7 +1433,7 @@ setup_api_v1_authentication_routes
 
 sub setup_api_v1_authentication_routes {
     my ($self, $root) = @_;
-    my $route = $root->any("/authentication");
+    my $route = $root->any("/authentication")->name("api.v1.Authentication");
     $route->any(['POST'] => "/admin_authentication")->to("Authentication#adminAuthentication")->name("api.v1.Authentication.admin_authentication");
     return ;
 }
@@ -1435,8 +1446,41 @@ setup_api_v1_queues_routes
 
 sub setup_api_v1_queues_routes {
     my ($self, $root) = @_;
-    my $route = $root->any("/queues");
+    my $route = $root->any("/queues")->name("api.v1.Queues");
     $route->any(['GET'] => "/stats")->to("Queues#stats")->name("api.v1.Queues.stats");
+    return ;
+}
+
+=head2 setup_api_v1_fingerbank_routes
+
+setup_api_v1_fingerbank_routes
+
+=cut
+
+sub setup_api_v1_fingerbank_routes {
+    my ($self, $root) = @_;
+    my $upstream = $root->any("/upstream")->to(scope => "Upstream")->name( $root->name . ".Upstream");
+    $self->setup_api_v1_std_upstream_fingerbank_routes($upstream, "UserAgent", "/user_agents", "/user_agent/#user_agent_id");
+    $self->setup_api_v1_std_upstream_fingerbank_routes($upstream, "MacVendors", "/mac_vendors", "/mac_vendor/#mac_vendor_id");
+    my $local_route = $root->any("/local")->to(scope => "Local")->name( $root->name . ".Local");
+    return ;
+}
+
+=head2 setup_api_v1_std_upstream_fingerbank_routes
+
+setup_api_v1_std_upstream_fingerbank_routes
+
+=cut
+
+sub setup_api_v1_std_upstream_fingerbank_routes {
+    my ($self, $root, $name, $collection_path, $resource_path) = @_;
+    my $root_name = $root->name;
+    my $controller = "Fingerbank::${name}";
+    my $collection_route = $root->any($collection_path)->to(controller => $controller )->name("${root_name}.${name}");
+    $collection_route->any(['GET'])->to(action => 'list')->name($collection_route->name . ".list");
+    $collection_route->register_sub_action({ method => 'POST', action => 'search'});
+    my $resource_route = $root->under($resource_path)->to(controller=> $controller, action => "resource")->name("${root_name}.${name}.resource");
+    $resource_route->any(['GET'])->to(action =>  "get")->name($resource_route->name . ".get");
     return ;
 }
 
