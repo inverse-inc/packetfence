@@ -98,8 +98,23 @@ sub action_now {
     my ($hostaddr) = $self->action_args;
     $logger->trace("pcmd schedule now called for $hostaddr");
 
+    my $host_mac = $mac || pf::ip4log::ip2mac($hostaddr);
+
+    my $profile = pf::Connection::ProfileFactory->instantiate($host_mac);
+    my @scanners = $profile->findScans($host_mac);
+    
+
     require pf::scan;
-    pf::scan::run_scan($hostaddr);
+
+    iter_block:{
+
+        $current_scan = pop @scanners;
+        last iter_block if (!defined($current_scan));
+        $logger->debug("Scheduled Scans");
+        pf::scan::run_scan($hostaddr,$host_mac,$current_scan);
+        redo iter_block;
+
+    }
 
     $logger->trace("leaving pfcmd schedule now $hostaddr");
     return $EXIT_SUCCESS;

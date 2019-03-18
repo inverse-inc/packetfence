@@ -19,6 +19,7 @@ use warnings;
 use pf::error;
 use pf::StatsD;
 use pf::StatsD::Timer;
+use List::Util qw(any);
 use pf::log;
 use pf::person;
 use pf::lookup::person;
@@ -107,18 +108,20 @@ sub do_security_event_scans {
     my $mac = $node_obj->mac;
     my $logger = get_logger();
     my $profile = pf::Connection::ProfileFactory->instantiate($node_obj, $options);
-    my $scan = $profile->findScan($mac);
-    if (defined($scan)) {
-        # triggering a security_event used to communicate the scan to the user
-        if ( isenabled($scan->{'registration'})) {
-            $logger->debug("Triggering on registration scan");
-            pf::security_event::security_event_add( $mac, $SCAN_SECURITY_EVENT_ID );
-        }
-        if (isenabled($scan->{'post_registration'})) {
-            $logger->debug("Triggering post-registration scan");
-            pf::security_event::security_event_add( $mac, $POST_SCAN_SECURITY_EVENT_ID );
-        }
+    my @scanners = $profile->findScans($mac);
+
+    return unless scalar(@scanners) > 0;
+
+    if ( any { pf::util::isenabled($_->{'_registration'}) } @scanners ){
+        $logger->info("Triggering On Registration Scan Event");
+        pf::security_event::security_event_add( $mac, $SCAN_SECURITY_EVENT_ID );
     }
+
+    if ( any { pf::util::isenabled($_->{'_post_registration'}) } @scanners ) {
+        $logger->debug("Triggering Post Registration Scan Event");
+        pf::security_event::security_event_add( $mac, $POST_SCAN_SECURITY_EVENT_ID );
+    }
+
     return ;
 }
 

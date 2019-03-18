@@ -30,12 +30,12 @@ sub process_view {
     my $mac = $c->stash->{mac};
     my ($status, @scans);
     ($status, my $node) = $c->model("Node")->view($mac);
-    my $device_class = $node->{device_class};
+    my $device_class = $node->{fingerbank_info}->{device_fq};
     my $host_ip = $node->{iplog}->{ip};
     my $scan_model = $c->model("Config::Scan");
     eval {
         my $profile = pf::Connection::ProfileFactory->instantiate($mac);
-        foreach my $scan (split(/\s*,\s*/, $profile->{_scans})) {
+        foreach my $scan (@{ $profile->{_scans} }) {
             ($status, my $item) = $scan_model->read($scan);
             if (is_success($status)) {
                 push @scans, $item;
