@@ -16,24 +16,25 @@ Version X.Y.Z released on xxxx-xx-xx
 
 New Features
 ++++++++++++
-* Add 802.1x + CoA support for FortiSwitch
-* Add module to manage PICOS white box switches.
+* Add 802.1x + CoA support for Fortinet FortiSwitch
+* Add module to manage PICOS white box switches
 * DHCP Filter to reply custom attributes in the OFFER and or ACK (deprecate old DHCP Filter)
 
 Enhancements
 ++++++++++++
-* Now including timeout when authorizing a web-auth user on a Unifi controler
-* Now shipping defaults for the apache filters
+* Now including timeout when authorizing a web-auth user on an Ubiquiti UniFi controller
+* Now shipping defaults for the Apache filters
 * Allow to configure the RADIUS attributes and their lookup order for extracting the username
 * conf/stats.conf has a default file now
-* Voip configuration parameter in node_cleanup task to bypass voip devices
+* VoIP configuration parameter in node_cleanup task to bypass voip devices
 * Adding/removing passthroughs doesn't require to restart pfdns anymore (#3127)
 * Added support for RADIUS disconnect on Ruckus SmartZone
-* Disable AD join os check option
-* Disable dns lookup in mariadb configuration
+* Disable Microsoft Active Directory join operating system check option
+* Disable DNS lookup in MariaDB configuration
 * Enable performance_schema if needed
 * Display local account in the captive portal during registration if applicable (#3615)
-* Exception for portal detecion url in pfdns
+* Exception for portal detecion URL in pfdns
+* Added support for Ruckus roles
 
 Bug Fixes
 +++++++++
