@@ -1,7 +1,7 @@
 <template>
   <pf-config-list
     :config="config"
-    :services="['pfmon', 'keepalived', 'netdata']"
+    :services="['pfmon']"
   >
     <template slot="pageHeader">
       <h4 v-t="'Maintenance Tasks'"></h4>
