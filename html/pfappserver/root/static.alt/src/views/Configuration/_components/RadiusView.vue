@@ -6,6 +6,7 @@
     :vuelidate="$v.form"
     @validations="formValidations = $event"
     @save="save"
+    :services="['radiusd-acct', 'radiusd-auth']"
   >
     <template slot="header" is="b-card-header">
       <h4 class="mb-0">

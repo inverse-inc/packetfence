@@ -24,6 +24,7 @@
       <b-card-footer @mouseenter="$v.form.$touch()">
         <pf-button-save :disabled="invalidForm" :isLoading="isLoading">
           <template v-if="isNew">{{ $t('Create') }}</template>
+          <template v-else-if="ctrlKey">{{ $t('Save & Close') }}</template>
           <template v-else>{{ $t('Save') }}</template>
         </pf-button-save>
         <pf-button-delete v-if="isDeletable" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Traffic Shaping Policy?')" @on-delete="remove()"/>
@@ -37,6 +38,7 @@
 import pfConfigView from '@/components/pfConfigView'
 import pfButtonSave from '@/components/pfButtonSave'
 import pfButtonDelete from '@/components/pfButtonDelete'
+import pfMixinCtrlKey from '@/components/pfMixinCtrlKey'
 import pfMixinEscapeKey from '@/components/pfMixinEscapeKey'
 import {
   pfConfigurationDefaultsFromMeta as defaults
@@ -50,6 +52,7 @@ export default {
   name: 'TrafficShapingView',
   mixins: [
     validationMixin,
+    pfMixinCtrlKey,
     pfMixinEscapeKey
   ],
   components: {
@@ -129,8 +132,13 @@ export default {
       this.$router.push({ name: 'traffic_shapings' })
     },
     create () {
+      const ctrlKey = this.ctrlKey
       this.$store.dispatch(`${this.storeName}/createTrafficShapingPolicy`, this.form).then(response => {
-        this.$router.push({ name: 'traffic_shaping', params: { id: this.form.id } })
+        if (ctrlKey) { // [CTRL] key pressed
+          this.close()
+        } else {
+          this.$router.push({ name: 'traffic_shaping', params: { id: this.form.id } })
+        }
       })
     },
     save () {
