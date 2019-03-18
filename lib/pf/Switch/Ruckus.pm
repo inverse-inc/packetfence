@@ -62,6 +62,8 @@ sub description { 'Ruckus Wireless Controllers' }
 sub supportsWirelessDot1x { return $TRUE; }
 sub supportsWirelessMacAuth { return $FALSE; }
 sub supportsExternalPortal { return $TRUE; }
+sub supportsRoleBasedEnforcement { return $TRUE; }
+
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$SSID); }
 
@@ -222,6 +224,19 @@ sub getAcceptForm {
 
     $logger->debug("Generated the following html form : ".$html_form);
     return $html_form;
+}
+
+=item returnRoleAttribute
+
+What RADIUS Attribute (usually VSA) should the role returned into.
+
+=cut
+
+sub returnRoleAttribute {
+    my ($self) = @_;
+
+    return 'Ruckus-User-Groups';
+
 }
 
 =back
