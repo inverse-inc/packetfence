@@ -23,7 +23,6 @@ our @EXPORT_OK = qw(
     %STANDARD_ROLES
     $REGISTRATION_ROLE
     $ISOLATION_ROLE
-    $MAC_DETECTION_ROLE
     $INLINE_ROLE
     $VOICE_ROLE
     $DEFAULT_ROLE
@@ -46,7 +45,6 @@ Required roles for every switch. Those are reserved words for any additional cus
 
 Readonly::Scalar our $REGISTRATION_ROLE  => 'registration';
 Readonly::Scalar our $ISOLATION_ROLE     => 'isolation';
-Readonly::Scalar our $MAC_DETECTION_ROLE => 'macDetection';
 Readonly::Scalar our $INLINE_ROLE        => 'inline';
 Readonly::Scalar our $VOICE_ROLE         => 'voice';
 Readonly::Scalar our $DEFAULT_ROLE       => 'default';
@@ -57,7 +55,6 @@ Readonly::Scalar our $REJECT_ROLE        => 'REJECT';
 Readonly::Array our @ROLES => (
     $REGISTRATION_ROLE,
     $ISOLATION_ROLE,
-    $MAC_DETECTION_ROLE,
     $INLINE_ROLE,
 );
 

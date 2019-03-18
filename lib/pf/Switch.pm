@@ -26,7 +26,7 @@ our $VERSION = 2.10;
 
 use pf::CHI;
 use pf::constants;
-use pf::constants::role qw($VOICE_ROLE $MAC_DETECTION_ROLE $REJECT_ROLE);
+use pf::constants::role qw($VOICE_ROLE $REGISTRATION_ROLE $REJECT_ROLE);
 use pf::config qw(
     $ROLES_API_LEVEL
     $management_network
@@ -653,9 +653,9 @@ sub setVlan {
     }
 
     my $vlan = $self->getVlan($ifIndex);
-    my $macDetectionVlan = $self->getVlanByName($MAC_DETECTION_ROLE);
+    my $registrationVlan = $self->getVlanByName($REGISTRATION_ROLE);
 
-    if ( !defined($presentPCMac) && ( $newVlan ne $macDetectionVlan ) ) {
+    if ( !defined($presentPCMac) ) {
         my @macArray = $self->_getMacAtIfIndex( $ifIndex, $vlan );
         if ( scalar(@macArray) == 1 ) {
             $presentPCMac = $macArray[0];
@@ -668,15 +668,15 @@ sub setVlan {
     # TODO at some point we should create a new blackhole / blacklist API
     # it would take advantage of per-switch features
     if ( $newVlan eq "-1") {
-        $logger->warn("VLAN -1 is not supported in SNMP-Traps mode. Returning the switch's mac-detection VLAN.");
-        $newVlan = $macDetectionVlan;
+        $logger->warn("VLAN -1 is not supported in SNMP-Traps mode. Returning the switch's registration VLAN.");
+        $newVlan = $registrationVlan;
     }
 
     # VLAN are not defined on the switch
     if ( !$self->isDefinedVlan($newVlan) ) {
-        if ( $newVlan eq $macDetectionVlan ) {
+        if ( $newVlan eq $registrationVlan ) {
             $logger->warn(
-                "MAC detection VLAN " . $macDetectionVlan
+                "Registration VLAN " . $registrationVlan
                 . " is not defined on switch " . $self->{_id}
                 . " -> Do nothing"
             );
@@ -684,13 +684,13 @@ sub setVlan {
         }
         $logger->warn(
             "new VLAN $newVlan is not defined on switch " . $self->{_id}
-            . " -> replacing VLAN $newVlan with MAC detection VLAN "
-            . $macDetectionVlan
+            . " -> replacing VLAN $newVlan with Registration VLAN "
+            . $registrationVlan
         );
-        $newVlan = $macDetectionVlan;
+        $newVlan = $registrationVlan;
         if ( !$self->isDefinedVlan($newVlan) ) {
             $logger->warn(
-                "MAC detection VLAN " . $macDetectionVlan
+                "Registration VLAN " . $registrationVlan
                 . " is also not defined on switch " . $self->{_id}
                 . " -> Do nothing"
             );
@@ -890,18 +890,6 @@ sub getIfOperStatus {
     my $result = $self->{_sessionRead}
         ->get_request( -varbindlist => ["$oid_ifOperStatus.$ifIndex"] );
     return $result->{"$oid_ifOperStatus.$ifIndex"};
-}
-
-=item setMacDetectionVlan - set the port VLAN to the MAC detection VLAN
-
-=cut
-
-sub setMacDetectionVlan {
-    my ( $self, $ifIndex, $switch_locker_ref,
-        $closeAllOpenLocationlogEntries )
-        = @_;
-    return $self->setVlan( $ifIndex, $self->getVlanByName($MAC_DETECTION_ROLE),
-        $switch_locker_ref, undef, $closeAllOpenLocationlogEntries );
 }
 
 =item getAlias - get the port description

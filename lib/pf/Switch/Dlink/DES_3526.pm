@@ -10,7 +10,6 @@ The pf::Switch::Dlink::DES_3526 module implements an object oriented interface
 to access SNMP enabled Dlink DES 3526 switches.
 
 Tested on Firmware: Build 5.01.B65.
-Supports MAC detection traps with linkup/linkdown.
 No port security support, no RADIUS.
 
 =cut
