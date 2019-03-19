@@ -2612,6 +2612,13 @@ RADIUS Accounting
 
 RADIUS Accounting is usually used by ISPs to bill clients.  In PacketFence, we are able to use this information to determine if the node is still connected, how much time it has been connected, and how much bandwidth the user consumed.
 
+
+IP log updates
+^^^^^^^^^^^^^^
+
+If you send IP address of nodes in accounting data and want to update iplog entries of your nodes, you can enabled 'Update the iplog using the accounting' setting in 'System configuration -> Main configuration -> Advanced'.
+
+
 Violations
 ^^^^^^^^^^
 
