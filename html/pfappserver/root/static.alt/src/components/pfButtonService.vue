@@ -5,6 +5,7 @@
     :variant="buttonVariant"
     v-bind="$attrs"
     v-on="forwardListeners"
+    :disabled="serviceError"
   >
     <template slot="button-content">
       <icon :name="buttonIcon.name" :spin="buttonIcon.spin" class="mr-1"></icon>
@@ -68,7 +69,8 @@ export default {
   data () {
     return {
       btnWidth: 0,
-      serviceStatus: {}
+      serviceStatus: {},
+      serviceError: false
     }
   },
   computed: {
@@ -109,7 +111,7 @@ export default {
       return ('alive' in this.serviceStatus && this.serviceStatus.alive)
     },
     isError () {
-      return ('status' in this.serviceStatus && this.serviceStatus.status === 'error')
+      return (this.serviceError || ('status' in this.serviceStatus && this.serviceStatus.status === 'error'))
     },
     forwardListeners () {
       const { input, ...listeners } = this.$listeners
@@ -118,7 +120,7 @@ export default {
     buttonVariant () {
       switch (true) {
         case this.isLoading:
-          return 'outline-warning'
+          return 'outline-secondary'
           // break
         case this.isRunning:
           return 'outline-success'
@@ -173,6 +175,9 @@ export default {
     status () {
       this.$store.dispatch('$_services/getService', this.service).then(response => {
         this.$set(this, 'serviceStatus', response)
+      }).catch(() => {
+        this.serviceError = true
+        this.$set(this.serviceStatus, 'status', 'error')
       })
     },
     doEnable () {
@@ -221,6 +226,11 @@ export default {
     this.status()
   },
   watch: {
+    serviceStatus: {
+      handler: (newStatus) => {
+        console.log('status', newStatus)
+      }
+    },
     isLoading: {
       handler: function (newValue) {
         if (newValue) {

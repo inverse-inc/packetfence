@@ -56,7 +56,7 @@ export const pfConfigurationRadiusViewFields = (context = {}) => {
         },
         {
           label: i18n.t('Record accounting in SQL tables'),
-          text: i18n.t('Record the accounting data in the SQL tables.Requires a restart of radiusd to be effective.'),
+          text: i18n.t('Record the accounting data in the SQL tables. Requires a restart of radiusd to be effective.'),
           fields: [
             {
               key: 'record_accounting_in_sql',
@@ -69,7 +69,7 @@ export const pfConfigurationRadiusViewFields = (context = {}) => {
         },
         {
           label: i18n.t('Use radius filters in packetfence authorize'),
-          text: i18n.t('Send the radius request in the radius filter from the radius packetfence.authorize section.Requires a restart of radiusd to be effective.'),
+          text: i18n.t('Send the radius request in the radius filter from the radius packetfence.authorize section. Requires a restart of radiusd to be effective.'),
           fields: [
             {
               key: 'filter_in_packetfence_authorize',
@@ -82,7 +82,7 @@ export const pfConfigurationRadiusViewFields = (context = {}) => {
         },
         {
           label: i18n.t('Use radius filters in packetfence pre_proxy'),
-          text: i18n.t('Send the radius request in the radius filter from the radius packetfence.pre_proxy section.Requires a restart of radiusd to be effective.'),
+          text: i18n.t('Send the radius request in the radius filter from the radius packetfence.pre_proxy section. Requires a restart of radiusd to be effective.'),
           fields: [
             {
               key: 'filter_in_packetfence_pre_proxy',
@@ -95,7 +95,7 @@ export const pfConfigurationRadiusViewFields = (context = {}) => {
         },
         {
           label: i18n.t('Use radius filters in packetfence post_proxy'),
-          text: i18n.t('Send the radius request in the radius filter from the radius packetfence.post_proxy section.Requires a restart of radiusd to be effective.'),
+          text: i18n.t('Send the radius request in the radius filter from the radius packetfence.post_proxy section. Requires a restart of radiusd to be effective.'),
           fields: [
             {
               key: 'filter_in_packetfence_post_proxy',
@@ -108,7 +108,7 @@ export const pfConfigurationRadiusViewFields = (context = {}) => {
         },
         {
           label: i18n.t('Use radius filters in packetfence preacct'),
-          text: i18n.t('Send the radius request in the radius filter from the radius packetfence.preacct section.Requires a restart of radiusd to be effective.'),
+          text: i18n.t('Send the radius request in the radius filter from the radius packetfence.preacct section. Requires a restart of radiusd to be effective.'),
           fields: [
             {
               key: 'filter_in_packetfence_preacct',
@@ -121,7 +121,7 @@ export const pfConfigurationRadiusViewFields = (context = {}) => {
         },
         {
           label: i18n.t('Use radius filters in packetfence accounting'),
-          text: i18n.t('Send the radius request in the radius filter from the radius packetfence.accounting section.Requires a restart of radiusd to be effective.'),
+          text: i18n.t('Send the radius request in the radius filter from the radius packetfence.accounting section. Requires a restart of radiusd to be effective.'),
           fields: [
             {
               key: 'filter_in_packetfence_accounting',
@@ -134,7 +134,7 @@ export const pfConfigurationRadiusViewFields = (context = {}) => {
         },
         {
           label: i18n.t('Use radius filters in packetfence-tunnel authorize'),
-          text: i18n.t('Send the radius request in the radius filter from the radius packetfence-tunnel.authorize section.Requires a restart of radiusd to be effective.'),
+          text: i18n.t('Send the radius request in the radius filter from the radius packetfence-tunnel.authorize section. Requires a restart of radiusd to be effective.'),
           fields: [
             {
               key: 'filter_in_packetfence-tunnel_authorize',
