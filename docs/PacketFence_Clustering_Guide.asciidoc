@@ -1118,10 +1118,20 @@ Then reload the file and reboot the server:
   # reboot
 
 
-DHCP and DNS services in a cluster environment
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+IP addresses in a cluster environment
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+DHCP and DNS services
+^^^^^^^^^^^^^^^^^^^^^
 
 In registration and isolation networks, DHCP and DNS servers are physical IP addresses of *all* cluster members.
+
+
+Clients SNMP
+^^^^^^^^^^^^
+
+If you use SNMP in a cluster environment, you will need to allow physical IP addresses of **all** cluster members to query your network devices.
+
 
 
 Performing an upgrade on a cluster
