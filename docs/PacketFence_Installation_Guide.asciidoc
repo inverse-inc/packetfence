@@ -4474,6 +4474,7 @@ Here is a switch configuration example in order to enable SNMP v3 in both direct
   snmp-server enable traps port-security trap-rate 1
   snmp-server host 192.168.0.50 version 3 priv readUser  port-security
 
+By default a switch has a SNMPv3 engineID, you can get it with `show snmp engineid`
 
 Test from a PacketFence server
 ++++++++++++++++++++++++++++++
