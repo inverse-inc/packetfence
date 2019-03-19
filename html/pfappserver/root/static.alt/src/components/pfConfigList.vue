@@ -9,30 +9,6 @@
       <b-row align-h="end" align-v="start">
         <b-col>
           <slot name="buttonAdd"></slot>
-          <template v-for="service in services">
-
-            <b-button v-if="isServiceRunning(service)"
-              :key="service"
-              :disabled="isServiceWaiting(service)"
-              variant="outline-success" class="mr-1"
-              @click.stop.prevent="restartService(service)"
-            >
-              <icon name="circle-notch" spin class="mr-1" v-if="isServiceWaiting(service)"></icon>
-              <icon name="circle" v-else class="text-success mr-1" v-b-tooltip.hover.left.d300 :title="$t('{service} is running (PID: {pid})', { service: service, pid: servicesStatus[service].pid })"></icon>
-              {{ $t('Restart {service}', { service: service }) }}
-            </b-button>
-            <b-button v-else
-              :key="service"
-              :disabled="isServiceWaiting(service)"
-              variant="outline-danger" class="mr-1"
-              @click.stop.prevent="startService(service)"
-            >
-              <icon name="circle-notch" spin class="mr-1" v-if="isServiceWaiting(service)"></icon>
-              <icon name="circle" v-else class="text-danger mr-1" v-b-tooltip.hover.left.d300 :title="$t('{service} is stopped', { service: service })"></icon>
-              {{ $t('Start {service}', { service: service }) }}
-            </b-button>
-
-          </template>
         </b-col>
         <b-col cols="auto">
           <b-container fluid>
@@ -130,15 +106,6 @@ export default {
     tableValues: {
       type: Array,
       default: () => { return [] }
-    },
-    services: {
-      type: Array,
-      default: () => { return [] }
-    }
-  },
-  data () {
-    return {
-      servicesStatus: {}
     }
   },
   computed: {
@@ -158,36 +125,7 @@ export default {
   methods: {
     onRowClick (item, index) {
       this.$router.push(this.config.rowClickRoute(item, index))
-    },
-    restartService (service) {
-      this.$store.dispatch('$_services/restartService', service).then(response => {
-        this.$store.dispatch('notification/info', { message: this.$i18n.t('Restarted {service}', { service: service }) })
-      }).catch(() => {
-        this.$store.dispatch('notification/danger', { message: this.$i18n.t('Failed to restart {service}', { service: service }) })
-      })
-    },
-    startService (service) {
-      this.$store.dispatch('$_services/startService', service).then(response => {
-        this.$store.dispatch('notification/info', { message: this.$i18n.t('Started {service}', { service: service }) })
-      }).catch(() => {
-        this.$store.dispatch('notification/danger', { message: this.$i18n.t('Failed to start {service}', { service: service }) })
-      })
-    },
-    isServiceWaiting (service) {
-      const { [service]: { status } = {} } = this.servicesStatus
-      return [undefined, 'loading', 'starting', 'restarting'].includes(status)
-    },
-    isServiceRunning (service) {
-      const { [service]: { alive } = {} } = this.servicesStatus
-      return alive || false
     }
-  },
-  created () {
-    this.services.forEach(service => {
-      this.$store.dispatch('$_services/getService', service).then(response => {
-        this.$set(this.servicesStatus, service, response)
-      })
-    })
   }
 }
 </script>
