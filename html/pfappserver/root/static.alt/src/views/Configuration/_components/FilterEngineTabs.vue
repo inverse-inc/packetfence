@@ -5,7 +5,7 @@
       <p v-t="'This is an advanced section. Proceed with caution when editing.'"></p>
     </b-card-header>
     <b-tabs ref="tabs" v-model="tabIndex">
-      <b-tab v-for="filter in filters" :key="filter" :title="$t(filter).toUpperCase()" class="h-100 mb-3" @click="changeTab(filter)">
+      <b-tab v-for="filter in filters" :key="filter" :title="$t(filter)" class="h-100 mb-3" @click="changeTab(filter)">
         <filter-engine-view
           :storeName="storeName"
           :id="filter"

@@ -152,7 +152,7 @@ export const pfConfigurationMaintenanceTaskFields = {
   delete_window: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Delete window'),
-      text: i18n.t(`How long can an unregistered node be inactive on the network before being deleted.\nThis shouldn't be used if you are using port-security`),
+      text: i18n.t(`How long can an unregistered node be inactive on the network before being deleted.\nThis shouldn't be used if you are using port-security.`),
       fields: [
         {
           key: 'delete_window.interval',
@@ -657,11 +657,6 @@ export const pfConfigurationMaintenanceTaskViewFields = (context) => {
         }
       ]
     default:
-      return [
-        {
-          tab: null, // ignore tabs
-          fields: []
-        }
-      ]
+      throw new Error(`Unhandled identifier ${id}.`)
   }
 }

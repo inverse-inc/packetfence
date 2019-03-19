@@ -15,8 +15,8 @@
       <template slot="buttons" slot-scope="item">
         <span class="float-right text-nowrap">
           <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(item)">{{ $t('Clone') }}</b-button>
-          <pf-button-delete  v-if="!item.not_deletable" size="sm" variant="outline-danger" :disabled="isLoading" :confirm="$t('Delete Role?')" @on-delete="remove(item)" reverse/>
-          <b-button size="sm" variant="outline-primary" class="mr-1" :to="{ name: 'TODO' }">{{ $t('Traffic Shaping') }}</b-button>
+          <pf-button-delete size="sm" v-if="!item.not_deletable" class="mr-1" variant="outline-danger" :disabled="isLoading" :confirm="$t('Delete Role?')" @on-delete="remove(item)" reverse/>
+          <b-button size="sm" variant="outline-primary" class="mr-1" :to="trafficShapingRoute(item.id)">{{ $t('Traffic Shaping') }}</b-button>
         </span>
       </template>
     </pf-config-list>
@@ -40,7 +40,8 @@ export default {
   },
   data () {
     return {
-      config: config(this)
+      config: config(this),
+      trafficShapingPolicies: []
     }
   },
   methods: {
@@ -51,7 +52,17 @@ export default {
       this.$store.dispatch('$_roles/deleteRole', item.id).then(response => {
         this.$router.go() // reload
       })
+    },
+    trafficShapingRoute (id) {
+      return (this.trafficShapingPolicies.includes(id))
+        ? { name: 'traffic_shaping', params: { id } } // exists
+        : { name: 'newTrafficShaping', params: { role: id } } // not exists
     }
+  },
+  created () {
+    this.$store.dispatch('$_traffic_shaping_policies/all').then(response => {
+      this.trafficShapingPolicies = response.map(policy => policy.id)
+    })
   }
 }
 </script>
