@@ -7,14 +7,14 @@
     v-on="forwardListeners"
   >
     <template slot="button-content">
-      <icon :name="buttonIcon" spin class="mr-1"></icon>
+      <icon :name="buttonIcon.name" :spin="buttonIcon.spin" class="mr-1"></icon>
       {{ buttonText }}
     </template>
     <b-dropdown-form>
       <b-row class="row-nowrap">
         <b-col>{{ $t('Alive') }}</b-col>
         <b-col cols="auto">
-          <b-badge v-if="serviceStatus.alive" pill variant="success">{{ $t(serviceStatus.pid) }}</b-badge>
+          <b-badge v-if="serviceStatus.alive && serviceStatus.pid" pill variant="success">{{ $t(serviceStatus.pid) }}</b-badge>
           <icon v-else class="text-danger" name="circle"></icon>
         </b-col>
       </b-row>
@@ -88,7 +88,7 @@ export default {
       return (this.stop && this.serviceStatus.alive && !this.isLoading)
     },
     isLoading () {
-      return (!('status' in this.serviceStatus) || this.serviceStatus.status !== 'success')
+      return (!('status' in this.serviceStatus) || !['success', 'error'].includes(this.serviceStatus.status))
     },
     isEnabling () {
       return ('status' in this.serviceStatus && this.serviceStatus.status === 'enabling')
@@ -107,6 +107,9 @@ export default {
     },
     isRunning () {
       return ('alive' in this.serviceStatus && this.serviceStatus.alive)
+    },
+    isError () {
+      return ('status' in this.serviceStatus && this.serviceStatus.status === 'error')
     },
     forwardListeners () {
       const { input, ...listeners } = this.$listeners
@@ -133,10 +136,13 @@ export default {
         case this.isStarting:
         case this.isStopping:
         case this.isLoading:
-          return 'circle-notch'
+          return { name: 'circle-notch', spin: true }
+          // break
+        case this.isError:
+          return { name: 'exclamation-circle', spin: false }
           // break
         default:
-          return 'circle'
+          return { name: 'circle', spin: false }
           // break
       }
     },
@@ -173,35 +179,35 @@ export default {
       this.$store.dispatch('$_services/enableService', this.service).then(response => {
         this.$store.dispatch('notification/info', { message: this.$i18n.t('Enabled {service}', { service: this.service }) })
       }).catch(() => {
-        this.$store.dispatch('notification/danger', { message: this.$i18n.t('Failed to enable {service}', { service: this.service }) })
+        this.$store.dispatch('notification/danger', { message: this.$i18n.t('Failed to enable {service}. See the server error logs for more information.', { service: this.service }) })
       })
     },
     doDisable () {
       this.$store.dispatch('$_services/disableService', this.service).then(response => {
         this.$store.dispatch('notification/info', { message: this.$i18n.t('Disabled {service}', { service: this.service }) })
       }).catch(() => {
-        this.$store.dispatch('notification/danger', { message: this.$i18n.t('Failed to disable {service}', { service: this.service }) })
+        this.$store.dispatch('notification/danger', { message: this.$i18n.t('Failed to disable {service}. See the server error logs for more information.', { service: this.service }) })
       })
     },
     doRestart () {
       this.$store.dispatch('$_services/restartService', this.service).then(response => {
         this.$store.dispatch('notification/info', { message: this.$i18n.t('Restarted {service}', { service: this.service }) })
       }).catch(() => {
-        this.$store.dispatch('notification/danger', { message: this.$i18n.t('Failed to restart {service}', { service: this.service }) })
+        this.$store.dispatch('notification/danger', { message: this.$i18n.t('Failed to restart {service}.  See the server error logs for more information.', { service: this.service }) })
       })
     },
     doStart () {
       this.$store.dispatch('$_services/startService', this.service).then(response => {
         this.$store.dispatch('notification/info', { message: this.$i18n.t('Started {service}', { service: this.service }) })
       }).catch(() => {
-        this.$store.dispatch('notification/danger', { message: this.$i18n.t('Failed to start {service}', { service: this.service }) })
+        this.$store.dispatch('notification/danger', { message: this.$i18n.t('Failed to start {service}.  See the server error logs for more information.', { service: this.service }) })
       })
     },
     doStop () {
       this.$store.dispatch('$_services/stopService', this.service).then(response => {
         this.$store.dispatch('notification/info', { message: this.$i18n.t('Killed {service}', { service: this.service }) })
       }).catch(() => {
-        this.$store.dispatch('notification/danger', { message: this.$i18n.t('Failed to kill {service}', { service: this.service }) })
+        this.$store.dispatch('notification/danger', { message: this.$i18n.t('Failed to kill {service}.  See the server error logs for more information.s', { service: this.service }) })
       })
     },
     onClick (event) {

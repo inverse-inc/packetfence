@@ -878,27 +878,52 @@ export default {
   },
   disableService: name => {
     return apiCall.post(`service/${name}/disable`).then(response => {
-      return response.data
+      const { data: { disable } } = response
+      if (parseInt(disable) > 0) {
+        return response.data
+      } else {
+        throw new Error(`Could not disable ${name}`)
+      }
     })
   },
   enableService: name => {
     return apiCall.post(`service/${name}/enable`).then(response => {
-      return response.data
+      const { data: { enable } } = response
+      if (parseInt(enable) > 0) {
+        return response.data
+      } else {
+        throw new Error(`Could not enable ${name}`)
+      }
     })
   },
   restartService: name => {
     return apiCall.post(`service/${name}/restart`).then(response => {
-      return response.data
+      const { data: { restart } } = response
+      if (parseInt(restart) > 0) {
+        return response.data
+      } else {
+        throw new Error(`Could not restart ${name}`)
+      }
     })
   },
   startService: name => {
     return apiCall.post(`service/${name}/start`).then(response => {
-      return response.data
+      const { data: { start } } = response
+      if (parseInt(start) > 0) {
+        return response.data
+      } else {
+        throw new Error(`Could not start ${name}`)
+      }
     })
   },
   stopService: name => {
     return apiCall.post(`service/${name}/stop`).then(response => {
-      return response.data
+      const { data: { stop } } = response
+      if (parseInt(stop) > 0) {
+        return response.data
+      } else {
+        throw new Error(`Could not stop ${name}`)
+      }
     })
   },
 
