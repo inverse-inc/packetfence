@@ -657,6 +657,11 @@ export const pfConfigurationMaintenanceTaskViewFields = (context) => {
         }
       ]
     default:
-      throw new Error(`Unhandled identifier ${id}.`)
+      return [
+        {
+          tab: null, // ignore tabs
+          fields: []
+        }
+      ]
   }
 }
