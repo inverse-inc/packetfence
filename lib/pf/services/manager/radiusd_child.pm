@@ -214,7 +214,7 @@ EOT
     $tags{'userPrincipalName'} = '';
     my $flag = $TRUE;
     foreach my $realm ( sort keys %pf::config::ConfigRealm ) {
-        if(isenabled($pf::config::ConfigRealm{$realm}->{'permit_custom_attributes'})) {
+        if (isenabled($pf::config::ConfigRealm{$realm}->{'permit_custom_attributes'}) && (scalar @{$ConfigAuthenticationLdap{$pf::config::ConfigRealm{$realm}->{ldap_source}}->{searchattributes}})) {
             if ($flag) {
                 $tags{'userPrincipalName'} .= <<"EOT";
         update control {
@@ -547,12 +547,17 @@ sub generate_radiusd_ldap {
     my %tags;
     $tags{'template'}    = "$conf_dir/radiusd/ldap_packetfence.conf";
     $tags{'install_dir'} = $install_dir;
+    my $ldap_config = $FALSE;
     foreach my $ldap (keys %ConfigAuthenticationLdap) {
         my $searchattributes = '';
+        if (scalar @{$ConfigAuthenticationLdap{$ldap}->{searchattributes}} == 0) {
+            next;
+        }
+
         foreach my $searchattribute (@{$ConfigAuthenticationLdap{$ldap}->{searchattributes}}) {
             $searchattributes .= '('.$searchattribute.'=%{User-Name})('.$searchattribute.'=%{Stripped-User-Name})';
         }
-
+        $ldap_config = $TRUE;
         $tags{'servers'} .= <<"EOT";
 
 ldap $ldap {
@@ -600,8 +605,11 @@ EOT
 EOT
 
     }
-
-    parse_template( \%tags, "$conf_dir/radiusd/ldap_packetfence.conf", "$install_dir/raddb/mods-enabled/ldap_packetfence" );
+    if ($ldap_config) {
+        parse_template( \%tags, "$conf_dir/radiusd/ldap_packetfence.conf", "$install_dir/raddb/mods-enabled/ldap_packetfence" );
+    } else {
+        unlink("$install_dir/raddb/mods-enabled/ldap_packetfence");
+    }
 }
 
 =head2 generate_radiusd_proxy
