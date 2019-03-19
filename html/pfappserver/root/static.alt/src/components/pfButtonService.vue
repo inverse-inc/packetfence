@@ -226,11 +226,6 @@ export default {
     this.status()
   },
   watch: {
-    serviceStatus: {
-      handler: (newStatus) => {
-        console.log('status', newStatus)
-      }
-    },
     isLoading: {
       handler: function (newValue) {
         if (newValue) {
