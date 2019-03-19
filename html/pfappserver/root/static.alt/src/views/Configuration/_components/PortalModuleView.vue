@@ -1,6 +1,7 @@
 <template>
   <pf-config-view
     :isLoading="isLoading"
+    :disabled="isLoading"
     :form="getForm"
     :model="module"
     :vuelidate="$v.module"
