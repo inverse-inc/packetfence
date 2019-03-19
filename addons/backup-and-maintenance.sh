@@ -124,7 +124,7 @@ backup_db(){
              echo "Temporarily stopping Galera cluster sync for DB backup"
              mysql -u$REP_USER -p$REP_PWD -e 'set global wsrep_desync=ON;'
         elif [ $MARIADB_REMOTE_CLUSTER -eq 1 ]; then
-             echo "Temporarily stopping remote Galera cluster sync for DB backup"
+             echo "Temporarily stopping **remote** Galera cluster sync for DB backup"
              # We couldn't use the local socket
              mysql -u$REP_USER -p$REP_PWD -h $DB_HOST -e 'set global wsrep_desync=ON;'
         else
@@ -170,7 +170,7 @@ backup_db(){
              echo "Reenabling Galera cluster sync"
              mysql -u$REP_USER -p$REP_PWD -e 'set global wsrep_desync=OFF;'
         elif [ $MARIADB_REMOTE_CLUSTER -eq 1 ]; then
-             echo "Reenabling Galera cluster sync"
+             echo "Reenabling **remote** Galera cluster sync"
              mysql -u$REP_USER -p$REP_PWD -h $DB_HOST -e 'set global wsrep_desync=OFF;'
         else
             echo "Not a Galera cluster, nothing to reenable"
