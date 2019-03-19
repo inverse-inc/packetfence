@@ -191,7 +191,7 @@ Prepare the scan attributes, call the engine instantiation and start the scan
 =cut
 
 sub run_scan {
-    my ( $host_ip, $mac , $C_scanner ) = @_;
+    my ( $host_ip, $mac , $current_scanner ) = @_;
     my $logger = get_logger();
 
     $host_ip = (defined($host_ip) ? ($host_ip) : (pf::ip4log::mac2ip($mac)) );
@@ -209,7 +209,7 @@ sub run_scan {
 
     my $profile = pf::Connection::ProfileFactory->instantiate($host_mac);
 
-    my $scanner = (defined($C_scanner)) ? ($C_scanner) : ($profile->findScan($host_mac)) ;
+    my $scanner = (defined($current_scanner)) ? ($current_scanner) : ($profile->findScan($host_mac)) ;
     
     # If no scan detected then we abort
     if (!$scanner) {
@@ -341,11 +341,11 @@ Check if the category matches the configuration of the scanner
 sub matchCategory {
     my ($self, $node_attributes) = @_;
     my $category = [split(/\s*,\s*/, $self->{_categories})];
-    my $node_cat = $node_attributes->{'category'} || 'default';
-    
+    my $node_cat = $node_attributes->{'category'};
+
     get_logger->debug( sub { "Tring to match the role '$node_cat' against " . join(",", @$category) });
     # validating that the node is under the proper category for provisioner
-    return @$category == 0 || any { $_ eq $node_cat } @$category;
+    return @$category == 0 || !defined($node_cat) || any { $_ eq $node_cat } @$category;
 }
 
 =item matchOS

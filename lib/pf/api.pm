@@ -983,7 +983,7 @@ sub trigger_scan :Public :Fork :AllowedAsAction($ip, mac, $mac, net_type, TYPE) 
     my $logger = pf::log::get_logger();
     my $profile = pf::Connection::ProfileFactory->instantiate($postdata{'mac'});
     my @scanners = $profile->findScans($postdata{'mac'});
-    my $added;
+    my ($added, $current_scan);
 
     return unless scalar(@scanners) > 0; # return if there's no scanners available
 
@@ -997,22 +997,19 @@ sub trigger_scan :Public :Fork :AllowedAsAction($ip, mac, $mac, net_type, TYPE) 
 
         return if(pf::security_event::security_event_scaning($postdata{'mac'},$pf::constants::scan::SCAN_SECURITY_EVENT_ID));
 
-        iter_block:{
-        
-            my $current_scan = pop @scanners;
-            
-            return if (!defined($current_scan));
+        $current_scan = pop @scanners;
+
+        while(defined($current_scan)){
 
             if(pf::util::isenabled($current_scan->{'_registration'})){
 
-                $logger->info("On Regestration Scan - Current Scan Engine is : $current_scan");
+                $logger->info("On Registration Scan - Current Scan Engine is : $current_scan");
 
                 sleep $pf::config::Config{'fencing'}{'wait_for_redirect'};
 
                 pf::scan::run_scan($postdata{'ip'}, $postdata{'mac'}, $current_scan);
             }
-
-            redo iter_block;
+            $current_scan = pop @scanners;
         }
 
     } elsif ( pf::util::is_prod_interface($postdata{'net_type'}) ) { # Post Registration Scans
@@ -1025,23 +1022,19 @@ sub trigger_scan :Public :Fork :AllowedAsAction($ip, mac, $mac, net_type, TYPE) 
 
         return if(pf::security_event::security_event_scaning($postdata{'mac'},$pf::constants::scan::POST_SCAN_SECURITY_EVENT_ID));
 
+        $current_scan = pop @scanners;
 
-        iter_block:{
-        
-            my $current_scan = pop @scanners;
-            
-            return if (!defined($current_scan));
+        while(defined($current_scan)){
 
             if(pf::util::isenabled($current_scan->{'_post_registration'})){
 
-                $logger->info("Post Regestration Scan - Current Scan Engine is : $current_scan");
+                $logger->info("Post Registration Scan - Current Scan Engine is : $current_scan");
 
                 sleep $pf::config::Config{'fencing'}{'wait_for_redirect'};
 
                 pf::scan::run_scan($postdata{'ip'}, $postdata{'mac'}, $current_scan);
             }
-
-            redo iter_block;
+            $current_scan = pop @scanners;
         }
 
     } else { # Pre Registration Scans
@@ -1054,23 +1047,20 @@ sub trigger_scan :Public :Fork :AllowedAsAction($ip, mac, $mac, net_type, TYPE) 
 
         return if(pf::security_event::security_event_scaning($postdata{'mac'},$pf::constants::scan::PRE_SCAN_SECURITY_EVENT_ID));
 
+        $current_scan = pop @scanners;
 
-        iter_block:{ 
-            
-            my $current_scan = pop @scanners;
-
-            return if (!defined($current_scan));
+        while(defined($current_scan)){ 
 
             if(pf::util::isenabled($current_scan->{'_pre_registration'})){
                 
-                $logger->info("Pre Regestration Scan - Current Scan Engine is : $current_scan");
+                $logger->info("Pre Registration Scan - Current Scan Engine is : $current_scan");
 
                 sleep $pf::config::Config{'fencing'}{'wait_for_redirect'};
 
                 pf::scan::run_scan($postdata{'ip'}, $postdata{'mac'}, $current_scan);
             }
 
-            redo iter_block;
+            $current_scan = pop @scanners;
         }
     }
     
