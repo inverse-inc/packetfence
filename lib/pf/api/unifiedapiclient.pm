@@ -142,7 +142,7 @@ sub call {
     my $response;
     my $curl = $self->curl($path);
 
-    if (ref($args) eq "HASH") {
+    if (ref($args) eq "HASH" || ref($args) eq "ARRAY") {
         my $request = $self->build_json_rest_payload($args);
         $curl->setopt(CURLOPT_POSTFIELDSIZE, length($request));
         $curl->setopt(CURLOPT_POSTFIELDS, $request);
