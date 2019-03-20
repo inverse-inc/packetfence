@@ -116,6 +116,7 @@ sub setup_api_v1_routes {
     $self->setup_api_v1_queues_routes($api_v1_route);
     $self->setup_api_v1_translations_routes($api_v1_route);
     $self->setup_api_v1_preferences_routes($api_v1_route);
+    $self->setup_api_v1_config_interfaces_routes($api_v1_route);
 }
 
 sub custom_startup_hook {
@@ -1457,6 +1458,23 @@ sub setup_api_v1_reports_routes {
       ->to("Reports#topauthenticationsuccesses_by_computername")
       ->name("api.v1.Reports.topauthenticationsuccesses_by_computername");
     return ( undef, undef );
+}
+
+=head2 setup_api_v1_config_interfaces_routes
+
+setup_api_v1_config_interfaces_routes
+
+=cut
+
+sub setup_api_v1_config_interfaces_routes {
+    my ($self, $root) = @_;
+    my $collection_route = $root->any("/config/interfaces");
+    $collection_route->any(['GET'] => "/")->to("Config::Interfaces#list")->name("api.v1.Config.Interfaces.list");
+    my $resource_route = $root->under("/config/interface/#interface_id")->to("Config::Interfaces#resource")->name("api.v1.Config.Interfaces.resource");
+    $resource_route->any(['GET'] => "/")->to("Config::Interfaces#get")->name("api.v1.Config.Interfaces.get");
+    $self->add_subroutes($resource_route, "Config::Interfaces", "GET", qw(status));
+    $self->add_subroutes($resource_route, "Config::Interfaces", "POST", qw(up down));
+    return (undef, $resource_route);
 }
 
 =head2 setup_api_v1_cluster_routes
