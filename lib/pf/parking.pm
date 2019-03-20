@@ -49,7 +49,7 @@ sub park {
     get_logger->debug("Setting client in parking");
     if(isenabled($Config{parking}{place_in_dhcp_parking_group})){
         pf::api::unifiedapiclient->default_client->call("POST", "/api/v1/dhcp/options/mac/".$mac, [{
-            "option"      => "51",
+            "option"      => 0 + 51,
             "value"       => "3600",
             "type"        => "int",
         }]);
