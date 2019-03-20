@@ -129,7 +129,7 @@ Create the new cluster
 PacketFence Configuration Modification
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-NOTE: In order for PacketFence to communicate properly with your MySQL cluster, you need to change the following.
+NOTE: In order for PacketFence to communicate properly with your MariaDB cluster, you need to change the following.
 This change only needs to be done on the first server of the cluster. It will be synchronized later.
 
 In `/usr/local/pf/conf/pf.conf` :
@@ -322,9 +322,9 @@ Then, ensure `packetfence-mariadb` is stopped on the two servers that will be jo
 
   # systemctl stop packetfence-mariadb
 
-Now, flush any MySQL data you have on the two servers and restart `packetfence-mariadb` so that the servers join the cluster.
+Now, flush any MariaDB data you have on the two servers and restart `packetfence-mariadb` so that the servers join the cluster.
 
-WARNING: If you have any data in MySQL on these nodes, this will destroy it.
+WARNING: If you have any data in MariaDB on these nodes, this will destroy it.
 
   # rm -fr /var/lib/mysql/*
 
@@ -333,9 +333,9 @@ WARNING: If you have any data in MySQL on these nodes, this will destroy it.
 Checking the MariaDB sync
 +++++++++++++++++++++++++
 
-In order to check the MariaDB sync, you can look at the status of the `wsrep` status values inside MySQL.
+In order to check the MariaDB sync, you can look at the status of the `wsrep` status values inside MariaDB.
 
-  mysql> show status like 'wsrep%';
+  MariaDB> show status like 'wsrep%';
 
 Important variables:
 
@@ -475,7 +475,7 @@ On each of the servers you want to discard the data from, you must destroy all t
   rm -fr /var/lib/mysql/*
   systemctl start packetfence-mariadb
 
-You should then see `/var/lib/mysql` be populated again with the data and once MySQL becomes available again on the server, it means the sync has completed. In case of issues, look in the MySQL log file (`/usr/local/pf/logs/mariadb_error.log`)
+You should then see `/var/lib/mysql` be populated again with the data and once MariaDB becomes available again on the server, it means the sync has completed. In case of issues, look in the MariaDB log file (`/usr/local/pf/logs/mariadb_error.log`)
 
 NOTE: If you were performing a full recovery, you should now break the `--force-new-cluster` command and start `packetfence-mariadb` normally. (`systemctl start packetfence-mariadb`)
 
@@ -579,7 +579,7 @@ Start the next server, logon to the SSH terminal.
 Once prompted, check the `packetFence-mariadb` sync with the Master, type the command:
 ----
 mysql -u root -p
-mysql> show status like 'wsrep%';
+MariaDB> show status like 'wsrep%';
 ----
 ----
 MariaDB [(none)]> show status like "wsrep%";
@@ -1309,7 +1309,7 @@ You can safely delete the data from all of these tables without affecting the fu
 In order to truncate a table:
 
   # mysql -u root -p pf
-  mysql> truncate TABLE_NAME;
+  MariaDB> truncate TABLE_NAME;
 
 Elect node C as database master
 +++++++++++++++++++++++++++++++
@@ -1329,7 +1329,7 @@ Now, stop `packetfence-mariadb` on node C, regenerate the MariaDB configuration 
  # /usr/local/pf/bin/pfcmd generatemariadbconfig
  # /usr/local/pf/sbin/pf-mariadb --force-new-cluster
 
-You should validate that you are able to connect to the MySQL database even though it is in read-only mode using the MySQL command line. If its not, make sure you check the MySQL log (`/usr/local/pf/logs/mariadb_error.log`)
+You should validate that you are able to connect to the MariaDB database even though it is in read-only mode using the MariaDB command line. If its not, make sure you check the MariaDB log (`/usr/local/pf/logs/mariadb_error.log`)
 
 Sync nodes A and B
 ++++++++++++++++++
@@ -1340,9 +1340,9 @@ On each of the servers you want to discard the data from, stop `packetfence-mari
   # rm -fr /var/lib/mysql/*
   # systemctl start packetfence-mariadb
 
-Should there be any issues during the sync, make sure you look into the MySQL log (`/usr/local/pf/logs/mariadb_error.log`)
+Should there be any issues during the sync, make sure you look into the MariaDB log (`/usr/local/pf/logs/mariadb_error.log`)
 
-Once both nodes have completely synced (try connecting to it using the MySQL command line), then you can break the cluster election command you have running on node C and start node C normally (using `systemctl start packetfence-mariadb`).
+Once both nodes have completely synced (try connecting to it using the MariaDB command line), then you can break the cluster election command you have running on node C and start node C normally (using `systemctl start packetfence-mariadb`).
 
 Start nodes A and B
 +++++++++++++++++++
@@ -1384,14 +1384,14 @@ Investigating further
 
 The limit of 1000 connections is fairly high already so if you reached the maximum number of connections, this might indicate an issue with your database cluster. If this issue happens often, you should monitor the active connections and their associated queries to find out what is using up your connections.
 
-You can monitor the active TCP connections to MySQL using this command and then investigate the processes that are connected to it (last column):
+You can monitor the active TCP connections to MariaDB using this command and then investigate the processes that are connected to it (last column):
 
   # netstat -anlp | grep 3306
 
-You can have an overview of all the current connections using the following MySQL query:
+You can have an overview of all the current connections using the following MariaDB query:
 
-  mysql> select * from information_schema.processlist;
+  MariaDB> select * from information_schema.processlist;
 
 And if you would like to see only the connections with an active query:
 
-  mysql> select * from information_schema.processlist where Command!='Sleep';
+  MariaDB> select * from information_schema.processlist where Command!='Sleep';

@@ -60,7 +60,7 @@ Assumptions
 PacketFence reuses many components in an infrastructure. Nonetheless, it will install the following ones and manage them itself:
 
 [options="compact"]
-* database server (MySQL or MariaDB)
+* database server (MariaDB)
 * web server (Apache)
 * DHCP server (PacketFence)
 * RADIUS server (FreeRADIUS)
@@ -113,7 +113,7 @@ This setup has been tested using VMWare ESXi, Fusion and Workstation products wi
 
 The virtual appliance passwords are:
 
-.Management (SSH/Console) and MySQL
+.Management (SSH/Console) and MariaDB
 * Login: root
 * Password: p@ck3tf3nc3
 
@@ -1767,10 +1767,10 @@ PacketFence has the ability to perform surveys via the captive portal and store 
 Setup
 ^^^^^
 
-In order for the survey tables to be created automatically based on the definition of your surveys, you must grant create and alter rights to the database user defined in pf.conf. By default this user is 'pf'. On your database, connect to the MySQL CLI as root and execute the following:
+In order for the survey tables to be created automatically based on the definition of your surveys, you must grant create and alter rights to the database user defined in pf.conf. By default this user is 'pf'. On your database, connect to the MariaDB CLI as root and execute the following:
 
-  mysql> GRANT CREATE,ALTER ON pf.* TO 'pf'@'%';
-  mysql> GRANT CREATE,ALTER ON pf.* TO 'pf'@'localhost';
+  MariaDB> GRANT CREATE,ALTER ON pf.* TO 'pf'@'%';
+  MariaDB> GRANT CREATE,ALTER ON pf.* TO 'pf'@'localhost';
 
 Configuring your survey
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -1888,8 +1888,8 @@ Cleaning up
 
 When you are happy with the structure of your surveys, it is recommended to remove the `CREATE` and `ALTER` rights to the `pf` database user from a security perspective. In order to do so, execute the following commands. This step is optional and should only be done once the structure of your survey is set in stone.
 
-  mysql> REVOKE CREATE,ALTER ON pf.* FROM 'pf'@'%';
-  mysql> REVOKE CREATE,ALTER ON pf.* FROM 'pf'@'localhost';
+  MariaDB> REVOKE CREATE,ALTER ON pf.* FROM 'pf'@'%';
+  MariaDB> REVOKE CREATE,ALTER ON pf.* FROM 'pf'@'localhost';
 
 
 Devices Registration
@@ -3897,13 +3897,13 @@ Here's the default config for the SNMP traps limit feature. As you can see, by d
 
 Alternatively, you can configure these parameters from the PacketFence Web administrative GUI, in the *Configuration -> Network Configuration -> SNMP* section.
 
-MySQL optimizations
+MariaDB optimizations
 ~~~~~~~~~~~~~~~~~~~
 
-Tuning MySQL
-^^^^^^^^^^^^
+Tuning MariaDB
+^^^^^^^^^^^^^^
 
-If you're PacketFence system is acting very slow, this could be due to your MySQL configuration. You should do the following to tune performance:
+If you're PacketFence system is acting very slow, this could be due to your MariaDB configuration. You should do the following to tune performance:
 
 Check the system load
 
@@ -3930,9 +3930,9 @@ Check iostat and CPU
   Device:            tps   Blk_read/s   Blk_wrtn/s   Blk_read   Blk_wrtn
   cciss/c0d0       27.94         0.00      1173.65          0       5880
 
-As you can see, the load is 1.25 and IOWait is peaking at 20% - this is not good. If your IO wait is low but your MySQL is taking +%50 CPU this is also not good. Check your MySQL install for the following variables:
+As you can see, the load-average is 1.25 and iowait is peaking at 20% - this is not good. If your iowait is low but your MariaDB is taking over %50 CPU this is also not good. Check your MariaDB install for the following variables:
 
-  mysql> show variables;
+  MariaDB> show variables;
   | innodb_additional_mem_pool_size | 1048576      |
   | innodb_autoextend_increment     | 8            |
   | innodb_buffer_pool_awe_mem_mb   | 0            |
@@ -3967,12 +3967,12 @@ Device:            tps   Blk_read/s   Blk_wrtn/s   Blk_read   Blk_wrtn
 cciss/c0d0        4.80         0.00        48.00          0        240
 ----
 
-MySQL Optimization Tool
-^^^^^^^^^^^^^^^^^^^^^^^
+MariaDB Optimization Tool
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
-We recommend that you run the http://mysqltuner.com/[MySQL Tuner] on your database setup after a couple of weeks to help you identify MySQL configuration improvement. The tool is bundled with PacketFence and can be run from the command-line:
+We recommend that you run the http://mysqltuner.com/[MySQL Tuner] on your database setup after a couple of weeks to help you identify MariaDB configuration improvement. The tool is bundled with PacketFence and can be run from the command-line:
 
-  # /usr/local/bin/pftest mysql
+  # /usr/local/pf/bin/pftest mysql
 
 Keeping Tables Small
 ^^^^^^^^^^^^^^^^^^^^
@@ -3986,12 +3986,12 @@ We provide a script called `backup-and-maintenance.sh` located in `addons/` that
 Avoid "Too many connections" problems
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-In a wireless context, there tends to be a lot of connections made to the database by our `freeradius` module. The default MySQL value tend to be low (100) so we encourage you to increase that value to at least 300. See http://dev.mysql.com/doc/refman/5.0/en/too-many-connections.html for details.
+In a wireless context, there tends to be a lot of connections made to the database by our `freeradius` module. The default MariaDB value tend to be low (100) so we encourage you to increase that value to at least 300. See http://dev.mysql.com/doc/refman/5.0/en/too-many-connections.html for details.
 
 Avoid "Host <hostname> is blocked" problems
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-In a wireless context, there tend to be a lot of connections made to the database by our freeradius module. When the server is loaded, these connection attempts can timeout. If a connection times out during connection, MySQL will consider this a connection error and after 10 of these (by default) he will lock the host out with a:
+In a wireless context, there tend to be a lot of connections made to the database by our freeradius module. When the server is loaded, these connection attempts can timeout. If a connection times out during connection, MariaDB will consider this a connection error and after 10 of these (by default) he will lock the host out with a:
 
   Host 'host_name' is blocked because of many connection errors. Unblock with 'mysqladmin flush-hosts'
 
@@ -4004,7 +4004,7 @@ When dealing with a large database, the database backup and maintenance script (
 
 This is fixed easily by using Percona XtraBackup which can complete a full database backup without locking your tables.
 
-The installation instructions below are made for CentOS 7 but adjusting them to Debian should only be a matter of installing the proper packages for your MySQL/MariaDB version.
+The installation instructions below are made for CentOS 7 but adjusting them to Debian should only be a matter of installing the proper packages for your MariaDB version.
 
 First install the Percona repository:
 
@@ -4021,8 +4021,8 @@ Next, install Percona XtraBackup by manually specifying the Percona repository:
 Once this is done, grant the proper rights to the `pf` user (or the one you configured in pf.conf):
 
   # mysql -u root -p
-  mysql> GRANT RELOAD, LOCK TABLES, REPLICATION CLIENT ON *.* TO 'pf'@'localhost';
-  mysql> FLUSH PRIVILEGES;
+  MariaDB> GRANT RELOAD, LOCK TABLES, REPLICATION CLIENT ON *.* TO 'pf'@'localhost';
+  MariaDB> FLUSH PRIVILEGES;
 
 Next, run the maintenance script `/usr/local/pf/addons/backup-and-maintenance.sh` and ensure that the following line is part of the output:
 
@@ -4030,7 +4030,7 @@ Next, run the maintenance script `/usr/local/pf/addons/backup-and-maintenance.sh
 
 If the backup fails, check `/usr/local/pf/logs/innobackup.log` for details and refer to the Percona XtraBackup documentation for troubleshooting.
 
-NOTE: In the event that you want to stop using Percona XtraBackups for your MySQL backups, simply uninstall it and the database script will fallback to mysqldump.
+NOTE: In the event that you want to stop using Percona XtraBackups for your MariaDB backups, simply uninstall it and the database script will fallback to mysqldump.
 
 Captive Portal Optimizations
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -5363,7 +5363,7 @@ Next, apply the innodb log:
 
   # innobackupex --apply-log ./
 
-We will now stop MySQL, move the existing data directory and replace it by the data that was extracted:
+We will now stop MariaDB, move the existing data directory and replace it by the data that was extracted:
 
 NOTE: On Debian the service will be called `mysql` and on CentOS 7 `mariadb`. Make sure you adjust the commands above to your environment.
 
@@ -5374,7 +5374,7 @@ NOTE: On Debian the service will be called `mysql` and on CentOS 7 `mariadb`. Ma
   # chown -R mysql: /var/lib/mysql
   # service packetfence-mariadb start
 
-Should the service fail to start, make sure you look into the MySQL error logs.
+Should the service fail to start, make sure you look into the MariaDB error logs.
 
 [appendix]
 How to restore a standalone PacketFence server ?
