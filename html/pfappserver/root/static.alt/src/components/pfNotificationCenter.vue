@@ -12,7 +12,7 @@
               <b-row no-gutters>
                 <b-col>
                   <div class="notification-message" :class="{'text-secondary': !notification.unread}">
-                    <icon :name="notification.icon" class="mr-1" :class="'text-'+notification.variant"></icon> <span :class="{ 'font-weight-bold': notification.unread }">{{notification.message}}</span>
+                    <icon :name="notification.icon" class="mr-1" :class="'text-'+notification.variant"></icon> <span :class="{ 'font-weight-bold': notification.unread }" v-html="notification.message"></span>
                   </div>
                   <small class="notification-url text-secondary">{{notification.url}}</small>
                 </b-col>
@@ -40,7 +40,7 @@
         <b-row class="justify-content-md-center">
           <b-col>
             <div class="notification-message">
-              <icon :name="notification.icon" :class="'text-'+notification.variant"></icon> {{notification.message}}
+              <icon :name="notification.icon" class="mr-1" :class="'text-'+notification.variant"></icon> <span v-html="notification.message"></span>
             </div>
             <small class="notification-url text-secondary">{{notification.url}}</small>
           </b-col>
