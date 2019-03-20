@@ -79,6 +79,10 @@ else
     echo "ERROR: There is not enough space in $BACKUP_DIRECTORY to safely backup files. Skipping the backup." > /usr/local/pf/var/backup_files.status
 fi 
 
+die() {
+    echo "$(basename $0): $@" >&2 ; exit 1
+}
+
 should_backup(){
     # Default choices
     SHOULD_BACKUP=1
@@ -122,11 +126,11 @@ backup_db(){
     if (( $BACKUPS_AVAILABLE_SPACE > (( $MYSQL_USED_SPACE /2 )) )); then 
         if [ $MARIADB_LOCAL_CLUSTER -eq 1 ]; then
              echo "Temporarily stopping Galera cluster sync for DB backup"
-             mysql -u$REP_USER -p$REP_PWD -e 'set global wsrep_desync=ON;'
+             mysql -u$REP_USER -p$REP_PWD -e 'set global wsrep_desync=ON;' || die "mysql command failed"
         elif [ $MARIADB_REMOTE_CLUSTER -eq 1 ]; then
              echo "Temporarily stopping **remote** Galera cluster sync for DB backup"
              # We couldn't use the local socket
-             mysql -u$REP_USER -p$REP_PWD -h $DB_HOST -e 'set global wsrep_desync=ON;'
+             mysql -u$DB_USER -p$DB_PWD -h $DB_HOST -e 'set global wsrep_desync=ON;' || die "mysql command failed"
         else
             echo "Not a Galera cluster, nothing to stop"
         fi
@@ -168,10 +172,10 @@ backup_db(){
 
         if [ $MARIADB_LOCAL_CLUSTER -eq 1 ]; then
              echo "Reenabling Galera cluster sync"
-             mysql -u$REP_USER -p$REP_PWD -e 'set global wsrep_desync=OFF;'
+             mysql -u$REP_USER -p$REP_PWD -e 'set global wsrep_desync=OFF;' || die "mysql command failed"
         elif [ $MARIADB_REMOTE_CLUSTER -eq 1 ]; then
              echo "Reenabling **remote** Galera cluster sync"
-             mysql -u$REP_USER -p$REP_PWD -h $DB_HOST -e 'set global wsrep_desync=OFF;'
+             mysql -u$DB_USER -p$DB_PWD -h $DB_HOST -e 'set global wsrep_desync=OFF;' || die "mysql command failed"
         else
             echo "Not a Galera cluster, nothing to reenable"
         fi
