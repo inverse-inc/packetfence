@@ -9692,6 +9692,10 @@ msgid "active_active"
 msgstr "Active Active"
 
 # conf/documentation.conf
+msgid "active_active.portal_on_management"
+msgstr "Captive-portal on management"
+
+# conf/documentation.conf
 msgid "active_active.auth_on_management"
 msgstr "RADIUS authentication on management"
 
