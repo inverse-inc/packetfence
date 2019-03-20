@@ -164,7 +164,8 @@ backup_db(){
             if (( $BACKUPRC > 0 )); then 
                 echo "mysqldump returned  error code: $?" >&2
                 echo "mysqldump returned  error code: $?" > /usr/local/pf/var/backup_db.status
-            else 
+            else
+                echo "mysqldump completed"
                 touch /usr/local/pf/var/run/last_backup
                 echo "OK" > /usr/local/pf/var/backup_db.status
             fi
