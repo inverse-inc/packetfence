@@ -58,7 +58,16 @@ PacketFence's inline interface with no other gateway available for devices to re
 Internet. 
 
 This technique is usually used when your network hardware doesn't support VLAN 
-enforcement. 
+enforcement.
+
+
+Note on RADIUS accounting
+-------------------------
+
+Enabling RADIUS accounting on your network devices will increase significantly
+your database size and can cause performance issues.  You should be aware of
+this and use accounting only if you really need it.
+
 
 List of supported Network Devices
 ---------------------------------
@@ -1055,7 +1064,13 @@ AAA configuration:
    server 192.168.1.5 auth-port 1812 acct-port 1813 
   aaa authentication login default local 
   aaa authentication dot1x default group packetfence 
-  aaa authorization network default group packetfence 
+  aaa authorization network default group packetfence
+
+AAA configuration (accounting):
+
+----
+aaa accounting dot1x default start-stop group packetfence
+----
 
 RADIUS server configuration:
 
