@@ -143,7 +143,7 @@ backup_db(){
             if [ $MARIADB_LOCAL_CLUSTER -eq 1 ]; then
                 innobackupex --defaults-file=/usr/local/pf/var/conf/mariadb.conf --user=$REP_USER --password=$REP_PWD  --no-timestamp --stream=xbstream --tmpdir=$INNO_TMP $INNO_TMP 2>> /usr/local/pf/logs/innobackup.log | gzip - > $BACKUP_DIRECTORY/$BACKUP_DB_FILENAME-innobackup-`date +%F_%Hh%M`.xbstream.gz
             elif [ $MARIADB_REMOTE -eq 1 ]; then
-                die "innobackupex can't backup remote databases, uninstall Percona XtraBackup and retry"
+                echo "innobackupex can't backup remote databases, uninstall Percona XtraBackup and retry"
             else
                 innobackupex --defaults-file=/usr/local/pf/var/conf/mariadb.conf --user=$DB_USER --password=$DB_PWD --no-timestamp --stream=xbstream --tmpdir=$INNO_TMP $INNO_TMP 2>> /usr/local/pf/logs/innobackup.log | gzip - > $BACKUP_DIRECTORY/$BACKUP_DB_FILENAME-innobackup-`date +%F_%Hh%M`.xbstream.gz
             fi
