@@ -1124,13 +1124,18 @@ IP addresses in a cluster environment
 DHCP and DNS services
 ^^^^^^^^^^^^^^^^^^^^^
 
-In registration and isolation networks, DHCP and DNS servers are physical IP addresses of *all* cluster members.
+In registration and isolation networks, each cluster member acts as a DHCP
+server.  DNS configuration sent through DHCP contains physical IP address of
+each cluster member unless you enabled the option 'pfdns on VIP only' in
+'System configuration -> Cluster'
 
 
-Clients SNMP
+SNMP clients
 ^^^^^^^^^^^^
 
-If you use SNMP in a cluster environment, you will need to allow physical IP addresses of **all** cluster members to query your network devices.
+If you use SNMP in a cluster environment, you will need to allow physical IP
+addresses of **all** cluster members to query your network devices (switches,
+WiFi controllers, etc.)
 
 
 
