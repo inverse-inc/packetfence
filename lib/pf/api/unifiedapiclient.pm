@@ -95,6 +95,14 @@ Curl transfer timeout in milli seconds
 
 has timeout_ms => (is => 'rw', default => sub {0} ) ;
 
+=head2 connection
+
+A curl connection for this object that can be kept persistent 
+
+=cut
+
+has connection => (is => 'rw', builder => 'curl', lazy => 1);
+
 =head2 token
 
 The current token that was obtained by the login
@@ -140,7 +148,9 @@ sub call {
     my ($method,$path,$args) = @params;
 
     my $response;
-    my $curl = $self->curl($path);
+    my $curl = $self->connection();
+    my $url = $self->url($path);
+    $curl->setopt(CURLOPT_URL, $url);
 
     if (ref($args) eq "HASH" || ref($args) eq "ARRAY") {
         my $request = $self->build_json_rest_payload($args);
@@ -209,16 +219,18 @@ sub login {
 =cut
 
 sub curl {
-    my ($self, $path) = @_;
-    my $url = $self->url($path);
+    my ($self) = @_;
     my $curl = WWW::Curl::Easy->new;
     $curl->setopt(CURLOPT_HEADER, 0);
     $curl->setopt(CURLOPT_DNS_USE_GLOBAL_CACHE, 0);
     $curl->setopt(CURLOPT_NOSIGNAL, 1);
-    $curl->setopt(CURLOPT_URL, $url);
     $curl->setopt(CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
     $curl->setopt(CURLOPT_CONNECTTIMEOUT_MS, $self->connect_timeout_ms // 0);
     $curl->setopt(CURLOPT_TIMEOUT_MS, $self->timeout_ms // 0);
+    $curl->setopt(CURLOPT_TCP_KEEPALIVE, 1);
+    $curl->setopt(CURLOPT_TCP_KEEPIDLE, 30);
+    $curl->setopt(CURLOPT_TCP_KEEPINTVL, 10);
+
     if($self->proto eq 'https') {
         if($self->username && $self->password) {
             $curl->setopt(CURLOPT_USERNAME, $self->username);
