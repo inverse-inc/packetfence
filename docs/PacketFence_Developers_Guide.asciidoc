@@ -57,6 +57,24 @@ To do so, the preferred way is using the `perldoc` command as follows:
   perldoc lib/pfconfig/cached.pm
 
 
+== Asciidoc documentation
+
+=== Documentation conventions
+
+https://github.com/redhat-documentation/asciidoc-markup-conventions
+https://redhat-documentation.github.io/asciidoc-markup-conventions/
+
+=== Checklist to create a new guide
+
+* [ ] use template
+* [ ] create PacketFence_GUIDENAME-docinfo.xml with only `copyright` tag
+* [ ] update Makefile
+** [ ] add a note in `all` target
+* [ ] update packaging (if necessary)
+* [ ] update website to have new guide
+
+
+
 Code conventions
 ----------------
 
