@@ -5000,7 +5000,11 @@ gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys E3A28334
 
 Download the Packetfence monit addons
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-The monit addons are included with Packetfence at `/usr/local/pf/addons/monit`. This step is only needed if you want to upgrade the scripts to the latest version without having to upgrade Packetfence.
+The monit addons are included with Packetfence at
+`/usr/local/pf/addons/monit`. This step is only needed if you want to upgrade
+the scripts to the latest version without having to upgrade Packetfence. This
+means that you can have unexpected behaviors due to difference between
+PacketFence configuration and monit checks.
 
 ----
 cd /tmp/ && wget http://inverse.ca/downloads/PacketFence/monitoring-scripts/v1/monit.tgz && tar xzvf monit.tgz
@@ -5064,7 +5068,8 @@ rm /etc/monit.d/packetfence.monit
 
 Run the monitoring script update to fetch the scripts and config
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Ensure the script outputs: `Update completed successfully`
+
+This script will download **latest** shell scripts run by monit checks.
 
 RHEL / CentOS
 
@@ -5079,6 +5084,9 @@ Debian
 apt-get install uuid-runtime
 /usr/local/pf/addons/monit/monitoring-scripts/update.sh 
 ----
+
+Ensure the script outputs: `Update completed successfully`
+
 
 Ensure the pf group can write the logs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
