@@ -55,6 +55,7 @@ router.afterEach((to, from) => {
   /**
   * 1. Check if a matching route defines a transition delay
   * 2. Restore the document scrollbar after the transition delay
+  * 3. Scroll to top of the page
   */
   let transitionRoute = from.matched.find(route => {
     return route.meta.transitionDelay // [1]
@@ -62,6 +63,7 @@ router.afterEach((to, from) => {
   if (transitionRoute) {
     setTimeout(() => {
       document.body.classList.remove('modal-open') // [2]
+      window.scrollTo(0, 0) // [3]
     }, transitionRoute.meta.transitionDelay)
   }
 })
