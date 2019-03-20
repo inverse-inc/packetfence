@@ -27,6 +27,7 @@ use pf::util;
 use File::Temp;
 use pf::Redis;
 use pf::constants::domain qw($NTLM_REDIS_CACHE_HOST $NTLM_REDIS_CACHE_PORT);
+use Socket;
 
 =head2 fetch_valid_users
 
@@ -238,7 +239,7 @@ sub secretsdump {
     
     foreach my $server (split(/\s*,\s*/, $source->{host})) {
         eval {
-            my $command = "/usr/local/pf/addons/AD/secretsdump.py '".pf::domain::escape_bind_user_string($sAMAccountName)."':'".pf::domain::escape_bind_user_string($source->{password})."'@".$server." -just-dc-ntlm -output $tmpfile $opts";
+            my $command = "/usr/local/pf/addons/AD/secretsdump.py '".pf::domain::escape_bind_user_string($sAMAccountName)."':'".pf::domain::escape_bind_user_string($source->{password})."'@".inet_ntoa(inet_aton($server))." -just-dc-ntlm -output $tmpfile $opts";
             $logger->debug("Executing sync command: $command");
             $result = pf_run($command, accepted_exit_status => [ 0 ], working_directory => "/tmp");
         };
