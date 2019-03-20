@@ -1117,6 +1117,28 @@ Then reload the file and reboot the server:
   # sysctl -p
   # reboot
 
+
+IP addresses in a cluster environment
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+DHCP and DNS services
+^^^^^^^^^^^^^^^^^^^^^
+
+In registration and isolation networks, each cluster member acts as a DHCP
+server.  DNS configuration sent through DHCP contains physical IP address of
+each cluster member unless you enabled the option 'pfdns on VIP only' in
+'System configuration -> Cluster'
+
+
+SNMP clients
+^^^^^^^^^^^^
+
+If you use SNMP in a cluster environment, you will need to allow physical IP
+addresses of **all** cluster members to query your network devices (switches,
+WiFi controllers, etc.)
+
+
+
 Performing an upgrade on a cluster
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
