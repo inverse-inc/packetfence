@@ -3879,7 +3879,7 @@ Active Directory configuration
 
 In order for PacketFence to be able to fetch the NTLM credentials from your Active Directory, it will need a user who has replication rights. The user to which you have to grant the rights, is the one that is configured in the authentication source that you associated in the 'NTLM cache' section of your domain.
 
-Please refer to the following Microsoft KB entry to configure the replication rights: https://support.microsoft.com/en-us/kb/303972
+Please refer to the following Microsoft KB entry to configure the replication rights (Replicating Directory Changes and Replicating Directory Changes All): https://support.microsoft.com/en-us/kb/303972
 
 SNMP Traps Limit
 ~~~~~~~~~~~~~~~~
