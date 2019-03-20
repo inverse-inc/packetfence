@@ -1,11 +1,10 @@
 <template>
   <b-dropdown ref="serviceButton"
-    :style="{ minWidth: btnWidth }"
     :text="service"
     :variant="buttonVariant"
     v-bind="$attrs"
     v-on="forwardListeners"
-    :disabled="serviceError"
+    :disabled="isError"
   >
     <template slot="button-content">
       <icon :name="buttonIcon.name" :spin="buttonIcon.spin" class="mr-1"></icon>
@@ -68,9 +67,7 @@ export default {
   },
   data () {
     return {
-      btnWidth: 0,
-      serviceStatus: {},
-      serviceError: false
+      serviceStatus: { pid: 0, alive: false, enabled: false, managed: false, status: 'loading' }
     }
   },
   computed: {
@@ -111,7 +108,7 @@ export default {
       return ('alive' in this.serviceStatus && this.serviceStatus.alive)
     },
     isError () {
-      return (this.serviceError || ('status' in this.serviceStatus && this.serviceStatus.status === 'error'))
+      return ('status' in this.serviceStatus && this.serviceStatus.status === 'error')
     },
     forwardListeners () {
       const { input, ...listeners } = this.$listeners
@@ -176,7 +173,6 @@ export default {
       this.$store.dispatch('$_services/getService', this.service).then(response => {
         this.$set(this, 'serviceStatus', response)
       }).catch(() => {
-        this.serviceError = true
         this.$set(this.serviceStatus, 'status', 'error')
       })
     },
@@ -224,15 +220,6 @@ export default {
   },
   created () {
     this.status()
-  },
-  watch: {
-    isLoading: {
-      handler: function (newValue) {
-        if (newValue) {
-          this.btnWidth = (this.$refs.serviceButton.clientWidth + 2) + 'px'
-        }
-      }
-    }
   }
 }
 </script>
