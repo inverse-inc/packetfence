@@ -1,0 +1,33 @@
+= Admin Guide
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+
+// to display images directly on GitHub
+ifdef::env-github[]
+:imagesdir: images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Network_Devices_Configuration_Guide-docinfo.xml for 
+    authors, copyright and license information.
+
+////
+
+include::includes/global-attributes.asciidoc[]
+
+== About this Guide
+
+This guide covers the administration of PacketFence servers.
+
+
+
+include::includes/additional-info.asciidoc[]
+
+include::includes/commercial-support.asciidoc[]
+
+include::includes/license.asciidoc[]
