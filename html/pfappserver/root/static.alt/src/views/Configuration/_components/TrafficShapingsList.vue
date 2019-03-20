@@ -15,7 +15,7 @@
     </template>
     <template slot="buttons" slot-scope="item">
       <span class="float-right text-nowrap">
-        <pf-button-delete  v-if="!item.not_deletable" size="sm" variant="outline-danger" :disabled="isLoading" :confirm="$t('Delete Traffic Shaping Policy?')" @on-delete="remove(item)" reverse/>
+        <pf-button-delete size="sm" v-if="!item.not_deletable" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete Traffic Shaping Policy?')" @on-delete="remove(item)" reverse/>
       </span>
     </template>
   </pf-config-list>

@@ -8,8 +8,10 @@ import CertificatesStore from '../_store/certificates'
 import ConnectionProfilesStore from '../_store/connectionProfiles'
 import DeviceRegistrationsStore from '../_store/deviceRegistrations'
 import DomainsStore from '../_store/domains'
+import FiltersStore from '../_store/filters'
 import FirewallsStore from '../_store/firewalls'
 import FloatingDevicesStore from '../_store/floatingDevices'
+import MaintenanceTasksStore from '../_store/maintenanceTasks'
 import PkiProvidersStore from '../_store/pkiProviders'
 import PortalModulesStore from '../_store/portalModules'
 import ProfilingStore from '../_store/profiling'
@@ -17,6 +19,8 @@ import ProvisioningsStore from '../_store/provisionings'
 import RealmsStore from '../_store/realms'
 import RolesStore from '../_store/roles'
 import ScansStore from '../_store/scans'
+import SecurityEventsStore from '../_store/securityEvents'
+import ServicesStore from '../_store/services'
 import SyslogForwardersStore from '../_store/syslogForwarders'
 import SyslogParsersStore from '../_store/syslogParsers'
 import SwitchesStore from '../_store/switches'
@@ -46,6 +50,8 @@ const ProfilingTabs = () => import(/* webpackChunkName: "Configuration" */ '../_
 const ProfilingCombinationView = () => import(/* webpackChunkName: "Configuration" */ '../_components/ProfilingCombinationView')
 const ScansTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/ScansTabs')
 const ScansScanEngineView = () => import(/* webpackChunkName: "Configuration" */ '../_components/ScansScanEngineView')
+const SecurityEventsList = () => import(/* webpackChunkName: "Configuration" */ '../_components/SecurityEventsList')
+const SecurityEventView = () => import(/* webpackChunkName: "Configuration" */ '../_components/SecurityEventView')
 
 /* Integration */
 const IntegrationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/IntegrationSection')
@@ -62,6 +68,8 @@ const WrixLocationView = () => import(/* webpackChunkName: "Configuration" */ '.
 
 /* Advanced Access Configuration */
 const CaptivePortalView = () => import(/* webpackChunkName: "Configuration" */ '../_components/CaptivePortalView')
+const FilterEngineTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/FilterEngineTabs')
+const FilterEngineView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FilterEngineView')
 const BillingTiersList = () => import(/* webpackChunkName: "Configuration" */ '../_components/BillingTiersList')
 const BillingTierView = () => import(/* webpackChunkName: "Configuration" */ '../_components/BillingTierView')
 const PkiProvidersList = () => import(/* webpackChunkName: "Configuration" */ '../_components/PkiProvidersList')
@@ -86,6 +94,7 @@ const CertificatesView = () => import(/* webpackChunkName: "Configuration" */ '.
 
 /* Main Configuration */
 const MainTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/MainTabs')
+const MaintenanceTaskView = () => import(/* webpackChunkName: "Configuration" */ '../_components/MaintenanceTaskView')
 const DatabaseTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/DatabaseTabs')
 const ActiveActiveView = () => import(/* webpackChunkName: "Configuration" */ '../_components/ActiveActiveView')
 const RadiusView = () => import(/* webpackChunkName: "Configuration" */ '../_components/RadiusView')
@@ -125,11 +134,17 @@ const route = {
     if (!store.state.$_device_registrations) {
       store.registerModule('$_device_registrations', DeviceRegistrationsStore)
     }
+    if (!store.state.$_filters) {
+      store.registerModule('$_filters', FiltersStore)
+    }
     if (!store.state.$_firewalls) {
       store.registerModule('$_firewalls', FirewallsStore)
     }
     if (!store.state.$_floatingdevices) {
       store.registerModule('$_floatingdevices', FloatingDevicesStore)
+    }
+    if (!store.state.$_maintenance_tasks) {
+      store.registerModule('$_maintenance_tasks', MaintenanceTasksStore)
     }
     if (!store.state.$_pki_providers) {
       store.registerModule('$_pki_providers', PkiProvidersStore)
@@ -151,6 +166,12 @@ const route = {
     }
     if (!store.state.$_scans) {
       store.registerModule('$_scans', ScansStore)
+    }
+    if (!store.state.$_security_events) {
+      store.registerModule('$_security_events', SecurityEventsStore)
+    }
+    if (!store.state.$_services) {
+      store.registerModule('$_services', ServicesStore)
     }
     if (!store.state.$_sources) {
       store.registerModule('$_sources', AuthenticationSourcesStore)
@@ -587,6 +608,40 @@ const route = {
       component: ScansTabs,
       props: (route) => ({ tab: 'wmi_rules', query: route.query.query })
     },
+    {
+      path: 'security_events',
+      name: 'security_events',
+      component: SecurityEventsList,
+      props: (route) => ({ query: route.query.query })
+    },
+    {
+      path: 'security_events/new',
+      name: 'newSecurityEvent',
+      component: SecurityEventView,
+      props: (route) => ({ storeName: '$_security_events', isNew: true })
+    },
+    {
+      path: 'security_event/:id',
+      name: 'security_event',
+      component: SecurityEventView,
+      props: (route) => ({ storeName: '$_security_events', id: route.params.id }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_security_events/getSecurityEvent', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'security_event/:id/clone',
+      name: 'cloneSecurityEvent',
+      component: SecurityEventView,
+      props: (route) => ({ storeName: '$_security_events', id: route.params.id, isClone: true }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_security_events/getSecurityEvent', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
     /**
      * Integration
      */
@@ -750,6 +805,12 @@ const route = {
       name: 'captive_portal',
       component: CaptivePortalView,
       props: (route) => ({ storeName: '$_bases', query: route.query.query })
+    },
+    {
+      path: 'filters',
+      name: 'filters',
+      component: FilterEngineTabs,
+      props: (route) => ({ storeName: '$_filters', query: route.query.query })
     },
     {
       path: 'billing_tiers',
@@ -1098,10 +1159,21 @@ const route = {
       props: (route) => ({ tab: 'advanced', query: route.query.query })
     },
     {
-      path: 'maintenance',
-      name: 'maintenance',
+      path: 'maintenance_tasks',
+      name: 'maintenance_tasks',
       component: MainTabs,
-      props: (route) => ({ tab: 'maintenance', query: route.query.query })
+      props: (route) => ({ tab: 'maintenance_tasks', query: route.query.query })
+    },
+    {
+      path: 'maintenance_task/:id',
+      name: 'maintenance_task',
+      component: MaintenanceTaskView,
+      props: (route) => ({ storeName: '$_maintenance_tasks', id: route.params.id }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_maintenance_tasks/getMaintenanceTask', to.params.id).then(object => {
+          next()
+        })
+      }
     },
     {
       path: 'services',

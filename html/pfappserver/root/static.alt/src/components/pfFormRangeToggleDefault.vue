@@ -2,7 +2,7 @@
   <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="$t(columnLabel)"
     :state="isValid()" :invalid-feedback="getInvalidFeedback()"
     class="pf-form-range-toggle-default" :class="{ 'is-focus': focus, 'mb-0': !columnLabel }">
-    <b-input type="text" ref="vacuum" readonly :value="null"
+    <b-input type="text" ref="vacuum" readonly :value="null" :disabled="disabled"
       style="overflow: hidden; width: 0px; height: 0px; margin: 0px; padding: 0px; border: 0px;"
       @focus.native="focus = true"
       @blur.native="focus = false"
@@ -24,6 +24,7 @@
           :tooltip="Object.keys(tooltips).length > 0"
           :tooltipFunction="tooltip"
           :width="width"
+          :disabled="disabled"
           class="mr-2"
           tabIndex="-1"
           @click="click"

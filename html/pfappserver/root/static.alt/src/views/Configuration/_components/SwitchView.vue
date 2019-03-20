@@ -1,6 +1,7 @@
 <template>
   <pf-config-view
     :isLoading="isLoading"
+    :disabled="isLoading"
     :form="getForm"
     :model="form"
     :vuelidate="$v.form"
@@ -127,16 +128,16 @@ export default {
       if (this.id) {
         // existing
         this.$store.dispatch(`${this.storeName}/optionsById`, this.id).then(options => {
-          this.options = Object.assign({}, options) // store options
+          this.options = JSON.parse(JSON.stringify(options)) // store options
           this.$store.dispatch(`${this.storeName}/getSwitch`, this.id).then(form => {
-            this.form = Object.assign({}, form) // set form
+            this.form = JSON.parse(JSON.stringify(form)) // set form
             this.switchGroup = form.group
           })
         })
       } else {
         // new
         this.$store.dispatch(`${this.storeName}/optionsBySwitchGroup`, this.switchGroup).then(options => {
-          this.options = Object.assign({}, options) // store options
+          this.options = JSON.parse(JSON.stringify(options)) // store options
           this.form = defaults(options.meta) // set defaults
           this.form.group = this.switchGroup
         })

@@ -291,6 +291,14 @@ export const hasFloatingDevices = (value, component) => {
   })
 }
 
+export const hasMaintenanceTasks = (value, component) => {
+  return store.dispatch('config/getMaintenanceTasks').then((response) => {
+    return (response.length > 0)
+  }).catch(() => {
+    return true
+  })
+}
+
 export const hasPkiProviders = (value, component) => {
   return store.dispatch('config/getPkiProviders').then((response) => {
     return (response.length > 0)
@@ -325,6 +333,14 @@ export const hasRoles = (value, component) => {
 
 export const hasScans = (value, component) => {
   return store.dispatch('config/getScans').then((response) => {
+    return (response.length > 0)
+  }).catch(() => {
+    return true
+  })
+}
+
+export const hasSecurityEvents = (value, component) => {
+  return store.dispatch('config/getSecurityEvents').then((response) => {
     return (response.length > 0)
   }).catch(() => {
     return true
@@ -484,6 +500,16 @@ export const nodeExists = (value, component) => {
   })
 }
 
+export const maintenanceTaskExists = (value, component) => {
+  if (!value) return true
+  return store.dispatch('config/getMaintenanceTasks').then((response) => {
+    if (response.length === 0) return true
+    return (response.filter(maintenance_task => maintenance_task.id.toLowerCase() === value.toLowerCase()).length > 0)
+  }).catch(() => {
+    return true
+  })
+}
+
 export const pkiProviderExists = (value, component) => {
   if (!value) return true
   return store.dispatch('config/getPkiProviders').then((response) => {
@@ -529,6 +555,16 @@ export const scanExists = (value, component) => {
   return store.dispatch('config/getScans').then((response) => {
     if (response.length === 0) return true
     return (response.filter(scan => scan.id.toLowerCase() === value.toLowerCase()).length > 0)
+  }).catch(() => {
+    return true
+  })
+}
+
+export const securityEventExists = (value, component) => {
+  if (!value) return true
+  return store.dispatch('config/getSecurityEvents').then((response) => {
+    if (response.length === 0) return true
+    return (response.filter(security_event => security_event.id.toLowerCase() === value.toLowerCase()).length > 0)
   }).catch(() => {
     return true
   })

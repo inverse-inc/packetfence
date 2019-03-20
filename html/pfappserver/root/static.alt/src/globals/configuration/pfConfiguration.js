@@ -650,9 +650,21 @@ export const pfConfigurationListColumns = {
     sortable: true,
     visible: true
   },
+  desc: {
+    key: 'desc',
+    label: i18n.t('Description'),
+    sortable: true,
+    visible: true
+  },
   description: {
     key: 'description',
     label: i18n.t('Description'),
+    sortable: true,
+    visible: true
+  },
+  enabled: {
+    key: 'enabled',
+    label: i18n.t('Status'),
     sortable: true,
     visible: true
   },
@@ -668,6 +680,12 @@ export const pfConfigurationListColumns = {
   id: {
     key: 'id',
     label: null, // multiple occurances w/ different strings, nullify for overload
+    sortable: true,
+    visible: true
+  },
+  interval: {
+    key: 'interval',
+    label: i18n.t('Interval'),
     sortable: true,
     visible: true
   },
@@ -745,7 +763,7 @@ export const pfConfigurationListColumns = {
   },
   taggedVlan: {
     key: 'taggedVlan',
-    label: i18n.t('Tagged VLAN\'s'),
+    label: i18n.t(`Tagged VLAN's`),
     sortable: false,
     visible: true
   },
@@ -759,6 +777,12 @@ export const pfConfigurationListColumns = {
     key: 'type',
     label: i18n.t('Type'),
     sortable: true,
+    visible: true
+  },
+  vlan: {
+    key: 'vlan',
+    label: i18n.t('Target Category'),
+    sortable: false,
     visible: true
   },
   workgroup: {
@@ -786,6 +810,11 @@ export const pfConfigurationListFields = {
   class: {
     value: 'class',
     text: i18n.t('Class'),
+    types: [conditionType.SUBSTRING]
+  },
+  desc: {
+    value: 'desc',
+    text: i18n.t('Description'),
     types: [conditionType.SUBSTRING]
   },
   description: {

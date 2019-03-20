@@ -1,6 +1,6 @@
 <template>
   <b-form @submit.prevent="(isNew || isClone) ? create($event) : save($event)" class="pf-config-view">
-    <b-card no-body>
+    <b-card no-body >
       <slot name="header">
         <b-card-header>
           <b-button-close @click="close" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
@@ -36,6 +36,7 @@
                   :vuelidate="getVuelidateModel(field.key)"
                   :class="getClass(row, field)"
                   :value="getValue(field.key)"
+                  :disabled="field.disabled || disabled"
                   @input="setValue(field.key, $event)"
                   @validations="setComponentValidations(field.key, $event)"
                 ></component>
@@ -99,6 +100,10 @@ export default {
     initialTabIndex: {
       type: Number,
       default: 0
+    },
+    disabled: {
+      type: Boolean,
+      default: false
     }
   },
   data () {

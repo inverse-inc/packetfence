@@ -82,7 +82,7 @@ export default {
   created () {
     if (this.id) {
       this.$store.dispatch('$_profiling/getDeviceChangeDetection', this.id).then(data => {
-        this.form = Object.assign({}, data)
+        this.form = JSON.parse(JSON.stringify(data))
         // TODO - notification
       })
     }

@@ -13,8 +13,8 @@
       <b-tab :title="$t('Advanced')" @click="changeTab('advanced')">
         <advanced-view />
       </b-tab>
-      <b-tab :title="$t('Maintenance')" @click="changeTab('maintenance')">
-        <maintenance-view />
+      <b-tab :title="$t('Maintenance')" @click="changeTab('maintenance_tasks')">
+        <maintenance-tasks-list />
       </b-tab>
       <b-tab :title="$t('Services')" @click="changeTab('services')">
         <services-view />
@@ -27,7 +27,7 @@
 import GeneralView from './GeneralView'
 import AlertingView from './AlertingView'
 import AdvancedView from './AdvancedView'
-import MaintenanceView from './MaintenanceView'
+import MaintenanceTasksList from './MaintenanceTasksList'
 import ServicesView from './ServicesView'
 
 export default {
@@ -36,7 +36,7 @@ export default {
     GeneralView,
     AlertingView,
     AdvancedView,
-    MaintenanceView,
+    MaintenanceTasksList,
     ServicesView
   },
   props: {
@@ -47,7 +47,7 @@ export default {
   },
   computed: {
     tabIndex () {
-      return ['general', 'alerting', 'advanced', 'maintenance', 'services'].indexOf(this.tab)
+      return ['general', 'alerting', 'advanced', 'maintenance_tasks', 'services'].indexOf(this.tab)
     }
   },
   methods: {

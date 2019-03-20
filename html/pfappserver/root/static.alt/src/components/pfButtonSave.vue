@@ -1,5 +1,5 @@
 <template>
-  <b-button :style="{ minWidth: btnWidth }" ref="saveButton" :variant="variant" type="submit" v-bind="$attrs">
+  <b-button :style="{ minWidth: btnWidth }" ref="saveButton" :variant="variant" type="submit" v-bind="$attrs" v-on="forwardListeners">
     <icon name="circle-notch" spin v-if="isLoading"></icon>
     <template v-else>
       <slot>{{ $t('Save') }}</slot>
@@ -23,6 +23,12 @@ export default {
   data () {
     return {
       btnWidth: 0
+    }
+  },
+  computed: {
+    forwardListeners () {
+      const { input, ...listeners } = this.$listeners
+      return listeners
     }
   },
   watch: {

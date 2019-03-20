@@ -105,11 +105,8 @@ export default {
     },
     tableValues: {
       type: Array,
-      default: () => []
+      default: () => { return [] }
     }
-  },
-  data () {
-    return {}
   },
   computed: {
     fields () {

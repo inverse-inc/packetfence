@@ -1,13 +1,11 @@
 <template>
   <pf-config-view
-    :is-loading="isLoading"
+    :isLoading="isLoading"
     :disabled="isLoading"
     :form="getForm"
     :model="form"
     :vuelidate="$v.form"
     :isNew="isNew"
-    :isClone="isClone"
-    :initialTabIndex="tabIndex"
     @validations="formValidations = $event"
     @close="close"
     @create="create"
@@ -17,9 +15,8 @@
     <template slot="header" is="b-card-header">
       <b-button-close @click="close" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
       <h4 class="mb-0">
-        <span v-if="!isNew && !isClone">{{ $t('Connection Profile {id}', { id: id }) }}</span>
-        <span v-else-if="isClone">{{ $t('Clone Connection Profile {id}', { id: id }) }}</span>
-        <span v-else>{{ $t('New Connection Profile') }}</span>
+        <span v-if="!isNew">{{ $t('Maintenance Task {id}', { id: id }) }}</span>
+        <span v-else>{{ $t('New Maintenance Task') }}</span>
       </h4>
     </template>
     <template slot="footer"
@@ -28,11 +25,10 @@
       <b-card-footer @mouseenter="$v.form.$touch()">
         <pf-button-save :disabled="invalidForm" :isLoading="isLoading">
           <template v-if="isNew">{{ $t('Create') }}</template>
-          <template v-else-if="isClone">{{ $t('Clone') }}</template>
           <template v-else-if="ctrlKey">{{ $t('Save & Close') }}</template>
           <template v-else>{{ $t('Save') }}</template>
         </pf-button-save>
-        <pf-button-delete v-if="isDeletable" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Connection Profile?')" @on-delete="remove()"/>
+        <pf-button-delete v-if="isDeletable" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Maintenance Task?')" @on-delete="remove()"/>
         <b-button :disabled="isLoading" class="ml-1" variant="outline-primary" @click="init()">{{ $t('Reset') }}</b-button>
       </b-card-footer>
     </template>
@@ -49,12 +45,12 @@ import {
   pfConfigurationDefaultsFromMeta as defaults
 } from '@/globals/configuration/pfConfiguration'
 import {
-  pfConfigurationConnectionProfileViewFields as fields
-} from '@/globals/configuration/pfConfigurationConnectionProfiles'
+  pfConfigurationMaintenanceTaskViewFields as fields
+} from '@/globals/configuration/pfConfigurationMaintenanceTasks'
 const { validationMixin } = require('vuelidate')
 
 export default {
-  name: 'ConnectionProfileView',
+  name: 'MaintenanceTaskView',
   mixins: [
     validationMixin,
     pfMixinCtrlKey,
@@ -75,25 +71,15 @@ export default {
       type: Boolean,
       default: false
     },
-    isClone: { // from router
-      type: Boolean,
-      default: false
-    },
     id: { // from router
       type: String,
       default: null
-    },
-    tabIndex: { // from router
-      type: Number,
-      default: 0
     }
   },
   data () {
     return {
       form: {}, // will be overloaded with the data from the store
       formValidations: {}, // will be overloaded with data from the pfConfigView
-      general: {},
-      files: [],
       options: {}
     }
   },
@@ -115,43 +101,21 @@ export default {
         fields: fields(this)
       }
     },
-    roles () {
-      return this.$store.getters['config/rolesList']
-    },
     isDeletable () {
-      if (this.isNew || this.isClone || ('not_deletable' in this.form && this.form.not_deletable)) {
+      if (this.isNew || ('not_deletable' in this.form && this.form.not_deletable)) {
         return false
       }
       return true
-    },
-    keyLabelMap () {
-      let keyLabelMap = {}
-      this.getForm.fields.forEach(tab => {
-        tab.fields.forEach(row => {
-          row.fields.forEach(col => {
-            if ('key' in col) keyLabelMap[col.key] = row.label
-          })
-        })
-      })
-      return keyLabelMap
     }
   },
   methods: {
     init () {
-      this.$store.dispatch('$_bases/getGeneral').then(data => {
-        this.general = data
-      })
-      if (this.id) {
-        this.$store.dispatch(`${this.storeName}/files`, { id: this.id, sort: ['type', 'name'] }).then(data => {
-          this.files = data.entries
-        })
-      }
       this.$store.dispatch(`${this.storeName}/options`, this.id).then(options => {
         // store options
         this.options = JSON.parse(JSON.stringify(options))
         if (this.id) {
           // existing
-          this.$store.dispatch(`${this.storeName}/getConnectionProfile`, this.id).then(form => {
+          this.$store.dispatch(`${this.storeName}/getMaintenanceTask`, this.id).then(form => {
             this.form = JSON.parse(JSON.stringify(form))
           })
         } else {
@@ -161,58 +125,30 @@ export default {
       })
     },
     close () {
-      this.$router.push({ name: 'connection_profiles' })
+      this.$router.push({ name: 'maintenance_tasks' })
     },
     create () {
       const ctrlKey = this.ctrlKey
-      this.$store.dispatch(`${this.storeName}/createConnectionProfile`, this.form).then(response => {
+      this.$store.dispatch(`${this.storeName}/createMaintenanceTask`, this.form).then(response => {
         if (ctrlKey) { // [CTRL] key pressed
           this.close()
         } else {
-          this.$router.push({ name: 'connection_profile', params: { id: this.form.id } })
+          this.$router.push({ name: 'maintenance_task', params: { id: this.form.id } })
         }
-      }).catch(this.notifyError)
+      })
     },
     save () {
       const ctrlKey = this.ctrlKey
-      this.$store.dispatch(`${this.storeName}/updateConnectionProfile`, this.form).then(response => {
+      this.$store.dispatch(`${this.storeName}/updateMaintenanceTask`, this.form).then(response => {
         if (ctrlKey) { // [CTRL] key pressed
           this.close()
         }
-      }).catch(this.notifyError)
+      })
     },
     remove () {
-      this.$store.dispatch(`${this.storeName}/deleteConnectionProfile`, this.id).then(response => {
+      this.$store.dispatch(`${this.storeName}/deleteMaintenanceTask`, this.id).then(response => {
         this.close()
-      }).catch(this.notifyError)
-    },
-    notifyError (err) {
-      const { response: { data: { errors = [] } } } = err
-      errors.forEach((error) => {
-        if (error.field in this.keyLabelMap) {
-          error.field = this.$i18n.t(this.keyLabelMap[error.field])
-        }
-        let message = this.$i18n.t('Server Error - "{field}": {message}', error)
-        this.$store.dispatch('notification/danger', { icon: 'server', url: `#${this.$route.fullPath}`, message: message })
       })
-    },
-    sortFiles (params) {
-      let sort = [
-        'type',
-        params.sortDesc ? `${params.sortBy} DESC` : params.sortBy
-      ]
-      if (params.sortBy !== 'name') sort.push('name')
-      this.$store.dispatch(`${this.storeName}/files`, { id: this.id, sort }).then(data => {
-        this.files = data.entries
-      })
-    },
-    createDirectory (items, path, name) {
-      if (name) {
-        items.push({ type: 'dir', name, size: 0, mtime: 0, path, entries: [] })
-      }
-    },
-    deleteDirectory (path) {
-      this.$store.dispatch(`${this.storeName}/deleteFile`, { id: this.id, filename: path })
     }
   },
   created () {

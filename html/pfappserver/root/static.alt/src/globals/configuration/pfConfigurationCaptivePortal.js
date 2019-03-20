@@ -224,7 +224,7 @@ export const pfConfigurationCaptivePortalViewFields = (context = {}) => {
         },
         {
           label: i18n.t('Rate limiting threshold'),
-          text: i18n.t('Amount of requests on invalid URLs after which the rate limiting will kick in for this device.Requires to restart haproxy-portal in order to apply the change.'),
+          text: i18n.t('Amount of requests on invalid URLs after which the rate limiting will kick in for this device. Requires to restart haproxy-portal in order to apply the change.'),
           fields: [
             {
               key: 'rate_limiting_threshold',

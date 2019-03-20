@@ -96,6 +96,9 @@ const api = {
   getFloatingDevices () {
     return apiCall({ url: 'config/floating_devices', method: 'get' })
   },
+  getMaintenanceTasks () {
+    return apiCall({ url: 'config/maintenance_tasks', method: 'get' })
+  },
   getPkiProviders () {
     return apiCall({ url: 'config/pki_providers', method: 'get' })
   },
@@ -110,6 +113,9 @@ const api = {
   },
   getScans () {
     return apiCall({ url: 'config/scans', method: 'get' })
+  },
+  getSecurityEvents () {
+    return apiCall({ url: 'config/security_events', method: 'get' })
   },
   getSources () {
     return apiCall({ url: 'config/sources', method: 'get' })
@@ -208,6 +214,8 @@ const state = { // set intitial states to `false` (not `[]` or `{}`) to avoid in
   firewalls: false,
   floatingDevicesStatus: '',
   floatingDevices: false,
+  maintenanceTasksStatus: '',
+  maintenanceTasks: false,
   pkiProvidersStatus: '',
   pkiProviders: false,
   provisioningsStatus: '',
@@ -218,6 +226,8 @@ const state = { // set intitial states to `false` (not `[]` or `{}`) to avoid in
   roles: false,
   scansStatus: '',
   scans: false,
+  securityEventsStatus: '',
+  securityEvents: false,
   sourcesStatus: '',
   sources: false,
   switchesStatus: '',
@@ -361,6 +371,9 @@ const getters = {
   },
   isLoadingFloatingDevices: state => {
     return state.floatingDevicesStatus === types.LOADING
+  },
+  isLoadingMaintenanceTasks: state => {
+    return state.maintenanceTasksStatus === types.LOADING
   },
   isLoadingPkiProviders: state => {
     return state.pkiProvidersStatus === types.LOADING
@@ -942,6 +955,20 @@ const actions = {
       return Promise.resolve(state.floatingDevices)
     }
   },
+  getMaintenanceTasks: ({ state, getters, commit }) => {
+    if (getters.isLoadingMaintenanceTasks) {
+      return
+    }
+    if (!state.maintenanceTasks) {
+      commit('MAINTENANCE_TASKS_REQUEST')
+      return api.getMaintenanceTasks().then(response => {
+        commit('MAINTENANCE_TASKS_UPDATED', response.data.items)
+        return state.maintenanceTasks
+      })
+    } else {
+      return Promise.resolve(state.maintenanceTasks)
+    }
+  },
   getPkiProviders: ({ state, getters, commit }) => {
     if (getters.isLoadingPkiProviders) {
       return
@@ -1354,6 +1381,13 @@ const mutations = {
   FLOATING_DEVICES_UPDATED: (state, floatingDevices) => {
     state.floatingDevices = floatingDevices
     state.floatingDevicesStatus = types.SUCCESS
+  },
+  MAINTENANCE_TASKS_REQUEST: (state) => {
+    state.maintenanceTasksStatus = types.LOADING
+  },
+  MAINTENANCE_TASKS_UPDATED: (state, maintenanceTasks) => {
+    state.maintenanceTasks = maintenanceTasks
+    state.maintenanceTasksStatus = types.SUCCESS
   },
   PKI_PROVIDERS_REQUEST: (state) => {
     state.pkiProvidersStatus = types.LOADING

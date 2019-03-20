@@ -66,7 +66,8 @@ export default {
                 { name: this.$i18n.t('Scan Engines'), path: '/configuration/scans/scan_engines' },
                 { name: this.$i18n.t('WMI Rules'), path: '/configuration/scans/wmi_rules' }
               ]
-            }
+            },
+            { name: this.$i18n.t('Security Events'), path: '/configuration/security_events' }
           ]
         },
         {
@@ -88,6 +89,7 @@ export default {
           collapsable: true,
           items: [
             { name: this.$i18n.t('Captive Portal'), path: '/configuration/captive_portal' },
+            { name: this.$i18n.t('Filter Engines'), path: '/configuration/filters' },
             { name: this.$i18n.t('Billing Tiers'), path: '/configuration/billing_tiers' },
             { name: this.$i18n.t('PKI Providers'), path: '/configuration/pki_providers' },
             { name: this.$i18n.t('Provisioners'), path: '/configuration/provisionings' },
@@ -126,7 +128,7 @@ export default {
                 { name: this.$i18n.t('General Configuration'), path: '/configuration/general' },
                 { name: this.$i18n.t('Alerting'), path: '/configuration/alerting' },
                 { name: this.$i18n.t('Advanced'), path: '/configuration/advanced' },
-                { name: this.$i18n.t('Maintenance'), path: '/configuration/maintenance' },
+                { name: this.$i18n.t('Maintenance'), path: '/configuration/maintenance_tasks' },
                 { name: this.$i18n.t('Services'), path: '/configuration/services' }
               ]
             },
