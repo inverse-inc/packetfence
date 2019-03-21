@@ -2,7 +2,8 @@
   <div>
     <pf-progress :active="isLoading"></pf-progress>
     <slot name="pageHeader"></slot>
-    <pf-search :quick-with-fields="false" :quick-placeholder="$t(config.searchPlaceholder)"
+    <pf-search ref="pfSearch"
+      :quick-with-fields="false" :quick-placeholder="$t(config.searchPlaceholder)"
       :fields="fields" :store="$store" :advanced-mode="false" :condition="condition"
       @submit-search="onSearch" @reset-search="onReset"></pf-search>
     <div class="card-body">
@@ -125,6 +126,9 @@ export default {
   methods: {
     onRowClick (item, index) {
       this.$router.push(this.config.rowClickRoute(item, index))
+    },
+    submitSearch () {
+      this.$refs.pfSearch.onSubmit()
     }
   }
 }
