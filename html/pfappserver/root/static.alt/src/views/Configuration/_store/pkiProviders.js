@@ -33,14 +33,24 @@ const actions = {
       return response.items
     })
   },
-  optionsById: ({}, id) => {
+  optionsById: ({ commit }, id) => {
+    commit('ITEM_REQUEST')
     return api.pkiProviderOptions(id).then(response => {
+      commit('ITEM_SUCCESS')
       return response
+    }).catch((err) => {
+      commit('ITEM_ERROR', err.response)
+      throw err
     })
   },
-  optionsByProviderType: ({}, providerType) => {
+  optionsByProviderType: ({ commit }, providerType) => {
+    commit('ITEM_REQUEST')
     return api.pkiProvidersOptions(providerType).then(response => {
+      commit('ITEM_SUCCESS')
       return response
+    }).catch((err) => {
+      commit('ITEM_ERROR', err.response)
+      throw err
     })
   },
   getPkiProvidersByType: ({ state, commit }, type) => {
@@ -116,6 +126,9 @@ const mutations = {
     if (response && response.data) {
       state.message = response.data.message
     }
+  },
+  ITEM_SUCCESS: (state) => {
+    state.itemStatus = types.SUCCESS
   }
 }
 

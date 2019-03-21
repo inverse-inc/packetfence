@@ -33,14 +33,24 @@ const actions = {
       return response.items
     })
   },
-  optionsById: ({}, id) => {
+  optionsById: ({ commit }, id) => {
+    commit('ITEM_REQUEST')
     return api.syslogForwarderOptions(id).then(response => {
+      commit('ITEM_SUCCESS')
       return response
+    }).catch((err) => {
+      commit('ITEM_ERROR', err.response)
+      throw err
     })
   },
-  optionsBySyslogForwarderType: ({}, syslogForwarderType) => {
+  optionsBySyslogForwarderType: ({ commit }, syslogForwarderType) => {
+    commit('ITEM_REQUEST')
     return api.syslogForwardersOptions(syslogForwarderType).then(response => {
+      commit('ITEM_SUCCESS')
       return response
+    }).catch((err) => {
+      commit('ITEM_ERROR', err.response)
+      throw err
     })
   },
   getSyslogForwarder: ({ state, commit }, id) => {
@@ -106,6 +116,9 @@ const mutations = {
     if (response && response.data) {
       state.message = response.data.message
     }
+  },
+  ITEM_SUCCESS: (state) => {
+    state.itemStatus = types.SUCCESS
   }
 }
 

@@ -33,14 +33,24 @@ const actions = {
       return response.items
     })
   },
-  optionsById: (context, id) => {
+  optionsById: ({ commit }, id) => {
+    commit('ITEM_REQUEST')
     return api.switchOptions(id).then(response => {
+      commit('ITEM_SUCCESS')
       return response
+    }).catch((err) => {
+      commit('ITEM_ERROR', err.response)
+      throw err
     })
   },
-  optionsBySwitchGroup: (context, switchGroup) => {
+  optionsBySwitchGroup: ({ commit }, switchGroup) => {
+    commit('ITEM_REQUEST')
     return api.switchesOptions(switchGroup).then(response => {
+      commit('ITEM_SUCCESS')
       return response
+    }).catch((err) => {
+      commit('ITEM_ERROR', err.response)
+      throw err
     })
   },
   getSwitch: ({ state, commit }, id) => {

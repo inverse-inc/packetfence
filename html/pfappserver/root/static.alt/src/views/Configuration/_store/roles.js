@@ -33,14 +33,23 @@ const actions = {
       return response.items
     })
   },
-  options: (context, id) => {
+  options: ({ commit }, id) => {
+    commit('ITEM_REQUEST')
     if (id) {
       return api.roleOptions(id).then(response => {
+        commit('ITEM_SUCCESS')
         return response
+      }).catch((err) => {
+        commit('ITEM_ERROR', err.response)
+        throw err
       })
     } else {
       return api.rolesOptions().then(response => {
+        commit('ITEM_SUCCESS')
         return response
+      }).catch((err) => {
+        commit('ITEM_ERROR', err.response)
+        throw err
       })
     }
   },
@@ -107,6 +116,9 @@ const mutations = {
     if (response && response.data) {
       state.message = response.data.message
     }
+  },
+  ITEM_SUCCESS: (state) => {
+    state.itemStatus = types.SUCCESS
   }
 }
 

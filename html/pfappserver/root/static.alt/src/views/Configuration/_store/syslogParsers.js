@@ -34,14 +34,24 @@ const actions = {
       return response.items
     })
   },
-  optionsById: ({}, id) => {
+  optionsById: ({ commit }, id) => {
+    commit('ITEM_REQUEST')
     return api.syslogParserOptions(id).then(response => {
+      commit('ITEM_SUCCESS')
       return response
+    }).catch((err) => {
+      commit('ITEM_ERROR', err.response)
+      throw err
     })
   },
-  optionsBySyslogParserType: ({}, syslogParserType) => {
+  optionsBySyslogParserType: ({ commit }, syslogParserType) => {
+    commit('ITEM_REQUEST')
     return api.syslogParsersOptions(syslogParserType).then(response => {
+      commit('ITEM_SUCCESS')
       return response
+    }).catch((err) => {
+      commit('ITEM_ERROR', err.response)
+      throw err
     })
   },
   getSyslogParser: ({ state, commit }, id) => {

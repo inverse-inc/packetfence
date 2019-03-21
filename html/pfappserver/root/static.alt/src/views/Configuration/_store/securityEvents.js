@@ -1,5 +1,5 @@
 /**
-* "$_admin_roles" store module
+* "$_security_events" store module
 */
 import Vue from 'vue'
 import api from '../_api'
@@ -29,14 +29,14 @@ const actions = {
       sort: 'id',
       fields: ['id'].join(',')
     }
-    return api.adminRoles(params).then(response => {
+    return api.securityEvents(params).then(response => {
       return response.items
     })
   },
   options: ({ commit }, id) => {
     commit('ITEM_REQUEST')
     if (id) {
-      return api.adminRoleOptions(id).then(response => {
+      return api.securityEventOptions(id).then(response => {
         commit('ITEM_SUCCESS')
         return response
       }).catch((err) => {
@@ -44,7 +44,7 @@ const actions = {
         throw err
       })
     } else {
-      return api.adminRolesOptions().then(response => {
+      return api.securityEventsOptions().then(response => {
         commit('ITEM_SUCCESS')
         return response
       }).catch((err) => {
@@ -53,12 +53,12 @@ const actions = {
       })
     }
   },
-  getAdminRole: ({ state, commit }, id) => {
+  getSecurityEvent: ({ state, commit }, id) => {
     if (state.cache[id]) {
       return Promise.resolve(state.cache[id])
     }
     commit('ITEM_REQUEST')
-    return api.adminRole(id).then(item => {
+    return api.securityEvent(id).then(item => {
       commit('ITEM_REPLACED', item)
       return item
     }).catch((err) => {
@@ -66,9 +66,9 @@ const actions = {
       throw err
     })
   },
-  createAdminRole: ({ commit }, data) => {
+  createSecurityEvent: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.createAdminRole(data).then(response => {
+    return api.createSecurityEvent(data).then(response => {
       commit('ITEM_REPLACED', data)
       return response
     }).catch(err => {
@@ -76,9 +76,9 @@ const actions = {
       throw err
     })
   },
-  updateAdminRole: ({ commit }, data) => {
+  updateSecurityEvent: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.updateAdminRole(data).then(response => {
+    return api.updateSecurityEvent(data).then(response => {
       commit('ITEM_REPLACED', data)
       return response
     }).catch(err => {
@@ -86,9 +86,31 @@ const actions = {
       throw err
     })
   },
-  deleteAdminRole: ({ commit }, data) => {
+  enableSecurityEvent: ({ commit }, data) => {
+    commit('ITEM_REQUEST')
+    const _data = { id: data.id, enabled: 'Y' }
+    return api.updateSecurityEvent(_data).then(response => {
+      commit('ITEM_ENABLED', _data)
+      return response
+    }).catch(err => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
+  },
+  disableSecurityEvent: ({ commit }, data) => {
+    commit('ITEM_REQUEST')
+    const _data = { id: data.id, enabled: 'N' }
+    return api.updateSecurityEvent(_data).then(response => {
+      commit('ITEM_DISABLED', _data)
+      return response
+    }).catch(err => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
+  },
+  deleteSecurityEvent: ({ commit }, data) => {
     commit('ITEM_REQUEST', types.DELETING)
-    return api.deleteAdminRole(data).then(response => {
+    return api.deleteSecurityEvent(data).then(response => {
       commit('ITEM_DESTROYED', data)
       return response
     }).catch(err => {
@@ -106,6 +128,14 @@ const mutations = {
   ITEM_REPLACED: (state, data) => {
     state.itemStatus = types.SUCCESS
     Vue.set(state.cache, data.id, data)
+  },
+  ITEM_ENABLED: (state, data) => {
+    state.itemStatus = types.SUCCESS
+    Vue.set(state.cache, data.id, { ...state.cache[data.id], ...data })
+  },
+  ITEM_DISABLED: (state, data) => {
+    state.itemStatus = types.SUCCESS
+    Vue.set(state.cache, data.id, { ...state.cache[data.id], ...data })
   },
   ITEM_DESTROYED: (state, id) => {
     state.itemStatus = types.SUCCESS

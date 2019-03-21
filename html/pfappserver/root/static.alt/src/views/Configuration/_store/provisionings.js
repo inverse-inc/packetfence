@@ -33,14 +33,24 @@ const actions = {
       return response.items
     })
   },
-  optionsById: ({}, id) => {
+  optionsById: ({ commit }, id) => {
+    commit('ITEM_REQUEST')
     return api.provisioningOptions(id).then(response => {
+      commit('ITEM_SUCCESS')
       return response
+    }).catch((err) => {
+      commit('ITEM_ERROR', err.response)
+      throw err
     })
   },
-  optionsByProvisioningType: ({}, provisioningType) => {
+  optionsByProvisioningType: ({ commit }, provisioningType) => {
+    commit('ITEM_REQUEST')
     return api.provisioningsOptions(provisioningType).then(response => {
+      commit('ITEM_SUCCESS')
       return response
+    }).catch((err) => {
+      commit('ITEM_ERROR', err.response)
+      throw err
     })
   },
   getProvisioning: ({ state, commit }, id) => {
