@@ -28,6 +28,12 @@ export const pfConfigurationRealmsListColumns = [
     visible: true
   },
   {
+    key: 'domain',
+    label: i18n.t('Domain'),
+    sortable: true,
+    visible: true
+  },
+  {
     key: 'portal_strip_username',
     label: i18n.t('Strip Portal'),
     sortable: true,
