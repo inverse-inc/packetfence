@@ -19,7 +19,7 @@ import ProvisioningsStore from '../_store/provisionings'
 import RealmsStore from '../_store/realms'
 import RolesStore from '../_store/roles'
 import ScansStore from '../_store/scans'
-import SecurityEventsStore from '../_store/securityEvents'
+// import SecurityEventsStore from '../_store/securityEvents'
 import ServicesStore from '../_store/services'
 import SyslogForwardersStore from '../_store/syslogForwarders'
 import SyslogParsersStore from '../_store/syslogParsers'
@@ -50,8 +50,8 @@ const ProfilingTabs = () => import(/* webpackChunkName: "Configuration" */ '../_
 const ProfilingCombinationView = () => import(/* webpackChunkName: "Configuration" */ '../_components/ProfilingCombinationView')
 const ScansTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/ScansTabs')
 const ScansScanEngineView = () => import(/* webpackChunkName: "Configuration" */ '../_components/ScansScanEngineView')
-const SecurityEventsList = () => import(/* webpackChunkName: "Configuration" */ '../_components/SecurityEventsList')
-const SecurityEventView = () => import(/* webpackChunkName: "Configuration" */ '../_components/SecurityEventView')
+// const SecurityEventsList = () => import(/* webpackChunkName: "Configuration" */ '../_components/SecurityEventsList')
+// const SecurityEventView = () => import(/* webpackChunkName: "Configuration" */ '../_components/SecurityEventView')
 
 /* Integration */
 const IntegrationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/IntegrationSection')
@@ -167,9 +167,9 @@ const route = {
     if (!store.state.$_scans) {
       store.registerModule('$_scans', ScansStore)
     }
-    if (!store.state.$_security_events) {
-      store.registerModule('$_security_events', SecurityEventsStore)
-    }
+    // if (!store.state.$_security_events) {
+    //   store.registerModule('$_security_events', SecurityEventsStore)
+    // }
     if (!store.state.$_services) {
       store.registerModule('$_services', ServicesStore)
     }
@@ -608,40 +608,40 @@ const route = {
       component: ScansTabs,
       props: (route) => ({ tab: 'wmi_rules', query: route.query.query })
     },
-    {
-      path: 'security_events',
-      name: 'security_events',
-      component: SecurityEventsList,
-      props: (route) => ({ query: route.query.query })
-    },
-    {
-      path: 'security_events/new',
-      name: 'newSecurityEvent',
-      component: SecurityEventView,
-      props: (route) => ({ storeName: '$_security_events', isNew: true })
-    },
-    {
-      path: 'security_event/:id',
-      name: 'security_event',
-      component: SecurityEventView,
-      props: (route) => ({ storeName: '$_security_events', id: route.params.id }),
-      beforeEnter: (to, from, next) => {
-        store.dispatch('$_security_events/getSecurityEvent', to.params.id).then(object => {
-          next()
-        })
-      }
-    },
-    {
-      path: 'security_event/:id/clone',
-      name: 'cloneSecurityEvent',
-      component: SecurityEventView,
-      props: (route) => ({ storeName: '$_security_events', id: route.params.id, isClone: true }),
-      beforeEnter: (to, from, next) => {
-        store.dispatch('$_security_events/getSecurityEvent', to.params.id).then(object => {
-          next()
-        })
-      }
-    },
+    // {
+    //   path: 'security_events',
+    //   name: 'security_events',
+    //   component: SecurityEventsList,
+    //   props: (route) => ({ query: route.query.query })
+    // },
+    // {
+    //   path: 'security_events/new',
+    //   name: 'newSecurityEvent',
+    //   component: SecurityEventView,
+    //   props: (route) => ({ storeName: '$_security_events', isNew: true })
+    // },
+    // {
+    //   path: 'security_event/:id',
+    //   name: 'security_event',
+    //   component: SecurityEventView,
+    //   props: (route) => ({ storeName: '$_security_events', id: route.params.id }),
+    //   beforeEnter: (to, from, next) => {
+    //     store.dispatch('$_security_events/getSecurityEvent', to.params.id).then(object => {
+    //       next()
+    //     })
+    //   }
+    // },
+    // {
+    //   path: 'security_event/:id/clone',
+    //   name: 'cloneSecurityEvent',
+    //   component: SecurityEventView,
+    //   props: (route) => ({ storeName: '$_security_events', id: route.params.id, isClone: true }),
+    //   beforeEnter: (to, from, next) => {
+    //     store.dispatch('$_security_events/getSecurityEvent', to.params.id).then(object => {
+    //       next()
+    //     })
+    //   }
+    // },
     /**
      * Integration
      */
