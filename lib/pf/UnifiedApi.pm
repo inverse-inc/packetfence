@@ -1472,6 +1472,7 @@ sub setup_api_v1_config_interfaces_routes {
     $collection_route->any(['GET'] => "/")->to("Config::Interfaces#list")->name("api.v1.Config.Interfaces.list");
     my $resource_route = $root->under("/config/interface/#interface_id")->to("Config::Interfaces#resource")->name("api.v1.Config.Interfaces.resource");
     $resource_route->any(['GET'] => "/")->to("Config::Interfaces#get")->name("api.v1.Config.Interfaces.get");
+    $resource_route->any(['POST'] => "/")->to("Config::Interfaces#create")->name("api.v1.Config.Interfaces.create");
     $self->add_subroutes($resource_route, "Config::Interfaces", "GET", qw(status));
     $self->add_subroutes($resource_route, "Config::Interfaces", "POST", qw(up down));
     return (undef, $resource_route);

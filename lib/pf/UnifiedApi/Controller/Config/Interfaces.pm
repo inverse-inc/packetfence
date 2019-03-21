@@ -39,6 +39,11 @@ sub get {
     $self->render(json => $self->model->get($self->stash->{interface_id}), status => 200);
 }
 
+sub create {
+    my ($self) = @_;
+    print Dumper($self->parse_json);
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
