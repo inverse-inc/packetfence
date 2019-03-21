@@ -116,7 +116,8 @@ export const pfConfigurationFloatingDeviceViewFields = (context = {}) => {
     isClone = false,
     options: {
       meta = {}
-    }
+    },
+    form = {}
   } = context
   return [
     {
@@ -180,6 +181,7 @@ export const pfConfigurationFloatingDeviceViewFields = (context = {}) => {
           ]
         },
         {
+          if: (form.trunkPort === 'yes'),
           label: i18n.t('Tagged VLANs'),
           text: i18n.t('Comma separated list of VLANs. If the port is a multi-vlan, these are the VLANs that have to be tagged on the port.'),
           fields: [
