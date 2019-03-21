@@ -13,6 +13,7 @@ pf::ConfigStore::PF
 =cut
 
 use Moo;
+use POSIX;
 use namespace::autoclean;
 use pf::config qw(
     %Default_Config
@@ -20,10 +21,13 @@ use pf::config qw(
     %Doc_Config
 );
 use pf::IniFiles;
+use pf::log;
 use pf::file_paths qw($pf_config_file $pf_default_file);
 
 extends 'pf::ConfigStore';
 has serviceUpdated => ( is => "rw" );
+
+our $logger = get_logger();
 
 =head2 Methods
 
@@ -116,11 +120,12 @@ sub cleanupAfterRead {
 }
 
 sub cleanupBeforeCommit {
-    my ( $self,$section, $assignment ) = @_;
-    while(my ($key,$value) = each %$assignment) {
+    my ($self, $section, $assignment) = @_;
+    while (my ($key,$value) = each %$assignment) {
         if(ref($value) eq 'ARRAY') {
             $assignment->{$key} = join(',',@$value);
         }
+
         my $doc_section = "$section.$key";
         if (exists $Doc_Config{$doc_section} ) {
             my $doc = $Doc_Config{$doc_section};
@@ -131,6 +136,7 @@ sub cleanupBeforeCommit {
             }
         }
     }
+
     $self->serviceUpdated(1) if $section eq "services" ;
 }
 
@@ -138,10 +144,38 @@ sub commit {
     my $self = shift;
     my ( $result, $error ) = $self->SUPER::commit();
     if ( $result and $self->serviceUpdated ) {
-        my $rc =
-          system("sudo /usr/local/pf/bin/pfcmd service pf updatesystemd");
+        $self->updatesystemd();
     }
     return ( $result, $error );
+}
+
+=head2 updatesystemd
+
+Double fork to perform pfcmd service pf updatesystemd
+
+=cut
+
+sub updatesystemd {
+    my ($self) = @_;
+    local $SIG{CHLD} = 'IGNORE';
+    my $pid = fork();
+    if (!defined $pid) {
+        $logger->error("fork : $!");
+    } elsif ($pid == 0) {
+        $pid = fork();
+        if (!defined $pid) {
+            $logger->error("fork : $!");
+        } elsif ($pid == 0) {
+            {
+                exec("sudo /usr/local/pf/bin/pfcmd service pf updatesystemd");
+            }
+            $logger->error("unabled to exec : $!");
+        }
+        POSIX::_exit(0);
+    } else {
+        waitpid($pid, 0);
+    }
+    return ;
 }
 
 =head2 _Sections
