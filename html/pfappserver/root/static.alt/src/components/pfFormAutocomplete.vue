@@ -26,7 +26,7 @@
         </li>
       </ul>
     </div>
-    <b-form-text v-if="text" v-t="text"></b-form-text>
+    <b-form-text v-if="text" v-html="text"></b-form-text>
   </b-form-group>
 </template>
 

@@ -45,7 +45,7 @@
         <b-button class="input-group-text" @click.stop="toggle($event)" tabindex="-1"><icon :name="(formatIsTimeOnly()) ? 'clock' : 'calendar-alt'" variant="light"></icon></b-button>
       </b-input-group-append>
     </b-input-group>
-    <b-form-text v-if="text" v-t="text"></b-form-text>
+    <b-form-text v-if="text" v-html="text"></b-form-text>
   </b-form-group>
 </template>
 

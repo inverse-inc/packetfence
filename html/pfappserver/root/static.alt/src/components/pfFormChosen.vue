@@ -29,7 +29,7 @@
         </b-media>
       </multiselect>
     </b-input-group>
-    <b-form-text v-if="text" v-t="text"></b-form-text>
+    <b-form-text v-if="text" v-html="text"></b-form-text>
   </b-form-group>
 </template>
 
