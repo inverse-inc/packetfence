@@ -9,10 +9,16 @@ import (
 	"time"
 )
 
+// Free Mac address
 const FreeMac = "00:00:00:00:00:00"
+
+// Fake Mac address
 const FakeMac = "ff:ff:ff:ff:ff:ff"
 
+// Random ip constant
 const Random = 1
+
+// Oldest released ip constant
 const OldestReleased = 2
 
 type DHCPPool struct {
@@ -24,6 +30,7 @@ type DHCPPool struct {
 	algorithm int
 }
 
+// NewDHCPPool constructor
 func NewDHCPPool(capacity uint64, algorithm int) *DHCPPool {
 	d := &DHCPPool{
 		lock:      &sync.Mutex{},
