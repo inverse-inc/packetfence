@@ -32,7 +32,7 @@ BEGIN {
     our ( @ISA, @EXPORT );
     @ISA = qw(Exporter);
     @EXPORT = qw(
-        iptables_generate iptables_save iptables_restore
+        iptables_generate iptables_save iptables_restore check flush
         iptables_mark_node iptables_unmark_node get_mangle_mark_for_mac update_mark
     );
 }

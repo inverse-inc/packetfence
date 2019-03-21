@@ -13,6 +13,7 @@ Service manager for iptables
 =cut
 
 use Moo;
+use pf::iptables;
 
 extends 'pf::services::manager';
 
