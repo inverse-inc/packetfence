@@ -28,6 +28,7 @@
 </template>
 
 <script>
+import pfButtonDelete from '@/components/pfButtonDelete'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import {
@@ -37,6 +38,7 @@ import {
 export default {
   name: 'ConnectionProfilesList',
   components: {
+    pfButtonDelete,
     pfConfigList,
     pfEmptyTable
   },
