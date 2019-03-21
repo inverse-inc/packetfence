@@ -33,7 +33,7 @@ sub list {
     $self->render(json => {items => [map { $self->normalize_interface($_) } $self->model->get('all')]}, status => 200);
 }
 
-sub resource{}
+sub resource{1}
 
 sub normalize_interface {
     my ($self, $interface) = @_;
@@ -97,6 +97,18 @@ sub validate_item {
 
     $self->render_error(422, "Unable to validate", pf::UnifiedApi::Controller::Config::format_form_errors($self, $form));
     return undef;
+}
+
+sub up {
+    my ($self) = @_;
+    my ($status, $result) = $self->model->up($self->stash->{interface_id});
+    $self->render(json => {message => pf::I18N::pfappserver->localize($result)}, status => $status);
+}
+
+sub down {
+    my ($self) = @_;
+    my ($status, $result) = $self->model->down($self->stash->{interface_id});
+    $self->render(json => {message => pf::I18N::pfappserver->localize($result)}, status => $status);
 }
 
 =head1 AUTHOR

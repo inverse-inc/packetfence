@@ -1475,8 +1475,8 @@ sub setup_api_v1_config_interfaces_routes {
     $resource_route->any(['GET'] => "/")->to("Config::Interfaces#get")->name("api.v1.Config.Interfaces.get");
     $resource_route->any(['PUT'] => "/")->to("Config::Interfaces#update")->name("api.v1.Config.Interfaces.update");
     $resource_route->any(['DELETE'] => "/")->to("Config::Interfaces#delete")->name("api.v1.Config.Interfaces.delete");
-    $self->add_subroutes($resource_route, "Config::Interfaces", "GET", qw(status));
-    $self->add_subroutes($resource_route, "Config::Interfaces", "POST", qw(up down));
+    $resource_route->any(['POST'] => "/up")->to("Config::Interfaces#up")->name("api.v1.Config.Interfaces.up");
+    $resource_route->any(['POST'] => "/down")->to("Config::Interfaces#down")->name("api.v1.Config.Interfaces.down");
     return (undef, $resource_route);
 }
 
