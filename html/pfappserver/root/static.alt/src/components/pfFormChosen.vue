@@ -8,6 +8,7 @@
         v-bind="$attrs"
         v-on="forwardListeners"
         ref="input"
+        :disabled="disabled"
         :showLabels="false"
         :id="id"
         :multiple="multiple"
@@ -28,6 +29,9 @@
           <b-form-text class="font-weight-light">{{ $t('Please refine your search.') }}</b-form-text>
         </b-media>
       </multiselect>
+      <b-input-group-append v-if="readonly || disabled">
+        <b-button class="input-group-text" tabindex="-1" disabled><icon name="lock"></icon></b-button>
+      </b-input-group-append>
     </b-input-group>
     <b-form-text v-if="text" v-html="text"></b-form-text>
   </b-form-group>
@@ -88,6 +92,10 @@ export default {
     collapseObject: {
       type: Boolean,
       default: true
+    },
+    disabled: {
+      type: Boolean,
+      default: false
     }
   },
   data () {
@@ -143,6 +151,10 @@ export default {
  */
 .pf-form-chosen {
   .multiselect {
+      position: relative;
+      flex: 1 1 auto;
+      width: 1%;
+      margin-bottom: 0;
       min-height: auto;
       border-width: 1px;
       font-size: $font-size-base;
