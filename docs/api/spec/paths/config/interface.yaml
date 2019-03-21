@@ -1,0 +1,73 @@
+/config/interfaces:
+  description: pf::UnifiedApi::Controller::Config::Interfaces
+  get:
+    description: List all interfaces
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigInterfacesList'
+        description: Item
+  post:
+    description: Create a virtual interface
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ConfigInterfaceCreate'
+    responses:
+      '200':
+        $ref: '#/components/responses/Message'
+      '404':
+        $ref: '#/components/responses/NotFound'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+
+
+
+/config/interface/{interface_id}:
+  description: pf::UnifiedApi::Controller::Config::Interfaces
+  get:
+    description: Get an item
+    parameters:
+    - in: path
+      name: interface_id
+      schema:
+        type: string
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigInterfaceGet'
+        description: Item
+  put:
+    description: Update the configuration of an interface
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ConfigInterfaceUpdate'
+    responses:
+      '200':
+        $ref: '#/components/responses/Message'
+      '404':
+        $ref: '#/components/responses/NotFound'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+  delete:
+    description: Remove a virtual interface
+    parameters:
+    - in: path
+      name: interface_id
+      schema:
+        type: string
+    responses:
+      '204':
+        description: Deleted an interface
+      '412':
+        allOf:
+          - $ref: '#/components/responses/Message'
+          - description: "Failed to respect precondition to delete interface"
+
