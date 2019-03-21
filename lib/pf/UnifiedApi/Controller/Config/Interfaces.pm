@@ -30,12 +30,17 @@ sub model {
 
 sub list {
     my ($self) = @_;
-    $self->render(json => {items => [$self->model->_listInterfaces('all')]}, status => 200);
+    $self->render(json => {items => [map { $self->normalize_interface($_) } $self->model->get('all')]}, status => 200);
 }
 
 sub resource{
     my ($self) = @_;
-    #return $self->get();
+}
+
+sub normalize_interface {
+    my ($self, $interface) = @_;
+    $interface->{is_running} = $interface->{is_running} ? $self->json_true : $self->json_false;
+    return $interface;
 }
 
 sub get {
@@ -44,7 +49,7 @@ sub get {
     my $interface = $self->model->get($interface_id);
     if(scalar(keys($interface)) > 0) {
         $interface = $interface->{$interface_id};
-        $interface->{is_running} = $interface->{is_running} ? $self->json_true : $self->json_false;
+        $interface = $self->normalize_interface($interface);
         $self->render(json => $interface, status => 200);
     }
     else {
