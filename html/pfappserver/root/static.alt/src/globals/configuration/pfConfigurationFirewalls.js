@@ -10,21 +10,13 @@ import {
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
   and,
-  or,
   not,
   conditional,
-  isFQDN,
-  isPort,
   hasFirewalls,
   firewallExists
 } from '@/globals/pfValidators'
 
-const {
-  ipAddress,
-  maxLength,
-  numeric,
-  required
-} = require('vuelidate/lib/validators')
+const { required } = require('vuelidate/lib/validators')
 
 export const pfConfigurationFirewallsListColumns = [
   {

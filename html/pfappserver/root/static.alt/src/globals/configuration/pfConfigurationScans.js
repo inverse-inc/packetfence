@@ -11,24 +11,14 @@ import {
 } from '@/globals/configuration/pfConfiguration'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
-  or,
   and,
   not,
   conditional,
   hasScans,
-  scanExists,
-  isFQDN,
-  isPort
+  scanExists
 } from '@/globals/pfValidators'
 
-const {
-  required,
-  alphaNum,
-  integer,
-  ipAddress,
-  maxLength,
-  minValue
-} = require('vuelidate/lib/validators')
+const { required } = require('vuelidate/lib/validators')
 
 export const pfConfigurationScanEngineListColumns = [
   {

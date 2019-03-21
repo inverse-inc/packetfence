@@ -9,21 +9,13 @@ import {
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
   and,
-  or,
   not,
   conditional,
-  isFQDN,
-  isPort,
   hasSyslogForwarders,
   syslogForwarderExists
 } from '@/globals/pfValidators'
 
-const {
-  ipAddress,
-  maxLength,
-  number,
-  required
-} = require('vuelidate/lib/validators')
+const { required } = require('vuelidate/lib/validators')
 
 export const pfConfigurationSyslogForwardersListColumns = [
   {

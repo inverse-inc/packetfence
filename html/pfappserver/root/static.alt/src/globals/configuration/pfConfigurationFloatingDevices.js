@@ -5,7 +5,6 @@ import {
   pfConfigurationAttributesFromMeta,
   pfConfigurationValidatorsFromMeta
 } from '@/globals/configuration/pfConfiguration'
-import { pfRegExp as regExp } from '@/globals/pfRegExp'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
   and,
@@ -15,13 +14,7 @@ import {
   floatingDeviceExists
 } from '@/globals/pfValidators'
 
-const {
-  required,
-  integer,
-  ipAddress,
-  macAddress,
-  maxLength
-} = require('vuelidate/lib/validators')
+const { required } = require('vuelidate/lib/validators')
 
 export const pfConfigurationFloatingDevicesListColumns = [
   {

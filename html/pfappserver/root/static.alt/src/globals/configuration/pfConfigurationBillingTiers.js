@@ -12,18 +12,11 @@ import {
   and,
   not,
   conditional,
-  isPrice,
   hasBillingTiers,
   billingTierExists
 } from '@/globals/pfValidators'
 
-const {
-  required,
-  alphaNum,
-  integer,
-  minValue,
-  maxLength
-} = require('vuelidate/lib/validators')
+const { required } = require('vuelidate/lib/validators')
 
 export const pfConfigurationBillingTiersListColumns = [
   {
