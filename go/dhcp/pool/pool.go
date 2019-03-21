@@ -9,16 +9,16 @@ import (
 	"time"
 )
 
-// Free Mac address
+// FreeMac is the Free Mac address constant
 const FreeMac = "00:00:00:00:00:00"
 
-// Fake Mac address
+// FakeMac is the Fake Mac address constant
 const FakeMac = "ff:ff:ff:ff:ff:ff"
 
 // Random ip constant
 const Random = 1
 
-// Oldest released ip constant
+// OldestReleased ip constant
 const OldestReleased = 2
 
 type DHCPPool struct {
