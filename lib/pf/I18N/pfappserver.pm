@@ -67,6 +67,10 @@ localize using the default handle
 
 sub localize {
     my ($self, $text, $args) = @_;
+    if (ref $text eq 'ARRAY') {
+        my $msg = shift(@$text);
+        return _loc($msg, @$text)
+    }
     if (ref $args eq 'ARRAY') {
         return _loc($text, @$args);
     }
