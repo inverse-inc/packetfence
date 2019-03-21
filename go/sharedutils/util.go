@@ -268,6 +268,7 @@ func CleanIP(s string) (string, error) {
 	}
 }
 
+// Remove duplicates elements in an array
 func RemoveDuplicates(elements []string) []string {
 	// Use map to record duplicates as we find them.
 	encountered := map[string]bool{}
