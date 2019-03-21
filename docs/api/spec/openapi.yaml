@@ -1076,19 +1076,19 @@ components:
         type: object
       - properties:
           db:
-            description: Name of the mysql database used by PacketFence.
+            description: Name of the MariaDB database used by PacketFence.
             type: string
           host:
-            description: Server the mysql server is running on.
+            description: Server the MariaDB server is running on.
             type: string
           pass:
-            description: Password for the mysql database used by PacketFence.
+            description: Password for the MariaDB database used by PacketFence.
             type: string
           port:
-            description: Port the mysql server is running on.
+            description: Port the MariaDB server is running on.
             type: integer
           user:
-            description: Username of the account with access to the mysql database
+            description: Username of the account with access to the MariaDB database
               used by PacketFence.
             type: string
         type: object
@@ -1166,49 +1166,49 @@ components:
         type: object
       - properties:
           innodb_additional_mem_pool_size:
-            description: The innodb_additional_mem_pool_size MySQL configuration attribute
-              (in MB). Only change if you know what you are doing. Will only affect
-              a locally running MySQL server.
+            description: The innodb_additional_mem_pool_size MariaDB configuration
+              attribute (in MB). Only change if you know what you are doing. Will
+              only affect a locally running MariaDB server.
             type: integer
           innodb_buffer_pool_size:
-            description: The innodb_buffer_pool_size MySQL configuration attribute
+            description: The innodb_buffer_pool_size MariaDB configuration attribute
               (in MB). Only change if you know what you are doing. Will only affect
-              a locally running MySQL server.
+              a locally running MariaDB server.
             type: integer
           key_buffer_size:
-            description: The key_buffer_size MySQL configuration attribute (in MB).
+            description: The key_buffer_size MariaDB configuration attribute (in MB).
               Only change if you know what you are doing. Will only affect a locally
-              running MySQL server.
+              running MariaDB server.
             type: integer
           max_allowed_packet:
-            description: The max_allowed_packet MySQL configuration attribute (in
+            description: The max_allowed_packet MariaDB configuration attribute (in
               MB). Only change if you know what you are doing. Will only affect a
-              locally running MySQL server.
+              locally running MariaDB server.
             type: integer
           max_connections:
-            description: The max_connections MySQL configuration attribute. Only change
-              if you know what you are doing. Will only affect a locally running MySQL
-              server.
+            description: The max_connections MariaDB configuration attribute. Only
+              change if you know what you are doing. Will only affect a locally running
+              MariaDB server.
             type: integer
           query_cache_size:
-            description: The query_cache_size MySQL configuration attribute. Only
+            description: The query_cache_size MariaDB configuration attribute. Only
               change if you know what you are doing. Will only affect a locally running
-              MySQL server.
+              MariaDB server.
             type: integer
           table_cache:
-            description: The table_cache MySQL configuration attribute. Only change
-              if you know what you are doing. Will only affect a locally running MySQL
+            description: The table_cache MariaDB configuration attribute. Only change
+              if you know what you are doing. Will only affect a locally running MariaDB
               server.
             type: integer
           thread_cache_size:
-            description: The thread_cache_size MySQL configuration attribute. Only
+            description: The thread_cache_size MariaDB configuration attribute. Only
               change if you know what you are doing. Will only affect a locally running
-              MySQL server.
+              MariaDB server.
             type: integer
           thread_concurrency:
-            description: The thread_concurrency MySQL configuration attribute. Only
+            description: The thread_concurrency MariaDB configuration attribute. Only
               change if you know what you are doing. Will only affect a locally running
-              MySQL server.
+              MariaDB server.
             type: integer
         type: object
     ConfigBasesList:
