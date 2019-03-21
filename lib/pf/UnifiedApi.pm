@@ -239,7 +239,6 @@ sub setup_api_v1_tenants_routes {
         "Tenants",
         "/tenants",
         "/tenant/#tenant_id",
-        "api.v1.Tenant",
     );
 
     return ($collection_route, $resource_route);
@@ -259,7 +258,6 @@ sub setup_api_v1_locationlogs_routes {
         "Locationlogs",
         "/locationlogs",
         "/locationlog/#locationlog_id",
-        "api.v1.Locationlogs",
     );
 
     return ($collection_route, $resource_route);
@@ -279,7 +277,6 @@ sub setup_api_v1_dhcp_option82s_routes {
         "DhcpOption82s",
         "/dhcp_option82s",
         "/dhcp_option82/#dhcp_option82_id",
-        "api.v1.DhcpOption82s",
     );
 
     return ($collection_route, $resource_route);
@@ -299,7 +296,6 @@ sub setup_api_v1_auth_logs_routes {
         "AuthLogs",
         "/auth_logs",
         "/auth_log/#auth_log_id",
-        "api.v1.AuthLogs",
     );
 
     return ($collection_route, $resource_route);
@@ -319,7 +315,6 @@ sub setup_api_v1_radius_audit_logs_routes {
         "RadiusAuditLogs",
         "/radius_audit_logs",
         "/radius_audit_log/#radius_audit_log_id",
-        "api.v1.RadiusAuditLogs",
     );
 
     return ($collection_route, $resource_route);
@@ -339,14 +334,13 @@ sub setup_api_v1_ip4logs_routes {
         "Ip4logs",
         "/ip4logs",
         "/ip4log/#ip4log_id",
-        "api.v1.Ip4logs",
     );
 
-    $collection_route->any(['GET'] => "/history/#search")->to("Ip4logs#history")->name("api.v1.Ip4logs.history");
-    $collection_route->any(['GET'] => "/archive/#search")->to("Ip4logs#archive")->name("api.v1.Ip4logs.archive");
-    $collection_route->any(['GET'] => "/open/#search")->to("Ip4logs#open")->name("api.v1.Ip4logs.open");
-    $collection_route->any(['GET'] => "/mac2ip/#mac")->to("Ip4logs#mac2ip")->name("api.v1.Ip4logs.mac2ip");
-    $collection_route->any(['GET'] => "/ip2mac/#ip")->to("Ip4logs#ip2mac")->name("api.v1.Ip4logs.ip2mac");
+    $collection_route->register_sub_action({ method => 'GET', path => "/history/#search", action => 'history'});
+    $collection_route->register_sub_action({ method => 'GET', path => "/archive/#search", action => 'archive'});
+    $collection_route->register_sub_action({ method => 'GET', path => "/open/#search", action => 'open'});
+    $collection_route->register_sub_action({ method => 'GET', path => "/mac2ip/#mac", action => 'mac2ip'});
+    $collection_route->register_sub_action({ method => 'GET', path => "/ip2mac/#ip", action => 'ip2mac'});
 
     return ($collection_route, $resource_route);
 }
@@ -365,14 +359,13 @@ sub setup_api_v1_ip6logs_routes {
         "Ip6logs",
         "/ip6logs",
         "/ip6log/#ip6log_id",
-        "api.v1.Ip6logs",
     );
 
-    $collection_route->any(['GET'] => "/history/#search")->to("Ip6logs#history")->name("api.v1.Ip6logs.history");
-    $collection_route->any(['GET'] => "/archive/#search")->to("Ip6logs#archive")->name("api.v1.Ip6logs.archive");
-    $collection_route->any(['GET'] => "/open/#search")->to("Ip6logs#open")->name("api.v1.Ip6logs.open");
-    $collection_route->any(['GET'] => "/mac2ip/#mac")->to("Ip6logs#mac2ip")->name("api.v1.Ip6logs.mac2ip");
-    $collection_route->any(['GET'] => "/ip2mac/#ip")->to("Ip6logs#ip2mac")->name("api.v1.Ip6logs.ip2mac");
+    $collection_route->register_sub_action({ method => 'GET', path => "/history/#search", action => 'history'});
+    $collection_route->register_sub_action({ method => 'GET', path => "/archive/#search", action => 'archive'});
+    $collection_route->register_sub_action({ method => 'GET', path => "/open/#search", action => 'open'});
+    $collection_route->register_sub_action({ method => 'GET', path => "/mac2ip/#mac", action => 'mac2ip'});
+    $collection_route->register_sub_action({ method => 'GET', path => "/ip2mac/#ip", action => 'ip2mac'});
 
     return ($collection_route, $resource_route);
 }
@@ -391,7 +384,6 @@ sub setup_api_v1_users_routes {
         "Users",
         "/users",
         "/user/#user_id",
-        "api.v1.Users"
     );
 
     $self->add_subroutes($collection_route, "Users", "POST", qw(unassign_nodes));
@@ -401,7 +393,6 @@ sub setup_api_v1_users_routes {
         "Users::Nodes",
         "/nodes",
         "/node/#node_id",
-        "api.v1.Users.resource.Nodes"
     );
 
     $self->setup_api_v1_std_crud_routes(
@@ -412,12 +403,12 @@ sub setup_api_v1_users_routes {
         "api.v1.Users.resource.Nodes.Locationlogs"
     );
 
-    my $password_route = $resource_route->any("/password")->name("api.v1.Users.resource.Password");
-    $password_route->any(['GET'])->to("Users::Password#get")->name("api.v1.Users.resource.Password.get");
-    $password_route->any(['DELETE'])->to("Users::Password#remove")->name("api.v1.Users.resource.Password.remove");
-    $password_route->any(['PATCH'])->to("Users::Password#update")->name("api.v1.Users.resource.Password.update");
-    $password_route->any(['PUT'])->to("Users::Password#replace")->name("api.v1.Users.resource.Password.replace");
-    $password_route->any(['POST'])->to("Users::Password#create")->name("api.v1.Users.resource.Password.create");
+    my $password_route = $resource_route->any("/password")->to(controller => "Users::Password")->name("api.v1.Users.resource.Password");
+    $password_route->register_sub_action({path => '', action => 'get', method => 'GET'});
+    $password_route->register_sub_action({path => '', action => 'remove', method => 'DELETE'});
+    $password_route->register_sub_action({path => '', action => 'update', method => 'PATCH'});
+    $password_route->register_sub_action({path => '', action => 'replace', method => 'PUT'});
+    $password_route->register_sub_action({path => '', action => 'create', method => 'POST'});
 
     return ($collection_route, $resource_route);
 }
@@ -436,7 +427,6 @@ sub setup_api_v1_nodes_routes {
         "Nodes",
         "/nodes",
         "/node/#node_id",
-        "api.v1.Nodes"
     );
 
     $resource_route->register_sub_actions({
@@ -496,7 +486,6 @@ sub setup_api_v1_security_events_routes {
         "SecurityEvents",
         "/security_events",
         "/security_event/#security_event_id",
-        "api.v1.SecurityEvents",
     );
 
     $collection_route->any(['GET'] => '/by_mac/#search')->to("SecurityEvents#by_mac")->name("api.v1.SecurityEvents.by_mac");
@@ -557,7 +546,6 @@ sub setup_api_v1_wrix_locations_routes {
         "WrixLocations",
         "/wrix_locations",
         "/wrix_location/#wrix_location_id",
-        "api.v1.WrixLocations",
     );
 
     return ($collection_route, $resource_route);
@@ -587,10 +575,17 @@ setup_api_v1_std_crud_routes
 
 sub setup_api_v1_std_crud_routes {
     my ($self, $root, $controller, $collection_path, $resource_path, $name) = @_;
-    my $collection_route = $root->any($collection_path)->name($name);
-    $self->setup_api_v1_std_crud_collection_routes($collection_route, $name, $controller);
-    my $resource_route = $root->under($resource_path)->to("${controller}#resource")->name("${name}.resource");
-    $self->setup_api_v1_std_crud_resource_routes($resource_route, "${name}.resource", $controller);
+    my $root_name = $root->name;
+    if (!defined $name) {
+        $name = $controller;
+        $name =~ s/::/./;
+        $name = "${root_name}.${name}";
+    }
+
+    my $collection_route = $root->any($collection_path)->to(controller=> $controller)->name($name);
+    $self->setup_api_v1_std_crud_collection_routes($collection_route);
+    my $resource_route = $root->under($resource_path)->to(controller => $controller, action => "resource")->name("${name}.resource");
+    $self->setup_api_v1_std_crud_resource_routes($resource_route);
     return ($collection_route, $resource_route);
 }
 
@@ -601,11 +596,10 @@ setup_api_v1_std_crud_collection_routes
 =cut
 
 sub setup_api_v1_std_crud_collection_routes {
-    my ($self, $root, $name, $controller) = @_;
-    $root->any(['GET'])->to("$controller#list")->name("${name}.list");
-    $root->any(['POST'])->to("$controller#create")->name("${name}.create");
-#    $root->any(['OPTIONS'])->to("$controller#options" => {})->name("${name}.options");
-    $root->any(['POST'] => "/search")->to("$controller#search")->name("${name}.search");
+    my ($self, $root) = @_;
+    $root->register_sub_action({path => '', action => 'list', method => 'GET'});
+    $root->register_sub_action({path => '', action => 'create', method => 'POST'});
+    $root->register_sub_action({action => 'search', method => 'POST'});
     return ;
 }
 
@@ -616,12 +610,11 @@ setup_api_v1_std_crud_resource_routes
 =cut
 
 sub setup_api_v1_std_crud_resource_routes {
-    my ($self, $root, $name, $controller) = @_;
-    $root->any(['GET'])->to("$controller#get")->name("${name}.get");
-    $root->any(['PATCH'])->to("$controller#update")->name("${name}.update");
-    $root->any(['PUT'])->to("$controller#replace")->name("${name}.replace");
-    $root->any(['DELETE'])->to("$controller#remove")->name("${name}.remove");
-#    $root->any(['OPTIONS'])->to("$controller#resource_options" => {})->name("${name}.resource_options");
+    my ($self, $root) = @_;
+    $root->register_sub_action({path => '', action => 'get', method => 'GET'});
+    $root->register_sub_action({path => '', action => 'update', method => 'PATCH'});
+    $root->register_sub_action({path => '', action => 'replace', method => 'PUT'});
+    $root->register_sub_action({path => '', action => 'remove', method => 'DELETE'});
     return ;
 }
 
@@ -633,10 +626,16 @@ setup_api_v1_std_config_routes
 
 sub setup_api_v1_std_config_routes {
     my ($self, $root, $controller, $collection_path, $resource_path, $name) = @_;
-    my $collection_route = $root->any($collection_path)->name($name);
+    if (!defined $name) {
+        my $root_name = $root->name;
+        $name = $controller;
+        $name =~ s/::/./;
+        $name = "${root_name}.${name}";
+    }
+    my $collection_route = $root->any($collection_path)->to(controller => $controller)->name($name);
     $self->setup_api_v1_std_config_collection_routes($collection_route, $name, $controller);
-    my $resource_route = $root->under($resource_path)->to("${controller}#resource")->name("${name}.resource");
-    $self->setup_api_v1_std_config_resource_routes($resource_route, "${name}.resource", $controller);
+    my $resource_route = $root->under($resource_path)->to(controller => $controller, action => "resource")->name("${name}.resource");
+    $self->setup_api_v1_std_config_resource_routes($resource_route);
     return ($collection_route, $resource_route);
 }
 
@@ -648,10 +647,10 @@ setup_api_v1_standard_config_collection_routes
 
 sub setup_api_v1_std_config_collection_routes {
     my ($self, $root, $name, $controller) = @_;
-    $root->any(['GET'])->to("$controller#list" => {})->name("${name}.list");
-    $root->any(['POST'])->to("$controller#create" => {})->name("${name}.create");
-    $root->any(['OPTIONS'])->to("$controller#options" => {})->name("${name}.options");
-    $root->any(['PATCH'] => "/sort_items")->to("$controller#sort_items" => {})->name("${name}.sort_items");
+    $root->register_sub_action({path => '', action => 'list', method => 'GET'});
+    $root->register_sub_action({path => '', action => 'create', method => 'POST'});
+    $root->register_sub_action({path => '', action => 'options', method => 'OPTIONS'});
+    $root->register_sub_action({action => 'sort_items', method => 'PATCH'});
     return ;
 }
 
@@ -662,12 +661,12 @@ setup_api_v1_std_config_resource_routes
 =cut
 
 sub setup_api_v1_std_config_resource_routes {
-    my ($self, $root, $name, $controller) = @_;
-    $root->any(['GET'])->to("$controller#get" => {})->name("${name}.get");
-    $root->any(['PATCH'])->to("$controller#update" => {})->name("${name}.update");
-    $root->any(['PUT'])->to("$controller#replace" => {})->name("${name}.replace");
-    $root->any(['DELETE'])->to("$controller#remove" => {})->name("${name}.remove");
-    $root->any(['OPTIONS'])->to("$controller#resource_options" => {})->name("${name}.resource_options");
+    my ($self, $root) = @_;
+    $root->register_sub_action({path => '', action => 'get', method => 'GET'});
+    $root->register_sub_action({path => '', action => 'update', method => 'PATCH'});
+    $root->register_sub_action({path => '', action => 'replace', method => 'PUT'});
+    $root->register_sub_action({path => '', action => 'remove', method => 'DELETE'});
+    $root->register_sub_action({path => '', action => 'resource_options', method => 'OPTIONS'});
     return ;
 }
 
@@ -1447,7 +1446,7 @@ setup_api_v1_queues_routes
 sub setup_api_v1_queues_routes {
     my ($self, $root) = @_;
     my $route = $root->any("/queues")->name("api.v1.Queues");
-    $route->any(['GET'] => "/stats")->to("Queues#stats")->name("api.v1.Queues.stats");
+    $route->register_sub_action({ action => "stats", method => "GET"});
     return ;
 }
 
@@ -1460,9 +1459,31 @@ setup_api_v1_fingerbank_routes
 sub setup_api_v1_fingerbank_routes {
     my ($self, $root) = @_;
     my $upstream = $root->any("/upstream")->to(scope => "Upstream")->name( $root->name . ".Upstream");
-    $self->setup_api_v1_std_upstream_fingerbank_routes($upstream, "UserAgent", "/user_agents", "/user_agent/#user_agent_id");
-    $self->setup_api_v1_std_upstream_fingerbank_routes($upstream, "MacVendors", "/mac_vendors", "/mac_vendor/#mac_vendor_id");
     my $local_route = $root->any("/local")->to(scope => "Local")->name( $root->name . ".Local");
+    my $all_route = $root->any("/all")->to(scope => "All")->name( $root->name . ".All");
+    $self->setup_api_v1_std_fingerbank_routes($all_route, $upstream, $local_route, "Combinations", "/combinations", "/combination/#combination_id");
+    $self->setup_api_v1_std_fingerbank_routes($all_route, $upstream, $local_route, "Devices", "/devices", "/device/#device_id");
+    $self->setup_api_v1_std_fingerbank_routes($all_route, $upstream, $local_route, "DHCP6Enterprises", "/dhcp6_enterprises", "/dhcp6_enterprise/#dhcp6_enterprise_id");
+    $self->setup_api_v1_std_fingerbank_routes($all_route, $upstream, $local_route, "DHCP6Fingerprints", "/dhcp6_fingerprints", "/dhcp6_fingerprint/#dhcp6_fingerprint_id");
+    $self->setup_api_v1_std_fingerbank_routes($all_route, $upstream, $local_route, "DHCPFingerprints", "/dhcp_fingerprints", "/dhcp_fingerprints/#dhcp_fingerprints_id");
+    $self->setup_api_v1_std_fingerbank_routes($all_route, $upstream, $local_route, "DHCPVendor", "/dhcp_vendors", "/dhcp_vendor/#dhcp_vendor_id");
+    $self->setup_api_v1_std_fingerbank_routes($all_route, $upstream, $local_route, "MacVendors", "/mac_vendors", "/mac_vendor/#mac_vendor_id");
+    $self->setup_api_v1_std_fingerbank_routes($all_route, $upstream, $local_route, "UserAgents", "/user_agents", "/user_agent/#user_agent_id");
+    return ;
+}
+
+=head2 setup_api_v1_std_fingerbank_routes
+
+setup_api_v1_std_fingerbank_routes
+
+=cut
+
+sub setup_api_v1_std_fingerbank_routes {
+    my ($self, $all_route, $upstream_root, $local_root, $name, $collection_path, $resource_path) = @_;
+    my $controller = "Fingerbank::${name}";
+    $self->setup_api_v1_std_readonly_fingerbank_routes($all_route, $name, $controller, $collection_path, $resource_path);
+    $self->setup_api_v1_std_readonly_fingerbank_routes($upstream_root, $name, $controller, $collection_path, $resource_path);
+    $self->setup_api_v1_std_local_fingerbank_routes($local_root, $name, $controller, $collection_path, $resource_path);
     return ;
 }
 
@@ -1472,15 +1493,35 @@ setup_api_v1_std_upstream_fingerbank_routes
 
 =cut
 
-sub setup_api_v1_std_upstream_fingerbank_routes {
-    my ($self, $root, $name, $collection_path, $resource_path) = @_;
+sub setup_api_v1_std_readonly_fingerbank_routes {
+    my ($self, $root, $name, $controller, $collection_path, $resource_path) = @_;
     my $root_name = $root->name;
-    my $controller = "Fingerbank::${name}";
     my $collection_route = $root->any($collection_path)->to(controller => $controller )->name("${root_name}.${name}");
-    $collection_route->any(['GET'])->to(action => 'list')->name($collection_route->name . ".list");
+    $collection_route->register_sub_action({ method => 'GET', action => 'list', path => ''});
     $collection_route->register_sub_action({ method => 'POST', action => 'search'});
     my $resource_route = $root->under($resource_path)->to(controller=> $controller, action => "resource")->name("${root_name}.${name}.resource");
-    $resource_route->any(['GET'])->to(action =>  "get")->name($resource_route->name . ".get");
+    $resource_route->register_sub_action({ method => 'GET', action => 'get', path => ''});
+    return ;
+}
+
+=head2 setup_api_v1_std_local_fingerbank_routes
+
+setup_api_v1_std_local_fingerbank_routes
+
+=cut
+
+sub setup_api_v1_std_local_fingerbank_routes {
+    my ($self, $root, $name, $controller, $collection_path, $resource_path) = @_;
+    my $root_name = $root->name;
+    my $collection_route = $root->any($collection_path)->to(controller => $controller )->name("${root_name}.${name}");
+    $collection_route->register_sub_action({ method => 'GET', action => 'list', path => ''});
+    $collection_route->register_sub_action({ method => 'POST', action => 'create', path => ''});
+    $collection_route->register_sub_action({ method => 'POST', action => 'search'});
+    my $resource_route = $root->under($resource_path)->to(controller=> $controller, action => "resource")->name("${root_name}.${name}.resource");
+    $resource_route->register_sub_action({ method => 'GET', action => 'get', path => ''});
+    $resource_route->register_sub_action({ method => 'DELETE', action => 'remove', path => ''});
+    $resource_route->register_sub_action({ method => 'PUT', action => 'replace', path => ''});
+    $resource_route->register_sub_action({ method => 'PATCH', action => 'update', path => ''});
     return ;
 }
 
