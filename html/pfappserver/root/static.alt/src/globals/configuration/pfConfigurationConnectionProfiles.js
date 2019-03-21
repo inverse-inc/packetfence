@@ -7,15 +7,15 @@ import pfFormInput from '@/components/pfFormInput'
 import pfFormTextarea from '@/components/pfFormTextarea'
 import pfFormToggle from '@/components/pfFormToggle'
 import pfTree from '@/components/pfTree'
-import { pfFieldType as fieldType } from '@/globals/pfField'
 import {
-  pfConfigurationListColumns,
-  pfConfigurationListFields,
   pfConfigurationViewFields,
   pfConfigurationAttributesFromMeta,
   pfConfigurationValidatorsFromMeta,
   pfConfigurationLocales
 } from '@/globals/configuration/pfConfiguration'
+import { pfFieldType as fieldType } from '@/globals/pfField'
+import { pfFormatters as formatter } from '@/globals/pfFormatters'
+import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
   and,
   not,
@@ -25,7 +25,6 @@ import {
   isPort,
   limitSiblingFields
 } from '@/globals/pfValidators'
-import { pfFormatters as formatter } from '@/globals/pfFormatters'
 
 const {
   required,
@@ -258,15 +257,44 @@ export const pfConfigurationConnectionProfileFilters = {
 }
 
 export const pfConfigurationConnectionProfilesListColumns = [
-  pfConfigurationListColumns.status,
-  { ...pfConfigurationListColumns.id, ...{ label: i18n.t('Identifier') } }, // re-label
-  pfConfigurationListColumns.description,
-  pfConfigurationListColumns.buttons
+  {
+    key: 'status',
+    label: i18n.t('Status'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'id',
+    label: i18n.t('Identifier'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'description',
+    label: i18n.t('Description'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'buttons',
+    label: '',
+    sortable: false,
+    visible: true,
+    locked: true
+  }
 ]
 
 export const pfConfigurationConnectionProfilesListFields = [
-  { ...pfConfigurationListFields.id, ...{ text: i18n.t('Identifier') } }, // re-text
-  pfConfigurationListFields.description
+  {
+    value: 'id',
+    text: i18n.t('Identifier'),
+    types: [conditionType.SUBSTRING]
+  },
+  {
+    value: 'description',
+    text: i18n.t('Description'),
+    types: [conditionType.SUBSTRING]
+  }
 ]
 
 export const pfConfigurationConnectionProfileListConfig = (context = {}) => {

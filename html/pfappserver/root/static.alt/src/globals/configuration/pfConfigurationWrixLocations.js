@@ -2,10 +2,7 @@ import i18n from '@/utils/locale'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
-import {
-  pfConfigurationListColumns,
-  pfConfigurationListFields
-} from '@/globals/configuration/pfConfiguration'
+import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
   and,
   not,
@@ -66,12 +63,27 @@ export const pfConfigurationWrixLocationsLogs = [
 ]
 
 export const pfConfigurationWrixLocationsListColumns = [
-  { ...pfConfigurationListColumns.id, ...{ label: i18n.t('WRIX Identifer') } }, // re-label
-  pfConfigurationListColumns.buttons
+  {
+    key: 'id',
+    label: i18n.t('WRIX Identifier'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'buttons',
+    label: '',
+    sortable: false,
+    visible: true,
+    locked: true
+  }
 ]
 
 export const pfConfigurationWrixLocationsListFields = [
-  { ...pfConfigurationListFields.id, ...{ text: i18n.t('WRIX Identifer') } } // re-text
+  {
+    value: 'id',
+    text: i18n.t('WRIX Identifier'),
+    types: [conditionType.SUBSTRING]
+  }
 ]
 
 export const pfConfigurationWrixLocationsListConfig = (context = {}) => {

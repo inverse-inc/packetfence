@@ -1,11 +1,10 @@
 import i18n from '@/utils/locale'
 import pfFormInput from '@/components/pfFormInput'
 import {
-  pfConfigurationListColumns,
-  pfConfigurationListFields,
   pfConfigurationAttributesFromMeta,
   pfConfigurationValidatorsFromMeta
 } from '@/globals/configuration/pfConfiguration'
+import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
   and,
   not,
@@ -19,12 +18,27 @@ const {
 } = require('vuelidate/lib/validators')
 
 export const pfConfigurationTrafficShapingPoliciesListColumns = [
-  { ...pfConfigurationListColumns.id, ...{ label: i18n.t('Traffic Shaping Policy Name') } }, // re-label
-  pfConfigurationListColumns.buttons
+  {
+    key: 'id',
+    label: i18n.t('Traffic Shaping Policy Name'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'buttons',
+    label: '',
+    sortable: false,
+    visible: true,
+    locked: true
+  }
 ]
 
 export const pfConfigurationTrafficShapingPoliciesListFields = [
-  { ...pfConfigurationListFields.id, ...{ text: i18n.t('Traffic Shaping Policy Name') } } // re-text
+  {
+    value: 'id',
+    text: i18n.t('Traffic Shaping Policy Name'),
+    types: [conditionType.SUBSTRING]
+  }
 ]
 
 export const pfConfigurationTrafficShapingPoliciesListConfig = (context = {}) => {

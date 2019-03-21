@@ -11,11 +11,10 @@ import pfFormTextarea from '@/components/pfFormTextarea'
 import {
   pfConfigurationActions,
   pfConfigurationConditions,
-  pfConfigurationListColumns,
-  pfConfigurationListFields,
   pfConfigurationAttributesFromMeta,
   pfConfigurationValidatorsFromMeta
 } from '@/globals/configuration/pfConfiguration'
+import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
   alphaNum,
   and,
@@ -32,18 +31,60 @@ const {
 } = require('vuelidate/lib/validators')
 
 export const pfConfigurationAuthenticationSourcesListColumns = [
-  { ...pfConfigurationListColumns.id, ...{ label: i18n.t('Name') } }, // re-label
-  pfConfigurationListColumns.description,
-  pfConfigurationListColumns.class,
-  pfConfigurationListColumns.type,
-  pfConfigurationListColumns.buttons
+  {
+    key: 'id',
+    label: i18n.t('Name'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'description',
+    label: i18n.t('Description'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'class',
+    label: i18n.t('Class'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'type',
+    label: i18n.t('Type'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'buttons',
+    label: '',
+    sortable: false,
+    visible: true,
+    locked: true
+  }
 ]
 
 export const pfConfigurationAuthenticationSourcesListFields = [
-  { ...pfConfigurationListFields.id, ...{ text: i18n.t('Name') } }, // re-text
-  pfConfigurationListFields.description,
-  pfConfigurationListFields.class,
-  pfConfigurationListFields.type
+  {
+    value: 'id',
+    text: i18n.t('Name'),
+    types: [conditionType.SUBSTRING]
+  },
+  {
+    value: 'description',
+    text: i18n.t('Description'),
+    types: [conditionType.SUBSTRING]
+  },
+  {
+    value: 'class',
+    text: i18n.t('Class'),
+    types: [conditionType.SUBSTRING]
+  },
+  {
+    value: 'type',
+    text: i18n.t('Type'),
+    types: [conditionType.SUBSTRING]
+  }
 ]
 
 export const pfConfigurationAuthenticationSourceListConfig = (context = {}) => {

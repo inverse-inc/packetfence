@@ -5,11 +5,10 @@ import pfFormDatetime from '@/components/pfFormDatetime'
 import pfFormFields from '@/components/pfFormFields'
 import pfFormInput from '@/components/pfFormInput'
 import {
-  pfConfigurationListColumns,
-  pfConfigurationListFields,
   pfConfigurationAttributesFromMeta,
   pfConfigurationValidatorsFromMeta
 } from '@/globals/configuration/pfConfiguration'
+import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
   and,
   not,
@@ -23,14 +22,38 @@ const {
 } = require('vuelidate/lib/validators')
 
 export const pfConfigurationAdminRolesListColumns = [
-  { ...pfConfigurationListColumns.id, ...{ label: i18n.t('Role Name') } }, // re-label
-  pfConfigurationListColumns.description,
-  pfConfigurationListColumns.buttons
+  {
+    key: 'id',
+    label: i18n.t('Role Name'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'description',
+    label: i18n.t('Description'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'buttons',
+    label: '',
+    sortable: false,
+    visible: true,
+    locked: true
+  }
 ]
 
 export const pfConfigurationAdminRolesListFields = [
-  { ...pfConfigurationListFields.id, ...{ text: i18n.t('Role Name') } }, // re-text
-  pfConfigurationListFields.description
+  {
+    value: 'id',
+    text: i18n.t('Role Name'),
+    types: [conditionType.SUBSTRING]
+  },
+  {
+    value: 'description',
+    text: i18n.t('Description'),
+    types: [conditionType.SUBSTRING]
+  }
 ]
 
 export const pfConfigurationAdminRoleListConfig = (context = {}) => {

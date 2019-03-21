@@ -4,11 +4,10 @@ import pfFormInput from '@/components/pfFormInput'
 import pfFormPassword from '@/components/pfFormPassword'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import {
-  pfConfigurationListColumns,
-  pfConfigurationListFields,
   pfConfigurationAttributesFromMeta,
   pfConfigurationValidatorsFromMeta
 } from '@/globals/configuration/pfConfiguration'
+import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
   and,
   or,
@@ -28,16 +27,49 @@ const {
 } = require('vuelidate/lib/validators')
 
 export const pfConfigurationFirewallsListColumns = [
-  { ...pfConfigurationListColumns.id, ...{ label: i18n.t('Hostname or IP') } }, // re-label
-  { ...pfConfigurationListColumns.type, ...{ label: i18n.t('Firewall Type') } }, // re-label
-  pfConfigurationListColumns.port,
-  pfConfigurationListColumns.buttons
+  {
+    key: 'id',
+    label: i18n.t('Hostname or IP'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'type',
+    label: i18n.t('Firewall Type'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'port',
+    label: i18n.t('Port'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'buttons',
+    label: '',
+    sortable: false,
+    visible: true,
+    locked: true
+  }
 ]
 
 export const pfConfigurationFirewallsListFields = [
-  { ...pfConfigurationListFields.id, ...{ text: i18n.t('Name') } }, // re-text
-  pfConfigurationListFields.type,
-  pfConfigurationListFields.port
+  {
+    value: 'id',
+    text: i18n.t('Name'),
+    types: [conditionType.SUBSTRING]
+  },
+  {
+    value: 'type',
+    text: i18n.t('Type'),
+    types: [conditionType.SUBSTRING]
+  },
+  {
+    value: 'port',
+    text: i18n.t('Port'),
+    types: [conditionType.SUBSTRING]
+  }
 ]
 
 export const pfConfigurationFirewallsListConfig = (context = {}) => {

@@ -3,11 +3,10 @@ import pfFormChosen from '@/components/pfFormChosen'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import {
-  pfConfigurationListColumns,
-  pfConfigurationListFields,
   pfConfigurationAttributesFromMeta,
   pfConfigurationValidatorsFromMeta
 } from '@/globals/configuration/pfConfiguration'
+import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
   and,
   or,
@@ -27,14 +26,38 @@ const {
 } = require('vuelidate/lib/validators')
 
 export const pfConfigurationSyslogForwardersListColumns = [
-  { ...pfConfigurationListColumns.id, ...{ label: i18n.t('Syslog Name') } }, // re-label
-  { ...pfConfigurationListColumns.type, ...{ label: i18n.t('Type') } }, // re-label
-  pfConfigurationListColumns.buttons
+  {
+    key: 'id',
+    label: i18n.t('Syslog Name'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'type',
+    label: i18n.t('Type'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'buttons',
+    label: '',
+    sortable: false,
+    visible: true,
+    locked: true
+  }
 ]
 
 export const pfConfigurationSyslogForwardersListFields = [
-  { ...pfConfigurationListFields.id, ...{ text: i18n.t('Syslog Name') } }, // re-text
-  pfConfigurationListFields.type
+  {
+    value: 'id',
+    text: i18n.t('Syslog Name'),
+    types: [conditionType.SUBSTRING]
+  },
+  {
+    value: 'type',
+    text: i18n.t('Type'),
+    types: [conditionType.SUBSTRING]
+  }
 ]
 
 export const pfConfigurationSyslogForwardersListConfig = (context = {}) => {

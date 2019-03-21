@@ -1,10 +1,7 @@
 import i18n from '@/utils/locale'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormToggle from '@/components/pfFormToggle'
-import {
-  pfConfigurationListColumns,
-  pfConfigurationListFields
-} from '@/globals/configuration/pfConfiguration'
+import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
   and,
   isFQDN,
@@ -362,11 +359,20 @@ export const pfConfigurationProfilingDeviceChangeDetectionViewDefaults = (contex
 }
 
 export const pfConfigurationProfilingCombinationsListColumns = [
-  { ...pfConfigurationListColumns.id, ...{ label: i18n.t('Identifier') } } // re-label
+  {
+    key: 'id',
+    label: i18n.t('Identifier'),
+    sortable: true,
+    visible: true
+  }
 ]
 
 export const pfConfigurationProfilingCombinationsListFields = [
-  { ...pfConfigurationListFields.id, ...{ text: i18n.t('Identifier') } } // re-text
+  {
+    value: 'id',
+    text: i18n.t('Identifier'),
+    types: [conditionType.SUBSTRING]
+  }
 ]
 
 export const pfConfigurationProfilingCombinationsListConfig = (context = {}) => {
@@ -409,11 +415,20 @@ export const pfConfigurationProfilingCombinationsListConfig = (context = {}) => 
 }
 
 export const pfConfigurationProfilingDevicesListColumns = [
-  { ...pfConfigurationListColumns.id, ...{ label: i18n.t('Identifier') } } // re-label
+  {
+    key: 'id',
+    label: i18n.t('Identifier'),
+    sortable: true,
+    visible: true
+  }
 ]
 
 export const pfConfigurationProfilingDevicesListFields = [
-  { ...pfConfigurationListFields.id, ...{ text: i18n.t('Identifier') } } // re-text
+  {
+    value: 'id',
+    text: i18n.t('Identifier'),
+    types: [conditionType.SUBSTRING]
+  }
 ]
 
 export const pfConfigurationProfilingDevicesListConfig = (context = {}) => {
@@ -456,11 +471,20 @@ export const pfConfigurationProfilingDevicesListConfig = (context = {}) => {
 }
 
 export const pfConfigurationProfilingDhcpFingerprintsListColumns = [
-  { ...pfConfigurationListColumns.id, ...{ label: i18n.t('Identifier') } } // re-label
+  {
+    key: 'id',
+    label: i18n.t('Identifier'),
+    sortable: true,
+    visible: true
+  }
 ]
 
 export const pfConfigurationProfilingDhcpFingerprintsListFields = [
-  { ...pfConfigurationListFields.id, ...{ text: i18n.t('Identifier') } } // re-text
+  {
+    value: 'id',
+    text: i18n.t('Identifier'),
+    types: [conditionType.SUBSTRING]
+  }
 ]
 
 export const pfConfigurationProfilingDhcpFingerprintsListConfig = (context = {}) => {
@@ -503,11 +527,20 @@ export const pfConfigurationProfilingDhcpFingerprintsListConfig = (context = {})
 }
 
 export const pfConfigurationProfilingDhcpVendorsListColumns = [
-  { ...pfConfigurationListColumns.id, ...{ label: i18n.t('Identifier') } } // re-label
+  {
+    key: 'id',
+    label: i18n.t('Identifier'),
+    sortable: true,
+    visible: true
+  }
 ]
 
 export const pfConfigurationProfilingDhcpVendorsListFields = [
-  { ...pfConfigurationListFields.id, ...{ text: i18n.t('Identifier') } } // re-text
+  {
+    value: 'id',
+    text: i18n.t('Identifier'),
+    types: [conditionType.SUBSTRING]
+  }
 ]
 
 export const pfConfigurationProfilingDhcpVendorsListConfig = (context = {}) => {
@@ -550,11 +583,20 @@ export const pfConfigurationProfilingDhcpVendorsListConfig = (context = {}) => {
 }
 
 export const pfConfigurationProfilingDhcpv6FingerprintsListColumns = [
-  { ...pfConfigurationListColumns.id, ...{ label: i18n.t('Identifier') } } // re-label
+  {
+    key: 'id',
+    label: i18n.t('Identifier'),
+    sortable: true,
+    visible: true
+  }
 ]
 
 export const pfConfigurationProfilingDhcpv6FingerprintsListFields = [
-  { ...pfConfigurationListFields.id, ...{ text: i18n.t('Identifier') } } // re-text
+  {
+    value: 'id',
+    text: i18n.t('Identifier'),
+    types: [conditionType.SUBSTRING]
+  }
 ]
 
 export const pfConfigurationProfilingDhcpv6FingerprintsListConfig = (context = {}) => {
@@ -597,11 +639,20 @@ export const pfConfigurationProfilingDhcpv6FingerprintsListConfig = (context = {
 }
 
 export const pfConfigurationProfilingDhcpv6EnterprisesListColumns = [
-  { ...pfConfigurationListColumns.id, ...{ label: i18n.t('Identifier') } } // re-label
+  {
+    key: 'id',
+    label: i18n.t('Identifier'),
+    sortable: true,
+    visible: true
+  }
 ]
 
 export const pfConfigurationProfilingDhcpv6EnterprisesListFields = [
-  { ...pfConfigurationListFields.id, ...{ text: i18n.t('Identifier') } } // re-text
+  {
+    value: 'id',
+    text: i18n.t('Identifier'),
+    types: [conditionType.SUBSTRING]
+  }
 ]
 
 export const pfConfigurationProfilingDhcpv6EnterprisesListConfig = (context = {}) => {
@@ -644,11 +695,20 @@ export const pfConfigurationProfilingDhcpv6EnterprisesListConfig = (context = {}
 }
 
 export const pfConfigurationProfilingMacVendorsListColumns = [
-  { ...pfConfigurationListColumns.id, ...{ label: i18n.t('Identifier') } } // re-label
+  {
+    key: 'id',
+    label: i18n.t('Identifier'),
+    sortable: true,
+    visible: true
+  }
 ]
 
 export const pfConfigurationProfilingMacVendorsListFields = [
-  { ...pfConfigurationListFields.id, ...{ text: i18n.t('Identifier') } } // re-text
+  {
+    value: 'id',
+    text: i18n.t('Identifier'),
+    types: [conditionType.SUBSTRING]
+  }
 ]
 
 export const pfConfigurationProfilingMacVendorsListConfig = (context = {}) => {
@@ -691,11 +751,20 @@ export const pfConfigurationProfilingMacVendorsListConfig = (context = {}) => {
 }
 
 export const pfConfigurationProfilingUserAgentsListColumns = [
-  { ...pfConfigurationListColumns.id, ...{ label: i18n.t('Identifier') } } // re-label
+  {
+    key: 'id',
+    label: i18n.t('Identifier'),
+    sortable: true,
+    visible: true
+  }
 ]
 
 export const pfConfigurationProfilingUserAgentsListFields = [
-  { ...pfConfigurationListFields.id, ...{ text: i18n.t('Identifier') } } // re-text
+  {
+    value: 'id',
+    text: i18n.t('Identifier'),
+    types: [conditionType.SUBSTRING]
+  }
 ]
 
 export const pfConfigurationProfilingUserAgentsListConfig = (context = {}) => {

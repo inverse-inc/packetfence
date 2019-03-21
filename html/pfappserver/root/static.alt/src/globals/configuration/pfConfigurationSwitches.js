@@ -8,12 +8,11 @@ import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import pfFormPassword from '@/components/pfFormPassword'
 import pfFormTextarea from '@/components/pfFormTextarea'
 import {
-  pfConfigurationListColumns,
-  pfConfigurationListFields,
   pfConfigurationAttributesFromMeta,
   pfConfigurationValidatorsFromMeta
 } from '@/globals/configuration/pfConfiguration'
 import { pfFieldType as fieldType } from '@/globals/pfField'
+import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
   and,
   not,
@@ -31,19 +30,69 @@ const {
 } = require('vuelidate/lib/validators')
 
 export const pfConfigurationSwitchesListColumns = [
-  { ...pfConfigurationListColumns.id, ...{ label: i18n.t('Identifier') } }, // re-label
-  pfConfigurationListColumns.description,
-  pfConfigurationListColumns.group,
-  pfConfigurationListColumns.type,
-  pfConfigurationListColumns.mode,
-  pfConfigurationListColumns.buttons
+  {
+    key: 'id',
+    label: i18n.t('Identifier'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'description',
+    label: i18n.t('Description'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'group',
+    label: i18n.t('Group'),
+    sortable: true,
+    visible: true,
+    formatter: (value, key, item) => {
+      if (!value) item.group = i18n.t('default')
+    }
+  },
+  {
+    key: 'type',
+    label: i18n.t('Type'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'mode',
+    label: i18n.t('Mode'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'buttons',
+    label: '',
+    sortable: false,
+    visible: true,
+    locked: true
+  }
 ]
 
 export const pfConfigurationSwitchesListFields = [
-  { ...pfConfigurationListFields.id, ...{ text: i18n.t('Identifier') } }, // re-text
-  pfConfigurationListFields.description,
-  pfConfigurationListFields.mode,
-  pfConfigurationListFields.type
+  {
+    value: 'id',
+    text: i18n.t('Identifier'),
+    types: [conditionType.SUBSTRING]
+  },
+  {
+    value: 'description',
+    text: i18n.t('Description'),
+    types: [conditionType.SUBSTRING]
+  },
+  {
+    value: 'mode',
+    text: i18n.t('Mode'),
+    types: [conditionType.SUBSTRING]
+  },
+  {
+    value: 'type',
+    text: i18n.t('Type'),
+    types: [conditionType.SUBSTRING]
+  }
 ]
 
 export const pfConfigurationSwitchesListConfig = (context = {}) => {

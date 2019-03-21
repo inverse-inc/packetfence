@@ -1,11 +1,10 @@
 import i18n from '@/utils/locale'
 import pfFormInput from '@/components/pfFormInput'
 import {
-  pfConfigurationListColumns,
-  pfConfigurationListFields,
   pfConfigurationAttributesFromMeta,
   pfConfigurationValidatorsFromMeta
 } from '@/globals/configuration/pfConfiguration'
+import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
   and,
   not,
@@ -19,15 +18,44 @@ const {
 } = require('vuelidate/lib/validators')
 
 export const pfConfigurationRolesListColumns = [
-  { ...pfConfigurationListColumns.id, ...{ label: i18n.t('Name') } }, // re-label
-  pfConfigurationListColumns.notes,
-  pfConfigurationListColumns.max_nodes_per_pid,
-  pfConfigurationListColumns.buttons
+  {
+    key: 'id',
+    label: i18n.t('Name'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'notes',
+    label: i18n.t('Description'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'max_nodes_per_pid',
+    label: i18n.t('Max nodes per user'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'buttons',
+    label: '',
+    sortable: false,
+    visible: true,
+    locked: true
+  }
 ]
 
 export const pfConfigurationRolesListFields = [
-  { ...pfConfigurationListFields.id, ...{ text: i18n.t('Name') } }, // re-text
-  pfConfigurationListFields.notes
+  {
+    value: 'id',
+    text: i18n.t('Name'),
+    types: [conditionType.SUBSTRING]
+  },
+  {
+    value: 'notes',
+    text: i18n.t('Description'),
+    types: [conditionType.SUBSTRING]
+  }
 ]
 
 export const pfConfigurationRoleListConfig = (context = {}) => {
