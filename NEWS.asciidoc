@@ -35,6 +35,7 @@ Enhancements
 * Display local account in the captive portal during registration if applicable (#3615)
 * Exception for portal detecion URL in pfdns
 * Added support for Ruckus roles
+* sms_carrier 'id' column is now auto-increment (#1270/PR#3684)
 
 Bug Fixes
 +++++++++
