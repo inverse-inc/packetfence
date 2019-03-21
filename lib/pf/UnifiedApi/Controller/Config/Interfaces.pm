@@ -40,7 +40,14 @@ sub resource{
 
 sub get {
     my ($self) = @_;
-    $self->render(json => $self->model->get($self->stash->{interface_id}), status => 200);
+    my $interface_id = $self->stash->{interface_id};
+    my $interface = $self->model->get($interface_id);
+    if(scalar(keys($interface)) > 0) {
+        $self->render(json => $interface, status => 200);
+    }
+    else {
+        $self->render_error(404, {message => "Interface $interface_id doesn't exist"});
+    }
 }
 
 sub create {
