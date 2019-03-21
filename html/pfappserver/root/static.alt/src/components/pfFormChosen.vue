@@ -224,6 +224,17 @@ export default {
     background-color: $dropdown-link-active-bg;
     color: $dropdown-link-active-color;
   }
+  .multiselect--disabled {
+    background-color: $input-disabled-bg;
+    opacity: 1;
+    .multiselect__tags,
+    .multiselect__single {
+      background-color: $input-disabled-bg;
+    }
+    .multiselect__select {
+      background-color: transparent;
+    }
+  }
   &.is-focus {
     .multiselect__tags {
       border-color: $input-focus-border-color;
