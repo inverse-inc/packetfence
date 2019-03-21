@@ -16,6 +16,10 @@ use strict;
 use warnings;
 use Mojo::Base 'pf::UnifiedApi::Controller::RestRoute';
 use pfappserver::Model::Interface;
+use pfappserver::Model::Enforcement;
+use pfappserver::Form::Interface::Create;
+use pf::UnifiedApi::Controller::Config;
+use pf::error qw(is_success);
 use Data::Dumper;
 
 sub model {
@@ -31,7 +35,7 @@ sub list {
 
 sub resource{
     my ($self) = @_;
-    return $self->get();
+    #return $self->get();
 }
 
 sub get {
@@ -41,7 +45,46 @@ sub get {
 
 sub create {
     my ($self) = @_;
-    print Dumper($self->parse_json);
+    my $data = $self->parse_json;
+    $data = $self->validate_item("pfappserver::Form::Interface::Create", $data);
+    my $full_name = $data->{name} . "." . $data->{vlan};
+    my $model = $self->model;
+
+    my ($status, $result) = $model->create($full_name);
+    if (is_success($status)) {
+        ($status, $result) = $model->update($full_name, $data);
+    }
+    $self->render(json => {result => pf::I18N::pfappserver->localize($result)}, status => $status);
+}
+
+sub update {
+    my ($self) = @_;
+    my $data = $self->parse_json;
+    $data = $self->validate_item("pfappserver::Form::Interface", $data);
+    my $full_name = $self->stash->{interface_id};
+    my $model = $self->model;
+
+    my ($status, $result) = $model->update($full_name, $data);
+    $self->render(json => {message => pf::I18N::pfappserver->localize($result)}, status => $status);
+}
+
+sub delete {
+    my ($self) = @_;
+    my ($status, $result) = $self->model->delete($self->stash->{interface_id}, "");
+    $self->render(json => {message => pf::I18N::pfappserver->localize($result)}, status => $status);
+}
+
+sub validate_item {
+    my ($self, $form, $item) = @_;
+    $form = $form->new(types => pfappserver::Model::Enforcement->new->getAvailableTypes("all"));
+
+    $form->process(pf::UnifiedApi::Controller::Config::form_process_parameters_for_validation($self, $item));
+    if (!$form->has_errors) {
+        return $form->value;
+    }
+
+    $self->render_error(422, "Unable to validate", pf::UnifiedApi::Controller::Config::format_form_errors($self, $form));
+    return undef;
 }
 
 =head1 AUTHOR
