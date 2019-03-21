@@ -52,7 +52,7 @@ use pf::api::unifiedapiclient;
 use pf::config::cluster;
 
 Readonly our $SET_PASSTHROUGHS      => 'pfsession_passthrough';
-Readonly our $SET_ISOL_PASSTRHOUGHS => 'pfsession_isol_passthrough';
+Readonly our $SET_ISOL_PASSTHROUGHS => 'pfsession_isol_passthrough';
 Readonly our $SET_PORTAL_PARKING    => 'parking';
 Readonly our $SET_STATUS_CHECK      => 'PF_status_check';
 
@@ -125,6 +125,7 @@ sub generate {
     $sets{'SET_PORTAL_PARKING'} .= $SET_PORTAL_PARKING;
     $sets{'SET_PASSTHROUGHS'}   .= $SET_PASSTHROUGHS;
     $sets{'SET_ISOL_PASSTHROUGHS'}   .= $SET_ISOL_PASSTHROUGHS;
+    $sets{'inline'} = '';
 
     # Inline enforcement technique specific sets
     my @roles = pf::nodecategory::nodecategory_view_all;

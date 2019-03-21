@@ -21,7 +21,7 @@ our @EXPORT_OK = qw($PARKING_DHCP_GROUP_NAME $PARKING_IPSET_NAME $PARKING_SECURI
 
 Readonly our $PARKING_DHCP_GROUP_NAME => "parking";
 
-Readonly our $PARKING_IPSET_NAME => "parking";
+Readonly our $PARKING_IPSET_NAME => "PF_portal_parking";
 
 Readonly our $PARKING_SECURITY_EVENT_ID => 1300003;
  
