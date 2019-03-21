@@ -143,13 +143,24 @@ export default {
 @import "../../node_modules/bootstrap/scss/functions";
 @import "../../node_modules/bootstrap/scss/mixins/border-radius";
 @import "../../node_modules/bootstrap/scss/mixins/box-shadow";
-@import "../../node_modules/bootstrap/scss/mixins/transition";
 @import "../styles/variables";
 
 /**
  * Adjust is-invalid and is-focus borders
  */
 .pf-form-chosen {
+
+  /* disable all transitions */
+  .multiselect__loading-enter-active,
+  .multiselect__loading-leave-active,
+  .multiselect__input,
+  .multiselect__single,
+  .multiselect__tag-icon,
+  .multiselect__select,
+  .multiselect-enter-active,.multiselect-leave-active {
+      transition: none !important;
+  }
+
   .multiselect {
       position: relative;
       flex: 1 1 auto;
@@ -165,7 +176,6 @@ export default {
     border: 1px solid $input-focus-bg;
     background-color: $input-focus-bg;
     @include border-radius($border-radius);
-    @include transition($custom-forms-transition);
     outline: 0;
     .multiselect__input {
       max-width: 100%
