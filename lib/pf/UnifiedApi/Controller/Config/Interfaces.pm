@@ -33,9 +33,7 @@ sub list {
     $self->render(json => {items => [map { $self->normalize_interface($_) } $self->model->get('all')]}, status => 200);
 }
 
-sub resource{
-    my ($self) = @_;
-}
+sub resource{}
 
 sub normalize_interface {
     my ($self, $interface) = @_;
