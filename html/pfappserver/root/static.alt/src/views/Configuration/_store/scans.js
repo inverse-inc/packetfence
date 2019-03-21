@@ -33,7 +33,7 @@ const actions = {
       return response.items
     })
   },
-  optionsById: ({}, id) => {
+  optionsById: ({ commit }, id) => {
     commit('ITEM_REQUEST')
     return api.scanEngineOptions(id).then(response => {
       commit('ITEM_SUCCESS')
@@ -43,7 +43,7 @@ const actions = {
       throw err
     })
   },
-  optionsByScanType: ({}, scanType) => {
+  optionsByScanType: ({ commit }, scanType) => {
     commit('ITEM_REQUEST')
     return api.scanEnginesOptions(scanType).then(response => {
       commit('ITEM_SUCCESS')

@@ -1,6 +1,7 @@
 <template>
   <pf-config-view
     :isLoading="isLoading"
+    :percentLoading="percentLoading"
     :disabled="isLoading"
     :form="getForm"
     :model="form"
@@ -53,6 +54,7 @@ export default {
   },
   data () {
     return {
+      percentLoading: 0,
       form: {}, // will be overloaded with the data from the store
       formValidations: {}, // will be overloaded with data from the pfConfigView
       options: {}
@@ -79,10 +81,13 @@ export default {
   },
   methods: {
     init () {
+      this.percentLoading = 33
       this.$store.dispatch('$_bases/optionsGuestsAdminRegistration').then(options => {
+        this.percentLoading = 66
         // store options
         this.options = JSON.parse(JSON.stringify(options))
         this.$store.dispatch('$_bases/getGuestsAdminRegistration').then(data => {
+          this.percentLoading = 100
           if ('access_duration_choices' in data && data.access_duration_choices.constructor === String) {
             // split and map access_duration_choices
             data.access_duration_choices = deserialize(data.access_duration_choices)
@@ -92,10 +97,12 @@ export default {
       })
     },
     save () {
+      this.percentLoading = 50
       let form = JSON.parse(JSON.stringify(this.form)) // dereference
       // re-join access_duration_choices
       form.access_duration_choices = serialize(form.access_duration_choices)
       this.$store.dispatch('$_bases/updateGuestsAdminRegistration', form).then(response => {
+        this.percentLoading = 100
         // TODO - notification
       })
     }
