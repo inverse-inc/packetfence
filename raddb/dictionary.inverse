@@ -46,6 +46,7 @@ ATTRIBUTE       PacketFence-Proxied-From              30       string
 ATTRIBUTE       PacketFence-UserNameAttribute         31       string
 ATTRIBUTE       PacketFence-KeyBalanced               32       string
 ATTRIBUTE       PacketFence-Radius-Ip                 33       string
+ATTRIBUTE       PacketFence-NTCacheHash               34       string
 
 END-VENDOR      Inverse
 
