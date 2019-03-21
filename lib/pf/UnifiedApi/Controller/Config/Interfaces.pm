@@ -80,7 +80,10 @@ Normalize interface information for JSON rendering
 
 sub normalize_interface {
     my ($self, $interface) = @_;
-    $interface->{is_running} = $interface->{is_running} ? $self->json_true : $self->json_false;
+    my @bools = qw(is_running network_iseditable);
+    for my $bool (@bools) {
+        $interface->{$bool} = $interface->{$bool} ? $self->json_true : $self->json_false;
+    }
     return $interface;
 }
 
