@@ -22,24 +22,73 @@ use pf::UnifiedApi::Controller::Config;
 use pf::error qw(is_success);
 use Data::Dumper;
 
+=head2 validate_item
+
+Validate the parameters of an interface based on the context (create/update)
+
+=cut
+
+sub validate_item {
+    my ($self, $form, $item) = @_;
+    $form = $form->new(types => pfappserver::Model::Enforcement->new->getAvailableTypes("all"));
+
+    $form->process(pf::UnifiedApi::Controller::Config::form_process_parameters_for_validation($self, $item));
+    if (!$form->has_errors) {
+        return $form->value;
+    }
+
+    $self->render_error(422, "Unable to validate", pf::UnifiedApi::Controller::Config::format_form_errors($self, $form));
+    return undef;
+}
+
+=head2 model
+
+Get the pfappserver model of the interfaces
+
+=cut
+
 sub model {
     my $model = pfappserver::Model::Interface->new;
     $model->ACCEPT_CONTEXT;
     return $model;
 }
 
+=head2 list
+
+List all the interfaces
+
+=cut
+
 sub list {
     my ($self) = @_;
     $self->render(json => {items => [map { $self->normalize_interface($_) } $self->model->get('all')]}, status => 200);
 }
 
+=head2 resource
+
+Handler for resource
+
+=cut
+
 sub resource{1}
+
+=head2 normalize_interface
+
+Normalize interface information for JSON rendering
+
+=cut
 
 sub normalize_interface {
     my ($self, $interface) = @_;
     $interface->{is_running} = $interface->{is_running} ? $self->json_true : $self->json_false;
     return $interface;
 }
+
+=head2 get
+
+Get a specific interface
+
+=cut
 
 sub get {
     my ($self) = @_;
@@ -55,6 +104,11 @@ sub get {
     }
 }
 
+=head2 create
+
+Create a new virtual interface
+
+=cut
 sub create {
     my ($self) = @_;
     my $data = $self->parse_json;
@@ -69,6 +123,12 @@ sub create {
     $self->render(json => {result => pf::I18N::pfappserver->localize($result)}, status => $status);
 }
 
+=head2 update
+
+Update an existing network interface
+
+=cut
+
 sub update {
     my ($self) = @_;
     my $data = $self->parse_json;
@@ -80,30 +140,35 @@ sub update {
     $self->render(json => {message => pf::I18N::pfappserver->localize($result)}, status => $status);
 }
 
+=head2 delete
+
+Delete a virtual interface
+
+=cut
+
 sub delete {
     my ($self) = @_;
     my ($status, $result) = $self->model->delete($self->stash->{interface_id}, "");
     $self->render(json => {message => pf::I18N::pfappserver->localize($result)}, status => $status);
 }
 
-sub validate_item {
-    my ($self, $form, $item) = @_;
-    $form = $form->new(types => pfappserver::Model::Enforcement->new->getAvailableTypes("all"));
+=head2 up
 
-    $form->process(pf::UnifiedApi::Controller::Config::form_process_parameters_for_validation($self, $item));
-    if (!$form->has_errors) {
-        return $form->value;
-    }
+Put an interface up
 
-    $self->render_error(422, "Unable to validate", pf::UnifiedApi::Controller::Config::format_form_errors($self, $form));
-    return undef;
-}
+=cut
 
 sub up {
     my ($self) = @_;
     my ($status, $result) = $self->model->up($self->stash->{interface_id});
     $self->render(json => {message => pf::I18N::pfappserver->localize($result)}, status => $status);
 }
+
+=head2 down
+
+Put an interface down
+
+=cut
 
 sub down {
     my ($self) = @_;
