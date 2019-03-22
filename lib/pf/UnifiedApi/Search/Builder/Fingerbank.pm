@@ -70,7 +70,6 @@ sub search {
     my $model = $search_info->{model};
     my $limit = $search_args->{'-limit'};
     my $offset = $search_args->{'-offset'};
-    #use Data::Dumper;print Dumper($search_args);
     ($status, my $resultsets) = $model->search(
         [
             $search_args->{'-where'} // {},
