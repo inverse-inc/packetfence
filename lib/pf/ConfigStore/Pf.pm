@@ -13,7 +13,7 @@ pf::ConfigStore::PF
 =cut
 
 use Moo;
-use POSIX;
+use POSIX();
 use namespace::autoclean;
 use pf::config qw(
     %Default_Config
