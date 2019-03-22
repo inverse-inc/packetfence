@@ -39,6 +39,7 @@ Enhancements
 * Added support for Ruckus roles
 * sms_carrier 'id' column is now auto-increment (#1270/PR#3684)
 * Better logging for haproxy-portal that allows to identify missing passthroughs
+* Allow to skip management node in portal load-balancing when running in a cluster
 
 Bug Fixes
 +++++++++
@@ -49,7 +50,7 @@ Bug Fixes
 * fixed untainted variable (#3920)
 * fixed on-registration scanning (#3963)
 * Set the realm in the radius request when it's machine authentication
-
+* Keep connections to the unified API alive
 
 Version 8.3.0 released on 2019-01-09
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
