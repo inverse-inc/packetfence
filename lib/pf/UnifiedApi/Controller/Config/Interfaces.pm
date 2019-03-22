@@ -99,7 +99,7 @@ sub get {
     if(scalar(keys($interface)) > 0) {
         $interface = $interface->{$interface_id};
         $interface = $self->normalize_interface($interface);
-        $self->render(json => $interface, status => 200);
+        $self->render(json => {item => $interface}, status => 200);
     }
     else {
         $self->render_error(404, {message => "Interface $interface_id doesn't exist"});
