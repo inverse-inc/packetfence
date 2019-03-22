@@ -6474,6 +6474,93 @@ External portal SSID
 * Set the *Redirect Secret* to any passphrase of your choice
 * In the *RADIUS Configuration* section set the RADIUS server to point to your PacketFence server
 
+VPN Configuration
+-----------------
+
+Cisco ASA
+~~~~~~~~~
+
+AnyConnect
+^^^^^^^^^^
+
+PacketFence supports Cisco ASA VPN with AnyConnect.
+
+You can force VPN users to authenticate first on the captive portal and based on the role of the device allow it and/or set dynamic ACL.
+
+In this example we assume that the Cisco ASA have 2 interfaces, one Management (192.168.2.1) where the VPN is activated and another one Registration (192.168.1.6) that is facing the PacketFence server (192.168.1.5).
+
+Before trying to configure PacketFence with the Cisco ASA first be sure that when you connect with AnyConnect and when the VPN is up that your device is able to reach Internet.
+
+ ip local pool VPN_POOL 192.168.255.10-192.168.255.254 mask 255.255.255.0
+ !
+ interface GigabitEthernet0/0
+  nameif MANAGEMENT
+  security-level 0
+  ip address 192.168.2.1 255.255.255.0 
+ !
+ interface GigabitEthernet0/1
+  nameif Registration
+  security-level 0
+  ip address 192.168.1.5 255.255.0.0 
+ !
+ same-security-traffic permit inter-interface
+ same-security-traffic permit intra-interface
+ !
+ object network NETWORK_OBJ_192.168.255.0_24
+  subnet 192.168.255.0 255.255.255.0
+ access-list redirect extended deny udp any any eq domain 
+ access-list redirect extended deny ip any host 192.168.1.5 
+ access-list redirect extended deny icmp any any 
+ access-list redirect extended permit tcp any any eq www 
+ access-list redirect extended permit tcp any any eq https 
+ !
+ route MANAGEMENT 0.0.0.0 0.0.0.0 192.168.2.254 1
+ !
+ aaa-server PacketFence protocol radius
+  authorize-only
+  interim-accounting-update periodic 1
+  merge-dacl before-avpair
+  dynamic-authorization
+ aaa-server PacketFence (Registration) host 192.168.1.5
+  timeout 5
+  key useStrongerSecret
+  authentication-port 1812
+  accounting-port 1813
+ !
+ http server enable
+ http 192.168.0.0 255.255.0.0 MANAGEMENT
+ !
+ webvpn
+  enable MANAGEMENT
+  anyconnect image disk0:/anyconnect-win-4.0.00051-k9.pkg 8
+  anyconnect image disk0:/anyconnect-linux-64-4.0.00051-k9.pkg 9
+  anyconnect image disk0:/anyconnect-macosx-i386-4.0.00051-k9.pkg 10
+  anyconnect profiles VPN_client_profile disk0:/VPN_client_profile.xml
+  anyconnect enable
+  tunnel-group-list enable
+  cache
+   disable
+  error-recovery disable
+ group-policy GroupPolicy_VPN internal
+ group-policy GroupPolicy_VPN attributes
+  dns-server value 1.1.1.1
+  vpn-tunnel-protocol ikev2 ssl-client 
+  split-tunnel-policy tunnelall
+  split-tunnel-network-list none
+  default-domain value acme.com
+  webvpn
+   anyconnect profiles value VPN_client_profile type user
+ tunnel-group VPN type remote-access
+ tunnel-group VPN general-attributes
+  address-pool (MANAGEMENT) VPN_POOL
+  address-pool VPN_POOL
+  authentication-server-group PacketFence
+  accounting-server-group PacketFence
+  default-group-policy GroupPolicy_VPN
+ tunnel-group VPN webvpn-attributes
+  group-alias VPN enable
+
+
 include::includes/additional-info.asciidoc[]
 
 include::includes/commercial-support.asciidoc[]

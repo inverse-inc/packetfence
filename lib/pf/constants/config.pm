@@ -65,10 +65,13 @@ our @EXPORT_OK = qw(
   $WEBAUTH
   $WEBAUTH_WIRED
   $WEBAUTH_WIRELESS
-    
+  $VIRTUAL_VPN
+  $VIRTUAL_CLI
+
   $WIRELESS
   $WIRED
   $EAP
+  $VIRTUAL
 
   %connection_type
   %connection_type_to_str
@@ -138,22 +141,26 @@ Readonly our %ALERTING_PORTS => (
 # 4 : Inline
 # 5 : SNMP
 # 6 : WebAuth
+# 7 : VIRTUAL
 
-Readonly our $WIRELESS_802_1X     => 0b1100000000;
-Readonly our $WIRELESS_MAC_AUTH   => 0b1000000001;
-Readonly our $WIRED_802_1X        => 0b0110000010;
-Readonly our $WIRED_MAC_AUTH      => 0b0010000011;
-Readonly our $WIRED_SNMP_TRAPS    => 0b0010100100;
-Readonly our $INLINE              => 0b0001000101;
-Readonly our $UNKNOWN             => 0b0000000000;
-Readonly our $WEBAUTH_WIRELESS    => 0b1000010111;
-Readonly our $WEBAUTH_WIRED       => 0b0010011000;
+Readonly our $WIRELESS_802_1X     => 0b11000000000;
+Readonly our $WIRELESS_MAC_AUTH   => 0b10000000001;
+Readonly our $WIRED_802_1X        => 0b01100000010;
+Readonly our $WIRED_MAC_AUTH      => 0b00100000011;
+Readonly our $WIRED_SNMP_TRAPS    => 0b00101000100;
+Readonly our $INLINE              => 0b00010000101;
+Readonly our $UNKNOWN             => 0b00000000000;
+Readonly our $WEBAUTH_WIRELESS    => 0b10000100111;
+Readonly our $WEBAUTH_WIRED       => 0b00100101000;
+Readonly our $VIRTUAL_VPN         => 0b00000011001;
+Readonly our $VIRTUAL_CLI         => 0b00000011010;
 
 # masks to be used on connection types
-Readonly our $WIRELESS   => 0b1000000000;
-Readonly our $WIRED      => 0b0010000000;
-Readonly our $EAP        => 0b0100000000;
-Readonly our $WEBAUTH    => 0b0000010000;
+Readonly our $WIRELESS   => 0b10000000000;
+Readonly our $WIRED      => 0b00100000000;
+Readonly our $EAP        => 0b01000000000;
+Readonly our $WEBAUTH    => 0b00000100000;
+Readonly our $VIRTUAL    => 0b00000010000;
 
 # TODO we should build a connection data class with these hashes and related constants
 # String to constant hash
@@ -166,12 +173,15 @@ Readonly our %connection_type => (
     'Inline'                => $INLINE,
     'Ethernet-Web-Auth'     => $WEBAUTH_WIRED,
     'Wireless-Web-Auth'     => $WEBAUTH_WIRELESS,
+    'VPN-Access'            => $VIRTUAL_VPN,
+    'CLI-Access'            => $VIRTUAL_CLI,
 );
 Readonly our %connection_group => (
     'Wireless'              => $WIRELESS,
     'Ethernet'              => $WIRED,
     'EAP'                   => $EAP,
     'Web-Auth'              => $WEBAUTH,
+    'Virtual'               => $VIRTUAL,
 );
 
 Readonly our %connection_type_to_str => (
@@ -184,12 +194,15 @@ Readonly our %connection_type_to_str => (
     $UNKNOWN => '',
     $WEBAUTH_WIRELESS => 'Wireless-Web-Auth',
     $WEBAUTH_WIRED  => 'Ethernet-Web-Auth',
+    $VIRTUAL_CLI => 'CLI-Access',
+    $VIRTUAL_VPN => 'VPN-Access',
 );
 Readonly our %connection_group_to_str => (
     $WIRELESS => 'Wireless',
     $WIRED => 'Ethernet',
     $EAP => 'EAP',
     $WEBAUTH => 'Web-Auth',
+    $VIRTUAL => 'Virtual',
 );
 
 # Their string equivalent for database storage
@@ -206,6 +219,8 @@ Readonly our %connection_type_explained => (
     $UNKNOWN => 'Unknown',
     $WEBAUTH_WIRELESS => 'Wifi Web Auth',
     $WEBAUTH_WIRED => 'Wired Web Auth',
+    $VIRTUAL_VPN => 'VPN Access',
+    $VIRTUAL_CLI => 'CLI Access',
 );
 
 Readonly our %connection_type_explained_to_str => map { $connection_type_explained{$_} => $connection_type_to_str{$_} } keys %connection_type_explained;
