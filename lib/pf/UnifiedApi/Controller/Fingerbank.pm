@@ -13,8 +13,10 @@ pf::UnifiedApi::Controller::Fingerbank
 use strict;
 use warnings;
 use pf::error qw(is_error);
+use pf::util qw(expand_csv);
 use Mojo::Base 'pf::UnifiedApi::Controller::RestRoute';
 use Mojo::Util qw(url_unescape);
+use pf::UnifiedApi::Search::Builder::Fingerbank;
 
 =head2 url_param_name
 
@@ -40,6 +42,15 @@ fingerbank_model
 =cut
 
 has 'fingerbank_model';
+
+=head2 search_builder_class
+
+search_builder_class
+
+=cut
+
+has 'search_builder_class' => "pf::UnifiedApi::Search::Builder::Fingerbank";
+
 
 sub resource {
     my ($self) = @_;
@@ -67,30 +78,16 @@ sub list {
         return $self->render(json => $search_info_or_error, status => $status);
     }
 
-    ($status, my $items) = $self->items($search_info_or_error);
-    if (is_error($status)) {
-        return $self->render_error($status, $items);
+    ($status, my $response) = $self->search_builder->search($search_info_or_error);
+    if ( is_error($status) ) {
+        return $self->render_error(
+            $status,
+            $response->{msg},
+            $response->{errors}
+        );
     }
 
-    my ($offset, $limit, $with_total_count) = @{$search_info_or_error}{qw(offset nb_of_rows with_total_count)};
-    my $nextCursor;
-    if (@$items == $limit) {
-        pop @$items;
-        $nextCursor = $offset + $limit - 1;
-    }
-
-    my $count;
-    if ($with_total_count) {
-        $count = $self->fingerbank_model->count;
-    }
-
-    return $self->render(json => {
-        items => $items,
-        scope => $self->stash->{scope},
-        prevCursor => $offset,
-        ( defined $nextCursor ? ( nextCursor => $nextCursor ) : () ),
-        ( defined $count ? ( total_count => $count ) : () ),
-    });
+    return $self->render(json => $response);
 }
 
 =head2 create
@@ -148,29 +145,26 @@ sub id {
 sub build_list_search_info {
     my ($self) = @_;
     my $params = $self->req->query_params->to_hash;
-    my %args = (
-        offset => $params->{cursor} // 0,
-        nb_of_rows => $params->{limit} // 25,
-        order_by => 'id',
-        order => 'asc',
-        with_total_count => $params->{with_total_count} // 0,
-        schema => $self->stash->{scope},
-    );
-    $args{nb_of_rows}++;
-
-    return 200, \%args;
-}
-
-=head2 items
-
-items
-
-=cut
-
-sub items {
-    my ($self, $params) = @_;
+    my $scope = $self->stash->{scope};
     my $model = $self->fingerbank_model;
-    return $model->list_paginated($params);
+    my $db = fingerbank::DB_Factory->instantiate(schema => 'Local');
+    my $source =  $db->handle->source($model->_parseClassName);
+    my %args = (
+        query => undef,
+        model => $model,
+        source => $source,
+        cursor => $params->{cursor} // 0,
+        limit => $params->{limit} // 25,
+        with_total_count => $params->{with_total_count} // 0,
+        scope => $scope,
+        (
+            map { $_ => [expand_csv($params->{$_} // '' )] } qw(fields sort)
+        ),
+    );
+
+    $args{limits}++;
+    $args{cursor}+=0;
+    return 200, \%args;
 }
 
 sub get {
@@ -186,10 +180,49 @@ search
 
 sub search {
     my ($self) = @_;
-    my $scope = $self->stash->{scope};
-    return $self->render(json => { items => [], scope => $scope});
+    my ($status, $search_info_or_error) = $self->build_search_info;
+    if (is_error($status)) {
+        return $self->render(json => $search_info_or_error, status => $status);
+    }
+
+    ($status, my $response) = $self->search_builder->search($search_info_or_error);
+    if ( is_error($status) ) {
+        return $self->render_error(
+            $status,
+            $response->{msg},
+            $response->{errors}
+        );
+    }
+
+    return $self->render(
+        json   => $response,
+        status => $status
+    );
 }
 
+sub build_search_info {
+    my ($self) = @_;
+    my ( $status, $data_or_error ) = $self->parse_json;
+    if ( is_error($status) ) {
+        return $status, $data_or_error;
+    }
+
+    my $model = $self->fingerbank_model;
+    my $db = fingerbank::DB_Factory->instantiate(schema => 'Local');
+    my $source =  $db->handle->source($model->_parseClassName);
+    return 200, {
+        model => $self->fingerbank_model,
+        source => $source,
+        scope => $self->stash->{scope},
+        (
+            map {
+                exists $data_or_error->{$_}
+                  ? ( $_ => $data_or_error->{$_} )
+                  : ()
+            } qw(limit query fields sort cursor with_total_count)
+        )
+    };
+}
 =head2 query_to_sql_abstract
 
 query_to_sql_abstract
@@ -211,6 +244,11 @@ sub item {
     my ($self) = @_;
     my $stash = $self->stash;
     return ${$stash->{item}}[-1];
+}
+
+sub search_builder {
+    my ($self) = @_;
+    return $self->search_builder_class->new();
 }
 
 =head1 AUTHOR

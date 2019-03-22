@@ -24,7 +24,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 27;
+use Test::More tests => 11;
 
 #This test will running last
 use Test::NoWarnings;
@@ -32,7 +32,6 @@ use fingerbank::Model::MAC_Vendor;
 use pf::UnifiedApi::Search::Builder::Fingerbank;
 use pf::error qw(is_error);
 use pf::constants qw($ZERO_DATE);
-use pf::dal::node;
 my $model = "fingerbank::Model::MAC_Vendor";
 my $db =  fingerbank::DB_Factory->instantiate(schema => 'Local');
 my $schema = $db->handle;
@@ -48,16 +47,22 @@ my $sb = pf::UnifiedApi::Search::Builder::Fingerbank->new();
 {
     my ($status, $col) = $sb->make_columns({ model => $model, source => $source,  fields => [qw(mac id)], scope => 'Local'});
     ok(!is_error($status), "Accept valid columns");
-    is_deeply([qw(mac_vendor.mac mac_vendor.id)], $col, "Columns the same");
+    is_deeply([qw(mac id)], $col, "Columns the same");
 }
 
-exit;
+{
+    my ($status, $col) = $sb->make_columns({ model => $model, source => $source,  fields => [], scope => 'Local'});
+    ok(!is_error($status), "Accept valid columns");
+    is_deeply([qw(id name mac created_at updated_at)], $col, "All columns ");
+}
+
 
 {
     my @f = qw(mac id);
 
     my %search_info = (
         model => $model,
+        source => $source,
         fields => \@f,
         query => {
             op => 'equals',
@@ -71,7 +76,7 @@ exit;
         [
             200,
             [
-                qw(mac_vendor.mac mac_vendor.id),
+                qw(mac id),
             ],
         ],
         'Return the columns'
@@ -84,239 +89,26 @@ exit;
         [
             200,
             {
-                'mac_vendor.mac' => { "=" => "00:11:22:33:44:55" },
+                'mac' => { "=" => "00:11:22:33:44:55" },
             },
         ],
         'Where',
     );
 
-    $sb->make_where(\%search_info);
-
-    my @a = $sb->make_from(\%search_info);
-    is_deeply(
-        \@a,
-        [
-            200,
-            [
-                -join => 'node',
-                @pf::UnifiedApi::Search::Builder::Nodes::LOCATION_LOG_JOIN,
-                @pf::UnifiedApi::Search::Builder::Nodes::RADACCT_JOIN,
-                @pf::UnifiedApi::Search::Builder::Nodes::IP4LOG_JOIN,
-            ]
-        ],
-        'Return the joined tables'
-    );
 }
 
 {
-    my @f = qw(mac online radacct.acctsessionid);
-
-    my %search_info = (
-        dal    => $model,
-        fields => \@f,
-    );
-
-    is_deeply(
-        [ $sb->make_columns( \%search_info ) ],
-        [
-            200,
-            [
-                'node.mac',
-                "IF(radacct.acctstarttime IS NULL,'unknown',IF(radacct.acctstoptime IS NULL, 'on', 'off'))|online",
-                \'`radacct`.`acctsessionid` AS `radacct.acctsessionid`'
-            ]
-        ],
-        'Return the columns with column spec'
-    );
-
-}
-
-{
-    my @f = qw(mac online);
-    my %search_info = (
-        dal    => $model,
-        fields => \@f,
-        sort => ['online'],
-    );
-    my ($status, $results) = $sb->search(\%search_info);
-    is($status, 200, "Including online");
-}
-
-{
-    my $q = {
-        op    => 'equals',
-        field => 'online',
-        value => "unknown",
-    };
-
-    my $s = {
-        dal    => $model,
-        fields => [qw(mac online)],
-        query  => $q,
-    };
-
-    ok(
-        $sb->is_field_rewritable($s, 'online'),
-        "Is online rewriteable"
-    );
-
-    is_deeply(
-        [ $sb->rewrite_query( $s, $q ) ],
-        [
-            200,
-            {
-                op    => 'equals',
-                value => undef,
-                field => 'radacct.acctstarttime'
-            }
-        ],
-        "Rewrite online='unknown'",
-    );
-
-    is_deeply(
-        [
-            $sb->rewrite_query(
-                $s, { op => 'equals', value => 'on', field => 'online' }
-            )
-        ],
-        [
-            200,
-            {
-                'op'     => 'and',
-                'values' => [
-                    {
-                        op    => 'not_equals',
-                        value => undef,
-                        field => 'radacct.acctstarttime'
-                    },
-                    {
-                        op    => 'equals',
-                        value => undef,
-                        field => 'radacct.acctstoptime'
-                    },
-                ],
-            },
-        ],
-        "Rewrite online='on'",
-    );
-
-    is_deeply(
-        [
-            $sb->rewrite_query(
-                $s, { op => 'equals', value => 'off', field => 'online' }
-            )
-        ],
-        [
-            200,
-            {
-                op    => 'not_equals',
-                value => undef,
-                field => 'radacct.acctstoptime'
-            },
-        ],
-        "Rewrite online='off'",
-    );
-
-    is_deeply(
-        [
-            $sb->rewrite_query(
-                $s, { op => 'not_equals', value => 'off', field => 'online' }
-            ),
-        ],
-        [
-            200,
-            {
-                op => 'or',
-                values => [
-                    { op => 'equals', value => undef, field => 'radacct.acctstarttime' },
-                    { op => 'equals', value => undef, field => 'radacct.acctstoptime' },
-                ],
-            },
-        ],
-        "Rewrite online!='off'",
-    );
-
-    is_deeply(
-        [
-            $sb->rewrite_query(
-                $s, { op => 'not_equals', value => 'on', field => 'online' }
-            ),
-        ],
-        [
-            200,
-            {
-                op     => 'or',
-                values => [
-                    {
-                        op    => 'equals',
-                        value => undef,
-                        field => 'radacct.acctstarttime'
-                    },
-                    {
-                        op    => 'not_equals',
-                        value => undef,
-                        field => 'radacct.acctstoptime'
-                    },
-                ],
-            },
-        ],
-        "Rewrite online!='on'",
-    );
-
-    is_deeply(
-        [
-            $sb->rewrite_query(
-                $s,
-                { op => 'not_equals', value => 'unknown', field => 'online' }
-            )
-        ],
-        [
-            200,
-            {
-                op    => 'not_equals',
-                value => undef,
-                field => 'radacct.acctstarttime',
-            },
-        ],
-        "Rewrite online!='unknown'",
-    );
-
-    is_deeply(
-        [
-            $sb->rewrite_query(
-                $s,
-                { op => 'contains', value => 'unknown', field => 'online' }
-            )
-        ],
-        [
-            422,
-            { msg => "contains is not valid for the online field" },
-        ],
-        "Invalid op for online",
-    );
-}
-
-{
-    my @f = qw(mac online);
-    my %search_info = (
-        dal    => $model,
-        fields => \@f,
-        query => {
-            op => 'equals',
-            field => 'online',
-            value => "unknown",
-        },
-    );
-    my ($status, $results) = $sb->search(\%search_info);
-    is($status, 200, "Query remap for online");
-}
-
-{
-    my @f = qw(status online mac pid ip4log.ip bypass_role_id);
+    my @f = qw(mac id);
 
     my %search_info = (
         model => $model,
+        source => $source,
         fields => \@f,
+        query => {
+            op => 'equals',
+            field => 'mac_garbge',
+            value => "00:11:22:33:44:55",
+        },
     );
 
     is_deeply(
@@ -324,117 +116,57 @@ exit;
         [
             200,
             [
-                'node.status',
-                "IF(radacct.acctstarttime IS NULL,'unknown',IF(radacct.acctstoptime IS NULL, 'on', 'off'))|online",
-                'node.mac',
-                'node.pid',
-                \'`ip4log`.`ip` AS `ip4log.ip`',
-                'node.bypass_role_id',
+                qw(mac id),
             ],
         ],
         'Return the columns'
     );
+
     is_deeply(
         [
             $sb->make_where(\%search_info)
         ],
         [
-            200,
+            422,
             {
-                'r2.radacctid' => undef,
+                msg => 'mac_garbge is an invalid field',
             },
         ],
-        'Return the joined tables'
+        'Where',
     );
 
-    my @a = $sb->make_from(\%search_info);
-    is_deeply(
-        \@a,
-        [
-            200,
-            [
-                -join => 'node',
-                @pf::UnifiedApi::Search::Builder::Nodes::RADACCT_JOIN,
-                @pf::UnifiedApi::Search::Builder::Nodes::IP4LOG_JOIN,
-            ]
-        ],
-        'Return the joined tables'
-    );
 }
 
 {
-    my @f = qw(mac security_event.open_count security_event.close_count);
+    my @f = qw(mac id);
 
     my %search_info = (
         model => $model,
+        source => $source,
         fields => \@f,
+        query => {
+            op => 'equals',
+            field => 'mac',
+            value => "00:11:22:33:44:55",
+        },
+        sort => ['mac'],
     );
-
     is_deeply(
-        [ $sb->make_columns( \%search_info ) ],
+        [
+            $sb->make_order_by(\%search_info)
+        ],
         [
             200,
             [
-                'node.mac',
-                \"COUNT(security_event_open.id) AS `security_event.open_count`",
-                \"COUNT(security_event_close.id) AS `security_event.close_count`",
+                {
+                    -asc => 'mac'
+                }
             ],
         ],
-        'Return the columns'
+        'Order by',
     );
-
-    is_deeply(
-        [ $sb->make_where(\%search_info) ],
-        [
-            200,
-            {
-            },
-        ],
-        'Return the joined tables'
-    );
-
-    is_deeply(
-        [
-            $sb->make_group_by(\%search_info)
-        ],
-        [
-            200,
-            [qw(node.tenant_id node.mac)],
-        ],
-        "security_event.open_count Group by",
-    )
 }
 
-{
-    my @f = qw(mac mac);
-
-    my %search_info = (
-        model => $model,
-        fields => \@f,
-    );
-    my ($status, $error) = $sb->make_columns( \%search_info );
-    is($status, 422, "Duplicated fields error");
-}
-
-{
-    my @f = qw(mac );
-
-    my %search_info = (
-        model => $model,
-        fields => \@f,
-        with_total_count => 1,
-    );
-    is_deeply(
-        [
-            $sb->make_columns(\%search_info)
-        ],
-        [
-            200,
-            [qw(-SQL_CALC_FOUND_ROWS node.mac)],
-        ],
-        "with count",
-    )
-}
 
 =head1 AUTHOR
 

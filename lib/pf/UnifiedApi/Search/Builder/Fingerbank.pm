@@ -61,46 +61,55 @@ sort   An array of the sort order for the search
 
 
 sub search {
-#   my ( $self, $search_info ) = @_;
-#   my ($status, $search_args) = $self->make_search_args($search_info);
-#   if ( is_error($status) ) {
-#       return $status, $search_args;
-#   }
+    my ($self, $search_info) = @_;
+    my ($status, $search_args) = $self->make_search_args($search_info);
+    if ( is_error($status) ) {
+        return $status, $search_args;
+    }
 
-#   my $model = $search_info->{model};
-#   ( $status, my $iter ) = $dal->search( %$search_args );
-#   if ( is_error($status) ) {
-#       return $status, {msg =>  "Error fulfilling search"}
-#   }
+    my $model = $search_info->{model};
+    my $limit = $search_args->{'-limit'};
+    my $offset = $search_args->{'-offset'};
+    #use Data::Dumper;print Dumper($search_args);
+    ($status, my $resultsets) = $model->search(
+        [
+            $search_args->{'-where'} // {},
+            {
+                rows => $limit,
+                order_by => $search_args->{'-order_by'},
+                offset => $offset,
+                columns => $search_args->{'-columns'},
+            }
+        ],
+        $search_info->{scope}
+    );
+    my @items;
+    if (is_error($status)) {
+        if ($status != 404) {
+            return $status, { msg => $resultsets };
+        }
 
-#   my $limit = $search_args->{'-limit'};
-#   my $offset = $search_args->{'-offset'};
-#   my $items      = $iter->all();
-#   my $nextCursor = undef;
-#   if ( @$items == $limit ) {
-#       pop @$items;
-#       $nextCursor = $offset + $limit - 1;
-#   }
+        $status = 200;
+    } else {
+        for my $resultset (@$resultsets) {
+             while (my $row = $resultset->next) {
+                 my %array_row = %{$row->{'_column_data'}};
+                 push ( @items, \%array_row );
+             }
+        }
+    }
+    my $nextCursor = undef;
+    if ( @items == $limit ) {
+        pop @items;
+        $nextCursor = $offset + $limit - 1;
+    }
 
-#   my $count;
-#   if ($search_info->{with_total_count}) {
-#       my ($status, $sth) = $dal->db_execute("SELECT FOUND_ROWS();");
-#       if ( is_error($status) ) {
-#           return $status, {msg =>  "Error getting count"}
-#       }
-
-#       ($count) = $sth->fetchrow_array;
-#       $sth->finish();
-#   }
-
-#   return $status,
-#     {
-#       prevCursor => $offset,
-#       items      => $items,
-#       ( defined $nextCursor ? ( nextCursor => $nextCursor ) : () ),
-#       ( defined $count ? ( total_count => $count ) : () ),
-#     }
-#     ;
+    return 200, {
+        prevCursor => $offset,
+        ( defined $nextCursor ? ( nextCursor => $nextCursor ) : () ),
+        items => \@items,
+        scope => $search_info->{scope},
+    };
 }
 
 =head2 $self->make_search_args($search_info)
@@ -113,6 +122,7 @@ Make the search args from the search_info
 
 sub make_search_args {
     my ($self, $search_info) = @_;
+
     $search_info->{found_fields} = [];
     my ($status, $columns) = $self->make_columns($search_info);
     if (is_error($status)) {
@@ -124,19 +134,9 @@ sub make_search_args {
         return $status, $where;
     }
 
-    ($status, my $from) = $self->make_from($search_info);
-    if (is_error($status)) {
-        return $status, $from;
-    }
-
     ($status, my $order_by) = $self->make_order_by($search_info);
     if (is_error($status)) {
         return $status, $order_by;
-    }
-
-    ($status, my $group_by) = $self->make_group_by($search_info);
-    if (is_error($status)) {
-        return $status, $group_by;
     }
 
     my $offset   = $self->make_offset($search_info);
@@ -147,9 +147,7 @@ sub make_search_args {
         -limit      => $limit,
         -offset     => $offset,
         -order_by   => $order_by,
-        -from       => $from,
         -columns    => $columns,
-        -group_by   => $group_by,
     );
 
     return 200, \%search_args;
@@ -183,51 +181,6 @@ sub make_limit {
     return $limit;
 }
 
-=head2 $self->make_from($search_info)
-
-Make the from for SQL::Abstract::More based off the search_info
-
-    my ($http_status, $from_or_error) = $self->make_from($search_info);
-
-=cut
-
-sub make_from {
-    my ($self, $s) = @_;
-    my @from = ($s->{dal}->table);
-    my @join_specs = $self->make_join_specs($s);
-    if (@join_specs) {
-        unshift @from, '-join';
-        push @from, @join_specs;
-    }
-
-    return 200, \@from;
-}
-
-=head2 $self->make_join_specs($search_info)
-
-Make the SQL::Abstract::More join_specs from the search_info
-
-    my @join_specs = $self->make_from($search_info);
-
-=cut
-
-sub make_join_specs {
-    my ($self, $s) = @_;
-    my %found;
-    my @join_specs;
-    my $allow_joins = $self->allowed_join_fields;
-    foreach my $f (@{$s->{found_fields} // []}) {
-        if (exists $allow_joins->{$f}) {
-            my $jf = $allow_joins->{$f};
-            my $namespace = $jf->{namespace};
-            next if exists $found{$namespace};
-            $found{$namespace} = 1;
-            push @join_specs, @{$jf->{join_spec} // []};
-        }
-    }
-    return @join_specs;
-}
-
 =head2 $self->make_columns($search_info)
 
 Make the SQL::Abstract::More columns from the search_info
@@ -257,11 +210,7 @@ sub make_columns {
         push @{$s->{found_fields}}, @$cols;
         @$cols = map { $self->format_column($s, $_) } @$cols
     } else {
-        $cols = [@{$s->{dal}->table_field_names}];
-    }
-
-    if ($s->{with_total_count}) {
-        unshift @$cols, '-SQL_CALC_FOUND_ROWS';
+        $cols = [map { $self->format_column($s, $_)} $s->{source}->columns];
     }
 
     return 200, $cols;
@@ -303,8 +252,8 @@ format_column
 sub format_column {
     my ($self, $s, $c) = @_;
     if ($self->is_table_field($s, $c)) {
-        my $t = $s->{source}->name;
-        return "${t}.${c}";
+        #my $t = $s->{source}->name;
+        return "${c}";
     }
     my $allowed_join_fields = $self->allowed_join_fields;
     my $specs = $allowed_join_fields->{$c};
@@ -419,7 +368,7 @@ sub rewrite_query {
     my $f = $query->{field};
     my $status = 200;
     if ($self->is_table_field($s, $f)) {
-        $query->{field} = $s->{dal}->table . "." . $f;
+        $query->{field} = $f;
     } elsif ($self->is_field_rewritable($s, $f)) {
         my $allowed = $self->allowed_join_fields;
         my $cb = $allowed->{$f}{rewrite_query};
@@ -479,41 +428,16 @@ Makes the SQL::Abstract::More where clause from the search_info
 sub make_where {
     my ($self, $s) = @_;
     my $query = $s->{query};
-    my @where;
+    my $where;
     if (defined $query) {
         (my $status, $query) = $self->verify_query($s, $query);
         if (is_error($status)) {
             return $status, $query;
         }
-        my $where = pf::UnifiedApi::Search::searchQueryToSqlAbstract($query);
-        push @where, $where;
+        $where = pf::UnifiedApi::Search::searchQueryToSqlAbstract($query);
     }
 
-    my $sqla = pf::dal->get_sql_abstract;
-    my $where = $sqla->merge_conditions(@where, $self->additional_where_clause($s));
     return 200, $where;
-}
-
-=head2 additional_where_clause
-
-additional_where_clause
-
-=cut
-
-sub additional_where_clause {
-    my ($self, $s) = @_;
-    my $allowed_join_fields = $self->allowed_join_fields;
-    my @clauses;
-    my %found;
-    foreach my $f (@{$s->{found_fields} // []}) {
-        next if !exists $allowed_join_fields->{$f};
-        my $jf = $allowed_join_fields->{$f};
-        my $namespace = $jf->{namespace};
-        next if !exists $jf->{where_spec};
-        $found{$namespace} = 1;
-        push @clauses, $jf->{where_spec};
-    }
-    return @clauses;
 }
 
 =head2 $self->make_order_by($search_info)
@@ -570,44 +494,6 @@ sub normalize_order_by {
     }
 
     return { $direction => $order_by }
-}
-
-=head2 make_group_by
-
-make_group_by
-
-=cut
-
-sub make_group_by {
-    my ($self, $s) = @_;
-    return 200, [$self->group_by_clause($s)];
-}
-
-=head2 group_by_clause
-
-group_by_clause
-
-=cut
-
-sub group_by_clause {
-    my ($self, $s) = @_;
-    my $allowed_join_fields = $self->allowed_join_fields;
-    my $found;
-    foreach my $f (@{$s->{found_fields} // []}) {
-        next if !exists $allowed_join_fields->{$f};
-        my $jf = $allowed_join_fields->{$f};
-        my $namespace = $jf->{namespace};
-        if (exists $jf->{group_by} && $jf->{group_by}) {
-            $found = 1;
-            last;
-        }
-    }
-
-    return if !$found;
-
-    my $dal = $s->{dal};
-    my $table = $dal->table;
-    return map { "${table}.${_}" } @{$dal->primary_keys};
 }
 
 =head1 AUTHOR
