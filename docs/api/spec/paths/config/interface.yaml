@@ -1,5 +1,4 @@
 /config/interfaces:
-  description: pf::UnifiedApi::Controller::Config::Interfaces
   get:
     description: List all interfaces
     responses:
@@ -27,7 +26,6 @@
 
 
 /config/interface/{interface_id}:
-  description: pf::UnifiedApi::Controller::Config::Interfaces
   get:
     description: Get an item
     parameters:
@@ -71,3 +69,34 @@
           - $ref: '#/components/responses/Message'
           - description: "Failed to respect precondition to delete interface"
 
+/config/interface/{interface_id}/up:
+  post:
+    description: Put an interface up
+    parameters:
+    - in: path
+      name: interface_id
+      schema:
+        type: string
+    responses:
+      '200':
+        $ref: '#/components/responses/Message'
+      '412':
+        allOf:
+          - $ref: '#/components/responses/Message'
+          - description: "Failed to respect precondition to put interface up"
+
+/config/interface/{interface_id}/down:
+  post:
+    description: Put an interface down
+    parameters:
+    - in: path
+      name: interface_id
+      schema:
+        type: string
+    responses:
+      '200':
+        $ref: '#/components/responses/Message'
+      '412':
+        allOf:
+          - $ref: '#/components/responses/Message'
+          - description: "Failed to respect precondition to put interface down"
