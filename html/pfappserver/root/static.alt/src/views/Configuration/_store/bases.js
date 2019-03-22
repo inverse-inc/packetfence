@@ -66,7 +66,7 @@ const actions = {
       throw err
     })
   },
-  optionsActiveActive: () => {
+  optionsActiveActive: ({ commit }) => {
     commit('ITEM_REQUEST')
     return api.baseOptions('active_active').then(response => {
       commit('ITEM_SUCCESS')
@@ -100,7 +100,7 @@ const actions = {
       throw err
     })
   },
-  optionsAdvanced: () => {
+  optionsAdvanced: ({ commit }) => {
     commit('ITEM_REQUEST')
     return api.baseOptions('advanced').then(response => {
       commit('ITEM_SUCCESS')
@@ -134,7 +134,7 @@ const actions = {
       throw err
     })
   },
-  optionsAlerting: () => {
+  optionsAlerting: ({ commit }) => {
     commit('ITEM_REQUEST')
     return api.baseOptions('alerting').then(response => {
       commit('ITEM_SUCCESS')
@@ -168,7 +168,7 @@ const actions = {
       throw err
     })
   },
-  optionsCaptivePortal: () => {
+  optionsCaptivePortal: ({ commit }) => {
     commit('ITEM_REQUEST')
     return api.baseOptions('captive_portal').then(response => {
       commit('ITEM_SUCCESS')
@@ -202,7 +202,7 @@ const actions = {
       throw err
     })
   },
-  optionsDatabase: () => {
+  optionsDatabase: ({ commit }) => {
     commit('ITEM_REQUEST')
     return api.baseOptions('database').then(response => {
       commit('ITEM_SUCCESS')
@@ -236,7 +236,7 @@ const actions = {
       throw err
     })
   },
-  optionsDatabaseAdvanced: () => {
+  optionsDatabaseAdvanced: ({ commit }) => {
     commit('ITEM_REQUEST')
     return api.baseOptions('database_advanced').then(response => {
       commit('ITEM_SUCCESS')
@@ -270,7 +270,7 @@ const actions = {
       throw err
     })
   },
-  optionsDatabaseEncryption: () => {
+  optionsDatabaseEncryption: ({ commit }) => {
     commit('ITEM_REQUEST')
     return api.baseOptions('database_encryption').then(response => {
       commit('ITEM_SUCCESS')
@@ -304,7 +304,7 @@ const actions = {
       throw err
     })
   },
-  optionsFencing: () => {
+  optionsFencing: ({ commit }) => {
     commit('ITEM_REQUEST')
     return api.baseOptions('fencing').then(response => {
       commit('ITEM_SUCCESS')
@@ -338,7 +338,7 @@ const actions = {
       throw err
     })
   },
-  optionsFingerbankDeviceChange: () => {
+  optionsFingerbankDeviceChange: ({ commit }) => {
     commit('ITEM_REQUEST')
     return api.baseOptions('fingerbank_device_change').then(response => {
       commit('ITEM_SUCCESS')
@@ -374,7 +374,7 @@ const actions = {
       throw err
     })
   },
-  optionsGeneral: () => {
+  optionsGeneral: ({ commit }) => {
     commit('ITEM_REQUEST')
     return api.baseOptions('general').then(response => {
       commit('ITEM_SUCCESS')
@@ -408,7 +408,7 @@ const actions = {
       throw err
     })
   },
-  optionsGuestsAdminRegistration: () => {
+  optionsGuestsAdminRegistration: ({ commit }) => {
     commit('ITEM_REQUEST')
     return api.baseOptions('guests_admin_registration').then(response => {
       commit('ITEM_SUCCESS')
@@ -442,7 +442,7 @@ const actions = {
       throw err
     })
   },
-  optionsInline: () => {
+  optionsInline: ({ commit }) => {
     commit('ITEM_REQUEST')
     return api.baseOptions('inline').then(response => {
       commit('ITEM_SUCCESS')
@@ -476,7 +476,7 @@ const actions = {
       throw err
     })
   },
-  optionsMseTab: () => {
+  optionsMseTab: ({ commit }) => {
     commit('ITEM_REQUEST')
     return api.baseOptions('mse_tab').then(response => {
       commit('ITEM_SUCCESS')
@@ -510,7 +510,7 @@ const actions = {
       throw err
     })
   },
-  optionsNetwork: () => {
+  optionsNetwork: ({ commit }) => {
     commit('ITEM_REQUEST')
     return api.baseOptions('network').then(response => {
       commit('ITEM_SUCCESS')
@@ -544,7 +544,7 @@ const actions = {
       throw err
     })
   },
-  optionsNodeImport: () => {
+  optionsNodeImport: ({ commit }) => {
     commit('ITEM_REQUEST')
     return api.baseOptions('node_import').then(response => {
       commit('ITEM_SUCCESS')
@@ -578,7 +578,7 @@ const actions = {
       throw err
     })
   },
-  optionsParking: () => {
+  optionsParking: ({ commit }) => {
     commit('ITEM_REQUEST')
     return api.baseOptions('parking').then(response => {
       commit('ITEM_SUCCESS')
@@ -612,7 +612,7 @@ const actions = {
       throw err
     })
   },
-  optionsPFDHCP: () => {
+  optionsPFDHCP: ({ commit }) => {
     commit('ITEM_REQUEST')
     return api.baseOptions('pf_dhcp').then(response => {
       commit('ITEM_SUCCESS')
@@ -646,7 +646,7 @@ const actions = {
       throw err
     })
   },
-  optionsPorts: () => {
+  optionsPorts: ({ commit }) => {
     commit('ITEM_REQUEST')
     return api.baseOptions('ports').then(response => {
       commit('ITEM_SUCCESS')
@@ -680,7 +680,7 @@ const actions = {
       throw err
     })
   },
-  optionsProvisioning: () => {
+  optionsProvisioning: ({ commit }) => {
     commit('ITEM_REQUEST')
     return api.baseOptions('provisioning').then(response => {
       commit('ITEM_SUCCESS')
@@ -714,7 +714,7 @@ const actions = {
       throw err
     })
   },
-  optionsRadiusConfiguration: () => {
+  optionsRadiusConfiguration: ({ commit }) => {
     commit('ITEM_REQUEST')
     return api.baseOptions('radius_configuration').then(response => {
       commit('ITEM_SUCCESS')
@@ -748,7 +748,7 @@ const actions = {
       throw err
     })
   },
-  optionsServices: () => {
+  optionsServices: ({ commit }) => {
     commit('ITEM_REQUEST')
     return api.baseOptions('services').then(response => {
       commit('ITEM_SUCCESS')
@@ -782,7 +782,7 @@ const actions = {
       throw err
     })
   },
-  optionsSNMPTraps: () => {
+  optionsSNMPTraps: ({ commit }) => {
     commit('ITEM_REQUEST')
     return api.baseOptions('snmp_traps').then(response => {
       commit('ITEM_SUCCESS')
@@ -816,7 +816,7 @@ const actions = {
       throw err
     })
   },
-  optionsWebServices: () => {
+  optionsWebServices: ({ commit }) => {
     commit('ITEM_REQUEST')
     return api.baseOptions('webservices').then(response => {
       commit('ITEM_SUCCESS')
