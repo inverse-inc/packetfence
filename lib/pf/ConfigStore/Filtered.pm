@@ -14,7 +14,7 @@ Is the Generic class for the cached config
 
 use Moo::Role;
 use namespace::autoclean;
-
+use List::MoreUtils qw(any);
 
 =head2 Methods
 
@@ -27,6 +27,18 @@ use namespace::autoclean;
 sub _Sections {
     my ($self) = @_;
     return map { $self->filter($_) ? $_ : () } $self->cachedConfig->Sections();
+}
+
+sub _hasId {
+    my ($self, $id) = @_;
+    return any { $_ eq $id } $self->_Sections();
+}
+
+sub hasId {
+    my ($self, $id ) = @_;
+    my $config = $self->cachedConfig;
+    $id = $self->_formatSectionName($id);
+    return $config->SectionExists($id) && $self->_hasId($id);
 }
 
 =back
