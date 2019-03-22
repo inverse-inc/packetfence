@@ -14,6 +14,8 @@ use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Network';
 with 'pfappserver::Base::Form::Role::Help';
 
+use pfappserver::Model::Config::Network;
+use pfappserver::Model::Interface;
 use HTTP::Status qw(:constants is_success);
 use pf::config;
 
@@ -113,9 +115,12 @@ sub validate {
 
     $self->SUPER::validate();
 
+    my $network_model = pfappserver::Model::Config::Network->new;
+    my $interface_model = pfappserver::Model::Interface->new;
+
     if ($self->network && $self->network ne $self->value->{network} || !$self->network) {
         # Build a list of existing networks
-        my ($status, $result) = $self->ctx->model('Config::Network')->readAllIds();
+        my ($status, $result) = $network_model->readAllIds();
         if (is_success($status)) {
             my %networks = map { $_ => 1 } @$result;
             if (defined $networks{$self->value->{network}}) {
@@ -123,12 +128,12 @@ sub validate {
             }
         }
     }
-    my $interface = $self->ctx->model('Interface')->interfaceForDestination($self->value->{next_hop});
+    my $interface = $interface_model->interfaceForDestination($self->value->{next_hop});
     unless ($interface) {
         $self->field('next_hop')->add_error("The router IP has no gateway on a network interface.");
     }
     elsif ( $self->value->{type} eq $pf::config::NET_TYPE_INLINE_L3 ) {
-        if ( $self->ctx->model('Interface')->getEnforcement($interface) ne $pf::config::NET_TYPE_INLINE_L2 ) {
+        if ( $interface_model->getEnforcement($interface) ne $pf::config::NET_TYPE_INLINE_L2 ) {
              $self->field('next_hop')->add_error("Inline Layer 3 network can only be defined behind a Inline Layer 2 network.");
         }
     }

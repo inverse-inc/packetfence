@@ -27,6 +27,22 @@ has 'primary_key' => 'network_id';
 use pf::ConfigStore::RoutedNetwork;
 use pfappserver::Form::Config::Network::Routed;
 
+=head2 get_json
+
+Override parent method to set the id to the network value as it is required for validation in pf::UnifiedApi::Controller::Config
+
+=cut
+
+sub get_json {
+    my ($self) = @_;
+    my ($error, $data) = $self->SUPER::get_json();
+    if (defined $error) {
+        return ($error, $data);
+    }
+    $data->{id} = $data->{network};
+    return ($error, $data);
+}
+
  
 =head1 AUTHOR
 

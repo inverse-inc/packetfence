@@ -27,7 +27,6 @@ has 'primary_key' => 'network_id';
 use pf::ConfigStore::L2Network;
 use pfappserver::Form::Config::Network;
 
- 
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
