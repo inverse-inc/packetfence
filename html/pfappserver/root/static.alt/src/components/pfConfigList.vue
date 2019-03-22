@@ -1,6 +1,5 @@
 <template>
   <div>
-    <pf-progress :active="isLoading"></pf-progress>
     <slot name="pageHeader"></slot>
     <pf-search ref="pfSearch"
       :quick-with-fields="false" :quick-placeholder="$t(config.searchPlaceholder)"
@@ -49,7 +48,6 @@
 
 <script>
 import pfMixinSearchable from '@/components/pfMixinSearchable'
-import pfProgress from '@/components/pfProgress'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import pfSearch from '@/components/pfSearch'
 
@@ -59,7 +57,6 @@ export default {
     pfMixinSearchable
   ],
   components: {
-    pfProgress,
     pfEmptyTable,
     pfSearch
   },

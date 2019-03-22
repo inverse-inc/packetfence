@@ -28,6 +28,7 @@
       </b-collapse>
       <pf-notification-center :isAuthenticated="isAuthenticated" />
     </b-navbar>
+    <pf-progress-api></pf-progress-api>
     <b-container fluid class="pt-6">
       <router-view/>
     </b-container>
@@ -36,11 +37,13 @@
 
 <script>
 import pfNotificationCenter from '@/components/pfNotificationCenter'
+import pfProgressApi from '@/components/pfProgressApi'
 
 export default {
   name: 'app',
   components: {
-    pfNotificationCenter
+    pfNotificationCenter,
+    pfProgressApi
   },
   data () {
     return {
