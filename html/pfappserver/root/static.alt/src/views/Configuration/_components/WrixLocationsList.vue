@@ -43,6 +43,13 @@ export default {
     pfConfigList,
     pfEmptyTable
   },
+  props: {
+    storeName: { // from router
+      type: String,
+      default: null,
+      required: true
+    }
+  },
   data () {
     return {
       config: config(this)
@@ -53,7 +60,7 @@ export default {
       this.$router.push({ name: 'cloneWrixLocation', params: { id: item.id } })
     },
     remove (item) {
-      this.$store.dispatch('$_wrix_locations/deleteWrixLocation', item.id).then(response => {
+      this.$store.dispatch(`${this.storeName}/deleteWrixLocation`, item.id).then(response => {
         this.$router.go() // reload
       })
     }

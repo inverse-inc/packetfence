@@ -37,6 +37,13 @@ export default {
     pfConfigList,
     pfEmptyTable
   },
+  props: {
+    storeName: { // from router
+      type: String,
+      default: null,
+      required: true
+    }
+  },
   data () {
     return {
       switches: [], // all switches
@@ -48,7 +55,7 @@ export default {
       this.$router.push({ name: 'cloneSwitch', params: { id: item.id } })
     },
     remove (item) {
-      this.$store.dispatch('$_switches/deleteSwitch', item.id).then(response => {
+      this.$store.dispatch(`${this.storeName}/deleteSwitch`, item.id).then(response => {
         this.$router.go() // reload
       })
     }

@@ -37,6 +37,13 @@ export default {
     pfConfigList,
     pfEmptyTable
   },
+  props: {
+    storeName: { // from router
+      type: String,
+      default: null,
+      required: true
+    }
+  },
   data () {
     return {
       config: config(this)
@@ -47,7 +54,7 @@ export default {
       this.$router.push({ name: 'cloneFloatingDevice', params: { id: item.id } })
     },
     remove (item) {
-      this.$store.dispatch('$_floating_devices/deleteFloatingDevice', item.id).then(response => {
+      this.$store.dispatch(`${this.storeName}/deleteFloatingDevice`, item.id).then(response => {
         this.$router.go() // reload
       })
     }

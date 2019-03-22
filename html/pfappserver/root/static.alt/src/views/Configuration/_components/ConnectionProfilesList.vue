@@ -59,6 +59,13 @@ export default {
     pfEmptyTable,
     pfFormRangeToggle
   },
+  props: {
+    storeName: { // from router
+      type: String,
+      default: null,
+      required: true
+    }
+  },
   data () {
     return {
       config: config(this)
@@ -66,7 +73,7 @@ export default {
   },
   computed: {
     isLoading () {
-      return this.$store.getters[`$_connection_profiles/isLoading`]
+      return this.$store.getters[`${this.storeName}/isLoading`]
     }
   },
   methods: {
@@ -74,19 +81,19 @@ export default {
       this.$router.push({ name: 'cloneConnectionProfile', params: { id: item.id } })
     },
     remove (item) {
-      this.$store.dispatch('$_connection_profiles/deleteConnectionProfile', item.id).then(response => {
+      this.$store.dispatch(`${this.storeName}/deleteConnectionProfile`, item.id).then(response => {
         this.$router.go() // reload
       })
     },
     toggleStatus (item, newStatus) {
       switch (newStatus) {
         case 'enabled':
-          this.$store.dispatch('$_connection_profiles/enableConnectionProfile', item).then(response => {
+          this.$store.dispatch(`${this.storeName}/enableConnectionProfile`, item).then(response => {
             this.$refs.pfConfigList.submitSearch() // redo search
           })
           break
         case 'disabled':
-          this.$store.dispatch('$_connection_profiles/disableConnectionProfile', item).then(response => {
+          this.$store.dispatch(`${this.storeName}/disableConnectionProfile`, item).then(response => {
             this.$refs.pfConfigList.submitSearch() // redo search
           })
           break

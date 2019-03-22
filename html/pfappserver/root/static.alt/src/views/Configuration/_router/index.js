@@ -208,7 +208,7 @@ const route = {
       path: 'roles',
       name: 'roles',
       component: RolesList,
-      props: (route) => ({ query: route.query.query })
+      props: (route) => ({ storeName: '$_roles', query: route.query.query })
     },
     {
       path: 'roles/new',
@@ -242,7 +242,7 @@ const route = {
       path: 'domains',
       name: 'domains',
       component: DomainsTabs,
-      props: (route) => ({ tab: 'domains', query: route.query.query })
+      props: (route) => ({ tab: 'domains', storeName: '$_domains', iquery: route.query.query })
     },
     {
       path: 'domains/new',
@@ -276,7 +276,7 @@ const route = {
       path: 'realms',
       name: 'realms',
       component: DomainsTabs,
-      props: (route) => ({ tab: 'realms', query: route.query.query })
+      props: (route) => ({ tab: 'realms', storeName: '$_realms', query: route.query.query })
     },
     {
       path: 'realms/new',
@@ -310,7 +310,7 @@ const route = {
       path: 'sources',
       name: 'sources',
       component: AuthenticationSourcesList,
-      props: (route) => ({ query: route.query.query })
+      props: (route) => ({ storeName: '$_sources', query: route.query.query })
     },
     {
       path: 'sources/new/:sourceType',
@@ -344,7 +344,7 @@ const route = {
       path: 'switches',
       name: 'switches',
       component: NetworkDevicesTabs,
-      props: (route) => ({ tab: 'switches', query: route.query.query })
+      props: (route) => ({ tab: 'switches', storeName: '$_switches', query: route.query.query })
     },
     {
       path: 'switches/new/:switchGroup',
@@ -378,7 +378,7 @@ const route = {
       path: 'switch_groups',
       name: 'switch_groups',
       component: NetworkDevicesTabs,
-      props: (route) => ({ tab: 'switch_groups', query: route.query.query })
+      props: (route) => ({ tab: 'switch_groups', storeName: '$_switch_groups', query: route.query.query })
     },
     {
       path: 'switch_groups/new',
@@ -412,7 +412,7 @@ const route = {
       path: 'connection_profiles',
       name: 'connection_profiles',
       component: ConnectionProfilesList,
-      props: (route) => ({ tab: 'connection_profiles', query: route.query.query })
+      props: (route) => ({ storeName: '$_connection_profiles', tab: 'connection_profiles', query: route.query.query })
     },
     {
       path: 'connection_profiles/new',
@@ -480,33 +480,33 @@ const route = {
       path: 'profiling/general_settings',
       name: 'profilingGeneralSettings',
       component: ProfilingTabs,
-      props: (route) => ({ tab: 'general_settings', query: route.query.query })
+      props: (route) => ({ tab: 'general_settings', storeName: '$_profiling', query: route.query.query })
     },
     {
       path: 'profiling/device_change_detection',
       name: 'profilingDeviceChangeDetection',
       component: ProfilingTabs,
-      props: (route) => ({ tab: 'device_change_detection', query: route.query.query })
+      props: (route) => ({ tab: 'device_change_detection', storeName: '$_profiling', query: route.query.query })
     },
     {
       path: 'profiling/combinations',
       name: 'profilingCombinations',
       component: ProfilingTabs,
-      props: (route) => ({ tab: 'combinations', query: route.query.query })
+      props: (route) => ({ tab: 'combinations', storeName: '$_profiling', query: route.query.query })
     },
     {
       path: 'profiling/combinations/new',
       name: 'newCombination',
       component: ProfilingCombinationView,
-      props: (route) => ({ storeName: '$_TODO', isNew: true })
+      props: (route) => ({ storeName: '$_profiling', isNew: true })
     },
     {
       path: 'profiling/combination/:id',
       name: 'combination',
       component: ProfilingCombinationView,
-      props: (route) => ({ storeName: '$_TODO', id: route.params.id }),
+      props: (route) => ({ storeName: '$_profiling', id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_TODO/getTODO', to.params.id).then(object => {
+        store.dispatch('$_profiling/getTODO', to.params.id).then(object => {
           next()
         })
       }
@@ -515,9 +515,9 @@ const route = {
       path: 'profiling/combination/:id/clone',
       name: 'cloneCombination',
       component: ProfilingCombinationView,
-      props: (route) => ({ storeName: '$_TODO', id: route.params.id, isClone: true }),
+      props: (route) => ({ storeName: '$_profiling', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_TODO/getTODO', to.params.id).then(object => {
+        store.dispatch('$_profiling/getTODO', to.params.id).then(object => {
           next()
         })
       }
@@ -526,43 +526,43 @@ const route = {
       path: 'profiling/devices',
       name: 'profilingDevices',
       component: ProfilingTabs,
-      props: (route) => ({ tab: 'devices', query: route.query.query })
+      props: (route) => ({ tab: 'devices', storeName: '$_profiling', query: route.query.query })
     },
     {
       path: 'profiling/dhcp_fingerprints',
       name: 'profilingDhcpFingerprints',
       component: ProfilingTabs,
-      props: (route) => ({ tab: 'dhcp_fingerprints', query: route.query.query })
+      props: (route) => ({ tab: 'dhcp_fingerprints', storeName: '$_profiling', query: route.query.query })
     },
     {
       path: 'profiling/dhcp_vendors',
       name: 'profilingDhcpVendors',
       component: ProfilingTabs,
-      props: (route) => ({ tab: 'dhcp_vendors', query: route.query.query })
+      props: (route) => ({ tab: 'dhcp_vendors', storeName: '$_profiling', query: route.query.query })
     },
     {
       path: 'profiling/dhcpv6_fingerprints',
       name: 'profilingDhcpv6Fingerprints',
       component: ProfilingTabs,
-      props: (route) => ({ tab: 'dhcpv6_fingerprints', query: route.query.query })
+      props: (route) => ({ tab: 'dhcpv6_fingerprints', storeName: '$_profiling', query: route.query.query })
     },
     {
       path: 'profiling/dhcpv6_enterprises',
       name: 'profilingDhcpv6Enterprises',
       component: ProfilingTabs,
-      props: (route) => ({ tab: 'dhcpv6_enterprises', query: route.query.query })
+      props: (route) => ({ tab: 'dhcpv6_enterprises', storeName: '$_profiling', query: route.query.query })
     },
     {
       path: 'profiling/mac_vendors',
       name: 'profilingMacVendors',
       component: ProfilingTabs,
-      props: (route) => ({ tab: 'mac_vendors', query: route.query.query })
+      props: (route) => ({ tab: 'mac_vendors', storeName: '$_profiling', query: route.query.query })
     },
     {
       path: 'profiling/user_agents',
       name: 'profilingUserAgents',
       component: ProfilingTabs,
-      props: (route) => ({ tab: 'user_agents', query: route.query.query })
+      props: (route) => ({ tab: 'user_agents', storeName: '$_profiling', query: route.query.query })
     },
     {
       path: 'scans',
@@ -572,7 +572,7 @@ const route = {
       path: 'scans/scan_engines',
       name: 'scanEngines',
       component: ScansTabs,
-      props: (route) => ({ tab: 'scan_engines', query: route.query.query })
+      props: (route) => ({ tab: 'scan_engines', storeName: '$_scans', query: route.query.query })
     },
     {
       path: 'scans/scan_engines/new/:scanType',
@@ -608,40 +608,42 @@ const route = {
       component: ScansTabs,
       props: (route) => ({ tab: 'wmi_rules', query: route.query.query })
     },
-    // {
-    //   path: 'security_events',
-    //   name: 'security_events',
-    //   component: SecurityEventsList,
-    //   props: (route) => ({ query: route.query.query })
-    // },
-    // {
-    //   path: 'security_events/new',
-    //   name: 'newSecurityEvent',
-    //   component: SecurityEventView,
-    //   props: (route) => ({ storeName: '$_security_events', isNew: true })
-    // },
-    // {
-    //   path: 'security_event/:id',
-    //   name: 'security_event',
-    //   component: SecurityEventView,
-    //   props: (route) => ({ storeName: '$_security_events', id: route.params.id }),
-    //   beforeEnter: (to, from, next) => {
-    //     store.dispatch('$_security_events/getSecurityEvent', to.params.id).then(object => {
-    //       next()
-    //     })
-    //   }
-    // },
-    // {
-    //   path: 'security_event/:id/clone',
-    //   name: 'cloneSecurityEvent',
-    //   component: SecurityEventView,
-    //   props: (route) => ({ storeName: '$_security_events', id: route.params.id, isClone: true }),
-    //   beforeEnter: (to, from, next) => {
-    //     store.dispatch('$_security_events/getSecurityEvent', to.params.id).then(object => {
-    //       next()
-    //     })
-    //   }
-    // },
+    /*
+    {
+      path: 'security_events',
+      name: 'security_events',
+      component: SecurityEventsList,
+      props: (route) => ({ storeName: '$_security_events', query: route.query.query })
+    },
+    {
+      path: 'security_events/new',
+      name: 'newSecurityEvent',
+      component: SecurityEventView,
+      props: (route) => ({ storeName: '$_security_events', isNew: true })
+    },
+    {
+      path: 'security_event/:id',
+      name: 'security_event',
+      component: SecurityEventView,
+      props: (route) => ({ storeName: '$_security_events', id: route.params.id }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_security_events/getSecurityEvent', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'security_event/:id/clone',
+      name: 'cloneSecurityEvent',
+      component: SecurityEventView,
+      props: (route) => ({ storeName: '$_security_events', id: route.params.id, isClone: true }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_security_events/getSecurityEvent', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    */
     /**
      * Integration
      */
@@ -653,7 +655,7 @@ const route = {
       path: 'firewalls',
       name: 'firewalls',
       component: FirewallsList,
-      props: (route) => ({ query: route.query.query })
+      props: (route) => ({ storeName: '$_firewalls', query: route.query.query })
     },
     {
       path: 'firewalls/new/:firewallType',
@@ -699,7 +701,7 @@ const route = {
       path: 'pfdetect',
       name: 'syslogParsers',
       component: SyslogParsersList,
-      props: (route) => ({ query: route.query.query })
+      props: (route) => ({ storeName: '$_syslog_parsers', query: route.query.query })
     },
     {
       path: 'pfdetect/new/:syslogParserType',
@@ -733,7 +735,7 @@ const route = {
       path: 'syslog',
       name: 'syslogForwarders',
       component: SyslogForwardersList,
-      props: (route) => ({ query: route.query.query })
+      props: (route) => ({ storeName: '$_syslog_forwarders', query: route.query.query })
     },
     {
       path: 'syslog/new/:syslogForwarderType',
@@ -767,7 +769,7 @@ const route = {
       path: 'wrix',
       name: 'wrixLocations',
       component: WrixLocationsList,
-      props: (route) => ({ query: route.query.query })
+      props: (route) => ({ storeName: '$_wrix_locations', query: route.query.query })
     },
     {
       path: 'wrix/new',
@@ -816,7 +818,7 @@ const route = {
       path: 'billing_tiers',
       name: 'billing_tiers',
       component: BillingTiersList,
-      props: (route) => ({ query: route.query.query })
+      props: (route) => ({ storeName: '$_billing_tiers', query: route.query.query })
     },
     {
       path: 'billing_tiers/new',
@@ -850,7 +852,7 @@ const route = {
       path: 'pki_providers',
       name: 'pki_providers',
       component: PkiProvidersList,
-      props: (route) => ({ query: route.query.query })
+      props: (route) => ({ storeName: '$_pki_providers', query: route.query.query })
     },
     {
       path: 'pki_providers/new/:providerType',
@@ -884,7 +886,7 @@ const route = {
       path: 'provisionings',
       name: 'provisionings',
       component: ProvisioningsList,
-      props: (route) => ({ query: route.query.query })
+      props: (route) => ({ storeName: '$_provisionings', query: route.query.query })
     },
     {
       path: 'provisionings/new/:provisioningType',
@@ -963,7 +965,7 @@ const route = {
       path: 'device_registrations',
       name: 'device_registrations',
       component: DeviceRegistrationsList,
-      props: (route) => ({ query: route.query.query })
+      props: (route) => ({ storeName: '$_device_registrations', query: route.query.query })
     },
     {
       path: 'device_registrations/new',
@@ -1056,7 +1058,7 @@ const route = {
       path: 'traffic_shapings',
       name: 'traffic_shapings',
       component: NetworksTabs,
-      props: (route) => ({ tab: 'traffic_shapings', query: route.query.query })
+      props: (route) => ({ tab: 'traffic_shapings', storeName: '$_traffic_shaping_policies', query: route.query.query })
     },
     {
       path: 'traffic_shaping/new/:role',
@@ -1091,7 +1093,7 @@ const route = {
       path: 'floating_devices',
       name: 'floating_devices',
       component: FloatingDevicesList,
-      props: (route) => ({ query: route.query.query })
+      props: (route) => ({ storeName: '$_floatingdevices', query: route.query.query })
     },
     {
       path: 'floating_devices/new',
@@ -1162,7 +1164,7 @@ const route = {
       path: 'maintenance_tasks',
       name: 'maintenance_tasks',
       component: MainTabs,
-      props: (route) => ({ tab: 'maintenance_tasks', query: route.query.query })
+      props: (route) => ({ tab: 'maintenance_tasks', storeName: '$_maintenance_tasks', query: route.query.query })
     },
     {
       path: 'maintenance_task/:id',
@@ -1209,7 +1211,7 @@ const route = {
       path: 'admin_roles',
       name: 'admin_roles',
       component: AdminRolesList,
-      props: (route) => ({ query: route.query.query })
+      props: (route) => ({ storeName: '$_admin_roles', query: route.query.query })
     },
     {
       path: 'admin_roles/new',

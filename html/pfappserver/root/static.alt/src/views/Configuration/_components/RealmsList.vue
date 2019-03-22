@@ -44,6 +44,13 @@ export default {
     pfConfigList,
     pfEmptyTable
   },
+  props: {
+    storeName: { // from router
+      type: String,
+      default: null,
+      required: true
+    }
+  },
   data () {
     return {
       config: config(this)
@@ -54,7 +61,7 @@ export default {
       this.$router.push({ name: 'cloneRealm', params: { id: item.id } })
     },
     remove (item) {
-      this.$store.dispatch('$_realms/deleteRealm', item.id).then(response => {
+      this.$store.dispatch(`${this.storeName}/deleteRealm`, item.id).then(response => {
         this.$router.go() // reload
       })
     }
