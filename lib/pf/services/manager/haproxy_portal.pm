@@ -75,6 +75,7 @@ sub generateConfig {
             push @backend_ip, '127.0.0.1' if !@backend_ip;
             my $backend_ip_config = '';
             foreach my $back_ip ( @backend_ip ) {
+                next if($back_ip eq $cfg->{ip} && isdisabled($Config{active_active}{portal_on_management}));
 
                 $backend_ip_config .= <<"EOT";
         server $back_ip $back_ip:80 check
@@ -89,6 +90,7 @@ EOT
             push @backend_ip, '127.0.0.1' if !@backend_ip;
             my $backend_ip_config = '';
             foreach my $back_ip ( @backend_ip ) {
+                next if($back_ip eq $cfg->{ip} && isdisabled($Config{active_active}{portal_on_management}));
 
                 $backend_ip_config .= <<"EOT";
         server $back_ip $back_ip:80 check
