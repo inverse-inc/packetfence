@@ -17,48 +17,6 @@ use Lingua::EN::Inflexion qw(noun);
 use Mojo::Util qw(decamelize camelize);
 use Clone qw(clone);
 
-our %DEFAULT_RESOURCE_OPTIONS = (
-    subroutes    => { },
-    http_methods => {
-        GET => {
-            action => 'get',
-        },
-        PATCH => {
-            action => 'update',
-        },
-        PUT => {
-            action => 'replace',
-        },
-        DELETE => {
-            action => 'remove',
-        },
-        OPTIONS => {
-            action => 'resource_options',
-        },
-    },
-);
-
-our %DEFAULT_COLLECTION_OPTIONS = (
-    subroutes    => {
-        search => {
-            POST => {
-                action => 'search',
-            }
-        },
-    },
-    http_methods => {
-        GET => {
-            action => 'list',
-        },
-        POST => {
-            action => 'create',
-        },
-        OPTIONS => {
-            action => 'options',
-        },
-    },
-);
-
 our %ALLOWED_METHODS = (
     POST    => 1,
     GET     => 1,
@@ -146,15 +104,6 @@ sub register_action {
       $route->any([$method] => $path)
             ->to( action => $action, ( defined $controller ? ( controller => $controller ) : () ))
             ->name( $route->name . ".$name" );
-}
-
-sub munge_children_options {
-    my ($route, $options, $resource) = @_;
-    return [
-        map {
-            munge_child_options($route, $options, clone($_), $resource)
-        } @{$resource->{children} // []}
-    ];
 }
 
 =head1 AUTHOR
