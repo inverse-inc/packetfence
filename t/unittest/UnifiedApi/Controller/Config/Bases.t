@@ -26,8 +26,21 @@ BEGIN {
     use setup_test_config;
 }
 
+use pf::ConfigStore::Pf;
 use Test::More tests => 7;
 use Test::Mojo;
+
+my ($fh, $filename) = File::Temp::tempfile( UNLINK => 1 );
+
+{
+    use pf::file_paths qw($pf_config_file);
+    use File::Copy;
+    no warnings qw(redefine);
+    copy($pf_config_file, $fh);
+    *pf::ConfigStore::Pf::configFile = sub {
+        $filename;
+    };
+}
 
 #This test will running last
 use Test::NoWarnings;
