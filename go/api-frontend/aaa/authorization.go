@@ -38,6 +38,8 @@ var pathAdminRolesMap = []adminRoleMapping{
 	adminRoleMapping{prefix: configApiPrefix + "/bases", role: "CONFIGURATION_MAIN"},
 	adminRoleMapping{prefix: configApiPrefix + "/billing_tier/", role: "BILLING_TIER"},
 	adminRoleMapping{prefix: configApiPrefix + "/billing_tiers", role: "BILLING_TIER"},
+	adminRoleMapping{prefix: configApiPrefix + "/interface/", role: "INTERFACES"},
+	adminRoleMapping{prefix: configApiPrefix + "/interfaces", role: "INTERFACES"},
 	adminRoleMapping{prefix: configApiPrefix + "/connection_profile/", role: "CONNECTION_PROFILES"},
 	adminRoleMapping{prefix: configApiPrefix + "/connection_profiles", role: "CONNECTION_PROFILES"},
 	adminRoleMapping{prefix: configApiPrefix + "/device_registration/", role: "DEVICE_REGISTRATION"},
