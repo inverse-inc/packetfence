@@ -1151,8 +1151,8 @@ sub setup_api_v1_config_filters_routes {
     my ($self, $root) = @_;
     my $collection_route = $root->any(['GET'] => '/filters')->to(controller => "Config::Filters", action => 'list')->name("api.v1.Config.Filters.list");
     my $resource_route = $root->under("/filter/#filter_id")->to(controller => "Config::Filters", action => "resource")->name("api.v1.Config.Filters.resource");
-    $resource_route->any(['GET'])->to(action => "get")->name("api.v1.Config.Filters.resource.get");
-    $resource_route->any(['PUT'])->to(action=> "replace")->name("api.v1.Config.Filters.resource.replace");
+    $resource_route->any(['GET'])->to(controller => "Config::Filters", action => "get")->name("api.v1.Config.Filters.resource.get");
+    $resource_route->any(['PUT'])->to(controller => "Config::Filters", action => "replace")->name("api.v1.Config.Filters.resource.replace");
 
     return ($collection_route, $resource_route);
 }
