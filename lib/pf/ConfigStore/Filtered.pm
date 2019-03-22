@@ -8,7 +8,7 @@ pf::ConfigStore::Filtered
 =head1 DESCRIPTION
 
 pf::ConfigStore::Filtered
-Is the Generic class for the cached config
+A role to filter out specific sections of a ConfigStore based on an arbitrary filter subroutine
 
 =cut
 
