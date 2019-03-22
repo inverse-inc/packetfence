@@ -1003,7 +1003,7 @@ centralized_deauth=enabled
 # Process captive portal requests on the management server (the current load balancer).
 # Disabling it will make the management server only proxy requests to other servers.
 # Useful if your load balancer cannot handle both tasks.
-# Changing this requires to restart haproxy-portal.
+# Changing this requires to restart the haproxy-portal service.
 portal_on_management=enabled
 #
 # active_active.auth_on_management

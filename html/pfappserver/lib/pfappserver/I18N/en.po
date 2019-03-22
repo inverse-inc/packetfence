@@ -9693,7 +9693,7 @@ msgstr "Active Active"
 
 # conf/documentation.conf
 msgid "active_active.portal_on_management"
-msgstr "Captive-portal on management"
+msgstr "Captive portal on management"
 
 # conf/documentation.conf
 msgid "active_active.auth_on_management"
