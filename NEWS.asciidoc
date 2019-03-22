@@ -38,6 +38,7 @@ Enhancements
 * Exception for portal detecion URL in pfdns
 * Added support for Ruckus roles
 * sms_carrier 'id' column is now auto-increment (#1270/PR#3684)
+* Better logging for haproxy-portal that allows to identify missing passthroughs
 
 Bug Fixes
 +++++++++
