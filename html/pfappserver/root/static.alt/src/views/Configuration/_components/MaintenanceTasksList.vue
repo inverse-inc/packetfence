@@ -1,5 +1,6 @@
 <template>
   <pf-config-list
+    ref="pfConfigList"
     :config="config"
   >
     <template slot="pageHeader">
@@ -13,8 +14,15 @@
         <pf-empty-table :isLoading="state.isLoading">{{ $t('No maintenance tasks found') }}</pf-empty-table>
     </template>
     <template slot="status" slot-scope="data">
-      <icon name="circle" :class="{ 'text-success': data.status === 'enabled', 'text-danger': data.status === 'disabled' }"
-        v-b-tooltip.hover.left.d300 :title="$t(data.status)"></icon>
+      <pf-form-range-toggle
+        v-model="data.status"
+        :values="{ checked: 'enabled', unchecked: 'disabled' }"
+        :icons="{ checked: 'check', unchecked: 'times' }"
+        :colors="{ checked: 'var(--success)', unchecked: 'var(--danger)' }"
+        :disabled="isLoading"
+        @input="toggleStatus(data, $event)"
+        @click.stop.prevent
+      >{{ (data.status === 'enabled') ? $t('Enabled') : $t('Disabled') }}</pf-form-range-toggle>
     </template>
     <template slot="interval" slot-scope="item">
       {{ item.interval.interval }}{{ item.interval.unit }}
@@ -27,6 +35,7 @@ import pfButtonDelete from '@/components/pfButtonDelete'
 import pfButtonService from '@/components/pfButtonService'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
+import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import {
   pfConfigurationMaintenanceTasksListConfig as config
 } from '@/globals/configuration/pfConfigurationMaintenanceTasks'
@@ -37,11 +46,28 @@ export default {
     pfButtonDelete,
     pfButtonService,
     pfConfigList,
-    pfEmptyTable
+    pfEmptyTable,
+    pfFormRangeToggle
   },
   data () {
     return {
       config: config(this)
+    }
+  },
+  methods: {
+    toggleStatus (item, newStatus) {
+      switch (newStatus) {
+        case 'enabled':
+          this.$store.dispatch('$_maintenance_tasks/enableMaintenanceTask', item).then(response => {
+            this.$refs.pfConfigList.submitSearch() // redo search
+          })
+          break
+        case 'disabled':
+          this.$store.dispatch('$_maintenance_tasks/disableMaintenanceTask', item).then(response => {
+            this.$refs.pfConfigList.submitSearch() // redo search
+          })
+          break
+      }
     }
   }
 }

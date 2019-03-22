@@ -86,6 +86,28 @@ const actions = {
       commit('ITEM_ERROR', err.response)
       throw err
     })
+  },
+  enableMaintenanceTask: ({ commit }, data) => {
+    commit('ITEM_REQUEST')
+    const _data = { id: data.id, status: 'enabled' }
+    return api.updateMaintenanceTask(_data).then(response => {
+      commit('ITEM_ENABLED', data)
+      return response
+    }).catch(err => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
+  },
+  disableMaintenanceTask: ({ commit }, data) => {
+    commit('ITEM_REQUEST')
+    const _data = { id: data.id, status: 'disabled' }
+    return api.updateMaintenanceTask(_data).then(response => {
+      commit('ITEM_DISABLED', data)
+      return response
+    }).catch(err => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
   }
 }
 
@@ -97,6 +119,14 @@ const mutations = {
   ITEM_REPLACED: (state, data) => {
     state.itemStatus = types.SUCCESS
     Vue.set(state.cache, data.id, data)
+  },
+  ITEM_ENABLED: (state, data) => {
+    state.itemStatus = types.SUCCESS
+    Vue.set(state.cache, data.id, { ...state.cache[data.id], ...data })
+  },
+  ITEM_DISABLED: (state, data) => {
+    state.itemStatus = types.SUCCESS
+    Vue.set(state.cache, data.id, { ...state.cache[data.id], ...data })
   },
   ITEM_DESTROYED: (state, id) => {
     state.itemStatus = types.SUCCESS
