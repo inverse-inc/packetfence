@@ -1,22 +1,22 @@
-package pf::UnifiedApi::Controller::Fingerbank::Device;
+package pf::UnifiedApi::Controller::Fingerbank::DHCP6Enterprises;
 
 =head1 NAME
 
-pf::UnifiedApi::Controller::Fingerbank::Device -
+pf::UnifiedApi::Controller::Fingerbank::DHCP6Enterprises -
 
 =head1 DESCRIPTION
 
-pf::UnifiedApi::Controller::Fingerbank::Device
+pf::UnifiedApi::Controller::Fingerbank::DHCP6Enterprises
 
 =cut
 
 use strict;
 use warnings;
 use Mojo::Base 'pf::UnifiedApi::Controller::Fingerbank';
-use fingerbank::Model::Device;
+use fingerbank::Model::DHCP6_Enterprise;
 
-has 'fingerbank_model' => 'fingerbank::Model::Device';
-has 'url_param_name' => 'device_id';
+has 'fingerbank_model' => 'fingerbank::Model::DHCP6_Enterprise';
+has 'url_param_name' => 'dhcp6_enterprise_id';
 
 =head1 AUTHOR
 

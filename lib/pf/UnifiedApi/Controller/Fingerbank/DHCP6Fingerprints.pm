@@ -1,22 +1,22 @@
-package pf::UnifiedApi::Controller::Fingerbank::UserAgent;
+package pf::UnifiedApi::Controller::Fingerbank::DHCP6Fingerprints;
 
 =head1 NAME
 
-pf::UnifiedApi::Controller::Fingerbank::UserAgent -
+pf::UnifiedApi::Controller::Fingerbank::DHCP6Fingerprints -
 
 =head1 DESCRIPTION
 
-pf::UnifiedApi::Controller::Fingerbank::UserAgent
+pf::UnifiedApi::Controller::Fingerbank::DHCP6Fingerprints
 
 =cut
 
 use strict;
 use warnings;
 use Mojo::Base 'pf::UnifiedApi::Controller::Fingerbank';
-use fingerbank::Model::User_Agent;
+use fingerbank::Model::DHCP6_Fingerprint;
 
-has 'fingerbank_model' => 'fingerbank::Model::User_Agent';
-has 'url_param_name' => 'user_agent_id';
+has 'fingerbank_model' => 'fingerbank::Model::DHCP6_Fingerprint';
+has 'url_param_name' => 'dhcp6_fingerprint_id';
 
 =head1 AUTHOR
 

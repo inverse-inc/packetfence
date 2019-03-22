@@ -1,22 +1,22 @@
-package pf::UnifiedApi::Controller::Fingerbank::DHCPVendor;
+package pf::UnifiedApi::Controller::Fingerbank::DHCPFingerprints;
 
 =head1 NAME
 
-pf::UnifiedApi::Controller::Fingerbank::DHCPVendor -
+pf::UnifiedApi::Controller::Fingerbank::DHCPFingerprints -
 
 =head1 DESCRIPTION
 
-pf::UnifiedApi::Controller::Fingerbank::DHCPVendor
+pf::UnifiedApi::Controller::Fingerbank::DHCPFingerprints
 
 =cut
 
 use strict;
 use warnings;
 use Mojo::Base 'pf::UnifiedApi::Controller::Fingerbank';
-use fingerbank::Model::DHCP_Vendor;
+use fingerbank::Model::DHCP_Fingerprint;
 
-has 'fingerbank_model' => 'fingerbank::Model::DHCP_Vendor';
-has 'url_param_name' => 'dhcp_vendor_id';
+has 'fingerbank_model' => 'fingerbank::Model::DHCP_Fingerprint';
+has 'url_param_name' => 'dhcp6_fingerprint_id';
 
 =head1 AUTHOR
 
