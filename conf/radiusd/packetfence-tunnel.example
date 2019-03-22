@@ -193,7 +193,7 @@ authenticate {
 		# In the event it fails, it will fallback to an ntlm_auth call below
 		if(&control:NT-Password && &control:NT-Password != "") {
 			update {
-				&control:PacketFence-NTCacheHash := "YES"
+				&control:PacketFence-NTCacheHash := 1
 			}
 			mschap_local {
 				reject = 2
@@ -201,7 +201,7 @@ authenticate {
 			if (reject || fail) {
 				packetfence-mschap-authenticate
 				update {
-					&control:PacketFence-NTCacheHash := "NO"
+					&control:PacketFence-NTCacheHash := 0
 				}
 			}
                         update control {

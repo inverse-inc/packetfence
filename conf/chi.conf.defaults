@@ -157,3 +157,10 @@ storage=distributed
 #
 # The storage to use for the namespace
 storage=distributed
+
+[storage ntlm_cache_username_lookup]
+#
+# storage ntlm_cache_username_lookup.expires_in
+#
+# Amount of time from the current time to expire an entry
+expires_in=24h

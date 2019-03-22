@@ -28,6 +28,9 @@ use File::Temp;
 use pf::Redis;
 use pf::constants::domain qw($NTLM_REDIS_CACHE_HOST $NTLM_REDIS_CACHE_PORT);
 use Socket;
+use pf::CHI;
+
+my $CHI_CACHE = pf::CHI->new( namespace => 'ntlm_cache_username_lookup' );
 
 =head2 fetch_valid_users
 
@@ -270,16 +273,23 @@ sub cache_user {
     my $config = $ConfigDomain{$domain};
     my $source = getAuthenticationSource($config->{ntlm_cache_source});
     return ($FALSE, "Invalid LDAP source $config->{ntlm_cache_source}") unless(defined($source));
-    
-    if($username =~ /^host\//) {
-        ($username, my $msg) = $source->findAtttributeFrom("servicePrincipalName", $username, "sAMAccountName");
-        return ($FALSE, $msg) unless($username);
-    }
-    elsif (lc($source->{'usernameattribute'}) ne lc('sAMAccountName')) {
-        ($username, my $msg) = $source->findAtttributeFrom($source->{'usernameattribute'}, $username, "sAMAccountName");
-        return ($FALSE, $msg) unless($username);
-    }
+    my $cache_key = "$domain.$username";
+    my $user = $CHI_CACHE->get($cache_key);
+    unless($user){
+        if($username =~ /^host\//) {
+            ($username, my $msg) = $source->findAtttributeFrom("servicePrincipalName", $username, "sAMAccountName");
+            return ($FALSE, $msg) unless($username);
+        }
+        elsif (lc($source->{'usernameattribute'}) ne lc('sAMAccountName')) {
+            ($username, my $msg) = $source->findAtttributeFrom($source->{'usernameattribute'}, $username, "sAMAccountName");
+            return ($FALSE, $msg) unless($username);
+        }
+        $CHI_CACHE->set($cache_key, $username);
 
+    }
+    if (defined($user)) {
+        $username = $user;
+    }
     my ($ntds_file, $msg) = secretsdump($domain, $source, "-just-dc-user '$username'");
     return ($FALSE, $msg) unless($ntds_file);
 

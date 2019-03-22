@@ -75,7 +75,7 @@ my $merger = Hash::Merge->new();
 $merger->specify_behavior(\%SPECS, 'PF_CHI_MERGE');
 $merger->set_behavior('PF_CHI_MERGE');
 
-our @CACHE_NAMESPACES = qw(configfilesdata configfiles httpd.admin httpd.portal pfdns switch.overlay ldap_auth fingerbank firewall_sso switch accounting clustering person_lookup route_int provisioning switch_distributed pfdhcp_api openvas_scans local_mac);
+our @CACHE_NAMESPACES = qw(configfilesdata configfiles httpd.admin httpd.portal pfdns switch.overlay ldap_auth fingerbank firewall_sso switch accounting clustering person_lookup route_int provisioning switch_distributed pfdhcp_api openvas_scans local_mac ntlm_cache_username_lookup);
 
 our $chi_default_config = pf::IniFiles->new( -file => $chi_defaults_config_file) or die "Cannot open $chi_defaults_config_file";
 
