@@ -72,7 +72,6 @@ use pf::dal;
 use pf::security_event;
 use pf::constants::security_event qw($LOST_OR_STOLEN);
 use pf::Redis;
-use pf::CHI;
 
 our $VERSION = 1.03;
 
@@ -1027,12 +1026,12 @@ sub handleNtlmCaching {
     my $usedNtHash = $radius_request->{"PacketFence-NTCacheHash"};
 
     if($domain && isenabled($ConfigDomain{$domain}{ntlm_cache}) && isenabled($ConfigDomain{$domain}{ntlm_cache_on_connection})) {
-        my $CHI_CACHE = pf::CHI->new( namespace => 'ntlm_cache_username_lookup' );
         my $cache_key = "$domain.$radius_request->{'Stripped-User-Name'}";
-        my $username = $CHI_CACHE->get($cache_key);
+        my $username = pf::domain::ntlm_cache::get_from_cache($cache_key);
         if (defined($usedNtHash) && $usedNtHash && defined($username)) {
-            update_user_in_redis_cache($domain,$username);
-        } else {
+            $self->update_user_in_redis_cache($domain,$username);
+        }
+        else {
             my $client = pf::api::queue->new(queue => "general");
             $client->notify("cache_user_ntlm", $domain, $radius_request->{"Stripped-User-Name"});
         }
@@ -1151,7 +1150,7 @@ Update a user/NT hash combination inside redis for a given domain
 =cut
 
 sub update_user_in_redis_cache {
-    my ($domain, $user) = @_;
+    my ($self, $domain, $user) = @_;
     my $logger = get_logger;
     my $config = $ConfigDomain{$domain};
 

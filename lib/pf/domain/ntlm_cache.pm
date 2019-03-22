@@ -274,7 +274,7 @@ sub cache_user {
     my $source = getAuthenticationSource($config->{ntlm_cache_source});
     return ($FALSE, "Invalid LDAP source $config->{ntlm_cache_source}") unless(defined($source));
     my $cache_key = "$domain.$username";
-    my $user = $CHI_CACHE->get($cache_key);
+    my $user = get_from_cache($cache_key);
     unless($user){
         if($username =~ /^host\//) {
             ($username, my $msg) = $source->findAtttributeFrom("servicePrincipalName", $username, "sAMAccountName");
@@ -284,7 +284,7 @@ sub cache_user {
             ($username, my $msg) = $source->findAtttributeFrom($source->{'usernameattribute'}, $username, "sAMAccountName");
             return ($FALSE, $msg) unless($username);
         }
-        $CHI_CACHE->set($cache_key, $username);
+        set_to_cache($cache_key, $username);
 
     }
     if (defined($user)) {
@@ -379,6 +379,31 @@ sub insert_user_in_redis_cache {
     $logger->info("Inserting '$key' => '$nthash'");
     $redis->set($key, $nthash, 'EX', $config->{ntlm_cache_expiry});
 }
+
+=head2 get_from_cache
+
+Get the value from the key
+
+=cut
+
+sub get_from_cache {
+    my ($key) = @_;
+
+    return $CHI_CACHE->get($key);
+}
+
+=head2 set_to_cache
+
+Set the value associated to the key
+
+=cut
+
+sub set_to_cache {
+    my ($key, $value) = @_;
+
+    $CHI_CACHE->set($key,$value);
+}
+
 
 =head1 AUTHOR
 
