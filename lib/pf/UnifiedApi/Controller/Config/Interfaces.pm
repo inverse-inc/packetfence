@@ -20,7 +20,6 @@ use pfappserver::Model::Enforcement;
 use pfappserver::Form::Interface::Create;
 use pf::UnifiedApi::Controller::Config;
 use pf::error qw(is_success);
-use Data::Dumper;
 
 =head2 validate_item
 
