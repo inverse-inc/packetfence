@@ -16,11 +16,9 @@ use Moo::Role;
 use namespace::autoclean;
 use List::MoreUtils qw(any);
 
-=head2 Methods
+=head2 _Sections
 
-=over
-
-=item _Sections
+Override _Sections and apply filter on them
 
 =cut
 
@@ -29,10 +27,22 @@ sub _Sections {
     return map { $self->filter($_) ? $_ : () } $self->cachedConfig->Sections();
 }
 
+=head2 _hasId
+
+Is the ID present in the filtered sections
+
+=cut
+
 sub _hasId {
     my ($self, $id) = @_;
     return any { $_ eq $id } $self->_Sections();
 }
+
+=head2 hasId
+
+Override hasId to take into consideration the filtered sections
+
+=cut
 
 sub hasId {
     my ($self, $id ) = @_;
