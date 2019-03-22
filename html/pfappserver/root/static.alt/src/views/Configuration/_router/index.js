@@ -30,6 +30,7 @@ import SwitchGroupsStore from '../_store/switchGroups'
 import TrafficShapingPoliciesStore from '../_store/trafficShapingPolicies'
 import WmiRulesStore from '../_store/wmiRules'
 import WrixLocationsStore from '../_store/wrixLocations'
+import SecurityEventsStore from '../_store/securityEvents'
 
 /* Policies Access Control */
 const PoliciesAccessControlSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/PoliciesAccessControlSection')
@@ -53,9 +54,9 @@ const FingerbankTabs = () => import(/* webpackChunkName: "Configuration" */ '../
 const FingerbankCombinationView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FingerbankCombinationView')
 const ScansTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/ScansTabs')
 const ScanEngineView = () => import(/* webpackChunkName: "Configuration" */ '../_components/ScanEngineView')
+const SecurityEventsList = () => import(/* webpackChunkName: "Configuration" */ '../_components/SecurityEventsList')
+const SecurityEventView = () => import(/* webpackChunkName: "Configuration" */ '../_components/SecurityEventView')
 const WmiRuleView = () => import(/* webpackChunkName: "Configuration" */ '../_components/WmiRuleView')
-// const SecurityEventsList = () => import(/* webpackChunkName: "Configuration" */ '../_components/SecurityEventsList')
-// const SecurityEventView = () => import(/* webpackChunkName: "Configuration" */ '../_components/SecurityEventView')
 
 /* Integration */
 const IntegrationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/IntegrationSection')
@@ -206,6 +207,9 @@ const route = {
     }
     if (!store.state.$_wrix_locations) {
       store.registerModule('$_wrix_locations', WrixLocationsStore)
+    }
+    if (!store.state.$_security_events) {
+      store.registerModule('$_security_events', SecurityEventsStore)
     }
     next()
   },
@@ -649,7 +653,6 @@ const route = {
         })
       }
     },
-    /*
     {
       path: 'security_events',
       name: 'security_events',
@@ -684,7 +687,6 @@ const route = {
         })
       }
     },
-    */
     /**
      * Integration
      */
