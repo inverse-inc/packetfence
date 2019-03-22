@@ -101,6 +101,7 @@ EOT
             $tags{'http'} .= <<"EOT";
 frontend portal-http-$cluster_ip
         bind $cluster_ip:80
+        capture request header Host len 40
         stick-table type ip size 1m expire 10s store gpc0,http_req_rate(10s)
         tcp-request connection track-sc1 src
         http-request lua.change_host
@@ -124,6 +125,7 @@ EOT
 
 frontend portal-https-$cluster_ip
         bind $cluster_ip:443 ssl no-sslv3 crt /usr/local/pf/conf/ssl/server.pem
+        capture request header Host len 40
         stick-table type ip size 1m expire 10s store gpc0,http_req_rate(10s)
         tcp-request connection track-sc1 src
         http-request lua.change_host
@@ -171,6 +173,7 @@ EOT
                 $tags{'http'} .= <<"EOT";
 frontend portal-http-$cluster_ipv6
         bind $cluster_ipv6:80
+        capture request header Host len 40
         stick-table type ipv6 size 1m expire 10s store gpc0,http_req_rate(10s)
         tcp-request connection track-sc1 src
         http-request lua.change_host
@@ -188,6 +191,7 @@ frontend portal-http-$cluster_ipv6
 
 frontend portal-https-$cluster_ipv6
         bind $cluster_ipv6:443 ssl no-sslv3 crt /usr/local/pf/conf/ssl/server.pem
+        capture request header Host len 40
         stick-table type ipv6 size 1m expire 10s store gpc0,http_req_rate(10s)
         tcp-request connection track-sc1 src
         http-request lua.change_host
