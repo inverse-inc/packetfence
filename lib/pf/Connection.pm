@@ -197,7 +197,7 @@ sub identifyType {
         }
         $self->transport($nas_port_type =~ /^wireless/i ? "Wireless" : "Wired");
         if ($nas_port_type =~ /^virtual/i) {
-		$self->transport("Virtual");
+            $self->transport("Virtual");
         }
     }
     else {
