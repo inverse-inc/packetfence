@@ -13,6 +13,7 @@ Form definition to modify Fingerbank configuration
 use HTML::FormHandler::Moose;
 
 use fingerbank::Config;
+use Input::Validation;
 
 extends 'pfappserver::Base::Form';
 with 'pfappserver::Base::Form::Role::Help';
@@ -25,8 +26,6 @@ sub field_list {
     my $config = fingerbank::Config::get_config;
     my $config_doc = fingerbank::Config::get_documentation;
 
-
-
     foreach my $section ( keys %$config ) {
         push @$list, $section => {id => $section, type => 'Compound'};
         foreach my $parameter ( keys %{$config->{$section}} ) {
@@ -37,7 +36,7 @@ sub field_list {
             my $field = {
                 id      => $field_name,
                 label   => $field_name,
-#                element_attr => { 'placeholder' => $config_defaults->{$field_name} },
+                #element_attr => { 'placeholder' => $config_defaults->{$field_name} },
                 tags => {
                     after_element   => \&help,
                     help            => do {
@@ -47,7 +46,6 @@ sub field_list {
                     },
                 },
             };
-
             my $type = $field_doc->{type};
             if ($type eq 'toggle') {
                 $field->{type}            = 'Toggle';
@@ -55,11 +53,15 @@ sub field_list {
                 $field->{unchecked_value} = 'disabled';
             } 
             elsif ($type eq 'numeric') {
-                $field->{type} = 'PosInteger';
+                $field->{type} = ( (index(lc($field_name), 'port') != -1) ? ('Port') : ('PosInteger') );
             }
             else {
                 $field->{type} = 'Text';
                 $field->{element_class} = ['input-xxlarge'];
+            }
+
+            if (my $validate_method = $self->validator_for_field($field_name)) {
+                $field->{validate_method} = $validate_method;
             }
 
             push ( @$list, $field_name => $field );
@@ -68,6 +70,32 @@ sub field_list {
 
     return $list;
 }
+
+
+our %FIELD_VALIDATORS = (
+    "upstream.host" => sub { 
+        form_field_validation('hostname||ip', 1 , @_);
+    },
+    "collector.host" => sub { 
+        form_field_validation('hostname||ip', 1 , @_);
+    },
+    "proxy.host" => sub { 
+        form_field_validation('hostname||ip', 1 , @_);
+    },
+
+);
+
+=head2 validator_for_field
+
+Get the validator for a field
+
+=cut
+
+sub validator_for_field {
+    my ($self, $field) = @_;
+    return $FIELD_VALIDATORS{$field};
+}
+
 
 =head1 COPYRIGHT
 

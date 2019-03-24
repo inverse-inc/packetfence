@@ -15,6 +15,9 @@ use pf::Authentication::Source::HTTPSource;
 extends 'pfappserver::Form::Config::Source';
 with 'pfappserver::Base::Form::Role::Help', 'pfappserver::Base::Form::Role::InternalSource';
 
+#For Input Validation/Sanitization
+use Input::Validation;
+
 # Form fields
 has_field 'host' =>
   (
@@ -73,6 +76,13 @@ has_field 'authorization_url' =>
    tags => { after_element => \&help,
              help => 'Note : The URL is always prefixed by a slash (/)' },
   );
+
+  
+
+sub validate_host {
+  my ( $self, $field ) = @_;
+  form_field_validation('hostname||ip', 1 , $field);
+}
 
 =head1 COPYRIGHT
 

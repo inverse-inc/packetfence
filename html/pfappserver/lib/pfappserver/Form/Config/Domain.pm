@@ -20,6 +20,9 @@ use pf::util;
 use pf::authentication;
 use Sys::Hostname;
 
+#For Input Validation/Sanitization
+use Input::Validation;
+
 ## Definition
 has_field 'id' =>
   (
@@ -224,6 +227,11 @@ sub options_ntlm_cache_source {
     my @sources = map {$_->{id} => $_->{id}} @{pf::authentication::getAuthenticationSourcesByType("AD")};
     unshift @sources, ("" => "");
     return @sources;
+}
+
+sub validate_ad_server {
+  my ( $self, $field ) = @_;
+  form_field_validation('hostname||ip', 1 , $field);
 }
 
 =head2 validate

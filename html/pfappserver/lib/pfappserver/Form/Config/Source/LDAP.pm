@@ -19,6 +19,9 @@ with 'pfappserver::Base::Form::Role::Help', 'pfappserver::Base::Form::Role::Inte
 
 use pf::config qw(%Config);
 
+#For Input Validation/Sanitization
+use Input::Validation;
+
 our $META = pf::Authentication::Source::LDAPSource->meta;
 
 
@@ -41,7 +44,7 @@ has_field 'port' =>
   );
 has_field 'connection_timeout' =>
   (
-    type         => 'Float',
+    type         => 'PosInteger',
     label        => 'Connection timeout',
     element_attr => {
         'placeholder' => $META->get_attribute('connection_timeout')->default
@@ -52,7 +55,7 @@ has_field 'connection_timeout' =>
   );
 has_field 'write_timeout' =>
   (
-    type         => 'Float',
+    type         => 'PosInteger',
     label        => 'Request timeout',
     element_attr => {
         'placeholder' => $META->get_attribute('write_timeout')->default
@@ -63,7 +66,7 @@ has_field 'write_timeout' =>
   );
 has_field 'read_timeout' =>
   (
-    type         => 'Float',
+    type         => 'PosInteger',
     label        => 'Response timeout',
     element_attr => {
         'placeholder' => $META->get_attribute('read_timeout')->default
@@ -209,6 +212,11 @@ retrive the realms
 sub options_attributes {
     my ($self) = @_;
     return map { $_ => $_} @{$Config{advanced}->{ldap_attributes}};
+}
+
+sub validate_host {
+  my ( $self, $field ) = @_;
+  form_field_validation('hostname||ip', 1 , $field);
 }
 
 =head2 validate

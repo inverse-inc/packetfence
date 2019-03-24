@@ -17,10 +17,10 @@ use pf::util;
 use namespace::autoclean;
 
 # If the field value matches one of the values defined in "accept", the field will pass validation.
-# Otherwise, the field value must be a valid IPv4 address.
+# Otherwise, the field value must be a valid Paths.
 
 our $class_messages = {
-    'path' => 'It must be a valid path',
+    'path' => 'It must be a valid Full Path',
 };
 
 sub get_class_messages {

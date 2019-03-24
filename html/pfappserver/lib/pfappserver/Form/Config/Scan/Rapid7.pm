@@ -20,6 +20,8 @@ with qw(
 use pf::config;
 use pf::util;
 use File::Find qw(find);
+#For Input Validation/Sanitization
+use Input::Validation;
 
 has_field 'type' =>
   (
@@ -133,7 +135,10 @@ around 'process' => sub {
 
     $sub->(@args);
 };
-
+  sub validate_host {
+    my ( $self, $field ) = @_;
+    form_field_validation('hostname||ip', 1 , $field);
+  }
 =over
 
 =back

@@ -14,17 +14,22 @@ use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Interface';
 with 'pfappserver::Base::Form::Role::Help';
 
-
 # Form fields
 has_field 'vlan' =>
   (
-   type => 'Text',
+   type => 'PosInteger',
    label => 'Virtual LAN ID',
    required => 1,
    messages => { required => 'Please specify a VLAN ID.' },
    tags => { after_element => \&help,
              help => 'VLAN ID (must be a number bellow 4096)' },
   );
+
+sub validate_vlan {
+    my ( $self, $field ) = @_;
+    my $field_value= $field->value;
+    return ($field->add_error("Vlan Id should be between 0 - 4096")) if($field_value > 4095);
+}
 
 =head1 COPYRIGHT
 

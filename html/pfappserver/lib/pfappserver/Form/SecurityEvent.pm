@@ -44,7 +44,7 @@ has_field 'enabled' =>
   );
 has_field 'id' =>
   (
-   type => 'Text',
+   type => 'PosInteger',
    label => 'Identifier',
    default_method => \&class_next_security_event_id,
    messages => { required => 'Please specify an identifier for the security event.' },

@@ -18,6 +18,8 @@ use pf::ConfigStore::WMI;
 use pf::config;
 use pf::util;
 use File::Find qw(find);
+#For Input Validation/Sanitization
+use Input::Validation;
 
 has_field 'domain' =>
   (
@@ -64,6 +66,11 @@ has_field 'wmi_rules.contains' =>
     options_method => \&options_wmi_rules,
     widget_wrapper => 'DynamicTableRow',
 );
+
+sub validate_domain {
+  my ( $self, $field ) = @_;
+  form_field_validation('hostname', 1 , $field);
+}
 
 =head2 options_wmi_rules
 

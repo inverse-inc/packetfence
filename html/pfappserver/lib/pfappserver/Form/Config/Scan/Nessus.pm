@@ -17,6 +17,8 @@ with 'pfappserver::Base::Form::Role::Help';
 use pf::config;
 use pf::util;
 use File::Find qw(find);
+#For Input Validation/Sanitization
+use Input::Validation;
 
 has_field 'ip' =>
   (
@@ -51,6 +53,11 @@ has_field 'nessus_clientpolicy' =>
    tags => { after_element => \&help,
              help => 'Name of the policy to use on the nessus server' },
   );
+
+  sub validate_ip {
+    my ( $self, $field ) = @_;
+    form_field_validation('hostname||ip', 1 , $field);
+  }
 
 
 =over
