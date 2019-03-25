@@ -35,7 +35,7 @@ packetfence-local-auth {
 
 #Set the realm if it's machine authentication
 packetfence-set-realm-if-machine {
-    if (User-Name =~ /host\/([a-z0-9\-_]*)[\.](.*)/i) {
+    if (User-Name =~ /host\/([a-z0-9_-]*)[\.](.*)/i) {
         update {
             &request:Realm := "%{2}"
         }
