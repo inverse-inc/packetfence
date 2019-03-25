@@ -43,7 +43,7 @@ my @mocked_switch_subs = `egrep "^sub " $lib_path/pf/Switch/MockedSwitch.pm | aw
 my @pf_snmp_subs = `egrep "^sub " $lib_path/pf/Switch.pm | awk '{ print \$2 }'`;
 # these methods are whitelisted because they have no [significant] side-effect, thus not useful to mock
 my @whitelist = (
-    'new', 'isUpLink', 'setVlanWithName', 'setVlanByName', 'setMacDetectionVlan',
+    'new', 'isUpLink', 'setVlanWithName', 'setVlanByName',
     'getMode', 'isTestingMode', 'isIgnoreMode', 'isRegistrationMode',
     'isProductionMode', 'isDiscoveryMode', 'getBitAtPosition', 'modifyBitmask', 'flipBits',
     'createPortListWithOneItem', 'reverseBitmask', 'generateFakeMac', 'isFakeMac', 'isFakeVoIPMac', 'getVlanFdbId',

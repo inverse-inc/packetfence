@@ -197,12 +197,6 @@ sub disablePortConfig {
         }
     }
 
-    $logger->info("Setting port $switch_port to MAC detection Vlan.");
-    if (! $switch->setMacDetectionVlan( $switch_port, $switch_locker_ref )) {
-        $logger->warn("An minor issue occured while setting port $switch_port to MAC detection Vlan " .
-                      "but the port should work.");
-    }
-
     my @locationlog = pf::locationlog::locationlog_view_open_switchport_no_VoIP($switch->{_ip}, $switch_port);
     my $radius_triggered;
     if (@locationlog && $locationlog[0]) {

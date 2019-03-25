@@ -418,7 +418,6 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
         ...[
           'registration',
           'isolation',
-          'macDetection',
           'inline',
           ...roles.map(role => role.id)
         ].map(role => {
@@ -451,7 +450,6 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
         ...[
           'registration',
           'isolation',
-          'macDetection',
           'inline',
           ...roles.map(role => role.id)
         ].map(role => {
@@ -484,7 +482,6 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
         ...[
           'registration',
           'isolation',
-          'macDetection',
           'inline',
           ...roles.map(role => role.id)
         ].map(role => {
@@ -522,7 +519,6 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
         ...[
           'registration',
           'isolation',
-          'macDetection',
           'inline',
           ...roles.map(role => role.id)
         ].map(role => {
@@ -949,7 +945,6 @@ export const pfConfigurationSwitchGroupViewPlaceholders = (context = {}) => {
     normalVlan: '1',
     registrationVlan: '2',
     isolationVlan: '3',
-    macDetectionVlan: '4',
     voiceVlan: '5',
     inlineVlan: '6',
     REJECTVlan: '-1',

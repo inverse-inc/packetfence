@@ -29,6 +29,7 @@ use pf::config qw(
     $VOIP
 );
 use pf::constants qw($TRUE $FALSE);
+use pf::constants::role qw($REGISTRATION_ROLE);
 use pf::security_event;
 use pf::node;
 use pf::util;
@@ -176,9 +177,9 @@ sub handleUpTrap {
         return;
     }
 
-    # set into MAC detection VLAN
-    $logger->info("setting $switch_id port $switch_port to MAC detection VLAN");
-    $switch->setMacDetectionVlan($switch_port, \%switch_locker, 1);
+    # set into Registration VLAN
+    $logger->info("setting $switch_id port $switch_port to Registration VLAN");
+    $switch->setVlan( $switch_port, $switch->getVlanByName($REGISTRATION_ROLE), \%switch_locker, undef, 1 );
 
     # continue only if MAC learnt traps are not available on this port
     if ($switch->isLearntTrapsEnabled($switch_port)) {
@@ -320,8 +321,8 @@ sub handleMacTrap {
             else {
                 $logger->info("Removed trap for MAC $mac: MAC "
                       . $locationlog[0]->{'mac'}
-                      . " DEAD -> setting data VLAN on $switch_id ifIndex $switch_port to MAC detection VLAN");
-                $switch->setMacDetectionVlan($switch_port, \%switch_locker, 0);
+                      . " DEAD -> setting data VLAN on $switch_id ifIndex $switch_port to Registration VLAN");
+                $switch->setVlan( $switch_port, $switch->getVlanByName($REGISTRATION_ROLE), \%switch_locker, undef, 0 );
             }
         }
         else {
@@ -347,8 +348,8 @@ sub handleMacTrap {
             }
 
             if ($nothingLeftOnSwitchPort == 1) {
-                $logger->info("setting data VLAN on $switch_id ifIndex $switch_port to MAC detection VLAN");
-                $switch->setMacDetectionVlan($switch_port, \%switch_locker, 0);
+                $logger->info("setting data VLAN on $switch_id ifIndex $switch_port to MAC Registration VLAN");
+                $switch->setVlan( $switch_port, $switch->getVlanByName($REGISTRATION_ROLE), \%switch_locker, undef, 0 );
             }
             else {
                 $logger->info("no line in locationlog and MACs ("
@@ -454,9 +455,9 @@ sub handleDownTrap {
         return;
     }
 
-    # set into MAC detection VLAN
-    $logger->info("setting $switch_id port $switch_port to MAC detection VLAN");
-    $switch->setMacDetectionVlan($switch_port, \%switch_locker, 1);
+    # set into Registration VLAN
+    $logger->info("setting $switch_id port $switch_port to Registration VLAN");
+    $switch->setVlan( $switch_port, $switch->getVlanByName($REGISTRATION_ROLE), \%switch_locker, undef, 1 );
 }
 
 =head2 handleRoamingTrap

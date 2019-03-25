@@ -98,7 +98,6 @@ $result = $fd->disablePortConfig('bb:bb:cc:dd:ee:ff', $switch, $switch_port, $sw
 is($result, $FALSE, "disablePortConfig: failed to deconfigure trunk");
 $switch->unmock('disablePortConfigAsTrunk');
 
-$switch->mock('setMacDetectionVlan', sub { return (1); });
 $switch->mock('enablePortSecurityByIfIndex', sub { return (0); });
 $result = $fd->disablePortConfig('bb:bb:cc:dd:ee:ff', $switch, $switch_port, $switch_locker);
 is($result, $FALSE, "disablePortConfig: failed to disable port-security on port");
