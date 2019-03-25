@@ -22,6 +22,10 @@ type adminRoleMapping struct {
 }
 
 var pathAdminRolesMap = []adminRoleMapping{
+	// TODO: handle wildcard role which is no-authz needed, just auth
+	adminRoleMapping{prefix: apiPrefix + "/preference/", role: "*"},
+	adminRoleMapping{prefix: apiPrefix + "/preferences", role: "*"},
+
 	adminRoleMapping{prefix: apiPrefix + "/node/", role: "NODES"},
 	adminRoleMapping{prefix: apiPrefix + "/nodes", role: "NODES"},
 	adminRoleMapping{prefix: apiPrefix + "/user/", role: "USERS"},
@@ -132,6 +136,8 @@ func (tam *TokenAuthorizationMiddleware) BearerRequestIsAuthorized(ctx context.C
 		i++
 	}
 	r.Header.Set("X-PacketFence-Admin-Roles", strings.Join(roles, ","))
+
+	r.Header.Set("X-PacketFence-Username", tokenInfo.Username)
 
 	return tam.IsAuthorized(ctx, r.Method, r.URL.Path, tenantId, tokenInfo)
 }
