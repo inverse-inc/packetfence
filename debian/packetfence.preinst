@@ -13,6 +13,14 @@ set -e
 # for details, see http://www.debian.org/doc/debian-policy/ or
 # the debian-policy package
 
+disable_service_if_exists() {
+    SERVICE=$1
+    NUM=`set +e;systemctl list-units --full -all | grep -Fq "$SERVICE";echo $?`
+    if [ $NUM -eq 0 ]; then
+        systemctl disable $SERVICE
+    fi
+}
+
 stop_service_if_exists() {
     SERVICE=$1
     NUM=`set +e;invoke-rc.d --quiet --query $SERVICE stop;echo $?`
@@ -144,10 +152,10 @@ case "$1" in
         usermod -aG pf mysql
         usermod -aG pf netdata
 
-        systemctl disable packetfence-redis-cache
-        systemctl disable packetfence-config
-        systemctl disable packetfence.service
-        systemctl disable packetfence-haproxy.service
+        disable_service_if_exists packetfence-redis-cache.service
+        disable_service_if_exists packetfence-config.service
+        disable_service_if_exists packetfence.service
+        disable_service_if_exists packetfence-haproxy.service
         exit 0
     ;;
     abort-upgrade)
