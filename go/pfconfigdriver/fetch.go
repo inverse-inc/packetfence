@@ -213,6 +213,29 @@ func decodeJsonInterface(ctx context.Context, b []byte, o interface{}) {
 	}
 }
 
+func listPfconfigFields(ctx context.Context, t reflect.Type, previousFields []string) []string {
+	for i := 0; i < t.NumField(); i++ {
+		f := t.Field(i)
+		if f.Type.Kind() == reflect.Struct {
+			previousFields = append(previousFields, listPfconfigFields(ctx, f.Type, previousFields)...)
+		} else if isNamespaceConfiguration.MatchString(f.Name) && !isNotNamespaceConfiguration.MatchString(f.Name) {
+			previousFields = append(previousFields, f.Name)
+		}
+	}
+	fieldsMap := map[string]bool{}
+	for _, v := range previousFields {
+		fieldsMap[v] = true
+	}
+	fields := make([]string, len(fieldsMap), len(fieldsMap))
+	i := 0
+	for v, _ := range fieldsMap {
+		fields[i] = v
+		i++
+	}
+
+	return fields
+}
+
 func transferMetadata(ctx context.Context, o1 interface{}, o2 interface{}) {
 	var ov1 reflect.Value
 	var ov2 reflect.Value
@@ -228,11 +251,9 @@ func transferMetadata(ctx context.Context, o1 interface{}, o2 interface{}) {
 	}
 
 	t := ov1.Type()
-	for i := 0; i < t.NumField(); i++ {
-		f := t.Field(i)
-		if isNamespaceConfiguration.MatchString(f.Name) && !isNotNamespaceConfiguration.MatchString(f.Name) {
-			ov2.Field(i).SetString(metadataFromField(ctx, o1, f.Name))
-		}
+	fields := listPfconfigFields(ctx, t, []string{})
+	for _, field := range fields {
+		ov2.FieldByName(field).SetString(metadataFromField(ctx, o1, field))
 	}
 
 	o1 = ov1.Interface()
