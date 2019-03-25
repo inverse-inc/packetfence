@@ -332,7 +332,7 @@ max_allowed_packet=16
 # database_advanced.performance_schema
 #
 # The performance_schema MySQL configuration attribute. Only change if you know what you are doing. Will only affect a locally running MySQL server.
-performance_schema=NO
+performance_schema=OFF
 #
 # database_advanced.max_connect_errors
 #
