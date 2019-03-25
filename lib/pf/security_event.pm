@@ -536,7 +536,7 @@ sub info_for_security_event_engine {
         return pf::fingerbank::mac_vendor_from_mac($mac);
     });
 
-    my $accounting_history = pf::accounting_events_history->new->latest_history_hash($mac);
+    my $accounting_history = pf::accounting_events_history->new->latest_mac_history($mac);
 
     my $info = {
       device_id => $device_id,

@@ -113,7 +113,7 @@ sub latest_mac_history {
     }
 
     if($self->redis->hexists($latest, $mac)) {
-        return decode_json($self->redis->hget($latest, $mac));
+        return [ keys %{decode_json($self->redis->hget($latest, $mac))} ];
     }
     else {
         return [];
