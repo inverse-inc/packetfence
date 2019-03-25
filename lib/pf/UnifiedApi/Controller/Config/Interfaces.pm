@@ -102,7 +102,7 @@ sub get {
         $self->render(json => {item => $interface}, status => 200);
     }
     else {
-        $self->render_error(404, {message => "Interface $interface_id doesn't exist"});
+        $self->render_error(404, "Interface $interface_id doesn't exist");
     }
 }
 
