@@ -89,7 +89,11 @@ sub normalize_interface {
     my @bools = qw(is_running network_iseditable);
     for my $bool (@bools) {
         $interface->{$bool} = $interface->{$bool} ? $self->json_true : $self->json_false;
-     }
+    }
+
+    ($interface->{type}, @{$interface->{additional_listening_daemons}}) = split(',', $interface->{type});
+    
+
     return $interface;
 }
 
