@@ -636,6 +636,10 @@ sub field_meta_array_items {
     if ($field->isa('HTML::FormHandler::Field::Repeatable')) {
         $field->init_state;
         my $element = $field->clone_element($field->name . "_temp");
+        if ($element->isa('HTML::FormHandler::Field::Select') ) {
+            $element->_load_options();
+        }
+
         return $self->field_meta($element);
     }
 
