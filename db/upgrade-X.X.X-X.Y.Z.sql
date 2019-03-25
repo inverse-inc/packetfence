@@ -110,11 +110,4 @@ alter table locationlog add column voip enum('no','yes') NOT NULL DEFAULT 'no';
 --
 update locationlog join node on locationlog.mac = node.mac set locationlog.voip = node.voip;
 
---
--- Add potd column in person table
---
-
-ALTER TABLE person
-    ADD `potd` enum('no','yes') NOT NULL DEFAULT 'no';
-
 INSERT INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION)); 
