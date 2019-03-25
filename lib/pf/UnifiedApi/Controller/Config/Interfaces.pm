@@ -60,7 +60,14 @@ List all the interfaces
 
 sub list {
     my ($self) = @_;
-    $self->render(json => {items => [map { $self->normalize_interface($_) } $self->model->get('all')]}, status => 200);
+    my @items;
+    my %interfaces = %{$self->model->get('all')};
+    while(my ($id, $data) = each(%interfaces)) {
+        $data->{id} = $id;
+        push @items, $data;
+    }
+
+    $self->render(json => {items => [map { $self->normalize_interface($_) } @items]}, status => 200);
 }
 
 =head2 resource
@@ -82,7 +89,7 @@ sub normalize_interface {
     my @bools = qw(is_running network_iseditable);
     for my $bool (@bools) {
         $interface->{$bool} = $interface->{$bool} ? $self->json_true : $self->json_false;
-    }
+     }
     return $interface;
 }
 
