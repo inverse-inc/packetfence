@@ -103,11 +103,15 @@ ALTER TABLE sms_carrier
 --
 -- Add voip column to locationlog
 --
-alter table locationlog add column voip enum('no','yes') NOT NULL DEFAULT 'no';
+ALTER TABLE locationlog 
+  ADD COLUMN voip ENUM('no', 'yes') NOT NULL DEFAULT 'no'; 
 
 --
 -- Update the locationlog voip information from the node table information
 --
-update locationlog join node on locationlog.mac = node.mac set locationlog.voip = node.voip;
+UPDATE locationlog 
+       JOIN node 
+         ON locationlog.mac = node.mac 
+SET    locationlog.voip = node.voip; 
 
 INSERT INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION)); 
