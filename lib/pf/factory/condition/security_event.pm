@@ -30,7 +30,7 @@ sub factory_for {'pf::condition'};
 my $DEFAULT_CONDITION = 'key';
 
 our %TRIGGER_TYPE_TO_CONDITION_TYPE = (
-    'accounting'                => {type => 'equals',                   key  => 'last_accounting_id',      event => $TRUE},
+    'accounting'                => {type => 'equals',                   key  => 'last_accounting_id'},
     'recorded_accounting'       => {type => 'includes',                 key  => 'last_accounting_events'},
     'detect'                    => {type => 'equals',                   key  => 'last_detect_id',          event => $TRUE},
     'device'                    => {type => 'fingerbank::device_is_a',  key  => 'device_id'},
