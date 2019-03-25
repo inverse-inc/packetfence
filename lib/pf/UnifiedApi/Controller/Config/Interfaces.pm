@@ -97,6 +97,18 @@ sub normalize_interface {
     return $interface;
 }
 
+=head2 format_type
+
+Format the interface type. Used during creation/update of an interface
+
+=cut
+
+sub format_type {
+    my ($self, $interface) = @_;
+    $interface->{type} = join(",", $interface->{type}, @{$interface->{additional_listening_daemons}});
+    return $interface;
+}
+
 =head2 get
 
 Get a specific interface
@@ -126,8 +138,11 @@ sub create {
     my ($self) = @_;
     my $data = $self->parse_json;
     $data = $self->validate_item("pfappserver::Form::Interface::Create", $data);
+    return unless($data);
     my $full_name = $data->{name} . "." . $data->{vlan};
     my $model = $self->model;
+
+    $data = $self->format_type($data);
 
     my ($status, $result) = $model->create($full_name);
     if (is_success($status)) {
@@ -146,8 +161,11 @@ sub update {
     my ($self) = @_;
     my $data = $self->parse_json;
     $data = $self->validate_item("pfappserver::Form::Interface", $data);
+    return unless($data);
     my $full_name = $self->stash->{interface_id};
     my $model = $self->model;
+
+    $data = $self->format_type($data);
 
     my ($status, $result) = $model->update($full_name, $data);
     $self->render(json => {message => pf::I18N::pfappserver->localize($result)}, status => $status);
