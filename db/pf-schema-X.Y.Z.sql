@@ -1268,6 +1268,18 @@ CREATE TABLE key_value_storage (
 ) ENGINE=InnoDB;
 
 --
+-- Table structure for table `user_preference`
+--
+
+CREATE TABLE user_preference (
+  tenant_id int NOT NULL DEFAULT 1,
+  pid varchar(255) NOT NULL,
+  value LONGBLOB,
+  PRIMARY KEY (`tenant_id`, `pid`)
+) ENGINE=InnoDB;
+
+
+--
 -- Updating to current version
 --
 
