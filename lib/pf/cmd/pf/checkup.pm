@@ -24,6 +24,7 @@ use pf::pfcmd::checkup;
 use base qw(pf::cmd);
 sub _run {
     my ($self) = @_;
+    print "Checking configuration sanity...\n";
     my @problems = pf::pfcmd::checkup::sanity_check(pf::services::service_list(@pf::services::ALL_SERVICES));
     foreach my $entry (@problems) {
         chomp $entry->{$pf::pfcmd::checkup::MESSAGE};

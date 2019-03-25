@@ -735,6 +735,8 @@ sub setup_api_v1_config_bases_routes {
         "api.v1.Config.Bases"
     );
 
+    $self->add_subroutes($collection_route, "Config::Bases", "POST", qw(test_smtp fix_permission));
+    $self->add_subroutes($collection_route, "Config::Bases", "GET", qw(checkup));
     return ($collection_route, $resource_route);
 }
 

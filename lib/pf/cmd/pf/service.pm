@@ -222,6 +222,7 @@ sub checkup {
         @services = @pf::services::ALL_SERVICES;
     }
 
+    print "Checking configuration sanity...\n";
     my @problems = pf::pfcmd::checkup::sanity_check(pf::services::service_list(@services));
     foreach my $entry (@problems) {
         chomp $entry->{$pf::pfcmd::checkup::MESSAGE};
