@@ -179,7 +179,7 @@ sub handleUpTrap {
 
     # set into Registration VLAN
     $logger->info("setting $switch_id port $switch_port to Registration VLAN");
-    $switch->setVlan( $switch_port, $witch->getVlanByName($REGISTRATION_ROLE), \%switch_locker, undef, 1 );
+    $switch->setVlan( $switch_port, $switch->getVlanByName($REGISTRATION_ROLE), \%switch_locker, undef, 1 );
 
     # continue only if MAC learnt traps are not available on this port
     if ($switch->isLearntTrapsEnabled($switch_port)) {
@@ -322,7 +322,7 @@ sub handleMacTrap {
                 $logger->info("Removed trap for MAC $mac: MAC "
                       . $locationlog[0]->{'mac'}
                       . " DEAD -> setting data VLAN on $switch_id ifIndex $switch_port to Registration VLAN");
-                $switch->setVlan( $switch_port, $witch->getVlanByName($REGISTRATION_ROLE), \%switch_locker, undef, 0 );
+                $switch->setVlan( $switch_port, $switch->getVlanByName($REGISTRATION_ROLE), \%switch_locker, undef, 0 );
             }
         }
         else {
@@ -349,7 +349,7 @@ sub handleMacTrap {
 
             if ($nothingLeftOnSwitchPort == 1) {
                 $logger->info("setting data VLAN on $switch_id ifIndex $switch_port to MAC Registration VLAN");
-                $switch->setVlan( $switch_port, $witch->getVlanByName($REGISTRATION_ROLE), \%switch_locker, undef, 0 );
+                $switch->setVlan( $switch_port, $switch->getVlanByName($REGISTRATION_ROLE), \%switch_locker, undef, 0 );
             }
             else {
                 $logger->info("no line in locationlog and MACs ("
@@ -457,7 +457,7 @@ sub handleDownTrap {
 
     # set into Registration VLAN
     $logger->info("setting $switch_id port $switch_port to Registration VLAN");
-    $switch->setVlan( $switch_port, $witch->getVlanByName($REGISTRATION_ROLE), \%switch_locker, undef, 1 );
+    $switch->setVlan( $switch_port, $switch->getVlanByName($REGISTRATION_ROLE), \%switch_locker, undef, 1 );
 }
 
 =head2 handleRoamingTrap
