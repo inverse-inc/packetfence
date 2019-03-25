@@ -17,39 +17,45 @@ use warnings;
 #
 use lib '/usr/local/pf/lib';
 use File::Slurp qw(read_file);
+use File::Copy;
+use File::Temp;
 use pf::file_paths qw(
     $server_cert
     $server_key
 );
+
+my @TEMP_FILES;
+
+sub use_temp_file {
+    my ($name_ref) = @_;
+    my ($fh, $filename) = File::Temp::tempfile( UNLINK => 1, DIR => '/usr/local/pf/conf');
+    copy($$name_ref, $fh);
+    $$name_ref = $filename;
+    push @TEMP_FILES, $fh;
+}
 
 BEGIN {
     #include test libs
     use lib qw(/usr/local/pf/t);
     #Module for overriding configuration paths
     use setup_test_config;
-
-    `cp $pf::file_paths::server_cert $pf::file_paths::server_cert.tmp`;
-    $pf::file_paths::server_cert = "$pf::file_paths::server_cert.tmp";
-    
-    `cp $pf::file_paths::server_key $pf::file_paths::server_key.tmp`;
-    $pf::file_paths::server_key = "$pf::file_paths::server_key.tmp";
-    
-    `cp $pf::file_paths::radius_server_cert $pf::file_paths::radius_server_cert.tmp`;
-    $pf::file_paths::radius_server_cert = "$pf::file_paths::radius_server_cert.tmp";
-    
-    `cp $pf::file_paths::radius_server_key $pf::file_paths::radius_server_key.tmp`;
-    $pf::file_paths::radius_server_key = "$pf::file_paths::radius_server_key.tmp";
-    
-    `cp $pf::file_paths::radius_ca_cert $pf::file_paths::radius_ca_cert.tmp`;
-    $pf::file_paths::radius_ca_cert = "$pf::file_paths::radius_ca_cert.tmp";
+    use_temp_file(\$pf::file_paths::server_cert);
+    use_temp_file(\$pf::file_paths::server_key);
+    use_temp_file(\$pf::file_paths::radius_server_cert);
+    use_temp_file(\$pf::file_paths::radius_server_key);
+    use_temp_file(\$pf::file_paths::radius_ca_cert);
 }
 
-END {
-    `rm $pf::file_paths::server_cert`;
-    `rm $pf::file_paths::server_key`;
-    `rm $pf::file_paths::radius_server_cert`;
-    `rm $pf::file_paths::radius_server_key`;
-    `rm $pf::file_paths::radius_ca_cert`;
+use pf::ConfigStore::Pf;
+my ($fh, $filename) = File::Temp::tempfile( UNLINK => 1 );
+
+{
+    use pf::file_paths qw($pf_config_file);
+    no warnings qw(redefine);
+    copy($pf_config_file, $fh);
+    *pf::ConfigStore::Pf::configFile = sub {
+        $filename;
+    };
 }
 
 #insert known data
@@ -57,6 +63,7 @@ END {
 use Test::More tests => 32;
 use Test::Mojo;
 use Test::NoWarnings;
+
 my $t = Test::Mojo->new('pf::UnifiedApi');
 
 $t->get_ok('/api/v1/config/certificate/http/info')
