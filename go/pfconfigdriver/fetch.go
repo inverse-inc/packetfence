@@ -35,9 +35,6 @@ var clusterSummary *ClusterSummary
 
 var nsHasOverlayRe = regexp.MustCompile(`.*\(.*\)$`)
 
-var isNamespaceConfiguration = regexp.MustCompile(`^Pfconfig`)
-var isNotNamespaceConfiguration = regexp.MustCompile(`(^PfconfigKeys$)`)
-
 func init() {
 	var err error
 	myHostname, err = os.Hostname()
@@ -213,33 +210,6 @@ func decodeJsonInterface(ctx context.Context, b []byte, o interface{}) {
 	}
 }
 
-func transferMetadata(ctx context.Context, o1 interface{}, o2 interface{}) {
-	var ov1 reflect.Value
-	var ov2 reflect.Value
-
-	ov1 = reflect.ValueOf(o1)
-	for ov1.Kind() == reflect.Ptr || ov1.Kind() == reflect.Interface {
-		ov1 = ov1.Elem()
-	}
-
-	ov2 = reflect.ValueOf(o2)
-	for ov2.Kind() == reflect.Ptr || ov2.Kind() == reflect.Interface {
-		ov2 = ov2.Elem()
-	}
-
-	t := ov1.Type()
-	for i := 0; i < t.NumField(); i++ {
-		f := t.Field(i)
-		if isNamespaceConfiguration.MatchString(f.Name) && !isNotNamespaceConfiguration.MatchString(f.Name) {
-			ov2.Field(i).SetString(metadataFromField(ctx, o1, f.Name))
-		}
-	}
-
-	o1 = ov1.Interface()
-	o2 = ov2.Interface()
-
-}
-
 // Create a pfconfig query given a PfconfigObject
 // Will extract the query information from the struct and will create the payload accordingly
 // The struct should declare the following fields to be compatible
@@ -339,14 +309,6 @@ func FetchKeys(ctx context.Context, name string) ([]string, error) {
 // This will fetch the json representation from pfconfig and decode it into o
 // o must be a pointer to the struct as this should be used by reference
 func FetchDecodeSocket(ctx context.Context, o PfconfigObject) error {
-	ptrT := reflect.TypeOf(o)
-	new := reflect.New(ptrT.Elem())
-	newo := new.Interface().(PfconfigObject)
-
-	transferMetadata(ctx, &o, &newo)
-
-	reflect.ValueOf(o).Elem().Set(reflect.ValueOf(newo).Elem())
-
 	query := createQuery(ctx, o)
 
 	jsonResponse := FetchSocket(ctx, query.GetPayload())
