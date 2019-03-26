@@ -5166,7 +5166,7 @@ msgid "PacketFence is the server that assigns the VLAN (or roles) to the devices
 msgstr ""
 
 # html/pfappserver/root/configurator/enforcement.tt
-msgid "PacketFence is the server that validates the RADIUS authentication and returns the VLAN (or roles) to the devices. This mode does not have a registration option, it is either accept or deny with the final VLAN."
+msgid "PacketFence is the server that validate the RADIUS authentication and return the VLAN (or roles) to the devices. This mode does not have a registration option, it is either accept or deny with the final VLAN."
 msgstr ""
 
 # html/pfappserver/root/configuration/system_config.tt
