@@ -79,23 +79,27 @@ a| The foo application.
 |Code blocks
 a|
 ....
-[source,java]
+[source,golang]
 ----
-public class HelloWorld {
-   public static void main(String[] args) {
-      System.out.println("Hello, World");
-   }
+package main
+
+import "fmt"
+
+func main() {
+	fmt.Println("Hello World !")
 }
 ----
 ....
 
 a|
-[source,java]
+[source,golang]
 ----
-public class HelloWorld {
-   public static void main(String[] args) {
-      System.out.println("Hello, World");
-   }
+package main
+
+import "fmt"
+
+func main() {
+	fmt.Println("Hello World !")
 }
 ----
 
