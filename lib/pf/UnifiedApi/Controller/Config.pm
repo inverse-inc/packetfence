@@ -680,26 +680,25 @@ sub field_allowed {
         return undef;
     }
 
-    my $allowed;
-    if ($field->isa('HTML::FormHandler::Field::Select')) {
-        $allowed = $field->options;
-    }
+    my $allowed  = $field->get_tag("options_allowed") || undef;
 
-    if ($field->isa('HTML::FormHandler::Field::Repeatable')) {
-        $field->init_state;
-        my $element = $field->clone_element($field->name . "_temp");
-        if ($element->isa('HTML::FormHandler::Field::Select') ) {
-            $element->_load_options();
-            $allowed = $element->options;
+    if (!defined $allowed) {
+        if ($field->isa('HTML::FormHandler::Field::Select')) {
+            $allowed = $field->options;
+        }
+
+        if ($field->isa('HTML::FormHandler::Field::Repeatable')) {
+            $field->init_state;
+            my $element = $field->clone_element($field->name . "_temp");
+            if ($element->isa('HTML::FormHandler::Field::Select') ) {
+                $element->_load_options();
+                $allowed = $element->options;
+            }
         }
     }
 
     if ($allowed) {
         $allowed = $self->map_options($allowed);
-    }
-
-    if (!defined $allowed) {
-        $allowed = $field->get_tag("options_allowed") || undef;
     }
 
     return $allowed;
