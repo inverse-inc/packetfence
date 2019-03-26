@@ -266,7 +266,11 @@ SetEnvIf Request_URI "netdata" is_netdata
       #LogLevel debug
 
       # Proxy to netdata
-      ProxyPassMatch "^/netdata/([A-Za-z0-9\._-]+)/(.*)" "http://$1:19999/$2" connectiontimeout=5 timeout=30 keepalive=on
+      RewriteRule "^/netdata/((?:\d{1,3}\.){3}\d{1,3})/(.*)" "http://$1:19999/$2" [P,L]
+      RewriteRule "^/netdata/([\da-fA-F]{1,4}:+)+[\da-fA-F]{1,4}/(.*)" "http://$1:19999/$2" [P,L]
+      # GET /netdata/api/v1/charts dont allow us to filter last input with ([a-z=;_#]*), netdata upgrade may fix this.
+      # RewriteRule with the proxy flag instead of ProxyPassMatch allow us to make a conditional proxy request for IPv4 and IPv6.
+      # Fix possible injection. 
 
       # make sure the user did not forget to add a trailing /
       # for HTTP (if the virtualhost is HTTP, use this)
