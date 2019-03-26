@@ -259,11 +259,9 @@ First open PacketFence's configurator - you can access it from https://@ip_of_pa
 
 Once all services are started, you will automatically be redirected to the
 PacketFence's web admin interface. It is located at
-https://@ip_of_packetfence:1443/admin. PacketFence's configurator also creates
-the file `/usr/local/pf/conf/currently-at` to prevent new access to
-configurator.
+https://@ip_of_packetfence:1443/admin. Open that link and log in using the username/password specified in Step 5.
 
-Open that link and log in using the username/password specified in Step 5.
+PacketFence's configurator also creates the file `/usr/local/pf/conf/currently-at` to prevent new access to configurator.
 
 Connecting PacketFence to Microsoft Active Directory
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -344,10 +342,12 @@ Configuring the Connection Profile
 
 Next we need to configure the connection profile in PacketFence. That is required so that PacketFence knows how to handle a connection coming from the wired network or WiFi network. In our case, we will create a new connection profile to use our Microsoft Active Directory authentication source and also to let PacketFence know to automatically register any devices that successfully authenticate using 802.1X on the default connection profile.
 
-From 'Configuration->Policies and Access Control->Connection Profiles', click on on 'Add profile'. Specify the following information:
+From 'Configuration->Policies and Access Control->Connection Profiles', click on on 'Add connection profile'. Specify the following information:
 
 [options="compact"]
  * Profile Name: 8021x
+ * Profile Description: 802.1X wired connections
+ * Enable profile: checked
  * Automatically register devices: checked
  * Filters: If any of the following conditions are met:
    - Connection Type: Ethernet-EAP
@@ -916,7 +916,7 @@ Troubleshooting PacketFence
 RADIUS Audit Log
 ~~~~~~~~~~~~~~~~
 
-TODO
+PacketFence provides a RADIUS auditing module which allows you to be aware of all the incoming RADIUS requests/responses handled by PacketFence. The RADIUS auditing module is available from 'Auditing->RADIUS Audit Log'. Advanced search criterias can be specified to create complex search expressions - which can be saved for later use. Clicking on a RADIUS log entry will display the endpoint information, where the RADIUS request originated from and the RADIUS payload exchanged between the NAS and PacketFence.
 
 Log files
 ~~~~~~~~~
