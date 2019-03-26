@@ -376,6 +376,7 @@ CREATE TABLE `locationlog` (
   `realm`  varchar (255) DEFAULT NULL,
   `session_id` VARCHAR(255) DEFAULT NULL,
   `ifDesc` VARCHAR(255) DEFAULT NULL,
+  `voip` enum('no','yes') NOT NULL DEFAULT 'no',
   KEY `locationlog_view_mac` (`mac`, `end_time`),
   KEY `locationlog_end_time` ( `end_time`),
   KEY `locationlog_view_switchport` (`switch`,`port`,`end_time`,`vlan`)

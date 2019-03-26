@@ -177,10 +177,9 @@ sub locationlog_view_open_switchport {
         -where => {
             switch => $switch,
             port => $ifIndex,
-            'node.voip' => $voip,
+            voip => $voip,
             end_time => $ZERO_DATE,
         },
-        -from => [-join => 'locationlog', '<={locationlog.mac=node.mac,locationlog.tenant_id=node.tenant_id}', 'node'],
         -order_by => { -desc => 'start_time' },
     });
 }
@@ -191,10 +190,9 @@ sub locationlog_view_open_switchport_no_VoIP {
         -where => {
             switch => $switch,
             port => $ifIndex,
-            'node.voip' => { "!=" => "yes"},
+            voip => { "!=" => "yes"},
             end_time => $ZERO_DATE,
         },
-        -from => [-join => 'locationlog', '<={locationlog.mac=node.mac,locationlog.tenant_id=node.tenant_id}', 'node'],
         -order_by => { -desc => 'start_time' },
     });
 }
@@ -205,10 +203,9 @@ sub locationlog_view_open_switchport_only_VoIP {
         -where => {
             switch => $switch,
             port => $ifIndex,
-            'node.voip' => "yes",
+            voip => "yes",
             end_time => $ZERO_DATE,
         },
-        -from => [-join => 'locationlog', '<={locationlog.mac=node.mac,locationlog.tenant_id=node.tenant_id}', 'node'],
         -limit => 1,
         -order_by => { -desc => 'start_time' },
     });
@@ -228,7 +225,7 @@ sub locationlog_view_open_mac {
 }
 
 sub locationlog_insert_start {
-    my ( $switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, $locationlog_mac, $ifDesc ) = @_;
+    my ( $switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, $locationlog_mac, $ifDesc, $voip ) = @_;
     my $logger = get_logger();
 
     my $conn_type = connection_type_to_str($connection_type)
@@ -256,6 +253,7 @@ sub locationlog_insert_start {
         realm               => $realm,
         ifDesc              => $ifDesc,
         start_time          => \'NOW()',
+        voip                => $voip,
     );
     if ( defined($mac) ) {
         $values{mac} = lc($mac);
@@ -295,10 +293,9 @@ sub locationlog_update_end_switchport_no_VoIP {
         -where => {
             switch => $switch,
             port => $ifIndex,
-            'node.voip' => {"!=" => "yes"},
+            voip => {"!=" => "yes"},
             end_time => $ZERO_DATE,
         },
-        -table => [-join => 'locationlog', '<={locationlog.mac=node.mac,locationlog.tenant_id=node.tenant_id}', 'node'],
     );
     return ($rows);
 }
@@ -313,10 +310,9 @@ sub locationlog_update_end_switchport_only_VoIP {
         -where => {
             switch => $switch,
             port => $ifIndex,
-            'node.voip' => "yes",
+            voip => "yes",
             end_time => $ZERO_DATE,
         },
-        -table => [-join => 'locationlog', '<={locationlog.mac=node.mac,locationlog.tenant_id=node.tenant_id}', 'node'],
     );
     return ($rows);
 }
@@ -388,7 +384,7 @@ sub locationlog_synchronize {
                 unless (defined (locationlog_update_end_mac($mac))) {
                     return (0);
                 }
-                locationlog_insert_start($switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, $locationlog_mac, $ifDesc);
+                locationlog_insert_start($switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, $locationlog_mac, $ifDesc, $voip_status);
 
                 # We just inserted an entry so we won't want to add another one
                 $inserted = 1;
@@ -434,7 +430,7 @@ sub locationlog_synchronize {
 
     # we insert a locationlog entry
     if ($mustInsert && !$inserted) {
-        locationlog_insert_start($switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, undef, $ifDesc)
+        locationlog_insert_start($switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, undef, $ifDesc, $voip_status)
             or $logger->warn("Unable to insert a locationlog entry.");
     }
     return 1;

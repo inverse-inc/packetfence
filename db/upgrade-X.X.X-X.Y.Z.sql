@@ -100,4 +100,18 @@ DROP TABLE violation;
 ALTER TABLE sms_carrier
     MODIFY COLUMN `id` INTEGER NOT NULL AUTO_INCREMENT COMMENT 'primary key for SMS carrier';
 
+--
+-- Add voip column to locationlog
+--
+ALTER TABLE locationlog 
+  ADD COLUMN voip ENUM('no', 'yes') NOT NULL DEFAULT 'no'; 
+
+--
+-- Update the locationlog voip information from the node table information
+--
+UPDATE locationlog 
+       JOIN node 
+         ON locationlog.mac = node.mac 
+SET    locationlog.voip = node.voip; 
+
 INSERT INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION)); 
