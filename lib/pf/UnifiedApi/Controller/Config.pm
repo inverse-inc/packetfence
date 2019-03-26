@@ -684,6 +684,7 @@ sub field_allowed {
 
     if (!defined $allowed) {
         if ($field->isa('HTML::FormHandler::Field::Select')) {
+            $field->_load_options;
             $allowed = $field->options;
         }
 
