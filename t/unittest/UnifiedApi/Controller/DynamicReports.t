@@ -38,6 +38,22 @@ $t->get_ok('/api/v1/dynamic_report/authentications' => json => { })
   ->json_is('/item/type',"builtin")
   ->status_is(200);
   
+$t->post_ok('/api/v1/dynamic_report/authentications/search', {'Content-Type' => 'application/json'} => '{')
+  ->status_is(400);
+
+$t->post_ok(
+    '/api/v1/dynamic_report/authentications/search' => json => {
+        query => {
+            op    => 'equals',
+            field => 'auth_log.process_name',
+            value => 'bob'
+        }
+    }
+  )
+  ->status_is(200)
+;
+
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

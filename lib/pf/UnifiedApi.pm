@@ -1485,9 +1485,9 @@ sub setup_api_v1_dynamic_reports_routes {
     my ( $self, $root ) = @_;
     my $collection_route = $root->any("/dynamic_reports");
     $collection_route->any(['GET'])->to("DynamicReports#list")->name("api.v1.DynamicReports.list");
-    $self->add_subroutes($collection_route, "DynamicReports", "POST", qw(search));
     my $resource_route = $root->under("/dynamic_report/#report_id")->to("DynamicReports#resource")->name("api.v1.DynamicReports.resource");
     $resource_route->any(["GET"])->to("DynamicReports#get")->name("api.v1.DynamicReports.resource.get");
+    $self->add_subroutes($resource_route, "DynamicReports", "POST", qw(search));
     return ( $collection_route, $resource_route );
 }
 

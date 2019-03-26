@@ -73,6 +73,11 @@ sub generate_sql_query {
         }
     }
 
+    if(my $search = $infos{sql_abstract_search}) {
+        $logger->debug("Adding provided SQL abstract search");
+        push @$and, $search;
+    }
+
     if(@{$self->base_conditions} > 0) {
         my $all = $self->base_conditions_operator eq "all" ? 1 : 0;
         my @conditions = map { $_->{field} => {$_->{operator} => $_->{value}} } @{$self->base_conditions};

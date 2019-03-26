@@ -16,11 +16,41 @@ use strict;
 use warnings;
 use Mojo::Base 'pf::UnifiedApi::Controller::RestRoute';
 use pf::constants;
+use pf::error qw(is_error);
 use pf::ConfigStore::Report;
+use pf::UnifiedApi::Search;
+use pf::Report;
+use pf::factory::report;
 
 sub configStore {
     return pf::ConfigStore::Report->new;
 }
+
+sub search {
+    my ($self) = @_;
+    my ($status, $json) = $self->parse_json;
+
+    if(is_error($status)) {
+        return $self->render_error(400, "Unable to parse JSON query");
+    }
+
+    my $where = pf::UnifiedApi::Search::searchQueryToSqlAbstract($json->{query});
+
+    my $page = $json->{cursor} // 1;
+
+    my $report = pf::factory::report->new($self->stash('report_id'));
+    my @data = $report->query(page => $page, sql_abstract_search => $where);
+
+    return $self->render(
+        json   => { 
+            items => \@data,
+            nextCursor => scalar(@data) > 0 ? $page+1 : undef,
+            previousCursor => ($page eq 1 ? undef : $page-1),
+        },
+        status => 200,
+    );
+}
+
 
 sub list {
     my ($self) = @_;
