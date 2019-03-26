@@ -38,18 +38,21 @@ BEGIN {
     @FIELD_NAMES = qw(
         tenant_id
         pid
+        id
         value
     );
 
     %DEFAULTS = (
         tenant_id => '1',
         pid => '',
+        id => '',
         value => undef,
     );
 
     @INSERTABLE_FIELDS = qw(
         tenant_id
         pid
+        id
         value
     );
 
@@ -66,6 +69,12 @@ BEGIN {
             is_primary_key => 1,
             is_nullable => 0,
         },
+        id => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 1,
+            is_nullable => 0,
+        },
         value => {
             type => 'LONGBLOB',
             is_auto_increment => 0,
@@ -77,11 +86,13 @@ BEGIN {
     @PRIMARY_KEYS = qw(
         tenant_id
         pid
+        id
     );
 
     @COLUMN_NAMES = qw(
         user_preference.tenant_id
         user_preference.pid
+        user_preference.id
         user_preference.value
     );
 

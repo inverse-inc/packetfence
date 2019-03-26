@@ -101,10 +101,10 @@ DROP TABLE violation;
 CREATE TABLE user_preference (
   tenant_id int NOT NULL DEFAULT 1,
   pid varchar(255) NOT NULL,
+  id varchar(255) NOT NULL,
   value LONGBLOB,
-  PRIMARY KEY (`tenant_id`, `pid`)
+  PRIMARY KEY (`tenant_id`, `pid`, `id`)
 ) ENGINE=InnoDB;
-
 
 --
 -- Change id AUTO INC
