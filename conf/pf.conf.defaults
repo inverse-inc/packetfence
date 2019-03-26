@@ -891,6 +891,10 @@ vlan_pool_technique = username_hash
 #
 # Enable to bypass the operating system domain join verification.
 active_directory_os_join_check_bypass=disabled
+# advanced.statsd_listen_port
+#
+# The port where statsd listen
+statsd_listen_port = 8125
 
 [provisioning]
 #

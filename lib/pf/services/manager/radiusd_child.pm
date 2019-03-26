@@ -114,6 +114,7 @@ sub _generateConfig {
     $self->generate_radiusd_cliconf($tt);
     $self->generate_radiusd_eduroamconf($tt);
     $self->generate_radiusd_ldap($tt);
+    $self->generate_radiusd_mschap($tt);
 }
 
 
@@ -977,6 +978,24 @@ EOT
     # Ensure raddb/clients.conf.inc exists. radiusd won't start otherwise.
     $tags{'template'} = "$conf_dir/radiusd/clients.conf.inc";
     parse_template( \%tags, "$conf_dir/radiusd/clients.conf.inc", "$install_dir/raddb/clients.conf.inc" );
+}
+
+=head2 generate_radiusd_mschap
+
+Generates the mschap configuration file
+
+=cut
+
+sub generate_radiusd_mschap {
+    my ($self, $tt) = @_;
+
+    my %tags;
+    $tags{'template'}    = "$conf_dir/radiusd/mschap.conf";
+
+    $tags{'statsd_port' } = "$Config{'advanced'}{'statsd_listen_port'}";
+
+    parse_template( \%tags, "$conf_dir/radiusd/mschap.conf", "$install_dir/raddb/mods-enabled/mschap" );
+
 }
 
 =head1 AUTHOR
