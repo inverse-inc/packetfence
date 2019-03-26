@@ -1,0 +1,7 @@
+Preference:
+  properties:
+    id:
+      type: string
+    value:
+      type: string
+  type: object
