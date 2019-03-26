@@ -90,10 +90,11 @@ PacketFence supports the following operating systems on the x86_64 architecture:
 * Red Hat Enterprise Linux 7.x Server
 * Community ENTerprise Operating System (CentOS) 7.x
 * Debian 8.0 (Jessie)
+* Debian 9.0 (Stretch)
 
 Make sure that you can install additional packages from your standard distribution. For example, if you are using Red Hat Enterprise Linux, you have to be subscribed to the Red Hat Network before continuing with the PacketFence software installation.
 
-Other distributions such as Fedora and Gentoo are known to work but this document does not cover them.
+Other distributions such as Fedora, Gentoo and Ubuntu are known to work but this document does not cover them.
 
 
 Installation
@@ -109,7 +110,7 @@ The ZEN (Zero Effort NAC) edition of PacketFence allows you to rapidly get Packe
 Virtual Machine
 ^^^^^^^^^^^^^^^
 
-This setup has been tested using VMWare ESXi, Fusion and Workstation products with 8 GB of RAM dedicated to the virtual machine. It might work using other VMWare products.  To properly run the PacketFence virtual appliance, you need a CPU that supports long mode. In other words, you need to have a 64-bit capable CPU on your host. PacketFence ZEN comes in a pre-built virtual disk (OVF). If you are using an ESX type hypervisor, you need to import the OVF using vSphere Client (or vCenter).
+This setup has been tested using VMware ESXi, Fusion and Workstation products with 8 GB of RAM dedicated to the virtual machine. It might work using other VMware products.  To properly run the PacketFence virtual appliance, you need a CPU that supports long mode. In other words, you need to have a 64-bit capable CPU on your host. PacketFence ZEN comes in a pre-built virtual disk (OVF). If you are using an ESX type hypervisor, you need to import the OVF using vSphere Client (or vCenter).
 
 The virtual appliance passwords are:
 
@@ -127,16 +128,16 @@ Import to ESX
 
 Make sure that there is only one virtual network card created, and also make sure that your vEthernet is connected to a virtual switch (vSwitch). That virtual network card will be used as the PacketFence management interface.
 
-Import to VMWare Player/Workstation for Linux
+Import to VMware Player/Workstation for Linux
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Newer version of VMWare Player handles the VLAN trunking a lot better.  Having that said, we can use a single interface on the VM.  So, you need to ensure that your VM host is plugged into a physical trunk port with VLAN 1,2,3,5,10 and 200 as the allowed VLAN. These VLANs will be used later in configuration examples.
+Newer version of VMware Player handles the VLAN trunking a lot better.  Having that said, we can use a single interface on the VM.  So, you need to ensure that your VM host is plugged into a physical trunk port with VLAN 1,2,3,5,10 and 200 as the allowed VLAN. These VLANs will be used later in configuration examples.
 
 
 Installing PacketFence on existing Linux
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-PacketFence provides packages repository for RHEL / CentOS as well as package repository fo Debian.
+PacketFence provides packages repository for RHEL / CentOS as well as packages repository fo Debian.
 
 These repositories contain all required dependencies to install PacketFence. This provides numerous advantages. Among them, there are:
 
@@ -145,7 +146,7 @@ These repositories contain all required dependencies to install PacketFence. Thi
 * everything is packaged as RPM and Debian packages
 * easy upgrade
 
-Install your supported distribution with minimal installation and no additional packages. Then:
+First install your supported distribution with minimal installation and no additional packages. Then:
 
 On Red Hat-based systems
 [options="compact"]
@@ -194,7 +195,7 @@ RHEL 7.x
 
 NOTE: These are extra steps are required for RHEL 7 systems only, excluding derivatives such as CentOS or Scientific Linux.
 
-RedHat Enterprise Linux users need to take an additional setup step. If you are not using the RHN Subscription Management from RedHat you need to enable the optional and extras channels by running the following as root:
+Red Hat Enterprise Linux users need to take an additional setup step. If you are not using the RHN Subscription Management from Red Hat you need to enable the optional and extras channels by running the following as root:
 
   subscription-manager repos --enable rhel-7-server-optional-rpms
   subscription-manager repos --enable rhel-7-server-extras-rpms
@@ -207,7 +208,7 @@ RHEL / CentOS
 
 In order to use the PacketFence repository:
 
-  yum localinstall http://packetfence.org/downloads/PacketFence/RHEL7/`uname -i`/RPMS/packetfence-release-1.2-6.el7.centos.noarch.rpm
+  yum localinstall http://packetfence.org/downloads/PacketFence/RHEL7/`uname -i`/RPMS/packetfence-release-1.2-7.el7.centos.noarch.rpm
 
 Once the repository is defined, you can install PacketFence with all its
 dependencies, and the required external services (database
