@@ -43,6 +43,7 @@ sub search {
         page => $page, 
         sql_abstract_search => $where,
         per_page => $json->{limit},
+        order => $json->{sort},
     );
     my @data = $report->query(%info);
     my $page_count = $report->page_count(%info);
