@@ -167,7 +167,7 @@ sub delete {
 
     my ($status) = $self->stash('preference')->remove();
 
-    $self->render(status => $status, json => {});
+    $self->render(status => is_success($status) ? 204 : $status, json => {});
 }
 
 =head1 AUTHOR

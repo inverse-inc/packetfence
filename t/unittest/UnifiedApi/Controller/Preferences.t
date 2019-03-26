@@ -76,7 +76,7 @@ foreach my $user (qw(bob bobette)) {
       ->status_is(200);
       
     $t->delete_ok('/api/v1/preference/pref2' => { "X-PacketFence-Username" => $user } => json => { })
-      ->status_is(200);
+      ->status_is(204);
     
     $t->get_ok('/api/v1/preference/pref2' => { "X-PacketFence-Username" => $user } => json => { })
       ->status_is(404);
