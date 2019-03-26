@@ -39,12 +39,18 @@ sub search {
     my $page = $json->{cursor} // 1;
 
     my $report = pf::factory::report->new($self->stash('report_id'));
-    my @data = $report->query(page => $page, sql_abstract_search => $where);
+    my %info = (
+        page => $page, 
+        sql_abstract_search => $where,
+        per_page => $json->{limit},
+    );
+    my @data = $report->query(%info);
+    my $page_count = $report->page_count(%info);
 
     return $self->render(
         json   => { 
             items => \@data,
-            nextCursor => scalar(@data) > 0 ? $page+1 : undef,
+            nextCursor => $page < $page_count ? $page+1 : undef,
             previousCursor => ($page eq 1 ? undef : $page-1),
         },
         status => 200,
