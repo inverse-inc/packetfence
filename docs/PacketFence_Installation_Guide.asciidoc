@@ -2610,6 +2610,13 @@ RADIUS Accounting
 
 RADIUS Accounting is usually used by ISPs to bill clients.  In PacketFence, we are able to use this information to determine if the node is still connected, how much time it has been connected, and how much bandwidth the user consumed.
 
+
+IP log updates
+^^^^^^^^^^^^^^
+
+If you send the IP address of nodes in accounting data and want to update iplog entries of your nodes, you can enable 'Update the iplog using the accounting' setting from 'System configuration -> Main configuration -> Advanced'.
+
+
 Violations
 ^^^^^^^^^^
 
@@ -4434,6 +4441,7 @@ From PacketFence to a switch
 Edit the switch config file (`/usr/local/pf/conf/switches.conf`) and set the following parameters:
 
   SNMPVersion = 3
+  SNMPEngineID = AA5ED139B81D4A328D18ACD1
   SNMPUserNameRead = readUser
   SNMPAuthProtocolRead = MD5
   SNMPAuthPasswordRead = authpwdread
@@ -4470,6 +4478,20 @@ Here is a switch configuration example in order to enable SNMP v3 in both direct
   snmp-server enable traps port-security
   snmp-server enable traps port-security trap-rate 1
   snmp-server host 192.168.0.50 version 3 priv readUser  port-security
+
+By default a switch has a SNMPv3 engine identifier (SNMPEngineID), you can get it with `show snmp engineid`.
+
+Test from a PacketFence server
+++++++++++++++++++++++++++++++
+
+With the `net-snmp` package properly installed, you can test SNMPv3 communication with your switch:
+
+----
+snmpget -v3 -l authPriv -u readUser -a MD5 -A "authpwdread" \
+-x AES -X "privpwdread" IP_OF_YOUR_SWITCH sysName.0
+----
+
+NOTE: Passwords should be at least 8 characters length.
 
 Command-Line Interface: Telnet and SSH
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
