@@ -384,7 +384,7 @@ sub locationlog_synchronize {
                 unless (defined (locationlog_update_end_mac($mac))) {
                     return (0);
                 }
-                locationlog_insert_start($switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, $locationlog_mac, $ifDesc);
+                locationlog_insert_start($switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, $locationlog_mac, $ifDesc, $voip_status);
 
                 # We just inserted an entry so we won't want to add another one
                 $inserted = 1;
@@ -430,7 +430,7 @@ sub locationlog_synchronize {
 
     # we insert a locationlog entry
     if ($mustInsert && !$inserted) {
-        locationlog_insert_start($switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, undef, $ifDesc)
+        locationlog_insert_start($switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, undef, $ifDesc, $voip_status)
             or $logger->warn("Unable to insert a locationlog entry.");
     }
     return 1;
