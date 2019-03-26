@@ -22,9 +22,21 @@ use pf::UnifiedApi::Search;
 use pf::Report;
 use pf::factory::report;
 
+=head2 configStore
+
+Get the dynamic reports config store
+
+=cut
+
 sub configStore {
     return pf::ConfigStore::Report->new;
 }
+
+=head2 search
+
+Execute a search on a specific dynamic report
+
+=cut
 
 sub search {
     my ($self) = @_;
@@ -58,11 +70,22 @@ sub search {
     );
 }
 
+=head2 list
+
+List all the dynamic reports
+
+=cut
 
 sub list {
     my ($self) = @_;
     $self->render(json => { items => $self->configStore->readAll("id") }, status => 200);
 }
+
+=head2 resource
+
+Get a dynamic report
+
+=cut
 
 sub resource {
     my ($self) = @_;
@@ -77,6 +100,12 @@ sub resource {
         return $FALSE;
     }
 }
+
+=head2 resource
+
+Get a dynamic report
+
+=cut
 
 sub get {
     my ($self) = @_;
