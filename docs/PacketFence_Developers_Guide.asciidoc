@@ -143,14 +143,14 @@ a|Use _this_ approach.
 
 a|
 ....
-Edit the [filename]`kubeconfig` file as required and save your changes.
+Edit the [filename]`pf.conf` file as required and save your changes.
 
-The [filename]`express.conf` configuration file is located in the [filename]`/usr/share/` directory.
+The [filename]`networks.conf` configuration file is located in the [filename]`/usr/local/pf/` directory.
 ....
 
-a|Edit the [filename]`kubeconfig` file as required and save your changes.
+a|Edit the [filename]`pf.conf` file as required and save your changes.
 
-The [filename]`express.conf` configuration file is located in the [filename]`/usr/share/` directory.
+The [filename]`networks.conf` configuration file is located in the [filename]`/usr/local/pf/` directory.
 
 |GUI Text
 
@@ -335,18 +335,18 @@ a|Use the `_IP_ADDRESS_` environment variable for the server IP address.
 
 a|
 ....
-Include the `libfreetype` library.
+Include the `pf::Switch` library.
 
-Stop the `NetworkManager` daemon.
+Stop the `pfqueue` daemon.
 
-Start the `mysql` service.
+Start the `iptables` service.
 ....
 
-a|Include the `libfreetype` library.
+a|Include the `pf::Switch` library.
 
-Stop the `NetworkManager` daemon.
+Stop the `pfqueue` daemon.
 
-Start the `mysql` service.
+Start the `packetfence-iptables` service.
 
 |===
 
