@@ -57,9 +57,9 @@ To do so, the preferred way is using the `perldoc` command as follows:
   perldoc lib/pfconfig/cached.pm
 
 
-== Asciidoc documentation
+== AsciiDoc documentation
 
-=== Documentation conventions
+=== Documentation Conventions
 
 https://github.com/redhat-documentation/asciidoc-markup-conventions
 https://redhat-documentation.github.io/asciidoc-markup-conventions/
