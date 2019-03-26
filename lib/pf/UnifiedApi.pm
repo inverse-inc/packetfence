@@ -110,6 +110,7 @@ sub setup_api_v1_routes {
     $self->setup_api_v1_config_routes($api_v1_route->any("/config")->name("api.v1.Config"));
     $self->setup_api_v1_fingerbank_routes($api_v1_route->any("/fingerbank")->name("api.v1.Fingerbank"));
     $self->setup_api_v1_reports_routes($api_v1_route->any("/reports")->name("api.v1.Reports"));
+    $self->setup_api_v1_dynamic_reports_routes($api_v1_route);
     $self->setup_api_v1_services_routes($api_v1_route);
     $self->setup_api_v1_cluster_routes($api_v1_route);
     $self->setup_api_v1_authentication_routes($api_v1_route);
@@ -1478,6 +1479,15 @@ sub setup_api_v1_config_interfaces_routes {
     $resource_route->any(['POST'] => "/up")->to("Config::Interfaces#up")->name("api.v1.Config.Interfaces.up");
     $resource_route->any(['POST'] => "/down")->to("Config::Interfaces#down")->name("api.v1.Config.Interfaces.down");
     return (undef, $resource_route);
+}
+
+sub setup_api_v1_dynamic_reports_routes {
+    my ( $self, $root ) = @_;
+    my $collection_route = $root->any("/dynamic_reports")->any(['GET'])->to("DynamicReports#list")->name("api.v1.DynamicReports.list");
+    my $resource_route = $root->under("/dynamic_report/#report_id")->to("DynamicReports#resource")->name("api.v1.DynamicReports.resource");
+    $resource_route->any(["GET"])->to("DynamicReports#get")->name("api.v1.DynamicReports.resource.get");
+    $self->add_subroutes($collection_route, "DynamicReports", "POST", qw(search));
+    return ( $collection_route, $resource_route );
 }
 
 =head2 setup_api_v1_cluster_routes
