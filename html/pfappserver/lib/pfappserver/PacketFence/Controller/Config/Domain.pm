@@ -88,7 +88,7 @@ after list => sub {
     $c->log->debug("Checking if user can edit the domain config");
     # we block the editing if the user has an OS configuration and no configured domains
     # this means he hasn't gone through the migration script
-    $c->stash->{block_edit} = ( ( pf::domain::has_os_configuration() && !keys(%ConfigDomain) ) || isdisabled($Config{'advanced'}{'active_directory_os_join_check_bypass'}) );
+    $c->stash->{block_edit} = ( ( pf::domain::has_os_configuration() && !keys(%ConfigDomain) ) && isdisabled($Config{'advanced'}{'active_directory_os_join_check_bypass'}) );
 };
 
 =head2 after view
