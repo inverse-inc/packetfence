@@ -21,10 +21,11 @@ type adminRoleMapping struct {
 	role   string
 }
 
+const ALLOW_ANY = "*"
+
 var pathAdminRolesMap = []adminRoleMapping{
-	// TODO: handle wildcard role which is no-authz needed, just auth
-	adminRoleMapping{prefix: apiPrefix + "/preference/", role: "*"},
-	adminRoleMapping{prefix: apiPrefix + "/preferences", role: "*"},
+	adminRoleMapping{prefix: apiPrefix + "/preference/", role: ALLOW_ANY},
+	adminRoleMapping{prefix: apiPrefix + "/preferences", role: ALLOW_ANY},
 
 	adminRoleMapping{prefix: apiPrefix + "/node/", role: "NODES"},
 	adminRoleMapping{prefix: apiPrefix + "/nodes", role: "NODES"},
@@ -210,6 +211,10 @@ func (tam *TokenAuthorizationMiddleware) isAuthorizedAdminActions(ctx context.Co
 		msg := fmt.Sprintf("Impossible to find admin role suffix for unknown method %s", method)
 		log.LoggerWContext(ctx).Warn(msg)
 		return false, errors.New(msg)
+	}
+
+	if baseAdminRole == ALLOW_ANY {
+		return true, nil
 	}
 
 	adminRole := baseAdminRole + suffix
