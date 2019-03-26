@@ -120,6 +120,14 @@ sub replace {
     }
 }
 
+sub delete {
+    my ($self) = @_;
+
+    my ($status) = $self->stash('preference')->remove();
+
+    $self->render(status => $status, json => {});
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

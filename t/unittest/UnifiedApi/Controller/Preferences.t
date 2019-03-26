@@ -26,7 +26,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 28;
+use Test::More tests => 57;
 use Test::Mojo;
 use Test::NoWarnings;
 my $t = Test::Mojo->new('pf::UnifiedApi');
@@ -66,6 +66,21 @@ foreach my $user (qw(bob bobette)) {
     $t->get_ok('/api/v1/preference/pref1' => { "X-PacketFence-Username" => $user } => json => { })
       ->json_is('/item/value', $val2)
       ->status_is(200);
+    
+    my $val3 = "PF=za best for $user";
+    $t->put_ok('/api/v1/preference/pref2'  => { "X-PacketFence-Username" => $user }=> json => { value => $val3 })
+      ->status_is(200);
+    
+    $t->get_ok('/api/v1/preference/pref2' => { "X-PacketFence-Username" => $user } => json => { })
+      ->json_is('/item/value', $val3)
+      ->status_is(200);
+      
+    $t->delete_ok('/api/v1/preference/pref2' => { "X-PacketFence-Username" => $user } => json => { })
+      ->status_is(200);
+    
+    $t->get_ok('/api/v1/preference/pref2' => { "X-PacketFence-Username" => $user } => json => { })
+      ->status_is(404);
+    
 }
 
 #post-cleanup

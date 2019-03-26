@@ -1225,6 +1225,7 @@ sub setup_api_v1_preferences_routes {
     my $resource_route = $root->under("/preference/#preference_id")->to("Preferences#resource")->name("api.v1.Config.Preferences.resource");
     $resource_route->any(['GET'])->to("Preferences#get")->name("api.v1.Config.Preferences.resource.get");
     $resource_route->any(['PUT'])->to("Preferences#replace")->name("api.v1.Config.Preferences.resource.replace");
+    $resource_route->any(['DELETE'])->to("Preferences#delete")->name("api.v1.Config.Preferences.resource.delete");
     return ($collection_route, $resource_route);
 }
 
