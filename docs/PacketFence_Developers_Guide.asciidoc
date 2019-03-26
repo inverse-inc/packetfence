@@ -349,10 +349,9 @@ Start the `mysql` service.
 
 === Checklist to create a new guide
 
-* [ ] use template
+* [ ] create PacketFence_GUIDENAME.asciidoc based on PacketFence link:PacketFence_Template_Guide.asciidoc[_Template Guide_]
 * [ ] create PacketFence_GUIDENAME-docinfo.xml with only `copyright` tag
-* [ ] update Makefile
-** [ ] add a note in `all` target
+* [ ] update `all` target in Makefile
 * [ ] update packaging (if necessary)
 * [ ] update website listing to add a new guide
 
