@@ -14,7 +14,11 @@ use strict;
 use warnings;
 use HTML::FormHandler::Moose;
 extends 'HTML::FormHandler::Field::Compound';
-use pf::constants::trigger;
+use pf::constants::trigger qw(
+        $TRIGGER_TYPE_ACCOUNTING $TRIGGER_TYPE_DETECT $TRIGGER_TYPE_INTERNAL $TRIGGER_TYPE_MAC $TRIGGER_TYPE_NESSUS $TRIGGER_TYPE_OPENVAS $TRIGGER_TYPE_OS $TRIGGER_TYPE_USERAGENT $TRIGGER_TYPE_VENDORMAC $TRIGGER_TYPE_PROVISIONER $TRIGGER_TYPE_SWITCH $TRIGGER_TYPE_SWITCH_GROUP 
+        $SURICATA_CATEGORIES
+        $TRIGGER_MAP
+);
 
 has_field $TRIGGER_TYPE_ACCOUNTING => (
 	type => 'Text',
@@ -45,18 +49,15 @@ has_field $TRIGGER_TYPE_USERAGENT => (
 );
 
 has_field $TRIGGER_TYPE_VENDORMAC => (
-	type => 'Text',
-);
-
-has_field $TRIGGER_ID_PROVISIONER => (
-	type => 'Text',
+	type => 'Select',
+    options => [{value => 'me', label => 'me'}],
 );
 
 while (my ($trigger, $value) = each %$TRIGGER_MAP) {
     has_field $trigger => (
         type => 'Select',
-        options => sub {
-            return map { { label => $_, value => $_ } } keys %value;
+        options_method => sub {
+            return map { { label => $_, value => $_ } } keys %$value;
         },
     );
 }
