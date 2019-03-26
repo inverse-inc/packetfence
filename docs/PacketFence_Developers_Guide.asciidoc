@@ -4,7 +4,7 @@ Developer's Guide
 :lang: en
 :doctype: book
 :toc: left
-
+:experimental:
 // to display images directly on GitHub
 ifdef::env-github[]
 :imagesdir: images
@@ -61,8 +61,291 @@ To do so, the preferred way is using the `perldoc` command as follows:
 
 === Documentation Conventions
 
-https://github.com/redhat-documentation/asciidoc-markup-conventions
-https://redhat-documentation.github.io/asciidoc-markup-conventions/
+Source: link:https://redhat-documentation.github.io/asciidoc-markup-conventions/[AsciiDoc Mark-up Quick Reference for Red Hat Documentation]
+
+[NOTE]
+====
+Some markup examples used in this overview are based on new Asciidoctor features and they are not a part of the standard set of elements. Please, use the `:experimental:` tag in the header of your document to enable this functionality.
+====
+
+[cols="3,4,4"]
+|===
+|Element|Mark-up|Example rendered output
+
+|Application name
+a|No special markup
+a| The foo application.
+
+|Code blocks
+a|
+....
+[source,java]
+----
+public class HelloWorld {
+   public static void main(String[] args) {
+      System.out.println("Hello, World");
+   }
+}
+----
+....
+
+a|
+[source,java]
+----
+public class HelloWorld {
+   public static void main(String[] args) {
+      System.out.println("Hello, World");
+   }
+}
+----
+
+|Code - inline
+a|
+....
+`print("Hello, World!")`
+....
+
+a| `print("Hello, World!")`
+
+|Command block
+a|
+....
+----
+$ echo "Hello, World!" > hello.txt
+----
+....
+a|
+----
+$ echo "Hello, World!" > hello.txt
+----
+
+|Command - inline
+a|
+....
+Use the [command]`oc get` command to get a list of services.
+....
+
+a|Use the [command]`oc get` command to get a list of services.
+
+|Emphasis for a term
+a|
+....
+Use _this_ approach.
+....
+
+a|Use _this_ approach.
+
+|Filenames or directory paths
+
+a|
+....
+Edit the [filename]`kubeconfig` file as required and save your changes.
+
+The [filename]`express.conf` configuration file is located in the [filename]`/usr/share/` directory.
+....
+
+a|Edit the [filename]`kubeconfig` file as required and save your changes.
+
+The [filename]`express.conf` configuration file is located in the [filename]`/usr/share/` directory.
+
+|GUI Text
+
+a|
+....
+The web browser displays *404* for an unreachable URL.
+....
+
+a|The web browser displays *404* for an unreachable URL.
+
+|GUI Button (experimental feature, Asciidoctor only)
+a|
+....
+Click btn:[Save As] to save the file under a different name.
+....
+
+a|Click btn:[Save As] to save the file under a different name.
+
+|GUI Menu (experimental feature, Asciidoctor only)
+
+a|
+....
+Navigate to menu:File[Import>Import csv] to import a csv file.
+....
+
+a|Navigate to menu:File[Import>Import csv] to import a csv file.
+
+|Inline Image
+
+a|
+....
+image::image.png[width=25px]
+....
+
+a| image::image.png[width=25px]
+
+| Block Image
+a|
+....
+.Tux
+image::image.png[width=100px]
+....
+a| .Tux
+image::image.png[width=100px]
+
+
+|Inline operations and user input
+
+a|
+....
+The `GET` operation can be used to do something.
+
+Answer by typing `Yes` or `No` when prompted.
+....
+
+a|The `GET` operation can be used to do something.
+
+Answer by typing `Yes` or `No` when prompted.
+
+| Keyboard shortcuts (experimental feature, Asciidoctor only)
+a|
+....
+kbd:[Ctrl+Alt+Del]
+....
+a| kbd:[Ctrl+Alt+Del]
+
+| Link (external)
+
+a|
+....
+link:http://www.packetfence.org[PacketFence]
+....
+
+a| link:http://www.packetfence.org[PacketFence]
+
+
+a|Lists
+
+NOTE: Do not put steps in bold.
+
+a|
+
+....
+.Ordered list
+
+. First item
+. Second item
+. Third item
+
+.Unordered list
+
+* This
+* That
+* The other
+
+.Definition or labeled list
+
+Term A:: description
+Term B:: description
+
+.Checklist
+* [ ] first step
+** [ ] first task
+** [ ] second task
+* [ ] second step
+* [ ] third step
+....
+
+a|.Ordered list
+
+. First item
+. Second item
+. Third item
+
+.Unordered list
+
+* This
+* That
+* The other
+
+.Definition  or labeled list
+
+Term A:: description
+Term B:: description
+
+.Checklist
+* [ ] first step
+** [ ] first task
+** [ ] second task
+* [ ] second step
+* [ ] third step
+
+|Literal value
+
+a|
+....
+The function returns `true`.
+....
+
+a|The function returns `true`.
+
+
+|Package
+a|
+....
+Install the [package]`packetfence` package.
+....
+
+a|Install the [package]`packetfence` package.
+
+|Product name
+a|No special markup. Use +++{nbsp}+++ in the company and product names. Example: Inverse+++{nbsp}+++Inc.
+a|Inverse{nbsp}Inc.
+
+|Reference to PacketFence guides
+a|
+....
+See the PacketFence link:guide-url[_Installation Guide_] for more information.
+....
+
+a|See the PacketFence link:guide-url[_Installation Guide_] for more information.
+
+|System or software variable to be replaced by the user
+a|
+....
+Use the following command to roll back a deployment, specifying the deployment name: `oc rollback _deployment_`.
+....
+
+a|
+Use the following command to roll back a deployment, specifying the deployment name: `oc rollback _deployment_`.
+
+
+|System or software configuration parameter or environment variable
+a|
+....
+Use the `_IP_ADDRESS_` environment variable for the server IP address.
+....
+
+a|Use the `_IP_ADDRESS_` environment variable for the server IP address.
+
+|System item, daemon, or service
+
+a|
+....
+Include the `libfreetype` library.
+
+Stop the `NetworkManager` daemon.
+
+Start the `mysql` service.
+....
+
+a|Include the `libfreetype` library.
+
+Stop the `NetworkManager` daemon.
+
+Start the `mysql` service.
+
+|===
+
 
 === Checklist to create a new guide
 
@@ -72,7 +355,6 @@ https://redhat-documentation.github.io/asciidoc-markup-conventions/
 ** [ ] add a note in `all` target
 * [ ] update packaging (if necessary)
 * [ ] update website to have new guide
-
 
 
 Code conventions
