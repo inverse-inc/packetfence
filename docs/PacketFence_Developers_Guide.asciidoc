@@ -354,7 +354,7 @@ Start the `mysql` service.
 * [ ] update Makefile
 ** [ ] add a note in `all` target
 * [ ] update packaging (if necessary)
-* [ ] update website to have new guide
+* [ ] update website listing to add a new guide
 
 
 Code conventions
