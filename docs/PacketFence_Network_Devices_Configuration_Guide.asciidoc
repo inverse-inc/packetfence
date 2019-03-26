@@ -2282,8 +2282,8 @@ Once you have configured your switchports, you must configure the switch in Pack
 * 'SNMP->Community Write': `private`
 
 
-AAA commands
-^^^^^^^^^^^^
+802.1X commands
+^^^^^^^^^^^^^^^
 
   show dot1x
   show dot1x users
