@@ -20,6 +20,12 @@ use pf::constants;
 use pf::error qw(is_success is_error);
 use pf::dal::user_preference;
 
+=head2 list
+
+List all preferences for the current user
+
+=cut
+
 sub list {
     my ($self) = @_;
 
@@ -36,11 +42,23 @@ sub list {
     return $self->render(status => 200, json => {items => $items});
 }
 
+=head2 filter_item
+
+Filter the values of an item to the ones that should be in the responses
+
+=cut
+
 sub filter_item {
     my ($self, $item) = @_;
     # Remap to keep only ID and value
     return { map {$_ => $item->{$_}} qw(id value) }; 
 }
+
+=head2 get_username
+
+Attempt to obtain the username from a request
+
+=cut
 
 sub get_username {
     my ($self) = @_;
@@ -55,6 +73,12 @@ sub get_username {
     }
 
 }
+
+=head2 resource
+
+Find the preference based on current context
+
+=cut
 
 sub resource {
     my ($self) = @_;
@@ -75,6 +99,12 @@ sub resource {
     }
 }
 
+=head2 get
+
+Get a preference
+
+=cut
+
 sub get {
     my ($self) = @_;
 
@@ -85,6 +115,12 @@ sub get {
         }
     );
 }
+
+=head2 replace
+
+Replace a preference
+
+=cut
 
 sub replace {
     my ($self) = @_;
@@ -119,6 +155,12 @@ sub replace {
         $self->render(json => {message => "Updated preference $preference_id"}, status => 200);
     }
 }
+
+=head2 delete
+
+Delete a preference
+
+=cut
 
 sub delete {
     my ($self) = @_;
