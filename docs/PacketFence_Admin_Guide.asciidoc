@@ -13,9 +13,6 @@ endif::[]
 
     This file is part of the PacketFence project.
 
-    See PacketFence_Network_Devices_Configuration_Guide-docinfo.xml for 
-    authors, copyright and license information.
-
 ////
 
 include::includes/global-attributes.asciidoc[]
