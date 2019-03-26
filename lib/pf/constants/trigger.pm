@@ -1,4 +1,5 @@
 package pf::constants::trigger;
+
 =head1 NAME
 
 pf::constants::trigger add documentation
