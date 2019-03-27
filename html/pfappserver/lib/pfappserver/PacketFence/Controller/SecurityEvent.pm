@@ -83,7 +83,6 @@ sub begin :Private {
     }
     ($status, $security_event_default) = $model->read('defaults');
     $triggers = $model->listTriggers();
-    $templates = $model->availableTemplates();
     $c->stash(
         trigger_types => [sort(keys(%pf::factory::condition::security_event::TRIGGER_TYPE_TO_CONDITION_TYPE))],
         current_model_instance => $model,
@@ -93,7 +92,6 @@ sub begin :Private {
                        placeholders => $security_event_default,
                        roles => \@roles,
                        triggers => $triggers,
-                       templates => $templates,
                       )
              );
 }

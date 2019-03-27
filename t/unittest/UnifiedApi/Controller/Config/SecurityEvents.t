@@ -26,16 +26,34 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 12;
+use Test::More tests => 14;
 use Test::Mojo;
+use pf::ConfigStore::SecurityEvents;
 
 #This test will running last
 use Test::NoWarnings;
+
+my ($fh, $filename) = File::Temp::tempfile( UNLINK => 1 );
+
+{
+    use pf::file_paths qw($security_events_config_file);
+    use File::Copy;
+    no warnings qw(redefine);
+    copy($security_events_config_file, $fh);
+    *pf::ConfigStore::SecurityEvents::configFile = sub {
+        $filename;
+    };
+}
+
 my $t = Test::Mojo->new('pf::UnifiedApi');
 
 my $collection_base_url = '/api/v1/config/security_events';
 
 my $base_url = '/api/v1/config/security_event';
+
+$t->patch_ok("$base_url/1100012" => json => {})
+  ->status_is(200);
+
 my $limit = 10;
 $t->get_ok("$collection_base_url?limit=$limit")
   ->status_is(200);

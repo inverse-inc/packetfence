@@ -21,7 +21,9 @@ with qw(
 
 use HTTP::Status qw(:constants is_success);
 use List::MoreUtils qw(uniq);
-use pf::config qw(%Config);
+use pf::constants::role qw(@ROLES);
+use pf::config qw(%Config %Profiles_Config);
+use pf::Connection::ProfileFactory;
 use pf::web::util;
 use pf::admin_roles;
 use pf::action;
@@ -32,7 +34,6 @@ use pf::class qw(class_next_security_event_id);
 # Form select options
 has 'security_events' => ( is => 'ro' );
 has 'triggers' => ( is => 'ro' );
-has 'templates' => ( is => 'ro' );
 has 'placeholders' => ( is => 'ro' );
 
 # Form fields
@@ -295,7 +296,7 @@ sub update_fields {
 sub options_actions {
     my $self = shift;
 
-    my @actions = map { $_ => $self->_localize("${_}_action") } @pf::action::SECURITY_EVENT_ACTIONS;
+    my @actions = map { { value => $_, label => $self->_localize("${_}_action") } } @pf::action::SECURITY_EVENT_ACTIONS;
 
     return @actions;
 }
@@ -338,8 +339,10 @@ sub options_whitelisted_roles {
 
 sub options_roles {
     my $self = shift;
-
-    my @roles = map { $_->{name} => $_->{name} } @{$self->form->roles} if ($self->form->roles);
+    my @roles = (
+        (map { $_->{name} => $_->{name} } @{$self->form->roles // []}),
+        ( map { $_ => $_ } @ROLES) ,
+    );
 
     return ('' => '', @roles);
 }
@@ -349,11 +352,16 @@ sub options_roles {
 =cut
 
 sub options_template {
-    my $self = shift;
+    my @dirs = map { uniq(@{pf::Connection::ProfileFactory->_from_profile($_)->{_template_paths}}) } keys(%Profiles_Config);
+    my @templates;
+    foreach my $dir (@dirs) {
+        next unless opendir(my $dh, $dir . '/security_events');
+        push @templates, grep { /^[^\.]+\.html$/ } readdir($dh);
+        s/\.html// for @templates;
+        closedir($dh);
+    }
 
-    my @templates = map { $_ => "$_.html" } @{$self->form->templates} if ($self->form->templates);
-
-    return @templates;
+    return map { { value => $_, label => "${_}.html" } } sort(uniq(@templates));
 }
 
 =head2 validate

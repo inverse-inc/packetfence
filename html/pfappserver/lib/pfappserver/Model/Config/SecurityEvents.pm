@@ -27,25 +27,6 @@ sub _buildConfigStore { pf::ConfigStore::SecurityEvents->new }
 
 =head1 Methods
 
-=head2 availableTemplates
-
-Return the list of available remediation templates
-
-=cut
-
-sub availableTemplates {
-    my @dirs = map { uniq(@{pf::Connection::ProfileFactory->_from_profile($_)->{_template_paths}}) } keys(%Profiles_Config);
-    my @templates;
-    foreach my $dir (@dirs) {
-        next unless opendir(my $dh, $dir . '/security_events');
-        push @templates, grep { /^[^\.]+\.html$/ } readdir($dh);
-        s/\.html// for @templates;
-        closedir($dh);
-    }
-    @templates = sort(uniq(@templates));
-    return \@templates;
-}
-
 =head2 listTriggers
 
 =cut
