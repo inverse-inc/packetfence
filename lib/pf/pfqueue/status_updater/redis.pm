@@ -69,7 +69,9 @@ sub set_progress {
 
 sub set_result {
     my ($self, $result) = @_;
-    $result = encode_json({result => $result});
+    if(ref($result) eq "ARRAY" || ref($result) eq "HASH") {
+        $result = encode_json($result);
+    }
     $self->set_in_status_hash($RESULT_KEY, $result);
 }
 
