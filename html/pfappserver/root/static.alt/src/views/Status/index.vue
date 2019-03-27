@@ -31,9 +31,9 @@ export default {
               can: 'access services'
             },
             {
-              name: 'Reports',
-              path: '/status/reports',
-              can: 'access reports'
+              name: 'Local Queue',
+              path: '/status/pfqueue',
+              can: 'access services'
             }
           ]
         }
