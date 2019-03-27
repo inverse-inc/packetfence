@@ -148,7 +148,7 @@ Object.assign(apiCall, {
           // method not available, inspect parent for same method
           urlParts.pop()
           if (urlParts.length > 0) {
-            return stat(this.benchmarks, method, `/${urlParts.join('/')}`)
+            return stat(this.benchmarks, method, urlParts.join('/'))
           }
         }
         stats = stat(benchmarks, method, url)
