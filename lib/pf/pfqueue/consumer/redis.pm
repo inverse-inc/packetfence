@@ -132,9 +132,10 @@ sub process_next_job {
                     $logger->debug("Reporting status for task $task_id");
                     $task->set_status_updater($self->get_status_updater($task_id));
                 }
+                my $result;
                 eval {
                     $task->status_updater->set_status($STATUS_IN_PROGRESS);
-                    $task->doTask($args);
+                    $result = $task->doTask($args);
                 };
                 if($@) {
                     $task->status_updater->set_status($STATUS_FAILED);
@@ -143,6 +144,7 @@ sub process_next_job {
                 }
                 else {
                     $task->status_updater->set_status($STATUS_SUCCEEDED);
+                    $task->status_updater->set_result($result);
                 }
             } else {
                 $logger->error("Invalid object stored in queue");

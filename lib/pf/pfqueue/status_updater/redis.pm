@@ -11,11 +11,15 @@ use pf::constants::pfqueue qw(
     $SUB_TASKS_KEY
     $CURRENT_SUB_TASK_KEY
     $PROGRESS_KEY
+    $RESULT_KEY
 );
+use JSON::MaybeXS;
+use pf::constants;
+use pf::log;
 
 has 'connection' => (is => 'rw', required => 1);
 
-has 'task_id' => (is => 'rw', required => 1);
+has 'task_id' => (is => 'rw', required => 1, trigger => \&reset_state);
 
 =head2 status_ttl
 
@@ -25,6 +29,14 @@ The TTL gets extended everytime something is inserted in the status hash in Redi
 =cut
 
 has 'status_ttl' => (is => 'rw', default => sub{60*15});
+
+has 'finalized' => (is => 'rw', default => sub{$FALSE});
+
+sub reset_state {
+    my ($self) = @_;
+    get_logger->trace("Setting new task ID, resetting state");
+    $self->finalized($FALSE);
+}
 
 sub set_status {
     my ($self, $status) = @_;
@@ -55,8 +67,24 @@ sub set_progress {
     $self->set_in_status_hash($PROGRESS_KEY, $progress);
 }
 
+sub set_result {
+    my ($self, $result) = @_;
+    $result = encode_json({result => $result});
+    $self->set_in_status_hash($RESULT_KEY, $result);
+}
+
+sub finalize {
+    my ($self) = @_;
+    $self->finalized($TRUE);
+}
+
 sub set_in_status_hash {
     my ($self, $key, $data) = @_;
+    if($self->finalized) {
+        get_logger->trace("Not reporting data for $key since status has been finalized");
+        return;
+    }
+    
     # TODO: error validation and logging and exec
     $self->connection->expire($self->status_key, $self->status_ttl);
     return $self->connection->hset($self->status_key, $key, $data);

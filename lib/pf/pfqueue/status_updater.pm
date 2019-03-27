@@ -25,4 +25,8 @@ sub set_progress {
 
 }
 
+sub set_result {
+
+}
+
 1;
