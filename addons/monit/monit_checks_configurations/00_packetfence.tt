@@ -152,7 +152,7 @@ CHECK PROCESS packetfence-httpd.dispatcher MATCHING "httpd.dispatcher"
     start program = "/usr/local/pf/bin/pfcmd service httpd.dispatcher start" with timeout 60 seconds
     stop program  = "/usr/local/pf/bin/pfcmd service httpd.dispatcher stop"
     if 3 restarts within 10 cycles then alert
-    if failed host 127.0.0.1 port 8888 protocol http status 501 for 5 cycles then restart
+    if failed host 127.0.0.1 port 8888 protocol http status 302 for 5 cycles then restart
 
 CHECK PROCESS packetfence-pfsso MATCHING "pfsso"
     group PacketFence
