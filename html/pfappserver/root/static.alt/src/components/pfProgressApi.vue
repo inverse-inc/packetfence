@@ -44,6 +44,9 @@ export default {
     },
     hide () {
       const _this = this
+      if (!this.$debouncer) {
+        this.$debouncer = createDebouncer()
+      }
       clearInterval(this.interval)
       this.percentage = 100
       this.$debouncer({
