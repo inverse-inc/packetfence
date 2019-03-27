@@ -41,6 +41,13 @@ sub invalidate_cache {
     $switch->invalidate_distributed_cache();
     return $self->render(status => 200, json => { });
 }
+
+sub id {
+    my ($self) = @_;
+    my $id = $self->SUPER::id();
+    $id =~ s/-/\//;
+    return $id;
+}
  
 =head1 AUTHOR
 
