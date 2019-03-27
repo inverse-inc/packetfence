@@ -78,6 +78,25 @@ has_field 'user_mail_message' =>
    tags => { after_element => \&help, 
              help => 'A message that will be added to the e-mail sent to the user regarding this security event.' }, 
   );
+
+has_field 'triggers' => (
+    type => 'Repeatable',
+    inactive => 1,
+    accessor => 'trigger',
+    inflate_default_method => sub {
+        my ( $f, $v ) = @_;
+        ref($v) eq 'ARRAY' ? $v : [ split( /\s*,\s*/, $v ) ];
+    },
+    deflate_value_method => sub {
+        my ( $f, $v ) = @_;
+        ref($v) eq 'ARRAY' ? join(',', @$v) : $v;
+    }
+);
+
+has_field 'triggers.contains' => (
+    type => 'Trigger',
+);
+
 has_field 'vclose' =>
   (
    type => 'Select',

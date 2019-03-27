@@ -27,6 +27,18 @@ has 'primary_key' => 'security_event_id';
 use pf::ConfigStore::SecurityEvents;
 use pfappserver::Form::SecurityEvent;
 
+=head2 form_parameters
+
+form_parameters
+
+=cut
+
+sub form_parameters {
+    [
+        active   => [ qw(triggers) ],
+        inactive => [ qw(trigger) ],
+    ];
+}
  
 =head1 AUTHOR
 

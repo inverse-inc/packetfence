@@ -365,6 +365,7 @@ sub options_from_form {
 
     my $defaultValues = $self->default_values;
     for my $field ($form->fields) {
+        next if $field->inactive;
         my $name = $field->name;
         $meta{$name} = $self->field_meta($field);
     }

@@ -14,44 +14,20 @@ use strict;
 use warnings;
 use HTML::FormHandler::Moose;
 extends 'HTML::FormHandler::Field::Compound';
+has '+inflate_default_method'=> ( default => sub { \&inflate } );
+has '+deflate_value_method'=> ( default => sub { \&deflate } );
+
 use pf::constants::trigger qw(
         $TRIGGER_TYPE_ACCOUNTING $TRIGGER_TYPE_DETECT $TRIGGER_TYPE_INTERNAL $TRIGGER_TYPE_MAC $TRIGGER_TYPE_NESSUS $TRIGGER_TYPE_OPENVAS $TRIGGER_TYPE_OS $TRIGGER_TYPE_USERAGENT $TRIGGER_TYPE_VENDORMAC $TRIGGER_TYPE_PROVISIONER $TRIGGER_TYPE_SWITCH $TRIGGER_TYPE_SWITCH_GROUP 
         $SURICATA_CATEGORIES
         $TRIGGER_MAP
 );
 
-has_field $TRIGGER_TYPE_ACCOUNTING => (
-	type => 'Text',
-);
-
-has_field $TRIGGER_TYPE_DETECT => (
-	type => 'Text',
-);
-
-has_field $TRIGGER_TYPE_MAC => (
-	type => 'Text',
-);
-
-has_field $TRIGGER_TYPE_NESSUS => (
-	type => 'Text',
-);
-
-has_field $TRIGGER_TYPE_OPENVAS => (
-	type => 'Text',
-);
-
-has_field $TRIGGER_TYPE_OS => (
-	type => 'Text',
-);
-
-has_field $TRIGGER_TYPE_USERAGENT => (
-	type => 'Text',
-);
-
-has_field $TRIGGER_TYPE_VENDORMAC => (
-	type => 'Select',
-    options => [{value => 'me', label => 'me'}],
-);
+for my $trigger ($TRIGGER_TYPE_ACCOUNTING, $TRIGGER_TYPE_DETECT, $TRIGGER_TYPE_MAC, $TRIGGER_TYPE_NESSUS, $TRIGGER_TYPE_OPENVAS, $TRIGGER_TYPE_OS, $TRIGGER_TYPE_USERAGENT, $TRIGGER_TYPE_VENDORMAC) {
+    has_field $trigger => (
+        type => 'Text'
+    );
+}
 
 while (my ($trigger, $value) = each %$TRIGGER_MAP) {
     has_field $trigger => (
@@ -62,43 +38,55 @@ while (my ($trigger, $value) = each %$TRIGGER_MAP) {
     );
 }
 
-=head2 options_suricata_event
+=head2 inflate
 
-options_suricata_event
+inflate the value from the config store
 
 =cut
 
-sub options_suricata_event {
-    map { { label => $_, value => $_ } } keys %$SURICATA_CATEGORIES;
+sub inflate {
+    my ($self, $value) = @_;
+    if (ref($value) eq 'HASH') {
+        return $value;
+    }
+
+    my %trigger;
+    if ($value =~ /\((.*)\)/) {
+        $value = $1;
+    }
+
+    for my $t (split(/\&/, $value)) {
+        my ($k, $v) = split (/::/, $value, 2);
+        $trigger{lc($k)} = $v;
+    }
+
+    return \%trigger;
 }
 
-=head2 options_switch
 
-options_switch
+=head2 deflate
 
-=cut
-
-sub options_switch {
-    return ;
-}
-
-=head2 options_switch_group
-
-options_switch_group
+deflate
 
 =cut
 
-sub options_switch_group {
-    return ;
-}
+sub deflate {
+    my ($self, $value) = @_;
+    my @vals;
+    while (my ($k, $v) = each %$value) {
+        next if !defined $v;
+        push @vals, "${k}::$v";
+    }
 
-=head2 options_nessus
+    if (@vals == 0) {
+        return '';
+    }
 
-options_nessus
+    if (@vals == 1) {
+        return $vals[0];
+    }
 
-=cut
-
-sub options_nessus {
+    return "(" . join('&', @vals) . ")";
 }
 
 =head1 AUTHOR
