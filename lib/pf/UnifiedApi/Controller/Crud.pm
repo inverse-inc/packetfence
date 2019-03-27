@@ -253,7 +253,7 @@ sub render_create {
         return $self->render_error($status, $self->create_error_msg($obj));
     }
     $self->res->headers->location($self->make_location_url($obj));
-    return $self->render(text => '', status => $status);
+    return $self->render(json => {}, status => $status);
 }
 
 sub make_location_url {
@@ -279,9 +279,7 @@ sub parent_data {
     my $map = $self->parent_primary_key_map;
     my %data;
     my $captures = $self->stash->{'mojo.captures'};
-    while (my ($param_name, $field_name) = each %$map) {
-        $data{$field_name} = $captures->{$param_name};
-    }
+    @data{values %$map} = @{$captures}{keys %$map};
 
     return \%data;
 }
