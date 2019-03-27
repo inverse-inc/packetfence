@@ -25,7 +25,7 @@ use pf::util::pfqueue qw(task_counter_id);
 use pf::constants::pfqueue qw(
     $PFQUEUE_COUNTER 
     $PFQUEUE_EXPIRED_COUNTER
-    $STATUS_SUCCEEDED
+    $STATUS_COMPLETED
     $STATUS_FAILED
     $STATUS_IN_PROGRESS
 );
@@ -143,7 +143,7 @@ sub process_next_job {
                     die $@;
                 }
                 else {
-                    $task->status_updater->set_status($STATUS_SUCCEEDED);
+                    $task->status_updater->set_status($STATUS_COMPLETED);
                     $task->status_updater->set_result($result);
                 }
             } else {

@@ -36,7 +36,7 @@ our @EXPORT_OK = qw(
     $PROGRESS_KEY
     $RESULT_KEY
     
-    $STATUS_SUCCEEDED
+    $STATUS_COMPLETED
     $STATUS_FAILED
     $STATUS_IN_PROGRESS
 );
@@ -78,7 +78,7 @@ our $CURRENT_SUB_TASK_KEY = "sub_task";
 our $PROGRESS_KEY = "progress";
 our $RESULT_KEY = "result";
 
-our $STATUS_SUCCEEDED = "Success";
+our $STATUS_COMPLETED = "Completed";
 our $STATUS_FAILED = "Failed";
 our $STATUS_IN_PROGRESS = "In progress";
 
