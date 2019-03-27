@@ -4,11 +4,10 @@ import pfFormInput from '@/components/pfFormInput'
 import pfFormPassword from '@/components/pfFormPassword'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import {
-  pfConfigurationListColumns,
-  pfConfigurationListFields,
   pfConfigurationAttributesFromMeta,
   pfConfigurationValidatorsFromMeta
 } from '@/globals/configuration/pfConfiguration'
+import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
   and,
   not,
@@ -22,16 +21,49 @@ const {
 } = require('vuelidate/lib/validators')
 
 export const pfConfigurationPkiProvidersListColumns = [
-  { ...pfConfigurationListColumns.id, ...{ label: i18n.t('Name') } }, // re-label
-  pfConfigurationListColumns.description,
-  pfConfigurationListColumns.type,
-  pfConfigurationListColumns.buttons
+  {
+    key: 'id',
+    label: i18n.t('Name'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'description',
+    label: i18n.t('Description'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'type',
+    label: i18n.t('Type'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'buttons',
+    label: '',
+    sortable: false,
+    visible: true,
+    locked: true
+  }
 ]
 
 export const pfConfigurationPkiProvidersListFields = [
-  { ...pfConfigurationListFields.id, ...{ text: i18n.t('Name') } }, // re-text
-  pfConfigurationListFields.description,
-  pfConfigurationListFields.type
+  {
+    value: 'id',
+    text: i18n.t('Name'),
+    types: [conditionType.SUBSTRING]
+  },
+  {
+    value: 'description',
+    text: i18n.t('Description'),
+    types: [conditionType.SUBSTRING]
+  },
+  {
+    value: 'type',
+    text: i18n.t('Type'),
+    types: [conditionType.SUBSTRING]
+  }
 ]
 
 export const pfConfigurationPkiProviderListConfig = (context = {}) => {

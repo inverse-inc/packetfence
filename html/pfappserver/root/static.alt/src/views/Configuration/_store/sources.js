@@ -33,14 +33,24 @@ const actions = {
       return response.items
     })
   },
-  optionsById: (context, id) => {
+  optionsById: ({ commit }, id) => {
+    commit('ITEM_REQUEST')
     return api.authenticationSourceOptions(id).then(response => {
+      commit('ITEM_SUCCESS')
       return response
+    }).catch((err) => {
+      commit('ITEM_ERROR', err.response)
+      throw err
     })
   },
-  optionsBySourceType: (context, sourceType) => {
+  optionsBySourceType: ({ commit }, sourceType) => {
+    commit('ITEM_REQUEST')
     return api.authenticationSourcesOptions(sourceType).then(response => {
+      commit('ITEM_SUCCESS')
       return response
+    }).catch((err) => {
+      commit('ITEM_ERROR', err.response)
+      throw err
     })
   },
   getAuthenticationSourcesByType: ({ state, commit }, type) => {

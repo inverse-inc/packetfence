@@ -53,6 +53,13 @@ export default {
     pfConfigList,
     pfEmptyTable
   },
+  props: {
+    storeName: { // from router
+      type: String,
+      default: null,
+      required: true
+    }
+  },
   data () {
     return {
       config: config(this)
@@ -63,7 +70,7 @@ export default {
       this.$router.push({ name: 'cloneProvisioning', params: { id: item.id } })
     },
     remove (item) {
-      this.$store.dispatch('$_sources/deleteProvisioning', item.id).then(response => {
+      this.$store.dispatch(`${this.storeName}/deleteProvisioning`, item.id).then(response => {
         this.$router.go() // reload
       })
     }

@@ -37,6 +37,13 @@ export default {
     pfConfigList,
     pfEmptyTable
   },
+  props: {
+    storeName: { // from router
+      type: String,
+      default: null,
+      required: true
+    }
+  },
   data () {
     return {
       dhcpv6Enterprises: [], // all dhcpv6 enterprises
@@ -48,13 +55,13 @@ export default {
       this.$router.push({ name: 'cloneDhcpv6Enterprise', params: { id: item.id } })
     },
     remove (item) {
-      this.$store.dispatch('$_profiling/deleteDhcpv6Enterprise', item.id).then(response => {
+      this.$store.dispatch(`${this.storeName}/deleteDhcpv6Enterprise`, item.id).then(response => {
         this.$router.go() // reload
       })
     }
   },
   created () {
-    this.$store.dispatch('$_profiling/dhcpv6Enterprises').then(data => {
+    this.$store.dispatch(`${this.storeName}/dhcpv6Enterprises`).then(data => {
       this.dhcpv6Enterprises = data
     })
   }

@@ -37,6 +37,13 @@ export default {
     pfConfigList,
     pfEmptyTable
   },
+  props: {
+    storeName: { // from router
+      type: String,
+      default: null,
+      required: true
+    }
+  },
   data () {
     return {
       dhcpv6Fingerprints: [], // all dchpv6 fingerprints
@@ -48,13 +55,13 @@ export default {
       this.$router.push({ name: 'cloneDhcpv6Fingerprint', params: { id: item.id } })
     },
     remove (item) {
-      this.$store.dispatch('$_profiling/deleteDhcpv6Fingerprint', item.id).then(response => {
+      this.$store.dispatch(`${this.storeName}/deleteDhcpv6Fingerprint`, item.id).then(response => {
         this.$router.go() // reload
       })
     }
   },
   created () {
-    this.$store.dispatch('$_profiling/dhcpv6Fingerprints').then(data => {
+    this.$store.dispatch(`${this.storeName}/dhcpv6Fingerprints`).then(data => {
       this.dhcpv6Fingerprints = data
     })
   }

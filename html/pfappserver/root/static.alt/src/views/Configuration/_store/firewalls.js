@@ -33,14 +33,24 @@ const actions = {
       return response.items
     })
   },
-  optionsById: ({}, id) => {
+  optionsById: ({ commit }, id) => {
+    commit('ITEM_REQUEST')
     return api.firewallOptions(id).then(response => {
+      commit('ITEM_SUCCESS')
       return response
+    }).catch((err) => {
+      commit('ITEM_ERROR', err.response)
+      throw err
     })
   },
-  optionsByFirewallType: ({}, firewallType) => {
+  optionsByFirewallType: ({ commit }, firewallType) => {
+    commit('ITEM_REQUEST')
     return api.firewallsOptions(firewallType).then(response => {
+      commit('ITEM_SUCCESS')
       return response
+    }).catch((err) => {
+      commit('ITEM_ERROR', err.response)
+      throw err
     })
   },
   getFirewall: ({ state, commit }, id) => {

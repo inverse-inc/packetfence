@@ -43,6 +43,13 @@ export default {
     pfConfigList,
     pfEmptyTable
   },
+  props: {
+    storeName: { // from router
+      type: String,
+      default: null,
+      required: true
+    }
+  },
   data () {
     return {
       config: config(this)
@@ -53,7 +60,7 @@ export default {
       this.$router.push({ name: 'clonePkiProvider', params: { id: item.id } })
     },
     remove (item) {
-      this.$store.dispatch('$_sources/deletePkiProvider', item.id).then(response => {
+      this.$store.dispatch(`${this.storeName}/deletePkiProvider`, item.id).then(response => {
         this.$router.go() // reload
       })
     }

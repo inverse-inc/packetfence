@@ -9,6 +9,7 @@
         ref="input"
         :type="type"
         :state="isValid()"
+        :disabled="disabled"
         @input.native="validate()"
         @keyup.native="resetTest($event)"
         @change.native="onChange($event)"
@@ -17,12 +18,13 @@
       >
       </b-form-input>
       <b-input-group-append>
-        <b-button-group v-if="test" rel="testResultGroup">
+        <b-button v-if="disabled" class="input-group-text" tabindex="-1" disabled><icon name="lock"></icon></b-button>
+        <b-button-group v-else-if="test" rel="testResultGroup">
           <b-button v-if="testResult !== null" variant="light" disabled tabindex="-1">
             <span class="mr-1" :class="{ 'text-danger': !testResult, 'text-success': testResult }">{{ testMessage }}</span>
           </b-button>
         </b-button-group>
-        <b-button-group rel="prefixButtonGroup">
+        <b-button-group v-if="!disabled" rel="prefixButtonGroup">
           <b-button v-if="test" class="input-group-text" @click="runTest()" :disabled="isLoading || isTesting || !this.value" tabindex="-1">
             {{ $t('Test') }}
             <icon v-show="isTesting" name="circle-notch" spin class="ml-2 mr-1"></icon>
@@ -33,7 +35,7 @@
         </b-button-group>
       </b-input-group-append>
     </b-input-group>
-    <b-form-text v-if="text" v-t="text"></b-form-text>
+    <b-form-text v-if="text" v-html="text"></b-form-text>
   </b-form-group>
 </template>
 
@@ -69,6 +71,10 @@ export default {
       default: null
     },
     isLoading: {
+      type: Boolean,
+      default: false
+    },
+    disabled: {
       type: Boolean,
       default: false
     }

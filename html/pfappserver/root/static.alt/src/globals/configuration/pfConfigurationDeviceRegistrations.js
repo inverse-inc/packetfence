@@ -2,11 +2,10 @@ import i18n from '@/utils/locale'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormInput from '@/components/pfFormInput'
 import {
-  pfConfigurationListColumns,
-  pfConfigurationListFields,
   pfConfigurationAttributesFromMeta,
   pfConfigurationValidatorsFromMeta
 } from '@/globals/configuration/pfConfiguration'
+import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
   and,
   not,
@@ -20,14 +19,38 @@ const {
 } = require('vuelidate/lib/validators')
 
 export const pfConfigurationDeviceRegistrationsListColumns = [
-  { ...pfConfigurationListColumns.id, ...{ label: i18n.t('Identifier') } }, // re-label
-  pfConfigurationListColumns.description,
-  pfConfigurationListColumns.buttons
+  {
+    key: 'id',
+    label: i18n.t('Identifier'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'description',
+    label: i18n.t('Description'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'buttons',
+    label: '',
+    sortable: false,
+    visible: true,
+    locked: true
+  }
 ]
 
 export const pfConfigurationDeviceRegistrationsListFields = [
-  { ...pfConfigurationListFields.id, ...{ text: i18n.t('Identifier') } }, // re-text
-  pfConfigurationListFields.description
+  {
+    value: 'id',
+    text: i18n.t('Identifier'),
+    types: [conditionType.SUBSTRING]
+  },
+  {
+    value: 'description',
+    text: i18n.t('Description'),
+    types: [conditionType.SUBSTRING]
+  }
 ]
 
 export const pfConfigurationDeviceRegistrationsListConfig = (context = {}) => {

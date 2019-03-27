@@ -31,6 +31,7 @@
           <template v-else-if="ctrlKey">{{ $t('Save & Close') }}</template>
           <template v-else>{{ $t('Save') }}</template>
         </pf-button-save>
+        <b-button v-if="!isNew && !isClone" :disabled="isLoading" class="ml-1" variant="outline-primary" @click="clone()">{{ $t('Clone') }}</b-button>
         <pf-button-delete v-if="isDeletable" class="ml-1" :disabled="isLoading" :confirm="$t('Delete WRIX Location?')" @on-delete="remove()"/>
       </b-card-footer>
     </template>
@@ -115,6 +116,9 @@ export default {
     close (event) {
       this.$router.push({ name: 'wrixLocations' })
     },
+    clone () {
+      this.$router.push({ name: 'cloneWrixLocation' })
+    },
     create (event) {
       const ctrlKey = this.ctrlKey
       this.$store.dispatch(`${this.storeName}/createWrixLocation`, this.wrixLocation).then(response => {
@@ -150,6 +154,13 @@ export default {
           this.wrixLocation.id = null
         }
       })
+    }
+  },
+  watch: {
+    isClone: {
+      handler: function (a, b) {
+        this.init()
+      }
     }
   }
 }

@@ -6,11 +6,10 @@ import pfFormPassword from '@/components/pfFormPassword'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import pfFormTextarea from '@/components/pfFormTextarea'
 import {
-  pfConfigurationListColumns,
-  pfConfigurationListFields,
   pfConfigurationAttributesFromMeta,
   pfConfigurationValidatorsFromMeta
 } from '@/globals/configuration/pfConfiguration'
+import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
   and,
   not,
@@ -24,15 +23,44 @@ const {
 } = require('vuelidate/lib/validators')
 
 export const pfConfigurationDomainsListColumns = [
-  { ...pfConfigurationListColumns.id, ...{ label: i18n.t('Name') } }, // re-label
-  pfConfigurationListColumns.workgroup,
-  pfConfigurationListColumns.ntlm_cache,
-  pfConfigurationListColumns.buttons
+  {
+    key: 'id',
+    label: i18n.t('Identifier'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'workgroup',
+    label: i18n.t('Workgroup'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'ntlm_cache',
+    label: i18n.t('NTLM Cache'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'buttons',
+    label: '',
+    sortable: false,
+    visible: true,
+    locked: true
+  }
 ]
 
 export const pfConfigurationDomainsListFields = [
-  { ...pfConfigurationListFields.id, ...{ text: i18n.t('Name') } }, // re-text
-  pfConfigurationListFields.workgroup
+  {
+    value: 'id',
+    text: i18n.t('Name'),
+    types: [conditionType.SUBSTRING]
+  },
+  {
+    value: 'workgroup',
+    text: i18n.t('Workgroup'),
+    types: [conditionType.SUBSTRING]
+  }
 ]
 
 export const pfConfigurationDomainsListConfig = (context = {}) => {

@@ -4,11 +4,10 @@ import pfFormInput from '@/components/pfFormInput'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import pfFormTextarea from '@/components/pfFormTextarea'
 import {
-  pfConfigurationListColumns,
-  pfConfigurationListFields,
   pfConfigurationAttributesFromMeta,
   pfConfigurationValidatorsFromMeta
 } from '@/globals/configuration/pfConfiguration'
+import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
   and,
   not,
@@ -22,15 +21,51 @@ const {
 } = require('vuelidate/lib/validators')
 
 export const pfConfigurationRealmsListColumns = [
-  { ...pfConfigurationListColumns.id, ...{ label: i18n.t('Name') } }, // re-label
-  pfConfigurationListColumns.portal_strip_username,
-  pfConfigurationListColumns.admin_strip_username,
-  pfConfigurationListColumns.radius_strip_username,
-  pfConfigurationListColumns.buttons
+  {
+    key: 'id',
+    label: i18n.t('Name'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'domain',
+    label: i18n.t('Domain'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'portal_strip_username',
+    label: i18n.t('Strip Portal'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'admin_strip_username',
+    label: i18n.t('Strip Admin'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'radius_strip_username',
+    label: i18n.t('Strip RADIUS'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'buttons',
+    label: '',
+    sortable: false,
+    visible: true,
+    locked: true
+  }
 ]
 
 export const pfConfigurationRealmsListFields = [
-  { ...pfConfigurationListFields.id, ...{ text: i18n.t('Name') } } // re-text
+  {
+    value: 'id',
+    text: i18n.t('Identifier'),
+    types: [conditionType.SUBSTRING]
+  }
 ]
 
 export const pfConfigurationRealmListConfig = (context = {}) => {

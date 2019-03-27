@@ -37,6 +37,13 @@ export default {
     pfConfigList,
     pfEmptyTable
   },
+  props: {
+    storeName: { // from router
+      type: String,
+      default: null,
+      required: true
+    }
+  },
   data () {
     return {
       macVendors: [], // all mac vendors
@@ -48,13 +55,13 @@ export default {
       this.$router.push({ name: 'cloneMacVendor', params: { id: item.id } })
     },
     remove (item) {
-      this.$store.dispatch('$_profiling/deleteMacVendor', item.id).then(response => {
+      this.$store.dispatch(`${this.storeName}/deleteMacVendor`, item.id).then(response => {
         this.$router.go() // reload
       })
     }
   },
   created () {
-    this.$store.dispatch('$_profiling/macVendors').then(data => {
+    this.$store.dispatch(`${this.storeName}/macVendors`).then(data => {
       this.macVendors = data
     })
   }

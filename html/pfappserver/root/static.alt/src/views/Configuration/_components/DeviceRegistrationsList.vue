@@ -23,6 +23,7 @@
 </template>
 
 <script>
+import pfButtonDelete from '@/components/pfButtonDelete'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import {
@@ -32,8 +33,16 @@ import {
 export default {
   name: 'DeviceRegistrationsList',
   components: {
+    pfButtonDelete,
     pfConfigList,
     pfEmptyTable
+  },
+  props: {
+    storeName: { // from router
+      type: String,
+      default: null,
+      required: true
+    }
   },
   data () {
     return {
@@ -45,7 +54,7 @@ export default {
       this.$router.push({ name: 'cloneDeviceRegistration', params: { id: item.id } })
     },
     remove (item) {
-      this.$store.dispatch('$_device_registrations/deleteDeviceRegistration', item.id).then(response => {
+      this.$store.dispatch(`${this.storeName}/deleteDeviceRegistration`, item.id).then(response => {
         this.$router.go() // reload
       })
     }

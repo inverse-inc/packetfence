@@ -4,11 +4,10 @@ import pfFormInput from '@/components/pfFormInput'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import pfFormTextarea from '@/components/pfFormTextarea'
 import {
-  pfConfigurationListColumns,
-  pfConfigurationListFields,
   pfConfigurationAttributesFromMeta,
   pfConfigurationValidatorsFromMeta
 } from '@/globals/configuration/pfConfiguration'
+import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
   and,
   not,
@@ -22,14 +21,38 @@ const {
 } = require('vuelidate/lib/validators')
 
 export const pfConfigurationMaintenanceTasksListColumns = [
-  pfConfigurationListColumns.status,
-  { ...pfConfigurationListColumns.id, ...{ label: i18n.t('Task Name') } }, // re-label
-  pfConfigurationListColumns.description,
-  pfConfigurationListColumns.interval
+  {
+    key: 'status',
+    label: i18n.t('Status'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'id',
+    label: i18n.t('Task Name'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'description',
+    label: i18n.t('Description'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'interval',
+    label: i18n.t('Interval'),
+    sortable: true,
+    visible: true
+  }
 ]
 
 export const pfConfigurationMaintenanceTasksListFields = [
-  { ...pfConfigurationListFields.id, ...{ text: i18n.t('Task Name') } } // re-text
+  {
+    value: 'id',
+    text: i18n.t('Task Name'),
+    types: [conditionType.SUBSTRING]
+  }
 ]
 
 export const pfConfigurationMaintenanceTasksListConfig = (context = {}) => {

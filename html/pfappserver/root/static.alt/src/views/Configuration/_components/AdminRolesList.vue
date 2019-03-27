@@ -40,6 +40,13 @@ export default {
     pfConfigList,
     pfEmptyTable
   },
+  props: {
+    storeName: { // from router
+      type: String,
+      default: null,
+      required: true
+    }
+  },
   data () {
     return {
       config: config(this)
@@ -50,7 +57,7 @@ export default {
       this.$router.push({ name: 'cloneAdminRole', params: { id: item.id } })
     },
     remove (item) {
-      this.$store.dispatch('$_admin_roles/deleteAdminRole', item.id).then(response => {
+      this.$store.dispatch(`${this.storeName}/deleteAdminRole`, item.id).then(response => {
         this.$router.go() // reload
       })
     }

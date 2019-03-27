@@ -30,8 +30,9 @@
           <template v-else-if="isClone">{{ $t('Clone') }}</template>
           <template v-else>{{ $t('Save and Join') }}</template>
         </pf-button-save>
-        <pf-button-delete v-if="isDeletable" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Domain?')" @on-delete="remove()"/>
         <b-button :disabled="isLoading" class="ml-1" variant="outline-primary" @click="init()">{{ $t('Reset') }}</b-button>
+        <b-button v-if="!isNew && !isClone" :disabled="isLoading" class="ml-1" variant="outline-primary" @click="clone()">{{ $t('Clone') }}</b-button>
+        <pf-button-delete v-if="isDeletable" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Domain?')" @on-delete="remove()"/>
       </b-card-footer>
     </template>
   </pf-config-view>
@@ -131,6 +132,9 @@ export default {
     close () {
       this.$router.push({ name: 'domains' })
     },
+    clone () {
+      this.$router.push({ name: 'cloneDomain' })
+    },
     create () {
       this.$store.dispatch(`${this.storeName}/createDomain`, this.form).then(response => {
         this.$router.push({ name: 'domain', params: { id: this.form.id } })
@@ -152,6 +156,13 @@ export default {
   },
   created () {
     this.init()
+  },
+  watch: {
+    isClone: {
+      handler: function (a, b) {
+        this.init()
+      }
+    }
   }
 }
 </script>

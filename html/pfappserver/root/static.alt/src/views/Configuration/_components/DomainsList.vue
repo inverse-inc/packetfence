@@ -37,6 +37,13 @@ export default {
     pfConfigList,
     pfEmptyTable
   },
+  props: {
+    storeName: { // from router
+      type: String,
+      default: null,
+      required: true
+    }
+  },
   data () {
     return {
       config: config(this)
@@ -50,7 +57,7 @@ export default {
       // TODO
     },
     remove (item) {
-      this.$store.dispatch('$_domains/deleteDomain', item.id).then(response => {
+      this.$store.dispatch(`${this.storeName}/deleteDomain`, item.id).then(response => {
         this.$router.go() // reload
       })
     }

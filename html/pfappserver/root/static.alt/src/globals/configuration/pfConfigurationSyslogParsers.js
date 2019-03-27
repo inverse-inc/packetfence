@@ -7,13 +7,12 @@ import pfFormHtml from '@/components/pfFormHtml'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import pfFormTextarea from '@/components/pfFormTextarea'
-import { pfFieldType as fieldType } from '@/globals/pfField'
 import {
-  pfConfigurationListColumns,
-  pfConfigurationListFields,
   pfConfigurationAttributesFromMeta,
   pfConfigurationValidatorsFromMeta
 } from '@/globals/configuration/pfConfiguration'
+import { pfFieldType as fieldType } from '@/globals/pfField'
+import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
   and,
   not,
@@ -29,15 +28,44 @@ const {
 } = require('vuelidate/lib/validators')
 
 export const pfConfigurationSyslogParsersListColumns = [
-  pfConfigurationListColumns.status,
-  { ...pfConfigurationListColumns.id, ...{ label: i18n.t('Detector') } }, // re-label
-  { ...pfConfigurationListColumns.type, ...{ label: i18n.t('Type') } }, // re-label
-  pfConfigurationListColumns.buttons
+  {
+    key: 'status',
+    label: i18n.t('Status'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'id',
+    label: i18n.t('Detector'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'type',
+    label: i18n.t('Type'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'buttons',
+    label: '',
+    sortable: false,
+    visible: true,
+    locked: true
+  }
 ]
 
 export const pfConfigurationSyslogParsersListFields = [
-  { ...pfConfigurationListFields.id, ...{ text: i18n.t('Detector') } }, // re-text
-  pfConfigurationListFields.type
+  {
+    value: 'id',
+    text: i18n.t('Detector'),
+    types: [conditionType.SUBSTRING]
+  },
+  {
+    value: 'type',
+    text: i18n.t('Type'),
+    types: [conditionType.SUBSTRING]
+  }
 ]
 
 export const pfConfigurationSyslogParsersListConfig = (context = {}) => {

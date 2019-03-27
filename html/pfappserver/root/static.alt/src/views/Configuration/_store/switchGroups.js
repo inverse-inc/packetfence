@@ -33,14 +33,23 @@ const actions = {
       return response.items
     })
   },
-  options: (context, id) => {
+  options: ({ commit }, id) => {
+    commit('ITEM_REQUEST')
     if (id) {
       return api.switchGroupOptions(id).then(response => {
+        commit('ITEM_SUCCESS')
         return response
+      }).catch((err) => {
+        commit('ITEM_ERROR', err.response)
+        throw err
       })
     } else {
       return api.switchGroupsOptions().then(response => {
+        commit('ITEM_SUCCESS')
         return response
+      }).catch((err) => {
+        commit('ITEM_ERROR', err.response)
+        throw err
       })
     }
   },

@@ -3,39 +3,60 @@ import pfFormChosen from '@/components/pfFormChosen'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import {
-  pfConfigurationListColumns,
-  pfConfigurationListFields,
   pfConfigurationViewFields,
   pfConfigurationAttributesFromMeta,
   pfConfigurationValidatorsFromMeta
 } from '@/globals/configuration/pfConfiguration'
+import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
   and,
   not,
   conditional,
-  isPrice,
   hasBillingTiers,
   billingTierExists
 } from '@/globals/pfValidators'
 
-const {
-  required,
-  alphaNum,
-  integer,
-  minValue,
-  maxLength
-} = require('vuelidate/lib/validators')
+const { required } = require('vuelidate/lib/validators')
 
 export const pfConfigurationBillingTiersListColumns = [
-  { ...pfConfigurationListColumns.id, ...{ label: i18n.t('Identifier') } }, // re-label
-  pfConfigurationListColumns.name,
-  pfConfigurationListColumns.price,
-  pfConfigurationListColumns.buttons
+  {
+    key: 'id',
+    label: i18n.t('Identifier'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'name',
+    label: i18n.t('Name'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'price',
+    label: i18n.t('Price'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'buttons',
+    label: '',
+    sortable: false,
+    visible: true,
+    locked: true
+  }
 ]
 
 export const pfConfigurationBillingTiersListFields = [
-  { ...pfConfigurationListFields.id, ...{ text: i18n.t('Identifier') } }, // re-text
-  pfConfigurationListFields.description
+  {
+    value: 'id',
+    text: i18n.t('Identifier'),
+    types: [conditionType.SUBSTRING]
+  },
+  {
+    value: 'description',
+    text: i18n.t('Description'),
+    types: [conditionType.SUBSTRING]
+  }
 ]
 
 export const pfConfigurationBillingTiersListConfig = (context = {}) => {

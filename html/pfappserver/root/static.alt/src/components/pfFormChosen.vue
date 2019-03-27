@@ -8,6 +8,7 @@
         v-bind="$attrs"
         v-on="forwardListeners"
         ref="input"
+        :disabled="disabled"
         :showLabels="false"
         :id="id"
         :multiple="multiple"
@@ -28,8 +29,11 @@
           <b-form-text class="font-weight-light">{{ $t('Please refine your search.') }}</b-form-text>
         </b-media>
       </multiselect>
+      <b-input-group-append v-if="readonly || disabled">
+        <b-button class="input-group-text" tabindex="-1" disabled><icon name="lock"></icon></b-button>
+      </b-input-group-append>
     </b-input-group>
-    <b-form-text v-if="text" v-t="text"></b-form-text>
+    <b-form-text v-if="text" v-html="text"></b-form-text>
   </b-form-group>
 </template>
 
@@ -88,6 +92,10 @@ export default {
     collapseObject: {
       type: Boolean,
       default: true
+    },
+    disabled: {
+      type: Boolean,
+      default: false
     }
   },
   data () {
@@ -135,14 +143,29 @@ export default {
 @import "../../node_modules/bootstrap/scss/functions";
 @import "../../node_modules/bootstrap/scss/mixins/border-radius";
 @import "../../node_modules/bootstrap/scss/mixins/box-shadow";
-@import "../../node_modules/bootstrap/scss/mixins/transition";
 @import "../styles/variables";
 
 /**
  * Adjust is-invalid and is-focus borders
  */
 .pf-form-chosen {
+
+  /* disable all transitions */
+  .multiselect__loading-enter-active,
+  .multiselect__loading-leave-active,
+  .multiselect__input,
+  .multiselect__single,
+  .multiselect__tag-icon,
+  .multiselect__select,
+  .multiselect-enter-active,.multiselect-leave-active {
+      transition: none !important;
+  }
+
   .multiselect {
+      position: relative;
+      flex: 1 1 auto;
+      width: 1%;
+      margin-bottom: 0;
       min-height: auto;
       border-width: 1px;
       font-size: $font-size-base;
@@ -153,7 +176,6 @@ export default {
     border: 1px solid $input-focus-bg;
     background-color: $input-focus-bg;
     @include border-radius($border-radius);
-    @include transition($custom-forms-transition);
     outline: 0;
     .multiselect__input {
       max-width: 100%
@@ -211,6 +233,17 @@ export default {
   .multiselect__option--highlight {
     background-color: $dropdown-link-active-bg;
     color: $dropdown-link-active-color;
+  }
+  .multiselect--disabled {
+    background-color: $input-disabled-bg;
+    opacity: 1;
+    .multiselect__tags,
+    .multiselect__single {
+      background-color: $input-disabled-bg;
+    }
+    .multiselect__select {
+      background-color: transparent;
+    }
   }
   &.is-focus {
     .multiselect__tags {

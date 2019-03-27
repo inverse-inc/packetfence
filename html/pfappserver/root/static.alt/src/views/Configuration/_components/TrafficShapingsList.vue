@@ -36,6 +36,13 @@ export default {
     pfConfigList,
     pfEmptyTable
   },
+  props: {
+    storeName: { // from router
+      type: String,
+      default: null,
+      required: true
+    }
+  },
   data () {
     return {
       config: config(this),
@@ -44,7 +51,7 @@ export default {
   },
   methods: {
     remove (item) {
-      this.$store.dispatch('$_traffic_shaping_policies/deleteTrafficShapingPolicy', item.id).then(response => {
+      this.$store.dispatch(`${this.storeName}/deleteTrafficShapingPolicy`, item.id).then(response => {
         this.$router.go() // reload
       })
     }
@@ -52,7 +59,7 @@ export default {
   created () {
     this.$store.dispatch('$_roles/all').then(roles => {
       const _roles = roles.map(role => role.id)
-      this.$store.dispatch('$_traffic_shaping_policies/all').then(policies => {
+      this.$store.dispatch(`${this.storeName}/all`).then(policies => {
         const _policies = policies.map(policy => policy.id)
         this.roles = _roles.filter(role => !(_policies.includes(role)))
       })

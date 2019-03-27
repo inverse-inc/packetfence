@@ -37,6 +37,13 @@ export default {
     pfConfigList,
     pfEmptyTable
   },
+  props: {
+    storeName: { // from router
+      type: String,
+      default: null,
+      required: true
+    }
+  },
   data () {
     return {
       devices: [], // all devices
@@ -48,13 +55,13 @@ export default {
       this.$router.push({ name: 'cloneDevice', params: { id: item.id } })
     },
     remove (item) {
-      this.$store.dispatch('$_profiling/deleteDevice', item.id).then(response => {
+      this.$store.dispatch(`${this.storeName}/deleteDevice`, item.id).then(response => {
         this.$router.go() // reload
       })
     }
   },
   created () {
-    this.$store.dispatch('$_profiling/devices').then(data => {
+    this.$store.dispatch(`${this.storeName}/devices`).then(data => {
       this.devices = data
     })
   }

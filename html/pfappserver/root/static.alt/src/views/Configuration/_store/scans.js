@@ -33,14 +33,24 @@ const actions = {
       return response.items
     })
   },
-  optionsById: ({}, id) => {
+  optionsById: ({ commit }, id) => {
+    commit('ITEM_REQUEST')
     return api.scanEngineOptions(id).then(response => {
+      commit('ITEM_SUCCESS')
       return response
+    }).catch((err) => {
+      commit('ITEM_ERROR', err.response)
+      throw err
     })
   },
-  optionsByScanType: ({}, scanType) => {
+  optionsByScanType: ({ commit }, scanType) => {
+    commit('ITEM_REQUEST')
     return api.scanEnginesOptions(scanType).then(response => {
+      commit('ITEM_SUCCESS')
       return response
+    }).catch((err) => {
+      commit('ITEM_ERROR', err.response)
+      throw err
     })
   },
   getScanEngine: ({ state, commit }, id) => {

@@ -1,6 +1,7 @@
 <template>
   <b-card no-body>
     <pf-config-list
+      ref="pfConfigList"
       :config="config"
     >
       <template slot="pageHeader">
@@ -20,16 +21,32 @@
         </span>
       </template>
       <template slot="status" slot-scope="data">
-        <icon name="circle" :class="{ 'text-success': data.status === 'enabled', 'text-danger': data.status === 'disabled' }"
-          v-b-tooltip.hover.left.d300 :title="$t(data.status)"></icon>
+        <pf-form-range-toggle v-if="data.not_deletable"
+          v-model="data.status"
+          :values="{ checked: 'enabled', unchecked: 'disabled' }"
+          :icons="{ checked: 'lock', unchecked: 'lock' }"
+          :colors="{ checked: 'var(--success)', unchecked: 'var(--danger)' }"
+          disabled
+        >{{ (data.status === 'enabled') ? $t('Enabled') : $t('Disabled') }}</pf-form-range-toggle>
+        <pf-form-range-toggle v-else
+          v-model="data.status"
+          :values="{ checked: 'enabled', unchecked: 'disabled' }"
+          :icons="{ checked: 'check', unchecked: 'times' }"
+          :colors="{ checked: 'var(--success)', unchecked: 'var(--danger)' }"
+          :disabled="isLoading"
+          @input="toggleStatus(data, $event)"
+          @click.stop.prevent
+        >{{ (data.status === 'enabled') ? $t('Enabled') : $t('Disabled') }}</pf-form-range-toggle>
       </template>
     </pf-config-list>
   </b-card>
 </template>
 
 <script>
+import pfButtonDelete from '@/components/pfButtonDelete'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
+import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import {
   pfConfigurationConnectionProfileListConfig as config
 } from '@/globals/configuration/pfConfigurationConnectionProfiles'
@@ -37,12 +54,26 @@ import {
 export default {
   name: 'ConnectionProfilesList',
   components: {
+    pfButtonDelete,
     pfConfigList,
-    pfEmptyTable
+    pfEmptyTable,
+    pfFormRangeToggle
+  },
+  props: {
+    storeName: { // from router
+      type: String,
+      default: null,
+      required: true
+    }
   },
   data () {
     return {
       config: config(this)
+    }
+  },
+  computed: {
+    isLoading () {
+      return this.$store.getters[`${this.storeName}/isLoading`]
     }
   },
   methods: {
@@ -50,9 +81,23 @@ export default {
       this.$router.push({ name: 'cloneConnectionProfile', params: { id: item.id } })
     },
     remove (item) {
-      this.$store.dispatch('$_connection_profiles/deleteConnectionProfile', item.id).then(response => {
+      this.$store.dispatch(`${this.storeName}/deleteConnectionProfile`, item.id).then(response => {
         this.$router.go() // reload
       })
+    },
+    toggleStatus (item, newStatus) {
+      switch (newStatus) {
+        case 'enabled':
+          this.$store.dispatch(`${this.storeName}/enableConnectionProfile`, item).then(response => {
+            this.$refs.pfConfigList.submitSearch() // redo search
+          })
+          break
+        case 'disabled':
+          this.$store.dispatch(`${this.storeName}/disableConnectionProfile`, item).then(response => {
+            this.$refs.pfConfigList.submitSearch() // redo search
+          })
+          break
+      }
     }
   }
 }

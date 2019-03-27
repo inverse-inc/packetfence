@@ -1,13 +1,11 @@
 import i18n from '@/utils/locale'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormToggle from '@/components/pfFormToggle'
-import { pfRegExp as regExp } from '@/globals/pfRegExp'
 import {
-  pfConfigurationListColumns,
-  pfConfigurationListFields,
   pfConfigurationAttributesFromMeta,
   pfConfigurationValidatorsFromMeta
 } from '@/globals/configuration/pfConfiguration'
+import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
   and,
   not,
@@ -16,26 +14,59 @@ import {
   floatingDeviceExists
 } from '@/globals/pfValidators'
 
-const {
-  required,
-  integer,
-  ipAddress,
-  macAddress,
-  maxLength
-} = require('vuelidate/lib/validators')
+const { required } = require('vuelidate/lib/validators')
 
 export const pfConfigurationFloatingDevicesListColumns = [
-  { ...pfConfigurationListColumns.id, ...{ label: i18n.t('MAC') } }, // re-label
-  pfConfigurationListColumns.ip,
-  pfConfigurationListColumns.pvid,
-  pfConfigurationListColumns.taggedVlan,
-  pfConfigurationListColumns.trunkPort,
-  pfConfigurationListColumns.buttons
+  {
+    key: 'id',
+    label: 'MAC',
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'ip',
+    label: i18n.t('IP Address'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'pvid',
+    label: i18n.t('Native VLAN'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'taggedVlan',
+    label: i18n.t(`Tagged VLAN's`),
+    sortable: false,
+    visible: true
+  },
+  {
+    key: 'trunkPort',
+    label: i18n.t('Trunk Port'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'buttons',
+    label: '',
+    sortable: false,
+    visible: true,
+    locked: true
+  }
 ]
 
 export const pfConfigurationFloatingDevicesListFields = [
-  { ...pfConfigurationListFields.id, ...{ text: i18n.t('MAC') } }, // re-text
-  pfConfigurationListFields.ip
+  {
+    value: 'id',
+    text: i18n.t('MAC'),
+    types: [conditionType.SUBSTRING]
+  },
+  {
+    value: 'ip',
+    text: i18n.t('IP Address'),
+    types: [conditionType.SUBSTRING]
+  }
 ]
 
 export const pfConfigurationFloatingDeviceListConfig = (context = {}) => {
@@ -85,7 +116,8 @@ export const pfConfigurationFloatingDeviceViewFields = (context = {}) => {
     isClone = false,
     options: {
       meta = {}
-    }
+    },
+    form = {}
   } = context
   return [
     {
@@ -149,6 +181,7 @@ export const pfConfigurationFloatingDeviceViewFields = (context = {}) => {
           ]
         },
         {
+          if: (form.trunkPort === 'yes'),
           label: i18n.t('Tagged VLANs'),
           text: i18n.t('Comma separated list of VLANs. If the port is a multi-vlan, these are the VLANs that have to be tagged on the port.'),
           fields: [

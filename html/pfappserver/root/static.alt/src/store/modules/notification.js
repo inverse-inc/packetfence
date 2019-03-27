@@ -10,8 +10,7 @@ const state = {
   hideDelay: 5
 }
 
-const getters = {
-}
+const getters = {}
 
 const actions = {
   // data is expected to be either a string or an object with a 'message' property

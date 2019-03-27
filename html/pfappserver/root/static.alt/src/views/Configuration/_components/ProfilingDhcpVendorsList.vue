@@ -37,6 +37,13 @@ export default {
     pfConfigList,
     pfEmptyTable
   },
+  props: {
+    storeName: { // from router
+      type: String,
+      default: null,
+      required: true
+    }
+  },
   data () {
     return {
       dhcpVendors: [], // all dhcp vendors
@@ -48,13 +55,13 @@ export default {
       this.$router.push({ name: 'cloneDhcpVendor', params: { id: item.id } })
     },
     remove (item) {
-      this.$store.dispatch('$_profiling/deleteDhcpVendor', item.id).then(response => {
+      this.$store.dispatch(`${this.storeName}/deleteDhcpVendor`, item.id).then(response => {
         this.$router.go() // reload
       })
     }
   },
   created () {
-    this.$store.dispatch('$_profiling/dhcpVendors').then(data => {
+    this.$store.dispatch(`${this.storeName}/dhcpVendors`).then(data => {
       this.dhcpVendors = data
     })
   }

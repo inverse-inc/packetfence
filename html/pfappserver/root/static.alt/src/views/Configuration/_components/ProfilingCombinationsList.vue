@@ -37,6 +37,13 @@ export default {
     pfConfigList,
     pfEmptyTable
   },
+  props: {
+    storeName: { // from router
+      type: String,
+      default: null,
+      required: true
+    }
+  },
   data () {
     return {
       combinations: [], // all combinations
@@ -48,13 +55,13 @@ export default {
       this.$router.push({ name: 'cloneCombination', params: { id: item.id } })
     },
     remove (item) {
-      this.$store.dispatch('$_profiling/deleteCombination', item.id).then(response => {
+      this.$store.dispatch(`${this.storeName}/deleteCombination`, item.id).then(response => {
         this.$router.go() // reload
       })
     }
   },
   created () {
-    this.$store.dispatch('$_profiling/combinations').then(data => {
+    this.$store.dispatch(`${this.storeName}/combinations`).then(data => {
       this.combinations = data
     })
   }

@@ -34,14 +34,24 @@ const actions = {
       return response.items
     })
   },
-  optionsById: ({}, id) => {
+  optionsById: ({ commit }, id) => {
+    commit('ITEM_REQUEST')
     return api.syslogParserOptions(id).then(response => {
+      commit('ITEM_SUCCESS')
       return response
+    }).catch((err) => {
+      commit('ITEM_ERROR', err.response)
+      throw err
     })
   },
-  optionsBySyslogParserType: ({}, syslogParserType) => {
+  optionsBySyslogParserType: ({ commit }, syslogParserType) => {
+    commit('ITEM_REQUEST')
     return api.syslogParsersOptions(syslogParserType).then(response => {
+      commit('ITEM_SUCCESS')
       return response
+    }).catch((err) => {
+      commit('ITEM_ERROR', err.response)
+      throw err
     })
   },
   getSyslogParser: ({ state, commit }, id) => {
@@ -71,6 +81,28 @@ const actions = {
     commit('ITEM_REQUEST')
     return api.updateSyslogParser(data).then(response => {
       commit('ITEM_REPLACED', data)
+      return response
+    }).catch(err => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
+  },
+  enableSyslogParser: ({ commit }, data) => {
+    commit('ITEM_REQUEST')
+    const _data = { id: data.id, status: 'enabled' }
+    return api.updateSyslogParser(_data).then(response => {
+      commit('ITEM_ENABLED', data)
+      return response
+    }).catch(err => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
+  },
+  disableSyslogParser: ({ commit }, data) => {
+    commit('ITEM_REQUEST')
+    const _data = { id: data.id, status: 'disabled' }
+    return api.updateSyslogParser(_data).then(response => {
+      commit('ITEM_DISABLED', data)
       return response
     }).catch(err => {
       commit('ITEM_ERROR', err.response)
@@ -107,6 +139,14 @@ const mutations = {
   ITEM_REPLACED: (state, data) => {
     state.itemStatus = types.SUCCESS
     Vue.set(state.cache, data.id, data)
+  },
+  ITEM_ENABLED: (state, data) => {
+    state.itemStatus = types.SUCCESS
+    Vue.set(state.cache, data.id, { ...state.cache[data.id], ...data })
+  },
+  ITEM_DISABLED: (state, data) => {
+    state.itemStatus = types.SUCCESS
+    Vue.set(state.cache, data.id, { ...state.cache[data.id], ...data })
   },
   ITEM_DESTROYED: (state, id) => {
     state.itemStatus = types.SUCCESS

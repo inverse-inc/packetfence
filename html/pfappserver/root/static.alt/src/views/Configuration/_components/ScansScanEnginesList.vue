@@ -43,6 +43,13 @@ export default {
     pfConfigList,
     pfEmptyTable
   },
+  props: {
+    storeName: { // from router
+      type: String,
+      default: null,
+      required: true
+    }
+  },
   data () {
     return {
       scanEngines: [], // all scan engines
@@ -54,13 +61,13 @@ export default {
       this.$router.push({ name: 'cloneScanEngine', params: { id: item.id } })
     },
     remove (item) {
-      this.$store.dispatch('$_scans/deleteScanEngine', item.id).then(response => {
+      this.$store.dispatch(`${this.storeName}/deleteScanEngine`, item.id).then(response => {
         this.$router.go() // reload
       })
     }
   },
   created () {
-    this.$store.dispatch('$_scans/allScanEngines').then(data => {
+    this.$store.dispatch(`${this.storeName}/allScanEngines`).then(data => {
       this.scanEngines = data
     })
   }

@@ -32,6 +32,13 @@ export default {
     pfConfigList,
     pfEmptyTable
   },
+  props: {
+    storeName: { // from router
+      type: String,
+      default: null,
+      required: true
+    }
+  },
   data () {
     return {
       config: config(this)
@@ -42,7 +49,7 @@ export default {
       this.$router.push({ name: 'cloneSwitchGroup', params: { id: item.id } })
     },
     remove (item) {
-      this.$store.dispatch('$_switch_groups/deleteSwitchGroup', item.id).then(response => {
+      this.$store.dispatch(`${this.storeName}/deleteSwitchGroup`, item.id).then(response => {
         this.$router.go() // reload
       })
     }

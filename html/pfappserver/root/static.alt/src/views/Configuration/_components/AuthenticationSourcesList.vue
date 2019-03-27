@@ -80,6 +80,13 @@ export default {
     pfConfigList,
     pfEmptyTable
   },
+  props: {
+    storeName: { // from router
+      type: String,
+      default: null,
+      required: true
+    }
+  },
   data () {
     return {
       config: config(this)
@@ -90,7 +97,7 @@ export default {
       this.$router.push({ name: 'cloneAuthenticationSource', params: { id: item.id } })
     },
     remove (item) {
-      this.$store.dispatch('$_sources/deleteAuthenticationSource', item.id).then(response => {
+      this.$store.dispatch(`${this.storeName}/deleteAuthenticationSource`, item.id).then(response => {
         this.$router.go() // reload
       })
     }

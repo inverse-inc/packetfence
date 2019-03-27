@@ -31,8 +31,9 @@
           <template v-else-if="ctrlKey">{{ $t('Save & Close') }}</template>
           <template v-else>{{ $t('Save') }}</template>
         </pf-button-save>
-        <pf-button-delete v-if="isDeletable" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Admin Role?')" @on-delete="remove()"/>
         <b-button :disabled="isLoading" class="ml-1" variant="outline-primary" @click="init()">{{ $t('Reset') }}</b-button>
+        <b-button v-if="!isNew && !isClone" :disabled="isLoading" class="ml-1" variant="outline-primary" @click="clone()">{{ $t('Clone') }}</b-button>
+        <pf-button-delete v-if="isDeletable" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Admin Role?')" @on-delete="remove()"/>
       </b-card-footer>
     </template>
   </pf-config-view>
@@ -134,6 +135,9 @@ export default {
     close () {
       this.$router.push({ name: 'admin_roles' })
     },
+    clone () {
+      this.$router.push({ name: 'cloneAdminRole' })
+    },
     create () {
       const ctrlKey = this.ctrlKey
       this.$store.dispatch(`${this.storeName}/createAdminRole`, this.form).then(response => {
@@ -144,6 +148,11 @@ export default {
         }
       })
     },
+    remove (item) {
+      this.$store.dispatch('$_admin_roles/deleteAdminRole', item.id).then(response => {
+        this.close()
+      })
+    },
     save () {
       const ctrlKey = this.ctrlKey
       this.$store.dispatch(`${this.storeName}/updateAdminRole`, this.form).then(response => {
@@ -151,15 +160,17 @@ export default {
           this.close()
         }
       })
-    },
-    remove () {
-      this.$store.dispatch(`${this.storeName}/deleteAdminRole`, this.id).then(response => {
-        this.close()
-      })
     }
   },
   created () {
     this.init()
+  },
+  watch: {
+    isClone: {
+      handler: function (a, b) {
+        this.init()
+      }
+    }
   }
 }
 </script>

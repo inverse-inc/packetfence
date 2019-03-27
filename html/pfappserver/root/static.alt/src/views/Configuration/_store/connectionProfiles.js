@@ -40,14 +40,23 @@ const actions = {
       return response.items
     })
   },
-  options: (context, id) => {
+  options: ({ commit }, id) => {
+    commit('ITEM_REQUEST')
     if (id) {
       return api.connectionProfileOptions(id).then(response => {
+        commit('ITEM_SUCCESS')
         return response
+      }).catch((err) => {
+        commit('ITEM_ERROR', err.response)
+        throw err
       })
     } else {
       return api.connectionProfilesOptions().then(response => {
+        commit('ITEM_SUCCESS')
         return response
+      }).catch((err) => {
+        commit('ITEM_ERROR', err.response)
+        throw err
       })
     }
   },
@@ -88,6 +97,28 @@ const actions = {
     commit('ITEM_REQUEST', types.DELETING)
     return api.deleteConnectionProfile(data).then(response => {
       commit('ITEM_DESTROYED', data)
+      return response
+    }).catch(err => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
+  },
+  enableConnectionProfile: ({ commit }, data) => {
+    commit('ITEM_REQUEST')
+    const _data = { id: data.id, status: 'enabled' }
+    return api.updateConnectionProfile(_data).then(response => {
+      commit('ITEM_ENABLED', data)
+      return response
+    }).catch(err => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
+  },
+  disableConnectionProfile: ({ commit }, data) => {
+    commit('ITEM_REQUEST')
+    const _data = { id: data.id, status: 'disabled' }
+    return api.updateConnectionProfile(_data).then(response => {
+      commit('ITEM_DISABLED', data)
       return response
     }).catch(err => {
       commit('ITEM_ERROR', err.response)
@@ -185,6 +216,14 @@ const mutations = {
     state.itemStatus = types.SUCCESS
     Vue.set(state.cache, data.id, data)
   },
+  ITEM_ENABLED: (state, data) => {
+    state.itemStatus = types.SUCCESS
+    Vue.set(state.cache, data.id, { ...state.cache[data.id], ...data })
+  },
+  ITEM_DISABLED: (state, data) => {
+    state.itemStatus = types.SUCCESS
+    Vue.set(state.cache, data.id, { ...state.cache[data.id], ...data })
+  },
   ITEM_DESTROYED: (state, id) => {
     state.itemStatus = types.SUCCESS
     Vue.set(state.cache, id, null)
@@ -194,6 +233,9 @@ const mutations = {
     if (response && response.data) {
       state.message = response.data.message
     }
+  },
+  ITEM_SUCCESS: (state) => {
+    state.itemStatus = types.SUCCESS
   },
   FILE_REQUEST: (state, type) => {
     state.files.status = type || types.LOADING

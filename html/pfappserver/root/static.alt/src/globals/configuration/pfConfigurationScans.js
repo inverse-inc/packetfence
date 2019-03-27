@@ -6,44 +6,75 @@ import pfFormInput from '@/components/pfFormInput'
 import pfFormPassword from '@/components/pfFormPassword'
 import pfFormToggle from '@/components/pfFormToggle'
 import {
-  pfConfigurationListColumns,
-  pfConfigurationListFields,
   pfConfigurationAttributesFromMeta,
   pfConfigurationValidatorsFromMeta
 } from '@/globals/configuration/pfConfiguration'
+import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
-  or,
   and,
   not,
   conditional,
   hasScans,
-  scanExists,
-  isFQDN,
-  isPort
+  scanExists
 } from '@/globals/pfValidators'
 
-const {
-  required,
-  alphaNum,
-  integer,
-  ipAddress,
-  maxLength,
-  minValue
-} = require('vuelidate/lib/validators')
+const { required } = require('vuelidate/lib/validators')
 
 export const pfConfigurationScanEngineListColumns = [
-  { ...pfConfigurationListColumns.id, ...{ label: i18n.t('Name') } }, // re-label
-  pfConfigurationListColumns.ip,
-  pfConfigurationListColumns.port,
-  pfConfigurationListColumns.type,
-  pfConfigurationListColumns.buttons
+  {
+    key: 'id',
+    label: i18n.t('Name'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'ip',
+    label: i18n.t('IP Address'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'port',
+    label: i18n.t('Port'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'type',
+    label: i18n.t('Type'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'buttons',
+    label: '',
+    sortable: false,
+    visible: true,
+    locked: true
+  }
 ]
 
 export const pfConfigurationScanEngineListFields = [
-  { ...pfConfigurationListFields.id, ...{ text: i18n.t('Name') } }, // re-text
-  pfConfigurationListFields.ip,
-  pfConfigurationListFields.port,
-  pfConfigurationListFields.type
+  {
+    value: 'id',
+    text: i18n.t('Name'),
+    types: [conditionType.SUBSTRING]
+  },
+  {
+    value: 'ip',
+    text: i18n.t('IP Address'),
+    types: [conditionType.SUBSTRING]
+  },
+  {
+    value: 'port',
+    text: i18n.t('Port'),
+    types: [conditionType.SUBSTRING]
+  },
+  {
+    value: 'type',
+    text: i18n.t('Type'),
+    types: [conditionType.SUBSTRING]
+  }
 ]
 
 export const pfConfigurationScanEngineListConfig = (context = {}) => {

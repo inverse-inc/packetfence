@@ -110,6 +110,18 @@ export const pfConfigurationCaptivePortalViewFields = (context = {}) => {
           ]
         },
         {
+          label: i18n.t('Image path'),
+          text: i18n.t('This is the path where the gif is on the webserver to detect if the network access has been enabled.'),
+          fields: [
+            {
+              key: 'image_path',
+              component: pfFormInput,
+              attrs: pfConfigurationAttributesFromMeta(meta, 'image_path'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'image_path', 'Path')
+            }
+          ]
+        },
+        {
           label: i18n.t('Request timeout'),
           text: i18n.t('The amount of seconds before a request times out in the captive portal.'),
           fields: [

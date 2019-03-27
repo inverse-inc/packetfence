@@ -37,6 +37,13 @@ export default {
     pfConfigList,
     pfEmptyTable
   },
+  props: {
+    storeName: { // from router
+      type: String,
+      default: null,
+      required: true
+    }
+  },
   data () {
     return {
       userAgents: [], // all user agents
@@ -48,13 +55,13 @@ export default {
       this.$router.push({ name: 'cloneUserAgent', params: { id: item.id } })
     },
     remove (item) {
-      this.$store.dispatch('$_profiling/deleteUserAgent', item.id).then(response => {
+      this.$store.dispatch(`${this.storeName}/deleteUserAgent`, item.id).then(response => {
         this.$router.go() // reload
       })
     }
   },
   created () {
-    this.$store.dispatch('$_profiling/userAgents').then(data => {
+    this.$store.dispatch(`${this.storeName}/userAgents`).then(data => {
       this.userAgents = data
     })
   }
