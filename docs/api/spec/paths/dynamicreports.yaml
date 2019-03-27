@@ -17,7 +17,7 @@
                 items:
                   type: array
                   items:
-                    $ref: '#/components/schemas/DynamicReports'
+                    $ref: '#/components/schemas/DynamicReport'
               type: object
         description: Get item
 
