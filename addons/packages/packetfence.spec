@@ -461,6 +461,7 @@ done
 # systemd services
 %{__install} -D -m0644 conf/systemd/packetfence-api-frontend.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-api-frontend.service
 %{__install} -D -m0644 conf/systemd/packetfence-config.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-config.service
+%{__install} -D -m0644 conf/systemd/packetfence-tracking-config.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-tracking-config.service
 %{__install} -D -m0644 conf/systemd/packetfence-haproxy-portal.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-haproxy-portal.service
 %{__install} -D -m0644 conf/systemd/packetfence-haproxy-db.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-haproxy-db.service
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.aaa.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-httpd.aaa.service
@@ -500,6 +501,8 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence-pfipset.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-pfipset.service
 %{__install} -D -m0644 conf/systemd/packetfence-netdata.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-netdata.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfstats.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-pfstats.service
+# systemd path
+%{__install} -D -m0644 conf/systemd/packetfence-tracking-config.path $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-tracking-config.path
 
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/addons
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/addons/AD

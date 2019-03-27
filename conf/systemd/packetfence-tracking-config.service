@@ -1,0 +1,13 @@
+[Unit]
+Description=PacketFence Configuration Change Tracking
+Documentation=http://packetfence.org
+
+[Service]
+Type=oneshot
+ExecStartPre=/bin/sh -c '/usr/bin/git init /usr/local/pf/conf/;cd /usr/local/pf/conf/;/usr/bin/git add /usr/local/pf/conf/*'
+ExecStart=/bin/sh -c 'cd /usr/local/pf/conf/; /usr/bin/git commit -a -m "Commit `date +%F-%T`"'
+
+
+[Install]
+WantedBy=packetfence-base.target
+

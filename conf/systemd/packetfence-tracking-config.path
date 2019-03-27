@@ -1,0 +1,9 @@
+[Unit]
+Description=PacketFence Configuration Change Tracking
+Documentation=http://packetfence.org
+
+[Path]
+PathChanged=/usr/local/pf/conf/
+
+[Install]
+WantedBy=packetfence-base.target
