@@ -215,7 +215,7 @@ our @ROLES_TO_ACTIONS = (
         action => 'status',
     },
     {
-        roles => [qw(REPORTS)],
+        roles => [qw(REPORTS_READ)],
         action => 'reports',
     },
     {
@@ -294,7 +294,7 @@ sub status :Chained('object') :PathPart('status') :Args(0) {
 
 =cut
 
-sub reports :Chained('object') :PathPart('reports') :Args(0) :AdminRole('REPORTS') {
+sub reports :Chained('object') :PathPart('reports') :Args(0) :AdminRole('REPORTS_READ') {
     my ( $self, $c ) = @_;
 
     $c->forward('Controller::Graph', 'reports');

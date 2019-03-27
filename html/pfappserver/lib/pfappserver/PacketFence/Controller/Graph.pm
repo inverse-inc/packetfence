@@ -363,7 +363,7 @@ sub _buildGraphiteURL :Private {
 
 =cut
 
-sub dashboard :Local :AdminRole('REPORTS') {
+sub dashboard :Local :AdminRole('REPORTS_READ') {
     my ($self, $c, $start, $end) = @_;
     my $width = $c->request->param('width');
     my $tab = $c->request->param('tab') // 'system';
@@ -505,7 +505,7 @@ sub dashboard :Local :AdminRole('REPORTS') {
 
 =cut
 
-sub systemstate :Local :AdminRole('REPORTS') {
+sub systemstate :Local :AdminRole('REPORTS_READ') {
     my ($self, $c, $start, $end) = @_;
     my $graphs = [];
     my $width = $c->request->param('width');
@@ -558,7 +558,7 @@ sub systemstate :Local :AdminRole('REPORTS') {
 
 =cut
 
-sub logstate :Local :AdminRole('REPORTS') {
+sub logstate :Local :AdminRole('REPORTS_READ') {
     my ($self, $c, $start, $end) = @_;
     my $graphs = [];
     my $width = $c->request->param('width');
@@ -605,7 +605,7 @@ sub logstate :Local :AdminRole('REPORTS') {
 
 =cut
 
-sub reports :Local :AdminRole('REPORTS') {
+sub reports :Local :AdminRole('REPORTS_READ') {
     my ($self, $c, $start, $end) = @_;
 
     my @builtin_report_ids = sort { $ConfigReport{$a}->{description} cmp $ConfigReport{$b}->{description} } map { $ConfigReport{$_}->{type} eq "builtin" ? $_ : () } keys %ConfigReport;
@@ -644,7 +644,7 @@ Used in the dashboard.
 
 =cut
 
-sub registered :Path('nodes/registered') :Args(2) :AdminRole('REPORTS') {
+sub registered :Path('nodes/registered') :Args(2) :AdminRole('REPORTS_READ') {
     my ($self, $c, $start, $end) = @_;
 
     $self->_saveActiveGraph($c);
@@ -661,7 +661,7 @@ Used in the dashboard.
 
 =cut
 
-sub unregistered :Path('nodes/unregistered') :Args(2) :AdminRole('REPORTS') {
+sub unregistered :Path('nodes/unregistered') :Args(2) :AdminRole('REPORTS_READ') {
     my ($self, $c, $start, $end) = @_;
 
     $self->_saveActiveGraph($c);
@@ -678,7 +678,7 @@ Used in the dashboard.
 
 =cut
 
-sub detected :Path('nodes/detected') :Args(2) :AdminRole('REPORTS') {
+sub detected :Path('nodes/detected') :Args(2) :AdminRole('REPORTS_READ') {
     my ($self, $c, $start, $end) = @_;
 
     $self->_saveActiveGraph($c);
@@ -695,7 +695,7 @@ Used in the dashboard.
 
 =cut
 
-sub wired :Local :Args(2) :AdminRole('REPORTS') {
+sub wired :Local :Args(2) :AdminRole('REPORTS_READ') {
     my ( $self, $c, $start, $end ) = @_;
 
     $self->_saveActiveGraph($c);
@@ -712,7 +712,7 @@ Used in the dashboard.
 
 =cut
 
-sub wireless :Local :Args(2) :AdminRole('REPORTS') {
+sub wireless :Local :Args(2) :AdminRole('REPORTS_READ') {
     my ( $self, $c, $start, $end ) = @_;
 
     $self->_saveActiveGraph($c);
@@ -730,7 +730,7 @@ Used in the dashboard.
 
 =cut
 
-sub security_events_all :Local :Args(2) :AdminRole('REPORTS') {
+sub security_events_all :Local :Args(2) :AdminRole('REPORTS_READ') {
     my ($self, $c, $start, $end) = @_;
 
     $self->_saveActiveGraph($c);
@@ -747,7 +747,7 @@ Defined as a report.
 
 =cut
 
-sub nodes :Local :AdminRole('REPORTS') {
+sub nodes :Local :AdminRole('REPORTS_READ') {
     my ($self, $c, $start, $end) = @_;
 
     $self->_saveRange($c, $REPORTS, $start, $end);
@@ -797,7 +797,7 @@ Defined as a report.
 
 =cut
 
-sub security_events :Local :AdminRole('REPORTS') {
+sub security_events :Local :AdminRole('REPORTS_READ') {
     my ($self, $c, $start, $end) = @_;
 
     $self->_saveRange($c, $REPORTS, $start, $end);
@@ -814,7 +814,7 @@ Defined as a report.
 
 =cut
 
-sub os :Local :AdminRole('REPORTS') {
+sub os :Local :AdminRole('REPORTS_READ') {
     my ($self, $c, $start, $end) = @_;
 
     $self->_saveRange($c, $REPORTS, $start, $end);
@@ -838,7 +838,7 @@ Defined as a report.
 
 =cut
 
-sub connectiontype :Local :AdminRole('REPORTS') {
+sub connectiontype :Local :AdminRole('REPORTS_READ') {
     my ($self, $c, $start, $end) = @_;
 
     $self->_saveRange($c, $REPORTS, $start, $end);
@@ -860,7 +860,7 @@ Defined as a report.
 
 =cut
 
-sub ssid :Local :AdminRole('REPORTS') {
+sub ssid :Local :AdminRole('REPORTS_READ') {
     my ($self, $c, $start, $end) = @_;
 
     $self->_saveRange($c, $REPORTS, $start, $end);
@@ -882,7 +882,7 @@ Defined as a report.
 
 =cut
 
-sub nodebandwidth :Local :AdminRole('REPORTS') {
+sub nodebandwidth :Local :AdminRole('REPORTS_READ') {
     my ($self, $c, $option, $start, $end) = @_;
 
     $option = 'accttotal' unless ($option && $option =~ m/^(accttotal|acctinput|acctoutput)$/);
@@ -926,7 +926,7 @@ Defined as a report.
 
 =cut
 
-sub osclassbandwidth :Local :AdminRole('REPORTS') {
+sub osclassbandwidth :Local :AdminRole('REPORTS_READ') {
     my ( $self, $c, $start, $end ) = @_;
 
     my $option = 'accttotal'; # we only support this field
@@ -948,7 +948,7 @@ Defined as a report.
 
 =cut
 
-sub topauthenticationfailures_by_mac :Local :AdminRole('REPORTS') {
+sub topauthenticationfailures_by_mac :Local :AdminRole('REPORTS_READ') {
     my ( $self, $c, $start, $end ) = @_;
     $self->_saveRange($c, $REPORTS, $start, $end);
     $self->_graphPie($c, $c->loc('Top Authentication Failures'), $REPORTS,
@@ -967,7 +967,7 @@ Defined as a report.
 
 =cut
 
-sub topauthenticationfailures_by_ssid :Local :AdminRole('REPORTS') {
+sub topauthenticationfailures_by_ssid :Local :AdminRole('REPORTS_READ') {
     my ( $self, $c, $start, $end ) = @_;
     $self->_saveRange($c, $REPORTS, $start, $end);
     $self->_graphPie($c, $c->loc('Top Authentication Failures'), $REPORTS,
@@ -986,7 +986,7 @@ Defined as a report.
 
 =cut
 
-sub topauthenticationfailures_by_username :Local :AdminRole('REPORTS') {
+sub topauthenticationfailures_by_username :Local :AdminRole('REPORTS_READ') {
     my ( $self, $c, $start, $end ) = @_;
     $self->_saveRange($c, $REPORTS, $start, $end);
     $self->_graphPie($c, $c->loc('Top Authentication Failures'), $REPORTS,
@@ -1005,7 +1005,7 @@ Defined as a report.
 
 =cut
 
-sub topauthenticationsuccesses_by_mac :Local :AdminRole('REPORTS') {
+sub topauthenticationsuccesses_by_mac :Local :AdminRole('REPORTS_READ') {
     my ( $self, $c, $start, $end ) = @_;
     $self->_saveRange($c, $REPORTS, $start, $end);
     $self->_graphPie($c, $c->loc('Top Authentication Successes'), $REPORTS,
@@ -1024,7 +1024,7 @@ Defined as a report.
 
 =cut
 
-sub topauthenticationsuccesses_by_ssid :Local :AdminRole('REPORTS') {
+sub topauthenticationsuccesses_by_ssid :Local :AdminRole('REPORTS_READ') {
     my ( $self, $c, $start, $end ) = @_;
     $self->_saveRange($c, $REPORTS, $start, $end);
     $self->_graphPie($c, $c->loc('Top Authentication Successes'), $REPORTS,
@@ -1043,7 +1043,7 @@ Defined as a report.
 
 =cut
 
-sub topauthenticationsuccesses_by_username :Local :AdminRole('REPORTS') {
+sub topauthenticationsuccesses_by_username :Local :AdminRole('REPORTS_READ') {
     my ( $self, $c, $start, $end ) = @_;
     $self->_saveRange($c, $REPORTS, $start, $end);
     $self->_graphPie($c, $c->loc('Top Authentication Successes'), $REPORTS,
@@ -1062,7 +1062,7 @@ Defined as a report.
 
 =cut
 
-sub topauthenticationsuccesses_by_computername :Local :AdminRole('REPORTS') {
+sub topauthenticationsuccesses_by_computername :Local :AdminRole('REPORTS_READ') {
     my ( $self, $c, $start, $end ) = @_;
     $self->_saveRange($c, $REPORTS, $start, $end);
     $self->_graphPie($c, $c->loc('Top Authentication Successes'), $REPORTS,

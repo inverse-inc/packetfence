@@ -26,14 +26,14 @@ __PACKAGE__->config(
     }
 );
 
-sub index :Path :Args(1) :AdminRole('REPORTS') {
+sub index :Path :Args(1) :AdminRole('REPORTS_READ') {
     my ($self, $c, $report_id) = @_;
 
     $c->stash->{template} = "dynamicreport/index.tt";
     $c->forward("_search", [$report_id]);
 }
 
-sub search :Local :AdminRole('REPORTS') {
+sub search :Local :AdminRole('REPORTS_READ') {
     my ($self, $c) = @_;
 
     my $report_id = $c->req->param('report_id');
@@ -47,7 +47,7 @@ sub search :Local :AdminRole('REPORTS') {
     $c->forward("_search", [$report_id, $search]);
 }
 
-sub _search :AdminRole('REPORTS') {
+sub _search :AdminRole('REPORTS_READ') {
     my ($self, $c, $report_id, $form) = @_;
     my $report = $c->stash->{report} = pf::factory::report->new($report_id);
 

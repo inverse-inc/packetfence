@@ -13,7 +13,7 @@
               <li class="divider-horizontal"></li>
             </ul>
             <ul class="nav nav-list">
-              [%- IF can_access("REPORTS") %]
+              [%- IF can_access("REPORTS_READ") %]
               <li class="section active">
                 <a href="#graph/dashboard">[% l('Dashboard') %]</a>
                 <ul class="nav nav-list">
