@@ -5,7 +5,7 @@ use warnings;
 
 use Moo;
 use pf::constants::pfqueue qw(
-    $STATUS_SUCCEEDED
+    $STATUS_COMPLETED
     $STATUS_KEY
     $STATUS_MSG_KEY
     $SUB_TASKS_KEY
@@ -41,7 +41,7 @@ sub reset_state {
 sub set_status {
     my ($self, $status) = @_;
 
-    if($status eq $STATUS_SUCCEEDED) {
+    if($status eq $STATUS_COMPLETED) {
         $self->set_progress(100);
     }
     $self->set_in_status_hash($STATUS_KEY, $status);
@@ -87,7 +87,8 @@ sub set_in_status_hash {
     
     # TODO: error validation and logging and exec
     $self->connection->expire($self->status_key, $self->status_ttl);
-    return $self->connection->hset($self->status_key, $key, $data);
+    $self->connection->hset($self->status_key, $key, $data);
+    $self->connection->publish($self->status_publish_key, 1)
 }
 
 sub status_key {
@@ -95,5 +96,9 @@ sub status_key {
     return $self->task_id."-Status";
 }
 
+sub status_publish_key {
+    my ($self) = @_;
+    return $self->status_key . "-Updates";
+}
 
 1;
