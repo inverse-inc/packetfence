@@ -49,7 +49,7 @@ $t->post_ok($collection_base_url, {'Content-Type' => 'application/json'} => '{')
 $t->get_ok("$base_url/172.16.0.0%2f16")
   ->status_is(200);
 
-$t->get_ok("$base_url/172.16.0.0-16")
+$t->get_ok("$base_url/172.16.0.0~16")
   ->status_is(200);
 
 =head1 AUTHOR
