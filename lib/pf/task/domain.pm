@@ -2,13 +2,13 @@ package pf::task::domain;
 
 =head1 NAME
 
-pf::task::log - Task for looking up informations on a person
+pf::task::domain
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::task::log
+Task to perform long-running AD domain operations (join, unjoin, rejoin)
 
 =cut
 
