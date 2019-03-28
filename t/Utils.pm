@@ -14,6 +14,7 @@ use strict;
 use warnings;
 use pf::util;
 use pf::node;
+use pf::person;
 
 sub test_mac {
     my $mac = random_mac();
@@ -24,8 +25,21 @@ sub test_mac {
     return $mac;
 }
 
+sub test_pid {
+    my $pid = random_pid();
+    while (person_exist($pid)) {
+        $pid = random_pid();
+    }
+
+    return $pid;
+}
+
 sub random_mac {
     return clean_mac(unpack("h*", pack("S", int(rand(65536)))) . unpack("h*", pack("N", $$ + rand(2147352576))));
+}
+
+sub random_pid {
+    return "test_pid_" . ($$ + int(rand(2147352576)));
 }
 
 =head1 AUTHOR

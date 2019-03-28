@@ -98,7 +98,7 @@ sub bulk_register {
 
     my $items = $data->{items} // [];
     ($status, my $iter) = $self->dal->search(
-        -columns => [qw(mac pid)],
+        -columns => [qw(mac pid node.category_id)],
         -where => {
             mac => { -in => $items},
             status => { "!=" => $pf::node::STATUS_REGISTERED }
@@ -113,7 +113,7 @@ sub bulk_register {
     my $nodes = $iter->all;
     for my $node (@$nodes) {
         my $mac = $node->{mac};
-        my ($result, $msg) = node_register($mac, $node->{pid});
+        my ($result, $msg) = node_register($mac, $node->{pid}, category_id => delete $node->{category_id});
         my $index = $indexes->{$mac};
         if ($result) {
             $results->[$index]{status} = "success";
