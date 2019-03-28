@@ -1,7 +1,7 @@
 /preference/{preference_id}:
   delete:
     description: Remove an item
-    operationId: api.v1.Preferences.remove
+    operationId: api.v1.Preferences.resource.remove
     parameters:
     - in: path
       name: preference_id
@@ -37,7 +37,7 @@
         $ref: '#/components/responses/UnprocessableEntity'
   put:
     description: Replace an item
-    operationId: api.v1.Ip4logs.replace
+    operationId: api.v1.Preferences.resource.replace
     parameters:
     - in: path
       name: preference_id
