@@ -115,6 +115,7 @@ sub setup_api_v1_routes {
     $self->setup_api_v1_authentication_routes($api_v1_route);
     $self->setup_api_v1_queues_routes($api_v1_route);
     $self->setup_api_v1_translations_routes($api_v1_route);
+    $self->setup_api_v1_preferences_routes($api_v1_route);
 }
 
 sub custom_startup_hook {
@@ -1227,6 +1228,22 @@ sub setup_api_v1_translations_routes {
       ->to(controller => "Translations", action => "resource")
       ->name("api.v1.Config.Translations.resource");
     $resource_route->any(['GET'])->to(action => "get")->name("api.v1.Config.Translations.resource.get");
+    return ($collection_route, $resource_route);
+}
+
+=head2 setup_api_v1_preferences_routes
+
+setup_api_v1_preferences_routes
+
+=cut
+
+sub setup_api_v1_preferences_routes {
+    my ($self, $root) = @_;
+    my $collection_route = $root->any(['GET'] => "/preferences")->to("Preferences#list")->name("api.v1.Config.Preferences.list");
+    my $resource_route = $root->under("/preference/#preference_id")->to("Preferences#resource")->name("api.v1.Config.Preferences.resource");
+    $resource_route->any(['GET'])->to("Preferences#get")->name("api.v1.Config.Preferences.resource.get");
+    $resource_route->any(['PUT'])->to("Preferences#replace")->name("api.v1.Config.Preferences.resource.replace");
+    $resource_route->any(['DELETE'])->to("Preferences#delete")->name("api.v1.Config.Preferences.resource.delete");
     return ($collection_route, $resource_route);
 }
 

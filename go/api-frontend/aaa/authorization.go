@@ -21,7 +21,12 @@ type adminRoleMapping struct {
 	role   string
 }
 
+const ALLOW_ANY = "*"
+
 var pathAdminRolesMap = []adminRoleMapping{
+	adminRoleMapping{prefix: apiPrefix + "/preference/", role: ALLOW_ANY},
+	adminRoleMapping{prefix: apiPrefix + "/preferences", role: ALLOW_ANY},
+
 	adminRoleMapping{prefix: apiPrefix + "/node/", role: "NODES"},
 	adminRoleMapping{prefix: apiPrefix + "/nodes", role: "NODES"},
 	adminRoleMapping{prefix: apiPrefix + "/user/", role: "USERS"},
@@ -133,6 +138,8 @@ func (tam *TokenAuthorizationMiddleware) BearerRequestIsAuthorized(ctx context.C
 	}
 	r.Header.Set("X-PacketFence-Admin-Roles", strings.Join(roles, ","))
 
+	r.Header.Set("X-PacketFence-Username", tokenInfo.Username)
+
 	return tam.IsAuthorized(ctx, r.Method, r.URL.Path, tenantId, tokenInfo)
 }
 
@@ -204,6 +211,10 @@ func (tam *TokenAuthorizationMiddleware) isAuthorizedAdminActions(ctx context.Co
 		msg := fmt.Sprintf("Impossible to find admin role suffix for unknown method %s", method)
 		log.LoggerWContext(ctx).Warn(msg)
 		return false, errors.New(msg)
+	}
+
+	if baseAdminRole == ALLOW_ANY {
+		return true, nil
 	}
 
 	adminRole := baseAdminRole + suffix
