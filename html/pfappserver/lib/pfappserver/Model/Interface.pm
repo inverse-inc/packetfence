@@ -21,6 +21,9 @@ use pf::error qw(is_error is_success);
 use pf::util;
 use pf::util::IP;
 use pf::log;
+use pfappserver::Model::Config::Network;
+use pfappserver::Model::Config::Interface;
+use pfappserver::Model::Config::System;
 
 extends 'Catalyst::Model';
 
@@ -811,9 +814,9 @@ sub ACCEPT_CONTEXT {
        $object = $proto->new;
     }
     $object->{models} = {
-        'network' => $c->model('Config::Network'),
-        'interface' => $c->model('Config::Interface'),
-        'system' => $c->model('Config::System'),
+        'network' => pfappserver::Model::Config::Network->new,
+        'interface' => pfappserver::Model::Config::Interface->new,
+        'system' => pfappserver::Model::Config::System->new,
     };
     return $object;
 }

@@ -116,6 +116,7 @@ sub setup_api_v1_routes {
     $self->setup_api_v1_queues_routes($api_v1_route);
     $self->setup_api_v1_translations_routes($api_v1_route);
     $self->setup_api_v1_preferences_routes($api_v1_route);
+    $self->setup_api_v1_config_interfaces_routes($api_v1_route);
 }
 
 sub custom_startup_hook {
@@ -1457,6 +1458,26 @@ sub setup_api_v1_reports_routes {
       ->to("Reports#topauthenticationsuccesses_by_computername")
       ->name("api.v1.Reports.topauthenticationsuccesses_by_computername");
     return ( undef, undef );
+}
+
+=head2 setup_api_v1_config_interfaces_routes
+
+setup_api_v1_config_interfaces_routes
+
+=cut
+
+sub setup_api_v1_config_interfaces_routes {
+    my ($self, $root) = @_;
+    my $collection_route = $root->any("/config/interfaces");
+    $collection_route->any(['GET'] => "/")->to("Config::Interfaces#list")->name("api.v1.Config.Interfaces.list");
+    $collection_route->any(['POST'] => "/")->to("Config::Interfaces#create")->name("api.v1.Config.Interfaces.create");
+    my $resource_route = $root->under("/config/interface/#interface_id")->to("Config::Interfaces#resource")->name("api.v1.Config.Interfaces.resource");
+    $resource_route->any(['GET'] => "/")->to("Config::Interfaces#get")->name("api.v1.Config.Interfaces.get");
+    $resource_route->any(['PUT'] => "/")->to("Config::Interfaces#update")->name("api.v1.Config.Interfaces.update");
+    $resource_route->any(['DELETE'] => "/")->to("Config::Interfaces#delete")->name("api.v1.Config.Interfaces.delete");
+    $resource_route->any(['POST'] => "/up")->to("Config::Interfaces#up")->name("api.v1.Config.Interfaces.up");
+    $resource_route->any(['POST'] => "/down")->to("Config::Interfaces#down")->name("api.v1.Config.Interfaces.down");
+    return (undef, $resource_route);
 }
 
 =head2 setup_api_v1_cluster_routes
