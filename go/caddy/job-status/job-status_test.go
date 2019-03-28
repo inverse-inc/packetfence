@@ -13,7 +13,7 @@ import (
 )
 
 var ctx = log.LoggerNewContext(context.Background())
-var jobStatus, err = buildJobStatusHandler(ctx)
+var jobStatus, _ = buildJobStatusHandler(ctx)
 
 func TestJobStatusHandleStatus(t *testing.T) {
 	req, _ := http.NewRequest(
