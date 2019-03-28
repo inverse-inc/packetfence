@@ -169,8 +169,10 @@ sub page_count {
     my ($self, %infos) = @_;
     $self->ensure_default_infos(\%infos);
     my ($sql, $params) = $self->generate_sql_query(%infos, count_only => 1);
-    my @results = $self->_db_data($sql, @$params);
-    my $pages = $results[0]->{count} / $infos{per_page};
+    my ($status, $results) = $self->_db_data($sql, @$params);
+    return undef if(is_error($status));
+
+    my $pages = $results->[0]->{count} / $infos{per_page};
     return (($pages == int($pages)) ? $pages : int($pages + 1));
 }
 
@@ -180,7 +182,7 @@ sub _db_data {
     my ( $ref, @array );
     my ($status, $sth) = pf::dal->db_execute($sql, @params);
     if (is_error($status)) {
-        return;
+        return ($status);
     }
     # Going through data as array ref and putting it in ordered hash to respect the order of the select in the final report
     my $fields = $sth->{NAME};
@@ -190,7 +192,7 @@ sub _db_data {
         push( @array, \%record );
     }
     $sth->finish();
-    return (@array);
+    return (200, \@array);
 }
 
 =head2 is_person_field

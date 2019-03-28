@@ -57,12 +57,17 @@ sub search {
         per_page => $json->{limit},
         order => $json->{sort},
     );
-    my @data = $report->query(%info);
+    ($status, my $data) = $report->query(%info);
+
+    if(is_error($status)) {
+        return $self->render_error($status, "Failed executing search on report. Check server-side logs for details.");
+    }
+
     my $page_count = $report->page_count(%info);
 
     return $self->render(
         json   => { 
-            items => \@data,
+            items => $data,
             nextCursor => $page < $page_count ? $page+1 : undef,
             previousCursor => ($page eq 1 ? undef : $page-1),
         },

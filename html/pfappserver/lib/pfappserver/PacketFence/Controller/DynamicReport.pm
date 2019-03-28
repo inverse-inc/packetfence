@@ -71,10 +71,10 @@ sub _search :AdminRole('REPORTS_READ') {
     $infos{start_date} = $form->{start}->{date} . " " . $form->{start}->{time} if($form->{start});
     $infos{end_date} = $form->{end}->{date} . " " . $form->{end}->{time} if($form->{end});
 
-    my @items = $report->query(%infos);
+    my ($status, $items) = $report->query(%infos);
 
     $c->stash->{searches} = $report->searches;
-    $c->stash->{items} = \@items;
+    $c->stash->{items} = $items;
     $c->stash->{page_count} = $report->page_count(%infos);
 
     if ($c->request->param('export')) {
