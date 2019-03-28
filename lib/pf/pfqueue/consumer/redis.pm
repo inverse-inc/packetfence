@@ -135,6 +135,7 @@ sub process_next_job {
                 my $result;
                 eval {
                     $task->status_updater->set_status($STATUS_IN_PROGRESS);
+                    $task->status_updater->set_progress(0);
                     $result = $task->doTask($args);
                 };
                 if($@) {
