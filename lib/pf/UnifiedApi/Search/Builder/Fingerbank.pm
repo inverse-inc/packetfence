@@ -107,7 +107,7 @@ sub search {
         prevCursor => $offset,
         ( defined $nextCursor ? ( nextCursor => $nextCursor ) : () ),
         items => \@items,
-        scope => $search_info->{scope},
+        scope => lc($search_info->{scope}),
     };
 }
 
