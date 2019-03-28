@@ -21,6 +21,9 @@
 
   api-aaa
 
+  # Job status access
+  job-status
+
   # pfipset API access
   proxy /api/v1/ipset/ 127.0.0.1:22223 {
     transparent

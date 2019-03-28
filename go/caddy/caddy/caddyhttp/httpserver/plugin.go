@@ -458,6 +458,9 @@ var directives = []string{
 	// PACKETFENCE AAA for the API
 	"api-aaa",
 
+	// Job status that takes precedence over proxying
+	"job-status",
+
 	"redir",
 	"status",
 	"mime",
