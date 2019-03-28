@@ -17,26 +17,25 @@ extends 'HTML::FormHandler::Field::Compound';
 has '+inflate_default_method'=> ( default => sub { \&inflate } );
 has '+deflate_value_method'=> ( default => sub { \&deflate } );
 
-use pf::constants::trigger qw(
-        $TRIGGER_TYPE_ACCOUNTING $TRIGGER_TYPE_DETECT $TRIGGER_TYPE_INTERNAL $TRIGGER_TYPE_MAC $TRIGGER_TYPE_NESSUS $TRIGGER_TYPE_OPENVAS $TRIGGER_TYPE_OS $TRIGGER_TYPE_USERAGENT $TRIGGER_TYPE_VENDORMAC $TRIGGER_TYPE_PROVISIONER $TRIGGER_TYPE_SWITCH $TRIGGER_TYPE_SWITCH_GROUP 
-        $SURICATA_CATEGORIES
-        $TRIGGER_MAP
-);
+use pf::constants::trigger qw($TRIGGER_MAP);
+use pf::factory::condition::security_event;
 
-for my $trigger ($TRIGGER_TYPE_ACCOUNTING, $TRIGGER_TYPE_DETECT, $TRIGGER_TYPE_MAC, $TRIGGER_TYPE_NESSUS, $TRIGGER_TYPE_OPENVAS, $TRIGGER_TYPE_OS, $TRIGGER_TYPE_USERAGENT, $TRIGGER_TYPE_VENDORMAC) {
-    has_field $trigger => (
-        type => 'Text'
-    );
+for my $trigger (keys %pf::factory::condition::security_event::TRIGGER_TYPE_TO_CONDITION_TYPE) {
+    if (exists $TRIGGER_MAP->{$trigger}) {
+        my $value = $TRIGGER_MAP->{$trigger};
+        has_field $trigger => (
+            type => 'Select',
+            options_method => sub {
+                return map { { label => $_, value => $_ } } keys %$value;
+            },
+        );
+    } else {
+        has_field $trigger => (
+            type => 'Text'
+        );
+    }
 }
 
-while (my ($trigger, $value) = each %$TRIGGER_MAP) {
-    has_field $trigger => (
-        type => 'Select',
-        options_method => sub {
-            return map { { label => $_, value => $_ } } keys %$value;
-        },
-    );
-}
 
 =head2 inflate
 
