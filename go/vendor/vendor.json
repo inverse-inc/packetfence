@@ -235,12 +235,54 @@
 			"path": "github.com/go-sql-driver/mysql",
 			"revision": "c0f6b444ad8f92ecd68f86b27635c1fccdede4c4",
 			"revisionTime": "2019-03-30T03:22:41Z"
+    },
+    {
+			"checksumSHA1": "JgW+/7IxAjIX6qy+RptnkDPMGoc=",
+			"path": "github.com/go-redis/redis",
+			"revision": "4021ace05686f632ff17fd824bbed229fc474cf8",
+			"revisionTime": "2018-01-17T11:13:24Z"
 		},
 		{
-			"checksumSHA1": "rAnxK4LbUVYQh6VwXkq/89JaroY=",
+			"checksumSHA1": "Gq7KK0WW5C4L0dlMLyCcDpO2eF8=",
+			"path": "github.com/go-redis/redis/internal",
+			"revision": "4021ace05686f632ff17fd824bbed229fc474cf8",
+			"revisionTime": "2018-01-17T11:13:24Z"
+		},
+		{
+			"checksumSHA1": "GQZsUVg/+6UpQAYpc4luMvMutSI=",
+			"path": "github.com/go-redis/redis/internal/consistenthash",
+			"revision": "4021ace05686f632ff17fd824bbed229fc474cf8",
+			"revisionTime": "2018-01-17T11:13:24Z"
+		},
+		{
+			"checksumSHA1": "GE9tg94JwCzMbBwn3Q2LaFs5Rx0=",
+			"path": "github.com/go-redis/redis/internal/hashtag",
+			"revision": "4021ace05686f632ff17fd824bbed229fc474cf8",
+			"revisionTime": "2018-01-17T11:13:24Z"
+		},
+		{
+			"checksumSHA1": "AtcctlDri3zLh6U5sDnT4NULEtw=",
+			"path": "github.com/go-redis/redis/internal/pool",
+			"revision": "4021ace05686f632ff17fd824bbed229fc474cf8",
+			"revisionTime": "2018-01-17T11:13:24Z"
+		},
+		{
+			"checksumSHA1": "n6+hS4r0iALcWYsp3d2KXT0ZkXk=",
+			"path": "github.com/go-redis/redis/internal/proto",
+			"revision": "4021ace05686f632ff17fd824bbed229fc474cf8",
+			"revisionTime": "2018-01-17T11:13:24Z"
+		},
+		{
+			"checksumSHA1": "lHdDuOop/t5K+OPmoIn6NaKb1v4=",
+			"path": "github.com/go-redis/redis_rate",
+			"revision": "31124b3ea0f4403d26bb09997338e5c78828cf99",
+			"revisionTime": "2017-09-05T14:18:04Z"
+		},
+		{
+			"checksumSHA1": "ZbU8qGzETzJZ2t30LmHxla5PLMY=",
 			"path": "github.com/go-sql-driver/mysql",
-			"revision": "cd4cb909ce1a31435164be29bf3682031f61539a",
-			"revisionTime": "2017-11-17T11:51:24Z"
+			"revision": "bc14601d1bd56421dd60f561e6052c9ed77f9daf",
+			"revisionTime": "2018-01-25T05:47:45Z"
 		},
 		{
 			"checksumSHA1": "luu+ud4XYZhlCoNnSAwCJlbh0Bg=",
