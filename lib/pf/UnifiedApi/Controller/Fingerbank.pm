@@ -169,7 +169,7 @@ sub build_list_search_info {
 
 sub get {
     my ($self) = @_;
-    return $self->render(json => { item => $self->item, scope => lc($self->stash->{scope}}));
+    return $self->render(json => { item => $self->item, scope => lc($self->stash->{scope})});
 }
 
 =head2 search
