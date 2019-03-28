@@ -210,6 +210,8 @@ sub setup_api_v1_config_routes {
     $self->setup_api_v1_config_firewalls_routes($root);
     $self->setup_api_v1_config_floating_devices_routes($root);
     $self->setup_api_v1_config_maintenance_tasks_routes($root);
+    $self->setup_api_v1_config_l2_networks_routes($root);
+    $self->setup_api_v1_config_routed_networks_routes($root);
     $self->setup_api_v1_config_pki_providers_routes($root);
     $self->setup_api_v1_config_portal_modules_routes($root);
     $self->setup_api_v1_config_provisionings_routes($root);
@@ -1020,6 +1022,45 @@ sub setup_api_v1_config_security_events_routes {
         "/security_events",
         "/security_event/#security_event_id",
         "api.v1.Config.SecurityEvents"
+    );
+
+    return ($collection_route, $resource_route);
+}
+
+=head2 setup_api_v1_config_l2_networks_routes
+
+setup_api_v1_config_l2_networks_routes
+
+=cut
+
+sub setup_api_v1_config_l2_networks_routes {
+    my ($self, $root) = @_;
+    my $collection_route = $root->any("/l2_networks")->name("api.v1.Config.L2Networks");
+    $collection_route->any(['GET'] => "/")->to("Config::L2Networks#list")->name("api.v1.Config.L2Networks.list");
+    $collection_route->any(['OPTIONS'] => "/")->to("Config::L2Networks#options")->name("api.v1.Config.L2Networks.options");
+    my $resource_route = $root->under("/l2_network/#network_id")->to("Config::L2Networks#resource")->name("api.v1.Config.L2Networks.resource");
+    $resource_route->any(['GET'] => "/")->to("Config::L2Networks#get")->name("api.v1.Config.L2Networks.get");
+    $resource_route->any(['PATCH'] => "/")->to("Config::L2Networks#update")->name("api.v1.Config.L2Networks.update");
+    $resource_route->any(['PUT'] => "/")->to("Config::L2Networks#replace")->name("api.v1.Config.L2Networks.replace");
+    $resource_route->any(['OPTIONS'] => "/")->to("Config::L2Networks#resource_options")->name("api.v1.Config.L2Networks.resource_options");
+    return (undef, $resource_route);
+}
+
+=head2 setup_api_v1_config_routed_networks_routes
+
+setup_api_v1_config_routed_networks_routes
+
+=cut
+
+sub setup_api_v1_config_routed_networks_routes {
+    my ($self, $root) = @_;
+    my ($collection_route, $resource_route) =
+      $self->setup_api_v1_std_config_routes(
+        $root,
+        "Config::RoutedNetworks",
+        "/routed_networks",
+        "/routed_network/#network_id",
+        "api.v1.Config.RoutedNetworks"
     );
 
     return ($collection_route, $resource_route);
