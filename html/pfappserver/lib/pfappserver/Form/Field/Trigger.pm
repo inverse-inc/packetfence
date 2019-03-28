@@ -56,7 +56,7 @@ sub inflate {
     }
 
     for my $t (split(/\&/, $value)) {
-        my ($k, $v) = split (/::/, $value, 2);
+        my ($k, $v) = split (/::/, $t, 2);
         $trigger{lc($k)} = $v;
     }
 
