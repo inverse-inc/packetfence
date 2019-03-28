@@ -8,7 +8,6 @@ import (
 
 	"git.inverse.ca/inverse/fingerbank-processor/sharedutils"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/go-redis/redis"
 
 	"github.com/inverse-inc/packetfence/go/caddy/caddy"
@@ -69,8 +68,6 @@ func buildJobStatusHandler(ctx context.Context) (JobStatusHandler, error) {
 
 	jobStatus.router = router
 
-	spew.Dump(jobStatus.redis)
-
 	return jobStatus, nil
 }
 
@@ -108,9 +105,9 @@ func (h JobStatusHandler) writeJobStatus(ctx context.Context, jobId string, w ht
 
 	if err != nil {
 		msg := "Unable to get job status from redis database"
+		w.WriteHeader(http.StatusInternalServerError)
 		h.writeMessage(ctx, msg, w)
 		log.LoggerWContext(ctx).Error(msg)
-		w.WriteHeader(http.StatusInternalServerError)
 	} else {
 		res, _ := json.Marshal(data)
 		w.WriteHeader(http.StatusOK)
@@ -125,6 +122,17 @@ func (h JobStatusHandler) handleStatus(w http.ResponseWriter, r *http.Request, p
 	jobId := p.ByName("job_id")
 	statusKey := h.jobStatusKey(jobId)
 
+	if statusExists, err := h.keyExists(ctx, statusKey); err != nil {
+		msg := "Unable to check if job status exists in redis database"
+		w.WriteHeader(http.StatusInternalServerError)
+		h.writeMessage(ctx, msg, w)
+		log.LoggerWContext(ctx).Error(msg)
+		return
+	} else if statusExists {
+		h.writeJobStatus(ctx, jobId, w)
+		return
+	}
+
 	if jobExists, err := h.keyExists(ctx, jobId); err != nil {
 		msg := "Unable to check if job exists in redis database"
 		h.writeMessage(ctx, msg, w)
@@ -136,21 +144,12 @@ func (h JobStatusHandler) handleStatus(w http.ResponseWriter, r *http.Request, p
 		})
 		w.WriteHeader(http.StatusOK)
 		fmt.Fprintf(w, string(res))
-		return
-	}
-
-	if statusExists, err := h.keyExists(ctx, statusKey); err != nil {
-		msg := "Unable to check if job status exists in redis database"
-		h.writeMessage(ctx, msg, w)
-		log.LoggerWContext(ctx).Error(msg)
-		w.WriteHeader(http.StatusInternalServerError)
-	} else if statusExists {
-		h.writeJobStatus(ctx, jobId, w)
 	} else {
 		// Job is not pending and no status found, it either has expired or never existed, return a 404
-		h.writeMessage(ctx, "Unable to find pending, running or completed job status", w)
 		w.WriteHeader(http.StatusNotFound)
+		h.writeMessage(ctx, "Unable to find pending, running or completed job status", w)
 	}
+
 }
 
 func (h JobStatusHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
