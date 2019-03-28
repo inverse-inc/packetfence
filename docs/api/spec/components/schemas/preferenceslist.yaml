@@ -1,4 +1,4 @@
-Ip4logsList:
+PreferencesList:
   allOf:
   - $ref: '#/components/schemas/Iterable'
   - properties:

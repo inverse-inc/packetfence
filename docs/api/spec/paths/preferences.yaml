@@ -8,7 +8,7 @@
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PreferencessList'
+              $ref: '#/components/schemas/PreferencesList'
         description: List
       '400':
         $ref: '#/components/responses/BadRequest'
