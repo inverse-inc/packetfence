@@ -2,9 +2,15 @@
   <div>
     <slot name="pageHeader"></slot>
     <pf-search ref="pfSearch"
-      :quick-with-fields="false" :quick-placeholder="$t(config.searchPlaceholder)"
-      :fields="fields" :store="$store" :advanced-mode="false" :condition="condition"
-      @submit-search="onSearch" @reset-search="onReset"></pf-search>
+      :quick-with-fields="false"
+      :quick-placeholder="$t(config.searchPlaceholder)"
+      :fields="fields"
+      :store="$store"
+      :advanced-mode="false"
+      :condition="condition"
+      @submit-search="onSearch"
+      @reset-search="onReset"
+    ></pf-search>
     <div class="card-body">
       <b-row align-h="end" align-v="start">
         <b-col>
@@ -25,9 +31,17 @@
       </b-row>
       <slot name="tableHeader"></slot>
       <b-table class="table-clickable"
-        :items="items" :fields="visibleColumns" :sort-by="sortBy" :sort-desc="sortDesc"
-        @sort-changed="onSortingChanged" @row-clicked="onRowClick"
-        show-empty responsive :hover="items.length > 0" fixed>
+        :items="items"
+        :fields="visibleColumns"
+        :sort-by="sortBy"
+        :sort-desc="sortDesc"
+        :hover="items.length > 0"
+        @sort-changed="onSortingChanged"
+        @row-clicked="onRowClick"
+        show-empty
+        responsive
+        fixed
+      >
         <slot name="emptySearch" slot="empty" v-bind="{ isLoading }">
           <pf-empty-table :isLoading="isLoading">{{ $t('No results found') }}</pf-empty-table>
         </slot>
@@ -66,9 +80,7 @@ export default {
       default: () => ({
         columns: [],
         fields: [],
-        rowClickRoute (item, index) {
-          return {}
-        },
+        rowClickRoute (item, index) { return {} },
         searchPlaceholder: 'Search',
         searchableOptions: {
           searchApiEndpoint: null,
@@ -113,10 +125,10 @@ export default {
     columns () {
       return this.config.columns
     },
-    pfMixinSearchableOptions () {
+    searchableOptions () {
       return this.config.searchableOptions
     },
-    pfMixinSearchableQuickCondition () {
+    searchableQuickCondition () {
       return this.config.searchableQuickCondition
     }
   },

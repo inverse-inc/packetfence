@@ -49,16 +49,16 @@ export default {
           items: [
             { name: this.$i18n.t('Fingerbank Profiling'),
               items: [
-                { name: this.$i18n.t('General Settings'), path: '/configuration/profiling/general_settings' },
-                { name: this.$i18n.t('Device change detection'), path: '/configuration/profiling/device_change_detection' },
-                { name: this.$i18n.t('Combinations'), path: '/configuration/profiling/combinations' },
-                { name: this.$i18n.t('Devices'), path: '/configuration/profiling/devices' },
-                { name: this.$i18n.t('DHCP Fingerprints'), path: '/configuration/profiling/dhcp_fingerprints' },
-                { name: this.$i18n.t('DHCP Vendors'), path: '/configuration/profiling/dhcp_vendors' },
-                { name: this.$i18n.t('DHCPv6 Fingerprints'), path: '/configuration/profiling/dhcpv6_fingerprints' },
-                { name: this.$i18n.t('DHCPv6 Enterprises'), path: '/configuration/profiling/dhcpv6_enterprises' },
-                { name: this.$i18n.t('MAC Vendors'), path: '/configuration/profiling/mac_vendors' },
-                { name: this.$i18n.t('User Agents'), path: '/configuration/profiling/user_agents' }
+                { name: this.$i18n.t('General Settings'), path: '/configuration/fingerbank/general_settings' },
+                { name: this.$i18n.t('Device change detection'), path: '/configuration/fingerbank/device_change_detection' },
+                { name: this.$i18n.t('Combinations'), path: '/configuration/fingerbank/combinations' },
+                { name: this.$i18n.t('Devices'), path: '/configuration/fingerbank/devices' },
+                { name: this.$i18n.t('DHCP Fingerprints'), path: '/configuration/fingerbank/dhcp_fingerprints' },
+                { name: this.$i18n.t('DHCP Vendors'), path: '/configuration/fingerbank/dhcp_vendors' },
+                { name: this.$i18n.t('DHCPv6 Fingerprints'), path: '/configuration/fingerbank/dhcpv6_fingerprints' },
+                { name: this.$i18n.t('DHCPv6 Enterprises'), path: '/configuration/fingerbank/dhcpv6_enterprises' },
+                { name: this.$i18n.t('MAC Vendors'), path: '/configuration/fingerbank/mac_vendors' },
+                { name: this.$i18n.t('User Agents'), path: '/configuration/fingerbank/user_agents' }
               ]
             },
             { name: this.$i18n.t('Scans'),

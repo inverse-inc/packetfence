@@ -9,12 +9,12 @@ import ConnectionProfilesStore from '../_store/connectionProfiles'
 import DeviceRegistrationsStore from '../_store/deviceRegistrations'
 import DomainsStore from '../_store/domains'
 import FiltersStore from '../_store/filters'
+import FingerbankStore from '../_store/fingerbank'
 import FirewallsStore from '../_store/firewalls'
 import FloatingDevicesStore from '../_store/floatingDevices'
 import MaintenanceTasksStore from '../_store/maintenanceTasks'
 import PkiProvidersStore from '../_store/pkiProviders'
 import PortalModulesStore from '../_store/portalModules'
-import ProfilingStore from '../_store/profiling'
 import ProvisioningsStore from '../_store/provisionings'
 import RealmsStore from '../_store/realms'
 import RolesStore from '../_store/roles'
@@ -46,8 +46,8 @@ const ConnectionProfileFileView = () => import(/* webpackChunkName: "Configurati
 
 /* Compliance */
 const ComplianceSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/ComplianceSection')
-const ProfilingTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/ProfilingTabs')
-const ProfilingCombinationView = () => import(/* webpackChunkName: "Configuration" */ '../_components/ProfilingCombinationView')
+const FingerbankTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/FingerbankTabs')
+const FingerbankCombinationView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FingerbankCombinationView')
 const ScansTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/ScansTabs')
 const ScansScanEngineView = () => import(/* webpackChunkName: "Configuration" */ '../_components/ScansScanEngineView')
 // const SecurityEventsList = () => import(/* webpackChunkName: "Configuration" */ '../_components/SecurityEventsList')
@@ -136,6 +136,9 @@ const route = {
     if (!store.state.$_filters) {
       store.registerModule('$_filters', FiltersStore)
     }
+    if (!store.state.$_fingerbank) {
+      store.registerModule('$_fingerbank', FingerbankStore)
+    }
     if (!store.state.$_firewalls) {
       store.registerModule('$_firewalls', FirewallsStore)
     }
@@ -150,9 +153,6 @@ const route = {
     }
     if (!store.state.$_portalmodules) {
       store.registerModule('$_portalmodules', PortalModulesStore)
-    }
-    if (!store.state.$_profiling) {
-      store.registerModule('$_profiling', ProfilingStore)
     }
     if (!store.state.$_provisionings) {
       store.registerModule('$_provisionings', ProvisioningsStore)
@@ -472,96 +472,96 @@ const route = {
       component: ComplianceSection
     },
     {
-      path: 'profiling',
-      redirect: 'profiling/general_settings'
+      path: 'fingerbank',
+      redirect: 'fingerbank/general_settings'
     },
     {
-      path: 'profiling/general_settings',
-      name: 'profilingGeneralSettings',
-      component: ProfilingTabs,
-      props: (route) => ({ tab: 'general_settings', storeName: '$_profiling', query: route.query.query })
+      path: 'fingerbank/general_settings',
+      name: 'fingerbankGeneralSettings',
+      component: FingerbankTabs,
+      props: (route) => ({ tab: 'general_settings', storeName: '$_fingerbank', query: route.query.query })
     },
     {
-      path: 'profiling/device_change_detection',
-      name: 'profilingDeviceChangeDetection',
-      component: ProfilingTabs,
-      props: (route) => ({ tab: 'device_change_detection', storeName: '$_profiling', query: route.query.query })
+      path: 'fingerbank/device_change_detection',
+      name: 'fingerbankDeviceChangeDetection',
+      component: FingerbankTabs,
+      props: (route) => ({ tab: 'device_change_detection', storeName: '$_fingerbank', query: route.query.query })
     },
     {
-      path: 'profiling/combinations',
-      name: 'profilingCombinations',
-      component: ProfilingTabs,
-      props: (route) => ({ tab: 'combinations', storeName: '$_profiling', query: route.query.query })
+      path: 'fingerbank/combinations',
+      name: 'fingerbankCombinations',
+      component: FingerbankTabs,
+      props: (route) => ({ tab: 'combinations', storeName: '$_fingerbank', query: route.query.query })
     },
     {
-      path: 'profiling/combinations/new',
+      path: 'fingerbank/combinations/new',
       name: 'newCombination',
-      component: ProfilingCombinationView,
-      props: (route) => ({ storeName: '$_profiling', isNew: true })
+      component: FingerbankCombinationView,
+      props: (route) => ({ storeName: '$_fingerbank', isNew: true })
     },
     {
-      path: 'profiling/combination/:id',
+      path: 'fingerbank/combination/:id',
       name: 'combination',
-      component: ProfilingCombinationView,
-      props: (route) => ({ storeName: '$_profiling', id: route.params.id }),
+      component: FingerbankCombinationView,
+      props: (route) => ({ storeName: '$_fingerbank', id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_profiling/getTODO', to.params.id).then(object => {
+        store.dispatch('$_fingerbank/getTODO', to.params.id).then(object => {
           next()
         })
       }
     },
     {
-      path: 'profiling/combination/:id/clone',
+      path: 'fingerbank/combination/:id/clone',
       name: 'cloneCombination',
-      component: ProfilingCombinationView,
-      props: (route) => ({ storeName: '$_profiling', id: route.params.id, isClone: true }),
+      component: FingerbankCombinationView,
+      props: (route) => ({ storeName: '$_fingerbank', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_profiling/getTODO', to.params.id).then(object => {
+        store.dispatch('$_fingerbank/getTODO', to.params.id).then(object => {
           next()
         })
       }
     },
     {
-      path: 'profiling/devices',
-      name: 'profilingDevices',
-      component: ProfilingTabs,
-      props: (route) => ({ tab: 'devices', storeName: '$_profiling', query: route.query.query })
+      path: 'fingerbank/devices',
+      name: 'fingerbankDevices',
+      component: FingerbankTabs,
+      props: (route) => ({ tab: 'devices', storeName: '$_fingerbank', query: route.query.query })
     },
     {
-      path: 'profiling/dhcp_fingerprints',
-      name: 'profilingDhcpFingerprints',
-      component: ProfilingTabs,
-      props: (route) => ({ tab: 'dhcp_fingerprints', storeName: '$_profiling', query: route.query.query })
+      path: 'fingerbank/dhcp_fingerprints',
+      name: 'fingerbankDhcpFingerprints',
+      component: FingerbankTabs,
+      props: (route) => ({ tab: 'dhcp_fingerprints', storeName: '$_fingerbank', query: route.query.query })
     },
     {
-      path: 'profiling/dhcp_vendors',
-      name: 'profilingDhcpVendors',
-      component: ProfilingTabs,
-      props: (route) => ({ tab: 'dhcp_vendors', storeName: '$_profiling', query: route.query.query })
+      path: 'fingerbank/dhcp_vendors',
+      name: 'fingerbankDhcpVendors',
+      component: FingerbankTabs,
+      props: (route) => ({ tab: 'dhcp_vendors', storeName: '$_fingerbank', query: route.query.query })
     },
     {
-      path: 'profiling/dhcpv6_fingerprints',
-      name: 'profilingDhcpv6Fingerprints',
-      component: ProfilingTabs,
-      props: (route) => ({ tab: 'dhcpv6_fingerprints', storeName: '$_profiling', query: route.query.query })
+      path: 'fingerbank/dhcpv6_fingerprints',
+      name: 'fingerbankDhcpv6Fingerprints',
+      component: FingerbankTabs,
+      props: (route) => ({ tab: 'dhcpv6_fingerprints', storeName: '$_fingerbank', query: route.query.query })
     },
     {
-      path: 'profiling/dhcpv6_enterprises',
-      name: 'profilingDhcpv6Enterprises',
-      component: ProfilingTabs,
-      props: (route) => ({ tab: 'dhcpv6_enterprises', storeName: '$_profiling', query: route.query.query })
+      path: 'fingerbank/dhcpv6_enterprises',
+      name: 'fingerbankDhcpv6Enterprises',
+      component: FingerbankTabs,
+      props: (route) => ({ tab: 'dhcpv6_enterprises', storeName: '$_fingerbank', query: route.query.query })
     },
     {
-      path: 'profiling/mac_vendors',
-      name: 'profilingMacVendors',
-      component: ProfilingTabs,
-      props: (route) => ({ tab: 'mac_vendors', storeName: '$_profiling', query: route.query.query })
+      path: 'fingerbank/mac_vendors',
+      name: 'fingerbankMacVendors',
+      component: FingerbankTabs,
+      props: (route) => ({ tab: 'mac_vendors', storeName: '$_fingerbank', query: route.query.query })
     },
     {
-      path: 'profiling/user_agents',
-      name: 'profilingUserAgents',
-      component: ProfilingTabs,
-      props: (route) => ({ tab: 'user_agents', storeName: '$_profiling', query: route.query.query })
+      path: 'fingerbank/user_agents',
+      name: 'fingerbankUserAgents',
+      component: FingerbankTabs,
+      props: (route) => ({ tab: 'user_agents', storeName: '$_fingerbank', query: route.query.query })
     },
     {
       path: 'scans',

@@ -161,7 +161,7 @@ export default {
       default: null,
       required: true
     },
-    pfMixinSearchableOptions: {
+    searchableOptions: {
       type: Object,
       default: () => ({
         searchApiEndpoint: 'nodes',
@@ -675,7 +675,7 @@ export default {
     onRowClick (item, index) {
       this.$router.push({ name: 'node', params: { mac: item.mac } })
     },
-    pfMixinSearchableAdvancedMode (condition) {
+    searchableAdvancedMode (condition) {
       return (condition.values.length > 1 || condition.values[0].values.length > 1)
     },
     applyBulkClearSecurityEvent () {
