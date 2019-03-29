@@ -179,7 +179,6 @@ sub set_in_status_hash {
         return;
     }
     
-    # TODO: error validation and logging and exec
     $self->connection->multi();
     $self->connection->expire($self->status_key, $self->status_ttl);
     $self->connection->hset($self->status_key, $key, $data);
