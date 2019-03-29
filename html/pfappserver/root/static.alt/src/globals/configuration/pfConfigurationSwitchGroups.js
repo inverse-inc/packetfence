@@ -235,10 +235,15 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
           label: i18n.t('Description'),
           fields: [
             {
-              key: 'notes',
+              key: 'description',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'notes'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'notes', 'Description')
+              attrs: pfConfigurationAttributesFromMeta(meta, 'description'),
+              validators: {
+                ...pfConfigurationValidatorsFromMeta(meta, 'description'),
+                ...{
+                  [i18n.t('Description required.')]: or(required, conditional(form.id === 'default'))
+                }
+              }
             }
           ]
         },
@@ -398,7 +403,12 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
               key: 'uplink',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'uplink'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'uplink', 'Uplinks')
+              validators: {
+                ...pfConfigurationValidatorsFromMeta(meta, 'uplink', 'Uplinks'),
+                ...{
+                  [i18n.t('Uplinks required.')]: or(required, conditional(form.uplink_dynamic === 'dynamic'))
+                }
+              }
             }
           ]
         },
