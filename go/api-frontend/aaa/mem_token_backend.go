@@ -7,12 +7,14 @@ import (
 )
 
 type MemTokenBackend struct {
-	store *cache.Cache
+	store         *cache.Cache
+	maxExpiration time.Duration
 }
 
-func NewMemTokenBackend(expiration time.Duration) *MemTokenBackend {
+func NewMemTokenBackend(expiration time.Duration, maxExpiration time.Duration) *MemTokenBackend {
 	return &MemTokenBackend{
-		store: cache.New(expiration, 10*time.Minute),
+		store:         cache.New(expiration, 10*time.Minute),
+		maxExpiration: maxExpiration,
 	}
 }
 
@@ -22,9 +24,17 @@ func (mtb *MemTokenBackend) TokenIsValid(token string) bool {
 }
 
 func (mtb *MemTokenBackend) TokenInfoForToken(token string) *TokenInfo {
-	o, found := mtb.store.Get(token)
+	o, expiration, found := mtb.store.GetWithExpiration(token)
 	if found {
-		return o.(*TokenInfo)
+		ti := o.(*TokenInfo)
+		if time.Now().Sub(ti.CreatedAt) > mtb.maxExpiration {
+			// Token has reached max expiration
+			return nil
+		}
+
+		//TODO handle locking
+		ti.ExpiresAt = expiration
+		return ti
 	} else {
 		return nil
 	}
@@ -47,6 +57,13 @@ func (mtb *MemTokenBackend) AdminActionsForToken(token string) map[string]bool {
 }
 
 func (mtb *MemTokenBackend) StoreTokenInfo(token string, ti *TokenInfo) error {
+	ti.CreatedAt = time.Now()
 	mtb.store.SetDefault(token, ti)
 	return nil
+}
+
+func (mtb *MemTokenBackend) TouchTokenInfo(token string) {
+	if ti := mtb.TokenInfoForToken(token); ti != nil {
+		mtb.store.SetDefault(token, ti)
+	}
 }

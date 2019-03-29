@@ -13,7 +13,7 @@ import (
 func TestTokenAuthorizationMiddlewareIsAuthorized(t *testing.T) {
 	ctx := log.LoggerNewContext(context.Background())
 
-	m := NewTokenAuthorizationMiddleware(NewMemTokenBackend(1 * time.Second))
+	m := NewTokenAuthorizationMiddleware(NewMemTokenBackend(1*time.Second, 1*time.Second))
 
 	var res bool
 	var err error
@@ -201,7 +201,7 @@ func TestTokenAuthorizationMiddlewareIsAuthorized(t *testing.T) {
 func TestTokenAuthorizationMiddlewareBearerRequestIsAuthorized(t *testing.T) {
 	ctx := log.LoggerNewContext(context.Background())
 
-	backend := NewMemTokenBackend(1 * time.Second)
+	backend := NewMemTokenBackend(1*time.Second, 1*time.Second)
 	m := NewTokenAuthorizationMiddleware(backend)
 
 	token := "wow-such-beauty-token"
@@ -331,7 +331,7 @@ func addBearerTokenToTestRequest(r *http.Request, token string, tenantId int) {
 func BenchmarkIsAuthorizedAdminActionsStatic(b *testing.B) {
 	ctx := log.LoggerNewContext(context.Background())
 
-	m := NewTokenAuthorizationMiddleware(NewMemTokenBackend(1 * time.Second))
+	m := NewTokenAuthorizationMiddleware(NewMemTokenBackend(1*time.Second, 1*time.Second))
 	for n := 0; n < b.N; n++ {
 		m.isAuthorizedAdminActions(ctx, "GET", "/api/v1/nodes", map[string]bool{"NODES_READ": true})
 	}
@@ -340,7 +340,7 @@ func BenchmarkIsAuthorizedAdminActionsStatic(b *testing.B) {
 func BenchmarkIsAuthorizedAdminActionsDynamic(b *testing.B) {
 	ctx := log.LoggerNewContext(context.Background())
 
-	m := NewTokenAuthorizationMiddleware(NewMemTokenBackend(1 * time.Second))
+	m := NewTokenAuthorizationMiddleware(NewMemTokenBackend(1*time.Second, 1*time.Second))
 	for n := 0; n < b.N; n++ {
 		m.isAuthorizedAdminActions(ctx, "GET", "/api/v1/node/00:11:22:33:44:55", map[string]bool{"NODES_READ": true})
 	}

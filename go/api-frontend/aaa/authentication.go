@@ -65,11 +65,19 @@ func (tam *TokenAuthenticationMiddleware) Login(ctx context.Context, username, p
 }
 
 func (tam *TokenAuthenticationMiddleware) BearerRequestIsAuthorized(ctx context.Context, r *http.Request) (bool, error) {
-	authHeader := r.Header.Get("Authorization")
-	token := strings.TrimPrefix(authHeader, "Bearer ")
+	token := tam.tokenFromRequest(ctx, r)
 	return tam.IsAuthenticated(ctx, token)
+}
+
+func (tam *TokenAuthenticationMiddleware) tokenFromRequest(ctx context.Context, r *http.Request) string {
+	authHeader := r.Header.Get("Authorization")
+	return strings.TrimPrefix(authHeader, "Bearer ")
 }
 
 func (tam *TokenAuthenticationMiddleware) IsAuthenticated(ctx context.Context, token string) (bool, error) {
 	return tam.tokenBackend.TokenIsValid(token), nil
+}
+
+func (tam *TokenAuthenticationMiddleware) TouchTokenInfo(ctx context.Context, r *http.Request) {
+	tam.tokenBackend.TouchTokenInfo(tam.tokenFromRequest(ctx, r))
 }
