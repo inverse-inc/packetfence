@@ -73,7 +73,7 @@ func buildApiAAAHandler(ctx context.Context) (ApiAAAHandler, error) {
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.UnifiedApiSystemUser)
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.AdminRoles)
 
-	tokenBackend := aaa.NewMemTokenBackend(15*time.Minute, 12*time.Hour)
+	tokenBackend := aaa.NewMemTokenBackend(1*time.Minute, 2*time.Minute)
 	apiAAA.authentication = aaa.NewTokenAuthenticationMiddleware(tokenBackend)
 
 	// Backend for the system Unified API user
@@ -153,7 +153,7 @@ func (h ApiAAAHandler) handleTokenInfo(w http.ResponseWriter, r *http.Request, p
 	ctx := r.Context()
 	defer statsd.NewStatsDTiming(ctx).Send("api-aaa.token_info")
 
-	info := h.authorization.GetTokenInfoFromBearerRequest(ctx, r)
+	info, expiration := h.authorization.GetTokenInfoFromBearerRequest(ctx, r)
 
 	if info != nil {
 		// We'll want to render the roles as an array, not as a map
@@ -162,7 +162,7 @@ func (h ApiAAAHandler) handleTokenInfo(w http.ResponseWriter, r *http.Request, p
 			AdminRoles:   make([]string, len(info.AdminRoles)),
 			TenantId:     info.TenantId,
 			Username:     info.Username,
-			ExpiresAt:    info.ExpiresAt,
+			ExpiresAt:    expiration,
 		}
 
 		i := 0

@@ -9,7 +9,7 @@ import (
 type TokenBackend interface {
 	AdminActionsForToken(token string) map[string]bool
 	TenantIdForToken(token string) int
-	TokenInfoForToken(token string) *TokenInfo
+	TokenInfoForToken(token string) (*TokenInfo, time.Time)
 	StoreTokenInfo(token string, ti *TokenInfo) error
 	TokenIsValid(token string) bool
 	TouchTokenInfo(token string)
@@ -24,7 +24,6 @@ type TokenInfo struct {
 	AdminRoles map[string]bool
 	TenantId   int
 	Username   string
-	ExpiresAt  time.Time
 	CreatedAt  time.Time
 }
 
