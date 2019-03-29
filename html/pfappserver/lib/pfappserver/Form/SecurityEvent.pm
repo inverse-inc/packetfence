@@ -35,7 +35,7 @@ use pf::class qw(class_next_security_event_id);
 # Form select options
 has 'security_events' => ( is => 'ro' );
 has 'triggers' => ( is => 'ro' );
-has 'templates' => ( is => 'ro', builder => \&build_templates);
+has 'templates' => ( is => 'ro', builder => 'build_templates');
 has 'placeholders' => ( is => 'ro' );
 
 # Form fields
