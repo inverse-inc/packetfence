@@ -11,7 +11,7 @@ import (
 func TestTokenAuthenticationMiddlewareIsAuthenticated(t *testing.T) {
 	ctx := log.LoggerNewContext(context.Background())
 
-	backend := NewMemTokenBackend(1 * time.Second)
+	backend := NewMemTokenBackend(1*time.Second, 1*time.Second)
 	tam := NewTokenAuthenticationMiddleware(backend)
 	token := "t-to-the-o-to-the-ken"
 
@@ -40,12 +40,54 @@ func TestTokenAuthenticationMiddlewareIsAuthenticated(t *testing.T) {
 		t.Error("Expired token is still seen as valid")
 	}
 
+	// Test token expiration extension and max expiration
+	backend = NewMemTokenBackend(1*time.Second, 5*time.Second)
+	tam = NewTokenAuthenticationMiddleware(backend)
+
+	backend.StoreTokenInfo(token, &TokenInfo{})
+
+	res, _ = tam.IsAuthenticated(ctx, token)
+
+	if !res {
+		t.Error("Valid token wasn't seen as authenticated")
+	}
+
+	time.Sleep(2 * time.Second)
+
+	res, _ = tam.IsAuthenticated(ctx, token)
+
+	if res {
+		t.Error("Expired token is still seen as valid")
+	}
+
+	// Store a new token to start another expiration timer
+	backend.StoreTokenInfo(token, &TokenInfo{})
+
+	// Touch the token info for 2 seconds and test it after to ensure its still valid
+	for i := 0; i < 20; i++ {
+		backend.TouchTokenInfo(token)
+	}
+
+	res, _ = tam.IsAuthenticated(ctx, token)
+
+	if !res {
+		t.Error("Valid token wasn't seen as authenticated")
+	}
+
+	time.Sleep(5 * time.Second)
+
+	res, _ = tam.IsAuthenticated(ctx, token)
+
+	if res {
+		t.Error("Expired token is still seen as valid")
+	}
+
 }
 
 func TestTokenAuthenticationMiddlewareLogin(t *testing.T) {
 	ctx := log.LoggerNewContext(context.Background())
 
-	backend := NewMemTokenBackend(1 * time.Second)
+	backend := NewMemTokenBackend(1*time.Second, 1*time.Second)
 	tam := NewTokenAuthenticationMiddleware(backend)
 
 	tam.AddAuthenticationBackend(NewMemAuthenticationBackend(

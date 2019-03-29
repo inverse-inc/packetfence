@@ -29,10 +29,11 @@ func init() {
 }
 
 type PrettyTokenInfo struct {
-	AdminActions []string `json:"admin_actions"`
-	AdminRoles   []string `json:"admin_roles"`
-	TenantId     int      `json:"tenant_id"`
-	Username     string   `json:"username"`
+	AdminActions []string  `json:"admin_actions"`
+	AdminRoles   []string  `json:"admin_roles"`
+	TenantId     int       `json:"tenant_id"`
+	Username     string    `json:"username"`
+	ExpiresAt    time.Time `json:"expires_at"`
 }
 
 type ApiAAAHandler struct {
@@ -72,7 +73,7 @@ func buildApiAAAHandler(ctx context.Context) (ApiAAAHandler, error) {
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.UnifiedApiSystemUser)
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.AdminRoles)
 
-	tokenBackend := aaa.NewMemTokenBackend(1 * time.Hour)
+	tokenBackend := aaa.NewMemTokenBackend(15*time.Minute, 12*time.Hour)
 	apiAAA.authentication = aaa.NewTokenAuthenticationMiddleware(tokenBackend)
 
 	// Backend for the system Unified API user
@@ -152,7 +153,7 @@ func (h ApiAAAHandler) handleTokenInfo(w http.ResponseWriter, r *http.Request, p
 	ctx := r.Context()
 	defer statsd.NewStatsDTiming(ctx).Send("api-aaa.token_info")
 
-	info := h.authorization.GetTokenInfoFromBearerRequest(ctx, r)
+	info, expiration := h.authorization.GetTokenInfoFromBearerRequest(ctx, r)
 
 	if info != nil {
 		// We'll want to render the roles as an array, not as a map
@@ -161,6 +162,7 @@ func (h ApiAAAHandler) handleTokenInfo(w http.ResponseWriter, r *http.Request, p
 			AdminRoles:   make([]string, len(info.AdminRoles)),
 			TenantId:     info.TenantId,
 			Username:     info.Username,
+			ExpiresAt:    expiration,
 		}
 
 		i := 0
@@ -210,6 +212,8 @@ func (h ApiAAAHandler) HandleAAA(w http.ResponseWriter, r *http.Request) bool {
 		fmt.Fprintf(w, string(res))
 		return false
 	}
+
+	h.authentication.TouchTokenInfo(ctx, r)
 
 	auth, err = h.authorization.BearerRequestIsAuthorized(ctx, r)
 

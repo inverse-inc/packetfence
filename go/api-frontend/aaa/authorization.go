@@ -8,6 +8,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/inverse-inc/packetfence/go/log"
 )
@@ -108,7 +109,7 @@ func (tam *TokenAuthorizationMiddleware) BearerRequestIsAuthorized(ctx context.C
 	token := tam.TokenFromBearerRequest(ctx, r)
 	xptid := r.Header.Get("X-PacketFence-Tenant-Id")
 
-	tokenInfo := tam.tokenBackend.TokenInfoForToken(token)
+	tokenInfo, _ := tam.tokenBackend.TokenInfoForToken(token)
 
 	if tokenInfo == nil {
 		return false, errors.New("Invalid token info")
@@ -244,11 +245,11 @@ func (tam *TokenAuthorizationMiddleware) isAuthorizedConfigNamespace(ctx context
 	}
 }
 
-func (tam *TokenAuthorizationMiddleware) GetTokenInfoFromBearerRequest(ctx context.Context, r *http.Request) *TokenInfo {
+func (tam *TokenAuthorizationMiddleware) GetTokenInfoFromBearerRequest(ctx context.Context, r *http.Request) (*TokenInfo, time.Time) {
 	token := tam.TokenFromBearerRequest(ctx, r)
 	return tam.GetTokenInfo(ctx, token)
 }
 
-func (tam *TokenAuthorizationMiddleware) GetTokenInfo(ctx context.Context, token string) *TokenInfo {
+func (tam *TokenAuthorizationMiddleware) GetTokenInfo(ctx context.Context, token string) (*TokenInfo, time.Time) {
 	return tam.tokenBackend.TokenInfoForToken(token)
 }

@@ -8,7 +8,7 @@ import (
 )
 
 func TestMemTokenBackend(t *testing.T) {
-	b := NewMemTokenBackend(1 * time.Second)
+	b := NewMemTokenBackend(1*time.Second, 1*time.Second)
 	token := "my-beautiful-token"
 
 	if b.TokenIsValid(token) {

@@ -1,13 +1,18 @@
 package aaa
 
-import "github.com/inverse-inc/packetfence/go/pfconfigdriver"
+import (
+	"time"
+
+	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
+)
 
 type TokenBackend interface {
 	AdminActionsForToken(token string) map[string]bool
 	TenantIdForToken(token string) int
-	TokenInfoForToken(token string) *TokenInfo
+	TokenInfoForToken(token string) (*TokenInfo, time.Time)
 	StoreTokenInfo(token string, ti *TokenInfo) error
 	TokenIsValid(token string) bool
+	TouchTokenInfo(token string)
 }
 
 const (
@@ -19,6 +24,7 @@ type TokenInfo struct {
 	AdminRoles map[string]bool
 	TenantId   int
 	Username   string
+	CreatedAt  time.Time
 }
 
 func (ti *TokenInfo) AdminActions() map[string]bool {
