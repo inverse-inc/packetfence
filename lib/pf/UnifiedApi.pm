@@ -789,6 +789,10 @@ sub setup_api_v1_config_domains_routes {
     );
     $resource_route->register_sub_action({path => '/test_join', action => 'test_join', method => 'GET'});
 
+    $resource_route->any(['POST'] => "/join")->to("Config::Domains#join")->name("api.v1.Config.Certificates.resource.join");
+    $resource_route->any(['POST'] => "/unjoin")->to("Config::Domains#unjoin")->name("api.v1.Config.Certificates.resource.unjoin");
+    $resource_route->any(['POST'] => "/rejoin")->to("Config::Domains#rejoin")->name("api.v1.Config.Certificates.resource.rejoin");
+
     return ($collection_route, $resource_route);
 }
 
