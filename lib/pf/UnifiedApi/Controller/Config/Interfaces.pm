@@ -21,6 +21,26 @@ use pfappserver::Form::Interface::Create;
 use pf::UnifiedApi::Controller::Config;
 use pf::error qw(is_success);
 
+# Ensure that all fields here are in the interface response as a default or a value that comes from the model
+my %FIELDS = (
+    additional_listening_daemons => [],
+    dhcpd_enabled => undef,
+    dns => undef,
+    high_availability => undef,
+    hwaddr => undef,
+    ifindex => undef,
+    ipv6_address => undef,
+    ipv6_prefix => undef,
+    is_running => undef,
+    master => undef,
+    nat_enabled => undef,
+    networks => [],
+    reg_network => undef,
+    split_network => undef,
+    vip => undef,
+    vlan => undef,
+);
+
 =head2 validate_item
 
 Validate the parameters of an interface based on the context (create/update)
@@ -93,6 +113,10 @@ sub normalize_interface {
 
     ($interface->{type}, @{$interface->{additional_listening_daemons}}) = split(',', $interface->{type});
     
+    # Ensure all fields have a default value
+    while(my ($field, $default) = each(%FIELDS)) {
+        $interface->{$field} = $default unless(exists($interface->{$field}));
+    }
 
     return $interface;
 }
