@@ -180,9 +180,11 @@ sub set_in_status_hash {
     }
     
     # TODO: error validation and logging and exec
+    $self->connection->multi();
     $self->connection->expire($self->status_key, $self->status_ttl);
     $self->connection->hset($self->status_key, $key, $data);
-    $self->connection->publish($self->status_publish_key, 1)
+    $self->connection->publish($self->status_publish_key, 1);
+    $self->connection->exec();
 }
 
 =head2 status_key
