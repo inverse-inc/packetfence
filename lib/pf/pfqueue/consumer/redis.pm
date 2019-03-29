@@ -108,7 +108,6 @@ sub process_next_job {
     $redis->multi(\&_empty);
     $redis->hincrby($PFQUEUE_COUNTER, $task_counter_id, -1, \&_empty);
     $redis->hgetall($task_id, \&_empty);
-    $redis->del($task_id, \&_empty);
     $redis->exec(sub {
         my ($replies, $error) = @_;
         return if defined $error;
@@ -132,6 +131,10 @@ sub process_next_job {
                     $logger->debug("Reporting status for task $task_id");
                     $task->set_status_updater($self->get_status_updater($task_id));
                 }
+                
+                # Now that we're tracking the status of the job, we can delete the key marking it as non-pending
+                $redis->del($task_id);
+
                 my $result;
                 eval {
                     $task->status_updater->set_status($STATUS_IN_PROGRESS);
@@ -139,13 +142,13 @@ sub process_next_job {
                     $result = $task->doTask($args);
                 };
                 if($@) {
-                    $task->status_updater->set_status($STATUS_FAILED);
                     $task->status_updater->set_status_msg($@);
+                    $task->status_updater->set_status($STATUS_FAILED);
                     die $@;
                 }
                 else {
-                    $task->status_updater->set_status($STATUS_COMPLETED);
                     $task->status_updater->set_result($result);
+                    $task->status_updater->set_status($STATUS_COMPLETED);
                 }
             } else {
                 $logger->error("Invalid object stored in queue");

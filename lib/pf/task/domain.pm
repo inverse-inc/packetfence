@@ -42,8 +42,8 @@ sub doTask {
     unless(exists($OP_MAP{$op})) {
         my $msg = "Invalid operation $op for domain";
         $logger->error($msg);
-        $self->status_updater->set_status($STATUS_FAILED);
         $self->status_updater->set_status_msg($msg);
+        $self->status_updater->set_status($STATUS_FAILED);
         $self->status_updater->finalize();
         return;
     }
@@ -51,8 +51,8 @@ sub doTask {
     unless(exists($ConfigDomain{$domain})) {
         my $msg = "Invalid domain $domain for domain task";
         $logger->error($msg);
-        $self->status_updater->set_status($STATUS_FAILED);
         $self->status_updater->set_status_msg($msg);
+        $self->status_updater->set_status($STATUS_FAILED);
         $self->status_updater->finalize();
         return;
     }

@@ -69,8 +69,8 @@ func buildJobStatusHandler(ctx context.Context) (JobStatusHandler, error) {
 	})
 
 	router := httprouter.New()
-	router.GET("/api/v1/pfqueue/job/:job_id/status", jobStatus.handleStatus)
-	router.GET("/api/v1/pfqueue/job/:job_id/status/poll", jobStatus.handleStatusPoll)
+	router.GET("/api/v1/pfqueue/task/:job_id/status", jobStatus.handleStatus)
+	router.GET("/api/v1/pfqueue/task/:job_id/status/poll", jobStatus.handleStatusPoll)
 
 	jobStatus.router = router
 
