@@ -26,6 +26,7 @@ use pf::config qw(%Config %Profiles_Config);
 use pf::Connection::ProfileFactory;
 use pf::web::util;
 use pf::admin_roles;
+use pf::file_paths qw($captiveportal_profile_templates_path $captiveportal_templates_path);
 use pf::action;
 use pf::log;
 use pf::constants::security_event qw($MAX_SECURITY_EVENT_ID %NON_WHITELISTABLE_ROLES);
@@ -34,6 +35,7 @@ use pf::class qw(class_next_security_event_id);
 # Form select options
 has 'security_events' => ( is => 'ro' );
 has 'triggers' => ( is => 'ro' );
+has 'templates' => ( is => 'ro', builder => \&build_templates);
 has 'placeholders' => ( is => 'ro' );
 
 # Form fields
@@ -189,6 +191,7 @@ has_field 'template' =>
   (
    type => 'Select',
    label => 'Template',
+   options_method => \&options_template,
    tags => { after_element => \&help,
              help => 'HTML template the host will be redirected to while in security event. You can create new templates from the <em>Connection Profiles</em> configuration section.' }
   );
@@ -352,7 +355,19 @@ sub options_roles {
 =cut
 
 sub options_template {
-    my @dirs = map { uniq(@{pf::Connection::ProfileFactory->_from_profile($_)->{_template_paths}}) } keys(%Profiles_Config);
+    my ($self) = @_;
+    return @{$self->form->templates // []};
+}
+
+
+=head2 build_templates
+
+build_templates
+
+=cut
+
+sub build_templates {
+    my @dirs = ($captiveportal_templates_path, grep { -d }  map { "$captiveportal_profile_templates_path/$_" } keys(%Profiles_Config));
     my @templates;
     foreach my $dir (@dirs) {
         next unless opendir(my $dh, $dir . '/security_events');
@@ -361,8 +376,9 @@ sub options_template {
         closedir($dh);
     }
 
-    return map { { value => $_, label => "${_}.html" } } sort(uniq(@templates));
+    return [map { { value => $_, label => "${_}.html" } } sort(uniq(@templates))];
 }
+
 
 =head2 validate
 
