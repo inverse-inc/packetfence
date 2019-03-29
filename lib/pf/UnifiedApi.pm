@@ -70,6 +70,12 @@ before_render_cb
 
 sub before_render_cb {
     my ($self, $args) = @_;
+
+    my $template = $args->{template} || '';
+    if ($template =~ /^exception/) {
+        $args->{json} = {message => $args->{exception} || 'Unknown error, check server side logs for details.'};
+    }
+
     my $json = $args->{json};
     return unless $json;
     $json->{status} //= ($args->{status} // 200);
