@@ -73,7 +73,7 @@ sub create {
     # Enable the newly created virtual interface
     $self->up($interface);
 
-    return ($STATUS::CREATED, ["Interface VLAN [_1] successfully created",$interface]);
+    return ($STATUS::CREATED, ["Interface VLAN [_1] created",$interface]);
 }
 
 =head2 delete
@@ -139,7 +139,7 @@ sub delete {
         }
     }
 
-    return ($STATUS::OK, ["Interface VLAN [_1] successfully deleted",$interface]);
+    return ($STATUS::OK, ["Interface VLAN [_1] deleted",$interface]);
 }
 
 =head2 down
@@ -193,7 +193,7 @@ sub down {
         return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
     }
 
-    return ($STATUS::OK, ["Interface [_1] successfully disabled",$interface]);
+    return ($STATUS::OK, ["Interface [_1] disabled",$interface]);
 }
 
 =head2 exists
@@ -420,7 +420,7 @@ sub update {
         return ($status, $status_msg);
     }
 
-    return ($STATUS::OK, ["Interface [_1] successfully edited",$interface]);
+    return ($STATUS::OK, ["Interface [_1] edited",$interface]);
 }
 
 =head2 isActive
@@ -801,7 +801,7 @@ sub up {
         return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
     }
 
-    return ($STATUS::OK, ["Interface [_1] successfully enabled",$interface]);
+    return ($STATUS::OK, ["Interface [_1] enabled",$interface]);
 }
 
 
