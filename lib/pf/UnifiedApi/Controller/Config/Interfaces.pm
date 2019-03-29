@@ -180,7 +180,7 @@ Delete a virtual interface
 sub delete {
     my ($self) = @_;
     my ($status, $result) = $self->model->delete($self->stash->{interface_id}, "");
-    $status = is_success($status) ? 204 : $status;
+    $status = is_success($status) ? 200 : $status;
     $self->render(json => {message => pf::I18N::pfappserver->localize($result)}, status => $status);
 }
 

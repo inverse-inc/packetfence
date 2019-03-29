@@ -62,7 +62,7 @@
       schema:
         type: string
     responses:
-      '204':
+      '200':
         description: Deleted an interface
       '412':
         allOf:
