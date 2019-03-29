@@ -137,6 +137,11 @@ export const inArray = (array) => {
   })
 }
 
+export const ipv6Address = (value) => {
+  if (!value) return true
+  return /^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))$/i.test(value)
+}
+
 export const isDateFormat = (dateFormat, allowZero = true) => {
   return (0, _common.withParams)({
     type: 'isDateFormat',
@@ -285,6 +290,14 @@ export const hasFirewalls = (value, component) => {
 
 export const hasFloatingDevices = (value, component) => {
   return store.dispatch('config/getFloatingDevices').then((response) => {
+    return (response.length > 0)
+  }).catch(() => {
+    return true
+  })
+}
+
+export const hasInterfaces = (value, component) => {
+  return store.dispatch('config/getInterfaces').then((response) => {
     return (response.length > 0)
   }).catch(() => {
     return true
@@ -486,6 +499,16 @@ export const floatingDeviceExists = (value, component) => {
   return store.dispatch('config/getFloatingDevices').then((response) => {
     if (response.length === 0) return true
     return (response.filter(floatingDevice => floatingDevice.id.toLowerCase() === value.toLowerCase()).length > 0)
+  }).catch(() => {
+    return true
+  })
+}
+
+export const interfaceExists = (value, component) => {
+  if (!value) return true
+  return store.dispatch('config/getInterfaces').then((response) => {
+    if (response.length === 0) return true
+    return (response.filter(iface => iface.id.toLowerCase() === value.toLowerCase()).length > 0)
   }).catch(() => {
     return true
   })

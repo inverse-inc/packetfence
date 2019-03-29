@@ -5,22 +5,22 @@
     </b-card-header>
     <b-tabs ref="tabs" v-model="tabIndex" card>
       <b-tab :title="$t('Network Settings')" @click="changeTab('network')">
-        <network-view />
+        <network-view :storeName="storeName" />
       </b-tab>
       <b-tab :title="$t('Interfaces')" @click="changeTab('interfaces')">
-        <interfaces-list />
+        <interfaces-list :storeName="storeName" />
       </b-tab>
       <b-tab :title="$t('Inline')" @click="changeTab('inline')">
-        <inline-view />
+        <inline-view :storeName="storeName" />
       </b-tab>
       <b-tab :title="$t('Inline Traffic Shaping')" @click="changeTab('traffic_shapings')">
-        <traffic-shapings-list />
+        <traffic-shapings-list :storeName="storeName" />
       </b-tab>
       <b-tab :title="$t('Fencing')" @click="changeTab('fencing')">
-        <fencing-view />
+        <fencing-view :storeName="storeName" />
       </b-tab>
       <b-tab :title="$t('Device Parking')" @click="changeTab('parking')">
-        <parking-view />
+        <parking-view :storeName="storeName" />
       </b-tab>
     </b-tabs>
   </b-card>
@@ -45,6 +45,9 @@ export default {
     ParkingView
   },
   props: {
+    storeName: {
+      type: String
+    },
     tab: {
       type: String,
       default: 'network'

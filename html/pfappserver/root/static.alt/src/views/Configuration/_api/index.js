@@ -303,208 +303,220 @@ export default {
   /**
    * Fingerbank Profiling
    */
-  profilingGeneralSettings: params => {
+  fingerbankGeneralSettings: params => {
+    return apiCall.get(`config/fingerbank_settings`, { params }).then(response => {
+      return response.data.items
+    })
+  },
+  fingerbankGeneralSettingsOptions: () => {
+    return apiCall.options('config/fingerbank_settings').then(response => {
+      return response.data
+    })
+  },
+  fingerbankUpdateGeneralSetting: (id, params) => {
+    return apiCall.patch(`config/fingerbank_setting/${id}`, params).then(response => {
+      return response.data
+    })
+  },
+  fingerbankDeviceChangeDetection: params => {
     return apiCall.get(`config/TODO`, { params }).then(response => {
       return response.data.item
     })
   },
-  profilingUpdateGeneralSettings: params => {
+  fingerbankUpdateDeviceChangeDetection: params => {
     return apiCall.get(`config/TODO`, { params }).then(response => {
       return response.data
     })
   },
-  profilingDeviceChangeDetection: params => {
-    return apiCall.get(`config/TODO`, { params }).then(response => {
+  fingerbankCombinations: params => {
+    return apiCall.get(`fingerbank/all/combinations`, { params }).then(response => {
+      return response.data
+    })
+  },
+  /*
+  fingerbankCombinationsOptions: () => {
+    return apiCall.options('config/fingerbank/all/combinations').then(response => {
+      return response.data
+    })
+  },
+  */
+  fingerbankCombination: id => {
+    return apiCall.get(`config/fingerbank/all/combinations/${id}`).then(response => {
       return response.data.item
     })
   },
-  profilingUpdateDeviceChangeDetection: params => {
-    return apiCall.get(`config/TODO`, { params }).then(response => {
-      return response.data
-    })
-  },
-  profilingCombinations: params => {
-    return apiCall.get(`config/TODO`, { params }).then(response => {
-      return response.data
-    })
-  },
-  profilingCombination: id => {
-    return apiCall.get(`config/TODO/${id}`).then(response => {
-      return response.data.item
-    })
-  },
-  profilingCreateCombination: data => {
+  fingerbankCreateCombination: data => {
     return apiCall.post('config/TODO', data).then(response => {
       return response.data
     })
   },
-  profilingUpdateCombination: data => {
+  fingerbankUpdateCombination: data => {
     return apiCall.patch(`config/TODO/${data.id}`, data).then(response => {
       return response.data
     })
   },
-  profilingDeleteCombination: id => {
+  fingerbankDeleteCombination: id => {
     return apiCall.delete(`config/TODO/${id}`)
   },
-  profilingDevices: params => {
+  fingerbankDevices: params => {
     return apiCall.get(`config/TODO`, { params }).then(response => {
       return response.data
     })
   },
-  profilingDevice: id => {
+  fingerbankDevice: id => {
     return apiCall.get(`config/TODO/${id}`).then(response => {
       return response.data.item
     })
   },
-  profilingCreateDevice: data => {
+  fingerbankCreateDevice: data => {
     return apiCall.post('config/TODO', data).then(response => {
       return response.data
     })
   },
-  profilingUpdateDevice: data => {
+  fingerbankUpdateDevice: data => {
     return apiCall.patch(`config/TODO/${data.id}`, data).then(response => {
       return response.data
     })
   },
-  profilingDeleteDevice: id => {
+  fingerbankDeleteDevice: id => {
     return apiCall.delete(`config/TODO/${id}`)
   },
-  profilingDhcpFingerprints: params => {
+  fingerbankDhcpFingerprints: params => {
     return apiCall.get(`config/TODO`, { params }).then(response => {
       return response.data
     })
   },
-  profilingDhcpFingerprint: id => {
+  fingerbankDhcpFingerprint: id => {
     return apiCall.get(`config/TODO/${id}`).then(response => {
       return response.data.item
     })
   },
-  profilingCreateDhcpFingerprint: data => {
+  fingerbankCreateDhcpFingerprint: data => {
     return apiCall.post('config/TODO', data).then(response => {
       return response.data
     })
   },
-  profilingUpdateDhcpFingerprint: data => {
+  fingerbankUpdateDhcpFingerprint: data => {
     return apiCall.patch(`config/TODO/${data.id}`, data).then(response => {
       return response.data
     })
   },
-  profilingDeleteDhcpFingerprint: id => {
+  fingerbankDeleteDhcpFingerprint: id => {
     return apiCall.delete(`config/TODO/${id}`)
   },
-  profilingDhcpVendors: params => {
+  fingerbankDhcpVendors: params => {
     return apiCall.get(`config/TODO`, { params }).then(response => {
       return response.data
     })
   },
-  profilingDhcpVendor: id => {
+  fingerbankDhcpVendor: id => {
     return apiCall.get(`config/TODO/${id}`).then(response => {
       return response.data.item
     })
   },
-  profilingCreateDhcpVendor: data => {
+  fingerbankCreateDhcpVendor: data => {
     return apiCall.post('config/TODO', data).then(response => {
       return response.data
     })
   },
-  profilingUpdateDhcpVendor: data => {
+  fingerbankUpdateDhcpVendor: data => {
     return apiCall.patch(`config/TODO/${data.id}`, data).then(response => {
       return response.data
     })
   },
-  profilingDeleteDhcpVendor: id => {
+  fingerbankDeleteDhcpVendor: id => {
     return apiCall.delete(`config/TODO/${id}`)
   },
-  profilingDhcpv6Fingerprints: params => {
+  fingerbankDhcpv6Fingerprints: params => {
     return apiCall.get(`config/TODO`, { params }).then(response => {
       return response.data
     })
   },
-  profilingDhcpv6Fingerprint: id => {
+  fingerbankDhcpv6Fingerprint: id => {
     return apiCall.get(`config/TODO/${id}`).then(response => {
       return response.data.item
     })
   },
-  profilingCreateDhcpv6Fingerprint: data => {
+  fingerbankCreateDhcpv6Fingerprint: data => {
     return apiCall.post('config/TODO', data).then(response => {
       return response.data
     })
   },
-  profilingUpdateDhcpv6Fingerprint: data => {
+  fingerbankUpdateDhcpv6Fingerprint: data => {
     return apiCall.patch(`config/TODO/${data.id}`, data).then(response => {
       return response.data
     })
   },
-  profilingDeleteDhcpv6Fingerprint: id => {
+  fingerbankDeleteDhcpv6Fingerprint: id => {
     return apiCall.delete(`config/TODO/${id}`)
   },
-  profilingDhcpv6Enterprises: params => {
+  fingerbankDhcpv6Enterprises: params => {
     return apiCall.get(`config/TODO`, { params }).then(response => {
       return response.data
     })
   },
-  profilingDhcpv6Enterprise: id => {
+  fingerbankDhcpv6Enterprise: id => {
     return apiCall.get(`config/TODO/${id}`).then(response => {
       return response.data.item
     })
   },
-  profilingCreateDhcpv6Enterprise: data => {
+  fingerbankCreateDhcpv6Enterprise: data => {
     return apiCall.post('config/TODO', data).then(response => {
       return response.data
     })
   },
-  profilingUpdateDhcpv6Enterprise: data => {
+  fingerbankUpdateDhcpv6Enterprise: data => {
     return apiCall.patch(`config/TODO/${data.id}`, data).then(response => {
       return response.data
     })
   },
-  profilingDeleteDhcpv6Enterprise: id => {
+  fingerbankDeleteDhcpv6Enterprise: id => {
     return apiCall.delete(`config/TODO/${id}`)
   },
-  profilingMacVendors: params => {
+  fingerbankMacVendors: params => {
     return apiCall.get(`config/TODO`, { params }).then(response => {
       return response.data
     })
   },
-  profilingMacVendor: id => {
+  fingerbankMacVendor: id => {
     return apiCall.get(`config/TODO/${id}`).then(response => {
       return response.data.item
     })
   },
-  profilingCreateMacVendor: data => {
+  fingerbankCreateMacVendor: data => {
     return apiCall.post('config/TODO', data).then(response => {
       return response.data
     })
   },
-  profilingUpdateMacVendor: data => {
+  fingerbankUpdateMacVendor: data => {
     return apiCall.patch(`config/TODO/${data.id}`, data).then(response => {
       return response.data
     })
   },
-  profilingDeleteMacVendor: id => {
+  fingerbankDeleteMacVendor: id => {
     return apiCall.delete(`config/TODO/${id}`)
   },
-  profilingUserAgents: params => {
+  fingerbankUserAgents: params => {
     return apiCall.get(`config/TODO`, { params }).then(response => {
       return response.data
     })
   },
-  profilingUserAgent: id => {
+  fingerbankUserAgent: id => {
     return apiCall.get(`config/TODO/${id}`).then(response => {
       return response.data.item
     })
   },
-  profilingCreateUserAgent: data => {
+  fingerbankCreateUserAgent: data => {
     return apiCall.post('config/TODO', data).then(response => {
       return response.data
     })
   },
-  profilingUpdateUserAgent: data => {
+  fingerbankUpdateUserAgent: data => {
     return apiCall.patch(`config/TODO/${data.id}`, data).then(response => {
       return response.data
     })
   },
-  profilingDeleteUserAgent: id => {
+  fingerbankDeleteUserAgent: id => {
     return apiCall.delete(`config/TODO/${id}`)
   },
 
@@ -580,6 +592,38 @@ export default {
   },
   deleteFloatingDevice: id => {
     return apiCall.delete(`config/floating_device/${id}`)
+  },
+
+  /**
+   * Interfaces
+   */
+  interfaces: params => {
+    return apiCall.get('config/interfaces', { params }).then(response => {
+      return response.data
+    })
+  },
+  interface: id => {
+    return apiCall.get(`config/interface/${id}`).then(response => {
+      return response.data.item
+    })
+  },
+  updateInterface: data => {
+    return apiCall.patch(`config/interface/${data.id}`, data).then(response => {
+      return response.data
+    })
+  },
+  downInterface: id => {
+    return apiCall.post(`config/interface/${id}/down`).then(response => {
+      return response.data
+    })
+  },
+  upInterface: id => {
+    return apiCall.post(`config/interface/${id}/up`).then(response => {
+      return response.data
+    })
+  },
+  deleteInterface: id => {
+    return apiCall.delete(`config/interface/${id}`)
   },
 
   /**

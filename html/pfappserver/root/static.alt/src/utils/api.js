@@ -111,7 +111,9 @@ Object.assign(apiCall, {
           }
           benchmarks = benchmarks.children[urlPart]
         })
-        this.$set(benchmarks[method], 'start', null)
+        if (method in benchmarks) {
+          this.$set(benchmarks[method], 'start', null)
+        }
       },
       getBenchmark (request) {
         const { method = 'get', url = '/' } = request

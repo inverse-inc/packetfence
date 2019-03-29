@@ -12,6 +12,7 @@ import FiltersStore from '../_store/filters'
 import FingerbankStore from '../_store/fingerbank'
 import FirewallsStore from '../_store/firewalls'
 import FloatingDevicesStore from '../_store/floatingDevices'
+import InterfacesStore from '../_store/interfaces'
 import MaintenanceTasksStore from '../_store/maintenanceTasks'
 import PkiProvidersStore from '../_store/pkiProviders'
 import PortalModulesStore from '../_store/portalModules'
@@ -144,6 +145,9 @@ const route = {
     }
     if (!store.state.$_floatingdevices) {
       store.registerModule('$_floatingdevices', FloatingDevicesStore)
+    }
+    if (!store.state.$_interfaces) {
+      store.registerModule('$_interfaces', InterfacesStore)
     }
     if (!store.state.$_maintenance_tasks) {
       store.registerModule('$_maintenance_tasks', MaintenanceTasksStore)
@@ -505,7 +509,7 @@ const route = {
       component: FingerbankCombinationView,
       props: (route) => ({ storeName: '$_fingerbank', id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_fingerbank/getTODO', to.params.id).then(object => {
+        store.dispatch('$_fingerbank/fingerbankCombination', to.params.id).then(object => {
           next()
         })
       }
@@ -516,7 +520,7 @@ const route = {
       component: FingerbankCombinationView,
       props: (route) => ({ storeName: '$_fingerbank', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_fingerbank/getTODO', to.params.id).then(object => {
+        store.dispatch('$_fingerbank/fingerbankCombination', to.params.id).then(object => {
           next()
         })
       }
@@ -1017,32 +1021,15 @@ const route = {
       path: 'interfaces',
       name: 'interfaces',
       component: NetworksTabs,
-      props: (route) => ({ tab: 'interfaces', query: route.query.query })
-    },
-    {
-      path: 'interfaces/new',
-      name: 'newInterface',
-      component: InterfaceView,
-      props: (route) => ({ storeName: '$_TODO', isNew: true })
+      props: (route) => ({ tab: 'interfaces', storeName: '$_interfaces', query: route.query.query })
     },
     {
       path: 'interface/:id',
       name: 'interface',
       component: InterfaceView,
-      props: (route) => ({ storeName: '$_TODO', id: route.params.id }),
+      props: (route) => ({ storeName: '$_interfaces', id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_TODO/getTODO', to.params.id).then(object => {
-          next()
-        })
-      }
-    },
-    {
-      path: 'interface/:id/clone',
-      name: 'cloneInterface',
-      component: InterfaceView,
-      props: (route) => ({ storeName: '$_TODO', id: route.params.id, isClone: true }),
-      beforeEnter: (to, from, next) => {
-        store.dispatch('$_TODO/getTODO', to.params.id).then(object => {
+        store.dispatch('$_interfaces/getInterface', to.params.id).then(object => {
           next()
         })
       }
