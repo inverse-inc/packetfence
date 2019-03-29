@@ -2099,6 +2099,96 @@ components:
             type: array
         type: object
       description: List
+    ConfigInterfaceBase:
+      properties:
+        dhcpd_enabled:
+          description: Whether or not DHCP is enabled for this interface
+          enum:
+          - enabled
+          - disabled
+          type: string
+        dns:
+          description: The DNS server of the network tied to the interface.
+          type: string
+        high_availability:
+          description: The RSA server key for the resource in PEM encoded format
+          enum:
+          - 1
+          - 0
+          type: string
+        ipaddress:
+          description: The IP address of the interface
+          type: string
+        name:
+          description: The name of the interface
+          type: string
+        nat_enabled:
+          description: Whether or not NAT is enabled for this interface
+          enum:
+          - 1
+          - 0
+          type: string
+        netmask:
+          description: The netmask of the interface
+          type: string
+        network:
+          description: The network associated to the interface
+          type: string
+        network_iseditable:
+          description: Whether or not the network is editable
+          type: boolean
+        reg_network:
+          description: Registration IP Address CIDR format
+          type: string
+        split_network:
+          description: Whether or not to perform network split by role
+          enum: ~
+          type: string
+        type:
+          description: The network type of the interface
+          type: string
+        vip:
+          description: The virtual IP address of the interface (only for active/passive
+            clusters)
+          type: string
+      type: object
+    ConfigInterfaceCreate:
+      allOf:
+      - $ref: '#/components/schemas/ConfigInterfaceBase'
+      - $ref: '#/components/schemas/ConfigInterfaceVlan'
+    ConfigInterfaceGet:
+      allOf:
+      - $ref: '#/components/schemas/ConfigInterfaceBase'
+      - properties:
+          hwaddr:
+            description: The MAC address of the interface
+            type: string
+          ifindex:
+            description: The ifindex
+            type: string
+          is_running:
+            description: Whether or not the interface is running (up)
+            type: boolean
+          master:
+            description: The physical interface associated to a VLAN interface when
+              applicable
+            type: string
+        type: object
+    ConfigInterfaceUpdate:
+      $ref: '#/components/schemas/ConfigInterfaceBase'
+    ConfigInterfaceVlan:
+      properties:
+        vlan:
+          description: The VLAN for the interface if applicable
+          type: string
+      type: object
+    ConfigInterfacesList:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/ConfigInterfaceGet'
+          type: array
+      type: object
     ConfigMaintenanceTask:
       discriminator:
         propertyName: type
@@ -10461,6 +10551,23 @@ components:
           description: The date at which the password becomes valid
           type: string
       type: object
+    Preference:
+      properties:
+        id:
+          type: string
+        value:
+          type: string
+      type: object
+    PreferencesList:
+      allOf:
+      - $ref: '#/components/schemas/Iterable'
+      - properties:
+          items:
+            description: Items
+            items:
+              $ref: '#/components/schemas/Preference'
+            type: array
+        type: object
     Query:
       example:
         op: and
@@ -12638,6 +12745,103 @@ paths:
           description: List
         '400':
           $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+  /config/interface/{interface_id}:
+    delete:
+      description: Remove a virtual interface
+      parameters:
+      - in: path
+        name: interface_id
+        schema:
+          type: string
+      responses:
+        '204':
+          description: Deleted an interface
+        '412':
+          allOf:
+          - $ref: '#/components/responses/Message'
+          - description: Failed to respect precondition to delete interface
+    get:
+      description: Get an item
+      parameters:
+      - in: path
+        name: interface_id
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfigInterfaceGet'
+          description: Item
+    put:
+      description: Update the configuration of an interface
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigInterfaceUpdate'
+      responses:
+        '200':
+          $ref: '#/components/responses/Message'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+  /config/interface/{interface_id}/down:
+    post:
+      description: Put an interface down
+      parameters:
+      - in: path
+        name: interface_id
+        schema:
+          type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/Message'
+        '412':
+          allOf:
+          - $ref: '#/components/responses/Message'
+          - description: Failed to respect precondition to put interface down
+  /config/interface/{interface_id}/up:
+    post:
+      description: Put an interface up
+      parameters:
+      - in: path
+        name: interface_id
+        schema:
+          type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/Message'
+        '412':
+          allOf:
+          - $ref: '#/components/responses/Message'
+          - description: Failed to respect precondition to put interface up
+  /config/interfaces:
+    get:
+      description: List all interfaces
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfigInterfacesList'
+          description: Item
+    post:
+      description: Create a virtual interface
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigInterfaceCreate'
+      responses:
+        '200':
+          $ref: '#/components/responses/Message'
+        '404':
+          $ref: '#/components/responses/NotFound'
         '422':
           $ref: '#/components/responses/UnprocessableEntity'
   /config/maintenance_task/{maintenance_task_id}:
@@ -14920,6 +15124,83 @@ paths:
           description: List
         '400':
           $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+  /preference/{preference_id}:
+    delete:
+      description: Remove an item
+      operationId: api.v1.Preferences.resource.remove
+      parameters:
+      - in: path
+        name: preference_id
+        schema:
+          type: string
+      responses:
+        '204':
+          description: Item deleted
+    get:
+      description: Get an item
+      operationId: api.v1.Preferences.get
+      parameters:
+      - in: path
+        name: preference_id
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                description: Item
+                properties:
+                  item:
+                    $ref: '#/components/schemas/Preference'
+                type: object
+          description: Get item
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+    put:
+      description: Replace an item
+      operationId: api.v1.Preferences.resource.replace
+      parameters:
+      - in: path
+        name: preference_id
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Preference'
+      responses:
+        '200':
+          $ref: '#/components/responses/Message'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+  /preferences:
+    description: pf::UnifiedApi::Controller::Preferences
+    get:
+      description: List items
+      operationId: api.v1.Preferences.list
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PreferencesList'
+          description: List
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
         '422':
           $ref: '#/components/responses/UnprocessableEntity'
   /queues/stats:
