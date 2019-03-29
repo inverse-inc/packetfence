@@ -65,6 +65,7 @@ func TestTokenAuthenticationMiddlewareIsAuthenticated(t *testing.T) {
 
 	// Touch the token info for 2 seconds and test it after to ensure its still valid
 	for i := 0; i < 20; i++ {
+		time.Sleep(100 * time.Millisecond)
 		backend.TouchTokenInfo(token)
 	}
 
