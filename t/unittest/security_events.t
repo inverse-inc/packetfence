@@ -16,7 +16,7 @@ use warnings;
 #
 use lib '/usr/local/pf/lib';
 
-use Test::More tests => 26;
+use Test::More tests => 28;
 
 BEGIN {
     #include test libs
@@ -89,6 +89,11 @@ is($security_events[0], "1100012");
 # Test a security_event using DHCPv6 enteprise that shouldn't match
 @security_events = $pf::security_event::SECURITY_EVENT_FILTER_ENGINE->match_all({dhcp6_enterprise_id => 1});
 is(@security_events, 0);
+
+# Test a security_event using role
+@security_events = $pf::security_event::SECURITY_EVENT_FILTER_ENGINE->match_all({role => "default"});
+is(@security_events, 1);
+is($security_events[0], "1100014");
 
 
 #This test will running last
