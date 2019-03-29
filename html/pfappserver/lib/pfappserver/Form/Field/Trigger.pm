@@ -19,6 +19,7 @@ has '+deflate_value_method'=> ( default => sub { \&deflate } );
 
 use pf::constants::trigger qw($TRIGGER_MAP);
 use pf::factory::condition::security_event;
+use pf::ConfigStore::Roles;
 
 for my $trigger (keys %pf::factory::condition::security_event::TRIGGER_TYPE_TO_CONDITION_TYPE) {
     if (exists $TRIGGER_MAP->{$trigger}) {
@@ -35,6 +36,13 @@ for my $trigger (keys %pf::factory::condition::security_event::TRIGGER_TYPE_TO_C
         );
     }
 }
+
+has_field 'role' => (
+    type => 'Select',
+    options_method => sub {
+        return map { { label => $_, value => $_ } } @{pf::ConfigStore::Roles->new->readAllIds()};
+    },
+);
 
 
 =head2 inflate
