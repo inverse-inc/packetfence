@@ -18,7 +18,7 @@ var jobStatus, _ = buildJobStatusHandler(ctx)
 func TestJobStatusHandleStatus(t *testing.T) {
 	req, _ := http.NewRequest(
 		"GET",
-		"/api/v1/pfqueue/job/not_important_check_the_params_below/status",
+		"/api/v1/pfqueue/task/not_important_check_the_params_below/status",
 		nil,
 	)
 
