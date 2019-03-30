@@ -12756,7 +12756,7 @@ paths:
         schema:
           type: string
       responses:
-        '204':
+        '200':
           description: Deleted an interface
         '412':
           allOf:
@@ -13573,11 +13573,8 @@ paths:
       responses:
         '204':
           description: Deleted a config item
-    description: |-
-      pf::UnifiedApi::Controller::Config::Switches
-
-        invalidate_cache
-          invalidate switch cache
+    description: "pf::UnifiedApi::Controller::Config::Switches\n\n  invalidate_cache\n
+      \   invalidate switch cache"
     get:
       description: Get an item
       operationId: api.v1.Config::Switches.get
@@ -13723,11 +13720,8 @@ paths:
         '422':
           $ref: '#/components/responses/UnprocessableEntity'
   /config/switches:
-    description: |-
-      pf::UnifiedApi::Controller::Config::Switches
-
-        invalidate_cache
-          invalidate switch cache
+    description: "pf::UnifiedApi::Controller::Config::Switches\n\n  invalidate_cache\n
+      \   invalidate switch cache"
     get:
       description: List items
       operationId: api.v1.Config::Switches.list
@@ -14902,71 +14896,19 @@ paths:
       responses:
         '204':
           description: Item deleted
-    description: |-
-      pf::UnifiedApi::Controller::Nodes
-
-        register
-          register
-
-        deregister
-          deregister
-
-        bulk_register
-          bulk_register
-
-        bulk_init_results
-          bulk_init_results
-
-        bulk_deregister
-          bulk_deregister
-
-        fingerbank_info
-          fingerbank_info
-
-        fingerbank_refresh
-          fingerbank_refresh
-
-        bulk_close_violations
-          bulk_close_violations
-
-        close_violation
-          close_violation
-
-        create_error_msg
-          create_error_msg
-
-        bulk_reevaluate_access
-          bulk_reevaluate_access
-
-        bulk_fingerbank_refresh
-          bulk_fingerbank_refresh
-
-        bulk_restart_switchport
-          bulk_restart_switchport
-
-        bulk_apply_violation
-          bulk_apply_violation
-
-        apply_violation
-          apply_violation
-
-        bulk_apply_role
-          bulk_apply_role
-
-        bulk_apply_bypass_role
-          bulk_apply_bypass_role
-
-        do_bulk_update_field
-          do_bulk_update_field
-
-        restart_switchport
-          restart_switchport
-
-        do_restart_switchport
-          do_restart_switchport
-
-        reevaluate_access
-          reevaluate_access
+    description: "pf::UnifiedApi::Controller::Nodes\n\n  register\n    register\n\n
+      \ deregister\n    deregister\n\n  bulk_register\n    bulk_register\n\n  bulk_init_results\n
+      \   bulk_init_results\n\n  bulk_deregister\n    bulk_deregister\n\n  fingerbank_info\n
+      \   fingerbank_info\n\n  fingerbank_refresh\n    fingerbank_refresh\n\n  bulk_close_violations\n
+      \   bulk_close_violations\n\n  close_violation\n    close_violation\n\n  create_error_msg\n
+      \   create_error_msg\n\n  bulk_reevaluate_access\n    bulk_reevaluate_access\n\n
+      \ bulk_fingerbank_refresh\n    bulk_fingerbank_refresh\n\n  bulk_restart_switchport\n
+      \   bulk_restart_switchport\n\n  bulk_apply_violation\n    bulk_apply_violation\n\n
+      \ apply_violation\n    apply_violation\n\n  bulk_apply_role\n    bulk_apply_role\n\n
+      \ bulk_apply_bypass_role\n    bulk_apply_bypass_role\n\n  do_bulk_update_field\n
+      \   do_bulk_update_field\n\n  restart_switchport\n    restart_switchport\n\n
+      \ do_restart_switchport\n    do_restart_switchport\n\n  reevaluate_access\n
+      \   reevaluate_access"
     get:
       description: Get an item
       operationId: api.v1.Nodes.get
@@ -15099,71 +15041,19 @@ paths:
         '422':
           $ref: '#/components/responses/UnprocessableEntity'
   /nodes:
-    description: |-
-      pf::UnifiedApi::Controller::Nodes
-
-        register
-          register
-
-        deregister
-          deregister
-
-        bulk_register
-          bulk_register
-
-        bulk_init_results
-          bulk_init_results
-
-        bulk_deregister
-          bulk_deregister
-
-        fingerbank_info
-          fingerbank_info
-
-        fingerbank_refresh
-          fingerbank_refresh
-
-        bulk_close_violations
-          bulk_close_violations
-
-        close_violation
-          close_violation
-
-        create_error_msg
-          create_error_msg
-
-        bulk_reevaluate_access
-          bulk_reevaluate_access
-
-        bulk_fingerbank_refresh
-          bulk_fingerbank_refresh
-
-        bulk_restart_switchport
-          bulk_restart_switchport
-
-        bulk_apply_violation
-          bulk_apply_violation
-
-        apply_violation
-          apply_violation
-
-        bulk_apply_role
-          bulk_apply_role
-
-        bulk_apply_bypass_role
-          bulk_apply_bypass_role
-
-        do_bulk_update_field
-          do_bulk_update_field
-
-        restart_switchport
-          restart_switchport
-
-        do_restart_switchport
-          do_restart_switchport
-
-        reevaluate_access
-          reevaluate_access
+    description: "pf::UnifiedApi::Controller::Nodes\n\n  register\n    register\n\n
+      \ deregister\n    deregister\n\n  bulk_register\n    bulk_register\n\n  bulk_init_results\n
+      \   bulk_init_results\n\n  bulk_deregister\n    bulk_deregister\n\n  fingerbank_info\n
+      \   fingerbank_info\n\n  fingerbank_refresh\n    fingerbank_refresh\n\n  bulk_close_violations\n
+      \   bulk_close_violations\n\n  close_violation\n    close_violation\n\n  create_error_msg\n
+      \   create_error_msg\n\n  bulk_reevaluate_access\n    bulk_reevaluate_access\n\n
+      \ bulk_fingerbank_refresh\n    bulk_fingerbank_refresh\n\n  bulk_restart_switchport\n
+      \   bulk_restart_switchport\n\n  bulk_apply_violation\n    bulk_apply_violation\n\n
+      \ apply_violation\n    apply_violation\n\n  bulk_apply_role\n    bulk_apply_role\n\n
+      \ bulk_apply_bypass_role\n    bulk_apply_bypass_role\n\n  do_bulk_update_field\n
+      \   do_bulk_update_field\n\n  restart_switchport\n    restart_switchport\n\n
+      \ do_restart_switchport\n    do_restart_switchport\n\n  reevaluate_access\n
+      \   reevaluate_access"
     get:
       description: List items
       operationId: api.v1.Nodes.list
@@ -15203,71 +15093,19 @@ paths:
         '422':
           $ref: '#/components/responses/UnprocessableEntity'
   /nodes/search:
-    description: |-
-      pf::UnifiedApi::Controller::Nodes
-
-        register
-          register
-
-        deregister
-          deregister
-
-        bulk_register
-          bulk_register
-
-        bulk_init_results
-          bulk_init_results
-
-        bulk_deregister
-          bulk_deregister
-
-        fingerbank_info
-          fingerbank_info
-
-        fingerbank_refresh
-          fingerbank_refresh
-
-        bulk_close_violations
-          bulk_close_violations
-
-        close_violation
-          close_violation
-
-        create_error_msg
-          create_error_msg
-
-        bulk_reevaluate_access
-          bulk_reevaluate_access
-
-        bulk_fingerbank_refresh
-          bulk_fingerbank_refresh
-
-        bulk_restart_switchport
-          bulk_restart_switchport
-
-        bulk_apply_violation
-          bulk_apply_violation
-
-        apply_violation
-          apply_violation
-
-        bulk_apply_role
-          bulk_apply_role
-
-        bulk_apply_bypass_role
-          bulk_apply_bypass_role
-
-        do_bulk_update_field
-          do_bulk_update_field
-
-        restart_switchport
-          restart_switchport
-
-        do_restart_switchport
-          do_restart_switchport
-
-        reevaluate_access
-          reevaluate_access
+    description: "pf::UnifiedApi::Controller::Nodes\n\n  register\n    register\n\n
+      \ deregister\n    deregister\n\n  bulk_register\n    bulk_register\n\n  bulk_init_results\n
+      \   bulk_init_results\n\n  bulk_deregister\n    bulk_deregister\n\n  fingerbank_info\n
+      \   fingerbank_info\n\n  fingerbank_refresh\n    fingerbank_refresh\n\n  bulk_close_violations\n
+      \   bulk_close_violations\n\n  close_violation\n    close_violation\n\n  create_error_msg\n
+      \   create_error_msg\n\n  bulk_reevaluate_access\n    bulk_reevaluate_access\n\n
+      \ bulk_fingerbank_refresh\n    bulk_fingerbank_refresh\n\n  bulk_restart_switchport\n
+      \   bulk_restart_switchport\n\n  bulk_apply_violation\n    bulk_apply_violation\n\n
+      \ apply_violation\n    apply_violation\n\n  bulk_apply_role\n    bulk_apply_role\n\n
+      \ bulk_apply_bypass_role\n    bulk_apply_bypass_role\n\n  do_bulk_update_field\n
+      \   do_bulk_update_field\n\n  restart_switchport\n    restart_switchport\n\n
+      \ do_restart_switchport\n    do_restart_switchport\n\n  reevaluate_access\n
+      \   reevaluate_access"
     post:
       operationId: api.v1.Nodes.search
       parameters: []
