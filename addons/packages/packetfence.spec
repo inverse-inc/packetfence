@@ -1135,9 +1135,6 @@ fi
 %config(noreplace)      /usr/local/pf/conf/snmptrapd.conf
 %config(noreplace)      /usr/local/pf/conf/syslog.conf
 %config                 /usr/local/pf/conf/syslog.conf.defaults
-%config                 /usr/local/pf/conf/ui.conf
-%config                 /usr/local/pf/conf/ui.conf.es_ES
-%config(noreplace)      /usr/local/pf/conf/ui-global.conf
 %config(noreplace)      /usr/local/pf/conf/security_events.conf
 %config                 /usr/local/pf/conf/security_events.conf.defaults
 %config(noreplace)      /usr/local/pf/conf/wmi.conf
