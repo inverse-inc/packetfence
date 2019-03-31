@@ -144,26 +144,6 @@ $t->options_ok("/api/v1/config/syslog_parsers?type=regex")
                     message => "The id is invalid. The id can only contain alphanumeric characters, dashes, period and underscores.",
                 },
             },
-            lines => {
-                default => undef,
-                item    => {
-                    allowed     => undef,
-                    default     => undef,
-                    placeholder => undef,
-                    required    => $false,
-                    type        => "string"
-                },
-                placeholder => undef,
-                required    => $false,
-                type        => "array"
-            },
-            loglines => {
-                allowed     => undef,
-                default     => undef,
-                placeholder => undef,
-                required    => $false,
-                type        => "string"
-            },
             path => {
                 allowed     => undef,
                 default     => undef,
@@ -184,7 +164,76 @@ $t->options_ok("/api/v1/config/syslog_parsers?type=regex")
                                 placeholder => undef,
                                 properties  => {
                                     api_method => {
-                                        allowed     => [],
+                                        "allowed" => [
+                                          {
+                                            "text" => "add_person",
+                                            "value" => "add_person"
+                                          },
+                                          {
+                                            "text" => "close_security_event",
+                                            "value" => "close_security_event"
+                                          },
+                                          {
+                                            "text" => "deregister_node_ip",
+                                            "value" => "deregister_node_ip"
+                                          },
+                                          {
+                                            "text" => "dynamic_register_node",
+                                            "value" => "dynamic_register_node"
+                                          },
+                                          {
+                                            "text" => "modify_node",
+                                            "value" => "modify_node"
+                                          },
+                                          {
+                                            "text" => "modify_person",
+                                            "value" => "modify_person"
+                                          },
+                                          {
+                                            "text" => "reevaluate_access",
+                                            "value" => "reevaluate_access"
+                                          },
+                                          {
+                                            "text" => "register_node",
+                                            "value" => "register_node"
+                                          },
+                                          {
+                                            "text" => "register_node_ip",
+                                            "value" => "register_node_ip"
+                                          },
+                                          {
+                                            "text" => "release_all_security_events",
+                                            "value" => "release_all_security_events"
+                                          },
+                                          {
+                                            "text" => "role_detail",
+                                            "value" => "role_detail"
+                                          },
+                                          {
+                                            "text" => "trigger_scan",
+                                            "value" => "trigger_scan"
+                                          },
+                                          {
+                                            "text" => "trigger_security_event",
+                                            "value" => "trigger_security_event"
+                                          },
+                                          {
+                                            "text" => "unreg_node_for_pid",
+                                            "value" => "unreg_node_for_pid"
+                                          },
+                                          {
+                                            "text" => "update_ip4log",
+                                            "value" => "update_ip4log"
+                                          },
+                                          {
+                                            "text" => "update_ip6log",
+                                            "value" => "update_ip6log"
+                                          },
+                                          {
+                                            "text" => "update_role_configuration",
+                                            "value" => "update_role_configuration"
+                                          }
+                                        ],
                                         default     => undef,
                                         placeholder => undef,
                                         required    => $true,
