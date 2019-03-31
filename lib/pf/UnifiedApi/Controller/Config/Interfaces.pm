@@ -15,7 +15,6 @@ pf::UnifiedApi::Controller::Config::Interfaces
 use strict;
 use warnings;
 use Mojo::Base 'pf::UnifiedApi::Controller::RestRoute';
-use pfappserver::Model::Interface;
 use pfappserver::Model::Enforcement;
 use pfappserver::Form::Interface::Create;
 use pf::UnifiedApi::Controller::Config;
@@ -67,6 +66,7 @@ Get the pfappserver model of the interfaces
 =cut
 
 sub model {
+    require pfappserver::Model::Interface;
     my $model = pfappserver::Model::Interface->new;
     $model->ACCEPT_CONTEXT;
     return $model;
