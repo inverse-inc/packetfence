@@ -15,7 +15,6 @@ extends 'pfappserver::Form::Config::Network';
 with 'pfappserver::Base::Form::Role::Help';
 
 use pfappserver::Model::Config::Network;
-use pfappserver::Model::Interface;
 use HTTP::Status qw(:constants is_success);
 use pf::config;
 
@@ -112,7 +111,7 @@ Make sure the router IP has a gateway.
 
 sub validate {
     my $self = shift;
-
+    require pfappserver::Model::Interface;
     $self->SUPER::validate();
 
     my $network_model = pfappserver::Model::Config::Network->new;
