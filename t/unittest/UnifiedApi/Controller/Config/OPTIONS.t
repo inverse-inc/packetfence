@@ -41,6 +41,7 @@ $t->options_ok("/api/v1/config/floating_devices")
         meta => {
             id => {
                 allowed     => undef,
+                allowed_lookup => undef,
                 default     => undef,
                 placeholder => undef,
                 required => $true,
@@ -52,6 +53,7 @@ $t->options_ok("/api/v1/config/floating_devices")
             },
             ip => {
                 allowed     => undef,
+                allowed_lookup => undef,
                 default     => undef,
                 placeholder => undef,
                 required => $false,
@@ -59,6 +61,7 @@ $t->options_ok("/api/v1/config/floating_devices")
             },
             pvid => {
                 allowed     => undef,
+                allowed_lookup => undef,
                 default     => undef,
                 min_value   => 0,
                 placeholder => undef,
@@ -67,6 +70,7 @@ $t->options_ok("/api/v1/config/floating_devices")
             },
             taggedVlan => {
                 allowed     => undef,
+                allowed_lookup => undef,
                 default     => undef,
                 placeholder => undef,
                 required => $false,
@@ -74,6 +78,7 @@ $t->options_ok("/api/v1/config/floating_devices")
             },
             trunkPort => {
                 allowed     => undef,
+                allowed_lookup => undef,
                 default     => undef,
                 placeholder => undef,
                 required => $false,
@@ -135,6 +140,7 @@ $t->options_ok("/api/v1/config/syslog_parsers?type=regex")
         meta => {
             id => {
                 allowed     => undef,
+                allowed_lookup => undef,
                 default     => undef,
                 placeholder => undef,
                 required    => $true,
@@ -146,6 +152,7 @@ $t->options_ok("/api/v1/config/syslog_parsers?type=regex")
             },
             path => {
                 allowed     => undef,
+                allowed_lookup => undef,
                 default     => undef,
                 placeholder => undef,
                 required    => $true,
@@ -241,6 +248,7 @@ $t->options_ok("/api/v1/config/syslog_parsers?type=regex")
                                     },
                                     api_parameters => {
                                         allowed     => undef,
+                                        allowed_lookup => undef,
                                         default     => undef,
                                         placeholder => undef,
                                         required    => $true,
@@ -256,6 +264,7 @@ $t->options_ok("/api/v1/config/syslog_parsers?type=regex")
                         },
                         ip_mac_translation => {
                             allowed     => undef,
+                            allowed_lookup => undef,
                             default     => undef,
                             placeholder => undef,
                             required    => $false,
@@ -263,6 +272,7 @@ $t->options_ok("/api/v1/config/syslog_parsers?type=regex")
                         },
                         last_if_match => {
                             allowed     => undef,
+                            allowed_lookup => undef,
                             default     => undef,
                             placeholder => undef,
                             required    => $false,
@@ -270,6 +280,7 @@ $t->options_ok("/api/v1/config/syslog_parsers?type=regex")
                         },
                         name => {
                             allowed     => undef,
+                            allowed_lookup => undef,
                             default     => undef,
                             placeholder => undef,
                             required    => $true,
@@ -277,6 +288,7 @@ $t->options_ok("/api/v1/config/syslog_parsers?type=regex")
                         },
                         regex => {
                             allowed     => undef,
+                            allowed_lookup => undef,
                             default     => undef,
                             placeholder => undef,
                             required    => $true,
@@ -292,6 +304,7 @@ $t->options_ok("/api/v1/config/syslog_parsers?type=regex")
             },
             status => {
                 allowed     => undef,
+                allowed_lookup => undef,
                 default     => undef,
                 placeholder => undef,
                 required    => $false,
@@ -299,6 +312,7 @@ $t->options_ok("/api/v1/config/syslog_parsers?type=regex")
             },
             type => {
                 allowed     => undef,
+                allowed_lookup => undef,
                 default     => undef,
                 placeholder => undef,
                 required    => $true,
@@ -316,6 +330,7 @@ $t->options_ok("/api/v1/config/base/general")
         meta => {
             dhcpservers => {
                 allowed     => undef,
+                allowed_lookup => undef,
                 default     => undef,
                 placeholder => '127.0.0.1',
                 required    => $false,
@@ -323,6 +338,7 @@ $t->options_ok("/api/v1/config/base/general")
             },
             domain => {
                 allowed     => undef,
+                allowed_lookup => undef,
                 default     => undef,
                 placeholder => 'packetfence.org',
                 required    => $false,
@@ -330,6 +346,7 @@ $t->options_ok("/api/v1/config/base/general")
             },
             hostname => {
                 allowed     => undef,
+                allowed_lookup => undef,
                 default     => undef,
                 placeholder => 'packetfence',
                 required    => $false,
