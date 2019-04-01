@@ -69,7 +69,7 @@ has_field 'ip_assigned' =>
         'List like 00:11:22:33:44:55:192.168.0.12,11:22:33:44:55:66:192.168.0.13',
       option_pattern => sub {
           {
-              message => "Must be a list of mac list ip address",
+              message => "A list of MAC:IP couples (example: 00:11:22:33:44:55:192.168.0.12)",
               regex   => "^[0-9A-Fa-f][0-9A-Fa-f](:[0-9A-Fa-f][0-9A-Fa-f]){5}:\\d{1,3}(.\\d{1,3}){3}(,[0-9A-Fa-f][0-9A-Fa-f](:[0-9A-Fa-f][0-9A-Fa-f]){5}:\\d{1,3}(.\\d{1,3}){3})*\$"
 ,
           };
