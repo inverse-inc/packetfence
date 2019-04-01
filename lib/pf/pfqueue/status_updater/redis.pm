@@ -180,8 +180,8 @@ sub set_in_status_hash {
     }
     
     $self->connection->multi();
-    $self->connection->expire($self->status_key, $self->status_ttl);
     $self->connection->hset($self->status_key, $key, $data);
+    $self->connection->expire($self->status_key, $self->status_ttl);
     $self->connection->publish($self->status_publish_key, 1);
     $self->connection->exec();
 }
