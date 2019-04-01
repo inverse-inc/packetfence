@@ -36,7 +36,7 @@ type Refreshable interface {
 func NewPool() Pool {
 	p := Pool{}
 	p.lock = timedlock.NewRWLock()
-	p.lock.Timeout = 100 * time.Millisecond
+	p.lock.Timeout = 1 * time.Second
 	p.lock.RTimeout = 100 * time.Millisecond
 	p.lock.PrintErrors = false
 	p.lock.Panic = false
