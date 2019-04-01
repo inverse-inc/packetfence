@@ -231,6 +231,7 @@ sub setup_api_v1_config_routes {
     $self->setup_api_v1_config_syslog_forwarders_routes($root);
     $self->setup_api_v1_config_syslog_parsers_routes($root);
     $self->setup_api_v1_config_traffic_shaping_policies_routes($root);
+    $self->setup_api_v1_config_wmi_rules_routes($root);
     return;
 }
 
@@ -1614,6 +1615,26 @@ sub setup_api_v1_std_local_fingerbank_routes {
     $resource_route->register_sub_action({ method => 'PUT', action => 'replace', path => ''});
     $resource_route->register_sub_action({ method => 'PATCH', action => 'update', path => ''});
     return ;
+}
+
+=head2 setup_api_v1_config_wmi_rules_routes
+
+setup_api_v1_config_wmi_rules_routes
+
+=cut
+
+sub setup_api_v1_config_wmi_rules_routes {
+    my ($self, $root) = @_;
+    my ($collection_route, $resource_route) =
+      $self->setup_api_v1_std_config_routes(
+        $root,
+        "Config::WMIRules",
+        "/wmi_rules",
+        "/wmi_rule/#wmi_rule_id",
+        "api.v1.Config.WMIRules"
+    );
+
+    return ($collection_route, $resource_route);
 }
 
 =head1 AUTHOR
