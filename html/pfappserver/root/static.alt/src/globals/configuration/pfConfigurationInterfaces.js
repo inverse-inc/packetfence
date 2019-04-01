@@ -1,13 +1,15 @@
 import i18n from '@/utils/locale'
 import network from '@/utils/network'
 import pfFormChosen from '@/components/pfFormChosen'
+import pfFormHtml from '@/components/pfFormHtml'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import {
   and,
   not,
   conditional,
-  ipv6Address
+  ipv6Address,
+  isCIDR
 } from '@/globals/pfValidators'
 
 const {
@@ -165,10 +167,22 @@ export const pfConfigurationInterfacesListColumns = [
   },
   {
     key: 'ipaddress',
-    label: i18n.t('IP Address'),
+    label: i18n.t('IPv4 Address'),
     sortable: true,
     visible: true,
     sort: pfConfigurationInterfacesSortColumns.ipaddress
+  },
+  {
+    key: 'ipv6_address',
+    label: i18n.t('IPv6 Address'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'ipv6_prefix',
+    label: i18n.t('IPv6 Prefix'),
+    sortable: true,
+    visible: true
   },
   {
     key: 'netmask',
@@ -194,6 +208,12 @@ export const pfConfigurationInterfacesListColumns = [
   {
     key: 'additional_listening_daemons',
     label: i18n.t('Daemons'),
+    sortable: false,
+    visible: true
+  },
+  {
+    key: 'high_availability',
+    label: i18n.t('High Availability'),
     sortable: false,
     visible: true
   },
@@ -305,7 +325,7 @@ export const pfConfigurationInterfaceViewFields = (context = {}) => {
               component: pfFormChosen,
               attrs: {
                 collapseObject: true,
-                placeholder: i18n.t('Click to add a type'),
+                placeholder: i18n.t('Click to add a daemon'),
                 trackBy: 'value',
                 label: 'text',
                 multiple: true,
@@ -315,6 +335,120 @@ export const pfConfigurationInterfaceViewFields = (context = {}) => {
                   { value: 'portal', text: 'portal' },
                   { value: 'radius', text: 'radius' }
                 ]
+              }
+            }
+          ]
+        },
+        {
+          if: ['inlinel2'].includes(form.type),
+          label: i18n.t('DNS'),
+          text: i18n.t('The primary DNS server of your network.'),
+          fields: [
+            {
+              key: 'dns',
+              component: pfFormInput,
+              attrs: {
+                type: 'numeric'
+              },
+              validators: {
+                [i18n.t('Invalid IPv4 address.')]: ipAddress
+              }
+            }
+          ]
+        },
+        {
+          if: ['dns-enforcement', 'inlinel2', 'vlan-isolation', 'vlan-registration'].includes(form.type),
+          label: i18n.t('Enable DHCP Server'),
+          fields: [
+            {
+              key: 'dhcpd_enabled',
+              component: pfFormRangeToggle,
+              attrs: {
+                values: { checked: '1', unchecked: '0' }
+              }
+            }
+          ]
+        },
+        {
+          if: ['inlinel2'].includes(form.type),
+          label: i18n.t('Enable NAT'),
+          fields: [
+            {
+              key: 'nat_enabled',
+              component: pfFormRangeToggle,
+              attrs: {
+                values: { checked: '1', unchecked: '0' }
+              }
+            }
+          ]
+        },
+        {
+          if: ['inlinel2'].includes(form.type) && ~~form.nat_enabled === 0,
+          label: null, /* no label */
+          fields: [
+            {
+              component: pfFormHtml,
+              attrs: {
+                html: `<div class="p-3 mb-1 bg-warning text-secondary">
+                  <strong>${i18n.t('Note')}</strong>
+                  ${i18n.t('Since NATting mode is disabled, PacketFence will adjust iptables to rules to route traffic rather than NATting it. Make sure to add the routes on the system.')}
+                </div>`
+              }
+            }
+          ]
+        },
+        {
+          if: ['inlinel2'].includes(form.type),
+          label: i18n.t('Split network by role'),
+          text: i18n.t('This will create a small network for each roles.'),
+          fields: [
+            {
+              key: 'split_network',
+              component: pfFormRangeToggle,
+              attrs: {
+                values: { checked: '1', unchecked: '0' }
+              }
+            }
+          ]
+        },
+        {
+          if: ['inlinel2'].includes(form.type),
+          label: i18n.t('Registration IP Address CIDR format'),
+          text: i18n.t('When split network by role is enabled then this network will be used as the registration network (example: 192.168.0.1/24).'),
+          fields: [
+            {
+              key: 'reg_network',
+              component: pfFormInput,
+              validators: {
+                [i18n.t('Invalid CIDR.')]: isCIDR
+              }
+            }
+          ]
+        },
+        {
+          if: ['inlinel2'].includes(form.type),
+          label: null, /* no label */
+          fields: [
+            {
+              component: pfFormHtml,
+              attrs: {
+                html: `<div class="p-3 bg-warning text-secondary">
+                  <strong>${i18n.t('Note')}</strong>
+                  ${i18n.t('Remember to enable ip_forward on your operating system for the inline mode to work.')}
+                </div>`
+              }
+            }
+          ]
+        },
+        {
+          if: ['none', 'management'].includes(form.type),
+          label: i18n.t('High availability'),
+          fields: [
+            {
+              key: 'high_availability',
+              component: pfFormRangeToggle,
+              attrs: {
+                values: { checked: '1', unchecked: '0' }
               }
             }
           ]
