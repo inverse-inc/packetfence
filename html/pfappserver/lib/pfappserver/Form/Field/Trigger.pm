@@ -21,7 +21,13 @@ use pf::constants::trigger qw($TRIGGER_MAP);
 use pf::factory::condition::security_event;
 use pf::ConfigStore::Roles;
 
+our %SKIPPED = (
+    role => 1,
+    device => 1,
+);
+
 for my $trigger (keys %pf::factory::condition::security_event::TRIGGER_TYPE_TO_CONDITION_TYPE) {
+    next if exists $SKIPPED{$trigger};
     if (exists $TRIGGER_MAP->{$trigger}) {
         my $value = $TRIGGER_MAP->{$trigger};
         has_field $trigger => (
@@ -42,6 +48,13 @@ has_field 'role' => (
     options_method => sub {
         return map { { label => $_, value => $_ } } @{pf::ConfigStore::Roles->new->readAllIds()};
     },
+);
+
+has_field 'device' => (
+   type => 'FingerbankSelect',
+   multiple => 1,
+   label => 'OS',
+   fingerbank_model => "fingerbank::Model::Device",
 );
 
 
