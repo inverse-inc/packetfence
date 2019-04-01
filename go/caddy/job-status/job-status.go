@@ -15,11 +15,10 @@ import (
 	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddyhttp/httpserver"
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/panichandler"
+	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
+	"github.com/inverse-inc/packetfence/go/redisclient"
 	"github.com/julienschmidt/httprouter"
 )
-
-const REDIS_HOST = "localhost"
-const REDIS_PORT = 6380
 
 const STATUS_PENDING = "Pending"
 const STATUS_COMPLETED = "Completed"
@@ -65,8 +64,9 @@ func buildJobStatusHandler(ctx context.Context) (JobStatusHandler, error) {
 
 	jobStatus := JobStatusHandler{}
 
+	pfconfigdriver.PfconfigPool.AddStruct(ctx, &redisclient.Config)
 	jobStatus.redis = redis.NewClient(&redis.Options{
-		Addr: sharedutils.CleanRedisUri(fmt.Sprintf("redis://%s:%d", REDIS_HOST, REDIS_PORT)),
+		Addr: sharedutils.CleanRedisUri(fmt.Sprintf("redis://%s", redisclient.Config.RedisArgs.Server)),
 	})
 
 	router := httprouter.New()
