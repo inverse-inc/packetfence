@@ -65,8 +65,16 @@ func buildJobStatusHandler(ctx context.Context) (JobStatusHandler, error) {
 	jobStatus := JobStatusHandler{}
 
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &redisclient.Config)
+	var network string
+	if redisclient.Config.RedisArgs.Server[0] == '/' {
+		network = "unix"
+	} else {
+		network = "tcp"
+	}
+
 	jobStatus.redis = redis.NewClient(&redis.Options{
-		Addr: sharedutils.CleanRedisUri(fmt.Sprintf("redis://%s", redisclient.Config.RedisArgs.Server)),
+		Addr:    sharedutils.CleanRedisUri(fmt.Sprintf("redis://%s", redisclient.Config.RedisArgs.Server)),
+		Network: network,
 	})
 
 	router := httprouter.New()
