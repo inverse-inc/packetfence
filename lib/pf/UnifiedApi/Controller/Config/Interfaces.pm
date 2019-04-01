@@ -146,6 +146,7 @@ sub get {
     if(scalar(keys($interface)) > 0) {
         $interface = $interface->{$interface_id};
         $interface = $self->normalize_interface($interface);
+        $interface->{id} = $interface_id;
         $self->render(json => {item => $interface}, status => 200);
     }
     else {
