@@ -29,6 +29,17 @@ func TestTokenAuthorizationMiddlewareIsAuthorized(t *testing.T) {
 		t.Error("Request was unauthorized although it should have gone through, error:", err)
 	}
 
+	// Test a search POST
+	res, err = m.IsAuthorized(ctx, "POST", "/api/v1/nodes/search", 0, &TokenInfo{
+		AdminRoles: map[string]bool{
+			"NodesRead": true,
+		},
+	})
+
+	if !res {
+		t.Error("Request was unauthorized although it should have gone through, error:", err)
+	}
+
 	// Test a valid GET with a parameter
 	res, err = m.IsAuthorized(ctx, "GET", "/api/v1/node/00:11:22:33:44:55", 0, &TokenInfo{
 		AdminRoles: map[string]bool{

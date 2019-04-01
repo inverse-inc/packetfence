@@ -216,6 +216,11 @@ func (tam *TokenAuthorizationMiddleware) isAuthorizedAdminActions(ctx context.Co
 		return false, errors.New(msg)
 	}
 
+	// Rewrite suffix for search
+	if method == "POST" && strings.HasSuffix(path, "/search") {
+		suffix = "_READ"
+	}
+
 	if baseAdminRole == ALLOW_ANY {
 		return true, nil
 	}
