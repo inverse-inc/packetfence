@@ -38,7 +38,7 @@ func NewPool() Pool {
 	p.lock = timedlock.NewRWLock()
 	p.lock.Timeout = 100 * time.Millisecond
 	p.lock.RTimeout = 100 * time.Millisecond
-	p.lock.PrintErrors = true
+	p.lock.PrintErrors = false
 	p.lock.Panic = false
 	p.structs = make(map[string]interface{})
 	return p
@@ -128,7 +128,7 @@ func (p *Pool) refreshStructs(ctx context.Context) {
 func (p *Pool) acquireWriteLock(ctx context.Context) (bool, uint64) {
 	defer func() {
 		if r := recover(); r != nil {
-			log.LoggerWContext(ctx).Error("Couldn't acquire lock for pfconfig pool")
+			log.LoggerWContext(ctx).Warn("Couldn't acquire lock for pfconfig pool")
 		}
 	}()
 
