@@ -19,6 +19,7 @@ import PortalModulesStore from '../_store/portalModules'
 import ProvisioningsStore from '../_store/provisionings'
 import RealmsStore from '../_store/realms'
 import RolesStore from '../_store/roles'
+import RoutedNetworksStore from '../_store/routedNetworks'
 import ScansStore from '../_store/scans'
 // import SecurityEventsStore from '../_store/securityEvents'
 import ServicesStore from '../_store/services'
@@ -166,6 +167,9 @@ const route = {
     }
     if (!store.state.$_roles) {
       store.registerModule('$_roles', RolesStore)
+    }
+    if (!store.state.$_routed_networks) {
+      store.registerModule('$_routed_networks', RoutedNetworksStore)
     }
     if (!store.state.$_scans) {
       store.registerModule('$_scans', ScansStore)
