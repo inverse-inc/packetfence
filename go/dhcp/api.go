@@ -15,6 +15,7 @@ import (
 	"github.com/davecgh/go-spew/spew"
 	"github.com/gorilla/mux"
 	"github.com/inverse-inc/packetfence/go/api-frontend/unifiedapierrors"
+	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/sharedutils"
 	dhcp "github.com/krolaw/dhcp4"
@@ -195,7 +196,7 @@ func handleReleaseIP(res http.ResponseWriter, req *http.Request) {
 	res.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	res.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(res).Encode(result); err != nil {
-		panic(err)
+		log.LoggerWContext(ctx).Error("Error releasing IP: " + err.Error())
 	}
 }
 
@@ -219,7 +220,7 @@ func handleOverrideOptions(res http.ResponseWriter, req *http.Request) {
 	res.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	res.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(res).Encode(result); err != nil {
-		panic(err)
+		log.LoggerWContext(ctx).Error("Error adding MAC options: " + err.Error())
 	}
 }
 
@@ -243,7 +244,7 @@ func handleOverrideNetworkOptions(res http.ResponseWriter, req *http.Request) {
 	res.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	res.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(res).Encode(result); err != nil {
-		panic(err)
+		log.LoggerWContext(ctx).Error("Error adding network options: " + err.Error())
 	}
 }
 
@@ -260,7 +261,7 @@ func handleRemoveOptions(res http.ResponseWriter, req *http.Request) {
 	res.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	res.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(res).Encode(result); err != nil {
-		panic(err)
+		log.LoggerWContext(ctx).Error("Error removing MAC options: " + err.Error())
 	}
 }
 
@@ -277,7 +278,7 @@ func handleRemoveNetworkOptions(res http.ResponseWriter, req *http.Request) {
 	res.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	res.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(res).Encode(result); err != nil {
-		panic(err)
+		log.LoggerWContext(ctx).Error("Error removing betwork options: " + err.Error())
 	}
 }
 
