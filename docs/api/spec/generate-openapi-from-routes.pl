@@ -213,17 +213,38 @@ sub walk {
     $pattern->match( '/', $route->is_endpoint && !$partial );
     push @$row, ( regexp_pattern $pattern->regex )[0] if $verbose;
 
-    push @$row,
-      defined $to->{controller} ? "$to->{controller}#$to->{action}" : ''
-      if $verbose;
-    if ( defined $to->{controller} ) {
-        $info{controller} = $to->{controller};
-        $info{action}     = $to->{action};
+    my $action = $to->{action};
+    my $controller = routeController($route);
+    if ($action) {
+        push @$row,
+          defined $controller ? "$controller#$action" : ''
+          if $verbose;
+        if ( $controller ) {
+            $info{controller} = $controller;
+            $info{action}     = $action;
+        }
     }
 
     $depth++;
     my @children = map { walk( $_, $depth, $full_path, \@paths ) } @$children;
     return \%info, @children;
+}
+
+=head2 routeController
+
+routeController
+
+=cut
+
+sub routeController {
+    my ($r) = @_;
+    my $controller;
+    while (!defined $controller && defined $r) {
+        $controller = $r->to->{controller};
+        $r = $r->parent;
+    }
+
+    return $controller;
 }
 
 =head1 AUTHOR
