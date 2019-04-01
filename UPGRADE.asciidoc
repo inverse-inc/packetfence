@@ -1865,6 +1865,13 @@ Deprecate the classic dhcp filters
 The previous dhcp filters engine has been deprecated in favor of the new one who is able to modify
 the dhcp answer on the fly.
 
+Violations have been renamed to Security Events
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The violations have been renamed to security events. In order to make the appropriate changes in your configuration, execute the following script:
+
+  /usr/local/pf/addons/upgrade/to-9.0-security-events.sh
+  
 Database schema
 ^^^^^^^^^^^^^^^
 
