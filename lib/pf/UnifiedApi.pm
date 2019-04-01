@@ -51,7 +51,6 @@ sub startup {
     $self->hook(before_render => \&before_render_cb);
     $self->plugin('pf::UnifiedApi::Plugin::RestCrud');
     my $routes = $self->routes;
-    $routes->to(action => 'unknown_action');
     $self->setup_api_v1_routes($routes->any("/api/v1")->name("api.v1"));
     $self->custom_startup_hook();
     $routes->any( '/*', sub {
@@ -1538,7 +1537,7 @@ setup_api_v1_queues_routes
 sub setup_api_v1_queues_routes {
     my ($self, $root) = @_;
     my $route = $root->any("/queues")->name("api.v1.Queues");
-    $route->register_sub_action({ action => "stats", method => "GET"});
+    $route->register_sub_action({ action => "stats", method => "GET", controller => 'Queues'});
     return ;
 }
 

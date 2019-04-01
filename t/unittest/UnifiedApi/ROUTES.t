@@ -75,9 +75,22 @@ sub walk {
     my ($route, $meta) = @_;
     # Flags
     my $to = $route->to;
-    if ( defined $to->{controller} ) {
-        if (defined $to->{action}) {
-            push @{$meta->{controllers}{$to->{controller}}{actions}}, $to->{action};
+    my $action = $to->{action};
+    my $controller = $to->{controller};
+    my $parent = $route->parent;
+
+    while (!defined ($controller) && defined $parent) {
+        $controller = $parent->to->{controller};
+        $parent = $parent->parent;
+    }
+
+    if (defined $action && !defined $controller) {
+        die (($route->name // "undef") . ": An action ($action) is defined but it has no controller");
+    }
+
+    if ( $controller ) {
+        if ($action) {
+            push @{$meta->{controllers}{$controller}{actions}}, $action;
         }
     }
 
