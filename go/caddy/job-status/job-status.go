@@ -106,6 +106,8 @@ func (h JobStatusHandler) handleStatusPoll(w http.ResponseWriter, r *http.Reques
 	updatesKey := h.jobStatusUpdatesKey(jobId)
 
 	sub := h.redis.Subscribe(updatesKey)
+	defer sub.Close()
+
 	_, err = sub.Receive()
 	if err != nil {
 		msg := "Unable to get job status from redis database"
