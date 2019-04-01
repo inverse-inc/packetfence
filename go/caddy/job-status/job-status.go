@@ -23,6 +23,7 @@ const REDIS_PORT = 6380
 
 const STATUS_PENDING = "Pending"
 const STATUS_COMPLETED = "Completed"
+const STATUS_FAILED = "Failed"
 
 const POLL_TIMEOUT = 15
 
@@ -80,10 +81,24 @@ func buildJobStatusHandler(ctx context.Context) (JobStatusHandler, error) {
 func (h JobStatusHandler) handleStatusPoll(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	ctx := r.Context()
 	jobId := p.ByName("job_id")
+
+	data, err := h.redis.HGetAll(h.jobStatusKey(jobId)).Result()
+	if err != nil {
+		msg := "Unable to get job status from redis database"
+		w.WriteHeader(http.StatusInternalServerError)
+		h.writeMessage(ctx, msg, w)
+		log.LoggerWContext(ctx).Error(msg + ": " + err.Error())
+	} else if status := data["status"]; status == STATUS_COMPLETED || status == STATUS_FAILED {
+		res, _ := json.Marshal(data)
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprintf(w, string(res))
+		return
+	}
+
 	updatesKey := h.jobStatusUpdatesKey(jobId)
 
 	sub := h.redis.Subscribe(updatesKey)
-	_, err := sub.Receive()
+	_, err = sub.Receive()
 	if err != nil {
 		msg := "Unable to get job status from redis database"
 		w.WriteHeader(http.StatusInternalServerError)
