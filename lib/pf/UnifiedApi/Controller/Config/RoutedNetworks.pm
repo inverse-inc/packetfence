@@ -42,6 +42,9 @@ sub get_json {
     if(my $id = $self->stash('network_id')) {
         $data->{network} = $id;
     }
+    else {
+        $data->{network} = $data->{id};
+    }
     return ($error, $data);
 }
 
