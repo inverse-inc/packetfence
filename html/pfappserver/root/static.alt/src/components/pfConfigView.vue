@@ -36,7 +36,7 @@
                   :vuelidate="getVuelidateModel(field.key)"
                   :class="getClass(row, field)"
                   :value="getValue(field.key)"
-                  :disabled="field.attrs.disabled || disabled"
+                  :disabled="(field.attrs && field.attrs.disabled) || disabled"
                   @input="setValue(field.key, $event)"
                   @validations="setComponentValidations(field.key, $event)"
                 ></component>
