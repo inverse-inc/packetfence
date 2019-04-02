@@ -260,7 +260,7 @@ func main() {
 			keyConfAdvanced.PfconfigNS = "config::Pf"
 			keyConfAdvanced.PfconfigHostnameOverlay = "yes"
 			pfconfigdriver.FetchDecodeSocket(ctx, &keyConfAdvanced)
-			Options := statsd.Network(keyConfAdvanced.StatsdListenPort)
+			Options := statsd.Network("localhost:" + keyConfAdvanced.StatsdListenPort)
 
 			StatsdClient, err = statsd.New(Options)
 			if err != nil {

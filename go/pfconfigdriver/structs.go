@@ -444,12 +444,10 @@ type PfConfAdvanced struct {
 	PfconfigNS                       string `val:"config::Pf"`
 	PfconfigHashNS                   string `val:"advanced"`
 	HashingCost                      string `val:"hashing_cost"`
-	FilterInPacketfenceAccounting    string `val:"filter_in_packetfence_accounting"`
 	ScanOnAccounting                 string `val:"scan_on_accounting"`
 	PffilterProcesses                string `val:"pffilter_processes"`
 	UpdateIplogWithAccounting        string `val:"update_iplog_with_accounting"`
 	AdminCspSecurityHeaders          string `val:"admin_csp_security_headers"`
-	LdapAttributes                   string `val:"ldap_attributes"`
 	PfdnsProcesses                   string `val:"pfdns_processes"`
 	Multihost                        string `val:"multihost"`
 	SsoOnAccessReevaluation          string `val:"sso_on_access_reevaluation"`
@@ -464,4 +462,6 @@ type PfConfAdvanced struct {
 	PortalCspSecurityHeaders         string `val:"portal_csp_security_headers"`
 	HashPasswords                    string `val:"hash_passwords"`
 	SourceToSendSmsWhenCreatingUsers string `val:"source_to_send_sms_when_creating_users"`
+	ActiveDirectoryOsJoinCheckBypass string `val:"active_directory_os_join_check_bypass"`
+	LdapAttributes                   string `val:"ldap_attributes"`
 }
