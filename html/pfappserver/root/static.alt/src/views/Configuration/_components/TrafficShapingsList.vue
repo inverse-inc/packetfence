@@ -7,7 +7,7 @@
     </template>
     <template slot="buttonAdd">
       <b-dropdown :text="$t('Add Traffic Shaping Policy')" variant="outline-primary" class="my-2" :disabled="roles.length === 0">
-        <b-dropdown-item v-for="role in roles" :to="{ name: 'newTrafficShaping', params: { role: role } }">{{ role }}</b-dropdown-item>
+        <b-dropdown-item v-for="role in roles" :key="role" :to="{ name: 'newTrafficShaping', params: { role: role } }">{{ role }}</b-dropdown-item>
       </b-dropdown>
     </template>
     <template slot="emptySearch" slot-scope="state">

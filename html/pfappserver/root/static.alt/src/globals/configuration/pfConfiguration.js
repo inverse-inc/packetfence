@@ -6,7 +6,6 @@ import pfFormToggle from '@/components/pfFormToggle'
 import { pfAuthenticationConditionType as authenticationConditionType } from '@/globals/pfAuthenticationConditions'
 import { pfDatabaseSchema as schema } from '@/globals/pfDatabaseSchema'
 import { pfFieldType as fieldType } from '@/globals/pfField'
-import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
   alphaNum,
   and,

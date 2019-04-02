@@ -94,7 +94,7 @@ const actions = {
   stopService: ({ state, commit }, id) => {
     commit('SERVICE_STOPPING', id)
     return api.stopService(id).then(response => {
-      commit('SERVICE_STOPPED', { id, response })
+      commit('SERVICE_STOPPED', { id })
       return state.cache[id]
     }).catch((err) => {
       const { response } = err
@@ -127,7 +127,7 @@ const mutations = {
     state.requestStatus = types.LOADING
   },
   SERVICE_DISABLED: (state, data) => {
-    const { id, response } = data
+    const { id } = data
     Vue.set(state.cache[id], 'enabled', false)
     Vue.set(state.cache[id], 'status', types.SUCCESS)
     state.requestStatus = types.SUCCESS
@@ -138,7 +138,7 @@ const mutations = {
     state.requestStatus = types.LOADING
   },
   SERVICE_ENABLED: (state, data) => {
-    const { id, response } = data
+    const { id } = data
     Vue.set(state.cache[id], 'enabled', true)
     Vue.set(state.cache[id], 'status', types.SUCCESS)
     state.requestStatus = types.SUCCESS
@@ -173,7 +173,7 @@ const mutations = {
     state.requestStatus = types.LOADING
   },
   SERVICE_STOPPED: (state, data) => {
-    const { id, response } = data
+    const { id } = data
     Vue.set(state.cache[id], 'pid', 0)
     Vue.set(state.cache[id], 'alive', false)
     Vue.set(state.cache[id], 'status', types.SUCCESS)

@@ -138,9 +138,6 @@ const api = {
   getTrafficShapingPolicies () {
     return apiCall({ url: 'config/traffic_shaping_policies', method: 'get' })
   },
-  getSecurityEvents () {
-    return apiCall({ url: 'config/securityEvents', method: 'get' })
-  },
   getWrixLocations () {
     return apiCall({ url: 'wrix_locations', method: 'get' })
   }
@@ -242,8 +239,6 @@ const state = { // set intitial states to `false` (not `[]` or `{}`) to avoid in
   tenants: false,
   trafficShapingPoliciesStatus: '',
   trafficShapingPolicies: false,
-  securityEventsStatus: '',
-  securityEvents: false,
   wrixLocationsStatus: '',
   wrixLocations: false
 }
@@ -433,20 +428,19 @@ const getters = {
     }
     const unit2seconds = (unit) => {
       let seconds = 1
-      // eslint no-fallthrough: ["error", { "commentPattern": "break[\\s\\w]*omitted" }]
       switch (unit) { // compound seconds w/ fallthrough
         case 'Y': seconds *= 12
-          // break omitted
+          /* falls through */
         case 'M': seconds *= 30.4375 // leap-year
-          // break omitted
+          /* falls through */
         case 'W': seconds *= 7
-          // break omitted
+          /* falls through */
         case 'D': seconds *= 24
-          // break omitted
+          /* falls through */
         case 'h': seconds *= 60
-          // break omitted
+          /* falls through */
         case 'm': seconds *= 60
-          // break omitted
+          /* falls through */
       }
       return seconds
     }

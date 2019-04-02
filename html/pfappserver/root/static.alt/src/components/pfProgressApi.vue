@@ -32,7 +32,6 @@ export default {
       this.percentage = (isNaN(p)) ? 100 : (p * 100)
     },
     show () {
-      const _this = this
       if (!this.$debouncer) {
         this.$debouncer = createDebouncer()
       }

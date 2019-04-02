@@ -504,7 +504,7 @@ export const maintenanceTaskExists = (value, component) => {
   if (!value) return true
   return store.dispatch('config/getMaintenanceTasks').then((response) => {
     if (response.length === 0) return true
-    return (response.filter(maintenance_task => maintenance_task.id.toLowerCase() === value.toLowerCase()).length > 0)
+    return (response.filter(maintenanceTask => maintenanceTask.id.toLowerCase() === value.toLowerCase()).length > 0)
   }).catch(() => {
     return true
   })
@@ -564,7 +564,7 @@ export const securityEventExists = (value, component) => {
   if (!value) return true
   return store.dispatch('config/getSecurityEvents').then((response) => {
     if (response.length === 0) return true
-    return (response.filter(security_event => security_event.id.toLowerCase() === value.toLowerCase()).length > 0)
+    return (response.filter(securityEvent => securityEvent.id.toLowerCase() === value.toLowerCase()).length > 0)
   }).catch(() => {
     return true
   })

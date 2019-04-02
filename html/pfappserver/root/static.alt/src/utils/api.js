@@ -70,7 +70,7 @@ Object.assign(apiCall, {
         }
       },
       startBenchmark (request) {
-        const { method = 'get', url = '/', params = {} } = request
+        const { method = 'get', url = '/' } = request
         const now = performance.now()
         const urlParts = url.split('/').filter((url) => { return url }) // ignore empty
         let benchmarks = this.benchmarks // initial pointer
@@ -157,7 +157,6 @@ Object.assign(apiCall, {
       getEta () {
         let maxEta = (new Date()).getTime()
         this.cache.forEach((request, rIndex) => { // calculate maximum time from requests in queue
-          const { method, url } = request
           let stats = this.getBenchmark(request)
           if (stats && 'time' in stats && 'num' in stats) {
             maxEta = Math.max(maxEta, ((new Date()).getTime() + (stats.time / stats.num)))

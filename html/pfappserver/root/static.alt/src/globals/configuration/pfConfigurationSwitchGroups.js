@@ -15,6 +15,7 @@ import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
   and,
   not,
+  or,
   conditional,
   isPort,
   limitSiblingFields,
