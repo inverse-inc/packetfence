@@ -23,6 +23,20 @@ has 'primary_key' => 'domain_id';
 
 use pf::ConfigStore::Domain;
 use pfappserver::Form::Config::Domain;
+use pf::domain;
+
+=head2 test_join
+
+Test if a domain is properly joined
+
+=cut
+
+sub test_join {
+    my ($self) = @_;
+    my $domain_id = $self->stash('domain_id');
+    my ($status, $msg) = pf::domain::test_join($domain_id);
+    $self->render(json => {message => $msg}, status => $status ? 200 : 422);
+}
 
 =head1 AUTHOR
 
