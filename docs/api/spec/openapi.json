@@ -13101,6 +13101,57 @@
             ],
             "type" : "object"
          },
+         "ConfigWMIRule" : {
+            "properties" : {
+               "action" : {
+                  "description" : "Add an action based on the result of the request",
+                  "type" : "string"
+               },
+               "id" : {
+                  "description" : "Name",
+                  "type" : "string"
+               },
+               "namespace" : {
+                  "description" : "Namespace",
+                  "type" : "string"
+               },
+               "on_tab" : {
+                  "description" : "Scan this WMI element while editing a node",
+                  "type" : "string"
+               },
+               "request" : {
+                  "description" : "Request",
+                  "type" : "string"
+               }
+            },
+            "required" : [
+               "id",
+               "request",
+               "namespace",
+               "action"
+            ],
+            "type" : "object"
+         },
+         "ConfigWMIRulesList" : {
+            "allOf" : [
+               {
+                  "$ref" : "#/components/schemas/Iterable"
+               },
+               {
+                  "properties" : {
+                     "items" : {
+                        "description" : "List",
+                        "items" : {
+                           "$ref" : "#/components/schemas/ConfigWMIRule"
+                        },
+                        "type" : "array"
+                     }
+                  },
+                  "type" : "object"
+               }
+            ],
+            "description" : "List"
+         },
          "DhcpInterfaceStats" : {
             "description" : "The schema used for a collection of interface initialization and statistics",
             "items" : {
@@ -19111,6 +19162,147 @@
             "responses" : {
                "201" : {
                   "$ref" : "#/components/responses/Created"
+               },
+               "400" : {
+                  "$ref" : "#/components/responses/BadRequest"
+               },
+               "422" : {
+                  "$ref" : "#/components/responses/UnprocessableEntity"
+               }
+            }
+         }
+      },
+      "/config/wmi_rule/{wmi_rule_id}" : {
+         "delete" : {
+            "description" : "Remove an item",
+            "operationId" : "api.v1.Config.WMIRules.resource.remove",
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "wmi_rule_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
+            "responses" : {
+               "204" : {
+                  "description" : "Deleted a config item"
+               }
+            }
+         },
+         "description" : "Configure floating devices",
+         "get" : {
+            "description" : "Get an item",
+            "operationId" : "api.v1.Config.WMIRules.resource.get",
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "wmi_rule_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/ConfigWMIRule"
+                        }
+                     }
+                  },
+                  "description" : "Item"
+               },
+               "400" : {
+                  "$ref" : "#/components/responses/BadRequest"
+               },
+               "422" : {
+                  "$ref" : "#/components/responses/UnprocessableEntity"
+               }
+            }
+         },
+         "patch" : {
+            "description" : "Update an item",
+            "operationId" : "api.v1.Config.WMIRules.resource.update",
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "wmi_rule_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
+            "requestBody" : {
+               "content" : {
+                  "application/json" : {
+                     "schema" : {
+                        "$ref" : "#/components/schemas/ConfigWMIRule"
+                     }
+                  }
+               }
+            },
+            "responses" : {
+               "400" : {
+                  "$ref" : "#/components/responses/BadRequest"
+               },
+               "422" : {
+                  "$ref" : "#/components/responses/UnprocessableEntity"
+               }
+            }
+         },
+         "put" : {
+            "description" : "Replace an item",
+            "operationId" : "api.v1.Config.WMIRules.resource.replace",
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "wmi_rule_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
+            "requestBody" : {
+               "content" : {
+                  "application/json" : {
+                     "schema" : {
+                        "$ref" : "#/components/schemas/ConfigWMIRule"
+                     }
+                  }
+               }
+            },
+            "responses" : {
+               "201" : {
+                  "$ref" : "#/components/responses/Created"
+               },
+               "400" : {
+                  "$ref" : "#/components/responses/BadRequest"
+               },
+               "422" : {
+                  "$ref" : "#/components/responses/UnprocessableEntity"
+               }
+            }
+         }
+      },
+      "/config/wmi_rules" : {
+         "description" : "Configure floating devices",
+         "get" : {
+            "description" : "List items",
+            "operationId" : "api.v1.Config.WMIRules.list",
+            "parameters" : [],
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/ConfigWMIRulesList"
+                        }
+                     }
+                  },
+                  "description" : "List"
                },
                "400" : {
                   "$ref" : "#/components/responses/BadRequest"
