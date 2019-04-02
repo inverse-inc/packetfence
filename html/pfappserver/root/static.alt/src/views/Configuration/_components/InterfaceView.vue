@@ -1,31 +1,41 @@
 <template>
   <pf-config-view
     :isLoading="isLoading"
+    :isClonable="isClonable"
+    :isDeletable="isDeletable"
     :disabled="isLoading"
     :form="getForm"
     :model="form"
     :vuelidate="$v.form"
+    :isNew="isNew"
+    :isClone="isClone"
     @validations="formValidations = $event"
     @close="close"
-    @create="create"
     @save="save"
     @remove="remove"
   >
     <template slot="header" is="b-card-header">
       <b-button-close @click="close" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
-      <h4 class="mb-0">
-        <span>{{ $t('Interface {id}', { id: id }) }}</span>
-      </h4>
+      <template>
+        <h4 class="d-inline mb-0">
+          <span v-if="!isNew && !isClone">{{ $t('Interface {id}', { id: (isVlan) ? form.master : id }) }}</span>
+          <span v-else-if="isClone">{{ $t('Clone Interface {id}', { id: (isVlan) ? form.master : id }) }}</span>
+          <span v-else>{{ $t('New VLAN for Interface {id}', { id: (isVlan) ? form.master : id }) }}</span>
+        </h4>
+        <b-badge v-if="isVlan" class="ml-2" variant="secondary">VLAN {{ form.vlan }}</b-badge>
+      </template>
     </template>
-    <template slot="footer"
-      scope="{isDeletable}"
-    >
+    <template slot="footer">
       <b-card-footer @mouseenter="$v.form.$touch()">
         <pf-button-save :disabled="invalidForm" :isLoading="isLoading">
-          <template v-if="ctrlKey">{{ $t('Save & Close') }}</template>
+          <template v-if="isNew">{{ $t('Create') }}</template>
+          <template v-else-if="isClone">{{ $t('Clone') }}</template>
+          <template v-else-if="ctrlKey">{{ $t('Save & Close') }}</template>
           <template v-else>{{ $t('Save') }}</template>
         </pf-button-save>
         <b-button :disabled="isLoading" class="ml-1" variant="outline-primary" @click="init()">{{ $t('Reset') }}</b-button>
+        <b-button v-if="isClonable" :disabled="isLoading" class="ml-1" variant="outline-primary" @click="clone()">{{ $t('Clone') }}</b-button>
+        <pf-button-delete v-if="isDeletable" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Interface?')" @on-delete="remove()"/>
       </b-card-footer>
     </template>
   </pf-config-view>
@@ -33,6 +43,7 @@
 
 <script>
 import pfConfigView from '@/components/pfConfigView'
+import pfButtonDelete from '@/components/pfButtonDelete'
 import pfButtonSave from '@/components/pfButtonSave'
 import pfMixinCtrlKey from '@/components/pfMixinCtrlKey'
 import pfMixinEscapeKey from '@/components/pfMixinEscapeKey'
@@ -49,14 +60,23 @@ export default {
     pfMixinEscapeKey
   ],
   components: {
-    pfConfigView,
-    pfButtonSave
+    pfButtonDelete,
+    pfButtonSave,
+    pfConfigView
   },
   props: {
     storeName: { // from router
       type: String,
       default: null,
       required: true
+    },
+    isNew: { // from router
+      type: Boolean,
+      default: false
+    },
+    isClone: { // from router
+      type: Boolean,
+      default: false
     },
     id: { // from router
       type: String,
@@ -86,6 +106,15 @@ export default {
         labelCols: 3,
         fields: fields(this)
       }
+    },
+    isClonable () {
+      return !this.isNew && !this.isClone && this.isVlan
+    },
+    isDeletable () {
+      return !this.isNew && !this.isClone && this.isVlan
+    },
+    isVlan () {
+      return (this.form && this.form.master)
     }
   },
   methods: {
@@ -103,6 +132,11 @@ export default {
         if (ctrlKey) { // [CTRL] key pressed
           this.close()
         }
+      })
+    },
+    remove (id) {
+      this.$store.dispatch(`${this.storeName}/deleteInterface`, this.id).then(response => {
+        this.close()
       })
     }
   },
