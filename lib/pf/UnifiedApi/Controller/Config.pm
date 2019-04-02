@@ -268,7 +268,7 @@ sub remove {
     }
 
     $cs->commit;
-    return $self->render(json => {}, status => 200);
+    return $self->render(json => {message => "Deleted $id successfully"}, status => 200);
 }
 
 sub update {
