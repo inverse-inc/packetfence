@@ -120,7 +120,15 @@ export default {
   methods: {
     init () {
       this.$store.dispatch(`${this.storeName}/getInterface`, this.id).then(form => {
-        this.form = JSON.parse(JSON.stringify(form))
+        if (this.isNew) {
+          this.form = {
+            id: form.id,
+            netmask: form.netmask,
+            type: 'none'
+          }
+        } else {
+          this.form = JSON.parse(JSON.stringify(form))
+        }
       })
     },
     close () {
