@@ -7,8 +7,6 @@ import (
 	"net/http"
 	"time"
 
-	"git.inverse.ca/inverse/fingerbank-processor/sharedutils"
-
 	"github.com/go-redis/redis"
 
 	"github.com/inverse-inc/packetfence/go/caddy/caddy"
@@ -73,7 +71,7 @@ func buildJobStatusHandler(ctx context.Context) (JobStatusHandler, error) {
 	}
 
 	jobStatus.redis = redis.NewClient(&redis.Options{
-		Addr:    sharedutils.CleanRedisUri(fmt.Sprintf("redis://%s", redisclient.Config.RedisArgs.Server)),
+		Addr:    redisclient.Config.RedisArgs.Server,
 		Network: network,
 	})
 
