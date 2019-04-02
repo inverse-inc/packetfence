@@ -68,7 +68,7 @@ Override to remove the network key from the items in favor of id
 sub cleanup_item {
     my ($self, $item) = @_;
     $item = $self->SUPER::cleanup_item($item);
-    $item->{id} = delete $item->{network};
+    delete $item->{network};
     return $item;
 }
 
