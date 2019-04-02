@@ -607,6 +607,11 @@ export default {
       return response.data.item
     })
   },
+  createInterface: data => {
+    return apiCall.post('config/interfaces', data).then(response => {
+      return response.data
+    })
+  },
   updateInterface: data => {
     return apiCall.patch(`config/interface/${data.id}`, data).then(response => {
       return response.data

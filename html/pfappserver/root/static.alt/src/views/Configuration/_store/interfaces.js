@@ -50,6 +50,16 @@ const actions = {
       throw err
     })
   },
+  createInterface: ({ commit }, data) => {
+    commit('INTERFACE_REQUEST')
+    return api.createInterface(data).then(response => {
+      commit('INTERFACE_REPLACED', data)
+      return response
+    }).catch(err => {
+      commit('INTERFACE_ERROR', err.response)
+      throw err
+    })
+  },
   updateInterface: ({ commit }, data) => {
     commit('INTERFACE_REQUEST')
     return api.updateInterface(data).then(response => {
