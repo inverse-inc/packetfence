@@ -71,6 +71,7 @@ const WrixLocationView = () => import(/* webpackChunkName: "Configuration" */ '.
 /* Advanced Access Configuration */
 const CaptivePortalView = () => import(/* webpackChunkName: "Configuration" */ '../_components/CaptivePortalView')
 const FilterEngineTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/FilterEngineTabs')
+const FilterEngineView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FilterEngineView')
 const BillingTiersList = () => import(/* webpackChunkName: "Configuration" */ '../_components/BillingTiersList')
 const BillingTierView = () => import(/* webpackChunkName: "Configuration" */ '../_components/BillingTierView')
 const PkiProvidersList = () => import(/* webpackChunkName: "Configuration" */ '../_components/PkiProvidersList')
@@ -87,6 +88,7 @@ const DeviceRegistrationView = () => import(/* webpackChunkName: "Configuration"
 const NetworkConfigurationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/NetworkConfigurationSection')
 const NetworksTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/NetworksTabs')
 const InterfaceView = () => import(/* webpackChunkName: "Configuration" */ '../_components/InterfaceView')
+const RoutedNetworkView = () => import(/* webpackChunkName: "Configuration" */ '../_components/RoutedNetworkView')
 const TrafficShapingView = () => import(/* webpackChunkName: "Configuration" */ '../_components/TrafficShapingView')
 const SnmpTrapView = () => import(/* webpackChunkName: "Configuration" */ '../_components/SnmpTrapView')
 const FloatingDevicesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/FloatingDevicesList')
@@ -1034,6 +1036,56 @@ const route = {
       props: (route) => ({ storeName: '$_interfaces', id: route.params.id }),
       beforeEnter: (to, from, next) => {
         store.dispatch('$_interfaces/getInterface', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'interface/:id/clone',
+      name: 'cloneInterface',
+      component: InterfaceView,
+      props: (route) => ({ storeName: '$_interfaces', id: route.params.id, isClone: true }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_interfaces/getInterface', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'interface/:id/new',
+      name: 'newInterface',
+      component: InterfaceView,
+      props: (route) => ({ storeName: '$_interfaces', id: route.params.id, isNew: true }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_interfaces/getInterface', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'interfaces/routed_networks/new',
+      name: 'newRoutedNetwork',
+      component: RoutedNetworkView,
+      props: (route) => ({ storeName: '$_routed_networks', isNew: true })
+    },
+    {
+      path: 'interfaces/routed_network/:id',
+      name: 'routed_network',
+      component: RoutedNetworkView,
+      props: (route) => ({ storeName: '$_routed_networks', id: route.params.id }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_routed_networks/getRoutedNetwork', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'interfaces/routed_network/:id/clone',
+      name: 'cloneRoutedNetwork',
+      component: RoutedNetworkView,
+      props: (route) => ({ storeName: '$_routed_networks', id: route.params.id, isClone: true }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_routed_networks/getRoutedNetwork', to.params.id).then(object => {
           next()
         })
       }

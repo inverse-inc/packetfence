@@ -151,9 +151,9 @@ export const isCIDR = (value) => {
   if (!value) return true
   const [ipv4, network, ...extra] = value.split('/')
   return (
-    extra.length === 0
-    && ~~network > 0 && ~~network < 31
-    && ipv4 && ipAddress(ipv4)
+    extra.length === 0 &&
+    ~~network > 0 && ~~network < 31 &&
+    ipv4 && ipAddress(ipv4)
   )
 }
 
@@ -216,6 +216,11 @@ export const isPort = (value) => {
 export const isPrice = (value) => {
   if (!value) return true
   return /^-?\d+\.\d{2}$/.test(value)
+}
+
+export const isVLAN = (value) => {
+  if (!value) return true
+  return ~~value === parseFloat(value) && ~~value >= 1 && ~~value <= 4096
 }
 
 export const compareDate = (comparison, date = new Date(), dateFormat = 'YYYY-MM-DD HH:mm:ss', allowZero = true) => {
@@ -353,6 +358,14 @@ export const hasRealms = (value, component) => {
 
 export const hasRoles = (value, component) => {
   return store.dispatch('config/getRoles').then((response) => {
+    return (response.length > 0)
+  }).catch(() => {
+    return true
+  })
+}
+
+export const hasRoutedNetworks = (value, component) => {
+  return store.dispatch('config/getRoutedNetworks').then((response) => {
     return (response.length > 0)
   }).catch(() => {
     return true
@@ -529,6 +542,21 @@ export const interfaceExists = (value, component) => {
   })
 }
 
+export const interfaceVlanExists = (id) => {
+  return (0, _common.withParams)({
+    type: 'interfaceVlanExists',
+    id: id
+  }, function (value) {
+    if (!(0, _common.req)(value)) return true
+    return store.dispatch('config/getInterfaces').then((response) => {
+      if (response.length === 0) return true
+      return (response.filter(iface => iface.master === id && iface.vlan === value).length > 0)
+    }).catch(() => {
+      return true
+    })
+  })
+}
+
 export const nodeExists = (value, component) => {
   if (!value || value.length !== 17) return true
   return store.dispatch('$_nodes/exists', value).then(() => {
@@ -583,6 +611,16 @@ export const roleExists = (value, component) => {
   return store.dispatch('config/getRoles').then((response) => {
     if (response.length === 0) return true
     return (response.filter(role => role.name.toLowerCase() === value.toLowerCase()).length > 0)
+  }).catch(() => {
+    return true
+  })
+}
+
+export const routedNetworkExists = (value, component) => {
+  if (!value) return true
+  return store.dispatch('config/getRoutedNetworks').then((response) => {
+    if (response.length === 0) return true
+    return (response.filter(routedNetwork => routedNetwork.id.toLowerCase() === value.toLowerCase()).length > 0)
   }).catch(() => {
     return true
   })

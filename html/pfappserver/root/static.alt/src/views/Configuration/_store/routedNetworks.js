@@ -20,7 +20,7 @@ const state = {
 
 const getters = {
   isWaiting: state => [types.LOADING, types.DELETING].includes(state.status),
-  isLoading: state => state.status === types.LOADING,
+  isLoading: state => state.status === types.LOADING
 }
 
 const actions = {
@@ -36,6 +36,26 @@ const actions = {
       commit('ROUTED_NETWORK_ERROR', err.response)
       throw err
     })
+  },
+  options: ({ commit }, id) => {
+    commit('ROUTED_NETWORK_REQUEST')
+    if (id) {
+      return api.routedNetworkOptions(id).then(response => {
+        commit('ROUTED_NETWORK_SUCCESS')
+        return response
+      }).catch((err) => {
+        commit('ROUTED_NETWORK_ERROR', err.response)
+        throw err
+      })
+    } else {
+      return api.routedNetworksOptions().then(response => {
+        commit('ROUTED_NETWORK_SUCCESS')
+        return response
+      }).catch((err) => {
+        commit('ROUTED_NETWORK_ERROR', err.response)
+        throw err
+      })
+    }
   },
   getRoutedNetwork: ({ state, commit }, id) => {
     if (state.cache[id]) {

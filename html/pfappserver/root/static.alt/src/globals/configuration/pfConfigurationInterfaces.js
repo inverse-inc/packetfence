@@ -7,9 +7,11 @@ import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import {
   and,
   not,
-  conditional,
   ipv6Address,
-  isCIDR
+  isCIDR,
+  isVLAN,
+  hasInterfaces,
+  interfaceVlanExists
 } from '@/globals/pfValidators'
 
 const {
@@ -28,6 +30,14 @@ export const pfConfigurationInterfaceTypes = [
   { value: 'other', text: i18n.t('Other') }
 ]
 
+export const pfCongigurationInterfaceDaemons = [
+  { value: 'dhcp', text: 'dhcp' },
+  { value: 'dns', text: 'dns' },
+  { value: 'portal', text: 'portal' },
+  { value: 'radius', text: 'radius' }
+
+]
+
 export const pfConfigurationInterfacesTypeFormatter = (value, key, item) => {
   if (value === null || value === '') return null
   return pfConfigurationInterfaceTypes.find(type => type.value === value).text
@@ -38,11 +48,11 @@ export const pfConfigurationInterfacesSortColumns = { // maintain hierarchical o
     const sortMod = (sortDesc) ? -1 : 1
     switch (true) {
       case (!!itemA.vlan && !itemB.vlan && itemA.master === itemB.id): // B is master of A
-          return 1 * sortMod
+        return 1 * sortMod
       case (!itemA.vlan && !!itemB.vlan && itemA.id === itemB.master): // A is master of B
-          return -1 * sortMod
+        return -1 * sortMod
       case (itemA.name === itemB.name):
-          return parseInt(itemA.vlan) - parseInt(itemB.vlan)
+        return parseInt(itemA.vlan) - parseInt(itemB.vlan)
       default:
         return itemA.id.localeCompare(itemB.id)
     }
@@ -228,6 +238,10 @@ export const pfConfigurationInterfacesListColumns = [
 
 export const pfConfigurationInterfaceViewFields = (context = {}) => {
   const {
+    isNew = false,
+    isClone = false,
+    isVlan = false,
+    id = null,
     form = {}
   } = context
 
@@ -243,6 +257,24 @@ export const pfConfigurationInterfaceViewFields = (context = {}) => {
               component: pfFormInput,
               attrs: {
                 disabled: true
+              }
+            }
+          ]
+        },
+        {
+          if: (isNew || isClone || isVlan),
+          label: i18n.t('Virtual LAN ID'),
+          fields: [
+            {
+              key: 'vlan',
+              component: pfFormInput,
+              attrs: {
+                type: 'numeric'
+              },
+              validators: {
+                [i18n.t('VLAN required.')]: required,
+                [i18n.t('Invalid VLAN.')]: isVLAN,
+                [i18n.t('VLAN exists.')]: not(and(required, hasInterfaces, interfaceVlanExists(id)))
               }
             }
           ]
@@ -331,10 +363,7 @@ export const pfConfigurationInterfaceViewFields = (context = {}) => {
                 multiple: true,
                 clearOnSelect: false,
                 closeOnSelect: false,
-                options: [
-                  { value: 'portal', text: 'portal' },
-                  { value: 'radius', text: 'radius' }
-                ]
+                options: pfCongigurationInterfaceDaemons
               }
             }
           ]
