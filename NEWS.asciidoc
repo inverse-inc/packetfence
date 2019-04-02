@@ -52,6 +52,7 @@ Bug Fixes
 * fixed on-registration scanning (#3963)
 * Set the realm in the radius request when it's machine authentication
 * Keep connections to the unified API alive
+* Fixed the documentation and the form for the juniper SRX firewall
 
 Version 8.3.0 released on 2019-01-09
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
