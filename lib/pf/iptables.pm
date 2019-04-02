@@ -53,6 +53,8 @@ use pf::config qw(
     is_inline_enforcement_enabled
     is_type_inline
     @radius_ints
+    @dhcp_ints
+    @dns_ints
 );
 use pf::file_paths qw($generated_conf_dir $conf_dir);
 use pf::util;
@@ -67,6 +69,8 @@ use pf::ConfigStore::Domain;
 Readonly our $FW_FILTER_INPUT_MGMT      => 'input-management-if';
 Readonly our $FW_FILTER_INPUT_PORTAL    => 'input-portal-if';
 Readonly our $FW_FILTER_INPUT_RADIUS    => 'input-radius-if';
+Readonly our $FW_FILTER_INPUT_DHCP      => 'input-dhcp-if';
+Readonly our $FW_FILTER_INPUT_DNS       => 'input-dns-if';
 
 Readonly my $FW_TABLE_FILTER => 'filter';
 Readonly my $FW_TABLE_MANGLE => 'mangle';
@@ -247,7 +251,7 @@ sub generate_filter_if_src_to_chain {
                 $rules_forward .= "-A FORWARD --in-interface $dev --jump $FW_FILTER_FORWARD_INT_VLAN\n";
                 $rules_forward .= "-A FORWARD --out-interface $dev --jump $FW_FILTER_FORWARD_INT_VLAN\n";
             }
-            if ($isolation_passthrough_enabled && ($type eq $pf::config::NET_TYPE_VLAN_ISOL)) { 
+            if ($isolation_passthrough_enabled && ($type eq $pf::config::NET_TYPE_VLAN_ISOL)) {
                 $rules_forward .= "-A FORWARD --in-interface $dev --jump $FW_FILTER_FORWARD_INT_ISOL_VLAN\n";
                 $rules_forward .= "-A FORWARD --out-interface $dev --jump $FW_FILTER_FORWARD_INT_ISOL_VLAN\n";
             }
@@ -288,6 +292,16 @@ sub generate_filter_if_src_to_chain {
         $rules .= "-A INPUT --in-interface $dev -d 224.0.0.0/8 -j ACCEPT\n";
         $rules .= "-A INPUT --in-interface $dev -p vrrp -j ACCEPT\n";
         $rules .= "-A INPUT --in-interface $dev --jump $FW_FILTER_INPUT_RADIUS\n";
+    }
+    # 'dhcp' interfaces handling
+    foreach my $dhcp_interface ( @dhcp_ints ) {
+        my $dev = $dhcp_interface->tag("int");
+        $rules .= "-A INPUT --in-interface $dev --jump $FW_FILTER_INPUT_DHCP\n";
+    }
+    # 'dns' interfaces handling
+    foreach my $dns_interface ( @dns_ints ) {
+        my $dev = $dns_interface->tag("int");
+        $rules .= "-A INPUT --in-interface $dev --jump $FW_FILTER_INPUT_DNS\n";
     }
 
     # management interface handling

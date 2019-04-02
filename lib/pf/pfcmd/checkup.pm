@@ -220,7 +220,7 @@ sub interfaces_defined {
             }
         }
 
-        my $int_types = qr/(?:internal|management|managed|monitor|dhcplistener|dhcp-listener|high-availability|portal|radius)/;
+        my $int_types = qr/(?:internal|management|managed|monitor|dhcplistener|dhcp-listener|high-availability|portal|radius|dhcp|dns)/;
         if (defined($int_conf{'type'}) && $int_conf{'type'} !~ /$int_types/) {
             add_problem( $FATAL, "invalid network type $int_conf{'type'} for $interface" );
         }
@@ -1257,7 +1257,7 @@ sub cluster {
     my $int_cs = pf::ConfigStore::Interface->new;
     my @ints = @{$int_cs->readAll('name')};
     my @servers = @pf::cluster::cluster_servers;
- 
+
     my $hostname_map = pfconfig::namespaces::resource::clusters_hostname_map->new->build();
     my $cluster_name = $hostname_map->{$pf::cluster::host_id};
 

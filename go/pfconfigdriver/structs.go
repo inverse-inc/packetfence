@@ -51,6 +51,8 @@ type configStruct struct {
 	Interfaces struct {
 		ListenInts        ListenInts
 		ManagementNetwork ManagementNetwork
+		DHCPInts          DHCPInts
+		DNSInts           DNSInts
 	}
 	PfConf struct {
 		General       PfConfGeneral
@@ -209,6 +211,24 @@ type ListenInts struct {
 	StructConfig
 	PfconfigMethod          string `val:"element"`
 	PfconfigNS              string `val:"interfaces::listen_ints"`
+	PfconfigArray           string `val:"yes"`
+	PfconfigHostnameOverlay string `val:"yes"`
+	Element                 []string
+}
+
+type DHCPInts struct {
+	StructConfig
+	PfconfigMethod          string `val:"element"`
+	PfconfigNS              string `val:"interfaces::dhcp_ints"`
+	PfconfigArray           string `val:"yes"`
+	PfconfigHostnameOverlay string `val:"yes"`
+	Element                 []string
+}
+
+type DNSInts struct {
+	StructConfig
+	PfconfigMethod          string `val:"element"`
+	PfconfigNS              string `val:"interfaces::dns_ints"`
 	PfconfigArray           string `val:"yes"`
 	PfconfigHostnameOverlay string `val:"yes"`
 	Element                 []string

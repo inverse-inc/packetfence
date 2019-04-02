@@ -410,6 +410,9 @@ func (pf *pfdns) detectVIP() error {
 	var interfaces pfconfigdriver.ListenInts
 	pfconfigdriver.FetchDecodeSocket(ctx, &interfaces)
 
+	var DNSinterfaces pfconfigdriver.DNSInts
+	pfconfigdriver.FetchDecodeSocket(ctx, &DNSinterfaces)
+
 	var keyConfNet pfconfigdriver.PfconfigKeys
 	keyConfNet.PfconfigNS = "config::Network"
 	keyConfNet.PfconfigHostnameOverlay = "yes"
@@ -418,7 +421,7 @@ func (pf *pfdns) detectVIP() error {
 	var keyConfCluster pfconfigdriver.NetInterface
 	keyConfCluster.PfconfigNS = "config::Pf(CLUSTER," + pfconfigdriver.FindClusterName(ctx) + ")"
 
-	for _, v := range interfaces.Element {
+	for _, v := range sharedutils.RemoveDuplicates(append(interfaces.Element, DNSinterfaces.Element...)) {
 
 		keyConfCluster.PfconfigHashNS = "interface " + v
 		pfconfigdriver.FetchDecodeSocket(ctx, &keyConfCluster)
