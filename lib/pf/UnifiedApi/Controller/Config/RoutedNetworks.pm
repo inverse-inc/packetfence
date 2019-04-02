@@ -39,8 +39,37 @@ sub get_json {
     if (defined $error) {
         return ($error, $data);
     }
-    $data->{id} = $data->{network};
+    if(my $id = $self->stash('network_id')) {
+        $data->{network} = $id;
+    }
     return ($error, $data);
+}
+
+=head2 form
+
+Override to add the network ID in the form args if its defined
+
+=cut
+
+sub form {
+    my ($self, $item, @args) = @_;
+    if(my $id = $self->stash('network_id')) {
+        push @args, network => $id;
+    }
+    return $self->SUPER::form($item, @args);
+}
+
+=head2 cleanup_item
+
+Override to remove the network key from the items in favor of id
+
+=cut
+
+sub cleanup_item {
+    my ($self, $item) = @_;
+    $item = $self->SUPER::cleanup_item($item);
+    $item->{id} = delete $item->{network};
+    return $item;
 }
 
  
