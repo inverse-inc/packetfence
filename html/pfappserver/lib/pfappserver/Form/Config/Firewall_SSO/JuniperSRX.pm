@@ -18,9 +18,6 @@ use pf::config;
 use pf::util;
 use File::Find qw(find);
 
-## Definition
-has 'roles' => (is => 'ro', default => sub {[]});
-
 has_field 'id' =>
   (
    type => 'Text',
@@ -50,6 +47,11 @@ has_field 'port' =>
    tags => { after_element => \&help,
              help => 'If you use an alternative port, please specify' },
   );
+has_block definition =>
+  (
+   render_list => [ qw(id type username password port categories networks cache_updates cache_timeout username_format default_realm) ],
+  );
+
 has_field 'type' =>
   (
    type => 'Hidden',
