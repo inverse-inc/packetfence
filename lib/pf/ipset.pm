@@ -410,13 +410,13 @@ sub update_node {
                     call_ipsetd("/ipset/mark_ip_layer3?local=0",{
                         "network" => $network,
                         "role_id" => $id,
-                        "ip"      => $src_ip
+                        "ip"      => $srcip
                     });
                 } else {
                     call_ipsetd("/ipset/mark_ip_layer2?local=0",{
                         "network" => $network,
                         "role_id" => $id,
-                        "ip"      => $src_ip
+                        "ip"      => $srcip
                     });
                 }
             }
