@@ -235,8 +235,8 @@
 			"path": "github.com/go-sql-driver/mysql",
 			"revision": "c0f6b444ad8f92ecd68f86b27635c1fccdede4c4",
 			"revisionTime": "2019-03-30T03:22:41Z"
-    },
-    {
+		},
+		{
 			"checksumSHA1": "UZkSbR0Qv0uATXXR5RXRUcSwYwc=",
 			"path": "github.com/go-redis/redis",
 			"revision": "a679e614427ac801aafbf444481210440c8a2694",
