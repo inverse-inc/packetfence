@@ -433,7 +433,6 @@ var directives = []string{
 	// PACKETFENCE plugins
 	"logger",
 	"statsd",
-	"pfconfigpool",
 
 	// directives that add middleware to the stack
 	"locale", // github.com/simia-tech/caddy-locale
@@ -445,6 +444,7 @@ var directives = []string{
 
 	// PACKETFENCE
 	"cors",
+	"pfconfigpool",
 
 	"errors",
 	"filter",    // github.com/echocat/caddy-filter
