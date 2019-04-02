@@ -11,6 +11,7 @@
     :isClone="isClone"
     @validations="formValidations = $event"
     @close="close"
+    @create="create"
     @save="save"
     @remove="remove"
   >
@@ -133,6 +134,16 @@ export default {
     },
     close () {
       this.$router.push({ name: 'interfaces' })
+    },
+    create () {
+      const ctrlKey = this.ctrlKey
+      this.$store.dispatch(`${this.storeName}/createInterface`, this.form).then(response => {
+        if (ctrlKey) { // [CTRL] key pressed
+          this.close()
+        } else {
+          this.$router.push({ name: 'interface', params: { id: `${this.form.id}.${this.form.vlan}` } })
+        }
+      })
     },
     save () {
       const ctrlKey = this.ctrlKey
