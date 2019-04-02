@@ -309,8 +309,8 @@ sub get {
 }
 
 sub item {
-    my ($self) = @_;
-    return $self->cleanup_item($self->item_from_store);
+    my ($self, $id) = @_;
+    return $self->cleanup_item($self->item_from_store, $id);
 }
 
 sub id {
@@ -325,8 +325,8 @@ sub id {
 }
 
 sub item_from_store {
-    my ($self) = @_;
-    return $self->config_store->read($self->id, 'id')
+    my ($self, $id) = @_;
+    return $self->config_store->read($id // $self->id, 'id')
 }
 
 sub cleanup_item {
@@ -484,6 +484,18 @@ sub update {
     $cs->update($id, $new_data);
     return unless($self->commit($cs));
     $self->render(status => 200, json => { message => "Settings updated"});
+}
+
+sub update_item {
+    my ($self, $id, $new_data, $old_item) = @_;
+    my $new_item = {%$old_item, %$new_data};
+    $new_item->{id} = $id;
+    my ($status, $new_data_or_error) = $self->validate_item($new_item);
+    if (is_error($status)) {
+        return $status, $new_data_or_error;
+    }
+
+
 }
 
 sub replace {
@@ -1046,6 +1058,34 @@ sub map_option {
     }
 
     return \%hash;
+}
+
+=head2 bulk_update
+
+bulk_update
+
+=cut
+
+sub bulk_update {
+    my ($self) = @_;
+    my ($error, $data) = $self->get_json;
+    if (defined $error) {
+        return $self->render_error( 400, "Bad Request : $error" );
+    }
+
+    my $items = $data->{items} // [];
+    my $cs = $self->config_store;
+    my @results;
+    for my $item (@$items) {
+        my $id = $item->{id};    
+        if (!defined $id) {
+            push @results , {status => 422, message => "$id is not found"};
+            next;
+        }
+
+    }
+
+    return;
 }
 
 =head2 form_parameters
