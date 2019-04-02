@@ -4,7 +4,7 @@ ifdef::env-github[]
 endif::[]
 
 Configuration of the Juniper SRX in PacketFence
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Go to *Configuration -> Integration -> Firewall SSO -> Add Firewall -> JuniperSRX*.
 
@@ -20,18 +20,18 @@ Step 1: webapi configuration
 
 You need to setup webapi management as follows
 
-set system services webapi user PF
-set system services webapi user password YOURPASSWORD
-set system services webapi client PF_MANAGEMENT_IP_ADDRESS
+ set system services webapi user PF
+ set system services webapi user password YOURPASSWORD
+ set system services webapi client PF_MANAGEMENT_IP_ADDRESS
 
-set system services webapi https port PORT_YOU_WANT_TO_USE i.e. 8443
-set system services webapi https default-certificate
+ set system services webapi https port PORT_YOU_WANT_TO_USE i.e. 8443
+ set system services webapi https default-certificate
 
 Next setup user entry settings
 
-set services user-identification authentication-source aruba-clearpass authentication-entry-timeout 120
-set services user-identification authentication-source aruba-clearpass no-user-query
-set services user-identification device-information authentication-source network-access-controller
+ set services user-identification authentication-source aruba-clearpass authentication-entry-timeout 120
+ set services user-identification authentication-source aruba-clearpass no-user-query
+ set services user-identification device-information authentication-source network-access-controller
 
 Then you need to allow traffic from the PacketFence management interface to port you set up on webapi settings (i.e. 8443) on SRX device.
 
@@ -41,16 +41,16 @@ Step 2: Verification
 
 For debuging the webapi set (disable it when you won't need it anymore):
 
-set system services webapi debug-log api-log
-set system services webapi debug-level notice
+ set system services webapi debug-log api-log
+ set system services webapi debug-level notice
 
 To check registered device entries on SRX use
 
-show services user-identification authentication-table authentication-source all ( extensive for more detailed informations)
+ show services user-identification authentication-table authentication-source all ( extensive for more detailed informations)
 
 or
 
-run show services user-identification device-information table all extensive
+ run show services user-identification device-information table all extensive
 
 to see more details about OS, device type etc.
 
