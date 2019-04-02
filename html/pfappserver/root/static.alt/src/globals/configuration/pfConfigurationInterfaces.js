@@ -59,10 +59,10 @@ export const pfConfigurationInterfacesSortColumns = { // maintain hierarchical o
   },
   ipaddress: (itemA, itemB, sortDesc, context = {}) => {
     const {
-      items
+      interfaces
     } = context
     const id2ip = {} // map (name => ipaddress) of non-vlan interfaces
-    items.forEach(item => {
+    interfaces.forEach(item => {
       if (!item.vlan && item.ipaddress) {
         id2ip[item.name] = item.ipaddress
       }
@@ -93,10 +93,10 @@ export const pfConfigurationInterfacesSortColumns = { // maintain hierarchical o
   },
   netmask: (itemA, itemB, sortDesc, context = {}) => {
     const {
-      items
+      interfaces
     } = context
     const id2netmask = {} // map (name => netmask) of non-vlan interfaces
-    items.forEach(item => {
+    interfaces.forEach(item => {
       if (!item.vlan && item.netmask) {
         id2netmask[item.name] = item.netmask
       }
@@ -127,10 +127,10 @@ export const pfConfigurationInterfacesSortColumns = { // maintain hierarchical o
   },
   network: (itemA, itemB, sortDesc, context = {}) => {
     const {
-      items
+      interfaces
     } = context
     const id2network = {} // map (name => network) of non-vlan interfaces
-    items.forEach(item => {
+    interfaces.forEach(item => {
       if (!item.vlan && item.network) {
         id2network[item.name] = item.network
       }
@@ -269,7 +269,8 @@ export const pfConfigurationInterfaceViewFields = (context = {}) => {
               key: 'vlan',
               component: pfFormInput,
               attrs: {
-                type: 'numeric'
+                type: 'number',
+                step: 1
               },
               validators: {
                 [i18n.t('VLAN required.')]: required,
@@ -285,9 +286,6 @@ export const pfConfigurationInterfaceViewFields = (context = {}) => {
             {
               key: 'ipaddress',
               component: pfFormInput,
-              attrs: {
-                type: 'numeric'
-              },
               validators: {
                 [i18n.t('Invalid IPv4 address.')]: ipAddress
               }
@@ -300,9 +298,6 @@ export const pfConfigurationInterfaceViewFields = (context = {}) => {
             {
               key: 'netmask',
               component: pfFormInput,
-              attrs: {
-                type: 'numeric'
-              },
               validators: {
                 [i18n.t('Invalid IPv4 address.')]: ipAddress
               }
@@ -315,9 +310,6 @@ export const pfConfigurationInterfaceViewFields = (context = {}) => {
             {
               key: 'ipv6_address',
               component: pfFormInput,
-              attrs: {
-                type: 'numeric'
-              },
               validators: {
                 [i18n.t('Invalid IPv6 address.')]: ipv6Address
               }
@@ -376,9 +368,6 @@ export const pfConfigurationInterfaceViewFields = (context = {}) => {
             {
               key: 'dns',
               component: pfFormInput,
-              attrs: {
-                type: 'numeric'
-              },
               validators: {
                 [i18n.t('Invalid IPv4 address.')]: ipAddress
               }
