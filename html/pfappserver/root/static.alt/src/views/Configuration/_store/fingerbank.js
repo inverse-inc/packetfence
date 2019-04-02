@@ -108,21 +108,49 @@ const actions = {
       fields: ['id'].join(',')
     }
     return api.fingerbankGeneralSettings(params).then(response => {
-      commit('GENERAL_SETTINGS_REPLACED', response)
+      // response is split multipart, refactor required
+      let refactored = {}
+      response.forEach((section) => {
+        refactored[section.id] = Object.keys(section)
+          .filter(key => !(['id'].includes(key)))
+          .reduce((obj, key) => {
+            obj[key] = section[key]
+            return obj
+          }, {})
+      })
+      commit('GENERAL_SETTINGS_REPLACED', refactored)
+      return refactored
+    }).catch(err => {
+      commit('GENERAL_SETTINGS_ERROR', err.response)
+      throw err
+    })
+  },
+  // TODO - Test (Issue #4139)
+  optionsGeneralSettings: ({ commit }) => {
+    commit('GENERAL_SETTINGS_REQUEST')
+    return api.fingerbankGeneralSettingsOptions().then(response => {
+      commit('GENERAL_SETTINGS_SUCCESS')
       return response
-    }).catch((err) => {
+    }).catch(err => {
       commit('GENERAL_SETTINGS_ERROR', err.response)
       throw err
     })
   },
   setGeneralSettings: ({ commit }, data) => {
     commit('GENERAL_SETTINGS_REQUEST')
-    return api.fingerbankUpdateGeneralSettings(data).then(response => {
-      commit('GENERAL_SETTINGS_REPLACED', data)
-      return response
-    }).catch(err => {
-      commit('GENERAL_SETTINGS_ERROR', err.response)
-      throw err
+    let promises = []
+    Object.keys(data).forEach(id => {
+      let refactored = { ...data[id], ...{ id } }
+      promises.push(api.fingerbankUpdateGeneralSetting(id, refactored))
+    })
+    return new Promise((resolve, reject) => {
+      Promise.all(promises.map(p => p.catch(e => e))).then(response => {
+        commit('GENERAL_SETTINGS_REPLACED', data)
+        return response
+      }).catch(err => {
+        commit('GENERAL_SETTINGS_ERROR', err.response)
+        throw err
+      })
     })
   },
   getDeviceChangeDetection: ({ state, commit }) => {
@@ -137,7 +165,7 @@ const actions = {
     return api.fingerbankDeviceChangeDetection(params).then(response => {
       commit('DEVICE_CHANGE_DETECTION_REPLACED', response)
       return response
-    }).catch((err) => {
+    }).catch(err => {
       commit('DEVICE_CHANGE_DETECTION_ERROR', err.response)
       throw err
     })
@@ -155,7 +183,7 @@ const actions = {
   combinations: ({ state, commit }) => {
     const params = {
       sort: 'id',
-      fields: ['id'].join(',')
+      fields: ['id', 'score'].join(',')
     }
     return api.fingerbankCombinations(params).then(response => {
       return response.items
@@ -169,7 +197,17 @@ const actions = {
     return api.fingerbankCombination(id).then(item => {
       commit('COMBINATION_REPLACED', item)
       return item
-    }).catch((err) => {
+    }).catch(err => {
+      commit('COMBINATION_ERROR', err.response)
+      throw err
+    })
+  },
+  optionsCombination: ({ commit }) => {
+    commit('COMBINATION_REQUEST')
+    return api.fingerbankCombinationOptions().then(response => {
+      commit('COMBINATION_SUCCESS')
+      return response
+    }).catch(err => {
       commit('COMBINATION_ERROR', err.response)
       throw err
     })
@@ -221,7 +259,7 @@ const actions = {
     return api.fingerbankDevice(id).then(item => {
       commit('DEVICE_REPLACED', item)
       return item
-    }).catch((err) => {
+    }).catch(err => {
       commit('DEVICE_ERROR', err.response)
       throw err
     })
@@ -273,7 +311,7 @@ const actions = {
     return api.fingerbankDhcpFingerprint(id).then(item => {
       commit('DHCP_FINGERPRINT_REPLACED', item)
       return item
-    }).catch((err) => {
+    }).catch(err => {
       commit('DHCP_FINGERPRINT_ERROR', err.response)
       throw err
     })
@@ -325,7 +363,7 @@ const actions = {
     return api.fingerbankDhcpVendor(id).then(item => {
       commit('DHCP_VENDOR_REPLACED', item)
       return item
-    }).catch((err) => {
+    }).catch(err => {
       commit('DHCP_VENDOR_ERROR', err.response)
       throw err
     })
@@ -377,7 +415,7 @@ const actions = {
     return api.fingerbankDhcpv6Fingerprint(id).then(item => {
       commit('DHCPV6_FINGERPRINT_REPLACED', item)
       return item
-    }).catch((err) => {
+    }).catch(err => {
       commit('DHCPV6_FINGERPRINT_ERROR', err.response)
       throw err
     })
@@ -429,7 +467,7 @@ const actions = {
     return api.fingerbankDhcpv6Enterprise(id).then(item => {
       commit('DHCPV6_ENTERPRISE_REPLACED', item)
       return item
-    }).catch((err) => {
+    }).catch(err => {
       commit('DHCPV6_ENTERPRISE_ERROR', err.response)
       throw err
     })
@@ -481,7 +519,7 @@ const actions = {
     return api.fingerbankMacVendor(id).then(item => {
       commit('MAC_VENDOR_REPLACED', item)
       return item
-    }).catch((err) => {
+    }).catch(err => {
       commit('MAC_VENDOR_ERROR', err.response)
       throw err
     })
@@ -533,7 +571,7 @@ const actions = {
     return api.fingerbankUserAgent(id).then(item => {
       commit('USER_AGENT_REPLACED', item)
       return item
-    }).catch((err) => {
+    }).catch(err => {
       commit('USER_AGENT_ERROR', err.response)
       throw err
     })
@@ -585,6 +623,9 @@ const mutations = {
       state.generalSettings.message = response.data.message
     }
   },
+  GENERAL_SETTINGS_SUCCESS: (state) => {
+    state.generalSettings.status = types.SUCCESS
+  },
   DEVICE_CHANGE_DETECTION_REQUEST: (state, type) => {
     state.deviceChangeDetection.status = type || types.LOADING
     state.deviceChangeDetection.message = ''
@@ -616,6 +657,9 @@ const mutations = {
     if (response && response.data) {
       state.combinations.message = response.data.message
     }
+  },
+  COMBINATION_SUCCESS: (state) => {
+    state.combinations.status = types.SUCCESS
   },
   DEVICE_REQUEST: (state, type) => {
     state.devices.status = type || types.LOADING

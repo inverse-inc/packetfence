@@ -1,6 +1,10 @@
 import i18n from '@/utils/locale'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormToggle from '@/components/pfFormToggle'
+import {
+  pfConfigurationAttributesFromMeta,
+  pfConfigurationValidatorsFromMeta
+} from '@/globals/configuration/pfConfiguration'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
   and,
@@ -19,7 +23,12 @@ const {
 /**
  * General Settings
 **/
-export const pfConfigurationProfilingGeneralSettingsViewFields = (context = {}) => {
+export const pfConfigurationFingerbankGeneralSettingsViewFields = (context = {}) => {
+  const {
+    options: {
+      meta = {}
+    }
+  } = context
   return [
     {
       tab: null, // ignore tabs
@@ -31,10 +40,8 @@ export const pfConfigurationProfilingGeneralSettingsViewFields = (context = {}) 
             {
               key: 'upstream.api_key',
               component: pfFormInput,
-              validators: {
-                [i18n.t('Key required.')]: required,
-                [i18n.t('Invalid Key.')]: and(maxLength(255), isHex)
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'upstream.api_key'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'upstream.api_key', 'Key')
             }
           ]
         },
@@ -45,9 +52,8 @@ export const pfConfigurationProfilingGeneralSettingsViewFields = (context = {}) 
             {
               key: 'upstream.host',
               component: pfFormInput,
-              validators: {
-                [i18n.t('Invalid Host.')]: and(maxLength(255), isFQDN)
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'upstream.host'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'upstream.host', 'Host')
             }
           ]
         },
@@ -58,13 +64,8 @@ export const pfConfigurationProfilingGeneralSettingsViewFields = (context = {}) 
             {
               key: 'upstream.port',
               component: pfFormInput,
-              attrs: {
-                type: 'number',
-                step: 1
-              },
-              validators: {
-                [i18n.t('Invalid Port.')]: isPort
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'upstream.port'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'upstream.port', 'Port')
             }
           ]
         },
@@ -87,7 +88,9 @@ export const pfConfigurationProfilingGeneralSettingsViewFields = (context = {}) 
           fields: [
             {
               key: 'upstream.db_path',
-              component: pfFormInput
+              component: pfFormInput,
+              attrs: pfConfigurationAttributesFromMeta(meta, 'upstream.db_path'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'upstream.db_path', 'Path')
             }
           ]
         },
@@ -98,10 +101,8 @@ export const pfConfigurationProfilingGeneralSettingsViewFields = (context = {}) 
             {
               key: 'upstream.sqlite_db_retention',
               component: pfFormInput,
-              attrs: {
-                type: 'number',
-                step: 1
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'upstream.sqlite_db_retention'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'upstream.sqlite_db_retention', 'Amount')
             }
           ]
         },
@@ -112,9 +113,8 @@ export const pfConfigurationProfilingGeneralSettingsViewFields = (context = {}) 
             {
               key: 'collector.host',
               component: pfFormInput,
-              validators: {
-                [i18n.t('Invalid IP Address.')]: ipAddress
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'collector.host'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'collector.host', 'Host')
             }
           ]
         },
@@ -125,13 +125,8 @@ export const pfConfigurationProfilingGeneralSettingsViewFields = (context = {}) 
             {
               key: 'collector.port',
               component: pfFormInput,
-              attrs: {
-                type: 'number',
-                step: 1
-              },
-              validators: {
-                [i18n.t('Invalid Port.')]: isPort
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'collector.port'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'collector.port', 'Port')
             }
           ]
         },
@@ -155,19 +150,14 @@ export const pfConfigurationProfilingGeneralSettingsViewFields = (context = {}) 
             {
               key: 'collector.inactive_endpoints_expiration',
               component: pfFormInput,
-              attrs: {
-                type: 'number',
-                step: 1
-              },
-              validators: {
-                [i18n.t('Invalid Value.')]: minValue(1)
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'collector.inactive_endpoints_expiration'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'collector.inactive_endpoints_expiration', 'Hours')
             }
           ]
         },
         {
           label: i18n.t('ARP lookups by the collector'),
-          text: i18n.t('Whether or not the collector should perform ARP lookups for devices it doesn\'t have DHCP information.'),
+          text: i18n.t(`Whether or not the collector should perform ARP lookups for devices it doesn't have DHCP information.`),
           fields: [
             {
               key: 'collector.arp_lookup',
@@ -185,13 +175,8 @@ export const pfConfigurationProfilingGeneralSettingsViewFields = (context = {}) 
             {
               key: 'collector.query_cache_time',
               component: pfFormInput,
-              attrs: {
-                type: 'number',
-                step: 1
-              },
-              validators: {
-                [i18n.t('Invalid Value.')]: minValue(1)
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'collector.query_cache_time'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'collector.query_cache_time', 'Time')
             }
           ]
         },
@@ -202,13 +187,8 @@ export const pfConfigurationProfilingGeneralSettingsViewFields = (context = {}) 
             {
               key: 'collector.db_persistence_interval',
               component: pfFormInput,
-              attrs: {
-                type: 'number',
-                step: 1
-              },
-              validators: {
-                [i18n.t('Invalid Value.')]: minValue(1)
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'collector.db_persistence_interval'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'collector.db_persistence_interval', 'Interval')
             }
           ]
         },
@@ -219,13 +199,8 @@ export const pfConfigurationProfilingGeneralSettingsViewFields = (context = {}) 
             {
               key: 'collector.cluster_resync_interval',
               component: pfFormInput,
-              attrs: {
-                type: 'number',
-                step: 1
-              },
-              validators: {
-                [i18n.t('Invalid Value.')]: minValue(1)
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'collector.cluster_resync_interval'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'collector.cluster_resync_interval', 'Interval')
             }
           ]
         },
@@ -262,9 +237,8 @@ export const pfConfigurationProfilingGeneralSettingsViewFields = (context = {}) 
             {
               key: 'proxy.host',
               component: pfFormInput,
-              validators: {
-                [i18n.t('Invalid Host.')]: isFQDN
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'proxy.host'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'proxy.host', 'Host')
             }
           ]
         },
@@ -275,13 +249,8 @@ export const pfConfigurationProfilingGeneralSettingsViewFields = (context = {}) 
             {
               key: 'proxy.port',
               component: pfFormInput,
-              attrs: {
-                type: 'number',
-                step: 1
-              },
-              validators: {
-                [i18n.t('Invalid Port.')]: isPort
-              }
+              attrs: pfConfigurationAttributesFromMeta(meta, 'proxy.port'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'proxy.port', 'Port')
             }
           ]
         },
@@ -303,7 +272,7 @@ export const pfConfigurationProfilingGeneralSettingsViewFields = (context = {}) 
   ]
 }
 
-export const pfConfigurationProfilingGeneralSettingsViewDefaults = (context = {}) => {
+export const pfConfigurationFingerbankGeneralSettingsViewDefaults = (context = {}) => {
   return {
     upstream: {
       host: 'api.fingerbank.org',
@@ -330,7 +299,7 @@ export const pfConfigurationProfilingGeneralSettingsViewDefaults = (context = {}
 /**
  * Device Change Detection
 **/
-export const pfConfigurationProfilingDeviceChangeDetectionViewFields = (context = {}) => {
+export const pfConfigurationFingerbankDeviceChangeDetectionViewFields = (context = {}) => {
   return [
     {
       tab: null, // ignore tabs
@@ -354,20 +323,51 @@ export const pfConfigurationProfilingDeviceChangeDetectionViewFields = (context 
   ]
 }
 
-export const pfConfigurationProfilingDeviceChangeDetectionViewDefaults = (context = {}) => {
+export const pfConfigurationFingerbankDeviceChangeDetectionViewDefaults = (context = {}) => {
   return {}
 }
 
-export const pfConfigurationProfilingCombinationsListColumns = [
+export const pfConfigurationFingerbankCombinationsListColumns = [
   {
     key: 'id',
     label: i18n.t('Identifier'),
     sortable: true,
     visible: true
+  },
+  {
+    key: 'device_id',
+    label: i18n.t('Device'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'score',
+    label: i18n.t('Score'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'created_at',
+    label: i18n.t('Created'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'updated_at',
+    label: i18n.t('Updated'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'buttons',
+    label: '',
+    sortable: false,
+    visible: true,
+    locked: true
   }
 ]
 
-export const pfConfigurationProfilingCombinationsListFields = [
+export const pfConfigurationFingerbankCombinationsListFields = [
   {
     value: 'id',
     text: i18n.t('Identifier'),
@@ -375,17 +375,19 @@ export const pfConfigurationProfilingCombinationsListFields = [
   }
 ]
 
-export const pfConfigurationProfilingCombinationsListConfig = (context = {}) => {
-  const { $i18n } = context
+export const pfConfigurationFingerbankCombinationsListConfig = (context = {}) => {
+  const {
+    scope
+  } = context
   return {
-    columns: pfConfigurationProfilingCombinationsListColumns,
-    fields: pfConfigurationProfilingCombinationsListFields,
+    columns: pfConfigurationFingerbankCombinationsListColumns,
+    fields: pfConfigurationFingerbankCombinationsListFields,
     rowClickRoute (item, index) {
       return { name: 'combination', params: { id: item.id } }
     },
-    searchPlaceholder: $i18n.t('Search by identifier or description'),
+    searchPlaceholder: i18n.t('Search by identifier'),
     searchableOptions: {
-      searchApiEndpoint: 'config/TODO',
+      searchApiEndpoint: `fingerbank/${scope}/combinations`,
       defaultSortKeys: ['id'],
       defaultSearchCondition: {
         op: 'and',
@@ -396,7 +398,7 @@ export const pfConfigurationProfilingCombinationsListConfig = (context = {}) => 
           ]
         }]
       },
-      defaultRoute: { name: 'profilingCombinations' }
+      defaultRoute: { name: 'fingerbankCombinations' }
     },
     searchableQuickCondition: (quickCondition) => {
       return {
@@ -414,7 +416,7 @@ export const pfConfigurationProfilingCombinationsListConfig = (context = {}) => 
   }
 }
 
-export const pfConfigurationProfilingDevicesListColumns = [
+export const pfConfigurationFingerbankDevicesListColumns = [
   {
     key: 'id',
     label: i18n.t('Identifier'),
@@ -423,7 +425,7 @@ export const pfConfigurationProfilingDevicesListColumns = [
   }
 ]
 
-export const pfConfigurationProfilingDevicesListFields = [
+export const pfConfigurationFingerbankDevicesListFields = [
   {
     value: 'id',
     text: i18n.t('Identifier'),
@@ -431,15 +433,14 @@ export const pfConfigurationProfilingDevicesListFields = [
   }
 ]
 
-export const pfConfigurationProfilingDevicesListConfig = (context = {}) => {
-  const { $i18n } = context
+export const pfConfigurationFingerbankDevicesListConfig = (context = {}) => {
   return {
-    columns: pfConfigurationProfilingDevicesListColumns,
-    fields: pfConfigurationProfilingDevicesListFields,
+    columns: pfConfigurationFingerbankDevicesListColumns,
+    fields: pfConfigurationFingerbankDevicesListFields,
     rowClickRoute (item, index) {
       return { name: 'device', params: { id: item.id } }
     },
-    searchPlaceholder: $i18n.t('Search by identifier or description'),
+    searchPlaceholder: i18n.t('Search by identifier or description'),
     searchableOptions: {
       searchApiEndpoint: 'config/TODO',
       defaultSortKeys: ['id'],
@@ -470,7 +471,7 @@ export const pfConfigurationProfilingDevicesListConfig = (context = {}) => {
   }
 }
 
-export const pfConfigurationProfilingDhcpFingerprintsListColumns = [
+export const pfConfigurationFingerbankDhcpFingerprintsListColumns = [
   {
     key: 'id',
     label: i18n.t('Identifier'),
@@ -479,7 +480,7 @@ export const pfConfigurationProfilingDhcpFingerprintsListColumns = [
   }
 ]
 
-export const pfConfigurationProfilingDhcpFingerprintsListFields = [
+export const pfConfigurationFingerbankDhcpFingerprintsListFields = [
   {
     value: 'id',
     text: i18n.t('Identifier'),
@@ -487,15 +488,14 @@ export const pfConfigurationProfilingDhcpFingerprintsListFields = [
   }
 ]
 
-export const pfConfigurationProfilingDhcpFingerprintsListConfig = (context = {}) => {
-  const { $i18n } = context
+export const pfConfigurationFingerbankDhcpFingerprintsListConfig = (context = {}) => {
   return {
-    columns: pfConfigurationProfilingDhcpFingerprintsListColumns,
-    fields: pfConfigurationProfilingDhcpFingerprintsListFields,
+    columns: pfConfigurationFingerbankDhcpFingerprintsListColumns,
+    fields: pfConfigurationFingerbankDhcpFingerprintsListFields,
     rowClickRoute (item, index) {
       return { name: 'dhcpFingerprint', params: { id: item.id } }
     },
-    searchPlaceholder: $i18n.t('Search by identifier or description'),
+    searchPlaceholder: i18n.t('Search by identifier or description'),
     searchableOptions: {
       searchApiEndpoint: 'config/TODO',
       defaultSortKeys: ['id'],
@@ -526,7 +526,7 @@ export const pfConfigurationProfilingDhcpFingerprintsListConfig = (context = {})
   }
 }
 
-export const pfConfigurationProfilingDhcpVendorsListColumns = [
+export const pfConfigurationFingerbankDhcpVendorsListColumns = [
   {
     key: 'id',
     label: i18n.t('Identifier'),
@@ -535,7 +535,7 @@ export const pfConfigurationProfilingDhcpVendorsListColumns = [
   }
 ]
 
-export const pfConfigurationProfilingDhcpVendorsListFields = [
+export const pfConfigurationFingerbankDhcpVendorsListFields = [
   {
     value: 'id',
     text: i18n.t('Identifier'),
@@ -543,15 +543,14 @@ export const pfConfigurationProfilingDhcpVendorsListFields = [
   }
 ]
 
-export const pfConfigurationProfilingDhcpVendorsListConfig = (context = {}) => {
-  const { $i18n } = context
+export const pfConfigurationFingerbankDhcpVendorsListConfig = (context = {}) => {
   return {
-    columns: pfConfigurationProfilingDhcpVendorsListColumns,
-    fields: pfConfigurationProfilingDhcpVendorsListFields,
+    columns: pfConfigurationFingerbankDhcpVendorsListColumns,
+    fields: pfConfigurationFingerbankDhcpVendorsListFields,
     rowClickRoute (item, index) {
       return { name: 'dhcpVendor', params: { id: item.id } }
     },
-    searchPlaceholder: $i18n.t('Search by identifier or description'),
+    searchPlaceholder: i18n.t('Search by identifier or description'),
     searchableOptions: {
       searchApiEndpoint: 'config/TODO',
       defaultSortKeys: ['id'],
@@ -582,7 +581,7 @@ export const pfConfigurationProfilingDhcpVendorsListConfig = (context = {}) => {
   }
 }
 
-export const pfConfigurationProfilingDhcpv6FingerprintsListColumns = [
+export const pfConfigurationFingerbankDhcpv6FingerprintsListColumns = [
   {
     key: 'id',
     label: i18n.t('Identifier'),
@@ -591,7 +590,7 @@ export const pfConfigurationProfilingDhcpv6FingerprintsListColumns = [
   }
 ]
 
-export const pfConfigurationProfilingDhcpv6FingerprintsListFields = [
+export const pfConfigurationFingerbankDhcpv6FingerprintsListFields = [
   {
     value: 'id',
     text: i18n.t('Identifier'),
@@ -599,15 +598,14 @@ export const pfConfigurationProfilingDhcpv6FingerprintsListFields = [
   }
 ]
 
-export const pfConfigurationProfilingDhcpv6FingerprintsListConfig = (context = {}) => {
-  const { $i18n } = context
+export const pfConfigurationFingerbankDhcpv6FingerprintsListConfig = (context = {}) => {
   return {
-    columns: pfConfigurationProfilingDhcpv6FingerprintsListColumns,
-    fields: pfConfigurationProfilingDhcpv6FingerprintsListFields,
+    columns: pfConfigurationFingerbankDhcpv6FingerprintsListColumns,
+    fields: pfConfigurationFingerbankDhcpv6FingerprintsListFields,
     rowClickRoute (item, index) {
       return { name: 'dhcpv6Fingerprint', params: { id: item.id } }
     },
-    searchPlaceholder: $i18n.t('Search by identifier or description'),
+    searchPlaceholder: i18n.t('Search by identifier or description'),
     searchableOptions: {
       searchApiEndpoint: 'config/TODO',
       defaultSortKeys: ['id'],
@@ -638,7 +636,7 @@ export const pfConfigurationProfilingDhcpv6FingerprintsListConfig = (context = {
   }
 }
 
-export const pfConfigurationProfilingDhcpv6EnterprisesListColumns = [
+export const pfConfigurationFingerbankDhcpv6EnterprisesListColumns = [
   {
     key: 'id',
     label: i18n.t('Identifier'),
@@ -647,7 +645,7 @@ export const pfConfigurationProfilingDhcpv6EnterprisesListColumns = [
   }
 ]
 
-export const pfConfigurationProfilingDhcpv6EnterprisesListFields = [
+export const pfConfigurationFingerbankDhcpv6EnterprisesListFields = [
   {
     value: 'id',
     text: i18n.t('Identifier'),
@@ -655,15 +653,14 @@ export const pfConfigurationProfilingDhcpv6EnterprisesListFields = [
   }
 ]
 
-export const pfConfigurationProfilingDhcpv6EnterprisesListConfig = (context = {}) => {
-  const { $i18n } = context
+export const pfConfigurationFingerbankDhcpv6EnterprisesListConfig = (context = {}) => {
   return {
-    columns: pfConfigurationProfilingDhcpv6EnterprisesListColumns,
-    fields: pfConfigurationProfilingDhcpv6EnterprisesListFields,
+    columns: pfConfigurationFingerbankDhcpv6EnterprisesListColumns,
+    fields: pfConfigurationFingerbankDhcpv6EnterprisesListFields,
     rowClickRoute (item, index) {
       return { name: 'dhcpv6Enterprise', params: { id: item.id } }
     },
-    searchPlaceholder: $i18n.t('Search by identifier or description'),
+    searchPlaceholder: i18n.t('Search by identifier or description'),
     searchableOptions: {
       searchApiEndpoint: 'config/TODO',
       defaultSortKeys: ['id'],
@@ -694,7 +691,7 @@ export const pfConfigurationProfilingDhcpv6EnterprisesListConfig = (context = {}
   }
 }
 
-export const pfConfigurationProfilingMacVendorsListColumns = [
+export const pfConfigurationFingerbankMacVendorsListColumns = [
   {
     key: 'id',
     label: i18n.t('Identifier'),
@@ -703,7 +700,7 @@ export const pfConfigurationProfilingMacVendorsListColumns = [
   }
 ]
 
-export const pfConfigurationProfilingMacVendorsListFields = [
+export const pfConfigurationFingerbankMacVendorsListFields = [
   {
     value: 'id',
     text: i18n.t('Identifier'),
@@ -711,15 +708,14 @@ export const pfConfigurationProfilingMacVendorsListFields = [
   }
 ]
 
-export const pfConfigurationProfilingMacVendorsListConfig = (context = {}) => {
-  const { $i18n } = context
+export const pfConfigurationFingerbankMacVendorsListConfig = (context = {}) => {
   return {
-    columns: pfConfigurationProfilingMacVendorsListColumns,
-    fields: pfConfigurationProfilingMacVendorsListFields,
+    columns: pfConfigurationFingerbankMacVendorsListColumns,
+    fields: pfConfigurationFingerbankMacVendorsListFields,
     rowClickRoute (item, index) {
       return { name: 'macVendor', params: { id: item.id } }
     },
-    searchPlaceholder: $i18n.t('Search by identifier or description'),
+    searchPlaceholder: i18n.t('Search by identifier or description'),
     searchableOptions: {
       searchApiEndpoint: 'config/TODO',
       defaultSortKeys: ['id'],
@@ -750,7 +746,7 @@ export const pfConfigurationProfilingMacVendorsListConfig = (context = {}) => {
   }
 }
 
-export const pfConfigurationProfilingUserAgentsListColumns = [
+export const pfConfigurationFingerbankUserAgentsListColumns = [
   {
     key: 'id',
     label: i18n.t('Identifier'),
@@ -759,7 +755,7 @@ export const pfConfigurationProfilingUserAgentsListColumns = [
   }
 ]
 
-export const pfConfigurationProfilingUserAgentsListFields = [
+export const pfConfigurationFingerbankUserAgentsListFields = [
   {
     value: 'id',
     text: i18n.t('Identifier'),
@@ -767,15 +763,14 @@ export const pfConfigurationProfilingUserAgentsListFields = [
   }
 ]
 
-export const pfConfigurationProfilingUserAgentsListConfig = (context = {}) => {
-  const { $i18n } = context
+export const pfConfigurationFingerbankUserAgentsListConfig = (context = {}) => {
   return {
-    columns: pfConfigurationProfilingUserAgentsListColumns,
-    fields: pfConfigurationProfilingUserAgentsListFields,
+    columns: pfConfigurationFingerbankUserAgentsListColumns,
+    fields: pfConfigurationFingerbankUserAgentsListFields,
     rowClickRoute (item, index) {
       return { name: 'userAgent', params: { id: item.id } }
     },
-    searchPlaceholder: $i18n.t('Search by identifier or description'),
+    searchPlaceholder: i18n.t('Search by identifier or description'),
     searchableOptions: {
       searchApiEndpoint: 'config/TODO',
       defaultSortKeys: ['id'],
