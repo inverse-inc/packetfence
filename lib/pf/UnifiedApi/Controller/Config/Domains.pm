@@ -35,7 +35,7 @@ sub test_join {
     my ($self) = @_;
     my $domain_id = $self->stash('domain_id');
     my ($status, $msg) = pf::domain::test_join($domain_id);
-    $self->render(json => {message => $msg}, status => $status ? 200 : 422);
+    $self->render(json => {message => $msg}, status => $status == 0 ? 200 : 422);
 }
 
 =head1 AUTHOR
