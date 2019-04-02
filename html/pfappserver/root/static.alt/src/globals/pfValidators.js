@@ -137,6 +137,26 @@ export const inArray = (array) => {
   })
 }
 
+export const ipAddress = (value) => {
+  if (!value) return true
+  return /^(([0-9]{1,3}.){3,3}[0-9]{1,3})$/i.test(value)
+}
+
+export const ipv6Address = (value) => {
+  if (!value) return true
+  return /^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))$/i.test(value)
+}
+
+export const isCIDR = (value) => {
+  if (!value) return true
+  const [ipv4, network, ...extra] = value.split('/')
+  return (
+    extra.length === 0 &&
+    ~~network > 0 && ~~network < 31 &&
+    ipv4 && ipAddress(ipv4)
+  )
+}
+
 export const isDateFormat = (dateFormat, allowZero = true) => {
   return (0, _common.withParams)({
     type: 'isDateFormat',
@@ -196,6 +216,11 @@ export const isPort = (value) => {
 export const isPrice = (value) => {
   if (!value) return true
   return /^-?\d+\.\d{2}$/.test(value)
+}
+
+export const isVLAN = (value) => {
+  if (!value) return true
+  return ~~value === parseFloat(value) && ~~value >= 1 && ~~value <= 4096
 }
 
 export const compareDate = (comparison, date = new Date(), dateFormat = 'YYYY-MM-DD HH:mm:ss', allowZero = true) => {
@@ -291,6 +316,14 @@ export const hasFloatingDevices = (value, component) => {
   })
 }
 
+export const hasInterfaces = (value, component) => {
+  return store.dispatch('config/getInterfaces').then((response) => {
+    return (response.length > 0)
+  }).catch(() => {
+    return true
+  })
+}
+
 export const hasMaintenanceTasks = (value, component) => {
   return store.dispatch('config/getMaintenanceTasks').then((response) => {
     return (response.length > 0)
@@ -325,6 +358,14 @@ export const hasRealms = (value, component) => {
 
 export const hasRoles = (value, component) => {
   return store.dispatch('config/getRoles').then((response) => {
+    return (response.length > 0)
+  }).catch(() => {
+    return true
+  })
+}
+
+export const hasRoutedNetworks = (value, component) => {
+  return store.dispatch('config/getRoutedNetworks').then((response) => {
     return (response.length > 0)
   }).catch(() => {
     return true
@@ -491,6 +532,31 @@ export const floatingDeviceExists = (value, component) => {
   })
 }
 
+export const interfaceExists = (value, component) => {
+  if (!value) return true
+  return store.dispatch('config/getInterfaces').then((response) => {
+    if (response.length === 0) return true
+    return (response.filter(iface => iface.id.toLowerCase() === value.toLowerCase()).length > 0)
+  }).catch(() => {
+    return true
+  })
+}
+
+export const interfaceVlanExists = (id) => {
+  return (0, _common.withParams)({
+    type: 'interfaceVlanExists',
+    id: id
+  }, function (value) {
+    if (!(0, _common.req)(value)) return true
+    return store.dispatch('config/getInterfaces').then((response) => {
+      if (response.length === 0) return true
+      return (response.filter(iface => iface.master === id && iface.vlan === value).length > 0)
+    }).catch(() => {
+      return true
+    })
+  })
+}
+
 export const nodeExists = (value, component) => {
   if (!value || value.length !== 17) return true
   return store.dispatch('$_nodes/exists', value).then(() => {
@@ -545,6 +611,16 @@ export const roleExists = (value, component) => {
   return store.dispatch('config/getRoles').then((response) => {
     if (response.length === 0) return true
     return (response.filter(role => role.name.toLowerCase() === value.toLowerCase()).length > 0)
+  }).catch(() => {
+    return true
+  })
+}
+
+export const routedNetworkExists = (value, component) => {
+  if (!value) return true
+  return store.dispatch('config/getRoutedNetworks').then((response) => {
+    if (response.length === 0) return true
+    return (response.filter(routedNetwork => routedNetwork.id.toLowerCase() === value.toLowerCase()).length > 0)
   }).catch(() => {
     return true
   })

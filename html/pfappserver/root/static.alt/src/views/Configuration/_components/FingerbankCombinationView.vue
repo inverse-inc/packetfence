@@ -1,8 +1,6 @@
 <template>
   <pf-config-view
     :isLoading="isLoading"
-    :isClonable="isClonable"
-    :isDeletable="isDeletable"
     :disabled="isLoading"
     :form="getForm"
     :model="form"
@@ -17,16 +15,15 @@
   >
     <template slot="header" is="b-card-header">
       <b-button-close @click="close" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
-      <template>
-        <h4 class="d-inline mb-0">
-          <span v-if="!isNew && !isClone">{{ $t('Interface {id}', { id: (isVlan) ? form.master : id }) }}</span>
-          <span v-else-if="isClone">{{ $t('Clone Interface {id}', { id: (isVlan) ? form.master : id }) }}</span>
-          <span v-else>{{ $t('New VLAN for Interface {id}', { id: (isVlan) ? form.master : id }) }}</span>
-        </h4>
-        <b-badge v-if="isVlan" class="ml-2" variant="secondary">VLAN {{ form.vlan }}</b-badge>
-      </template>
+      <h4 class="mb-0">
+        <span v-if="!isNew && !isClone">{{ $t('Fingerbank Combination {id}', { id: id }) }}</span>
+        <span v-else-if="isClone">{{ $t('Clone Fingerbank Combination {id}', { id: id }) }}</span>
+        <span v-else>{{ $t('New Fingerbank Combination') }}</span>
+      </h4>
     </template>
-    <template slot="footer">
+    <template slot="footer"
+      scope="{isDeletable}"
+    >
       <b-card-footer @mouseenter="$v.form.$touch()">
         <pf-button-save :disabled="invalidForm" :isLoading="isLoading">
           <template v-if="isNew">{{ $t('Create') }}</template>
@@ -35,8 +32,8 @@
           <template v-else>{{ $t('Save') }}</template>
         </pf-button-save>
         <b-button :disabled="isLoading" class="ml-1" variant="outline-primary" @click="init()">{{ $t('Reset') }}</b-button>
-        <b-button v-if="isClonable" :disabled="isLoading" class="ml-1" variant="outline-primary" @click="clone()">{{ $t('Clone') }}</b-button>
-        <pf-button-delete v-if="isDeletable" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Interface?')" @on-delete="remove()"/>
+        <b-button v-if="!isNew && !isClone" :disabled="isLoading" class="ml-1" variant="outline-primary" @click="clone()">{{ $t('Clone') }}</b-button>
+        <pf-button-delete v-if="isDeletable" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Fingerbank Combination?')" @on-delete="remove()"/>
       </b-card-footer>
     </template>
   </pf-config-view>
@@ -44,26 +41,29 @@
 
 <script>
 import pfConfigView from '@/components/pfConfigView'
-import pfButtonDelete from '@/components/pfButtonDelete'
 import pfButtonSave from '@/components/pfButtonSave'
+import pfButtonDelete from '@/components/pfButtonDelete'
 import pfMixinCtrlKey from '@/components/pfMixinCtrlKey'
 import pfMixinEscapeKey from '@/components/pfMixinEscapeKey'
 import {
-  pfConfigurationInterfaceViewFields as fields
-} from '@/globals/configuration/pfConfigurationInterfaces'
+  pfConfigurationDefaultsFromMeta as defaults
+} from '@/globals/configuration/pfConfiguration'
+import {
+  pfConfigurationFingerbankCombinationsViewFields as fields
+} from '@/globals/configuration/pfConfigurationFingerbank'
 const { validationMixin } = require('vuelidate')
 
 export default {
-  name: 'InterfaceView',
+  name: 'FingerbankCombinationView',
   mixins: [
     validationMixin,
     pfMixinCtrlKey,
     pfMixinEscapeKey
   ],
   components: {
-    pfButtonDelete,
+    pfConfigView,
     pfButtonSave,
-    pfConfigView
+    pfButtonDelete
   },
   props: {
     storeName: { // from router
@@ -87,7 +87,8 @@ export default {
   data () {
     return {
       form: {}, // will be overloaded with the data from the store
-      formValidations: {} // will be overloaded with data from the pfConfigView
+      formValidations: {}, // will be overloaded with data from the pfConfigView
+      options: {}
     }
   },
   validations () {
@@ -108,59 +109,68 @@ export default {
         fields: fields(this)
       }
     },
-    isClonable () {
-      return !this.isNew && !this.isClone && this.isVlan
-    },
     isDeletable () {
-      return !this.isNew && !this.isClone && this.isVlan
-    },
-    isVlan () {
-      return (this.form && this.form.master)
+      if (this.isNew || this.isClone || ('not_deletable' in this.form && this.form.not_deletable)) {
+        return false
+      }
+      return true
     }
   },
   methods: {
     init () {
-      this.$store.dispatch(`${this.storeName}/getInterface`, this.id).then(form => {
-        if (this.isNew) {
-          this.form = {
-            id: form.id,
-            netmask: form.netmask,
-            type: 'none'
-          }
+      this.$store.dispatch(`${this.storeName}/options`, this.id).then(options => {
+        // store options
+        this.options = JSON.parse(JSON.stringify(options))
+        if (this.id) {
+          // existing
+          this.$store.dispatch(`${this.storeName}/getFingerbankCombination`, this.id).then(form => {
+            this.form = JSON.parse(JSON.stringify(form))
+          })
         } else {
-          this.form = JSON.parse(JSON.stringify(form))
+          // new
+          this.form = defaults(options.meta) // set defaults
         }
       })
     },
     close () {
-      this.$router.push({ name: 'interfaces' })
+      this.$router.push({ name: 'device_registrations' })
+    },
+    clone () {
+      this.$router.push({ name: 'cloneFingerbankCombination' })
     },
     create () {
       const ctrlKey = this.ctrlKey
-      this.$store.dispatch(`${this.storeName}/createInterface`, this.form).then(response => {
+      this.$store.dispatch(`${this.storeName}/createFingerbankCombination`, this.form).then(response => {
         if (ctrlKey) { // [CTRL] key pressed
           this.close()
         } else {
-          this.$router.push({ name: 'interface', params: { id: `${this.form.id}.${this.form.vlan}` } })
+          this.$router.push({ name: 'device_registration', params: { id: this.form.id } })
         }
       })
     },
     save () {
       const ctrlKey = this.ctrlKey
-      this.$store.dispatch(`${this.storeName}/updateInterface`, this.form).then(response => {
+      this.$store.dispatch(`${this.storeName}/updateFingerbankCombination`, this.form).then(response => {
         if (ctrlKey) { // [CTRL] key pressed
           this.close()
         }
       })
     },
-    remove (id) {
-      this.$store.dispatch(`${this.storeName}/deleteInterface`, this.id).then(response => {
+    remove () {
+      this.$store.dispatch(`${this.storeName}/deleteFingerbankCombination`, this.id).then(response => {
         this.close()
       })
     }
   },
   created () {
     this.init()
+  },
+  watch: {
+    isClone: {
+      handler: function (a, b) {
+        this.init()
+      }
+    }
   }
 }
 </script>

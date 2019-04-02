@@ -4,17 +4,17 @@
       :config="config"
     >
       <template slot="pageHeader">
-        <b-card-header><h4 class="mb-0" v-t="'User Agents'"></h4></b-card-header>
+        <b-card-header><h4 class="mb-0" v-t="'DHCPv6 Enterprises'"></h4></b-card-header>
       </template>
       <template slot="buttonAdd">
-        <b-button variant="outline-primary" :to="{ name: 'newUserAgent' }">{{ $t('Add User Agent') }}</b-button>
+        <b-button variant="outline-primary" :to="{ name: 'newDhcpv6Enterprise' }">{{ $t('Add DHCPv6 Enterprise') }}</b-button>
       </template>
       <template slot="emptySearch" slot-scope="state">
-        <pf-empty-table :isLoading="state.isLoading">{{ $t('No user agents found') }}</pf-empty-table>
+        <pf-empty-table :isLoading="state.isLoading">{{ $t('No DHCPv6 enterprises found') }}</pf-empty-table>
       </template>
       <template slot="buttons" slot-scope="item">
         <span class="float-right text-nowrap">
-          <pf-button-delete size="sm" v-if="!item.not_deletable" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete User Agent?')" @on-delete="remove(item)" reverse/>
+          <pf-button-delete size="sm" v-if="!item.not_deletable" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete DHCPv6 Enterprise?')" @on-delete="remove(item)" reverse/>
           <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(item)">{{ $t('Clone') }}</b-button>
         </span>
       </template>
@@ -27,11 +27,11 @@ import pfButtonDelete from '@/components/pfButtonDelete'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import {
-  pfConfigurationProfilingUserAgentsListConfig as config
-} from '@/globals/configuration/pfConfigurationProfiling'
+  pfConfigurationFingerbankDhcpv6EnterprisesListConfig as config
+} from '@/globals/configuration/pfConfigurationFingerbank'
 
 export default {
-  name: 'ProfilingUserAgentsList',
+  name: 'FingerbankDhcpv6EnterprisesList',
   components: {
     pfButtonDelete,
     pfConfigList,
@@ -46,23 +46,23 @@ export default {
   },
   data () {
     return {
-      userAgents: [], // all user agents
+      dhcpv6Enterprises: [], // all dhcpv6 enterprises
       config: config(this)
     }
   },
   methods: {
     clone (item) {
-      this.$router.push({ name: 'cloneUserAgent', params: { id: item.id } })
+      this.$router.push({ name: 'cloneDhcpv6Enterprise', params: { id: item.id } })
     },
     remove (item) {
-      this.$store.dispatch(`${this.storeName}/deleteUserAgent`, item.id).then(response => {
+      this.$store.dispatch(`${this.storeName}/deleteDhcpv6Enterprise`, item.id).then(response => {
         this.$router.go() // reload
       })
     }
   },
   created () {
-    this.$store.dispatch(`${this.storeName}/userAgents`).then(data => {
-      this.userAgents = data
+    this.$store.dispatch(`${this.storeName}/dhcpv6Enterprises`).then(data => {
+      this.dhcpv6Enterprises = data
     })
   }
 }

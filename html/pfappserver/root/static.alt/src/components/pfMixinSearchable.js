@@ -3,8 +3,8 @@
  *
  * A component using the pfMixinSearchable mixin component is required to:
  *
- *   1. declare a property 'pfMixinSearchableOptions' with the following structure:
- *     - declare a property 'searchApiEndpoint' (string);
+ *   1. declare a property 'searchableOptions' with the following structure:
+ *     - declare a property 'searchApiEndpoint' (string|function);
  *     - declare a property 'defaultSearchKeys' (array);
  *     - declare a property 'defaultSearchCondition' (object);
  *     - declare a property 'defaultRoute' (object);
@@ -12,7 +12,7 @@
  *      export default {
  *        // ...
  *        props: {
- *          pfMixinSearchableOptions: {
+ *          searchableOptions: {
  *            type: Object,
  *            default: {
  *              searchApiEndpoint: 'users',
@@ -29,9 +29,9 @@
  *
  * Optionally, it can:
  *
- *   - implement a method name 'pfMixinSearchableInitCondition' (used when the search is reset or cleared).
- *   - implement a method name 'pfMixinSearchableQuickCondition' (used when predefining search fields in quick mode).
- *   - implement a method name 'pfMixinSearchableAdvancedMode' (used when determining if advanced mode is enabled).
+ *   - implement a method name 'searchableInitCondition' (used when the search is reset or cleared).
+ *   - implement a method name 'searchableQuickCondition' (used when predefining search fields in quick mode).
+ *   - implement a method name 'searchableAdvancedMode' (used when determining if advanced mode is enabled).
  *
  */
 import SearchableStore from '@/store/base/searchable'
@@ -43,10 +43,12 @@ export default {
     'pf-search': pfSearch
   },
   props: {
-    pfMixinSearchableOptions: {
+    searchableOptions: {
       type: Object,
       default: {
-        defaultSearchCondition: { op: 'and', values: [{ op: 'or', values: [{ field: null, op: null, value: null }] }] }
+        defaultSearchCondition: () => {
+          return { op: 'and', values: [{ op: 'or', values: [{ field: null, op: null, value: null }] }] }
+        }
       }
     },
     query: {
@@ -88,8 +90,8 @@ export default {
     items () {
       if (this.searchableStoreName) {
         let results = this.$store.state[this.searchableStoreName].results
-        if ('resultsFilter' in this.pfMixinSearchableOptions) {
-          results = this.pfMixinSearchableOptions.resultsFilter(results)
+        if ('resultsFilter' in this.searchableOptions) {
+          results = this.searchableOptions.resultsFilter(results)
         }
         return results
       }
@@ -100,8 +102,8 @@ export default {
       }
     },
     searchableStoreName () {
-      if (this.pfMixinSearchableOptions.searchApiEndpoint) {
-        return '$_' + this.pfMixinSearchableOptions.searchApiEndpoint.replace(/[/]/g, '_').replace(/[-: ]/g, '') + '_searchable'
+      if (this.searchableOptions.searchApiEndpoint) {
+        return '$_' + this.searchableOptions.searchApiEndpoint.replace(/[/]/g, '_').replace(/[-: ]/g, '') + '_searchable'
       } else {
         return undefined
       }
@@ -112,8 +114,8 @@ export default {
       if (!this.$store.state[this.searchableStoreName]) {
         // Register store module only once
         const searchableStore = new SearchableStore(
-          this.pfMixinSearchableOptions.searchApiEndpoint,
-          this.pfMixinSearchableOptions.defaultSortKeys
+          this.searchableOptions.searchApiEndpoint,
+          this.searchableOptions.defaultSortKeys
         )
         this.$store.registerModule(this.searchableStoreName, searchableStore.module())
       }
@@ -144,15 +146,15 @@ export default {
           // noop
         }
         // Import default condition
-        this.pfMixinSearchableInitCondition()
+        this.searchableInitCondition()
       } while (false)
     },
-    onSearch (searchCondition) {
+    onSearch (searchCondition = '') {
       const _this = this
       let condition = searchCondition
-      if (!this.advancedMode && typeof searchCondition === 'string' && typeof this.pfMixinSearchableQuickCondition === 'function') {
+      if (!this.advancedMode && searchCondition.constructor === String && this.searchableQuickCondition.constructor === Function) {
         // Build quick search query
-        condition = this.pfMixinSearchableQuickCondition(searchCondition)
+        condition = this.searchableQuickCondition(searchCondition)
       }
       this.requestPage = 1 // reset to the first page
       this.$store.dispatch(`${this.searchableStoreName}/setSearchQuery`, condition)
@@ -173,17 +175,17 @@ export default {
       this.$store.dispatch(`${this.searchableStoreName}/setSearchQuery`, null) // reset search
       this.$store.dispatch(`${this.searchableStoreName}/search`, this.requestPage).then(() => {
         _this.currentPage = _this.requestPage
-        this.pfMixinSearchableInitCondition()
+        this.searchableInitCondition()
       }).catch(() => {
         _this.requestPage = _this.currentPage
       })
-      this.$router.push(this.pfMixinSearchableOptions.defaultRoute)
+      this.$router.push(this.searchableOptions.defaultRoute)
     },
     onImport (condition) {
-      this.$router.push(Object.assign(this.pfMixinSearchableOptions.defaultRoute, { query: { query: JSON.stringify(condition) } }))
+      this.$router.push(Object.assign(this.searchableOptions.defaultRoute, { query: { query: JSON.stringify(condition) } }))
     },
-    pfMixinSearchableInitCondition () {
-      this.condition = JSON.parse(JSON.stringify(this.pfMixinSearchableOptions.defaultSearchCondition))
+    searchableInitCondition () {
+      this.condition = JSON.parse(JSON.stringify(this.searchableOptions.defaultSearchCondition))
     },
     onPageSizeChange () {
       this.requestPage = 1 // reset to the first page
@@ -213,19 +215,24 @@ export default {
     }
   },
   watch: {
-    searchableStoreName (value) {
-      this.initStore()
+    searchableOptions: {
+      handler (a, b) {
+        this.initStore()
+        this.onSearch()
+      }
     },
-    query (a, b) {
-      if (a !== b) {
-        if (a) {
-          const condition = JSON.parse(a)
-          this.onSearch(condition)
+    query: {
+      handler (a, b) {
+        if (a !== b) {
+          if (a) {
+            const condition = JSON.parse(a)
+            this.onSearch(condition)
+          }
         }
       }
     },
     condition: {
-      handler: function (a, b) {
+      handler (a, b) {
         // clear if query param !== condition
         if (a && JSON.stringify(a) !== this.query) {
           this.$router.push({ query: null })
@@ -233,10 +240,10 @@ export default {
         if (a !== b) {
           if (a === undefined || a === null) {
             // empty query, re-initialize
-            this.pfMixinSearchableInitCondition()
-          } else if (typeof this.pfMixinSearchableAdvancedMode === 'function') {
+            this.searchableInitCondition()
+          } else if (this.searchableAdvancedMode && this.searchableAdvancedMode.constructor === Function) {
             // enable advancedMode (if not already)
-            this.advancedMode = (this.pfMixinSearchableAdvancedMode(a)) ? true : this.advancedMode
+            this.advancedMode = (this.searchableAdvancedMode(a)) ? true : this.advancedMode
           }
         }
       },
@@ -246,20 +253,20 @@ export default {
   },
   created () {
     // called before the component's created function.
-    if (!this.pfMixinSearchableOptions) {
-      throw new Error(`Missing 'pfMixinSearchableOptions' in properties of component ${this.$options.name}`)
+    if (!this.searchableOptions) {
+      throw new Error(`Missing 'searchableOptions' in properties of component ${this.$options.name}`)
     }
-    if (!this.pfMixinSearchableOptions.hasOwnProperty('searchApiEndpoint')) {
-      throw new Error(`Missing 'pfMixinSearchableOptions.searchApiEndpoint' in properties of component ${this.$options.name}`)
+    if (!('searchApiEndpoint' in this.searchableOptions)) {
+      throw new Error(`Missing 'searchableOptions.searchApiEndpoint' in properties of component ${this.$options.name}`)
     }
-    if (!this.pfMixinSearchableOptions.hasOwnProperty('defaultSortKeys')) {
-      throw new Error(`Missing 'pfMixinSearchableOptions.defaultSortKeys' in properties of component ${this.$options.name}`)
+    if (!('defaultSortKeys' in this.searchableOptions)) {
+      throw new Error(`Missing 'searchableOptions.defaultSortKeys' in properties of component ${this.$options.name}`)
     }
-    if (!this.pfMixinSearchableOptions.hasOwnProperty('defaultSearchCondition')) {
-      throw new Error(`Missing 'pfMixinSearchableOptions.defaultSearchCondition' in properties of component ${this.$options.name}`)
+    if (!('defaultSearchCondition' in this.searchableOptions)) {
+      throw new Error(`Missing 'searchableOptions.defaultSearchCondition' in properties of component ${this.$options.name}`)
     }
-    if (!this.pfMixinSearchableOptions.hasOwnProperty('defaultRoute')) {
-      throw new Error(`Missing 'pfMixinSearchableOptions.defaultRoute' in properties of component ${this.$options.name}`)
+    if (!('defaultRoute' in this.searchableOptions)) {
+      throw new Error(`Missing 'searchableOptions.defaultRoute' in properties of component ${this.$options.name}`)
     }
     if (!this.fields) {
       throw new Error(`Missing 'fields' in data of component ${this.$options.name}`)
@@ -267,13 +274,13 @@ export default {
     if (!this.columns) {
       throw new Error(`Missing 'columns' in data of component ${this.$options.name}`)
     }
-    if (this.pfMixinSearchableOptions.hasOwnProperty('searchApiEndpoint') && this.pfMixinSearchableOptions.searchApiEndpoint) {
+    if ('searchApiEndpoint' in this.searchableOptions && this.searchableOptions.searchApiEndpoint) {
       this.initStore()
     }
   },
   mounted () {
     // called after the component's mounted function.
-    if (JSON.stringify(this.condition) === JSON.stringify(this.pfMixinSearchableOptions.defaultSearchCondition)) {
+    if (JSON.stringify(this.condition) === JSON.stringify(this.searchableOptions.defaultSearchCondition)) {
       // query all w/o criteria
       this.$store.dispatch(`${this.searchableStoreName}/setSearchQuery`, null)
     } else {

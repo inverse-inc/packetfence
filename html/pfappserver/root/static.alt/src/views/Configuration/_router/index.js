@@ -9,15 +9,17 @@ import ConnectionProfilesStore from '../_store/connectionProfiles'
 import DeviceRegistrationsStore from '../_store/deviceRegistrations'
 import DomainsStore from '../_store/domains'
 import FiltersStore from '../_store/filters'
+import FingerbankStore from '../_store/fingerbank'
 import FirewallsStore from '../_store/firewalls'
 import FloatingDevicesStore from '../_store/floatingDevices'
+import InterfacesStore from '../_store/interfaces'
 import MaintenanceTasksStore from '../_store/maintenanceTasks'
 import PkiProvidersStore from '../_store/pkiProviders'
 import PortalModulesStore from '../_store/portalModules'
-import ProfilingStore from '../_store/profiling'
 import ProvisioningsStore from '../_store/provisionings'
 import RealmsStore from '../_store/realms'
 import RolesStore from '../_store/roles'
+import RoutedNetworksStore from '../_store/routedNetworks'
 import ScansStore from '../_store/scans'
 // import SecurityEventsStore from '../_store/securityEvents'
 import ServicesStore from '../_store/services'
@@ -46,8 +48,8 @@ const ConnectionProfileFileView = () => import(/* webpackChunkName: "Configurati
 
 /* Compliance */
 const ComplianceSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/ComplianceSection')
-const ProfilingTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/ProfilingTabs')
-const ProfilingCombinationView = () => import(/* webpackChunkName: "Configuration" */ '../_components/ProfilingCombinationView')
+const FingerbankTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/FingerbankTabs')
+const FingerbankCombinationView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FingerbankCombinationView')
 const ScansTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/ScansTabs')
 const ScansScanEngineView = () => import(/* webpackChunkName: "Configuration" */ '../_components/ScansScanEngineView')
 // const SecurityEventsList = () => import(/* webpackChunkName: "Configuration" */ '../_components/SecurityEventsList')
@@ -69,6 +71,7 @@ const WrixLocationView = () => import(/* webpackChunkName: "Configuration" */ '.
 /* Advanced Access Configuration */
 const CaptivePortalView = () => import(/* webpackChunkName: "Configuration" */ '../_components/CaptivePortalView')
 const FilterEngineTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/FilterEngineTabs')
+const FilterEngineView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FilterEngineView')
 const BillingTiersList = () => import(/* webpackChunkName: "Configuration" */ '../_components/BillingTiersList')
 const BillingTierView = () => import(/* webpackChunkName: "Configuration" */ '../_components/BillingTierView')
 const PkiProvidersList = () => import(/* webpackChunkName: "Configuration" */ '../_components/PkiProvidersList')
@@ -85,6 +88,7 @@ const DeviceRegistrationView = () => import(/* webpackChunkName: "Configuration"
 const NetworkConfigurationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/NetworkConfigurationSection')
 const NetworksTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/NetworksTabs')
 const InterfaceView = () => import(/* webpackChunkName: "Configuration" */ '../_components/InterfaceView')
+const RoutedNetworkView = () => import(/* webpackChunkName: "Configuration" */ '../_components/RoutedNetworkView')
 const TrafficShapingView = () => import(/* webpackChunkName: "Configuration" */ '../_components/TrafficShapingView')
 const SnmpTrapView = () => import(/* webpackChunkName: "Configuration" */ '../_components/SnmpTrapView')
 const FloatingDevicesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/FloatingDevicesList')
@@ -136,11 +140,17 @@ const route = {
     if (!store.state.$_filters) {
       store.registerModule('$_filters', FiltersStore)
     }
+    if (!store.state.$_fingerbank) {
+      store.registerModule('$_fingerbank', FingerbankStore)
+    }
     if (!store.state.$_firewalls) {
       store.registerModule('$_firewalls', FirewallsStore)
     }
     if (!store.state.$_floatingdevices) {
       store.registerModule('$_floatingdevices', FloatingDevicesStore)
+    }
+    if (!store.state.$_interfaces) {
+      store.registerModule('$_interfaces', InterfacesStore)
     }
     if (!store.state.$_maintenance_tasks) {
       store.registerModule('$_maintenance_tasks', MaintenanceTasksStore)
@@ -151,9 +161,6 @@ const route = {
     if (!store.state.$_portalmodules) {
       store.registerModule('$_portalmodules', PortalModulesStore)
     }
-    if (!store.state.$_profiling) {
-      store.registerModule('$_profiling', ProfilingStore)
-    }
     if (!store.state.$_provisionings) {
       store.registerModule('$_provisionings', ProvisioningsStore)
     }
@@ -162,6 +169,9 @@ const route = {
     }
     if (!store.state.$_roles) {
       store.registerModule('$_roles', RolesStore)
+    }
+    if (!store.state.$_routed_networks) {
+      store.registerModule('$_routed_networks', RoutedNetworksStore)
     }
     if (!store.state.$_scans) {
       store.registerModule('$_scans', ScansStore)
@@ -472,96 +482,96 @@ const route = {
       component: ComplianceSection
     },
     {
-      path: 'profiling',
-      redirect: 'profiling/general_settings'
+      path: 'fingerbank',
+      redirect: 'fingerbank/general_settings'
     },
     {
-      path: 'profiling/general_settings',
-      name: 'profilingGeneralSettings',
-      component: ProfilingTabs,
-      props: (route) => ({ tab: 'general_settings', storeName: '$_profiling', query: route.query.query })
+      path: 'fingerbank/general_settings',
+      name: 'fingerbankGeneralSettings',
+      component: FingerbankTabs,
+      props: (route) => ({ tab: 'general_settings', storeName: '$_fingerbank', query: route.query.query })
     },
     {
-      path: 'profiling/device_change_detection',
-      name: 'profilingDeviceChangeDetection',
-      component: ProfilingTabs,
-      props: (route) => ({ tab: 'device_change_detection', storeName: '$_profiling', query: route.query.query })
+      path: 'fingerbank/device_change_detection',
+      name: 'fingerbankDeviceChangeDetection',
+      component: FingerbankTabs,
+      props: (route) => ({ tab: 'device_change_detection', storeName: '$_fingerbank', query: route.query.query })
     },
     {
-      path: 'profiling/combinations',
-      name: 'profilingCombinations',
-      component: ProfilingTabs,
-      props: (route) => ({ tab: 'combinations', storeName: '$_profiling', query: route.query.query })
+      path: 'fingerbank/combinations',
+      name: 'fingerbankCombinations',
+      component: FingerbankTabs,
+      props: (route) => ({ tab: 'combinations', storeName: '$_fingerbank', query: route.query.query })
     },
     {
-      path: 'profiling/combinations/new',
+      path: 'fingerbank/combinations/new',
       name: 'newCombination',
-      component: ProfilingCombinationView,
-      props: (route) => ({ storeName: '$_profiling', isNew: true })
+      component: FingerbankCombinationView,
+      props: (route) => ({ storeName: '$_fingerbank', isNew: true })
     },
     {
-      path: 'profiling/combination/:id',
+      path: 'fingerbank/combination/:id',
       name: 'combination',
-      component: ProfilingCombinationView,
-      props: (route) => ({ storeName: '$_profiling', id: route.params.id }),
+      component: FingerbankCombinationView,
+      props: (route) => ({ storeName: '$_fingerbank', id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_profiling/getTODO', to.params.id).then(object => {
+        store.dispatch('$_fingerbank/fingerbankCombination', to.params.id).then(object => {
           next()
         })
       }
     },
     {
-      path: 'profiling/combination/:id/clone',
+      path: 'fingerbank/combination/:id/clone',
       name: 'cloneCombination',
-      component: ProfilingCombinationView,
-      props: (route) => ({ storeName: '$_profiling', id: route.params.id, isClone: true }),
+      component: FingerbankCombinationView,
+      props: (route) => ({ storeName: '$_fingerbank', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_profiling/getTODO', to.params.id).then(object => {
+        store.dispatch('$_fingerbank/fingerbankCombination', to.params.id).then(object => {
           next()
         })
       }
     },
     {
-      path: 'profiling/devices',
-      name: 'profilingDevices',
-      component: ProfilingTabs,
-      props: (route) => ({ tab: 'devices', storeName: '$_profiling', query: route.query.query })
+      path: 'fingerbank/devices',
+      name: 'fingerbankDevices',
+      component: FingerbankTabs,
+      props: (route) => ({ tab: 'devices', storeName: '$_fingerbank', query: route.query.query })
     },
     {
-      path: 'profiling/dhcp_fingerprints',
-      name: 'profilingDhcpFingerprints',
-      component: ProfilingTabs,
-      props: (route) => ({ tab: 'dhcp_fingerprints', storeName: '$_profiling', query: route.query.query })
+      path: 'fingerbank/dhcp_fingerprints',
+      name: 'fingerbankDhcpFingerprints',
+      component: FingerbankTabs,
+      props: (route) => ({ tab: 'dhcp_fingerprints', storeName: '$_fingerbank', query: route.query.query })
     },
     {
-      path: 'profiling/dhcp_vendors',
-      name: 'profilingDhcpVendors',
-      component: ProfilingTabs,
-      props: (route) => ({ tab: 'dhcp_vendors', storeName: '$_profiling', query: route.query.query })
+      path: 'fingerbank/dhcp_vendors',
+      name: 'fingerbankDhcpVendors',
+      component: FingerbankTabs,
+      props: (route) => ({ tab: 'dhcp_vendors', storeName: '$_fingerbank', query: route.query.query })
     },
     {
-      path: 'profiling/dhcpv6_fingerprints',
-      name: 'profilingDhcpv6Fingerprints',
-      component: ProfilingTabs,
-      props: (route) => ({ tab: 'dhcpv6_fingerprints', storeName: '$_profiling', query: route.query.query })
+      path: 'fingerbank/dhcpv6_fingerprints',
+      name: 'fingerbankDhcpv6Fingerprints',
+      component: FingerbankTabs,
+      props: (route) => ({ tab: 'dhcpv6_fingerprints', storeName: '$_fingerbank', query: route.query.query })
     },
     {
-      path: 'profiling/dhcpv6_enterprises',
-      name: 'profilingDhcpv6Enterprises',
-      component: ProfilingTabs,
-      props: (route) => ({ tab: 'dhcpv6_enterprises', storeName: '$_profiling', query: route.query.query })
+      path: 'fingerbank/dhcpv6_enterprises',
+      name: 'fingerbankDhcpv6Enterprises',
+      component: FingerbankTabs,
+      props: (route) => ({ tab: 'dhcpv6_enterprises', storeName: '$_fingerbank', query: route.query.query })
     },
     {
-      path: 'profiling/mac_vendors',
-      name: 'profilingMacVendors',
-      component: ProfilingTabs,
-      props: (route) => ({ tab: 'mac_vendors', storeName: '$_profiling', query: route.query.query })
+      path: 'fingerbank/mac_vendors',
+      name: 'fingerbankMacVendors',
+      component: FingerbankTabs,
+      props: (route) => ({ tab: 'mac_vendors', storeName: '$_fingerbank', query: route.query.query })
     },
     {
-      path: 'profiling/user_agents',
-      name: 'profilingUserAgents',
-      component: ProfilingTabs,
-      props: (route) => ({ tab: 'user_agents', storeName: '$_profiling', query: route.query.query })
+      path: 'fingerbank/user_agents',
+      name: 'fingerbankUserAgents',
+      component: FingerbankTabs,
+      props: (route) => ({ tab: 'user_agents', storeName: '$_fingerbank', query: route.query.query })
     },
     {
       path: 'scans',
@@ -1017,21 +1027,15 @@ const route = {
       path: 'interfaces',
       name: 'interfaces',
       component: NetworksTabs,
-      props: (route) => ({ tab: 'interfaces', query: route.query.query })
-    },
-    {
-      path: 'interfaces/new',
-      name: 'newInterface',
-      component: InterfaceView,
-      props: (route) => ({ storeName: '$_TODO', isNew: true })
+      props: (route) => ({ tab: 'interfaces', storeName: '$_interfaces', query: route.query.query })
     },
     {
       path: 'interface/:id',
       name: 'interface',
       component: InterfaceView,
-      props: (route) => ({ storeName: '$_TODO', id: route.params.id }),
+      props: (route) => ({ storeName: '$_interfaces', id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_TODO/getTODO', to.params.id).then(object => {
+        store.dispatch('$_interfaces/getInterface', to.params.id).then(object => {
           next()
         })
       }
@@ -1040,9 +1044,48 @@ const route = {
       path: 'interface/:id/clone',
       name: 'cloneInterface',
       component: InterfaceView,
-      props: (route) => ({ storeName: '$_TODO', id: route.params.id, isClone: true }),
+      props: (route) => ({ storeName: '$_interfaces', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_TODO/getTODO', to.params.id).then(object => {
+        store.dispatch('$_interfaces/getInterface', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'interface/:id/new',
+      name: 'newInterface',
+      component: InterfaceView,
+      props: (route) => ({ storeName: '$_interfaces', id: route.params.id, isNew: true }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_interfaces/getInterface', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'interfaces/routed_networks/new',
+      name: 'newRoutedNetwork',
+      component: RoutedNetworkView,
+      props: (route) => ({ storeName: '$_routed_networks', isNew: true })
+    },
+    {
+      path: 'interfaces/routed_network/:id',
+      name: 'routed_network',
+      component: RoutedNetworkView,
+      props: (route) => ({ storeName: '$_routed_networks', id: route.params.id }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_routed_networks/getRoutedNetwork', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'interfaces/routed_network/:id/clone',
+      name: 'cloneRoutedNetwork',
+      component: RoutedNetworkView,
+      props: (route) => ({ storeName: '$_routed_networks', id: route.params.id, isClone: true }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_routed_networks/getRoutedNetwork', to.params.id).then(object => {
           next()
         })
       }

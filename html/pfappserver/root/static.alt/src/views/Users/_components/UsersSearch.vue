@@ -80,7 +80,7 @@ export default {
       default: null,
       required: true
     },
-    pfMixinSearchableOptions: {
+    searchableOptions: {
       type: Object,
       default: () => ({
         searchApiEndpoint: 'users',
@@ -487,7 +487,7 @@ export default {
     }
   },
   methods: {
-    pfMixinSearchableQuickCondition (quickCondition) {
+    searchableQuickCondition (quickCondition) {
       return {
         op: 'and',
         values: [
@@ -501,10 +501,10 @@ export default {
         ]
       }
     },
-    pfMixinSearchableAdvancedMode (condition) {
+    searchableAdvancedMode (condition) {
       return condition.values.length > 1 ||
         condition.values[0].values.filter(v => {
-          return this.pfMixinSearchableOptions.defaultSearchCondition.values[0].values.findIndex(d => {
+          return this.searchableOptions.defaultSearchCondition.values[0].values.findIndex(d => {
             return d.field === v.field && d.op === v.op
           }) >= 0
         }).length !== condition.values[0].values.length

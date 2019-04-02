@@ -96,6 +96,9 @@ const api = {
   getFloatingDevices () {
     return apiCall({ url: 'config/floating_devices', method: 'get' })
   },
+  getInterfaces () {
+    return apiCall({ url: 'config/interfaces', method: 'get' })
+  },
   getMaintenanceTasks () {
     return apiCall({ url: 'config/maintenance_tasks', method: 'get' })
   },
@@ -110,6 +113,9 @@ const api = {
   },
   getRoles () {
     return apiCall({ url: 'node_categories', method: 'get', params: { limit: 1000 } })
+  },
+  getRoutedNetworks () {
+    return apiCall({ url: 'config/routed_networks', method: 'get', params: { limit: 1000 } })
   },
   getScans () {
     return apiCall({ url: 'config/scans', method: 'get' })
@@ -211,6 +217,8 @@ const state = { // set intitial states to `false` (not `[]` or `{}`) to avoid in
   firewalls: false,
   floatingDevicesStatus: '',
   floatingDevices: false,
+  interfacesStatus: '',
+  interfaces: false,
   maintenanceTasksStatus: '',
   maintenanceTasks: false,
   pkiProvidersStatus: '',
@@ -221,6 +229,8 @@ const state = { // set intitial states to `false` (not `[]` or `{}`) to avoid in
   realms: false,
   rolesStatus: '',
   roles: false,
+  routedNetworksStatus: '',
+  routedNetworks: false,
   scansStatus: '',
   scans: false,
   securityEventsStatus: '',
@@ -367,6 +377,9 @@ const getters = {
   isLoadingFloatingDevices: state => {
     return state.floatingDevicesStatus === types.LOADING
   },
+  isLoadingInterfaces: state => {
+    return state.interfacesStatus === types.LOADING
+  },
   isLoadingMaintenanceTasks: state => {
     return state.maintenanceTasksStatus === types.LOADING
   },
@@ -381,6 +394,9 @@ const getters = {
   },
   isLoadingRoles: state => {
     return state.rolesStatus === types.LOADING
+  },
+  isLoadingRoutedNetworks: state => {
+    return state.routedNetworksStatus === types.LOADING
   },
   isLoadingScans: state => {
     return state.scansStatus === types.LOADING
@@ -949,6 +965,20 @@ const actions = {
       return Promise.resolve(state.floatingDevices)
     }
   },
+  getInterfaces: ({ state, getters, commit }) => {
+    if (getters.isLoadingInterfaces) {
+      return
+    }
+    if (!state.interfaces) {
+      commit('INTERFACES_REQUEST')
+      return api.getInterfaces().then(response => {
+        commit('INTERFACES_UPDATED', response.data.items)
+        return state.interfaces
+      })
+    } else {
+      return Promise.resolve(state.interfaces)
+    }
+  },
   getMaintenanceTasks: ({ state, getters, commit }) => {
     if (getters.isLoadingMaintenanceTasks) {
       return
@@ -1017,6 +1047,20 @@ const actions = {
       })
     } else {
       return Promise.resolve(state.roles)
+    }
+  },
+  getRoutedNetworks: ({ state, getters, commit }) => {
+    if (getters.isLoadingRoutedNetworks) {
+      return
+    }
+    if (!state.routedNetworks) {
+      commit('ROUTED_NETWORKS_REQUEST')
+      return api.getRoutedNetworks().then(response => {
+        commit('ROUTED_NETWORKS_UPDATED', response.data.items)
+        return state.routedNetworks
+      })
+    } else {
+      return Promise.resolve(state.routedNetworks)
     }
   },
   getScans: ({ state, getters, commit }) => {
@@ -1376,6 +1420,13 @@ const mutations = {
     state.floatingDevices = floatingDevices
     state.floatingDevicesStatus = types.SUCCESS
   },
+  INTERFACES_REQUEST: (state) => {
+    state.interfacesStatus = types.LOADING
+  },
+  INTERFACES_UPDATED: (state, interfaces) => {
+    state.interfaces = interfaces
+    state.interfacesStatus = types.SUCCESS
+  },
   MAINTENANCE_TASKS_REQUEST: (state) => {
     state.maintenanceTasksStatus = types.LOADING
   },
@@ -1410,6 +1461,13 @@ const mutations = {
   ROLES_UPDATED: (state, roles) => {
     state.roles = roles
     state.rolesStatus = types.SUCCESS
+  },
+  ROUTED_NETWORKS_REQUEST: (state) => {
+    state.routedNetworksStatus = types.LOADING
+  },
+  ROUTED_NETWORKS_UPDATED: (state, routedNetworks) => {
+    state.routedNetworks = routedNetworks
+    state.routedNetworksStatus = types.SUCCESS
   },
   SCANS_REQUEST: (state) => {
     state.scansStatus = types.LOADING

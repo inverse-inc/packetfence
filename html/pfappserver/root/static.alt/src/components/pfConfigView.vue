@@ -36,7 +36,7 @@
                   :vuelidate="getVuelidateModel(field.key)"
                   :class="getClass(row, field)"
                   :value="getValue(field.key)"
-                  :disabled="field.disabled || disabled"
+                  :disabled="(field.attrs && field.attrs.disabled) || disabled"
                   @input="setValue(field.key, $event)"
                   @validations="setComponentValidations(field.key, $event)"
                 ></component>
@@ -46,9 +46,7 @@
           </b-form-group>
         </div>
       </template>
-      <slot name="footer"
-        :isDeletable="isDeletable"
-      >
+      <slot name="footer">
         <b-card-footer @mouseenter="vuelidate.$touch()">
           <pf-button-save :disabled="invalidForm" :is-loading="isLoading">{{ isNew? $t('Create') : $t('Save') }}</pf-button-save>
           <pf-button-delete v-if="isDeletable" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Config?')" @on-delete="remove($event)"/>

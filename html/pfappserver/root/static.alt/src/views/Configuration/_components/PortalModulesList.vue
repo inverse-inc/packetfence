@@ -88,7 +88,7 @@ export default {
       default: null,
       required: true
     },
-    pfMixinSearchableOptions: {
+    searchableOptions: {
       type: Object,
       default: () => ({
         searchApiEndpoint: 'config/portal_modules',

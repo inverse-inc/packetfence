@@ -9,7 +9,7 @@
   >
     <template slot="header" is="b-card-header">
       <h4 class="mb-0">
-        <span>{{ $t('Account information on api.fingerbank.org') }}</span>
+        <span>{{ $t('Fingerbank device change detection') }}</span>
       </h4>
     </template>
     <template slot="footer">
@@ -26,13 +26,13 @@
 import pfConfigView from '@/components/pfConfigView'
 import pfButtonSave from '@/components/pfButtonSave'
 import {
-  pfConfigurationProfilingGeneralSettingsViewFields as fields,
-  pfConfigurationProfilingGeneralSettingsViewDefaults as defaults
-} from '@/globals/configuration/pfConfigurationProfiling'
+  pfConfigurationFingerbankDeviceChangeDetectionViewFields as fields,
+  pfConfigurationFingerbankDeviceChangeDetectionViewDefaults as defaults
+} from '@/globals/configuration/pfConfigurationFingerbank'
 const { validationMixin } = require('vuelidate')
 
 export default {
-  name: 'ProfilingGeneralSettingView',
+  name: 'FingerbankDeviceChangeDetectionView',
   mixins: [
     validationMixin
   ],
@@ -45,10 +45,6 @@ export default {
       type: String,
       default: null,
       required: true
-    },
-    id: { // from router
-      type: String,
-      default: null
     }
   },
   data () {
@@ -64,10 +60,10 @@ export default {
   },
   computed: {
     isLoading () {
-      return this.$store.getters['$_profiling/isGeneralSettingsLoading']
+      return this.$store.getters[`${this.storeName}/isDeviceChangeDetectionLoading`]
     },
     invalidForm () {
-      return this.$v.form.$invalid || this.$store.getters['$_profiling/isGeneralSettingsWaiting']
+      return this.$v.form.$invalid || this.$store.getters[`${this.storeName}/isDeviceChangeDetectionWaiting`]
     },
     getForm () {
       return {
@@ -78,14 +74,14 @@ export default {
   },
   methods: {
     save () {
-      this.$store.dispatch('$_profiling/setGeneralSettings', this.form).then(response => {
+      this.$store.dispatch(`${this.storeName}/setDeviceChangeDetection`, this.form).then(response => {
         // TODO - notification
       })
     }
   },
   created () {
     if (this.id) {
-      this.$store.dispatch('$_profiling/getGeneralSettings', this.id).then(data => {
+      this.$store.dispatch(`${this.storeName}/getDeviceChangeDetection`, this.id).then(data => {
         this.form = JSON.parse(JSON.stringify(data))
         // TODO - notification
       })

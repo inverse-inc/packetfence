@@ -1,5 +1,5 @@
 /**
-* "$_profiling" store module
+* "$_fingerbank" store module
 */
 import Vue from 'vue'
 import api from '../_api'
@@ -107,22 +107,50 @@ const actions = {
       sort: 'id',
       fields: ['id'].join(',')
     }
-    return api.profilingGeneralSettings(params).then(response => {
-      commit('GENERAL_SETTINGS_REPLACED', response)
+    return api.fingerbankGeneralSettings(params).then(response => {
+      // response is split multipart, refactor required
+      let refactored = {}
+      response.forEach((section) => {
+        refactored[section.id] = Object.keys(section)
+          .filter(key => !(['id'].includes(key)))
+          .reduce((obj, key) => {
+            obj[key] = section[key]
+            return obj
+          }, {})
+      })
+      commit('GENERAL_SETTINGS_REPLACED', refactored)
+      return refactored
+    }).catch(err => {
+      commit('GENERAL_SETTINGS_ERROR', err.response)
+      throw err
+    })
+  },
+  // TODO - Test (Issue #4139)
+  optionsGeneralSettings: ({ commit }) => {
+    commit('GENERAL_SETTINGS_REQUEST')
+    return api.fingerbankGeneralSettingsOptions().then(response => {
+      commit('GENERAL_SETTINGS_SUCCESS')
       return response
-    }).catch((err) => {
+    }).catch(err => {
       commit('GENERAL_SETTINGS_ERROR', err.response)
       throw err
     })
   },
   setGeneralSettings: ({ commit }, data) => {
     commit('GENERAL_SETTINGS_REQUEST')
-    return api.profilingUpdateGeneralSettings(data).then(response => {
-      commit('GENERAL_SETTINGS_REPLACED', data)
-      return response
-    }).catch(err => {
-      commit('GENERAL_SETTINGS_ERROR', err.response)
-      throw err
+    let promises = []
+    Object.keys(data).forEach(id => {
+      let refactored = { ...data[id], ...{ id } }
+      promises.push(api.fingerbankUpdateGeneralSetting(id, refactored))
+    })
+    return new Promise((resolve, reject) => {
+      Promise.all(promises.map(p => p.catch(e => e))).then(response => {
+        commit('GENERAL_SETTINGS_REPLACED', data)
+        return response
+      }).catch(err => {
+        commit('GENERAL_SETTINGS_ERROR', err.response)
+        throw err
+      })
     })
   },
   getDeviceChangeDetection: ({ state, commit }) => {
@@ -134,17 +162,17 @@ const actions = {
       sort: 'id',
       fields: ['id'].join(',')
     }
-    return api.profilingDeviceChangeDetection(params).then(response => {
+    return api.fingerbankDeviceChangeDetection(params).then(response => {
       commit('DEVICE_CHANGE_DETECTION_REPLACED', response)
       return response
-    }).catch((err) => {
+    }).catch(err => {
       commit('DEVICE_CHANGE_DETECTION_ERROR', err.response)
       throw err
     })
   },
   setDeviceChangeDetection: ({ commit }, data) => {
     commit('DEVICE_CHANGE_DETECTION_REQUEST')
-    return api.profilingUpdateDeviceChangeDetection(data).then(response => {
+    return api.fingerbankUpdateDeviceChangeDetection(data).then(response => {
       commit('DEVICE_CHANGE_DETECTION_REPLACED', data)
       return response
     }).catch(err => {
@@ -155,9 +183,9 @@ const actions = {
   combinations: ({ state, commit }) => {
     const params = {
       sort: 'id',
-      fields: ['id'].join(',')
+      fields: ['id', 'score'].join(',')
     }
-    return api.profilingCombinations(params).then(response => {
+    return api.fingerbankCombinations(params).then(response => {
       return response.items
     })
   },
@@ -166,17 +194,27 @@ const actions = {
       return Promise.resolve(state.combinations.cache[id])
     }
     commit('COMBINATION_REQUEST')
-    return api.profilingCombination(id).then(item => {
+    return api.fingerbankCombination(id).then(item => {
       commit('COMBINATION_REPLACED', item)
       return item
-    }).catch((err) => {
+    }).catch(err => {
+      commit('COMBINATION_ERROR', err.response)
+      throw err
+    })
+  },
+  optionsCombination: ({ commit }) => {
+    commit('COMBINATION_REQUEST')
+    return api.fingerbankCombinationOptions().then(response => {
+      commit('COMBINATION_SUCCESS')
+      return response
+    }).catch(err => {
       commit('COMBINATION_ERROR', err.response)
       throw err
     })
   },
   createCombination: ({ commit }, data) => {
     commit('COMBINATION_REQUEST')
-    return api.profilingCreateCombination(data).then(response => {
+    return api.fingerbankCreateCombination(data).then(response => {
       commit('COMBINATION_REPLACED', data)
       return response
     }).catch(err => {
@@ -186,7 +224,7 @@ const actions = {
   },
   updateCombination: ({ commit }, data) => {
     commit('COMBINATION_REQUEST')
-    return api.profilingUpdateCombination(data).then(response => {
+    return api.fingerbankUpdateCombination(data).then(response => {
       commit('COMBINATION_REPLACED', data)
       return response
     }).catch(err => {
@@ -196,7 +234,7 @@ const actions = {
   },
   deleteCombination: ({ commit }, data) => {
     commit('COMBINATION_REQUEST', types.DELETING)
-    return api.profilingDeleteCombination(data).then(response => {
+    return api.fingerbankDeleteCombination(data).then(response => {
       commit('COMBINATION_DESTROYED', data)
       return response
     }).catch(err => {
@@ -209,7 +247,7 @@ const actions = {
       sort: 'id',
       fields: ['id'].join(',')
     }
-    return api.profilingDevices(params).then(response => {
+    return api.fingerbankDevices(params).then(response => {
       return response.items
     })
   },
@@ -218,17 +256,17 @@ const actions = {
       return Promise.resolve(state.devices.cache[id])
     }
     commit('DEVICE_REQUEST')
-    return api.profilingDevice(id).then(item => {
+    return api.fingerbankDevice(id).then(item => {
       commit('DEVICE_REPLACED', item)
       return item
-    }).catch((err) => {
+    }).catch(err => {
       commit('DEVICE_ERROR', err.response)
       throw err
     })
   },
   createDevice: ({ commit }, data) => {
     commit('DEVICE_REQUEST')
-    return api.profilingCreateDevice(data).then(response => {
+    return api.fingerbankCreateDevice(data).then(response => {
       commit('DEVICE_REPLACED', data)
       return response
     }).catch(err => {
@@ -238,7 +276,7 @@ const actions = {
   },
   updateDevice: ({ commit }, data) => {
     commit('DEVICE_REQUEST')
-    return api.profilingUpdateDevice(data).then(response => {
+    return api.fingerbankUpdateDevice(data).then(response => {
       commit('DEVICE_REPLACED', data)
       return response
     }).catch(err => {
@@ -248,7 +286,7 @@ const actions = {
   },
   deleteDevice: ({ commit }, data) => {
     commit('DEVICE_REQUEST', types.DELETING)
-    return api.profilingDeleteDevice(data).then(response => {
+    return api.fingerbankDeleteDevice(data).then(response => {
       commit('DEVICE_DESTROYED', data)
       return response
     }).catch(err => {
@@ -261,7 +299,7 @@ const actions = {
       sort: 'id',
       fields: ['id'].join(',')
     }
-    return api.profilingDhcpFingerprints(params).then(response => {
+    return api.fingerbankDhcpFingerprints(params).then(response => {
       return response.items
     })
   },
@@ -270,17 +308,17 @@ const actions = {
       return Promise.resolve(state.dhcpFingerprints.cache[id])
     }
     commit('DHCP_FINGERPRINT_REQUEST')
-    return api.profilingDhcpFingerprint(id).then(item => {
+    return api.fingerbankDhcpFingerprint(id).then(item => {
       commit('DHCP_FINGERPRINT_REPLACED', item)
       return item
-    }).catch((err) => {
+    }).catch(err => {
       commit('DHCP_FINGERPRINT_ERROR', err.response)
       throw err
     })
   },
   createDhcpFingerprint: ({ commit }, data) => {
     commit('DHCP_FINGERPRINT_REQUEST')
-    return api.profilingCreateDhcpFingerprint(data).then(response => {
+    return api.fingerbankCreateDhcpFingerprint(data).then(response => {
       commit('DHCP_FINGERPRINT_REPLACED', data)
       return response
     }).catch(err => {
@@ -290,7 +328,7 @@ const actions = {
   },
   updateDhcpFingerprint: ({ commit }, data) => {
     commit('DHCP_FINGERPRINT_REQUEST')
-    return api.profilingUpdateDhcpFingerprint(data).then(response => {
+    return api.fingerbankUpdateDhcpFingerprint(data).then(response => {
       commit('DHCP_FINGERPRINT_REPLACED', data)
       return response
     }).catch(err => {
@@ -300,7 +338,7 @@ const actions = {
   },
   deleteDhcpFingerprint: ({ commit }, data) => {
     commit('DHCP_FINGERPRINT_REQUEST', types.DELETING)
-    return api.profilingDeleteDhcpFingerprint(data).then(response => {
+    return api.fingerbankDeleteDhcpFingerprint(data).then(response => {
       commit('DHCP_FINGERPRINT_DESTROYED', data)
       return response
     }).catch(err => {
@@ -313,7 +351,7 @@ const actions = {
       sort: 'id',
       fields: ['id'].join(',')
     }
-    return api.profilingDhcpVendors(params).then(response => {
+    return api.fingerbankDhcpVendors(params).then(response => {
       return response.items
     })
   },
@@ -322,17 +360,17 @@ const actions = {
       return Promise.resolve(state.dhcpVendors.cache[id])
     }
     commit('DHCP_VENDOR_REQUEST')
-    return api.profilingDhcpVendor(id).then(item => {
+    return api.fingerbankDhcpVendor(id).then(item => {
       commit('DHCP_VENDOR_REPLACED', item)
       return item
-    }).catch((err) => {
+    }).catch(err => {
       commit('DHCP_VENDOR_ERROR', err.response)
       throw err
     })
   },
   createDhcpVendor: ({ commit }, data) => {
     commit('DHCP_VENDOR_REQUEST')
-    return api.profilingCreateDhcpVendor(data).then(response => {
+    return api.fingerbankCreateDhcpVendor(data).then(response => {
       commit('DHCP_VENDOR_REPLACED', data)
       return response
     }).catch(err => {
@@ -342,7 +380,7 @@ const actions = {
   },
   updateDhcpVendor: ({ commit }, data) => {
     commit('DHCP_VENDOR_REQUEST')
-    return api.profilingUpdateDhcpVendor(data).then(response => {
+    return api.fingerbankUpdateDhcpVendor(data).then(response => {
       commit('DHCP_VENDOR_REPLACED', data)
       return response
     }).catch(err => {
@@ -352,7 +390,7 @@ const actions = {
   },
   deleteDhcpVendor: ({ commit }, data) => {
     commit('DHCP_VENDOR_REQUEST', types.DELETING)
-    return api.profilingDeleteDhcpVendor(data).then(response => {
+    return api.fingerbankDeleteDhcpVendor(data).then(response => {
       commit('DHCP_VENDOR_DESTROYED', data)
       return response
     }).catch(err => {
@@ -365,7 +403,7 @@ const actions = {
       sort: 'id',
       fields: ['id'].join(',')
     }
-    return api.profilingDhcpv6Fingerprints(params).then(response => {
+    return api.fingerbankDhcpv6Fingerprints(params).then(response => {
       return response.items
     })
   },
@@ -374,17 +412,17 @@ const actions = {
       return Promise.resolve(state.dhcpv6Fingerprints.cache[id])
     }
     commit('DHCPV6_FINGERPRINT_REQUEST')
-    return api.profilingDhcpv6Fingerprint(id).then(item => {
+    return api.fingerbankDhcpv6Fingerprint(id).then(item => {
       commit('DHCPV6_FINGERPRINT_REPLACED', item)
       return item
-    }).catch((err) => {
+    }).catch(err => {
       commit('DHCPV6_FINGERPRINT_ERROR', err.response)
       throw err
     })
   },
   createDhcpv6Fingerprint: ({ commit }, data) => {
     commit('DHCPV6_FINGERPRINT_REQUEST')
-    return api.profilingCreateDhcpv6Fingerprint(data).then(response => {
+    return api.fingerbankCreateDhcpv6Fingerprint(data).then(response => {
       commit('DHCPV6_FINGERPRINT_REPLACED', data)
       return response
     }).catch(err => {
@@ -394,7 +432,7 @@ const actions = {
   },
   updateDhcpv6Fingerprint: ({ commit }, data) => {
     commit('DHCPV6_FINGERPRINT_REQUEST')
-    return api.profilingUpdateDhcpv6Fingerprint(data).then(response => {
+    return api.fingerbankUpdateDhcpv6Fingerprint(data).then(response => {
       commit('DHCPV6_FINGERPRINT_REPLACED', data)
       return response
     }).catch(err => {
@@ -404,7 +442,7 @@ const actions = {
   },
   deleteDhcpv6Fingerprint: ({ commit }, data) => {
     commit('DHCPV6_FINGERPRINT_REQUEST', types.DELETING)
-    return api.profilingDeleteDhcpv6Fingerprint(data).then(response => {
+    return api.fingerbankDeleteDhcpv6Fingerprint(data).then(response => {
       commit('DHCPV6_FINGERPRINT_DESTROYED', data)
       return response
     }).catch(err => {
@@ -417,7 +455,7 @@ const actions = {
       sort: 'id',
       fields: ['id'].join(',')
     }
-    return api.profilingDhcpv6Enterprises(params).then(response => {
+    return api.fingerbankDhcpv6Enterprises(params).then(response => {
       return response.items
     })
   },
@@ -426,17 +464,17 @@ const actions = {
       return Promise.resolve(state.dhcpv6Enterprises.cache[id])
     }
     commit('DHCPV6_ENTERPRISE_REQUEST')
-    return api.profilingDhcpv6Enterprise(id).then(item => {
+    return api.fingerbankDhcpv6Enterprise(id).then(item => {
       commit('DHCPV6_ENTERPRISE_REPLACED', item)
       return item
-    }).catch((err) => {
+    }).catch(err => {
       commit('DHCPV6_ENTERPRISE_ERROR', err.response)
       throw err
     })
   },
   createDhcpv6Enterprise: ({ commit }, data) => {
     commit('DHCPV6_ENTERPRISE_REQUEST')
-    return api.profilingCreateDhcpv6Enterprise(data).then(response => {
+    return api.fingerbankCreateDhcpv6Enterprise(data).then(response => {
       commit('DHCPV6_ENTERPRISE_REPLACED', data)
       return response
     }).catch(err => {
@@ -446,7 +484,7 @@ const actions = {
   },
   updateDhcpv6Enterprise: ({ commit }, data) => {
     commit('DHCPV6_ENTERPRISE_REQUEST')
-    return api.profilingUpdateDhcpv6Enterprise(data).then(response => {
+    return api.fingerbankUpdateDhcpv6Enterprise(data).then(response => {
       commit('DHCPV6_ENTERPRISE_REPLACED', data)
       return response
     }).catch(err => {
@@ -456,7 +494,7 @@ const actions = {
   },
   deleteDhcpv6Enterprise: ({ commit }, data) => {
     commit('DHCPV6_ENTERPRISE_REQUEST', types.DELETING)
-    return api.profilingDeleteDhcpv6Enterprise(data).then(response => {
+    return api.fingerbankDeleteDhcpv6Enterprise(data).then(response => {
       commit('DHCPV6_ENTERPRISE_DESTROYED', data)
       return response
     }).catch(err => {
@@ -469,7 +507,7 @@ const actions = {
       sort: 'id',
       fields: ['id'].join(',')
     }
-    return api.profilingMacVendors(params).then(response => {
+    return api.fingerbankMacVendors(params).then(response => {
       return response.items
     })
   },
@@ -478,17 +516,17 @@ const actions = {
       return Promise.resolve(state.macVendors.cache[id])
     }
     commit('MAC_VENDOR_REQUEST')
-    return api.profilingMacVendor(id).then(item => {
+    return api.fingerbankMacVendor(id).then(item => {
       commit('MAC_VENDOR_REPLACED', item)
       return item
-    }).catch((err) => {
+    }).catch(err => {
       commit('MAC_VENDOR_ERROR', err.response)
       throw err
     })
   },
   createMacVendor: ({ commit }, data) => {
     commit('MAC_VENDOR_REQUEST')
-    return api.profilingCreateMacVendor(data).then(response => {
+    return api.fingerbankCreateMacVendor(data).then(response => {
       commit('MAC_VENDOR_REPLACED', data)
       return response
     }).catch(err => {
@@ -498,7 +536,7 @@ const actions = {
   },
   updateMacVendor: ({ commit }, data) => {
     commit('MAC_VENDOR_REQUEST')
-    return api.profilingUpdateMacVendor(data).then(response => {
+    return api.fingerbankUpdateMacVendor(data).then(response => {
       commit('MAC_VENDOR_REPLACED', data)
       return response
     }).catch(err => {
@@ -508,7 +546,7 @@ const actions = {
   },
   deleteMacVendor: ({ commit }, data) => {
     commit('MAC_VENDOR_REQUEST', types.DELETING)
-    return api.profilingDeleteMacVendor(data).then(response => {
+    return api.fingerbankDeleteMacVendor(data).then(response => {
       commit('MAC_VENDOR_DESTROYED', data)
       return response
     }).catch(err => {
@@ -521,7 +559,7 @@ const actions = {
       sort: 'id',
       fields: ['id'].join(',')
     }
-    return api.profilingUserAgents(params).then(response => {
+    return api.fingerbankUserAgents(params).then(response => {
       return response.items
     })
   },
@@ -530,17 +568,17 @@ const actions = {
       return Promise.resolve(state.userAgents.cache[id])
     }
     commit('USER_AGENT_REQUEST')
-    return api.profilingUserAgent(id).then(item => {
+    return api.fingerbankUserAgent(id).then(item => {
       commit('USER_AGENT_REPLACED', item)
       return item
-    }).catch((err) => {
+    }).catch(err => {
       commit('USER_AGENT_ERROR', err.response)
       throw err
     })
   },
   createUserAgent: ({ commit }, data) => {
     commit('USER_AGENT_REQUEST')
-    return api.profilingCreateUserAgent(data).then(response => {
+    return api.fingerbankCreateUserAgent(data).then(response => {
       commit('USER_AGENT_REPLACED', data)
       return response
     }).catch(err => {
@@ -550,7 +588,7 @@ const actions = {
   },
   updateUserAgent: ({ commit }, data) => {
     commit('USER_AGENT_REQUEST')
-    return api.profilingUpdateUserAgent(data).then(response => {
+    return api.fingerbankUpdateUserAgent(data).then(response => {
       commit('USER_AGENT_REPLACED', data)
       return response
     }).catch(err => {
@@ -560,7 +598,7 @@ const actions = {
   },
   deleteUserAgent: ({ commit }, data) => {
     commit('USER_AGENT_REQUEST', types.DELETING)
-    return api.profilingDeleteUserAgent(data).then(response => {
+    return api.fingerbankDeleteUserAgent(data).then(response => {
       commit('USER_AGENT_DESTROYED', data)
       return response
     }).catch(err => {
@@ -584,6 +622,9 @@ const mutations = {
     if (response && response.data) {
       state.generalSettings.message = response.data.message
     }
+  },
+  GENERAL_SETTINGS_SUCCESS: (state) => {
+    state.generalSettings.status = types.SUCCESS
   },
   DEVICE_CHANGE_DETECTION_REQUEST: (state, type) => {
     state.deviceChangeDetection.status = type || types.LOADING
@@ -616,6 +657,9 @@ const mutations = {
     if (response && response.data) {
       state.combinations.message = response.data.message
     }
+  },
+  COMBINATION_SUCCESS: (state) => {
+    state.combinations.status = types.SUCCESS
   },
   DEVICE_REQUEST: (state, type) => {
     state.devices.status = type || types.LOADING
