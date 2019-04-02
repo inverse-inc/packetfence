@@ -2,6 +2,7 @@
   <pf-config-view
     :isLoading="isLoading"
     :disabled="isLoading"
+    :isDeletable="isDeletable"
     :form="getForm"
     :model="form"
     :vuelidate="$v.form"
@@ -19,9 +20,7 @@
         <span v-else>{{ $t('New Traffic Shaping Policy') }}</span>
       </h4>
     </template>
-    <template slot="footer"
-      scope="{isDeletable}"
-    >
+    <template slot="footer">
       <b-card-footer @mouseenter="$v.form.$touch()">
         <pf-button-save :disabled="invalidForm" :isLoading="isLoading">
           <template v-if="isNew">{{ $t('Create') }}</template>
