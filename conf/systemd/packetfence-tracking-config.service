@@ -4,7 +4,7 @@ Documentation=http://packetfence.org
 
 [Service]
 Type=oneshot
-ExecStartPre=/bin/sh -c '/usr/bin/git init /usr/local/pf/conf/;cd /usr/local/pf/conf/;/usr/bin/git add /usr/local/pf/conf/*'
+ExecStartPre=/bin/sh -c 'if [ ! -d "/usr/local/pf/conf/.git" ]; then /usr/bin/git init /usr/local/pf/conf/;cd /usr/local/pf/conf/;/usr/bin/git add /usr/local/pf/conf/*;fi'
 ExecStart=/bin/sh -c 'cd /usr/local/pf/conf/; /usr/bin/git commit -a -m "Commit `date +%F-%T`"'
 
 
