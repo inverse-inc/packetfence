@@ -19,6 +19,7 @@ use pf::domain;
 use pf::log;
 use pf::config qw(%ConfigDomain);
 use pf::constants::pfqueue qw($STATUS_FAILED);
+use pf::ConfigStore::Domain;
 
 our %OP_MAP = (
     join => \&pf::domain::join_domain,
@@ -57,7 +58,22 @@ sub doTask {
         return;
     }
 
-    return $OP_MAP{$op}->($domain);
+    my $result = $OP_MAP{$op}->($domain);
+    $self->reset_credentials($domain);
+    return $result;
+}
+
+=head2 reset_credentials
+
+Reset the domain credentials
+
+=cut
+
+sub reset_credentials {
+    my ($self, $domain) = @_;
+    my $model = pf::ConfigStore::Domain->new;
+    my ($status,$result) = $model->update($domain, { bind_dn => undef, bind_pass => undef } );
+    $model->commit();
 }
 
 =head1 AUTHOR
