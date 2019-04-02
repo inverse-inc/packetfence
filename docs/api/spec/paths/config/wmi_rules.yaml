@@ -1,0 +1,17 @@
+/config/wmi_rules:
+  description: Configure floating devices
+  get:
+    description: List items
+    operationId: api.v1.Config.WMIRules.list
+    parameters: []
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigWMIRulesList'
+        description: List
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
