@@ -40,7 +40,7 @@ Depends: ${misc:Depends}, vlan,
 # systemd sd_notify support
  libsystemd-daemon-perl,
 # binary
- make,
+ make, binutils,
  samba,
  krb5-user,
  iproute,

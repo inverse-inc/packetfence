@@ -6,7 +6,7 @@ else
   set -x
 
   echo "Setting up golang environment for PacketFence"
-  GOVERSION=`strings /usr/local/pf/sbin/pfhttpd | egrep -o 'go[0-9]+\.[0-9]+\.[0-9]+' | head -1`
+  GOVERSION=`strings /usr/local/pf/sbin/pfhttpd | egrep -o 'go[0-9]+\.[0-9]+(\.[0-9])*' | head -1`
   wget https://storage.googleapis.com/golang/$GOVERSION.linux-amd64.tar.gz -O /tmp/$GOVERSION.linux-amd64.tar.gz
   tar -C /usr/local -xzf /tmp/$GOVERSION.linux-amd64.tar.gz
   rm /tmp/$GOVERSION.linux-amd64.tar.gz
