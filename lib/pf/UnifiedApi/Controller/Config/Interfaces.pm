@@ -184,7 +184,7 @@ sub create {
     if (is_success($status)) {
         ($status, $result) = $model->update($full_name, $data);
     }
-    $self->render(json => {result => pf::I18N::pfappserver->localize($result)}, status => $status);
+    $self->render(json => {message => pf::I18N::pfappserver->localize($result)}, status => $status);
 }
 
 =head2 update
