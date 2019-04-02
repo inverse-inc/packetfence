@@ -420,7 +420,7 @@ sub update {
         return ($status, $status_msg);
     }
 
-    return ($STATUS::OK, ["Interface [_1] edited",$interface]);
+    return ($STATUS::OK, ["Interface [_1] updated",$interface]);
 }
 
 =head2 isActive
