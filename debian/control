@@ -28,7 +28,7 @@ Depends: ${misc:Depends}, vlan,
  packetfence-ntlm-wrapper (>= ${source:Version}), packetfence-doc (>= ${source:Version}), packetfence-golang-daemon (>= ${source:Version}),
  openssl,
  mariadb-server (>= 10.1),
- snmp, snmptrapfmt, snmptrapd, snmp-mibs-downloader, conntrack, rsyslog
+ snmp, snmptrapfmt, snmptrapd, snmp-mibs-downloader, conntrack, rsyslog,
 # apache related
  apache2, apache2-utils,
  libapache2-mod-apreq2, libapache2-mod-perl2,
