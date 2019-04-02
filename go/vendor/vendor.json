@@ -7,12 +7,6 @@
 			"revision": ""
 		},
 		{
-			"checksumSHA1": "8irda8L7EK4kmgIabjby+mQGuGY=",
-			"path": "git.inverse.ca/inverse/fingerbank-processor/sharedutils",
-			"revision": "78eedc71bf6d7831e5d805c74aa9d59274c29165",
-			"revisionTime": "2018-11-01T14:02:17Z"
-		},
-		{
 			"checksumSHA1": "TFCZLa7falNwfCedc4wHtdu7P58=",
 			"path": "github.com/Sereal/Sereal/Go/sereal",
 			"revision": "36f2c9f6f40926fbc799c190676695b929d828e9",
