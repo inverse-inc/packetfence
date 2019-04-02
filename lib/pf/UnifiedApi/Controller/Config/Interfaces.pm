@@ -40,6 +40,17 @@ my %FIELDS = (
     vlan => undef,
 );
 
+my %FIELDS_TO_REMOVE_FROM_UPDATE = (
+    hwaddr => undef,
+    ifindex => undef,
+    is_running => undef,
+    master => undef,
+    name => undef,
+    network => undef,
+    network_iseditable => undef,
+    vlan => undef,
+);
+
 =head2 validate_item
 
 Validate the parameters of an interface based on the context (create/update)
@@ -185,6 +196,8 @@ Update an existing network interface
 sub update {
     my ($self) = @_;
     my $data = $self->parse_json;
+    $data = $self->filter_update_fields($data);
+
     $data = $self->validate_item("pfappserver::Form::Interface", $data);
     return unless($data);
     my $full_name = $self->stash->{interface_id};
@@ -194,6 +207,21 @@ sub update {
 
     my ($status, $result) = $model->update($full_name, $data);
     $self->render(json => {message => pf::I18N::pfappserver->localize($result)}, status => $status);
+}
+
+=head2 filter_update_fields
+
+Remove dynamic fields that are in the response items if they are in the update fields
+
+=cut
+
+sub filter_update_fields {
+    my ($self, $data) = @_;
+
+    for my $f (keys(%FIELDS_TO_REMOVE_FROM_UPDATE)) {
+        delete $data->{$f};
+    }
+    return $data;
 }
 
 =head2 delete
