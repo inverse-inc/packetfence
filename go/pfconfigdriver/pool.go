@@ -37,7 +37,7 @@ func NewPool() Pool {
 	p := Pool{}
 	p.lock = timedlock.NewRWLock()
 	p.lock.Timeout = 1 * time.Second
-	p.lock.RTimeout = 100 * time.Millisecond
+	p.lock.RTimeout = 3 * time.Second
 	p.lock.PrintErrors = false
 	p.lock.Panic = false
 	p.structs = make(map[string]interface{})
