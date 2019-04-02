@@ -27,11 +27,11 @@ import pfButtonDelete from '@/components/pfButtonDelete'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import {
-  pfConfigurationProfilingMacVendorsListConfig as config
-} from '@/globals/configuration/pfConfigurationProfiling'
+  pfConfigurationFingerbankMacVendorsListConfig as config
+} from '@/globals/configuration/pfConfigurationFingerbank'
 
 export default {
-  name: 'ProfilingMacVendorsList',
+  name: 'FingerbankMacVendorsList',
   components: {
     pfButtonDelete,
     pfConfigList,

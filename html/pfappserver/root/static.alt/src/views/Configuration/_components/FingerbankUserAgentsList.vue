@@ -27,8 +27,8 @@ import pfButtonDelete from '@/components/pfButtonDelete'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import {
-  pfConfigurationProfilingUserAgentsListConfig as config
-} from '@/globals/configuration/pfConfigurationProfiling'
+  pfConfigurationFingerbankUserAgentsListConfig as config
+} from '@/globals/configuration/pfConfigurationFingerbank'
 
 export default {
   name: 'ProfilingUserAgentsList',

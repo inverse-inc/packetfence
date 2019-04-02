@@ -27,11 +27,11 @@ import pfButtonDelete from '@/components/pfButtonDelete'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import {
-  pfConfigurationProfilingDevicesListConfig as config
-} from '@/globals/configuration/pfConfigurationProfiling'
+  pfConfigurationFingerbankDevicesListConfig as config
+} from '@/globals/configuration/pfConfigurationFingerbank'
 
 export default {
-  name: 'ProfilingDevicesList',
+  name: 'FingerbankDevicesList',
   components: {
     pfButtonDelete,
     pfConfigList,

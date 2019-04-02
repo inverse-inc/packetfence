@@ -27,11 +27,11 @@ import pfButtonDelete from '@/components/pfButtonDelete'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import {
-  pfConfigurationProfilingDhcpFingerprintsListConfig as config
-} from '@/globals/configuration/pfConfigurationProfiling'
+  pfConfigurationFingerbankDhcpFingerprintsListConfig as config
+} from '@/globals/configuration/pfConfigurationFingerbank'
 
 export default {
-  name: 'ProfilingDhcpFingerprintsList',
+  name: 'FingerbankDhcpFingerprintsList',
   components: {
     pfButtonDelete,
     pfConfigList,

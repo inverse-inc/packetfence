@@ -5,66 +5,71 @@
     </b-card-header>
     <b-tabs ref="tabs" v-model="tabIndex" card>
       <b-tab :title="$t('General Settings')" @click="changeTab('general_settings')">
-        <profiling-general-setting-view />
+        <fingerbank-general-setting-view :storeName="storeName" />
       </b-tab>
       <b-tab :title="$t('Device change detection')" @click="changeTab('device_change_detection')">
-        <profiling-device-change-detection-view />
+        <fingerbank-device-change-detection-view :storeName="storeName" />
       </b-tab>
       <b-tab :title="$t('Combinations')" @click="changeTab('combinations')">
-        <profiling-combinations-list />
+        <fingerbank-combinations-list :storeName="storeName" />
       </b-tab>
       <b-tab :title="$t('Devices')" @click="changeTab('devices')">
-        <profiling-devices-list />
+        <fingerbank-devices-list :storeName="storeName" />
       </b-tab>
       <b-tab :title="$t('DHCP Fingerprints')" @click="changeTab('dhcp_fingerprints')">
-        <profiling-dhcp-fingerprints-list />
+        <fingerbank-dhcp-fingerprints-list :storeName="storeName" />
       </b-tab>
       <b-tab :title="$t('DHCP Vendors')" @click="changeTab('dhcp_vendors')">
-        <profiling-dhcp-vendors-list />
+        <fingerbank-dhcp-vendors-list :storeName="storeName" />
       </b-tab>
       <b-tab :title="$t('DHCPv6 Fingerprints')" @click="changeTab('dhcpv6_fingerprints')">
-        <profiling-dhcpv6-fingerprints-list />
+        <fingerbank-dhcpv6-fingerprints-list :storeName="storeName" />
       </b-tab>
       <b-tab :title="$t('DHCPv6 Enterprises')" @click="changeTab('dhcpv6_enterprises')">
-        <profiling-dhcpv6-enterprises-list />
+        <fingerbank-dhcpv6-enterprises-list :storeName="storeName" />
       </b-tab>
       <b-tab :title="$t('MAC Vendors')" @click="changeTab('mac_vendors')">
-        <profiling-mac-vendors-list />
+        <fingerbank-mac-vendors-list :storeName="storeName" />
       </b-tab>
       <b-tab :title="$t('User Agents')" @click="changeTab('user_agents')">
-        <profiling-user-agents-list />
+        <fingerbank-user-agents-list :storeName="storeName" />
       </b-tab>
     </b-tabs>
   </b-card>
 </template>
 
 <script>
-import ProfilingGeneralSettingView from './ProfilingGeneralSettingView'
-import ProfilingDeviceChangeDetectionView from './ProfilingDeviceChangeDetectionView'
-import ProfilingCombinationsList from './ProfilingCombinationsList'
-import ProfilingDevicesList from './ProfilingDevicesList'
-import ProfilingDhcpFingerprintsList from './ProfilingDhcpFingerprintsList'
-import ProfilingDhcpVendorsList from './ProfilingDhcpVendorsList'
-import ProfilingDhcpv6FingerprintsList from './ProfilingDhcpv6FingerprintsList'
-import ProfilingDhcpv6EnterprisesList from './ProfilingDhcpv6EnterprisesList'
-import ProfilingMacVendorsList from './ProfilingMacVendorsList'
-import ProfilingUserAgentsList from './ProfilingUserAgentsList'
+import FingerbankGeneralSettingView from './FingerbankGeneralSettingView'
+import FingerbankDeviceChangeDetectionView from './FingerbankDeviceChangeDetectionView'
+import FingerbankCombinationsList from './FingerbankCombinationsList'
+import FingerbankDevicesList from './FingerbankDevicesList'
+import FingerbankDhcpFingerprintsList from './FingerbankDhcpFingerprintsList'
+import FingerbankDhcpVendorsList from './FingerbankDhcpVendorsList'
+import FingerbankDhcpv6FingerprintsList from './FingerbankDhcpv6FingerprintsList'
+import FingerbankDhcpv6EnterprisesList from './FingerbankDhcpv6EnterprisesList'
+import FingerbankMacVendorsList from './FingerbankMacVendorsList'
+import FingerbankUserAgentsList from './FingerbankUserAgentsList'
 
 export default {
-  name: 'ProfilingTabs',
+  name: 'FingerbankTabs',
   components: {
-    ProfilingGeneralSettingView,
-    ProfilingDeviceChangeDetectionView,
-    ProfilingCombinationsList,
-    ProfilingDevicesList,
-    ProfilingDhcpFingerprintsList,
-    ProfilingDhcpVendorsList,
-    ProfilingDhcpv6FingerprintsList,
-    ProfilingDhcpv6EnterprisesList,
-    ProfilingMacVendorsList,
-    ProfilingUserAgentsList
+    FingerbankGeneralSettingView,
+    FingerbankDeviceChangeDetectionView,
+    FingerbankCombinationsList,
+    FingerbankDevicesList,
+    FingerbankDhcpFingerprintsList,
+    FingerbankDhcpVendorsList,
+    FingerbankDhcpv6FingerprintsList,
+    FingerbankDhcpv6EnterprisesList,
+    FingerbankMacVendorsList,
+    FingerbankUserAgentsList
   },
   props: {
+    storeName: { // from router
+      type: String,
+      default: null,
+      required: true
+    },
     tab: {
       type: String,
       default: 'general_settings'

@@ -1,6 +1,7 @@
 <template>
   <pf-config-view
     :isLoading="isLoading"
+    :disabled="isLoading"
     :form="getForm"
     :model="form"
     :vuelidate="$v.form"
@@ -17,6 +18,7 @@
         <pf-button-save :disabled="invalidForm" :isLoading="isLoading">
           <template>{{ $t('Save') }}</template>
         </pf-button-save>
+        <b-button :disabled="isLoading" class="ml-1" variant="outline-primary" @click="init()">{{ $t('Reset') }}</b-button>
       </b-card-footer>
     </template>
   </pf-config-view>
@@ -26,13 +28,13 @@
 import pfConfigView from '@/components/pfConfigView'
 import pfButtonSave from '@/components/pfButtonSave'
 import {
-  pfConfigurationProfilingGeneralSettingsViewFields as fields,
-  pfConfigurationProfilingGeneralSettingsViewDefaults as defaults
-} from '@/globals/configuration/pfConfigurationProfiling'
+  pfConfigurationFingerbankGeneralSettingsViewFields as fields
+} from '@/globals/configuration/pfConfigurationFingerbank'
+
 const { validationMixin } = require('vuelidate')
 
 export default {
-  name: 'ProfilingGeneralSettingView',
+  name: 'FingerbankGeneralSettingView',
   mixins: [
     validationMixin
   ],
@@ -45,16 +47,13 @@ export default {
       type: String,
       default: null,
       required: true
-    },
-    id: { // from router
-      type: String,
-      default: null
     }
   },
   data () {
     return {
-      form: defaults(this), // will be overloaded with the data from the store
-      formValidations: {} // will be overloaded with data from the pfConfigView
+      form: {}, // will be overloaded with the data from the store
+      formValidations: {}, // will be overloaded with data from the pfConfigView
+      options: {}
     }
   },
   validations () {
@@ -64,10 +63,10 @@ export default {
   },
   computed: {
     isLoading () {
-      return this.$store.getters['$_profiling/isGeneralSettingsLoading']
+      return this.$store.getters[`${this.storeName}/isGeneralSettingsLoading`]
     },
     invalidForm () {
-      return this.$v.form.$invalid || this.$store.getters['$_profiling/isGeneralSettingsWaiting']
+      return this.$v.form.$invalid || this.$store.getters[`${this.storeName}/isGeneralSettingsWaiting`]
     },
     getForm () {
       return {
@@ -77,19 +76,24 @@ export default {
     }
   },
   methods: {
+    init () {
+      this.$store.dispatch(`${this.storeName}/optionsGeneralSettings`).then(options => {
+        // store options
+        this.options = JSON.parse(JSON.stringify(options))
+        this.$store.dispatch(`${this.storeName}/getGeneralSettings`).then(data => {
+          this.form = JSON.parse(JSON.stringify(data))
+        })
+      })
+    },
     save () {
-      this.$store.dispatch('$_profiling/setGeneralSettings', this.form).then(response => {
+      let form = JSON.parse(JSON.stringify(this.form)) // dereference
+      this.$store.dispatch(`${this.storeName}/setGeneralSettings`, form).then(response => {
         // TODO - notification
       })
     }
   },
   created () {
-    if (this.id) {
-      this.$store.dispatch('$_profiling/getGeneralSettings', this.id).then(data => {
-        this.form = JSON.parse(JSON.stringify(data))
-        // TODO - notification
-      })
-    }
+    this.init()
   }
 }
 </script>

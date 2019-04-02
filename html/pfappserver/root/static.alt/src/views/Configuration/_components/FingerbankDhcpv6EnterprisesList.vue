@@ -27,11 +27,11 @@ import pfButtonDelete from '@/components/pfButtonDelete'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import {
-  pfConfigurationProfilingDhcpv6EnterprisesListConfig as config
-} from '@/globals/configuration/pfConfigurationProfiling'
+  pfConfigurationFingerbankDhcpv6EnterprisesListConfig as config
+} from '@/globals/configuration/pfConfigurationFingerbank'
 
 export default {
-  name: 'ProfilingDhcpv6EnterprisesList',
+  name: 'FingerbankDhcpv6EnterprisesList',
   components: {
     pfButtonDelete,
     pfConfigList,

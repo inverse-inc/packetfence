@@ -26,13 +26,13 @@
 import pfConfigView from '@/components/pfConfigView'
 import pfButtonSave from '@/components/pfButtonSave'
 import {
-  pfConfigurationProfilingDeviceChangeDetectionViewFields as fields,
-  pfConfigurationProfilingDeviceChangeDetectionViewDefaults as defaults
-} from '@/globals/configuration/pfConfigurationProfiling'
+  pfConfigurationFingerbankDeviceChangeDetectionViewFields as fields,
+  pfConfigurationFingerbankDeviceChangeDetectionViewDefaults as defaults
+} from '@/globals/configuration/pfConfigurationFingerbank'
 const { validationMixin } = require('vuelidate')
 
 export default {
-  name: 'ProfilingDeviceChangeDetectionView',
+  name: 'FingerbankDeviceChangeDetectionView',
   mixins: [
     validationMixin
   ],
@@ -60,10 +60,10 @@ export default {
   },
   computed: {
     isLoading () {
-      return this.$store.getters['$_profiling/isDeviceChangeDetectionLoading']
+      return this.$store.getters[`${this.storeName}/isDeviceChangeDetectionLoading`]
     },
     invalidForm () {
-      return this.$v.form.$invalid || this.$store.getters['$_profiling/isDeviceChangeDetectionWaiting']
+      return this.$v.form.$invalid || this.$store.getters[`${this.storeName}/isDeviceChangeDetectionWaiting`]
     },
     getForm () {
       return {
@@ -74,14 +74,14 @@ export default {
   },
   methods: {
     save () {
-      this.$store.dispatch('$_profiling/setDeviceChangeDetection', this.form).then(response => {
+      this.$store.dispatch(`${this.storeName}/setDeviceChangeDetection`, this.form).then(response => {
         // TODO - notification
       })
     }
   },
   created () {
     if (this.id) {
-      this.$store.dispatch('$_profiling/getDeviceChangeDetection', this.id).then(data => {
+      this.$store.dispatch(`${this.storeName}/getDeviceChangeDetection`, this.id).then(data => {
         this.form = JSON.parse(JSON.stringify(data))
         // TODO - notification
       })

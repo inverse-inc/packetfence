@@ -1,22 +1,40 @@
 <template>
   <b-card no-body>
     <pf-config-list
+      ref="pfConfigList"
       :config="config"
     >
       <template slot="pageHeader">
-        <b-card-header><h4 class="mb-0" v-t="'Combinations'"></h4></b-card-header>
+        <b-card-header>
+          <b-row class="align-items-center px-0" no-gutters>
+            <b-col cols="auto" class="mr-auto">
+              <h4 class="d-inline mb-0" v-t="'Combinations'"></h4>
+              <b-badge class="ml-2" variant="secondary" v-t="scope"></b-badge>
+            </b-col>
+            <b-col cols="auto" align="right" class="flex-grow-0">
+              <b-button-group>
+                <b-button v-t="'All'" :variant="(scope === 'all') ? 'primary' : 'outline-secondary'" @click="scope = 'all'"></b-button>
+                <b-button v-t="'Local'" :variant="(scope === 'local') ? 'primary' : 'outline-secondary'" @click="scope = 'local'"></b-button>
+                <b-button v-t="'Remote'" :variant="(scope === 'remote') ? 'primary' : 'outline-secondary'" @click="scope = 'remote'"></b-button>
+              </b-button-group>
+            </b-col>
+          </b-row>
+        </b-card-header>
       </template>
       <template slot="buttonAdd">
-        <b-button variant="outline-primary" :to="{ name: 'newCombination' }">{{ $t('Add Combination') }}</b-button>
+        <b-button variant="outline-primary" :to="{ name: 'newCombination' }">{{ $t('Add Local Combination') }}</b-button>
       </template>
       <template slot="emptySearch" slot-scope="state">
-        <pf-empty-table :isLoading="state.isLoading">{{ $t('No combinations found') }}</pf-empty-table>
+        <pf-empty-table :isLoading="state.isLoading">{{ $t('No {scope} combinations found', { scope: ((scope !== 'all') ? scope : '') }) }}</pf-empty-table>
       </template>
       <template slot="buttons" slot-scope="item">
         <span class="float-right text-nowrap">
           <pf-button-delete size="sm" v-if="!item.not_deletable" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete Combination?')" @on-delete="remove(item)" reverse/>
           <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(item)">{{ $t('Clone') }}</b-button>
         </span>
+      </template>
+      <template slot="score" slot-scope="data">
+        <pf-fingerbank-score :score="data.score"></pf-fingerbank-score>
       </template>
     </pf-config-list>
   </b-card>
@@ -26,22 +44,30 @@
 import pfButtonDelete from '@/components/pfButtonDelete'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
+import pfFingerbankScore from '@/components/pfFingerbankScore'
+
 import {
-  pfConfigurationProfilingCombinationsListConfig as config
-} from '@/globals/configuration/pfConfigurationProfiling'
+  pfConfigurationFingerbankCombinationsListConfig as config
+} from '@/globals/configuration/pfConfigurationFingerbank'
 
 export default {
-  name: 'ProfilingCombinationsList',
+  name: 'FingerbankCombinationsList',
   components: {
     pfButtonDelete,
     pfConfigList,
-    pfEmptyTable
+    pfEmptyTable,
+    pfFingerbankScore
   },
   props: {
     storeName: { // from router
       type: String,
       default: null,
       required: true
+    },
+    scope: {
+      type: String,
+      default: 'all',
+      required: false
     }
   },
   data () {
@@ -64,6 +90,15 @@ export default {
     this.$store.dispatch(`${this.storeName}/combinations`).then(data => {
       this.combinations = data
     })
+  },
+  watch: {
+    scope: {
+      handler: function (a, b) {
+        if (a !== b) {
+          this.config = config(this) // reset config
+        }
+      }
+    }
   }
 }
 </script>
