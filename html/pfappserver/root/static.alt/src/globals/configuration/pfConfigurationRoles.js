@@ -151,7 +151,7 @@ export const pfConfigurationRoleViewFields = (context = {}) => {
               key: 'max_nodes_per_pid',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'max_nodes_per_pid'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'max_nodes_per_pid', 'Max nodes per user')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'max_nodes_per_pid', 'Max')
             }
           ]
         }

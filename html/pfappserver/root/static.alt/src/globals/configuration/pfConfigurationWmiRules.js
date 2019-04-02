@@ -165,12 +165,12 @@ export const pfConfigurationWmiRuleViewFields = (context = {}) => {
               key: 'request',
               component: pfFormTextarea,
               attrs: {
-                ...pfConfigurationAttributesFromMeta(meta, 'namespace'),
+                ...pfConfigurationAttributesFromMeta(meta, 'request'),
                 ...{
                   rows: 3
                 }
               },
-              validators: pfConfigurationValidatorsFromMeta(meta, 'namespace', 'Namespace')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'request', 'Request')
             }
           ]
         },
