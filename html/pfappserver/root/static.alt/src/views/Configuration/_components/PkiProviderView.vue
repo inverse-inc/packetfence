@@ -2,6 +2,7 @@
   <pf-config-view
     :isLoading="isLoading"
     :disabled="isLoading"
+    :isDeletable="isDeletable"
     :form="getForm"
     :model="form"
     :vuelidate="$v.form"
@@ -22,9 +23,7 @@
       </h4>
       <b-badge class="ml-2" variant="secondary" v-t="providerType"></b-badge>
     </template>
-    <template slot="footer"
-      scope="{isDeletable}"
-    >
+    <template slot="footer">
       <b-card-footer @mouseenter="$v.form.$touch()">
         <pf-button-save :disabled="invalidForm" :isLoading="isLoading">
           <template v-if="isNew">{{ $t('Create') }}</template>

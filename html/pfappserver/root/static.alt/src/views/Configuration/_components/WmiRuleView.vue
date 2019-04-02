@@ -2,6 +2,7 @@
   <pf-config-view
     :isLoading="isLoading"
     :disabled="isLoading"
+    :isDeletable="isDeletable"
     :form="getForm"
     :model="form"
     :vuelidate="$v.form"
@@ -15,16 +16,13 @@
   >
     <template slot="header" is="b-card-header">
       <b-button-close @click="close" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
-      <h4 class="d-inline mb-0">
-        <span v-if="!isNew && !isClone">{{ $t('Scan Engine {id}', { id: id }) }}</span>
-        <span v-else-if="isClone">{{ $t('Clone Scan Engine {id}', { id: id }) }}</span>
-        <span v-else>{{ $t('New Scan Engine') }}</span>
+      <h4 class="mb-0">
+        <span v-if="!isNew && !isClone">{{ $t('WMI Rule {id}', { id: id }) }}</span>
+        <span v-else-if="isClone">{{ $t('Clone WMI Rule {id}', { id: id }) }}</span>
+        <span v-else>{{ $t('New WMI Rule') }}</span>
       </h4>
-      <b-badge class="ml-2" variant="secondary" v-t="scanType"></b-badge>
     </template>
-    <template slot="footer"
-      scope="{isDeletable}"
-    >
+    <template slot="footer">
       <b-card-footer @mouseenter="$v.form.$touch()">
         <pf-button-save :disabled="invalidForm" :isLoading="isLoading">
           <template v-if="isNew">{{ $t('Create') }}</template>
@@ -34,7 +32,7 @@
         </pf-button-save>
         <b-button :disabled="isLoading" class="ml-1" variant="outline-primary" @click="init()">{{ $t('Reset') }}</b-button>
         <b-button v-if="!isNew && !isClone" :disabled="isLoading" class="ml-1" variant="outline-primary" @click="clone()">{{ $t('Clone') }}</b-button>
-        <pf-button-delete v-if="isDeletable" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Scan Engine?')" @on-delete="remove()"/>
+        <pf-button-delete v-if="isDeletable" class="ml-1" :disabled="isLoading" :confirm="$t('Delete WMI Rule?')" @on-delete="remove()"/>
       </b-card-footer>
     </template>
   </pf-config-view>
@@ -50,12 +48,12 @@ import {
   pfConfigurationDefaultsFromMeta as defaults
 } from '@/globals/configuration/pfConfiguration'
 import {
-  pfConfigurationScanEngineViewFields as fields
-} from '@/globals/configuration/pfConfigurationScans'
+  pfConfigurationWmiRuleViewFields as fields
+} from '@/globals/configuration/pfConfigurationWmiRules'
 const { validationMixin } = require('vuelidate')
 
 export default {
-  name: 'ScansScanEngineView',
+  name: 'WmiRuleView',
   mixins: [
     validationMixin,
     pfMixinCtrlKey,
@@ -83,10 +81,6 @@ export default {
     id: { // from router
       type: String,
       default: null
-    },
-    scanType: { // from router
-      type: String,
-      default: null
     }
   },
   data () {
@@ -103,10 +97,10 @@ export default {
   },
   computed: {
     isLoading () {
-      return this.$store.getters['$_scans/isLoading']
+      return this.$store.getters[`${this.storeName}/isLoading`]
     },
     invalidForm () {
-      return this.$v.form.$invalid || this.$store.getters['$_scans/isWaiting']
+      return this.$v.form.$invalid || this.$store.getters[`${this.storeName}/isWaiting`]
     },
     getForm () {
       return {
@@ -123,50 +117,46 @@ export default {
   },
   methods: {
     init () {
-      if (this.id) {
-        // existing
-        this.$store.dispatch(`${this.storeName}/optionsById`, this.id).then(options => {
-          this.options = JSON.parse(JSON.stringify(options)) // store options
-          this.$store.dispatch(`${this.storeName}/getScanEngine`, this.id).then(form => {
-            this.form = JSON.parse(JSON.stringify(form)) // set form
-            this.scanType = form.type
+      this.$store.dispatch(`${this.storeName}/options`, this.id).then(options => {
+        // store options
+        this.options = JSON.parse(JSON.stringify(options))
+        if (this.id) {
+          // existing
+          this.$store.dispatch(`${this.storeName}/getWmiRule`, this.id).then(form => {
+            this.form = JSON.parse(JSON.stringify(form))
           })
-        })
-      } else {
-        // new
-        this.$store.dispatch(`${this.storeName}/optionsByScanType`, this.scanType).then(options => {
-          this.options = JSON.parse(JSON.stringify(options)) // store options
+        } else {
+          // new
           this.form = defaults(options.meta) // set defaults
-          this.form.type = this.scanType
-        })
-      }
+        }
+      })
     },
     close () {
-      this.$router.push({ name: 'scanEngines' })
+      this.$router.push({ name: 'wmiRules' })
     },
     clone () {
-      this.$router.push({ name: 'cloneScanEngine' })
+      this.$router.push({ name: 'cloneWmiRule' })
     },
     create () {
       const ctrlKey = this.ctrlKey
-      this.$store.dispatch('$_scans/createScanEngine', this.form).then(response => {
+      this.$store.dispatch(`${this.storeName}/createWmiRule`, this.form).then(response => {
         if (ctrlKey) { // [CTRL] key pressed
           this.close()
         } else {
-          this.$router.push({ name: 'scanEngine', params: { id: this.form.id } })
+          this.$router.push({ name: 'wmiRule', params: { id: this.form.id } })
         }
       })
     },
     save () {
       const ctrlKey = this.ctrlKey
-      this.$store.dispatch('$_scans/updateScanEngine', this.form).then(response => {
+      this.$store.dispatch(`${this.storeName}/updateWmiRule`, this.form).then(response => {
         if (ctrlKey) { // [CTRL] key pressed
           this.close()
         }
       })
     },
     remove () {
-      this.$store.dispatch('$_scans/deleteScanEngine', this.id).then(response => {
+      this.$store.dispatch(`${this.storeName}/deleteWmiRule`, this.id).then(response => {
         this.close()
       })
     }

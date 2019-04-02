@@ -28,6 +28,7 @@ import SyslogParsersStore from '../_store/syslogParsers'
 import SwitchesStore from '../_store/switches'
 import SwitchGroupsStore from '../_store/switchGroups'
 import TrafficShapingPoliciesStore from '../_store/trafficShapingPolicies'
+import WmiRulesStore from '../_store/wmiRules'
 import WrixLocationsStore from '../_store/wrixLocations'
 
 /* Policies Access Control */
@@ -51,7 +52,8 @@ const ComplianceSection = () => import(/* webpackChunkName: "Configuration" */ '
 const FingerbankTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/FingerbankTabs')
 const FingerbankCombinationView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FingerbankCombinationView')
 const ScansTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/ScansTabs')
-const ScansScanEngineView = () => import(/* webpackChunkName: "Configuration" */ '../_components/ScansScanEngineView')
+const ScanEngineView = () => import(/* webpackChunkName: "Configuration" */ '../_components/ScanEngineView')
+const WmiRuleView = () => import(/* webpackChunkName: "Configuration" */ '../_components/WmiRuleView')
 // const SecurityEventsList = () => import(/* webpackChunkName: "Configuration" */ '../_components/SecurityEventsList')
 // const SecurityEventView = () => import(/* webpackChunkName: "Configuration" */ '../_components/SecurityEventView')
 
@@ -199,6 +201,9 @@ const route = {
     }
     if (!store.state.$_traffic_shaping_policies) {
       store.registerModule('$_traffic_shaping_policies', TrafficShapingPoliciesStore)
+    }
+    if (!store.state.$_wmi_rules) {
+      store.registerModule('$_wmi_rules', WmiRulesStore)
     }
     if (!store.state.$_wrix_locations) {
       store.registerModule('$_wrix_locations', WrixLocationsStore)
@@ -586,13 +591,13 @@ const route = {
     {
       path: 'scans/scan_engines/new/:scanType',
       name: 'newScanEngine',
-      component: ScansScanEngineView,
+      component: ScanEngineView,
       props: (route) => ({ storeName: '$_scans', isNew: true, scanType: route.params.scanType })
     },
     {
       path: 'scans/scan_engine/:id',
       name: 'scanEngine',
-      component: ScansScanEngineView,
+      component: ScanEngineView,
       props: (route) => ({ storeName: '$_scans', id: route.params.id }),
       beforeEnter: (to, from, next) => {
         store.dispatch('$_scans/getScanEngine', to.params.id).then(object => {
@@ -603,7 +608,7 @@ const route = {
     {
       path: 'scans/scan_engine/:id/clone',
       name: 'cloneScanEngine',
-      component: ScansScanEngineView,
+      component: ScanEngineView,
       props: (route) => ({ storeName: '$_scans', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
         store.dispatch('$_scans/getScanEngine', to.params.id).then(object => {
@@ -615,7 +620,35 @@ const route = {
       path: 'scans/wmi_rules',
       name: 'wmiRules',
       component: ScansTabs,
-      props: (route) => ({ tab: 'wmi_rules', query: route.query.query })
+      props: (route) => ({ storeName: '$_scans', tab: 'wmi_rules', query: route.query.query })
+    },
+    {
+      path: 'scans/wmi_rules/new',
+      name: 'newWmiRule',
+      component: WmiRuleView,
+      props: (route) => ({ storeName: '$_wmi_rules', isNew: true })
+    },
+    {
+      path: 'scans/wmi_rule/:id',
+      name: 'wmiRule',
+      component: WmiRuleView,
+      props: (route) => ({ storeName: '$_wmi_rules', id: route.params.id }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_wmi_rules/getWmiRule', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'scans/wmi_rule/:id/clone',
+      name: 'cloneWmiRule',
+      component: WmiRuleView,
+      props: (route) => ({ storeName: '$_wmi_rules', id: route.params.id, isClone: true }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_wmi_rules/getWmiRule', to.params.id).then(object => {
+          next()
+        })
+      }
     },
     /*
     {

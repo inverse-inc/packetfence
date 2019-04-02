@@ -16,11 +16,12 @@
   >
     <template slot="header" is="b-card-header">
       <b-button-close @click="close" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
-      <h4 class="mb-0">
-        <span v-if="!isNew && !isClone">{{ $t('Admin Role {id}', { id: id }) }}</span>
-        <span v-else-if="isClone">{{ $t('Clone Admin Role {id}', { id: id }) }}</span>
-        <span v-else>{{ $t('New Admin Role') }}</span>
+      <h4 class="d-inline mb-0">
+        <span v-if="!isNew && !isClone">{{ $t('Scan Engine {id}', { id: id }) }}</span>
+        <span v-else-if="isClone">{{ $t('Clone Scan Engine {id}', { id: id }) }}</span>
+        <span v-else>{{ $t('New Scan Engine') }}</span>
       </h4>
+      <b-badge class="ml-2" variant="secondary" v-t="scanType"></b-badge>
     </template>
     <template slot="footer">
       <b-card-footer @mouseenter="$v.form.$touch()">
@@ -32,7 +33,7 @@
         </pf-button-save>
         <b-button :disabled="isLoading" class="ml-1" variant="outline-primary" @click="init()">{{ $t('Reset') }}</b-button>
         <b-button v-if="!isNew && !isClone" :disabled="isLoading" class="ml-1" variant="outline-primary" @click="clone()">{{ $t('Clone') }}</b-button>
-        <pf-button-delete v-if="isDeletable" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Admin Role?')" @on-delete="remove()"/>
+        <pf-button-delete v-if="isDeletable" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Scan Engine?')" @on-delete="remove()"/>
       </b-card-footer>
     </template>
   </pf-config-view>
@@ -48,12 +49,12 @@ import {
   pfConfigurationDefaultsFromMeta as defaults
 } from '@/globals/configuration/pfConfiguration'
 import {
-  pfConfigurationAdminRoleViewFields as fields
-} from '@/globals/configuration/pfConfigurationAdminRoles'
+  pfConfigurationScanEngineViewFields as fields
+} from '@/globals/configuration/pfConfigurationScans'
 const { validationMixin } = require('vuelidate')
 
 export default {
-  name: 'AdminRoleView',
+  name: 'ScanEngineView',
   mixins: [
     validationMixin,
     pfMixinCtrlKey,
@@ -81,6 +82,10 @@ export default {
     id: { // from router
       type: String,
       default: null
+    },
+    scanType: { // from router
+      type: String,
+      default: null
     }
   },
   data () {
@@ -97,10 +102,10 @@ export default {
   },
   computed: {
     isLoading () {
-      return this.$store.getters[`${this.storeName}/isLoading`]
+      return this.$store.getters['$_scans/isLoading']
     },
     invalidForm () {
-      return this.$v.form.$invalid || this.$store.getters[`${this.storeName}/isWaiting`]
+      return this.$v.form.$invalid || this.$store.getters['$_scans/isWaiting']
     },
     getForm () {
       return {
@@ -117,47 +122,51 @@ export default {
   },
   methods: {
     init () {
-      this.$store.dispatch(`${this.storeName}/options`, this.id).then(options => {
-        // store options
-        this.options = JSON.parse(JSON.stringify(options))
-        if (this.id) {
-          // existing
-          this.$store.dispatch(`${this.storeName}/getAdminRole`, this.id).then(form => {
-            this.form = JSON.parse(JSON.stringify(form))
+      if (this.id) {
+        // existing
+        this.$store.dispatch(`${this.storeName}/optionsById`, this.id).then(options => {
+          this.options = JSON.parse(JSON.stringify(options)) // store options
+          this.$store.dispatch(`${this.storeName}/getScanEngine`, this.id).then(form => {
+            this.form = JSON.parse(JSON.stringify(form)) // set form
+            this.scanType = form.type
           })
-        } else {
-          // new
+        })
+      } else {
+        // new
+        this.$store.dispatch(`${this.storeName}/optionsByScanType`, this.scanType).then(options => {
+          this.options = JSON.parse(JSON.stringify(options)) // store options
           this.form = defaults(options.meta) // set defaults
-        }
-      })
+          this.form.type = this.scanType
+        })
+      }
     },
     close () {
-      this.$router.push({ name: 'admin_roles' })
+      this.$router.push({ name: 'scanEngines' })
     },
     clone () {
-      this.$router.push({ name: 'cloneAdminRole' })
+      this.$router.push({ name: 'cloneScanEngine' })
     },
     create () {
       const ctrlKey = this.ctrlKey
-      this.$store.dispatch(`${this.storeName}/createAdminRole`, this.form).then(response => {
+      this.$store.dispatch('$_scans/createScanEngine', this.form).then(response => {
         if (ctrlKey) { // [CTRL] key pressed
           this.close()
         } else {
-          this.$router.push({ name: 'admin_role', params: { id: this.form.id } })
+          this.$router.push({ name: 'scanEngine', params: { id: this.form.id } })
         }
-      })
-    },
-    remove (item) {
-      this.$store.dispatch('$_admin_roles/deleteAdminRole', item.id).then(response => {
-        this.close()
       })
     },
     save () {
       const ctrlKey = this.ctrlKey
-      this.$store.dispatch(`${this.storeName}/updateAdminRole`, this.form).then(response => {
+      this.$store.dispatch('$_scans/updateScanEngine', this.form).then(response => {
         if (ctrlKey) { // [CTRL] key pressed
           this.close()
         }
+      })
+    },
+    remove () {
+      this.$store.dispatch('$_scans/deleteScanEngine', this.id).then(response => {
+        this.close()
       })
     }
   },

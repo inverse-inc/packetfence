@@ -144,6 +144,9 @@ const api = {
   getTrafficShapingPolicies () {
     return apiCall({ url: 'config/traffic_shaping_policies', method: 'get' })
   },
+  getWmiRules () {
+    return apiCall({ url: 'config/wmi_rules', method: 'get' })
+  },
   getWrixLocations () {
     return apiCall({ url: 'wrix_locations', method: 'get' })
   }
@@ -249,6 +252,8 @@ const state = { // set intitial states to `false` (not `[]` or `{}`) to avoid in
   tenants: false,
   trafficShapingPoliciesStatus: '',
   trafficShapingPolicies: false,
+  wmiRulesStatus: '',
+  wmiRules: false,
   wrixLocationsStatus: '',
   wrixLocations: false
 }
@@ -424,6 +429,9 @@ const getters = {
   },
   isLoadingTrafficShapingPolicies: state => {
     return state.trafficShapingPoliciesStatus === types.LOADING
+  },
+  isLoadingWmiRules: state => {
+    return state.wmiRulesStatus === types.LOADING
   },
   isLoadingWrixLocations: state => {
     return state.wrixLocationsStatus === types.LOADING
@@ -1193,6 +1201,20 @@ const actions = {
       return Promise.resolve(state.trafficShapingPolicies)
     }
   },
+  getWmiRules: ({ commit, getters, state }) => {
+    if (getters.isLoadingWmiRules) {
+      return
+    }
+    if (!state.wmiRules) {
+      commit('WMI_RULES_REQUEST')
+      return api.getWmiRules().then(response => {
+        commit('WMI_RULES_UPDATED', response.data.items)
+        return state.wmiRules
+      })
+    } else {
+      return Promise.resolve(state.wmiRules)
+    }
+  },
   getWrixLocations: ({ commit, getters, state }) => {
     if (getters.isLoadingWrixLocations) {
       return
@@ -1535,6 +1557,13 @@ const mutations = {
   TRAFFIC_SHAPING_POLICIES_UPDATED: (state, trafficShapingPolicies) => {
     state.trafficShapingPolicies = trafficShapingPolicies
     state.trafficShapingPoliciesStatus = types.SUCCESS
+  },
+  WMI_RULES_REQUEST: (state) => {
+    state.wmiRulesStatus = types.LOADING
+  },
+  WMI_RULES_UPDATED: (state, wmiRules) => {
+    state.wmiRules = wmiRules
+    state.wmiRulesStatus = types.SUCCESS
   },
   WRIX_LOCATIONS_REQUEST: (state) => {
     state.wrixLocationsStatus = types.LOADING

@@ -2,6 +2,7 @@
   <pf-config-view
     :isLoading="isLoading"
     :disabled="isLoading"
+    :isDeletable="isDeletable"
     :form="getForm"
     :model="wrixLocation"
     :vuelidate="$v.wrixLocation"
@@ -21,9 +22,7 @@
         <span v-else>{{ $t('New WRIX Location') }}</span>
       </h4>
     </template>
-    <template slot="footer"
-      scope="{isDeletable}"
-    >
+    <template slot="footer">
       <b-card-footer @mouseenter="$v.wrixLocation.$touch()">
         <pf-button-save :disabled="invalidForm" :isLoading="isLoading">
           <template v-if="isNew">{{ $t('Create') }}</template>

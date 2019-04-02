@@ -436,6 +436,14 @@ export const hasTrafficShapingPolicies = (value, component) => {
   })
 }
 
+export const hasWmiRules = (value, component) => {
+  return store.dispatch('config/getWmiRules').then((response) => {
+    return (response.length > 0)
+  }).catch(() => {
+    return true
+  })
+}
+
 export const hasWRIXLocations = (value, component) => {
   return store.dispatch('config/getWrixLocations').then((response) => {
     return (response.length > 0)
@@ -719,6 +727,16 @@ export const userNotExists = (value, component) => {
   if (!value) return true
   return store.dispatch('$_users/exists', value).then(results => {
     return false
+  }).catch(() => {
+    return true
+  })
+}
+
+export const wmiRuleExists = (value, component) => {
+  if (!value) return true
+  return store.dispatch('config/getWmiRules').then((response) => {
+    if (response.length === 0) return true
+    return (response.filter(wmiRule => wmiRule.id.toLowerCase() === value.toLowerCase()).length > 0)
   }).catch(() => {
     return true
   })

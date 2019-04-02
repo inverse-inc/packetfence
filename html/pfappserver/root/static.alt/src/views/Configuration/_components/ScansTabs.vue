@@ -5,24 +5,24 @@
     </b-card-header>
     <b-tabs ref="tabs" v-model="tabIndex" card>
       <b-tab :title="$t('Scan Engines')" @click="changeTab('scan_engines')">
-        <scans-scan-engines-list />
+        <scan-engines-list storeName="$_scans" />
       </b-tab>
       <b-tab :title="$t('WMI Rules')" @click="changeTab('wmi_rules')">
-        <scans-wmi-rules-list />
+        <wmi-rules-list storeName="$_wmi_rules" />
       </b-tab>
     </b-tabs>
   </b-card>
 </template>
 
 <script>
-import ScansScanEnginesList from './ScansScanEnginesList'
-import ScansWmiRulesList from './ScansWmiRulesList'
+import ScanEnginesList from './ScanEnginesList'
+import WmiRulesList from './WmiRulesList'
 
 export default {
-  name: 'ProfilingTabs',
+  name: 'ScanTabs',
   components: {
-    ScansScanEnginesList,
-    ScansWmiRulesList
+    ScanEnginesList,
+    WmiRulesList
   },
   props: {
     tab: {
