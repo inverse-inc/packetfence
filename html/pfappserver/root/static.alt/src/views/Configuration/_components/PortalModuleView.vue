@@ -116,7 +116,7 @@ export default {
       }
     },
     sources () {
-      return fieldTypeValues[fieldType.SOURCE](this.$store)
+      return fieldTypeValues[fieldType.SOURCE](this)
     },
     isDeletable () {
       if (this.isNew || this.isClone || ('not_deletable' in this.module && this.module.not_deletable)) {

@@ -151,7 +151,7 @@ export default {
       if (this.fieldIndex >= 0) {
         const field = this.field
         for (const type of field.types) {
-          if (fieldTypeValues[type](this.$store)) options.push(...fieldTypeValues[type](this.$store))
+          if (fieldTypeValues[type](this)) options.push(...fieldTypeValues[type](this))
         }
       }
       return options

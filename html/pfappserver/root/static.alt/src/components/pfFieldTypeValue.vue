@@ -1,11 +1,11 @@
 <template>
-  <b-form-row class="pf-field-type-value mx-0 mb-1 px-0" align-v="center"
+  <b-row class="pf-field-type-value mx-0 mb-1 px-0" align-v="center" no-gutters
     v-on="forwardListeners"
   >
     <b-col v-if="$slots.prepend" cols="1" align-self="start" class="text-center col-form-label">
       <slot name="prepend"></slot>
     </b-col>
-    <b-col cols="4" align-self="start">
+    <b-col col-sm="4" align-self="start">
 
       <pf-form-chosen
         v-model="localType"
@@ -22,10 +22,11 @@
       ></pf-form-chosen>
 
     </b-col>
-    <b-col cols="6" align-self="start" class="pl-1">
+    <b-col col-sm="6" align-self="start" class="pl-1">
 
-      <!-- Types: ADMINROLE, ROLE, ROLE_BY_NAME, TENANT, DURATION, TIME_BALANCE -->
+      <!-- Types: OPTIONS, ADMINROLE, ROLE, ROLE_BY_NAME, TENANT, DURATION, TIME_BALANCE -->
       <pf-form-chosen v-if="
+          isFieldType(optionsType) ||
           isFieldType(adminroleValueType) ||
           isFieldType(roleValueType) ||
           isFieldType(roleByNameValueType) ||
@@ -34,6 +35,7 @@
           isFieldType(timeBalanceValueType)
         "
         v-model="localValue"
+        v-on="listeners"
         ref="localValue"
         label="name"
         track-by="value"
@@ -84,7 +86,7 @@
     <b-col v-if="$slots.append" cols="1" align-self="start" class="text-center col-form-label">
       <slot name="append"></slot>
     </b-col>
-  </b-form-row>
+  </b-row>
 </template>
 
 <script>
@@ -110,7 +112,7 @@ export default {
   props: {
     value: {
       type: Object,
-      default: () => { return this.default }
+      default: () => {}
     },
     typeLabel: {
       type: String
@@ -134,6 +136,7 @@ export default {
       noValueType:              fieldType.NONE,
       integerValueType:         fieldType.INTEGER,
       substringValueType:       fieldType.SUBSTRING,
+      optionsType:              fieldType.OPTIONS,
       /* Custom element field types */
       datetimeValueType:        fieldType.DATETIME,
       prefixmultiplerValueType: fieldType.PREFIXMULTIPLIER,
@@ -162,7 +165,7 @@ export default {
     },
     localType: {
       get () {
-        let type = (this.inputValue && 'type' in this.inputValue) ? this.inputValue.type : this.default.type
+        let type = (this.inputValue && typeof this.inputValue === 'object' && 'type' in this.inputValue) ? this.inputValue.type : this.default.type
         // check to see if `type` exists in our available fields
         if (type && !this.fields.find(field => field.value === type)) {
           // discard
@@ -208,10 +211,20 @@ export default {
       if (this.fieldIndex >= 0) {
         const field = this.field
         for (const type of field.types) {
-          if (fieldTypeValues[type](this.$store)) options.push(...fieldTypeValues[type](this.$store))
+          if (fieldTypeValues[type](this)) options.push(...fieldTypeValues[type](this))
         }
       }
       return options
+    },
+    listeners () {
+      if (!this.localType) return []
+      let listeners = {}
+      if (this.fieldIndex >= 0) {
+        if (this.field.listeners) {
+          listeners = this.field.listeners
+        }
+      }
+      return listeners
     },
     moments () {
       if ('moments' in this.field) return this.field.moments

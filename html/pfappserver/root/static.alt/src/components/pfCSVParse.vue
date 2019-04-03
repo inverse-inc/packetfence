@@ -201,7 +201,7 @@
                     :value="staticMapping[index].value"
                     label="name"
                     track-by="value"
-                    :options="fieldTypeValues[roleValueType]($store)"
+                    :options="fieldTypeValues[roleValueType](context)"
                     :vuelidate="$v.staticMapping[index].value"
                     @input="staticMapping[index].value = $event"
                     collapse-object
@@ -212,7 +212,7 @@
                     :value="staticMapping[index].value"
                     label="name"
                     track-by="value"
-                    :options="fieldTypeValues[sourceValueType]($store)"
+                    :options="fieldTypeValues[sourceValueType](context)"
                     :vuelidate="$v.staticMapping[index].value"
                     @input="staticMapping[index].value = $event"
                     collapse-object
@@ -340,6 +340,7 @@ export default {
       staticMapping: Array,
       staticMappingNew: null,
       exportModel: Array,
+      context: this,
       substringValueType:        fieldType.SUBSTRING,
       dateValueType:             fieldType.DATE,
       datetimeValueType:         fieldType.DATETIME,

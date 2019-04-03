@@ -14,9 +14,11 @@ export const pfFieldType = {
   SELECTMANY:              'selectmany',
   TIME_BALANCE:            'time_balance',
   YESNO:                   'yesno',
+
   /* Promise based field types */
   ADMINROLE:               'adminrole',
   DURATION:                'duration',
+  OPTIONS:                 'options',
   REALM:                   'realm',
   ROLE:                    'role',
   ROLE_BY_NAME:            'role_by_name',
@@ -28,64 +30,81 @@ export const pfFieldType = {
 
 export const pfFieldTypeValues = {}
 
-pfFieldTypeValues[pfFieldType.ADMINROLE] = (store) => {
-  if (store === undefined) {
-    throw new Error('Missing `store` in pfFieldTypeValues[pfFieldType.ADMINROLE](store)')
+pfFieldTypeValues[pfFieldType.ADMINROLE] = ({ $store }) => {
+  if ($store === undefined) {
+    throw new Error('Missing `$store` in pfFieldTypeValues[pfFieldType.ADMINROLE](context)')
   }
-  store.dispatch('config/getAdminRoles')
-  return store.getters['config/adminRolesList']
+  $store.dispatch('config/getAdminRoles')
+  return $store.getters['config/adminRolesList']
 }
-pfFieldTypeValues[pfFieldType.DURATION] = (store) => {
-  return store.getters['config/accessDurationsList']
+pfFieldTypeValues[pfFieldType.DURATION] = ({ $store }) => {
+  return $store.getters['config/accessDurationsList']
 }
-pfFieldTypeValues[pfFieldType.REALM] = (store) => {
-  if (store === undefined) {
-    throw new Error('Missing `store` in pfFieldTypeValues[pfFieldType.REALM](store)')
+pfFieldTypeValues[pfFieldType.OPTIONS] = ({ field }) => {
+  let options = []
+  if (field === undefined) {
+    throw new Error('Missing `field` in pfFieldTypeValues[pfFieldType.OPTIONS](context)')
   }
-  store.dispatch('config/getRealms')
-  return store.getters['config/realmsList']
-}
-pfFieldTypeValues[pfFieldType.ROLE] = (store) => {
-  if (store === undefined) {
-    throw new Error('Missing `store` in pfFieldTypeValues[pfFieldType.ROLE](store)')
+  if (field.options) {
+    options = field.options.map(o => {
+      // pfFieldType uses the 'name' attribute as the label.
+      const { text } = o
+      if (text) {
+        o.name = text
+      }
+      return o
+    })
   }
-  store.dispatch('config/getRoles')
-  return store.getters['config/rolesList']
+  return options
 }
-pfFieldTypeValues[pfFieldType.ROLE_BY_NAME] = (store) => {
-  if (store === undefined) {
-    throw new Error('Missing `store` in pfFieldTypeValues[pfFieldType.ROLE_BY_NAME](store)')
+pfFieldTypeValues[pfFieldType.REALM] = ({ $store }) => {
+  if ($store === undefined) {
+    throw new Error('Missing `$store` in pfFieldTypeValues[pfFieldType.REALM](context)')
   }
-  store.dispatch('config/getRoles')
-  return pfFieldTypeValues[pfFieldType.ROLE](store).map(role => { return { value: role.name, name: role.name } })
+  $store.dispatch('config/getRealms')
+  return $store.getters['config/realmsList']
 }
-pfFieldTypeValues[pfFieldType.SOURCE] = (store) => {
-  if (store === undefined) {
-    throw new Error('Missing `store` in pfFieldTypeValues[pfFieldType.SOURCE](store)')
+pfFieldTypeValues[pfFieldType.ROLE] = ({ $store }) => {
+  if ($store === undefined) {
+    throw new Error('Missing `$store` in pfFieldTypeValues[pfFieldType.ROLE](context)')
   }
-  store.dispatch('config/getSources')
-  return store.getters['config/sourcesList']
+  $store.dispatch('config/getRoles')
+  return $store.getters['config/rolesList']
 }
-pfFieldTypeValues[pfFieldType.SWITCHE] = (store) => {
-  if (store === undefined) {
-    throw new Error('Missing `store` in pfFieldTypeValues[pfFieldType.SWITCHE](store)')
+pfFieldTypeValues[pfFieldType.ROLE_BY_NAME] = ({ $store }) => {
+  if ($store === undefined) {
+    throw new Error('Missing `$store` in pfFieldTypeValues[pfFieldType.ROLE_BY_NAME](context)')
   }
-  store.dispatch('config/getSwitches')
-  return store.getters['config/switchesList']
+  $store.dispatch('config/getRoles')
+  return pfFieldTypeValues[pfFieldType.ROLE]($store).map(role => { return { value: role.name, name: role.name } })
 }
-pfFieldTypeValues[pfFieldType.SWITCH_GROUP] = (store) => {
-  if (store === undefined) {
-    throw new Error('Missing `store` in pfFieldTypeValues[pfFieldType.SWITCH_GROUP](store)')
+pfFieldTypeValues[pfFieldType.SOURCE] = ({ $store }) => {
+  if ($store === undefined) {
+    throw new Error('Missing `$store` in pfFieldTypeValues[pfFieldType.SOURCE](context)')
   }
-  store.dispatch('config/getSwitchGroups')
-  return store.getters['config/switchGroupsList']
+  $store.dispatch('config/getSources')
+  return $store.getters['config/sourcesList']
 }
-pfFieldTypeValues[pfFieldType.TENANT] = (store) => {
-  if (store === undefined) {
-    throw new Error('Missing `store` in pfFieldTypeValues[pfFieldType.TENANT](store)')
+pfFieldTypeValues[pfFieldType.SWITCHE] = ({ $store }) => {
+  if ($store === undefined) {
+    throw new Error('Missing `$store` in pfFieldTypeValues[pfFieldType.SWITCHE](context)')
   }
-  store.dispatch('config/getTenants')
-  return store.getters['config/tenantsList']
+  $store.dispatch('config/getSwitches')
+  return $store.getters['config/switchesList']
+}
+pfFieldTypeValues[pfFieldType.SWITCH_GROUP] = ({ $store }) => {
+  if ($store === undefined) {
+    throw new Error('Missing `$store` in pfFieldTypeValues[pfFieldType.SWITCH_GROUP](context)')
+  }
+  $store.dispatch('config/getSwitchGroups')
+  return $store.getters['config/switchGroupsList']
+}
+pfFieldTypeValues[pfFieldType.TENANT] = ({ $store }) => {
+  if ($store === undefined) {
+    throw new Error('Missing `$store` in pfFieldTypeValues[pfFieldType.TENANT](context)')
+  }
+  $store.dispatch('config/getTenants')
+  return $store.getters['config/tenantsList']
 }
 pfFieldTypeValues[pfFieldType.CONNECTION_TYPE] = () => {
   return [
