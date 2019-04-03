@@ -9,13 +9,13 @@
         v-on="forwardListeners"
         ref="input"
         :disabled="disabled"
-        :showLabels="false"
+        :show-labels="false"
         :id="id"
         :multiple="multiple"
         :options="options"
-        :trackBy="trackBy"
+        :track-by="trackBy"
         :label="label"
-        :groupValues="groupValues"
+        :group-values="groupValues"
         :state="isValid()"
         @input.native="validate()"
         @keyup.native.stop.prevent="onChange($event)"
@@ -173,6 +173,7 @@ export default {
   .multiselect__tags {
     min-height: auto;
     padding: $input-padding-y $input-padding-x;
+    padding-bottom: 0px;
     border: 1px solid $input-focus-bg;
     background-color: $input-focus-bg;
     @include border-radius($border-radius);
@@ -185,13 +186,24 @@ export default {
       // Override Firefox's unusual default opacity; see https://github.com/twbs/bootstrap/pull/11526.
       opacity: 1;
     }
-    .multiselect__tag {
-      margin-bottom: 0px;
+  }
+  .multiselect__tag {
+    margin-bottom: 0px;
+    background-color: $secondary;
+  }
+  .multiselect__tag-icon {
+    &:hover {
+      background-color: inherit;
+      color: lighten($secondary, 15%);
+    }
+    &:after {
+      color: $component-active-color;
     }
   }
   .multiselect__input,
   .multiselect__single {
     padding: 0px;
+    padding-bottom: $input-padding-y;
     margin: 0px;
     background-color: $input-focus-bg;
     color: $input-color;
@@ -203,6 +215,7 @@ export default {
   }
   .multiselect__placeholder {
     padding-top: 0px;
+    padding-bottom: $input-padding-y;
     margin-bottom: 0px;
     color: $input-placeholder-color;
     font-size: $font-size-base;
