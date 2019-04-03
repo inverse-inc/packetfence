@@ -31,9 +31,9 @@ use pf::action;
 use pf::log;
 use pf::constants::security_event qw($MAX_SECURITY_EVENT_ID %NON_WHITELISTABLE_ROLES);
 use pf::class qw(class_next_security_event_id);
+use pf::security_event_config;
 
 # Form select options
-has 'security_events' => ( is => 'ro' );
 has 'triggers' => ( is => 'ro' );
 has 'templates' => ( is => 'ro', builder => 'build_templates');
 has 'placeholders' => ( is => 'ro' );
@@ -310,11 +310,12 @@ sub options_actions {
 
 sub options_vclose {
     my $self = shift;
+    my @security_events = ({value => '', label => ''});
+    while (my ($id, $e) = each %SecurityEvent_Config) {
+        push @security_events, {value => $id, label => ($e->{desc} || $id)};
+    }
 
-    # $self->security_events comes from pfappserver::Model::Config::SecurityEvents->readAll
-    my @security_events = map { $_->{id} => $_->{desc} || $_->{id} } @{$self->form->security_events} if ($self->form->security_events);
-
-    return ('' => '', @security_events);
+    return @security_events;
 }
 
 =head2 options_whitelisted_roles
@@ -396,9 +397,10 @@ sub validate {
     # If the close action is selected, make sure a valid closing security event (vclose) is specified
     if (grep {$_ eq 'close'} @{$self->value->{actions}}) {
         my $vclose = $self->value->{vclose};
-        my @vids = map { $_->{id} } @{$self->security_events};
-        unless (defined $vclose && grep {$_ eq $vclose} @vids) {
+        if (!defined $vclose) {
             $self->field('vclose')->add_error('Specify a security event to close.');
+        } elsif (!exists $SecurityEvent_Config{$vclose}) {
+            $self->field('vclose')->add_error('Invalid security event given');;
         }
     }
 
