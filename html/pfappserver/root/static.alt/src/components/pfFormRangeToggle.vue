@@ -24,7 +24,7 @@
           :tooltipFunction="tooltip"
           :width="width"
           :disabled="disabled"
-          class="mr-2"
+          class="d-inline-block mr-2"
           tabIndex="-1"
           @click="click"
         >
@@ -218,11 +218,11 @@ export default {
     box-shadow: 0 0 0 1px $input-focus-border-color;
 
     .handle {
+      box-sizing: border-box; /* inner border */
+      border: 2px solid #fff;
       /*background-color: $input-focus-border-color;*/
       background-color: rgba(0, 0, 0, 1); /* [range] background-color shows through */
       animation: animateCursor 2s infinite;
-      box-sizing: border-box; /* inner border */
-      border: 2px solid #fff;
     }
   }
 
