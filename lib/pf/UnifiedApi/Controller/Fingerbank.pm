@@ -251,6 +251,25 @@ sub search_builder {
     return $self->search_builder_class->new();
 }
 
+sub update {
+    my ($self) = @_;
+    my ($error, $new_data) = $self->get_json;
+    if (defined $error) {
+        return $self->render_error(400, "Bad Request : $error");
+    }
+
+    my $old_item = $self->item;
+    my $new_item = {%$old_item, %$new_data};
+
+    my $id = $self->id;
+    my ($status, $message) = $self->fingerbank_model->update($id, $new_item);
+    if (is_error($status)) {
+        $self->render_error($status, $message);
+    }
+
+    $self->render(status => 200, json => { message => "$id updated"});
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
