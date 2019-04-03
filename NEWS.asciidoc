@@ -16,16 +16,16 @@ Version X.Y.Z released on xxxx-xx-xx
 
 New Features
 ++++++++++++
-* Add 802.1x + CoA support for Fortinet FortiSwitch
-* Add module to manage PICOS white box switches
-* DHCP Filter to reply custom attributes in the OFFER and or ACK (deprecate old DHCP Filter)
-* Cisco ASA VPN support (with the captive portal)
+* Add 802.1X and CoA support for Fortinet FortiSwitch
+* Add module to support PICOS white box switches
+* DHCP Filter to reply custom attributes in the OFFER and/or ACK (deprecate old DHCP Filter)
+* Cisco ASA VPN support with the captive portal
 * Fortinet VPN support
 
 Enhancements
 ++++++++++++
 * Now including timeout when authorizing a web-auth user on an Ubiquiti UniFi controller
-* Now shipping defaults for the Apache filters
+* Now providing defaults for the Apache filters
 * Allow to configure the RADIUS attributes and their lookup order for extracting the username
 * conf/stats.conf has a default file now
 * VoIP configuration parameter in node_cleanup task to bypass voip devices
