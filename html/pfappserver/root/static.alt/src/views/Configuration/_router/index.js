@@ -509,28 +509,28 @@ const route = {
     },
     {
       path: 'fingerbank/combinations/new',
-      name: 'newCombination',
+      name: 'newFingerbankCombination',
       component: FingerbankCombinationView,
       props: (route) => ({ storeName: '$_fingerbank', isNew: true })
     },
     {
       path: 'fingerbank/combination/:id',
-      name: 'combination',
+      name: 'fingerbankCombination',
       component: FingerbankCombinationView,
       props: (route) => ({ storeName: '$_fingerbank', id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_fingerbank/fingerbankCombination', to.params.id).then(object => {
+        store.dispatch('$_fingerbank/getCombination', to.params.id).then(object => {
           next()
         })
       }
     },
     {
       path: 'fingerbank/combination/:id/clone',
-      name: 'cloneCombination',
+      name: 'cloneFingerbankCombination',
       component: FingerbankCombinationView,
       props: (route) => ({ storeName: '$_fingerbank', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_fingerbank/fingerbankCombination', to.params.id).then(object => {
+        store.dispatch('$_fingerbank/getCombination', to.params.id).then(object => {
           next()
         })
       }
@@ -577,6 +577,11 @@ const route = {
       component: FingerbankTabs,
       props: (route) => ({ tab: 'user_agents', storeName: '$_fingerbank', query: route.query.query })
     },
+
+
+
+
+
     {
       path: 'scans',
       redirect: 'scans/scan_engines'

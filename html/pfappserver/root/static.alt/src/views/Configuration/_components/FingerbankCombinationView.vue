@@ -45,9 +45,6 @@ import pfButtonDelete from '@/components/pfButtonDelete'
 import pfMixinCtrlKey from '@/components/pfMixinCtrlKey'
 import pfMixinEscapeKey from '@/components/pfMixinEscapeKey'
 import {
-  pfConfigurationDefaultsFromMeta as defaults
-} from '@/globals/configuration/pfConfiguration'
-import {
   pfConfigurationFingerbankCombinationsViewFields as fields
 } from '@/globals/configuration/pfConfigurationFingerbank'
 const { validationMixin } = require('vuelidate')
@@ -86,8 +83,7 @@ export default {
   data () {
     return {
       form: {}, // will be overloaded with the data from the store
-      formValidations: {}, // will be overloaded with data from the pfConfigView
-      options: {}
+      formValidations: {} // will be overloaded with data from the pfConfigView
     }
   },
   validations () {
@@ -97,10 +93,10 @@ export default {
   },
   computed: {
     isLoading () {
-      return this.$store.getters[`${this.storeName}/isLoading`]
+      return this.$store.getters[`${this.storeName}/isCombinationsLoading`]
     },
     invalidForm () {
-      return this.$v.form.$invalid || this.$store.getters[`${this.storeName}/isWaiting`]
+      return this.$v.form.$invalid || this.$store.getters[`${this.storeName}/isCombinationsWaiting`]
     },
     getForm () {
       return {
@@ -117,46 +113,40 @@ export default {
   },
   methods: {
     init () {
-      this.$store.dispatch(`${this.storeName}/options`, this.id).then(options => {
-        // store options
-        this.options = JSON.parse(JSON.stringify(options))
-        if (this.id) {
-          // existing
-          this.$store.dispatch(`${this.storeName}/getFingerbankCombination`, this.id).then(form => {
-            this.form = JSON.parse(JSON.stringify(form))
-          })
-        } else {
-          // new
-          this.form = defaults(options.meta) // set defaults
-        }
-      })
+      if (this.id) {
+        // existing
+        this.$store.dispatch(`${this.storeName}/getCombination`, this.id).then(form => {
+          this.form = JSON.parse(JSON.stringify(form))
+        })
+      }
     },
     close () {
-      this.$router.push({ name: 'device_registrations' })
+      this.$router.push({ name: 'fingerbankCombinations' })
     },
     clone () {
       this.$router.push({ name: 'cloneFingerbankCombination' })
     },
     create () {
       const ctrlKey = this.ctrlKey
-      this.$store.dispatch(`${this.storeName}/createFingerbankCombination`, this.form).then(response => {
+      this.$store.dispatch(`${this.storeName}/createCombination`, this.form).then(response => {
         if (ctrlKey) { // [CTRL] key pressed
           this.close()
         } else {
-          this.$router.push({ name: 'device_registration', params: { id: this.form.id } })
+console.log(response)
+          this.$router.push({ name: 'fingerbankCombination', params: { id: this.form.id } })
         }
       })
     },
     save () {
       const ctrlKey = this.ctrlKey
-      this.$store.dispatch(`${this.storeName}/updateFingerbankCombination`, this.form).then(response => {
+      this.$store.dispatch(`${this.storeName}/updateCombination`, this.form).then(response => {
         if (ctrlKey) { // [CTRL] key pressed
           this.close()
         }
       })
     },
     remove () {
-      this.$store.dispatch(`${this.storeName}/deleteFingerbankCombination`, this.id).then(response => {
+      this.$store.dispatch(`${this.storeName}/deleteCombination`, this.id).then(response => {
         this.close()
       })
     }

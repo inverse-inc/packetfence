@@ -15,14 +15,14 @@
               <b-button-group>
                 <b-button v-t="'All'" :variant="(scope === 'all') ? 'primary' : 'outline-secondary'" @click="scope = 'all'"></b-button>
                 <b-button v-t="'Local'" :variant="(scope === 'local') ? 'primary' : 'outline-secondary'" @click="scope = 'local'"></b-button>
-                <b-button v-t="'Remote'" :variant="(scope === 'remote') ? 'primary' : 'outline-secondary'" @click="scope = 'remote'"></b-button>
+                <b-button v-t="'Remote'" :variant="(scope === 'upstream') ? 'primary' : 'outline-secondary'" @click="scope = 'upstream'"></b-button>
               </b-button-group>
             </b-col>
           </b-row>
         </b-card-header>
       </template>
       <template slot="buttonAdd">
-        <b-button variant="outline-primary" :to="{ name: 'newCombination' }">{{ $t('Add Local Combination') }}</b-button>
+        <b-button variant="outline-primary" :to="{ name: 'newFingerbankCombination' }">{{ $t('Add Local Combination') }}</b-button>
       </template>
       <template slot="emptySearch" slot-scope="state">
         <pf-empty-table :isLoading="state.isLoading">{{ $t('No {scope} combinations found', { scope: ((scope !== 'all') ? scope : '') }) }}</pf-empty-table>
@@ -78,7 +78,7 @@ export default {
   },
   methods: {
     clone (item) {
-      this.$router.push({ name: 'cloneCombination', params: { id: item.id } })
+      this.$router.push({ name: 'cloneFingerbankCombination', params: { id: item.id } })
     },
     remove (item) {
       this.$store.dispatch(`${this.storeName}/deleteCombination`, item.id).then(response => {

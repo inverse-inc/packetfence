@@ -8,12 +8,18 @@ import {
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
   and,
-  isHex
+  isHex,
+  isFingerprint,
+  isFingerbankDevice,
+  isOUI
 } from '@/globals/pfValidators'
 
 const {
+  integer,
   required,
-  maxLength
+  maxLength,
+  minValue,
+  maxValue
 } = require('vuelidate/lib/validators')
 
 /**
@@ -379,7 +385,7 @@ export const pfConfigurationFingerbankCombinationsListConfig = (context = {}) =>
     columns: pfConfigurationFingerbankCombinationsListColumns,
     fields: pfConfigurationFingerbankCombinationsListFields,
     rowClickRoute (item, index) {
-      return { name: 'combination', params: { id: item.id } }
+      return { name: 'fingerbankCombination', params: { id: item.id } }
     },
     searchPlaceholder: i18n.t('Search by identifier'),
     searchableOptions: {
@@ -410,6 +416,164 @@ export const pfConfigurationFingerbankCombinationsListConfig = (context = {}) =>
       }
     }
   }
+}
+
+export const pfConfigurationFingerbankCombinationsViewFields = (context = {}) => {
+  const {
+    isNew = false,
+    isClone = false
+  } = context
+  return [
+    {
+      tab: null, // ignore tabs
+      fields: [
+        {
+          if: (!isNew && !isClone),
+          label: i18n.t('Identifier'),
+          fields: [
+            {
+              key: 'id',
+              component: pfFormInput,
+              attrs: {
+                disabled: true
+              }
+            }
+          ]
+        },
+        {
+          label: i18n.t('DHCP Fingerprint'),
+          fields: [
+            {
+              key: 'dhcp_fingerprint_id',
+              component: pfFormInput,
+              validators: {
+                [i18n.t('Invalid Fingerprint.')]: isFingerprint
+              }
+            }
+          ]
+        },
+        {
+          label: i18n.t('DHCP Vendor'),
+          fields: [
+            {
+              key: 'dhcp_vendor_id',
+              component: pfFormInput,
+              attrs: {
+                type: 'number',
+                step: 1
+              },
+              validators: {
+                [i18n.t('Integers only.')]: integer
+              }
+            }
+          ]
+        },
+        {
+          label: i18n.t('DHCPv6 Fingerprint'),
+          fields: [
+            {
+              key: 'dhcp6_fingerprint_id',
+              component: pfFormInput,
+              validators: {
+                [i18n.t('Invalid Fingerprint.')]: isFingerprint
+              }
+            }
+          ]
+        },
+        {
+          label: i18n.t('DHCPv6 Enterprise'),
+          fields: [
+            {
+              key: 'dhcp6_enterprise_id',
+              component: pfFormInput,
+              validators: {
+                [i18n.t('Integers only.')]: integer
+              }
+            }
+          ]
+        },
+        {
+          label: i18n.t('MAC Vendor (OUI)'),
+          fields: [
+            {
+              key: 'mac_vendor_id',
+              component: pfFormInput,
+              validators: {
+                [i18n.t('Invalid OUI.')]: isOUI('')
+              }
+            }
+          ]
+        },
+        {
+          label: i18n.t('User Agent'),
+          fields: [
+            {
+              key: 'user_agent_id',
+              component: pfFormInput,
+              attrs: {
+                type: 'number',
+                step: 1
+              },
+              validators: {
+                [i18n.t('Integers only.')]: integer
+              }
+            }
+          ]
+        },
+        {
+          label: i18n.t('Device'),
+          fields: [
+            {
+              key: 'device_id',
+              component: pfFormInput,
+              attrs: {
+                type: 'number',
+                step: 1
+              },
+              validators: {
+                [i18n.t('Device required.')]: required,
+                [i18n.t('Invalid Device.')]: isFingerbankDevice
+              }
+            }
+          ]
+        },
+        {
+          label: i18n.t('Version'),
+          fields: [
+            {
+              key: 'version',
+              component: pfFormInput,
+              attrs: {
+                type: 'number',
+                step: 1
+              },
+              validators: {
+                [i18n.t('Integers only.')]: integer
+              }
+            }
+          ]
+        },
+        {
+          label: i18n.t('Score'),
+          fields: [
+            {
+              key: 'score',
+              component: pfFormInput,
+              attrs: {
+                type: 'number',
+                step: 1
+              },
+              validators: {
+                [i18n.t('Score required.')]: required,
+                [i18n.t('Integers only.')]: integer,
+                [i18n.t('Invalid Score.')]: and(minValue(0), maxValue(100))
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
 }
 
 export const pfConfigurationFingerbankDevicesListColumns = [
