@@ -70,7 +70,6 @@ Return options with no type information
 
 sub options_with_no_type {
     my ($self) = @_;
-    my %allowed;
     my %output = (
         meta => {
             type => {
