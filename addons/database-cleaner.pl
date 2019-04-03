@@ -123,8 +123,19 @@ sub clean {
     my $i=0;
     for(my $i=1; $i<=$runs; $i++){
         get_logger->debug("Executing run $i");
-        $sth = $self->{dbh}->prepare("delete from $TABLE where $DATE_FIELD < ( NOW() - INTERVAL $OLDER_THAN ) AND $ADDITIONNAL_CONDITIONS limit $RUN_LIMIT");
-        $sth->execute();
+        for (my $try=1; $try<=10; $try++) {
+            eval {
+                $sth = $self->{dbh}->prepare("delete from $TABLE where $DATE_FIELD < ( NOW() - INTERVAL $OLDER_THAN ) AND $ADDITIONNAL_CONDITIONS limit $RUN_LIMIT");
+                $sth->execute();
+            };
+            if($@) {
+                get_logger->error("Failed to delete rows on iteration $i - try $try ($@). Retrying");
+            }
+            else {
+                get_logger->debug("Deleted rows");
+                last;
+            }
+        }
         select(undef,undef,undef,$WAIT_BETWEEN);
     }
 }
