@@ -79,7 +79,7 @@ Submit a task to the queue
 =cut
 
 sub submit {
-    my ($self, $queue, $task_type, $task_data, $expire_in) = @_;
+    my ($self, $queue, $task_type, $task_data, $expire_in, %opts) = @_;
     $expire_in //= $DEFAULT_EXPIRATION;
     my $queue_name = $PFQUEUE_QUEUE_PREFIX . $queue;
     my $task_counter_id = task_counter_id($queue_name, $task_type, $task_data);
@@ -87,7 +87,7 @@ sub submit {
     my $redis = $self->redis;
     # Batch the creation of the task and it's ttl and placing it on the queue to improve performance
     $redis->multi(sub {});
-    $redis->hmset($id, data => sereal_encode_with_object($ENCODER, [$task_type, $task_data]), expire => $expire_in, tenant_id => pf::dal->get_tenant(), sub {});
+    $redis->hmset($id, data => sereal_encode_with_object($ENCODER, [$task_type, $task_data]), expire => $expire_in, tenant_id => pf::dal->get_tenant(), , %opts, sub {});
     $redis->expire($id, $expire_in, sub {});
     $redis->hincrby($PFQUEUE_COUNTER, $task_counter_id, 1, sub {});
     $redis->lpush($queue_name, $id, sub {});
@@ -97,7 +97,7 @@ sub submit {
 }
 
 sub submit_delayed {
-    my ($self, $queue, $task_type, $delay, $task_data, $expire_in) = @_;
+    my ($self, $queue, $task_type, $delay, $task_data, $expire_in, %opts) = @_;
     $expire_in //= $DEFAULT_EXPIRATION;
     my $queue_name = $PFQUEUE_QUEUE_PREFIX . $queue;
     my $task_counter_id = task_counter_id($queue_name, $task_type, $task_data);
@@ -109,7 +109,7 @@ sub submit_delayed {
     $time_milli += $delay;
     # Batch the creation of the task and it's ttl and placing it on the queue to improve performance
     $redis->multi(sub {});
-    $redis->hmset($id, data => sereal_encode_with_object($ENCODER, [$task_type, $task_data]), expire => $expire_in, tenant_id => pf::dal->get_tenant(), sub {});
+    $redis->hmset($id, data => sereal_encode_with_object($ENCODER, [$task_type, $task_data]), expire => $expire_in, tenant_id => pf::dal->get_tenant(), %opts, sub {});
     $redis->expire($id, $expire_in + int($delay / 1000), sub {});
     $redis->hincrby($PFQUEUE_COUNTER, $task_counter_id, 1, sub {});
     $redis->zadd("Delayed:$queue", $time_milli, $id, sub {});

@@ -28,6 +28,17 @@ our @EXPORT_OK = qw(
     $PFQUEUE_DELAYED_QUEUE_WORKERS_DEFAULT
     $PFQUEUE_DELAYED_QUEUE_SLEEP_DEFAULT
     $PFQUEUE_WEIGHTS
+
+    $STATUS_KEY
+    $STATUS_MSG_KEY
+    $SUB_TASKS_KEY
+    $CURRENT_SUB_TASK_KEY
+    $PROGRESS_KEY
+    $RESULT_KEY
+    
+    $STATUS_COMPLETED
+    $STATUS_FAILED
+    $STATUS_IN_PROGRESS
 );
 
 our %EXPORT_TAGS = (
@@ -55,6 +66,21 @@ our $PFQUEUE_MAX_TASKS_DEFAULT = 2000;
 our $PFQUEUE_TASK_JITTER_DEFAULT = 100;
 
 our $PFQUEUE_WEIGHTS = 'QueueWeights';
+
+=head2 Job status related constants
+
+=cut
+
+our $STATUS_KEY = "status";
+our $STATUS_MSG_KEY = "status_msg";
+our $SUB_TASKS_KEY = "sub_tasks";
+our $CURRENT_SUB_TASK_KEY = "sub_task";
+our $PROGRESS_KEY = "progress";
+our $RESULT_KEY = "result";
+
+our $STATUS_COMPLETED = "Completed";
+our $STATUS_FAILED = "Failed";
+our $STATUS_IN_PROGRESS = "In progress";
 
 =head1 AUTHOR
 

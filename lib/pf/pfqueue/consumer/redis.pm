@@ -22,12 +22,21 @@ use pf::log;
 use pf::Sereal qw($DECODER);
 use Moo;
 use pf::util::pfqueue qw(task_counter_id);
-use pf::constants::pfqueue qw($PFQUEUE_COUNTER $PFQUEUE_EXPIRED_COUNTER);
+use pf::constants::pfqueue qw(
+    $PFQUEUE_COUNTER 
+    $PFQUEUE_EXPIRED_COUNTER
+    $STATUS_COMPLETED
+    $STATUS_FAILED
+    $STATUS_IN_PROGRESS
+);
+use pf::pfqueue::status_updater::redis;
 extends qw(pf::pfqueue::consumer);
 
 has 'redis' => (is => 'rw', lazy => 1, builder => 1);
 
 has 'redis_args' => (is => 'rw', default => sub { {} });
+
+our $STATUS_UPDATER_SINGLETON;
 
 #
 # This lua script gets all the job id from a zset with a timestamp less the one passed
@@ -99,7 +108,6 @@ sub process_next_job {
     $redis->multi(\&_empty);
     $redis->hincrby($PFQUEUE_COUNTER, $task_counter_id, -1, \&_empty);
     $redis->hgetall($task_id, \&_empty);
-    $redis->del($task_id, \&_empty);
     $redis->exec(sub {
         my ($replies, $error) = @_;
         return if defined $error;
@@ -118,10 +126,30 @@ sub process_next_job {
             if (ref($item) eq 'ARRAY') {
                 my $type = $item->[0];
                 my $args = $item->[1];
+                my $task = "pf::task::$type"->new;
+                if($task_data{status_update}) {
+                    $logger->debug("Reporting status for task $task_id");
+                    $task->set_status_updater($self->get_status_updater($task_id));
+                }
+                
+                # Now that we're tracking the status of the job, we can delete the key marking it as non-pending
+                $redis->del($task_id);
+
+                my $result;
                 eval {
-                    "pf::task::$type"->doTask($args);
+                    $task->status_updater->set_status($STATUS_IN_PROGRESS);
+                    $task->status_updater->set_progress(0);
+                    $result = $task->doTask($args);
                 };
-                die $@ if $@;
+                if($@) {
+                    $task->status_updater->set_status_msg($@);
+                    $task->status_updater->set_status($STATUS_FAILED);
+                    die $@;
+                }
+                else {
+                    $task->status_updater->set_result($result);
+                    $task->status_updater->set_status($STATUS_COMPLETED);
+                }
             } else {
                 $logger->error("Invalid object stored in queue");
             }
@@ -171,6 +199,23 @@ Build the redis client
 sub _build_redis {
     my ($self) = @_;
     return pf::Redis->new(%{$self->redis_args}, on_connect => \&on_connect);
+}
+
+=head2 get_status_updater
+
+Build the status updater
+
+=cut
+
+sub get_status_updater {
+    my ($self, $task_id) = @_;
+    unless(defined($STATUS_UPDATER_SINGLETON)) { 
+        $STATUS_UPDATER_SINGLETON = pf::pfqueue::status_updater::redis->new(connection => $self->redis, task_id => $task_id);
+    }
+    else {
+        $STATUS_UPDATER_SINGLETON->task_id($task_id);
+    }
+    return $STATUS_UPDATER_SINGLETON;
 }
 
 =head2 process_delayed_jobs

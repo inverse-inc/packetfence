@@ -12,6 +12,7 @@ pf::task
 use strict;
 use warnings;
 use Data::UUID;
+use pf::pfqueue::status_updater::dummy;
 
 my $GENERATOR = Data::UUID->new;
 
@@ -24,7 +25,10 @@ The constructor
 sub new {
     my ($proto, @args) = @_;
     my $class = ref($proto) || $proto;
-    return bless {args => \@args}, $class;
+    return bless {
+        args => \@args,
+        status_updater => pf::pfqueue::status_updater::dummy->singleton(),
+    }, $class;
 }
 
 =head2 doTask
@@ -48,6 +52,27 @@ sub generateId {
    "Task:" . $GENERATOR->create_str . ":$metadata";
 }
 
+=head2 status_updater
+
+Get the status updater for the task
+
+=cut
+
+sub status_updater {
+    my ($self) = @_;
+    return $self->{status_updater};
+}
+
+=head2 set_status_updater
+
+Set the status updater for the task
+
+=cut
+
+sub set_status_updater {
+    my ($self, $status_updater) = @_;
+    $self->{status_updater} = $status_updater;
+}
 
 =head1 AUTHOR
 
