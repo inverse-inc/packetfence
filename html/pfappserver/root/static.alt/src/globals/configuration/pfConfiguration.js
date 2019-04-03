@@ -42,7 +42,7 @@ export const pfConfigurationAttributesFromMeta = (meta = {}, key = null) => {
       let { [first]: { properties: _meta } } = meta
       meta = _meta // swap ref to child
     }
-    const { [key]: { allowed, placeholder, type, item } = {} } = meta
+    const { [key]: { allowed, allowed_lookup: allowedLookup, placeholder, type, item } = {} } = meta
     switch (type) {
       case 'array':
         attrs.multiple = true // pfFormChosen
@@ -60,6 +60,19 @@ export const pfConfigurationAttributesFromMeta = (meta = {}, key = null) => {
         break
     }
     if (placeholder) attrs.placeholder = placeholder
+    if (allowedLookup) {
+      attrs.listeners = { 'search-change': (query) => {
+        let q = new Promise((resolve, reject) => {
+          setTimeout(() => {
+            resolve(`Test search done for "${query}"`)
+          }, 1000)
+        })
+        q.then((msg) => {
+          // eslint-disable-next-line
+          console.debug(msg)
+        })
+      } }
+    }
   }
   return attrs
 }
@@ -94,6 +107,7 @@ export const pfConfigurationValidatorsFromMeta = (meta = {}, key = null, fieldNa
           case 'allowed': // ignore
           case 'default': // ignore
           case 'placeholder': // ignore
+          case 'allowed_lookup': // ignore
             break
           case 'item': // ignore
             // TODO
