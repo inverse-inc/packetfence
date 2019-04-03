@@ -154,7 +154,7 @@ sub get {
     my ($self) = @_;
     my $interface_id = $self->stash->{interface_id};
     my $interface = $self->model->get($interface_id);
-    if(scalar(keys($interface)) > 0) {
+    if(scalar(keys(%{$interface})) > 0) {
         $interface = $interface->{$interface_id};
         $interface = $self->normalize_interface($interface);
         $interface->{id} = $interface_id;
