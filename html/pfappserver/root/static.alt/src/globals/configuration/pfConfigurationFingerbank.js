@@ -8,16 +8,12 @@ import {
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
   and,
-  isFQDN,
-  isHex,
-  isPort
+  isHex
 } from '@/globals/pfValidators'
 
 const {
   required,
-  ipAddress,
-  maxLength,
-  minValue
+  maxLength
 } = require('vuelidate/lib/validators')
 
 /**

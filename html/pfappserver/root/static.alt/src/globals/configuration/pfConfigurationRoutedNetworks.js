@@ -14,8 +14,6 @@ import {
   conditional,
   hasRoutedNetworks,
   routedNetworkExists,
-  ipv6Address,
-  isCIDR,
   isFQDN
 } from '@/globals/pfValidators'
 
