@@ -14,6 +14,15 @@ pf::UnifiedApi
 
 use strict;
 use warnings;
+use JSON::MaybeXS qw();
+{
+   package JSON::PP::Boolean;
+   sub clone {
+       my $o = ${$_[0]};
+       return bless (\$o, 'JSON::PP::Boolean');
+   }
+}
+
 use Mojo::Base 'Mojolicious';
 use pf::dal;
 use pf::util qw(add_jitter);
