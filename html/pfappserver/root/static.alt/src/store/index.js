@@ -1,6 +1,5 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-// import actions from './actions'
 import notification from './modules/notification'
 import session from './modules/session'
 import config from './modules/config'
