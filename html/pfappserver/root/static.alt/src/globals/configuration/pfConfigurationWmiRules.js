@@ -142,7 +142,7 @@ export const pfConfigurationWmiRuleViewFields = (context = {}) => {
               key: 'on_tab',
               component: pfFormRangeToggle,
               attrs: {
-                  values: { checked: '1', unchecked: '0' }
+                values: { checked: '1', unchecked: '0' }
               }
             }
           ]
