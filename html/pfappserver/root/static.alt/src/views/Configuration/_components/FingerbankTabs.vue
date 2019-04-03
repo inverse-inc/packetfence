@@ -14,7 +14,7 @@
         <fingerbank-combinations-list :storeName="storeName" />
       </b-tab>
       <b-tab :title="$t('Devices')" @click="changeTab('devices')">
-        <fingerbank-devices-list :storeName="storeName" />
+        <fingerbank-devices-list :storeName="storeName" :parentId="parentId"/>
       </b-tab>
       <b-tab :title="$t('DHCP Fingerprints')" @click="changeTab('dhcp_fingerprints')">
         <fingerbank-dhcp-fingerprints-list :storeName="storeName" />
@@ -73,6 +73,10 @@ export default {
     tab: {
       type: String,
       default: 'general_settings'
+    },
+    parentId: {
+      type: String,
+      default: null
     }
   },
   computed: {
@@ -92,8 +96,8 @@ export default {
     }
   },
   methods: {
-    changeTab (name) {
-      this.$router.push(`./${name}`)
+    changeTab (path) {
+      this.$router.push(`/configuration/fingerbank/${path}`)
     }
   }
 }

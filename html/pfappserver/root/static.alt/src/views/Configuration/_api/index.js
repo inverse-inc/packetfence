@@ -318,9 +318,7 @@ export default {
       return response.data
     })
   },
-
-
-
+  /*
   fingerbankDeviceChangeDetection: params => {
     return apiCall.get(`config/TODO`, { params }).then(response => {
       return response.data.item
@@ -331,11 +329,14 @@ export default {
       return response.data
     })
   },
-
-
-
+  */
   fingerbankCombinations: params => {
     return apiCall.get(`fingerbank/all/combinations`, { params }).then(response => {
+      return response.data
+    })
+  },
+  fingerbankSearchCombinations: body => {
+    return apiCall.post('fingerbank/all/combinations/search', body).then(response => {
       return response.data
     })
   },
@@ -363,12 +364,12 @@ export default {
 
 
   fingerbankDevices: params => {
-    return apiCall.get(`config/TODO`, { params }).then(response => {
+    return apiCall.get(`fingerbank/all/devices`, { params }).then(response => {
       return response.data
     })
   },
   fingerbankDevice: id => {
-    return apiCall.get(`config/TODO/${id}`).then(response => {
+    return apiCall.get(`fingerbank/all/device/${id}`).then(response => {
       return response.data.item
     })
   },

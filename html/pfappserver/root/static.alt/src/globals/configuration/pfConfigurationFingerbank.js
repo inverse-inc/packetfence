@@ -387,7 +387,7 @@ export const pfConfigurationFingerbankCombinationsListConfig = (context = {}) =>
     rowClickRoute (item, index) {
       return { name: 'fingerbankCombination', params: { id: item.id } }
     },
-    searchPlaceholder: i18n.t('Search by identifier'),
+    searchPlaceholder: i18n.t('Search by identifier or device'),
     searchableOptions: {
       searchApiEndpoint: `fingerbank/${scope}/combinations`,
       defaultSortKeys: ['id'],
@@ -409,7 +409,8 @@ export const pfConfigurationFingerbankCombinationsListConfig = (context = {}) =>
           {
             op: 'or',
             values: [
-              { field: 'id', op: 'contains', value: quickCondition }
+              { field: 'id', op: 'contains', value: quickCondition },
+              { field: 'device_id', op: 'equals', value: quickCondition }
             ]
           }
         ]
@@ -582,6 +583,49 @@ export const pfConfigurationFingerbankDevicesListColumns = [
     label: i18n.t('Identifier'),
     sortable: true,
     visible: true
+  },
+  {
+    key: 'name',
+    label: i18n.t('Name'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'mobile',
+    label: i18n.t('Mobile'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'tablet',
+    label: i18n.t('Tablet'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'created_at',
+    label: i18n.t('Created'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'updated_at',
+    label: i18n.t('Updated'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'approved',
+    label: i18n.t('Approved'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'buttons',
+    label: '',
+    sortable: false,
+    visible: true,
+    locked: true
   }
 ]
 
@@ -594,39 +638,48 @@ export const pfConfigurationFingerbankDevicesListFields = [
 ]
 
 export const pfConfigurationFingerbankDevicesListConfig = (context = {}) => {
+  const {
+    scope = 'all',
+    parentId = null
+  } = context
+console.log('parentId', parentId)
   return {
     columns: pfConfigurationFingerbankDevicesListColumns,
     fields: pfConfigurationFingerbankDevicesListFields,
     rowClickRoute (item, index) {
-      return { name: 'device', params: { id: item.id } }
+      return { name: 'fingerbankDevice', params: { id: item.id } }
     },
     searchPlaceholder: i18n.t('Search by identifier or description'),
     searchableOptions: {
-      searchApiEndpoint: 'config/TODO',
+      searchApiEndpoint: `fingerbank/${scope}/devices`,
       defaultSortKeys: ['id'],
-      defaultSearchCondition: {
-        op: 'and',
-        values: [{
-          op: 'or',
-          values: [
-            { field: 'id', op: 'contains', value: null }
-          ]
-        }]
-      },
-      defaultRoute: { name: 'profilingDevices' }
+      defaultSearchCondition: ((parentId)
+        ? { op: 'and', values: [
+            { op: 'or', values: [{ field: 'parent_id', op: 'equals', value: parentId }] },
+            { op: 'or', values: [{ field: 'id', op: 'contains', value: null }] }
+          ]}
+        : { op: 'and', values: [
+            { op: 'or', values: [{ field: 'id', op: 'contains', value: null }] }
+          ]}
+      ),
+      defaultRoute: { name: 'fingerbankDevices' }
     },
     searchableQuickCondition: (quickCondition) => {
-      return {
-        op: 'and',
-        values: [
-          {
-            op: 'or',
-            values: [
-              { field: 'id', op: 'contains', value: quickCondition }
-            ]
-          }
-        ]
-      }
+      return ((parentId)
+        ? { op: 'and', values: [
+            { op: 'or', values: [{ field: 'parent_id', op: 'equals', value: parentId }] },
+            { op: 'or', values: [
+              { field: 'id', op: 'equals', value: quickCondition },
+              { field: 'name', op: 'contains', value: quickCondition }
+            ]}
+          ]}
+        : { op: 'and', values: [
+            { op: 'or', values: [
+              { field: 'id', op: 'equals', value: quickCondition },
+              { field: 'name', op: 'contains', value: quickCondition }
+            ]}
+          ]}
+      )
     }
   }
 }

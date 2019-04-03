@@ -183,7 +183,7 @@ const actions = {
   combinations: ({ state, commit }) => {
     const params = {
       sort: 'id',
-      fields: ['id', 'score'].join(',')
+      fields: ['id'].join(',')
     }
     return api.fingerbankCombinations(params).then(response => {
       return response.items
@@ -197,16 +197,6 @@ const actions = {
     return api.fingerbankCombination(id).then(item => {
       commit('COMBINATION_REPLACED', item)
       return item
-    }).catch(err => {
-      commit('COMBINATION_ERROR', err.response)
-      throw err
-    })
-  },
-  optionsCombination: ({ commit }) => {
-    commit('COMBINATION_REQUEST')
-    return api.fingerbankCombinationOptions().then(response => {
-      commit('COMBINATION_SUCCESS')
-      return response
     }).catch(err => {
       commit('COMBINATION_ERROR', err.response)
       throw err

@@ -51,6 +51,7 @@ const ConnectionProfileFileView = () => import(/* webpackChunkName: "Configurati
 const ComplianceSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/ComplianceSection')
 const FingerbankTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/FingerbankTabs')
 const FingerbankCombinationView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FingerbankCombinationView')
+const FingerbankDhcpFingerprintView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FingerbankDhcpFingerprintView')
 const ScansTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/ScansTabs')
 const ScanEngineView = () => import(/* webpackChunkName: "Configuration" */ '../_components/ScanEngineView')
 const WmiRuleView = () => import(/* webpackChunkName: "Configuration" */ '../_components/WmiRuleView')
@@ -542,10 +543,27 @@ const route = {
       props: (route) => ({ tab: 'devices', storeName: '$_fingerbank', query: route.query.query })
     },
     {
+      path: 'fingerbank/devices/:parentId',
+      name: 'fingerbankDevicesByParentId',
+      component: FingerbankTabs,
+      props: (route) => ({ tab: 'devices', storeName: '$_fingerbank', query: route.query.query, parentId: route.params.parentId })
+    },
+    {
       path: 'fingerbank/dhcp_fingerprints',
       name: 'fingerbankDhcpFingerprints',
       component: FingerbankTabs,
       props: (route) => ({ tab: 'dhcp_fingerprints', storeName: '$_fingerbank', query: route.query.query })
+    },
+    {
+      path: 'fingerbank/dhcp_fingerprints/:id',
+      name: 'fingerbankDhcpFingerprint',
+      component: FingerbankDhcpFingerprintView,
+      props: (route) => ({ storeName: '$_fingerbank', id: route.params.id }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_fingerbank/getDhcpFingerprint', to.params.id).then(object => {
+          next()
+        })
+      }
     },
     {
       path: 'fingerbank/dhcp_vendors',

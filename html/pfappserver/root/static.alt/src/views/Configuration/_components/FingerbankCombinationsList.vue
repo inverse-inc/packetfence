@@ -15,7 +15,7 @@
               <b-button-group>
                 <b-button v-t="'All'" :variant="(scope === 'all') ? 'primary' : 'outline-secondary'" @click="scope = 'all'"></b-button>
                 <b-button v-t="'Local'" :variant="(scope === 'local') ? 'primary' : 'outline-secondary'" @click="scope = 'local'"></b-button>
-                <b-button v-t="'Remote'" :variant="(scope === 'upstream') ? 'primary' : 'outline-secondary'" @click="scope = 'upstream'"></b-button>
+                <b-button v-t="'Upstream'" :variant="(scope === 'upstream') ? 'primary' : 'outline-secondary'" @click="scope = 'upstream'"></b-button>
               </b-button-group>
             </b-col>
           </b-row>
