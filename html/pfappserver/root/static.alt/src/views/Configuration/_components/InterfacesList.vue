@@ -82,6 +82,8 @@
       <b-row align-h="end" align-v="start" class="mb-3">
         <b-col>
           <b-button variant="outline-primary" class="mr-1" :to="{ name: 'newRoutedNetwork' }">{{ $t('Add Routed Network') }}</b-button>
+          <pf-button-service service="iptables" class="mr-1" restart start stop></pf-button-service>
+          <pf-button-service service="routes" class="mr-1" restart start stop></pf-button-service>
           <pf-button-service service="pfdhcp" class="mr-1" restart start stop></pf-button-service>
           <pf-button-service service="pfdns" class="mr-1" restart start stop></pf-button-service>
         </b-col>
