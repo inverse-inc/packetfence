@@ -464,8 +464,10 @@ export const pfConfigurationSyslogParserViewFields = (context) => {
                 label: i18n.t('Test Dry Run'),
                 class: 'col-sm-2',
                 disabled: !(form.lines && !invalidForm),
-                click: (event) => {
-                  dryRunTest(event)
+                listeners: {
+                  click: (event) => {
+                    dryRunTest(event)
+                  }
                 }
               }
             }
