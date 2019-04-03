@@ -4,7 +4,7 @@
     v-bind="$attrs"
     :type="type"
     :variant="variant"
-    @click="click"
+    v-on="forwardListeners"
   >
     <icon name="circle-notch" spin v-if="isLoading"></icon>
     <template v-else>
@@ -36,6 +36,12 @@ export default {
     click: {
       type: Function,
       default: ($event) => {}
+    }
+  },
+  computed: {
+    forwardListeners () {
+      const { input, ...listeners } = this.$listeners
+      return listeners
     }
   }
 }
