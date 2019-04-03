@@ -128,7 +128,7 @@ sub remove {
         return $self->render_error($status, $msg);
     }
 
-    return $self->render(json => {});;
+    return $self->render(json => {message => "Deleted $id successfully"});
 }
 
 =head2 id

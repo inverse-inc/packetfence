@@ -252,6 +252,7 @@ sub render_create {
     if (is_error($status)) {
         return $self->render_error($status, $self->create_error_msg($obj));
     }
+
     $self->res->headers->location($self->make_location_url($obj));
     return $self->render(json => {}, status => $status);
 }
@@ -314,7 +315,9 @@ sub render_remove {
     if (is_error($status)) {
         return $self->render_error($status, "Unable to remove resource");
     }
-    return $self->render(json => {}, status => $status);
+
+    my $id = $self->stash($self->url_param_name);
+    return $self->render(json => { message => "Deleted $id successfully" }, status => $status);
 }
 
 sub do_remove {
