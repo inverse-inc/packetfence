@@ -85,7 +85,7 @@ sub search {
     my @items;
     if (is_error($status)) {
         if ($status != 404) {
-            return $status, { msg => $resultsets };
+            return $status, { message => $resultsets };
         }
 
         $status = 200;
@@ -191,11 +191,11 @@ Make the SQL::Abstract::More columns from the search_info
 sub make_columns {
     my ( $self, $s ) = @_;
     my $cols = $s->{fields} // [];
-    my @errors = map { {msg => "$_ is an invalid field" } } grep { !$self->is_valid_field($s, $_) } @$cols;
+    my @errors = map { {message => "$_ is an invalid field" } } grep { !$self->is_valid_field($s, $_) } @$cols;
     if (@errors) {
         return 422,
           {
-            msg    => "Invalid column(s) defined",
+            message    => "Invalid column(s) defined",
             errors => \@errors
           };
     }
@@ -234,8 +234,8 @@ sub check_for_duplicated_fields {
     if (@duplicated) {
         return 422,
           {
-            msg    => "Duplicated column(s) found",
-            errors => [ map { { msg => "Column $_ duplicated" } } @duplicated ],
+            message    => "Duplicated column(s) found",
+            errors => [ map { { message => "Column $_ duplicated" } } @duplicated ],
           };
     }
 
@@ -330,7 +330,7 @@ sub verify_query {
     my ($self, $s, $query) = @_;
     my $op = $query->{op} // '(null)';
     if (!$self->is_valid_op($op)) {
-        return 422, {msg => "$op is not valid"};
+        return 422, {message => "$op is not valid"};
     }
 
     if (exists $OP_HAS_SUBQUERIES{$op}) {
@@ -343,7 +343,7 @@ sub verify_query {
     } else {
         my $field = $query->{field};
         if ( !$self->is_valid_query($s, $query)) {
-            return 422, {msg => "$field is an invalid field"};
+            return 422, {message => "$field is an invalid field"};
         }
 
         push @{$s->{found_fields}}, $field;
@@ -457,12 +457,12 @@ sub make_order_by {
         if (defined $order_by) {
             push @order_by_specs, $order_by;
         } else {
-            push @errors, {msg => "$sort_spec is invalid"};
+            push @errors, {message => "$sort_spec is invalid"};
         }
     }
 
     if (@errors) {
-        return 422, { msg => 'Invalid field(s) in sort', errors => \@errors};
+        return 422, { message => 'Invalid field(s) in sort', errors => \@errors};
     }
 
     return 200, \@order_by_specs;

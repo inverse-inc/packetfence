@@ -82,7 +82,7 @@ sub list {
     if ( is_error($status) ) {
         return $self->render_error(
             $status,
-            $response->{msg},
+            $response->{message},
             $response->{errors}
         );
     }
@@ -189,7 +189,7 @@ sub search {
     if ( is_error($status) ) {
         return $self->render_error(
             $status,
-            $response->{msg},
+            $response->{message},
             $response->{errors}
         );
     }

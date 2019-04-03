@@ -205,7 +205,7 @@ our %ALLOWED_JOIN_FIELDS = (
 
 sub non_searchable {
     my ($self, $s, $q) = @_;
-    return (422, { msg => "$q->{field} is not searchable" });
+    return (422, { message => "$q->{field} is not searchable" });
 }
 
 sub rewrite_security_event_open_security_event_id {
@@ -236,12 +236,12 @@ sub rewrite_online_query {
     my ($self, $s, $q) = @_;
     my $op =$q->{op};
     if ($op ne 'equals' && $op ne 'not_equals') {
-        return (422, { msg => "$op is not valid for the online field" });
+        return (422, { message => "$op is not valid for the online field" });
     }
 
     my $value = $q->{value};
     if (!defined $value || ($value ne 'on' && $value ne 'off' && $value ne 'unknown')) {
-        return (422, { msg => "value of " . ($value // "(null)"). " is not valid for the online field" });
+        return (422, { message => "value of " . ($value // "(null)"). " is not valid for the online field" });
     }
 
     if ($op eq 'equals') {
