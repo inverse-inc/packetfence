@@ -240,7 +240,6 @@ export default {
     },
     removeRoutedNetwork (item) {
       this.$store.dispatch(`$_routed_networks/deleteRoutedNetwork`, item.id).then(response => {
-console.log('routed network deleted', item, response)
         this.init() // reload
       })
     },
