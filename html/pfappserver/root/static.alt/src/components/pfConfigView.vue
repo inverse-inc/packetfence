@@ -1,6 +1,6 @@
 <template>
   <b-form @submit.prevent="(isNew || isClone) ? create($event) : save($event)" class="pf-config-view">
-    <b-card no-body >
+    <b-card no-body v-bind="$attrs" :class="cardClass">
       <slot name="header">
         <b-card-header>
           <b-button-close @click="close" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
@@ -102,6 +102,9 @@ export default {
     disabled: {
       type: Boolean,
       default: false
+    },
+    cardClass: {
+      type: String
     }
   },
   data () {
@@ -142,6 +145,8 @@ export default {
           return this.getValue(remainder.join('.'), model[first])
         }
         return model[key]
+      } else {
+        return model
       }
     },
     setValue (key, value, model = this.model) {
@@ -209,14 +214,11 @@ export default {
       this.$emit('validations', this.getExternalValidations())
     },
     getClass (row, field) {
-      let c = ['px-0'] // always remove padding
+      let c = ['px-0', 'mx-1'] // always remove padding
       if ('attrs' in field && `class` in field.attrs) { // if class is defined
         c.push(field.attrs.class) // use manual definition
       } else if (row.fields.length === 1) { // else if row is singular
         c.push('col-sm-12') // use entire width
-      }
-      if (field !== row.fields[row.fields.length - 1]) { // if row is not last
-        c.push('mr-1') // add right-margin
       }
       return c.join(' ')
     },
