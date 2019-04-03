@@ -42,14 +42,9 @@ const network = {
     return subnet.join('.')
   },
   ipv4Sort (a, b) {
-    if (!!a && !b)
-      return 1
-    else if (!a && !!b)
-      return -1
-    else if (!a && !b)
-      return 0
-    const aa = a.split(".")
-    const bb = b.split(".")
+    if (!!a && !b) { return 1 } else if (!a && !!b) { return -1 } else if (!a && !b) { return 0 }
+    const aa = a.split('.')
+    const bb = b.split('.')
     var resulta = aa[0] * 0x1000000 + aa[1] * 0x10000 + aa[2] * 0x100 + aa[3] * 1
     var resultb = bb[0] * 0x1000000 + bb[1] * 0x10000 + bb[2] * 0x100 + bb[3] * 1
     return (resulta === resultb) ? 0 : ((resulta > resultb) ? 1 : -1)
