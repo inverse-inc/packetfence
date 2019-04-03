@@ -18,7 +18,7 @@
       <draggable v-else
         v-model="inputValue"
         :options="{handle: '.draghandle', dragClass: 'dragclass'}"
-        class="container-fluid px-0 py-1"
+        class="container-fluid px-0"
         @start="onDragStart"
         @end="onDragEnd"
       >
@@ -356,6 +356,7 @@ export default {
   .pf-form-field-component-container {
     &:not(:last-child) {
       border-bottom: $input-border-width solid $input-focus-bg;
+      margin-bottom: map-get($spacers, 1);
     }
   }
 }
