@@ -129,7 +129,7 @@ my $sb = pf::UnifiedApi::Search::Builder::Fingerbank->new();
         [
             422,
             {
-                msg => 'mac_garbge is an invalid field',
+                message => 'mac_garbge is an invalid field',
             },
         ],
         'Where',

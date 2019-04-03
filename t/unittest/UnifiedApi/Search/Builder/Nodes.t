@@ -313,7 +313,7 @@ my $sb = pf::UnifiedApi::Search::Builder::Nodes->new();
         ],
         [
             422,
-            { msg => "contains is not valid for the online field" },
+            { message => "contains is not valid for the online field" },
         ],
         "Invalid op for online",
     );
