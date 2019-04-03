@@ -208,24 +208,9 @@ sub type_meta_info {
 sub options_with_no_type {
     my ($self) = @_;
     my $output = $self->SUPER::options_with_no_type();
-    my $types = delete $output->{allowed}{type};
-    my %groups;
-    for my $type (@$types) {
-        my $class = $type->{class};
-        next if $type->{value} eq 'SQL';
-        push @{$groups{$class}{options}}, {
-            value => $type->{value},
-            text => $type->{text},
-        };
-    }
-    my @new_types;
-    for my $class (sort keys %groups) {
-        my $group = $groups{$class};
-        $group->{group} = $class;
-        push @new_types, $group;
-    }
-
-    $output->{allowed}{type} = \@new_types;
+    my $types = delete $output->{meta}{type}{allowed};
+    my @new_types = grep { $_->{value} ne 'SQL' } @$types;
+    $output->{meta}{type}{allowed} = \@new_types;
     return $output;
 }
 
