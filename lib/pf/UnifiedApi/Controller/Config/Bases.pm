@@ -71,8 +71,7 @@ sub test_smtp {
         return $self->render_error(400, pf::util::strip_filename_from_exceptions($@));
     }
 
-    $self->render(json => {
-    });
+    return $self->render(json => { message => 'Testing SMTP success' });
 }
 
 sub checkup {
@@ -89,9 +88,8 @@ fix_permissions
 
 sub fix_permissions {
     my ($self) = @_;
-    my @result = pf::util::fix_files_permissions();
-    $self->render(json => { items => \@result });
-    return ;
+    my $result = pf::util::fix_files_permissions();
+    return $self->render(json => { message => $result });
 }
 
 =head1 AUTHOR
