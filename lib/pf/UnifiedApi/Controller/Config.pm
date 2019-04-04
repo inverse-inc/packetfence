@@ -476,7 +476,7 @@ sub update {
     delete $new_item->{not_deletable};
     (my $status, $new_data) = $self->validate_item($new_item);
     if (is_error($status)) {
-        return $self->render(status => $status, $new_data);
+        return $self->render(status => $status, json => $new_data);
     }
 
     delete $new_data->{id};
@@ -484,18 +484,6 @@ sub update {
     $cs->update($id, $new_data);
     return unless($self->commit($cs));
     $self->render(status => 200, json => { message => "Settings updated"});
-}
-
-sub update_item {
-    my ($self, $id, $new_data, $old_item) = @_;
-    my $new_item = {%$old_item, %$new_data};
-    $new_item->{id} = $id;
-    my ($status, $new_data_or_error) = $self->validate_item($new_item);
-    if (is_error($status)) {
-        return $status, $new_data_or_error;
-    }
-
-
 }
 
 sub replace {
@@ -506,10 +494,11 @@ sub replace {
     }
     my $id = $self->id;
     $item->{id} = $id;
-    $item = $self->validate_item($item);
-    if (!defined $item) {
-        return 0;
+    (my $status, $item) = $self->validate_item($item);
+    if (is_error($status)) {
+        return $self->render(status => $status, json => $item);
     }
+
     my $cs = $self->config_store;
     delete $item->{id};
     $cs->update($id, $item);
