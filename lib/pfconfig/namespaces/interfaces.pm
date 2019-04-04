@@ -153,10 +153,10 @@ sub build {
                 push @{ $self->{_interfaces}->{radius_ints} }, $int_obj;
             }
             elsif ( $type eq 'dns' ) {
-                push @{ $self->{_interfaces}->{dns_ints} }, $int if ( $int !~ /:\d+$/ )
+                push @{ $self->{_interfaces}->{dns_ints} }, $int_obj if ( $int !~ /:\d+$/ )
             }
             elsif ( $type eq 'dhcp' ) {
-                push @{ $self->{_interfaces}->{dhcp_ints} }, $int if ( $int !~ /:\d+$/ )
+                push @{ $self->{_interfaces}->{dhcp_ints} }, $int_obj if ( $int !~ /:\d+$/ )
             }
         }
     }
