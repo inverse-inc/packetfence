@@ -14,7 +14,8 @@
       >
         <b-button variant="outline-secondary" @click.stop="rowAdd()">{{ buttonLabel || $t('Add row') }}</b-button>
         <small v-if="emptyText" class="ml-2">{{ emptyText }}</small>
-      </b-container>a
+      </b-container>
+
       <draggable v-else
         v-model="inputValue"
         :options="{handle: '.draghandle', dragClass: 'dragclass'}"
