@@ -692,6 +692,7 @@ sub field_allowed {
             $allowed = $field->options;
         }
 
+
         if ($field->isa('HTML::FormHandler::Field::Repeatable')) {
             $field->init_state;
             my $element = $field->clone_element($field->name . "_temp");
@@ -761,9 +762,6 @@ map_option
 sub map_option {
     my ($self, $option) = @_;
     my %hash = %$option;
-    if (exists $hash{value} && defined $hash{value} && $hash{value} eq '') {
-        return;
-    }
 
     if (exists $hash{label}) {
         $hash{text} = (delete $hash{label} // '') . "";
@@ -771,6 +769,9 @@ sub map_option {
 
     if (exists $hash{options}) {
        $hash{options} = $self->map_options($hash{options});
+       delete $hash{value};
+    } elsif (exists $hash{value} && defined $hash{value} && $hash{value} eq '') {
+        return;
     }
 
     return \%hash;
