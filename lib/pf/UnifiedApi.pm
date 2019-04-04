@@ -749,7 +749,7 @@ sub setup_api_v1_config_bases_routes {
         "api.v1.Config.Bases"
     );
 
-    $root->register_sub_action({ action => 'test_smtp', method => 'POST'});
+    $collection_route->register_sub_action({ action => 'test_smtp', method => 'POST'});
     return ($collection_route, $resource_route);
 }
 
