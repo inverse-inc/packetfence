@@ -91,6 +91,7 @@ import 'vue-awesome/icons/wifi'
 import store from './store'
 import router from './router'
 import filters from './utils/filters'
+import { pfTemplatePlugin } from './utils/plugins'
 import App from './App'
 
 import 'bootstrap-vue/dist/bootstrap-vue.css'
@@ -108,6 +109,7 @@ Vue.use(VueTimeago, {
 })
 Vue.component('icon', Icon)
 Vue.use(BootstrapVue)
+Vue.use(pfTemplatePlugin)
 
 // Register global filters
 for (const filter of Object.keys(filters)) {

@@ -18,7 +18,10 @@
     <template slot="header" is="b-card-header">
       <b-button-close @click="close" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
       <h4 class="mb-0">
-        <span v-if="!isNew && !isClone">{{ $t('Connection Profile {id}', { id: id }) }}</span>
+        <template v-if="!isNew && !isClone">
+          <span v-html="$t('Connection Profile {id}', { id: $strong(id) })"></span>
+          <b-button size="sm" variant="secondary" class="ml-2" :href="`/portal_preview/captive-portal?PORTAL=${id}`" target="_blank">{{ $t('Preview') }}</b-button>
+        </template>
         <span v-else-if="isClone">{{ $t('Clone Connection Profile {id}', { id: id }) }}</span>
         <span v-else>{{ $t('New Connection Profile') }}</span>
       </h4>

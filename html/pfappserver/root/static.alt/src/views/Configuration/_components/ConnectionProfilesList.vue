@@ -16,7 +16,7 @@
       <template slot="buttons" slot-scope="item">
         <span class="float-right text-nowrap">
           <pf-button-delete size="sm" v-if="!item.not_deletable" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete Connection Profile?')" @on-delete="remove(item)" reverse/>
-          <b-button size="sm" variant="outline-primary" class="mr-1" :to="{ name: 'TODO' }">{{ $t('Preview') }}</b-button>
+          <b-button size="sm" variant="outline-primary" class="mr-1" :href="`/portal_preview/captive-portal?PORTAL=${item.id}`" target="_blank">{{ $t('Preview') }}</b-button>
           <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(item)">{{ $t('Clone') }}</b-button>
         </span>
       </template>
