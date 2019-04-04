@@ -335,6 +335,7 @@ post-auth {
 	#update {
 	#	&reply: += &session-state:
 	#}
+%%eduroam_post_auth%%
 	if (Realm == "eduroam") {
 		# Update the realm in the request so its consistent with the logic that will be performed in httpd.aaa
 		update request {

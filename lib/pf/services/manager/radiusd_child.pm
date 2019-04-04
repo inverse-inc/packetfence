@@ -368,6 +368,7 @@ EOT
         %tags = ();
         $tags{'template'} = "$conf_dir/raddb/sites-available/eduroam";
         $tags{'local_realm'} = '';
+        $tags{'eduroam_post_auth'} = '';
         $tags{'local_realm_acct'} = '        if (User-Name =~ /@/) {';
         my $found_acct = $FALSE;
         my @realms;
@@ -378,6 +379,9 @@ EOT
 EOT
         foreach my $realm ( @{$eduroam_authentication_source[0]{'local_realm'}} ) {
             if ($pf::config::ConfigRealm{$realm}->{'eduroam_radius_auth'} ) {
+                if (isenabled($pf::config::ConfigRealm{$realm}->{'eduroam_radius_auth_compute_in_pf'})) {
+                    push (@realms, "Realm == \"eduroam.$realm\"");
+                }
                 $tags{'local_realm'} .= '            if ( Realm == "'.$realm.'" ) {'."\n";
                 $tags{'local_realm'} .= <<"EOT";
                 update control {
@@ -420,6 +424,17 @@ EOT
             $tags{'reject_realm'} .= <<"EOT";
                 reject
             }
+EOT
+        }
+        if (@realms) {
+            $tags{'eduroam_post_auth'} .= '        if ( ';
+            $tags{'eduroam_post_auth'} .=  join(' || ', @realms);
+            $tags{'eduroam_post_auth'} .= ' ) {'."\n";
+            $tags{'eduroam_post_auth'} .= <<"EOT";
+                update request {
+                        Realm := "eduroam"
+                }
+        }
 EOT
         }
         parse_template( \%tags, "$conf_dir/radiusd/eduroam", "$install_dir/raddb/sites-available/eduroam" );
