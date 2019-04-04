@@ -39,8 +39,12 @@ export const pfConfigurationAttributesFromMeta = (meta = {}, key = null) => {
       let [ first, ...remainder ] = key.split('.')
       if (!(first in meta)) return {}
       key = remainder.join('.')
-      let { [first]: { properties: _meta } } = meta
-      meta = _meta // swap ref to child
+      let { [first]: { item: { properties: _collectionMeta } = {}, properties: _meta } } = meta
+      if (_collectionMeta) {
+        meta = _collectionMeta // swap ref to child
+      } else {
+        meta = _meta // swap ref to child
+      }
     }
     const { [key]: { allowed, allowed_lookup: allowedLookup, placeholder, type, item } = {} } = meta
     switch (type) {
@@ -62,12 +66,12 @@ export const pfConfigurationAttributesFromMeta = (meta = {}, key = null) => {
     if (placeholder) attrs.placeholder = placeholder
     if (allowedLookup) {
       attrs.listeners = { 'search-change': (query) => {
-        let q = new Promise((resolve, reject) => {
+        let promise = new Promise((resolve, reject) => {
           setTimeout(() => {
             resolve(`Test search done for "${query}"`)
           }, 1000)
         })
-        q.then((msg) => {
+        promise.then((msg) => {
           // eslint-disable-next-line
           console.debug(msg)
         })
@@ -98,8 +102,12 @@ export const pfConfigurationValidatorsFromMeta = (meta = {}, key = null, fieldNa
       let [ first, ...remainder ] = key.split('.')
       if (!(first in meta)) return {}
       key = remainder.join('.')
-      let { [first]: { properties: _meta } } = meta
-      meta = _meta // swap ref to child
+      let { [first]: { item: { properties: _collectionMeta } = {}, properties: _meta } } = meta
+      if (_collectionMeta) {
+        meta = _collectionMeta // swap ref to child
+      } else {
+        meta = _meta // swap ref to child
+      }
     }
     if (key in meta) {
       Object.keys(meta[key]).forEach(property => {
@@ -670,6 +678,18 @@ export const pfConfigurationViewFields = {
         }
       ]
     }
+  },
+  desc: {
+    label: i18n.t('Description'),
+    fields: [
+      {
+        key: 'desc',
+        component: pfFormInput,
+        validators: {
+          [i18n.t('Description required.')]: required
+        }
+      }
+    ]
   },
   description: {
     label: i18n.t('Description'),
