@@ -709,10 +709,6 @@ msgstr ""
 msgid "Amount of minutes for which the collector API query results are cached."
 msgstr ""
 
-# conf/documentation.conf (advanced.pfdns_processes)
-msgid "Amount of pfdns processes to start"
-msgstr ""
-
 # conf/documentation.conf (advanced.pffilter_processes)
 msgid "Amount of pffilter processes to start"
 msgstr ""
@@ -9779,10 +9775,6 @@ msgstr "Close locationlog on accounting stop"
 # conf/documentation.conf
 msgid "advanced.multihost"
 msgstr "Multihost"
-
-# conf/documentation.conf
-msgid "advanced.pfdns_processes"
-msgstr "pfdns Processes"
 
 # conf/documentation.conf
 msgid "advanced.pffilter_processes"

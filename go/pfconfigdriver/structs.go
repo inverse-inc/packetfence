@@ -448,7 +448,6 @@ type PfConfAdvanced struct {
 	PffilterProcesses                string `val:"pffilter_processes"`
 	UpdateIplogWithAccounting        string `val:"update_iplog_with_accounting"`
 	AdminCspSecurityHeaders          string `val:"admin_csp_security_headers"`
-	PfdnsProcesses                   string `val:"pfdns_processes"`
 	Multihost                        string `val:"multihost"`
 	SsoOnAccessReevaluation          string `val:"sso_on_access_reevaluation"`
 	VlanPoolTechnique                string `val:"vlan_pool_technique"`

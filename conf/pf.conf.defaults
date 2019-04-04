@@ -846,11 +846,6 @@ disable_pf_domain_auth=disabled
 # List of LDAP attributes that can be used in the sources configuration
 ldap_attributes=uid,cn,sAMAccountName,servicePrincipalName,UserPrincipalName,department,displayName,distinguishedName,givenName,memberOf,sn,eduPersonPrimaryAffiliation,mail,postOfficeBox,description,groupMembership
 #
-# advanced.pfdns_processes
-#
-# Amount of pfdns processes to start
-pfdns_processes=4
-#
 # advanced.pffilter_processes
 #
 # Amount of pffilter processes to start

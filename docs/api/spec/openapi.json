@@ -673,10 +673,6 @@
                         "description" : "Enables a Redis driven cache for NTLM authentication. In order for this to work, you need to setup proper NT hash syncronization between your PacketFence server and your AD.Refer to the Administration guide for more details.Applying this requires a restart of radiusd.",
                         "type" : "string"
                      },
-                     "pfdns_processes" : {
-                        "description" : "Amount of pfdns processes to start",
-                        "type" : "string"
-                     },
                      "pffilter_processes" : {
                         "description" : "Amount of pffilter processes to start",
                         "type" : "string"

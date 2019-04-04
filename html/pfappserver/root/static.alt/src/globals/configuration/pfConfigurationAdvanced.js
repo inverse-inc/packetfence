@@ -152,18 +152,6 @@ export const pfConfigurationAdvancedViewFields = (context = {}) => {
           ]
         },
         {
-          label: i18n.t('PFDNS Processes'),
-          text: i18n.t(`Amount of pfdns processes to start.`),
-          fields: [
-            {
-              key: 'pfdns_processes',
-              component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'pfdns_processes'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'pfdns_processes', 'Processes')
-            }
-          ]
-        },
-        {
           label: i18n.t('PFFilter Processes'),
           text: i18n.t(`Amount of pffilter processes to start.`),
           fields: [

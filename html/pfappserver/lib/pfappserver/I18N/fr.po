@@ -749,10 +749,6 @@ msgid ""
 "Amount of minutes for which the collector API query results are cached."
 msgstr "Nombre de minutes pour la conservation des données du collecteur dans l'antémémoire."
 
-# conf/documentation.conf (advanced.pfdns_processes)
-msgid "Amount of pfdns processes to start"
-msgstr "Nombre de processus pour pfdns à démarrer"
-
 # conf/documentation.conf (advanced.pffilter_processes)
 msgid "Amount of pffilter processes to start"
 msgstr "Nombre de processus pour pffilter à démarrer"
@@ -10012,10 +10008,6 @@ msgstr "RADIUS machine authentification avec un nom d'utilisateur"
 # conf/documentation.conf
 msgid "advanced.ntlm_redis_cache"
 msgstr "Cache Redis NTLM"
-
-# conf/documentation.conf
-msgid "advanced.pfdns_processes"
-msgstr "Processus PFDNS"
 
 # conf/documentation.conf
 msgid "advanced.pffilter_processes"
