@@ -596,10 +596,6 @@ const route = {
       props: (route) => ({ tab: 'user_agents', storeName: '$_fingerbank', query: route.query.query })
     },
 
-
-
-
-
     {
       path: 'scans',
       redirect: 'scans/scan_engines'

@@ -359,10 +359,6 @@ export default {
     return apiCall.delete(`fingerbank/local/combination/${id}`)
   },
 
-
-
-
-
   fingerbankDevices: params => {
     return apiCall.get(`fingerbank/all/devices`, { params }).then(response => {
       return response.data
