@@ -45,7 +45,7 @@ import pfButtonDelete from '@/components/pfButtonDelete'
 import pfMixinCtrlKey from '@/components/pfMixinCtrlKey'
 import pfMixinEscapeKey from '@/components/pfMixinEscapeKey'
 import {
-  pfConfigurationFingerbankCombinationsViewFields as fields
+  pfConfigurationFingerbankCombinationViewFields as fields
 } from '@/globals/configuration/pfConfigurationFingerbank'
 const { validationMixin } = require('vuelidate')
 

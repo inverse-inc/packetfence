@@ -358,9 +358,13 @@ export default {
   fingerbankDeleteCombination: id => {
     return apiCall.delete(`fingerbank/local/combination/${id}`)
   },
-
   fingerbankDevices: params => {
     return apiCall.get(`fingerbank/all/devices`, { params }).then(response => {
+      return response.data
+    })
+  },
+  fingerbankSearchDevices: body => {
+    return apiCall.post('fingerbank/all/devices/search', body).then(response => {
       return response.data
     })
   },
@@ -370,18 +374,19 @@ export default {
     })
   },
   fingerbankCreateDevice: data => {
-    return apiCall.post('config/TODO', data).then(response => {
+    return apiCall.post('fingerbank/local/devices', data).then(response => {
       return response.data
     })
   },
   fingerbankUpdateDevice: data => {
-    return apiCall.patch(`config/TODO/${data.id}`, data).then(response => {
+    return apiCall.patch(`fingerbank/local/device/${data.id}`, data).then(response => {
       return response.data
     })
   },
   fingerbankDeleteDevice: id => {
-    return apiCall.delete(`config/TODO/${id}`)
+    return apiCall.delete(`fingerbank/local/device/${id}`)
   },
+
   fingerbankDhcpFingerprints: params => {
     return apiCall.get(`config/TODO`, { params }).then(response => {
       return response.data

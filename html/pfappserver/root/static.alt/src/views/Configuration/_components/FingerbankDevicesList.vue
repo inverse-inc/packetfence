@@ -99,7 +99,6 @@ export default {
   },
   data () {
     return {
-      // devices: [], // all devices
       config: config(this),
       parentTree: []
     }

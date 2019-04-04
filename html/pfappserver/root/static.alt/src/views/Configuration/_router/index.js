@@ -51,6 +51,7 @@ const ConnectionProfileFileView = () => import(/* webpackChunkName: "Configurati
 const ComplianceSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/ComplianceSection')
 const FingerbankTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/FingerbankTabs')
 const FingerbankCombinationView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FingerbankCombinationView')
+const FingerbankDeviceView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FingerbankDeviceView')
 const FingerbankDhcpFingerprintView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FingerbankDhcpFingerprintView')
 const ScansTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/ScansTabs')
 const ScanEngineView = () => import(/* webpackChunkName: "Configuration" */ '../_components/ScanEngineView')
@@ -547,6 +548,34 @@ const route = {
       name: 'fingerbankDevicesByParentId',
       component: FingerbankTabs,
       props: (route) => ({ tab: 'devices', storeName: '$_fingerbank', query: route.query.query, parentId: route.params.parentId })
+    },
+    {
+      path: 'fingerbank/devices/new',
+      name: 'newFingerbankDevice',
+      component: FingerbankDeviceView,
+      props: (route) => ({ storeName: '$_fingerbank', isNew: true })
+    },
+    {
+      path: 'fingerbank/device/:id',
+      name: 'fingerbankDevice',
+      component: FingerbankDeviceView,
+      props: (route) => ({ storeName: '$_fingerbank', id: route.params.id }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_fingerbank/getDevice', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'fingerbank/device/:id/clone',
+      name: 'cloneFingerbankDevice',
+      component: FingerbankDeviceView,
+      props: (route) => ({ storeName: '$_fingerbank', id: route.params.id, isClone: true }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_fingerbank/getDevice', to.params.id).then(object => {
+          next()
+        })
+      }
     },
     {
       path: 'fingerbank/dhcp_fingerprints',
