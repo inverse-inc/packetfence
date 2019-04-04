@@ -118,7 +118,7 @@ sub form {
         return 422, "Invalid requests";
     }
 
-    my $form = $self->form_class->new(@$parameters, @args, user_roles => $c->stash->{'admin_roles'});
+    my $form = $self->form_class->new(@$parameters, @args, user_roles => $self->stash->{'admin_roles'});
     return 200, $form;
 }
 
