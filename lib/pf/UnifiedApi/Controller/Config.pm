@@ -20,6 +20,7 @@ use pf::UnifiedApi::GenerateSpec;
 use Mojo::Util qw(url_unescape);
 use pf::util qw(expand_csv);
 use pf::error qw(is_error);
+use pf::pfcmd::checkup ();
 
 has 'config_store_class';
 has 'form_class';
@@ -784,6 +785,23 @@ The form parameters should be overridded
 
 sub form_parameters {
     []
+}
+
+sub checkup {
+    my ($self) = @_;
+    $self->render(json => { items => [pf::pfcmd::checkup::sanity_check()] });
+}
+
+=head2 fix_permissions
+
+fix_permissions
+
+=cut
+
+sub fix_permissions {
+    my ($self) = @_;
+    my $result = pf::util::fix_files_permissions();
+    return $self->render(json => { message => $result });
 }
 
 =head1 AUTHOR

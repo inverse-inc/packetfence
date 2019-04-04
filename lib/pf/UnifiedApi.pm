@@ -224,6 +224,7 @@ sub setup_api_v1_config_routes {
     $self->setup_api_v1_config_firewalls_routes($root);
     $self->setup_api_v1_config_floating_devices_routes($root);
     $self->setup_api_v1_config_maintenance_tasks_routes($root);
+    $self->setup_api_v1_config_misc_routes($root);
     $self->setup_api_v1_config_interfaces_routes($root);
     $self->setup_api_v1_config_l2_networks_routes($root);
     $self->setup_api_v1_config_routed_networks_routes($root);
@@ -242,6 +243,19 @@ sub setup_api_v1_config_routes {
     $self->setup_api_v1_config_traffic_shaping_policies_routes($root);
     $self->setup_api_v1_config_wmi_rules_routes($root);
     return;
+}
+
+=head2 setup_api_v1_config_misc_routes
+
+setup_api_v1_config_misc_routes
+
+=cut
+
+sub setup_api_v1_config_misc_routes {
+    my ($self, $root) = @_;
+    $root->register_sub_action({ controller => 'Config', action => 'fix_permissions', method => 'POST' });
+    $root->register_sub_action({ controller => 'Config', action => 'checkup', method => 'GET' });
+    return ;
 }
 
 =head2 setup_api_v1_tenants_routes
@@ -735,8 +749,7 @@ sub setup_api_v1_config_bases_routes {
         "api.v1.Config.Bases"
     );
 
-    $self->add_subroutes($collection_route, "Config::Bases", "POST", qw(test_smtp fix_permissions));
-    $self->add_subroutes($collection_route, "Config::Bases", "GET", qw(checkup));
+    $root->register_sub_action({ action => 'test_smtp', method => 'POST'});
     return ($collection_route, $resource_route);
 }
 

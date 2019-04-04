@@ -24,7 +24,6 @@ has 'primary_key' => 'base_id';
 
 use pf::ConfigStore::Pf;
 use pf::config;
-use pf::pfcmd::checkup ();
 use pf::util;
 use pfappserver::Form::Config::Pf;
 
@@ -72,24 +71,6 @@ sub test_smtp {
     }
 
     return $self->render(json => { message => 'Testing SMTP success' });
-}
-
-sub checkup {
-    my ($self) = @_;
-    my @problems = pf::pfcmd::checkup::sanity_check();
-    $self->render(json => { items => \@problems });
-}
-
-=head2 fix_permissions
-
-fix_permissions
-
-=cut
-
-sub fix_permissions {
-    my ($self) = @_;
-    my $result = pf::util::fix_files_permissions();
-    return $self->render(json => { message => $result });
 }
 
 =head1 AUTHOR
