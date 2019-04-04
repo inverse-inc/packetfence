@@ -29,7 +29,7 @@
                 <span v-if="field.text" :key="field.index" :class="field.class">{{ field.text }}</span>
                 <component v-else-if="!('if' in field) || field.if"
                   v-bind="field.attrs"
-                  v-on="field.listeners"
+                  v-on="kebabCaseListeners(field.listeners)"
                   :key="field.key"
                   :is="field.component || defaultComponent"
                   :is-loading="isLoading"
@@ -232,6 +232,23 @@ export default {
           return fieldCount
         }, tabCount)
       }, 0)
+    },
+    kebabCaseListeners (listeners) {
+      if (listeners) {
+        let kebabedListeners = {}
+        Object.keys(listeners).forEach(key => {
+          let kebabKey = ''
+          key.split('').forEach((char, index) => {
+            if (index > 0 && char === char.toUpperCase()) {
+              kebabKey += '-' + char.toLowerCase()
+            } else {
+              kebabKey += char
+            }
+          })
+          kebabedListeners[kebabKey] = listeners[key]
+        })
+        return kebabedListeners
+      }
     }
   },
   watch: {
