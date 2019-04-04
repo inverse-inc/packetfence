@@ -22,6 +22,7 @@ use pf::UnifiedApi::GenerateSpec;
 use Mojo::JSON qw(encode_json);
 use pf::util qw(expand_csv isenabled);
 use pf::error qw(is_error);
+use pf::error qw(is_error is_success);
 use pf::pfcmd::checkup ();
 use pf::UnifiedApi::Search::Builder::Config;
 
@@ -310,7 +311,7 @@ sub get {
 
 sub item {
     my ($self, $id) = @_;
-    return $self->cleanup_item($self->item_from_store, $id);
+    return $self->cleanup_item($self->item_from_store($id));
 }
 
 sub id {
@@ -1067,6 +1068,64 @@ bulk_update
 
 sub bulk_update {
     my ($self) = @_;
+    return $self->bulk_action("bulk_update_callback");
+}
+
+=head2 bulk_update_callback
+
+bulk_update_callback
+
+=cut
+
+sub bulk_update_callback {
+    my ($self, $cs, $id, $item, $results) = @_;
+    my $old_item = $self->item($id);
+    my $new_item = {%$old_item, %$item};
+    $new_item->{id} = $id;
+    my ($status, $new_data) = $self->validate_item($new_item);
+    if (is_error($status)) {
+        %$results = (%$results, %$new_data);
+        return $status;
+    }
+
+    delete $new_data->{id};
+    if ($cs->update($id, $new_data)) {
+        return 200;
+    }
+
+    $results->{message} = "unable to update";
+    return 422;
+}
+
+=head2 bulk_delete
+
+bulk_delete
+
+=cut
+
+sub bulk_delete {
+    my ($self) = @_;
+    return $self->bulk_action("bulk_delete_callback");
+}
+
+=head2 bulk_delete_callback
+
+bulk_delete_callback
+
+=cut
+
+sub bulk_delete_callback {
+    my ($self, $cs, $id, $item, $results) = @_;
+    if ($cs->remove($id)) {
+        return 200;
+    }
+
+    $results->{message} = "unable to delete";
+    return 422;
+}
+
+sub bulk_action {
+    my ($self, $action) = @_;
     my ($error, $data) = $self->get_json;
     if (defined $error) {
         return $self->render_error( 400, "Bad Request : $error" );
@@ -1075,16 +1134,45 @@ sub bulk_update {
     my $items = $data->{items} // [];
     my $cs = $self->config_store;
     my @results;
+    my $i = 0;
+    my $success = 0;
     for my $item (@$items) {
-        my $id = $item->{id};    
+        my $id = delete $item->{id};
+        my %results = (
+            index  => $i,
+            id     => $id,
+            status => 200,
+        );
+
+        push @results, \%results;
+
         if (!defined $id) {
-            push @results , {status => 422, message => "$id is not found"};
+            $results{status} = 422;
+            $results{message} = "no id given";
             next;
         }
 
+        if (!$cs->hasId($id)) {
+            $results{status} = 422;
+            $results{message} = "'$id' is not found";
+            next;
+        }
+
+        my $status = $self->$action($cs, $id, $item, \%results);
+        if (is_success($status)) {
+            $success++;
+        }
+
+        $results{status} = $status;
+    } continue {
+        $i++;
     }
 
-    return;
+    if ($success) {
+        $cs->commit();
+    }
+
+    return $self->render(status => 200, json => { items => \@results });
 }
 
 =head2 form_parameters
