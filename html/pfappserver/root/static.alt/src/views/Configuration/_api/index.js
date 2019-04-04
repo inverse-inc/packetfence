@@ -318,6 +318,7 @@ export default {
       return response.data
     })
   },
+  /*
   fingerbankDeviceChangeDetection: params => {
     return apiCall.get(`config/TODO`, { params }).then(response => {
       return response.data.item
@@ -328,59 +329,64 @@ export default {
       return response.data
     })
   },
+  */
   fingerbankCombinations: params => {
     return apiCall.get(`fingerbank/all/combinations`, { params }).then(response => {
       return response.data
     })
   },
-  /*
-  fingerbankCombinationsOptions: () => {
-    return apiCall.options('config/fingerbank/all/combinations').then(response => {
+  fingerbankSearchCombinations: body => {
+    return apiCall.post('fingerbank/all/combinations/search', body).then(response => {
       return response.data
     })
   },
-  */
   fingerbankCombination: id => {
-    return apiCall.get(`config/fingerbank/all/combinations/${id}`).then(response => {
+    return apiCall.get(`fingerbank/all/combination/${id}`).then(response => {
       return response.data.item
     })
   },
   fingerbankCreateCombination: data => {
-    return apiCall.post('config/TODO', data).then(response => {
+    return apiCall.post('fingerbank/local/combinations', data).then(response => {
       return response.data
     })
   },
   fingerbankUpdateCombination: data => {
-    return apiCall.patch(`config/TODO/${data.id}`, data).then(response => {
+    return apiCall.patch(`fingerbank/local/combination/${data.id}`, data).then(response => {
       return response.data
     })
   },
   fingerbankDeleteCombination: id => {
-    return apiCall.delete(`config/TODO/${id}`)
+    return apiCall.delete(`fingerbank/local/combination/${id}`)
   },
   fingerbankDevices: params => {
-    return apiCall.get(`config/TODO`, { params }).then(response => {
+    return apiCall.get(`fingerbank/all/devices`, { params }).then(response => {
+      return response.data
+    })
+  },
+  fingerbankSearchDevices: body => {
+    return apiCall.post('fingerbank/all/devices/search', body).then(response => {
       return response.data
     })
   },
   fingerbankDevice: id => {
-    return apiCall.get(`config/TODO/${id}`).then(response => {
+    return apiCall.get(`fingerbank/all/device/${id}`).then(response => {
       return response.data.item
     })
   },
   fingerbankCreateDevice: data => {
-    return apiCall.post('config/TODO', data).then(response => {
+    return apiCall.post('fingerbank/local/devices', data).then(response => {
       return response.data
     })
   },
   fingerbankUpdateDevice: data => {
-    return apiCall.patch(`config/TODO/${data.id}`, data).then(response => {
+    return apiCall.patch(`fingerbank/local/device/${data.id}`, data).then(response => {
       return response.data
     })
   },
   fingerbankDeleteDevice: id => {
-    return apiCall.delete(`config/TODO/${id}`)
+    return apiCall.delete(`fingerbank/local/device/${id}`)
   },
+
   fingerbankDhcpFingerprints: params => {
     return apiCall.get(`config/TODO`, { params }).then(response => {
       return response.data

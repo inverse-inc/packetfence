@@ -8,18 +8,26 @@
         v-bind="$attrs"
         v-on="forwardListeners"
         ref="input"
+        :allow-empty="allowEmpty"
+        :clear-on-select="clearOnSelect"
         :disabled="disabled"
-        :show-labels="false"
-        :id="id"
-        :multiple="multiple"
-        :options="options"
-        :track-by="trackBy"
-        :label="label"
         :group-values="groupValues"
+        :id="id"
+        :internal-search="internalSearch"
+        :multiple="multiple"
+        :label="label"
+        :loading="loading"
+        :options="options"
+        :options-limit="optionsLimit"
+        :preserve-search="preserveSearch"
+        :searchable="searchable"
+        :show-labels="false"
         :state="isValid()"
+        :track-by="trackBy"
+        @change.native="onChange($event)"
         @input.native="validate()"
         @keyup.native.stop.prevent="onChange($event)"
-        @change.native="onChange($event)"
+        @search-change="searchChange"
         @open="focus = true"
         @close="focus = false"
       >
@@ -54,6 +62,12 @@ export default {
     value: {
       default: null
     },
+    // Add a proxy on our inputValue to modify set/get for simple external models.
+    // https://github.com/shentao/vue-multiselect/issues/385#issuecomment-418881148
+    clearOnSelect: {
+      type: Boolean,
+      default: false
+    },
     columnLabel: {
       type: String
     },
@@ -65,30 +79,11 @@ export default {
       type: String,
       default: null
     },
-    options: {
-      type: Array,
-      default: () => { return [] }
-    },
-    multiple: {
+    /* multiselect props */
+    allowEmpty: {
       type: Boolean,
       default: false
     },
-    id: {
-      type: String
-    },
-    trackBy: {
-      type: String,
-      default: 'value'
-    },
-    label: {
-      type: String,
-      default: 'text'
-    },
-    groupValues: {
-      type: String
-    },
-    // Add a proxy on our inputValue to modify set/get for simple external models.
-    // https://github.com/shentao/vue-multiselect/issues/385#issuecomment-418881148
     collapseObject: {
       type: Boolean,
       default: true
@@ -96,6 +91,51 @@ export default {
     disabled: {
       type: Boolean,
       default: false
+    },
+    groupValues: {
+      type: String
+    },
+    id: {
+      type: String
+    },
+    internalSearch: {
+      type: Boolean,
+      default: true
+    },
+    label: {
+      type: String,
+      default: 'text'
+    },
+    loading: {
+      type: Boolean,
+      default: false
+    },
+    multiple: {
+      type: Boolean,
+      default: false
+    },
+    options: {
+      type: Array,
+      default: () => { return [] }
+    },
+    optionsLimit: {
+      type: Number,
+      default: 100
+    },
+    preserveSearch: {
+      type: Boolean,
+      default: false
+    },
+    searchable: {
+      type: Boolean,
+      default: true
+    },
+    searchFunction: {
+      type: Function
+    },
+    trackBy: {
+      type: String,
+      default: 'value'
     }
   },
   data () {
@@ -134,6 +174,26 @@ export default {
     forwardListeners () {
       const { input, ...listeners } = this.$listeners
       return listeners
+    }
+  },
+  methods: {
+    searchChange (query) {
+      if (this.searchFunction) {
+        this.loading = true
+        Promise.resolve(this.searchFunction(query, this.options, this.value)).then(options => {
+          this.loading = false
+          this.options = options
+        }).catch(() => {
+          this.loading = false
+        })
+      }
+    }
+  },
+  watch: {
+    value: {
+      handler (a, b) {
+        this.searchChange(a) // prime the searchable cache with our current `value`
+      }
     }
   }
 }

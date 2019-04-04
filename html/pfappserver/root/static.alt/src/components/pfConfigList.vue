@@ -11,7 +11,7 @@
       @submit-search="onSearch"
       @reset-search="onReset"
     ></pf-search>
-    <div class="card-body">
+    <div class="card-body pt-0">
       <b-row align-h="end" align-v="start">
         <b-col>
           <slot name="buttonAdd"></slot>
@@ -135,6 +135,9 @@ export default {
   methods: {
     onRowClick (item, index) {
       this.$router.push(this.config.rowClickRoute(item, index))
+    },
+    resetSearch () {
+      this.$refs.pfSearch.onReset()
     },
     submitSearch () {
       this.$refs.pfSearch.onSubmit()

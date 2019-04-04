@@ -167,6 +167,16 @@ export const isDateFormat = (dateFormat, allowZero = true) => {
   })
 }
 
+export const isFingerbankDevice = (value) => {
+  if (!value) return true
+  return /^([0-9A-F]{3})$/i.test(value)
+}
+
+export const isFingerprint = (value) => {
+  if (!value) return true
+  return /^(((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?),)?)+(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(value)
+}
+
 export const isFQDN = (value) => {
   if (!value) return true
   const parts = value.split('.')
@@ -196,6 +206,23 @@ export const isFQDN = (value) => {
 export const isHex = (value) => {
   if (!value) return true
   return /^[0-9a-f]+$/i.test(value)
+}
+
+export const isOUI = (separator = ':') => {
+  return (0, _common.withParams)({
+    type: 'isOUI',
+    separator: separator
+  }, function (value) {
+    if (!value) return true
+    if (separator === '') {
+      return /^([0-9A-F]{6})$/i.test(value)
+    } else {
+      value.split(separator).forEach(segment => {
+        if (!/^([0-9A-F]{2})$/i.test(segment)) return false
+      })
+      return true
+    }
+  })
 }
 
 export const isPattern = (pattern) => {
@@ -562,6 +589,15 @@ export const interfaceVlanExists = (id) => {
     }).catch(() => {
       return true
     })
+  })
+}
+
+export const fingerbankCombinationExists = (value, component) => {
+  if (!value) return true
+  return store.dispatch('fingerbank/getCombination', value).then(() => {
+    return true
+  }).catch(() => {
+    return false
   })
 }
 

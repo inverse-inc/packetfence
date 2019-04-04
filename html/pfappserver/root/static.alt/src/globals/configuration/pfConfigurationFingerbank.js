@@ -1,6 +1,8 @@
 import i18n from '@/utils/locale'
+import api from '@/views/Configuration/_api'
+import pfFormChosen from '@/components/pfFormChosen'
 import pfFormInput from '@/components/pfFormInput'
-import pfFormToggle from '@/components/pfFormToggle'
+import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import {
   pfConfigurationAttributesFromMeta,
   pfConfigurationValidatorsFromMeta
@@ -8,12 +10,18 @@ import {
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
   and,
-  isHex
+  isHex,
+  isFingerprint,
+  isFingerbankDevice,
+  isOUI
 } from '@/globals/pfValidators'
 
 const {
+  integer,
   required,
-  maxLength
+  maxLength,
+  minValue,
+  maxValue
 } = require('vuelidate/lib/validators')
 
 /**
@@ -71,7 +79,7 @@ export const pfConfigurationFingerbankGeneralSettingsViewFields = (context = {})
           fields: [
             {
               key: 'upstream.use_https',
-              component: pfFormToggle,
+              component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
               }
@@ -132,7 +140,7 @@ export const pfConfigurationFingerbankGeneralSettingsViewFields = (context = {})
           fields: [
             {
               key: 'collector.use_https',
-              component: pfFormToggle,
+              component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
               }
@@ -157,7 +165,7 @@ export const pfConfigurationFingerbankGeneralSettingsViewFields = (context = {})
           fields: [
             {
               key: 'collector.arp_lookup',
-              component: pfFormToggle,
+              component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
               }
@@ -206,7 +214,7 @@ export const pfConfigurationFingerbankGeneralSettingsViewFields = (context = {})
           fields: [
             {
               key: 'query.record_unmatched',
-              component: pfFormToggle,
+              component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
               }
@@ -219,7 +227,7 @@ export const pfConfigurationFingerbankGeneralSettingsViewFields = (context = {})
           fields: [
             {
               key: 'proxy.use_proxy',
-              component: pfFormToggle,
+              component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
               }
@@ -256,7 +264,7 @@ export const pfConfigurationFingerbankGeneralSettingsViewFields = (context = {})
           fields: [
             {
               key: 'proxy.verify_ssl',
-              component: pfFormToggle,
+              component: pfFormRangeToggle,
               attrs: {
                 values: { checked: 'enabled', unchecked: 'disabled' }
               }
@@ -266,30 +274,6 @@ export const pfConfigurationFingerbankGeneralSettingsViewFields = (context = {})
       ]
     }
   ]
-}
-
-export const pfConfigurationFingerbankGeneralSettingsViewDefaults = (context = {}) => {
-  return {
-    upstream: {
-      host: 'api.fingerbank.org',
-      port: 443,
-      use_https: 'enabled',
-      db_path: '/api/v2/download/db',
-      sqlite_db_retention: 2
-    },
-    collector: {
-      host: '127.0.0.1',
-      port: 4723,
-      use_https: 'enabled',
-      inactive_endpoints_expiration: 168,
-      query_cache_time: 1440,
-      db_persistence_interval: 60,
-      cluster_resync_interval: 120
-    },
-    proxy: {
-      verify_ssl: 'enabled'
-    }
-  }
 }
 
 /**
@@ -323,6 +307,9 @@ export const pfConfigurationFingerbankDeviceChangeDetectionViewDefaults = (conte
   return {}
 }
 
+/**
+ * Combinations
+ */
 export const pfConfigurationFingerbankCombinationsListColumns = [
   {
     key: 'id',
@@ -379,9 +366,9 @@ export const pfConfigurationFingerbankCombinationsListConfig = (context = {}) =>
     columns: pfConfigurationFingerbankCombinationsListColumns,
     fields: pfConfigurationFingerbankCombinationsListFields,
     rowClickRoute (item, index) {
-      return { name: 'combination', params: { id: item.id } }
+      return { name: 'fingerbankCombination', params: { id: item.id } }
     },
-    searchPlaceholder: i18n.t('Search by identifier'),
+    searchPlaceholder: i18n.t('Search by identifier or device'),
     searchableOptions: {
       searchApiEndpoint: `fingerbank/${scope}/combinations`,
       defaultSortKeys: ['id'],
@@ -403,7 +390,8 @@ export const pfConfigurationFingerbankCombinationsListConfig = (context = {}) =>
           {
             op: 'or',
             values: [
-              { field: 'id', op: 'contains', value: quickCondition }
+              { field: 'id', op: 'contains', value: quickCondition },
+              { field: 'device_id', op: 'equals', value: quickCondition }
             ]
           }
         ]
@@ -412,12 +400,216 @@ export const pfConfigurationFingerbankCombinationsListConfig = (context = {}) =>
   }
 }
 
+export const pfConfigurationFingerbankCombinationViewFields = (context = {}) => {
+  const {
+    isNew = false,
+    isClone = false
+  } = context
+  return [
+    {
+      tab: null, // ignore tabs
+      fields: [
+        {
+          if: (!isNew && !isClone),
+          label: i18n.t('Identifier'),
+          fields: [
+            {
+              key: 'id',
+              component: pfFormInput,
+              attrs: {
+                disabled: true
+              }
+            }
+          ]
+        },
+        {
+          label: i18n.t('DHCP Fingerprint'),
+          fields: [
+            {
+              key: 'dhcp_fingerprint_id',
+              component: pfFormInput,
+              validators: {
+                [i18n.t('Invalid Fingerprint.')]: isFingerprint
+              }
+            }
+          ]
+        },
+        {
+          label: i18n.t('DHCP Vendor'),
+          fields: [
+            {
+              key: 'dhcp_vendor_id',
+              component: pfFormInput,
+              attrs: {
+                type: 'number',
+                step: 1
+              },
+              validators: {
+                [i18n.t('Integers only.')]: integer
+              }
+            }
+          ]
+        },
+        {
+          label: i18n.t('DHCPv6 Fingerprint'),
+          fields: [
+            {
+              key: 'dhcp6_fingerprint_id',
+              component: pfFormInput,
+              validators: {
+                [i18n.t('Invalid Fingerprint.')]: isFingerprint
+              }
+            }
+          ]
+        },
+        {
+          label: i18n.t('DHCPv6 Enterprise'),
+          fields: [
+            {
+              key: 'dhcp6_enterprise_id',
+              component: pfFormInput,
+              validators: {
+                [i18n.t('Integers only.')]: integer
+              }
+            }
+          ]
+        },
+        {
+          label: i18n.t('MAC Vendor (OUI)'),
+          fields: [
+            {
+              key: 'mac_vendor_id',
+              component: pfFormInput,
+              validators: {
+                [i18n.t('Invalid OUI.')]: isOUI('')
+              }
+            }
+          ]
+        },
+        {
+          label: i18n.t('User Agent'),
+          fields: [
+            {
+              key: 'user_agent_id',
+              component: pfFormInput,
+              attrs: {
+                type: 'number',
+                step: 1
+              },
+              validators: {
+                [i18n.t('Integers only.')]: integer
+              }
+            }
+          ]
+        },
+        {
+          label: i18n.t('Device'),
+          fields: [
+            {
+              key: 'device_id',
+              component: pfFormInput,
+              attrs: {
+                type: 'number',
+                step: 1
+              },
+              validators: {
+                [i18n.t('Device required.')]: required,
+                [i18n.t('Invalid Device.')]: isFingerbankDevice
+              }
+            }
+          ]
+        },
+        {
+          label: i18n.t('Version'),
+          fields: [
+            {
+              key: 'version',
+              component: pfFormInput,
+              attrs: {
+                type: 'number',
+                step: 1
+              },
+              validators: {
+                [i18n.t('Integers only.')]: integer
+              }
+            }
+          ]
+        },
+        {
+          label: i18n.t('Score'),
+          fields: [
+            {
+              key: 'score',
+              component: pfFormInput,
+              attrs: {
+                type: 'number',
+                step: 1
+              },
+              validators: {
+                [i18n.t('Score required.')]: required,
+                [i18n.t('Integers only.')]: integer,
+                [i18n.t('Invalid Score.')]: and(minValue(0), maxValue(100))
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+
+/**
+ * Devices
+ */
 export const pfConfigurationFingerbankDevicesListColumns = [
   {
     key: 'id',
     label: i18n.t('Identifier'),
     sortable: true,
     visible: true
+  },
+  {
+    key: 'name',
+    label: i18n.t('Name'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'mobile',
+    label: i18n.t('Mobile'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'tablet',
+    label: i18n.t('Tablet'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'created_at',
+    label: i18n.t('Created'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'updated_at',
+    label: i18n.t('Updated'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'approved',
+    label: i18n.t('Approved'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'buttons',
+    label: '',
+    sortable: false,
+    visible: true,
+    locked: true
   }
 ]
 
@@ -430,43 +622,181 @@ export const pfConfigurationFingerbankDevicesListFields = [
 ]
 
 export const pfConfigurationFingerbankDevicesListConfig = (context = {}) => {
+  const {
+    scope = 'all',
+    parentId = null
+  } = context
   return {
     columns: pfConfigurationFingerbankDevicesListColumns,
     fields: pfConfigurationFingerbankDevicesListFields,
     rowClickRoute (item, index) {
-      return { name: 'device', params: { id: item.id } }
+      return { name: 'fingerbankDevice', params: { id: item.id } }
     },
     searchPlaceholder: i18n.t('Search by identifier or description'),
     searchableOptions: {
-      searchApiEndpoint: 'config/TODO',
+      searchApiEndpoint: `fingerbank/${scope}/devices`, // `./search` automatically appended
+      searchApiEndpointOnly: true, // always use `/search` endpoint
       defaultSortKeys: ['id'],
       defaultSearchCondition: {
         op: 'and',
-        values: [{
-          op: 'or',
-          values: [
-            { field: 'id', op: 'contains', value: null }
-          ]
-        }]
+        values: [
+          ...((parentId)
+            ? [{ op: 'or', values: [{ field: 'parent_id', op: 'equals', value: parentId }] }]
+            : []
+          ),
+          {
+            op: 'or',
+            values: [
+              { field: 'id', op: 'contains', value: null }
+            ]
+          }
+        ]
       },
-      defaultRoute: { name: 'profilingDevices' }
+      defaultRoute: { name: 'fingerbankDevices' }
     },
     searchableQuickCondition: (quickCondition) => {
       return {
         op: 'and',
         values: [
-          {
-            op: 'or',
-            values: [
-              { field: 'id', op: 'contains', value: quickCondition }
-            ]
-          }
+          ...((parentId)
+            ? [{ op: 'or', values: [{ field: 'parent_id', op: 'equals', value: parentId }] }]
+            : []
+          ),
+          ...((quickCondition.trim())
+            ? [{
+              op: 'or',
+              values: [
+                { field: 'id', op: 'contains', value: quickCondition.trim() },
+                { field: 'name', op: 'contains', value: quickCondition.trim() }
+              ]
+            }]
+            : []
+          )
         ]
       }
     }
   }
 }
 
+export const pfConfigurationFingerbankDeviceViewFields = (context = {}) => {
+  const {
+    isNew = false,
+    isClone = false
+  } = context
+
+  return [
+    {
+      tab: null, // ignore tabs
+      fields: [
+        {
+          if: (!isNew && !isClone),
+          label: i18n.t('Identifier'),
+          fields: [
+            {
+              key: 'id',
+              component: pfFormInput,
+              attrs: {
+                disabled: true
+              }
+            }
+          ]
+        },
+        {
+          label: i18n.t('Name'),
+          fields: [
+            {
+              key: 'name',
+              component: pfFormInput,
+              validators: {
+                [i18n.t('Name required.')]: required
+              }
+            }
+          ]
+        },
+        {
+          label: i18n.t('Parent device'),
+          fields: [
+            {
+              key: 'parent_id',
+              component: pfFormChosen,
+              attrs: {
+                collapseObject: true,
+                placeholder: i18n.t('Type to search'),
+                trackBy: 'value',
+                label: 'text',
+                searchable: true,
+                internalSearch: false,
+                preserveSearch: true,
+                clearOnSelect: false,
+                allowEmpty: false,
+                optionsLimit: 100,
+                searchFunction: (query, currentOptions, currentValue) => {
+                  // on the first iteration query and cache our currentValue,
+                  //  on subsequent iterations push our cache to the top of options list
+                  //  in order to prevent the option from resetting.
+                  const queryTrim = `${query}`.trim() // could be INT
+                  if (!queryTrim) return []
+                  const currentOption = currentOptions.find(option => option.value === currentValue) // cache current `value`
+                  let values = []
+                  if (queryTrim) {
+                    values.push({ field: 'id', op: 'equals', value: queryTrim })
+                  }
+                  if (currentOption) { // subsequent iterations only
+                    values.push({ field: 'name', op: 'contains', value: queryTrim })
+                  }
+                  const params = {
+                    query: { op: 'and', values: [{ op: 'or', values: values }] },
+                    fields: ['id', 'name'],
+                    sort: ['name'],
+                    cursor: 0,
+                    limit: 100
+                  }
+                  return api.fingerbankSearchDevices(params).then(response => {
+                    let tmp = [
+                      ...((currentOption) ? [currentOption] : []), // always (try to) include the original `parent_id` in the options
+                      ...response.items
+                        .map(item => { return { value: item.id, text: item.name } })
+                        .filter(item => JSON.stringify(item) !== JSON.stringify(currentOption)) // skip dupes
+                    ]
+                    return tmp
+                  })
+                }
+              }
+            }
+          ]
+        },
+        {
+          label: i18n.t('Mobile'),
+          fields: [
+            {
+              key: 'mobile',
+              component: pfFormRangeToggle,
+              attrs: {
+                values: { checked: '1', unchecked: '0' }
+              }
+            }
+          ]
+        },
+        {
+          label: i18n.t('Tablet'),
+          fields: [
+            {
+              key: 'tablet',
+              component: pfFormRangeToggle,
+              attrs: {
+                values: { checked: '1', unchecked: '0' }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+
+/**
+ * DHCP Fingerprints
+ */
 export const pfConfigurationFingerbankDhcpFingerprintsListColumns = [
   {
     key: 'id',
@@ -522,6 +852,9 @@ export const pfConfigurationFingerbankDhcpFingerprintsListConfig = (context = {}
   }
 }
 
+/**
+ * DHCP Vendors
+ */
 export const pfConfigurationFingerbankDhcpVendorsListColumns = [
   {
     key: 'id',
@@ -577,6 +910,9 @@ export const pfConfigurationFingerbankDhcpVendorsListConfig = (context = {}) => 
   }
 }
 
+/**
+ * DHCPv6 Fingerprints
+ */
 export const pfConfigurationFingerbankDhcpv6FingerprintsListColumns = [
   {
     key: 'id',
@@ -632,6 +968,9 @@ export const pfConfigurationFingerbankDhcpv6FingerprintsListConfig = (context = 
   }
 }
 
+/**
+ * DHCP Enterprises
+ */
 export const pfConfigurationFingerbankDhcpv6EnterprisesListColumns = [
   {
     key: 'id',
@@ -687,6 +1026,9 @@ export const pfConfigurationFingerbankDhcpv6EnterprisesListConfig = (context = {
   }
 }
 
+/**
+ * MAC Vendors
+ */
 export const pfConfigurationFingerbankMacVendorsListColumns = [
   {
     key: 'id',
@@ -742,6 +1084,9 @@ export const pfConfigurationFingerbankMacVendorsListConfig = (context = {}) => {
   }
 }
 
+/**
+ * User Agents
+ */
 export const pfConfigurationFingerbankUserAgentsListColumns = [
   {
     key: 'id',
