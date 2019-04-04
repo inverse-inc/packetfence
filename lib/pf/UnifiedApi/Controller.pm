@@ -17,6 +17,7 @@ use warnings;
 use Mojo::Base 'Mojolicious::Controller';
 use pf::error qw(is_error);
 use JSON::MaybeXS qw();
+use pf::admin_roles;
 has activity_timeout => 300;
 has 'openapi_generator_class' => undef;
 
@@ -102,6 +103,11 @@ sub json_true {
 
 sub json_false {
     return do { bless \(my $dummy = 0), "JSON::PP::Boolean" };
+}
+
+sub _get_allowed_options {
+    my ($self, $option) = @_;
+    return admin_allowed_options($self->stash->{user_roles}, $option);
 }
 
 =head1 AUTHOR

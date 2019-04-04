@@ -115,6 +115,7 @@ sub before_dispatch_cb {
     my ($c) = @_;
     # To allow dispatching with encoded slashes
     $c->stash->{path} = $c->req->url->path;
+    $c->stash->{'admin_roles'} = [split(/\s*,\s*/, $c->req->headers->header('X-PacketFence-Admin-Roles') // '')];
     set_tenant_id($c)
 }
 
