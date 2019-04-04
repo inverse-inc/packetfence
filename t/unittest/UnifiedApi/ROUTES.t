@@ -28,21 +28,26 @@ use List::Util qw(sum);
 my $app = pf::UnifiedApi->new;
 
 my $meta = walkRootRoutes($app->routes);
-use Test::More;
 
 #This test will running last
+use Test::More;
 use Test::NoWarnings;
-my @controllers = keys %{$meta->{controllers}};
 
-plan tests => scalar @controllers + 1 + sum (map { scalar @{$_->{actions}} } values %{$meta->{controllers}});
+my @controllers = keys %{$meta->{controllers}};
+my $actions = $meta->{actions};
+plan tests => scalar @controllers + 1 + scalar @$actions;
+
 
 for my $c (@controllers) {
     use_ok("pf::UnifiedApi::Controller::$c");
 }
 
-while (my ($c, $m) = each %{$meta->{controllers}}) {
-    for my $a (@{$m->{actions}}) {
-        ok("pf::UnifiedApi::Controller::$c"->can($a), "pf::UnifiedApi::Controller::${c}->$a exists");
+for my $a (@$actions) {
+    my ($controller, $action, $name) = @{$a}{qw(controller action name)};
+    if ($controller) {
+        ok("pf::UnifiedApi::Controller::$controller"->can($action), "pf::UnifiedApi::Controller::${controller}->$action exists");
+    } else {
+        fail("Name[" . ($name // "(undef)") . "]: An action ($action) is defined but it has no controller");
     }
 }
 
@@ -84,14 +89,12 @@ sub walk {
         $parent = $parent->parent;
     }
 
-    if (defined $action && !defined $controller) {
-        die (($route->name // "undef") . ": An action ($action) is defined but it has no controller");
+    if ($controller) {
+        $meta->{controllers}{$controller} = 1;
     }
 
-    if ( $controller ) {
-        if ($action) {
-            push @{$meta->{controllers}{$controller}{actions}}, $action;
-        }
+    if ($action) {
+        push @{$meta->{actions}}, {controller => $controller, action => $action, name => $route->name};
     }
 
     my $children = $route->children;
