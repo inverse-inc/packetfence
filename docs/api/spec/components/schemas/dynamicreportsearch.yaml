@@ -1,0 +1,34 @@
+DynamicReportSearch:
+  type: object
+  properties:
+    fields:
+      type: string
+      description: Comma delimited fields that should be added to the resource by performing joins. For example, in order to get the IP address of a node when calling the nodes endpoints, setting 'ip4log.ip' into this field will provide the latest IP address of the device in the 'ip4log.ip' field of every node that is returned.
+    limit:
+      type: string
+      description: The maximum amount of entries to get.
+    sort:
+      type: string
+      description: "A list of fields to sort on along with the ordering way (ASC or DESC)."
+    cursor:
+      type: string
+      description: "The cursor pointer to fetch the data (value should be taken from previousCursor and nextCursor)"
+    query:
+      $ref: '#/components/schemas/Query'
+
+DynamicReportSearchResult:
+  type: object
+  properties:
+    previousCursor:
+      description: The cursor to access the data before the one returned in the response
+      type: integer
+    nextCursor:
+      description: The cursor to access the data after the one returned in the response
+      type: integer
+    items:
+      description: Items
+      items:
+        type: object
+      type: array
+    type: object
+

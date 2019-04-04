@@ -33,6 +33,10 @@ var pathAdminRolesMap = []adminRoleMapping{
 	adminRoleMapping{prefix: apiPrefix + "/user/", role: "USERS"},
 	adminRoleMapping{prefix: apiPrefix + "/users", role: "USERS"},
 
+	adminRoleMapping{prefix: apiPrefix + "/reports/", role: "REPORTS"},
+	adminRoleMapping{prefix: apiPrefix + "/dynamic_reports", role: "REPORTS"},
+	adminRoleMapping{prefix: apiPrefix + "/dynamic_report/", role: "REPORTS"},
+
 	adminRoleMapping{prefix: configApiPrefix + "/admin_role/", role: "ADMIN_ROLES"},
 	adminRoleMapping{prefix: configApiPrefix + "/admin_roles", role: "ADMIN_ROLES"},
 	adminRoleMapping{prefix: configApiPrefix + "/base/", role: "CONFIGURATION_MAIN"},

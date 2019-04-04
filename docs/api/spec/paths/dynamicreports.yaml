@@ -1,0 +1,68 @@
+/dynamic_reports:
+  get:
+    description: Get all the dynamic reports
+    operationId: api.v1.DynamicReports.list
+    parameters:
+    - in: path
+      name: report_id
+      schema:
+        type: string
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              description: Item
+              properties:
+                items:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/DynamicReport'
+              type: object
+        description: Get item
+
+/dynamic_report/{report_id}:
+  get:
+    description: Get a dynamic report
+    operationId: api.v1.DynamicReports.resource.get
+    parameters:
+    - in: path
+      name: report_id
+      schema:
+        type: string
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              description: Item
+              properties:
+                item:
+                  $ref: '#/components/schemas/DynamicReport'
+              type: object
+        description: Get item
+      '404':
+        $ref: '#/components/responses/NotFound'
+
+/dynamic_report/{report_id}/search:
+  description: Search through a dynamic report
+  post:
+    operationId: api.v1.DynamicReports.resource.search
+    parameters: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/DynamicReportSearch'
+      description: Search for items
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DynamicReportSearchResult'
+        description: List
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
