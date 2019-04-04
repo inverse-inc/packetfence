@@ -87,6 +87,7 @@ sub list {
         );
     }
 
+    $response->{items} = [map { $self->cleanup_item($_) } @{$response->{items}}];
     return $self->render(json => $response);
 }
 
@@ -169,7 +170,7 @@ sub build_list_search_info {
 
 sub get {
     my ($self) = @_;
-    return $self->render(json => { item => $self->item, scope => lc($self->stash->{scope})});
+    return $self->render(json => { item => $self->cleanup_item($self->item), scope => lc($self->stash->{scope})});
 }
 
 =head2 search
@@ -194,10 +195,21 @@ sub search {
         );
     }
 
+    $response->{items} = [map { $self->cleanup_item($_) } @{$response->{items}}];
     return $self->render(
         json   => $response,
         status => $status
     );
+}
+
+sub cleanup_item {
+    my ($self, $item) = @_;
+    my %new_item;
+    while (my ($k, $v) = each %$item) {
+        $new_item{$k} = defined $v ? "$v" : undef;
+    }
+
+    return \%new_item;
 }
 
 sub build_search_info {
