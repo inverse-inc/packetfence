@@ -56,7 +56,6 @@ sub radiusDisconnect {
         my $roleResolver = pf::roles::custom->instance();
         my $role = $roleResolver->getRoleForNode($mac, $self);
 
-        my $acctsessionid = node_accounting_current_sessionid($mac);
         my $node_info = node_attributes($mac);
         # transforming MAC to the expected format 00-11-22-33-CA-FE
         $mac = lc($mac);
@@ -67,7 +66,6 @@ sub radiusDisconnect {
             'Calling-Station-Id' => $mac,
             'User-Name' => $mac,
             'NAS-IP-Address' => $send_disconnect_to,
-            'Acct-Session-Id' => $acctsessionid,
         };
         # merging additional attributes provided by caller to the standard attributes
         $attributes_ref = { %$attributes_ref, %$add_attributes_ref };
@@ -108,7 +106,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 
