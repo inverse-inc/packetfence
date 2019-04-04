@@ -372,9 +372,9 @@ sub create {
         return $self->render_error(409, "An attempt to add a duplicate entry was stopped. Entry already exists and should be modified instead of created");
     }
 
-    $item = $self->validate_item($item);
-    if (!defined $item) {
-        return 0;
+    (my $status, $item) = $self->validate_item($item);
+    if (is_error($status)) {
+        $self->render(status => $status, json => $item);
     }
 
     delete $item->{id};
@@ -404,17 +404,15 @@ sub validate_item {
     my ($self, $item) = @_;
     my ($status, $form) = $self->form($item);
     if (is_error($status)) {
-        $self->render_error(422, $form // "Unable to validate invalid formater");
-        return undef;
+        return $status, { message => "Unable to validate invalid no valid formater"};
     }
 
     $form->process($self->form_process_parameters_for_validation($item));
     if (!$form->has_errors) {
-        return $form->value;
+        return 200, $form->value;
     }
 
-    $self->render_error(422, "Unable to validate", $self->format_form_errors($form));
-    return undef;
+    return 422, { message => "Unable to validate", errors => $self->format_form_errors($form) };
 }
 
 
@@ -475,10 +473,11 @@ sub update {
     my $id = $self->id;
     $new_item->{id} = $id;
     delete $new_item->{not_deletable};
-    $new_data = $self->validate_item($new_item);
-    if (!defined $new_data) {
-        return;
+    (my $status, $new_data) = $self->validate_item($new_item);
+    if (is_error($status)) {
+        return $self->render(status => $status, $new_data);
     }
+
     delete $new_data->{id};
     my $cs = $self->config_store;
     $cs->update($id, $new_data);
