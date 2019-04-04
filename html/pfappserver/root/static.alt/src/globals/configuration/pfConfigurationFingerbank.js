@@ -642,7 +642,6 @@ export const pfConfigurationFingerbankDevicesListConfig = (context = {}) => {
     scope = 'all',
     parentId = null
   } = context
-console.log('parentId', parentId)
   return {
     columns: pfConfigurationFingerbankDevicesListColumns,
     fields: pfConfigurationFingerbankDevicesListFields,
@@ -651,35 +650,46 @@ console.log('parentId', parentId)
     },
     searchPlaceholder: i18n.t('Search by identifier or description'),
     searchableOptions: {
-      searchApiEndpoint: `fingerbank/${scope}/devices`,
+      searchApiEndpoint: `fingerbank/${scope}/devices`, // `./search` automatically appended
+      searchApiEndpointOnly: true, // always use `/search` endpoint
       defaultSortKeys: ['id'],
-      defaultSearchCondition: ((parentId)
-        ? { op: 'and', values: [
-            { op: 'or', values: [{ field: 'parent_id', op: 'equals', value: parentId }] },
-            { op: 'or', values: [{ field: 'id', op: 'contains', value: null }] }
-          ]}
-        : { op: 'and', values: [
-            { op: 'or', values: [{ field: 'id', op: 'contains', value: null }] }
-          ]}
-      ),
+      defaultSearchCondition: {
+        op: 'and',
+        values: [
+          ...((parentId)
+            ? [{ op: 'or', values: [{ field: 'parent_id', op: 'equals', value: parentId }] }]
+            : []
+          ),
+          {
+            op: 'or',
+            values: [
+              { field: 'id', op: 'contains', value: null }
+            ]
+          }
+        ]
+      },
       defaultRoute: { name: 'fingerbankDevices' }
     },
     searchableQuickCondition: (quickCondition) => {
-      return ((parentId)
-        ? { op: 'and', values: [
-            { op: 'or', values: [{ field: 'parent_id', op: 'equals', value: parentId }] },
-            { op: 'or', values: [
-              { field: 'id', op: 'equals', value: quickCondition },
-              { field: 'name', op: 'contains', value: quickCondition }
-            ]}
-          ]}
-        : { op: 'and', values: [
-            { op: 'or', values: [
-              { field: 'id', op: 'equals', value: quickCondition },
-              { field: 'name', op: 'contains', value: quickCondition }
-            ]}
-          ]}
-      )
+      return {
+        op: 'and',
+        values: [
+          ...((parentId)
+            ? [{ op: 'or', values: [{ field: 'parent_id', op: 'equals', value: parentId }] }]
+            : []
+          ),
+          ...((quickCondition.trim())
+            ? [{
+              op: 'or',
+              values: [
+                { field: 'id', op: 'contains', value: quickCondition.trim() },
+                { field: 'name', op: 'contains', value: quickCondition.trim() }
+              ]
+            }]
+            : []
+          )
+        ]
+      }
     }
   }
 }

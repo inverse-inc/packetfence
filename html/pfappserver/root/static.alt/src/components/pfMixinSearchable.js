@@ -16,6 +16,7 @@
  *            type: Object,
  *            default: {
  *              searchApiEndpoint: 'users',
+ *              searchApiEndpointOnly: false,
  *              defaultSortKeys: ['pid'],
  *              defaultSearchCondition: { op: 'and', values: [{ op: 'or', values: [{ field: 'pid', op: null, value: null }] }] },
  *              defaultRoute: { name: 'user' }
@@ -46,6 +47,7 @@ export default {
     searchableOptions: {
       type: Object,
       default: {
+        searchApiEndpointOnly: false,
         defaultSearchCondition: () => {
           return { op: 'and', values: [{ op: 'or', values: [{ field: null, op: null, value: null }] }] }
         }
@@ -280,7 +282,7 @@ export default {
   },
   mounted () {
     // called after the component's mounted function.
-    if (JSON.stringify(this.condition) === JSON.stringify(this.searchableOptions.defaultSearchCondition)) {
+    if (!this.searchableOptions.searchApiEndpointOnly && JSON.stringify(this.condition) === JSON.stringify(this.searchableOptions.defaultSearchCondition)) {
       // query all w/o criteria
       this.$store.dispatch(`${this.searchableStoreName}/setSearchQuery`, null)
     } else {

@@ -132,7 +132,6 @@ export default {
         if (ctrlKey) { // [CTRL] key pressed
           this.close()
         } else {
-console.log(response)
           this.$router.push({ name: 'fingerbankCombination', params: { id: this.form.id } })
         }
       })
