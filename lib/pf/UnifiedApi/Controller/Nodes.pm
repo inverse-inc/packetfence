@@ -439,6 +439,17 @@ sub bulk_apply_bypass_role {
     return $self->do_bulk_update_field('bypass_role_id');
 }
 
+=head2 bulk_apply_bypass_vlan
+
+bulk update bypass_vlan
+
+=cut
+
+sub bulk_apply_bypass_vlan {
+    my ($self) = @_;
+    return $self->do_bulk_update_field('bypass_vlan');
+}
+
 =head2 do_bulk_update_field
 
 do_bulk_update_field

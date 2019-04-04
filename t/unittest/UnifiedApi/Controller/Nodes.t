@@ -30,7 +30,7 @@ BEGIN {
 
 #insert known data
 #run tests
-use Test::More tests => 57;
+use Test::More tests => 69;
 use Test::Mojo;
 use Test::NoWarnings;
 my $t = Test::Mojo->new('pf::UnifiedApi');
@@ -104,6 +104,21 @@ $t->post_ok('/api/v1/nodes/bulk_apply_role' => json => { category_id => 1,  item
 
 $t->post_ok("/api/v1/node/$mac/apply_security_event" => json => { security_event_id => '1100013' })
   ->status_is(200);
+
+$t->post_ok('/api/v1/nodes/bulk_apply_bypass_vlan' => json => { bypass_vlan => 1,  items => [$mac] })
+  ->status_is(200)
+  ->json_is('/items/0/mac', $mac)
+  ->json_is('/items/0/status', 'success');
+
+$t->post_ok('/api/v1/nodes/bulk_apply_bypass_vlan' => json => { bypass_vlan => 1,  items => [$mac] })
+  ->status_is(200)
+  ->json_is('/items/0/mac', $mac)
+  ->json_is('/items/0/status', 'skipped');
+
+$t->post_ok('/api/v1/nodes/bulk_apply_bypass_vlan' => json => { bypass_vlan => undef,  items => [$mac] })
+  ->status_is(200)
+  ->json_is('/items/0/mac', $mac)
+  ->json_is('/items/0/status', 'success');
 
 $t->post_ok('/api/v1/nodes/search' => json => { fields => [qw(mac security_event.open_count)] })
   ->status_is(200)
