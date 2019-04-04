@@ -23,7 +23,7 @@ use base 'pfconfig::namespaces::resource';
 
 sub init {
     my ($self) = @_;
-    $self->{switches} = \%pf::SwitchFactory::SwitchConfig;
+    $self->{switches} = $self->{cache}->get_cache('config::Switch');
 }
 
 

@@ -23,14 +23,14 @@ use base 'pfconfig::namespaces::resource';
 
 sub init {
     my ($self) = @_;
-    $self->{switches_group} = pf::ConfigStore::Switch->new()->readAllIds();
+    $self->{switches_group} = $self->{cache}->get_cache('config::Switch');
 }
 
 
 
 sub build {
     my ($self) = @_;
-    my @switches_group = map { my $a = $_; $a =~ s/group //;$a} grep { $_ =~ /group/} @{$self->{switches_group}};
+    my @switches_group = map { my $a = $_; $a =~ s/group //;$a} grep { $_ =~ /group/} keys %{$self->{switches_group}};
     my $switches_group = {};
     foreach my $group (@switches_group) {
         $switches_group->{$group} = $group;
