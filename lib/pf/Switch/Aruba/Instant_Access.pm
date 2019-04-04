@@ -7,7 +7,7 @@ pf::Switch::Aruba::Instant_Access - Object oriented module to access SNMP enable
 =head1 SYNOPSIS                                               
 
 The pf::Switch::Aruba::Instant_Access module implements an object oriented interface
-to access SNMP enabled Aruba Instant_Access   
+to access Aruba Instant_Access   
                                                                    
 =cut                    
                        
