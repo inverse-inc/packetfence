@@ -129,7 +129,7 @@ export default {
       if (~~parentId > 0) {
         this.$store.dispatch(`${this.storeName}/getDevice`, parentId).then(data => {
           this.$set(this.parentTree, index, data)
-          if (!!data.parent_id) this.buildParentTree(data.parent_id, ++index)
+          if (data.parent_id) this.buildParentTree(data.parent_id, ++index)
         })
       }
     },
