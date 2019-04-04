@@ -844,8 +844,9 @@ sub setup_api_v1_std_config_collection_routes {
     $root->register_sub_action({path => '', action => 'list', method => 'GET'});
     $root->register_sub_action({path => '', action => 'create', method => 'POST', auditable => 1});
     $root->register_sub_action({path => '', action => 'options', method => 'OPTIONS'});
-    $root->register_sub_action({action => 'sort_items', method => 'PATCH', auditable => 1});
+    $root->register_sub_actions({actions => [qw(sort_items bulk_update)], method => 'PATCH', auditable => 1});
     $root->register_sub_action({action => 'search', method => 'POST'});
+    $root->register_sub_action({action => 'bulk_delete', method => 'DELETE'});
     return ;
 }
 
