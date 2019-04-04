@@ -4349,6 +4349,13 @@ Then you need to provide the routed networks information to PacketFence. You can
    dhcpd=enabled
 
 
+Then you need to enable and start `packetfence-routes` service:
+[source,bash]
+----
+/usr/local/pf/bin/pfcmd service pf updatesystemd
+/usr/local/pf/bin/pfcmd service routes start
+----
+
 `packetfence-routes` service will use this file to add static routes
 corresponding to routed networks (192.168.20.0/24 and 192.168.30.0/24) in
 PacketFence's server routing table. The `next_hop` statement in each routed
