@@ -13,23 +13,23 @@
             </b-col>
             <b-col cols="auto" align="right" class="flex-grow-0">
               <b-button-group>
-                <b-button v-t="'All'" :variant="(scope === 'all') ? 'primary' : 'outline-secondary'" @click="scope = 'all'"></b-button>
-                <b-button v-t="'Local'" :variant="(scope === 'local') ? 'primary' : 'outline-secondary'" @click="scope = 'local'"></b-button>
-                <b-button v-t="'Upstream'" :variant="(scope === 'upstream') ? 'primary' : 'outline-secondary'" @click="scope = 'upstream'"></b-button>
+                <b-button v-t="'All'" :variant="(scope === 'all') ? 'primary' : 'outline-secondary'" @click="changeScope('all')"></b-button>
+                <b-button v-t="'Local'" :variant="(scope === 'local') ? 'primary' : 'outline-secondary'" @click="changeScope('local')"></b-button>
+                <b-button v-t="'Upstream'" :variant="(scope === 'upstream') ? 'primary' : 'outline-secondary'" @click="changeScope('upstream')"></b-button>
               </b-button-group>
             </b-col>
           </b-row>
         </b-card-header>
       </template>
-      <template slot="buttonAdd">
-        <b-button variant="outline-primary" :to="{ name: 'newFingerbankDhcpFingerprint' }">{{ $t('Add Local DHCP Fingerprint') }}</b-button>
+      <template slot="buttonAdd" v-if="scope === 'local'">
+        <b-button variant="outline-primary" :to="{ name: 'newFingerbankDhcpFingerprint', params: { scope: 'local' } }">{{ $t('Add DHCP Fingerprint') }}</b-button>
       </template>
       <template slot="emptySearch" slot-scope="state">
         <pf-empty-table :isLoading="state.isLoading">{{ $t('No {scope} DHCP fingerprints found', { scope: ((scope !== 'all') ? scope : '') }) }}</pf-empty-table>
       </template>
       <template slot="buttons" slot-scope="item">
         <span class="float-right text-nowrap">
-          <pf-button-delete size="sm" v-if="!item.not_deletable" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete DHCP Fingerprint?')" @on-delete="remove(item)" reverse/>
+          <pf-button-delete size="sm" v-if="!item.not_deletable && scope === 'local'" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete DHCP Fingerprint?')" @on-delete="remove(item)" reverse/>
           <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(item)">{{ $t('Clone') }}</b-button>
         </span>
       </template>
@@ -69,23 +69,26 @@ export default {
   },
   data () {
     return {
-      combinations: [], // all combinations
+      data: [],
       config: config(this)
     }
   },
   methods: {
     clone (item) {
-      this.$router.push({ name: 'cloneFingerbankDhcpFingerprint', params: { id: item.id } })
+      this.$router.push({ name: 'cloneFingerbankDhcpFingerprint', params: { scope: this.scope, id: item.id } })
     },
     remove (item) {
       this.$store.dispatch(`${this.storeName}/deleteDhcpFingerprint`, item.id).then(response => {
         this.$router.go() // reload
       })
+    },
+    changeScope (scope) {
+      this.scope = scope
     }
   },
   created () {
     this.$store.dispatch(`${this.storeName}/dhcpFingerprints`).then(data => {
-      this.combinations = data
+      this.data = data
     })
   },
   watch: {

@@ -13,9 +13,9 @@
             </b-col>
             <b-col cols="auto" align="right" class="flex-grow-0">
               <b-button-group>
-                <b-button v-t="'All'" :variant="(scope === 'all') ? 'primary' : 'outline-secondary'" @click="scope = 'all'"></b-button>
-                <b-button v-t="'Local'" :variant="(scope === 'local') ? 'primary' : 'outline-secondary'" @click="scope = 'local'"></b-button>
-                <b-button v-t="'Upstream'" :variant="(scope === 'upstream') ? 'primary' : 'outline-secondary'" @click="scope = 'upstream'"></b-button>
+                <b-button v-t="'All'" :variant="(scope === 'all') ? 'primary' : 'outline-secondary'" @click="changeScope('all')"></b-button>
+                <b-button v-t="'Local'" :variant="(scope === 'local') ? 'primary' : 'outline-secondary'" @click="changeScope('local')"></b-button>
+                <b-button v-t="'Upstream'" :variant="(scope === 'upstream') ? 'primary' : 'outline-secondary'" @click="changeScope('upstream')"></b-button>
               </b-button-group>
             </b-col>
           </b-row>
@@ -24,18 +24,18 @@
       <template slot="tableHeader" v-if="parentTree.length > 0">
         <b-row class="mb-3">
           <b-col cols="auto">
-            <b-button variant="link" class="px-0 mr-2 text-secondary" :to="{ name: 'fingerbankDevices' }">
+            <b-button variant="link" class="px-0 mr-2 text-secondary" :to="{ name: 'fingerbankDevices', params: { scope: scope } }">
               <icon name="times" variant="primary"></icon>
             </b-button>
-            <b-button v-for="(parent, index) in parentTreeReverse" :key="parent.id" variant="link" class="px-0 mr-2 text-primary" :disabled="index === parentTree.length - 1" :to="{ name: 'fingerbankDevicesByParentId', params: { parentId: parent.id } }">
+            <b-button v-for="(parent, index) in parentTreeReverse" :key="parent.id" variant="link" class="px-0 mr-2 text-primary" :disabled="index === parentTree.length - 1" :to="{ name: 'fingerbankDevicesByParentId', params: { parentId: parent.id, scope: scope } }">
               <icon v-if="index > 0" name="caret-right" variant="text-secondary" class="mr-1"></icon>
               {{ parent.name }}
             </b-button>
           <b-col>
         </b-row>
       </template>
-      <template slot="buttonAdd">
-        <b-button variant="outline-primary" :to="{ name: 'newDevice' }">{{ $t('Add Local Device') }}</b-button>
+      <template slot="buttonAdd" v-if="scope === 'local'">
+        <b-button variant="outline-primary" :to="{ name: 'newDevice', params: { scope: 'local' } }">{{ $t('Add Device') }}</b-button>
       </template>
       <template slot="emptySearch" slot-scope="state">
         <pf-empty-table :isLoading="state.isLoading">{{ $t('No devices found') }}</pf-empty-table>
@@ -58,7 +58,7 @@
       </template>
       <template slot="buttons" slot-scope="item">
         <span class="float-right text-nowrap">
-          <pf-button-delete size="sm" v-if="!item.not_deletable" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete Device?')" @on-delete="remove(item)" reverse/>
+          <pf-button-delete size="sm" v-if="!item.not_deletable && scope === 'local'" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete Device?')" @on-delete="remove(item)" reverse/>
           <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(item)">{{ $t('Clone') }}</b-button>
         </span>
       </template>
@@ -87,14 +87,14 @@ export default {
       default: null,
       required: true
     },
+    parentId: {
+      type: Number,
+      default: null
+    },
     scope: {
       type: String,
       default: 'all',
       required: false
-    },
-    parentId: {
-      type: Number,
-      default: null
     }
   },
   data () {
@@ -110,7 +110,7 @@ export default {
   },
   methods: {
     clone (item) {
-      this.$router.push({ name: 'cloneFingerbankDevice', params: { id: item.id } })
+      this.$router.push({ name: 'cloneFingerbankDevice', params: { scope: this.scope, id: item.id } })
     },
     remove (item) {
       this.$store.dispatch(`${this.storeName}/deleteDevice`, item.id).then(response => {
@@ -135,6 +135,9 @@ export default {
     resetSearch () {
       const { $refs: { pfConfigList: { resetSearch = () => {} } = {} } = {} } = this
       resetSearch()
+    },
+    changeScope (scope) {
+      this.scope = scope
     }
   },
   watch: {

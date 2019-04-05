@@ -457,7 +457,7 @@ export const pfConfigurationFingerbankCombinationsListConfig = (context = {}) =>
     columns: pfConfigurationFingerbankCombinationsListColumns,
     fields: pfConfigurationFingerbankCombinationsListFields,
     rowClickRoute (item, index) {
-      return { name: 'fingerbankCombination', params: { id: item.id } }
+      return { name: 'fingerbankCombination', params: { scope: scope, id: item.id } }
     },
     searchPlaceholder: i18n.t('Search by identifier or device'),
     searchableOptions: {
@@ -709,7 +709,7 @@ export const pfConfigurationFingerbankDevicesListConfig = (context = {}) => {
     columns: pfConfigurationFingerbankDevicesListColumns,
     fields: pfConfigurationFingerbankDevicesListFields,
     rowClickRoute (item, index) {
-      return { name: 'fingerbankDevice', params: { id: item.id } }
+      return { name: 'fingerbankDevice', params: { scope: scope, id: item.id } }
     },
     searchPlaceholder: i18n.t('Search by identifier or device'),
     searchableOptions: {
@@ -908,7 +908,7 @@ export const pfConfigurationFingerbankDhcpFingerprintsListConfig = (context = {}
     columns: pfConfigurationFingerbankDhcpFingerprintsListColumns,
     fields: pfConfigurationFingerbankDhcpFingerprintsListFields,
     rowClickRoute (item, index) {
-      return { name: 'fingerbankDhcpFingerprint', params: { id: item.id } }
+      return { name: 'fingerbankDhcpFingerprint', params: { scope: scope, id: item.id } }
     },
     searchPlaceholder: i18n.t('Search by identifier or DHCP fingerprint'),
     searchableOptions: {
@@ -1035,7 +1035,7 @@ export const pfConfigurationFingerbankDhcpVendorsListConfig = (context = {}) => 
     columns: pfConfigurationFingerbankDhcpVendorsListColumns,
     fields: pfConfigurationFingerbankDhcpVendorsListFields,
     rowClickRoute (item, index) {
-      return { name: 'fingerbankDhcpVendor', params: { id: item.id } }
+      return { name: 'fingerbankDhcpVendor', params: { scope: scope, id: item.id } }
     },
     searchPlaceholder: i18n.t('Search by identifier or DHCP vendor'),
     searchableOptions: {
@@ -1161,7 +1161,7 @@ export const pfConfigurationFingerbankDhcpv6FingerprintsListConfig = (context = 
     columns: pfConfigurationFingerbankDhcpv6FingerprintsListColumns,
     fields: pfConfigurationFingerbankDhcpv6FingerprintsListFields,
     rowClickRoute (item, index) {
-      return { name: 'fingerbankDhcpv6Fingerprint', params: { id: item.id } }
+      return { name: 'fingerbankDhcpv6Fingerprint', params: { scope: scope, id: item.id } }
     },
     searchPlaceholder: i18n.t('Search by identifier or DHCPv6 fingerprint'),
     searchableOptions: {
@@ -1296,7 +1296,7 @@ export const pfConfigurationFingerbankDhcpv6EnterprisesListConfig = (context = {
     columns: pfConfigurationFingerbankDhcpv6EnterprisesListColumns,
     fields: pfConfigurationFingerbankDhcpv6EnterprisesListFields,
     rowClickRoute (item, index) {
-      return { name: 'fingerbankDhcpv6Enterprise', params: { id: item.id } }
+      return { name: 'fingerbankDhcpv6Enterprise', params: { scope: scope, id: item.id } }
     },
     searchPlaceholder: i18n.t('Search by identifier or DHCPv6 enterprise'),
     searchableOptions: {
@@ -1429,7 +1429,7 @@ export const pfConfigurationFingerbankMacVendorsListConfig = (context = {}) => {
     columns: pfConfigurationFingerbankMacVendorsListColumns,
     fields: pfConfigurationFingerbankMacVendorsListFields,
     rowClickRoute (item, index) {
-      return { name: 'fingerbankMacVendor', params: { id: item.id } }
+      return { name: 'fingerbankMacVendor', params: { scope: scope, id: item.id } }
     },
     searchPlaceholder: i18n.t('Search by identifier or MAC vendor'),
     searchableOptions: {
@@ -1570,7 +1570,7 @@ export const pfConfigurationFingerbankUserAgentsListConfig = (context = {}) => {
     columns: pfConfigurationFingerbankUserAgentsListColumns,
     fields: pfConfigurationFingerbankUserAgentsListFields,
     rowClickRoute (item, index) {
-      return { name: 'fingerbankUserAgent', params: { id: item.id } }
+      return { name: 'fingerbankUserAgent', params: { scope: scope, id: item.id } }
     },
     searchPlaceholder: i18n.t('Search by identifier or user agent'),
     searchableOptions: {
