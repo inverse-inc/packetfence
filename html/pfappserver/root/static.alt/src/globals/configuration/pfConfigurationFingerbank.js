@@ -12,7 +12,6 @@ import {
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
   and,
-  isHex,
   isFingerprint,
   isFingerbankDevice,
   isOUI
@@ -21,7 +20,6 @@ import {
 const {
   integer,
   required,
-  maxLength,
   minValue,
   maxValue
 } = require('vuelidate/lib/validators')
