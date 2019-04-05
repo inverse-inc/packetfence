@@ -16,7 +16,7 @@ use Mojo::Base 'pf::UnifiedApi::Controller::Fingerbank';
 use fingerbank::Model::DHCP_Fingerprint;
 
 has 'fingerbank_model' => 'fingerbank::Model::DHCP_Fingerprint';
-has 'url_param_name' => 'dhcp6_fingerprint_id';
+has 'url_param_name' => 'dhcp_fingerprint_id';
 
 =head1 AUTHOR
 
