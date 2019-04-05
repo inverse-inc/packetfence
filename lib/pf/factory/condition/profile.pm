@@ -1,4 +1,5 @@
 package pf::factory::condition::profile;
+
 =head1 NAME
 
 pf::factory::condition::profile
@@ -25,6 +26,7 @@ use pf::condition_parser qw(parse_condition_string);
 use pf::util qw(str_to_connection_type);
 use pf::constants::eap_type qw(%RADIUS_EAP_TYPE_2_VALUES);
 use pf::log;
+use base qw(pf::factory::condition);
 
 our %UNARY_OPS = (
     'NOT' => 'pf::condition::not',
@@ -49,9 +51,6 @@ our %NULLABLE_OPS = (
     '!=' => 'pf::condition::is_defined',
 );
 
-our @MODULES;
-
-__PACKAGE__->modules;
 
 sub factory_for {'pf::condition'};
 
@@ -75,14 +74,6 @@ our %PROFILE_FILTER_TYPE_TO_CONDITION_TYPE = (
     'switch_group'        => {type => 'switch_group',  key  => 'last_switch'},
     'fqdn'                => {type => 'equals',        key  => 'fqdn'},
 );
-
-sub modules {
-    my ($class) = @_;
-    unless(@MODULES) {
-        @MODULES = $class->_modules;
-    }
-    return @MODULES;
-}
 
 sub instantiate {
     my ($class, @args) = @_;
