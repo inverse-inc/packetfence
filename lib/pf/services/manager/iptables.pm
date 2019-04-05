@@ -109,9 +109,7 @@ stop iptables (called from systemd)
 sub _stop {
     my ($self) = @_;
     my $logger = get_logger();
-    if ( $self->isAlive() ) {
-        getIptablesTechnique->iptables_restore( $install_dir . '/var/iptables.bak' );
-    }
+    getIptablesTechnique->iptables_restore( $install_dir . '/var/iptables.bak' );
     return 1;
 }
 
