@@ -678,6 +678,47 @@ export const pfConfigurationFingerbankDevicesListConfig = (context = {}) => {
   }
 }
 
+export const pfConfigurationFingerbankDeviceOptionsSearchFunction = (query, currentOptions = [], currentValue = null) => {
+  /**
+   * This function returns a promise for options based on a search query from within the chosen element.
+   * It performs a debounced async API call and builds the options.
+   * Initially only the identifier for the current value is provided without a friendly text string
+   * The API response is paginated, and available options will be limited to 1 page,
+   *  therefore the search results may not contain the current value, subsequently clearing the chosen element.
+   * On initialization we will pre-search the current value and cache it for future re-use so that
+   *  the returned options will always include the current identifier at the top in order to keep the element from resetting.
+  **/
+  const queryTrim = `${query}`.trim() // expect Number or String (1.trim() = exception)
+  if (!queryTrim) return []
+  const currentOption = currentOptions.find(option => option.value === currentValue) // cache currentValue
+  let values = []
+
+  console.log(query, currentOptions, currentValue)
+
+  if (queryTrim) {
+    values.push({ field: 'id', op: 'equals', value: queryTrim })
+  }
+  if (currentOption) { // subsequent iterations only
+    values.push({ field: 'name', op: 'contains', value: queryTrim })
+  }
+  const params = {
+    query: { op: 'and', values: [{ op: 'or', values: values }] },
+    fields: ['id', 'name'],
+    sort: ['name'],
+    cursor: 0,
+    limit: 100
+  }
+  return api.fingerbankSearchDevices(params).then(response => {
+    let tmp = [
+      ...((currentOption) ? [currentOption] : []), // include the currentValue in the options to prevent element reset
+      ...response.items
+        .map(item => { return { value: item.id, text: item.name } })
+        .filter(item => JSON.stringify(item) !== JSON.stringify(currentOption)) // skip duplicates
+    ]
+    return tmp
+  })
+}
+
 export const pfConfigurationFingerbankDeviceViewFields = (context = {}) => {
   const {
     isNew = false,
@@ -730,37 +771,7 @@ export const pfConfigurationFingerbankDeviceViewFields = (context = {}) => {
                 clearOnSelect: false,
                 allowEmpty: false,
                 optionsLimit: 100,
-                searchFunction: (query, currentOptions, currentValue) => {
-                  // on the first iteration query and cache our currentValue,
-                  //  on subsequent iterations push our cache to the top of options list
-                  //  in order to prevent the option from resetting.
-                  const queryTrim = `${query}`.trim() // could be INT
-                  if (!queryTrim) return []
-                  const currentOption = currentOptions.find(option => option.value === currentValue) // cache current `value`
-                  let values = []
-                  if (queryTrim) {
-                    values.push({ field: 'id', op: 'equals', value: queryTrim })
-                  }
-                  if (currentOption) { // subsequent iterations only
-                    values.push({ field: 'name', op: 'contains', value: queryTrim })
-                  }
-                  const params = {
-                    query: { op: 'and', values: [{ op: 'or', values: values }] },
-                    fields: ['id', 'name'],
-                    sort: ['name'],
-                    cursor: 0,
-                    limit: 100
-                  }
-                  return api.fingerbankSearchDevices(params).then(response => {
-                    let tmp = [
-                      ...((currentOption) ? [currentOption] : []), // always (try to) include the original `parent_id` in the options
-                      ...response.items
-                        .map(item => { return { value: item.id, text: item.name } })
-                        .filter(item => JSON.stringify(item) !== JSON.stringify(currentOption)) // skip dupes
-                    ]
-                    return tmp
-                  })
-                }
+                optionsSearchFunction: pfConfigurationFingerbankDeviceOptionsSearchFunction
               }
             }
           ]

@@ -122,6 +122,9 @@ export default {
       type: Number,
       default: 100
     },
+    optionsSearchFunction: {
+      type: Function
+    },
     preserveSearch: {
       type: Boolean,
       default: false
@@ -129,9 +132,6 @@ export default {
     searchable: {
       type: Boolean,
       default: true
-    },
-    searchFunction: {
-      type: Function
     },
     trackBy: {
       type: String,
@@ -178,9 +178,9 @@ export default {
   },
   methods: {
     searchChange (query) {
-      if (this.searchFunction) {
+      if (this.optionsSearchFunction) {
         this.loading = true
-        Promise.resolve(this.searchFunction(query, this.options, this.value)).then(options => {
+        Promise.resolve(this.optionsSearchFunction(query, this.options, this.value)).then(options => {
           this.loading = false
           this.options = options
         }).catch(() => {
