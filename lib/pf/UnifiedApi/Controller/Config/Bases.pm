@@ -10,8 +10,6 @@ pf::UnifiedApi::Controller::Config::Bases -
 
 pf::UnifiedApi::Controller::Config::Bases
 
-
-
 =cut
 
 use strict;
@@ -25,6 +23,8 @@ has 'form_class' => 'pfappserver::Form::Config::Pf';
 has 'primary_key' => 'base_id';
 
 use pf::ConfigStore::Pf;
+use pf::config;
+use pf::util;
 use pfappserver::Form::Config::Pf;
 
 sub form_parameters {
@@ -43,6 +43,34 @@ sub items {
     return [
         map {$self->cleanup_item($_)} grep { exists $pf::constants::pfconf::ALLOWED_SECTIONS{$_->{id}} } @$items
     ];
+}
+
+sub test_smtp {
+    my ($self) = @_;
+    my $form = $self->form({ id => "alerting" });
+    my $json = $self->parse_json;
+    $form->process(params => $json);
+    if ($form->has_errors) {
+        return $self->render_error(422, "Invalid parameters", $self->format_form_errors($form));
+    }
+
+    my $alerting_config = $form->value;
+    my $email = $json->{'test_emailaddr'} || $alerting_config->{emailaddr};
+    my $msg = MIME::Lite->new(
+        To => $email,
+        Subject => "PacketFence SMTP Test",
+        Data => "PacketFence SMTP Test successful!\n"
+    );
+
+    my $results = eval {
+        pf::config::util::do_send_mime_lite($msg, %$alerting_config);
+    };
+
+    if ($@) {
+        return $self->render_error(400, pf::util::strip_filename_from_exceptions($@));
+    }
+
+    return $self->render(json => { message => 'Testing SMTP success' });
 }
 
 =head1 AUTHOR

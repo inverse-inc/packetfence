@@ -130,7 +130,6 @@ sub sanity_check {
 
     # emptying problem list
     @problems = ();
-    print "Checking configuration sanity...\n";
 
     # SELinux test only for RedHat based distros
     if ( -e "/etc/redhat-release" && `getenforce` =~ /^Enforcing/ ) {
