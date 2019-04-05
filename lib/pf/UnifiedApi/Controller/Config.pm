@@ -801,6 +801,7 @@ fix_permissions
 sub fix_permissions {
     my ($self) = @_;
     my $result = pf::util::fix_files_permissions();
+    chomp($result);
     return $self->render(json => { message => $result });
 }
 
