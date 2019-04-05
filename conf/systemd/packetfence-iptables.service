@@ -1,6 +1,7 @@
 [Unit]
 Description=PacketFence Iptables configuration
-Wants=packetfence-config.service
+Wants=packetfence-base.target packetfence-config.service
+After=packetfence-base.target packetfence-config.service
 
 [Service]
 StartLimitBurst=3
@@ -11,3 +12,4 @@ Slice=packetfence.slice
 
 [Install]
 WantedBy=packetfence.target
+
