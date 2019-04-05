@@ -7,7 +7,7 @@
         <b-card-header><h4 class="mb-0" v-t="'Scan Engines'"></h4></b-card-header>
       </template>
       <template slot="buttonAdd">
-        <b-dropdown :text="$t('Add Scan Engine')" variant="outline-primary" class="my-2">
+        <b-dropdown :text="$t('Add Scan Engine')" variant="outline-primary">
           <b-dropdown-item :to="{ name: 'newScanEngine', params: { scanType: 'nessus' } }">Nessus</b-dropdown-item>
           <b-dropdown-item :to="{ name: 'newScanEngine', params: { scanType: 'nessus6' } }">Nessus 6</b-dropdown-item>
           <b-dropdown-item :to="{ name: 'newScanEngine', params: { scanType: 'openvas' } }">OpenVAS</b-dropdown-item>
