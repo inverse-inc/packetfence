@@ -584,10 +584,27 @@ const route = {
       props: (route) => ({ tab: 'dhcp_fingerprints', query: route.query.query })
     },
     {
-      path: 'fingerbank/dhcp_fingerprints/:id',
+      path: 'fingerbank/dhcp_fingerprints/new',
+      name: 'newFingerbankDhcpFingerprint',
+      component: FingerbankDhcpFingerprintView,
+      props: (route) => ({ isNew: true })
+    },
+    {
+      path: 'fingerbank/dhcp_fingerprint/:id',
       name: 'fingerbankDhcpFingerprint',
       component: FingerbankDhcpFingerprintView,
       props: (route) => ({ id: route.params.id }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_fingerbank/getDhcpFingerprint', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'fingerbank/dhcp_fingerprint/:id/clone',
+      name: 'cloneFingerbankDhcpFingerprint',
+      component: FingerbankDhcpFingerprintView,
+      props: (route) => ({ id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
         store.dispatch('$_fingerbank/getDhcpFingerprint', to.params.id).then(object => {
           next()
