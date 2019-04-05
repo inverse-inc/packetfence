@@ -21,6 +21,7 @@ New Features
 * DHCP Filter to reply custom attributes in the OFFER and/or ACK (deprecate old DHCP Filter)
 * Cisco ASA VPN support with the captive portal
 * Fortinet VPN support
+* Support for Aerohive access point with switch port
 
 Enhancements
 ++++++++++++
