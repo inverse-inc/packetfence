@@ -841,6 +841,9 @@ export const pfConfigurationFingerbankCombinationViewFields = (context = {}) => 
                 allowEmpty: false,
                 optionsLimit: 100,
                 optionsSearchFunction: pfConfigurationFingerbankDeviceOptionsSearchFunction
+              },
+              validators: {
+                [i18n.t('Device required.')]: required
               }
             }
           ]
