@@ -25,16 +25,13 @@
         <b-button variant="outline-primary" :to="{ name: 'newFingerbankMacVendor' }">{{ $t('Add Local DHCP Vendor') }}</b-button>
       </template>
       <template slot="emptySearch" slot-scope="state">
-        <pf-empty-table :isLoading="state.isLoading">{{ $t('No {scope} DHCP fingerprints found', { scope: ((scope !== 'all') ? scope : '') }) }}</pf-empty-table>
+        <pf-empty-table :isLoading="state.isLoading">{{ $t('No {scope} DHCP vendors found', { scope: ((scope !== 'all') ? scope : '') }) }}</pf-empty-table>
       </template>
       <template slot="buttons" slot-scope="item">
         <span class="float-right text-nowrap">
           <pf-button-delete size="sm" v-if="!item.not_deletable" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete DHCP Vendor?')" @on-delete="remove(item)" reverse/>
           <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(item)">{{ $t('Clone') }}</b-button>
         </span>
-      </template>
-      <template slot="score" slot-scope="data">
-        <pf-fingerbank-score :score="data.score"></pf-fingerbank-score>
       </template>
     </pf-config-list>
   </b-card>

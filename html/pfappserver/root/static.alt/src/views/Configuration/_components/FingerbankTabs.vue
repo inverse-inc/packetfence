@@ -5,34 +5,34 @@
     </b-card-header>
     <b-tabs ref="tabs" v-model="tabIndex" card>
       <b-tab :title="$t('General Settings')" @click="changeTab('general_settings')">
-        <fingerbank-general-setting-view :storeName="storeName" />
+        <fingerbank-general-setting-view storeName="$_fingerbank" />
       </b-tab>
       <b-tab :title="$t('Device change detection')" @click="changeTab('device_change_detection')">
-        <fingerbank-device-change-detection-view :storeName="storeName" />
+        <fingerbank-device-change-detection-view storeName="$_bases" />
       </b-tab>
       <b-tab :title="$t('Combinations')" @click="changeTab('combinations')">
-        <fingerbank-combinations-list :storeName="storeName" />
+        <fingerbank-combinations-list storeName="$_fingerbank" />
       </b-tab>
       <b-tab :title="$t('Devices')" @click="changeTab('devices')">
-        <fingerbank-devices-list :storeName="storeName" :parentId="parentId"/>
+        <fingerbank-devices-list storeName="$_fingerbank" :parentId="parentId"/>
       </b-tab>
       <b-tab :title="$t('DHCP Fingerprints')" @click="changeTab('dhcp_fingerprints')">
-        <fingerbank-dhcp-fingerprints-list :storeName="storeName" />
+        <fingerbank-dhcp-fingerprints-list storeName="$_fingerbank" />
       </b-tab>
       <b-tab :title="$t('DHCP Vendors')" @click="changeTab('dhcp_vendors')">
-        <fingerbank-dhcp-vendors-list :storeName="storeName" />
+        <fingerbank-dhcp-vendors-list storeName="$_fingerbank" />
       </b-tab>
       <b-tab :title="$t('DHCPv6 Fingerprints')" @click="changeTab('dhcpv6_fingerprints')">
-        <fingerbank-dhcpv6-fingerprints-list :storeName="storeName" />
+        <fingerbank-dhcpv6-fingerprints-list storeName="$_fingerbank" />
       </b-tab>
       <b-tab :title="$t('DHCPv6 Enterprises')" @click="changeTab('dhcpv6_enterprises')">
-        <fingerbank-dhcpv6-enterprises-list :storeName="storeName" />
+        <fingerbank-dhcpv6-enterprises-list storeName="$_fingerbank" />
       </b-tab>
       <b-tab :title="$t('MAC Vendors')" @click="changeTab('mac_vendors')">
-        <fingerbank-mac-vendors-list :storeName="storeName" />
+        <fingerbank-mac-vendors-list storeName="$_fingerbank" />
       </b-tab>
       <b-tab :title="$t('User Agents')" @click="changeTab('user_agents')">
-        <fingerbank-user-agents-list :storeName="storeName" />
+        <fingerbank-user-agents-list storeName="$_fingerbank" />
       </b-tab>
     </b-tabs>
   </b-card>
@@ -65,11 +65,6 @@ export default {
     FingerbankUserAgentsList
   },
   props: {
-    storeName: { // from router
-      type: String,
-      default: null,
-      required: true
-    },
     tab: {
       type: String,
       default: 'general_settings'

@@ -663,7 +663,7 @@ export const pfConfigurationFingerbankDevicesListColumns = [
   },
   {
     key: 'name',
-    label: i18n.t('Name'),
+    label: i18n.t('Device'),
     sortable: true,
     visible: true
   },
@@ -713,7 +713,7 @@ export const pfConfigurationFingerbankDevicesListConfig = (context = {}) => {
     rowClickRoute (item, index) {
       return { name: 'fingerbankDevice', params: { id: item.id } }
     },
-    searchPlaceholder: i18n.t('Search by identifier or description'),
+    searchPlaceholder: i18n.t('Search by identifier or device'),
     searchableOptions: {
       searchApiEndpoint: `fingerbank/${scope}/devices`, // `./search` automatically appended
       searchApiEndpointOnly: true, // always use `/search` endpoint
@@ -912,7 +912,7 @@ export const pfConfigurationFingerbankDhcpFingerprintsListConfig = (context = {}
     rowClickRoute (item, index) {
       return { name: 'fingerbankDhcpFingerprint', params: { id: item.id } }
     },
-    searchPlaceholder: i18n.t('Search by identifier or device'),
+    searchPlaceholder: i18n.t('Search by identifier or DHCP fingerprint'),
     searchableOptions: {
       searchApiEndpoint: `fingerbank/${scope}/dhcp_fingerprints`,
       defaultSortKeys: ['id'],
@@ -1039,7 +1039,7 @@ export const pfConfigurationFingerbankDhcpVendorsListConfig = (context = {}) => 
     rowClickRoute (item, index) {
       return { name: 'fingerbankDhcpVendor', params: { id: item.id } }
     },
-    searchPlaceholder: i18n.t('Search by identifier or device'),
+    searchPlaceholder: i18n.t('Search by identifier or DHCP vendor'),
     searchableOptions: {
       searchApiEndpoint: `fingerbank/${scope}/dhcp_vendors`,
       defaultSortKeys: ['id'],
@@ -1165,7 +1165,7 @@ export const pfConfigurationFingerbankDhcpv6FingerprintsListConfig = (context = 
     rowClickRoute (item, index) {
       return { name: 'fingerbankDhcpv6Fingerprint', params: { id: item.id } }
     },
-    searchPlaceholder: i18n.t('Search by identifier or device'),
+    searchPlaceholder: i18n.t('Search by identifier or DHCPv6 fingerprint'),
     searchableOptions: {
       searchApiEndpoint: `fingerbank/${scope}/dhcp6_fingerprints`,
       defaultSortKeys: ['id'],
@@ -1253,6 +1253,14 @@ export const pfConfigurationFingerbankDhcpv6EnterprisesListColumns = [
     sortable: true,
     visible: true
   },
+  /* TODO - Issue #4217
+  {
+    key: 'organization',
+    label: i18n.t('Organization'),
+    sortable: true,
+    visible: true
+  },
+  */
   {
     key: 'created_at',
     label: i18n.t('Created'),
@@ -1292,7 +1300,7 @@ export const pfConfigurationFingerbankDhcpv6EnterprisesListConfig = (context = {
     rowClickRoute (item, index) {
       return { name: 'fingerbankDhcpv6Enterprise', params: { id: item.id } }
     },
-    searchPlaceholder: i18n.t('Search by identifier or device'),
+    searchPlaceholder: i18n.t('Search by identifier or DHCPv6 enterprise'),
     searchableOptions: {
       searchApiEndpoint: `fingerbank/${scope}/dhcp6_enterprises`,
       defaultSortKeys: ['id'],
@@ -1425,7 +1433,7 @@ export const pfConfigurationFingerbankMacVendorsListConfig = (context = {}) => {
     rowClickRoute (item, index) {
       return { name: 'fingerbankMacVendor', params: { id: item.id } }
     },
-    searchPlaceholder: i18n.t('Search by identifier or device'),
+    searchPlaceholder: i18n.t('Search by identifier or MAC vendor'),
     searchableOptions: {
       searchApiEndpoint: `fingerbank/${scope}/mac_vendors`,
       defaultSortKeys: ['id'],
@@ -1520,6 +1528,31 @@ export const pfConfigurationFingerbankUserAgentsListColumns = [
     label: i18n.t('Identifier'),
     sortable: true,
     visible: true
+  },
+  {
+    key: 'value',
+    label: i18n.t('User Agent'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'created_at',
+    label: i18n.t('Created'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'updated_at',
+    label: i18n.t('Updated'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'buttons',
+    label: '',
+    sortable: false,
+    visible: true,
+    locked: true
   }
 ]
 
@@ -1532,15 +1565,18 @@ export const pfConfigurationFingerbankUserAgentsListFields = [
 ]
 
 export const pfConfigurationFingerbankUserAgentsListConfig = (context = {}) => {
+  const {
+    scope
+  } = context
   return {
     columns: pfConfigurationFingerbankUserAgentsListColumns,
     fields: pfConfigurationFingerbankUserAgentsListFields,
     rowClickRoute (item, index) {
-      return { name: 'userAgent', params: { id: item.id } }
+      return { name: 'fingerbankUserAgent', params: { id: item.id } }
     },
-    searchPlaceholder: i18n.t('Search by identifier or description'),
+    searchPlaceholder: i18n.t('Search by identifier or user agent'),
     searchableOptions: {
-      searchApiEndpoint: 'config/TODO',
+      searchApiEndpoint: `fingerbank/${scope}/dhcp_vendors`,
       defaultSortKeys: ['id'],
       defaultSearchCondition: {
         op: 'and',
@@ -1551,7 +1587,7 @@ export const pfConfigurationFingerbankUserAgentsListConfig = (context = {}) => {
           ]
         }]
       },
-      defaultRoute: { name: 'profilingUserAgents' }
+      defaultRoute: { name: 'fingerbankUserAgents' }
     },
     searchableQuickCondition: (quickCondition) => {
       return {
@@ -1560,11 +1596,51 @@ export const pfConfigurationFingerbankUserAgentsListConfig = (context = {}) => {
           {
             op: 'or',
             values: [
-              { field: 'id', op: 'contains', value: quickCondition }
+              { field: 'id', op: 'contains', value: quickCondition },
+              { field: 'value', op: 'contains', value: quickCondition }
             ]
           }
         ]
       }
     }
   }
+}
+
+export const pfConfigurationFingerbankUserAgentViewFields = (context = {}) => {
+  const {
+    isNew = false,
+    isClone = false
+  } = context
+  return [
+    {
+      tab: null, // ignore tabs
+      fields: [
+        {
+          if: (!isNew && !isClone),
+          label: i18n.t('Identifier'),
+          fields: [
+            {
+              key: 'id',
+              component: pfFormInput,
+              attrs: {
+                disabled: true
+              }
+            }
+          ]
+        },
+        {
+          label: i18n.t('User Agent'),
+          fields: [
+            {
+              key: 'value',
+              component: pfFormInput,
+              validators: {
+                [i18n.t('Agent required.')]: required
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
 }

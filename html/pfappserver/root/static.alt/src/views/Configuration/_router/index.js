@@ -57,6 +57,7 @@ const FingerbankDhcpVendorView = () => import(/* webpackChunkName: "Configuratio
 const FingerbankDhcpv6FingerprintView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FingerbankDhcpv6FingerprintView')
 const FingerbankDhcpv6EnterpriseView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FingerbankDhcpv6EnterpriseView')
 const FingerbankMacVendorView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FingerbankMacVendorView')
+const FingerbankUserAgentView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FingerbankUserAgentView')
 const ScansTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/ScansTabs')
 const ScanEngineView = () => import(/* webpackChunkName: "Configuration" */ '../_components/ScanEngineView')
 const WmiRuleView = () => import(/* webpackChunkName: "Configuration" */ '../_components/WmiRuleView')
@@ -757,11 +758,34 @@ const route = {
       component: FingerbankTabs,
       props: (route) => ({ tab: 'user_agents', query: route.query.query })
     },
-
-
-
-
-
+    {
+      path: 'fingerbank/user_agents/new',
+      name: 'newFingerbankUserAgent',
+      component: FingerbankUserAgentView,
+      props: (route) => ({ isNew: true, storeName: '$_fingerbank' })
+    },
+    {
+      path: 'fingerbank/user_agent/:id',
+      name: 'fingerbankUserAgent',
+      component: FingerbankUserAgentView,
+      props: (route) => ({ id: route.params.id, storeName: '$_fingerbank' }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_fingerbank/getUserAgent', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'fingerbank/user_agent/:id/clone',
+      name: 'cloneFingerbankUserAgent',
+      component: FingerbankUserAgentView,
+      props: (route) => ({ id: route.params.id, isClone: true, storeName: '$_fingerbank' }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_fingerbank/getUserAgent', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
     {
       path: 'scans',
       redirect: 'scans/scan_engines'

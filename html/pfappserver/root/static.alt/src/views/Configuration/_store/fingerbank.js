@@ -517,11 +517,6 @@ const actions = {
       throw err
     })
   },
-
-
-
-
-
   userAgents: ({ state, commit }) => {
     const params = {
       sort: 'id',

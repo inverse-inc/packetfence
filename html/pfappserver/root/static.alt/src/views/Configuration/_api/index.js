@@ -514,33 +514,33 @@ export default {
   fingerbankDeleteMacVendor: id => {
     return apiCall.delete(`fingerbank/local/mac_vendor/${id}`)
   },
-
-
-
-
-
   fingerbankUserAgents: params => {
-    return apiCall.get(`config/TODO`, { params }).then(response => {
+    return apiCall.get(`fingerbank/all/user_agents`, { params }).then(response => {
+      return response.data
+    })
+  },
+  fingerbankSearchUserAgents: body => {
+    return apiCall.post('fingerbank/all/user_agents/search', body).then(response => {
       return response.data
     })
   },
   fingerbankUserAgent: id => {
-    return apiCall.get(`config/TODO/${id}`).then(response => {
+    return apiCall.get(`fingerbank/all/user_agent/${id}`).then(response => {
       return response.data.item
     })
   },
   fingerbankCreateUserAgent: data => {
-    return apiCall.post('config/TODO', data).then(response => {
+    return apiCall.post('fingerbank/local/user_agents', data).then(response => {
       return response.data
     })
   },
   fingerbankUpdateUserAgent: data => {
-    return apiCall.patch(`config/TODO/${data.id}`, data).then(response => {
+    return apiCall.patch(`fingerbank/local/user_agent/${data.id}`, data).then(response => {
       return response.data
     })
   },
   fingerbankDeleteUserAgent: id => {
-    return apiCall.delete(`config/TODO/${id}`)
+    return apiCall.delete(`fingerbank/local/user_agent/${id}`)
   },
 
   /**
