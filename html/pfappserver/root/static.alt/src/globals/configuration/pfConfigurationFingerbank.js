@@ -668,18 +668,6 @@ export const pfConfigurationFingerbankDevicesListColumns = [
     visible: true
   },
   {
-    key: 'mobile',
-    label: i18n.t('Mobile'),
-    sortable: true,
-    visible: true
-  },
-  {
-    key: 'tablet',
-    label: i18n.t('Tablet'),
-    sortable: true,
-    visible: true
-  },
-  {
     key: 'created_at',
     label: i18n.t('Created'),
     sortable: true,
@@ -729,18 +717,14 @@ export const pfConfigurationFingerbankDevicesListConfig = (context = {}) => {
     searchableOptions: {
       searchApiEndpoint: `fingerbank/${scope}/devices`, // `./search` automatically appended
       searchApiEndpointOnly: true, // always use `/search` endpoint
-      defaultSortKeys: ['id'],
+      defaultSortKeys: ['name'],
       defaultSearchCondition: {
         op: 'and',
         values: [
-          ...((parentId)
-            ? [{ op: 'or', values: [{ field: 'parent_id', op: 'equals', value: parentId }] }]
-            : []
-          ),
           {
             op: 'or',
             values: [
-              { field: 'id', op: 'contains', value: null }
+              { field: 'parent_id', op: 'equals', value: ((parentId) ? parentId : null) }
             ]
           }
         ]
@@ -751,8 +735,8 @@ export const pfConfigurationFingerbankDevicesListConfig = (context = {}) => {
       return {
         op: 'and',
         values: [
-          ...((parentId)
-            ? [{ op: 'or', values: [{ field: 'parent_id', op: 'equals', value: parentId }] }]
+          ...((!quickCondition.trim())
+            ? [{ op: 'or', values: [{ field: 'parent_id', op: 'equals', value: ((parentId) ? parentId : null) }] }]
             : []
           ),
           ...((quickCondition.trim())
@@ -864,30 +848,6 @@ export const pfConfigurationFingerbankDeviceViewFields = (context = {}) => {
                 allowEmpty: false,
                 optionsLimit: 100,
                 optionsSearchFunction: pfConfigurationFingerbankDeviceOptionsSearchFunction
-              }
-            }
-          ]
-        },
-        {
-          label: i18n.t('Mobile'),
-          fields: [
-            {
-              key: 'mobile',
-              component: pfFormRangeToggle,
-              attrs: {
-                values: { checked: '1', unchecked: '0' }
-              }
-            }
-          ]
-        },
-        {
-          label: i18n.t('Tablet'),
-          fields: [
-            {
-              key: 'tablet',
-              component: pfFormRangeToggle,
-              attrs: {
-                values: { checked: '1', unchecked: '0' }
               }
             }
           ]
@@ -1010,9 +970,10 @@ export const pfConfigurationFingerbankDhcpFingerprintViewFields = (context = {})
           label: i18n.t('DHCP Fingerprint'),
           fields: [
             {
-              key: 'dhcp_fingerprint_id',
+              key: 'value',
               component: pfFormInput,
               validators: {
+                [i18n.t('Fingerprint required.')]: required,
                 [i18n.t('Invalid Fingerprint.')]: isFingerprint
               }
             }
@@ -1032,6 +993,31 @@ export const pfConfigurationFingerbankDhcpVendorsListColumns = [
     label: i18n.t('Identifier'),
     sortable: true,
     visible: true
+  },
+  {
+    key: 'value',
+    label: i18n.t('DHCP Vendor'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'created_at',
+    label: i18n.t('Created'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'updated_at',
+    label: i18n.t('Updated'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'buttons',
+    label: '',
+    sortable: false,
+    visible: true,
+    locked: true
   }
 ]
 
@@ -1044,15 +1030,18 @@ export const pfConfigurationFingerbankDhcpVendorsListFields = [
 ]
 
 export const pfConfigurationFingerbankDhcpVendorsListConfig = (context = {}) => {
+  const {
+    scope
+  } = context
   return {
     columns: pfConfigurationFingerbankDhcpVendorsListColumns,
     fields: pfConfigurationFingerbankDhcpVendorsListFields,
     rowClickRoute (item, index) {
-      return { name: 'dhcpVendor', params: { id: item.id } }
+      return { name: 'fingerbankDhcpVendor', params: { id: item.id } }
     },
-    searchPlaceholder: i18n.t('Search by identifier or description'),
+    searchPlaceholder: i18n.t('Search by identifier or device'),
     searchableOptions: {
-      searchApiEndpoint: 'config/TODO',
+      searchApiEndpoint: `fingerbank/${scope}/dhcp_vendors`,
       defaultSortKeys: ['id'],
       defaultSearchCondition: {
         op: 'and',
@@ -1063,7 +1052,7 @@ export const pfConfigurationFingerbankDhcpVendorsListConfig = (context = {}) => 
           ]
         }]
       },
-      defaultRoute: { name: 'profilingDhcpVendors' }
+      defaultRoute: { name: 'fingerbankDhcpVendors' }
     },
     searchableQuickCondition: (quickCondition) => {
       return {
@@ -1072,13 +1061,53 @@ export const pfConfigurationFingerbankDhcpVendorsListConfig = (context = {}) => 
           {
             op: 'or',
             values: [
-              { field: 'id', op: 'contains', value: quickCondition }
+              { field: 'id', op: 'contains', value: quickCondition },
+              { field: 'value', op: 'contains', value: quickCondition }
             ]
           }
         ]
       }
     }
   }
+}
+
+export const pfConfigurationFingerbankDhcpVendorViewFields = (context = {}) => {
+  const {
+    isNew = false,
+    isClone = false
+  } = context
+  return [
+    {
+      tab: null, // ignore tabs
+      fields: [
+        {
+          if: (!isNew && !isClone),
+          label: i18n.t('Identifier'),
+          fields: [
+            {
+              key: 'id',
+              component: pfFormInput,
+              attrs: {
+                disabled: true
+              }
+            }
+          ]
+        },
+        {
+          label: i18n.t('DHCP Vendor'),
+          fields: [
+            {
+              key: 'value',
+              component: pfFormInput,
+              validators: {
+                [i18n.t('Vendor required.')]: required
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
 }
 
 /**

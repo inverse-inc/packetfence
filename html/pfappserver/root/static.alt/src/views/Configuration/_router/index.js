@@ -53,6 +53,7 @@ const FingerbankTabs = () => import(/* webpackChunkName: "Configuration" */ '../
 const FingerbankCombinationView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FingerbankCombinationView')
 const FingerbankDeviceView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FingerbankDeviceView')
 const FingerbankDhcpFingerprintView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FingerbankDhcpFingerprintView')
+const FingerbankDhcpVendorView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FingerbankDhcpVendorView')
 const ScansTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/ScansTabs')
 const ScanEngineView = () => import(/* webpackChunkName: "Configuration" */ '../_components/ScanEngineView')
 const WmiRuleView = () => import(/* webpackChunkName: "Configuration" */ '../_components/WmiRuleView')
@@ -559,7 +560,7 @@ const route = {
       path: 'fingerbank/device/:id',
       name: 'fingerbankDevice',
       component: FingerbankDeviceView,
-      props: (route) => ({ id: route.params.id }),
+      props: (route) => ({ id: route.params.id, storeName: '$_fingerbank' }),
       beforeEnter: (to, from, next) => {
         store.dispatch('$_fingerbank/getDevice', to.params.id).then(object => {
           next()
@@ -570,7 +571,7 @@ const route = {
       path: 'fingerbank/device/:id/clone',
       name: 'cloneFingerbankDevice',
       component: FingerbankDeviceView,
-      props: (route) => ({ id: route.params.id, isClone: true }),
+      props: (route) => ({ id: route.params.id, isClone: true, storeName: '$_fingerbank' }),
       beforeEnter: (to, from, next) => {
         store.dispatch('$_fingerbank/getDevice', to.params.id).then(object => {
           next()
@@ -587,13 +588,13 @@ const route = {
       path: 'fingerbank/dhcp_fingerprints/new',
       name: 'newFingerbankDhcpFingerprint',
       component: FingerbankDhcpFingerprintView,
-      props: (route) => ({ isNew: true })
+      props: (route) => ({ isNew: true, storeName: '$_fingerbank' })
     },
     {
       path: 'fingerbank/dhcp_fingerprint/:id',
       name: 'fingerbankDhcpFingerprint',
       component: FingerbankDhcpFingerprintView,
-      props: (route) => ({ id: route.params.id }),
+      props: (route) => ({ id: route.params.id, storeName: '$_fingerbank' }),
       beforeEnter: (to, from, next) => {
         store.dispatch('$_fingerbank/getDhcpFingerprint', to.params.id).then(object => {
           next()
@@ -604,7 +605,7 @@ const route = {
       path: 'fingerbank/dhcp_fingerprint/:id/clone',
       name: 'cloneFingerbankDhcpFingerprint',
       component: FingerbankDhcpFingerprintView,
-      props: (route) => ({ id: route.params.id, isClone: true }),
+      props: (route) => ({ id: route.params.id, isClone: true, storeName: '$_fingerbank' }),
       beforeEnter: (to, from, next) => {
         store.dispatch('$_fingerbank/getDhcpFingerprint', to.params.id).then(object => {
           next()
@@ -616,6 +617,34 @@ const route = {
       name: 'fingerbankDhcpVendors',
       component: FingerbankTabs,
       props: (route) => ({ tab: 'dhcp_vendors', query: route.query.query })
+    },
+    {
+      path: 'fingerbank/dhcp_vendors/new',
+      name: 'newFingerbankDhcpVendor',
+      component: FingerbankDhcpVendorView,
+      props: (route) => ({ isNew: true, storeName: '$_fingerbank' })
+    },
+    {
+      path: 'fingerbank/dhcp_vendor/:id',
+      name: 'fingerbankDhcpVendor',
+      component: FingerbankDhcpVendorView,
+      props: (route) => ({ id: route.params.id, storeName: '$_fingerbank' }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_fingerbank/getDhcpVendor', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'fingerbank/dhcp_vendor/:id/clone',
+      name: 'cloneFingerbankDhcpVendor',
+      component: FingerbankDhcpVendorView,
+      props: (route) => ({ id: route.params.id, isClone: true, storeName: '$_fingerbank' }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_fingerbank/getDhcpVendor', to.params.id).then(object => {
+          next()
+        })
+      }
     },
     {
       path: 'fingerbank/dhcpv6_fingerprints',

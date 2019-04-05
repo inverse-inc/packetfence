@@ -402,34 +402,39 @@ export default {
   fingerbankDeleteDhcpFingerprint: id => {
     return apiCall.delete(`fingerbank/local/dhcp_fingerprint/${id}`)
   },
-
-
-
-
-
   fingerbankDhcpVendors: params => {
-    return apiCall.get(`config/TODO`, { params }).then(response => {
+    return apiCall.get(`fingerbank/all/dhcp_vendors`, { params }).then(response => {
+      return response.data
+    })
+  },
+  fingerbankSearchDhcpVendors: body => {
+    return apiCall.post('fingerbank/all/dhcp_vendors/search', body).then(response => {
       return response.data
     })
   },
   fingerbankDhcpVendor: id => {
-    return apiCall.get(`config/TODO/${id}`).then(response => {
+    return apiCall.get(`fingerbank/all/dhcp_vendor/${id}`).then(response => {
       return response.data.item
     })
   },
   fingerbankCreateDhcpVendor: data => {
-    return apiCall.post('config/TODO', data).then(response => {
+    return apiCall.post('fingerbank/local/dhcp_vendors', data).then(response => {
       return response.data
     })
   },
   fingerbankUpdateDhcpVendor: data => {
-    return apiCall.patch(`config/TODO/${data.id}`, data).then(response => {
+    return apiCall.patch(`fingerbank/local/dhcp_vendor/${data.id}`, data).then(response => {
       return response.data
     })
   },
   fingerbankDeleteDhcpVendor: id => {
-    return apiCall.delete(`config/TODO/${id}`)
+    return apiCall.delete(`fingerbank/local/dhcp_vendor/${id}`)
   },
+
+
+
+
+
   fingerbankDhcpv6Fingerprints: params => {
     return apiCall.get(`config/TODO`, { params }).then(response => {
       return response.data
