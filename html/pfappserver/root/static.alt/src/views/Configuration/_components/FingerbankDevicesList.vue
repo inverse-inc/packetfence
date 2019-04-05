@@ -35,7 +35,7 @@
         </b-row>
       </template>
       <template slot="buttonAdd">
-        <b-button variant="outline-primary" :to="{ name: 'newDevice' }">{{ $t('Add Device') }}</b-button>
+        <b-button variant="outline-primary" :to="{ name: 'newDevice' }">{{ $t('Add Local Device') }}</b-button>
       </template>
       <template slot="emptySearch" slot-scope="state">
         <pf-empty-table :isLoading="state.isLoading">{{ $t('No devices found') }}</pf-empty-table>

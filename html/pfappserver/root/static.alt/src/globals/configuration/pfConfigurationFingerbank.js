@@ -1119,6 +1119,31 @@ export const pfConfigurationFingerbankDhcpv6FingerprintsListColumns = [
     label: i18n.t('Identifier'),
     sortable: true,
     visible: true
+  },
+  {
+    key: 'value',
+    label: i18n.t('DHCPv6 Fingerprint'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'created_at',
+    label: i18n.t('Created'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'updated_at',
+    label: i18n.t('Updated'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'buttons',
+    label: '',
+    sortable: false,
+    visible: true,
+    locked: true
   }
 ]
 
@@ -1131,15 +1156,18 @@ export const pfConfigurationFingerbankDhcpv6FingerprintsListFields = [
 ]
 
 export const pfConfigurationFingerbankDhcpv6FingerprintsListConfig = (context = {}) => {
+  const {
+    scope
+  } = context
   return {
     columns: pfConfigurationFingerbankDhcpv6FingerprintsListColumns,
     fields: pfConfigurationFingerbankDhcpv6FingerprintsListFields,
     rowClickRoute (item, index) {
-      return { name: 'dhcpv6Fingerprint', params: { id: item.id } }
+      return { name: 'fingerbankDhcpv6Fingerprint', params: { id: item.id } }
     },
-    searchPlaceholder: i18n.t('Search by identifier or description'),
+    searchPlaceholder: i18n.t('Search by identifier or device'),
     searchableOptions: {
-      searchApiEndpoint: 'config/TODO',
+      searchApiEndpoint: `fingerbank/${scope}/dhcp6_fingerprints`,
       defaultSortKeys: ['id'],
       defaultSearchCondition: {
         op: 'and',
@@ -1150,7 +1178,7 @@ export const pfConfigurationFingerbankDhcpv6FingerprintsListConfig = (context = 
           ]
         }]
       },
-      defaultRoute: { name: 'profilingDhcpv6Fingerprints' }
+      defaultRoute: { name: 'fingerbankDhcpv6Fingerprints' }
     },
     searchableQuickCondition: (quickCondition) => {
       return {
@@ -1159,13 +1187,54 @@ export const pfConfigurationFingerbankDhcpv6FingerprintsListConfig = (context = 
           {
             op: 'or',
             values: [
-              { field: 'id', op: 'contains', value: quickCondition }
+              { field: 'id', op: 'contains', value: quickCondition },
+              { field: 'value', op: 'contains', value: quickCondition }
             ]
           }
         ]
       }
     }
   }
+}
+
+export const pfConfigurationFingerbankDhcpv6FingerprintViewFields = (context = {}) => {
+  const {
+    isNew = false,
+    isClone = false
+  } = context
+  return [
+    {
+      tab: null, // ignore tabs
+      fields: [
+        {
+          if: (!isNew && !isClone),
+          label: i18n.t('Identifier'),
+          fields: [
+            {
+              key: 'id',
+              component: pfFormInput,
+              attrs: {
+                disabled: true
+              }
+            }
+          ]
+        },
+        {
+          label: i18n.t('DHCPv6 Fingerprint'),
+          fields: [
+            {
+              key: 'value',
+              component: pfFormInput,
+              validators: {
+                [i18n.t('Fingerprint required.')]: required,
+                [i18n.t('Invalid Fingerprint.')]: isFingerprint
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
 }
 
 /**

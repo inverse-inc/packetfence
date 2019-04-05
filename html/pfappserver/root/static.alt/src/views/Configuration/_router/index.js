@@ -54,6 +54,7 @@ const FingerbankCombinationView = () => import(/* webpackChunkName: "Configurati
 const FingerbankDeviceView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FingerbankDeviceView')
 const FingerbankDhcpFingerprintView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FingerbankDhcpFingerprintView')
 const FingerbankDhcpVendorView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FingerbankDhcpVendorView')
+const FingerbankDhcpv6FingerprintView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FingerbankDhcpv6FingerprintView')
 const ScansTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/ScansTabs')
 const ScanEngineView = () => import(/* webpackChunkName: "Configuration" */ '../_components/ScanEngineView')
 const WmiRuleView = () => import(/* webpackChunkName: "Configuration" */ '../_components/WmiRuleView')
@@ -651,6 +652,34 @@ const route = {
       name: 'fingerbankDhcpv6Fingerprints',
       component: FingerbankTabs,
       props: (route) => ({ tab: 'dhcpv6_fingerprints', query: route.query.query })
+    },
+    {
+      path: 'fingerbank/dhcpv6_fingerprints/new',
+      name: 'newFingerbankDhcpv6Fingerprint',
+      component: FingerbankDhcpv6FingerprintView,
+      props: (route) => ({ isNew: true, storeName: '$_fingerbank' })
+    },
+    {
+      path: 'fingerbank/dhcpv6_fingerprint/:id',
+      name: 'fingerbankDhcpv6Fingerprint',
+      component: FingerbankDhcpv6FingerprintView,
+      props: (route) => ({ id: route.params.id, storeName: '$_fingerbank' }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_fingerbank/getDhcpv6Fingerprint', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'fingerbank/dhcpv6_fingerprint/:id/clone',
+      name: 'cloneFingerbankDhcpv6Fingerprint',
+      component: FingerbankDhcpv6FingerprintView,
+      props: (route) => ({ id: route.params.id, isClone: true, storeName: '$_fingerbank' }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_fingerbank/getDhcpv6Fingerprint', to.params.id).then(object => {
+          next()
+        })
+      }
     },
     {
       path: 'fingerbank/dhcpv6_enterprises',

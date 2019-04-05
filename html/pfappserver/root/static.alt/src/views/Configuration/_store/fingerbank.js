@@ -361,6 +361,11 @@ const actions = {
       throw err
     })
   },
+
+
+
+
+
   dhcpv6Fingerprints: ({ state, commit }) => {
     const params = {
       sort: 'id',
