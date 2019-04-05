@@ -13328,6 +13328,108 @@
                }
             ]
          },
+         "DynamicReport" : {
+            "properties" : {
+               "base_conditions" : {
+                  "description" : "Comma delimited conditions that should be applied to the report. This can be used to filter the report without using the search in the administration interface to provide the proper unsearched view. Conditions should match the following format : field:operator:value (ex: auth_log.source:=:sms,auth_log.status:!=:completed).",
+                  "type" : "string"
+               },
+               "base_conditions_operator" : {
+                  "description" : "Whether the base conditions should be matched using an all or any logic. Accepted values are all and any.",
+                  "type" : "string"
+               },
+               "base_table" : {
+                  "description" : "The base SQL table that will be used to create the view",
+                  "type" : "string"
+               },
+               "columns" : {
+                  "description" : "The columns to select from the table(s) ",
+                  "type" : "string"
+               },
+               "date_field" : {
+                  "description" : "The field to use for date filtering. Will also be used as default sorting field unless order_fields is set in the report.",
+                  "type" : "string"
+               },
+               "description" : {
+                  "description" : "The user friendly description that will display for this report",
+                  "type" : "string"
+               },
+               "group_field" : {
+                  "description" : "The field to group the entries by. No grouping is done if this field is omitted or empty.",
+                  "type" : "string"
+               },
+               "joins" : {
+                  "description" : "The tables to join to the base table and how to join them. ",
+                  "type" : "string"
+               },
+               "node_fields" : {
+                  "description" : "The fields in your report that represent a node in the PacketFence database. Field values in this field will be clickable and will allow to view/modify the values of the node in question. The fields must be listed with the name they have in the report header without any quotes and are comma delimited.",
+                  "type" : "string"
+               },
+               "order_fields" : {
+                  "description" : "Comma delimited fields for the ordering of the report. The field should be prefixed of - if the sort should be made in descending order for the field ",
+                  "type" : "string"
+               },
+               "person_fields" : {
+                  "description" : "The fields in your report that represent a user in the PacketFence database. Field values in this field will be clickable and will allow to view/modify the values of the user in question. The fields must be listed with the name they have in the report header without any quotes and are comma delimited.",
+                  "type" : "string"
+               },
+               "searches" : {
+                  "description" : "Comma delimited searches that should be available on the report. Should match the following format type:Display Name:field (ex: string:Username:auth_log.pid).",
+                  "type" : "string"
+               },
+               "type" : {
+                  "description" : "Determines what type of report this is. Setting type=built-in will make this report appear in \"Other reports\", omitting it will display it in \"Custom reports\" when viewing it in the administration interface. When in doubt, simply omit this parameter.",
+                  "type" : "string"
+               }
+            },
+            "type" : "object"
+         },
+         "DynamicReportSearch" : {
+            "properties" : {
+               "cursor" : {
+                  "description" : "The cursor pointer to fetch the data (value should be taken from previousCursor and nextCursor)",
+                  "type" : "string"
+               },
+               "fields" : {
+                  "description" : "Comma delimited fields that should be added to the resource by performing joins. For example, in order to get the IP address of a node when calling the nodes endpoints, setting 'ip4log.ip' into this field will provide the latest IP address of the device in the 'ip4log.ip' field of every node that is returned.",
+                  "type" : "string"
+               },
+               "limit" : {
+                  "description" : "The maximum amount of entries to get.",
+                  "type" : "string"
+               },
+               "query" : {
+                  "$ref" : "#/components/schemas/Query"
+               },
+               "sort" : {
+                  "description" : "A list of fields to sort on along with the ordering way (ASC or DESC).",
+                  "type" : "string"
+               }
+            },
+            "type" : "object"
+         },
+         "DynamicReportSearchResult" : {
+            "properties" : {
+               "items" : {
+                  "description" : "Items",
+                  "items" : {
+                     "type" : "object"
+                  },
+                  "type" : "array"
+               },
+               "nextCursor" : {
+                  "description" : "The cursor to access the data after the one returned in the response",
+                  "type" : "integer"
+               },
+               "previousCursor" : {
+                  "description" : "The cursor to access the data before the one returned in the response",
+                  "type" : "integer"
+               },
+               "type" : "object"
+            },
+            "type" : "object"
+         },
          "ErrorsWithMessage" : {
             "properties" : {
                "errors" : {
@@ -19696,6 +19798,113 @@
                },
                "422" : {
                   "$ref" : "#/components/responses/UnprocessableEntity"
+               }
+            }
+         }
+      },
+      "/dynamic_report/{report_id}" : {
+         "get" : {
+            "description" : "Get a dynamic report",
+            "operationId" : "api.v1.DynamicReports.resource.get",
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "report_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "description" : "Item",
+                           "properties" : {
+                              "item" : {
+                                 "$ref" : "#/components/schemas/DynamicReport"
+                              }
+                           },
+                           "type" : "object"
+                        }
+                     }
+                  },
+                  "description" : "Get item"
+               },
+               "404" : {
+                  "$ref" : "#/components/responses/NotFound"
+               }
+            }
+         }
+      },
+      "/dynamic_report/{report_id}/search" : {
+         "description" : "Search through a dynamic report",
+         "post" : {
+            "operationId" : "api.v1.DynamicReports.resource.search",
+            "parameters" : [],
+            "requestBody" : {
+               "content" : {
+                  "application/json" : {
+                     "schema" : {
+                        "$ref" : "#/components/schemas/DynamicReportSearch"
+                     }
+                  }
+               },
+               "description" : "Search for items"
+            },
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/DynamicReportSearchResult"
+                        }
+                     }
+                  },
+                  "description" : "List"
+               },
+               "400" : {
+                  "$ref" : "#/components/responses/BadRequest"
+               },
+               "422" : {
+                  "$ref" : "#/components/responses/UnprocessableEntity"
+               }
+            }
+         }
+      },
+      "/dynamic_reports" : {
+         "get" : {
+            "description" : "Get all the dynamic reports",
+            "operationId" : "api.v1.DynamicReports.list",
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "report_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "description" : "Item",
+                           "properties" : {
+                              "items" : {
+                                 "items" : {
+                                    "$ref" : "#/components/schemas/DynamicReport"
+                                 },
+                                 "type" : "array"
+                              }
+                           },
+                           "type" : "object"
+                        }
+                     }
+                  },
+                  "description" : "Get item"
                }
             }
          }
