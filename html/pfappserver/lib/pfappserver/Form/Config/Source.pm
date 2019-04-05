@@ -131,6 +131,10 @@ has_block internal_sources =>
     render_list => [],
   );
 
+has_block '8021xCapability' =>
+  (
+    render_list => [],
+  );
 
 has_block action_templates => (
     attr => {
@@ -168,6 +172,7 @@ our %EXCLUDE = (
     password_length => 1,
     stripped_user_name => 1,
     realms => 1,
+    '8021xCapability' => 1,
     (map { ("${_}_rules"  => 1) } @Rules::CLASSES),
     (map { ("${_}_action" => 1) } keys %ACTION_FIELD_OPTIONS),
     (map { ("${_}_operator" => 1, "${_}_value" => 1) } @Conditions::TYPES),

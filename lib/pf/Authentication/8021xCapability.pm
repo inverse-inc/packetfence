@@ -1,26 +1,18 @@
-package pfappserver::Form::Config::Source::SQL;
+package pf::Authentication::8021xCapability;
 
 =head1 NAME
 
-pfappserver::Form::Config::Source::SQL
-
-=cut
+pf::Authentication::8021xCapability
 
 =head1 DESCRIPTION
 
-Form definition to create or update an SQL authentication source.
+Role that defines the Authentication source behavior for 802.1x capability
 
 =cut
 
-use strict;
-use warnings;
-use HTML::FormHandler::Moose;
-extends 'pfappserver::Form::Config::Source';
-with 'pfappserver::Base::Form::Role::8021xCapability';
+use Moose::Role;
 
-=head1 AUTHOR
-
-Inverse inc. <info@inverse.ca>
+has '8021x_capable' => ( isa => 'Bool', is => 'rw', default => 0 );
 
 =head1 COPYRIGHT
 
@@ -46,3 +38,4 @@ USA.
 =cut
 
 1;
+

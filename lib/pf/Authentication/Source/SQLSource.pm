@@ -17,7 +17,7 @@ use pf::Authentication::Source;
 
 use Moose;
 extends 'pf::Authentication::Source';
-with qw(pf::Authentication::InternalRole);
+with qw(pf::Authentication::InternalRole pf::Authentication::8021xCapability);
 
 has '+type' => ( default => 'SQL' );
 

@@ -18,6 +18,11 @@ has_field '+usernameattribute' =>
    default => 'sAMAccountName',
   );
 
+has_field '+8021x_capable' =>
+ (
+  inactive => 1,
+ );
+
 =head1 COPYRIGHT
 
 Copyright (C) 2005-2019 Inverse inc.

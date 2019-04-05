@@ -34,9 +34,12 @@
         [% form.field('id').render | none %]
         [% form.block('standard').render | none %]
         [% INCLUDE "config/source/type/${item.type}.tt" %]
+        [% form.block('8021xCapability').render | none %]
         [% form.block('local_account').render | none %]
         [% form.block('internal_sources').render | none %]
+        [% IF item.type != "SQL"  %]
         [% form.block('rules').render | none %]
+        [% END -%]
 
     <div class="form-actions">
         <a href="[% c.pf_hash_for(c.controller.action_for('index')) %]" class="btn" >[% l('Cancel') %]</a>

@@ -27,7 +27,7 @@ use pf::util::statsd qw(called);
 
 use Moose;
 extends 'pf::Authentication::Source';
-with qw(pf::Authentication::InternalRole);
+with qw(pf::Authentication::InternalRole pf::Authentication::8021xCapability);
 
 # available encryption
 use constant {

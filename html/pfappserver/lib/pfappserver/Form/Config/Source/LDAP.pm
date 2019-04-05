@@ -15,7 +15,7 @@ BEGIN {
 }
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Source';
-with 'pfappserver::Base::Form::Role::Help', 'pfappserver::Base::Form::Role::InternalSource';
+with 'pfappserver::Base::Form::Role::Help', 'pfappserver::Base::Form::Role::InternalSource', 'pfappserver::Base::Form::Role::8021xCapability';
 
 use pf::config qw(%Config);
 

@@ -66,7 +66,6 @@ after list => sub {
     my %source_by_class = map { $_ => [] } @SOURCE_TYPES;
     foreach my $item (@$items) {
         my $type = $item->{type};
-        next if $type eq 'SQL';
         my $class = pf::authentication::getAuthenticationClassByType($type);
         $item->{class} = $class;
         push @{$source_by_class{$class}}, $item;
