@@ -209,6 +209,8 @@ sub cleanup_item {
         $new_item{$k} = defined $v ? "$v" : undef;
     }
 
+    my $id = $new_item{id};
+    $new_item{not_deletable} = ($id =~ /^L/) ? $self->json_false : $self->json_true;;
     return \%new_item;
 }
 
