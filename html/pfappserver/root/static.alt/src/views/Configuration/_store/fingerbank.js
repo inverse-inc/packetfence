@@ -465,11 +465,6 @@ const actions = {
       throw err
     })
   },
-
-
-
-
-
   macVendors: ({ state, commit }) => {
     const params = {
       sort: 'id',
@@ -522,6 +517,11 @@ const actions = {
       throw err
     })
   },
+
+
+
+
+
   userAgents: ({ state, commit }) => {
     const params = {
       sort: 'id',

@@ -56,6 +56,7 @@ const FingerbankDhcpFingerprintView = () => import(/* webpackChunkName: "Configu
 const FingerbankDhcpVendorView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FingerbankDhcpVendorView')
 const FingerbankDhcpv6FingerprintView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FingerbankDhcpv6FingerprintView')
 const FingerbankDhcpv6EnterpriseView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FingerbankDhcpv6EnterpriseView')
+const FingerbankMacVendorView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FingerbankMacVendorView')
 const ScansTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/ScansTabs')
 const ScanEngineView = () => import(/* webpackChunkName: "Configuration" */ '../_components/ScanEngineView')
 const WmiRuleView = () => import(/* webpackChunkName: "Configuration" */ '../_components/WmiRuleView')
@@ -721,6 +722,34 @@ const route = {
       name: 'fingerbankMacVendors',
       component: FingerbankTabs,
       props: (route) => ({ tab: 'mac_vendors', query: route.query.query })
+    },
+    {
+      path: 'fingerbank/mac_vendors/new',
+      name: 'newFingerbankMacVendor',
+      component: FingerbankMacVendorView,
+      props: (route) => ({ isNew: true, storeName: '$_fingerbank' })
+    },
+    {
+      path: 'fingerbank/mac_vendor/:id',
+      name: 'fingerbankMacVendor',
+      component: FingerbankMacVendorView,
+      props: (route) => ({ id: route.params.id, storeName: '$_fingerbank' }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_fingerbank/getMacVendor', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'fingerbank/mac_vendor/:id/clone',
+      name: 'cloneFingerbankMacVendor',
+      component: FingerbankMacVendorView,
+      props: (route) => ({ id: route.params.id, isClone: true, storeName: '$_fingerbank' }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_fingerbank/getMacVendor', to.params.id).then(object => {
+          next()
+        })
+      }
     },
     {
       path: 'fingerbank/user_agents',

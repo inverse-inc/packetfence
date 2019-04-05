@@ -1238,7 +1238,7 @@ export const pfConfigurationFingerbankDhcpv6FingerprintViewFields = (context = {
 }
 
 /**
- * DHCP Enterprises
+ * DHCPv6 Enterprises
  */
 export const pfConfigurationFingerbankDhcpv6EnterprisesListColumns = [
   {
@@ -1373,6 +1373,37 @@ export const pfConfigurationFingerbankMacVendorsListColumns = [
     label: i18n.t('Identifier'),
     sortable: true,
     visible: true
+  },
+  {
+    key: 'mac',
+    label: i18n.t('OUI'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'name',
+    label: i18n.t('MAC Vendor'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'created_at',
+    label: i18n.t('Created'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'updated_at',
+    label: i18n.t('Updated'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'buttons',
+    label: '',
+    sortable: false,
+    visible: true,
+    locked: true
   }
 ]
 
@@ -1385,15 +1416,18 @@ export const pfConfigurationFingerbankMacVendorsListFields = [
 ]
 
 export const pfConfigurationFingerbankMacVendorsListConfig = (context = {}) => {
+  const {
+    scope
+  } = context
   return {
     columns: pfConfigurationFingerbankMacVendorsListColumns,
     fields: pfConfigurationFingerbankMacVendorsListFields,
     rowClickRoute (item, index) {
-      return { name: 'macVendor', params: { id: item.id } }
+      return { name: 'fingerbankMacVendor', params: { id: item.id } }
     },
-    searchPlaceholder: i18n.t('Search by identifier or description'),
+    searchPlaceholder: i18n.t('Search by identifier or device'),
     searchableOptions: {
-      searchApiEndpoint: 'config/TODO',
+      searchApiEndpoint: `fingerbank/${scope}/mac_vendors`,
       defaultSortKeys: ['id'],
       defaultSearchCondition: {
         op: 'and',
@@ -1404,7 +1438,7 @@ export const pfConfigurationFingerbankMacVendorsListConfig = (context = {}) => {
           ]
         }]
       },
-      defaultRoute: { name: 'profilingMacVendors' }
+      defaultRoute: { name: 'fingerbankMacVendors' }
     },
     searchableQuickCondition: (quickCondition) => {
       return {
@@ -1413,13 +1447,68 @@ export const pfConfigurationFingerbankMacVendorsListConfig = (context = {}) => {
           {
             op: 'or',
             values: [
-              { field: 'id', op: 'contains', value: quickCondition }
+              { field: 'id', op: 'contains', value: quickCondition },
+              { field: 'mac', op: 'contains', value: quickCondition },
+              { field: 'name', op: 'contains', value: quickCondition }
             ]
           }
         ]
       }
     }
   }
+}
+
+export const pfConfigurationFingerbankMacVendorViewFields = (context = {}) => {
+  const {
+    isNew = false,
+    isClone = false
+  } = context
+  return [
+    {
+      tab: null, // ignore tabs
+      fields: [
+        {
+          if: (!isNew && !isClone),
+          label: i18n.t('Identifier'),
+          fields: [
+            {
+              key: 'id',
+              component: pfFormInput,
+              attrs: {
+                disabled: true
+              }
+            }
+          ]
+        },
+        {
+          label: i18n.t('MAC Vendor'),
+          fields: [
+            {
+              key: 'name',
+              component: pfFormInput,
+              validators: {
+                [i18n.t('Vendor required.')]: required
+              }
+            }
+          ]
+        },
+        {
+          label: i18n.t('OUI'),
+          text: i18n.t('The OUI is the first six digits or letters of a MAC address. They must be entered without any space or separator (ex: 001122).'),
+          fields: [
+            {
+              key: 'mac',
+              component: pfFormInput,
+              validators: {
+                [i18n.t('OUI required.')]: required,
+                [i18n.t('Invalid OUI.')]: isOUI
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
 }
 
 /**
