@@ -33,5 +33,9 @@ PrivateTmp=true
 # See https://github.com/inverse-inc/packetfence/issues/2502
 LimitNOFILE=4096
 
+KillMode=process
+KillSignal=SIGTERM
+
 [Install]
 WantedBy=packetfence-base.target
+
