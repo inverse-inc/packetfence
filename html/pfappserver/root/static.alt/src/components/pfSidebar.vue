@@ -21,27 +21,27 @@
         </b-btn>
       </div>
       <!-- navigation -->
-      <b-collapse id="pf-sidebar-links" class="pf-sidebar-links" visible is-nav>
+      <b-collapse id="pf-sidebar-links" class="pf-sidebar-links" visible>
         <b-nav class="pf-sidenav" vertical>
           <template v-for="section in filteredSections">
             <!-- collapsable (root level) -->
             <template v-if="section.collapsable">
-              <div class="pf-sidenav-group" :key="section.name" v-b-toggle="section.name">
+              <div class="pf-sidenav-group" :key="`${section.name}_btn`" v-b-toggle="$sanitizedClass(section.name)">
                 <icon class="position-absolute mx-3" :name="section.icon" scale="1.25" v-if="section.icon"></icon>
                 <text-highlight class="ml-5" :queries="[filter]">{{ $t(section.name) }}</text-highlight>
                 <icon class="mx-1 mt-1" name="chevron-down"></icon>
               </div>
-              <b-collapse :id="section.name" :ref="section.name" :key="section.name" :accordion="accordion(section.name)" :visible="isActive(section.items)" is-nav>
+              <b-collapse :id="$sanitizedClass(section.name)" :key="section.name" :accordion="accordion(section.name)" :visible="isActive(section.name)">
                 <template v-for="item in section.items">
                   <!-- single link -->
                   <pf-sidebar-item v-if="item.path" :key="item.name" :item="item" :filter="filter"></pf-sidebar-item>
                   <!-- collapsable (2nd level) -->
                   <template v-else-if="item.collapsable">
-                    <div class="pf-sidenav-group" :key="item.name" v-b-toggle="`${section.name}_${item.name}`">
+                    <div class="pf-sidenav-group" :key="`${item.name}_btn`" v-b-toggle="$sanitizedClass(`${section.name}_${item.name}`)">
                       <text-highlight class="ml-5" :queries="[filter]">{{ $t(item.name) }}</text-highlight>
                       <icon class="mx-1 mt-1" name="chevron-down"></icon>
                     </div>
-                    <b-collapse :id="`${section.name}_${item.name}`" :key="item.name" :visible="isActive(item.items)" is-nav>
+                    <b-collapse :id="$sanitizedClass(`${section.name}_${item.name}`)" :key="item.name" :visible="isActive(item.name)">
                       <pf-sidebar-item v-for="subitem in item.items" :key="subitem.name" :item="subitem" :filter="filter" indent></pf-sidebar-item>
                     </b-collapse>
                   </template>
@@ -88,7 +88,8 @@ export default {
   },
   data () {
     return {
-      filter: ''
+      filter: '',
+      expandedSections: []
     }
   },
   computed: {
@@ -130,17 +131,34 @@ export default {
     },
     // Return true if the current route matches the items.
     // Ignore current route and always return true when filtering the sidebar items so all sections are expanded.
-    isActive (items) {
-      const _find = (items) => {
-        return items.find(item => {
-          if ('items' in item) {
-            return _find(item.items) !== undefined
+    isActive (name) {
+      return this.filteredMode || this.expandedSections.includes(name)
+    },
+    findActiveSections (items, sections) {
+      items.forEach(({ name: sectionName, path, items }) => {
+        if (items) {
+          this.findActiveSections(items, [sectionName, ...sections])
+        } else if (path && path instanceof Object) {
+          const { name: pathName, query: { query: pathQuery } } = path
+          const { query: routeQuery = '' } = this.$route.query
+          if (pathName === this.$route.name && pathQuery === routeQuery) {
+            this.expandedSections = sections
           }
-          return ((item.path instanceof Object && 'name' in item.path && item.path.name === this.$route.name) ||
-            (item.path.constructor === String && this.$route.path.indexOf(item.path.slice(0, -1)) === 0))
-        })
-      }
-      return this.filteredMode || _find(items) !== undefined
+        } else if (path === this.$route.path) {
+          this.expandedSections = sections
+        }
+      })
+    }
+  },
+  watch: {
+    '$route': {
+      handler: function (to, from) {
+        this.findActiveSections(this.value, [])
+      },
+      immediate: true
+    },
+    value (newValue) {
+      this.findActiveSections(newValue, [])
     }
   }
 }

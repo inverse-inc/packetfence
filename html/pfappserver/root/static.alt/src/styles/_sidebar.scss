@@ -120,28 +120,32 @@ $sidebar-item-padding-right: map-get($spacers, 1);
     color: rgba(0,0,0,.85);
     text-decoration: none;
   }
-}
 
-// Active link
-.pf-sidebar .active:not(.secondary),
-.pf-sidebar .active:not(.secondary):hover {
-  background-color: $component-active-bg;
-  color: $component-active-color;
+  // Active link
+  &.active,
+  &.active:hover {
+    background-color: $component-active-bg;
+    color: $component-active-color;
+    .figure-caption {
+      color: $component-active-color;
+      opacity: .8;
+    }
+  }
 }
 
 // Secondary active link
-.pf-sidebar .active.secondary,
-.pf-sidebar .active.secondary:hover {
-  padding-left: $sidebar-item-padding-left - .2rem;
-  border-left: .2rem solid $component-active-bg;
-  background-color: transparent;
-  color: rgba(0,0,0,.85);
-  font-weight: 500;
-}
+// .pf-sidebar .active.secondary,
+// .pf-sidebar .active.secondary:hover {
+//   padding-left: $sidebar-item-padding-left - .2rem;
+//   border-left: .2rem solid $component-active-bg;
+//   background-color: transparent;
+//   color: rgba(0,0,0,.85);
+//   font-weight: 500;
+// }
 
 // Collapsable sections
 .pf-sidenav .navbar-collapse {
-  background-color: rgba(0, 0, 0, 0.05);
+  background-color: rgba(0, 0, 0, 0.021);
 }
 
 .pf-sidenav .collapsed svg:last-child {
