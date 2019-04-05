@@ -318,18 +318,6 @@ export default {
       return response.data
     })
   },
-  /*
-  fingerbankDeviceChangeDetection: params => {
-    return apiCall.get(`config/TODO`, { params }).then(response => {
-      return response.data.item
-    })
-  },
-  fingerbankUpdateDeviceChangeDetection: params => {
-    return apiCall.get(`config/TODO`, { params }).then(response => {
-      return response.data
-    })
-  },
-  */
   fingerbankCombinations: params => {
     return apiCall.get(`fingerbank/all/combinations`, { params }).then(response => {
       return response.data
@@ -386,144 +374,173 @@ export default {
   fingerbankDeleteDevice: id => {
     return apiCall.delete(`fingerbank/local/device/${id}`)
   },
-
   fingerbankDhcpFingerprints: params => {
-    return apiCall.get(`config/TODO`, { params }).then(response => {
+    return apiCall.get(`fingerbank/all/dhcp_fingerprints`, { params }).then(response => {
+      return response.data
+    })
+  },
+  fingerbankSearchDhcpFingerprints: body => {
+    return apiCall.post('fingerbank/all/dhcp_fingerprints/search', body).then(response => {
       return response.data
     })
   },
   fingerbankDhcpFingerprint: id => {
-    return apiCall.get(`config/TODO/${id}`).then(response => {
+    return apiCall.get(`fingerbank/all/dhcp_fingerprint/${id}`).then(response => {
       return response.data.item
     })
   },
   fingerbankCreateDhcpFingerprint: data => {
-    return apiCall.post('config/TODO', data).then(response => {
+    return apiCall.post('fingerbank/local/dhcp_fingerprints', data).then(response => {
       return response.data
     })
   },
   fingerbankUpdateDhcpFingerprint: data => {
-    return apiCall.patch(`config/TODO/${data.id}`, data).then(response => {
+    return apiCall.patch(`fingerbank/local/dhcp_fingerprint/${data.id}`, data).then(response => {
       return response.data
     })
   },
   fingerbankDeleteDhcpFingerprint: id => {
-    return apiCall.delete(`config/TODO/${id}`)
+    return apiCall.delete(`fingerbank/local/dhcp_fingerprint/${id}`)
   },
   fingerbankDhcpVendors: params => {
-    return apiCall.get(`config/TODO`, { params }).then(response => {
+    return apiCall.get(`fingerbank/all/dhcp_vendors`, { params }).then(response => {
+      return response.data
+    })
+  },
+  fingerbankSearchDhcpVendors: body => {
+    return apiCall.post('fingerbank/all/dhcp_vendors/search', body).then(response => {
       return response.data
     })
   },
   fingerbankDhcpVendor: id => {
-    return apiCall.get(`config/TODO/${id}`).then(response => {
+    return apiCall.get(`fingerbank/all/dhcp_vendor/${id}`).then(response => {
       return response.data.item
     })
   },
   fingerbankCreateDhcpVendor: data => {
-    return apiCall.post('config/TODO', data).then(response => {
+    return apiCall.post('fingerbank/local/dhcp_vendors', data).then(response => {
       return response.data
     })
   },
   fingerbankUpdateDhcpVendor: data => {
-    return apiCall.patch(`config/TODO/${data.id}`, data).then(response => {
+    return apiCall.patch(`fingerbank/local/dhcp_vendor/${data.id}`, data).then(response => {
       return response.data
     })
   },
   fingerbankDeleteDhcpVendor: id => {
-    return apiCall.delete(`config/TODO/${id}`)
+    return apiCall.delete(`fingerbank/local/dhcp_vendor/${id}`)
   },
   fingerbankDhcpv6Fingerprints: params => {
-    return apiCall.get(`config/TODO`, { params }).then(response => {
+    return apiCall.get(`fingerbank/all/dhcp6_fingerprints`, { params }).then(response => {
+      return response.data
+    })
+  },
+  fingerbankSearchDhcpv6Fingerprints: body => {
+    return apiCall.post('fingerbank/all/dhcp6_fingerprints/search', body).then(response => {
       return response.data
     })
   },
   fingerbankDhcpv6Fingerprint: id => {
-    return apiCall.get(`config/TODO/${id}`).then(response => {
+    return apiCall.get(`fingerbank/all/dhcp6_fingerprint/${id}`).then(response => {
       return response.data.item
     })
   },
   fingerbankCreateDhcpv6Fingerprint: data => {
-    return apiCall.post('config/TODO', data).then(response => {
+    return apiCall.post('fingerbank/local/dhcp6_fingerprints', data).then(response => {
       return response.data
     })
   },
   fingerbankUpdateDhcpv6Fingerprint: data => {
-    return apiCall.patch(`config/TODO/${data.id}`, data).then(response => {
+    return apiCall.patch(`fingerbank/local/dhcp6_fingerprint/${data.id}`, data).then(response => {
       return response.data
     })
   },
   fingerbankDeleteDhcpv6Fingerprint: id => {
-    return apiCall.delete(`config/TODO/${id}`)
+    return apiCall.delete(`fingerbank/local/dhcp6_fingerprint/${id}`)
   },
   fingerbankDhcpv6Enterprises: params => {
-    return apiCall.get(`config/TODO`, { params }).then(response => {
+    return apiCall.get(`fingerbank/all/dhcp6_enterprises`, { params }).then(response => {
+      return response.data
+    })
+  },
+  fingerbankSearchDhcpv6Enterprises: body => {
+    return apiCall.post('fingerbank/all/dhcp6_enterprises/search', body).then(response => {
       return response.data
     })
   },
   fingerbankDhcpv6Enterprise: id => {
-    return apiCall.get(`config/TODO/${id}`).then(response => {
+    return apiCall.get(`fingerbank/all/dhcp6_enterprise/${id}`).then(response => {
       return response.data.item
     })
   },
   fingerbankCreateDhcpv6Enterprise: data => {
-    return apiCall.post('config/TODO', data).then(response => {
+    return apiCall.post('fingerbank/local/dhcp6_enterprises', data).then(response => {
       return response.data
     })
   },
   fingerbankUpdateDhcpv6Enterprise: data => {
-    return apiCall.patch(`config/TODO/${data.id}`, data).then(response => {
+    return apiCall.patch(`fingerbank/local/dhcp6_enterprise/${data.id}`, data).then(response => {
       return response.data
     })
   },
   fingerbankDeleteDhcpv6Enterprise: id => {
-    return apiCall.delete(`config/TODO/${id}`)
+    return apiCall.delete(`fingerbank/local/dhcp6_enterprise/${id}`)
   },
   fingerbankMacVendors: params => {
-    return apiCall.get(`config/TODO`, { params }).then(response => {
+    return apiCall.get(`fingerbank/all/mac_vendors`, { params }).then(response => {
+      return response.data
+    })
+  },
+  fingerbankSearchMacVendors: body => {
+    return apiCall.post('fingerbank/all/mac_vendors/search', body).then(response => {
       return response.data
     })
   },
   fingerbankMacVendor: id => {
-    return apiCall.get(`config/TODO/${id}`).then(response => {
+    return apiCall.get(`fingerbank/all/mac_vendor/${id}`).then(response => {
       return response.data.item
     })
   },
   fingerbankCreateMacVendor: data => {
-    return apiCall.post('config/TODO', data).then(response => {
+    return apiCall.post('fingerbank/local/mac_vendors', data).then(response => {
       return response.data
     })
   },
   fingerbankUpdateMacVendor: data => {
-    return apiCall.patch(`config/TODO/${data.id}`, data).then(response => {
+    return apiCall.patch(`fingerbank/local/mac_vendor/${data.id}`, data).then(response => {
       return response.data
     })
   },
   fingerbankDeleteMacVendor: id => {
-    return apiCall.delete(`config/TODO/${id}`)
+    return apiCall.delete(`fingerbank/local/mac_vendor/${id}`)
   },
   fingerbankUserAgents: params => {
-    return apiCall.get(`config/TODO`, { params }).then(response => {
+    return apiCall.get(`fingerbank/all/user_agents`, { params }).then(response => {
+      return response.data
+    })
+  },
+  fingerbankSearchUserAgents: body => {
+    return apiCall.post('fingerbank/all/user_agents/search', body).then(response => {
       return response.data
     })
   },
   fingerbankUserAgent: id => {
-    return apiCall.get(`config/TODO/${id}`).then(response => {
+    return apiCall.get(`fingerbank/all/user_agent/${id}`).then(response => {
       return response.data.item
     })
   },
   fingerbankCreateUserAgent: data => {
-    return apiCall.post('config/TODO', data).then(response => {
+    return apiCall.post('fingerbank/local/user_agents', data).then(response => {
       return response.data
     })
   },
   fingerbankUpdateUserAgent: data => {
-    return apiCall.patch(`config/TODO/${data.id}`, data).then(response => {
+    return apiCall.patch(`fingerbank/local/user_agent/${data.id}`, data).then(response => {
       return response.data
     })
   },
   fingerbankDeleteUserAgent: id => {
-    return apiCall.delete(`config/TODO/${id}`)
+    return apiCall.delete(`fingerbank/local/user_agent/${id}`)
   },
 
   /**

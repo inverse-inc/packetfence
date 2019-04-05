@@ -48,6 +48,7 @@
 <script>
 import Multiselect from 'vue-multiselect'
 import 'vue-multiselect/dist/vue-multiselect.min.css'
+import { createDebouncer } from 'promised-debounce'
 import pfMixinValidation from '@/components/pfMixinValidation'
 
 export default {
@@ -122,6 +123,9 @@ export default {
       type: Number,
       default: 100
     },
+    optionsSearchFunction: {
+      type: Function
+    },
     preserveSearch: {
       type: Boolean,
       default: false
@@ -129,9 +133,6 @@ export default {
     searchable: {
       type: Boolean,
       default: true
-    },
-    searchFunction: {
-      type: Function
     },
     trackBy: {
       type: String,
@@ -178,13 +179,21 @@ export default {
   },
   methods: {
     searchChange (query) {
-      if (this.searchFunction) {
+      if (this.optionsSearchFunction) {
+        if (!this.$debouncer) {
+          this.$debouncer = createDebouncer()
+        }
         this.loading = true
-        Promise.resolve(this.searchFunction(query, this.options, this.value)).then(options => {
-          this.loading = false
-          this.options = options
-        }).catch(() => {
-          this.loading = false
+        this.$debouncer({
+          handler: () => {
+            Promise.resolve(this.optionsSearchFunction(query, this.options, this.value)).then(options => {
+              this.loading = false
+              this.options = options
+            }).catch(() => {
+              this.loading = false
+            })
+          },
+          time: 300
         })
       }
     }
