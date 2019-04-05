@@ -40,6 +40,13 @@ use pf::node;
 use pf::util;
 use pf::security_event;
 use pf::constants::role qw($REJECT_ROLE);
+use pf::config qw(
+    $WIRED_802_1X
+    $WIRED_MAC_AUTH
+    $WEBAUTH_WIRED
+    $WEBAUTH_WIRELESS
+);
+use pf::Switch::constants;
 
 use base ('pf::Switch::AeroHIVE');
 
@@ -49,7 +56,8 @@ sub description { 'AeroHIVE AP' }
 
 sub supportsExternalPortal { return $TRUE; }
 sub supportsWebFormRegistration { return $TRUE; }
-
+sub supportsWiredMacAuth { return $TRUE; }
+sub supportsWiredDot1x { return $TRUE; }
 
 =head1 METHODS
 
@@ -154,6 +162,55 @@ sub getAcceptForm {
     $logger->debug("Generated the following html form : ".$html_form);
     return $html_form;
 }
+
+=head2 wiredeauthTechniques
+
+Return the reference to the deauth technique or the default deauth technique.
+
+=cut
+
+sub wiredeauthTechniques {
+    my ($self, $method, $connection_type) = @_;
+    my $logger = $self->logger;
+    if ($connection_type == $WIRED_802_1X) {
+        my $default = $SNMP::SNMP;
+        my %tech = (
+            $SNMP::RADIUS => 'deauthenticateMacRadius',
+        );
+
+        if (!defined($method) || !defined($tech{$method})) {
+            $method = $default;
+        }
+        return $method,$tech{$method};
+    }
+    if ($connection_type == $WIRED_MAC_AUTH) {
+        my $default = $SNMP::SNMP;
+        my %tech = (
+            $SNMP::RADIUS => 'deauthenticateMacRadius',
+        );
+
+        if (!defined($method) || !defined($tech{$method})) {
+            $method = $default;
+        }
+        return $method,$tech{$method};
+    }
+}
+
+=head2 deauthenticateMacRadius
+
+Method to deauth a wired node with CoA.
+
+=cut
+
+sub deauthenticateMacRadius {
+    my ($self, $ifIndex,$mac) = @_;
+    my $logger = $self->logger;
+
+
+    # perform CoA
+    $self->radiusDisconnect($mac );
+}
+
 
 
 =back
