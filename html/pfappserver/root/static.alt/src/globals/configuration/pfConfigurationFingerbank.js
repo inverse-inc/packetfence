@@ -1246,6 +1246,31 @@ export const pfConfigurationFingerbankDhcpv6EnterprisesListColumns = [
     label: i18n.t('Identifier'),
     sortable: true,
     visible: true
+  },
+  {
+    key: 'value',
+    label: i18n.t('DHCPv6 Enterprise'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'created_at',
+    label: i18n.t('Created'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'updated_at',
+    label: i18n.t('Updated'),
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'buttons',
+    label: '',
+    sortable: false,
+    visible: true,
+    locked: true
   }
 ]
 
@@ -1258,15 +1283,18 @@ export const pfConfigurationFingerbankDhcpv6EnterprisesListFields = [
 ]
 
 export const pfConfigurationFingerbankDhcpv6EnterprisesListConfig = (context = {}) => {
+  const {
+    scope
+  } = context
   return {
     columns: pfConfigurationFingerbankDhcpv6EnterprisesListColumns,
     fields: pfConfigurationFingerbankDhcpv6EnterprisesListFields,
     rowClickRoute (item, index) {
-      return { name: 'dhcpv6Enterprise', params: { id: item.id } }
+      return { name: 'fingerbankDhcpv6Enterprise', params: { id: item.id } }
     },
-    searchPlaceholder: i18n.t('Search by identifier or description'),
+    searchPlaceholder: i18n.t('Search by identifier or device'),
     searchableOptions: {
-      searchApiEndpoint: 'config/TODO',
+      searchApiEndpoint: `fingerbank/${scope}/dhcp6_enterprises`,
       defaultSortKeys: ['id'],
       defaultSearchCondition: {
         op: 'and',
@@ -1277,7 +1305,7 @@ export const pfConfigurationFingerbankDhcpv6EnterprisesListConfig = (context = {
           ]
         }]
       },
-      defaultRoute: { name: 'profilingDhcpv6Enterprises' }
+      defaultRoute: { name: 'fingerbankDhcpv6Enterprises' }
     },
     searchableQuickCondition: (quickCondition) => {
       return {
@@ -1286,7 +1314,8 @@ export const pfConfigurationFingerbankDhcpv6EnterprisesListConfig = (context = {
           {
             op: 'or',
             values: [
-              { field: 'id', op: 'contains', value: quickCondition }
+              { field: 'id', op: 'contains', value: quickCondition },
+              { field: 'value', op: 'contains', value: quickCondition }
             ]
           }
         ]
@@ -1294,6 +1323,46 @@ export const pfConfigurationFingerbankDhcpv6EnterprisesListConfig = (context = {
     }
   }
 }
+
+export const pfConfigurationFingerbankDhcpv6EnterpriseViewFields = (context = {}) => {
+  const {
+    isNew = false,
+    isClone = false
+  } = context
+  return [
+    {
+      tab: null, // ignore tabs
+      fields: [
+        {
+          if: (!isNew && !isClone),
+          label: i18n.t('Identifier'),
+          fields: [
+            {
+              key: 'id',
+              component: pfFormInput,
+              attrs: {
+                disabled: true
+              }
+            }
+          ]
+        },
+        {
+          label: i18n.t('DHCPv6 Enterprise'),
+          fields: [
+            {
+              key: 'value',
+              component: pfFormInput,
+              validators: {
+                [i18n.t('Enterprise required.')]: required
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+
 
 /**
  * MAC Vendors

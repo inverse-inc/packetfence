@@ -55,6 +55,7 @@ const FingerbankDeviceView = () => import(/* webpackChunkName: "Configuration" *
 const FingerbankDhcpFingerprintView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FingerbankDhcpFingerprintView')
 const FingerbankDhcpVendorView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FingerbankDhcpVendorView')
 const FingerbankDhcpv6FingerprintView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FingerbankDhcpv6FingerprintView')
+const FingerbankDhcpv6EnterpriseView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FingerbankDhcpv6EnterpriseView')
 const ScansTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/ScansTabs')
 const ScanEngineView = () => import(/* webpackChunkName: "Configuration" */ '../_components/ScanEngineView')
 const WmiRuleView = () => import(/* webpackChunkName: "Configuration" */ '../_components/WmiRuleView')
@@ -686,6 +687,34 @@ const route = {
       name: 'fingerbankDhcpv6Enterprises',
       component: FingerbankTabs,
       props: (route) => ({ tab: 'dhcpv6_enterprises', query: route.query.query })
+    },
+    {
+      path: 'fingerbank/dhcpv6_enterprises/new',
+      name: 'newFingerbankDhcpv6Enterprise',
+      component: FingerbankDhcpv6EnterpriseView,
+      props: (route) => ({ isNew: true, storeName: '$_fingerbank' })
+    },
+    {
+      path: 'fingerbank/dhcpv6_enterprise/:id',
+      name: 'fingerbankDhcpv6Enterprise',
+      component: FingerbankDhcpv6EnterpriseView,
+      props: (route) => ({ id: route.params.id, storeName: '$_fingerbank' }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_fingerbank/getDhcpv6Enterprise', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'fingerbank/dhcpv6_enterprise/:id/clone',
+      name: 'cloneFingerbankDhcpv6Enterprise',
+      component: FingerbankDhcpv6EnterpriseView,
+      props: (route) => ({ id: route.params.id, isClone: true, storeName: '$_fingerbank' }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_fingerbank/getDhcpv6Enterprise', to.params.id).then(object => {
+          next()
+        })
+      }
     },
     {
       path: 'fingerbank/mac_vendors',

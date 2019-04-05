@@ -361,11 +361,6 @@ const actions = {
       throw err
     })
   },
-
-
-
-
-
   dhcpv6Fingerprints: ({ state, commit }) => {
     const params = {
       sort: 'id',
@@ -470,6 +465,11 @@ const actions = {
       throw err
     })
   },
+
+
+
+
+
   macVendors: ({ state, commit }) => {
     const params = {
       sort: 'id',
