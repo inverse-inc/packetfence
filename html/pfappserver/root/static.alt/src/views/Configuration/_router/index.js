@@ -495,31 +495,31 @@ const route = {
       path: 'fingerbank/general_settings',
       name: 'fingerbankGeneralSettings',
       component: FingerbankTabs,
-      props: (route) => ({ tab: 'general_settings', storeName: '$_fingerbank', query: route.query.query })
+      props: (route) => ({ tab: 'general_settings', query: route.query.query })
     },
     {
       path: 'fingerbank/device_change_detection',
       name: 'fingerbankDeviceChangeDetection',
       component: FingerbankTabs,
-      props: (route) => ({ tab: 'device_change_detection', storeName: '$_fingerbank', query: route.query.query })
+      props: (route) => ({ tab: 'device_change_detection', query: route.query.query })
     },
     {
       path: 'fingerbank/combinations',
       name: 'fingerbankCombinations',
       component: FingerbankTabs,
-      props: (route) => ({ tab: 'combinations', storeName: '$_fingerbank', query: route.query.query })
+      props: (route) => ({ tab: 'combinations', query: route.query.query })
     },
     {
       path: 'fingerbank/combinations/new',
       name: 'newFingerbankCombination',
       component: FingerbankCombinationView,
-      props: (route) => ({ storeName: '$_fingerbank', isNew: true })
+      props: (route) => ({ isNew: true })
     },
     {
       path: 'fingerbank/combination/:id',
       name: 'fingerbankCombination',
       component: FingerbankCombinationView,
-      props: (route) => ({ storeName: '$_fingerbank', id: route.params.id }),
+      props: (route) => ({ id: route.params.id }),
       beforeEnter: (to, from, next) => {
         store.dispatch('$_fingerbank/getCombination', to.params.id).then(object => {
           next()
@@ -530,7 +530,7 @@ const route = {
       path: 'fingerbank/combination/:id/clone',
       name: 'cloneFingerbankCombination',
       component: FingerbankCombinationView,
-      props: (route) => ({ storeName: '$_fingerbank', id: route.params.id, isClone: true }),
+      props: (route) => ({ id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
         store.dispatch('$_fingerbank/getCombination', to.params.id).then(object => {
           next()
@@ -541,25 +541,25 @@ const route = {
       path: 'fingerbank/devices',
       name: 'fingerbankDevices',
       component: FingerbankTabs,
-      props: (route) => ({ tab: 'devices', storeName: '$_fingerbank', query: route.query.query })
+      props: (route) => ({ tab: 'devices', query: route.query.query })
     },
     {
       path: 'fingerbank/devices/:parentId',
       name: 'fingerbankDevicesByParentId',
       component: FingerbankTabs,
-      props: (route) => ({ tab: 'devices', storeName: '$_fingerbank', query: route.query.query, parentId: route.params.parentId })
+      props: (route) => ({ tab: 'devices', query: route.query.query, parentId: route.params.parentId })
     },
     {
       path: 'fingerbank/devices/new',
       name: 'newFingerbankDevice',
       component: FingerbankDeviceView,
-      props: (route) => ({ storeName: '$_fingerbank', isNew: true })
+      props: (route) => ({ isNew: true })
     },
     {
       path: 'fingerbank/device/:id',
       name: 'fingerbankDevice',
       component: FingerbankDeviceView,
-      props: (route) => ({ storeName: '$_fingerbank', id: route.params.id }),
+      props: (route) => ({ id: route.params.id }),
       beforeEnter: (to, from, next) => {
         store.dispatch('$_fingerbank/getDevice', to.params.id).then(object => {
           next()
@@ -570,7 +570,7 @@ const route = {
       path: 'fingerbank/device/:id/clone',
       name: 'cloneFingerbankDevice',
       component: FingerbankDeviceView,
-      props: (route) => ({ storeName: '$_fingerbank', id: route.params.id, isClone: true }),
+      props: (route) => ({ id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
         store.dispatch('$_fingerbank/getDevice', to.params.id).then(object => {
           next()
@@ -581,13 +581,13 @@ const route = {
       path: 'fingerbank/dhcp_fingerprints',
       name: 'fingerbankDhcpFingerprints',
       component: FingerbankTabs,
-      props: (route) => ({ tab: 'dhcp_fingerprints', storeName: '$_fingerbank', query: route.query.query })
+      props: (route) => ({ tab: 'dhcp_fingerprints', query: route.query.query })
     },
     {
       path: 'fingerbank/dhcp_fingerprints/:id',
       name: 'fingerbankDhcpFingerprint',
       component: FingerbankDhcpFingerprintView,
-      props: (route) => ({ storeName: '$_fingerbank', id: route.params.id }),
+      props: (route) => ({ id: route.params.id }),
       beforeEnter: (to, from, next) => {
         store.dispatch('$_fingerbank/getDhcpFingerprint', to.params.id).then(object => {
           next()
@@ -598,32 +598,36 @@ const route = {
       path: 'fingerbank/dhcp_vendors',
       name: 'fingerbankDhcpVendors',
       component: FingerbankTabs,
-      props: (route) => ({ tab: 'dhcp_vendors', storeName: '$_fingerbank', query: route.query.query })
+      props: (route) => ({ tab: 'dhcp_vendors', query: route.query.query })
     },
     {
       path: 'fingerbank/dhcpv6_fingerprints',
       name: 'fingerbankDhcpv6Fingerprints',
       component: FingerbankTabs,
-      props: (route) => ({ tab: 'dhcpv6_fingerprints', storeName: '$_fingerbank', query: route.query.query })
+      props: (route) => ({ tab: 'dhcpv6_fingerprints', query: route.query.query })
     },
     {
       path: 'fingerbank/dhcpv6_enterprises',
       name: 'fingerbankDhcpv6Enterprises',
       component: FingerbankTabs,
-      props: (route) => ({ tab: 'dhcpv6_enterprises', storeName: '$_fingerbank', query: route.query.query })
+      props: (route) => ({ tab: 'dhcpv6_enterprises', query: route.query.query })
     },
     {
       path: 'fingerbank/mac_vendors',
       name: 'fingerbankMacVendors',
       component: FingerbankTabs,
-      props: (route) => ({ tab: 'mac_vendors', storeName: '$_fingerbank', query: route.query.query })
+      props: (route) => ({ tab: 'mac_vendors', query: route.query.query })
     },
     {
       path: 'fingerbank/user_agents',
       name: 'fingerbankUserAgents',
       component: FingerbankTabs,
-      props: (route) => ({ tab: 'user_agents', storeName: '$_fingerbank', query: route.query.query })
+      props: (route) => ({ tab: 'user_agents', query: route.query.query })
     },
+
+
+
+
 
     {
       path: 'scans',

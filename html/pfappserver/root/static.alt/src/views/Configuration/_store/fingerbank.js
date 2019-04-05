@@ -153,33 +153,6 @@ const actions = {
       })
     })
   },
-  getDeviceChangeDetection: ({ state, commit }) => {
-    if (state.deviceChangeDetection.cache) {
-      return Promise.resolve(state.deviceChangeDetection.cache)
-    }
-    commit('DEVICE_CHANGE_DETECTION_REQUEST')
-    const params = {
-      sort: 'id',
-      fields: ['id'].join(',')
-    }
-    return api.fingerbankDeviceChangeDetection(params).then(response => {
-      commit('DEVICE_CHANGE_DETECTION_REPLACED', response)
-      return response
-    }).catch(err => {
-      commit('DEVICE_CHANGE_DETECTION_ERROR', err.response)
-      throw err
-    })
-  },
-  setDeviceChangeDetection: ({ commit }, data) => {
-    commit('DEVICE_CHANGE_DETECTION_REQUEST')
-    return api.fingerbankUpdateDeviceChangeDetection(data).then(response => {
-      commit('DEVICE_CHANGE_DETECTION_REPLACED', data)
-      return response
-    }).catch(err => {
-      commit('DEVICE_CHANGE_DETECTION_ERROR', err.response)
-      throw err
-    })
-  },
   combinations: ({ state, commit }) => {
     const params = {
       sort: 'id',
@@ -615,20 +588,6 @@ const mutations = {
   },
   GENERAL_SETTINGS_SUCCESS: (state) => {
     state.generalSettings.status = types.SUCCESS
-  },
-  DEVICE_CHANGE_DETECTION_REQUEST: (state, type) => {
-    state.deviceChangeDetection.status = type || types.LOADING
-    state.deviceChangeDetection.message = ''
-  },
-  DEVICE_CHANGE_DETECTION_REPLACED: (state, data) => {
-    state.deviceChangeDetection.status = types.SUCCESS
-    Vue.set(state.deviceChangeDetection, 'cache', data)
-  },
-  DEVICE_CHANGE_DETECTION_ERROR: (state, response) => {
-    state.deviceChangeDetection.status = types.ERROR
-    if (response && response.data) {
-      state.deviceChangeDetection.message = response.data.message
-    }
   },
   COMBINATION_REQUEST: (state, type) => {
     state.combinations.status = type || types.LOADING
