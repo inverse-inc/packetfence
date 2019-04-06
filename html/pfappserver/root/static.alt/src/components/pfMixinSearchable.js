@@ -64,7 +64,7 @@ export default {
       condition: null,
       requestPage: 1,
       currentPage: 1,
-      pageSizeLimit: 10
+      pageSizeLimit: 25
     }
   },
   computed: {
