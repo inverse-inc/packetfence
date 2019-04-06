@@ -189,7 +189,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'access_token_path',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'access_token_path'),
-          validators: pfConfigurationValidatorsFromMeta(meta.access_token_path)
+          validators: pfConfigurationValidatorsFromMeta(meta.access_token_path, 'access_token_path', 'Path')
         }
       ]
     }
