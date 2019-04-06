@@ -8,6 +8,10 @@ import {
   pfConfigurationValidatorsFromMeta
 } from '@/globals/configuration/pfConfiguration'
 
+const {
+  ipAddress
+} = require('vuelidate/lib/validators')
+
 export const pfConfigurationCaptivePortalViewFields = (context = {}) => {
   const {
     options: {
@@ -39,7 +43,12 @@ export const pfConfigurationCaptivePortalViewFields = (context = {}) => {
               key: 'network_detection_ip',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'network_detection_ip'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'network_detection_ip', 'IP')
+              validators: {
+                ...pfConfigurationValidatorsFromMeta(meta, 'network_detection_ip', 'IP'),
+                ...{
+                  [i18n.t('Invalid IP.')]: ipAddress
+                }
+              }
             }
           ]
         },
