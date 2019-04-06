@@ -384,7 +384,17 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
             }
           ]
         },
-        { ...pfConfigurationViewFields.description, ...{ label: i18n.t('Profile Description') } }, // re-label
+        {
+          label: i18n.t('Profile Description'),
+          fields: [
+            {
+              key: 'description',
+              component: pfFormInput,
+              attrs: pfConfigurationAttributesFromMeta(meta, 'description'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'description', 'Description')
+            }
+          ]
+        },
         {
           if: !isDefault,
           label: i18n.t('Enable profile'),
