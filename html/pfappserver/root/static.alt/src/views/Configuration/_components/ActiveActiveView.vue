@@ -74,7 +74,6 @@ export default {
   methods: {
     init () {
       this.$store.dispatch('$_bases/optionsActiveActive').then(options => {
-        // store options
         this.options = JSON.parse(JSON.stringify(options))
         this.$store.dispatch('$_bases/getActiveActive').then(data => {
           this.form = JSON.parse(JSON.stringify(data))
@@ -83,9 +82,7 @@ export default {
     },
     save () {
       let form = JSON.parse(JSON.stringify(this.form)) // dereference
-      this.$store.dispatch('$_bases/updateActiveActive', form).then(response => {
-        // TODO - notification
-      })
+      this.$store.dispatch('$_bases/updateActiveActive', form)
     }
   },
   created () {

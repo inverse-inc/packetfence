@@ -78,7 +78,6 @@ export default {
   methods: {
     init () {
       this.$store.dispatch('$_bases/optionsMseTab').then(options => {
-        // store options
         this.options = JSON.parse(JSON.stringify(options))
         this.$store.dispatch('$_bases/getMseTab').then(data => {
           this.form = JSON.parse(JSON.stringify(data))
@@ -87,9 +86,7 @@ export default {
     },
     save () {
       let form = JSON.parse(JSON.stringify(this.form)) // dereference
-      this.$store.dispatch('$_bases/updateMseTab', form).then(response => {
-        // TODO - notification
-      })
+      this.$store.dispatch('$_bases/updateMseTab', form)
     }
   },
   created () {

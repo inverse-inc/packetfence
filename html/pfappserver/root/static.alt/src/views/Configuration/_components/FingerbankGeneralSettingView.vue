@@ -78,7 +78,6 @@ export default {
   methods: {
     init () {
       this.$store.dispatch(`${this.storeName}/optionsGeneralSettings`).then(options => {
-        // store options
         this.options = JSON.parse(JSON.stringify(options))
         this.$store.dispatch(`${this.storeName}/getGeneralSettings`).then(data => {
           this.form = JSON.parse(JSON.stringify(data))
@@ -87,9 +86,7 @@ export default {
     },
     save () {
       let form = JSON.parse(JSON.stringify(this.form)) // dereference
-      this.$store.dispatch(`${this.storeName}/setGeneralSettings`, form).then(response => {
-        // TODO - notification
-      })
+      this.$store.dispatch(`${this.storeName}/setGeneralSettings`, form)
     }
   },
   created () {

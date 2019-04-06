@@ -86,9 +86,7 @@ export default {
     },
     save () {
       let form = JSON.parse(JSON.stringify(this.form)) // dereference
-      this.$store.dispatch(`${this.storeName}/setFingerbankDeviceChange`, form).then(response => {
-        // TODO - notification
-      })
+      this.$store.dispatch(`${this.storeName}/updateFingerbankDeviceChange`, form)
     }
   },
   created () {
