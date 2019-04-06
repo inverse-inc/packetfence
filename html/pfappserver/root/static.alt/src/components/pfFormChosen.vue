@@ -27,7 +27,7 @@
         @change.native="onChange($event)"
         @input.native="validate()"
         @keyup.native.stop.prevent="onChange($event)"
-        @search-change="searchChange"
+        @search-change="onSearchChange($event)"
         @open="focus = true"
         @close="focus = false"
       >
@@ -178,7 +178,7 @@ export default {
     }
   },
   methods: {
-    searchChange (query) {
+    onSearchChange (query) {
       if (this.optionsSearchFunction) {
         if (!this.$debouncer) {
           this.$debouncer = createDebouncer()
@@ -186,7 +186,7 @@ export default {
         this.loading = true
         this.$debouncer({
           handler: () => {
-            Promise.resolve(this.optionsSearchFunction(query, this.options, this.value)).then(options => {
+            Promise.resolve(this.optionsSearchFunction(this, `${query}`.trim())).then(options => {
               this.loading = false
               this.options = options
             }).catch(() => {
@@ -201,7 +201,7 @@ export default {
   watch: {
     value: {
       handler (a, b) {
-        this.searchChange(a) // prime the searchable cache with our current `value`
+        this.onSearchChange(a) // prime the searchable cache with our current `value`
       }
     }
   }

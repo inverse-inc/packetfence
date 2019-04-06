@@ -10,7 +10,7 @@
         </b-card-header>
       </template>
       <template slot="buttonAdd">
-        <b-dropdown :text="$t('Add Syslog Parser')" variant="outline-primary" class="my-2">
+        <b-dropdown :text="$t('Add Syslog Parser')" variant="outline-primary">
           <b-dropdown-item :to="{ name: 'newSyslogParser', params: { syslogParserType: 'dhcp' } }">DHCP</b-dropdown-item>
           <b-dropdown-item :to="{ name: 'newSyslogParser', params: { syslogParserType: 'fortianalyser' } }">FortiAnalyzer</b-dropdown-item>
           <b-dropdown-item :to="{ name: 'newSyslogParser', params: { syslogParserType: 'nexpose' } }">Nexpose</b-dropdown-item>

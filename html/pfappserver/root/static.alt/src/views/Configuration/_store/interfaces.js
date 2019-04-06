@@ -25,12 +25,9 @@ const getters = {
 
 const actions = {
   all: ({ state, commit }) => {
-    if (Object.keys(state.cache).length > 0) {
-      return Promise.resolve(state.cache)
-    }
     commit('INTERFACE_REQUEST')
     return api.interfaces().then(response => {
-      commit('INTERFACES_REPLACED', response)
+      commit('INTERFACE_SUCCESS')
       return response
     }).catch((err) => {
       commit('INTERFACE_ERROR', err.response)
@@ -39,12 +36,12 @@ const actions = {
   },
   getInterface: ({ state, commit }, id) => {
     if (state.cache[id]) {
-      return Promise.resolve(state.cache[id])
+      return Promise.resolve(state.cache[id]).then(cache => JSON.parse(JSON.stringify(cache)))
     }
     commit('INTERFACE_REQUEST')
     return api.interface(id).then(item => {
       commit('INTERFACE_REPLACED', { ...item, id })
-      return item
+      return JSON.parse(JSON.stringify(item))
     }).catch((err) => {
       commit('INTERFACE_ERROR', err.response)
       throw err
@@ -108,13 +105,9 @@ const mutations = {
     state.status = type || types.LOADING
     state.message = ''
   },
-  INTERFACES_REPLACED: (state, data) => {
-    state.status = types.SUCCESS
-    Vue.set(state, 'cache', data)
-  },
   INTERFACE_REPLACED: (state, data) => {
     state.status = types.SUCCESS
-    Vue.set(state.cache, data.id, data)
+    Vue.set(state.cache, data.id, JSON.parse(JSON.stringify(data)))
   },
   INTERFACE_DESTROYED: (state, id) => {
     state.status = types.SUCCESS

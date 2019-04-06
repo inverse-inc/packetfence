@@ -17,6 +17,7 @@
         :options="fields"
         :vuelidate="apiMethodVuelidateModel"
         :invalid-feedback="apiMethodInvalidFeedback"
+        :disabled="disabled"
         class="mr-1"
         collapse-object
       ></pf-form-chosen>
@@ -30,6 +31,7 @@
         ref="localApiParameters"
         :vuelidate="apiParametersVuelidateModel"
         :invalid-feedback="apiParametersInvalidFeedback"
+        :disabled="disabled"
       ></pf-form-input>
 
     </b-col>
@@ -73,6 +75,10 @@ export default {
     vuelidate: {
       type: Object,
       default: () => { return {} }
+    },
+    disabled: {
+      type: Boolean,
+      default: false
     }
   },
   data () {

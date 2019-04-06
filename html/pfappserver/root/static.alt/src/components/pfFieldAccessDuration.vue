@@ -13,6 +13,7 @@
         :placeholder="'#'"
         :vuelidate="intervalVuelidateModel"
         :invalid-feedback="intervalInvalidFeedback"
+        :disabled="disabled"
         class="mr-1"
       ></pf-form-input>
 
@@ -26,7 +27,7 @@
         track-by="value"
         :placeholder="$t('Choose')"
         :options="intervals"
-        :disabled="intervals.length === 0"
+        :disabled="disabled || intervals.length === 0"
         :vuelidate="unitVuelidateModel"
         :invalid-feedback="unitInvalidFeedback"
         :clearOnSelect="false"
@@ -49,6 +50,7 @@
           middle: $i18n.t('Relative to the beginning of the day'),
           right: $i18n.t('Relative to the beginning of the period')
         }"
+        :disabled="disabled"
         class="mr-1"
         width="80"
       ></pf-form-range-triple>
@@ -62,6 +64,7 @@
         :placeholder="'#'"
         :vuelidate="extendedIntervalVuelidateModel"
         :invalid-feedback="extendedIntervalInvalidFeedback"
+        :disabled="disabled"
         class="mr-1"
       ></pf-form-input>
 
@@ -75,7 +78,7 @@
         track-by="value"
         :placeholder="$t('Choose')"
         :options="intervals"
-        :disabled="intervals.length === 0"
+        :disabled="disabled || intervals.length === 0"
         :vuelidate="extendedUnitVuelidateModel"
         :invalid-feedback="extendednitInvalidFeedback"
         :clearOnSelect="false"
@@ -146,6 +149,10 @@ export default {
     },
     drag: {
       type: Boolean
+    },
+    disabled: {
+      type: Boolean,
+      default: false
     }
   },
   data () {

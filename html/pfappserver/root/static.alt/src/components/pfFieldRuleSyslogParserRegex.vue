@@ -31,6 +31,7 @@
             ref="localName"
             :vuelidate="nameVuelidateModel"
             :invalid-feedback="nameInvalidFeedback"
+            :disabled="disabled"
             class="mb-1 mr-2"
           ></pf-form-input>
           <pf-form-input :column-label="$t('Regex')" label-cols="2"
@@ -38,6 +39,7 @@
             ref="localRegex"
             :vuelidate="regexVuelidateModel"
             :invalid-feedback="regexInvalidFeedback"
+            :disabled="disabled"
             class="mb-1 mr-2"
           ></pf-form-input>
           <pf-form-fields :column-label="$t('Actions')" label-cols="2"
@@ -47,6 +49,7 @@
             :vuelidate="actionsVuelidateModel"
             :invalid-feedback="actionsInvalidFeedback"
             :button-label="$t('Add Action')"
+            :disabled="disabled"
             @validations="setActionValidations($event)"
             class="mb-1 mr-2"
             sortable
@@ -57,6 +60,7 @@
             :values="{ checked: 'enabled', unchecked: 'disabled' }"
             :vuelidate="lastIfMatchVuelidateModel"
             :invalid-feedback="lastIfMatchInvalidFeedback"
+            :disabled="disabled"
             class="mb-1 mr-2"
           ></pf-form-range-toggle>
           <pf-form-range-toggle :column-label="$t('IP &#x21C4; MAC')" label-cols="2" text="Perform automatic translation of IPs to MACs and the other way around."
@@ -65,6 +69,7 @@
             :values="{ checked: 'enabled', unchecked: 'disabled' }"
             :vuelidate="ipMacTranslationVuelidateModel"
             :invalid-feedback="pMacTranslationInvalidFeedback"
+            :disabled="disabled"
             class="mb-1 mr-2"
           ></pf-form-range-toggle>
           </b-col>
@@ -103,6 +108,10 @@ export default {
     vuelidate: {
       type: Object,
       default: () => { return {} }
+    },
+    disabled: {
+      type: Boolean,
+      default: false
     }
   },
   data () {

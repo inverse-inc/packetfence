@@ -25,12 +25,9 @@ const getters = {
 
 const actions = {
   all: ({ state, commit }) => {
-    if (Object.keys(state.cache).length > 0) {
-      return Promise.resolve(state.cache)
-    }
     commit('ROUTED_NETWORK_REQUEST')
     return api.routedNetworks().then(response => {
-      commit('ROUTED_NETWORKS_REPLACED', response)
+      commit('ROUTED_NETWORK_SUCCESS')
       return response
     }).catch((err) => {
       commit('ROUTED_NETWORK_ERROR', err.response)
@@ -59,12 +56,12 @@ const actions = {
   },
   getRoutedNetwork: ({ state, commit }, id) => {
     if (state.cache[id]) {
-      return Promise.resolve(state.cache[id])
+      return Promise.resolve(state.cache[id]).then(cache => JSON.parse(JSON.stringify(cache)))
     }
     commit('ROUTED_NETWORK_REQUEST')
     return api.routedNetwork(id).then(item => {
       commit('ROUTED_NETWORK_REPLACED', { ...item, id })
-      return item
+      return JSON.parse(JSON.stringify(item))
     }).catch((err) => {
       commit('ROUTED_NETWORK_ERROR', err.response)
       throw err
@@ -108,13 +105,9 @@ const mutations = {
     state.status = type || types.LOADING
     state.message = ''
   },
-  ROUTED_NETWORKS_REPLACED: (state, data) => {
-    state.status = types.SUCCESS
-    Vue.set(state, 'cache', data)
-  },
   ROUTED_NETWORK_REPLACED: (state, data) => {
     state.status = types.SUCCESS
-    Vue.set(state.cache, data.id, data)
+    Vue.set(state.cache, data.id, JSON.parse(JSON.stringify(data)))
   },
   ROUTED_NETWORK_DESTROYED: (state, id) => {
     state.status = types.SUCCESS

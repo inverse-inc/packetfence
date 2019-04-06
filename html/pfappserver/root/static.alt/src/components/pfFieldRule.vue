@@ -31,6 +31,7 @@
             ref="localId"
             :vuelidate="idVuelidateModel"
             :invalid-feedback="idInvalidFeedback"
+            :disabled="disabled"
             class="mb-1 mr-2"
           ></pf-form-input>
           <pf-form-input :column-label="$t('Description')" label-cols="2"
@@ -38,6 +39,7 @@
             ref="localDescription"
             :vuelidate="descriptionVuelidateModel"
             :invalid-feedback="descriptionInvalidFeedback"
+            :disabled="disabled"
             class="mb-1 mr-2"
           ></pf-form-input>
           <pf-form-chosen :column-label="$t('Matches')" label-cols="2"
@@ -52,6 +54,7 @@
             ]"
             :vuelidate="matchVuelidateModel"
             :invalid-feedback="matchInvalidFeedback"
+            :disabled="disabled"
             class="mb-1 mr-2"
             collapse-object
           ></pf-form-chosen>
@@ -62,6 +65,7 @@
             :vuelidate="actionsVuelidateModel"
             :invalid-feedback="actionsInvalidFeedback"
             :button-label="$t('Add Action')"
+            :disabled="disabled"
             @validations="setActionValidations($event)"
             class="mb-1 mr-2"
             sortable
@@ -73,6 +77,7 @@
             :vuelidate="conditionsVuelidateModel"
             :invalid-feedback="conditionsInvalidFeedback"
             :button-label="$t('Add Condition')"
+            :disabled="disabled"
             @validations="setConditionValidations($event)"
             class="mb-1 mr-2"
             sortable
@@ -120,6 +125,10 @@ export default {
     vuelidate: {
       type: Object,
       default: () => { return {} }
+    },
+    disabled: {
+      type: Boolean,
+      default: false
     }
   },
   data () {

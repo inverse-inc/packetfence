@@ -189,7 +189,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'access_token_path',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'access_token_path'),
-          validators: pfConfigurationValidatorsFromMeta(meta.access_token_path)
+          validators: pfConfigurationValidatorsFromMeta(meta.access_token_path, 'access_token_path', 'Path')
         }
       ]
     }
@@ -833,6 +833,20 @@ export const pfConfigurationAuthenticationSourceFields = {
       ]
     }
   },
+  hash_passwords: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Database passwords hashing method'),
+      text: i18n.t('The algorithm used to hash the passwords in the database.This will only affect newly created or reset passwords.'),
+      fields: [
+        {
+          key: 'hash_passwords',
+          component: pfFormChosen,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'hash_passwords'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'hash_passwords', 'Hash')
+        }
+      ]
+    }
+  },
   host: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Host'),
@@ -1178,7 +1192,7 @@ export const pfConfigurationAuthenticationSourceFields = {
       ]
     }
   },
-  protocol_ip_port: ({ options: { meta = {} } } = {}) => {
+  protocol_host_port: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Host'),
       fields: [
@@ -1189,15 +1203,15 @@ export const pfConfigurationAuthenticationSourceFields = {
           validators: pfConfigurationValidatorsFromMeta(meta, 'protocol', 'Protocol')
         },
         {
-          key: 'ip',
+          key: 'host',
           component: pfFormInput,
           attrs: {
-            ...pfConfigurationAttributesFromMeta(meta, 'ip'),
+            ...pfConfigurationAttributesFromMeta(meta, 'host'),
             ...{
               class: 'col-sm-4'
             }
           },
-          validators: pfConfigurationValidatorsFromMeta(meta, 'ip', 'IP')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'host', 'Host')
         },
         {
           text: ':',
@@ -1341,6 +1355,20 @@ export const pfConfigurationAuthenticationSourceFields = {
           component: pfFormChosen,
           attrs: pfConfigurationAttributesFromMeta(meta, 'scope'),
           validators: pfConfigurationValidatorsFromMeta(meta, 'scope', 'Scope')
+        }
+      ]
+    }
+  },
+  searchattributes: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Username Attribute'),
+      text: i18n.t('Other attributes that can be used as the username (requires to restart the radiusd service to be effective).'),
+      fields: [
+        {
+          key: 'searchattributes',
+          component: pfFormChosen,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'searchattributes'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'searchattributes', 'Attribute')
         }
       ]
     }
@@ -1692,7 +1720,7 @@ export const pfConfigurationAuthenticationSourceFields = {
   },
   username_attribute: ({ options: { meta = {} } } = {}) => {
     return {
-      label: i18n.t('Attribute of the username in the SAML response'),
+      label: i18n.t('Attribute of the username in the SAML response.'),
       fields: [
         {
           key: 'username_attribute',
@@ -1706,10 +1734,11 @@ export const pfConfigurationAuthenticationSourceFields = {
   usernameattribute: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Username Attribute'),
+      text: i18n.t('Main reference attribute that contain the username.'),
       fields: [
         {
           key: 'usernameattribute',
-          component: pfFormInput,
+          component: pfFormChosen,
           attrs: pfConfigurationAttributesFromMeta(meta, 'usernameattribute'),
           validators: pfConfigurationValidatorsFromMeta(meta, 'usernameattribute', 'Attribute')
         }
@@ -1764,6 +1793,7 @@ export const pfConfigurationAuthenticationSourceViewFields = (context) => {
             pfConfigurationAuthenticationSourceFields.basedn(context),
             pfConfigurationAuthenticationSourceFields.scope(context),
             pfConfigurationAuthenticationSourceFields.usernameattribute(context),
+            pfConfigurationAuthenticationSourceFields.searchattributes(context),
             pfConfigurationAuthenticationSourceFields.email_attribute(context),
             pfConfigurationAuthenticationSourceFields.binddn(context),
             pfConfigurationAuthenticationSourceFields.password(context),
@@ -1810,7 +1840,7 @@ export const pfConfigurationAuthenticationSourceViewFields = (context) => {
           fields: [
             pfConfigurationAuthenticationSourceFields.id(context),
             pfConfigurationAuthenticationSourceFields.description(context),
-            pfConfigurationAuthenticationSourceFields.protocol_ip_port(context),
+            pfConfigurationAuthenticationSourceFields.protocol_host_port(context),
             pfConfigurationAuthenticationSourceFields.api_username(context),
             pfConfigurationAuthenticationSourceFields.api_password(context),
             pfConfigurationAuthenticationSourceFields.authentication_url(context),
@@ -1848,6 +1878,7 @@ export const pfConfigurationAuthenticationSourceViewFields = (context) => {
             pfConfigurationAuthenticationSourceFields.basedn(context),
             pfConfigurationAuthenticationSourceFields.scope(context),
             pfConfigurationAuthenticationSourceFields.usernameattribute(context),
+            pfConfigurationAuthenticationSourceFields.searchattributes(context),
             pfConfigurationAuthenticationSourceFields.email_attribute(context),
             pfConfigurationAuthenticationSourceFields.binddn(context),
             pfConfigurationAuthenticationSourceFields.password(context),
@@ -2123,6 +2154,8 @@ export const pfConfigurationAuthenticationSourceViewFields = (context) => {
             pfConfigurationAuthenticationSourceFields.message(context),
             pfConfigurationAuthenticationSourceFields.pin_code_length(context),
             pfConfigurationAuthenticationSourceFields.create_local_account(context),
+            pfConfigurationAuthenticationSourceFields.hash_passwords(context),
+            pfConfigurationAuthenticationSourceFields.password_length(context),
             pfConfigurationAuthenticationSourceFields.local_account_logins(context),
             pfConfigurationAuthenticationSourceFields.authentication_rules(context)
           ]

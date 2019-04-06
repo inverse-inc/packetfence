@@ -132,11 +132,14 @@
       </b-tab>
     </b-tabs>
     <!-- Generate CSR modal -->
-    <b-modal id="csrModal" size="lg" :title-html="csrModalTitle" v-model="csrMode"
+    <b-modal id="csrModal" size="lg" v-model="csrMode"
       @shown="csrModalShown"
       :ok-title="csr ? $t('Copy to clipboard') : $t('Generate')" @ok="generateCSR($event)"
       :ok-disabled="$v.csrForm.$invalid"
       :cancel-title="$t('Cancel')" @cancel="toggleCSRModal">
+      <div slot="modal-title">
+        <span v-html="csrModalTitle"></span>
+      </div>
       <b-form @submit.prevent="generateCSR($event)" v-show="!csr">
         <pf-form-input :label-cols="6" :column-label="$t('2-letter country code')" ref="csr_country" v-model="$v.csrForm.country.$model" :vuelidate="$v.csrForm.country" />
         <pf-form-input :label-cols="6" :column-label="$t('State')" v-model="$v.csrForm.state.$model" :vuelidate="$v.csrForm.state" />
@@ -259,7 +262,7 @@ export default {
     csrModalTitle () {
       if (this.sortedCerts.length > this.tabIndex) {
         const name = this.sortedCerts[this.tabIndex].toUpperCase()
-        return this.$i18n.t('Generate Signing Request for {certificate} certificate', { certificate: `<b>${name}</b>` })
+        return this.$i18n.t('Generate Signing Request for {certificate} certificate', { certificate: name })
       }
     }
   },

@@ -122,16 +122,6 @@ export const pfConfigurationScanEngineListConfig = (context = {}) => {
   }
 }
 
-export const pfConfigurationScanEngineWmiRules = [ // TODO - make dynamic once API endpoint is available
-  { text: 'Software_Installed', value: 'Software_Installed' },
-  { text: 'logged_user', value: 'logged_user' },
-  { text: 'Process_Running', value: 'Process_Running' },
-  { text: 'SCCM', value: 'SCCM' },
-  { text: 'FireWall', value: 'FireWall' },
-  { text: 'Antivirus', value: 'Antivirus' },
-  { text: 'AntiSpyware', value: 'AntiSpyware' }
-]
-
 export const pfConfigurationScanEngineViewFields = (context = {}) => {
   const {
     isNew = false,
@@ -422,7 +412,6 @@ export const pfConfigurationScanEngineViewFields = (context = {}) => {
               attrs: {
                 buttonLabel: i18n.t('Add Rule'),
                 emptyText: i18n.t('With no WMI rules specified, the scan engine will not be triggered.'),
-                maxFields: pfConfigurationScanEngineWmiRules.length,
                 sortable: true,
                 field: {
                   component: pfField,
@@ -430,11 +419,13 @@ export const pfConfigurationScanEngineViewFields = (context = {}) => {
                     field: {
                       component: pfFormChosen,
                       attrs: {
-                        collapseObject: true,
-                        placeholder: i18n.t('Click to select a rule'),
-                        trackBy: 'value',
-                        label: 'text',
-                        options: pfConfigurationScanEngineWmiRules
+                        ...pfConfigurationAttributesFromMeta(meta, 'wmi_rules'),
+                        ...{
+                          collapseObject: true,
+                          placeholder: i18n.t('Click to select a rule'),
+                          trackBy: 'value',
+                          label: 'text'
+                        }
                       }
                     }
                   }

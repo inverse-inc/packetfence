@@ -32,7 +32,6 @@
         </pf-button-save>
         <b-button :disabled="isLoading" class="ml-1" variant="outline-primary" @click="init()">{{ $t('Reset') }}</b-button>
         <b-button v-if="!isNew && !isClone" :disabled="isLoading" class="ml-1" variant="outline-primary" @click="clone()">{{ $t('Clone') }}</b-button>
-        <pf-button-delete v-if="isDeletable" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Role?')" @on-delete="remove()"/>
       </b-card-footer>
     </template>
   </pf-config-view>
@@ -118,12 +117,11 @@ export default {
   methods: {
     init () {
       this.$store.dispatch(`${this.storeName}/options`, this.id).then(options => {
-        // store options
-        this.options = JSON.parse(JSON.stringify(options))
+        this.options = options
         if (this.id) {
           // existing
           this.$store.dispatch(`${this.storeName}/getRole`, this.id).then(form => {
-            this.form = JSON.parse(JSON.stringify(form))
+            this.form = form
           })
         } else {
           // new
@@ -165,6 +163,11 @@ export default {
     this.init()
   },
   watch: {
+    id: {
+      handler: function (a, b) {
+        this.init()
+      }
+    },
     isClone: {
       handler: function (a, b) {
         this.init()
