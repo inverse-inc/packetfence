@@ -8,6 +8,9 @@ import {
   pfConfigurationAttributesFromMeta,
   pfConfigurationValidatorsFromMeta
 } from '@/globals/configuration/pfConfiguration'
+import {
+  isPort
+} from '@/globals/pfValidators'
 
 export const pfConfigurationAlertingViewFields = (context = {}) => {
   const {
@@ -92,7 +95,12 @@ export const pfConfigurationAlertingViewFields = (context = {}) => {
               key: 'smtp_port',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'smtp_port'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'smtp_port', 'Port')
+              validators: {
+                ...pfConfigurationValidatorsFromMeta(meta, 'smtp_port', 'Port').
+                ...{
+                  [i18n.t('Invalid port.')]: isPort
+                }
+              }
             }
           ]
         },
