@@ -833,6 +833,20 @@ export const pfConfigurationAuthenticationSourceFields = {
       ]
     }
   },
+  hash_passwords: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Database passwords hashing method'),
+      text: i18n.t('The algorithm used to hash the passwords in the database.This will only affect newly created or reset passwords.'),
+      fields: [
+        {
+          key: 'hash_passwords',
+          component: pfFormChosen,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'hash_passwords'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'hash_passwords', 'Hash')
+        }
+      ]
+    }
+  },
   host: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Host'),
@@ -2123,6 +2137,8 @@ export const pfConfigurationAuthenticationSourceViewFields = (context) => {
             pfConfigurationAuthenticationSourceFields.message(context),
             pfConfigurationAuthenticationSourceFields.pin_code_length(context),
             pfConfigurationAuthenticationSourceFields.create_local_account(context),
+            pfConfigurationAuthenticationSourceFields.hash_passwords(context),
+            pfConfigurationAuthenticationSourceFields.password_length(context),
             pfConfigurationAuthenticationSourceFields.local_account_logins(context),
             pfConfigurationAuthenticationSourceFields.authentication_rules(context)
           ]
