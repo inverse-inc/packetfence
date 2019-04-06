@@ -80,7 +80,6 @@ export default {
   methods: {
     init () {
       this.$store.dispatch('$_bases/optionsGuestsAdminRegistration').then(options => {
-        // store options
         this.options = JSON.parse(JSON.stringify(options))
         this.$store.dispatch('$_bases/getGuestsAdminRegistration').then(data => {
           if ('access_duration_choices' in data && data.access_duration_choices.constructor === String) {
@@ -95,9 +94,7 @@ export default {
       let form = JSON.parse(JSON.stringify(this.form)) // dereference
       // re-join access_duration_choices
       form.access_duration_choices = serialize(form.access_duration_choices)
-      this.$store.dispatch('$_bases/updateGuestsAdminRegistration', form).then(response => {
-        // TODO - notification
-      })
+      this.$store.dispatch('$_bases/updateGuestsAdminRegistration', form)
     }
   },
   created () {
