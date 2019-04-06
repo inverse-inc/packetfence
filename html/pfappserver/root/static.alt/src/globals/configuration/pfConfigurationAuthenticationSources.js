@@ -1178,7 +1178,7 @@ export const pfConfigurationAuthenticationSourceFields = {
       ]
     }
   },
-  protocol_ip_port: ({ options: { meta = {} } } = {}) => {
+  protocol_host_port: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Host'),
       fields: [
@@ -1189,15 +1189,15 @@ export const pfConfigurationAuthenticationSourceFields = {
           validators: pfConfigurationValidatorsFromMeta(meta, 'protocol', 'Protocol')
         },
         {
-          key: 'ip',
+          key: 'host',
           component: pfFormInput,
           attrs: {
-            ...pfConfigurationAttributesFromMeta(meta, 'ip'),
+            ...pfConfigurationAttributesFromMeta(meta, 'host'),
             ...{
               class: 'col-sm-4'
             }
           },
-          validators: pfConfigurationValidatorsFromMeta(meta, 'ip', 'IP')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'host', 'Host')
         },
         {
           text: ':',
@@ -1810,7 +1810,7 @@ export const pfConfigurationAuthenticationSourceViewFields = (context) => {
           fields: [
             pfConfigurationAuthenticationSourceFields.id(context),
             pfConfigurationAuthenticationSourceFields.description(context),
-            pfConfigurationAuthenticationSourceFields.protocol_ip_port(context),
+            pfConfigurationAuthenticationSourceFields.protocol_host_port(context),
             pfConfigurationAuthenticationSourceFields.api_username(context),
             pfConfigurationAuthenticationSourceFields.api_password(context),
             pfConfigurationAuthenticationSourceFields.authentication_url(context),
