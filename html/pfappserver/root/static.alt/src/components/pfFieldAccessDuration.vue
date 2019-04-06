@@ -27,12 +27,11 @@
         track-by="value"
         :placeholder="$t('Choose')"
         :options="intervals"
-        :disabled="intervals.length === 0"
+        :disabled="disabled || intervals.length === 0"
         :vuelidate="unitVuelidateModel"
         :invalid-feedback="unitInvalidFeedback"
         :clearOnSelect="false"
         :allowEmpty="false"
-        :disabled="disabled"
         class="mr-1"
         collapse-object
       ></pf-form-chosen>
@@ -79,12 +78,11 @@
         track-by="value"
         :placeholder="$t('Choose')"
         :options="intervals"
-        :disabled="intervals.length === 0"
+        :disabled="disabled || intervals.length === 0"
         :vuelidate="extendedUnitVuelidateModel"
         :invalid-feedback="extendednitInvalidFeedback"
         :clearOnSelect="false"
         :allowEmpty="false"
-        :disabled="disabled"
         class="mr-1"
         collapse-object
       ></pf-form-chosen>

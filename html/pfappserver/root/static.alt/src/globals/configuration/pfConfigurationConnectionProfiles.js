@@ -8,7 +8,6 @@ import pfFormTextarea from '@/components/pfFormTextarea'
 import pfFormToggle from '@/components/pfFormToggle'
 import pfTree from '@/components/pfTree'
 import {
-  pfConfigurationViewFields,
   pfConfigurationAttributesFromMeta,
   pfConfigurationValidatorsFromMeta,
   pfConfigurationLocales
