@@ -212,7 +212,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
       tab: i18n.t('Definition'),
       fields: [
         {
-          label: i18n.t('IP Address/MAC Address/Range (CIDR)'),
+          label: i18n.t('Group name'),
           fields: [
             {
               key: 'id',
