@@ -41,6 +41,7 @@
         show-empty
         responsive
         fixed
+        striped
       >
         <slot name="emptySearch" slot="empty" v-bind="{ isLoading }">
           <pf-empty-table :isLoading="isLoading">{{ $t('No results found') }}</pf-empty-table>
