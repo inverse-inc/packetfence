@@ -158,7 +158,13 @@ export const pfConfigurationAdvancedViewFields = (context = {}) => {
             {
               key: 'pffilter_processes',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'pffilter_processes'),
+              attrs: {
+                ...pfConfigurationAttributesFromMeta(meta, 'pffilter_processes'),
+                ...{
+                  type: 'number',
+                  step: 1
+                }
+              },
               validators: pfConfigurationValidatorsFromMeta(meta, 'pffilter_processes', 'Processes')
             }
           ]

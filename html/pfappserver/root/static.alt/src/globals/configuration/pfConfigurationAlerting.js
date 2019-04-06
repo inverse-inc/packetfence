@@ -96,7 +96,7 @@ export const pfConfigurationAlertingViewFields = (context = {}) => {
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'smtp_port'),
               validators: {
-                ...pfConfigurationValidatorsFromMeta(meta, 'smtp_port', 'Port').
+                ...pfConfigurationValidatorsFromMeta(meta, 'smtp_port', 'Port'),
                 ...{
                   [i18n.t('Invalid port.')]: isPort
                 }
@@ -155,7 +155,13 @@ export const pfConfigurationAlertingViewFields = (context = {}) => {
             {
               key: 'smtp_timeout',
               component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'smtp_timeout'),
+              attrs: {
+                ...pfConfigurationAttributesFromMeta(meta, 'smtp_timeout'),
+                ...{
+                  type: 'number',
+                  step: 1
+                }
+              },
               validators: pfConfigurationValidatorsFromMeta(meta, 'smtp_timeout', 'Timeout')
             }
           ]
