@@ -24,185 +24,6 @@ const {
 } = require('vuelidate/lib/validators')
 
 /**
-  * This function returns a promise for options based on a search query from within the chosen element.
-  * It performs a debounced async API call and builds the options.
-  * Initially only the identifier for the current value is provided without a friendly text string
-  * The API response is paginated, and available options will be limited to 1 page,
-  *  therefore the search results may not contain the current value, subsequently clearing the chosen element.
-  * On initialization we will pre-search the current value and cache it for future re-use so that
-  *  the returned options will always include the current identifier at the top in order to keep the element from resetting.
-**/
-export const pfConfigurationFingerbankDeviceOptionsSearchFunction = (query, currentOptions = [], currentValue = null) => {
-  const queryTrim = `${query}`.trim() // expect Number or String (1.trim() = exception)
-  if (!queryTrim) return []
-  const currentOption = currentOptions.find(option => option.value === currentValue) // cache currentValue
-  let values = []
-  if (queryTrim) values.push({ field: 'id', op: 'equals', value: queryTrim })
-  if (currentOption) values.push({ field: 'name', op: 'contains', value: queryTrim }) // subsequent iterations only
-  const params = {
-    query: { op: 'and', values: [{ op: 'or', values: values }] },
-    fields: ['id', 'name'],
-    sort: ['name'],
-    cursor: 0,
-    limit: 100
-  }
-  return api.fingerbankSearchDevices(params).then(response => {
-    return [
-      ...((currentOption) ? [currentOption] : []), // include the currentValue in the options to prevent element reset
-      ...response.items
-        .map(item => { return { value: item.id.toString(), text: item.name } })
-        .filter(item => JSON.stringify(item) !== JSON.stringify(currentOption)) // skip duplicates
-    ]
-  })
-}
-
-export const pfConfigurationFingerbankDhcpFingerprintOptionsSearchFunction = (query, currentOptions = [], currentValue = null) => {
-  const queryTrim = `${query}`.trim() // expect Number or String (1.trim() = exception)
-  if (!queryTrim) return []
-  const currentOption = currentOptions.find(option => option.value === currentValue) // cache currentValue
-  let values = []
-  if (queryTrim) values.push({ field: 'id', op: 'equals', value: queryTrim })
-  if (currentOption) values.push({ field: 'value', op: 'contains', value: queryTrim }) // subsequent iterations only
-  const params = {
-    query: { op: 'and', values: [{ op: 'or', values: values }] },
-    fields: ['id', 'value'],
-    sort: ['value'],
-    cursor: 0,
-    limit: 100
-  }
-  return api.fingerbankSearchDhcpFingerprints(params).then(response => {
-    return [
-      ...((currentOption) ? [currentOption] : []), // include the currentValue in the options to prevent element reset
-      ...response.items
-        .map(item => { return { value: item.id.toString(), text: item.value } })
-        .filter(item => JSON.stringify(item) !== JSON.stringify(currentOption)) // skip duplicates
-    ]
-  })
-}
-
-export const pfConfigurationFingerbankDhcpv6EnterpriseOptionsSearchFunction = (query, currentOptions = [], currentValue = null) => {
-  const queryTrim = `${query}`.trim() // expect Number or String (1.trim() = exception)
-  if (!queryTrim) return []
-  const currentOption = currentOptions.find(option => option.value === currentValue) // cache currentValue
-  let values = []
-  if (queryTrim) values.push({ field: 'id', op: 'equals', value: queryTrim })
-  if (currentOption) values.push({ field: 'value', op: 'contains', value: queryTrim }) // subsequent iterations only
-  const params = {
-    query: { op: 'and', values: [{ op: 'or', values: values }] },
-    fields: ['id', 'value'],
-    sort: ['value'],
-    cursor: 0,
-    limit: 100
-  }
-  return api.fingerbankSearchDhcpv6Enterprises(params).then(response => {
-    return [
-      ...((currentOption) ? [currentOption] : []), // include the currentValue in the options to prevent element reset
-      ...response.items
-        .map(item => { return { value: item.id.toString(), text: item.value } })
-        .filter(item => JSON.stringify(item) !== JSON.stringify(currentOption)) // skip duplicates
-    ]
-  })
-}
-
-export const pfConfigurationFingerbankDhcpv6FingerprintOptionsSearchFunction = (query, currentOptions = [], currentValue = null) => {
-  const queryTrim = `${query}`.trim() // expect Number or String (1.trim() = exception)
-  if (!queryTrim) return []
-  const currentOption = currentOptions.find(option => option.value === currentValue) // cache currentValue
-  let values = []
-  if (queryTrim) values.push({ field: 'id', op: 'equals', value: queryTrim })
-  if (currentOption) values.push({ field: 'value', op: 'contains', value: queryTrim }) // subsequent iterations only
-  const params = {
-    query: { op: 'and', values: [{ op: 'or', values: values }] },
-    fields: ['id', 'value'],
-    sort: ['value'],
-    cursor: 0,
-    limit: 100
-  }
-  return api.fingerbankSearchDhcpv6Fingerprints(params).then(response => {
-    return [
-      ...((currentOption) ? [currentOption] : []), // include the currentValue in the options to prevent element reset
-      ...response.items
-        .map(item => { return { value: item.id.toString(), text: item.value } })
-        .filter(item => JSON.stringify(item) !== JSON.stringify(currentOption)) // skip duplicates
-    ]
-  })
-}
-
-export const pfConfigurationFingerbankDhcpVendorOptionsSearchFunction = (query, currentOptions = [], currentValue = null) => {
-  const queryTrim = `${query}`.trim() // expect Number or String (1.trim() = exception)
-  if (!queryTrim) return []
-  const currentOption = currentOptions.find(option => option.value === currentValue) // cache currentValue
-  let values = []
-  if (queryTrim) values.push({ field: 'id', op: 'equals', value: queryTrim })
-  if (currentOption) values.push({ field: 'value', op: 'contains', value: queryTrim }) // subsequent iterations only
-  const params = {
-    query: { op: 'and', values: [{ op: 'or', values: values }] },
-    fields: ['id', 'value'],
-    sort: ['value'],
-    cursor: 0,
-    limit: 100
-  }
-  return api.fingerbankSearchDhcpVendors(params).then(response => {
-    return [
-      ...((currentOption) ? [currentOption] : []), // include the currentValue in the options to prevent element reset
-      ...response.items
-        .map(item => { return { value: item.id.toString(), text: item.value } })
-        .filter(item => JSON.stringify(item) !== JSON.stringify(currentOption)) // skip duplicates
-    ]
-  })
-}
-
-export const pfConfigurationFingerbankMacVendorOptionsSearchFunction = (query, currentOptions = [], currentValue = null) => {
-  const queryTrim = `${query}`.trim() // expect Number or String (1.trim() = exception)
-  if (!queryTrim) return []
-  const currentOption = currentOptions.find(option => option.value === currentValue) // cache currentValue
-  let values = []
-  if (queryTrim) values.push({ field: 'mac', op: 'equals', value: queryTrim })
-  if (currentOption) { // subsequent iterations only
-    values.push({ field: 'name', op: 'contains', value: queryTrim })
-  }
-  const params = {
-    query: { op: 'and', values: [{ op: 'or', values: values }] },
-    fields: ['mac', 'name'],
-    sort: ['name'],
-    cursor: 0,
-    limit: 100
-  }
-  return api.fingerbankSearchMacVendors(params).then(response => {
-    return [
-      ...((currentOption) ? [currentOption] : []), // include the currentValue in the options to prevent element reset
-      ...response.items
-        .map(item => { return { value: item.mac, text: item.name } })
-        .filter(item => JSON.stringify(item) !== JSON.stringify(currentOption)) // skip duplicates
-    ]
-  })
-}
-
-export const pfConfigurationFingerbankUserAgentOptionsSearchFunction = (query, currentOptions = [], currentValue = null) => {
-  const queryTrim = `${query}`.trim() // expect Number or String (1.trim() = exception)
-  if (!queryTrim) return []
-  const currentOption = currentOptions.find(option => option.value === currentValue) // cache currentValue
-  let values = []
-  if (queryTrim) values.push({ field: 'id', op: 'equals', value: queryTrim })
-  if (currentOption) values.push({ field: 'value', op: 'contains', value: queryTrim }) // subsequent iterations only
-  const params = {
-    query: { op: 'and', values: [{ op: 'or', values: values }] },
-    fields: ['id', 'value'],
-    sort: ['value'],
-    cursor: 0,
-    limit: 100
-  }
-  return api.fingerbankSearchUserAgents(params).then(response => {
-    return [
-      ...((currentOption) ? [currentOption] : []), // include the currentValue in the options to prevent element reset
-      ...response.items
-        .map(item => { return { value: item.id.toString(), text: item.value } })
-        .filter(item => JSON.stringify(item) !== JSON.stringify(currentOption)) // skip duplicates
-    ]
-  })
-}
-
-/**
  * General Settings
 **/
 export const pfConfigurationFingerbankGeneralSettingsViewFields = (context = {}) => {
@@ -1053,6 +874,41 @@ export const pfConfigurationFingerbankDeviceViewFields = (context = {}) => {
   ]
 }
 
+export const pfConfigurationFingerbankDeviceOptionsSearchFunction = (vm, query) => {
+  if (!query) return []
+  if (vm.options.length === 0) { // first query - presearch current value
+    return api.fingerbankSearchDevices({
+      query: { op: 'and', values: [{ op: 'or', values: [{ field: 'id', op: 'equals', value: query }] }] },
+      fields: ['id', 'name'],
+      sort: ['name'],
+      cursor: 0,
+      limit: 100
+    }).then(response => {
+      return response.items.map(item => {
+        return { value: item.id.toString(), text: item.name }
+      })
+    })
+  } else { // subsequent queries
+    const currentOption = vm.options.find(option => option.value === vm.value) // cache current value
+    return api.fingerbankSearchDevices({
+      query: { op: 'and', values: [{ op: 'or', values: [{ field: 'name', op: 'contains', value: query }] }] },
+      fields: ['id', 'name'],
+      sort: ['name'],
+      cursor: 0,
+      limit: 100
+    }).then(response => {
+      return [
+        ...((currentOption) ? [currentOption] : []), // current option first
+        ...response.items.map(item => {
+          return { value: item.id.toString(), text: item.name }
+        }).filter(item => {
+          return JSON.stringify(item) !== JSON.stringify(currentOption) // remove duplicate current option
+        })
+      ]
+    })
+  }
+}
+
 /**
  * DHCP Fingerprints
  */
@@ -1178,6 +1034,41 @@ export const pfConfigurationFingerbankDhcpFingerprintViewFields = (context = {})
       ]
     }
   ]
+}
+
+export const pfConfigurationFingerbankDhcpFingerprintOptionsSearchFunction = (vm, query) => {
+  if (!query) return []
+  if (vm.options.length === 0) { // first query - presearch current value
+    return api.fingerbankSearchDhcpFingerprints({
+      query: { op: 'and', values: [{ op: 'or', values: [{ field: 'id', op: 'equals', value: query }] }] },
+      fields: ['id', 'value'],
+      sort: ['value'],
+      cursor: 0,
+      limit: 100
+    }).then(response => {
+      return response.items.map(item => {
+        return { value: item.id.toString(), text: item.value }
+      })
+    })
+  } else { // subsequent queries
+    const currentOption = vm.options.find(option => option.value === vm.value) // cache current value
+    return api.fingerbankSearchDhcpFingerprints({
+      query: { op: 'and', values: [{ op: 'or', values: [{ field: 'value', op: 'contains', value: query }] }] },
+      fields: ['id', 'value'],
+      sort: ['value'],
+      cursor: 0,
+      limit: 100
+    }).then(response => {
+      return [
+        ...((currentOption) ? [currentOption] : []), // current option first
+        ...response.items.map(item => {
+          return { value: item.id.toString(), text: item.value }
+        }).filter(item => {
+          return JSON.stringify(item) !== JSON.stringify(currentOption) // remove duplicate current option
+        })
+      ]
+    })
+  }
 }
 
 /**
@@ -1306,6 +1197,41 @@ export const pfConfigurationFingerbankDhcpVendorViewFields = (context = {}) => {
   ]
 }
 
+export const pfConfigurationFingerbankDhcpVendorOptionsSearchFunction = (vm, query) => {
+  if (!query) return []
+  if (vm.options.length === 0) { // first query - presearch current value
+    return api.fingerbankSearchDhcpVendors({
+      query: { op: 'and', values: [{ op: 'or', values: [{ field: 'id', op: 'equals', value: query }] }] },
+      fields: ['id', 'value'],
+      sort: ['value'],
+      cursor: 0,
+      limit: 100
+    }).then(response => {
+      return response.items.map(item => {
+        return { value: item.id.toString(), text: item.value }
+      })
+    })
+  } else { // subsequent queries
+    const currentOption = vm.options.find(option => option.value === vm.value) // cache current value
+    return api.fingerbankSearchDhcpVendors({
+      query: { op: 'and', values: [{ op: 'or', values: [{ field: 'value', op: 'contains', value: query }] }] },
+      fields: ['id', 'value'],
+      sort: ['value'],
+      cursor: 0,
+      limit: 100
+    }).then(response => {
+      return [
+        ...((currentOption) ? [currentOption] : []), // current option first
+        ...response.items.map(item => {
+          return { value: item.id.toString(), text: item.value }
+        }).filter(item => {
+          return JSON.stringify(item) !== JSON.stringify(currentOption) // remove duplicate current option
+        })
+      ]
+    })
+  }
+}
+
 /**
  * DHCPv6 Fingerprints
  */
@@ -1431,6 +1357,41 @@ export const pfConfigurationFingerbankDhcpv6FingerprintViewFields = (context = {
       ]
     }
   ]
+}
+
+export const pfConfigurationFingerbankDhcpv6FingerprintOptionsSearchFunction = (vm, query) => {
+  if (!query) return []
+  if (vm.options.length === 0) { // first query - presearch current value
+    return api.fingerbankSearchDhcpv6Fingerprints({
+      query: { op: 'and', values: [{ op: 'or', values: [{ field: 'id', op: 'equals', value: query }] }] },
+      fields: ['id', 'value'],
+      sort: ['value'],
+      cursor: 0,
+      limit: 100
+    }).then(response => {
+      return response.items.map(item => {
+        return { value: item.id.toString(), text: item.value }
+      })
+    })
+  } else { // subsequent queries
+    const currentOption = vm.options.find(option => option.value === vm.value) // cache current value
+    return api.fingerbankSearchDhcpv6Fingerprints({
+      query: { op: 'and', values: [{ op: 'or', values: [{ field: 'value', op: 'contains', value: query }] }] },
+      fields: ['id', 'value'],
+      sort: ['value'],
+      cursor: 0,
+      limit: 100
+    }).then(response => {
+      return [
+        ...((currentOption) ? [currentOption] : []), // current option first
+        ...response.items.map(item => {
+          return { value: item.id.toString(), text: item.value }
+        }).filter(item => {
+          return JSON.stringify(item) !== JSON.stringify(currentOption) // remove duplicate current option
+        })
+      ]
+    })
+  }
 }
 
 /**
@@ -1565,6 +1526,41 @@ export const pfConfigurationFingerbankDhcpv6EnterpriseViewFields = (context = {}
       ]
     }
   ]
+}
+
+export const pfConfigurationFingerbankDhcpv6EnterpriseOptionsSearchFunction = (vm, query) => {
+  if (!query) return []
+  if (vm.options.length === 0) { // first query - presearch current value
+    return api.fingerbankSearchDhcpv6Enterprises({
+      query: { op: 'and', values: [{ op: 'or', values: [{ field: 'id', op: 'equals', value: query }] }] },
+      fields: ['id', 'value'],
+      sort: ['value'],
+      cursor: 0,
+      limit: 100
+    }).then(response => {
+      return response.items.map(item => {
+        return { value: item.id.toString(), text: item.value }
+      })
+    })
+  } else { // subsequent queries
+    const currentOption = vm.options.find(option => option.value === vm.value) // cache current value
+    return api.fingerbankSearchDhcpv6Enterprises({
+      query: { op: 'and', values: [{ op: 'or', values: [{ field: 'value', op: 'contains', value: query }] }] },
+      fields: ['id', 'value'],
+      sort: ['value'],
+      cursor: 0,
+      limit: 100
+    }).then(response => {
+      return [
+        ...((currentOption) ? [currentOption] : []), // current option first
+        ...response.items.map(item => {
+          return { value: item.id.toString(), text: item.value }
+        }).filter(item => {
+          return JSON.stringify(item) !== JSON.stringify(currentOption) // remove duplicate current option
+        })
+      ]
+    })
+  }
 }
 
 /**
@@ -1714,6 +1710,40 @@ export const pfConfigurationFingerbankMacVendorViewFields = (context = {}) => {
   ]
 }
 
+export const pfConfigurationFingerbankMacVendorOptionsSearchFunction = (vm, query) => {
+  if (!query) return []
+  if (vm.options.length === 0) { // first query - presearch current value
+    return api.fingerbankSearchMacVendors({
+      query: { op: 'and', values: [{ op: 'or', values: [{ field: 'mac', op: 'equals', value: query }] }] },
+      fields: ['mac', 'name'],
+      sort: ['name'],
+      cursor: 0,
+      limit: 100
+    }).then(response => {
+      return response.items.map(item => {
+        return { value: item.mac, text: item.name }
+      })
+    })
+  } else { // subsequent queries
+    const currentOption = vm.options.find(option => option.value === vm.value) // cache current value
+    return api.fingerbankSearchMacVendors({
+      query: { op: 'and', values: [{ op: 'or', values: [{ field: 'name', op: 'contains', value: query }] }] },
+      fields: ['mac', 'name'],
+      sort: ['name'],
+      cursor: 0,
+      limit: 100
+    }).then(response => {
+      return [
+        ...((currentOption) ? [currentOption] : []), // current option first
+        ...response.items.map(item => {
+          return { value: item.mac, text: item.name }
+        }).filter(item => {
+          return JSON.stringify(item) !== JSON.stringify(currentOption) // remove duplicate current option
+        })
+      ]
+    })
+  }
+}
 /**
  * User Agents
  */
@@ -1838,4 +1868,39 @@ export const pfConfigurationFingerbankUserAgentViewFields = (context = {}) => {
       ]
     }
   ]
+}
+
+export const pfConfigurationFingerbankUserAgentOptionsSearchFunction = (vm, query) => {
+  if (!query) return []
+  if (vm.options.length === 0) { // first query - presearch current value
+    return api.fingerbankSearchUserAgents({
+      query: { op: 'and', values: [{ op: 'or', values: [{ field: 'id', op: 'equals', value: query }] }] },
+      fields: ['id', 'value'],
+      sort: ['value'],
+      cursor: 0,
+      limit: 100
+    }).then(response => {
+      return response.items.map(item => {
+        return { value: item.id.toString(), text: item.value }
+      })
+    })
+  } else { // subsequent queries
+    const currentOption = vm.options.find(option => option.value === vm.value) // cache current value
+    return api.fingerbankSearchUserAgents({
+      query: { op: 'and', values: [{ op: 'or', values: [{ field: 'value', op: 'contains', value: query }] }] },
+      fields: ['id', 'value'],
+      sort: ['value'],
+      cursor: 0,
+      limit: 100
+    }).then(response => {
+      return [
+        ...((currentOption) ? [currentOption] : []), // current option first
+        ...response.items.map(item => {
+          return { value: item.id.toString(), text: item.value }
+        }).filter(item => {
+          return JSON.stringify(item) !== JSON.stringify(currentOption) // remove duplicate current option
+        })
+      ]
+    })
+  }
 }
