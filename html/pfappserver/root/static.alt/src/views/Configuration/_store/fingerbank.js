@@ -100,7 +100,7 @@ const getters = {
 const actions = {
   getGeneralSettings: ({ state, commit }) => {
     if (state.generalSettings.cache) {
-      return Promise.resolve(state.generalSettings.cache)
+      return Promise.resolve(state.generalSettings.cache).then(cache => JSON.parse(JSON.stringify(cache)))
     }
     commit('GENERAL_SETTINGS_REQUEST')
     const params = {
@@ -164,12 +164,12 @@ const actions = {
   },
   getCombination: ({ state, commit }, id) => {
     if (state.combinations.cache[id]) {
-      return Promise.resolve(state.combinations.cache[id])
+      return Promise.resolve(state.combinations.cache[id]).then(cache => JSON.parse(JSON.stringify(cache)))
     }
     commit('COMBINATION_REQUEST')
     return api.fingerbankCombination(id).then(item => {
       commit('COMBINATION_REPLACED', item)
-      return item
+      return JSON.parse(JSON.stringify(item))
     }).catch(err => {
       commit('COMBINATION_ERROR', err.response)
       throw err
@@ -216,12 +216,12 @@ const actions = {
   },
   getDevice: ({ state, commit }, id) => {
     if (state.devices.cache[id]) {
-      return Promise.resolve(state.devices.cache[id])
+      return Promise.resolve(state.devices.cache[id]).then(cache => JSON.parse(JSON.stringify(cache)))
     }
     commit('DEVICE_REQUEST')
     return api.fingerbankDevice(id).then(item => {
       commit('DEVICE_REPLACED', item)
-      return item
+      return JSON.parse(JSON.stringify(item))
     }).catch(err => {
       commit('DEVICE_ERROR', err.response)
       throw err
@@ -268,12 +268,12 @@ const actions = {
   },
   getDhcpFingerprint: ({ state, commit }, id) => {
     if (state.dhcpFingerprints.cache[id]) {
-      return Promise.resolve(state.dhcpFingerprints.cache[id])
+      return Promise.resolve(state.dhcpFingerprints.cache[id]).then(cache => JSON.parse(JSON.stringify(cache)))
     }
     commit('DHCP_FINGERPRINT_REQUEST')
     return api.fingerbankDhcpFingerprint(id).then(item => {
       commit('DHCP_FINGERPRINT_REPLACED', item)
-      return item
+      return JSON.parse(JSON.stringify(item))
     }).catch(err => {
       commit('DHCP_FINGERPRINT_ERROR', err.response)
       throw err
@@ -320,12 +320,12 @@ const actions = {
   },
   getDhcpVendor: ({ state, commit }, id) => {
     if (state.dhcpVendors.cache[id]) {
-      return Promise.resolve(state.dhcpVendors.cache[id])
+      return Promise.resolve(state.dhcpVendors.cache[id]).then(cache => JSON.parse(JSON.stringify(cache)))
     }
     commit('DHCP_VENDOR_REQUEST')
     return api.fingerbankDhcpVendor(id).then(item => {
       commit('DHCP_VENDOR_REPLACED', item)
-      return item
+      return JSON.parse(JSON.stringify(item))
     }).catch(err => {
       commit('DHCP_VENDOR_ERROR', err.response)
       throw err
@@ -372,12 +372,12 @@ const actions = {
   },
   getDhcpv6Fingerprint: ({ state, commit }, id) => {
     if (state.dhcpv6Fingerprints.cache[id]) {
-      return Promise.resolve(state.dhcpv6Fingerprints.cache[id])
+      return Promise.resolve(state.dhcpv6Fingerprints.cache[id]).then(cache => JSON.parse(JSON.stringify(cache)))
     }
     commit('DHCPV6_FINGERPRINT_REQUEST')
     return api.fingerbankDhcpv6Fingerprint(id).then(item => {
       commit('DHCPV6_FINGERPRINT_REPLACED', item)
-      return item
+      return JSON.parse(JSON.stringify(item))
     }).catch(err => {
       commit('DHCPV6_FINGERPRINT_ERROR', err.response)
       throw err
@@ -424,12 +424,12 @@ const actions = {
   },
   getDhcpv6Enterprise: ({ state, commit }, id) => {
     if (state.dhcpv6Enterprises.cache[id]) {
-      return Promise.resolve(state.dhcpv6Enterprises.cache[id])
+      return Promise.resolve(state.dhcpv6Enterprises.cache[id]).then(cache => JSON.parse(JSON.stringify(cache)))
     }
     commit('DHCPV6_ENTERPRISE_REQUEST')
     return api.fingerbankDhcpv6Enterprise(id).then(item => {
       commit('DHCPV6_ENTERPRISE_REPLACED', item)
-      return item
+      return JSON.parse(JSON.stringify(item))
     }).catch(err => {
       commit('DHCPV6_ENTERPRISE_ERROR', err.response)
       throw err
@@ -476,12 +476,12 @@ const actions = {
   },
   getMacVendor: ({ state, commit }, id) => {
     if (state.macVendors.cache[id]) {
-      return Promise.resolve(state.macVendors.cache[id])
+      return Promise.resolve(state.macVendors.cache[id]).then(cache => JSON.parse(JSON.stringify(cache)))
     }
     commit('MAC_VENDOR_REQUEST')
     return api.fingerbankMacVendor(id).then(item => {
       commit('MAC_VENDOR_REPLACED', item)
-      return item
+      return JSON.parse(JSON.stringify(item))
     }).catch(err => {
       commit('MAC_VENDOR_ERROR', err.response)
       throw err
@@ -528,12 +528,12 @@ const actions = {
   },
   getUserAgent: ({ state, commit }, id) => {
     if (state.userAgents.cache[id]) {
-      return Promise.resolve(state.userAgents.cache[id])
+      return Promise.resolve(state.userAgents.cache[id]).then(cache => JSON.parse(JSON.stringify(cache)))
     }
     commit('USER_AGENT_REQUEST')
     return api.fingerbankUserAgent(id).then(item => {
       commit('USER_AGENT_REPLACED', item)
-      return item
+      return JSON.parse(JSON.stringify(item))
     }).catch(err => {
       commit('USER_AGENT_ERROR', err.response)
       throw err
@@ -578,7 +578,7 @@ const mutations = {
   },
   GENERAL_SETTINGS_REPLACED: (state, data) => {
     state.generalSettings.status = types.SUCCESS
-    Vue.set(state.generalSettings, 'cache', data)
+    Vue.set(state.generalSettings, 'cache', JSON.parse(JSON.stringify(data)))
   },
   GENERAL_SETTINGS_ERROR: (state, response) => {
     state.generalSettings.status = types.ERROR
@@ -595,7 +595,7 @@ const mutations = {
   },
   COMBINATION_REPLACED: (state, data) => {
     state.combinations.status = types.SUCCESS
-    Vue.set(state.combinations.cache, data.id, data)
+    Vue.set(state.combinations.cache, data.id, JSON.parse(JSON.stringify(data)))
   },
   COMBINATION_DESTROYED: (state, id) => {
     state.combinations.status = types.SUCCESS
@@ -616,7 +616,7 @@ const mutations = {
   },
   DEVICE_REPLACED: (state, data) => {
     state.devices.status = types.SUCCESS
-    Vue.set(state.devices.cache, data.id, data)
+    Vue.set(state.devices.cache, data.id, JSON.parse(JSON.stringify(data)))
   },
   DEVICE_DESTROYED: (state, id) => {
     state.devices.status = types.SUCCESS
@@ -634,7 +634,7 @@ const mutations = {
   },
   DHCP_FINGERPRINT_REPLACED: (state, data) => {
     state.dhcpFingerprints.status = types.SUCCESS
-    Vue.set(state.dhcpFingerprints.cache, data.id, data)
+    Vue.set(state.dhcpFingerprints.cache, data.id, JSON.parse(JSON.stringify(data)))
   },
   DHCP_FINGERPRINT_DESTROYED: (state, id) => {
     state.dhcpFingerprints.status = types.SUCCESS
@@ -652,7 +652,7 @@ const mutations = {
   },
   DHCP_VENDOR_REPLACED: (state, data) => {
     state.dhcpFingerprints.status = types.SUCCESS
-    Vue.set(state.dhcpVendors.cache, data.id, data)
+    Vue.set(state.dhcpVendors.cache, data.id, JSON.parse(JSON.stringify(data)))
   },
   DHCP_VENDOR_DESTROYED: (state, id) => {
     state.dhcpFingerprints.status = types.SUCCESS
@@ -670,7 +670,7 @@ const mutations = {
   },
   DHCPV6_FINGERPRINT_REPLACED: (state, data) => {
     state.dhcpv6Fingerprints.status = types.SUCCESS
-    Vue.set(state.dhcpv6Fingerprints.cache, data.id, data)
+    Vue.set(state.dhcpv6Fingerprints.cache, data.id, JSON.parse(JSON.stringify(data)))
   },
   DHCPV6_FINGERPRINT_DESTROYED: (state, id) => {
     state.dhcpv6Fingerprints.status = types.SUCCESS
@@ -688,7 +688,7 @@ const mutations = {
   },
   DHCPV6_ENTERPRISE_REPLACED: (state, data) => {
     state.dhcpv6Enterprises.status = types.SUCCESS
-    Vue.set(state.dhcpv6Enterprises.cache, data.id, data)
+    Vue.set(state.dhcpv6Enterprises.cache, data.id, JSON.parse(JSON.stringify(data)))
   },
   DHCPV6_ENTERPRISE_DESTROYED: (state, id) => {
     state.dhcpv6Enterprises.status = types.SUCCESS
@@ -706,7 +706,7 @@ const mutations = {
   },
   MAC_VENDOR_REPLACED: (state, data) => {
     state.macVendors.status = types.SUCCESS
-    Vue.set(state.macVendors.cache, data.id, data)
+    Vue.set(state.macVendors.cache, data.id, JSON.parse(JSON.stringify(data)))
   },
   MAC_VENDOR_DESTROYED: (state, id) => {
     state.macVendors.status = types.SUCCESS
@@ -724,7 +724,7 @@ const mutations = {
   },
   USER_AGENT_REPLACED: (state, data) => {
     state.userAgents.status = types.SUCCESS
-    Vue.set(state.userAgents.cache, data.id, data)
+    Vue.set(state.userAgents.cache, data.id, JSON.parse(JSON.stringify(data)))
   },
   USER_AGENT_DESTROYED: (state, id) => {
     state.userAgents.status = types.SUCCESS

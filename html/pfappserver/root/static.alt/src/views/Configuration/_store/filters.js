@@ -35,12 +35,12 @@ const actions = {
   },
   getFilter: ({ state, commit }, id) => {
     if (state.cache[id]) {
-      return Promise.resolve(state.cache[id])
+      return Promise.resolve(state.cache[id]).then(cache => JSON.parse(JSON.stringify(cache)))
     }
     commit('ITEM_REQUEST')
     return api.filter(id).then(item => {
       commit('ITEM_REPLACED', item)
-      return item
+      return JSON.parse(JSON.stringify(item))
     }).catch((err) => {
       commit('ITEM_ERROR', err.response)
       throw err
@@ -65,7 +65,7 @@ const mutations = {
   },
   ITEM_REPLACED: (state, data) => {
     state.itemStatus = types.SUCCESS
-    Vue.set(state.cache, data.id, data.filter)
+    Vue.set(state.cache, data.id, JSON.parse(JSON.stringify(data.filter)))
   },
   ITEM_ERROR: (state, response) => {
     state.itemStatus = types.ERROR

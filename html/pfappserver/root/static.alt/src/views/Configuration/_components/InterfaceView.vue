@@ -128,7 +128,7 @@ export default {
             type: 'none'
           }
         } else {
-          this.form = JSON.parse(JSON.stringify(form))
+          this.form = form
         }
       })
     },

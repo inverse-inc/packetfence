@@ -62,12 +62,12 @@ const actions = {
   },
   getConnectionProfile: ({ state, commit }, id) => {
     if (state.cache[id]) {
-      return Promise.resolve(state.cache[id])
+      return Promise.resolve(state.cache[id]).then(cache => JSON.parse(JSON.stringify(cache)))
     }
     commit('ITEM_REQUEST')
     return api.connectionProfile(id).then(item => {
       commit('ITEM_REPLACED', item)
-      return item
+      return JSON.parse(JSON.stringify(item))
     }).catch((err) => {
       commit('ITEM_ERROR', err.response)
       throw err

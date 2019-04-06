@@ -119,11 +119,11 @@ export default {
     init () {
       this.$store.dispatch(`${this.storeName}/options`, this.id).then(options => {
         // store options
-        this.options = JSON.parse(JSON.stringify(options))
+        this.options = options
         if (this.id) {
           // existing
           this.$store.dispatch(`${this.storeName}/getDeviceRegistration`, this.id).then(form => {
-            this.form = JSON.parse(JSON.stringify(form))
+            this.form = form
           })
         } else {
           // new

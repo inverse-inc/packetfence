@@ -71,15 +71,14 @@ export default {
   methods: {
     init () {
       this.$store.dispatch('$_bases/optionsAdvanced').then(options => {
-        this.options = JSON.parse(JSON.stringify(options))
-        this.$store.dispatch('$_bases/getAdvanced').then(data => {
-          this.form = JSON.parse(JSON.stringify(data))
+        this.options = options
+        this.$store.dispatch('$_bases/getAdvanced').then(form => {
+          this.form = form
         })
       })
     },
     save () {
-      let form = JSON.parse(JSON.stringify(this.form)) // dereference
-      this.$store.dispatch('$_bases/updateAdvanced', form)
+      this.$store.dispatch('$_bases/updateAdvanced', this.form)
     }
   },
   created () {

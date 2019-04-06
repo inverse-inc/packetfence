@@ -26,13 +26,13 @@ const getters = {
 const actions = {
   getCertificate: ({ state, commit }, id) => {
     if (state.cache.certificate[id]) {
-      return Promise.resolve(state.cache.certificate[id])
+      return Promise.resolve(state.cache.certificate[id]).then(cache => JSON.parse(JSON.stringify(cache)))
     }
     commit('ITEM_REQUEST')
     return api.certificate(id).then(item => {
       item.id = id
       commit('ITEM_REPLACED', item)
-      return item
+      return JSON.parse(JSON.stringify(item))
     }).catch((err) => {
       commit('ITEM_ERROR', err.response)
       throw err
@@ -40,7 +40,7 @@ const actions = {
   },
   getCertificateInfo: ({ state, commit }, id) => {
     if (state.cache.info[id]) {
-      return Promise.resolve(state.cache.info[id])
+      return Promise.resolve(state.cache.info[id]).then(cache => JSON.parse(JSON.stringify(cache)))
     }
     commit('ITEM_REQUEST')
     return api.certificateInfo(id).then(item => {
@@ -106,9 +106,9 @@ const mutations = {
   ITEM_REPLACED: (state, data) => {
     state.itemStatus = types.SUCCESS
     if (data.private_key) {
-      Vue.set(state.cache.certificate, data.id, data)
+      Vue.set(state.cache.certificate, data.id, JSON.parse(JSON.stringify(data)))
     } else {
-      Vue.set(state.cache.info, data.id, data)
+      Vue.set(state.cache.info, data.id, JSON.parse(JSON.stringify(data)))
     }
   },
   ITEM_ERROR: (state, response) => {

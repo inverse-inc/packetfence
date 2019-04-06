@@ -71,15 +71,14 @@ export default {
   methods: {
     init () {
       this.$store.dispatch('$_bases/optionsSNMPTraps').then(options => {
-        this.options = JSON.parse(JSON.stringify(options))
-        this.$store.dispatch('$_bases/getSNMPTraps').then(data => {
-          this.form = JSON.parse(JSON.stringify(data))
+        this.options = options
+        this.$store.dispatch('$_bases/getSNMPTraps').then(form => {
+          this.form = form
         })
       })
     },
     save () {
-      let form = JSON.parse(JSON.stringify(this.form)) // dereference
-      this.$store.dispatch('$_bases/updateSNMPTraps', form)
+      this.$store.dispatch('$_bases/updateSNMPTraps', this.form)
     }
   },
   created () {

@@ -35,12 +35,12 @@ const actions = {
   },
   getService: ({ state, commit }, id) => {
     if (state.cache[id]) {
-      return Promise.resolve(state.cache[id])
+      return Promise.resolve(state.cache[id]).then(cache => JSON.parse(JSON.stringify(cache)))
     }
     commit('SERVICE_REQUEST')
     return api.service(id).then(response => {
       commit('SERVICE_STATUS', { id, response })
-      return state.cache[id]
+      return JSON.parse(JSON.stringify(state.cache[id]))
     }).catch((err) => {
       const { response } = err
       commit('SERVICE_ERROR', { id, response })

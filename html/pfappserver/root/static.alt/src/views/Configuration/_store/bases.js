@@ -38,7 +38,7 @@ const actions = {
   },
   getBase: ({ state, commit }, id) => {
     if (state.cache[id]) {
-      return Promise.resolve(state.cache[id])
+      return Promise.resolve(state.cache[id]).then(cache => JSON.parse(JSON.stringify(cache)))
     }
     commit('ITEM_REQUEST')
     return api.base(id).then(item => {
@@ -47,7 +47,7 @@ const actions = {
         item.fqdn = ((item.hostname) ? item.hostname + '.' : '') + item.domain
       }
       commit('ITEM_REPLACED', item)
-      return item
+      return JSON.parse(JSON.stringify(item))
     }).catch((err) => {
       commit('ITEM_ERROR', err.response)
       throw err
@@ -55,12 +55,12 @@ const actions = {
   },
   getActiveActive: ({ state, commit }) => {
     if (state.cache['active_active']) {
-      return Promise.resolve(state.cache['active_active'])
+      return Promise.resolve(state.cache['active_active']).then(cache => JSON.parse(JSON.stringify(cache)))
     }
     commit('ITEM_REQUEST')
     return api.base('active_active').then(item => {
       commit('ITEM_REPLACED', item)
-      return item
+      return JSON.parse(JSON.stringify(item))
     }).catch((err) => {
       commit('ITEM_ERROR', err.response)
       throw err
@@ -89,12 +89,12 @@ const actions = {
   },
   getAdvanced: ({ state, commit }) => {
     if (state.cache['advanced']) {
-      return Promise.resolve(state.cache['advanced'])
+      return Promise.resolve(state.cache['advanced']).then(cache => JSON.parse(JSON.stringify(cache)))
     }
     commit('ITEM_REQUEST')
     return api.base('advanced').then(item => {
       commit('ITEM_REPLACED', item)
-      return item
+      return JSON.parse(JSON.stringify(item))
     }).catch((err) => {
       commit('ITEM_ERROR', err.response)
       throw err
@@ -123,12 +123,12 @@ const actions = {
   },
   getAlerting: ({ state, commit }) => {
     if (state.cache['alerting']) {
-      return Promise.resolve(state.cache['alerting'])
+      return Promise.resolve(state.cache['alerting']).then(cache => JSON.parse(JSON.stringify(cache)))
     }
     commit('ITEM_REQUEST')
     return api.base('alerting').then(item => {
       commit('ITEM_REPLACED', item)
-      return item
+      return JSON.parse(JSON.stringify(item))
     }).catch((err) => {
       commit('ITEM_ERROR', err.response)
       throw err
@@ -157,12 +157,12 @@ const actions = {
   },
   getCaptivePortal: ({ state, commit }) => {
     if (state.cache['captive_portal']) {
-      return Promise.resolve(state.cache['captive_portal'])
+      return Promise.resolve(state.cache['captive_portal']).then(cache => JSON.parse(JSON.stringify(cache)))
     }
     commit('ITEM_REQUEST')
     return api.base('captive_portal').then(item => {
       commit('ITEM_REPLACED', item)
-      return item
+      return JSON.parse(JSON.stringify(item))
     }).catch((err) => {
       commit('ITEM_ERROR', err.response)
       throw err
@@ -191,12 +191,12 @@ const actions = {
   },
   getDatabase: ({ state, commit }) => {
     if (state.cache['database']) {
-      return Promise.resolve(state.cache['database'])
+      return Promise.resolve(state.cache['database']).then(cache => JSON.parse(JSON.stringify(cache)))
     }
     commit('ITEM_REQUEST')
     return api.base('database').then(item => {
       commit('ITEM_REPLACED', item)
-      return item
+      return JSON.parse(JSON.stringify(item))
     }).catch((err) => {
       commit('ITEM_ERROR', err.response)
       throw err
@@ -225,12 +225,12 @@ const actions = {
   },
   getDatabaseAdvanced: ({ state, commit }) => {
     if (state.cache['database_advanced']) {
-      return Promise.resolve(state.cache['database_advanced'])
+      return Promise.resolve(state.cache['database_advanced']).then(cache => JSON.parse(JSON.stringify(cache)))
     }
     commit('ITEM_REQUEST')
     return api.base('database_advanced').then(item => {
       commit('ITEM_REPLACED', item)
-      return item
+      return JSON.parse(JSON.stringify(item))
     }).catch((err) => {
       commit('ITEM_ERROR', err.response)
       throw err
@@ -259,12 +259,12 @@ const actions = {
   },
   getDatabaseEncryption: ({ state, commit }) => {
     if (state.cache['database_encryption']) {
-      return Promise.resolve(state.cache['database_encryption'])
+      return Promise.resolve(state.cache['database_encryption']).then(cache => JSON.parse(JSON.stringify(cache)))
     }
     commit('ITEM_REQUEST')
     return api.base('database_encryption').then(item => {
       commit('ITEM_REPLACED', item)
-      return item
+      return JSON.parse(JSON.stringify(item))
     }).catch((err) => {
       commit('ITEM_ERROR', err.response)
       throw err
@@ -293,12 +293,12 @@ const actions = {
   },
   getFencing: ({ state, commit }) => {
     if (state.cache['fencing']) {
-      return Promise.resolve(state.cache['fencing'])
+      return Promise.resolve(state.cache['fencing']).then(cache => JSON.parse(JSON.stringify(cache)))
     }
     commit('ITEM_REQUEST')
     return api.base('fencing').then(item => {
       commit('ITEM_REPLACED', item)
-      return item
+      return JSON.parse(JSON.stringify(item))
     }).catch((err) => {
       commit('ITEM_ERROR', err.response)
       throw err
@@ -327,12 +327,12 @@ const actions = {
   },
   getFingerbankDeviceChange: ({ state, commit }) => {
     if (state.cache['fingerbank_device_change']) {
-      return Promise.resolve(state.cache['fingerbank_device_change'])
+      return Promise.resolve(state.cache['fingerbank_device_change']).then(cache => JSON.parse(JSON.stringify(cache)))
     }
     commit('ITEM_REQUEST')
     return api.base('fingerbank_device_change').then(item => {
       commit('ITEM_REPLACED', item)
-      return item
+      return JSON.parse(JSON.stringify(item))
     }).catch((err) => {
       commit('ITEM_ERROR', err.response)
       throw err
@@ -361,14 +361,14 @@ const actions = {
   },
   getGeneral: ({ state, commit }) => {
     if (state.cache['general']) {
-      return Promise.resolve(state.cache['general'])
+      return Promise.resolve(state.cache['general']).then(cache => JSON.parse(JSON.stringify(cache)))
     }
     commit('ITEM_REQUEST')
     return api.base('general').then(item => {
       // build `fqdn` from `hostname` and `domain`
       item.fqdn = ((item.hostname) ? item.hostname + '.' : '') + item.domain
       commit('ITEM_REPLACED', item)
-      return item
+      return JSON.parse(JSON.stringify(item))
     }).catch((err) => {
       commit('ITEM_ERROR', err.response)
       throw err
@@ -397,12 +397,12 @@ const actions = {
   },
   getGuestsAdminRegistration: ({ state, commit }) => {
     if (state.cache['guests_admin_registration']) {
-      return Promise.resolve(state.cache['guests_admin_registration'])
+      return Promise.resolve(state.cache['guests_admin_registration']).then(cache => JSON.parse(JSON.stringify(cache)))
     }
     commit('ITEM_REQUEST')
     return api.base('guests_admin_registration').then(item => {
       commit('ITEM_REPLACED', item)
-      return item
+      return JSON.parse(JSON.stringify(item))
     }).catch((err) => {
       commit('ITEM_ERROR', err.response)
       throw err
@@ -431,12 +431,12 @@ const actions = {
   },
   getInline: ({ state, commit }) => {
     if (state.cache['inline']) {
-      return Promise.resolve(state.cache['inline'])
+      return Promise.resolve(state.cache['inline']).then(cache => JSON.parse(JSON.stringify(cache)))
     }
     commit('ITEM_REQUEST')
     return api.base('inline').then(item => {
       commit('ITEM_REPLACED', item)
-      return item
+      return JSON.parse(JSON.stringify(item))
     }).catch((err) => {
       commit('ITEM_ERROR', err.response)
       throw err
@@ -465,12 +465,12 @@ const actions = {
   },
   getMseTab: ({ state, commit }) => {
     if (state.cache['mse_tab']) {
-      return Promise.resolve(state.cache['mse_tab'])
+      return Promise.resolve(state.cache['mse_tab']).then(cache => JSON.parse(JSON.stringify(cache)))
     }
     commit('ITEM_REQUEST')
     return api.base('mse_tab').then(item => {
       commit('ITEM_REPLACED', item)
-      return item
+      return JSON.parse(JSON.stringify(item))
     }).catch((err) => {
       commit('ITEM_ERROR', err.response)
       throw err
@@ -499,12 +499,12 @@ const actions = {
   },
   getNetwork: ({ state, commit }) => {
     if (state.cache['network']) {
-      return Promise.resolve(state.cache['network'])
+      return Promise.resolve(state.cache['network']).then(cache => JSON.parse(JSON.stringify(cache)))
     }
     commit('ITEM_REQUEST')
     return api.base('network').then(item => {
       commit('ITEM_REPLACED', item)
-      return item
+      return JSON.parse(JSON.stringify(item))
     }).catch((err) => {
       commit('ITEM_ERROR', err.response)
       throw err
@@ -533,12 +533,12 @@ const actions = {
   },
   getNodeImport: ({ state, commit }) => {
     if (state.cache['node_import']) {
-      return Promise.resolve(state.cache['node_import'])
+      return Promise.resolve(state.cache['node_import']).then(cache => JSON.parse(JSON.stringify(cache)))
     }
     commit('ITEM_REQUEST')
     return api.base('node_import').then(item => {
       commit('ITEM_REPLACED', item)
-      return item
+      return JSON.parse(JSON.stringify(item))
     }).catch((err) => {
       commit('ITEM_ERROR', err.response)
       throw err
@@ -567,12 +567,12 @@ const actions = {
   },
   getParking: ({ state, commit }) => {
     if (state.cache['parking']) {
-      return Promise.resolve(state.cache['parking'])
+      return Promise.resolve(state.cache['parking']).then(cache => JSON.parse(JSON.stringify(cache)))
     }
     commit('ITEM_REQUEST')
     return api.base('parking').then(item => {
       commit('ITEM_REPLACED', item)
-      return item
+      return JSON.parse(JSON.stringify(item))
     }).catch((err) => {
       commit('ITEM_ERROR', err.response)
       throw err
@@ -601,12 +601,12 @@ const actions = {
   },
   getPFDHCP: ({ state, commit }) => {
     if (state.cache['pfdhcp']) {
-      return Promise.resolve(state.cache['pf_dhcp'])
+      return Promise.resolve(state.cache['pf_dhcp']).then(cache => JSON.parse(JSON.stringify(cache)))
     }
     commit('ITEM_REQUEST')
     return api.base('pf_dhcp').then(item => {
       commit('ITEM_REPLACED', item)
-      return item
+      return JSON.parse(JSON.stringify(item))
     }).catch((err) => {
       commit('ITEM_ERROR', err.response)
       throw err
@@ -635,12 +635,12 @@ const actions = {
   },
   getPorts: ({ state, commit }) => {
     if (state.cache['ports']) {
-      return Promise.resolve(state.cache['ports'])
+      return Promise.resolve(state.cache['ports']).then(cache => JSON.parse(JSON.stringify(cache)))
     }
     commit('ITEM_REQUEST')
     return api.base('ports').then(item => {
       commit('ITEM_REPLACED', item)
-      return item
+      return JSON.parse(JSON.stringify(item))
     }).catch((err) => {
       commit('ITEM_ERROR', err.response)
       throw err
@@ -669,12 +669,12 @@ const actions = {
   },
   getProvisioning: ({ state, commit }) => {
     if (state.cache['provisioning']) {
-      return Promise.resolve(state.cache['provisioning'])
+      return Promise.resolve(state.cache['provisioning']).then(cache => JSON.parse(JSON.stringify(cache)))
     }
     commit('ITEM_REQUEST')
     return api.base('provisioning').then(item => {
       commit('ITEM_REPLACED', item)
-      return item
+      return JSON.parse(JSON.stringify(item))
     }).catch((err) => {
       commit('ITEM_ERROR', err.response)
       throw err
@@ -703,12 +703,12 @@ const actions = {
   },
   getRadiusConfiguration: ({ state, commit }) => {
     if (state.cache['radius_configuration']) {
-      return Promise.resolve(state.cache['radius_configuration'])
+      return Promise.resolve(state.cache['radius_configuration']).then(cache => JSON.parse(JSON.stringify(cache)))
     }
     commit('ITEM_REQUEST')
     return api.base('radius_configuration').then(item => {
       commit('ITEM_REPLACED', item)
-      return item
+      return JSON.parse(JSON.stringify(item))
     }).catch((err) => {
       commit('ITEM_ERROR', err.response)
       throw err
@@ -737,12 +737,12 @@ const actions = {
   },
   getServices: ({ state, commit }) => {
     if (state.cache['services']) {
-      return Promise.resolve(state.cache['services'])
+      return Promise.resolve(state.cache['services']).then(cache => JSON.parse(JSON.stringify(cache)))
     }
     commit('ITEM_REQUEST')
     return api.base('services').then(item => {
       commit('ITEM_REPLACED', item)
-      return item
+      return JSON.parse(JSON.stringify(item))
     }).catch((err) => {
       commit('ITEM_ERROR', err.response)
       throw err
@@ -771,12 +771,12 @@ const actions = {
   },
   getSNMPTraps: ({ state, commit }) => {
     if (state.cache['snmp_traps']) {
-      return Promise.resolve(state.cache['snmp_traps'])
+      return Promise.resolve(state.cache['snmp_traps']).then(cache => JSON.parse(JSON.stringify(cache)))
     }
     commit('ITEM_REQUEST')
     return api.base('snmp_traps').then(item => {
       commit('ITEM_REPLACED', item)
-      return item
+      return JSON.parse(JSON.stringify(item))
     }).catch((err) => {
       commit('ITEM_ERROR', err.response)
       throw err
@@ -805,12 +805,12 @@ const actions = {
   },
   getWebServices: ({ state, commit }) => {
     if (state.cache['webservices']) {
-      return Promise.resolve(state.cache['webservices'])
+      return Promise.resolve(state.cache['webservices']).then(cache => JSON.parse(JSON.stringify(cache)))
     }
     commit('ITEM_REQUEST')
     return api.base('webservices').then(item => {
       commit('ITEM_REPLACED', item)
-      return item
+      return JSON.parse(JSON.stringify(item))
     }).catch((err) => {
       commit('ITEM_ERROR', err.response)
       throw err
@@ -846,7 +846,7 @@ const mutations = {
   },
   ITEM_REPLACED: (state, data) => {
     state.itemStatus = types.SUCCESS
-    Vue.set(state.cache, data.id, data)
+    Vue.set(state.cache, data.id, JSON.parse(JSON.stringify(data)))
   },
   ITEM_ERROR: (state, response) => {
     state.itemStatus = types.ERROR

@@ -125,16 +125,16 @@ export default {
       if (this.id) {
         // existing
         this.$store.dispatch(`${this.storeName}/optionsById`, this.id).then(options => {
-          this.options = JSON.parse(JSON.stringify(options)) // store options
+          this.options = options
           this.$store.dispatch(`${this.storeName}/getFirewall`, this.id).then(form => {
-            this.form = JSON.parse(JSON.stringify(form)) // set form
+            this.form = form
             this.firewallType = form.type
           })
         })
       } else {
         // new
         this.$store.dispatch(`${this.storeName}/optionsByFirewallType`, this.firewallType).then(options => {
-          this.options = JSON.parse(JSON.stringify(options)) // store options
+          this.options = options
           this.form = defaults(options.meta) // set defaults
           this.form.type = this.firewallType
         })

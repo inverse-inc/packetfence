@@ -121,7 +121,7 @@ export default {
       if (this.id) {
         // existing
         this.$store.dispatch(`${this.storeName}/getDhcpv6Fingerprint`, this.id).then(form => {
-          this.form = JSON.parse(JSON.stringify(form))
+          this.form = form
         })
       }
     },
