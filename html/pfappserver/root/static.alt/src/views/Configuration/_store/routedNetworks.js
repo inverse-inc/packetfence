@@ -25,12 +25,9 @@ const getters = {
 
 const actions = {
   all: ({ state, commit }) => {
-    if (Object.keys(state.cache).length > 0) {
-      return Promise.resolve(state.cache)
-    }
     commit('ROUTED_NETWORK_REQUEST')
     return api.routedNetworks().then(response => {
-      commit('ROUTED_NETWORKS_REPLACED', response)
+      commit('ROUTED_NETWORK_SUCCESS')
       return response
     }).catch((err) => {
       commit('ROUTED_NETWORK_ERROR', err.response)
@@ -107,10 +104,6 @@ const mutations = {
   ROUTED_NETWORK_REQUEST: (state, type) => {
     state.status = type || types.LOADING
     state.message = ''
-  },
-  ROUTED_NETWORKS_REPLACED: (state, data) => {
-    state.status = types.SUCCESS
-    Vue.set(state, 'cache', data)
   },
   ROUTED_NETWORK_REPLACED: (state, data) => {
     state.status = types.SUCCESS

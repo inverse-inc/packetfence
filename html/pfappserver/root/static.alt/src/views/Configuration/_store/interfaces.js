@@ -25,12 +25,9 @@ const getters = {
 
 const actions = {
   all: ({ state, commit }) => {
-    if (Object.keys(state.cache).length > 0) {
-      return Promise.resolve(state.cache)
-    }
     commit('INTERFACE_REQUEST')
     return api.interfaces().then(response => {
-      commit('INTERFACES_REPLACED', response)
+      commit('INTERFACE_SUCCESS')
       return response
     }).catch((err) => {
       commit('INTERFACE_ERROR', err.response)
@@ -107,10 +104,6 @@ const mutations = {
   INTERFACE_REQUEST: (state, type) => {
     state.status = type || types.LOADING
     state.message = ''
-  },
-  INTERFACES_REPLACED: (state, data) => {
-    state.status = types.SUCCESS
-    Vue.set(state, 'cache', data)
   },
   INTERFACE_REPLACED: (state, data) => {
     state.status = types.SUCCESS
