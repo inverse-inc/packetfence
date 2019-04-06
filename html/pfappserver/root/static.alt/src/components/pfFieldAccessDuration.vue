@@ -13,6 +13,7 @@
         :placeholder="'#'"
         :vuelidate="intervalVuelidateModel"
         :invalid-feedback="intervalInvalidFeedback"
+        :disabled="disabled"
         class="mr-1"
       ></pf-form-input>
 
@@ -31,6 +32,7 @@
         :invalid-feedback="unitInvalidFeedback"
         :clearOnSelect="false"
         :allowEmpty="false"
+        :disabled="disabled"
         class="mr-1"
         collapse-object
       ></pf-form-chosen>
@@ -49,6 +51,7 @@
           middle: $i18n.t('Relative to the beginning of the day'),
           right: $i18n.t('Relative to the beginning of the period')
         }"
+        :disabled="disabled"
         class="mr-1"
         width="80"
       ></pf-form-range-triple>
@@ -62,6 +65,7 @@
         :placeholder="'#'"
         :vuelidate="extendedIntervalVuelidateModel"
         :invalid-feedback="extendedIntervalInvalidFeedback"
+        :disabled="disabled"
         class="mr-1"
       ></pf-form-input>
 
@@ -80,6 +84,7 @@
         :invalid-feedback="extendednitInvalidFeedback"
         :clearOnSelect="false"
         :allowEmpty="false"
+        :disabled="disabled"
         class="mr-1"
         collapse-object
       ></pf-form-chosen>
@@ -146,6 +151,10 @@ export default {
     },
     drag: {
       type: Boolean
+    },
+    disabled: {
+      type: Boolean,
+      default: false
     }
   },
   data () {

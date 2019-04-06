@@ -17,6 +17,7 @@
         :options="fields"
         :vuelidate="typeVuelidateModel"
         :invalid-feedback="typeInvalidFeedback"
+        :disabled="disabled"
         class="mr-1"
         collapse-object
       ></pf-form-chosen>
@@ -46,6 +47,7 @@
         :options="options"
         :vuelidate="matchVuelidateModel"
         :invalid-feedback="matchInvalidFeedback"
+        :disabled="disabled"
         collapse-object
       ></pf-form-chosen>
 
@@ -57,6 +59,7 @@
         :moments="moments"
         :vuelidate="matchVuelidateModel"
         :invalid-feedback="matchInvalidFeedback"
+        :disabled="disabled"
       ></pf-form-datetime>
 
       <!-- Type: PREFIXMULTIPLER -->
@@ -65,6 +68,7 @@
         ref="localMatch"
         :vuelidate="matchVuelidateModel"
         :invalid-feedback="matchInvalidFeedback"
+        :disabled="disabled"
       ></pf-form-prefix-multiplier>
 
       <!-- Type: SUBSTRING -->
@@ -73,6 +77,7 @@
         ref="localMatch"
         :vuelidate="matchVuelidateModel"
         :invalid-feedback="matchInvalidFeedback"
+        :disabled="disabled"
       ></pf-form-input>
 
       <!-- Type: INTEGER -->
@@ -83,6 +88,7 @@
         step="1"
         :vuelidate="matchVuelidateModel"
         :invalid-feedback="matchInvalidFeedback"
+        :disabled="disabled"
       ></pf-form-input>
 
     </b-col>
@@ -130,6 +136,10 @@ export default {
     vuelidate: {
       type: Object,
       default: () => { return {} }
+    },
+    disabled: {
+      type: Boolean,
+      default: false
     }
   },
   data () {

@@ -12,6 +12,7 @@
         v-on="forwardListeners"
         :is="field.component"
         :vuelidate="vuelidate"
+        :disabled="disabled"
         ref="component"
         no-gutter
       ></component>
@@ -39,6 +40,10 @@ export default {
     vuelidate: {
       type: Object,
       default: () => { return {} }
+    },
+    disabled: {
+      type: Boolean,
+      default: false
     }
   },
   data () {

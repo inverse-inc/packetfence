@@ -16,6 +16,7 @@
         :options="fields"
         :vuelidate="attributeVuelidateModel"
         :invalid-feedback="attributeInvalidFeedback"
+        :disabled="disabled"
         class="mr-1"
         collapse-object
       ></pf-form-chosen>
@@ -30,7 +31,7 @@
         track-by="value"
         :placeholder="operatorLabel"
         :options="operators"
-        :disabled="operators.length === 0"
+        :disabled="disabled || operators.length === 0"
         :vuelidate="operatorVuelidateModel"
         :invalid-feedback="operatorInvalidFeedback"
         class="mr-1"
@@ -51,6 +52,7 @@
         :placeholder="valueLabel"
         :vuelidate="valueVuelidateModel"
         :invalid-feedback="valueInvalidFeedback"
+        :disabled="disabled"
       ></pf-form-input>
 
       <!-- Type: TIME -->
@@ -61,6 +63,7 @@
         placeholder="HH:mm"
         :vuelidate="valueVuelidateModel"
         :invalid-feedback="valueInvalidFeedback"
+        :disabled="disabled"
       ></pf-form-datetime>
 
       <!-- Type: CONNECTION -->
@@ -75,6 +78,7 @@
         :options="values"
         :vuelidate="valueVuelidateModel"
         :invalid-feedback="valueInvalidFeedback"
+        :disabled="disabled"
         collapse-object
       ></pf-form-chosen>
 
@@ -127,6 +131,10 @@ export default {
     vuelidate: {
       type: Object,
       default: () => { return {} }
+    },
+    disabled: {
+      type: Boolean,
+      default: false
     }
   },
   data () {

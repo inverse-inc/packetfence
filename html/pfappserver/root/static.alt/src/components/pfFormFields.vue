@@ -12,7 +12,7 @@
       <b-container v-if="!inputValue || inputValue.length === 0"
         class="mx-1 px-0"
       >
-        <b-button variant="outline-secondary" @click.stop="rowAdd()">{{ buttonLabel || $t('Add row') }}</b-button>
+        <b-button variant="outline-secondary" @click.stop="rowAdd()" :disabled="disabled">{{ buttonLabel || $t('Add row') }}</b-button>
         <small v-if="emptyText" class="ml-2">{{ emptyText }}</small>
       </b-container>
 
@@ -38,6 +38,7 @@
           :vuelidate="getVuelidateModel(index)"
           :ref="'component-' + index"
           :drag="drag"
+          :disabled="disabled"
           @validations="setChildValidations(index, $event)"
           @mouseenter="onMouseEnter(index)"
           @mousemove="onMouseEnter(index)"
@@ -45,7 +46,7 @@
           no-gutter
         >
           <template slot="prepend">
-            <div class="draghandle" v-if="sortable && hover === index && inputValue.length > 1">
+            <div class="draghandle" v-if="sortable && !disabled && hover === index && inputValue.length > 1">
               <icon name="th" v-b-tooltip.hover.left.d300 :title="$t('Click and drag to re-order')"></icon>
             </div>
             <div v-else>
@@ -127,6 +128,10 @@ export default {
     maxFields: {
       type: Number,
       default: 0
+    },
+    disabled: {
+      type: Boolean,
+      default: false
     }
   },
   data () {
@@ -153,10 +158,10 @@ export default {
       }
     },
     canAdd () {
-      return (!this.maxFields || this.maxFields > this.value.length)
+      return (!this.disabled && (!this.maxFields || this.maxFields > this.value.length))
     },
     canDel () {
-      return (!this.minFields || this.minFields < this.value.length)
+      return (!this.disabled && (!this.minFields || this.minFields < this.value.length))
     }
   },
   methods: {
