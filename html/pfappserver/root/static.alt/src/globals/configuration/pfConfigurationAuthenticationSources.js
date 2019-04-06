@@ -1359,6 +1359,20 @@ export const pfConfigurationAuthenticationSourceFields = {
       ]
     }
   },
+  searchattributes: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Username Attribute'),
+      text: i18n.t('Other attributes that can be used as the username (requires to restart the radiusd service to be effective).'),
+      fields: [
+        {
+          key: 'searchattributes',
+          component: pfFormChosen,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'searchattributes'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'searchattributes', 'Attribute')
+        }
+      ]
+    }
+  },
   secret: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Secret'),
@@ -1706,7 +1720,7 @@ export const pfConfigurationAuthenticationSourceFields = {
   },
   username_attribute: ({ options: { meta = {} } } = {}) => {
     return {
-      label: i18n.t('Attribute of the username in the SAML response'),
+      label: i18n.t('Attribute of the username in the SAML response.'),
       fields: [
         {
           key: 'username_attribute',
@@ -1720,10 +1734,11 @@ export const pfConfigurationAuthenticationSourceFields = {
   usernameattribute: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Username Attribute'),
+      text: i18n.t('Main reference attribute that contain the username.'),
       fields: [
         {
           key: 'usernameattribute',
-          component: pfFormInput,
+          component: pfFormChosen,
           attrs: pfConfigurationAttributesFromMeta(meta, 'usernameattribute'),
           validators: pfConfigurationValidatorsFromMeta(meta, 'usernameattribute', 'Attribute')
         }
@@ -1778,6 +1793,7 @@ export const pfConfigurationAuthenticationSourceViewFields = (context) => {
             pfConfigurationAuthenticationSourceFields.basedn(context),
             pfConfigurationAuthenticationSourceFields.scope(context),
             pfConfigurationAuthenticationSourceFields.usernameattribute(context),
+            pfConfigurationAuthenticationSourceFields.searchattributes(context),
             pfConfigurationAuthenticationSourceFields.email_attribute(context),
             pfConfigurationAuthenticationSourceFields.binddn(context),
             pfConfigurationAuthenticationSourceFields.password(context),
@@ -1862,6 +1878,7 @@ export const pfConfigurationAuthenticationSourceViewFields = (context) => {
             pfConfigurationAuthenticationSourceFields.basedn(context),
             pfConfigurationAuthenticationSourceFields.scope(context),
             pfConfigurationAuthenticationSourceFields.usernameattribute(context),
+            pfConfigurationAuthenticationSourceFields.searchattributes(context),
             pfConfigurationAuthenticationSourceFields.email_attribute(context),
             pfConfigurationAuthenticationSourceFields.binddn(context),
             pfConfigurationAuthenticationSourceFields.password(context),
