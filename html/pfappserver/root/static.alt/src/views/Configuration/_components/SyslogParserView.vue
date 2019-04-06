@@ -227,6 +227,11 @@ export default {
     this.init()
   },
   watch: {
+    id: {
+      handler: function (a, b) {
+        this.init()
+      }
+    },
     isClone: {
       handler: function (a, b) {
         this.init()
