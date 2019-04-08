@@ -210,7 +210,7 @@ sub cleanup_item {
     }
 
     my $id = $new_item{id};
-    $new_item{not_deletable} = ($id =~ /^L/) ? $self->json_false : $self->json_true;;
+    $new_item{not_deletable} = $new_item{not_updatable} =  ($id =~ /^L/)  $self->json_false :  $self->json_true;
     return \%new_item;
 }
 
