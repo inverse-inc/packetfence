@@ -71,12 +71,13 @@ pfFieldTypeValues[pfFieldType.ROLE] = ({ $store }) => {
   $store.dispatch('config/getRoles')
   return $store.getters['config/rolesList']
 }
-pfFieldTypeValues[pfFieldType.ROLE_BY_NAME] = ({ $store }) => {
+pfFieldTypeValues[pfFieldType.ROLE_BY_NAME] = (context = {}) => {
+  const { $store } = context
   if ($store === undefined) {
     throw new Error('Missing `$store` in pfFieldTypeValues[pfFieldType.ROLE_BY_NAME](context)')
   }
   $store.dispatch('config/getRoles')
-  return pfFieldTypeValues[pfFieldType.ROLE]($store).map(role => { return { value: role.name, name: role.name } })
+  return pfFieldTypeValues[pfFieldType.ROLE](context).map(role => { return { value: role.name, name: role.name } })
 }
 pfFieldTypeValues[pfFieldType.SOURCE] = ({ $store }) => {
   if ($store === undefined) {
