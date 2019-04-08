@@ -534,6 +534,7 @@ sub resource_options {
     my $inheritedValues = $self->resourceInheritedValues;
     my $defaultValues = $self->default_values;
     for my $field ($form->fields) {
+        next if $field->inactive;
         my $name = $field->name;
         next if $self->isResourceFieldSkippable($field);
         $meta{$name} = $self->field_meta($field);
