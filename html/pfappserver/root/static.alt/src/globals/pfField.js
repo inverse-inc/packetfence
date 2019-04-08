@@ -38,6 +38,7 @@ pfFieldTypeValues[pfFieldType.ADMINROLE] = ({ $store }) => {
   return $store.getters['config/adminRolesList']
 }
 pfFieldTypeValues[pfFieldType.DURATION] = ({ $store }) => {
+  $store.dispatch('config/getBaseGuestsAdminRegistration')
   return $store.getters['config/accessDurationsList']
 }
 pfFieldTypeValues[pfFieldType.OPTIONS] = ({ field }) => {
