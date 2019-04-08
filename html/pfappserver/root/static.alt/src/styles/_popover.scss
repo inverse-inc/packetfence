@@ -1,0 +1,10 @@
+@import "../../node_modules/bootstrap/scss/popover";
+
+.popover-full {
+  max-width: none;
+}
+
+// Fix pf-form-chosen display when inside a b-popover
+.popover-body .multiselect__select:before {
+  z-index: $zindex-popover + 1;
+}
