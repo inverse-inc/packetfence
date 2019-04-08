@@ -23,11 +23,13 @@ has_field api_login_id => (
     label => "API login ID",
     type => 'Text',
     required => 1,
+    default => '',
 );
 
 has_field transaction_key => (
     label => "Transaction key",
     type => 'Text',
+    default => '',
     required => 1,
 );
 
@@ -35,6 +37,7 @@ has_field public_client_key => (
     label => 'Public Client Key',
     type => 'Text',
     required => 1,
+    default => '',
 );
 
 has_field 'domains' =>
