@@ -55,6 +55,7 @@ use pfappserver::Form::Config::PortalModule::Root;
 use pfappserver::Form::Config::PortalModule::SelectRole;
 use pfappserver::Form::Config::PortalModule::Survey;
 use pfappserver::Form::Config::PortalModule::URL;
+use pfappserver::Form::Config::PortalModule::ShowLocalAccount;
 
 our %TYPES_TO_FORMS = (
     map { $_ => "pfappserver::Form::Config::PortalModule::$_" } qw(
@@ -88,6 +89,7 @@ our %TYPES_TO_FORMS = (
         SelectRole
         Survey
         URL
+        ShowLocalAccount
     )
 );
 
