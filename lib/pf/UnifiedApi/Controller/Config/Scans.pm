@@ -30,6 +30,7 @@ use pfappserver::Form::Config::Scan::Nessus6;
 use pfappserver::Form::Config::Scan::Nessus;
 use pfappserver::Form::Config::Scan::OpenVAS;
 use pfappserver::Form::Config::Scan::WMI;
+use pfappserver::Form::Config::Scan::Rapid7;
 
 our %TYPES_TO_FORMS = (
     map { lc($_) => "pfappserver::Form::Config::Scan::$_" } qw(
@@ -37,6 +38,7 @@ our %TYPES_TO_FORMS = (
         Nessus
         OpenVAS
         WMI
+        Rapid7
     )
 );
 
