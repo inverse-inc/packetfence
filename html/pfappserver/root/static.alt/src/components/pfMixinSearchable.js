@@ -117,7 +117,8 @@ export default {
         // Register store module only once
         const searchableStore = new SearchableStore(
           this.searchableOptions.searchApiEndpoint,
-          this.searchableOptions.defaultSortKeys
+          this.searchableOptions.defaultSortKeys,
+          this.pageSizeLimit
         )
         this.$store.registerModule(this.searchableStoreName, searchableStore.module())
       }

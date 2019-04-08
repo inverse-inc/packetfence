@@ -42,10 +42,11 @@ class SearchableApi {
 }
 
 export default class SearchableStore {
-  constructor (apiEndpoint, defaultSortKeys) {
+  constructor (apiEndpoint, defaultSortKeys, pageSizeLimit) {
     this.storage_search_limit_key = apiEndpoint + '-search-limit'
     this.storage_visible_columns_key = apiEndpoint + '-visible-columns'
     this.defaultSortKeys = defaultSortKeys
+    this.pageSizeLimit = pageSizeLimit || 10
     this.api = new SearchableApi(apiEndpoint, defaultSortKeys)
   }
 
@@ -63,7 +64,7 @@ export default class SearchableStore {
         searchSortBy: _this.defaultSortKeys[0],
         searchSortDesc: false,
         searchMaxPageNumber: 1,
-        searchPageSize: localStorage.getItem(_this.storage_search_limit_key) || 10,
+        searchPageSize: localStorage.getItem(_this.storage_search_limit_key) || _this.pageSizeLimit,
         visibleColumns: JSON.parse(localStorage.getItem(_this.storage_visible_columns_key)) || false
       }
     }
