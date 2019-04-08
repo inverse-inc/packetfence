@@ -5,6 +5,11 @@ const STORAGE_CHARTS_KEY = 'dashboard-charts'
 
 const types = {
   LOADING: 'loading',
+  ENABLING: 'enabling',
+  DISABLING: 'disabling',
+  RESTARTING: 'restarting',
+  STARTING: 'starting',
+  STOPPING: 'stopping',
   DELETING: 'deleting',
   SUCCESS: 'success',
   ERROR: 'error'
@@ -19,6 +24,14 @@ const state = {
   cluster: null,
   clusterStatus: ''
 }
+
+const blacklistedServices = [ // prevent start|stop|restart control on these services
+  'api-frontend',
+  'httpd.admin',
+  'httpd.dispatcher',
+  'pf',
+  'pfperl-api'
+]
 
 const getters = {
   isLoading: state => state.allChartsStatus === types.LOADING,
@@ -36,7 +49,13 @@ const getters = {
       modules.push('other')
     }
     return modules
-  }
+  },
+  isServicesWaiting: state => [types.LOADING, types.DELETING].includes(state.servicesStatus),
+  isServicesLoading: state => [types.LOADING, types.STOPPING, types.STARTING, types.RESTARTING].includes(state.servicesStatus) || state.services.filter(service => ![200, 'error'].includes(service.status)).length > 0,
+  isServicesStopping: state => state.servicesStatus === types.STOPPING,
+  isServicesStarting: state => state.servicesStatus === types.STARTING,
+  isServicesRestarting: state => state.servicesStatus === types.RESTARTING,
+  blacklistedServices: () => blacklistedServices
 }
 
 const actions = {
@@ -85,6 +104,202 @@ const actions = {
       })
     }
   },
+  disableService: ({ state, commit }, id) => {
+    const index = state.services.findIndex(service => service.name === id)
+    commit('SERVICE_DISABLING', index)
+    return api.disableService(id).then(response => {
+      commit('SERVICE_DISABLED', index)
+      commit('SERVICE_REQUEST', index)
+      api.service(state.services[index].name, 'status').then(status => {
+        commit('SERVICE_UPDATED', { index, status })
+        return state.services[index]
+      })
+    }).catch((err) => {
+      commit('SERVICE_ERROR', index)
+      throw err
+    })
+  },
+  enableService: ({ state, commit }, id) => {
+    const index = state.services.findIndex(service => service.name === id)
+    commit('SERVICE_ENABLING', index)
+    return api.enableService(id).then(response => {
+      commit('SERVICE_ENABLED', index)
+      commit('SERVICE_REQUEST', index)
+      api.service(state.services[index].name, 'status').then(status => {
+        commit('SERVICE_UPDATED', { index, status })
+        return state.services[index]
+      })
+    }).catch((err) => {
+      commit('SERVICE_ERROR', index)
+      throw err
+    })
+  },
+  restartService: ({ state, commit }, id) => {
+    if (id in blacklistedServices) return
+    const index = state.services.findIndex(service => service.name === id)
+    commit('SERVICE_RESTARTING', index)
+    return api.restartService(id).then(response => {
+      commit('SERVICE_RESTARTED', index)
+      commit('SERVICE_REQUEST', index)
+      api.service(state.services[index].name, 'status').then(status => {
+        commit('SERVICE_UPDATED', { index, status })
+        return state.services[index]
+      })
+    }).catch((err) => {
+      commit('SERVICE_ERROR', index)
+      throw err
+    })
+  },
+  restartAllServices: ({ state, commit }) => {
+    commit('SERVICES_RESTARTING')
+    const promises = []
+    state.services.filter(service => !(blacklistedServices.includes(service.name))).forEach((service, index) => {
+      commit('SERVICE_RESTARTING', index)
+      promises.push(
+        api.restartService(service.name).then(response => {
+          commit('SERVICE_RESTARTED', index)
+          return { [index]: ['SERVICE_RESTARTED', response] }
+        }).catch((err) => {
+          commit('SERVICE_ERROR', index)
+          return { [index]: ['SERVICE_ERROR', err] }
+        })
+      )
+    })
+    return Promise.all(promises.map(p => p.catch(e => e))).then(response => {
+      commit('SERVICES_SUCCESS')
+      response.forEach(item => {
+        const index = Object.keys(item)[0]
+        const { [index]: [ mutation, message ] } = item
+        switch (mutation) {
+          case 'SERVICE_RESTARTED':
+            commit('SERVICE_REQUEST', index)
+            api.service(state.services[index].name, 'status').then(status => {
+              commit('SERVICE_UPDATED', { index, status })
+            })
+            break
+          case 'SERVICE_ERROR':
+            commit('SERVICE_REQUEST', index)
+            api.service(state.services[index].name, 'status').then(status => {
+              commit('SERVICE_UPDATED', { index, status })
+            })
+            break
+        }
+      })
+      return response
+    })
+  },
+  startService: ({ state, commit }, id) => {
+    if (id in blacklistedServices) return
+    const index = state.services.findIndex(service => service.name === id)
+    commit('SERVICE_STARTING', index)
+    return api.startService(id).then(response => {
+      commit('SERVICE_STARTED', index)
+      commit('SERVICE_REQUEST', index)
+      api.service(state.services[index].name, 'status').then(status => {
+        commit('SERVICE_UPDATED', { index, status })
+        return state.services[index]
+      })
+    }).catch((err) => {
+      commit('SERVICE_ERROR', index)
+      throw err
+    })
+  },
+  startAllServices: ({ state, commit }) => {
+    commit('SERVICES_STARTING')
+    const promises = []
+    state.services.filter(service => !(blacklistedServices.includes(service.name))).forEach((service, index) => {
+    if (!service.alive) {
+        commit('SERVICE_STARTING', index)
+        promises.push(
+          api.startService(service.name).then(response => {
+            commit('SERVICE_STARTED', index)
+            return { [index]: ['SERVICE_STARTED', response] }
+          }).catch((err) => {
+            commit('SERVICE_ERROR', index)
+            return { [index]: ['SERVICE_ERROR', err] }
+          })
+        )
+      }
+    })
+    return Promise.all(promises.map(p => p.catch(e => e))).then(response => {
+      commit('SERVICES_SUCCESS')
+      response.forEach(item => {
+        const index = Object.keys(item)[0]
+        const { [index]: [ mutation, message ] } = item
+        switch (mutation) {
+          case 'SERVICE_STARTED':
+            commit('SERVICE_REQUEST', index)
+            api.service(state.services[index].name, 'status').then(status => {
+              commit('SERVICE_UPDATED', { index, status })
+            })
+            break
+          case 'SERVICE_ERROR':
+            commit('SERVICE_REQUEST', index)
+            api.service(state.services[index].name, 'status').then(status => {
+              commit('SERVICE_UPDATED', { index, status })
+            })
+            break
+        }
+      })
+      return response
+    })
+  },
+  stopService: ({ state, commit }, id) => {
+    if (id in blacklistedServices) return
+    const index = state.services.findIndex(service => service.name === id)
+    commit('SERVICE_STOPPING', index)
+    return api.stopService(id).then(response => {
+      commit('SERVICE_STOPPED', index)
+      commit('SERVICE_REQUEST', index)
+      api.service(state.services[index].name, 'status').then(status => {
+        commit('SERVICE_UPDATED', { index, status })
+        return state.services[index]
+      })
+    }).catch((err) => {
+      commit('SERVICE_ERROR', index)
+      throw err
+    })
+  },
+  stopAllServices: ({ state, commit }) => {
+    commit('SERVICES_STOPING')
+    const promises = []
+    state.services.filter(service => !(blacklistedServices.includes(service.name))).forEach((service, index) => {
+    if (service.alive) {
+        commit('SERVICE_STOPING', index)
+        promises.push(
+          api.stopService(service.name).then(response => {
+            commit('SERVICE_STOPED', index)
+            return { [index]: ['SERVICE_STOPED', response] }
+          }).catch((err) => {
+            commit('SERVICE_ERROR', index)
+            return { [index]: ['SERVICE_ERROR', err] }
+          })
+        )
+      }
+    })
+    return Promise.all(promises.map(p => p.catch(e => e))).then(response => {
+      commit('SERVICES_SUCCESS')
+      response.forEach(item => {
+        const index = Object.keys(item)[0]
+        const { [index]: [ mutation, message ] } = item
+        switch (mutation) {
+          case 'SERVICE_STOPED':
+            commit('SERVICE_REQUEST', index)
+            api.service(state.services[index].name, 'status').then(status => {
+              commit('SERVICE_UPDATED', { index, status })
+            })
+            break
+          case 'SERVICE_ERROR':
+            commit('SERVICE_REQUEST', index)
+            api.service(state.services[index].name, 'status').then(status => {
+              commit('SERVICE_UPDATED', { index, status })
+            })
+            break
+        }
+      })
+      return response
+    })
+  },
   getCluster: ({ state, commit }) => {
     if (state.cluster) {
       return state.cluster
@@ -125,11 +340,67 @@ const mutations = {
   },
   SERVICES_UPDATED: (state, services) => {
     state.servicesStatus = types.SUCCESS
-    state.services = services.map(name => {
+    Vue.set(state, 'services', services.map(name => {
       return { name }
-    })
+    }))
+  },
+  SERVICES_SUCCESS: (state, services) => {
+    state.servicesStatus = types.SUCCESS
   },
   SERVICES_ERROR: (state) => {
+    state.servicesStatus = types.ERROR
+  },
+  SERVICES_STOPPING: (state) => {
+    state.servicesStatus = types.STOPPING
+  },
+  SERVICES_STARTING: (state) => {
+    state.servicesStatus = types.STARTING
+  },
+  SERVICES_RESTARTING: (state) => {
+    state.servicesStatus = types.RESTARTING
+  },
+  SERVICE_DISABLING: (state, index) => {
+    Vue.set(state.services[index], 'status', types.DISABLING)
+    state.servicesStatus = types.LOADING
+  },
+  SERVICE_DISABLED: (state, index) => {
+    Vue.set(state.services[index], 'status', types.SUCCESS)
+    state.servicesStatus = types.SUCCESS
+  },
+  SERVICE_ENABLING: (state, index) => {
+    Vue.set(state.services[index], 'status', types.ENABLING)
+    state.servicesStatus = types.LOADING
+  },
+  SERVICE_ENABLED: (state, index) => {
+    Vue.set(state.services[index], 'status', types.SUCCESS)
+    state.servicesStatus = types.SUCCESS
+  },
+  SERVICE_RESTARTING: (state, index) => {
+    Vue.set(state.services[index], 'status', types.RESTARTING)
+    state.servicesStatus = types.LOADING
+  },
+  SERVICE_RESTARTED: (state, index) => {
+    Vue.set(state.services[index], 'status', types.SUCCESS)
+    state.servicesStatus = types.SUCCESS
+  },
+  SERVICE_STARTING: (state, index) => {
+    Vue.set(state.services[index], 'status', types.STARTING)
+    state.servicesStatus = types.LOADING
+  },
+  SERVICE_STARTED: (state, index) => {
+    Vue.set(state.services[index], 'status', types.SUCCESS)
+    state.servicesStatus = types.SUCCESS
+  },
+  SERVICE_STOPPING: (state, index) => {
+    Vue.set(state.services[index], 'status', types.STOPPING)
+    state.servicesStatus = types.LOADING
+  },
+  SERVICE_STOPPED: (state, index) => {
+    Vue.set(state.services[index], 'status', types.SUCCESS)
+    state.servicesStatus = types.SUCCESS
+  },
+  SERVICE_ERROR: (state, index) => {
+    Vue.set(state.services[index], 'status', types.ERROR)
     state.servicesStatus = types.ERROR
   },
   SERVICE_REQUEST: (state, index) => {
