@@ -24,7 +24,7 @@ sub form_class_by_type {
 }
 
 sub form {
-    my ($self, $item) = @_;
+    my ($self, $item, @args) = @_;
     my $type = $item->{type};
     if ( !defined $type ) {
         return 422, "Unable to validate: 'type field is required'";
@@ -34,8 +34,12 @@ sub form {
     if ( !$class  ){
         return 422, "Unable to validate: 'type field is invalid '$type''";
     }
+    my $parameters = $self->form_parameters($item);
+    if (!defined $parameters) {
+        return 422, "Invalid requests";
+    }
 
-    return 200, $class->new;
+    return 200, $class->new(@$parameters, @args, user_roles => $self->stash->{'admin_roles'});
 }
 
 sub type_lookup {
