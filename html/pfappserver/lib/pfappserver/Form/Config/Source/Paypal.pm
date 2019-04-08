@@ -23,18 +23,21 @@ has_field identity_token =>
   (
    type => 'Text',
    required => 1,
+   default => '',
   );
 
 has_field cert_id =>
   (
    type => 'Text',
    required => 1,
+   default => '',
   );
 
 has_field cert_file =>
   (
    type => 'Path',
    element_class => ['input-xlarge'],
+   default => '',
    required => 1,
    tags => { after_element => \&help,
              help => 'The path to the certificate you submitted to Paypal.' },
@@ -45,6 +48,7 @@ has_field key_file =>
    type => 'Path',
    element_class => ['input-xlarge'],
    required => 1,
+   default => '',
    tags => { after_element => \&help,
              help => 'The path to the associated key of the certificate you submitted to Paypal.' },
   );
@@ -54,6 +58,7 @@ has_field paypal_cert_file =>
    type => 'Path',
    element_class => ['input-xlarge'],
    required => 1,
+   default => '',
    tags => { after_element => \&help,
              help => 'The path to the Paypal certificate you downloaded.' },
   );
@@ -62,6 +67,7 @@ has_field email_address =>
   (
    type => 'Text',
    required => 1,
+   default => '',
    tags => { after_element => \&help,
              help => 'The email address associated to your paypal account.' },
   );
