@@ -189,7 +189,7 @@ sub create {
     my $id = $item->{id};
     my $cs = $self->config_store;
     if (!defined $id) {
-        $self->render_error(422, "Unable to validate", [{ id => "id field is required"}]);
+        $self->render_error(422, "Unable to validate", [{ message => "id field is required", field => 'id'}]);
         return 0;
     }
 
@@ -206,7 +206,7 @@ sub create {
     $cs->create($id, $item);
     $cs->commit;
     $self->res->headers->location($self->make_location_url($id));
-    $self->render(status => 201, json => {});
+    $self->render(status => 201, json => { id => $id, message => "'$id' created" });
 }
 
 sub validate_item {
