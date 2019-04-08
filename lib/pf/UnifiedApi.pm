@@ -137,6 +137,7 @@ sub setup_api_v1_routes {
     $self->setup_api_v1_queues_routes($api_v1_route);
     $self->setup_api_v1_translations_routes($api_v1_route);
     $self->setup_api_v1_preferences_routes($api_v1_route);
+    $self->setup_api_v1_system_summary_route($api_v1_route);
 }
 
 sub custom_startup_hook {
@@ -1684,6 +1685,20 @@ sub setup_api_v1_config_wmi_rules_routes {
     );
 
     return ($collection_route, $resource_route);
+}
+
+=head2 setup_api_v1_system_summary_route
+
+setup_api_v1_system_summary_route
+
+=cut
+
+sub setup_api_v1_system_summary_route {
+    my ($self, $root) = @_;
+    $root->any( ['GET'] => "/system_summary" )
+      ->to(controller => "SystemSummary", action => "get")
+      ->name("api.v1.SystemSummary.get");
+    return ;
 }
 
 =head1 AUTHOR
