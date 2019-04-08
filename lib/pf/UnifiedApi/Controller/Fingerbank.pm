@@ -109,10 +109,11 @@ sub create {
         return $self->render_error($status, $return);
     }
 
+    my $id = $return->{id};
     my $parent_route = $self->match->endpoint->parent->name;
-    my $url = $self->url_for("$parent_route.resource.get", {$self->url_param_name => $return->{id}});
+    my $url = $self->url_for("$parent_route.resource.get", {$self->url_param_name => $id});
     $self->res->headers->location($url);
-    return $self->render(json => {});
+    return $self->render(json => {id => $id, message => "'$id' created"});
 }
 
 =head2 remove
