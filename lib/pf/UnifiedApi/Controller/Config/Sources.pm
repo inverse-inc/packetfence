@@ -156,37 +156,41 @@ sub cleanup_item {
     return $item;
 }
 
-sub form_process_parameters_for_cleanup {
-    my ($self, $item) = @_;
-    return (
-        $self->SUPER::form_process_parameters_for_cleanup($item),
+=head2 form_parameters
+
+The form parameters should be overridded
+
+=cut
+
+sub form_parameters {
+    [
         inactive => [
             qw(
-              time_period_operator
-              set_tenant_id_action
-              set_role_action
-              date_value
-              time_value
-              mark_as_sponsor_action
-              set_access_duration_action
-              set_bandwidth_balance_action
-              set_access_level_action
-              ldapattribute_value
-              time_period_value
-              number_operator
-              substring_operator
-              set_unreg_date_action
-              ldapattribute_operator
-              substring_value
-              set_time_balance_action
-              connection_value
-              number_value
-              time_operator
-              date_operator
               connection_operator
+              connection_value
+              date_operator
+              date_value
+              ldapattribute_operator
+              ldapattribute_value
+              mark_as_sponsor_action
+              number_operator
+              number_value
+              set_access_duration_action
+              set_access_level_action
+              set_bandwidth_balance_action
+              set_role_action
+              set_tenant_id_action
+              set_time_balance_action
+              set_unreg_date_action
+              substring_operator
+              substring_value
+              time_operator
+              time_period_operator
+              time_period_value
+              time_value
               )
         ],
-    );
+    ]
 }
 
 =head2 type_meta_info
