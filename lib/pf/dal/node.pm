@@ -19,6 +19,7 @@ use warnings;
 
 use pf::error qw(is_error is_success);
 use pf::api::queue;
+use pf::log;
 use pf::constants::node qw($NODE_DISCOVERED_TRIGGER_DELAY);
 use pf::constants qw($ZERO_DATE);
 use base qw(pf::dal::_node);
@@ -92,7 +93,12 @@ sub pre_save {
 sub after_create_hook {
     my ($self) = @_;
     my $apiclient = pf::api::queue->new(queue => 'general');
-    $apiclient->notify_delayed($NODE_DISCOVERED_TRIGGER_DELAY, "trigger_security_event", mac => $self->{mac}, type => "internal", tid => "node_discovered");
+    eval {
+        $apiclient->notify_delayed($NODE_DISCOVERED_TRIGGER_DELAY, "trigger_security_event", mac => $self->{mac}, type => "internal", tid => "node_discovered");
+    };
+    if ($@) {
+        $self->logger->error("Error submitting to the queue: $@");
+    }
     return ;
 }
 
