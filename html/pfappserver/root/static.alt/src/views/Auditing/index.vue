@@ -26,7 +26,7 @@ export default {
         },
         {
           name: 'Option82',
-          path: '/auditing/dhcpoption82/search'
+          path: '/auditing/dhcpoption82s/search'
         }
       ]
     }

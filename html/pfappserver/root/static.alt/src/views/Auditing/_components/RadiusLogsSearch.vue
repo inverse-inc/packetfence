@@ -43,7 +43,7 @@
           <mac v-text="log.item.mac"></mac>
         </template>
         <template slot="empty">
-          <pf-empty-table :isLoading="isLoading">{{ $t('No log found') }}</pf-empty-table>
+          <pf-empty-table :isLoading="isLoading">{{ $t('No logs found') }}</pf-empty-table>
         </template>
       </b-table>
     </div>
@@ -65,10 +65,10 @@ export default {
     pfMixinSearchable
   ],
   components: {
-    'pf-progress': pfProgress,
-    'pf-empty-table': pfEmptyTable,
-    'pf-search': pfSearch,
-    'pf-form-toggle': pfFormToggle
+    pfProgress,
+    pfEmptyTable,
+    pfSearch,
+    pfFormToggle
   },
   props: {
     searchableOptions: {
@@ -147,9 +147,21 @@ export default {
           value: 'switch_id',
           text: 'Switch Group',
           types: [conditionType.SWITCH_GROUP]
+        },
+        {
+          value: 'is_phone',
+          text: 'Is a Phone',
+          types: [conditionType.YESNO]
         }
       ],
       columns: [
+        {
+          key: 'created_at',
+          label: this.$i18n.t('Created At'),
+          sortable: true,
+          visible: true,
+          formatter: formatter.datetimeIgnoreZero
+        },
         {
           key: 'id',
           label: this.$i18n.t('ID'),
@@ -158,100 +170,16 @@ export default {
           locked: false
         },
         {
-          key: 'auth_status',
-          label: this.$i18n.t('Auth Status'),
-          sortable: true,
-          visible: true
-        },
-        {
           key: 'mac',
           label: this.$i18n.t('MAC Address'),
           sortable: true,
           visible: true
         },
         {
-          key: 'node_status',
-          label: this.$i18n.t('Node Status'),
+          key: 'auth_status',
+          label: this.$i18n.t('Auth Status'),
           sortable: true,
           visible: true
-        },
-        {
-          key: 'user_name',
-          label: this.$i18n.t('User Name'),
-          sortable: true,
-          visible: true
-        },
-        {
-          key: 'realm',
-          label: this.$i18n.t('Realm'),
-          sortable: true,
-          visible: false
-        },
-        {
-          key: 'stripped_user_name',
-          label: this.$i18n.t('Stripped User Name'),
-          sortable: true,
-          visible: false
-        },
-        {
-          key: 'computer_name',
-          label: this.$i18n.t('Computer Name'),
-          sortable: true,
-          visible: false
-        },
-        {
-          key: 'connection_type',
-          label: this.$i18n.t('Connection Type'),
-          sortable: true,
-          visible: false
-        },
-        {
-          key: 'role',
-          label: this.$i18n.t('Role'),
-          sortable: true,
-          visible: false
-        },
-        {
-          key: 'profile',
-          label: this.$i18n.t('Profile'),
-          sortable: true,
-          visible: false
-        },
-        {
-          key: 'source',
-          label: this.$i18n.t('Source'),
-          sortable: true,
-          visible: false
-        },
-        {
-          key: 'ip',
-          label: this.$i18n.t('IP Address'),
-          sortable: true,
-          visible: true
-        },
-        {
-          key: 'ssid',
-          label: this.$i18n.t('SSID'),
-          sortable: true,
-          visible: false
-        },
-        {
-          key: 'switch_id',
-          label: this.$i18n.t('Switch'),
-          sortable: true,
-          visible: false
-        },
-        {
-          key: 'switch_ip_address',
-          label: this.$i18n.t('Switch IP Address'),
-          sortable: true,
-          visible: false
-        },
-        {
-          key: 'switch_mac',
-          label: this.$i18n.t('Switch MAC'),
-          sortable: true,
-          visible: false
         },
         {
           key: 'auth_type',
@@ -260,14 +188,8 @@ export default {
           visible: false
         },
         {
-          key: 'eap_type',
-          label: this.$i18n.t('EAP Type'),
-          sortable: true,
-          visible: false
-        },
-        {
-          key: 'called_station_id',
-          label: this.$i18n.t('Called Station ID'),
+          key: 'auto_reg',
+          label: this.$i18n.t('Auto Reg'),
           sortable: true,
           visible: false
         },
@@ -278,8 +200,128 @@ export default {
           visible: false
         },
         {
+          key: 'computer_name',
+          label: this.$i18n.t('Computer Name'),
+          sortable: true,
+          visible: false
+        },
+        {
+          key: 'eap_type',
+          label: this.$i18n.t('EAP Type'),
+          sortable: true,
+          visible: false
+        },
+        {
           key: 'event_type',
           label: this.$i18n.t('Event Type'),
+          sortable: true,
+          visible: false
+        },
+        {
+          key: 'ip',
+          label: this.$i18n.t('IP Address'),
+          sortable: true,
+          visible: true
+        },
+        {
+          key: 'is_phone',
+          label: this.$i18n.t('Is a Phone'),
+          sortable: true,
+          visible: true
+        },
+        {
+          key: 'node_status',
+          label: this.$i18n.t('Node Status'),
+          sortable: true,
+          visible: true
+        },
+        {
+          key: 'pf_domain',
+          label: this.$i18n.t('Domain'),
+          sortable: true,
+          visible: false
+        },
+        {
+          key: 'profile',
+          label: this.$i18n.t('Profile'),
+          sortable: true,
+          visible: false
+        },
+        {
+          key: 'realm',
+          label: this.$i18n.t('Realm'),
+          sortable: true,
+          visible: false
+        },
+        {
+          key: 'reason',
+          label: this.$i18n.t('Reason'),
+          sortable: true,
+          visible: false
+        },
+        {
+          key: 'role',
+          label: this.$i18n.t('Role'),
+          sortable: true,
+          visible: false
+        },
+        {
+          key: 'source',
+          label: this.$i18n.t('Source'),
+          sortable: true,
+          visible: false
+        },
+        {
+          key: 'stripped_user_name',
+          label: this.$i18n.t('Stripped User Name'),
+          sortable: true,
+          visible: false
+        },
+        {
+          key: 'user_name',
+          label: this.$i18n.t('User Name'),
+          sortable: true,
+          visible: true
+        },
+        {
+          key: 'uuid',
+          label: this.$i18n.t('Unique ID'),
+          sortable: true,
+          visible: true
+        },
+        {
+          key: 'switch_id',
+          label: this.$i18n.t('Switch'),
+          sortable: true,
+          visible: false
+        },
+        {
+          key: 'switch_mac',
+          label: this.$i18n.t('Switch MAC'),
+          sortable: true,
+          visible: false
+        },
+        {
+          key: 'switch_ip_address',
+          label: this.$i18n.t('Switch IP Address'),
+          sortable: true,
+          visible: false
+        },
+        {
+          key: 'called_station_id',
+          label: this.$i18n.t('Called Station ID'),
+          sortable: true,
+          visible: false
+        },
+        {
+          key: 'connection_type',
+          label: this.$i18n.t('Connection Type'),
+          sortable: true,
+          visible: false
+        },
+        {
+          key: 'ifindex',
+          label: this.$i18n.t('IfIndex'),
           sortable: true,
           visible: false
         },
@@ -314,20 +356,20 @@ export default {
           visible: false
         },
         {
-          key: 'pf_domain',
-          label: this.$i18n.t('Packetfence Domain'),
-          sortable: true,
-          visible: false
-        },
-        {
-          key: 'auto_reg',
-          label: this.$i18n.t('Auto Reg'),
-          sortable: true,
-          visible: false
-        },
-        {
           key: 'radius_source_ip_address',
           label: this.$i18n.t('RADIUS Source IP Address'),
+          sortable: true,
+          visible: false
+        },
+        {
+          key: 'ssid',
+          label: this.$i18n.t('SSID'),
+          sortable: true,
+          visible: false
+        },
+        {
+          key: 'request_time',
+          label: this.$i18n.t('Request Time'),
           sortable: true,
           visible: false
         },
@@ -342,25 +384,6 @@ export default {
           label: this.$i18n.t('RADIUS Reply'),
           sortable: true,
           visible: false
-        },
-        {
-          key: 'reason',
-          label: this.$i18n.t('Reason'),
-          sortable: true,
-          visible: false
-        },
-        {
-          key: 'request_time',
-          label: this.$i18n.t('Request Time'),
-          sortable: true,
-          visible: false
-        },
-        {
-          key: 'created_at',
-          label: this.$i18n.t('Created At'),
-          sortable: true,
-          visible: true,
-          formatter: formatter.datetimeIgnoreZero
         }
       ]
     }

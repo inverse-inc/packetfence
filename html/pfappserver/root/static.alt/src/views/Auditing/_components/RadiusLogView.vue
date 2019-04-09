@@ -12,36 +12,52 @@
           <template slot="title">
             {{ $t('Node Information') }}
           </template>
-          <b-row>
-            <b-col>
-              <pf-form-row :column-label="$t('MAC Address')">
-                {{ item.mac }}
-              </pf-form-row>
-            </b-col>
-          </b-row>
+          <pf-form-row :column-label="$t('MAC Address')">{{ item.mac }}</pf-form-row>
+          <pf-form-row :column-label="$t('Auth Status')">{{ item.auth_status }}</pf-form-row>
+          <pf-form-row :column-label="$t('Auth Status')">{{ item.auth_type }}</pf-form-row>
+          <pf-form-row :column-label="$t('Auto Registration')">{{ item.auto_reg }}</pf-form-row>
+          <pf-form-row :column-label="$t('Calling Station Identifier')">{{ item.calling_station_id }}</pf-form-row>
+          <pf-form-row :column-label="$t('Computer Name')">{{ item.computer_name }}</pf-form-row>
+          <pf-form-row :column-label="$t('EAP Type')">{{ item.eap_type }}</pf-form-row>
+          <pf-form-row :column-label="$t('Event Type')">{{ item.event_type }}</pf-form-row>
+          <pf-form-row :column-label="$t('IP Address')">{{ item.ip }}</pf-form-row>
+          <pf-form-row :column-label="$t('Is a Phone')">{{ item.is_phone }}</pf-form-row>
+          <pf-form-row :column-label="$t('Node Status')">{{ item.node_status }}</pf-form-row>
+          <pf-form-row :column-label="$t('Domain')">{{ item.pf_domain }}</pf-form-row>
+          <pf-form-row :column-label="$t('Profile')">{{ item.profile }}</pf-form-row>
+          <pf-form-row :column-label="$t('Realm')">{{ item.realm }}</pf-form-row>
+          <pf-form-row :column-label="$t('Reason')">{{ item.reason }}</pf-form-row>
+          <pf-form-row :column-label="$t('Role')">{{ item.role }}</pf-form-row>
+          <pf-form-row :column-label="$t('Source')">{{ item.source }}</pf-form-row>
+          <pf-form-row :column-label="$t('Stripped User Name')">{{ item.stripped_user_name }}</pf-form-row>
+          <pf-form-row :column-label="$t('User Name')">{{ item.user_name }}</pf-form-row>
+          <pf-form-row :column-label="$t('Unique Identifier')">{{ item.uuid }}</pf-form-row>
+          <pf-form-row :column-label="$t('Created at')">{{ item.created_at }}</pf-form-row>
         </b-tab>
 
         <b-tab title="Switch Information">
           <template slot="title">
             {{ $t('Switch Information') }}
           </template>
-          <b-row>
-            <b-col>
-              <pf-form-row :column-label="$t('Switch ID')">
-                {{ item.switch_id }}
-              </pf-form-row>
-            </b-col>
-          </b-row>
+          <pf-form-row :column-label="$t('Switch Identifier')">{{ item.switch_id }}</pf-form-row>
+          <pf-form-row :column-label="$t('Switch MAC')">{{ item.switch_mac }}</pf-form-row>
+          <pf-form-row :column-label="$t('Switch IP Address')">{{ item.switch_ip_address }}</pf-form-row>
+          <pf-form-row :column-label="$t('Called Station Identifier')">{{ item.called_station_id }}</pf-form-row>
+          <pf-form-row :column-label="$t('Connection Type')">{{ item.connection_type }}</pf-form-row>
+          <pf-form-row :column-label="$t('IfIndex')">{{ item.ifindex }}</pf-form-row>
+          <pf-form-row :column-label="$t('NAS Identifier')">{{ item.nas_identifier }}</pf-form-row>
+          <pf-form-row :column-label="$t('NAS IP Address')">{{ item.nas_ip_address }}</pf-form-row>
+          <pf-form-row :column-label="$t('NAS Port')">{{ item.nas_port }}</pf-form-row>
+          <pf-form-row :column-label="$t('NAS Port Identifer')">{{ item.nas_port_id }}</pf-form-row>
+          <pf-form-row :column-label="$t('NAS Port Type')">{{ item.nas_port_type }}</pf-form-row>
+          <pf-form-row :column-label="$t('RADIUS Spurce IP Address')">{{ item.radius_source_ip_address }}</pf-form-row>
+          <pf-form-row :column-label="$t('Wi-Fi Network SSID')">{{ item.ssid }}</pf-form-row>
         </b-tab>
 
         <b-tab title="RADIUS">
-          <b-row>
-            <b-col>
-              <pf-form-row :column-label="$t('Request Time')">
-                {{ item.request_time }}
-              </pf-form-row>
-            </b-col>
-          </b-row>
+          <pf-form-row :column-label="$t('Request Time')">{{ item.request_time }}</pf-form-row>
+          <pf-form-row :column-label="$t('RADIUS Request')">{{ item.radius_request }}</pf-form-row>
+          <pf-form-row :column-label="$t('RADIUS Reply')">{{ item.radius_reply }}</pf-form-row>
         </b-tab>
 
       </b-tabs>
@@ -67,19 +83,22 @@ export default {
   },
   data () {
     return {
+      item: {},
       tabIndex: 0,
       tabTitle: ''
     }
   },
   computed: {
-    item () {
-      return this.$store.state[this.storeName].cache[this.id]
-    },
     isLoading () {
       return this.$store.getters[`${this.storeName}/isLoading`]
     }
   },
   methods: {
+    init () {
+      this.$store.dispatch(`${this.storeName}/getItem`, this.id).then(item => {
+        this.item = item
+      })
+    },
     ifTab (set) {
       return this.$refs.tabs && set.includes(this.$refs.tabs.tabs[this.tabIndex].title)
     },
@@ -92,6 +111,9 @@ export default {
           this.close()
       }
     }
+  },
+  created () {
+    this.init()
   },
   mounted () {
     document.addEventListener('keyup', this.onKeyup)
