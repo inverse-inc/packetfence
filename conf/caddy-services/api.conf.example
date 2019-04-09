@@ -42,6 +42,7 @@
   # Everything else goes to the Perl API
   proxy /api/v1/ 127.0.0.1:8080 {
     transparent
+    timeout 10m
   }
 }
 
