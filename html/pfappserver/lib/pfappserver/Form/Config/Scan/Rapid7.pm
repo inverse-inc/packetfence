@@ -93,46 +93,54 @@ has_block definition =>
    render_list => [ qw(id type username password host port verify_hostname engine_id template_id site_id categories oses duration pre_registration registration post_registration) ],
   );
 
-around 'process' => sub {
-    my $sub = shift;
-    my @args = @_;
+our %UPDATE_METHOD = (
+    engine_id => 'listScanEngines',
+    template_id => 'listScanTemplates',
+    site_id => 'listSites',
+);
 
-    my ($form, $context, $params) = @args;
-    
-    my $scan;
-    eval {
-        $scan = pf::factory::scan->new($params->{id});
-    };
-    
-    my %sub_map = (
-        engine_id => sub {$scan->listScanEngines},
-        template_id => sub {$scan->listScanTemplates},
-        site_id => sub {$scan->listSites},
-    );
-
-    foreach my $field_name (qw(engine_id template_id site_id)) {
-        my $field = $form->field($field_name);
-        if($scan) {
-            my $values = $sub_map{$field_name}->();
-            if(defined($values)) {
-                my @options = map{ {label => $_->{name}, value => $_->{id}} } @$values;
-                $field->options(\@options);
-            }
-            else {
-                $field->options([{label => $params->{$field_name}, value => $params->{$field_name}}]);
-                $field->disabled(1);
-                $field->tags->{help} = "There was an error communicating with Rapid7. Check server side logs or retry later to be able to edit this field.";
-            }
-        }
-        else {
-            $field->options([{label => $params->{$field_name}, value => $params->{$field_name}}]);
+sub update_fields {
+    my $self = shift;
+    my $params = $self->params;
+    my $id = defined $params ?  $params->{id} : undef;
+    if (!defined $id) {
+        foreach my $field_name (qw(engine_id template_id site_id)) {
+            my $field = $self->field($field_name);
+            $field->options([{label => $params->{$field_name} // '', value => $params->{$field_name} // ''}]);
             $field->disabled(1);
             $field->tags->{help} = "After configuring this scan engine for the first time, you will be able to select this attribute from the available ones in Rapid7.";
         }
+        return $self->next::method();
     }
 
-    $sub->(@args);
-};
+    my $scan = eval {
+        pf::factory::scan->new($params->{id});
+    };
+
+    if (!defined $scan) {
+        foreach my $field_name (qw(engine_id template_id site_id)) {
+            my $field = $self->field($field_name);
+            $field->options([{label => $params->{$field_name} // '', value => $params->{$field_name} // ''}]);
+            $field->disabled(1);
+            $field->tags->{help} = "After configuring this scan engine for the first time, you will be able to select this attribute from the available ones in Rapid7.";
+        }
+        return $self->next::method();
+    }
+
+    foreach my $field_name (qw(engine_id template_id site_id)) {
+        my $field = $self->field($field_name);
+        my $method = $UPDATE_METHOD{$field_name};
+        my $values = $scan->$method();
+        if(defined($values)) {
+            my @options = map{ {label => $_->{name}, value => $_->{id}} } @$values;
+            $field->options(\@options);
+        } else {
+            $field->options([{label => $params->{$field_name}, value => $params->{$field_name}}]);
+            $field->disabled(1);
+            $field->tags->{help} = "There was an error communicating with Rapid7. Check server side logs or retry later to be able to edit this field.";
+        }
+    }
+}
 
 =over
 
