@@ -116,7 +116,7 @@ export const pfConfigurationSecurityEventViewFields = (context = {}) => {
           if: (form.triggers),
           fields: [
             {
-              component: pfFormSecurityEventTriggerHeader,
+              component: pfFormSecurityEventTriggerHeader
             }
           ]
         },
