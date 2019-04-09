@@ -253,15 +253,15 @@ sub render_create {
         return $self->render_error($status, $self->create_error_msg($obj));
     }
 
-    $self->res->headers->location($self->make_location_url($obj));
     my $id = $obj->{$self->primary_key};
+    $self->res->headers->location($self->make_location_url($id));
     return $self->render(json => { id => $id , message => "'$id' created"}, status => $status);
 }
 
 sub make_location_url {
-    my ($self, $obj) = @_;
+    my ($self, $id) = @_;
     my $parent_route = $self->match->endpoint->parent->name;
-    my $url = $self->url_for("$parent_route.resource.get", {$self->url_param_name => $obj->{$self->primary_key}});
+    my $url = $self->url_for("$parent_route.resource.get", {$self->url_param_name => $id});
     return "$url";
 }
 
