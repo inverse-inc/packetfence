@@ -42,6 +42,10 @@ type Upstream interface {
 
 	// Gets the number of upstream hosts.
 	GetHostCount() int
+
+	// Gets how long to wait before timing out
+	// the request
+	GetTimeout() time.Duration
 }
 
 // UpstreamHostDownFunc can be used to customize how Down behaves.
@@ -158,7 +162,11 @@ func (p Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
 		if nameURL, err := url.Parse(host.Name); err == nil {
 			outreq.Host = nameURL.Host
 			if proxy == nil {
-				proxy = NewSingleHostReverseProxy(nameURL, host.WithoutPathPrefix, http.DefaultMaxIdleConnsPerHost)
+				proxy = NewSingleHostReverseProxy(nameURL,
+					host.WithoutPathPrefix,
+					http.DefaultMaxIdleConnsPerHost,
+					upstream.GetTimeout(),
+				)
 			}
 
 			// use upstream credentials by default

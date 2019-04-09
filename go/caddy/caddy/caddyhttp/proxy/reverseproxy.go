@@ -75,6 +75,10 @@ type ReverseProxy struct {
 	// response body.
 	// If zero, no periodic flushing is done.
 	FlushInterval time.Duration
+
+	// dialer is used when values from the
+	// defaultDialer need to be overridden per Proxy
+	dialer *net.Dialer
 }
 
 // Though the relevant directive prefix is just "unix:", url.Parse
@@ -83,9 +87,9 @@ type ReverseProxy struct {
 // What we need is just the path, so if "unix:/var/run/www.socket"
 // was the proxy directive, the parsed hostName would be
 // "unix:///var/run/www.socket", hence the ambiguous trimming.
-func socketDial(hostName string) func(network, addr string) (conn net.Conn, err error) {
+func socketDial(hostName string, timeout time.Duration) func(network, addr string) (conn net.Conn, err error) {
 	return func(network, addr string) (conn net.Conn, err error) {
-		return net.Dial("unix", hostName[len("unix://"):])
+		return net.DialTimeout("unix", hostName[len("unix://"):], timeout)
 	}
 }
 
@@ -95,7 +99,7 @@ func socketDial(hostName string) func(network, addr string) (conn net.Conn, err 
 // the target request will be for /base/dir.
 // Without logic: target's path is "/", incoming is "/api/messages",
 // without is "/api", then the target request will be for /messages.
-func NewSingleHostReverseProxy(target *url.URL, without string, keepalive int) *ReverseProxy {
+func NewSingleHostReverseProxy(target *url.URL, without string, keepalive int, timeout time.Duration) *ReverseProxy {
 	targetQuery := target.RawQuery
 	director := func(req *http.Request) {
 		if target.Scheme == "unix" {
@@ -144,10 +148,21 @@ func NewSingleHostReverseProxy(target *url.URL, without string, keepalive int) *
 			req.URL.RawQuery = targetQuery + "&" + req.URL.RawQuery
 		}
 	}
-	rp := &ReverseProxy{Director: director, FlushInterval: 250 * time.Millisecond} // flushing good for streaming & server-sent events
+
+	dialer := *defaultDialer
+	if timeout != defaultDialer.Timeout {
+		dialer.Timeout = timeout
+	}
+
+	rp := &ReverseProxy{
+		Director:      director,
+		FlushInterval: 250 * time.Millisecond, // flushing good for streaming & server-sent events
+		dialer:        &dialer,
+	}
+
 	if target.Scheme == "unix" {
 		rp.Transport = &http.Transport{
-			Dial: socketDial(target.String()),
+			Dial: socketDial(target.String(), timeout),
 		}
 	} else if keepalive != http.DefaultMaxIdleConnsPerHost {
 		// if keepalive is equal to the default,
@@ -155,7 +170,7 @@ func NewSingleHostReverseProxy(target *url.URL, without string, keepalive int) *
 		// a brand new transport
 		transport := &http.Transport{
 			Proxy:                 http.ProxyFromEnvironment,
-			Dial:                  defaultDialer.Dial,
+			Dial:                  rp.dialer.Dial,
 			TLSHandshakeTimeout:   10 * time.Second,
 			ExpectContinueTimeout: 1 * time.Second,
 		}
@@ -202,7 +217,9 @@ func (rp *ReverseProxy) ServeHTTP(rw http.ResponseWriter, outreq *http.Request, 
 	if requestIsWebsocket(outreq) {
 		transport = newConnHijackerTransport(transport)
 	} else if transport == nil {
-		transport = http.DefaultTransport
+		transport = &http.Transport{
+			Dial: rp.dialer.Dial,
+		}
 	}
 
 	rp.Director(outreq)
@@ -261,7 +278,7 @@ func (rp *ReverseProxy) ServeHTTP(rw http.ResponseWriter, outreq *http.Request, 
 			}
 			bufferPool.Put(hj.Replay)
 		} else {
-			backendConn, err = net.Dial("tcp", outreq.URL.Host)
+			backendConn, err = net.DialTimeout("tcp", outreq.URL.Host, rp.dialer.Timeout)
 			if err != nil {
 				return err
 			}

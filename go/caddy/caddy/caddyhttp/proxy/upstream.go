@@ -26,6 +26,7 @@ type staticUpstream struct {
 	Hosts             HostPool
 	Policy            Policy
 	KeepAlive         int
+	Timeout           time.Duration
 	FailTimeout       time.Duration
 	TryDuration       time.Duration
 	TryInterval       time.Duration
@@ -57,6 +58,7 @@ func NewStaticUpstreams(c caddyfile.Dispenser) ([]Upstream, error) {
 			TryInterval:       250 * time.Millisecond,
 			MaxConns:          0,
 			KeepAlive:         http.DefaultMaxIdleConnsPerHost,
+			Timeout:           30 * time.Second,
 		}
 
 		if !c.Args(&upstream.from) {
@@ -151,7 +153,7 @@ func (u *staticUpstream) NewHost(host string) (*UpstreamHost, error) {
 		return nil, err
 	}
 
-	uh.ReverseProxy = NewSingleHostReverseProxy(baseURL, uh.WithoutPathPrefix, u.KeepAlive)
+	uh.ReverseProxy = NewSingleHostReverseProxy(baseURL, uh.WithoutPathPrefix, u.KeepAlive, u.Timeout)
 	if u.insecureSkipVerify {
 		uh.ReverseProxy.UseInsecureTransport()
 	}
@@ -346,6 +348,15 @@ func parseBlock(c *caddyfile.Dispenser, u *staticUpstream) error {
 			return c.ArgErr()
 		}
 		u.KeepAlive = n
+	case "timeout":
+		if !c.NextArg() {
+			return c.ArgErr()
+		}
+		dur, err := time.ParseDuration(c.Val())
+		if err != nil {
+			return c.Errf("unable to parse timeout duration '%s'", c.Val())
+		}
+		u.Timeout = dur
 	default:
 		return c.Errf("unknown property '%s'", c.Val())
 	}
@@ -421,6 +432,11 @@ func (u *staticUpstream) GetTryDuration() time.Duration {
 // GetTryInterval returns u.TryInterval.
 func (u *staticUpstream) GetTryInterval() time.Duration {
 	return u.TryInterval
+}
+
+// GetTimeout returns u.Timeout.
+func (u *staticUpstream) GetTimeout() time.Duration {
+	return u.Timeout
 }
 
 func (u *staticUpstream) GetHostCount() int {
