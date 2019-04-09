@@ -174,13 +174,13 @@ const actions = {
           case 'SERVICE_RESTARTED':
             commit('SERVICE_REQUEST', index)
             api.service(state.services[index].name, 'status').then(status => {
-              commit('SERVICE_UPDATED', { index, status })
+              commit('SERVICE_UPDATED', { index, status, message })
             })
             break
           case 'SERVICE_ERROR':
             commit('SERVICE_REQUEST', index)
             api.service(state.services[index].name, 'status').then(status => {
-              commit('SERVICE_UPDATED', { index, status })
+              commit('SERVICE_UPDATED', { index, status, message })
             })
             break
         }
@@ -208,7 +208,7 @@ const actions = {
     commit('SERVICES_STARTING')
     const promises = []
     state.services.filter(service => !(blacklistedServices.includes(service.name))).forEach((service, index) => {
-    if (!service.alive) {
+      if (!service.alive) {
         commit('SERVICE_STARTING', index)
         promises.push(
           api.startService(service.name).then(response => {
@@ -264,7 +264,7 @@ const actions = {
     commit('SERVICES_STOPING')
     const promises = []
     state.services.filter(service => !(blacklistedServices.includes(service.name))).forEach((service, index) => {
-    if (service.alive) {
+      if (service.alive) {
         commit('SERVICE_STOPING', index)
         promises.push(
           api.stopService(service.name).then(response => {
