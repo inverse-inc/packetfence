@@ -254,7 +254,8 @@ sub render_create {
     }
 
     $self->res->headers->location($self->make_location_url($obj));
-    return $self->render(json => {}, status => $status);
+    my $id = $obj->{$self->primary_key};
+    return $self->render(json => { id => $id , message => "'$id' created"}, status => $status);
 }
 
 sub make_location_url {
