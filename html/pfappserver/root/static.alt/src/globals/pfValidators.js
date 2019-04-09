@@ -367,6 +367,14 @@ export const hasPkiProviders = (value, component) => {
   })
 }
 
+export const hasPortalModules = (value, component) => {
+  return store.dispatch('config/getPortalModules').then((response) => {
+    return (response.length > 0)
+  }).catch(() => {
+    return true
+  })
+}
+
 export const hasProvisionings = (value, component) => {
   return store.dispatch('config/getProvisionings').then((response) => {
     return (response.length > 0)
@@ -625,6 +633,16 @@ export const pkiProviderExists = (value, component) => {
   return store.dispatch('config/getPkiProviders').then((response) => {
     if (response.length === 0) return true
     return (response.filter(provider => provider.id.toLowerCase() === value.toLowerCase()).length > 0)
+  }).catch(() => {
+    return true
+  })
+}
+
+export const portalModuleExists = (value, component) => {
+  if (!value) return true
+  return store.dispatch('config/getPortalModules').then((response) => {
+    if (response.length === 0) return true
+    return (response.filter(module => module.id.toLowerCase() === value.toLowerCase()).length > 0)
   }).catch(() => {
     return true
   })

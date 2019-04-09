@@ -1,8 +1,6 @@
 import i18n from '@/utils/locale'
 import bytes from '@/utils/bytes'
 import pfFormInput from '@/components/pfFormInput'
-import pfFormSelect from '@/components/pfFormSelect'
-import pfFormToggle from '@/components/pfFormToggle'
 import { pfAuthenticationConditionType as authenticationConditionType } from '@/globals/pfAuthenticationConditions'
 import { pfDatabaseSchema as schema } from '@/globals/pfDatabaseSchema'
 import { pfFieldType as fieldType } from '@/globals/pfField'
@@ -700,43 +698,6 @@ export const pfConfigurationViewFields = {
         validators: {
           [i18n.t('Description required.')]: required
         }
-      }
-    ]
-  },
-  pid_field: {
-    label: i18n.t('PID field'),
-    text: i18n.t('Which field should be used as the PID.'),
-    fields: [
-      {
-        key: 'pid_field',
-        component: pfFormSelect,
-        attrs: {
-          options: Object.keys(schema.person)
-        },
-        validators: {
-          [i18n.t('PID field required.')]: required
-        }
-      }
-    ]
-  },
-  show_first_module_on_default: {
-    label: i18n.t('Show first module when none is selected'),
-    fields: [
-      {
-        key: 'shuffle',
-        component: pfFormToggle,
-        attrs: {
-          values: { checked: 'enabled', unchecked: 'disabled' }
-        }
-      }
-    ]
-  },
-  template: {
-    label: i18n.t('Template'),
-    fields: [
-      {
-        key: 'template',
-        component: pfFormInput
       }
     ]
   }

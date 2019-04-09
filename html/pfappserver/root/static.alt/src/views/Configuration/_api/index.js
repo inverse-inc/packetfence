@@ -736,9 +736,19 @@ export default {
       return response.data
     })
   },
+  portalModulesOptions: sourceType => {
+    return apiCall.options(`config/portal_modules?type=${sourceType}`).then(response => {
+      return response.data
+    })
+  },
   portalModule: id => {
     return apiCall.get(`config/portal_module/${id}`).then(response => {
       return response.data.item
+    })
+  },
+  portalModuleOptions: id => {
+    return apiCall.options(`config/portal_module/${id}`).then(response => {
+      return response.data
     })
   },
   updatePortalModule: data => {

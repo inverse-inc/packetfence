@@ -234,9 +234,9 @@ export default {
       position: relative;
       flex: 1 1 auto;
       width: 1%;
-      margin-bottom: 0;
       min-height: auto;
       border-width: 1px;
+      margin-bottom: 0;
       font-size: $font-size-base;
   }
   .multiselect__tags {

@@ -105,6 +105,9 @@ const api = {
   getPkiProviders () {
     return apiCall({ url: 'config/pki_providers', method: 'get' })
   },
+  getPortalModules () {
+    return apiCall({ url: 'config/portal_modules', method: 'get', params: { limit: 1000 } })
+  },
   getProvisionings () {
     return apiCall({ url: 'config/provisionings', method: 'get' })
   },
@@ -226,6 +229,8 @@ const state = { // set intitial states to `false` (not `[]` or `{}`) to avoid in
   maintenanceTasks: false,
   pkiProvidersStatus: '',
   pkiProviders: false,
+  portalModulesStatus: '',
+  portalModules: false,
   provisioningsStatus: '',
   provisionings: false,
   realmsStatus: '',
@@ -391,6 +396,9 @@ const getters = {
   isLoadingPkiProviders: state => {
     return state.pkiProvidersStatus === types.LOADING
   },
+  isLoadingPortalModules: state => {
+    return state.portalModulesStatus === types.LOADING
+  },
   isLoadingProvisionings: state => {
     return state.provisioningsStatus === types.LOADING
   },
@@ -501,6 +509,12 @@ const getters = {
     if (!state.adminRoles) return []
     return state.adminRoles.map((item) => {
       return { value: item.id, name: item.id }
+    })
+  },
+  portalModulesList: state => {
+    if (!state.portalModules) return []
+    return state.portalModules.map((item) => {
+      return { value: item.id, name: item.description }
     })
   },
   realmsList: state => {
@@ -1015,6 +1029,20 @@ const actions = {
       return Promise.resolve(state.pkiProviders)
     }
   },
+  getPortalModules: ({ state, getters, commit }) => {
+    if (getters.isLoadingPortalModules) {
+      return
+    }
+    if (!state.portalModles) {
+      commit('PORTAL_MODULES_REQUEST')
+      return api.getPortalModules().then(response => {
+        commit('PORTAL_MODULES_UPDATED', response.data.items)
+        return state.portalModules
+      })
+    } else {
+      return Promise.resolve(state.portalModules)
+    }
+  },
   getProvisionings: ({ state, getters, commit }) => {
     if (getters.isLoadingProvisionings) {
       return
@@ -1462,6 +1490,13 @@ const mutations = {
   PKI_PROVIDERS_UPDATED: (state, pkiProviders) => {
     state.pkiProviders = pkiProviders
     state.pkiProvidersStatus = types.SUCCESS
+  },
+  PORTAL_MODULES_REQUEST: (state) => {
+    state.portalModulesStatus = types.LOADING
+  },
+  PORTAL_MODULES_UPDATED: (state, portalModles) => {
+    state.portalModles = portalModles
+    state.portalModulesStatus = types.SUCCESS
   },
   PROVISIONINGS_REQUEST: (state) => {
     state.provisioningsStatus = types.LOADING

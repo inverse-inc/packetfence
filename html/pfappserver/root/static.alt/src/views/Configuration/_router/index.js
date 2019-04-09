@@ -1175,15 +1175,10 @@ const route = {
       props: (route) => ({ storeName: '$_portalmodules', query: route.query.query })
     },
     {
-      path: 'portal_modules/new/:type',
+      path: 'portal_modules/new/:moduleType',
       name: 'newPortalModule',
       component: PortalModuleView,
-      props: (route) => ({ storeName: '$_portalmodules', isNew: true, moduleType: route.params.type }),
-      beforeEnter: (to, from, next) => {
-        store.dispatch('config/getSources').then(object => {
-          next()
-        })
-      }
+      props: (route) => ({ storeName: '$_portalmodules', isNew: true, moduleType: route.params.moduleType })
     },
     {
       path: 'portal_module/:id',
