@@ -30,30 +30,28 @@
       <slot name="append"></slot>
     </b-col>
     <!-- Popover for each category -->
-    <template v-for="category in Object.keys(forms)">
-      <b-popover
-        triggers="click"
-        placement="top"
-        :key="category"
-        :show.sync="popover[category]"
-        :target="category + '_' + uuid"
-        :container="'security-event-trigger-row_' + uuid">
-        <pf-config-view
-          card-class="card-sm"
-          :form="forms[category]"
-          :model="triggerCopy[category]"
-          :ref="category + 'Popover'"
-          :vuelidate="$v.triggerCopy[category]"
-          @validations="triggerValidations[category] = $event"
-          border-variant="light">
-          <template slot="header" is="b-card-header"><h5 class="m-0" v-text="forms[category].title"></h5></template>
-          <template slot="footer" is="b-card-footer" class="text-right" @mouseenter="$v.triggerCopy[category].$touch()">
-            <pf-button size="sm" variant="outline-secondary" class="mr-1" @click="resetCategory(category)">{{ $t('Cancel') }}</pf-button>
-            <pf-button-save size="sm" :disabled="invalidForm(category)" @click="updateCategory(category)">{{ $t('OK') }}</pf-button-save>
-          </template>
-        </pf-config-view>
-      </b-popover>
-    </template>
+    <b-popover v-for="category in Object.keys(forms)"
+      triggers="click"
+      placement="top"
+      :key="category"
+      :show.sync="popover[category]"
+      :target="category + '_' + uuid"
+      :container="'security-event-trigger-row_' + uuid">
+      <pf-config-view
+        card-class="card-sm"
+        :form="forms[category]"
+        :model="triggerCopy[category]"
+        :ref="category + 'Popover'"
+        :vuelidate="$v.triggerCopy[category]"
+        @validations="triggerValidations[category] = $event"
+        border-variant="light">
+        <template slot="header" is="b-card-header"><h5 class="m-0" v-text="forms[category].title"></h5></template>
+        <template slot="footer" is="b-card-footer" class="text-right" @mouseenter="$v.triggerCopy[category].$touch()">
+          <pf-button size="sm" variant="outline-secondary" class="mr-1" @click="resetCategory(category)">{{ $t('Cancel') }}</pf-button>
+          <pf-button-save size="sm" :disabled="invalidForm(category)" @click="updateCategory(category)">{{ $t('OK') }}</pf-button-save>
+        </template>
+      </pf-config-view>
+    </b-popover>
   </b-form-row>
 </template>
 
@@ -529,8 +527,12 @@ export default {
         })
         if (isInsidePopover === undefined) {
           // Click is outside popover -- close all popover
+          const { id = '' } = $event.target
           for (const category in this.popover) {
-            this.popover[category] = false
+            // Ignore clicks on popover links
+            if (id !== [category, this.uuid].join('_')) {
+              this.popover[category] = false
+            }
           }
         }
       }
