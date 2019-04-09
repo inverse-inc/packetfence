@@ -169,18 +169,18 @@ const actions = {
       commit('SERVICES_SUCCESS')
       response.forEach(item => {
         const index = Object.keys(item)[0]
-        const { [index]: [ mutation, message ] } = item
+        const { [index]: [ mutation ] } = item
         switch (mutation) {
           case 'SERVICE_RESTARTED':
             commit('SERVICE_REQUEST', index)
             api.service(state.services[index].name, 'status').then(status => {
-              commit('SERVICE_UPDATED', { index, status, message })
+              commit('SERVICE_UPDATED', { index, status })
             })
             break
           case 'SERVICE_ERROR':
             commit('SERVICE_REQUEST', index)
             api.service(state.services[index].name, 'status').then(status => {
-              commit('SERVICE_UPDATED', { index, status, message })
+              commit('SERVICE_UPDATED', { index, status })
             })
             break
         }
@@ -225,7 +225,7 @@ const actions = {
       commit('SERVICES_SUCCESS')
       response.forEach(item => {
         const index = Object.keys(item)[0]
-        const { [index]: [ mutation, message ] } = item
+        const { [index]: [ mutation ] } = item
         switch (mutation) {
           case 'SERVICE_STARTED':
             commit('SERVICE_REQUEST', index)
@@ -281,7 +281,7 @@ const actions = {
       commit('SERVICES_SUCCESS')
       response.forEach(item => {
         const index = Object.keys(item)[0]
-        const { [index]: [ mutation, message ] } = item
+        const { [index]: [ mutation ] } = item
         switch (mutation) {
           case 'SERVICE_STOPED':
             commit('SERVICE_REQUEST', index)

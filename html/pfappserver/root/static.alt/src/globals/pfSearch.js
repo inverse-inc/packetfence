@@ -199,7 +199,6 @@ pfSearchConditionValues[pfSearchConditionType.YESNO] = [
   }
 ]
 
-
 pfSearchConditionValues[pfSearchConditionType.CONNECTION_PROFILE] = (store) => {
   store.dispatch('config/getConnectionProfiles')
   return store.getters['config/connectionProfilesList']
