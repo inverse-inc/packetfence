@@ -197,7 +197,8 @@ sub get_lookup_info {
 sub render_get {
     my ($self) = @_;
     my $stash = $self->stash;
-    return $self->render(json => { item => $self->item }, status => $stash->{status});
+    my $item = $self->cleanup_item($self->item);
+    return $self->render(json => { item => $item }, status => $stash->{status});
 }
 
 =head2 item
@@ -344,14 +345,16 @@ sub update {
         },
         -limit => 1,
     );
+
     if ($count == 0) {
         $status = 404;
     }
-    $res->code($status);
-    if ($res->is_error) {
-
+    my $id = $self->id;
+    if (is_error($status)) {
+        return $self->render_error($status, "Cannot update '$id'");
     }
-    return $self->render(json => {});
+
+    return $self->render(json => { message => "'$id' updated" });
 }
 
 sub update_data {
@@ -386,12 +389,18 @@ sub search {
             $response->{errors}
         );
     }
+    local $_;
+    $response->{items} = [
+        map { $self->cleanup_item($_) } @{$response->{items} // []}
+    ];
 
     return $self->render(
         json   => $response,
         status => $status
     );
 }
+
+sub cleanup_item { $_[1] }
 
 sub build_search_info {
     my ($self) = @_;
