@@ -77,7 +77,7 @@
           <b-container fluid>
             <b-row align-v="center">
               <b-form inline class="mb-0">
-                <b-form-select class="mb-3 mr-3" size="sm" v-model="pageSizeLimit" :options="[10,25,50,100]" :disabled="isLoading"
+                <b-form-select class="mb-3 mr-3" size="sm" v-model="pageSizeLimit" :options="[25,50,100,200,500,1000]" :disabled="isLoading"
                   @input="onPageSizeChange" />
               </b-form>
               <b-pagination align="right" v-model="requestPage" :per-page="pageSizeLimit" :total-rows="totalRows" :disabled="isLoading"
@@ -96,7 +96,7 @@
         @sort-changed="onSortingChanged"
         @row-clicked="onRowClick"
         @head-clicked="clearSelected"
-        show-empty responsive hover no-local-sorting
+        show-empty responsive hover no-local-sorting striped
       >
         <template slot="HEAD_actions" slot-scope="head">
           <input type="checkbox" id="checkallnone" v-model="selectAll" @change="onSelectAllChange" @click.stop>

@@ -106,7 +106,7 @@
           @sort-changed="onSortingChanged"
           @row-clicked="onRowClick"
           @head-clicked="clearSelected"
-          hover outlined responsive show-empty no-local-sorting>
+          hover outlined responsive show-empty no-local-sorting striped>
             <template slot="HEAD_actions" slot-scope="head">
               <div class="text-center">
                 <input type="checkbox" id="checkallnone" v-model="selectAll" @change="onSelectAllChange" @click.stop />

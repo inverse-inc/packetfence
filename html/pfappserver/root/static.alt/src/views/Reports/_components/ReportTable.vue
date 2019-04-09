@@ -33,7 +33,7 @@
           <b-container fluid>
             <b-row align-v="center">
               <b-form inline class="mb-0">
-                <b-form-select class="mb-3 mr-3" size="sm" v-model="pageSizeLimit" :options="[10,25,50,100]" :disabled="isLoading"
+                <b-form-select class="mb-3 mr-3" size="sm" v-model="pageSizeLimit" :options="[25,50,100,200,500,1000]" :disabled="isLoading"
                   @input="onPageSizeChange" />
               </b-form>
               <b-pagination align="right" v-model="requestPage" :per-page="pageSizeLimit" :total-rows="totalRows" :disabled="isLoading"
@@ -43,7 +43,7 @@
         </b-col>
       </b-row>
       <b-table :items="items" :fields="visibleColumns" :per-page="pageSizeLimit" :current-page="requestPage" :sort-by="sortBy" :sort-desc="sortDesc" :sort-compare="sortCompare"
-        @sort-changed="onSortingChanged" show-empty responsive hover v-model="tableValues">
+        @sort-changed="onSortingChanged" show-empty responsive hover striped v-model="tableValues">
         <template slot="empty">
           <pf-empty-table :isLoading="isLoading">{{ $t('No data found') }}</pf-empty-table>
         </template>

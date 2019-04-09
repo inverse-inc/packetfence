@@ -38,7 +38,7 @@
       </b-row>
       <b-table class="table-clickable" :items="items" :fields="visibleColumns" :sort-by="sortBy" :sort-desc="sortDesc"
         @sort-changed="onSortingChanged" @row-clicked="onRowClick"
-        show-empty responsive hover no-local-sorting>
+        show-empty responsive hover no-local-sorting striped>
         <template slot="mac" slot-scope="log">
           <mac v-text="log.item.mac"></mac>
         </template>
