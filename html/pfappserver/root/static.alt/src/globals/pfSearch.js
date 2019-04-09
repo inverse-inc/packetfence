@@ -1,6 +1,9 @@
 /* eslint key-spacing: ["error", { "mode": "minimum" }] */
 
 export const pfSearchConditionType = {
+  /**
+   * Simple fields
+   */
   BOOL:                    'bool', // is true or is false
   DATETIME:                'datetime',
   INTEGER:                 'integer',
@@ -8,12 +11,24 @@ export const pfSearchConditionType = {
   LISTEXTEND:              'list', // is or is not
   PREFIXMULTIPLE:          'prefixmultiple',
   SUBSTRING:               'substring',
-  YESNO:                   'yesno',
+
+  /**
+   * Static fields
+   */
   CONNECTION_TYPE:         'connection_type',
   NODE_STATUS:             'node_status',
   ONLINE:                  'online',
+  YESNO:                   'yesno',
+
+  /**
+   * Promise fields
+   */
+  CONNECTION_PROFILE:      'profile',
+  DOMAIN:                  'domain',
+  REALM:                   'realm',
   ROLE:                    'role',
-  SECURITY_EVENT:               'security_event'
+  SOURCE:                  'source',
+  SWITCH_GROUP:            'switch_group'
 }
 
 export const pfSearchConditionValue = {
@@ -28,6 +43,10 @@ export const pfSearchConditionValue = {
  */
 // See lib/pf/UnifiedApi/Search.pm#L20
 export const pfConditionOperators = {}
+
+/**
+ * Simple fields
+ */
 pfConditionOperators[pfSearchConditionType.BOOL] = {
   'is_true':               null,
   'is_false':              null
@@ -46,6 +65,14 @@ pfConditionOperators[pfSearchConditionType.INTEGER] = {
   'greater_than_equals':   pfSearchConditionValue.TEXT,
   'less_than_equals':      pfSearchConditionValue.TEXT
 }
+pfConditionOperators[pfSearchConditionType.PREFIXMULTIPLE] = {
+  'equals':                pfSearchConditionValue.PREFIXMULTIPLE,
+  'not_equals':            pfSearchConditionValue.PREFIXMULTIPLE,
+  'greater_than':          pfSearchConditionValue.PREFIXMULTIPLE,
+  'less_than':             pfSearchConditionValue.PREFIXMULTIPLE,
+  'greater_than_equals':   pfSearchConditionValue.PREFIXMULTIPLE,
+  'less_than_equals':      pfSearchConditionValue.PREFIXMULTIPLE
+}
 pfConditionOperators[pfSearchConditionType.SUBSTRING] = {
   'equals':                pfSearchConditionValue.TEXT,
   'not_equals':            pfSearchConditionValue.TEXT,
@@ -53,11 +80,10 @@ pfConditionOperators[pfSearchConditionType.SUBSTRING] = {
   'ends_with':             pfSearchConditionValue.TEXT,
   'contains':              pfSearchConditionValue.TEXT
 }
-pfConditionOperators[pfSearchConditionType.YESNO] = {
-  'equals':                pfSearchConditionValue.SELECT,
-  'not_equals':            pfSearchConditionValue.SELECT
-}
 
+/**
+ * Static fields
+ */
 pfConditionOperators[pfSearchConditionType.CONNECTION_TYPE] = {
   'equals':                pfSearchConditionValue.SELECT,
   'not_equals':            pfSearchConditionValue.SELECT
@@ -70,21 +96,37 @@ pfConditionOperators[pfSearchConditionType.ONLINE] = {
   'equals':                pfSearchConditionValue.SELECT,
   'not_equals':            pfSearchConditionValue.SELECT
 }
+pfConditionOperators[pfSearchConditionType.YESNO] = {
+  'equals':                pfSearchConditionValue.SELECT,
+  'not_equals':            pfSearchConditionValue.SELECT
+}
+
+/**
+ * Promise fields
+ */
+pfConditionOperators[pfSearchConditionType.CONNECTION_PROFILE] = {
+  'equals':                pfSearchConditionValue.SELECT,
+  'not_equals':            pfSearchConditionValue.SELECT
+}
+pfConditionOperators[pfSearchConditionType.DOMAIN] = {
+  'equals':                pfSearchConditionValue.SELECT,
+  'not_equals':            pfSearchConditionValue.SELECT
+}
+pfConditionOperators[pfSearchConditionType.REALM] = {
+  'equals':                pfSearchConditionValue.SELECT,
+  'not_equals':            pfSearchConditionValue.SELECT
+}
 pfConditionOperators[pfSearchConditionType.ROLE] = {
   'equals':                pfSearchConditionValue.SELECT,
   'not_equals':            pfSearchConditionValue.SELECT
 }
-pfConditionOperators[pfSearchConditionType.SECURITY_EVENT] = {
+pfConditionOperators[pfSearchConditionType.SOURCE] = {
   'equals':                pfSearchConditionValue.SELECT,
   'not_equals':            pfSearchConditionValue.SELECT
 }
-pfConditionOperators[pfSearchConditionType.PREFIXMULTIPLE] = {
-  'equals':                pfSearchConditionValue.PREFIXMULTIPLE,
-  'not_equals':            pfSearchConditionValue.PREFIXMULTIPLE,
-  'greater_than':          pfSearchConditionValue.PREFIXMULTIPLE,
-  'less_than':             pfSearchConditionValue.PREFIXMULTIPLE,
-  'greater_than_equals':   pfSearchConditionValue.PREFIXMULTIPLE,
-  'less_than_equals':      pfSearchConditionValue.PREFIXMULTIPLE
+pfConditionOperators[pfSearchConditionType.SWITCH_GROUP] = {
+  'equals':                pfSearchConditionValue.SELECT,
+  'not_equals':            pfSearchConditionValue.SELECT
 }
 
 /**
@@ -92,16 +134,6 @@ pfConditionOperators[pfSearchConditionType.PREFIXMULTIPLE] = {
  */
 export const pfSearchConditionValues = {}
 // See lib/pf/config.pm#L344-L350
-pfSearchConditionValues[pfSearchConditionType.YESNO] = [
-  {
-    value: 'yes',
-    text: 'Yes'
-  },
-  {
-    value: 'no',
-    text: 'No'
-  }
-]
 pfSearchConditionValues[pfSearchConditionType.CONNECTION_TYPE] = [
   {
     value: 'Wireless-802.11-EAP',
@@ -156,11 +188,41 @@ pfSearchConditionValues[pfSearchConditionType.ONLINE] = [
     text: 'Unknown'
   }
 ]
+pfSearchConditionValues[pfSearchConditionType.YESNO] = [
+  {
+    value: 'yes',
+    text: 'Yes'
+  },
+  {
+    value: 'no',
+    text: 'No'
+  }
+]
+
+
+pfSearchConditionValues[pfSearchConditionType.CONNECTION_PROFILE] = (store) => {
+  store.dispatch('config/getConnectionProfiles')
+  return store.getters['config/connectionProfilesList']
+}
+pfSearchConditionValues[pfSearchConditionType.DOMAIN] = (store) => {
+  store.dispatch('config/getDomains')
+  return store.getters['config/domainsList']
+}
+pfSearchConditionValues[pfSearchConditionType.REALM] = (store) => {
+  store.dispatch('config/getRealms')
+  return store.getters['config/realmsList']
+}
 pfSearchConditionValues[pfSearchConditionType.ROLE] = (store) => {
+  store.dispatch('config/getRoles')
   return store.getters['config/rolesList']
 }
-pfSearchConditionValues[pfSearchConditionType.SECURITY_EVENT] = (store) => {
-  return store.getters['config/securityEventsList']
+pfSearchConditionValues[pfSearchConditionType.SOURCE] = (store) => {
+  store.dispatch('config/getSources')
+  return store.getters['config/sourcesList']
+}
+pfSearchConditionValues[pfSearchConditionType.SWITCH_GROUP] = (store) => {
+  store.dispatch('config/getSwitchGroups')
+  return store.getters['config/switchGroupsList']
 }
 
 export const pfSearchConditionFormatter = {
