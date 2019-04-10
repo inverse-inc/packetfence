@@ -4,7 +4,7 @@
             <b-col cols="12" md="auto">
                 <icon v-if="isLoading" name="circle-notch" scale="1.5" spin></icon>
                 <b-media v-else>
-                    <icon name="search" scale="2" slot="aside"></icon>
+                    <icon :name="icon" scale="2" slot="aside"></icon>
                     <h4><slot/></h4>
                     <p class="font-weight-light" v-if="text">{{ text }}</p>
                 </b-media>
@@ -24,6 +24,10 @@ export default {
     text: {
       type: String,
       default: 'Please refine your search.'
+    },
+    icon: {
+      type: String,
+      default: 'search'
     }
   }
 }
