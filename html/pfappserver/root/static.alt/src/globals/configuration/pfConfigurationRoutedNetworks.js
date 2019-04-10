@@ -29,7 +29,7 @@ export const pfConfigurationRoutedNetworkTypes = [
   { value: 'vlan-registration', text: i18n.t('Registration') }
 ]
 
-export const pfConfigurationRoutedNetworkHtmlNote = `<div class="p-3 bg-warning text-secondary">
+export const pfConfigurationRoutedNetworkHtmlNote = `<div class="alert alert-warning">
   <strong>${i18n.t('Note')}</strong>
   ${i18n.t('Adding or modifying a network requires a restart of the pfdhcp and pfdns services for the changes to take place.')}
 </div>`

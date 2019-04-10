@@ -407,7 +407,7 @@ export const pfConfigurationInterfaceViewFields = (context = {}) => {
             {
               component: pfFormHtml,
               attrs: {
-                html: `<div class="p-3 mb-1 bg-warning text-secondary">
+                html: `<div class="alert alert-warning">
                   <strong>${i18n.t('Note')}</strong>
                   ${i18n.t('Since NATting mode is disabled, PacketFence will adjust iptables to rules to route traffic rather than NATting it. Make sure to add the routes on the system.')}
                 </div>`
@@ -450,7 +450,7 @@ export const pfConfigurationInterfaceViewFields = (context = {}) => {
             {
               component: pfFormHtml,
               attrs: {
-                html: `<div class="p-3 bg-warning text-secondary">
+                html: `<div class="alert alert-warning">
                   <strong>${i18n.t('Note')}</strong>
                   ${i18n.t('Remember to enable ip_forward on your operating system for the inline mode to work.')}
                 </div>`

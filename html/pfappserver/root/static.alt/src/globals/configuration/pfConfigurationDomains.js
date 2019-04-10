@@ -263,7 +263,7 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
             {
               component: pfFormHtml,
               attrs: {
-                html: `<div class="p-3 bg-warning text-secondary">
+                html: `<div class="alert alert-warning">
                   <strong>${i18n.t('Note')}</strong>
                   ${i18n.t('"Allow on registration" option requires passthroughs to be enabled as well as configured to allow both the domain DNS name and each domain controllers DNS name (or *.dns name)')}\n${i18n.t('Example: inverse.local, *.inverse.local')}
                 </div>`
