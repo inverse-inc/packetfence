@@ -43,7 +43,7 @@ has_field 'fields_to_save' =>
   );
 
 sub options_custom_fields {
-    return map {$_ => $_} @pf::person::PROMPTABLE_FIELDS;
+    return map { {value => $_ , label => $_ }} @pf::person::PROMPTABLE_FIELDS;
 }
 
 =head1 AUTHOR
