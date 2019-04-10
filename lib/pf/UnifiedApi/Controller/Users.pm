@@ -20,7 +20,7 @@ use pf::dal::node;
 use pf::dal::security_event;
 use pf::security_event;
 use pf::constants;
-use pf::person qw(person_security_events);
+use pf::person qw(person_security_events person_unassign_nodes);
 use pf::node;
 use pf::constants qw($default_pid);
 use pf::error qw(is_error);
