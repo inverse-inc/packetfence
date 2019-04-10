@@ -664,7 +664,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
               key: 'inlineTrigger',
               component: pfFormFields,
               attrs: {
-                buttonLabel: 'Add Condition',
+                buttonLabel: i18n.t('Add Condition'),
                 sortable: false,
                 field: {
                   component: pfFieldTypeValue,

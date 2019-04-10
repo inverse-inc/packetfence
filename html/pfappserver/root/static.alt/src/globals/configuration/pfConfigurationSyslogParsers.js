@@ -365,7 +365,7 @@ export const pfConfigurationSyslogParserViewFields = (context) => {
               key: 'rules',
               component: pfFormFields,
               attrs: {
-                buttonLabel: 'Add Rule - New ( )',
+                buttonLabel: i18n.t('Add Rule - New ( )'),
                 sortable: true,
                 field: {
                   component: pfFieldRuleSyslogParserRegex,
