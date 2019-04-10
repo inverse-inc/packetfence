@@ -95,6 +95,7 @@ sub _fields_expanded {
     source_id
     multi_source_ids
     custom_fields
+    fields_to_save
     actions
     );
 }
