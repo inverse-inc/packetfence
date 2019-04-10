@@ -1,11 +1,12 @@
 <template>
   <b-navbar-nav class="notifications">
-    <b-nav-item-dropdown v-if="isAuthenticated" @click.native.stop.prevent @hidden="markAsRead()" :disabled="isEmpty" right no-caret>
+    <b-nav-item-dropdown v-if="isAuthenticated" :extra-menu-classes="visible ? 'd-flex flex-column' : ''" right no-caret
+      @click.native.stop.prevent @show="show()" @hidden="markAsRead()" :disabled="isEmpty">
       <template slot="button-content">
         <icon-counter name="bell" v-model="count" :variant="variant"></icon-counter>
       </template>
       <!-- menu items -->
-      <div class="notifications-scroll">
+      <div class="flex-grow-1 notifications-scroll">
         <div v-for="(notification) in notifications" :key="notification.id">
           <b-dropdown-item>
             <small>
@@ -68,6 +69,11 @@ export default {
       default: false
     }
   },
+  data() {
+    return {
+      visible: false
+    }
+  },
   computed: {
     notifications () {
       return this.$store.state.notification.all
@@ -89,7 +95,11 @@ export default {
     }
   },
   methods: {
+    show () {
+      this.visible = true
+    },
     markAsRead () {
+      this.visible = false
       this.$store.state.notification.all.forEach((notification) => {
         notification.unread = false
       })
