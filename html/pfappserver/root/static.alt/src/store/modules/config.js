@@ -81,6 +81,9 @@ const api = {
   getBillingTiers () {
     return apiCall({ url: 'config/billing_tiers', method: 'get' })
   },
+  getCheckup () {
+    return apiCall({ url: 'config/checkup', method: 'get' })
+  },
   getConnectionProfiles () {
     return apiCall({ url: 'config/connection_profiles', method: 'get' })
   },
@@ -92,6 +95,9 @@ const api = {
   },
   getFirewalls () {
     return apiCall({ url: 'config/firewalls', method: 'get' })
+  },
+  getFixPermissions () {
+    return apiCall({ url: 'config/fix_permissions', method: 'post' })
   },
   getFloatingDevices () {
     return apiCall({ url: 'config/floating_devices', method: 'get' })
@@ -213,6 +219,7 @@ const state = { // set intitial states to `false` (not `[]` or `{}`) to avoid in
   baseWebServices: false,
   billingTiersStatus: '',
   billingTiers: false,
+  checkupStatus: '',
   connectionProfilesStatus: '',
   connectionProfiles: false,
   deviceRegistrationsStatus: '',
@@ -221,6 +228,7 @@ const state = { // set intitial states to `false` (not `[]` or `{}`) to avoid in
   domains: false,
   firewallsStatus: '',
   firewalls: false,
+  fixPermissionsStatus: '',
   floatingDevicesStatus: '',
   floatingDevices: false,
   interfacesStatus: '',
@@ -372,6 +380,9 @@ const getters = {
   isLoadingBillingTiers: state => {
     return state.billingTiersStatus === types.LOADING
   },
+  isLoadingCheckup: state => {
+    return state.checkupStatus === types.LOADING
+  },
   isLoadingConnectionProfiles: state => {
     return state.connectionProfilesStatus === types.LOADING
   },
@@ -383,6 +394,9 @@ const getters = {
   },
   isLoadingFirewalls: state => {
     return state.firewallsStatus === types.LOADING
+  },
+  isLoadingFixPermissions: state => {
+    return state.fixPermissionsStatus === types.LOADING
   },
   isLoadingFloatingDevices: state => {
     return state.floatingDevicesStatus === types.LOADING
@@ -567,6 +581,32 @@ const getters = {
 }
 
 const actions = {
+  checkup: ({ getters, commit }) => {
+    if (getters.isLoadingCheckup) {
+      return
+    }
+    commit('CHECKUP_UPDATED', types.LOADING)
+    return api.getCheckup().then(response => {
+      commit('CHECKUP_UPDATED', types.SUCCESS)
+      return response.data.items
+    }).catch((err) => {
+      commit('CHECKUP_UPDATED', types.ERROR)
+      throw err
+    })
+  },
+  fixPermissions: ({ getters, commit }) => {
+    if (getters.isLoadingFixPermissions) {
+      return
+    }
+    commit('FIX_PERMISSIONS_UPDATED', types.LOADING)
+    return api.getFixPermissions().then(response => {
+      commit('FIX_PERMISSIONS_UPDATED', types.SUCCESS)
+      return response.data
+    }).catch((err) => {
+      commit('FIX_PERMISSIONS_UPDATED', types.ERROR)
+      throw err
+    })
+  },
   getAdminRoles: ({ state, getters, commit }) => {
     if (getters.isLoadingAdminRoles) {
       return
@@ -1435,6 +1475,9 @@ const mutations = {
     state.billingTiers = billingTiers
     state.billingTiersStatus = types.SUCCESS
   },
+  CHECKUP_UPDATED: (state, status) => {
+    state.checkupStatus = status
+  },
   CONNECTION_PROFILES_REQUEST: (state) => {
     state.connectionProfilesStatus = types.LOADING
   },
@@ -1462,6 +1505,9 @@ const mutations = {
   FIREWALLS_UPDATED: (state, firewalls) => {
     state.firewalls = firewalls
     state.firewallsStatus = types.SUCCESS
+  },
+  FIX_PERMISSIONS_UPDATED: (state, status) => {
+    state.fixPermissionsStatus = status
   },
   FLOATING_DEVICES_REQUEST: (state) => {
     state.floatingDevicesStatus = types.LOADING

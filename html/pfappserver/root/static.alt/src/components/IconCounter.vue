@@ -1,6 +1,8 @@
 <template>
     <div>
-        <div class="icon-counter" :class="variant" v-if="notEmpty">{{ count }}</div>
+        <div class="icon-counter" :class="variant" v-if="notEmpty">
+          <slot>{{ count }}</slot>
+        </div>
         <icon :name="name" v-bind="$attrs"></icon>
     </div>
 </template>
@@ -31,12 +33,6 @@ export default {
     notEmpty () {
       return this.value > 0
     }
-  },
-  data () {
-    return {
-    }
-  },
-  methods: {
   }
 }
 </script>

@@ -18,11 +18,27 @@
         <b-badge class="mr-1" v-if="debug" :variant="apiOK? 'success' : 'danger'">API</b-badge>
         <b-badge class="mr-1" v-if="debug" :variant="chartsOK? 'success' : 'danger'">dashboard</b-badge>
         <b-navbar-nav v-if="isAuthenticated">
-          <b-nav-item-dropdown class="pf-label" right :text="username">
+          <b-nav-item-dropdown class="pf-label" right>
+            <template slot="button-content">
+              <icon name="user-circle"></icon> {{ username }}
+            </template>
             <b-dropdown-item-button v-if="$i18n.locale == 'en'" @click="setLanguage('fr')">Français</b-dropdown-item-button>
             <b-dropdown-item-button v-else @click="setLanguage('en')">English</b-dropdown-item-button>
             <b-dropdown-divider></b-dropdown-divider>
             <b-dropdown-item to="/logout">{{ $t('Log out') }}</b-dropdown-item>
+          </b-nav-item-dropdown>
+          <b-nav-item-dropdown class="pf-label" right no-caret>
+            <template slot="button-content">
+              <icon-counter name="tools" v-model="isProcessing" variant="bg-dark">
+                <icon name="circle-notch" spin>
+              </icon-counter>
+            </template>
+            <b-dropdown-item-button @click="checkup" :disabled="isPerfomingCheckup">
+              {{ $t('Perform Checkup') }} <icon class="ml-2" name="circle-notch" spin v-if="isPerfomingCheckup"></icon>
+            </b-dropdown-item-button>
+            <b-dropdown-item-button @click="fixPermissions" :disabled="isFixingPermissions">
+              {{ $t('Fix Permissions') }} <icon class="ml-2" name="circle-notch" spin v-if="isFixingPermissions"></icon>
+            </b-dropdown-item-button>
           </b-nav-item-dropdown>
         </b-navbar-nav>
       </b-collapse>
@@ -36,12 +52,14 @@
 </template>
 
 <script>
+import IconCounter from '@/components/IconCounter'
 import pfNotificationCenter from '@/components/pfNotificationCenter'
 import pfProgressApi from '@/components/pfProgressApi'
 
 export default {
   name: 'app',
   components: {
+    IconCounter,
     pfNotificationCenter,
     pfProgressApi
   },
@@ -54,6 +72,15 @@ export default {
     isAuthenticated () {
       return this.$store.getters['session/isAuthenticated']
     },
+    isPerfomingCheckup () {
+      return this.$store.getters['config/isLoadingCheckup']
+    },
+    isFixingPermissions () {
+      return this.$store.getters['config/isLoadingFixPermissions']
+    },
+    isProcessing () {
+      return (this.isPerfomingCheckup || this.isFixingPermissions) ? 1 : 0
+    },
     username () {
       return this.$store.state.session.username
     },
@@ -65,6 +92,29 @@ export default {
     }
   },
   methods: {
+    checkup () {
+      this.$store.dispatch('config/checkup').then(items => {
+        items.forEach(item => {
+          let level
+          switch (item.severity) {
+            case 'WARNING':
+              level = 'warning'
+              break
+            case 'FATAL':
+              level = 'danger'
+              break
+            default:
+              level = 'info'
+          }
+          this.$store.dispatch(`notification/${level}`, item.message)
+        })
+      })
+    },
+    fixPermissions () {
+      this.$store.dispatch('config/fixPermissions').then(data => {
+        this.$store.dispatch('notification/info', data.message)
+      })
+    },
     setLanguage (lang) {
       this.$store.dispatch('session/setLanguage', { i18n: this.$i18n, lang })
     }
