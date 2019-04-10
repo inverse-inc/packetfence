@@ -56,8 +56,8 @@
 
         <b-tab title="RADIUS">
           <pf-form-row :column-label="$t('Request Time')">{{ item.request_time }}</pf-form-row>
-          <pf-form-row :column-label="$t('RADIUS Request')">{{ item.radius_request }}</pf-form-row>
-          <pf-form-row :column-label="$t('RADIUS Reply')">{{ item.radius_reply }}</pf-form-row>
+          <pf-form-row :column-label="$t('RADIUS Request')">{{ formatRadius(item.radius_request) }}</pf-form-row>
+          <pf-form-row :column-label="$t('RADIUS Reply')">{{ formatRadius(item.radius_reply) }}</pf-form-row>
         </b-tab>
 
       </b-tabs>
@@ -110,6 +110,9 @@ export default {
         case 27: // escape
           this.close()
       }
+    },
+    formatRadius (string) {
+      return string.replace(', ', '\n')
     }
   },
   created () {
