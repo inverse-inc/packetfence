@@ -311,12 +311,13 @@ sub person_security_events {
         },
         -from => [-join => qw(security_event =>{security_event.mac=node.mac} node =>{security_event.security_event_id=class.security_event_id} class)],
         -order_by => {-desc => 'start_date'},
+
     );
     if (is_error($status)) {
         return;
     }
 
-    return @{$iter->all // []};
+    return @{$iter->all(undef) // []};
 }
 
 =head2 persons_without_nodes

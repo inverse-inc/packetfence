@@ -427,13 +427,19 @@ sub setup_api_v1_users_routes {
         "/user/#user_id",
     );
 
-    $self->add_subroutes($resource_route, "Users", "POST", qw(unassign_nodes));
-    $self->add_subroutes($collection_route, "Users", "POST", 
-          qw(
-          bulk_register bulk_deregister bulk_close_security_events
-          bulk_reevaluate_access bulk_apply_security_event
-          bulk_apply_role bulk_apply_bypass_role bulk_fingerbank_refresh
-          )
+    $resource_route->register_sub_action({ method => 'GET', action => 'security_events' });
+    $resource_route->register_sub_action({ method => 'POST', action => 'unassign_nodes' });
+    $collection_route->register_sub_actions(
+        {
+            method  => 'POST',
+            actions => [
+                qw(
+                  bulk_register bulk_deregister bulk_close_security_events
+                  bulk_reevaluate_access bulk_apply_security_event
+                  bulk_apply_role bulk_apply_bypass_role bulk_fingerbank_refresh
+                  )
+            ]
+        }
     );
     my ($sub_collection_route, $sub_resource_route) = 
       $self->setup_api_v1_std_crud_routes(

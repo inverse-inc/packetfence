@@ -20,7 +20,7 @@ use pf::dal::node;
 use pf::dal::security_event;
 use pf::security_event;
 use pf::constants;
-use pf::person;
+use pf::person qw(person_security_events);
 use pf::node;
 use pf::constants qw($default_pid);
 use pf::error qw(is_error);
@@ -44,6 +44,25 @@ sub unassign_nodes {
     }
 
     return $self->render(json => {count => $count});
+}
+
+=head2 security_events
+
+security_events
+
+=cut
+
+sub security_events {
+    my ($self) = @_;
+    my $pid = $self->id;
+    my @security_events = eval {
+        map { $_->{release_date} = '' if ($_->{release_date} eq '0000-00-00 00:00:00'); $_ } person_security_events($pid)
+    };
+    if ($@) {
+        return $self->render_error(500, "Can't fetch security events from database.");
+    }
+
+    return $self->render(json => { items => \@security_events });
 }
 
 =head2 bulk_register
