@@ -31,8 +31,10 @@ cleanup_item
 sub cleanup_item {
     my ($self, $item) = @_;
     foreach my $key (keys %$item) {
-        next if exists $pf::radius_audit_log::RADIUS_FIELDS{$key} || !defined $item->{$key};
-        $item->{$key} =~ s/=([a-fA-F0-9]{2})/chr(hex($1))/ge;
+        next if !defined $item->{$key};
+        my $value = $item->{$key};
+        $value =~ s/=([a-fA-F0-9]{2})/chr(hex($1))/ge;
+        $item->{$key} = $value;
     }
 
     return $item;

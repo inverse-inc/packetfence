@@ -108,6 +108,10 @@ sub list {
             $response->{errors}
         );
     }
+    local $_;
+    $response->{items} = [
+        map { $self->cleanup_item($_) } @{$response->{items} // []}
+    ];
 
     return $self->render(
         json   => $response,
