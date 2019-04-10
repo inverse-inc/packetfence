@@ -17,14 +17,15 @@
                   </div>
                   <small class="notification-url text-secondary">{{notification.url}}</small>
                 </b-col>
-                <b-col cols="auto" class="ml-3 text-right">
-                  <timeago :class="{'text-secondary': !notification.unread}" :datetime="notification.timestamp" :auto-update="60" :locale="$i18n.locale"></timeago>
-                  <br/>
+                <b-col cols="auto" class="ml-3">
                   <b-badge pill v-if="notification.success" variant="success" class="mr-1" v-b-tooltip.hover.top.d300 :title="notification.success + ' ' + $t('succeeded')">{{notification.success}}</b-badge>
                   <b-badge pill v-if="notification.skipped" variant="warning" class="mr-1" v-b-tooltip.hover.top.d300 :title="notification.skipped + ' ' + $t('skipped')">{{notification.skipped}}</b-badge>
                   <b-badge pill v-if="notification.failed" variant="danger" class="mr-1" v-b-tooltip.hover.top.d300 :title="notification.failed + ' ' + $t('failed')">{{notification.failed}}</b-badge>
                 </b-col>
               </b-row>
+              <div class="text-right">
+                <timeago :class="{'text-secondary': !notification.unread}" :datetime="notification.timestamp" :auto-update="60" :locale="$i18n.locale"></timeago>
+              </div>
             </small>
           </b-dropdown-item>
           <b-dropdown-divider></b-dropdown-divider>
