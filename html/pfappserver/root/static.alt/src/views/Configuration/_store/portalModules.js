@@ -60,9 +60,6 @@ const actions = {
     }
     commit('ITEM_REQUEST')
     return api.portalModule(id).then(item => {
-      // TODO: hack until issue #4240 is fixed
-      let { fields_to_save = [] } = item
-      item.fields_to_save = fields_to_save.filter(value => value && value !== '')
       commit('ITEM_REPLACED', item)
       return JSON.parse(JSON.stringify(item))
     }).catch((err) => {
