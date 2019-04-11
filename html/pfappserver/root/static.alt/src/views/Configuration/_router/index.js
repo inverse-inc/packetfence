@@ -21,8 +21,7 @@ import RealmsStore from '../_store/realms'
 import RolesStore from '../_store/roles'
 import RoutedNetworksStore from '../_store/routedNetworks'
 import ScansStore from '../_store/scans'
-// import SecurityEventsStore from '../_store/securityEvents'
-import ServicesStore from '../_store/services'
+import SecurityEventsStore from '../_store/securityEvents'
 import SyslogForwardersStore from '../_store/syslogForwarders'
 import SyslogParsersStore from '../_store/syslogParsers'
 import SwitchesStore from '../_store/switches'
@@ -30,7 +29,6 @@ import SwitchGroupsStore from '../_store/switchGroups'
 import TrafficShapingPoliciesStore from '../_store/trafficShapingPolicies'
 import WmiRulesStore from '../_store/wmiRules'
 import WrixLocationsStore from '../_store/wrixLocations'
-import SecurityEventsStore from '../_store/securityEvents'
 
 /* Policies Access Control */
 const PoliciesAccessControlSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/PoliciesAccessControlSection')
@@ -187,11 +185,8 @@ const route = {
     if (!store.state.$_scans) {
       store.registerModule('$_scans', ScansStore)
     }
-    // if (!store.state.$_security_events) {
-    //   store.registerModule('$_security_events', SecurityEventsStore)
-    // }
-    if (!store.state.$_services) {
-      store.registerModule('$_services', ServicesStore)
+    if (!store.state.$_security_events) {
+      store.registerModule('$_security_events', SecurityEventsStore)
     }
     if (!store.state.$_sources) {
       store.registerModule('$_sources', AuthenticationSourcesStore)
@@ -216,9 +211,6 @@ const route = {
     }
     if (!store.state.$_wrix_locations) {
       store.registerModule('$_wrix_locations', WrixLocationsStore)
-    }
-    if (!store.state.$_security_events) {
-      store.registerModule('$_security_events', SecurityEventsStore)
     }
     next()
   },
