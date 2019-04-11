@@ -70,7 +70,7 @@ export default {
       default: false
     }
   },
-  data() {
+  data () {
     return {
       visible: false
     }
