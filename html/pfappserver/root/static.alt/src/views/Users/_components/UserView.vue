@@ -35,6 +35,10 @@
                 v-model.trim="userContent.sponsor"
                 :vuelidate="$v.userContent.sponsor"
               />
+              <pf-form-input :column-label="$t('Language')"
+                v-model.trim="userContent.lang"
+                :vuelidate="$v.userContent.lang"
+              />
               <pf-form-chosen :column-label="$t('Gender')"
                 v-model="userContent.gender"
                 label="text"
@@ -581,9 +585,6 @@ export default {
           // additional custom validations ...
           email: {
             [this.$i18n.t('Email address required.')]: required
-          },
-          password: {
-            [this.$i18n.t('Minimum 6 characters.')]: minLength(6)
           },
           psk: {
             [this.$i18n.t('Minimum 8 characters.')]: minLength(8)
