@@ -139,7 +139,7 @@ const actions = {
   bulkRegisterNodes: ({ commit }, data) => {
     commit('USER_REQUEST')
     return api.bulkRegisterNodes(data).then(response => {
-      commit('USER_BULK_REGISTER_NODES', response)
+      commit('USER_BULK_SUCCESS', response)
       return response
     }).catch(err => {
       commit('USER_ERROR', err.response)
@@ -148,7 +148,7 @@ const actions = {
   bulkDeregisterNodes: ({ commit }, data) => {
     commit('USER_REQUEST')
     return api.bulkDeregisterNodes(data).then(response => {
-      commit('USER_BULK_DEREGISTER_NODES', response)
+      commit('USER_BULK_SUCCESS', response)
       return response
     }).catch(err => {
       commit('USER_ERROR', err.response)
@@ -157,7 +157,7 @@ const actions = {
   bulkApplySecurityEvent: ({ commit }, data) => {
     commit('USER_REQUEST')
     return api.bulkCloseSecurityEvents(data).then(response => {
-      commit('USER_BULK_APPLY_SECURITY_EVENT', response)
+      commit('USER_BULK_SUCCESS', response)
       return response
     }).catch(err => {
       commit('USER_ERROR', err.response)
@@ -166,7 +166,7 @@ const actions = {
   bulkCloseSecurityEvents: ({ commit }, data) => {
     commit('USER_REQUEST')
     return api.bulkCloseSecurityEvents(data).then(response => {
-      commit('USER_BULK_CLOSE_SECURITY_EVENTS', response)
+      commit('USER_BULK_SUCCESS', response)
       return response
     }).catch(err => {
       commit('USER_ERROR', err.response)
@@ -175,7 +175,7 @@ const actions = {
   bulkApplyRole: ({ commit }, data) => {
     commit('USER_REQUEST')
     return api.bulkApplyRole(data).then(response => {
-      commit('USER_BULK_APPLY_ROLE', response)
+      commit('USER_BULK_SUCCESS', response)
       return response
     }).catch(err => {
       commit('USER_ERROR', err.response)
@@ -184,7 +184,7 @@ const actions = {
   bulkApplyBypassRole: ({ commit }, data) => {
     commit('USER_REQUEST')
     return api.bulkApplyBypassRole(data).then(response => {
-      commit('USER_BULK_APPLY_BYPASS_ROLE', response)
+      commit('USER_BULK_SUCCESS', response)
       return response
     }).catch(err => {
       commit('USER_ERROR', err.response)
@@ -193,7 +193,7 @@ const actions = {
   bulkReevaluateAccess: ({ commit }, data) => {
     commit('USER_REQUEST')
     return api.bulkReevaluateAccess(data).then(response => {
-      commit('USER_BULK_REEVALUATE_ACCESS', response)
+      commit('USER_BULK_SUCCESS', response)
       return response
     }).catch(err => {
       commit('USER_ERROR', err.response)
@@ -202,7 +202,7 @@ const actions = {
   bulkRefreshFingerbank: ({ commit }, data) => {
     commit('USER_REQUEST')
     return api.bulkReevaluateAccess(data).then(response => {
-      commit('USER_BULK_REFRESH_FINGERBANK', response)
+      commit('USER_BULK_SUCCESS', response)
       return response
     }).catch(err => {
       commit('USER_ERROR', err.response)
@@ -225,51 +225,13 @@ const mutations = {
       Vue.set(state.users[params.pid], params.prop, params.data)
     }
   },
-  USER_BULK_REGISTER_NODES: (state, response) => {
-    state.userStatus = 'success'
-    response.forEach(params => {
-      if (params.pid in state.users) {
-        params.nodes.forEach(node => {
-          let index = state.users[params.pid].nodes.findIndex(n => n.mac === node.mac)
-          Vue.set(state.users[params.pid].nodes[index], 'status', 'reg')
-        })
+  USER_BULK_SUCCESS: (state, response) => {
+    state.nodeStatus = 'success'
+    response.forEach(item => {
+      if (item.pid in state.users){
+        Vue.set(state.users, item.pid, null)
       }
     })
-  },
-  USER_BULK_DEREGISTER_NODES: (state, response) => {
-    state.userStatus = 'success'
-    response.forEach(params => {
-      if (params.pid in state.users) {
-        params.nodes.forEach(node => {
-          let index = state.users[params.pid].nodes.findIndex(n => n.mac === node.mac)
-          Vue.set(state.users[params.pid].nodes[index], 'status', 'unreg')
-        })
-      }
-    })
-  },
-  USER_BULK_APPLY_SECURITY_EVENT: (state, response) => {
-    state.userStatus = 'success'
-    // TODO - update state
-  },
-  USER_BULK_CLOSE_SECURITY_EVENTS: (state, response) => {
-    state.userStatus = 'success'
-    // TODO - update state
-  },
-  USER_BULK_APPLY_ROLE: (state, response) => {
-    state.userStatus = 'success'
-    // TODO - update state
-  },
-  USER_BULK_APPLY_BYPASS_ROLE: (state, response) => {
-    state.userStatus = 'success'
-    // TODO - update state
-  },
-  USER_BULK_REEVALUATE_ACCESS: (state, response) => {
-    state.userStatus = 'success'
-    // TODO - update state
-  },
-  USER_BULK_REFRESH_FINGERBANK: (state, response) => {
-    state.userStatus = 'success'
-    // TODO - update state
   },
   USER_DESTROYED: (state, pid) => {
     state.userStatus = 'success'
