@@ -121,6 +121,7 @@ export default {
         const searchableStore = new SearchableStore(
           this.searchableOptions.searchApiEndpoint,
           this.searchableOptions.defaultSortKeys,
+          this.searchableOptions.defaultSortDesc || false,
           this.pageSizeLimit
         )
         this.$store.registerModule(this.searchableStoreName, searchableStore.module())

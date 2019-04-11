@@ -83,6 +83,7 @@ export default {
       default: () => ({
         searchApiEndpoint: 'radius_audit_logs',
         defaultSortKeys: ['created_at', 'mac'],
+        defaultSortDesc: true,
         defaultSearchCondition: {
           op: 'and',
           values: [{
@@ -407,7 +408,9 @@ export default {
           sortable: true,
           visible: false
         }
-      ]
+      ],
+      sortBy: 'created_at',
+      sortDesc: true
     }
   },
   methods: {
