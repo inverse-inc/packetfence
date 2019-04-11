@@ -207,6 +207,15 @@ const actions = {
     }).catch(err => {
       commit('USER_ERROR', err.response)
     })
+  },
+  bulkDelete: ({ commit }, data) => {
+    commit('USER_REQUEST')
+    return api.bulkDelete(data).then(response => {
+      commit('USER_BULK_SUCCESS', response)
+      return response
+    }).catch(err => {
+      commit('USER_ERROR', err.response)
+    })
   }
 }
 

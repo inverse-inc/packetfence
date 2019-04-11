@@ -91,5 +91,10 @@ export default {
     return apiCall.post(`users/bulk_fingerbank_refresh`, body).then(response => {
       return response.data.items
     })
+  },
+  bulkDelete: body => {
+    return apiCall.post(`users/bulk_delete`, body).then(response => {
+      return response.data.items
+    })
   }
 }
