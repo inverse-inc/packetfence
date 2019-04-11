@@ -120,7 +120,7 @@ export const conditional = (conditional) => {
     type: 'conditional',
     conditional: conditional
   }, function (value, vm) {
-    return (conditional.constructor === Function)
+    return (conditional && conditional.constructor === Function)
       ? (typeof value === 'undefined')
         ? conditional(undefined, vm)
         : conditional(JSON.parse(JSON.stringify(value)), vm) // dereference value
