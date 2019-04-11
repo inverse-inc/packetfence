@@ -76,12 +76,12 @@
             <template slot="button-content">
               <icon name="columns" v-b-tooltip.hover.top.d300.window :title="$t('Visible Columns')"></icon>
             </template>
-            <template v-for="column in columns" :key="column.key">
-              <b-dropdown-item v-if="column.locked" disabled>
+            <template v-for="column in columns">
+              <b-dropdown-item :key="column.key" v-if="column.locked" disabled>
                 <icon class="position-absolute mt-1" name="thumbtack"></icon>
                 <span class="ml-4">{{column.label}}</span>
               </b-dropdown-item>
-              <a v-else href="#" :disabled="column.locked" class="dropdown-item" @click.stop="toggleColumn(column)">
+              <a :key="column.key" v-else href="#" :disabled="column.locked" class="dropdown-item" @click.stop="toggleColumn(column)">
                 <icon class="position-absolute mt-1" name="check" v-show="column.visible"></icon>
                 <span class="ml-4">{{column.label}}</span>
               </a>
@@ -612,23 +612,23 @@ export default {
       const pids = this.selectValues.map(item => item.pid)
       if (pids.length > 0) {
         this.$store.dispatch(`${this.storeName}/bulkApplySecurityEvent`, { vid: securityEvent.vid, items: pids }).then(items => {
-          let security_event_count = 0
+          let securityEventCount = 0
           items.forEach((item, _index, items) => {
-            let index = this.tableValues.findIndex(security_event => security_event.pid === item.pid)
+            let index = this.tableValues.findIndex(value => value.pid === item.pid)
             if (item.security_events.length > 0) {
-              security_event_count += item.security_events.length
+              securityEventCount += item.security_events.length
               this.setRowVariant(index, 'success')
             } else {
               this.setRowVariant(index, 'warning')
             }
           })
           this.$store.dispatch('notification/info', {
-            message: this.$i18n.t('Applied {security_event_count} security events for {user_count} users.', { security_event_count: security_event_count, user_count: this.selectValues.length }),
-            success: security_event_count
+            message: this.$i18n.t('Applied {securityEventCount} security events for {userCount} users.', { securityEventCount: securityEventCount, userCount: this.selectValues.length }),
+            success: securityEventCount
           })
         }).catch(() => {
           pids.forEach(pid => {
-            let index = this.tableValues.findIndex(security_event => security_event.pid === pid)
+            let index = this.tableValues.findIndex(value => value.pid === pid)
             this.setRowVariant(index, 'danger')
           })
         })
@@ -638,23 +638,23 @@ export default {
       const pids = this.selectValues.map(item => item.pid)
       if (pids.length > 0) {
         this.$store.dispatch(`${this.storeName}/bulkCloseSecurityEvents`, { items: pids }).then(items => {
-          let security_event_count = 0
+          let securityEventCount = 0
           items.forEach((item, _index, items) => {
-            let index = this.tableValues.findIndex(security_event => security_event.pid === item.pid)
+            let index = this.tableValues.findIndex(value => value.pid === item.pid)
             if (item.security_events.length > 0) {
-              security_event_count += item.security_events.length
+              securityEventCount += item.security_events.length
               this.setRowVariant(index, 'success')
             } else {
               this.setRowVariant(index, 'warning')
             }
           })
           this.$store.dispatch('notification/info', {
-            message: this.$i18n.t('Closed {security_event_count} security events for {user_count} users.', { security_event_count: security_event_count, user_count: this.selectValues.length }),
-            success: security_event_count
+            message: this.$i18n.t('Closed {securityEventCount} security events for {userCount} users.', { securityEventCount: securityEventCount, userCount: this.selectValues.length }),
+            success: securityEventCount
           })
         }).catch(() => {
           pids.forEach(pid => {
-            let index = this.tableValues.findIndex(security_event => security_event.pid === pid)
+            let index = this.tableValues.findIndex(value => value.pid === pid)
             this.setRowVariant(index, 'danger')
           })
         })
@@ -664,23 +664,23 @@ export default {
       const pids = this.selectValues.map(item => item.pid)
       if (pids.length > 0) {
         this.$store.dispatch(`${this.storeName}/bulkRegisterNodes`, { items: pids }).then(items => {
-          let node_count = 0
+          let nodeCount = 0
           items.forEach((item, _index, items) => {
-            let index = this.tableValues.findIndex(node => node.pid === item.pid)
+            let index = this.tableValues.findIndex(value => value.pid === item.pid)
             if (item.nodes.length > 0) {
-              node_count += item.nodes.length
+              nodeCount += item.nodes.length
               this.setRowVariant(index, 'success')
             } else {
               this.setRowVariant(index, 'warning')
             }
           })
           this.$store.dispatch('notification/info', {
-            message: this.$i18n.t('Registered {node_count} nodes for {user_count} users.', { node_count: node_count, user_count: this.selectValues.length }),
-            success: node_count
+            message: this.$i18n.t('Registered {nodeCount} nodes for {userCount} users.', { nodeCount: nodeCount, userCount: this.selectValues.length }),
+            success: nodeCount
           })
         }).catch(() => {
           pids.forEach(pid => {
-            let index = this.tableValues.findIndex(node => node.pid === pid)
+            let index = this.tableValues.findIndex(value => value.pid === pid)
             this.setRowVariant(index, 'danger')
           })
         })
@@ -690,23 +690,23 @@ export default {
       const pids = this.selectValues.map(item => item.pid)
       if (pids.length > 0) {
         this.$store.dispatch(`${this.storeName}/bulkDeregisterNodes`, { items: pids }).then(items => {
-          let node_count = 0
+          let nodeCount = 0
           items.forEach((item, _index, items) => {
-            let index = this.tableValues.findIndex(node => node.pid === item.pid)
+            let index = this.tableValues.findIndex(value => value.pid === item.pid)
             if (item.nodes.length > 0) {
-              node_count += item.nodes.length
+              nodeCount += item.nodes.length
               this.setRowVariant(index, 'success')
             } else {
               this.setRowVariant(index, 'warning')
             }
           })
           this.$store.dispatch('notification/info', {
-            message: this.$i18n.t('Deregistered {node_count} nodes for {user_count} users.', { node_count: node_count, user_count: this.selectValues.length }),
-            success: node_count
+            message: this.$i18n.t('Deregistered {nodeCount} nodes for {userCount} users.', { nodeCount: nodeCount, userCount: this.selectValues.length }),
+            success: nodeCount
           })
         }).catch(() => {
           pids.forEach(pid => {
-            let index = this.tableValues.findIndex(node => node.pid === pid)
+            let index = this.tableValues.findIndex(value => value.pid === pid)
             this.setRowVariant(index, 'danger')
           })
         })
@@ -716,23 +716,23 @@ export default {
       const pids = this.selectValues.map(item => item.pid)
       if (pids.length > 0) {
         this.$store.dispatch(`${this.storeName}/bulkApplyRole`, { category_id: role.category_id, items: pids }).then(items => {
-          let node_count = 0
+          let nodeCount = 0
           items.forEach((item, _index, items) => {
-            let index = this.tableValues.findIndex(node => node.pid === item.pid)
+            let index = this.tableValues.findIndex(value => value.pid === item.pid)
             if (item.nodes.length > 0) {
-              node_count += item.nodes.length
+              nodeCount += item.nodes.length
               this.setRowVariant(index, 'success')
             } else {
               this.setRowVariant(index, 'warning')
             }
           })
           this.$store.dispatch('notification/info', {
-            message: this.$i18n.t('Applied role on {node_count} nodes for {user_count} users.', { node_count: node_count, user_count: this.selectValues.length }),
-            success: node_count
+            message: this.$i18n.t('Applied role on {nodeCount} nodes for {userCount} users.', { nodeCount: nodeCount, userCount: this.selectValues.length }),
+            success: nodeCount
           })
         }).catch(() => {
           pids.forEach(pid => {
-            let index = this.tableValues.findIndex(node => node.pid === pid)
+            let index = this.tableValues.findIndex(value => value.pid === pid)
             this.setRowVariant(index, 'danger')
           })
         })
@@ -742,23 +742,23 @@ export default {
       const pids = this.selectValues.map(item => item.pid)
       if (pids.length > 0) {
         this.$store.dispatch(`${this.storeName}/bulkApplyBypassRole`, { bypass_role_id: role.category_id, items: pids }).then(items => {
-          let node_count = 0
+          let nodeCount = 0
           items.forEach((item, _index, items) => {
-            let index = this.tableValues.findIndex(node => node.pid === item.pid)
+            let index = this.tableValues.findIndex(value => value.pid === item.pid)
             if (item.nodes.length > 0) {
-              node_count += item.nodes.length
+              nodeCount += item.nodes.length
               this.setRowVariant(index, 'success')
             } else {
               this.setRowVariant(index, 'warning')
             }
           })
           this.$store.dispatch('notification/info', {
-            message: this.$i18n.t('Applied bypass role on {node_count} nodes for {user_count} users.', { node_count: node_count, user_count: this.selectValues.length }),
-            success: node_count
+            message: this.$i18n.t('Applied bypass role on {nodeCount} nodes for {userCount} users.', { nodeCount: nodeCount, userCount: this.selectValues.length }),
+            success: nodeCount
           })
         }).catch(() => {
           pids.forEach(pid => {
-            let index = this.tableValues.findIndex(node => node.pid === pid)
+            let index = this.tableValues.findIndex(value => value.pid === pid)
             this.setRowVariant(index, 'danger')
           })
         })
@@ -768,23 +768,23 @@ export default {
       const pids = this.selectValues.map(item => item.pid)
       if (pids.length > 0) {
         this.$store.dispatch(`${this.storeName}/bulkReevaluateAccess`, { items: pids }).then(items => {
-          let node_count = 0
+          let nodeCount = 0
           items.forEach((item, _index, items) => {
-            let index = this.tableValues.findIndex(node => node.pid === item.pid)
+            let index = this.tableValues.findIndex(value => value.pid === item.pid)
             if (item.nodes.length > 0) {
-              node_count += item.nodes.length
+              nodeCount += item.nodes.length
               this.setRowVariant(index, 'success')
             } else {
               this.setRowVariant(index, 'warning')
             }
           })
           this.$store.dispatch('notification/info', {
-            message: this.$i18n.t('Reevaluated access on {node_count} nodes for {user_count} users.', { node_count: node_count, user_count: this.selectValues.length }),
-            success: node_count
+            message: this.$i18n.t('Reevaluated access on {nodeCount} nodes for {userCount} users.', { nodeCount: nodeCount, userCount: this.selectValues.length }),
+            success: nodeCount
           })
         }).catch(() => {
           pids.forEach(pid => {
-            let index = this.tableValues.findIndex(node => node.pid === pid)
+            let index = this.tableValues.findIndex(value => value.pid === pid)
             this.setRowVariant(index, 'danger')
           })
         })
@@ -794,23 +794,23 @@ export default {
       const pids = this.selectValues.map(item => item.pid)
       if (pids.length > 0) {
         this.$store.dispatch(`${this.storeName}/bulkRefreshFingerbank`, { items: pids }).then(items => {
-          let node_count = 0
+          let nodeCount = 0
           items.forEach((item, _index, items) => {
-            let index = this.tableValues.findIndex(node => node.pid === item.pid)
+            let index = this.tableValues.findIndex(value => value.pid === item.pid)
             if (item.nodes.length > 0) {
-              node_count += item.nodes.length
+              nodeCount += item.nodes.length
               this.setRowVariant(index, 'success')
             } else {
               this.setRowVariant(index, 'warning')
             }
           })
           this.$store.dispatch('notification/info', {
-            message: this.$i18n.t('Refreshed fingerbank on {node_count} nodes for {user_count} users.', { node_count: node_count, user_count: this.selectValues.length }),
-            success: node_count
+            message: this.$i18n.t('Refreshed fingerbank on {nodeCount} nodes for {userCount} users.', { nodeCount: nodeCount, userCount: this.selectValues.length }),
+            success: nodeCount
           })
         }).catch(() => {
           pids.forEach(pid => {
-            let index = this.tableValues.findIndex(node => node.pid === pid)
+            let index = this.tableValues.findIndex(value => value.pid === pid)
             this.setRowVariant(index, 'danger')
           })
         })

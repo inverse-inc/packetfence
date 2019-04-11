@@ -75,12 +75,12 @@
             <template slot="button-content">
               <icon name="columns" v-b-tooltip.hover.top.d300.window :title="$t('Visible Columns')"></icon>
             </template>
-            <template v-for="column in columns" :key="column.key">
-              <b-dropdown-item v-if="column.locked" disabled>
+            <template v-for="column in columns">
+              <b-dropdown-item :key="column.key" v-if="column.locked" disabled>
                 <icon class="position-absolute mt-1" name="thumbtack"></icon>
                 <span class="ml-4">{{column.label}}</span>
               </b-dropdown-item>
-              <a v-else href="#" :disabled="column.locked" class="dropdown-item" @click.stop="toggleColumn(column)">
+              <a :key="column.key" v-else href="#" :disabled="column.locked" class="dropdown-item" @click.stop="toggleColumn(column)">
                 <icon class="position-absolute mt-1" name="check" v-show="column.visible"></icon>
                 <span class="ml-4">{{column.label}}</span>
               </a>
@@ -745,29 +745,29 @@ export default {
       const macs = this.selectValues.map(item => item.mac)
       if (macs.length > 0) {
         this.$store.dispatch(`${this.storeName}/bulkCloseSecurityEvents`, { items: macs }).then(items => {
-          let success_count = 0
-          let skipped_count = 0
-          let failed_count = 0
+          let successCount = 0
+          let skippedCount = 0
+          let failedCount = 0
           items.forEach((item, _index, items) => {
-            let index = this.tableValues.findIndex(securityEvent => securityEvent.mac === item.mac)
+            let index = this.tableValues.findIndex(value => value.mac === item.mac)
             switch (item.status) {
-              case 'success': success_count++
+              case 'success': successCount++
                 break
-              case 'skipped': skipped_count++
+              case 'skipped': skippedCount++
                 break
-              default: failed_count++
+              default: failedCount++
             }
             this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
           })
           this.$store.dispatch('notification/info', {
-            message: this.$i18n.t('Closed security events on {node_count} nodes.', { node_count: items.length }),
-            success: success_count,
-            skipped: skipped_count,
-            failed: failed_count
+            message: this.$i18n.t('Closed security events on {nodeCount} nodes.', { nodeCount: items.length }),
+            success: successCount,
+            skipped: skippedCount,
+            failed: failedCount
           })
         }).catch(() => {
           macs.forEach(mac => {
-            let index = this.tableValues.findIndex(security_event => security_event.mac === mac)
+            let index = this.tableValues.findIndex(value => value.mac === mac)
             this.setRowVariant(index, 'danger')
           })
         })
@@ -777,29 +777,29 @@ export default {
       const macs = this.selectValues.map(item => item.mac)
       if (macs.length > 0) {
         this.$store.dispatch(`${this.storeName}/bulkRegisterNodes`, { items: macs }).then(items => {
-          let success_count = 0
-          let skipped_count = 0
-          let failed_count = 0
+          let successCount = 0
+          let skippedCount = 0
+          let failedCount = 0
           items.forEach((item, _index, items) => {
-            let index = this.tableValues.findIndex(securityEvent => securityEvent.mac === item.mac)
+            let index = this.tableValues.findIndex(value => value.mac === item.mac)
             switch (item.status) {
-              case 'success': success_count++
+              case 'success': successCount++
                 break
-              case 'skipped': skipped_count++
+              case 'skipped': skippedCount++
                 break
-              default: failed_count++
+              default: failedCount++
             }
             this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
           })
           this.$store.dispatch('notification/info', {
-            message: this.$i18n.t('Registered {node_count} nodes.', { node_count: items.length }),
-            success: success_count,
-            skipped: skipped_count,
-            failed: failed_count
+            message: this.$i18n.t('Registered {nodeCount} nodes.', { nodeCount: items.length }),
+            success: successCount,
+            skipped: skippedCount,
+            failed: failedCount
           })
         }).catch(() => {
           macs.forEach(mac => {
-            let index = this.tableValues.findIndex(security_event => security_event.mac === mac)
+            let index = this.tableValues.findIndex(value => value.mac === mac)
             this.setRowVariant(index, 'danger')
           })
         })
@@ -809,29 +809,29 @@ export default {
       const macs = this.selectValues.map(item => item.mac)
       if (macs.length > 0) {
         this.$store.dispatch(`${this.storeName}/bulkDeregisterNodes`, { items: macs }).then(items => {
-          let success_count = 0
-          let skipped_count = 0
-          let failed_count = 0
+          let successCount = 0
+          let skippedCount = 0
+          let failedCount = 0
           items.forEach((item, _index, items) => {
-            let index = this.tableValues.findIndex(securityEvent => securityEvent.mac === item.mac)
+            let index = this.tableValues.findIndex(value => value.mac === item.mac)
             switch (item.status) {
-              case 'success': success_count++
+              case 'success': successCount++
                 break
-              case 'skipped': skipped_count++
+              case 'skipped': skippedCount++
                 break
-              default: failed_count++
+              default: failedCount++
             }
             this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
           })
           this.$store.dispatch('notification/info', {
-            message: this.$i18n.t('Deregistered {node_count} nodes.', { node_count: items.length }),
-            success: success_count,
-            skipped: skipped_count,
-            failed: failed_count
+            message: this.$i18n.t('Deregistered {nodeCount} nodes.', { nodeCount: items.length }),
+            success: successCount,
+            skipped: skippedCount,
+            failed: failedCount
           })
         }).catch(() => {
           macs.forEach(mac => {
-            let index = this.tableValues.findIndex(security_event => security_event.mac === mac)
+            let index = this.tableValues.findIndex(value => value.mac === mac)
             this.setRowVariant(index, 'danger')
           })
         })
@@ -841,29 +841,29 @@ export default {
       const macs = this.selectValues.map(item => item.mac)
       if (macs.length > 0) {
         this.$store.dispatch(`${this.storeName}/bulkReevaluateAccess`, { items: macs }).then(items => {
-          let success_count = 0
-          let skipped_count = 0
-          let failed_count = 0
+          let successCount = 0
+          let skippedCount = 0
+          let failedCount = 0
           items.forEach((item, _index, items) => {
-            let index = this.tableValues.findIndex(securityEvent => securityEvent.mac === item.mac)
+            let index = this.tableValues.findIndex(value => value.mac === item.mac)
             switch (item.status) {
-              case 'success': success_count++
+              case 'success': successCount++
                 break
-              case 'skipped': skipped_count++
+              case 'skipped': skippedCount++
                 break
-              default: failed_count++
+              default: failedCount++
             }
             this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
           })
           this.$store.dispatch('notification/info', {
-            message: this.$i18n.t('Reevaluated access on {node_count} nodes.', { node_count: items.length }),
-            success: success_count,
-            skipped: skipped_count,
-            failed: failed_count
+            message: this.$i18n.t('Reevaluated access on {nodeCount} nodes.', { nodeCount: items.length }),
+            success: successCount,
+            skipped: skippedCount,
+            failed: failedCount
           })
         }).catch(() => {
           macs.forEach(mac => {
-            let index = this.tableValues.findIndex(security_event => security_event.mac === mac)
+            let index = this.tableValues.findIndex(value => value.mac === mac)
             this.setRowVariant(index, 'danger')
           })
         })
@@ -873,29 +873,29 @@ export default {
       const macs = this.selectValues.map(item => item.mac)
       if (macs.length > 0) {
         this.$store.dispatch(`${this.storeName}/bulkRestartSwitchport`, { items: macs }).then(items => {
-          let success_count = 0
-          let skipped_count = 0
-          let failed_count = 0
+          let successCount = 0
+          let skippedCount = 0
+          let failedCount = 0
           items.forEach((item, _index, items) => {
-            let index = this.tableValues.findIndex(securityEvent => securityEvent.mac === item.mac)
+            let index = this.tableValues.findIndex(value => value.mac === item.mac)
             switch (item.status) {
-              case 'success': success_count++
+              case 'success': successCount++
                 break
-              case 'skipped': skipped_count++
+              case 'skipped': skippedCount++
                 break
-              default: failed_count++
+              default: failedCount++
             }
             this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
           })
           this.$store.dispatch('notification/info', {
-            message: this.$i18n.t('Restarted switch port on {node_count} nodes.', { node_count: items.length }),
-            success: success_count,
-            skipped: skipped_count,
-            failed: failed_count
+            message: this.$i18n.t('Restarted switch port on {nodeCount} nodes.', { nodeCount: items.length }),
+            success: successCount,
+            skipped: skippedCount,
+            failed: failedCount
           })
         }).catch(() => {
           macs.forEach(mac => {
-            let index = this.tableValues.findIndex(security_event => security_event.mac === mac)
+            let index = this.tableValues.findIndex(value => value.mac === mac)
             this.setRowVariant(index, 'danger')
           })
         })
@@ -905,29 +905,29 @@ export default {
       const macs = this.selectValues.map(item => item.mac)
       if (macs.length > 0) {
         this.$store.dispatch(`${this.storeName}/bulkRefreshFingerbank`, { items: macs }).then(items => {
-          let success_count = 0
-          let skipped_count = 0
-          let failed_count = 0
+          let successCount = 0
+          let skippedCount = 0
+          let failedCount = 0
           items.forEach((item, _index, items) => {
-            let index = this.tableValues.findIndex(securityEvent => securityEvent.mac === item.mac)
+            let index = this.tableValues.findIndex(value => value.mac === item.mac)
             switch (item.status) {
-              case 'success': success_count++
+              case 'success': successCount++
                 break
-              case 'skipped': skipped_count++
+              case 'skipped': skippedCount++
                 break
-              default: failed_count++
+              default: failedCount++
             }
             this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
           })
           this.$store.dispatch('notification/info', {
-            message: this.$i18n.t('Refreshed fingerbank on {node_count} nodes.', { node_count: items.length }),
-            success: success_count,
-            skipped: skipped_count,
-            failed: failed_count
+            message: this.$i18n.t('Refreshed fingerbank on {nodeCount} nodes.', { nodeCount: items.length }),
+            success: successCount,
+            skipped: skippedCount,
+            failed: failedCount
           })
         }).catch(() => {
           macs.forEach(mac => {
-            let index = this.tableValues.findIndex(security_event => security_event.mac === mac)
+            let index = this.tableValues.findIndex(value => value.mac === mac)
             this.setRowVariant(index, 'danger')
           })
         })
@@ -937,29 +937,29 @@ export default {
       const macs = this.selectValues.map(item => item.mac)
       if (macs.length > 0) {
         this.$store.dispatch(`${this.storeName}/bulkApplyRole`, { category_id: role.category_id, items: macs }).then(items => {
-          let success_count = 0
-          let skipped_count = 0
-          let failed_count = 0
+          let successCount = 0
+          let skippedCount = 0
+          let failedCount = 0
           items.forEach((item, _index, items) => {
-            let index = this.tableValues.findIndex(securityEvent => securityEvent.mac === item.mac)
+            let index = this.tableValues.findIndex(value => value.mac === item.mac)
             switch (item.status) {
-              case 'success': success_count++
+              case 'success': successCount++
                 break
-              case 'skipped': skipped_count++
+              case 'skipped': skippedCount++
                 break
-              default: failed_count++
+              default: failedCount++
             }
             this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
           })
           this.$store.dispatch('notification/info', {
-            message: this.$i18n.t('Applied role on {node_count} nodes.', { node_count: items.length }),
-            success: success_count,
-            skipped: skipped_count,
-            failed: failed_count
+            message: this.$i18n.t('Applied role on {nodeCount} nodes.', { nodeCount: items.length }),
+            success: successCount,
+            skipped: skippedCount,
+            failed: failedCount
           })
         }).catch(() => {
           macs.forEach(mac => {
-            let index = this.tableValues.findIndex(security_event => security_event.mac === mac)
+            let index = this.tableValues.findIndex(value => value.mac === mac)
             this.setRowVariant(index, 'danger')
           })
         })
@@ -969,29 +969,29 @@ export default {
       const macs = this.selectValues.map(item => item.mac)
       if (macs.length > 0) {
         this.$store.dispatch(`${this.storeName}/bulkApplyBypassRole`, { bypass_role_id: role.category_id, items: macs }).then(items => {
-          let success_count = 0
-          let skipped_count = 0
-          let failed_count = 0
+          let successCount = 0
+          let skippedCount = 0
+          let failedCount = 0
           items.forEach((item, _index, items) => {
-            let index = this.tableValues.findIndex(securityEvent => securityEvent.mac === item.mac)
+            let index = this.tableValues.findIndex(value => value.mac === item.mac)
             switch (item.status) {
-              case 'success': success_count++
+              case 'success': successCount++
                 break
-              case 'skipped': skipped_count++
+              case 'skipped': skippedCount++
                 break
-              default: failed_count++
+              default: failedCount++
             }
             this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
           })
           this.$store.dispatch('notification/info', {
-            message: this.$i18n.t('Applied bypass role on {node_count} nodes.', { node_count: items.length }),
-            success: success_count,
-            skipped: skipped_count,
-            failed: failed_count
+            message: this.$i18n.t('Applied bypass role on {nodeCount} nodes.', { nodeCount: items.length }),
+            success: successCount,
+            skipped: skippedCount,
+            failed: failedCount
           })
         }).catch(() => {
           macs.forEach(mac => {
-            let index = this.tableValues.findIndex(security_event => security_event.mac === mac)
+            let index = this.tableValues.findIndex(value => value.mac === mac)
             this.setRowVariant(index, 'danger')
           })
         })
@@ -1001,29 +1001,29 @@ export default {
       const macs = this.selectValues.map(item => item.mac)
       if (macs.length > 0) {
         this.$store.dispatch(`${this.storeName}/bulkApplySecurityEvent`, { vid: securityEvent.vid, items: macs }).then(items => {
-          let success_count = 0
-          let skipped_count = 0
-          let failed_count = 0
+          let successCount = 0
+          let skippedCount = 0
+          let failedCount = 0
           items.forEach((item, _index, items) => {
-            let index = this.tableValues.findIndex(securityEvent => securityEvent.mac === item.mac)
+            let index = this.tableValues.findIndex(value => value.mac === item.mac)
             switch (item.status) {
-              case 'success': success_count++
+              case 'success': successCount++
                 break
-              case 'skipped': skipped_count++
+              case 'skipped': skippedCount++
                 break
-              default: failed_count++
+              default: failedCount++
             }
             this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
           })
           this.$store.dispatch('notification/info', {
-            message: this.$i18n.t('Applied security event on {node_count} nodes.', { node_count: items.length }),
-            success: success_count,
-            skipped: skipped_count,
-            failed: failed_count
+            message: this.$i18n.t('Applied security event on {nodeCount} nodes.', { nodeCount: items.length }),
+            success: successCount,
+            skipped: skippedCount,
+            failed: failedCount
           })
         }).catch(() => {
           macs.forEach(mac => {
-            let index = this.tableValues.findIndex(security_event => security_event.mac === mac)
+            let index = this.tableValues.findIndex(value => value.mac === mac)
             this.setRowVariant(index, 'danger')
           })
         })
@@ -1038,29 +1038,29 @@ export default {
       const bypassVlan = (this.bypassVlanString) ? this.bypassVlanString : null
       if (macs.length > 0) {
         this.$store.dispatch(`${this.storeName}/bulkApplyBypassVlan`, { bypass_vlan: bypassVlan, items: macs }).then(items => {
-          let success_count = 0
-          let skipped_count = 0
-          let failed_count = 0
+          let successCount = 0
+          let skippedCount = 0
+          let failedCount = 0
           items.forEach((item, _index, items) => {
-            let index = this.tableValues.findIndex(securityEvent => securityEvent.mac === item.mac)
+            let index = this.tableValues.findIndex(value => value.mac === item.mac)
             switch (item.status) {
-              case 'success': success_count++
+              case 'success': successCount++
                 break
-              case 'skipped': skipped_count++
+              case 'skipped': skippedCount++
                 break
-              default: failed_count++
+              default: failedCount++
             }
             this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
           })
           this.$store.dispatch('notification/info', {
-            message: this.$i18n.t('Applied bypass VLAN on {node_count} nodes.', { node_count: items.length }),
-            success: success_count,
-            skipped: skipped_count,
-            failed: failed_count
+            message: this.$i18n.t('Applied bypass VLAN on {nodeCount} nodes.', { nodeCount: items.length }),
+            success: successCount,
+            skipped: skippedCount,
+            failed: failedCount
           })
         }).catch(() => {
           macs.forEach(mac => {
-            let index = this.tableValues.findIndex(security_event => security_event.mac === mac)
+            let index = this.tableValues.findIndex(value => value.mac === mac)
             this.setRowVariant(index, 'danger')
           })
         })

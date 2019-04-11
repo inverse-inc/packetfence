@@ -22,12 +22,12 @@
             <template slot="button-content">
               <icon name="columns" v-b-tooltip.hover.right.d1000 :title="$t('Visible Columns')"></icon>
             </template>
-            <template v-for="column in columns" :key="column.key">
-              <b-dropdown-item v-if="column.locked" disabled>
+            <template v-for="column in columns">
+              <b-dropdown-item :key="column.key" v-if="column.locked" disabled>
                 <icon class="position-absolute mt-1" name="thumbtack"></icon>
                 <span class="ml-4">{{column.label}}</span>
               </b-dropdown-item>
-              <a v-else href="#" :disabled="column.locked" class="dropdown-item" @click.stop="toggleColumn(column)">
+              <a :key="column.key" v-else href="#" :disabled="column.locked" class="dropdown-item" @click.stop="toggleColumn(column)">
                 <icon class="position-absolute mt-1" name="check" v-show="column.visible"></icon>
                 <span class="ml-4">{{column.label}}</span>
               </a>

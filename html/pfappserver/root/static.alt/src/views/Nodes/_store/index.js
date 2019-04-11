@@ -412,7 +412,7 @@ const mutations = {
   NODE_BULK_SUCCESS: (state, response) => {
     state.nodeStatus = 'success'
     response.forEach(item => {
-      if (item.status === 'success' && item.mac in state.nodes){
+      if (item.status === 'success' && item.mac in state.nodes) {
         Vue.set(state.nodes, item.mac, null)
       }
     })
