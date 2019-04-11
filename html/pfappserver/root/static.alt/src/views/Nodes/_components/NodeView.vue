@@ -186,7 +186,7 @@
                 {{ node.dhcp_fingerprint }}
               </pf-form-row>
               <pf-form-row class="text-nowrap" :column-label="$t('DHCP Vendor')">
-                {{ node.device_vendor }}
+                {{ node.dhcp_vendor }}
               </pf-form-row>
               <pf-form-row class="text-nowrap" :column-label="$t('DHCPv6 Fingerprint')">
                 {{ node.dhcp6_fingerprint }}
