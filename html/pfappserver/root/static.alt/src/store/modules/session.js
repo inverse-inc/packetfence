@@ -99,13 +99,13 @@ const actions = {
       commit('ROLES_UPDATED', roles)
     })
   },
-  delete: ({ commit, dispatch }) => {
+  delete: ({ commit }) => {
     localStorage.removeItem(STORAGE_TOKEN_KEY)
     commit('TOKEN_DELETED')
     commit('USERNAME_DELETED')
     commit('ROLES_DELETED')
   },
-  getTokenInfo: ({ commit, dispatch }) => {
+  getTokenInfo: ({ commit }) => {
     return api.getTokenInfo().then(response => {
       commit('USERNAME_UPDATED', response.data.item.username)
       return response.data.item.admin_actions
@@ -116,7 +116,7 @@ const actions = {
       commit('TENANTS_UPDATED', response.data)
     })
   },
-  setLanguage: ({ state, commit }, params) => {
+  setLanguage: ({ state }, params) => {
     if (params.i18n.locale !== params.lang || state.languages.indexOf(params.lang) < 0) {
       if (state.languages.indexOf(params.lang) < 0) {
         return api.getLanguage(params.lang).then(response => {
