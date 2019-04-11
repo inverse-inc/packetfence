@@ -5,7 +5,7 @@
       <p v-t="'This is an advanced section. Proceed with caution when editing.'"></p>
     </b-card-header>
     <b-tabs ref="tabs" v-model="tabIndex">
-      <b-tab v-for="filter in filters" :key="filter" :title="$t(filter)" class="h-100 mb-3" @click="changeTab(filter)">
+      <b-tab v-for="filter in sortedFilters" :key="filter" :title="$t('{filter} filters', { filter: capitalize(filter) })" class="h-100 mb-3" @click="changeTab(filter)">
         <filter-engine-view
           :storeName="storeName"
           :id="filter"
@@ -43,6 +43,9 @@ export default {
   computed: {
     tabIndex () {
       return this.filters.indexOf(this.tab)
+    },
+    sortedFilters () {
+      return this.filters.sort()
     }
   },
   methods: {
@@ -55,6 +58,9 @@ export default {
       this.$nextTick(() => {
         this.$refs[id][0].resizeEditor() // editors in other tabs have no clientHeight until after focused
       })
+    },
+    capitalize (filter) {
+      return `${filter.charAt(0).toUpperCase()}${filter.slice(1)}`
     }
   },
   created () {
