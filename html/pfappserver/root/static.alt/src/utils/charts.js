@@ -15,7 +15,8 @@ chartsCall.interceptors.response.use((response) => {
         (error.response.status === 404 && /token_info/.test(error.config.url))) {
       router.push('/expire')
     }
-  } else if (error.request) {
+  }
+  if (error.request) {
     store.commit('session/CHARTS_ERROR')
   }
   return Promise.reject(error)

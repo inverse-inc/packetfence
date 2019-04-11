@@ -1,5 +1,10 @@
 <template>
     <b-container class="my-3" fluid>
+      <b-alert variant="danger" :show="chartsError" fade>
+        <h4 class="alert-heading" v-t="'Error'"></h4>
+        <p>{{ $t('The charts of the dasboard are currently not available.') }}</p>
+        <pf-button-service service="netdata" class="mr-1" restart start></pf-button-service>
+      </b-alert>
       <b-tabs nav-class="nav-fill">
         <b-tab v-for="section in sections" :title="section.name" :key="section.name">
           <template v-for="group in section.groups">
@@ -17,7 +22,9 @@
         </b-tab>
       </b-tabs>
 
-    <!-- <b-row align-h="center">
+    <!-- Initial customizable dashboard -- disabled for now
+
+    <b-row align-h="center">
       <b-col class="mt-3" :md="chart.cols" v-for="chart in charts" :key="chart.id">
         <div :data-netdata="chart.name"
               :data-title="chart.title"
@@ -49,11 +56,13 @@
 
 <script>
 import Chart, { modes, libs, palettes } from './Chart'
+import pfButtonService from '@/components/pfButtonService'
 
 export default {
   name: 'Dashboard',
   components: {
-    Chart
+    Chart,
+    pfButtonService
   },
   props: {
     storeName: { // from router
@@ -69,7 +78,7 @@ export default {
         cols: 6,
         library: libs.DYGRAPH
       },
-      sections: [
+      allSections: [
         {
           name: this.$i18n.t('System'),
           groups: [
@@ -590,10 +599,15 @@ export default {
             }
           ] // groups
         } // Queue section
-      ]
+      ],
+      sections: [],
+      pingNetdataInterval: 1000 * 30 // ms
     }
   },
   computed: {
+    chartsError () {
+      return !this.$store.state.session.charts
+    },
     libs () {
       return Object.values(libs)
     },
@@ -611,6 +625,61 @@ export default {
     }
   },
   methods: {
+    init () {
+      // Filter out empty sections
+      this.sections = JSON.parse(JSON.stringify(this.allSections))
+      this.sections.forEach(section => {
+        let { items, groups } = section
+        if (items) {
+          items = items.filter(this.chartIsValid)
+        }
+        groups.forEach(group => {
+          group.items = group.items.filter(this.chartIsValid)
+        })
+        section.groups = groups.filter(group => group.items.length > 0)
+      })
+      this.sections = this.sections.filter(section => ('items' in section && section.items.length) || ('groups' in section && section.groups.length))
+    },
+    initNetdata () {
+      if (window.NETDATA) {
+        // External JS library already loaded
+        this.$nextTick(() => {
+          window.NETDATA.parseDom()
+        })
+      } else {
+        // Load external JS library
+        let el = document.createElement('SCRIPT')
+        window.netdataNoBootstrap = true
+        window.netdataTheme = 'default'
+        // window.netdataTheme = 'slate' #272b30
+        el.setAttribute('src', `//${window.location.hostname}:1443/netdata/127.0.0.1/dashboard.js`)
+        document.head.appendChild(el)
+      }
+    },
+    pingNetdata () {
+      const [firstChart] = this.$store.state[this.storeName].allCharts
+      if (firstChart) {
+        // We have a list of charts; check if the first one is still available.
+        // In case of an error, the interceptor will set CHART_ERROR
+        this.$store.dispatch(`${this.storeName}/getChart`, firstChart.id)
+        setTimeout(this.pingNetdata, this.pingNetdataInterval)
+      } else {
+        // No charts yet
+        this.$store.dispatch('services/getService', 'netdata').then(service => {
+          if (service.alive) {
+            setTimeout(() => {
+              this.$store.dispatch(`${this.storeName}/allCharts`).then(() => {
+                this.init()
+                this.initNetdata()
+                setTimeout(this.pingNetdata, this.pingNetdataInterval)
+              })
+            }, 20000) // wait until netdata is ready
+          } else {
+            setTimeout(this.pingNetdata, this.pingNetdataInterval)
+          }
+        })
+      }
+    },
     moduleCharts (module) {
       let charts = []
       for (var chart of this.$store.state[this.storeName].allCharts) {
@@ -658,32 +727,19 @@ export default {
       let definition = this.$store.state[this.storeName].allCharts.find(c => c.id === options.id)
       let chart = Object.assign(definition, options)
       this.$store.dispatch(`${this.storeName}/addChart`, chart)
-      this.$nextTick(() => {
-        window.NETDATA.parseDom()
-      })
+      this.initNetdata()
     }
   },
   created () {
-    // Filter out empty sections
-    this.sections.forEach(section => {
-      let { items, groups } = section
-      if (items) {
-        items = items.filter(this.chartIsValid)
-      }
-      groups.forEach(group => {
-        group.items = group.items.filter(this.chartIsValid)
-      })
-      section.groups = groups.filter(group => group.items.length > 0)
-    })
-    this.sections = this.sections.filter(section => ('items' in section && section.items.length) || ('groups' in section && section.groups.length))
+    if (this.$store.state[this.storeName].allCharts) {
+      this.init()
+    }
+    setTimeout(this.pingNetdata, this.pingNetdataInterval)
   },
   mounted () {
-    let el = document.createElement('SCRIPT')
-    window.netdataNoBootstrap = true
-    window.netdataTheme = 'default'
-    // window.netdataTheme = 'slate' #272b30
-    el.setAttribute('src', `//${window.location.hostname}:1443/netdata/127.0.0.1/dashboard.js`)
-    document.head.appendChild(el)
+    if (this.$store.state[this.storeName].allCharts) {
+      this.initNetdata()
+    }
   }
 }
 </script>

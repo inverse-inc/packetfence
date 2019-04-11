@@ -54,6 +54,12 @@ const actions = {
       })
     }
   },
+  getChart: ({ commit }, id) => {
+    return api.chart(id).catch(err => {
+      commit('ALL_CHARTS_ERROR')
+      commit('session/CHARTS_ERROR', err.response, { root: true })
+    })
+  },
   addChart: ({ state, commit }, definition) => {
     let chart = {
       id: definition.id,
@@ -111,6 +117,7 @@ const mutations = {
   },
   ALL_CHARTS_ERROR: (state) => {
     state.allChartsStatus = types.ERROR
+    state.allCharts = []
   },
   CHARTS_UPDATED: (state, chart) => {
     if (state.charts.filter(c => c.id === chart.id).length) {
