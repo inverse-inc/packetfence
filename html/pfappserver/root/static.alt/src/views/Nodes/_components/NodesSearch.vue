@@ -67,15 +67,20 @@
               <span>{{security_event.desc}}</span>
             </b-dropdown-item>
           </b-dropdown>
-          <b-dropdown size="sm" variant="link" :disabled="isLoading" no-caret no-flip>
+          <b-dropdown size="sm" variant="link" no-caret>
             <template slot="button-content">
               <icon name="columns" v-b-tooltip.hover.top.d300.window :title="$t('Visible Columns')"></icon>
             </template>
-            <b-dropdown-item v-for="column in columns" :key="column.key" @click="toggleColumn(column)" :disabled="column.locked">
-              <icon class="position-absolute mt-1" name="thumbtack" v-show="column.visible" v-if="column.locked"></icon>
-              <icon class="position-absolute mt-1" name="check" v-show="column.visible" v-else></icon>
-              <span class="ml-4">{{column.label}}</span>
-            </b-dropdown-item>
+            <template v-for="column in columns" :key="column.key">
+              <b-dropdown-item v-if="column.locked" disabled>
+                <icon class="position-absolute mt-1" name="thumbtack"></icon>
+                <span class="ml-4">{{column.label}}</span>
+              </b-dropdown-item>
+              <a v-else href="#" :disabled="column.locked" class="dropdown-item" @click.stop="toggleColumn(column)">
+                <icon class="position-absolute mt-1" name="check" v-show="column.visible"></icon>
+                <span class="ml-4">{{column.label}}</span>
+              </a>
+            </template>
           </b-dropdown>
         </b-col>
         <b-col cols="auto">
