@@ -562,6 +562,11 @@ sub normalize_order_by {
         $order_by = \"`$order_by`";
     }
 
+    if ($self->is_table_field($s, $order_by)) {
+        my $t = $s->{dal}->table;
+        $order_by = "${t}.${order_by}";
+    }
+
     return { $direction => $order_by }
 }
 
