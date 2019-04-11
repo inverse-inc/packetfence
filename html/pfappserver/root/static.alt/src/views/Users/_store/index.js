@@ -136,72 +136,72 @@ const actions = {
       })
     })
   },
-  bulkUserRegisterNodes: ({ commit }, data) => {
+  bulkRegisterNodes: ({ commit }, data) => {
     commit('USER_REQUEST')
-    return api.bulkUserRegisterNodes(data).then(response => {
+    return api.bulkRegisterNodes(data).then(response => {
       commit('USER_BULK_REGISTER_NODES', response)
       return response
     }).catch(err => {
       commit('USER_ERROR', err.response)
     })
   },
-  bulkUserDeregisterNodes: ({ commit }, data) => {
+  bulkDeregisterNodes: ({ commit }, data) => {
     commit('USER_REQUEST')
-    return api.bulkUserDeregisterNodes(data).then(response => {
+    return api.bulkDeregisterNodes(data).then(response => {
       commit('USER_BULK_DEREGISTER_NODES', response)
       return response
     }).catch(err => {
       commit('USER_ERROR', err.response)
     })
   },
-  bulkUserApplySecurityEvent: ({ commit }, data) => {
+  bulkApplySecurityEvent: ({ commit }, data) => {
     commit('USER_REQUEST')
-    return api.bulkUserCloseSecurityEvents(data).then(response => {
+    return api.bulkCloseSecurityEvents(data).then(response => {
       commit('USER_BULK_APPLY_SECURITY_EVENT', response)
       return response
     }).catch(err => {
       commit('USER_ERROR', err.response)
     })
   },
-  bulkUserCloseSecurityEvents: ({ commit }, data) => {
+  bulkCloseSecurityEvents: ({ commit }, data) => {
     commit('USER_REQUEST')
-    return api.bulkUserCloseSecurityEvents(data).then(response => {
+    return api.bulkCloseSecurityEvents(data).then(response => {
       commit('USER_BULK_CLOSE_SECURITY_EVENTS', response)
       return response
     }).catch(err => {
       commit('USER_ERROR', err.response)
     })
   },
-  bulkUserApplyRole: ({ commit }, data) => {
+  bulkApplyRole: ({ commit }, data) => {
     commit('USER_REQUEST')
-    return api.bulkUserApplyRole(data).then(response => {
+    return api.bulkApplyRole(data).then(response => {
       commit('USER_BULK_APPLY_ROLE', response)
       return response
     }).catch(err => {
       commit('USER_ERROR', err.response)
     })
   },
-  bulkUserApplyBypassRole: ({ commit }, data) => {
+  bulkApplyBypassRole: ({ commit }, data) => {
     commit('USER_REQUEST')
-    return api.bulkUserApplyBypassRole(data).then(response => {
+    return api.bulkApplyBypassRole(data).then(response => {
       commit('USER_BULK_APPLY_BYPASS_ROLE', response)
       return response
     }).catch(err => {
       commit('USER_ERROR', err.response)
     })
   },
-  bulkUserReevaluateAccess: ({ commit }, data) => {
+  bulkReevaluateAccess: ({ commit }, data) => {
     commit('USER_REQUEST')
-    return api.bulkUserReevaluateAccess(data).then(response => {
+    return api.bulkReevaluateAccess(data).then(response => {
       commit('USER_BULK_REEVALUATE_ACCESS', response)
       return response
     }).catch(err => {
       commit('USER_ERROR', err.response)
     })
   },
-  bulkUserRefreshFingerbank: ({ commit }, data) => {
+  bulkRefreshFingerbank: ({ commit }, data) => {
     commit('USER_REQUEST')
-    return api.bulkUserReevaluateAccess(data).then(response => {
+    return api.bulkReevaluateAccess(data).then(response => {
       commit('USER_BULK_REFRESH_FINGERBANK', response)
       return response
     }).catch(err => {

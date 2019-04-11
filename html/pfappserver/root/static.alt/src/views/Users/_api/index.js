@@ -50,42 +50,42 @@ export default {
   unassignUserNodes: pid => {
     return apiCall.post(`user/${pid}/unassign_nodes`)
   },
-  bulkUserRegisterNodes: body => {
+  bulkRegisterNodes: body => {
     return apiCall.post(`users/bulk_register`, body).then(response => {
       return response.data.items
     })
   },
-  bulkUserDeregisterNodes: body => {
+  bulkDeregisterNodes: body => {
     return apiCall.post(`users/bulk_deregister`, body).then(response => {
       return response.data.items
     })
   },
-  bulkUserApplySecurityEvent: body => {
+  bulkApplySecurityEvent: body => {
     return apiCall.post(`users/bulk_apply_security_event`, body).then(response => {
       return response.data.items
     })
   },
-  bulkUserCloseSecurityEvents: body => {
+  bulkCloseSecurityEvents: body => {
     return apiCall.post(`users/bulk_close_security_events`, body).then(response => {
       return response.data.items
     })
   },
-  bulkUserApplyRole: body => {
+  bulkApplyRole: body => {
     return apiCall.post(`users/bulk_apply_role`, body).then(response => {
       return response.data.items
     })
   },
-  bulkUserApplyBypassRole: body => {
+  bulkApplyBypassRole: body => {
     return apiCall.post(`users/bulk_apply_bypass_role`, body).then(response => {
       return response.data.items
     })
   },
-  bulkUserReevaluateAccess: body => {
+  bulkReevaluateAccess: body => {
     return apiCall.post(`users/bulk_reevaluate_access`, body).then(response => {
       return response.data.items
     })
   },
-  bulkUserRefreshFingerbank: body => {
+  bulkRefreshFingerbank: body => {
     return apiCall.post(`users/bulk_fingerbank_refresh`, body).then(response => {
       return response.data.items
     })

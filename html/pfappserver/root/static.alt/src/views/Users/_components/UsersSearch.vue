@@ -105,12 +105,12 @@
         @sort-changed="onSortingChanged" @row-clicked="onRowClick" @head-clicked="clearSelected"
         show-empty responsive hover no-local-sorting striped>
         <template slot="HEAD_actions" slot-scope="head">
-          <input type="checkbox" id="checkallnone" v-model="selectAll" @change="onSelectAllChange" @click.stop>
+          <input type="checkbox" id="checkallnone" v-model="selectAll" :disabled="isLoading" @change="onSelectAllChange" @click.stop>
           <b-tooltip target="checkallnone" placement="right" v-if="selectValues.length === tableValues.length">{{$t('Select None [ALT+N]')}}</b-tooltip>
           <b-tooltip target="checkallnone" placement="right" v-else>{{$t('Select All [ALT+A]')}}</b-tooltip>
         </template>
         <template slot="actions" slot-scope="data">
-          <input type="checkbox" :id="data.value" :value="data.item" v-model="selectValues" @click.stop="onToggleSelected($event, data.index)">
+          <input type="checkbox" :disabled="isLoading" :id="data.value" :value="data.item" v-model="selectValues" @click.stop="onToggleSelected($event, data.index)">
           <!--
           <icon name="exclamation-triangle" class="ml-1" v-if="tableValues[data.index]._rowMessage" v-b-tooltip.hover.right.d300 :title="tableValues[data.index]._rowMessage"></icon>
           -->
@@ -611,7 +611,7 @@ export default {
     applyBulkSecurityEvent (securityEvent) {
       const pids = this.selectValues.map(item => item.pid)
       if (pids.length > 0) {
-        this.$store.dispatch(`${this.storeName}/bulkUserApplySecurityEvent`, { vid: securityEvent.vid, items: pids }).then(items => {
+        this.$store.dispatch(`${this.storeName}/bulkApplySecurityEvent`, { vid: securityEvent.vid, items: pids }).then(items => {
           let security_event_count = 0
           items.forEach((item, _index, items) => {
             let index = this.tableValues.findIndex(security_event => security_event.pid === item.pid)
@@ -637,7 +637,7 @@ export default {
     applyBulkCloseSecurityEvent () {
       const pids = this.selectValues.map(item => item.pid)
       if (pids.length > 0) {
-        this.$store.dispatch(`${this.storeName}/bulkUserCloseSecurityEvents`, { items: pids }).then(items => {
+        this.$store.dispatch(`${this.storeName}/bulkCloseSecurityEvents`, { items: pids }).then(items => {
           let security_event_count = 0
           items.forEach((item, _index, items) => {
             let index = this.tableValues.findIndex(security_event => security_event.pid === item.pid)
@@ -663,7 +663,7 @@ export default {
     applyBulkRegister () {
       const pids = this.selectValues.map(item => item.pid)
       if (pids.length > 0) {
-        this.$store.dispatch(`${this.storeName}/bulkUserRegisterNodes`, { items: pids }).then(items => {
+        this.$store.dispatch(`${this.storeName}/bulkRegisterNodes`, { items: pids }).then(items => {
           let node_count = 0
           items.forEach((item, _index, items) => {
             let index = this.tableValues.findIndex(node => node.pid === item.pid)
@@ -689,7 +689,7 @@ export default {
     applyBulkDeregister () {
       const pids = this.selectValues.map(item => item.pid)
       if (pids.length > 0) {
-        this.$store.dispatch(`${this.storeName}/bulkUserDeregisterNodes`, { items: pids }).then(items => {
+        this.$store.dispatch(`${this.storeName}/bulkDeregisterNodes`, { items: pids }).then(items => {
           let node_count = 0
           items.forEach((item, _index, items) => {
             let index = this.tableValues.findIndex(node => node.pid === item.pid)
@@ -715,7 +715,7 @@ export default {
     applyBulkRole (role) {
       const pids = this.selectValues.map(item => item.pid)
       if (pids.length > 0) {
-        this.$store.dispatch(`${this.storeName}/bulkUserApplyRole`, { category_id: role.category_id, items: pids }).then(items => {
+        this.$store.dispatch(`${this.storeName}/bulkApplyRole`, { category_id: role.category_id, items: pids }).then(items => {
           let node_count = 0
           items.forEach((item, _index, items) => {
             let index = this.tableValues.findIndex(node => node.pid === item.pid)
@@ -741,7 +741,7 @@ export default {
     applyBulkBypassRole (role) {
       const pids = this.selectValues.map(item => item.pid)
       if (pids.length > 0) {
-        this.$store.dispatch(`${this.storeName}/bulkUserApplyBypassRole`, { bypass_role_id: role.category_id, items: pids }).then(items => {
+        this.$store.dispatch(`${this.storeName}/bulkApplyBypassRole`, { bypass_role_id: role.category_id, items: pids }).then(items => {
           let node_count = 0
           items.forEach((item, _index, items) => {
             let index = this.tableValues.findIndex(node => node.pid === item.pid)
@@ -767,7 +767,7 @@ export default {
     applyBulkReevaluateAccess () {
       const pids = this.selectValues.map(item => item.pid)
       if (pids.length > 0) {
-        this.$store.dispatch(`${this.storeName}/bulkUserReevaluateAccess`, { items: pids }).then(items => {
+        this.$store.dispatch(`${this.storeName}/bulkReevaluateAccess`, { items: pids }).then(items => {
           let node_count = 0
           items.forEach((item, _index, items) => {
             let index = this.tableValues.findIndex(node => node.pid === item.pid)
@@ -793,7 +793,7 @@ export default {
     applyBulkRefreshFingerbank () {
       const pids = this.selectValues.map(item => item.pid)
       if (pids.length > 0) {
-        this.$store.dispatch(`${this.storeName}/bulkUserRefreshFingerbank`, { items: pids }).then(items => {
+        this.$store.dispatch(`${this.storeName}/bulkRefreshFingerbank`, { items: pids }).then(items => {
           let node_count = 0
           items.forEach((item, _index, items) => {
             let index = this.tableValues.findIndex(node => node.pid === item.pid)
