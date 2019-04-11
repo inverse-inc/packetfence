@@ -354,13 +354,12 @@ sub do_bulk_update_field {
 
     my $items = $data->{items} // [];
     my $value = $data->{$field};
-    ($status, my $iter) = $self->dal->search(
+    ($status, my $iter) = pf::dal::node->search(
         -columns => [qw(mac pid)],
         -where => {
             pid => { -in => $items },
             $field => [ {"!=" => $value}, defined $value ? ({"=" => undef} ) : () ],
         },
-        -from => $self->dal->table,
         -with_class => undef,
     );
 

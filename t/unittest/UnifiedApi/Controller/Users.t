@@ -24,23 +24,24 @@ BEGIN {
 
 use Test::More;
 use Utils;
+use List::MoreUtils qw(all);
 use Test::Mojo;
 use Test::NoWarnings;
 my $t = Test::Mojo->new('pf::UnifiedApi');
 #This test will running last
 use Test::NoWarnings;
 my $batch = 5;
-plan tests => $batch * (2 + 2 * $batch) + 13;
+plan tests => $batch * (2 + 2 * $batch) + 18;
 my @persons;
 
-for ( 1 .. 5 ) {
+for ( 1 .. $batch ) {
     my $pid = Utils::test_pid();
     $t->post_ok( "/api/v1/users" => json => { pid => $pid } )->status_is(201);
     my @macs;
-    for ( 1 .. 5 ) {
+    for ( 1 .. $batch ) {
         my $mac = Utils::test_mac();
         push @macs, $mac;
-        $t->post_ok( '/api/v1/nodes' => json => { mac => $mac, pid => $pid, category_id => 1, unregdate => "2018-12-31 23:59:59" } )
+        $t->post_ok( '/api/v1/nodes' => json => { mac => $mac, pid => $pid, category_id => 1, unregdate => "2037-12-31 23:59:59" } )
           ->status_is(201);
     }
 
@@ -48,6 +49,39 @@ for ( 1 .. 5 ) {
 }
 
 my @pids = map { $_->{pid} } @persons;
+
+{
+
+    $t->post_ok(
+        "/api/v1/users/bulk_apply_bypass_role", json => {
+            items => \@pids,
+            bypass_role_id => "1",
+        }
+    )->status_is(200);
+
+    $t->post_ok(
+        "/api/v1/nodes/search" => json => {
+            query => {
+                op     => 'and',
+                values => [
+                    { op => 'equals', value => '1', field => 'bypass_role_id' },
+                    {
+                        op       => 'or',
+                        'values' => [
+                            map {
+                                { op => 'equals', value => $_, field => 'pid' }
+                            } @pids
+                        ]
+                    }
+                ],
+
+            }
+        }
+    )->status_is(200);
+
+    my $items = $t->tx->res->json->{items};
+    ok ((all {$_->{bypass_role_id} eq '1'} @$items), "bypass_role_id is set to 1");
+}
 
 $t->post_ok( "/api/v1/users/bulk_register" => json => { items => \@pids } )
  ->status_is(200);
