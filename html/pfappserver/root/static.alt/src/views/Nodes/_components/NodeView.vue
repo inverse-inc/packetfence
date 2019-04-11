@@ -156,6 +156,9 @@
               <pf-form-row class="text-nowrap" :column-label="$t('Device Class')">
                 {{ node.device_class }}
               </pf-form-row>
+              <pf-form-row class="text-nowrap" :column-label="$t('Device Manufacturer')">
+                {{ node.device_manufacturer }}
+              </pf-form-row>
               <pf-form-row class="text-nowrap" :column-label="$t('Device Type')">
                 {{ node.device_type }}
               </pf-form-row>
