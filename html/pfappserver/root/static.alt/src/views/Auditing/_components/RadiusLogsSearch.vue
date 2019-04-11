@@ -128,6 +128,16 @@ export default {
           types: [conditionType.DOMAIN]
         },
         {
+          value: 'nas_ip_address',
+          text: 'NAS IP Address',
+          types: [conditionType.SUBSTRING]
+        },
+        {
+          value: 'nas_port_type',
+          text: 'NAS Port Type',
+          types: [conditionType.NAS_PORT_TYPE]
+        },
+        {
           value: 'node_status',
           text: 'Node Status',
           types: [conditionType.NODE_STATUS]
@@ -136,6 +146,11 @@ export default {
           value: 'realm',
           text: 'Realm',
           types: [conditionType.REALM]
+        },
+        {
+          value: 'request_time',
+          text: 'Request Time',
+          types: [conditionType.INTEGER]
         },
         {
           value: 'role',
