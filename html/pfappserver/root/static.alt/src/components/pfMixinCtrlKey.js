@@ -7,7 +7,7 @@ export default {
   },
   methods: {
     onCtrlKey (event) {
-      this.ctrlKey = event.ctrlKey
+      this.ctrlKey = event.ctrlKey || event.metaKey
     },
     onWindowBlur (event) {
       this.ctrlKey = false

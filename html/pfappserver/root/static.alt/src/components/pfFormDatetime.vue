@@ -39,7 +39,7 @@
       ></date-picker>
       <b-input-group-append>
         <b-button class="input-group-text" v-if="initialValue && initialValue !== inputValue" @click.stop="reset($event)" v-b-tooltip.hover.top.d300 :title="$t('Reset')"><icon name="undo-alt" variant="light"></icon></b-button>
-        <b-button-group v-if="moments.length > 0" rel="moments" v-b-tooltip.hover.top.d300 :title="$t('Cumulate [CTRL] + [CLICK]')">
+        <b-button-group v-if="moments.length > 0" rel="moments" v-b-tooltip.hover.top.d300 :title="$t('Cumulate [CTRL/CMD] + [CLICK]')">
           <b-button v-for="(moment, index) in moments" :key="index" variant="light" @click="onClickMoment($event, index)" v-b-tooltip.hover.bottom.d300 :title="momentTooltip(index)" tabindex="-1">{{ momentLabel(index) }}</b-button>
         </b-button-group>
         <b-button class="input-group-text" @click.stop="toggle($event)" tabindex="-1"><icon :name="(formatIsTimeOnly()) ? 'clock' : 'calendar-alt'" variant="light"></icon></b-button>
@@ -230,9 +230,9 @@ export default {
     onClickMoment (event, index) {
       let [amount, key] = this.moments[index].split(' ', 2)
       amount = parseInt(amount)
-      // allow [CTRL]+[CLICK] for cumulative change
+      // allow [CTRL/CMD]+[CLICK] for cumulative change
       const dateFormat = this.datetimeConfig.format
-      const base = (event.ctrlKey) ? parse(this.inputValue, dateFormat) || new Date() : new Date()
+      const base = (event.ctrlKey || event.metaKey) ? parse(this.inputValue, dateFormat) || new Date() : new Date()
       if (validMomentKeys.includes(key)) {
         switch (key) {
           case 'years':
