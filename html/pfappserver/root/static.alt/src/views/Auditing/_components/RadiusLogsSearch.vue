@@ -44,7 +44,7 @@
         @sort-changed="onSortingChanged" @row-clicked="onRowClick"
         show-empty responsive hover no-local-sorting striped>
         <template slot="mac" slot-scope="log">
-          <mac v-text="log.item.mac"></mac>
+          <b-button variant="link" :to="`../../node/${log.item.mac}`"><mac v-text="log.item.mac"></mac></b-button>
         </template>
         <template slot="empty">
           <pf-empty-table :isLoading="isLoading">{{ $t('No logs found') }}</pf-empty-table>
