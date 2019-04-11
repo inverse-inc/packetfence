@@ -157,6 +157,7 @@ export const pfConfigurationScanEngineViewFields = (context = {}) => {
           ]
         },
         {
+          if: ['nessus', 'nessus6', 'openvas', 'rapid7'].includes(scanType),
           label: i18n.t('Hostname or IP Address'),
           fields: [
             {
@@ -175,6 +176,18 @@ export const pfConfigurationScanEngineViewFields = (context = {}) => {
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'username'),
               validators: pfConfigurationValidatorsFromMeta(meta, 'username')
+            }
+          ]
+        },
+        {
+          if: ['wmi'].includes(scanType),
+          label: i18n.t('Domain'),
+          fields: [
+            {
+              key: 'domain',
+              component: pfFormInput,
+              attrs: pfConfigurationAttributesFromMeta(meta, 'domain'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'domain')
             }
           ]
         },
