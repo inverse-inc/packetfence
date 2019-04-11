@@ -135,6 +135,9 @@
         <template slot="mac" slot-scope="data">
           <mac v-text="data.value"></mac>
         </template>
+        <template slot="pid" slot-scope="data">
+          <b-button variant="link" :to="`../user/${data.value}`">{{ data.value }}</b-button>
+        </template>
         <template slot="device_score" slot-scope="data">
           <pf-fingerbank-score :score="data.value"></pf-fingerbank-score>
         </template>
