@@ -1,4 +1,3 @@
-
 <template>
   <b-form @submit.prevent="save()">
     <b-card no-body>
@@ -134,9 +133,29 @@
 
         <b-tab title="Devices">
           <template slot="title">
-            {{ $t('Devices') }} <b-badge pill v-if="userContent.nodes && userContent.nodes.length > 0" variant="light" class="ml-1">{{ userContent.nodes.length }}</b-badge>
+            {{ $t('Devices') }} <b-badge pill v-if="hasNodes" variant="light" class="ml-1">{{ userContent.nodes.length }}</b-badge>
           </template>
-          <b-table stacked="sm" :items="userContent.nodes" :fields="nodeFields" :sortBy="nodeSortBy" :sortDesc="nodeSortDesc" show-empty responsive striped>
+          <b-row align-h="between" align-v="center">
+            <b-col cols="auto" class="mr-auto">
+              <b-dropdown size="sm" class="mb-2" variant="link" :disabled="isLoading || !hasNodes" no-caret>
+                <template slot="button-content">
+                  <icon name="columns" v-b-tooltip.hover.top.d300.window :title="$t('Visible Columns')"></icon>
+                </template>
+                <template v-for="column in nodeFields" :key="column.key">
+                  <b-dropdown-item v-if="column.locked" disabled>
+                    <icon class="position-absolute mt-1" name="thumbtack"></icon>
+                    <span class="ml-4">{{column.label}}</span>
+                  </b-dropdown-item>
+                  <a v-else href="#" :disabled="column.locked" class="dropdown-item" @click.stop="toggleDeviceColumn(column)">
+                    <icon class="position-absolute mt-1" name="check" v-show="column.visible"></icon>
+                    <span class="ml-4">{{column.label}}</span>
+                  </a>
+                </template>
+              </b-dropdown>
+            </b-col>
+          </b-row>
+
+          <b-table stacked="sm" :items="userContent.nodes" :fields="visibleNodeFields" :sortBy="nodeSortBy" :sortDesc="nodeSortDesc" show-empty responsive striped>
             <template slot="status" slot-scope="node">
               <b-badge pill variant="success" v-if="node.item.status === 'reg'">{{ $t('registered') }}</b-badge>
               <b-badge pill variant="secondary" v-else-if="node.item.status === 'unreg'">{{ $t('unregistered') }}</b-badge>
@@ -162,7 +181,7 @@
               <span v-else>{{ securityEvent.item.status }}</span>
             </template>
             <template slot="mac" slot-scope="securityEvent">
-              <b-button variant="link" :to="`../../node/${securityEvent.item.mac}`">{{ securityEvent.item.mac }}</b-button>
+              <b-button variant="link" :to="`../../node/${securityEvent.item.mac}`"><mac>{{ securityEvent.item.mac }}</mac></b-button>
             </template>
             <template slot="buttons" slot-scope="securityEvent">
               <span class="float-right text-nowrap">
@@ -239,44 +258,271 @@ export default {
       },
       tabIndex: 0,
       tabTitle: '',
-      userContent: {},
+      userContent: { nodes: [], security_events: [] },
       nodeFields: [
+        {
+          key: 'tenant_id',
+          label: this.$i18n.t('Tenant'),
+          sortable: true,
+          visible: false
+        },
         {
           key: 'status',
           label: this.$i18n.t('Status'),
-          sortable: true
+          sortable: true,
+          visible: true
+        },
+        {
+          key: 'online',
+          label: this.$i18n.t('Online/Offline'),
+          sortable: true,
+          visible: false
         },
         {
           key: 'mac',
-          label: this.$i18n.t('MAC'),
-          sortable: true
+          label: this.$i18n.t('MAC Address'),
+          sortable: true,
+          visible: true
         },
         {
-          key: 'computername',
-          label: this.$i18n.t('Computer Name'),
-          sortable: true
-        },
-        {
-          key: 'device_class',
-          label: this.$i18n.t('Device Class'),
-          sortable: true
-        },
-        {
-          key: 'device_type',
-          label: this.$i18n.t('Device Type'),
-          sortable: true
+          key: 'detect_date',
+          label: this.$i18n.t('Detected Date'),
+          sortable: true,
+          visible: false,
+          formatter: formatter.datetimeIgnoreZero,
+          class: 'text-nowrap'
         },
         {
           key: 'regdate',
           label: this.$i18n.t('Registration Date'),
           sortable: true,
-          formatter: formatter.datetimeIgnoreZero
+          visible: true,
+          formatter: formatter.datetimeIgnoreZero,
+          class: 'text-nowrap'
         },
         {
           key: 'unregdate',
           label: this.$i18n.t('Unregistration Date'),
           sortable: true,
-          formatter: formatter.datetimeIgnoreZero
+          visible: true,
+          formatter: formatter.datetimeIgnoreZero,
+          class: 'text-nowrap'
+        },
+        {
+          key: 'computername',
+          label: this.$i18n.t('Computer Name'),
+          sortable: true,
+          visible: true
+        },
+        {
+          key: 'ip4log.ip',
+          label: this.$i18n.t('IPv4 Address'),
+          sortable: true,
+          visible: false
+        },
+        {
+          key: 'ip6log.ip',
+          label: this.$i18n.t('IPv6 Address'),
+          sortable: true,
+          visible: false
+        },
+        {
+          key: 'device_class',
+          label: this.$i18n.t('Device Class'),
+          sortable: true,
+          visible: true
+        },
+        {
+          key: 'device_manufacturer',
+          label: this.$i18n.t('Device Manufacturer'),
+          sortable: true,
+          visible: false
+        },
+        {
+          key: 'device_score',
+          label: this.$i18n.t('Device Score'),
+          sortable: true,
+          visible: false
+        },
+        {
+          key: 'device_type',
+          label: this.$i18n.t('Device Type'),
+          sortable: true,
+          visible: false
+        },
+        {
+          key: 'device_version',
+          label: this.$i18n.t('Device Version'),
+          sortable: true,
+          visible: false
+        },
+        {
+          key: 'dhcp6_enterprise',
+          label: this.$i18n.t('DHCPv6 Enterprise'),
+          sortable: true,
+          visible: false
+        },
+        {
+          key: 'dhcp6_fingerprint',
+          label: this.$i18n.t('DHCPv6 Fingerprint'),
+          sortable: true,
+          visible: false
+        },
+        {
+          key: 'dhcp_fingerprint',
+          label: this.$i18n.t('DHCP Fingerprint'),
+          sortable: true,
+          visible: false
+        },
+        {
+          key: 'category_id',
+          label: this.$i18n.t('Role'),
+          sortable: true,
+          visible: false,
+          formatter: formatter.categoryId
+        },
+        {
+          key: 'locationlog.connection_type',
+          label: this.$i18n.t('Connection Type'),
+          sortable: true,
+          visible: false
+        },
+        {
+          key: 'locationlog.session_id',
+          label: this.$i18n.t('Session ID'),
+          sortable: true,
+          visible: false
+        },
+        {
+          key: 'locationlog.switch',
+          label: this.$i18n.t('Switch Identifier'),
+          sortable: true,
+          visible: false
+        },
+        {
+          key: 'locationlog.switch_ip',
+          label: this.$i18n.t('Switch IP Address'),
+          sortable: true,
+          visible: false
+        },
+        {
+          key: 'locationlog.switch_mac',
+          label: this.$i18n.t('Switch MAC Address'),
+          sortable: true,
+          visible: false
+        },
+        {
+          key: 'locationlog.ssid',
+          label: this.$i18n.t('SSID'),
+          sortable: true,
+          visible: false
+        },
+        {
+          key: 'locationlog.vlan',
+          label: this.$i18n.t('VLAN'),
+          sortable: true,
+          visible: false
+        },
+        {
+          key: 'bypass_vlan',
+          label: this.$i18n.t('Bypass VLAN'),
+          sortable: true,
+          visible: false
+        },
+        {
+          key: 'bypass_role_id',
+          label: this.$i18n.t('Bypass Role'),
+          sortable: true,
+          visible: false,
+          formatter: formatter.bypassRoleId
+        },
+        {
+          key: 'notes',
+          label: this.$i18n.t('Notes'),
+          sortable: true,
+          visible: false
+        },
+        {
+          key: 'voip',
+          label: this.$i18n.t('VoIP'),
+          sortable: true,
+          visible: false
+        },
+        {
+          key: 'last_arp',
+          label: this.$i18n.t('Last ARP'),
+          sortable: true,
+          visible: false,
+          formatter: formatter.datetimeIgnoreZero,
+          class: 'text-nowrap'
+        },
+        {
+          key: 'last_dhcp',
+          label: this.$i18n.t('Last DHCP'),
+          sortable: true,
+          visible: false,
+          formatter: formatter.datetimeIgnoreZero,
+          class: 'text-nowrap'
+        },
+        {
+          key: 'machine_account',
+          label: this.$i18n.t('Machine Account'),
+          sortable: true,
+          visible: false
+        },
+        {
+          key: 'autoreg',
+          label: this.$i18n.t('Auto Registration'),
+          sortable: true,
+          visible: false
+        },
+        {
+          key: 'bandwidth_balance',
+          label: this.$i18n.t('Bandwidth Balance'),
+          sortable: true,
+          visible: false
+        },
+        {
+          key: 'time_balance',
+          label: this.$i18n.t('Time Balance'),
+          sortable: true,
+          visible: false
+        },
+        {
+          key: 'user_agent',
+          label: this.$i18n.t('User Agent'),
+          sortable: true,
+          visible: false
+        },
+        {
+          key: 'security_event.open_security_event_id',
+          label: this.$i18n.t('Security Event Open'),
+          sortable: true,
+          visible: false,
+          class: 'text-nowrap',
+          formatter: formatter.securityEventIdsToDescCsv
+        },
+        {
+          key: 'security_event.open_count',
+          label: this.$i18n.t('Security Event Open Count'),
+          sortable: true,
+          visible: false,
+          class: 'text-nowrap'
+        },
+        {
+          key: 'security_event.close_security_event_id',
+          label: this.$i18n.t('Security Event Closed'),
+          sortable: true,
+          visible: false,
+          class: 'text-nowrap',
+          formatter: formatter.securityEventIdsToDescCsv
+        },
+        {
+          key: 'security_event.close_count',
+          label: this.$i18n.t('Security Event Closed Count'),
+          sortable: true,
+          visible: false,
+          class: 'text-nowrap'
         }
       ],
       nodeSortBy: 'status',
@@ -369,6 +615,9 @@ export default {
     },
     isDefaultUser () {
       return this.userContent.pid === 'default'
+    },
+    visibleNodeFields () {
+      return this.nodeFields.filter(field => field.visible || field.locked)
     }
   },
   methods: {
@@ -404,6 +653,10 @@ export default {
         case 27: // escape
           this.close()
       }
+    },
+    toggleDeviceColumn (column) {
+      const index = this.nodeFields.findIndex(field => field.key === column.key)
+      this.$set(this.nodeFields[index], 'visible', !this.nodeFields[index].visible)
     }
   },
   mounted () {
