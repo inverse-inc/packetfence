@@ -755,6 +755,11 @@ export default {
       return response.data
     })
   },
+  createPortalModule: data => {
+    return apiCall.post('config/portal_modules', data).then(response => {
+      return response.data
+    })
+  },
   updatePortalModule: data => {
     return apiCall.patch(`config/portal_module/${data.id}`, data).then(response => {
       return response.data

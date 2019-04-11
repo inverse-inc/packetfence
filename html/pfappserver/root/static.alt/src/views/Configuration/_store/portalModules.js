@@ -67,12 +67,18 @@ const actions = {
       throw err
     })
   },
+  createPortalModule: ({ commit }, data) => {
+    commit('ITEM_REQUEST')
+    return api.createPortalModule(data).then(response => {
+      commit('ITEM_REPLACED', data)
+      return response
+    }).catch(err => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
+  },
   updatePortalModule: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    // TODO: is this necessary?
-    // if (data.multi_source_ids) {
-    //   delete data.source_id
-    // }
     return api.updatePortalModule(data).then(response => {
       commit('ITEM_REPLACED', data)
       return response
