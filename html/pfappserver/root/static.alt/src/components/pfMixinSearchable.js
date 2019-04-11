@@ -87,7 +87,10 @@ export default {
       return this.columns.filter(column => column.visible)
     },
     searchFields () {
-      return this.visibleColumns.filter(column => !column.locked).map(column => column.key)
+      return [...(new Set([ // unique array
+        ...this.searchableOptions.defaultSortKeys, // always include default keys
+        ...this.visibleColumns.filter(column => !column.locked).map(column => column.key)
+      ]))]
     },
     items () {
       if (this.searchableStoreName) {
