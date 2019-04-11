@@ -820,15 +820,10 @@ export default {
           let nodeCount = 0
           items.forEach((item, _index, items) => {
             let index = this.tableValues.findIndex(value => value.pid === item.pid)
-            if (item.nodes.length > 0) {
-              nodeCount += item.nodes.length
-              this.setRowVariant(index, 'success')
-            } else {
-              this.setRowVariant(index, 'warning')
-            }
+            this.setRowVariant(index, 'success')
           })
           this.$store.dispatch('notification/info', {
-            message: this.$i18n.t('Deleted {userCount} users.', { nodeCount: nodeCount, userCount: this.selectValues.length }),
+            message: this.$i18n.t('Deleted {userCount} users.', { userCount: this.selectValues.length }),
             success: nodeCount
           })
           this.$refs.pfSearch.onSubmit() // resubmit search
