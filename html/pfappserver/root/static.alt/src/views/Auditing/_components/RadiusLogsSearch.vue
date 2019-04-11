@@ -46,6 +46,9 @@
         <template slot="mac" slot-scope="log">
           <b-button variant="link" :to="`../../node/${log.item.mac}`"><mac v-text="log.item.mac"></mac></b-button>
         </template>
+        <template slot="auth_status" slot-scope="log">
+          <b-badge pill :variant="(log.item.auth_status === 'Accept') ? 'success' : 'danger'" class="ml-1">{{ log.item.auth_status }}</b-badge>
+        </template>
         <template slot="empty">
           <pf-empty-table :isLoading="isLoading">{{ $t('No logs found') }}</pf-empty-table>
         </template>
@@ -189,14 +192,14 @@ export default {
           locked: false
         },
         {
-          key: 'mac',
-          label: this.$i18n.t('MAC Address'),
+          key: 'auth_status',
+          label: this.$i18n.t('Auth Status'),
           sortable: true,
           visible: true
         },
         {
-          key: 'auth_status',
-          label: this.$i18n.t('Auth Status'),
+          key: 'mac',
+          label: this.$i18n.t('MAC Address'),
           sortable: true,
           visible: true
         },
