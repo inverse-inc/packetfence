@@ -9,7 +9,7 @@
 
         <dl>
             <dt v-t="'Roles:'"></dt> <dd v-t="'A role will allow PacketFence to grant different network access to endpoints connecting to your network. For example, employee vs. guest.'"></dd>
-            <dt v-t="'Domains:'"></dt> <dd> [% l('If you want to authenticate users or machines using a Active Directory Domain Controller (DC), you have to join the PacketFence server to the DC.'"></dd>
+            <dt v-t="'Domains:'"></dt> <dd> v-t="'If you want to authenticate users or machines using a Active Directory Domain Controller (DC), you have to join the PacketFence server to the DC.'"></dd>
             <dt v-t="'Sources:'"></dt> <dd v-t="'Authentication sources will allow you to identify users and assign them roles and access durations.'"></dd>
             <dt v-t="'Switches:'"></dt> <dd v-t="'PacketFence manages switches, access points and WiFi controllers. You have to add the equipment you want PacketFence to manage and do the role by VLAN/ACL/policy identifier mapping.'"></dd>
             <dt v-t="'Connection Profiles:'"></dt> <dd v-t="'When devices are connecting to your network, you might want to show a captive portal or auto-register the device. You can control the behavior in this module.'"></dd>
