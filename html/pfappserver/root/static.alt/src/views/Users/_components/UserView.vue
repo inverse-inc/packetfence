@@ -638,9 +638,11 @@ export default {
       })
     },
     closeSecurityEvent (securityEvent) {
+      // eslint-disable-next-line
       console.log('closeSecurityEvent', securityEvent)
     },
     closeSecurityEvents () {
+      // eslint-disable-next-line
       console.log('closeSecurityEvents')
     },
     unassignNodes () {
