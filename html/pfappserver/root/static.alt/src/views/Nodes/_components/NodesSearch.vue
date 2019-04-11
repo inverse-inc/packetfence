@@ -128,9 +128,9 @@
           <b-badge pill variant="light" v-else>{{ $t('unregistered') }}</b-badge>
         </template>
         <template slot="online" slot-scope="data">
-          <b-badge pill variant="success" v-if="data.value === 'on'">{{ $t('online') }}</b-badge>
-          <b-badge pill variant="danger" v-else-if="data.value === 'off'">{{ $t('offline') }}</b-badge>
-          <b-badge pill variant="info" v-else>{{ $t('unknown') }}</b-badge>
+          <b-badge pill variant="success" v-if="data.value === 'on'">{{ $t('on') }}</b-badge>
+          <b-badge pill variant="danger" v-else-if="data.value === 'off'">{{ $t('off') }}</b-badge>
+          <b-badge pill variant="info" v-else>{{ $t('n/a') }}</b-badge>
         </template>
         <template slot="mac" slot-scope="data">
           <mac v-text="data.value"></mac>
