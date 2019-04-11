@@ -22,6 +22,7 @@ export default {
       sections: [
         {
           name: this.$i18n.t('Policies and Access Control'),
+          path: '/configuration/policies_access_control',
           icon: 'id-card',
           collapsable: true,
           items: [
@@ -44,6 +45,7 @@ export default {
         },
         {
           name: this.$i18n.t('Compliance'),
+          path: '/configuration/compliance',
           icon: 'shield-alt',
           collapsable: true,
           items: [
@@ -72,6 +74,7 @@ export default {
         },
         {
           name: this.$i18n.t('Integration'),
+          path: '/configuration/integration',
           icon: 'puzzle-piece',
           collapsable: true,
           items: [
@@ -85,6 +88,7 @@ export default {
         },
         {
           name: this.$i18n.t('Advanced Access Configuration'),
+          path: '/configuration/advanced_access_configuration',
           icon: 'clipboard-list',
           collapsable: true,
           items: [
@@ -100,6 +104,7 @@ export default {
         },
         {
           name: this.$i18n.t('Network Configuration'),
+          path: '/configuration/network_configuration',
           icon: 'project-diagram',
           collapsable: true,
           items: [
@@ -120,6 +125,7 @@ export default {
         },
         {
           name: this.$i18n.t('System Configuration'),
+          path: '/configuration/system_configuration',
           icon: 'cogs',
           collapsable: true,
           items: [

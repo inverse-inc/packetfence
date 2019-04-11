@@ -118,7 +118,7 @@ const AdminRoleView = () => import(/* webpackChunkName: "Configuration" */ '../_
 const route = {
   path: '/configuration',
   name: 'configuration',
-  redirect: '/configuration/policesaccesscontrol',
+  redirect: '/configuration/policies_access_control',
   component: ConfigurationView,
   meta: { transitionDelay: 300 * 2 }, // See _transitions.scss => $slide-bottom-duration
   beforeEnter: (to, from, next) => {
@@ -227,7 +227,7 @@ const route = {
      * Policies Access Control
      */
     {
-      path: 'polices_access_control',
+      path: 'policies_access_control',
       component: PoliciesAccessControlSection
     },
     {
