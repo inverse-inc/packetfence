@@ -23,7 +23,7 @@
         <draggable v-model="model.values[outerindex].values" :options="{group: 'or', handle: '.draghandle', filter: '.nodrag', dragClass: 'sortable-drag'}" @start="onDragStart" @end="onDragEnd">
           <b-container fluid class="px-1" v-for="(rule, innerindex) in model.values[outerindex].values" :key="innerindex">
             <b-row class="bg-white rc align-items-center m-0 p-1 isdrag">
-              <span v-if="model.values.length > 1 || model.values[outerindex].values.length > 1" class="draghandle mx-2" v-b-tooltip.hover.right.d1000 :title="$t('Click &amp; Drag statement to reorder')">
+              <span v-if="model.values.length > 1 || model.values[outerindex].values.length > 1" class="draghandle mx-2" v-b-tooltip.hover.right.d1000 :title="$t('Click & drag statement to reorder')">
                 <icon name="grip-vertical"></icon>
               </span>
               <b-input-group class="mr-1">
@@ -135,7 +135,7 @@ export default {
             // Preselect the first valid operator
             rule.op = operator
           }
-          return { value: operator, text: _this.$i18n.t(operator) }
+          return { value: operator, text: _this.$i18n.t(operator.replace(/_/g, ' ')) }
         })
       }
     },
