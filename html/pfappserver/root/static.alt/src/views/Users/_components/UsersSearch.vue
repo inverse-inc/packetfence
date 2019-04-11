@@ -167,6 +167,8 @@ export default {
   data () {
     return {
       tableValues: Array,
+      sortBy: 'pid',
+      sortDesc: false,
       // Fields must match the database schema
       fields: [ // keys match with b-form-select
         {
