@@ -12,7 +12,7 @@
         <b-col cols="auto" class="mr-auto">
           <b-dropdown size="sm" variant="link" :disabled="isLoading || selectValues.length === 0" no-caret no-flip>
             <template slot="button-content">
-              <icon name="cogs" v-b-tooltip.hover.right :title="$t('Actions')"></icon>
+              <icon name="cog" v-b-tooltip.hover.top.d300 :title="$t('Bulk Actions')"></icon>
             </template>
             <b-dropdown-item @click="applyBulkClearSecurityEvent()">
               <icon class="position-absolute mt-1" name="ban"></icon>
@@ -40,31 +40,35 @@
             </b-dropdown-item>
             <b-dropdown-divider></b-dropdown-divider>
             <b-dropdown-header>{{ $t('Apply Role') }}</b-dropdown-header>
-            <b-dropdown-item v-for="role in roles" :key="role.category_id" @click="applyBulkRole(role)" v-b-tooltip.hover.left :title="role.notes">
-              <span>{{role.name}}</span>
+            <b-dropdown-item v-for="role in roles" :key="role.category_id" @click="applyBulkRole(role)">
+              <span class="d-block" v-b-tooltip.hover.left.d300.window :title="role.notes">{{role.name}}</span>
             </b-dropdown-item>
-            <b-dropdown-item @click="applyBulkRole({category_id: null})" v-b-tooltip.hover.left :title="$t('Clear Role')">
-              <icon class="position-absolute mt-1" name="trash-alt"></icon>
-              <span class="ml-4"><em>{{ $t('None') }}</em></span>
+            <b-dropdown-item @click="applyBulkRole({category_id: null})">
+              <span class="d-block" v-b-tooltip.hover.left.d300.window :title="$t('Clear Role')">
+                <icon class="position-absolute mt-1" name="trash-alt"></icon>
+                <span class="ml-4"><em>{{ $t('None') }}</em></span>
+              </span>
             </b-dropdown-item>
             <b-dropdown-divider></b-dropdown-divider>
             <b-dropdown-header>{{ $t('Apply Bypass Role') }}</b-dropdown-header>
-            <b-dropdown-item v-for="role in roles" :key="role.category_id" @click="applyBulkBypassRole(role)" v-b-tooltip.hover.left :title="role.notes">
-              <span>{{role.name}}</span>
+            <b-dropdown-item v-for="role in roles" :key="role.category_id" @click="applyBulkBypassRole(role)">
+              <span class="d-block" v-b-tooltip.hover.left.d300.window :title="role.notes">{{role.name}}</span>
             </b-dropdown-item>
-            <b-dropdown-item @click="applyBulkBypassRole({category_id: null})" v-b-tooltip.hover.left :title="$t('Clear Bypass Role')">
-              <icon class="position-absolute mt-1" name="trash-alt"></icon>
-              <span class="ml-4"><em>{{ $t('None') }}</em></span>
+            <b-dropdown-item @click="applyBulkBypassRole({category_id: null})">
+              <span class="d-block" v-b-tooltip.hover.left.d300.window :title="$t('Clear Bypass Role')">
+                <icon class="position-absolute mt-1" name="trash-alt"></icon>
+                <span class="ml-4"><em>{{ $t('None') }}</em></span>
+              </span>
             </b-dropdown-item>
             <b-dropdown-divider></b-dropdown-divider>
             <b-dropdown-header>{{ $t('Apply Security Event') }}</b-dropdown-header>
-            <b-dropdown-item v-for="security_event in security_events" v-if="security_event.enabled ==='Y'" :key="security_event.id" @click="applyBulkSecurityEvent(security_event)" v-b-tooltip.hover.left :title="security_event.id">
+            <b-dropdown-item v-for="security_event in security_events" v-if="security_event.enabled ==='Y'" :key="security_event.id" @click="applyBulkSecurityEvent(security_event)" v-b-tooltip.hover.left.d300 :title="security_event.id">
               <span>{{security_event.desc}}</span>
             </b-dropdown-item>
           </b-dropdown>
           <b-dropdown size="sm" variant="link" :disabled="isLoading" no-caret no-flip>
             <template slot="button-content">
-              <icon name="columns" v-b-tooltip.hover.right.d1000 :title="$t('Visible Columns')"></icon>
+              <icon name="columns" v-b-tooltip.hover.top.d300.window :title="$t('Visible Columns')"></icon>
             </template>
             <b-dropdown-item v-for="column in columns" :key="column.key" @click="toggleColumn(column)" :disabled="column.locked">
               <icon class="position-absolute mt-1" name="thumbtack" v-show="column.visible" v-if="column.locked"></icon>
@@ -106,7 +110,7 @@
         <template slot="actions" slot-scope="data">
           <div class="text-nowrap">
             <input type="checkbox" :id="data.value" :value="data.item" v-model="selectValues" @click.stop="onToggleSelected($event, data.index)">
-            <icon name="exclamation-triangle" class="ml-1" v-if="tableValues[data.index]._rowMessage" v-b-tooltip.hover.right :title="tableValues[data.index]._rowMessage"></icon>
+            <icon name="exclamation-triangle" class="ml-1" v-if="tableValues[data.index]._rowMessage" v-b-tooltip.hover.right.d300 :title="tableValues[data.index]._rowMessage"></icon>
           </div>
         </template>
         <template slot="status" slot-scope="data">
@@ -133,7 +137,6 @@
 </template>
 
 <script>
-import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import { pfFormatters as formatter } from '@/globals/pfFormatters'
 import pfMixinSearchable from '@/components/pfMixinSearchable'
@@ -141,6 +144,7 @@ import pfMixinSelectable from '@/components/pfMixinSelectable'
 import pfFingerbankScore from '@/components/pfFingerbankScore'
 import pfFormToggle from '@/components/pfFormToggle'
 import pfProgress from '@/components/pfProgress'
+import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import convert from '@/utils/convert'
 
 export default {
@@ -150,10 +154,10 @@ export default {
     pfMixinSearchable
   ],
   components: {
-    'pf-progress': pfProgress,
-    'pf-empty-table': pfEmptyTable,
-    'pf-fingerbank-score': pfFingerbankScore,
-    'pf-form-toggle': pfFormToggle
+    pfProgress,
+    pfEmptyTable,
+    pfFingerbankScore,
+    pfFormToggle
   },
   props: {
     storeName: { // from router
@@ -180,6 +184,11 @@ export default {
        *  The keys must conform to the format of the b-form-select's options property.
        */
       fields: [ // keys match with b-form-select
+        {
+          value: 'tenant_id',
+          text: this.$i18n.t('Tenant'),
+          types: [conditionType.INTEGER]
+        },
         {
           value: 'mac',
           text: this.$i18n.t('MAC Address'),
@@ -388,6 +397,12 @@ export default {
           }
         },
         {
+          key: 'tenant_id',
+          label: this.$i18n.t('Tenant'),
+          sortable: true,
+          visible: false
+        },
+        {
           key: 'status',
           label: this.$i18n.t('Status'),
           sortable: true,
@@ -450,12 +465,6 @@ export default {
         {
           key: 'ip6log.ip',
           label: this.$i18n.t('IPv6 Address'),
-          sortable: true,
-          visible: true
-        },
-        {
-          key: 'tenant_id',
-          label: this.$i18n.t('Tenant'),
           sortable: true,
           visible: true
         },
@@ -665,9 +674,11 @@ export default {
   },
   computed: {
     roles () {
+      this.$store.dispatch('config/getRoles')
       return this.$store.state.config.roles
     },
     security_events () {
+      this.$store.dispatch('config/getSecurityEvents')
       return this.$store.getters['config/sortedSecurityEvents']
     }
   },
@@ -912,10 +923,6 @@ export default {
         })
       }
     }
-  },
-  created () {
-    this.$store.dispatch('config/getRoles')
-    this.$store.dispatch('config/getSecurityEvents')
   }
 }
 </script>
