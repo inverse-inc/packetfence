@@ -19,6 +19,7 @@ use Readonly;
 
 use pf::constants::filters;
 use pf::validation::profile_filters;
+use Graph;
 use pf::constants;
 use pf::constants::config qw($TIME_MODIFIER_RE);
 use pf::config qw(
@@ -1182,26 +1183,22 @@ sub valid_certs {
 
 sub portal_modules {
     require pf::ConfigStore::PortalModule;
-    require pf::Connection::ProfileFactory;
-    require captiveportal::DynamicRouting::Application;
-    require captiveportal::DynamicRouting::Factory;
-
     my $cs = pf::ConfigStore::PortalModule->new;
-    foreach my $module (@{$cs->readAll("id")}){
-        if(defined($module->{modules})){
+    my $g = Graph->new;
+    foreach my $module (@{$cs->readAll("id")}) {
+        my $id = $module->{id};
+        if (defined($module->{modules})) {
             foreach my $sub_module (@{$module->{modules}}){
-                unless($cs->hasId($sub_module)){
+                $g->add_edge($id, $sub_module);
+                unless($cs->hasId($sub_module)) {
                     add_problem($WARN, "Portal Module $sub_module is used by ".$module->{id}." but is not declared.")
                 }
             }
         }
-        if($module->{type} eq "Root"){
-            my $factory = captiveportal::DynamicRouting::Factory->new();
-            my ($result, $msg) = $factory->check_cyclic($module->{id});
-            unless($result) {
-                add_problem($WARN, $msg);
-            }
-        }
+    }
+
+    if ($g->has_a_cycle()) {
+        add_problem($FATAL, "There is a cycle in the portal module.")
     }
 }
 
