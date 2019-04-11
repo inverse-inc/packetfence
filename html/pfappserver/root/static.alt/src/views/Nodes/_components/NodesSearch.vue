@@ -261,31 +261,31 @@ export default {
         },
         {
           value: 'detect_date',
-          text: this.$i18n.t('Datetime Detected'),
+          text: this.$i18n.t('Detected Date'),
           types: [conditionType.DATETIME],
           icon: 'calendar-alt'
         },
         {
           value: 'regdate',
-          text: this.$i18n.t('Datetime Registered'),
+          text: this.$i18n.t('Registered Date'),
           types: [conditionType.DATETIME],
           icon: 'calendar-alt'
         },
         {
           value: 'unregdate',
-          text: this.$i18n.t('Datetime Unregistered'),
+          text: this.$i18n.t('Unregistered Date'),
           types: [conditionType.DATETIME],
           icon: 'calendar-alt'
         },
         {
           value: 'last_arp',
-          text: this.$i18n.t('Datetime Last ARP'),
+          text: this.$i18n.t('Last ARP Date'),
           types: [conditionType.DATETIME],
           icon: 'calendar-alt'
         },
         {
           value: 'last_dhcp',
-          text: this.$i18n.t('Datetime Last DHCP'),
+          text: this.$i18n.t('Last DHCP Date'),
           types: [conditionType.DATETIME],
           icon: 'calendar-alt'
         },
