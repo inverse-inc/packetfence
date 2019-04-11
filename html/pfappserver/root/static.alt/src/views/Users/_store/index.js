@@ -8,7 +8,7 @@ const STORAGE_SAVED_SEARCH = 'users-saved-search'
 
 // Default values
 const state = {
-  items: {}, // users details
+  users: {}, // users details
   userExists: {}, // node exists true|false
   message: '',
   userStatus: '',
@@ -67,13 +67,21 @@ const actions = {
     })
   },
   getUser: ({ commit, state }, pid) => {
-    if (state.items[pid]) {
-      return Promise.resolve(state.items[pid])
+    if (state.users[pid]) {
+      return Promise.resolve(state.users[pid])
     }
     commit('USER_REQUEST')
     return api.user(pid).then(data => {
       commit('USER_REPLACED', data)
-      return state.items[pid]
+      // Fetch nodes
+      api.nodes(pid).then(datas => {
+        commit('USER_UPDATED', { pid, prop: 'nodes', data: datas })
+      })
+      // Fetch security_events
+      api.securityEvents(pid).then(datas => {
+        commit('USER_UPDATED', { pid, prop: 'security_events', data: datas })
+      })
+      return JSON.parse(JSON.stringify(state.users[pid]))
     }).catch(err => {
       commit('USER_ERROR', err.response)
       return err
@@ -103,6 +111,18 @@ const actions = {
       commit('USER_ERROR', err.response)
     })
   },
+  unassignUserNodes: ({ commit }, pid) => {
+    commit('USER_REQUEST')
+    return new Promise((resolve, reject) => {
+      api.unassignUserNodes(pid).then(response => {
+        commit('USER_UPDATED', { pid: pid, prop: 'nodes', data: [] })
+        resolve(response)
+      }).catch(err => {
+        commit('USER_ERROR', err.response)
+        reject(err)
+      })
+    })
+  },
   deleteUser: ({ commit }, pid) => {
     commit('USER_REQUEST')
     return new Promise((resolve, reject) => {
@@ -115,6 +135,78 @@ const actions = {
         reject(err)
       })
     })
+  },
+  bulkUserRegisterNodes: ({ commit }, data) => {
+    commit('USER_REQUEST')
+    return api.bulkUserRegisterNodes(data).then(response => {
+      commit('USER_BULK_REGISTER_NODES', response)
+      return response
+    }).catch(err => {
+      commit('USER_ERROR', err.response)
+    })
+  },
+  bulkUserDeregisterNodes: ({ commit }, data) => {
+    commit('USER_REQUEST')
+    return api.bulkUserDeregisterNodes(data).then(response => {
+      commit('USER_BULK_DEREGISTER_NODES', response)
+      return response
+    }).catch(err => {
+      commit('USER_ERROR', err.response)
+    })
+  },
+  bulkUserApplySecurityEvent: ({ commit }, data) => {
+    commit('USER_REQUEST')
+    return api.bulkUserCloseSecurityEvents(data).then(response => {
+      commit('USER_BULK_APPLY_SECURITY_EVENT', response)
+      return response
+    }).catch(err => {
+      commit('USER_ERROR', err.response)
+    })
+  },
+  bulkUserCloseSecurityEvents: ({ commit }, data) => {
+    commit('USER_REQUEST')
+    return api.bulkUserCloseSecurityEvents(data).then(response => {
+      commit('USER_BULK_CLOSE_SECURITY_EVENTS', response)
+      return response
+    }).catch(err => {
+      commit('USER_ERROR', err.response)
+    })
+  },
+  bulkUserApplyRole: ({ commit }, data) => {
+    commit('USER_REQUEST')
+    return api.bulkUserApplyRole(data).then(response => {
+      commit('USER_BULK_APPLY_ROLE', response)
+      return response
+    }).catch(err => {
+      commit('USER_ERROR', err.response)
+    })
+  },
+  bulkUserApplyBypassRole: ({ commit }, data) => {
+    commit('USER_REQUEST')
+    return api.bulkUserApplyBypassRole(data).then(response => {
+      commit('USER_BULK_APPLY_BYPASS_ROLE', response)
+      return response
+    }).catch(err => {
+      commit('USER_ERROR', err.response)
+    })
+  },
+  bulkUserReevaluateAccess: ({ commit }, data) => {
+    commit('USER_REQUEST')
+    return api.bulkUserReevaluateAccess(data).then(response => {
+      commit('USER_BULK_REEVALUATE_ACCESS', response)
+      return response
+    }).catch(err => {
+      commit('USER_ERROR', err.response)
+    })
+  },
+  bulkUserRefreshFingerbank: ({ commit }, data) => {
+    commit('USER_REQUEST')
+    return api.bulkUserReevaluateAccess(data).then(response => {
+      commit('USER_BULK_REFRESH_FINGERBANK', response)
+      return response
+    }).catch(err => {
+      commit('USER_ERROR', err.response)
+    })
   }
 }
 
@@ -123,13 +215,68 @@ const mutations = {
     state.userStatus = 'loading'
   },
   USER_REPLACED: (state, data) => {
-    Vue.set(state.items, data.pid, data)
+    Vue.set(state.users, data.pid, data)
     // TODO: update items if found in it
     state.userStatus = 'success'
   },
+  USER_UPDATED: (state, params) => {
+    state.userStatus = 'success'
+    if (params.pid in state.users) {
+      Vue.set(state.users[params.pid], params.prop, params.data)
+    }
+  },
+  USER_BULK_REGISTER_NODES: (state, response) => {
+    state.userStatus = 'success'
+    response.forEach(params => {
+      if (params.pid in state.users) {
+        params.nodes.forEach(node => {
+          let index = state.users[params.pid].nodes.findIndex(n => n.mac === node.mac)
+          Vue.set(state.users[params.pid].nodes[index], 'status', 'reg')
+        })
+      }
+    })
+  },
+  USER_BULK_DEREGISTER_NODES: (state, response) => {
+    state.userStatus = 'success'
+    response.forEach(params => {
+      if (params.pid in state.users) {
+        params.nodes.forEach(node => {
+          let index = state.users[params.pid].nodes.findIndex(n => n.mac === node.mac)
+          Vue.set(state.users[params.pid].nodes[index], 'status', 'unreg')
+        })
+      }
+    })
+  },
+  USER_BULK_APPLY_SECURITY_EVENT: (state, response) => {
+    state.userStatus = 'success'
+    // TODO - update state
+  },
+  USER_BULK_CLOSE_SECURITY_EVENTS: (state, response) => {
+    state.userStatus = 'success'
+    // TODO - update state
+  },
+  USER_BULK_APPLY_ROLE: (state, response) => {
+    state.userStatus = 'success'
+    // TODO - update state
+  },
+  USER_BULK_APPLY_BYPASS_ROLE: (state, response) => {
+    state.userStatus = 'success'
+    // TODO - update state
+  },
+  USER_BULK_REEVALUATE_ACCESS: (state, response) => {
+    state.userStatus = 'success'
+    // TODO - update state
+  },
+  USER_BULK_REFRESH_FINGERBANK: (state, response) => {
+    state.userStatus = 'success'
+    // TODO - update state
+  },
   USER_DESTROYED: (state, pid) => {
     state.userStatus = 'success'
-    Vue.set(state.items, pid, null)
+    Vue.set(state.users, pid, null)
+  },
+  USER_SUCCESS: (state) => {
+      state.userStatus = 'success'
   },
   USER_ERROR: (state, response) => {
     state.userStatus = 'error'

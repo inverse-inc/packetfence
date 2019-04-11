@@ -6,10 +6,12 @@
         <b-button-close @click="close" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
         <h4 class="mb-0">{{ $t('User') }} <strong v-text="pid"></strong></h4>
       </b-card-header>
+      <b-tabs ref="tabs" v-model="tabIndex" card>
 
-      <b-tabs card>
-
-        <b-tab :title="$t('Profile')" active>
+        <b-tab title="Profile" active>
+          <template slot="title">
+            {{ $t('Profile') }}
+          </template>
           <b-row>
             <b-col>
               <pf-form-input :column-label="$t('Username (PID)')"
@@ -106,6 +108,10 @@
                 :config="{format: 'YYYY-MM-DD'}"
                 :vuelidate="$v.userContent.birthday"
               />
+              <pf-form-input :column-label="$t('Psk')"
+                v-model="userContent.psk"
+                :vuelidate="$v.userContent.psk"
+              />
               <pf-form-textarea :column-label="$t('Notes')"
                 v-model="userContent.notes"
                 :vuelidate="$v.userContent.notes"
@@ -115,7 +121,10 @@
           </b-row>
         </b-tab>
 
-        <b-tab :title="$t('Custom Fields')">
+        <b-tab title="Custom Fields">
+          <template slot="title">
+            {{ $t('Custom Fields') }}
+          </template>
           <b-form-row>
             <b-col>
               <pf-form-input v-for="i in 9" v-model="userContent['custom_field_' + i]" :column-label="'Custom Field ' + i" :key="i"/>
@@ -123,23 +132,69 @@
           </b-form-row>
         </b-tab>
 
+        <b-tab title="Devices">
+          <template slot="title">
+            {{ $t('Devices') }} <b-badge pill v-if="userContent.nodes && userContent.nodes.length > 0" variant="light" class="ml-1">{{ userContent.nodes.length }}</b-badge>
+          </template>
+          <b-table stacked="sm" :items="userContent.nodes" :fields="nodeFields" :sortBy="nodeSortBy" :sortDesc="nodeSortDesc" show-empty responsive striped>
+            <template slot="status" slot-scope="node">
+              <b-badge pill variant="success" v-if="node.item.status === 'reg'">{{ $t('registered') }}</b-badge>
+              <b-badge pill variant="secondary" v-else-if="node.item.status === 'unreg'">{{ $t('unregistered') }}</b-badge>
+              <span v-else>{{ node.item.status }}</span>
+            </template>
+            <template slot="mac" slot-scope="node">
+              <b-button variant="link" :to="`../../node/${node.item.mac}`">{{ node.item.mac }}</b-button>
+            </template>
+            <template slot="empty">
+              <pf-empty-table :isLoading="isLoading" text="">{{ $t('No devices found') }}</pf-empty-table>
+            </template>
+          </b-table>
+        </b-tab>
+
+        <b-tab title="Security Events">
+          <template slot="title">
+            {{ $t('Security Events') }} <b-badge pill v-if="userContent.security_events && userContent.security_events.length > 0" variant="light" class="ml-1">{{ userContent.security_events.length }}</b-badge>
+          </template>
+          <b-table stacked="sm" :items="userContent.security_events" :fields="securityEventFields" :sortBy="securityEventSortBy" :sortDesc="securityEventSortDesc" show-empty responsive striped>
+            <template slot="status" slot-scope="securityEvent">
+              <b-badge pill variant="success" v-if="securityEvent.item.status === 'open'">{{ $t('open') }}</b-badge>
+              <b-badge pill variant="secondary" v-else-if="securityEvent.item.status === 'closed'">{{ $t('closed') }}</b-badge>
+              <span v-else>{{ securityEvent.item.status }}</span>
+            </template>
+            <template slot="mac" slot-scope="securityEvent">
+              <b-button variant="link" :to="`../../node/${securityEvent.item.mac}`">{{ securityEvent.item.mac }}</b-button>
+            </template>
+            <template slot="buttons" slot-scope="securityEvent">
+              <span class="float-right text-nowrap">
+                <b-button size="sm" v-if="securityEvent.item.status === 'open'" variant="outline-danger" :disabled="isLoading" @click="closeSecurityEvent(securityEvent)">{{ $t('Close Event') }}</b-button>
+              </span>
+            </template>
+            <template slot="empty">
+              <pf-empty-table :isLoading="isLoading" text="">{{ $t('No security events found') }}</pf-empty-table>
+            </template>
+          </b-table>
+        </b-tab>
       </b-tabs>
-
       <b-card-footer @mouseenter="$v.userContent.$touch()">
-        <b-button class="mr-1" type="submit" variant="primary" :disabled="invalidForm"><icon name="circle-notch" spin v-show="isLoading"></icon> {{ $t('Save') }}</b-button>
-        <b-button variant="danger" :disabled="isLoading" @click="deleteUser()" v-t="'Delete'"></b-button>
+        <pf-button-save class="mr-1" v-if="ifTab(['Profile', 'Custom Fields'])" :disabled="invalidForm" :isLoading="isLoading"/>
+        <pf-button-delete class="mr-3" v-if="ifTab(['Profile', 'Custom Fields']) && !isDefaultUser" :disabled="isLoading" :confirm="$t('Delete User?')" @on-delete="deleteUser()"/>
+        <b-button class="mr-1" v-if="ifTab(['Devices']) && !isDefaultUser" variant="outline-primary" :disabled="isLoading || !hasNodes" @click="unassignNodes()">{{ $t('Unassign Nodes') }}</b-button>
+        <b-button class="mr-1" v-if="ifTab(['Security Events'])" variant="outline-primary" :disabled="isLoading || !hasOpenSecurityEvents" @click="closeSecurityEvents()">{{ $t('Close all security events') }}</b-button>
       </b-card-footer>
-
     </b-card>
   </b-form>
 </template>
 
 <script>
+import pfButtonSave from '@/components/pfButtonSave'
+import pfButtonDelete from '@/components/pfButtonDelete'
+import pfEmptyTable from '@/components/pfEmptyTable'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormDatetime from '@/components/pfFormDatetime'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormTextarea from '@/components/pfFormTextarea'
 import pfFormToggle from '@/components/pfFormToggle'
+import { pfFormatters as formatter } from '@/globals/pfFormatters'
 import {
   required,
   minLength
@@ -161,6 +216,9 @@ const { validationMixin } = require('vuelidate')
 export default {
   name: 'UserView',
   components: {
+    pfButtonSave,
+    pfButtonDelete,
+    pfEmptyTable,
     pfFormChosen,
     pfFormDatetime,
     pfFormInput,
@@ -179,38 +237,93 @@ export default {
         regExp: regExp,
         schema: schema
       },
-      userContent: {
-        pid: '',
-        email: '',
-        sponsor: '',
-        password: '',
-        login_remaining: null,
-        gender: '',
-        title: '',
-        firstname: '',
-        lastname: '',
-        nickname: '',
-        company: '',
-        telephone: '',
-        cell_phone: '',
-        work_phone: '',
-        address: '',
-        apartment_number: '',
-        building_number: '',
-        room_number: '',
-        anniversary: '',
-        birthday: '',
-        notes: '',
-        custom_field_1: '',
-        custom_field_2: '',
-        custom_field_3: '',
-        custom_field_4: '',
-        custom_field_5: '',
-        custom_field_6: '',
-        custom_field_7: '',
-        custom_field_8: '',
-        custom_field_9: ''
-      }
+      tabIndex: 0,
+      tabTitle: '',
+      userContent: {},
+      nodeFields: [
+        {
+          key: 'status',
+          label: this.$i18n.t('Status'),
+          sortable: true
+        },
+        {
+          key: 'mac',
+          label: this.$i18n.t('MAC'),
+          sortable: true
+        },
+        {
+          key: 'computername',
+          label: this.$i18n.t('Computer Name'),
+          sortable: true
+        },
+        {
+          key: 'device_class',
+          label: this.$i18n.t('Device Class'),
+          sortable: true
+        },
+        {
+          key: 'device_type',
+          label: this.$i18n.t('Device Type'),
+          sortable: true
+        },
+        {
+          key: 'regdate',
+          label: this.$i18n.t('Registration Date'),
+          sortable: true,
+          formatter: formatter.datetimeIgnoreZero
+        },
+        {
+          key: 'unregdate',
+          label: this.$i18n.t('Unregistration Date'),
+          sortable: true,
+          formatter: formatter.datetimeIgnoreZero
+        }
+      ],
+      nodeSortBy: 'status',
+      nodeSortDesc: false,
+      securityEventFields: [
+        {
+          key: 'status',
+          label: this.$i18n.t('Status'),
+          sortable: true
+        },
+        {
+          key: 'security_event_id',
+          label: this.$i18n.t('Event'),
+          sortable: true,
+          formatter: formatter.securityEventIdToDesc
+        },
+        {
+          key: 'mac',
+          label: this.$i18n.t('MAC'),
+          sortable: true
+        },
+        {
+          key: 'notes',
+          label: this.$i18n.t('Description'),
+          sortable: true
+        },
+        {
+          key: 'start_date',
+          label: this.$i18n.t('Start Date'),
+          sortable: true,
+          formatter: formatter.datetimeIgnoreZero
+        },
+        {
+          key: 'release_date',
+          label: this.$i18n.t('Release Date'),
+          sortable: true,
+          formatter: formatter.datetimeIgnoreZero
+        },
+        {
+          key: 'buttons',
+          label: '',
+          sortable: false,
+          locked: true
+        }
+      ],
+      securityEventSortBy: 'status',
+      securityEventSortDesc: false
     }
   },
   validations () {
@@ -229,7 +342,10 @@ export default {
             [this.$i18n.t('Email address required.')]: required
           },
           password: {
-            [this.$i18n.t('Password must be at least 6 characters.')]: minLength(6)
+            [this.$i18n.t('Minimum 6 characters.')]: minLength(6)
+          },
+          psk: {
+            [this.$i18n.t('Minimum 8 characters.')]: minLength(8)
           }
         }
       )
@@ -244,9 +360,21 @@ export default {
     },
     invalidForm () {
       return this.$v.userContent.$invalid || this.$store.getters['$_users/isLoading']
+    },
+    hasNodes () {
+      return this.userContent.nodes.length > 0
+    },
+    hasOpenSecurityEvents () {
+      return this.userContent.security_events.findIndex(securityEvent => securityEvent.status === 'open') > -1
+    },
+    isDefaultUser () {
+      return this.userContent.pid === 'default'
     }
   },
   methods: {
+    ifTab (set) {
+      return this.$refs.tabs && set.includes(this.$refs.tabs.tabs[this.tabIndex].title)
+    },
     close () {
       this.$router.push({ name: 'users' })
     },
@@ -260,6 +388,17 @@ export default {
         this.close()
       })
     },
+    closeSecurityEvent (securityEvent) {
+      console.log('closeSecurityEvent', securityEvent)
+    },
+    closeSecurityEvents () {
+      console.log('closeSecurityEvents')
+    },
+    unassignNodes () {
+      this.$store.dispatch('$_users/unassignUserNodes', this.pid).then(response => {
+        this.userContent.nodes = []
+      })
+    },
     onKeyup (event) {
       switch (event.keyCode) {
         case 27: // escape
@@ -268,8 +407,8 @@ export default {
     }
   },
   mounted () {
-    this.$store.dispatch('$_users/getUser', this.pid).then(data => {
-      this.userContent = Object.assign({}, data)
+    this.$store.dispatch('$_users/getUser', this.pid).then(user => {
+      this.userContent = user
     })
     document.addEventListener('keyup', this.onKeyup)
   },

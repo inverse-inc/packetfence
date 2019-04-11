@@ -67,15 +67,15 @@ const actions = {
     })
   },
   getNode: ({ state, commit }, mac) => {
-    let node = { fingerbank: {} } // ip4: { history: [] }, ip6: { history: [] } }
-
     if (state.nodes[mac]) {
       return Promise.resolve(state.nodes[mac])
     }
 
+    let node = { fingerbank: {} } // ip4: { history: [] }, ip6: { history: [] } }
+
     commit('NODE_REQUEST')
-    return api.node(mac).then(item => {
-      Object.assign(node, item)
+    return api.node(mac).then(data => {
+      Object.assign(node, data)
       if (node.status === null) {
         node.status = 'unreg'
       }
@@ -83,17 +83,17 @@ const actions = {
 
       // Fetch ip4log history
       let ip4 = {}
-      api.ip4logOpen(mac).then(item => {
-        Object.assign(ip4, item)
-        ip4.active = item.end_time === '0000-00-00 00:00:00'
+      api.ip4logOpen(mac).then(data => {
+        Object.assign(ip4, data)
+        ip4.active = data.end_time === '0000-00-00 00:00:00'
       }).catch(() => {
         Object.assign(ip4, { active: false })
       }).finally(() => {
-        api.ip4logHistory(mac).then(items => {
-          if (items && items.length > 0) {
-            Object.assign(ip4, { history: items })
+        api.ip4logHistory(mac).then(datas => {
+          if (datas && datas.length > 0) {
+            Object.assign(ip4, { history: datas })
             if (!ip4.active && !ip4.end_time) {
-              ip4.end_time = items[0].end_time
+              ip4.end_time = datas[0].end_time
             }
           }
         }).catch(() => {
@@ -105,17 +105,17 @@ const actions = {
 
       // Fetch ip6log history
       let ip6 = {}
-      api.ip6logOpen(mac).then(item => {
-        Object.assign(ip6, item)
-        ip6.active = item.end_time === '0000-00-00 00:00:00'
+      api.ip6logOpen(mac).then(data => {
+        Object.assign(ip6, data)
+        ip6.active = data.end_time === '0000-00-00 00:00:00'
       }).catch(() => {
         Object.assign(ip6, { active: false })
       }).finally(() => {
-        api.ip6logHistory(mac).then(items => {
-          if (items && items.length > 0) {
-            Object.assign(ip6, { history: items })
+        api.ip6logHistory(mac).then(datas => {
+          if (datas && datas.length > 0) {
+            Object.assign(ip6, { history: datas })
             if (!ip6.active && !ip6.end_time) {
-              ip6.end_time = items[0].end_time
+              ip6.end_time = datas[0].end_time
             }
           }
         }).catch(() => {
@@ -126,19 +126,19 @@ const actions = {
       })
 
       // Fetch locationlogs
-      api.locationlogs(mac).then(items => {
-        commit('NODE_UPDATED', { mac, prop: 'locations', data: items })
+      api.locationlogs(mac).then(datas => {
+        commit('NODE_UPDATED', { mac, prop: 'locations', data: datas })
       })
 
       // Fetch security_events
-      api.security_events(mac).then(items => {
-        commit('NODE_UPDATED', { mac, prop: 'security_events', data: items })
+      api.security_events(mac).then(datas => {
+        commit('NODE_UPDATED', { mac, prop: 'security_events', data: datas })
       })
 
       // Fetch fingerbank
       let fingerbank = {}
-      api.fingerbankInfo(mac).then(item => {
-        Object.assign(fingerbank, item)
+      api.fingerbankInfo(mac).then(data => {
+        Object.assign(fingerbank, data)
       }).catch(() => {
         // noop
       }).finally(() => {
