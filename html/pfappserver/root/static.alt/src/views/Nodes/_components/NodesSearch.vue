@@ -221,6 +221,12 @@ export default {
           types: [conditionType.INTEGER]
         },
         {
+          value: 'status',
+          text: this.$i18n.t('Status'),
+          types: [conditionType.NODE_STATUS],
+          icon: 'power-off'
+        },
+        {
           value: 'mac',
           text: this.$i18n.t('MAC Address'),
           types: [conditionType.SUBSTRING],
@@ -234,7 +240,7 @@ export default {
         },
         {
           value: 'bypass_vlan',
-          text: this.$i18n.t('Bypass VLAN [?]'),
+          text: this.$i18n.t('Bypass VLAN'),
           types: [conditionType.SUBSTRING],
           icon: 'project-diagram'
         },
@@ -246,7 +252,7 @@ export default {
         },
         {
           value: 'locationlog.connection_type',
-          text: this.$i18n.t('Connection Type [?]'),
+          text: this.$i18n.t('Connection Type'),
           types: [conditionType.CONNECTION_TYPE],
           icon: 'plug'
         },
@@ -288,7 +294,7 @@ export default {
         },
         {
           value: 'device_manufacturer',
-          text: this.$i18n.t('Device Manufacturer [?]'),
+          text: this.$i18n.t('Device Manufacturer'),
           types: [conditionType.SUBSTRING],
           icon: 'barcode'
         },
@@ -355,6 +361,24 @@ export default {
         {
           value: 'locationlog.switch_mac',
           text: this.$i18n.t('Source Switch MAC'),
+          types: [conditionType.SUBSTRING],
+          icon: 'sitemap'
+        },
+        {
+          value: 'locationlog.switch_port',
+          text: this.$i18n.t('Source Switch Port'),
+          types: [conditionType.INTEGER],
+          icon: 'sitemap'
+        },
+        {
+          value: 'locationlog.switch_port_description',
+          text: this.$i18n.t('Source Switch Port Description'),
+          types: [conditionType.SUBSTRING],
+          icon: 'sitemap'
+        },
+        {
+          value: 'locationlog.switch_description',
+          text: this.$i18n.t('Source Switch Description'),
           types: [conditionType.SUBSTRING],
           icon: 'sitemap'
         },
@@ -581,6 +605,24 @@ export default {
         {
           key: 'locationlog.switch_mac',
           label: this.$i18n.t('Switch MAC Address'),
+          sortable: true,
+          visible: false
+        },
+        {
+          key: 'locationlog.switch_port',
+          label: this.$i18n.t('Switch Port'),
+          sortable: true,
+          visible: false
+        },
+        {
+          key: 'locationlog.switch_port_description',
+          label: this.$i18n.t('Switch Port Description'),
+          sortable: true,
+          visible: false
+        },
+        {
+          key: 'locationlog.switch_description',
+          label: this.$i18n.t('Switch Description'),
           sortable: true,
           visible: false
         },
