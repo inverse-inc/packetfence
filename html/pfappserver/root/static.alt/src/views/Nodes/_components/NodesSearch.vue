@@ -521,7 +521,7 @@ export default {
           key: 'ip6log.ip',
           label: this.$i18n.t('IPv6 Address'),
           sortable: true,
-          visible: true
+          visible: false
         },
         {
           key: 'device_class',
@@ -545,7 +545,7 @@ export default {
           key: 'device_type',
           label: this.$i18n.t('Device Type'),
           sortable: true,
-          visible: true
+          visible: false
         },
         {
           key: 'device_version',
