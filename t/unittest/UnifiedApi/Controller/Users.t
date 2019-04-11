@@ -31,7 +31,7 @@ my $t = Test::Mojo->new('pf::UnifiedApi');
 #This test will running last
 use Test::NoWarnings;
 my $batch = 5;
-plan tests => $batch * (2 + 2 * $batch) + 18;
+plan tests => $batch * (2 + 2 * $batch) + 25;
 my @persons;
 
 for ( 1 .. $batch ) {
@@ -50,12 +50,14 @@ for ( 1 .. $batch ) {
 
 my @pids = map { $_->{pid} } @persons;
 
-{
+bulk_test('/api/v1/users/bulk_apply_bypass_role', 'bypass_role_id', 1);
+bulk_test('/api/v1/users/bulk_apply_role', 'category_id', 2);
 
-    $t->post_ok(
-        "/api/v1/users/bulk_apply_bypass_role", json => {
+sub bulk_test {
+    my ($path, $field, $value) = @_;
+    $t->post_ok($path => json => {
             items => \@pids,
-            bypass_role_id => "1",
+            $field => $value,
         }
     )->status_is(200);
 
@@ -64,7 +66,7 @@ my @pids = map { $_->{pid} } @persons;
             query => {
                 op     => 'and',
                 values => [
-                    { op => 'equals', value => '1', field => 'bypass_role_id' },
+                    { op => 'equals', value => $value, field => $field },
                     {
                         op       => 'or',
                         'values' => [
@@ -80,7 +82,8 @@ my @pids = map { $_->{pid} } @persons;
     )->status_is(200);
 
     my $items = $t->tx->res->json->{items};
-    ok ((all {$_->{bypass_role_id} eq '1'} @$items), "bypass_role_id is set to 1");
+    ok (@$items == $batch * $batch, "Found all $field");
+    ok ((all {$_->{$field} eq $value} @$items), "$field is set to $value");
 }
 
 $t->post_ok( "/api/v1/users/bulk_register" => json => { items => \@pids } )

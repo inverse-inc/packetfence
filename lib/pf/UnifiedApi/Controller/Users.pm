@@ -358,7 +358,7 @@ sub do_bulk_update_field {
         -columns => [qw(mac pid)],
         -where => {
             pid => { -in => $items },
-            $field => [ {"!=" => $value}, defined $value ? ({"=" => undef} ) : () ],
+            "node.${field}" => [ {"!=" => $value}, defined $value ? ({"=" => undef} ) : () ],
         },
         -with_class => undef,
     );
