@@ -44,7 +44,7 @@
                 :max="globals.sqlLimits.ubigint.max"
                 :vuelidate="$v.nodeContent.bandwidth_balance"
               ></pf-form-prefix-multiplier>
-              <pf-form-toggle :column-label="$t('VOIP')"
+              <pf-form-toggle :column-label="$t('Voice Over IP')"
                 v-model="nodeContent.voip"
                 :values="{checked: 'yes', unchecked: 'no'}"
                 :vuelidate="$v.nodeContent.voip"
