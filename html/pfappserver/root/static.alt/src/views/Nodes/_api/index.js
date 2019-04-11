@@ -156,5 +156,10 @@ export default {
     return apiCall.post(`nodes/bulk_restart_switchport`, body).then(response => {
       return response.data.items
     })
+  },
+  bulkApplyBypassVlan: body => {
+    return apiCall.post(`nodes/bulk_apply_bypass_vlan`, body).then(response => {
+      return response.data.items
+    })
   }
 }

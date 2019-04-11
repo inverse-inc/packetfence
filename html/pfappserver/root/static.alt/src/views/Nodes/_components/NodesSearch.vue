@@ -39,6 +39,10 @@
               <icon class="position-absolute mt-1" name="retweet"></icon>
               <span class="ml-4">{{ $t('Refresh Fingerbank') }}</span>
             </b-dropdown-item>
+            <b-dropdown-item @click="showBypassVlanModal = true">
+              <icon class="position-absolute mt-1" name="project-diagram"></icon>
+              <span class="ml-4">{{ $t('Apply Bypass VLAN') }}</span>
+            </b-dropdown-item>
             <b-dropdown-divider></b-dropdown-divider>
             <b-dropdown-header>{{ $t('Apply Role') }}</b-dropdown-header>
             <b-dropdown-item v-for="role in roles" :key="role.category_id" @click="applyBulkRole(role)">
@@ -139,6 +143,16 @@
         </template>
       </b-table>
     </div>
+    <b-modal v-model="showBypassVlanModal" size="sm" centered id="bypassVlanModal" :title="$t('Bulk Apply Bypass VLAN')" @shown="focusBypassVlanInput">
+      <b-form-group>
+        <b-form-input ref="bypassVlanInput" v-model="bypassVlanString" type="text" :placeholder="$t('Enter a VLAN')"/>
+        <b-form-text v-t="$t('Leave empty to clear bypass VLAN.')"></b-form-text>
+      </b-form-group>
+      <div slot="modal-footer">
+        <b-button variant="secondary" class="mr-1" @click="showBypassVlanModal=false">{{ $t('Cancel') }}</b-button>
+        <b-button variant="primary" @click="applyBulkBypassVlan()">{{ $t('Apply') }}</b-button>
+      </div>
+    </b-modal>
   </b-card>
 </template>
 
@@ -686,7 +700,9 @@ export default {
       ],
       requestPage: 1,
       currentPage: 1,
-      pageSizeLimit: 10
+      pageSizeLimit: 10,
+      showBypassVlanModal: false,
+      bypassVlanString: null
     }
   },
   computed: {
@@ -1001,6 +1017,43 @@ export default {
           })
           this.$store.dispatch('notification/info', {
             message: this.$i18n.t('Applied security event on {node_count} nodes.', { node_count: items.length }),
+            success: success_count,
+            skipped: skipped_count,
+            failed: failed_count
+          })
+        }).catch(() => {
+          macs.forEach(mac => {
+            let index = this.tableValues.findIndex(security_event => security_event.mac === mac)
+            this.setRowVariant(index, 'danger')
+          })
+        })
+      }
+    },
+    focusBypassVlanInput () {
+      this.$refs.bypassVlanInput.focus()
+    },
+    applyBulkBypassVlan () {
+      this.showBypassVlanModal = false
+      const macs = this.selectValues.map(item => item.mac)
+      const bypassVlan = (this.bypassVlanString) ? this.bypassVlanString : null
+      if (macs.length > 0) {
+        this.$store.dispatch(`${this.storeName}/bulkApplyBypassVlan`, { bypass_vlan: bypassVlan, items: macs }).then(items => {
+          let success_count = 0
+          let skipped_count = 0
+          let failed_count = 0
+          items.forEach((item, _index, items) => {
+            let index = this.tableValues.findIndex(securityEvent => securityEvent.mac === item.mac)
+            switch (item.status) {
+              case 'success': success_count++
+                break
+              case 'skipped': skipped_count++
+                break
+              default: failed_count++
+            }
+            this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
+          })
+          this.$store.dispatch('notification/info', {
+            message: this.$i18n.t('Applied bypass VLAN on {node_count} nodes.', { node_count: items.length }),
             success: success_count,
             skipped: skipped_count,
             failed: failed_count

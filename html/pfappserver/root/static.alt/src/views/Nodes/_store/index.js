@@ -303,84 +303,93 @@ const actions = {
     })
   },
   bulkRegisterNodes: ({ commit }, data) => {
-    commit('USER_REQUEST')
+    commit('NODE_REQUEST')
     return api.bulkRegisterNodes(data).then(response => {
-      commit('USER_BULK_REGISTER_NODES', response)
+      commit('NODE_BULK_REGISTER_NODES', response)
       return response
     }).catch(err => {
-      commit('USER_ERROR', err.response)
+      commit('NODE_ERROR', err.response)
     })
   },
   bulkDeregisterNodes: ({ commit }, data) => {
-    commit('USER_REQUEST')
+    commit('NODE_REQUEST')
     return api.bulkDeregisterNodes(data).then(response => {
-      commit('USER_BULK_DEREGISTER_NODES', response)
+      commit('NODE_BULK_DEREGISTER_NODES', response)
       return response
     }).catch(err => {
-      commit('USER_ERROR', err.response)
+      commit('NODE_ERROR', err.response)
     })
   },
   bulkApplySecurityEvent: ({ commit }, data) => {
-    commit('USER_REQUEST')
+    commit('NODE_REQUEST')
     return api.bulkCloseSecurityEvents(data).then(response => {
-      commit('USER_BULK_APPLY_SECURITY_EVENT', response)
+      commit('NODE_BULK_APPLY_SECURITY_EVENT', response)
       return response
     }).catch(err => {
-      commit('USER_ERROR', err.response)
+      commit('NODE_ERROR', err.response)
     })
   },
   bulkCloseSecurityEvents: ({ commit }, data) => {
-    commit('USER_REQUEST')
+    commit('NODE_REQUEST')
     return api.bulkCloseSecurityEvents(data).then(response => {
-      commit('USER_BULK_CLOSE_SECURITY_EVENTS', response)
+      commit('NODE_BULK_CLOSE_SECURITY_EVENTS', response)
       return response
     }).catch(err => {
-      commit('USER_ERROR', err.response)
+      commit('NODE_ERROR', err.response)
     })
   },
   bulkApplyRole: ({ commit }, data) => {
-    commit('USER_REQUEST')
+    commit('NODE_REQUEST')
     return api.bulkApplyRole(data).then(response => {
-      commit('USER_BULK_APPLY_ROLE', response)
+      commit('NODE_BULK_APPLY_ROLE', response)
       return response
     }).catch(err => {
-      commit('USER_ERROR', err.response)
+      commit('NODE_ERROR', err.response)
     })
   },
   bulkApplyBypassRole: ({ commit }, data) => {
-    commit('USER_REQUEST')
+    commit('NODE_REQUEST')
     return api.bulkApplyBypassRole(data).then(response => {
-      commit('USER_BULK_APPLY_BYPASS_ROLE', response)
+      commit('NODE_BULK_APPLY_BYPASS_ROLE', response)
       return response
     }).catch(err => {
-      commit('USER_ERROR', err.response)
+      commit('NODE_ERROR', err.response)
     })
   },
   bulkReevaluateAccess: ({ commit }, data) => {
-    commit('USER_REQUEST')
+    commit('NODE_REQUEST')
     return api.bulkReevaluateAccess(data).then(response => {
-      commit('USER_BULK_REEVALUATE_ACCESS', response)
+      commit('NODE_BULK_REEVALUATE_ACCESS', response)
       return response
     }).catch(err => {
-      commit('USER_ERROR', err.response)
+      commit('NODE_ERROR', err.response)
     })
   },
   bulkRefreshFingerbank: ({ commit }, data) => {
-    commit('USER_REQUEST')
+    commit('NODE_REQUEST')
     return api.bulkRefreshFingerbank(data).then(response => {
-      commit('USER_BULK_REFRESH_FINGERBANK', response)
+      commit('NODE_BULK_REFRESH_FINGERBANK', response)
       return response
     }).catch(err => {
-      commit('USER_ERROR', err.response)
+      commit('NODE_ERROR', err.response)
     })
   },
   bulkRestartSwitchport: ({ commit }, data) => {
-    commit('USER_REQUEST')
+    commit('NODE_REQUEST')
     return api.bulkRestartSwitchport(data).then(response => {
-      commit('USER_BULK_RESTART_SWITCHPORT', response)
+      commit('NODE_BULK_RESTART_SWITCHPORT', response)
       return response
     }).catch(err => {
-      commit('USER_ERROR', err.response)
+      commit('NODE_ERROR', err.response)
+    })
+  },
+  bulkApplyBypassVlan: ({ commit }, data) => {
+    commit('NODE_REQUEST')
+    return api.bulkApplyBypassVlan(data).then(response => {
+      commit('NODE_BULK_BYPASS_VLAN', response)
+      return response
+    }).catch(err => {
+      commit('NODE_ERROR', err.response)
     })
   }
 }
@@ -399,6 +408,42 @@ const mutations = {
     if (params.mac in state.nodes) {
       Vue.set(state.nodes[params.mac], params.prop, params.data)
     }
+  },
+  NODE_BULK_REGISTER_NODES: (state, response) => {
+    state.nodeStatus = 'success'
+    // TODO - update state
+  },
+  NODE_BULK_DEREGISTER_NODES: (state, response) => {
+    state.nodeStatus = 'success'
+    // TODO - update state
+  },
+  NODE_BULK_APPLY_SECURITY_EVENT: (state, response) => {
+    state.nodeStatus = 'success'
+    // TODO - update state
+  },
+  NODE_BULK_CLOSE_SECURITY_EVENTS: (state, response) => {
+    state.nodeStatus = 'success'
+    // TODO - update state
+  },
+  NODE_BULK_APPLY_ROLE: (state, response) => {
+    state.nodeStatus = 'success'
+    // TODO - update state
+  },
+  NODE_BULK_APPLY_BYPASS_ROLE: (state, response) => {
+    state.nodeStatus = 'success'
+    // TODO - update state
+  },
+  NODE_BULK_REEVALUATE_ACCESS: (state, response) => {
+    state.nodeStatus = 'success'
+    // TODO - update state
+  },
+  NODE_BULK_REFRESH_FINGERBANK: (state, response) => {
+    state.nodeStatus = 'success'
+    // TODO - update state
+  },
+  NODE_BULK_BYPASS_VLAN: (state, response) => {
+    state.nodeStatus = 'success'
+    // TODO - update state
   },
   NODE_DESTROYED: (state, mac) => {
     state.nodeStatus = 'success'
