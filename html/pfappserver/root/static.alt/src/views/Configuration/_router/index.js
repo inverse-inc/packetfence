@@ -79,6 +79,7 @@ const WrixLocationsList = () => import(/* webpackChunkName: "Configuration" */ '
 const WrixLocationView = () => import(/* webpackChunkName: "Configuration" */ '../_components/WrixLocationView')
 
 /* Advanced Access Configuration */
+const AdvancedAccessConfigurationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/AdvancedAccessConfigurationSection')
 const CaptivePortalView = () => import(/* webpackChunkName: "Configuration" */ '../_components/CaptivePortalView')
 const FilterEngineTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/FilterEngineTabs')
 const BillingTiersList = () => import(/* webpackChunkName: "Configuration" */ '../_components/BillingTiersList')
@@ -104,7 +105,8 @@ const FloatingDevicesList = () => import(/* webpackChunkName: "Configuration" */
 const FloatingDeviceView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FloatingDeviceView')
 const CertificatesView = () => import(/* webpackChunkName: "Configuration" */ '../_components/CertificatesView')
 
-/* Main Configuration */
+/* System Configuration */
+const SystemConfigurationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/SystemConfigurationSection')
 const MainTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/MainTabs')
 const MaintenanceTaskView = () => import(/* webpackChunkName: "Configuration" */ '../_components/MaintenanceTaskView')
 const DatabaseTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/DatabaseTabs')
@@ -225,7 +227,7 @@ const route = {
      * Policies Access Control
      */
     {
-      path: 'policesaccesscontrol',
+      path: 'polices_access_control',
       component: PoliciesAccessControlSection
     },
     {
@@ -1055,6 +1057,10 @@ const route = {
      *  Advanced Access Configuration
      */
     {
+      path: 'advanced_access_configuration',
+      component: AdvancedAccessConfigurationSection
+    },
+    {
       path: 'captive_portal',
       name: 'captive_portal',
       component: CaptivePortalView,
@@ -1246,7 +1252,7 @@ const route = {
      * Network Configuration
      */
     {
-      path: 'networkconfiguration',
+      path: 'network_configuration',
       component: NetworkConfigurationSection
     },
     {
@@ -1420,8 +1426,12 @@ const route = {
       props: (route) => ({ storeName: '$_certificates', id: route.params.id })
     },
     /**
-     * Main Configuration
+     * System Configuration
      */
+    {
+      path: 'system_configuration',
+      component: SystemConfigurationSection
+    },
     {
       path: 'general',
       name: 'general',
