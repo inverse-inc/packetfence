@@ -1,27 +1,20 @@
-2<template>
+<template>
   <b-card no-body>
     <b-progress height="2px" :value="progressValue" :max="progressTotal" v-show="progressValue > 0 && progressValue < progressTotal"></b-progress>
     <b-card-header>
       <h4 class="mb-0" v-t="'Import Nodes'"></h4>
     </b-card-header>
     <div class="card-body">
-      <b-tabs ref="tabs" v-model="tabIndex" card>
+      <b-tabs ref="tabs" v-model="tabIndex" card pills>
         <b-tab v-for="(file, index) in files" :key="file.name + file.lastModified" :title="file.name" no-body>
           <template slot="title">
-            <b-button-close class="float-right ml-3" @click.stop.prevent="closeFile(index)" v-b-tooltip.hover.left.d300 :title="$t('Close File')"><icon name="times"></icon></b-button-close>
+            <b-button-close class="ml-2 text-white" @click.stop.prevent="closeFile(index)" v-b-tooltip.hover.left.d300 :title="$t('Close File')"><icon name="times"></icon></b-button-close>
             {{ $t(file.name) }}
           </template>
           <pf-csv-parse @input="onImport" :ref="'parser-' + index" :file="file" :fields="fields" :storeName="storeName" no-init-bind-keys></pf-csv-parse>
         </b-tab>
         <template slot="tabs">
-          <li role="presentation" class="nav-item" v-b-tooltip.hover.left.d300 :title="$t('Open CSV File')" style="cursor:pointer;">
-            <div class="nav-link">
-              <pf-form-upload @load="files = $event" :multiple="true" :cumulative="true" accept="text/*, .csv">
-                <icon name="plus-circle" class="float-right mt-1 ml-3"></icon>
-                {{ $t('Open CSV File') }}
-              </pf-form-upload>
-            </div>
-          </li>
+          <pf-form-upload @load="files = $event" :multiple="true" :cumulative="true" accept="text/*, .csv">{{ $t('Open CSV File') }}</pf-form-upload>
         </template>
         <div slot="empty" class="text-center text-muted">
           <b-container class="my-5">

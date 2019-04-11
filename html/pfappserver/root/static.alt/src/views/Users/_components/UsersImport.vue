@@ -5,18 +5,16 @@
       <h4 class="mb-0" v-t="'Import Users'"></h4>
     </b-card-header>
     <div class="card-body">
-      <b-tabs ref="tabs" v-model="tabIndex" card>
+      <b-tabs ref="tabs" v-model="tabIndex" card pills>
         <b-tab v-for="(file, index) in files" :key="file.name + file.lastModified" :title="file.name" no-body>
           <template slot="title">
-            <b-button-close class="float-right ml-3" @click.stop.prevent="closeFile(index)" v-b-tooltip.hover.left.d300 :title="$t('Close File')"><icon name="times"></icon></b-button-close>
+            <b-button-close class="ml-2 text-white" @click.stop.prevent="closeFile(index)" v-b-tooltip.hover.left.d300 :title="$t('Close File')"><icon name="times"></icon></b-button-close>
             {{ $t(file.name) }}
           </template>
           <pf-csv-parse @input="onImport" :ref="'parser-' + index" :file="file" :fields="fields" :storeName="storeName" no-init-bind-keys></pf-csv-parse>
         </b-tab>
         <template slot="tabs">
-          <pf-form-upload class="mb-1 ml-3" @load="files = $event" :multiple="true" :cumulative="true" accept="text/*, .csv">
-            {{ $t('Open CSV File') }}
-          </pf-form-upload>
+          <pf-form-upload class="ml-3" @load="files = $event" :multiple="true" :cumulative="true" accept="text/*, .csv">{{ $t('Open CSV File') }}</pf-form-upload>
         </template>
         <div slot="empty" class="text-center text-muted">
           <b-container class="my-5">

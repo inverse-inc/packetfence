@@ -45,7 +45,7 @@
 <template>
   <b-form @submit.prevent="doExport()">
     <b-card-body>
-      <b-tabs pills card>
+      <b-tabs card>
 
         <b-tab :title="$t('CSV File Contents')">
           <b-form-textarea
