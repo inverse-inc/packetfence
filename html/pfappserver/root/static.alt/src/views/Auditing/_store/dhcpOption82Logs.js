@@ -1,16 +1,16 @@
 /**
-* "$_radiuslogs" store module
+* "$_dhcpoption82_logs" store module
 */
 import Vue from 'vue'
 import api from '../_api'
 
-const STORAGE_SEARCH_LIMIT_KEY = 'radiuslogs-search-limit'
-const STORAGE_VISIBLE_COLUMNS_KEY = 'radiuslogs-visible-columns'
+const STORAGE_SEARCH_LIMIT_KEY = 'dhcpoption82logs-search-limit'
+const STORAGE_VISIBLE_COLUMNS_KEY = 'dhcpoption82logs-visible-columns'
 
 // Default values
 const state = {
   results: [], // search results
-  cache: {}, // radius log details
+  cache: {}, // dhcp option82 log details
   message: '',
   itemStatus: '',
   searchStatus: '',
@@ -58,7 +58,7 @@ const actions = {
       fields: state.searchFields,
       sort
     }
-    let apiPromise = state.searchQuery ? api.search(Object.assign(body, { query: state.searchQuery })) : api.all(body)
+    let apiPromise = state.searchQuery ? api.searchDhcpOption82Logs(Object.assign(body, { query: state.searchQuery })) : api.allDhcpOption82Logs(body)
     if (state.searchStatus !== 'loading') {
       return new Promise((resolve, reject) => {
         commit('SEARCH_REQUEST')
@@ -72,14 +72,14 @@ const actions = {
       })
     }
   },
-  getItem: ({ state, commit }, id) => {
-    if (state.cache[id]) {
-      return Promise.resolve(state.cache[id])
+  getItem: ({ state, commit }, mac) => {
+    if (state.cache[mac]) {
+      return Promise.resolve(state.cache[mac])
     }
     commit('ITEM_REQUEST')
-    return api.radiuslog(id).then(data => {
+    return api.getDhcpOption82Log(mac).then(data => {
       commit('ITEM_REPLACED', data)
-      return state.cache[id]
+      return state.cache[mac]
     }).catch(err => {
       commit('ITEM_ERROR', err.response)
       return err
@@ -134,7 +134,7 @@ const mutations = {
   },
   ITEM_REPLACED: (state, data) => {
     state.itemStatus = 'success'
-    Vue.set(state.cache, data.id, data)
+    Vue.set(state.cache, data.mac, data)
   },
   ITEM_ERROR: (state, response) => {
     state.itemStatus = 'error'

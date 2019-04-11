@@ -874,9 +874,9 @@ export const pfConfigurationFingerbankDeviceViewFields = (context = {}) => {
   ]
 }
 
-export const pfConfigurationFingerbankDeviceOptionsSearchFunction = (vm, query) => {
+export const pfConfigurationFingerbankDeviceOptionsSearchFunction = (chosen, query) => {
   if (!query) return []
-  if (vm.options.length === 0) { // first query - presearch current value
+  if (chosen.value !== null && chosen.options.length === 0) { // first query - presearch current value
     return api.fingerbankSearchDevices({
       query: { op: 'and', values: [{ op: 'or', values: [{ field: 'id', op: 'equals', value: query }] }] },
       fields: ['id', 'name'],
@@ -889,7 +889,7 @@ export const pfConfigurationFingerbankDeviceOptionsSearchFunction = (vm, query) 
       })
     })
   } else { // subsequent queries
-    const currentOption = vm.options.find(option => option.value === vm.value) // cache current value
+    const currentOption = chosen.options.find(option => option.value === chosen.value) // cache current value
     return api.fingerbankSearchDevices({
       query: { op: 'and', values: [{ op: 'or', values: [{ field: 'name', op: 'contains', value: query }] }] },
       fields: ['id', 'name'],
@@ -1036,9 +1036,9 @@ export const pfConfigurationFingerbankDhcpFingerprintViewFields = (context = {})
   ]
 }
 
-export const pfConfigurationFingerbankDhcpFingerprintOptionsSearchFunction = (vm, query) => {
+export const pfConfigurationFingerbankDhcpFingerprintOptionsSearchFunction = (chosen, query) => {
   if (!query) return []
-  if (vm.options.length === 0) { // first query - presearch current value
+  if (chosen.value !== null && chosen.options.length === 0) { // first query - presearch current value
     return api.fingerbankSearchDhcpFingerprints({
       query: { op: 'and', values: [{ op: 'or', values: [{ field: 'id', op: 'equals', value: query }] }] },
       fields: ['id', 'value'],
@@ -1051,7 +1051,7 @@ export const pfConfigurationFingerbankDhcpFingerprintOptionsSearchFunction = (vm
       })
     })
   } else { // subsequent queries
-    const currentOption = vm.options.find(option => option.value === vm.value) // cache current value
+    const currentOption = chosen.options.find(option => option.value === chosen.value) // cache current value
     return api.fingerbankSearchDhcpFingerprints({
       query: { op: 'and', values: [{ op: 'or', values: [{ field: 'value', op: 'contains', value: query }] }] },
       fields: ['id', 'value'],
@@ -1197,9 +1197,9 @@ export const pfConfigurationFingerbankDhcpVendorViewFields = (context = {}) => {
   ]
 }
 
-export const pfConfigurationFingerbankDhcpVendorOptionsSearchFunction = (vm, query) => {
+export const pfConfigurationFingerbankDhcpVendorOptionsSearchFunction = (chosen, query) => {
   if (!query) return []
-  if (vm.options.length === 0) { // first query - presearch current value
+  if (chosen.value !== null && chosen.options.length === 0) { // first query - presearch current value
     return api.fingerbankSearchDhcpVendors({
       query: { op: 'and', values: [{ op: 'or', values: [{ field: 'id', op: 'equals', value: query }] }] },
       fields: ['id', 'value'],
@@ -1212,7 +1212,7 @@ export const pfConfigurationFingerbankDhcpVendorOptionsSearchFunction = (vm, que
       })
     })
   } else { // subsequent queries
-    const currentOption = vm.options.find(option => option.value === vm.value) // cache current value
+    const currentOption = chosen.options.find(option => option.value === chosen.value) // cache current value
     return api.fingerbankSearchDhcpVendors({
       query: { op: 'and', values: [{ op: 'or', values: [{ field: 'value', op: 'contains', value: query }] }] },
       fields: ['id', 'value'],
@@ -1359,9 +1359,9 @@ export const pfConfigurationFingerbankDhcpv6FingerprintViewFields = (context = {
   ]
 }
 
-export const pfConfigurationFingerbankDhcpv6FingerprintOptionsSearchFunction = (vm, query) => {
+export const pfConfigurationFingerbankDhcpv6FingerprintOptionsSearchFunction = (chosen, query) => {
   if (!query) return []
-  if (vm.options.length === 0) { // first query - presearch current value
+  if (chosen.value !== null && chosen.options.length === 0) { // first query - presearch current value
     return api.fingerbankSearchDhcpv6Fingerprints({
       query: { op: 'and', values: [{ op: 'or', values: [{ field: 'id', op: 'equals', value: query }] }] },
       fields: ['id', 'value'],
@@ -1374,7 +1374,7 @@ export const pfConfigurationFingerbankDhcpv6FingerprintOptionsSearchFunction = (
       })
     })
   } else { // subsequent queries
-    const currentOption = vm.options.find(option => option.value === vm.value) // cache current value
+    const currentOption = chosen.options.find(option => option.value === chosen.value) // cache current value
     return api.fingerbankSearchDhcpv6Fingerprints({
       query: { op: 'and', values: [{ op: 'or', values: [{ field: 'value', op: 'contains', value: query }] }] },
       fields: ['id', 'value'],
@@ -1528,9 +1528,9 @@ export const pfConfigurationFingerbankDhcpv6EnterpriseViewFields = (context = {}
   ]
 }
 
-export const pfConfigurationFingerbankDhcpv6EnterpriseOptionsSearchFunction = (vm, query) => {
+export const pfConfigurationFingerbankDhcpv6EnterpriseOptionsSearchFunction = (chosen, query) => {
   if (!query) return []
-  if (vm.options.length === 0) { // first query - presearch current value
+  if (chosen.value !== null && chosen.options.length === 0) { // first query - presearch current value
     return api.fingerbankSearchDhcpv6Enterprises({
       query: { op: 'and', values: [{ op: 'or', values: [{ field: 'id', op: 'equals', value: query }] }] },
       fields: ['id', 'value'],
@@ -1543,7 +1543,7 @@ export const pfConfigurationFingerbankDhcpv6EnterpriseOptionsSearchFunction = (v
       })
     })
   } else { // subsequent queries
-    const currentOption = vm.options.find(option => option.value === vm.value) // cache current value
+    const currentOption = chosen.options.find(option => option.value === chosen.value) // cache current value
     return api.fingerbankSearchDhcpv6Enterprises({
       query: { op: 'and', values: [{ op: 'or', values: [{ field: 'value', op: 'contains', value: query }] }] },
       fields: ['id', 'value'],
@@ -1710,9 +1710,9 @@ export const pfConfigurationFingerbankMacVendorViewFields = (context = {}) => {
   ]
 }
 
-export const pfConfigurationFingerbankMacVendorOptionsSearchFunction = (vm, query) => {
+export const pfConfigurationFingerbankMacVendorOptionsSearchFunction = (chosen, query) => {
   if (!query) return []
-  if (vm.options.length === 0) { // first query - presearch current value
+  if (chosen.value !== null && chosen.options.length === 0) { // first query - presearch current value
     return api.fingerbankSearchMacVendors({
       query: { op: 'and', values: [{ op: 'or', values: [{ field: 'mac', op: 'equals', value: query }] }] },
       fields: ['mac', 'name'],
@@ -1725,7 +1725,7 @@ export const pfConfigurationFingerbankMacVendorOptionsSearchFunction = (vm, quer
       })
     })
   } else { // subsequent queries
-    const currentOption = vm.options.find(option => option.value === vm.value) // cache current value
+    const currentOption = chosen.options.find(option => option.value === chosen.value) // cache current value
     return api.fingerbankSearchMacVendors({
       query: { op: 'and', values: [{ op: 'or', values: [{ field: 'name', op: 'contains', value: query }] }] },
       fields: ['mac', 'name'],
@@ -1870,9 +1870,9 @@ export const pfConfigurationFingerbankUserAgentViewFields = (context = {}) => {
   ]
 }
 
-export const pfConfigurationFingerbankUserAgentOptionsSearchFunction = (vm, query) => {
+export const pfConfigurationFingerbankUserAgentOptionsSearchFunction = (chosen, query) => {
   if (!query) return []
-  if (vm.options.length === 0) { // first query - presearch current value
+  if (chosen.value !== null && chosen.options.length === 0) { // first query - presearch current value
     return api.fingerbankSearchUserAgents({
       query: { op: 'and', values: [{ op: 'or', values: [{ field: 'id', op: 'equals', value: query }] }] },
       fields: ['id', 'value'],
@@ -1885,7 +1885,7 @@ export const pfConfigurationFingerbankUserAgentOptionsSearchFunction = (vm, quer
       })
     })
   } else { // subsequent queries
-    const currentOption = vm.options.find(option => option.value === vm.value) // cache current value
+    const currentOption = chosen.options.find(option => option.value === chosen.value) // cache current value
     return api.fingerbankSearchUserAgents({
       query: { op: 'and', values: [{ op: 'or', values: [{ field: 'value', op: 'contains', value: query }] }] },
       fields: ['id', 'value'],

@@ -5,16 +5,17 @@
       <div class="float-right"><pf-form-toggle v-model="advancedMode">{{ $t('Advanced') }}</pf-form-toggle></div>
       <h4 class="mb-0" v-t="'Search Nodes'"></h4>
     </b-card-header>
-    <pf-search :fields="fields" :storeName="storeName" :advanced-mode="advancedMode" :condition="condition"
+    <pf-search :quick-with-fields="false" :quick-placeholder="$t('Search by MAC or owner')"
+      :fields="fields" :storeName="storeName" :advanced-mode="advancedMode" :condition="condition"
       @submit-search="onSearch" @reset-search="onReset" @import-search="onImport"></pf-search>
     <div class="card-body">
       <b-row align-h="between" align-v="center">
         <b-col cols="auto" class="mr-auto">
           <b-dropdown size="sm" variant="link" :disabled="isLoading || selectValues.length === 0" no-caret no-flip>
             <template slot="button-content">
-              <icon name="cogs" v-b-tooltip.hover.right :title="$t('Actions')"></icon>
+              <icon name="cog" v-b-tooltip.hover.top.d300 :title="$t('Bulk Actions')"></icon>
             </template>
-            <b-dropdown-item @click="applyBulkClearSecurityEvent()">
+            <b-dropdown-item @click="applyBulkCloseSecurityEvent()">
               <icon class="position-absolute mt-1" name="ban"></icon>
               <span class="ml-4">{{ $t('Clear Security Event') }}</span>
             </b-dropdown-item>
@@ -38,46 +39,59 @@
               <icon class="position-absolute mt-1" name="retweet"></icon>
               <span class="ml-4">{{ $t('Refresh Fingerbank') }}</span>
             </b-dropdown-item>
+            <b-dropdown-item @click="showBypassVlanModal = true">
+              <icon class="position-absolute mt-1" name="project-diagram"></icon>
+              <span class="ml-4">{{ $t('Apply Bypass VLAN') }}</span>
+            </b-dropdown-item>
             <b-dropdown-divider></b-dropdown-divider>
             <b-dropdown-header>{{ $t('Apply Role') }}</b-dropdown-header>
-            <b-dropdown-item v-for="role in roles" :key="role.category_id" @click="applyBulkRole(role)" v-b-tooltip.hover.left :title="role.notes">
-              <span>{{role.name}}</span>
+            <b-dropdown-item v-for="role in roles" :key="role.category_id" @click="applyBulkRole(role)">
+              <span class="d-block" v-b-tooltip.hover.left.d300.window :title="role.notes">{{role.name}}</span>
             </b-dropdown-item>
-            <b-dropdown-item @click="applyBulkRole({category_id: null})" v-b-tooltip.hover.left :title="$t('Clear Role')">
-              <icon class="position-absolute mt-1" name="trash-alt"></icon>
-              <span class="ml-4"><em>{{ $t('None') }}</em></span>
+            <b-dropdown-item @click="applyBulkRole({category_id: null})">
+              <span class="d-block" v-b-tooltip.hover.left.d300.window :title="$t('Clear Role')">
+                <icon class="position-absolute mt-1" name="trash-alt"></icon>
+                <span class="ml-4"><em>{{ $t('None') }}</em></span>
+              </span>
             </b-dropdown-item>
             <b-dropdown-divider></b-dropdown-divider>
             <b-dropdown-header>{{ $t('Apply Bypass Role') }}</b-dropdown-header>
-            <b-dropdown-item v-for="role in roles" :key="role.category_id" @click="applyBulkBypassRole(role)" v-b-tooltip.hover.left :title="role.notes">
-              <span>{{role.name}}</span>
+            <b-dropdown-item v-for="role in roles" :key="role.category_id" @click="applyBulkBypassRole(role)">
+              <span class="d-block" v-b-tooltip.hover.left.d300.window :title="role.notes">{{role.name}}</span>
             </b-dropdown-item>
-            <b-dropdown-item @click="applyBulkBypassRole({category_id: null})" v-b-tooltip.hover.left :title="$t('Clear Bypass Role')">
-              <icon class="position-absolute mt-1" name="trash-alt"></icon>
-              <span class="ml-4"><em>{{ $t('None') }}</em></span>
+            <b-dropdown-item @click="applyBulkBypassRole({category_id: null})">
+              <span class="d-block" v-b-tooltip.hover.left.d300.window :title="$t('Clear Bypass Role')">
+                <icon class="position-absolute mt-1" name="trash-alt"></icon>
+                <span class="ml-4"><em>{{ $t('None') }}</em></span>
+              </span>
             </b-dropdown-item>
             <b-dropdown-divider></b-dropdown-divider>
             <b-dropdown-header>{{ $t('Apply Security Event') }}</b-dropdown-header>
-            <b-dropdown-item v-for="security_event in security_events" v-if="security_event.enabled ==='Y'" :key="security_event.id" @click="applyBulkSecurityEvent(security_event)" v-b-tooltip.hover.left :title="security_event.id">
+            <b-dropdown-item v-for="security_event in security_events" v-if="security_event.enabled ==='Y'" :key="security_event.id" @click="applyBulkSecurityEvent(security_event)" v-b-tooltip.hover.left.d300 :title="security_event.id">
               <span>{{security_event.desc}}</span>
             </b-dropdown-item>
           </b-dropdown>
-          <b-dropdown size="sm" variant="link" :disabled="isLoading" no-caret no-flip>
+          <b-dropdown size="sm" variant="link" no-caret>
             <template slot="button-content">
-              <icon name="columns" v-b-tooltip.hover.right.d1000 :title="$t('Visible Columns')"></icon>
+              <icon name="columns" v-b-tooltip.hover.top.d300.window :title="$t('Visible Columns')"></icon>
             </template>
-            <b-dropdown-item v-for="column in columns" :key="column.key" @click="toggleColumn(column)" :disabled="column.locked">
-              <icon class="position-absolute mt-1" name="thumbtack" v-show="column.visible" v-if="column.locked"></icon>
-              <icon class="position-absolute mt-1" name="check" v-show="column.visible" v-else></icon>
-              <span class="ml-4">{{column.label}}</span>
-            </b-dropdown-item>
+            <template v-for="column in columns">
+              <b-dropdown-item :key="column.key" v-if="column.locked" disabled>
+                <icon class="position-absolute mt-1" name="thumbtack"></icon>
+                <span class="ml-4">{{column.label}}</span>
+              </b-dropdown-item>
+              <a :key="column.key" v-else href="#" :disabled="column.locked" class="dropdown-item" @click.stop="toggleColumn(column)">
+                <icon class="position-absolute mt-1" name="check" v-show="column.visible"></icon>
+                <span class="ml-4">{{column.label}}</span>
+              </a>
+            </template>
           </b-dropdown>
         </b-col>
         <b-col cols="auto">
           <b-container fluid>
             <b-row align-v="center">
               <b-form inline class="mb-0">
-                <b-form-select class="mb-3 mr-3" size="sm" v-model="pageSizeLimit" :options="[10,25,50,100]" :disabled="isLoading"
+                <b-form-select class="mb-3 mr-3" size="sm" v-model="pageSizeLimit" :options="[25,50,100,200,500,1000]" :disabled="isLoading"
                   @input="onPageSizeChange" />
               </b-form>
               <b-pagination align="right" v-model="requestPage" :per-page="pageSizeLimit" :total-rows="totalRows" :disabled="isLoading"
@@ -96,17 +110,17 @@
         @sort-changed="onSortingChanged"
         @row-clicked="onRowClick"
         @head-clicked="clearSelected"
-        show-empty responsive hover no-local-sorting
+        show-empty responsive hover no-local-sorting striped
       >
         <template slot="HEAD_actions" slot-scope="head">
-          <input type="checkbox" id="checkallnone" v-model="selectAll" @change="onSelectAllChange" @click.stop>
+          <input type="checkbox" id="checkallnone" v-model="selectAll" :disabled="isLoading" @change="onSelectAllChange" @click.stop>
           <b-tooltip target="checkallnone" placement="right" v-if="selectValues.length === tableValues.length">{{$t('Select None [ALT+N]')}}</b-tooltip>
           <b-tooltip target="checkallnone" placement="right" v-else>{{$t('Select All [ALT+A]')}}</b-tooltip>
         </template>
         <template slot="actions" slot-scope="data">
           <div class="text-nowrap">
-            <input type="checkbox" :id="data.value" :value="data.item" v-model="selectValues" @click.stop="onToggleSelected($event, data.index)">
-            <icon name="exclamation-triangle" class="ml-1" v-if="tableValues[data.index]._rowMessage" v-b-tooltip.hover.right :title="tableValues[data.index]._rowMessage"></icon>
+            <input type="checkbox" :disabled="isLoading" :id="data.value" :value="data.item" v-model="selectValues" @click.stop="onToggleSelected($event, data.index)">
+            <icon name="exclamation-triangle" class="ml-1" v-if="tableValues[data.index]._rowMessage" v-b-tooltip.hover.right.d300 :title="tableValues[data.index]._rowMessage"></icon>
           </div>
         </template>
         <template slot="status" slot-scope="data">
@@ -129,11 +143,20 @@
         </template>
       </b-table>
     </div>
+    <b-modal v-model="showBypassVlanModal" size="sm" centered id="bypassVlanModal" :title="$t('Bulk Apply Bypass VLAN')" @shown="focusBypassVlanInput">
+      <b-form-group>
+        <b-form-input ref="bypassVlanInput" v-model="bypassVlanString" type="text" :placeholder="$t('Enter a VLAN')"/>
+        <b-form-text v-t="$t('Leave empty to clear bypass VLAN.')"></b-form-text>
+      </b-form-group>
+      <div slot="modal-footer">
+        <b-button variant="secondary" class="mr-1" @click="showBypassVlanModal=false">{{ $t('Cancel') }}</b-button>
+        <b-button variant="primary" @click="applyBulkBypassVlan()">{{ $t('Apply') }}</b-button>
+      </div>
+    </b-modal>
   </b-card>
 </template>
 
 <script>
-import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import { pfFormatters as formatter } from '@/globals/pfFormatters'
 import pfMixinSearchable from '@/components/pfMixinSearchable'
@@ -141,6 +164,7 @@ import pfMixinSelectable from '@/components/pfMixinSelectable'
 import pfFingerbankScore from '@/components/pfFingerbankScore'
 import pfFormToggle from '@/components/pfFormToggle'
 import pfProgress from '@/components/pfProgress'
+import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import convert from '@/utils/convert'
 
 export default {
@@ -150,10 +174,10 @@ export default {
     pfMixinSearchable
   ],
   components: {
-    'pf-progress': pfProgress,
-    'pf-empty-table': pfEmptyTable,
-    'pf-fingerbank-score': pfFingerbankScore,
-    'pf-form-toggle': pfFormToggle
+    pfProgress,
+    pfEmptyTable,
+    pfFingerbankScore,
+    pfFormToggle
   },
   props: {
     storeName: { // from router
@@ -166,7 +190,16 @@ export default {
       default: () => ({
         searchApiEndpoint: 'nodes',
         defaultSortKeys: ['mac'],
-        defaultSearchCondition: { op: 'and', values: [{ op: 'or', values: [{ field: 'mac', op: 'equals', value: null }] }] },
+        defaultSearchCondition: {
+          op: 'and',
+          values: [{
+            op: 'or',
+            values: [
+              { field: 'mac', op: 'contains', value: null },
+              { field: 'pid', op: 'contains', value: null }
+            ]
+          }]
+        },
         defaultRoute: { name: 'nodes' }
       })
     }
@@ -174,12 +207,19 @@ export default {
   data () {
     return {
       tableValues: Array,
+      sortBy: 'mac',
+      sortDesc: false,
       /**
        *  Fields on which a search can be defined.
        *  The names must match the database schema.
        *  The keys must conform to the format of the b-form-select's options property.
        */
       fields: [ // keys match with b-form-select
+        {
+          value: 'tenant_id',
+          text: this.$i18n.t('Tenant'),
+          types: [conditionType.INTEGER]
+        },
         {
           value: 'mac',
           text: this.$i18n.t('MAC Address'),
@@ -388,6 +428,12 @@ export default {
           }
         },
         {
+          key: 'tenant_id',
+          label: this.$i18n.t('Tenant'),
+          sortable: true,
+          visible: false
+        },
+        {
           key: 'status',
           label: this.$i18n.t('Status'),
           sortable: true,
@@ -450,12 +496,6 @@ export default {
         {
           key: 'ip6log.ip',
           label: this.$i18n.t('IPv6 Address'),
-          sortable: true,
-          visible: true
-        },
-        {
-          key: 'tenant_id',
-          label: this.$i18n.t('Tenant'),
           sortable: true,
           visible: true
         },
@@ -660,45 +700,74 @@ export default {
       ],
       requestPage: 1,
       currentPage: 1,
-      pageSizeLimit: 10
+      pageSizeLimit: 10,
+      showBypassVlanModal: false,
+      bypassVlanString: null
     }
   },
   computed: {
     roles () {
+      this.$store.dispatch('config/getRoles')
       return this.$store.state.config.roles
     },
     security_events () {
+      this.$store.dispatch('config/getSecurityEvents')
       return this.$store.getters['config/sortedSecurityEvents']
     }
   },
   methods: {
+    searchableQuickCondition (quickCondition) {
+      return {
+        op: 'and',
+        values: [
+          {
+            op: 'or',
+            values: [
+              { field: 'mac', op: 'contains', value: quickCondition },
+              { field: 'pid', op: 'contains', value: quickCondition }
+            ]
+          }
+        ]
+      }
+    },
+    searchableAdvancedMode (condition) {
+      return condition.values.length > 1 ||
+        condition.values[0].values.filter(v => {
+          return this.searchableOptions.defaultSearchCondition.values[0].values.findIndex(d => {
+            return d.field === v.field && d.op === v.op
+          }) >= 0
+        }).length !== condition.values[0].values.length
+    },
     onRowClick (item, index) {
       this.$router.push({ name: 'node', params: { mac: item.mac } })
     },
-    searchableAdvancedMode (condition) {
-      return (condition.values.length > 1 || condition.values[0].values.length > 1)
-    },
-    applyBulkClearSecurityEvent () {
+    applyBulkCloseSecurityEvent () {
       const macs = this.selectValues.map(item => item.mac)
       if (macs.length > 0) {
-        this.$store.dispatch(`${this.storeName}/clearSecurityEventBulkNodes`, { items: macs }).then(response => {
-          response.items.forEach((item, _index, items) => {
-            let index = this.tableValues.findIndex(node => node.mac === item.mac)
-            this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
-            this.setRowMessage(index, item.message)
-            if (item.message) {
-              this.$store.dispatch('notification/status_' + item.status, { message: this.$i18n.t('Node') + ' ' + item.mac + ': ' + item.message })
+        this.$store.dispatch(`${this.storeName}/bulkCloseSecurityEvents`, { items: macs }).then(items => {
+          let successCount = 0
+          let skippedCount = 0
+          let failedCount = 0
+          items.forEach((item, _index, items) => {
+            let index = this.tableValues.findIndex(value => value.mac === item.mac)
+            switch (item.status) {
+              case 'success': successCount++
+                break
+              case 'skipped': skippedCount++
+                break
+              default: failedCount++
             }
+            this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
           })
           this.$store.dispatch('notification/info', {
-            message: response.items.length + ' ' + this.$i18n.t('nodes cleared'),
-            success: response.items.filter(item => item.status === 'success').length,
-            skipped: response.items.filter(item => item.status === 'skipped').length,
-            failed: response.items.filter(item => item.status === 'failed').length
+            message: this.$i18n.t('Closed security events on {nodeCount} nodes.', { nodeCount: items.length }),
+            success: successCount,
+            skipped: skippedCount,
+            failed: failedCount
           })
         }).catch(() => {
-          macs.forEach((mac, i) => {
-            let index = this.tableValues.findIndex(node => node.mac === mac)
+          macs.forEach(mac => {
+            let index = this.tableValues.findIndex(value => value.mac === mac)
             this.setRowVariant(index, 'danger')
           })
         })
@@ -707,24 +776,30 @@ export default {
     applyBulkRegister () {
       const macs = this.selectValues.map(item => item.mac)
       if (macs.length > 0) {
-        this.$store.dispatch(`${this.storeName}/registerBulkNodes`, { items: macs }).then(response => {
-          response.items.forEach((item, _index, items) => {
-            let index = this.tableValues.findIndex(node => node.mac === item.mac)
-            this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
-            this.setRowMessage(index, item.message)
-            if (item.message) {
-              this.$store.dispatch('notification/status_' + item.status, { message: this.$i18n.t('Node') + ' ' + item.mac + ': ' + item.message })
+        this.$store.dispatch(`${this.storeName}/bulkRegisterNodes`, { items: macs }).then(items => {
+          let successCount = 0
+          let skippedCount = 0
+          let failedCount = 0
+          items.forEach((item, _index, items) => {
+            let index = this.tableValues.findIndex(value => value.mac === item.mac)
+            switch (item.status) {
+              case 'success': successCount++
+                break
+              case 'skipped': skippedCount++
+                break
+              default: failedCount++
             }
+            this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
           })
           this.$store.dispatch('notification/info', {
-            message: response.items.length + ' ' + this.$i18n.t('nodes registered'),
-            success: response.items.filter(item => item.status === 'success').length,
-            skipped: response.items.filter(item => item.status === 'skipped').length,
-            failed: response.items.filter(item => item.status === 'failed').length
+            message: this.$i18n.t('Registered {nodeCount} nodes.', { nodeCount: items.length }),
+            success: successCount,
+            skipped: skippedCount,
+            failed: failedCount
           })
         }).catch(() => {
-          macs.forEach((mac, i) => {
-            let index = this.tableValues.findIndex(node => node.mac === mac)
+          macs.forEach(mac => {
+            let index = this.tableValues.findIndex(value => value.mac === mac)
             this.setRowVariant(index, 'danger')
           })
         })
@@ -733,24 +808,30 @@ export default {
     applyBulkDeregister () {
       const macs = this.selectValues.map(item => item.mac)
       if (macs.length > 0) {
-        this.$store.dispatch(`${this.storeName}/deregisterBulkNodes`, { items: macs }).then(response => {
-          response.items.forEach((item, _index, items) => {
-            let index = this.tableValues.findIndex(node => node.mac === item.mac)
-            this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
-            this.setRowMessage(index, item.message)
-            if (item.message) {
-              this.$store.dispatch('notification/status_' + item.status, { message: this.$i18n.t('Node') + ' ' + item.mac + ': ' + item.message })
+        this.$store.dispatch(`${this.storeName}/bulkDeregisterNodes`, { items: macs }).then(items => {
+          let successCount = 0
+          let skippedCount = 0
+          let failedCount = 0
+          items.forEach((item, _index, items) => {
+            let index = this.tableValues.findIndex(value => value.mac === item.mac)
+            switch (item.status) {
+              case 'success': successCount++
+                break
+              case 'skipped': skippedCount++
+                break
+              default: failedCount++
             }
+            this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
           })
           this.$store.dispatch('notification/info', {
-            message: response.items.length + ' ' + this.$i18n.t('nodes unregistered'),
-            success: response.items.filter(item => item.status === 'success').length,
-            skipped: response.items.filter(item => item.status === 'skipped').length,
-            failed: response.items.filter(item => item.status === 'failed').length
+            message: this.$i18n.t('Deregistered {nodeCount} nodes.', { nodeCount: items.length }),
+            success: successCount,
+            skipped: skippedCount,
+            failed: failedCount
           })
         }).catch(() => {
-          macs.forEach((mac, i) => {
-            let index = this.tableValues.findIndex(node => node.mac === mac)
+          macs.forEach(mac => {
+            let index = this.tableValues.findIndex(value => value.mac === mac)
             this.setRowVariant(index, 'danger')
           })
         })
@@ -759,24 +840,30 @@ export default {
     applyBulkReevaluateAccess () {
       const macs = this.selectValues.map(item => item.mac)
       if (macs.length > 0) {
-        this.$store.dispatch(`${this.storeName}/reevaluateAccessBulkNodes`, { items: macs }).then(response => {
-          response.items.forEach((item, _index, items) => {
-            let index = this.tableValues.findIndex(node => node.mac === item.mac)
-            this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
-            this.setRowMessage(index, item.message)
-            if (item.message) {
-              this.$store.dispatch('notification/status_' + item.status, { message: this.$i18n.t('Node') + ' ' + item.mac + ': ' + item.message })
+        this.$store.dispatch(`${this.storeName}/bulkReevaluateAccess`, { items: macs }).then(items => {
+          let successCount = 0
+          let skippedCount = 0
+          let failedCount = 0
+          items.forEach((item, _index, items) => {
+            let index = this.tableValues.findIndex(value => value.mac === item.mac)
+            switch (item.status) {
+              case 'success': successCount++
+                break
+              case 'skipped': skippedCount++
+                break
+              default: failedCount++
             }
+            this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
           })
           this.$store.dispatch('notification/info', {
-            message: response.items.length + ' ' + this.$i18n.t('nodes reevaluated'),
-            success: response.items.filter(item => item.status === 'success').length,
-            skipped: response.items.filter(item => item.status === 'skipped').length,
-            failed: response.items.filter(item => item.status === 'failed').length
+            message: this.$i18n.t('Reevaluated access on {nodeCount} nodes.', { nodeCount: items.length }),
+            success: successCount,
+            skipped: skippedCount,
+            failed: failedCount
           })
         }).catch(() => {
-          macs.forEach((mac, i) => {
-            let index = this.tableValues.findIndex(node => node.mac === mac)
+          macs.forEach(mac => {
+            let index = this.tableValues.findIndex(value => value.mac === mac)
             this.setRowVariant(index, 'danger')
           })
         })
@@ -785,24 +872,30 @@ export default {
     applyBulkRestartSwitchport () {
       const macs = this.selectValues.map(item => item.mac)
       if (macs.length > 0) {
-        this.$store.dispatch(`${this.storeName}/restartSwitchportBulkNodes`, { items: macs }).then(response => {
-          response.items.forEach((item, _index, items) => {
-            let index = this.tableValues.findIndex(node => node.mac === item.mac)
-            this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
-            this.setRowMessage(index, item.message)
-            if (item.message) {
-              this.$store.dispatch('notification/status_' + item.status, { message: this.$i18n.t('Node') + ' ' + item.mac + ': ' + item.message })
+        this.$store.dispatch(`${this.storeName}/bulkRestartSwitchport`, { items: macs }).then(items => {
+          let successCount = 0
+          let skippedCount = 0
+          let failedCount = 0
+          items.forEach((item, _index, items) => {
+            let index = this.tableValues.findIndex(value => value.mac === item.mac)
+            switch (item.status) {
+              case 'success': successCount++
+                break
+              case 'skipped': skippedCount++
+                break
+              default: failedCount++
             }
+            this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
           })
           this.$store.dispatch('notification/info', {
-            message: response.items.length + ' ' + this.$i18n.t('node switch ports restarted'),
-            success: response.items.filter(item => item.status === 'success').length,
-            skipped: response.items.filter(item => item.status === 'skipped').length,
-            failed: response.items.filter(item => item.status === 'failed').length
+            message: this.$i18n.t('Restarted switch port on {nodeCount} nodes.', { nodeCount: items.length }),
+            success: successCount,
+            skipped: skippedCount,
+            failed: failedCount
           })
         }).catch(() => {
-          macs.forEach((mac, i) => {
-            let index = this.tableValues.findIndex(node => node.mac === mac)
+          macs.forEach(mac => {
+            let index = this.tableValues.findIndex(value => value.mac === mac)
             this.setRowVariant(index, 'danger')
           })
         })
@@ -811,24 +904,30 @@ export default {
     applyBulkRefreshFingerbank () {
       const macs = this.selectValues.map(item => item.mac)
       if (macs.length > 0) {
-        this.$store.dispatch(`${this.storeName}/refreshFingerbankBulkNodes`, { items: macs }).then(response => {
-          response.items.forEach((item, _index, items) => {
-            let index = this.tableValues.findIndex(node => node.mac === item.mac)
-            this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
-            this.setRowMessage(index, item.message)
-            if (item.message) {
-              this.$store.dispatch('notification/status_' + item.status, { message: this.$i18n.t('Node') + ' ' + item.mac + ': ' + item.message })
+        this.$store.dispatch(`${this.storeName}/bulkRefreshFingerbank`, { items: macs }).then(items => {
+          let successCount = 0
+          let skippedCount = 0
+          let failedCount = 0
+          items.forEach((item, _index, items) => {
+            let index = this.tableValues.findIndex(value => value.mac === item.mac)
+            switch (item.status) {
+              case 'success': successCount++
+                break
+              case 'skipped': skippedCount++
+                break
+              default: failedCount++
             }
+            this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
           })
           this.$store.dispatch('notification/info', {
-            message: response.items.length + ' ' + this.$i18n.t('node profiling refreshed'),
-            success: response.items.filter(item => item.status === 'success').length,
-            skipped: response.items.filter(item => item.status === 'skipped').length,
-            failed: response.items.filter(item => item.status === 'failed').length
+            message: this.$i18n.t('Refreshed fingerbank on {nodeCount} nodes.', { nodeCount: items.length }),
+            success: successCount,
+            skipped: skippedCount,
+            failed: failedCount
           })
         }).catch(() => {
-          macs.forEach((mac, i) => {
-            let index = this.tableValues.findIndex(node => node.mac === mac)
+          macs.forEach(mac => {
+            let index = this.tableValues.findIndex(value => value.mac === mac)
             this.setRowVariant(index, 'danger')
           })
         })
@@ -837,24 +936,30 @@ export default {
     applyBulkRole (role) {
       const macs = this.selectValues.map(item => item.mac)
       if (macs.length > 0) {
-        this.$store.dispatch(`${this.storeName}/roleBulkNodes`, { items: macs, category_id: role.category_id }).then(response => {
-          response.items.forEach((item, _index, items) => {
-            let index = this.tableValues.findIndex(node => node.mac === item.mac)
-            this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
-            this.setRowMessage(index, item.message)
-            if (item.message) {
-              this.$store.dispatch('notification/status_' + item.status, { message: this.$i18n.t('Node') + ' ' + item.mac + ': ' + item.message })
+        this.$store.dispatch(`${this.storeName}/bulkApplyRole`, { category_id: role.category_id, items: macs }).then(items => {
+          let successCount = 0
+          let skippedCount = 0
+          let failedCount = 0
+          items.forEach((item, _index, items) => {
+            let index = this.tableValues.findIndex(value => value.mac === item.mac)
+            switch (item.status) {
+              case 'success': successCount++
+                break
+              case 'skipped': skippedCount++
+                break
+              default: failedCount++
             }
+            this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
           })
           this.$store.dispatch('notification/info', {
-            message: response.items.length + ' ' + this.$i18n.t('node roles updated'),
-            success: response.items.filter(item => item.status === 'success').length,
-            skipped: response.items.filter(item => item.status === 'skipped').length,
-            failed: response.items.filter(item => item.status === 'failed').length
+            message: this.$i18n.t('Applied role on {nodeCount} nodes.', { nodeCount: items.length }),
+            success: successCount,
+            skipped: skippedCount,
+            failed: failedCount
           })
         }).catch(() => {
-          macs.forEach((mac, i) => {
-            let index = this.tableValues.findIndex(node => node.mac === mac)
+          macs.forEach(mac => {
+            let index = this.tableValues.findIndex(value => value.mac === mac)
             this.setRowVariant(index, 'danger')
           })
         })
@@ -863,24 +968,30 @@ export default {
     applyBulkBypassRole (role) {
       const macs = this.selectValues.map(item => item.mac)
       if (macs.length > 0) {
-        this.$store.dispatch(`${this.storeName}/bypassRoleBulkNodes`, { items: macs, bypass_role_id: role.category_id }).then(response => {
-          response.items.forEach((item, _index, items) => {
-            let index = this.tableValues.findIndex(node => node.mac === item.mac)
-            this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
-            this.setRowMessage(index, item.message)
-            if (item.message) {
-              this.$store.dispatch('notification/status_' + item.status, { message: this.$i18n.t('Node') + ' ' + item.mac + ': ' + item.message })
+        this.$store.dispatch(`${this.storeName}/bulkApplyBypassRole`, { bypass_role_id: role.category_id, items: macs }).then(items => {
+          let successCount = 0
+          let skippedCount = 0
+          let failedCount = 0
+          items.forEach((item, _index, items) => {
+            let index = this.tableValues.findIndex(value => value.mac === item.mac)
+            switch (item.status) {
+              case 'success': successCount++
+                break
+              case 'skipped': skippedCount++
+                break
+              default: failedCount++
             }
+            this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
           })
           this.$store.dispatch('notification/info', {
-            message: response.items.length + ' ' + this.$i18n.t('node bypass roles updated'),
-            success: response.items.filter(item => item.status === 'success').length,
-            skipped: response.items.filter(item => item.status === 'skipped').length,
-            failed: response.items.filter(item => item.status === 'failed').length
+            message: this.$i18n.t('Applied bypass role on {nodeCount} nodes.', { nodeCount: items.length }),
+            success: successCount,
+            skipped: skippedCount,
+            failed: failedCount
           })
         }).catch(() => {
-          macs.forEach((mac, i) => {
-            let index = this.tableValues.findIndex(node => node.mac === mac)
+          macs.forEach(mac => {
+            let index = this.tableValues.findIndex(value => value.mac === mac)
             this.setRowVariant(index, 'danger')
           })
         })
@@ -889,33 +1000,72 @@ export default {
     applyBulkSecurityEvent (securityEvent) {
       const macs = this.selectValues.map(item => item.mac)
       if (macs.length > 0) {
-        this.$store.dispatch(`${this.storeName}/applySecurityEventBulkNodes`, { items: macs, security_event_id: securityEvent.id }).then(response => {
-          response.items.forEach((item, _index, items) => {
-            let index = this.tableValues.findIndex(node => node.mac === item.mac)
-            this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
-            this.setRowMessage(index, item.message)
-            if (item.message) {
-              this.$store.dispatch('notification/status_' + item.status, { message: this.$i18n.t('Node') + ' ' + item.mac + ': ' + item.message })
+        this.$store.dispatch(`${this.storeName}/bulkApplySecurityEvent`, { vid: securityEvent.vid, items: macs }).then(items => {
+          let successCount = 0
+          let skippedCount = 0
+          let failedCount = 0
+          items.forEach((item, _index, items) => {
+            let index = this.tableValues.findIndex(value => value.mac === item.mac)
+            switch (item.status) {
+              case 'success': successCount++
+                break
+              case 'skipped': skippedCount++
+                break
+              default: failedCount++
             }
+            this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
           })
           this.$store.dispatch('notification/info', {
-            message: response.items.length + ' ' + this.$i18n.t('node security events created'),
-            success: response.items.filter(item => item.status === 'success').length,
-            skipped: response.items.filter(item => item.status === 'skipped').length,
-            failed: response.items.filter(item => item.status === 'failed').length
+            message: this.$i18n.t('Applied security event on {nodeCount} nodes.', { nodeCount: items.length }),
+            success: successCount,
+            skipped: skippedCount,
+            failed: failedCount
           })
         }).catch(() => {
-          macs.forEach((mac, i) => {
-            let index = this.tableValues.findIndex(node => node.mac === mac)
+          macs.forEach(mac => {
+            let index = this.tableValues.findIndex(value => value.mac === mac)
+            this.setRowVariant(index, 'danger')
+          })
+        })
+      }
+    },
+    focusBypassVlanInput () {
+      this.$refs.bypassVlanInput.focus()
+    },
+    applyBulkBypassVlan () {
+      this.showBypassVlanModal = false
+      const macs = this.selectValues.map(item => item.mac)
+      const bypassVlan = (this.bypassVlanString) ? this.bypassVlanString : null
+      if (macs.length > 0) {
+        this.$store.dispatch(`${this.storeName}/bulkApplyBypassVlan`, { bypass_vlan: bypassVlan, items: macs }).then(items => {
+          let successCount = 0
+          let skippedCount = 0
+          let failedCount = 0
+          items.forEach((item, _index, items) => {
+            let index = this.tableValues.findIndex(value => value.mac === item.mac)
+            switch (item.status) {
+              case 'success': successCount++
+                break
+              case 'skipped': skippedCount++
+                break
+              default: failedCount++
+            }
+            this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
+          })
+          this.$store.dispatch('notification/info', {
+            message: this.$i18n.t('Applied bypass VLAN on {nodeCount} nodes.', { nodeCount: items.length }),
+            success: successCount,
+            skipped: skippedCount,
+            failed: failedCount
+          })
+        }).catch(() => {
+          macs.forEach(mac => {
+            let index = this.tableValues.findIndex(value => value.mac === mac)
             this.setRowVariant(index, 'danger')
           })
         })
       }
     }
-  },
-  created () {
-    this.$store.dispatch('config/getRoles')
-    this.$store.dispatch('config/getSecurityEvents')
   }
 }
 </script>

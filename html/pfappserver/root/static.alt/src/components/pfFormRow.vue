@@ -6,7 +6,6 @@
 </template>
 
 <script>
-
 export default {
   name: 'pf-form-row',
   props: {

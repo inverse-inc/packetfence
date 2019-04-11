@@ -18,22 +18,27 @@
     <div class="card-body">
       <b-row align-h="between" align-v="center">
         <b-col cols="auto" class="mr-auto">
-          <b-dropdown size="sm" variant="link" boundary="viewport" :disabled="isLoading" no-caret>
+          <b-dropdown size="sm" variant="link" boundary="viewport" no-caret>
             <template slot="button-content">
               <icon name="columns" v-b-tooltip.hover.right.d1000 :title="$t('Visible Columns')"></icon>
             </template>
-            <b-dropdown-item v-for="column in columns" :key="column.key" @click="toggleColumn(column)" :disabled="column.locked">
-              <icon class="position-absolute mt-1" name="thumbtack" v-show="column.visible" v-if="column.locked"></icon>
-              <icon class="position-absolute mt-1" name="check" v-show="column.visible" v-else></icon>
-              <span class="ml-4">{{column.label}}</span>
-            </b-dropdown-item>
+            <template v-for="column in columns">
+              <b-dropdown-item :key="column.key" v-if="column.locked" disabled>
+                <icon class="position-absolute mt-1" name="thumbtack"></icon>
+                <span class="ml-4">{{column.label}}</span>
+              </b-dropdown-item>
+              <a :key="column.key" v-else href="#" :disabled="column.locked" class="dropdown-item" @click.stop="toggleColumn(column)">
+                <icon class="position-absolute mt-1" name="check" v-show="column.visible"></icon>
+                <span class="ml-4">{{column.label}}</span>
+              </a>
+            </template>
           </b-dropdown>
         </b-col>
         <b-col cols="auto">
           <b-container fluid>
             <b-row align-v="center">
               <b-form inline class="mb-0">
-                <b-form-select class="mb-3 mr-3" size="sm" v-model="pageSizeLimit" :options="[10,25,50,100]" :disabled="isLoading"
+                <b-form-select class="mb-3 mr-3" size="sm" v-model="pageSizeLimit" :options="[25,50,100,200,500,1000]" :disabled="isLoading"
                   @input="onPageSizeChange" />
               </b-form>
               <b-pagination align="right" v-model="requestPage" :per-page="pageSizeLimit" :total-rows="totalRows" :disabled="isLoading"
@@ -43,7 +48,7 @@
         </b-col>
       </b-row>
       <b-table :items="items" :fields="visibleColumns" :per-page="pageSizeLimit" :current-page="requestPage" :sort-by="sortBy" :sort-desc="sortDesc" :sort-compare="sortCompare"
-        @sort-changed="onSortingChanged" show-empty responsive hover v-model="tableValues">
+        @sort-changed="onSortingChanged" show-empty responsive hover striped v-model="tableValues">
         <template slot="empty">
           <pf-empty-table :isLoading="isLoading">{{ $t('No data found') }}</pf-empty-table>
         </template>

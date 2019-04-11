@@ -144,11 +144,15 @@ export default {
       switch (true) {
         case (event.altKey && event.keyCode === 65): // ALT+A
           event.preventDefault()
-          this.selectValues = this.tableValues
+          if ('isLoading' in this && !this.isLoading) {
+            this.selectValues = this.tableValues
+          }
           break
         case (event.altKey && event.keyCode === 78): // ALT+N
           event.preventDefault()
-          this.selectValues = []
+          if ('isLoading' in this && !this.isLoading) {
+            this.selectValues = []
+          }
           break
       }
     },

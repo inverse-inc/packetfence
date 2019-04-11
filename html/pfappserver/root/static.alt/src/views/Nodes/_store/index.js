@@ -67,15 +67,15 @@ const actions = {
     })
   },
   getNode: ({ state, commit }, mac) => {
-    let node = { fingerbank: {} } // ip4: { history: [] }, ip6: { history: [] } }
-
     if (state.nodes[mac]) {
       return Promise.resolve(state.nodes[mac])
     }
 
+    let node = { fingerbank: {} } // ip4: { history: [] }, ip6: { history: [] } }
+
     commit('NODE_REQUEST')
-    return api.node(mac).then(item => {
-      Object.assign(node, item)
+    return api.node(mac).then(data => {
+      Object.assign(node, data)
       if (node.status === null) {
         node.status = 'unreg'
       }
@@ -83,17 +83,17 @@ const actions = {
 
       // Fetch ip4log history
       let ip4 = {}
-      api.ip4logOpen(mac).then(item => {
-        Object.assign(ip4, item)
-        ip4.active = item.end_time === '0000-00-00 00:00:00'
+      api.ip4logOpen(mac).then(data => {
+        Object.assign(ip4, data)
+        ip4.active = data.end_time === '0000-00-00 00:00:00'
       }).catch(() => {
         Object.assign(ip4, { active: false })
       }).finally(() => {
-        api.ip4logHistory(mac).then(items => {
-          if (items && items.length > 0) {
-            Object.assign(ip4, { history: items })
+        api.ip4logHistory(mac).then(datas => {
+          if (datas && datas.length > 0) {
+            Object.assign(ip4, { history: datas })
             if (!ip4.active && !ip4.end_time) {
-              ip4.end_time = items[0].end_time
+              ip4.end_time = datas[0].end_time
             }
           }
         }).catch(() => {
@@ -105,17 +105,17 @@ const actions = {
 
       // Fetch ip6log history
       let ip6 = {}
-      api.ip6logOpen(mac).then(item => {
-        Object.assign(ip6, item)
-        ip6.active = item.end_time === '0000-00-00 00:00:00'
+      api.ip6logOpen(mac).then(data => {
+        Object.assign(ip6, data)
+        ip6.active = data.end_time === '0000-00-00 00:00:00'
       }).catch(() => {
         Object.assign(ip6, { active: false })
       }).finally(() => {
-        api.ip6logHistory(mac).then(items => {
-          if (items && items.length > 0) {
-            Object.assign(ip6, { history: items })
+        api.ip6logHistory(mac).then(datas => {
+          if (datas && datas.length > 0) {
+            Object.assign(ip6, { history: datas })
             if (!ip6.active && !ip6.end_time) {
-              ip6.end_time = items[0].end_time
+              ip6.end_time = datas[0].end_time
             }
           }
         }).catch(() => {
@@ -126,19 +126,19 @@ const actions = {
       })
 
       // Fetch locationlogs
-      api.locationlogs(mac).then(items => {
-        commit('NODE_UPDATED', { mac, prop: 'locations', data: items })
+      api.locationlogs(mac).then(datas => {
+        commit('NODE_UPDATED', { mac, prop: 'locations', data: datas })
       })
 
       // Fetch security_events
-      api.security_events(mac).then(items => {
-        commit('NODE_UPDATED', { mac, prop: 'security_events', data: items })
+      api.security_events(mac).then(datas => {
+        commit('NODE_UPDATED', { mac, prop: 'security_events', data: datas })
       })
 
       // Fetch fingerbank
       let fingerbank = {}
-      api.fingerbankInfo(mac).then(item => {
-        Object.assign(fingerbank, item)
+      api.fingerbankInfo(mac).then(data => {
+        Object.assign(fingerbank, data)
       }).catch(() => {
         // noop
       }).finally(() => {
@@ -206,21 +206,6 @@ const actions = {
       })
     })
   },
-  registerBulkNodes: ({ commit }, data) => {
-    commit('ITEM_REQUEST')
-    return new Promise((resolve, reject) => {
-      api.registerBulkNodes(data).then(response => {
-        response.items.filter(item => item.status === 'success').forEach(function (item, index, items) {
-          commit('NODE_UPDATED', { mac: item.mac, prop: 'status', data: 'reg' })
-          commit('$_nodes_searchable/ITEM_UPDATED', { mac: item.mac, prop: 'status', data: 'reg' }, { root: true })
-        })
-        resolve(response)
-      }).catch(err => {
-        commit('ITEM_ERROR', err.response)
-        reject(err)
-      })
-    })
-  },
   deregisterNode: ({ commit }, data) => {
     commit('NODE_REQUEST')
     return new Promise((resolve, reject) => {
@@ -233,76 +218,11 @@ const actions = {
       })
     })
   },
-  deregisterBulkNodes: ({ commit }, data) => {
-    commit('ITEM_REQUEST')
-    return new Promise((resolve, reject) => {
-      api.deregisterBulkNodes(data).then(response => {
-        response.items.filter(item => item.status === 'success').forEach(function (item, index, items) {
-          commit('NODE_UPDATED', { mac: item.mac, prop: 'status', data: 'unreg' })
-          commit('$_nodes_searchable/ITEM_UPDATED', { mac: item.mac, prop: 'status', data: 'unreg' }, { root: true })
-        })
-        resolve(response)
-      }).catch(err => {
-        commit('ITEM_ERROR', err.response)
-        reject(err)
-      })
-    })
-  },
   clearSecurityEventNode: ({ commit }, data) => {
     commit('NODE_REQUEST')
     return new Promise((resolve, reject) => {
       api.clearSecurityEventNode(data).then(response => {
         commit('NODE_REPLACED', data)
-        resolve(response)
-      }).catch(err => {
-        commit('NODE_ERROR', err.response)
-        reject(err)
-      })
-    })
-  },
-  applySecurityEventBulkNodes: ({ commit }, data) => {
-    return new Promise((resolve, reject) => {
-      api.applySecurityEventBulkNodes(data).then(response => {
-        resolve(response)
-      }).catch(err => {
-        commit('NODE_ERROR', err.response)
-        reject(err)
-      })
-    })
-  },
-  clearSecurityEventBulkNodes: ({ commit }, data) => {
-    return new Promise((resolve, reject) => {
-      api.clearSecurityEventBulkNodes(data).then(response => {
-        resolve(response)
-      }).catch(err => {
-        commit('NODE_ERROR', err.response)
-        reject(err)
-      })
-    })
-  },
-  reevaluateAccessBulkNodes: ({ commit }, data) => {
-    return new Promise((resolve, reject) => {
-      api.reevaluateAccessBulkNodes(data).then(response => {
-        resolve(response)
-      }).catch(err => {
-        commit('NODE_ERROR', err.response)
-        reject(err)
-      })
-    })
-  },
-  restartSwitchportBulkNodes: ({ commit }, data) => {
-    return new Promise((resolve, reject) => {
-      api.restartSwitchportBulkNodes(data).then(response => {
-        resolve(response)
-      }).catch(err => {
-        commit('NODE_ERROR', err.response)
-        reject(err)
-      })
-    })
-  },
-  refreshFingerbankBulkNodes: ({ commit }, data) => {
-    return new Promise((resolve, reject) => {
-      api.refreshFingerbankBulkNodes(data).then(response => {
         resolve(response)
       }).catch(err => {
         commit('NODE_ERROR', err.response)
@@ -325,16 +245,6 @@ const actions = {
       })
     })
   },
-  roleBulkNodes: ({ commit }, data) => {
-    return new Promise((resolve, reject) => {
-      api.roleBulkNodes(data).then(response => {
-        resolve(response)
-      }).catch(err => {
-        commit('NODE_ERROR', err.response)
-        reject(err)
-      })
-    })
-  },
   bypassRoleNode: ({ commit }, data) => {
     commit('ITEM_REQUEST')
     return new Promise((resolve, reject) => {
@@ -346,16 +256,6 @@ const actions = {
         resolve(response)
       }).catch(err => {
         commit('ITEM_ERROR', err.response)
-        reject(err)
-      })
-    })
-  },
-  bypassRoleBulkNodes: ({ commit }, data) => {
-    return new Promise((resolve, reject) => {
-      api.bypassRoleBulkNodes(data).then(response => {
-        resolve(response)
-      }).catch(err => {
-        commit('NODE_ERROR', err.response)
         reject(err)
       })
     })
@@ -401,6 +301,96 @@ const actions = {
         reject(err)
       })
     })
+  },
+  bulkRegisterNodes: ({ commit }, data) => {
+    commit('NODE_REQUEST')
+    return api.bulkRegisterNodes(data).then(response => {
+      commit('NODE_BULK_SUCCESS', response)
+      return response
+    }).catch(err => {
+      commit('NODE_ERROR', err.response)
+    })
+  },
+  bulkDeregisterNodes: ({ commit }, data) => {
+    commit('NODE_REQUEST')
+    return api.bulkDeregisterNodes(data).then(response => {
+      commit('NODE_BULK_SUCCESS', response)
+      return response
+    }).catch(err => {
+      commit('NODE_ERROR', err.response)
+    })
+  },
+  bulkApplySecurityEvent: ({ commit }, data) => {
+    commit('NODE_REQUEST')
+    return api.bulkCloseSecurityEvents(data).then(response => {
+      commit('NODE_BULK_SUCCESS', response)
+      return response
+    }).catch(err => {
+      commit('NODE_ERROR', err.response)
+    })
+  },
+  bulkCloseSecurityEvents: ({ commit }, data) => {
+    commit('NODE_REQUEST')
+    return api.bulkCloseSecurityEvents(data).then(response => {
+      commit('NODE_BULK_SUCCESS', response)
+      return response
+    }).catch(err => {
+      commit('NODE_ERROR', err.response)
+    })
+  },
+  bulkApplyRole: ({ commit }, data) => {
+    commit('NODE_REQUEST')
+    return api.bulkApplyRole(data).then(response => {
+      commit('NODE_BULK_SUCCESS', response)
+      return response
+    }).catch(err => {
+      commit('NODE_ERROR', err.response)
+    })
+  },
+  bulkApplyBypassRole: ({ commit }, data) => {
+    commit('NODE_REQUEST')
+    return api.bulkApplyBypassRole(data).then(response => {
+      commit('NODE_BULK_SUCCESS', response)
+      return response
+    }).catch(err => {
+      commit('NODE_ERROR', err.response)
+    })
+  },
+  bulkReevaluateAccess: ({ commit }, data) => {
+    commit('NODE_REQUEST')
+    return api.bulkReevaluateAccess(data).then(response => {
+      commit('NODE_BULK_SUCCESS', response)
+      return response
+    }).catch(err => {
+      commit('NODE_ERROR', err.response)
+    })
+  },
+  bulkRefreshFingerbank: ({ commit }, data) => {
+    commit('NODE_REQUEST')
+    return api.bulkRefreshFingerbank(data).then(response => {
+      commit('NODE_BULK_SUCCESS', response)
+      return response
+    }).catch(err => {
+      commit('NODE_ERROR', err.response)
+    })
+  },
+  bulkRestartSwitchport: ({ commit }, data) => {
+    commit('NODE_REQUEST')
+    return api.bulkRestartSwitchport(data).then(response => {
+      commit('NODE_BULK_SUCCESS', response)
+      return response
+    }).catch(err => {
+      commit('NODE_ERROR', err.response)
+    })
+  },
+  bulkApplyBypassVlan: ({ commit }, data) => {
+    commit('NODE_REQUEST')
+    return api.bulkApplyBypassVlan(data).then(response => {
+      commit('NODE_BULK_SUCCESS', response)
+      return response
+    }).catch(err => {
+      commit('NODE_ERROR', err.response)
+    })
   }
 }
 
@@ -418,6 +408,14 @@ const mutations = {
     if (params.mac in state.nodes) {
       Vue.set(state.nodes[params.mac], params.prop, params.data)
     }
+  },
+  NODE_BULK_SUCCESS: (state, response) => {
+    state.nodeStatus = 'success'
+    response.forEach(item => {
+      if (item.status === 'success' && item.mac in state.nodes) {
+        Vue.set(state.nodes, item.mac, null)
+      }
+    })
   },
   NODE_DESTROYED: (state, mac) => {
     state.nodeStatus = 'success'

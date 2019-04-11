@@ -525,6 +525,18 @@ const getters = {
       return { value: item.id, name: item.id }
     })
   },
+  domainsList: state => {
+    if (!state.domains) return []
+    return state.domains.map((item) => {
+      return { value: item.id, name: item.id }
+    })
+  },
+  connectionProfilesList: state => {
+    if (!state.connectionProfiles) return []
+    return state.connectionProfiles.map((item) => {
+      return { value: item.id, name: item.id, text: `${item.id} - ${item.description}` }
+    })
+  },
   portalModulesList: state => {
     if (!state.portalModules) return []
     return state.portalModules.map((item) => {
@@ -534,7 +546,7 @@ const getters = {
   realmsList: state => {
     if (!state.realms) return []
     return state.realms.map((item) => {
-      return { value: item.id, name: item.id }
+      return { value: item.id, name: item.id, text: item.id }
     })
   },
   rolesList: state => {
@@ -546,7 +558,7 @@ const getters = {
   sourcesList: state => {
     if (!state.sources) return []
     return state.sources.map((item) => {
-      return { value: item.id, name: item.description }
+      return { value: item.id, name: item.description, text: `${item.id} - ${item.description}` }
     })
   },
   switchGroupsList: state => {

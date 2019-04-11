@@ -312,6 +312,25 @@ export const pfConfigurationAuthenticationSourceFields = {
       ]
     }
   },
+  allowed_domains: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Comma-separated list of Allowed Domains'),
+      text: i18n.t('A comma-separated list of domains that are allowed for email registration. Wildcards are accepted (*pfdemo.org). Allowed domains are checked after banned domains.'),
+      fields: [
+        {
+          key: 'allowed_domains',
+          component: pfFormTextarea,
+          attrs: {
+            ...pfConfigurationAttributesFromMeta(meta, 'allowed_domains'),
+            ...{
+              rows: 3
+            }
+          },
+          validators: pfConfigurationValidatorsFromMeta(meta, 'allowed_domains', 'Domains')
+        }
+      ]
+    }
+  },
   allow_localdomain: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Allow Local Domain'),
@@ -564,6 +583,25 @@ export const pfConfigurationAuthenticationSourceFields = {
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'authorization_url'),
           validators: pfConfigurationValidatorsFromMeta(meta, 'authorization_url', 'URL')
+        }
+      ]
+    }
+  },
+  banned_domains: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Comma-separated list of Banned Domains'),
+      text: i18n.t('A comma-separated list of domains that are banned for email registration. Wildcards are accepted (*pfdemo.org). Banned domains are checked before allowed domains.'),
+      fields: [
+        {
+          key: 'banned_domains',
+          component: pfFormTextarea,
+          attrs: {
+            ...pfConfigurationAttributesFromMeta(meta, 'banned_domains'),
+            ...{
+              rows: 3
+            }
+          },
+          validators: pfConfigurationValidatorsFromMeta(meta, 'banned_domains', 'Domains')
         }
       ]
     }
@@ -1949,6 +1987,8 @@ export const pfConfigurationAuthenticationSourceViewFields = (context) => {
           fields: [
             pfConfigurationAuthenticationSourceFields.id(context),
             pfConfigurationAuthenticationSourceFields.description(context),
+            pfConfigurationAuthenticationSourceFields.banned_domains(context),
+            pfConfigurationAuthenticationSourceFields.allowed_domains(context),
             {
               ...pfConfigurationAuthenticationSourceFields.email_activation_timeout(context),
               ...{ text: i18n.t('This is the delay given to a guest who registered by email confirmation to log into his email and click the activation link.') }
@@ -2169,6 +2209,8 @@ export const pfConfigurationAuthenticationSourceViewFields = (context) => {
             pfConfigurationAuthenticationSourceFields.id(context),
             pfConfigurationAuthenticationSourceFields.description(context),
             pfConfigurationAuthenticationSourceFields.allow_localdomain(context),
+            pfConfigurationAuthenticationSourceFields.banned_domains(context),
+            pfConfigurationAuthenticationSourceFields.allowed_domains(context),
             { ...pfConfigurationAuthenticationSourceFields.email_activation_timeout(context), ...{ text: i18n.t('Delay given to a sponsor to click the activation link.') } }, // re-text
             pfConfigurationAuthenticationSourceFields.activation_domain(context),
             pfConfigurationAuthenticationSourceFields.sponsorship_bcc(context),

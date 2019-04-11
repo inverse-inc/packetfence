@@ -22,6 +22,56 @@ export default {
       return response.data
     })
   },
+  disableService: name => {
+    return apiCall.post(`service/${name}/disable`).then(response => {
+      const { data: { disable } } = response
+      if (parseInt(disable) > 0) {
+        return response.data
+      } else {
+        throw new Error(`Could not disable ${name}`)
+      }
+    })
+  },
+  enableService: name => {
+    return apiCall.post(`service/${name}/enable`).then(response => {
+      const { data: { enable } } = response
+      if (parseInt(enable) > 0) {
+        return response.data
+      } else {
+        throw new Error(`Could not enable ${name}`)
+      }
+    })
+  },
+  restartService: name => {
+    return apiCall.post(`service/${name}/restart`).then(response => {
+      const { data: { restart } } = response
+      if (parseInt(restart) > 0) {
+        return response.data
+      } else {
+        throw new Error(`Could not restart ${name}`)
+      }
+    })
+  },
+  startService: name => {
+    return apiCall.post(`service/${name}/start`).then(response => {
+      const { data: { start } } = response
+      if (parseInt(start) > 0) {
+        return response.data
+      } else {
+        throw new Error(`Could not start ${name}`)
+      }
+    })
+  },
+  stopService: name => {
+    return apiCall.post(`service/${name}/stop`).then(response => {
+      const { data: { stop } } = response
+      if (parseInt(stop) > 0) {
+        return response.data
+      } else {
+        throw new Error(`Could not stop ${name}`)
+      }
+    })
+  },
   cluster: () => {
     return apiCall.get('cluster/servers').then(response => {
       return response.data.items

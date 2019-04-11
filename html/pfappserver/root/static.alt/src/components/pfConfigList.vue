@@ -20,7 +20,7 @@
           <b-container fluid>
             <b-row align-v="center">
               <b-form inline class="mb-0">
-                <b-form-select class="mb-3 mr-3" size="sm" v-model="pageSizeLimit" :options="[10,25,50,100]" :disabled="isLoading"
+                <b-form-select class="mb-3 mr-3" size="sm" v-model="pageSizeLimit" :options="[25,50,100,200,500,1000]" :disabled="isLoading"
                   @input="onPageSizeChange" />
               </b-form>
               <b-pagination align="right" :per-page="pageSizeLimit" :total-rows="totalRows" v-model="requestPage" :disabled="isLoading"
@@ -41,6 +41,7 @@
         show-empty
         responsive
         fixed
+        striped
       >
         <slot name="emptySearch" slot="empty" v-bind="{ isLoading }">
           <pf-empty-table :isLoading="isLoading">{{ $t('No results found') }}</pf-empty-table>

@@ -212,50 +212,64 @@
         </b-tab>
 
         <b-tab title="IPv4 Addresses">
-            <template slot="title">
-              {{ $t('IPv4') }} <b-badge pill v-if="node.ip4 && node.ip4.history && node.ip4.history.length > 0" variant="light" class="ml-1">{{ node.ip4.history.length }}</b-badge>
+          <template slot="title">
+            {{ $t('IPv4') }} <b-badge pill v-if="node.ip4 && node.ip4.history && node.ip4.history.length > 0" variant="light" class="ml-1">{{ node.ip4.history.length }}</b-badge>
+          </template>
+          <b-table stacked="sm" :items="node.ip4.history" :fields="iplogFields" v-if="node.ip4" responsive show-empty striped>
+            <template slot="empty">
+              <pf-empty-table :isLoading="isLoading" text="">{{ $t('No IPv4 addresses found') }}</pf-empty-table>
             </template>
-            <b-table stacked="sm" :items="node.ip4.history" :fields="iplogFields" v-if="node.ip4" striped></b-table>
+          </b-table>
         </b-tab>
 
         <b-tab title="IPv6 Addresses">
-            <template slot="title">
-              {{ $t('IPv6') }} <b-badge pill v-if="node.ip6 && node.ip6.history && node.ip6.history.length > 0" variant="light" class="ml-1">{{ node.ip6.history.length }}</b-badge>
+          <template slot="title">
+            {{ $t('IPv6') }} <b-badge pill v-if="node.ip6 && node.ip6.history && node.ip6.history.length > 0" variant="light" class="ml-1">{{ node.ip6.history.length }}</b-badge>
+          </template>
+          <b-table stacked="sm" :items="node.ip6.history" :fields="iplogFields" v-if="node.ip6" responsive show-empty striped>
+            <template slot="empty">
+              <pf-empty-table :isLoading="isLoading" text="">{{ $t('No IPv6 addresses found') }}</pf-empty-table>
             </template>
-            <b-table stacked="sm" :items="node.ip6.history" :fields="iplogFields" v-if="node.ip6" striped></b-table>
+          </b-table>
         </b-tab>
 
         <b-tab title="Location">
-            <template slot="title">
-              {{ $t('Location') }} <b-badge pill v-if="node.locations && node.locations.length > 0" variant="light" class="ml-1">{{ node.locations.length }}</b-badge>
-            </template>
-            <b-table stacked="sm" :items="node.locations" :fields="locationFields" striped>
-                <template slot="switch" slot-scope="location">
-                    {{ location.item.switch_ip }} / <mac>{{ location.item.switch_mac }}</mac><br/>
-                    <b-badge><icon name="wifi" size="sm"></icon> {{ location.item.ssid }}</b-badge>
-                    <b-badge>{{ $t('Role') }}: {{ location.item.role }}</b-badge>
-                    <b-badge>{{ $t('VLAN') }}: {{ location.item.vlan }}</b-badge>
-                </template>
-                <template slot="connection_type" slot-scope="location">
-                    {{ location.item.connection_type }} {{ connectionSubType(location.item.connection_sub_type) }}
-                </template>
+          <template slot="title">
+            {{ $t('Location') }} <b-badge pill v-if="node.locations && node.locations.length > 0" variant="light" class="ml-1">{{ node.locations.length }}</b-badge>
+          </template>
+          <b-table stacked="sm" :items="node.locations" :fields="locationFields" responsive show-empty striped>
+              <template slot="switch" slot-scope="location">
+                {{ location.item.switch_ip }} / <mac>{{ location.item.switch_mac }}</mac><br/>
+                <b-badge><icon name="wifi" size="sm"></icon> {{ location.item.ssid }}</b-badge>
+                <b-badge>{{ $t('Role') }}: {{ location.item.role }}</b-badge>
+                <b-badge>{{ $t('VLAN') }}: {{ location.item.vlan }}</b-badge>
+              </template>
+              <template slot="connection_type" slot-scope="location">
+                {{ location.item.connection_type }} {{ connectionSubType(location.item.connection_sub_type) }}
+              </template>
+              <template slot="empty">
+                <pf-empty-table :isLoading="isLoading" text="">{{ $t('No location logs found') }}</pf-empty-table>
+              </template>
             </b-table>
         </b-tab>
 
         <b-tab title="Security Events">
-            <template slot="title">
-              {{ $t('Security Events') }} <b-badge pill v-if="node.security_events && node.security_events.length > 0" variant="light" class="ml-1">{{ node.security_events.length }}</b-badge>
+          <template slot="title">
+            {{ $t('Security Events') }} <b-badge pill v-if="node.security_events && node.security_events.length > 0" variant="light" class="ml-1">{{ node.security_events.length }}</b-badge>
+          </template>
+          <b-table stacked="sm" :items="node.security_events" :fields="securityEventFields" responsive show-empty striped>
+            <template slot="description" slot-scope="security_event">
+              {{ securityEventDescription(security_event.item.security_event_id) }}
             </template>
-            <b-table stacked="sm" :items="node.security_events" :fields="securityEventFields" striped>
-                <template slot="description" slot-scope="security_event">
-                    {{ securityEventDescription(security_event.item.security_event_id) }}
-                </template>
-                <template slot="status" slot-scope="security_event">
-                  <b-badge pill variant="success" v-if="security_event.item.status === 'open'">{{ $t('open') }}</b-badge>
-                  <b-badge pill variant="danger" v-else-if="security_event.item.status === 'closed'">{{ $t('closed') }}</b-badge>
-                  <b-badge pill variant="secondary" v-else>{{ $t('unknown') }}</b-badge>
-                </template>
-            </b-table>
+            <template slot="status" slot-scope="security_event">
+              <b-badge pill variant="success" v-if="security_event.item.status === 'open'">{{ $t('open') }}</b-badge>
+              <b-badge pill variant="danger" v-else-if="security_event.item.status === 'closed'">{{ $t('closed') }}</b-badge>
+              <b-badge pill variant="secondary" v-else>{{ $t('unknown') }}</b-badge>
+            </template>
+            <template slot="empty">
+              <pf-empty-table :isLoading="isLoading" text="">{{ $t('No security events found') }}</pf-empty-table>
+            </template>
+          </b-table>
         </b-tab>
 
         <b-tab title="WMI Rules">
@@ -268,7 +282,11 @@
           <template slot="title">
             {{ $t('Option82') }} <b-badge pill v-if="node.dhcpoption82 && node.dhcpoption82.length > 0" variant="light" class="ml-1">{{ node.dhcpoption82.length }}</b-badge>
           </template>
-          <b-table stacked="sm" :items="node.dhcpoption82" :fields="dhcpOption82Fields" v-if="node.dhcpoption82" striped></b-table>
+          <b-table stacked="sm" :items="node.dhcpoption82" :fields="dhcpOption82Fields" v-if="node.dhcpoption82" responsive show-empty striped>
+            <template slot="empty">
+              <pf-empty-table :isLoading="isLoading" text="">{{ $t('No DHCP option82 logs found') }}</pf-empty-table>
+            </template>
+          </b-table>
         </b-tab>
 
       </b-tabs>
@@ -287,6 +305,7 @@
 import { DataSet, Timeline } from 'vue2vis'
 import pfButtonSave from '@/components/pfButtonSave'
 import pfButtonDelete from '@/components/pfButtonDelete'
+import pfEmptyTable from '@/components/pfEmptyTable'
 import pfFingerbankScore from '@/components/pfFingerbankScore'
 import pfFormDatetime from '@/components/pfFormDatetime'
 import pfFormInput from '@/components/pfFormInput'
@@ -317,6 +336,7 @@ export default {
     'timeline': Timeline,
     pfButtonSave,
     pfButtonDelete,
+    pfEmptyTable,
     pfFingerbankScore,
     pfFormDatetime,
     pfFormInput,
@@ -362,52 +382,59 @@ export default {
       },
       tabIndex: 0,
       tabTitle: '',
-      nodeContent: {
-        pid: ''
-      },
+      nodeContent: {},
       iplogFields: [
         {
           key: 'ip',
-          label: this.$i18n.t('IP Address')
+          label: this.$i18n.t('IP Address'),
+          sortable: true
         },
         {
           key: 'start_time',
           label: this.$i18n.t('Start Time'),
+          sortable: true,
           formatter: this.$options.filters.shortDateTime,
           class: 'text-nowrap'
         },
         {
           key: 'end_time',
           label: this.$i18n.t('End Time'),
+          sortable: true,
           formatter: this.$options.filters.shortDateTime,
           class: 'text-nowrap'
         },
         {
           key: 'type',
-          label: this.$i18n.t('Type')
+          label: this.$i18n.t('Type'),
+          sortable: true
         }
       ],
       locationFields: [
         {
           key: 'switch',
-          label: this.$i18n.t('Switch/AP')
+          label: this.$i18n.t('Switch/AP'),
+          sortable: true
         },
         {
           key: 'connection_type',
-          label: this.$i18n.t('Connection Type')
+          label: this.$i18n.t('Connection Type'),
+          sortable: true
         },
         {
           key: 'dot1x_username',
-          label: this.$i18n.t('Username')
+          label: this.$i18n.t('Username'),
+          sortable: true
         },
         {
           key: 'start_time',
           label: this.$i18n.t('Start Time'),
+          sortable: true,
           class: 'text-nowrap'
         },
         {
           key: 'end_time',
           label: this.$i18n.t('End Time'),
+          sortable: true,
           formatter: this.$options.filters.shortDateTime,
           class: 'text-nowrap'
         }
@@ -415,21 +442,25 @@ export default {
       securityEventFields: [
         {
           key: 'description',
-          label: this.$i18n.t('Security Event')
+          label: this.$i18n.t('Security Event'),
+          sortable: true
         },
         {
           key: 'start_date',
           label: this.$i18n.t('Start Time'),
+          sortable: true,
           class: 'text-nowrap'
         },
         {
           key: 'release_date',
           label: this.$i18n.t('Release Date'),
+          sortable: true,
           class: 'text-nowrap'
         },
         {
           key: 'status',
           label: this.$i18n.t('Status'),
+          sortable: true,
           class: 'text-nowrap'
         }
       ],
@@ -437,34 +468,41 @@ export default {
         {
           key: 'created_at',
           label: this.$i18n.t('Created At'),
+          sortable: true,
           formatter: this.$options.filters.shortDateTime,
           class: 'text-nowrap'
         },
         {
           key: 'vlan',
-          label: this.$i18n.t('VLAN')
+          label: this.$i18n.t('VLAN'),
+          sortable: true
         },
         {
           key: 'switch_id',
           label: this.$i18n.t('Switch IP'),
+          sortable: true,
           class: 'text-nowrap'
         },
         {
           key: 'option82_switch',
           label: this.$i18n.t('Switch MAC'),
+          sortable: true,
           class: 'text-nowrap'
         },
         {
           key: 'port',
-          label: this.$i18n.t('Port')
+          label: this.$i18n.t('Port'),
+          sortable: true
         },
         {
           key: 'module',
-          label: this.$i18n.t('Module')
+          label: this.$i18n.t('Module'),
+          sortable: true
         },
         {
           key: 'host',
-          label: this.$i18n.t('Host')
+          label: this.$i18n.t('Host'),
+          sortable: true
         }
       ]
     }
@@ -789,8 +827,8 @@ export default {
     }
   },
   created () {
-    this.$store.dispatch('$_nodes/getNode', this.mac).then(data => {
-      this.nodeContent = Object.assign({}, data)
+    this.$store.dispatch('$_nodes/getNode', this.mac).then(node => {
+      this.nodeContent = node
     })
     this.$store.dispatch('config/getRoles')
     this.$store.dispatch('config/getSecurityEvents')

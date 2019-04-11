@@ -8,10 +8,14 @@ export const pfFormatters = {
   },
   categoryId: (value, key, item) => {
     if (!value) return null
-    return store.state.config.roles.filter(role => role.category_id === item.category_id).map(role => role.name)[0]
+    store.dispatch('config/getRoles')
+    if (store.state.config.roles) {
+      return store.state.config.roles.filter(role => role.category_id === item.category_id).map(role => role.name)[0]
+    }
   },
   categoryIdFromIntOrString: (value, key, item) => {
     if (!value) return null
+    store.dispatch('config/getRoles')
     if (!/\d+/.test(value)) {
       return store.state.config.roles.filter(role => role.name.toLowerCase() === value.toLowerCase()).map(role => role.category_id)[0] // string
     } else {
@@ -20,10 +24,19 @@ export const pfFormatters = {
   },
   bypassRoleId: (value, key, item) => {
     if (!value) return null
-    return store.state.config.roles.filter(role => role.category_id === item.bypass_role_id).map(role => role.name)[0]
+    store.dispatch('config/getRoles')
+    if (store.state.config.roles) {
+      return store.state.config.roles.filter(role => role.category_id === item.bypass_role_id).map(role => role.name)[0]
+    }
+  },
+  securityEventIdToDesc: (value, key, item) => {
+    if (!value) return null
+    store.dispatch('config/getSecurityEvents')
+    return store.getters['config/sortedSecurityEvents'].filter(securityEvent => securityEvent.id === value).map(securityEvent => securityEvent.desc)[0]
   },
   securityEventIdsToDescCsv: (value, key, item) => {
     if (!value) return null
+    store.dispatch('config/getSecurityEvents')
     const uVids = [...new Set(value.split(',').filter(item => item))]
     return store.getters['config/sortedSecurityEvents'].filter(securityEvent => uVids.includes(securityEvent.id)).map(securityEvent => securityEvent.desc).join(', ')
   },

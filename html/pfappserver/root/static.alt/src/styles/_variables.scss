@@ -15,6 +15,7 @@ $input-placeholder-color:             #adb5bd; // $gray-500
 $zindex-dropdown:                     1035;
 $spacers:                             (6: (1rem * 4));
 
+@import "../../node_modules/bootstrap/scss/functions";
 @import "../../node_modules/bootstrap/scss/variables";
 
 $nav-tabs-link-hover-border-color:    'transparent';
