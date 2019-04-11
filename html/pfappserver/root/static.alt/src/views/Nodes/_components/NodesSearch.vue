@@ -5,7 +5,8 @@
       <div class="float-right"><pf-form-toggle v-model="advancedMode">{{ $t('Advanced') }}</pf-form-toggle></div>
       <h4 class="mb-0" v-t="'Search Nodes'"></h4>
     </b-card-header>
-    <pf-search :fields="fields" :storeName="storeName" :advanced-mode="advancedMode" :condition="condition"
+    <pf-search :quick-with-fields="false" :quick-placeholder="$t('Search by MAC or owner')"
+      :fields="fields" :storeName="storeName" :advanced-mode="advancedMode" :condition="condition"
       @submit-search="onSearch" @reset-search="onReset" @import-search="onImport"></pf-search>
     <div class="card-body">
       <b-row align-h="between" align-v="center">
@@ -170,7 +171,16 @@ export default {
       default: () => ({
         searchApiEndpoint: 'nodes',
         defaultSortKeys: ['mac'],
-        defaultSearchCondition: { op: 'and', values: [{ op: 'or', values: [{ field: 'mac', op: 'equals', value: null }] }] },
+        defaultSearchCondition: {
+          op: 'and',
+          values: [{
+            op: 'or',
+            values: [
+              { field: 'mac', op: 'contains', value: null },
+              { field: 'pid', op: 'contains', value: null }
+            ]
+          }]
+        },
         defaultRoute: { name: 'nodes' }
       })
     }
@@ -178,6 +188,8 @@ export default {
   data () {
     return {
       tableValues: Array,
+      sortBy: 'mac',
+      sortDesc: false,
       /**
        *  Fields on which a search can be defined.
        *  The names must match the database schema.
@@ -683,11 +695,30 @@ export default {
     }
   },
   methods: {
-    onRowClick (item, index) {
-      this.$router.push({ name: 'node', params: { mac: item.mac } })
+    searchableQuickCondition (quickCondition) {
+      return {
+        op: 'and',
+        values: [
+          {
+            op: 'or',
+            values: [
+              { field: 'mac', op: 'contains', value: quickCondition },
+              { field: 'pid', op: 'contains', value: quickCondition }
+            ]
+          }
+        ]
+      }
     },
     searchableAdvancedMode (condition) {
-      return (condition.values.length > 1 || condition.values[0].values.length > 1)
+      return condition.values.length > 1 ||
+        condition.values[0].values.filter(v => {
+          return this.searchableOptions.defaultSearchCondition.values[0].values.findIndex(d => {
+            return d.field === v.field && d.op === v.op
+          }) >= 0
+        }).length !== condition.values[0].values.length
+    },
+    onRowClick (item, index) {
+      this.$router.push({ name: 'node', params: { mac: item.mac } })
     },
     applyBulkClearSecurityEvent () {
       const macs = this.selectValues.map(item => item.mac)
