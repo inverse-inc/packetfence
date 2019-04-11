@@ -33,6 +33,10 @@
                 v-model.trim="single.sponsor"
                 :vuelidate="$v.single.sponsor"
               />
+              <pf-form-input :column-label="$t('Language')"
+                v-model.trim="single.lang"
+                :vuelidate="$v.single.lang"
+              />
               <pf-form-chosen :column-label="$t('Gender')"
                 v-model="single.gender"
                 label="text"
@@ -103,6 +107,10 @@
                 v-model="single.birthday"
                 :config="{format: 'YYYY-MM-DD'}"
                 :vuelidate="$v.single.birthday"
+              />
+              <pf-form-input :column-label="$t('Psk')"
+                v-model="userContent.psk"
+                :vuelidate="$v.userContent.psk"
               />
               <pf-form-textarea :column-label="$t('Notes')"
                 v-model="single.notes"
