@@ -96,9 +96,6 @@ const api = {
   getFirewalls () {
     return apiCall({ url: 'config/firewalls', method: 'get' })
   },
-  getFixPermissions () {
-    return apiCall({ url: 'config/fix_permissions', method: 'post' })
-  },
   getFloatingDevices () {
     return apiCall({ url: 'config/floating_devices', method: 'get' })
   },
@@ -158,6 +155,9 @@ const api = {
   },
   getWrixLocations () {
     return apiCall({ url: 'wrix_locations', method: 'get' })
+  },
+  postFixPermissions () {
+    return apiCall({ url: 'config/fix_permissions', method: 'post' })
   }
 }
 
@@ -599,7 +599,7 @@ const actions = {
       return
     }
     commit('FIX_PERMISSIONS_UPDATED', types.LOADING)
-    return api.getFixPermissions().then(response => {
+    return api.postFixPermissions().then(response => {
       commit('FIX_PERMISSIONS_UPDATED', types.SUCCESS)
       return response.data
     }).catch((err) => {
