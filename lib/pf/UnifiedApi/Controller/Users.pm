@@ -293,10 +293,9 @@ bulk_init_results
 
 sub bulk_init_results {
     my ($items, $key) = @_;
-    $key //= 'nodes';
     my $i = 0;
     my %index = map { $_ => $i++ } @$items;
-    my @results = map { { pid => $_, $key => []} } @$items;
+    my @results = map { { pid => $_, (defined $key ? ($key => [] ) : ()) } } @$items;
     return (\%index, \@results);
 }
 
@@ -406,6 +405,30 @@ bulk_apply_bypass_role
 sub bulk_apply_bypass_role {
     my ($self) = @_;
     return $self->do_bulk_update_field('bypass_role_id');
+}
+
+=head2 bulk_delete
+
+bulk_delete
+
+=cut
+
+sub bulk_delete {
+    my ($self) = @_;
+    my ($status, $data) = $self->parse_json;
+    if (is_error($status)) {
+        return $self->render(json => $data, status => $status);
+    }
+
+    my $items = $data->{items} // [];
+    my ($indexes, $results) = bulk_init_results($items);
+    for my $pid ( @$items ) {
+         person_unassign_nodes($pid);
+         person_delete($pid);
+         $results->[$indexes->{$pid}]->{status} = 200;
+    }
+
+    return $self->render(json => { items => $results });
 }
 
 =head1 AUTHOR
