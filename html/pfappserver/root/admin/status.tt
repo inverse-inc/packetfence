@@ -27,13 +27,13 @@
                 </ul>
               </li>
               [%- END %]
-              [%- IF can_access("SERVICES") %]
+              [%- IF can_access("SERVICES_READ") %]
               <li><a href="#service">[% l('Services') %]</a></li>
               [%- END %]
-              [%- IF can_access("SERVICES") && cluster_enabled %]
+              [%- IF can_access("SERVICES_READ") && cluster_enabled %]
               <li><a href="#service/cluster_status">[% l('Cluster state') %]</a></li>
               [%- END %]
-              [%- IF can_access("SERVICES") %]
+              [%- IF can_access("SERVICES_READ") %]
               <li class="nav-header">[% l('Queue') %]</li>
               <li><a href="#pfqueue">[% l('Local Queue') %]</a></li>
               [% IF cluster_enabled %]

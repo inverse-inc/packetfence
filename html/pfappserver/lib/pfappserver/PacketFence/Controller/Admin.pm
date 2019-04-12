@@ -211,7 +211,7 @@ sub logout :Local :Args(0) {
 
 our @ROLES_TO_ACTIONS = (
     {
-        roles => [qw(SERVICES)],
+        roles => [qw(SERVICES_READ)],
         action => 'status',
     },
     {

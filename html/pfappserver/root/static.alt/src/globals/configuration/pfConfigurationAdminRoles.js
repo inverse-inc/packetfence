@@ -305,7 +305,7 @@ export const pfConfigurationAdminRoleActions = [
   {
     group: 'Services',
     items: [
-      { text: 'Services', value: 'SERVICES' }
+      { text: 'Services', value: 'SERVICES_READ' }
     ]
   },
   {

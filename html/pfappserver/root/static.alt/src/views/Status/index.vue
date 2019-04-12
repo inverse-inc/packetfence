@@ -28,12 +28,12 @@ export default {
             {
               name: 'Services',
               path: '/status/services',
-              can: 'access services'
+              can: 'read services'
             },
             {
               name: 'Local Queue',
               path: '/status/pfqueue',
-              can: 'access services'
+              can: 'read services'
             }
           ]
         }

@@ -55,7 +55,7 @@
           [%- IF c.user_allowed_in_admin() %]
           <div class="nav-collapse">
             <ul class="nav nav-header">
-              [%- IF can_access_any("REPORTS_READ","SERVICES") %]
+              [%- IF can_access_any("REPORTS_READ","SERVICES_READ") %]
               <li[% ' class="active"' IF c.action.name == 'status' %]>
                 <a href="[% c.uri_for(c.controller('Admin').action_for('status')) %]">[% l('Status') %]</a>
               </li>

@@ -37,7 +37,7 @@ const route = {
       component: Services,
       props: { storeName: '$_status' },
       meta: {
-        can: 'access services'
+        can: 'read services'
       }
     }
   ]

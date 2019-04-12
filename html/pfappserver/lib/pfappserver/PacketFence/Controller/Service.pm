@@ -52,7 +52,7 @@ sub service :Chained('/') :PathPart('service') :CaptureArgs(1) {
 
 =cut
 
-sub status :Chained('service') :PathPart('') :Args(0) :AdminRole('SERVICES') {
+sub status :Chained('service') :PathPart('') :Args(0) :AdminRole('SERVICES_READ') {
     my ($self, $c) = @_;
     $self->_process_model_results($c, $c->stash->{model}->status);
     $c->stash->{'server_hostname'}  = $c->model('Admin')->server_hostname();
@@ -62,7 +62,7 @@ sub status :Chained('service') :PathPart('') :Args(0) :AdminRole('SERVICES') {
 
 =cut
 
-sub cluster_status :Local :AdminRole('SERVICES') {
+sub cluster_status :Local :AdminRole('SERVICES_READ') {
     my ($self, $c) = @_;
     $c->stash->{servers} = [pf::cluster::config_enabled_hosts()];
     $c->stash->{config_cluster} = \%ConfigCluster;
@@ -92,7 +92,7 @@ sub cluster_status :Local :AdminRole('SERVICES') {
 
 =cut
 
-sub start :Chained('service') :PathPart :Args(0) :AdminRole('SERVICES') {
+sub start :Chained('service') :PathPart :Args(0) :AdminRole('SERVICES_READ') {
     my ($self, $c) = @_;
     $self->_process_model_results_as_json( $c, $c->stash->{model}->service_cmd($c->stash->{service}, "start") );
 }
@@ -101,7 +101,7 @@ sub start :Chained('service') :PathPart :Args(0) :AdminRole('SERVICES') {
 
 =cut
 
-sub stop :Chained('service') :PathPart :Args(0) :AdminRole('SERVICES') {
+sub stop :Chained('service') :PathPart :Args(0) :AdminRole('SERVICES_READ') {
     my ($self, $c) = @_;
     $self->_process_model_results_as_json( $c, $c->stash->{model}->service_cmd($c->stash->{service}, "stop") );
 }
@@ -110,7 +110,7 @@ sub stop :Chained('service') :PathPart :Args(0) :AdminRole('SERVICES') {
 
 =cut
 
-sub restart :Chained('service') :PathPart :Args(0) :AdminRole('SERVICES') {
+sub restart :Chained('service') :PathPart :Args(0) :AdminRole('SERVICES_READ') {
     my ($self, $c) = @_;
     $self->_process_model_results_as_json( $c, $c->stash->{model}->service_cmd($c->stash->{service}, "restart") );
 }
@@ -119,7 +119,7 @@ sub restart :Chained('service') :PathPart :Args(0) :AdminRole('SERVICES') {
 
 =cut
 
-sub pf_start :Local :Path('pf/start') :AdminRole('SERVICES') {
+sub pf_start :Local :Path('pf/start') :AdminRole('SERVICES_READ') {
     my ($self, $c) = @_;
     $c->stash->{service} = 'pf';
     $self->_process_model_results_as_json( $c, $c->model('Services')->service_cmd_background(qw(pf start)) );
@@ -129,7 +129,7 @@ sub pf_start :Local :Path('pf/start') :AdminRole('SERVICES') {
 
 =cut
 
-sub pf_stop :Local :Path('pf/stop') :AdminRole('SERVICES') {
+sub pf_stop :Local :Path('pf/stop') :AdminRole('SERVICES_READ') {
     my ($self, $c) = @_;
     $c->stash->{service} = 'pf';
     $self->_process_model_results_as_json( $c, $c->model('Services')->service_cmd_background(qw(pf stop)) );
@@ -139,7 +139,7 @@ sub pf_stop :Local :Path('pf/stop') :AdminRole('SERVICES') {
 
 =cut
 
-sub pf_restart :Local :Path('pf/restart') :AdminRole('SERVICES') {
+sub pf_restart :Local :Path('pf/restart') :AdminRole('SERVICES_READ') {
     my ($self, $c) = @_;
     $c->stash->{service} = 'pf';
     $self->_process_model_results_as_json( $c, $c->model('Services')->service_cmd_background(qw(pf restart)) );
@@ -149,7 +149,7 @@ sub pf_restart :Local :Path('pf/restart') :AdminRole('SERVICES') {
 
 =cut
 
-sub httpd_admin_restart :Local : Path('httpd.admin/restart') :AdminRole('SERVICES') {
+sub httpd_admin_restart :Local : Path('httpd.admin/restart') :AdminRole('SERVICES_READ') {
     my ($self, $c) = @_;
     $c->stash->{service} = 'httpd.admin';
     $self->_process_model_results_as_json( $c, $c->model('Services')->service_cmd_background("httpd.admin", "restart") );
@@ -159,7 +159,7 @@ sub httpd_admin_restart :Local : Path('httpd.admin/restart') :AdminRole('SERVICE
 
 =cut
 
-sub httpd_admin_stop :Local : Path('httpd.admin/stop') :AdminRole('SERVICES') {
+sub httpd_admin_stop :Local : Path('httpd.admin/stop') :AdminRole('SERVICES_READ') {
     my ($self, $c) = @_;
     $c->stash->{service} = 'httpd.admin';
     $self->_process_model_results_as_json( $c, $c->model('Services')->service_cmd_background("httpd.admin", "stop") );
