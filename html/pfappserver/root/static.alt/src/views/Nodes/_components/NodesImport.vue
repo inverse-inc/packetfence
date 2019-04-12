@@ -4,7 +4,7 @@
     <b-card-header>
       <h4 class="mb-0" v-t="'Import Nodes'"></h4>
     </b-card-header>
-    <div class="card-body">
+    <div class="card-body p-0">
       <b-tabs ref="tabs" v-model="tabIndex" card pills>
         <b-tab v-for="(file, index) in files" :key="file.name + file.lastModified" :title="file.name" no-body>
           <template slot="title">
@@ -282,3 +282,10 @@ export default {
   }
 }
 </script>
+
+<style lang="scss">
+.nav-tabs > li > a,
+.nav-pills > li > a {
+  margin-right: 0.5rem!important;
+}
+</style>
