@@ -46,7 +46,11 @@
           </div>
       </div>
       <b-card-footer @mouseenter="isNew && $v.newFilename.$touch()">
-        <pf-button-save :disabled="invalidForm" :isLoading="!invalidForm && isLoading">{{ isNew ? $t('Create') : $t('Save') }}</pf-button-save>
+        <pf-button-save :disabled="invalidForm" :isLoading="!invalidForm && isLoading">
+          <template v-if="isNew">{{ $t('Create') }}</template>
+          <template v-else-if="ctrlKey">{{ $t('Save & Close') }}</template>
+          <template v-else>{{ $t('Save') }}</template>
+        </pf-button-save>
         <pf-button-delete v-if="deletable" class="ml-1" :disabled="isLoading" :confirm="$t('Delete file?')" @on-delete="remove($event, true)"/>
         <pf-button-delete v-else-if="revertible" class="ml-1" :disabled="isLoading" :confirm="$t('Discard changes?')" @on-delete="remove($event)">{{ $t('Revert') }}</pf-button-delete>
       </b-card-footer>
@@ -58,6 +62,7 @@
 import pfFormToggle from '@/components/pfFormToggle'
 import pfButtonSave from '@/components/pfButtonSave'
 import pfButtonDelete from '@/components/pfButtonDelete'
+import pfMixinCtrlKey from '@/components/pfMixinCtrlKey'
 import pfMixinEscapeKey from '@/components/pfMixinEscapeKey'
 import { isFilenameWithExtension } from '@/globals/pfValidators'
 const { validationMixin } = require('vuelidate')
@@ -67,6 +72,7 @@ const aceEditor = require('vue2-ace-editor')
 export default {
   name: 'ConnectionProfileFileView',
   mixins: [
+    pfMixinCtrlKey,
     pfMixinEscapeKey,
     validationMixin
   ],

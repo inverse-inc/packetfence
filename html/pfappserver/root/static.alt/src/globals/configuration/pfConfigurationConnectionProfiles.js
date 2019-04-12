@@ -915,7 +915,7 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
                     locked: true
                   }
                 ],
-                isLoadingStoreGetter: [storeName, 'isLoadingFiles'].join('/'),
+                isLoadingStoreGetters: [[storeName, 'isLoading'].join('/'), [storeName, 'isLoadingFiles'].join('/')],
                 previewPath: (item) => {
                   let path = ['/config/profile', form.id, 'preview']
                   if (item.path) path.push(item.path)

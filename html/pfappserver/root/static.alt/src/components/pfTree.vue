@@ -43,6 +43,7 @@
           :on-node-delete="onNodeDelete"
           :on-container-create="onContainerCreate"
           :on-container-delete="onContainerDelete"
+          :is-loading-store-getters="isLoadingStoreGetters"
           :level="level + 1"></pf-tree>
         </transition>
       </template>
@@ -141,9 +142,13 @@ export default {
       type: Number,
       default: 0
     },
-    isLoadingStoreGetter: {
-      type: String,
-      default: null
+    disabled: {
+      type: Boolean,
+      default: false
+    },
+    isLoadingStoreGetters: {
+      type: Array,
+      default: []
     }
   },
   data () {
@@ -153,8 +158,8 @@ export default {
   },
   computed: {
     isLoading () {
-      if (this.isLoadingStoreGetter) {
-        return this.$store.getters[this.isLoadingStoreGetter]
+      if (this.isLoadingStoreGetters.length > 0) {
+        return this.isLoadingStoreGetters.reduce((currentValue, getter) => { return this.$store.getters[getter] || currentValue }, false)
       }
       return false
     },
@@ -169,7 +174,7 @@ export default {
     onRowClick (item, index) {
       if (this.childrenIf(item)) {
         this.$set(item, '_showDetails', !item._showDetails)
-      } else if (typeof this.onNodeClick === 'function') {
+      } else if (typeof this.onNodeClick === 'function' && !this.isLoading) {
         return this.onNodeClick(item)
       }
     },
