@@ -126,8 +126,8 @@ $enable-shadows: true;
 .notifications-toasts {
     position: absolute;
     z-index: 9999;
-    top: 1rem;
-    right: 1rem;
+    top: .5rem; // in case of a single one-line notification, center the notification in the top navbar
+    right: 3rem; // keep the notification bell icon visible in the top navbar
     width: 30vw;
 }
 
