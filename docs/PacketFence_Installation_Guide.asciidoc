@@ -2611,6 +2611,8 @@ RADIUS Accounting
 
 RADIUS Accounting is usually used by ISPs to bill clients.  In PacketFence, we are able to use this information to determine if the node is still connected, how much time it has been connected, and how much bandwidth the user consumed.
 
+PacketFence uses RADIUS Accounting to display Online/Offline status in webadmin in 'Nodes' menu.
+
 
 IP log updates
 ^^^^^^^^^^^^^^
