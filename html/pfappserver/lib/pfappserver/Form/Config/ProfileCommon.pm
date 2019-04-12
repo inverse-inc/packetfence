@@ -70,6 +70,7 @@ has_field 'id' =>
    required => 1,
    apply => [ pfappserver::Base::Form::id_validator('profile name') ],
    tags => { after_element => \&help,
+             option_pattern => \&pfappserver::Base::Form::id_pattern,
              help => 'A profile id can only contain alphanumeric characters, dashes, period and or underscores.' },
   );
 
