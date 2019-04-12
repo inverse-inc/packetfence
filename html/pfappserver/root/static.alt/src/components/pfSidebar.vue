@@ -40,7 +40,7 @@
                   <!-- collapsable (2nd level) -->
                   <template v-else-if="item.collapsable">
                     <div class="pf-sidenav-group" :key="`${item.name}_btn`" v-b-toggle="$sanitizedClass(`${section.name}_${item.name}`)">
-                      <text-highlight class="ml-5" :queries="[filter]">{{ $t(item.name) }}</text-highlight>
+                      <text-highlight class="ml-6" :queries="[filter]">{{ $t(item.name) }}</text-highlight>
                       <icon class="mx-1 mt-1" name="chevron-down"></icon>
                     </div>
                     <b-collapse :id="$sanitizedClass(`${section.name}_${item.name}`)" :key="item.name" :visible="isActive(item.name)">
