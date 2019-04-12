@@ -20,7 +20,9 @@
       <h4 class="mb-0">
         <template v-if="!isNew && !isClone">
           <span v-html="$t('Connection Profile {id}', { id: $strong(id) })"></span>
-          <b-button size="sm" variant="secondary" class="ml-2" :href="`/portal_preview/captive-portal?PORTAL=${id}`" target="_blank">{{ $t('Preview') }}</b-button>
+          <b-button size="sm" variant="secondary" class="ml-2" :href="`/portal_preview/captive-portal?PORTAL=${id}`" target="_blank">
+            {{ $t('Preview') }} <icon class="ml-1" name="external-link-alt"></icon>
+          </b-button>
         </template>
         <span v-else-if="isClone">{{ $t('Clone Connection Profile {id}', { id: id }) }}</span>
         <span v-else>{{ $t('New Connection Profile') }}</span>
@@ -216,8 +218,11 @@ export default {
         items.push({ type: 'dir', name, size: 0, mtime: 0, path, entries: [] })
       }
     },
-    deleteDirectory (path) {
-      this.$store.dispatch(`${this.storeName}/deleteFile`, { id: this.id, filename: path })
+    deleteFile (path) {
+      // Same call for both folders and files
+      this.$store.dispatch(`${this.storeName}/deleteFile`, { id: this.id, filename: path }).then(data => {
+        this.files = data.entries
+      })
     }
   },
   created () {

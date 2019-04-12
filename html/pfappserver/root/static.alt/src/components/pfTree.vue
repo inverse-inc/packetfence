@@ -15,6 +15,16 @@
             <icon class="mr-1" name="regular/file"></icon> {{ row.item.name }}
         </div>
       </template>
+      <template slot="buttons" slot-scope="{ item }">
+        <div class="text-right text-nowrap" v-if="!childrenIf(item)">
+          <pf-button-delete size="sm" variant="outline-danger" class="mr-1" :disabled="isLoading" reverse
+            v-if="!item.not_deletable" :confirm="$t('Delete?')" @on-delete="onNodeDelete(path + item.name)"/>
+          <pf-button-delete size="sm" variant="outline-danger" class="mr-1" :disabled="isLoading" reverse
+            v-else-if="!item.not_revertible" @on-delete="onNodeDelete(path + item.name)">{{ $t('Revert') }}</pf-button-delete>
+          <b-button size="sm" variant="outline-secondary"
+            v-if="previewPath" :href="previewPath(item)" target="_blank">{{ $t('Preview') }} <icon class="ml-1" name="external-link-alt"></icon></b-button>
+        </div>
+      </template>
       <template slot="row-details" slot-scope="row">
         <transition name="fade" mode="out-in">
         <pf-tree
@@ -23,14 +33,16 @@
           :path="fullPath(row.item)"
           :items="row.item[childrenKey]"
           :fields="fields"
+          :preview-path="previewPath"
           :children-key="childrenKey"
           :children-if="childrenIf"
           :node-create-label="nodeCreateLabel"
           :container-create-label="containerCreateLabel"
           :on-node-click="onNodeClick"
           :on-node-create="onNodeCreate"
+          :on-node-delete="onNodeDelete"
           :on-container-create="onContainerCreate"
-          :on-delete="onDelete"
+          :on-container-delete="onContainerDelete"
           :level="level + 1"></pf-tree>
         </transition>
       </template>
@@ -46,7 +58,7 @@
       </template>
     </b-table>
     <div :class="'my-1 indent-' + level" v-if="showActions">
-      <b-button size="sm" variant="outline-danger" class="mr-1" v-if="deletable" @click="onDelete(path)">{{ $t('Delete') }}</b-button>
+      <b-button size="sm" variant="outline-danger" class="mr-1" v-if="deletable" @click="onContainerDelete(path)">{{ $t('Delete') }}</b-button>
       <pf-button-prompt size="sm" variant="outline-secondary" class="mr-1" v-model="newContainerName" v-if="onContainerCreate" @on-confirm="createContainer()">{{ containerCreateLabel }}</pf-button-prompt>
       <b-button size="sm" variant="outline-secondary" v-if="onNodeCreate" @click="onNodeCreate(path)">{{ nodeCreateLabel }}</b-button>
     </div>
@@ -55,11 +67,13 @@
 
 <script>
 import i18n from '@/utils/locale'
+import pfButtonDelete from '@/components/pfButtonDelete'
 import pfButtonPrompt from '@/components/pfButtonPrompt'
 
 export default {
   name: 'pf-tree',
   components: {
+    pfButtonDelete,
     pfButtonPrompt
   },
   props: {
@@ -74,6 +88,10 @@ export default {
     fields: {
       type: Array,
       default: () => []
+    },
+    previewPath: {
+      type: Function,
+      default: null
     },
     childrenKey: {
       type: String,
@@ -103,6 +121,10 @@ export default {
       type: Function,
       default: null
     },
+    onNodeDelete: {
+      type: Function,
+      default: null
+    },
     onContainerCreate: {
       type: Function,
       default: null
@@ -111,7 +133,7 @@ export default {
       type: String,
       default: i18n.t('Create directory')
     },
-    onDelete: {
+    onContainerDelete: {
       type: Function,
       default: null
     },
@@ -137,7 +159,7 @@ export default {
       return false
     },
     deletable () {
-      return this.onDelete && this.items.length === 0
+      return this.onContainerDelete && this.items.length === 0
     },
     showActions () {
       return (this.onNodeCreate || this.deletable) && !this.isLoading
@@ -166,8 +188,13 @@ export default {
 @import "../../node_modules/bootstrap/scss/functions";
 @import "../styles/variables";
 
-.table-headless thead {
+.table-headless {
+  thead {
     display: none;
+  }
+  td:last-child {
+    padding-right: 0;
+  }
 }
 
 .b-table-details:hover {

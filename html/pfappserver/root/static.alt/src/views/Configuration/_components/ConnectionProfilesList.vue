@@ -8,7 +8,7 @@
         <b-card-header><h4 class="mb-0" v-t="'Connection Profiles'"></h4></b-card-header>
       </template>
       <template slot="buttonAdd">
-        <b-button variant="outline-primary" :to="{ name: 'newConnectionProfile' }">{{ $t('Add Connection Profile') }}</b-button>
+        <b-button variant="outline-primary" :to="{ name: 'newConnectionProfile' }">{{ $t('New Connection Profile') }}</b-button>
       </template>
       <template slot="emptySearch" slot-scope="state">
         <pf-empty-table :isLoading="state.isLoading">{{ $t('No connection profiles found') }}</pf-empty-table>
@@ -16,7 +16,7 @@
       <template slot="buttons" slot-scope="item">
         <span class="float-right text-nowrap">
           <pf-button-delete size="sm" v-if="!item.not_deletable" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete Connection Profile?')" @on-delete="remove(item)" reverse/>
-          <b-button size="sm" variant="outline-primary" class="mr-1" :href="`/portal_preview/captive-portal?PORTAL=${item.id}`" target="_blank">{{ $t('Preview') }}</b-button>
+          <b-button size="sm" variant="outline-secondary" class="mr-1" :href="`/portal_preview/captive-portal?PORTAL=${item.id}`" target="_blank">{{ $t('Preview') }} <icon class="ml-1" name="external-link-alt"></icon></b-button>
           <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(item)">{{ $t('Clone') }}</b-button>
         </span>
       </template>

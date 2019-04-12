@@ -351,7 +351,7 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
     },
     general = {},
     createDirectory = null,
-    deleteDirectory = null
+    deleteFile = null
   } = context
 
   // fields differ w/ & wo/ 'default'
@@ -906,17 +906,31 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
                     formatter: formatter.shortDateTime,
                     class: 'text-right',
                     sortable: true
+                  },
+                  {
+                    key: 'buttons',
+                    label: '',
+                    sortable: false,
+                    visible: true,
+                    locked: true
                   }
                 ],
                 isLoadingStoreGetter: [storeName, 'isLoadingFiles'].join('/'),
+                previewPath: (item) => {
+                  let path = ['/config/profile', form.id, 'preview']
+                  if (item.path) path.push(item.path)
+                  path.push(item.name)
+                  return path.join('/')
+                },
                 childrenKey: 'entries',
                 childrenIf: (item) => item.type === 'dir' && 'entries' in item,
                 sortBy: 'name',
                 onSortingChanged: sortFiles,
                 onNodeClick: (item) => $router.push({ name: 'connectionProfileFile', params: { id: form.id, filename: item.path ? [item.path, item.name].join('/') : item.name } }),
                 onNodeCreate: (path) => $router.push({ name: 'newConnectionProfileFile', params: { id: form.id, path } }),
-                onContainerCreate: createDirectory,
-                onDelete: deleteDirectory
+                onNodeDelete: deleteFile,
+                onContainerDelete: deleteFile,
+                onContainerCreate: createDirectory
               }
             }
           ]
