@@ -164,7 +164,7 @@ func NewSingleHostReverseProxy(target *url.URL, without string, keepalive int, t
 		rp.Transport = &http.Transport{
 			Dial: socketDial(target.String(), timeout),
 		}
-	} else if keepalive != http.DefaultMaxIdleConnsPerHost {
+	} else {
 		// if keepalive is equal to the default,
 		// just use default transport, to avoid creating
 		// a brand new transport
@@ -173,6 +173,7 @@ func NewSingleHostReverseProxy(target *url.URL, without string, keepalive int, t
 			Dial:                  rp.dialer.Dial,
 			TLSHandshakeTimeout:   10 * time.Second,
 			ExpectContinueTimeout: 1 * time.Second,
+			ResponseHeaderTimeout: 10 * time.Minute,
 		}
 		if keepalive == 0 {
 			transport.DisableKeepAlives = true
