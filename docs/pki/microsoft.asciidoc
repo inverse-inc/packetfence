@@ -233,6 +233,8 @@ image::scep-ms-pki-provider.png[scaledwidth="100%",alt="MSPKI configuration"]
 
 For the URL it will be `http://<ServerDNSName>/CertSrv/mscep/`.
 
+WARNING: Don't use `https:` scheme.
+
 You do not need any Username/Password combination for this configuration.
 
 image::scep-ms-pki-provider2.png[scaledwidth="100%",alt="MSPKI configuration"]
@@ -318,30 +320,49 @@ Debugging MSPKI Integration with PacketFence
 
 This is a way to do the procedure of enrollment manually, mainly for debugging purposes.
 
-First you need to generate a request and its private key via the openssl command. Type the following command in PacketFence CLI
+First you need to generate a request and its private key via the openssl command. Type following commands in PacketFence CLI:
 
- # openssl req new -newkey rsa:2048 -nodes -keyout local.key -out local.csr -subj '/C=CA/ST=QC/L=Montreal/O=Inverse/OU=IT/CN=www.test.example.com'
+[source,bash]
+----
+mkdir temp; cd temp
+openssl req -newkey rsa:2048 -nodes -keyout local.key -out local.csr -subj '/C=CA/ST=QC/L=Montreal/O=Inverse/OU=IT/CN=www.test.example.com'
+----
 
-This will create 2 files in your current directory, local.csr and local.key.
+This will create 2 files in your current directory, [filename]`local.csr` and [filename]`local.key`.
 
 Now you need to obtain the CA and some specific certificates from the MSPKI.
 
- # sscep getca -u http://<ServerDNSName>/CertSrv/mscep/ -c path/MyCA
+[source,bash]
+----
+sscep getca -u http://<ServerDNSName>/CertSrv/mscep/ -c MyCA.crt
+----
 
-Now you need to use the "CEP encryption" certificate and the "Enrollment agent". Both were obtained when doing the getca. You should have at least three certificates with the same name and a different number at the end. e.g. MyCA-0, MyCA-1, etc.
+Now you need to use the "CEP encryption" certificate and the "Enrollment agent". Both were obtained when doing the [command]`sscep getca`. You should have at least three certificates with the same name and a different number at the end. e.g. [filename]`MyCA.crt-0` (Enrollment agent certificate), [filename]`MyCA.crt-1` (CEP encryption certificate) and [filename]`MyCA.crt-2` (CA certificate).
 
-To display the content of a certificate use the following command: 
+To display the content of each certificate use following commands: 
 
- # openssl x509 -in path/MyCA-0 -text
- # openssl x509 -in path/MyCA-1 -text
+[source,bash]
+----
+openssl x509 -in MyCA.crt-0 -text
+openssl x509 -in MyCA.crt-1 -text
+openssl x509 -in MyCA.crt-2 -text
+----
 
-In the output search for `X509v3 extensions:`. When using the scep enroll command you will need the "CEP Encryption" certificate as an argument for -e and the "Enrollment agent" certificate as an argument for -c. -d is use for the debug output. -l is the local file where your certificate will be save.
- 
- # sscep enroll -c path/MyCA-0 -e path/MyCA-1 -k path/local.key -r path/local.csr -l path/MyCert.crt -S sha1 -u http://<ServerDNSName>/CertSrv/mscep/ -d 
+In the output search for `X509v3 extensions:`. When using the [command]`sscep enroll` command you will need the "Enrollment agent" certificate as an argument for `-c` and the "CEP Encryption" certificate as an argument for `-e`. `-d` is use for the debug output. `-l` is the local file where your certificate will be save.
 
-To verify your certificate against the OCSP you can use the following openssl command:
+[source,bash]
+----
+sscep enroll -c MyCA.crt-0 -e MyCA.crt-1 -k local.key -r local.csr \
+-l MyCert.crt -S sha1 -u http://<ServerDNSName>/CertSrv/mscep/ -d
+----
 
- # openssl OCSP -issuer path/CA-Certificate -cert path/Certificate-to-verify -text -url http://<ServerDNSName>/OCSP
+To verify your certificate against the OCSP you can use the following [command]`openssl` command:
+
+[source,bash]
+----
+openssl OCSP -issuer path/CA-Certificate -cert path/Certificate-to-verify \
+-text -url http://<ServerDNSName>/OCSP
+----
 
 Debugging Android Passthroughs
 ++++++++++++++++++++++++++++++
