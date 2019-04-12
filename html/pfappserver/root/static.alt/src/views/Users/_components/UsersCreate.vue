@@ -150,6 +150,9 @@
         </b-form>
       </b-tab>
       <b-tab :title="$t('Multiple')" v-can:create-multiple="'users'">
+        <pf-form-row>
+          <b-alert show variant="info" v-html="$t('The usernames are constructed from the <b>prefix</b> and the <b>quantity</b>. For example, setting the prefix to <i>guest</i> and the quantity to <i>3</i> creates usernames <i>guest1</i>, <i>guest2</i> and <i>guest3</i>. Random passwords will be created.')"></b-alert>
+        </pf-form-row>
         <b-form @submit.prevent="create()">
           <b-form-row align-v="center">
             <b-col sm="12">
@@ -249,6 +252,7 @@ import pfFormChosen from '@/components/pfFormChosen'
 import pfFormDatetime from '@/components/pfFormDatetime'
 import pfFormFields from '@/components/pfFormFields'
 import pfFormInput from '@/components/pfFormInput'
+import pfFormRow from '@/components/pfFormRow'
 import pfFormTextarea from '@/components/pfFormTextarea'
 import pfFormToggle from '@/components/pfFormToggle'
 import {
@@ -280,6 +284,7 @@ export default {
     pfFormDatetime,
     pfFormFields,
     pfFormInput,
+    pfFormRow,
     pfFormTextarea,
     pfFormToggle
   },
