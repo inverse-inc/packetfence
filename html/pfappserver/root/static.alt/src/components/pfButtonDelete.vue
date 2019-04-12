@@ -83,3 +83,25 @@ export default {
   }
 }
 </script>
+
+<style lang="scss">
+@import "../../node_modules/bootstrap/scss/functions";
+@import "../styles/variables";
+
+.btn-group.flex-row-reverse {
+  > .btn {
+    &:not(:last-child):not(.dropdown-toggle) {
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+      border-top-right-radius: $btn-border-radius;
+      border-bottom-right-radius: $btn-border-radius;
+    }
+    &:not(:first-child):not(.dropdown-toggle) {
+      border-top-left-radius: $btn-border-radius;
+      border-bottom-left-radius: $btn-border-radius;
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+    }
+  }
+}
+</style>
