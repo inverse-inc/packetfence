@@ -148,7 +148,7 @@ export default {
     },
     isLoadingStoreGetters: {
       type: Array,
-      default: []
+      default: () => []
     }
   },
   data () {
