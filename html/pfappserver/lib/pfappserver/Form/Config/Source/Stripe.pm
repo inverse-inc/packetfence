@@ -25,11 +25,13 @@ has_field '+currency' => (
 );
 # Form fields
 has_field 'secret_key' => (
-    type => 'Text'
+    type => 'Text',
+    default => '',
 );
 
 has_field 'publishable_key' => (
-    type => 'Text'
+    type => 'Text',
+    default => '',
 );
 
 has_field 'style' => (
