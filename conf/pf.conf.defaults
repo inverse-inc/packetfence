@@ -891,6 +891,11 @@ active_directory_os_join_check_bypass=disabled
 # The port where statsd listen
 statsd_listen_port = 8125
 
+# advanced.pfperl_api_timeout
+#
+# Execution timeout for pfperl-api
+pfperl_api_timeout = 600
+
 [provisioning]
 #
 # provisioning.autoconfig
