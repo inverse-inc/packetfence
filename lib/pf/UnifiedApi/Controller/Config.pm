@@ -369,7 +369,7 @@ sub options_from_form {
     for my $field ($form->fields) {
         next if $field->inactive;
         my $name = $field->name;
-        $meta{$name} = $self->field_meta($field);
+        $meta{$name} = $self->field_meta($field, $defaultValues);
     }
 
     return \%output;
@@ -382,7 +382,7 @@ Get a field's meta data
 =cut
 
 sub field_meta {
-    my ($self, $field, $no_array) = @_;
+    my ($self, $field, $defaultValues, $no_array) = @_;
     my $type = $self->field_type($field, $no_array);
     my $meta = {
         type        => $type,
@@ -408,12 +408,12 @@ Get the extra meta data for a field
 =cut
 
 sub field_extra_meta {
-    my ($self, $field, $type) = @_;
+    my ($self, $field, $type, $defaultValues) = @_;
     my %extra;
     if ($type eq 'array') {
-        $extra{item} = $self->field_meta_array_items($field, 1);
+        $extra{item} = $self->field_meta_array_items($field, undef, 1);
     } elsif ($type eq 'object') {
-        $extra{properties} = $self->field_meta_object_properties($field);
+        $extra{properties} = $self->field_meta_object_properties($field, $defaultValues->{$field->name});
     } else {
         if ($field->isa("HTML::FormHandler::Field::Text")) {
             $self->field_text_meta($field, \%extra);
@@ -434,10 +434,10 @@ Get the properties of a field
 =cut
 
 sub field_meta_object_properties {
-    my ($self, $field) = @_;
+    my ($self, $field, $defaultValues) = @_;
     my %p;
     for my $f ($field->fields) {
-        $p{$f->name} = $self->field_meta($f);
+        $p{$f->name} = $self->field_meta($f, $defaultValues);
     }
 
     return \%p;
@@ -537,7 +537,7 @@ sub resource_options {
         next if $field->inactive;
         my $name = $field->name;
         next if $self->isResourceFieldSkippable($field);
-        $meta{$name} = $self->field_meta($field);
+        $meta{$name} = $self->field_meta($field, $defaultValues);
     }
 
     return $self->render(json => \%output);
@@ -606,14 +606,11 @@ Get the placeholder for the field
 =cut
 
 sub field_placeholder {
-    my ($self, $field) = @_;
+    my ($self, $field, $defaults) = @_;
     my $name = $field->name;
-    my $cs = $self->config_store;
-    my $default_section = $cs->default_section;
     my $value;
-    if ($default_section) {
-        my $item = $self->cleanup_item($cs->read($default_section, 'id'));
-        $value = $item->{$name};
+    if ($defaults) {
+        $value = $defaults->{$name};
     }
 
     if (!defined $value ) {
@@ -638,7 +635,7 @@ Get the meta for the items of the array
 =cut
 
 sub field_meta_array_items {
-    my ($self, $field) = @_;
+    my ($self, $field, $defaults) = @_;
     if ($field->isa('HTML::FormHandler::Field::Repeatable')) {
         $field->init_state;
         my $element = $field->clone_element($field->name . "_temp");
@@ -646,10 +643,10 @@ sub field_meta_array_items {
             $element->_load_options();
         }
 
-        return $self->field_meta($element);
+        return $self->field_meta($element, $defaults);
     }
 
-    return $self->field_meta($field, 1);
+    return $self->field_meta($field, $defaults, 1);
 }
 
 =head2 field_resource_placeholder
