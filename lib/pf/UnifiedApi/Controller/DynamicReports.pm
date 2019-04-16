@@ -49,7 +49,6 @@ sub search {
     my $where = pf::UnifiedApi::Search::searchQueryToSqlAbstract($json->{query});
 
     my $page = $json->{cursor} // 0;
-    $page;
 
     my $report = pf::factory::report->new($self->stash('report_id'));
     my %info = (
