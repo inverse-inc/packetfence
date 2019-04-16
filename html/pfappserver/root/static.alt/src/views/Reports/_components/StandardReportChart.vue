@@ -1,7 +1,7 @@
 <template>
   <b-card no-body>
     <b-card-header>
-      <h4 class="mb-0">{{ $t('Report') }} / {{ $t(report.category) }} / {{ $t(report.name) }}</h4>
+      <h4 class="mb-0">{{ $t('Standard Report') }} / {{ $t(report.category) }} / {{ $t(report.name) }}</h4>
     </b-card-header>
 
     <b-tabs ref="tabs" v-model="tabIndex" card>
@@ -59,6 +59,7 @@
 
 <script>
 import apiCall from '@/utils/api'
+import pfEmptyTable from '@/components/pfEmptyTable'
 import {
   pfReportColumns as reportColumns,
   pfReportCategories as reportCategories
@@ -66,9 +67,10 @@ import {
 import pfReportChart from '@/components/pfReportChart'
 
 export default {
-  name: 'ReportTable',
+  name: 'StandardReportChart',
   components: {
-    'pf-report-chart': pfReportChart
+    pfEmptyTable,
+    pfReportChart
   },
   props: {
     path: String, // from router
@@ -214,7 +216,7 @@ export default {
          * mandatory `replace`,
          * `push` confuses beforeRouteEnter, beforeRouteUpdate w/ history.go(-1)
          */
-        this.$router.replace(`/reports/table/${this.report.tabs[a].path}`)
+        this.$router.replace(`/reports/standard/chart/${this.report.tabs[a].path}`)
       }
     }
   },
