@@ -15,6 +15,8 @@ use warnings;
 use pf::util;
 use pf::node;
 use pf::person;
+use File::Temp;
+use File::Copy;
 
 sub test_mac {
     my $mac = random_mac();
@@ -40,6 +42,23 @@ sub random_mac {
 
 sub random_pid {
     return "test_pid_" . ($$ + int(rand(2147352576)));
+}
+
+sub tempfileForConfigStore {
+    my ($configstore) = @_;
+    my ($fh, $filename) = File::Temp::tempfile( UNLINK => 1 );
+    my $old_file = $configstore->configFile;
+    copy($old_file, $fh);
+    {
+        no warnings qw(redefine);
+        no strict qw(refs);
+        my $method = "${configstore}::configFile";
+        *{$method} = sub {
+            $filename
+        }
+    }
+
+    return ($fh, $filename);
 }
 
 =head1 AUTHOR
