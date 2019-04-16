@@ -226,7 +226,7 @@ sub do_get {
 sub build_item_lookup {
     my ($self) = @_;
     my $lookup = $self->parent_data;
-    $lookup->{$self->primary_key} = $self->stash($self->url_param_name);
+    $lookup->{$self->primary_key} = $self->id;
     return $lookup;
 }
 
@@ -322,7 +322,7 @@ sub render_remove {
         return $self->render_error($status, "Unable to remove resource");
     }
 
-    my $id = $self->stash($self->url_param_name);
+    my $id = $self->id;
     return $self->render(json => { message => "Deleted $id successfully" }, status => $status);
 }
 
