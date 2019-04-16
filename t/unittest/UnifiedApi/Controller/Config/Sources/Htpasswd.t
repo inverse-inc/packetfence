@@ -2,22 +2,18 @@
 
 =head1 NAME
 
-Sources
-
-=cut
+Htpasswd
 
 =head1 DESCRIPTION
 
-unit test for Sources
+unit test for Htpasswd
 
 =cut
 
 use strict;
 use warnings;
 #
-use lib qw(
-    /usr/local/pf/lib
-);
+use lib '/usr/local/pf/lib';
 
 BEGIN {
     #include test libs
@@ -26,29 +22,36 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 8;
-use Test::Mojo;
-use Utils;
-use pf::ConfigStore::Source;
+use Test::More tests => 7;
 
-my ($fh, $filename) = Utils::tempfileForConfigStore("pf::ConfigStore::Source");
 #This test will running last
 use Test::NoWarnings;
+use Test::Mojo;
+
 my $t = Test::Mojo->new('pf::UnifiedApi');
+use pf::ConfigStore::Source;
+use Utils;
+my ($fh, $filename) = Utils::tempfileForConfigStore("pf::ConfigStore::Source");
 
 my $collection_base_url = '/api/v1/config/sources';
 
 my $base_url = '/api/v1/config/source';
 
-$t->get_ok($collection_base_url)
-  ->json_has('/items/0/class')
-  ->status_is(200);
+#This is the second test
+$t->post_ok("$collection_base_url/test" =>
+    json => {
+        type => 'Htpasswd',
+        id   => 'test',
+        path => '/usr/local/pf/t/data/htpasswd.conf',
+        description => "Test",
+    }
+  )
+  ->status_is(405)
+  ->json_has('/errors');
 
-$t->post_ok($collection_base_url => json => {})
-  ->status_is(422);
-
-$t->post_ok($collection_base_url, {'Content-Type' => 'application/json'} => '{')
-  ->status_is(400);
+$t->get_ok("$base_url/htpasswd1")
+  ->status_is(200)
+  ->json_is('/item/class' => 'internal');
 
 =head1 AUTHOR
 
