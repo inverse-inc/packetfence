@@ -184,13 +184,24 @@ export default {
       this.$set(this, 'columns', columns)
 
       // build `fields` (before searchableOptions)
-      let fields = this.parsedSearches.map(column => {
+      let fields = []
+      if ('date_field' in this.report) { // first
+        let column = this.parsedColumns.find(search => search.column === this.report.date_field)
+        if (column) {
+          fields.push({
+            value: `${column.table}.${column.column}`,
+            text: this.$i18n.t(column.alias),
+            types: [conditionType.DATETIME]
+          })
+        }
+      }
+      fields.push(...this.parsedSearches.map(column => { // remainder
         return {
           value: `${column.table}.${column.column}`,
           text: this.$i18n.t(column.alias),
           types: [conditionType.SUBSTRING]
         }
-      }).sort((a, b) => a.text.localeCompare(b.text))
+      }).sort((a, b) => a.text.localeCompare(b.text)))
       this.$set(this, 'fields', fields)
 
       // build `searchableOptions`
