@@ -16,7 +16,6 @@
               <pf-form-input :column-label="$t('Username (PID)')"
                 readonly
                 v-model.trim="userContent.pid"
-                :vuelidate="$v.userContent.pid"
                 text="The username to use for login to the captive portal."/>
               <pf-form-input :column-label="$t('Password')"
                 v-model="userContent.password"
@@ -580,10 +579,6 @@ export default {
         { sponsor: schema.person.sponsor }, // `sponsor` column exists in both `person` and `password` tables, fix: overload
         {
           // additional custom validations ...
-          pid: {
-            [this.$i18n.t('Username required.')]: required,
-            [this.$i18n.t('Username exists.')]: not(and(required, userExists, conditional(this.userContent.pid !== this.pid)))
-          },
           email: {
             [this.$i18n.t('Email address required.')]: required
           },
@@ -608,7 +603,7 @@ export default {
       return this.$v.userContent.$invalid || this.$store.getters['$_users/isLoading']
     },
     hasNodes () {
-      return this.userContent.nodes.length > 0
+      return this.userContent.nodes && this.userContent.nodes.length > 0
     },
     hasOpenSecurityEvents () {
       return this.userContent.security_events.findIndex(securityEvent => securityEvent.status === 'open') > -1
