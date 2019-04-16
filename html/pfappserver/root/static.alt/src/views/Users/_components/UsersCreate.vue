@@ -258,6 +258,7 @@ import pfFormToggle from '@/components/pfFormToggle'
 import {
   required,
   minLength,
+  minValue,
   maxLength,
   numeric
 } from 'vuelidate/lib/validators'
@@ -398,8 +399,7 @@ export default {
             [this.$i18n.t('Maximum {maxLength} characters.', { maxLength: prefixMaxLength })]: maxLength(prefixMaxLength)
           },
           quantity: {
-            [this.$i18n.t('Quantity required.')]: required,
-            [this.$i18n.t('Quantity must be numeric.')]: numeric
+            [this.$i18n.t('Quantity must be greater than 0.')]: and(required, numeric, minValue(1))
           },
           valid_from: {
             [this.$i18n.t('Start date required.')]: conditional(!!this.valid_from && this.valid_from !== '0000-00-00'),
@@ -440,7 +440,27 @@ export default {
           this.$store.dispatch('$_users/createUser', Object.assign(base, this.single))
           break
         case 1: // multiple
-          this.$store.dispatch('$_users/createUser', Object.assign(base, this.single))
+          let promises = []
+          const baseValue = { ...base, ...this.multiple, ...{ quiet: true } }
+          for (let i = 0; i < this.multiple.quantity; i++) {
+            let pid = this.multiple.prefix + (i + 1)
+            let currentValue = Object.assign({ pid }, baseValue)
+            promises.push(this.$store.dispatch('$_users/exists', pid).then(results => {
+              // user exists
+              return this.$store.dispatch('$_users/updateUser', currentValue)
+            }).catch(() => {
+              // user doesn't exist
+              return this.$store.dispatch('$_users/createUser', currentValue)
+            }))
+          }
+          Promise.all(promises).then(values => {
+            this.$store.dispatch('notification/info', {
+              message: this.$i18n.t('{quantity} users created', { quantity: values.length }),
+              success: null,
+              skipped: null,
+              failed: null
+            })
+          })
           break
         default:
           // noop

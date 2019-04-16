@@ -23,6 +23,22 @@ Object.assign(apiCall, {
       }]
     })
   },
+  patchQuiet (url, data) {
+    return this.request({
+      method: 'patch',
+      url,
+      data,
+      transformResponse: [data => {
+        let jsonData
+        try {
+          jsonData = JSON.parse(data)
+        } catch (e) {
+          jsonData = {}
+        }
+        return Object.assign({ quiet: true }, jsonData)
+      }]
+    })
+  },
   postQuiet (url, body) {
     return this.request({
       method: 'post',
@@ -179,7 +195,7 @@ apiCall.interceptors.request.use((request) => {
 apiCall.interceptors.response.use((response) => {
   const { config = {} } = response
   apiCall.queue.stopRequest(config) // stop performance benchmark
-  if (response.data.message) {
+  if (response.data.message && !response.data.quiet) {
     store.dispatch('notification/info', response.data.message)
   }
   store.commit('session/API_OK')

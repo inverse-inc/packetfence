@@ -35,12 +35,14 @@ export default {
     })
   },
   createUser: body => {
-    return apiCall.post('users', body).then(response => {
+    const post = body.quiet ? 'postQuiet' : 'post'
+    return apiCall[post]('users', body).then(response => {
       return response.data
     })
   },
   updateUser: body => {
-    return apiCall.patch(`user/${body.pid}`, body).then(response => {
+    const patch = body.quiet ? 'patchQuiet' : 'patch'
+    return apiCall[patch](`user/${body.pid}`, body).then(response => {
       return response.data
     })
   },
