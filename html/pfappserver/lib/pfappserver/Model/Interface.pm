@@ -27,6 +27,8 @@ use pfappserver::Model::Config::System;
 
 extends 'Catalyst::Model';
 
+has models => (is => 'rw', builder => '_build_models', lazy => 1);
+
 =head1 METHODS
 
 =head2 create
@@ -83,7 +85,7 @@ sub create {
 sub delete {
     my ($self, $interface, $host) = @_;
 
-    my $models = $self->{models};
+    my $models = $self->models;
     my $logger = get_logger();
 
     my ($status, $status_msg);
@@ -236,7 +238,7 @@ and phy.vlan (eth0.100) if there's a vlan interface.
 sub get {
     my ( $self, $interface) = @_;
     my $logger = get_logger();
-    my $models = $self->{models};
+    my $models = $self->models;
 
     # Put requested interfaces into an array
     my @interfaces = $self->_listInterfaces($interface);
@@ -284,7 +286,7 @@ sub get {
 
 sub update {
     my ($self, $interface, $interface_ref) = @_;
-    my $models = $self->{models};
+    my $models = $self->models;
     my $logger = get_logger();
 
     my ($ipaddress, $netmask, $ipv6_address, $ipv6_prefix, $status, $status_msg);
@@ -443,7 +445,7 @@ sub isActive {
 
 sub getType {
     my ( $self, $interface_ref) = @_;
-    my $models = $self->{models};
+    my $models = $self->models;
 
     my ($status, $type);
     if ($interface_ref->{network}) {
@@ -486,7 +488,7 @@ sub getType {
 sub setType {
     my ($self, $interface, $interface_ref) = @_;
     my $logger = get_logger();
-    my $models = $self->{models};
+    my $models = $self->models;
 
     my $type = $interface_ref->{type} || 'none';
     my ($status, $network_ref, $status_msg);
@@ -812,30 +814,13 @@ sub up {
     return ($STATUS::OK, ["Interface [_1] enabled",$interface]);
 }
 
-
-sub ACCEPT_CONTEXT {
-    my ($proto,$c) = @_;
-    my $object;
-    if(ref($proto)) {
-        $object = $proto
-    } else {
-       $object = $proto->new;
-    }
-    $object->{models} = {
-        'network' => pfappserver::Model::Config::Network->new,
-        'interface' => pfappserver::Model::Config::Interface->new,
-        'system' => pfappserver::Model::Config::System->new,
-    };
-    return $object;
-}
-
 =head2 getEnforcement
 
 =cut
 
 sub getEnforcement {
     my ($self, $interface_ref) = @_;
-    my $models = $self->{models};
+    my $models = $self->models;
 
     my ($status, $enforcement);
     # Check in pf.conf
@@ -881,7 +866,20 @@ sub map_interface_to_networks {
     return $seen_networks;
 }
 
+=head2 _build_models
 
+_build_models
+
+=cut
+
+sub _build_models {
+    my ($self) = @_;
+    return {
+        'network' => pfappserver::Model::Config::Network->new,
+        'interface' => pfappserver::Model::Config::Interface->new,
+        'system' => pfappserver::Model::Config::System->new,
+    }
+}
 
 =head1 COPYRIGHT
 

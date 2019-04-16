@@ -78,9 +78,7 @@ Get the pfappserver model of the interfaces
 
 sub model {
     require pfappserver::Model::Interface;
-    my $model = pfappserver::Model::Interface->new;
-    $model->ACCEPT_CONTEXT;
-    return $model;
+    return pfappserver::Model::Interface->new;
 }
 
 =head2 list
