@@ -21,7 +21,7 @@ export default {
     return {
       sections: [
         {
-          name: 'RADIUS Audit Log',
+          name: 'RADIUS Audit Logs',
           path: '/auditing/radiuslogs/search'
         },
         {

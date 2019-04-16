@@ -4,7 +4,7 @@
     <b-card-header>
       <h4 class="mb-0" v-t="'Import Users'"></h4>
     </b-card-header>
-    <div class="card-body">
+    <div class="card-body p-0">
       <b-tabs ref="tabs" v-model="tabIndex" card pills>
         <b-tab v-for="(file, index) in files" :key="file.name + file.lastModified" :title="file.name" no-body>
           <template slot="title">
@@ -14,7 +14,7 @@
           <pf-csv-parse @input="onImport" :ref="'parser-' + index" :file="file" :fields="fields" :storeName="storeName" no-init-bind-keys></pf-csv-parse>
         </b-tab>
         <template slot="tabs">
-          <pf-form-upload class="ml-3" @load="files = $event" :multiple="true" :cumulative="true" accept="text/*, .csv">{{ $t('Open CSV File') }}</pf-form-upload>
+          <pf-form-upload @load="files = $event" :multiple="true" :cumulative="true" accept="text/*, .csv">{{ $t('Open CSV File') }}</pf-form-upload>
         </template>
         <div slot="empty" class="text-center text-muted">
           <b-container class="my-5">
@@ -24,6 +24,7 @@
                   <b-media v-else>
                     <icon name="file" scale="2" slot="aside"></icon>
                     <h4>{{ $t('There are no open CSV files') }}</h4>
+                    <p class="font-weight-light">{{ $t('Open a new CSV file using') }} <icon name="plus-circle"></icon> {{ $t('button') }}.</p>
                   </b-media>
                 </b-col>
             </b-row>
@@ -406,3 +407,10 @@ export default {
   }
 }
 </script>
+
+<style lang="scss">
+.nav-tabs > li > a,
+.nav-pills > li > a {
+  margin-right: 0.5rem!important;
+}
+</style>

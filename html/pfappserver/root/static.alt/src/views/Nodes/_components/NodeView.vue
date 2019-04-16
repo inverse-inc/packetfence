@@ -44,7 +44,7 @@
                 :max="globals.sqlLimits.ubigint.max"
                 :vuelidate="$v.nodeContent.bandwidth_balance"
               ></pf-form-prefix-multiplier>
-              <pf-form-toggle :column-label="$t('VOIP')"
+              <pf-form-toggle :column-label="$t('Voice Over IP')"
                 v-model="nodeContent.voip"
                 :values="{checked: 'yes', unchecked: 'no'}"
                 :vuelidate="$v.nodeContent.voip"
@@ -156,6 +156,9 @@
               <pf-form-row class="text-nowrap" :column-label="$t('Device Class')">
                 {{ node.device_class }}
               </pf-form-row>
+              <pf-form-row class="text-nowrap" :column-label="$t('Device Manufacturer')">
+                {{ node.device_manufacturer }}
+              </pf-form-row>
               <pf-form-row class="text-nowrap" :column-label="$t('Device Type')">
                 {{ node.device_type }}
               </pf-form-row>
@@ -183,7 +186,7 @@
                 {{ node.dhcp_fingerprint }}
               </pf-form-row>
               <pf-form-row class="text-nowrap" :column-label="$t('DHCP Vendor')">
-                {{ node.device_vendor }}
+                {{ node.dhcp_vendor }}
               </pf-form-row>
               <pf-form-row class="text-nowrap" :column-label="$t('DHCPv6 Fingerprint')">
                 {{ node.dhcp6_fingerprint }}

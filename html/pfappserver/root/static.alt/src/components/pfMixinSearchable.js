@@ -41,7 +41,7 @@ import pfSearch from '@/components/pfSearch'
 export default {
   name: 'pfMixinSearchable',
   components: {
-    'pf-search': pfSearch
+    pfSearch
   },
   props: {
     searchableOptions: {
@@ -107,8 +107,9 @@ export default {
       }
     },
     searchableStoreName () {
-      if (this.searchableOptions.searchApiEndpoint) {
-        return '$_' + this.searchableOptions.searchApiEndpoint.replace(/[/]/g, '_').replace(/[-: ]/g, '') + '_searchable'
+      const { searchableOptions: { searchApiEndpoint = null } = {} } = this
+      if (searchApiEndpoint) {
+        return '$_' + searchApiEndpoint.replace(/[/]/g, '_').replace(/[-: ]/g, '') + '_searchable'
       } else {
         return undefined
       }
@@ -121,13 +122,12 @@ export default {
         const searchableStore = new SearchableStore(
           this.searchableOptions.searchApiEndpoint,
           this.searchableOptions.defaultSortKeys,
+          this.searchableOptions.defaultSortDesc || false,
           this.pageSizeLimit
         )
         this.$store.registerModule(this.searchableStoreName, searchableStore.module())
       }
       this.pageSizeLimit = this.$store.state[this.searchableStoreName].searchPageSize
-      // The extended component is responsible to set the condition to a specific state when unset
-      this.condition = this.$store.state[this.searchableStoreName].searchQuery
       // Restore visibleColumns, overwrite defaults
       if (this.$store.state[this.searchableStoreName].visibleColumns) {
         const visibleColumns = this.$store.state[this.searchableStoreName].visibleColumns
@@ -166,7 +166,9 @@ export default {
       this.$store.dispatch(`${this.searchableStoreName}/setSearchQuery`, condition)
       this.$store.dispatch(`${this.searchableStoreName}/search`, this.requestPage).then(() => {
         _this.currentPage = _this.requestPage
-        _this.condition = condition
+        if (condition) {
+          _this.condition = condition
+        }
       }).catch(() => {
         _this.requestPage = _this.currentPage
       })
@@ -185,13 +187,23 @@ export default {
       }).catch(() => {
         _this.requestPage = _this.currentPage
       })
-      this.$router.push(this.searchableOptions.defaultRoute)
+      const { searchableOptions: { defaultRoute } = {} } = this
+      if (defaultRoute) {
+        this.$router.push(defaultRoute)
+      }
     },
     onImport (condition) {
-      this.$router.push(Object.assign(this.searchableOptions.defaultRoute, { query: { query: JSON.stringify(condition) } }))
+      this.$set(this, 'condition', condition)
+      const { searchableOptions: { defaultRoute } = {} } = this
+      if (defaultRoute) {
+        this.$router.push(Object.assign(defaultRoute, { query: { query: JSON.stringify(condition) } }))
+      }
     },
     searchableInitCondition () {
-      this.condition = JSON.parse(JSON.stringify(this.searchableOptions.defaultSearchCondition))
+      const { searchableOptions: { defaultSearchCondition = null } = {} } = this
+      if (defaultSearchCondition) {
+        this.$set(this, 'condition', { ...defaultSearchCondition }) // dereferenced copy
+      }
     },
     onPageSizeChange () {
       this.requestPage = 1 // reset to the first page
@@ -243,7 +255,7 @@ export default {
         if (a && JSON.stringify(a) !== this.query) {
           this.$router.push({ query: null })
         }
-        if (a !== b) {
+        if (JSON.stringify(a) !== JSON.stringify(b)) {
           if (a === undefined || a === null) {
             // empty query, re-initialize
             this.searchableInitCondition()
@@ -259,34 +271,21 @@ export default {
   },
   created () {
     // called before the component's created function.
-    if (!this.searchableOptions) {
-      throw new Error(`Missing 'searchableOptions' in properties of component ${this.$options.name}`)
-    }
-    if (!('searchApiEndpoint' in this.searchableOptions)) {
-      throw new Error(`Missing 'searchableOptions.searchApiEndpoint' in properties of component ${this.$options.name}`)
-    }
-    if (!('defaultSortKeys' in this.searchableOptions)) {
-      throw new Error(`Missing 'searchableOptions.defaultSortKeys' in properties of component ${this.$options.name}`)
-    }
-    if (!('defaultSearchCondition' in this.searchableOptions)) {
-      throw new Error(`Missing 'searchableOptions.defaultSearchCondition' in properties of component ${this.$options.name}`)
-    }
-    if (!('defaultRoute' in this.searchableOptions)) {
-      throw new Error(`Missing 'searchableOptions.defaultRoute' in properties of component ${this.$options.name}`)
-    }
     if (!this.fields) {
       throw new Error(`Missing 'fields' in data of component ${this.$options.name}`)
     }
     if (!this.columns) {
       throw new Error(`Missing 'columns' in data of component ${this.$options.name}`)
     }
-    if ('searchApiEndpoint' in this.searchableOptions && this.searchableOptions.searchApiEndpoint) {
+    const { searchableOptions: { defaultRoute, defaultSortKeys, defaultSearchCondition, searchApiEndpoint } = {} } = this
+    if (defaultRoute && defaultSortKeys && defaultSearchCondition && searchApiEndpoint) {
       this.initStore()
     }
   },
   mounted () {
     // called after the component's mounted function.
-    if (!this.searchableOptions.searchApiEndpointOnly && JSON.stringify(this.condition) === JSON.stringify(this.searchableOptions.defaultSearchCondition)) {
+    const { searchableOptions: { defaultSearchCondition, searchApiEndpointOnly } = {} } = this
+    if (!searchApiEndpointOnly && JSON.stringify(this.condition) === JSON.stringify(defaultSearchCondition)) {
       // query all w/o criteria
       this.$store.dispatch(`${this.searchableStoreName}/setSearchQuery`, null)
     } else {

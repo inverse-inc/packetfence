@@ -18,6 +18,13 @@ for F in /usr/local/pf/conf/radius_filters.conf /usr/local/pf/conf/vlan_filters.
   sed -i$SED_BAK_SUFFIX 's/ViolationRole/IsolationRole/g' $F
 done
 
+echo "Renaming violations related data in report.conf"
+sed -i$SED_BAK_SUFFIX 's/violation\./security_event\./g' /usr/local/pf/conf/report.conf
+sed -i$SED_BAK_SUFFIX 's/=violation/=security_event/g' /usr/local/pf/conf/report.conf
+sed -i$SED_BAK_SUFFIX 's/violation/security event/g' /usr/local/pf/conf/report.conf
+sed -i$SED_BAK_SUFFIX 's/Violation/Security Event/g' /usr/local/pf/conf/report.conf
+sed -i$SED_BAK_SUFFIX 's/vid/security_event_id/g' /usr/local/pf/conf/report.conf
+
 echo "Renaming violations related data in stats.conf"
 sed -i$SED_BAK_SUFFIX 's/source\.packetfence\.violations/source.packetfence.security_events/g' /usr/local/pf/conf/stats.conf
 sed -i$SED_BAK_SUFFIX 's/from violation/from security_event/g' /usr/local/pf/conf/stats.conf

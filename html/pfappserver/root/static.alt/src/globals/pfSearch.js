@@ -19,6 +19,7 @@ export const pfSearchConditionType = {
   NODE_STATUS:             'node_status',
   ONLINE:                  'online',
   YESNO:                   'yesno',
+  NAS_PORT_TYPE:           'nas_port_type',
 
   /**
    * Promise fields
@@ -97,6 +98,10 @@ pfConditionOperators[pfSearchConditionType.ONLINE] = {
   'not_equals':            pfSearchConditionValue.SELECT
 }
 pfConditionOperators[pfSearchConditionType.YESNO] = {
+  'equals':                pfSearchConditionValue.SELECT,
+  'not_equals':            pfSearchConditionValue.SELECT
+}
+pfConditionOperators[pfSearchConditionType.NAS_PORT_TYPE] = {
   'equals':                pfSearchConditionValue.SELECT,
   'not_equals':            pfSearchConditionValue.SELECT
 }
@@ -197,6 +202,45 @@ pfSearchConditionValues[pfSearchConditionType.YESNO] = [
     value: 'no',
     text: 'No'
   }
+]
+pfSearchConditionValues[pfSearchConditionType.NAS_PORT_TYPE] = [
+  { text: 'Async', value: 'Async' },
+  { text: 'Sync', value: 'Sync' },
+  { text: 'ISDN', value: 'ISDN' },
+  { text: 'ISDN-V120', value: 'ISDN-V120' },
+  { text: 'ISDN-V110', value: 'ISDN-V110' },
+  { text: 'Virtual', value: 'Virtual' },
+  { text: 'PIAFS', value: 'PIAFS' },
+  { text: 'HDLC-Clear-Channel', value: 'HDLC-Clear-Channel' },
+  { text: 'X.25', value: 'X.25' },
+  { text: 'X.75', value: 'X.75' },
+  { text: 'G.3-Fax', value: 'G.3-Fax' },
+  { text: 'SDSL', value: 'SDSL' },
+  { text: 'ADSL-CAP', value: 'ADSL-CAP' },
+  { text: 'ADSL-DMT', value: 'ADSL-DMT' },
+  { text: 'IDSL', value: 'IDSL' },
+  { text: 'Ethernet', value: 'Ethernet' },
+  { text: 'xDSL', value: 'xDSL' },
+  { text: 'Cable', value: 'Cable' },
+  { text: 'Wireless-Other', value: 'Wireless-Other' },
+  { text: 'Wireless-802.11', value: 'Wireless-802.11' },
+  { text: 'Token-Ring', value: 'Token-Ring' },
+  { text: 'FDDI', value: 'FDDI' },
+  { text: 'Wireless-CDMA2000', value: 'Wireless-CDMA2000' },
+  { text: 'Wireless-UMTS', value: 'Wireless-UMTS' },
+  { text: 'Wireless-1X-EV', value: 'Wireless-1X-EV' },
+  { text: 'IAPP', value: 'IAPP' },
+  { text: 'FTTP', value: 'FTTP' },
+  { text: 'Wireless-802.16', value: 'Wireless-802.16' },
+  { text: 'Wireless-802.20', value: 'Wireless-802.20' },
+  { text: 'Wireless-802.22', value: 'Wireless-802.22' },
+  { text: 'xPON', value: 'xPON' },
+  { text: 'Wireless-XGP', value: 'Wireless-XGP' },
+  { text: 'PPPoA', value: 'PPPoA' },
+  { text: 'PPPoEoA', value: 'PPPoEoA' },
+  { text: 'PPPoEoE', value: 'PPPoEoE' },
+  { text: 'PPPoEoVLAN', value: 'PPPoEoVLAN' },
+  { text: 'PPPoEoQinQ ', value: 'PPPoEoQinQ ' }
 ]
 
 pfSearchConditionValues[pfSearchConditionType.CONNECTION_PROFILE] = (store) => {

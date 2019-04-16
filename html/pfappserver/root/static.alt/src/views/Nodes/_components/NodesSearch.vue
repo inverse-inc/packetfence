@@ -128,12 +128,15 @@
           <b-badge pill variant="light" v-else>{{ $t('unregistered') }}</b-badge>
         </template>
         <template slot="online" slot-scope="data">
-          <b-badge pill variant="success" v-if="data.value === 'on'">{{ $t('online') }}</b-badge>
-          <b-badge pill variant="danger" v-else-if="data.value === 'off'">{{ $t('offline') }}</b-badge>
+          <b-badge pill variant="success" v-if="data.value === 'on'">{{ $t('on') }}</b-badge>
+          <b-badge pill variant="danger" v-else-if="data.value === 'off'">{{ $t('off') }}</b-badge>
           <b-badge pill variant="info" v-else>{{ $t('unknown') }}</b-badge>
         </template>
         <template slot="mac" slot-scope="data">
           <mac v-text="data.value"></mac>
+        </template>
+        <template slot="pid" slot-scope="data">
+          <b-button variant="link" :to="`../user/${data.value}`">{{ data.value }}</b-button>
         </template>
         <template slot="device_score" slot-scope="data">
           <pf-fingerbank-score :score="data.value"></pf-fingerbank-score>
@@ -221,6 +224,12 @@ export default {
           types: [conditionType.INTEGER]
         },
         {
+          value: 'status',
+          text: this.$i18n.t('Status'),
+          types: [conditionType.NODE_STATUS],
+          icon: 'power-off'
+        },
+        {
           value: 'mac',
           text: this.$i18n.t('MAC Address'),
           types: [conditionType.SUBSTRING],
@@ -234,7 +243,7 @@ export default {
         },
         {
           value: 'bypass_vlan',
-          text: this.$i18n.t('Bypass VLAN [?]'),
+          text: this.$i18n.t('Bypass VLAN'),
           types: [conditionType.SUBSTRING],
           icon: 'project-diagram'
         },
@@ -246,37 +255,37 @@ export default {
         },
         {
           value: 'locationlog.connection_type',
-          text: this.$i18n.t('Connection Type [?]'),
+          text: this.$i18n.t('Connection Type'),
           types: [conditionType.CONNECTION_TYPE],
           icon: 'plug'
         },
         {
           value: 'detect_date',
-          text: this.$i18n.t('Datetime Detected'),
+          text: this.$i18n.t('Detected Date'),
           types: [conditionType.DATETIME],
           icon: 'calendar-alt'
         },
         {
           value: 'regdate',
-          text: this.$i18n.t('Datetime Registered'),
+          text: this.$i18n.t('Registered Date'),
           types: [conditionType.DATETIME],
           icon: 'calendar-alt'
         },
         {
           value: 'unregdate',
-          text: this.$i18n.t('Datetime Unregistered'),
+          text: this.$i18n.t('Unregistered Date'),
           types: [conditionType.DATETIME],
           icon: 'calendar-alt'
         },
         {
           value: 'last_arp',
-          text: this.$i18n.t('Datetime Last ARP'),
+          text: this.$i18n.t('Last ARP Date'),
           types: [conditionType.DATETIME],
           icon: 'calendar-alt'
         },
         {
           value: 'last_dhcp',
-          text: this.$i18n.t('Datetime Last DHCP'),
+          text: this.$i18n.t('Last DHCP Date'),
           types: [conditionType.DATETIME],
           icon: 'calendar-alt'
         },
@@ -288,7 +297,7 @@ export default {
         },
         {
           value: 'device_manufacturer',
-          text: this.$i18n.t('Device Manufacturer [?]'),
+          text: this.$i18n.t('Device Manufacturer'),
           types: [conditionType.SUBSTRING],
           icon: 'barcode'
         },
@@ -355,6 +364,24 @@ export default {
         {
           value: 'locationlog.switch_mac',
           text: this.$i18n.t('Source Switch MAC'),
+          types: [conditionType.SUBSTRING],
+          icon: 'sitemap'
+        },
+        {
+          value: 'locationlog.switch_port',
+          text: this.$i18n.t('Source Switch Port'),
+          types: [conditionType.INTEGER],
+          icon: 'sitemap'
+        },
+        {
+          value: 'locationlog.switch_port_description',
+          text: this.$i18n.t('Source Switch Port Description'),
+          types: [conditionType.SUBSTRING],
+          icon: 'sitemap'
+        },
+        {
+          value: 'locationlog.switch_description',
+          text: this.$i18n.t('Source Switch Description'),
           types: [conditionType.SUBSTRING],
           icon: 'sitemap'
         },
@@ -497,7 +524,7 @@ export default {
           key: 'ip6log.ip',
           label: this.$i18n.t('IPv6 Address'),
           sortable: true,
-          visible: true
+          visible: false
         },
         {
           key: 'device_class',
@@ -521,7 +548,7 @@ export default {
           key: 'device_type',
           label: this.$i18n.t('Device Type'),
           sortable: true,
-          visible: true
+          visible: false
         },
         {
           key: 'device_version',
@@ -581,6 +608,24 @@ export default {
         {
           key: 'locationlog.switch_mac',
           label: this.$i18n.t('Switch MAC Address'),
+          sortable: true,
+          visible: false
+        },
+        {
+          key: 'locationlog.switch_port',
+          label: this.$i18n.t('Switch Port'),
+          sortable: true,
+          visible: false
+        },
+        {
+          key: 'locationlog.switch_port_description',
+          label: this.$i18n.t('Switch Port Description'),
+          sortable: true,
+          visible: false
+        },
+        {
+          key: 'locationlog.switch_description',
+          label: this.$i18n.t('Switch Description'),
           sortable: true,
           visible: false
         },

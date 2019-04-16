@@ -44,7 +44,10 @@
         @sort-changed="onSortingChanged" @row-clicked="onRowClick"
         show-empty responsive hover no-local-sorting striped>
         <template slot="mac" slot-scope="log">
-          <mac v-text="log.item.mac"></mac>
+          <b-button variant="link" :to="`../../node/${log.item.mac}`"><mac v-text="log.item.mac"></mac></b-button>
+        </template>
+        <template slot="auth_status" slot-scope="log">
+          <b-badge pill :variant="(log.item.auth_status === 'Accept') ? 'success' : 'danger'" class="ml-1">{{ log.item.auth_status }}</b-badge>
         </template>
         <template slot="empty">
           <pf-empty-table :isLoading="isLoading">{{ $t('No logs found') }}</pf-empty-table>
@@ -80,6 +83,7 @@ export default {
       default: () => ({
         searchApiEndpoint: 'radius_audit_logs',
         defaultSortKeys: ['created_at', 'mac'],
+        defaultSortDesc: true,
         defaultSearchCondition: {
           op: 'and',
           values: [{
@@ -128,6 +132,16 @@ export default {
           types: [conditionType.DOMAIN]
         },
         {
+          value: 'nas_ip_address',
+          text: 'NAS IP Address',
+          types: [conditionType.SUBSTRING]
+        },
+        {
+          value: 'nas_port_type',
+          text: 'NAS Port Type',
+          types: [conditionType.NAS_PORT_TYPE]
+        },
+        {
           value: 'node_status',
           text: 'Node Status',
           types: [conditionType.NODE_STATUS]
@@ -136,6 +150,11 @@ export default {
           value: 'realm',
           text: 'Realm',
           types: [conditionType.REALM]
+        },
+        {
+          value: 'request_time',
+          text: 'Request Time',
+          types: [conditionType.INTEGER]
         },
         {
           value: 'role',
@@ -174,14 +193,14 @@ export default {
           locked: false
         },
         {
-          key: 'mac',
-          label: this.$i18n.t('MAC Address'),
+          key: 'auth_status',
+          label: this.$i18n.t('Auth Status'),
           sortable: true,
           visible: true
         },
         {
-          key: 'auth_status',
-          label: this.$i18n.t('Auth Status'),
+          key: 'mac',
+          label: this.$i18n.t('MAC Address'),
           sortable: true,
           visible: true
         },
@@ -389,7 +408,9 @@ export default {
           sortable: true,
           visible: false
         }
-      ]
+      ],
+      sortBy: 'created_at',
+      sortDesc: true
     }
   },
   methods: {

@@ -812,6 +812,28 @@ export default {
           })
         })
       }
+    },
+    applyBulkDelete () {
+      const pids = this.selectValues.map(item => item.pid)
+      if (pids.length > 0) {
+        this.$store.dispatch(`${this.storeName}/bulkDelete`, { items: pids }).then(items => {
+          let nodeCount = 0
+          items.forEach((item, _index, items) => {
+            let index = this.tableValues.findIndex(value => value.pid === item.pid)
+            this.setRowVariant(index, 'success')
+          })
+          this.$store.dispatch('notification/info', {
+            message: this.$i18n.t('Deleted {userCount} users.', { userCount: this.selectValues.length }),
+            success: nodeCount
+          })
+          this.$refs.pfSearch.onSubmit() // resubmit search
+        }).catch(() => {
+          pids.forEach(pid => {
+            let index = this.tableValues.findIndex(value => value.pid === pid)
+            this.setRowVariant(index, 'danger')
+          })
+        })
+      }
     }
   }
 }

@@ -11,10 +11,10 @@ const filters = {
       let localeObject, localeFormat
       if (i18n.locale === 'fr') {
         localeObject = require('date-fns/locale/fr')
-        localeFormat = 'dddd, D MMMM, YYYY, HH:mm'
+        localeFormat = 'dddd, D MMMM, YYYY, HH:mm:ss'
       } else {
         localeObject = require('date-fns/locale/en')
-        localeFormat = 'dddd, MMMM D, YYYY, hh:mm a'
+        localeFormat = 'dddd, MMMM D, YYYY, hh:mm:ss a'
       }
       return format(parse(value), localeFormat, { locale: localeObject })
     }

@@ -68,7 +68,7 @@
       </b-form>
     </label>
     <slot>
-      <b-button><icon name="upload"></icon> {{ $t('Upload') }}</b-button>
+      <b-button class="ml-3"><icon name="upload"></icon> {{ $t('Upload') }}</b-button>
     </slot>
   </div>
 </template>
