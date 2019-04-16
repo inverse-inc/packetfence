@@ -143,9 +143,9 @@ export default {
     onKeyDown (event) {
       switch (true) {
         case (event.altKey && event.keyCode === 65): // ALT+A
-console.log('ALT+A', this.tableValues, this.selectValues)
+          console.log('ALT+A', this.tableValues, this.selectValues)
           event.preventDefault()
-console.log('isLoading', this.isLoading)
+          console.log('isLoading', this.isLoading)
           if ('isLoading' in this && !this.isLoading) {
             this.selectValues = this.tableValues
           }

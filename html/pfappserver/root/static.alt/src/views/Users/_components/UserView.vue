@@ -221,12 +221,6 @@ import {
   required,
   minLength
 } from 'vuelidate/lib/validators'
-import {
-  and,
-  not,
-  conditional,
-  userExists
-} from '@/globals/pfValidators'
 import { pfRegExp as regExp } from '@/globals/pfRegExp'
 import {
   pfDatabaseSchema as schema,

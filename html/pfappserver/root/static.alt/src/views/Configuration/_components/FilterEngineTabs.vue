@@ -45,7 +45,8 @@ export default {
       return this.filters.indexOf(this.tab)
     },
     sortedFilters () {
-      return this.filters.sort()
+      let filters = this.filters
+      return filters.sort()
     }
   },
   methods: {

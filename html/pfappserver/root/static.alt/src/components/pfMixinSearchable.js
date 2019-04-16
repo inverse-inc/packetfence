@@ -202,7 +202,7 @@ export default {
     searchableInitCondition () {
       const { searchableOptions: { defaultSearchCondition = null } = {} } = this
       if (defaultSearchCondition) {
-        this.$set(this, 'condition', {...defaultSearchCondition}) // dereferenced copy
+        this.$set(this, 'condition', { ...defaultSearchCondition }) // dereferenced copy
       }
     },
     onPageSizeChange () {

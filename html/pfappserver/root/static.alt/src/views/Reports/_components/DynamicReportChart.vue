@@ -103,14 +103,15 @@ export default {
     parsedColumns () {
       let parsedColumns = []
       const regex = [
-        /^([a-z0-9_]+)\.([a-z0-9_]+) as [\\]?["'`]?([a-z0-9\ ]*)[\\]?["'`]?/i,
-        /^([a-z0-9_]+)\.([a-z0-9_]+) [\\]?["'`]?([a-z0-9\ ]*)[\\]?["'`]?/i
+        /^([a-z0-9_]+)\.([a-z0-9_]+) as [\\]?["'`]?([a-z0-9 ]*)[\\]?["'`]?/i,
+        /^([a-z0-9_]+)\.([a-z0-9_]+) [\\]?["'`]?([a-z0-9 ]*)[\\]?["'`]?/i
       ]
       const { report: { columns = null } = {} } = this
       if (columns) {
         columns.split(',').forEach(col => {
           for (let i = 0; i < regex.length; i++) {
             if (regex[i].test(col.trim())) {
+              // eslint-disable-next-line no-unused-vars
               const [ _, table, column, alias ] = col.trim().match(regex[i])
               parsedColumns.push({ table, column, alias })
               break
@@ -124,7 +125,6 @@ export default {
       let parsedSearches = []
       const { report: { searches = null } = {} } = this
       if (searches) {
-        let names = []
         searches.split(',').forEach(section => {
           const [ type, alias, key ] = section.split(':')
           const [ table, column ] = key.split('.')
@@ -221,8 +221,6 @@ export default {
     id (a, b) {
       if (a && a !== b) {
         this.init()
-        // this.onReset()
-        // this.$router.go() // reload
       }
     }
   }
