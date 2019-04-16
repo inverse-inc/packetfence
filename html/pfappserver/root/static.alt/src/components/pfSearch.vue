@@ -10,11 +10,11 @@
           <b-button-group>
             <b-button type="submit" variant="primary">{{ $t('Search') }}</b-button>
             <b-dropdown variant="primary" right>
-              <b-dropdown-item @click="showSaveSearchModal=true">
+              <b-dropdown-item @click="showSaveSearchModal=true" v-if="canSaveSearch">
                 <icon class="position-absolute mt-1" name="save"></icon>
                 <span class="ml-4">{{ $t('Save Search') }}</span>
               </b-dropdown-item>
-              <b-dropdown-divider></b-dropdown-divider>
+              <b-dropdown-divider v-if="canSaveSearch"></b-dropdown-divider>
               <b-dropdown-item @click="showExportJsonModal=true">
                 <icon class="position-absolute mt-1" name="sign-out-alt"></icon>
                 <span class="ml-4">{{ $t('Export to JSON') }}</span>
@@ -142,6 +142,10 @@ export default {
   computed: {
     jsonCondition () {
       return JSON.stringify(this.condition)
+    },
+    canSaveSearch () {
+      const { $store: { _actions: { [`${this.storeName}/addSavedSearch`]: canSaveSearch } = {} } = {} } = this
+      return canSaveSearch
     }
   },
   methods: {
@@ -200,7 +204,8 @@ export default {
     }
   },
   mounted () {
-    if (!this.advancedMode && !this.quickWithFields) {
+    const { condition = null, advancedMode = false, quickWithFields = false } = this
+    if (condition && !advancedMode && !quickWithFields) {
       this.quickValue = this.condition.values[0].value
     }
   }

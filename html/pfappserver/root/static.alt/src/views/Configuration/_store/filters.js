@@ -35,7 +35,7 @@ const actions = {
   },
   getFilter: ({ state, commit }, id) => {
     if (state.cache[id]) {
-      return Promise.resolve(state.cache[id]).then(cache => `${cache}`) // return a copy to make immutable
+      return Promise.resolve(state.cache[id]).then(cache => `${cache}`) // dereferenced copy
     }
     commit('ITEM_REQUEST')
     return api.filter(id).then(item => {

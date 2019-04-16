@@ -85,11 +85,11 @@ import pfFormDatetime from '@/components/pfFormDatetime'
 import pfFormPrefixMultiplier from '@/components/pfFormPrefixMultiplier'
 
 export default {
-  name: 'pf-search-boolean',
+  name: 'pfSearchBoolean',
   components: {
     draggable,
-    'pf-form-datetime': pfFormDatetime,
-    'pf-form-prefix-multiplier': pfFormPrefixMultiplier
+    pfFormDatetime,
+    pfFormPrefixMultiplier
   },
   props: {
     model: {
