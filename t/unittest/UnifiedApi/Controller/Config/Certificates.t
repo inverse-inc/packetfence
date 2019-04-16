@@ -45,18 +45,9 @@ BEGIN {
     use_temp_file(\$pf::file_paths::radius_server_key);
     use_temp_file(\$pf::file_paths::radius_ca_cert);
 }
-
 use pf::ConfigStore::Pf;
-my ($fh, $filename) = File::Temp::tempfile( UNLINK => 1 );
-
-{
-    use pf::file_paths qw($pf_config_file);
-    no warnings qw(redefine);
-    copy($pf_config_file, $fh);
-    *pf::ConfigStore::Pf::configFile = sub {
-        $filename;
-    };
-}
+use Utils;
+my ($fh, $filename) = Utils::tempfileForConfigStore("pf::ConfigStore::Pf");
 
 #insert known data
 #run tests

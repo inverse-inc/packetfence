@@ -25,18 +25,8 @@ BEGIN {
 }
 
 use pf::ConfigStore::Profile;
-use File::Temp;
-my ($fh, $filename) = File::Temp::tempfile( UNLINK => 1 );
-
-{
-    use pf::file_paths qw($profiles_config_file);
-    use File::Copy;
-    no warnings qw(redefine);
-    copy($profiles_config_file, $fh);
-    *pf::ConfigStore::Profile::configFile = sub {
-        $filename;
-    };
-}
+use Utils;
+my ($fh, $filename) = Utils::tempfileForConfigStore("pf::ConfigStore::Profile");
 
 use Test::More tests => 24;
 use Test::Mojo;

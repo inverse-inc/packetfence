@@ -25,16 +25,10 @@ BEGIN {
     #Module for overriding configuration paths
     use setup_test_config;
 }
+
 use pf::ConfigStore::Syslog;
-
-my ($fh, $filename) = File::Temp::tempfile( UNLINK => 1 );
-
-{
-    no warnings qw(redefine);
-   *pf::ConfigStore::Syslog::configFile = sub {
-        $filename;
-   };
-}
+use Utils;
+my ($fh, $filename) = Utils::tempfileForConfigStore("pf::ConfigStore::Syslog");
 
 use Test::More tests => 33;
 use Test::Mojo;

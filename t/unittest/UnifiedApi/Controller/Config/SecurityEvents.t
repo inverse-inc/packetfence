@@ -33,17 +33,8 @@ use pf::ConfigStore::SecurityEvents;
 #This test will running last
 use Test::NoWarnings;
 
-my ($fh, $filename) = File::Temp::tempfile( UNLINK => 1 );
-
-{
-    use pf::file_paths qw($security_events_config_file);
-    use File::Copy;
-    no warnings qw(redefine);
-    copy($security_events_config_file, $fh);
-    *pf::ConfigStore::SecurityEvents::configFile = sub {
-        $filename;
-    };
-}
+use Utils;
+my ($fh, $filename) = Utils::tempfileForConfigStore("pf::ConfigStore::SecurityEvents");
 
 my $t = Test::Mojo->new('pf::UnifiedApi');
 

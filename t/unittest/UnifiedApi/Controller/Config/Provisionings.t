@@ -26,17 +26,9 @@ BEGIN {
     use setup_test_config;
 }
 
-use File::Temp;
 use pf::ConfigStore::Provisioning;
-
-my ($fh, $filename) = File::Temp::tempfile( UNLINK => 1 );
-
-{
-    no warnings qw(redefine);
-   *pf::ConfigStore::Provisioning::configFile = sub {
-        $filename;
-   };
-}
+use Utils;
+my ($fh, $filename) = Utils::tempfileForConfigStore("pf::ConfigStore::Provisioning");
 
 use Test::More tests => 36;
 use Test::Mojo;
