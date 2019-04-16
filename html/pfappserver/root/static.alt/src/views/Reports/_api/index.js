@@ -19,19 +19,6 @@ export default {
       return response.data.item
     })
   },
-  createReport: body => {
-    return apiCall.post('dynamic_reports', body).then(response => {
-      return response.data
-    })
-  },
-  updateReport: body => {
-    return apiCall.patch(`dynamic_report/${body.id}`, body).then(response => {
-      return response.data
-    })
-  },
-  deleteReport: id => {
-    return apiCall.delete(`dynamic_report/${id}`)
-  },
   searchReport: body => {
     return apiCall.post(`dynamic_report/${body.id}/search`, body).then(response => {
       return response.data.items
