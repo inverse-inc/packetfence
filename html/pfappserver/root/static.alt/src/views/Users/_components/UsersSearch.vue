@@ -570,9 +570,6 @@ export default {
     }
   },
   computed: {
-    isLoading () {
-      return this.$store.getters[`${this.storeName}/isLoading`]
-    },
     roles () {
       this.$store.dispatch('config/getRoles')
       return this.$store.state.config.roles
