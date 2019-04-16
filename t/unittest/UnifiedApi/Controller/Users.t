@@ -27,12 +27,28 @@ use Utils;
 use List::MoreUtils qw(all);
 use Test::Mojo;
 use Test::NoWarnings;
+use URI::Escape qw(uri_escape);
 my $t = Test::Mojo->new('pf::UnifiedApi');
 #This test will running last
 use Test::NoWarnings;
 my $batch = 5;
-plan tests => $batch * (2 + 2 * $batch) + 25;
+plan tests => $batch * (2 + 2 * $batch) + 31;
 my @persons;
+
+{
+    my $n = ($$ + int(rand(999))) % 1000 ;
+    my $pid = sprintf("(%3d) 123-1234", $n);
+    $t->post_ok("/api/v1/users/" => json => { pid => $pid })
+        ->status_is(201);
+
+    my $e = uri_escape($pid);
+
+    $t->get_ok("/api/v1/user/$e")
+      ->status_is(200);
+
+    $t->delete_ok("/api/v1/user/$e")
+      ->status_is(200);
+}
 
 for ( 1 .. $batch ) {
     my $pid = Utils::test_pid();
