@@ -37,20 +37,22 @@
       :show.sync="popover[category]"
       :target="category + '_' + uuid"
       :container="'security-event-trigger-row_' + uuid">
-      <pf-config-view
-        card-class="card-sm"
-        :form="forms[category]"
-        :model="triggerCopy[category]"
-        :ref="category + 'Popover'"
-        :vuelidate="$v.triggerCopy[category]"
-        @validations="triggerValidations[category] = $event"
-        border-variant="light">
-        <template slot="header" is="b-card-header"><h5 class="m-0" v-text="forms[category].title"></h5></template>
-        <template slot="footer" is="b-card-footer" class="text-right" @mouseenter="$v.triggerCopy[category].$touch()">
-          <pf-button size="sm" variant="outline-secondary" class="mr-1" @click="resetCategory(category)">{{ $t('Cancel') }}</pf-button>
-          <pf-button-save size="sm" :disabled="invalidForm(category)" @click="updateCategory(category)">{{ $t('OK') }}</pf-button-save>
-        </template>
-      </pf-config-view>
+      <div :ref="category + 'Popover'">
+        <pf-config-view
+          v-if="popover[category]"
+          card-class="card-sm"
+          :form="forms[category]"
+          :model="triggerCopy[category]"
+          :vuelidate="$v.triggerCopy[category]"
+          @validations="triggerValidations[category] = $event"
+          border-variant="light">
+          <template slot="header" is="b-card-header"><h5 class="m-0" v-text="forms[category].title"></h5></template>
+          <template slot="footer" is="b-card-footer" class="text-right" @mouseenter="$v.triggerCopy[category].$touch()">
+            <pf-button size="sm" variant="outline-secondary" class="mr-1" @click="resetCategory(category)">{{ $t('Cancel') }}</pf-button>
+            <pf-button-save size="sm" :disabled="invalidForm(category)" @click="updateCategory(category)">{{ $t('OK') }}</pf-button-save>
+          </template>
+        </pf-config-view>
+      </div>
     </b-popover>
   </b-form-row>
 </template>
@@ -523,7 +525,7 @@ export default {
         // At least one popover is opened
         const isInsidePopover = Object.keys(this.forms).find(category => {
           const refs = this.$refs[category + 'Popover']
-          return refs && refs.length > 0 && refs[0].$el.contains($event.target)
+          return refs && refs.length > 0 && refs[0].contains($event.target)
         })
         if (isInsidePopover === undefined) {
           // Click is outside popover -- close all popover
