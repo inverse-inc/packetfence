@@ -29,18 +29,9 @@ BEGIN {
 use pf::ConfigStore::Pf;
 use Test::More tests => 7;
 use Test::Mojo;
+use Utils;
 
-my ($fh, $filename) = File::Temp::tempfile( UNLINK => 1 );
-
-{
-    use pf::file_paths qw($pf_config_file);
-    use File::Copy;
-    no warnings qw(redefine);
-    copy($pf_config_file, $fh);
-    *pf::ConfigStore::Pf::configFile = sub {
-        $filename;
-    };
-}
+my ($fh, $filename) = Utils::tempfileForConfigStore("pf::ConfigStore::Pf");
 
 #This test will running last
 use Test::NoWarnings;
