@@ -89,7 +89,7 @@ export default {
             ]
           }]
         },
-        defaultRoute: { name: 'auditing' }
+        defaultRoute: { name: 'dhcpoption82s' }
       })
     },
     tableValues: {

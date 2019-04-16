@@ -94,7 +94,7 @@ export default {
             ]
           }]
         },
-        defaultRoute: { name: 'auditing' }
+        defaultRoute: { name: 'radiuslogs' }
       })
     },
     tableValues: {
