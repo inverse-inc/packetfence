@@ -103,9 +103,11 @@ sub getData {
     if ($trigger =~ /(.+)::(.+)/ ) {
         $type  = lc($1);
         $value = $2;
+    } else {
+        die "'$trigger' is invalid";
     }
     #make a copy to avoid modifing the orginal data
-    die "Trigger type '$type' is not supported" unless exists $TRIGGER_TYPE_TO_CONDITION_TYPE{$type};
+    die "Trigger type '$type' is not supported" unless $type && exists $TRIGGER_TYPE_TO_CONDITION_TYPE{$type};
     my %args = %{$TRIGGER_TYPE_TO_CONDITION_TYPE{$type}};
     my $condition_type = delete $args{type};
     $args{value} = $value;
