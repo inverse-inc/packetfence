@@ -16,7 +16,7 @@ node_fields=MAC Address
 
 [SMS-Registration]
 type=builtin
-description=SMS registration
+description=SMS Registration
 # The table to search from
 base_table=activation
 # The columns to select
@@ -35,7 +35,7 @@ node_fields=MAC Address
 
 [Email-Registration]
 type=builtin
-description=Email registration
+description=Email Registration
 # The table to search from
 base_table=activation
 # The columns to select
@@ -50,7 +50,7 @@ node_fields=MAC Address
 
 [Sponsor-Registration]
 type=builtin
-description=Sponsor registration
+description=Sponsor Registration
 # The table to search from
 base_table=activation
 # The columns to select
