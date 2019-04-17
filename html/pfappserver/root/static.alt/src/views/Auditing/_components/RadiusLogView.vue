@@ -12,11 +12,11 @@
           <template slot="title">
             {{ $t('Node Information') }}
           </template>
-          <pf-form-row :column-label="$t('MAC Address')">{{ item.mac }}</pf-form-row>
+          <pf-form-row :column-label="$t('MAC Address')"><mac>{{ item.mac }}</mac></pf-form-row>
           <pf-form-row :column-label="$t('Auth Status')">{{ item.auth_status }}</pf-form-row>
           <pf-form-row :column-label="$t('Auth Status')">{{ item.auth_type }}</pf-form-row>
           <pf-form-row :column-label="$t('Auto Registration')">{{ item.auto_reg }}</pf-form-row>
-          <pf-form-row :column-label="$t('Calling Station Identifier')">{{ item.calling_station_id }}</pf-form-row>
+          <pf-form-row :column-label="$t('Calling Station Identifier')"><mac>{{ item.calling_station_id }}</mac></pf-form-row>
           <pf-form-row :column-label="$t('Computer Name')">{{ item.computer_name }}</pf-form-row>
           <pf-form-row :column-label="$t('EAP Type')">{{ item.eap_type }}</pf-form-row>
           <pf-form-row :column-label="$t('Event Type')">{{ item.event_type }}</pf-form-row>
@@ -56,8 +56,8 @@
 
         <b-tab title="RADIUS">
           <pf-form-row :column-label="$t('Request Time')">{{ item.request_time }}</pf-form-row>
-          <pf-form-row :column-label="$t('RADIUS Request')" align-v="start" class="text-pre">{{ formatRadius(item.radius_request) }}</pf-form-row>
-          <pf-form-row :column-label="$t('RADIUS Reply')" align-v="start" class="text-pre">{{ formatRadius(item.radius_reply) }}</pf-form-row>
+          <pf-form-row :column-label="$t('RADIUS Request')" align-v="start"><div class="text-pre">{{ formatRadius(item.radius_request) }}</div></pf-form-row>
+          <pf-form-row :column-label="$t('RADIUS Reply')" align-v="start"><div class="text-pre">{{ formatRadius(item.radius_reply) }}</div></pf-form-row>
         </b-tab>
 
       </b-tabs>
