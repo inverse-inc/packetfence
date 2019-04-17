@@ -31,6 +31,7 @@ use pf::SwitchFactory;
 pf::SwitchFactory->preloadAllModules();
 use MojoX::Log::Log4perl;
 use pf::UnifiedApi::Controller;
+use pf::I18N::pfappserver;
 our $MAX_REQUEST_HANDLED = 2000;
 our $REQUEST_HANDLED_JITTER = 500;
 
@@ -119,8 +120,22 @@ before_dispatch_cb
 sub before_dispatch_cb {
     my ($c) = @_;
     # To allow dispatching with encoded slashes
-    $c->stash->{path} = $c->req->url->path;
-    $c->stash->{'admin_roles'} = [split(/\s*,\s*/, $c->req->headers->header('X-PacketFence-Admin-Roles') // '')];
+    my $req = $c->req;
+    my $headers = $req->headers;
+    $c->stash(
+        {
+            path        => $req->url->path,
+            admin_roles => [
+                split(
+                    /\s*,\s*/,
+                    $headers->header('X-PacketFence-Admin-Roles') // ''
+                )
+            ],
+            languages => pf::I18N::pfappserver->languages_from_http_header(
+                $headers->header('Accept-Language')
+            )
+        }
+    );
     set_tenant_id($c)
 }
 
