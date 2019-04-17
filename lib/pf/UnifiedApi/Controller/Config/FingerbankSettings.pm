@@ -36,6 +36,10 @@ sub form_parameters {
     return [section => $name];
 }
 
+sub cached_form {
+    undef
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

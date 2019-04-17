@@ -45,6 +45,10 @@ sub items {
     ];
 }
 
+sub cached_form {
+    undef;
+}
+
 sub test_smtp {
     my ($self) = @_;
     my $form = $self->form({ id => "alerting" });

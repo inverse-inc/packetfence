@@ -46,6 +46,20 @@ sub type_lookup {
     return {}
 }
 
+sub cached_form {
+    my ($self, $item, @args) = @_;
+    $type = $item->{type};
+    if ($self->{cached_form}{$type}) {
+        return $self->{cached_form}{$type};
+    }
+    my ($status, $form) = $self->form($item, @args);
+    if (is_error($status)) {
+        return undef;
+    }
+
+    return $self->{cached_form}{$type} = $form;
+}
+
 =head2 options
 
 Handle the OPTIONS HTTP method

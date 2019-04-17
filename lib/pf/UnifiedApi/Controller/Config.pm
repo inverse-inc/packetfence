@@ -35,7 +35,7 @@ sub list {
     }
 
     my $items = $self->do_search($search_info_or_error);
-    $items = [map {$self->cleanup_item($_)} @$items];
+    $items = $self->cleanup_items($items);
     $self->render(
         json => {
             items  => $items,
@@ -44,6 +44,17 @@ sub list {
         },
         status => 200,
     );
+}
+
+=head2 cleanup_items
+
+cleanup_items
+
+=cut
+
+sub cleanup_items {
+    my ($self, $items) = @_;
+    return [map {$self->cleanup_item($_, $self->cached_form($_)) } @$items];
 }
 
 =head2 do_search
@@ -123,6 +134,19 @@ sub form {
     return 200, $form;
 }
 
+sub cached_form {
+    my ($self, $item, @args) = @_;
+    if ($self->{cached_form}) {
+        return $self->{cached_form};
+    }
+    my ($status, $form) = $self->form($item, @args);
+    if (is_error($status)) {
+        return undef;
+    }
+
+    return $self->{cached_form} = $form;
+}
+
 sub resource {
     my ($self) = @_;
     my $id = $self->id;
@@ -140,7 +164,7 @@ sub get {
     if ($item) {
         return $self->render(json => {item => $item}, status => 200);
     }
-    return;
+    return $self->render_error(500, "Unknown error getting item");;
 }
 
 sub item {
@@ -165,11 +189,13 @@ sub item_from_store {
 }
 
 sub cleanup_item {
-    my ($self, $item) = @_;
+    my ($self, $item, $form) = @_;
     my $id = $item->{id};
-    my ($status, $form) = $self->form($item);
-    if (is_error($status)) {
-        return undef;
+    if (!defined $form) {
+        (my $status, $form) = $self->form($item);
+        if (is_error($status)) {
+            return undef;
+        }
     }
 
     $form->process($self->form_process_parameters_for_cleanup($item));
