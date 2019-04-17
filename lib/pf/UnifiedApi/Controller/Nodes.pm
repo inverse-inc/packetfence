@@ -18,6 +18,7 @@ use Mojo::Base 'pf::UnifiedApi::Controller::Crud';
 use pf::dal::node;
 use pf::fingerbank;
 use pf::node;
+use pf::ip4log;
 use pf::constants qw($TRUE);
 use pf::dal::security_event;
 use pf::error qw(is_error);
@@ -26,6 +27,7 @@ use pf::UnifiedApi::Search::Builder::Nodes;
 use pf::security_event;
 use pf::Connection;
 use pf::SwitchFactory;
+use pf::Connection::ProfileFactory;
 
 has 'search_builder_class' => 'pf::UnifiedApi::Search::Builder::Nodes';
 
@@ -557,6 +559,32 @@ sub reevaluate_access {
     }
 
     return $self->render(json => {}, status => 200);
+}
+
+=head2 rapid7
+
+rapid7
+
+=cut
+
+sub rapid7 {
+    my ($self) = @_;
+    my $mac = $self->id;
+    my $scan = pf::Connection::ProfileFactory->instantiate($mac)->findScan($mac);
+    unless ($scan->isa("pf::scan::rapid7")) {
+        return $self->render_error(404, "No rapid7 scan engine for $mac");
+    }
+
+    my $ip = pf::ip4log::mac2ip($mac);
+    return $self->render(
+        json => {
+            ip => $ip,
+            item => $scan->assetDetails($ip),
+            device_profiling => $scan->deviceProfiling($ip),
+            top_vulnerabilities => $scan->assetTopVulnerabilities($ip),
+            last_scan => $scan->lastScan($ip),
+            scan_templates => $scan->listScanTemplates(),
+    });
 }
 
 =head1 AUTHOR

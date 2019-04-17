@@ -491,7 +491,7 @@ sub setup_api_v1_nodes_routes {
 
     $resource_route->register_sub_actions({
         method => 'GET',
-        actions => [ qw(fingerbank_info) ],
+        actions => [ qw(fingerbank_info rapid7) ],
     });
 
     $collection_route->register_sub_actions({
