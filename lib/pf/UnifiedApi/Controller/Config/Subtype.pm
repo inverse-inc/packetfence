@@ -48,7 +48,7 @@ sub type_lookup {
 
 sub cached_form {
     my ($self, $item, @args) = @_;
-    $type = $item->{type};
+    my $type = $item->{type};
     if ($self->{cached_form}{$type}) {
         return $self->{cached_form}{$type};
     }
