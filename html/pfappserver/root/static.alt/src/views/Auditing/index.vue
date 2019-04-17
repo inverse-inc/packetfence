@@ -22,11 +22,13 @@ export default {
       sections: [
         {
           name: 'RADIUS Audit Logs',
-          path: '/auditing/radiuslogs/search'
+          path: '/auditing/radiuslogs/search',
+          savedSearch: { storeName: '$_radius_logs', routeName: 'radiuslogs' }
         },
         {
           name: 'Option82',
-          path: '/auditing/dhcpoption82s/search'
+          path: '/auditing/dhcpoption82s/search',
+          savedSearch: { storeName: '$_dhcpoption82_logs', routeName: 'dhcpoption82s' }
         }
       ]
     }

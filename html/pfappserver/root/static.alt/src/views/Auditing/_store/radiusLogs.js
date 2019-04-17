@@ -6,6 +6,7 @@ import api from '../_api'
 
 const STORAGE_SEARCH_LIMIT_KEY = 'radiuslogs-search-limit'
 const STORAGE_VISIBLE_COLUMNS_KEY = 'radiuslogs-visible-columns'
+const STORAGE_SAVED_SEARCH = 'radiuslogs-saved-search'
 
 // Default values
 const state = {
@@ -20,7 +21,8 @@ const state = {
   searchSortDesc: false,
   searchMaxPageNumber: 1,
   searchPageSize: localStorage.getItem(STORAGE_SEARCH_LIMIT_KEY) || 10,
-  visibleColumns: JSON.parse(localStorage.getItem(STORAGE_VISIBLE_COLUMNS_KEY)) || false
+  visibleColumns: JSON.parse(localStorage.getItem(STORAGE_VISIBLE_COLUMNS_KEY)) || false,
+  savedSearches: JSON.parse(localStorage.getItem(STORAGE_SAVED_SEARCH)) || []
 }
 
 const getters = {
@@ -84,6 +86,21 @@ const actions = {
       commit('ITEM_ERROR', err.response)
       return err
     })
+  },
+  addSavedSearch: ({ commit }, search) => {
+    let savedSearches = state.savedSearches
+    savedSearches = state.savedSearches.filter(searches => searches.name !== search.name)
+    savedSearches.push(search)
+    savedSearches.sort((a, b) => {
+      return a.name.localeCompare(b.name)
+    })
+    commit('SAVED_SEARCHES_UPDATED', savedSearches)
+    localStorage.setItem(STORAGE_SAVED_SEARCH, JSON.stringify(savedSearches))
+  },
+  deleteSavedSearch: ({ commit }, search) => {
+    let savedSearches = state.savedSearches.filter(searches => searches.name !== search.name)
+    commit('SAVED_SEARCHES_UPDATED', savedSearches)
+    localStorage.setItem(STORAGE_SAVED_SEARCH, JSON.stringify(savedSearches))
   }
 }
 
@@ -141,6 +158,9 @@ const mutations = {
     if (response && response.data) {
       state.message = response.data.message
     }
+  },
+  SAVED_SEARCHES_UPDATED: (state, searches) => {
+    state.savedSearches = searches
   }
 }
 

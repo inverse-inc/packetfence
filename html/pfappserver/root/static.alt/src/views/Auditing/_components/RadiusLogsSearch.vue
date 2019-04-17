@@ -6,7 +6,7 @@
       <h4 class="mb-0" v-t="'Search RADIUS Audit Logs'"></h4>
     </b-card-header>
     <pf-search :quick-with-fields="false" quick-placeholder="Search by MAC or username"
-      :fields="fields" :advanced-mode="advancedMode" :condition="condition"
+      :fields="fields" :advanced-mode="advancedMode" :condition="condition" :storeName="storeName"
       @submit-search="onSearch" @reset-search="onReset"></pf-search>
     <div class="card-body">
       <b-row align-h="between" align-v="center">
@@ -100,6 +100,10 @@ export default {
     tableValues: {
       type: Array,
       default: () => []
+    },
+    storeName: {
+      type: String,
+      default: null
     }
   },
   data () {
