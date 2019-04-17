@@ -109,8 +109,8 @@
                 :vuelidate="$v.single.birthday"
               />
               <pf-form-input :column-label="$t('Psk')"
-                v-model="userContent.psk"
-                :vuelidate="$v.userContent.psk"
+                v-model="single.psk"
+                :vuelidate="$v.single.psk"
               />
               <pf-form-textarea :column-label="$t('Notes')"
                 v-model="single.notes"
@@ -329,6 +329,7 @@ export default {
         room_number: '',
         anniversary: '',
         birthday: '',
+        psk: '',
         notes: '',
         custom_field_1: '',
         custom_field_2: '',
