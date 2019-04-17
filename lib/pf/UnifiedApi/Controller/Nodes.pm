@@ -571,7 +571,7 @@ sub rapid7 {
     my ($self) = @_;
     my $mac = $self->id;
     my $scan = pf::Connection::ProfileFactory->instantiate($mac)->findScan($mac);
-    unless ($scan->isa("pf::scan::rapid7")) {
+    unless ($scan && $scan->isa("pf::scan::rapid7")) {
         return $self->render_error(404, "No rapid7 scan engine for $mac");
     }
 
