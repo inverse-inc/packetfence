@@ -44,7 +44,7 @@
       </b-modal>
       <b-modal v-model="showSaveSearchModal" size="sm" centered id="saveSearchModal" :title="$t('Save Search')" @shown="focusSaveSearchInput">
         <b-form-input ref="saveSearchInput" v-model="saveSearchString" type="text"
-          :placeholder="$t('Enter a unique name')"/>
+          :placeholder="$t('Enter a unique name')" @keyup="keyUpSaveSearchInput"/>
         <div slot="modal-footer">
           <b-button variant="secondary" class="mr-1" @click="showSaveSearchModal=false">{{ $t('Cancel') }}</b-button>
           <b-button variant="primary" @click="saveSearch">{{ $t('Save') }}</b-button>
@@ -193,6 +193,13 @@ export default {
     },
     focusSaveSearchInput () {
       this.$refs.saveSearchInput.focus()
+    },
+    keyUpSaveSearchInput (event) {
+      switch (event.keyCode) { // [ENTER] submits
+        case 13:
+          if (this.saveSearchString.length > 0) this.saveSearch()
+          break
+      }
     },
     saveSearch () {
       const _this = this
