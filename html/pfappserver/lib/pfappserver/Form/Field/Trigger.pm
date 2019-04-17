@@ -95,6 +95,11 @@ sub deflate {
     my @vals;
     while (my ($k, $v) = each %$value) {
         next if !defined $v;
+        if (ref($v) eq 'ARRAY') {
+            next if @$v == 0;
+            $v = join (',', @$v);
+        }
+
         push @vals, "${k}::$v";
     }
 
