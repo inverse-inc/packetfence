@@ -238,9 +238,8 @@ export default {
     vertical-align: middle;
     margin: 0;
     user-select: none;
-    font-size: 10px;
+    font-size: $font-size-sm;
     font-weight: 600;
-    text-transform: uppercase;
   }
 
   .range {

@@ -278,10 +278,10 @@ export default {
 
     .handle {
       /*background-color: $input-focus-border-color;*/
-      background-color: rgba(0, 0, 0, 1); /* [range] background-color shows through */
-      animation: animateCursor 2s infinite;
       box-sizing: border-box; /* inner border */
       border: 2px solid #fff;
+      background-color: rgba(0, 0, 0, 1); /* [range] background-color shows through */
+      animation: animateCursor 2s infinite;
     }
   }
 
@@ -297,9 +297,8 @@ export default {
     vertical-align: middle;
     margin: 0;
     user-select: none;
-    font-size: 10px;
+    font-size: $font-size-sm;
     font-weight: 600;
-    text-transform: uppercase;
   }
 
   .range {

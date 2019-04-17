@@ -240,9 +240,8 @@ $margin: 3px;
   margin: 0;
   user-select: none;
   color: rgba(0, 0, 0, 0.65);
-  font-size: 10px;
+  font-size: $font-size-sm;
   font-weight: 600;
-  text-transform: uppercase;
   cursor: pointer;
   .v-switch-input {
     display: none;

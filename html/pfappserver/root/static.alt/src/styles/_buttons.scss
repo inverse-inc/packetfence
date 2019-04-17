@@ -8,10 +8,6 @@ $font-size-sm: $font-size-base * .775;
 
 @import "../../node_modules/bootstrap/scss/buttons";
 
-.btn {
-    text-transform: uppercase;
-}
-
 // Restore font sizes
 $font-size-base: $font-size-base-orig;
 $font-size-sm: $font-size-sm-orig;
