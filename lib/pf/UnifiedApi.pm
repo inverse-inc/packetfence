@@ -1535,11 +1535,14 @@ sub setup_api_v1_config_interfaces_routes {
 
 sub setup_api_v1_dynamic_reports_routes {
     my ( $self, $root ) = @_;
-    my $collection_route = $root->any("/dynamic_reports");
-    $collection_route->any(['GET'])->to("DynamicReports#list")->name("api.v1.DynamicReports.list");
-    my $resource_route = $root->under("/dynamic_report/#report_id")->to("DynamicReports#resource")->name("api.v1.DynamicReports.resource");
-    $resource_route->any(["GET"])->to("DynamicReports#get")->name("api.v1.DynamicReports.resource.get");
-    $self->add_subroutes($resource_route, "DynamicReports", "POST", qw(search));
+    my $root_name = $root->name;
+    my $controller = "DynamicReports";
+    my $name = "$root_name.DynamicReports";
+    my $collection_route = $root->any("/dynamic_reports")->to(controller => $controller)->name($name);
+    $collection_route->register_sub_action({path => '', action => 'list', method => 'GET'});
+    my $resource_route = $root->under("/dynamic_report/#report_id")->to(controller => $controller, action => "resource")->name("${name}.resource");
+    $resource_route->register_sub_action({path => '', action => 'get', method => 'GET'});
+    $resource_route->register_sub_action({action => 'search', method => 'POST'});
     return ( $collection_route, $resource_route );
 }
 
