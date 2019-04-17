@@ -2,6 +2,7 @@
   <b-form-row :id="'security-event-trigger-row_' + uuid"
     class="align-items-center security-event-trigger-row text-center py-1"
     v-on="forwardListeners">
+    <b-badge class="or">{{ $t('OR') }}</b-badge>
     <b-col cols="1" class="text-center col-form-label">
       <slot name="prepend"></slot>
     </b-col>
@@ -9,19 +10,19 @@
       <b-link href="#" :id="'endpoint_' + uuid">{{ forms.endpoint.description() }}</b-link>
     </b-col>
     <b-col>
-      <b-badge>AND</b-badge>
+      <b-badge>{{ $t('AND') }}</b-badge>
     </b-col>
     <b-col cols="2">
       <b-link href="#" :id="'profiling_' + uuid">{{ forms.profiling.description() }}</b-link>
     </b-col>
     <b-col>
-      <b-badge>AND</b-badge>
+      <b-badge>{{ $t('AND') }}</b-badge>
     </b-col>
     <b-col cols="2">
       <b-link href="#" :id="'usage_' + uuid">{{ forms.usage.description() }}</b-link>
     </b-col>
     <b-col>
-      <b-badge>AND</b-badge>
+      <b-badge>{{ $t('AND') }}</b-badge>
     </b-col>
     <b-col cols="2">
       <b-link href="#" :id="'event_' + uuid">{{ forms.event.description() }}</b-link>
@@ -604,6 +605,18 @@ export default {
 <style lang="scss">
 @import "../../node_modules/bootstrap/scss/functions";
 @import "../styles/variables";
+
+.security-event-trigger-row {
+  position: relative;
+  .or {
+    position: absolute;
+    bottom: -.5rem;
+    left: 3rem;
+  }
+}
+.pf-form-field-component-container:last-child .or {
+  display: none;
+}
 
 /**
  * For pfTypeValue components inside popovers, force display of fields on one
