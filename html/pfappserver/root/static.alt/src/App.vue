@@ -20,7 +20,7 @@
         <b-navbar-nav v-if="isAuthenticated">
           <b-nav-item-dropdown class="pf-label" right>
             <template slot="button-content">
-              <icon name="user-circle"></icon> {{ username }}
+              <icon name="user-circle"></icon> {{ username }} <span v-if="pfVersion">(v{{ pfVersion }})</span>
             </template>
             <b-dropdown-item-button v-if="$i18n.locale == 'en'" @click="setLanguage('fr')">Français</b-dropdown-item-button>
             <b-dropdown-item-button v-else @click="setLanguage('en')">English</b-dropdown-item-button>
@@ -89,6 +89,9 @@ export default {
     },
     chartsOK () {
       return this.$store.state.session.charts
+    },
+    pfVersion () {
+      return this.$store.getters['system/version']
     }
   },
   methods: {
@@ -121,6 +124,7 @@ export default {
   },
   created () {
     this.$store.dispatch('session/setLanguage', { i18n: this.$i18n, lang: 'en' })
+    this.$store.dispatch('system/getSummary')
   }
 }
 </script>
