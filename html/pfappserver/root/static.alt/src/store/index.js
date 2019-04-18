@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import config from './modules/config'
 import notification from './modules/notification'
+import preferences from './modules/preferences'
 import services from './modules/services'
 import session from './modules/session'
 import system from './modules/system'
@@ -15,6 +16,7 @@ export default new Vuex.Store({
   modules: {
     config,
     notification,
+    preferences,
     services,
     session,
     system

@@ -8,6 +8,21 @@ const apiCall = axios.create({
 })
 
 Object.assign(apiCall, {
+  deleteQuiet (url) {
+    return this.request({
+      method: 'delete',
+      url,
+      transformResponse: [data => {
+        let jsonData
+        try {
+          jsonData = JSON.parse(data)
+        } catch (e) {
+          jsonData = {}
+        }
+        return Object.assign({ quiet: true }, jsonData)
+      }]
+    })
+  },
   getQuiet (url) {
     return this.request({
       method: 'get',
@@ -39,11 +54,27 @@ Object.assign(apiCall, {
       }]
     })
   },
-  postQuiet (url, body) {
+  postQuiet (url, data) {
     return this.request({
       method: 'post',
       url,
-      body,
+      data,
+      transformResponse: [data => {
+        let jsonData
+        try {
+          jsonData = JSON.parse(data)
+        } catch (e) {
+          jsonData = {}
+        }
+        return Object.assign({ quiet: true }, jsonData)
+      }]
+    })
+  },
+  putQuiet (url, data) {
+    return this.request({
+      method: 'put',
+      url,
+      data,
       transformResponse: [data => {
         let jsonData
         try {
