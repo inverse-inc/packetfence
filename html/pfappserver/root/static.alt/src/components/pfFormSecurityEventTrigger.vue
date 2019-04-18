@@ -156,8 +156,17 @@ export default {
       trigger: { endpoint: {}, profiling: {}, usage: {}, event: {} },
       triggerCopy: {},
       triggerValidations: { endpoint: {}, profiling: {}, usage: {}, event: {} }, // will be overloaded with data from the pfConfigView
-      popover: { endpoint: false, profiling: false, usage: false, event: false },
-      forms: {
+      popover: { endpoint: false, profiling: false, usage: false, event: false }
+
+    }
+  },
+  computed: {
+    forwardListeners () {
+      const { input, ...listeners } = this.$listeners
+      return listeners
+    },
+    forms () {
+      return {
         /**
          * Endpoint trigger
          */
@@ -490,12 +499,6 @@ export default {
           ]
         }
       }
-    }
-  },
-  computed: {
-    forwardListeners () {
-      const { input, ...listeners } = this.$listeners
-      return listeners
     }
   },
   methods: {
