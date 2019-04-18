@@ -165,36 +165,37 @@ export default {
 .range {
   position: relative;
   height: var(--range-height);
+  margin: 0px;
   box-shadow: 0 0 0 1px transparent; /* pseudo border */
   border-radius: calc(var(--range-height) / 2);
   background-color: var(--range-background-color, $input-placeholder-color);
   text-align: left;
-  margin: 0px;
   transition: background-color var(--range-transition-delay) ease-out,
     box-shadow var(--range-transition-delay) ease-out,
     outline var(--range-transition-delay) ease-out;
   > div {
     position: absolute;
-    left: calc(var(--range-height) / 2);
     right: calc(var(--range-height) / 2);
+    left: calc(var(--range-height) / 2);
     height: var(--range-height);
     > .handle {
       position: absolute;
       top: calc((var(--range-height) - var(--handle-height)) / 2);
-      height: var(--handle-height);
+      display: flex;
+      justify-content: center;
+      align-items: center;
       width: var(--handle-height);
-      text-align: left;
+      height: var(--handle-height);
       margin-left: calc(var(--handle-height) / -2);
-      background-color: var(--handle-background-color);
       border-radius: 50%;
       outline: none;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      background-color: var(--handle-background-color);
+      color: var(--range-background-color, $input-placeholder-color); /* SVG icon */
+      font-size: 10px;
+      text-align: left;
       transition: left var(--handle-transition-delay, 0s) ease-in-out, /* do not animate `left` unless explicit */
         background-color var(--range-transition-delay) ease-out,
         color var(--range-transition-delay) ease-out;
-      color: var(--range-background-color, $input-placeholder-color); /* SVG icon */
     }
     > .hint {
       position: absolute;
@@ -212,23 +213,23 @@ export default {
     > .label {
       position: absolute;
       top: 0;
-      left: 0;
       right: 0;
       bottom: 0;
-      color: var(--hint-background-color);
+      left: 0;
       display: flex;
       align-items: center;
+      color: var(--hint-background-color);
     }
     > .tooltip {
       position: absolute;
+      bottom: calc(50% + (var(--handle-height) / 2) + 12px);
+      justify-content: center;
+      align-items: center;
+      width: auto;
       opacity: 0;
       visibility: hidden;
       transform: translateX(-50%);
-      bottom: calc(50% + (var(--handle-height) / 2) + 12px);
       min-width: var(--handle-height);
-      width: auto;
-      align-items: center;
-      justify-content: center;
       font-size: .7875rem;
       text-align: center;
       transition: left var(--handle-transition-delay, 0s) ease-in-out, /* do not animate `left` unless explicit */
@@ -236,33 +237,33 @@ export default {
         visibility var(--tooltip-transition-delay) linear,
         opacity var(--tooltip-transition-delay) ease-in-out;
       &:after { /* tooltip arrow */
-        position: absolute;
         content: "";
+        position: absolute;
+        top: 20px;
+        left: 50%;
         border-color: transparent;
         border-top-color: #000;
         border-style: solid;
         border-width: .4rem .4rem 0;
-        top: 20px;
-        left: 50%;
         transform: translateX(-50%);
       }
       > span { /* tooltip body */
         padding: .25rem .5rem;
-        color: #fff;
-        text-align: center;
         background-color: #000;
+        color: #fff;
         border-radius: .25rem;
         font-family: var(--font-family-sans-serif);
         font-size: .7875rem;
         font-style: normal;
         font-weight: 400;
         line-height: 1.5;
+        letter-spacing: normal;
+        text-align: center;
         text-shadow: none;
         text-transform: none;
-        letter-spacing: normal;
+        white-space: nowrap;
         word-break: normal;
         word-spacing: normal;
-        white-space: nowrap;
         line-break: auto;
         &::selection { background: transparent; }
         &::-moz-selection { background: transparent; }
@@ -271,13 +272,13 @@ export default {
   }
   > input[type=range] {
     position: absolute;
+    top: calc((var(--range-height) - var(--handle-height)) / 2);
+    right: calc(var(--range-height) / 2);
+    left: calc(var(--range-height) / 2);
+    width: calc(100% - var(--range-height));
     pointer-events: all;
     -webkit-appearance: none; /* disable track clicks */
     height: var(--handle-height);
-    top: calc((var(--range-height) - var(--handle-height)) / 2);
-    left: calc(var(--range-height) / 2);
-    right: calc(var(--range-height) / 2);
-    width: calc(100% - var(--range-height));
     opacity: 0;
     &::-ms-track {
       -webkit-appearance: none;
@@ -290,8 +291,8 @@ export default {
       color: transparent;
     }
     &:focus::-webkit-slider-runnable-track {
-      background: transparent;
       border: transparent;
+      background: transparent;
     }
     &:focus {
       outline: none;
@@ -322,12 +323,12 @@ export default {
       -webkit-appearance: none;
     }
     &::-ms-fill-lower {
-      background: transparent;
       border: 0 none;
+      background: transparent;
     }
     &::-ms-fill-upper {
-      background: transparent;
       border: 0 none;
+      background: transparent;
     }
     &::-ms-tooltip {
       display: none;
@@ -335,17 +336,17 @@ export default {
   }
   > .catch-min {
     position: absolute;
-    left: 0px;
     top: calc((var(--range-height) - var(--handle-height)) / 2);
-    height: var(--handle-height);
+    left: 0px;
     width: calc(var(--range-height) / 2);
+    height: var(--handle-height);
   }
   > .catch-max {
     position: absolute;
-    left: calc(100% - (var(--range-height) / 2));
     top: calc((var(--range-height) - var(--handle-height)) / 2);
-    height: var(--handle-height);
+    left: calc(100% - (var(--range-height) / 2));
     width: calc(var(--range-height) / 2);
+    height: var(--handle-height);
   }
   > div > .hint,
   &[disabled] {
