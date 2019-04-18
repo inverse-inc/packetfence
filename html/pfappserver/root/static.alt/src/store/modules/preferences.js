@@ -15,7 +15,7 @@ const api = {
   },
   getPreference: (id) => {
     return apiCall.getQuiet(`preference/${IDENTIFIER_PREFIX}${id}`).then(response => {
-      return response.data
+      return response.data.item
     })
   },
   setPreference: (_data) => {
@@ -69,7 +69,7 @@ const api = {
     }
   },
   removePreference: id => {
-    return apiCall.deleteQuiet(`preferences/${IDENTIFIER_PREFIX}${id}`).then(response => {
+    return apiCall.deleteQuiet(`preference/${IDENTIFIER_PREFIX}${id}`).then(response => {
       return response
     })
   }
@@ -97,7 +97,7 @@ const actions = {
       return response.items
     })
   },
-  get: ({ state, commit }, name) => {
+  get: ({ state, commit }, id) => {
     commit('PREFERENCE_REQUEST')
     return api.getPreference(id).then(response => {
       commit('PREFERENCE_SUCCESS')
@@ -119,9 +119,9 @@ const actions = {
       throw err
     })
   },
-  remove: ({ state, commit }, name) => {
+  remove: ({ state, commit }, id) => {
     commit('PREFERENCE_REQUEST')
-    return api.removePreference(name).then(response => {
+    return api.removePreference(id).then(response => {
       commit('PREFERENCE_SUCCESS')
       return response
     }).catch((err) => {
