@@ -22,7 +22,7 @@ has security_events => ( is => 'rw', builder => '_build_security_events');
 sub _build_security_events {
     my ($self) = @_;
     my $cs = pf::ConfigStore::SecurityEvents->new;
-    return $cs->readAll;
+    return $cs->readAll('id');;
 }
 
 =head1 AUTHOR
