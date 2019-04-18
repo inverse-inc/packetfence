@@ -551,9 +551,9 @@ export default {
      * Associate each condition to a category (endpoint/profiling/usage/event)
      */
     for (const field in this.value) {
-      if (this.value[field]) {
-        const value = this.value[field]
-        let category
+      const value = this.value[field]
+      if (value && value.length) {
+        let category = null
         for (const key in categoryOptions) {
           if (Object.keys(categoryOptions[key]).includes(field)) {
             category = key
@@ -606,6 +606,9 @@ export default {
 @import "../../node_modules/bootstrap/scss/functions";
 @import "../styles/variables";
 
+/**
+ * Position the "or" badge bellow each trigger except the last one
+ */
 .security-event-trigger-row {
   position: relative;
   .or {
