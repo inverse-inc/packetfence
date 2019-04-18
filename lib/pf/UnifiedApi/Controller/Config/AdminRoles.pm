@@ -23,20 +23,22 @@ has 'config_store_class' => 'pf::ConfigStore::AdminRoles';
 has 'form_class' => 'pfappserver::Form::Config::AdminRoles';
 has 'primary_key' => 'admin_role_id';
 
-sub items {
-    my ($self) = @_;
-    my $items = $self->SUPER::items();
-    unshift @$items, map {
-        my $id = $_;
-        my $item = {
-            id => $id,
-            %{ $ConfigAdminRoles{$_} }, readonly => $self->json_true()
-        };
-        my $actions = delete $item->{ACTIONS};
-        $item->{actions} = [keys %$actions];
-        $item;
-    } qw(NONE ALL ALL_PF_ONLY);
+sub cleanup_items {
+    my ($self, $items) = @_;
+    $items = $self->SUPER::cleanup_items($items);
+    unshift @$items, $self->extra_items;
     return $items;
+}
+
+sub extra_items {
+    my ($self) = @_;
+    map {
+        {
+            id            => $_,
+            actions       => [ keys %{ $ConfigAdminRoles{$_}{ACTIONS} } ],
+            not_updatable => $self->json_false(),
+        }
+    } qw(NONE ALL ALL_PF_ONLY);
 }
 
 =head1 AUTHOR
