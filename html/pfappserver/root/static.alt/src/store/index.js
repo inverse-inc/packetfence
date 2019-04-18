@@ -4,6 +4,7 @@ import config from './modules/config'
 import notification from './modules/notification'
 import services from './modules/services'
 import session from './modules/session'
+import system from './modules/system'
 
 Vue.use(Vuex)
 
@@ -15,7 +16,8 @@ export default new Vuex.Store({
     config,
     notification,
     services,
-    session
+    session,
+    system
   },
   strict: debug
 })
