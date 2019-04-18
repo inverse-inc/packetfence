@@ -604,7 +604,7 @@ Get the default value of a field
 
 sub field_default {
     my ($self, $field, $inheritedValues) = @_;
-    return $field->default // $inheritedValues ? $inheritedValues->{$field->name} : undef;
+    return $field->default // ($inheritedValues ? $inheritedValues->{$field->name} : undef);
 }
 
 =head2 default_values
