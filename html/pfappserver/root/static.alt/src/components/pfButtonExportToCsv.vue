@@ -69,13 +69,13 @@ export default {
     download () {
       let csvContentArray = []
       this.data().forEach(rowArray => {
-        let row = rowArray.map(col => `"${col}"`).join(',')
+        let row = rowArray.map(col => `"${col.replace('"', '\\"')}"`).join(',')
         csvContentArray.push(row)
       })
 
       // window.open(encodeURI(`data:text/csv;charset=utf-8,${csvContentArray.join('\r\n')}`))
 
-      var blob = new Blob([encodeURI(csvContentArray.join('\r\n'))], { type: 'text/csv' })
+      var blob = new Blob([csvContentArray.join('\r\n')], { type: 'text/csv' })
       if(window.navigator.msSaveOrOpenBlob) {
         window.navigator.msSaveBlob(blob, this.filename)
       } else {

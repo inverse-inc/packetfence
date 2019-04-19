@@ -34,8 +34,13 @@
                 <b-form-select class="mb-3 mr-3" size="sm" v-model="pageSizeLimit" :options="[25,50,100,200,500,1000]" :disabled="isLoading"
                   @input="onPageSizeChange" />
               </b-form>
-              <b-pagination align="right" :per-page="pageSizeLimit" :total-rows="totalRows" v-model="requestPage" :disabled="isLoading"
+              <b-pagination class="mr-3" align="right" :per-page="pageSizeLimit" :total-rows="totalRows" v-model="requestPage" :disabled="isLoading"
                 @input="onPageChange" />
+              <pf-button-export-to-csv class="mb-3" filename="radiuslogs.csv" :disabled="isLoading"
+                :searchableStoreName="searchableStoreName"
+                :searchableOptions="searchableOptions"
+                :columns="columns"
+              />
             </b-row>
           </b-container>
         </b-col>
@@ -60,6 +65,7 @@
 <script>
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import { pfFormatters as formatter } from '@/globals/pfFormatters'
+import pfButtonExportToCsv from '@/components/pfButtonExportToCsv'
 import pfMixinSearchable from '@/components/pfMixinSearchable'
 import pfProgress from '@/components/pfProgress'
 import pfEmptyTable from '@/components/pfEmptyTable'
@@ -72,6 +78,7 @@ export default {
     pfMixinSearchable
   ],
   components: {
+    pfButtonExportToCsv,
     pfProgress,
     pfEmptyTable,
     pfSearch,
