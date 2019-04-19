@@ -11,6 +11,8 @@
       :fields="fields"
       :advanced-mode="advancedMode"
       :condition="condition"
+      :storeName="storeName"
+      :save-search-namespace="`dymamicReports::${id}`"
       @submit-search="onSearch"
       @reset-search="onReset"
       @import-search="onImport"
