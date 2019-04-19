@@ -16,7 +16,8 @@
     <template slot="header" is="b-card-header">
       <b-button-close @click="close" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
       <h4 class="mb-0">
-        <span v-if="id">{{ $t('Security Event') }} <strong v-text="id"></strong></span>
+        <span v-if="!isNew && !isClone">{{ $t('Security Event {id}', { id: id }) }}</span>
+        <span v-else-if="isClone">{{ $t('Clone Security Event {id}', { id: id }) }}</span>
         <span v-else>{{ $t('New Security Event') }}</span>
       </h4>
     </template>
@@ -33,8 +34,7 @@ import pfButtonSave from '@/components/pfButtonSave'
 import pfButtonDelete from '@/components/pfButtonDelete'
 import pfMixinEscapeKey from '@/components/pfMixinEscapeKey'
 import {
-  pfConfigurationSecurityEventViewFields as fields,
-  pfConfigurationSecurityEventViewDefaults as defaults
+  pfConfigurationSecurityEventViewFields as fields
 } from '@/globals/configuration/pfConfigurationSecurityEvents'
 const { validationMixin } = require('vuelidate')
 
@@ -103,7 +103,7 @@ export default {
       if (this.id) {
         // existing
         promise = this.$store.dispatch(`${this.storeName}/getSecurityEvent`, this.id).then(form => {
-          this.form = JSON.parse(JSON.stringify(form))
+          this.form = form
           return form
         })
       } else {
@@ -112,12 +112,9 @@ export default {
       promise.then(form => {
         this.$store.dispatch(`${this.storeName}/options`).then(options => {
           // store options
-          this.options = JSON.parse(JSON.stringify(options))
+          this.options = options
           if (form) {
-            this.form = JSON.parse(JSON.stringify(form))
-          } else {
-            // new
-            this.form = defaults(options.meta) // set defaults
+            this.form = form
           }
         })
       })
@@ -143,6 +140,18 @@ export default {
   },
   created () {
     this.init()
+  },
+  watch: {
+    id: {
+      handler: function (a, b) {
+        this.init()
+      }
+    },
+    isClone: {
+      handler: function (a, b) {
+        this.init()
+      }
+    }
   }
 }
 </script>

@@ -4,15 +4,12 @@
 import Vue from 'vue'
 import api from '../_api'
 
-const STORAGE_SAVED_SEARCH = 'nodes-saved-search'
-
 // Default values
 const state = {
   nodes: {}, // nodes details
   nodeExists: {}, // node exists true|false
   message: '',
-  nodeStatus: '',
-  savedSearches: JSON.parse(localStorage.getItem(STORAGE_SAVED_SEARCH)) || []
+  nodeStatus: ''
 }
 
 const getters = {
@@ -20,21 +17,6 @@ const getters = {
 }
 
 const actions = {
-  addSavedSearch: ({ commit }, search) => {
-    let savedSearches = state.savedSearches
-    savedSearches = state.savedSearches.filter(searches => searches.name !== search.name)
-    savedSearches.push(search)
-    savedSearches.sort((a, b) => {
-      return a.name.localeCompare(b.name)
-    })
-    commit('SAVED_SEARCHES_UPDATED', savedSearches)
-    localStorage.setItem(STORAGE_SAVED_SEARCH, JSON.stringify(savedSearches))
-  },
-  deleteSavedSearch: ({ commit }, search) => {
-    let savedSearches = state.savedSearches.filter(searches => searches.name !== search.name)
-    commit('SAVED_SEARCHES_UPDATED', savedSearches)
-    localStorage.setItem(STORAGE_SAVED_SEARCH, JSON.stringify(savedSearches))
-  },
   exists: ({ commit }, mac) => {
     if (state.nodeExists.hasOwnProperty(mac)) {
       if (state.nodeExists[mac]) {
@@ -148,6 +130,11 @@ const actions = {
       // Fetch dhcpoption82
       api.dhcpoption82(mac).then(items => {
         commit('NODE_UPDATED', { mac, prop: 'dhcpoption82', data: items })
+      })
+
+      // Fetch Rapid7
+      api.rapid7Info(mac).then(items => {
+        commit('NODE_UPDATED', { mac, prop: 'rapid7', data: items })
       })
 
       return node
@@ -432,9 +419,6 @@ const mutations = {
   },
   NODE_NOT_EXISTS: (state, mac) => {
     Vue.set(state.nodeExists, mac, false)
-  },
-  SAVED_SEARCHES_UPDATED: (state, searches) => {
-    state.savedSearches = searches
   }
 }
 

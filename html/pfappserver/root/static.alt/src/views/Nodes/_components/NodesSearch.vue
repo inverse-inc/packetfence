@@ -5,7 +5,7 @@
       <div class="float-right"><pf-form-toggle v-model="advancedMode">{{ $t('Advanced') }}</pf-form-toggle></div>
       <h4 class="mb-0" v-t="'Search Nodes'"></h4>
     </b-card-header>
-    <pf-search :quick-with-fields="false" :quick-placeholder="$t('Search by MAC or owner')"
+    <pf-search :quick-with-fields="false" :quick-placeholder="$t('Search by MAC or owner')"  save-search-namespace="nodes"
       :fields="fields" :storeName="storeName" :advanced-mode="advancedMode" :condition="condition"
       @submit-search="onSearch" @reset-search="onReset" @import-search="onImport"></pf-search>
     <div class="card-body">
@@ -94,8 +94,13 @@
                 <b-form-select class="mb-3 mr-3" size="sm" v-model="pageSizeLimit" :options="[25,50,100,200,500,1000]" :disabled="isLoading"
                   @input="onPageSizeChange" />
               </b-form>
-              <b-pagination align="right" v-model="requestPage" :per-page="pageSizeLimit" :total-rows="totalRows" :disabled="isLoading"
+              <b-pagination class="mr-3" align="right" v-model="requestPage" :per-page="pageSizeLimit" :total-rows="totalRows" :disabled="isLoading"
                 @input="onPageChange" />
+              <pf-button-export-to-csv class="mb-3" filename="nodes.csv" :disabled="isLoading"
+                :searchableStoreName="searchableStoreName"
+                :searchableOptions="searchableOptions"
+                :columns="columns"
+              />
             </b-row>
           </b-container>
         </b-col>
@@ -160,6 +165,7 @@
 </template>
 
 <script>
+import pfButtonExportToCsv from '@/components/pfButtonExportToCsv'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import { pfFormatters as formatter } from '@/globals/pfFormatters'
 import pfMixinSearchable from '@/components/pfMixinSearchable'
@@ -178,6 +184,7 @@ export default {
   ],
   components: {
     pfProgress,
+    pfButtonExportToCsv,
     pfEmptyTable,
     pfFingerbankScore,
     pfFormToggle

@@ -156,7 +156,9 @@ export default {
       } while (false)
     },
     onSearch (searchCondition = '') {
-      const _this = this
+      if (!this.$store.state[this.searchableStoreName]) {
+        this.initStore()
+      }
       let condition = searchCondition
       if (!this.advancedMode && searchCondition.constructor === String && this.searchableQuickCondition.constructor === Function) {
         // Build quick search query
@@ -165,12 +167,12 @@ export default {
       this.requestPage = 1 // reset to the first page
       this.$store.dispatch(`${this.searchableStoreName}/setSearchQuery`, condition)
       this.$store.dispatch(`${this.searchableStoreName}/search`, this.requestPage).then(() => {
-        _this.currentPage = _this.requestPage
+        this.currentPage = this.requestPage
         if (condition) {
-          _this.condition = condition
+          this.condition = condition
         }
       }).catch(() => {
-        _this.requestPage = _this.currentPage
+        this.requestPage = this.currentPage
       })
       // pfMixinSelectable
       if (this.$options.methods.clearSelected) {
@@ -178,14 +180,13 @@ export default {
       }
     },
     onReset () {
-      const _this = this
       this.requestPage = 1 // reset to the first page
       this.$store.dispatch(`${this.searchableStoreName}/setSearchQuery`, null) // reset search
       this.$store.dispatch(`${this.searchableStoreName}/search`, this.requestPage).then(() => {
-        _this.currentPage = _this.requestPage
+        this.currentPage = this.requestPage
         this.searchableInitCondition()
       }).catch(() => {
-        _this.requestPage = _this.currentPage
+        this.requestPage = this.currentPage
       })
       const { searchableOptions: { defaultRoute } = {} } = this
       if (defaultRoute) {
@@ -211,11 +212,10 @@ export default {
       this.$store.dispatch(`${this.searchableStoreName}/search`, this.requestPage)
     },
     onPageChange () {
-      const _this = this
       this.$store.dispatch(`${this.searchableStoreName}/search`, this.requestPage).then(() => {
-        _this.currentPage = _this.requestPage
+        this.currentPage = this.requestPage
       }).catch(() => {
-        _this.requestPage = _this.currentPage
+        this.requestPage = this.currentPage
       })
     },
     onSortingChanged (params) {
@@ -239,15 +239,19 @@ export default {
         this.onSearch()
       }
     },
-    query: {
+    $route: {
       handler (a, b) {
-        if (a !== b) {
-          if (a) {
-            const condition = JSON.parse(a)
-            this.onSearch(condition)
-          }
+        const { query: { query: queryA } = {} } = a || {}
+        const { query: { query: queryB } = {} } = b || {}
+        if (!queryA && queryB === JSON.stringify(this.condition)) {
+          this.onReset() // clear search
+        } else if (queryA) {
+          this.advancedMode = true
+          const condition = JSON.parse(queryA)
+          this.onSearch(condition) // submit search
         }
-      }
+      },
+      immediate: true
     },
     condition: {
       handler (a, b) {

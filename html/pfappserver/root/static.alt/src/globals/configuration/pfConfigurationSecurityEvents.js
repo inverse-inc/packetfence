@@ -5,17 +5,36 @@ import pfFormChosen from '@/components/pfFormChosen'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import pfFormSecurityEventTrigger from '@/components/pfFormSecurityEventTrigger'
 import pfFormSecurityEventTriggerHeader from '@/components/pfFormSecurityEventTriggerHeader'
+/*
 import pfFormSecurityEventActions from '@/components/pfFormSecurityEventActions'
-import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
+*/
 import {
   pfConfigurationAttributesFromMeta,
   pfConfigurationValidatorsFromMeta
 } from '@/globals/configuration/pfConfiguration'
+import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
+import {
+  and,
+  not,
+  conditional,
+  hasSecurityEvents,
+  securityEventExists
+} from '@/globals/pfValidators'
+
+const {
+  required
+} = require('vuelidate/lib/validators')
 
 export const pfConfigurationSecurityEventsListColumns = [
   {
+    key: 'enabled',
+    label: i18n.t('Status'),
+    sortable: true,
+    visible: true
+  },
+  {
     key: 'id',
-    label: i18n.t('Identifier'),
+    label: 'ID',
     sortable: true,
     visible: true
   },
@@ -24,15 +43,33 @@ export const pfConfigurationSecurityEventsListColumns = [
     label: i18n.t('Description'),
     sortable: true,
     visible: true
+  },
+  {
+    key: 'priority',
+    label: 'Priority',
+    sortable: true,
+    visible: true
+  },
+  {
+    key: 'template',
+    label: i18n.t('Template'),
+    sortable: false,
+    visible: true
+  },
+  {
+    key: 'vlan',
+    label: i18n.t('Target Category'),
+    sortable: false,
+    visible: true
+  },
+  {
+    key: 'buttons',
+    label: '',
+    sortable: false,
+    visible: true,
+    locked: true
   }
 ]
-
-export const pfConfigurationSecurityEventViewDefaults = (context = {}) => {
-  return {
-    id: null,
-    priority: 4
-  }
-}
 
 export const pfConfigurationSecurityEventsListFields = [
   {
@@ -72,7 +109,12 @@ export const pfConfigurationSecurityEventViewFields = (context = {}) => {
                   disabled: (!isNew && !isClone)
                 }
               },
-              validators: pfConfigurationValidatorsFromMeta(meta, 'id', 'Identifier')
+              validators: {
+                ...pfConfigurationValidatorsFromMeta(meta, 'id', 'Identifier'),
+                ...{
+                  [i18n.t('Security event exists.')]: not(and(required, conditional(isNew || isClone), hasSecurityEvents, securityEventExists))
+                }
+              }
             }
           ]
         },
@@ -137,6 +179,7 @@ export const pfConfigurationSecurityEventViewFields = (context = {}) => {
             }
           ]
         },
+        /*
         {
           label: i18n.t('Event Actions'),
           fields: [
@@ -147,6 +190,7 @@ export const pfConfigurationSecurityEventViewFields = (context = {}) => {
             }
           ]
         },
+        */
         {
           label: i18n.t('Dynamic Window'),
           text: i18n.t('Only works for accounting security events. The security event will be opened according to the time you set in the accounting security event (ie. You have an accounting security event for 10GB/month. If you bust the bandwidth after 3 days, the security event will open and the release date will be set for the last day of the current month).'),

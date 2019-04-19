@@ -11,13 +11,11 @@
 
 <script>
 import pfSidebar from '@/components/pfSidebar'
-import pfSavedSearch from '@/components/pfSavedSearch'
 
 export default {
   name: 'Nodes',
   components: {
-    pfSidebar,
-    pfSavedSearch
+    pfSidebar
   },
   props: {
     storeName: { // from router
@@ -31,7 +29,8 @@ export default {
       return [
         {
           name: 'Search',
-          path: '/nodes/search'
+          path: '/nodes/search',
+          saveSearchNamespace: 'nodes'
         },
         {
           name: 'Create',

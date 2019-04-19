@@ -35,42 +35,6 @@ const actions = {
       return response
     })
   },
-  createReport: ({ commit }, data) => {
-    commit('REPORT_REQUEST')
-    return new Promise((resolve, reject) => {
-      api.createReport(data).then(response => {
-        commit('REPORT_REPLACED', data)
-        resolve(response)
-      }).catch(err => {
-        commit('REPORT_ERROR', err.response)
-        reject(err)
-      })
-    })
-  },
-  updateReport: ({ commit }, data) => {
-    commit('REPORT_REQUEST')
-    return new Promise((resolve, reject) => {
-      api.updateReport(data).then(response => {
-        commit('REPORT_REPLACED', data)
-        resolve(response)
-      }).catch(err => {
-        commit('REPORT_ERROR', err.response)
-        reject(err)
-      })
-    })
-  },
-  deleteReport: ({ commit }, data) => {
-    commit('REPORT_REQUEST')
-    return new Promise((resolve, reject) => {
-      api.deleteReport(data).then(response => {
-        commit('REPORT_DESTROYED', data)
-        resolve(response)
-      }).catch(err => {
-        commit('REPORT_ERROR', err.response)
-        reject(err)
-      })
-    })
-  },
   searchReport: ({ commit }, data) => {
     commit('REPORT_REQUEST')
     return new Promise((resolve, reject) => {
@@ -93,16 +57,6 @@ const mutations = {
   REPORT_REPLACED: (state, data) => {
     state.reportStatus = 'success'
     Vue.set(state.reports, data.id, data)
-  },
-  REPORT_UPDATED: (state, params) => {
-    state.reportStatus = 'success'
-    if (params.id in state.reports) {
-      Vue.set(state.reports[params.id], params.prop, params.data)
-    }
-  },
-  REPORT_DESTROYED: (state, id) => {
-    state.reportStatus = 'success'
-    Vue.set(state.reports, id, null)
   },
   REPORT_SUCCESS: (state) => {
     state.reportStatus = 'success'

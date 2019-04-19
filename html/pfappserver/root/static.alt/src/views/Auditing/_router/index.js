@@ -27,7 +27,8 @@ const route = {
     {
       path: 'radiuslogs/search',
       name: 'radiuslogs',
-      component: RadiusLogsSearch
+      component: RadiusLogsSearch,
+      props: (route) => ({ storeName: '$_radius_logs', query: route.query.query })
     },
     {
       path: 'radiuslog/:id',
@@ -47,7 +48,8 @@ const route = {
     {
       path: 'dhcpoption82s/search',
       name: 'dhcpoption82s',
-      component: DhcpOption82LogsSearch
+      component: DhcpOption82LogsSearch,
+      props: (route) => ({ storeName: '$_dhcpoption82_logs', query: route.query.query })
     },
     {
       path: 'dhcpoption82/:mac',

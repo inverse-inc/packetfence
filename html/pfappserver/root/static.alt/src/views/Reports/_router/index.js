@@ -32,7 +32,7 @@ const route = {
       path: 'dynamic/chart/:id([a-zA-Z0-9-_]+)',
       name: 'dynamicReportChart',
       component: DynamicReportChart,
-      props: (route) => ({ storeName: '$_reports', id: route.params.id }),
+      props: (route) => ({ storeName: '$_reports', id: route.params.id, query: route.query.query }),
       beforeEnter: (to, from, next) => {
         store.dispatch('$_reports/getReport', to.params.id).then(object => {
           next()

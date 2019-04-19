@@ -10,11 +10,21 @@
           <b-button-group>
             <b-button type="submit" variant="primary">{{ $t('Search') }}</b-button>
             <b-dropdown variant="primary" right>
-              <b-dropdown-item @click="showSaveSearchModal=true" v-if="canSaveSearch">
-                <icon class="position-absolute mt-1" name="save"></icon>
-                <span class="ml-4">{{ $t('Save Search') }}</span>
-              </b-dropdown-item>
-              <b-dropdown-divider v-if="canSaveSearch"></b-dropdown-divider>
+              <template v-if="canSaveSearch">
+                <b-dropdown-header>{{ $t('Saved Searches') }}</b-dropdown-header>
+                <b-dropdown-item @click="showSaveSearchModal=true">
+                  <icon class="position-absolute mt-1" name="save"></icon>
+                  <span class="ml-4">{{ $t('Save Search') }}</span>
+                </b-dropdown-item>
+                <template v-if="savedSearches.length > 0">
+                  <b-dropdown-item v-for="search in savedSearches" :key="search.name" :to="search.route">
+                    <icon class="position-absolute mt-1" name="trash-alt" @click.native.stop.prevent="deleteSavedSearch(search)"></icon>
+                    <span class="ml-4">{{ search.name }}</span>
+                  </b-dropdown-item>
+                </template>
+                <b-dropdown-divider></b-dropdown-divider>
+              </template>
+              <b-dropdown-header>{{ $t('Import / Export Search') }}</b-dropdown-header>
               <b-dropdown-item @click="showExportJsonModal=true">
                 <icon class="position-absolute mt-1" name="sign-out-alt"></icon>
                 <span class="ml-4">{{ $t('Export to JSON') }}</span>
@@ -44,7 +54,7 @@
       </b-modal>
       <b-modal v-model="showSaveSearchModal" size="sm" centered id="saveSearchModal" :title="$t('Save Search')" @shown="focusSaveSearchInput">
         <b-form-input ref="saveSearchInput" v-model="saveSearchString" type="text"
-          :placeholder="$t('Enter a unique name')"/>
+          :placeholder="$t('Enter a unique name')" @keyup="keyUpSaveSearchInput"/>
         <div slot="modal-footer">
           <b-button variant="secondary" class="mr-1" @click="showSaveSearchModal=false">{{ $t('Cancel') }}</b-button>
           <b-button variant="primary" @click="saveSearch">{{ $t('Save') }}</b-button>
@@ -132,6 +142,9 @@ export default {
     },
     saveSearchString: {
       type: String
+    },
+    saveSearchNamespace: {
+      type: String
     }
   },
   data () {
@@ -144,8 +157,10 @@ export default {
       return JSON.stringify(this.condition)
     },
     canSaveSearch () {
-      const { $store: { _actions: { [`${this.storeName}/addSavedSearch`]: canSaveSearch } = {} } = {} } = this
-      return canSaveSearch
+      return (this.saveSearchNamespace)
+    },
+    savedSearches () {
+      return this.$store.getters['saveSearch/cache'][this.saveSearchNamespace] || []
     }
   },
   methods: {
@@ -194,13 +209,34 @@ export default {
     focusSaveSearchInput () {
       this.$refs.saveSearchInput.focus()
     },
+    keyUpSaveSearchInput (event) {
+      switch (event.keyCode) {
+        case 13: // [ENTER] submits
+          if (this.saveSearchString.length > 0) this.saveSearch()
+          break
+      }
+    },
     saveSearch () {
-      const _this = this
-      this.$store.dispatch(`${this.storeName}/addSavedSearch`, { name: this.saveSearchString, query: this.condition }).then(response => {
-        _this.$store.dispatch('notification/info', { message: _this.$i18n.t('Search saved as ') + '\'' + _this.saveSearchString + '\'' })
-        _this.saveSearchString = ''
-        _this.showSaveSearchModal = false
+      const { $route: { path, params } = {} } = this
+      this.$store.dispatch('saveSearch/set', {
+        namespace: this.saveSearchNamespace,
+        search: {
+          name: this.saveSearchString,
+          route: {
+            path,
+            params,
+            query: {
+              query: JSON.stringify(this.condition)
+            }
+          }
+        }
+      }).then(response => {
+        this.saveSearchString = ''
+        this.showSaveSearchModal = false
       })
+    },
+    deleteSavedSearch (search) {
+      this.$store.dispatch('saveSearch/remove', { namespace: this.saveSearchNamespace, search: { name: search.name } })
     }
   },
   mounted () {

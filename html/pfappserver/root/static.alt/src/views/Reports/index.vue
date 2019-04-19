@@ -36,7 +36,8 @@ export default {
         }).map(report => {
           return {
             name: report.description,
-            path: `/reports/dynamic/chart/${report.id}`
+            path: `/reports/dynamic/chart/${report.id}`,
+            saveSearchNamespace: `dymamicReports::${report.id}`
           }
         })
       })
