@@ -3,7 +3,7 @@ import Vuex from 'vuex'
 import config from './modules/config'
 import notification from './modules/notification'
 import preferences from './modules/preferences'
-import savedSearch from './modules/savedSearch'
+import saveSearch from './modules/saveSearch'
 import services from './modules/services'
 import session from './modules/session'
 import system from './modules/system'
@@ -18,7 +18,7 @@ export default new Vuex.Store({
     config,
     notification,
     preferences,
-    savedSearch,
+    saveSearch,
     services,
     session,
     system
