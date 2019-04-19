@@ -1,5 +1,5 @@
 /**
-* "preferences" store module
+* "saveSearch" store module
 */
 import Vue from 'vue'
 import store from '@/store' // required for 'preferences'
