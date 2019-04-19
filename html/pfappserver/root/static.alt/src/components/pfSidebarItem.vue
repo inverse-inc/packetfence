@@ -32,8 +32,8 @@
         <icon class="mx-1" name="trash-alt" role="button" @click.native.stop.prevent="deleteSavedSearch(search)"></icon>
         <text-highlight :queries="[filter]">{{ search.name }}</text-highlight>
       </b-nav-item>
-    </template>
-  </b-nav>
+    </b-nav>
+  </div>
 </template>
 
 <script>

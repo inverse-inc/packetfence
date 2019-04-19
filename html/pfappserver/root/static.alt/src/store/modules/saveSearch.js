@@ -33,7 +33,7 @@ const actions = {
       commit('SAVED_SEARCH_REPLACED', { namespace, data })
       commit('SAVED_SEARCH_SUCCESS')
       return state.cache[namespace]
-    }).catch(err => { // not exists
+    }).catch(() => { // not exists
       commit('SAVED_SEARCH_REPLACED', { namespace, data: [] })
       commit('SAVED_SEARCH_SUCCESS')
       return state.cache[namespace]
@@ -59,7 +59,7 @@ const actions = {
         return state.cache[namespace]
       }
       let stateCacheCopy = [ ...state.cache[namespace].filter(search => search.name !== name) ]
-      stateCacheCopy.push({ name, route, meta: { created_at: (new Date).getTime(), version: store.getters['system/version'] } })
+      stateCacheCopy.push({ name, route, meta: { created_at: (new Date()).getTime(), version: store.getters['system/version'] } })
       return store.dispatch('preferences/set', { id: `${IDENTIFIER_PREFIX}${namespace}`, data: stateCacheCopy }).then(response => {
         commit('SAVED_SEARCH_REPLACED', { namespace, data: stateCacheCopy })
         store.dispatch('notification/info', { message: i18n.t('Search <code>{name}</code> saved.', { name }) })

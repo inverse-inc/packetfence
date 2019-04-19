@@ -245,8 +245,7 @@ export default {
         const { query: { query: queryB } = {} } = b || {}
         if (!queryA && queryB === JSON.stringify(this.condition)) {
           this.onReset() // clear search
-        }
-        else if (queryA) {
+        } else if (queryA) {
           this.advancedMode = true
           const condition = JSON.parse(queryA)
           this.onSearch(condition) // submit search

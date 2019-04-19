@@ -76,7 +76,7 @@ export default {
       // window.open(encodeURI(`data:text/csv;charset=utf-8,${csvContentArray.join('\r\n')}`))
 
       var blob = new Blob([csvContentArray.join('\r\n')], { type: 'text/csv' })
-      if(window.navigator.msSaveOrOpenBlob) {
+      if (window.navigator.msSaveOrOpenBlob) {
         window.navigator.msSaveBlob(blob, this.filename)
       } else {
         var elem = window.document.createElement('a')

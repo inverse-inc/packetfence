@@ -17,7 +17,7 @@
                   <span class="ml-4">{{ $t('Save Search') }}</span>
                 </b-dropdown-item>
                 <template v-if="savedSearches.length > 0">
-                  <b-dropdown-item v-for="search in savedSearches" :to="search.route">
+                  <b-dropdown-item v-for="search in savedSearches" :key="search.name" :to="search.route">
                     <icon class="position-absolute mt-1" name="trash-alt" @click.native.stop.prevent="deleteSavedSearch(search)"></icon>
                     <span class="ml-4">{{ search.name }}</span>
                   </b-dropdown-item>

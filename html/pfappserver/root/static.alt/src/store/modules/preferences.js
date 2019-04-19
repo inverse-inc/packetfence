@@ -1,7 +1,6 @@
 /**
 * "preferences" store module
 */
-import Vue from 'vue'
 import store from '@/store' // required for 'system/version'
 import apiCall from '@/utils/api'
 
@@ -22,7 +21,6 @@ const api = {
     const { id = null, data = null } = _data
     if (!id) {
       throw new Error('Invalid or missing id.')
-      return
     }
     if (data) {
       let body = {
@@ -30,8 +28,8 @@ const api = {
         value: JSON.stringify({
           data,
           meta: {
-            created_at: (new Date).getTime(),
-            updated_at: (new Date).getTime(),
+            created_at: (new Date()).getTime(),
+            updated_at: (new Date()).getTime(),
             version: store.getters['system/version']
           }
         })
@@ -39,7 +37,9 @@ const api = {
       return apiCall.getQuiet(`preference/${IDENTIFIER_PREFIX}${id}`).then(response => { // exists
         const { data: { item: { value = null } = {} } = {} } = response
         if (value) {
+          // eslint-disable-next-line
           const { meta: { created_at = null } = {} } = JSON.parse(value)
+          // eslint-disable-next-line
           if (created_at) { // retain `created_at`
             body = {
               id: `${IDENTIFIER_PREFIX}${id}`,
@@ -47,7 +47,7 @@ const api = {
                 data,
                 meta: {
                   created_at: created_at,
-                  updated_at: (new Date).getTime(),
+                  updated_at: (new Date()).getTime(),
                   version: store.getters['system/version']
                 }
               })
@@ -57,7 +57,7 @@ const api = {
         return apiCall.putQuiet(`preference/${IDENTIFIER_PREFIX}${id}`, body).then(response => {
           return response.data
         })
-      }).catch(err => { // not exists
+      }).catch(() => { // not exists
         return apiCall.putQuiet(`preference/${IDENTIFIER_PREFIX}${id}`, body).then(response => {
           return response.data
         })
@@ -103,8 +103,7 @@ const actions = {
       commit('PREFERENCE_SUCCESS')
       return response
     }).catch((err) => {
-      const { response } = err
-      commit('PREFERENCE_ERROR', { id, response })
+      commit('PREFERENCE_ERROR', err)
       throw err
     })
   },
@@ -114,8 +113,7 @@ const actions = {
       commit('PREFERENCE_SUCCESS')
       return response
     }).catch((err) => {
-      const { response } = err
-      commit('PREFERENCE_ERROR', { id, response })
+      commit('PREFERENCE_ERROR', err)
       throw err
     })
   },
@@ -125,19 +123,18 @@ const actions = {
       commit('PREFERENCE_SUCCESS')
       return response
     }).catch((err) => {
-      const { response } = err
-      commit('PREFERENCE_ERROR', { id, response })
+      commit('PREFERENCE_ERROR', err)
       throw err
     })
   }
 }
 
 const mutations = {
-  PREFERENCE_REQUEST: (state, id) => {
+  PREFERENCE_REQUEST: (state) => {
     state.requestStatus = types.LOADING
     state.message = ''
   },
-  PREFERENCE_SUCCESS: (state, id) => {
+  PREFERENCE_SUCCESS: (state) => {
     state.requestStatus = types.SUCCESS
     state.message = ''
   },
