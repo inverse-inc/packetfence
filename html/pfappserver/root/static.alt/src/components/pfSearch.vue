@@ -10,11 +10,20 @@
           <b-button-group>
             <b-button type="submit" variant="primary">{{ $t('Search') }}</b-button>
             <b-dropdown variant="primary" right>
-              <b-dropdown-item @click="showSaveSearchModal=true" v-if="canSaveSearch">
-                <icon class="position-absolute mt-1" name="save"></icon>
-                <span class="ml-4">{{ $t('Save Search') }}</span>
-              </b-dropdown-item>
-              <b-dropdown-divider v-if="canSaveSearch"></b-dropdown-divider>
+              <template v-if="canSaveSearch">
+                <b-dropdown-header>{{ $t('Saved Searches') }}</b-dropdown-header>
+                <b-dropdown-item @click="showSaveSearchModal=true">
+                  <icon class="position-absolute mt-1" name="save"></icon>
+                  <span class="ml-4">{{ $t('Save Search') }}</span>
+                </b-dropdown-item>
+                <template v-if="savedSearches.length > 0">
+                  <b-dropdown-item v-for="search in savedSearches" :to="search.route">
+                    <icon class="position-absolute mt-1" name="trash-alt" @click.native.stop.prevent="deleteSavedSearch(search)"></icon>
+                    <span class="ml-4">{{ search.name }}</span>
+                  </b-dropdown-item>
+                </template>
+                <b-dropdown-divider></b-dropdown-divider>
+              </template>
               <b-dropdown-item @click="showExportJsonModal=true">
                 <icon class="position-absolute mt-1" name="sign-out-alt"></icon>
                 <span class="ml-4">{{ $t('Export to JSON') }}</span>
@@ -148,6 +157,9 @@ export default {
     },
     canSaveSearch () {
       return (this.saveSearchNamespace)
+    },
+    savedSearches () {
+      return this.$store.getters['saveSearch/cache'][this.saveSearchNamespace] || []
     }
   },
   methods: {
@@ -197,8 +209,8 @@ export default {
       this.$refs.saveSearchInput.focus()
     },
     keyUpSaveSearchInput (event) {
-      switch (event.keyCode) { // [ENTER] submits
-        case 13:
+      switch (event.keyCode) {
+        case 13: // [ENTER] submits
           if (this.saveSearchString.length > 0) this.saveSearch()
           break
       }
@@ -221,6 +233,9 @@ export default {
         this.saveSearchString = ''
         this.showSaveSearchModal = false
       })
+    },
+    deleteSavedSearch (search) {
+      this.$store.dispatch('saveSearch/remove', { namespace: this.saveSearchNamespace, search: { name: search.name } })
     }
   },
   mounted () {
