@@ -1,5 +1,5 @@
 <template>
-  <b-button type="button" :disabled="disabled" :variant="variant" @click="download()">
+  <b-button type="button" :disabled="disabled || results.length === 0" :variant="variant" @click="download()">
     <icon name="file-export" class="mr-1"></icon>
     <template >
       <slot>{{ $t('Export to CSV') }}</slot>
@@ -45,18 +45,24 @@ export default {
       return results
     },
     visibleColumns () {
-      return this.$store.state[this.searchableStoreName].visibleColumns
+      return this.columns.filter(column => !column.locked && column.visible)
     }
   },
   methods: {
     data () {
       let formatters = {}
-      this.columns.filter(column => !column.locked && column.visible).forEach(column => {
+      this.visibleColumns.forEach(column => {
         if (column.formatter) formatters[column.key] = column.formatter
       })
-      const header = this.columns.filter(column => !column.locked && column.visible).map(column => column.label)
+      const header = this.visibleColumns.map(column => column.label)
+      let keyMap = {} // build map to sort results same as header
+      Object.keys(this.results[0]).forEach(key => {
+        keyMap[key] = this.visibleColumns.findIndex(column => column.key === key)
+      })
       const data = this.results.map(row => {
-        return Object.entries(row).map(_row => {
+        return Object.entries(row).sort((a, b) => {
+          return keyMap[a[0]] - keyMap[b[0]]
+        }).map(_row => {
           const [ key, value ] = _row
           if (key in formatters) {
             return formatters[key](value, key, row) || ''
@@ -76,7 +82,7 @@ export default {
       // window.open(encodeURI(`data:text/csv;charset=utf-8,${csvContentArray.join('\r\n')}`))
 
       var blob = new Blob([csvContentArray.join('\r\n')], { type: 'text/csv' })
-      if (window.navigator.msSaveOrOpenBlob) {
+      if(window.navigator.msSaveOrOpenBlob) {
         window.navigator.msSaveBlob(blob, this.filename)
       } else {
         var elem = window.document.createElement('a')
