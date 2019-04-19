@@ -21,17 +21,17 @@
         <slot/>
       </div>
     </b-nav-item>
-    <b-nav class="pf-sidenav my-2" v-if="showSavedSearch" vertical>
+    <b-nav class="pf-sidenav my-2" v-if="showSavedSearches && savedSearches.length > 0" vertical>
       <div class="pf-sidenav-group" v-t="'Saved Searches'"></div>
       <b-nav-item
         exact-active-class="active"
         v-for="search in savedSearches"
         :key="search.name"
-        :to="toSavedSearch(search)"
-        >
-          <icon class="mx-1" name="trash-alt" role="button" @click.native.stop.prevent="deleteSavedSearch(search)"></icon>
-          <text-highlight :queries="[filter]">{{ search.name }}</text-highlight>
-        </b-nav-item>
+        :to="search.route"
+      >
+        <icon class="mx-1" name="trash-alt" role="button" @click.native.stop.prevent="deleteSavedSearch(search)"></icon>
+        <text-highlight :queries="[filter]">{{ search.name }}</text-highlight>
+      </b-nav-item>
     </template>
   </b-nav>
 </template>
@@ -46,7 +46,7 @@ export default {
   },
   props: {
     item: {
-      default: { name: 'undefined', path: '/', savedSearch: false }
+      default: { name: 'undefined', path: '/' }
     },
     filter: {
       default: ''
@@ -65,32 +65,28 @@ export default {
     }
   },
   computed: {
-    storeName () {
-      const { item: { savedSearch: { storeName = null } = {} } = {} } = this
-      return storeName
-    },
-    routeName () {
-      const { item: { savedSearch: { routeName = null } = {} } = {} } = this
-      return routeName
-    },
-    showSavedSearch () {
-      return this.visible && this.item.savedSearch && this.savedSearches.length > 0
+    showSavedSearches () {
+      const { item: { saveSearchNamespace } = {} } = this
+      return this.visible && saveSearchNamespace
     },
     savedSearches () {
-      return this.$store.state[this.storeName].savedSearches
+      return this.$store.getters['saveSearch/cache'][this.item.saveSearchNamespace] || []
     }
   },
   methods: {
-    toSavedSearch (search) {
-      return { name: this.routeName, query: { query: JSON.stringify(search.query) } }
-    },
     deleteSavedSearch (search) {
-      this.$store.dispatch(`${this.storeName}/deleteSavedSearch`, search)
+      const { item: { saveSearchNamespace } = {} } = this
+      this.$store.dispatch('saveSearch/remove', { namespace: saveSearchNamespace, search: { name: search.name } })
     }
   },
   mounted () {
     if ('can' in this.item) {
       this.visible = this.$can.apply(null, this.item.can.split(' '))
+    }
+    if ('saveSearchNamespace' in this.item) {
+      this.$store.dispatch('saveSearch/get', this.item.saveSearchNamespace).then(savedSearches => {
+        // this.$set(this, 'savedSearches', savedSearches)
+      })
     }
   }
 }

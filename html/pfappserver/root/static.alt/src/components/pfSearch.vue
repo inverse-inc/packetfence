@@ -132,6 +132,9 @@ export default {
     },
     saveSearchString: {
       type: String
+    },
+    saveSearchNamespace: {
+      type: String
     }
   },
   data () {
@@ -144,8 +147,7 @@ export default {
       return JSON.stringify(this.condition)
     },
     canSaveSearch () {
-      const { $store: { _actions: { [`${this.storeName}/addSavedSearch`]: canSaveSearch } = {} } = {} } = this
-      return canSaveSearch
+      return (this.saveSearchNamespace)
     }
   },
   methods: {
@@ -202,11 +204,22 @@ export default {
       }
     },
     saveSearch () {
-      const _this = this
-      this.$store.dispatch(`${this.storeName}/addSavedSearch`, { name: this.saveSearchString, query: this.condition }).then(response => {
-        _this.$store.dispatch('notification/info', { message: _this.$i18n.t('Search saved as ') + '\'' + _this.saveSearchString + '\'' })
-        _this.saveSearchString = ''
-        _this.showSaveSearchModal = false
+      const { $route: { path, params } = {} } = this
+      this.$store.dispatch('saveSearch/set', {
+        namespace: this.saveSearchNamespace,
+        search: {
+          name: this.saveSearchString,
+          route: {
+            path,
+            params,
+            query: {
+              query: JSON.stringify(this.condition)
+            }
+          }
+        }
+      }).then(response => {
+        this.saveSearchString = ''
+        this.showSaveSearchModal = false
       })
     }
   },
