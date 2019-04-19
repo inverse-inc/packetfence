@@ -24,6 +24,7 @@
                 </template>
                 <b-dropdown-divider></b-dropdown-divider>
               </template>
+              <b-dropdown-header>{{ $t('Import / Export Search') }}</b-dropdown-header>
               <b-dropdown-item @click="showExportJsonModal=true">
                 <icon class="position-absolute mt-1" name="sign-out-alt"></icon>
                 <span class="ml-4">{{ $t('Export to JSON') }}</span>
