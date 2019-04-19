@@ -1,25 +1,21 @@
 <template>
-        <b-row>
-            <pf-sidebar v-model="sections">
-                <pf-saved-search :storeName="storeName" :routeName="this.$options.name.toLowerCase()"/>
-            </pf-sidebar>
-            <b-col cols="12" md="9" xl="10" class="mt-3 mb-3">
-                <transition name="slide-bottom">
-                    <router-view></router-view>
-                </transition>
-            </b-col>
-        </b-row>
+  <b-row>
+    <pf-sidebar v-model="sections"></pf-sidebar>
+    <b-col cols="12" md="9" xl="10" class="mt-3 mb-3">
+      <transition name="slide-bottom">
+        <router-view></router-view>
+      </transition>
+    </b-col>
+  </b-row>
 </template>
 
 <script>
 import pfSidebar from '@/components/pfSidebar'
-import pfSavedSearch from '@/components/pfSavedSearch'
 
 export default {
   name: 'Users',
   components: {
-    pfSidebar,
-    pfSavedSearch
+    pfSidebar
   },
   props: {
     storeName: { // from router
@@ -33,7 +29,8 @@ export default {
       sections: [
         {
           name: 'Search',
-          path: '/users/search'
+          path: '/users/search',
+          saveSearchNamespace: 'users'
         },
         {
           name: 'Create',

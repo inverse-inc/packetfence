@@ -4,15 +4,12 @@
 import Vue from 'vue'
 import api from '../_api'
 
-const STORAGE_SAVED_SEARCH = 'users-saved-search'
-
 // Default values
 const state = {
   users: {}, // users details
   userExists: {}, // node exists true|false
   message: '',
-  userStatus: '',
-  savedSearches: JSON.parse(localStorage.getItem(STORAGE_SAVED_SEARCH)) || []
+  userStatus: ''
 }
 
 const getters = {
@@ -20,21 +17,6 @@ const getters = {
 }
 
 const actions = {
-  addSavedSearch: ({ commit }, search) => {
-    let savedSearches = state.savedSearches
-    savedSearches = state.savedSearches.filter(searches => searches.name !== search.name)
-    savedSearches.push(search)
-    savedSearches.sort((a, b) => {
-      return a.name.localeCompare(b.name)
-    })
-    commit('SAVED_SEARCHES_UPDATED', savedSearches)
-    localStorage.setItem(STORAGE_SAVED_SEARCH, JSON.stringify(savedSearches))
-  },
-  deleteSavedSearch: ({ commit }, search) => {
-    let savedSearches = state.savedSearches.filter(searches => searches.name !== search.name)
-    commit('SAVED_SEARCHES_UPDATED', savedSearches)
-    localStorage.setItem(STORAGE_SAVED_SEARCH, JSON.stringify(savedSearches))
-  },
   exists: ({ commit }, pid) => {
     if (state.userExists.hasOwnProperty(pid)) {
       if (state.userExists[pid]) {
@@ -260,9 +242,6 @@ const mutations = {
   },
   USER_NOT_EXISTS: (state, pid) => {
     Vue.set(state.userExists, pid, false)
-  },
-  SAVED_SEARCHES_UPDATED: (state, searches) => {
-    state.savedSearches = searches
   }
 }
 

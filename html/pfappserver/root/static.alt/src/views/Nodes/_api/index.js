@@ -29,6 +29,11 @@ export default {
       return response.data.item
     })
   },
+  rapid7Info: mac => {
+    return apiCall.getQuiet(`node/${mac}/rapid7`).then(response => {
+      return response.data.item
+    })
+  },
   ip4logOpen: mac => {
     return apiCall.getQuiet(`ip4logs/open/${mac}`).then(response => {
       return response.data.item
