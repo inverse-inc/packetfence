@@ -93,7 +93,6 @@ export default {
           })
           break
       }
-      console.log('toggle', event, item, this.$store)
     }
   },
   created () {
