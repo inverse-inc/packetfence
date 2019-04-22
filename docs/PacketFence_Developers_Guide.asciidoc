@@ -350,6 +350,12 @@ Start the `packetfence-iptables` service.
 
 |===
 
+==== Shell commands in code blocks
+
+.To ease copy-paste of shell commands:
+* Remove useless characters in code blocks like `#` or `$`
+* Split long lines with `\`
+
 
 === Checklist to create a new guide
 
