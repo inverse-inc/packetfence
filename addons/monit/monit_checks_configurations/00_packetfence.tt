@@ -176,7 +176,7 @@ CHECK PROCESS packetfence-winbind MATCHING "winbindd-wrapper"
     if 3 restarts within 10 cycles then alert
 
 [% FOREACH domain IN DOMAINS.keys %]
-CHECK PROCESS packetfence-winbind-[% domain %] MATCHING "/chroots/[% domain %] /usr/sbin/winbindd"
+CHECK PROCESS packetfence-winbind-[% domain %] MATCHING "/usr/sbin/winbindd -s /etc/samba/[% domain %].conf -l /var/log/samba[% domain %] --foreground"
     group PacketFence
     if changed ppid then alert
     depends on packetfence-winbind
