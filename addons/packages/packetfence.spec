@@ -303,7 +303,7 @@ Requires: perl(DateTime::TimeZone)
 
 Requires: samba-winbind-clients, samba-winbind
 Requires: libdrm >= 2.4.74
-Requires: netdata, fping, MySQL-python
+Requires: netdata < 1.11.0., fping, MySQL-python
 #OpenVAS
 Requires: openvas-cli
 Requires: openvas-libraries
