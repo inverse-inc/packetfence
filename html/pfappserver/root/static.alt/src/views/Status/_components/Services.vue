@@ -1,9 +1,6 @@
 <template>
-  <b-card class="mt-3" no-body>
-    <b-card-header>
-      <h4 class="mb-0" v-t="'Services'"></h4>
-    </b-card-header>
-    <b-card no-body class="m-3">
+  <div>
+    <b-card no-body class="mt-3">
       <b-card-header>
         <h4 class="d-inline mb-0" v-t="'Protected Services'"></h4>
         <p class="mt-3 mb-0" v-t="'These services can not be managed since they are required in order for this page to function.'"></p>
@@ -51,7 +48,7 @@
       </div>
     </b-card>
 
-    <b-card no-body class="m-3">
+    <b-card no-body class="mt-3">
       <b-card-header>
         <h4 class="d-inline mb-0" v-t="'Manageable Services'"></h4>
       </b-card-header>
@@ -111,7 +108,7 @@
         </b-table>
       </div>
     </b-card>
-  </b-card>
+  </div>
 </template>
 
 <script>
