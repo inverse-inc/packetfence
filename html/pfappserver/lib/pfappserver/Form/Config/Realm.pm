@@ -53,7 +53,19 @@ has_field 'domain' =>
    element_class => ['chzn-deselect'],
    element_attr => {'data-placeholder' => 'Click to select a domain'},
    tags => { after_element => \&help,
-             help => 'The domain to use for the authentication in that realm' },
+             help => 'The domain to use for the NTLM authentication in that realm' },
+  );
+
+has_field 'source' =>
+  (
+   type => 'Select',
+   multiple => 0,
+   label => 'Source',
+   options_method => \&options_dot1x,
+   element_class => ['chzn-deselect'],
+   element_attr => {'data-placeholder' => 'Click to select a source'},
+   tags => { after_element => \&help,
+             help => 'The source to use for the authentication in that realm' },
   );
 
 has_field 'radius_auth' =>
@@ -220,6 +232,17 @@ sub options_radius {
     my @radius = map { $_ => $_ } keys %pf::config::ConfigAuthenticationRadius;
     unshift @radius, ("" => "");
     return @radius;
+}
+
+=head2 options_dot1x
+
+=cut
+
+sub options_dot1x {
+    my $self = shift;
+    my @dot1x = map { $_ => $_ } keys %ConfigAuthentication8021x;
+    unshift @dot1x, ("" => "");
+    return @dot1x;
 }
 
 =over

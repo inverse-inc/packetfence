@@ -10,9 +10,10 @@
 
   <div class="modal-body">
         [% form.field('id').render | none UNLESS item.id %]
-        <h2 style="text-align: center;"><span>NTLM Auth Configuration</span></h2>
+        <h2 style="text-align: center;"><span>PEAP Auth Configuration</span></h2>
         <div class="card-block">
         [% form.field('domain').render | none %]
+        [% form.field('source').render | none %]
         </div>
         <h2 style="text-align: center;"><span>Freeradius Proxy Configuration</span></h2>
         <div class="card-block">
