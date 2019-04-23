@@ -111,8 +111,8 @@ export default {
       this.$set(this.tableValues[index], '_rowMessage', message)
       this.forceUpdate()
     },
-    onSelectAllChange (event) {
-      this.selectValues = this.selectAll ? this.tableValues : []
+    onSelectAllChange (checked) {
+      this.selectValues = checked ? this.tableValues : []
     },
     clearSelected () {
       this.selectValues = []

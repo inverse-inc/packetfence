@@ -115,14 +115,14 @@
           hover outlined responsive show-empty no-local-sorting striped>
             <template slot="HEAD_actions" slot-scope="head">
               <div class="text-center">
-                <input type="checkbox" id="checkallnone" v-model="selectAll" @change="onSelectAllChange" @click.stop />
-                <b-tooltip target="checkallnone" placement="right" v-if="selectValues.length === tableValues.length">{{$t('Select None [ALT+N]')}}</b-tooltip>
-                <b-tooltip target="checkallnone" placement="right" v-else>{{$t('Select All [ALT+A]')}}</b-tooltip>
+                <b-form-checkbox id="checkallnone" v-model="selectAll" @change="onSelectAllChange"></b-form-checkbox>
+                <b-tooltip target="checkallnone" placement="right" v-if="selectValues.length === tableValues.length">{{ $t('Select None [ALT+N]') }}</b-tooltip>
+                <b-tooltip target="checkallnone" placement="right" v-else>{{ $t('Select All [ALT+A]') }}</b-tooltip>
               </div>
             </template>
             <template slot="actions" slot-scope="data">
               <div class="text-center">
-                <input type="checkbox" :id="data.value" :value="data.item" :disabled="rowDisabled(data.index)" v-model="selectValues" @click.stop="onToggleSelected($event, data.index)" />
+                <b-form-checkbox :id="data.value" :value="data.item" :disabled="rowDisabled(data.index)" v-model="selectValues" @click.native.stop="onToggleSelected($event, data.index)"></b-form-checkbox>
                 <icon name="exclamation-triangle" class="ml-1" v-if="rowMessage(data.index)" v-b-tooltip.hover.right :title="rowMessage(data.index)"></icon>
               </div>
             </template>

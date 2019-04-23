@@ -110,12 +110,12 @@
         @sort-changed="onSortingChanged" @row-clicked="onRowClick" @head-clicked="clearSelected"
         show-empty responsive hover no-local-sorting striped>
         <template slot="HEAD_actions" slot-scope="head">
-          <input type="checkbox" id="checkallnone" v-model="selectAll" :disabled="isLoading" @change="onSelectAllChange" @click.stop>
-          <b-tooltip target="checkallnone" placement="right" v-if="selectValues.length === tableValues.length">{{$t('Select None [ALT+N]')}}</b-tooltip>
-          <b-tooltip target="checkallnone" placement="right" v-else>{{$t('Select All [ALT+A]')}}</b-tooltip>
+          <b-form-checkbox id="checkallnone" v-model="selectAll" :disabled="isLoading" @change="onSelectAllChange"></b-form-checkbox>
+          <b-tooltip target="checkallnone" placement="right" v-if="selectValues.length === tableValues.length">{{ $t('Select None [ALT+N]') }}</b-tooltip>
+          <b-tooltip target="checkallnone" placement="right" v-else>{{ $t('Select All [ALT+A]') }}</b-tooltip>
         </template>
         <template slot="actions" slot-scope="data">
-          <input type="checkbox" :disabled="isLoading" :id="data.value" :value="data.item" v-model="selectValues" @click.stop="onToggleSelected($event, data.index)">
+          <b-form-checkbox :disabled="isLoading" :id="data.value" :value="data.item" v-model="selectValues" @click.native.stop="onToggleSelected($event, data.index)"></b-form-checkbox>
           <!--
           <icon name="exclamation-triangle" class="ml-1" v-if="tableValues[data.index]._rowMessage" v-b-tooltip.hover.right.d300 :title="tableValues[data.index]._rowMessage"></icon>
           -->
