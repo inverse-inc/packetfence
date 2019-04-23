@@ -172,7 +172,7 @@ export default {
     }, this.statsIntervalTimeout)
   },
   beforeDestroy () {
-    if (this.statsInterval) this.clearInterval(this.statsInterval)
+    if (this.statsInterval) clearInterval(this.statsInterval)
   }
 }
 </script>
