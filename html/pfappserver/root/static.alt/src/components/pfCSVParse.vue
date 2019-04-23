@@ -45,21 +45,17 @@
 <template>
   <b-form @submit.prevent="doExport()">
     <b-card no-body>
-      <b-tabs v-model="tabIndex" card class="">
+      <b-tabs v-model="tabIndex" card>
 
         <b-tab :title="$t('CSV File Contents')">
-          <div class="d-flex flex-column">
-            <div class="flex-grow-1 overflow-hidden border-top border-right border-bottom border-left" ref="editorContainer">
-              <ace-editor
-                v-model="file.result"
-                :lang="mode"
-                :theme="theme"
-                :height="editorHeight"
-                :options="editorOptions"
-                @init="initEditor"
-              ></ace-editor>
-            </div>
-          </div>
+          <ace-editor
+            v-model="file.result"
+            :lang="mode"
+            :theme="theme"
+            :height="editorHeight"
+            :options="editorOptions"
+            @init="initEditor"
+          ></ace-editor>
         </b-tab>
 
         <b-tab :title="$t('CSV Parser Options')">
@@ -92,7 +88,7 @@
         </b-tab>
 
         <b-tab :title="$t('Import Data')">
-          <b-container fluid v-if="items.length">
+          <b-container fluid v-if="items.length" class="overflow-auto">
             <b-row align-v="center" class="float-right">
               <b-form inline class="mb-0">
                 <b-form-select class="mb-3 mr-3" size="sm" v-model="pageSizeLimit" :options="[10,25,50,100]" :disabled="isLoading"
@@ -103,16 +99,16 @@
             </b-row>
           </b-container>
           <b-table
-          v-if="items.length"
-          v-model="tableValues"
-          :disabled="isLoading"
-          :ref="uuidStr('table')"
-          :items="items" :fields="columns"
-          :sort-by="sortBy" :sort-desc="sortDesc"
-          @sort-changed="onSortingChanged"
-          @row-clicked="onRowClick"
-          @head-clicked="clearSelected"
-          hover outlined responsive show-empty no-local-sorting striped>
+            v-if="items.length"
+            v-model="tableValues"
+            :disabled="isLoading"
+            :ref="uuidStr('table')"
+            :items="items" :fields="columns"
+            :sort-by="sortBy" :sort-desc="sortDesc"
+            @sort-changed="onSortingChanged"
+            @row-clicked="onRowClick"
+            @head-clicked="clearSelected"
+            hover outlined responsive show-empty no-local-sorting striped>
             <template slot="HEAD_actions" slot-scope="head">
               <div class="text-center">
                 <b-form-checkbox id="checkallnone" v-model="selectAll" @change="onSelectAllChange"></b-form-checkbox>
@@ -273,7 +269,7 @@
                 <icon v-if="isLoading" name="sync" scale="2" spin></icon>
                 <b-media v-else>
                   <icon name="ruler-combined" scale="2" slot="aside"></icon>
-                  <h5>CSV could not be parsed</h5>
+                  <h5 v-t="'CSV could not be parsed'"></h5>
                   <p class="font-weight-light">{{ $t('Please refine CSV parser options.') }}</p>
                 </b-media>
               </b-col>
@@ -400,7 +396,7 @@ export default {
       fieldTypeValues: fieldTypeValues,
       parentNodes: [],
       editor: null,
-      editorHeight: '0px',
+      editorHeight: '60vh',
       editorOptions: {
         enableLiveAutocompletion: true,
         showPrintMargin: false,
@@ -632,33 +628,6 @@ export default {
       require(`brace/theme/${this.theme}`)
       this.editor = instance
       this.editor.setAutoScrollEditorIntoView(true)
-    },
-    resizeEditor () {
-      this.editorHeight = this.$refs.editorContainer.clientHeight + 'px'
-      this.editor.resize()
-    },
-    expandParentNodes () {
-      // apply "h-100" class to all parent nodes
-      if (this.parentNodes.length === 0) {
-        // Find all parent DOM nodes
-        let parentNode = this.$refs.editorContainer
-        while (parentNode && 'classList' in parentNode) {
-          this.parentNodes.push(parentNode)
-          parentNode = parentNode.parentNode
-        }
-      }
-      // Force all parent nodes to take 100% of the window height
-      this.parentNodes.forEach(node => {
-        node.classList.add('h-100')
-      })
-      window.addEventListener('resize', this.resizeEditor)
-    },
-    collapseParentNodes () {
-      // Remove height constraint on all parent nodes
-      this.parentNodes.forEach(node => {
-        node.classList.remove('h-100')
-      })
-      window.removeEventListener('resize', this.resizeEditor)
     }
   },
   computed: {
@@ -770,24 +739,14 @@ export default {
   mounted () {
     // reset `file` when page reloaded, remove w/ $store implementation
     this.parseDebounce()
-    this.resizeInterval = setInterval(() => {
-      if (this.tabIndex === 0) {
-        this.expandParentNodes()
-        this.resizeEditor()
-      }
-    }, 300)
   },
   beforeDestroy () {
-    if (this.resizeInterval) {
-      clearInterval(this.resizeInterval)
-    }
     if (this.parseTimeout) {
       clearTimeout(this.parseTimeout)
     }
     if (this.validateTimeout) {
       clearTimeout(this.validateTimeout)
     }
-    this.collapseParentNodes()
   }
 }
 </script>
