@@ -24,6 +24,34 @@ our %LIKE_FORMAT = (
     starts_with => '%s%%',
 );
 
+our %OP_HAS_SUBQUERIES = (
+    'and' => 1,
+    'or' => 1,
+);
+
+our %OP_NULLABLE = (
+    equals      => 1,
+    not_equals  => 1,
+);
+
+our %OP_BETWEEN = (
+    between     => 1,
+    not_between => 1,
+);
+
+our %OP_HAS_VALUE = (
+    equals              => 1,
+    not_equals          => 1,
+    greater_than        => 1,
+    less_than           => 1,
+    greater_than_equals => 1,
+    less_than_equals    => 1,
+    contains            => 1,
+    ends_with           => 1,
+    starts_with         => 1,
+);
+
+
 our %OP_TO_SQL_OP = (
     equals              => '=',
     not_equals          => '!=',
@@ -59,6 +87,53 @@ our %OP_TO_HANDLER = (
         return { $q->{field} => { "-not_between" => $q->{values} } };
     },
 );
+
+
+
+=head2 is_nullable
+
+is_nullable
+
+=cut
+
+sub is_nullable {
+    my ($op) = @_;
+    return exists $OP_NULLABLE{$op};
+}
+
+
+=head2 is_sub_query
+
+is_sub_query
+
+=cut
+
+sub is_sub_query {
+    my ($op) = @_;
+    return exists $OP_HAS_SUBQUERIES{$op};
+}
+
+=head2 is_between
+
+is_between
+
+=cut
+
+sub is_between {
+    my ($op) = @_;
+    return exists $OP_BETWEEN{$op};
+}
+
+=head2 has_value
+
+has_value
+
+=cut
+
+sub has_value {
+    my ($op) = @_;
+    return exists $OP_HAS_VALUE{$op};
+}
 
 =head2 logical_query_to_sql
 
