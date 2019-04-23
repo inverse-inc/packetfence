@@ -3,6 +3,7 @@ import StatusView from '../'
 import StatusStore from '../_store'
 import Dashboard from '../_components/Dashboard'
 import Services from '../_components/Services'
+import Queue from '../_components/Queue'
 
 const route = {
   path: '/status',
@@ -36,6 +37,14 @@ const route = {
       path: 'services',
       component: Services,
       props: { storeName: '$_status' },
+      meta: {
+        can: 'read services'
+      }
+    },
+    {
+      path: 'queue',
+      component: Queue,
+      props: { storeName: 'pfqueue' },
       meta: {
         can: 'read services'
       }

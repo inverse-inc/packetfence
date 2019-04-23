@@ -80,7 +80,7 @@
           <template slot="empty">
             <pf-empty-table :isLoading="isLoading">{{ $t('No Services found') }}</pf-empty-table>
           </template>
-          <template slot="name" slot-scope="service">
+          <template slot="name" slot-scope="service" class="align-items-center">
             <icon v-if="!service.item.alive && service.item.managed"
               name="exclamation-triangle" size="sm" class="text-danger mr-1" v-b-tooltip.hover.top.d300 :title="$t('Service {name} is required with this configuration.', { name: service.item.name})"></icon>
             <icon v-if="service.item.alive && !service.item.managed"
@@ -121,14 +121,12 @@
 
 <script>
 import pfEmptyTable from '@/components/pfEmptyTable'
-import pfFormToggle from '@/components/pfFormToggle'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 
 export default {
   name: 'Services',
   components: {
     pfEmptyTable,
-    pfFormToggle,
     pfFormRangeToggle
   },
   props: {
@@ -155,12 +153,7 @@ export default {
       return this.$store.getters[`${this.storeName}/isServicesRestarting`]
     },
     manageableServices () {
-      return this.$store.state[this.storeName].services.filter(service => !(this.blacklistedServices.includes(service.name))).map(service => {
-        if ((service.managed && !service.alive) || (!service.managed && service.alive)) {
-          service._rowVariant = 'warning'
-        }
-        return service
-      })
+      return this.$store.state[this.storeName].services.filter(service => !(this.blacklistedServices.includes(service.name)))
     },
     protectedServices () {
       return this.$store.state[this.storeName].services.filter(service => this.blacklistedServices.includes(service.name))
