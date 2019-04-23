@@ -24,12 +24,14 @@ use pf::config qw(%Doc_Config);
 
 # Form fields
 
+our $META = pf::Authentication::Source::SponsorEmailSource->meta;
+
 has_field 'email_activation_timeout' =>
   (
    type => 'Duration',
    label => 'Email Activation Timeout',
    required => 1,
-   default => pfappserver::Form::Field::Duration->duration_inflate(pf::Authentication::Source::SponsorEmailSource->meta->get_attribute('email_activation_timeout')->default),
+   default => pfappserver::Form::Field::Duration->duration_inflate($META->get_attribute('email_activation_timeout')->default),
    tags => { after_element => \&help,
              help => 'Delay given to a sponsor to click the activation link.' },
   );
@@ -61,7 +63,7 @@ has_field 'validate_sponsor' =>
    checkbox_value => 'yes',
    unchecked_value => 'no',
    label => 'Sponsor Validation',
-   default => pf::Authentication::Source::SponsorEmailSource->meta->get_attribute('validate_sponsor')->default,
+   default => $META->get_attribute('validate_sponsor')->default,
    tags => { after_element => \&help,
              help => 'Force sponsor to authenticate when validating a guest request.' },
   );
