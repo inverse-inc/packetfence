@@ -45,7 +45,6 @@ has_field api_parameters => (
     type => 'Text',
     do_label => 0,
     required => 1,
-    default => ' ',
     widget_wrapper => 'None',
     element_class => ['input-xxlarge'],
 );

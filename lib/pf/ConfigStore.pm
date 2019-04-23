@@ -549,26 +549,25 @@ sub commit {
     eval {
         $result = $self->rewriteConfig();
     };
-    if($@) {
+
+    if ($@) {
         $error = $@;
-        get_logger->error($error);
+        get_logger->error("rewriteConfig: $error");
     }
 
-    if($result){
-        if(pf::config::cluster::increment_config_version()) {
+    if ($result){
+        if (pf::config::cluster::increment_config_version()) {
             ($result,$error) = $self->commitPfconfig;
-        }
-        else {
+        } else {
             $result = $FALSE;
             $error = "Can't increment configuration version.";
         }
-    }
-    else {
+    } else {
         $error //= "Unable to commit changes to file please run '/usr/local/pf/bin/pfcmd fixpermissions' and try again";
         $self->rollback();
     }
 
-    if($error) {
+    if ($error) {
         get_logger->error($error);
     }
 
@@ -593,9 +592,9 @@ sub commitPfconfig {
         }
     }
     else{
-        get_logger->error("Can't expire pfconfig in ".ref($self)." because the pfconfig namespace is not defined.");
+        get_logger->warn("Can't expire pfconfig in ".ref($self)." because the pfconfig namespace is not defined.");
     }
-    return (1,"OK");
+    return (1, undef);
 }
 
 sub commitCluster {
