@@ -35,7 +35,11 @@ sub inflate {
 
 sub deflate {
     my ($self, $value) = @_;
-    return isenabled($value) ? $self->checkbox_value : $self->unchecked_value;
+    if ($self->required) {
+        return $self->inflate($value);
+    }
+
+    return !defined $value ? undef : $self->inflate($value)
 }
 
 sub value {
