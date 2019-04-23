@@ -178,7 +178,7 @@ Navigate to menu:File[Import>Import csv] to import a csv file.
 
 a|Navigate to menu:File[Import>Import csv] to import a csv file.
 
-|GUI button and menu (non experimental)
+|GUI button and menu (non-experimental)
 
 a|
 ....
