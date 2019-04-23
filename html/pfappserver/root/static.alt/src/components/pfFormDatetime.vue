@@ -223,7 +223,7 @@ export default {
           i += 1
         }
         let abbr = validMomentKeys[i]
-        return ((amount > 0) ? '+' : '') + amount.toString() + abbr
+        return ((amount > 0) ? '+' : '') + amount.toString() + abbr.toUpperCase()
       }
       return null
     },
