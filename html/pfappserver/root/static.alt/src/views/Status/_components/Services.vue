@@ -80,6 +80,13 @@
           <template slot="empty">
             <pf-empty-table :isLoading="isLoading">{{ $t('No Services found') }}</pf-empty-table>
           </template>
+          <template slot="name" slot-scope="service">
+            <icon v-if="!service.item.alive && service.item.managed"
+              name="exclamation-triangle" size="sm" class="text-danger mr-1" v-b-tooltip.hover.top.d300 :title="$t('Service {name} is required with this configuration.', { name: service.item.name})"></icon>
+            <icon v-if="service.item.alive && !service.item.managed"
+              name="exclamation-triangle" size="sm" class="text-success mr-1" v-b-tooltip.hover.top.d300 :title="$t('Service {name} is not required with this configuration.', { name: service.item.name})"></icon>
+            {{ service.item.name }}
+          </template>
           <template slot="enabled" slot-scope="service">
             <pf-form-range-toggle
               v-model="service.item.enabled"
@@ -90,13 +97,14 @@
               @click.stop.prevent
             >{{ (service.item.enabled === true) ? $t('Enabled') : $t('Disabled') }}</pf-form-range-toggle>
           </template>
-          <template slot="alive" slot-scope="service">
+          <template slot="alive" slot-scope="service" class="text-nowrap">
             <pf-form-range-toggle
               v-model="service.item.alive"
               :values="{ checked: true, unchecked: false }"
               :icons="{ checked: 'check', unchecked: 'times' }"
               :colors="{ checked: 'var(--success)', unchecked: 'var(--danger)' }"
               :disabled="![200, 'error'].includes(service.item.status) || !('alive' in service.item)"
+              class="d-inline"
               @input="toggleRunning(service.item, $event)"
               @click.stop.prevent
             >{{ (service.item.alive === true) ? $t('Running') : $t('Stopped') }}</pf-form-range-toggle>
@@ -147,7 +155,12 @@ export default {
       return this.$store.getters[`${this.storeName}/isServicesRestarting`]
     },
     manageableServices () {
-      return this.$store.state[this.storeName].services.filter(service => !(this.blacklistedServices.includes(service.name)))
+      return this.$store.state[this.storeName].services.filter(service => !(this.blacklistedServices.includes(service.name))).map(service => {
+        if ((service.managed && !service.alive) || (!service.managed && service.alive)) {
+          service._rowVariant = 'warning'
+        }
+        return service
+      })
     },
     protectedServices () {
       return this.$store.state[this.storeName].services.filter(service => this.blacklistedServices.includes(service.name))
