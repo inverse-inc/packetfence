@@ -19,12 +19,6 @@ use pf::SQL::Abstract;
 use pf::UnifiedApi::Search;
 use pf::error qw(is_error);
 
-our %OP_HAS_SUBQUERIES = (
-    'and' => 1,
-    'or' => 1,
-);
-
-
 =head2 $self->search($search_info)
 
 Search using search_info
@@ -378,7 +372,7 @@ sub verify_query {
         return 422, {message => "$op is not valid"};
     }
 
-    if (exists $OP_HAS_SUBQUERIES{$op}) {
+    if (pf::UnifiedApi::Search::is_sub_query($op)) {
         for my $q (@{$query->{values} // []}) {
             my ($status, $query) = $self->verify_query($s, $q);
             if (is_error($status)) {
@@ -387,8 +381,9 @@ sub verify_query {
         }
     } else {
         my $field = $query->{field};
-        if ( !$self->is_valid_query($s, $query)) {
-            return 422, {message => "$field is an invalid field"};
+        my $err_msg = $self->valid_query($s, $query);
+        if ( defined $err_msg ) {
+            return 422, {message => $err_msg};
         }
 
         push @{$s->{found_fields}}, $field;
@@ -435,17 +430,42 @@ sub is_field_rewritable {
 }
 
 
-=head2 $self->is_valid_query($search_info, $query)
+=head2 $self->valid_query($search_info, $query)
 
-Checks if a query is a valid query
+Returns undef if it is a valid query or an error string if invalid
 
-    my $bool = $self->is_valid_query($search_info, $query)
+    my $err_msg = $self->valid_query($search_info, $query)
 
 =cut
 
-sub is_valid_query {
+sub valid_query {
     my ($self, $s, $q) = @_;
-    return $self->is_valid_field($s, $q->{field});
+    my $field = $q->{field};
+    if (!$self->is_valid_field($s, $q->{field})) {
+        return "$field is an invalid field";
+    }
+
+    my $op = $q->{op};
+    if (pf::UnifiedApi::Search::has_value($op) && !defined $q->{value} && !pf::UnifiedApi::Search::is_nullable($op)) {
+        return "value for $op cannot be null";
+    }
+
+    if (pf::UnifiedApi::Search::is_between($op)) {
+        my $values = $q->{values};
+        if (!defined $values) {
+            return "values for $op cannot be null";
+        }
+
+        if (ref($values) ne 'ARRAY') {
+            return "values must be an array";
+        }
+
+        if (@$values != 2) {
+            return "$op values must be an array of size 2";
+        }
+    }
+
+    return undef;
 }
 
 =head2 $self->is_valid_op($search_info, $op)

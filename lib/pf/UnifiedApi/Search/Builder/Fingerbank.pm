@@ -19,12 +19,7 @@ use SQL::Abstract;
 use pf::UnifiedApi::Search;
 use fingerbank::DB_Factory;
 use pf::error qw(is_error);
-
-our %OP_HAS_SUBQUERIES = (
-    'and' => 1,
-    'or' => 1,
-);
-
+extends qw(pf::UnifiedApi::Search::Builder);
 
 =head2 $self->search($search_info)
 
@@ -320,42 +315,6 @@ sub is_table_field {
     return $s->{source}->has_column($f);
 }
 
-=head2 $self->verify_query($search_info, $query)
-
-    my ($http_status, $query_or_error) = $self->verify_query($search_info, $query);
-
-=cut
-
-sub verify_query {
-    my ($self, $s, $query) = @_;
-    my $op = $query->{op} // '(null)';
-    if (!$self->is_valid_op($op)) {
-        return 422, {message => "$op is not valid"};
-    }
-
-    if (exists $OP_HAS_SUBQUERIES{$op}) {
-        for my $q (@{$query->{values} // []}) {
-            my ($status, $query) = $self->verify_query($s, $q);
-            if (is_error($status)) {
-                return $status, $query;
-            }
-        }
-    } else {
-        my $field = $query->{field};
-        if ( !$self->is_valid_query($s, $query)) {
-            return 422, {message => "$field is an invalid field"};
-        }
-
-        push @{$s->{found_fields}}, $field;
-        (my $status, $query) = $self->rewrite_query($s, $query);
-        if (is_error($status)) {
-            return $status, $query;
-        }
-    }
-
-    return (200, $query);
-}
-
 =head2 rewrite_query
 
 rewrite_query
@@ -387,33 +346,6 @@ is_field_rewritable
 sub is_field_rewritable {
     my ($self, $s, $f) = @_;
     return exists $self->allowed_join_fields->{$f}{rewrite_query};
-}
-
-
-=head2 $self->is_valid_query($search_info, $query)
-
-Checks if a query is a valid query
-
-    my $bool = $self->is_valid_query($search_info, $query)
-
-=cut
-
-sub is_valid_query {
-    my ($self, $s, $q) = @_;
-    return $self->is_valid_field($s, $q->{field});
-}
-
-=head2 $self->is_valid_op($search_info, $op)
-
-Checks if a query is a valid query
-
-    my $bool = $self->is_valid_op($search_info, $op)
-
-=cut
-
-sub is_valid_op {
-    my ($self, $op) = @_;
-    return pf::UnifiedApi::Search::valid_op($op);
 }
 
 =head2 $self->make_where($search_info)

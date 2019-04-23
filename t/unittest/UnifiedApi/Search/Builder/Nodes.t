@@ -24,7 +24,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 27;
+use Test::More tests => 39;
 
 #This test will running last
 use Test::NoWarnings;
@@ -69,6 +69,225 @@ my $sb = pf::UnifiedApi::Search::Builder::Nodes->new();
         ],
         'Return the joined tables'
     );
+}
+
+{
+    my @f = qw(mac);
+    my %search_info = (
+        dal => $dal,
+        fields => \@f,
+        query => {
+            op => 'and',
+            values => [
+                {
+                    op => 'equals',
+                    field => 'ip4log.ip',
+                    value => undef,
+                },
+                {
+                    op => 'not_equals',
+                    field => 'mac',
+                    value => undef,
+                },
+            ]
+        },
+    );
+
+    is_deeply(
+        [ $sb->make_columns( \%search_info ) ],
+        [
+            200,
+            [
+                'node.mac',
+            ],
+        ],
+        'Return the columns'
+    );
+
+    is_deeply(
+        [ $sb->make_where(\%search_info) ],
+        [
+            200,
+            {
+                '-and' => [
+                    {
+                        'ip4log.ip' => {
+                            '=' => undef
+                        }
+                    },
+                    {
+                        'node.mac' => {
+                            '!=' => undef
+                        }
+                    }
+                ]
+            }
+        ],
+        'Return the joined tables'
+    );
+
+}
+
+{
+    my @f = qw(mac);
+    my %search_info = (
+        dal => $dal,
+        fields => \@f,
+        query => {
+            op    => 'greater_than',
+            field => 'ip4log.ip',
+            value => undef,
+        },
+    );
+
+    is_deeply(
+        [ $sb->make_columns( \%search_info ) ],
+        [
+            200,
+            [
+                'node.mac',
+            ],
+        ],
+        'Return the columns'
+    );
+
+    is_deeply(
+        [ $sb->make_where(\%search_info) ],
+        [
+            422,
+            {
+                message => 'value for greater_than cannot be null',
+            }
+        ],
+        'Return the joined tables'
+    );
+
+}
+
+
+{
+    my @f = qw(mac);
+    my %q = (
+        op     => 'between',
+        field  => 'ip4log.ip',
+        values => undef,
+    );
+    my %search_info = (
+        dal    => $dal,
+        fields => \@f,
+        query  => \%q,
+    );
+
+    is_deeply(
+        [ $sb->make_columns( \%search_info ) ],
+        [
+            200,
+            [
+                'node.mac',
+            ],
+        ],
+        'Return the columns'
+    );
+
+    is_deeply(
+        [ $sb->make_where(\%search_info) ],
+        [
+            422,
+            {
+                message => 'values for between cannot be null',
+            }
+        ],
+        'values cannot be null'
+    );
+    $q{values} = [];
+
+    is_deeply(
+        [ $sb->make_where(\%search_info) ],
+        [
+            422,
+            {
+                message => 'between values must be an array of size 2',
+            }
+        ],
+        'values must be an array of 2'
+    );
+
+    push @{$q{values}}, 1;
+
+    is_deeply(
+        [ $sb->make_where(\%search_info) ],
+        [
+            422,
+            {
+                message => 'between values must be an array of size 2',
+            }
+        ],
+        'values must be an array of 2'
+    );
+    push @{$q{values}}, 2;
+    is_deeply(
+        [ $sb->make_where(\%search_info) ],
+        [
+            200,
+            {
+                'ip4log.ip' => {
+                    -between => [1,2],
+                }
+            }
+        ],
+        'values must be an array of 2'
+    );
+    push @{$q{values}}, 2;
+    is_deeply(
+        [ $sb->make_where(\%search_info) ],
+        [
+            422,
+            {
+                message => 'between values must be an array of size 2',
+            }
+        ],
+        'values must be an array of 2'
+    );
+}
+
+{
+    my @f = qw(mac);
+    my %search_info = (
+        dal => $dal,
+        fields => \@f,
+        query => {
+            op => 'equals',
+            field => 'ip4log.ip',
+            value => undef,
+        },
+    );
+
+    is_deeply(
+        [ $sb->make_columns( \%search_info ) ],
+        [
+            200,
+            [
+                'node.mac',
+            ],
+        ],
+        'Return the columns'
+    );
+
+    is_deeply(
+        [
+            $sb->make_where(\%search_info)
+        ],
+        [
+            200,
+            {
+                'ip4log.ip' => {
+                    '=' => undef,
+                },
+            },
+        ],
+        'Return the joined tables'
+    );
+
 }
 
 {
