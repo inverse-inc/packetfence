@@ -193,7 +193,7 @@ Get all the sections as an array of hash refs
 sub readAll {
     my ($self,$idKey) = @_;
     my $config = $self->cachedConfig;
-    my $default_section = $self->default_section if(defined($self->default_section));
+    my $default_section = $self->default_section;
     my @sections;
     foreach my $id ($self->_Sections()) {
         my $section = $self->read($id,$idKey);
@@ -285,19 +285,34 @@ sub readAllFromSection {
         my $default_section = $self->default_section;
         my @default_params = $config->Parameters($default_section)
             if (defined $default_section && length($default_section));
+        $self->populateItem($config, $data, $id, uniq $config->Parameters($id), @default_params);
         $data->{$idKey} = $self->_cleanupId($id) if defined $idKey;
-        foreach my $param (uniq $config->Parameters($id), @default_params) {
-            my $val;
-            my @vals = $config->val($id, $param);
-            if (@vals == 1 ) {
-                $val = $vals[0];
-            } else {
-                $val = \@vals;
-            }
-            $data->{$param} = $val;
-        }
     }
     return $data;
+}
+
+=head2 populateItem
+
+populateItem
+
+=cut
+
+sub populateItem {
+    my ($self, $config, $item, $id, @params) = @_;
+    foreach my $param (@params) {
+        my $val;
+        my @vals = $config->val($id, $param);
+        if (@vals == 1 ) {
+            $val = $vals[0];
+        } elsif (@vals == 0) {
+            $val = undef;
+        } else {
+            $val = \@vals;
+        }
+
+        $item->{$param} = $val;
+    }
+    return ;
 }
 
 =head2 readFromImported
