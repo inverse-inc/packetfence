@@ -16,8 +16,8 @@
     <template slot="header" is="b-card-header">
       <b-button-close @click="close" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
       <h4 class="mb-0">
-        <span v-if="!isNew && !isClone">{{ $t('Security Event {id}', { id: id }) }}</span>
-        <span v-else-if="isClone">{{ $t('Clone Security Event {id}', { id: id }) }}</span>
+        <span v-if="!isNew && !isClone" v-html="$t('Security Event {id}', { id: $strong(id) })"></span>
+        <span v-else-if="isClone" v-html="$t('Clone Security Event {id}', { id: $strong(id) })"></span>
         <span v-else>{{ $t('New Security Event') }}</span>
       </h4>
     </template>
@@ -115,6 +115,9 @@ export default {
           this.options = options
           if (form) {
             this.form = form
+          } else {
+            // new
+            this.form = defaults(options.meta) // set defaults
           }
         })
       })

@@ -37,15 +37,14 @@
         "
         v-model="localValue"
         v-on="listeners"
+        v-bind="fieldAttrs"
         ref="localValue"
         label="name"
         track-by="value"
-        :placeholder="valueLabel"
-        :options="options"
+        :placeholder="placeholder"
         :vuelidate="valueVuelidateModel"
         :invalid-feedback="valueInvalidFeedback"
         :disabled="disabled"
-        collapse-object
       ></pf-form-chosen>
 
       <!-- Type: DATETIME -->
@@ -215,6 +214,10 @@ export default {
       }
       return null
     },
+    placeholder () {
+      const { fieldAttrs: { placeholder } = {} } = this
+      return placeholder || this.valueLabel
+    },
     options () {
       if (!this.localType) return []
       let options = []
@@ -225,6 +228,11 @@ export default {
         }
       }
       return options
+    },
+    optionsSearchFunction () {
+      if (this.field) {
+        return this.field.optionsSearchFunction
+      }
     },
     listeners () {
       if (!this.localType) return []
@@ -239,6 +247,9 @@ export default {
     moments () {
       if ('moments' in this.field) return this.field.moments
       return []
+    },
+    fieldAttrs () {
+      return this.field ? this.field.attrs : { options: this.options }
     },
     typeVuelidateModel () {
       return this.getVuelidateModel('type')

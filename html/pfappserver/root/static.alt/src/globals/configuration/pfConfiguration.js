@@ -1,3 +1,4 @@
+import apiCall from '@/utils/api'
 import i18n from '@/utils/locale'
 import bytes from '@/utils/bytes'
 import pfFormInput from '@/components/pfFormInput'
@@ -30,6 +31,54 @@ const {
   required
 } = require('vuelidate/lib/validators')
 
+export const pfConfigurationOptionsSearchFunction = (context) => {
+  const { field_name: fieldName, value_name: valueName, search_path: url } = context
+  return function (chosen, query) {
+    if (!query) return []
+    if (chosen.value !== null && chosen.options.length === 0) { // first query - presearch current value
+      return apiCall.request({
+        url,
+        method: 'post',
+        baseURL: '', // reset
+        data: {
+          query: { op: 'and', values: [{ op: 'or', values: [{ field: fieldName, op: 'contains', value: query }] }] },
+          fields: [fieldName, valueName],
+          sort: [fieldName],
+          cursor: 0,
+          limit: 100
+        }
+      }).then(response => {
+        return response.data.items.map(item => {
+          return { [chosen.trackBy]: item[valueName].toString(), [chosen.label]: item[fieldName] }
+        })
+      })
+    } else { // subsequent queries
+      const currentOption = chosen.options.find(option => option.value === chosen.value) // cache current value
+      return apiCall.request({
+        url,
+        method: 'post',
+        baseURL: '', // reset
+        data: {
+          query: { op: 'and', values: [{ op: 'or', values: [{ field: fieldName, op: 'contains', value: query }] }] },
+          fields: [fieldName, valueName],
+          sort: [fieldName],
+          cursor: 0,
+          limit: 100
+        }
+      }).then(response => {
+        return [
+          ...((currentOption) ? [currentOption] : []), // current option first
+          ...response.data.items.map(item => {
+            return { [chosen.trackBy]: item[valueName].toString(), [chosen.label]: item[fieldName] }
+          }).filter(item => {
+            return JSON.stringify(item) !== JSON.stringify(currentOption) // remove duplicate current option
+          })
+        ]
+      })
+    }
+  }
+}
+
 export const pfConfigurationAttributesFromMeta = (meta = {}, key = null) => {
   let attrs = {}
   if (Object.keys(meta).length > 0) {
@@ -44,36 +93,36 @@ export const pfConfigurationAttributesFromMeta = (meta = {}, key = null) => {
         meta = _meta // swap ref to child
       }
     }
-    const { [key]: { allowed, allowed_lookup: allowedLookup, placeholder, type, item } = {} } = meta
+    let { [key]: { allowed, allowed_lookup: allowedLookup, placeholder, type, item } = {} } = meta
     switch (type) {
       case 'array':
         attrs.multiple = true // pfFormChosen
         attrs.clearOnSelect = false // pfFormChosen
         attrs.closeOnSelect = false // pfFormChosen
-        if (item && 'allowed' in item) attrs.options = item.allowed
+        if (item) {
+          const { allowed: itemAllowed, allowed_lookup: itemAllowedLookup } = item
+          if (itemAllowed) allowed = itemAllowed
+          else if (itemAllowedLookup) allowedLookup = itemAllowedLookup
+        }
         break
       case 'integer':
         attrs.type = 'number' // pfFormInput
         attrs.step = 1 // pfFormInput
-        if (allowed) attrs.options = allowed
-        break
-      default:
-        if (allowed) attrs.options = allowed
         break
     }
     if (placeholder) attrs.placeholder = placeholder
-    if (allowedLookup) {
-      attrs.listeners = { 'search-change': (query) => {
-        let promise = new Promise((resolve, reject) => {
-          setTimeout(() => {
-            resolve(`Test search done for "${query}"`)
-          }, 1000)
-        })
-        promise.then((msg) => {
-          // eslint-disable-next-line
-          console.debug(msg)
-        })
-      } }
+    if (allowed) attrs.options = allowed
+    else if (allowedLookup) {
+      attrs.searchable = true
+      attrs.internalSearch = false
+      attrs.preserveSearch = false
+      attrs.allowEmpty = false
+      attrs.clearOnSelect = true
+      attrs.placeholder = i18n.t('Type to search')
+      attrs.showNoOptions = false
+      attrs.optionsLimit = 100
+      attrs.optionsSearchFunction = pfConfigurationOptionsSearchFunction(allowedLookup)
+      attrs.collapseObject = false
     }
   }
   return attrs

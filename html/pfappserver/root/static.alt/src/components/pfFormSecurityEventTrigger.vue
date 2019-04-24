@@ -59,6 +59,7 @@
 </template>
 
 <script>
+import apiCall from '@/utils/api'
 import bytes from '@/utils/bytes'
 import i18n from '@/utils/locale'
 import { pfFieldType as fieldType } from '@/globals/pfField'
@@ -242,7 +243,10 @@ export default {
          */
         profiling: {
           description: () => {
-            const { typeValue: { type, value } = {} } = this.trigger.profiling
+            let { typeValue: { type, value } = {} } = this.trigger.profiling
+            if (typeof value === 'object') {
+              value = value.map(o => o.name).join(' ' + this.$i18n.t('OR') + ' ')
+            }
             return type ? `${categoryOptions.profiling[type]}: ${value}` : this.$i18n.t('All device types')
           },
           title: this.$i18n.t('Device Profiling'),
@@ -261,7 +265,7 @@ export default {
                         valueLabel: this.$i18n.t('Select value'),
                         fields: [
                           {
-                            ...pfConfigurationAttributesFromMeta(this.meta, 'triggers.device'),
+                            attrs: pfConfigurationAttributesFromMeta(this.meta, 'triggers.device'),
                             ...{
                               value: 'device',
                               text: categoryOptions.profiling.device,
@@ -505,7 +509,102 @@ export default {
       }
     }
   },
+  watch: {
+    meta (newMeta) {
+      /**
+       * Expand dynamic values
+       */
+      for (const category in this.trigger) {
+        let { typeValue: { type: field, value } = {} } = this.trigger[category]
+        if (field && value) {
+          let { [field]: { allowed_lookup: allowedLookup, type, item } = {} } = newMeta.triggers.item.properties
+          if (type === 'array' && item) {
+            const { allowed_lookup: itemAllowedLookup } = item
+            if (itemAllowedLookup) {
+              // value is an array
+              value.forEach((query, index) => {
+                this.expandValue({ allowedLookup: itemAllowedLookup, trackBy: 'value', label: 'name' }, query).then(item => {
+                  this.$set(value, index, item)
+                  this.triggerCopy = JSON.parse(JSON.stringify(this.trigger))
+                })
+              })
+            }
+          } else if (allowedLookup) {
+            this.expandValue({ allowedLookup, trackBy: 'value', label: 'name' }, value).then(item => {
+              value = item
+              this.triggerCopy = JSON.parse(JSON.stringify(this.trigger))
+            })
+          }
+        }
+      }
+    }
+  },
   methods: {
+    init () {
+      /**
+       * Associate each condition to a category (endpoint/profiling/usage/event)
+       */
+      for (const field in this.value) {
+        const value = this.value[field]
+        if (value && value.length) {
+          let category = null
+          for (const key in categoryOptions) {
+            if (Object.keys(categoryOptions[key]).includes(field)) {
+              category = key
+              break
+            }
+          }
+          if (category) {
+            this.trigger[category] = { typeValue: { type: field, value: JSON.parse(JSON.stringify(value))} }
+            if (category === 'usage') {
+              // Decompose data usage
+              const { groups } = value.match(/(?<direction>TOT|IN|OUT)(?<limit>[0-9]+)(?<multiplier>[KMG]?)B(?<interval>[DWMY])/)
+              if (groups) {
+                this.trigger[category].direction = groups.direction
+                this.trigger[category].limit = groups.limit
+                this.trigger[category].interval = groups.interval
+                let multiplier
+                switch (groups.multiplier) {
+                  case 'K':
+                    multiplier = 1
+                    break
+                  case 'M':
+                    multiplier = 2
+                    break
+                  case 'G':
+                    multiplier = 3
+                    break
+                  default:
+                    multiplier = 0
+                }
+                this.trigger[category].limit *= Math.pow(1024, multiplier)
+              }
+            }
+          } else {
+            throw new Error(`Uncategorized field: ${field}`)
+          }
+        }
+      }
+      this.triggerCopy = JSON.parse(JSON.stringify(this.trigger))
+    },
+    expandValue (context, value) {
+      const { allowedLookup: { field_name: fieldName, value_name: valueName, search_path: url }, trackBy, label } = context
+      return apiCall.request({
+        url,
+        method: 'post',
+        baseURL: '', // reset
+        data: {
+          query: { op: 'and', values: [{ op: 'and', values: [{ field: valueName, op: 'equals', value }] }] },
+          fields: [fieldName, valueName],
+          sort: [fieldName],
+          cursor: 0,
+          limit: 1
+        }
+      }).then(response => {
+        const [item] = response.data.items
+        return { [trackBy]: item[valueName].toString(), [label]: item[fieldName] } // TODO: dynamic track-by/label?
+      })
+    },
     invalidForm (category) {
       return this.$v.triggerCopy[category].$invalid
     },
@@ -518,15 +617,35 @@ export default {
           bytes.toHuman(this.trigger[category].limit, 0, true).replace(/ /, '').toUpperCase() + 'B' +
           this.trigger[category].interval
       }
+      let { typeValue: { type: field, value } = {} } = this.trigger[category]
+      let newValue = value
+      if (field && value) {
+        // Collapse object
+        let { [field]: { allowed_lookup: allowedLookup, type, item } = {} } = this.meta.triggers.item.properties
+        if (type === 'array' && item) {
+          const { allowed_lookup: itemAllowedLookup } = item
+          if (itemAllowedLookup) {
+            // value is an array
+            let values = []
+            value.forEach((expandedValue, index) => {
+              values[index] = expandedValue.value
+            })
+            newValue = values
+          }
+        } else if (allowedLookup) {
+          newValue = value.value
+        }
+      }
       // Update model
-      const { type, value } = this.trigger[category].typeValue
       if (!this.value) this.value = {}
-      this.value[type] = value
+      this.value[field] = newValue
       this.$emit('input', this.value)
     },
     resetCategory (category) {
+      // eslint-disable-next-line
+      console.debug(`reset category ${category}`)
       this.popover[category] = false
-      Object.assign(this.triggerCopy[category], JSON.parse(JSON.stringify(this.trigger[category])))
+      this.triggerCopy[category] = JSON.parse(JSON.stringify(this.trigger[category]))
     },
     onBodyClick ($event) {
       if (Object.values(this.popover).includes(true)) {
@@ -541,7 +660,10 @@ export default {
           for (const category in this.popover) {
             // Ignore clicks on popover links
             if (id !== [category, this.uuid].join('_')) {
-              this.popover[category] = false
+              if (this.popover[category]) {
+                // Cancel modifications
+                this.resetCategory(category)
+              }
             }
           }
         }
@@ -554,51 +676,7 @@ export default {
     }
   },
   created () {
-    /**
-     * Associate each condition to a category (endpoint/profiling/usage/event)
-     */
-    for (const field in this.value) {
-      const value = this.value[field]
-      if (value && value.length) {
-        let category = null
-        for (const key in categoryOptions) {
-          if (Object.keys(categoryOptions[key]).includes(field)) {
-            category = key
-            break
-          }
-        }
-        if (category) {
-          this.trigger[category] = { typeValue: { type: field, value } }
-          if (category === 'usage') {
-            // Decompose data usage
-            const { groups } = value.match(/(?<direction>TOT|IN|OUT)(?<limit>[0-9]+)(?<multiplier>[KMG]?)B(?<interval>[DWMY])/)
-            if (groups) {
-              this.trigger[category].direction = groups.direction
-              this.trigger[category].limit = groups.limit
-              this.trigger[category].interval = groups.interval
-              let multiplier
-              switch (groups.multiplier) {
-                case 'K':
-                  multiplier = 1
-                  break
-                case 'M':
-                  multiplier = 2
-                  break
-                case 'G':
-                  multiplier = 3
-                  break
-                default:
-                  multiplier = 0
-              }
-              this.trigger[category].limit *= Math.pow(1024, multiplier)
-            }
-          }
-        } else {
-          throw new Error(`Uncategorized field: ${field}`)
-        }
-      }
-    }
-    this.triggerCopy = JSON.parse(JSON.stringify(this.trigger))
+    this.init()
   },
   mounted () {
     document.body.addEventListener('click', this.onBodyClick)

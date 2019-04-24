@@ -150,13 +150,13 @@ export default {
         const currentValue = this.value || ((this.multiple) ? [] : null)
         if (this.collapseObject) {
           const options = (!this.groupValues)
-            ? this.options
+            ? (this.options ? this.options : [])
             : this.options.reduce((options, group, index) => { // flatten group
               options.push(...group[this.groupValues])
               return options
             }, [])
           return (this.multiple)
-            ? [...new Set(currentValue.map(value => options.find(option => option[this.trackBy] === value)))]
+            ? [...new Set(currentValue.map(value => { return { [this.trackBy]: value, [this.label]: value } } ))]
             : (!options)
               ? null
               : options.find(option => option[this.trackBy] === currentValue)

@@ -5,9 +5,7 @@ import pfFormChosen from '@/components/pfFormChosen'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import pfFormSecurityEventTrigger from '@/components/pfFormSecurityEventTrigger'
 import pfFormSecurityEventTriggerHeader from '@/components/pfFormSecurityEventTriggerHeader'
-/*
 import pfFormSecurityEventActions from '@/components/pfFormSecurityEventActions'
-*/
 import {
   pfConfigurationAttributesFromMeta,
   pfConfigurationValidatorsFromMeta
@@ -179,7 +177,6 @@ export const pfConfigurationSecurityEventViewFields = (context = {}) => {
             }
           ]
         },
-        /*
         {
           label: i18n.t('Event Actions'),
           fields: [
@@ -190,7 +187,6 @@ export const pfConfigurationSecurityEventViewFields = (context = {}) => {
             }
           ]
         },
-        */
         {
           label: i18n.t('Dynamic Window'),
           text: i18n.t('Only works for accounting security events. The security event will be opened according to the time you set in the accounting security event (ie. You have an accounting security event for 10GB/month. If you bust the bandwidth after 3 days, the security event will open and the release date will be set for the last day of the current month).'),
