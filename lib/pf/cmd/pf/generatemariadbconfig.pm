@@ -41,7 +41,6 @@ sub _run {
     my %vars = (
         key_buffer_size => $Config{database_advanced}{key_buffer_size},
         innodb_buffer_pool_size => $Config{database_advanced}{innodb_buffer_pool_size},
-        innodb_additional_mem_pool_size => $Config{database_advanced}{innodb_additional_mem_pool_size},
         query_cache_size => $Config{database_advanced}{query_cache_size},
         thread_concurrency => $Config{database_advanced}{thread_concurrency},
         max_connections => $Config{database_advanced}{max_connections},

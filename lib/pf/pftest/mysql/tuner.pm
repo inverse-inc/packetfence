@@ -495,7 +495,6 @@ sub calculations {
         $mycalc{'max_tmp_table_size'} = ($myvar{'tmp_table_size'} > $myvar{'max_heap_table_size'}) ? $myvar{'max_heap_table_size'} : $myvar{'tmp_table_size'} ;
         $mycalc{'server_buffers'} = $myvar{'key_buffer_size'} + $mycalc{'max_tmp_table_size'};
         $mycalc{'server_buffers'} += (defined $myvar{'innodb_buffer_pool_size'}) ? $myvar{'innodb_buffer_pool_size'} : 0 ;
-        $mycalc{'server_buffers'} += (defined $myvar{'innodb_additional_mem_pool_size'}) ? $myvar{'innodb_additional_mem_pool_size'} : 0 ;
         $mycalc{'server_buffers'} += (defined $myvar{'innodb_log_buffer_size'}) ? $myvar{'innodb_log_buffer_size'} : 0 ;
         $mycalc{'server_buffers'} += (defined $myvar{'query_cache_size'}) ? $myvar{'query_cache_size'} : 0 ;
 
