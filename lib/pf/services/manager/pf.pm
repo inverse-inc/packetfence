@@ -78,14 +78,23 @@ sub print_status {
     for my $output (@output) {
         if ($output =~ /(packetfence-(.+)\.service)\s+enabled/) {
             my $service = $1;
-            $service .= (" " x (50 - length($service)));
             my $main_service = $2;
             my $sub_service = $main_service;
             if ($sub_service =~ /(radiusd).*/) {
                 $sub_service = $1;
             }
+            my @service = grep {$_ =~ /$sub_service/} @pf::services::ALL_SERVICES;
+            if (@service == 0) {
+                $pid = $self->sub_pid($service);
+                $isManaged = $FALSE;
+            } else {
+                @manager = grep { $_->name eq $main_service } pf::services::getManagers(\@service);
+                $pid = $manager[0]->pid;
+                $isManaged = $manager[0]->isManaged;
+            }
             my $active = `systemctl is-active $service`;
             chomp $active;
+            $service .= (" " x (50 - length($service)));
             if ($active =~ /(failed|inactive)/) {
                 if (@manager && $isManaged && !$manager[0]->optional) {
                     print "$service\t$colors->{error}stopped   ${pid}$colors->{reset}\n";
@@ -93,13 +102,6 @@ sub print_status {
                     print "$service\t$colors->{warning}stopped   ${pid}$colors->{reset}\n";
                 }
             } else {
-                my @service = grep {$_ =~ /$sub_service/} @pf::services::ALL_SERVICES;
-                if (@service == 0) {
-                    $pid = $self->sub_pid($service);
-                } else {
-                    @manager = grep { $_->name eq $main_service } pf::services::getManagers(\@service);
-                    $pid = $manager[0]->pid;
-                }
                 print "$service\t$colors->{success}started   ${pid}$colors->{reset}\n";
             }
             $pid = 0;
