@@ -279,17 +279,36 @@ read all parameters from a section
 sub readAllFromSection {
     my ($self, $id, $idKey, $config) = @_;
     my $data;
-    $id = $self->_formatSectionName($id);
+    my $section = $self->_formatSectionName($id);
     if ( $config->SectionExists($id) ) {
         $data = {};
-        my $default_section = $self->default_section;
-        my @default_params = $config->Parameters($default_section)
-            if (defined $default_section && length($default_section));
-        $self->populateItem($config, $data, $id, uniq $config->Parameters($id), @default_params);
-        $data->{$idKey} = $self->_cleanupId($id) if defined $idKey;
+        $self->populateItem($config, $data, $section, $config->Parameters($section));
+        for my $parent ($self->parentSections($id, $data)) {
+            $self->populateItem($config, $data, $parent, grep {!exists $data->{$_}} $config->Parameters($parent))
+        }
+
+        $data->{$idKey} = $id if defined $idKey;
     }
     return $data;
 }
+
+=head2 parentSections
+
+parentSections
+
+=cut
+
+sub parentSections {
+    my ($self, $id, $item) = @_;
+    my $default_section = $self->default_section;
+    my @parents;
+    if (defined $default_section && length($default_section) && $default_section ne $id) {
+        push @parents, $default_section;
+    }
+
+    return @parents;
+}
+
 
 =head2 populateItem
 
