@@ -22,12 +22,13 @@ use List::MoreUtils qw(part any);
 use pfconfig::manager;
 use pf::freeradius;
 
-extends qw(pf::ConfigStore Exporter);
-with 'pf::ConfigStore::Hierarchy';
+extends qw(pf::ConfigStore);
 
 sub configFile { $switches_config_file }
 
 sub importConfigFile { $switches_default_config_file }
+
+sub default_section { 'default' }
 
 sub pfconfigNamespace {'config::Switch'}
 
@@ -83,12 +84,6 @@ sub cleanupAfterRead {
 
 }
 
-sub _formatGroup {
-    my ($self, $group) = @_;
-    # We prepend group to all groups except the default one
-    return $group eq $self->topLevelGroup ? $group : "group ".$group;
-}
-
 sub _splitInlineTrigger {
     my ($trigger) = @_;
     my ( $type, $value ) = split( /::/, $trigger );
@@ -105,7 +100,6 @@ sub cleanupBeforeCommit {
     my ( $self, $id, $switch ) = @_;
     $self->_normalizeUplink($switch);
     $self->_normalizeInlineTrigger($switch);
-    $self->_removeParentValues($id, $switch);
 }
 
 =head2 _normalizeUplink
@@ -116,10 +110,29 @@ _normalizeUplink
 
 sub _normalizeUplink {
     my ($self, $switch) = @_;
-    if ( $switch->{uplink_dynamic} ) {
+    my $uplink_dynamic = $switch->{uplink_dynamic};
+    if ( $uplink_dynamic && $uplink_dynamic eq 'dynamic' ) {
         $switch->{uplink}         = 'dynamic';
         $switch->{uplink_dynamic} = undef;
     }
+}
+
+=head2 parentSections
+
+parentSections
+
+=cut
+
+sub parentSections {
+    my ($self, $id, $item) = @_;
+    my $inherit_from = $item->{group};
+    my $default_section = $self->default_section;
+    my @parents = $self->SUPER::parentSections($id, $item);
+    if (defined $inherit_from && (!defined $default_section || $default_section ne $inherit_from) && $id ne $inherit_from) {
+        unshift @parents, $inherit_from;
+    }
+
+    return @parents;
 }
 
 =head2 _normalizeInlineTrigger
@@ -143,28 +156,6 @@ sub _normalizeInlineTrigger {
     }
     return ;
 }
-
-=head2 _removeParentValues
-
-_removeParentValues
-
-=cut
-
-sub _removeParentValues {
-    my ($self, $id, $switch) = @_;
-    my $parentAttribute = $self->parentAttribute;
-    my $topLevelGroup = $self->topLevelGroup;
-    my $parent_config = $self->fullConfigRaw($switch->{$parentAttribute} ? $self->_formatGroup($switch->{$parentAttribute}) : $topLevelGroup);
-    if($id ne $topLevelGroup) {
-        # Put the elements to undef if they are the same as in the inheritance
-        while (my ($key, $value) = each %$switch){
-            if(defined($value) && defined($parent_config->{$key}) && $value eq $parent_config->{$key}){
-                $switch->{$key} = undef;
-            }
-        }
-    }
-}
-
 
 =item remove
 
