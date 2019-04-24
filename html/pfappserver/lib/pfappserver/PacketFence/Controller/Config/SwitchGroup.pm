@@ -91,16 +91,6 @@ Override parent method to do the setup with the SwitchGroup model
 sub after_list {
     my ($self, $c) = @_;
     $c->stash->{action} ||= 'list';
-
-    my @switches;
-    foreach my $switch (@{$c->stash->{items}}) {
-        my $id = $switch->{id};
-        my $cs = $c->model('Config::SwitchGroup')->configStore;
-        $switch->{type} = $cs->fullConfigRaw($id)->{type};
-        $switch->{mode} = $cs->fullConfigRaw($id)->{mode};
-        push @switches, $switch;
-    }
-    $c->stash->{items} = \@switches;
     $c->stash->{searchable} = 0;
 };
 
