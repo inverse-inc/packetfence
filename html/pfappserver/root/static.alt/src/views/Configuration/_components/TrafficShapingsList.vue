@@ -3,7 +3,9 @@
     :config="config"
   >
     <template slot="pageHeader">
-      <h4 v-t="'Inline Traffic Shaping Policy'"></h4>
+      <b-card-header>
+        <h4 v-t="'Inline Traffic Shaping Policy'"></h4>
+      </b-card-header>
     </template>
     <template slot="buttonAdd">
       <b-dropdown :text="$t('New Traffic Shaping Policy')" variant="outline-primary" :disabled="roles.length === 0">

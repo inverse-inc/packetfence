@@ -1,8 +1,8 @@
 <template>
   <b-card no-body>
     <b-card-header>
-      <h4 v-t="'Filter Engines'"></h4>
-      <p v-t="'This is an advanced section. Proceed with caution when editing.'"></p>
+      <h4 class="mb-3" v-t="'Filter Engines'"></h4>
+      <p class="mb-0" v-t="'This is an advanced section. Proceed with caution when editing.'"></p>
     </b-card-header>
     <b-tabs ref="tabs" v-model="tabIndex">
       <b-tab v-for="filter in sortedFilters" :key="filter" :title="$t('{filter} filters', { filter: capitalize(filter) })" class="h-100 mb-3" @click="changeTab(filter)">

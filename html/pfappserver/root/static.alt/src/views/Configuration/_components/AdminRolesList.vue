@@ -5,8 +5,8 @@
     >
       <template slot="pageHeader">
         <b-card-header>
-          <h4 class="mb-0" v-t="'Admin Roles'"></h4>
-          <p v-t="'Define roles with specific access rights to the Web administration interface. Roles are assigned to users depending on their authentication source.'"></p>
+          <h4 class="mb-3" v-t="'Admin Roles'"></h4>
+          <p class="mb-0" v-t="'Define roles with specific access rights to the Web administration interface. Roles are assigned to users depending on their authentication source.'"></p>
         </b-card-header>
       </template>
       <template slot="buttonAdd">
