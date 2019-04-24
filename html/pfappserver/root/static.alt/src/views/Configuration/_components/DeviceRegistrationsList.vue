@@ -7,7 +7,7 @@
         <b-card-header><h4 class="mb-0" v-t="'Device Registration'"></h4></b-card-header>
       </template>
       <template slot="buttonAdd">
-        <b-button variant="outline-primary" :to="{ name: 'newDeviceRegistration' }">{{ $t('Add Device Registration') }}</b-button>
+        <b-button variant="outline-primary" :to="{ name: 'newDeviceRegistration' }">{{ $t('New Device Registration') }}</b-button>
       </template>
       <template slot="emptySearch" slot-scope="state">
         <pf-empty-table :isLoading="state.isLoading">{{ $t('No device registrations found') }}</pf-empty-table>

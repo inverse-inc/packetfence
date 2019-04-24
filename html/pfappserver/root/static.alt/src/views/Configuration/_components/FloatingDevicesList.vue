@@ -7,7 +7,7 @@
         <b-card-header><h4 class="mb-0" v-t="'Floating Devices'"></h4></b-card-header>
       </template>
       <template slot="buttonAdd">
-        <b-button variant="outline-primary" :to="{ name: 'newFloatingDevice' }">{{ $t('Add Floating Device') }}</b-button>
+        <b-button variant="outline-primary" :to="{ name: 'newFloatingDevice' }">{{ $t('New Floating Device') }}</b-button>
       </template>
       <template slot="emptySearch" slot-scope="state">
         <pf-empty-table :isLoading="state.isLoading">{{ $t('No devices found') }}</pf-empty-table>

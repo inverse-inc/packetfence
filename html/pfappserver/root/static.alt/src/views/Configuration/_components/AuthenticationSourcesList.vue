@@ -11,7 +11,7 @@
         </b-card-header>
       </template>
       <template slot="buttonAdd">
-        <b-dropdown :text="$t('Add Source')" variant="outline-primary">
+        <b-dropdown :text="$t('New Source')" variant="outline-primary">
           <b-dropdown-header class="text-secondary">{{ $t('Internal') }}</b-dropdown-header>
             <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'AD' } }">Active Directory</b-dropdown-item>
             <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'EAPTLS' } }">EAPTLS</b-dropdown-item>

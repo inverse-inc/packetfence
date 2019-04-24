@@ -61,7 +61,7 @@
             <span v-else
               class="float-right text-nowrap"
             >
-              <b-button size="sm" variant="outline-primary" class="mr-1" :disabled="isInterfacesLoading" @click.stop.prevent="addVlanInterface(data.item)">{{ $t('Add VLAN') }}</b-button>
+              <b-button size="sm" variant="outline-primary" class="mr-1" :disabled="isInterfacesLoading" @click.stop.prevent="addVlanInterface(data.item)">{{ $t('New VLAN') }}</b-button>
             </span>
           </template>
         </b-table>
@@ -80,15 +80,14 @@
     </b-card-header>
     <div class="card-body">
       <b-row align-h="end" align-v="start" class="mb-3">
-        <b-col>
-          <b-button variant="outline-primary" class="mr-1" :to="{ name: 'newRoutedNetwork' }">{{ $t('Add Routed Network') }}</b-button>
+        <b-col cols="auto" class="mr-auto">
+          <b-button variant="outline-primary" class="mr-1" :to="{ name: 'newRoutedNetwork' }">{{ $t('New Routed Network') }}</b-button>
+        </b-col>
+        <b-col cols="auto">
           <pf-button-service service="iptables" class="mr-1" restart start stop></pf-button-service>
           <pf-button-service service="routes" class="mr-1" restart start stop></pf-button-service>
           <pf-button-service service="pfdhcp" class="mr-1" restart start stop></pf-button-service>
           <pf-button-service service="pfdns" class="mr-1" restart start stop></pf-button-service>
-        </b-col>
-        <b-col cols="auto">
-          <!-- -->
         </b-col>
       </b-row>
       <div

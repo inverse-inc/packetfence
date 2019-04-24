@@ -22,7 +22,7 @@
         </b-card-header>
       </template>
       <template slot="buttonAdd" v-if="scope === 'local'">
-        <b-button variant="outline-primary" :to="{ name: 'newFingerbankUserAgent', params: { scope: 'local' } }">{{ $t('Add DHCP Agent') }}</b-button>
+        <b-button variant="outline-primary" :to="{ name: 'newFingerbankUserAgent', params: { scope: 'local' } }">{{ $t('New DHCP Agent') }}</b-button>
       </template>
       <template slot="emptySearch" slot-scope="state">
         <pf-empty-table :isLoading="state.isLoading">{{ $t('No {scope} DHCP fingerprints found', { scope: ((scope !== 'all') ? scope : '') }) }}</pf-empty-table>

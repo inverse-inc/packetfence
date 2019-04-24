@@ -9,7 +9,7 @@
         </b-card-header>
       </template>
       <template slot="buttonAdd">
-        <b-dropdown :text="$t('Add Provisioner')" variant="outline-primary">
+        <b-dropdown :text="$t('New Provisioner')" variant="outline-primary">
           <b-dropdown-item :to="{ name: 'newProvisioning', params: { provisioningType: 'accept' } }">Accept</b-dropdown-item>
           <b-dropdown-item :to="{ name: 'newProvisioning', params: { provisioningType: 'android' } }">Android</b-dropdown-item>
           <b-dropdown-item :to="{ name: 'newProvisioning', params: { provisioningType: 'deny' } }">Deny</b-dropdown-item>

@@ -10,7 +10,7 @@
         </b-card-header>
       </template>
       <template slot="buttonAdd">
-        <b-button variant="outline-primary" :to="{ name: 'newAdminRole' }">{{ $t('Add Admin Role') }}</b-button>
+        <b-button variant="outline-primary" :to="{ name: 'newAdminRole' }">{{ $t('New Admin Role') }}</b-button>
       </template>
       <template slot="emptySearch" slot-scope="state">
         <pf-empty-table :isLoading="state.isLoading">{{ $t('No admin roles found') }}</pf-empty-table>

@@ -7,7 +7,7 @@
         <b-card-header><h4 class="mb-0" v-t="'WMI Rules'"></h4></b-card-header>
       </template>
       <template slot="buttonAdd">
-        <b-button variant="outline-primary" :to="{ name: 'newWmiRule' }">{{ $t('Add WMI Rule') }}</b-button>
+        <b-button variant="outline-primary" :to="{ name: 'newWmiRule' }">{{ $t('New WMI Rule') }}</b-button>
       </template>
       <template slot="emptySearch" slot-scope="state">
         <pf-empty-table :isLoading="state.isLoading">{{ $t('No WMI rules found') }}</pf-empty-table>

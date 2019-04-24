@@ -3,7 +3,7 @@
     :config="config"
   >
     <template slot="buttonAdd">
-      <b-button variant="outline-primary" :to="{ name: 'newDomain' }">{{ $t('Add Domain') }}</b-button>
+      <b-button variant="outline-primary" :to="{ name: 'newDomain' }">{{ $t('New Domain') }}</b-button>
     </template>
     <template slot="emptySearch" slot-scope="state">
         <pf-empty-table :isLoading="state.isLoading">{{ $t('No domains found') }}</pf-empty-table>

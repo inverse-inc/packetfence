@@ -9,7 +9,7 @@
         </b-card-header>
       </template>
       <template slot="buttonAdd">
-        <b-button variant="outline-primary" :to="{ name: 'newWrixLocation' }">{{ $t('Add WRIX Location') }}</b-button>
+        <b-button variant="outline-primary" :to="{ name: 'newWrixLocation' }">{{ $t('New WRIX Location') }}</b-button>
       </template>
       <template slot="emptySearch" slot-scope="state">
         <pf-empty-table :isLoading="state.isLoading">{{ $t('No WRIX locations found') }}</pf-empty-table>

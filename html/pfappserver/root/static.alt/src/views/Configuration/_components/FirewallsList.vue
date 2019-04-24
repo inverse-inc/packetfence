@@ -9,7 +9,7 @@
         </b-card-header>
       </template>
       <template slot="buttonAdd">
-        <b-dropdown :text="$t('Add Firewall')" variant="outline-primary">
+        <b-dropdown :text="$t('New Firewall')" variant="outline-primary">
           <b-dropdown-item :to="{ name: 'newFirewall', params: { firewallType: 'BarracudaNG' } }">BarracudaNG</b-dropdown-item>
           <b-dropdown-item :to="{ name: 'newFirewall', params: { firewallType: 'Checkpoint' } }">Checkpoint</b-dropdown-item>
           <b-dropdown-item :to="{ name: 'newFirewall', params: { firewallType: 'FortiGate' } }">FortiGate</b-dropdown-item>

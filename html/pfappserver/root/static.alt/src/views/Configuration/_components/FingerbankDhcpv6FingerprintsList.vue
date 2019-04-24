@@ -22,7 +22,7 @@
         </b-card-header>
       </template>
       <template slot="buttonAdd" v-if="scope === 'local'">
-        <b-button variant="outline-primary" :to="{ name: 'newFingerbankDhcpv6Fingerprint', params: { scope: 'local' } }">{{ $t('Add DHCPv6 Fingerprint') }}</b-button>
+        <b-button variant="outline-primary" :to="{ name: 'newFingerbankDhcpv6Fingerprint', params: { scope: 'local' } }">{{ $t('New DHCPv6 Fingerprint') }}</b-button>
       </template>
       <template slot="emptySearch" slot-scope="state">
         <pf-empty-table :isLoading="state.isLoading">{{ $t('No {scope} DHCPv6 fingerprints found', { scope: ((scope !== 'all') ? scope : '') }) }}</pf-empty-table>

@@ -3,7 +3,7 @@
     :config="config"
   >
     <template slot="buttonAdd">
-      <b-button variant="outline-primary" :to="{ name: 'newRealm' }">{{ $t('Add Realm') }}</b-button>
+      <b-button variant="outline-primary" :to="{ name: 'newRealm' }">{{ $t('New Realm') }}</b-button>
     </template>
     <template slot="emptySearch" slot-scope="state">
       <pf-empty-table :isLoading="state.isLoading">{{ $t('No realms found') }}</pf-empty-table>

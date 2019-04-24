@@ -7,7 +7,7 @@
         <b-card-header><h4 class="mb-0" v-t="'Billing Tiers'"></h4></b-card-header>
       </template>
       <template slot="buttonAdd">
-        <b-button variant="outline-primary" :to="{ name: 'newBillingTier' }">{{ $t('Add Billing Tier') }}</b-button>
+        <b-button variant="outline-primary" :to="{ name: 'newBillingTier' }">{{ $t('New Billing Tier') }}</b-button>
       </template>
       <template slot="emptySearch" slot-scope="state">
         <pf-empty-table :isLoading="state.isLoading">{{ $t('No billing tiers found') }}</pf-empty-table>

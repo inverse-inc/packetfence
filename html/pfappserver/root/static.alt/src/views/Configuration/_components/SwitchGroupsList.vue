@@ -3,7 +3,7 @@
     :config="config"
   >
     <template slot="buttonAdd">
-      <b-button variant="outline-primary" :to="{ name: 'newSwitchGroup' }">{{ $t('Add Switch Group') }}</b-button>
+      <b-button variant="outline-primary" :to="{ name: 'newSwitchGroup' }">{{ $t('New Switch Group') }}</b-button>
     </template>
     <template slot="emptySearch" slot-scope="state">
       <pf-empty-table :isLoading="state.isLoading">{{ $t('No switch groups found') }}</pf-empty-table>

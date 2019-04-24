@@ -9,7 +9,7 @@
         </b-card-header>
       </template>
       <template slot="buttonAdd">
-        <b-button variant="outline-primary" :to="{ name: 'newSyslogForwarder', params: { syslogForwarderType: 'server' } }">{{ $t('Add Syslog Entry') }}</b-button>
+        <b-button variant="outline-primary" :to="{ name: 'newSyslogForwarder', params: { syslogForwarderType: 'server' } }">{{ $t('New Syslog Entry') }}</b-button>
       </template>
       <template slot="emptySearch" slot-scope="state">
         <pf-empty-table :isLoading="state.isLoading">{{ $t('No syslog entries found') }}</pf-empty-table>

@@ -9,7 +9,7 @@
         </b-card-header>
       </template>
       <template slot="buttonAdd">
-        <b-dropdown :text="$t('Add PKI Provider')" variant="outline-primary">
+        <b-dropdown :text="$t('New PKI Provider')" variant="outline-primary">
           <b-dropdown-item :to="{ name: 'newPkiProvider', params: { providerType: 'packetfence_local' } }">Packetfence Local</b-dropdown-item>
           <b-dropdown-item :to="{ name: 'newPkiProvider', params: { providerType: 'packetfence_pki' } }">Packetfence PKI</b-dropdown-item>
           <b-dropdown-item :to="{ name: 'newPkiProvider', params: { providerType: 'scep' } }">SCEP PKI</b-dropdown-item>

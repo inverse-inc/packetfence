@@ -7,7 +7,7 @@
         <b-card-header><h4 class="mb-0" v-t="'Security Events'"></h4></b-card-header>
       </template>
       <template slot="buttonAdd">
-        <b-button variant="outline-primary" :to="{ name: 'newSecurityEvent' }">{{ $t('Add Security Event') }}</b-button>
+        <b-button variant="outline-primary" :to="{ name: 'newSecurityEvent' }">{{ $t('New Security Event') }}</b-button>
       </template>
       <template slot="emptySearch" slot-scope="state">
         <pf-empty-table :isLoading="state.isLoading">{{ $t('No security events found') }}</pf-empty-table>

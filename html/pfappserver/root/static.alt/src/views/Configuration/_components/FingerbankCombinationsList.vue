@@ -22,7 +22,7 @@
         </b-card-header>
       </template>
       <template slot="buttonAdd" v-if="scope === 'local'">
-        <b-button variant="outline-primary" :to="{ name: 'newFingerbankCombination', params: { scope: 'local' } }">{{ $t('Add Combination') }}</b-button>
+        <b-button variant="outline-primary" :to="{ name: 'newFingerbankCombination', params: { scope: 'local' } }">{{ $t('New Combination') }}</b-button>
       </template>
       <template slot="emptySearch" slot-scope="state">
         <pf-empty-table :isLoading="state.isLoading">{{ $t('No {scope} combinations found', { scope: ((scope !== 'all') ? scope : '') }) }}</pf-empty-table>
