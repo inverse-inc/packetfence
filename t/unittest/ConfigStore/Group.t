@@ -38,7 +38,7 @@ my $path = $fh->filename;
 
 {
     local $/ = undef;
-    open(my $group_fh , "<", "./data/group.conf");
+    open(my $group_fh , "<", "/usr/local/pf/t/data/group.conf");
     my $contents = <$group_fh>;
     print $fh $contents;
     $fh->flush;
