@@ -38,6 +38,8 @@ use Time::HiRes qw(time);
 use POSIX qw(ceil);
 use Crypt::CBC;
 use pf::config::cluster;
+use Role::Tiny qw();
+
 
 use Module::Pluggable
   'search_path' => [qw(pf::ConfigStore)],
@@ -605,19 +607,10 @@ Returns the list of ConfigStore to synchronize between cluster members
 
 =cut
 
-our %ignored_stores = (
-    'pf::ConfigStore::Wrix'                 => 1,
-    'pf::ConfigStore::Group'                => 1,
-    'pf::ConfigStore::Interface'            => 1,
-    'pf::ConfigStore::Hierarchy'            => 1,
-    'pf::ConfigStore::Role::ValidGenericID' => 1,
-    'pf::ConfigStore::Role::ReverseLookup'  => 1,
-    'pf::ConfigStore::Role::TenantID'       => 1,
-);
-
 sub stores_to_sync {
     my @tmp_stores = __PACKAGE__->_all_stores();
-    my @stores = grep {!exists $ignored_stores{$_} || !$ignored_stores{$_}} @tmp_stores;
+
+    my @stores = grep { !Role::Tiny->is_role($_) && !$_->does('pf::ConfigStore::Group') && !$_->does('pf::ConfigStore::Filtered') } @tmp_stores;
     return \@stores;
 }
 
