@@ -587,7 +587,7 @@ sub update_fields {
     my $id = $init_object->{id} if $init_object;
     my $inherit_from = $init_object->{group} || "default";
     my $cs = pf::ConfigStore::SwitchGroup->new;
-    my $placeholders = $cs->fullConfig($inherit_from);
+    my $placeholders = $cs->read($inherit_from);
 
     if (defined $id && $id eq 'default') {
         foreach my $role (@ROLES) {
