@@ -24,7 +24,7 @@ Override _Sections and apply filter on them
 
 sub _Sections {
     my ($self) = @_;
-    return map { $self->filter($_) ? $_ : () } $self->cachedConfig->Sections();
+    return grep { $self->filter($_) } $self->cachedConfig->Sections();
 }
 
 =head2 _hasId
