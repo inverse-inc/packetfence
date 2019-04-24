@@ -29,7 +29,6 @@ use Mojo::Util qw(decamelize camelize);
 
 my %SKIPABLE_CLASSES = (
     'pf::ConfigStore::Group'                => 1,
-    'pf::ConfigStore::Hierarchy'            => 1,
     'pf::ConfigStore::ApacheFilters'        => 1,
     'pf::ConfigStore::Survery'              => 1,
     'pf::ConfigStore::Report'               => 1,
