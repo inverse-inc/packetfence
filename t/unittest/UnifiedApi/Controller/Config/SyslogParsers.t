@@ -64,6 +64,7 @@ my $config = {
             regex => 'from: (?P<scrip>\d{1,3}(\.\d{1,3}){3}), to: (?P<dstip>\d{1,3}(\.\d{1,3}){3}), mac: (?P<mac>[a-fA-F0-9]{12})',
             name => 'from to',
             last_if_match => 0,
+            'ip_mac_translation' => 0,
             actions => [
                 { api_method => 'modify_node', api_parameters => '$scrip, $dstip, $mac'},
                 { api_method => 'trigger_scan', api_parameters => 'bob, bob'},
@@ -73,6 +74,7 @@ my $config = {
             regex => 'from: (?P<scrip>\d{1,3}(\.\d{1,3}){3}), to: (?P<dstip>\d{1,3}(\.\d{1,3}){3})',
             name => 'from to',
             last_if_match => 1,
+            'ip_mac_translation' => 0,
             actions => [
                 { api_method => 'modify_node', api_parameters => '$scrip, $dstip'},
                 { api_method => 'trigger_scan', api_parameters => 'bob, bob'},
