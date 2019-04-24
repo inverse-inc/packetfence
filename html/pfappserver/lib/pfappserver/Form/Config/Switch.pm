@@ -748,9 +748,9 @@ sub options_cliTransport {
 sub options_wsTransport {
     my $self = shift;
 
-    my @transports = map { $_ => $_ } qw/HTTP HTTPS/;
+    my @transports = map { {label => uc($_), value =>  $_ } } qw/http https/;
 
-    return ('' => '', @transports);
+    return ({label => '' ,value => '' }, @transports);
 }
 
 =head2 validate
