@@ -41,6 +41,7 @@ Overide the field from switch so a group cannot be specified
 
 has_field 'group' =>
   (
+   is_inactive => 1,
    type => 'Hidden',
    value => '',
    default => '',
