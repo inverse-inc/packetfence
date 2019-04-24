@@ -20,13 +20,7 @@ has '+checkbox_value' => ( default => 'Y' );
 has 'unchecked_value' => ( is => 'ro', default => 'N' );
 has '+inflate_default_method'=> ( default => sub { \&inflate } );
 has '+deflate_value_method'=> ( default => sub { \&deflate } );
-
-sub BUILD {
-    my ($self) = @_;
-    if ($self->required) {
-        $self->input_without_param($self->unchecked_value);
-    }
-}
+has '+input_without_param' => ( default => undef );
 
 sub inflate {
     my ($self, $value) = @_;
@@ -45,7 +39,7 @@ sub deflate {
 sub value {
     my $field = shift;
     return $field->next::method(@_) if @_;
-    my $v = $field->next::method();
+    my $v = HTML::FormHandler::Field::value($field);
     return defined $v ? $v : ($field->required ? $field->unchecked_value : undef);
 }
 
