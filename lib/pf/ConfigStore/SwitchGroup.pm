@@ -1,4 +1,5 @@
 package pf::ConfigStore::SwitchGroup;
+
 =head1 NAME
 
 pf::ConfigStore::SwitchGroup
@@ -13,17 +14,15 @@ pf::ConfigStore::SwitchGroup;
 
 use Moo;
 use namespace::autoclean;
-use pf::ConfigStore::Pf;
+#use pf::ConfigStore::Pf;
 use pf::ConfigStore::Group;
 
 extends 'pf::ConfigStore::Switch';
 with 'pf::ConfigStore::Group';
-with 'pf::ConfigStore::Hierarchy';
 with 'pf::ConfigStore::Role::ReverseLookup';
 
-sub group { 'group' };
+sub group { 'group' }
 
-sub globalConfigStore { pf::ConfigStore::Switch->new }
 =head2 canDelete
 
 canDelete
