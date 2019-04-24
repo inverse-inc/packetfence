@@ -85,10 +85,7 @@ sub after_list {
     my $floatingDeviceModel = $c->model('Config::FloatingDevice');
     my @switches;
     my $groupsModel = $c->model("Config::SwitchGroup");
-    my $groupPrefix = $groupsModel->configStore->group;
-    my $cs = $c->model('Config::Switch')->configStore;
     foreach my $switch (@{$c->stash->{items}}) {
-        next if($switch->{id} =~ /^$groupPrefix /);
         my $id = $switch->{id};
         if ($id) {
             ($status, $floatingdevice) = $floatingDeviceModel->search('ip', $id);
@@ -96,16 +93,8 @@ sub after_list {
                 $switch->{floatingdevice} = pop @$floatingdevice;
             }
         }
-        my $fullConfig = $cs->fullConfigRaw($id);
-        $switch->{type} = $fullConfig->{type};
-        $switch->{group} ||= $cs->topLevelGroup;
-        $switch->{mode} = $fullConfig->{mode};
-        $switch->{description} //= $fullConfig->{description};
-        push @switches, $switch;
     }
     $c->stash->{switch_groups} = [ sort @{$groupsModel->readAllIds} ];
-    unshift @{$c->stash->{switch_groups}}, $groupsModel->configStore->topLevelGroup;
-    $c->stash->{items} = \@switches;
     $c->stash->{searchable} = 1;
 }
 
@@ -120,9 +109,8 @@ Search the switch configuration entries
 sub search : Local : AdminRole('SWITCHES_READ') {
     my ($self, $c) = @_;
 
-    my $groupsModel = $c->model("Config::SwitchGroup");
     # Changing default to empty value as switches inheriting from it don't have a group attribute
-    if($c->request->param("searches.0.value") eq $groupsModel->configStore->topLevelGroup){
+    if($c->request->param("searches.0.value") eq 'default') {
         $c->request->param("searches.0.value", "");
     }
 
