@@ -14,7 +14,7 @@ const password = {
     const charset = ranges.join('')
     let randomPassword = ''
     for (var i = 0, n = charset.length; i < pwlength; ++i) {
-      randomPassword += charset.charAt(Math.floor(Math.random() * n))
+      randomPassword += charset.charAt(Math.random() * n)
     }
     return randomPassword
   }
