@@ -2,8 +2,8 @@
 Description=PacketFence Administration  Apache HTTP Server 
 Documentation=man:httpd(8)
 Documentation=man:apachectl(8)
-Wants=packetfence-base.target packetfence-config.service
-After=packetfence-base.target packetfence-config.service
+Wants=packetfence-base.target packetfence-config.service packetfence-pfperl-api.service packetfence-api-frontend.service
+After=packetfence-base.target packetfence-config.service packetfence-pfperl-api.service packetfence-api-frontend.service
 
 [Service]
 StartLimitBurst=3
