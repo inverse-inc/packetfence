@@ -33,17 +33,17 @@
             <pf-form-toggle class="mb-2" v-model="showLines" @change="toggleLineNumbers">{{ $t('Show line numbers') }}</pf-form-toggle>
           </b-col>
         </b-form-row>
-          <!-- Loading progress indicator -->
-          <b-container class="my-5" v-if="isLoading && !content">
-            <b-row class="justify-content-md-center text-secondary">
-              <b-col cols="12" md="auto">
-                <icon name="circle-notch" scale="1.5" spin></icon>
-              </b-col>
-            </b-row>
-          </b-container>
-          <div class="flex-grow-1 overflow-hidden border-top border-right border-bottom border-left" ref="editorContainer" v-else>
-            <ace-editor v-model="content" theme="chrome" lang="html" :height="editorHeight" @init="initEditor"></ace-editor>
-          </div>
+        <!-- Loading progress indicator -->
+        <b-container class="my-5" v-if="isLoading && !content">
+          <b-row class="justify-content-md-center text-secondary">
+            <b-col cols="12" md="auto">
+              <icon name="circle-notch" scale="1.5" spin></icon>
+            </b-col>
+          </b-row>
+        </b-container>
+        <div class="flex-grow-1 overflow-hidden border-top border-right border-bottom border-left" ref="editorContainer" v-else>
+          <ace-editor v-model="content" theme="chrome" lang="html" :height="editorHeight" @init="initEditor"></ace-editor>
+        </div>
       </div>
       <b-card-footer @mouseenter="isNew && $v.newFilename.$touch()">
         <pf-button-save :disabled="invalidForm" :isLoading="!invalidForm && isLoading">
