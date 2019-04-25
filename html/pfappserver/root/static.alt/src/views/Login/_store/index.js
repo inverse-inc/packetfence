@@ -10,12 +10,12 @@ const getters = {
 
 const actions = {
   login: ({ state, getters, commit, dispatch }, user) => {
+    commit('LOGIN_REQUEST')
     return new Promise((resolve, reject) => {
-      commit('LOGIN_REQUEST')
       api.login(user).then(response => {
         let token = response.data.token
-        commit('LOGIN_SUCCESS', token)
         dispatch('session/update', token, { root: true }).then(() => {
+          commit('LOGIN_SUCCESS', token)
           resolve(response)
         })
       }).catch(err => {
