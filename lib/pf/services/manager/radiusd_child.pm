@@ -584,6 +584,9 @@ ldap $ldap {
         chase_referrals = yes
         rebind = yes
     }
+    pool {
+        start = 0
+    }
 EOT
         if ($ConfigAuthenticationLdap{$ldap}->{encryption} eq "ssl") {
             $tags{'servers'} .= <<"EOT";
