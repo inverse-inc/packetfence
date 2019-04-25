@@ -83,13 +83,13 @@ export default {
     toggle (item, event) {
       switch (event) {
         case 'Y':
-          this.$store.dispatch(`${this.storeName}/enableSecurityEvent`, item).then(response => {
-            this.$store.dispatch('notification/info', { message: this.$i18n.t('Security event <code>{desc}</code> enabled.', { service: item.desc }) })
+          this.$store.dispatch(`${this.storeName}/enableSecurityEvent`, { quiet: true, ...item }).then(response => {
+            this.$store.dispatch('notification/info', { message: this.$i18n.t('Security event <strong>{desc}</strong> enabled.', { desc: item.desc }) })
           })
           break
         case 'N':
-          this.$store.dispatch(`${this.storeName}/disableSecurityEvent`, item).then(response => {
-            this.$store.dispatch('notification/info', { message: this.$i18n.t('Security event <code>{desc}</code> disabled.', { service: item.desc }) })
+          this.$store.dispatch(`${this.storeName}/disableSecurityEvent`, { quiet: true, ...item }).then(response => {
+            this.$store.dispatch('notification/info', { message: this.$i18n.t('Security event <strong>{desc}</strong> disabled.', { desc: item.desc }) })
           })
           break
       }

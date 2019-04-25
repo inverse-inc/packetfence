@@ -34,6 +34,9 @@ import pfButtonSave from '@/components/pfButtonSave'
 import pfButtonDelete from '@/components/pfButtonDelete'
 import pfMixinEscapeKey from '@/components/pfMixinEscapeKey'
 import {
+  pfConfigurationDefaultsFromMeta as defaults
+} from '@/globals/configuration/pfConfiguration'
+import {
   pfConfigurationSecurityEventViewFields as fields
 } from '@/globals/configuration/pfConfigurationSecurityEvents'
 const { validationMixin } = require('vuelidate')

@@ -156,7 +156,7 @@ export default {
               return options
             }, [])
           return (this.multiple)
-            ? [...new Set(currentValue.map(value => { return { [this.trackBy]: value, [this.label]: value } } ))]
+            ? [...new Set(currentValue.map(value => { return { [this.trackBy]: value, [this.label]: value } }))]
             : (!options)
               ? null
               : options.find(option => option[this.trackBy] === currentValue)

@@ -88,7 +88,8 @@ const actions = {
   },
   enableSecurityEvent: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    const _data = { id: data.id, enabled: 'Y' }
+    const { id, quiet = false } = data
+    const _data = { id, enabled: 'Y', quiet }
     return api.updateSecurityEvent(_data).then(response => {
       commit('ITEM_ENABLED', _data)
       return response
@@ -99,7 +100,8 @@ const actions = {
   },
   disableSecurityEvent: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    const _data = { id: data.id, enabled: 'N' }
+    const { id, quiet = false } = data
+    const _data = { id, enabled: 'N', quiet }
     return api.updateSecurityEvent(_data).then(response => {
       commit('ITEM_DISABLED', _data)
       return response

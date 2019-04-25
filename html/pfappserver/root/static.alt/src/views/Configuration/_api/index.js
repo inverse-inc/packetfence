@@ -983,7 +983,8 @@ export default {
     })
   },
   updateSecurityEvent: data => {
-    return apiCall.patch(`config/security_event/${data.id}`, data).then(response => {
+    const patch = data.quiet ? 'patchQuiet' : 'patch'
+    return apiCall[patch](`config/security_event/${data.id}`, data).then(response => {
       return response.data
     })
   },

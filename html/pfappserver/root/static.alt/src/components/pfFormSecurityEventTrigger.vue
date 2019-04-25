@@ -555,7 +555,7 @@ export default {
             }
           }
           if (category) {
-            this.trigger[category] = { typeValue: { type: field, value: JSON.parse(JSON.stringify(value))} }
+            this.trigger[category] = { typeValue: { type: field, value: JSON.parse(JSON.stringify(value)) } }
             if (category === 'usage') {
               // Decompose data usage
               const { groups } = value.match(/(?<direction>TOT|IN|OUT)(?<limit>[0-9]+)(?<multiplier>[KMG]?)B(?<interval>[DWMY])/)
