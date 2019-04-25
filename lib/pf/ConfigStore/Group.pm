@@ -1,4 +1,5 @@
 package pf::ConfigStore::Group;
+
 =head1 NAME
 
 pf::ConfigStore::Group
@@ -38,7 +39,8 @@ has group => ( is=> 'ro' );
 sub _Sections {
     my ($self) = @_;
     my $group = $self->group;
-    return grep { s/^\Q$group\E // }  $self->cachedConfig->Sections($group);
+    my $default_section = $self->default_section // '';
+    return grep { $_ eq $default_section || s/^\Q$group\E // } $self->cachedConfig->Sections($group);
 }
 
 =item _formatSectionName
@@ -47,6 +49,11 @@ sub _Sections {
 
 sub _formatSectionName {
    my ($self,$id) = @_;
+   my $default_section = $self->default_section;
+   if (defined $default_section && $default_section eq $id) {
+        return $id;
+   }
+
    return $self->group . " " . $id;
 }
 
@@ -87,4 +94,3 @@ USA.
 =cut
 
 1;
-

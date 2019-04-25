@@ -26,8 +26,12 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 11;
+use Test::More tests => 21;
 use Test::Mojo;
+use Utils;
+use pf::ConfigStore::Switch;
+
+my ($fh, $filename) = Utils::tempfileForConfigStore("pf::ConfigStore::Switch");
 
 #This test will running last
 use Test::NoWarnings;
@@ -51,6 +55,20 @@ $t->get_ok("$base_url/172.16.0.0%2f16")
 
 $t->get_ok("$base_url/172.16.0.0~16")
   ->status_is(200);
+
+$t->patch_ok("$base_url/172.16.8.24" => json => {RoleMap => undef})
+  ->status_is(200);
+
+$t->get_ok("$base_url/172.16.8.24")
+  ->status_is(200)
+  ->json_is('/item/RoleMap', 'N');
+
+$t->patch_ok("$base_url/172.16.8.24" => json => {RoleMap => 'Y'})
+  ->status_is(200);
+
+$t->get_ok("$base_url/172.16.8.24")
+  ->status_is(200)
+  ->json_is('/item/RoleMap', 'Y');
 
 =head1 AUTHOR
 

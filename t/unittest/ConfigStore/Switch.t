@@ -1,31 +1,58 @@
-package ConfigStore::HierarchyTest;
+#!/usr/bin/perl
 
 =head1 NAME
 
-ConfigStore::HierarchyTest
-
-=cut
+Switch
 
 =head1 DESCRIPTION
 
-Class used to test the Hierarchy role of the Configstore
+unit test for Switch
 
 =cut
 
-use Moo;
-use pf::ConfigStore;
-use pf::ConfigStore::Hierarchy;
+use strict;
+use warnings;
+#
+use lib '/usr/local/pf/lib';
 
-extends qw(pf::ConfigStore);
-with qw(pf::ConfigStore::Hierarchy);
-
-sub default_section { undef }
-
-sub topLevelGroup { "group default" }
-
-sub _formatGroup {
-    return "group ".$_[1];
+BEGIN {
+    #include test libs
+    use lib qw(/usr/local/pf/t);
+    #Module for overriding configuration paths
+    use setup_test_config;
 }
+
+use Test::More tests => 5;
+use pf::ConfigStore::Switch;
+
+#This test will running last
+use Test::NoWarnings;
+
+my $cs = pf::ConfigStore::Switch->new;
+
+is_deeply(
+    [$cs->parentSections('id', {group => 'bob'})],
+    ['group bob', 'default'],
+);
+
+is_deeply(
+    [$cs->parentSections('default', {group => 'bob'})],
+    [],
+);
+
+is_deeply(
+    [$cs->parentSections('default' )],
+    [],
+);
+
+is_deeply(
+    [$cs->parentSections('bob', {group => 'bob'})],
+    ['default'],
+);
+
+=head1 AUTHOR
+
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 

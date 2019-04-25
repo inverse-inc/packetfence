@@ -191,12 +191,23 @@ Get all the sections as an array of hash refs
 =cut
 
 sub readAll {
-    my ($self,$idKey) = @_;
+    my ($self, $idKey) = @_;
+    return $self->_readAll($idKey, "read");
+}
+
+=head2 _readAll
+
+_readAll
+
+=cut
+
+sub _readAll {
+    my ($self, $idKey, $method) = @_;
     my $config = $self->cachedConfig;
-    my $default_section = $self->default_section if(defined($self->default_section));
+    my $default_section = $self->default_section;
     my @sections;
     foreach my $id ($self->_Sections()) {
-        my $section = $self->read($id,$idKey);
+        my $section = $self->$method($id,$idKey);
         if (defined $default_section &&  $id eq $default_section ) {
             unshift @sections, $section;
         } else {
@@ -204,6 +215,17 @@ sub readAll {
         }
     }
     return \@sections;
+}
+
+=head2 readAllWithoutInherited
+
+readAllWithoutInherited
+
+=cut
+
+sub readAllWithoutInherited {
+    my ($self, $idKey) = @_;
+    return $self->_readAll($idKey, "readWithoutInherited");
 }
 
 =head2 _Section
@@ -253,9 +275,9 @@ reads a section
 =cut
 
 sub read {
-    my ($self, $id, $idKey ) = @_;
+    my ($self, $id, $idKey) = @_;
     my $data = $self->readRaw($id, $idKey);
-    $self->cleanupAfterRead($id,$data);
+    $self->cleanupAfterRead($id, $data);
     return $data;
 }
 
@@ -267,37 +289,71 @@ reads a section without doing post-read cleanup
 
 sub readRaw {
     my ($self, $id, $idKey ) = @_;
-    return $self->readAllFromSection($id, $idKey, $self->cachedConfig);
+    return $self->readFromSection($id, $idKey, $self->cachedConfig);
 }
 
-=head2 readAllFromSection
+=head2 readFromSection
 
 read all parameters from a section
 
 =cut
 
-sub readAllFromSection {
+sub readFromSection {
     my ($self, $id, $idKey, $config) = @_;
     my $data;
-    $id = $self->_formatSectionName($id);
-    if ( $config->SectionExists($id) ) {
+    my $section = $self->_formatSectionName($id);
+    if ( $config->SectionExists($section) ) {
         $data = {};
-        my $default_section = $self->default_section;
-        my @default_params = $config->Parameters($default_section)
-            if (defined $default_section && length($default_section));
-        $data->{$idKey} = $self->_cleanupId($id) if defined $idKey;
-        foreach my $param (uniq $config->Parameters($id), @default_params) {
-            my $val;
-            my @vals = $config->val($id, $param);
-            if (@vals == 1 ) {
-                $val = $vals[0];
-            } else {
-                $val = \@vals;
-            }
-            $data->{$param} = $val;
+        $self->populateItem($config, $data, $section, $config->Parameters($section));
+        for my $parent ($self->parentSections($id, $data)) {
+            $self->populateItem($config, $data, $parent, grep {!exists $data->{$_}} $config->Parameters($parent))
         }
+
+        $data->{$idKey} = $id if defined $idKey;
     }
     return $data;
+}
+
+=head2 parentSections
+
+parentSections
+
+=cut
+
+sub parentSections {
+    my ($self, $id, $item) = @_;
+    my $default_section = $self->default_section;
+    my @parents;
+    if (defined $default_section && length($default_section) && $default_section ne $id) {
+        push @parents, $default_section;
+    }
+
+    return @parents;
+}
+
+
+=head2 populateItem
+
+populateItem
+
+=cut
+
+sub populateItem {
+    my ($self, $config, $item, $id, @params) = @_;
+    foreach my $param (@params) {
+        my $val;
+        my @vals = $config->val($id, $param);
+        if (@vals == 1 ) {
+            $val = $vals[0];
+        } elsif (@vals == 0) {
+            $val = undef;
+        } else {
+            $val = \@vals;
+        }
+
+        $item->{$param} = $val;
+    }
+    return ;
 }
 
 =head2 readFromImported
@@ -310,7 +366,7 @@ sub readFromImported {
     my ($self, $id, $idKey) = @_;
     my $config = $self->cachedConfig();
     if ($config->{imported}) {
-        return $self->readAllFromSection($id, $idKey, $config->{imported});
+        return $self->readFromSection($id, $idKey, $config->{imported});
     }
 
     return {};
@@ -681,6 +737,75 @@ sub is_section_in_import {
     return $imported->SectionExists($section) ? $TRUE : $FALSE;
 }
 
+=head2 readInherited
+
+readInherited
+
+=cut
+
+sub readInherited {
+    my ($self, $id, $idKey) = @_;
+    my $item = $self->readInheritedRaw($id, $idKey);
+    if (!defined $item) {
+        return undef;
+    }
+
+    $self->cleanupAfterRead($id, $item);
+    return $item;
+}
+
+=head2 readInheritedRaw
+
+readInheritedRaw
+
+=cut
+
+sub readInheritedRaw {
+    my ($self, $id, $idKey) = @_;
+    my $item = $self->readWithoutInherited($id, $idKey);
+    if (!defined $item) {
+        return undef;
+    }
+
+    my @parentSections = $self->parentSections($id, $item);
+    if (@parentSections == 0) {
+        return undef;
+    }
+
+    my $config = $self->cachedConfig;
+    my $inherited = {};
+    for my $parent (@parentSections) {
+        $self->populateItem($config, $inherited, $parent, grep {!exists $inherited->{$_}} $config->Parameters($parent))
+    }
+
+    return $inherited;
+}
+
+sub readWithoutInheritedRaw {
+    my ($self, $id, $idKey) = @_;
+    my $section = $self->_formatSectionName($id);
+    my $config = $self->cachedConfig;
+    if ( !$config->SectionExists($id) ) {
+        return undef;
+    }
+
+    my $item = {};
+    $self->populateItem($config, $item, $section, $config->Parameters($section));
+    $item->{$idKey} = $id if defined $idKey;
+    return $item;
+}
+
+sub readWithoutInherited {
+    my ($self, $id, $idKey) = @_;
+    my $item = $self->readWithoutInheritedRaw($id, $idKey);
+    if (!defined $item) {
+        return undef;
+    }
+
+    $self->cleanupAfterRead($id, $item);
+    return $item;
+}
+
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 =head1 COPYRIGHT
@@ -707,4 +832,3 @@ USA.
 =cut
 
 1;
-

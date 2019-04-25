@@ -14,6 +14,7 @@ pfappserver::Model::Config::SwitchGroup;
 use Moose;
 use namespace::autoclean;
 use pf::ConfigStore::SwitchGroup;
+use pf::ConfigStore::Switch;
 use HTTP::Status qw(:constants :is);
 
 extends 'pfappserver::Base::Model::Config';
@@ -36,8 +37,9 @@ Override the parent method to validate we don't remove a group that has childs
 sub remove {
     my ($self, $id) = @_;
     pf::log::get_logger->info("Deleting $id");
-    my @childs = $self->configStore->members($id, $self->idKey);
-    if(@childs){
+    my $switch_cs =  pf::ConfigStore::Switch->new();
+    my @childs = $switch_cs->search('group', $id, $self->idKey);
+    if (@childs) {
         my @switch_ids = map { $_->{id} } @childs;
         my $switch_csv = join(', ', @switch_ids);
         my $status_msg = ["Cannot remove group [_1] because it is still used by the following switches : [_2]",$id, $switch_csv];
