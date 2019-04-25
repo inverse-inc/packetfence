@@ -14,7 +14,6 @@ pf::ConfigStore::SwitchGroup;
 
 use Moo;
 use namespace::autoclean;
-#use pf::ConfigStore::Pf;
 use pf::ConfigStore::Group;
 
 extends 'pf::ConfigStore::Switch';
