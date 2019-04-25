@@ -120,7 +120,8 @@ export default {
         {
           value: 'created_at',
           text: 'Created',
-          types: [conditionType.DATETIME]
+          types: [conditionType.DATETIME],
+          class: 'text-nowrap'
         },
         {
           value: 'user_name',
