@@ -173,6 +173,24 @@ is_deeply(
     "Search like for nothing get nothing"
 );
 
+is_deeply(
+    $configStore->readInherited('section1'),
+    {
+        param3 => 'value3',
+        param4 => 'value4',
+    },
+    "readInherited"
+);
+
+is_deeply(
+    $configStore->readWithoutInherited('section1'),
+    {
+        param1 => 'value1',
+        param2 => 'value2',
+    },
+    "readWithoutInherited"
+);
+
 my @expected_sections = ('default','section1','section1 group 1','section1 group 2','section2');
 
 is_deeply( $configStore->readAllIds, \@expected_sections,"All sections found");

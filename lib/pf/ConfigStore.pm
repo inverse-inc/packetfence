@@ -267,20 +267,20 @@ reads a section without doing post-read cleanup
 
 sub readRaw {
     my ($self, $id, $idKey ) = @_;
-    return $self->readAllFromSection($id, $idKey, $self->cachedConfig);
+    return $self->readFromSection($id, $idKey, $self->cachedConfig);
 }
 
-=head2 readAllFromSection
+=head2 readFromSection
 
 read all parameters from a section
 
 =cut
 
-sub readAllFromSection {
+sub readFromSection {
     my ($self, $id, $idKey, $config) = @_;
     my $data;
     my $section = $self->_formatSectionName($id);
-    if ( $config->SectionExists($id) ) {
+    if ( $config->SectionExists($section) ) {
         $data = {};
         $self->populateItem($config, $data, $section, $config->Parameters($section));
         for my $parent ($self->parentSections($id, $data)) {
@@ -344,7 +344,7 @@ sub readFromImported {
     my ($self, $id, $idKey) = @_;
     my $config = $self->cachedConfig();
     if ($config->{imported}) {
-        return $self->readAllFromSection($id, $idKey, $config->{imported});
+        return $self->readFromSection($id, $idKey, $config->{imported});
     }
 
     return {};
@@ -715,6 +715,47 @@ sub is_section_in_import {
     return $imported->SectionExists($section) ? $TRUE : $FALSE;
 }
 
+=head2 readInherited
+
+readInherited
+
+=cut
+
+sub readInherited {
+    my ($self, $id, $idKey) = @_;
+    my $item = $self->readWithoutInherited($id, $idKey);
+    if (!defined $item) {
+        return undef;
+    }
+
+    my @parentSections = $self->parentSections($id, $item);
+    if (@parentSections == 0) {
+        return undef;
+    }
+
+    my $config = $self->cachedConfig;
+    my $inherited = {};
+    for my $parent (@parentSections) {
+        $self->populateItem($config, $inherited, $parent, grep {!exists $inherited->{$_}} $config->Parameters($parent))
+    }
+
+    return $inherited;
+}
+
+sub readWithoutInherited {
+    my ($self, $id, $idKey) = @_;
+    my $section = $self->_formatSectionName($id);
+    my $config = $self->cachedConfig;
+    if ( !$config->SectionExists($id) ) {
+        return undef;
+    }
+
+    my $item = {};
+    $self->populateItem($config, $item, $section, $config->Parameters($section));
+    $item->{$idKey} = $id if defined $idKey;
+    return $item;
+}
+
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 =head1 COPYRIGHT
@@ -741,4 +782,3 @@ USA.
 =cut
 
 1;
-
