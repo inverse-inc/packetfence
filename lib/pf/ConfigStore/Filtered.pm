@@ -27,17 +27,6 @@ sub _Sections {
     return grep { $self->filter($_) } $self->cachedConfig->Sections();
 }
 
-=head2 _hasId
-
-Is the ID present in the filtered sections
-
-=cut
-
-sub _hasId {
-    my ($self, $id) = @_;
-    return any { $_ eq $id } $self->_Sections();
-}
-
 =head2 hasId
 
 Override hasId to take into consideration the filtered sections
@@ -47,8 +36,8 @@ Override hasId to take into consideration the filtered sections
 sub hasId {
     my ($self, $id ) = @_;
     my $config = $self->cachedConfig;
-    $id = $self->_formatSectionName($id);
-    return $config->SectionExists($id) && $self->_hasId($id);
+    my $section = $self->_formatSectionName($id);
+    return $self->filter($section) && $config->SectionExists($section);
 }
 
 =back
