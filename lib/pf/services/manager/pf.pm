@@ -128,7 +128,7 @@ sub print_status {
             if (@manager && $isManaged && !$manager[0]->optional) {
                 print "$service\t$colors->{error}stopped   ${pid}$colors->{reset}\n";
             } else {
-                print "$service\t$colors->{warning}stopped   ${pid}$colors->{reset}\n";
+                print "$service\t$colors->{disabled}disabled  ${pid}$colors->{reset}\n";
             }
         }
     }

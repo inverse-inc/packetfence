@@ -27,12 +27,13 @@ colors
 sub colors {
     my $is_interactive = is_interactive();
     return {
-        'reset'   => $is_interactive ? color 'reset'       : '',
-        'warning' => $is_interactive ? color $YELLOW_COLOR : '',
-        'error'   => $is_interactive ? color $RED_COLOR    : '',
-        'success' => $is_interactive ? color $GREEN_COLOR  : '',
-        'status'  => $is_interactive ? color $BLUE_COLOR   : '',
+        'reset'       => $is_interactive ? color 'reset'       : '',
+        'warning'     => $is_interactive ? color $YELLOW_COLOR : '',
+        'error'       => $is_interactive ? color $RED_COLOR    : '',
+        'success'     => $is_interactive ? color $GREEN_COLOR  : '',
+        'status'      => $is_interactive ? color $BLUE_COLOR   : '',
         'interactive' => $is_interactive,
+        'disabled'    => $is_interactive ? color $CYAN_COLOR   : '',
     };
 }
 
