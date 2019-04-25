@@ -354,7 +354,7 @@ export const pfConfigurationFingerbankDeviceChangeDetectionViewFields = (context
             {
               component: pfFormHtml,
               attrs: {
-                html: `<div class="alert alert-warning">
+                html: `<div class="alert alert-info">
                   ${i18n.t('Valid device classes IDs are:')}<br/>
                   <ul>
                     <li><strong>Android OS</strong> = 33453</li>
