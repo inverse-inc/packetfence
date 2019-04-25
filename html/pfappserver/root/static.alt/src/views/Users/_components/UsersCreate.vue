@@ -15,11 +15,9 @@
                 v-model.trim="single.pid"
                 :vuelidate="$v.single.pid"
                 text="The username to use for login to the captive portal."/>
-              <pf-form-input :column-label="$t('Password')"
+              <pf-form-password :column-label="$t('Password')" generate
                 v-model="single.password"
-                :vuelidate="$v.single.password"
-                type="password"
-                text="Leave empty to generate a random password."/>
+                :vuelidate="$v.single.password"/>
               <pf-form-input :column-label="$t('Login remaining')"
                 v-model="single.login_remaining"
                 :vuelidate="$v.single.login_remaining"
@@ -176,6 +174,25 @@
                 :vuelidate="$v.multiple.quantity"
                 type="number"
               />
+              <pf-form-row :column-label="$t('Password')" align-v="start">
+                <b-row>
+                  <b-col lg="9">
+                    <b-row>
+                      <b-col><b-form-input v-model="passwordGenerator.pwlength" type="range" min="6" max="64"></b-form-input></b-col>
+                      <b-col>{{ $t('{count} characters', { count: passwordGenerator.pwlength }) }}</b-col>
+                    </b-row>
+                    <b-row>
+                      <b-col><b-form-checkbox v-model="passwordGenerator.upper">ABC</b-form-checkbox></b-col>
+                      <b-col><b-form-checkbox v-model="passwordGenerator.lower">abc</b-form-checkbox></b-col>
+                      <b-col><b-form-checkbox v-model="passwordGenerator.digits">123</b-form-checkbox></b-col>
+                      <b-col><b-form-checkbox v-model="passwordGenerator.special">!@#</b-form-checkbox></b-col>
+                      <b-col><b-form-checkbox v-model="passwordGenerator.brackets">({&lt;</b-form-checkbox></b-col>
+                      <b-col><b-form-checkbox v-model="passwordGenerator.high">äæ±</b-form-checkbox></b-col>
+                      <b-col><b-form-checkbox v-model="passwordGenerator.ambiguous">0Oo</b-form-checkbox></b-col>
+                    </b-row>
+                  </b-col>
+                </b-row>
+              </pf-form-row>
               <pf-form-input :column-label="$t('Login remaining')"
                 v-model="multiple.login_remaining"
                 :vuelidate="$v.multiple.login_remaining"
@@ -260,9 +277,11 @@ import pfFormChosen from '@/components/pfFormChosen'
 import pfFormDatetime from '@/components/pfFormDatetime'
 import pfFormFields from '@/components/pfFormFields'
 import pfFormInput from '@/components/pfFormInput'
+import pfFormPassword from '@/components/pfFormPassword'
 import pfFormRow from '@/components/pfFormRow'
 import pfFormTextarea from '@/components/pfFormTextarea'
 import pfFormToggle from '@/components/pfFormToggle'
+import password from '@/utils/password'
 import {
   required,
   minLength,
@@ -293,6 +312,7 @@ export default {
     pfFormDatetime,
     pfFormFields,
     pfFormInput,
+    pfFormPassword,
     pfFormRow,
     pfFormTextarea,
     pfFormToggle
@@ -354,6 +374,16 @@ export default {
       valid_from: null,
       expiration: null,
       actions: [],
+      passwordGenerator: {
+        pwlength: 8,
+        upper: true,
+        lower: true,
+        digits: true,
+        special: false,
+        brackets: false,
+        high: false,
+        ambiguous: false
+      },
       actionField: {
         component: pfFieldTypeValue,
         attrs: {
@@ -393,6 +423,7 @@ export default {
             [this.$i18n.t('Email address required.')]: required
           },
           password: {
+            [this.$i18n.t('Password required.')]: required,
             [this.$i18n.t('Password must be at least 6 characters.')]: minLength(6)
           }
         }
@@ -453,7 +484,8 @@ export default {
           const baseValue = { ...base, ...this.multiple, ...{ quiet: true } }
           for (let i = 0; i < this.multiple.quantity; i++) {
             let pid = this.multiple.prefix + (i + 1)
-            let currentValue = Object.assign({ pid }, baseValue)
+            let pwd = password.generate(this.passwordGenerator.pwlength, this.passwordGenerator)
+            let currentValue = Object.assign({ pid, password: pwd }, baseValue)
             promises.push(this.$store.dispatch('$_users/exists', pid).then(results => {
               // user exists
               return this.$store.dispatch('$_users/updateUser', currentValue)

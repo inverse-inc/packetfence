@@ -17,10 +17,9 @@
                 readonly
                 v-model.trim="userContent.pid"
                 text="The username to use for login to the captive portal."/>
-              <pf-form-input :column-label="$t('Password')"
+              <pf-form-password :column-label="$t('Password')" generate
                 v-model="userContent.password"
                 :vuelidate="$v.userContent.password"
-                type="password"
                 text="Leave empty to keep current password."/>
               <pf-form-input :column-label="$t('Login remaining')"
                 v-model="userContent.login_remaining"
@@ -214,6 +213,7 @@ import pfEmptyTable from '@/components/pfEmptyTable'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormDatetime from '@/components/pfFormDatetime'
 import pfFormInput from '@/components/pfFormInput'
+import pfFormPassword from '@/components/pfFormPassword'
 import pfFormTextarea from '@/components/pfFormTextarea'
 import pfFormToggle from '@/components/pfFormToggle'
 import { pfFormatters as formatter } from '@/globals/pfFormatters'
@@ -238,6 +238,7 @@ export default {
     pfFormChosen,
     pfFormDatetime,
     pfFormInput,
+    pfFormPassword,
     pfFormTextarea,
     pfFormToggle
   },

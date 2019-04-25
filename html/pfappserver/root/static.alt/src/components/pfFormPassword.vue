@@ -19,6 +19,11 @@
       </b-form-input>
       <b-input-group-append>
         <b-button v-if="disabled" class="input-group-text" tabindex="-1" disabled><icon name="lock"></icon></b-button>
+        <b-button v-else-if="generate"
+          class="input-group-text" variant="light"
+          :id="uuid"
+          :aria-label="$t('Generate password')" :title="$t('Generate password')"
+          ><icon name="random"></icon></b-button>
         <b-button-group v-else-if="test" rel="testResultGroup">
           <b-button v-if="testResult !== null" variant="light" disabled tabindex="-1">
             <span class="mr-1" :class="{ 'text-danger': !testResult, 'text-success': testResult }">{{ testMessage }}</span>
@@ -36,11 +41,45 @@
       </b-input-group-append>
     </b-input-group>
     <b-form-text v-if="text" v-html="text"></b-form-text>
+    <b-popover
+      triggers="focus blur click"
+      placement="bottom"
+      :target="uuid"
+      :title="$t('Generate password')"
+      :show.sync="showGenerator"
+      @shown="onGenertorShown"
+      @hidden="onGeneratorHidden">
+      <b-card ref="generator" class="card-sm" border-variant="light" no-body>
+        <b-form-row>
+          <b-col><b-form-input v-model="options.pwlength" type="range" min="6" max="64"></b-form-input></b-col>
+          <b-col>{{ $t('{count} characters', { count: options.pwlength }) }}</b-col>
+        </b-form-row>
+        <b-form-row>
+          <b-col><b-form-checkbox v-model="options.upper">ABC</b-form-checkbox></b-col>
+          <b-col><b-form-checkbox v-model="options.lower">abc</b-form-checkbox></b-col>
+        </b-form-row>
+        <b-form-row>
+          <b-col><b-form-checkbox v-model="options.digits">123</b-form-checkbox></b-col>
+          <b-col><b-form-checkbox v-model="options.special">!@#</b-form-checkbox></b-col>
+        </b-form-row>
+        <b-form-row>
+          <b-col><b-form-checkbox v-model="options.brackets">({&lt;</b-form-checkbox></b-col>
+          <b-col><b-form-checkbox v-model="options.high">äæ±</b-form-checkbox></b-col>
+        </b-form-row>
+        <b-form-row>
+          <b-col><b-form-checkbox v-model="options.ambiguous">0Oo</b-form-checkbox></b-col>
+        </b-form-row>
+        <b-form-row>
+          <b-col class="text-right"><b-button variant="primary" size="sm" @click="generatePassword()" @mouseover="startVisibility()" @mousemove="startVisibility()" @mouseout="stopVisibility()">{{ $t('Generate') }}</b-button></b-col>
+        </b-form-row>
+    </b-popover>
   </b-form-group>
 </template>
 
 <script>
 import pfMixinValidation from '@/components/pfMixinValidation'
+import password from '@/utils/password'
+import uuidv4 from 'uuid/v4'
 
 export default {
   name: 'pf-form-password',
@@ -77,6 +116,10 @@ export default {
     disabled: {
       type: Boolean,
       default: false
+    },
+    generate: {
+      type: Boolean,
+      default: false
     }
   },
   data () {
@@ -85,7 +128,19 @@ export default {
       focus: false,
       testResult: null,
       testMessage: null,
-      isTesting: false
+      isTesting: false,
+      showGenerator: false,
+      options: {
+        pwlength: 8,
+        upper: true,
+        lower: true,
+        digits: true,
+        special: false,
+        brackets: false,
+        high: false,
+        ambiguous: false
+      },
+      uuid: uuidv4() // unique id for multiple instances of this component
     }
   },
   computed: {
@@ -138,6 +193,18 @@ export default {
       this.testResult = null
       this.testMessage = null
       this.onChange(event)
+    },
+    onGenertorShown () {
+      document.body.addEventListener('click', this.onBodyClick)
+    },
+    onGeneratorHidden () {
+      document.body.removeEventListener('click', this.onBodyClick)
+    },
+    generatePassword () {
+      this.inputValue = password.generate(this.options.pwlength, this.options)
+    },
+    onBodyClick ($event) {
+      this.showGenerator = this.$refs.generator.contains($event.target)
     }
   }
 }
