@@ -191,12 +191,23 @@ Get all the sections as an array of hash refs
 =cut
 
 sub readAll {
-    my ($self,$idKey) = @_;
+    my ($self, $idKey) = @_;
+    return $self->_readAll($idKey, "read");
+}
+
+=head2 _readAll
+
+_readAll
+
+=cut
+
+sub _readAll {
+    my ($self, $idKey, $method) = @_;
     my $config = $self->cachedConfig;
     my $default_section = $self->default_section;
     my @sections;
     foreach my $id ($self->_Sections()) {
-        my $section = $self->read($id,$idKey);
+        my $section = $self->$method($id,$idKey);
         if (defined $default_section &&  $id eq $default_section ) {
             unshift @sections, $section;
         } else {
@@ -204,6 +215,17 @@ sub readAll {
         }
     }
     return \@sections;
+}
+
+=head2 readAllWithoutInherited
+
+readAllWithoutInherited
+
+=cut
+
+sub readAllWithoutInherited {
+    my ($self, $idKey) = @_;
+    return $self->_readAll($idKey, "readWithoutInherited");
 }
 
 =head2 _Section
@@ -253,9 +275,9 @@ reads a section
 =cut
 
 sub read {
-    my ($self, $id, $idKey ) = @_;
+    my ($self, $id, $idKey) = @_;
     my $data = $self->readRaw($id, $idKey);
-    $self->cleanupAfterRead($id,$data);
+    $self->cleanupAfterRead($id, $data);
     return $data;
 }
 
@@ -723,6 +745,23 @@ readInherited
 
 sub readInherited {
     my ($self, $id, $idKey) = @_;
+    my $item = $self->readInheritedRaw($id, $idKey);
+    if (!defined $item) {
+        return undef;
+    }
+
+    $self->cleanupAfterRead($id, $item);
+    return $item;
+}
+
+=head2 readInheritedRaw
+
+readInheritedRaw
+
+=cut
+
+sub readInheritedRaw {
+    my ($self, $id, $idKey) = @_;
     my $item = $self->readWithoutInherited($id, $idKey);
     if (!defined $item) {
         return undef;
@@ -739,11 +778,10 @@ sub readInherited {
         $self->populateItem($config, $inherited, $parent, grep {!exists $inherited->{$_}} $config->Parameters($parent))
     }
 
-    $self->cleanupAfterRead($id, $inherited);
     return $inherited;
 }
 
-sub readWithoutInherited {
+sub readWithoutInheritedRaw {
     my ($self, $id, $idKey) = @_;
     my $section = $self->_formatSectionName($id);
     my $config = $self->cachedConfig;
@@ -754,6 +792,16 @@ sub readWithoutInherited {
     my $item = {};
     $self->populateItem($config, $item, $section, $config->Parameters($section));
     $item->{$idKey} = $id if defined $idKey;
+    return $item;
+}
+
+sub readWithoutInherited {
+    my ($self, $id, $idKey) = @_;
+    my $item = $self->readWithoutInheritedRaw($id, $idKey);
+    if (!defined $item) {
+        return undef;
+    }
+
     $self->cleanupAfterRead($id, $item);
     return $item;
 }

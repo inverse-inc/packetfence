@@ -24,13 +24,45 @@ BEGIN {
     use setup_test_config;
 }
 
-plan tests => 27;
+plan tests => 30;
 
 use_ok("pf::ConfigStore");
 
 my $configStore = new_ok("pf::ConfigStore",[{configFile => '/usr/local/pf/t/data/test.conf',default_section => 'default'}]);
 
 ok(!$configStore->remove('default'),"Cannot remove default");
+
+is_deeply(
+    $configStore->readAllWithoutInherited('id'),
+    [
+        {
+            'param3' => 'value3',
+            'param4' => 'value4',
+            'id'     => 'default',
+        },
+        {
+            'param1' => 'value1',
+            'param2' => 'value2',
+            'id'     => 'section1',
+        },
+        {
+            'param1' => 'value1',
+            'param2' => 'value2',
+            'id'     => 'section1 group 1',
+        },
+        {
+            'param1' => 'value1',
+            'param2' => 'value2',
+            'id'     => 'section1 group 2',
+        },
+        {
+            'param1' => 'value1',
+            'param2' => 'value2',
+            'id'     => 'section2',
+        },
+    ],
+    "readAllWithoutInheritedRaw"
+);
 
 is_deeply([], [$configStore->search()], "Search for nothing get nothing");
 
