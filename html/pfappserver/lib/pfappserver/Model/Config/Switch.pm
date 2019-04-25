@@ -133,8 +133,25 @@ sub search {
     );
 }
 
+=head2 read
 
+reads a section
 
+=cut
+
+sub read {
+    my ($self, $id) = @_;
+    my ($status, $result) = $self->hasId($id);
+    my $configStore = $self->configStore;
+    if(is_success($status)) {
+        unless ($result = $configStore->readWithoutInherited($id, $self->idKey)) {
+            $result = ["error reading [_1] from the configuration", $id];
+            $status =  HTTP_PRECONDITION_FAILED;
+        }
+    }
+
+    return ($status, $result);
+}
 
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
