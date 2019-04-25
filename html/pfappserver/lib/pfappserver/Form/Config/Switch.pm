@@ -32,6 +32,7 @@ use pf::SwitchFactory;
 use pf::util;
 use List::MoreUtils qw(any);
 use pf::ConfigStore::SwitchGroup;
+use pf::ConfigStore::Switch;
 
 ## Definition
 has_field 'id' =>
@@ -586,8 +587,7 @@ sub update_fields {
     $init_object ||= $self->init_object;
     my $id = $init_object->{id} if $init_object;
     my $inherit_from = $init_object->{group} || "default";
-    my $cs = pf::ConfigStore::SwitchGroup->new;
-    my $placeholders = $cs->read($inherit_from);
+    my $placeholders = $id ? pf::ConfigStore::Switch->new->readInherited($id) : undef;
 
     if (defined $id && $id eq 'default') {
         foreach my $role (@ROLES) {
@@ -595,13 +595,13 @@ sub update_fields {
         }
     } elsif ($placeholders) {
         foreach my $field ($self->fields) {
-            my $placeholder = $placeholders->{$field->name};
+            my $name = $field->name;
+            my $placeholder = $placeholders->{$name};
             if (defined $placeholder && length $placeholder) {
                 if ($field->type eq 'Select') {
                     my $val = sprintf "%s (%s)", $self->_localize('Default'), $placeholder;
                     $field->element_attr({ 'data-placeholder' => $val });
-                }
-                elsif (
+                } elsif (
                     # if there is no value defined in the switch and the place holder is defined
                     # We check that it is not disabled because of special cases like uplink_dynamic
                     ( ( !defined($init_object->{$field->name}) && !pf::util::isdisabled($placeholder) )
@@ -610,8 +610,7 @@ sub update_fields {
                     # we only apply this to Checkbox and Toggle
                     && ($field->type eq "Checkbox" || $field->type eq "Toggle") ) {
                     $field->element_attr({ checked => "checked" });
-                }
-                elsif ($field->name ne 'id') {
+                } elsif ($name ne 'id') {
                     $field->element_attr({ placeholder => $placeholder });
                 }
             }
