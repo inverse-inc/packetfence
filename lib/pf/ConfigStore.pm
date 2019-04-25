@@ -739,6 +739,7 @@ sub readInherited {
         $self->populateItem($config, $inherited, $parent, grep {!exists $inherited->{$_}} $config->Parameters($parent))
     }
 
+    $self->cleanupAfterRead($id, $inherited);
     return $inherited;
 }
 
@@ -753,6 +754,7 @@ sub readWithoutInherited {
     my $item = {};
     $self->populateItem($config, $item, $section, $config->Parameters($section));
     $item->{$idKey} = $id if defined $idKey;
+    $self->cleanupAfterRead($id, $item);
     return $item;
 }
 
