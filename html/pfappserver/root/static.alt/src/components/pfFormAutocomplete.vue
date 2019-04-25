@@ -170,13 +170,13 @@ export default {
     }
     // Matching values
     .pf-autocomplete-suggestions.dropdown-menu {
+        width: 100%;
+        padding: 0;
         border-top: none;
         border-top-left-radius: 0%;
         border-top-right-radius: 0%;
         float: none;
         margin: 0;
-        padding: 0;
-        width: 100%;
         // From @mixin form-control-focus()
         box-shadow: $input-box-shadow, $input-focus-box-shadow;
         border-color: $input-focus-border-color;
