@@ -127,10 +127,12 @@ sub parentSections {
     my ($self, $id, $item) = @_;
     my $inherit_from = $item->{group};
     my $default_section = $self->default_section;
-    my @parents = $self->SUPER::parentSections($id, $item);
+    return if defined $default_section && $id eq $default_section;
+    my @parents;
     if (defined $inherit_from && (!defined $default_section || $default_section ne $inherit_from) && $id ne $inherit_from) {
-        unshift @parents, $inherit_from;
+        push @parents, "group $inherit_from";
     }
+    push @parents, $self->SUPER::parentSections($id, $item);
 
     return @parents;
 }
