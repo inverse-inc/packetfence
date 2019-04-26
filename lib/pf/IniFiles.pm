@@ -133,6 +133,24 @@ sub is_imported {
     return none { $_ eq $param } @{$self->{myparms}{$section}};
 }
 
+=head2 MyParameters ($sect_name)
+
+Returns an array containing the parameters contained in the specified
+section.
+
+=cut
+
+sub MyParameters {
+    my $self = shift;
+    my $sect = shift;
+
+    return undef if not defined $sect;
+
+    $self->_caseify(\$sect);
+
+    return @{Config::IniFiles::_aref_or_empty($self->{myparms}{$sect})};
+}
+
 =head2 ResortSections
 
 =cut
