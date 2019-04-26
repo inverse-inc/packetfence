@@ -178,6 +178,15 @@ Navigate to menu:File[Import>Import csv] to import a csv file.
 
 a|Navigate to menu:File[Import>Import csv] to import a csv file.
 
+|GUI button and menu (non-experimental)
+
+a|
+....
+Navigate to _Configuration -> Policies and Access Control_
+....
+
+a|Navigate to _Configuration -> Policies and Access Control_
+
 |Inline Image
 
 a|
@@ -349,6 +358,12 @@ Stop the `pfqueue` daemon.
 Start the `packetfence-iptables` service.
 
 |===
+
+==== Shell commands in code blocks
+
+.To ease copy-paste of shell commands:
+* Remove useless characters in code blocks like `#` or `$`
+* Split long lines with `\`
 
 
 === Checklist to create a new guide
