@@ -53,7 +53,7 @@ sub handle_domain_operation {
         json => {
             "task_id" => $task_id,
         },
-        status => 200,
+        status => 202,
     );
 }
 
