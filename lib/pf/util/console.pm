@@ -16,7 +16,7 @@ use strict;
 use warnings;
 use IO::Interactive qw(is_interactive);
 use Term::ANSIColor;
-use pf::constants qw($BLUE_COLOR $TRUE $RED_COLOR $GREEN_COLOR $YELLOW_COLOR);
+use pf::constants qw($BLUE_COLOR $TRUE $RED_COLOR $GREEN_COLOR $YELLOW_COLOR $CYAN_COLOR);
 
 =head2 colors
 
