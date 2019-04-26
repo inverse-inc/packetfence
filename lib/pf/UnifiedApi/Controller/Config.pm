@@ -375,7 +375,7 @@ sub options {
         return $self->render_error($status, $form);
     }
 
-    return $self->render(json => $self->options_from_form($form));
+    return $self->render(json => $self->options_from_form($form, $self->default_values));
 }
 
 =head2 options_from_form
@@ -385,13 +385,12 @@ Get the options from the form
 =cut
 
 sub options_from_form {
-    my ($self, $form) = @_;
+    my ($self, $form, $defaultValues) = @_;
     my %meta;
     my %output = (
         meta => \%meta,
     );
 
-    my $defaultValues = $self->default_values;
     for my $field ($form->fields) {
         next if $field->inactive;
         my $name = $field->name;
@@ -619,7 +618,7 @@ sub default_values {
     my $default_section = $cs->default_section;
     my $defaultValues;
     if ($default_section) {
-        $defaultValues = $self->cleanup_item($cs->read($default_section, 'id'));
+        $defaultValues = $self->cleanup_item($cs->readInherited($default_section, 'id'));
     }
 
     return $defaultValues;
