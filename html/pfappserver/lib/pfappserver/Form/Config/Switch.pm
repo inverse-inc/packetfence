@@ -587,13 +587,16 @@ sub update_fields {
     $init_object ||= $self->init_object;
     my $id = $init_object->{id} if $init_object;
     my $inherit_from = $init_object->{group} || "default";
-    my $placeholders = $id ? pf::ConfigStore::Switch->new->readInherited($id) : undef;
+    my $cs = pf::ConfigStore::Switch->new;
+    my $placeholders = $id ? $cs->readInherited($id) : $cs->read($inherit_from);
 
     if (defined $id && $id eq 'default') {
         foreach my $role (@ROLES) {
             $self->field($role.'Vlan')->required(1);
         }
-    } elsif ($placeholders) {
+    }
+
+    if ($placeholders) {
         foreach my $field ($self->fields) {
             my $name = $field->name;
             my $placeholder = $placeholders->{$name};
