@@ -24,6 +24,7 @@ has 'primary_key' => 'domain_id';
 use pf::ConfigStore::Domain;
 use pfappserver::Form::Config::Domain;
 use pf::domain;
+use pf::error qw(is_error);
 use pf::pfqueue::producer::redis;
 
 =head2 test_join
