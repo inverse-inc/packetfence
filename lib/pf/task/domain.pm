@@ -58,22 +58,8 @@ sub doTask {
         return;
     }
 
-    my $result = $OP_MAP{$op}->($domain);
-    $self->reset_credentials($domain);
+    my $result = $OP_MAP{$op}->($domain, $args);
     return $result;
-}
-
-=head2 reset_credentials
-
-Reset the domain credentials
-
-=cut
-
-sub reset_credentials {
-    my ($self, $domain) = @_;
-    my $model = pf::ConfigStore::Domain->new;
-    my ($status,$result) = $model->update($domain, { bind_dn => undef, bind_pass => undef } );
-    $model->commit();
 }
 
 =head1 AUTHOR

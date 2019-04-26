@@ -34,8 +34,7 @@ Test if a domain is properly joined
 
 sub test_join {
     my ($self) = @_;
-    my $domain_id = $self->stash('domain_id');
-    my ($status, $msg) = pf::domain::test_join($domain_id);
+    my ($status, $msg) = pf::domain::test_join($self->id);
     $self->render(json => {message => $msg}, status => $status == 0 ? 200 : 422);
 }
 
@@ -47,14 +46,51 @@ Post a long running operation to the queue and render the task ID to follow its 
 
 sub handle_domain_operation {
     my ($self, $op) = @_;
+    my ($status, $json) = $self->parse_json;
+    if (is_error($status)) {
+        return $self->render(status => $status, json => $json);
+    }
+
+    ($status, my $data) = $self->validate_input($json);
+    if (is_error($status)) {
+        return $self->render(status => $status, json => $data);
+    }
+
     my $client = pf::pfqueue::producer::redis->new();
-    my $task_id = $client->submit("general", domain => {operation => $op, domain => $self->stash('domain_id')}, undef, status_update => 1);
+    my $task_id = $client->submit("general", domain => {%$data, operation => $op, domain => $self->id}, undef, status_update => 1);
     $self->render(
         json => {
             "task_id" => $task_id,
         },
         status => 202,
     );
+}
+
+=head2 validate_input
+
+validate_input
+
+=cut
+
+sub validate_input {
+    my ($sel, $data) = @_;
+
+    my $bind_dn = $data->{username};
+    my $bind_pass = $data->{password};
+    my @errors;
+    if (!defined $bind_dn || length($bind_dn) == 0) {
+        push @errors, {message => 'field username is required', field => 'username'},
+    }
+
+    if (!defined $bind_pass || length($bind_pass) == 0) {
+        push @errors, {message => 'field password is required', field => 'password'},
+    }
+
+    if (@errors) {
+        return 422, { message => 'username and or password missing' , errors => @errors};
+    }
+
+    return 200, { bind_dn => $bind_dn, bind_pass => $bind_pass };
 }
 
 =head2 join

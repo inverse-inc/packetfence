@@ -99,13 +99,13 @@ Joins the domain
 =cut
 
 sub join_domain {
-    my ($domain) = @_;
+    my ($domain, $extra) = @_;
     my $logger = get_logger();
     my $chroot_path = chroot_path($domain);
 
     regenerate_configuration();
 
-    my $info = $ConfigDomain{$domain};
+    my $info = {%{$ConfigDomain{$domain}}, %{$extra // {}}};
     my ($status, $output) = run("/usr/bin/sudo /sbin/ip netns exec $domain /usr/sbin/chroot $chroot_path net ads join -s /etc/samba/$domain.conf createcomputer=$info->{ou} -U '".escape_bind_user_string($info->{bind_dn}.'%'.$info->{bind_pass})."'");
     $logger->info("domain join : ".$output);
 
@@ -121,14 +121,14 @@ Unjoins then joins the domain
 =cut
 
 sub rejoin_domain {
-    my ($domain) = @_;
+    my ($domain, $extra) = @_;
     my $logger = get_logger();
 
     my $info = $ConfigDomain{$domain};
-    if($info){
-        my ($leave_output) = unjoin_domain($domain);
+    if ($info) {
+        my ($leave_output) = unjoin_domain($domain, $extra);
 
-        my $join_output = join_domain($domain);
+        my $join_output = join_domain($domain, $extra);
 
         return {leave_output => $leave_output, join_output => $join_output};
     }
@@ -141,12 +141,13 @@ Joins the domain through the ip namespace
 =cut
 
 sub unjoin_domain {
-    my ($domain) = @_;
+    my ($domain, $extra) = @_;
     my $logger = get_logger();
     my $chroot_path = chroot_path($domain);
 
     my $info = $ConfigDomain{$domain};
-    if($info){
+    if ($info) {
+        $info = {%$info, %{$extra // {}}};
         my ($status, $output) = run("/usr/bin/sudo /sbin/ip netns exec $domain /usr/sbin/chroot $chroot_path net ads leave -s /etc/samba/$domain.conf -U '".escape_bind_user_string($info->{bind_dn}.'%'.$info->{bind_pass})."'");
         $logger->info("domain leave : ".$output);
         $logger->info("netns deletion : ".run("/usr/bin/sudo /sbin/ip netns delete $domain"));
