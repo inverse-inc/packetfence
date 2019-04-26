@@ -4,8 +4,10 @@
     :config="config"
   >
     <template slot="pageHeader">
-      <h4 v-t="'Maintenance Tasks'"></h4>
-      <p v-t="'Enabling or disabling a task as well as modifying its interval requires a restart of pfmon to be fully effective.'"></p>
+      <b-card-header>
+        <h4 class="mb-3" v-t="'Maintenance Tasks'"></h4>
+        <p class="mb-0" v-t="'Enabling or disabling a task as well as modifying its interval requires a restart of pfmon to be fully effective.'"></p>
+      </b-card-header>
     </template>
     <template slot="buttonAdd">
       <pf-button-service service="pfmon" class="mr-1" restart start stop></pf-button-service>

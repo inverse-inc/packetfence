@@ -32,7 +32,7 @@ export default {
             },
             {
               name: 'Local Queue',
-              path: '/status/pfqueue',
+              path: '/status/queue',
               can: 'read services'
             }
           ]

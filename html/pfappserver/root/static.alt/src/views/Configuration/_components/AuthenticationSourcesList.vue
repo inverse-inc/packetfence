@@ -7,7 +7,7 @@
         <b-card-header>
           <h4 class="mb-3" v-t="'Authentication Sources'"></h4>
           <p v-t="'Define the authentication sources to let users access the captive portal or the admin Web interface.'"></p>
-          <p v-t="'Each connection profile must be associated with one or multiple authentication sources while 802.1X connections use the ordered internal sources to determine which role to use. External sources are never used with 802.1X connections.'"></p>
+          <p class="mb-0" v-t="'Each connection profile must be associated with one or multiple authentication sources while 802.1X connections use the ordered internal sources to determine which role to use. External sources are never used with 802.1X connections.'"></p>
         </b-card-header>
       </template>
       <template slot="buttonAdd">

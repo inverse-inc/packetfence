@@ -4,10 +4,10 @@
             <h4 class="mb-0" v-t="'Domains'"></h4>
         </b-card-header>
         <b-tabs ref="tabs" v-model="tabIndex" card>
-            <b-tab :title="$t('Active Directory Domains')" @click="changeTab('domains')">
+            <b-tab :title="$t('Active Directory Domains')" @click="changeTab('domains')" no-body>
                 <domains-list />
             </b-tab>
-            <b-tab :title="$t('REALMS')" @click="changeTab('realms')">
+            <b-tab :title="$t('REALMS')" @click="changeTab('realms')" no-body>
                 <realms-list />
             </b-tab>
         </b-tabs>

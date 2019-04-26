@@ -22,6 +22,10 @@
         <b-col>{{ $t('Enabled') }}</b-col>
         <b-col cols="auto"><icon :class="(serviceStatus.enabled) ? 'text-success' : 'text-danger'" name="circle"></icon></b-col>
       </b-row>
+      <b-row class="row-nowrap">
+        <b-col>{{ $t('Managed') }}</b-col>
+        <b-col cols="auto"><icon :class="(serviceStatus.managed) ? 'text-success' : 'text-danger'" name="circle"></icon></b-col>
+      </b-row>
     </b-dropdown-form>
     <b-dropdown-divider v-if="!isLoading"></b-dropdown-divider>
     <b-dropdown-item v-if="canEnable" @click="doEnable"><icon name="toggle-on" class="mr-1" @click.stop="onClick"></icon> {{ $t('Enable') }}</b-dropdown-item>
@@ -63,7 +67,7 @@ export default {
   },
   data () {
     return {
-      serviceStatus: { pid: 0, alive: false, enabled: false, status: 'loading' }
+      serviceStatus: { pid: 0, alive: false, enabled: false, managed: false, status: 'loading' }
     }
   },
   computed: {

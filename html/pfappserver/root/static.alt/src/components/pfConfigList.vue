@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="card">
     <slot name="pageHeader"></slot>
     <pf-search ref="pfSearch"
       :quick-with-fields="false"
