@@ -151,7 +151,7 @@ export default {
           types: [fieldType.SUBSTRING],
           required: false,
           validators: buildValidationFromColumnSchemas(schema.node.pid, {
-            [this.$i18n.t('User exists.')]: userExists
+            [this.$i18n.t('User does not exist.')]: userExists
           })
         },
         {
