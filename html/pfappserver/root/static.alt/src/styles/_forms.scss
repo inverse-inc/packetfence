@@ -21,3 +21,8 @@
 .form-text {
     white-space: pre-line; /* allow \n to break */
 }
+
+.input-group > .custom-range {
+    padding: 0 !important;
+    border: 0 !important;
+}

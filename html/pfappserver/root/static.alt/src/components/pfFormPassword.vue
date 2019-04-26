@@ -49,7 +49,7 @@
       :show.sync="showGenerator"
       @shown="onGenertorShown"
       @hidden="onGeneratorHidden">
-      <b-card ref="generator" class="card-sm" border-variant="light" no-body>
+      <div ref="generator">
         <b-form-row>
           <b-col><b-form-input v-model="options.pwlength" type="range" min="6" max="64"></b-form-input></b-col>
           <b-col>{{ $t('{count} characters', { count: options.pwlength }) }}</b-col>
@@ -72,6 +72,7 @@
         <b-form-row>
           <b-col class="text-right"><b-button variant="primary" size="sm" @click="generatePassword()" @mouseover="startVisibility()" @mousemove="startVisibility()" @mouseout="stopVisibility()">{{ $t('Generate') }}</b-button></b-col>
         </b-form-row>
+      </div>
     </b-popover>
   </b-form-group>
 </template>
@@ -201,7 +202,7 @@ export default {
       document.body.removeEventListener('click', this.onBodyClick)
     },
     generatePassword () {
-      this.inputValue = password.generate(this.options.pwlength, this.options)
+      this.inputValue = password.generate(this.options)
     },
     onBodyClick ($event) {
       this.showGenerator = this.$refs.generator.contains($event.target)

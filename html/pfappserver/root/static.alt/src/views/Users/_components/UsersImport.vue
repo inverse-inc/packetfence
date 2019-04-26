@@ -11,7 +11,51 @@
             <b-button-close class="ml-2 text-white" @click.stop.prevent="closeFile(index)" v-b-tooltip.hover.left.d300 :title="$t('Close File')"><icon name="times"></icon></b-button-close>
             {{ $t(file.name) }}
           </template>
-          <pf-csv-parse @input="onImport" :ref="'parser-' + index" :file="file" :fields="fields" :storeName="storeName" no-init-bind-keys></pf-csv-parse>
+          <pf-csv-parse @input="onImport" :ref="'parser-' + index" :file="file" :fields="fields" :storeName="storeName" no-init-bind-keys>
+            <b-tab :title="$t('Password Options')">
+              <b-alert show variant="info">
+                {{ $t('When no password is imported, a random password is generated using the following criteria.') }}
+              </b-alert>
+              <b-row>
+                <b-col cols="6">
+                  <pf-form-input class="p-0" type="range" min="6" max="64"
+                    v-model="passwordGenerator.pwlength"
+                    :column-label="$t('Length')"
+                    :text="$t('{count} characters', { count: passwordGenerator.pwlength })"/>
+                  <pf-form-toggle
+                    v-model="passwordGenerator.upper"
+                    :column-label="$t('Uppercase')"
+                    :text="$t('Include uppercase characters')">ABC</pf-form-toggle>
+                  <pf-form-toggle
+                    v-model="passwordGenerator.lower"
+                    :column-label="$t('Lowercase')"
+                    :text="$t('Include lowercase characters')">abc</pf-form-toggle>
+                  <pf-form-toggle
+                    v-model="passwordGenerator.digits"
+                    :column-label="$t('Digits')"
+                    :text="$t('Include digits')">123</pf-form-toggle>
+                </b-col>
+                <b-col cols="6">
+                  <pf-form-toggle
+                    v-model="passwordGenerator.special"
+                    :column-label="$t('Special')"
+                    :text="$t('Include special characters')">!@#</pf-form-toggle>
+                  <pf-form-toggle
+                    v-model="passwordGenerator.brackets"
+                    :column-label="$t('Brackets/Parenthesis')"
+                    :text="$t('Include brackets')">({&lt;</pf-form-toggle>
+                  <pf-form-toggle
+                    v-model="passwordGenerator.high"
+                    :column-label="$t('Accentuated')"
+                    :text="$t('Include accentuated characters')">äæ±</pf-form-toggle>
+                  <pf-form-toggle
+                    v-model="passwordGenerator.ambiguous"
+                    :column-label="$t('Ambiguous')"
+                    :text="$t('Include ambiguous characters')">0Oo</pf-form-toggle>
+                </b-col>
+              </b-row>
+            </b-tab>
+          </pf-csv-parse>
         </b-tab>
         <template slot="tabs">
           <pf-form-upload @load="files = $event" :multiple="true" :cumulative="true" accept="text/*, .csv">{{ $t('Open CSV File') }}</pf-form-upload>
@@ -24,7 +68,6 @@
                   <b-media v-else>
                     <icon name="file" scale="2" slot="aside"></icon>
                     <h4>{{ $t('There are no open CSV files') }}</h4>
-                    <p class="font-weight-light">{{ $t('Open a new CSV file using') }} <icon name="plus-circle"></icon> {{ $t('button') }}.</p>
                   </b-media>
                 </b-col>
             </b-row>
@@ -38,6 +81,8 @@
 <script>
 import pfCSVParse from '@/components/pfCSVParse'
 import pfProgress from '@/components/pfProgress'
+import pfFormInput from '@/components/pfFormInput'
+import pfFormToggle from '@/components/pfFormToggle'
 import pfFormUpload from '@/components/pfFormUpload'
 import {
   pfDatabaseSchema as schema,
@@ -46,6 +91,7 @@ import {
 import { pfFieldType as fieldType } from '@/globals/pfField'
 import { pfFormatters as formatter } from '@/globals/pfFormatters'
 import convert from '@/utils/convert'
+import password from '@/utils/password'
 import {
   required
 } from 'vuelidate/lib/validators'
@@ -57,8 +103,10 @@ export default {
   name: 'UsersImport',
   components: {
     'pf-csv-parse': pfCSVParse,
-    'pf-progress': pfProgress,
-    'pf-form-upload': pfFormUpload
+    pfProgress,
+    pfFormInput,
+    pfFormToggle,
+    pfFormUpload
   },
   props: {
     storeName: { // from router
@@ -81,6 +129,13 @@ export default {
           types: [fieldType.SUBSTRING],
           required: true,
           validators: buildValidationFromColumnSchemas(schema.person.pid, { required })
+        },
+        {
+          value: 'password',
+          text: this.$i18n.t('Password'),
+          types: [fieldType.SUBSTRING],
+          required: false,
+          validators: buildValidationFromColumnSchemas(schema.password.password)
         },
         {
           value: 'title',
@@ -301,6 +356,16 @@ export default {
           validators: buildValidationFromColumnSchemas(schema.person.custom_field_9)
         }
       ],
+      passwordGenerator: {
+        pwlength: 8,
+        upper: true,
+        lower: true,
+        digits: true,
+        special: false,
+        brackets: false,
+        high: false,
+        ambiguous: false
+      },
       progressTotal: 0,
       progressValue: 0
     }
@@ -340,6 +405,9 @@ export default {
           })
         }).catch(() => {
           // node not exists
+          if (!('password' in value)) {
+            value.password = password.generate(this.passwordGenerator)
+          }
           return this.createUser(value).then(results => {
             if (results.status) {
               tableValue._rowVariant = convert.statusToVariant({ status: results.status })
@@ -354,17 +422,18 @@ export default {
             throw err
           })
         })
-      })).then(values => {
+      })).then(results => {
         this.$store.dispatch('notification/info', {
-          message: values.length + ' ' + this.$i18n.t('users imported'),
+          message: results.length + ' ' + this.$i18n.t('users imported'),
           success: null,
           skipped: null,
           failed: null
         })
+        console.debug(values.filter(value => value.password))
       })
     },
     createUser (data) {
-      return this.$store.dispatch('$_users/createUser', data).then(results => {
+      return this.$store.dispatch('$_users/createUser', { quiet: true, ...data }).then(results => {
         // does the data contain anything other than 'pid' or a private key (_*)?
         if (Object.keys(data).filter(key => key !== 'pid' && key.charAt(0) !== '_').length > 0) {
           // chain updateUser
@@ -383,7 +452,7 @@ export default {
       })
     },
     updateUser (data) {
-      return this.$store.dispatch('$_users/updateUser', data).then(results => {
+      return this.$store.dispatch('$_users/updateUser', { quiet: true, ...data }).then(results => {
         return results
       }).catch(err => {
         throw err

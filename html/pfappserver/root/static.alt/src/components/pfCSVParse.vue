@@ -87,6 +87,8 @@
           </b-row>
         </b-tab>
 
+        <slot><!-- Additional tabs --></slot>
+
         <b-tab :title="$t('Import Data')">
           <b-container fluid v-if="items.length" class="overflow-auto">
             <b-row align-v="center" class="float-right">
@@ -118,8 +120,11 @@
             </template>
             <template slot="actions" slot-scope="data">
               <div class="text-center">
-                <b-form-checkbox :id="data.value" :value="data.item" :disabled="rowDisabled(data.index)" v-model="selectValues" @click.native.stop="onToggleSelected($event, data.index)"></b-form-checkbox>
-                <icon name="exclamation-triangle" class="ml-1" v-if="rowMessage(data.index)" v-b-tooltip.hover.right :title="rowMessage(data.index)"></icon>
+                <b-form-checkbox :id="data.value" :value="data.item" :disabled="rowDisabled(data.index)" v-model="selectValues" @click.native.stop="onToggleSelected($event, data.index)">
+                  <div v-if="rowMessage(data.index)" v-b-tooltip.hover.right :title="rowMessage(data.index)">
+                    <icon name="exclamation-triangle" class="ml-1"></icon>
+                  </div>
+                </b-form-checkbox>
               </div>
             </template>
 

@@ -469,6 +469,9 @@ export default {
     }
   },
   methods: {
+    close () {
+      this.$router.push({ name: 'users' })
+    },
     create () {
       const base = {
         valid_from: this.valid_from,
@@ -477,14 +480,14 @@ export default {
       }
       switch (this.modeIndex) {
         case 0: // single
-          this.$store.dispatch('$_users/createUser', Object.assign(base, this.single))
+          this.$store.dispatch('$_users/createUser', Object.assign(base, this.single)).then(() => this.close())
           break
         case 1: // multiple
           let promises = []
           const baseValue = { ...base, ...this.multiple, ...{ quiet: true } }
           for (let i = 0; i < this.multiple.quantity; i++) {
             let pid = this.multiple.prefix + (i + 1)
-            let pwd = password.generate(this.passwordGenerator.pwlength, this.passwordGenerator)
+            let pwd = password.generate(this.passwordGenerator)
             let currentValue = Object.assign({ pid, password: pwd }, baseValue)
             promises.push(this.$store.dispatch('$_users/exists', pid).then(results => {
               // user exists

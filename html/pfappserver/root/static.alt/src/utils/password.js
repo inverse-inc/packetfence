@@ -1,5 +1,5 @@
 const password = {
-  generate (pwlength = 8, options = { upper: true, lower: true, digits: true, special: false, brackets: false, high: false, ambiguous: false }) {
+  generate (conf = { pwlength: 8, upper: true, lower: true, digits: true, special: false, brackets: false, high: false, ambiguous: false }) {
     const charRanges = {
       upper: 'ABCDEFGHJKLMNPQRSTUVWXYZ',
       lower: 'abcdefghijkmnpqrstuvwxyz',
@@ -9,11 +9,11 @@ const password = {
       high: '¡¢£¤¥¦§©ª«¬®¯°±²³´µ¶¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþ',
       ambiguous: 'O0oIl'
     }
-    const ranges = Object.keys(charRanges).filter(range => options[range]).map(range => charRanges[range])
+    const ranges = Object.keys(charRanges).filter(range => conf[range]).map(range => charRanges[range])
     if (!ranges.length) return
     const charset = ranges.join('')
     let randomPassword = ''
-    for (var i = 0, n = charset.length; i < pwlength; ++i) {
+    for (var i = 0, n = charset.length; i < conf.pwlength; ++i) {
       randomPassword += charset.charAt(Math.random() * n)
     }
     return randomPassword
