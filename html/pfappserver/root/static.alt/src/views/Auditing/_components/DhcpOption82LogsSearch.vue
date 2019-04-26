@@ -115,8 +115,7 @@ export default {
         {
           value: 'created_at',
           text: 'Created',
-          types: [conditionType.DATETIME],
-          class: 'text-nowrap'
+          types: [conditionType.DATETIME]
         },
         {
           value: 'mac',
@@ -214,6 +213,7 @@ export default {
           label: this.$i18n.t('Created At'),
           sortable: true,
           visible: true,
+          class: 'text-nowrap',
           formatter: formatter.datetimeIgnoreZero
         }
       ]
