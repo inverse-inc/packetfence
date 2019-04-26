@@ -88,7 +88,7 @@ export default {
   },
   computed: {
     queueCounts () {
-      let counts = new Array
+      let counts = []
       this.$store.getters[`${this.storeName}/stats`].forEach(stat => {
         counts.push({ queue: stat.queue, count: stat.stats.count })
       })
