@@ -733,6 +733,5 @@ export default {
 
 .security-event-trigger-row .popover-body {
   padding: 0;
-  box-shadow: $box-shadow;
 }
 </style>

@@ -1,5 +1,9 @@
 @import "../../node_modules/bootstrap/scss/popover";
 
+.popover {
+  box-shadow: $box-shadow;
+}
+
 .popover-full {
   max-width: none;
 }
