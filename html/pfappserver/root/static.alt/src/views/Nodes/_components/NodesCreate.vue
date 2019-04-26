@@ -1,7 +1,7 @@
 <template>
   <b-card no-body>
     <b-card-header>
-      <h4 class="mb-0" v-t="'Create Nodes'"></h4>
+      <h4 class="mb-0" v-t="'Create Node'"></h4>
     </b-card-header>
     <div class="card-body">
       <b-form @submit.prevent="create()">
@@ -103,7 +103,6 @@ export default {
         regExp: regExp,
         schema: schema
       },
-      modeIndex: 0,
       single: {
         mac: '',
         status: 'reg'
@@ -139,14 +138,13 @@ export default {
       return this.$store.getters['$_nodes/isLoading']
     },
     invalidForm () {
-      if (this.modeIndex === 0) {
-        return this.$v.single.$invalid || this.isLoading
-      } else {
-        return false
-      }
+      return this.$v.single.$invalid || this.isLoading
     }
   },
   methods: {
+    close () {
+      this.$router.push({ name: 'nodes' })
+    },
     searchUsers () {
       const _this = this
       let body = {
@@ -171,17 +169,7 @@ export default {
       })
     },
     create () {
-      if (this.modeIndex === 0) {
-        this.$store.dispatch('$_nodes/createNode', this.single).then(response => {
-          this.$store.dispatch('notification/info', { message: this.$i18n.t('Node') + ' ' + this.single.mac + ' ' + this.$i18n.t('created') })
-          this.single = {
-            mac: '',
-            status: 'reg'
-          }
-        }).catch(() => {
-          this.$store.dispatch('notification/danger', { message: this.$store.state[this.storeName].message })
-        })
-      }
+      this.$store.dispatch('$_nodes/createNode', this.single).then(() => this.close())
     }
   },
   created () {
