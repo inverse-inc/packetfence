@@ -284,6 +284,28 @@ export default {
   deleteDomain: id => {
     return apiCall.delete(`config/domain/${id}`)
   },
+  testDomain: id => {
+    return apiCall.getQuiet(`config/domain/${id}/test_join`).then(response => {
+      return response
+    }).catch(err => {
+      throw err
+    })
+  },
+  joinDomain: data => {
+    return apiCall.post(`config/domain/${data.id}/join`, data).then(response => {
+      return response.data
+    })
+  },
+  rejoinDomain: data => {
+    return apiCall.post(`config/domain/${data.id}/rejoin`, data).then(response => {
+      return response.data
+    })
+  },
+  unjoinDomain: data => {
+    return apiCall.post(`config/domain/${data.id}/unjoin`, data).then(response => {
+      return response.data
+    })
+  },
 
   /**
    * Filters

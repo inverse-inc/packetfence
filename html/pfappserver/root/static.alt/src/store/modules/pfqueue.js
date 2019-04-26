@@ -9,6 +9,11 @@ const api = {
     return apiCall.getQuiet(`queues/stats`).then(response => {
       return response.data.items
     })
+  },
+  pollTaskStatus: (id) => {
+    return apiCall.getQuiet(`pfqueue/task/${id}/status/poll`).then(response => {
+      return response.data
+    })
   }
 }
 
@@ -21,6 +26,7 @@ const types = {
 // Default values
 const state = {
   stats: false,
+  tasks: false,
   message: '',
   requestStatus: ''
 }
@@ -39,6 +45,18 @@ const actions = {
         resolve(state.stats)
       }).catch(err => {
         commit('PFQUEUE_ERROR', err.response)
+        reject(err)
+      })
+    })
+  },
+  pollTaskStatus: ({ commit, state, dispatch }, id) => {
+    return new Promise((resolve, reject) => {
+      api.pollTaskStatus(id).then(data => { // 'poll' returns immediately, or timeout after 15s
+        if ('status' in data && data.status === 'In progress') {
+          return dispatch('pollTaskStatus', id) // recurse
+        }
+        resolve(response)
+      }).catch(err => {
         reject(err)
       })
     })

@@ -2,6 +2,7 @@
 * "$_domains" store module
 */
 import Vue from 'vue'
+import store from '@/store' // required for 'pfqueue'
 import api from '../_api'
 
 const types = {
@@ -14,6 +15,7 @@ const types = {
 // Default values
 const state = {
   cache: {}, // items details
+  joins: {}, // domain join details
   message: '',
   itemStatus: ''
 }
@@ -95,6 +97,49 @@ const actions = {
       commit('ITEM_ERROR', err.response)
       throw err
     })
+  },
+  testDomain: ({ commit }, id) => {
+    if (id in state.joins) {
+      return Promise.resolve(state.joins[id])
+    }
+    commit('TEST_REQUEST', id)
+    return api.testDomain(id).then(response => {
+      commit('TEST_SUCCESS', id)
+      return state.joins[id]
+    }).catch(err => {
+      commit('TEST_ERROR', id)
+      return state.joins[id]
+    })
+  },
+  joinDomain: ({ commit }, data) => {
+    return api.joinDomain(data).then(response => {
+      return store.dispatch('pfqueue/pollTaskStatus', response.task_id).then(response => {
+        // TODO
+        console.log('DONE', response)
+      })
+    }).catch(err => {
+      throw err
+    })
+  },
+  rejoinDomain: ({ commit }, id) => {
+    commit('ITEM_REQUEST', id)
+    return api.rejoinDomain({ id }).then(response => {
+      commit('REJOIN_SUCCESS', id)
+      return response
+    }).catch(err => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
+  },
+  unjoinDomain: ({ commit }, id) => {
+    commit('ITEM_REQUEST', id)
+    return api.unjoinDomain({ id }).then(response => {
+      commit('UNJOIN_SUCCESS', id)
+      return response
+    }).catch(err => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
   }
 }
 
@@ -106,10 +151,12 @@ const mutations = {
   ITEM_REPLACED: (state, data) => {
     state.itemStatus = types.SUCCESS
     Vue.set(state.cache, data.id, JSON.parse(JSON.stringify(data)))
+    Vue.set(state.joins, data.id, {})
   },
   ITEM_DESTROYED: (state, id) => {
     state.itemStatus = types.SUCCESS
     Vue.set(state.cache, id, null)
+    Vue.delete(state.joins, id)
   },
   ITEM_ERROR: (state, response) => {
     state.itemStatus = types.ERROR
@@ -119,6 +166,18 @@ const mutations = {
   },
   ITEM_SUCCESS: (state) => {
     state.itemStatus = types.SUCCESS
+  },
+  TEST_REQUEST: (state, id) => {
+    if (!(id in state.joins)) {
+      Vue.set(state.joins, id, {})
+    }
+    Vue.set(state.joins[id], 'status', null)
+  },
+  TEST_SUCCESS: (state, id) => {
+    Vue.set(state.joins[id], 'status', true)
+  },
+  TEST_ERROR: (state, id) => {
+    Vue.set(state.joins[id], 'status', false)
   }
 }
 
