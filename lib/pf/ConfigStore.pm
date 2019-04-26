@@ -768,14 +768,21 @@ sub readInheritedRaw {
     }
 
     my @parentSections = $self->parentSections($id, $item);
-    if (@parentSections == 0) {
+    my $config = $self->cachedConfig;
+    my $import = $config->{imported};
+    if (@parentSections == 0 && !$import) {
         return undef;
     }
 
-    my $config = $self->cachedConfig;
     my $inherited = {};
     for my $parent (@parentSections) {
-        $self->populateItem($config, $inherited, $parent, grep {!exists $inherited->{$_}} $config->Parameters($parent))
+        $self->populateItem($config, $inherited, $parent, grep {!exists $inherited->{$_}} $config->Parameters($parent));
+    }
+
+    if ($import) {
+        my $section = $self->_formatSectionName($id);
+        my %myparams = map { $_ => 1 } $config->MyParameters($section);
+        $self->populateItem($import, $inherited, $section, grep { !exists $myparams{$_} && !exists $inherited->{$_}} $import->Parameters($section));
     }
 
     return $inherited;
@@ -790,7 +797,7 @@ sub readWithoutInheritedRaw {
     }
 
     my $item = {};
-    $self->populateItem($config, $item, $section, $config->Parameters($section));
+    $self->populateItem($config, $item, $section, $config->MyParameters($section));
     $item->{$idKey} = $id if defined $idKey;
     return $item;
 }
