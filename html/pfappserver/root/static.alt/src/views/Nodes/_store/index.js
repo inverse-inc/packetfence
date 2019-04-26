@@ -53,7 +53,7 @@ const actions = {
       return Promise.resolve(state.nodes[mac])
     }
 
-    let node = { fingerbank: {} } // ip4: { history: [] }, ip6: { history: [] } }
+    let node = {}
 
     commit('NODE_REQUEST')
     return api.node(mac).then(data => {
@@ -388,7 +388,9 @@ const mutations = {
   },
   NODE_REPLACED: (state, data) => {
     state.nodeStatus = 'success'
+    if (!('fingerbank' in data)) data.fingerbank = {}
     Vue.set(state.nodes, data.mac, data)
+    // TODO: update items if found in it
   },
   NODE_UPDATED: (state, params) => {
     state.nodeStatus = 'success'
