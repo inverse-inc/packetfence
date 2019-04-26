@@ -9,7 +9,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 15;
+use Test::More tests => 17;
 
 use_ok('pf::IniFiles');
 
@@ -60,11 +60,22 @@ ok( ! $ini->Parameters( 'Section2' ) && $ini->Parameters( 'Section1' ) && $ini->
 
 my $with_imported = pf::IniFiles->new(-import => $ini);
 
+is_deeply(
+    [$with_imported->MyParameters('Section1')],
+    [],
+    "MyParameters empty"
+);
+
 $with_imported->newval('Section1', 'Parameter9', 'Value9');
 
-ok($with_imported->is_imported('Section1', 'Parameter1'), "Section1 => Parameter1 is imported");
+is_deeply(
+    [$with_imported->MyParameters('Section1')],
+    ['Parameter9'],
+    "MyParameters has values"
+);
 
-use Data::Dumper;
+ok($with_imported->is_imported('Section1', 'Parameter1'), "Section1.Parameter1 is imported");
+
 ok(!$with_imported->is_imported('Section1', 'Parameter9'), "Section1.Parameter9 is not imported");
 
 =head1 AUTHOR
