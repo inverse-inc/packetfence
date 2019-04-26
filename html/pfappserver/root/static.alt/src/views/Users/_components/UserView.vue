@@ -3,7 +3,7 @@
     <b-card no-body>
       <b-card-header>
         <b-button-close @click="close" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
-        <h4 class="mb-0">{{ $t('User') }} <strong v-text="pid"></strong></h4>
+        <h4 class="mb-0" v-html="$t('User {pid}', { pid: $strong(pid) })"></h4>
       </b-card-header>
       <b-tabs ref="tabs" v-model="tabIndex" card>
 
@@ -16,16 +16,16 @@
               <pf-form-input :column-label="$t('Username (PID)')"
                 readonly
                 v-model.trim="userContent.pid"
-                text="The username to use for login to the captive portal."/>
+                :text="$t('The username to use for login to the captive portal.')"/>
               <pf-form-password :column-label="$t('Password')" generate
                 v-model="userContent.password"
                 :vuelidate="$v.userContent.password"
-                text="Leave empty to keep current password."/>
+                :text="$t('Leave empty to keep current password.')"/>
               <pf-form-input :column-label="$t('Login remaining')"
                 v-model="userContent.login_remaining"
                 :vuelidate="$v.userContent.login_remaining"
                 type="number"
-                text="Leave empty to allow unlimited logins."/>
+                :text="$t('Leave empty to allow unlimited logins.')"/>
               <pf-form-input :column-label="$t('Email')"
                 v-model.trim="userContent.email"
                 :vuelidate="$v.userContent.email"
