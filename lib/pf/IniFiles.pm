@@ -23,7 +23,7 @@ use base qw(Config::IniFiles);
 use Time::HiRes qw(stat time);
 
 *errors = \@Config::IniFiles::errors;
-use List::MoreUtils qw(all first_index uniq);
+use List::MoreUtils qw(all first_index uniq any none);
 use Scalar::Util qw(tainted reftype);
 our $PrettyName;
 
@@ -112,32 +112,62 @@ sub CopySection {
     return 1;
 } # end CopySection
 
+=head2 is_imported
+
+Check if a parameter is imported
+
+  $self->is_imported($section, $param)
+
+=cut
+
+sub is_imported {
+    my ($self, $section, $param) = @_;
+    if (!defined $self->{imported}) {
+        return 0;
+    }
+
+    if (!$self->exists($section, $param) ) {
+        return 0;
+    }
+
+    return none { $_ eq $param } @{$self->{myparms}{$section}};
+}
 
 =head2 ResortSections
 
 =cut
 
 sub ResortSections {
-    my ($self,@sections) = @_;
+    my ($self, @sections) = @_;
     # If there is nothing to resort return true
-    if (@sections == 0 ) {
+    if (@sections == 0) {
         return 1;
     }
-    my $result;
-    if ( all { $self->SectionExists($_) } @sections ) {
-        my $first_section = $sections[0];
-        my $first_index = first_index { $_ eq $first_section } $self->Sections;
-        my %temp;
-        @temp{@sections} = ();
-        my @old_sections = $self->Sections;
-        my $old_length = $#old_sections;
-        my @before = grep {!exists $temp{$_} } @old_sections[0 .. $first_index];
-        $first_index++;
-        my @after = grep {!exists $temp{$_} } @old_sections[$first_index .. $#old_sections];
-        $self->{sects} = [@before,@sections,@after];
-        $result = 1;
+
+    if ( any { !$self->SectionExists($_) } @sections ) {
+        return 0;
     }
-    return $result;
+
+    if (@sections == 1) {
+        return 1;
+    }
+
+    my @old_sections = $self->Sections;
+    if (@old_sections == @sections) {
+        $self->{sects} = \@sections;
+        return 1
+    }
+
+    my $first_section = $sections[0];
+    my $first_index = first_index { $_ eq $first_section } @old_sections;
+    my %temp;
+    @temp{@sections} = ();
+    my $old_length = $#old_sections;
+    my @before = grep {!exists $temp{$_} } @old_sections[0 .. $first_index];
+    $first_index++;
+    my @after = grep {!exists $temp{$_} } @old_sections[$first_index .. $#old_sections];
+    $self->{sects} = [@before,@sections,@after];
+    return 1;
 } # end ResortSections
 
 =head2 ReorderByGroup
