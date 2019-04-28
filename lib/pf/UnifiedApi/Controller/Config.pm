@@ -413,7 +413,7 @@ sub field_meta {
         type        => $type,
         required    => $self->field_is_required($field),
         placeholder => $self->field_placeholder($field),
-        default     => $self->field_default($field),
+        default     => $self->field_default($field, $defaultValues),
         $self->field_extra_meta($field, $type),
     };
 
@@ -616,12 +616,7 @@ sub default_values {
     my ($self) = @_;
     my $cs = $self->config_store;
     my $default_section = $cs->default_section;
-    my $defaultValues;
-    if ($default_section) {
-        $defaultValues = $self->cleanup_item($cs->readInherited($default_section, 'id'));
-    }
-
-    return $defaultValues;
+    return $default_section ? $self->cleanup_item($cs->read($default_section, 'id')) : undef;
 }
 
 =head2 field_placeholder
