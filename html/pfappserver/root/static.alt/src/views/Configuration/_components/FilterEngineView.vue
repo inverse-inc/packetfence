@@ -24,7 +24,7 @@
       <pf-button-save :disabled="invalidForm" :isLoading="isLoading" @click="save()">
         <template>{{ $t('Save') }}</template>
       </pf-button-save>
-      <b-button :disabled="isLoading" class="ml-1" variant="outline-primary" @click="init()">{{ $t('Reset') }}</b-button>
+      <b-button :disabled="isLoading" class="ml-1" variant="outline-secondary" @click="init()">{{ $t('Reset') }}</b-button>
     </b-card-footer>
   </b-card>
 </template>

@@ -29,7 +29,7 @@
           <template v-else-if="ctrlKey">{{ $t('Save & Close') }}</template>
           <template v-else>{{ $t('Save') }}</template>
         </pf-button-save>
-        <b-button :disabled="isLoading" class="mr-1" variant="outline-primary" @click="init()">{{ $t('Reset') }}</b-button>
+        <b-button :disabled="isLoading" class="mr-1" variant="outline-secondary" @click="init()">{{ $t('Reset') }}</b-button>
         <template v-if="!isNew && !isClone">
           <b-button :disabled="isLoading" class="mr-1" variant="outline-primary" @click="clone()">{{ $t('Clone') }}</b-button>
           <pf-button-service service="pfdhcp" class="mr-1" restart start stop></pf-button-service>

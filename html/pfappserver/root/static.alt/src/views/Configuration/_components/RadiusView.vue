@@ -19,7 +19,7 @@
         <pf-button-save :disabled="invalidForm" :isLoading="isLoading" class="mr-1">
           <template>{{ $t('Save') }}</template>
         </pf-button-save>
-        <b-button :disabled="isLoading" class="mr-1" variant="outline-primary" @click="init()">{{ $t('Reset') }}</b-button>
+        <b-button :disabled="isLoading" class="mr-1" variant="outline-secondary" @click="init()">{{ $t('Reset') }}</b-button>
         <pf-button-service service="radiusd" class="mr-1" restart start stop></pf-button-service>
       </b-card-footer>
     </template>
