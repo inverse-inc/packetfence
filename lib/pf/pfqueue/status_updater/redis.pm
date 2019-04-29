@@ -29,6 +29,8 @@ use JSON::MaybeXS;
 use pf::constants;
 use pf::log;
 
+sub empty {};
+
 =head2 connection
 
 The Redis connnection
@@ -131,10 +133,10 @@ Set the progress of the job (on 100)
 sub set_progress {
     my ($self, $progress) = @_;
 
-    if($progress < 0) {
+    if ($progress < 0) {
         $progress = 0;
     }
-    elsif($progress > 100) {
+    elsif ($progress > 100) {
         $progress = 100;
     }
 
@@ -166,22 +168,25 @@ sub finalize {
 
 =head2 set_in_status_hash
 
-Set an attribute in the status hash and notify any subscriber of the change
+Set attributes in the status hash and notify any subscriber of the change
 
 =cut
 
 sub set_in_status_hash {
-    my ($self, $key, $data) = @_;
-    if($self->finalized) {
-        get_logger->trace("Not reporting data for $key since status has been finalized");
+    my ($self, @data) = @_;
+    my $status_key = $self->status_key;
+    if ($self->finalized) {
+        get_logger->trace("Not saving data for $status_key since status has been finalized");
         return;
     }
-    
-    $self->connection->multi();
-    $self->connection->hset($self->status_key, $key, $data);
-    $self->connection->expire($self->status_key, $self->status_ttl);
-    $self->connection->publish($self->status_publish_key, 1);
-    $self->connection->exec();
+
+    my $connection = $self->connection;
+    $connection->multi(\&empty);
+    $connection->hmset($status_key, @data, \&empty);
+    $connection->expire($status_key, $self->status_ttl, \&empty);
+    $connection->publish($self->status_publish_key, 1, \&empty);
+    $connection->exec(\&empty);
+    $connection->wait_all_responses();
 }
 
 =head2 status_key
