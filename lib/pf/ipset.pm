@@ -316,14 +316,14 @@ sub iptables_mark_node {
                     call_ipsetd("/ipset/mark_layer3?local=0",{
                         "network" => $network,
                         "type"    => $mark_type_to_str{$mark},
-                        "role_id" => $role_id,
+                        "role_id" => "".$role_id,
                         "ip"      => $iplog
                     });
                 } else {
                     call_ipsetd("/ipset/mark_layer2?local=0",{
                         "network" => $network,
                         "type"    => $mark_type_to_str{$mark},
-                        "role_id" => $role_id,
+                        "role_id" => "".$role_id,
                         "ip"      => $iplog,
                         "mac"     => $mac
                     });
@@ -410,13 +410,13 @@ sub update_node {
                  if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
                     call_ipsetd("/ipset/mark_ip_layer3?local=0",{
                         "network" => $network,
-                        "role_id" => $id,
+                        "role_id" => "".$id,
                         "ip"      => $srcip
                     });
                 } else {
                     call_ipsetd("/ipset/mark_ip_layer2?local=0",{
                         "network" => $network,
-                        "role_id" => $id,
+                        "role_id" => "".$id,
                         "ip"      => $srcip
                     });
                 }
