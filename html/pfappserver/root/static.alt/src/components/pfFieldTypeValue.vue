@@ -314,8 +314,8 @@ export default {
     },
     focusIndex (index = 0) {
       const refs = Object.values(this.$refs)
-      if (index in refs) {
-        const { $refs: { input: { $el } } } = refs[index]
+      if (index in refs && refs[index]) {
+        const { $refs: { input: { $el } } = {} } = refs[index]
         if ($el && 'focus' in $el) $el.focus()
       }
     },
