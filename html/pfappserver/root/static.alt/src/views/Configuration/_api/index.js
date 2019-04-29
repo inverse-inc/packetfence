@@ -286,7 +286,7 @@ export default {
   },
   testDomain: id => {
     return apiCall.getQuiet(`config/domain/${id}/test_join`).then(response => {
-      return response
+      return response.data
     }).catch(err => {
       throw err
     })

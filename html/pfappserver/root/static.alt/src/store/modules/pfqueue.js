@@ -50,15 +50,19 @@ const actions = {
     })
   },
   pollTaskStatus: ({ commit, state, dispatch }, id) => {
-    return new Promise((resolve, reject) => {
-      api.pollTaskStatus(id).then(data => { // 'poll' returns immediately, or timeout after 15s
-        if ('status' in data && data.status === 'In progress') {
-          return dispatch('pollTaskStatus', id) // recurse
-        }
-        resolve(response)
-      }).catch(err => {
-        reject(err)
-      })
+    return api.pollTaskStatus(id).then(data => { // 'poll' returns immediately, or timeout after 15s
+      if ('status' in data && data.status === 'In progress') {
+        return dispatch('pollTaskStatus', id) // recurse
+      }
+
+      // TODO - Remove after backend uses 4xx/5xx
+      if (data.result.indexOf('Failed') > -1 ) {
+        throw new Error(data.result)
+      }
+
+      return data
+    }).catch(err => {
+      throw err
     })
   }
 }

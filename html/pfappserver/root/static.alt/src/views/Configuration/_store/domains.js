@@ -104,41 +104,47 @@ const actions = {
     }
     commit('TEST_REQUEST', id)
     return api.testDomain(id).then(response => {
-      commit('TEST_SUCCESS', id)
+      commit('TEST_SUCCESS', { id, response })
       return state.joins[id]
     }).catch(err => {
-      commit('TEST_ERROR', id)
+      commit('TEST_ERROR', { id, err })
       return state.joins[id]
     })
   },
   joinDomain: ({ commit }, data) => {
+    commit('JOIN_REQUEST', data.id)
     return api.joinDomain(data).then(response => {
       return store.dispatch('pfqueue/pollTaskStatus', response.task_id).then(response => {
-        // TODO
-        console.log('DONE', response)
+        commit('JOIN_SUCCESS', { id: data.id, response })
+        return state.joins[data.id]
       })
     }).catch(err => {
-      throw err
+      commit('JOIN_ERROR', { id: data.id, err })
+      return state.joins[data.id]
     })
   },
-  rejoinDomain: ({ commit }, id) => {
-    commit('ITEM_REQUEST', id)
-    return api.rejoinDomain({ id }).then(response => {
-      commit('REJOIN_SUCCESS', id)
-      return response
+  rejoinDomain: ({ commit }, data) => {
+    commit('JOIN_REQUEST', data.id)
+    return api.rejoinDomain(data).then(response => {
+      return store.dispatch('pfqueue/pollTaskStatus', response.task_id).then(response => {
+        commit('JOIN_SUCCESS', { id: data.id, response })
+        return state.joins[data.id]
+      })
     }).catch(err => {
-      commit('ITEM_ERROR', err.response)
-      throw err
+      commit('JOIN_ERROR', { id: data.id, err })
+      return state.joins[data.id]
     })
   },
-  unjoinDomain: ({ commit }, id) => {
-    commit('ITEM_REQUEST', id)
-    return api.unjoinDomain({ id }).then(response => {
-      commit('UNJOIN_SUCCESS', id)
-      return response
+  unjoinDomain: ({ commit }, data) => {
+    commit('UNJOIN_REQUEST', data.id)
+    return api.unjoinDomain(data).then(response => {
+      return store.dispatch('pfqueue/pollTaskStatus', response.task_id).then(response => {
+        commit('UNJOIN_SUCCESS', { id: data.id, response })
+        return state.joins[data.id]
+      })
     }).catch(err => {
-      commit('ITEM_ERROR', err.response)
-      throw err
+      commit('UNJOIN_ERROR', { id: data.id, err })
+      return state.joins[data.id]
     })
   }
 }
@@ -173,11 +179,44 @@ const mutations = {
     }
     Vue.set(state.joins[id], 'status', null)
   },
-  TEST_SUCCESS: (state, id) => {
-    Vue.set(state.joins[id], 'status', true)
+  TEST_SUCCESS: (state, data) => {
+    Vue.set(state.joins[data.id], 'status', true)
+    Vue.set(state.joins[data.id], 'message', data.response.message)
   },
-  TEST_ERROR: (state, id) => {
-    Vue.set(state.joins[id], 'status', false)
+  TEST_ERROR: (state, data) => {
+    Vue.set(state.joins[data.id], 'status', false)
+    const { err: { response: { data: { message = null } = {} } = {} } = {} } = data
+    Vue.set(state.joins[data.id], 'message', message || data.err.message)
+  },
+  JOIN_REQUEST: (state, id) => {
+    if (!(id in state.joins)) {
+      Vue.set(state.joins, id, {})
+    }
+    Vue.set(state.joins[id], 'status', null)
+    Vue.set(state.joins[id], 'message', null)
+  },
+  JOIN_SUCCESS: (state, data) => {
+    Vue.set(state.joins[data.id], 'status', true)
+    Vue.set(state.joins[data.id], 'message', data.response.result)
+  },
+  JOIN_ERROR: (state, data) => {
+    Vue.set(state.joins[data.id], 'status', false)
+    Vue.set(state.joins[data.id], 'message', data.err.message)
+  },
+  UNJOIN_REQUEST: (state, id) => {
+    if (!(id in state.joins)) {
+      Vue.set(state.joins, id, {})
+    }
+    Vue.set(state.joins[id], 'status', null)
+    Vue.set(state.joins[id], 'message', null)
+  },
+  UNJOIN_SUCCESS: (state, data) => {
+    Vue.set(state.joins[data.id], 'status', false)
+    Vue.set(state.joins[data.id], 'message', data.response.result)
+  },
+  UNJOIN_ERROR: (state, data) => {
+    Vue.set(state.joins[data.id], 'status', true)
+    Vue.set(state.joins[data.id], 'message', data.err.message)
   }
 }
 

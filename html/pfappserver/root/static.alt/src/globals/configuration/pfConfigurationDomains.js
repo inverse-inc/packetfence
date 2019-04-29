@@ -216,30 +216,6 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
           ]
         },
         {
-          label: i18n.t('Username'),
-          text: i18n.t('The username of a Domain Admin to use to join the server to the domain.'),
-          fields: [
-            {
-              key: 'bind_dn',
-              component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'bind_dn'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'bind_dn', 'Username')
-            }
-          ]
-        },
-        {
-          label: i18n.t('Password'),
-          text: i18n.t('The password of a Domain Admin to use to join the server to the domain. Will not be stored permanently and is only used while joining the domain.'),
-          fields: [
-            {
-              key: 'bind_pass',
-              component: pfFormPassword,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'bind_pass'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'bind_pass', 'Password')
-            }
-          ]
-        },
-        {
           label: i18n.t('OU'),
           text: i18n.t(`Precreate the computer account in a specific OU. The OU string read from top to bottom without RDNs and delimited by a '/'. E.g. "Computers/Servers/Unix".`),
           fields: [

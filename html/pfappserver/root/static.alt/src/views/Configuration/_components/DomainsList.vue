@@ -1,5 +1,8 @@
 <template>
   <div>
+
+<pre>{{ JSON.stringify(domainJoinTests, null, 2) }}</pre>
+
     <pf-config-list
       :config="config"
     >
@@ -15,11 +18,12 @@
       </template>
       <template slot="joined" slot-scope="data">
         <template v-if="initTestDomainJoin(data)">
-          <icon v-if="getTestDomainJoin(data) === null" name="circle-notch" class="text-secondary" spin></icon>
-          <icon v-else-if="getTestDomainJoin(data) === true" name="circle" class="text-success"
+          <icon v-if="getTestDomainJoinStatus(data) === null" name="circle-notch" class="text-secondary" spin></icon>
+          <icon v-else-if="getTestDomainJoinStatus(data) === true" name="circle" class="text-success"
             v-b-tooltip.hover.left.d300 :title="$t('Test join success.')"></icon>
-          <icon v-else-if="getTestDomainJoin(data) === false" name="circle" class="text-danger"
+          <icon v-else-if="getTestDomainJoinStatus(data) === false" name="circle" class="text-danger"
             v-b-tooltip.hover.left.d300 :title="$t('Test join failed.')"></icon>
+          <span v-if="getTestDomainJoinMessage(data)" v-t="getTestDomainJoinMessage(data)" class="ml-1"></span>
         </template>
       </template>
       <template slot="buttons" slot-scope="item">
@@ -32,6 +36,7 @@
         </span>
       </template>
     </pf-config-list>
+
     <b-modal v-model="join.showInputModal" size="lg" centered id="joinModal" @shown="focusUsernameInput">
       <template slot="modal-title">
         <h4>{{ $t(`${join.type} {domain} Domain`, { domain: join.item.id }) }}</h4>
@@ -39,15 +44,16 @@
       </template>
       <b-form-group class="mb-0">
         <pf-form-input ref="usernameInput" v-model="join.username" :column-label="$t('Username')"
-          :vuelidate="$v.join.username"/>
+          :vuelidate="$v.join.username" v-on:keyup.13.native="keyupEnterModal()" />
         <pf-form-password ref="passwordInput" v-model="join.password" :column-label="$t('Password')"
-          :vuelidate="$v.join.password"/>
+          :vuelidate="$v.join.password" v-on:keyup.13.native="keyupEnterModal()" />
       </b-form-group>
       <div slot="modal-footer" @mouseenter="$v.$touch()">
         <b-button variant="secondary" class="mr-1" @click="join.showInputModal=false">{{ $t('Cancel') }}</b-button>
         <b-button variant="primary" :disabled="invalidForm" @click="clickModal()">{{ $t('{type} {domain}', { type: join.type, domain: join.item.id }) }}</b-button>
       </div>
     </b-modal>
+
     <b-modal v-model="join.showWaitModal" size="lg" centered id="waitModal" :hide-footer="true">
       <template slot="modal-title">
         <h4>{{ $t('Please wait') }}</h4>
@@ -58,13 +64,40 @@
           <b-col cols="12" md="auto">
             <b-media>
               <icon name="circle-notch" scale="2" slot="aside" spin></icon>
-              <h4>{{ $t(`${join.type}ing {domain} Domain`, { domain: join.item.id }) }}</h4>
+              <h4>{{ $t(`${join.type}ing {domain} domain`, { domain: join.item.id }) }}</h4>
               <p class="font-weight-light">{{ $t('Closing this dialog will not cancel the operation.') }}</p>
             </b-media>
           </b-col>
         </b-row>
       </b-container>
     </b-modal>
+
+    <b-modal v-model="join.showResultModal" size="lg" centered id="resultModal" :hide-footer="getTestDomainJoinStatus(join.item) === true">
+      <template slot="modal-title">
+        <h4>{{ $t(`${join.type} {domain} domain`, { domain: join.item.id }) }}</h4>
+      </template>
+      <b-container class="my-3">
+        <b-row class="justify-content-md-center text-secondary">
+          <b-col cols="12" md="auto">
+            <b-media v-if="getTestDomainJoinStatus(join.item) === true">
+              <icon name="check" scale="2" slot="aside" class="text-success"></icon>
+              <h4>{{ $t(`${join.type}ed {domain} domain successfully`, { domain: join.item.id }) }}</h4>
+              <p class="font-weight-light">{{ getTestDomainJoinMessage(join.item) }}</p>
+            </b-media>
+            <b-media v-else-if="getTestDomainJoinStatus(join.item) === false">
+              <icon name="times" scale="2" slot="aside" class="text-danger"></icon>
+              <h4>{{ $t(`${join.type}ing {domain} domain failed`, { domain: join.item.id }) }}</h4>
+              <p class="font-weight-light">{{ getTestDomainJoinMessage(join.item) }}</p>
+            </b-media>
+          </b-col>
+        </b-row>
+      </b-container>
+      <div slot="modal-footer">
+        <b-button variant="secondary" class="mr-1" @click="join.showResultModal=false">{{ $t('Cancel') }}</b-button>
+        <b-button variant="primary" @click="clickModal()">{{ $t('Try again') }}</b-button>
+      </div>
+    </b-modal>
+
   </div>
 </template>
 
@@ -111,8 +144,9 @@ export default {
         item: { id: null }, // domain object from pf-search
         username: null, // input from user
         password: null, // input from user
-        showInputModal: false, // show use input
-        showWaitModel: false, // show join progress
+        showInputModal: false, // show user input
+        showWaitModel: false, // show wait progress
+        showResultModal: false // show final result
       }
     }
   },
@@ -162,20 +196,33 @@ export default {
       const fn = this[`do${this.join.type}`]
       fn(this.join.item)
       this.$set(this.join, 'showInputModal', false)
+      this.$set(this.join, 'showResultModal', false)
+    },
+    keyupEnterModal () {
+      this.$v.$touch()
+      if (!this.invalidForm) {
+        this.clickModal()
+      }
     },
     doJoin (item) {
       this.$set(this.join, 'showWaitModal', true)
       this.$store.dispatch(`${this.storeName}/joinDomain`, { id: item.id, username: this.join.username, password: this.join.password }).then(response => {
+        this.$set(this.join, 'showWaitModal', false)
+        this.$set(this.join, 'showResultModal', true)
       })
     },
     doRejoin (item) {
       this.$set(this.join, 'showWaitModal', true)
       this.$store.dispatch(`${this.storeName}/rejoinDomain`, { id: item.id, username: this.join.username, password: this.join.password }).then(response => {
+        this.$set(this.join, 'showWaitModal', false)
+        this.$set(this.join, 'showResultModal', true)
       })
     },
     doUnjoin (item) {
       this.$set(this.join, 'showWaitModal', true)
       this.$store.dispatch(`${this.storeName}/unjoinDomain`, { id: item.id, username: this.join.username, password: this.join.password }).then(response => {
+        this.$set(this.join, 'showWaitModal', false)
+        this.$set(this.join, 'showResultModal', true)
       })
     },
     remove (item) {
@@ -185,24 +232,35 @@ export default {
     },
     initTestDomainJoin (item) {
       if (!(item.id in this.domainJoinTests)) {
-         this.$set(this.domainJoinTests, item.id, null)
+        this.$set(this.domainJoinTests, item.id, {})
       }
       this.$store.dispatch(`${this.storeName}/testDomain`, item.id).then(response => {
         this.$set(this.domainJoinTests, item.id, response)
       })
       return true
     },
-    getTestDomainJoin (item) {
-      return this.domainJoinTests[item.id]
+    getTestDomainJoinMessage (item) {
+      if ('id' in item && item.id in this.domainJoinTests) {
+        const { domainJoinTests: { [item.id]: { message = null } = {} } = {} } = this
+        return message
+      }
+      return null
+    },
+    getTestDomainJoinStatus (item) {
+      if ('id' in item && item.id in this.domainJoinTests) {
+        const { domainJoinTests: { [item.id]: { status = null } = {} } = {} } = this
+        return status
+      }
+      return null
     },
     canJoin (item) {
-      return (item.id in this.domainJoinTests && this.domainJoinTests[item.id].status === false)
+      return (this.getTestDomainJoinStatus(item) === false)
     },
     canRejoin (item) {
-      return (item.id in this.domainJoinTests && this.domainJoinTests[item.id].status === true)
+      return (this.getTestDomainJoinStatus(item) === true)
     },
     canUnjoin (item) {
-      return (item.id in this.domainJoinTests && this.domainJoinTests[item.id].status === true)
+      return (this.getTestDomainJoinStatus(item) === true)
     },
     focusUsernameInput () {
       this.$refs.usernameInput.focus()
