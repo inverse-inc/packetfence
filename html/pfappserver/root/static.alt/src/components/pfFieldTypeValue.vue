@@ -249,7 +249,8 @@ export default {
       return []
     },
     fieldAttrs () {
-      return this.field ? this.field.attrs : { options: this.options }
+      const { field: { attrs } = {} } = this
+      return attrs || { options: this.options }
     },
     typeVuelidateModel () {
       return this.getVuelidateModel('type')
