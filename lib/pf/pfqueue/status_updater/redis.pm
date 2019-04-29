@@ -149,9 +149,7 @@ Set the result of the job
 
 sub set_result {
     my ($self, $result) = @_;
-    if(ref($result) eq "ARRAY" || ref($result) eq "HASH") {
-        $result = encode_json($result);
-    }
+    $result = encode_json($result);
     $self->set_in_status_hash($RESULT_KEY, $result);
 }
 
