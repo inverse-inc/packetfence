@@ -62,7 +62,7 @@ Executes the command in the OS to test the domain join
 sub test_join {
     my ($domain) = @_;
     my $chroot_path = chroot_path($domain);
-    my ($status, $output) = run("/usr/bin/sudo /sbin/ip netns exec $domain /usr/sbin/chroot $chroot_path /usr/bin/net ads testjoin -s /etc/samba/$domain.conf");
+    my ($status, $output) = run("/usr/bin/sudo /sbin/ip netns exec $domain /usr/sbin/chroot $chroot_path /usr/bin/net ads testjoin -s /etc/samba/$domain.conf 2>&1");
     return ($status, $output);
 }
 
