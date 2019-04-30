@@ -34,14 +34,25 @@ const {
 export const pfConfigurationOptionsSearchFunction = (context) => {
   const { field_name: fieldName, value_name: valueName, search_path: url } = context
   return function (chosen, query) {
-    if (!query) return []
+    let currentOptions = (chosen.multiple)  // cache current value
+      ? chosen.options.filter(option => chosen.value.includes(option[chosen.trackBy])) // multiple
+      : chosen.options.find(option => option[chosen.trackBy] === chosen.value) // single
+    if (!query) return currentOptions
     if (chosen.value !== null && chosen.options.length === 0) { // first query - presearch current value
       return apiCall.request({
         url,
         method: 'post',
         baseURL: '', // reset
         data: {
-          query: { op: 'and', values: [{ op: 'or', values: [{ field: fieldName, op: 'contains', value: query }] }] },
+          query: {
+            op: 'and',
+            values: [{
+              op: 'or',
+              values: query.map(value => {
+                return { field: valueName, op: 'equals', value: `${value.trim()}` }
+              })
+            }]
+          },
           fields: [fieldName, valueName],
           sort: [fieldName],
           cursor: 0,
@@ -53,25 +64,24 @@ export const pfConfigurationOptionsSearchFunction = (context) => {
         })
       })
     } else { // subsequent queries
-      const currentOption = chosen.options.find(option => option.value === chosen.value) // cache current value
       return apiCall.request({
         url,
         method: 'post',
         baseURL: '', // reset
         data: {
-          query: { op: 'and', values: [{ op: 'or', values: [{ field: fieldName, op: 'contains', value: query }] }] },
+          query: { op: 'and', values: [{ op: 'or', values: [{ field: fieldName, op: 'contains', value: `${query.trim()}` }] }] },
           fields: [fieldName, valueName],
           sort: [fieldName],
           cursor: 0,
-          limit: 100
+          limit: chosen.optionsLimit - currentOptions.length
         }
       }).then(response => {
         return [
-          ...((currentOption) ? [currentOption] : []), // current option first
+          ...((currentOptions) ? [...currentOptions] : []), // current option first
           ...response.data.items.map(item => {
             return { [chosen.trackBy]: item[valueName].toString(), [chosen.label]: item[fieldName] }
           }).filter(item => {
-            return JSON.stringify(item) !== JSON.stringify(currentOption) // remove duplicate current option
+            return JSON.stringify(item) !== JSON.stringify(currentOptions) // remove duplicate current option
           })
         ]
       })
@@ -116,13 +126,11 @@ export const pfConfigurationAttributesFromMeta = (meta = {}, key = null) => {
       attrs.searchable = true
       attrs.internalSearch = false
       attrs.preserveSearch = false
-      attrs.allowEmpty = false
+      attrs.allowEmpty = (!(key in meta && 'required' in Object.keys(meta[key])))
       attrs.clearOnSelect = true
       attrs.placeholder = i18n.t('Type to search')
-      attrs.showNoOptions = false
-      attrs.optionsLimit = 100
+      attrs.showNoResults = false
       attrs.optionsSearchFunction = pfConfigurationOptionsSearchFunction(allowedLookup)
-      attrs.collapseObject = false
     }
   }
   return attrs
