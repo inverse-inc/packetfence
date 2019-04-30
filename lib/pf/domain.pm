@@ -135,7 +135,6 @@ sub rejoin_domain {
     my $join_error;
     my $err;
     if ($info) {
-        my $
         my ($error, $leave_output) = unjoin_domain($domain, $info);
         if ($error) {
             push @errors, $error;
