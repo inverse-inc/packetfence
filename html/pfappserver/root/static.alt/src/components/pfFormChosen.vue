@@ -126,6 +126,10 @@ export default {
     optionsSearchFunction: {
       type: Function
     },
+    optionsSearchFunctionInitialized: { // true after first `optionsSearchFunction` call (for preloading)
+      type: Boolean,
+      default: false
+    },
     preserveSearch: {
       type: Boolean,
       default: false
@@ -199,6 +203,8 @@ export default {
               this.options = options
             }).catch(() => {
               this.loading = false
+            }).finally(() => {
+              this.optionsSearchFunctionInitialized = true
             })
           },
           time: 300
@@ -210,7 +216,8 @@ export default {
     value: {
       handler (a, b) {
         this.onSearchChange(a) // prime the searchable cache with our current `value`
-      }
+      },
+      immediate: true
     }
   }
 }

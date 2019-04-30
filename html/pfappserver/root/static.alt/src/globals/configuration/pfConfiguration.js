@@ -38,7 +38,7 @@ export const pfConfigurationOptionsSearchFunction = (context) => {
       ? chosen.options.filter(option => chosen.value.includes(option[chosen.trackBy])) // multiple
       : chosen.options.find(option => option[chosen.trackBy] === chosen.value) // single
     if (!query) return currentOptions
-    if (chosen.value !== null && chosen.options.length === 0) { // first query - presearch current value
+    if (!chosen.optionsSearchFunctionInitialized) { // first query - presearch current value
       return apiCall.request({
         url,
         method: 'post',
@@ -48,7 +48,7 @@ export const pfConfigurationOptionsSearchFunction = (context) => {
             op: 'and',
             values: [{
               op: 'or',
-              values: query.map(value => {
+              values: ((query.constructor === Array) ? query : [query]).map(value => {
                 return { field: valueName, op: 'equals', value: `${value.trim()}` }
               })
             }]
