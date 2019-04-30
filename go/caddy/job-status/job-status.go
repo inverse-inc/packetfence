@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/go-redis/redis"
@@ -18,9 +19,13 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-const STATUS_PENDING = "Pending"
-const STATUS_COMPLETED = "Completed"
-const STATUS_FAILED = "Failed"
+const STATUS_PENDING = 202
+const STATUS_COMPLETED = 200
+const STATUS_FAILED = 400
+
+const STATUS_COMPLETED_STR = "200"
+const STATUS_PENDING_STR = "202"
+const STATUS_FAILED_STR = "400"
 
 const POLL_TIMEOUT = 15
 
@@ -84,6 +89,28 @@ func buildJobStatusHandler(ctx context.Context) (JobStatusHandler, error) {
 	return jobStatus, nil
 }
 
+func (h JobStatusHandler) sendResults(w http.ResponseWriter, data map[string]string) {
+	results := map[string]interface{}{}
+	for k, v := range data {
+		switch k {
+		case "results", "error":
+			results[k] = json.RawMessage(v)
+		case "status":
+			if i, err := strconv.Atoi(v); err != nil {
+				results[k] = 400
+			} else {
+				results[k] = i
+			}
+		default:
+			results[k] = v
+		}
+	}
+
+	res, _ := json.Marshal(results)
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprintf(w, string(res))
+}
+
 func (h JobStatusHandler) handleStatusPoll(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	ctx := r.Context()
 	jobId := p.ByName("job_id")
@@ -91,13 +118,10 @@ func (h JobStatusHandler) handleStatusPoll(w http.ResponseWriter, r *http.Reques
 	data, err := h.redis.HGetAll(h.jobStatusKey(jobId)).Result()
 	if err != nil {
 		msg := "Unable to get job status from redis database"
-		w.WriteHeader(http.StatusInternalServerError)
-		h.writeMessage(ctx, msg, w)
+		h.writeMessage(ctx, http.StatusInternalServerError, msg, w)
 		log.LoggerWContext(ctx).Error(msg + ": " + err.Error())
-	} else if status := data["status"]; status == STATUS_COMPLETED || status == STATUS_FAILED {
-		res, _ := json.Marshal(data)
-		w.WriteHeader(http.StatusOK)
-		fmt.Fprintf(w, string(res))
+	} else if status := data["status"]; status == STATUS_COMPLETED_STR || status == STATUS_FAILED_STR {
+		h.sendResults(w, data)
 		return
 	}
 
@@ -109,8 +133,7 @@ func (h JobStatusHandler) handleStatusPoll(w http.ResponseWriter, r *http.Reques
 	_, err = sub.Receive()
 	if err != nil {
 		msg := "Unable to get job status from redis database"
-		w.WriteHeader(http.StatusInternalServerError)
-		h.writeMessage(ctx, msg, w)
+		h.writeMessage(ctx, http.StatusInternalServerError, msg, w)
 		log.LoggerWContext(ctx).Error(msg + ": " + err.Error())
 	} else {
 		ch := sub.Channel()
@@ -131,9 +154,11 @@ func (h JobStatusHandler) jobStatusUpdatesKey(jobId string) string {
 	return h.jobStatusKey(jobId) + "-Updates"
 }
 
-func (h JobStatusHandler) writeMessage(ctx context.Context, message string, w http.ResponseWriter) {
-	res, _ := json.Marshal(map[string]string{
+func (h JobStatusHandler) writeMessage(ctx context.Context, statusCode int, message string, w http.ResponseWriter) {
+	w.WriteHeader(statusCode)
+	res, _ := json.Marshal(map[string]interface{}{
 		"message": message,
+		"status":  statusCode,
 	})
 	fmt.Fprintf(w, string(res))
 }
@@ -153,13 +178,10 @@ func (h JobStatusHandler) writeJobStatus(ctx context.Context, jobId string, w ht
 
 	if err != nil {
 		msg := "Unable to get job status from redis database"
-		w.WriteHeader(http.StatusInternalServerError)
-		h.writeMessage(ctx, msg, w)
+		h.writeMessage(ctx, http.StatusInternalServerError, msg, w)
 		log.LoggerWContext(ctx).Error(msg + ": " + err.Error())
 	} else {
-		res, _ := json.Marshal(data)
-		w.WriteHeader(http.StatusOK)
-		fmt.Fprintf(w, string(res))
+		h.sendResults(w, data)
 	}
 	return err
 }
@@ -172,8 +194,7 @@ func (h JobStatusHandler) handleStatus(w http.ResponseWriter, r *http.Request, p
 
 	if statusExists, err := h.keyExists(ctx, statusKey); err != nil {
 		msg := "Unable to check if job status exists in redis database"
-		w.WriteHeader(http.StatusInternalServerError)
-		h.writeMessage(ctx, msg, w)
+		h.writeMessage(ctx, http.StatusInternalServerError, msg, w)
 		log.LoggerWContext(ctx).Error(msg + ": " + err.Error())
 		return
 	} else if statusExists {
@@ -183,19 +204,18 @@ func (h JobStatusHandler) handleStatus(w http.ResponseWriter, r *http.Request, p
 
 	if jobExists, err := h.keyExists(ctx, jobId); err != nil {
 		msg := "Unable to check if job exists in redis database"
-		w.WriteHeader(http.StatusInternalServerError)
-		h.writeMessage(ctx, msg, w)
+		h.writeMessage(ctx, http.StatusInternalServerError, msg, w)
 		log.LoggerWContext(ctx).Error(msg + ": " + err.Error())
 	} else if jobExists {
-		res, _ := json.Marshal(map[string]string{
+		h.writeMessage(ctx, STATUS_PENDING, msg, w)
+		res, _ := json.Marshal(map[string]interface{}{
 			"status": STATUS_PENDING,
 		})
-		w.WriteHeader(http.StatusOK)
+		w.WriteHeader(STATUS_PENDING)
 		fmt.Fprintf(w, string(res))
 	} else {
 		// Job is not pending and no status found, it either has expired or never existed, return a 404
-		w.WriteHeader(http.StatusNotFound)
-		h.writeMessage(ctx, "Unable to find pending, running or completed job status", w)
+		h.writeMessage(ctx, http.StatusNotFound, "Unable to find pending, running or completed job status", w)
 	}
 
 }
