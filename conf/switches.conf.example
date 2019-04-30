@@ -8,7 +8,7 @@
 
 [192.168.0.1]
 description=Test Switch
-type = Cisco::Catalyst_2900XL
+type = Cisco::Catalyst_2960
 mode = production
 uplink = 23,24
 VoIPLLDPDetect=N
