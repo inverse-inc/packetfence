@@ -202,6 +202,45 @@ sub bulk_close_security_events {
     return $self->render(json => { items => $results });
 }
 
+=head2 close_security_events
+
+close_security_events
+
+=cut
+
+sub close_security_events {
+    my ($self) = @_;
+
+    ($status, my $iter) = pf::dal::security_event->search(
+        -where => {
+            'node.pid' => $self->id,
+            'security_event.status' => "open",
+        },
+        -columns => [qw(security_event.security_event_id security_event.mac)],
+        -from => [-join => qw(security_event <=>{security_event.security_event_id=class.security_event_id} class), '=>{security_event.tenant_id=node.tenant_id,security_event.mac=node.mac}', 'node'],
+        -with_class => undef,
+    );
+
+    if (is_error($status)) {
+        return $self->render_error($status, "Error finding security_events");
+    }
+    my $results = [];
+    my $security_events = $iter->all;
+    for my $security_event (@$security_events) {
+        my $mac = $security_event->{mac};
+        if (security_event_force_close($mac, $security_event->{security_event_id})) {
+            pf::enforcement::reevaluate_access($mac, "admin_modify");
+            $security_event->{status} = 200;
+        } else {
+            $security_event->{status} = 422;
+        }
+
+        push @$results, $security_event;
+    }
+
+    return $self->render(json => { items => $results });
+}
+
 =head2 bulk_apply_security_event
 
 bulk_apply_security_event

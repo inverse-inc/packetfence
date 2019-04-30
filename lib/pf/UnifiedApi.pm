@@ -443,7 +443,7 @@ sub setup_api_v1_users_routes {
     );
 
     $resource_route->register_sub_action({ method => 'GET', action => 'security_events' });
-    $resource_route->register_sub_action({ method => 'POST', action => 'unassign_nodes' });
+    $resource_route->register_sub_actions({ method => 'POST', actions => [qw(unassign_nodes close_security_events)] });
     $collection_route->register_sub_actions(
         {
             method  => 'POST',
