@@ -122,36 +122,44 @@ sub process_next_job {
         local $@;
         $self->set_tenant_id(\%task_data);
         eval {
+            local $@;
             sereal_decode_with_object($DECODER, $data, my $item);
-            if (ref($item) eq 'ARRAY') {
-                my $type = $item->[0];
-                my $args = $item->[1];
-                my $task = "pf::task::$type"->new;
-                if($task_data{status_update}) {
-                    $logger->debug("Reporting status for task $task_id");
-                    $task->set_status_updater($self->get_status_updater($task_id));
-                }
-                
-                # Now that we're tracking the status of the job, we can delete the key marking it as non-pending
-                $redis->del($task_id);
+            if (ref($item) ne 'ARRAY') {
+                die "Invalid object stored in queue";
+            }
 
-                my $result;
-                eval {
-                    $task->status_updater->set_status($STATUS_IN_PROGRESS);
-                    $task->status_updater->set_progress(0);
-                    $result = $task->doTask($args);
-                };
-                if($@) {
-                    $task->status_updater->set_status_msg($@);
-                    $task->status_updater->set_status($STATUS_FAILED);
-                    die $@;
+            my $type = $item->[0];
+            my $args = $item->[1];
+            my $task = "pf::task::$type"->new;
+            if($task_data{status_update}) {
+                $logger->debug("Reporting status for task $task_id");
+                $task->set_status_updater($self->get_status_updater($task_id));
+            }
+
+            # Now that we're tracking the status of the job, we can delete the key marking it as non-pending
+            $redis->del($task_id);
+            my $status_updater = $task->status_updater;
+            my ($err, $result) = eval {
+                $status_updater->start();
+                $task->doTask($args)
+            };
+
+            if ($@) {
+                $err = $@;
+            }
+
+            if ($err) {
+                unless (ref $err) {
+                    $err = {message => $err, status => 500};
                 }
-                else {
-                    $task->status_updater->set_result($result);
-                    $task->status_updater->set_status($STATUS_COMPLETED);
-                }
+
+                $status_updater->failed($err);
             } else {
-                $logger->error("Invalid object stored in queue");
+                unless (ref $result) {
+                    $result = {message => $result, status => 200};
+                }
+
+                $status_updater->completed($result);
             }
         };
         if ($@) {

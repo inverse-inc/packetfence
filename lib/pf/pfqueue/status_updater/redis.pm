@@ -17,9 +17,16 @@ use warnings;
 
 use Moo;
 use pf::constants::pfqueue qw(
+    $STATUS_FAILED
     $STATUS_COMPLETED
-    $STATUS_KEY
+    $STATUS_IN_PROGRESS
+    $FAILED_MSG
     $STATUS_MSG_KEY
+    $COMPLETED_MSG
+    $IN_PROGRESS_MSG
+    $STATUS_KEY
+    $MSG_KEY
+    $ERROR_KEY
     $SUB_TASKS_KEY
     $CURRENT_SUB_TASK_KEY
     $PROGRESS_KEY
@@ -76,83 +83,100 @@ sub reset_state {
     $self->finalized($FALSE);
 }
 
-=head2 set_status
 
-Set the status of the job
+=head2 start
+
+start
 
 =cut
 
-sub set_status {
-    my ($self, $status) = @_;
-
-    if($status eq $STATUS_COMPLETED) {
-        $self->set_progress(100);
-    }
-    $self->set_in_status_hash($STATUS_KEY, $status);
+sub start {
+    my ($self) = @_;
+    $self->set_in_status_hash(
+        $PROGRESS_KEY => 0,
+        $STATUS_KEY => $STATUS_IN_PROGRESS,
+        $MSG_KEY => $IN_PROGRESS_MSG
+    );
+    return ;
 }
 
-=head2 set_status_msg
+=head2 save_results
 
-Set the status message for the job
+save_results
 
 =cut
 
-sub set_status_msg {
-    my ($self, $status_msg) = @_;
-    $self->set_in_status_hash($STATUS_MSG_KEY, $status_msg);
+sub save_results {
+    my ($self, $results_key, $results, $status, $message, @extra) = @_;
+    $results = encode_json($results);
+    $self->set_in_status_hash(
+        $results_key => $results, 
+        $STATUS_KEY => $status,
+        $PROGRESS_KEY => 100,
+        $MSG_KEY => $message,
+        @extra
+    );
+    return ;
 }
 
-=head2 set_sub_tasks
+=head2 failed
 
-Set the list of sub tasks
+Set task as failed
 
 =cut
 
-sub set_sub_tasks {
-    my ($self, $sub_tasks) = @_;
-    $self->set_in_status_hash($SUB_TASKS_KEY, $sub_tasks);
+sub failed {
+    my ($self, $error) = @_;
+    $self->save_results($ERROR_KEY, $error, $STATUS_FAILED, $FAILED_MSG);
+    $self->finalized($TRUE);
+    return ;
 }
 
-=head2 set_current_sub_task
+=head2 completed
 
-Set the current sub task
+completed
 
 =cut
 
-sub set_current_sub_task {
-    my ($self, $sub_task) = @_;
-    $self->set_in_status_hash($CURRENT_SUB_TASK_KEY, $sub_task);
+sub completed {
+    my ($self, $results) = @_;
+    $self->save_results($RESULT_KEY, $results, $STATUS_COMPLETED, $COMPLETED_MSG);
+    $self->finalized($TRUE);
+    return ;
 }
 
-=head2 set_progress
+=head2 update_progress
 
-Set the progress of the job (on 100)
+Update progress and optionally the message of the task status
+The progress will normalized to be between 0 and 99
+The progress can only be set to 100 by $su->completed($results) or $su->failed($err)
 
 =cut
 
-sub set_progress {
-    my ($self, $progress) = @_;
-
+sub update_progress {
+    my ($self, $progress, $message) = @_;
     if ($progress < 0) {
         $progress = 0;
-    }
-    elsif ($progress > 100) {
-        $progress = 100;
+    } elsif ($progress >= 100) {
+        $progress = 99;
     }
 
-    $self->set_in_status_hash($PROGRESS_KEY, $progress);
+    $self->set_in_status_hash(
+        $PROGRESS_KEY => $progress,
+        (defined $message ? ($MSG_KEY => $message) : () ),
+    );
+    return ;
 }
 
-=head2 set_result
+=head2 update_message
 
-Set the result of the job
+Set the message for the job
 
 =cut
 
-sub set_result {
-    my ($self, $result) = @_;
-    $result = encode_json($result);
-    $self->set_in_status_hash($RESULT_KEY, $result);
+sub update_message {
+    my ($self, $msg) = @_;
+    $self->set_in_status_hash($MSG_KEY, $msg);
 }
 
 =head2 finalize

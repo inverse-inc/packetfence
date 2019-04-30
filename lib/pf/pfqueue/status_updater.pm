@@ -19,53 +19,47 @@ use warnings;
 
 use Moo;
 
-=head2 set_status
+=head2 start
 
-Set the status of the job
-
-=cut
-
-sub set_status {}
-
-=head2 set_status_msg
-
-Set the status message for the job
+start tracking the status/process of a job
 
 =cut
 
-sub set_status_msg {}
+sub start { }
 
-=head2 set_sub_tasks
+=head2 failed
 
-Set the list of sub tasks
-
-=cut
-
-sub set_sub_tasks {}
-
-=head2 set_current_sub_task
-
-Set the current sub task
+mark a job as failed
 
 =cut
 
-sub set_current_task {}
+sub failed { }
 
-=head2 set_progress
+=head2 completed
 
-Set the progress of the job (on 100)
-
-=cut
-
-sub set_progress {}
-
-=head2 set_result
-
-Set the result of the job
+mark a job as completed
 
 =cut
 
-sub set_result {}
+sub completed { }
+
+=head2 update_progress
+
+Update progress and optionally the message of the task status
+The progress will normalized to be between 0 and 99
+The progress can only be set to 100 by $su->completed($results) or $su->failed($err)
+
+=cut
+
+sub update_progress { }
+
+=head2 update_message
+
+update message of task
+
+=cut
+
+sub update_message { }
 
 =head2 finalize
 
@@ -103,4 +97,3 @@ USA.
 =cut
 
 1;
-

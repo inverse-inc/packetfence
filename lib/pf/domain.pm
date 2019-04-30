@@ -46,7 +46,7 @@ Executes a command and returns the results as the domain interfaces expect it
 
 sub run {
     my ($cmd) = @_;
-
+    local $?;
     my $result = `$cmd`;
     my $code = $? >> 8;
 
@@ -73,9 +73,9 @@ Executes the command on the OS to test an authentication to the domain
 =cut
 
 sub test_auth {
-    my ($domain) = @_;
+    my ($domain, $info) = @_;
+    $info //= $ConfigDomain{$domain};
     my $chroot_path = chroot_path($domain);
-    my $info = $ConfigDomain{$domain};
     my ($status, $output) = run("/usr/bin/sudo /usr/sbin/chroot $chroot_path /usr/bin/ntlm_auth --username=$info->{bind_dn} --password=$info->{bind_pass}");
     return ($status, $output);
 }
@@ -99,19 +99,25 @@ Joins the domain
 =cut
 
 sub join_domain {
-    my ($domain, $extra) = @_;
+    my ($domain, $info) = @_;
     my $logger = get_logger();
     my $chroot_path = chroot_path($domain);
-
+    my $output;
+    my $error;
+    if (!exists $ConfigDomain{$domain}) {
+        return { message => "Domain $domain is not configured", status => 404 }, undef;
+    }
     regenerate_configuration();
 
-    my $info = {%{$ConfigDomain{$domain}}, %{$extra // {}}};
-    my ($status, $output) = run("/usr/bin/sudo /sbin/ip netns exec $domain /usr/sbin/chroot $chroot_path net ads join -s /etc/samba/$domain.conf createcomputer=$info->{ou} -U '".escape_bind_user_string($info->{bind_dn}.'%'.$info->{bind_pass})."'");
+    $info //= $ConfigDomain{$domain};
+    (my $status, $output) = run("/usr/bin/sudo /sbin/ip netns exec $domain /usr/sbin/chroot $chroot_path net ads join -s /etc/samba/$domain.conf createcomputer=$info->{ou} -U '".escape_bind_user_string($info->{bind_dn}.'%'.$info->{bind_pass})."'");
     $logger->info("domain join : ".$output);
+    if ($status) {
+        return {message => $output, status => 400}, undef;
+    }
 
     restart_winbinds();
-
-    return $output;
+    return undef, {message => $output, status => 200};
 }
 
 =head2 rejoin_domain
@@ -121,17 +127,35 @@ Unjoins then joins the domain
 =cut
 
 sub rejoin_domain {
-    my ($domain, $extra) = @_;
+    my ($domain, $info) = @_;
     my $logger = get_logger();
-
-    my $info = $ConfigDomain{$domain};
+    $info //= $ConfigDomain{$domain};
+    my @errors;
+    my $results = {};
+    my $join_error;
+    my $err;
     if ($info) {
-        my ($leave_output) = unjoin_domain($domain, $extra);
+        my $
+        my ($error, $leave_output) = unjoin_domain($domain, $info);
+        if ($error) {
+            push @errors, $error;
+        }
 
-        my $join_output = join_domain($domain, $extra);
+        $results->{unjoin} = $leave_output;
+        ($error, my $join_output) = join_domain($domain, $info);
+        if ($error) {
+            push @errors, $error;
+        }
 
-        return {leave_output => $leave_output, join_output => $join_output};
+        $results->{join} = $join_output;
     }
+
+    if ($join_error) {
+        $err = {message => "Error rejoining domain '$domain'", errors => \@errors};
+        $results = undef;
+    }
+
+    return $err, $results;
 }
 
 =head2 unjoin_domain
@@ -141,22 +165,23 @@ Joins the domain through the ip namespace
 =cut
 
 sub unjoin_domain {
-    my ($domain, $extra) = @_;
+    my ($domain, $info) = @_;
     my $logger = get_logger();
+    if (!exists $ConfigDomain{$domain}) {
+        return { message => "Domain $domain is not configured", status => 404 }, undef;
+    }
+
     my $chroot_path = chroot_path($domain);
 
-    my $info = $ConfigDomain{$domain};
-    if ($info) {
-        $info = {%$info, %{$extra // {}}};
-        my ($status, $output) = run("/usr/bin/sudo /sbin/ip netns exec $domain /usr/sbin/chroot $chroot_path net ads leave -s /etc/samba/$domain.conf -U '".escape_bind_user_string($info->{bind_dn}.'%'.$info->{bind_pass})."'");
-        $logger->info("domain leave : ".$output);
-        $logger->info("netns deletion : ".run("/usr/bin/sudo /sbin/ip netns delete $domain"));
-        return $output;
-    }
-    else{
-        $logger->error("Domain $domain is not configured");
+    $info //= $ConfigDomain{$domain};
+    my ($status, $output) = run("/usr/bin/sudo /sbin/ip netns exec $domain /usr/sbin/chroot $chroot_path net ads leave -s /etc/samba/$domain.conf -U '".escape_bind_user_string($info->{bind_dn}.'%'.$info->{bind_pass})."'");
+    $logger->info("domain leave : ".$output);
+    $logger->info("netns deletion : ".run("/usr/bin/sudo /sbin/ip netns delete $domain"));
+    if ($status) {
+        return {message => $output, status => 400}, undef;
     }
 
+    return undef, {message => $output, status => 200};
 }
 
 =head2 generate_krb5_conf

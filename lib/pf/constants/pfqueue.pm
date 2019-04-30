@@ -35,6 +35,12 @@ our @EXPORT_OK = qw(
     $CURRENT_SUB_TASK_KEY
     $PROGRESS_KEY
     $RESULT_KEY
+    $MSG_KEY
+    $ERROR_KEY
+
+    $FAILED_MSG
+    $COMPLETED_MSG
+    $IN_PROGRESS_MSG
     
     $STATUS_COMPLETED
     $STATUS_FAILED
@@ -76,11 +82,17 @@ our $STATUS_MSG_KEY = "status_msg";
 our $SUB_TASKS_KEY = "sub_tasks";
 our $CURRENT_SUB_TASK_KEY = "sub_task";
 our $PROGRESS_KEY = "progress";
-our $RESULT_KEY = "result";
+our $RESULT_KEY = "item";
+our $MSG_KEY    = "message";
+our $ERROR_KEY = 'error';
 
-our $STATUS_COMPLETED = "Completed";
-our $STATUS_FAILED = "Failed";
-our $STATUS_IN_PROGRESS = "In progress";
+our $STATUS_COMPLETED = 200;
+our $STATUS_FAILED = 400;
+our $STATUS_IN_PROGRESS = 202;
+
+our $FAILED_MSG = 'Failed';
+our $COMPLETED_MSG = 'Completed';
+our $IN_PROGRESS_MSG = 'In Progress';
 
 =head1 AUTHOR
 

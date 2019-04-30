@@ -27,6 +27,7 @@ Log to pfqueue.log
 sub doTask {
     my ($self, $args) = @_;
     $logger->info(@$args);
+    return undef, undef;
 }
 
 =head1 AUTHOR

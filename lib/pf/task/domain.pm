@@ -37,29 +37,31 @@ sub doTask {
     my ($self, $args) = @_;
     my $logger = get_logger;
 
-    my $op = $args->{operation};
+    my $op = $args->{operation} // '<null>';
     my $domain = $args->{domain};
 
-    unless(exists($OP_MAP{$op})) {
+    unless (defined $op && exists($OP_MAP{$op})) {
         my $msg = "Invalid operation $op for domain";
         $logger->error($msg);
-        $self->status_updater->set_status_msg($msg);
-        $self->status_updater->set_status($STATUS_FAILED);
-        $self->status_updater->finalize();
-        return;
+        return { message => $msg, status => 405 }, undef;
     }
 
-    unless(exists($ConfigDomain{$domain})) {
+    unless (exists($ConfigDomain{$domain})) {
         my $msg = "Invalid domain $domain for domain task";
         $logger->error($msg);
-        $self->status_updater->set_status_msg($msg);
-        $self->status_updater->set_status($STATUS_FAILED);
-        $self->status_updater->finalize();
-        return;
+        return { message => $msg, status => 404 }, undef;
     }
 
-    my $result = $OP_MAP{$op}->($domain, $args);
-    return $result;
+    my $info = {%{$ConfigDomain{$domain}}};
+    if ($args) {
+        for my $k (qw(bind_dn bind_pass)) {
+            my $v = $args->{$k};
+            next unless defined $v && length($v);
+            $info->{$k} = $v;
+        }
+    }
+
+    return $OP_MAP{$op}->($domain, $info);
 }
 
 =head1 AUTHOR

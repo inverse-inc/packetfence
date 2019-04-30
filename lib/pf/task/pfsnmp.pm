@@ -54,23 +54,28 @@ sub doTask {
     my ($self, $trap) = @_;
     my $switch_id = $trap->{switchId};
     unless (defined $switch_id) {
-        $logger->error("No switch found in trap");
-        return;
+        my $msg = "No switch found in trap";
+        $logger->error($msg);
+        return {message => $msg, status => 422}, undef;
     }
 
     my $switch = pf::SwitchFactory->instantiate($switch_id);
     unless ($switch) {
-        $logger->error("Can not instantiate switch $switch_id !");
-        return;
+        my $msg = "Can not instantiate switch $switch_id !";
+        $logger->error($msg);
+        return {message => $msg, status => 404}, undef;
     }
 
     my $lock = $self->lockSwitch($switch, $trap);
 
     unless ($lock) {
-        $logger->debug("cannot get a lock on the switch $switch_id");
-        return;
+        my $msg = "cannot get a lock on the switch $switch_id";
+        $logger->error($msg);
+        return {message => $msg, status => 500}, undef;
     }
-    return $self->handleTrap($switch, $trap);
+
+    $self->handleTrap($switch, $trap);
+    return undef, undef;
 }
 
 our %TRAP_HANDLERS = (

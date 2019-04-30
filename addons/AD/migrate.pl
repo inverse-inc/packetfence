@@ -57,9 +57,13 @@ print "What is this server's name in your Active Directory ? ";
 my $server_name = <STDIN>;
 chomp($server_name);
 
+my $config = {workgroup => $WORKGROUP, dns_name => $REALM, dns_servers => $NAMESERVER, ad_server => $SERVER, server_name => $server_name};
 my $cs = pf::ConfigStore::Domain->new;
-$cs->update_or_create($WORKGROUP, {workgroup => $WORKGROUP, dns_name => $REALM, dns_servers => $NAMESERVER, ad_server => $SERVER, bind_dn => $user, bind_pass => $password, server_name => $server_name});
+$cs->update_or_create($WORKGROUP, $config);
 $cs->commit();
+
+$config{bind_dn} = $user;
+$config{bind_pass} = $password;
 
 print "Configuring realm : '$REALM' \n";
 print "Configuring workgroup : '$WORKGROUP' \n";
@@ -74,10 +78,8 @@ chomp($confirm);
 if($confirm eq 'y'){
   pf_run('cp /etc/krb5.conf /etc/krb5.conf.pf_backup');
   pf::domain::regenerate_configuration();
-  my $output = pf::domain::join_domain($WORKGROUP);
+  my $output = pf::domain::join_domain($WORKGROUP, $config);
   # we remove the password after the configuration
-  $cs->update($WORKGROUP, { bind_pass => '' });
-  $cs->commit();
   print "Done. If there were any issues joining the domain, you can now use the web interface to fix the issues (Configuration->Domains) \n";
 }
 else{

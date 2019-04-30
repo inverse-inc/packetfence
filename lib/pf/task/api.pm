@@ -33,6 +33,7 @@ sub doTask {
     my ($self, $args) = @_;
     my $api_client = pf::api::can_fork->new();
     $api_client->notify(@$args);
+    return (undef, undef);
 }
 
 =head1 AUTHOR

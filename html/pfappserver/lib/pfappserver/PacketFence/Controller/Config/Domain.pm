@@ -72,7 +72,13 @@ after [qw(create clone)] => sub {
     my ($self, $c) = @_;
     if( $c->request->method eq 'POST' && !$c->stash->{form}->has_errors ) {
         pf::domain::regenerate_configuration();
-        my $output = pf::domain::join_domain($c->req->param('id'));
+        my ($err, $results) = pf::domain::join_domain($c->req->param('id'));
+        my $output;
+        if ($err) {
+            $output = $err->{message};
+        } else {
+            $output = $results->{message};
+        }
         $c->stash->{items}->{join_output} = $output;
         $c->forward('reset_credentials',[$c->req->param('id')]);
     }
@@ -140,7 +146,7 @@ Usage: /config/domain/rejoin/:domainId
 
 sub rejoin :Local :Args(1) {
     my ($self, $c, $domain) = @_;
-    my $info = pf::domain::rejoin_domain($domain);
+    my ($err, $info) = pf::domain::rejoin_domain($domain);
     $c->forward('reset_credentials',[ $domain ]);
     $c->stash->{status_msg} = "Rejoined the domain";
     $c->stash->{items} = $info;
