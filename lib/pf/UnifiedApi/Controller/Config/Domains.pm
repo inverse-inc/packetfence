@@ -36,6 +36,7 @@ Test if a domain is properly joined
 sub test_join {
     my ($self) = @_;
     my ($status, $msg) = pf::domain::test_join($self->id);
+    chomp($msg);
     $self->render(json => {message => $msg}, status => $status == 0 ? 200 : 422);
 }
 
