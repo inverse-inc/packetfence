@@ -22,6 +22,8 @@ New Features
 * Cisco ASA VPN support with the captive portal
 * Fortinet VPN support
 * Support for Aerohive access point with switch port
+* Support for Aruba Instant Access switch module
+
 
 Enhancements
 ++++++++++++
