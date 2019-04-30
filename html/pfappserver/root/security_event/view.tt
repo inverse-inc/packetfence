@@ -86,6 +86,7 @@
               <select id="trigger_type" class="input-medium">
                 <option value=""></option>
                 [% FOREACH type IN trigger_types -%]
+                [% NEXT IF type == "recorded_accounting" %]
                 <option value="[% type | html %]">[% l(type) %]</option>
                 [% END -%]
               </select>

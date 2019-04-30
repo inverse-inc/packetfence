@@ -30,7 +30,8 @@ sub factory_for {'pf::condition'};
 my $DEFAULT_CONDITION = 'key';
 
 our %TRIGGER_TYPE_TO_CONDITION_TYPE = (
-    'accounting'                => {type => 'equals',                   key  => 'last_accounting_id',      event => $TRUE},
+    'accounting'                => {type => 'equals',                   key  => 'last_accounting_id'},
+    'recorded_accounting'       => {type => 'includes',                 key  => 'last_accounting_events'},
     'detect'                    => {type => 'equals',                   key  => 'last_detect_id',          event => $TRUE},
     'device'                    => {type => 'fingerbank::device_is_a',  key  => 'device_id'},
     'dhcp_fingerprint'          => {type => 'equals',                   key  => 'dhcp_fingerprint_id'},
@@ -70,6 +71,11 @@ sub instantiate {
         my @triggers = split(/\s*&\s*/,$1);
         my @conditions;
         foreach my $sub_trigger (@triggers){
+            # In multi-trigger context, we use the recorded accounting triggers
+            if($sub_trigger =~ /^accounting::(.*)/) {
+                $sub_trigger = "recorded_accounting::$1";
+            }
+
             ($type,$data) = $class->getData($sub_trigger);
             my $subclass = $class->getModuleName($type);
             my $condition = $subclass->new($data);

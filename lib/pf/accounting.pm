@@ -17,6 +17,8 @@ use warnings;
 
 use pf::log;
 use Readonly;
+use pf::accounting_events_history;
+use pf::config::pfmon qw(%ConfigPfmon);
 
 use constant ACCOUNTING => 'accounting';
 
@@ -89,6 +91,9 @@ sub acct_maintenance {
     my $logger = get_logger();
     $logger->info("getting security_events triggers for accounting cleanup");
 
+    my $events_history = pf::accounting_events_history->new();
+    my $events_history_hash = $events_history->get_new_history_hash();
+
     foreach my $info (@ACCOUNTING_TRIGGERS) {
         my $acct_policy = $info->{trigger};
         my $security_event_id = $info->{security_event};
@@ -138,6 +143,8 @@ sub acct_maintenance {
 
                 if (security_event_exist_acct($cleanedMac, $security_event_id, $interval)) {
                     $logger->info("We have a closed security_event in the interval window for node $cleanedMac, need to recalculate using the last security_event release date");
+                    $events_history->add_to_history_hash($events_history_hash, $cleanedMac, $acct_policy);
+
                     my @security_event = security_event_view_last_closed($cleanedMac,$security_event_id);
                     $releaseDate = $security_event[0]{'release_date'};
 
@@ -155,6 +162,7 @@ sub acct_maintenance {
                          }
                     }
                 } else {
+                    $events_history->add_to_history_hash($events_history_hash, $cleanedMac, $acct_policy);
                     security_event_trigger( { 'mac' => $cleanedMac, 'tid' => $acct_policy, 'type' => $TRIGGER_TYPE_ACCOUNTING } );
                 }
             }
@@ -164,6 +172,9 @@ sub acct_maintenance {
             $logger->warn("Invalid trigger for accounting maintenance: $acct_policy");
         }
     }
+
+    # Commit the data and give 3 times the acct_maintenance interval as a TTL which should be plenty for the next loop to populate this again
+    $events_history->commit($events_history_hash, $ConfigPfmon{acct_maintenance}{interval}*3);
     return $TRUE;
 }
 
