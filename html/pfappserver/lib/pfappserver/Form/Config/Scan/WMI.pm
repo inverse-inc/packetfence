@@ -39,7 +39,7 @@ has_block definition =>
 
 has_field '+oses' =>
   (
-    default => ['Windows'],
+    is_inactive => 1,
   );
 
 has_field 'wmi_policy' =>
@@ -73,10 +73,6 @@ Returns the list of wmi rules to be displayed
 
 sub options_wmi_rules {
     return  map { { value => $_, label => $_ } } @{pf::ConfigStore::WMI->new->readAllIds};
-}
-
-sub oses {
-    return ["Windows" => "Windows"];
 }
 
 =over

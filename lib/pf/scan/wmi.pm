@@ -57,7 +57,6 @@ sub new {
             '_type'     => undef,
             '_status'   => undef,
             '_domain'   => undef,
-            '_oses'     => undef,
             '_categories' => undef,
     }, $class;
 
@@ -65,6 +64,7 @@ sub new {
         $self->{'_' . $value} = $data{$value};
     }
 
+    $self->{'_oses'} = ['Windows'];
     return $self;
 }
 
