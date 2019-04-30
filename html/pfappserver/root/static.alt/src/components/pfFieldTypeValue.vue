@@ -5,7 +5,7 @@
     <b-col v-if="$slots.prepend" cols="1" align-self="start" class="text-center col-form-label">
       <slot name="prepend"></slot>
     </b-col>
-    <b-col col-sm="4" align-self="start">
+    <b-col sm="4" align-self="start">
 
       <pf-form-chosen
         v-model="localType"
@@ -23,7 +23,7 @@
       ></pf-form-chosen>
 
     </b-col>
-    <b-col col-sm="6" align-self="start" class="pl-1">
+    <b-col sm="6" align-self="start" class="pl-1">
 
       <!-- Types: OPTIONS, ADMINROLE, ROLE, ROLE_BY_NAME, TENANT, DURATION, TIME_BALANCE -->
       <pf-form-chosen v-if="
