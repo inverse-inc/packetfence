@@ -1,8 +1,5 @@
 <template>
   <div>
-
-<pre>{{ JSON.stringify(domainJoinTests, null, 2) }}</pre>
-
     <pf-config-list
       :config="config"
     >
@@ -209,6 +206,9 @@ export default {
       this.$store.dispatch(`${this.storeName}/joinDomain`, { id: item.id, username: this.join.username, password: this.join.password }).then(response => {
         this.$set(this.join, 'showWaitModal', false)
         this.$set(this.join, 'showResultModal', true)
+        Object.keys(this.domainJoinTests).forEach(id => { // refresh all
+          this.initTestDomainJoin({ id })
+        })
       })
     },
     doRejoin (item) {
@@ -216,6 +216,9 @@ export default {
       this.$store.dispatch(`${this.storeName}/rejoinDomain`, { id: item.id, username: this.join.username, password: this.join.password }).then(response => {
         this.$set(this.join, 'showWaitModal', false)
         this.$set(this.join, 'showResultModal', true)
+        Object.keys(this.domainJoinTests).forEach(id => { // refresh all
+          this.initTestDomainJoin({ id })
+        })
       })
     },
     doUnjoin (item) {
@@ -223,6 +226,9 @@ export default {
       this.$store.dispatch(`${this.storeName}/unjoinDomain`, { id: item.id, username: this.join.username, password: this.join.password }).then(response => {
         this.$set(this.join, 'showWaitModal', false)
         this.$set(this.join, 'showResultModal', true)
+        Object.keys(this.domainJoinTests).forEach(id => { // refresh all
+          this.initTestDomainJoin({ id })
+        })
       })
     },
     remove (item) {
