@@ -291,6 +291,7 @@ export default {
     line-height: $input-line-height;
   }
   .multiselect__content-wrapper {
+    z-index: $zindex-popover;
     border: $dropdown-border-width solid $dropdown-border-color;
     @include border-radius($dropdown-border-radius);
     @include box-shadow($dropdown-box-shadow);
