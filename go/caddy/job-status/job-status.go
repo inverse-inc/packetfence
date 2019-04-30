@@ -207,12 +207,7 @@ func (h JobStatusHandler) handleStatus(w http.ResponseWriter, r *http.Request, p
 		h.writeMessage(ctx, http.StatusInternalServerError, msg, w)
 		log.LoggerWContext(ctx).Error(msg + ": " + err.Error())
 	} else if jobExists {
-		h.writeMessage(ctx, STATUS_PENDING, msg, w)
-		res, _ := json.Marshal(map[string]interface{}{
-			"status": STATUS_PENDING,
-		})
-		w.WriteHeader(STATUS_PENDING)
-		fmt.Fprintf(w, string(res))
+		h.writeMessage(ctx, STATUS_PENDING, "In Progress", w)
 	} else {
 		// Job is not pending and no status found, it either has expired or never existed, return a 404
 		h.writeMessage(ctx, http.StatusNotFound, "Unable to find pending, running or completed job status", w)
