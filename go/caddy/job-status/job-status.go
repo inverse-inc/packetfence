@@ -93,7 +93,7 @@ func (h JobStatusHandler) sendResults(w http.ResponseWriter, data map[string]str
 	results := map[string]interface{}{}
 	for k, v := range data {
 		switch k {
-		case "results", "error":
+		case "item", "error":
 			results[k] = json.RawMessage(v)
 		case "status":
 			if i, err := strconv.Atoi(v); err != nil {
