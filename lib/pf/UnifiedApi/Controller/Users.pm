@@ -211,7 +211,7 @@ close_security_events
 sub close_security_events {
     my ($self) = @_;
 
-    ($status, my $iter) = pf::dal::security_event->search(
+    my ($status, $iter) = pf::dal::security_event->search(
         -where => {
             'node.pid' => $self->id,
             'security_event.status' => "open",
