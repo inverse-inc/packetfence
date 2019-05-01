@@ -12180,7 +12180,7 @@ msgstr ""
 # html/pfappserver/root/static.alt/src/components/pfFieldAccessDuration.vue:168
 # html/pfappserver/root/static.alt/src/store/modules/config.js:472
 msgid "years"
-msgstr ""
+msgstr "années"
 
 # html/pfappserver/root/static.alt/src/views/Configuration/_components/CertificatesView.vue:308
 msgid "{certificate} certificate saved"
