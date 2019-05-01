@@ -21,6 +21,18 @@ has url_param_name => 'user_id';
 has primary_key => 'pid';
 has 'url_parent_ids' =>  sub { [qw(user_id)] };
 
+=head2 cleanup_item
+
+Remove the password field from the item
+
+=cut
+
+sub cleanup_item {
+    my ($self, $item) = @_;
+    delete $item->{password};
+    return $item;
+}
+
 sub make_create_data {
     my ($self) = @_;
     my ($status, $data) = $self->SUPER::make_create_data();

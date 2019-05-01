@@ -29,6 +29,18 @@ has dal => 'pf::dal::person';
 has url_param_name => 'user_id';
 has primary_key => 'pid';
 
+=head2 cleanup_item
+
+Remove the password field from the item
+
+=cut
+
+sub cleanup_item {
+    my ($self, $item) = @_;
+    delete $item->{password};
+    return $item;
+}
+
 =head2 unassign_nodes
 
 unassign user nodes
