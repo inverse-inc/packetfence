@@ -58,18 +58,6 @@
             class="mb-1 mr-2"
             collapse-object
           ></pf-form-chosen>
-          <pf-form-fields :column-label="$t('Actions')" label-cols="2"
-            v-model="localActions"
-            ref="localActions"
-            :field="actions"
-            :vuelidate="actionsVuelidateModel"
-            :invalid-feedback="actionsInvalidFeedback"
-            :button-label="$t('Add Action')"
-            :disabled="disabled"
-            @validations="setActionValidations($event)"
-            class="mb-1 mr-2"
-            sortable
-          ></pf-form-fields>
           <pf-form-fields :column-label="$t('Conditions')" label-cols="2"
             v-model="localConditions"
             ref="localConditions"
@@ -79,6 +67,18 @@
             :button-label="$t('Add Condition')"
             :disabled="disabled"
             @validations="setConditionValidations($event)"
+            class="mb-1 mr-2"
+            sortable
+          ></pf-form-fields>
+          <pf-form-fields :column-label="$t('Actions')" label-cols="2"
+            v-model="localActions"
+            ref="localActions"
+            :field="actions"
+            :vuelidate="actionsVuelidateModel"
+            :invalid-feedback="actionsInvalidFeedback"
+            :button-label="$t('Add Action')"
+            :disabled="disabled"
+            @validations="setActionValidations($event)"
             class="mb-1 mr-2"
             sortable
           ></pf-form-fields>
