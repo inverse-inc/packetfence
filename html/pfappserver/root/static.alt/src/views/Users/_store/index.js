@@ -3,6 +3,58 @@
 */
 import Vue from 'vue'
 import api from '../_api'
+import { pfConfigurationActions } from '@/globals/configuration/pfConfiguration'
+
+const inflateActions = (data) => {
+  data.actions = []
+  if (data.access_duration) {
+    data.actions.push({ type: pfConfigurationActions.set_access_duration.value, value: data.access_duration })
+  }
+  if (data.access_level && data.access_level !== 'NONE') {
+    data.actions.push({ type: pfConfigurationActions.set_access_level.value, value: data.access_level })
+  }
+  if (data.can_sponsor && parseInt(data.can_sponsor)) {
+    data.actions.push({ type: pfConfigurationActions.mark_as_sponsor.value, value: data.can_sponsor })
+  }
+  if (data.category) {
+    data.actions.push({ type: pfConfigurationActions.set_role.value, value: data.category })
+  }
+  if (data.tenant_id) {
+    data.actions.push({ type: pfConfigurationActions.set_tenant_id.value, value: data.tenant_id })
+  }
+  if (data.unregdate !== '0000-00-00 00:00:00') {
+    data.actions.push({ type: pfConfigurationActions.set_unreg_date.value, value: data.unregdate })
+  }
+}
+
+const deflateActions = (data) => {
+  // Deflate actions
+  const { actions = [] } = data
+  actions.forEach(action => {
+    switch (action.type) {
+      case pfConfigurationActions.set_access_duration.value:
+        data.access_duration = action.value
+        break
+      case pfConfigurationActions.set_access_level.value:
+        data.access_level = action.value
+        break
+      case pfConfigurationActions.mark_as_sponsor.value:
+        data.can_sponsor = action.value
+        break
+      case pfConfigurationActions.set_role.value:
+        data.category = action.value
+        break
+      case pfConfigurationActions.set_tenant_id.value:
+        data.tenant_id = action.value
+        break
+      case pfConfigurationActions.set_unreg_date.value:
+        data.unregdate = action.value
+        break
+      default:
+        // noop
+    }
+  })
+}
 
 // Default values
 const state = {
@@ -54,6 +106,7 @@ const actions = {
     }
     commit('USER_REQUEST')
     return api.user(pid).then(data => {
+      inflateActions(data)
       commit('USER_REPLACED', data)
       // Fetch nodes
       api.nodes(pid).then(datas => {
@@ -84,10 +137,31 @@ const actions = {
   },
   updateUser: ({ commit }, data) => {
     commit('USER_REQUEST')
-    delete data.access_duration
-    delete data.access_level
     return api.updateUser(data).then(response => {
       commit('USER_REPLACED', data)
+      return response
+    }).catch(err => {
+      commit('USER_ERROR', err.response)
+    })
+  },
+  createPassword: ({ commit }, data) => {
+    deflateActions(data)
+    commit('USER_REQUEST')
+    return new Promise((resolve, reject) => {
+      api.createPassword(data).then(response => {
+        commit('USER_SUCCESS')
+        resolve(response)
+      }).catch(err => {
+        commit('USER_ERROR', err.response)
+        reject(err)
+      })
+    })
+  },
+  updatePassword: ({ commit }, data) => {
+    deflateActions(data)
+    commit('USER_REQUEST')
+    return api.updatePassword(data).then(response => {
+      commit('USER_SUCCESS')
       return response
     }).catch(err => {
       commit('USER_ERROR', err.response)
