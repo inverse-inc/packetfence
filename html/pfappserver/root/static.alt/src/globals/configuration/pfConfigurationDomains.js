@@ -2,7 +2,6 @@ import i18n from '@/utils/locale'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormHtml from '@/components/pfFormHtml'
 import pfFormInput from '@/components/pfFormInput'
-import pfFormPassword from '@/components/pfFormPassword'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import pfFormTextarea from '@/components/pfFormTextarea'
 import {
@@ -40,6 +39,13 @@ export const pfConfigurationDomainsListColumns = [
     label: i18n.t('NTLM Cache'),
     sortable: true,
     visible: true
+  },
+  {
+    key: 'joined',
+    label: i18n.t('Test Join'),
+    sortable: true,
+    visible: true,
+    locked: true
   },
   {
     key: 'buttons',
@@ -205,30 +211,6 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'dns_servers'),
               validators: pfConfigurationValidatorsFromMeta(meta, 'dns_servers', 'DNS server(s)')
-            }
-          ]
-        },
-        {
-          label: i18n.t('Username'),
-          text: i18n.t('The username of a Domain Admin to use to join the server to the domain.'),
-          fields: [
-            {
-              key: 'bind_dn',
-              component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'bind_dn'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'bind_dn', 'Username')
-            }
-          ]
-        },
-        {
-          label: i18n.t('Password'),
-          text: i18n.t('The password of a Domain Admin to use to join the server to the domain. Will not be stored permanently and is only used while joining the domain.'),
-          fields: [
-            {
-              key: 'bind_pass',
-              component: pfFormPassword,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'bind_pass'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'bind_pass', 'Password')
             }
           ]
         },

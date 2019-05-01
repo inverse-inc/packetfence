@@ -126,6 +126,10 @@ export default {
     optionsSearchFunction: {
       type: Function
     },
+    optionsSearchFunctionInitialized: { // true after first `optionsSearchFunction` call (for preloading)
+      type: Boolean,
+      default: false
+    },
     preserveSearch: {
       type: Boolean,
       default: false
@@ -155,11 +159,19 @@ export default {
               options.push(...group[this.groupValues])
               return options
             }, [])
-          return (this.multiple)
-            ? [...new Set(currentValue.map(value => { return { [this.trackBy]: value, [this.label]: value } }))]
-            : (!options)
-              ? null
-              : options.find(option => option[this.trackBy] === currentValue)
+          if (options.length === 0) { // no options
+            return (this.multiple)
+              ? [...new Set(currentValue.map(value => {
+                return { [this.trackBy]: value, [this.label]: value }
+              }))]
+              : { [this.trackBy]: currentValue, [this.label]: currentValue }
+          } else { // is options
+            return (this.multiple)
+              ? [...new Set(currentValue.map(value => {
+                return options.find(option => option[this.trackBy] === value) || { [this.trackBy]: value, [this.label]: value }
+              }))]
+              : options.find(option => option[this.trackBy] === currentValue) || { [this.trackBy]: currentValue, [this.label]: currentValue }
+          }
         }
         return currentValue
       },
@@ -186,11 +198,13 @@ export default {
         this.loading = true
         this.$debouncer({
           handler: () => {
-            Promise.resolve(this.optionsSearchFunction(this, `${query}`.trim())).then(options => {
+            Promise.resolve(this.optionsSearchFunction(this, query)).then(options => {
               this.loading = false
               this.options = options
             }).catch(() => {
               this.loading = false
+            }).finally(() => {
+              this.optionsSearchFunctionInitialized = true
             })
           },
           time: 300
@@ -202,7 +216,8 @@ export default {
     value: {
       handler (a, b) {
         this.onSearchChange(a) // prime the searchable cache with our current `value`
-      }
+      },
+      immediate: true
     }
   }
 }
