@@ -35,7 +35,7 @@ Returns the path to a domain chroot
 
 sub chroot_path {
     my ($domain) = @_;
-    return $domains_chroot_dir."/".$domain;
+    return "$domains_chroot_dir/$domain";
 }
 
 =head2 run
@@ -107,13 +107,19 @@ sub join_domain {
     if (!exists $ConfigDomain{$domain}) {
         return { message => "Domain $domain is not configured", status => 404 }, undef;
     }
+
     regenerate_configuration();
 
     $info //= $ConfigDomain{$domain};
-    (my $status, $output) = run("/usr/bin/sudo /sbin/ip netns exec $domain /usr/sbin/chroot $chroot_path net ads join -s /etc/samba/$domain.conf createcomputer=$info->{ou} -U '".escape_bind_user_string($info->{bind_dn}.'%'.$info->{bind_pass})."'");
-    $logger->info("domain join : ".$output);
-    if ($status) {
-        return {message => $output, status => 400}, undef;
+    (my $status, $output) = run("/usr/bin/sudo /sbin/ip netns exec $domain /usr/sbin/chroot $chroot_path net ads join -s /etc/samba/$domain.conf createcomputer=$info->{ou} -U '".escape_bind_user_string($info->{bind_dn}.'%'.$info->{bind_pass})."' 2>&1");
+    chomp($output);
+    $logger->info("domain join : $output");
+
+    if ($status != 0) {
+        ($status, my $test_output) = test_join($domain);
+        if ($status != 0) {
+            return {message => $output, status => 400}, undef;
+        }
     }
 
     restart_winbinds();
@@ -132,25 +138,31 @@ sub rejoin_domain {
     $info //= $ConfigDomain{$domain};
     my @errors;
     my $results = {};
-    my $join_error;
+    my ($unjoin_error, $join_error);
     my $err;
     if ($info) {
-        my ($error, $leave_output) = unjoin_domain($domain, $info);
-        if ($error) {
-            push @errors, $error;
+        my ($unjoin_error, $leave_output) = unjoin_domain($domain, $info);
+        if ($unjoin_error) {
+            $results->{unjoin} = $unjoin_error->{message};
+            push @errors, $unjoin_error;
+        } else {
+            $results->{unjoin} = $leave_output;
         }
 
-        $results->{unjoin} = $leave_output;
-        ($error, my $join_output) = join_domain($domain, $info);
-        if ($error) {
-            push @errors, $error;
+        ($join_error, my $join_output) = join_domain($domain, $info);
+        if ($join_error) {
+            push @errors, $join_error;
+        } else {
+            $results->{join} = $join_output;
         }
-
-        $results->{join} = $join_output;
     }
 
     if ($join_error) {
-        $err = {message => "Error rejoining domain '$domain'", errors => \@errors};
+        $err = {
+            message => "Error rejoining domain '$domain'",
+            errors  => \@errors,
+            status  => 400
+        };
         $results = undef;
     }
 
@@ -173,8 +185,9 @@ sub unjoin_domain {
     my $chroot_path = chroot_path($domain);
 
     $info //= $ConfigDomain{$domain};
-    my ($status, $output) = run("/usr/bin/sudo /sbin/ip netns exec $domain /usr/sbin/chroot $chroot_path net ads leave -s /etc/samba/$domain.conf -U '".escape_bind_user_string($info->{bind_dn}.'%'.$info->{bind_pass})."'");
-    $logger->info("domain leave : ".$output);
+    my ($status, $output) = run("/usr/bin/sudo /sbin/ip netns exec $domain /usr/sbin/chroot $chroot_path net ads leave -s /etc/samba/$domain.conf -U '".escape_bind_user_string($info->{bind_dn}.'%'.$info->{bind_pass})."' 2>&1");
+    chomp($output);
+    $logger->info("domain leave : $output");
     $logger->info("netns deletion : ".run("/usr/bin/sudo /sbin/ip netns delete $domain"));
     if ($status) {
         return {message => $output, status => 400}, undef;
