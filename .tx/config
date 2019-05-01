@@ -12,3 +12,9 @@ source_file = html/pfappserver/lib/pfappserver/I18N/i_default.po
 source_lang = en
 file_filter = html/pfappserver/lib/pfappserver/I18N/<lang>.po
 type = PO
+
+[packetfence.api]
+source_file = conf/I18N/api/en.po
+source_lang = en
+file_filter = conf/I18N/api/<lang>.po
+type = PO
