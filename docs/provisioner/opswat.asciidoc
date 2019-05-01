@@ -103,7 +103,7 @@ After you install the client click continue. If your access is enabled than this
 Compliance enforcement
 ^^^^^^^^^^^^^^^^^^^^^^
 
-PacketFence polls the OPSWAT Metadefender Endpoint API in order to trigger violations on noncompliant devices.
+PacketFence polls the OPSWAT Metadefender Endpoint API in order to trigger security events on noncompliant devices.
 
 PacketFence uses the number of critical issues the device has to determine whether or not it needs to isolate it.
 
@@ -122,7 +122,7 @@ Now in order to enforce the compliance of the devices using the flagged critical
 
 Back in the provisioner configuration, go in the 'Compliance' tab.
 
-You now have to configure the violation that is raised when a device is noncompliant. Using the violation 'Generic' should fit your needs for now, and you can modify the template after.
+You now have to configure the security event that is raised when a device is noncompliant. Using the 'Generic' security event should fit your needs for now, and you can modify the template after.
 
 Then configure the 'Critical issues threshold' and put it at the minimum critical issues a device needs to have before it gets isolated.
 
@@ -135,9 +135,9 @@ You can then hit 'Save' and now the device will get isolated whenever it's found
 Customize the template
 ++++++++++++++++++++++
 
-You can now customize the template the violation is using in the 'Connection Profile' section. Simply select your connection profile and then go in the 'Files' tab.
+You can now customize the security event template from the 'Connection Profile' section. Simply select your connection profile and then go in the 'Files' tab.
 
-You can then modify the template violations/generic.html so it displays additional information.
+You can then modify the template security_events/generic.html so it displays additional information.
 
-You can also customize this violation in the 'Violations' section of the administration interface. Refer to the PacketFence Administration Guide for additional information about this.
+You can also customize this security event from the 'Security Events' section of the administration interface. Refer to the PacketFence Administration Guide for additional information about this.
 

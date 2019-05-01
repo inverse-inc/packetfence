@@ -548,9 +548,9 @@ Remediation Pages
 +++++++++++++++++
 
 The remediation page shown to the user during isolation are specified through
-the URL parameter of the given violation in `/usr/local/pf/conf/violations.conf`.
+the URL parameter of the given security event in `/usr/local/pf/conf/security_events.conf`.
 In its default configuration, PacketFence uses Template Toolkit to render text provided
-in the directory `/usr/local/pf/html/captive-portal/templates/violations` and obeys
+in the directory `/usr/local/pf/html/captive-portal/templates/security_events` and obeys
 to everything mentioned in the <<_presentation,Presentation>> section.
 
 
@@ -564,13 +564,13 @@ differently for the Remediation pages and the rest of the captive portal:
 
 * Remediation pages
 +
-Strings defined in the violation pages (in `/usr/local/pf/html/captive-portal/templates/violations`)
+Strings defined in the security event pages (in `/usr/local/pf/html/captive-portal/templates/security_events`)
 will be looked up in the translation files in `/usr/local/pf/conf/locale/..`
 and if a translation is available the translated string will be the one
 visible on the captive portal.
 +
-Also, if you create a violation template with the name of your locale in
-`/usr/local/pf/html/captive-portal/templates/violations` in the format:
+Also, if you create a security event template with the name of your locale in
+`/usr/local/pf/html/captive-portal/templates/security_events` in the format:
 `<template_name>.<locale_name>.html`. It will be loaded instead of the default
 `<template_name>.html` and so you can put strings and HTML directly in your
 target language without the hassle of escaping everything properly as you
@@ -578,7 +578,7 @@ would need to do with `gettext`.
 +
 For example, if `malware.es_ES.html` exists and you are using the `es_ES`
 (Spanish) locale then it will be loaded instead of `malware.html` on a
-violation set to load the `malware` template.
+security event set to load the `malware` template.
 +
 * Rest of the captive portal
 +

@@ -809,12 +809,12 @@ When the VLAN isolation is working through SNMP traps all switch ports (on which
 
 image::diagram-trap-interaction.png[pfqueue SNMP interactions diagram, 400]
 
-You need to create a registration VLAN (with a DHCP server, but no routing to other VLANs) in which PacketFence will put unregistered devices. If you want to isolate computers which have open violations in a separate VLAN, an isolation VLAN needs also to be created.
+You need to create a registration VLAN (with a DHCP server, but no routing to other VLANs) in which PacketFence will put unregistered devices. If you want to isolate computers which have open security event in a separate VLAN, an isolation VLAN needs also to be created.
 
 Link Changes (deprecated)
 +++++++++++++++++++++++++
 
-When a host connects to a switch port, the switch sends a linkUp trap to PacketFence. Since it takes some time before the switch learns the MAC address of the newly connected device, PacketFence immediately puts the port in the Registration VLAN in which the device will send DHCP requests in order for the switch to learn its MAC address. Then `pfqueue` will send periodical SNMP queries to the switch until the switch learns the MAC of the device. When the MAC address is known, `pfqueue` checks its status (existing ? registered ? any violations ?) in the database and puts the port in the appropriate VLAN. When a device is unplugged, the switch sends a 'linkDown' trap to PacketFence which puts the port into the Registration VLAN.
+When a host connects to a switch port, the switch sends a linkUp trap to PacketFence. Since it takes some time before the switch learns the MAC address of the newly connected device, PacketFence immediately puts the port in the Registration VLAN in which the device will send DHCP requests in order for the switch to learn its MAC address. Then `pfqueue` will send periodical SNMP queries to the switch until the switch learns the MAC of the device. When the MAC address is known, `pfqueue` checks its status (existing ? registered ? any security event?) in the database and puts the port in the appropriate VLAN. When a device is unplugged, the switch sends a 'linkDown' trap to PacketFence which puts the port into the Registration VLAN.
 
 When a computer boots, the initialization of the NIC generates several link status changes. And every time the switch sends a linkUp and a linkDown trap to PacketFence. Since PacketFence has to act on each of these traps, this generates unfortunately some unnecessary load on `pfqueue`. In order to optimize the trap treatment, PacketFence stops every thread for a 'linkUp trap' when it receives a 'linkDown' trap on the same port. But using only linkUp/linkDown traps is not the most scalable option. For example in case of power failure, if hundreds of computers boot at the same time, PacketFence would receive a lot of traps almost instantly and this could result in network connection latency.
 
@@ -1963,24 +1963,24 @@ In the event that you are managing a large registration network with devices tha
 
 Using the parking feature, you can make these devices have a longer lease and hit an extremely lightweight captive portal so that the amount of resources they consume is minimal. In that captive portal, they will see a message explaining that they haven't registered their device for a certain amount of time, and will let them leave the *parked* state by pressing a link.
 
-The *parked* vs *unparked* state is controlled through violation `1300003` which gets triggered according to the `parking.threshold` setting ('Configuration->Network Configuration->Networks->Device Parking').
+The *parked* vs *unparked* state is controlled through security event `1300003` which gets triggered according to the `parking.threshold` setting ('Configuration->Network Configuration->Networks->Device Parking').
 
-So, in order to activate the parking, go in 'Configuration->Network Configuration->Networks->Device Parking' and set the threshold to a certain amount of seconds. A suggested value would be `21600` which is 6 hours. This means that if a device stays in your registration network for more than 6 hours in a row, it will trigger violation `1300003` and place that device into the *parked* state.
+So, in order to activate the parking, go in 'Configuration->Network Configuration->Networks->Device Parking' and set the threshold to a certain amount of seconds. A suggested value would be `21600` which is 6 hours. This means that if a device stays in your registration network for more than 6 hours in a row, it will trigger security event `1300003` and place that device into the *parked* state.
 
 In that same section, you can define the lease length of the user when he is in the *parked* state.
 
 NOTE: Parking is detected when a device asks for DHCP, if PacketFence is not your DHCP server for the registration network, this feature will not work. Also, if the device goes into the parked state with a lease time of 1 hour and the user immediately releases himself from the parking state, it will take 1 hour before the next detection takes place even if you set `parking.threshold` to a lower value.
 
-Violation 1300003
-^^^^^^^^^^^^^^^^^
+Security Event 1300003
+^^^^^^^^^^^^^^^^^^^^^^
 
-This violation controls what happens when a user is detected doing parking.
+This security event controls what happens when a user is detected doing parking.
 
 Here are the main settings:
 
 * You can add actions to the predefined ones (like 'Email admin' or 'External action') in 'Definition -> Actions'
 * The amount of time a user can *unpark* their device is controlled through the 'Remediation -> Max enable' setting.
-* The amount of grace time between two parking violations is controlled by the 'Remediation -> Grace' setting. This means, once a user release himself from the *parked* state, he will have at least this amount of time to register before the parking triggers again.
+* The amount of grace time between two parking security events is controlled by the 'Remediation -> Grace' setting. This means, once a user release himself from the *parked* state, he will have at least this amount of time to register before the parking triggers again.
 * The destination role (thus VLAN) of the user is controlled by 'Advanced -> Role'. You should leave the user in the registration role, but should you want to dedicate a role for parking, you can set it there.
 * The `Template` attribute will only be used when the user is on the normal PacketFence portal and not the one dedicated for parking. If you want the user to access the non-parking portal, disable 'Show parking portal' in 'Configuration -> Network Configuration -> Networks -> Device Parking'
 
@@ -2132,7 +2132,7 @@ We added the ability to specify filters directly in the portion of code that re-
 
 These rules are available in different scopes:
 
-  ViolationRole
+  IsolationRole
   RegistrationRole
   RegisteredRole
   InlineRole
@@ -2175,7 +2175,7 @@ EXAMPLE: prevent a device from connecting when its role is "default", the SSID i
   scope = RegisteredRole
   role = nointernet
 
-EXAMPLE: create a violation if the SSID is OPEN and the owner is igmout
+EXAMPLE: create a security violaton if the SSID is OPEN and the owner is igmout
 
   [igmout]
   filter = owner.pid
@@ -2189,7 +2189,7 @@ EXAMPLE: create a violation if the SSID is OPEN and the owner is igmout
 
   [2:igmout&ssid]
   scope = RegisteredRole
-  action = trigger_violation
+  action = trigger_security_event
   action_param = mac = $mac, tid = 1100012, type = INTERNAL
 
 EXAMPLE: autoregister the device and assign the role staff to each device where the username is igmout.
@@ -2376,16 +2376,16 @@ And can be defined using different criteria like:
   time
   owner.attribute (like owner.$attribute)
   radius_request.attribute (like radius_request.$attribute)
-  violation
+  security_event
   user_role
   vlan
 
 
-For example, lets define a rule that return Access Accept when the connection is Ethernet-EAP and when there is no violation
+For example, lets define a rule that return Access Accept when the connection is Ethernet-EAP and when there is no security event 
 (merge_return means that the original answer of PacketFence will be merge with the filter answer automatically):
 
-  [violation]
-  filter = violation
+  [security_event]
+  filter = security_event 
   operator = defined
 
   [etherneteap]
@@ -2393,7 +2393,7 @@ For example, lets define a rule that return Access Accept when the connection is
   operator = is
   value = Ethernet-EAP
 
-  [1:etherneteap&!violation]
+  [1:etherneteap&!security_event]
   merge_answer = no
   scope = returnRadiusAccessAccept
 
@@ -2401,7 +2401,7 @@ In this other example we just add a new attribute to the original answer in the 
 (here $user_role will be replaced by the real user role of the device and ${switch._portalURL} will be replaced
 by the value of _portalURL defined in the switch config):
 
-  [1:etherneteap&!violation]
+  [1:etherneteap&!security_event]
   merge_answer = yes
   scope = returnRadiusAccessAccept
   answer1 = Cisco-AVPair => url-redirect-acl=$user_role;url-redirect=${switch._portalURL}/cep$session_id
@@ -2620,10 +2620,10 @@ IP log updates
 If you send the IP address of nodes in accounting data and want to update iplog entries of your nodes, you can enable 'Update the iplog using the accounting' setting from 'System configuration -> Main configuration -> Advanced'.
 
 
-Violations
-^^^^^^^^^^
+Security Events
+^^^^^^^^^^^^^^^
 
-Using PacketFence, it is possible to add violations to limit bandwidth abuse.  The format of the trigger is very simple:
+Using PacketFence, it is possible to add security events to limit bandwidth abuse.  The format of the trigger is very simple:
 
    Accounting::[DIRECTION][LIMIT][INTERVAL(optional)]
 
@@ -2652,7 +2652,7 @@ Example triggers
 Grace Period
 ++++++++++++
 
-When using such violation feature, setting the grace period is really important.  You don't want to put it too low (ie. A user re-enable his network, and get caught after 1 bytes is transmitted!) or too high.  We recommend that you set the grace period to one interval window.
+When using such security event feature, setting the grace period is really important.  You don't want to put it too low (ie. A user re-enable his network, and get caught after 1 bytes is transmitted!) or too high.  We recommend that you set the grace period to one interval window.
 
 
 RADIUS Proxy
@@ -2691,7 +2691,7 @@ Now when a device connect with the username bob@acme.com then the authentication
 Fingerbank Integration
 ----------------------
 
-Fingerbank, a great device profiling tool developed alongside of PacketFence, now integrates with it to power-up the feature set allowing a PacketFence administrator to easily trigger violations based on different device types, device parents, DHCP fingerprints, DHCP vendor IDs, MAC vendors and browser user agents.
+Fingerbank, a great device profiling tool developed alongside of PacketFence, now integrates with it to power-up the feature set allowing a PacketFence administrator to easily trigger security events based on different device types, device parents, DHCP fingerprints, DHCP vendor IDs, MAC vendors and browser user agents.
 
 The core of that integration resides in the ability for a PacketFence system, to interact with the Fingerbank upstream project, which then allow a daily basis fingerprints database update, sharing unknown data so that more complex algorithms can process that new data to integrate it in the global database, querying the global upstream database in the case of an unknown match and much more.
 
@@ -2730,23 +2730,23 @@ Fingerbank settings can easily be modified from the "Settings" menu item under t
 Device change detection
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-Using Fingerbank, you can perform detection of potential MAC spoofing by seeing if a device changes from a device class to another (ex: a device goes from Windows to a printer) and trigger a violation and potentially isolate the endpoint. An example violation using this trigger is available (violation ID 1300006, name "Fingerbank device class change")
+Using Fingerbank, you can perform detection of potential MAC spoofing by seeing if a device changes from a device class to another (ex: a device goes from Windows to a printer) and trigger a security event and potentially isolate the endpoint. An example security event using this trigger is available (security eventi ID 1300006, name "Fingerbank device class change").
 
 This feature is disabled by default, in order to configure it, go in "Configuration -> Compliance -> Fingerbank Profiling -> Device Change Detection".
 
-You should then check "Enabled" to activate this feature. You will then have the choice between triggering the violation on any device class change or on a specific set of changes.
+You should then check "Enabled" to activate this feature. You will then have the choice between triggering the security event on any device class change or on a specific set of changes.
 
 Triggering on any device class change
 +++++++++++++++++++++++++++++++++++++
 
-NOTE: You should perform non-enforcing actions in the violation when initially deploying the feature to see if some corner cases may require whitelisting some device class transitions
+NOTE: You should perform non-enforcing actions in the security event when initially deploying the feature to see if some corner cases may require whitelisting some device class transitions
 
-The easiest method for performing this detection is to trigger on any device class change which will trigger the violation whenever the device is detected transitioning from any device class to another. Since some of these transitions may be normal in your environment, you can add whitelisting of transitions via the "Device class change whitelist" parameter which allows you to list valid transitions (ex: "Windows OS" to "Mac OS X or macOS").
+The easiest method for performing this detection is to trigger on any device class change which will trigger the security event whenever the device is detected transitioning from any device class to another. Since some of these transitions may be normal in your environment, you can add whitelisting of transitions via the "Device class change whitelist" parameter which allows you to list valid transitions (ex: "Windows OS" to "Mac OS X or macOS").
 
 Manual triggers
 +++++++++++++++
 
-Instead of detecting all transitions, you can perform detection and violation triggering on specific device class transitions. In order to do so, declare all the transitions that should trigger the violation in the "Manual device class change triggers".
+Instead of detecting all transitions, you can perform detection and security event triggering on specific device class transitions. In order to do so, declare all the transitions that should trigger the security event in the "Manual device class change triggers".
 
 
 Intrusion Detection System Integration
@@ -2791,9 +2791,9 @@ Action -
 Suricata IDS
 ~~~~~~~~~~~~
 
-PacketFence already contains a syslog parser for Suricata. This is an example to raise a violation from a syslog alert on the Suricata SID.
+PacketFence already contains a syslog parser for Suricata. This is an example to raise a security event from a syslog alert on the Suricata SID.
 
-The first step is to create the syslog regex parser and then create the violation.
+The first step is to create the syslog regex parser and then create the security event.
 
 Syslog regex parser configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -2812,7 +2812,7 @@ Here is the configuration of the syslog regex parser:
 
     Name *: ET P2P Kaaza Media desktop p2pnetworking.exe
     Regex *: (?P<date>\d{2}\/\d{2}\/\d{4}-\d{2}:\d{2}:\d{2}.*?)  \[\*\*\] \[\d+:(?P<sid>\d+):\d+\] (?P<message>.*?) \[\*\*\].* (?P<srcip>\d{1,3}(\.\d{1,3}){3}):(?P<srcport>\d+) -> (?P<ip>\d{1,3}(\.\d{1,3}){3}):(?P<port>\d+)
-    Action: trigger_violation mac, $mac, tid, $sid, type, detect
+    Action: trigger_security_event mac, $mac, tid, $sid, type, detect
     Last if match: unchecked
     IP to MAC: checked
 
@@ -2826,14 +2826,14 @@ In order to have a correct match in the rule, you will need to have a valid iplo
 
     Click to see actions for - 02/26/2017-14:29:00.524309 [**] [1:2000340:10] ET P2P Kaaza Media desktop p2pnetworking.exe Activity [**] [Classification: Potential Corporate Privacy Violation] [Priority: 1] {UDP} 173.194.7.75:443 -> 1.2.3.4:46742
 
-    - ET P2P Kaaza Media desktop p2pnetworking.exe : trigger_violation('mac', '00:11:22:33:44:55', 'tid', '2000340', 'type', 'detect')
+    - ET P2P Kaaza Media desktop p2pnetworking.exe : trigger_security_event('mac', '00:11:22:33:44:55', 'tid', '2000340', 'type', 'detect')
 
-We can see that PacketFence will execute the violation on the MAC address 00:11:22:33:44:55.
+We can see that PacketFence will execute the security event on the MAC address 00:11:22:33:44:55.
 
-Violation Creation
-^^^^^^^^^^^^^^^^^^
+Security Event Creation
+^^^^^^^^^^^^^^^^^^^^^^^
 
-Now you will need to create the violation with the trigger id '2000340' in order to isolate the device. In order to do so, go to *Configuration -> Compliance -> Violation -> ADD VIOLATION*
+Now you will need to create the security event with the trigger id '2000340' in order to isolate the device. In order to do so, go to *Configuration -> Compliance -> Security Events -> New Security Event*
 
 Definition:
 
@@ -2880,7 +2880,7 @@ Since a security suite consists of multiple pieces of software tied together, yo
 PacketFence Integration
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-Once Security Onion is installed and minimally configured, integration with PacketFence is required to be able to raise violations based on sensor(s) alerts. syslog is used to forward sensor(s) alerts from Security Onion to the PacketFence detection mechanisms.
+Once Security Onion is installed and minimally configured, integration with PacketFence is required to be able to raise security events based on sensor(s) alerts. syslog is used to forward sensor(s) alerts from Security Onion to the PacketFence detection mechanisms.
 
 The simplest way is as follow (based on https://github.com/Security-Onion-Solutions/security-onion/wiki/ThirdPartyIntegration);
 
@@ -2938,14 +2938,14 @@ Restart the rsyslog daemon
 
 At this point, Security Onion should be able to send detected alerts log entries to PacketFence.
 
-A configuration of a new 'syslog parser' as well as some violations are the only remaining steps to make full usage of the Security Onion IDS integration.
+A configuration of a new 'syslog parser' as well as some security events are the only remaining steps to make full usage of the Security Onion IDS integration.
 
 Configuration of a new 'syslog parser' should use the followings:
 
   Type: security_onion
   Alert pipe: the previously created alert pipe (FIFO) which is, in this case, /usr/local/pf/var/securityonion_ids
 
-Configuration of a new violation can use the following trigger types:
+Configuration of a new security event can use the following trigger types:
 
   Type: detect
   Triggers ID: The IDS triggered rule ID
@@ -3017,9 +3017,9 @@ On the Switch:
 StreamScan Comprimise Detection System (CDS)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-This is an example to raise a violation from a syslog alert on a StreamScan alert ID.
+This is an example to raise a security event from a syslog alert on a StreamScan alert ID.
 
-The first step is to create the syslog regex parser and then create the violation.
+The first step is to create the syslog regex parser and then create the security event.
 
 Syslog regex parser configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -3038,7 +3038,7 @@ Here is the configuration of the syslog regex parser:
 
     Name *: ET TROJAN
     Regex *:  CDS\[(?<cds_id>\d+)\].*?type=(?<type>[^ ]*).*?threat="(?<threat>.*?)" direction=(?<direction>[^ ]+) sourceip=(?<sourceip>\d+(\.\d+){3}) sourceport=(?<sourceport>\d+) destip=(?<ip>\d+(\.\d+){3}) destport=(?<destport>\d+) app=(?<app>[^ ]*) timestamp=(?<timestamp>[^ ]*) sid=(?<sid>\d+)
-    Action: trigger_violation mac, $mac, tid, $sid, type, detect
+    Action: trigger_security_event mac, $mac, tid, $sid, type, detect
     Last if match: unchecked
     IP to MAC: checked
 
@@ -3053,14 +3053,14 @@ In order to have a correct match in the rule, you will need to have a valid iplo
     Results
 
     Click to see actions for - Apr 24 16:50:41 ubuntu CDS[13423]: type=alert threat="ET TROJAN Likely Zbot Generic Post to gate.php no accept headers" direction=outgoing sourceip=192.168.254.194 sourceport=53252 destip=5.175.143.42 destport=80 app=HTTP timestamp=2017-04-24_16-50-41.832096 sid=2022985
-    - violation : trigger_violation('mac', '00:11:22:33:44:55', 'tid', '2022985', 'type', 'detect')
+    - security event: trigger_security_event('mac', '00:11:22:33:44:55', 'tid', '2022985', 'type', 'detect')
 
-We can see that PacketFence will execute the violation on the MAC address 00:11:22:33:44:55.
+We can see that PacketFence will execute the security event on the MAC address 00:11:22:33:44:55.
 
-Violation creation
-^^^^^^^^^^^^^^^^^^
+Security Event Creation
+^^^^^^^^^^^^^^^^^^^^^^^
 
-Now you will need to create the violation with the trigger id '2000340' in order to isolate the device. In order to do so, go to *Configuration -> Compliance -> Violation -> ADD VIOLATION*
+Now you will need to create the security event with the trigger id '2000340' in order to isolate the device. In order to do so, go to *Configuration -> Compliance -> Security Events -> New Security Event*
 
 Definition:
 
@@ -3249,7 +3249,7 @@ You just have to enable WMI on each Micrsofot Windows devices with a GPO from Ac
 Configuration
 ~~~~~~~~~~~~~
 
-In order for the compliance checks to correctly work with PacketFence (communication and generate violations inside PacketFence), you need to configure these sections:
+In order for the compliance checks to correctly work with PacketFence (communication and generate security events inside PacketFence), you need to configure these sections:
 
 Scanner Definition
 ^^^^^^^^^^^^^^^^^^
@@ -3324,13 +3324,13 @@ Let's take the Software_Installed rule:
   value =Google
 
   [1:Google]
-  action=trigger_violation
+  action=trigger_security_event
   action_param = mac = $mac, tid = 888888, type = INTERNAL
 
 This rule will do the following:
 
   retrieve all the installed software on the device and test if the attribute Caption contain Google.
-  if it matched then we will trigger a violation (with the trigger internal::888888) for the mac address of the device.
+  if it matched then we will trigger a security event (with the trigger internal::888888) for the mac address of the device.
 
 
 The second one, logged_user:
@@ -3400,24 +3400,24 @@ WMI tab
 
 It is possible to have the result of a WMI scan in the node section. To have this, go into the rule configuration and check the box 'On Node tab'. Now configure your WMI scanner as you would usually do and you will be able to have the results in the tab 'WMI Rules' under Node.
 
-Violations Definition
-^^^^^^^^^^^^^^^^^^^^^
+Security Events Definition
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-You need to create a new violation section and have to specify:
+You need to create a new security event section and have to specify:
 
 Using Nessus:
 
-  trigger=Nessus::<violationId>
+  trigger=Nessus::<security event ID>
 
 Using OpenVAS:
 
-  trigger=OpenVAS::<violationId>
+  trigger=OpenVAS::<security event ID>
 
-Where `violationId` is either the ID of the Nessus plugin or the OID of the OpenVAS plugin to check for. Once you have finished the configuration, you need to reload the violation related database contents using:
+Where `security event ID` is either the ID of the Nessus plugin or the OID of the OpenVAS plugin to check for. Once you have finished the configuration, you need to reload the security event related database contents using:
 
-  $ pfcmd reload violations
+  $ pfcmd reload security_events 
 
-NOTE: Violations will trigger if the plugin is higher than a low severity vulnerability.
+NOTE: Security events will trigger if the plugin is higher than a low severity vulnerability.
 
 Assign Scan definition to connection profiles
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -3591,12 +3591,12 @@ Once done, restart the following services
   /usr/local/pf/pfcmd service pfdetect restart
   /usr/local/pf/pfcmd service pfqueue restart
 
-Now that PacketFence is properly configured to receive information from Nexpose, we can configure it to perform some actions on the alerts it receives. In the PacketFence GUI, go to *Configuration -> Compliance -> Violations* and create a new violation.
+Now that PacketFence is properly configured to receive information from Nexpose, we can configure it to perform some actions on the alerts it receives. In the PacketFence GUI, go to *Configuration -> Compliance -> Security Events* and create a new security event.
 
 Make sure you set the following parameters in the 'Definition' tab:
 [options="compact"]
 * Enable: Set it to *ON* 
-* Action: This is where you put what you want PacketFence to do, refer to the violations documentation in this guide for details on these.
+* Action: This is where you put what you want PacketFence to do, refer to the security events documentation in this guide for details on these.
 
 Next, in the 'Triggers' tab:
 [options="compact"]
@@ -3607,9 +3607,9 @@ Next, in the 'Triggers' tab:
 * For "*nexpose_event_start_with*": Put there the full vulnerability name you can find in the Nexpose report, on the Nexpose GUI
 * Click on *ADD*, then *SAVE*
 
-image::rapid7/rapid7-violation-trigger.png[scaledwidth="100%",alt="Rapid7 violation trigger"]
+image::rapid7/rapid7-violation-trigger.png[scaledwidth="100%",alt="Rapid7 security event trigger"]
 
-For more info on violation actions, go to the _Blocking malicious activities with violations_ section of this guide.
+For more info on security event actions, go to the _Blocking malicious activities with security events_ section of this guide.
 
 [[provision]]
 Integrating Provisioning Agents
@@ -5279,19 +5279,19 @@ View of the auth_log table:
 
 In this simple example, you will be able to select the whole content of the `auth_log` table and use the date range on the `attempted_at` field as well as search on the `pid` field when viewing the report.
 
-View of the opened violations:
+View of the opened security events:
 
-  [open_violations]
-  description=Open violations
+  [open_security_events]
+  description=Open security events 
   # The table to search from
-  base_table=violation
+  base_table=security_event
   # The columns to select
-  columns=violation.vid as "Violation ID", violation.mac as "MAC Address", class.description as "Violation description", node.computername as "Hostname", node.pid as "Username", node.notes as "Notes", locationlog.switch_ip as "Last switch IP", violation.start_date as "Opened on"
-  # Left join node, locationlog on the MAC address and class on the violation ID
+  columns=security_event.vid as "Security event ID", security_event.mac as "MAC Address", class.description as "Security event description", node.computername as "Hostname", node.pid as "Username", node.notes as "Notes", locationlog.switch_ip as "Last switch IP", security_event.start_date as "Opened on"
+  # Left join node, locationlog on the MAC address and class on the security event ID
   joins=<<EOT
-  =>{violation.mac=node.mac} node|node
-  =>{violation.mac=locationlog.mac} locationlog|locationlog
-  =>{violation.vid=class.vid} class|class
+  =>{security_event.mac=node.mac} node|node
+  =>{security_event.mac=locationlog.mac} locationlog|locationlog
+  =>{security_event.vid=class.vid} class|class
   EOT
   date_field=start_date
   # filter on open locationlog entries or null locationlog entries via the end_date field
@@ -5302,7 +5302,7 @@ View of the opened violations:
   # The Username field represents a user
   person_fields=Username
 
-In the example above, you can see that the violation table is 'left joined' to the class, node and locationlog tables. Using that strategy we make sure all the violations are listed even on deleted nodes. Then, base conditions are added to filter out outdated locationlog entries as well as include devices without locationlog entries. Removing those conditions would lead to duplicate entries being shown since the report would reflect all the historical locationlog entries.
+In the example above, you can see that the security_event table is 'left joined' to the class, node and locationlog tables. Using that strategy we make sure all the security events are listed even on deleted nodes. Then, base conditions are added to filter out outdated locationlog entries as well as include devices without locationlog entries. Removing those conditions would lead to duplicate entries being shown since the report would reflect all the historical locationlog entries.
 
 Admin Access
 ~~~~~~~~~~~~
@@ -5316,7 +5316,7 @@ Built-in roles
  * ALL_PF_ONLY: Provides the user with all the admin roles related to the PacketFence deployment (excludes switch login rights).
  * Node Manager: Provides the user the ability to manage the nodes.
  * User Manager: Provides the user the ability to manage other users.
- * Violation Manager: Provides the user the ability to manage the violations (trigger, open, close) for the nodes.
+ * Security Event Manager: Provides the user the ability to manage the security events (trigger, open, close) for the nodes.
 
 Content-Security-Policy (CSP)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -5461,10 +5461,10 @@ Restart PacketFence:
 Optional components
 -------------------
 
-Blocking malicious activities with violations
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Blocking malicious activities with security events 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Policy violations allow you to restrict client system access based on violations of certain policies. For example, if you do not allow P2P type traffic on your network, and you are running the appropriate software to detect it and trigger a violation for a given client, PacketFence will give that client a "blocked" page which can be customized to your wishes.
+Policy security events allow you to restrict client system access based on security events of certain policies. For example, if you do not allow P2P type traffic on your network, and you are running the appropriate software to detect it and trigger a security event for a given client, PacketFence will give that client a "blocked" page which can be customized to your wishes.
 
 In order to be able to block malicious activities, installation and configuration of a PacketFence compatible IDS is required. PacketFence currently support Snort, Suricata and Security Onion.
 
@@ -5484,44 +5484,44 @@ Configuration
 
 You will need to follow the configuration below related to the Suricata configuration (Syslog).
 
-Violations
-^^^^^^^^^^
+Security Events
+^^^^^^^^^^^^^^^
 
-In order to make PacketFence react to the Snort alerts, you need to explicitly tell the software to do so. Otherwise, the alerts will be discarded. This is quite simple to accomplish. In fact, you need to create a violation and add the Snort alert SID in the trigger section of a Violation.
+In order to make PacketFence react to the Snort alerts, you need to explicitly tell the software to do so. Otherwise, the alerts will be discarded. This is quite simple to accomplish. In fact, you need to create a security event and add the Snort alert SID in the trigger section of a security event.
 
-PacketFence violations are configured in 'Configuration->Compliance->Violations'
+PacketFence security events are configured in 'Configuration->Compliance->Security Events'
 
-The example below will guide you to create a violation that will isolate device that have generated Peer-to-peer traffic and that are using Mac OSX or have a malware and are using Microsoft Windows
+The example below will guide you to create a security event that will isolate device that have generated Peer-to-peer traffic and that are using Mac OSX or have a malware and are using Microsoft Windows
 
-Violation Definition
-++++++++++++++++++++
+Security Event Definition
++++++++++++++++++++++++++
 
-First you need to configure the violation definition
+First you need to configure the security event definition
 
-image::violation-definition.png[scaledwidth="100%",alt="Violation definition"]
+image::violation-definition.png[scaledwidth="100%",alt="Security event definition"]
 
 Where :
 [options="compact"]
-* `Enabled` is whether or not the violation is currently activated (should be `ON`).
-* `Identifier` is the violation ID. Any integer except 1200000-120099 which is reserved for required administration violations.
-* `Description` is the user friendly description of the violation.
-* `Actions` is the list of actions to be executed when this violation is raised.
+* `Enabled` is whether or not the security event is currently activated (should be `ON`).
+* `Identifier` is the security event ID. Any integer except 1200000-120099 which is reserved for required administration security events.
+* `Description` is the user friendly description of the security event.
+* `Actions` is the list of actions to be executed when this security event is raised.
 ** `Unregister node` will unregister the node.
-** `Send email to owner` will email the violation details to the owner of the device. Will only work if the person has it's email field populated.
-** `Send email to admin` will email the violation details to the address specified in `[alerting].emailaddr`, using `[alerting].smtpserver`. Multiple `emailaddr` can be separated by comma.
-** `Reevaluate access` will place the device in the destination VLAN configured in the violation. It opens a violation and leaves it open. If it is not there, the violation is opened and then automatically closed.
-** `Log message` will log the violation in the log file violation.log.
-** `External command` will execute a command on the operating system when this violation is raised.
-** `Close a violation` will close an existing violation for this device when this one is raised.
+** `Send email to owner` will email the security event details to the owner of the device. Will only work if the person has it's email field populated.
+** `Send email to admin` will email the security event details to the address specified in `[alerting].emailaddr`, using `[alerting].smtpserver`. Multiple `emailaddr` can be separated by comma.
+** `Reevaluate access` will place the device in the destination VLAN configured in the security event. It opens a security event and leaves it open. If it is not there, the security event is opened and then automatically closed.
+** `Log message` will log the security event in the log file security_event.log.
+** `External command` will execute a command on the operating system when this security event is raised.
+** `Close a security event` will close an existing security event for this device when this one is raised.
 ** `Set role` will modify the role of the device.
 ** `Enforce provisioning` will trigger a check of compliance on the provisioners defined for the device.
-* `Priority` defines the order onto which violations should be handled should there be more than one for a device.
-* `Whitelisted Roles` is the list of roles that are not affected by this violation.
+* `Priority` defines the order onto which security events should be handled should there be more than one for a device.
+* `Whitelisted Roles` is the list of roles that are not affected by this security event.
 
 Triggers
 ++++++++
 
-Next, in the `Triggers` tab, you need to define the triggers that will raise the violation. In the case of this example it will be these two cases :
+Next, in the `Triggers` tab, you need to define the triggers that will raise the security event. In the case of this example it will be these two cases :
 * A device that has generated Peer-to-peer traffic and that is using MAC OSX.
 * A device that has been detected as being a rogue DHCP.
 
@@ -5535,25 +5535,25 @@ Next hit the `<` button, then the `+` to add another trigger.
 
 Select the type `Internal`, then in the menu that appears below it, select `Rogue DHCP detection` and click `Add`.
 
-image::violation-triggers.png[scaledwidth="100%",alt="Violation triggers"]
+image::violation-triggers.png[scaledwidth="100%",alt="Security event triggers"]
 
 Remediation
 +++++++++++
 
 Next, in the `Remediation` tab, you can configure the behavior when a client gets isolated.
 
-image::violation-remediation.png[scaledwidth="100%",alt="Violation remediation"]
+image::violation-remediation.png[scaledwidth="100%",alt="Security event remediation"]
 
 Where :
 [options="compact"]
-* `Auto Enable` is whether or not the user can release the violation himself after acknowledging the message on the captive portal.
-* `Max Enables` is the amount of time a user can use the `Auto Enable` functionality. After this amount of times, he will not be able to release the violation and it will have to be manually release by an administrator using the PacketFence administration interface.
-* `Grace` is Amount of time before the violation can reoccur. This is useful to allow hosts time (in the example 2 minutes) to download tools to fix their issue, or shutoff their peer-to-peer application.
-* `Dynamic Window` will only work for accounting violations. The violation will be opened according to the time you set in the accounting violation (ie. You have an accounting violation for 10GB/month. If you bust the bandwidth after 3 days, the violation will open and the release date will be set for the last day of the current month).
-* `Window` is the amount of time before a violation will be closed automatically. Instead of allowing people to reactivate the network, you may want to open a violation for a defined amount of time instead.
-* `Delay by` is the delay before triggering the violation.
-* `Template` is the HTML template the host will be redirected to while in violation. You can create new templates from the Connection Profiles configuration section.
-* `Button text` is the text of the button that is used when the user is releasing the violation directly from the captive portal.
+* `Auto Enable` is whether or not the user can release the security event himself after acknowledging the message on the captive portal.
+* `Max Enables` is the amount of time a user can use the `Auto Enable` functionality. After this amount of times, he will not be able to release the security event and it will have to be manually release by an administrator using the PacketFence administration interface.
+* `Grace` is Amount of time before the security event can reoccur. This is useful to allow hosts time (in the example 2 minutes) to download tools to fix their issue, or shutoff their peer-to-peer application.
+* `Dynamic Window` will only work for accounting security events. The security event will be opened according to the time you set in the accounting security event (ie. You have an accounting security event for 10GB/month. If you bust the bandwidth after 3 days, the security event will open and the release date will be set for the last day of the current month).
+* `Window` is the amount of time before a security event will be closed automatically. Instead of allowing people to reactivate the network, you may want to open a security event for a defined amount of time instead.
+* `Delay by` is the delay before triggering the security event.
+* `Template` is the HTML template the host will be redirected to while in security event. You can create new templates from the Connection Profiles configuration section.
+* `Button text` is the text of the button that is used when the user is releasing the security event directly from the captive portal.
 
 Advanced
 ++++++++
