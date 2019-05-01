@@ -52,10 +52,18 @@ $sidebar-item-padding-right: map-get($spacers, 1);
     border: 0;
   }
 
-  .input-group-prepend, .input-group-append, .btn {
+  .input-group-prepend,
+  .input-group-append,
+  .btn {
     background-color: $input-bg;
     border-color: $input-bg;
     color: $body-color;
+  }
+
+  .input-group-prepend {
+    padding-left: .5rem;
+    border-top-left-radius: $input-border-radius;
+    border-bottom-left-radius: $input-border-radius;
   }
 }
 
