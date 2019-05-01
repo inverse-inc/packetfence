@@ -2063,7 +2063,7 @@ export const pfConfigurationAuthenticationSourceViewFields = (context) => {
             pfConfigurationAuthenticationSourceFields.domains(context),
             pfConfigurationAuthenticationSourceFields.create_local_account(context),
             pfConfigurationAuthenticationSourceFields.hash_passwords(context),
-            pfConfigurationAuthenticationSourceFields.password_length(context)
+            pfConfigurationAuthenticationSourceFields.password_length(context),
             pfConfigurationAuthenticationSourceFields.local_account_logins(context),
             pfConfigurationAuthenticationSourceFields.authentication_rules(context)
           ]
