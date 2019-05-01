@@ -566,8 +566,8 @@ export default {
           locked: true
         }
       ],
-      securityEventSortBy: 'status',
-      securityEventSortDesc: false
+      securityEventSortBy: 'start_date',
+      securityEventSortDesc: true
     }
   },
   validations () {
@@ -629,10 +629,12 @@ export default {
       })
     },
     closeSecurityEvent (securityEvent) {
+      // TODO
       // eslint-disable-next-line
       console.log('closeSecurityEvent', securityEvent)
     },
     closeSecurityEvents () {
+      // TODO
       // eslint-disable-next-line
       console.log('closeSecurityEvents')
     },

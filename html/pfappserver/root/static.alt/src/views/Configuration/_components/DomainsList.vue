@@ -71,20 +71,20 @@
 
     <b-modal v-model="join.showResultModal" size="lg" centered id="resultModal" :hide-footer="getTestDomainJoinStatus(join.item) === true">
       <template slot="modal-title">
-        <h4>{{ $t(`${join.type} {domain} domain`, { domain: join.item.id }) }}</h4>
+        <h4 class="mb-0">{{ $t(`${join.type} {domain} domain`, { domain: join.item.id }) }}</h4>
       </template>
       <b-container class="my-3">
         <b-row class="justify-content-md-center text-secondary">
           <b-col cols="12" md="auto">
-            <b-media v-if="getTestDomainJoinStatus(join.item) === true">
+            <b-media v-if="lastActionSuccess">
               <icon name="check" scale="2" slot="aside" class="text-success"></icon>
               <h4>{{ $t(`${join.type}ed {domain} domain successfully`, { domain: join.item.id }) }}</h4>
-              <p class="font-weight-light">{{ getTestDomainJoinMessage(join.item) }}</p>
+              <p class="font-weight-light text-pre mt-3 mb-0">{{ getTestDomainJoinMessage(join.item) }}</p>
             </b-media>
-            <b-media v-else-if="getTestDomainJoinStatus(join.item) === false">
+            <b-media v-else>
               <icon name="times" scale="2" slot="aside" class="text-danger"></icon>
               <h4>{{ $t(`${join.type}ing {domain} domain failed`, { domain: join.item.id }) }}</h4>
-              <p class="font-weight-light">{{ getTestDomainJoinMessage(join.item) }}</p>
+              <p class="font-weight-light text-pre mt-3 mb-0">{{ getTestDomainJoinMessage(join.item) }}</p>
             </b-media>
           </b-col>
         </b-row>
@@ -162,6 +162,15 @@ export default {
   computed: {
     invalidForm () {
       return this.$v.join.$invalid
+    },
+    lastActionSuccess () {
+      switch (this.join.type) {
+        case 'Join':
+        case 'Rejoin':
+          return this.getTestDomainJoinStatus(this.join.item) === true
+        case 'Unjoin':
+          return this.getTestDomainJoinStatus(this.join.item) === false
+      }
     }
   },
   methods: {
@@ -274,3 +283,11 @@ export default {
   }
 }
 </script>
+
+<style lang="scss">
+@import "../../../styles/variables";
+
+.text-pre {
+  white-space: pre-line; /* allow \n to break */
+}
+</style>
