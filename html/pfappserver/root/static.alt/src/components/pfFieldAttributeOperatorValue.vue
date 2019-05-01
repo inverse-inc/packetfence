@@ -2,10 +2,10 @@
   <b-form-row class="pf-field-attribute-operator-value mx-0 mb-1 px-0" align-v="center"
     v-on="forwardListeners"
   >
-    <b-col v-if="$slots.prepend" cols="1" align-self="start" class="text-center col-form-label">
+    <b-col v-if="$slots.prepend" sm="1" align-self="start" class="text-center col-form-label">
       <slot name="prepend"></slot>
     </b-col>
-    <b-col cols="3" align-self="start">
+    <b-col class="pl-0" sm="3" align-self="start">
 
       <pf-form-chosen
         v-model="localAttribute"
@@ -17,12 +17,11 @@
         :vuelidate="attributeVuelidateModel"
         :invalid-feedback="attributeInvalidFeedback"
         :disabled="disabled"
-        class="mr-1"
         collapse-object
       ></pf-form-chosen>
 
     </b-col>
-    <b-col cols="3" align-self="start">
+    <b-col class="pl-1" sm="3" align-self="start">
 
       <pf-form-chosen v-if="localAttribute"
         v-model="localOperator"
@@ -34,12 +33,11 @@
         :disabled="disabled || operators.length === 0"
         :vuelidate="operatorVuelidateModel"
         :invalid-feedback="operatorInvalidFeedback"
-        class="mr-1"
         collapse-object
       ></pf-form-chosen>
 
     </b-col>
-    <b-col cols="4" align-self="start" class="pl-1">
+    <b-col class="pl-1" sm="4" align-self="start">
 
       <!-- Types: LDAPATTRIBUTE, SUBSTRING, TIME_PERIOD -->
       <pf-form-input v-if="
@@ -83,7 +81,7 @@
       ></pf-form-chosen>
 
     </b-col>
-    <b-col v-if="$slots.append" cols="1" align-self="start" class="text-center col-form-label">
+    <b-col v-if="$slots.append" sm="1" align-self="start" class="px-0 text-center col-form-label">
       <slot name="append"></slot>
     </b-col>
   </b-form-row>

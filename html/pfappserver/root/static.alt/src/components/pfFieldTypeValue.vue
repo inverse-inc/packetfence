@@ -2,7 +2,7 @@
   <b-row class="pf-field-type-value mx-0 mb-1 px-0" align-v="center" no-gutters
     v-on="forwardListeners"
   >
-    <b-col v-if="$slots.prepend" cols="1" align-self="start" class="text-center col-form-label">
+    <b-col v-if="$slots.prepend" sm="1" align-self="start" class="text-center col-form-label">
       <slot name="prepend"></slot>
     </b-col>
     <b-col sm="4" align-self="start">
@@ -88,7 +88,7 @@
       ></pf-form-input>
 
     </b-col>
-    <b-col v-if="$slots.append" cols="1" align-self="start" class="text-center col-form-label">
+    <b-col v-if="$slots.append" sm="1" align-self="start" class="text-center col-form-label">
       <slot name="append"></slot>
     </b-col>
   </b-row>

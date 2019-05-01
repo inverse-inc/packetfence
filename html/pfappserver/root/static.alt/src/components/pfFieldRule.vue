@@ -3,10 +3,10 @@
     <b-form-row class="pf-field-rule mx-0 mb-1 px-0" align-v="center"
       v-on="forwardListeners"
     >
-      <b-col v-if="$slots.prepend" cols="1" align-self="start" class="py-1 text-center col-form-label">
+      <b-col v-if="$slots.prepend" sm="1" align-self="start" class="py-1 text-center col-form-label">
         <slot name="prepend"></slot>
       </b-col>
-      <b-col cols="10"
+      <b-col sm="10"
         class="collapse-handle d-flex align-items-center"
         :class="(valid) ? 'text-primary' : 'text-danger'"
         @click.prevent="click($event)"
@@ -15,7 +15,7 @@
         <icon v-else name="chevron-circle-right" class="mr-2" :class="{ 'text-primary': ctrlKey, 'text-secondary': !ctrlKey }"></icon>
         <div>{{ localId || $t('New rule') }} <span v-if="localDescription">( {{ localDescription }} )</span></div>
       </b-col>
-      <b-col v-if="$slots.append" cols="1" align-self="start" class="py-1 text-center col-form-label">
+      <b-col v-if="$slots.append" sm="1" align-self="start" class="py-1 text-center col-form-label">
         <slot name="append"></slot>
       </b-col>
     </b-form-row>
@@ -25,7 +25,7 @@
         align-v="center"
         no-gutter
       >
-        <b-col class="text-left py-0 px-2" align-self="start">
+        <b-col class="text-left py-0" align-self="start">
           <pf-form-input :column-label="$t('Name')" label-cols="2"
             v-model="localId"
             ref="localId"
