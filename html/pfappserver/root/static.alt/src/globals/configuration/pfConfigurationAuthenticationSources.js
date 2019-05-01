@@ -2379,6 +2379,8 @@ export const pfConfigurationAuthenticationSourceViewFields = (context) => {
             pfConfigurationAuthenticationSourceFields.test_mode(context),
             pfConfigurationAuthenticationSourceFields.send_email_confirmation(context),
             pfConfigurationAuthenticationSourceFields.create_local_account(context),
+            pfConfigurationAuthenticationSourceFields.hash_passwords(context),
+            pfConfigurationAuthenticationSourceFields.password_length(context),
             pfConfigurationAuthenticationSourceFields.local_account_logins(context)
           ]
         }
@@ -2405,6 +2407,8 @@ export const pfConfigurationAuthenticationSourceViewFields = (context) => {
             pfConfigurationAuthenticationSourceFields.test_mode(context),
             pfConfigurationAuthenticationSourceFields.send_email_confirmation(context),
             pfConfigurationAuthenticationSourceFields.create_local_account(context),
+            pfConfigurationAuthenticationSourceFields.hash_passwords(context),
+            pfConfigurationAuthenticationSourceFields.password_length(context),
             pfConfigurationAuthenticationSourceFields.local_account_logins(context)
           ]
         }
@@ -2428,6 +2432,8 @@ export const pfConfigurationAuthenticationSourceViewFields = (context) => {
             pfConfigurationAuthenticationSourceFields.payment_type(context),
             pfConfigurationAuthenticationSourceFields.domains(context),
             pfConfigurationAuthenticationSourceFields.create_local_account(context),
+            pfConfigurationAuthenticationSourceFields.hash_passwords(context),
+            pfConfigurationAuthenticationSourceFields.password_length(context),
             pfConfigurationAuthenticationSourceFields.local_account_logins(context)
           ]
         }
@@ -2447,6 +2453,8 @@ export const pfConfigurationAuthenticationSourceViewFields = (context) => {
             pfConfigurationAuthenticationSourceFields.style(context),
             pfConfigurationAuthenticationSourceFields.domains(context),
             pfConfigurationAuthenticationSourceFields.create_local_account(context),
+            pfConfigurationAuthenticationSourceFields.hash_passwords(context),
+            pfConfigurationAuthenticationSourceFields.password_length(context),
             pfConfigurationAuthenticationSourceFields.local_account_logins(context)
           ]
         }
