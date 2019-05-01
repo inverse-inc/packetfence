@@ -24,6 +24,7 @@
             <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'SAML' } }">SAML</b-dropdown-item>
           <b-dropdown-divider></b-dropdown-divider>
           <b-dropdown-header class="text-secondary">{{ $t('External') }}</b-dropdown-header>
+            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'Clickatell' } }">Clickatell</b-dropdown-item>
             <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'Email' } }">Email</b-dropdown-item>
             <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'Facebook' } }">Facebook</b-dropdown-item>
             <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'Github' } }">Github</b-dropdown-item>

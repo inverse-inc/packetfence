@@ -349,7 +349,6 @@ export const pfConfigurationAuthenticationSourceFields = {
   api_key: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('API Key'),
-      text: i18n.t('Kickbox.io API key.'),
       fields: [
         {
           key: 'api_key',
@@ -1980,6 +1979,24 @@ export const pfConfigurationAuthenticationSourceViewFields = (context) => {
           ]
         }
       ]
+    case 'Clickatell':
+      return [
+        {
+          tab: null, // ignore tabs
+          fields: [
+            pfConfigurationAuthenticationSourceFields.id(context),
+            pfConfigurationAuthenticationSourceFields.description(context),
+            { ...pfConfigurationAuthenticationSourceFields.api_key(context), ...{ text: i18n.t('Clickatell API Key.') } },
+            pfConfigurationAuthenticationSourceFields.message(context),
+            pfConfigurationAuthenticationSourceFields.pin_code_length(context),
+            pfConfigurationAuthenticationSourceFields.create_local_account(context),
+            pfConfigurationAuthenticationSourceFields.hash_passwords(context),
+            pfConfigurationAuthenticationSourceFields.password_length(context),
+            pfConfigurationAuthenticationSourceFields.local_account_logins(context),
+            pfConfigurationAuthenticationSourceFields.authentication_rules(context)
+          ]
+        }
+      ]
     case 'Email':
       return [
         {
@@ -2098,7 +2115,7 @@ export const pfConfigurationAuthenticationSourceViewFields = (context) => {
           fields: [
             pfConfigurationAuthenticationSourceFields.id(context),
             pfConfigurationAuthenticationSourceFields.description(context),
-            pfConfigurationAuthenticationSourceFields.api_key(context),
+            { ...pfConfigurationAuthenticationSourceFields.api_key(context), ...{ text: i18n.t('Kickbox.io API key.') } },
             pfConfigurationAuthenticationSourceFields.authentication_rules(context)
           ]
         }
