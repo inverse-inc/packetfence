@@ -15,16 +15,16 @@ pf::UnifiedApi::Controller::Translations
 use strict;
 use warnings;
 use Mojo::Base 'pf::UnifiedApi::Controller::RestRoute';
-use pf::I18N::pfappserver;
+use pf::I18N::api;
 
-our $languages_list = pf::I18N::pfappserver->languages_list;
+our $languages_list = pf::I18N::api->languages_list;
 
 sub list {
     my ($self) = @_;
     my @items = (
         {
             lang    => 'i_default',
-            lexicon => \%pf::I18N::pfappserver::Lexicon,
+            lexicon => \%pf::I18N::api::Lexicon,
         },
     );
     for my $lang (keys(%$languages_list)) {
@@ -61,7 +61,7 @@ sub get {
 sub lexicon {
     my ($self, $lang) = @_;
     no strict qw(refs);
-    my $lexicon = "pf::I18N::pfappserver::${lang}::Lexicon";
+    my $lexicon = "pf::I18N::api::${lang}::Lexicon";
     my $ref = *{$lexicon};
     return \%{$ref};
 }
