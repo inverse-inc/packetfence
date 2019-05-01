@@ -38,6 +38,7 @@ Remove the password field from the item
 sub cleanup_item {
     my ($self, $item) = @_;
     delete $item->{password};
+    $item = $self->SUPER::cleanup_item($item);
     return $item;
 }
 
