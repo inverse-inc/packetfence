@@ -14,8 +14,8 @@
       >
       <div class="pf-sidebar-item" :class="{ 'ml-3': indent }">
         <div>
-          <text-highlight :queries="[filter]">{{ $t(item.name) }}</text-highlight>
-          <text-highlight class="figure-caption text-nowrap" v-if="item.caption" :queries="[filter]">{{ $t(item.caption) }}</text-highlight>
+          <text-highlight :queries="[filter]">{{ item.name }}</text-highlight>
+          <text-highlight class="figure-caption text-nowrap" v-if="item.caption" :queries="[filter]">{{ item.caption }}</text-highlight>
         </div>
         <icon class="mx-1" :name="item.icon" v-if="item.icon"></icon>
         <slot/>

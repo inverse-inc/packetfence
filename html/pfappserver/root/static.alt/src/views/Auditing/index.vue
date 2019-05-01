@@ -21,12 +21,12 @@ export default {
     return {
       sections: [
         {
-          name: 'RADIUS Audit Logs',
+          name: this.$i18n.t('RADIUS Audit Logs'),
           path: '/auditing/radiuslogs/search',
           saveSearchNamespace: 'radiuslogs'
         },
         {
-          name: 'Option82',
+          name: this.$i18n.t('Option82'),
           path: '/auditing/dhcpoption82s/search',
           saveSearchNamespace: 'dhcpoption82s'
         }

@@ -42,7 +42,7 @@
                 ></component>
               </template>
             </b-input-group>
-            <b-form-text v-if="row.text" v-t="row.text"></b-form-text>
+            <b-form-text v-if="row.text" v-text="row.text"></b-form-text>
           </b-form-group>
         </div>
       </template>

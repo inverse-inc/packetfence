@@ -14,7 +14,7 @@
       <b-row class="row-nowrap">
         <b-col>{{ $t('Alive') }}</b-col>
         <b-col cols="auto">
-          <b-badge v-if="serviceStatus.alive && serviceStatus.pid" pill variant="success">{{ $t(serviceStatus.pid) }}</b-badge>
+          <b-badge v-if="serviceStatus.alive && serviceStatus.pid" pill variant="success">{{ serviceStatus.pid }}</b-badge>
           <icon v-else class="text-danger" name="circle"></icon>
         </b-col>
       </b-row>

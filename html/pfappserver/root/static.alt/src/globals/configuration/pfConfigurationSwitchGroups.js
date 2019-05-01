@@ -468,20 +468,20 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
           ]
         },
         ...[
-          'registration',
-          'isolation',
-          'inline',
-          ...roles.map(role => role.id)
+          { id: 'registration', label: i18n.t('registration') },
+          { id: 'isolation', label: i18n.t('isolation') },
+          { id: 'inline', label: i18n.t('inline') },
+          ...roles
         ].map(role => {
           return {
-            label: i18n.t(role),
+            label: role.label || role.id,
             if: (form.VlanMap === 'Y'),
             fields: [
               {
-                key: `${role}Vlan`,
+                key: `${role.id}Vlan`,
                 component: pfFormInput,
-                attrs: pfConfigurationAttributesFromMeta(meta, `${role}Vlan`),
-                validators: pfConfigurationValidatorsFromMeta(meta, `${role}Vlan`)
+                attrs: pfConfigurationAttributesFromMeta(meta, `${role.id}Vlan`),
+                validators: pfConfigurationValidatorsFromMeta(meta, `${role.id}Vlan`)
               }
             ]
           }
@@ -500,20 +500,20 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
           ]
         },
         ...[
-          'registration',
-          'isolation',
-          'inline',
-          ...roles.map(role => role.id)
+          { id: 'registration', label: i18n.t('registration') },
+          { id: 'isolation', label: i18n.t('isolation') },
+          { id: 'inline', label: i18n.t('inline') },
+          ...roles
         ].map(role => {
           return {
-            label: i18n.t(role),
+            label: role.label || role.id,
             if: (form.RoleMap === 'Y'),
             fields: [
               {
-                key: `${role}Role`,
+                key: `${role.id}Role`,
                 component: pfFormInput,
-                attrs: pfConfigurationAttributesFromMeta(meta, `${role}Role`),
-                validators: pfConfigurationValidatorsFromMeta(meta, `${role}Role`)
+                attrs: pfConfigurationAttributesFromMeta(meta, `${role.id}Role`),
+                validators: pfConfigurationValidatorsFromMeta(meta, `${role.id}Role`)
               }
             ]
           }
@@ -532,25 +532,25 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
           ]
         },
         ...[
-          'registration',
-          'isolation',
-          'inline',
-          ...roles.map(role => role.id)
+          { id: 'registration', label: i18n.t('registration') },
+          { id: 'isolation', label: i18n.t('isolation') },
+          { id: 'inline', label: i18n.t('inline') },
+          ...roles
         ].map(role => {
           return {
-            label: i18n.t(role),
+            label: role.label || role.id,
             if: (form.AccessListMap === 'Y'),
             fields: [
               {
-                key: `${role}AccessList`,
+                key: `${role.id}AccessList`,
                 component: pfFormTextarea,
                 attrs: {
-                  ...pfConfigurationAttributesFromMeta(meta, `${role}AccessList`),
+                  ...pfConfigurationAttributesFromMeta(meta, `${role.id}AccessList`),
                   ...{
                     rows: 3
                   }
                 },
-                validators: pfConfigurationValidatorsFromMeta(meta, `${role}AccessList`)
+                validators: pfConfigurationValidatorsFromMeta(meta, `${role.id}AccessList`)
               }
             ]
           }
@@ -569,20 +569,20 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
           ]
         },
         ...[
-          'registration',
-          'isolation',
-          'inline',
-          ...roles.map(role => role.id)
+          { id: 'registration', label: i18n.t('registration') },
+          { id: 'isolation', label: i18n.t('isolation') },
+          { id: 'inline', label: i18n.t('inline') },
+          ...roles
         ].map(role => {
           return {
-            label: i18n.t(role),
+            label: role.label || role.id,
             if: (form.UrlMap === 'Y'),
             fields: [
               {
-                key: `${role}Url`,
+                key: `${role.id}Url`,
                 component: pfFormInput,
-                attrs: pfConfigurationAttributesFromMeta(meta, `${role}Url`),
-                validators: pfConfigurationValidatorsFromMeta(meta, `${role}Url`)
+                attrs: pfConfigurationAttributesFromMeta(meta, `${role.id}Url`),
+                validators: pfConfigurationValidatorsFromMeta(meta, `${role.id}Url`)
               }
             ]
           }

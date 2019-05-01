@@ -1,5 +1,5 @@
 <template>
-  <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="$t(columnLabel)"
+  <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="columnLabel"
     :state="isValid()" :invalid-feedback="getInvalidFeedback()"
     class="pf-form-fields" :class="{ 'mb-0': !columnLabel }">
     <b-input-group class="pf-form-fields-input-group">
@@ -57,11 +57,11 @@
             <icon name="minus-circle" v-if="canDel"
               :class="['cursor-pointer mx-1', { 'text-primary': ctrlKey, 'text-secondary': !ctrlKey }]"
               v-b-tooltip.hover.left.d300
-              :title="$t((ctrlKey) ? 'Delete All' : 'Delete Row')"
+              :title="ctrlKey ? $t('Delete All') : $t('Delete Row')"
               @click.native.stop.prevent="rowDel(index)"></icon>
             <icon name="plus-circle" v-if="canAdd"
               :class="['cursor-pointer mx-1', { 'text-primary': ctrlKey, 'text-secondary': !ctrlKey }]"
-              v-b-tooltip.hover.left.d300 :title="$t((ctrlKey) ? 'Clone Row' : 'Add Row')"
+              v-b-tooltip.hover.left.d300 :title="ctrlKey ? $t('Clone Row') : $t('Add Row')"
               @click.native.stop.prevent="rowAdd(index + 1)"></icon>
           </template>
         </component>

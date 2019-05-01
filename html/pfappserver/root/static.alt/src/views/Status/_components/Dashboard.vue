@@ -509,7 +509,7 @@ export default {
               name: this.$i18n.t('Captive Portal Responses'),
               items: ['1xx', '2xx', '3xx', '4xx', '5xx', 'other'].map(code => {
                 return {
-                  title: this.$i18n.t(`${code} responses`),
+                  title: this.$i18n.t('{http_code} responses', { http_code: code }),
                   metric: 'web_log_apache_portal_log.response_codes',
                   mode: modes.COMBINED,
                   library: libs.DYGRAPH,

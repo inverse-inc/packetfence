@@ -19,19 +19,19 @@ export default {
     return {
       sections: [
         {
-          name: 'Status',
+          name: this.$i18n.t('Status'),
           items: [
             {
-              name: 'Dashboard',
+              name: this.$i18n.t('Dashboard'),
               path: '/status/dashboard'
             },
             {
-              name: 'Services',
+              name: this.$i18n.t('Services'),
               path: '/status/services',
               can: 'read services'
             },
             {
-              name: 'Local Queue',
+              name: this.$i18n.t('Local Queue'),
               path: '/status/queue',
               can: 'read services'
             }
@@ -39,8 +39,6 @@ export default {
         }
       ]
     }
-  },
-  created () {
   }
 }
 </script>

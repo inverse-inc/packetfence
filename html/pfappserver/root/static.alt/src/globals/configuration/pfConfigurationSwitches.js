@@ -322,7 +322,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
                 values: { checked: 'Y', unchecked: 'N', default: placeholder('useCoA') },
                 icons: { checked: 'check', unchecked: 'times' },
                 colors: { checked: 'var(--primary)', default: (placeholder('useCoA') === 'Y') ? 'var(--primary)' : '' },
-                tooltips: { checked: i18n.t('Y'), unchecked: i18n.t('N'), default: i18n.t('Default ({default})', { default: i18n.t(placeholder('useCoA')) }) }
+                tooltips: { checked: i18n.t('Y'), unchecked: i18n.t('N'), default: i18n.t('Default ({default})', { default: placeholder('useCoA') }) }
               }
             }
           ]
@@ -338,7 +338,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
                 values: { checked: 'Y', unchecked: 'N', default: placeholder('cliAccess') },
                 icons: { checked: 'check', unchecked: 'times' },
                 colors: { checked: 'var(--primary)', default: (placeholder('cliAccess') === 'Y') ? 'var(--primary)' : '' },
-                tooltips: { checked: i18n.t('Y'), unchecked: i18n.t('N'), default: i18n.t('Default ({default})', { default: i18n.t(placeholder('cliAccess')) }) }
+                tooltips: { checked: i18n.t('Y'), unchecked: i18n.t('N'), default: i18n.t('Default ({default})', { default: placeholder('cliAccess') }) }
               }
             }
           ]
@@ -354,7 +354,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
                 values: { checked: 'Y', unchecked: 'N', default: placeholder('ExternalPortalEnforcement') },
                 icons: { checked: 'check', unchecked: 'times' },
                 colors: { checked: 'var(--primary)', default: (placeholder('ExternalPortalEnforcement') === 'Y') ? 'var(--primary)' : '' },
-                tooltips: { checked: i18n.t('Y'), unchecked: i18n.t('N'), default: i18n.t('Default ({default})', { default: i18n.t(placeholder('ExternalPortalEnforcement')) }) }
+                tooltips: { checked: i18n.t('Y'), unchecked: i18n.t('N'), default: i18n.t('Default ({default})', { default: placeholder('ExternalPortalEnforcement') }) }
               }
             }
           ]
@@ -369,7 +369,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
                 values: { checked: 'Y', unchecked: 'N', default: placeholder('VoIPEnabled') },
                 icons: { checked: 'check', unchecked: 'times' },
                 colors: { checked: 'var(--primary)', default: (placeholder('VoIPEnabled') === 'Y') ? 'var(--primary)' : '' },
-                tooltips: { checked: i18n.t('Y'), unchecked: i18n.t('N'), default: i18n.t('Default ({default})', { default: i18n.t(placeholder('VoIPEnabled')) }) }
+                tooltips: { checked: i18n.t('Y'), unchecked: i18n.t('N'), default: i18n.t('Default ({default})', { default: placeholder('VoIPEnabled') }) }
               }
             }
           ]
@@ -385,7 +385,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
                 values: { checked: 'Y', unchecked: 'N', default: placeholder('VoIPLLDPDetect') },
                 icons: { checked: 'check', unchecked: 'times' },
                 colors: { checked: 'var(--primary)', default: (placeholder('VoIPLLDPDetect') === 'Y') ? 'var(--primary)' : '' },
-                tooltips: { checked: i18n.t('Y'), unchecked: i18n.t('N'), default: i18n.t('Default ({default})', { default: i18n.t(placeholder('VoIPLLDPDetect')) }) }
+                tooltips: { checked: i18n.t('Y'), unchecked: i18n.t('N'), default: i18n.t('Default ({default})', { default: placeholder('VoIPLLDPDetect') }) }
               }
             }
           ]
@@ -401,7 +401,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
                 values: { checked: 'Y', unchecked: 'N', default: placeholder('VoIPCDPDetect') },
                 icons: { checked: 'check', unchecked: 'times' },
                 colors: { checked: 'var(--primary)', default: (placeholder('VoIPCDPDetect') === 'Y') ? 'var(--primary)' : '' },
-                tooltips: { checked: i18n.t('Y'), unchecked: i18n.t('N'), default: i18n.t('Default ({default})', { default: i18n.t(placeholder('VoIPCDPDetect')) }) }
+                tooltips: { checked: i18n.t('Y'), unchecked: i18n.t('N'), default: i18n.t('Default ({default})', { default: placeholder('VoIPCDPDetect') }) }
               }
             }
           ]
@@ -417,7 +417,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
                 values: { checked: 'Y', unchecked: 'N', default: placeholder('VoIPDHCPDetect') },
                 icons: { checked: 'check', unchecked: 'times' },
                 colors: { checked: 'var(--primary)', default: (placeholder('VoIPDHCPDetect') === 'Y') ? 'var(--primary)' : '' },
-                tooltips: { checked: i18n.t('Y'), unchecked: i18n.t('N'), default: i18n.t('Default ({default})', { default: i18n.t(placeholder('VoIPDHCPDetect')) }) }
+                tooltips: { checked: i18n.t('Y'), unchecked: i18n.t('N'), default: i18n.t('Default ({default})', { default: placeholder('VoIPDHCPDetect') }) }
               }
             }
           ]
@@ -433,7 +433,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
                 values: { checked: 'dynamic', unchecked: '', default: placeholder('uplink_dynamic') },
                 icons: { checked: 'check', unchecked: 'times' },
                 colors: { checked: 'var(--primary)', default: (placeholder('uplink_dynamic') === 'Y') ? 'var(--primary)' : '' },
-                tooltips: { checked: i18n.t('Y'), unchecked: i18n.t('N'), default: i18n.t('Default ({default})', { default: i18n.t(placeholder('uplink_dynamic')) }) }
+                tooltips: { checked: i18n.t('Y'), unchecked: i18n.t('N'), default: i18n.t('Default ({default})', { default: placeholder('uplink_dynamic') }) }
               },
               listeners: {
                 checked: (value) => {
@@ -519,21 +519,21 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
           ]
         },
         ...[
-          'registration',
-          'isolation',
-          'macDetection',
-          'inline',
-          ...roles.map(role => role.id)
+          { id: 'registration', label: i18n.t('registration') },
+          { id: 'isolation', label: i18n.t('isolation') },
+          { id: 'macDetection', label: i18n.t('macDetection') },
+          { id: 'inline', label: i18n.t('inline') },
+          ...roles
         ].map(role => {
           return {
-            label: i18n.t(role),
+            label: role.label || role.id,
             if: (form.VlanMap === 'Y'),
             fields: [
               {
-                key: `${role}Vlan`,
+                key: `${role.id}Vlan`,
                 component: pfFormInput,
-                attrs: pfConfigurationAttributesFromMeta(meta, `${role}Vlan`),
-                validators: pfConfigurationValidatorsFromMeta(meta, `${role}Vlan`)
+                attrs: pfConfigurationAttributesFromMeta(meta, `${role.id}Vlan`),
+                validators: pfConfigurationValidatorsFromMeta(meta, `${role.id}Vlan`)
               }
             ]
           }
@@ -555,21 +555,21 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
           ]
         },
         ...[
-          'registration',
-          'isolation',
-          'macDetection',
-          'inline',
-          ...roles.map(role => role.id)
+          { id: 'registration', label: i18n.t('registration') },
+          { id: 'isolation', label: i18n.t('isolation') },
+          { id: 'macDetection', label: i18n.t('macDetection') },
+          { id: 'inline', label: i18n.t('inline') },
+          ...roles
         ].map(role => {
           return {
-            label: i18n.t(role),
+            label: role.label || role.id,
             if: (form.RoleMap === 'Y'),
             fields: [
               {
-                key: `${role}Role`,
+                key: `${role.id}Role`,
                 component: pfFormInput,
-                attrs: pfConfigurationAttributesFromMeta(meta, `${role}Role`),
-                validators: pfConfigurationValidatorsFromMeta(meta, `${role}Role`)
+                attrs: pfConfigurationAttributesFromMeta(meta, `${role.id}Role`),
+                validators: pfConfigurationValidatorsFromMeta(meta, `${role.id}Role`)
               }
             ]
           }
@@ -591,26 +591,26 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
           ]
         },
         ...[
-          'registration',
-          'isolation',
-          'macDetection',
-          'inline',
-          ...roles.map(role => role.id)
+          { id: 'registration', label: i18n.t('registration') },
+          { id: 'isolation', label: i18n.t('isolation') },
+          { id: 'macDetection', label: i18n.t('macDetection') },
+          { id: 'inline', label: i18n.t('inline') },
+          ...roles
         ].map(role => {
           return {
-            label: i18n.t(role),
+            label: role.label || role.id,
             if: (form.AccessListMap === 'Y'),
             fields: [
               {
-                key: `${role}AccessList`,
+                key: `${role.id}AccessList`,
                 component: pfFormTextarea,
                 attrs: {
-                  ...pfConfigurationAttributesFromMeta(meta, `${role}AccessList`),
+                  ...pfConfigurationAttributesFromMeta(meta, `${role.id}AccessList`),
                   ...{
                     rows: 3
                   }
                 },
-                validators: pfConfigurationValidatorsFromMeta(meta, `${role}AccessList`)
+                validators: pfConfigurationValidatorsFromMeta(meta, `${role.id}AccessList`)
               }
             ]
           }
@@ -632,21 +632,21 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
           ]
         },
         ...[
-          'registration',
-          'isolation',
-          'macDetection',
-          'inline',
-          ...roles.map(role => role.id)
+          { id: 'registration', label: i18n.t('registration') },
+          { id: 'isolation', label: i18n.t('isolation') },
+          { id: 'macDetection', label: i18n.t('macDetection') },
+          { id: 'inline', label: i18n.t('inline') },
+          ...roles
         ].map(role => {
           return {
-            label: i18n.t(role),
+            label: role.label || role.id,
             if: (form.UrlMap === 'Y'),
             fields: [
               {
-                key: `${role}Url`,
+                key: `${role.id}Url`,
                 component: pfFormInput,
-                attrs: pfConfigurationAttributesFromMeta(meta, `${role}Url`),
-                validators: pfConfigurationValidatorsFromMeta(meta, `${role}Url`)
+                attrs: pfConfigurationAttributesFromMeta(meta, `${role.id}Url`),
+                validators: pfConfigurationValidatorsFromMeta(meta, `${role.id}Url`)
               }
             ]
           }

@@ -28,46 +28,46 @@ export default {
     sections () {
       return [
         {
-          name: 'Search',
+          name: this.$i18n.t('Search'),
           path: '/nodes/search',
           saveSearchNamespace: 'nodes'
         },
         {
-          name: 'Create',
+          name: this.$i18n.t('Create'),
           path: '/nodes/create',
           can: 'create nodes'
         },
         {
-          name: 'Import',
+          name: this.$i18n.t('Import'),
           path: '/nodes/import',
           can: 'create nodes'
         },
         {
-          name: 'Standard Searches',
+          name: this.$i18n.t('Standard Searches'),
           items: [
             {
-              name: 'Open Security Events',
+              name: this.$i18n.t('Open Security Events'),
               path: {
                 name: 'search',
                 query: { query: JSON.stringify({ op: 'and', values: [{ op: 'or', values: [{ field: 'security_event.open_count', op: 'greater_than_equals', value: '1' }] }] }) }
               }
             },
             {
-              name: 'Closed Security Events',
+              name: this.$i18n.t('Closed Security Events'),
               path: {
                 name: 'search',
                 query: { query: JSON.stringify({ op: 'and', values: [{ op: 'or', values: [{ field: 'security_event.close_count', op: 'greater_than_equals', value: '1' }] }] }) }
               }
             },
             {
-              name: 'Offline Nodes',
+              name: this.$i18n.t('Offline Nodes'),
               path: {
                 name: 'search',
                 query: { query: JSON.stringify({ op: 'and', values: [{ op: 'or', values: [{ field: 'online', op: 'not_equals', value: 'on' }] }] }) }
               }
             },
             {
-              name: 'Online Nodes',
+              name: this.$i18n.t('Online Nodes'),
               path: {
                 name: 'search',
                 query: { query: JSON.stringify({ op: 'and', values: [{ op: 'or', values: [{ field: 'online', op: 'equals', value: 'on' }] }] }) }
@@ -76,11 +76,11 @@ export default {
           ]
         },
         {
-          name: 'Switch Groups',
+          name: this.$i18n.t('Switch Groups'),
           collapsable: true,
           items: this.switchGroups.map(switchGroup => {
             return {
-              name: switchGroup.group || 'Default',
+              name: switchGroup.group || this.$i18n.t('Default'),
               collapsable: true,
               items: switchGroup.switches.filter(sw => sw.id !== 'default').map(sw => {
                 return {

@@ -28,22 +28,22 @@ export default {
     return {
       sections: [
         {
-          name: 'Search',
+          name: this.$i18n.t('Search'),
           path: '/users/search',
           saveSearchNamespace: 'users'
         },
         {
-          name: 'Create',
+          name: this.$i18n.t('Create'),
           path: '/users/create',
           can: 'create users'
         },
         {
-          name: 'Import',
+          name: this.$i18n.t('Import'),
           path: '/users/import',
           can: 'create users'
         },
         {
-          name: 'Standard Searches',
+          name: this.$i18n.t('Standard Searches'),
           items: [
             {
               name: 'Open Security Events',

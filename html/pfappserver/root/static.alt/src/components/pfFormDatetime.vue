@@ -16,7 +16,7 @@
  *      example :moments="['-1 hours', '1 hours', '1 days', '1 weeks', '1 months', '1 quarters', '1 years']"
  -->
  <template>
-  <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="$t(columnLabel)"
+  <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="columnLabel"
     :state="isValid()" :invalid-feedback="getInvalidFeedback()"
     class="pf-form-datetime" :class="{ 'mb-0': !columnLabel, 'is-focus': focus}">
     <b-input-group class="pf-form-datetime-input-group">
