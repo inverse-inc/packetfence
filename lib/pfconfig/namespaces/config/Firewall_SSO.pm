@@ -34,7 +34,7 @@ sub build_child {
 
     foreach my $key ( keys %tmp_cfg ) {
         $self->cleanup_after_read( $key, $tmp_cfg{$key} );
-        my @networks = map { pfconfig::objects::NetAddr::IP->new($_) } @{$tmp_cfg{$key}{networks}};
+        my @networks = map { pfconfig::objects::NetAddr::IP->new($_) // () } @{$tmp_cfg{$key}{networks}};
         $tmp_cfg{$key}{networks} = \@networks;
     }
 
