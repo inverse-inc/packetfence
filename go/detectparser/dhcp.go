@@ -1,8 +1,9 @@
 package detectparser
 
 import (
-	"github.com/inverse-inc/packetfence/go/sharedutils"
 	"regexp"
+
+	"github.com/inverse-inc/packetfence/go/sharedutils"
 )
 
 var dhcpRegexPattern1 = regexp.MustCompile(`(DHCPDISCOVER|DHCPOFFER|DHCPREQUEST|DHCPACK|DHCPRELEASE|DHCPINFORM|DHCPEXPIRE) on ([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+) to ([0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2})`)
@@ -11,6 +12,7 @@ var dhcpRegexPattern2 = regexp.MustCompile(`(DHCPDISCOVER|DHCPOFFER|DHCPREQUEST|
 
 type DhcpParser struct {
 	Pattern1, Pattern2 *regexp.Regexp
+	RateLimitable
 }
 
 func (s *DhcpParser) Parse(line string) ([]ApiCall, error) {
@@ -24,6 +26,10 @@ func (s *DhcpParser) Parse(line string) ([]ApiCall, error) {
 			mac := sharedutils.CleanMac(matches[3])
 			if mac == "" {
 				continue
+			}
+
+			if err := s.NotRateLimited(mac + ":" + ip); err != nil {
+				return nil, err
 			}
 
 			return []ApiCall{
@@ -41,9 +47,10 @@ func (s *DhcpParser) Parse(line string) ([]ApiCall, error) {
 	return nil, nil
 }
 
-func NewDhcpParser(*PfdetectConfig) (Parser, error) {
+func NewDhcpParser(config *PfdetectConfig) (Parser, error) {
 	return &DhcpParser{
-		Pattern1: dhcpRegexPattern1.Copy(),
-		Pattern2: dhcpRegexPattern2.Copy(),
+		Pattern1:      dhcpRegexPattern1.Copy(),
+		Pattern2:      dhcpRegexPattern2.Copy(),
+		RateLimitable: config.NewRateLimitable(),
 	}, nil
 }

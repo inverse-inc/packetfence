@@ -26,6 +26,8 @@ our @TYPES = qw(
   suricata_md5
 );
 
+our $RATE_LIMIT_DEFAULT = '0s';
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

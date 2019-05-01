@@ -1,12 +1,14 @@
 package detectparser
 
 import (
-	"github.com/inverse-inc/packetfence/go/sharedutils"
 	"regexp"
+
+	"github.com/inverse-inc/packetfence/go/sharedutils"
 )
 
 type NexposeParser struct {
 	Pattern1 *regexp.Regexp
+	RateLimitable
 }
 
 func (s *NexposeParser) Parse(line string) ([]ApiCall, error) {
@@ -19,6 +21,10 @@ func (s *NexposeParser) Parse(line string) ([]ApiCall, error) {
 
 		if srcip, err = sharedutils.CleanIP(srcip); err != nil {
 			return nil, nil
+		}
+
+		if err := s.NotRateLimited(dstip + ":" + srcip + ":" + matches[5]); err != nil {
+			return nil, err
 		}
 
 		return []ApiCall{
@@ -41,8 +47,9 @@ func (s *NexposeParser) Parse(line string) ([]ApiCall, error) {
 
 var nexposeRegexPattern1 = regexp.MustCompile(`^(\w+\s*\d+ \d+:\d+:\d+) ([0-9.]+) \w+: ([0-9.]+) (\w+): (.*)`)
 
-func NewNexposeParser(*PfdetectConfig) (Parser, error) {
+func NewNexposeParser(config *PfdetectConfig) (Parser, error) {
 	return &NexposeParser{
-		Pattern1: nexposeRegexPattern1.Copy(),
+		Pattern1:      nexposeRegexPattern1.Copy(),
+		RateLimitable: config.NewRateLimitable(),
 	}, nil
 }

@@ -1,26 +1,49 @@
-package pfappserver::Form::Config::Pfdetect::security_onion;
+package pfappserver::Base::Form::Role::PfdetectRateLimit;
 
 =head1 NAME
 
-pfappserver::Form::Config::Pfdetect::security_onion - Web form for a pfdetect detector
+pfappserver::Base::Form::Role::PfdetectRateLimit -
 
 =head1 DESCRIPTION
 
-Form definition to create or update a pfdetect detector.
+pfappserver::Base::Form::Role::PfdetectRateLimit
 
 =cut
 
-use HTML::FormHandler::Moose;
-extends 'pfappserver::Form::Config::Pfdetect';
-with qw(pfappserver::Base::Form::Role::PfdetectRateLimit);
+use strict;
+use warnings;
+use HTML::FormHandler::Moose::Role;
+use pf::constants::pfdetect;
+with qw(pfappserver::Base::Form::Role::Help);
 
-=over
+has_field 'rate_limit' => (
+    type    => 'Duration',
+    label   => 'Rate Limit',
+    default_method => sub {
+        {
+            unit => 's',
+            interval => 0,
+        }
+    },
+    tags    => {
+        after_element => \&help,
+        help => 'Rate limit requests.'
+    },
+);
 
-=back
+
+has_block definition =>
+  (
+   render_list => [ qw(id type status path rate_limit) ],
+  );
+
+=head1 AUTHOR
+
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -41,5 +64,4 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;

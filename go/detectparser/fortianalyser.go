@@ -1,8 +1,9 @@
 package detectparser
 
 import (
-	"github.com/inverse-inc/packetfence/go/sharedutils"
 	"regexp"
+
+	"github.com/inverse-inc/packetfence/go/sharedutils"
 )
 
 var fortiAnalyserRegexPattern1 = regexp.MustCompile(`\s+`)
@@ -10,6 +11,7 @@ var fortiAnalyserRegexPattern2 = regexp.MustCompile(`\=`)
 
 type FortiAnalyserParser struct {
 	Pattern1, Pattern2 *regexp.Regexp
+	RateLimitable
 }
 
 func (s *FortiAnalyserParser) Parse(line string) ([]ApiCall, error) {
@@ -37,6 +39,10 @@ func (s *FortiAnalyserParser) Parse(line string) ([]ApiCall, error) {
 		return nil, nil
 	}
 
+	if err := s.NotRateLimited(srcip + ":" + logid); err != nil {
+		return nil, err
+	}
+
 	return []ApiCall{
 		&PfqueueApiCall{
 			Method: "event_add",
@@ -50,9 +56,10 @@ func (s *FortiAnalyserParser) Parse(line string) ([]ApiCall, error) {
 	}, nil
 }
 
-func NewFortiAnalyserParser(*PfdetectConfig) (Parser, error) {
+func NewFortiAnalyserParser(config *PfdetectConfig) (Parser, error) {
 	return &FortiAnalyserParser{
-		Pattern1: fortiAnalyserRegexPattern1.Copy(),
-		Pattern2: fortiAnalyserRegexPattern2.Copy(),
+		Pattern1:      fortiAnalyserRegexPattern1.Copy(),
+		Pattern2:      fortiAnalyserRegexPattern2.Copy(),
+		RateLimitable: config.NewRateLimitable(),
 	}, nil
 }

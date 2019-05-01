@@ -101,6 +101,7 @@ $t->post_ok( "$collection_base_url/dry_run" => json => $config )
                         ],
                         'rule' => {
                             'ip_mac_translation' => 'disabled',
+                            'rate_limit'         => '0s',
                             'actions'            => [
                                 'modify_node: $scrip, $dstip',
                                 'trigger_scan: bob, bob'

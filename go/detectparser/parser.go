@@ -3,16 +3,21 @@ package detectparser
 import (
 	"context"
 	"fmt"
+	cache "github.com/fdurand/go-cache"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/pfqueueclient"
+	"strconv"
+	"time"
 )
 
 type PfdetectRegexRule struct {
-	Actions          []string `json:"actions"`
-	IpMacTranslation string   `json:"ip_mac_translation"`
-	LastIfMatch      string   `json:"last_if_match"`
-	Name             string   `json:"name"`
-	Regex            string   `json:"regex"`
+	Actions           []string `json:"actions"`
+	IpMacTranslation  string   `json:"ip_mac_translation"`
+	LastIfMatch       string   `json:"last_if_match"`
+	Name              string   `json:"name"`
+	Regex             string   `json:"regex"`
+	RateLimit         string   `json:"rate_limit"`
+	RateLimitTemplate string   `json:"rate_limit_template"`
 }
 
 type PfdetectConfig struct {
@@ -24,7 +29,45 @@ type PfdetectConfig struct {
 	Name           string              `json:"name,omitempty"`
 	Path           string              `json:"path"`
 	Status         string              `json:"status"`
+	RateLimit      string              `json:"rate_limit"`
 	Rules          []PfdetectRegexRule `json:"rules"`
+}
+
+func (config *PfdetectConfig) NewRateLimitable() RateLimitable {
+	if config == nil {
+		return RateLimitable{}
+	}
+
+	return NewRateLimitable(config.RateLimit)
+}
+
+type RateLimitable struct {
+	RateLimitCache *cache.Cache
+}
+
+func NewRateLimitable(rateLimitStr string) RateLimitable {
+	var Cache *cache.Cache = nil
+	if rateLimit, err := strconv.ParseInt(rateLimitStr, 10, 64); err != nil {
+		if rateLimit != 0 {
+			Cache = cache.New(time.Duration(rateLimit)*time.Second, 2*time.Duration(rateLimit)*time.Second)
+		}
+	}
+
+	return RateLimitable{RateLimitCache: Cache}
+}
+
+var errorRateLimit = fmt.Errorf("Already processed")
+
+func (r RateLimitable) NotRateLimited(key string) error {
+	if r.RateLimitCache == nil {
+		return nil
+	}
+	if _, found := r.RateLimitCache.Get(key); found {
+		return errorRateLimit
+	}
+
+	r.RateLimitCache.Set(key, 1, cache.DefaultExpiration)
+	return nil
 }
 
 type Parser interface {

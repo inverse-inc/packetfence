@@ -12,6 +12,7 @@ Form definition to create or update a pfdetect detector.
 
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Pfdetect';
+with qw(pfappserver::Base::Form::Role::PfdetectRateLimit);
 
 =over
 
