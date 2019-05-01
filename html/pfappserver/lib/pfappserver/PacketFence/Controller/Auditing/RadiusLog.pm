@@ -17,6 +17,7 @@ use HTTP::Status qw(:constants is_error is_success);
 use Moose;
 use namespace::autoclean;
 use POSIX;
+use pf::radius_audit_log;
 use pf::authentication;
 use pf::ConfigStore::SwitchGroup;
 use pf::ConfigStore::Switch;
@@ -50,15 +51,16 @@ sub index :Path :Args(0) :AdminRole('RADIUS_LOG_READ') {
     my $id = $c->user->id;
     my ($status, $saved_searches) = $c->model("SavedSearch::RadiusLog")->read_all($id);
     (undef, my $roles) = $c->model('Config::Roles')->listFromDB();
+    my $switches_cs = pf::ConfigStore::Switch->new;
     my $sg = pf::ConfigStore::SwitchGroup->new;
-
     my $switch_groups = [
     map {
         local $_ = $_;
             my $id = $_;
-            {id => $id, members => [$sg->members($id, 'id')]}
-         } @{$sg->readAllIds}];
-    my $switches_list = pf::ConfigStore::Switch->new->readAll("Id");
+            {id => $id, members => [$switches_cs->search('group', $id, 'id')]};
+         } @{$sg->readAllIds}
+    ];
+    my $switches_list = $switches_cs->readAll("Id");
     my @switches_filtered = grep { !defined $_->{group} && $_->{Id} !~ /^group(.*)/ && $_->{Id} !~ m/\// && $_->{Id} ne 'default' } @$switches_list;
     my $switches = [
     map {
