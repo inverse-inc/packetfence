@@ -111,6 +111,7 @@ our (
     $fingerbank_config_file,
     $fingerbank_default_config_file,
     $fingerbank_doc_file,
+    $api_i18n_dir
 );
 
 BEGIN {
@@ -197,6 +198,7 @@ BEGIN {
         $fingerbank_config_file
         $fingerbank_default_config_file
         $fingerbank_doc_file
+        $api_i18n_dir
     );
 }
 
@@ -225,6 +227,7 @@ $domains_chroot_dir = catdir("/chroots");
 $domains_ntlm_cache_users_dir = catdir($var_dir, "cache/ntlm_cache_users");
 $systemd_unit_dir   = "/usr/lib/systemd/system"; 
 $acme_challenge_dir = catdir($conf_dir,"ssl/acme-challenge");
+$api_i18n_dir       = catdir($conf_dir, "I18N/api");
 
 $pfcmd_binary = catfile( $bin_dir, "pfcmd" );
 
