@@ -89,7 +89,7 @@ sub validate_input {
     }
 
     if (@errors) {
-        return 422, { message => 'username and or password missing' , errors => @errors};
+        return 422, { message => 'username and or password missing' , errors => \@errors};
     }
 
     return 200, { bind_dn => $bind_dn, bind_pass => $bind_pass };
