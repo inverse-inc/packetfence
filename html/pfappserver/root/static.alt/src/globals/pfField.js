@@ -10,6 +10,7 @@ export const pfFieldType = {
   DATE:                    'date',
   DATETIME:                'datetime',
   GENDER:                  'gender',
+  NODE_STATUS:             'node_status',
   PREFIXMULTIPLIER:        'prefixmultiplier',
   SELECTMANY:              'selectmany',
   TIME_BALANCE:            'time_balance',
@@ -186,6 +187,13 @@ pfFieldTypeValues[pfFieldType.GENDER] = () => {
     { name: i18n.t('Male'), value: 'm' },
     { name: i18n.t('Female'), value: 'f' },
     { name: i18n.t('Other'), value: 'o' }
+  ]
+}
+pfFieldTypeValues[pfFieldType.NODE_STATUS] = () => {
+  return [
+    { name: i18n.t('Registered'), value: 'reg' },
+    { name: i18n.t('Unregistered'), value: 'unreg' },
+    { name: i18n.t('Pending'), value: 'pending' }
   ]
 }
 pfFieldTypeValues[pfFieldType.TIME_BALANCE] = () => {
