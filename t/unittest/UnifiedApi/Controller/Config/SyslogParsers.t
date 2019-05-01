@@ -101,16 +101,18 @@ $t->post_ok( "$collection_base_url/dry_run" => json => $config )
                         ],
                         'rule' => {
                             'ip_mac_translation' => 'disabled',
-                            'rate_limit'         => '0s',
-                            'actions'            => [
+                            'rate_limit'         => {
+                                unit     => 's',
+                                interval => 0,
+                            },
+                            'actions' => [
                                 'modify_node: $scrip, $dstip',
                                 'trigger_scan: bob, bob'
                             ],
                             'last_if_match' => 'enabled',
-                            'regex' =>
-    'from: (?P<scrip>\\d{1,3}(\\.\\d{1,3}){3}), to: (?P<dstip>\\d{1,3}(\\.\\d{1,3}){3})',
+                            'regex' => 'from: (?P<scrip>\\d{1,3}(\\.\\d{1,3}){3}), to: (?P<dstip>\\d{1,3}(\\.\\d{1,3}){3})',
                             'name' => 'from to'
-                        }
+                          }
                     }
                 ],
                 'line' => 'from: 1.2.3.4, to: 1.2.3.5'

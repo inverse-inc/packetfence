@@ -133,30 +133,30 @@ $t->options_ok("/api/v1/config/syslog_parsers")
     }
 );
 
-$t->options_ok("/api/v1/config/syslog_parsers?type=regex")
-  ->status_is(200)
+$t->options_ok("/api/v1/config/syslog_parsers?type=regex")->status_is(200)
   ->json_is(
     {
         meta => {
             id => {
-                allowed     => undef,
+                allowed        => undef,
                 allowed_lookup => undef,
-                default     => undef,
-                placeholder => undef,
-                required    => $true,
-                type        => "string",
-                pattern     => {
-                    regex   => "^[a-zA-Z0-9][a-zA-Z0-9\._-]*\$",
-                    message => "The id is invalid. The id can only contain alphanumeric characters, dashes, period and underscores.",
+                default        => undef,
+                pattern        => {
+                    message =>
+"The id is invalid. The id can only contain alphanumeric characters, dashes, period and underscores.",
+                    regex => "^[a-zA-Z0-9][a-zA-Z0-9._-]*\$"
                 },
-            },
-            path => {
-                allowed     => undef,
-                allowed_lookup => undef,
-                default     => undef,
                 placeholder => undef,
                 required    => $true,
                 type        => "string"
+            },
+            path => {
+                allowed        => undef,
+                allowed_lookup => undef,
+                default        => undef,
+                placeholder    => undef,
+                required       => $true,
+                type           => "string"
             },
             rules => {
                 default => undef,
@@ -171,75 +171,81 @@ $t->options_ok("/api/v1/config/syslog_parsers?type=regex")
                                 placeholder => undef,
                                 properties  => {
                                     api_method => {
-                                        "allowed" => [
-                                          {
-                                            "text" => "add_person",
-                                            "value" => "add_person"
-                                          },
-                                          {
-                                            "text" => "close_security_event",
-                                            "value" => "close_security_event"
-                                          },
-                                          {
-                                            "text" => "deregister_node_ip",
-                                            "value" => "deregister_node_ip"
-                                          },
-                                          {
-                                            "text" => "dynamic_register_node",
-                                            "value" => "dynamic_register_node"
-                                          },
-                                          {
-                                            "text" => "modify_node",
-                                            "value" => "modify_node"
-                                          },
-                                          {
-                                            "text" => "modify_person",
-                                            "value" => "modify_person"
-                                          },
-                                          {
-                                            "text" => "reevaluate_access",
-                                            "value" => "reevaluate_access"
-                                          },
-                                          {
-                                            "text" => "register_node",
-                                            "value" => "register_node"
-                                          },
-                                          {
-                                            "text" => "register_node_ip",
-                                            "value" => "register_node_ip"
-                                          },
-                                          {
-                                            "text" => "release_all_security_events",
-                                            "value" => "release_all_security_events"
-                                          },
-                                          {
-                                            "text" => "role_detail",
-                                            "value" => "role_detail"
-                                          },
-                                          {
-                                            "text" => "trigger_scan",
-                                            "value" => "trigger_scan"
-                                          },
-                                          {
-                                            "text" => "trigger_security_event",
-                                            "value" => "trigger_security_event"
-                                          },
-                                          {
-                                            "text" => "unreg_node_for_pid",
-                                            "value" => "unreg_node_for_pid"
-                                          },
-                                          {
-                                            "text" => "update_ip4log",
-                                            "value" => "update_ip4log"
-                                          },
-                                          {
-                                            "text" => "update_ip6log",
-                                            "value" => "update_ip6log"
-                                          },
-                                          {
-                                            "text" => "update_role_configuration",
-                                            "value" => "update_role_configuration"
-                                          }
+                                        allowed => [
+                                            {
+                                                text  => "add_person",
+                                                value => "add_person"
+                                            },
+                                            {
+                                                text  => "close_security_event",
+                                                value => "close_security_event"
+                                            },
+                                            {
+                                                text  => "deregister_node_ip",
+                                                value => "deregister_node_ip"
+                                            },
+                                            {
+                                                text => "dynamic_register_node",
+                                                value => "dynamic_register_node"
+                                            },
+                                            {
+                                                text  => "modify_node",
+                                                value => "modify_node"
+                                            },
+                                            {
+                                                text  => "modify_person",
+                                                value => "modify_person"
+                                            },
+                                            {
+                                                text  => "reevaluate_access",
+                                                value => "reevaluate_access"
+                                            },
+                                            {
+                                                text  => "register_node",
+                                                value => "register_node"
+                                            },
+                                            {
+                                                text  => "register_node_ip",
+                                                value => "register_node_ip"
+                                            },
+                                            {
+                                                text =>
+                                                  "release_all_security_events",
+                                                value =>
+                                                  "release_all_security_events"
+                                            },
+                                            {
+                                                text  => "role_detail",
+                                                value => "role_detail"
+                                            },
+                                            {
+                                                text  => "trigger_scan",
+                                                value => "trigger_scan"
+                                            },
+                                            {
+                                                text =>
+                                                  "trigger_security_event",
+                                                value =>
+                                                  "trigger_security_event"
+                                            },
+                                            {
+                                                text  => "unreg_node_for_pid",
+                                                value => "unreg_node_for_pid"
+                                            },
+                                            {
+                                                text  => "update_ip4log",
+                                                value => "update_ip4log"
+                                            },
+                                            {
+                                                text  => "update_ip6log",
+                                                value => "update_ip6log"
+                                            },
+                                            {
+                                                text =>
+                                                  "update_role_configuration",
+                                                value =>
+                                                  "update_role_configuration"
+                                            }
                                         ],
                                         default     => undef,
                                         placeholder => undef,
@@ -247,12 +253,12 @@ $t->options_ok("/api/v1/config/syslog_parsers?type=regex")
                                         type        => "string"
                                     },
                                     api_parameters => {
-                                        allowed     => undef,
+                                        allowed        => undef,
                                         allowed_lookup => undef,
-                                        default     => undef,
-                                        placeholder => undef,
-                                        required    => $true,
-                                        type        => "string"
+                                        default        => undef,
+                                        placeholder    => undef,
+                                        required       => $true,
+                                        type           => "string"
                                     }
                                 },
                                 required => $false,
@@ -263,36 +269,89 @@ $t->options_ok("/api/v1/config/syslog_parsers?type=regex")
                             type        => "array"
                         },
                         ip_mac_translation => {
-                            allowed     => undef,
+                            allowed        => undef,
                             allowed_lookup => undef,
-                            default     => 'enabled',
-                            placeholder => undef,
-                            required    => $false,
-                            type        => "string"
+                            default        => "enabled",
+                            placeholder    => undef,
+                            required       => $false,
+                            type           => "string"
                         },
                         last_if_match => {
-                            allowed     => undef,
+                            allowed        => undef,
                             allowed_lookup => undef,
-                            default     => undef,
-                            placeholder => undef,
-                            required    => $false,
-                            type        => "string"
+                            default        => undef,
+                            placeholder    => undef,
+                            required       => $false,
+                            type           => "string"
                         },
                         name => {
-                            allowed     => undef,
+                            allowed        => undef,
                             allowed_lookup => undef,
+                            default        => undef,
+                            placeholder    => undef,
+                            required       => $true,
+                            type           => "string"
+                        },
+                        rate_limit => {
                             default     => undef,
                             placeholder => undef,
-                            required    => $true,
-                            type        => "string"
+                            properties  => {
+                                interval => {
+                                    allowed        => undef,
+                                    allowed_lookup => undef,
+                                    default        => undef,
+                                    min_value      => 0,
+                                    placeholder    => undef,
+                                    required       => $false,
+                                    type           => "integer"
+                                },
+                                unit => {
+                                    allowed => [
+                                        {
+                                            text  => "seconds",
+                                            value => "s"
+                                        },
+                                        {
+                                            text  => "minutes",
+                                            value => "m"
+                                        },
+                                        {
+                                            text  => "hours",
+                                            value => "h"
+                                        },
+                                        {
+                                            text  => "days",
+                                            value => "D"
+                                        },
+                                        {
+                                            text  => "weeks",
+                                            value => "W"
+                                        },
+                                        {
+                                            text  => "months",
+                                            value => "M"
+                                        },
+                                        {
+                                            text  => "years",
+                                            value => "Y"
+                                        }
+                                    ],
+                                    default     => undef,
+                                    placeholder => undef,
+                                    required    => $false,
+                                    type        => "string"
+                                }
+                            },
+                            required => $false,
+                            type     => "object"
                         },
                         regex => {
-                            allowed     => undef,
+                            allowed        => undef,
                             allowed_lookup => undef,
-                            default     => undef,
-                            placeholder => undef,
-                            required    => $true,
-                            type        => "string"
+                            default        => undef,
+                            placeholder    => undef,
+                            required       => $true,
+                            type           => "string"
                         }
                     },
                     required => $false,
@@ -303,25 +362,25 @@ $t->options_ok("/api/v1/config/syslog_parsers?type=regex")
                 type        => "array"
             },
             status => {
-                allowed     => undef,
+                allowed        => undef,
                 allowed_lookup => undef,
-                default     => 'enabled',
-                placeholder => undef,
-                required    => $false,
-                type        => "string"
+                default        => "enabled",
+                placeholder    => undef,
+                required       => $false,
+                type           => "string"
             },
             type => {
-                allowed     => undef,
+                allowed        => undef,
                 allowed_lookup => undef,
-                default     => undef,
-                placeholder => undef,
-                required    => $true,
-                type        => "string"
+                default        => undef,
+                placeholder    => undef,
+                required       => $true,
+                type           => "string"
             }
         },
         status => 200
     }
-);
+  );
 
 $t->options_ok("/api/v1/config/base/general")
   ->status_is(200)
