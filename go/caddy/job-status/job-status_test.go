@@ -2,6 +2,7 @@ package jobstatus
 
 import (
 	"context"
+	"encoding/json"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -40,30 +41,37 @@ func TestJobStatusHandleStatus(t *testing.T) {
 	jobStatus.handleStatus(recorder, req, httprouter.Params{httprouter.Param{Key: "job_id", Value: jobId}})
 
 	b, _ := ioutil.ReadAll(recorder.Body)
-	data := string(b)
 
-	if recorder.Code != http.StatusOK {
+	if recorder.Code != http.StatusAccepted {
 		t.Error("Wrong status code from handleStatus")
 	}
 
-	if data != `{"status":"Pending"}` {
+	var results map[string]interface{}
+	if json.Unmarshal(b, &results) != nil {
+		t.Error("Invalid json returned")
+	}
+
+	if 202 != results["status"].(float64) {
 		t.Error("Wrong data for job status")
 	}
 
-	_, err = jobStatus.redis.HSet(jobStatus.jobStatusKey(jobId), "status", "Testing").Result()
+	_, err = jobStatus.redis.HSet(jobStatus.jobStatusKey(jobId), "status", "200").Result()
 	sharedutils.CheckError(err)
 
 	recorder = httptest.NewRecorder()
 	jobStatus.handleStatus(recorder, req, httprouter.Params{httprouter.Param{Key: "job_id", Value: jobId}})
 
 	b, _ = ioutil.ReadAll(recorder.Body)
-	data = string(b)
 
 	if recorder.Code != http.StatusOK {
 		t.Error("Wrong status code from handleStatus")
 	}
 
-	if data != `{"status":"Testing"}` {
+	if json.Unmarshal(b, &results) != nil {
+		t.Error("Invalid json returned")
+	}
+
+	if 200 != results["status"].(float64) {
 		t.Error("Wrong data for job status")
 	}
 
