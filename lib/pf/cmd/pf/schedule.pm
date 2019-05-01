@@ -98,7 +98,7 @@ sub action_now {
     my ($hostaddr) = $self->action_args;
     $logger->trace("pcmd schedule now called for $hostaddr");
 
-    my $host_mac = $mac || pf::ip4log::ip2mac($hostaddr);
+    my $host_mac = pf::ip4log::ip2mac($hostaddr);
 
     my $profile = pf::Connection::ProfileFactory->instantiate($host_mac);
     my @scanners = $profile->findScans($host_mac);
