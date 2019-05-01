@@ -51,7 +51,7 @@
       @hidden="onGeneratorHidden">
       <div ref="generator">
         <b-form-row>
-          <b-col><b-form-input v-model="options.pwlength" type="range" min="6" max="64"></b-form-input></b-col>
+          <b-col><b-form-input v-model="options.pwlength" type="range" min="6" max="32"></b-form-input></b-col>
           <b-col>{{ $t('{count} characters', { count: options.pwlength }) }}</b-col>
         </b-form-row>
         <b-form-row>

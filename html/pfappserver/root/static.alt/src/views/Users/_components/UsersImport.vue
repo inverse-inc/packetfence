@@ -12,48 +12,81 @@
             {{ $t(file.name) }}
           </template>
           <pf-csv-parse @input="onImport" :ref="'parser-' + index" :file="file" :fields="fields" :storeName="storeName" no-init-bind-keys>
-            <b-tab :title="$t('Password Options')">
-              <b-alert show variant="info">
-                {{ $t('When no password is imported, a random password is generated using the following criteria.') }}
-              </b-alert>
-              <b-row>
-                <b-col cols="6">
-                  <pf-form-input class="p-0" type="range" min="6" max="64"
-                    v-model="passwordGenerator.pwlength"
-                    :column-label="$t('Length')"
-                    :text="$t('{count} characters', { count: passwordGenerator.pwlength })"/>
-                  <pf-form-toggle
-                    v-model="passwordGenerator.upper"
-                    :column-label="$t('Uppercase')"
-                    :text="$t('Include uppercase characters')">ABC</pf-form-toggle>
-                  <pf-form-toggle
-                    v-model="passwordGenerator.lower"
-                    :column-label="$t('Lowercase')"
-                    :text="$t('Include lowercase characters')">abc</pf-form-toggle>
-                  <pf-form-toggle
-                    v-model="passwordGenerator.digits"
-                    :column-label="$t('Digits')"
-                    :text="$t('Include digits')">123</pf-form-toggle>
-                </b-col>
-                <b-col cols="6">
-                  <pf-form-toggle
-                    v-model="passwordGenerator.special"
-                    :column-label="$t('Special')"
-                    :text="$t('Include special characters')">!@#</pf-form-toggle>
-                  <pf-form-toggle
-                    v-model="passwordGenerator.brackets"
-                    :column-label="$t('Brackets/Parenthesis')"
-                    :text="$t('Include brackets')">({&lt;</pf-form-toggle>
-                  <pf-form-toggle
-                    v-model="passwordGenerator.high"
-                    :column-label="$t('Accentuated')"
-                    :text="$t('Include accentuated characters')">äæ±</pf-form-toggle>
-                  <pf-form-toggle
-                    v-model="passwordGenerator.ambiguous"
-                    :column-label="$t('Ambiguous')"
-                    :text="$t('Include ambiguous characters')">0Oo</pf-form-toggle>
-                </b-col>
-              </b-row>
+            <b-tab :title="$t('Import Options')">
+              <b-form-group label-cols="3" :label="$t('Registration Window')">
+                <b-row>
+                  <b-col>
+                    <pf-form-datetime v-model="localUser.valid_from"
+                      :min="new Date()"
+                      :config="{format: 'YYYY-MM-DD'}"
+                      :vuelidate="$v.localUser.valid_from"
+                    />
+                  </b-col>
+                  <p class="pt-2"><icon name="long-arrow-alt-right"></icon></p>
+                  <b-col>
+                    <pf-form-datetime v-model="localUser.expiration"
+                      :min="new Date()"
+                      :config="{format: 'YYYY-MM-DD'}"
+                      :vuelidate="$v.localUser.expiration"
+                    />
+                  </b-col>
+                </b-row>
+              </b-form-group>
+              <pf-form-fields
+                v-model="localUser.actions"
+                :column-label="$t('Actions')"
+                :button-label="$t('Add Action')"
+                :field="actionField"
+                :vuelidate="$v.localUser.actions"
+                :invalid-feedback="[
+                  { [$t('One or more errors exist.')]: !$v.localUser.actions.anyError }
+                ]"
+                @validations="actionsValidations = $event"
+                sortable
+              ></pf-form-fields>
+              <pf-form-row align-v="start" :column-label="$t('Password Options')">
+                <b-alert show variant="info">
+                  {{ $t('When no password is imported, a random password is generated using the following criteria.') }}
+                </b-alert>
+                <b-row>
+                  <b-col cols="6">
+                    <pf-form-input class="p-0" type="range" min="6" max="32"
+                      v-model="passwordGenerator.pwlength"
+                      :column-label="$t('Length')"
+                      :text="$t('{count} characters', { count: passwordGenerator.pwlength })"/>
+                    <pf-form-toggle
+                      v-model="passwordGenerator.upper"
+                      :column-label="$t('Uppercase')"
+                      :text="$t('Include uppercase characters')">ABC</pf-form-toggle>
+                    <pf-form-toggle
+                      v-model="passwordGenerator.lower"
+                      :column-label="$t('Lowercase')"
+                      :text="$t('Include lowercase characters')">abc</pf-form-toggle>
+                    <pf-form-toggle
+                      v-model="passwordGenerator.digits"
+                      :column-label="$t('Digits')"
+                      :text="$t('Include digits')">123</pf-form-toggle>
+                  </b-col>
+                  <b-col cols="6">
+                    <pf-form-toggle
+                      v-model="passwordGenerator.special"
+                      :column-label="$t('Special')"
+                      :text="$t('Include special characters')">!@#</pf-form-toggle>
+                    <pf-form-toggle
+                      v-model="passwordGenerator.brackets"
+                      :column-label="$t('Brackets/Parenthesis')"
+                      :text="$t('Include brackets')">({&lt;</pf-form-toggle>
+                    <pf-form-toggle
+                      v-model="passwordGenerator.high"
+                      :column-label="$t('Accentuated')"
+                      :text="$t('Include accentuated characters')">äæ±</pf-form-toggle>
+                    <pf-form-toggle
+                      v-model="passwordGenerator.ambiguous"
+                      :column-label="$t('Ambiguous')"
+                      :text="$t('Include ambiguous characters')">0Oo</pf-form-toggle>
+                  </b-col>
+                </b-row>
+              </pf-form-row>
             </b-tab>
           </pf-csv-parse>
         </b-tab>
@@ -80,10 +113,15 @@
 
 <script>
 import pfCSVParse from '@/components/pfCSVParse'
-import pfProgress from '@/components/pfProgress'
+import pfFieldTypeValue from '@/components/pfFieldTypeValue'
+import pfFormDatetime from '@/components/pfFormDatetime'
+import pfFormFields from '@/components/pfFormFields'
 import pfFormInput from '@/components/pfFormInput'
+import pfFormRow from '@/components/pfFormRow'
 import pfFormToggle from '@/components/pfFormToggle'
 import pfFormUpload from '@/components/pfFormUpload'
+import pfProgress from '@/components/pfProgress'
+import { pfConfigurationActions } from '@/globals/configuration/pfConfiguration'
 import {
   pfDatabaseSchema as schema,
   buildValidationFromColumnSchemas
@@ -96,18 +134,30 @@ import {
   required
 } from 'vuelidate/lib/validators'
 import {
+  and,
+  not,
+  conditional,
+  compareDate,
   sourceExists
 } from '@/globals/pfValidators'
+
+const { validationMixin } = require('vuelidate')
 
 export default {
   name: 'UsersImport',
   components: {
     'pf-csv-parse': pfCSVParse,
-    pfProgress,
+    pfFormDatetime,
+    pfFormFields,
     pfFormInput,
+    pfFormRow,
     pfFormToggle,
-    pfFormUpload
+    pfFormUpload,
+    pfProgress
   },
+  mixins: [
+    validationMixin
+  ],
   props: {
     storeName: { // from router
       type: String,
@@ -356,6 +406,11 @@ export default {
           validators: buildValidationFromColumnSchemas(schema.person.custom_field_9)
         }
       ],
+      localUser: {
+        valid_from: null,
+        expiration: null,
+        actions: []
+      },
       passwordGenerator: {
         pwlength: 8,
         upper: true,
@@ -366,8 +421,43 @@ export default {
         high: false,
         ambiguous: false
       },
+      actionField: {
+        component: pfFieldTypeValue,
+        attrs: {
+          typeLabel: this.$i18n.t('Select action type'),
+          valueLabel: this.$i18n.t('Select action value'),
+          fields: [
+            pfConfigurationActions.set_access_duration,
+            pfConfigurationActions.set_access_level,
+            // pfConfigurationActions.set_bandwidth_balance,
+            pfConfigurationActions.mark_as_sponsor,
+            pfConfigurationActions.set_role,
+            pfConfigurationActions.set_tenant_id,
+            // pfConfigurationActions.set_time_balance,
+            pfConfigurationActions.set_unreg_date
+          ]
+        }
+      },
+      actionsValidations: {},
       progressTotal: 0,
       progressValue: 0
+    }
+  },
+  validations () {
+    return {
+      localUser: {
+        valid_from: {
+          [this.$i18n.t('Start date required.')]: conditional(!!this.localUser.valid_from && this.localUser.valid_from !== '0000-00-00'),
+          [this.$i18n.t('Date must be today or later.')]: compareDate('>=', new Date(), 'YYYY-MM-DD'),
+          [this.$i18n.t('Date must be less than or equal to end date.')]: not(and(required, conditional(this.localUser.valid_from), not(compareDate('<=', this.localUser.expiration, 'YYYY-MM-DD'))))
+        },
+        expiration: {
+          [this.$i18n.t('End date required.')]: conditional(!!this.localUser.expiration && this.localUser.expiration !== '0000-00-00'),
+          [this.$i18n.t('Date must be today or later.')]: compareDate('>=', new Date(), 'YYYY-MM-DD'),
+          [this.$i18n.t('Date must be greater than or equal to start date.')]: not(and(required, conditional(this.localUser.expiration), not(compareDate('>=', this.localUser.valid_from, 'YYYY-MM-DD'))))
+        },
+        actions: this.actionsValidations
+      }
     }
   },
   methods: {
@@ -388,9 +478,13 @@ export default {
       Promise.all(values.map(value => {
         // map child components' tableValue
         let tableValue = parser.tableValues[value._tableValueIndex]
+        const data = {
+          ...this.localUser,
+          ...value
+        }
         return this.$store.dispatch('$_users/exists', value.pid).then(results => {
-          // node exists
-          return this.updateUser(value).then(results => {
+          // user exists
+          return this.updateUser(data).then(results => {
             if (results.status) {
               tableValue._rowVariant = convert.statusToVariant({ status: results.status })
             } else {
@@ -404,11 +498,11 @@ export default {
             throw err
           })
         }).catch(() => {
-          // node not exists
+          // user not exists
           if (!('password' in value)) {
-            value.password = password.generate(this.passwordGenerator)
+            data.password = password.generate(this.passwordGenerator)
           }
-          return this.createUser(value).then(results => {
+          return this.createUser(data).then(results => {
             if (results.status) {
               tableValue._rowVariant = convert.statusToVariant({ status: results.status })
             } else {
@@ -435,18 +529,13 @@ export default {
       })
     },
     createUser (data) {
-      return this.$store.dispatch('$_users/createUser', { quiet: true, ...data }).then(results => {
-        // does the data contain anything other than 'pid' or a private key (_*)?
-        if (Object.keys(data).filter(key => key !== 'pid' && key.charAt(0) !== '_').length > 0) {
-          // chain updateUser
-          this.progressTotal += 1
-          return this.updateUser(data).then(results => {
-            return results
-          }).catch(err => {
-            throw err
-          })
-        }
-        return results
+      const userData = { quiet: true, ...data }
+      return this.$store.dispatch('$_users/createUser', userData).then(results => {
+        return this.$store.dispatch('$_users/createPassword', userData).then(results => {
+          return results
+        }).catch(err => {
+          throw err
+        })
       }).catch(err => {
         throw err
       }).finally(() => {
@@ -454,8 +543,11 @@ export default {
       })
     },
     updateUser (data) {
-      return this.$store.dispatch('$_users/updateUser', { quiet: true, ...data }).then(results => {
-        return results
+      const userData = { quiet: true, ...data }
+      return this.$store.dispatch('$_users/updateUser', userData).then(results => {
+        return this.$store.dispatch('$_users/updatePassword', userData).then(results => {
+          return results
+        })
       }).catch(err => {
         throw err
       }).finally(() => {

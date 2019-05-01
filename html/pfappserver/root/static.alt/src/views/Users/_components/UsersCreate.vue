@@ -226,33 +226,33 @@
         <b-col sm="12">
 
           <b-form-group label-cols="3" :label="$t('Registration Window')">
-            <b-row align-v="center">
+            <b-row>
               <b-col>
-                <pf-form-datetime v-model="valid_from"
+                <pf-form-datetime v-model="localUser.valid_from"
                   :min="new Date()"
                   :config="{format: 'YYYY-MM-DD'}"
-                  :vuelidate="$v.valid_from"
+                  :vuelidate="$v.localUser.valid_from"
                 />
               </b-col>
-              <icon name="long-arrow-alt-right"></icon>
+              <p class="pt-2"><icon name="long-arrow-alt-right"></icon></p>
               <b-col>
-                <pf-form-datetime v-model="expiration"
+                <pf-form-datetime v-model="localUser.expiration"
                   :min="new Date()"
                   :config="{format: 'YYYY-MM-DD'}"
-                  :vuelidate="$v.expiration"
+                  :vuelidate="$v.localUser.expiration"
                 />
               </b-col>
             </b-row>
           </b-form-group>
 
           <pf-form-fields
-            v-model="actions"
+            v-model="localUser.actions"
             :column-label="$t('Actions')"
             :button-label="$t('Add Action')"
             :field="actionField"
-            :vuelidate="$v.actions"
+            :vuelidate="$v.localUser.actions"
             :invalid-feedback="[
-              { [$t('One or more errors exist.')]: !$v.actions.anyError }
+              { [$t('One or more errors exist.')]: !$v.localUser.actions.anyError }
             ]"
             @validations="actionsValidations = $event"
             sortable
@@ -371,9 +371,11 @@ export default {
         company: '',
         notes: ''
       },
-      valid_from: null,
-      expiration: null,
-      actions: [],
+      localUser: {
+        valid_from: null,
+        expiration: null,
+        actions: []
+      },
       passwordGenerator: {
         pwlength: 8,
         upper: true,
@@ -392,11 +394,11 @@ export default {
           fields: [
             pfConfigurationActions.set_access_duration,
             pfConfigurationActions.set_access_level,
-            pfConfigurationActions.set_bandwidth_balance,
+            // pfConfigurationActions.set_bandwidth_balance,
             pfConfigurationActions.mark_as_sponsor,
             pfConfigurationActions.set_role,
             pfConfigurationActions.set_tenant_id,
-            pfConfigurationActions.set_time_balance,
+            // pfConfigurationActions.set_time_balance,
             pfConfigurationActions.set_unreg_date
           ]
         }
@@ -440,20 +442,22 @@ export default {
           },
           quantity: {
             [this.$i18n.t('Quantity must be greater than 0.')]: and(required, numeric, minValue(1))
-          },
-          valid_from: {
-            [this.$i18n.t('Start date required.')]: conditional(!!this.valid_from && this.valid_from !== '0000-00-00'),
-            [this.$i18n.t('Date must be today or later.')]: compareDate('>=', new Date(), 'YYYY-MM-DD'),
-            [this.$i18n.t('Date must be less than or equal to end date.')]: not(and(required, conditional(this.valid_from), not(compareDate('<=', this.expiration, 'YYYY-MM-DD'))))
-          },
-          expiration: {
-            [this.$i18n.t('End date required.')]: conditional(!!this.expiration && this.expiration !== '0000-00-00'),
-            [this.$i18n.t('Date must be today or later.')]: compareDate('>=', new Date(), 'YYYY-MM-DD'),
-            [this.$i18n.t('Date must be greater than or equal to start date.')]: not(and(required, conditional(this.expiration), not(compareDate('>=', this.valid_from, 'YYYY-MM-DD'))))
           }
         }
       ),
-      actions: this.actionsValidations
+      localUser: {
+        valid_from: {
+          [this.$i18n.t('Start date required.')]: conditional(!!this.localUser.valid_from && this.localUser.valid_from !== '0000-00-00'),
+          [this.$i18n.t('Date must be today or later.')]: compareDate('>=', new Date(), 'YYYY-MM-DD'),
+          [this.$i18n.t('Date must be less than or equal to end date.')]: not(and(required, conditional(this.localUser.valid_from), not(compareDate('<=', this.localUser.expiration, 'YYYY-MM-DD'))))
+        },
+        expiration: {
+          [this.$i18n.t('End date required.')]: conditional(!!this.localUser.expiration && this.localUser.expiration !== '0000-00-00'),
+          [this.$i18n.t('Date must be today or later.')]: compareDate('>=', new Date(), 'YYYY-MM-DD'),
+          [this.$i18n.t('Date must be greater than or equal to start date.')]: not(and(required, conditional(this.localUser.expiration), not(compareDate('>=', this.localUser.valid_from, 'YYYY-MM-DD'))))
+        },
+        actions: this.actionsValidations
+      }
     }
   },
   computed: {
@@ -473,28 +477,40 @@ export default {
       this.$router.push({ name: 'users' })
     },
     create () {
-      const base = {
-        valid_from: this.valid_from,
-        expiration: this.expiration,
-        actions: this.actions
-      }
       switch (this.modeIndex) {
         case 0: // single
-          this.$store.dispatch('$_users/createUser', Object.assign(base, this.single)).then(() => this.close())
+          const data = {
+            ...this.single,
+            ...this.localUser
+          }
+          this.$store.dispatch('$_users/createUser', data).then(() => {
+            this.$store.dispatch('$_users/createPassword', Object.assign({ quiet: true }, data)).then(() => this.close())
+          })
           break
         case 1: // multiple
           let promises = []
-          const baseValue = { ...base, ...this.multiple, ...{ quiet: true } }
+          const baseValue = {
+            ...this.multiple,
+            ...this.localUser,
+            ...{ quiet: true }
+          }
           for (let i = 0; i < this.multiple.quantity; i++) {
-            let pid = this.multiple.prefix + (i + 1)
-            let pwd = password.generate(this.passwordGenerator)
-            let currentValue = Object.assign({ pid, password: pwd }, baseValue)
+            const pid = this.multiple.prefix + (i + 1)
+            const pwd = password.generate(this.passwordGenerator)
+            const currentData = {
+              ...{ pid, password: pwd },
+              ...baseValue
+            }
             promises.push(this.$store.dispatch('$_users/exists', pid).then(results => {
               // user exists
-              return this.$store.dispatch('$_users/updateUser', currentValue)
+              return this.$store.dispatch('$_users/updateUser', currentData).then(() => {
+                return this.$store.dispatch('$_users/updatePassword', currentData)
+              })
             }).catch(() => {
               // user doesn't exist
-              return this.$store.dispatch('$_users/createUser', currentValue)
+              return this.$store.dispatch('$_users/createUser', currentData).then(() => {
+                return this.$store.dispatch('$_users/createPassword', currentData)
+              })
             }))
           }
           Promise.all(promises).then(values => {
@@ -504,6 +520,7 @@ export default {
               skipped: null,
               failed: null
             })
+            this.close()
           })
           break
         default:

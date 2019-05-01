@@ -11,115 +11,151 @@
           <template slot="title">
             {{ $t('Profile') }}
           </template>
-          <b-row>
-            <b-col>
-              <pf-form-input :column-label="$t('Username (PID)')"
-                readonly
-                v-model.trim="userContent.pid"
-                :text="$t('The username to use for login to the captive portal.')"/>
-              <pf-form-password :column-label="$t('Password')" generate
-                v-model="userContent.password"
-                :vuelidate="$v.userContent.password"
-                :text="$t('Leave empty to keep current password.')"/>
-              <pf-form-input :column-label="$t('Login remaining')"
-                v-model="userContent.login_remaining"
-                :vuelidate="$v.userContent.login_remaining"
-                type="number"
-                :text="$t('Leave empty to allow unlimited logins.')"/>
-              <pf-form-input :column-label="$t('Email')"
-                v-model.trim="userContent.email"
-                :vuelidate="$v.userContent.email"
-              />
-              <pf-form-input :column-label="$t('Sponsor')"
-                v-model.trim="userContent.sponsor"
-                :vuelidate="$v.userContent.sponsor"
-              />
-              <pf-form-input :column-label="$t('Language')"
-                v-model.trim="userContent.lang"
-                :vuelidate="$v.userContent.lang"
-              />
-              <pf-form-chosen :column-label="$t('Gender')"
-                v-model="userContent.gender"
-                label="text"
-                track-by="value"
-                :placeholder="$t('Choose gender')"
-                :options="[{text:$t('Male'), value:'m'}, {text:$t('Female'), value:'f'}, {text:$t('Other'), value:'o'}]"
-              ></pf-form-chosen>
-              <pf-form-input :column-label="$t('Title')"
-                v-model="userContent.title"
-                :vuelidate="$v.userContent.title"
-              />
-              <pf-form-input :column-label="$t('Firstname')"
-                v-model="userContent.firstname"
-                :vuelidate="$v.userContent.firstname"
-              />
-              <pf-form-input :column-label="$t('Lastname')"
-                v-model="userContent.lastname"
-                :vuelidate="$v.userContent.lastname"
-              />
-              <pf-form-input :column-label="$t('Nickname')"
-                v-model="userContent.nickname"
-                :vuelidate="$v.userContent.nickname"
-              />
-              <pf-form-input :column-label="$t('Company')"
-                v-model="userContent.company"
-                :vuelidate="$v.userContent.company"
-              />
-              <pf-form-input :column-label="$t('Telephone number')"
-                v-model="userContent.telephone"
-                :filter="globals.regExp.stringPhone"
-                :vuelidate="$v.userContent.telephone"
-              />
-              <pf-form-input :column-label="$t('Cellphone number')"
-                v-model="userContent.cell_phone"
-                :filter="globals.regExp.stringPhone"
-                :vuelidate="$v.userContent.cell_phone"
-              />
-              <pf-form-input :column-label="$t('Workphone number')"
-                v-model="userContent.work_phone"
-                :filter="globals.regExp.stringPhone"
-                :vuelidate="$v.userContent.work_phone"
-              />
-              <pf-form-input :column-label="$t('Apartment number')"
-                v-model="userContent.apartment_number"
-                :filter="globals.regExp.stringPhone"
-                :vuelidate="$v.userContent.apartment_number"
-              />
-              <pf-form-input :column-label="$t('Building Number')"
-                v-model="userContent.building_number"
-                :filter="globals.regExp.stringPhone"
-                :vuelidate="$v.userContent.building_number"
-              />
-              <pf-form-input :column-label="$t('Room Number')"
-                v-model="userContent.room_number"
-                :filter="globals.regExp.stringPhone"
-                :vuelidate="$v.userContent.room_number"
-              />
-              <pf-form-textarea :column-label="$t('Address')" rows="4" max-rows="6"
-                v-model="userContent.address"
-                :vuelidate="$v.userContent.address"
-              />
-              <pf-form-datetime :column-label="$t('Anniversary')"
-                v-model="userContent.anniversary"
-                :config="{format: 'YYYY-MM-DD'}"
-                :vuelidate="$v.userContent.anniversary"
-              />
-              <pf-form-datetime :column-label="$t('Birthday')"
-                v-model="userContent.birthday"
-                :config="{format: 'YYYY-MM-DD'}"
-                :vuelidate="$v.userContent.birthday"
-              />
-              <pf-form-input :column-label="$t('Psk')"
-                v-model="userContent.psk"
-                :vuelidate="$v.userContent.psk"
-              />
-              <pf-form-textarea :column-label="$t('Notes')"
-                v-model="userContent.notes"
-                :vuelidate="$v.userContent.notes"
-                rows="3" max-rows="3"
-              />
-            </b-col>
-          </b-row>
+          <pf-form-input :column-label="$t('Username (PID)')"
+            readonly
+            v-model.trim="userContent.pid"
+            :text="$t('The username to use for login to the captive portal.')"/>
+          <pf-form-input :column-label="$t('Email')"
+            v-model.trim="userContent.email"
+            :vuelidate="$v.userContent.email"
+          />
+          <pf-form-input :column-label="$t('Sponsor')"
+            v-model.trim="userContent.sponsor"
+            :vuelidate="$v.userContent.sponsor"
+          />
+          <pf-form-input :column-label="$t('Language')"
+            v-model.trim="userContent.lang"
+            :vuelidate="$v.userContent.lang"
+          />
+          <pf-form-chosen :column-label="$t('Gender')"
+            v-model="userContent.gender"
+            label="text"
+            track-by="value"
+            :placeholder="$t('Choose gender')"
+            :options="[{text:$t('Male'), value:'m'}, {text:$t('Female'), value:'f'}, {text:$t('Other'), value:'o'}]"
+          ></pf-form-chosen>
+          <pf-form-input :column-label="$t('Title')"
+            v-model="userContent.title"
+            :vuelidate="$v.userContent.title"
+          />
+          <pf-form-input :column-label="$t('Firstname')"
+            v-model="userContent.firstname"
+            :vuelidate="$v.userContent.firstname"
+          />
+          <pf-form-input :column-label="$t('Lastname')"
+            v-model="userContent.lastname"
+            :vuelidate="$v.userContent.lastname"
+          />
+          <pf-form-input :column-label="$t('Nickname')"
+            v-model="userContent.nickname"
+            :vuelidate="$v.userContent.nickname"
+          />
+          <pf-form-input :column-label="$t('Company')"
+            v-model="userContent.company"
+            :vuelidate="$v.userContent.company"
+          />
+          <pf-form-input :column-label="$t('Telephone number')"
+            v-model="userContent.telephone"
+            :filter="globals.regExp.stringPhone"
+            :vuelidate="$v.userContent.telephone"
+          />
+          <pf-form-input :column-label="$t('Cellphone number')"
+            v-model="userContent.cell_phone"
+            :filter="globals.regExp.stringPhone"
+            :vuelidate="$v.userContent.cell_phone"
+          />
+          <pf-form-input :column-label="$t('Workphone number')"
+            v-model="userContent.work_phone"
+            :filter="globals.regExp.stringPhone"
+            :vuelidate="$v.userContent.work_phone"
+          />
+          <pf-form-input :column-label="$t('Apartment number')"
+            v-model="userContent.apartment_number"
+            :filter="globals.regExp.stringPhone"
+            :vuelidate="$v.userContent.apartment_number"
+          />
+          <pf-form-input :column-label="$t('Building Number')"
+            v-model="userContent.building_number"
+            :filter="globals.regExp.stringPhone"
+            :vuelidate="$v.userContent.building_number"
+          />
+          <pf-form-input :column-label="$t('Room Number')"
+            v-model="userContent.room_number"
+            :filter="globals.regExp.stringPhone"
+            :vuelidate="$v.userContent.room_number"
+          />
+          <pf-form-textarea :column-label="$t('Address')" rows="4" max-rows="6"
+            v-model="userContent.address"
+            :vuelidate="$v.userContent.address"
+          />
+          <pf-form-datetime :column-label="$t('Anniversary')"
+            v-model="userContent.anniversary"
+            :config="{format: 'YYYY-MM-DD'}"
+            :vuelidate="$v.userContent.anniversary"
+          />
+          <pf-form-datetime :column-label="$t('Birthday')"
+            v-model="userContent.birthday"
+            :config="{format: 'YYYY-MM-DD'}"
+            :vuelidate="$v.userContent.birthday"
+          />
+          <pf-form-input :column-label="$t('Psk')"
+            v-model="userContent.psk"
+            :vuelidate="$v.userContent.psk"
+          />
+          <pf-form-textarea :column-label="$t('Notes')"
+            v-model="userContent.notes"
+            :vuelidate="$v.userContent.notes"
+            rows="3" max-rows="3"
+          />
+        </b-tab>
+
+        <b-tab title="Password" v-if="hasPassword">
+          <template slot="title">
+            {{ $t('Password') }}
+          </template>
+          <pf-form-password :column-label="$t('Password')" generate
+            v-model="userContent.password"
+            :vuelidate="$v.userContent.password"
+            :text="$t('Leave empty to keep current password.')"/>
+          <pf-form-input :column-label="$t('Login remaining')"
+            v-model="userContent.login_remaining"
+            :vuelidate="$v.userContent.login_remaining"
+            type="number"
+            :text="$t('Leave empty to allow unlimited logins.')"/>
+        </b-tab>
+
+        <b-tab title="Actions" v-if="hasPassword">
+
+          <b-form-group label-cols="3" :label="$t('Registration Window')">
+            <b-row>
+              <b-col>
+                <pf-form-datetime v-model="userContent.valid_from"
+                  :config="{format: 'YYYY-MM-DD'}"
+                  :vuelidate="$v.userContent.valid_from"
+                />
+              </b-col>
+              <p class="pt-2"><icon name="long-arrow-alt-right"></icon></p>
+              <b-col>
+                <pf-form-datetime v-model="userContent.expiration"
+                  :config="{format: 'YYYY-MM-DD'}"
+                  :vuelidate="$v.userContent.expiration"
+                />
+              </b-col>
+            </b-row>
+          </b-form-group>
+
+          <pf-form-fields
+            v-model="userContent.actions"
+            :column-label="$t('Actions')"
+            :button-label="$t('Add Action')"
+            :field="actionField"
+            :vuelidate="$v.userContent.actions"
+            :invalid-feedback="[
+              { [$t('One or more errors exist.')]: !$v.userContent.actions.anyError }
+            ]"
+            @validations="actionsValidations = $event"
+            sortable
+          ></pf-form-fields>
         </b-tab>
 
         <b-tab title="Custom Fields">
@@ -196,9 +232,13 @@
           </b-table>
         </b-tab>
       </b-tabs>
-      <b-card-footer @mouseenter="$v.userContent.$touch()">
-        <pf-button-save class="mr-1" v-if="ifTab(['Profile', 'Custom Fields'])" :disabled="invalidForm" :isLoading="isLoading"/>
+      <b-card-footer @mouseenter="$v.$touch()">
+        <pf-button-save class="mr-1" v-if="ifTab(['Profile', 'Actions', 'Custom Fields'])" :disabled="invalidForm" :isLoading="isLoading">
+          <template v-if="ctrlKey">{{ $t('Save & Close') }}</template>
+          <template v-else>{{ $t('Save') }}</template>
+        </pf-button-save>
         <pf-button-delete class="mr-3" v-if="ifTab(['Profile', 'Custom Fields']) && !isDefaultUser" :disabled="isLoading" :confirm="$t('Delete User?')" @on-delete="deleteUser()"/>
+        <b-button class="mr-1" v-if="ifTab(['Password'])" variant="outline-primary" :disabled="isLoading" @click="resetPassword()">{{ $t('Reset Password') }}</b-button>
         <b-button class="mr-1" v-if="ifTab(['Devices']) && !isDefaultUser" variant="outline-primary" :disabled="isLoading || !hasNodes" @click="unassignNodes()">{{ $t('Unassign Nodes') }}</b-button>
         <b-button class="mr-1" v-if="ifTab(['Security Events'])" variant="outline-primary" :disabled="isLoading || !hasOpenSecurityEvents" @click="closeSecurityEvents()">{{ $t('Close all security events') }}</b-button>
       </b-card-footer>
@@ -210,23 +250,32 @@
 import pfButtonSave from '@/components/pfButtonSave'
 import pfButtonDelete from '@/components/pfButtonDelete'
 import pfEmptyTable from '@/components/pfEmptyTable'
+import pfFieldTypeValue from '@/components/pfFieldTypeValue'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormDatetime from '@/components/pfFormDatetime'
+import pfFormFields from '@/components/pfFormFields'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormPassword from '@/components/pfFormPassword'
 import pfFormTextarea from '@/components/pfFormTextarea'
 import pfFormToggle from '@/components/pfFormToggle'
+import pfMixinCtrlKey from '@/components/pfMixinCtrlKey'
+import { pfConfigurationActions } from '@/globals/configuration/pfConfiguration'
 import { pfFormatters as formatter } from '@/globals/pfFormatters'
 import {
   required,
   minLength
 } from 'vuelidate/lib/validators'
+import {
+  and,
+  not,
+  conditional,
+  compareDate
+} from '@/globals/pfValidators'
 import { pfRegExp as regExp } from '@/globals/pfRegExp'
 import {
   pfDatabaseSchema as schema,
   buildValidationFromTableSchemas
 } from '@/globals/pfDatabaseSchema'
-
 const { validationMixin } = require('vuelidate')
 
 export default {
@@ -237,12 +286,14 @@ export default {
     pfEmptyTable,
     pfFormChosen,
     pfFormDatetime,
+    pfFormFields,
     pfFormInput,
     pfFormPassword,
     pfFormTextarea,
     pfFormToggle
   },
   mixins: [
+    pfMixinCtrlKey,
     validationMixin
   ],
   props: {
@@ -257,6 +308,25 @@ export default {
       tabIndex: 0,
       tabTitle: '',
       userContent: { nodes: [], security_events: [] },
+      hasPassword: false,
+      actionField: {
+        component: pfFieldTypeValue,
+        attrs: {
+          typeLabel: this.$i18n.t('Select action type'),
+          valueLabel: this.$i18n.t('Select action value'),
+          fields: [
+            pfConfigurationActions.set_access_duration,
+            pfConfigurationActions.set_access_level,
+            // pfConfigurationActions.set_bandwidth_balance,
+            pfConfigurationActions.mark_as_sponsor,
+            pfConfigurationActions.set_role,
+            pfConfigurationActions.set_tenant_id,
+            // pfConfigurationActions.set_time_balance,
+            pfConfigurationActions.set_unreg_date
+          ]
+        }
+      },
+      actionsValidations: {},
       nodeFields: [
         {
           key: 'tenant_id',
@@ -574,9 +644,17 @@ export default {
     return {
       userContent: buildValidationFromTableSchemas(
         schema.person, // use `person` table schema
-        schema.password, // use `password` table schema
+        // schema.password, // use `password` table schema
         { sponsor: schema.person.sponsor }, // `sponsor` column exists in both `person` and `password` tables, fix: overload
         {
+          valid_from: {
+            [this.$i18n.t('Start date required.')]: conditional(!!this.userContent.valid_from && this.userContent.valid_from !== '0000-00-00'),
+            [this.$i18n.t('Date must be less than or equal to end date.')]: not(and(required, conditional(this.userContent.valid_from), not(compareDate('<=', this.userContent.expiration, 'YYYY-MM-DD'))))
+          },
+          expiration: {
+            [this.$i18n.t('End date required.')]: conditional(!!this.userContent.expiration && this.userContent.expiration !== '0000-00-00'),
+            [this.$i18n.t('Date must be greater than or equal to start date.')]: not(and(required, conditional(this.userContent.expiration), not(compareDate('>=', this.userContent.valid_from, 'YYYY-MM-DD'))))
+          },
           // additional custom validations ...
           email: {
             [this.$i18n.t('Email address required.')]: required
@@ -584,7 +662,8 @@ export default {
           psk: {
             [this.$i18n.t('Minimum 8 characters.')]: minLength(8)
           }
-        }
+        },
+        { actions: this.actionsValidations }
       )
     }
   },
@@ -613,14 +692,26 @@ export default {
   },
   methods: {
     ifTab (set) {
-      return this.$refs.tabs && set.includes(this.$refs.tabs.tabs[this.tabIndex].title)
+      return this.$refs.tabs &&
+        this.$refs.tabs.tabs[this.tabIndex] &&
+        set.includes(this.$refs.tabs.tabs[this.tabIndex].title)
+    },
+    init () {
+      this.$store.dispatch('$_users/getUser', this.pid).then(user => {
+        this.userContent = user
+        this.hasPassword = !!user.expiration
+      })
     },
     close () {
       this.$router.push({ name: 'users' })
     },
     save () {
+      const ctrlKey = this.ctrlKey
       this.$store.dispatch('$_users/updateUser', this.userContent).then(response => {
-        this.close()
+        this.$store.dispatch('$_users/updatePassword', Object.assign({ quiet: true }, this.userContent))
+        if (ctrlKey) { // [CTRL] key pressed
+          this.close()
+        }
       })
     },
     deleteUser () {
@@ -641,6 +732,14 @@ export default {
         this.userContent.nodes = []
       })
     },
+    resetPassword () {
+      const data = {
+        pid: this.pid,
+        password: this.userContent.password,
+        login_remaining: this.userContent.login_remaining
+      }
+      this.$store.dispatch('$_users/updatePassword', data)
+    },
     onKeyup (event) {
       switch (event.keyCode) {
         case 27: // escape
@@ -653,9 +752,7 @@ export default {
     }
   },
   mounted () {
-    this.$store.dispatch('$_users/getUser', this.pid).then(user => {
-      this.userContent = user
-    })
+    this.init()
     document.addEventListener('keyup', this.onKeyup)
   },
   beforeDestroy () {

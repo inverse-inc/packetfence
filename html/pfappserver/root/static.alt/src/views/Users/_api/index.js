@@ -49,6 +49,18 @@ export default {
   deleteUser: pid => {
     return apiCall.delete(`user/${pid}`)
   },
+  createPassword: body => {
+    const post = body.quiet ? 'postQuiet' : 'post'
+    return apiCall[post](`user/${body.pid}/password`, body).then(response => {
+      return response.data
+    })
+  },
+  updatePassword: body => {
+    const patch = body.quiet ? 'patchQuiet' : 'patch'
+    return apiCall[patch](`user/${body.pid}/password`, body).then(response => {
+      return response.data
+    })
+  },
   unassignUserNodes: pid => {
     return apiCall.post(`user/${pid}/unassign_nodes`)
   },
