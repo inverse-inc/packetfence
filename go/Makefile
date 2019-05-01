@@ -59,6 +59,11 @@ test:
 	/usr/local/pf/t/pfconfig-test ;\
 	PFCONFIG_TESTING=y govendor test ./...
 
+all: pfhttpd pfdhcp pfdns pfstats pfdetect
+
+copy:
+	cp -f pfhttpd pfdhcp pfdns pfstats pfdetect /usr/local/pf/sbin/
+
 .PHONY: clean-coredns-src
 
 clean-coredns-src:
