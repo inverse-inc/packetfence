@@ -277,7 +277,7 @@ export const pfConfigurationPkiProviderViewFields = (context = {}) => {
           fields: [
             {
               key: 'locality',
-              component: pfFormChosen,
+              component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'locality'),
               validators: pfConfigurationValidatorsFromMeta(meta, 'locality', 'Locality')
             }
