@@ -33,21 +33,21 @@ ok(!defined($history->latest_mac_history($mac)), "Data doesn't exist before its 
 
 $history->commit($h, 3600);
 
-ok(exists($history->latest_mac_history($mac)->{TOT5BM}), "Right result when fetching history");
+ok(${$history->latest_mac_history($mac)}[0] eq 'TOT5BM', "Right result when fetching history");
 
 $h = $history->get_new_history_hash();
 
 $history->add_to_history_hash($h, $mac, "TOT10BM");
 
-ok(exists($history->latest_mac_history($mac)->{TOT5BM}), "Previous historical is provided before new data is commited");
+ok(${$history->latest_mac_history($mac)}[0] eq "TOT5BM", "Previous historical is provided before new data is commited");
 
-ok(!exists($history->latest_mac_history($mac)->{TOT10BM}), "New historical data isn't there before its commited");
+ok(${$history->latest_mac_history($mac)}[0] ne "TOT10BM", "New historical data isn't there before its commited");
 
 $history->commit($h, 3600);
 
-ok(!exists($history->latest_mac_history($mac)->{TOT5BM}), "Previous historical isn't there anymore after new one is commited");
+ok(${$history->latest_mac_history($mac)}[0] ne "TOT5BM", "Previous historical isn't there anymore after new one is commited");
 
-ok(exists($history->latest_mac_history($mac)->{TOT10BM}), "New historical data is there after its commited");
+ok(${$history->latest_mac_history($mac)}[0] eq "TOT10BM", "New historical data is there after its commited");
 
 $history->flush_all();
 
