@@ -118,17 +118,17 @@ sub parse_js {
         while (defined($line = <JS>)) {
             chomp $line;
             # $t() inside <template>
-            while ($line =~ m/\$t\(['`](.+?(?!\\))['`](,.*)?\)/g) {
+            while ($line =~ m/\$t\(['`](.+?(?<!\\))['`](,.*)?\)/g) {
                 my $string = $1;
                 add_string($string, "$file:$nb");
             }
             # v-t inside <template>
-            while ($line =~ m/v-t="['`](.+?(?!\\))['`]"/g) {
+            while ($line =~ m/v-t="['`](.+?(?<!\\))['`]"/g) {
                 my $string = $1;
                 add_string($string, "$file:$nb");
             }
             # i18n.t() inside <script>
-            while ($line =~ m/i18n\.t\(['`](.+?(?!\\))['`](,.*)?\)/g) {
+            while ($line =~ m/i18n\.t\(['`](.+?(?<!\\))['`](,.*)?\)/g) {
                 my $string = $1;
                 add_string($string, "$file:$nb");
             }
