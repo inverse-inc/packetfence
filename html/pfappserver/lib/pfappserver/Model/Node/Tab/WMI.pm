@@ -30,12 +30,12 @@ sub process_view {
     my $mac = $c->stash->{mac};
     my ($status, @scans);
     ($status, my $node) = $c->model("Node")->view($mac);
-    my $device_class = $node->{device_class};
+    my $device_class = $node->{fingerbank_info}->{device_fq};
     my $host_ip = $node->{iplog}->{ip};
     my $scan_model = $c->model("Config::Scan");
     eval {
         my $profile = pf::Connection::ProfileFactory->instantiate($mac);
-        foreach my $scan (split(/\s*,\s*/, $profile->{_scans})) {
+        foreach my $scan (@{ $profile->{_scans} }) {
             ($status, my $item) = $scan_model->read($scan);
             if (is_success($status)) {
                 push @scans, $item;
@@ -108,7 +108,7 @@ sub parseWmi {
     my $scan_result = $scan->runWmi($scan_config, $rule_config);
     if ($scan_result =~ /ACCESS_DENIED/) {
         $rule_config->{item_exist} = "Access denied";
-    }elsif ($scan_result =~ /$WMI_NS_ERR/ || !@$scan_result) {
+    }elsif ($scan_result =~ /$WMI_NS_ERR/ || !$scan_result) {
         $rule_config->{item_exist} = 'No';
     }elsif ($scan_result =~ /TIMEOUT/ || $scan_result =~ /UNREACHABLE/) {
         $rule_config->{item_exist} = 'Request failed';

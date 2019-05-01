@@ -97,6 +97,7 @@ sub parse_scan_report {
     open my $io, "<", \$scan_report;
     my $row = $csv->getline($io);
     if ($row->[0] eq 'Plugin ID') {
+
         while (my $row = $csv->getline($io)) {
             $logger->info("Calling security_event_trigger for ip: $ip, mac: $mac, type: $type, trigger: ".$row->[0]);
             my $security_event_added = security_event_trigger( { 'mac' => $mac, 'tid' => $row->[0], 'type' => $type } );
@@ -105,6 +106,7 @@ sub parse_scan_report {
             if ( $security_event_added ) {
                 $failed_scan = 1;
             }
+
         }
     } else {
         my @count_vulns = (
@@ -145,8 +147,9 @@ sub parse_scan_report {
                'mac' => $mac,
                'reason' => 'manage_vclose',
             );
+        
             $apiclient->notify('close_security_event', %data );
-            $apiclient->notify('reevaluate_access', %data );
+
         # Scan completed but a security_event has been found
         # HACK: we empty the security_event's ticket_ref field which we use to track if scan is in progress or not
         } else {
@@ -188,8 +191,10 @@ Prepare the scan attributes, call the engine instantiation and start the scan
 =cut
 
 sub run_scan {
-    my ( $host_ip, $mac ) = @_;
+    my ( $host_ip, $mac , $current_scanner ) = @_;
     my $logger = get_logger();
+
+    $host_ip = (defined($host_ip) ? ($host_ip) : (pf::ip4log::mac2ip($mac)) );
 
 
     $host_ip =~ s/\//\\/g;          # escape slashes
@@ -203,7 +208,9 @@ sub run_scan {
     }
 
     my $profile = pf::Connection::ProfileFactory->instantiate($host_mac);
-    my $scanner = $profile->findScan($host_mac);
+
+    my $scanner = (defined($current_scanner)) ? ($current_scanner) : ($profile->findScan($host_mac)) ;
+    
     # If no scan detected then we abort
     if (!$scanner) {
         return $FALSE;
@@ -338,7 +345,7 @@ sub matchCategory {
 
     get_logger->debug( sub { "Tring to match the role '$node_cat' against " . join(",", @$category) });
     # validating that the node is under the proper category for provisioner
-    return @$category == 0 || any { $_ eq $node_cat } @$category;
+    return @$category == 0 || !defined($node_cat) || any { $_ eq $node_cat } @$category;
 }
 
 =item matchOS

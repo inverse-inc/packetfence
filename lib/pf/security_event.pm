@@ -693,6 +693,28 @@ sub security_event_delete {
     return (is_success($status));
 }
 
+sub security_event_scaning {
+    my ( $mac , $security_event_id) = @_;
+    my $logger = get_logger();
+
+    my $test_query = security_event_exist_open($mac,$security_event_id);
+
+    return (1) if(defined($test_query) && $test_query->{notes} eq 'scaning');
+    
+    my ($status, $rows) = pf::dal::security_event->update_items(
+        -set => {
+            notes => 'scaning',
+        },
+        -where => {
+            mac => $mac,
+            security_event_id => $security_event_id,
+            status => { "!=" => "closed"},
+        }
+        );
+
+    return ( (is_success($status)) ? (0) : (1) );
+}
+
 #return -1 on failure, because grace=0 is unlimited
 #
 sub security_event_close {

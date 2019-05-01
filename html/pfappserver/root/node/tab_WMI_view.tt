@@ -1,4 +1,4 @@
-[% IF device_class == "Windows" && items.size > 0 && host_ip.defined %]
+[% IF device_class.match('Windows OS') && items.size > 0 && host_ip.defined %]
     [% FOREACH item IN items %]
         <a href="#[% item.scan_id %]_[%item.rule_id%]" data-href="[% c.uri_for(c.controller.action_for('tab_process'), [mac], 'WMI', item.scan_id, item.rule_id) %]" id="node_tab_process" class="btn btn-mini">[% l("Run scan") %] for [% item.scan_id %] [% item.rule_id%]</a>
         <div id="[% item.scan_id %]_[% item.rule_id %]">

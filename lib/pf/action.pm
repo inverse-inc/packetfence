@@ -87,7 +87,7 @@ use pf::config::util;
 use pf::class qw(class_view);
 use pf::security_event qw(security_event_force_close);
 use pf::Connection::ProfileFactory;
-use pf::constants::scan qw($POST_SCAN_SECURITY_EVENT_ID $PRE_SCAN_SECURITY_EVENT_ID);
+use pf::constants::scan qw($POST_SCAN_SECURITY_EVENT_ID $PRE_SCAN_SECURITY_EVENT_ID $SCAN_SECURITY_EVENT_ID);
 use pf::file_paths qw($security_event_log);
 
 our $logger = get_logger();
@@ -223,7 +223,7 @@ sub action_execute {
         }
         $ACTIONS{$action}->($mac, $security_event_id, $notes);
     }
-    if (!$leave_open && !($security_event_id eq $POST_SCAN_SECURITY_EVENT_ID || $security_event_id eq $PRE_SCAN_SECURITY_EVENT_ID)) {
+    if (!$leave_open && !($security_event_id eq $POST_SCAN_SECURITY_EVENT_ID || $security_event_id eq $PRE_SCAN_SECURITY_EVENT_ID || $security_event_id eq $SCAN_SECURITY_EVENT_ID)) {
         $logger->info("this is a non-reevaluate-access security_event, closing security_event entry now");
         require pf::security_event;
         pf::security_event::security_event_force_close( $mac, $security_event_id );
