@@ -89,6 +89,7 @@ sub print_status {
                 $isManaged = $FALSE;
             } else {
                 @manager = grep { $_->name eq $main_service } pf::services::getManagers(\@service);
+                next unless(defined($manager[0])); 
                 $pid = $manager[0]->pid;
                 $isManaged = $manager[0]->isManaged;
             }
