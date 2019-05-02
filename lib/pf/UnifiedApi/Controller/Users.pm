@@ -39,6 +39,13 @@ sub cleanup_item {
     my ($self, $item) = @_;
     delete $item->{password};
     $item = $self->SUPER::cleanup_item($item);
+    if (exists $item->{category}) {
+        $item->{category_name} = delete $item->{category};
+    }
+
+    if (exists $item->{category_id}) {
+        $item->{category} = delete $item->{category_id};
+    }
     return $item;
 }
 
