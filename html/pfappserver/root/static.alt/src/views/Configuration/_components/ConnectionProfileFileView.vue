@@ -130,7 +130,7 @@ export default {
   computed: {
     path () {
       let p = this.filename.split('/').join(' / ')
-      if (this.isNew) p += ' / '
+      if (p && this.isNew) p += ' / '
       return p
     },
     isLoading () {
