@@ -44,6 +44,7 @@
           @mousemove="onMouseEnter(index)"
           @siblings="onSiblings($event)"
           no-gutter
+          class="m-1"
         >
           <template slot="prepend">
             <div class="draghandle" v-if="sortable && !disabled && hover === index && inputValue.length > 1">
