@@ -63,14 +63,15 @@ sub build_child {
     # Only keep unique elements
     @keys = uniq(@keys);
 
-    foreach my $section_name ( @keys ) {
-        unless ( $section_name eq "default" ) {
-            my $inherit_from = $tmp_cfg{$section_name}{group} ? "group ".$tmp_cfg{$section_name}{group} : "default";
-            foreach my $element_name ( keys %{ $tmp_cfg{$inherit_from} } ) {
-                unless ( exists $tmp_cfg{$section_name}{$element_name} ) {
-                    $tmp_cfg{$section_name}{$element_name} = $tmp_cfg{$inherit_from}{$element_name};
-                }
-            }
+    foreach my $section_name (@keys) {
+        next if $section_name eq "default";
+        my $group = $data->{group} // "default";
+        my $inherit_from = $group eq 'default' ? "default" : "group $group";
+        my $inherited = $tmp_cfg{$inherit_from};
+        my $data = $tmp_cfg{$section_name};
+        foreach my $element_name ( keys %$inherited ) {
+            next if exists $data->{$element_name};
+            $data->{$element_name} = $inherited->{$element_name};
         }
     }
 
