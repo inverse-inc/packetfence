@@ -770,7 +770,7 @@ rm -rf /usr/local/pf/var/cache/
 /bin/systemctl enable packetfence-iptables
 
 /usr/local/pf/bin/pfcmd configreload
-/bin/systemctl start packetfence-httpd.admin
+/bin/systemctl restart packetfence-httpd.admin
 
 
 
