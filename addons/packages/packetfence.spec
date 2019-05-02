@@ -942,6 +942,9 @@ fi
 %config(noreplace)      /usr/local/pf/conf/guest-managers.conf
                         /usr/local/pf/conf/git_commit_id
                         /usr/local/pf/conf/saml-sp-metadata.xml
+%dir                    /usr/local/pf/conf/I18N
+%dir                    /usr/local/pf/conf/I18N/api
+                        /usr/local/pf/conf/I18N/api/*
 %dir                    /usr/local/pf/conf/locale
 %dir                    /usr/local/pf/conf/locale/de
 %dir                    /usr/local/pf/conf/locale/de/LC_MESSAGES
