@@ -648,11 +648,11 @@ export default {
         { sponsor: schema.person.sponsor }, // `sponsor` column exists in both `person` and `password` tables, fix: overload
         {
           valid_from: {
-            [this.$i18n.t('Start date required.')]: conditional(!!this.userContent.valid_from && this.userContent.valid_from !== '0000-00-00'),
+            [this.$i18n.t('Start date required.')]: conditional(!this.hasPassword || (!!this.userContent.valid_from && this.userContent.valid_from !== '0000-00-00')),
             [this.$i18n.t('Date must be less than or equal to end date.')]: not(and(required, conditional(this.userContent.valid_from), not(compareDate('<=', this.userContent.expiration, 'YYYY-MM-DD'))))
           },
           expiration: {
-            [this.$i18n.t('End date required.')]: conditional(!!this.userContent.expiration && this.userContent.expiration !== '0000-00-00'),
+            [this.$i18n.t('End date required.')]: conditional(!this.hasPassword || (!!this.userContent.expiration && this.userContent.expiration !== '0000-00-00')),
             [this.$i18n.t('Date must be greater than or equal to start date.')]: not(and(required, conditional(this.userContent.expiration), not(compareDate('>=', this.userContent.valid_from, 'YYYY-MM-DD'))))
           },
           // additional custom validations ...

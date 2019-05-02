@@ -30,6 +30,14 @@ const inflateActions = (data) => {
 const deflateActions = (data) => {
   // Deflate actions
   const { actions = [] } = data
+
+  data.access_duration = null
+  data.access_level = null
+  data.can_sponsor = null
+  data.category = null
+  data.tenant_id = null
+  data.unregdate = null
+
   actions.forEach(action => {
     switch (action.type) {
       case pfConfigurationActions.set_access_duration.value:
