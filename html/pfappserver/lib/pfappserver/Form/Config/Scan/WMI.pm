@@ -39,7 +39,7 @@ has_block definition =>
 
 has_field '+oses' =>
   (
-    is_inactive => 1,
+    inactive => 1,
   );
 
 has_field 'wmi_policy' =>
