@@ -92,6 +92,7 @@ const actions = {
     const _data = { id, enabled: 'Y', quiet }
     return api.updateSecurityEvent(_data).then(response => {
       commit('ITEM_ENABLED', _data)
+      commit('$_config_security_events_searchable/ITEM_UPDATED', { key: 'id', id, prop: 'enabled', data: 'Y' }, { root: true })
       return response
     }).catch(err => {
       commit('ITEM_ERROR', err.response)
@@ -104,6 +105,7 @@ const actions = {
     const _data = { id, enabled: 'N', quiet }
     return api.updateSecurityEvent(_data).then(response => {
       commit('ITEM_DISABLED', _data)
+      commit('$_config_security_events_searchable/ITEM_UPDATED', { key: 'id', id, prop: 'enabled', data: 'N' }, { root: true })
       return response
     }).catch(err => {
       commit('ITEM_ERROR', err.response)

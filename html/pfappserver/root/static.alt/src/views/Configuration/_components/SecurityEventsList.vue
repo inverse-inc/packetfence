@@ -84,12 +84,22 @@ export default {
       switch (event) {
         case 'Y':
           this.$store.dispatch(`${this.storeName}/enableSecurityEvent`, { quiet: true, ...item }).then(response => {
-            this.$store.dispatch('notification/info', { message: this.$i18n.t('Security event <strong>{desc}</strong> enabled.', { desc: item.desc }) })
+            this.$store.dispatch('notification/info', { message: this.$i18n.t('Security event {desc} enabled.', { desc: this.$strong(item.desc) }) })
+          }).catch(err => {
+            const { response: { data: { message: errMsg } = {} } = {} } = err
+            let message = this.$i18n.t('Security event {desc} was not enabled', { desc: this.$strong(item.desc) })
+            if (errMsg) message += ` (${errMsg})`
+            this.$store.dispatch('notification/danger', { message })
           })
           break
         case 'N':
           this.$store.dispatch(`${this.storeName}/disableSecurityEvent`, { quiet: true, ...item }).then(response => {
-            this.$store.dispatch('notification/info', { message: this.$i18n.t('Security event <strong>{desc}</strong> disabled.', { desc: item.desc }) })
+            this.$store.dispatch('notification/info', { message: this.$i18n.t('Security event {desc} disabled.', { desc: this.$strong(item.desc) }) })
+          }).catch(err => {
+            const { response: { data: { message: errMsg } = {} } = {} } = err
+            let message = this.$i18n.t('Security event {desc} was not disabled', { desc: this.$strong(item.desc) })
+            if (errMsg) message += ` (${errMsg})`
+            this.$store.dispatch('notification/danger', { message })
           })
           break
       }

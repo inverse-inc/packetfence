@@ -96,6 +96,22 @@ export const pfConfigurationSecurityEventViewFields = (context = {}) => {
       tab: null, // ignore tabs
       fields: [
         {
+          label: i18n.t('Status'),
+          fields: [
+            {
+              key: 'enabled',
+              component: pfFormRangeToggle,
+              attrs: {
+                values: { checked: 'Y', unchecked: 'N' },
+                labels: { checked: 'ON', unchecked: 'OFF' },
+                icons: { checked: 'check', unchecked: 'times' },
+                colors: { checked: 'var(--success)', unchecked: 'var(--danger)' },
+                width: 60
+              }
+            }
+          ]
+        },
+        {
           label: i18n.t('Identifier'),
           fields: [
             {
