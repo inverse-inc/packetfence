@@ -272,7 +272,8 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
                 ...{
                   groupLabel: 'group',
                   groupValues: 'options'
-                }
+                },
+                optionsLimit: 1000
               },
               validators: pfConfigurationValidatorsFromMeta(meta, 'type')
             }
