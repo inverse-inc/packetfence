@@ -27,6 +27,7 @@ const state = {
 
 const getters = {
   isLoading: state => state.requestStatus === types.LOADING,
+  isInline: state => state.summary.is_inline_configured,
   version: state => state.summary.version
 }
 
