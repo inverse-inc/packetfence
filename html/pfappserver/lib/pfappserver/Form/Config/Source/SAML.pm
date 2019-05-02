@@ -22,6 +22,7 @@ has_field 'sp_entity_id' =>
    type => 'Text',
    label => 'Service Provider entity ID',
    required => 1,
+   default => '',
   );
 
 has_field 'sp_key_path' =>
@@ -29,12 +30,14 @@ has_field 'sp_key_path' =>
    type => 'Path',
    label => 'Path to Service Provider key (x509)',
    required => 1,
+   default => '',
   );
 
 has_field 'sp_cert_path' =>
   (
    type => 'Path',
    label => 'Path to Service Provider cert (x509)',
+   default => '',
    required => 1,
   );
 
@@ -43,6 +46,7 @@ has_field 'idp_entity_id' =>
    type => 'Text',
    label => 'Identity Provider entity ID',
    required => 1,
+   default => '',
   );
 
 has_field 'idp_metadata_path' =>
@@ -50,6 +54,7 @@ has_field 'idp_metadata_path' =>
    type => 'Path',
    label => 'Path to Identity Provider metadata',
    required => 1,
+   default => '',
   );
 
 has_field 'idp_cert_path' =>
@@ -57,6 +62,7 @@ has_field 'idp_cert_path' =>
    type => 'Path',
    label => 'Path to Identity Provider cert (x509)',
    required => 1,
+   default => '',
   );
 
 has_field 'idp_ca_cert_path' =>
@@ -66,6 +72,7 @@ has_field 'idp_ca_cert_path' =>
    required => 1,
    tags => { after_element => \&help,
              help => 'If your Identity Provider uses a self-signed certificate, put the path to its certificate here instead.' },
+   default => '',
   );
 
 has_field 'username_attribute' =>
@@ -90,6 +97,7 @@ has_field 'authorization_source_id' =>
    tags => { after_element => \&help,
              help => 'The source to use for authorization (rule matching)' },
    required => 1,
+   default => '',
   );
 
 
