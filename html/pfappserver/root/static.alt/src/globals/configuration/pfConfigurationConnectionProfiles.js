@@ -559,6 +559,9 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
                 invalidFeedback: [
                   { [i18n.t('Filter(s) contain one or more errors.')]: true }
                 ]
+              },
+              validators: {
+                [i18n.t('Filter or advanced filter required.')]: not(and(conditional(!form.filter), conditional(!form.advanced_filter)))
               }
             }
           ]
@@ -576,7 +579,12 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
                   rows: 3
                 }
               },
-              validators: pfConfigurationValidatorsFromMeta(meta, 'advanced_filter')
+              validators: {
+                ...pfConfigurationValidatorsFromMeta(meta, 'advanced_filter'),
+                ... {
+                  [i18n.t('Filter or advanced filter required.')]: not(and(conditional(!form.filter), conditional(!form.advanced_filter)))
+                }
+              }
             }
           ]
         },
