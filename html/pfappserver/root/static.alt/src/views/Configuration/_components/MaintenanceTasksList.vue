@@ -67,14 +67,10 @@ export default {
     toggleStatus (item, newStatus) {
       switch (newStatus) {
         case 'enabled':
-          this.$store.dispatch(`${this.storeName}/enableMaintenanceTask`, item).then(response => {
-            this.$refs.pfConfigList.submitSearch() // redo search
-          })
+          this.$store.dispatch(`${this.storeName}/enableMaintenanceTask`, item)
           break
         case 'disabled':
-          this.$store.dispatch(`${this.storeName}/disableMaintenanceTask`, item).then(response => {
-            this.$refs.pfConfigList.submitSearch() // redo search
-          })
+          this.$store.dispatch(`${this.storeName}/disableMaintenanceTask`, item)
           break
       }
     }

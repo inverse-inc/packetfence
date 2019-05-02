@@ -91,7 +91,8 @@ const actions = {
     commit('ITEM_REQUEST')
     const _data = { id: data.id, status: 'enabled' }
     return api.updateMaintenanceTask(_data).then(response => {
-      commit('ITEM_ENABLED', data)
+      commit('ITEM_ENABLED', _data)
+      commit('$_config_maintenance_tasks_searchable/ITEM_UPDATED', { key: 'id', id: data.id, prop: 'status', data: 'enabled' }, { root: true })
       return response
     }).catch(err => {
       commit('ITEM_ERROR', err.response)
@@ -102,7 +103,8 @@ const actions = {
     commit('ITEM_REQUEST')
     const _data = { id: data.id, status: 'disabled' }
     return api.updateMaintenanceTask(_data).then(response => {
-      commit('ITEM_DISABLED', data)
+      commit('ITEM_DISABLED', _data)
+      commit('$_config_maintenance_tasks_searchable/ITEM_UPDATED', { key: 'id', id: data.id, prop: 'status', data: 'disabled' }, { root: true })
       return response
     }).catch(err => {
       commit('ITEM_ERROR', err.response)
