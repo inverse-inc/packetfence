@@ -46,7 +46,6 @@
         <template v-for="column in config.columns" :slot="column.key" slot-scope="data">
           <slot :name="column.key" v-bind="data.item">{{ data.item[column.key] }}</slot>
         </template>
-
       </pf-table-sortable>
 
       <b-table class="table-clickable" v-else
@@ -76,6 +75,7 @@
           <slot :name="'FOOT_' + column.key">{{ data.label }}</slot>
         </template>
       </b-table>
+
     </div>
   </div>
 </template>

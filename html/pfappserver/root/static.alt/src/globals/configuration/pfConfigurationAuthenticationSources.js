@@ -44,12 +44,6 @@ export const pfConfigurationAuthenticationSourcesListColumns = [
     visible: true
   },
   {
-    key: 'class',
-    label: i18n.t('Class'),
-    sortable: true,
-    visible: true
-  },
-  {
     key: 'type',
     label: i18n.t('Type'),
     sortable: true,
@@ -61,29 +55,6 @@ export const pfConfigurationAuthenticationSourcesListColumns = [
     sortable: false,
     visible: true,
     locked: true
-  }
-]
-
-export const pfConfigurationAuthenticationSourcesListFields = [
-  {
-    value: 'id',
-    text: i18n.t('Name'),
-    types: [conditionType.SUBSTRING]
-  },
-  {
-    value: 'description',
-    text: i18n.t('Description'),
-    types: [conditionType.SUBSTRING]
-  },
-  {
-    value: 'class',
-    text: i18n.t('Class'),
-    types: [conditionType.SUBSTRING]
-  },
-  {
-    value: 'type',
-    text: i18n.t('Type'),
-    types: [conditionType.SUBSTRING]
   }
 ]
 
@@ -1871,6 +1842,19 @@ export const pfConfigurationAuthenticationSourceViewFields = (context) => {
             pfConfigurationAuthenticationSourceFields.monitor(context),
             pfConfigurationAuthenticationSourceFields.shuffle(context),
             pfConfigurationAuthenticationSourceFields.realms(context),
+            pfConfigurationAuthenticationSourceFields.authentication_rules(context),
+            pfConfigurationAuthenticationSourceFields.administration_rules(context)
+          ]
+        }
+      ]
+    case 'Authorization':
+      return [
+        {
+          tab: null, // ignore tabs
+          fields: [
+            pfConfigurationAuthenticationSourceFields.id(context),
+            pfConfigurationAuthenticationSourceFields.description(context),
+            { ...pfConfigurationAuthenticationSourceFields.realms(context), ...{ text: i18n.t('Realms that will be associated with this source (For the Portal/Admin GUI/RADIUS post-auth, not for FreeRADIUS proxy).') } },
             pfConfigurationAuthenticationSourceFields.authentication_rules(context),
             pfConfigurationAuthenticationSourceFields.administration_rules(context)
           ]

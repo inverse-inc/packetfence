@@ -10,22 +10,16 @@
       <b-card class="m-3">
         <h4 class="mb-3">{{ $t('Internal Sources') }}</h4>
         <b-dropdown class="mb-3" :text="$t('New internal source')" variant="outline-primary">
-          <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'Clickatell' } }">Clickatell</b-dropdown-item>
-          <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'Email' } }">Email</b-dropdown-item>
-          <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'Facebook' } }">Facebook</b-dropdown-item>
-          <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'Github' } }">Github</b-dropdown-item>
-          <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'Google' } }">Google</b-dropdown-item>
-          <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'Instagram' } }">Instagram</b-dropdown-item>
-          <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'Kickbox' } }">Kickbox</b-dropdown-item>
-          <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'LinkedIn' } }">LinkedIn</b-dropdown-item>
-          <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'Null' } }">{{ $t('Null') }}</b-dropdown-item>
-          <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'OpenID' } }">OpenID</b-dropdown-item>
-          <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'Pinterest' } }">Pinterest</b-dropdown-item>
-          <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'SMS' } }">SMS</b-dropdown-item>
-          <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'SponsorEmail' } }">{{ $t('Sponsor') }}</b-dropdown-item>
-          <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'Twilio' } }">Twilio</b-dropdown-item>
-          <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'Twitter' } }">Twitter</b-dropdown-item>
-          <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'WindowsLive' } }">WindowsLive</b-dropdown-item>
+          <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'AD' } }">Active Directory</b-dropdown-item>
+          <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'Authorization' } }">Authorization</b-dropdown-item>
+          <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'EAPTLS' } }">EAPTLS</b-dropdown-item>
+          <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'Htpasswd' } }">Htpasswd</b-dropdown-item>
+          <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'HTTP' } }">HTTP</b-dropdown-item>
+          <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'Kerberos' } }">Kerberos</b-dropdown-item>
+          <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'LDAP' } }">LDAP</b-dropdown-item>
+          <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'Potd' } }">{{ $t('Password Of The Day') }}</b-dropdown-item>
+          <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'RADIUS' } }">RADIUS</b-dropdown-item>
+          <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'SAML' } }">SAML</b-dropdown-item>
         </b-dropdown>
         <pf-table-sortable
           :items="internalSources"
