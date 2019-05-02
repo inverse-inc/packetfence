@@ -65,10 +65,10 @@ sub build_child {
 
     foreach my $section_name (@keys) {
         next if $section_name eq "default";
+        my $data = $tmp_cfg{$section_name};
         my $group = $data->{group} // "default";
         my $inherit_from = $group eq 'default' ? "default" : "group $group";
         my $inherited = $tmp_cfg{$inherit_from};
-        my $data = $tmp_cfg{$section_name};
         foreach my $element_name ( keys %$inherited ) {
             next if exists $data->{$element_name};
             $data->{$element_name} = $inherited->{$element_name};
