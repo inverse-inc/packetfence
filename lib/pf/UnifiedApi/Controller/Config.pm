@@ -462,6 +462,7 @@ sub field_meta_object_properties {
     my ($self, $field, $defaultValues) = @_;
     my %p;
     for my $f ($field->fields) {
+        next if $field->inactive;
         $p{$f->name} = $self->field_meta($f, $defaultValues);
     }
 
