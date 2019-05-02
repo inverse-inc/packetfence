@@ -230,7 +230,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'administration_rules',
           component: pfFormFields,
           attrs: {
-            buttonLabel: i18n.t('Add Rule - New ( )'),
+            buttonLabel: i18n.t('Add Rule'),
             sortable: true,
             field: {
               component: pfFieldRule,
@@ -447,7 +447,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'authentication_rules',
           component: pfFormFields,
           attrs: {
-            buttonLabel: i18n.t('Add Rule - New ( )'),
+            buttonLabel: i18n.t('Add Rule'),
             sortable: true,
             field: {
               component: pfFieldRule,
