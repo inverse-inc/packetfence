@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 8.3.9\n"
 "POT-Creation-Date: 2019-05-01 12:00-0400\n"
-"PO-Revision-Date: 2019-05-01 18:52-0400\n"
+"PO-Revision-Date: 2019-05-02 10:14-0400\n"
 "Last-Translator: Inverse inc. <support@packetfence.org>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -437,7 +437,7 @@ msgstr ""
 
 # html/pfappserver/root/static.alt/src/components/pfFieldRule.vue:67
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:603
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:667
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:668
 msgid "Add Condition"
 msgstr ""
 
@@ -461,12 +461,12 @@ msgstr ""
 msgid "Add Row"
 msgstr ""
 
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:233
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:450
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationScans.js:426
 msgid "Add Rule"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:233
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:450
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:368
 msgid "Add Rule - New ( )"
 msgstr ""
@@ -521,7 +521,7 @@ msgstr ""
 msgid "Additional message"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2402
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2404
 msgid "Additional settings"
 msgstr ""
 
@@ -682,7 +682,7 @@ msgid "Allow on registration"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:305
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:332
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:333
 msgid "Allow this switch to use PacketFence as a radius server for CLI access."
 msgstr ""
 
@@ -901,32 +901,32 @@ msgid "Auditing"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:713
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:777
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:778
 msgid "Auth Password Read"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:845
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:909
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:910
 msgid "Auth Password Trap"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:768
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:832
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:833
 msgid "Auth Password Write"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:702
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:766
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:767
 msgid "Auth Protocol Read"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:834
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:898
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:899
 msgid "Auth Protocol Trap"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:757
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:821
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:822
 msgid "Auth Protocol Write"
 msgstr ""
 
@@ -1208,12 +1208,12 @@ msgid "CA cert path"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:904
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:968
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:969
 msgid "CLI"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:304
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:331
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:332
 msgid "CLI Access Enabled"
 msgstr ""
 
@@ -1875,7 +1875,7 @@ msgid "Cluster:"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:441
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:489
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:490
 msgid "CoA Port"
 msgstr ""
 
@@ -1954,7 +1954,7 @@ msgid "Comma-separated list of Banned Domains"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:400
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:448
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:449
 msgid "Comma-separated list of the switch uplinks."
 msgstr ""
 
@@ -1976,17 +1976,17 @@ msgid "Common Name Format"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:658
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:722
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:723
 msgid "Community Read"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:812
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:876
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:877
 msgid "Community Trap"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:669
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:733
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:734
 msgid "Community Write"
 msgstr ""
 
@@ -2036,7 +2036,7 @@ msgstr ""
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:288
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:507
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:619
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:683
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:684
 msgid "Condition(s) contain one or more errors."
 msgstr ""
 
@@ -2116,7 +2116,7 @@ msgid "Connections"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:417
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:465
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:466
 msgid "Controller IP Address"
 msgstr ""
 
@@ -2605,7 +2605,7 @@ msgid "Day"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:280
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:304
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:305
 msgid "Deauthentication Method"
 msgstr ""
 
@@ -2625,14 +2625,14 @@ msgstr ""
 msgid "Default"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:325
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:341
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:357
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:372
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:388
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:404
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:420
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:436
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:326
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:342
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:358
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:373
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:389
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:405
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:421
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:437
 msgid "Default ({default})"
 msgstr ""
 
@@ -3047,17 +3047,17 @@ msgid "Detect Date"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:356
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:395
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:396
 msgid "Detect VoIP with a SNMP request in the CDP MIB."
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:343
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:379
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:380
 msgid "Detect VoIP with a SNMP request in the LLDP MIB."
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:369
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:411
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:412
 msgid "Detect VoIP with the DHCP Fingerprint."
 msgstr ""
 
@@ -3233,7 +3233,7 @@ msgid "Discard changes?"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:429
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:477
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:478
 msgid "Disconnect Port"
 msgstr ""
 
@@ -3358,7 +3358,7 @@ msgid "Duration"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:381
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:426
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:427
 msgid "Dynamic Uplinks"
 msgstr ""
 
@@ -3367,7 +3367,7 @@ msgid "Dynamic Window"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:382
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:427
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:428
 msgid "Dynamically lookup uplinks."
 msgstr ""
 
@@ -3499,12 +3499,12 @@ msgid "Enable NAT"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:940
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:1004
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:1005
 msgid "Enable Password"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:318
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:348
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:349
 msgid "Enable external portal enforcement when supported by network equipment."
 msgstr ""
 
@@ -3604,7 +3604,7 @@ msgid "Endpoints"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:680
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:744
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:745
 msgid "Engine ID"
 msgstr ""
 
@@ -3693,7 +3693,7 @@ msgid "External"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:317
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:347
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:348
 msgid "External Portal Enforcement"
 msgstr ""
 
@@ -3904,12 +3904,12 @@ msgid "Floating Devices:"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:442
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:490
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:491
 msgid "For CoA request, if we have to send to another port."
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:430
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:478
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:479
 msgid "For Disconnect request, if we have to send to another port."
 msgstr ""
 
@@ -4511,7 +4511,7 @@ msgid "Initial delay"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:593
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:657
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:658
 # html/pfappserver/root/static.alt/src/views/Configuration/_components/InlineView.vue:13
 # html/pfappserver/root/static.alt/src/views/Configuration/_components/NetworksTabs.vue:13
 # html/pfappserver/root/static.alt/src/views/Configuration/index.vue:115
@@ -4519,7 +4519,7 @@ msgid "Inline"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:596
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:660
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:661
 msgid "Inline Conditions"
 msgstr ""
 
@@ -5368,7 +5368,7 @@ msgid "Maximum 255 characters."
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:878
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:942
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:943
 msgid "Maximum MAC addresses"
 msgstr ""
 
@@ -5382,7 +5382,7 @@ msgid "Maximum amount of time this task can run."
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:879
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:943
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:944
 msgid "Maximum number of MAC addresses retrived from a port."
 msgstr ""
 
@@ -5443,11 +5443,11 @@ msgstr ""
 msgid "Minimum {minValue}."
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2397
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2399
 msgid "MiraPay direct settings"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2393
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2395
 msgid "MiraPay iframe settings"
 msgstr ""
 
@@ -5462,7 +5462,7 @@ msgstr ""
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:269
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:54
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:80
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:282
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:283
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:63
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:89
 msgid "Mode"
@@ -5513,14 +5513,14 @@ msgstr ""
 msgid "Must be numeric."
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:325
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:341
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:357
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:372
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:388
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:404
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:420
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:436
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:326
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:342
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:358
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:373
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:389
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:405
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:421
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:437
 msgid "N"
 msgstr ""
 
@@ -6686,8 +6686,8 @@ msgstr ""
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationScans.js:195
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:929
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:978
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:1042
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:993
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:1043
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:994
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationWebServices.js:32
 # html/pfappserver/root/static.alt/src/views/Configuration/_components/DomainsList.vue:45
 # html/pfappserver/root/static.alt/src/views/Login/index.vue:16
@@ -6971,32 +6971,32 @@ msgid "Priority"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:735
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:799
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:800
 msgid "Priv Password Read"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:867
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:931
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:932
 msgid "Priv Password Trap"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:790
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:854
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:855
 msgid "Priv Password Write"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:724
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:788
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:789
 msgid "Priv Protocol Read"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:856
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:920
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:921
 msgid "Priv Protocol Trap"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:779
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:843
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:844
 msgid "Priv Protocol Write"
 msgstr ""
 
@@ -7165,7 +7165,7 @@ msgid "Quote Character"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:628
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:692
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:693
 # html/pfappserver/root/static.alt/src/views/Status/_components/Dashboard.vue:282
 msgid "RADIUS"
 msgstr ""
@@ -7701,22 +7701,22 @@ msgid "Role Name"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:523
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:579
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:580
 msgid "Role by Access List"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:491
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:543
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:544
 msgid "Role by Switch Role"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:459
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:507
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:508
 msgid "Role by VLAN ID"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:560
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:620
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:621
 msgid "Role by Web Auth URL"
 msgstr ""
 
@@ -7738,22 +7738,22 @@ msgid "Role exists."
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:521
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:577
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:578
 msgid "Role mapping by Access List"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:489
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:541
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:542
 msgid "Role mapping by Switch Role"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:457
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:505
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:506
 msgid "Role mapping by VLAN ID"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:558
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:618
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:619
 msgid "Role mapping by Web Auth URL"
 msgstr ""
 
@@ -7772,7 +7772,7 @@ msgstr ""
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationProvisionings.js:267
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationScans.js:337
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:455
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:503
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:504
 # html/pfappserver/root/static.alt/src/views/Configuration/_components/RolesList.vue:7
 # html/pfappserver/root/static.alt/src/views/Configuration/index.vue:29
 msgid "Roles"
@@ -7909,7 +7909,7 @@ msgid "SNAT Interface"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:644
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:708
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:709
 # html/pfappserver/root/static.alt/src/views/Configuration/_components/SnmpTrapView.vue:13
 # html/pfappserver/root/static.alt/src/views/Configuration/index.vue:121
 msgid "SNMP"
@@ -8325,7 +8325,7 @@ msgid "Secret"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:631
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:695
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:696
 msgid "Secret Passphrase"
 msgstr ""
 
@@ -8398,7 +8398,7 @@ msgstr ""
 msgid "Security Protocol 1X"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/views/Configuration/_components/SecurityEventsList.vue:92
+# html/pfappserver/root/static.alt/src/views/Configuration/_components/SecurityEventsList.vue:94
 msgid "Security event <strong>{desc}</strong> disabled."
 msgstr ""
 
@@ -8484,12 +8484,12 @@ msgid "Select attribute"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:608
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:672
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:673
 msgid "Select condition type"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:609
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:673
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:674
 msgid "Select condition value"
 msgstr ""
 
@@ -8666,7 +8666,7 @@ msgid "Session ID"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:597
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:661
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:662
 msgid "Set inline mode if any of the conditions are met."
 msgstr ""
 
@@ -8941,12 +8941,12 @@ msgid "Skippable"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:890
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:954
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:955
 msgid "Sleep interval"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:891
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:955
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:956
 msgid "Sleep interval between queries of MAC addresses."
 msgstr ""
 
@@ -9118,7 +9118,7 @@ msgid "State for the certificate."
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:399
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:447
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:448
 msgid "Static Uplinks"
 msgstr ""
 
@@ -9272,7 +9272,7 @@ msgstr ""
 
 # html/pfappserver/root/static.alt/src/components/pfFormSecurityEventTrigger.vue:88
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationConnectionProfiles.js:154
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:293
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:294
 msgid "Switch Group"
 msgstr ""
 
@@ -10098,8 +10098,8 @@ msgstr ""
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationFirewalls.js:205
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:907
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:956
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:1020
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:971
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:1021
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:972
 msgid "Transport"
 msgstr ""
 
@@ -10339,7 +10339,7 @@ msgid "Uplaod File"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:410
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:458
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:459
 msgid "Uplinks required."
 msgstr ""
 
@@ -10384,12 +10384,12 @@ msgid "Usage"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:291
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:315
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:316
 msgid "Use CoA"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:292
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:316
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:317
 msgid "Use CoA when available to deauthenticate the user. When disabled, RADIUS Disconnect will be used instead if it is available."
 msgstr ""
 
@@ -10402,7 +10402,7 @@ msgid "Use Time Balance"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:418
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:466
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:467
 msgid "Use instead this IP address for de-authentication requests. Normally used for Wi-Fi only."
 msgstr ""
 
@@ -10469,17 +10469,17 @@ msgid "User Name"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:691
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:755
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:756
 msgid "User Name Read"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:823
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:887
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:888
 msgid "User Name Trap"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:746
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:810
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:811
 msgid "User Name Write"
 msgstr ""
 
@@ -10508,8 +10508,8 @@ msgstr ""
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationScans.js:172
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:918
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:967
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:1031
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:982
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:1032
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:983
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationWebServices.js:20
 # html/pfappserver/root/static.alt/src/globals/pfReports.js:459
 # html/pfappserver/root/static.alt/src/views/Configuration/_components/DomainsList.vue:43
@@ -10605,7 +10605,7 @@ msgid "VLAN required."
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:330
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:363
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:364
 # html/pfappserver/root/static.alt/src/globals/pfReports.js:480
 msgid "VOIP"
 msgstr ""
@@ -10723,13 +10723,13 @@ msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationFingerbank.js:673
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:647
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:711
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:712
 # html/pfappserver/root/static.alt/src/views/Nodes/_components/NodeView.vue:168
 msgid "Version"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:801
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:865
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:866
 msgid "Version Trap"
 msgstr ""
 
@@ -10760,17 +10760,17 @@ msgid "VoIP"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:355
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:394
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:395
 msgid "VoIPCDPDetect"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:368
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:410
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:411
 msgid "VoIPDHCPDetect"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:342
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:378
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:379
 msgid "VoIPLLDPDetect"
 msgstr ""
 
@@ -10847,7 +10847,7 @@ msgid "Wait for redirect"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:953
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:1017
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:1018
 # html/pfappserver/root/static.alt/src/views/Configuration/_components/WebServicesView.vue:13
 # html/pfappserver/root/static.alt/src/views/Configuration/index.vue:83
 msgid "Web Services"
@@ -11085,14 +11085,14 @@ msgstr ""
 msgid "Workphone number"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:325
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:341
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:357
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:372
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:388
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:404
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:420
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:436
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:326
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:342
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:358
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:373
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:389
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:405
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:421
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:437
 msgid "Y"
 msgstr ""
 
@@ -11263,10 +11263,10 @@ msgstr ""
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:505
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:537
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:574
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:525
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:561
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:597
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:638
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:526
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:562
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:598
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:639
 msgid "inline"
 msgstr ""
 
@@ -11278,10 +11278,10 @@ msgstr ""
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:504
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:536
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:573
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:523
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:559
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:595
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:636
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:524
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:560
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:596
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:637
 msgid "isolation"
 msgstr ""
 
@@ -11289,10 +11289,10 @@ msgstr ""
 msgid "keepalived"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:524
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:560
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:596
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:637
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:525
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:561
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:597
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:638
 msgid "macDetection"
 msgstr ""
 
@@ -11449,10 +11449,10 @@ msgstr ""
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:503
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:535
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:572
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:522
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:558
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:594
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:635
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:523
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:559
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:595
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:636
 msgid "registration"
 msgstr ""
 
