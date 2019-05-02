@@ -25,14 +25,14 @@
       v-model="items"
       :options="{ handle: '.draghandle', dragClass: 'dragclass' }"
       @start="onDraggable('start', $event)"
-      @add="onDraggable('start', $event)"
+      @add="onDraggable('add', $event)"
       @remove="onDraggable('remove', $event)"
       @update="onDraggable('update', $event)"
       @end="onDraggable('end', $event)"
       @choose="onDraggable('choose', $event)"
       @sort="onDraggable('sort', $event)"
       @filter="onDraggable('filter', $event)"
-      @clone="onDraggable('clones', $event)"
+      @clone="onDraggable('clone', $event)"
     >
       <b-row v-for="(item, itemIndex) in items" :key="itemIndex"
         class="pfTableSortableRow"
@@ -47,10 +47,8 @@
             {{ itemIndex + 1 }}
           </template>
         </b-col>
-        <b-col v-for="(field, fieldIndex) in visibleFields" :key="fieldIndex"
-          @click="clickRow(item)"
-        >
-          <slot :name="field.key" v-bind="item">{{ item[field.key] }}</slot>
+        <b-col v-for="(field, fieldIndex) in visibleFields" :key="fieldIndex" @click.stop="clickRow(item)">
+          <slot :name="field.key" v-bind="{ item }">{{ item[field.key] }}</slot>
         </b-col>
       </b-row>
     </draggable>
@@ -98,7 +96,7 @@ export default {
   },
   data () {
     return {
-      hoverIndex: null, // true onmouseover
+      hoverIndex: null, // row index onmouseover
       drag: false // true ondrag
     }
   },

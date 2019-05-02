@@ -81,7 +81,7 @@ export default {
   },
   sortAuthenticationSources: data => {
     return apiCall.patch('config/sources/sort_items', data).then(response => {
-        return response
+      return response
     })
   },
   testAuthenticationSource: data => {
@@ -186,6 +186,11 @@ export default {
   },
   deleteConnectionProfile: id => {
     return apiCall.delete(`config/connection_profile/${id}`)
+  },
+  sortConnectionProfiles: data => {
+    return apiCall.patch('config/connection_profiles/sort_items', data).then(response => {
+      return response
+    })
   },
 
   /**

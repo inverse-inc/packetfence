@@ -3,6 +3,8 @@
     <pf-config-list
       ref="pfConfigList"
       :config="config"
+      :sortable="true"
+      @sort="sort"
     >
       <template slot="pageHeader">
         <b-card-header><h4 class="mb-0" v-t="'Connection Profiles'"></h4></b-card-header>
@@ -16,7 +18,7 @@
       <template slot="buttons" slot-scope="item">
         <span class="float-right text-nowrap">
           <pf-button-delete size="sm" v-if="!item.not_deletable" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete Connection Profile?')" @on-delete="remove(item)" reverse/>
-          <b-button size="sm" variant="outline-secondary" class="mr-1" :href="`/portal_preview/captive-portal?PORTAL=${item.id}`" target="_blank">{{ $t('Preview') }} <icon class="ml-1" name="external-link-alt"></icon></b-button>
+          <b-button size="sm" variant="outline-secondary" class="mr-1" @click.stop.prevent="preview(item)">{{ $t('Preview') }} <icon class="ml-1" name="external-link-alt"></icon></b-button>
           <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(item)">{{ $t('Clone') }}</b-button>
         </span>
       </template>
@@ -77,6 +79,9 @@ export default {
     }
   },
   methods: {
+    preview (item) {
+      window.open(`/portal_preview/captive-portal?PORTAL=${item.id}`, '_blank');
+    },
     clone (item) {
       this.$router.push({ name: 'cloneConnectionProfile', params: { id: item.id } })
     },
@@ -98,6 +103,9 @@ export default {
           })
           break
       }
+    },
+    sort (items) {
+      this.$store.dispatch(`${this.storeName}/sortConnectionProfiles`, items.map(item => item.id))
     }
   }
 }
