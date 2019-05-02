@@ -58,6 +58,24 @@ export const pfConfigurationAuthenticationSourcesListColumns = [
   }
 ]
 
+export const pfConfigurationAuthenticationSourcesListFields = [
+  {
+    value: 'id',
+    text: i18n.t('Name'),
+    types: [conditionType.SUBSTRING]
+  },
+  {
+    value: 'description',
+    text: i18n.t('Description'),
+    types: [conditionType.SUBSTRING]
+  },
+  {
+    value: 'type',
+    text: i18n.t('Type'),
+    types: [conditionType.SUBSTRING]
+  }
+]
+
 export const pfConfigurationAuthenticationSourceListConfig = (context = {}) => {
   return {
     columns: pfConfigurationAuthenticationSourcesListColumns,
