@@ -24,13 +24,18 @@ const getters = {
 }
 
 const actions = {
-  all: () => {
+  all: ({ commit }) => {
     const params = {
       sort: 'id',
-      fields: ['id', 'description', 'class'].join(',')
+      fields: ['id', 'description', 'type', 'class'].join(',')
     }
+    commit('ITEM_REQUEST')
     return api.authenticationSources(params).then(response => {
+      commit('ITEM_SUCCESS')
       return response.items
+    }).catch((err) => {
+      commit('ITEM_ERROR', err.response)
+      throw err
     })
   },
   optionsById: ({ commit }, id) => {
@@ -100,6 +105,19 @@ const actions = {
     commit('ITEM_REQUEST', types.DELETING)
     return api.deleteAuthenticationSource(data).then(response => {
       commit('ITEM_DESTROYED', data)
+      return response
+    }).catch(err => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
+  },
+  sortAuthenticationSources: ({ commit }, data) => {
+    const params = {
+      items: data
+    }
+    commit('ITEM_REQUEST', types.DELETING)
+    return api.sortAuthenticationSources(params).then(response => {
+      commit('ITEM_SUCCESS')
       return response
     }).catch(err => {
       commit('ITEM_ERROR', err.response)

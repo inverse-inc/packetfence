@@ -79,6 +79,11 @@ export default {
   deleteAuthenticationSource: id => {
     return apiCall.delete(`config/source/${id}`)
   },
+  sortAuthenticationSources: data => {
+    return apiCall.patch('config/sources/sort_items', data).then(response => {
+        return response
+    })
+  },
   testAuthenticationSource: data => {
     return apiCall.post(`config/sources/test`, data).then(response => {
       return response
