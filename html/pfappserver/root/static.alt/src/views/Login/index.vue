@@ -28,6 +28,7 @@
 
 <script>
 import pfButtonSave from '@/components/pfButtonSave'
+
 export default {
   name: 'Login',
   components: {
@@ -76,7 +77,7 @@ export default {
         if (this.$route.params.previousPath) {
           this.$router.push(this.$route.params.previousPath)
         } else {
-          this.$router.push('/nodes') // TODO: let user choose default module
+          this.$router.push('/') // Go to the default/catch-all route
         }
       }, error => {
         if (error.response) {

@@ -3,8 +3,8 @@ import LoginStore from '../_store'
 import LoginView from '../'
 
 const route = {
-  path: '/',
-  alias: ['/login', '/logout', '/expire'],
+  path: '/login',
+  alias: ['/logout', '/expire'],
   name: 'login',
   component: LoginView,
   beforeEnter: (to, from, next) => {

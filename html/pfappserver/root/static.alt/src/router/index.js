@@ -12,6 +12,11 @@ import ConfigurationRoute from '@/views/Configuration/_router'
 
 Vue.use(Router)
 
+const DefaultRoute = {
+  path: '*',
+  redirect: '/status/dashboard'
+}
+
 let router = new Router({
   routes: [
     LoginRoute,
@@ -20,14 +25,15 @@ let router = new Router({
     AuditingRoute,
     NodesRoute,
     UsersRoute,
-    ConfigurationRoute
+    ConfigurationRoute,
+    DefaultRoute
   ]
 })
 
 router.beforeEach((to, from, next) => {
   /**
   * 1. Check if a matching route defines a transition delay
-  * 2. Hide the document scrollbar during the transition
+  * 2. Hide the document scrollbar during the transition (see bootstrap/scss/_modal.scss)
   */
   let transitionRoute = from.matched.find(route => {
     return route.meta.transitionDelay // [1]
@@ -43,7 +49,7 @@ router.beforeEach((to, from, next) => {
     store.dispatch('session/load').then(() => {
       next() // [3]
     }).catch(() => {
-      router.push('/') // [4]
+      router.push({ name: 'login' }) // [4]
       next()
     })
   } else {
