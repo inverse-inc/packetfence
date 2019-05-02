@@ -28,44 +28,44 @@
           class="mx-0 px-1 pf-form-field-component-container"
           @mouseleave="onMouseLeave()"
         >
-        <component
-          v-model="inputValue[index]"
-          v-bind="field.attrs"
-          v-on="field.listeners"
-          :is="field.component"
-          :key="uuids[index]"
-          :uuid="uuids[index]"
-          :vuelidate="getVuelidateModel(index)"
-          :ref="'component-' + index"
-          :drag="drag"
-          :disabled="disabled"
-          @validations="setChildValidations(index, $event)"
-          @mouseenter="onMouseEnter(index)"
-          @mousemove="onMouseEnter(index)"
-          @siblings="onSiblings($event)"
-          no-gutter
-          class="m-1"
-        >
-          <template slot="prepend">
-            <div class="draghandle" v-if="sortable && !disabled && hover === index && inputValue.length > 1">
-              <icon name="th" v-b-tooltip.hover.left.d300 :title="$t('Click and drag to re-order')"></icon>
-            </div>
-            <div v-else>
-              {{ index + 1 }}
-            </div>
-          </template>
-          <template slot="append">
-            <icon name="minus-circle" v-if="canDel"
-              :class="['cursor-pointer mx-1', { 'text-primary': ctrlKey, 'text-secondary': !ctrlKey }]"
-              v-b-tooltip.hover.left.d300
-              :title="ctrlKey ? $t('Delete All') : $t('Delete Row')"
-              @click.native.stop.prevent="rowDel(index)"></icon>
-            <icon name="plus-circle" v-if="canAdd"
-              :class="['cursor-pointer mx-1', { 'text-primary': ctrlKey, 'text-secondary': !ctrlKey }]"
-              v-b-tooltip.hover.left.d300 :title="ctrlKey ? $t('Clone Row') : $t('Add Row')"
-              @click.native.stop.prevent="rowAdd(index + 1)"></icon>
-          </template>
-        </component>
+          <component
+            v-model="inputValue[index]"
+            v-bind="field.attrs"
+            v-on="field.listeners"
+            :is="field.component"
+            :key="uuids[index]"
+            :uuid="uuids[index]"
+            :vuelidate="getVuelidateModel(index)"
+            :ref="'component-' + index"
+            :drag="drag"
+            :disabled="disabled"
+            @validations="setChildValidations(index, $event)"
+            @mouseenter="onMouseEnter(index)"
+            @mousemove="onMouseEnter(index)"
+            @siblings="onSiblings($event)"
+            no-gutter
+            class="m-1"
+          >
+            <template slot="prepend">
+              <div class="draghandle" v-if="sortable && !disabled && hover === index && inputValue.length > 1">
+                <icon name="th" v-b-tooltip.hover.left.d300 :title="$t('Click and drag to re-order')"></icon>
+              </div>
+              <div v-else>
+                {{ index + 1 }}
+              </div>
+            </template>
+            <template slot="append">
+              <icon name="minus-circle" v-if="canDel"
+                :class="['cursor-pointer mx-1', { 'text-primary': ctrlKey, 'text-secondary': !ctrlKey }]"
+                v-b-tooltip.hover.left.d300
+                :title="ctrlKey ? $t('Delete All') : $t('Delete Row')"
+                @click.native.stop.prevent="rowDel(index)"></icon>
+              <icon name="plus-circle" v-if="canAdd"
+                :class="['cursor-pointer mx-1', { 'text-primary': ctrlKey, 'text-secondary': !ctrlKey }]"
+                v-b-tooltip.hover.left.d300 :title="ctrlKey ? $t('Clone Row') : $t('Add Row')"
+                @click.native.stop.prevent="rowAdd(index + 1)"></icon>
+            </template>
+          </component>
         </b-container>
       </draggable>
     </b-input-group>
