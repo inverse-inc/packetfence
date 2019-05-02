@@ -33,6 +33,7 @@ our @COLUMN_NAMES = (
     (map {"person.$_|$_"} @pf::dal::_person::FIELD_NAMES),
     (map {"password.$_|$_"} @PASSWORD_FIELDS),
     'password.sponsor|can_sponsor',
+    'password.category|category_id',
     'node_category.name|category',
 );
 
@@ -48,7 +49,7 @@ Join the node_category table information in the node results
 =cut
 
 sub find_from_tables {
-    [-join => qw(person =>{person.pid=password.pid} password =>{node_category.category_id=password.category} node_category)],
+    [-join => 'person', '=>{person.pid=password.pid,person.tenant_id=password.tenant_id}', qw(password =>{node_category.category_id=password.category} node_category)],
 }
 
 =head2 find_columns
@@ -62,7 +63,7 @@ sub find_columns {
 }
 
 sub to_hash_fields {
-    return [@pf::dal::_person::FIELD_NAMES, @PASSWORD_FIELDS, qw(can_sponsor nodes category)];
+    return [@pf::dal::_person::FIELD_NAMES, @PASSWORD_FIELDS, qw(can_sponsor nodes category category_id)];
 }
 
 =head1 AUTHOR
