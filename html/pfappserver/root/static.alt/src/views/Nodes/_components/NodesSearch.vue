@@ -410,24 +410,28 @@ export default {
           types: [conditionType.SECURITY_EVENT],
           icon: 'exclamation-triangle'
         },
+        /* TODO - #4166
         {
           value: 'security_event.open_count',
           text: this.$i18n.t('Security Event Open Count [Issue #3400]'),
           types: [conditionType.INTEGER],
           icon: 'exclamation-triangle'
         },
+        */
         {
           value: 'security_event.close_security_event_id',
           text: this.$i18n.t('Security Event Closed'),
           types: [conditionType.SECURITY_EVENT],
           icon: 'exclamation-circle'
         },
+        /* TODO - #4166
         {
           value: 'security_event.close_count',
           text: this.$i18n.t('Security Event Close Count [Issue #3400]'),
           types: [conditionType.INTEGER],
           icon: 'exclamation-circle'
         },
+        */
         {
           value: 'voip',
           text: this.$i18n.t('VoIP'),
@@ -727,6 +731,7 @@ export default {
           class: 'text-nowrap',
           formatter: formatter.securityEventIdsToDescCsv
         },
+        /* TODO - #4166
         {
           key: 'security_event.open_count',
           label: this.$i18n.t('Security Event Open Count'),
@@ -734,6 +739,7 @@ export default {
           visible: false,
           class: 'text-nowrap'
         },
+        */
         {
           key: 'security_event.close_security_event_id',
           label: this.$i18n.t('Security Event Closed'),
@@ -741,7 +747,8 @@ export default {
           visible: false,
           class: 'text-nowrap',
           formatter: formatter.securityEventIdsToDescCsv
-        },
+        }
+        /* TODO - #4166
         {
           key: 'security_event.close_count',
           label: this.$i18n.t('Security Event Closed Count'),
@@ -749,6 +756,7 @@ export default {
           visible: false,
           class: 'text-nowrap'
         }
+        */
       ],
       requestPage: 1,
       currentPage: 1,

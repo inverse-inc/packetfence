@@ -570,6 +570,7 @@ export default {
           class: 'text-nowrap',
           formatter: formatter.securityEventIdsToDescCsv
         },
+        /* TODO - #4166
         {
           key: 'security_event.open_count',
           label: this.$i18n.t('Security Event Open Count'),
@@ -577,6 +578,7 @@ export default {
           visible: false,
           class: 'text-nowrap'
         },
+        */
         {
           key: 'security_event.close_security_event_id',
           label: this.$i18n.t('Security Event Closed'),
@@ -584,7 +586,8 @@ export default {
           visible: false,
           class: 'text-nowrap',
           formatter: formatter.securityEventIdsToDescCsv
-        },
+        }
+        /* TODO - #4166
         {
           key: 'security_event.close_count',
           label: this.$i18n.t('Security Event Closed Count'),
@@ -592,6 +595,7 @@ export default {
           visible: false,
           class: 'text-nowrap'
         }
+        */
       ],
       nodeSortBy: 'status',
       nodeSortDesc: false,
