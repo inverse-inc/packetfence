@@ -262,7 +262,7 @@ apiCall.interceptors.response.use((response) => {
         console.warn(error.response.data)
         if (error.response.data.errors) {
           error.response.data.errors.forEach((err, errIndex) => {
-            let msg = `${err["field"]}: ${err["message"]}`
+            let msg = `${err['field']}: ${err['message']}`
             // eslint-disable-next-line
             console.warn(msg)
             store.dispatch('notification/danger', { icon, url: error.config.url, message: msg })

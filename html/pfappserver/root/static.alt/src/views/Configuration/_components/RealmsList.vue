@@ -8,11 +8,13 @@
     <template slot="emptySearch" slot-scope="state">
       <pf-empty-table :isLoading="state.isLoading">{{ $t('No realms found') }}</pf-empty-table>
     </template>
-    <template slot="buttons" slot-scope="item">
-      <span class="float-right text-nowrap">
-        <pf-button-delete size="sm" v-if="!item.not_deletable" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete Realm?')" @on-delete="remove(item)" reverse/>
-        <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(item)">{{ $t('Clone') }}</b-button>
-      </span>
+    <template slot="radius_auth" slot-scope="data">
+      <template v-if="data.radius_auth.length === 0">&nbsp;<!-- hide empty --></template>
+      <b-badge v-else v-for="(item, index) in data.radius_auth" :key="index" class="ml-2" variant="secondary">{{ item }}</b-badge>
+    </template>
+    <template slot="radius_acct" slot-scope="data">
+      <template v-if="data.radius_acct.length === 0">&nbsp;<!-- hide empty --></template>
+      <b-badge v-else v-for="(item, index) in data.radius_acct" :key="index" class="ml-2" variant="secondary">{{ item }}</b-badge>
     </template>
     <template slot="portal_strip_username" slot-scope="data">
       <icon name="circle" :class="{ 'text-success': data.portal_strip_username === 'enabled', 'text-danger': data.portal_strip_username === 'disabled' }"
@@ -25,6 +27,12 @@
     <template slot="radius_strip_username" slot-scope="data">
       <icon name="circle" :class="{ 'text-success': data.radius_strip_username === 'enabled', 'text-danger': data.radius_strip_username === 'disabled' }"
         v-b-tooltip.hover.left.d300 :title="$t(data.radius_strip_username)"></icon>
+    </template>
+    <template slot="buttons" slot-scope="item">
+      <span class="float-right text-nowrap">
+        <pf-button-delete size="sm" v-if="!item.not_deletable" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete Realm?')" @on-delete="remove(item)" reverse/>
+        <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(item)">{{ $t('Clone') }}</b-button>
+      </span>
     </template>
   </pf-config-list>
 </template>

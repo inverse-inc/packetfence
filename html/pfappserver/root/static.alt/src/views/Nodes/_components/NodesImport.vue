@@ -11,7 +11,7 @@
             <b-button-close class="ml-2 text-white" @click.stop.prevent="closeFile(index)" v-b-tooltip.hover.left.d300 :title="$t('Close File')"><icon name="times"></icon></b-button-close>
             {{ $t(file.name) }}
           </template>
-          <pf-csv-parse @input="onImport" :ref="'parser-' + index" :file="file" :fields="fields" :storeName="storeName" no-init-bind-keys></pf-csv-parse>
+          <pf-csv-parse @input="onImport" :ref="'parser-' + index" :file="file" :fields="fields" :storeName="storeName" :defaultStaticMapping="defaultStaticMapping" no-init-bind-keys></pf-csv-parse>
         </b-tab>
         <template slot="tabs">
           <pf-form-upload @load="files = $event" :multiple="true" :cumulative="true" accept="text/*, .csv">{{ $t('Open CSV File') }}</pf-form-upload>
@@ -76,6 +76,7 @@ export default {
       },
       files: [],
       tabIndex: 0,
+      defaultStaticMapping: [{ 'key': 'status', 'value': 'reg' }],
       fields: [
         {
           value: 'mac',
@@ -83,6 +84,13 @@ export default {
           types: [fieldType.SUBSTRING],
           required: true,
           validators: buildValidationFromColumnSchemas(schema.node.mac, { required })
+        },
+        {
+          value: 'status',
+          text: this.$i18n.t('Status'),
+          types: [fieldType.NODE_STATUS],
+          required: false,
+          validators: buildValidationFromColumnSchemas(schema.node.status)
         },
         {
           value: 'autoreg',

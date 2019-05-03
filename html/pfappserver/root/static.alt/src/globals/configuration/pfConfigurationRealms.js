@@ -34,6 +34,18 @@ export const pfConfigurationRealmsListColumns = [
     visible: true
   },
   {
+    key: 'radius_auth',
+    label: i18n.t('Radius Authentication'),
+    sortable: false,
+    visible: true
+  },
+  {
+    key: 'radius_acct',
+    label: i18n.t('Radius Accounting'),
+    sortable: false,
+    visible: true
+  },
+  {
     key: 'portal_strip_username',
     label: i18n.t('Strip Portal'),
     sortable: true,

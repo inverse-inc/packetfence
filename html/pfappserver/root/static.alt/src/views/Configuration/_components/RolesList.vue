@@ -15,7 +15,7 @@
       <template slot="buttons" slot-scope="item">
         <span class="float-right text-nowrap">
           <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(item)">{{ $t('Clone') }}</b-button>
-          <b-button size="sm" variant="outline-primary" class="mr-1" :to="trafficShapingRoute(item.id)">{{ $t('Traffic Shaping') }}</b-button>
+          <b-button v-if="isInline" size="sm" variant="outline-primary" class="mr-1" :to="trafficShapingRoute(item.id)">{{ $t('Traffic Shaping') }}</b-button>
         </span>
       </template>
     </pf-config-list>
@@ -48,6 +48,11 @@ export default {
     return {
       config: config(this),
       trafficShapingPolicies: []
+    }
+  },
+  computed: {
+    isInline () {
+      return this.$store.getters['system/isInline']
     }
   },
   methods: {

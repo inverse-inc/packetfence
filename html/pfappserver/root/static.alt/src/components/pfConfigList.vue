@@ -30,7 +30,25 @@
         </b-col>
       </b-row>
       <slot name="tableHeader"></slot>
-      <b-table class="table-clickable"
+
+      <pf-table-sortable v-if="sortable"
+        :items="items"
+        :fields="visibleColumns"
+        @row-clicked="onRowClick"
+        hover
+        striped
+        @end="sort"
+      >
+        <slot name="emptySearch" slot="empty" v-bind="{ isLoading }">
+          <pf-empty-table :isLoading="isLoading">{{ $t('No results found') }}</pf-empty-table>
+        </slot>
+        <!-- Proxy all possible column slots ([field]) into pf-table-sortable slots -->
+        <template v-for="column in config.columns" :slot="column.key" slot-scope="data">
+          <slot :name="column.key" v-bind="data.item">{{ data.item[column.key] }}</slot>
+        </template>
+      </pf-table-sortable>
+
+      <b-table class="table-clickable" v-else
         :items="items"
         :fields="visibleColumns"
         :sort-by="sortBy"
@@ -57,6 +75,7 @@
           <slot :name="'FOOT_' + column.key">{{ data.label }}</slot>
         </template>
       </b-table>
+
     </div>
   </div>
 </template>
@@ -65,6 +84,7 @@
 import pfMixinSearchable from '@/components/pfMixinSearchable'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import pfSearch from '@/components/pfSearch'
+import pfTableSortable from '@/components/pfTableSortable'
 
 export default {
   name: 'pf-config-list',
@@ -73,7 +93,8 @@ export default {
   ],
   components: {
     pfEmptyTable,
-    pfSearch
+    pfSearch,
+    pfTableSortable
   },
   props: {
     config: {
@@ -117,6 +138,10 @@ export default {
     tableValues: {
       type: Array,
       default: () => { return [] }
+    },
+    sortable: {
+      type: Boolean,
+      default: false
     }
   },
   computed: {
@@ -142,6 +167,24 @@ export default {
     },
     submitSearch () {
       this.$refs.pfSearch.onSubmit()
+    },
+    sort (event) {
+      let { oldIndex, newIndex } = event // shifted, not swapped
+      // adjust this.items
+      let tmp = this.items[oldIndex]
+      if (oldIndex > newIndex) {
+        // shift down (not swapped)
+        for (let i = oldIndex; i > newIndex; i--) {
+          this.items[i] = this.items[i - 1]
+        }
+      } else {
+        // shift up (not swapped)
+        for (let i = oldIndex; i < newIndex; i++) {
+          this.items[i] = this.items[i + 1]
+        }
+      }
+      this.items[newIndex] = tmp
+      this.$emit('sort', this.items[newIndex], this.items)
     }
   }
 }

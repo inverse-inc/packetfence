@@ -103,6 +103,19 @@ const actions = {
       throw err
     })
   },
+  sortConnectionProfiles: ({ commit }, data) => {
+    const params = {
+      items: data
+    }
+    commit('ITEM_REQUEST', types.DELETING)
+    return api.sortConnectionProfiles(params).then(response => {
+      commit('ITEM_SUCCESS')
+      return response
+    }).catch(err => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
+  },
   enableConnectionProfile: ({ commit }, data) => {
     commit('ITEM_REQUEST')
     const _data = { id: data.id, status: 'enabled' }

@@ -44,12 +44,6 @@ export const pfConfigurationAuthenticationSourcesListColumns = [
     visible: true
   },
   {
-    key: 'class',
-    label: i18n.t('Class'),
-    sortable: true,
-    visible: true
-  },
-  {
     key: 'type',
     label: i18n.t('Type'),
     sortable: true,
@@ -73,11 +67,6 @@ export const pfConfigurationAuthenticationSourcesListFields = [
   {
     value: 'description',
     text: i18n.t('Description'),
-    types: [conditionType.SUBSTRING]
-  },
-  {
-    value: 'class',
-    text: i18n.t('Class'),
     types: [conditionType.SUBSTRING]
   },
   {
@@ -1090,6 +1079,25 @@ export const pfConfigurationAuthenticationSourceFields = {
       ]
     }
   },
+  options: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Options'),
+      text: i18n.t('Define options for FreeRADIUS home_server definition (if you use the source in the realm configuration). Need a radius restart.'),
+      fields: [
+        {
+          key: 'options',
+          component: pfFormTextarea,
+          attrs: {
+            ...pfConfigurationAttributesFromMeta(meta, 'options'),
+            ...{
+              rows: 3
+            }
+          },
+          validators: pfConfigurationValidatorsFromMeta(meta, 'options', 'Options')
+        }
+      ]
+    }
+  },
   password: ({ $store = {}, form = {}, options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Password'),
@@ -1212,6 +1220,20 @@ export const pfConfigurationAuthenticationSourceFields = {
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'pin_code_length'),
           validators: pfConfigurationValidatorsFromMeta(meta, 'pin_code_length', 'Length')
+        }
+      ]
+    }
+  },
+  port: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Port'),
+      text: i18n.t('If you use this source in the realm configuration the accounting port will be this port + 1.'),
+      fields: [
+        {
+          key: 'port',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'port'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'path', 'Port')
         }
       ]
     }
@@ -1843,6 +1865,19 @@ export const pfConfigurationAuthenticationSourceViewFields = (context) => {
           ]
         }
       ]
+    case 'Authorization':
+      return [
+        {
+          tab: null, // ignore tabs
+          fields: [
+            pfConfigurationAuthenticationSourceFields.id(context),
+            pfConfigurationAuthenticationSourceFields.description(context),
+            { ...pfConfigurationAuthenticationSourceFields.realms(context), ...{ text: i18n.t('Realms that will be associated with this source (For the Portal/Admin GUI/RADIUS post-auth, not for FreeRADIUS proxy).') } },
+            pfConfigurationAuthenticationSourceFields.authentication_rules(context),
+            pfConfigurationAuthenticationSourceFields.administration_rules(context)
+          ]
+        }
+      ]
     case 'EAPTLS':
       return [
         {
@@ -1952,9 +1987,11 @@ export const pfConfigurationAuthenticationSourceViewFields = (context) => {
             pfConfigurationAuthenticationSourceFields.id(context),
             pfConfigurationAuthenticationSourceFields.description(context),
             pfConfigurationAuthenticationSourceFields.host(context),
+            pfConfigurationAuthenticationSourceFields.port(context),
             pfConfigurationAuthenticationSourceFields.secret(context),
             pfConfigurationAuthenticationSourceFields.timeout(context),
             pfConfigurationAuthenticationSourceFields.monitor(context),
+            pfConfigurationAuthenticationSourceFields.options(context),
             pfConfigurationAuthenticationSourceFields.realms(context),
             pfConfigurationAuthenticationSourceFields.authentication_rules(context),
             pfConfigurationAuthenticationSourceFields.administration_rules(context)

@@ -559,6 +559,9 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
                 invalidFeedback: [
                   { [i18n.t('Filter(s) contain one or more errors.')]: true }
                 ]
+              },
+              validators: {
+                [i18n.t('Filter or advanced filter required.')]: not(and(conditional(!form.filter), conditional(!form.advanced_filter)))
               }
             }
           ]
@@ -576,7 +579,12 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
                   rows: 3
                 }
               },
-              validators: pfConfigurationValidatorsFromMeta(meta, 'advanced_filter')
+              validators: {
+                ...pfConfigurationValidatorsFromMeta(meta, 'advanced_filter'),
+                ...{
+                  [i18n.t('Filter or advanced filter required.')]: not(and(conditional(!form.filter), conditional(!form.advanced_filter)))
+                }
+              }
             }
           ]
         },
@@ -595,8 +603,18 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
                   attrs: {
                     field: {
                       component: pfFormChosen,
-                      attrs: pfConfigurationAttributesFromMeta(meta, 'sources'),
-                      validators: pfConfigurationValidatorsFromMeta(meta, 'sources')
+                      attrs: {
+                        ...pfConfigurationAttributesFromMeta(meta, 'sources'),
+                        ...{ multiple: false, closeOnSelect: true }
+                      },
+                      validators: {
+                        ...pfConfigurationValidatorsFromMeta(meta, 'sources'),
+                        ...{
+                          [i18n.t('Duplicate source.')]: conditional((value) => {
+                            return !(form.sources.filter(v => v === value).length > 1)
+                          })
+                        }
+                      }
                     }
                   }
                 },
@@ -622,8 +640,18 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
                   attrs: {
                     field: {
                       component: pfFormChosen,
-                      attrs: pfConfigurationAttributesFromMeta(meta, 'billing_tiers'),
-                      validators: pfConfigurationValidatorsFromMeta(meta, 'billing_tiers')
+                      attrs: {
+                        ...pfConfigurationAttributesFromMeta(meta, 'billing_tiers'),
+                        ...{ multiple: false, closeOnSelect: true }
+                      },
+                      validators: {
+                        ...pfConfigurationValidatorsFromMeta(meta, 'billing_tiers'),
+                        ...{
+                          [i18n.t('Duplicate billing tier.')]: conditional((value) => {
+                            return !(form.billing_tiers.filter(v => v === value).length > 1)
+                          })
+                        }
+                      }
                     }
                   }
                 },
@@ -649,8 +677,18 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
                   attrs: {
                     field: {
                       component: pfFormChosen,
-                      attrs: pfConfigurationAttributesFromMeta(meta, 'provisioners'),
-                      validators: pfConfigurationValidatorsFromMeta(meta, 'provisioners')
+                      attrs: {
+                        ...pfConfigurationAttributesFromMeta(meta, 'provisioners'),
+                        ...{ multiple: false, closeOnSelect: true }
+                      },
+                      validators: {
+                        ...pfConfigurationValidatorsFromMeta(meta, 'provisioners'),
+                        ...{
+                          [i18n.t('Duplicate provisioner.')]: conditional((value) => {
+                            return !(form.provisioners.filter(v => v === value).length > 1)
+                          })
+                        }
+                      }
                     }
                   }
                 },
@@ -676,8 +714,18 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
                   attrs: {
                     field: {
                       component: pfFormChosen,
-                      attrs: pfConfigurationAttributesFromMeta(meta, 'scans'),
-                      validators: pfConfigurationValidatorsFromMeta(meta, 'scans')
+                      attrs: {
+                        ...pfConfigurationAttributesFromMeta(meta, 'scans'),
+                        ...{ multiple: false, closeOnSelect: true }
+                      },
+                      validators: {
+                        ...pfConfigurationValidatorsFromMeta(meta, 'scans'),
+                        ...{
+                          [i18n.t('Duplicate scan.')]: conditional((value) => {
+                            return !(form.scans.filter(v => v === value).length > 1)
+                          })
+                        }
+                      }
                     }
                   }
                 },

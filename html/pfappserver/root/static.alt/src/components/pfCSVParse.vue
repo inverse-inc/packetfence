@@ -203,6 +203,17 @@
                     collapse-object
                     ></pf-form-chosen>
 
+                    <!-- BEGIN NODE_STATUS -->
+                    <pf-form-chosen v-else-if="isFieldType(nodeStatusValueType, staticMapping[index])"
+                    :value="staticMapping[index].value"
+                    label="name"
+                    track-by="value"
+                    :options="fieldTypeValues[nodeStatusValueType]()"
+                    :vuelidate="$v.staticMapping[index].value"
+                    @input="staticMapping[index].value = $event"
+                    collapse-object
+                    ></pf-form-chosen>
+
                     <!-- BEGIN ROLE -->
                     <pf-form-chosen v-else-if="isFieldType(roleValueType, staticMapping[index])"
                     :value="staticMapping[index].value"
@@ -348,7 +359,12 @@ export default {
     theme: {
       type: String,
       default: 'cobalt'
+    },
+    defaultStaticMapping: {
+      type: Array,
+      default: () => { return [] }
     }
+
   },
   data () {
     return {
@@ -364,6 +380,7 @@ export default {
       datetimeValueType:         fieldType.DATETIME,
       prefixmultiplierValueType: fieldType.PREFIXMULTIPLIER,
       genderValueType:           fieldType.GENDER,
+      nodeStatusValueType:       fieldType.NODE_STATUS,
       roleValueType:             fieldType.ROLE,
       sourceValueType:           fieldType.SOURCE,
       yesnoValueType:            fieldType.YESNO,
@@ -498,7 +515,7 @@ export default {
           // setup null placeholders in tableMapping Array
           _this.tableMapping = new Array(_this.meta.fields.length).fill(null)
           // init staticMapping
-          _this.staticMapping = []
+          _this.staticMapping = _this.defaultStaticMapping
           // clear selectValues artifacts
           _this.selectValues = []
         },
