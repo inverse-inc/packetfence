@@ -65,7 +65,6 @@ sub _build_launcher {
     }
 }
 
-
 sub print_status {
     my ($self) = @_;
     my $logger = get_logger();
@@ -89,9 +88,12 @@ sub print_status {
                 $isManaged = $FALSE;
             } else {
                 @manager = grep { $_->name eq $main_service } pf::services::getManagers(\@service);
-                next unless(defined($manager[0])); 
-                $pid = $manager[0]->pid;
-                $isManaged = $manager[0]->isManaged;
+                if (defined($manager[0])) {
+                    $pid = $manager[0]->pid;
+                    $isManaged = $manager[0]->isManaged;
+                } else {
+                    $isManaged = $FALSE;
+                }
             }
             my $active = `systemctl is-active $service`;
             chomp $active;
@@ -99,11 +101,17 @@ sub print_status {
             if ($active =~ /(failed|inactive)/) {
                 if (@manager && $isManaged && !$manager[0]->optional) {
                     print "$service\t$colors->{error}stopped   ${pid}$colors->{reset}\n";
+                } elsif (!$isManaged) {
+                    print "$service\t$colors->{disabled}disabled  ${pid}$colors->{reset}\n";
                 } else {
                     print "$service\t$colors->{warning}stopped   ${pid}$colors->{reset}\n";
                 }
             } else {
-                print "$service\t$colors->{success}started   ${pid}$colors->{reset}\n";
+                if ($isManaged) {
+                    print "$service\t$colors->{success}started   ${pid}$colors->{reset}\n";
+                } else {
+                    print "$service\t$colors->{info}started   ${pid}$colors->{reset}\n";
+                }
             }
             $pid = 0;
         } elsif ($output =~ /(packetfence-(.+)\.service)\s+disabled/) {
