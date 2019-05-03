@@ -34,9 +34,12 @@ const {
 export const pfConfigurationOptionsSearchFunction = (context) => {
   const { field_name: fieldName, value_name: valueName, search_path: url } = context
   return function (chosen, query) {
-    let currentOptions = (chosen.multiple) // cache current value
-      ? chosen.options.filter(option => chosen.value.includes(option[chosen.trackBy])) // multiple
-      : chosen.options.find(option => option[chosen.trackBy] === chosen.value) // single
+    let currentOptions = []
+    if (chosen.value) {
+      currentOptions = (chosen.multiple) // cache current value
+        ? chosen.options.filter(option => chosen.value.includes(option[chosen.trackBy])) // multiple
+        : chosen.options.find(option => option[chosen.trackBy] === chosen.value) // single
+    }
     if (!query) return currentOptions
     if (!chosen.optionsSearchFunctionInitialized) { // first query - presearch current value
       return apiCall.request({
