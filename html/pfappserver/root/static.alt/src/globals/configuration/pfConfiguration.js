@@ -141,6 +141,12 @@ export const pfConfigurationDefaultsFromMeta = (meta = {}) => {
   Object.keys(meta).forEach(key => {
     if ('properties' in meta[key]) { // handle dot-notation keys ('.')
       Object.keys(meta[key].properties).forEach(property => {
+        if (!(key in defaults)) {
+          defaults[key] = {}
+        }
+        // default w/ object
+        defaults[key][property] = meta[key].properties[property].default
+        // default w/ dot separator ('.')
         defaults[`${key}.${property}`] = meta[key].properties[property].default
       })
     } else {
