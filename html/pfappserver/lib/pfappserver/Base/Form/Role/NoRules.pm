@@ -1,23 +1,28 @@
-package pfappserver::Form::Config::Source::Blackhole;
+package pfappserver::Base::Form::Role::NoRules;
 
 =head1 NAME
 
-pfappserver::Form::Config::Source::Blackhole
-
-=cut
+pfappserver::Base::Form::Role::NoRules -
 
 =head1 DESCRIPTION
 
-Form definition to create or update an Blackhole authentication source.
+pfappserver::Base::Form::Role::NoRules
 
 =cut
 
 use strict;
 use warnings;
-use HTML::FormHandler::Moose;
-extends 'pfappserver::Form::Config::Source';
-with 'pfappserver::Base::Form::Role::NoRules';
+use HTML::FormHandler::Moose::Role;
+use pf::Authentication::constants;
+for my $type ($Rules::AUTH, $Rules::ADMIN) {
+    has_field "+${type}_rules" => (
+        'inactive' => 1,
+    );
 
+    has_field "+${type}_rules.contains" => (
+        'inactive' => 1,
+    );
+}
 
 =head1 AUTHOR
 
@@ -47,3 +52,4 @@ USA.
 =cut
 
 1;
+

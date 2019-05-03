@@ -14,7 +14,12 @@ use pf::person;
 use HTML::FormHandler::Moose;
 use pf::Authentication::Source::PotdSource;
 extends 'pfappserver::Form::Config::Source';
-with 'pfappserver::Base::Form::Role::Help', 'pfappserver::Base::Form::Role::InternalSource','pfappserver::Base::Form::Role::PasswordLength';
+with qw(
+    pfappserver::Base::Form::Role::Help
+    pfappserver::Base::Form::Role::InternalSource
+    pfappserver::Base::Form::Role::PasswordLength
+    pfappserver::Base::Form::Role::NoRules
+);
 
 # Form fields
 has_field 'id' =>
@@ -60,6 +65,16 @@ has_field 'password_email_update' => (
         help            => "Email addresses to send the new generated password.",
     },
 );
+
+for my $type ($Rules::AUTH, $Rules::ADMIN) {
+    has_field "+${type}_rules" => (
+        'inactive' => 1,
+    );
+
+    has_field "+${type}_rules.contains" => (
+        'inactive' => 1,
+    );
+}
 
 =head1 COPYRIGHT
 

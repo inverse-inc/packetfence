@@ -13,7 +13,11 @@ Form definition to create or update a HTTP user source.
 use HTML::FormHandler::Moose;
 use pf::Authentication::Source::HTTPSource;
 extends 'pfappserver::Form::Config::Source';
-with 'pfappserver::Base::Form::Role::Help', 'pfappserver::Base::Form::Role::InternalSource';
+with qw(
+    pfappserver::Base::Form::Role::Help
+    pfappserver::Base::Form::Role::InternalSource
+    pfappserver::Base::Form::Role::NoRules
+);
 
 # Form fields
 has_field 'host' =>

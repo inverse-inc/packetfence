@@ -13,7 +13,10 @@ Form definition to create or update a SAML user source.
 use pf::authentication;
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Source';
-with 'pfappserver::Base::Form::Role::Help';
+with qw(
+    pfappserver::Base::Form::Role::Help
+    pfappserver::Base::Form::Role::NoRules
+);
 
 # Form fields
 
