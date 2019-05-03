@@ -184,7 +184,7 @@ export default {
         }
       }
       this.items[newIndex] = tmp
-      this.$emit('sort', this.items)
+      this.$emit('sort', this.items[newIndex], this.items)
     }
   }
 }

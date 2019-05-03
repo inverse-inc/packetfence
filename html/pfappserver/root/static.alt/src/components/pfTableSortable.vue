@@ -117,6 +117,14 @@ export default {
       this.hoverIndex = null
     },
     onDraggable (type, event) {
+      switch (type) {
+        case 'start':
+          this.drag = true
+          break
+        case 'end':
+          this.drag = false
+          break
+      }
       this.$emit(type, event)
     }
   }

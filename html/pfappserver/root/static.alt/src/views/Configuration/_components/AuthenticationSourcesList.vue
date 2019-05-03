@@ -219,7 +219,9 @@ export default {
         }
       }
       sources[newIndex] = tmp
-      this.$store.dispatch(`${this.storeName}/sortAuthenticationSources`, sources.map(source => source.id))
+      this.$store.dispatch(`${this.storeName}/sortAuthenticationSources`, sources.map(source => source.id)).then(response => {
+        this.$store.dispatch('notification/info', { message: this.$i18n.t('Authentication source <code>{id}</code> resorted.', { id: sources[newIndex].id }) })
+      })
     },
     onRowClick (item, index) {
       this.$router.push(this.config.rowClickRoute(item, index))
