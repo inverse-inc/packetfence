@@ -1622,6 +1622,8 @@ setup_api_v1_fingerbank_routes
 
 sub setup_api_v1_fingerbank_routes {
     my ($self, $root) = @_;
+    $root->any(['GET'] => '/account_info')->to("Fingerbank#account_info")->name("api.v1.Fingerbank.account_info");
+
     my $upstream = $root->any("/upstream")->to(scope => "Upstream")->name( $root->name . ".Upstream");
     my $local_route = $root->any("/local")->to(scope => "Local")->name( $root->name . ".Local");
     my $all_route = $root->any("/all")->to(scope => "All")->name( $root->name . ".All");

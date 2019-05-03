@@ -12,11 +12,12 @@ pf::UnifiedApi::Controller::Fingerbank
 
 use strict;
 use warnings;
-use pf::error qw(is_error);
+use pf::error qw(is_error is_success);
 use pf::util qw(expand_csv);
 use Mojo::Base 'pf::UnifiedApi::Controller::RestRoute';
 use Mojo::Util qw(url_unescape);
 use pf::UnifiedApi::Search::Builder::Fingerbank;
+use fingerbank::API;
 
 =head2 url_param_name
 
@@ -51,6 +52,19 @@ search_builder_class
 
 has 'search_builder_class' => "pf::UnifiedApi::Search::Builder::Fingerbank";
 
+sub account_info {
+    my ($self) = @_;
+    my $api = fingerbank::API->new_from_config;
+
+    my ($status, $account_info) = $api->account_info();
+    if(is_success($status)) {
+        $self->render(json => $account_info, status => 200);
+    }
+    else {
+        my $msg = $status eq 404 ? "Cannot find Fingerbank account" : $account_info;
+        $self->render_error($status, $msg);
+    }
+}
 
 sub resource {
     my ($self) = @_;
