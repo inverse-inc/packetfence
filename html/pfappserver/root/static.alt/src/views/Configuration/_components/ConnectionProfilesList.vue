@@ -80,7 +80,7 @@ export default {
   },
   methods: {
     preview (item) {
-      window.open(`/portal_preview/captive-portal?PORTAL=${item.id}`, '_blank');
+      window.open(`/portal_preview/captive-portal?PORTAL=${item.id}`, '_blank')
     },
     clone (item) {
       this.$router.push({ name: 'cloneConnectionProfile', params: { id: item.id } })

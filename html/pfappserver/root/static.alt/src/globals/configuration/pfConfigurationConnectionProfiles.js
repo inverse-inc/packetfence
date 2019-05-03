@@ -581,7 +581,7 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
               },
               validators: {
                 ...pfConfigurationValidatorsFromMeta(meta, 'advanced_filter'),
-                ... {
+                ...{
                   [i18n.t('Filter or advanced filter required.')]: not(and(conditional(!form.filter), conditional(!form.advanced_filter)))
                 }
               }

@@ -76,7 +76,7 @@ export default {
       },
       files: [],
       tabIndex: 0,
-      defaultStaticMapping: [{ "key": "status", "value": "reg" }],
+      defaultStaticMapping: [{ 'key': 'status', 'value': 'reg' }],
       fields: [
         {
           value: 'mac',
