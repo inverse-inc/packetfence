@@ -5,7 +5,6 @@
     <template slot="buttonAdd">
       <b-dropdown :text="$t('New Switch')" variant="outline-primary">
         <b-dropdown-header class="text-secondary">{{ $t('To group') }}</b-dropdown-header>
-          <b-dropdown-item :to="{ name: 'newSwitch', params: { switchGroup: 'default' } }">{{ $t('default') }}</b-dropdown-item>
           <b-dropdown-item v-for="(switchGroup, index) in switches" :key="index"
             :to="{ name: 'newSwitch', params: { switchGroup: switchGroup.id } }">{{ switchGroup.id }}</b-dropdown-item>
       </b-dropdown>
