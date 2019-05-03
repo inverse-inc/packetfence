@@ -256,8 +256,7 @@ export default {
   }
   .multiselect__tags {
     min-height: auto;
-    padding: $input-padding-y $input-padding-x;
-    padding-bottom: 0px;
+    padding: 4px 40px 4px 8px;
     border: 1px solid $input-focus-bg;
     background-color: $input-focus-bg;
     @include border-radius($border-radius);
@@ -270,6 +269,14 @@ export default {
       // Override Firefox's unusual default opacity; see https://github.com/twbs/bootstrap/pull/11526.
       opacity: 1;
     }
+  }
+  .multiselect__select {
+    height: auto;
+    width: auto;
+    top: 0px;
+    right: 10px;
+    bottom: 0px;
+    padding: 0px;
   }
   .multiselect__tag {
     margin-bottom: 0px;
@@ -287,12 +294,10 @@ export default {
   .multiselect__input,
   .multiselect__single {
     padding: 0px;
-    padding-bottom: $input-padding-y;
     margin: 0px;
     background-color: $input-focus-bg;
     color: $input-color;
     font-size: $font-size-base;
-    line-height: $input-line-height;
     &::placeholder {
       color: $input-placeholder-color;
     }
