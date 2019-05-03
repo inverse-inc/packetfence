@@ -70,7 +70,12 @@ sub default_field_method {
     my $name = $field->name;
     my $task_name = ref($field->form);
     $task_name =~ s/^pfappserver::Form::Config::Pfmon:://;
-    return $ConfigPfmonDefault{$task_name}{$name};
+    my $value = $ConfigPfmonDefault{$task_name}{$name};
+    if ($field->has_inflate_default_method) {
+        $value = $field->inflate_default($value);
+    }
+
+    return $value;
 }
 
 sub batch_help_text { "Amount of items that will be processed in each batch of this task. Batches are executed until there is no more items to process or until the timeout is reached." }
