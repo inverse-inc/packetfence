@@ -66,7 +66,7 @@ sub options {
         json => (
               is_error($status)
             ? $self->options_with_no_type
-            : $self->options_from_form($form)
+            : $self->options_from_form($form, $self->default_values)
         ),
         status => 200
     );
