@@ -414,6 +414,18 @@ sub password_get_hash_type {
     return $type;
 }
 
+=head2 default_hash_password
+
+Hash password using algorithm defined in the configuration
+
+=cut
+
+sub default_hash_password {
+    my ($plaintext) = @_;
+    my $hash = $Config{'advanced'}{'hash_passwords'};
+    return _hash_password( $plaintext, algorithm => $hash );
+}
+
 sub _hash_password {
     my ($plaintext, %params) = @_;
     my $logger = pf::log::get_logger;

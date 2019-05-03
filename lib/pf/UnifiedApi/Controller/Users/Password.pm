@@ -38,7 +38,28 @@ sub make_create_data {
     my ($self) = @_;
     my ($status, $data) = $self->SUPER::make_create_data();
     $data->{pid} = $self->stash->{user_id};
+    $data = $self->_handle_password_data($data);
     return ($status, $data);
+}
+
+sub update_data {
+    my ($self) = @_;
+    my $data = $self->SUPER::update_data();
+    $data = $self->_handle_password_data($data);
+    return $data;
+}
+
+sub _handle_password_data {
+    my ($self, $data) = @_;
+    if(exists($data->{password})) {
+        if(my $algo = $self->req->query_params->to_hash->{password_algorithm}) {
+            $data->{password} = pf::password::_hash_password($data->{password}, algorithm => $algo);
+        }
+        else {
+            $data->{password} = pf::password::default_hash_password($data->{password});
+        }
+    }
+    return $data;
 }
 
 =head1 AUTHOR
