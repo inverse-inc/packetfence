@@ -371,17 +371,20 @@ export default {
           groups: [
             {
               name: this.$i18n.t('Authentication Sources'), // requires sources
-              items: [].concat.apply([], this.sources.filter(source => source.monitor && source.host).map(source => {
-                return source.host.split(',').map(host => {
-                  return {
-                    title: `${source.description} - ping ${host}`,
-                    metric: `fping.${host.replace(/\./g, '_')}_latency`,
-                    mode: modes.LOCAL,
-                    library: libs.DYGRAPH,
-                    cols: 6
-                  }
-                })
-              }))
+              items: () => {
+                const { $store: { state: { config: { sources = [] } = {} } = {} } = {} } = this
+                return [].concat.apply([], sources.filter(source => source.monitor && source.host).map(source => {
+                  return source.host.split(',').map(host => {
+                    return {
+                      title: `${source.description} - ping ${host}`,
+                      metric: `fping.${host.replace(/\./g, '_')}_latency`,
+                      mode: modes.LOCAL,
+                      library: libs.DYGRAPH,
+                      cols: 6
+                    }
+                  })
+                }))
+              }
             },
             {
               name: this.$i18n.t('Successful & Unsuccessful RADIUS Authentications'),
@@ -622,10 +625,6 @@ export default {
     },
     cluster () {
       return this.$store.state[this.storeName].cluster
-    },
-    sources () {
-      const { $store: { state: { config: { sources = [] } = {} } = {} } = {} } = this
-      return sources
     }
   },
   methods: {
@@ -638,9 +637,15 @@ export default {
           items = items.filter(this.chartIsValid)
         }
         groups.forEach(group => {
-          group.items = group.items.filter(this.chartIsValid)
+          if ('items' in group) {
+            group.items = group.items.filter(this.chartIsValid)
+          }
         })
-        section.groups = groups.filter(group => group.items.length > 0)
+        section.groups = groups.filter(group => {
+          if ('items' in group) {
+            return group.items.length > 0
+          }
+        })
       })
       this.sections = this.sections.filter(section => ('items' in section && section.items.length) || ('groups' in section && section.groups.length))
     },
