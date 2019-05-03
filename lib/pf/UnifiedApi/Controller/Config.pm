@@ -419,8 +419,9 @@ sub field_meta {
         required    => $self->field_is_required($field),
         placeholder => $self->field_placeholder($field),
         default     => $self->field_default($field, $defaultValues),
-        $self->field_extra_meta($field, $type),
     };
+    my %extra = $self->field_extra_meta($field, $meta, $defaultValues);
+    %$meta = (%$meta, %extra);
 
     if ($type ne 'array' && $type ne 'object') {
         if (!defined ($meta->{allowed}  = $self->field_allowed($field))) {
@@ -438,12 +439,13 @@ Get the extra meta data for a field
 =cut
 
 sub field_extra_meta {
-    my ($self, $field, $type, $defaultValues) = @_;
+    my ($self, $field, $meta, $defaultValues) = @_;
     my %extra;
+    my $type = $meta->{type};
     if ($type eq 'array') {
         $extra{item} = $self->field_meta_array_items($field, undef, 1);
     } elsif ($type eq 'object') {
-        $extra{properties} = $self->field_meta_object_properties($field, $defaultValues->{$field->name});
+        $extra{properties} = $self->field_meta_object_properties($field, $defaultValues->{$field->name} // $meta->{default});
     } else {
         if ($field->isa("HTML::FormHandler::Field::Text")) {
             $self->field_text_meta($field, \%extra);
