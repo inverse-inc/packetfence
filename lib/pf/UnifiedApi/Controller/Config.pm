@@ -424,8 +424,10 @@ sub field_meta {
     %$meta = (%$meta, %extra);
 
     if ($type ne 'array' && $type ne 'object') {
-        if (!defined ($meta->{allowed}  = $self->field_allowed($field))) {
-            $meta->{allowed_lookup} = $self->field_allowed_lookup($field);
+        if (defined (my $allowed = $self->field_allowed($field))) {
+            $meta->{allowed} = $allowed;
+        } elsif (defined (my $allowed_lookup = $self->field_allowed_lookup($field))) {
+            $meta->{allowed_lookup} = $allowed_lookup;
         }
     }
 
@@ -611,7 +613,8 @@ Get the default value of a field
 
 sub field_default {
     my ($self, $field, $inheritedValues) = @_;
-    return $field->default // ($inheritedValues ? $inheritedValues->{$field->name} : undef);
+    my $default = $field->get_default_value;
+    return $default // (ref($inheritedValues) eq 'HASH' ? $inheritedValues->{$field->name} : $inheritedValues);
 }
 
 =head2 default_values

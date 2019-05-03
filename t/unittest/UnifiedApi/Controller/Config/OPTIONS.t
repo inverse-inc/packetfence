@@ -40,8 +40,6 @@ $t->options_ok("/api/v1/config/floating_devices")
     {
         meta => {
             id => {
-                allowed     => undef,
-                allowed_lookup => undef,
                 default     => undef,
                 placeholder => undef,
                 required => $true,
@@ -52,16 +50,12 @@ $t->options_ok("/api/v1/config/floating_devices")
                 },
             },
             ip => {
-                allowed     => undef,
-                allowed_lookup => undef,
                 default     => undef,
                 placeholder => undef,
                 required => $false,
                 type     => "string"
             },
             pvid => {
-                allowed     => undef,
-                allowed_lookup => undef,
                 default     => undef,
                 min_value   => 0,
                 placeholder => undef,
@@ -69,16 +63,12 @@ $t->options_ok("/api/v1/config/floating_devices")
                 type     => "integer"
             },
             taggedVlan => {
-                allowed     => undef,
-                allowed_lookup => undef,
                 default     => undef,
                 placeholder => undef,
                 required => $false,
                 type     => "string"
             },
             trunkPort => {
-                allowed     => undef,
-                allowed_lookup => undef,
                 default     => undef,
                 placeholder => undef,
                 required => $false,
@@ -138,8 +128,6 @@ $t->options_ok("/api/v1/config/syslog_parsers?type=regex")->status_is(200)
     {
         meta => {
             id => {
-                allowed        => undef,
-                allowed_lookup => undef,
                 default        => undef,
                 pattern        => {
                     message =>
@@ -151,8 +139,6 @@ $t->options_ok("/api/v1/config/syslog_parsers?type=regex")->status_is(200)
                 type        => "string"
             },
             path => {
-                allowed        => undef,
-                allowed_lookup => undef,
                 default        => undef,
                 placeholder    => undef,
                 required       => $true,
@@ -253,8 +239,6 @@ $t->options_ok("/api/v1/config/syslog_parsers?type=regex")->status_is(200)
                                         type        => "string"
                                     },
                                     api_parameters => {
-                                        allowed        => undef,
-                                        allowed_lookup => undef,
                                         default        => undef,
                                         placeholder    => undef,
                                         required       => $true,
@@ -269,37 +253,32 @@ $t->options_ok("/api/v1/config/syslog_parsers?type=regex")->status_is(200)
                             type        => "array"
                         },
                         ip_mac_translation => {
-                            allowed        => undef,
-                            allowed_lookup => undef,
                             default        => "enabled",
                             placeholder    => undef,
                             required       => $false,
                             type           => "string"
                         },
                         last_if_match => {
-                            allowed        => undef,
-                            allowed_lookup => undef,
                             default        => undef,
                             placeholder    => undef,
                             required       => $false,
                             type           => "string"
                         },
                         name => {
-                            allowed        => undef,
-                            allowed_lookup => undef,
                             default        => undef,
                             placeholder    => undef,
                             required       => $true,
                             type           => "string"
                         },
                         rate_limit => {
-                            default     => undef,
+                            default     => {
+                                interval => 0,
+                                unit => 's',
+                            },
                             placeholder => undef,
                             properties  => {
                                 interval => {
-                                    allowed        => undef,
-                                    allowed_lookup => undef,
-                                    default        => undef,
+                                    default        => 0,
                                     min_value      => 0,
                                     placeholder    => undef,
                                     required       => $false,
@@ -336,7 +315,7 @@ $t->options_ok("/api/v1/config/syslog_parsers?type=regex")->status_is(200)
                                             value => "Y"
                                         }
                                     ],
-                                    default     => undef,
+                                    default     => 's',
                                     placeholder => undef,
                                     required    => $false,
                                     type        => "string"
@@ -346,8 +325,6 @@ $t->options_ok("/api/v1/config/syslog_parsers?type=regex")->status_is(200)
                             type     => "object"
                         },
                         regex => {
-                            allowed        => undef,
-                            allowed_lookup => undef,
                             default        => undef,
                             placeholder    => undef,
                             required       => $true,
@@ -362,16 +339,12 @@ $t->options_ok("/api/v1/config/syslog_parsers?type=regex")->status_is(200)
                 type        => "array"
             },
             status => {
-                allowed        => undef,
-                allowed_lookup => undef,
                 default        => "enabled",
                 placeholder    => undef,
                 required       => $false,
                 type           => "string"
             },
             type => {
-                allowed        => undef,
-                allowed_lookup => undef,
                 default        => undef,
                 placeholder    => undef,
                 required       => $true,
@@ -388,24 +361,18 @@ $t->options_ok("/api/v1/config/base/general")
     {
         meta => {
             dhcpservers => {
-                allowed     => undef,
-                allowed_lookup => undef,
                 default     => undef,
                 placeholder => '127.0.0.1',
                 required    => $false,
                 type        => "string"
             },
             domain => {
-                allowed     => undef,
-                allowed_lookup => undef,
                 default     => undef,
                 placeholder => 'packetfence.org',
                 required    => $false,
                 type        => "string"
             },
             hostname => {
-                allowed     => undef,
-                allowed_lookup => undef,
                 default     => undef,
                 placeholder => 'packetfence',
                 required    => $false,
