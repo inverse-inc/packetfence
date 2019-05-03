@@ -1027,6 +1027,7 @@ sub setup_api_v1_config_switch_groups_routes {
         "api.v1.Config.SwitchGroups"
     );
 
+    $resource_route->register_sub_action({action => 'members', method => 'GET'});
     return ($collection_route, $resource_route);
 }
 

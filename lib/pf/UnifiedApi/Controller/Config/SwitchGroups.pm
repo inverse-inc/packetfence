@@ -17,7 +17,6 @@ pf::UnifiedApi::Controller::Config::SwitchGroups
 use strict;
 use warnings;
 
-
 use Mojo::Base qw(pf::UnifiedApi::Controller::Config);
 
 has 'config_store_class' => 'pf::ConfigStore::SwitchGroup';
@@ -26,8 +25,33 @@ has 'primary_key' => 'switch_group_id';
 
 use pf::ConfigStore::SwitchGroup;
 use pfappserver::Form::Config::SwitchGroup;
+use pfappserver::Form::Config::Switch;
 
- 
+=head2 members
+
+members
+
+=cut
+
+sub members {
+    my ($self) = @_;
+    my $cs     = pf::ConfigStore::Switch->new;
+    my $id     = $self->id;
+    my $form   = pfappserver::Form::Config::Switch->new;
+    my @items = map {$self->cleanup_item($_, $form)} $id eq 'default' ?
+        $cs->filter(
+            sub {
+                my $group = $_[0]->{group};
+                return !defined $group || $group eq 'default';
+            },
+            'id'
+        )
+        :
+        $cs->search('group', $id, 'id');
+
+    return $self->render( json => { items => \@items } );
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
@@ -56,4 +80,3 @@ USA.
 =cut
 
 1;
-
