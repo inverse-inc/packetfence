@@ -21,7 +21,7 @@ Installation
 Install the PKI
 +++++++++++++++
 
-NOTE: The PacketFence PKI application is available on the PacketFence repository as the package "packetfence-pki". This is available for CentOS 6, CentOS 7 and Debian 9.
+NOTE: The PacketFence PKI application is available on the PacketFence repository as the package "packetfence-pki". This is available for CentOS 6, CentOS 7 and Debian 7 and Debian 8.
 
 PacketFence PKI can be installed on a standalone machine or on the PacketFence server itself.
 Communication between the PKI and PacketFence proper will take place over a REST API over port 9393.
