@@ -13,6 +13,7 @@ Object for collecting pfqueue stats
 use Moo;
 use namespace::autoclean;
 use pf::config::pfqueue;
+use pf::log;
 use pf::util::pfqueue qw(consumer_redis_client);
 use pf::constants::pfqueue qw($PFQUEUE_COUNTER $PFQUEUE_QUEUE_PREFIX $PFQUEUE_EXPIRED_COUNTER);
 
@@ -85,14 +86,18 @@ _build_stats_data
 
 sub _build_stats_data {
     my ($self) = @_;
-    my $redis = $self->redis;
     my @queues = @{$ConfigPfqueue{queues}};
-    my @queue_counts = map {{name => $_->{name}, count => undef}} @queues;
+    my @queue_counts = map {{name => $_->{name}, count => -1}} @queues;
     my %stats = (
         queue_counts => \@queue_counts,
         miss_counters => [],
         counters => [],
     );
+    my $redis = $self->redis;
+    if (!defined $redis) {
+        return \%stats;
+    }
+
     $redis->multi(sub {});
     foreach my $queue (@queues) {
         my $name = $queue->{name};
@@ -129,7 +134,15 @@ sub _build_stats_data {
 
 sub _build_redis {
     my ($self) = @_;
-    consumer_redis_client();
+    my $redis = eval {
+        consumer_redis_client();
+    };
+    if ($@) {
+        get_logger->error($@);
+        return undef;
+    }
+
+    return $redis;
 }
 
 =head2 $queue_counts = $self->queue_counts();
