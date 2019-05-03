@@ -277,6 +277,7 @@ export default {
     }
   },
   mounted () {
+    this.$store.commit('session/FORM_OK')
     this.emitValidations()
   }
 }
