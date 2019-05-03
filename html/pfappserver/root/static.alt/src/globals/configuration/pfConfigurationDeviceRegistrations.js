@@ -155,10 +155,10 @@ export const pfConfigurationDeviceRegistrationViewFields = (context = {}) => {
           text: i18n.t('List of OS which will be allowed to be register via the self service portal.'),
           fields: [
             {
-              key: 'oses',
+              key: 'allowed_devices',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'oses'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'oses', 'OS')
+              attrs: pfConfigurationAttributesFromMeta(meta, 'allowed_devices'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'allowed_devices', 'OS')
             }
           ]
         }
