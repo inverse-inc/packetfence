@@ -7,6 +7,11 @@ import {
   pfConfigurationValidatorsFromMeta
 } from '@/globals/configuration/pfConfiguration'
 
+const {
+  integer,
+  minValue
+} = require('vuelidate/lib/validators')
+
 export const pfConfigurationInlineViewFields = (context = {}) => {
   const {
     options: {
@@ -38,7 +43,13 @@ export const pfConfigurationInlineViewFields = (context = {}) => {
               key: 'layer3_accounting_session_timeout',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'layer3_accounting_session_timeout'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'layer3_accounting_session_timeout', 'Timeout')
+              validators: {
+                ...pfConfigurationValidatorsFromMeta(meta, 'layer3_accounting_session_timeout', 'Timeout'),
+                ...{
+                  [i18n.t('Must be numeric')]: integer,
+                  [i18n.t('Minimum {minValue}', { minValue: 1 })]: minValue(1)
+                }
+              }
             }
           ]
         },
@@ -50,7 +61,13 @@ export const pfConfigurationInlineViewFields = (context = {}) => {
               key: 'layer3_accounting_sync_interval',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'layer3_accounting_sync_interval'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'layer3_accounting_sync_interval', 'Interval')
+              validators: {
+                ...pfConfigurationValidatorsFromMeta(meta, 'layer3_accounting_sync_interval', 'Interval'),
+                ...{
+                  [i18n.t('Must be numeric')]: integer,
+                  [i18n.t('Minimum {minValue}', { minValue: 1 })]: minValue(1)
+                }
+              }
             }
           ]
         },
