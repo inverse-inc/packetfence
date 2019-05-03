@@ -19,11 +19,9 @@ with qw(pfappserver::Base::Form::Role::Help);
 has_field 'rate_limit' => (
     type    => 'Duration',
     label   => 'Rate Limit',
-    default_method => sub {
-        {
-            unit => 's',
-            interval => 0,
-        }
+    default => {
+        unit => 's',
+        interval => 0,
     },
     tags    => {
         after_element => \&help,

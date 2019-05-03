@@ -71,7 +71,10 @@ has_field 'duration' =>
   (
    type => 'Duration',
    label => 'Duration',
-   default => '20s',
+   default => {
+    interval => 20,
+    unit => 's',
+   },
    tags => { after_element => \&help,
              help => 'Approximate duration of a scan. User being scanned on registration are presented a progress bar for this duration, afterwards the browser refreshes until scan is complete.' },
   );
