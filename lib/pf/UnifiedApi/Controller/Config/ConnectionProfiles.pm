@@ -459,6 +459,12 @@ sub json_false {
     return do { bless \(my $a = 0), "JSON::PP::Boolean" };
 }
 
+sub cached_form_key {
+    my ($self, $item, @args) = @_;
+    my $id = $item->{id} // '';
+    return $id eq 'default' ? 'cached_form_default' : 'cached_form'
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

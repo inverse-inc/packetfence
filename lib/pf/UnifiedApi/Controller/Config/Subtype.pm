@@ -46,18 +46,10 @@ sub type_lookup {
     return {}
 }
 
-sub cached_form {
+sub cached_form_key {
     my ($self, $item, @args) = @_;
     my $type = $item->{type};
-    if ($self->{cached_form}{$type}) {
-        return $self->{cached_form}{$type};
-    }
-    my ($status, $form) = $self->form($item, @args);
-    if (is_error($status)) {
-        return undef;
-    }
-
-    return $self->{cached_form}{$type} = $form;
+    return "cached_form_$type";
 }
 
 =head2 options

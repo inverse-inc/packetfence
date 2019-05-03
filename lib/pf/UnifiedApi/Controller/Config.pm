@@ -134,17 +134,22 @@ sub form {
     return 200, $form;
 }
 
+sub cached_form_key {
+    'cached_form'
+}
+
 sub cached_form {
     my ($self, $item, @args) = @_;
-    if ($self->{cached_form}) {
-        return $self->{cached_form};
+    my $cached_form_key = $self->cached_form_key($item, @args);
+    if ($self->{$cached_form_key}){
+        return $self->{$cached_form_key};
     }
     my ($status, $form) = $self->form($item, @args);
     if (is_error($status)) {
         return undef;
     }
 
-    return $self->{cached_form} = $form;
+    return $self->{$cached_form_key} = $form;
 }
 
 sub resource {
