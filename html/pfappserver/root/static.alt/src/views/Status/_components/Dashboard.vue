@@ -371,7 +371,7 @@ export default {
           groups: [
             {
               name: this.$i18n.t('Authentication Sources'), // requires sources
-              items: [].concat.apply([], this.$store.state.config.sources.filter(source => source.monitor && source.host).map(source => {
+              items: [].concat.apply([], this.sources.filter(source => source.monitor && source.host).map(source => {
                 return source.host.split(',').map(host => {
                   return {
                     title: `${source.description} - ping ${host}`,
@@ -622,6 +622,10 @@ export default {
     },
     cluster () {
       return this.$store.state[this.storeName].cluster
+    },
+    sources () {
+      const { $store: { state: { config: { sources = [] } = {} } = {} } = {} } = this
+      return sources
     }
   },
   methods: {
