@@ -339,6 +339,11 @@ export default {
   /**
    * Fingerbank Profiling
    */
+  fingerbankAccountInfo: () => {
+    return apiCall.getQuiet(`fingerbank/account_info`).then(response => {
+      return response.data
+    })
+  },
   fingerbankGeneralSettings: params => {
     return apiCall.get(`config/fingerbank_settings`, { params }).then(response => {
       return response.data.items

@@ -11,7 +11,25 @@
     <template slot="header" is="b-card-header">
       <h4 class="mb-0">
         <span>{{ $t('Account information on api.fingerbank.org') }}</span>
+        <b-button v-if="accountInfo" size="sm" variant="secondary" class="ml-2" :href="urlSSO" target="_blank">
+          {{ $t('View complete account profile') }} <icon class="ml-1" name="external-link-alt"></icon>
+        </b-button>
       </h4>
+      <template v-if="accountInfo">
+        <b-row class="mt-3 mb-1">
+          <b-col sm="3" class="col-form-label pr-0">{{ $t('Username') }}</b-col>
+          <b-col sm="auto" class="pt-1">{{ accountInfo.name }}</b-col>
+        </b-row>
+        <b-row class="my-1">
+          <b-col sm="3" class="col-form-label pr-0">{{ $t('Account type') }}</b-col>
+          <b-col sm="auto" class="pt-1" v-if="accountInfo.github_uid">Github</b-col>
+          <b-col sm="auto" class="pt-1" v-else>Corporate</b-col>
+        </b-row>
+        <b-row class="my-1">
+          <b-col sm="3" class="col-form-label pr-0">{{ $t('Requests in the current hour') }}</b-col>
+          <b-col sm="auto" class="pt-1">{{ accountInfo.timeframed_requests }}</b-col>
+        </b-row>
+      </template>
     </template>
     <template slot="footer">
       <b-card-footer @mouseenter="$v.form.$touch()">
@@ -53,7 +71,8 @@ export default {
     return {
       form: {}, // will be overloaded with the data from the store
       formValidations: {}, // will be overloaded with data from the pfConfigView
-      options: {}
+      options: {},
+      accountInfo: null
     }
   },
   validations () {
@@ -73,10 +92,24 @@ export default {
         labelCols: 3,
         fields: fields(this)
       }
+    },
+    urlSSO () {
+      if (this.accountInfo) {
+        return [
+          'https://api.fingerbank.org:443/sso/login?',
+          `username=${this.accountInfo.name}`,
+          `key=${this.accountInfo.key}`,
+          `redirect_url=/users/${this.accountInfo.id}`
+        ].join('&')
+      }
+      return null
     }
   },
   methods: {
     init () {
+      this.$store.dispatch(`${this.storeName}/getAccountInfo`).then(info => {
+        this.accountInfo = info
+      })
       this.$store.dispatch(`${this.storeName}/optionsGeneralSettings`).then(options => {
         this.options = options
         this.$store.dispatch(`${this.storeName}/getGeneralSettings`).then(form => {

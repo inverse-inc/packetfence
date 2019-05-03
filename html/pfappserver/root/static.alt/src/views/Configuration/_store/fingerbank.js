@@ -13,6 +13,11 @@ const types = {
 
 // Default values
 const state = {
+  accountInfo: {
+    cache: false,
+    message: '',
+    status: ''
+  },
   generalSettings: {
     cache: false,
     message: '',
@@ -66,6 +71,9 @@ const state = {
 }
 
 const getters = {
+  isAccountInfoWaiting: state => [types.LOADING, types.DELETING].includes(state.accountInfo.status),
+  isAccountInfoLoading: state => state.accountInfo.status === types.LOADING,
+
   isGeneralSettingsWaiting: state => [types.LOADING, types.DELETING].includes(state.generalSettings.status),
   isGeneralSettingsLoading: state => state.generalSettings.status === types.LOADING,
 
@@ -98,6 +106,19 @@ const getters = {
 }
 
 const actions = {
+  getAccountInfo: ({ state, commit }) => {
+    if (state.accountInfo.cache) {
+      return Promise.resolve(state.accountInfo.cache).then(cache => JSON.parse(JSON.stringify(cache)))
+    }
+    commit('ACCOUNT_INFO_REQUEST')
+    return api.fingerbankAccountInfo().then(info => {
+      commit('ACCOUNT_INFO_REPLACED', info)
+      return info
+    }).catch(err => {
+      commit('ACCOUNT_INFO_ERROR', err.response)
+      throw err
+    })
+  },
   getGeneralSettings: ({ state, commit }) => {
     if (state.generalSettings.cache) {
       return Promise.resolve(state.generalSettings.cache).then(cache => JSON.parse(JSON.stringify(cache)))
@@ -572,18 +593,18 @@ const actions = {
 }
 
 const mutations = {
-  GENERAL_SETTINGS_REQUEST: (state, type) => {
-    state.generalSettings.status = type || types.LOADING
-    state.generalSettings.message = ''
+  ACCOUNT_INFO_REQUEST: (state, type) => {
+    state.accountInfo.status = type || types.LOADING
+    state.accountInfo.message = ''
   },
-  GENERAL_SETTINGS_REPLACED: (state, data) => {
-    state.generalSettings.status = types.SUCCESS
-    Vue.set(state.generalSettings, 'cache', JSON.parse(JSON.stringify(data)))
+  ACCOUNT_INFO_REPLACED: (state, data) => {
+    state.accountInfo.status = types.SUCCESS
+    Vue.set(state.accountInfo, 'cache', JSON.parse(JSON.stringify(data)))
   },
-  GENERAL_SETTINGS_ERROR: (state, response) => {
-    state.generalSettings.status = types.ERROR
+  ACCOUNT_INFO_ERROR: (state, response) => {
+    state.accountInfo.status = types.ERROR
     if (response && response.data) {
-      state.generalSettings.message = response.data.message
+      state.accountInfo.message = response.data.message
     }
   },
   GENERAL_SETTINGS_SUCCESS: (state) => {
