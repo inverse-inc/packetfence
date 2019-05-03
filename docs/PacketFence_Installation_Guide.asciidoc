@@ -89,7 +89,6 @@ PacketFence supports the following operating systems on the x86_64 architecture:
 [options="compact"]
 * Red Hat Enterprise Linux 7.x Server
 * Community ENTerprise Operating System (CentOS) 7.x
-* Debian 8.0 (Jessie)
 * Debian 9.0 (Stretch)
 
 Make sure that you can install additional packages from your standard distribution. For example, if you are using Red Hat Enterprise Linux, you have to be subscribed to the Red Hat Network before continuing with the PacketFence software installation.
@@ -164,18 +163,18 @@ Make sure your system is up to date and your yum or apt-get database is updated.
 
 On a Debian system, do:
 
-  apt-get update
-  apt-get upgrade
+[source,bash]
+----
+apt-get update
+apt-get upgrade
+----
 
 Regarding SELinux or AppArmor, even if they may be wanted by some
 organizations, PacketFence will not work properly if SELinux or AppArmor are
 enabled. You will need to explicitly disable SELinux from the
 `/etc/selinux/config` file and reboot the machine. For AppArmor, you need to
-execute the following commands:
-
-  update-rc.d -f apparmor stop
-  update-rc.d -f apparmor teardown
-  update-rc.d -f apparmor remove
+follow instructions
+link:https://wiki.debian.org/AppArmor/HowToUse#Disable_AppArmor[on Debian wiki]
 
 Regarding resolvconf, you can remove the symlink to that file and simply create the `/etc/resolv.conf` file with the content you want.
 
@@ -219,19 +218,25 @@ server, DHCP server, RADIUS server) using:
 Debian
 ++++++
 
-In order to use the repository, create a file named `/etc/apt/sources.list.d/packetfence.list`:
+In order to use the repository, create a file named [filename]`/etc/apt/sources.list.d/packetfence.list`:
 
-   echo 'deb http://inverse.ca/downloads/PacketFence/debian jessie jessie' \
-   > /etc/apt/sources.list.d/packetfence.list
+[source,bash]
+----
+echo 'deb http://inverse.ca/downloads/PacketFence/debian stretch stretch' > \
+/etc/apt/sources.list.d/packetfence.list
+----
 
 Once the repository is defined, you can install PacketFence with all its
 dependencies, and the required external services (Database
 server, DHCP server, RADIUS server) using:
 
-  sudo apt-key adv --keyserver keys.gnupg.net \
-  --recv-key 0xFE9E84327B18FF82B0378B6719CDA6A9810273C4
-  sudo apt-get update
-  sudo apt-get install packetfence
+[source,bash]
+----
+sudo apt-key adv --keyserver keys.gnupg.net \
+--recv-key 0xFE9E84327B18FF82B0378B6719CDA6A9810273C4
+sudo apt-get update
+sudo apt-get install packetfence
+----
 
 Getting Started
 ---------------
@@ -3843,15 +3848,10 @@ Additional Packages
 
 In order to use this cache, you will need to install additional packages available from the packetfence-extra repository. These packages will allow PacketFence to query your Active Directory for the NT hash of the users.
 
-CentOS:
-```
-yum install python2-impacket --enablerepo=packetfence-extra
-```
+CentOS: [command]`yum install python2-impacket --enablerepo=packetfence-extra`
 
-Debian:
-```
-apt-get install python-impacket
-```
+Debian: [command]`apt-get install python-impacket`
+
 
 PacketFence Configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^
