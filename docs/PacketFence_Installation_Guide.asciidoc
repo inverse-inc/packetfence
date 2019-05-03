@@ -173,8 +173,8 @@ Regarding SELinux or AppArmor, even if they may be wanted by some
 organizations, PacketFence will not work properly if SELinux or AppArmor are
 enabled. You will need to explicitly disable SELinux from the
 `/etc/selinux/config` file and reboot the machine. For AppArmor, you need to
-follow instructions
-link:https://wiki.debian.org/AppArmor/HowToUse#Disable_AppArmor[on Debian wiki]
+follow instructions on
+link:https://wiki.debian.org/AppArmor/HowToUse#Disable_AppArmor[Debian wiki].
 
 Regarding resolvconf, you can remove the symlink to that file and simply create the `/etc/resolv.conf` file with the content you want.
 
@@ -5113,7 +5113,7 @@ Debian
 
 ----
 apt-get install uuid-runtime
-/usr/local/pf/addons/monit/monitoring-scripts/update.sh 
+/usr/local/pf/addons/monit/monitoring-scripts/update.sh
 ----
 
 Ensure the script outputs: `Update completed successfully`
