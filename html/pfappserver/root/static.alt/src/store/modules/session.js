@@ -51,7 +51,8 @@ const state = {
   tenants: [],
   languages: [],
   api: true,
-  charts: true
+  charts: true,
+  formErrors: {}
 }
 
 const getters = {
@@ -165,6 +166,12 @@ const mutations = {
   },
   CHARTS_ERROR: (state) => {
     state.charts = false
+  },
+  FORM_OK: (state) => {
+    state.formErrors = {}
+  },
+  FORM_ERROR: (state, data) => {
+    state.formErrors = data
   }
 }
 

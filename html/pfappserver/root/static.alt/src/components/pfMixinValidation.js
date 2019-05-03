@@ -28,6 +28,10 @@ export default {
     lastValidValue: {
       type: String,
       default: null
+    },
+    keyName: {
+      type: String,
+      default: null
     }
   },
   methods: {
@@ -38,6 +42,9 @@ export default {
         } else if (this.highlightValid) {
           return true
         }
+      }
+      if (this.keyName in this.$store.state.session.formErrors) {
+        return false
       }
       return null
     },
@@ -100,6 +107,10 @@ export default {
       if (feedback.length === 0 && this.invalidFeedback) {
         // manually defined feedback
         feedback.push(this.stringifyFeedback(this.invalidFeedback))
+      }
+      if (this.keyName in this.$store.state.session.formErrors) {
+        // errors from last POST, PUT, PATCH or DELETE
+        feedback.push(this.$store.state.session.formErrors[this.keyName])
       }
       return feedback.join('\n')
     }

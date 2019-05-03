@@ -31,6 +31,7 @@
                   v-bind="field.attrs"
                   v-on="kebabCaseListeners(field.listeners)"
                   :key="field.key"
+                  :keyName="field.key"
                   :is="field.component || defaultComponent"
                   :is-loading="isLoading"
                   :vuelidate="getVuelidateModel(field.key)"
@@ -207,7 +208,6 @@ export default {
           eachFieldValue[key] = this.componentValidations[key]
         }
       })
-      Object.freeze(eachFieldValue)
       return eachFieldValue
     },
     emitValidations () {
