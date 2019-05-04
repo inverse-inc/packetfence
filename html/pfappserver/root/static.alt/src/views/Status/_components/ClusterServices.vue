@@ -16,7 +16,7 @@
           striped
         >
           <template slot="empty">
-            <pf-empty-table :isLoading="isLoading">{{ $t('No Services found') }}</pf-empty-table>
+            <pf-empty-table :isLoading="isLoading" text="">{{ $t('No Services found') }}</pf-empty-table>
           </template>
           <template v-for="server in servers" :slot="server" slot-scope="{ item: { [server]: status } }">
             <div class="container-status small" :key="server">

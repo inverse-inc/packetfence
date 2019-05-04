@@ -17,7 +17,7 @@
           striped
         >
           <template slot="empty">
-            <pf-empty-table :isLoading="isLoading">{{ $t('No stats found') }}</pf-empty-table>
+            <pf-empty-table :isLoading="isLoading" text="">{{ $t('No stats found') }}</pf-empty-table>
           </template>
         </b-table>
       </div>
@@ -40,7 +40,7 @@
           striped
         >
           <template slot="empty">
-            <pf-empty-table :isLoading="isLoading">{{ $t('No stats found') }}</pf-empty-table>
+            <pf-empty-table :isLoading="isLoading" text="">{{ $t('No stats found') }}</pf-empty-table>
           </template>
         </b-table>
       </div>
@@ -63,7 +63,7 @@
           striped
         >
           <template slot="empty">
-            <pf-empty-table :isLoading="isLoading">{{ $t('No stats found') }}</pf-empty-table>
+            <pf-empty-table :isLoading="isLoading" text="">{{ $t('No stats found') }}</pf-empty-table>
           </template>
         </b-table>
       </div>
