@@ -74,11 +74,11 @@ export default {
     },
     fields () {
       return [
-          {
-            key: 'service',
-            label: this.$i18n.t('Service'),
-            sortable: true
-          }
+        {
+          key: 'service',
+          label: this.$i18n.t('Service'),
+          sortable: true
+        }
       ].concat(this.servers.map(server => {
         return { key: server, label: server, sortable: false }
       }))
