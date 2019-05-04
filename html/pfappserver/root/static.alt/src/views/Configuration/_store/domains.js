@@ -157,7 +157,10 @@ const mutations = {
   ITEM_REPLACED: (state, data) => {
     state.itemStatus = types.SUCCESS
     Vue.set(state.cache, data.id, JSON.parse(JSON.stringify(data)))
-    Vue.set(state.joins, data.id, {})
+    if (data.id in state.joins) {
+      Vue.delete(state.joins, data.id) // clear cache
+      store.dispatch('$_domains/testDomain', data.id) // refresh cache
+    }
   },
   ITEM_DESTROYED: (state, id) => {
     state.itemStatus = types.SUCCESS
