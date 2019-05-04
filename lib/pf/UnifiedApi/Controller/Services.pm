@@ -34,18 +34,21 @@ sub cluster_status {
     my @services = @pf::services::ALL_MANAGERS;
     my @servers = pf::cluster::enabled_servers;
 
-    my %results;
+    my @results;
     for my $server (@servers) {
+        next if ($server->{host} eq 'prod-pf.inverse');
         my $client = pf::api::unifiedapiclient->new;
+        my @server_services = ();
         $client->host($server->{management_ip});
         for my $service (@services) {
             my $service_name = $service->name;
             my $stat = $client->call("GET", "/api/v1/service/$service_name/status", {});
-            $results{$server->{host}}->{$service_name} = $stat;
+            push @server_services, { name => $service_name, status => $stat };
         }
+        push @results, { host => $server->{host}, services => \@server_services };
     }
 
-    $self->render(json => \%results);
+    $self->render(json => { items => \@results });
 }
 
 sub list {

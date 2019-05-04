@@ -4,6 +4,7 @@ import StatusStore from '../_store'
 import Dashboard from '../_components/Dashboard'
 import Services from '../_components/Services'
 import Queue from '../_components/Queue'
+import ClusterServices from '../_components/ClusterServices'
 
 const route = {
   path: '/status',
@@ -15,7 +16,7 @@ const route = {
       // Register store module only once
       store.registerModule('$_status', StatusStore)
     }
-    next()
+    store.dispatch('$_status/getCluster').then(() => next())
   },
   children: [
     {
@@ -45,6 +46,14 @@ const route = {
       path: 'queue',
       component: Queue,
       props: { storeName: 'pfqueue' },
+      meta: {
+        can: 'read services'
+      }
+    },
+    {
+      path: 'cluster/services',
+      component: ClusterServices,
+      props: { storeName: '$_status' },
       meta: {
         can: 'read services'
       }

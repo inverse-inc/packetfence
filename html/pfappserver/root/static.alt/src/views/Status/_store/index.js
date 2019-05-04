@@ -22,7 +22,9 @@ const state = {
   services: [],
   servicesStatus: '',
   cluster: null,
-  clusterStatus: ''
+  clusterStatus: '',
+  clusterServices: [],
+  clusterServicesStatus: ''
 }
 
 const blacklistedServices = [ // prevent start|stop|restart control on these services
@@ -55,7 +57,8 @@ const getters = {
   isServicesStopping: state => state.servicesStatus === types.STOPPING,
   isServicesStarting: state => state.servicesStatus === types.STARTING,
   isServicesRestarting: state => state.servicesStatus === types.RESTARTING,
-  blacklistedServices: () => blacklistedServices
+  blacklistedServices: () => blacklistedServices,
+  isClusterServicesLoading: state => state.clusterServicesStatus === types.LOADING
 }
 
 const actions = {
@@ -319,6 +322,17 @@ const actions = {
         commit('CLUSTER_ERROR')
       })
     }
+  },
+  getClusterServices: ({ state, commit }) => {
+    if (state.clusterServicesStatus !== types.LOADING) {
+      commit('CLUSTER_SERVICES_REQUEST')
+      return api.clusterServices().then(servers => {
+        commit('CLUSTER_SERVICES_UPDATED', servers)
+        return servers
+      }).catch(() => {
+        commit('CLUSTER_SERVICES_ERROR')
+      })
+    }
   }
 }
 
@@ -431,6 +445,16 @@ const mutations = {
     }
   },
   CLUSTER_ERROR: (state) => {
+    state.clusterServicesStatus = types.ERROR
+  },
+  CLUSTER_SERVICES_REQUEST: (state) => {
+    state.clusterServicesStatus = types.LOADING
+  },
+  CLUSTER_SERVICES_UPDATED: (state, servers) => {
+    state.clusterServicesStatus = types.SUCCESS
+    state.clusterServices = servers
+  },
+  CLUSTER_SERVICES_ERROR: (state) => {
     state.clusterStatus = types.ERROR
   }
 }

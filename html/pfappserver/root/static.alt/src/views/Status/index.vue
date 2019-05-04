@@ -19,25 +19,42 @@ export default {
     return {
       sections: [
         {
-          name: this.$i18n.t('Status'),
-          items: [
-            {
-              name: this.$i18n.t('Dashboard'),
-              path: '/status/dashboard'
-            },
-            {
-              name: this.$i18n.t('Services'),
-              path: '/status/services',
-              can: 'read services'
-            },
-            {
-              name: this.$i18n.t('Local Queue'),
-              path: '/status/queue',
-              can: 'read services'
-            }
-          ]
+          name: this.$i18n.t('Dashboard'),
+          path: '/status/dashboard'
+        },
+        {
+          name: this.$i18n.t('Services'),
+          path: '/status/services',
+          can: 'read services'
+        },
+        {
+          name: this.$i18n.t('Local Queue'),
+          path: '/status/queue',
+          can: 'read services'
         }
       ]
+    }
+  },
+  computed: {
+    cluster () {
+      return this.$store.state.$_status.cluster
+    }
+  },
+  mounted () {
+    if (this.cluster) {
+      this.sections.push({
+        name: this.$i18n.t('Cluster'),
+        items: [
+          {
+            name: this.$i18n.t('Services'),
+            path: '/status/cluster/services'
+          },
+          {
+            name: this.$i18n.t('Queues'),
+            path: '/status/cluster/queues'
+          }
+        ]
+      })
     }
   }
 }
