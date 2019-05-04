@@ -14,17 +14,17 @@
       <b-row class="row-nowrap">
         <b-col>{{ $t('Alive') }}</b-col>
         <b-col cols="auto">
-          <b-badge v-if="serviceStatus.alive && serviceStatus.pid" pill variant="success">{{ serviceStatus.pid }}</b-badge>
+          <b-badge v-if="status.alive && status.pid" pill variant="success">{{ status.pid }}</b-badge>
           <icon v-else class="text-danger" name="circle"></icon>
         </b-col>
       </b-row>
       <b-row class="row-nowrap">
         <b-col>{{ $t('Enabled') }}</b-col>
-        <b-col cols="auto"><icon :class="(serviceStatus.enabled) ? 'text-success' : 'text-danger'" name="circle"></icon></b-col>
+        <b-col cols="auto"><icon :class="(status.enabled) ? 'text-success' : 'text-danger'" name="circle"></icon></b-col>
       </b-row>
       <b-row class="row-nowrap">
         <b-col>{{ $t('Managed') }}</b-col>
-        <b-col cols="auto"><icon :class="(serviceStatus.managed) ? 'text-success' : 'text-danger'" name="circle"></icon></b-col>
+        <b-col cols="auto"><icon :class="(status.managed) ? 'text-success' : 'text-danger'" name="circle"></icon></b-col>
       </b-row>
     </b-dropdown-form>
     <b-dropdown-divider v-if="!isLoading"></b-dropdown-divider>
@@ -38,7 +38,7 @@
 
 <script>
 export default {
-  name: 'pf-button-service',
+  name: 'pfButtonService',
   props: {
     service: {
       type: String,
@@ -65,50 +65,52 @@ export default {
       default: false
     }
   },
-  data () {
-    return {
-      serviceStatus: { pid: 0, alive: false, enabled: false, managed: false, status: 'loading' }
-    }
-  },
   computed: {
+    status () {
+      return this.$store.state.services.cache[this.service]
+    },
     canEnable () {
-      return (this.enable && !this.serviceStatus.enabled && !this.isLoading)
+      return (this.enable && !this.status.enabled && !this.isLoading)
     },
     canDisable () {
-      return (this.disable && this.serviceStatus.enabled && !this.isLoading)
+      return (this.disable && this.status.enabled && !this.isLoading)
     },
     canRestart () {
-      return (this.restart && this.serviceStatus.alive && !this.isLoading)
+      return (this.restart && this.status.alive && !this.isLoading)
     },
     canStart () {
-      return (this.start && !this.serviceStatus.alive && !this.isLoading)
+      return (this.start && !this.status.alive && !this.isLoading)
     },
     canStop () {
-      return (this.stop && this.serviceStatus.alive && !this.isLoading)
+      return (this.stop && this.status.alive && !this.isLoading)
     },
     isLoading () {
-      return (!('status' in this.serviceStatus) || !['success', 'error'].includes(this.serviceStatus.status))
+      const { status: { status } = {} } = this
+      if (status) {
+        return !['success', 'error'].includes(status)
+      }
+      return true
     },
     isEnabling () {
-      return ('status' in this.serviceStatus && this.serviceStatus.status === 'enabling')
+      return (this.status.status === 'enabling')
     },
     isDisabling () {
-      return ('status' in this.serviceStatus && this.serviceStatus.status === 'disabling')
+      return (this.status.status === 'disabling')
     },
     isRestarting () {
-      return ('status' in this.serviceStatus && this.serviceStatus.status === 'restarting')
+      return (this.status.status === 'restarting')
     },
     isStarting () {
-      return ('status' in this.serviceStatus && this.serviceStatus.status === 'starting')
+      return (this.status.status === 'starting')
     },
     isStopping () {
-      return ('status' in this.serviceStatus && this.serviceStatus.status === 'stopping')
+      return (this.status.status === 'stopping')
     },
     isRunning () {
-      return ('alive' in this.serviceStatus && this.serviceStatus.alive)
+      return (this.status.alive)
     },
     isError () {
-      return ('status' in this.serviceStatus && this.serviceStatus.status === 'error')
+      return (this.status.status === 'error')
     },
     forwardListeners () {
       const { input, ...listeners } = this.$listeners
@@ -169,13 +171,6 @@ export default {
     }
   },
   methods: {
-    status () {
-      this.$store.dispatch('services/getService', this.service).then(response => {
-        this.$set(this, 'serviceStatus', response)
-      }).catch(() => {
-        this.$set(this.serviceStatus, 'status', 'error')
-      })
-    },
     doEnable () {
       this.$store.dispatch('services/enableService', this.service).then(response => {
         this.$store.dispatch('notification/info', { message: this.$i18n.t('Service <code>{service}</code> enabled.', { service: this.service }) })
@@ -219,7 +214,7 @@ export default {
     }
   },
   created () {
-    this.status()
+    this.$store.dispatch('services/getService', this.service)
   }
 }
 </script>
