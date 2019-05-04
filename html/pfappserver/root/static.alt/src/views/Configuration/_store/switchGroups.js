@@ -55,13 +55,26 @@ const actions = {
   },
   getSwitchGroup: ({ state, commit }, id) => {
     if (state.cache[id]) {
-      return Promise.resolve(state.cache[id]).then(cache => JSON.parse(JSON.stringify(cache)))
+      return Promise.resolve(state.cache[id])
     }
     commit('ITEM_REQUEST')
     return api.switchGroup(id).then(item => {
       commit('ITEM_REPLACED', item)
-      return JSON.parse(JSON.stringify(item))
+      api.switchGroupMembers(id).then(members => { // Fetch members
+        commit('ITEM_UPDATED', { id, prop: 'members', data: members })
+      })
+      return state.cache[id]
     }).catch((err) => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
+  },
+  getSwitchGroupMembers: ({ commit }, id) => {
+    commit('ITEM_REQUEST')
+    return api.switchGroupMembers(id).then(members => {
+      commit('ITEM_UPDATED', { id, prop: 'members', data: members })
+      return state.cache[id].members
+    }).catch(err => {
       commit('ITEM_ERROR', err.response)
       throw err
     })
@@ -106,6 +119,12 @@ const mutations = {
   ITEM_REPLACED: (state, data) => {
     state.itemStatus = types.SUCCESS
     Vue.set(state.cache, data.id, JSON.parse(JSON.stringify(data)))
+  },
+  ITEM_UPDATED: (state, params) => {
+    state.itemStatus = types.SUCCESS
+    if (params.id in state.cache) {
+      Vue.set(state.cache[params.id], params.prop, params.data)
+    }
   },
   ITEM_DESTROYED: (state, id) => {
     state.itemStatus = types.SUCCESS

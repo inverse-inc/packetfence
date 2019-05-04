@@ -13,6 +13,7 @@
       v-if="interrupt"
       type="button"
       variant="outline-danger"
+      class="text-nowrap"
       disabled
       >{{ confirm }}</b-button>
     <b-button

@@ -23,6 +23,7 @@ import {
   hasSwitchGroups,
   switchGroupExists
 } from '@/globals/pfValidators'
+import SwitchGroupViewMembers from '../../views/Configuration/_components/SwitchGroupViewMembers'
 
 const {
   required,
@@ -198,6 +199,7 @@ export const pfConfigurationSwitchGroupActions = {
 
 export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
   let {
+    id = null,
     isNew = false,
     isClone = false,
     options: {
@@ -986,10 +988,29 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
           ]
         }
       ]
+    },
+    {
+      if: (!isNew && !isClone),
+      tab: i18n.t('Members'),
+      fields: [
+        {
+          fields: [
+            {
+              component: SwitchGroupViewMembers,
+              attrs: {
+                id,
+                members: form.members,
+                class: null // suppress default styles
+              }
+            }
+          ]
+        }
+      ]
     }
   ]
 }
 
+/*
 export const pfConfigurationSwitchGroupViewPlaceholders = (context = {}) => {
   // TODO: replace with inherited defaults from conf/switches.conf.defaults
   return {
@@ -1034,3 +1055,4 @@ export const pfConfigurationSwitchGroupViewDefaults = (context = {}) => {
     VoIPLLDPDetect: 'Y'
   }
 }
+*/

@@ -1092,7 +1092,8 @@ export default {
     })
   },
   updateSwitch: data => {
-    return apiCall.patch(`config/switch/${encodeURI(data.id)}`, data).then(response => {
+    const patch = data.quiet ? 'patchQuiet' : 'patch'
+    return apiCall[patch](`config/switch/${encodeURI(data.id)}`, data).then(response => {
       return response.data
     })
   },
@@ -1116,6 +1117,11 @@ export default {
   switchGroup: id => {
     return apiCall.get(`config/switch_group/${encodeURI(id)}`).then(response => {
       return response.data.item
+    })
+  },
+  switchGroupMembers: id => {
+    return apiCall.get(`config/switch_group/${encodeURI(id)}/members`).then(response => {
+      return response.data.items
     })
   },
   switchGroupOptions: id => {

@@ -214,10 +214,11 @@ export default {
       this.$emit('validations', this.getExternalValidations())
     },
     getClass (row, field) {
-      let c = ['px-0', 'mx-1'] // always remove padding
+      let c = ['px-0'] // always remove padding
       if ('attrs' in field && `class` in field.attrs) { // if class is defined
         c.push(field.attrs.class) // use manual definition
       } else if (row.fields.length === 1) { // else if row is singular
+        c.push('mx-1')
         c.push('col-sm-12') // use entire width
       }
       return c.join(' ')
