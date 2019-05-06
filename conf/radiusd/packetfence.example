@@ -16,6 +16,7 @@ authorize {
 	# Add in PacketFence specific configuration
 	update {
 		&request:FreeRADIUS-Client-IP-Address := "%{Packet-Src-IP-Address}"
+		&request:PacketFence-Radius-Ip := "%{Packet-Dst-IP-Address}"
 		&control:PacketFence-RPC-Server = ${rpc_host}
 		&control:PacketFence-RPC-Port = ${rpc_port}
 		&control:PacketFence-RPC-User = ${rpc_user}
@@ -318,6 +319,7 @@ post-auth {
 	# Add in PacketFence configuration
 	update {
 		&request:FreeRADIUS-Client-IP-Address := "%{Packet-Src-IP-Address}"
+		&request:PacketFence-Radius-Ip := "%{Packet-Dst-IP-Address}"
 		&control:PacketFence-RPC-Server = ${rpc_host}
 		&control:PacketFence-RPC-Port = ${rpc_port}
 		&control:PacketFence-RPC-User = ${rpc_user}
