@@ -262,7 +262,8 @@
           </template>
           <b-table stacked="sm" :items="node.security_events" :fields="securityEventFields" responsive show-empty striped>
             <template slot="description" slot-scope="security_event">
-              {{ securityEventDescription(security_event.item.security_event_id) }}
+              <icon v-if="!securityEventDescription(security_event.item.security_event_id)" name="circle-notch" spin></icon>
+              <router-link v-else :to="{ path: `/configuration/security_event/${security_event.item.security_event_id}` }">{{ securityEventDescription(security_event.item.security_event_id) }}</router-link>
             </template>
             <template slot="status" slot-scope="security_event">
               <b-badge pill variant="success" v-if="security_event.item.status === 'open'">{{ $t('open') }}</b-badge>
@@ -590,7 +591,8 @@ export default {
       }
     },
     securityEventDescription (id) {
-      return this.$store.state.config.security_events[id].desc
+      const { $store: { state: { config: { securityEvents: { [id]: { desc = '' } = {} } = {} } = {} } = {} } = {} } = this
+      return desc
     },
     save () {
       this.$store.dispatch('$_nodes/updateNode', this.nodeContent).then(response => {
