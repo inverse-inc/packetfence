@@ -54,10 +54,11 @@ export default {
       const header = this.visibleColumns.map(column => column.label)
       let keyMap = {} // build map to sort data same as header
       Object.keys(this.data[0]).forEach(key => {
-        keyMap[key] = this.visibleColumns.findIndex(column => column.key === key)
+        const idx = header.findIndex(column => column === key)
+        if (idx >= 0) keyMap[key] = idx
       })
       const body = this.data.map(row => {
-        return Object.entries(row).sort((a, b) => {
+        return Object.entries(row).filter(col => header.includes(col[0])).sort((a, b) => {
           return keyMap[a[0]] - keyMap[b[0]]
         }).map(_row => {
           const [ key, value ] = _row
