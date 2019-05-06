@@ -177,7 +177,7 @@ export default {
       // build `columns` (before searchableOptions)
       let columns = this.parsedColumns.map(column => {
         return {
-          key: `${column.table}.${column.column}`,
+          key: column.alias,
           label: this.$i18n.t(column.alias),
           sortable: true,
           visible: true
