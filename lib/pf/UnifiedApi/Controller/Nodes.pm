@@ -587,6 +587,25 @@ sub rapid7 {
     });
 }
 
+=head2 security_events
+
+security_events
+
+=cut
+
+sub security_events {
+    my ($self) = @_;
+    my $mac = $self->id;
+    my @security_events = eval {
+        map { $_->{release_date} = '' if ($_->{release_date} eq '0000-00-00 00:00:00'); $_ } security_event_view_open($mac)
+    };
+    if ($@) {
+        return $self->render_error(500, "Can't fetch security events from database.");
+    }
+
+    return $self->render(json => { items => \@security_events });
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
