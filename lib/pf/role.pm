@@ -395,14 +395,55 @@ sub getRegisteredRole {
     if( $role ) {
         return $role;
     }
-
     # Try MAC_AUTH, then other EAP methods and finally anything else.
-    if ( $args->{'connection_type'} && ($args->{'connection_type'} & $WIRED_MAC_AUTH) == $WIRED_MAC_AUTH ) {
-        $logger->info("Connection type is Ethernet-NoEAP. Getting role from node_info" );
-        $role = $args->{'node_info'}->{'category'};
-    } elsif ( $args->{'connection_type'} && ($args->{'connection_type'} & $WIRELESS_MAC_AUTH) == $WIRELESS_MAC_AUTH ) {
-        $logger->info("Connection type is Wireless-802.11-NoEAP. Getting role from node_info" );
-        $role = $args->{'node_info'}->{'category'};
+    if ( $args->{'connection_type'} && ( ( ($args->{'connection_type'} & $WIRED_MAC_AUTH) == $WIRED_MAC_AUTH ) || ( ($args->{'connection_type'} & $WIRELESS_MAC_AUTH) == $WIRELESS_MAC_AUTH ) ) ) {
+        $logger->info("Connection type is MAC-AUTH. Getting role from node_info" );
+        my @sources = $profile->getFilteredAuthenticationSources($args->{'stripped_user_name'}, $args->{'realm'});
+        my @source = grep {uc($_->{'type'}) eq "AUTHORIZATION"} @sources;
+        if (@source) {
+            my $stripped_user = '';
+            $stripped_user = $args->{'stripped_user_name'} if(defined($args->{'stripped_user_name'}));
+            my $params = {
+                username => $args->{'user_name'},
+                connection_type => connection_type_to_str($args->{'connection_type'}),
+                SSID => $args->{'ssid'},
+                stripped_user_name => $stripped_user,
+                rule_class => 'authentication',
+                radius_request => $args->{radius_request},
+                realm => $args->{realm},
+                context => $pf::constants::realm::RADIUS_CONTEXT,
+            };
+            my $matched = pf::authentication::match2([@sources], $params);
+            $source = $matched->{source_id};
+            my $values = $matched->{values};
+            $role = $values->{$Actions::SET_ROLE};
+            my $unregdate = $values->{$Actions::SET_UNREG_DATE};
+            my $time_balance =  $values->{$Actions::SET_TIME_BALANCE};
+            my $bandwidth_balance =  $values->{$Actions::SET_BANDWIDTH_BALANCE};
+            my %info = (
+                'pid' => 'default',
+            );
+            if (defined $unregdate) {
+                $info{unregdate} = $unregdate;
+            }
+            if (defined $role) {
+                $info{category} = $role;
+            }
+            if (defined $time_balance) {
+                $info{time_balance} = pf::util::normalize_time($time_balance);
+            }
+            if (defined $bandwidth_balance) {
+                $info{bandwidth_balance} = pf::util::unpretty_bandwidth($bandwidth_balance);
+            }
+            if (blessed ($args->{node_info})) {
+                $args->{node_info}->merge(\%info);
+            }
+            else {
+                node_modify($args->{'mac'},%info);
+            }
+        } else {
+            $role = $args->{'node_info'}->{'category'};
+        }
     }
 
     # If it's an EAP connection with a username, we try to match that username with authentication sources to calculate
@@ -732,7 +773,7 @@ sub _check_bypass {
     my $logger = get_logger();
 
     # If the role of the node is the REJECT role, then we early return as it has precedence over the bypass role and VLAN
-    if($args->{node_info}->{category} eq $REJECT_ROLE) {
+    if(defined($args->{node_info}->{category}) && $args->{node_info}->{category} eq $REJECT_ROLE) {
         $logger->debug("Not considering bypass role and VLAN since the role of the device is $REJECT_ROLE");
         return undef;
     }
