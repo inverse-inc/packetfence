@@ -276,11 +276,13 @@
           </b-table>
         </b-tab>
 
+        <!-- TODO
         <b-tab title="WMI Rules">
           <template slot="title">
             {{ $t('WMI Rules') }}
           </template>
         </b-tab>
+        -->
 
         <b-tab title="Option82">
           <template slot="title">
