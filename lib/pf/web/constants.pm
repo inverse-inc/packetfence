@@ -105,6 +105,7 @@ Readonly::Scalar our $EXT_URL_AEROHIVE_SHORT        => '^/AeroHIVE';
 Readonly::Scalar our $EXT_URL_ARUBA                 => '^/Aruba';
 Readonly::Scalar our $EXT_URL_CISCO_CATALYST_2960   => '^/Cisco::Catalyst_2960';
 Readonly::Scalar our $EXT_URL_CISCO_WLC             => '^/Cisco::WLC';
+Readonly::Scalar our $EXT_URL_CISCO_ASA             => '^/Cisco::ASA';
 Readonly::Scalar our $EXT_URL_COOVACHILLI           => '^/CoovaChilli';
 Readonly::Scalar our $EXT_URL_MERAKI                => '^/Meraki::MR';
 Readonly::Scalar our $EXT_URL_MERAKI_V2             => '^/Meraki::MR_v2';
