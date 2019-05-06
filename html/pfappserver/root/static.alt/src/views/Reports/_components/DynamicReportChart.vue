@@ -185,11 +185,11 @@ export default {
       return parsedSearches
     },
     nodeFields () {
-      const { report: { node_fields: nodeFields } = {} } = this
+      const { report: { node_fields: nodeFields = '' } = {} } = this
       return nodeFields.split(',')
     },
     personFields () {
-      const { report: { person_fields: personFields } = {} } = this
+      const { report: { person_fields: personFields = '' } = {} } = this
       return personFields.split(',')
     },
     quickSearchPlaceholder () {
