@@ -448,10 +448,27 @@ validate
 
 sub validate {
     my ($self) = @_;
+    my $source = $self->source_class;
+    if ($source->has_authentication_rules()) {
+        $self->validate_rules();
+    }
+
+    return;
+}
+
+=head2 validate_rules
+
+validate source admin/auth rules
+
+=cut
+
+sub validate_rules {
+    my ($self) = @_;
     my %rule_names;
     foreach my $class (@{$self->source_class->available_rule_classes}) {
         my $field_name = "${class}_rules";
         my $rules = $self->field($field_name);
+        next if $rules->inactive;
         foreach my $rule ($rules->fields) {
             my $id = $rule->field("id");
             my $value = $id->value;
@@ -462,7 +479,8 @@ sub validate {
             }
         }
     }
-    return ;
+
+    return;
 }
 
 =head1 COPYRIGHT
