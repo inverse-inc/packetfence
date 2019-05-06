@@ -40,6 +40,7 @@ pfcmd <command> [options]
   version                     | output version information
   security_event              | manipulate security events
   security_eventconfig        | query/modify security_events.conf configuration parameters
+  tenant                      | manipulate tenants
 
 Please view "pfcmd help <command>" for details on each option
 
