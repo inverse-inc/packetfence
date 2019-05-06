@@ -88,6 +88,12 @@
         <template slot="empty">
           <pf-empty-table :isLoading="isLoading">{{ $t('No report data found') }}</pf-empty-table>
         </template>
+        <template v-for="nodeField in nodeFields" :key="nodeField" :slot="nodeField" slot-scope="data">
+          <router-link :to="{ path: `/node/${data.value}` }">{{ data.value }}</router-link>
+        </template>
+        <template v-for="personField in personFields" :key="personField" :slot="personField" slot-scope="data">
+          <router-link :to="{ path: `/user/${data.value}` }">{{ data.value }}</router-link>
+        </template>
       </b-table>
     </div>
   </b-card>
@@ -177,6 +183,14 @@ export default {
         })
       }
       return parsedSearches
+    },
+    nodeFields () {
+      const { report: { node_fields: nodeFields } = {} } = this
+      return nodeFields.split(',')
+    },
+    personFields () {
+      const { report: { person_fields: personFields } = {} } = this
+      return personFields.split(',')
     },
     quickSearchPlaceholder () {
       let names = []
