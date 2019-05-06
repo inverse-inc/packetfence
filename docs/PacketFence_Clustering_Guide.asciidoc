@@ -19,7 +19,7 @@ This guide has been created to give a quick start to install active/active clust
 Assumptions
 -----------
 * You have at least three (3) installed PacketFence (v7+) servers
-* The servers are running one of RHEL / CentOS 7 / Debian Jessie
+* The servers are running one of RHEL / CentOS 7 / Debian 9
 * The servers have identical identifiers for network interfaces (e.g. eth0)
 * The servers network interfaces are on the same layer 2 network
 * The servers must have IPv6 disabled.
@@ -49,12 +49,15 @@ Disable Percona repositories, so that installing software from that repository r
   # sed -i 's/enabled = 1/enabled = 0/g' /etc/yum.repos.d/percona-release.repo
   # yum install percona-xtrabackup socat --enablerepo=percona-release-x86_64
 
-On Debian:
-
-  # wget https://repo.percona.com/apt/percona-release_0.1-4.$(lsb_release -sc)_all.deb
-  # dpkg -i percona-release_0.1-4.$(lsb_release -sc)_all.deb
-  # apt-get update
-  # apt-get -y install percona-xtrabackup-24
+.On Debian:
+[source,bash]
+----
+apt-get install lsb-release
+wget https://repo.percona.com/apt/percona-release_0.1-4.$(lsb_release -sc)_all.deb
+dpkg -i percona-release_0.1-4.$(lsb_release -sc)_all.deb
+apt-get update
+apt-get -y install percona-xtrabackup-24
+----
 
 For the next steps, you want to make sure that you didn't configure anything in `/usr/local/pf/conf/cluster.conf`. If you already did, comment all the configuration in the file and do a configreload (`/usr/local/pf/bin/pfcmd configreload hard`).
 
