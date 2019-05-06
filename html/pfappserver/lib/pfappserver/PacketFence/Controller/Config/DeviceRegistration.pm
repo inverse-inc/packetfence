@@ -60,8 +60,9 @@ before [qw(remove)] => sub {
     my ($self, $c, @args) = @_;
     # We check that it's not used by any connection profile
     my $count = 0;
+    my $id = $c->stash->{'id'};
     while (my ($id, $config) = each %Profiles_Config) {
-        $count ++ if ( any { $_ eq $c->stash->{'id'} } @{$config->{device_registration}});
+        $count ++ if $config->{device_registration} eq $id;
     }
 
     if ($count > 0) {
