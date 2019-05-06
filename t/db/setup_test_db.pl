@@ -57,6 +57,7 @@ sub smoke_tester_db_connections {
       DBI->connect( $dsn, $config->{user}, $config->{pass},
         { RaiseError => 0, PrintError => 0, mysql_auto_reconnect => 1 } )
       or die <<EOS;
+$dsn
 Cannot connection to db with test user please run
 mysql -uroot -p < /usr/local/pf/t/db/smoke_test.sql;
 EOS
