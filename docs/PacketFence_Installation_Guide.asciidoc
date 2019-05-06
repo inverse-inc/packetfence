@@ -5396,7 +5396,7 @@ Next, apply the innodb log:
 
 We will now stop MariaDB, move the existing data directory and replace it by the data that was extracted:
 
-NOTE: On Debian the service will be called `mysql` and on CentOS 7 `mariadb`. Make sure you adjust the commands above to your environment.
+NOTE: Make sure you adjust the commands above to your environment.
 
   # service packetfence-mariadb stop
   # mv /var/lib/mysql /var/lib/mysql.bak
