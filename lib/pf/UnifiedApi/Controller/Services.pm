@@ -36,7 +36,6 @@ sub cluster_status {
 
     my @results;
     for my $server (@servers) {
-        next if ($server->{host} eq 'prod-pf.inverse');
         my $client = pf::api::unifiedapiclient->new;
         my @server_services = ();
         $client->host($server->{management_ip});
