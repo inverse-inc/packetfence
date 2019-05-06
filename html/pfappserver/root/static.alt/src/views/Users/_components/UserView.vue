@@ -712,7 +712,9 @@ export default {
     save () {
       const ctrlKey = this.ctrlKey
       this.$store.dispatch('$_users/updateUser', this.userContent).then(response => {
-        this.$store.dispatch('$_users/updatePassword', Object.assign({ quiet: true }, this.userContent))
+        if (this.hasPassword) {
+          this.$store.dispatch('$_users/updatePassword', Object.assign({ quiet: true }, this.userContent))
+        }
         if (ctrlKey) { // [CTRL] key pressed
           this.close()
         }
