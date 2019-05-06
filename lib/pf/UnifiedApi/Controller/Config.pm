@@ -322,7 +322,7 @@ sub update {
     my $cs = $self->config_store;
     $cs->update($id, $new_data);
     $cs->commit;
-    $self->render(status => 200, json => { message => "$id updated"});
+    $self->render(status => 200, json => { message => "Settings updated"});
 }
 
 sub replace {
@@ -341,7 +341,7 @@ sub replace {
     delete $item->{id};
     $cs->update($id, $item);
     $cs->commit;
-    $self->render(status => 200, json => { message => "$id replaced"});
+    $self->render(status => 200, json => { message => "Settings replaced"});
 }
 
 =head2 sort_items
