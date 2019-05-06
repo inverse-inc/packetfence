@@ -17,6 +17,37 @@
       @reset-search="onReset"
       @import-search="onImport"
     ></pf-search>
+    <b-container id="DynamicReportChartDates" fluid>
+      <b-row class="mb-3" align-h="between" align-v="center">
+        <b-col cols="auto" class="text-left">
+          <b-form inline>
+            <b-btn variant="link" id="periods">
+              <icon name="stopwatch"></icon>
+            </b-btn>
+            <b-popover class="popover-full" target="periods" triggers="click focus blur" placement="bottomright" container="DynamicReportChartDates" :show.sync="showPeriod">
+              <b-form-row class="align-items-center">
+                <div class="mx-1">{{ $t('Previous') }}</div>
+                  <b-button-group vrel="periodButtonGroup">
+                    <b-button variant="light" @click="setRangeByPeriod(60 * 30)" v-b-tooltip.hover.bottom.d300 :title="$t('30 minutes')">30m</b-button>
+                    <b-button variant="light" @click="setRangeByPeriod(60 * 60)" v-b-tooltip.hover.bottom.d300 :title="$t('1 hour')">1h</b-button>
+                    <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 6)" v-b-tooltip.hover.bottom.d300 :title="$t('6 hours')">6h</b-button>
+                    <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 12)" v-b-tooltip.hover.bottom.d300 :title="$t('12 hours')">12h</b-button>
+                    <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 24)" v-b-tooltip.hover.bottom.d300 :title="$t('1 day')">1D</b-button>
+                    <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 24 * 7)" v-b-tooltip.hover.bottom.d300 :title="$t('1 week')">1W</b-button>
+                    <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 24 * 14)" v-b-tooltip.hover.bottom.d300 :title="$t('2 weeks')">2W</b-button>
+                    <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 24 * 28)" v-b-tooltip.hover.bottom.d300 :title="$t('1 month')">1M</b-button>
+                    <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 24 * 28 * 2)" v-b-tooltip.hover.bottom.d300 :title="$t('2 months')">2M</b-button>
+                    <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 24 * 28 * 6)" v-b-tooltip.hover.bottom.d300 :title="$t('6 months')">6M</b-button>
+                    <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 24 * 365)" v-b-tooltip.hover.bottom.d300 :title="$t('1 year')">1Y</b-button>
+                  </b-button-group>
+              </b-form-row>
+            </b-popover>
+            <pf-form-datetime v-model="datetimeStart" :max="maxStartDatetime" :prepend-text="$t('Start')" class="mr-3" :disabled="isLoading"></pf-form-datetime>
+            <pf-form-datetime v-model="datetimeEnd" :min="minEndDatetime" :prepend-text="$t('End')" class="mr-3" :disabled="isLoading"></pf-form-datetime>
+          </b-form>
+        </b-col>
+      </b-row>
+    </b-container>
     <div class="card-body">
       <b-row align-h="between" align-v="center">
         <b-col cols="auto" class="mr-auto">
@@ -63,8 +94,10 @@
 </template>
 
 <script>
+import { format, subSeconds } from 'date-fns'
 import pfButtonExportToCsv from '@/components/pfButtonExportToCsv'
 import pfEmptyTable from '@/components/pfEmptyTable'
+import pfFormDatetime from '@/components/pfFormDatetime'
 import pfFormToggle from '@/components/pfFormToggle'
 import pfMixinSearchable from '@/components/pfMixinSearchable'
 import pfSearch from '@/components/pfSearch'
@@ -78,6 +111,7 @@ export default {
   components: {
     pfButtonExportToCsv,
     pfEmptyTable,
+    pfFormDatetime,
     pfFormToggle,
     pfSearch
   },
@@ -100,7 +134,11 @@ export default {
       report: {},
       advancedMode: false,
       fields: [],
-      columns: []
+      columns: [],
+      datetimeStart: null,
+      datetimeEnd: null,
+      maxStartDatetime: '9999-12-12 23:59:59',
+      minEndDatetime: '0000-00-00 00:00:00'
     }
   },
   computed: {
@@ -220,7 +258,8 @@ export default {
         defaultSortKeys: [`${this.parsedSearches[0].table}.${this.parsedSearches[0].column}`],
         defaultSortDesc: false,
         defaultSearchCondition: { op: 'and', values: [{ op: 'or', values: searchCriteria }] },
-        defaultRoute: { name: 'dynamicReportChart', params: { id: this.id } }
+        defaultRoute: { name: 'dynamicReportChart', params: { id: this.id } },
+        extraFields: { 'start_date': this.datetimeStart, 'end_date': this.datetimeEnd }
       }
       if ('date_field' in this.report) {
         let search = this.parsedColumns.find(search => search.column === this.report.date_field)
@@ -230,6 +269,10 @@ export default {
         }
       }
       this.$set(this, 'searchableOptions', searchableOptions)
+    },
+    setRangeByPeriod (period) {
+      this.datetimeEnd = format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+      this.datetimeStart = format(subSeconds(new Date(), period), 'YYYY-MM-DD HH:mm:ss')
     }
   },
   created () {
@@ -240,7 +283,43 @@ export default {
       if (a && a !== b) {
         this.init()
       }
+    },
+    datetimeStart (a, b) {
+      if (a !== b) {
+        this.minEndDatetime = a
+        this.buildPropsFromReport()
+      }
+    },
+    datetimeEnd (a, b) {
+      if (a !== b) {
+        this.maxStartDatetime = a
+        this.buildPropsFromReport()
+      }
     }
   }
 }
 </script>
+
+<style>
+/**
+ * Don't limit the size of the popover
+ */
+#DynamicReportChartDates .popover {
+  max-width: none;
+}
+</style>
+
+<style lang="scss" scoped>
+@import "../../../../node_modules/bootstrap/scss/functions";
+@import "../../../styles/variables";
+
+/**
+ * Add btn-primary color(s) on hover
+ */
+.btn-group[rel=periodButtonGroup] button:hover {
+  border-color: $input-btn-hover-bg-color;
+  background-color: $input-btn-hover-bg-color;
+  color: $input-btn-hover-text-color;
+}
+
+</style>

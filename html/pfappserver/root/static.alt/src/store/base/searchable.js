@@ -57,6 +57,7 @@ export default class SearchableStore {
       return {
         results: [], // search results
         cache: {}, // items details
+        extraFields: {},
         message: '',
         itemStatus: '',
         searchStatus: '',
@@ -76,6 +77,9 @@ export default class SearchableStore {
     }
 
     const actions = {
+      setExtraFields: ({ commit }, fields) => {
+        commit('EXTRA_FIELDS_UPDATED', fields)
+      },
       setSearchFields: ({ commit }, fields) => {
         commit('SEARCH_FIELDS_UPDATED', fields)
       },
@@ -100,10 +104,13 @@ export default class SearchableStore {
       search: ({ state, getters, commit, dispatch }, page) => {
         let sort = [state.searchSortDesc ? `${state.searchSortBy} DESC` : state.searchSortBy]
         let body = {
-          cursor: state.searchPageSize * (page - 1),
-          limit: state.searchPageSize,
-          fields: state.searchFields,
-          sort
+          ...{
+            cursor: state.searchPageSize * (page - 1),
+            limit: state.searchPageSize,
+            fields: state.searchFields,
+            sort
+          },
+          ...state.extraFields
         }
         let apiPromise = state.searchQuery ? _this.api.search(Object.assign(body, { query: state.searchQuery })) : _this.api.all(body)
         if (state.searchStatus !== types.LOADING) {
@@ -135,6 +142,9 @@ export default class SearchableStore {
     }
 
     const mutations = {
+      EXTRA_FIELDS_UPDATED: (state, fields) => {
+        state.extraFields = fields
+      },
       SEARCH_FIELDS_UPDATED: (state, fields) => {
         state.searchFields = fields
       },

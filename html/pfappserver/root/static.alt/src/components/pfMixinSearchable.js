@@ -50,7 +50,8 @@ export default {
         searchApiEndpointOnly: false,
         defaultSearchCondition: () => {
           return { op: 'and', values: [{ op: 'or', values: [{ field: null, op: null, value: null }] }] }
-        }
+        },
+        extraFields: false
       }
     },
     query: {
@@ -165,6 +166,9 @@ export default {
         condition = this.searchableQuickCondition(searchCondition)
       }
       this.requestPage = 1 // reset to the first page
+      if ('extraFields' in this.searchableOptions) {
+        this.$store.dispatch(`${this.searchableStoreName}/setExtraFields`, this.searchableOptions.extraFields)
+      }
       this.$store.dispatch(`${this.searchableStoreName}/setSearchQuery`, condition)
       this.$store.dispatch(`${this.searchableStoreName}/search`, this.requestPage).then(() => {
         this.currentPage = this.requestPage
