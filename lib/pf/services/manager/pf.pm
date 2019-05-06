@@ -97,7 +97,7 @@ sub print_status {
             my $active = `systemctl is-active $service`;
             chomp $active;
             $service .= (" " x (50 - length($service)));
-            if ($active =~ /(failed|inactive)/) {
+            if ($active !~ /^active/) {
                 if (@manager && $isManaged && !$manager[0]->optional) {
                     print "$service\t$colors->{error}stopped   ${pid}$colors->{reset}\n";
                 } elsif (!$isManaged) {
