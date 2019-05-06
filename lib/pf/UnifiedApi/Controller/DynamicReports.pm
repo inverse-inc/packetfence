@@ -56,6 +56,8 @@ sub search {
         sql_abstract_search => $where,
         per_page => $json->{limit},
         order => $json->{sort},
+        start_date => $json->{start_date},
+        end_date => $json->{end_date},
     );
 
     ($status, my $data) = $report->query(%info);
