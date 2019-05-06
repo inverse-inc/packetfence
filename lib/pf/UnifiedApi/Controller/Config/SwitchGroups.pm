@@ -36,19 +36,8 @@ members
 sub members {
     my ($self) = @_;
     my $cs     = pf::ConfigStore::Switch->new;
-    my $id     = $self->id;
     my $form   = pfappserver::Form::Config::Switch->new;
-    my @items = map {$self->cleanup_item($_, $form)} $id eq 'default' ?
-        $cs->filter(
-            sub {
-                my $group = $_[0]->{group};
-                return !defined $group || $group eq 'default';
-            },
-            'id'
-        )
-        :
-        $cs->search('group', $id, 'id');
-
+    my @items = map { $self->cleanup_item($_, $form) } $cs->membersOfGroup($self->id);
     return $self->render( json => { items => \@items } );
 }
 

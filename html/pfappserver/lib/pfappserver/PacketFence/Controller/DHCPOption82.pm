@@ -47,21 +47,21 @@ sub index :Path :Args(0) :AdminRole('AUDITING_READ') {
     my $id = $c->user->id;
     my ($status, $saved_searches) = $c->model("SavedSearch::DHCPOption82")->read_all($id);
     my $sg = pf::ConfigStore::SwitchGroup->new;
+    my $sw = pf::ConfigStore::Switch->new();
 
     my $switch_groups = [
-    map {
-        local $_ = $_;
+        map {
+            local $_ = $_;
             my $id = $_;
-            {id => $id, members => [$sg->members($id, 'id')]}
-         } @{$sg->readAllIds}];
-    my $switches_list = pf::ConfigStore::Switch->new->readAll("Id");
-    my @switches_filtered = grep { !defined $_->{group} && $_->{Id} !~ /^group(.*)/ && $_->{Id} !~ m/\// && $_->{Id} ne 'default' } @$switches_list;
+            { id => $id, members => [ $sw->membersOfGroup($id) ] }
+        } @{ $sg->readAllIds }
+    ];
     my $switches = [
-    map {
-        local $_ = $_;
-        my $id = $_->{Id};
-        {id => $id}
-        } @switches_filtered];
+        map {
+            local $_ = $_;
+            { $_ => $_ }
+        } @{$sw->readAllIds}
+    ];
 
     $c->stash({
         saved_searches => $saved_searches,

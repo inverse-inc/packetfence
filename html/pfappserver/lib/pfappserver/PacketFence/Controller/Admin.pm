@@ -315,26 +315,23 @@ sub auditing :Chained('object') :PathPart('auditing') :Args(0) :AdminRole('AUDIT
 sub nodes :Chained('object') :PathPart('nodes') :Args(0) :AdminRole('NODES_READ') {
     my ( $self, $c ) = @_;
     my $sg = pf::ConfigStore::SwitchGroup->new;
- 
+    my $sw = pf::ConfigStore::Switch->new();
     my $switch_groups = [
-    map {
-        local $_ = $_;
+        map {
+            local $_ = $_;
             my $id = $_;
-            {id => $id, members => [$sg->members($id, 'id')]}
-         } @{$sg->readAllIds}];
+            { id => $id, members => [ $sw->membersOfGroup($id) ] }
+        } @{ $sg->readAllIds }
+    ];
+    my $switches = [
+        map {
+            { id => $_->{id}, description  => $_->{description} }
+        } @{$sw->readAll('id')}
+    ];
 
     my $id = $c->user->id;
     my ($status, $saved_searches) = $c->model("SavedSearch::Node")->read_all($id);
     (undef, my $roles) = $c->model('Config::Roles')->listFromDB();
-    my $switches_list = pf::ConfigStore::Switch->new->readAll("Id");
-    my @switches_filtered = grep { !defined $_->{group} && $_->{Id} !~ /^group(.*)/ && $_->{Id} ne 'default' } @$switches_list;
-    my $switches = [
-    map {
-        local $_ = $_;
-        my $id = $_->{Id};
-        my $description = $_->{description};
-        {id => $id, description => $description} 
-        } @switches_filtered];
 
     $c->stash(
         saved_searches => $saved_searches,

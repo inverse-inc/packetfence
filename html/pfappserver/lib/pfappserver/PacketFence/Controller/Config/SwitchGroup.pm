@@ -77,7 +77,7 @@ after qw(view update) => sub {
     my ($self, $c) = @_;
 
     my $cs = $c->model("Config::Switch")->configStore;
-    my %members = map { $_->{id} => $_ } $cs->search("group", $c->stash->{item}->{id}, "id");
+    my %members = map { $_->{id} => $_ } $cs->membersOfGroup($c->stash->{item}->{id});
     $c->stash->{item}->{members} = \%members;
     $c->stash->{tab} = $c->request->param("tab");
 };

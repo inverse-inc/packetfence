@@ -197,6 +197,18 @@ sub _Sections {
     return grep { $_ ne 'default' && /^\S+$/ } $self->SUPER::_Sections();
 }
 
+sub defaultGroupFilter {
+    my $group = $_[0]->{group};
+    return !defined $group || $group eq 'default';
+}
+
+sub membersOfGroup {
+    my ( $self, $groupName ) = @_;
+    return $groupName eq 'default'
+      ? $self->filter( \&defaultGroupFilter, 'id' )
+      : $self->search( 'group', $groupName, 'id' );
+}
+
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 =back
