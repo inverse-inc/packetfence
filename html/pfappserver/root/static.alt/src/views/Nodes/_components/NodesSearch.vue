@@ -97,9 +97,7 @@
               <b-pagination class="mr-3" align="right" v-model="requestPage" :per-page="pageSizeLimit" :total-rows="totalRows" :disabled="isLoading"
                 @input="onPageChange" />
               <pf-button-export-to-csv class="mb-3" filename="nodes.csv" :disabled="isLoading"
-                :searchableStoreName="searchableStoreName"
-                :searchableOptions="searchableOptions"
-                :columns="columns"
+                :columns="columns" :data="items"
               />
             </b-row>
           </b-container>

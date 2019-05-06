@@ -37,9 +37,7 @@
               <b-pagination class="mr-3" align="right" :per-page="pageSizeLimit" :total-rows="totalRows" v-model="requestPage" :disabled="isLoading"
                 @input="onPageChange" />
               <pf-button-export-to-csv class="mb-3" filename="radiuslogs.csv" :disabled="isLoading"
-                :searchableStoreName="searchableStoreName"
-                :searchableOptions="searchableOptions"
-                :columns="columns"
+                :columns="columns" :data="items"
               />
             </b-row>
           </b-container>

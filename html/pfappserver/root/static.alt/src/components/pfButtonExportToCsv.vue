@@ -1,5 +1,5 @@
 <template>
-  <b-button type="button" :disabled="disabled || results.length === 0" :variant="variant" @click="download()">
+  <b-button type="button" :disabled="disabled || data.length === 0" :variant="variant" @click="download()">
     <icon name="file-export" class="mr-1"></icon>
     <template >
       <slot>{{ $t('Export to CSV') }}</slot>
@@ -31,35 +31,32 @@ export default {
       type: Array,
       required: true
     },
+    data: {
+      type: Array,
+      default: []
+    },
     filename: {
       type: String,
       default: 'export.csv'
     }
   },
   computed: {
-    results () {
-      let results = this.$store.state[this.searchableStoreName].results
-      if ('resultsFilter' in this.searchableOptions) {
-        results = this.searchableOptions.resultsFilter(results)
-      }
-      return results
-    },
     visibleColumns () {
       return this.columns.filter(column => !column.locked && column.visible)
     }
   },
   methods: {
-    data () {
+    contents () {
       let formatters = {}
       this.visibleColumns.forEach(column => {
         if (column.formatter) formatters[column.key] = column.formatter
       })
       const header = this.visibleColumns.map(column => column.label)
-      let keyMap = {} // build map to sort results same as header
-      Object.keys(this.results[0]).forEach(key => {
+      let keyMap = {} // build map to sort data same as header
+      Object.keys(this.data[0]).forEach(key => {
         keyMap[key] = this.visibleColumns.findIndex(column => column.key === key)
       })
-      const data = this.results.map(row => {
+      const body = this.data.map(row => {
         return Object.entries(row).sort((a, b) => {
           return keyMap[a[0]] - keyMap[b[0]]
         }).map(_row => {
@@ -70,17 +67,15 @@ export default {
           return value || ''
         })
       })
-      return [ header, ...data ]
+      return [ header, ...body ]
     },
     download () {
       let csvContentArray = []
-      this.data().forEach(rowArray => {
+      this.contents().forEach(rowArray => {
         let row = rowArray.map(col => `"${col.replace('"', '\\"')}"`).join(',')
         csvContentArray.push(row)
       })
-
-      // window.open(encodeURI(`data:text/csv;charset=utf-8,${csvContentArray.join('\r\n')}`))
-
+      // window.open(encodeURI(`data:text/csv;charset=utf-8,${csvContentArray.join('\r\n')}`)) // doesn't allow naming
       var blob = new Blob([csvContentArray.join('\r\n')], { type: 'text/csv' })
       if (window.navigator.msSaveOrOpenBlob) {
         window.navigator.msSaveBlob(blob, this.filename)
