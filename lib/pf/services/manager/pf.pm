@@ -69,7 +69,6 @@ sub print_status {
     my ($self) = @_;
     my $logger = get_logger();
     my @output = `systemctl list-unit-files|grep packetfence`;
-    my $header = shift @output;
     my $colors = pf::util::console::colors();
     my $pid = 0;
     my @manager;
