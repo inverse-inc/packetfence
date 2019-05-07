@@ -353,6 +353,7 @@ export const pfConfigurationInterfaceViewFields = (context = {}) => {
                 trackBy: 'value',
                 label: 'text',
                 multiple: true,
+                allowEmpty: true,
                 clearOnSelect: false,
                 closeOnSelect: false,
                 options: pfCongigurationInterfaceDaemons
