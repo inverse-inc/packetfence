@@ -15,6 +15,7 @@ pf::UnifiedApi::Controller::Config
 use strict;
 use warnings;
 use Mojo::Base qw(pf::UnifiedApi::Controller::RestRoute);
+use pf::constants;
 use pf::UnifiedApi::OpenAPI::Generator::Config;
 use pf::UnifiedApi::GenerateSpec;
 use Mojo::Util qw(url_unescape);
@@ -235,9 +236,19 @@ sub create {
 
     delete $item->{id};
     $cs->create($id, $item);
-    $cs->commit;
+    return unless($self->commit($cs));
     $self->res->headers->location($self->make_location_url($id));
     $self->render(status => 201, json => { id => $id, message => "'$id' created" });
+}
+
+sub commit {
+    my ($self, $cs) = @_;
+    my ($res, $msg) = $cs->commit();
+    unless($res) {
+        $self->render_error(500, $msg);
+        return undef;
+    }
+    return $TRUE;
 }
 
 sub validate_item {
@@ -299,7 +310,7 @@ sub remove {
         return $self->render_error(422, "Unable to delete $id");
     }
 
-    $cs->commit;
+    return unless($self->commit($cs));
     return $self->render(json => {message => "Deleted $id successfully"}, status => 200);
 }
 
@@ -321,7 +332,7 @@ sub update {
     delete $new_data->{id};
     my $cs = $self->config_store;
     $cs->update($id, $new_data);
-    $cs->commit;
+    return unless($self->commit($cs));
     $self->render(status => 200, json => { message => "Settings updated"});
 }
 
@@ -340,7 +351,7 @@ sub replace {
     my $cs = $self->config_store;
     delete $item->{id};
     $cs->update($id, $item);
-    $cs->commit;
+    return unless($self->commit($cs));
     $self->render(status => 200, json => { message => "Settings replaced"});
 }
 
@@ -363,7 +374,7 @@ sub sort_items {
         return $self->render_error(422, "Items cannot be resorted in the configuration");
     }
 
-    $cs->commit;
+    return unless($self->commit($cs));
     return $self->render(json => {});
 }
 
