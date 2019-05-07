@@ -52,6 +52,15 @@
         <template slot="empty">
           <pf-empty-table :isLoading="isLoading">{{ $t('No data found') }}</pf-empty-table>
         </template>
+        <template slot="mac" slot-scope="data">
+          <router-link :to="{ path: `/node/${data.value}` }">{{ data.value }}</router-link>
+        </template>
+        <template slot="owner" slot-scope="data">
+          <router-link :to="{ path: `/user/${data.value}` }">{{ data.value }}</router-link>
+        </template>
+        <template slot="pid" slot-scope="data">
+          <router-link :to="{ path: `/user/${data.value}` }">{{ data.value }}</router-link>
+        </template>
       </b-table>
     </div>
   </b-card>

@@ -46,14 +46,14 @@
       <b-table class="table-clickable" :items="items" :fields="visibleColumns" :sort-by="sortBy" :sort-desc="sortDesc"
         @sort-changed="onSortingChanged" @row-clicked="onRowClick"
         show-empty responsive hover no-local-sorting striped>
-        <template slot="mac" slot-scope="log">
-          <b-button variant="link" :to="`../../node/${log.item.mac}`"><mac v-text="log.item.mac"></mac></b-button>
+        <template slot="empty">
+          <pf-empty-table :isLoading="isLoading">{{ $t('No logs found') }}</pf-empty-table>
         </template>
         <template slot="auth_status" slot-scope="log">
           <b-badge pill :variant="(log.item.auth_status === 'Accept') ? 'success' : 'danger'" class="ml-1">{{ log.item.auth_status }}</b-badge>
         </template>
-        <template slot="empty">
-          <pf-empty-table :isLoading="isLoading">{{ $t('No logs found') }}</pf-empty-table>
+        <template slot="mac" slot-scope="data">
+          <router-link :to="{ path: `/node/${data.value}` }"><mac v-text="data.value"></mac></router-link>
         </template>
       </b-table>
     </div>

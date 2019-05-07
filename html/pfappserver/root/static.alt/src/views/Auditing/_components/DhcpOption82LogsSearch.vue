@@ -46,11 +46,11 @@
       <b-table class="table-clickable" :items="items" :fields="visibleColumns" :sort-by="sortBy" :sort-desc="sortDesc"
         @sort-changed="onSortingChanged" @row-clicked="onRowClick"
         show-empty responsive hover no-local-sorting striped>
-        <template slot="mac" slot-scope="log">
-          <mac v-text="log.item.mac"></mac>
-        </template>
         <template slot="empty">
           <pf-empty-table :isLoading="isLoading">{{ $t('No logs found') }}</pf-empty-table>
+        </template>
+        <template slot="mac" slot-scope="data">
+          <router-link :to="{ path: `/node/${data.value}` }"><mac v-text="data.value"></mac></router-link>
         </template>
       </b-table>
     </div>
