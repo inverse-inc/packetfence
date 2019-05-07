@@ -1734,9 +1734,9 @@ setup_api_v1_emails_route
 
 sub setup_api_v1_emails_route {
     my ($self, $root) = @_;
-    $root->any( ['POST'] => "/email/preview" )
-      ->to(controller => "Emails", action => "preview")
-      ->name("api.v1.Emails.preview");
+    my $resource_route = $root->any("email")->to(controller => "Emails" );
+    $resource_route->register_sub_action({ method => 'POST', action => 'preview', path => 'preview'});
+    $resource_route->register_sub_action({ method => 'POST', action => 'send_email', path => 'send'});
     return ;
 }
 
