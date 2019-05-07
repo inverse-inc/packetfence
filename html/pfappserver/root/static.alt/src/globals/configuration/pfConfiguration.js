@@ -149,8 +149,6 @@ export const pfConfigurationDefaultsFromMeta = (meta = {}) => {
         }
         // default w/ object
         defaults[key][property] = meta[key].properties[property].default
-        // default w/ dot separator ('.')
-        defaults[`${key}.${property}`] = meta[key].properties[property].default
       })
     } else {
       defaults[key] = meta[key].default
