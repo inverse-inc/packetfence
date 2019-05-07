@@ -1,6 +1,6 @@
 <template>
   <b-form-row :id="'security-event-trigger-row_' + uuid"
-    class="align-items-center security-event-trigger-row text-center py-1"
+    class="align-items-center security-event-trigger-row flex-nowrap text-center py-1"
     v-on="forwardListeners">
     <b-badge class="or">{{ $t('OR') }}</b-badge>
     <b-col cols="1" class="text-center col-form-label">
@@ -696,8 +696,8 @@ export default {
   position: relative;
   .or {
     position: absolute;
-    bottom: -.5rem;
-    left: 3rem;
+    bottom: -1em;
+    left: 5em;
   }
 }
 .pf-form-field-component-container:last-child .or {
