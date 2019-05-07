@@ -24,7 +24,6 @@
                   <b-media v-else>
                     <icon name="file" scale="2" slot="aside"></icon>
                     <h4>{{ $t('There are no open CSV files') }}</h4>
-                    <p class="font-weight-light">{{ $t('Open a new CSV file using') }} <icon name="plus-circle"></icon> {{ $t('button') }}.</p>
                   </b-media>
                 </b-col>
             </b-row>
