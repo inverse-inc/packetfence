@@ -211,7 +211,7 @@ export const pfConfigurationAuthenticationSourceFields = {
       ]
     }
   },
-  administration_rules: ({ options: { meta = {} } } = {}) => {
+  administration_rules: ({ options: { meta = {} }, sourceType = null } = {}) => {
     return {
       label: 'Administration Rules',
       fields: [
@@ -246,32 +246,7 @@ export const pfConfigurationAuthenticationSourceFields = {
                     attributeLabel: i18n.t('Select attribute'),
                     operatorLabel: i18n.t('Select operator'),
                     valueLabel: i18n.t('Select value'),
-                    fields: [
-                      pfConfigurationConditions.ssid,
-                      pfConfigurationConditions.current_time,
-                      pfConfigurationConditions.current_time_period,
-                      pfConfigurationConditions.connection_type,
-                      pfConfigurationConditions.computer_name,
-                      pfConfigurationConditions.mac,
-                      pfConfigurationConditions.realm,
-                      pfConfigurationConditions.cn,
-                      pfConfigurationConditions.department,
-                      pfConfigurationConditions.description,
-                      pfConfigurationConditions.displayName,
-                      pfConfigurationConditions.distinguishedName,
-                      pfConfigurationConditions.eduPersonPrimaryAffiliation,
-                      pfConfigurationConditions.givenName,
-                      pfConfigurationConditions.groupMembership,
-                      pfConfigurationConditions.mail,
-                      pfConfigurationConditions.memberOf,
-                      pfConfigurationConditions.nested_group,
-                      pfConfigurationConditions.postOfficeBox,
-                      pfConfigurationConditions.sAMAccountName,
-                      pfConfigurationConditions.sAMAccountType,
-                      pfConfigurationConditions.sn,
-                      pfConfigurationConditions.uid,
-                      pfConfigurationConditions.userAccountControl
-                    ]
+                    fields: pfConfigurationAuthenticationSourceRulesConditionFields(sourceType)
                   },
                   invalidFeedback: [
                     { [i18n.t('Condition(s) contain one or more errors.')]: true }
@@ -428,7 +403,7 @@ export const pfConfigurationAuthenticationSourceFields = {
       ]
     }
   },
-  authentication_rules: ({ options: { meta = {} } } = {}) => {
+  authentication_rules: ({ options: { meta = {} }, sourceType = null } = {}) => {
     return {
       label: 'Authentication Rules',
       fields: [
@@ -465,32 +440,7 @@ export const pfConfigurationAuthenticationSourceFields = {
                     attributeLabel: i18n.t('Select attribute'),
                     operatorLabel: i18n.t('Select operator'),
                     valueLabel: i18n.t('Select value'),
-                    fields: [
-                      pfConfigurationConditions.ssid,
-                      pfConfigurationConditions.current_time,
-                      pfConfigurationConditions.current_time_period,
-                      pfConfigurationConditions.connection_type,
-                      pfConfigurationConditions.computer_name,
-                      pfConfigurationConditions.mac,
-                      pfConfigurationConditions.realm,
-                      pfConfigurationConditions.cn,
-                      pfConfigurationConditions.department,
-                      pfConfigurationConditions.description,
-                      pfConfigurationConditions.displayName,
-                      pfConfigurationConditions.distinguishedName,
-                      pfConfigurationConditions.eduPersonPrimaryAffiliation,
-                      pfConfigurationConditions.givenName,
-                      pfConfigurationConditions.groupMembership,
-                      pfConfigurationConditions.mail,
-                      pfConfigurationConditions.memberOf,
-                      pfConfigurationConditions.nested_group,
-                      pfConfigurationConditions.postOfficeBox,
-                      pfConfigurationConditions.sAMAccountName,
-                      pfConfigurationConditions.sAMAccountType,
-                      pfConfigurationConditions.sn,
-                      pfConfigurationConditions.uid,
-                      pfConfigurationConditions.userAccountControl
-                    ]
+                    fields: pfConfigurationAuthenticationSourceRulesConditionFields(sourceType)
                   },
                   invalidFeedback: [
                     { [i18n.t('Condition(s) contain one or more errors.')]: true }
@@ -1832,6 +1782,203 @@ export const pfConfigurationAuthenticationSourceFields = {
         }
       ]
     }
+  }
+}
+
+export const pfConfigurationAuthenticationSourceRulesConditionFields = (sourceType) => {
+  switch (sourceType) {
+    case 'AD':
+      return [
+        pfConfigurationConditions.SSID,
+        pfConfigurationConditions.current_time,
+        pfConfigurationConditions.current_time_period,
+        pfConfigurationConditions.connection_type,
+        pfConfigurationConditions.computer_name,
+        pfConfigurationConditions.mac,
+        pfConfigurationConditions.realm,
+        pfConfigurationConditions.UserPrincipalName,
+        pfConfigurationConditions.cn,
+        pfConfigurationConditions.department,
+        pfConfigurationConditions.description,
+        pfConfigurationConditions.displayName,
+        pfConfigurationConditions.distinguishedName,
+        pfConfigurationConditions.eduPersonPrimaryAffiliation,
+        pfConfigurationConditions.givenName,
+        pfConfigurationConditions.groupMembership,
+        pfConfigurationConditions.mail,
+        pfConfigurationConditions.memberOf,
+        pfConfigurationConditions.nested_group,
+        pfConfigurationConditions.postOfficeBox,
+        pfConfigurationConditions.sAMAccountName,
+        pfConfigurationConditions.sAMAccountType,
+        pfConfigurationConditions.servicePrincipalName,
+        pfConfigurationConditions.sn,
+        pfConfigurationConditions.uid,
+        pfConfigurationConditions.userAccountControl
+      ]
+    case 'Authorization':
+      return [
+        pfConfigurationConditions.SSID,
+        pfConfigurationConditions.current_time,
+        pfConfigurationConditions.current_time_period,
+        pfConfigurationConditions.connection_type,
+        pfConfigurationConditions.computer_name,
+        pfConfigurationConditions.mac,
+        pfConfigurationConditions.realm,
+        pfConfigurationConditions['TLS-Cert-Common-Name'],
+        pfConfigurationConditions['TLS-Cert-Expiration'],
+        pfConfigurationConditions['TLS-Cert-Issuer'],
+        pfConfigurationConditions['TLS-Cert-Serial'],
+        pfConfigurationConditions['TLS-Cert-Subject'],
+        pfConfigurationConditions['TLS-Client-Cert-Common-Name'],
+        pfConfigurationConditions['TLS-Client-Cert-Expiration'],
+        pfConfigurationConditions['TLS-Client-Cert-Filename'],
+        pfConfigurationConditions['TLS-Client-Cert-Issuer'],
+        pfConfigurationConditions['TLS-Client-Cert-Serial'],
+        pfConfigurationConditions['TLS-Client-Cert-Subject'],
+        pfConfigurationConditions['TLS-Client-Cert-Subject-Alt-Name-Dns'],
+        pfConfigurationConditions['TLS-Client-Cert-Subject-Alt-Name-Email'],
+        pfConfigurationConditions['TLS-Client-Cert-X509v3-Extended-Key-Usage'],
+        pfConfigurationConditions.username,
+        pfConfigurationConditions['NAS-Identifier'],
+        pfConfigurationConditions['Called-Station-Id'],
+        pfConfigurationConditions['Calling-Station-Id']
+      ]
+    case 'EAPTLS':
+      return [
+        pfConfigurationConditions.SSID,
+        pfConfigurationConditions.current_time,
+        pfConfigurationConditions.current_time_period,
+        pfConfigurationConditions.connection_type,
+        pfConfigurationConditions.computer_name,
+        pfConfigurationConditions.mac,
+        pfConfigurationConditions.realm,
+        pfConfigurationConditions['TLS-Cert-Common-Name'],
+        pfConfigurationConditions['TLS-Cert-Expiration'],
+        pfConfigurationConditions['TLS-Cert-Issuer'],
+        pfConfigurationConditions['TLS-Cert-Serial'],
+        pfConfigurationConditions['TLS-Cert-Subject'],
+        pfConfigurationConditions['TLS-Client-Cert-Common-Name'],
+        pfConfigurationConditions['TLS-Client-Cert-Expiration'],
+        pfConfigurationConditions['TLS-Client-Cert-Filename'],
+        pfConfigurationConditions['TLS-Client-Cert-Issuer'],
+        pfConfigurationConditions['TLS-Client-Cert-Serial'],
+        pfConfigurationConditions['TLS-Client-Cert-Subject'],
+        pfConfigurationConditions['TLS-Client-Cert-Subject-Alt-Name-Dns'],
+        pfConfigurationConditions['TLS-Client-Cert-Subject-Alt-Name-Email'],
+        pfConfigurationConditions['TLS-Client-Cert-X509v3-Extended-Key-Usage'],
+        pfConfigurationConditions.username
+      ]
+    case 'Htpasswd':
+    case 'Kerberos':
+    case 'Facebook':
+    case 'Github':
+    case 'Google':
+    case 'Instagram':
+    case 'Kickbox':
+    case 'LinkedIn':
+    case 'OpenID':
+    case 'Pinterest':
+    case 'Twitter':
+    case 'WindowsLive':
+    case 'Eduroam':
+      return [
+        pfConfigurationConditions.SSID,
+        pfConfigurationConditions.current_time,
+        pfConfigurationConditions.current_time_period,
+        pfConfigurationConditions.connection_type,
+        pfConfigurationConditions.computer_name,
+        pfConfigurationConditions.mac,
+        pfConfigurationConditions.realm,
+        pfConfigurationConditions.username
+      ]
+    case 'LDAP':
+      return [
+        pfConfigurationConditions.SSID,
+        pfConfigurationConditions.current_time,
+        pfConfigurationConditions.current_time_period,
+        pfConfigurationConditions.connection_type,
+        pfConfigurationConditions.computer_name,
+        pfConfigurationConditions.mac,
+        pfConfigurationConditions.realm,
+        pfConfigurationConditions.UserPrincipalName,
+        pfConfigurationConditions.cn,
+        pfConfigurationConditions.department,
+        pfConfigurationConditions.description,
+        pfConfigurationConditions.displayName,
+        pfConfigurationConditions.distinguishedName,
+        pfConfigurationConditions.eduPersonPrimaryAffiliation,
+        pfConfigurationConditions.givenName,
+        pfConfigurationConditions.groupMembership,
+        pfConfigurationConditions.mail,
+        pfConfigurationConditions.memberOf,
+        pfConfigurationConditions.postOfficeBox,
+        pfConfigurationConditions.sAMAccountName,
+        pfConfigurationConditions.servicePrincipalName,
+        pfConfigurationConditions.sn,
+        pfConfigurationConditions.uid
+      ]
+    case 'RADIUS':
+      return [
+        pfConfigurationConditions.SSID,
+        pfConfigurationConditions.current_time,
+        pfConfigurationConditions.current_time_period,
+        pfConfigurationConditions.connection_type,
+        pfConfigurationConditions.computer_name,
+        pfConfigurationConditions.mac,
+        pfConfigurationConditions.realm,
+        pfConfigurationConditions.username,
+        pfConfigurationConditions['NAS-Identifier'],
+        pfConfigurationConditions['Called-Station-Id'],
+        pfConfigurationConditions['Calling-Station-Id']
+      ]
+    case 'Clickatell':
+      return [
+        pfConfigurationConditions.SSID,
+        pfConfigurationConditions.current_time,
+        pfConfigurationConditions.current_time_period,
+        pfConfigurationConditions.connection_type,
+        pfConfigurationConditions.computer_name,
+        pfConfigurationConditions.mac,
+        pfConfigurationConditions.realm
+      ]
+    case 'Email':
+    case 'SponsorEmail':
+      return [
+        pfConfigurationConditions.SSID,
+        pfConfigurationConditions.current_time,
+        pfConfigurationConditions.current_time_period,
+        pfConfigurationConditions.connection_type,
+        pfConfigurationConditions.computer_name,
+        pfConfigurationConditions.mac,
+        pfConfigurationConditions.realm,
+        pfConfigurationConditions.user_email
+      ]
+    case 'SMS':
+    case 'Twilio':
+      return [
+        pfConfigurationConditions.SSID,
+        pfConfigurationConditions.current_time,
+        pfConfigurationConditions.current_time_period,
+        pfConfigurationConditions.connection_type,
+        pfConfigurationConditions.computer_name,
+        pfConfigurationConditions.mac,
+        pfConfigurationConditions.realm,
+        pfConfigurationConditions.phonenumber
+      ]
+    case 'AdminProxy':
+      return [
+        pfConfigurationConditions.SSID,
+        pfConfigurationConditions.current_time,
+        pfConfigurationConditions.current_time_period,
+        pfConfigurationConditions.connection_type,
+        pfConfigurationConditions.computer_name,
+        pfConfigurationConditions.mac,
+        pfConfigurationConditions.realm,
+        pfConfigurationConditions.group_header
+      ]
+    default:
+      return []
   }
 }
 

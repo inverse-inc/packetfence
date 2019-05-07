@@ -384,6 +384,34 @@ export const pfConfigurationActions = {
 }
 
 export const pfConfigurationConditions = {
+  'Called-Station-Id': {
+    value: 'Called-Station-Id',
+    text: i18n.t('Called-Station-Id'),
+    types: [authenticationConditionType.SUBSTRING],
+    validators: {
+      operator: {
+        [i18n.t('Operator required.')]: required
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  'Calling-Station-Id': {
+    value: 'Calling-Station-Id',
+    text: i18n.t('Calling-Station-Id'),
+    types: [authenticationConditionType.SUBSTRING],
+    validators: {
+      operator: {
+        [i18n.t('Operator required.')]: required
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
   cn: {
     value: 'cn',
     text: i18n.t('cn'),
@@ -538,6 +566,20 @@ export const pfConfigurationConditions = {
       }
     }
   },
+  group_header: {
+    value: 'group_header',
+    text: i18n.t('group_header Name'),
+    types: [authenticationConditionType.SUBSTRING],
+    validators: {
+      operator: {
+        [i18n.t('Operator required.')]: required
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
   groupMembership: {
     value: 'groupMembership',
     text: i18n.t('groupMembership'),
@@ -594,9 +636,37 @@ export const pfConfigurationConditions = {
       }
     }
   },
+  'NAS-Identifier': {
+    value: 'NAS-Identifier',
+    text: i18n.t('NAS-Identifier'),
+    types: [authenticationConditionType.SUBSTRING],
+    validators: {
+      operator: {
+        [i18n.t('Operator required.')]: required
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
   nested_group: {
     value: 'memberOf:1.2.840.113556.1.4.1941:',
     text: i18n.t('nested group'),
+    types: [authenticationConditionType.SUBSTRING],
+    validators: {
+      operator: {
+        [i18n.t('Operator required.')]: required
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  phonenumber: {
+    value: 'phonenumber',
+    text: i18n.t('phonenumber'),
     types: [authenticationConditionType.SUBSTRING],
     validators: {
       operator: {
@@ -664,6 +734,20 @@ export const pfConfigurationConditions = {
       }
     }
   },
+  servicePrincipalName: {
+    value: 'servicePrincipalName',
+    text: i18n.t('servicePrincipalName'),
+    types: [authenticationConditionType.LDAPATTRIBUTE],
+    validators: {
+      operator: {
+        [i18n.t('Operator required.')]: required
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
   sn: {
     value: 'sn',
     text: i18n.t('sn'),
@@ -678,9 +762,205 @@ export const pfConfigurationConditions = {
       }
     }
   },
-  ssid: {
+  SSID: {
     value: 'SSID',
     text: i18n.t('SSID'),
+    types: [authenticationConditionType.SUBSTRING],
+    validators: {
+      operator: {
+        [i18n.t('Operator required.')]: required
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  'TLS-Cert-Common-Name': {
+    value: 'TLS-Cert-Common-Name',
+    text: i18n.t('TLS-Cert-Common-Name'),
+    types: [authenticationConditionType.SUBSTRING],
+    validators: {
+      operator: {
+        [i18n.t('Operator required.')]: required
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  'TLS-Cert-Expiration': {
+    value: 'TLS-Cert-Expiration',
+    text: i18n.t('TLS-Cert-Expiration'),
+    types: [authenticationConditionType.SUBSTRING],
+    validators: {
+      operator: {
+        [i18n.t('Operator required.')]: required
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  'TLS-Client-Cert-Common-Name': {
+    value: 'TLS-Client-Cert-Common-Name',
+    text: i18n.t('TLS-Client-Cert-Common-Name'),
+    types: [authenticationConditionType.SUBSTRING],
+    validators: {
+      operator: {
+        [i18n.t('Operator required.')]: required
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  'TLS-Client-Cert-Expiration': {
+    value: 'TLS-Client-Cert-Expiration',
+    text: i18n.t('TLS-Client-Cert-Expiration'),
+    types: [authenticationConditionType.SUBSTRING],
+    validators: {
+      operator: {
+        [i18n.t('Operator required.')]: required
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  'TLS-Client-Cert-Filename': {
+    value: 'TLS-Client-Cert-Filename',
+    text: i18n.t('TLS-Client-Cert-Filename'),
+    types: [authenticationConditionType.SUBSTRING],
+    validators: {
+      operator: {
+        [i18n.t('Operator required.')]: required
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  'TLS-Client-Cert-Issuer': {
+    value: 'TLS-Client-Cert-Issuer',
+    text: i18n.t('TLS-Client-Cert-Issuer'),
+    types: [authenticationConditionType.SUBSTRING],
+    validators: {
+      operator: {
+        [i18n.t('Operator required.')]: required
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  'TLS-Client-Cert-Serial': {
+    value: 'TLS-Client-Cert-Serial',
+    text: i18n.t('TLS-Client-Cert-Serial'),
+    types: [authenticationConditionType.SUBSTRING],
+    validators: {
+      operator: {
+        [i18n.t('Operator required.')]: required
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  'TLS-Client-Cert-Subject': {
+    value: 'TLS-Client-Cert-Subject',
+    text: i18n.t('TLS-Client-Cert-Subject'),
+    types: [authenticationConditionType.SUBSTRING],
+    validators: {
+      operator: {
+        [i18n.t('Operator required.')]: required
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  'TLS-Cert-Issuer': {
+    value: 'TLS-Cert-Issuer',
+    text: i18n.t('TLS-Cert-Issuer'),
+    types: [authenticationConditionType.SUBSTRING],
+    validators: {
+      operator: {
+        [i18n.t('Operator required.')]: required
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  'TLS-Cert-Serial': {
+    value: 'TLS-Cert-Serial',
+    text: i18n.t('TLS-Cert-Serial'),
+    types: [authenticationConditionType.SUBSTRING],
+    validators: {
+      operator: {
+        [i18n.t('Operator required.')]: required
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  'TLS-Cert-Subject': {
+    value: 'TLS-Cert-Subject',
+    text: i18n.t('TLS-Cert-Subject'),
+    types: [authenticationConditionType.SUBSTRING],
+    validators: {
+      operator: {
+        [i18n.t('Operator required.')]: required
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  'TLS-Client-Cert-Subject-Alt-Name-Dns': {
+    value: 'TLS-Client-Cert-Subject-Alt-Name-Dns',
+    text: i18n.t('TLS-Client-Cert-Subject-Alt-Name-Dns'),
+    types: [authenticationConditionType.SUBSTRING],
+    validators: {
+      operator: {
+        [i18n.t('Operator required.')]: required
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  'TLS-Client-Cert-Subject-Alt-Name-Email': {
+    value: 'TLS-Client-Cert-Subject-Alt-Name-Email',
+    text: i18n.t('TLS-Client-Cert-Subject-Alt-Name-Email'),
+    types: [authenticationConditionType.SUBSTRING],
+    validators: {
+      operator: {
+        [i18n.t('Operator required.')]: required
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  'TLS-Client-Cert-X509v3-Extended-Key-Usage': {
+    value: 'TLS-Client-Cert-X509v3-Extended-Key-Usage',
+    text: i18n.t('TLS-Client-Cert-X509v3-Extended-Key-Usage'),
     types: [authenticationConditionType.SUBSTRING],
     validators: {
       operator: {
@@ -706,9 +986,51 @@ export const pfConfigurationConditions = {
       }
     }
   },
+  user_email: {
+    value: 'user_email',
+    text: i18n.t('user_email'),
+    types: [authenticationConditionType.SUBSTRING],
+    validators: {
+      operator: {
+        [i18n.t('Operator required.')]: required
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
   userAccountControl: {
     value: 'userAccountControl',
     text: i18n.t('userAccountControl'),
+    types: [authenticationConditionType.SUBSTRING],
+    validators: {
+      operator: {
+        [i18n.t('Operator required.')]: required
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  UserPrincipalName: {
+    value: 'UserPrincipalName',
+    text: i18n.t('UserPrincipalName'),
+    types: [authenticationConditionType.LDAPATTRIBUTE],
+    validators: {
+      operator: {
+        [i18n.t('Operator required.')]: required
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  username: {
+    value: 'username',
+    text: i18n.t('username'),
     types: [authenticationConditionType.SUBSTRING],
     validators: {
       operator: {
