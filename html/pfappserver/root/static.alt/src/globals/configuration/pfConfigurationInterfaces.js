@@ -383,7 +383,7 @@ export const pfConfigurationInterfaceViewFields = (context = {}) => {
               key: 'dhcpd_enabled',
               component: pfFormRangeToggle,
               attrs: {
-                values: { checked: '1', unchecked: '0' }
+                values: { checked: 'enabled', unchecked: 'disabled' }
               }
             }
           ]
@@ -396,7 +396,7 @@ export const pfConfigurationInterfaceViewFields = (context = {}) => {
               key: 'nat_enabled',
               component: pfFormRangeToggle,
               attrs: {
-                values: { checked: '1', unchecked: '0' }
+                values: { checked: 'enabled', unchecked: 'disabled' }
               }
             }
           ]
@@ -425,7 +425,7 @@ export const pfConfigurationInterfaceViewFields = (context = {}) => {
               key: 'split_network',
               component: pfFormRangeToggle,
               attrs: {
-                values: { checked: '1', unchecked: '0' }
+                values: { checked: 'enabled', unchecked: 'disabled' }
               }
             }
           ]

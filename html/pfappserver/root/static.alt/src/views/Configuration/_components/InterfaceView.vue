@@ -124,7 +124,6 @@ export default {
         if (this.isNew) {
           this.form = {
             id: form.id,
-            netmask: form.netmask,
             type: 'none'
           }
         } else {
