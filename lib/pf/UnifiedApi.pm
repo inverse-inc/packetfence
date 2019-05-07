@@ -153,6 +153,7 @@ sub setup_api_v1_routes {
     $self->setup_api_v1_translations_routes($api_v1_route);
     $self->setup_api_v1_preferences_routes($api_v1_route);
     $self->setup_api_v1_system_summary_route($api_v1_route);
+    $self->setup_api_v1_emails_route($api_v1_route);
 }
 
 sub custom_startup_hook {
@@ -1722,6 +1723,20 @@ sub setup_api_v1_system_summary_route {
     $root->any( ['GET'] => "/system_summary" )
       ->to(controller => "SystemSummary", action => "get")
       ->name("api.v1.SystemSummary.get");
+    return ;
+}
+
+=head2 setup_api_v1_emails_route
+
+setup_api_v1_emails_route
+
+=cut
+
+sub setup_api_v1_emails_route {
+    my ($self, $root) = @_;
+    $root->any( ['POST'] => "/email/preview" )
+      ->to(controller => "Emails", action => "preview")
+      ->name("api.v1.Emails.preview");
     return ;
 }
 

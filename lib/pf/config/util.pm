@@ -156,11 +156,13 @@ sub pfmailer {
     return send_mime_lite($msg);
 }
 
-=head2 send_email - Send an email using a template
+=head2 build_email
+
+Build the MIME::TT object to send an email for a specific template
 
 =cut
 
-sub send_email {
+sub build_email {
     my ($template, $email, $subject, $data, $tmpoptions) = @_;
     my $logger = get_logger();
 
@@ -198,6 +200,16 @@ sub send_email {
         ( $data->{'from'} ? ( From => $data->{'from'} ) : () ),
     );
     $msg->attr( "Content-Type" => "text/html; charset=UTF-8" );
+    return $msg;
+}
+
+=head2 send_email - Send an email using a template
+
+=cut
+
+sub send_email {
+    my ($template, $email, $subject, $data, $tmpoptions) = @_;
+    my $msg = build_email($template, $email, $subject, $data, $tmpoptions);
     return send_mime_lite($msg);
 }
 
