@@ -166,7 +166,7 @@ sub acct_maintenance {
                 } else {
                     $events_history->add_to_history_hash($events_history_hash, $cleanedMac, $acct_policy);
                     $history_added = $TRUE;
-		    security_event_trigger( { 'mac' => $cleanedMac, 'tid' => $acct_policy, 'type' => $TRIGGER_TYPE_ACCOUNTING } );
+                    security_event_trigger( { 'mac' => $cleanedMac, 'tid' => $acct_policy, 'type' => $TRIGGER_TYPE_ACCOUNTING } );
                 }
             }
         }
