@@ -119,8 +119,7 @@ export default {
               ]
             },
             { name: this.$i18n.t('SNMP'), path: '/configuration/snmp_traps' },
-            { name: this.$i18n.t('Floating Devices'), path: '/configuration/floating_devices' },
-            { name: this.$i18n.t('SSL Certificates'), path: '/configuration/certificates' }
+            { name: this.$i18n.t('Floating Devices'), path: '/configuration/floating_devices' }
           ]
         },
         {
@@ -146,7 +145,8 @@ export default {
             },
             { name: this.$i18n.t('Cluster'), path: '/configuration/active_active' },
             { name: this.$i18n.t('Radius Configuration'), path: '/configuration/radius' },
-            { name: this.$i18n.t('Admin Access'), path: '/configuration/admin_roles' }
+            { name: this.$i18n.t('Admin Access'), path: '/configuration/admin_roles' },
+            { name: this.$i18n.t('SSL Certificates'), path: '/configuration/certificates' }
           ]
         }
       ]
