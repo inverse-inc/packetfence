@@ -231,36 +231,6 @@ const actions = {
       })
     })
   },
-  roleNode: ({ commit }, data) => {
-    commit('ITEM_REQUEST')
-    return new Promise((resolve, reject) => {
-      api.updateNode(data).then(response => {
-        if (response.status === 'success') {
-          commit('NODE_UPDATED', { mac: data.mac, prop: 'category_id', data: data.category_id })
-          commit('$_nodes_searchable/ITEM_UPDATED', { mac: data.mac, prop: 'category_id', data: data.category_id }, { root: true })
-        }
-        resolve(response)
-      }).catch(err => {
-        commit('ITEM_ERROR', err.response)
-        reject(err)
-      })
-    })
-  },
-  bypassRoleNode: ({ commit }, data) => {
-    commit('ITEM_REQUEST')
-    return new Promise((resolve, reject) => {
-      api.updateNode(data).then(response => {
-        if (response.status === 'success') {
-          commit('NODE_UPDATED', { mac: data.mac, prop: 'bypass_role_id', data: data.bypass_role_id })
-          commit('$_nodes_searchable/ITEM_UPDATED', { mac: data.mac, prop: 'bypass_role_id', data: data.bypass_role_id }, { root: true })
-        }
-        resolve(response)
-      }).catch(err => {
-        commit('ITEM_ERROR', err.response)
-        reject(err)
-      })
-    })
-  },
   reevaluateAccessNode: ({ commit }, data) => {
     commit('ITEM_REQUEST')
     return new Promise((resolve, reject) => {
