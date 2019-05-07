@@ -1557,12 +1557,12 @@ Compare two items based off multiple comparsions
 =cut
 
 sub mcmp {
-    my ($a, $b, $cmps) = @_;
+    my ($aa, $bb, $cmps) = @_;
     my $r;
     die "No compare given" if @$cmps == 0;
     #Stop at the first non equal comparsion
     for my $cmp (@$cmps) {
-       $r = $cmp->($a, $b);
+       $r = $cmp->($aa, $bb);
        return $r if $r != 0;
     }
 
@@ -1572,14 +1572,26 @@ sub mcmp {
 sub make_string_cmp {
     my ($key) = @_;
     return sub {
-        $_[0]->{$key} cmp $_[1]->{$key}
+        my ($a, $b) = @_;
+        if (exists $a->{$key} && exists $b->{$key}) {
+            my $aa = $a->{$key};
+            my $bb = $b->{$key};
+            return 0 if !defined $aa && !defined $bb;
+            return 1 if !defined $bb;
+            return -1 if !defined $aa;
+            return $aa cmp $bb;
+        }
+        return 1 if exists $a->{$key};
+        return -1 if exists $b->{$key};
+        return 0;
     };
 }
 
 sub make_string_rcmp {
     my ($key) = @_;
+    my $cmp = make_string_cmp($key);
     return sub {
-        $_[1]->{$key} cmp $_[0]->{$key}
+       return $cmp->($_[1], $_[0]);
     };
 }
 
