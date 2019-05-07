@@ -713,7 +713,9 @@ export default {
 .security-event-trigger-row .pf-field-type-value {
   flex-direction: column;
   margin: 0 !important;
-  .col {
+  [class*=col-] {
+    flex: none;
+    max-width: 100% !important;
     padding: 0 !important;
     &:last-child .form-group {
       margin-bottom: 0 !important;
