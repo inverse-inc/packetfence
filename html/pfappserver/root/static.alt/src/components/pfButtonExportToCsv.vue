@@ -33,7 +33,7 @@ export default {
     },
     data: {
       type: Array,
-      default: []
+      default: () => []
     },
     filename: {
       type: String,
