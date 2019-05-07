@@ -181,30 +181,6 @@ const actions = {
       })
     })
   },
-  registerNode: ({ commit }, data) => {
-    commit('NODE_REQUEST')
-    return new Promise((resolve, reject) => {
-      api.registerNode(data).then(response => {
-        commit('NODE_REPLACED', data)
-        resolve(response)
-      }).catch(err => {
-        commit('NODE_ERROR', err.response)
-        reject(err)
-      })
-    })
-  },
-  deregisterNode: ({ commit }, data) => {
-    commit('NODE_REQUEST')
-    return new Promise((resolve, reject) => {
-      api.deregisterNode(data).then(response => {
-        commit('NODE_REPLACED', data)
-        resolve(response)
-      }).catch(err => {
-        commit('NODE_ERROR', err.response)
-        reject(err)
-      })
-    })
-  },
   applySecurityEventNode: ({ commit, dispatch }, data) => {
     commit('NODE_REQUEST')
     return new Promise((resolve, reject) => {
