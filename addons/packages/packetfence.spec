@@ -84,6 +84,7 @@ BuildArch: noarch
 AutoReqProv: 0
 
 Requires: chkconfig, coreutils, grep, openssl, sed, tar, wget, gettext, conntrack-tools, patch, git
+Requires: rsyslog
 # for process management
 Requires: procps
 Requires: libpcap, libxml2, zlib, zlib-devel, glibc-common,
