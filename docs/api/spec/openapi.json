@@ -13870,8 +13870,8 @@
                   "type" : "string"
                },
                "category" : {
-                  "description" : "The role that should be given to a node when this account is used to register a device",
-                  "type" : "string"
+                  "description" : "The node category ID that should be given to a node when this account is used to register a device",
+                  "type" : "integer"
                },
                "expiration" : {
                   "description" : "The date at which the password expires (becomes invalid)",
