@@ -20,7 +20,6 @@
           <template>{{ $t('Save') }}</template>
         </pf-button-save>
         <b-button :disabled="isLoading" class="mr-1" variant="outline-secondary" @click="init()">{{ $t('Reset') }}</b-button>
-        <pf-button-service service="radiusd" class="mr-1" restart start stop></pf-button-service>
       </b-card-footer>
     </template>
   </pf-config-view>
@@ -29,7 +28,6 @@
 <script>
 import pfConfigView from '@/components/pfConfigView'
 import pfButtonSave from '@/components/pfButtonSave'
-import pfButtonService from '@/components/pfButtonService'
 import {
   pfConfigurationRadiusViewFields as fields
 } from '@/globals/configuration/pfConfigurationRadius'
@@ -43,8 +41,7 @@ export default {
   ],
   components: {
     pfConfigView,
-    pfButtonSave,
-    pfButtonService
+    pfButtonSave
   },
   data () {
     return {
