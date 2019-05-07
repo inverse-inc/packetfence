@@ -452,13 +452,11 @@ export default {
                             }
                           },
                           {
-                            value: 'nexpose_event_starts_with',
-                            text: categoryOptions.event.nexpose_event_starts_with,
-                            types: [fieldType.SUBSTRING],
-                            validators: {
-                              value: {
-                                [this.$i18n.t('Value required.')]: required
-                              }
+                            ...pfConfigurationAttributesFromMeta(this.meta, 'triggers.nexpose_event_starts_with'),
+                            ...{
+                              value: 'nexpose_event_starts_with',
+                              text: categoryOptions.event.nexpose_event_starts_with,
+                              types: [fieldType.OPTIONS]
                             }
                           },
                           {
