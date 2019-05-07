@@ -256,11 +256,11 @@
             </b-table>
         </b-tab>
 
-        <b-tab title="Security Events">
+        <b-tab title="SecurityEvents">
           <template slot="title">
             {{ $t('Security Events') }} <b-badge pill v-if="node.security_events && node.security_events.length > 0" variant="light" class="ml-1">{{ node.security_events.length }}</b-badge>
           </template>
-          <b-table stacked="sm" :items="node.security_events" :fields="securityEventFields" responsive show-empty striped>
+          <b-table stacked="sm" :items="node.security_events" :fields="securityEventFields" :sortBy="securityEventSortBy" :sortDesc="securityEventSortDesc" responsive show-empty striped>
             <template slot="description" slot-scope="security_event">
               <icon v-if="!securityEventDescription(security_event.item.security_event_id)" name="circle-notch" spin></icon>
               <router-link v-else :to="{ path: `/configuration/security_event/${security_event.item.security_event_id}` }">{{ securityEventDescription(security_event.item.security_event_id) }}</router-link>
@@ -269,6 +269,9 @@
               <b-badge pill variant="success" v-if="security_event.item.status === 'open'">{{ $t('open') }}</b-badge>
               <b-badge pill variant="danger" v-else-if="security_event.item.status === 'closed'">{{ $t('closed') }}</b-badge>
               <b-badge pill variant="secondary" v-else>{{ $t('unknown') }}</b-badge>
+            </template>
+            <template slot="buttons" slot-scope="security_event">
+              <b-button v-if="security_event.item.status === 'open'" size="sm" variant="outline-secondary" @click="trigger" @click="release(security_event.item.id)">{{ $t('Release') }}</b-button>
             </template>
             <template slot="empty">
               <pf-empty-table :isLoading="isLoading" text="">{{ $t('No security events found') }}</pf-empty-table>
@@ -296,12 +299,23 @@
         </b-tab>
 
       </b-tabs>
-      <b-card-footer @mouseenter="$v.nodeContent.$touch()" v-if="ifTab(['Edit', 'Location', 'Fingerbank'])">
+      <b-card-footer @mouseenter="$v.nodeContent.$touch()" v-if="ifTab(['Edit', 'Location', 'Fingerbank', 'SecurityEvents'])">
         <pf-button-save class="mr-1" v-if="ifTab(['Edit'])" :disabled="invalidForm" :isLoading="isLoading"/>
         <pf-button-delete class="mr-3" v-if="ifTab(['Edit'])" :disabled="isLoading" :confirm="$t('Delete Node?')" @on-delete="deleteNode()"/>
         <b-button class="mr-1" size="sm" v-if="ifTab(['Edit', 'Location'])" variant="outline-secondary" @click="applyReevaluateAccess" :disabled="!canReevaluateAccess(node)">{{ $t('Reevaluate Access') }}</b-button>
         <b-button class="mr-1" size="sm" v-if="ifTab(['Edit', 'Fingerbank'])" variant="outline-secondary" @click="applyRefreshFingerbank">{{ $t('Refresh Fingerbank') }}</b-button>
         <b-button size="sm" v-if="ifTab(['Edit', 'Location'])" variant="outline-secondary" @click="applyRestartSwitchport" :disabled="!canRestartSwitchport(node)">{{ $t('Restart Switch Port') }}</b-button>
+        <b-row v-if="ifTab(['SecurityEvents']) && securityEventsOptions.length > 0">
+          <b-col cols="2" class="pr-0 mr-0">
+            <pf-form-select size="sm"
+              v-model="triggerSecurityEvent"
+              :options="securityEventsOptions"
+            />
+          </b-col>
+          <b-col cols="auto" class="pl-1 ml-0">
+            <b-button size="sm" variant="outline-secondary" @click="trigger" :disabled="!triggerSecurityEvent">{{ $t('Trigger New Security Event') }}</b-button>
+          </b-col>
+        </b-row>
       </b-card-footer>
     </b-card>
   </b-form>
@@ -468,8 +482,16 @@ export default {
           label: this.$i18n.t('Status'),
           sortable: true,
           class: 'text-nowrap'
+        },
+        {
+          key: 'buttons',
+          label: null,
+          sortable: false,
+          class: 'text-right'
         }
       ],
+      securityEventSortBy: 'start_date',
+      securityEventSortDesc: true,
       dhcpOption82Fields: [
         {
           key: 'created_at',
@@ -510,7 +532,8 @@ export default {
           label: this.$i18n.t('Host'),
           sortable: true
         }
-      ]
+      ],
+      triggerSecurityEvent: null
     }
   },
   validations () {
@@ -537,8 +560,11 @@ export default {
       // prepend a null value to roles
       return [{ value: null, text: this.$i18n.t('No Role') }, ...this.$store.getters['config/rolesList']]
     },
-    security_events () {
+    securityEvents () {
       return this.$store.getters['config/sortedSecurityEvents']
+    },
+    securityEventsOptions () {
+      return this.securityEvents.filter(securityEvent => securityEvent.id !== 'defaults').map(securityEvent => { return { text: securityEvent.desc, value: securityEvent.id } })
     },
     statuses () {
       return conditionValues[conditionType.NODE_STATUS]
@@ -600,6 +626,12 @@ export default {
       this.$store.dispatch('$_nodes/updateNode', this.nodeContent).then(response => {
         this.close()
       })
+    },
+    release (id) {
+      this.$store.dispatch('$_nodes/clearSecurityEventNode', { security_event_id: id, mac: this.mac })
+    },
+    trigger () {
+      this.$store.dispatch('$_nodes/applySecurityEventNode', { security_event_id: this.triggerSecurityEvent, mac: this.mac })
     },
     deleteNode () {
       this.$store.dispatch('$_nodes/deleteNode', this.mac).then(response => {
@@ -829,7 +861,7 @@ export default {
       },
       deep: true
     },
-    security_events (a, b) {
+    securityEvents (a, b) {
       if (a !== b) this.redrawVis()
     }
   },

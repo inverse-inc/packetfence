@@ -97,8 +97,13 @@ export default {
   deleteNode: mac => {
     return apiCall.delete(`node/${mac}`)
   },
-  clearSecurityEventNode: mac => {
-    return apiCall.post(`node/${mac}/closesecurity_events`).then(response => {
+  applySecurityEventNode: data => {
+    return apiCall.post(`node/${data.mac}/apply_security_event`, data).then(response => {
+      return response.data
+    })
+  },
+  clearSecurityEventNode: data => {
+    return apiCall.post(`node/${data.mac}/close_security_event`, data).then(response => {
       return response.data
     })
   },

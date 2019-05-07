@@ -137,7 +137,7 @@ const actions = {
         commit('NODE_UPDATED', { mac, prop: 'rapid7', data: items })
       })
 
-      return node
+      return state.nodes[mac]
     })
   },
   createNode: ({ commit }, data) => {
@@ -205,11 +205,25 @@ const actions = {
       })
     })
   },
-  clearSecurityEventNode: ({ commit }, data) => {
+  applySecurityEventNode: ({ commit, dispatch }, data) => {
+    commit('NODE_REQUEST')
+    return new Promise((resolve, reject) => {
+      api.applySecurityEventNode(data).then(response => {
+        commit('NODE_DESTROYED', data.mac)
+        dispatch('getNode', data.mac)
+        resolve(response)
+      }).catch(err => {
+        commit('NODE_ERROR', err.response)
+        reject(err)
+      })
+    })
+  },
+  clearSecurityEventNode: ({ commit, dispatch }, data) => {
     commit('NODE_REQUEST')
     return new Promise((resolve, reject) => {
       api.clearSecurityEventNode(data).then(response => {
-        commit('NODE_REPLACED', data)
+        commit('NODE_DESTROYED', data.mac)
+        dispatch('getNode', data.mac)
         resolve(response)
       }).catch(err => {
         commit('NODE_ERROR', err.response)
@@ -391,6 +405,7 @@ const mutations = {
     if (!('fingerbank' in data)) data.fingerbank = {}
     Vue.set(state.nodes, data.mac, data)
     // TODO: update items if found in it
+
   },
   NODE_UPDATED: (state, params) => {
     state.nodeStatus = 'success'
