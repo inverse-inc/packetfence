@@ -21,6 +21,7 @@ use File::Slurp qw(read_file write_file);
 use LWP::UserAgent;
 use pf::util;
 use pf::log;
+use pf::cluster;
 
 use Crypt::OpenSSL::RSA;
 use Crypt::OpenSSL::X509;
@@ -271,6 +272,13 @@ sub install_file {
         return ($FALSE, $@);
     }
     else {
+        if($cluster_enabled){
+            get_logger->info("Synching $filename in cluster");
+            my $failed = pf::cluster::sync_files([$filename]);
+            if(@$failed){
+                return ($FALSE, "Failed to sync file on ".join(', ', @$failed));
+            }
+        }
         return ($TRUE);
     }
 }
