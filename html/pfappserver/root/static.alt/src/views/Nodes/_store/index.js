@@ -351,7 +351,6 @@ const mutations = {
     if (!('fingerbank' in data)) data.fingerbank = {}
     Vue.set(state.nodes, data.mac, data)
     // TODO: update items if found in it
-
   },
   NODE_UPDATED: (state, params) => {
     state.nodeStatus = 'success'

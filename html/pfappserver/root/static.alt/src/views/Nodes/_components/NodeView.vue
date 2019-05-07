@@ -271,7 +271,7 @@
               <b-badge pill variant="secondary" v-else>{{ $t('unknown') }}</b-badge>
             </template>
             <template slot="buttons" slot-scope="security_event">
-              <b-button v-if="security_event.item.status === 'open'" size="sm" variant="outline-secondary" @click="trigger" @click="release(security_event.item.id)">{{ $t('Release') }}</b-button>
+              <b-button v-if="security_event.item.status === 'open'" size="sm" variant="outline-secondary" @click="release(security_event.item.id)">{{ $t('Release') }}</b-button>
             </template>
             <template slot="empty">
               <pf-empty-table :isLoading="isLoading" text="">{{ $t('No security events found') }}</pf-empty-table>
