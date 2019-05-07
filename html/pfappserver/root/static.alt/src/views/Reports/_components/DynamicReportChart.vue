@@ -5,7 +5,7 @@
       <h4 class="mb-0">{{ $t(report.description) }}</h4>
       <p v-if="report.long_description" v-t="report.long_description" class="mt-3 mb-0"></p>
     </b-card-header>
-    <pf-search
+    <pf-search v-if="parsedSearches.length > 0"
       :quick-placeholder="quickSearchPlaceholder"
       :quick-with-fields="false"
       :fields="fields"
@@ -16,9 +16,10 @@
       @submit-search="onSearch"
       @reset-search="onReset"
       @import-search="onImport"
+      class="pb-0"
     ></pf-search>
     <b-container id="DynamicReportChartDates" fluid>
-      <b-row class="mb-3" align-h="between" align-v="center">
+      <b-row class="my-3" align-h="between" align-v="center">
         <b-col cols="auto" class="text-left">
           <b-form inline>
             <b-btn variant="link" id="periods">
@@ -84,7 +85,8 @@
         </b-col>
       </b-row>
       <b-table :items="items" :fields="visibleColumns" :sort-by="sortBy" :sort-desc="sortDesc"
-        show-empty responsive no-local-sorting striped>
+        @sort-changed="onSortingChanged"
+        show-empty responsive hover no-local-sorting no-provider-sorting striped>
         <template slot="empty">
           <pf-empty-table :isLoading="isLoading">{{ $t('No report data found') }}</pf-empty-table>
         </template>
@@ -236,7 +238,7 @@ export default {
         return {
           key: column.alias,
           label: this.$i18n.t(column.alias),
-          sortable: true,
+          sortable: false, // TODO - enable backend sorting
           visible: true
         }
       })
@@ -269,11 +271,13 @@ export default {
       })
       let searchableOptions = {
         searchApiEndpoint: `dynamic_report/${this.id}`,
-        defaultSortKeys: [`${this.parsedSearches[0].table}.${this.parsedSearches[0].column}`],
         defaultSortDesc: false,
         defaultSearchCondition: { op: 'and', values: [{ op: 'or', values: searchCriteria }] },
         defaultRoute: { name: 'dynamicReportChart', params: { id: this.id } },
         extraFields: { 'start_date': this.datetimeStart, 'end_date': this.datetimeEnd }
+      }
+      if (this.parsedSearches.length > 0) {
+        searchableOptions.defaultSortKeys = [`${this.parsedSearches[0].table}.${this.parsedSearches[0].column}`]
       }
       if ('date_field' in this.report) {
         let search = this.parsedColumns.find(search => search.column === this.report.date_field)
