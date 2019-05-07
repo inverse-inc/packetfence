@@ -48,13 +48,13 @@ sub search {
 
     my $where = pf::UnifiedApi::Search::searchQueryToSqlAbstract($json->{query});
 
-    my $page = $json->{cursor} // 0;
+    my $page = (($json->{cursor} // 0) / 25);
 
     my $report = pf::factory::report->new($self->stash('report_id'));
     my %info = (
         page => ($page + 1),
         sql_abstract_search => $where,
-        per_page => $json->{limit},
+        per_page => $json->{limit} // 25,
         order => $json->{sort},
         start_date => $json->{start_date},
         end_date => $json->{end_date},
@@ -71,8 +71,8 @@ sub search {
     return $self->render(
         json   => { 
             items => $data,
-            nextCursor => ($page < $page_count ? $page+1 : undef),
-            previousCursor => ($page eq 0 ? undef : $page),
+            nextCursor => ($page < $page_count ? ($page+1)*$json->{limit} : undef),
+            prevCursor => ($page eq 0 ? 0 : ($page-1)*$json->{limit}),
         },
         status => 200,
     );
