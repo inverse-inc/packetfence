@@ -50,7 +50,7 @@
           <pf-empty-table :isLoading="isLoading">{{ $t('No logs found') }}</pf-empty-table>
         </template>
         <template slot="auth_status" slot-scope="log">
-          <b-badge pill :variant="(log.item.auth_status === 'Accept') ? 'success' : 'danger'" class="ml-1">{{ log.item.auth_status }}</b-badge>
+          <b-badge pill :variant="(['Accept', 'CoA-ACK', 'Disconnect-ACK'].includes(log.item.auth_status)) ? 'success' : 'danger'" class="ml-1">{{ log.item.auth_status }}</b-badge>
         </template>
         <template slot="mac" slot-scope="data">
           <router-link :to="{ path: `/node/${data.value}` }"><mac v-text="data.value"></mac></router-link>
