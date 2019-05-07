@@ -97,3 +97,38 @@ date_field=start_time
 base_conditions_operator=all
 node_fields=MAC Address
 
+[open-security-events]
+type=builtin
+description=Open Security Events
+long_description=<<EOT
+List of open security events on the network
+EOT
+base_table=security_event
+columns=security_event.start_date "Event date", class.description "Security Event Name", node.status "Node status", node.mac "MAC Address", node.computername "Computer Name", node.pid "Owner", node.device_class "Device Class", node_category.name "Role"
+joins=<<EOT
+=>{class.security_event_id=security_event.security_event_id} class|class
+=>{security_event.mac=node.mac} node|node
+=>{node_category.category_id=node.category_id} node_category|node_category
+EOT
+node_fields=MAC Address
+person_fields=Owner
+date_field=start_date
+base_conditions=security_event.status:=:open
+
+[closed-security-events]
+type=builtin
+description=Closed Security Events
+long_description=<<EOT
+List of closed security events on the network
+EOT
+base_table=security_event
+columns=security_event.start_date "Event date", class.description "Security Event Name", node.status "Node status", node.mac "MAC Address", node.computername "Computer Name", node.pid "Owner", node.device_class "Device Class", node_category.name "Role"
+joins=<<EOT
+=>{class.security_event_id=security_event.security_event_id} class|class
+=>{security_event.mac=node.mac} node|node
+=>{node_category.category_id=node.category_id} node_category|node_category
+EOT
+node_fields=MAC Address
+person_fields=Owner
+date_field=start_date
+base_conditions=security_event.status:=:closed
