@@ -87,6 +87,8 @@ sub read_from_files {
         ca => $ca,
     };
 
+    delete $files_data->{ca} unless(defined($files_data->{ca}));
+
     return $files_data;
 }
 
