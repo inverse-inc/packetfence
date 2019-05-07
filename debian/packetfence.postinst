@@ -102,9 +102,6 @@ case "$1" in
             echo "pf.conf already exists, won't touch it!"
         fi
 
-        echo "Restarting rsyslog"
-        systemctl restart rsyslog
-
         # managing services
         set +e
         for service in apache2 snmptrapfmt freeradius apparmor haproxy keepalived redis-server smbd samba winbind nmbd mysql snmpd netdata collectd; do
@@ -156,6 +153,9 @@ case "$1" in
         systemctl enable packetfence-httpd.admin
         systemctl daemon-reload
         systemctl isolate packetfence-base.target
+
+        echo "Restarting rsyslog"
+        systemctl restart rsyslog
 
         perl /usr/local/pf/addons/upgrade/add-default-params-to-auth.pl
         set +e
