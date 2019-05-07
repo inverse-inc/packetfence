@@ -41,19 +41,6 @@ export default {
           name: this.$i18n.t('Import'),
           path: '/users/import',
           can: 'create users'
-        },
-        {
-          name: this.$i18n.t('Standard Searches'),
-          items: [
-            {
-              name: 'Open Security Events',
-              path: 'search/open_security_events'
-            },
-            {
-              name: 'Closed Security Events',
-              path: 'search/closed_security_events'
-            }
-          ]
         }
       ]
     }

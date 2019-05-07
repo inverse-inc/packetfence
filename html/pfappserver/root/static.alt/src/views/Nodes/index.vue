@@ -46,20 +46,6 @@ export default {
           name: this.$i18n.t('Standard Searches'),
           items: [
             {
-              name: this.$i18n.t('Open Security Events'),
-              path: {
-                name: 'search',
-                query: { query: JSON.stringify({ op: 'and', values: [{ op: 'or', values: [{ field: 'security_event.open_count', op: 'greater_than_equals', value: '1' }] }] }) }
-              }
-            },
-            {
-              name: this.$i18n.t('Closed Security Events'),
-              path: {
-                name: 'search',
-                query: { query: JSON.stringify({ op: 'and', values: [{ op: 'or', values: [{ field: 'security_event.close_count', op: 'greater_than_equals', value: '1' }] }] }) }
-              }
-            },
-            {
               name: this.$i18n.t('Offline Nodes'),
               path: {
                 name: 'search',
