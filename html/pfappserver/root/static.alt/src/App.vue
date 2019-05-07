@@ -6,7 +6,7 @@
         <img src="/static/img/packetfence.white.small.svg"/>
       </b-navbar-brand>
       <b-collapse is-nav id="navbar">
-        <b-navbar-nav v-if="isAuthenticated">
+        <b-navbar-nav v-show="isAuthenticated">
           <b-nav-item to="/status" :active="$route.path.startsWith('/status')" v-can:read.some="[['reports', 'services']]">{{ $t('Status') }}</b-nav-item>
           <b-nav-item to="/reports" :active="$route.path.startsWith('/report')" v-can:read="'reports'">{{ $t('Reports') }}</b-nav-item>
           <b-nav-item to="/auditing" :active="$route.path.startsWith('/auditing')" v-can:read="'auditing'">{{ $t('Auditing') }}</b-nav-item>
@@ -17,7 +17,7 @@
         <div class="ml-auto"></div>
         <b-badge class="mr-1" v-if="debug" :variant="apiOK? 'success' : 'danger'">API</b-badge>
         <b-badge class="mr-1" v-if="debug" :variant="chartsOK? 'success' : 'danger'">dashboard</b-badge>
-        <b-navbar-nav v-if="isAuthenticated">
+        <b-navbar-nav v-show="isAuthenticated">
           <b-nav-item-dropdown class="pf-label" right>
             <template slot="button-content">
               <icon name="user-circle"></icon> {{ username }} <span v-if="pfVersion">(v{{ pfVersion }})</span>
@@ -124,7 +124,6 @@ export default {
   },
   created () {
     this.$store.dispatch('session/setLanguage', { i18n: this.$i18n, lang: 'en' })
-    this.$store.dispatch('system/getSummary')
   }
 }
 </script>

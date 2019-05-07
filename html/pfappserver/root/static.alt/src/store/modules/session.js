@@ -55,6 +55,30 @@ const state = {
   formErrors: {}
 }
 
+const setupAcl = (acl) => {
+  if (!Vue.$acl) Vue.$acl = acl
+  for (const role of state.roles) {
+    let action = ''
+    let target = ''
+    for (const currentAction of ADMIN_ROLES_ACTIONS) {
+      if (role.toLowerCase().endsWith(currentAction)) {
+        action = currentAction.replace(/_/g, '-')
+        target = role.substring(0, role.length - action.length - 1).toLowerCase()
+        break
+      }
+    }
+    if (!target) {
+      // eslint-disable-next-line
+      console.warn(`No action found for ${role}`)
+      action = 'access'
+      target = role.toLowerCase()
+    }
+    // eslint-disable-next-line
+    console.debug('configure acl ' + action + ' => ' + target)
+    acl.rule(action, target, () => true)
+  }
+}
+
 const getters = {
   isAuthenticated: state => !!state.token && state.roles.length > 0
 }
@@ -70,38 +94,22 @@ const actions = {
       return Promise.reject(new Error('No token'))
     }
   },
-  update: ({ commit, dispatch }, token) => {
+  update: ({ state, commit, dispatch }, token) => {
     localStorage.setItem(STORAGE_TOKEN_KEY, token)
     api.setToken(token)
     commit('TOKEN_UPDATED', token)
     return dispatch('getTokenInfo').then(roles => {
-      Vue.use(Acl, roles, (acl) => {
-        for (const role of roles) {
-          let action = ''
-          let target = ''
-          for (const currentAction of ADMIN_ROLES_ACTIONS) {
-            if (role.toLowerCase().endsWith(currentAction)) {
-              action = currentAction.replace(/_/g, '-')
-              target = role.substring(0, role.length - action.length - 1).toLowerCase()
-              break
-            }
-          }
-          if (!target) {
-            // eslint-disable-next-line
-            console.warn(`No action found for ${role}`)
-            action = 'access'
-            target = role.toLowerCase()
-          }
-          // eslint-disable-next-line
-          console.debug('configure acl ' + action + ' => ' + target)
-          acl.rule(action, target, () => true)
-        }
-      }, { caseMode: false, router: router })
       commit('ROLES_UPDATED', roles)
+      if (Vue.$acl) {
+        setupAcl(Vue.$acl)
+      } else {
+        Vue.use(Acl, () => state.roles, setupAcl, { caseMode: false, router })
+      }
     })
   },
   delete: ({ commit }) => {
     localStorage.removeItem(STORAGE_TOKEN_KEY)
+    if (Vue.$acl) Vue.$acl = Vue.$acl.reset()
     commit('TOKEN_DELETED')
     commit('USERNAME_DELETED')
     commit('ROLES_DELETED')

@@ -74,7 +74,10 @@ export default {
       this.submitted = true
       this.message = false
       this.$store.dispatch('$_auth/login', { username: this.username, password: this.password }).then(response => {
-        if (this.$route.params.previousPath) {
+        // Don't redirect to /login nor /logout
+        if (this.$route.params.previousPath &&
+          this.$route.params.previousPath !== '/login' &&
+          this.$route.params.previousPath !== '/logout') {
           this.$router.push(this.$route.params.previousPath)
         } else {
           this.$router.push('/') // Go to the default/catch-all route

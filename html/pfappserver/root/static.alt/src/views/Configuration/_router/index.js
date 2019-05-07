@@ -118,7 +118,9 @@ const route = {
   name: 'configuration',
   redirect: '/configuration/policies_access_control',
   component: ConfigurationView,
-  meta: { transitionDelay: 300 * 2 }, // See _transitions.scss => $slide-bottom-duration
+  meta: {
+    transitionDelay: 300 * 2 // See _transitions.scss => $slide-bottom-duration
+  },
   beforeEnter: (to, from, next) => {
     /**
      * Register Vuex stores
@@ -220,7 +222,11 @@ const route = {
      */
     {
       path: 'policies_access_control',
-      component: PoliciesAccessControlSection
+      component: PoliciesAccessControlSection,
+      meta: {
+        can: 'read configuration_main',
+        fail: '/'
+      }
     },
     {
       path: 'roles',

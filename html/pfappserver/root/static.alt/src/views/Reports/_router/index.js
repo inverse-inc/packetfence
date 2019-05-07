@@ -26,7 +26,11 @@ const route = {
         path: route.params.path,
         start_datetime: route.params.start_datetime,
         end_datetime: route.params.end_datetime
-      })
+      }),
+      meta: {
+        can: 'read reports',
+        fail: { path: '/auditing', replace: true }
+      }
     },
     {
       path: 'dynamic/chart/:id([a-zA-Z0-9-_]+)',
@@ -37,6 +41,10 @@ const route = {
         store.dispatch('$_reports/getReport', to.params.id).then(object => {
           next()
         })
+      },
+      meta: {
+        can: 'read reports',
+        fail: { path: '/auditing', replace: true }
       }
     }
   ]

@@ -14,7 +14,8 @@ const actions = {
     commit('LOGIN_REQUEST')
     return new Promise((resolve, reject) => {
       api.login(user).then(response => {
-        let token = response.data.token
+        const token = response.data.token
+        dispatch('system/getSummary', null, { root: true })
         dispatch('session/update', token, { root: true }).then(() => {
           commit('LOGIN_SUCCESS', token)
           resolve(response)
@@ -26,7 +27,7 @@ const actions = {
       })
     })
   },
-  logout: ({ commit, dispatch }) => {
+  logout: ({ dispatch }) => {
     return new Promise((resolve, reject) => {
       // Perform logout through pfappserver to delete the HTTP cookie
       pfappserverCall.get('logout')

@@ -31,15 +31,19 @@ const route = {
         ]).then(() => {
           next()
         })
+      },
+      meta: {
+        can: 'read reports',
+        fail: { path: '/auditing', replace: true }
       }
-      // TODO: meta/can
     },
     {
       path: 'services',
       component: Services,
       props: { storeName: '$_status' },
       meta: {
-        can: 'read services'
+        can: 'read services',
+        fail: { path: '/status/dashboard', replace: true }
       }
     },
     {
@@ -47,7 +51,8 @@ const route = {
       component: Queue,
       props: { storeName: 'pfqueue' },
       meta: {
-        can: 'read services'
+        can: 'read services',
+        fail: { path: '/status/dashboard', replace: true }
       }
     },
     {
@@ -55,7 +60,8 @@ const route = {
       component: ClusterServices,
       props: { storeName: '$_status' },
       meta: {
-        can: 'read services'
+        can: 'read services',
+        fail: { path: '/status/dashboard', replace: true }
       }
     }
   ]

@@ -27,7 +27,8 @@ const route = {
       component: UsersSearch,
       props: (route) => ({ storeName: '$_users', query: route.query.query }),
       meta: {
-        can: 'read users'
+        can: 'read users',
+        fail: { path: '/configuration', replace: true }
       }
     },
     {

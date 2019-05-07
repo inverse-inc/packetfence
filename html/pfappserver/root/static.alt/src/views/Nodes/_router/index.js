@@ -33,7 +33,8 @@ const route = {
       component: NodesSearch,
       props: (route) => ({ storeName: '$_nodes', query: route.query.query }),
       meta: {
-        can: 'read nodes'
+        can: 'read nodes',
+        fail: { path: '/users', replace: true }
       }
     },
     {
@@ -41,8 +42,7 @@ const route = {
       component: NodesCreate,
       props: { storeName: '$_nodes' },
       meta: {
-        can: 'create nodes',
-        fail: '/search'
+        can: 'create nodes'
       }
     },
     {
@@ -50,8 +50,7 @@ const route = {
       component: NodesImport,
       props: { storeName: '$_nodes' },
       meta: {
-        can: 'create nodes',
-        fail: '/search'
+        can: 'create nodes'
       }
     },
     {

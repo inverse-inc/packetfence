@@ -13,7 +13,9 @@ const route = {
   name: 'auditing',
   redirect: '/auditing/radiuslogs/search',
   component: AuditingView,
-  meta: { transitionDelay: 300 * 2 }, // See _transitions.scss => $slide-bottom-duration
+  meta: {
+    transitionDelay: 300 * 2 // See _transitions.scss => $slide-bottom-duration
+  },
   beforeEnter: (to, from, next) => {
     if (!store.state.$_radius_logs) {
       store.registerModule('$_radius_logs', RadiusLogsStore)
@@ -28,7 +30,11 @@ const route = {
       path: 'radiuslogs/search',
       name: 'radiuslogs',
       component: RadiusLogsSearch,
-      props: (route) => ({ storeName: '$_radius_logs', query: route.query.query })
+      props: (route) => ({ storeName: '$_radius_logs', query: route.query.query }),
+      meta: {
+        can: 'read radius_log',
+        fail: '/nodes'
+      }
     },
     {
       path: 'radiuslog/:id',
@@ -43,13 +49,15 @@ const route = {
       meta: {
         can: 'read radius_log'
       }
-
     },
     {
       path: 'dhcpoption82s/search',
       name: 'dhcpoption82s',
       component: DhcpOption82LogsSearch,
-      props: (route) => ({ storeName: '$_dhcpoption82_logs', query: route.query.query })
+      props: (route) => ({ storeName: '$_dhcpoption82_logs', query: route.query.query }),
+      meta: {
+        can: 'read auditing'
+      }
     },
     {
       path: 'dhcpoption82/:mac',
@@ -64,7 +72,6 @@ const route = {
       meta: {
         can: 'read auditing'
       }
-
     }
   ]
 }
