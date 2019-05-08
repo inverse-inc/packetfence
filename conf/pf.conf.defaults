@@ -846,6 +846,11 @@ ldap_attributes=uid,cn,sAMAccountName,servicePrincipalName,UserPrincipalName,dep
 # Amount of pffilter processes to start
 pffilter_processes=4
 #
+# advanced.pfperl_api_processes
+#
+# Amount of pfperl-api processes to start
+pfperl_api_processes=8
+#
 # advanced.update_iplog_with_accounting
 #
 # Use the information included in the accounting to update the iplog
