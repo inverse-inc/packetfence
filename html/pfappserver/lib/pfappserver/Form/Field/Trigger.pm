@@ -20,10 +20,57 @@ has '+deflate_value_method'=> ( default => sub { \&deflate } );
 use pf::constants::trigger qw($TRIGGER_MAP);
 use pf::factory::condition::security_event;
 use pf::ConfigStore::Roles;
+use fingerbank::Model::Device;
+use fingerbank::Model::DHCP6_Enterprise;
+use fingerbank::Model::DHCP_Fingerprint;
+use fingerbank::Model::DHCP6_Fingerprint;
+use fingerbank::Model::DHCP_Vendor;
 
-our %SKIPPED = (
-    role => 1,
-    device => 1,
+our %SKIPPED = map { $_ => 1 } qw(
+  role
+  device
+  dhcp_fingerprint
+  dhcp_vendor
+  dhcp6_fingerprint
+  dhcp6_enterprise
+);
+
+has_field 'role' => (
+    type => 'Select',
+    options_method => sub {
+        return map { { label => $_, value => $_ } } @{pf::ConfigStore::Roles->new->readAllIds()};
+    },
+);
+
+has_field 'device' => (
+   type => 'FingerbankSelect',
+   multiple => 1,
+   label => 'OS',
+   fingerbank_model => "fingerbank::Model::Device",
+);
+
+has_field 'dhcp6_enterprise' => (
+   type => 'FingerbankSelect',
+   label => 'DHCP6 Enterprise',
+   fingerbank_model => "fingerbank::Model::DHCP6_Enterprise",
+);
+
+has_field 'dhcp_fingerprint' => (
+   type => 'FingerbankSelect',
+   label => 'DHCP Fingerprint',
+   fingerbank_model => "fingerbank::Model::DHCP_Fingerprint",
+);
+
+has_field 'dhcp6_fingerprint' => (
+   type => 'FingerbankSelect',
+   label => 'DHCP6 Fingerprint',
+   fingerbank_model => "fingerbank::Model::DHCP6_Fingerprint",
+);
+
+has_field 'dhcp_vendor' => (
+   type => 'FingerbankSelect',
+   label => 'DHCP Vendor',
+   fingerbank_model => "fingerbank::Model::DHCP_Vendor",
 );
 
 for my $trigger (keys %pf::factory::condition::security_event::TRIGGER_TYPE_TO_CONDITION_TYPE) {
@@ -42,21 +89,6 @@ for my $trigger (keys %pf::factory::condition::security_event::TRIGGER_TYPE_TO_C
         );
     }
 }
-
-has_field 'role' => (
-    type => 'Select',
-    options_method => sub {
-        return map { { label => $_, value => $_ } } @{pf::ConfigStore::Roles->new->readAllIds()};
-    },
-);
-
-has_field 'device' => (
-   type => 'FingerbankSelect',
-   multiple => 1,
-   label => 'OS',
-   fingerbank_model => "fingerbank::Model::Device",
-);
-
 
 =head2 inflate
 
@@ -82,7 +114,6 @@ sub inflate {
 
     return \%trigger;
 }
-
 
 =head2 deflate
 
