@@ -60,6 +60,11 @@
                 </pf-form-upload>
               </pf-form-row>
               <pf-form-range-toggle
+                v-model="certs[id].check_chain"
+                :values="{ checked: 'enabled', unchecked: 'disabled' }"
+                :column-label="$t('Validate certificate chain')"
+              ></pf-form-range-toggle>
+              <pf-form-range-toggle
                 v-model="find_intermediate_cas"
                 :column-label="$t('Find intermediate CA certificates automatically')"
               ></pf-form-range-toggle>
@@ -277,7 +282,7 @@ export default {
     },
     edit (id) {
       this.$store.dispatch(`${this.storeName}/getCertificate`, id).then(certificate => {
-        const c = { ...{ common_name: '', lets_encrypt: 'disabled' }, ...certificate }
+        const c = { ...{ common_name: '', check_chain: 'enabled', lets_encrypt: 'disabled' }, ...certificate }
         this.$set(this.certs, id, c)
         this.$set(this.editMode, id, true)
       })
@@ -342,7 +347,7 @@ export default {
     Promise.all(
       this.initCerts.map(id => {
         return this.$store.dispatch(`${this.storeName}/getCertificateInfo`, id).then(info => {
-          this.$set(this.certs, id, { letsencrypt: 'disabled', common_name: '', certificate: '', private_key: '' })
+          this.$set(this.certs, id, { check_chain: 'enabled', lets_encrypt: 'disabled', common_name: '', certificate: '', private_key: '' })
           this.$set(this.info, id, info)
         })
       })

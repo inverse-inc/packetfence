@@ -1072,7 +1072,7 @@ export default {
     })
   },
   createCertificate: data => {
-    return apiCall.put(`config/certificate/${data.id}`, data).then(response => {
+    return apiCall.put(`config/certificate/${data.id}?check_chain=${data.check_chain}`, data).then(response => {
       return response.data
     })
   },
