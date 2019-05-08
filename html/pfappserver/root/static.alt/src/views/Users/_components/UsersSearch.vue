@@ -18,7 +18,7 @@
             </template>
             <b-dropdown-item @click="applyBulkCloseSecurityEvent()">
               <icon class="position-absolute mt-1" name="ban"></icon>
-              <span class="ml-4">{{ $t('Clear Security Event') }}</span>
+              <span class="ml-4">{{ $t('Close Security Event') }}</span>
             </b-dropdown-item>
             <b-dropdown-item @click="applyBulkRegister()">
               <icon class="position-absolute mt-1" name="plus-circle"></icon>
