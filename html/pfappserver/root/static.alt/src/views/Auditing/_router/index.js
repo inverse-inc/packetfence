@@ -56,7 +56,7 @@ const route = {
       component: DhcpOption82LogsSearch,
       props: (route) => ({ storeName: '$_dhcpoption82_logs', query: route.query.query }),
       meta: {
-        can: 'read auditing'
+        can: 'read dhcp_option_82'
       }
     },
     {
@@ -70,7 +70,7 @@ const route = {
         })
       },
       meta: {
-        can: 'read auditing'
+        can: 'read dhcp_option_82'
       }
     }
   ]

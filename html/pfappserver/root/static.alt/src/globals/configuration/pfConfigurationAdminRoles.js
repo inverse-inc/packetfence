@@ -147,6 +147,12 @@ export const pfConfigurationAdminRoleActions = [
     ]
   },
   {
+    group: 'DHCP Option 82 Log',
+    items: [
+      { text: 'DHCP Option 82 Log - Read', value: 'DHCP_OPTION_82_READ' }
+    ]
+  },
+  {
     group: 'RADIUS Domains',
     items: [
       { text: 'RADIUS Domains - Create', value: 'DEVICE_REGISTRATION_CREATE' },
