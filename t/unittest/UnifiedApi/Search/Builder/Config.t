@@ -24,34 +24,32 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 5;
+use Test::More tests => 11;
 
 #This test will running last
 use Test::NoWarnings;
 use pf::UnifiedApi::Search::Builder::Config;
+use pf::ConfigStore;
 
 my $sb = pf::UnifiedApi::Search::Builder::Config->new();
 
 {
-    my @f = qw(mac id);
-
-    my %search_info = (
-        fields => \@f,
-        query => {
-            op => 'equals',
-            field => 'mac',
-            value => "00:11:22:33:44:55",
-        },
-    );
-
     is_deeply(
-        $sb->make_condition( \%search_info ),
+        $sb->make_condition(
+            {
+                query => {
+                    op    => 'equals',
+                    field => 'mac',
+                    value => "00:11:22:33:44:55",
+                }
+            }
+        ),
         pf::condition::key->new(
             {
                 key       => 'mac',
                 condition => pf::condition::equals->new(
                     { value => "00:11:22:33:44:55" }
-                ),
+                )
             }
         ),
         'Build a simple condition'
@@ -106,7 +104,278 @@ my $sb = pf::UnifiedApi::Search::Builder::Config->new();
 
 }
 
-exit 0;
+{
+    my $file =<<FILE;
+[a]
+s=bob
+
+[b]
+s=bob
+
+[c]
+s=bob
+
+[d]
+s=bob
+
+[e]
+s=bob
+
+[f]
+s=abobh
+
+[g]
+s=bbobh
+
+[h]
+s=cbobh
+
+[i]
+s=dbobh
+
+[j]
+s=ebobh
+
+FILE
+    my $configStore = pf::ConfigStore->new(cachedConfig => pf::IniFiles->new(-file => \$file));
+    is_deeply(
+        [
+            $sb->search(
+                {
+                    configStore => $configStore,
+                    query       => {
+                        op    => 'equals',
+                        field => 's',
+                        value => 'bob',
+                    },
+                }
+            )
+        ],
+        [
+            200,
+            {
+                'prevCursor'  => 0,
+                'total_count' => 5,
+                'items'       => [
+                    {
+                        'id' => 'a',
+                        's'  => 'bob'
+                    },
+                    {
+                        'id' => 'b',
+                        's'  => 'bob'
+                    },
+                    {
+                        'id' => 'c',
+                        's'  => 'bob'
+                    },
+                    {
+                        'id' => 'd',
+                        's'  => 'bob'
+                    },
+                    {
+                        'id' => 'e',
+                        's'  => 'bob'
+                    },
+                  ]
+
+            }
+        ],
+        "Test equals"
+    );
+
+    is_deeply(
+        [
+            $sb->search(
+                {
+                    configStore => $configStore,
+                    query       => {
+                        op    => 'contains',
+                        field => 's',
+                        value => 'bob',
+                    },
+                    limit => 3,
+                }
+            )
+        ],
+        [
+            200,
+            {
+                'prevCursor'  => 0,
+                'total_count' => 10,
+                'items'       => [
+                    {
+                        'id' => 'a',
+                        's'  => 'bob'
+                    },
+                    {
+                        'id' => 'b',
+                        's'  => 'bob'
+                    },
+                    {
+                        'id' => 'c',
+                        's'  => 'bob'
+                    },
+                  ],
+                'nextCursor' => '3',
+
+            }
+        ],
+        "contain start"
+    );
+
+    is_deeply(
+        [
+            $sb->search(
+                {
+                    configStore => $configStore,
+                    query       => {
+                        op    => 'contains',
+                        field => 's',
+                        value => 'bob',
+                    },
+                    limit => 3,
+                    cursor => 3,
+                }
+            )
+        ],
+        [
+            200,
+            {
+                prevCursor  => 3,
+                total_count => 10,
+                items       => [
+                    {
+                        'id' => 'd',
+                        's'  => 'bob'
+                    },
+                    {
+                        'id' => 'e',
+                        's'  => 'bob'
+                    },
+                    {
+                        'id' => 'f',
+                        's'  => 'abobh'
+                    },
+                ],
+                nextCursor => 6,
+            }
+        ],
+        "contains cursor"
+    );
+
+    is_deeply(
+        [
+            $sb->search(
+                {
+                    configStore => $configStore,
+                    query       => {
+                        op    => 'contains',
+                        field => 's',
+                        value => 'bob',
+                    },
+                    limit => 3,
+                    cursor => 6,
+                }
+            )
+        ],
+        [
+            200,
+            {
+                prevCursor  => 6,
+                total_count => 10,
+                items       => [
+                    {
+                        'id' => 'g',
+                        's'  => 'bbobh'
+                    },
+                    {
+                        'id' => 'h',
+                        's'  => 'cbobh'
+                    },
+                    {
+                        'id' => 'i',
+                        's'  => 'dbobh'
+                    },
+                ],
+                nextCursor => 9,
+            }
+        ],
+        "contains next cursor"
+    );
+
+    is_deeply(
+        [
+            $sb->search(
+                {
+                    configStore => $configStore,
+                    query       => {
+                        op    => 'contains',
+                        field => 's',
+                        value => 'bob',
+                    },
+                    limit => 3,
+                    cursor => 9,
+                }
+            )
+        ],
+        [
+            200,
+            {
+                prevCursor  => 9,
+                total_count => 10,
+                items       => [
+                    {
+                        'id' => 'j',
+                        's'  => 'ebobh'
+                    },
+                ],
+            }
+        ],
+        "Next cursor near the end"
+    );
+
+    is_deeply(
+        [
+            $sb->search(
+                {
+                    configStore => $configStore,
+                    query       => {
+                        op    => 'contains',
+                        field => 's',
+                        value => 'bob',
+                    },
+                    limit => 3,
+                    sort => [{field => 's', dir => 'desc'}],
+                }
+            )
+        ],
+        [
+            200,
+            {
+                'prevCursor'  => 0,
+                'total_count' => 10,
+                'items'       => [
+                    {
+                        'id' => 'j',
+                        's'  => 'ebobh'
+                    },
+                    {
+                        'id' => 'i',
+                        's'  => 'dbobh'
+                    },
+                    {
+                        'id' => 'h',
+                        's'  => 'cbobh'
+                    },
+                  ],
+                'nextCursor' => '3',
+
+            }
+        ],
+        "Sort by s"
+    );
+}
 
 =head1 AUTHOR
 

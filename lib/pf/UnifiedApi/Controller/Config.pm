@@ -22,10 +22,87 @@ use Mojo::Util qw(url_unescape);
 use pf::util qw(expand_csv);
 use pf::error qw(is_error);
 use pf::pfcmd::checkup ();
+use pf::UnifiedApi::Search::Builder::Config;
 
 has 'config_store_class';
 has 'form_class';
 has 'openapi_generator_class' => 'pf::UnifiedApi::OpenAPI::Generator::Config';
+has 'search_builder_class' => "pf::UnifiedApi::Search::Builder::Config";
+
+sub search {
+    my ($self) = @_;
+    my ($status, $search_info_or_error) = $self->build_search_info;
+    if (is_error($status)) {
+        return $self->render(json => $search_info_or_error, status => $status);
+    }
+
+    ($status, my $response) = $self->search_builder->search($search_info_or_error);
+    if ( is_error($status) ) {
+        return $self->render_error(
+            $status,
+            $response->{message},
+            $response->{errors}
+        );
+    }
+    local $_;
+    $response->{items} = [
+        map { $self->cleanup_item($_) } @{$response->{items} // []}
+    ];
+
+    return $self->render(
+        json   => $response,
+        status => $status
+    );
+}
+
+=head2 build_search_info
+
+build_search_info
+
+=cut
+
+sub build_search_info {
+    my ($self) = @_;
+    my ($status, $data_or_error) = $self->parse_json;
+    if (is_error($status)) {
+        return $status, $data_or_error;
+    }
+
+    my %search_info = (
+        configStore => $self->config_store,
+        (
+            map {
+                exists $data_or_error->{$_}
+                  ? ( $_ => $data_or_error->{$_} )
+                  : ()
+            } qw(limit query fields sort cursor with_total_count)
+        )
+    );
+
+    $search_info{sort} = $self->normalize_sort_specs($search_info{sort});
+    return 200, \%search_info;
+}
+
+sub normalize_sort_specs {
+    my ($self, $sort) = @_;
+    return [
+        map {
+            my $sort_spec = $_;
+            my $dir       = 'asc';
+            my $s         = $sort_spec;
+            if ($s =~ s/  *(DESC|ASC)$//i) {
+                $dir = lc($dir);
+            }
+
+            { field => $s, dir => $dir }
+        } @{ $sort // [] }
+    ];
+}
+
+sub search_builder {
+    my ($self) = @_;
+    return $self->search_builder_class->new();
+}
 
 sub list {
     my ($self) = @_;

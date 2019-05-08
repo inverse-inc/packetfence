@@ -14,6 +14,9 @@ use strict;
 use warnings;
 use Moo;
 use pf::factory::condition;
+use pf::util qw(mcmp make_string_rcmp make_string_cmp);
+use pf::generate_filter qw(filter_with_offset_limit);
+use pf::error qw(is_error);
 
 our %OP_TO_CONDITION = (
     'equals'     => 'pf::condition::equals',
@@ -21,12 +24,89 @@ our %OP_TO_CONDITION = (
     'not'        => 'pf::condition::not',
     'and'        => 'pf::condition::all',
     'or'         => 'pf::condition::any',
+    'contains'   => 'pf::condition::matches',
+    'ends_with'   => 'pf::condition::ends_with',
+    'starts_with'   => 'pf::condition::starts_with',
 );
 
 our %LOGICAL_OPS = (
     'and' => 1,
     'or'  => 1,
 );
+
+sub search {
+    my ($self, $search_info) = @_;
+    my ($status, $search_args) = $self->make_search_args($search_info);
+    if (is_error($status)) {
+        return $status, $search_args;
+    }
+
+    my $configStore = $search_info->{configStore};
+    my $condition = $search_args->{condition};
+    my @items = $configStore->filter(sub { $condition->match($_[0]) }, 'id');
+    my $cmps = $search_args->{cmps};
+    if ($cmps) {
+        @items = sort { mcmp($a, $b, $cmps) } @items;
+    }
+
+    my $count = scalar @items;
+    my $cursor = $search_info->{cursor} // 0;
+    my $nextCursor;
+    my $limit = $search_info->{limit} || 25;
+    if ($cursor > 0) {
+        splice(@items, 0, $cursor);
+    }
+
+    if (@items > $limit) {
+        $nextCursor = $cursor + $limit;
+        splice(@items, $limit);
+    }
+
+    return $status,
+      {
+        prevCursor  => $cursor,
+        items       => \@items,
+        total_count => $count,
+        ( defined $nextCursor ? ( nextCursor => $nextCursor ) : () ),
+      };
+}
+
+=head2 make_search_args
+
+make_search_args
+
+=cut
+
+sub make_search_args {
+    my ($self, $search_info) = @_;
+    my %args = (
+        condition => $self->make_condition($search_info),
+        cmps      => $self->make_sort_cmps($search_info),
+    );
+    return 200, \%args;
+}
+
+=head2 make_sort_cmps
+
+make_sort_cmps
+
+=cut
+
+sub make_sort_cmps {
+    my ($self, $search_info) = @_;
+    my $sort = $search_info->{sort} // [];
+    if (@$sort == 0) {
+        return undef;
+    }
+
+    return [
+        map {
+            $_->{dir} eq 'desc'
+              ? make_string_rcmp($_->{field})
+              : make_string_cmp($_->{field})
+        } @$sort
+    ];
+}
 
 =head2 make_condition
 
@@ -54,7 +134,7 @@ sub query_to_condition {
     my ($self, $search, $query) = @_;
     my $op = lc($query->{op});
     if (!exists $OP_TO_CONDITION{$op}) {
-        die "$op is invalid";
+        die "$op is an invalid op";
     }
 
     my $condition = $OP_TO_CONDITION{$op};
