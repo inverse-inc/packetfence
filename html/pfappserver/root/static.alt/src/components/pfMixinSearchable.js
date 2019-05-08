@@ -104,7 +104,10 @@ export default {
     },
     totalRows () {
       if (this.searchableStoreName) {
-        return this.$store.state[this.searchableStoreName].searchMaxPageNumber * this.pageSizeLimit
+        const { $store: { state: { [this.searchableStoreName]: store } = {} } = {} } = this
+        if (store) {
+          return store.searchMaxPageNumber * this.pageSizeLimit
+        }
       }
     },
     searchableStoreName () {
@@ -215,9 +218,10 @@ export default {
       this.$store.dispatch(`${this.searchableStoreName}/setSearchPageSize`, this.pageSizeLimit)
       this.$store.dispatch(`${this.searchableStoreName}/search`, this.requestPage)
     },
-    onPageChange () {
-      this.$store.dispatch(`${this.searchableStoreName}/search`, this.requestPage).then(() => {
-        this.currentPage = this.requestPage
+    onPageChange (requestPage) {
+      this.requestPage = requestPage
+      this.$store.dispatch(`${this.searchableStoreName}/search`, requestPage).then(() => {
+        this.currentPage = requestPage
       }).catch(() => {
         this.requestPage = this.currentPage
       })

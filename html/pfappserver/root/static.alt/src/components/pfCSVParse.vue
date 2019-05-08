@@ -96,8 +96,8 @@
                 <b-form-select class="mb-3 mr-3" size="sm" v-model="pageSizeLimit" :options="[10,25,50,100]" :disabled="isLoading"
                 @input="onPageSizeChange" />
               </b-form>
-              <b-pagination align="right" v-model="requestPage" :per-page="pageSizeLimit" :total-rows="totalRows" :disabled="isLoading"
-              @input="onPageChange" />
+              <b-pagination align="right" v-model="currentPage" :per-page="pageSizeLimit" :total-rows="totalRows" :disabled="isLoading"
+              @change="onPageChange" />
             </b-row>
           </b-container>
           <b-table
