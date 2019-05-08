@@ -74,6 +74,7 @@ case "$1" in
         #Make ssl certificate
         cd /usr/local/pf
         make conf/ssl/server.pem
+        chown pf $PACKETFENCE/conf/ssl/server.key
 
 
         # Create server local RADIUS secret
