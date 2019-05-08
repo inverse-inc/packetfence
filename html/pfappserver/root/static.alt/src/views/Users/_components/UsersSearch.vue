@@ -625,7 +625,7 @@ export default {
             }
           })
           this.$store.dispatch('notification/info', {
-            message: this.$i18n.t('Applied {securityEventCount} security events for {userCount} users.', { securityEventCount: securityEventCount, userCount: this.selectValues.length }),
+            message: this.$i18n.t('Applied {securityEventCount} security event(s) for {userCount} user(s).', { securityEventCount: securityEventCount, userCount: this.selectValues.length }),
             success: securityEventCount
           })
         }).catch(() => {
@@ -651,7 +651,7 @@ export default {
             }
           })
           this.$store.dispatch('notification/info', {
-            message: this.$i18n.t('Closed {securityEventCount} security events for {userCount} users.', { securityEventCount: securityEventCount, userCount: this.selectValues.length }),
+            message: this.$i18n.t('Closed {securityEventCount} security event(s) for {userCount} user(s).', { securityEventCount: securityEventCount, userCount: this.selectValues.length }),
             success: securityEventCount
           })
         }).catch(() => {
@@ -677,7 +677,7 @@ export default {
             }
           })
           this.$store.dispatch('notification/info', {
-            message: this.$i18n.t('Registered {nodeCount} nodes for {userCount} users.', { nodeCount: nodeCount, userCount: this.selectValues.length }),
+            message: this.$i18n.t('Registered {nodeCount} node(s) for {userCount} user(s).', { nodeCount: nodeCount, userCount: this.selectValues.length }),
             success: nodeCount
           })
         }).catch(() => {
@@ -703,7 +703,7 @@ export default {
             }
           })
           this.$store.dispatch('notification/info', {
-            message: this.$i18n.t('Deregistered {nodeCount} nodes for {userCount} users.', { nodeCount: nodeCount, userCount: this.selectValues.length }),
+            message: this.$i18n.t('Deregistered {nodeCount} node(s) for {userCount} user(s).', { nodeCount: nodeCount, userCount: this.selectValues.length }),
             success: nodeCount
           })
         }).catch(() => {
@@ -729,7 +729,7 @@ export default {
             }
           })
           this.$store.dispatch('notification/info', {
-            message: this.$i18n.t('Applied role on {nodeCount} nodes for {userCount} users.', { nodeCount: nodeCount, userCount: this.selectValues.length }),
+            message: this.$i18n.t('Applied role on {nodeCount} node(s) for {userCount} user(s).', { nodeCount: nodeCount, userCount: this.selectValues.length }),
             success: nodeCount
           })
         }).catch(() => {
@@ -755,7 +755,7 @@ export default {
             }
           })
           this.$store.dispatch('notification/info', {
-            message: this.$i18n.t('Applied bypass role on {nodeCount} nodes for {userCount} users.', { nodeCount: nodeCount, userCount: this.selectValues.length }),
+            message: this.$i18n.t('Applied bypass role on {nodeCount} node(s) for {userCount} user(s).', { nodeCount: nodeCount, userCount: this.selectValues.length }),
             success: nodeCount
           })
         }).catch(() => {
@@ -781,7 +781,7 @@ export default {
             }
           })
           this.$store.dispatch('notification/info', {
-            message: this.$i18n.t('Reevaluated access on {nodeCount} nodes for {userCount} users.', { nodeCount: nodeCount, userCount: this.selectValues.length }),
+            message: this.$i18n.t('Reevaluated access on {nodeCount} node(s) for {userCount} user(s).', { nodeCount: nodeCount, userCount: this.selectValues.length }),
             success: nodeCount
           })
         }).catch(() => {
@@ -807,7 +807,7 @@ export default {
             }
           })
           this.$store.dispatch('notification/info', {
-            message: this.$i18n.t('Refreshed fingerbank on {nodeCount} nodes for {userCount} users.', { nodeCount: nodeCount, userCount: this.selectValues.length }),
+            message: this.$i18n.t('Refreshed fingerbank on {nodeCount} node(s) for {userCount} user(s).', { nodeCount: nodeCount, userCount: this.selectValues.length }),
             success: nodeCount
           })
         }).catch(() => {
@@ -828,7 +828,7 @@ export default {
             this.setRowVariant(index, 'success')
           })
           this.$store.dispatch('notification/info', {
-            message: this.$i18n.t('Deleted {userCount} users.', { userCount: this.selectValues.length }),
+            message: this.$i18n.t('Deleted {userCount} user(s).', { userCount: this.selectValues.length }),
             success: nodeCount
           })
           this.$refs.pfSearch.onSubmit() // resubmit search
