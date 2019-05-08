@@ -315,7 +315,7 @@ export default {
     /**
      * Layer2 Network
      */
-     onRowClickLayer2Network (item) {
+    onRowClickLayer2Network (item) {
       this.$router.push({ name: 'layer2_network', params: { id: item.id } })
     },
     onRowHoverLayer2Network (item) {

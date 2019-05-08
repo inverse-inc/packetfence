@@ -313,7 +313,7 @@ export default {
         this.maxStartDatetime = a
         this.buildPropsFromReport()
       }
-    },
+    }
 
   }
 }

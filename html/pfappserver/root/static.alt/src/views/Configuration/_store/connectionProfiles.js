@@ -107,7 +107,7 @@ const actions = {
     const params = {
       items: data
     }
-    commit('ITEM_REQUEST', types.DELETING)
+    commit('ITEM_REQUEST', types.LOADING)
     return api.sortConnectionProfiles(params).then(response => {
       commit('ITEM_SUCCESS')
       return response
