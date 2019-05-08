@@ -272,6 +272,7 @@
 </template>
 
 <script>
+import { format } from 'date-fns'
 import pfFieldTypeValue from '@/components/pfFieldTypeValue'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormDatetime from '@/components/pfFormDatetime'
@@ -372,9 +373,9 @@ export default {
         notes: ''
       },
       localUser: {
-        valid_from: null,
+        valid_from: format(new Date(), 'YYYY-MM-DD'),
         expiration: null,
-        actions: []
+        actions: [{ 'type': 'set_access_level', 'value': null }]
       },
       passwordGenerator: {
         pwlength: 8,
