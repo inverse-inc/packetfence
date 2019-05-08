@@ -12,7 +12,7 @@
       </b-row>
     </b-container>
     <b-tabs v-model="tabIndex" card v-else>
-      <b-tab v-for="id in sortedCerts" :key="id">
+      <b-tab v-for="id in sortedCerts" :key="id" @click="changeTab(id)">
         <template slot="title">
           <icon scale=".5" :class="info[id].cert_key_match.success ? 'text-success' : 'text-danger'" name="circle"></icon>
           <icon scale=".5" :class="info[id].chain_is_valid.success ? 'text-success' : 'text-danger'" name="circle" class="fa-overlap mr-1" ></icon>
@@ -200,7 +200,6 @@ export default {
       letsEncryptMsg: '',
       initCerts: ['http', 'radius'],
       sortedCerts: [],
-      tabIndex: 0,
       editMode: {},
       csrMode: false,
       csrForm: {
@@ -253,6 +252,9 @@ export default {
     return v
   },
   computed: {
+    tabIndex () {
+      return ['http', 'radius'].indexOf(this.id)
+    },
     isLoading () {
       return this.$store.getters[`${this.storeName}/isLoading`]
     },
@@ -267,6 +269,9 @@ export default {
     }
   },
   methods: {
+    changeTab (id) {
+      this.$router.push({ name: 'certificate', params: { id } })
+    },
     isEnabled (value) {
       return value === 'enabled'
     },
