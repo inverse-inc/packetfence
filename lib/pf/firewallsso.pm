@@ -18,6 +18,7 @@ use warnings;
 use pf::api::jsonrpcclient;
 use pf::config qw(
     %ConfigFirewallSSO
+    %Config
 );
 use pf::constants qw(
     $TRUE
@@ -42,7 +43,7 @@ sub do_sso {
     my ( %postdata ) = @_;
     my $logger = pf::log::get_logger();
 
-    unless ( scalar keys %ConfigFirewallSSO ) {
+    unless ( scalar keys %ConfigFirewallSSO && pf::util::isenabled($Config{'services'}{'pfsso'}) ) {
         $logger->debug("Trying to do firewall SSO without any firewall SSO configured. Exiting");
         return;
     }
