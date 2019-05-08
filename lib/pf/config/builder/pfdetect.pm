@@ -45,7 +45,7 @@ sub buildEntry {
                 );
                 next;
             }
-            $rule->{rate_limit} = normalize_time($rule->{rate_limit} // $pf::constants::pfdetect::RATE_LIMIT_DEFAULT);
+            $rule->{rate_limit} = normalize_time($rule->{rate_limit} // $pf::constants::pfdetect::RATE_LIMIT_DEFAULT) . "";
             my @action_keys = nsort grep { /^action\d+$/ } keys %$rule;
             $rule->{actions} = [delete @$rule{@action_keys}];
             push @rules, $rule;
