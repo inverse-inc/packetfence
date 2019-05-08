@@ -166,7 +166,7 @@ sub rejoin_domain {
         $results = undef;
     }
 
-    return $err, $results;
+    return $err, {status => 200, message => "Leave output:\n" . $results->{unjoin}->{message} . "\n\nJoin output:\n" . $results->{join}->{message}};
 }
 
 =head2 unjoin_domain
