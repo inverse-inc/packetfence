@@ -1879,6 +1879,11 @@ The MAC detection setting in the switches has been removed. In order to cleanup 
 
   /usr/local/pf/addons/upgrade/to-9.0-remove_mac_detection.sh
   
+Modifications to accounting cleanup
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Accounting cleanup is now done via a pfmon task (acct_cleanup) instead of the database backup and maintenance script. Make sure you adjust the cleanup window in pfmon's configuration (Configuration->System Maintenance->Maintenance) if necessary. Also note that the default retention for the accounting data has been lowered to 1 day instead of 1 week like it was before.
+  
 Database schema
 ^^^^^^^^^^^^^^^
 
