@@ -56,8 +56,8 @@ var pathAdminRolesMap = []adminRoleMapping{
 	adminRoleMapping{prefix: apiPrefix + "/dynamic_reports", role: "REPORTS"},
 	adminRoleMapping{prefix: apiPrefix + "/dynamic_report/", role: "REPORTS"},
 	adminRoleMapping{prefix: apiPrefix + "/radius_audit_log/", role: "RADIUS_LOG"},
-	adminRoleMapping{prefix: apiPrefix + "/dhcp_option82s", role: "AUDITING_READ"},
-	adminRoleMapping{prefix: apiPrefix + "/dhcp_option82/", role: "AUDITING_READ"},
+	adminRoleMapping{prefix: apiPrefix + "/dhcp_option82s", role: "AUDITING"},
+	adminRoleMapping{prefix: apiPrefix + "/dhcp_option82/", role: "AUDITING"},
 	adminRoleMapping{prefix: apiPrefix + "/radius_audit_logs", role: "RADIUS_LOG"},
 
 	adminRoleMapping{prefix: configApiPrefix + "/admin_role/", role: "ADMIN_ROLES"},
