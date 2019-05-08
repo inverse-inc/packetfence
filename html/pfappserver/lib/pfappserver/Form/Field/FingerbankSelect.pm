@@ -60,6 +60,10 @@ Modify the options to include only the base ones + the selected ones
 after 'value' => sub {
     my ($self) = @_;
     my @base_ids = $self->fingerbank_model->base_ids();
+    my $value = $self->result->value();
+    if (ref($value) eq '') {
+        $value = [$value];
+    }
     my @options = map {
         my ($status, $result) = $self->fingerbank_model->read($_);
         if(is_success($status)){
@@ -73,7 +77,7 @@ after 'value' => sub {
             get_logger->error("Unable to read device $_");
             ();
         }
-    } uniq(@base_ids, @{$self->result->value()});
+    } uniq(@base_ids, @{$value});
     $self->options(\@options);
 };
 
