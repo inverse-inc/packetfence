@@ -171,9 +171,10 @@ Create a new virtual interface
 sub create {
     my ($self) = @_;
     my $data = $self->parse_json;
+    my $id = $data->{id};
     $data = $self->validate_item("pfappserver::Form::Interface::Create", $data);
     return unless($data);
-    my $full_name = $data->{name} . "." . $data->{vlan};
+    my $full_name = $id . "." . $data->{vlan};
     my $model = $self->model;
 
     $data = $self->format_type($data);
