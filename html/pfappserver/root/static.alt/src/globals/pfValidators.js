@@ -351,6 +351,14 @@ export const hasInterfaces = (value, component) => {
   })
 }
 
+export const hasLayer2Networks = (value, component) => {
+  return store.dispatch('config/getLayer2Networks').then((response) => {
+    return (response.length > 0)
+  }).catch(() => {
+    return true
+  })
+}
+
 export const hasMaintenanceTasks = (value, component) => {
   return store.dispatch('config/getMaintenanceTasks').then((response) => {
     return (response.length > 0)
@@ -609,10 +617,11 @@ export const fingerbankCombinationExists = (value, component) => {
   })
 }
 
-export const nodeExists = (value, component) => {
-  if (!value || value.length !== 17) return true
-  return store.dispatch('$_nodes/exists', value).then(() => {
-    return false
+export const layer2NetworkExists = (value, component) => {
+  if (!value) return true
+  return store.dispatch('config/getLayer2Networks').then((response) => {
+    if (response.length === 0) return true
+    return (response.filter(layer2Network => layer2Network.id.toLowerCase() === value.toLowerCase()).length > 0)
   }).catch(() => {
     return true
   })
@@ -623,6 +632,15 @@ export const maintenanceTaskExists = (value, component) => {
   return store.dispatch('config/getMaintenanceTasks').then((response) => {
     if (response.length === 0) return true
     return (response.filter(maintenanceTask => maintenanceTask.id.toLowerCase() === value.toLowerCase()).length > 0)
+  }).catch(() => {
+    return true
+  })
+}
+
+export const nodeExists = (value, component) => {
+  if (!value || value.length !== 17) return true
+  return store.dispatch('$_nodes/exists', value).then(() => {
+    return false
   }).catch(() => {
     return true
   })

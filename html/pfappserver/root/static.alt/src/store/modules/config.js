@@ -102,6 +102,9 @@ const api = {
   getInterfaces () {
     return apiCall({ url: 'config/interfaces', method: 'get' })
   },
+  getLayer2Networks () {
+    return apiCall({ url: 'config/l2_networks', method: 'get', params: { limit: 1000 } })
+  },
   getMaintenanceTasks () {
     return apiCall({ url: 'config/maintenance_tasks', method: 'get' })
   },
@@ -233,6 +236,8 @@ const state = { // set intitial states to `false` (not `[]` or `{}`) to avoid in
   floatingDevices: false,
   interfacesStatus: '',
   interfaces: false,
+  layer2NetworksStatus: '',
+  layer2Networks: false,
   maintenanceTasksStatus: '',
   maintenanceTasks: false,
   pkiProvidersStatus: '',
@@ -403,6 +408,9 @@ const getters = {
   },
   isLoadingInterfaces: state => {
     return state.interfacesStatus === types.LOADING
+  },
+  isLoadingLayer2Networks: state => {
+    return state.layer2NetworksStatus === types.LOADING
   },
   isLoadingMaintenanceTasks: state => {
     return state.maintenanceTasksStatus === types.LOADING
@@ -1053,6 +1061,20 @@ const actions = {
       return Promise.resolve(state.interfaces)
     }
   },
+  getLayer2Networks: ({ state, getters, commit }) => {
+    if (getters.isLoadingLayer2Networks) {
+      return
+    }
+    if (!state.layer2Networks) {
+      commit('LAYER2_NETWORKS_REQUEST')
+      return api.getLayer2Networks().then(response => {
+        commit('LAYER2_NETWORKS_UPDATED', response.data.items)
+        return state.layer2Networks
+      })
+    } else {
+      return Promise.resolve(state.layer2Networks)
+    }
+  },
   getMaintenanceTasks: ({ state, getters, commit }) => {
     if (getters.isLoadingMaintenanceTasks) {
       return
@@ -1534,6 +1556,13 @@ const mutations = {
   INTERFACES_UPDATED: (state, interfaces) => {
     state.interfaces = interfaces
     state.interfacesStatus = types.SUCCESS
+  },
+  LAYER2_NETWORKS_REQUEST: (state) => {
+    state.layer2NetworksStatus = types.LOADING
+  },
+  LAYER2_NETWORKS_UPDATED: (state, layer2Networks) => {
+    state.layer2Networks = layer2Networks
+    state.layer2NetworksStatus = types.SUCCESS
   },
   MAINTENANCE_TASKS_REQUEST: (state) => {
     state.maintenanceTasksStatus = types.LOADING

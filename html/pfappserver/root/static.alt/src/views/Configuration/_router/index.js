@@ -13,6 +13,7 @@ import FingerbankStore from '../_store/fingerbank'
 import FirewallsStore from '../_store/firewalls'
 import FloatingDevicesStore from '../_store/floatingDevices'
 import InterfacesStore from '../_store/interfaces'
+import Layer2NetworksStore from '../_store/layer2Networks'
 import MaintenanceTasksStore from '../_store/maintenanceTasks'
 import PkiProvidersStore from '../_store/pkiProviders'
 import PortalModulesStore from '../_store/portalModules'
@@ -96,6 +97,7 @@ const DeviceRegistrationView = () => import(/* webpackChunkName: "Configuration"
 const NetworkConfigurationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/NetworkConfigurationSection')
 const NetworksTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/NetworksTabs')
 const InterfaceView = () => import(/* webpackChunkName: "Configuration" */ '../_components/InterfaceView')
+const Layer2NetworkView = () => import(/* webpackChunkName: "Configuration" */ '../_components/Layer2NetworkView')
 const RoutedNetworkView = () => import(/* webpackChunkName: "Configuration" */ '../_components/RoutedNetworkView')
 const TrafficShapingView = () => import(/* webpackChunkName: "Configuration" */ '../_components/TrafficShapingView')
 const SnmpTrapView = () => import(/* webpackChunkName: "Configuration" */ '../_components/SnmpTrapView')
@@ -162,6 +164,9 @@ const route = {
     }
     if (!store.state.$_interfaces) {
       store.registerModule('$_interfaces', InterfacesStore)
+    }
+    if (!store.state.$_layer2_networks) {
+      store.registerModule('$_layer2_networks', Layer2NetworksStore)
     }
     if (!store.state.$_maintenance_tasks) {
       store.registerModule('$_maintenance_tasks', MaintenanceTasksStore)
@@ -1300,6 +1305,17 @@ const route = {
       props: (route) => ({ storeName: '$_interfaces', id: route.params.id, isNew: true }),
       beforeEnter: (to, from, next) => {
         store.dispatch('$_interfaces/getInterface', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'interfaces/layer2_network/:id',
+      name: 'layer2_network',
+      component: Layer2NetworkView,
+      props: (route) => ({ storeName: '$_layer2_networks', id: route.params.id }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_layer2_networks/getLayer2Network', to.params.id).then(object => {
           next()
         })
       }
