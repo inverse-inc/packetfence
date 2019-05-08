@@ -67,7 +67,8 @@ export default {
   },
   computed: {
     status () {
-      return this.$store.state.services.cache[this.service]
+      const { $store: { state: { services: { cache: { [this.service]: service } = {} } = {} } = {} } = {} } = this
+      return service || { status: 'loading' }
     },
     canEnable () {
       return (this.enable && !this.status.enabled && !this.isLoading)
