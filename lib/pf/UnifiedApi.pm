@@ -723,6 +723,7 @@ sub setup_api_v1_std_config_collection_routes {
     $root->register_sub_action({path => '', action => 'create', method => 'POST'});
     $root->register_sub_action({path => '', action => 'options', method => 'OPTIONS'});
     $root->register_sub_action({action => 'sort_items', method => 'PATCH'});
+    $root->register_sub_action({action => 'search', method => 'POST'});
     return ;
 }
 
