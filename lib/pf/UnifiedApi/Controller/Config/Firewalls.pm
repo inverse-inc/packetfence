@@ -30,6 +30,7 @@ use pfappserver::Form::Config::Firewall_SSO::WatchGuard;
 use pfappserver::Form::Config::Firewall_SSO::FortiGate;
 use pfappserver::Form::Config::Firewall_SSO::JSONRPC;
 use pfappserver::Form::Config::Firewall_SSO::PaloAlto;
+use pfappserver::Form::Config::Firewall_SSO::JuniperSRX;
 
 our %TYPES_TO_FORMS = (
     map { $_ => "pfappserver::Form::Config::Firewall_SSO::$_" } qw(
@@ -40,6 +41,7 @@ our %TYPES_TO_FORMS = (
       FortiGate
       JSONRPC
       PaloAlto
+      JuniperSRX
     )
 );
 
