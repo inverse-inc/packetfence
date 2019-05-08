@@ -16,7 +16,6 @@
         :internal-search="internalSearch"
         :multiple="multiple"
         :label="label"
-        :loading="loading"
         :options="options"
         :options-limit="optionsLimit"
         :preserve-search="preserveSearch"
@@ -271,11 +270,11 @@ export default {
     }
   }
   .multiselect__select {
-    height: auto;
-    width: auto;
     top: 0px;
     right: 10px;
     bottom: 0px;
+    width: auto;
+    height: auto;
     padding: 0px;
   }
   .multiselect__tag {

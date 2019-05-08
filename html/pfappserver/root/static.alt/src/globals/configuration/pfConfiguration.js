@@ -132,7 +132,7 @@ export const pfConfigurationAttributesFromMeta = (meta = {}, key = null) => {
       attrs.allowEmpty = (!(key in meta && 'required' in Object.keys(meta[key])))
       attrs.clearOnSelect = true
       attrs.placeholder = i18n.t('Type to search')
-      attrs.showNoResults = false
+      attrs.showNoOptions = false
       attrs.optionsSearchFunction = pfConfigurationOptionsSearchFunction(allowedLookup)
     }
   }

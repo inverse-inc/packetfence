@@ -265,7 +265,12 @@ export default {
                         valueLabel: this.$i18n.t('Select value'),
                         fields: [
                           {
-                            attrs: pfConfigurationAttributesFromMeta(this.meta, 'triggers.device'),
+                            attrs: {
+                              ...pfConfigurationAttributesFromMeta(this.meta, 'triggers.device'),
+                              ...{
+                                collapseObject: false
+                              }
+                            },
                             ...{
                               value: 'device',
                               text: categoryOptions.profiling.device,
