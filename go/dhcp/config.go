@@ -71,8 +71,18 @@ func (d *Interfaces) readConfig() {
 
 	pfconfigdriver.FetchDecodeSocket(ctx, &keyConfNet)
 
+	var int_dhcp []string
+
+	for _, vi := range DHCPinterfaces.Element {
+		for key, dhcp_int := range vi.(map[string]interface{}) {
+			if key == "int" {
+				int_dhcp = append(int_dhcp, dhcp_int.(string))
+			}
+		}
+	}
+
 	wg := &sync.WaitGroup{}
-	for _, v := range sharedutils.RemoveDuplicates(append(interfaces.Element, DHCPinterfaces.Element...)) {
+	for _, v := range sharedutils.RemoveDuplicates(append(interfaces.Element, int_dhcp...)) {
 
 		eth, err := net.InterfaceByName(v)
 

@@ -6,13 +6,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"net"
-	"net/url"
-	"os"
-	"regexp"
-	"strconv"
-	"sync"
-	"time"
 
 	"github.com/inverse-inc/packetfence/go/coredns/plugin"
 	"github.com/inverse-inc/packetfence/go/coredns/request"
@@ -21,6 +14,13 @@ import (
 	"github.com/inverse-inc/packetfence/go/sharedutils"
 	"github.com/inverse-inc/packetfence/go/unifiedapiclient"
 	cache "github.com/patrickmn/go-cache"
+	"net"
+	"net/url"
+	"os"
+	"regexp"
+	"strconv"
+	"sync"
+	"time"
 	//Import mysql driver
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/inverse-inc/packetfence/go/log"
@@ -421,7 +421,17 @@ func (pf *pfdns) detectVIP() error {
 	var keyConfCluster pfconfigdriver.NetInterface
 	keyConfCluster.PfconfigNS = "config::Pf(CLUSTER," + pfconfigdriver.FindClusterName(ctx) + ")"
 
-	for _, v := range sharedutils.RemoveDuplicates(append(interfaces.Element, DNSinterfaces.Element...)) {
+	var int_dns []string
+
+	for _, vi := range DNSinterfaces.Element {
+		for key, dns_int := range vi.(map[string]interface{}) {
+			if key == "int" {
+				int_dns = append(int_dns, dns_int.(string))
+			}
+		}
+	}
+
+	for _, v := range sharedutils.RemoveDuplicates(append(interfaces.Element, int_dns...)) {
 
 		keyConfCluster.PfconfigHashNS = "interface " + v
 		pfconfigdriver.FetchDecodeSocket(ctx, &keyConfCluster)

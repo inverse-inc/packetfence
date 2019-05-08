@@ -88,8 +88,19 @@ func main() {
 		pfconfigdriver.FetchDecodeSocket(ctx, &DHCPinterfaces)
 		var interfaces pfconfigdriver.ListenInts
 		pfconfigdriver.FetchDecodeSocket(ctx, &interfaces)
+
+		var int_dhcp []string
+
+		for _, vi := range DHCPinterfaces.Element {
+			for key, dhcp_int := range vi.(map[string]interface{}) {
+				if key == "int" {
+					int_dhcp = append(int_dhcp, dhcp_int.(string))
+				}
+			}
+		}
+
 		for {
-			DHCPConfig.detectVIP(sharedutils.RemoveDuplicates(append(interfaces.Element, DHCPinterfaces.Element...)))
+			DHCPConfig.detectVIP(sharedutils.RemoveDuplicates(append(interfaces.Element, int_dhcp...)))
 
 			time.Sleep(3 * time.Second)
 		}

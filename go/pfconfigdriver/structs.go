@@ -222,7 +222,7 @@ type DHCPInts struct {
 	PfconfigNS              string `val:"interfaces::dhcp_ints"`
 	PfconfigArray           string `val:"yes"`
 	PfconfigHostnameOverlay string `val:"yes"`
-	Element                 []string
+	Element                 []interface{}
 }
 
 type DNSInts struct {
@@ -231,7 +231,7 @@ type DNSInts struct {
 	PfconfigNS              string `val:"interfaces::dns_ints"`
 	PfconfigArray           string `val:"yes"`
 	PfconfigHostnameOverlay string `val:"yes"`
-	Element                 []string
+	Element                 []interface{}
 }
 
 type PfClusterIp struct {
