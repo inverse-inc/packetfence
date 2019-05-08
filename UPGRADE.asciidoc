@@ -1872,6 +1872,13 @@ The violations have been renamed to security events. In order to make the approp
 
   /usr/local/pf/addons/upgrade/to-9.0-security-events.sh
   
+Removed MAC detection setting
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The MAC detection setting in the switches has been removed. In order to cleanup the switches configuration for the removal of this setting, execute the following script:
+
+  /usr/local/pf/addons/upgrade/to-9.0-remove_mac_detection.sh
+  
 Database schema
 ^^^^^^^^^^^^^^^
 
