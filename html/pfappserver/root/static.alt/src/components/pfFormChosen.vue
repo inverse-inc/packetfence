@@ -27,8 +27,8 @@
         @input.native="validate()"
         @keyup.native.stop.prevent="onChange($event)"
         @search-change="onSearchChange($event)"
-        @open="focus = true"
-        @close="focus = false"
+        @open="onFocus"
+        @close="onBlur"
       >
         <b-media slot="noResult" class="text-secondary" md="auto">
           <icon name="search" scale="2" slot="aside" class="ml-2"></icon>
@@ -189,6 +189,13 @@ export default {
     }
   },
   methods: {
+    onFocus (event) {
+      this.focus = true
+      this.onSearchChange() // initial (empty) search
+    },
+    onBlur (event) {
+      this.focus = false
+    },
     onSearchChange (query) {
       if (this.optionsSearchFunction) {
         if (!this.$debouncer) {

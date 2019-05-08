@@ -133,7 +133,27 @@ export const pfConfigurationAttributesFromMeta = (meta = {}, key = null) => {
       attrs.clearOnSelect = true
       attrs.placeholder = i18n.t('Type to search')
       attrs.showNoOptions = false
-      attrs.optionsSearchFunction = pfConfigurationOptionsSearchFunction(allowedLookup)
+      attrs.optionsSearchFunction = (chosen, query) => { // wrap function
+        const f = pfConfigurationOptionsSearchFunction(allowedLookup)
+        if (query) {
+          return f(chosen, query)
+        } else {
+          switch (key) {
+            case 'oses':
+              return [
+                { text: 'Windows Phone OS', value: '33507' },
+                { text: 'Mac OS X or macOS', value: '2' },
+                { text: 'Android OS', value: '33453' },
+                { text: 'Windows OS', value: '1' },
+                { text: 'BlackBerry OS', value: '33471' },
+                { text: 'iOS', value: '33450' },
+                { text: 'Linux OS', value: '5' }
+              ]
+            default:
+              return f(chosen, query)
+          }
+        }
+      }
     }
   }
   return attrs
