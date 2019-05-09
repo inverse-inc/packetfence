@@ -127,7 +127,7 @@ sub deflate {
         next if !defined $v;
         if (ref($v) eq 'ARRAY') {
             next if @$v == 0;
-            $v = join (',', @$v);
+            $v = $v->[0];
         }
 
         push @vals, "${k}::$v";
