@@ -61,9 +61,10 @@ after 'value' => sub {
     my ($self) = @_;
     my @base_ids = $self->fingerbank_model->base_ids();
     my $value = $self->result->value();
-    if (ref($value) eq '') {
-        $value = [$value];
+    if (!$self->multiple) {
+        $value = defined $value ? [$value] : [];
     }
+
     my @options = map {
         my ($status, $result) = $self->fingerbank_model->read($_);
         if(is_success($status)){
@@ -83,7 +84,10 @@ after 'value' => sub {
 
 sub _deflate {
     my ($self, $value) = @_;
-    $value = [ uniq @$value ];
+    if ($self->multiple) {
+        $value = [ uniq @$value ];
+    }
+
     return $value;
 }
 
