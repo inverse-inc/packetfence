@@ -44,7 +44,6 @@ has_field 'role' => (
 
 has_field 'device' => (
    type => 'FingerbankSelect',
-   multiple => 1,
    label => 'OS',
    fingerbank_model => "fingerbank::Model::Device",
 );
