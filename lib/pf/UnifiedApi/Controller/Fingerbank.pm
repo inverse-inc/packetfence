@@ -118,7 +118,16 @@ sub create {
         return $self->render(json => $json, status => $status);
     }
 
-    ($status, my $return) = $self->fingerbank_model->create($json);
+    my $model = $self->fingerbank_model;
+    my $db = fingerbank::DB_Factory->instantiate(schema => 'Local');
+    my $source =  $db->handle->source($model->_parseClassName);
+    my %data;
+    for my $c ($source->columns) {
+        next if !exists $json->{$c};
+        $data{$c} = $json->{$c};
+    }
+
+    ($status, my $return) = $model->create(\%data);
     if (is_error($status)) {
         return $self->render_error($status, $return);
     }
