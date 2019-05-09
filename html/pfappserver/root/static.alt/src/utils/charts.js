@@ -3,7 +3,7 @@ import router from '@/router'
 import store from '@/store'
 
 const chartsCall = axios.create({
-  baseURL: `https://${window.location.hostname}:1443/netdata/` // ${window.location.hostname}/api/v1/'
+  baseURL: `https://${window.location.hostname}:${window.location.port}/netdata/`
 })
 
 chartsCall.interceptors.response.use((response) => {

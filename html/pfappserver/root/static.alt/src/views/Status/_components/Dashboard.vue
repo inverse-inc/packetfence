@@ -661,7 +661,7 @@ export default {
         window.netdataNoBootstrap = true
         window.netdataTheme = 'default'
         // window.netdataTheme = 'slate' #272b30
-        el.setAttribute('src', `//${window.location.hostname}:1443/netdata/127.0.0.1/dashboard.js`)
+        el.setAttribute('src', `//${window.location.hostname}:${window.location.port}/netdata/127.0.0.1/dashboard.js`)
         document.head.appendChild(el)
       }
     },
