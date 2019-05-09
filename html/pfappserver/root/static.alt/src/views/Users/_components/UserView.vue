@@ -320,7 +320,7 @@ export default {
             // pfConfigurationActions.set_bandwidth_balance,
             pfConfigurationActions.mark_as_sponsor,
             pfConfigurationActions.set_role,
-            pfConfigurationActions.set_tenant_id,
+            // pfConfigurationActions.set_tenant_id,
             // pfConfigurationActions.set_time_balance,
             pfConfigurationActions.set_unreg_date
           ]
@@ -743,6 +743,7 @@ export default {
     resetPassword () {
       const data = {
         pid: this.pid,
+        tenant_id: this.tenant_id,
         password: this.userContent.password,
         login_remaining: this.userContent.login_remaining
       }

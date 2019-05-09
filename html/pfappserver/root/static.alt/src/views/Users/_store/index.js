@@ -19,9 +19,6 @@ const inflateActions = (data) => {
   if (data.category) {
     data.actions.push({ type: pfConfigurationActions.set_role.value, value: data.category })
   }
-  if (data.tenant_id) {
-    data.actions.push({ type: pfConfigurationActions.set_tenant_id.value, value: data.tenant_id })
-  }
   if (data.unregdate !== '0000-00-00 00:00:00') {
     data.actions.push({ type: pfConfigurationActions.set_unreg_date.value, value: data.unregdate })
   }
@@ -36,7 +33,6 @@ const deflateActions = (data) => {
     data.access_level = null
     data.can_sponsor = null
     data.category = null
-    data.tenant_id = null
     data.unregdate = null
 
     actions.forEach(action => {
@@ -48,13 +44,10 @@ const deflateActions = (data) => {
           data.access_level = action.value
           break
         case pfConfigurationActions.mark_as_sponsor.value:
-          data.can_sponsor = action.value
+          data.sponsor = 1
           break
         case pfConfigurationActions.set_role.value:
           data.category = action.value
-          break
-        case pfConfigurationActions.set_tenant_id.value:
-          data.tenant_id = action.value
           break
         case pfConfigurationActions.set_unreg_date.value:
           data.unregdate = action.value
