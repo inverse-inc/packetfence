@@ -18,6 +18,8 @@
           <b-dropdown-item :to="{ name: 'newFirewall', params: { firewallType: 'PaloAlto' } }">PaloAlto</b-dropdown-item>
           <b-dropdown-item :to="{ name: 'newFirewall', params: { firewallType: 'WatchGuard' } }">WatchGuard</b-dropdown-item>
           <b-dropdown-item :to="{ name: 'newFirewall', params: { firewallType: 'JSONRPC' } }">JSONRPC</b-dropdown-item>
+          <b-dropdown-item :to="{ name: 'newFirewall', params: { firewallType: 'LightSpeedRocket' } }">LightSpeedRocket</b-dropdown-item>
+          <b-dropdown-item :to="{ name: 'newFirewall', params: { firewallType: 'SmoothWall' } }">SmoothWall</b-dropdown-item>
         </b-dropdown>
       </template>
       <template slot="emptySearch" slot-scope="state">
