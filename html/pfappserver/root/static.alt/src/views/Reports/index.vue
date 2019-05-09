@@ -47,7 +47,7 @@ export default {
     sections () {
       return [
         {
-          name: this.$i18n.t('Custom Reports'),
+          name: this.$i18n.t('Dynamic Reports'),
           icon: 'chart-bar',
           collapsable: true,
           items: this.dynamicReports
