@@ -360,7 +360,7 @@ sub validate_password {
         # valid_from is in unix timestamp format so an int comparison is enough
         my $valid_from = $temppass_record->{'valid_from'};
         if ( defined $valid_from && $valid_from > time ) {
-            $logger->info("Password validation failed for $pid: password not yet valid");
+            $logger->info("Password validation failed for $pid: password not yet valid, please verify the Registration Window");
             return $AUTH_FAILED_NOT_YET_VALID;
         }
 
