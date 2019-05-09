@@ -65,11 +65,11 @@
                 :column-label="$t('Validate certificate chain')"
               ></pf-form-range-toggle>
               <pf-form-range-toggle
-                v-model="find_intermediate_cas"
+                v-model="findIntermediateCAs"
                 :column-label="$t('Find intermediate CA certificates automatically')"
               ></pf-form-range-toggle>
               <pf-form-fields
-                v-if="!find_intermediate_cas"
+                v-if="!findIntermediateCAs"
                 v-model="certs[id].intermediate_cas"
                 :column-label="$t('Intermediate CA certificate(s)')"
                 :button-label="$t('Add certificate')"
@@ -215,7 +215,7 @@ export default {
         state: ''
       },
       csr: '',
-      find_intermediate_cas: false,
+      findIntermediateCAs: false,
       caCertificateField: {
         component: pfField,
         attrs: {
@@ -311,18 +311,16 @@ export default {
       })
     },
     save (id) {
-      if (this.find_intermediate_cas) {
-        delete this.certs[id].intermediate_cas
-      }
+      let creationPromise
       if (this.isEnabled(this.certs[id].lets_encrypt)) {
-        this.certs[id] = {
-          id,
-          lets_encrypt: this.certs[id].lets_encrypt,
-          common_name: this.certs[id].common_name,
-          check_chain: 'disabled'
+        creationPromise = this.$store.dispatch(`${this.storeName}/createLetsEncryptCertificate`, this.certs[id])
+      } else {
+        if (this.findIntermediateCAs) {
+          delete this.certs[id].intermediate_cas
         }
+        creationPromise = this.$store.dispatch(`${this.storeName}/createCertificate`, this.certs[id])
       }
-      this.$store.dispatch(`${this.storeName}/createCertificate`, this.certs[id]).then(() => {
+      creationPromise.then(() => {
         this.$store.dispatch('notification/info', { message: this.$i18n.t('{certificate} certificate saved', { certificate: id.toUpperCase() }) })
       }).finally(() => window.scrollTo(0, 0))
     },

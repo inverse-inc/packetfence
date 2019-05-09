@@ -62,6 +62,21 @@ const actions = {
       throw err
     })
   },
+  createLetsEncryptCertificate: ({ commit }, data) => {
+    const request = {
+      id: data.id,
+      lets_encrypt: data.lets_encrypt,
+      common_name: data.common_name
+    }
+    commit('ITEM_REQUEST')
+    return api.createLetsEncryptCertificate(request).then(response => {
+      commit('ITEM_REPLACED', data)
+      return response
+    }).catch(err => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
+  },
   generateCertificateSigningRequest: ({ commit }, data) => {
     commit('ITEM_REQUEST')
     return api.generateCertificateSigningRequest(data).then(response => {
