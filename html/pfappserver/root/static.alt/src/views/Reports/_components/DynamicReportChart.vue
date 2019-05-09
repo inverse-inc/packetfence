@@ -161,16 +161,20 @@ export default {
       ]
       const { report: { columns = null } = {} } = this
       if (columns) {
-        columns.split(',').forEach(col => {
-          for (let i = 0; i < regex.length; i++) {
-            if (regex[i].test(col.trim())) {
-              // eslint-disable-next-line no-unused-vars
-              const [ _, table, column, alias ] = col.trim().match(regex[i])
-              parsedColumns.push({ table, column, alias })
-              break
+        if (columns === '*') {
+          parsedColumns.push({ table: '*', column: '*', alias: '*' })
+        } else {
+          columns.split(',').forEach(col => {
+            for (let i = 0; i < regex.length; i++) {
+              if (regex[i].test(col.trim())) {
+                // eslint-disable-next-line no-unused-vars
+                const [ _, table, column, alias ] = col.trim().match(regex[i])
+                parsedColumns.push({ table, column, alias })
+                break
+              }
             }
-          }
-        })
+          })
+        }
       }
       return parsedColumns
     },
@@ -271,20 +275,11 @@ export default {
       })
       let searchableOptions = {
         searchApiEndpoint: `dynamic_report/${this.id}`,
-        defaultSortDesc: false,
+        defaultSortKeys: [], // no local sorting
+        defaultSortDesc: false, // no local sorting
         defaultSearchCondition: { op: 'and', values: [{ op: 'or', values: searchCriteria }] },
         defaultRoute: { name: 'dynamicReportChart', params: { id: this.id } },
         extraFields: { 'start_date': this.datetimeStart, 'end_date': this.datetimeEnd }
-      }
-      if (this.parsedSearches.length > 0) {
-        searchableOptions.defaultSortKeys = [`${this.parsedSearches[0].table}.${this.parsedSearches[0].column}`]
-      }
-      if ('date_field' in this.report) {
-        let search = this.parsedColumns.find(search => search.column === this.report.date_field)
-        if (search) {
-          searchableOptions.defaultSortKeys = [`${search.table}.${search.column}`]
-          searchableOptions.defaultSortDesc = true
-        }
       }
       this.$set(this, 'searchableOptions', searchableOptions)
     },
@@ -300,6 +295,21 @@ export default {
     id (a, b) {
       if (a && a !== b) {
         this.init()
+      }
+    },
+    items (a, b) {
+      if (a.length > 0 && this.columns.length === 1) { // columns were not initially known
+        const columns = Object.keys(a[0]).map(column => {
+          return {
+            key: column,
+            label: column,
+            sortable: false,
+            visible: true
+          }
+        })
+        if (JSON.stringify(columns) !== JSON.stringify(this.columns)) {
+          this.$set(this, 'columns', columns)
+        }
       }
     },
     datetimeStart (a, b) {
