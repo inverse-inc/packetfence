@@ -402,7 +402,8 @@ export default {
           types: [conditionType.SUBSTRING],
           icon: 'user-secret'
         },
-        /* TODO - #3400, #4166        {
+        /* TODO - #3400, #4166
+        {
           value: 'security_event.open_security_event_id',
           text: this.$i18n.t('Security Event Open'),
           types: [conditionType.SECURITY_EVENT],

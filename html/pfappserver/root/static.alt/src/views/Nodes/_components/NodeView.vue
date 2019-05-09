@@ -503,7 +503,7 @@ export default {
         },
         {
           key: 'buttons',
-          label: null,
+          label: '',
           sortable: false,
           class: 'text-right'
         }
