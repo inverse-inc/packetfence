@@ -30,7 +30,6 @@ const state = {
 const blacklistedServices = [ // prevent start|stop|restart control on these services
   'api-frontend',
   'httpd.admin',
-  'httpd.dispatcher',
   'pf',
   'pfperl-api'
 ]
