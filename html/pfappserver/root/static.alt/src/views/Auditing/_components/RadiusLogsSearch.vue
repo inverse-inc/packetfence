@@ -368,7 +368,7 @@ export default {
           key: 'nas_ip_address',
           label: this.$i18n.t('NAS IP Address'),
           sortable: true,
-          visible: false
+          visible: true
         },
         {
           key: 'nas_port',
