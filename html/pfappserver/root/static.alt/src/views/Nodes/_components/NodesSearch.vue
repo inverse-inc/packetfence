@@ -402,27 +402,24 @@ export default {
           types: [conditionType.SUBSTRING],
           icon: 'user-secret'
         },
-        {
+        /* TODO - #3400, #4166        {
           value: 'security_event.open_security_event_id',
           text: this.$i18n.t('Security Event Open'),
           types: [conditionType.SECURITY_EVENT],
           icon: 'exclamation-triangle'
         },
-        /* TODO - #4166
         {
           value: 'security_event.open_count',
           text: this.$i18n.t('Security Event Open Count [Issue #3400]'),
           types: [conditionType.INTEGER],
           icon: 'exclamation-triangle'
         },
-        */
         {
           value: 'security_event.close_security_event_id',
           text: this.$i18n.t('Security Event Closed'),
           types: [conditionType.SECURITY_EVENT],
           icon: 'exclamation-circle'
         },
-        /* TODO - #4166
         {
           value: 'security_event.close_count',
           text: this.$i18n.t('Security Event Close Count [Issue #3400]'),
