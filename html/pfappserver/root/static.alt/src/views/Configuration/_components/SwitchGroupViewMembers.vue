@@ -19,7 +19,7 @@
             <pf-empty-table :isLoading="isLoading" :text="$t('Click the button below to add a new member.')">{{ $t('No switch group members found') }}</pf-empty-table>
           </template>
           <template slot="id" slot-scope="data">
-            <a href="#" @click.prevent="clickSwitch(data.item)">{{ data.value }}</a>
+            <a href="javascript:void(0)" @click.prevent="clickSwitch(data.item)">{{ data.value }}</a>
           </template>
           <template slot="buttons" slot-scope="data">
             <pf-button-delete v-if="id !== 'default'" size="sm" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete Member?')" @on-delete="remove(data.item)" reverse/>

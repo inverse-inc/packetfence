@@ -81,7 +81,7 @@
                 <icon class="position-absolute mt-1" name="thumbtack"></icon>
                 <span class="ml-4">{{column.label}}</span>
               </b-dropdown-item>
-              <a :key="column.key" v-else href="#" :disabled="column.locked" class="dropdown-item" @click.stop="toggleColumn(column)">
+              <a :key="column.key" v-else href="javascript:void(0)" :disabled="column.locked" class="dropdown-item" @click.stop="toggleColumn(column)">
                 <icon class="position-absolute mt-1" name="check" v-show="column.visible"></icon>
                 <span class="ml-4">{{column.label}}</span>
               </a>

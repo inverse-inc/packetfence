@@ -48,7 +48,7 @@
             <b-row class="mx-auto nodrag" v-if="innerindex === model.values[outerindex].values.length - 1 && drag === false">
               <b-col cols="12" class="bg-white rc">
                 <b-container class="mx-0 px-1 py-1">
-                  <a href="#" class="text-nowrap" @click="addInnerStatement(outerindex)">{{ $t('Add "or" statement') }}</a>
+                  <a href="javascript:void(0)" class="text-nowrap" @click="addInnerStatement(outerindex)">{{ $t('Add "or" statement') }}</a>
                 </b-container>
               </b-col>
             </b-row>
@@ -65,7 +65,7 @@
     <b-row class="mx-auto">
       <b-col cols="12" class="bg-secondary rc">
         <b-container class="mx-0 px-1 py-1">
-          <a href="#" class="text-nowrap text-white" @click="addOuterStatement()">{{ $t('Add "and" statement') }}</a>
+          <a href="javascript:void(0)" class="text-nowrap text-white" @click="addOuterStatement()">{{ $t('Add "and" statement') }}</a>
         </b-container>
       </b-col>
     </b-row>

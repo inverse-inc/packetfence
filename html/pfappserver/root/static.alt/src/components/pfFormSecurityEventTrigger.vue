@@ -7,25 +7,25 @@
       <slot name="prepend"></slot>
     </b-col>
     <b-col cols="2">
-      <b-link href="#" :disabled="disabled" :id="'endpoint_' + uuid">{{ forms.endpoint.description() }}</b-link>
+      <b-link href="javascript:void(0)" :disabled="disabled" :id="'endpoint_' + uuid">{{ forms.endpoint.description() }}</b-link>
     </b-col>
     <b-col>
       <b-badge>{{ $t('AND') }}</b-badge>
     </b-col>
     <b-col cols="2">
-      <b-link href="#" :disabled="disabled" :id="'profiling_' + uuid">{{ forms.profiling.description() }}</b-link>
+      <b-link href="javascript:void(0)" :disabled="disabled" :id="'profiling_' + uuid">{{ forms.profiling.description() }}</b-link>
     </b-col>
     <b-col>
       <b-badge>{{ $t('AND') }}</b-badge>
     </b-col>
     <b-col cols="2">
-      <b-link href="#" :disabled="disabled" :id="'usage_' + uuid">{{ forms.usage.description() }}</b-link>
+      <b-link href="javascript:void(0)" :disabled="disabled" :id="'usage_' + uuid">{{ forms.usage.description() }}</b-link>
     </b-col>
     <b-col>
       <b-badge>{{ $t('AND') }}</b-badge>
     </b-col>
     <b-col cols="2">
-      <b-link href="#" :disabled="disabled" :id="'event_' + uuid">{{ forms.event.description() }}</b-link>
+      <b-link href="javascript:void(0)" :disabled="disabled" :id="'event_' + uuid">{{ forms.event.description() }}</b-link>
     </b-col>
     <b-col cols="1" class="col-form-label">
       <slot name="append"></slot>
