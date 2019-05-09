@@ -304,7 +304,7 @@
         <pf-button-delete class="mr-3" v-if="ifTab(['Edit'])" :disabled="isLoading" :confirm="$t('Delete Node?')" @on-delete="deleteNode()"/>
         <template v-if="ifTab(['Edit', 'Location'])">
           <template v-if="canReevaluateAccess(node)">
-            <b-button class="mr-1" size="sm" variant="outline-secondary" @click="applyReevaluateAccess">{{ $t('Reevaluate Access') }}</b-button>
+            <b-button class="mr-1" size="sm" variant="outline-secondary" :disabled="isLoading" @click="applyReevaluateAccess">{{ $t('Reevaluate Access') }}</b-button>
           </template>
           <template v-else>
             <span v-b-tooltip.hover.top.d300 :title="cannotReevaluateAccessTooltip(node)">
@@ -312,10 +312,10 @@
             </span>
           </template>
         </template>
-        <b-button class="mr-1" size="sm" v-if="ifTab(['Edit', 'Fingerbank'])" variant="outline-secondary" @click="applyRefreshFingerbank">{{ $t('Refresh Fingerbank') }}</b-button>
+        <b-button class="mr-1" size="sm" v-if="ifTab(['Edit', 'Fingerbank'])" variant="outline-secondary" :disabled="isLoading" @click="applyRefreshFingerbank">{{ $t('Refresh Fingerbank') }}</b-button>
         <template v-if="ifTab(['Edit', 'Location'])">
           <template v-if="canRestartSwitchport(node)">
-            <b-button class="mr-1" size="sm" variant="outline-secondary" @click="applyRestartSwitchport">{{ $t('Restart Switch Port') }}</b-button>
+            <b-button class="mr-1" size="sm" variant="outline-secondary" :disabled="isLoading" @click="applyRestartSwitchport">{{ $t('Restart Switch Port') }}</b-button>
           </template>
           <template v-else>
             <span v-b-tooltip.hover.top.d300 :title="cannotRestartSwitchportTooltip(node)">
@@ -331,7 +331,7 @@
             />
           </b-col>
           <b-col cols="auto" class="pl-1 ml-0">
-            <b-button size="sm" variant="outline-secondary" @click="trigger" :disabled="!triggerSecurityEvent">{{ $t('Trigger New Security Event') }}</b-button>
+            <b-button size="sm" variant="outline-secondary" @click="trigger" :disabled="isLoading || !triggerSecurityEvent">{{ $t('Trigger New Security Event') }}</b-button>
           </b-col>
         </b-row>
       </b-card-footer>
