@@ -6,7 +6,6 @@ import (
 	cache "github.com/fdurand/go-cache"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/pfqueueclient"
-	"strconv"
 	"time"
 )
 
@@ -16,7 +15,7 @@ type PfdetectRegexRule struct {
 	LastIfMatch       string   `json:"last_if_match"`
 	Name              string   `json:"name"`
 	Regex             string   `json:"regex"`
-	RateLimit         string   `json:"rate_limit"`
+	RateLimit         int      `json:"rate_limit"`
 	RateLimitTemplate string   `json:"rate_limit_template"`
 }
 
@@ -29,7 +28,7 @@ type PfdetectConfig struct {
 	Name           string              `json:"name,omitempty"`
 	Path           string              `json:"path"`
 	Status         string              `json:"status"`
-	RateLimit      string              `json:"rate_limit"`
+	RateLimit      int                 `json:"rate_limit"`
 	Rules          []PfdetectRegexRule `json:"rules"`
 }
 
@@ -45,12 +44,10 @@ type RateLimitable struct {
 	RateLimitCache *cache.Cache
 }
 
-func NewRateLimitable(rateLimitStr string) RateLimitable {
+func NewRateLimitable(rateLimit int) RateLimitable {
 	var Cache *cache.Cache = nil
-	if rateLimit, err := strconv.ParseInt(rateLimitStr, 10, 64); err != nil {
-		if rateLimit != 0 {
-			Cache = cache.New(time.Duration(rateLimit)*time.Second, 2*time.Duration(rateLimit)*time.Second)
-		}
+	if rateLimit != 0 {
+		Cache = cache.New(time.Duration(rateLimit)*time.Second, 2*time.Duration(rateLimit)*time.Second)
 	}
 
 	return RateLimitable{RateLimitCache: Cache}
