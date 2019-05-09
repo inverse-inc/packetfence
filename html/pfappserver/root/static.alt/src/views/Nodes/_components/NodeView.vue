@@ -620,17 +620,10 @@ export default {
       })
     },
     canReevaluateAccess (node) {
-      return (node.locations && node.locations.length > 0 && ((node.ip4 && node.ip4.ip) || (node.ip6 && node.ip6.ip)))
+      return (node.locations && node.locations.length > 0)
     },
     cannotReevaluateAccessTooltip (node) {
-      let tooltips = []
-      if (!node.locations || node.locations.length === 0) {
-        tooltips.push(this.$i18n.t('Node has no locations.'))
-      }
-      if ((!node.ip4 || !node.ip4.ip) && (!node.ip6 || !node.ip6.ip)) {
-        tooltips.push(this.$i18n.t('Node has no IP4 or IP6 addresses.'))
-      }
-      return tooltips.join(' ').trim()
+      return this.$i18n.t('Node has no locations.')
     },
     canRestartSwitchport (node) {
       return (node.locations && node.locations.filter(node =>
