@@ -674,14 +674,7 @@ export const pfConfigurationFingerbankCombinationViewFields = (context = {}) => 
           fields: [
             {
               key: 'version',
-              component: pfFormInput,
-              attrs: {
-                type: 'number',
-                step: 1
-              },
-              validators: {
-                [i18n.t('Integers only.')]: integer
-              }
+              component: pfFormInput
             }
           ]
         },
