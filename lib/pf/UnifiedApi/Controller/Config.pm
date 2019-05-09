@@ -488,6 +488,9 @@ sub options_from_form {
         next if $field->inactive;
         my $name = $field->name;
         $meta{$name} = $self->field_meta($field, $defaultValues);
+        if ($name eq 'id') {
+            $meta{$name}{default} = undef;
+        }
     }
 
     return \%output;
