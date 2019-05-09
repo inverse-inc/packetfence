@@ -23,6 +23,7 @@ use POSIX qw(:errno_h);
 use JSON::MaybeXS qw();
 use File::Find;
 use File::stat;
+use pf::cluster;
 use File::Spec::Functions qw(catfile splitpath);
 use pf::util;
 use List::Util qw(any first none);
@@ -166,7 +167,11 @@ sub new_file {
        return $self->render_error(422, "Error writing to the '$file'");
     }
 
-    return $self->render(json => {});
+    if (my $err = $self->_sync_files($path)) {
+        return $self->render(status => $err->{status}, json => $err);
+    }
+
+    return $self->render(json => {message => "'$file' created"});
 }
 
 =head2 replace_file
@@ -195,7 +200,11 @@ sub replace_file {
        return $self->render_error(422, "Error writing to the '$file'");
     }
 
-    return $self->render(json => {});
+    if (my $err = $self->_sync_files($path)) {
+        return $self->render(status => $err->{status}, json => $err);
+    }
+
+    return $self->render(json => {message => "'$file' replaced"});
 }
 
 
@@ -224,7 +233,7 @@ sub delete_file {
         return $self->render_error( 412, "invalid characters in file '$file'" );
     }
 
-    my $path = profileFilePath( $self->id, $file );
+    my $path = profileFilePath($self->id, $file);
     if (-d $path) {
         if (!rmdir($path)) {
             $self->log->error("'$file': Error $!");
@@ -239,7 +248,11 @@ sub delete_file {
         return $self->render_error(422, "Error deleting '$file'");
     }
 
-    return $self->render(json => {});
+    if (my $err = $self->_sync_delete_files($path)) {
+        return $self->render(json => $err, status => $err->{status});
+    }
+
+    return $self->render(json => { message => "'$file' deleted" });
 }
 
 =head2 profileFilePath
@@ -409,6 +422,58 @@ sub makeFileInfo {
     };
 }
 
+=head2 isFileRevertible
+
+isFileRevertible
+
+=cut
+
+sub isFileRevertible {
+    my ($short_path, @parentPaths) = @_;
+    return any { -f catfile( $_, $short_path ) } @parentPaths;
+}
+
+=head2 _sync_files
+
+sync_files
+
+=cut
+
+sub _sync_files {
+    my ($self, @files) = @_;
+    if (!$cluster_enabled || @files == 0) {
+        return undef;
+    }
+
+    my $failed = pf::cluster::sync_files(\@files);
+    if (@$failed){
+        return { message => "Failed to sync file on " . join(', ', @$failed) , status => 500};
+    }
+
+    return undef;
+}
+
+=head2 _sync_delete_files
+
+_sync_delete_files
+
+=cut
+
+sub _sync_delete_files {
+    my ($self, @files) = @_;
+    if (!$cluster_enabled || @files == 0) {
+        return undef;
+    }
+
+    my $failed = pf::cluster::sync_file_deletes(\@files);
+    if (@$failed) {
+        my $id = $self->id;
+        return { message => "Failed to revert profile $id on " . join(', ', @$failed) , status => 500 };
+    }
+
+    return undef;
+}
+
 =head2 notDeletable
 
 notDeletable
@@ -426,7 +491,7 @@ sub notDeletable {
 sub notRevertible {
     my ($short_path, $full_path, $templateDir, @parentPaths) = @_;
     return ( $full_path eq catfile( $templateDir, $short_path )
-          && ( any { -f catfile( $_, $short_path ) } @parentPaths ) )
+          && isFileRevertible($short_path, @parentPaths) )
       ? json_false()
       : json_true();
 }
