@@ -73,12 +73,12 @@ is($security_events[0], "1100011");
 is(@security_events, 0);
 
 # Test a security_event using DHCPv6 fingerprint
-@security_events = $pf::security_event::SECURITY_EVENT_FILTER_ENGINE->match_all({dhcp6_fingerprint_id => 1});
+@security_events = $pf::security_event::SECURITY_EVENT_FILTER_ENGINE->match_all({dhcp6_fingerprint_id => 2});
 is(@security_events, 1);
 is($security_events[0], "1100012");
 
 # Test a security_event using DHCPv6 fingerprint that shouldn't match
-@security_events = $pf::security_event::SECURITY_EVENT_FILTER_ENGINE->match_all({dhcp6_fingerprint_id => 2});
+@security_events = $pf::security_event::SECURITY_EVENT_FILTER_ENGINE->match_all({dhcp6_fingerprint_id => 3});
 is(@security_events, 0);
 
 # Test a security_event using DHCPv6 enterprise
