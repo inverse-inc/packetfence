@@ -47,8 +47,8 @@ sub generate_sql_query {
     $infos{search}{type} //= $self->base_conditions_operator;
 
     # Date range handling
-    push @$and, $self->date_field => { ">", $infos{start_date}} if($infos{start_date});
-    push @$and, $self->date_field => { "<", $infos{end_date}} if($infos{end_date});
+    push @$and, $self->date_field => { ">=", $infos{start_date}} if($infos{start_date});
+    push @$and, $self->date_field => { "<=", $infos{end_date}} if($infos{end_date});
 
     # Search handling
     # conditions = [
