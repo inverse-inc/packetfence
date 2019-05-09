@@ -16,6 +16,7 @@ Version X.Y.Z released on xxxx-xx-xx
 
 New Features
 ++++++++++++
+* Added support for Let's Encrypt for SSL certificates for the captive-portal and RADIUS
 * New web interface based on Vue.js and Bootstrap 4
 * RADIUS and captive portal certificates management
 * Let's Encrypt integration
