@@ -314,6 +314,14 @@ export default {
       if (this.find_intermediate_cas) {
         delete this.certs[id].intermediate_cas
       }
+      if (this.isEnabled(this.certs[id].lets_encrypt)) {
+        this.certs[id] = {
+          id,
+          lets_encrypt: this.certs[id].lets_encrypt,
+          common_name: this.certs[id].common_name,
+          check_chain: 'disabled'
+        }
+      }
       this.$store.dispatch(`${this.storeName}/createCertificate`, this.certs[id]).then(() => {
         this.$store.dispatch('notification/info', { message: this.$i18n.t('{certificate} certificate saved', { certificate: id.toUpperCase() }) })
       }).finally(() => window.scrollTo(0, 0))
