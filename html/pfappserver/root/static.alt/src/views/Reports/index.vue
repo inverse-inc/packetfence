@@ -30,9 +30,24 @@ export default {
           })
         }
       }),
+      otherReports: this.$store.dispatch('$_reports/all').then(reports => {
+        this.otherReports = reports.sort((a, b) => {
+          return a.description.localeCompare(b.description)
+        }).filter(report => {
+          return report.type === 'builtin'
+        }).map(report => {
+          return {
+            name: report.description,
+            path: `/reports/dynamic/chart/${report.id}`,
+            saveSearchNamespace: `dymamicReports::${report.id}`
+          }
+        })
+      }),
       dynamicReports: this.$store.dispatch('$_reports/all').then(reports => {
         this.dynamicReports = reports.sort((a, b) => {
-          return a.id.localeCompare(b.id)
+          return a.description.localeCompare(b.description)
+        }).filter(report => {
+          return !report.type
         }).map(report => {
           return {
             name: report.description,
@@ -47,16 +62,22 @@ export default {
     sections () {
       return [
         {
-          name: this.$i18n.t('Dynamic Reports'),
-          icon: 'chart-bar',
-          collapsable: true,
-          items: this.dynamicReports
-        },
-        {
           name: this.$i18n.t('Standard Reports'),
           icon: 'chart-pie',
           collapsable: true,
           items: this.standardReports
+        },
+        {
+          name: this.$i18n.t('Other Reports'),
+          icon: 'chart-bar',
+          collapsable: true,
+          items: this.otherReports
+        },
+        {
+          name: this.$i18n.t('Dynamic Reports'),
+          icon: 'chart-bar',
+          collapsable: true,
+          items: this.dynamicReports
         }
       ]
     }
