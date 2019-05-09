@@ -279,7 +279,10 @@ export default {
         defaultSortDesc: false, // no local sorting
         defaultSearchCondition: { op: 'and', values: [{ op: 'or', values: searchCriteria }] },
         defaultRoute: { name: 'dynamicReportChart', params: { id: this.id } },
-        extraFields: { 'start_date': this.datetimeStart, 'end_date': this.datetimeEnd }
+        extraFields: {
+          'start_date': this.datetimeStart,
+          'end_date': (this.datetimeEnd !== '0000-00-00 00:00:00') ? this.datetimeEnd : '9999-12-12 23:59:59'
+        }
       }
       this.$set(this, 'searchableOptions', searchableOptions)
     },
@@ -320,7 +323,7 @@ export default {
     },
     datetimeEnd (a, b) {
       if (a !== b) {
-        this.maxStartDatetime = a
+        this.maxStartDatetime = (a !== '0000-00-00 00:00:00') ? a : '9999-12-12 23:59:59'
         this.buildPropsFromReport()
       }
     }
