@@ -302,9 +302,27 @@
       <b-card-footer @mouseenter="$v.nodeContent.$touch()" v-if="ifTab(['Edit', 'Location', 'Fingerbank', 'SecurityEvents'])">
         <pf-button-save class="mr-1" v-if="ifTab(['Edit'])" :disabled="invalidForm" :isLoading="isLoading"/>
         <pf-button-delete class="mr-3" v-if="ifTab(['Edit'])" :disabled="isLoading" :confirm="$t('Delete Node?')" @on-delete="deleteNode()"/>
-        <b-button class="mr-1" size="sm" v-if="ifTab(['Edit', 'Location'])" variant="outline-secondary" @click="applyReevaluateAccess" :disabled="!canReevaluateAccess(node)">{{ $t('Reevaluate Access') }}</b-button>
+        <template v-if="ifTab(['Edit', 'Location'])">
+          <template v-if="canReevaluateAccess(node)">
+            <b-button class="mr-1" size="sm" variant="outline-secondary" @click="applyReevaluateAccess">{{ $t('Reevaluate Access') }}</b-button>
+          </template>
+          <template v-else>
+            <span v-b-tooltip.hover.top.d300 :title="cannotReevaluateAccessTooltip(node)">
+              <b-button class="mr-1" size="sm" variant="outline-secondary" :disabled="true">{{ $t('Reevaluate Access') }}</b-button>
+            </span>
+          </template>
+        </template>
         <b-button class="mr-1" size="sm" v-if="ifTab(['Edit', 'Fingerbank'])" variant="outline-secondary" @click="applyRefreshFingerbank">{{ $t('Refresh Fingerbank') }}</b-button>
-        <b-button size="sm" v-if="ifTab(['Edit', 'Location'])" variant="outline-secondary" @click="applyRestartSwitchport" :disabled="!canRestartSwitchport(node)">{{ $t('Restart Switch Port') }}</b-button>
+        <template v-if="ifTab(['Edit', 'Location'])">
+          <template v-if="canRestartSwitchport(node)">
+            <b-button class="mr-1" size="sm" variant="outline-secondary" @click="applyRestartSwitchport">{{ $t('Restart Switch Port') }}</b-button>
+          </template>
+          <template v-else>
+            <span v-b-tooltip.hover.top.d300 :title="cannotRestartSwitchportTooltip(node)">
+              <b-button class="mr-1" size="sm" variant="outline-secondary" :disabled="true">{{ $t('Restart Switch Port') }}</b-button>
+            </span>
+          </template>
+        </template>
         <b-row v-if="ifTab(['SecurityEvents']) && securityEventsOptions.length > 0">
           <b-col cols="2" class="pr-0 mr-0">
             <pf-form-select size="sm"
@@ -604,11 +622,24 @@ export default {
     canReevaluateAccess (node) {
       return (node.locations && node.locations.length > 0 && ((node.ip4 && node.ip4.ip) || (node.ip6 && node.ip6.ip)))
     },
+    cannotReevaluateAccessTooltip (node) {
+      let tooltips = []
+      if (!node.locations || node.locations.length === 0) {
+        tooltips.push(this.$i18n.t('Node has no locations.'))
+      }
+      if ((!node.ip4 || !node.ip4.ip) && (!node.ip6 || !node.ip6.ip)) {
+        tooltips.push(this.$i18n.t('Node has no IP4 or IP6 addresses.'))
+      }
+      return tooltips.join(' ').trim()
+    },
     canRestartSwitchport (node) {
       return (node.locations && node.locations.filter(node =>
         node.end_time === '0000-00-00 00:00:00' && // require zero end_time
         network.connectionTypeToAttributes(node.connection_type).isWired // require 'Wired'
       ).length > 0)
+    },
+    cannotRestartSwitchportTooltip (node) {
+      return this.$i18n.t('Node has no open wired connections.')
     },
     close () {
       this.$router.push({ name: 'nodes' })
