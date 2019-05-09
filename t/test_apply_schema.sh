@@ -18,9 +18,11 @@ UPGRADED_DB="${DB_PREFIX}_upgraded_$$"
 
 PRISTINE_DB="${DB_PREFIX}_pristine_$$"
 
-MYSQL="mysql -upf_smoke_tester -ppacket -h127.0.0.1"
+HOST=127.0.0.1
 
-MYSQLDUMP="mysqldump -upf_smoke_tester -h127.0.0.1 --no-data -a --skip-comments --routines -ppacket"
+MYSQL="mysql -upf_smoke_tester -ppacket -h$HOST"
+
+MYSQLDUMP="mysqldump -upf_smoke_tester -h$HOST --no-data -a --skip-comments --routines -ppacket"
 
 CURRENT_SCHEMA="$PF_DIR/db/pf-schema-X.Y.Z.sql"
 
@@ -34,9 +36,17 @@ else
 fi
 
 for db in $UPGRADED_DB $PRISTINE_DB;do
-    echo "Created test db $db"
     $MYSQL -e"DROP DATABASE IF EXISTS $db;"
+    if [ $? != "0" ];then
+        echo "Error dropping database $db"
+        exit 1;
+    fi
     $MYSQL -e"CREATE DATABASE $db;"
+    if [ $? != "0" ];then
+        echo "Error creating database $db"
+        exit 1;
+    fi
+    echo "Created test db $db"
 done
 
 
