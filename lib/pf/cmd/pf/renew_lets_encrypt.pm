@@ -24,12 +24,15 @@ pf::cmd::pf::renew_lets_encrypt
 use strict;
 use warnings;
 use pf::cluster;
-use pf::constants::exit_code qw($EXIT_SUCCESS);
+use pf::constants::exit_code qw($EXIT_SUCCESS $EXIT_FAILURE);
+use pf::config::util;
 use pf::util;
 use pf::ssl;
 use pf::ssl::lets_encrypt;
 use pf::services;
 use File::Slurp qw(read_file);
+
+our $RECORDED;
 
 use base qw(pf::base::cmd::action_cmd);
 
@@ -43,7 +46,7 @@ Renew the HTTP certificate resource
 
 sub action_http {
     my ($self) = @_;
-    $self->renew_lets_encrypt("http");
+    $self->renew_and_email("http");
 }
 
 =head2 action_radius
@@ -54,7 +57,7 @@ Renew the RADIUS certificate resource
 
 sub action_radius {
     my ($self) = @_;
-    $self->renew_lets_encrypt("radius");
+    $self->renew_and_email("radius");
 }
 
 =head2 action_all
@@ -65,9 +68,18 @@ Renew all certificate resources
 
 sub action_all {
     my ($self) = @_;
-    $self->renew_lets_encrypt();
+    $self->renew_and_email();
 }
 
+sub renew_and_email {
+    my ($self, $resource) = @_;
+    my $res = $self->renew_lets_encrypt();
+    pfmailer(
+        subject => "Let's Encrypt certificate renewal",
+        message => $RECORDED,
+    );
+    return $res;
+}
 
 =head2 renew_lets_encrypt
 
@@ -92,11 +104,11 @@ sub renew_lets_encrypt {
 
     for my $resource (@to_renew) {
         unless(isenabled(pf::ssl::lets_encrypt::resource_state($resource))) {
-            print "- Let's Encrypt is not enabled for $resource. Skipping renewal. \n";
+            $self->print_and_record("- Let's Encrypt is not enabled for $resource. Skipping renewal. \n");
             next;
         }
 
-        print "- Renewing certificate resource $resource \n";
+        $self->print_and_record("- Renewing certificate resource $resource \n");
 
         my $config = pf::ssl::certs_map()->{$resource};
 
@@ -108,7 +120,7 @@ sub renew_lets_encrypt {
         my ($result, $bundle) = pf::ssl::lets_encrypt::obtain_bundle($config->{key_file}, $common_name);
 
         unless($result) {
-            print "-- Error while renewing certificate: $bundle \n";
+            $self->print_and_record("-- Error while renewing certificate: $bundle \n");
             next;
         }
 
@@ -127,47 +139,47 @@ sub renew_lets_encrypt {
 
         if(scalar(@errors) > 0) {
             for my $error (@errors) {
-                print "!- Error while renewing certificate: $error\n";
-                return;
+                $self->print_and_record("!- Error while renewing certificate: $error\n");
+                return $EXIT_FAILURE;
             }
         }
         else {
-            print "-- Renewed certificate for $common_name successfully \n";
+            $self->print_and_record("-- Renewed certificate for $common_name successfully \n");
         }
 
         foreach my $service (@{$config->{restart_services}}) {
             my $class = $pf::services::ALL_MANAGERS{$service};
             # Skip services that aren't enabled
             unless($class) {
-                print "-- Not restarting $service because its not enabled\n";
+                $self->print_and_record("-- Not restarting $service because its not enabled\n");
                 next;
             }
 
             if($cluster_enabled) {
                 foreach my $server (pf::cluster::config_enabled_servers()){
-                    print "-- Restarting $service on $server->{host} \n";
+                    $self->print_and_record("-- Restarting $service on $server->{host} \n");
                     eval {
                         my $response = pf::api::unifiedapiclient->new(host => $server->{management_ip})->call("POST", "/api/v1/service/$service/restart");
                         if($response->{pid} != 0) {
-                            print "-- Restarted $service on $server->{host} \n";
+                            $self->print_and_record("-- Restarted $service on $server->{host} \n");
                         }
                         else {
-                            print "!- Failed to restart $service on $server->{host} \n";
+                            $self->print_and_record("!- Failed to restart $service on $server->{host} \n");
                         }
                     };
                     if($@) {
-                        print "!- Failed to communicate with $server->{host} to restart $service: $@\n";
+                        $self->print_and_record("!- Failed to communicate with $server->{host} to restart $service: $@\n");
                     }
                 }
             }
             else {
-                print "-- Restarting $service\n";
+                $self->print_and_record("-- Restarting $service\n");
                 my $result = $class->restart;
                 if($result) {
-                    print "-- Restarted $service\n";
+                    $self->print_and_record("-- Restarted $service\n");
                 }
                 else {
-                    print "!- Failed to restart $service\n";
+                    $self->print_and_record("!- Failed to restart $service\n");
                 }
             }
         }
@@ -175,6 +187,12 @@ sub renew_lets_encrypt {
     }
 
     return $EXIT_SUCCESS;
+}
+
+sub print_and_record {
+    my ($self, $msg) = @_;
+    $RECORDED .= $msg;
+    print $msg;
 }
 
 =head1 AUTHOR
