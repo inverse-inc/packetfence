@@ -27,11 +27,13 @@ has_field '+currency' => (
 has_field 'secret_key' => (
     type => 'Text',
     default => '',
+    required => 1,
 );
 
 has_field 'publishable_key' => (
     type => 'Text',
     default => '',
+    required => 1,
 );
 
 has_field 'style' => (
