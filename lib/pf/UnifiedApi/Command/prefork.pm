@@ -13,8 +13,9 @@ use pf::config qw(%Config);
 sub run {
   my ($self, @args) = @_;
   Systemd::Daemon::notify( READY => 1, STATUS => "Ready", unset => 1 );
+  my $timeout = $Config{advanced}{pfperl_api_timeout} // 600;
   eval {
-    $self->SUPER::run('-i', $Config{advanced}{pfperl_api_timeout} // 600, '-w', $Config{advanced}{pfperl_api_processes}, @args);
+    $self->SUPER::run('-i', $timeout, '-H', $timeout, '-w', $Config{advanced}{pfperl_api_processes}, @args);
   };
   if ($@) {
       print STDERR $@;
