@@ -112,6 +112,7 @@ has_field 'root_module' =>
    label => 'Root Portal Module',
    options_method => \&options_root_module,
    element_class => ['chzn-select'],
+   default => "default_policy",
 #   element_attr => {'data-placeholder' => 'Click to add a required field'},
    tags => { after_element => \&help,
              help => 'The Root Portal Module to use' },
