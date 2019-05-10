@@ -92,7 +92,12 @@ sub replace {
     my $body = $self->req->body;
     $body .= "\n" if $body !~ m/\n\z/s;
     pf::util::safe_file_update($self->fileName, $body);
-    return $self->render(status => $status, json => {});
+    my ($success, $msg) = $self->configStore->commitPfconfig();
+    unless ($success) {
+        return $self->render_error(500, $msg);
+    }
+
+    return $self->render(json => { message => "Filter updated" });
 }
 
 =head2 isFilterValid
