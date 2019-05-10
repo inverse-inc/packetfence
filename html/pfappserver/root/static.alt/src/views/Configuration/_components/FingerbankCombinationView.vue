@@ -17,8 +17,8 @@
     <template slot="header" is="b-card-header">
       <b-button-close @click="close" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
       <h4 class="d-inline mb-0">
-        <span v-if="!isNew && !isClone">{{ $t('Fingerbank Combination {id}', { id: id }) }}</span>
-        <span v-else-if="isClone">{{ $t('Clone Fingerbank Combination {id}', { id: id }) }}</span>
+        <span v-if="!isNew && !isClone" v-html="$t('Fingerbank Combination {id}', { id: $strong(id) })"></span>
+        <span v-else-if="isClone" v-html="$t('Clone Fingerbank Combination {id}', { id: $strong(id) })"></span>
         <span v-else>{{ $t('New Fingerbank Combination') }}</span>
       </h4>
       <b-badge class="ml-2" variant="secondary" v-t="scope"></b-badge>
@@ -137,7 +137,7 @@ export default {
         if (ctrlKey) { // [CTRL] key pressed
           this.close()
         } else {
-          this.$router.push({ name: 'fingerbankCombination', params: { scope: this.scope, id: this.form.id } })
+          this.$router.push({ name: 'fingerbankCombination', params: { scope: this.scope, id: response.id } })
         }
       })
     },
