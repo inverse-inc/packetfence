@@ -556,8 +556,8 @@ export default {
     },
     updateUser (data) {
       const userData = { quiet: true, ...data }
-      return this.$store.dispatch('$_users/updateUser', userData).then(results => {
-        return this.$store.dispatch('$_users/updatePassword', userData).then(results => {
+      return this.$store.dispatch(`${this.storeName}/updateUser`, userData).then(results => {
+        return this.$store.dispatch(`${this.storeName}/updatePassword`, userData).then(results => {
           return results
         })
       }).catch(err => {

@@ -204,7 +204,7 @@ const actions = {
       template: 'guest_local_account_creation',
       args: {
         pid: data.pid,
-        password: data.password,
+        password: data.password
       },
       to: data.email,
       subject: data.subject
