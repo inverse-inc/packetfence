@@ -16,52 +16,6 @@ const {
   required
 } = require('vuelidate/lib/validators')
 
-export const pfConfigurationWrixLocationsLogs = [
-  'fingerbank.log',
-  'httpd.aaa.error',
-  'httpd.aaa.access',
-  'httpd.admin.access',
-  'httpd.admin.catalyst',
-  'httpd.admin.error',
-  'httpd.admin.log',
-  'httpd.collector.error',
-  'httpd.collector.log',
-  'httpd.parking.error',
-  'httpd.parking.access',
-  'httpd.portal.error',
-  'httpd.portal.access',
-  'httpd.portal.catalyst',
-  'httpd.proxy.error',
-  'httpd.proxy.access',
-  'httpd.webservices.error',
-  'httpd.webservices.access',
-  'httpd.api-frontend.access',
-  'api-frontend.log',
-  'pfstats.log',
-  'packetfence.log',
-  'pfbandwidthd.log',
-  'pfconfig.log',
-  'pfdetect.log',
-  'pfdhcplistener.log',
-  'pfdns.log',
-  'pffilter.log',
-  'pfmon.log',
-  'pfsso.log',
-  'radius-acct.log',
-  'radius-cli.log',
-  'radius-eduroam.log',
-  'radius-load_balancer.log',
-  'radius.log',
-  'redis_cache.log',
-  'redis_ntlm_cache.log',
-  'redis_queue.log',
-  'redis_server.log',
-  'mariadb_error.log',
-  'haproxy_portal.log',
-  'haproxy_db.log',
-  'etcd.log'
-]
-
 export const pfConfigurationWrixLocationsListColumns = [
   {
     key: 'id',
