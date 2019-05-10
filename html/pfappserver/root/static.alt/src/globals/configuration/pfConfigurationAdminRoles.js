@@ -77,7 +77,10 @@ export const pfConfigurationAdminRoleListConfig = (context = {}) => {
           ]
         }]
       },
-      defaultRoute: { name: 'admin_roles' }
+      defaultRoute: { name: 'admin_roles' },
+      resultsFilter: (adminRoles) => { // do not show protected defaults
+        return adminRoles.filter(adminRole => !['ALL', 'ALL_PF_ONLY', 'NONE'].includes(adminRole.id))
+      }
     },
     searchableQuickCondition: (quickCondition) => {
       return {
