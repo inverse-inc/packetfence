@@ -24,20 +24,19 @@
             <!-- Let's Encrypt -->
             <pf-form-range-toggle
               v-model="certs[id].lets_encrypt"
-              :values="{ checked: 'enabled', unchecked: 'disabled' }"
               :column-label="$t('Use Let\'s Encrypt')"
               @input="toggleLetsEncrypt"
             ></pf-form-range-toggle>
-            <pf-form-input :column-label="$t('Common Name')" ref="common_name" v-show="isEnabled(certs[id].lets_encrypt)"
+            <pf-form-input :column-label="$t('Common Name')" ref="common_name" v-show="certs[id].lets_encrypt"
               v-model="$v.certs[id].common_name.$model" :vuelidate="$v.certs[id].common_name" />
-            <pf-form-row v-show="isEnabled(certs[id].lets_encrypt)">
+            <pf-form-row v-show="certs[id].lets_encrypt">
               <b-form inline @submit.prevent="testLetsEncrypt(id)">
                 <pf-button-save variant="outline-secondary" size="sm" :disabled="$v.certs[id].common_name.$invalid || isTestingLetsEncrypt" :isLoading="isTestingLetsEncrypt">{{ $t('Test public access') }}</pf-button-save>
                 <span class="ml-3" :class="'text-' + letsEncryptState">{{ letsEncryptMsg }}</span>
               </b-form>
             </pf-form-row>
             <!-- Custom certificate -->
-            <template v-if="!isEnabled(certs[id].lets_encrypt)">
+            <template v-if="!certs[id].lets_encrypt">
               <pf-form-textarea rows="6" max-rows="6" :column-label="$t('Certificate')"
                 v-model.trim="$v.certs[id].certificate.$model" :vuelidate="$v.certs[id].certificate"></pf-form-textarea>
               <pf-form-row row-class="mt-0 mb-3">
@@ -92,6 +91,10 @@
           <b-form v-show="!editMode[id]">
             <b-form-group label-cols-md="3" label-size="lg" :label="$t('Certificate')">
               <b-container fluid>
+                <b-row align-v="center" v-if="info[id].lets_encrypt">
+                  <b-col sm="3" class="col-form-label"><icon name="check"></icon></b-col>
+                  <b-col sm="9">{{ $t('Use Let\'s Encrypt')}}</b-col>
+                </b-row>
                 <b-row align-v="center" v-if="info[id].cert_key_match.success">
                   <b-col sm="3" class="col-form-label"><icon class="text-success" name="circle"></icon></b-col>
                   <b-col sm="9">{{ $t('Certificate/Key match')}}</b-col>
@@ -247,7 +250,7 @@ export default {
       return v
     }, v.certs)
     this.sortedCerts.forEach((cert) => {
-      if (this.isEnabled(this.certs[cert].lets_encrypt)) {
+      if (this.certs[cert].lets_encrypt) {
         v.certs[cert].common_name = { [this.$i18n.t('Required.')]: required }
       } else {
         v.certs[cert].certificate = { [this.$i18n.t('Required.')]: required }
@@ -282,7 +285,7 @@ export default {
     },
     edit (id) {
       this.$store.dispatch(`${this.storeName}/getCertificate`, id).then(certificate => {
-        const c = { ...{ common_name: '', check_chain: 'enabled', lets_encrypt: 'disabled' }, ...certificate }
+        const c = { ...{ common_name: '', check_chain: 'enabled', lets_encrypt: false }, ...certificate }
         this.$set(this.certs, id, c)
         this.$set(this.editMode, id, true)
       })
@@ -312,7 +315,7 @@ export default {
     },
     save (id) {
       let creationPromise
-      if (this.isEnabled(this.certs[id].lets_encrypt)) {
+      if (this.certs[id].lets_encrypt) {
         creationPromise = this.$store.dispatch(`${this.storeName}/createLetsEncryptCertificate`, this.certs[id])
       } else {
         if (this.findIntermediateCAs) {
@@ -321,6 +324,10 @@ export default {
         creationPromise = this.$store.dispatch(`${this.storeName}/createCertificate`, this.certs[id])
       }
       creationPromise.then(() => {
+        this.$store.dispatch(`${this.storeName}/getCertificateInfo`, id).then(info => {
+          this.$set(this.info, id, info)
+          this.editMode[id] = false // go back to certificate info
+        })
         this.$store.dispatch('notification/info', { message: this.$i18n.t('{certificate} certificate saved', { certificate: id.toUpperCase() }) })
       }).finally(() => window.scrollTo(0, 0))
     },
@@ -353,7 +360,7 @@ export default {
     Promise.all(
       this.initCerts.map(id => {
         return this.$store.dispatch(`${this.storeName}/getCertificateInfo`, id).then(info => {
-          this.$set(this.certs, id, { check_chain: 'enabled', lets_encrypt: 'disabled', common_name: '', certificate: '', private_key: '' })
+          this.$set(this.certs, id, { check_chain: 'enabled', lets_encrypt: false, common_name: '', certificate: '', private_key: '' })
           this.$set(this.info, id, info)
         })
       })
