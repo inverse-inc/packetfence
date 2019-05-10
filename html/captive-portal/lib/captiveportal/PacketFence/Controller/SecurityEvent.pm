@@ -124,7 +124,7 @@ sub release : Path('/security_event/release') :Local {
             pf::enforcement::reevaluate_access( $mac, "manage_vclose" );
         }
 
-        $c->response->redirect("/captive-portal");
+        $c->response->redirect("/access");
     } else {
         get_logger->info("$mac reached maximum security_events");
         $self->showError($c, "error: max re-enables reached");
