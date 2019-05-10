@@ -221,13 +221,13 @@ export const pfConfigurationRealmViewFields = (context = {}) => {
         },
         {
           label: i18n.t('RADIUS ACCT'),
-          text: i18n.t('The RADIUS Server(s) to proxy authentication.'),
+          text: i18n.t('The RADIUS Server(s) to proxy accounting.'),
           fields: [
             {
               key: 'radius_acct_chosen',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'radius_acct_chosen'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'radius_acct_chosen', 'RADIUS ACCT')
+              attrs: pfConfigurationAttributesFromMeta(meta, 'radius_auth'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'radius_auth', 'RADIUS ACCT')
             }
           ]
         },
