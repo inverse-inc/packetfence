@@ -65,7 +65,12 @@ export const pfConfigurationGeneralViewFields = (context = {}) => {
             {
               key: 'timezone',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'timezone'),
+              attrs: {
+                ...pfConfigurationAttributesFromMeta(meta, 'timezone'),
+                ...{
+                  optionsLimit: 500
+                }
+              },
               validators: pfConfigurationValidatorsFromMeta(meta, 'timezone', 'Timezone')
             }
           ]
