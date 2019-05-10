@@ -3,6 +3,7 @@ import UsersView from '../'
 import UsersStore from '../_store'
 import UsersSearch from '../_components/UsersSearch'
 import UsersCreate from '../_components/UsersCreate'
+import UsersPreview from '../_components/UsersPreview'
 import UserView from '../_components/UserView'
 
 const UsersImport = () => import(/* webpackChunkName: "Nodes" */ '../_components/UsersImport')
@@ -42,6 +43,15 @@ const route = {
     {
       path: 'import',
       component: UsersImport,
+      props: { storeName: '$_users' },
+      meta: {
+        can: 'create users'
+      }
+    },
+    {
+      path: 'preview',
+      name: 'usersPreview',
+      component: UsersPreview,
       props: { storeName: '$_users' },
       meta: {
         can: 'create users'

@@ -64,7 +64,8 @@ const state = {
   users: {}, // users details
   userExists: {}, // node exists true|false
   message: '',
-  userStatus: ''
+  userStatus: '',
+  createdUsers: []
 }
 
 const getters = {
@@ -176,6 +177,40 @@ const actions = {
     deflateActions(data)
     commit('USER_REQUEST')
     return api.updatePassword(data).then(response => {
+      commit('USER_SUCCESS')
+      return response
+    }).catch(err => {
+      commit('USER_ERROR', err.response)
+    })
+  },
+  previewEmail: ({ commit }, user) => {
+    const data = {
+      args: {
+        pid: user.pid,
+        password: user.password
+      },
+      template: 'guest_local_account_creation'
+    }
+    commit('USER_REQUEST')
+    return api.previewEmail(data).then(response => {
+      commit('USER_SUCCESS')
+      return response
+    }).catch(err => {
+      commit('USER_ERROR', err.response)
+    })
+  },
+  sendEmail: ({ commit }, data) => {
+    const body = {
+      template: 'guest_local_account_creation',
+      args: {
+        pid: data.pid,
+        password: data.password,
+      },
+      to: data.email,
+      subject: data.subject
+    }
+    commit('USER_REQUEST')
+    return api.sendEmail(body).then(response => {
       commit('USER_SUCCESS')
       return response
     }).catch(err => {
@@ -331,6 +366,9 @@ const mutations = {
   },
   USER_NOT_EXISTS: (state, pid) => {
     Vue.set(state.userExists, pid, false)
+  },
+  CREATED_USERS_REPLACED: (state, users) => {
+    state.createdUsers = users
   }
 }
 

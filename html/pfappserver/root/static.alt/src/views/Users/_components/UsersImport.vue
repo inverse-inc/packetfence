@@ -1,117 +1,124 @@
 <template>
-  <b-card no-body>
-    <b-progress height="2px" :value="progressValue" :max="progressTotal" v-show="progressValue > 0 && progressValue < progressTotal"></b-progress>
-    <b-card-header>
-      <h4 class="mb-0" v-t="'Import Users'"></h4>
-    </b-card-header>
-    <div class="card-body p-0">
-      <b-tabs ref="tabs" v-model="tabIndex" card pills>
-        <b-tab v-for="(file, index) in files" :key="file.name + file.lastModified" :title="file.name" no-body>
-          <template slot="title">
-            <b-button-close class="ml-2 text-white" @click.stop.prevent="closeFile(index)" v-b-tooltip.hover.left.d300 :title="$t('Close File')"><icon name="times"></icon></b-button-close>
-            {{ $t(file.name) }}
+  <div>
+
+    <b-card no-body>
+      <b-progress height="2px" :value="progressValue" :max="progressTotal" v-show="progressValue > 0 && progressValue < progressTotal"></b-progress>
+      <b-card-header>
+        <h4 class="mb-0" v-t="'Import Users'"></h4>
+      </b-card-header>
+      <div class="card-body p-0">
+        <b-tabs ref="tabs" v-model="tabIndex" card pills>
+          <b-tab v-for="(file, index) in files" :key="file.name + file.lastModified" :title="file.name" no-body>
+            <template slot="title">
+              <b-button-close class="ml-2 text-white" @click.stop.prevent="closeFile(index)" v-b-tooltip.hover.left.d300 :title="$t('Close File')"><icon name="times"></icon></b-button-close>
+              {{ $t(file.name) }}
+            </template>
+            <pf-csv-parse @input="onImport" :ref="'parser-' + index" :file="file" :fields="fields" :storeName="storeName" no-init-bind-keys>
+              <b-tab :title="$t('Import Options')">
+                <b-form-group label-cols="3" :label="$t('Registration Window')">
+                  <b-row>
+                    <b-col>
+                      <pf-form-datetime v-model="localUser.valid_from"
+                        :min="new Date()"
+                        :config="{format: 'YYYY-MM-DD'}"
+                        :vuelidate="$v.localUser.valid_from"
+                      />
+                    </b-col>
+                    <p class="pt-2"><icon name="long-arrow-alt-right"></icon></p>
+                    <b-col>
+                      <pf-form-datetime v-model="localUser.expiration"
+                        :min="new Date()"
+                        :config="{format: 'YYYY-MM-DD'}"
+                        :vuelidate="$v.localUser.expiration"
+                      />
+                    </b-col>
+                  </b-row>
+                </b-form-group>
+                <pf-form-fields
+                  v-model="localUser.actions"
+                  :column-label="$t('Actions')"
+                  :button-label="$t('Add Action')"
+                  :field="actionField"
+                  :vuelidate="$v.localUser.actions"
+                  :invalid-feedback="[
+                    { [$t('One or more errors exist.')]: !$v.localUser.actions.anyError }
+                  ]"
+                  @validations="actionsValidations = $event"
+                  sortable
+                ></pf-form-fields>
+                <pf-form-row align-v="start" :column-label="$t('Password Options')">
+                  <b-alert show variant="info">
+                    {{ $t('When no password is imported, a random password is generated using the following criteria.') }}
+                  </b-alert>
+                  <b-row>
+                    <b-col cols="6">
+                      <pf-form-input class="p-0" type="range" min="6" max="32"
+                        v-model="passwordGenerator.pwlength"
+                        :column-label="$t('Length')"
+                        :text="$t('{count} characters', { count: passwordGenerator.pwlength })"/>
+                      <pf-form-toggle
+                        v-model="passwordGenerator.upper"
+                        :column-label="$t('Uppercase')"
+                        :text="$t('Include uppercase characters')">ABC</pf-form-toggle>
+                      <pf-form-toggle
+                        v-model="passwordGenerator.lower"
+                        :column-label="$t('Lowercase')"
+                        :text="$t('Include lowercase characters')">abc</pf-form-toggle>
+                      <pf-form-toggle
+                        v-model="passwordGenerator.digits"
+                        :column-label="$t('Digits')"
+                        :text="$t('Include digits')">123</pf-form-toggle>
+                    </b-col>
+                    <b-col cols="6">
+                      <pf-form-toggle
+                        v-model="passwordGenerator.special"
+                        :column-label="$t('Special')"
+                        :text="$t('Include special characters')">!@#</pf-form-toggle>
+                      <pf-form-toggle
+                        v-model="passwordGenerator.brackets"
+                        :column-label="$t('Brackets/Parenthesis')"
+                        :text="$t('Include brackets')">({&lt;</pf-form-toggle>
+                      <pf-form-toggle
+                        v-model="passwordGenerator.high"
+                        :column-label="$t('Accentuated')"
+                        :text="$t('Include accentuated characters')">äæ±</pf-form-toggle>
+                      <pf-form-toggle
+                        v-model="passwordGenerator.ambiguous"
+                        :column-label="$t('Ambiguous')"
+                        :text="$t('Include ambiguous characters')">0Oo</pf-form-toggle>
+                    </b-col>
+                  </b-row>
+                </pf-form-row>
+              </b-tab>
+            </pf-csv-parse>
+          </b-tab>
+          <template slot="tabs">
+            <pf-form-upload @load="files = $event" :multiple="true" :cumulative="true" accept="text/*, .csv">{{ $t('Open CSV File') }}</pf-form-upload>
           </template>
-          <pf-csv-parse @input="onImport" :ref="'parser-' + index" :file="file" :fields="fields" :storeName="storeName" no-init-bind-keys>
-            <b-tab :title="$t('Import Options')">
-              <b-form-group label-cols="3" :label="$t('Registration Window')">
-                <b-row>
-                  <b-col>
-                    <pf-form-datetime v-model="localUser.valid_from"
-                      :min="new Date()"
-                      :config="{format: 'YYYY-MM-DD'}"
-                      :vuelidate="$v.localUser.valid_from"
-                    />
+          <div slot="empty" class="text-center text-muted">
+            <b-container class="my-5">
+              <b-row class="justify-content-md-center text-secondary">
+                  <b-col cols="12" md="auto">
+                    <icon v-if="isLoading" name="sync" scale="2" spin></icon>
+                    <b-media v-else>
+                      <icon name="file" scale="2" slot="aside"></icon>
+                      <h4>{{ $t('There are no open CSV files') }}</h4>
+                    </b-media>
                   </b-col>
-                  <p class="pt-2"><icon name="long-arrow-alt-right"></icon></p>
-                  <b-col>
-                    <pf-form-datetime v-model="localUser.expiration"
-                      :min="new Date()"
-                      :config="{format: 'YYYY-MM-DD'}"
-                      :vuelidate="$v.localUser.expiration"
-                    />
-                  </b-col>
-                </b-row>
-              </b-form-group>
-              <pf-form-fields
-                v-model="localUser.actions"
-                :column-label="$t('Actions')"
-                :button-label="$t('Add Action')"
-                :field="actionField"
-                :vuelidate="$v.localUser.actions"
-                :invalid-feedback="[
-                  { [$t('One or more errors exist.')]: !$v.localUser.actions.anyError }
-                ]"
-                @validations="actionsValidations = $event"
-                sortable
-              ></pf-form-fields>
-              <pf-form-row align-v="start" :column-label="$t('Password Options')">
-                <b-alert show variant="info">
-                  {{ $t('When no password is imported, a random password is generated using the following criteria.') }}
-                </b-alert>
-                <b-row>
-                  <b-col cols="6">
-                    <pf-form-input class="p-0" type="range" min="6" max="32"
-                      v-model="passwordGenerator.pwlength"
-                      :column-label="$t('Length')"
-                      :text="$t('{count} characters', { count: passwordGenerator.pwlength })"/>
-                    <pf-form-toggle
-                      v-model="passwordGenerator.upper"
-                      :column-label="$t('Uppercase')"
-                      :text="$t('Include uppercase characters')">ABC</pf-form-toggle>
-                    <pf-form-toggle
-                      v-model="passwordGenerator.lower"
-                      :column-label="$t('Lowercase')"
-                      :text="$t('Include lowercase characters')">abc</pf-form-toggle>
-                    <pf-form-toggle
-                      v-model="passwordGenerator.digits"
-                      :column-label="$t('Digits')"
-                      :text="$t('Include digits')">123</pf-form-toggle>
-                  </b-col>
-                  <b-col cols="6">
-                    <pf-form-toggle
-                      v-model="passwordGenerator.special"
-                      :column-label="$t('Special')"
-                      :text="$t('Include special characters')">!@#</pf-form-toggle>
-                    <pf-form-toggle
-                      v-model="passwordGenerator.brackets"
-                      :column-label="$t('Brackets/Parenthesis')"
-                      :text="$t('Include brackets')">({&lt;</pf-form-toggle>
-                    <pf-form-toggle
-                      v-model="passwordGenerator.high"
-                      :column-label="$t('Accentuated')"
-                      :text="$t('Include accentuated characters')">äæ±</pf-form-toggle>
-                    <pf-form-toggle
-                      v-model="passwordGenerator.ambiguous"
-                      :column-label="$t('Ambiguous')"
-                      :text="$t('Include ambiguous characters')">0Oo</pf-form-toggle>
-                  </b-col>
-                </b-row>
-              </pf-form-row>
-            </b-tab>
-          </pf-csv-parse>
-        </b-tab>
-        <template slot="tabs">
-          <pf-form-upload @load="files = $event" :multiple="true" :cumulative="true" accept="text/*, .csv">{{ $t('Open CSV File') }}</pf-form-upload>
-        </template>
-        <div slot="empty" class="text-center text-muted">
-          <b-container class="my-5">
-            <b-row class="justify-content-md-center text-secondary">
-                <b-col cols="12" md="auto">
-                  <icon v-if="isLoading" name="sync" scale="2" spin></icon>
-                  <b-media v-else>
-                    <icon name="file" scale="2" slot="aside"></icon>
-                    <h4>{{ $t('There are no open CSV files') }}</h4>
-                  </b-media>
-                </b-col>
-            </b-row>
-          </b-container>
-        </div>
-      </b-tabs>
-    </div>
-  </b-card>
+              </b-row>
+            </b-container>
+          </div>
+        </b-tabs>
+      </div>
+    </b-card>
+
+    <users-preview-modal v-model="showUsersPreviewModal" :store-name="storeName" />
+
+  </div>
 </template>
 
 <script>
+import { format } from 'date-fns'
 import pfCSVParse from '@/components/pfCSVParse'
 import pfFieldTypeValue from '@/components/pfFieldTypeValue'
 import pfFormDatetime from '@/components/pfFormDatetime'
@@ -121,6 +128,7 @@ import pfFormRow from '@/components/pfFormRow'
 import pfFormToggle from '@/components/pfFormToggle'
 import pfFormUpload from '@/components/pfFormUpload'
 import pfProgress from '@/components/pfProgress'
+import UsersPreviewModal from './UsersPreviewModal'
 import { pfConfigurationActions } from '@/globals/configuration/pfConfiguration'
 import {
   pfDatabaseSchema as schema,
@@ -153,7 +161,8 @@ export default {
     pfFormRow,
     pfFormToggle,
     pfFormUpload,
-    pfProgress
+    pfProgress,
+    UsersPreviewModal
   },
   mixins: [
     validationMixin
@@ -407,10 +416,11 @@ export default {
         }
       ],
       localUser: {
-        valid_from: null,
+        valid_from: format(new Date(), 'YYYY-MM-DD'),
         expiration: null,
         actions: []
       },
+      showUsersPreviewModal: false,
       passwordGenerator: {
         pwlength: 8,
         upper: true,
@@ -471,6 +481,7 @@ export default {
       }
     },
     onImport (values, parser) {
+      let createdUsers = []
       // track progress
       this.progressValue = 1
       this.progressTotal = values.length + 1
@@ -482,7 +493,7 @@ export default {
           ...this.localUser,
           ...value
         }
-        return this.$store.dispatch('$_users/exists', value.pid).then(results => {
+        return this.$store.dispatch(`${this.storeName}/exists`, value.pid).then(results => {
           // user exists
           return this.updateUser(data).then(results => {
             if (results.status) {
@@ -493,6 +504,7 @@ export default {
             if (results.message) {
               tableValue._rowMessage = this.$i18n.t(results.message)
             }
+            createdUsers.push(data)
             return results
           }).catch(err => {
             throw err
@@ -511,6 +523,7 @@ export default {
             if (results.message) {
               tableValue._rowMessage = this.$i18n.t(results.message)
             }
+            createdUsers.push(data)
             return results
           }).catch(err => {
             throw err
@@ -523,15 +536,14 @@ export default {
           skipped: null,
           failed: null
         })
-        // TODO: show email preview
-        // eslint-disable-next-line
-        console.debug(values.filter(value => value.password))
+        this.$store.commit(`${this.storeName}/CREATED_USERS_REPLACED`, createdUsers)
+        this.showUsersPreviewModal = true
       })
     },
     createUser (data) {
       const userData = { quiet: true, ...data }
-      return this.$store.dispatch('$_users/createUser', userData).then(results => {
-        return this.$store.dispatch('$_users/createPassword', userData).then(results => {
+      return this.$store.dispatch(`${this.storeName}/createUser`, userData).then(results => {
+        return this.$store.dispatch(`${this.storeName}/createPassword`, userData).then(results => {
           return results
         }).catch(err => {
           throw err

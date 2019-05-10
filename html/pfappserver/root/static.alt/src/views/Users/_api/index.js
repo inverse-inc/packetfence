@@ -61,6 +61,16 @@ export default {
       return response.data
     })
   },
+  previewEmail: body => {
+    return apiCall.postQuiet('email/preview', body).then(response => {
+      return response.data
+    })
+  },
+  sendEmail: body => {
+    return apiCall.postQuiet('email/send', body).then(response => {
+      return response.data
+    })
+  },
   unassignUserNodes: pid => {
     return apiCall.post(`user/${pid}/unassign_nodes`)
   },
