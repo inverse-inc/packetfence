@@ -66,16 +66,6 @@ has_field 'password_email_update' => (
     },
 );
 
-for my $type ($Rules::AUTH, $Rules::ADMIN) {
-    has_field "+${type}_rules" => (
-        'inactive' => 1,
-    );
-
-    has_field "+${type}_rules.contains" => (
-        'inactive' => 1,
-    );
-}
-
 =head1 COPYRIGHT
 
 Copyright (C) 2005-2019 Inverse inc.
@@ -100,4 +90,5 @@ USA.
 =cut
 
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
+
 1;
