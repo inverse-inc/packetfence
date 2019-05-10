@@ -96,16 +96,6 @@ const actions = {
       commit('TEST_STATUS', types.ERROR)
       throw err.message
     })
-  },
-  createLetsEncryptCertificate: ({ commit }, data) => {
-    commit('ITEM_REQUEST')
-    return api.createLetsEncryptCertificate(data).then(response => {
-      commit('ITEM_SUCCESS')
-      return response
-    }).catch(err => {
-      commit('ITEM_ERROR', err.response)
-      throw err
-    })
   }
 }
 

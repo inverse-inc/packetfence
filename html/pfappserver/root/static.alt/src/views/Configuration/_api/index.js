@@ -1091,11 +1091,6 @@ export default {
       return response.data
     })
   },
-  createLetsEncryptCertificate: data => {
-    return apiCall.put(`config/certificate/${data.id}/lets_encrypt`, data).then(response => {
-      return response.data
-    })
-  },
 
   /**
    * Switches
