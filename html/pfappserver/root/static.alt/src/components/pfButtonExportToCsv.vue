@@ -1,5 +1,5 @@
 <template>
-  <b-button type="button" :disabled="disabled || data.length === 0" :variant="variant" @click="download()">
+  <b-button type="button" size="sm" :disabled="disabled || data.length === 0" :variant="variant" @click="download()">
     <icon name="file-export" class="mr-1"></icon>
     <template >
       <slot>{{ $t('Export to CSV') }}</slot>
