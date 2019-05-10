@@ -491,7 +491,9 @@ export const pfConfigurationAdminRoleViewFields = (context = {}) => {
                         groupValues: 'items',
                         trackBy: 'value',
                         label: 'text',
-                        options: pfConfigurationAdminRoleActions
+                        options: pfConfigurationAdminRoleActions,
+                        optionsLimit: 500
+
                       },
                       validators: {
                         [i18n.t('Action required.')]: required,
