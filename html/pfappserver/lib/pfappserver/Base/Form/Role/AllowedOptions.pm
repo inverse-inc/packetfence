@@ -30,6 +30,11 @@ sub _get_allowed_options {
     return admin_allowed_options($self->user_roles, $option);
 }
 
+around ACCEPT_CONTEXT => sub {
+    my ($orig, $self, $c, @args) = @_;
+    return $self->$orig($c, user_roles => [$c->user->roles], @args);
+};
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
