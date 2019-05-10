@@ -128,6 +128,7 @@ sub renew_lets_encrypt {
         if(scalar(@errors) > 0) {
             for my $error (@errors) {
                 print "!- Error while renewing certificate: $error\n";
+                return;
             }
         }
         else {
@@ -137,14 +138,27 @@ sub renew_lets_encrypt {
         foreach my $service (@{$config->{restart_services}}) {
             my $class = $pf::services::ALL_MANAGERS{$service};
             # Skip services that aren't enabled
-
             unless($class) {
                 print "-- Not restarting $service because its not enabled\n";
                 next;
             }
 
             if($cluster_enabled) {
-                #TODO: foreach restart service
+                foreach my $server (pf::cluster::config_enabled_servers()){
+                    print "-- Restarting $service on $server->{host} \n";
+                    eval {
+                        my $response = pf::api::unifiedapiclient->new(host => $server->{management_ip})->call("POST", "/api/v1/service/$service/restart");
+                        if($response->{pid} != 0) {
+                            print "-- Restarted $service on $server->{host} \n";
+                        }
+                        else {
+                            print "!- Failed to restart $service on $server->{host} \n";
+                        }
+                    };
+                    if($@) {
+                        print "!- Failed to communicate with $server->{host} to restart $service: $@\n";
+                    }
+                }
             }
             else {
                 print "-- Restarting $service\n";
