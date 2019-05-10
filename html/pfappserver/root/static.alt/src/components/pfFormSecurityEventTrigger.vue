@@ -7,13 +7,21 @@
       <slot name="prepend"></slot>
     </b-col>
     <b-col cols="2">
-      <b-link href="javascript:void(0)" :disabled="disabled" :id="'endpoint_' + uuid">{{ forms.endpoint.description() }}</b-link>
+      <b-link href="javascript:void(0)" :disabled="disabled" :id="'endpoint_' + uuid">
+        <span v-for="(desc, index) in forms.endpoint.description()" :key="desc">
+          {{ desc }} <b-badge variant="light" v-if="forms.endpoint.description().length - index > 1">{{ $t('AND') }}</b-badge>
+        </span>
+      </b-link>
     </b-col>
     <b-col>
       <b-badge>{{ $t('AND') }}</b-badge>
     </b-col>
     <b-col cols="2">
-      <b-link href="javascript:void(0)" :disabled="disabled" :id="'profiling_' + uuid">{{ forms.profiling.description() }}</b-link>
+      <b-link href="javascript:void(0)" :disabled="disabled" :id="'profiling_' + uuid">
+        <span v-for="(desc, index) in forms.profiling.description()" :key="desc">
+          {{ desc }} <b-badge variant="light" v-if="forms.profiling.description().length - index > 1">{{ $t('AND') }}</b-badge>
+        </span>
+      </b-link>
     </b-col>
     <b-col>
       <b-badge>{{ $t('AND') }}</b-badge>
@@ -67,6 +75,7 @@ import pfButton from '@/components/pfButton'
 import pfButtonSave from '@/components/pfButtonSave'
 import pfConfigView from '@/components/pfConfigView'
 import pfFieldTypeValue from '@/components/pfFieldTypeValue'
+import pfFormFields from '@/components/pfFormFields'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormSelect from '@/components/pfFormSelect'
 import pfFormPrefixMultiplier from '@/components/pfFormPrefixMultiplier'
@@ -158,7 +167,7 @@ export default {
   data () {
     return {
       focus: false,
-      trigger: { endpoint: {}, profiling: {}, usage: {}, event: {} },
+      trigger: { endpoint: { conditions: [] }, profiling: { conditions: [] }, usage: {}, event: {} },
       triggerCopy: {},
       triggerValidations: { endpoint: {}, profiling: {}, usage: {}, event: {} }, // will be overloaded with data from the pfConfigView
       popover: { endpoint: false, profiling: false, usage: false, event: false }
@@ -177,11 +186,13 @@ export default {
          */
         endpoint: {
           description: () => {
-            const { typeValue: { type, value } = {} } = this.trigger.endpoint
-            return type ? `${categoryOptions.endpoint[type]}: ${value}` : this.$i18n.t('No condition')
+            const conditions = this.trigger.endpoint.conditions.map(condition => {
+              const { type, value } = condition
+              return `${categoryOptions.endpoint[type]}: ${value}`
+            })
+            return conditions.length > 0 ? conditions : [this.$i18n.t('No condition')]
           },
           title: this.$i18n.t('Endpoint'),
-          labelCols: 3,
           fields: [
             {
               tab: null, // ignore tabs
@@ -189,47 +200,54 @@ export default {
                 {
                   fields: [
                     {
-                      component: pfFieldTypeValue,
-                      key: 'typeValue',
+                      component: pfFormFields,
+                      key: 'conditions',
                       attrs: {
-                        typeLabel: this.$i18n.t('Select type'),
-                        valueLabel: this.$i18n.t('Select value'),
-                        fields: [
-                          {
-                            ...pfConfigurationAttributesFromMeta(this.meta, 'triggers.role'),
-                            ...{
-                              value: 'role',
-                              text: categoryOptions.endpoint.role,
-                              types: [fieldType.OPTIONS]
-                            }
-                          },
-                          {
-                            value: 'mac',
-                            text: categoryOptions.endpoint.mac,
-                            types: [fieldType.SUBSTRING],
-                            validators: {
-                              value: {
-                                [this.$i18n.t('Value required.')]: required
+                        buttonLabel: i18n.t('Add Condition'),
+                        sortable: false,
+                        field: {
+                          component: pfFieldTypeValue,
+                          attrs: {
+                            typeLabel: this.$i18n.t('Select type'),
+                            valueLabel: this.$i18n.t('Select value'),
+                            fields: [
+                              {
+                                ...pfConfigurationAttributesFromMeta(this.meta, 'triggers.role'),
+                                ...{
+                                  value: 'role',
+                                  text: categoryOptions.endpoint.role,
+                                  types: [fieldType.OPTIONS]
+                                }
+                              },
+                              {
+                                value: 'mac',
+                                text: categoryOptions.endpoint.mac,
+                                types: [fieldType.SUBSTRING],
+                                validators: {
+                                  value: {
+                                    [this.$i18n.t('Value required.')]: required
+                                  }
+                                }
+                              },
+                              {
+                                ...pfConfigurationAttributesFromMeta(this.meta, 'triggers.switch'),
+                                ...{
+                                  value: 'switch',
+                                  text: categoryOptions.endpoint.switch,
+                                  types: [fieldType.OPTIONS]
+                                }
+                              },
+                              {
+                                ...pfConfigurationAttributesFromMeta(this.meta, 'triggers.switch_group'),
+                                ...{
+                                  value: 'switch_group',
+                                  text: categoryOptions.endpoint.switch_group,
+                                  types: [fieldType.OPTIONS]
+                                }
                               }
-                            }
-                          },
-                          {
-                            ...pfConfigurationAttributesFromMeta(this.meta, 'triggers.switch'),
-                            ...{
-                              value: 'switch',
-                              text: categoryOptions.endpoint.switch,
-                              types: [fieldType.OPTIONS]
-                            }
-                          },
-                          {
-                            ...pfConfigurationAttributesFromMeta(this.meta, 'triggers.switch_group'),
-                            ...{
-                              value: 'switch_group',
-                              text: categoryOptions.endpoint.switch_group,
-                              types: [fieldType.OPTIONS]
-                            }
+                            ]
                           }
-                        ]
+                        }
                       }
                     }
                   ]
@@ -243,14 +261,17 @@ export default {
          */
         profiling: {
           description: () => {
-            let { typeValue: { type, value } = {} } = this.trigger.profiling
-            if (typeof value === 'object') {
-              value = value.map(o => o.name).join(' ' + this.$i18n.t('OR') + ' ')
-            }
-            return type ? `${categoryOptions.profiling[type]}: ${value}` : this.$i18n.t('All device types')
+            const conditions = this.trigger.profiling.conditions.map(condition => {
+              const { type, value } = condition
+              let name = value
+              if (typeof value === 'object') {
+                name = value.name
+              }
+              return `${categoryOptions.profiling[type]}: ${name}`
+            })
+            return conditions.length > 0 ? conditions : [this.$i18n.t('All device types')]
           },
           title: this.$i18n.t('Device Profiling'),
-          labelCols: 3,
           fields: [
             {
               tab: null, // ignore tabs
@@ -258,66 +279,73 @@ export default {
                 {
                   fields: [
                     {
-                      component: pfFieldTypeValue,
-                      key: 'typeValue',
+                      component: pfFormFields,
+                      key: 'conditions',
                       attrs: {
-                        typeLabel: this.$i18n.t('Select type'),
-                        valueLabel: this.$i18n.t('Select value'),
-                        fields: [
-                          {
-                            attrs: {
-                              ...pfConfigurationAttributesFromMeta(this.meta, 'triggers.device'),
-                              ...{
-                                collapseObject: false
+                        buttonLabel: i18n.t('Add Condition'),
+                        sortable: false,
+                        field: {
+                          component: pfFieldTypeValue,
+                          attrs: {
+                            typeLabel: this.$i18n.t('Select type'),
+                            valueLabel: this.$i18n.t('Select value'),
+                            fields: [
+                              {
+                                attrs: {
+                                  ...pfConfigurationAttributesFromMeta(this.meta, 'triggers.device'),
+                                  ...{
+                                    collapseObject: false
+                                  }
+                                },
+                                ...{
+                                  value: 'device',
+                                  text: categoryOptions.profiling.device,
+                                  types: [fieldType.OPTIONS]
+                                }
+                              },
+                              {
+                                ...pfConfigurationAttributesFromMeta(this.meta, 'triggers.dhcp_fingerprint'),
+                                ...{
+                                  value: 'dhcp_fingerprint',
+                                  text: categoryOptions.profiling.dhcp_fingerprint,
+                                  types: [fieldType.OPTIONS]
+                                }
+                              },
+                              {
+                                ...pfConfigurationAttributesFromMeta(this.meta, 'triggers.dhcp_vendor'),
+                                ...{
+                                  value: 'dhcp_vendor',
+                                  text: categoryOptions.profiling.dhcp_vendor,
+                                  types: [fieldType.OPTIONS]
+                                }
+                              },
+                              {
+                                ...pfConfigurationAttributesFromMeta(this.meta, 'triggers.dhcp6_fingerprint'),
+                                ...{
+                                  value: 'dhcp6_fingerprint',
+                                  text: categoryOptions.profiling.dhcp6_fingerprint,
+                                  types: [fieldType.OPTIONS]
+                                }
+                              },
+                              {
+                                ...pfConfigurationAttributesFromMeta(this.meta, 'triggers.dhcp6_enterprise'),
+                                ...{
+                                  value: 'dhcp6_enterprise',
+                                  text: categoryOptions.profiling.dhcp6_enterprise,
+                                  types: [fieldType.OPTIONS]
+                                }
+                              },
+                              {
+                                ...pfConfigurationAttributesFromMeta(this.meta, 'triggers.mac_vendor'),
+                                ...{
+                                  value: 'mac_vendor',
+                                  text: categoryOptions.profiling.mac_vendor,
+                                  types: [fieldType.OPTIONS]
+                                }
                               }
-                            },
-                            ...{
-                              value: 'device',
-                              text: categoryOptions.profiling.device,
-                              types: [fieldType.OPTIONS]
-                            }
-                          },
-                          {
-                            ...pfConfigurationAttributesFromMeta(this.meta, 'triggers.dhcp_fingerprint'),
-                            ...{
-                              value: 'dhcp_fingerprint',
-                              text: categoryOptions.profiling.dhcp_fingerprint,
-                              types: [fieldType.OPTIONS]
-                            }
-                          },
-                          {
-                            ...pfConfigurationAttributesFromMeta(this.meta, 'triggers.dhcp_vendor'),
-                            ...{
-                              value: 'dhcp_vendor',
-                              text: categoryOptions.profiling.dhcp_vendor,
-                              types: [fieldType.OPTIONS]
-                            }
-                          },
-                          {
-                            ...pfConfigurationAttributesFromMeta(this.meta, 'triggers.dhcp6_fingerprint'),
-                            ...{
-                              value: 'dhcp6_fingerprint',
-                              text: categoryOptions.profiling.dhcp6_fingerprint,
-                              types: [fieldType.OPTIONS]
-                            }
-                          },
-                          {
-                            ...pfConfigurationAttributesFromMeta(this.meta, 'triggers.dhcp6_enterprise'),
-                            ...{
-                              value: 'dhcp6_enterprise',
-                              text: categoryOptions.profiling.dhcp6_enterprise,
-                              types: [fieldType.OPTIONS]
-                            }
-                          },
-                          {
-                            ...pfConfigurationAttributesFromMeta(this.meta, 'triggers.mac_vendor'),
-                            ...{
-                              value: 'mac_vendor',
-                              text: categoryOptions.profiling.mac_vendor,
-                              types: [fieldType.OPTIONS]
-                            }
+                            ]
                           }
-                        ]
+                        }
                       }
                     }
                   ]
@@ -335,7 +363,6 @@ export default {
             return direction ? `${bytes.toHuman(limit, 0, true)} ${directionOptions[direction]}/${intervalOptions[interval]}` : this.$i18n.t('Any data usage')
           },
           title: this.$i18n.t('Usage'),
-          labelCols: 3,
           fields: [
             {
               tab: null, // ignore tabs
@@ -346,8 +373,8 @@ export default {
                       key: 'direction',
                       component: pfFormSelect,
                       attrs: {
+                        columnLabel: this.$i18n.t('Direction'),
                         class: 'w-100 mb-1',
-                        size: 'sm',
                         placeholder: this.$i18n.t('Select direction'),
                         options: Object.keys(directionOptions).map(key => ({ value: key, text: directionOptions[key] }))
                       },
@@ -359,8 +386,8 @@ export default {
                       key: 'limit',
                       component: pfFormPrefixMultiplier,
                       attrs: {
-                        class: 'w-100 mb-1',
-                        size: 'sm'
+                        columnLabel: this.$i18n.t('Limit'),
+                        class: 'w-100 mb-1'
                       },
                       validators: {
                         [this.$i18n.t('Value required.')]: required
@@ -370,8 +397,8 @@ export default {
                       key: 'interval',
                       component: pfFormSelect,
                       attrs: {
+                        columnLabel: this.$i18n.t('Interval'),
                         class: 'w-100 mb-1',
-                        size: 'sm',
                         placeholder: this.$i18n.t('Select interval'),
                         options: Object.keys(intervalOptions).map(key => ({ value: key, text: intervalOptions[key] }))
                       },
@@ -394,7 +421,6 @@ export default {
             return type ? `${categoryOptions.event[type]}: ${value}` : this.$i18n.t('Any event')
           },
           title: this.$i18n.t('Event'),
-          labelCols: 3,
           fields: [
             {
               tab: null, // ignore tabs
@@ -517,28 +543,30 @@ export default {
       /**
        * Expand dynamic values
        */
-      for (const category in this.trigger) {
-        let { typeValue: { type: field, value } = {} } = this.trigger[category]
-        if (field && value) {
-          let { [field]: { allowed_lookup: allowedLookup, type, item } = {} } = newMeta.triggers.item.properties
-          if (type === 'array' && item) {
-            const { allowed_lookup: itemAllowedLookup } = item
-            if (itemAllowedLookup) {
-              // value is an array
-              value.forEach((query, index) => {
-                this.expandValue({ allowedLookup: itemAllowedLookup, trackBy: 'value', label: 'name' }, query).then(item => {
-                  this.$set(value, index, item)
-                  this.triggerCopy = JSON.parse(JSON.stringify(this.trigger))
+      for (const category of ['endpoint', 'profiling']) {
+        this.trigger[category].conditions.forEach(condition => {
+          let { type: field, value } = condition
+          if (field && value) {
+            let { [field]: { allowed_lookup: allowedLookup, type, item } = {} } = newMeta.triggers.item.properties
+            if (type === 'array' && item) {
+              const { allowed_lookup: itemAllowedLookup } = item
+              if (itemAllowedLookup) {
+                // value is an array
+                value.forEach((query, index) => {
+                  this.expandValue({ allowedLookup: itemAllowedLookup, trackBy: 'value', label: 'name' }, query).then(item => {
+                    this.$set(value, index, item)
+                    this.triggerCopy = JSON.parse(JSON.stringify(this.trigger))
+                  })
                 })
+              }
+            } else if (allowedLookup) {
+              this.expandValue({ allowedLookup, trackBy: 'value', label: 'name' }, value).then(item => {
+                condition.value = item
+                this.triggerCopy = JSON.parse(JSON.stringify(this.trigger))
               })
             }
-          } else if (allowedLookup) {
-            this.expandValue({ allowedLookup, trackBy: 'value', label: 'name' }, value).then(item => {
-              value = item
-              this.triggerCopy = JSON.parse(JSON.stringify(this.trigger))
-            })
           }
-        }
+        })
       }
     }
   },
@@ -558,7 +586,12 @@ export default {
             }
           }
           if (category) {
-            this.trigger[category] = { typeValue: { type: field, value: JSON.parse(JSON.stringify(value)) } }
+            let condition = { typeValue: { type: field, value: JSON.parse(JSON.stringify(value)) } }
+            if ('conditions' in this.trigger[category]) {
+              this.trigger[category].conditions.push(condition.typeValue)
+            } else {
+              this.trigger[category] = condition
+            }
             if (category === 'usage') {
               // Decompose data usage
               const { groups } = value.match(/(?<direction>TOT|IN|OUT)(?<limit>[0-9]+)(?<multiplier>[KMG]?)B(?<interval>[DWMY])/)
@@ -605,7 +638,7 @@ export default {
         }
       }).then(response => {
         const [item] = response.data.items
-        return { [trackBy]: item[valueName].toString(), [label]: item[fieldName] } // TODO: dynamic track-by/label?
+        return { [trackBy]: item[valueName], [label]: item[fieldName] }
       })
     },
     invalidForm (category) {
@@ -620,28 +653,34 @@ export default {
           bytes.toHuman(this.trigger[category].limit, 0, true).replace(/ /, '').toUpperCase() + 'B' +
           this.trigger[category].interval
       }
-      let { typeValue: { type: field, value } = {} } = this.trigger[category]
-      let newValue = value
-      if (field && value) {
-        // Collapse object
-        let { [field]: { allowed_lookup: allowedLookup, type, item } = {} } = this.meta.triggers.item.properties
-        if (type === 'array' && item) {
-          const { allowed_lookup: itemAllowedLookup } = item
-          if (itemAllowedLookup) {
-            // value is an array
-            let values = []
-            value.forEach((expandedValue, index) => {
-              values[index] = expandedValue.value
-            })
-            newValue = values
-          }
-        } else if (allowedLookup) {
-          newValue = value.value
-        }
+      let { conditions, typeValue } = this.trigger[category]
+      if (typeValue) {
+        conditions = [typeValue]
       }
-      // Update model
-      if (!this.value) this.value = {}
-      this.value[field] = newValue
+      conditions.forEach(condition => {
+        let { type: field, value } = condition
+        let newValue = value
+        if (field && value) {
+          // Collapse object
+          let { [field]: { allowed_lookup: allowedLookup, type, item } = {} } = this.meta.triggers.item.properties
+          if (type === 'array' && item) {
+            const { allowed_lookup: itemAllowedLookup } = item
+            if (itemAllowedLookup) {
+              // value is an array
+              let values = []
+              value.forEach((expandedValue, index) => {
+                values[index] = expandedValue.value
+              })
+              newValue = values
+            }
+          } else if (allowedLookup) {
+            newValue = value.value
+          }
+        }
+        // Update model
+        if (!this.value) this.value = {}
+        this.value[field] = newValue
+      })
       this.$emit('input', this.value)
     },
     resetCategory (category) {
@@ -659,10 +698,10 @@ export default {
         })
         if (isInsidePopover === undefined) {
           // Click is outside popover -- close all popover
-          const { id = '' } = $event.target
+          const { id = '', parentNode: { id: parentId } } = $event.target
           for (const category in this.popover) {
             // Ignore clicks on popover links
-            if (id !== [category, this.uuid].join('_')) {
+            if (![id, parentId].includes([category, this.uuid].join('_'))) {
               if (this.popover[category]) {
                 // Cancel modifications
                 this.resetCategory(category)
@@ -710,32 +749,19 @@ export default {
 }
 
 /**
- * For pfTypeValue components inside popovers, force display of fields on one
- * column and reset margins.
+ * Make popover larger
  */
-.security-event-trigger-row .pf-field-type-value {
-  flex-direction: column;
-  margin: 0 !important;
-  [class*=col-] {
-    flex: none;
-    max-width: 100% !important;
-    padding: 0 !important;
-    &:last-child .form-group {
-      margin-bottom: 0 !important;
-    }
-  }
-  .form-group {
-    margin-top: 0 !important;
-    margin-right: map-get($spacers, 1) !important;
-    margin-bottom: map-get($spacers, 1) !important;
-    margin-left: map-get($spacers, 1) !important;
-  }
+.popover {
+  max-width: $popover-max-width * 2;
 }
+
+/**
+ * No padding inside popover
+ */
 .security-event-trigger-row .popover,
 .security-event-trigger-row .input-group {
   width: 100%;
 }
-
 .security-event-trigger-row .popover-body {
   padding: 0;
 }
