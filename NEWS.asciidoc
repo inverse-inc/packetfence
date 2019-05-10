@@ -47,7 +47,8 @@ Enhancements
 * sms_carrier 'id' column is now auto-increment (#1270/PR#3684)
 * Better logging for haproxy-portal that allows to identify missing passthroughs
 * Allow to skip management node in portal load-balancing when running in a cluster
-* DHCP and DNS services can be enabled on a specific interface.
+* DHCP and DNS services can be enabled on a specific interface
+* VoIP support for Dell switches
 
 Bug Fixes
 +++++++++
