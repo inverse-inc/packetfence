@@ -48,11 +48,13 @@ sub certs_map {
             cert_file => $server_cert,
             key_file => $server_key,
             bundle_file => $server_pem,
+            restart_services => ['httpd.admin', 'haproxy-portal'],
         },
         radius => {
             cert_file => $radius_server_cert,
             ca_file => $radius_ca_cert,
             key_file => $radius_server_key,
+            restart_services => ['radiusd-load_balancer', 'radiusd-acct', 'radiusd-auth', 'radiusd-eduroam'],
         },
     };
 }

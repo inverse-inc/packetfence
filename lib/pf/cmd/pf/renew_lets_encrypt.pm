@@ -23,10 +23,12 @@ pf::cmd::pf::renew_lets_encrypt
 
 use strict;
 use warnings;
+use pf::cluster;
 use pf::constants::exit_code qw($EXIT_SUCCESS);
 use pf::util;
 use pf::ssl;
 use pf::ssl::lets_encrypt;
+use pf::services;
 use File::Slurp qw(read_file);
 
 use base qw(pf::base::cmd::action_cmd);
@@ -125,11 +127,35 @@ sub renew_lets_encrypt {
 
         if(scalar(@errors) > 0) {
             for my $error (@errors) {
-                print "-- Error while renewing certificate: $error\n";
+                print "!- Error while renewing certificate: $error\n";
             }
         }
         else {
             print "-- Renewed certificate for $common_name successfully \n";
+        }
+
+        foreach my $service (@{$config->{restart_services}}) {
+            my $class = $pf::services::ALL_MANAGERS{$service};
+            # Skip services that aren't enabled
+
+            unless($class) {
+                print "-- Not restarting $service because its not enabled\n";
+                next;
+            }
+
+            if($cluster_enabled) {
+                #TODO: foreach restart service
+            }
+            else {
+                print "-- Restarting $service\n";
+                my $result = $class->restart;
+                if($result) {
+                    print "-- Restarted $service\n";
+                }
+                else {
+                    print "!- Failed to restart $service\n";
+                }
+            }
         }
     
     }
