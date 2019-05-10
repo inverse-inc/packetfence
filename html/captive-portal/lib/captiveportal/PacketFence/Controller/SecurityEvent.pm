@@ -28,7 +28,7 @@ Catalyst Controller.
 
 =cut
 
-sub index : Path : Args(0) {
+sub index : Path('/security_event') : Args(0) {
     my ( $self, $c ) = @_;
     my $portalSession = $c->portalSession;
     my $mac           = $portalSession->clientMac;
@@ -103,7 +103,7 @@ sub getSubTemplate : Private {
 }
 
 
-sub release :Local {
+sub release : Path('/security_event/release') :Local {
     my ($self, $c) = @_;
     my $mac = $c->portalSession->clientMac;
     my $security_event = security_event_view_top($mac);
