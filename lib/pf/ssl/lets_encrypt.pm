@@ -60,12 +60,16 @@ sub obtain_certificate {
     $le->generate_account_key();
     $le->load_csr_key($key_path);
     $le->generate_csr($domain);
-    $le->register();
+    my $status = $le->register();
+    if(is_error($status)) {
+        return ($FALSE, $le->error_details());
+    }
+
     $le->accept_tos();
     $le->request_challenge();
     $le->accept_challenge(\&process_challenge);
     $le->verify_challenge();
-    my $status = $le->request_certificate();
+    $status = $le->request_certificate();
     if(is_error($status)) {
         return ($FALSE, $le->error_details());
     }
