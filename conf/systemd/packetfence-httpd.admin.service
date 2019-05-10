@@ -15,15 +15,6 @@ ExecStartPre=/usr/bin/rm -f /usr/local/pf/var/run/httpd.admin.pid
 ExecStartPre=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::httpd_admin' -e 'pf::services::manager::httpd_admin->new()->generateConfig()'
 ExecStart=/usr/sbin/httpd -f /usr/local/pf/var/conf/httpd.conf.d/httpd.admin -DFOREGROUND  -Drhel
 ExecReload=/bin/kill -USR1 ${MAINPID}
-ExecStop=/bin/kill -WINCH ${MAINPID}
-# We want systemd to give httpd some time to finish gracefully, but still want
-# it to kill httpd after TimeoutStopSec if something went wrong during the
-# graceful stop. Normally, Systemd sends SIGTERM signal right after the
-# ExecStop, which would kill httpd. We are sending useless SIGCONT here to give
-# httpd time to finish.
-TimeoutStopSec=60
-KillMode=process
-KillSignal=SIGCONT
 PrivateTmp=true
 Restart=on-failure
 Slice=packetfence.slice
