@@ -139,6 +139,7 @@ sub resource_info {
         intermediate_cas => [ map {pf::ssl::x509_info($_)} @$x509_intermediate_cas ],
         chain_is_valid => $self->tuple_return_to_hash(pf::ssl::verify_chain($x509_cert, $x509_cas)),
         cert_key_match => $self->tuple_return_to_hash(pf::ssl::validate_cert_key_match($x509_cert, $rsa_key)),
+        lets_encrypt => isenabled(pf::ssl::lets_encrypt::resource_state($self->stash->{certificate_id})) ? $self->json_true : $self->json_false,
     };
     if($x509_ca) {
         $data->{ca} = pf::ssl::x509_info($x509_ca);
