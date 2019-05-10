@@ -238,6 +238,21 @@ export const pfConfigurationConnectionProfileFilters = {
       }
     }
   },
+  fqdn: {
+    value: 'fqdn',
+    text: i18n.t('FQDN'),
+    types: [fieldType.SUBSTRING],
+    validators: {
+      type: {
+        /* Don't allow elsewhere */
+        [i18n.t('Duplicate filter.')]: limitSiblingFields(['type', 'match'])
+      },
+      match: {
+        [i18n.t('Match required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
   vlan: {
     value: 'vlan',
     text: i18n.t('VLAN'),
@@ -552,6 +567,7 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
                       pfConfigurationConnectionProfileFilters.tenant,
                       pfConfigurationConnectionProfileFilters.time,
                       pfConfigurationConnectionProfileFilters.uri,
+                      pfConfigurationConnectionProfileFilters.fqdn,
                       pfConfigurationConnectionProfileFilters.vlan
                     ]
                   }
