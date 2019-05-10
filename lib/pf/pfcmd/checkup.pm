@@ -992,9 +992,6 @@ sub connection_profiles {
         my $data = $Profiles_Config{$connection_profile};
         # Checks for the non default profiles
         if ($connection_profile ne 'default' ) {
-            add_problem( $WARN, "template directory '$install_dir/html/captive-portal/profile-templates/$connection_profile' for profile $connection_profile does not exist using default templates" )
-                if (!-d "$install_dir/html/captive-portal/profile-templates/$connection_profile");
-
             add_problem ( $WARN, "missing filter parameter for profile $connection_profile" )
                 if (!defined($data->{'filter'}) );
         }
