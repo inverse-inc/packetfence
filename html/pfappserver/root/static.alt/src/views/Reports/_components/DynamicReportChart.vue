@@ -1,7 +1,7 @@
 <template>
   <b-card no-body>
     <b-card-header>
-      <div class="float-right"><pf-form-toggle v-model="advancedMode">{{ $t('Advanced') }}</pf-form-toggle></div>
+      <div class="float-right" v-if="parsedSearches.length > 0"><pf-form-toggle v-model="advancedMode">{{ $t('Advanced') }}</pf-form-toggle></div>
       <h4 class="mb-0">{{ $t(report.description) }}</h4>
       <p v-if="report.long_description" v-t="report.long_description" class="mt-3 mb-0"></p>
     </b-card-header>
