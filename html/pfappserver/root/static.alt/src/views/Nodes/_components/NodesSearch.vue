@@ -839,7 +839,9 @@ export default {
           items.forEach((item, _index, items) => {
             let index = this.tableValues.findIndex(value => value.mac === item.mac)
             switch (item.status) {
-              case 'success': successCount++
+              case 'success':
+                successCount++
+                this.tableValues[index].status = 'reg'
                 break
               case 'skipped': skippedCount++
                 break
@@ -871,7 +873,9 @@ export default {
           items.forEach((item, _index, items) => {
             let index = this.tableValues.findIndex(value => value.mac === item.mac)
             switch (item.status) {
-              case 'success': successCount++
+              case 'success':
+                this.tableValues[index].status = 'unreg'
+                successCount++
                 break
               case 'skipped': skippedCount++
                 break
@@ -999,7 +1003,9 @@ export default {
           items.forEach((item, _index, items) => {
             let index = this.tableValues.findIndex(value => value.mac === item.mac)
             switch (item.status) {
-              case 'success': successCount++
+              case 'success':
+                this.tableValues[index].category_id = role.category_id
+                successCount++
                 break
               case 'skipped': skippedCount++
                 break
@@ -1031,7 +1037,9 @@ export default {
           items.forEach((item, _index, items) => {
             let index = this.tableValues.findIndex(value => value.mac === item.mac)
             switch (item.status) {
-              case 'success': successCount++
+              case 'success':
+                this.tableValues[index].bypass_category_id = role.category_id
+                successCount++
                 break
               case 'skipped': skippedCount++
                 break
@@ -1100,7 +1108,9 @@ export default {
           items.forEach((item, _index, items) => {
             let index = this.tableValues.findIndex(value => value.mac === item.mac)
             switch (item.status) {
-              case 'success': successCount++
+              case 'success':
+                this.tableValues[index].bypass_vlan = bypassVlan
+                successCount++
                 break
               case 'skipped': skippedCount++
                 break
