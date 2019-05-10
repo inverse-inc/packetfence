@@ -152,7 +152,7 @@ export const pfConfigurationAdvancedViewFields = (context = {}) => {
           ]
         },
         {
-          label: i18n.t('PFFilter Processes'),
+          label: i18n.t('PfFilter Processes'),
           text: i18n.t(`Amount of pffilter processes to start.`),
           fields: [
             {
@@ -166,6 +166,42 @@ export const pfConfigurationAdvancedViewFields = (context = {}) => {
                 }
               },
               validators: pfConfigurationValidatorsFromMeta(meta, 'pffilter_processes', 'Processes')
+            }
+          ]
+        },
+        {
+          label: i18n.t('PfPerl API Processes'),
+          text: i18n.t(`Amount of pfperl-api processes to start.`),
+          fields: [
+            {
+              key: 'pfperl_api_processes',
+              component: pfFormInput,
+              attrs: {
+                ...pfConfigurationAttributesFromMeta(meta, 'pfperl_api_processes'),
+                ...{
+                  type: 'number',
+                  step: 1
+                }
+              },
+              validators: pfConfigurationValidatorsFromMeta(meta, 'pfperl_api_processes', 'Processes')
+            }
+          ]
+        },
+        {
+          label: i18n.t('PfPerl API Timeout'),
+          text: i18n.t(`The timeout in seconds for an API request.`),
+          fields: [
+            {
+              key: 'pfperl_api_timeout',
+              component: pfFormInput,
+              attrs: {
+                ...pfConfigurationAttributesFromMeta(meta, 'pfperl_api_timeout'),
+                ...{
+                  type: 'number',
+                  step: 1
+                }
+              },
+              validators: pfConfigurationValidatorsFromMeta(meta, 'pfperl_api_timeout', 'Timeout')
             }
           ]
         },
