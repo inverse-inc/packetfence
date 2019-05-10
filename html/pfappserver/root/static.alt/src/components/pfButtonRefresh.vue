@@ -1,10 +1,11 @@
 <template>
   <button type="button" :aria-label="$t('Refresh')" :disabled="isLoading || disabled"
-    class="pfButtonRefresh mx-3" :class="{ 'text-primary': hilight }"
+    class="pfButtonRefresh mx-3"
     v-b-tooltip.hover.left.d300 :title="$t('Refresh [ALT+R]')"
     @click="click"
   >
-    <icon name="redo-alt" :style="`transform: rotate(${rotate}deg)`"></icon>
+    <icon v-if="interval" name="history" :style="`transform: rotate(${rotate}deg) scaleX(-1)`" :class="{ 'text-primary': ctrlKey }"></icon>
+    <icon v-else name="redo" :style="`transform: rotate(${rotate}deg)`" :class="{ 'text-primary': ctrlKey }"></icon>
   </button>
 </template>
 
@@ -34,9 +35,6 @@ export default {
   computed: {
     rotate () {
       return this.num * 360;
-    },
-    hilight () {
-      return this.ctrlKey || this.interval
     }
   },
   methods: {
