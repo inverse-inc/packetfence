@@ -121,7 +121,7 @@ Requires: perl(Rose::DB)
 Requires: perl(Rose::DB::Object)
 Requires: perl(Lingua::EN::Nums2Words) >= 1.16
 Requires: perl(Lingua::EN::Inflexion) >= 0.001006
-Requires: perl(Mojolicious)
+Requires: perl(Mojolicious) >= 7.87
 Requires: perl(File::Tail)
 Requires: perl(IPC::Cmd)
 Requires: perl(IPTables::ChainMgr)
