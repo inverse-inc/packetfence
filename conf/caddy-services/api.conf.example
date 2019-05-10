@@ -44,6 +44,11 @@
     transparent
     timeout 10m
   }
+
+  timeouts {
+    write 10m
+    idle 10m
+  }
 }
 
 ####
