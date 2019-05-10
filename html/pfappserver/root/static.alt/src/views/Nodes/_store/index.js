@@ -48,6 +48,18 @@ const actions = {
       })
     })
   },
+  refreshNode: ({ state, commit, dispatch }, mac) => {
+    if (state.nodes[mac]) {
+      commit('NODE_DESTROYED', mac)
+    }
+    commit('NODE_REQUEST')
+    dispatch('getNode', mac).then(() => {
+      commit('NODE_SUCCESS')
+    }).catch(err => {
+      commit('USER_ERROR', err.response)
+      return err
+    })
+  },
   getNode: ({ state, commit }, mac) => {
     if (state.nodes[mac]) {
       return Promise.resolve(state.nodes[mac])
@@ -168,12 +180,12 @@ const actions = {
       })
     })
   },
-  deleteNode: ({ commit }, data) => {
+  deleteNode: ({ commit }, mac) => {
     commit('NODE_REQUEST')
     return new Promise((resolve, reject) => {
-      api.deleteNode(data).then(response => {
-        commit('NODE_DESTROYED', data)
-        commit('NODE_NOT_EXISTS', data.mac)
+      api.deleteNode(mac).then(response => {
+        commit('NODE_DESTROYED', mac)
+        commit('NODE_NOT_EXISTS', mac)
         resolve(response)
       }).catch(err => {
         commit('NODE_ERROR', err.response)

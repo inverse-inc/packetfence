@@ -1,9 +1,9 @@
-
 <template>
   <b-form @submit.prevent="save()">
     <b-card no-body>
       <b-card-header>
         <b-button-close @click="close" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
+        <pf-button-refresh :isLoading="isLoading" @refresh="refresh"></pf-button-refresh>
         <h4 class="mb-0">MAC <strong v-text="mac"></strong></h4>
       </b-card-header>
       <b-tabs ref="tabs" v-model="tabIndex" card>
@@ -343,6 +343,7 @@
 import { DataSet, Timeline } from 'vue2vis'
 import pfButtonSave from '@/components/pfButtonSave'
 import pfButtonDelete from '@/components/pfButtonDelete'
+import pfButtonRefresh from '@/components/pfButtonRefresh'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import pfFingerbankScore from '@/components/pfFingerbankScore'
 import pfFormDatetime from '@/components/pfFormDatetime'
@@ -374,6 +375,7 @@ export default {
     'timeline': Timeline,
     pfButtonSave,
     pfButtonDelete,
+    pfButtonRefresh,
     pfEmptyTable,
     pfFingerbankScore,
     pfFormDatetime,
@@ -636,6 +638,9 @@ export default {
     },
     close () {
       this.$router.push({ name: 'nodes' })
+    },
+    refresh () {
+      this.$store.dispatch('$_nodes/refreshNode', this.mac)
     },
     connectionSubType (type) {
       if (type && eapType[type]) {

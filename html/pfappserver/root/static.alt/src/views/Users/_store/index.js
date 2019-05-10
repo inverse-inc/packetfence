@@ -103,6 +103,18 @@ const actions = {
       })
     })
   },
+  refreshUser: ({ state, commit, dispatch }, pid) => {
+    if (state.users[pid]) {
+      commit('USER_DESTROYED', pid)
+    }
+    commit('USER_REQUEST')
+    dispatch('getUser', pid).then(() => {
+      commit('USER_SUCCESS')
+    }).catch(err => {
+      commit('USER_ERROR', err.response)
+      return err
+    })
+  },
   getUser: ({ commit, state }, pid) => {
     if (state.users[pid]) {
       return Promise.resolve(state.users[pid])

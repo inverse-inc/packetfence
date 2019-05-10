@@ -3,6 +3,7 @@
     <b-card no-body>
       <b-card-header>
         <b-button-close @click="close" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
+        <pf-button-refresh :isLoading="isLoading" @refresh="refresh"></pf-button-refresh>
         <h4 class="mb-0" v-html="$t('User {pid}', { pid: $strong(pid) })"></h4>
       </b-card-header>
       <b-tabs ref="tabs" v-model="tabIndex" card>
@@ -249,6 +250,7 @@
 <script>
 import pfButtonSave from '@/components/pfButtonSave'
 import pfButtonDelete from '@/components/pfButtonDelete'
+import pfButtonRefresh from '@/components/pfButtonRefresh'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import pfFieldTypeValue from '@/components/pfFieldTypeValue'
 import pfFormChosen from '@/components/pfFormChosen'
@@ -283,6 +285,7 @@ export default {
   components: {
     pfButtonSave,
     pfButtonDelete,
+    pfButtonRefresh,
     pfEmptyTable,
     pfFormChosen,
     pfFormDatetime,
@@ -708,6 +711,9 @@ export default {
     },
     close () {
       this.$router.push({ name: 'users' })
+    },
+    refresh () {
+      this.$store.dispatch('$_users/refreshUser', this.pid)
     },
     save () {
       const ctrlKey = this.ctrlKey
