@@ -25,12 +25,13 @@ use pf::config qw(
     $WIRED_802_1X
     $WIRED_MAC_AUTH
 );
+use Try::Tiny;
 
 sub description { 'N1500 Series' }
 
 # importing switch constants
 use pf::Switch::constants;
-use pf::util::radius qw(perform_coa);
+use pf::util::radius qw(perform_coa perform_disconnect);
 
 # CAPABILITIES
 # access technology supported
@@ -175,6 +176,7 @@ sub getPhonesLLDPAtIfIndex {
                 my $cache_lldpRemTimeMark     = $1;
                 my $cache_lldpRemLocalPortNum = $2;
                 my $cache_lldpRemIndex        = $3;
+
                 if ( $self->getBitAtPosition($result->{$oid}, $SNMP::LLDP::TELEPHONE) ) {
                     $logger->trace(
                         "SNMP get_request for lldpRemPortId: $oid_lldpRemPortId.$cache_lldpRemTimeMark.$cache_lldpRemLocalPortNum.$cache_lldpRemIndex"
@@ -188,7 +190,7 @@ sub getPhonesLLDPAtIfIndex {
                         && ($MACresult->{
                                 "$oid_lldpRemPortId.$cache_lldpRemTimeMark.$cache_lldpRemLocalPortNum.$cache_lldpRemIndex"
                             }
-                            =~ /([0-9A-Z]{2})\s?([0-9A-Z]{2})\s?([0-9A-Z]{2})\s?([0-9A-Z]{2})\s?([0-9A-Z]{2})\s?([0-9A-Z]{2})$/i
+                            =~ /([0-9A-Z]{2})\s?([0-9A-Z]{2})\s?([0-9A-Z]{2})\s?([0-9A-Z]{2})\s?([0-9A-Z]{2})\s?([0-9A-Z]{2}).*/i
                         )
                         )
                     {
@@ -231,8 +233,7 @@ Get Voice over IP RADIUS Vendor Specific Attribute (VSA).
 
 sub getVoipVsa {
     my ($self) = @_;
-    return (
-    );
+    return ('Cisco-AVPair' => "device-traffic-class=voice");
 }
 
 =head2 deauthenticateMacRadius
@@ -244,7 +245,6 @@ Method to deauth a wired node with CoA.
 sub deauthenticateMacRadius {
     my ($self, $ifIndex,$mac) = @_;
     my $logger = $self->logger;
-
 
     # perform CoA
     $self->radiusDisconnect($mac);
@@ -295,12 +295,11 @@ sub radiusDisconnect {
 
         my $attributes_ref = {
             'Calling-Station-Id' => $mac,
-            'NAS-IP-Address' => $send_disconnect_to,
         };
 
         # merging additional attributes provided by caller to the standard attributes
         $attributes_ref = { %$attributes_ref, %$add_attributes_ref };
-        $response = perform_coa($connection_info, $attributes_ref);
+        $response = perform_disconnect($connection_info, $attributes_ref);
     } catch {
         chomp;
         $logger->warn("Unable to perform RADIUS CoA-Request on (".$self->{'_id'}.") : $_");
