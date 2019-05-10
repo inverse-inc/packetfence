@@ -52,7 +52,7 @@ sub cluster_status {
 
 sub list {
     my ($self) = @_;
-    $self->render(json => { items => [ map {$_->name} @pf::services::ALL_MANAGERS ] });
+    $self->render(json => { items => [ map {$_->name} grep { $_->name ne 'pf' } @pf::services::ALL_MANAGERS ] });
 }
 
 sub status {
