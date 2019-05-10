@@ -487,7 +487,7 @@ sub options_from_form {
     for my $field ($form->fields) {
         next if $field->inactive;
         my $name = $field->name;
-        $meta{$name} = $self->field_meta($field, $defaultValues);
+        $meta{$name} = $self->field_meta($field, undef);
         if ($name eq 'id') {
             $meta{$name}{default} = undef;
         }
@@ -511,7 +511,7 @@ sub field_meta {
         placeholder => $self->field_placeholder($field),
         default     => $self->field_default($field, $defaultValues),
     };
-    my %extra = $self->field_extra_meta($field, $meta, $defaultValues);
+    my %extra = $self->field_extra_meta($field, $meta);
     %$meta = (%$meta, %extra);
 
     if ($type ne 'array' && $type ne 'object') {
@@ -538,7 +538,7 @@ sub field_extra_meta {
     if ($type eq 'array') {
         $extra{item} = $self->field_meta_array_items($field, undef, 1);
     } elsif ($type eq 'object') {
-        $extra{properties} = $self->field_meta_object_properties($field, $defaultValues->{$field->name} // $meta->{default});
+        $extra{properties} = $self->field_meta_object_properties($field, $meta->{default});
     } else {
         if ($field->isa("HTML::FormHandler::Field::Text")) {
             $self->field_text_meta($field, \%extra);
