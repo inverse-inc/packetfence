@@ -26,6 +26,17 @@ has 'primary_key' => 'security_event_id';
 
 use pf::ConfigStore::SecurityEvents;
 use pfappserver::Form::SecurityEvent;
+use pf::class qw(class_next_security_event_id);
+
+=head2 id_field_default
+
+id_field_default
+
+=cut
+
+sub id_field_default {
+    return class_next_security_event_id();
+}
 
 =head2 form_parameters
 

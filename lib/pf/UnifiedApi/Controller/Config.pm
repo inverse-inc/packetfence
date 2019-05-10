@@ -489,12 +489,21 @@ sub options_from_form {
         my $name = $field->name;
         $meta{$name} = $self->field_meta($field, undef);
         if ($name eq 'id') {
-            $meta{$name}{default} = undef;
+            $meta{$name}{default} = $self->id_field_default;
         }
     }
 
     return \%output;
 }
+
+
+=head2 id_field_default
+
+id_field_default
+
+=cut
+
+sub id_field_default { undef }
 
 =head2 field_meta
 
