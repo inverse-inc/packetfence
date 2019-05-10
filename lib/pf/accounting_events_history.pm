@@ -146,7 +146,7 @@ sub all_history_hashes {
     my ($self) = @_;
     my $search = $self->add_prefix($self->hash_name_prefix)."*";
     my @histories = $self->redis->keys($search);
-    @histories = nsort @histories;
+    @histories = sort @histories;
     return @histories;
 }
 
