@@ -17,8 +17,8 @@
     <template slot="header" is="b-card-header">
       <b-button-close @click="close" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
       <h4 class="mb-0">
-        <span v-if="!isNew && !isClone">{{ $t('Device Registration {id}', { id: id }) }}</span>
-        <span v-else-if="isClone">{{ $t('Clone Device Registration {id}', { id: id }) }}</span>
+        <span v-if="!isNew && !isClone" v-html="$t('Device Registration {id}', { id: $strong(id) })"></span>
+        <span v-else-if="isClone" v-html="$t('Clone Device Registration {id}', { id: $strong(id) })"></span>
         <span v-else>{{ $t('New Device Registration') }}</span>
       </h4>
     </template>

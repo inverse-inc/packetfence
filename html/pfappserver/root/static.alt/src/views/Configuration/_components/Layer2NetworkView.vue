@@ -14,7 +14,7 @@
     <template slot="header" is="b-card-header">
       <b-button-close @click="close" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
       <h4 class="mb-0">
-        <span>{{ $t('Layer2 Network {id}', { id: id }) }}</span>
+        <span v-html="$t('Layer2 Network {id}', { id: $strong(id) })"></span>
       </h4>
     </template>
     <template slot="footer">

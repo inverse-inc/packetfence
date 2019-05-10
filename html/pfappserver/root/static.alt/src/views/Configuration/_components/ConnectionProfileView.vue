@@ -24,7 +24,7 @@
             {{ $t('Preview') }} <icon class="ml-1" name="external-link-alt"></icon>
           </b-button>
         </template>
-        <span v-else-if="isClone">{{ $t('Clone Connection Profile {id}', { id: id }) }}</span>
+        <span v-else-if="isClone" v-html="$t('Clone Connection Profile {id}', { id: $strong(id) })"></span>
         <span v-else>{{ $t('New Connection Profile') }}</span>
       </h4>
     </template>

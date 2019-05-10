@@ -16,7 +16,7 @@
     <template slot="header" is="b-card-header">
       <b-button-close @click="close" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
       <h4 class="mb-0">
-        <span v-if="!isNew">{{ $t('Traffic Shaping Policy {id}', { id: id }) }}</span>
+        <span v-if="!isNew" v-html="$t('Traffic Shaping Policy {id}', { id: $strong(id) })"></span>
         <span v-else>{{ $t('New Traffic Shaping Policy') }}</span>
       </h4>
     </template>
