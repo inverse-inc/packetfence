@@ -79,17 +79,6 @@ export const pfConfigurationLayer2NetworkViewFields = (context = {}) => {
       tab: null,
       fields: [
         {
-          label: null, /* no label */
-          fields: [
-            {
-              component: pfFormHtml,
-              attrs: {
-                html: pfConfigurationLayer2NetworkHtmlNote
-              }
-            }
-          ]
-        },
-        {
           label: i18n.t('Layer2 Network'),
           fields: [
             {
@@ -239,6 +228,17 @@ export const pfConfigurationLayer2NetworkViewFields = (context = {}) => {
                 ...{
                   [i18n.t('Invalid FQDN.')]: isFQDN
                 }
+              }
+            }
+          ]
+        },
+        {
+          label: null, /* no label */
+          fields: [
+            {
+              component: pfFormHtml,
+              attrs: {
+                html: pfConfigurationLayer2NetworkHtmlNote
               }
             }
           ]
