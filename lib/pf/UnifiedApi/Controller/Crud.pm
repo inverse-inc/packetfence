@@ -358,7 +358,19 @@ sub update {
         return $self->render_error($status, "Cannot update '$id'");
     }
 
+    $self->post_update($data);
     return $self->render(json => { message => "'$id' updated" });
+}
+
+=head2 post_update
+
+post_update
+
+=cut
+
+sub post_update {
+    my ($self) = @_;
+    return ;
 }
 
 sub update_data {

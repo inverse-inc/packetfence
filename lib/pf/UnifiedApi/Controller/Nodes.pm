@@ -345,6 +345,26 @@ sub bulk_fingerbank_refresh {
     return $self->render(status => 200, json => { items => $results });
 }
 
+=head2 post_update
+
+post_update
+
+=cut
+
+sub post_update {
+    my ($self, $updated_data) = @_;
+    my $old_node = $self->item;
+    if (!exists $updated_data->{category_id} && !exists $updated_data->{status}) {
+        return;
+    }
+
+    if ($updated_data->{category_id} ne $old_node->{category_id} || $updated_data->{status} ne $old_node->{status}) {
+        pf::enforcement::reevaluate_access($self->id, "admin_modify");
+    }
+
+    return ;
+}
+
 =head2 bulk_restart_switchport
 
 bulk_restart_switchport
