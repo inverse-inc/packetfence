@@ -895,7 +895,16 @@ export const pfConfigurationPortalModuleViewFields = (context = {}) => {
           ]
         }
       ]
-    // case 'Root':
+    case 'Root':
+      return [
+        {
+          tab: null, // ignore tabs
+          fields: [
+            pfConfigurationPortalModuleFields.id(context),
+            pfConfigurationPortalModuleFields.description(context)
+          ]
+        }
+      ]
     case 'SelectRole':
       return [
         {

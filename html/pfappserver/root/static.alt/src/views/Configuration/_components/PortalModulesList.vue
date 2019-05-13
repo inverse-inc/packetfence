@@ -16,7 +16,7 @@
             <icon class="card-bg" name="caret-right" :key="step"><!-- force proper spacing --></icon>
             <div class="step-col" :key="step">
               <div class="step">
-                <div class="float-right py-1 pr-2 text-secondary small"><span :show="!minimize" v-t="'step'"></span> {{ step }}</div>
+                <div class="float-right py-1 pr-2 text-secondary small"><span v-show="!minimize" v-t="'step'"></span> {{ step }}</div>
               </div>
             </div>
             </template>
@@ -27,7 +27,7 @@
           </b-row>
         </div>
       </b-tab>
-      <b-button class="ml-3 mb-1" variant="outline-primary" slot="tabs" :to="{ name: 'newPortalModule', params: { type: 'Root' } }">{{ $t('New Root Module') }}</b-button>
+      <b-button class="ml-3 mb-1" variant="outline-primary" slot="tabs" :to="{ name: 'newPortalModule', params: { moduleType: 'Root' } }">{{ $t('New Root Module') }}</b-button>
       <!-- Loading progress indicator -->
       <b-container class="my-5" v-if="isLoading && !items.length">
         <b-row class="justify-content-md-center text-secondary">
@@ -47,7 +47,7 @@
             <portal-module :id="mid" v-for="mid in getModulesByType(moduleType)" :module="getModule(mid)" :modules="items" :key="mid" :storeName="storeName" v-show="mid" is-root></portal-module>
           </draggable>
         </b-tab>
-        <b-dropdown :text="$t('New Module')" class="text-nowrap ml-3 mb-1" size="sm" variant="outline-primary" boundary="viewport" slot="tabs">
+        <b-dropdown :text="$t('New Module')" class="text-nowrap pr-3 ml-3 mb-1" size="sm" variant="outline-primary" boundary="viewport" slot="tabs">
           <template v-for="group in moduleTypes">
             <b-dropdown-header class="text-secondary" v-t="group.name" :key="group.name"></b-dropdown-header>
             <b-dropdown-item v-for="moduleType in group.types" :key="moduleType.name" :to="{ name: 'newPortalModule', params: { moduleType: moduleType.type } }">
