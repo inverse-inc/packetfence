@@ -503,7 +503,6 @@ export default {
             ...this.single,
             ...this.localUser
           }
-          this.createdUsersFields.find(field => field.key === 'email').visible = true
           this.$store.dispatch(`${this.storeName}/createUser`, data).then(() => {
             this.$store.dispatch(`${this.storeName}/createPassword`, Object.assign({ quiet: true }, data)).then(() => {
               this.$store.commit(`${this.storeName}/CREATED_USERS_REPLACED`, [data])

@@ -47,26 +47,6 @@ export default {
     return {
       emailSubject: '',
       emailFrom: '',
-      usersFields: [
-        {
-          key: 'pid',
-          label: this.$i18n.t('Username'),
-          sortable: true,
-          visible: true
-        },
-        {
-          key: 'email',
-          label: this.$i18n.t('Email'),
-          sortable: true,
-          visible: false
-        },
-        {
-          key: 'password',
-          label: this.$i18n.t('Password'),
-          sortable: false,
-          visible: true
-        }
-      ],
       usersSortBy: 'pid',
       usersSortDesc: false,
       usersTemplates: []
@@ -82,9 +62,6 @@ export default {
   computed: {
     isLoading () {
       return this.$store.getters['$_users/isLoading']
-    },
-    visibleusersFields () {
-      return this.usersFields.filter(field => field.visible)
     },
     users () {
       return this.$store.state[this.storeName].createdUsers
@@ -118,14 +95,6 @@ export default {
     },
     print () {
       window.print()
-    }
-  },
-  watch: {
-    users (a, b) {
-      if (a.find(user => user.email)) {
-        this.usersFields.find(field => field.key === 'email').visible = true
-      }
-      this.$bvModal.show('usersListModal')
     }
   },
   created () {

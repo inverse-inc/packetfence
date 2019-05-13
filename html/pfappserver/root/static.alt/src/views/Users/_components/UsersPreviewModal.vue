@@ -3,7 +3,7 @@
     no-close-on-backdrop no-close-on-esc lazy scrollable>
     <b-table stacked="sm"
       :items="users"
-      :fields="visibleusersFields"
+      :fields="visibleUsersFields"
       :sortBy="usersSortBy"
       :sortDesc="usersSortDesc"
       show-empty responsive striped></b-table>
@@ -67,7 +67,7 @@ export default {
     users () {
       return this.$store.state[this.storeName].createdUsers
     },
-    visibleusersFields () {
+    visibleUsersFields () {
       return this.usersFields.filter(field => field.visible)
     }
   },
@@ -76,6 +76,13 @@ export default {
       // this.$bvModal.hide('usersListModal')
       this.value = false
       this.$router.push({ name: 'usersPreview' })
+    }
+  },
+  watch: {
+    users (a, b) {
+      if (a.find(user => user.email)) {
+        this.usersFields.find(field => field.key === 'email').visible = true
+      }
     }
   }
 }
