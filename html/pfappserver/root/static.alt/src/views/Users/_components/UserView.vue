@@ -3,7 +3,7 @@
     <b-card no-body>
       <b-card-header>
         <b-button-close @click="close" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
-        <pf-button-refresh :isLoading="isLoading" @refresh="refresh"></pf-button-refresh>
+        <pf-button-refresh class="border-right pr-3" :isLoading="isLoading" @refresh="refresh"></pf-button-refresh>
         <h4 class="mb-0" v-html="$t('User {pid}', { pid: $strong(pid) })"></h4>
       </b-card-header>
       <b-tabs ref="tabs" v-model="tabIndex" card>
