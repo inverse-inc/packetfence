@@ -126,6 +126,26 @@ export default class SearchableStore {
           })
         }
       },
+      setResultSorting: ({ state, commit }, event) => {
+        const { oldIndex, newIndex } = event // shifted, not swapped
+        let sortableResults = state.results.filter(item => !item.not_sortable)
+        const tmp = sortableResults[oldIndex]
+        if (oldIndex > newIndex) {
+          // shift down (not swapped)
+          for (let i = oldIndex; i > newIndex; i--) {
+            sortableResults[i] = sortableResults[i - 1]
+          }
+        } else {
+          // shift up (not swapped)
+          for (let i = oldIndex; i < newIndex; i++) {
+            sortableResults[i] = sortableResults[i + 1]
+          }
+        }
+        sortableResults[newIndex] = tmp
+        const results = [ ...state.results.filter(item => item.not_sortable), ...sortableResults ]
+        commit('ITEMS_SORTED', results)
+        return state.results
+      },
       getItem: ({ state, commit }, id) => {
         if (state.cache[id]) {
           return Promise.resolve(state.cache[id])
@@ -169,7 +189,7 @@ export default class SearchableStore {
       SEARCH_SUCCESS: (state, response) => {
         state.searchStatus = types.SUCCESS
         if (response) {
-          state.results = response.items
+          state.results = [ ...response.items.filter(item => item.not_sortable), ...response.items.filter(item => !item.not_sortable) ]
           let nextPage = Math.floor(response.nextCursor / state.searchPageSize) + 1
           if (nextPage > state.searchMaxPageNumber) {
             state.searchMaxPageNumber = nextPage
@@ -184,6 +204,9 @@ export default class SearchableStore {
       },
       VISIBLE_COLUMNS_UPDATED: (state, columns) => {
         state.visibleColumns = columns
+      },
+      ITEMS_SORTED: (state, data) => {
+        Vue.set(state, 'results', data)
       },
       ITEM_REQUEST: (state) => {
         state.itemStatus = types.LOADING

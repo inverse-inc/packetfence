@@ -156,6 +156,12 @@ export default {
     },
     searchableQuickCondition () {
       return this.config.searchableQuickCondition
+    },
+    sortableItems () {
+      return this.items.filter(item => !item.not_sortable)
+    },
+    notSortableItems () {
+      return this.items.filter(item => item.not_sortable)
     }
   },
   methods: {
@@ -167,24 +173,6 @@ export default {
     },
     submitSearch () {
       this.$refs.pfSearch.onSubmit()
-    },
-    sort (event) {
-      let { oldIndex, newIndex } = event // shifted, not swapped
-      // adjust this.items
-      let tmp = this.items[oldIndex]
-      if (oldIndex > newIndex) {
-        // shift down (not swapped)
-        for (let i = oldIndex; i > newIndex; i--) {
-          this.items[i] = this.items[i - 1]
-        }
-      } else {
-        // shift up (not swapped)
-        for (let i = oldIndex; i < newIndex; i++) {
-          this.items[i] = this.items[i + 1]
-        }
-      }
-      this.items[newIndex] = tmp
-      this.$emit('sort', this.items[newIndex], this.items)
     }
   }
 }

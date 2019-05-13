@@ -238,6 +238,11 @@ export default {
       if (column.visible) {
         this.$store.dispatch(`${this.searchableStoreName}/search`, this.requestPage)
       }
+    },
+    sort (event) {
+      this.$store.dispatch(`${this.searchableStoreName}/setResultSorting`, event).then(response => {
+        this.$emit('sort', response)
+      })
     }
   },
   watch: {

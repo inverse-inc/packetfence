@@ -21,37 +21,50 @@
     </b-row>
 
     <!-- body -->
-    <draggable v-else
-      v-model="items"
-      :options="{ handle: '.draghandle', dragClass: 'dragclass' }"
-      @start="onDraggable('start', $event)"
-      @add="onDraggable('add', $event)"
-      @remove="onDraggable('remove', $event)"
-      @update="onDraggable('update', $event)"
-      @end="onDraggable('end', $event)"
-      @choose="onDraggable('choose', $event)"
-      @sort="onDraggable('sort', $event)"
-      @filter="onDraggable('filter', $event)"
-      @clone="onDraggable('clone', $event)"
-    >
-      <b-row v-for="(item, itemIndex) in items" :key="itemIndex"
+    <template v-else>
+      <b-row v-for="(item, itemIndex) in notSortableItems" :key="itemIndex"
         class="pfTableSortableRow"
-        @mouseenter="onMouseEnter(itemIndex)"
-        @mousemove="onMouseEnter(itemIndex)"
+        @mouseenter="onMouseLeave()"
       >
-        <b-col class="draghandle" cols="1">
-          <template v-if="!disabled && hoverIndex === itemIndex && items.length > 1">
-            <icon name="th" v-b-tooltip.hover.left.d300 :title="$t('Click and drag to re-order')"></icon>
-          </template>
-          <template v-else>
-            {{ itemIndex + 1 }}
-          </template>
+        <b-col cols="1">
+          {{ itemIndex + 1 }}
         </b-col>
         <b-col v-for="(field, fieldIndex) in visibleFields" :key="fieldIndex" @click.stop="clickRow(item)">
           <slot :name="field.key" v-bind="{ item }">{{ item[field.key] }}</slot>
         </b-col>
       </b-row>
-    </draggable>
+      <draggable
+        v-model="sortableItems"
+        :options="{ handle: '.draghandle', dragClass: 'dragclass' }"
+        @start="onDraggable('start', $event)"
+        @add="onDraggable('add', $event)"
+        @remove="onDraggable('remove', $event)"
+        @update="onDraggable('update', $event)"
+        @end="onDraggable('end', $event)"
+        @choose="onDraggable('choose', $event)"
+        @sort="onDraggable('sort', $event)"
+        @filter="onDraggable('filter', $event)"
+        @clone="onDraggable('clone', $event)"
+      >
+        <b-row v-for="(item, itemIndex) in sortableItems" :key="itemIndex"
+          class="pfTableSortableRow"
+          @mouseenter="onMouseEnter(itemIndex)"
+          @mousemove="onMouseEnter(itemIndex)"
+        >
+          <b-col :class="{ 'draghandle': (sortableItems.length > 1) }" cols="1">
+            <template v-if="!disabled && hoverIndex === itemIndex && sortableItems.length > 1">
+              <icon name="th" v-b-tooltip.hover.left.d300 :title="$t('Click and drag to re-order')"></icon>
+            </template>
+            <template v-else>
+              {{ notSortableItems.length + itemIndex + 1 }}
+            </template>
+          </b-col>
+          <b-col v-for="(field, fieldIndex) in visibleFields" :key="fieldIndex" @click.stop="clickRow(item)">
+            <slot :name="field.key" v-bind="{ item }">{{ item[field.key] }}</slot>
+          </b-col>
+        </b-row>
+      </draggable>
+    </template>
 
   </div>
 </template>
@@ -103,6 +116,12 @@ export default {
   computed: {
     visibleFields () {
       return this.fields.filter(field => field.visible)
+    },
+    sortableItems () {
+      return this.items.filter(item => !item.not_sortable)
+    },
+    notSortableItems () {
+      return this.items.filter(item => item.not_sortable)
     }
   },
   methods: {

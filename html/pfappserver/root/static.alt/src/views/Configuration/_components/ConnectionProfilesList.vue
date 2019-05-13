@@ -104,9 +104,9 @@ export default {
           break
       }
     },
-    sort (item, items) {
+    sort (items) {
       this.$store.dispatch(`${this.storeName}/sortConnectionProfiles`, items.map(item => item.id)).then(response => {
-        this.$store.dispatch('notification/info', { message: this.$i18n.t('Connection profile <code>{id}</code> resorted.', { id: item.id }) })
+        this.$store.dispatch('notification/info', { message: this.$i18n.t('Connection profiles resorted.') })
       })
     }
   }

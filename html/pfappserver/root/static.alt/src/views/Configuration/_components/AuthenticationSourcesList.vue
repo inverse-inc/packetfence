@@ -203,24 +203,27 @@ export default {
         this.$router.go() // reload
       })
     },
-    sort (sources, event) {
-      let { oldIndex, newIndex } = event // shifted, not swapped
-      // adjust sources
-      let tmp = sources[oldIndex]
+    sort (items, event) {
+      const { oldIndex, newIndex } = event // shifted, not swapped
+      const tmp = items[oldIndex]
       if (oldIndex > newIndex) {
         // shift down (not swapped)
         for (let i = oldIndex; i > newIndex; i--) {
-          sources[i] = sources[i - 1]
+          items[i] = items[i - 1]
         }
       } else {
         // shift up (not swapped)
         for (let i = oldIndex; i < newIndex; i++) {
-          sources[i] = sources[i + 1]
+          items[i] = items[i + 1]
         }
       }
-      sources[newIndex] = tmp
-      this.$store.dispatch(`${this.storeName}/sortAuthenticationSources`, sources.map(source => source.id)).then(response => {
-        this.$store.dispatch('notification/info', { message: this.$i18n.t('Authentication source <code>{id}</code> resorted.', { id: sources[newIndex].id }) })
+      items[newIndex] = tmp
+      this.sources = [ // rebuild sources
+        ...this.sources.filter(_item => !items.map(item => item.id).includes(_item.id)), // all but sorted items
+        ...items // sorted items
+      ]
+      this.$store.dispatch(`${this.storeName}/sortAuthenticationSources`, items.map(item => item.id)).then(response => {
+        this.$store.dispatch('notification/info', { message: this.$i18n.t('Authentication sources resorted.') })
       })
     },
     onRowClick (item, index) {
