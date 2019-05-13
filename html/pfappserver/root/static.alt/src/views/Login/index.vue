@@ -1,7 +1,8 @@
 <template>
     <b-row class="justify-content-md-center mt-3">
         <b-col md="8" lg="6" xl="4">
-            <b-form @submit.prevent="login">
+          <transition name="fade" mode="out-in">
+            <b-form @submit.prevent="login" v-show="!success">
                 <b-card no-body>
                     <b-card-header>
                       <h4 class="mb-0" v-t="'Login to PacketFence Administration'"></h4>
@@ -45,13 +46,13 @@ export default {
     return {
       username: '',
       password: '',
-      submitted: false,
+      success: false,
       message: {}
     }
   },
   computed: {
     isLoading () {
-      return this.$store.getters['$_auth/isLoading']
+      return this.$store.getters['$_auth/isLoading'] || this.success
     },
     validForm () {
       return this.username.length > 0 && this.password.length > 0 && !this.isLoading
@@ -71,9 +72,9 @@ export default {
   },
   methods: {
     login () {
-      this.submitted = true
       this.message = false
       this.$store.dispatch('$_auth/login', { username: this.username, password: this.password }).then(response => {
+        this.success = true
         // Don't redirect to /login nor /logout
         if (this.$route.params.previousPath &&
           this.$route.params.previousPath !== '/login' &&
@@ -88,7 +89,6 @@ export default {
         } else if (error.request) {
           this.message = { level: 'danger', text: this.$i18n.t('A networking error occurred. Is the API service running?') }
         }
-        this.submitted = false
       })
     }
   }
