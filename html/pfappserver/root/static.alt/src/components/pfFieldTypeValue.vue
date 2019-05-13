@@ -5,7 +5,7 @@
     <b-col v-if="$slots.prepend" sm="1" align-self="start" class="text-center col-form-label">
       <slot name="prepend"></slot>
     </b-col>
-    <b-col sm="4" align-self="start">
+    <b-col :sm="($slots.prepend && $slots.append) ? 4 : (($slots.prepend || $slots.append) ? 5 : 6)" align-self="start">
 
       <pf-form-chosen
         v-model="localType"
