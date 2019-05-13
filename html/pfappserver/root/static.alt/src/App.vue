@@ -20,13 +20,14 @@
         <b-navbar-nav v-show="isAuthenticated">
           <b-nav-item-dropdown class="pf-label" right>
             <template slot="button-content">
-              <icon name="user-circle"></icon> {{ username }} <span v-if="pfVersion">(v{{ pfVersion }})</span>
+              <icon name="user-circle"></icon> {{ username }}
             </template>
             <b-dropdown-item-button v-if="$i18n.locale == 'en'" @click="setLanguage('fr')">Français</b-dropdown-item-button>
             <b-dropdown-item-button v-else @click="setLanguage('en')">English</b-dropdown-item-button>
             <b-dropdown-divider></b-dropdown-divider>
             <b-dropdown-item to="/logout">{{ $t('Log out') }}</b-dropdown-item>
           </b-nav-item-dropdown>
+          <b-nav-item :to="{ name: 'help' }" :active="$route.path.startsWith('/help')"><icon name="info-circle"></icon></b-nav-item>
           <b-nav-item-dropdown class="pf-label" right no-caret>
             <template slot="button-content">
               <icon-counter name="tools" v-model="isProcessing" variant="bg-dark">
@@ -89,9 +90,6 @@ export default {
     },
     chartsOK () {
       return this.$store.state.session.charts
-    },
-    pfVersion () {
-      return this.$store.getters['system/version']
     }
   },
   methods: {
