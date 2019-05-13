@@ -949,9 +949,9 @@ $vis-item-color: $white;
   text-align: right;
 }
 .vis-item {
+  padding: 2px 3px 1px;
   background-color: $gray-200;
   color: $vis-item-bg;
-  padding: 2px 3px 1px;
   text-align: center;
 }
 /* bottom arrow on box */
@@ -960,17 +960,17 @@ $vis-item-color: $white;
   position: absolute;
   top: 100%;
   left: 50%;
-  margin-left: -10px;
   width: 0;
   height: 0;
   border-top: solid 10px $vis-item-bg;
-  border-left: solid 10px transparent;
   border-right: solid 10px transparent;
+  border-left: solid 10px transparent;
+  margin-left: -10px;
 }
 /* left and right border on range */
 .vis-item.vis-range {
-  border-left: 5px solid $vis-item-bg;
   border-right: 5px solid $vis-item-bg;
+  border-left: 5px solid $vis-item-bg;
   border-radius: 50px;
 }
 /* alternating column backgrounds */
@@ -988,18 +988,18 @@ $vis-item-color: $white;
 }
 /* match bootstrap tooltip style */
 div.vis-tooltip {
+  z-index: $zindex-tooltip;
+  padding: $tooltip-padding-y $tooltip-padding-x;
+
+  background-color: $tooltip-bg;
+  color: $tooltip-color;
+
   font-family: $font-family-sans-serif;
   font-size: $tooltip-font-size;
-
-  color: $tooltip-color;
-  background-color: $tooltip-bg;
 
   border-radius: $tooltip-border-radius;
   box-shadow: none;
 
   opacity: $tooltip-opacity;
-  padding: $tooltip-padding-y $tooltip-padding-x;
-
-  z-index: $zindex-tooltip;
 }
 </style>
