@@ -72,7 +72,7 @@ CONTENT
 
 $t->put_ok($base_url => {} => $content)
   ->status_is(200)
-  ->json_is({ status => 200 });
+  ->json_is({ message => "Filter updated", status => 200 });
 
 $t->get_ok($base_url)
   ->status_is(200)
