@@ -34,7 +34,7 @@ export default {
   },
   computed: {
     rotate () {
-      return this.num * 360;
+      return this.num * 360
     }
   },
   methods: {
