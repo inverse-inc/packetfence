@@ -2,6 +2,8 @@
 * "system" store module
 */
 import Vue from 'vue'
+import i18n from '@/utils/locale'
+import store from '@/store'
 import apiCall from '@/utils/api'
 
 const api = {
@@ -40,6 +42,11 @@ const actions = {
     return new Promise((resolve, reject) => {
       api.getSummary().then(data => {
         commit('SYSTEM_SUCCESS', data)
+        if (data.readonly_mode) {
+          store.dispatch('notification/danger', {
+            message: i18n.t('The database is in readonly mode. Not all functionality is available.')
+          })
+        }
         resolve(state.summary)
       }).catch(err => {
         commit('SYSTEM_ERROR', err.response)

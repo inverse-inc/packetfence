@@ -72,6 +72,14 @@ router.afterEach((to, from) => {
       window.scrollTo(0, 0) // [3]
     }, transitionRoute.meta.transitionDelay)
   }
+  /**
+   * Fetch data required for ALL authenticated pages
+   */
+  if (store.state.session.username) {
+    if (store.state.system.summary === false) {
+      store.dispatch('system/getSummary')
+    }
+  }
 })
 
 export default router
