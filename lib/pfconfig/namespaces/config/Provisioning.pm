@@ -48,6 +48,12 @@ sub build_child {
                 push @{$reverseLookup{$field}{$val}}, $key;
             }
         }
+        if (exists $provisioner->{security_type}) {
+            my $value = $provisioner->{security_type};
+            if (defined $value && $value eq 'WPA2') {
+                $provisioner->{security_type} = 'WPA';
+            }
+        }
     }
     $self->{reverseLookup} = \%reverseLookup;
 
