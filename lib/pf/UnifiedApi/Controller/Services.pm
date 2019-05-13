@@ -37,14 +37,9 @@ sub cluster_status {
     my @results;
     for my $server (@servers) {
         my $client = pf::api::unifiedapiclient->new;
-        my @server_services = ();
         $client->host($server->{management_ip});
-        for my $service (@services) {
-            my $service_name = $service->name;
-            my $stat = $client->call("GET", "/api/v1/service/$service_name/status", {});
-            push @server_services, { name => $service_name, status => $stat };
-        }
-        push @results, { host => $server->{host}, services => \@server_services };
+        my $stat = $client->call("GET", "/api/v1/services/status_all", {});
+        push @results, { host => $server->{host}, services => $stat->{items} };
     }
 
     $self->render(json => { items => \@results });
@@ -59,13 +54,37 @@ sub status {
     my ($self) = @_;
     my $service = $self->_get_service_class($self->param('service_id'));
     if ($service) {
-        return $self->render(json => { 
-            alive => $service->isAlive(),
-            managed => $service->isManaged(),
-            enabled => $service->isEnabled(),
-            pid => $service->pid(), 
-        });
+        return $self->render(json => $self->service_info($service));
     }
+}
+
+=head2 service_info
+
+service_info
+
+=cut
+
+sub service_info {
+    my ($self, $service) = @_;
+    return {
+        id => $service->name,
+        alive => $service->isAlive(),
+        managed => $service->isManaged(),
+        enabled => $service->isEnabled(),
+        pid => $service->pid(),
+    };
+}
+
+=head2 status_all
+
+status_all
+
+=cut
+
+sub status_all {
+    my ($self) = @_;
+    my @services = map {$self->service_info($_) } grep { $_->name ne 'pf' } @pf::services::ALL_MANAGERS;
+    return $self->render(json => { items => \@services });
 }
 
 sub start {
