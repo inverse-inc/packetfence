@@ -19,6 +19,8 @@ const state = {
   allCharts: [],
   allChartsStatus: '',
   charts: localStorage.getItem(STORAGE_CHARTS_KEY) ? JSON.parse(localStorage.getItem(STORAGE_CHARTS_KEY)) : [],
+  alarmsStatus: '',
+  alarms: {},
   services: [],
   servicesStatus: '',
   cluster: null,
@@ -91,6 +93,18 @@ const actions = {
     }
     commit('CHARTS_UPDATED', chart)
     localStorage.setItem(STORAGE_CHARTS_KEY, JSON.stringify(state.charts))
+  },
+  alarms: ({ state, commit }, ip) => {
+    if (state.alarmsStatus !== types.LOADING) {
+      commit('ALARMS_REQUEST')
+      return api.alarms(ip).then(data => {
+        commit('ALARMS_UPDATED', data)
+        return data
+      }).catch(err => {
+        commit('ALARMS_ERROR')
+        commit('session/CHARTS_ERROR', err.response, { root: true })
+      })
+    }
   },
   getServices: ({ state, commit }) => {
     if (state.services.length > 0) {
@@ -354,6 +368,17 @@ const mutations = {
     } else {
       state.charts.push(chart)
     }
+  },
+  ALARMS_REQUEST: (state) => {
+    state.alarmsStatus = types.LOADING
+  },
+  ALARMS_UPDATED: (state, alarms) => {
+    state.alarmsStatus = types.SUCCESS
+    // state.alarms = alarms // no caching necessary for now
+  },
+  ALARMS_ERROR: (state) => {
+    state.alarmsStatus = types.ERROR
+    state.alarms = {}
   },
   SERVICES_REQUEST: (state) => {
     state.servicesStatus = types.LOADING

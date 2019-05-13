@@ -12,6 +12,11 @@ export default {
   chart: (id) => {
     return chartsCall.get('127.0.0.1/api/v1/chart', { params: { chart: id } })
   },
+  alarms: (ip) => {
+    return chartsCall.get(`${ip}/api/v1/alarms`).then(response => {
+      return response.data
+    })
+  },
   services: () => {
     return apiCall.get('services').then(response => {
       return response.data.items

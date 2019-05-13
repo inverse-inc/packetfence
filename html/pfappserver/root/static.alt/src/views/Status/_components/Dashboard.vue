@@ -604,7 +604,8 @@ export default {
         } // Queue section
       ],
       sections: [],
-      pingNetdataInterval: 1000 * 30 // ms
+      pingNetdataInterval: 1000 * 30, // ms
+      alarmsInterval: 1000 * 60
     }
   },
   computed: {
@@ -689,6 +690,42 @@ export default {
         })
       }
     },
+    getAlarms () {
+      if (this.$store.state[this.storeName].allCharts) {
+        this.cluster.forEach(({ management_ip: ip }) => {
+          this.$store.dispatch(`${this.storeName}/alarms`, ip).then(({ hostname, alarms }) => {
+            Object.keys(alarms).forEach(path => {
+              const alarm = alarms[path]
+              const label = alarm.chart.split('.')[0].replace(/_/g, ' ') + ' - ' + alarm.family
+              const value = alarm.value_string
+              let status = alarm.status.toLowerCase()
+              switch (status) {
+                case 'warning':
+                  break
+                case 'critical':
+                  status = 'danger'
+                  break
+                default:
+                  status = 'info'
+              }
+              const previousNotification = this.$store.state.notification.all.find(notification => {
+                return notification.url === path && notification.value === value
+              })
+              if (!previousNotification) {
+                this.$store.dispatch(`notification/${status}`, {
+                  message: `<span class="font-weight-normal">${hostname}</span> ${label}`,
+                  url: path,
+                  value
+                })
+              }
+            })
+            setTimeout(this.getAlarms, this.alarmsInterval)
+          })
+        })
+      } else {
+        setTimeout(this.getAlarms, this.alarmsInterval)
+      }
+    },
     moduleCharts (module) {
       let charts = []
       for (var chart of this.$store.state[this.storeName].allCharts) {
@@ -748,6 +785,7 @@ export default {
   mounted () {
     if (this.$store.state[this.storeName].allCharts) {
       this.initNetdata()
+      this.getAlarms()
     }
   }
 }
