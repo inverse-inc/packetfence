@@ -1210,6 +1210,7 @@ Once this is done proceed to restart the following services on nodes A and B **o
 
 Then, we should tell C to ignore A and B in their cluster configuration. In order to do so, execute the following commands on node C while changing `node-A-hostname` and `node-B-hostname` by the hostname of nodes A and B respectively.
 
+  # systemctl start packetfence-config
   # /usr/local/pf/bin/cluster/node node-A-hostname disable
   # /usr/local/pf/bin/cluster/node node-B-hostname disable
 
