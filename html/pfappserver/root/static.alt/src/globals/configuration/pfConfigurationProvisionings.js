@@ -329,6 +329,35 @@ export const pfConfigurationProvisioningFields = {
       ]
     }
   },
+  dpsk: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Enable DPSK'),
+      text: i18n.t('Define if the PSK needs to be generated'),
+      fields: [
+        {
+          key: 'dpsk',
+          component: pfFormRangeToggle,
+          attrs: {
+            values: { checked: '1', unchecked: '0' }
+          }
+        }
+      ]
+    }
+  },
+  eap_type:  ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('EAP type'),
+      text: i18n.t('Select the EAP type of your SSID. Leave empty for no EAP.'),
+      fields: [
+        {
+          key: 'eap_type',
+          component: pfFormChosen,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'eap_type'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'eap_type', 'Type')
+        }
+      ]
+    }
+  },
   host: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Host'),
@@ -382,6 +411,19 @@ export const pfConfigurationProvisioningFields = {
       ]
     }
   },
+  passcode: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Wifi Key'),
+      fields: [
+        {
+          key: 'passcode',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'passcode'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'passcode', 'Key')
+        }
+      ]
+    }
+  },
   password: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Client Secret'),
@@ -391,6 +433,19 @@ export const pfConfigurationProvisioningFields = {
           component: pfFormPassword,
           attrs: pfConfigurationAttributesFromMeta(meta, 'password'),
           validators: pfConfigurationValidatorsFromMeta(meta, 'password', 'Secret')
+        }
+      ]
+    }
+  },
+  pki_provider: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('PKI Provider'),
+      fields: [
+        {
+          key: 'pki_provider',
+          component: pfFormChosen,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'pki_provider'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'pki_provider', 'Provider')
         }
       ]
     }
@@ -490,6 +545,20 @@ export const pfConfigurationProvisioningFields = {
       ]
     }
   },
+  server_certificate_path: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('RADIUS server certificate path'),
+      text: i18n.t('The path to the RADIUS server certificate.'),
+      fields: [
+        {
+          key: 'server_certificate_path',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'server_certificate_path'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'server_certificate_path', 'Path')
+        }
+      ]
+    }
+  },
   ssid: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('SSID'),
@@ -545,7 +614,7 @@ export const pfConfigurationProvisioningFields = {
 }
 
 export const pfConfigurationProvisioningViewFields = (context) => {
-  const { provisioningType = null } = context
+  const { provisioningType = null, form = {} } = context
   switch (provisioningType) {
     case 'accept':
       return [
@@ -564,12 +633,39 @@ export const pfConfigurationProvisioningViewFields = (context) => {
         {
           tab: null, // ignore tabs
           fields: [
-            pfConfigurationProvisioningFields.id(context),
-            pfConfigurationProvisioningFields.description(context),
-            pfConfigurationProvisioningFields.category(context),
-            pfConfigurationProvisioningFields.ssid(context),
-            pfConfigurationProvisioningFields.broadcast(context),
-            pfConfigurationProvisioningFields.security_type(context)
+            ...[
+              pfConfigurationProvisioningFields.id(context),
+              pfConfigurationProvisioningFields.description(context),
+              pfConfigurationProvisioningFields.category(context),
+              pfConfigurationProvisioningFields.ssid(context),
+              pfConfigurationProvisioningFields.broadcast(context),
+              pfConfigurationProvisioningFields.security_type(context)
+            ],
+            ...((form.security_type === 'WPA2')
+              ? [
+                pfConfigurationProvisioningFields.eap_type(context)
+              ]
+              : [] // ignore
+            ),
+            ...((['WEP', 'WPA'].includes(form.security_type) || (form.security_type === 'WPA2' && !form.eap_type))
+              ? [
+                pfConfigurationProvisioningFields.dpsk(context),
+                pfConfigurationProvisioningFields.passcode(context)
+              ]
+              : [] // ignore
+            ),
+            ...((form.security_type === 'WPA2' && ~~form.eap_type === 25 /* PEAP */)
+              ? [
+                pfConfigurationProvisioningFields.server_certificate_path(context)
+              ]
+              : [] // ignore
+            ),
+            ...((form.security_type === 'WPA2' && ~~form.eap_type === 13 /* EAP-TLS */)
+              ? [
+                pfConfigurationProvisioningFields.pki_provider(context)
+              ]
+              : [] // ignore
+            )
           ]
         }
       ]
@@ -643,12 +739,39 @@ export const pfConfigurationProvisioningViewFields = (context) => {
         {
           tab: null, // ignore tabs
           fields: [
-            pfConfigurationProvisioningFields.id(context),
-            pfConfigurationProvisioningFields.description(context),
-            pfConfigurationProvisioningFields.category(context),
-            pfConfigurationProvisioningFields.ssid(context),
-            pfConfigurationProvisioningFields.broadcast(context),
-            pfConfigurationProvisioningFields.security_type(context)
+            ...[
+              pfConfigurationProvisioningFields.id(context),
+              pfConfigurationProvisioningFields.description(context),
+              pfConfigurationProvisioningFields.category(context),
+              pfConfigurationProvisioningFields.ssid(context),
+              pfConfigurationProvisioningFields.broadcast(context),
+              pfConfigurationProvisioningFields.security_type(context)
+            ],
+            ...((form.security_type === 'WPA2')
+              ? [
+                pfConfigurationProvisioningFields.eap_type(context)
+              ]
+              : [] // ignore
+            ),
+            ...((['WEP', 'WPA'].includes(form.security_type) || (form.security_type === 'WPA2' && !form.eap_type))
+              ? [
+                pfConfigurationProvisioningFields.dpsk(context),
+                pfConfigurationProvisioningFields.passcode(context)
+              ]
+              : [] // ignore
+            ),
+            ...((form.security_type === 'WPA2' && ~~form.eap_type === 25 /* PEAP */)
+              ? [
+                pfConfigurationProvisioningFields.server_certificate_path(context)
+              ]
+              : [] // ignore
+            ),
+            ...((form.security_type === 'WPA2' && ~~form.eap_type === 13 /* EAP-TLS */)
+              ? [
+                pfConfigurationProvisioningFields.pki_provider(context)
+              ]
+              : [] // ignore
+            )
           ]
         }
       ]
@@ -756,12 +879,39 @@ export const pfConfigurationProvisioningViewFields = (context) => {
         {
           tab: null, // ignore tabs
           fields: [
-            pfConfigurationProvisioningFields.id(context),
-            pfConfigurationProvisioningFields.description(context),
-            pfConfigurationProvisioningFields.category(context),
-            pfConfigurationProvisioningFields.ssid(context),
-            pfConfigurationProvisioningFields.broadcast(context),
-            pfConfigurationProvisioningFields.security_type(context)
+            ...[
+              pfConfigurationProvisioningFields.id(context),
+              pfConfigurationProvisioningFields.description(context),
+              pfConfigurationProvisioningFields.category(context),
+              pfConfigurationProvisioningFields.ssid(context),
+              pfConfigurationProvisioningFields.broadcast(context),
+              pfConfigurationProvisioningFields.security_type(context)
+            ],
+            ...((form.security_type === 'WPA2')
+              ? [
+                pfConfigurationProvisioningFields.eap_type(context)
+              ]
+              : [] // ignore
+            ),
+            ...((['WEP', 'WPA'].includes(form.security_type) || (form.security_type === 'WPA2' && !form.eap_type))
+              ? [
+                pfConfigurationProvisioningFields.dpsk(context),
+                pfConfigurationProvisioningFields.passcode(context)
+              ]
+              : [] // ignore
+            ),
+            ...((form.security_type === 'WPA2' && ~~form.eap_type === 25 /* PEAP */)
+              ? [
+                pfConfigurationProvisioningFields.server_certificate_path(context)
+              ]
+              : [] // ignore
+            ),
+            ...((form.security_type === 'WPA2' && ~~form.eap_type === 13 /* EAP-TLS */)
+              ? [
+                pfConfigurationProvisioningFields.pki_provider(context)
+              ]
+              : [] // ignore
+            )
           ]
         }
       ]

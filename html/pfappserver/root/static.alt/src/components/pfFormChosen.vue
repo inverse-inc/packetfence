@@ -62,8 +62,6 @@ export default {
     value: {
       default: null
     },
-    // Add a proxy on our inputValue to modify set/get for simple external models.
-    // https://github.com/shentao/vue-multiselect/issues/385#issuecomment-418881148
     clearOnSelect: {
       type: Boolean,
       default: false
@@ -82,8 +80,10 @@ export default {
     /* multiselect props */
     allowEmpty: {
       type: Boolean,
-      default: false
+      default: true
     },
+    // Add a proxy on our inputValue to modify set/get for simple external models.
+    // https://github.com/shentao/vue-multiselect/issues/385#issuecomment-418881148
     collapseObject: {
       type: Boolean,
       default: true
