@@ -1542,7 +1542,7 @@ sub setup_api_v1_config_interfaces_routes {
     my $resource_route = $root->under("/interface/#interface_id")->to(controller => "Config::Interfaces", action => "resource")->name("$name.resource");
     $resource_route->register_sub_action({path => '', action => 'get', method => 'GET'});
     $resource_route->register_sub_action({path => '', action => 'update', method => 'PATCH'});
-    $resource_route->register_sub_action({path => '', action => 'remove', method => 'DELETE'});
+    $resource_route->register_sub_action({path => '', action => 'delete', method => 'DELETE'});
     $resource_route->register_sub_actions({method=> 'POST', actions => [qw(up down)]});
     return ($collection_route, $resource_route);
 }
