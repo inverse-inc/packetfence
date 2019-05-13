@@ -16,15 +16,13 @@ Version X.Y.Z released on xxxx-xx-xx
 
 New Features
 ++++++++++++
-* Added support for Let's Encrypt for SSL certificates for the captive-portal and RADIUS
+* Let's Encrypt SSL certificates support for captive portal and RADIUS
 * New web interface based on Vue.js and Bootstrap 4
-* RADIUS and captive portal certificates management
-* Let's Encrypt integration
 * Cisco ASA VPN support with the captive portal
 * Fortinet VPN support
+* DHCP Filter to reply custom attributes in the OFFER and/or ACK (deprecate old DHCP Filter)
 * Add 802.1X and CoA support for Fortinet FortiSwitch
 * Add module to support PICOS white box switches
-* DHCP Filter to reply custom attributes in the OFFER and/or ACK (deprecate old DHCP Filter)
 * Support for Aerohive access point with switch port
 * Support for Aruba Instant Access switch module
 
