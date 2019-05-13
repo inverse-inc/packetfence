@@ -16,6 +16,7 @@ use strict;
 use warnings;
 use Mojo::Base 'pf::UnifiedApi::Controller';
 use pf::pfcmd::report;
+use URI::Escape;
 
 sub os_all {
     my ($self) = @_;
@@ -243,6 +244,7 @@ sub topauthenticationsuccesses_by_computername {
 
 sub _get_datetime {
     my ($self, $datetime) = @_;
+    $datetime = uri_unescape($datetime);
     return $datetime;
 }
 
