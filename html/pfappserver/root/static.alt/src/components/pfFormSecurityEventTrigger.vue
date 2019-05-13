@@ -80,6 +80,7 @@ import pfFormInput from '@/components/pfFormInput'
 import pfFormSelect from '@/components/pfFormSelect'
 import pfFormPrefixMultiplier from '@/components/pfFormPrefixMultiplier'
 import { pfConfigurationAttributesFromMeta } from '@/globals/configuration/pfConfiguration'
+import { limitSiblingFields } from '@/globals/pfValidators'
 const { validationMixin } = require('vuelidate')
 const { required } = require('vuelidate/lib/validators')
 
@@ -216,7 +217,13 @@ export default {
                                 ...{
                                   value: 'role',
                                   text: categoryOptions.endpoint.role,
-                                  types: [fieldType.OPTIONS]
+                                  types: [fieldType.OPTIONS],
+                                  validators: {
+                                    type: {
+                                      /* Don't allow elsewhere */
+                                      [this.$i18n.t('Duplicate condition.')]: limitSiblingFields('type', 0)
+                                    }
+                                  }
                                 }
                               },
                               {
@@ -226,6 +233,10 @@ export default {
                                 validators: {
                                   value: {
                                     [this.$i18n.t('Value required.')]: required
+                                  },
+                                  type: {
+                                    /* Don't allow elsewhere */
+                                    [this.$i18n.t('Duplicate condition.')]: limitSiblingFields('type', 0)
                                   }
                                 }
                               },
@@ -234,7 +245,13 @@ export default {
                                 ...{
                                   value: 'switch',
                                   text: categoryOptions.endpoint.switch,
-                                  types: [fieldType.OPTIONS]
+                                  types: [fieldType.OPTIONS],
+                                  validators: {
+                                    type: {
+                                      /* Don't allow elsewhere */
+                                      [this.$i18n.t('Duplicate condition.')]: limitSiblingFields('type', 0)
+                                    }
+                                  }
                                 }
                               },
                               {
@@ -242,7 +259,13 @@ export default {
                                 ...{
                                   value: 'switch_group',
                                   text: categoryOptions.endpoint.switch_group,
-                                  types: [fieldType.OPTIONS]
+                                  types: [fieldType.OPTIONS],
+                                  validators: {
+                                    type: {
+                                      /* Don't allow elsewhere */
+                                      [this.$i18n.t('Duplicate condition.')]: limitSiblingFields('type', 0)
+                                    }
+                                  }
                                 }
                               }
                             ]
@@ -293,46 +316,86 @@ export default {
                               {
                                 attrs: {
                                   ...pfConfigurationAttributesFromMeta(this.meta, 'triggers.device'),
-                                  ...{
-                                    collapseObject: false
-                                  }
+                                  ...{ collapseObject: false }
                                 },
                                 ...{
                                   value: 'device',
                                   text: categoryOptions.profiling.device,
-                                  types: [fieldType.OPTIONS]
+                                  types: [fieldType.OPTIONS],
+                                  validators: {
+                                    type: {
+                                      /* Don't allow elsewhere */
+                                      [this.$i18n.t('Duplicate condition.')]: limitSiblingFields('type', 0)
+                                    }
+                                  }
                                 }
                               },
                               {
-                                ...pfConfigurationAttributesFromMeta(this.meta, 'triggers.dhcp_fingerprint'),
+                                attrs: {
+                                  ...pfConfigurationAttributesFromMeta(this.meta, 'triggers.dhcp_fingerprint'),
+                                  ...{ collapseObject: false }
+                                },
                                 ...{
                                   value: 'dhcp_fingerprint',
                                   text: categoryOptions.profiling.dhcp_fingerprint,
-                                  types: [fieldType.OPTIONS]
+                                  types: [fieldType.OPTIONS],
+                                  validators: {
+                                    type: {
+                                      /* Don't allow elsewhere */
+                                      [this.$i18n.t('Duplicate condition.')]: limitSiblingFields('type', 0)
+                                    }
+                                  }
                                 }
                               },
                               {
-                                ...pfConfigurationAttributesFromMeta(this.meta, 'triggers.dhcp_vendor'),
+                                attrs: {
+                                  ...pfConfigurationAttributesFromMeta(this.meta, 'triggers.dhcp_vendor'),
+                                  ...{ collapseObject: false }
+                                },
                                 ...{
                                   value: 'dhcp_vendor',
                                   text: categoryOptions.profiling.dhcp_vendor,
-                                  types: [fieldType.OPTIONS]
+                                  types: [fieldType.OPTIONS],
+                                  validators: {
+                                    type: {
+                                      /* Don't allow elsewhere */
+                                      [this.$i18n.t('Duplicate condition.')]: limitSiblingFields('type', 0)
+                                    }
+                                  }
                                 }
                               },
                               {
-                                ...pfConfigurationAttributesFromMeta(this.meta, 'triggers.dhcp6_fingerprint'),
+                                attrs: {
+                                  ...pfConfigurationAttributesFromMeta(this.meta, 'triggers.dhcp6_fingerprint'),
+                                  ...{ collapseObject: false }
+                                },
                                 ...{
                                   value: 'dhcp6_fingerprint',
                                   text: categoryOptions.profiling.dhcp6_fingerprint,
-                                  types: [fieldType.OPTIONS]
+                                  types: [fieldType.OPTIONS],
+                                  validators: {
+                                    type: {
+                                      /* Don't allow elsewhere */
+                                      [this.$i18n.t('Duplicate condition.')]: limitSiblingFields('type', 0)
+                                    }
+                                  }
                                 }
                               },
                               {
-                                ...pfConfigurationAttributesFromMeta(this.meta, 'triggers.dhcp6_enterprise'),
+                                attrs: {
+                                  ...pfConfigurationAttributesFromMeta(this.meta, 'triggers.dhcp6_enterprise'),
+                                  ...{ collapseObject: false }
+                                },
                                 ...{
                                   value: 'dhcp6_enterprise',
                                   text: categoryOptions.profiling.dhcp6_enterprise,
-                                  types: [fieldType.OPTIONS]
+                                  types: [fieldType.OPTIONS],
+                                  validators: {
+                                    type: {
+                                      /* Don't allow elsewhere */
+                                      [this.$i18n.t('Duplicate condition.')]: limitSiblingFields('type', 0)
+                                    }
+                                  }
                                 }
                               },
                               {
@@ -340,7 +403,13 @@ export default {
                                 ...{
                                   value: 'mac_vendor',
                                   text: categoryOptions.profiling.mac_vendor,
-                                  types: [fieldType.OPTIONS]
+                                  types: [fieldType.SUBSTRING],
+                                  validators: {
+                                    type: {
+                                      /* Don't allow elsewhere */
+                                      [this.$i18n.t('Duplicate condition.')]: limitSiblingFields('type', 0)
+                                    }
+                                  }
                                 }
                               }
                             ]
