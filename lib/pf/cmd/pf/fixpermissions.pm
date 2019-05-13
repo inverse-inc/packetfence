@@ -117,7 +117,7 @@ sub action_file {
             return $EXIT_FAILURE;
         }
         _changeFilesToOwner($user,$file);
-        chmod 0660, $file;
+        chmod 0664, $file;
         print "Fixed permissions on file $file \n";
     }
 
