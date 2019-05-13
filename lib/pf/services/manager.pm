@@ -420,8 +420,8 @@ sub isAlive {
     my ($self) = @_;
     my $logger = get_logger();
     my $name = $self->{name};
-    my $res = system("sudo systemctl status packetfence-$name");
-    my $alive = $res == 0;
+    my $res = system("sudo systemctl status packetfence-$name &> /dev/null");
+    my $alive = $res == 0 ? 1 : 0;
     $logger->debug("sudo systemctl status packetfence-$name returned code $res");
     return $alive;
 }
