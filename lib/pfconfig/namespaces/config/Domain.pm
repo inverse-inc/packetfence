@@ -27,7 +27,8 @@ use Sys::Hostname;
 use base 'pfconfig::namespaces::config';
 
 sub init {
-    my ($self) = @_;
+    my ($self, $host_id) = @_;
+    $self->{host_id} = $host_id;
     $self->{file} = $domain_config_file;
     $self->{child_resources} = [ 'resource::domain_dns_servers' ];
 }
@@ -41,7 +42,7 @@ sub build_child {
     # This is done since Samba 4+ doesn't inflate it itself anymore
     while(my ($id, $cfg) = each(%tmp_cfg)){
         if(lc($cfg->{server_name}) =~ /%h/) {
-            my $name = [split(/\./,hostname())]->[0];
+            my $name = [split(/\./,( $self->{host_id} // hostname() ) )]->[0];
             $cfg->{server_name} =~ s/%h/$name/;
         }
     }
