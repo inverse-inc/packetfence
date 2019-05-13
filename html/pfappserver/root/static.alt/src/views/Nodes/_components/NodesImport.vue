@@ -9,7 +9,7 @@
         <b-tab v-for="(file, index) in files" :key="file.name + file.lastModified" :title="file.name" no-body>
           <template slot="title">
             <b-button-close class="ml-2 text-white" @click.stop.prevent="closeFile(index)" v-b-tooltip.hover.left.d300 :title="$t('Close File')"><icon name="times"></icon></b-button-close>
-            {{ $t(file.name) }}
+            {{ file.name }}
           </template>
           <pf-csv-parse @input="onImport" :ref="'parser-' + index" :file="file" :fields="fields" :storeName="storeName" :defaultStaticMapping="defaultStaticMapping" no-init-bind-keys></pf-csv-parse>
         </b-tab>

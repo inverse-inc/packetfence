@@ -7,7 +7,7 @@
           <b-button variant="link" @click="minimize = !minimize"><icon :name="minimize ? 'expand' : 'compress'"></icon></b-button>
           <pf-button-delete class="mr-1" :disabled="isLoading" :confirm="$t('Delete Module?')" @on-delete="remove(rootModule.id)"/>
           <b-form @submit.prevent="save(rootModule)">
-            <pf-button-save :disabled="invalidForm" :isLoading="isLoading" v-t="Save"></pf-button-save>
+            <pf-button-save :disabled="invalidForm" :isLoading="isLoading" v-t="'Save'"></pf-button-save>
           </b-form>
         </b-form-row>
         <div class="position-relative">
@@ -16,7 +16,7 @@
             <icon class="card-bg" name="caret-right" :key="step"><!-- force proper spacing --></icon>
             <div class="step-col" :key="step">
               <div class="step">
-                <div class="float-right py-1 pr-2 text-secondary small"><span :show="!minimize" v-t="step"></span> {{ step }}</div>
+                <div class="float-right py-1 pr-2 text-secondary small"><span :show="!minimize" v-t="'step'"></span> {{ step }}</div>
               </div>
             </div>
             </template>

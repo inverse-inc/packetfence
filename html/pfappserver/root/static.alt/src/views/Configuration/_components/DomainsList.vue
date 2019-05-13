@@ -37,7 +37,7 @@
     <b-modal v-model="join.showInputModal" size="lg" centered id="joinModal" @shown="focusUsernameInput">
       <template slot="modal-title">
         <h4>{{ $t(`${join.type} {domain} Domain`, { domain: join.item.id }) }}</h4>
-        <b-form-text v-t="$t('Please enter administrative credentials to connect to the domain.')" class="mb-0"></b-form-text>
+        <b-form-text v-t="'Please enter administrative credentials to connect to the domain.'" class="mb-0"></b-form-text>
       </template>
       <b-form-group class="mb-0">
         <pf-form-input ref="usernameInput" v-model="join.username" :column-label="$t('Username')"
@@ -54,7 +54,7 @@
     <b-modal v-model="join.showWaitModal" size="lg" centered id="waitModal" :hide-footer="true">
       <template slot="modal-title">
         <h4>{{ $t('Please wait') }}</h4>
-        <b-form-text v-t="$t('This operation may take a few minutes.')" class="mb-0"></b-form-text>
+        <b-form-text v-t="'This operation may take a few minutes.'" class="mb-0"></b-form-text>
       </template>
       <b-container class="my-5">
         <b-row class="justify-content-md-center text-secondary">

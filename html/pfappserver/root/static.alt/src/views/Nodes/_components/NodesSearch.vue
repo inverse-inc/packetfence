@@ -152,7 +152,7 @@
     <b-modal v-model="showBypassVlanModal" size="sm" centered id="bypassVlanModal" :title="$t('Bulk Apply Bypass VLAN')" @shown="focusBypassVlanInput">
       <b-form-group>
         <b-form-input ref="bypassVlanInput" v-model="bypassVlanString" type="text" :placeholder="$t('Enter a VLAN')"/>
-        <b-form-text v-t="$t('Leave empty to clear bypass VLAN.')"></b-form-text>
+        <b-form-text v-t="'Leave empty to clear bypass VLAN.'"></b-form-text>
       </b-form-group>
       <div slot="modal-footer">
         <b-button variant="secondary" class="mr-1" @click="showBypassVlanModal=false">{{ $t('Cancel') }}</b-button>
