@@ -34,6 +34,7 @@
           <b-button :disabled="isLoading" class="mr-1" variant="outline-primary" @click="clone()">{{ $t('Clone') }}</b-button>
           <pf-button-service service="pfdhcp" class="mr-1" restart start stop></pf-button-service>
           <pf-button-service service="pfdns" class="mr-1" restart start stop></pf-button-service>
+          <pf-button-service service="routes" class="mr-1" restart start stop></pf-button-service>
           <pf-button-delete :disabled="isLoading" class="mr-1" :confirm="$t('Delete Routed Network?')" @on-delete="remove()"/>
         </template>
       </b-card-footer>
