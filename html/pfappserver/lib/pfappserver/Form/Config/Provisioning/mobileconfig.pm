@@ -172,7 +172,7 @@ sub option_security {
     my @security_type = ["None" => "Open",
                          "WEP" => "WEP",
                          "WPA" => "WPA",
-                         "WPA" => "WPA2",
+                         "WPA2" => "WPA2",
                         ];
     return @security_type;
 }
