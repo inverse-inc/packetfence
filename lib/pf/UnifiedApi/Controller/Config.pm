@@ -281,9 +281,12 @@ sub cleanup_item {
         }
     }
 
+    my $cs = $self->config_store;
     $form->process($self->form_process_parameters_for_cleanup($item));
     $item = $form->value;
-    $item->{not_deletable} = $self->config_store->is_section_in_import($id) ? $self->json_true : $self->json_false;
+    $item->{not_deletable} = $cs->is_section_in_import($id) ? $self->json_true : $self->json_false;
+    my $default_section = $cs->default_section;
+    $item->{not_sortable} = (defined($cs->default_section) && $id eq $default_section) ? $self->json_true : $self->json_false;
     $item->{id} = $id;
     return $item;
 }
