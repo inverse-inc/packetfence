@@ -133,7 +133,8 @@ sub before_dispatch_cb {
             ],
             languages => pf::I18N::pfappserver->languages_from_http_header(
                 $headers->header('Accept-Language')
-            )
+            ),
+            current_user => $headers->header('X-PacketFence-User'),
         }
     );
     set_tenant_id($c)

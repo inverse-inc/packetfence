@@ -29,6 +29,22 @@ has dal => 'pf::dal::person';
 has url_param_name => 'user_id';
 has primary_key => 'pid';
 
+=head2 create_data_update
+
+create_data_update
+
+=cut
+
+sub create_data_update {
+    my ($self, $data) = @_;
+    if (exists $data->{sponsor} && length($data->{sponsor})) {
+        return;
+    }
+
+    $data->{sponsor} = $self->stash->{current_user};
+    return ;
+}
+
 =head2 cleanup_item
 
 Remove the password field from the item

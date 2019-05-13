@@ -278,8 +278,17 @@ sub make_create_data {
     }
     my $parent_data = $self->parent_data;
     @{$json}{keys %$parent_data} = values %$parent_data;
+    $self->create_data_update($json);
     return ($status, $json);
 }
+
+=head2 create_data_update
+
+create_data_update
+
+=cut
+
+sub create_data_update { }
 
 sub parent_data {
     my ($self) = @_;
