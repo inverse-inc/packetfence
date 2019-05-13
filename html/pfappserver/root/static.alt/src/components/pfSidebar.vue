@@ -4,10 +4,10 @@
 
 -->
 <template>
-    <b-col cols="12" md="3" xl="2" class="pf-sidebar">
+    <b-col cols="12" md="3" xl="2" class="pf-sidebar d-print-none">
       <!-- filter -->
       <div class="pf-sidebar-filter d-flex align-items-center">
-        <b-input-group :can="true">
+        <b-input-group>
           <b-input-group-prepend>
             <icon class="h-auto" name="search" scale=".75"></icon>
           </b-input-group-prepend>
