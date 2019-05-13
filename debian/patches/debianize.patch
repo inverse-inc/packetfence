@@ -1,5 +1,5 @@
 diff --git a/conf/mariadb/mariadb.conf.tt.example b/conf/mariadb/mariadb.conf.tt.example
-index bb086a415b..0fd81ca226 100644
+index ce18cad1f0..fbd6ec9b24 100644
 --- a/conf/mariadb/mariadb.conf.tt.example
 +++ b/conf/mariadb/mariadb.conf.tt.example
 @@ -18,7 +18,7 @@ skip-networking
@@ -25,10 +25,10 @@ index d3a3cd9b63..fe284fcaa2 100644
          # Netdata is not designed to be exposed to potentially hostile networks
          # See https://github.com/firehol/netdata/issues/164
 diff --git a/conf/pf.conf.defaults b/conf/pf.conf.defaults
-index 4ad29d68d3..5cbf5c7419 100644
+index 651257db90..71681552f9 100644
 --- a/conf/pf.conf.defaults
 +++ b/conf/pf.conf.defaults
-@@ -393,7 +393,7 @@ radiusd=enabled
+@@ -388,7 +388,7 @@ radiusd=enabled
  # services.radiusd_binary
  # 
  # Location of the named binary. Only necessary to change if you are not running the RPMed version.
@@ -37,7 +37,7 @@ index 4ad29d68d3..5cbf5c7419 100644
  #
  # services.iptables
  #
-@@ -458,7 +458,7 @@ httpd_proxy=enabled
+@@ -453,7 +453,7 @@ httpd_proxy=enabled
  # services.httpd_binary
  #
  # Location of the apache binary. Only necessary to change if you are not running the RPMed version.
@@ -46,7 +46,7 @@ index 4ad29d68d3..5cbf5c7419 100644
  #
  # services.snmptrapd
  #
-@@ -556,7 +556,7 @@ openssl_binary=/usr/bin/openssl
+@@ -551,7 +551,7 @@ openssl_binary=/usr/bin/openssl
  # services.arp_binary
  # 
  # location of the arp binary. only necessary to change if you are not running the rpmed version.
@@ -55,7 +55,7 @@ index 4ad29d68d3..5cbf5c7419 100644
  
  #
  # services.routes
-@@ -585,8 +585,8 @@ tc=enabled
+@@ -580,8 +580,8 @@ tc=enabled
  #
  # services.tc_binary
  #
@@ -110,7 +110,7 @@ index 74e396af34..bc14d6f6d9 100644
  PrivateTmp=true
  Restart=on-failure
 diff --git a/conf/systemd/packetfence-httpd.admin.service b/conf/systemd/packetfence-httpd.admin.service
-index 3d86c57b0c..328bfcad8b 100644
+index 2d08ad4efb..a4d0dfc137 100644
 --- a/conf/systemd/packetfence-httpd.admin.service
 +++ b/conf/systemd/packetfence-httpd.admin.service
 @@ -11,9 +11,9 @@ StartLimitInterval=10
@@ -124,8 +124,8 @@ index 3d86c57b0c..328bfcad8b 100644
 +ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::httpd_admin' -e 'pf::services::manager::httpd_admin->new()->generateConfig()'
 +ExecStart=/usr/sbin/apache2 -f /usr/local/pf/var/conf/httpd.conf.d/httpd.admin -DFOREGROUND  -Ddebian
  ExecReload=/bin/kill -USR1 ${MAINPID}
- ExecStop=/bin/kill -WINCH ${MAINPID}
- # We want systemd to give httpd some time to finish gracefully, but still want
+ PrivateTmp=true
+ Restart=on-failure
 diff --git a/conf/systemd/packetfence-httpd.collector.service b/conf/systemd/packetfence-httpd.collector.service
 index aa6ec54f4e..17e83c5b17 100644
 --- a/conf/systemd/packetfence-httpd.collector.service
@@ -212,10 +212,10 @@ index 46d01ba1ef..6a56ce1dc1 100644
  ExecStop=/bin/kill -WINCH ${MAINPID}
  # We want systemd to give httpd some time to finish gracefully, but still want
 diff --git a/conf/systemd/packetfence-iptables.service b/conf/systemd/packetfence-iptables.service
-index f049b9707e..1b158b40fc 100644
+index cf69a713b7..7d1bd855b6 100644
 --- a/conf/systemd/packetfence-iptables.service
 +++ b/conf/systemd/packetfence-iptables.service
-@@ -5,8 +5,8 @@ Wants=packetfence-config.service
+@@ -6,8 +6,8 @@ After=packetfence-base.target packetfence-config.service
  [Service]
  StartLimitBurst=3
  StartLimitInterval=10
