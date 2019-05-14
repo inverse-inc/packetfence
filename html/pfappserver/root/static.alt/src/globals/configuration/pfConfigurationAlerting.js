@@ -1,3 +1,4 @@
+import store from '@/store'
 import i18n from '@/utils/locale'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormInput from '@/components/pfFormInput'
@@ -11,9 +12,13 @@ import {
 import {
   isPort
 } from '@/globals/pfValidators'
+import {
+  email
+} from 'vuelidate/lib/validators'
 
 export const pfConfigurationAlertingViewFields = (context = {}) => {
   const {
+    form = {},
     options: {
       meta = {}
     }
@@ -123,14 +128,7 @@ export const pfConfigurationAlertingViewFields = (context = {}) => {
             {
               key: 'smtp_password',
               component: pfFormPassword,
-              attrs: {
-                ...pfConfigurationAttributesFromMeta(meta, 'smtp_password'),
-                ...{
-                  test: () => {
-                    // TODO #4043
-                  }
-                }
-              },
+              attrs: pfConfigurationAttributesFromMeta(meta, 'smtp_password'),
               validators: pfConfigurationValidatorsFromMeta(meta, 'smtp_password', 'Password')
             }
           ]
@@ -163,6 +161,24 @@ export const pfConfigurationAlertingViewFields = (context = {}) => {
                 }
               },
               validators: pfConfigurationValidatorsFromMeta(meta, 'smtp_timeout', 'Timeout')
+            }
+          ]
+        },
+        {
+          label: i18n.t('SMTP test'),
+          text: i18n.t('The email address used to test the SMTP server.'),
+          fields: [
+            {
+              key: 'test_emailaddr',
+              component: pfFormInput,
+              attrs: {
+                test: () => {
+                  return store.dispatch('$_bases/testSmtp', form)
+                }
+              },
+              validators: {
+                [i18n.t('Invalid email address.')]: email
+              }
             }
           ]
         }

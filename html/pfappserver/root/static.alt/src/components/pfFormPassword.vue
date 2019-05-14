@@ -30,7 +30,7 @@
           </b-button>
         </b-button-group>
         <b-button-group v-if="!disabled" rel="prefixButtonGroup">
-          <b-button v-if="test" class="input-group-text" @click="runTest()" :disabled="isLoading || isTesting || !this.value" tabindex="-1">
+          <b-button v-if="test" class="input-group-text" @click="runTest()" :disabled="isLoading || isTesting || !this.value || isValid() === false" tabindex="-1">
             {{ $t('Test') }}
             <icon v-show="isTesting" name="circle-notch" spin class="ml-2 mr-1"></icon>
             <icon v-if="testResult !== null && testResult" name="check" class="ml-2 mr-1 text-success"></icon>
@@ -266,5 +266,6 @@ export default {
   background-color: $input-btn-hover-bg-color;
   color: $input-btn-hover-text-color;
   border-color: $input-btn-hover-bg-color;
+  cursor: pointer;
 }
 </style>

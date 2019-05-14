@@ -14,8 +14,21 @@
         @keyup.native="onChange($event)"
         @change.native="onChange($event)"
       />
-      <b-input-group-append v-if="readonly || disabled">
-        <b-button class="input-group-text" tabindex="-1" disabled><icon name="lock"></icon></b-button>
+      <b-input-group-append>
+        <b-button v-if="readonly || disabled" class="input-group-text" tabindex="-1" disabled><icon name="lock"></icon></b-button>
+        <b-button-group v-else-if="test" rel="testResultGroup">
+          <b-button v-if="testResult !== null" variant="light" disabled tabindex="-1">
+            <span class="mr-1" :class="{ 'text-danger': !testResult, 'text-success': testResult }">{{ testMessage }}</span>
+          </b-button>
+        </b-button-group>
+        <b-button-group v-if="!disabled" rel="prefixButtonGroup">
+          <b-button v-if="test" class="input-group-text" @click="runTest()" :disabled="isLoading || isTesting || !this.value || isValid() === false" tabindex="-1">
+            {{ $t('Test') }}
+            <icon v-show="isTesting" name="circle-notch" spin class="ml-2 mr-1"></icon>
+            <icon v-if="testResult !== null && testResult" name="check" class="ml-2 mr-1 text-success"></icon>
+            <icon v-if="testResult !== null && !testResult" name="times" class="ml-2 mr-1 text-danger"></icon>
+          </b-button>
+        </b-button-group>
       </b-input-group-append>
     </b-input-group>
     <b-form-text v-if="text" v-html="text"></b-form-text>
@@ -56,6 +69,17 @@ export default {
     formatter: {
       type: Function,
       default: null
+    },
+    test: {
+      type: Function,
+      default: null
+    }
+  },
+  data () {
+    return {
+      testResult: null,
+      testMessage: null,
+      isTesting: false
     }
   },
   computed: {
@@ -71,7 +95,49 @@ export default {
   methods: {
     focus () {
       this.$refs.input.focus()
+    },
+    runTest () {
+      if (this.test) {
+        this.isTesting = true
+        this.testResult = null
+        this.test().then(response => {
+          this.testResult = true
+          this.$emit('pass')
+          this.testMessage = null
+          this.isTesting = false
+        }).catch(err => {
+          this.testResult = false
+          if ('data' in err.response) {
+            this.$emit('fail', err.response.data)
+            if ('message' in err.response.data) {
+              this.testMessage = err.response.data.message
+            }
+            this.isTesting = false
+          }
+        })
+      }
     }
   }
 }
 </script>
+
+<style lang="scss" scoped>
+@import "../../node_modules/bootstrap/scss/functions";
+@import "../../node_modules/bootstrap/scss/mixins/border-radius";
+@import "../../node_modules/bootstrap/scss/mixins/transition";
+@import "../styles/variables";
+
+/**
+ * Add btn-primary color(s) on hover
+ */
+.btn-group[rel=testResultGroup] button {
+  opacity: 1;
+  text-transform: none;
+}
+.btn-group[rel=prefixButtonGroup] button:not(.disabled):hover {
+  background-color: $input-btn-hover-bg-color;
+  color: $input-btn-hover-text-color;
+  border-color: $input-btn-hover-bg-color;
+  cursor: pointer;
+}
+</style>

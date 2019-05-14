@@ -113,6 +113,11 @@ export default {
       return response.data
     })
   },
+  testSmtp: data => {
+    return apiCall.post(`config/bases/test_smtp`, data).then(response => {
+      return response.data
+    })
+  },
 
   /**
    * Billing Tiers

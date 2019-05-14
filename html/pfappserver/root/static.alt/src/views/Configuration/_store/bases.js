@@ -836,6 +836,16 @@ const actions = {
       commit('ITEM_ERROR', err.response)
       throw err
     })
+  },
+  testSmtp: ({ commit }, data) => {
+    commit('ITEM_REQUEST')
+    return api.testSmtp(data).then(response => {
+      commit('ITEM_SUCCESS')
+      return response
+    }).catch(err => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
   }
 }
 
