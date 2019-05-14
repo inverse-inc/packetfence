@@ -1103,7 +1103,7 @@ CAUTION: By allowing OAuth through Facebook, you will give Facebook access to th
 
 Github
 ^^^^^^
-To use Github, you also need an API code and a secret key.  To get one, you need to create an App here: https://github.com/settings/applications.  When you create your App, make sure you specify the following as the Callback URL
+To use Github, you also need an API code and a secret key.  To get one, you need to create an App here: https://github.com/settings/applications/new.  When you create your App, make sure you specify the following as the Callback URL
 https://YOUR_PORTAL_HOSTNAME/oauth2/callback
 
 Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
