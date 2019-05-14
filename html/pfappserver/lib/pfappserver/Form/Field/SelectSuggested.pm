@@ -25,6 +25,14 @@ No validation needed
 
 sub validate { }
 
+=head2 _inner_validate_field
+
+_inner_validate_field
+
+=cut
+
+sub _inner_validate_field { 1 }
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
