@@ -51,8 +51,12 @@ sub cached_form {
 
 sub test_smtp {
     my ($self) = @_;
+    my ($error, $json) = $self->get_json;
+    if (defined $error) {
+        return $self->render_error(400, "Bad Request : $error");
+    }
+
     my $form = $self->form({ id => "alerting" });
-    my $json = $self->parse_json;
     $form->process(params => $json);
     if ($form->has_errors) {
         return $self->render_error(422, "Invalid parameters", $self->format_form_errors($form));
