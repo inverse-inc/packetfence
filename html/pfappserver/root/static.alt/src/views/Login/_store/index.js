@@ -10,7 +10,7 @@ const getters = {
 }
 
 const actions = {
-  login: ({ state, getters, commit, dispatch }, user) => {
+  login: ({ commit, dispatch }, user) => {
     commit('LOGIN_REQUEST')
     return new Promise((resolve, reject) => {
       api.login(user).then(response => {
