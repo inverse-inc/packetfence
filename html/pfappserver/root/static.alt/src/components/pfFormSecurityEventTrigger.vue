@@ -399,11 +399,14 @@ export default {
                                 }
                               },
                               {
-                                ...pfConfigurationAttributesFromMeta(this.meta, 'triggers.mac_vendor'),
+                                attrs: {
+                                  ...pfConfigurationAttributesFromMeta(this.meta, 'triggers.mac_vendor'),
+                                  ...{ collapseObject: false }
+                                },
                                 ...{
                                   value: 'mac_vendor',
                                   text: categoryOptions.profiling.mac_vendor,
-                                  types: [fieldType.SUBSTRING],
+                                  types: [fieldType.OPTIONS],
                                   validators: {
                                     type: {
                                       /* Don't allow elsewhere */
