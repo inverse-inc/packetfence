@@ -25,6 +25,7 @@ use fingerbank::Model::DHCP6_Enterprise;
 use fingerbank::Model::DHCP_Fingerprint;
 use fingerbank::Model::DHCP6_Fingerprint;
 use fingerbank::Model::DHCP_Vendor;
+use fingerbank::Model::MAC_Vendor;
 
 our %SKIPPED = map { $_ => 1 } qw(
   role
@@ -33,6 +34,7 @@ our %SKIPPED = map { $_ => 1 } qw(
   dhcp_vendor
   dhcp6_fingerprint
   dhcp6_enterprise
+  mac_vendor
 );
 
 has_field 'role' => (
@@ -45,31 +47,43 @@ has_field 'role' => (
 has_field 'device' => (
    type => 'FingerbankSelect',
    label => 'OS',
+   no_options => 1,
    fingerbank_model => "fingerbank::Model::Device",
 );
 
 has_field 'dhcp6_enterprise' => (
    type => 'FingerbankSelect',
    label => 'DHCP6 Enterprise',
+   no_options => 1,
    fingerbank_model => "fingerbank::Model::DHCP6_Enterprise",
 );
 
 has_field 'dhcp_fingerprint' => (
    type => 'FingerbankSelect',
    label => 'DHCP Fingerprint',
+   no_options => 1,
    fingerbank_model => "fingerbank::Model::DHCP_Fingerprint",
 );
 
 has_field 'dhcp6_fingerprint' => (
    type => 'FingerbankSelect',
    label => 'DHCP6 Fingerprint',
+   no_options => 1,
    fingerbank_model => "fingerbank::Model::DHCP6_Fingerprint",
 );
 
 has_field 'dhcp_vendor' => (
    type => 'FingerbankSelect',
    label => 'DHCP Vendor',
+   no_options => 1,
    fingerbank_model => "fingerbank::Model::DHCP_Vendor",
+);
+
+has_field 'mac_vendor' => (
+   type => 'FingerbankSelect',
+   label => 'MAC Vendor',
+   no_options => 1,
+   fingerbank_model => "fingerbank::Model::MAC_Vendor",
 );
 
 for my $trigger (keys %pf::factory::condition::security_event::TRIGGER_TYPE_TO_CONDITION_TYPE) {

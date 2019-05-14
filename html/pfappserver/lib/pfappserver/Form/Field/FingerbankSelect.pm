@@ -32,6 +32,7 @@ use fingerbank::Model::MAC_Vendor;
 use fingerbank::Model::User_Agent;
 
 has '+deflate_value_method'=> ( default => sub { \&_deflate } );
+has 'no_options' => (is => 'rw');
 
 =head2 build_options
 
@@ -41,6 +42,9 @@ Build the base options for validation (all of the rows in the Model mapped by ID
 
 sub build_options {
     my ($self) = @_;
+    if ($self->no_options) {
+        return;
+    }
     # no need for pretty formatting, this is just for validation purposes
     my @options = map { 
         {
@@ -81,6 +85,27 @@ after 'value' => sub {
     } uniq(@base_ids, @{$value});
     $self->options(\@options);
 };
+
+=head2 validate
+
+validate
+
+=cut
+
+sub validate {
+    my ($self) = @_;
+    if (!$self->no_options) {
+        $self->SUPER::validate();
+        return;
+    }
+    my $value = $self->value;
+    my ($status, $result) = $self->fingerbank_model->read($value);
+    if (is_error($status)) {
+        $self->add_error("'$value' is not found");
+    }
+
+    return ;
+}
 
 sub _deflate {
     my ($self, $value) = @_;
