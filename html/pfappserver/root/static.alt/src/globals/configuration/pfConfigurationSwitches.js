@@ -330,7 +330,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
         },
         {
           label: i18n.t('CLI Access Enabled'),
-          text: i18n.t('Allow this switch to use PacketFence as a radius server for CLI access.'),
+          text: i18n.t('Allow this switch to use PacketFence as a RADIUS server for CLI access.'),
           fields: [
             {
               key: 'cliAccess',

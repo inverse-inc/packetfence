@@ -394,7 +394,7 @@ export const pfConfigurationServiceViewFields = (context = {}) => {
         },
         {
           label: i18n.t('redis_cache'),
-          text: i18n.t(`Should redis for caching be started? Keep enabled unless you know what you're doing.`),
+          text: i18n.t(`Should Redis for caching be started? Keep enabled unless you know what you're doing.`),
           fields: [
             {
               key: 'redis_cache',
@@ -407,7 +407,7 @@ export const pfConfigurationServiceViewFields = (context = {}) => {
         },
         {
           label: i18n.t('redis_ntlm_cache'),
-          text: i18n.t(`Should the redis NTLM cache be started? Use this if you are enabling an Active Directory NTLM cache.`),
+          text: i18n.t(`Should the Redis NTLM cache be started? Use this if you are enabling an Active Directory NTLM cache.`),
           fields: [
             {
               key: 'redis_ntlm_cache',
@@ -420,7 +420,7 @@ export const pfConfigurationServiceViewFields = (context = {}) => {
         },
         {
           label: i18n.t('redis_queue'),
-          text: i18n.t(`Should redis be started? Keep enabled unless you know what you're doing.`),
+          text: i18n.t(`Should Redis be started? Keep enabled unless you know what you're doing.`),
           fields: [
             {
               key: 'redis_queue',
