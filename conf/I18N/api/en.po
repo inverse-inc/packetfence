@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 8.3.9\n"
 "POT-Creation-Date: 2019-05-01 12:00-0400\n"
-"PO-Revision-Date: 2019-05-14 13:51-0400\n"
+"PO-Revision-Date: 2019-05-14 15:50-0400\n"
 "Last-Translator: Inverse inc. <support@packetfence.org>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -707,11 +707,8 @@ msgid "Allow on registration"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:307
-msgid "Allow this switch to use PacketFence as a RADIUS server for CLI access."
-msgstr ""
-
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:333
-msgid "Allow this switch to use PacketFence as a radius server for CLI access."
+msgid "Allow this switch to use PacketFence as a RADIUS server for CLI access."
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationRealms.js:290
@@ -822,11 +819,11 @@ msgstr ""
 msgid "Any"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/components/pfFormSecurityEventTrigger.vue:432
+# html/pfappserver/root/static.alt/src/components/pfFormSecurityEventTrigger.vue:435
 msgid "Any data usage"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/components/pfFormSecurityEventTrigger.vue:490
+# html/pfappserver/root/static.alt/src/components/pfFormSecurityEventTrigger.vue:493
 msgid "Any event"
 msgstr ""
 
@@ -2169,7 +2166,7 @@ msgstr ""
 msgid "Connection Type"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/views/Configuration/_components/ConnectionProfilesList.vue:109
+# html/pfappserver/root/static.alt/src/views/Configuration/_components/ConnectionProfilesList.vue:111
 msgid "Connection profiles resorted."
 msgstr ""
 
@@ -3301,7 +3298,7 @@ msgstr ""
 msgid "Direct Base url"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/components/pfFormSecurityEventTrigger.vue:445
+# html/pfappserver/root/static.alt/src/components/pfFormSecurityEventTrigger.vue:448
 msgid "Direction"
 msgstr ""
 
@@ -3430,7 +3427,7 @@ msgstr ""
 # html/pfappserver/root/static.alt/src/components/pfFormSecurityEventTrigger.vue:362
 # html/pfappserver/root/static.alt/src/components/pfFormSecurityEventTrigger.vue:379
 # html/pfappserver/root/static.alt/src/components/pfFormSecurityEventTrigger.vue:396
-# html/pfappserver/root/static.alt/src/components/pfFormSecurityEventTrigger.vue:410
+# html/pfappserver/root/static.alt/src/components/pfFormSecurityEventTrigger.vue:413
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:143
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:152
 msgid "Duplicate condition."
@@ -3788,7 +3785,7 @@ msgstr ""
 msgid "Escape Character"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/components/pfFormSecurityEventTrigger.vue:492
+# html/pfappserver/root/static.alt/src/components/pfFormSecurityEventTrigger.vue:495
 # html/pfappserver/root/static.alt/src/components/pfFormSecurityEventTriggerHeader.vue:17
 # html/pfappserver/root/static.alt/src/views/Users/_components/UserView.vue:613
 msgid "Event"
@@ -4771,7 +4768,7 @@ msgstr ""
 msgid "Internal Sources"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/components/pfFormSecurityEventTrigger.vue:469
+# html/pfappserver/root/static.alt/src/components/pfFormSecurityEventTrigger.vue:472
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationMaintenanceTasks.js:211
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationMaintenanceTasks.js:44
 msgid "Interval"
@@ -5121,7 +5118,7 @@ msgstr ""
 msgid "Level of timing stats to keep - 0 is the lowest - 10 the highest amount to log. Do not change unless you know what you are doing."
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/components/pfFormSecurityEventTrigger.vue:458
+# html/pfappserver/root/static.alt/src/components/pfFormSecurityEventTrigger.vue:461
 msgid "Limit"
 msgstr ""
 
@@ -8918,7 +8915,7 @@ msgstr ""
 msgid "Select condition value"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/components/pfFormSecurityEventTrigger.vue:447
+# html/pfappserver/root/static.alt/src/components/pfFormSecurityEventTrigger.vue:450
 msgid "Select direction"
 msgstr ""
 
@@ -8930,7 +8927,7 @@ msgstr ""
 msgid "Select filter type"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/components/pfFormSecurityEventTrigger.vue:471
+# html/pfappserver/root/static.alt/src/components/pfFormSecurityEventTrigger.vue:474
 msgid "Select interval"
 msgstr ""
 
@@ -8952,11 +8949,11 @@ msgstr ""
 msgid "Select the type of security applied for your SSID."
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/components/pfFormSecurityEventTrigger.vue:503
+# html/pfappserver/root/static.alt/src/components/pfFormSecurityEventTrigger.vue:506
 msgid "Select trigger type"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/components/pfFormSecurityEventTrigger.vue:504
+# html/pfappserver/root/static.alt/src/components/pfFormSecurityEventTrigger.vue:507
 msgid "Select trigger value"
 msgstr ""
 
@@ -9142,6 +9139,14 @@ msgstr ""
 msgid "Should Fingerbank interact with WWW using a proxy?"
 msgstr ""
 
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationServices.js:423
+msgid "Should Redis be started? Keep enabled unless you know what you're doing."
+msgstr ""
+
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationServices.js:397
+msgid "Should Redis for caching be started? Keep enabled unless you know what you're doing."
+msgstr ""
+
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationServices.js:21
 msgid "Should api-frontend be managed by PacketFence?"
 msgstr ""
@@ -9262,14 +9267,6 @@ msgstr ""
 msgid "Should radsniff be managed by PacketFence?"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationServices.js:423
-msgid "Should redis be started? Keep enabled unless you know what you're doing."
-msgstr ""
-
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationServices.js:397
-msgid "Should redis for caching be started? Keep enabled unless you know what you're doing."
-msgstr ""
-
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationServices.js:436
 msgid "Should routes be managed by PacketFence?"
 msgstr ""
@@ -9282,16 +9279,16 @@ msgstr ""
 msgid "Should the NTLM cache be enabled for this domain?"
 msgstr ""
 
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationServices.js:410
+msgid "Should the Redis NTLM cache be started? Use this if you are enabling an Active Directory NTLM cache."
+msgstr ""
+
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationServices.js:34
 msgid "Should the fingerbank-collector be managed by PacketFence?"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationFingerbank.js:212
 msgid "Should the local instance of Fingerbank record unmatched parameters so that it will be possible to submit thoses unmatched parameters to the upstream Fingerbank project for contribution."
-msgstr ""
-
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationServices.js:410
-msgid "Should the redis NTLM cache be started? Use this if you are enabling an Active Directory NTLM cache."
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationRealms.js:277
@@ -10927,7 +10924,7 @@ msgstr ""
 msgid "Url"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/components/pfFormSecurityEventTrigger.vue:434
+# html/pfappserver/root/static.alt/src/components/pfFormSecurityEventTrigger.vue:437
 msgid "Usage"
 msgstr ""
 
@@ -11191,15 +11188,15 @@ msgstr ""
 
 # html/pfappserver/root/static.alt/src/components/pfCSVParse.vue:448
 # html/pfappserver/root/static.alt/src/components/pfFormSecurityEventTrigger.vue:235
-# html/pfappserver/root/static.alt/src/components/pfFormSecurityEventTrigger.vue:451
-# html/pfappserver/root/static.alt/src/components/pfFormSecurityEventTrigger.vue:462
-# html/pfappserver/root/static.alt/src/components/pfFormSecurityEventTrigger.vue:475
-# html/pfappserver/root/static.alt/src/components/pfFormSecurityEventTrigger.vue:512
-# html/pfappserver/root/static.alt/src/components/pfFormSecurityEventTrigger.vue:530
-# html/pfappserver/root/static.alt/src/components/pfFormSecurityEventTrigger.vue:540
-# html/pfappserver/root/static.alt/src/components/pfFormSecurityEventTrigger.vue:550
-# html/pfappserver/root/static.alt/src/components/pfFormSecurityEventTrigger.vue:568
-# html/pfappserver/root/static.alt/src/components/pfFormSecurityEventTrigger.vue:594
+# html/pfappserver/root/static.alt/src/components/pfFormSecurityEventTrigger.vue:454
+# html/pfappserver/root/static.alt/src/components/pfFormSecurityEventTrigger.vue:465
+# html/pfappserver/root/static.alt/src/components/pfFormSecurityEventTrigger.vue:478
+# html/pfappserver/root/static.alt/src/components/pfFormSecurityEventTrigger.vue:515
+# html/pfappserver/root/static.alt/src/components/pfFormSecurityEventTrigger.vue:533
+# html/pfappserver/root/static.alt/src/components/pfFormSecurityEventTrigger.vue:543
+# html/pfappserver/root/static.alt/src/components/pfFormSecurityEventTrigger.vue:553
+# html/pfappserver/root/static.alt/src/components/pfFormSecurityEventTrigger.vue:571
+# html/pfappserver/root/static.alt/src/components/pfFormSecurityEventTrigger.vue:597
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfiguration.js:1005
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfiguration.js:1019
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfiguration.js:1033
