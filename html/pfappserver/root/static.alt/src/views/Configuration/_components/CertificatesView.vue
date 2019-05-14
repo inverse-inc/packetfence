@@ -74,7 +74,7 @@
                 :button-label="$t('Add certificate')"
                 :field="caCertificateField"
               ></pf-form-fields>
-              <pf-form-row row-class="mt-0 mb-3">
+              <pf-form-row row-class="mt-0 mb-3" v-if="!findIntermediateCAs">
                 <pf-form-upload class="btn-outline-secondary btn-sm" @load="loadIntermediateCAs(certs[id], $event)" :multiple="true" accept="text/*">
                   {{ $t('Choose Intermediate CA certificate(s)') }}
                 </pf-form-upload>
