@@ -25,9 +25,11 @@
     <template slot="footer">
       <b-card-footer @mouseenter="$v.form.$touch()">
         <pf-button-save :disabled="invalidForm" :isLoading="isLoading">
-          <template v-if="isNew">{{ $t('Create') }}</template>
-          <template v-else-if="isClone">{{ $t('Clone') }}</template>
-          <template v-else-if="ctrlKey">{{ $t('Save') }}</template>
+          <template v-if="isNew && !ctrlKey">{{ $t('Create & Join') }}</template>
+          <template v-else-if="isNew && ctrlKey">{{ $t('Create') }}</template>
+          <template v-else-if="isClone && !ctrlKey">{{ $t('Clone & Join') }}</template>
+          <template v-else-if="isClone && ctrlKey">{{ $t('Clone') }}</template>
+          <template v-else-if="!isNew && !isClone && !ctrlKey">{{ $t('Save') }}</template>
           <template v-else>{{ $t('Save & Join') }}</template>
         </pf-button-save>
         <b-button :disabled="isLoading" class="ml-1" variant="outline-secondary" @click="init()">{{ $t('Reset') }}</b-button>
@@ -144,7 +146,7 @@ export default {
     save () {
       const ctrlKey = this.ctrlKey
       this.$store.dispatch(`${this.storeName}/updateDomain`, this.form).then(response => {
-        if (!ctrlKey) { // [CTRL] key not pressed
+        if ((this.isNew && !ctrlKey) || (this.isClone && !ctrlKey) || (!this.isNew && !this.isClone && ctrlKey)) {
           this.$router.push({ name: 'domains', params: { autoJoinDomain: this.form } })
         }
       })

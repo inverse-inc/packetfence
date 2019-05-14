@@ -285,10 +285,25 @@ export default {
       this.$refs.usernameInput.focus()
     }
   },
-  mounted () {
-    if (this.autoJoinDomain) { // automatically join domain
-      this.clickJoin(this.autoJoinDomain)
-      this.autoJoinDomain = null
+  watch: {
+    domainJoinTests: {
+      handler: function (a, b) {
+        if (this.autoJoinDomain && this.autoJoinDomain.id in a) { // automatically join domain
+          const { [this.autoJoinDomain.id]: { status = null } = {} } = a
+          if ([true, false].includes(status)) { // wait until tests are complete
+            switch (status) {
+              case true: // already joined
+                this.clickRejoin(this.autoJoinDomain) // rejoin domain
+                break
+              default: // not joined
+                this.clickJoin(this.autoJoinDomain) // join domain
+                break
+            }
+            this.autoJoinDomain = null
+          }
+        }
+      },
+      deep: true
     }
   }
 }
