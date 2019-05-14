@@ -35,6 +35,7 @@
           isFieldType(roleValueType) ||
           isFieldType(roleByNameValueType) ||
           isFieldType(tenantValueType) ||
+          isFieldType(ssidValueType) ||
           isFieldType(switchValueType) ||
           isFieldType(switchGroupValueType) ||
           isFieldType(timeBalanceValueType)
@@ -161,6 +162,7 @@ export default {
       realmValueType:             fieldType.REALM,
       roleValueType:              fieldType.ROLE,
       roleByNameValueType:        fieldType.ROLE_BY_NAME,
+      ssidValueType:              fieldType.SSID,
       switchValueType:            fieldType.SWITCHE,
       switchGroupValueType:       fieldType.SWITCH_GROUP,
       tenantValueType:            fieldType.TENANT

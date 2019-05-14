@@ -122,7 +122,7 @@ export const pfConfigurationConnectionProfileFilters = {
   ssid: {
     value: 'ssid',
     text: i18n.t('SSID'),
-    types: [fieldType.SUBSTRING],
+    types: [fieldType.SSID],
     validators: {
       type: {
         /* Don't allow elsewhere */

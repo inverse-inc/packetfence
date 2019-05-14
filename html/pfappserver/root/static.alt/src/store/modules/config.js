@@ -135,6 +135,9 @@ const api = {
   getSources () {
     return apiCall({ url: 'config/sources', method: 'get' })
   },
+  getSsids () {
+    return apiCall({ url: 'reports/ssid', method: 'get' })
+  },
   getSwitches () {
     return apiCall({ url: 'config/switches', method: 'get' })
   },
@@ -256,6 +259,8 @@ const state = { // set intitial states to `false` (not `[]` or `{}`) to avoid in
   scans: false,
   securityEventsStatus: '',
   securityEvents: false,
+  ssidsStatus: '',
+  ssids: false,
   sourcesStatus: '',
   sources: false,
   switchesStatus: '',
@@ -442,6 +447,9 @@ const getters = {
   isLoadingSources: state => {
     return state.sourcesStatus === types.LOADING
   },
+  isLoadingSsids: state => {
+    return state.ssidsStatus === types.LOADING
+  },
   isLoadingSwitches: state => {
     return state.switchesStatus === types.LOADING
   },
@@ -567,6 +575,12 @@ const getters = {
     if (!state.sources) return []
     return state.sources.map((item) => {
       return { value: item.id, name: item.description, text: `${item.id} - ${item.description}` }
+    })
+  },
+  ssidsList: state => {  // TODO - replace once `config/ssid` endpoint is available
+    if (!state.ssids) return []
+    return state.ssids.filter(item => item.ssid !== 'Total').map((item) => {
+      return { value: item.ssid, name: item.ssid, text: item.ssid }
     })
   },
   switchGroupsList: state => {
@@ -1215,6 +1229,20 @@ const actions = {
       return Promise.resolve(state.sources)
     }
   },
+  getSsids: ({ state, getters, commit }) => {
+    if (getters.isLoadingSsids) {
+      return
+    }
+    if (!state.ssids) {
+      commit('SSIDS_REQUEST')
+      return api.getSsids().then(response => {
+        commit('SSIDS_UPDATED', response.data.items)
+        return state.ssids
+      })
+    } else {
+      return Promise.resolve(state.ssids)
+    }
+  },
   getSwitches: ({ state, getters, commit }) => {
     if (getters.isLoadingSwitches) {
       return
@@ -1637,6 +1665,13 @@ const mutations = {
   SOURCES_UPDATED: (state, sources) => {
     state.sources = sources
     state.sourcesStatus = types.SUCCESS
+  },
+  SSIDS_REQUEST: (state) => {
+    state.ssidsStatus = types.LOADING
+  },
+  SSIDS_UPDATED: (state, ssids) => {
+    state.ssids = ssids
+    state.ssidsStatus = types.SUCCESS
   },
   SWICTHES_REQUEST: (state) => {
     state.switchesStatus = types.LOADING

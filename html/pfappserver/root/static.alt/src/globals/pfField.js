@@ -1,4 +1,5 @@
 /* eslint key-spacing: ["error", { "mode": "minimum" }] */
+import apiCall from '@/utils/api'
 import i18n from '@/utils/locale'
 
 export const pfFieldType = {
@@ -24,6 +25,7 @@ export const pfFieldType = {
   ROLE:                    'role',
   ROLE_BY_NAME:            'role_by_name',
   SOURCE:                  'source',
+  SSID:                    'ssid',
   SWITCHE:                 'switche',
   SWITCH_GROUP:            'switch_group',
   TENANT:                  'tenant'
@@ -87,6 +89,13 @@ pfFieldTypeValues[pfFieldType.SOURCE] = ({ $store }) => {
   }
   $store.dispatch('config/getSources')
   return $store.getters['config/sourcesList']
+}
+pfFieldTypeValues[pfFieldType.SSID] = ({ $store }) => {
+  if ($store === undefined) {
+    throw new Error('Missing `$store` in pfFieldTypeValues[pfFieldType.SSID](context)')
+  }
+  $store.dispatch('config/getSsids')
+  return $store.getters['config/ssidsList']
 }
 pfFieldTypeValues[pfFieldType.SWITCHE] = ({ $store }) => {
   if ($store === undefined) {
