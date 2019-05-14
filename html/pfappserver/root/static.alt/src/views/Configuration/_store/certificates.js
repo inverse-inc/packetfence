@@ -112,6 +112,7 @@ const mutations = {
     state.itemStatus = types.SUCCESS
     if (data.private_key) {
       Vue.set(state.cache.certificate, data.id, JSON.parse(JSON.stringify(data)))
+      Vue.delete(state.cache.info, data.id)
     } else {
       Vue.set(state.cache.info, data.id, JSON.parse(JSON.stringify(data)))
     }
