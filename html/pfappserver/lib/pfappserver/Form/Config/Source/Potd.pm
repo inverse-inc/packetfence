@@ -18,7 +18,6 @@ with qw(
     pfappserver::Base::Form::Role::Help
     pfappserver::Base::Form::Role::InternalSource
     pfappserver::Base::Form::Role::PasswordLength
-    pfappserver::Base::Form::Role::NoRules
 );
 
 # Form fields
