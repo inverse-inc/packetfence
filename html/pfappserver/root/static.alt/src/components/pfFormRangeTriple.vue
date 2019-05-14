@@ -196,6 +196,7 @@ export default {
       this.inputValue = Math.round(event.layerX / event.target.clientWidth * 2) // use event vars to calc new value
     },
     keyUp (event) {
+      if (this.disabled) return
       switch (event.keyCode) {
         case 32: // space
         case 39: // arrow-right

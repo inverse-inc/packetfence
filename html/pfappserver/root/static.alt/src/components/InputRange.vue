@@ -31,8 +31,8 @@
         :disabled="disabled"
         @input="clickInput"
       />
-      <div class="catch-min" @click.stop.prevent="clickMin($event)"><!-- catch click left of input --></div>
-      <div class="catch-max" @click.stop.prevent="clickMax($event)"><!-- catch click right of input --></div>
+      <div v-if="!disabled" class="catch-min" @click.stop.prevent="clickMin($event)"><!-- catch click left of input --></div>
+      <div v-if="!disabled" class="catch-max" @click.stop.prevent="clickMax($event)"><!-- catch click right of input --></div>
     </div>
   </div>
 </template>
@@ -109,6 +109,7 @@ export default {
   },
   methods: {
     clickInput ($event) {
+      if (this.disabled) return
       if (this.listenInput) {
         this.$set(this, 'inputValue', $event.target.value)
       }

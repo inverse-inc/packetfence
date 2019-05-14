@@ -217,6 +217,7 @@ export default {
       this.inputValue = Math.round(event.layerX / event.target.clientWidth * 2) // use event vars to calc new value
     },
     keyUp (event) {
+      if (this.disabled) return
       switch (event.keyCode) {
         case 32: // space
           this.$set(this, 'inputValue', [1, 2, 0][this.inputValue]) // cycle forward

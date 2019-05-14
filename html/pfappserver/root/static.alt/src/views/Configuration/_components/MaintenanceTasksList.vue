@@ -10,7 +10,7 @@
       </b-card-header>
     </template>
     <template slot="buttonAdd">
-      <pf-button-service service="pfmon" class="mr-1" restart start stop></pf-button-service>
+      <pf-button-service service="pfmon" class="mr-1" restart start stop :disabled="isLoading"></pf-button-service>
     </template>
     <template slot="emptySearch" slot-scope="state">
         <pf-empty-table :isLoading="state.isLoading">{{ $t('No maintenance tasks found') }}</pf-empty-table>
@@ -61,6 +61,11 @@ export default {
   data () {
     return {
       config: config(this)
+    }
+  },
+  computed: {
+    isLoading () {
+      return this.$store.getters[`${this.storeName}/isLoading`]
     }
   },
   methods: {

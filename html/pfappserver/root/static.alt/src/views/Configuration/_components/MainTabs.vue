@@ -13,7 +13,7 @@
       <b-tab :title="$t('Advanced')" @click="changeTab('advanced')">
         <advanced-view />
       </b-tab>
-      <b-tab :title="$t('Maintenance')" @click="changeTab('maintenance_tasks')">
+      <b-tab :title="$t('Maintenance')" @click="changeTab('maintenance_tasks')" no-body>
         <maintenance-tasks-list storeName="$_maintenance_tasks" />
       </b-tab>
       <b-tab :title="$t('Services')" @click="changeTab('services')">

@@ -164,6 +164,7 @@ export default {
       this.inputValue = (this.inputValue === 1) ? 0 : 1
     },
     keyUp (event) {
+      if (this.disabled) return
       switch (event.keyCode) {
         case 8: // backspace
         case 32: // space
