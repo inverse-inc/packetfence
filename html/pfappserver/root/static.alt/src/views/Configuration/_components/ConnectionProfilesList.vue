@@ -94,12 +94,14 @@ export default {
       switch (newStatus) {
         case 'enabled':
           this.$store.dispatch(`${this.storeName}/enableConnectionProfile`, item).then(response => {
-            this.$refs.pfConfigList.submitSearch() // redo search
+            const searchableStoreName = this.$refs.pfConfigList.searchableStoreName
+            this.$store.dispatch(`${searchableStoreName}/updateItem`, { key: 'id', id: item.id, prop: 'status', data: 'enabled' })
           })
           break
         case 'disabled':
           this.$store.dispatch(`${this.storeName}/disableConnectionProfile`, item).then(response => {
-            this.$refs.pfConfigList.submitSearch() // redo search
+            const searchableStoreName = this.$refs.pfConfigList.searchableStoreName
+            this.$store.dispatch(`${searchableStoreName}/updateItem`, { key: 'id', id: item.id, prop: 'status', data: 'disabled' })
           })
           break
       }

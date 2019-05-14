@@ -158,6 +158,9 @@ export default class SearchableStore {
           commit('ITEM_ERROR', err.response)
           return err
         })
+      },
+      updateItem: ({ state, commit }, params) => {
+        commit('ITEM_UPDATED', params)
       }
     }
 
