@@ -2,6 +2,7 @@ import i18n from '@/utils/locale'
 import pfButton from '@/components/pfButton'
 import pfFieldApiMethodParameters from '@/components/pfFieldApiMethodParameters'
 import pfFieldRuleSyslogParserRegex from '@/components/pfFieldRuleSyslogParserRegex'
+import pfFormChosen from '@/components/pfFormChosen'
 import pfFormFields from '@/components/pfFormFields'
 import pfFormHtml from '@/components/pfFormHtml'
 import pfFormInput from '@/components/pfFormInput'
@@ -354,6 +355,24 @@ export const pfConfigurationSyslogParserViewFields = (context) => {
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'path'),
               validators: pfConfigurationValidatorsFromMeta(meta, 'path')
+            }
+          ]
+        },
+        {
+          if: syslogParserType !== 'regex', // all but 'regex'
+          label: i18n.t('Rate limit'),
+          fields: [
+            {
+              key: 'rate_limit.interval',
+              component: pfFormInput,
+              attrs: pfConfigurationAttributesFromMeta(meta, 'rate_limit.interval'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'rate_limit.interval', 'Interval')
+            },
+            {
+              key: 'rate_limit.unit',
+              component: pfFormChosen,
+              attrs: pfConfigurationAttributesFromMeta(meta, 'rate_limit.unit'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'rate_limit.unit', 'Unit')
             }
           ]
         },
