@@ -22,7 +22,14 @@
         </span>
       </template>
       <template slot="enabled" slot-scope="data">
-        <pf-form-range-toggle
+        <pf-form-range-toggle v-if="data.id === 'defaults'"
+          v-model="data.enabled"
+          :values="{ checked: 'Y', unchecked: 'N' }"
+          :icons="{ checked: 'lock', unchecked: 'lock' }"
+          :colors="{ checked: 'var(--success)', unchecked: 'var(--danger)' }"
+          disabled
+        >{{ (data.enabled === 'Y') ? 'ON' : 'OFF' }}</pf-form-range-toggle>
+        <pf-form-range-toggle v-else
           v-model="data.enabled"
           :values="{ checked: 'Y', unchecked: 'N' }"
           :icons="{ checked: 'check', unchecked: 'times' }"
