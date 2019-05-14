@@ -344,7 +344,7 @@ export const pfConfigurationProvisioningFields = {
       ]
     }
   },
-  eap_type:  ({ options: { meta = {} } } = {}) => {
+  eap_type: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('EAP type'),
       text: i18n.t('Select the EAP type of your SSID. Leave empty for no EAP.'),
