@@ -163,7 +163,7 @@ export const pfConfigurationRoutedNetworkViewFields = (context = {}) => {
               key: 'nat_enabled',
               component: pfFormRangeToggle,
               attrs: {
-                values: { checked: '1', unchecked: '0' }
+                values: { checked: 1, unchecked: 0 }
               }
             }
           ]
@@ -176,7 +176,7 @@ export const pfConfigurationRoutedNetworkViewFields = (context = {}) => {
               key: 'fake_mac_enabled',
               component: pfFormRangeToggle,
               attrs: {
-                values: { checked: '1', unchecked: '0' }
+                values: { checked: 1, unchecked: 0 }
               }
             }
           ]
@@ -204,7 +204,7 @@ export const pfConfigurationRoutedNetworkViewFields = (context = {}) => {
               key: 'dhcpd',
               component: pfFormRangeToggle,
               attrs: {
-                disabled: (form.fake_mac_enabled === '1'),
+                disabled: (form.fake_mac_enabled === 1),
                 values: { checked: 'enabled', unchecked: 'disabled' }
               }
             }
@@ -219,7 +219,7 @@ export const pfConfigurationRoutedNetworkViewFields = (context = {}) => {
               attrs: {
                 ...pfConfigurationAttributesFromMeta(meta, 'dhcp_start'),
                 ...{
-                  disabled: (form.fake_mac_enabled === '1')
+                  disabled: (form.fake_mac_enabled === 1)
                 }
               },
               validators: {
@@ -240,7 +240,7 @@ export const pfConfigurationRoutedNetworkViewFields = (context = {}) => {
               attrs: {
                 ...pfConfigurationAttributesFromMeta(meta, 'dhcp_start'),
                 ...{
-                  disabled: (form.fake_mac_enabled === '1')
+                  disabled: (form.fake_mac_enabled === 1)
                 }
               },
               validators: {
@@ -261,7 +261,7 @@ export const pfConfigurationRoutedNetworkViewFields = (context = {}) => {
               attrs: {
                 ...pfConfigurationAttributesFromMeta(meta, 'dhcp_default_lease_time'),
                 ...{
-                  disabled: (form.fake_mac_enabled === '1')
+                  disabled: (form.fake_mac_enabled === 1)
                 }
               },
               validators: pfConfigurationValidatorsFromMeta(meta, 'dhcp_default_lease_time', 'Time')
@@ -277,7 +277,7 @@ export const pfConfigurationRoutedNetworkViewFields = (context = {}) => {
               attrs: {
                 ...pfConfigurationAttributesFromMeta(meta, 'dhcp_max_lease_time'),
                 ...{
-                  disabled: (form.fake_mac_enabled === '1')
+                  disabled: (form.fake_mac_enabled === 1)
                 }
               },
               validators: pfConfigurationValidatorsFromMeta(meta, 'dhcp_max_lease_time', 'Time')
@@ -294,7 +294,7 @@ export const pfConfigurationRoutedNetworkViewFields = (context = {}) => {
               attrs: {
                 ...pfConfigurationAttributesFromMeta(meta, 'ip_reserved'),
                 ...{
-                  disabled: (form.fake_mac_enabled === '1'),
+                  disabled: (form.fake_mac_enabled === 1),
                   rows: 5
                 }
               },
@@ -312,7 +312,7 @@ export const pfConfigurationRoutedNetworkViewFields = (context = {}) => {
               attrs: {
                 ...pfConfigurationAttributesFromMeta(meta, 'ip_assigned'),
                 ...{
-                  disabled: (form.fake_mac_enabled === '1'),
+                  disabled: (form.fake_mac_enabled === 1),
                   rows: 5
                 }
               },
@@ -330,7 +330,7 @@ export const pfConfigurationRoutedNetworkViewFields = (context = {}) => {
               attrs: {
                 ...pfConfigurationAttributesFromMeta(meta, 'dns'),
                 ...{
-                  disabled: (form.fake_mac_enabled === '1')
+                  disabled: (form.fake_mac_enabled === 1)
                 }
               },
               validators: pfConfigurationValidatorsFromMeta(meta, 'dns', 'DNS')
@@ -347,7 +347,7 @@ export const pfConfigurationRoutedNetworkViewFields = (context = {}) => {
               attrs: {
                 ...pfConfigurationAttributesFromMeta(meta, 'portal_fqdn'),
                 ...{
-                  disabled: (form.fake_mac_enabled === '1')
+                  disabled: (form.fake_mac_enabled === 1)
                 }
               },
               validators: {
@@ -368,7 +368,7 @@ export const pfConfigurationRoutedNetworkViewFields = (context = {}) => {
               attrs: {
                 ...pfConfigurationAttributesFromMeta(meta, 'gateway'),
                 ...{
-                  disabled: (form.fake_mac_enabled === '1')
+                  disabled: (form.fake_mac_enabled === 1)
                 }
               },
               validators: {
