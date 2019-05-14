@@ -21,7 +21,7 @@
             <b-card-body>
               <b-list-group>
                 <b-list-group-item v-for="[name, path] in guides" :key="path"
-                  :href="`/static/doc/${path}.html`" target="_blank">{{ name }}</b-list-group-item>
+                  :href="`/static/doc/PacketFence_${path}.html`" target="_blank">{{ name }}</b-list-group-item>
               </b-list-group>
             </b-card-body>
           </b-card>
