@@ -40,6 +40,8 @@
             <b-dropdown-item-button @click="fixPermissions" :disabled="isFixingPermissions">
               {{ $t('Fix Permissions') }} <icon class="ml-2" name="circle-notch" spin v-if="isFixingPermissions"></icon>
             </b-dropdown-item-button>
+            <b-dropdown-divider></b-dropdown-divider>
+            <b-dropdown-item href="/admin/status" target="_blank">{{ $t('Switch to Old Admin') }}</b-dropdown-item>
           </b-nav-item-dropdown>
         </b-navbar-nav>
       </b-collapse>

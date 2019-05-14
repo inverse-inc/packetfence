@@ -105,7 +105,7 @@
               <li class="dropdown">
                 <a href="" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-user-circle icon-white"></i> [% c.user | html %]<b class="caret"></b></a>
                 <ul class="dropdown-menu">
-                  <li><a href="[% c.uri_for(c.controller('Admin').action_for('alt')) %]" target="_blank"><i class="icon-star"></i> [% l('New Admin Sneak Peek') %]</a></li>
+                  <li><a href="[% c.uri_for(c.controller('Admin').action_for('alt')) %]" target="_blank"><i class="icon-star"></i> [% l('Switch to New Admin') %]</a></li>
                   <li><a href="[% c.uri_for(c.controller('Admin').action_for('logout')) %]"><i class="icon-sign-out"></i> [% l('Log out') %]</a></li>
                 </ul>
               </li>
