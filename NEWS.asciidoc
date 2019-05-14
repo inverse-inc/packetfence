@@ -16,8 +16,8 @@ Version X.Y.Z released on xxxx-xx-xx
 
 New Features
 ++++++++++++
-* Let's Encrypt SSL certificates support for captive portal and RADIUS
 * New web interface based on Vue.js and Bootstrap 4
+* Let's Encrypt SSL certificates support for captive portal and RADIUS
 * Cisco ASA VPN support with the captive portal
 * Fortinet VPN support
 * DHCP Filter to reply custom attributes in the OFFER and/or ACK (deprecate old DHCP Filter)
@@ -33,7 +33,7 @@ Enhancements
 * Now providing defaults for the Apache filters
 * Allow to configure the RADIUS attributes and their lookup order for extracting the username
 * conf/stats.conf has a default file now
-* VoIP configuration parameter in node_cleanup task to bypass voip devices
+* VoIP configuration parameter in node_cleanup task to bypass VoIP devices
 * Adding/removing passthroughs doesn't require to restart pfdns anymore (#3127)
 * Added support for RADIUS disconnect on Ruckus SmartZone
 * Disable Microsoft Active Directory join operating system check option
@@ -51,14 +51,14 @@ Enhancements
 Bug Fixes
 +++++++++
 * Fixed the systemd logic in pfdhcp
-* Fixed winbindd respawning extremelly fast when failing to start
-* Fixed winbindd processes not being killed on latest version of samba
-* Allow disabling processing of ipv6 packets in the pfdhcplistener
+* Fixed winbindd respawning extremely fast when failing to start
+* Fixed winbindd processes not being killed on latest version of Samba
+* Allow disabling processing of IPv6 packets in the pfdhcplistener
 * fixed untainted variable (#3920)
 * fixed on-registration scanning (#3963)
-* Set the realm in the radius request when it's machine authentication
+* Set the realm in the RADIUS request when doing machine authentication
 * Keep connections to the unified API alive
-* Fixed the documentation and the form for the juniper SRX firewall
+* Fixed the documentation and the form for the Juniper SRX firewall
 
 Version 8.3.0 released on 2019-01-09
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
