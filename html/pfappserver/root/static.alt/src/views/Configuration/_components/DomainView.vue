@@ -27,7 +27,8 @@
         <pf-button-save :disabled="invalidForm" :isLoading="isLoading">
           <template v-if="isNew">{{ $t('Create') }}</template>
           <template v-else-if="isClone">{{ $t('Clone') }}</template>
-          <template v-else>{{ $t('Save') }}</template>
+          <template v-else-if="ctrlKey">{{ $t('Save') }}</template>
+          <template v-else>{{ $t('Save & Join') }}</template>
         </pf-button-save>
         <b-button :disabled="isLoading" class="ml-1" variant="outline-secondary" @click="init()">{{ $t('Reset') }}</b-button>
         <b-button v-if="!isNew && !isClone" :disabled="isLoading" class="ml-1" variant="outline-primary" @click="clone()">{{ $t('Clone') }}</b-button>
@@ -41,6 +42,7 @@
 import pfConfigView from '@/components/pfConfigView'
 import pfButtonSave from '@/components/pfButtonSave'
 import pfButtonDelete from '@/components/pfButtonDelete'
+import pfMixinCtrlKey from '@/components/pfMixinCtrlKey'
 import pfMixinEscapeKey from '@/components/pfMixinEscapeKey'
 import {
   pfConfigurationDefaultsFromMeta as defaults
@@ -54,6 +56,7 @@ export default {
   name: 'DomainView',
   mixins: [
     validationMixin,
+    pfMixinCtrlKey,
     pfMixinEscapeKey
   ],
   components: {
@@ -141,8 +144,8 @@ export default {
     save () {
       const ctrlKey = this.ctrlKey
       this.$store.dispatch(`${this.storeName}/updateDomain`, this.form).then(response => {
-        if (ctrlKey) { // [CTRL] key pressed
-          this.close()
+        if (!ctrlKey) { // [CTRL] key not pressed
+          this.$router.push({ name: 'domains', params: { autoJoinDomain: this.form } })
         }
       })
     },

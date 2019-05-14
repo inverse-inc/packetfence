@@ -130,6 +130,10 @@ export default {
       type: String,
       default: null,
       required: true
+    },
+    autoJoinDomain: { // from DomainView, through router
+      type: Object,
+      default: null
     }
   },
   data () {
@@ -279,6 +283,12 @@ export default {
     },
     focusUsernameInput () {
       this.$refs.usernameInput.focus()
+    }
+  },
+  mounted () {
+    if (this.autoJoinDomain) { // automatically join domain
+      this.clickJoin(this.autoJoinDomain)
+      this.autoJoinDomain = null
     }
   }
 }

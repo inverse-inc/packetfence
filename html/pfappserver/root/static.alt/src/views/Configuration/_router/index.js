@@ -271,7 +271,7 @@ const route = {
       path: 'domains',
       name: 'domains',
       component: DomainsTabs,
-      props: (route) => ({ tab: 'domains', storeName: '$_domains', iquery: route.query.query })
+      props: (route) => ({ tab: 'domains', storeName: '$_domains', autoJoinDomain: route.params.autoJoinDomain, query: route.query.query })
     },
     {
       path: 'domains/new',

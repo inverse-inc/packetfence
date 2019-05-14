@@ -5,7 +5,7 @@
         </b-card-header>
         <b-tabs ref="tabs" v-model="tabIndex" card>
             <b-tab :title="$t('Active Directory Domains')" @click="changeTab('domains')" no-body>
-                <domains-list storeName="$_domains" />
+                <domains-list storeName="$_domains" :autoJoinDomain="autoJoinDomain" />
             </b-tab>
             <b-tab :title="$t('REALMS')" @click="changeTab('realms')" no-body>
                 <realms-list storeName="$_realms" />
@@ -28,6 +28,10 @@ export default {
     tab: {
       type: String,
       default: 'domains'
+    },
+    autoJoinDomain: { // from DomainView, through router
+      type: Object,
+      default: null
     }
   },
   computed: {
