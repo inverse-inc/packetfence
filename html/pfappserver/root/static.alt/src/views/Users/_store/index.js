@@ -10,7 +10,7 @@ const inflateActions = (data) => {
   if (data.access_duration) {
     data.actions.push({ type: pfConfigurationActions.set_access_duration.value, value: data.access_duration })
   }
-  if (data.access_level && data.access_level !== 'NONE') {
+  if (data.access_level) {
     data.actions.push({ type: pfConfigurationActions.set_access_level.value, value: data.access_level })
   }
   if (data.can_sponsor && parseInt(data.can_sponsor)) {
@@ -25,7 +25,6 @@ const inflateActions = (data) => {
 }
 
 const deflateActions = (data) => {
-  // Deflate actions
   if ('actions' in data) {
     const actions = data.actions
 
