@@ -955,6 +955,20 @@ export const pfConfigurationAuthenticationSourceFields = {
       ]
     }
   },
+  lang: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Language'),
+      text: i18n.t('Language for sponsor email.'),
+      fields: [
+        {
+          key: 'lang',
+          component: pfFormChosen,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'lang'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'lang', i18n.t('Language'))
+        }
+      ]
+    }
+  },
   local_account_logins: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Amount of logins for the local account'),
@@ -2430,6 +2444,7 @@ export const pfConfigurationAuthenticationSourceViewFields = (context) => {
             pfConfigurationAuthenticationSourceFields.activation_domain(context),
             pfConfigurationAuthenticationSourceFields.sponsorship_bcc(context),
             pfConfigurationAuthenticationSourceFields.validate_sponsor(context),
+            pfConfigurationAuthenticationSourceFields.lang(context),
             pfConfigurationAuthenticationSourceFields.create_local_account(context),
             pfConfigurationAuthenticationSourceFields.hash_passwords(context),
             pfConfigurationAuthenticationSourceFields.password_length(context),
