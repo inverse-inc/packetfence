@@ -49,6 +49,13 @@ sub auto :Private {
     delete $c->session->{'enforcements'};
 
     my $action = $c->action->name;
+
+    # Default to the new administration interface when hitting the index
+    if($action eq 'index') {
+        $c->response->redirect($c->uri_for($self->action_for('alt')));
+        $c->detach();
+    }
+
     # login and logout actions have no checks
     if ($action eq 'login' || $action eq 'logout' || $action eq 'alt') {
         return 1;
@@ -125,7 +132,7 @@ sub login :Local :Args(0) {
                         $uri = $req->params->{'redirect_url'};
                     }
                     if (!defined $uri || $uri !~ /^http/i) {
-                        $uri = $c->uri_for($self->action_for('index'))->as_string;
+                        $uri = $c->uri_for($self->action_for('status'))->as_string;
                     }
                     $c->stash->{success} = $uri;
                 } else {
@@ -146,7 +153,7 @@ sub login :Local :Args(0) {
             $c->stash->{status_msg} = $c->loc("Unexpected error. See server-side logs for details.");
         }
     } elsif ($c->user_in_realm( 'admin' )) {
-        $c->response->redirect($c->uri_for($self->action_for('index')));
+        $c->response->redirect($c->uri_for($self->action_for('status')));
         $c->detach();
     } elsif ($req->params->{'redirect_action'}) {
         $c->stash->{redirect_action} = $req->params->{'redirect_action'};
@@ -163,7 +170,7 @@ sub challenge :Local :Args(0) {
     my $req = $c->req;
     my $user_challenge = $c->session->{user_challenge};
     unless (defined $user_challenge) {
-        $c->response->redirect($c->uri_for($self->action_for('index')));
+        $c->response->redirect($c->uri_for($self->action_for('status')));
         $c->detach();
     }
 
@@ -190,7 +197,7 @@ sub challenge :Local :Args(0) {
             $c->response->redirect($req->params->{'redirect_action'});
         }
         else {
-            $c->response->redirect($c->uri_for($self->action_for('index')));
+            $c->response->redirect($c->uri_for($self->action_for('status')));
         }
         $c->detach();
     }

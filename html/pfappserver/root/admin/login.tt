@@ -14,7 +14,7 @@
           </div>
           [% END %]
           <input type="hidden" name="redirect_url"
-                 value="[% redirect_action || c.uri_for(c.controller.action_for('index')) %]">
+                 value="[% redirect_action || c.uri_for(c.controller.action_for('status')) %]">
           <div class="control-group">
             <label class="control-label" for="username">[% l('Username') %]</label>
             <div class="controls">
