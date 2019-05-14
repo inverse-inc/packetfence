@@ -174,7 +174,7 @@ export const pfConfigurationCaptivePortalViewFields = (context = {}) => {
         },
         {
           label: i18n.t('Status URI only on production network'),
-          text: i18n.t('When enabled the /status page will only be available on theproduction network. By default this is disabled.'),
+          text: i18n.t('When enabled the /status page will only be available on the production network. By default this is disabled.'),
           fields: [
             {
               key: 'status_only_on_production',
