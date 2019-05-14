@@ -17,16 +17,12 @@ use pf::config qw(%ConfigNetworks %Config);
 use pf::util qw(isenabled);
 use pf::file_paths qw($network_config_file);
 
-extends 'pf::ConfigStore';
+extends 'pf::ConfigStore::Network';
 with 'pf::ConfigStore::Filtered';
 
 =head1 METHODS
 
 =cut
-
-sub configFile { $network_config_file }
-
-sub pfconfigNamespace { 'config::Network' }
 
 =head2 filter
 
