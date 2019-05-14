@@ -19,7 +19,7 @@ const route = {
   },
   children: [
     {
-      path: 'standard/chart/:path([a-zA-Z0-9/]+)/:start_datetime?/:end_datetime?',
+      path: 'standard/chart/:path([a-zA-Z0-9-_/]+)/:start_datetime?/:end_datetime?',
       name: 'standardReportChart',
       component: StandardReportChart,
       props: (route) => ({
