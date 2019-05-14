@@ -577,7 +577,7 @@ const getters = {
       return { value: item.id, name: item.description, text: `${item.id} - ${item.description}` }
     })
   },
-  ssidsList: state => {  // TODO - replace once `config/ssid` endpoint is available
+  ssidsList: state => { // TODO - replace once `config/ssid` endpoint is available
     if (!state.ssids) return []
     return state.ssids.filter(item => item.ssid !== 'Total').map((item) => {
       return { value: item.ssid, name: item.ssid, text: item.ssid }
