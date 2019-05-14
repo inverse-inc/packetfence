@@ -110,7 +110,7 @@ export const pfConfigurationAdvancedViewFields = (context = {}) => {
         },
         {
           label: i18n.t('Database passwords hashing method'),
-          text: i18n.t('The algorithm used to hash the passwords in the database.This will only affect newly created or reset passwords.'),
+          text: i18n.t('The algorithm used to hash the passwords in the database. This will only affect newly created or reset passwords.'),
           fields: [
             {
               key: 'hash_passwords',
@@ -122,7 +122,7 @@ export const pfConfigurationAdvancedViewFields = (context = {}) => {
         },
         {
           label: i18n.t('Hashing Cost'),
-          text: i18n.t('The cost factor to apply to the password hashing if applicable.Currently only applies to bcrypt.'),
+          text: i18n.t('The cost factor to apply to the password hashing if applicable. Currently only applies to bcrypt.'),
           fields: [
             {
               key: 'hashing_cost',
@@ -233,7 +233,7 @@ export const pfConfigurationAdvancedViewFields = (context = {}) => {
         },
         {
           label: i18n.t('Stats timing level'),
-          text: i18n.t(`Level of timing stats to keep - 0 is the lowest - 10 the highest amount to logDo not change unless you know what you are doing.`),
+          text: i18n.t(`Level of timing stats to keep - 0 is the lowest - 10 the highest amount to log. Do not change unless you know what you are doing.`),
           fields: [
             {
               key: 'timing_stats_level',

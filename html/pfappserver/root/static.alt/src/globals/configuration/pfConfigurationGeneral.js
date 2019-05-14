@@ -43,7 +43,7 @@ export const pfConfigurationGeneralViewFields = (context = {}) => {
         },
         {
           label: i18n.t('DHCP servers'),
-          text: i18n.t('Comma-delimited list of DHCP servers.'),
+          text: i18n.t('Comma-separated list of DHCP servers.'),
           fields: [
             {
               key: 'dhcpservers',

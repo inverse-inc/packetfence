@@ -136,7 +136,7 @@ export const pfConfigurationMaintenanceTaskFields = {
   certificates: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Certificates'),
-      text: i18n.t('SSL certificate(s) to monitor. Comma-delimited list.'),
+      text: i18n.t('SSL certificate(s) to monitor. Comma-separated list.'),
       fields: [
         {
           key: 'certificates',

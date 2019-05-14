@@ -32,7 +32,7 @@ export const pfConfigurationNetworkViewFields = (context = {}) => {
         },
         {
           label: i18n.t('DHCP detector rate limiting'),
-          text: i18n.t('Will rate-limit DHCP packets that contain the same information.For example, a DHCPREQUEST for the same MAC/IP will only be processed once in the timeframe configured below.This is independant of the DHCP server/relay handling the packet and is only based on the IP, MAC Address and DHCP type inside the packet.A value of 0 will disable the rate limitation.'),
+          text: i18n.t('Will rate-limit DHCP packets that contain the same information.For example, a DHCPREQUEST for the same MAC/IP will only be processed once in the timeframe configured below. This is independant of the DHCP server/relay handling the packet and is only based on the IP, MAC Address and DHCP type inside the packet. A value of 0 will disable the rate limitation.'),
           fields: [
             {
               key: 'dhcp_rate_limiting.interval',
@@ -75,7 +75,7 @@ export const pfConfigurationNetworkViewFields = (context = {}) => {
         },
         {
           label: i18n.t('Detect hostname changes'),
-          text: i18n.t('Will identify hostname changes and send an e-mail with these changes.This can help detect MAC spoofing.'),
+          text: i18n.t('Will identify hostname changes and send an e-mail with these changes. This can help detect MAC spoofing.'),
           fields: [
             {
               key: 'hostname_change_detection',
@@ -88,7 +88,7 @@ export const pfConfigurationNetworkViewFields = (context = {}) => {
         },
         {
           label: i18n.t('Detect changes in connection type'),
-          text: i18n.t('Will identify if a device switches from wired to wireless (or the opposite) and send an e-mail with these changes.This can help detect MAC spoofing.'),
+          text: i18n.t('Will identify if a device switches from wired to wireless (or the opposite) and send an e-mail with these changes. This can help detect MAC spoofing.'),
           fields: [
             {
               key: 'connection_type_change_detection',
@@ -127,7 +127,7 @@ export const pfConfigurationNetworkViewFields = (context = {}) => {
         },
         {
           label: i18n.t('Force Listener update on DHCPACK'),
-          text: i18n.t('This will only do the iplog update and other DHCP related task on a DHCPACK.You need to make sure the UDP reflector is in place so this works on the production network.This is implicitly activated on registration interfaces on which dhcpd runs.'),
+          text: i18n.t('This will only do the iplog update and other DHCP related task on a DHCPACK. You need to make sure the UDP reflector is in place so this works on the production network. This is implicitly activated on registration interfaces on which dhcpd runs.'),
           fields: [
             {
               key: 'force_listener_update_on_ack',

@@ -98,7 +98,7 @@ export const pfConfigurationInlineViewFields = (context = {}) => {
         },
         {
           label: i18n.t('SNAT Interface'),
-          text: i18n.t('Comma-delimited list of interfaces used to SNAT inline level 2 traffic.'),
+          text: i18n.t('Comma-separated list of interfaces used to SNAT inline level 2 traffic.'),
           fields: [
             {
               key: 'interfaceSNAT',

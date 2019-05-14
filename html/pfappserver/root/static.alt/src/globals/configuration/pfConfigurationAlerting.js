@@ -24,7 +24,7 @@ export const pfConfigurationAlertingViewFields = (context = {}) => {
       fields: [
         {
           label: i18n.t('Recipients'),
-          text: i18n.t('Comma-delimited list of email addresses to which notifications of rogue DHCP servers, violations with an action of email, or any other PacketFence-related message goes to.'),
+          text: i18n.t('Comma-separated list of email addresses to which notifications of rogue DHCP servers, violations with an action of email, or any other PacketFence-related message goes to.'),
           fields: [
             {
               key: 'emailaddr',
@@ -41,7 +41,7 @@ export const pfConfigurationAlertingViewFields = (context = {}) => {
         },
         {
           label: i18n.t('Sender'),
-          text: i18n.t('Email address from which notifications of rogue DHCP servers, violations with an action of email, or any other PacketFence-related message are sent.Empty means root@<server-domain-name>.'),
+          text: i18n.t('Email address from which notifications of rogue DHCP servers, violations with an action of email, or any other PacketFence-related message are sent. Empty means root@<server-domain-name>.'),
           fields: [
             {
               key: 'fromaddr',

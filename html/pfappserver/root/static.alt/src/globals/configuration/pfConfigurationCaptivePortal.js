@@ -200,7 +200,7 @@ export const pfConfigurationCaptivePortalViewFields = (context = {}) => {
         },
         {
           label: i18n.t('Captive Portal detection mechanism URLs'),
-          text: i18n.t('Comma-delimited list of URLs known to be used by devices to detect the presence of a captive portal and trigger their captive portal mechanism.'),
+          text: i18n.t('Comma-separated list of URLs known to be used by devices to detect the presence of a captive portal and trigger their captive portal mechanism.'),
           fields: [
             {
               key: 'detection_mecanism_urls',
@@ -232,7 +232,7 @@ export const pfConfigurationCaptivePortalViewFields = (context = {}) => {
         },
         {
           label: i18n.t('Rate limiting'),
-          text: i18n.t('Temporarily deny access to a user that performs too many requests on the captive portal on invalid URLsRequires to restart haproxy-portal in order to apply the change.'),
+          text: i18n.t('Temporarily deny access to a user that performs too many requests on the captive portal on invalid URLs. Requires to restart haproxy-portal in order to apply the change.'),
           fields: [
             {
               key: 'rate_limiting',
@@ -257,7 +257,7 @@ export const pfConfigurationCaptivePortalViewFields = (context = {}) => {
         },
         {
           label: i18n.t('Other domain names'),
-          text: i18n.t('Other domain names under which the captive portal responds.Requires to restart haproxy-portal to be fully effective.'),
+          text: i18n.t('Other domain names under which the captive portal responds. Requires to restart haproxy-portal to be fully effective.'),
           fields: [
             {
               key: 'other_domain_names',

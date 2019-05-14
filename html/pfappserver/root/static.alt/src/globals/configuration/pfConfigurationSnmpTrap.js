@@ -62,7 +62,7 @@ export const pfConfigurationSnmpTrapViewFields = (context = {}) => {
         },
         {
           label: i18n.t('Trap limit action'),
-          text: i18n.t(`Action that PacketFence will take if the snmp_traps.trap_limit_threshold is reached. Defaults to none. email will send an email every hour if the limit's still reached. shut will shut the port on the switch and will also send an email even if email is not specified.`),
+          text: i18n.t(`Action that PacketFence will take if the snmp_traps.trap_limit_threshold is reached. Defaults to none. Email will send an email every hour if the limit's still reached. shut will shut the port on the switch and will also send an email even if email is not specified.`),
           fields: [
             {
               key: 'trap_limit_action',

@@ -15,7 +15,7 @@
  * Extended Usage:
  *
  *  <template>
- *    <pf-form-upload @load="files = $event" accept="text/*" :multiple="true" :cumulative="true" :title="$t('Uplaod File')"></pf-form-upload>
+ *    <pf-form-upload @load="files = $event" accept="text/*" :multiple="true" :cumulative="true" title="Upload File"></pf-form-upload>
  *  </template>
  *
  * Properties:

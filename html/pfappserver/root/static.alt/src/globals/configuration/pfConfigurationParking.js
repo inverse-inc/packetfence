@@ -30,7 +30,7 @@ export const pfConfigurationParkingViewFields = (context = {}) => {
         },
         {
           label: i18n.t('Parking threshold'),
-          text: i18n.t('The threshold (in seconds) after which a device will be placed in parking.A value of 0 deactivates the parking detection.The detection works by looking at the time in seconds a device has been in the registration role and comparing it with this threshold.'),
+          text: i18n.t('The threshold (in seconds) after which a device will be placed in parking. A value of 0 deactivates the parking detection. The detection works by looking at the time in seconds a device has been in the registration role and comparing it with this threshold.'),
           fields: [
             {
               key: 'threshold',

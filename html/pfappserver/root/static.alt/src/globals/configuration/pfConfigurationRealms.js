@@ -35,13 +35,13 @@ export const pfConfigurationRealmsListColumns = [
   },
   {
     key: 'radius_auth',
-    label: i18n.t('Radius Authentication'),
+    label: i18n.t('RADIUS Authentication'),
     sortable: false,
     visible: true
   },
   {
     key: 'radius_acct',
-    label: i18n.t('Radius Accounting'),
+    label: i18n.t('RADIUS Accounting'),
     sortable: false,
     visible: true
   },

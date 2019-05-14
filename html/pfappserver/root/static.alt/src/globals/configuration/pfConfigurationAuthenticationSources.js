@@ -723,7 +723,7 @@ export const pfConfigurationAuthenticationSourceFields = {
   domains: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Authorized domains'),
-      text: i18n.t('Comma separated list of domains that will be resolve with the correct IP addresses.'),
+      text: i18n.t('Comma-separated list of domains that will be resolve with the correct IP addresses.'),
       fields: [
         {
           key: 'domains',
@@ -1032,7 +1032,7 @@ export const pfConfigurationAuthenticationSourceFields = {
   options: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Options'),
-      text: i18n.t('Define options for FreeRADIUS home_server definition (if you use the source in the realm configuration). Need a radius restart.'),
+      text: i18n.t('Define options for FreeRADIUS home_server definition (if you use the source in the realm configuration). Need a radiusd restart.'),
       fields: [
         {
           key: 'options',
@@ -1608,7 +1608,7 @@ export const pfConfigurationAuthenticationSourceFields = {
   sponsorship_bcc: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Sponsorship BCC'),
-      text: i18n.t('Sponsors requesting access and access confirmation emails are BCC\'ed to this address. Multiple destinations can be comma separated.'),
+      text: i18n.t('Sponsors requesting access and access confirmation emails are BCC\'ed to this address. Multiple destinations can be comma-separated.'),
       fields: [
         {
           key: 'sponsorship_bcc',

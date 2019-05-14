@@ -68,8 +68,8 @@ export const pfConfigurationRadiusViewFields = (context = {}) => {
           ]
         },
         {
-          label: i18n.t('Use radius filters in packetfence authorize'),
-          text: i18n.t('Send the radius request in the radius filter from the radius packetfence.authorize section. Requires a restart of radiusd to be effective.'),
+          label: i18n.t('Use RADIUS filters in packetfence authorize'),
+          text: i18n.t('Send the RADIUS request in the RADIUS filter from the RADIUS packetfence.authorize section. Requires a restart of radiusd to be effective.'),
           fields: [
             {
               key: 'filter_in_packetfence_authorize',
@@ -81,8 +81,8 @@ export const pfConfigurationRadiusViewFields = (context = {}) => {
           ]
         },
         {
-          label: i18n.t('Use radius filters in packetfence pre_proxy'),
-          text: i18n.t('Send the radius request in the radius filter from the radius packetfence.pre_proxy section. Requires a restart of radiusd to be effective.'),
+          label: i18n.t('Use RADIUS filters in packetfence pre_proxy'),
+          text: i18n.t('Send the RADIUS request in the RADIUS filter from the RADIUS packetfence.pre_proxy section. Requires a restart of radiusd to be effective.'),
           fields: [
             {
               key: 'filter_in_packetfence_pre_proxy',
@@ -94,8 +94,8 @@ export const pfConfigurationRadiusViewFields = (context = {}) => {
           ]
         },
         {
-          label: i18n.t('Use radius filters in packetfence post_proxy'),
-          text: i18n.t('Send the radius request in the radius filter from the radius packetfence.post_proxy section. Requires a restart of radiusd to be effective.'),
+          label: i18n.t('Use RADIUS filters in packetfence post_proxy'),
+          text: i18n.t('Send the RADIUS request in the RADIUS filter from the RADIUS packetfence.post_proxy section. Requires a restart of radiusd to be effective.'),
           fields: [
             {
               key: 'filter_in_packetfence_post_proxy',
@@ -107,8 +107,8 @@ export const pfConfigurationRadiusViewFields = (context = {}) => {
           ]
         },
         {
-          label: i18n.t('Use radius filters in packetfence preacct'),
-          text: i18n.t('Send the radius request in the radius filter from the radius packetfence.preacct section. Requires a restart of radiusd to be effective.'),
+          label: i18n.t('Use RADIUS filters in packetfence preacct'),
+          text: i18n.t('Send the RADIUS request in the RADIUS filter from the RADIUS packetfence.preacct section. Requires a restart of radiusd to be effective.'),
           fields: [
             {
               key: 'filter_in_packetfence_preacct',
@@ -120,8 +120,8 @@ export const pfConfigurationRadiusViewFields = (context = {}) => {
           ]
         },
         {
-          label: i18n.t('Use radius filters in packetfence accounting'),
-          text: i18n.t('Send the radius request in the radius filter from the radius packetfence.accounting section. Requires a restart of radiusd to be effective.'),
+          label: i18n.t('Use RADIUS filters in packetfence accounting'),
+          text: i18n.t('Send the RADIUS request in the RADIUS filter from the RADIUS packetfence.accounting section. Requires a restart of radiusd to be effective.'),
           fields: [
             {
               key: 'filter_in_packetfence_accounting',
@@ -133,8 +133,8 @@ export const pfConfigurationRadiusViewFields = (context = {}) => {
           ]
         },
         {
-          label: i18n.t('Use radius filters in packetfence-tunnel authorize'),
-          text: i18n.t('Send the radius request in the radius filter from the radius packetfence-tunnel.authorize section. Requires a restart of radiusd to be effective.'),
+          label: i18n.t('Use RADIUS filters in packetfence-tunnel authorize'),
+          text: i18n.t('Send the RADIUS request in the RADIUS filter from the RADIUS packetfence-tunnel.authorize section. Requires a restart of radiusd to be effective.'),
           fields: [
             {
               key: 'filter_in_packetfence-tunnel_authorize',
@@ -147,7 +147,7 @@ export const pfConfigurationRadiusViewFields = (context = {}) => {
         },
         {
           label: i18n.t('NTLM Redis cache'),
-          text: i18n.t('Enables a Redis driven cache for NTLM authentication.In order for this to work, you need to setup proper NT hash syncronization between your PacketFence server and your AD.Refer to the Administration guide for more details.Applying this requires a restart of radiusd.'),
+          text: i18n.t('Enables a Redis driven cache for NTLM authentication.In order for this to work, you need to setup proper NT hash syncronization between your PacketFence server and your AD. Refer to the Administration guide for more details. Applying this requires a restart of radiusd.'),
           fields: [
             {
               key: 'ntlm_redis_cache',
@@ -192,7 +192,7 @@ export const pfConfigurationRadiusViewFields = (context = {}) => {
         },
         {
           label: i18n.t('Username attributes'),
-          text: i18n.t('Which attributes to use to get the username from a RADIUS requestThe order of the attributes are listed in this configuration parameter is followed while performing the lookup.'),
+          text: i18n.t('Which attributes to use to get the username from a RADIUS request. The order of the attributes are listed in this configuration parameter is followed while performing the lookup.'),
           fields: [
             {
               key: 'username_attributes',

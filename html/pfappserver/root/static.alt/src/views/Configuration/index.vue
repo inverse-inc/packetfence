@@ -144,7 +144,7 @@ export default {
               ]
             },
             { name: this.$i18n.t('Cluster'), path: '/configuration/active_active' },
-            { name: this.$i18n.t('Radius Configuration'), path: '/configuration/radius' },
+            { name: this.$i18n.t('RADIUS Configuration'), path: '/configuration/radius' },
             { name: this.$i18n.t('Admin Access'), path: '/configuration/admin_roles' },
             { name: this.$i18n.t('SSL Certificates'), path: '/configuration/certificates' }
           ]

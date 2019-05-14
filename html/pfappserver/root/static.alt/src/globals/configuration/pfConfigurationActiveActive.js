@@ -83,7 +83,7 @@ export const pfConfigurationActiveActiveViewFields = (context = {}) => {
         },
         {
           label: i18n.t('RADIUS authentication on management'),
-          text: i18n.t('Process RADIUS authentication requests on the management server (the current load balancer).Disabling it will make the management server only proxy requests to other servers.Useful if your load balancer cannot handle both tasks.Changing this requires to restart radiusd.'),
+          text: i18n.t('Process RADIUS authentication requests on the management server (the current load balancer). Disabling it will make the management server only proxy requests to other servers. Useful if your load balancer cannot handle both tasks. Changing this requires to restart radiusd.'),
           fields: [
             {
               key: 'auth_on_management',
@@ -96,7 +96,7 @@ export const pfConfigurationActiveActiveViewFields = (context = {}) => {
         },
         {
           label: i18n.t('Conflict resolution threshold'),
-          text: i18n.t('Defines the amount of seconds after which pfmon attempts to resolve a configuration version conflict between cluster members.For example, if this is set to 5 minutes, then a resolution will be attempted when the members will be detected running a different version for more than 5 minutes.'),
+          text: i18n.t('Defines the amount of seconds after which pfmon attempts to resolve a configuration version conflict between cluster members. For example, if this is set to 5 minutes, then a resolution will be attempted when the members will be detected running a different version for more than 5 minutes.'),
           fields: [
             {
               key: 'conflict_resolution_threshold.interval',
