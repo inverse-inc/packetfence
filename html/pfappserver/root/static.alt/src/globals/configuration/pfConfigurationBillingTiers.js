@@ -158,13 +158,18 @@ export const pfConfigurationBillingTierViewFields = (context = {}) => {
                 ...pfConfigurationAttributesFromMeta(meta, 'price'),
                 ...{
                   type: 'number',
-                  step: '0.01',
-                  formatter: (value) => {
-                    return parseFloat(value).toFixed(2)
-                  }
+                  step: '0.01'
                 }
               },
-              validators: pfConfigurationValidatorsFromMeta(meta, 'price', 'Price')
+              validators: {
+                ...pfConfigurationValidatorsFromMeta(meta, 'price', 'Price'),
+                ...{
+                  [i18n.t('Invalid price.')]: conditional((value) => {
+                    if (!value) return true
+                    return parseFloat(value) >= 0 && ((value || '').split('.')[1] || []).length <= 2
+                  })
+                }
+              }
             }
           ]
         },
