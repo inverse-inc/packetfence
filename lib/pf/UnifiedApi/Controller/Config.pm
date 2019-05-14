@@ -471,7 +471,7 @@ sub options {
         return $self->render_error($status, $form);
     }
 
-    return $self->render(json => $self->options_from_form($form, $self->default_values));
+    return $self->render(json => $self->options_from_form($form));
 }
 
 =head2 options_from_form
@@ -481,16 +481,19 @@ Get the options from the form
 =cut
 
 sub options_from_form {
-    my ($self, $form, $defaultValues) = @_;
+    my ($self, $form) = @_;
     my %meta;
     my %output = (
         meta => \%meta,
     );
 
+    my $parent = {
+        placeholders => {},
+    };
     for my $field ($form->fields) {
         next if $field->inactive;
         my $name = $field->name;
-        $meta{$name} = $self->field_meta($field, undef);
+        $meta{$name} = $self->field_meta($field, $parent);
         if ($name eq 'id') {
             $meta{$name}{default} = $self->id_field_default;
         }
@@ -515,15 +518,15 @@ Get a field's meta data
 =cut
 
 sub field_meta {
-    my ($self, $field, $defaultValues, $no_array) = @_;
+    my ($self, $field, $parent_meta, $no_array) = @_;
     my $type = $self->field_type($field, $no_array);
-    my $meta = {
+   my $meta = {
         type        => $type,
         required    => $self->field_is_required($field),
-        placeholder => $self->field_placeholder($field),
-        default     => $self->field_default($field, $defaultValues),
+        placeholder => $self->field_placeholder($field, $parent_meta->{placeholder}),
+        default     => $self->field_default($field, $parent_meta->{default}),
     };
-    my %extra = $self->field_extra_meta($field, $meta);
+    my %extra = $self->field_extra_meta($field, $meta, $parent_meta);
     %$meta = (%$meta, %extra);
 
     if ($type ne 'array' && $type ne 'object') {
@@ -544,13 +547,13 @@ Get the extra meta data for a field
 =cut
 
 sub field_extra_meta {
-    my ($self, $field, $meta, $defaultValues) = @_;
+    my ($self, $field, $meta, $parent_meta) = @_;
     my %extra;
     my $type = $meta->{type};
     if ($type eq 'array') {
         $extra{item} = $self->field_meta_array_items($field, undef, 1);
     } elsif ($type eq 'object') {
-        $extra{properties} = $self->field_meta_object_properties($field, $meta->{default});
+        $extra{properties} = $self->field_meta_object_properties($field, $meta);
     } else {
         if ($field->isa("HTML::FormHandler::Field::Text")) {
             $self->field_text_meta($field, \%extra);
@@ -571,11 +574,11 @@ Get the properties of a field
 =cut
 
 sub field_meta_object_properties {
-    my ($self, $field, $defaultValues) = @_;
+    my ($self, $field, $meta) = @_;
     my %p;
     for my $f ($field->fields) {
         next if $field->inactive;
-        $p{$f->name} = $self->field_meta($f, $defaultValues);
+        $p{$f->name} = $self->field_meta($f, $meta);
     }
 
     return \%p;
@@ -671,11 +674,14 @@ sub resource_options {
     );
     my $inheritedValues = $self->resourceInheritedValues;
     my $defaultValues = $self->default_values;
+    my $parent = {
+        placeholder => $inheritedValues
+    };
     for my $field ($form->fields) {
         next if $field->inactive;
         my $name = $field->name;
         next if $self->isResourceFieldSkippable($field);
-        $meta{$name} = $self->field_meta($field, $defaultValues);
+        $meta{$name} = $self->field_meta($field, $parent);
     }
 
     return $self->render(json => \%output);
@@ -700,8 +706,10 @@ Get the resource inherited values
 
 sub resourceInheritedValues {
     my ($self) = @_;
-    my $values = $self->config_store->readFromImported($self->id, 'id');
+    my $id = $self->id;
+    my $values = $self->config_store->readInherited($id, 'id');
     if ($values) {
+        $values->{id} = $id;
         $values = $self->cleanup_item($values);
     }
 

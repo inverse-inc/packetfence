@@ -1766,7 +1766,7 @@ $t->options_ok("/api/v1/config/base/general")
                     }
                 ],
                 default     => undef,
-                placeholder => undef,
+                placeholder => '',
                 required    => $false,
                 type        => "string"
             }
