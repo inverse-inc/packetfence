@@ -748,7 +748,12 @@ export const pfConfigurationAuthenticationSourceFields = {
         {
           key: 'email_activation_timeout.unit',
           component: pfFormChosen,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'email_activation_timeout.unit'),
+          attrs: {
+            ...pfConfigurationAttributesFromMeta(meta, 'email_activation_timeout.unit'),
+            ...{
+              allowEmpty: false
+            }
+          },
           validators: pfConfigurationValidatorsFromMeta(meta, 'email_activation_timeout.unit', 'Unit')
         }
       ]
@@ -1573,7 +1578,12 @@ export const pfConfigurationAuthenticationSourceFields = {
         {
           key: 'sms_activation_timeout.unit',
           component: pfFormChosen,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'sms_activation_timeout.unit'),
+          attrs: {
+            ...pfConfigurationAttributesFromMeta(meta, 'sms_activation_timeout.unit'),
+            ...{
+              allowEmpty: false
+            }
+          },
           validators: pfConfigurationValidatorsFromMeta(meta, 'sms_activation_timeout.unit', 'Unit')
         }
       ]
