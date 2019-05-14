@@ -31,6 +31,7 @@
                 <pf-form-input :column-label="$t('Sponsor')"
                   v-model.trim="single.sponsor"
                   :vuelidate="$v.single.sponsor"
+                  text="If no sponsor is defined the current user will be used."
                 />
                 <pf-form-input :column-label="$t('Language')"
                   v-model.trim="single.lang"
