@@ -84,42 +84,46 @@ $t->options_ok("/api/v1/config/syslog_parsers")
   ->status_is(200)
   ->json_is(
     {
-        meta => {
-            type => {
-                allowed => [
-                    {
-                        text  => "suricata_md5",
-                        value => "suricata_md5"
-                    },
-                    {
-                        text  => "security_onion",
-                        value => "security_onion"
-                    },
-                    {
-                        text  => "regex",
-                        value => "regex"
-                    },
-                    {
-                        text  => "fortianalyser",
-                        value => "fortianalyser"
-                    },
-                    {
-                        text  => "suricata",
-                        value => "suricata"
-                    },
-                    {
-                        text  => "dhcp",
-                        value => "dhcp"
-                    },
-                    {
-                        text  => "snort",
-                        value => "snort"
-                    }
-                ],
-                type => 'string',
+      meta => {
+        type => {
+          allowed => [
+            {
+              text => "fortianalyser",
+              value => "fortianalyser"
+            },
+            {
+              text => "snort",
+              value => "snort"
+            },
+            {
+              text => "nexpose",
+              value => "nexpose"
+            },
+            {
+              text => "security_onion",
+              value => "security_onion"
+            },
+            {
+              text => "suricata_md5",
+              value => "suricata_md5"
+            },
+            {
+              text => "regex",
+              value => "regex"
+            },
+            {
+              text => "dhcp",
+              value => "dhcp"
+            },
+            {
+              text => "suricata",
+              value => "suricata"
             }
-        },
-        status => 200
+          ],
+          type => "string"
+        }
+      },
+      status => 200
     }
 );
 
