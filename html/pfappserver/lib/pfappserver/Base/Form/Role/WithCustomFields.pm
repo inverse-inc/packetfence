@@ -21,7 +21,7 @@ has_field 'custom_fields' =>
    type => 'Select',
    multiple => 1,
    label => 'Mandatory fields',
-   value_when_empty => undef,
+   value_when_empty => [],
    options_method => \&options_custom_fields,
    element_class => ['chzn-select'],
    element_attr => {'data-placeholder' => 'Click to add a required field'},
@@ -33,7 +33,7 @@ has_field 'fields_to_save' =>
   (
    type => 'Select',
    multiple => 1,
-   value_when_empty => undef,
+   value_when_empty => [],
    label => 'Fields to save',
    options_method => \&options_custom_fields,
    element_class => ['chzn-select'],
