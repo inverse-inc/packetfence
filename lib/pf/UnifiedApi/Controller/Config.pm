@@ -488,7 +488,7 @@ sub options_from_form {
     );
 
     my $parent = {
-        placeholders => {},
+        placeholder => $self->standardPlaceholder
     };
     for my $field ($form->fields) {
         next if $field->inactive;
@@ -502,6 +502,16 @@ sub options_from_form {
     return \%output;
 }
 
+=head2 standardPlaceholder
+
+standardPlaceholder
+
+=cut
+
+sub standardPlaceholder {
+    my ($self) = @_;
+    return $self->config_store->readDefaults;
+}
 
 =head2 id_field_default
 
