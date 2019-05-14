@@ -14,6 +14,7 @@
 </template>
 
 <script>
+import i18n from '@/utils/locale'
 export default {
   name: 'pf-empty-table',
   props: {
@@ -23,7 +24,7 @@ export default {
     },
     text: {
       type: String,
-      default: 'Please refine your search.'
+      default: i18n.t('Please refine your search.')
     },
     icon: {
       type: String,

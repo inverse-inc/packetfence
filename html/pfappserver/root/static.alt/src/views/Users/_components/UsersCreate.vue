@@ -10,12 +10,12 @@
             <b-form-row align-v="center">
               <b-col sm="12">
                 <pf-form-toggle v-model="single.pid_overwrite" :column-label="$t('Username (PID) overwrite')"
-                  :values="{checked: 1, unchecked: 0}" text="Overwrite the username (PID) if it already exists."
+                  :values="{checked: 1, unchecked: 0}" :text="$t('Overwrite the username (PID) if it already exists.')"
                   >{{ (single.pid_overwrite === 1) ? $t('Overwrite') : $t('Ignore') }}</pf-form-toggle>
                 <pf-form-input :column-label="$t('Username (PID)')"
                   v-model.trim="single.pid"
                   :vuelidate="$v.single.pid"
-                  text="The username to use for login to the captive portal."/>
+                  :text="$t('The username to use for login to the captive portal.')"/>
                 <pf-form-password :column-label="$t('Password')" generate
                   v-model="single.password"
                   :vuelidate="$v.single.password"/>
@@ -23,7 +23,7 @@
                   v-model="single.login_remaining"
                   :vuelidate="$v.single.login_remaining"
                   type="number"
-                  text="Leave empty to allow unlimited logins."/>
+                  :text="$t('Leave empty to allow unlimited logins.')"/>
                 <pf-form-input :column-label="$t('Email')"
                   v-model.trim="single.email"
                   :vuelidate="$v.single.email"
@@ -31,7 +31,7 @@
                 <pf-form-input :column-label="$t('Sponsor')"
                   v-model.trim="single.sponsor"
                   :vuelidate="$v.single.sponsor"
-                  text="If no sponsor is defined the current user will be used."
+                  :text="$t('If no sponsor is defined the current user will be used.')"
                 />
                 <pf-form-input :column-label="$t('Language')"
                   v-model.trim="single.lang"
@@ -165,7 +165,7 @@
             <b-form-row align-v="center">
               <b-col sm="12">
                 <pf-form-toggle v-model="multiple.pid_overwrite" :column-label="$t('Username (PID) overwrite')"
-                  :values="{checked: 1, unchecked: 0}" text="Overwrite the username (PID) if it already exists."
+                  :values="{checked: 1, unchecked: 0}" :text="$t('Overwrite the username (PID) if it already exists.')"
                   >{{ (multiple.pid_overwrite === 1) ? $t('Overwrite') : $t('Ignore') }}</pf-form-toggle>
                 <pf-form-input :column-label="$t('Username Prefix')"
                   v-model="multiple.prefix"
@@ -199,7 +199,7 @@
                   v-model="multiple.login_remaining"
                   :vuelidate="$v.multiple.login_remaining"
                   type="number"
-                  text="Leave empty to allow unlimited logins."/>
+                  :text="$t('Leave empty to allow unlimited logins.')"/>
                 <pf-form-input :column-label="$t('Firstname')"
                   v-model="multiple.firstname"
                   :vuelidate="$v.multiple.firstname"

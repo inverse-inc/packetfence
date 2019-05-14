@@ -97,7 +97,7 @@
           @end="sort(exclusiveSources, $event)"
         >
           <template slot="empty">
-            <pf-empty-table :isLoading="isLoading" :text="$t('Click the button to define a new source.')">{{ $t('No exclusive sources defined') }}</pf-empty-table>
+            <pf-empty-table :isLoading="isLoading" :text="$t('Click the button to define a new source.')">{{ $t('No exclusive source defined') }}</pf-empty-table>
           </template>
           <template slot="buttons" slot-scope="{ item }">
             <span class="float-right text-nowrap">

@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 8.3.9\n"
 "POT-Creation-Date: 2019-05-01 12:00-0400\n"
-"PO-Revision-Date: 2019-05-14 09:21-0400\n"
+"PO-Revision-Date: 2019-05-14 13:51-0400\n"
 "Last-Translator: Inverse inc. <support@packetfence.org>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -121,7 +121,7 @@ msgstr ""
 msgid "6 months"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1260
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1265
 msgid "A comma seperated list of IP Address."
 msgstr ""
 
@@ -174,51 +174,51 @@ msgstr ""
 msgid "API Method required."
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:117
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:128
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:139
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:150
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:161
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:172
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:183
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:194
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:205
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:216
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:227
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:238
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:249
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:260
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:271
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:282
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:293
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:118
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:129
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:140
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:151
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:162
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:173
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:184
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:195
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:206
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:217
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:228
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:239
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:250
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:261
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:272
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:283
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:294
 msgid "API Parameters required."
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2254
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2279
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2340
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2376
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2487
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2506
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2264
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2289
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2350
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2386
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2497
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2516
 msgid "API Token Path"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2252
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2277
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2338
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2374
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2485
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2504
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2262
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2287
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2348
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2384
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2495
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2514
 msgid "API URL"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2257
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2282
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2342
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2378
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2403
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2488
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2509
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2267
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2292
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2352
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2388
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2413
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2498
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2519
 msgid "API URL of logged user"
 msgstr ""
 
@@ -271,7 +271,7 @@ msgid "Accept self-registration with email address from the local domain."
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/components/pfFormSecurityEventActions.vue:23
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationBillingTiers.js:184
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationBillingTiers.js:189
 # html/pfappserver/root/static.alt/src/views/Configuration/_components/AccessDurationView.vue:13
 # html/pfappserver/root/static.alt/src/views/Configuration/index.vue:101
 msgid "Access Duration"
@@ -385,7 +385,7 @@ msgstr ""
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAdminRoles.js:508
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:240
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:434
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:399
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:418
 msgid "Action(s) contain one or more errors."
 msgstr ""
 
@@ -397,7 +397,7 @@ msgstr ""
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationPortalModules.js:117
 # html/pfappserver/root/static.alt/src/views/Nodes/_components/NodesSearch.vue:456
 # html/pfappserver/root/static.alt/src/views/Users/_components/UserView.vue:150
-# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:251
+# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:252
 # html/pfappserver/root/static.alt/src/views/Users/_components/UsersImport.vue:39
 # html/pfappserver/root/static.alt/src/views/Users/_components/UsersSearch.vue:353
 msgid "Actions"
@@ -443,7 +443,7 @@ msgstr ""
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAdminRoles.js:479
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationPortalModules.js:123
 # html/pfappserver/root/static.alt/src/views/Users/_components/UserView.vue:151
-# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:252
+# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:253
 # html/pfappserver/root/static.alt/src/views/Users/_components/UsersImport.vue:40
 msgid "Add Action"
 msgstr ""
@@ -486,7 +486,7 @@ msgstr ""
 msgid "Add Rule"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:368
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:387
 msgid "Add Rule - New ( )"
 msgstr ""
 
@@ -545,12 +545,12 @@ msgstr ""
 msgid "Additional message"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2601
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2611
 msgid "Additional settings"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/views/Users/_components/UserView.vue:88
-# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:96
+# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:97
 # html/pfappserver/root/static.alt/src/views/Users/_components/UsersImport.vue:257
 # html/pfappserver/root/static.alt/src/views/Users/_components/UsersSearch.vue:236
 # html/pfappserver/root/static.alt/src/views/Users/_components/UsersSearch.vue:423
@@ -633,7 +633,7 @@ msgstr ""
 msgid "Alert ID"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:350
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:351
 msgid "Alert pipe"
 msgstr ""
 
@@ -770,7 +770,7 @@ msgstr ""
 msgid "Amount of items that will be processed in each batch of this task. Batches are executed until there is no more items to process or until the timeout is reached."
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:974
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:979
 msgid "Amount of logins for the local account"
 msgstr ""
 
@@ -811,7 +811,7 @@ msgid "Android download URI"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/views/Users/_components/UserView.vue:92
-# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:100
+# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:101
 # html/pfappserver/root/static.alt/src/views/Users/_components/UsersImport.vue:243
 # html/pfappserver/root/static.alt/src/views/Users/_components/UsersSearch.vue:226
 # html/pfappserver/root/static.alt/src/views/Users/_components/UsersSearch.vue:411
@@ -837,7 +837,7 @@ msgid "Apartment Number"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/views/Users/_components/UserView.vue:73
-# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:81
+# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:82
 msgid "Apartment number"
 msgstr ""
 
@@ -916,11 +916,11 @@ msgstr ""
 msgid "Are you sure?"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1332
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1337
 msgid "Associated Realms"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1746
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1756
 msgid "Attribute of the username in the SAML response."
 msgstr ""
 
@@ -1136,7 +1136,7 @@ msgid "Bind DN"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/views/Users/_components/UserView.vue:97
-# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:105
+# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:106
 # html/pfappserver/root/static.alt/src/views/Users/_components/UsersImport.vue:250
 # html/pfappserver/root/static.alt/src/views/Users/_components/UsersSearch.vue:231
 # html/pfappserver/root/static.alt/src/views/Users/_components/UsersSearch.vue:417
@@ -1172,7 +1172,7 @@ msgid "Broadcast network"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/views/Users/_components/UserView.vue:78
-# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:86
+# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:87
 # html/pfappserver/root/static.alt/src/views/Users/_components/UsersImport.vue:271
 # html/pfappserver/root/static.alt/src/views/Users/_components/UsersSearch.vue:246
 # html/pfappserver/root/static.alt/src/views/Users/_components/UsersSearch.vue:436
@@ -1360,7 +1360,7 @@ msgid "Captive Portal:"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/views/Users/_components/UserView.vue:63
-# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:71
+# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:72
 msgid "Cellphone number"
 msgstr ""
 
@@ -1423,7 +1423,7 @@ msgstr ""
 msgid "Chained"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationBillingTiers.js:203
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationBillingTiers.js:208
 msgid "Check this box to have the access duration be a real time usage.<br/>This requires a working accounting configuration."
 msgstr ""
 
@@ -1458,7 +1458,7 @@ msgid "Choose Private Key"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/views/Users/_components/UserView.vue:35
-# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:43
+# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:44
 msgid "Choose gender"
 msgstr ""
 
@@ -1575,7 +1575,7 @@ msgstr ""
 msgid "Click to select an action"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2185
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2195
 msgid "Clickatell API Key."
 msgstr ""
 
@@ -1622,8 +1622,8 @@ msgstr ""
 # html/pfappserver/root/static.alt/src/views/Configuration/_components/DeviceRegistrationView.vue:29
 # html/pfappserver/root/static.alt/src/views/Configuration/_components/DeviceRegistrationView.vue:34
 # html/pfappserver/root/static.alt/src/views/Configuration/_components/DeviceRegistrationsList.vue:18
-# html/pfappserver/root/static.alt/src/views/Configuration/_components/DomainView.vue:29
-# html/pfappserver/root/static.alt/src/views/Configuration/_components/DomainView.vue:33
+# html/pfappserver/root/static.alt/src/views/Configuration/_components/DomainView.vue:31
+# html/pfappserver/root/static.alt/src/views/Configuration/_components/DomainView.vue:36
 # html/pfappserver/root/static.alt/src/views/Configuration/_components/DomainsList.vue:29
 # html/pfappserver/root/static.alt/src/views/Configuration/_components/FingerbankCombinationView.vue:30
 # html/pfappserver/root/static.alt/src/views/Configuration/_components/FingerbankCombinationView.vue:35
@@ -1657,8 +1657,8 @@ msgstr ""
 # html/pfappserver/root/static.alt/src/views/Configuration/_components/FloatingDevicesList.vue:18
 # html/pfappserver/root/static.alt/src/views/Configuration/_components/InterfaceView.vue:33
 # html/pfappserver/root/static.alt/src/views/Configuration/_components/InterfaceView.vue:38
-# html/pfappserver/root/static.alt/src/views/Configuration/_components/InterfacesList.vue:172
-# html/pfappserver/root/static.alt/src/views/Configuration/_components/InterfacesList.vue:64
+# html/pfappserver/root/static.alt/src/views/Configuration/_components/InterfacesList.vue:173
+# html/pfappserver/root/static.alt/src/views/Configuration/_components/InterfacesList.vue:65
 # html/pfappserver/root/static.alt/src/views/Configuration/_components/PkiProviderView.vue:30
 # html/pfappserver/root/static.alt/src/views/Configuration/_components/PkiProviderView.vue:35
 # html/pfappserver/root/static.alt/src/views/Configuration/_components/PkiProvidersList.vue:24
@@ -1698,6 +1698,10 @@ msgstr ""
 # html/pfappserver/root/static.alt/src/views/Configuration/_components/WrixLocationView.vue:33
 # html/pfappserver/root/static.alt/src/views/Configuration/_components/WrixLocationsList.vue:20
 msgid "Clone"
+msgstr ""
+
+# html/pfappserver/root/static.alt/src/views/Configuration/_components/DomainView.vue:30
+msgid "Clone & Join"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/views/Configuration/_components/AdminRoleView.vue:21
@@ -1892,7 +1896,7 @@ msgstr ""
 msgid "Close locationlog on accounting stop"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:123
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:124
 msgid "Close security event"
 msgstr ""
 
@@ -2054,8 +2058,8 @@ msgid "Community Write"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/views/Users/_components/UserView.vue:54
-# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:210
-# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:62
+# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:211
+# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:63
 # html/pfappserver/root/static.alt/src/views/Users/_components/UsersImport.vue:285
 # html/pfappserver/root/static.alt/src/views/Users/_components/UsersSearch.vue:256
 # html/pfappserver/root/static.alt/src/views/Users/_components/UsersSearch.vue:450
@@ -2224,7 +2228,7 @@ msgstr ""
 # html/pfappserver/root/static.alt/src/views/Configuration/_components/ConnectionProfileFileView.vue:50
 # html/pfappserver/root/static.alt/src/views/Configuration/_components/ConnectionProfileView.vue:34
 # html/pfappserver/root/static.alt/src/views/Configuration/_components/DeviceRegistrationView.vue:28
-# html/pfappserver/root/static.alt/src/views/Configuration/_components/DomainView.vue:28
+# html/pfappserver/root/static.alt/src/views/Configuration/_components/DomainView.vue:29
 # html/pfappserver/root/static.alt/src/views/Configuration/_components/FingerbankCombinationView.vue:29
 # html/pfappserver/root/static.alt/src/views/Configuration/_components/FingerbankDeviceView.vue:29
 # html/pfappserver/root/static.alt/src/views/Configuration/_components/FingerbankDhcpFingerprintView.vue:29
@@ -2254,9 +2258,13 @@ msgstr ""
 # html/pfappserver/root/static.alt/src/views/Configuration/_components/WrixLocationView.vue:28
 # html/pfappserver/root/static.alt/src/views/Nodes/_components/NodesCreate.vue:48
 # html/pfappserver/root/static.alt/src/views/Nodes/index.vue:36
-# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:269
+# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:270
 # html/pfappserver/root/static.alt/src/views/Users/index.vue:36
 msgid "Create"
+msgstr ""
+
+# html/pfappserver/root/static.alt/src/views/Configuration/_components/DomainView.vue:28
+msgid "Create & Join"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:671
@@ -2283,7 +2291,7 @@ msgstr ""
 msgid "Create file"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:112
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:113
 msgid "Create new user account"
 msgstr ""
 
@@ -2378,47 +2386,47 @@ msgstr ""
 msgid "Custom Field #9"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:119
+# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:120
 # html/pfappserver/root/static.alt/src/views/Users/_components/UsersImport.vue:356
 msgid "Custom Field 1"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:123
+# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:124
 # html/pfappserver/root/static.alt/src/views/Users/_components/UsersImport.vue:363
 msgid "Custom Field 2"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:127
+# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:128
 # html/pfappserver/root/static.alt/src/views/Users/_components/UsersImport.vue:370
 msgid "Custom Field 3"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:131
+# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:132
 # html/pfappserver/root/static.alt/src/views/Users/_components/UsersImport.vue:377
 msgid "Custom Field 4"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:135
+# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:136
 # html/pfappserver/root/static.alt/src/views/Users/_components/UsersImport.vue:384
 msgid "Custom Field 5"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:139
+# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:140
 # html/pfappserver/root/static.alt/src/views/Users/_components/UsersImport.vue:391
 msgid "Custom Field 6"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:143
+# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:144
 # html/pfappserver/root/static.alt/src/views/Users/_components/UsersImport.vue:398
 msgid "Custom Field 7"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:147
+# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:148
 # html/pfappserver/root/static.alt/src/views/Users/_components/UsersImport.vue:405
 msgid "Custom Field 8"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:151
+# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:152
 # html/pfappserver/root/static.alt/src/views/Users/_components/UsersImport.vue:412
 msgid "Custom Field 9"
 msgstr ""
@@ -2619,7 +2627,7 @@ msgid "Database name"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAdvanced.js:112
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:814
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:819
 msgid "Database passwords hashing method"
 msgstr ""
 
@@ -2640,19 +2648,19 @@ msgid "Database:"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/views/Users/_components/UserView.vue:663
-# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:474
+# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:475
 # html/pfappserver/root/static.alt/src/views/Users/_components/UsersImport.vue:467
 msgid "Date must be greater than or equal to start date."
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/views/Users/_components/UserView.vue:659
-# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:469
+# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:470
 # html/pfappserver/root/static.alt/src/views/Users/_components/UsersImport.vue:462
 msgid "Date must be less than or equal to end date."
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:468
-# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:473
+# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:469
+# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:474
 # html/pfappserver/root/static.alt/src/views/Users/_components/UsersImport.vue:461
 # html/pfappserver/root/static.alt/src/views/Users/_components/UsersImport.vue:466
 msgid "Date must be today or later."
@@ -2733,7 +2741,7 @@ msgstr ""
 msgid "Define if the PSK needs to be generated"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1049
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1054
 msgid "Define options for FreeRADIUS home_server definition (if you use the source in the realm configuration). Need a radiusd restart."
 msgstr ""
 
@@ -2799,7 +2807,7 @@ msgstr ""
 msgid "Delay before triggering the security event."
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2443
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2453
 msgid "Delay given to a sponsor to click the activation link."
 msgstr ""
 
@@ -2871,7 +2879,7 @@ msgstr ""
 msgid "Delete Device?"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/views/Configuration/_components/DomainView.vue:34
+# html/pfappserver/root/static.alt/src/views/Configuration/_components/DomainView.vue:37
 # html/pfappserver/root/static.alt/src/views/Configuration/_components/DomainsList.vue:28
 msgid "Delete Domain?"
 msgstr ""
@@ -2954,7 +2962,7 @@ msgstr ""
 msgid "Delete Realm?"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/views/Configuration/_components/InterfacesList.vue:171
+# html/pfappserver/root/static.alt/src/views/Configuration/_components/InterfacesList.vue:172
 # html/pfappserver/root/static.alt/src/views/Configuration/_components/RoutedNetworkView.vue:38
 msgid "Delete Routed Network?"
 msgstr ""
@@ -3010,7 +3018,7 @@ msgstr ""
 msgid "Delete User?"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/views/Configuration/_components/InterfacesList.vue:63
+# html/pfappserver/root/static.alt/src/views/Configuration/_components/InterfacesList.vue:64
 msgid "Delete VLAN?"
 msgstr ""
 
@@ -3053,11 +3061,11 @@ msgstr ""
 msgid "Deregister"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:134
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:135
 msgid "Deregister node by IP"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:255
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:256
 msgid "Deregister node by PID"
 msgstr ""
 
@@ -3169,9 +3177,9 @@ msgstr ""
 msgid "Detection image path"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:317
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:39
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:61
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:318
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:40
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:62
 msgid "Detector"
 msgstr ""
 
@@ -3339,7 +3347,7 @@ msgstr ""
 msgid "Disk Space Usage for /"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1034
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1039
 msgid "Do you want to monitor this source?"
 msgstr ""
 
@@ -3457,7 +3465,7 @@ msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:261
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:455
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:407
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:426
 msgid "Duplicate name."
 msgstr ""
 
@@ -3543,24 +3551,24 @@ msgstr ""
 msgid "Edit Node"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1305
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1310
 msgid "Eduroam RADIUS secret."
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1442
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1469
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1447
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1474
 msgid "Eduroam server 1 address."
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1455
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1460
 msgid "Eduroam server 1 port"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1482
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1487
 msgid "Eduroam server 2 port"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1091
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1096
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationPortalModules.js:53
 # html/pfappserver/root/static.alt/src/views/Users/_components/UserView.vue:19
 # html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:27
@@ -3575,11 +3583,11 @@ msgstr ""
 msgid "Email Activation Timeout"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:773
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:778
 msgid "Email Attribute"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:759
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:764
 msgid "Email address"
 msgstr ""
 
@@ -3588,11 +3596,11 @@ msgid "Email address from which notifications of rogue DHCP servers, violations 
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/views/Users/_components/UserView.vue:667
-# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:442
+# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:443
 msgid "Email address required."
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1092
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1097
 msgid "Email addresses to send the new generated password."
 msgstr ""
 
@@ -3604,7 +3612,7 @@ msgstr ""
 msgid "Email endpoint owner"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:787
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:792
 msgid "Email required"
 msgstr ""
 
@@ -3679,7 +3687,7 @@ msgstr ""
 # html/pfappserver/root/static.alt/src/components/pfButtonService.vue:22
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationFingerbank.js:292
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationMaintenanceTasks.js:315
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:338
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:339
 # html/pfappserver/root/static.alt/src/views/Configuration/_components/ConnectionProfilesList.vue:32
 # html/pfappserver/root/static.alt/src/views/Configuration/_components/ConnectionProfilesList.vue:41
 # html/pfappserver/root/static.alt/src/views/Configuration/_components/MaintenanceTasksList.vue:27
@@ -3723,7 +3731,7 @@ msgid "End Time"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/views/Users/_components/UserView.vue:662
-# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:472
+# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:473
 # html/pfappserver/root/static.alt/src/views/Users/_components/UsersImport.vue:465
 msgid "End date required."
 msgstr ""
@@ -3875,7 +3883,7 @@ msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/pfField.js:188
 # html/pfappserver/root/static.alt/src/views/Users/_components/UserView.vue:36
-# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:44
+# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:45
 msgid "Female"
 msgstr ""
 
@@ -3889,7 +3897,7 @@ msgstr ""
 msgid "Fields to save"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1139
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1144
 msgid "File Path"
 msgstr ""
 
@@ -4020,8 +4028,8 @@ msgid "First Name"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/views/Users/_components/UserView.vue:42
-# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:202
-# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:50
+# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:203
+# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:51
 # html/pfappserver/root/static.alt/src/views/Users/_components/UsersSearch.vue:201
 # html/pfappserver/root/static.alt/src/views/Users/_components/UsersSearch.vue:381
 msgid "Firstname"
@@ -4074,7 +4082,7 @@ msgstr ""
 msgid "Force redirection URL"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1774
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1784
 msgid "Force sponsor to authenticate when validating a guest request."
 msgstr ""
 
@@ -4119,7 +4127,7 @@ msgid "Gateway"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/views/Users/_components/UserView.vue:31
-# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:39
+# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:40
 # html/pfappserver/root/static.alt/src/views/Users/_components/UsersImport.vue:292
 # html/pfappserver/root/static.alt/src/views/Users/_components/UsersSearch.vue:261
 # html/pfappserver/root/static.alt/src/views/Users/_components/UsersSearch.vue:456
@@ -4173,20 +4181,20 @@ msgstr ""
 msgid "Grace"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2229
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2303
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2400
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2239
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2313
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2410
 msgid "Graph API Token Path"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2228
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2302
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2398
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2238
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2312
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2408
 msgid "Graph API URL"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2232
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2306
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2242
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2316
 msgid "Graph API URL of logged user"
 msgstr ""
 
@@ -4194,7 +4202,7 @@ msgstr ""
 msgid "Group"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:801
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:806
 msgid "Group header "
 msgstr ""
 
@@ -4232,9 +4240,9 @@ msgstr ""
 msgid "Home server pool type."
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1220
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:828
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:841
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1225
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:833
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:846
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationPkiProviders.js:171
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationProvisionings.js:363
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogForwarders.js:147
@@ -4468,11 +4476,11 @@ msgstr ""
 msgid "Identifier"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:920
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:925
 msgid "Identity Provider entity ID"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:880
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:885
 msgid "Identity token"
 msgstr ""
 
@@ -4490,6 +4498,10 @@ msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationFencing.js:147
 msgid "If enabled, we will intercept proxy request on the specified ports to forward to the captive portal."
+msgstr ""
+
+# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:34
+msgid "If no sponsor is defined the current user will be used."
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationPortalModules.js:124
@@ -4530,7 +4542,7 @@ msgstr ""
 msgid "If you use an alternative port, please specify. This parameter is ignored when the Syslog transport is selected."
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1194
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1199
 msgid "If you use this source in the realm configuration the accounting port will be this port + 1."
 msgstr ""
 
@@ -4538,7 +4550,7 @@ msgstr ""
 msgid "If you want to authenticate users or machines using a Active Directory Domain Controller (DC), you have to join the PacketFence server to the DC."
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:894
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:899
 msgid "If your Identity Provider uses a self-signed certificate, put the path to its certificate here instead."
 msgstr ""
 
@@ -4552,7 +4564,7 @@ msgid "Iframe Base URL"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:14
-# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:168
+# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:169
 msgid "Ignore"
 msgstr ""
 
@@ -4867,6 +4879,10 @@ msgstr ""
 msgid "Invalid port."
 msgstr ""
 
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationBillingTiers.js:167
+msgid "Invalid price."
+msgstr ""
+
 # html/pfappserver/root/static.alt/src/views/Users/_components/UsersImport.vue:331
 msgid "Invalid source."
 msgstr ""
@@ -4909,11 +4925,11 @@ msgstr ""
 msgid "Key buffer size"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:946
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:951
 msgid "Key file"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2324
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2334
 msgid "Kickbox.io API key."
 msgstr ""
 
@@ -4921,7 +4937,7 @@ msgstr ""
 msgid "LDAP Attributes"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:774
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:779
 msgid "LDAP attribute name that stores the email address against which the filter will match."
 msgstr ""
 
@@ -4933,11 +4949,11 @@ msgstr ""
 msgid "LDAP filter"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1789
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1799
 msgid "LDAP request timeout."
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1319
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1324
 msgid "LDAP response timeout."
 msgstr ""
 
@@ -4949,10 +4965,10 @@ msgstr ""
 msgid "Landgin template"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:960
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:967
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:965
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:972
 # html/pfappserver/root/static.alt/src/views/Users/_components/UserView.vue:27
-# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:35
+# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:36
 # html/pfappserver/root/static.alt/src/views/Users/_components/UsersImport.vue:300
 # html/pfappserver/root/static.alt/src/views/Users/_components/UsersSearch.vue:266
 # html/pfappserver/root/static.alt/src/views/Users/_components/UsersSearch.vue:462
@@ -4963,7 +4979,7 @@ msgstr ""
 msgid "Language choice for the communication with administrators."
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:961
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:966
 msgid "Language for sponsor email."
 msgstr ""
 
@@ -5048,8 +5064,8 @@ msgid "Last modification"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/views/Users/_components/UserView.vue:46
-# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:206
-# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:54
+# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:207
+# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:55
 # html/pfappserver/root/static.alt/src/views/Users/_components/UsersSearch.vue:206
 # html/pfappserver/root/static.alt/src/views/Users/_components/UsersSearch.vue:387
 msgid "Lastname"
@@ -5059,7 +5075,7 @@ msgstr ""
 msgid "Latitude"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:233
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:234
 msgid "Launch a scan for the device"
 msgstr ""
 
@@ -5071,7 +5087,7 @@ msgstr ""
 msgid "Layer2 Network {id}"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/views/Configuration/_components/InterfacesList.vue:81
+# html/pfappserver/root/static.alt/src/views/Configuration/_components/InterfacesList.vue:82
 msgid "Layer2 Networks"
 msgstr ""
 
@@ -5080,6 +5096,8 @@ msgid "Lease length (in seconds) when a device is in parking."
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/views/Users/_components/UserView.vue:125
+# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:202
+# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:26
 msgid "Leave empty to allow unlimited logins."
 msgstr ""
 
@@ -5148,7 +5166,7 @@ msgstr ""
 msgid "List of all the choices offered in the access duration action of an authentication source."
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1585
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1595
 msgid "List of phone carriers available to the user."
 msgstr ""
 
@@ -5187,7 +5205,7 @@ msgstr ""
 msgid "Local Queue"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:988
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:993
 msgid "Local Realms"
 msgstr ""
 
@@ -5271,7 +5289,7 @@ msgid "Login Attempt Limit"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/views/Users/_components/UserView.vue:121
-# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:197
+# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:198
 # html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:22
 msgid "Login remaining"
 msgstr ""
@@ -5348,11 +5366,11 @@ msgstr ""
 msgid "MAC address required."
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1523
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1528
 msgid "MKEY for Mirapay Direct."
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1509
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1514
 msgid "MKEY for the iframe."
 msgstr ""
 
@@ -5373,7 +5391,7 @@ msgstr ""
 msgid "Main Configuration"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1760
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1770
 msgid "Main reference attribute that contain the username."
 msgstr ""
 
@@ -5400,7 +5418,7 @@ msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/pfField.js:187
 # html/pfappserver/root/static.alt/src/views/Users/_components/UserView.vue:36
-# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:44
+# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:45
 msgid "Male"
 msgstr ""
 
@@ -5552,8 +5570,8 @@ msgstr ""
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationConnectionProfiles.js:267
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationConnectionProfiles.js:74
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:192
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:406
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:411
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:425
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:430
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationWrixLocations.js:113
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationWrixLocations.js:126
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationWrixLocations.js:139
@@ -5627,7 +5645,7 @@ msgstr ""
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfiguration.js:218
 # html/pfappserver/root/static.alt/src/globals/pfDatabaseSchema.js:57
 # html/pfappserver/root/static.alt/src/globals/pfDatabaseSchema.js:85
-# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:458
+# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:459
 msgid "Maximum {maxLength} characters."
 msgstr ""
 
@@ -5639,7 +5657,7 @@ msgstr ""
 msgid "Members"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1002
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1007
 msgid "Merchant ID"
 msgstr ""
 
@@ -5674,11 +5692,11 @@ msgstr ""
 msgid "Minimum {minValue}."
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2596
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2606
 msgid "MiraPay direct settings"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2592
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2602
 msgid "MiraPay iframe settings"
 msgstr ""
 
@@ -5699,11 +5717,11 @@ msgstr ""
 msgid "Mode"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:167
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:168
 msgid "Modify existing user"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:156
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:157
 msgid "Modify node by MAC"
 msgstr ""
 
@@ -5718,7 +5736,7 @@ msgstr ""
 msgid "Modules"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1033
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1038
 msgid "Monitor"
 msgstr ""
 
@@ -5732,7 +5750,7 @@ msgid "Multihost"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationPortalModules.js:41
-# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:159
+# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:160
 msgid "Multiple"
 msgstr ""
 
@@ -5884,7 +5902,7 @@ msgstr ""
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:258
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:452
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationFingerbank.js:838
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:405
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:424
 msgid "Name required."
 msgstr ""
 
@@ -6121,7 +6139,7 @@ msgstr ""
 msgid "New Root Module"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/views/Configuration/_components/InterfacesList.vue:138
+# html/pfappserver/root/static.alt/src/views/Configuration/_components/InterfacesList.vue:139
 # html/pfappserver/root/static.alt/src/views/Configuration/_components/RoutedNetworkView.vue:21
 msgid "New Routed Network"
 msgstr ""
@@ -6160,7 +6178,7 @@ msgstr ""
 msgid "New Traffic Shaping Policy"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/views/Configuration/_components/InterfacesList.vue:69
+# html/pfappserver/root/static.alt/src/views/Configuration/_components/InterfacesList.vue:70
 msgid "New VLAN"
 msgstr ""
 
@@ -6232,7 +6250,7 @@ msgid "Next Year"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/views/Users/_components/UserView.vue:50
-# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:58
+# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:59
 # html/pfappserver/root/static.alt/src/views/Users/_components/UsersImport.vue:222
 # html/pfappserver/root/static.alt/src/views/Users/_components/UsersSearch.vue:211
 # html/pfappserver/root/static.alt/src/views/Users/_components/UsersSearch.vue:393
@@ -6333,7 +6351,7 @@ msgid "No domains found"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/views/Configuration/_components/AuthenticationSourcesList.vue:100
-msgid "No exclusive sources defined"
+msgid "No exclusive source defined"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/views/Configuration/_components/AuthenticationSourcesList.vue:73
@@ -6352,7 +6370,7 @@ msgstr ""
 msgid "No internal sources defined"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/views/Configuration/_components/InterfacesList.vue:114
+# html/pfappserver/root/static.alt/src/views/Configuration/_components/InterfacesList.vue:115
 msgid "No layer2 networks found"
 msgstr ""
 
@@ -6395,7 +6413,7 @@ msgstr ""
 msgid "No roles found"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/views/Configuration/_components/InterfacesList.vue:164
+# html/pfappserver/root/static.alt/src/views/Configuration/_components/InterfacesList.vue:165
 msgid "No routed networks found"
 msgstr ""
 
@@ -6579,8 +6597,8 @@ msgstr ""
 # html/pfappserver/root/static.alt/src/views/Nodes/_components/NodesSearch.vue:666
 # html/pfappserver/root/static.alt/src/views/Users/_components/UserView.vue:106
 # html/pfappserver/root/static.alt/src/views/Users/_components/UserView.vue:512
-# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:114
-# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:214
+# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:115
+# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:215
 # html/pfappserver/root/static.alt/src/views/Users/_components/UsersImport.vue:307
 # html/pfappserver/root/static.alt/src/views/Users/_components/UsersSearch.vue:271
 # html/pfappserver/root/static.alt/src/views/Users/_components/UsersSearch.vue:468
@@ -6652,7 +6670,7 @@ msgid "On node tab"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/views/Users/_components/UserView.vue:155
-# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:256
+# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:257
 # html/pfappserver/root/static.alt/src/views/Users/_components/UsersImport.vue:44
 msgid "One or more errors exist."
 msgstr ""
@@ -6795,7 +6813,7 @@ msgstr ""
 msgid "Optional fields"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1048
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1053
 msgid "Options"
 msgstr ""
 
@@ -6825,7 +6843,7 @@ msgstr ""
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationPortalModules.js:71
 # html/pfappserver/root/static.alt/src/globals/pfField.js:189
 # html/pfappserver/root/static.alt/src/views/Users/_components/UserView.vue:36
-# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:44
+# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:45
 msgid "Other"
 msgstr ""
 
@@ -6833,7 +6851,7 @@ msgstr ""
 msgid "Other Reports"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1388
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1393
 msgid "Other attributes that can be used as the username (requires to restart the radiusd service to be effective)."
 msgstr ""
 
@@ -6854,8 +6872,13 @@ msgid "Outstanding Task Counters"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:14
-# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:168
+# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:169
 msgid "Overwrite"
+msgstr ""
+
+# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:13
+# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:168
+msgid "Overwrite the username (PID) if it already exists."
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/pfReports.js:365
@@ -6883,7 +6906,7 @@ msgstr ""
 msgid "PID field"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1179
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1184
 msgid "PIN length"
 msgstr ""
 
@@ -6994,7 +7017,7 @@ msgstr ""
 msgid "Passthroughs Domains"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1067
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1072
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationCiscoMobilityServicesEngine.js:56
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationDatabase.js:68
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationFirewalls.js:167
@@ -7009,7 +7032,7 @@ msgstr ""
 # html/pfappserver/root/static.alt/src/views/Login/index.vue:17
 # html/pfappserver/root/static.alt/src/views/Users/_components/UserView.vue:115
 # html/pfappserver/root/static.alt/src/views/Users/_components/UserView.vue:117
-# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:178
+# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:179
 # html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:19
 # html/pfappserver/root/static.alt/src/views/Users/_components/UsersImport.vue:194
 # html/pfappserver/root/static.alt/src/views/Users/_components/UsersPreviewModal.vue:45
@@ -7024,7 +7047,7 @@ msgstr ""
 msgid "Password Options"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1119
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1124
 msgid "Password Rotation Period"
 msgstr ""
 
@@ -7040,16 +7063,16 @@ msgstr ""
 msgid "Password for the username filled in above."
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1105
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1110
 msgid "Password length "
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:446
+# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:447
 msgid "Password must be at least 6 characters."
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/views/Configuration/_components/DomainsList.vue:157
-# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:445
+# html/pfappserver/root/static.alt/src/views/Configuration/_components/DomainsList.vue:161
+# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:446
 msgid "Password required."
 msgstr ""
 
@@ -7069,19 +7092,19 @@ msgstr ""
 msgid "Path of the client key that will be used to generate the p12."
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:893
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:898
 msgid "Path to Identity Provider CA cert (x509)"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:907
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:912
 msgid "Path to Identity Provider cert (x509)"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:933
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:938
 msgid "Path to Identity Provider metadata"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1611
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1621
 msgid "Path to Service Provider key (x509)"
 msgstr ""
 
@@ -7089,11 +7112,11 @@ msgstr ""
 msgid "Path used to fetch the database on the Fingerbank API."
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1152
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1157
 msgid "Payment type"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1165
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1170
 msgid "Paypal cert file"
 msgstr ""
 
@@ -7117,7 +7140,7 @@ msgstr ""
 msgid "Performance schema"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1120
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1125
 msgid "Period of time after the password must be rotated."
 msgstr ""
 
@@ -7133,7 +7156,7 @@ msgstr ""
 msgid "PfPerl API Timeout"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1719
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1729
 msgid "Phone Number (From)"
 msgstr ""
 
@@ -7169,6 +7192,7 @@ msgstr ""
 msgid "Please refine CSV parser options."
 msgstr ""
 
+# html/pfappserver/root/static.alt/src/components/pfEmptyTable.vue:27
 # html/pfappserver/root/static.alt/src/components/pfFormChosen.vue:36
 msgid "Please refine your search."
 msgstr ""
@@ -7182,7 +7206,7 @@ msgstr ""
 msgid "Policies and Access Control"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1193
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1198
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationConnectionProfiles.js:94
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationDatabase.js:32
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationFirewalls.js:36
@@ -7245,7 +7269,7 @@ msgstr ""
 msgid "Portal Modules:"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1346
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1351
 msgid "Portal URL"
 msgstr ""
 
@@ -7446,28 +7470,28 @@ msgstr ""
 msgid "Proxy Port"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1259
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1264
 msgid "Proxy addresses"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/views/Users/_components/UserView.vue:102
-# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:110
+# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:111
 msgid "Psk"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1278
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1283
 msgid "Public Client Key"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1291
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1296
 msgid "Publishable key"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:173
+# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:174
 msgid "Quantity"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:461
+# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:462
 msgid "Quantity must be greater than 0."
 msgstr ""
 
@@ -7595,7 +7619,7 @@ msgstr ""
 msgid "RADIUS machine auth with username"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1304
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1309
 msgid "RADIUS secret"
 msgstr ""
 
@@ -7608,13 +7632,17 @@ msgstr ""
 msgid "REALMS"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1537
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1542
 msgid "Randomly choose LDAP server to query."
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationLayer2Networks.js:179
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationRoutedNetworks.js:289
 msgid "Range like 192.168.0.1-192.168.0.20 and or IP like 192.168.0.22,192.168.0.24 will be excluded from the DHCP pool."
+msgstr ""
+
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:363
+msgid "Rate limit"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationCaptivePortal.js:234
@@ -7646,20 +7674,20 @@ msgstr ""
 msgid "Realm {id}"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2036
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2137
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2046
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2147
 msgid "Realms that will be associated with this source (For the Portal/Admin GUI/RADIUS post-auth, not for FreeRADIUS proxy)."
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1333
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1338
 msgid "Realms that will be associated with this source."
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:989
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:994
 msgid "Realms that will be authenticate locally."
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1361
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1366
 msgid "Realms that will be rejected."
 msgstr ""
 
@@ -7704,7 +7732,7 @@ msgstr ""
 msgid "Reevaluate Access"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:178
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:179
 msgid "Reevaluate access by MAC"
 msgstr ""
 
@@ -7746,7 +7774,7 @@ msgstr ""
 msgid "Regex"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:410
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:429
 msgid "Regex required."
 msgstr ""
 
@@ -7756,15 +7784,15 @@ msgstr ""
 msgid "Register"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:189
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:190
 msgid "Register a new node by PID"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:200
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:201
 msgid "Register node by IP"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:145
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:146
 msgid "Register node by MAC"
 msgstr ""
 
@@ -7825,7 +7853,7 @@ msgid "Registration IP Address CIDR format"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/views/Users/_components/UserView.vue:130
-# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:229
+# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:230
 # html/pfappserver/root/static.alt/src/views/Users/_components/UsersImport.vue:18
 msgid "Registration Window"
 msgstr ""
@@ -7834,7 +7862,7 @@ msgstr ""
 msgid "Registration status of online devices"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1360
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1365
 msgid "Reject Realms"
 msgstr ""
 
@@ -7859,7 +7887,7 @@ msgstr ""
 msgid "Release Date"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:211
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:212
 msgid "Release all security events for node by MAC"
 msgstr ""
 
@@ -7892,7 +7920,7 @@ msgstr ""
 msgid "Request Time"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1788
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1798
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationCaptivePortal.js:134
 msgid "Request timeout"
 msgstr ""
@@ -7939,7 +7967,7 @@ msgstr ""
 # html/pfappserver/root/static.alt/src/views/Configuration/_components/DatabaseAdvancedView.vue:21
 # html/pfappserver/root/static.alt/src/views/Configuration/_components/DatabaseView.vue:21
 # html/pfappserver/root/static.alt/src/views/Configuration/_components/DeviceRegistrationView.vue:33
-# html/pfappserver/root/static.alt/src/views/Configuration/_components/DomainView.vue:32
+# html/pfappserver/root/static.alt/src/views/Configuration/_components/DomainView.vue:35
 # html/pfappserver/root/static.alt/src/views/Configuration/_components/FencingView.vue:21
 # html/pfappserver/root/static.alt/src/views/Configuration/_components/FilterEngineView.vue:27
 # html/pfappserver/root/static.alt/src/views/Configuration/_components/FingerbankCombinationView.vue:34
@@ -7989,7 +8017,7 @@ msgstr ""
 msgid "Response time"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1318
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1323
 msgid "Response timeout"
 msgstr ""
 
@@ -8062,7 +8090,7 @@ msgstr ""
 # html/pfappserver/root/static.alt/src/components/pfFormSecurityEventTrigger.vue:95
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfiguration.js:326
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfiguration.js:342
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationBillingTiers.js:172
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationBillingTiers.js:177
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationPortalModules.js:159
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationPortalModules.js:272
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationPortalModules.js:545
@@ -8168,7 +8196,7 @@ msgid "Roles:"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/views/Users/_components/UserView.vue:83
-# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:91
+# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:92
 # html/pfappserver/root/static.alt/src/views/Users/_components/UsersImport.vue:278
 # html/pfappserver/root/static.alt/src/views/Users/_components/UsersSearch.vue:251
 # html/pfappserver/root/static.alt/src/views/Users/_components/UsersSearch.vue:443
@@ -8203,7 +8231,7 @@ msgstr ""
 msgid "Routed Network {id}"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/views/Configuration/_components/InterfacesList.vue:128
+# html/pfappserver/root/static.alt/src/views/Configuration/_components/InterfacesList.vue:129
 msgid "Routed Networks"
 msgstr ""
 
@@ -8218,7 +8246,7 @@ msgstr ""
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:272
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:466
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationScans.js:447
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:416
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:435
 msgid "Rule(s) contain one or more errors."
 msgstr ""
 
@@ -8236,11 +8264,11 @@ msgstr ""
 msgid "SMS"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1564
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1569
 msgid "SMS Activation Timeout "
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1584
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1594
 msgid "SMS Carriers"
 msgstr ""
 
@@ -8256,7 +8284,7 @@ msgstr ""
 msgid "SMS Source for sending user create messages"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1015
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1020
 msgid "SMS text message ($pin will be replaced by the PIN number)"
 msgstr ""
 
@@ -8357,7 +8385,7 @@ msgstr ""
 msgid "SSO on accounting"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:429
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:448
 msgid "Sample Log Lines"
 msgstr ""
 
@@ -8379,7 +8407,7 @@ msgstr ""
 # html/pfappserver/root/static.alt/src/views/Configuration/_components/DatabaseAdvancedView.vue:19
 # html/pfappserver/root/static.alt/src/views/Configuration/_components/DatabaseView.vue:19
 # html/pfappserver/root/static.alt/src/views/Configuration/_components/DeviceRegistrationView.vue:31
-# html/pfappserver/root/static.alt/src/views/Configuration/_components/DomainView.vue:30
+# html/pfappserver/root/static.alt/src/views/Configuration/_components/DomainView.vue:32
 # html/pfappserver/root/static.alt/src/views/Configuration/_components/FencingView.vue:19
 # html/pfappserver/root/static.alt/src/views/Configuration/_components/FilterEngineView.vue:25
 # html/pfappserver/root/static.alt/src/views/Configuration/_components/FingerbankCombinationView.vue:32
@@ -8460,6 +8488,10 @@ msgstr ""
 # html/pfappserver/root/static.alt/src/views/Configuration/_components/WrixLocationView.vue:30
 # html/pfappserver/root/static.alt/src/views/Users/_components/UserView.vue:238
 msgid "Save & Close"
+msgstr ""
+
+# html/pfappserver/root/static.alt/src/views/Configuration/_components/DomainView.vue:33
+msgid "Save & Join"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/components/pfSearch.vue:17
@@ -8544,7 +8576,7 @@ msgstr ""
 msgid "Scans:"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1374
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1379
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:148
 msgid "Scope"
 msgstr ""
@@ -8611,7 +8643,7 @@ msgstr ""
 msgid "Search by WRIX Identifier"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:78
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:79
 msgid "Search by detector or type"
 msgstr ""
 
@@ -8705,7 +8737,7 @@ msgstr ""
 msgid "Search imported"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1401
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1406
 msgid "Secret"
 msgstr ""
 
@@ -8714,7 +8746,7 @@ msgstr ""
 msgid "Secret Passphrase"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1414
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1419
 msgid "Secret key"
 msgstr ""
 
@@ -8849,9 +8881,9 @@ msgstr ""
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:231
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:423
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationPortalModules.js:129
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:376
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:395
 # html/pfappserver/root/static.alt/src/views/Users/_components/UserView.vue:318
-# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:402
+# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:403
 # html/pfappserver/root/static.alt/src/views/Users/_components/UsersImport.vue:437
 msgid "Select action type"
 msgstr ""
@@ -8859,9 +8891,9 @@ msgstr ""
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:232
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:424
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationPortalModules.js:130
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:377
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:396
 # html/pfappserver/root/static.alt/src/views/Users/_components/UserView.vue:319
-# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:403
+# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:404
 # html/pfappserver/root/static.alt/src/views/Users/_components/UsersImport.vue:438
 msgid "Select action value"
 msgstr ""
@@ -8944,7 +8976,7 @@ msgstr ""
 msgid "Send"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1427
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1432
 msgid "Send billing confirmation"
 msgstr ""
 
@@ -8976,11 +9008,11 @@ msgstr ""
 msgid "Sender"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1441
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1446
 msgid "Server 1 address"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1468
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1473
 msgid "Server 2 address"
 msgstr ""
 
@@ -9033,7 +9065,7 @@ msgstr ""
 msgid "Service <code>{service}</code> stopped."
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1495
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1500
 msgid "Service FQDN"
 msgstr ""
 
@@ -9041,7 +9073,7 @@ msgstr ""
 msgid "Service Provider Brand"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1598
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1608
 msgid "Service Provider entity ID"
 msgstr ""
 
@@ -9098,11 +9130,11 @@ msgstr ""
 msgid "Shared KEY for VRRP protocol (must be the same on all members)."
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1508
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1513
 msgid "Shared Secret"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1522
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1527
 msgid "Shared Secret Direct"
 msgstr ""
 
@@ -9306,7 +9338,7 @@ msgstr ""
 msgid "Show the parking portal to the device instead of the usual portal."
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1536
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1541
 msgid "Shuffle"
 msgstr ""
 
@@ -9443,7 +9475,7 @@ msgstr ""
 msgid "Sponsor"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1773
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1783
 msgid "Sponsor Validation"
 msgstr ""
 
@@ -9451,11 +9483,11 @@ msgstr ""
 msgid "Sponsor email"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1625
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1635
 msgid "Sponsors requesting access and access confirmation emails are BCC'ed to this address. Multiple destinations can be comma-separated."
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1624
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1634
 msgid "Sponsorship BCC"
 msgstr ""
 
@@ -9494,7 +9526,7 @@ msgid "Start Time"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/views/Users/_components/UserView.vue:658
-# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:467
+# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:468
 # html/pfappserver/root/static.alt/src/views/Users/_components/UsersImport.vue:460
 msgid "Start date required."
 msgstr ""
@@ -9544,7 +9576,7 @@ msgstr ""
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationInterfaces.js:167
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationMaintenanceTasks.js:26
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSecurityEvents.js:29
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:33
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:34
 # html/pfappserver/root/static.alt/src/globals/pfReports.js:423
 # html/pfappserver/root/static.alt/src/views/Nodes/_components/NodeView.vue:21
 # html/pfappserver/root/static.alt/src/views/Nodes/_components/NodeView.vue:502
@@ -9623,7 +9655,7 @@ msgstr ""
 msgid "Stripping Configuration"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1638
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1648
 msgid "Style"
 msgstr ""
 
@@ -9806,7 +9838,7 @@ msgstr ""
 msgid "Syslog Name"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:331
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:332
 msgid "Syslog Parser exists."
 msgstr ""
 
@@ -9943,7 +9975,7 @@ msgid "Telephone"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/views/Users/_components/UserView.vue:58
-# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:66
+# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:67
 msgid "Telephone number"
 msgstr ""
 
@@ -9973,19 +10005,19 @@ msgstr ""
 msgid "Tenant ID"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1651
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1661
 msgid "Terminal Group ID"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1652
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1662
 msgid "Terminal Group ID for Mirapay Direct."
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1665
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1675
 msgid "Terminal ID"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1666
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1676
 msgid "Terminal ID for Mirapay Direct."
 msgstr ""
 
@@ -9993,7 +10025,7 @@ msgstr ""
 msgid "Test"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:464
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:483
 msgid "Test Dry Run"
 msgstr ""
 
@@ -10001,7 +10033,7 @@ msgstr ""
 msgid "Test Join"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:424
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:443
 msgid "Test Syslog Parser"
 msgstr ""
 
@@ -10013,7 +10045,7 @@ msgstr ""
 msgid "Test join success."
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1679
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1689
 msgid "Test mode"
 msgstr ""
 
@@ -10065,7 +10097,7 @@ msgstr ""
 msgid "The URL on which the user should be redirected."
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationBillingTiers.js:185
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationBillingTiers.js:190
 msgid "The access duration of the devices that use this tier."
 msgstr ""
 
@@ -10081,11 +10113,11 @@ msgstr ""
 msgid "The algorithm used to hash the passwords in the database. This will only affect newly created or reset passwords."
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:815
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:820
 msgid "The algorithm used to hash the passwords in the database.This will only affect newly created or reset passwords."
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1180
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1185
 msgid "The amount of digits of the PIN number."
 msgstr ""
 
@@ -10109,7 +10141,7 @@ msgstr ""
 msgid "The amount of time between network connectivity detection checks."
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:975
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:980
 msgid "The amount of times, the local account can be used after its created. 0 means infinite."
 msgstr ""
 
@@ -10153,7 +10185,7 @@ msgstr ""
 msgid "The domain to use for the authentication in that realm."
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:760
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:765
 msgid "The email address associated to your paypal account."
 msgstr ""
 
@@ -10173,7 +10205,7 @@ msgstr ""
 msgid "The host on which the Fingerbank collector should be reached."
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1347
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1352
 msgid "The hostname must be the one of your captive portal."
 msgstr ""
 
@@ -10189,7 +10221,7 @@ msgstr ""
 msgid "The key_buffer_size MySQL configuration attribute (in MB). Only change if you know what you are doing. Will only affect a locally running MySQL server."
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1106
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1111
 msgid "The length of the password to generate."
 msgstr ""
 
@@ -10229,7 +10261,7 @@ msgstr ""
 msgid "The password used to connect to the SMTP server."
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1166
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1171
 msgid "The path to the Paypal certificate you downloaded."
 msgstr ""
 
@@ -10237,7 +10269,7 @@ msgstr ""
 msgid "The path to the RADIUS server certificate."
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:947
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:952
 msgid "The path to the associated key of the certificate you submitted to Paypal."
 msgstr ""
 
@@ -10326,7 +10358,7 @@ msgstr ""
 msgid "The table_cache MySQL configuration attribute. Only change if you know what you are doing. Will only affect a locally running MySQL server."
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationBillingTiers.js:173
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationBillingTiers.js:178
 msgid "The target role of the devices that use this tier."
 msgstr ""
 
@@ -10364,6 +10396,7 @@ msgid "The url used to connect to the SCEP PKI service."
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/views/Users/_components/UserView.vue:18
+# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:18
 msgid "The username to use for login to the captive portal."
 msgstr ""
 
@@ -10371,7 +10404,7 @@ msgstr ""
 msgid "The username used to connect to the SMTP server."
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:161
+# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:162
 msgid "The usernames are constructed from the <b>prefix</b> and the <b>quantity</b>. For example, setting the prefix to <i>guest</i> and the quantity to <i>3</i> creates usernames <i>guest1</i>, <i>guest2</i> and <i>guest3</i>. Random passwords will be created."
 msgstr ""
 
@@ -10480,11 +10513,11 @@ msgstr ""
 msgid "This is the default access duration value selected in the dropdown. The value must be part of the above list of access duration choices."
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1565
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1570
 msgid "This is the delay given to a guest who registered by SMS confirmation to fill the PIN code."
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2207
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:2217
 msgid "This is the delay given to a guest who registered by email confirmation to log into his email and click the activation link."
 msgstr ""
 
@@ -10559,7 +10592,7 @@ msgstr ""
 msgid "Timeline"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1693
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1703
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationMaintenanceTasks.js:330
 msgid "Timeout"
 msgstr ""
@@ -10569,7 +10602,7 @@ msgid "Timezone"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/views/Users/_components/UserView.vue:38
-# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:46
+# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:47
 # html/pfappserver/root/static.alt/src/views/Users/_components/UsersImport.vue:201
 # html/pfappserver/root/static.alt/src/views/Users/_components/UsersSearch.vue:196
 # html/pfappserver/root/static.alt/src/views/Users/_components/UsersSearch.vue:375
@@ -10603,7 +10636,7 @@ msgstr ""
 msgid "Traffic Shaping Policy {id}"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1706
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1716
 msgid "Transaction key"
 msgstr ""
 
@@ -10647,7 +10680,7 @@ msgstr ""
 msgid "Trigger Single-Sign-On (Firewall SSO) on dhcp."
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:244
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:245
 msgid "Trigger a security event"
 msgstr ""
 
@@ -10676,7 +10709,7 @@ msgstr ""
 msgid "Twilio Auth Token."
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1720
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1730
 msgid "Twilio provided phone number which will show as the sender."
 msgstr ""
 
@@ -10703,8 +10736,8 @@ msgstr ""
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:94
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogForwarders.js:29
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogForwarders.js:50
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:45
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:66
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:46
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:67
 # html/pfappserver/root/static.alt/src/globals/pfReports.js:759
 # html/pfappserver/root/static.alt/src/views/Configuration/_components/PortalModulesList.vue:131
 # html/pfappserver/root/static.alt/src/views/Configuration/_components/SwitchGroupViewMembers.vue:100
@@ -10826,15 +10859,15 @@ msgstr ""
 msgid "Unregistration date"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:266
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:267
 msgid "Update ip4log by IP and MAC"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:277
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:278
 msgid "Update ip6log by IP and MAC"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:288
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:289
 msgid "Update role configuration"
 msgstr ""
 
@@ -10937,7 +10970,7 @@ msgstr ""
 msgid "Use RADIUS filters in packetfence-tunnel authorize"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationBillingTiers.js:202
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationBillingTiers.js:207
 msgid "Use Time Balance"
 msgstr ""
 
@@ -11007,7 +11040,7 @@ msgstr ""
 msgid "User does not exist."
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1733
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1743
 msgid "User header "
 msgstr ""
 
@@ -11047,16 +11080,16 @@ msgid "Username (PID)"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:12
-# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:166
+# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:167
 msgid "Username (PID) overwrite"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1387
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1759
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1392
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:1769
 msgid "Username Attribute"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:169
+# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:170
 msgid "Username Prefix"
 msgstr ""
 
@@ -11064,7 +11097,7 @@ msgstr ""
 msgid "Username attributes"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:439
+# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:440
 msgid "Username exists."
 msgstr ""
 
@@ -11080,13 +11113,13 @@ msgstr ""
 msgid "Username of the account with access to the mysql database used by PacketFence."
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:457
+# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:458
 msgid "Username prefix required."
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/views/Configuration/_components/DomainsList.vue:154
+# html/pfappserver/root/static.alt/src/views/Configuration/_components/DomainsList.vue:158
 # html/pfappserver/root/static.alt/src/views/Nodes/_components/NodeView.vue:566
-# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:438
+# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:439
 msgid "Username required."
 msgstr ""
 
@@ -11638,7 +11671,7 @@ msgid "Workgroup"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/views/Users/_components/UserView.vue:68
-# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:76
+# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:77
 msgid "Workphone number"
 msgstr ""
 
@@ -12016,7 +12049,7 @@ msgstr ""
 msgid "registration"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:222
+# html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:223
 msgid "role_detail"
 msgstr ""
 
@@ -12137,7 +12170,7 @@ msgid "{certificate} certificate saved"
 msgstr ""
 
 # html/pfappserver/root/static.alt/src/components/pfFormPassword.vue:55
-# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:183
+# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:184
 # html/pfappserver/root/static.alt/src/views/Users/_components/UsersImport.vue:58
 msgid "{count} characters"
 msgstr ""
@@ -12174,7 +12207,7 @@ msgstr ""
 msgid "{num} {unit} from now"
 msgstr ""
 
-# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:546
+# html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:547
 msgid "{quantity} users created"
 msgstr ""
 
