@@ -70,20 +70,7 @@ enabled=N
 [1100004]
 desc=Ancient OS isolation example
 template=banned_os
-trigger=DEVICE::28,DEVICE::29,DEVICE::30,DEVICE::31,DEVICE::32
-actions=reevaluate_access,email_admin,log
-enabled=N
-
-#
-# Example config to block a specific Browser User Agent
-# Trigger format: The number is the ID of the user-agent from the 'User Agent' list in Fingerbank (either 'upstream' or 'local' or both)
-#
-# The below example blocks user-agents IDs 101 and 102.
-#
-[1100005]
-desc=Browser isolation example
-template=banned_devices
-trigger=USER_AGENT::101,USER_AGENT::102
+trigger=DEVICE::28,DEVICE::29,DEVICE::30
 actions=reevaluate_access,email_admin,log
 enabled=N
 
