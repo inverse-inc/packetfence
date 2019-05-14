@@ -43,7 +43,7 @@ Build the base options for validation (all of the rows in the Model mapped by ID
 sub build_options {
     my ($self) = @_;
     if ($self->no_options) {
-        return;
+        return [];
     }
     # no need for pretty formatting, this is just for validation purposes
     my @options = map { 

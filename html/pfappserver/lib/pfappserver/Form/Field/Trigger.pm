@@ -17,7 +17,7 @@ extends 'HTML::FormHandler::Field::Compound';
 has '+inflate_default_method'=> ( default => sub { \&inflate } );
 has '+deflate_value_method'=> ( default => sub { \&deflate } );
 
-use pf::constants::trigger qw($TRIGGER_MAP);
+use pf::constants::trigger qw($TRIGGER_MAP $TRIGGER_TYPE_INTERNAL $TRIGGER_TYPE_SURICATA_EVENT $TRIGGER_TYPE_NEXPOSE_EVENT_STARTS_WITH);
 use pf::factory::condition::security_event;
 use pf::ConfigStore::Roles;
 use fingerbank::Model::Device;
@@ -26,15 +26,23 @@ use fingerbank::Model::DHCP_Fingerprint;
 use fingerbank::Model::DHCP6_Fingerprint;
 use fingerbank::Model::DHCP_Vendor;
 use fingerbank::Model::MAC_Vendor;
+our @SUGGESTED_VALUES = (
+    $TRIGGER_TYPE_INTERNAL,
+    $TRIGGER_TYPE_SURICATA_EVENT,
+    $TRIGGER_TYPE_NEXPOSE_EVENT_STARTS_WITH
+);
 
-our %SKIPPED = map { $_ => 1 } qw(
-  role
-  device
-  dhcp_fingerprint
-  dhcp_vendor
-  dhcp6_fingerprint
-  dhcp6_enterprise
-  mac_vendor
+our %SKIPPED = map { $_ => 1 } (
+    qw(
+      role
+      device
+      dhcp_fingerprint
+      dhcp_vendor
+      dhcp6_fingerprint
+      dhcp6_enterprise
+      mac_vendor
+    ),
+    @SUGGESTED_VALUES
 );
 
 has_field 'role' => (
@@ -99,6 +107,18 @@ for my $trigger (keys %pf::factory::condition::security_event::TRIGGER_TYPE_TO_C
     } else {
         has_field $trigger => (
             type => 'Text'
+        );
+    }
+}
+
+for my $trigger (@SUGGESTED_VALUES) {
+    if (exists $TRIGGER_MAP->{$trigger}) {
+        my $value = $TRIGGER_MAP->{$trigger};
+        has_field $trigger => (
+            type => 'SelectSuggested',
+            options_method => sub {
+                return map { { label => $_, value => $_ } } keys %$value;
+            },
         );
     }
 }
