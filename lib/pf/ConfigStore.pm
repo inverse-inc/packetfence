@@ -833,6 +833,16 @@ sub readWithoutInherited {
     return $item;
 }
 
+sub readDefaults {
+    my ($self) = @_;
+    my $default_section = $self->default_section; 
+    if (!defined $default_section) {
+        return undef;
+    }
+    
+    return $self->read($default_section, 'id');
+}
+
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 =head1 COPYRIGHT
