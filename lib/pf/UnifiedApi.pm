@@ -1306,7 +1306,7 @@ setup_api_v1_config_certificates_routes
 sub setup_api_v1_config_certificates_routes {
     my ($self, $root) = @_;
     my $root_name = $root->name;
-    $root->any("/certificates/lets_encrypt/test")->any(['GET'])->to("Config::Certificates#lets_encrypt_test")->name("${root_name}.Certificates.list.lets_encrypt_test");
+    $root->any(["GET"] => "/certificates/lets_encrypt/test")->to("Config::Certificates#lets_encrypt_test")->name("${root_name}.Certificates.lets_encrypt_test");
 
     my $resource_route = $root->under("/certificate/#certificate_id")->to(controller => "Config::Certificates", action => 'resource')->name("${root_name}.Certificates.resource");
     my $resource_name = $resource_route->name;
@@ -1736,7 +1736,7 @@ setup_api_v1_emails_route
 
 sub setup_api_v1_emails_route {
     my ($self, $root) = @_;
-    my $resource_route = $root->any("email")->to(controller => "Emails" );
+    my $resource_route = $root->any("email")->to(controller => "Emails" )->name("api.v1.Emails");
     $resource_route->register_sub_action({ method => 'POST', action => 'preview', path => 'preview'});
     $resource_route->register_sub_action({ method => 'POST', action => 'send_email', path => 'send'});
     return ;
