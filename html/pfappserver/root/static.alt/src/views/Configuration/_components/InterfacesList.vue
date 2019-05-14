@@ -44,7 +44,8 @@
               >{{ (data.item.is_running === true) ? $t('up') : $t('down') }}</pf-form-range-toggle>
             </template>
             <template slot="id" slot-scope="data">
-              <span class="text-nowrap">{{ data.item.name }}<b-badge v-if="data.item.vlan" class="ml-2" variant="secondary">VLAN {{ data.item.vlan }}</b-badge></span>
+              <span class="text-nowrap" class="mr-2">{{ data.item.name }}</span>
+              <b-badge v-if="data.item.vlan" variant="secondary">VLAN {{ data.item.vlan }}</b-badge>
             </template>
             <template slot="network" slot-scope="data">
               <router-link v-if="layer2NetworkIds.includes(data.value)" :to="{ name: 'layer2_network', params: { id: data.value } }">{{ data.value }}</router-link>
