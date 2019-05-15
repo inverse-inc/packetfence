@@ -1843,7 +1843,7 @@ To upgrade the database schema, run the following command:
 
 Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 8.3.0).
 
-Upgrading from a version prior to X.Y.Z
+Upgrading from a version prior to 9.0.0
 ---------------------------------------
 
 Necessity to use MariaDB
@@ -1892,6 +1892,6 @@ An SQL upgrade script has been provided to upgrade the database from the X.X sch
 
 To upgrade the database schema, run the following command:
 
-  mysql -u root -p pf -v < /usr/local/pf/db/upgrade-X.X.X-X.Y.Z.sql
+  mysql -u root -p pf -v < /usr/local/pf/db/upgrade-8.3.0-9.0.0.sql
 
-Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence X.Y.Z).
+Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 9.0.0).

@@ -7,9 +7,9 @@
 -- Setting the major/minor/sub-minor version of the DB                                                                 
 --                                                                                                                     
 
-SET @MAJOR_VERSION = 8; 
-SET @MINOR_VERSION = 3;
-SET @SUBMINOR_VERSION = 9;                                                                                             
+SET @MAJOR_VERSION = 9; 
+SET @MINOR_VERSION = 0;
+SET @SUBMINOR_VERSION = 0;                                                                                             
                                                                                                                        
 SET @PREV_MAJOR_VERSION = 8;                                                                                           
 SET @PREV_MINOR_VERSION = 3;
