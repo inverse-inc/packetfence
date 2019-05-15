@@ -217,7 +217,8 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
   } = context
 
   const placeholder = (key = null) => {
-    return (key in meta && 'placeholder' in meta[key]) ? meta[key].placeholder : null
+    const { [key]: { placeholder = null } = {} } = meta
+    return placeholder
   }
 
   return [
@@ -431,10 +432,10 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
               key: 'uplink_dynamic',
               component: pfFormRangeToggleDefault,
               attrs: {
-                values: { checked: 'dynamic', unchecked: '', default: placeholder('uplink_dynamic') },
+                values: { checked: 'dynamic', unchecked: 'static', default: placeholder('uplink_dynamic') },
                 icons: { checked: 'check', unchecked: 'times' },
                 colors: { checked: 'var(--primary)', default: (placeholder('uplink_dynamic') === 'Y') ? 'var(--primary)' : '' },
-                tooltips: { checked: i18n.t('Y'), unchecked: i18n.t('N'), default: i18n.t('Default ({default})', { default: placeholder('uplink_dynamic') }) }
+                tooltips: { checked: i18n.t('Y'), unchecked: i18n.t('N'), default: i18n.t('Default ({default})', { default: (placeholder('uplink_dynamic') === 'dynamic') ? 'Y' : 'N' }) }
               },
               listeners: {
                 checked: (value) => {
@@ -447,7 +448,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
         {
           label: i18n.t('Static Uplinks'),
           text: i18n.t('Comma-separated list of the switch uplinks.'),
-          if: (form.uplink_dynamic !== 'dynamic'),
+          if: ((form.uplink_dynamic && form.uplink_dynamic !== 'dynamic') || (!form.uplink_dynamic && placeholder('uplink_dynamic') !== 'dynamic')),
           fields: [
             {
               key: 'uplink',
@@ -456,7 +457,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
               validators: {
                 ...pfConfigurationValidatorsFromMeta(meta, 'uplink', 'Uplinks'),
                 ...{
-                  [i18n.t('Uplinks required.')]: or(required, conditional(form.uplink_dynamic === 'dynamic'))
+                  [i18n.t('Uplinks required.')]: required
                 }
               }
             }

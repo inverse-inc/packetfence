@@ -387,7 +387,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
               key: 'uplink_dynamic',
               component: pfFormRangeToggle,
               attrs: {
-                values: { checked: 'dynamic', unchecked: null }
+                values: { checked: 'dynamic', unchecked: 'static' }
               },
               listeners: {
                 checked: (value) => {
