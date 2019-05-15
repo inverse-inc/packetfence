@@ -39,23 +39,23 @@ export default {
     cluster () {
       return this.$store.state.$_status.cluster
     }
-  },
-  mounted () {
-    if (this.cluster.length > 1) {
-      this.sections.push({
-        name: this.$i18n.t('Cluster'),
-        items: [
-          {
-            name: this.$i18n.t('Services'),
-            path: '/status/cluster/services'
-          // },
-          // {
-          //   name: this.$i18n.t('Queues'),
-          //   path: '/status/cluster/queues'
-          }
-        ]
-      })
-    }
+  // },
+  // mounted () {
+  //   if (this.cluster.length > 1) {
+  //     this.sections.push({
+  //       name: this.$i18n.t('Cluster'),
+  //       items: [
+  //         {
+  //           name: this.$i18n.t('Services'),
+  //           path: '/status/cluster/services'
+  //         },
+  //         {
+  //           name: this.$i18n.t('Queues'),
+  //           path: '/status/cluster/queues'
+  //         }
+  //       ]
+  //     })
+  //   }
   }
 }
 </script>
