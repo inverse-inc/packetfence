@@ -88,6 +88,18 @@ export const pfConfigurationPortalModuleTypes = () => {
   return moduleTypes
 }
 
+export const pfConfigurationPortalModuleTypeName = (type) => {
+  let name = type
+  pfConfigurationPortalModuleTypes().find(group => {
+    const module = group.types.find(groupType => groupType.type === type)
+    if (module) {
+      name = module.name
+      return group
+    }
+  })
+  return name
+}
+
 export const pfConfigurationPortalModuleFields = {
   id: ({ isNew = false, isClone = false, options: { meta = {} } } = {}) => {
     return {
@@ -901,7 +913,8 @@ export const pfConfigurationPortalModuleViewFields = (context = {}) => {
           tab: null, // ignore tabs
           fields: [
             pfConfigurationPortalModuleFields.id(context),
-            pfConfigurationPortalModuleFields.description(context)
+            pfConfigurationPortalModuleFields.description(context),
+            pfConfigurationPortalModuleFields.modules(context)
           ]
         }
       ]

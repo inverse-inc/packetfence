@@ -2,7 +2,7 @@
   <div class="portal-module" :class="{ disabled: disabled }" @mouseout="delayHideButtons()">
     <transition name="slide-top-quick">
       <div class="front" @click="showButtons()" v-if="!buttonsVisible">
-        <h6 class="text-truncate"><icon class="mb-1" :style="{ color: module.color }" name="circle"></icon> <span class="portal-module-type ml-1">{{ module.type }}</span></h6>
+        <h6 class="text-truncate"><icon class="mb-1" :style="{ color: module.color }" name="circle"></icon> <span class="portal-module-type ml-1">{{ getModuleTypeName(module.type) }}</span></h6>
         <div class="portal-module-label text-truncate">{{ module.description }}</div>
       </div>
     </transition>
@@ -21,6 +21,8 @@
 
 <script>
 import { createDebouncer } from 'promised-debounce'
+import { pfConfigurationPortalModuleTypeName as moduleTypeName } from '@/globals/configuration/pfConfigurationPortalModules'
+
 
 export default {
   name: 'portal-module-button',
@@ -41,6 +43,7 @@ export default {
   },
   data () {
     return {
+      getModuleTypeName: moduleTypeName,
       buttonsVisible: false,
       buttonsHidden: true
     }

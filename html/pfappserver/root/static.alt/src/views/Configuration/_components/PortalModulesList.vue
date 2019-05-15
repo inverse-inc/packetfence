@@ -41,7 +41,7 @@
     <b-card-footer class="card-footer-fixed disconnect">
       <b-tabs small card>
         <b-tab title-link-class="text-nowrap" v-for="moduleType in activeModuleTypes" :key="moduleType">
-          <template slot="title"><icon :style="{ color: getColorByType(moduleType) }" name="circle" scale=".5"></icon> {{ $t(moduleType) }}</template>
+          <template slot="title"><icon :style="{ color: getColorByType(moduleType) }" name="circle" scale=".5"></icon> {{ getModuleTypeName(moduleType) }}</template>
           <draggable element="b-row" :list="getModulesByType(moduleType)" :move="validateMove"
             :options="{ group: { name: 'portal-module', pull: 'clone', revertClone: true, put: false }, ghostClass: 'portal-module-row-ghost', dragClass: 'portal-module-row-drag' }">
             <portal-module :id="mid" v-for="mid in getModulesByType(moduleType)" :module="getModule(mid)" :modules="items" :key="mid" :storeName="storeName" v-show="mid" is-root></portal-module>
@@ -69,7 +69,10 @@ import PortalModule from './PortalModule'
 import PortalModuleButton from './PortalModuleButton'
 import pfButtonSave from '@/components/pfButtonSave'
 import pfButtonDelete from '@/components/pfButtonDelete'
-import { pfConfigurationPortalModuleTypes as moduleTypes } from '@/globals/configuration/pfConfigurationPortalModules'
+import {
+  pfConfigurationPortalModuleTypes as moduleTypes,
+  pfConfigurationPortalModuleTypeName as moduleTypeName
+} from '@/globals/configuration/pfConfigurationPortalModules'
 
 export default {
   name: 'PortalModulesList',
@@ -111,6 +114,7 @@ export default {
   data () {
     return {
       moduleTypes: moduleTypes(),
+      getModuleTypeName: moduleTypeName,
       tabIndex: 0,
       minimize: false,
       columns: [
