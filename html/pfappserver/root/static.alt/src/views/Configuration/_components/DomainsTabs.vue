@@ -7,7 +7,7 @@
             <b-tab :title="$t('Active Directory Domains')" @click="changeTab('domains')" no-body>
                 <domains-list storeName="$_domains" :autoJoinDomain="autoJoinDomain" />
             </b-tab>
-            <b-tab :title="$t('REALMS')" @click="changeTab('realms')" no-body>
+            <b-tab :title="$t('Realms')" @click="changeTab('realms')" no-body>
                 <realms-list storeName="$_realms" />
             </b-tab>
         </b-tabs>

@@ -2043,7 +2043,7 @@ export const pfConfigurationAuthenticationSourceViewFields = (context) => {
           fields: [
             pfConfigurationAuthenticationSourceFields.id(context),
             pfConfigurationAuthenticationSourceFields.description(context),
-            { ...pfConfigurationAuthenticationSourceFields.realms(context), ...{ text: i18n.t('Realms that will be associated with this source (For the Portal/Admin GUI/RADIUS post-auth, not for FreeRADIUS proxy).') } },
+            { ...pfConfigurationAuthenticationSourceFields.realms(context), ...{ text: i18n.t('Realms that will be associated with this source (for the portal/admin GUI/RADIUS post-auth, not for FreeRADIUS proxy).') } },
             pfConfigurationAuthenticationSourceFields.authentication_rules(context),
             pfConfigurationAuthenticationSourceFields.administration_rules(context)
           ]
@@ -2144,7 +2144,7 @@ export const pfConfigurationAuthenticationSourceViewFields = (context) => {
             pfConfigurationAuthenticationSourceFields.password_rotation(context),
             pfConfigurationAuthenticationSourceFields.password_email_update(context),
             pfConfigurationAuthenticationSourceFields.password_length(context),
-            pfConfigurationAuthenticationSourceFields.realms(context),
+            { ...pfConfigurationAuthenticationSourceFields.realms(context), ...{ text: i18n.t('Realms that will be associated with this source (for the portal/admin GUI/RADIUS post-auth, not for FreeRADIUS proxy).') } },
             pfConfigurationAuthenticationSourceFields.authentication_rules(context),
             pfConfigurationAuthenticationSourceFields.administration_rules(context)
           ]

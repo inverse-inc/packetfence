@@ -30,7 +30,7 @@ export default {
             { name: this.$i18n.t('Domains'),
               items: [
                 { name: this.$i18n.t('Active Directory Domains'), path: '/configuration/domains' },
-                { name: this.$i18n.t('REALMS'), path: '/configuration/realms' }
+                { name: this.$i18n.t('Realms'), path: '/configuration/realms' }
               ]
             },
             { name: this.$i18n.t('Authentication Sources'), path: '/configuration/sources' },
