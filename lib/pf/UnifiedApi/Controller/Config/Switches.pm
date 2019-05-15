@@ -22,6 +22,7 @@ has 'form_class' => 'pfappserver::Form::Config::Switch';
 has 'primary_key' => 'switch_id';
 
 use pf::ConfigStore::Switch;
+use pf::ConfigStore::SwitchGroup;
 use pfappserver::Form::Config::Switch;
 
 =head2 invalidate_cache
@@ -49,6 +50,29 @@ sub id {
     return $id;
 }
  
+=head2 standardPlaceholder
+
+standardPlaceholder
+
+=cut
+
+sub standardPlaceholder {
+    my ($self) = @_;
+    my $params = $self->req->query_params->to_hash;
+    my $group = $params->{group};
+    if (!defined $group || $group eq 'default' ) {
+        return $self->SUPER::standardPlaceholder();
+    }
+
+    my $cs = pf::ConfigStore::SwitchGroup->new;
+    my $values = $cs->read($group, 'id');
+    if (!defined $values) {
+        return $self->SUPER::standardPlaceholder();
+    }
+
+    return $self->_cleanup_placeholder($self->cleanup_item($values));
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
