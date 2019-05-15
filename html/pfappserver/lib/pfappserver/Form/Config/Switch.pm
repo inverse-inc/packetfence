@@ -816,11 +816,13 @@ sub validate {
         }
     }
 
-    if ($self->value->{uplink_dynamic} ne 'dynamic') {
-        unless ($self->value->{uplink} && $self->value->{uplink} =~ m/^(\d(,\s*)?)*$/) {
-            $self->field('uplink')->add_error("The uplinks must be a list of ports numbers.");
-        }
-    }
+    # Temporarily disabled as new admin sends uplink_dynamic as undef which has this evaluated everytime although the inherited value might be 'dynamic'
+    # The frontend does a validation of this requirement
+    #if ($self->value->{uplink_dynamic} ne 'dynamic') {
+    #    unless ($self->value->{uplink} && $self->value->{uplink} =~ m/^(\d(,\s*)?)*$/) {
+    #        $self->field('uplink')->add_error("The uplinks must be a list of ports numbers.");
+    #    }
+    #}
 }
 
 =head1 COPYRIGHT
