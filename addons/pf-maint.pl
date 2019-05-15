@@ -126,6 +126,10 @@ our $BINARIES_DIRECTORY = "/usr/local/pf/sbin";
 
 our $BINARIES_SIGN_KEY_ID = "A0030E2C";
 
+our $ALT_ADMIN_DIRECTORY = "/usr/local/pf/html/pfappserver/root/static.alt/dist";
+our $ALT_ADMIN_PATCH_WD = "/usr/local/pf/html/pfappserver/root/static.alt";
+our $ALT_ADMIN_URL = "https://inverse.ca/downloads/PacketFence/CentOS7/binaries";
+
 our $step = 0;
 
 my $base = $BASE_COMMIT || get_base();
@@ -175,6 +179,26 @@ if($BASE_BINARIES_URL) {
         install_binary_sign_key_if_needed();
         print "Downloading and replacing the binaries........\n";
         download_and_install_binaries();
+    }
+}
+
+if($BASE_BINARIES_URL) {
+    $step++;
+    print "=" x $TERMINAL_WIDTH . "\n";
+    print "Step $step: Patching of the Administration interface frontend\n";
+
+    my $should_patch = 0;
+    if($NO_ASK) {
+        $should_patch = 1;
+    }
+    elsif(accept_alt_admin_patching()) {
+        $should_patch = 1;
+    }
+
+    if($should_patch) {
+        install_binary_sign_key_if_needed();
+        print "Downloading and replacing the files........\n";
+        download_and_install_alt_admin();
     }
 }
 
@@ -288,6 +312,15 @@ sub print_dot {
     print ".";
 }
 
+sub accept_alt_admin_patching {
+    print "." x $TERMINAL_WIDTH . "\n";
+    print "Should we patch the Administration interface frontend?\n";
+    print "Any custom code in it will be overwritten!!\n";
+    print "y/n [y]: ";
+    chomp(my $yes_no = <STDIN>);
+    return !($yes_no =~ /n/);
+}
+
 sub accept_binary_patching {
     print "." x $TERMINAL_WIDTH . "\n";
     print "Should we patch the Golang binaries?\n";
@@ -303,6 +336,32 @@ sub install_binary_sign_key_if_needed {
         $rc = system("gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys $BINARIES_SIGN_KEY_ID");
         die "Cannot install signing key\n" if $rc != 0;
     }
+}
+
+sub download_and_install_alt_admin {
+    print "Starting patching process.......\n";
+    my $patch_path = "$ALT_ADMIN_DIRECTORY";
+    my $archive_path = "$ALT_ADMIN_PATCH_WD/static.alt.tgz";
+    my $data = get_url("$ALT_ADMIN_URL/maintenance/$PF_RELEASE/static.alt.tgz.sig");
+    write_file("$archive_path-maintenance-encrypted", $data);
+    
+    my $result = system("gpg --always-trust --batch --yes --output $archive_path-maintenance-decrypted --decrypt $archive_path-maintenance-encrypted");
+    die "Cannot validate the binary signature\n" if $result != 0;
+
+    my $time = time;
+    rename($patch_path, "$patch_path-pre-maintenance-$time") or die "Cannot backup directory $patch_path: $!\n";
+    rename("$archive_path-maintenance-decrypted", $archive_path) or die "Cannot rename archive: $!\n";
+    unlink("$archive_path-maintenance-encrypted") or warn "Couldn't delete temporary download file, everything will keep working but the stale file will still be there ($!)\n";
+
+    system("tar -C $ALT_ADMIN_PATCH_WD -xf $archive_path");
+    die "Failed to extract administration interface archive in $patch_path\n" if($? != 0);
+
+    my ($login,$pass,$uid,$gid) = getpwnam('pf')
+        or die "pf not in passwd file";
+    chown $uid, $gid, $archive_path;
+
+    print "." x $TERMINAL_WIDTH . "\n";
+    print "Patching of the administration interface frontend was successful\n";
 }
 
 sub download_and_install_binaries {
