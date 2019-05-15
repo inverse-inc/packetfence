@@ -173,7 +173,11 @@ export const pfConfigurationAlertingViewFields = (context = {}) => {
               component: pfFormInput,
               attrs: {
                 test: () => {
-                  return store.dispatch('$_bases/testSmtp', form)
+                  return store.dispatch('$_bases/testSmtp', form).then(response => {
+                    return response
+                  }).catch(err => {
+                    throw err
+                  })
                 }
               },
               validators: {
