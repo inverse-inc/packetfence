@@ -341,7 +341,7 @@ export default {
         pid_overwrite: 0,
         pid: '',
         email: '',
-        sponsor: '',
+        sponsor: this.$store.state['session'].username, // TODO - #4395, remove when backend implements default sponsor
         password: '',
         login_remaining: null,
         gender: '',
