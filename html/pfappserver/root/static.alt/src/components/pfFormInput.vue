@@ -88,7 +88,7 @@ export default {
         return (this.formatter) ? this.formatter(this.value) : this.value
       },
       set (newValue) {
-        this.$emit('input', newValue)
+        this.$emit('input', newValue || null)
       }
     }
   },
