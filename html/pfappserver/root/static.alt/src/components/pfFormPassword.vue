@@ -175,18 +175,19 @@ export default {
         this.testResult = null
         this.test().then(response => {
           this.testResult = true
-          this.$emit('pass')
           this.testMessage = null
+          this.$emit('pass')
           this.isTesting = false
         }).catch(err => {
           this.testResult = false
-          if ('data' in err.response) {
-            this.$emit('fail', err.response.data)
-            if ('message' in err.response.data) {
-              this.testMessage = err.response.data.message
-            }
-            this.isTesting = false
+          this.testMessage = this.$i18n.t('Test failed with unknown error.')
+          const { response: { data = null } = {} } = err
+          if (data) {
+            const { message = null } = data
+            if (message) this.testMessage = message
+            this.$emit('fail', data)
           }
+          this.isTesting = false
         })
       }
     },
