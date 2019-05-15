@@ -4474,7 +4474,7 @@ msgstr "Réparer les permissions"
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationPortalModules.js:73
 msgid "Fixed Role"
-msgstr "Réparer le rôle"
+msgstr "Rôle fixe"
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationFloatingDevices.js:141
 msgid "Floating Device exists."
@@ -9140,19 +9140,19 @@ msgstr "SSID (All)"
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationWrixLocations.js:368
 msgid "SSID 1X"
-msgstr "SSID Sécurisé"
+msgstr "SSID sécurisé"
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationWrixLocations.js:380
 msgid "SSID 1X Broadcasted"
-msgstr "SSID Sécurisé Diffusé"
+msgstr "SSID sécurisé diffusé"
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationWrixLocations.js:320
 msgid "SSID Broadcasted"
-msgstr "SSID Diffusé"
+msgstr "SSID diffusé"
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationWrixLocations.js:308
 msgid "SSID Open Auth"
-msgstr "SSID Ouvert"
+msgstr "SSID ouvert"
 
 # html/pfappserver/root/static.alt/src/views/Configuration/_components/CertificatesView.vue:4
 # html/pfappserver/root/static.alt/src/views/Configuration/index.vue:149
@@ -9278,11 +9278,11 @@ msgstr "Sauvegarder"
 # html/pfappserver/root/static.alt/src/views/Configuration/_components/WrixLocationView.vue:30
 # html/pfappserver/root/static.alt/src/views/Users/_components/UserView.vue:238
 msgid "Save & Close"
-msgstr "Sauver & Fermer"
+msgstr "Sauver & fermer"
 
 # html/pfappserver/root/static.alt/src/views/Configuration/_components/DomainView.vue:33
 msgid "Save & Join"
-msgstr "Sauver & Joindre"
+msgstr "Sauver & joindre"
 
 # html/pfappserver/root/static.alt/src/components/pfSearch.vue:17
 # html/pfappserver/root/static.alt/src/components/pfSearch.vue:55
@@ -9662,7 +9662,7 @@ msgstr "Sélectionner l'appareil [ALT+N]"
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationPortalModules.js:76
 msgid "Select Role"
-msgstr "Sélectionner le rôle"
+msgstr "Rôle sélectionné"
 
 # html/pfappserver/root/static.alt/src/components/pfFormDatetime.vue:144
 msgid "Select Year"
@@ -9990,12 +9990,16 @@ msgstr "Est-ce que Fingerbank interagit avec le web en utilisant un proxy?"
 msgid ""
 "Should Redis be started? Keep enabled unless you know what you're doing."
 msgstr ""
+"Est-ce que redis doit être démarré ? Gardez le activé sauf si vous savez ce "
+"que vous faites."
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationServices.js:397
 msgid ""
 "Should Redis for caching be started? Keep enabled unless you know what "
 "you're doing."
 msgstr ""
+"Est-ce que le cache Redis doit être démarré ? Gardez le activé sauf si vous "
+"savez ce que vous faites."
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationServices.js:21
 msgid "Should api-frontend be managed by PacketFence?"
@@ -10205,6 +10209,8 @@ msgid ""
 "Should the Redis NTLM cache be started? Use this if you are enabling an "
 "Active Directory NTLM cache."
 msgstr ""
+"Est-ce que le cache Redis NTLM doit être démarré ? Utiliser le si vous avez "
+"activé le cache NTLM."
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationServices.js:34
 msgid "Should the fingerbank-collector be managed by PacketFence?"
@@ -10418,7 +10424,7 @@ msgid ""
 "button) or if they can not and must call the help desk."
 msgstr ""
 "Spécifiez si un appareil peut se redonner accès au réseau après un événement"
-" de sécurité (Bouton enable network) ou si il doit appeler la hotline "
+" de sécurité (bouton enable network) ou s'il doit appeler la hotline "
 "informatique."
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationDomains.js:126
@@ -10605,7 +10611,7 @@ msgstr "Enlever RADIUS"
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationRealms.js:276
 msgid "Strip in RADIUS authorization"
-msgstr "Enlever lors de l'authorisation RADIUS"
+msgstr "Enlever lors de l'autorisation RADIUS"
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationRealms.js:263
 msgid "Strip on the admin"
@@ -10960,7 +10966,7 @@ msgstr "Téléphone"
 # html/pfappserver/root/static.alt/src/views/Users/_components/UserView.vue:58
 # html/pfappserver/root/static.alt/src/views/Users/_components/UsersCreate.vue:67
 msgid "Telephone number"
-msgstr "Numéro de tléphone"
+msgstr "Numéro de téléphone"
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationPortalModules.js:566
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSecurityEvents.js:53
@@ -12225,7 +12231,7 @@ msgstr "Désenregistrer"
 # html/pfappserver/root/static.alt/src/globals/pfField.js:195
 # html/pfappserver/root/static.alt/src/globals/pfReports.js:604
 msgid "Unregistered"
-msgstr "non enregistré"
+msgstr "Non enregistré"
 
 # html/pfappserver/root/static.alt/src/views/Nodes/_components/NodesSearch.vue:281
 msgid "Unregistered Date"
@@ -12277,7 +12283,7 @@ msgstr "Mis-à-jour"
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitchGroups.js:412
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:459
 msgid "Uplinks required."
-msgstr "liens montants requis."
+msgstr "Liens montants requis."
 
 # html/pfappserver/root/static.alt/src/components/pfFormUpload.vue:71
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationTrafficShapingPolicies.js:116
@@ -12728,7 +12734,7 @@ msgstr "Voir le profil du compte complet"
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationInterfaces.js:266
 msgid "Virtual LAN ID"
-msgstr "ID du LAN virtuel"
+msgstr "Identifiant du LAN virtuel"
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationActiveActive.js:34
 msgid "Virtual Router ID"
@@ -12781,11 +12787,11 @@ msgstr "Clé WEP"
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationWrixLocations.js:344
 msgid "WEP Key Entry Method"
-msgstr "Méthode d’entré de la clef WEP"
+msgstr "Méthode d’entrée de la clé WEP"
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationWrixLocations.js:356
 msgid "WEP Key Size"
-msgstr "Taille de la clef WEP"
+msgstr "Taille de la clé WEP"
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationCaptivePortal.js:221
 msgid "WISPr redirection capabilities"
@@ -12853,7 +12859,7 @@ msgstr "Web Services:"
 # html/pfappserver/root/static.alt/src/components/pfFormSecurityEventTrigger.vue:136
 # html/pfappserver/root/static.alt/src/globals/pfReports.js:874
 msgid "Week"
-msgstr "semaine"
+msgstr "Semaine"
 
 # html/pfappserver/root/static.alt/src/views/Configuration/_components/PoliciesAccessControlSection.vue:7
 msgid ""
@@ -12879,11 +12885,11 @@ msgstr ""
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationCaptivePortal.js:177
 msgid ""
-"When enabled the /status page will only be available on theproduction "
+"When enabled the /status page will only be available on the production "
 "network. By default this is disabled."
 msgstr ""
 "Lorsque cette option est activée, la page /status ne sera disponible que sur"
-" le réseau de production. Par défaut, cela est désactivé."
+" le réseau de production. Désactivé par défault."
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationFencing.js:117
 msgid ""
@@ -13140,7 +13146,7 @@ msgstr "Clé sans fil"
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationAuthenticationSources.js:590
 msgid "Will cache results of matching a rule."
-msgstr "Mettra en cache les résultats des correspondances à une règle"
+msgstr "Mettra en cache les résultats des correspondances à une règle."
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationNetwork.js:78
 msgid ""
@@ -13349,7 +13355,7 @@ msgstr "département"
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfiguration.js:522
 msgid "description"
-msgstr "Description"
+msgstr "description"
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfiguration.js:536
 msgid "displayName"
@@ -13450,7 +13456,7 @@ msgstr "httpd.webservices"
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:598
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:639
 msgid "inline"
-msgstr "Inline"
+msgstr "inline"
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationServices.js:176
 msgid "iptables"
@@ -13596,7 +13602,7 @@ msgstr "pfstats"
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfiguration.js:690
 msgid "phonenumber"
-msgstr "Numéro de téléphone"
+msgstr "numéro de téléphone"
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfiguration.js:704
 msgid "postOfficeBox"
@@ -13640,11 +13646,11 @@ msgstr "enregistré"
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:595
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSwitches.js:636
 msgid "registration"
-msgstr "Enregistrement"
+msgstr "enregistrement"
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationSyslogParsers.js:223
 msgid "role_detail"
-msgstr "Détail du rôle"
+msgstr "détail du rôle"
 
 # html/pfappserver/root/static.alt/src/globals/configuration/pfConfigurationServices.js:435
 msgid "routes"
@@ -13691,7 +13697,7 @@ msgstr "snmptrapd"
 
 # html/pfappserver/root/static.alt/src/views/Configuration/_components/PortalModulesList.vue:19
 msgid "step"
-msgstr "Étape"
+msgstr "étape"
 
 # html/pfappserver/root/static.alt/src/components/pfNotificationCenter.vue:22
 # html/pfappserver/root/static.alt/src/components/pfNotificationCenter.vue:52
