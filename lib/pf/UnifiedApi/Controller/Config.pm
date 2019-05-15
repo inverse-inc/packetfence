@@ -510,7 +510,12 @@ standardPlaceholder
 
 sub standardPlaceholder {
     my ($self) = @_;
-    return $self->config_store->readDefaults;
+    my $values = $self->config_store->readDefaults;
+    if ($values) {
+        $values = $self->cleanup_item($values);
+    }
+
+    return $values;
 }
 
 =head2 id_field_default
