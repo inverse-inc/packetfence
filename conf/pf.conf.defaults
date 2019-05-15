@@ -1234,5 +1234,4 @@ live=enabled
 #
 # lets_encrypt.test_uri
 # The URI to use to test that the portal is available publicly
-# TODO: change it
-test_uri=https://support.inverse.ca/~jsemaan/test.php
+test_uri=https://ssl-test.inverse.ca/
