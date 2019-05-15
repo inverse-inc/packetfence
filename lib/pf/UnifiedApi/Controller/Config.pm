@@ -512,10 +512,28 @@ sub standardPlaceholder {
     my ($self) = @_;
     my $values = $self->config_store->readDefaults;
     if ($values) {
-        $values = $self->cleanup_item($values);
+        $values = $self->_cleanup_placeholder($self->cleanup_item($values));
     }
 
     return $values;
+}
+
+=head2 _cleanup_placeholder
+
+_cleanup_placeholder
+
+=cut
+
+sub _cleanup_placeholder {
+    my ($self, $placeholder) = @_;
+    for my $key (keys %$placeholder) {
+        my $val = $placeholder->{$key};
+        if (!defined $val || (ref $val eq 'ARRAY' && @$val == 0)) {
+            delete $placeholder->{$key};
+        }
+    }
+
+    return $placeholder;
 }
 
 =head2 id_field_default
@@ -688,9 +706,8 @@ sub resource_options {
         meta => \%meta,
     );
     my $inheritedValues = $self->resourceInheritedValues;
-    my $defaultValues = $self->default_values;
     my $parent = {
-        placeholder => $inheritedValues
+        placeholder => $self->_cleanup_placeholder($inheritedValues)
     };
     for my $field ($form->fields) {
         next if $field->inactive;
