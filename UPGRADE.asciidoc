@@ -1846,6 +1846,11 @@ Once completed, update the file /usr/local/pf/conf/currently-at to match the new
 Upgrading from a version prior to 9.0.0
 ---------------------------------------
 
+Support for Debian 8 dropped
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Debian 8 will not be supported anymore for versions 9.0.0 and above. You should instead use Debian 9 now as it is currently the only supported Debian version.
+
 Necessity to use MariaDB
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
