@@ -373,7 +373,7 @@ export const pfDatabaseSchema = {
       default: null
     },
     sponsor: {
-      type: pfEmail,
+      type: pfString,
       maxLength: 255,
       default: null
     },
