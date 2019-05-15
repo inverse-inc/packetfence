@@ -53,6 +53,7 @@ export const pfConfigurationPortalModuleTypes = () => {
         { type: 'Authentication::Email', name: i18n.t('Email') },
         { type: 'Authentication::Login', name: i18n.t('Login') },
         { type: 'Authentication::Null', name: i18n.t('Null') },
+        { type: 'Authentication::Password', name: i18n.t('Password') },
         { type: 'Authentication::OAuth::Facebook', name: 'Facebook' },
         { type: 'Authentication::OAuth::Github', name: 'Github' },
         { type: 'Authentication::OAuth::Google', name: 'Google' },
