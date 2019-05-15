@@ -487,6 +487,19 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
           ]
         },
         {
+          label: i18n.t('Dot1x unset on unmatch'),
+          text: i18n.t('When enabled, PacketFence will unset the role of the device if no authentication sources returned one.'),
+          fields: [
+            {
+              key: 'dot1x_unset_on_unmatch',
+              component: pfFormToggle,
+              attrs: {
+                values: { checked: 'enabled', unchecked: 'disabled' }
+              }
+            }
+          ]
+        },
+        {
           label: i18n.t('Enable DPSK'),
           text: i18n.t('This enables the Dynamic PSK feature on this connection profile. It means that the RADIUS server will answer requests with specific attributes like the PSK key to use to connect on the SSID.'),
           fields: [
