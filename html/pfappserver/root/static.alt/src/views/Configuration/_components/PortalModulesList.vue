@@ -244,6 +244,15 @@ export default {
     },
     save (module) {
       this.$store.dispatch(`${this.storeName}/updatePortalModule`, module)
+      if (module.modules) {
+        module.modules.forEach(mid => {
+          const childModule = {
+            ...this.getModule(mid),
+            ...{ quiet: true }
+          }
+          this.save(childModule)
+        })
+      }
     },
     remove (id) {
       const index = this.items.findIndex(module => module.id === id)
