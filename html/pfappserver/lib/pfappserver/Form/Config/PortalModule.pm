@@ -131,7 +131,7 @@ Get all the DynamicTable fields of this form
 
 sub dynamic_tables {
     my ($self) = @_;
-    return grep { $_->type eq "DynamicTable" && $_->is_active } $self->all_fields;
+    return map { $_->name } grep { $_->type eq "DynamicTable" && $_->is_active } $self->all_fields;
 }
 
 =over
