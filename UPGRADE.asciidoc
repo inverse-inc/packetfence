@@ -1893,7 +1893,7 @@ Database schema
 ^^^^^^^^^^^^^^^
 
 Changes have been made to the database schema. You will need to update it accordingly.
-An SQL upgrade script has been provided to upgrade the database from the X.X schema to X.Y.
+An SQL upgrade script has been provided to upgrade the database from the 8.3 schema to 9.0.
 
 To upgrade the database schema, run the following command:
 
