@@ -322,8 +322,6 @@ export default {
     addUserTaggedOption (userTaggedOption) {
       this.userTaggedOption = { name: userTaggedOption, value: userTaggedOption }
       this.$set(this.inputValue, 'match', userTaggedOption)
-      console.log('this.inputValue', this.inputValue)
-      console.log('this.value', this.value)
     }
   },
   created () {
