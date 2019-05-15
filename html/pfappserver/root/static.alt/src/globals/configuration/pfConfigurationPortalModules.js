@@ -355,7 +355,7 @@ export const pfConfigurationPortalModuleFields = {
     } = context
     return {
       label: i18n.t('Authentication Sources'),
-      text: i18n.t('The sources to use in the module. If no sources are specified, all the sources of the connection profile will be used'),
+      text: i18n.t('The sources to use in the module. If no sources are specified, all the sources of the connection profile will be used.'),
       fields: [
         {
           key: 'multi_source_ids',
@@ -497,44 +497,18 @@ export const pfConfigurationPortalModuleFields = {
       ]
     }
   },
-  source_id: (context) => {
-    const {
-      form = {},
-      options: {
-        meta = {}
-      } = {}
-    } = context
+  source_id: ({ options: { meta = {} } } = {}) => {
     return {
-      label: i18n.t('Authentication Sources'),
-      text: i18n.t('The sources to use in the module. If no sources are specified, all the sources of the connection profile will be used'),
+      label: i18n.t('Authentication Source'),
+      text: i18n.t('The source to use in the module. If no source is specified, all the sources of the connection profile will be used.'),
       fields: [
         {
           key: 'source_id',
-          component: pfFormFields,
+          component: pfFormChosen,
           attrs: {
-            buttonLabel: i18n.t('Add Source'),
-            // sortable: true,
-            field: {
-              component: pfField,
-              attrs: {
-                field: {
-                  component: pfFormChosen,
-                  attrs: {
-                    ...pfConfigurationAttributesFromMeta(meta, 'source_id'),
-                    ...{
-                      placeholder: i18n.t('Click to select a source')
-                    }
-                  },
-                  validators: {
-                    ...pfConfigurationValidatorsFromMeta(meta, 'source_id', i18n.t('Source')),
-                    ...{
-                      [i18n.t('Duplicate source.')]: conditional((value) => {
-                        return !(form.source_id.filter(v => v === value).length > 1)
-                      })
-                    }
-                  }
-                }
-              }
+            ...pfConfigurationAttributesFromMeta(meta, 'source_id', i18n.t('Source')),
+            ...{
+              placeholder: i18n.t('Click to select a source')
             }
           }
         }
