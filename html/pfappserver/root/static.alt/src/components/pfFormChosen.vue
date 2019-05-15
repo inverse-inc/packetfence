@@ -1,7 +1,7 @@
 <template>
   <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="columnLabel"
     :state="isValid()" :invalid-feedback="getInvalidFeedback()"
-    class="pf-form-chosen" :class="{ 'mb-0': !columnLabel, 'is-focus': focus }">
+    class="pf-form-chosen" :class="{ 'mb-0': !columnLabel, 'is-focus': focus, 'is-empty': !value, 'is-disabled': disabled }">
     <b-input-group>
       <multiselect
         v-model="inputValue"
@@ -18,6 +18,7 @@
         :label="label"
         :options="options"
         :options-limit="optionsLimit"
+        :placeholder="placeholder"
         :preserve-search="preserveSearch"
         :searchable="searchable"
         :show-labels="false"
@@ -128,6 +129,10 @@ export default {
     optionsSearchFunctionInitialized: { // true after first `optionsSearchFunction` call (for preloading)
       type: Boolean,
       default: false
+    },
+    placeholder: {
+      type: String,
+      default: null
     },
     preserveSearch: {
       type: Boolean,
@@ -240,6 +245,19 @@ export default {
  */
 .pf-form-chosen {
 
+  /* show placeholder even when empty */
+  &.is-empty {
+    .multiselect__input {
+      width: 100%!important;
+      position: relative!important;
+    }
+  }
+  &.is-empty:not(.is-focus) {
+    .multiselect__single {
+      display: none;
+    }
+  }
+
   /* disable all transitions */
   .multiselect__loading-enter-active,
   .multiselect__loading-leave-active,
@@ -268,7 +286,7 @@ export default {
     @include border-radius($border-radius);
     outline: 0;
     .multiselect__input {
-      max-width: 100%
+      max-width: 100%;
     }
     span > span.multiselect__single { /* placeholder */
       color: $input-placeholder-color;
@@ -306,6 +324,12 @@ export default {
     font-size: $font-size-base;
     &::placeholder {
       color: $input-placeholder-color;
+    }
+  }
+  &.is-disabled {
+    .multiselect__input,
+    .multiselect__single {
+      background-color: $input-disabled-bg;
     }
   }
   .multiselect__placeholder {
