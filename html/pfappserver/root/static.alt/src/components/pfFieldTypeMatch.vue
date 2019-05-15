@@ -44,12 +44,15 @@
         ref="localMatch"
         label="name"
         track-by="value"
-        :placeholder="matchLabel"
+        :disabled="disabled"
         :options="options"
+        :placeholder="matchLabel"
+        :taggable="isFieldType(realmValueType) || isFieldType(ssidValueType)"
+        :tag-placeholder="$t('Click to add new option')"
         :vuelidate="matchVuelidateModel"
         :invalid-feedback="matchInvalidFeedback"
-        :disabled="disabled"
         collapse-object
+        @tag="addUserTaggedOption"
       ></pf-form-chosen>
 
       <!-- Type: DATETIME -->
@@ -146,6 +149,7 @@ export default {
   data () {
     return {
       default:                    { type: null, match: null }, // default value
+      userTaggedOption:           null, // user defined option (w/ :tag="true")
       /* Generic field types */
       noValueType:                fieldType.NONE,
       integerValueType:           fieldType.INTEGER,
@@ -198,6 +202,7 @@ export default {
       set (newType) {
         this.$set(this.inputValue, 'type', newType || this.default.type)
         this.$set(this.inputValue, 'match', this.default.match) // clear `value`
+        this.$set(this, 'userTaggedOption', null) // clear `userTaggedOption`
         this.emitValidations()
         this.$nextTick(() => { // wait until DOM updates with new type
           this.focusMatch()
@@ -227,6 +232,7 @@ export default {
     options () {
       if (!this.localType) return []
       let options = []
+      if (this.userTaggedOption) options.push(this.userTaggedOption)
       if (this.fieldIndex >= 0) {
         const field = this.field
         for (const type of field.types) {
@@ -312,6 +318,12 @@ export default {
     },
     focusMatch () {
       this.focusIndex(1)
+    },
+    addUserTaggedOption (userTaggedOption) {
+      this.userTaggedOption = { name: userTaggedOption, value: userTaggedOption }
+      this.$set(this.inputValue, 'match', userTaggedOption)
+      console.log('this.inputValue', this.inputValue)
+      console.log('this.value', this.value)
     }
   },
   created () {
