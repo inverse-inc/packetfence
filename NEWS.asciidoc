@@ -25,6 +25,7 @@ New Features
 * Add module to support PICOS white box switches
 * Support for Aerohive access point with switch port
 * Support for Aruba Instant Access switch module
+* Debian 9 (Stretch) support
 
 
 Enhancements
