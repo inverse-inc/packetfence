@@ -498,6 +498,7 @@ export default {
       this.$router.push({ name: 'users' })
     },
     create () {
+      this.showUsersPreviewModal = false
       switch (this.modeIndex) {
         case 0: // single
           const data = {
