@@ -39,6 +39,7 @@ use pf::log;
 use Log::Any::Adapter;
 use pf::Redis;
 use CHI::Driver;
+use pf::constants qw($DIR_MODE);
 Log::Any::Adapter->set('Log4perl');
 
 my @PRELOADED_CHI_DRIVERS;
@@ -167,7 +168,7 @@ sub copyStorage {
 
 sub setFileDriverParams {
     my ($storage) = @_;
-    $storage->{dir_create_mode} = oct('02775');
+    $storage->{dir_create_mode} = $DIR_MODE;
     $storage->{file_create_mode} = oct('00664');
     $storage->{umask_on_store} = oct('00007');
     $storage->{traits} = ['+pf::Role::CHI::Driver::FileUmask', '+pf::Role::CHI::Driver::Untaint'];

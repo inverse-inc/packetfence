@@ -45,6 +45,7 @@ use Net::Ping;
 use Crypt::OpenSSL::X509;
 use Date::Parse;
 use pf::CHI;
+use pf::constants qw($DIR_MODE);
 
 BEGIN {
     use Exporter ();
@@ -1292,7 +1293,7 @@ sub pf_make_dir {
         {
             user => $pf::constants::user::PF_UID,
             group => $pf::constants::user::PF_GID,
-            mode => 02775,
+            mode => $DIR_MODE,
         }
     );
 }

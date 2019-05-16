@@ -17,7 +17,7 @@ use Readonly;
 use base qw(Exporter);
 our @EXPORT = qw(
     $FALSE $TRUE $YES $NO $default_pid $admin_pid $BLUE_COLOR $YELLOW_COLOR $RED_COLOR $GREEN_COLOR $CYAN_COLOR $MAGENTA_COLOR
-    $HTTP $HTTPS $HTTP_PORT $HTTPS_PORT $ZERO_DATE $SPACE $SPACE_NUMBERS $DEFAULT_TENANT_ID
+    $HTTP $HTTPS $HTTP_PORT $HTTPS_PORT $ZERO_DATE $SPACE $SPACE_NUMBERS $DEFAULT_TENANT_ID $DIR_MODE $PFCMD_MODE
 );
 
 # some global constants
@@ -36,6 +36,8 @@ Readonly::Scalar our $MAGENTA_COLOR => 'magenta';
 Readonly::Scalar our $ZERO_DATE => '0000-00-00 00:00:00';
 Readonly::Scalar our $SPACE => q{ };
 Readonly::Scalar our $SPACE_NUMBERS => 4;
+Readonly::Scalar our $DIR_MODE => 02775;
+Readonly::Scalar our $PFCMD_MODE => 06755;
 
 Readonly::Hash our %BUILTIN_USERS => (
     $default_pid => 1, 
