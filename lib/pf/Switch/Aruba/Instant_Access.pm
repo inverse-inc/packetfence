@@ -1,39 +1,40 @@
-package pf::Switch::Aruba::Instant_Access;     
-                                                                      
+package pf::Switch::Aruba::Instant_Access;
+
 =head1 NAME
 
 pf::Switch::Aruba::Instant_Access - Object oriented module to access SNMP enabled Aruba Instant_Access
-                                                         
-=head1 SYNOPSIS                                               
+
+=head1 SYNOPSIS
 
 The pf::Switch::Aruba::Instant_Access module implements an object oriented interface
 to access Aruba Instant_Access
-                                                                   
-=cut                    
-                       
+
+=cut
+
 use strict;
-use warnings;                
-                              
-use base ('pf::Switch::Aruba');          
-use pf::constants qw($TRUE);    
-                                                    
-sub description { 'Aruba Instant Access' };     
-          
-sub radiusDisconnect {                                                               
-    my ($self, $mac, $add_attributes_ref) = @_;                      
+use warnings;
+
+use base ('pf::Switch::Aruba');
+use pf::constants qw($TRUE);
+use pf::node qw(node_attributes);
+
+sub description { 'Aruba Instant Access' };
+
+sub radiusDisconnect {
+    my ($self, $mac, $add_attributes_ref) = @_;
     my $logger = $self->logger;
-                                                     
+
     # initialize
     $add_attributes_ref = {} if (!defined($add_attributes_ref));
-                                 
+
     if (!defined($self->{'_radiusSecret'})) {
         $logger->warn(
             "Unable to perform RADIUS CoA-Request on $self->{'_ip'}: RADIUS Shared Secret not configured"
-        );                                                             
+        );
         return;
     }
-    # Where should we send the RADIUS CoA-Request?                                                                                                                                                                 
-    # to network device by default                                                                                                                                                                                 
+    # Where should we send the RADIUS CoA-Request?
+    # to network device by default
     my $send_disconnect_to = $self->{'_ip'};
     # but if controllerIp is set, we send there
     if (defined($self->{'_controllerIp'}) && $self->{'_controllerIp'} ne '') {
