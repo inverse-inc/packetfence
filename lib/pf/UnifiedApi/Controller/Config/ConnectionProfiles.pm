@@ -338,6 +338,19 @@ sub pathLookup {
     return @dirs;
 }
 
+=head2 standardPlaceholder
+
+standardPlaceholder
+
+=cut
+
+sub standardPlaceholder {
+    my ($self) = @_;
+    my $value = $self->SUPER::standardPlaceholder();
+    $value->{description} = '';
+    return $value;
+}
+
 =head2 mergePaths
 
 mergePaths
