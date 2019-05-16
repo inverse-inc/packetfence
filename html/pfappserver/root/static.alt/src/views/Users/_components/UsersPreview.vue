@@ -1,6 +1,7 @@
 <template>
   <b-card no-body>
     <b-card-header>
+      <b-button-close @click="close" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
       <h4 class="mb-0" v-t="'Preview Messages for Created Users'"></h4>
     </b-card-header>
     <b-card-body>
@@ -36,9 +37,13 @@
 <script>
 import pfFormInput from '@/components/pfFormInput'
 import pfFormRow from '@/components/pfFormRow'
+import pfMixinEscapeKey from '@/components/pfMixinEscapeKey'
 
 export default {
   name: 'UsersPreview',
+  mixins: [
+    pfMixinEscapeKey
+  ],
   components: {
     pfFormInput,
     pfFormRow
@@ -71,10 +76,12 @@ export default {
     }
   },
   methods: {
+    close () {
+      this.$router.push({ name: 'users' })
+    },
     iframeContent (html) {
       return 'data:text/html;charset=utf-8,' + escape(html)
     },
-
     send () {
       Promise.all(this.users.filter(user => user.email).map(user => {
         const data = {
