@@ -40,6 +40,7 @@ use pf::file_paths qw(
 );
 use pf::log;
 use pf::constants::exit_code qw($EXIT_SUCCESS $EXIT_FAILURE);
+use pf::constants qw($DIR_MODE $PFCMD_MODE);
 use pf::util;
 use File::Find;
 
@@ -61,9 +62,9 @@ sub action_all {
     _changeFilesToOwner('pf',@log_files, @stored_config_files, $install_dir, $bin_dir, $conf_dir, $var_dir, $lib_dir, $log_dir, $generated_conf_dir, $tt_compile_cache_dir, $pfconfig_cache_dir, @extra_var_dirs, $config_version_file);
     _changePathToOwnerRecursive('pf', $html_dir);
     _changeFilesToOwner('root',$pfcmd);
-    chmod(06755,$pfcmd);
+    chmod($PFCMD_MODE, $pfcmd);
     chmod(0664, @stored_config_files);
-    chmod(02775, $conf_dir, $var_dir, $log_dir, "$var_dir/redis_cache", "$var_dir/redis_queue");
+    chmod($DIR_MODE, $conf_dir, $var_dir, $log_dir, "$var_dir/redis_cache", "$var_dir/redis_queue");
     _fingerbank();
     find({ wanted => \&wanted,untaint => 1}, $log_dir);
     print "Fixed permissions.\n";
