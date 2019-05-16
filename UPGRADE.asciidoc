@@ -48,8 +48,12 @@ Please refer to the https://github.com/inverse-inc/packetfence/blob/stable/docs/
 It is recommended that you stop the currently running PacketFence services before proceeding any further.
 To do so, run the following commands:
 
-  /usr/local/pf/bin/pfcmd service pf stop
-  service packetfence-config stop
+[source,bash]
+----
+/usr/local/pf/bin/pfcmd service pf stop
+systemctl packetfence-config stop
+----
+
 
 RHEL / CentOS based systems
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -107,15 +111,21 @@ Debian installation system should have interactively asked for existing modified
 
 Once the additionnal steps below are completed, restart packetfence-config and packetfence
 
-  /usr/local/pf/bin/pfcmd fixpermissions
-  /usr/local/pf/bin/pfcmd pfconfig clear_backend
-  service packetfence-config restart
-  /usr/local/pf/bin/pfcmd configreload hard
-  /usr/local/pf/bin/pfcmd service pf restart
+[source,bash]
+----
+/usr/local/pf/bin/pfcmd fixpermissions
+/usr/local/pf/bin/pfcmd pfconfig clear_backend
+systemctl restart packetfence-config
+/usr/local/pf/bin/pfcmd configreload hard
+/usr/local/pf/bin/pfcmd service pf restart
+----
 
-Don't forget to edit the `/usr/local/pf/conf/currently-at` file to match the newly updated version
+Don't forget to edit the [file]`/usr/local/pf/conf/currently-at` file to match the newly updated version:
 
-  cat /usr/local/pf/conf/pf-release > /usr/local/pf/conf/currently-at
+[source,bash]
+----
+cat /usr/local/pf/conf/pf-release > /usr/local/pf/conf/currently-at
+----
 
 
 Upgrading from a version prior to 4.0.0
