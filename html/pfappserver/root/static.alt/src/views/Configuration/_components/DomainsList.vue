@@ -308,11 +308,3 @@ export default {
   }
 }
 </script>
-
-<style lang="scss">
-@import "../../../styles/variables";
-
-.text-pre {
-  white-space: pre-line; /* allow \n to break */
-}
-</style>
