@@ -127,6 +127,7 @@ export default {
         this.$store.dispatch(`${this.storeName}/optionsById`, this.id).then(options => {
           this.options = options
           this.$store.dispatch(`${this.storeName}/getPkiProvider`, this.id).then(form => {
+            if (this.isClone) form.id = `${form.id}-${this.$i18n.t('copy')}`
             this.form = form
             this.providerType = form.type
           })
