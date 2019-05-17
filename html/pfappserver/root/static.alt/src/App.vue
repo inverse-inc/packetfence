@@ -1,6 +1,6 @@
 <template>
   <div>
-    <b-navbar toggleable="md" fixed="top" type="dark" class="navbar-expand-md bg-dark">
+    <b-navbar toggleable="md" fixed="top" type="dark" class="navbar-expand-md bg-dark" :class="{ 'alert-danger': readonlyMode }">
       <b-nav-toggle target="navbar"></b-nav-toggle>
       <b-navbar-brand>
         <img src="/static/img/packetfence.white.small.svg"/>
@@ -48,7 +48,10 @@
       <pf-notification-center :isAuthenticated="isAuthenticated" />
     </b-navbar>
     <pf-progress-api></pf-progress-api>
-    <b-container fluid class="pt-6">
+    <b-container v-if="readonlyMode" class="bg-danger text-white text-center pt-6" fluid>
+      <icon class="pr-2" name="lock"></icon> {{ $t('The database is in readonly mode. Not all functionality is available.') }}
+    </b-container>
+    <b-container fluid :class="{ 'pt-6': !readonlyMode }">
       <router-view/>
     </b-container>
   </div>
@@ -83,6 +86,9 @@ export default {
     },
     isProcessing () {
       return (this.isPerfomingCheckup || this.isFixingPermissions) ? 1 : 0
+    },
+    readonlyMode () {
+      return this.$store.state.system.readonlyMode
     },
     username () {
       return this.$store.state.session.username
