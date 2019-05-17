@@ -12,3 +12,7 @@
 .pf-sidenav-group {
     font-weight: 600;
 }
+
+.alert-danger.navbar-dark .navbar-nav .nav-link {
+    color: $danger;
+}
