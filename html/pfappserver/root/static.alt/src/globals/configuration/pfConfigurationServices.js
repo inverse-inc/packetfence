@@ -17,7 +17,7 @@ export const pfConfigurationServiceViewFields = (context = {}) => {
       tab: null,
       fields: [
         {
-          label: i18n.t('api-frontend'),
+          label: 'api-frontend',
           text: i18n.t('Should api-frontend be managed by PacketFence?'),
           fields: [
             {
@@ -30,7 +30,7 @@ export const pfConfigurationServiceViewFields = (context = {}) => {
           ]
         },
         {
-          label: i18n.t('fingerbank-collector'),
+          label: 'fingerbank-collector',
           text: i18n.t('Should the fingerbank-collector be managed by PacketFence?'),
           fields: [
             {
@@ -43,7 +43,7 @@ export const pfConfigurationServiceViewFields = (context = {}) => {
           ]
         },
         {
-          label: i18n.t('haproxy-db'),
+          label: 'haproxy-db',
           text: i18n.t(`Should haproxy-db be started? Keep enabled unless you know what you're doing.`),
           fields: [
             {
@@ -56,7 +56,7 @@ export const pfConfigurationServiceViewFields = (context = {}) => {
           ]
         },
         {
-          label: i18n.t('haproxy-portal'),
+          label: 'haproxy-portal',
           text: i18n.t(`Should haproxy-portal be started? Keep enabled unless you know what you're doing.`),
           fields: [
             {
@@ -69,7 +69,7 @@ export const pfConfigurationServiceViewFields = (context = {}) => {
           ]
         },
         {
-          label: i18n.t('httpd.aaa'),
+          label: 'httpd.aaa',
           text: i18n.t(`Should httpd.aaa be started? Keep enabled unless you know what you're doing.`),
           fields: [
             {
@@ -82,7 +82,7 @@ export const pfConfigurationServiceViewFields = (context = {}) => {
           ]
         },
         {
-          label: i18n.t('httpd.admin'),
+          label: 'httpd.admin',
           text: i18n.t(`Should httpd.admin be started? Keep enabled unless you know what you're doing.`),
           fields: [
             {
@@ -95,7 +95,7 @@ export const pfConfigurationServiceViewFields = (context = {}) => {
           ]
         },
         {
-          label: i18n.t('httpd.collector'),
+          label: 'httpd.collector',
           text: i18n.t(`Should httpd.collector be started? Keep enabled unless you know what you're doing.`),
           fields: [
             {
@@ -108,7 +108,7 @@ export const pfConfigurationServiceViewFields = (context = {}) => {
           ]
         },
         {
-          label: i18n.t('httpd.dispatcher'),
+          label: 'httpd.dispatcher',
           text: i18n.t(`Should httpd.dispatcher be started? Keep enabled unless you know what you're doing.`),
           fields: [
             {
@@ -121,7 +121,7 @@ export const pfConfigurationServiceViewFields = (context = {}) => {
           ]
         },
         {
-          label: i18n.t('httpd.parking'),
+          label: 'httpd.parking',
           text: i18n.t(`Should httpd.parking be started? Keep enabled unless you know what you're doing.`),
           fields: [
             {
@@ -134,7 +134,7 @@ export const pfConfigurationServiceViewFields = (context = {}) => {
           ]
         },
         {
-          label: i18n.t('httpd.portal'),
+          label: 'httpd.portal',
           text: i18n.t(`Should httpd.portal be started? Keep enabled unless you know what you're doing.`),
           fields: [
             {
@@ -147,7 +147,7 @@ export const pfConfigurationServiceViewFields = (context = {}) => {
           ]
         },
         {
-          label: i18n.t('httpd.proxy'),
+          label: 'httpd.proxy',
           text: i18n.t(`Should httpd.proxy be started? Keep enabled unless you know what you're doing.`),
           fields: [
             {
@@ -160,7 +160,7 @@ export const pfConfigurationServiceViewFields = (context = {}) => {
           ]
         },
         {
-          label: i18n.t('httpd.webservices'),
+          label: 'httpd.webservices',
           text: i18n.t(`Should httpd.webservices be started? Keep enabled unless you know what you're doing.`),
           fields: [
             {
@@ -173,7 +173,7 @@ export const pfConfigurationServiceViewFields = (context = {}) => {
           ]
         },
         {
-          label: i18n.t('iptables'),
+          label: 'iptables',
           text: i18n.t(`Should iptables be managed by PacketFence? Keep enabled unless you know what you're doing.`),
           fields: [
             {
@@ -186,7 +186,7 @@ export const pfConfigurationServiceViewFields = (context = {}) => {
           ]
         },
         {
-          label: i18n.t('keepalived'),
+          label: 'keepalived',
           text: i18n.t(`Should keepalived be started? Keep enabled unless you know what you're doing.`),
           fields: [
             {
@@ -199,7 +199,7 @@ export const pfConfigurationServiceViewFields = (context = {}) => {
           ]
         },
         {
-          label: i18n.t('netdata'),
+          label: 'netdata',
           text: i18n.t('Should netdata be managed by PacketFence?'),
           fields: [
             {
@@ -212,7 +212,7 @@ export const pfConfigurationServiceViewFields = (context = {}) => {
           ]
         },
         {
-          label: i18n.t('pfbandwidthd'),
+          label: 'pfbandwidthd',
           text: i18n.t('Should pfbandwidthd be managed by PacketFence?'),
           fields: [
             {
@@ -225,7 +225,7 @@ export const pfConfigurationServiceViewFields = (context = {}) => {
           ]
         },
         {
-          label: i18n.t('pfdhcp'),
+          label: 'pfdhcp',
           text: i18n.t('Should pfdhcp be managed by PacketFence?'),
           fields: [
             {
@@ -238,7 +238,7 @@ export const pfConfigurationServiceViewFields = (context = {}) => {
           ]
         },
         {
-          label: i18n.t('pfdhcplistener'),
+          label: 'pfdhcplistener',
           text: i18n.t(`Should pfdhcplistener be started? Keep enabled unless you know what you're doing.`),
           fields: [
             {
@@ -263,7 +263,7 @@ export const pfConfigurationServiceViewFields = (context = {}) => {
           ]
         },
         {
-          label: i18n.t('pfdns'),
+          label: 'pfdns',
           text: i18n.t('Should pfdns be managed by PacketFence?'),
           fields: [
             {
@@ -276,7 +276,7 @@ export const pfConfigurationServiceViewFields = (context = {}) => {
           ]
         },
         {
-          label: i18n.t('pffilter'),
+          label: 'pffilter',
           text: i18n.t('Should pffilter be managed by PacketFence?'),
           fields: [
             {
@@ -289,7 +289,7 @@ export const pfConfigurationServiceViewFields = (context = {}) => {
           ]
         },
         {
-          label: i18n.t('pfipset'),
+          label: 'pfipset',
           text: i18n.t('Should pfipset be managed by PacketFence?'),
           fields: [
             {
@@ -302,7 +302,7 @@ export const pfConfigurationServiceViewFields = (context = {}) => {
           ]
         },
         {
-          label: i18n.t('pfmon'),
+          label: 'pfmon',
           text: i18n.t(`Should pfmon be started? Keep enabled unless you know what you're doing.`),
           fields: [
             {
@@ -315,7 +315,7 @@ export const pfConfigurationServiceViewFields = (context = {}) => {
           ]
         },
         {
-          label: i18n.t('pfperl-api'),
+          label: 'pfperl-api',
           text: i18n.t(`Should pfperl-api be started? Keep enabled unless you know what you're doing.`),
           fields: [
             {
@@ -328,7 +328,7 @@ export const pfConfigurationServiceViewFields = (context = {}) => {
           ]
         },
         {
-          label: i18n.t('pfqueue'),
+          label: 'pfqueue',
           text: i18n.t(`Should pfqueue be started? Keep enabled unless you know what you're doing.`),
           fields: [
             {
@@ -341,7 +341,7 @@ export const pfConfigurationServiceViewFields = (context = {}) => {
           ]
         },
         {
-          label: i18n.t('pfsso'),
+          label: 'pfsso',
           text: i18n.t('Should pfsso be managed by PacketFence?'),
           fields: [
             {
@@ -354,7 +354,7 @@ export const pfConfigurationServiceViewFields = (context = {}) => {
           ]
         },
         {
-          label: i18n.t('pfstats'),
+          label: 'pfstats',
           text: i18n.t('Should pfstats be managed by PacketFence?'),
           fields: [
             {
@@ -367,7 +367,7 @@ export const pfConfigurationServiceViewFields = (context = {}) => {
           ]
         },
         {
-          label: i18n.t('radiusd'),
+          label: 'radiusd',
           text: i18n.t('Should radiusd be managed by PacketFence?'),
           fields: [
             {
@@ -380,7 +380,7 @@ export const pfConfigurationServiceViewFields = (context = {}) => {
           ]
         },
         {
-          label: i18n.t('radsniff'),
+          label: 'radsniff',
           text: i18n.t('Should radsniff be managed by PacketFence?'),
           fields: [
             {
@@ -393,7 +393,7 @@ export const pfConfigurationServiceViewFields = (context = {}) => {
           ]
         },
         {
-          label: i18n.t('redis_cache'),
+          label: 'redis_cache',
           text: i18n.t(`Should Redis for caching be started? Keep enabled unless you know what you're doing.`),
           fields: [
             {
@@ -406,7 +406,7 @@ export const pfConfigurationServiceViewFields = (context = {}) => {
           ]
         },
         {
-          label: i18n.t('redis_ntlm_cache'),
+          label: 'redis_ntlm_cache',
           text: i18n.t(`Should the Redis NTLM cache be started? Use this if you are enabling an Active Directory NTLM cache.`),
           fields: [
             {
@@ -419,7 +419,7 @@ export const pfConfigurationServiceViewFields = (context = {}) => {
           ]
         },
         {
-          label: i18n.t('redis_queue'),
+          label: 'redis_queue',
           text: i18n.t(`Should Redis be started? Keep enabled unless you know what you're doing.`),
           fields: [
             {
@@ -445,7 +445,7 @@ export const pfConfigurationServiceViewFields = (context = {}) => {
           ]
         },
         {
-          label: i18n.t('snmptrapd'),
+          label: 'snmptrapd',
           text: i18n.t(`Should snmptrapd be started? Keep enabled unless you know what you're doing.`),
           fields: [
             {
@@ -458,7 +458,7 @@ export const pfConfigurationServiceViewFields = (context = {}) => {
           ]
         },
         {
-          label: i18n.t('tc'),
+          label: 'tc',
           text: i18n.t('Should traffic shaping be managed by PacketFence?'),
           fields: [
             {
@@ -471,7 +471,7 @@ export const pfConfigurationServiceViewFields = (context = {}) => {
           ]
         },
         {
-          label: i18n.t('winbindd'),
+          label: 'winbindd',
           text: i18n.t(`Should winbindd be started? Keep enabled unless you know what you're doing.`),
           fields: [
             {
