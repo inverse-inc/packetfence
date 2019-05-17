@@ -62,6 +62,7 @@
 import uuidv4 from 'uuid/v4'
 import pfButtonSave from '@/components/pfButtonSave'
 import pfButtonDelete from '@/components/pfButtonDelete'
+import pfFormInput from '@/components/pfFormInput'
 import pfMixinValidation from '@/components/pfMixinValidation'
 import { createDebouncer } from 'promised-debounce'
 
