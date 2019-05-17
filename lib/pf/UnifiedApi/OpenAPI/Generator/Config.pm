@@ -117,7 +117,6 @@ sub removeOperationParameters {
     return $self->resoureParameters( $scope, $c, $m, $a );
 }
 
-
 sub operationDescriptionsLookup {
     return \%OPERATION_DESCRIPTIONS;
 }
@@ -297,10 +296,15 @@ sub buildForms {
         @form_classes = values %{ $controller->type_lookup };
     } else {
         my $form_class = $controller->form_class;
+        if (!defined $form_class) {
+            return;
+        }
+
         if ($form_class eq 'pfappserver::Form::Config::Pf') {
             return map { $form_class->new( section => $_ ) } keys %pf::constants::pfconf::ALLOWED_SECTIONS;
         }
-        @form_classes = ( $controller->form_class );
+
+        @form_classes = ( $form_class );
     }
 
     return map { $_->new() } @form_classes;
