@@ -356,6 +356,26 @@ export const pfConfigurationProvisioningFields = {
       ]
     }
   },
+  critical_issues_threshold: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Critical issues threshold'),
+      text: i18n.t('Raise the non compliance security event the number of critical issues is greater or equal than this. 0 deactivates it.'),
+      fields: [
+        {
+          key: 'critical_issues_threshold',
+          component: pfFormInput,
+          attrs: {
+            ...pfConfigurationAttributesFromMeta(meta, 'critical_issues_threshold'),
+            ...{
+              type: 'number',
+              step: 1
+            }
+          },
+          validators: pfConfigurationValidatorsFromMeta(meta, 'critical_issues_threshold', 'Threshold')
+        }
+      ]
+    }
+  },
   description: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Description'),
@@ -447,6 +467,20 @@ export const pfConfigurationProvisioningFields = {
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'mac_osx_agent_download_uri'),
           validators: pfConfigurationValidatorsFromMeta(meta, 'mac_osx_agent_download_uri', 'URI')
+        }
+      ]
+    }
+  },
+  non_compliance_security_event: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Non compliance security event'),
+      text: i18n.t('Which security event should be raised when non compliance is detected.'),
+      fields: [
+        {
+          key: 'non_compliance_security_event',
+          component: pfFormChosen,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'non_compliance_security_event'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'non_compliance_security_event', 'Security event')
         }
       ]
     }
@@ -880,7 +914,7 @@ export const pfConfigurationProvisioningViewFields = (context) => {
     case 'opswat':
       return [
         {
-          tab: null, // ignore tabs
+          tab: i18n.t('Settings'),
           fields: [
             pfConfigurationProvisioningFields.id(context),
             pfConfigurationProvisioningFields.description(context),
@@ -894,6 +928,13 @@ export const pfConfigurationProvisioningViewFields = (context) => {
             pfConfigurationProvisioningFields.access_token(context),
             pfConfigurationProvisioningFields.refresh_token(context),
             pfConfigurationProvisioningFields.agent_download_uri(context)
+          ]
+        },
+        {
+          tab: i18n.t('Compliance'),
+          fields: [
+            pfConfigurationProvisioningFields.non_compliance_security_event(context),
+            pfConfigurationProvisioningFields.critical_issues_threshold(context)
           ]
         }
       ]
