@@ -284,7 +284,10 @@ SetEnvIf Request_URI "netdata" is_netdata
       SSLProxyCheckPeerName off
       SSLProxyCheckPeerExpire off
 
-      ProxyPassMatch "^/api/(.*)" "https://127.0.0.1:9999/api/$1" connectiontimeout=5 timeout=600 keepalive=on
+      <Location /api >
+        ProxyPass "https://127.0.0.1:9999/api" connectiontimeout=5 timeout=600 keepalive=on
+        ErrorDocument 502 "/static/502.json"
+      </Location>
 
       <Location /portal_preview >
           SetEnv X_PORTAL default
