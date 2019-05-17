@@ -3,6 +3,7 @@ import pfFormChosen from '@/components/pfFormChosen'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormPassword from '@/components/pfFormPassword'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
+import pfFormTextarea from '@/components/pfFormTextarea'
 import {
   pfConfigurationAttributesFromMeta,
   pfConfigurationValidatorsFromMeta
@@ -262,6 +263,21 @@ export const pfConfigurationProvisioningFields = {
       ]
     }
   },
+  can_sign_profile: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Sign Profile'),
+      text: i18n.t('Check this box if you want the profiles signed'),
+      fields: [
+        {
+          key: 'can_sign_profile',
+          component: pfFormRangeToggle,
+          attrs: {
+            values: { checked: '1', unchecked: '0' }
+          }
+        }
+      ]
+    }
+  },
   category: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Roles'),
@@ -272,6 +288,44 @@ export const pfConfigurationProvisioningFields = {
           component: pfFormChosen,
           attrs: pfConfigurationAttributesFromMeta(meta, 'category'),
           validators: pfConfigurationValidatorsFromMeta(meta, 'category', 'Roles')
+        }
+      ]
+    }
+  },
+  cert_chain: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('The certificate chain for the signer certificate'),
+      text: i18n.t('The certificate chain of the signer certificate in pem format.'),
+      fields: [
+        {
+          key: 'cert_chain',
+          component: pfFormTextarea,
+          attrs: {
+            ...pfConfigurationAttributesFromMeta(meta, 'cert_chain'),
+            ...{
+              rows: 5
+            }
+          },
+          validators: pfConfigurationValidatorsFromMeta(meta, 'cert_chain', 'Chain')
+        }
+      ]
+    }
+  },
+  certificate: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('The certificate for signing profiles'),
+      text: i18n.t('The Certificate for signing in pem format.'),
+      fields: [
+        {
+          key: 'certificate',
+          component: pfFormTextarea,
+          attrs: {
+            ...pfConfigurationAttributesFromMeta(meta, 'certificate'),
+            ...{
+              rows: 5
+            }
+          },
+          validators: pfConfigurationValidatorsFromMeta(meta, 'certificate', 'Certificate')
         }
       ]
     }
@@ -298,6 +352,26 @@ export const pfConfigurationProvisioningFields = {
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'client_secret'),
           validators: pfConfigurationValidatorsFromMeta(meta, 'client_secret', 'Secret')
+        }
+      ]
+    }
+  },
+  critical_issues_threshold: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Critical issues threshold'),
+      text: i18n.t('Raise the non compliance security event the number of critical issues is greater or equal than this. 0 deactivates it.'),
+      fields: [
+        {
+          key: 'critical_issues_threshold',
+          component: pfFormInput,
+          attrs: {
+            ...pfConfigurationAttributesFromMeta(meta, 'critical_issues_threshold'),
+            ...{
+              type: 'number',
+              step: 1
+            }
+          },
+          validators: pfConfigurationValidatorsFromMeta(meta, 'critical_issues_threshold', 'Threshold')
         }
       ]
     }
@@ -397,6 +471,20 @@ export const pfConfigurationProvisioningFields = {
       ]
     }
   },
+  non_compliance_security_event: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Non compliance security event'),
+      text: i18n.t('Which security event should be raised when non compliance is detected.'),
+      fields: [
+        {
+          key: 'non_compliance_security_event',
+          component: pfFormChosen,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'non_compliance_security_event'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'non_compliance_security_event', 'Security event')
+        }
+      ]
+    }
+  },
   oses: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('OS'),
@@ -459,6 +547,25 @@ export const pfConfigurationProvisioningFields = {
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'port'),
           validators: pfConfigurationValidatorsFromMeta(meta, 'port', 'Port')
+        }
+      ]
+    }
+  },
+  private_key: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('The private key for signing profiles'),
+      text: i18n.t('The Private Key for signing in pem format.'),
+      fields: [
+        {
+          key: 'private_key',
+          component: pfFormTextarea,
+          attrs: {
+            ...pfConfigurationAttributesFromMeta(meta, 'private_key'),
+            ...{
+              rows: 5
+            }
+          },
+          validators: pfConfigurationValidatorsFromMeta(meta, 'private_key', 'Key')
         }
       ]
     }
@@ -737,7 +844,7 @@ export const pfConfigurationProvisioningViewFields = (context) => {
     case 'mobileconfig':
       return [
         {
-          tab: null, // ignore tabs
+          tab: i18n.t('Settings'),
           fields: [
             ...[
               pfConfigurationProvisioningFields.id(context),
@@ -773,6 +880,15 @@ export const pfConfigurationProvisioningViewFields = (context) => {
               : [] // ignore
             )
           ]
+        },
+        {
+          tab: i18n.t('Signing'),
+          fields: [
+            pfConfigurationProvisioningFields.can_sign_profile(context),
+            pfConfigurationProvisioningFields.certificate(context),
+            pfConfigurationProvisioningFields.private_key(context),
+            pfConfigurationProvisioningFields.cert_chain(context)
+          ]
         }
       ]
     case 'mobileiron':
@@ -798,7 +914,7 @@ export const pfConfigurationProvisioningViewFields = (context) => {
     case 'opswat':
       return [
         {
-          tab: null, // ignore tabs
+          tab: i18n.t('Settings'),
           fields: [
             pfConfigurationProvisioningFields.id(context),
             pfConfigurationProvisioningFields.description(context),
@@ -812,6 +928,13 @@ export const pfConfigurationProvisioningViewFields = (context) => {
             pfConfigurationProvisioningFields.access_token(context),
             pfConfigurationProvisioningFields.refresh_token(context),
             pfConfigurationProvisioningFields.agent_download_uri(context)
+          ]
+        },
+        {
+          tab: i18n.t('Compliance'),
+          fields: [
+            pfConfigurationProvisioningFields.non_compliance_security_event(context),
+            pfConfigurationProvisioningFields.critical_issues_threshold(context)
           ]
         }
       ]
