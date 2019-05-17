@@ -181,7 +181,7 @@ export default {
           setEachFieldValue(remainder.join('.'), value, model[first])
           return
         }
-          model[key] = value
+        model[key] = value
       }
       if (this.form.fields.length > 0) {
         this.form.fields.forEach(tab => {
