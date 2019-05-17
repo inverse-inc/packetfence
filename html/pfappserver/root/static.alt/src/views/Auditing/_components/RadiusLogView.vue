@@ -56,8 +56,8 @@
 
         <b-tab title="RADIUS">
           <pf-form-row :column-label="$t('Request Time')">{{ item.request_time }}</pf-form-row>
-          <pf-form-row :column-label="$t('RADIUS Request')" align-v="start"><div class="text-pre">{{ formatRadius(item.radius_request) }}</div></pf-form-row>
-          <pf-form-row :column-label="$t('RADIUS Reply')" align-v="start"><div class="text-pre">{{ formatRadius(item.radius_reply) }}</div></pf-form-row>
+          <pf-form-row :column-label="$t('RADIUS Request')" align-v="start"><div class="text-pre my-2">{{ formatRadius(item.radius_request) }}</div></pf-form-row>
+          <pf-form-row :column-label="$t('RADIUS Reply')" align-v="start"><div class="text-pre my-2">{{ formatRadius(item.radius_reply) }}</div></pf-form-row>
         </b-tab>
 
       </b-tabs>
@@ -127,12 +127,3 @@ export default {
 }
 </script>
 
-<style lang="scss">
-@import "../../../styles/variables";
-
-.text-pre {
-  white-space: pre-line; /* allow \n to break */
-  font-family: $font-family-monospace;
-  font-size: $code-font-size;
-}
-</style>
