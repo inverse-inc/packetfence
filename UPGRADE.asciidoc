@@ -51,7 +51,7 @@ To do so, run the following commands:
 [source,bash]
 ----
 /usr/local/pf/bin/pfcmd service pf stop
-systemctl packetfence-config stop
+systemctl stop packetfence-config
 ----
 
 
