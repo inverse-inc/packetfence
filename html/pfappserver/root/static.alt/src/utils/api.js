@@ -227,7 +227,7 @@ apiCall.interceptors.response.use((response) => {
   const { config = {} } = response
   apiCall.queue.stopRequest(config) // stop performance benchmark
   if (response.data.message && !response.data.quiet) {
-    store.dispatch('notification/info', response.data.message)
+    store.dispatch('notification/info', { message: response.data.message, url: response.config.url })
   }
   store.commit('session/API_OK')
   store.commit('session/FORM_OK')
