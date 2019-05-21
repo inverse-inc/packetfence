@@ -139,8 +139,13 @@ export default {
       this.$router.push({ name: 'cloneDomain' })
     },
     create () {
+      const ctrlKey = this.ctrlKey
       this.$store.dispatch(`${this.storeName}/createDomain`, this.form).then(response => {
-        this.$router.push({ name: 'domain', params: { id: this.form.id } })
+        if (!ctrlKey) {
+          this.$router.push({ name: 'domains', params: { autoJoinDomain: this.form } })
+        } else {
+          this.$router.push({ name: 'domain', params: { id: this.form.id } })
+        }
       })
     },
     save () {
