@@ -17,6 +17,7 @@ extends 'pfappserver::Base::Form';
 with qw(
     pfappserver::Base::Form::Role::Help
     pfappserver::Role::Form::RolesAttribute
+    pfappserver::Base::Form::Role::AllowedOptions
 );
 
 use pf::admin_roles;
@@ -145,7 +146,7 @@ The list of allowed access levels
 
 sub options_allowed_access_levels {
     my ($self) = @_;
-    return  [map { { label => $_, value => $_ } } keys %ADMIN_ROLES];
+    return map { { value => $_, label => $_ } } $self->form->allowed_access_levels();
 }
 
 =head2 options_roles
@@ -160,13 +161,11 @@ sub options_roles {
 
 =head2 options_allowed_actions
 
-TODO: documention
-
 =cut
 
 sub options_allowed_actions {
     my ($self) = @_;
-    return  map { {label => $_, value => $_} } keys %Actions::ACTION_CLASS_TO_TYPE;
+    return map { { value => $_, label => $_ } } $self->form->allowed_actions();
 }
 
 =head1 COPYRIGHT
