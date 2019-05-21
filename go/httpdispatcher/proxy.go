@@ -215,6 +215,20 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func (p *Proxy) Configure(ctx context.Context, port string) {
 	p.addToEndpointList(ctx, "localhost")
 	p.addToEndpointList(ctx, "127.0.0.1")
+	p.addToEndpointList(ctx, "127.1")
+	p.addToEndpointList(ctx, "127.0.1")
+	p.addToEndpointList(ctx, "0177.1")
+        p.addToEbdpointList(ctx, "0177.0.1")
+	p.addToEndpointList(ctx, "0x7f.1")
+	p.addToEndpointList(ctx, "0x7f.0.1"
+        p.addToEndpointList(ctx, "7f.00.00.01")
+	p.addToEndpointList(ctx, "0x7f.0x0.0x0.0x1")
+	p.addToEndpointList(ctx, "0177.0.0.01")
+	p.addToEndpointList(ctx, "2130706433")
+	p.addToEndpointList(ctx, "0x7f.0.0.0x1")
+	p.addToEndpointList(ctx, "7f.00.00.01")
+	p.addToEndpointList(ctx, "0x7f000001")
+// protection against SSRF obfuscation in order to trigger the localhost vhost.  
 }
 
 func (p *passthrough) readConfig(ctx context.Context) {
