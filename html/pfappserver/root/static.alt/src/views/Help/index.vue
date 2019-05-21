@@ -4,7 +4,10 @@
           <b-card no-body>
             <b-card-body>
               <pf-form-row :column-label="$t('Version')">
-                {{ version }}
+                PacketFence {{ version }}
+              </pf-form-row>
+              <pf-form-row :column-label="$t('Server')">
+                {{ hostname }}
               </pf-form-row>
             </b-card-body>
             <b-card-footer>
@@ -50,6 +53,9 @@ export default {
   computed: {
     version () {
       return this.$store.getters['system/version']
+    },
+    hostname () {
+      return this.$store.getters['system/hostname']
     }
   }
 }
