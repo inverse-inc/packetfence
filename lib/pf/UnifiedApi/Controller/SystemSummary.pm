@@ -16,6 +16,7 @@ use Mojo::Base 'pf::UnifiedApi::Controller::RestRoute';
 use pf::db;
 use pf::config::util qw(is_inline_configured);
 use pf::version;
+use pf::cluster;
 
 sub get {
     my ($self) = @_;
@@ -24,6 +25,7 @@ sub get {
            readonly_mode => db_check_readonly() ? $self->json_true : $self->json_false,
            is_inline_configured => is_inline_configured() ? $self->json_true : $self->json_false,
            version => pf::version::version_get_current(),
+           hostname => $host_id,
         }
     );
 
