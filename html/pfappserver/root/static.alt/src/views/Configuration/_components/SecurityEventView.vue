@@ -123,6 +123,10 @@ export default {
             // new
             this.form = defaults(options.meta) // set defaults
           }
+          // make sure actions is an array
+          if (!this.form.actions) {
+            this.form.actions = []
+          }
         })
       })
     },
