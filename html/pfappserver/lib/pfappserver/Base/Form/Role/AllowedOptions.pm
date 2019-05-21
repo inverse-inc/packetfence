@@ -30,6 +30,22 @@ sub _get_allowed_options {
     return admin_allowed_options($self->user_roles, $option);
 }
 
+=head2 allowed_access_levels
+
+The list of allowed access levels
+
+=cut
+
+sub allowed_access_levels {
+    my ($self) = @_;
+    my @options_values = $self->_get_allowed_options('allowed_access_levels');
+    unless( @options_values ) {
+        @options_values = keys %ADMIN_ROLES;
+    }
+
+    return @options_values;
+}
+
 around ACCEPT_CONTEXT => sub {
     my ($orig, $self, $c, @args) = @_;
     return $self->$orig($c, user_roles => [$c->user->roles], @args);
