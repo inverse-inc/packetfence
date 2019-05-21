@@ -206,6 +206,41 @@ export const pfConfigurationMaintenanceTaskFields = {
       ]
     }
   },
+  email_every: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Email interval'),
+      text: i18n.t(`How frequently should the user be emailed`),
+      fields: [
+        {
+          key: 'email_every.interval',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'email_every.interval'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'email_every.interval', 'Interval')
+        },
+        {
+          key: 'email_every.unit',
+          component: pfFormChosen,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'email_every.unit'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'email_every.unit', 'Unit')
+        }
+      ]
+    }
+  },
+  email_on_all_changes: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Email on all changes'),
+      text: i18n.t('Should the user be emailed everytime a new expiring device is detected or only when email_every expires.'),
+      fields: [
+        {
+          key: 'email_on_all_changes',
+          component: pfFormRangeToggle,
+          attrs: {
+            values: { checked: 'enabled', unchecked: 'disabled' }
+          }
+        }
+      ]
+    }
+  },
   interval: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Interval'),
@@ -457,6 +492,21 @@ export const pfConfigurationMaintenanceTaskViewFields = (context) => {
             pfConfigurationMaintenanceTaskFields.description(context),
             pfConfigurationMaintenanceTaskFields.status(context),
             pfConfigurationMaintenanceTaskFields.interval(context)
+          ]
+        }
+      ]
+    case 'email_expiring_devices':
+      return [
+        {
+          tab: null, // ignore tabs
+          fields: [
+            pfConfigurationMaintenanceTaskFields.id(context),
+            pfConfigurationMaintenanceTaskFields.description(context),
+            pfConfigurationMaintenanceTaskFields.status(context),
+            pfConfigurationMaintenanceTaskFields.interval(context),
+            pfConfigurationMaintenanceTaskFields.window(context),
+            pfConfigurationMaintenanceTaskFields.email_every(context),
+            pfConfigurationMaintenanceTaskFields.email_on_all_changes(context)
           ]
         }
       ]
