@@ -172,12 +172,8 @@ Populate the select field for the 'access level' template action.
 =cut
 
 sub options_access_level {
-    my $self = shift;
-    my @options_values = $self->form->_get_allowed_options('allowed_access_levels');
-    unless( @options_values ) {
-        @options_values = keys %ADMIN_ROLES;
-    }
-    return map { {value => $_, label => $self->_localize($_) } } @options_values;
+    my ($self) = @_;
+    return map { { value => $_, label => $_ } } $self->form->allowed_access_levels();
 }
 
 =head2 options_roles
