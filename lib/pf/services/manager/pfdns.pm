@@ -61,10 +61,12 @@ EOT
         next if ( !pf::config::is_network_type_inline($network) );
         my $net_addr = NetAddr::IP->new($network,$ConfigNetworks{$network}{'netmask'});
         my $cidr = $net_addr->cidr();
+        my $dns =  join ' ',split(',',$ConfigNetworks{$network}{'dns'});
         $tags{'inline'} .= <<"EOT";
-    proxy $cidr . $ConfigNetworks{$network}{'dns'}
+    proxy $cidr . $dns
 EOT
     }
+
     $tt->process("$conf_dir/pfdns.conf", \%tags, "$generated_conf_dir/pfdns.conf") or die $tt->error();
 }
 

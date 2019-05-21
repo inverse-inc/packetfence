@@ -364,14 +364,11 @@ export const pfConfigurationInterfaceViewFields = (context = {}) => {
         {
           if: ['inlinel2'].includes(form.type),
           label: i18n.t('DNS'),
-          text: i18n.t('The primary DNS server of your network.'),
+          text: i18n.t('The DNS server(s) of your network. (comma limited)'),
           fields: [
             {
               key: 'dns',
               component: pfFormInput,
-              validators: {
-                [i18n.t('Invalid IPv4 address.')]: ipAddress
-              }
             }
           ]
         },
