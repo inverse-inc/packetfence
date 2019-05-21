@@ -245,7 +245,9 @@ Get id of current resource
 
 sub id {
     my ($self) = @_;
-    url_unescape($self->stash->{$self->url_param_name});
+    my $id = url_unescape($self->stash->{$self->url_param_name});
+    $id =~ s/~/\//g;
+    return $id;
 }
 
 sub create_error_msg {
