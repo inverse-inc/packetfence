@@ -1,9 +1,7 @@
 import apiCall from '@/utils/api'
 
 const encodePID = (pid) => {
-console.log('pid', pid)
-  // 1. replace '/' with '~'
-  // 2. encodeURI
+  // 1. replace '/' with '~' (caddy workaround), 2. encodeURI
   return encodeURI(pid.replace('/', '~'))
 }
 
