@@ -25,7 +25,7 @@ export const pfConfigurationGeneralViewFields = (context = {}) => {
               key: 'domain',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'domain'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'domain', 'Domain')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'domain', i18n.t('Domain'))
             }
           ]
         },
@@ -37,7 +37,7 @@ export const pfConfigurationGeneralViewFields = (context = {}) => {
               key: 'hostname',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'hostname'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'hostname', 'Hostname')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'hostname', i18n.t('Hostname'))
             }
           ]
         },
@@ -54,7 +54,7 @@ export const pfConfigurationGeneralViewFields = (context = {}) => {
                   rows: 3
                 }
               },
-              validators: pfConfigurationValidatorsFromMeta(meta, 'dhcpservers', 'Servers')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'dhcpservers', i18n.t('Servers'))
             }
           ]
         },
@@ -71,7 +71,7 @@ export const pfConfigurationGeneralViewFields = (context = {}) => {
                   optionsLimit: 500
                 }
               },
-              validators: pfConfigurationValidatorsFromMeta(meta, 'timezone', 'Timezone')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'timezone', i18n.t('Timezone'))
             }
           ]
         }

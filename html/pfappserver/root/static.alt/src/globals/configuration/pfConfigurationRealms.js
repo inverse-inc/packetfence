@@ -144,7 +144,7 @@ export const pfConfigurationRealmViewFields = (context = {}) => {
                 }
               },
               validators: {
-                ...pfConfigurationValidatorsFromMeta(meta, 'id', 'Identifier'),
+                ...pfConfigurationValidatorsFromMeta(meta, 'id', 'ID'),
                 ...{
                   [i18n.t('Role exists.')]: not(and(required, conditional(isNew || isClone), hasRealms, realmExists))
                 }
@@ -163,7 +163,7 @@ export const pfConfigurationRealmViewFields = (context = {}) => {
               key: 'domain',
               component: pfFormChosen,
               attrs: pfConfigurationAttributesFromMeta(meta, 'domain'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'domain', 'Domain')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'domain', i18n.t('Domain'))
             }
           ]
         },
@@ -178,7 +178,7 @@ export const pfConfigurationRealmViewFields = (context = {}) => {
               key: 'options',
               component: pfFormTextarea,
               attrs: pfConfigurationAttributesFromMeta(meta, 'options'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'options', 'Realm options')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'options', i18n.t('Options'))
             }
           ]
         },
@@ -190,7 +190,7 @@ export const pfConfigurationRealmViewFields = (context = {}) => {
               key: 'radius_auth',
               component: pfFormChosen,
               attrs: pfConfigurationAttributesFromMeta(meta, 'radius_auth'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'radius_auth', 'RADIUS AUTH')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'radius_auth', i18n.t('Servers'))
             }
           ]
         },
@@ -202,7 +202,7 @@ export const pfConfigurationRealmViewFields = (context = {}) => {
               key: 'radius_auth_proxy_type',
               component: pfFormChosen,
               attrs: pfConfigurationAttributesFromMeta(meta, 'radius_auth_proxy_type'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'radius_auth_proxy_type', 'Type')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'radius_auth_proxy_type', i18n.t('Type'))
             }
           ]
         },
@@ -227,7 +227,7 @@ export const pfConfigurationRealmViewFields = (context = {}) => {
               key: 'radius_acct_chosen',
               component: pfFormChosen,
               attrs: pfConfigurationAttributesFromMeta(meta, 'radius_auth'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'radius_auth', 'RADIUS ACCT')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'radius_auth', i18n.t('Servers'))
             }
           ]
         },
@@ -239,7 +239,7 @@ export const pfConfigurationRealmViewFields = (context = {}) => {
               key: 'radius_acct_proxy_type',
               component: pfFormChosen,
               attrs: pfConfigurationAttributesFromMeta(meta, 'radius_acct_proxy_type'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'radius_acct_proxy_type', 'Type')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'radius_acct_proxy_type', i18n.t('Type'))
             }
           ]
         },
@@ -306,7 +306,7 @@ export const pfConfigurationRealmViewFields = (context = {}) => {
               key: 'ldap_source',
               component: pfFormChosen,
               attrs: pfConfigurationAttributesFromMeta(meta, 'ldap_source'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'ldap_source', 'LDAP source')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'ldap_source', i18n.t('Source'))
             }
           ]
         }

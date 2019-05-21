@@ -119,7 +119,7 @@ export const pfConfigurationDeviceRegistrationViewFields = (context = {}) => {
                 }
               },
               validators: {
-                ...pfConfigurationValidatorsFromMeta(meta, 'id', 'Name'),
+                ...pfConfigurationValidatorsFromMeta(meta, 'id', i18n.t('Name')),
                 ...{
                   [i18n.t('Name exists.')]: not(and(required, conditional(isNew || isClone), hasDeviceRegistrations, deviceRegistrationExists))
                 }
@@ -134,7 +134,7 @@ export const pfConfigurationDeviceRegistrationViewFields = (context = {}) => {
               key: 'description',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'description'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'description', 'Description')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'description', i18n.t('Description'))
             }
           ]
         },
@@ -146,7 +146,7 @@ export const pfConfigurationDeviceRegistrationViewFields = (context = {}) => {
               key: 'category',
               component: pfFormChosen,
               attrs: pfConfigurationAttributesFromMeta(meta, 'category'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'category', 'Roles')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'category', i18n.t('Roles'))
             }
           ]
         },

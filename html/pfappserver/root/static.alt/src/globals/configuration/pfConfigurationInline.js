@@ -44,7 +44,7 @@ export const pfConfigurationInlineViewFields = (context = {}) => {
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'layer3_accounting_session_timeout'),
               validators: {
-                ...pfConfigurationValidatorsFromMeta(meta, 'layer3_accounting_session_timeout', 'Timeout'),
+                ...pfConfigurationValidatorsFromMeta(meta, 'layer3_accounting_session_timeout', i18n.t('Timeout')),
                 ...{
                   [i18n.t('Must be numeric')]: integer,
                   [i18n.t('Minimum {minValue}', { minValue: 1 })]: minValue(1)
@@ -62,7 +62,7 @@ export const pfConfigurationInlineViewFields = (context = {}) => {
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'layer3_accounting_sync_interval'),
               validators: {
-                ...pfConfigurationValidatorsFromMeta(meta, 'layer3_accounting_sync_interval', 'Interval'),
+                ...pfConfigurationValidatorsFromMeta(meta, 'layer3_accounting_sync_interval', i18n.t('Interval')),
                 ...{
                   [i18n.t('Must be numeric')]: integer,
                   [i18n.t('Minimum {minValue}', { minValue: 1 })]: minValue(1)
@@ -79,7 +79,7 @@ export const pfConfigurationInlineViewFields = (context = {}) => {
               key: 'ports_redirect',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'ports_redirect'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'ports_redirect', 'Ports')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'ports_redirect', i18n.t('Ports'))
             }
           ]
         },
@@ -109,7 +109,7 @@ export const pfConfigurationInlineViewFields = (context = {}) => {
                   rows: 3
                 }
               },
-              validators: pfConfigurationValidatorsFromMeta(meta, 'interfaceSNAT', 'Interfaces')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'interfaceSNAT', i18n.t('Interfaces'))
             }
           ]
         }

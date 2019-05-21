@@ -127,7 +127,7 @@ export const pfConfigurationBillingTierViewFields = (context = {}) => {
                 }
               },
               validators: {
-                ...pfConfigurationValidatorsFromMeta(meta, 'id', 'Name'),
+                ...pfConfigurationValidatorsFromMeta(meta, 'id', i18n.t('Name')),
                 ...{
                   [i18n.t('Billing Tier exists.')]: not(and(required, conditional(isNew || isClone), hasBillingTiers, billingTierExists))
                 }
@@ -142,7 +142,7 @@ export const pfConfigurationBillingTierViewFields = (context = {}) => {
               key: 'name',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'name'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'name', 'Name')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'name', i18n.t('Name'))
             }
           ]
         },
@@ -162,7 +162,7 @@ export const pfConfigurationBillingTierViewFields = (context = {}) => {
                 }
               },
               validators: {
-                ...pfConfigurationValidatorsFromMeta(meta, 'price', 'Price'),
+                ...pfConfigurationValidatorsFromMeta(meta, 'price', i18n.t('Price')),
                 ...{
                   [i18n.t('Invalid price.')]: conditional((value) => {
                     if (!value) return true
@@ -181,7 +181,7 @@ export const pfConfigurationBillingTierViewFields = (context = {}) => {
               key: 'role',
               component: pfFormChosen,
               attrs: pfConfigurationAttributesFromMeta(meta, 'role'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'role', 'Role')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'role', i18n.t('Role'))
             }
           ]
         },
@@ -193,13 +193,13 @@ export const pfConfigurationBillingTierViewFields = (context = {}) => {
               key: 'access_duration.interval',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'access_duration.interval'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'access_duration.interval', 'Interval')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'access_duration.interval', i18n.t('Interval'))
             },
             {
               key: 'access_duration.unit',
               component: pfFormChosen,
               attrs: pfConfigurationAttributesFromMeta(meta, 'access_duration.unit'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'access_duration.unit', 'Unit')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'access_duration.unit', i18n.t('Unit'))
             }
           ]
         },

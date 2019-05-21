@@ -48,7 +48,7 @@ export const pfConfigurationCiscoMobilityServicesEngineViewFields = (context = {
               key: 'user',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'user'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'user', 'Username')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'user', i18n.t('Username'))
             }
           ]
         },
@@ -60,7 +60,7 @@ export const pfConfigurationCiscoMobilityServicesEngineViewFields = (context = {
               key: 'pass',
               component: pfFormPassword,
               attrs: pfConfigurationAttributesFromMeta(meta, 'pass'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'pass', 'Password')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'pass', i18n.t('Password'))
             }
           ]
         }

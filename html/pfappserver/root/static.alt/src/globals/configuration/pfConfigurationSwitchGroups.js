@@ -226,7 +226,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
                 }
               },
               validators: {
-                ...pfConfigurationValidatorsFromMeta(meta, 'id'),
+                ...pfConfigurationValidatorsFromMeta(meta, 'id', 'ID'),
                 ...{
                   [i18n.t('Switch Group exists.')]: not(and(required, conditional(isNew || isClone), hasSwitchGroups, switchGroupExists))
                 }
@@ -242,7 +242,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'description'),
               validators: {
-                ...pfConfigurationValidatorsFromMeta(meta, 'description'),
+                ...pfConfigurationValidatorsFromMeta(meta, 'description', i18n.t('Description')),
                 ...{
                   [i18n.t('Description required.')]: or(required, conditional(form.id === 'default'))
                 }
@@ -263,7 +263,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
                   groupValues: 'options'
                 }
               },
-              validators: pfConfigurationValidatorsFromMeta(meta, 'type', 'Type')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'type', i18n.t('Type'))
             }
           ]
         },
@@ -274,7 +274,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
               key: 'mode',
               component: pfFormChosen,
               attrs: pfConfigurationAttributesFromMeta(meta, 'mode'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'mode', 'Mode')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'mode', i18n.t('Mode'))
             }
           ]
         },
@@ -285,7 +285,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
               key: 'deauthMethod',
               component: pfFormChosen,
               attrs: pfConfigurationAttributesFromMeta(meta, 'deauthMethod'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'deauthMethod', 'Method')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'deauthMethod', i18n.t('Method'))
             }
           ]
         },
@@ -407,7 +407,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'uplink'),
               validators: {
-                ...pfConfigurationValidatorsFromMeta(meta, 'uplink', 'Uplinks'),
+                ...pfConfigurationValidatorsFromMeta(meta, 'uplink', i18n.t('Uplinks')),
                 ...{
                   [i18n.t('Uplinks required.')]: or(required, conditional(form.uplink_dynamic === 'dynamic'))
                 }
@@ -435,7 +435,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
               key: 'disconnectPort',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'disconnectPort'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'disconnectPort', 'Port')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'disconnectPort', i18n.t('Port'))
             }
           ]
         },
@@ -447,7 +447,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
               key: 'coaPort',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'coaPort'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'coaPort', 'Port')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'coaPort', i18n.t('Port'))
             }
           ]
         }
@@ -483,7 +483,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
                 key: `${role.id}Vlan`,
                 component: pfFormInput,
                 attrs: pfConfigurationAttributesFromMeta(meta, `${role.id}Vlan`),
-                validators: pfConfigurationValidatorsFromMeta(meta, `${role.id}Vlan`)
+                validators: pfConfigurationValidatorsFromMeta(meta, `${role.id}Vlan`, 'VLAN')
               }
             ]
           }
@@ -515,7 +515,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
                 key: `${role.id}Role`,
                 component: pfFormInput,
                 attrs: pfConfigurationAttributesFromMeta(meta, `${role.id}Role`),
-                validators: pfConfigurationValidatorsFromMeta(meta, `${role.id}Role`)
+                validators: pfConfigurationValidatorsFromMeta(meta, `${role.id}Role`, i18n.t('Role'))
               }
             ]
           }
@@ -552,7 +552,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
                     rows: 3
                   }
                 },
-                validators: pfConfigurationValidatorsFromMeta(meta, `${role.id}AccessList`)
+                validators: pfConfigurationValidatorsFromMeta(meta, `${role.id}AccessList`, i18n.t('List'))
               }
             ]
           }
@@ -584,7 +584,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
                 key: `${role.id}Url`,
                 component: pfFormInput,
                 attrs: pfConfigurationAttributesFromMeta(meta, `${role.id}Url`),
-                validators: pfConfigurationValidatorsFromMeta(meta, `${role.id}Url`)
+                validators: pfConfigurationValidatorsFromMeta(meta, `${role.id}Url`, 'URL')
               }
             ]
           }
@@ -636,7 +636,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
               key: 'radiusSecret',
               component: pfFormPassword,
               attrs: pfConfigurationAttributesFromMeta(meta, 'radiusSecret'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'radiusSecret', 'Secret')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'radiusSecret', i18n.t('Secret'))
             }
           ]
         }
@@ -652,7 +652,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
               key: 'SNMPVersion',
               component: pfFormChosen,
               attrs: pfConfigurationAttributesFromMeta(meta, 'SNMPVersion'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'SNMPVersion', 'Version')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'SNMPVersion', i18n.t('Version'))
             }
           ]
         },
@@ -884,7 +884,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
               key: 'macSearchesMaxNb',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'macSearchesMaxNb'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'macSearchesMaxNb')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'macSearchesMaxNb', i18n.t('Max'))
             }
           ]
         },
@@ -896,7 +896,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
               key: 'macSearchesSleepInterval',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'macSearchesSleepInterval'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'macSearchesSleepInterval')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'macSearchesSleepInterval', i18n.t('Interval'))
             }
           ]
         }
@@ -912,7 +912,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
               key: 'cliTransport',
               component: pfFormChosen,
               attrs: pfConfigurationAttributesFromMeta(meta, 'cliTransport'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'cliTransport')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'cliTransport', i18n.t('Transport'))
             }
           ]
         },
@@ -923,7 +923,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
               key: 'cliUser',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'cliUser'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'cliUser')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'cliUser', i18n.t('Username'))
             }
           ]
         },
@@ -934,7 +934,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
               key: 'cliPwd',
               component: pfFormPassword,
               attrs: pfConfigurationAttributesFromMeta(meta, 'cliPwd'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'cliPwd')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'cliPwd', i18n.t('Password'))
             }
           ]
         },
@@ -945,7 +945,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
               key: 'cliEnablePwd',
               component: pfFormPassword,
               attrs: pfConfigurationAttributesFromMeta(meta, 'cliEnablePwd'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'cliEnablePwd')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'cliEnablePwd', i18n.t('Password'))
             }
           ]
         }
@@ -961,7 +961,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
               key: 'wsTransport',
               component: pfFormChosen,
               attrs: pfConfigurationAttributesFromMeta(meta, 'wsTransport'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'wsTransport')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'wsTransport', i18n.t('Transport'))
             }
           ]
         },
@@ -972,7 +972,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
               key: 'wsUser',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'wsUser'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'wsUser')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'wsUser', i18n.t('Username'))
             }
           ]
         },
@@ -983,7 +983,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
               key: 'wsPwd',
               component: pfFormPassword,
               attrs: pfConfigurationAttributesFromMeta(meta, 'wsPwd'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'wsPwd')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'wsPwd', i18n.t('Password'))
             }
           ]
         }

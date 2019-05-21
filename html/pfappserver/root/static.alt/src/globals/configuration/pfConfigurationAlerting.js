@@ -40,7 +40,7 @@ export const pfConfigurationAlertingViewFields = (context = {}) => {
                   rows: 3
                 }
               },
-              validators: pfConfigurationValidatorsFromMeta(meta, 'emailaddr', 'Emails')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'emailaddr', i18n.t('Email Addresses'))
             }
           ]
         },
@@ -52,7 +52,7 @@ export const pfConfigurationAlertingViewFields = (context = {}) => {
               key: 'fromaddr',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'fromaddr'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'fromaddr', 'Email')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'fromaddr', i18n.t('Email'))
             }
           ]
         },
@@ -64,7 +64,7 @@ export const pfConfigurationAlertingViewFields = (context = {}) => {
               key: 'smtpserver',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'smtpserver'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'smtpserver', 'Server')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'smtpserver', i18n.t('Server'))
             }
           ]
         },
@@ -76,7 +76,7 @@ export const pfConfigurationAlertingViewFields = (context = {}) => {
               key: 'subjectprefix',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'subjectprefix'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'subjectprefix', 'Prefix')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'subjectprefix', i18n.t('Prefix'))
             }
           ]
         },
@@ -88,7 +88,7 @@ export const pfConfigurationAlertingViewFields = (context = {}) => {
               key: 'smtp_encryption',
               component: pfFormChosen,
               attrs: pfConfigurationAttributesFromMeta(meta, 'smtp_encryption'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'smtp_encryption', 'Encryption')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'smtp_encryption', i18n.t('Encryption'))
             }
           ]
         },
@@ -101,7 +101,7 @@ export const pfConfigurationAlertingViewFields = (context = {}) => {
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'smtp_port'),
               validators: {
-                ...pfConfigurationValidatorsFromMeta(meta, 'smtp_port', 'Port'),
+                ...pfConfigurationValidatorsFromMeta(meta, 'smtp_port', i18n.t('Port')),
                 ...{
                   [i18n.t('Invalid port.')]: isPort
                 }
@@ -117,7 +117,7 @@ export const pfConfigurationAlertingViewFields = (context = {}) => {
               key: 'smtp_username',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'smtp_username'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'smtp_username', 'Username')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'smtp_username', i18n.t('Username'))
             }
           ]
         },
@@ -129,7 +129,7 @@ export const pfConfigurationAlertingViewFields = (context = {}) => {
               key: 'smtp_password',
               component: pfFormPassword,
               attrs: pfConfigurationAttributesFromMeta(meta, 'smtp_password'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'smtp_password', 'Password')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'smtp_password', i18n.t('Password'))
             }
           ]
         },
@@ -160,7 +160,7 @@ export const pfConfigurationAlertingViewFields = (context = {}) => {
                   step: 1
                 }
               },
-              validators: pfConfigurationValidatorsFromMeta(meta, 'smtp_timeout', 'Timeout')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'smtp_timeout', i18n.t('Timeout'))
             }
           ]
         },

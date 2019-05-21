@@ -134,7 +134,7 @@ export const pfConfigurationAuthenticationSourceFields = {
             }
           },
           validators: {
-            ...pfConfigurationValidatorsFromMeta(meta, 'id', 'Name'),
+            ...pfConfigurationValidatorsFromMeta(meta, 'id', i18n.t('Name')),
             ...{
               [i18n.t('Source exists.')]: not(and(required, conditional(isNew || isClone), hasSources, sourceExists))
             }
@@ -152,7 +152,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'scope',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'scope'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'scope', 'Scope')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'scope', i18n.t('Scope'))
         }
       ]
     }
@@ -165,7 +165,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'access_token_param',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'access_token_param'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'access_token_param', 'Parameter')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'access_token_param', i18n.t('Parameter'))
         }
       ]
     }
@@ -178,7 +178,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'access_token_path',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'access_token_path'),
-          validators: pfConfigurationValidatorsFromMeta(meta.access_token_path, 'access_token_path', 'Path')
+          validators: pfConfigurationValidatorsFromMeta(meta.access_token_path, 'access_token_path', i18n.t('Path'))
         }
       ]
     }
@@ -206,7 +206,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'activation_domain',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'activation_domain'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'activation_domain', 'Host')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'activation_domain', i18n.t('Host'))
         }
       ]
     }
@@ -290,7 +290,7 @@ export const pfConfigurationAuthenticationSourceFields = {
               rows: 3
             }
           },
-          validators: pfConfigurationValidatorsFromMeta(meta, 'allowed_domains', 'Domains')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'allowed_domains', i18n.t('Domains'))
         }
       ]
     }
@@ -318,7 +318,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'api_key',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'api_key'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'api_key', 'Key')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'api_key', i18n.t('Key'))
         }
       ]
     }
@@ -344,7 +344,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'username',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'username'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'username', 'Username')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'username', i18n.t('Username'))
         }
       ]
     }
@@ -357,7 +357,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'password',
           component: pfFormPassword,
           attrs: pfConfigurationAttributesFromMeta(meta, 'password'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'password', 'Password')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'password', i18n.t('Password'))
         }
       ]
     }
@@ -371,7 +371,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'auth_listening_port',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'auth_listening_port'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'auth_listening_port', 'Port')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'auth_listening_port', i18n.t('Port'))
         }
       ]
     }
@@ -385,7 +385,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'auth_token',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'auth_token'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'auth_token', 'Token')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'auth_token', i18n.t('Token'))
         }
       ]
     }
@@ -398,7 +398,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'authenticate_realm',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'authenticate_realm'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'authenticate_realm', 'Realm')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'authenticate_realm', i18n.t('Realm'))
         }
       ]
     }
@@ -493,7 +493,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'authorization_source_id',
           component: pfFormChosen,
           attrs: pfConfigurationAttributesFromMeta(meta, 'authorization_source_id'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'authorization_source_id', 'Source')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'authorization_source_id', i18n.t('Source'))
         }
       ]
     }
@@ -506,7 +506,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'authorize_path',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'authorize_path'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'authorize_path', 'Path')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'authorize_path', i18n.t('Path'))
         }
       ]
     }
@@ -539,7 +539,7 @@ export const pfConfigurationAuthenticationSourceFields = {
               rows: 3
             }
           },
-          validators: pfConfigurationValidatorsFromMeta(meta, 'banned_domains', 'Domains')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'banned_domains', i18n.t('Domains'))
         }
       ]
     }
@@ -565,7 +565,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'basedn',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'basedn'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'basedn', 'Base DN')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'basedn', i18n.t('Base DN'))
         }
       ]
     }
@@ -579,7 +579,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'binddn',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'binddn'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'bindnd', 'Bind DN')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'bindnd', i18n.t('Bind DN'))
         }
       ]
     }
@@ -608,7 +608,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'cert_file',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'cert_file'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'cert_file', 'File')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'cert_file', i18n.t('File'))
         }
       ]
     }
@@ -647,7 +647,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'client_secret',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'client_secret'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'client_secret', 'Secret')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'client_secret', i18n.t('Secret'))
         }
       ]
     }
@@ -661,7 +661,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'connection_timeout',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'connection_timeout'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'connection_timeout', 'Timeout')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'connection_timeout', i18n.t('Timeout'))
         }
       ]
     }
@@ -689,7 +689,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'currency',
           component: pfFormChosen,
           attrs: pfConfigurationAttributesFromMeta(meta, 'currency'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'currency', 'Currency')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'currency', i18n.t('Currency'))
         }
       ]
     }
@@ -702,7 +702,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'description',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'description'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'description', 'Description')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'description', i18n.t('Description'))
         }
       ]
     }
@@ -729,7 +729,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'domains',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'domains'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'domains', 'Domains')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'domains', i18n.t('Domains'))
         }
       ]
     }
@@ -743,7 +743,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'email_activation_timeout.interval',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'email_activation_timeout.interval'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'email_activation_timeout.interval', 'Interval')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'email_activation_timeout.interval', i18n.t('Interval'))
         },
         {
           key: 'email_activation_timeout.unit',
@@ -754,7 +754,7 @@ export const pfConfigurationAuthenticationSourceFields = {
               allowEmpty: false
             }
           },
-          validators: pfConfigurationValidatorsFromMeta(meta, 'email_activation_timeout.unit', 'Unit')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'email_activation_timeout.unit', i18n.t('Unit'))
         }
       ]
     }
@@ -768,7 +768,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'email_address',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'email_address'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'email_address', 'Email')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'email_address', i18n.t('Email'))
         }
       ]
     }
@@ -782,7 +782,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'email_attribute',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'email_attribute'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'email_attribute', 'Attribute')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'email_attribute', i18n.t('Attribute'))
         }
       ]
     }
@@ -809,7 +809,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'group_header',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'group_header'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'group_header', 'Header')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'group_header', i18n.t('Header'))
         }
       ]
     }
@@ -823,7 +823,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'hash_passwords',
           component: pfFormChosen,
           attrs: pfConfigurationAttributesFromMeta(meta, 'hash_passwords'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'hash_passwords', 'Hash')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'hash_passwords', i18n.t('Hash'))
         }
       ]
     }
@@ -836,7 +836,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'host',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'host'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'host', 'Host')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'host', i18n.t('Host'))
         }
       ]
     }
@@ -854,7 +854,7 @@ export const pfConfigurationAuthenticationSourceFields = {
               class: 'col-sm-4'
             }
           },
-          validators: pfConfigurationValidatorsFromMeta(meta, 'host', 'Host')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'host', i18n.t('Host'))
         },
         {
           text: ':',
@@ -869,13 +869,13 @@ export const pfConfigurationAuthenticationSourceFields = {
               class: 'col-sm-1'
             }
           },
-          validators: pfConfigurationValidatorsFromMeta(meta, 'port', 'Port')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'port', i18n.t('Port'))
         },
         {
           key: 'encryption',
           component: pfFormChosen,
           attrs: pfConfigurationAttributesFromMeta(meta, 'encryption'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'encryption', 'Encryption')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'encryption', i18n.t('Encryption'))
         }
       ]
     }
@@ -888,7 +888,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'identity_token',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'identity_token'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'identity_token', 'Token')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'identity_token', i18n.t('Token'))
         }
       ]
     }
@@ -902,7 +902,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'idp_ca_cert_path',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'idp_ca_cert_path'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'idp_ca_cert_path', 'Path')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'idp_ca_cert_path', i18n.t('Path'))
         }
       ]
     }
@@ -915,7 +915,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'idp_cert_path',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'idp_cert_path'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'idp_cert_path', 'Path')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'idp_cert_path', i18n.t('Path'))
         }
       ]
     }
@@ -941,7 +941,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'idp_metadata_path',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'idp_metadata_path'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'idp_metadata_path', 'Path')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'idp_metadata_path', i18n.t('Path'))
         }
       ]
     }
@@ -955,7 +955,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'key_file',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'key_file'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'key_file', 'File')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'key_file', i18n.t('File'))
         }
       ]
     }
@@ -983,7 +983,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'local_account_logins',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'local_account_logins'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'local_account_logins', 'Logins')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'local_account_logins', i18n.t('Logins'))
         }
       ]
     }
@@ -997,7 +997,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'local_realm',
           component: pfFormChosen,
           attrs: pfConfigurationAttributesFromMeta(meta, 'local_realm'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'local_realm', 'Realms')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'local_realm', i18n.t('Realms'))
         }
       ]
     }
@@ -1028,7 +1028,7 @@ export const pfConfigurationAuthenticationSourceFields = {
               rows: 5
             }
           },
-          validators: pfConfigurationValidatorsFromMeta(meta, 'message', 'Message')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'message', i18n.t('Message'))
         }
       ]
     }
@@ -1062,7 +1062,7 @@ export const pfConfigurationAuthenticationSourceFields = {
               rows: 3
             }
           },
-          validators: pfConfigurationValidatorsFromMeta(meta, 'options', 'Options')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'options', i18n.t('Options'))
         }
       ]
     }
@@ -1086,7 +1086,7 @@ export const pfConfigurationAuthenticationSourceFields = {
               }
             }
           },
-          validators: pfConfigurationValidatorsFromMeta(meta, 'password', 'Password')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'password', i18n.t('Password'))
         }
       ]
     }
@@ -1100,7 +1100,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'password_email_update',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'password_email_update'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'password_email_update', 'Email')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'password_email_update', i18n.t('Email'))
         }
       ]
     }
@@ -1114,7 +1114,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'password_length',
           component: pfFormChosen,
           attrs: pfConfigurationAttributesFromMeta(meta, 'password_length'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'password_length', 'Length')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'password_length', i18n.t('Length'))
         }
       ]
     }
@@ -1128,13 +1128,13 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'password_rotation.interval',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'password_rotation.interval'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'password_rotation.interval', 'Interval')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'password_rotation.interval', i18n.t('Interval'))
         },
         {
           key: 'password_rotation.unit',
           component: pfFormChosen,
           attrs: pfConfigurationAttributesFromMeta(meta, 'password_rotation.unit'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'password_rotation.unit', 'Unit')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'password_rotation.unit', i18n.t('Unit'))
         }
       ]
     }
@@ -1147,7 +1147,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'path',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'path'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'path', 'Path')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'path', i18n.t('Path'))
         }
       ]
     }
@@ -1160,7 +1160,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'payment_type',
           component: pfFormChosen,
           attrs: pfConfigurationAttributesFromMeta(meta, 'payment_type'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'payment_type', 'Type')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'payment_type', i18n.t('Type'))
         }
       ]
     }
@@ -1174,7 +1174,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'paypal_cert_file',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'paypal_cert_file'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'paypal_cert_file', 'File')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'paypal_cert_file', i18n.t('File'))
         }
       ]
     }
@@ -1188,7 +1188,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'pin_code_length',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'pin_code_length'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'pin_code_length', 'Length')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'pin_code_length', i18n.t('Length'))
         }
       ]
     }
@@ -1202,7 +1202,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'port',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'port'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'path', 'Port')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'path', i18n.t('Port'))
         }
       ]
     }
@@ -1228,7 +1228,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'protocol',
           component: pfFormChosen,
           attrs: pfConfigurationAttributesFromMeta(meta, 'protocol'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'protocol', 'Protocol')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'protocol', i18n.t('Protocol'))
         },
         {
           key: 'host',
@@ -1239,7 +1239,7 @@ export const pfConfigurationAuthenticationSourceFields = {
               class: 'col-sm-4'
             }
           },
-          validators: pfConfigurationValidatorsFromMeta(meta, 'host', 'Host')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'host', i18n.t('Host'))
         },
         {
           text: ':',
@@ -1254,7 +1254,7 @@ export const pfConfigurationAuthenticationSourceFields = {
               class: 'col-sm-1'
             }
           },
-          validators: pfConfigurationValidatorsFromMeta(meta, 'port', 'Port')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'port', i18n.t('Port'))
         }
       ]
     }
@@ -1273,7 +1273,7 @@ export const pfConfigurationAuthenticationSourceFields = {
               rows: 5
             }
           },
-          validators: pfConfigurationValidatorsFromMeta(meta, 'proxy_addresses', 'Addresses')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'proxy_addresses', i18n.t('Addresses'))
         }
       ]
     }
@@ -1286,7 +1286,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'public_client_key',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'public_client_key'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'public_client_key', 'Key')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'public_client_key', i18n.t('Key'))
         }
       ]
     }
@@ -1299,7 +1299,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'publishable_key',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'publishable_key'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'publishable_key', 'Key')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'publishable_key', i18n.t('Key'))
         }
       ]
     }
@@ -1313,7 +1313,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'radius_secret',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'radius_secret'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'radius_secret', 'Secret')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'radius_secret', i18n.t('Secret'))
         }
       ]
     }
@@ -1327,7 +1327,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'read_timeout',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'read_timeout'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'read_timeout', 'Timeout')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'read_timeout', i18n.t('Timeout'))
         }
       ]
     }
@@ -1341,7 +1341,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'realms',
           component: pfFormChosen,
           attrs: pfConfigurationAttributesFromMeta(meta, 'realms'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'realms', 'Realms')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'realms', i18n.t('Realms'))
         }
       ]
     }
@@ -1369,7 +1369,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'reject_realm',
           component: pfFormChosen,
           attrs: pfConfigurationAttributesFromMeta(meta, 'reject_realm'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'reject_realm', 'Realms')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'reject_realm', i18n.t('Realms'))
         }
       ]
     }
@@ -1382,7 +1382,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'scope',
           component: pfFormChosen,
           attrs: pfConfigurationAttributesFromMeta(meta, 'scope'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'scope', 'Scope')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'scope', i18n.t('Scope'))
         }
       ]
     }
@@ -1396,7 +1396,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'searchattributes',
           component: pfFormChosen,
           attrs: pfConfigurationAttributesFromMeta(meta, 'searchattributes'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'searchattributes', 'Attribute')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'searchattributes', i18n.t('Attribute'))
         }
       ]
     }
@@ -1409,7 +1409,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'secret',
           component: pfFormPassword,
           attrs: pfConfigurationAttributesFromMeta(meta, 'secret'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'secret', 'Secret')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'secret', i18n.t('Secret'))
         }
       ]
     }
@@ -1422,7 +1422,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'secret_key',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'secret_key'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'secret_key', 'Key')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'secret_key', i18n.t('Key'))
         }
       ]
     }
@@ -1450,7 +1450,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'server1_address',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'server1_address'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'server1_address', 'Address')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'server1_address', i18n.t('Address'))
         }
       ]
     }
@@ -1463,7 +1463,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'server1_port',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'server1_port'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'server1_port', 'Port')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'server1_port', i18n.t('Port'))
         }
       ]
     }
@@ -1477,7 +1477,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'server2_address',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'server2_address'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'server2_address', 'Address')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'server2_address', i18n.t('Address'))
         }
       ]
     }
@@ -1490,7 +1490,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'server2_port',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'server2_port'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'server2_port', 'Port')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'server2_port', i18n.t('Port'))
         }
       ]
     }
@@ -1517,7 +1517,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'shared_secret',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'shared_secret'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'shared_secret', 'Secret')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'shared_secret', i18n.t('Secret'))
         }
       ]
     }
@@ -1531,7 +1531,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'shared_secret_direct',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'shared_secret_direct'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'shared_secret_direct', 'Secret')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'shared_secret_direct', i18n.t('Secret'))
         }
       ]
     }
@@ -1573,7 +1573,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'sms_activation_timeout.interval',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'sms_activation_timeout.interval'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'sms_activation_timeout.interval')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'sms_activation_timeout.interval', i18n.t('Interval'))
         },
         {
           key: 'sms_activation_timeout.unit',
@@ -1584,7 +1584,7 @@ export const pfConfigurationAuthenticationSourceFields = {
               allowEmpty: false
             }
           },
-          validators: pfConfigurationValidatorsFromMeta(meta, 'sms_activation_timeout.unit', 'Unit')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'sms_activation_timeout.unit', i18n.t('Unit'))
         }
       ]
     }
@@ -1598,7 +1598,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'sms_carriers',
           component: pfFormChosen,
           attrs: pfConfigurationAttributesFromMeta(meta, 'sms_carriers'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'sms_carriers', 'Carriers')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'sms_carriers', i18n.t('Carriers'))
         }
       ]
     }
@@ -1624,7 +1624,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'sp_key_path',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'sp_key_path'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'sp_key_path', 'Path')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'sp_key_path', i18n.t('Path'))
         }
       ]
     }
@@ -1651,7 +1651,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'style',
           component: pfFormChosen,
           attrs: pfConfigurationAttributesFromMeta(meta, 'style'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'style', 'Style')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'style', i18n.t('Style'))
         }
       ]
     }
@@ -1706,7 +1706,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'timeout',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'timeout'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'timeout', 'Timeout')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'timeout', i18n.t('Timeout'))
         }
       ]
     }
@@ -1719,7 +1719,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'transaction_key',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'transaction_key'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'transaction_key', 'Key')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'transaction_key', i18n.t('Key'))
         }
       ]
     }
@@ -1733,7 +1733,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'twilio_phone_number',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'twilio_phone_number'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'twilio_phone_number', 'Phone')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'twilio_phone_number', i18n.t('Phone'))
         }
       ]
     }
@@ -1746,7 +1746,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'user_header',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'user_header'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'user_header', 'Header')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'user_header', i18n.t('Header'))
         }
       ]
     }
@@ -1759,7 +1759,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'username_attribute',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'username_attribute'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'username_attribute', 'Attribute')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'username_attribute', i18n.t('Attribute'))
         }
       ]
     }
@@ -1773,7 +1773,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'usernameattribute',
           component: pfFormChosen,
           attrs: pfConfigurationAttributesFromMeta(meta, 'usernameattribute'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'usernameattribute', 'Attribute')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'usernameattribute', i18n.t('Attribute'))
         }
       ]
     }
@@ -1802,7 +1802,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           key: 'write_timeout',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'write_timeout'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'write_timeout', 'Timeout')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'write_timeout', i18n.t('Timeout'))
         }
       ]
     }

@@ -327,7 +327,7 @@ export const pfConfigurationSyslogParserViewFields = (context) => {
                 }
               },
               validators: {
-                ...pfConfigurationValidatorsFromMeta(meta, 'id'),
+                ...pfConfigurationValidatorsFromMeta(meta, 'id', 'ID'),
                 ...{
                   [i18n.t('Syslog Parser exists.')]: not(and(required, conditional(isNew || isClone), hasSyslogParsers, syslogParserExists))
                 }
@@ -354,7 +354,7 @@ export const pfConfigurationSyslogParserViewFields = (context) => {
               key: 'path',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'path'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'path')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'path', i18n.t('Path'))
             }
           ]
         },
@@ -366,13 +366,13 @@ export const pfConfigurationSyslogParserViewFields = (context) => {
               key: 'rate_limit.interval',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'rate_limit.interval'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'rate_limit.interval', 'Interval')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'rate_limit.interval', i18n.t('Interval'))
             },
             {
               key: 'rate_limit.unit',
               component: pfFormChosen,
               attrs: pfConfigurationAttributesFromMeta(meta, 'rate_limit.unit'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'rate_limit.unit', 'Unit')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'rate_limit.unit', i18n.t('Unit'))
             }
           ]
         },
@@ -456,7 +456,7 @@ export const pfConfigurationSyslogParserViewFields = (context) => {
                   rows: 3
                 }
               },
-              validators: pfConfigurationValidatorsFromMeta(meta, 'lines')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'lines', i18n.t('Lines'))
             }
           ]
         },

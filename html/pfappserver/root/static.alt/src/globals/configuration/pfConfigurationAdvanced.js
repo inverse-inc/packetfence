@@ -26,7 +26,7 @@ export const pfConfigurationAdvancedViewFields = (context = {}) => {
               key: 'language',
               component: pfFormChosen,
               attrs: pfConfigurationAttributesFromMeta(meta, 'language'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'language', 'Language')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'language', i18n.t('Language'))
             }
           ]
         },
@@ -116,7 +116,7 @@ export const pfConfigurationAdvancedViewFields = (context = {}) => {
               key: 'hash_passwords',
               component: pfFormChosen,
               attrs: pfConfigurationAttributesFromMeta(meta, 'hash_passwords'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'hash_passwords', 'Method')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'hash_passwords', i18n.t('Method'))
             }
           ]
         },
@@ -128,7 +128,7 @@ export const pfConfigurationAdvancedViewFields = (context = {}) => {
               key: 'hashing_cost',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'hashing_cost'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'hashing_cost', 'Cost')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'hashing_cost', i18n.t('Cost'))
             }
           ]
         },
@@ -147,7 +147,7 @@ export const pfConfigurationAdvancedViewFields = (context = {}) => {
                   rows: 3
                 }
               },
-              validators: pfConfigurationValidatorsFromMeta(meta, 'ldap_attributes', 'Attributes')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'ldap_attributes', i18n.t('Attributes'))
             }
           ]
         },
@@ -165,7 +165,7 @@ export const pfConfigurationAdvancedViewFields = (context = {}) => {
                   step: 1
                 }
               },
-              validators: pfConfigurationValidatorsFromMeta(meta, 'pffilter_processes', 'Processes')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'pffilter_processes', i18n.t('Processes'))
             }
           ]
         },
@@ -183,7 +183,7 @@ export const pfConfigurationAdvancedViewFields = (context = {}) => {
                   step: 1
                 }
               },
-              validators: pfConfigurationValidatorsFromMeta(meta, 'pfperl_api_processes', 'Processes')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'pfperl_api_processes', i18n.t('Processes'))
             }
           ]
         },
@@ -201,7 +201,7 @@ export const pfConfigurationAdvancedViewFields = (context = {}) => {
                   step: 1
                 }
               },
-              validators: pfConfigurationValidatorsFromMeta(meta, 'pfperl_api_timeout', 'Timeout')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'pfperl_api_timeout', i18n.t('Timeout'))
             }
           ]
         },
@@ -239,7 +239,7 @@ export const pfConfigurationAdvancedViewFields = (context = {}) => {
               key: 'timing_stats_level',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'timing_stats_level'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'timing_stats_level', 'Level')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'timing_stats_level', i18n.t('Level'))
             }
           ]
         },
@@ -251,7 +251,7 @@ export const pfConfigurationAdvancedViewFields = (context = {}) => {
               key: 'source_to_send_sms_when_creating_users',
               component: pfFormChosen,
               attrs: pfConfigurationAttributesFromMeta(meta, 'source_to_send_sms_when_creating_users'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'source_to_send_sms_when_creating_users', 'Source')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'source_to_send_sms_when_creating_users', i18n.t('Source'))
             }
           ]
         },
@@ -276,7 +276,7 @@ export const pfConfigurationAdvancedViewFields = (context = {}) => {
               key: 'vlan_pool_technique',
               component: pfFormChosen,
               attrs: pfConfigurationAttributesFromMeta(meta, 'vlan_pool_technique'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'vlan_pool_technique', 'Technique')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'vlan_pool_technique', i18n.t('Algorithm'))
             }
           ]
         },

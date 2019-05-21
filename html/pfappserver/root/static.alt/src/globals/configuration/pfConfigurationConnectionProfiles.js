@@ -390,7 +390,7 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
                 }
               },
               validators: {
-                ...pfConfigurationValidatorsFromMeta(meta, 'id', 'Name'),
+                ...pfConfigurationValidatorsFromMeta(meta, 'id', i18n.t('Name')),
                 ...{
                   [i18n.t('Connection Profile exists.')]: not(and(required, conditional(isNew || isClone), hasConnectionProfiles, connectionProfileExists))
                 }
@@ -405,7 +405,7 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
               key: 'description',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'description'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'description', 'Description')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'description', i18n.t('Description'))
             }
           ]
         },
@@ -430,7 +430,7 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
               key: 'root_module',
               component: pfFormChosen,
               attrs: pfConfigurationAttributesFromMeta(meta, 'root_module'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'root_module')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'root_module', i18n.t('Module'))
             }
           ]
         },
@@ -520,7 +520,7 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
               key: 'default_psk_key',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'default_psk_key'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'default_psk_key')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'default_psk_key', i18n.t('Key'))
             }
           ]
         },
@@ -545,7 +545,7 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
               key: 'filter_match_style',
               component: pfFormChosen,
               attrs: pfConfigurationAttributesFromMeta(meta, 'filter_match_style'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'filter_match_style')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'filter_match_style', i18n.t('Filters'))
             }
           ]
         },
@@ -609,7 +609,7 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
                 }
               },
               validators: {
-                ...pfConfigurationValidatorsFromMeta(meta, 'advanced_filter'),
+                ...pfConfigurationValidatorsFromMeta(meta, 'advanced_filter', i18n.t('Filter')),
                 ...{
                   [i18n.t('Filter or advanced filter required.')]: not(and(conditional(!form.filter), conditional(!form.advanced_filter)))
                 }
@@ -637,7 +637,7 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
                         ...{ multiple: false, closeOnSelect: true }
                       },
                       validators: {
-                        ...pfConfigurationValidatorsFromMeta(meta, 'sources'),
+                        ...pfConfigurationValidatorsFromMeta(meta, 'sources', i18n.t('Sources')),
                         ...{
                           [i18n.t('Duplicate source.')]: conditional((value) => {
                             return !(form.sources.filter(v => v === value).length > 1)
@@ -674,7 +674,7 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
                         ...{ multiple: false, closeOnSelect: true }
                       },
                       validators: {
-                        ...pfConfigurationValidatorsFromMeta(meta, 'billing_tiers'),
+                        ...pfConfigurationValidatorsFromMeta(meta, 'billing_tiers', i18n.t('Billing tier')),
                         ...{
                           [i18n.t('Duplicate billing tier.')]: conditional((value) => {
                             return !(form.billing_tiers.filter(v => v === value).length > 1)
@@ -711,7 +711,7 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
                         ...{ multiple: false, closeOnSelect: true }
                       },
                       validators: {
-                        ...pfConfigurationValidatorsFromMeta(meta, 'provisioners'),
+                        ...pfConfigurationValidatorsFromMeta(meta, 'provisioners', i18n.t('Provisioner')),
                         ...{
                           [i18n.t('Duplicate provisioner.')]: conditional((value) => {
                             return !(form.provisioners.filter(v => v === value).length > 1)
@@ -748,7 +748,7 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
                         ...{ multiple: false, closeOnSelect: true }
                       },
                       validators: {
-                        ...pfConfigurationValidatorsFromMeta(meta, 'scans'),
+                        ...pfConfigurationValidatorsFromMeta(meta, 'scans', i18n.t('Scans')),
                         ...{
                           [i18n.t('Duplicate scan.')]: conditional((value) => {
                             return !(form.scans.filter(v => v === value).length > 1)
@@ -772,7 +772,7 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
               key: 'device_registration',
               component: pfFormChosen,
               attrs: pfConfigurationAttributesFromMeta(meta, 'device_registration'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'device_registration')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'device_registration', i18n.t('Registration'))
             }
           ]
         }
@@ -788,7 +788,7 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
               key: 'logo',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'logo'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'logo')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'logo', i18n.t('Logo'))
             }
           ]
         },
@@ -800,7 +800,7 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
               key: 'redirecturl',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'redirecturl'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'redirecturl')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'redirecturl', i18n.t('Redirect'))
             }
           ]
         },
@@ -825,13 +825,13 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
               key: 'block_interval.interval',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'block_interval.interval'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'block_interval.interval')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'block_interval.interval', i18n.t('Interval'))
             },
             {
               key: 'block_interval.unit',
               component: pfFormChosen,
               attrs: pfConfigurationAttributesFromMeta(meta, 'block_interval.unit'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'block_interval.unit')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'block_interval.unit', i18n.t('Unit'))
             }
           ]
         },
@@ -843,7 +843,7 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
               key: 'sms_pin_retry_limit',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'sms_pin_retry_limit'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'sms_pin_retry_limit')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'sms_pin_retry_limit', i18n.t('Limit'))
             }
           ]
         },
@@ -855,7 +855,7 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
               key: 'sms_request_limit',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'sms_request_limit'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'sms_request_limit')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'sms_request_limit', i18n.t('Limit'))
             }
           ]
         },
@@ -867,7 +867,7 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
               key: 'login_attempt_limit',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'login_attempt_limit'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'login_attempt_limit')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'login_attempt_limit', i18n.t('Limit'))
             }
           ]
         },

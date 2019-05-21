@@ -151,7 +151,7 @@ export const pfConfigurationFloatingDeviceViewFields = (context = {}) => {
               key: 'ip',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'ip'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'ip')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'ip', 'IP')
             }
           ]
         },
@@ -163,7 +163,7 @@ export const pfConfigurationFloatingDeviceViewFields = (context = {}) => {
               key: 'pvid',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'pvid'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'pvid')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'pvid', 'VLAN')
             }
           ]
         },
@@ -189,7 +189,7 @@ export const pfConfigurationFloatingDeviceViewFields = (context = {}) => {
               key: 'taggedVlan',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'taggedVlan'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'taggedVlan')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'taggedVlan', 'VLAN')
             }
           ]
         }

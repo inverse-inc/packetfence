@@ -26,7 +26,7 @@ export const pfConfigurationActiveActiveViewFields = (context = {}) => {
               key: 'password',
               component: pfFormPassword,
               attrs: pfConfigurationAttributesFromMeta(meta, 'password'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'password', 'Password')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'password', i18n.t('Password'))
             }
           ]
         },
@@ -102,13 +102,13 @@ export const pfConfigurationActiveActiveViewFields = (context = {}) => {
               key: 'conflict_resolution_threshold.interval',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'conflict_resolution_threshold.interval'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'conflict_resolution_threshold.interval', 'Interval')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'conflict_resolution_threshold.interval', i18n.t('Interval'))
             },
             {
               key: 'conflict_resolution_threshold.unit',
               component: pfFormChosen,
               attrs: pfConfigurationAttributesFromMeta(meta, 'conflict_resolution_threshold.unit'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'conflict_resolution_threshold.unit', 'Unit')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'conflict_resolution_threshold.unit', i18n.t('Unit'))
             }
           ]
         },
@@ -133,7 +133,7 @@ export const pfConfigurationActiveActiveViewFields = (context = {}) => {
               key: 'galera_replication_username',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'galera_replication_username'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'galera_replication_username', 'Username')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'galera_replication_username', i18n.t('Username'))
             }
           ]
         },
@@ -145,7 +145,7 @@ export const pfConfigurationActiveActiveViewFields = (context = {}) => {
               key: 'galera_replication_password',
               component: pfFormPassword,
               attrs: pfConfigurationAttributesFromMeta(meta, 'galera_replication_password'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'galera_replication_password', 'Password')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'galera_replication_password', i18n.t('Password'))
             }
           ]
         }

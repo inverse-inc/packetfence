@@ -91,7 +91,7 @@ export const pfConfigurationLayer2NetworkViewFields = (context = {}) => {
                 }
               },
               validators: {
-                ...pfConfigurationValidatorsFromMeta(meta, 'id', 'Identifier'),
+                ...pfConfigurationValidatorsFromMeta(meta, 'id', 'ID'),
                 ...{
                   [i18n.t('Network exists.')]: not(and(required, conditional(isNew || isClone), hasLayer2Networks, layer2NetworkExists)),
                   [i18n.t('Invalid IP Address.')]: ipAddress
@@ -113,7 +113,7 @@ export const pfConfigurationLayer2NetworkViewFields = (context = {}) => {
                 }
               },
               validators: {
-                ...pfConfigurationValidatorsFromMeta(meta, 'dhcp_start', 'IP Address'),
+                ...pfConfigurationValidatorsFromMeta(meta, 'dhcp_start', 'IP'),
                 ...{
                   [i18n.t('Invalid IP Address.')]: ipAddress
                 }
@@ -134,7 +134,7 @@ export const pfConfigurationLayer2NetworkViewFields = (context = {}) => {
                 }
               },
               validators: {
-                ...pfConfigurationValidatorsFromMeta(meta, 'dhcp_start', 'IP Address'),
+                ...pfConfigurationValidatorsFromMeta(meta, 'dhcp_start', 'IP'),
                 ...{
                   [i18n.t('Invalid IP Address.')]: ipAddress
                 }
@@ -154,7 +154,7 @@ export const pfConfigurationLayer2NetworkViewFields = (context = {}) => {
                   disabled: (form.fake_mac_enabled === '1')
                 }
               },
-              validators: pfConfigurationValidatorsFromMeta(meta, 'dhcp_default_lease_time', 'Time')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'dhcp_default_lease_time', i18n.t('Time'))
             }
           ]
         },
@@ -170,7 +170,7 @@ export const pfConfigurationLayer2NetworkViewFields = (context = {}) => {
                   disabled: (form.fake_mac_enabled === '1')
                 }
               },
-              validators: pfConfigurationValidatorsFromMeta(meta, 'dhcp_max_lease_time', 'Time')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'dhcp_max_lease_time', i18n.t('Time'))
             }
           ]
         },
@@ -188,7 +188,7 @@ export const pfConfigurationLayer2NetworkViewFields = (context = {}) => {
                   rows: 5
                 }
               },
-              validators: pfConfigurationValidatorsFromMeta(meta, 'ip_reserved', 'Addresses')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'ip_reserved', i18n.t('Addresses'))
             }
           ]
         },
@@ -206,7 +206,7 @@ export const pfConfigurationLayer2NetworkViewFields = (context = {}) => {
                   rows: 5
                 }
               },
-              validators: pfConfigurationValidatorsFromMeta(meta, 'ip_assigned', 'Addresses')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'ip_assigned', i18n.t('Addresses'))
             }
           ]
         },

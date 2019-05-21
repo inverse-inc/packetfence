@@ -121,7 +121,7 @@ export const pfConfigurationSecurityEventViewFields = (context = {}) => {
                 }
               },
               validators: {
-                ...pfConfigurationValidatorsFromMeta(meta, 'id', 'Identifier'),
+                ...pfConfigurationValidatorsFromMeta(meta, 'id', 'ID'),
                 ...{
                   [i18n.t('Security event exists.')]: not(and(required, conditional(isNew || isClone), hasSecurityEvents, securityEventExists))
                 }
@@ -136,7 +136,7 @@ export const pfConfigurationSecurityEventViewFields = (context = {}) => {
               key: 'desc',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'desc'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'desc', 'Description')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'desc', i18n.t('Description'))
             }
           ]
         },
@@ -148,7 +148,7 @@ export const pfConfigurationSecurityEventViewFields = (context = {}) => {
               key: 'priority',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'priority'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'priority', 'Priority')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'priority', i18n.t('Priority'))
             }
           ]
         },
@@ -160,7 +160,7 @@ export const pfConfigurationSecurityEventViewFields = (context = {}) => {
               key: 'whitelisted_roles',
               component: pfFormChosen,
               attrs: pfConfigurationAttributesFromMeta(meta, 'whitelisted_roles'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'whitelisted_roles', 'Roles')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'whitelisted_roles', i18n.t('Roles'))
             }
           ]
         },
@@ -221,13 +221,13 @@ export const pfConfigurationSecurityEventViewFields = (context = {}) => {
               key: 'grace.interval',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'grace.interval'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'grace.interval', 'Interval')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'grace.interval', i18n.t('Interval'))
             },
             {
               key: 'grace.unit',
               component: pfFormChosen,
               attrs: pfConfigurationAttributesFromMeta(meta, 'grace.unit'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'grace.unit', 'Unit')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'grace.unit', i18n.t('Unit'))
             }
           ]
         },
@@ -239,13 +239,13 @@ export const pfConfigurationSecurityEventViewFields = (context = {}) => {
               key: 'window.interval',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'window.interval'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'window.interval', 'Interval')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'window.interval', i18n.t('Interval'))
             },
             {
               key: 'window.unit',
               component: pfFormChosen,
               attrs: pfConfigurationAttributesFromMeta(meta, 'window.unit'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'window.unit', 'Unit')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'window.unit', i18n.t('Unit'))
             }
           ]
         },
@@ -257,13 +257,13 @@ export const pfConfigurationSecurityEventViewFields = (context = {}) => {
               key: 'delay_by.interval',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'delay_by.interval'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'delay_by.interval', 'Interval')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'delay_by.interval', i18n.t('Interval'))
             },
             {
               key: 'delay_by.unit',
               component: pfFormChosen,
               attrs: pfConfigurationAttributesFromMeta(meta, 'delay_by.unit'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'delay_by.unit', 'Unit')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'delay_by.unit', i18n.t('Unit'))
             }
           ]
         }

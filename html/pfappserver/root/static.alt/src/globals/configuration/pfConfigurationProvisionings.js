@@ -139,7 +139,7 @@ export const pfConfigurationProvisioningFields = {
           key: 'access_token',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'access_token'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'access_token', 'Token')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'access_token', i18n.t('Token'))
         }
       ]
     }
@@ -191,7 +191,7 @@ export const pfConfigurationProvisioningFields = {
           key: 'api_password',
           component: pfFormPassword,
           attrs: pfConfigurationAttributesFromMeta(meta, 'api_password'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'api_password', 'Password')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'api_password', i18n.t('Password'))
         }
       ]
     }
@@ -204,7 +204,7 @@ export const pfConfigurationProvisioningFields = {
           key: 'api_username',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'api_username'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'api_username', 'Username')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'api_username', i18n.t('Username'))
         }
       ]
     }
@@ -230,7 +230,7 @@ export const pfConfigurationProvisioningFields = {
           key: 'boarding_host',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'boarding_host'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'boarding_host', 'Host')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'boarding_host', i18n.t('Host'))
         }
       ]
     }
@@ -243,7 +243,7 @@ export const pfConfigurationProvisioningFields = {
           key: 'boarding_port',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'boarding_port'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'boarding_port', 'Port')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'boarding_port', i18n.t('Port'))
         }
       ]
     }
@@ -287,7 +287,7 @@ export const pfConfigurationProvisioningFields = {
           key: 'category',
           component: pfFormChosen,
           attrs: pfConfigurationAttributesFromMeta(meta, 'category'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'category', 'Roles')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'category', i18n.t('Roles'))
         }
       ]
     }
@@ -306,7 +306,7 @@ export const pfConfigurationProvisioningFields = {
               rows: 5
             }
           },
-          validators: pfConfigurationValidatorsFromMeta(meta, 'cert_chain', 'Chain')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'cert_chain', i18n.t('Chain'))
         }
       ]
     }
@@ -325,7 +325,7 @@ export const pfConfigurationProvisioningFields = {
               rows: 5
             }
           },
-          validators: pfConfigurationValidatorsFromMeta(meta, 'certificate', 'Certificate')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'certificate', i18n.t('Certificate'))
         }
       ]
     }
@@ -338,7 +338,7 @@ export const pfConfigurationProvisioningFields = {
           key: 'client_id',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'client_id'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'client_id', 'Key')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'client_id', i18n.t('Key'))
         }
       ]
     }
@@ -351,7 +351,7 @@ export const pfConfigurationProvisioningFields = {
           key: 'client_secret',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'client_secret'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'client_secret', 'Secret')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'client_secret', i18n.t('Secret'))
         }
       ]
     }
@@ -371,7 +371,7 @@ export const pfConfigurationProvisioningFields = {
               step: 1
             }
           },
-          validators: pfConfigurationValidatorsFromMeta(meta, 'critical_issues_threshold', 'Threshold')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'critical_issues_threshold', i18n.t('Threshold'))
         }
       ]
     }
@@ -384,7 +384,7 @@ export const pfConfigurationProvisioningFields = {
           key: 'description',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'description'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'description', 'Description')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'description', i18n.t('Description'))
         }
       ]
     }
@@ -427,7 +427,7 @@ export const pfConfigurationProvisioningFields = {
           key: 'eap_type',
           component: pfFormChosen,
           attrs: pfConfigurationAttributesFromMeta(meta, 'eap_type'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'eap_type', 'Type')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'eap_type', i18n.t('Type'))
         }
       ]
     }
@@ -440,7 +440,7 @@ export const pfConfigurationProvisioningFields = {
           key: 'host',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'host'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'host', 'Host')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'host', i18n.t('Host'))
         }
       ]
     }
@@ -480,14 +480,14 @@ export const pfConfigurationProvisioningFields = {
           key: 'non_compliance_security_event',
           component: pfFormChosen,
           attrs: pfConfigurationAttributesFromMeta(meta, 'non_compliance_security_event'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'non_compliance_security_event', 'Security event')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'non_compliance_security_event', i18n.t('Event'))
         }
       ]
     }
   },
   oses: ({ options: { meta = {} } } = {}) => {
     return {
-      label: i18n.t('OS'),
+      label: 'OS',
       text: i18n.t('Nodes with the selected OS will be affected.'),
       fields: [
         {
@@ -507,7 +507,7 @@ export const pfConfigurationProvisioningFields = {
           key: 'passcode',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'passcode'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'passcode', 'Key')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'passcode', i18n.t('Key'))
         }
       ]
     }
@@ -520,7 +520,7 @@ export const pfConfigurationProvisioningFields = {
           key: 'password',
           component: pfFormPassword,
           attrs: pfConfigurationAttributesFromMeta(meta, 'password'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'password', 'Secret')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'password', i18n.t('Secret'))
         }
       ]
     }
@@ -533,7 +533,7 @@ export const pfConfigurationProvisioningFields = {
           key: 'pki_provider',
           component: pfFormChosen,
           attrs: pfConfigurationAttributesFromMeta(meta, 'pki_provider'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'pki_provider', 'Provider')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'pki_provider', i18n.t('Provider'))
         }
       ]
     }
@@ -546,7 +546,7 @@ export const pfConfigurationProvisioningFields = {
           key: 'port',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'port'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'port', 'Port')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'port', i18n.t('Port'))
         }
       ]
     }
@@ -565,7 +565,7 @@ export const pfConfigurationProvisioningFields = {
               rows: 5
             }
           },
-          validators: pfConfigurationValidatorsFromMeta(meta, 'private_key', 'Key')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'private_key', i18n.t('Key'))
         }
       ]
     }
@@ -578,7 +578,7 @@ export const pfConfigurationProvisioningFields = {
           key: 'protocol',
           component: pfFormChosen,
           attrs: pfConfigurationAttributesFromMeta(meta, 'protocol'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'protocol', 'Protocol')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'protocol', i18n.t('Protocol'))
         }
       ]
     }
@@ -592,7 +592,7 @@ export const pfConfigurationProvisioningFields = {
           key: 'psk_size',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'psk_size'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'psk_size', 'Length')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'psk_size', i18n.t('Length'))
         }
       ]
     }
@@ -633,7 +633,7 @@ export const pfConfigurationProvisioningFields = {
           key: 'refresh_token',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'refresh_token'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'refresh_token', 'Token')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'refresh_token', i18n.t('Token'))
         }
       ]
     }
@@ -647,7 +647,7 @@ export const pfConfigurationProvisioningFields = {
           key: 'security_type',
           component: pfFormChosen,
           attrs: pfConfigurationAttributesFromMeta(meta, 'security_type'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'security_type', 'Type')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'security_type', i18n.t('Type'))
         }
       ]
     }
@@ -661,14 +661,14 @@ export const pfConfigurationProvisioningFields = {
           key: 'server_certificate_path',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'server_certificate_path'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'server_certificate_path', 'Path')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'server_certificate_path', i18n.t('Path'))
         }
       ]
     }
   },
   ssid: ({ options: { meta = {} } } = {}) => {
     return {
-      label: i18n.t('SSID'),
+      label: 'SSID',
       fields: [
         {
           key: 'ssid',
@@ -687,7 +687,7 @@ export const pfConfigurationProvisioningFields = {
           key: 'username',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'username'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'username', 'Username')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'username', i18n.t('Username'))
         }
       ]
     }
