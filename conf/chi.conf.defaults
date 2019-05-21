@@ -157,3 +157,16 @@ storage=distributed
 #
 # The storage to use for the namespace
 storage=distributed
+
+[namespace email_expiring_devices]
+#
+# namespace email_expiring_devices.storage
+#
+# The storage to use for the namespace
+storage=distributed
+#
+# namespace email_expiring_devices.expires_in
+#
+# Amount of time from the current time to expire an entry (will be overriden in the pfmon task)
+expires_in=48h
+

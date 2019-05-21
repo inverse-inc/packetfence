@@ -642,3 +642,39 @@ timeout=10s
 # How long to keep a acct_cleanup entry before deleting it
 window=1D
 
+[email_expiring_devices]
+#
+# description
+#
+# The description of task to perform
+description=Email device owner before their device access expires
+#
+# status
+#
+# If the task acct_cleanup is enabled
+status=enabled
+#
+# interval
+#
+# At which interval to run the auth log cleanup pfmon task
+interval=1h
+#
+# type
+#
+# The type of task to perform
+type=email_expiring_devices
+#
+# window
+#
+# How long to keep a acct_cleanup entry before deleting it
+window=1W
+#
+# email_every
+#
+# How frequently should the user be emailed
+email_every=1D
+#
+# email_on_all_changes
+#
+# Should the user be emailed everytime a new expiring device is detected or only when email_every expires
+email_on_all_changes=enabled

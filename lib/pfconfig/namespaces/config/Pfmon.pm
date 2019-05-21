@@ -38,6 +38,7 @@ our %TIME_ATTR = (
     timeout => 1,
     rotate_timeout => 1,
     rotate_window => 1,
+    email_every => 1,
 );
 
 sub build_child {
