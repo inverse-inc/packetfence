@@ -282,7 +282,7 @@ export const pfConfigurationSecurityEventListConfig = (context = {}) => {
     searchPlaceholder: i18n.t('Search by name'),
     searchableOptions: {
       searchApiEndpoint: 'config/security_events',
-      defaultSortKeys: ['id'],
+      defaultSortKeys: [],
       defaultSearchCondition: {
         op: 'and',
         values: [{
