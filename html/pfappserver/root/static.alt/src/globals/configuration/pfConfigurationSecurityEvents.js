@@ -279,7 +279,7 @@ export const pfConfigurationSecurityEventListConfig = (context = {}) => {
     rowClickRoute (item, index) {
       return { name: 'security_event', params: { id: item.id } }
     },
-    searchPlaceholder: i18n.t('Search by name'),
+    searchPlaceholder: i18n.t('Search by identifier or description'),
     searchableOptions: {
       searchApiEndpoint: 'config/security_events',
       defaultSortKeys: [],
@@ -302,7 +302,8 @@ export const pfConfigurationSecurityEventListConfig = (context = {}) => {
           {
             op: 'or',
             values: [
-              { field: 'id', op: 'contains', value: quickCondition }
+              { field: 'id', op: 'contains', value: quickCondition },
+              { field: 'desc', op: 'contains', value: quickCondition }
             ]
           }
         ]
