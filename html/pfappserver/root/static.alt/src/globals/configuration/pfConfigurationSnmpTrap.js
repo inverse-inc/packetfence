@@ -25,13 +25,13 @@ export const pfConfigurationSnmpTrapViewFields = (context = {}) => {
               key: 'bounce_duration.interval',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'bounce_duration.interval'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'bounce_duration.interval', 'Interval')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'bounce_duration.interval', i18n.t('Interval'))
             },
             {
               key: 'bounce_duration.unit',
               component: pfFormChosen,
               attrs: pfConfigurationAttributesFromMeta(meta, 'bounce_duration.unit'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'bounce_duration.unit', 'Unit')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'bounce_duration.unit', i18n.t('Unit'))
             }
           ]
         },
@@ -56,7 +56,7 @@ export const pfConfigurationSnmpTrapViewFields = (context = {}) => {
               key: 'trap_limit_threshold',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'trap_limit_threshold'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'trap_limit_threshold', 'Limit')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'trap_limit_threshold', i18n.t('Limit'))
             }
           ]
         },
@@ -68,7 +68,7 @@ export const pfConfigurationSnmpTrapViewFields = (context = {}) => {
               key: 'trap_limit_action',
               component: pfFormChosen,
               attrs: pfConfigurationAttributesFromMeta(meta, 'trap_limit_action'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'trap_limit_action', 'Action')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'trap_limit_action', i18n.t('Action'))
             }
           ]
         }

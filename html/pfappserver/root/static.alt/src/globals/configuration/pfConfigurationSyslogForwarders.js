@@ -122,7 +122,7 @@ export const pfConfigurationSyslogForwarderViewFields = (context) => {
                 }
               },
               validators: {
-                ...pfConfigurationValidatorsFromMeta(meta, 'id'),
+                ...pfConfigurationValidatorsFromMeta(meta, 'id', 'ID'),
                 ...{
                   [i18n.t('Syslog Forwarder exists.')]: not(and(required, conditional(isNew || isClone), hasSyslogForwarders, syslogForwarderExists))
                 }
@@ -138,7 +138,7 @@ export const pfConfigurationSyslogForwarderViewFields = (context) => {
               key: 'proto',
               component: pfFormChosen,
               attrs: pfConfigurationAttributesFromMeta(meta, 'proto'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'proto')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'proto', i18n.t('Protocol'))
             }
           ]
         },
@@ -150,7 +150,7 @@ export const pfConfigurationSyslogForwarderViewFields = (context) => {
               key: 'host',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'host'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'host')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'host', i18n.t('Host'))
             }
           ]
         },
@@ -162,7 +162,7 @@ export const pfConfigurationSyslogForwarderViewFields = (context) => {
               key: 'port',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'port'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'port')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'port', i18n.t('Port'))
             }
           ]
         },
@@ -186,7 +186,7 @@ export const pfConfigurationSyslogForwarderViewFields = (context) => {
               key: 'logs',
               component: pfFormChosen,
               attrs: pfConfigurationAttributesFromMeta(meta, 'logs'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'logs')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'logs', i18n.t('Logs'))
             }
           ]
         }

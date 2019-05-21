@@ -113,7 +113,7 @@ export const pfConfigurationRoutedNetworkViewFields = (context = {}) => {
                 }
               },
               validators: {
-                ...pfConfigurationValidatorsFromMeta(meta, 'id', 'Identifier'),
+                ...pfConfigurationValidatorsFromMeta(meta, 'id', 'ID'),
                 ...{
                   [i18n.t('Network exists.')]: not(and(required, conditional(isNew || isClone), hasRoutedNetworks, routedNetworkExists)),
                   [i18n.t('Invalid IP Address.')]: ipAddress
@@ -130,7 +130,7 @@ export const pfConfigurationRoutedNetworkViewFields = (context = {}) => {
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'netmask'),
               validators: {
-                ...pfConfigurationValidatorsFromMeta(meta, 'netmask', 'Netmask'),
+                ...pfConfigurationValidatorsFromMeta(meta, 'netmask', i18n.t('Netmask')),
                 ...{
                   [i18n.t('Invalid IP Address.')]: ipAddress
                 }
@@ -151,7 +151,7 @@ export const pfConfigurationRoutedNetworkViewFields = (context = {}) => {
                 label: 'text',
                 options: pfConfigurationRoutedNetworkTypes
               },
-              validators: pfConfigurationValidatorsFromMeta(meta, 'tpye', 'Type')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'tpye', i18n.t('Type'))
             }
           ]
         },
@@ -223,7 +223,7 @@ export const pfConfigurationRoutedNetworkViewFields = (context = {}) => {
                 }
               },
               validators: {
-                ...pfConfigurationValidatorsFromMeta(meta, 'dhcp_start', 'IP Address'),
+                ...pfConfigurationValidatorsFromMeta(meta, 'dhcp_start', 'IP'),
                 ...{
                   [i18n.t('Invalid IP Address.')]: ipAddress
                 }
@@ -244,7 +244,7 @@ export const pfConfigurationRoutedNetworkViewFields = (context = {}) => {
                 }
               },
               validators: {
-                ...pfConfigurationValidatorsFromMeta(meta, 'dhcp_start', 'IP Address'),
+                ...pfConfigurationValidatorsFromMeta(meta, 'dhcp_start', 'IP'),
                 ...{
                   [i18n.t('Invalid IP Address.')]: ipAddress
                 }
@@ -264,7 +264,7 @@ export const pfConfigurationRoutedNetworkViewFields = (context = {}) => {
                   disabled: (form.fake_mac_enabled === 1)
                 }
               },
-              validators: pfConfigurationValidatorsFromMeta(meta, 'dhcp_default_lease_time', 'Time')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'dhcp_default_lease_time', i18n.t('Time'))
             }
           ]
         },
@@ -280,7 +280,7 @@ export const pfConfigurationRoutedNetworkViewFields = (context = {}) => {
                   disabled: (form.fake_mac_enabled === 1)
                 }
               },
-              validators: pfConfigurationValidatorsFromMeta(meta, 'dhcp_max_lease_time', 'Time')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'dhcp_max_lease_time', i18n.t('Time'))
             }
           ]
         },
@@ -298,7 +298,7 @@ export const pfConfigurationRoutedNetworkViewFields = (context = {}) => {
                   rows: 5
                 }
               },
-              validators: pfConfigurationValidatorsFromMeta(meta, 'ip_reserved', 'Addresses')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'ip_reserved', i18n.t('Addresses'))
             }
           ]
         },
@@ -316,7 +316,7 @@ export const pfConfigurationRoutedNetworkViewFields = (context = {}) => {
                   rows: 5
                 }
               },
-              validators: pfConfigurationValidatorsFromMeta(meta, 'ip_assigned', 'Addresses')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'ip_assigned', i18n.t('Addresses'))
             }
           ]
         },
@@ -372,7 +372,7 @@ export const pfConfigurationRoutedNetworkViewFields = (context = {}) => {
                 }
               },
               validators: {
-                ...pfConfigurationValidatorsFromMeta(meta, 'gateway', 'Gateway'),
+                ...pfConfigurationValidatorsFromMeta(meta, 'gateway', i18n.t('Gateway')),
                 ...{
                   [i18n.t('Invalid IP Address.')]: ipAddress
                 }
@@ -405,7 +405,7 @@ export const pfConfigurationRoutedNetworkViewFields = (context = {}) => {
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'next_hop'),
               validators: {
-                ...pfConfigurationValidatorsFromMeta(meta, 'next_hop', 'IP Address'),
+                ...pfConfigurationValidatorsFromMeta(meta, 'next_hop', 'IP'),
                 ...{
                   [i18n.t('Invalid IP Address.')]: ipAddress
                 }

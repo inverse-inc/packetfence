@@ -26,7 +26,7 @@ export const pfConfigurationRadiusViewFields = (context = {}) => {
               key: 'eap_authentication_types',
               component: pfFormChosen,
               attrs: pfConfigurationAttributesFromMeta(meta, 'eap_authentication_types'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'eap_authentication_types', 'Types')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'eap_authentication_types', i18n.t('Types'))
             }
           ]
         },
@@ -38,7 +38,7 @@ export const pfConfigurationRadiusViewFields = (context = {}) => {
               key: 'eap_fast_opaque_key',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'eap_fast_opaque_key'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'eap_fast_opaque_key', 'Key')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'eap_fast_opaque_key', i18n.t('Key'))
             }
           ]
         },
@@ -50,7 +50,7 @@ export const pfConfigurationRadiusViewFields = (context = {}) => {
               key: 'eap_fast_authority_identity',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'eap_fast_authority_identity'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'eap_fast_authority_identity', 'Identity')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'eap_fast_authority_identity', i18n.t('Identity'))
             }
           ]
         },
@@ -173,7 +173,7 @@ export const pfConfigurationRadiusViewFields = (context = {}) => {
                   rows: 3
                 }
               },
-              validators: pfConfigurationValidatorsFromMeta(meta, 'radius_attributes', 'Attributes')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'radius_attributes', i18n.t('Attributes'))
             }
           ]
         },
@@ -203,7 +203,7 @@ export const pfConfigurationRadiusViewFields = (context = {}) => {
                   rows: 5
                 }
               },
-              validators: pfConfigurationValidatorsFromMeta(meta, 'username_attributes', 'Attributes')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'username_attributes', i18n.t('Attributes'))
             }
           ]
         }

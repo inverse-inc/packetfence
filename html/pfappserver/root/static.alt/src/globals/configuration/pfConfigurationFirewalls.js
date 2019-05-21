@@ -130,7 +130,7 @@ export const pfConfigurationFirewallViewFields = (context) => {
                 }
               },
               validators: {
-                ...pfConfigurationValidatorsFromMeta(meta, 'id'),
+                ...pfConfigurationValidatorsFromMeta(meta, 'id', 'ID'),
                 ...{
                   [i18n.t('Firewall exists.')]: not(and(required, conditional(isNew || isClone), hasFirewalls, firewallExists))
                 }
@@ -146,7 +146,7 @@ export const pfConfigurationFirewallViewFields = (context) => {
               key: 'username',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'username'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'username')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'username', i18n.t('Username'))
             }
           ]
         },
@@ -158,7 +158,7 @@ export const pfConfigurationFirewallViewFields = (context) => {
               key: 'password',
               component: pfFormPassword,
               attrs: pfConfigurationAttributesFromMeta(meta, 'password'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'password')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'password', i18n.t('Secret'))
             }
           ]
         },
@@ -170,7 +170,7 @@ export const pfConfigurationFirewallViewFields = (context) => {
               key: 'password',
               component: pfFormPassword,
               attrs: pfConfigurationAttributesFromMeta(meta, 'password'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'password')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'password', i18n.t('Password'))
             }
           ]
         },
@@ -183,7 +183,7 @@ export const pfConfigurationFirewallViewFields = (context) => {
               key: 'port',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'port'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'port')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'port', i18n.t('Port'))
             }
           ]
         },
@@ -196,7 +196,7 @@ export const pfConfigurationFirewallViewFields = (context) => {
               key: 'vsys',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'vsys'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'vsys')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'vsys', i18n.t('Number'))
             }
           ]
         },
@@ -208,7 +208,7 @@ export const pfConfigurationFirewallViewFields = (context) => {
               key: 'transport',
               component: pfFormChosen,
               attrs: pfConfigurationAttributesFromMeta(meta, 'transport'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'transport')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'transport', i18n.t('Transport'))
             }
           ]
         },
@@ -221,7 +221,7 @@ export const pfConfigurationFirewallViewFields = (context) => {
               key: 'port',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'port'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'port')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'port', i18n.t('Port'))
             }
           ]
         },
@@ -234,7 +234,7 @@ export const pfConfigurationFirewallViewFields = (context) => {
               key: 'password',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'password'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'password')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'password', i18n.t('Secret'))
             }
           ]
         },
@@ -247,7 +247,7 @@ export const pfConfigurationFirewallViewFields = (context) => {
               key: 'nac_name',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'nac_name'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'nac_name')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'nac_name', i18n.t('Name'))
             }
           ]
         },
@@ -259,7 +259,7 @@ export const pfConfigurationFirewallViewFields = (context) => {
               key: 'categories',
               component: pfFormChosen,
               attrs: pfConfigurationAttributesFromMeta(meta, 'categories'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'categories')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'categories', i18n.t('Roles'))
             }
           ]
         },
@@ -271,7 +271,7 @@ export const pfConfigurationFirewallViewFields = (context) => {
               key: 'networks',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'networks'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'networks')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'networks', i18n.t('Networks'))
             }
           ]
         },
@@ -296,7 +296,7 @@ export const pfConfigurationFirewallViewFields = (context) => {
               key: 'cache_timeout',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'cache_timeout'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'cache_timeout')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'cache_timeout', i18n.t('Timeout'))
             }
           ]
         },
@@ -308,7 +308,7 @@ export const pfConfigurationFirewallViewFields = (context) => {
               key: 'username_format',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'username_format'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'username_format')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'username_format', i18n.t('Format'))
             }
           ]
         },
@@ -320,7 +320,7 @@ export const pfConfigurationFirewallViewFields = (context) => {
               key: 'default_realm',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'default_realm'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'default_realm')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'default_realm', i18n.t('Realm'))
             }
           ]
         }

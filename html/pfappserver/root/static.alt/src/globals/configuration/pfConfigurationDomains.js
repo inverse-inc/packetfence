@@ -135,7 +135,7 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
                 }
               },
               validators: {
-                ...pfConfigurationValidatorsFromMeta(meta, 'id', 'Identifier'),
+                ...pfConfigurationValidatorsFromMeta(meta, 'id', 'ID'),
                 ...{
                   [i18n.t('Role exists.')]: not(and(required, conditional(isNew || isClone), hasDomains, domainExists))
                 }
@@ -150,7 +150,7 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
               key: 'workgroup',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'workgroup'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'workgroup', 'Workgroup')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'workgroup', i18n.t('Workgroup'))
             }
           ]
         },
@@ -162,7 +162,7 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
               key: 'dns_name',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'dns_name'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'dns_name', 'DNS name')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'dns_name', i18n.t('DNS name'))
             }
           ]
         },
@@ -174,7 +174,7 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
               key: 'server_name',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'server_name'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'server_name', 'Server name')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'server_name', i18n.t('Server name'))
             }
           ]
         },
@@ -186,7 +186,7 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
               key: 'sticky_dc',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'sticky_dc'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'sticky_dc', 'Sticky DC')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'sticky_dc', i18n.t('Sticky DC'))
             }
           ]
         },
@@ -198,7 +198,7 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
               key: 'ad_server',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'ad_server'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'ad_server', 'Server')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'ad_server', i18n.t('Server'))
             }
           ]
         },
@@ -210,7 +210,7 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
               key: 'dns_servers',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'dns_servers'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'dns_servers', 'DNS server(s)')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'dns_servers', i18n.t('Servers'))
             }
           ]
         },
@@ -279,7 +279,7 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
               key: 'ntlm_cache_source',
               component: pfFormChosen,
               attrs: pfConfigurationAttributesFromMeta(meta, 'ntlm_cache_source'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'ntlm_cache_source', 'Source')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'ntlm_cache_source', i18n.t('Source'))
             }
           ]
         },
@@ -296,7 +296,7 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
                   rows: 3
                 }
               },
-              validators: pfConfigurationValidatorsFromMeta(meta, 'ntlm_cache_filter', 'LDAP filter')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'ntlm_cache_filter', i18n.t('Filter'))
             }
           ]
         },
@@ -308,7 +308,7 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
               key: 'ntlm_cache_expiry',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'ntlm_cache_expiry'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'ntlm_cache_expiry', 'Expiration')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'ntlm_cache_expiry', i18n.t('Expiration'))
             }
           ]
         },

@@ -148,7 +148,7 @@ export const pfConfigurationScanEngineViewFields = (context = {}) => {
                 }
               },
               validators: {
-                ...pfConfigurationValidatorsFromMeta(meta, 'id', 'Name'),
+                ...pfConfigurationValidatorsFromMeta(meta, 'id', i18n.t('Name')),
                 ...{
                   [i18n.t('Name exists.')]: not(and(required, conditional(isNew || isClone), hasScans, scanExists))
                 }
@@ -164,7 +164,7 @@ export const pfConfigurationScanEngineViewFields = (context = {}) => {
               key: 'ip',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'ip'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'ip')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'ip', 'IP')
             }
           ]
         },
@@ -175,7 +175,7 @@ export const pfConfigurationScanEngineViewFields = (context = {}) => {
               key: 'username',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'username'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'username')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'username', i18n.t('Username'))
             }
           ]
         },
@@ -187,7 +187,7 @@ export const pfConfigurationScanEngineViewFields = (context = {}) => {
               key: 'domain',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'domain'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'domain')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'domain', i18n.t('Domain'))
             }
           ]
         },
@@ -198,7 +198,7 @@ export const pfConfigurationScanEngineViewFields = (context = {}) => {
               key: 'password',
               component: pfFormPassword,
               attrs: pfConfigurationAttributesFromMeta(meta, 'password'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'password')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'password', i18n.t('Password'))
             }
           ]
         },
@@ -211,7 +211,7 @@ export const pfConfigurationScanEngineViewFields = (context = {}) => {
               key: 'port',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'port'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'port')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'port', i18n.t('Port'))
             }
           ]
         },
@@ -224,7 +224,7 @@ export const pfConfigurationScanEngineViewFields = (context = {}) => {
               key: 'nessus_clientpolicy',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'nessus_clientpolicy'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'nessus_clientpolicy')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'nessus_clientpolicy', i18n.t('Policy'))
             }
           ]
         },
@@ -237,7 +237,7 @@ export const pfConfigurationScanEngineViewFields = (context = {}) => {
               key: 'scannername',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'scannername'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'scannername')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'scannername', i18n.t('Name'))
             }
           ]
         },
@@ -250,7 +250,7 @@ export const pfConfigurationScanEngineViewFields = (context = {}) => {
               key: 'openvas_alertid',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'openvas_alertid'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'openvas_alertid')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'openvas_alertid', 'ID')
             }
           ]
         },
@@ -263,7 +263,7 @@ export const pfConfigurationScanEngineViewFields = (context = {}) => {
               key: 'openvas_configid',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'openvas_configid'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'openvas_configid')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'openvas_configid', 'ID')
             }
           ]
         },
@@ -276,7 +276,7 @@ export const pfConfigurationScanEngineViewFields = (context = {}) => {
               key: 'openvas_reportformatid',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'openvas_reportformatid'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'openvas_reportformatid')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'openvas_reportformatid', 'ID')
             }
           ]
         },
@@ -303,7 +303,7 @@ export const pfConfigurationScanEngineViewFields = (context = {}) => {
               key: 'engine_id',
               component: pfFormChosen,
               attrs: pfConfigurationAttributesFromMeta(meta, 'engine_id'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'engine_id')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'engine_id', i18n.t('Engine'))
             }
           ]
         },
@@ -316,7 +316,7 @@ export const pfConfigurationScanEngineViewFields = (context = {}) => {
               key: 'template_id',
               component: pfFormChosen,
               attrs: pfConfigurationAttributesFromMeta(meta, 'template_id'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'template_id')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'template_id', i18n.t('Template'))
             }
           ]
         },
@@ -329,7 +329,7 @@ export const pfConfigurationScanEngineViewFields = (context = {}) => {
               key: 'site_id',
               component: pfFormChosen,
               attrs: pfConfigurationAttributesFromMeta(meta, 'site_id'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'site_id')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'site_id', i18n.t('Site'))
             }
           ]
         },
@@ -341,7 +341,7 @@ export const pfConfigurationScanEngineViewFields = (context = {}) => {
               key: 'categories',
               component: pfFormChosen,
               attrs: pfConfigurationAttributesFromMeta(meta, 'categories'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'categories')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'categories', i18n.t('Categories'))
             }
           ]
         },
@@ -353,7 +353,7 @@ export const pfConfigurationScanEngineViewFields = (context = {}) => {
               key: 'oses',
               component: pfFormChosen,
               attrs: pfConfigurationAttributesFromMeta(meta, 'oses'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'oses')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'oses', 'OS')
             }
           ]
         },
@@ -365,13 +365,13 @@ export const pfConfigurationScanEngineViewFields = (context = {}) => {
               key: 'duration.interval',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'duration.interval'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'duration.interval')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'duration.interval', i18n.t('Interval'))
             },
             {
               key: 'duration.unit',
               component: pfFormChosen,
               attrs: pfConfigurationAttributesFromMeta(meta, 'duration.unit'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'duration.unit')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'duration.unit', i18n.t('Unit'))
             }
           ]
         },

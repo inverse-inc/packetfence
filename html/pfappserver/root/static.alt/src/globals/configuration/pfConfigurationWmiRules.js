@@ -126,7 +126,7 @@ export const pfConfigurationWmiRuleViewFields = (context = {}) => {
                 }
               },
               validators: {
-                ...pfConfigurationValidatorsFromMeta(meta, 'id', 'WMI Rule'),
+                ...pfConfigurationValidatorsFromMeta(meta, 'id', i18n.t('Rule')),
                 ...{
                   [i18n.t('WMI Rule exists.')]: not(and(required, conditional(isNew || isClone), hasWmiRules, wmiRuleExists))
                 }
@@ -154,7 +154,7 @@ export const pfConfigurationWmiRuleViewFields = (context = {}) => {
               key: 'namespace',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'namespace'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'namespace', 'Namespace')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'namespace', i18n.t('Namespace'))
             }
           ]
         },
@@ -170,7 +170,7 @@ export const pfConfigurationWmiRuleViewFields = (context = {}) => {
                   rows: 3
                 }
               },
-              validators: pfConfigurationValidatorsFromMeta(meta, 'request', 'Request')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'request', i18n.t('Request'))
             }
           ]
         },
@@ -187,7 +187,7 @@ export const pfConfigurationWmiRuleViewFields = (context = {}) => {
                   rows: 5
                 }
               },
-              validators: pfConfigurationValidatorsFromMeta(meta, 'action', 'Action')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'action', i18n.t('Action'))
             }
           ]
         }

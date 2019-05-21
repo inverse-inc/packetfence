@@ -44,7 +44,7 @@ export const pfConfigurationFingerbankGeneralSettingsViewFields = (context = {})
               key: 'upstream.api_key',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'upstream.api_key'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'upstream.api_key', 'Key')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'upstream.api_key', i18n.t('Key'))
             }
           ]
         },
@@ -56,7 +56,7 @@ export const pfConfigurationFingerbankGeneralSettingsViewFields = (context = {})
               key: 'upstream.host',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'upstream.host'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'upstream.host', 'Host')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'upstream.host', i18n.t('Host'))
             }
           ]
         },
@@ -68,7 +68,7 @@ export const pfConfigurationFingerbankGeneralSettingsViewFields = (context = {})
               key: 'upstream.port',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'upstream.port'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'upstream.port', 'Port')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'upstream.port', i18n.t('Port'))
             }
           ]
         },
@@ -93,7 +93,7 @@ export const pfConfigurationFingerbankGeneralSettingsViewFields = (context = {})
               key: 'upstream.db_path',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'upstream.db_path'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'upstream.db_path', 'Path')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'upstream.db_path', i18n.t('Path'))
             }
           ]
         },
@@ -105,7 +105,7 @@ export const pfConfigurationFingerbankGeneralSettingsViewFields = (context = {})
               key: 'upstream.sqlite_db_retention',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'upstream.sqlite_db_retention'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'upstream.sqlite_db_retention', 'Amount')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'upstream.sqlite_db_retention', i18n.t('Amount'))
             }
           ]
         },
@@ -117,7 +117,7 @@ export const pfConfigurationFingerbankGeneralSettingsViewFields = (context = {})
               key: 'collector.host',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'collector.host'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'collector.host', 'Host')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'collector.host', i18n.t('Host'))
             }
           ]
         },
@@ -129,7 +129,7 @@ export const pfConfigurationFingerbankGeneralSettingsViewFields = (context = {})
               key: 'collector.port',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'collector.port'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'collector.port', 'Port')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'collector.port', i18n.t('Port'))
             }
           ]
         },
@@ -154,7 +154,7 @@ export const pfConfigurationFingerbankGeneralSettingsViewFields = (context = {})
               key: 'collector.inactive_endpoints_expiration',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'collector.inactive_endpoints_expiration'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'collector.inactive_endpoints_expiration', 'Hours')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'collector.inactive_endpoints_expiration', i18n.t('Hours'))
             }
           ]
         },
@@ -179,7 +179,7 @@ export const pfConfigurationFingerbankGeneralSettingsViewFields = (context = {})
               key: 'collector.query_cache_time',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'collector.query_cache_time'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'collector.query_cache_time', 'Time')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'collector.query_cache_time', i18n.t('Time'))
             }
           ]
         },
@@ -191,7 +191,7 @@ export const pfConfigurationFingerbankGeneralSettingsViewFields = (context = {})
               key: 'collector.db_persistence_interval',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'collector.db_persistence_interval'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'collector.db_persistence_interval', 'Interval')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'collector.db_persistence_interval', i18n.t('Interval'))
             }
           ]
         },
@@ -203,7 +203,7 @@ export const pfConfigurationFingerbankGeneralSettingsViewFields = (context = {})
               key: 'collector.cluster_resync_interval',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'collector.cluster_resync_interval'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'collector.cluster_resync_interval', 'Interval')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'collector.cluster_resync_interval', i18n.t('Interval'))
             }
           ]
         },
@@ -241,7 +241,7 @@ export const pfConfigurationFingerbankGeneralSettingsViewFields = (context = {})
               key: 'proxy.host',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'proxy.host'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'proxy.host', 'Host')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'proxy.host', i18n.t('Host'))
             }
           ]
         },
@@ -253,7 +253,7 @@ export const pfConfigurationFingerbankGeneralSettingsViewFields = (context = {})
               key: 'proxy.port',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'proxy.port'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'proxy.port', 'Port')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'proxy.port', i18n.t('Port'))
             }
           ]
         },
@@ -327,7 +327,7 @@ export const pfConfigurationFingerbankDeviceChangeDetectionViewFields = (context
                   rows: 5
                 }
               },
-              validators: pfConfigurationValidatorsFromMeta(meta, 'device_class_whitelist', 'Whitelist')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'device_class_whitelist', i18n.t('Whitelist'))
             }
           ]
         },
@@ -344,7 +344,7 @@ export const pfConfigurationFingerbankDeviceChangeDetectionViewFields = (context
                   rows: 5
                 }
               },
-              validators: pfConfigurationValidatorsFromMeta(meta, 'device_class_whitelist', 'Whitelist')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'device_class_whitelist', i18n.t('Triggers'))
             }
           ]
         },

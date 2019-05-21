@@ -103,7 +103,7 @@ export const pfConfigurationAccessDurationViewFields = (context = {}) => {
                     : []
                 }
               },
-              validators: pfConfigurationValidatorsFromMeta(meta, 'default_access_duration', 'Default')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'default_access_duration', i18n.t('Default'))
             }
           ]
         }
