@@ -32,7 +32,23 @@ my $t = Test::Mojo->new('pf::UnifiedApi');
 #This test will running last
 use Test::NoWarnings;
 my $batch = 5;
-plan tests => $batch * (2 + 2 * $batch) + 31;
+plan tests => $batch * (2 + 2 * $batch) + 36;
+
+{
+    my $n = ($$ + int(rand(999))) % 1000 ;
+    my $pid = sprintf("user_%03d/realm", $n);
+    my $id = $pid;
+    $id =~ s#/#~#g;
+    my $url = "/api/v1/user/$id";
+    $t->post_ok("/api/v1/users/" => json => { pid => $pid })
+      ->status_is(201)
+      ->header_is(Location => $url);
+
+    my $location = $t->tx->res->headers->header('Location');
+    $t->get_ok($location)
+      ->status_is(200);
+}
+
 my @persons;
 
 {

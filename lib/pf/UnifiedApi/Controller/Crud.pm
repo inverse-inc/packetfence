@@ -245,9 +245,14 @@ Get id of current resource
 
 sub id {
     my ($self) = @_;
-    my $id = url_unescape($self->stash->{$self->url_param_name});
-    $id =~ s/~/\//g;
-    return $id;
+    return $self->escape_url_param($self->stash->{$self->url_param_name});
+}
+
+sub escape_url_param {
+    my ($self, $param) = @_;
+    $param = url_unescape($param);
+    $param =~ s/~/\//g;
+    return $param;
 }
 
 sub create_error_msg {
@@ -261,6 +266,7 @@ sub render_create {
     }
 
     my $id = $obj->{$self->primary_key};
+    $id =~ s#/#~#g;
     $self->res->headers->location($self->make_location_url($id));
     return $self->render(json => { id => $id , message => "'$id' created"}, status => $status);
 }
