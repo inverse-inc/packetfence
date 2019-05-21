@@ -232,6 +232,82 @@ export const pfConfigurationRealmViewFields = (context = {}) => {
           ]
         },
         {
+          label: i18n.t('Freeradius Eduroam Proxy Configuration'), labelSize: 'lg'
+        },
+        {
+          label: i18n.t('Eduroam Realm Options'),
+          text: i18n.t('You can add Eduroam FreeRADIUS options in the realm definition.'),
+          fields: [
+            {
+              key: 'eduroam_options',
+              component: pfFormTextarea,
+              attrs: pfConfigurationAttributesFromMeta(meta, 'eduroam_options'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'eduroam_options', 'Realm options')
+            }
+          ]
+        },
+        {
+          label: i18n.t('Eduroam RADIUS AUTH'),
+          text: i18n.t('The RADIUS Server(s) to proxy authentication.'),
+          fields: [
+            {
+              key: 'eduroam_radius_auth',
+              component: pfFormChosen,
+              attrs: pfConfigurationAttributesFromMeta(meta, 'radius_auth'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'radius_auth', 'RADIUS AUTH')
+            }
+          ]
+        },
+        {
+          label: i18n.t('Type'),
+          text: i18n.t('Home server pool type.'),
+          fields: [
+            {
+              key: 'eduroam_radius_auth_proxy_type',
+              component: pfFormChosen,
+              attrs: pfConfigurationAttributesFromMeta(meta, 'eduroam_radius_auth_proxy_type'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'eduroam_radius_auth_proxy_type', 'Type')
+            }
+          ]
+        },
+        {
+          label: i18n.t('Authorize from PacketFence'),
+          text: i18n.t('Should we forward the request to PacketFence to have a dynamic answer or do we use the remote proxy server answered attributes?'),
+          fields: [
+            {
+              key: 'eduroam_radius_auth_compute_in_pf',
+              component: pfFormRangeToggle,
+              attrs: {
+                values: { checked: 'enabled', unchecked: 'disabled' }
+              }
+            }
+          ]
+        },
+        {
+          label: i18n.t('Eduroam RADIUS ACCT'),
+          text: i18n.t('The RADIUS Server(s) to proxy accounting.'),
+          fields: [
+            {
+              key: 'eduroam_radius_acct_chosen',
+              component: pfFormChosen,
+              attrs: pfConfigurationAttributesFromMeta(meta, 'radius_auth'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'radius_auth', 'RADIUS ACCT')
+            }
+          ]
+        },
+        {
+          label: i18n.t('Type'),
+          text: i18n.t('Home server pool type.'),
+          fields: [
+            {
+              key: 'eduroam_radius_acct_proxy_type',
+              component: pfFormChosen,
+              attrs: pfConfigurationAttributesFromMeta(meta, 'eduroam_radius_acct_proxy_type'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'eduroam_radius_acct_proxy_type', 'Type')
+            }
+          ]
+        },
+        {
           label: i18n.t('Stripping Configuration'), labelSize: 'lg'
         },
         {
