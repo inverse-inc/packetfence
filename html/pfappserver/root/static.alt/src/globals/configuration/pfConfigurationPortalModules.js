@@ -443,7 +443,7 @@ export const pfConfigurationPortalModuleFields = {
           key: 'pid_field',
           component: pfFormChosen,
           attrs: pfConfigurationAttributesFromMeta(meta, 'pid_field'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'pid_field', 'PID'))
+          validators: pfConfigurationValidatorsFromMeta(meta, 'pid_field', 'PID')
         }
       ]
     }
