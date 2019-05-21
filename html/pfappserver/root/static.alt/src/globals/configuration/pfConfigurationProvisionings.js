@@ -266,7 +266,6 @@ export const pfConfigurationProvisioningFields = {
   can_sign_profile: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Sign Profile'),
-      text: i18n.t('Check this box if you want the profiles signed'),
       fields: [
         {
           key: 'can_sign_profile',
@@ -295,7 +294,7 @@ export const pfConfigurationProvisioningFields = {
   cert_chain: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('The certificate chain for the signer certificate'),
-      text: i18n.t('The certificate chain of the signer certificate in pem format.'),
+      text: i18n.t('The certificate chain of the signer certificate in PEM format.'),
       fields: [
         {
           key: 'cert_chain',
@@ -314,7 +313,7 @@ export const pfConfigurationProvisioningFields = {
   certificate: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('The certificate for signing profiles'),
-      text: i18n.t('The Certificate for signing in pem format.'),
+      text: i18n.t('The certificate for signing in PEM format.'),
       fields: [
         {
           key: 'certificate',
@@ -359,7 +358,7 @@ export const pfConfigurationProvisioningFields = {
   critical_issues_threshold: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Critical issues threshold'),
-      text: i18n.t('Raise the non compliance security event the number of critical issues is greater or equal than this. 0 deactivates it.'),
+      text: i18n.t('The minimum number of critical issues a device needs to have before it gets isolated. 0 deactivates it.'),
       fields: [
         {
           key: 'critical_issues_threshold',
@@ -554,7 +553,7 @@ export const pfConfigurationProvisioningFields = {
   private_key: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('The private key for signing profiles'),
-      text: i18n.t('The Private Key for signing in pem format.'),
+      text: i18n.t('The private key for signing in PEM format.'),
       fields: [
         {
           key: 'private_key',
