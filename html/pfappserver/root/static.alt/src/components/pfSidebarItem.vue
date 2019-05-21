@@ -21,15 +21,16 @@
         <slot/>
       </div>
     </b-nav-item>
-    <b-nav class="pf-sidenav my-2" v-if="showSavedSearches && savedSearches.length > 0" vertical>
+    <b-nav class="pf-sidenav mb-2" v-if="showSavedSearches && savedSearches.length > 0" vertical>
       <div class="pf-sidenav-group" v-t="'Saved Searches'"></div>
       <b-nav-item
         exact-active-class="active"
         v-for="search in savedSearches"
         :key="search.name"
         :to="search.route"
+        class="saved-search ml-3"
       >
-        <icon class="mx-1" name="trash-alt" role="button" @click.native.stop.prevent="deleteSavedSearch(search)"></icon>
+        <icon class="float-right mx-1" name="trash-alt" role="button" @click.native.stop.prevent="deleteSavedSearch(search)"></icon>
         <text-highlight :queries="[filter]">{{ search.name }}</text-highlight>
       </b-nav-item>
     </b-nav>
@@ -98,6 +99,23 @@ export default {
     .pf-sidenav-group,
     pf-sidebar-item {
       padding-left: 0;
+    }
+  }
+}
+.saved-search {
+  a {
+    svg.fa-icon {
+      visibility: hidden;
+    }
+  }
+}
+.saved-search:hover {
+  a {
+    svg.fa-icon {
+      visibility: visible;
+      &:hover {
+        color: var(--primary);
+      }
     }
   }
 }
