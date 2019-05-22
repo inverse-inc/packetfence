@@ -129,11 +129,16 @@ export default {
     disabled: {
       type: Boolean,
       default: false
+    },
+    default: {
+      type: Object,
+      default: () => {
+        return { id: null, description: null, match: 'all', actions: [], conditions: [] }
+      }
     }
   },
   data () {
     return {
-      default:              { id: null, description: null, match: 'all', actions: [], conditions: [] }, // default value
       uuid:                 uuidv4(), // unique id for multiple instances of this component
       actionValidations:    {}, // overloaded from actions (pf-form-fields) child component
       conditionValidations: {} // overloaded from conditions (pf-form-fields) child component
