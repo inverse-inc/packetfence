@@ -130,7 +130,7 @@ const api = {
     return apiCall({ url: 'config/scans', method: 'get' })
   },
   getSecurityEvents () {
-    return apiCall({ url: 'config/security_events', method: 'get' })
+    return apiCall({ url: 'config/security_events', method: 'get', params: { limit: 1000 } })
   },
   getSources () {
     return apiCall({ url: 'config/sources', method: 'get' })
