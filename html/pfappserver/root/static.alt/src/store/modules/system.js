@@ -28,10 +28,11 @@ const state = {
 }
 
 const getters = {
-  isLoading: state => state.requestStatus === types.LOADING,
+  hostname: state => state.summary.hostname,
   isInline: state => state.summary.is_inline_configured,
-  version: state => state.summary.version,
-  readonlyMode: state => state.summary.readonly_mode
+  isLoading: state => state.requestStatus === types.LOADING,
+  readonlyMode: state => state.summary.readonly_mode,
+  version: state => state.summary.version
 }
 
 const actions = {
