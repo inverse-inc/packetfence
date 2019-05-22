@@ -183,7 +183,7 @@ export const pfConfigurationPortalModuleFields = {
           key: 'aup_template',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'aup_template'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'aup_template', 'Template')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'aup_template', i18n.t('Template'))
         }
       ]
     }
@@ -202,7 +202,7 @@ export const pfConfigurationPortalModuleFields = {
               multiple: true
             }
           },
-          validators: pfConfigurationValidatorsFromMeta(meta, 'custom_fields', i18n.t('Mandatory field'))
+          validators: pfConfigurationValidatorsFromMeta(meta, 'custom_fields', i18n.t('Fields'))
         }
       ]
     }
@@ -235,7 +235,7 @@ export const pfConfigurationPortalModuleFields = {
               multiple: true
             }
           },
-          validators: pfConfigurationValidatorsFromMeta(meta, 'fields_to_save', i18n.t('Mandatory field'))
+          validators: pfConfigurationValidatorsFromMeta(meta, 'fields_to_save', i18n.t('Fields'))
         }
       ]
     }
@@ -249,7 +249,7 @@ export const pfConfigurationPortalModuleFields = {
           key: 'forced_sponsor',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'forced_sponsor'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'forced_sponsor', i18n.t('Sponsor email'))
+          validators: pfConfigurationValidatorsFromMeta(meta, 'forced_sponsor', i18n.t('Email'))
         }
       ]
     }
@@ -263,7 +263,7 @@ export const pfConfigurationPortalModuleFields = {
           key: 'landing_template',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'landing_template'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'landing_template', 'Template')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'landing_template', i18n.t('Template'))
         }
       ]
     }
@@ -401,7 +401,7 @@ export const pfConfigurationPortalModuleFields = {
           key: 'multi_source_auth_classes',
           component: pfFormTextarea,
           attrs: pfConfigurationAttributesFromMeta(meta, 'multi_source_auth_classes'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'multi_source_auth_classes', i18n.t('Authentication classes'))
+          validators: pfConfigurationValidatorsFromMeta(meta, 'multi_source_auth_classes', i18n.t('Classes'))
         }
       ]
     }
@@ -443,7 +443,7 @@ export const pfConfigurationPortalModuleFields = {
           key: 'pid_field',
           component: pfFormChosen,
           attrs: pfConfigurationAttributesFromMeta(meta, 'pid_field'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'pid_field', i18n.t('PID field'))
+          validators: pfConfigurationValidatorsFromMeta(meta, 'pid_field', 'PID')
         }
       ]
     }
@@ -563,14 +563,14 @@ export const pfConfigurationPortalModuleFields = {
   },
   url: ({ options: { meta = {} } } = {}) => {
     return {
-      label: i18n.t('URL'),
+      label: 'URL',
       text: i18n.t('The URL on which the user should be redirected.'),
       fields: [
         {
           key: 'url',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'url'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'url', i18n.t('URL'))
+          validators: pfConfigurationValidatorsFromMeta(meta, 'url', 'URL')
         }
       ]
     }

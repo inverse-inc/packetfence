@@ -104,7 +104,7 @@ export const pfConfigurationTrafficShapingPolicyViewFields = (context = {}) => {
                 }
               },
               validators: {
-                ...pfConfigurationValidatorsFromMeta(meta, 'id', 'Name'),
+                ...pfConfigurationValidatorsFromMeta(meta, 'id', i18n.t('Name')),
                 ...{
                   [i18n.t('Role exists.')]: not(and(required, conditional(isNew || isClone), hasTrafficShapingPolicies, trafficShapingPolicyExists))
                 }
@@ -120,7 +120,7 @@ export const pfConfigurationTrafficShapingPolicyViewFields = (context = {}) => {
               key: 'upload',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'upload'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'upload', 'Upload')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'upload', i18n.t('Upload'))
             }
           ]
         },
@@ -132,7 +132,7 @@ export const pfConfigurationTrafficShapingPolicyViewFields = (context = {}) => {
               key: 'download',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'download'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'download', 'Download')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'download', i18n.t('Download'))
             }
           ]
         }

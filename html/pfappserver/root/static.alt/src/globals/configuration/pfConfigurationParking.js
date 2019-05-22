@@ -24,7 +24,7 @@ export const pfConfigurationParkingViewFields = (context = {}) => {
               key: 'lease_length',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'lease_length'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'lease_length', 'Length')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'lease_length', i18n.t('Length'))
             }
           ]
         },
@@ -36,7 +36,7 @@ export const pfConfigurationParkingViewFields = (context = {}) => {
               key: 'threshold',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'threshold'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'threshold', 'Threshold')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'threshold', i18n.t('Threshold'))
             }
           ]
         },

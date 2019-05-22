@@ -60,7 +60,7 @@ export const pfConfigurationCaptivePortalViewFields = (context = {}) => {
               key: 'image_path',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'image_path'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'image_path', 'Path')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'image_path', i18n.t('Path'))
             }
           ]
         },
@@ -72,13 +72,13 @@ export const pfConfigurationCaptivePortalViewFields = (context = {}) => {
               key: 'network_detection_initial_delay.interval',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'network_detection_initial_delay.interval'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'network_detection_initial_delay.interval', 'Interval')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'network_detection_initial_delay.interval', i18n.t('Interval'))
             },
             {
               key: 'network_detection_initial_delay.unit',
               component: pfFormChosen,
               attrs: pfConfigurationAttributesFromMeta(meta, 'network_detection_initial_delay.unit'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'network_detection_initial_delay.unit', 'Unit')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'network_detection_initial_delay.unit', i18n.t('Unit'))
             }
           ]
         },
@@ -90,13 +90,13 @@ export const pfConfigurationCaptivePortalViewFields = (context = {}) => {
               key: 'network_detection_retry_delay.interval',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'network_detection_retry_delay.interval'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'network_detection_retry_delay.interval', 'Interval')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'network_detection_retry_delay.interval', i18n.t('Interval'))
             },
             {
               key: 'network_detection_retry_delay.unit',
               component: pfFormChosen,
               attrs: pfConfigurationAttributesFromMeta(meta, 'network_detection_retry_delay.unit'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'network_detection_retry_delay.unit', 'Unit')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'network_detection_retry_delay.unit', i18n.t('Unit'))
             }
           ]
         },
@@ -108,13 +108,13 @@ export const pfConfigurationCaptivePortalViewFields = (context = {}) => {
               key: 'network_redirect_delay.interval',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'network_redirect_delay.interval'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'network_redirect_delay.interval', 'Interval')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'network_redirect_delay.interval', i18n.t('Interval'))
             },
             {
               key: 'network_redirect_delay.unit',
               component: pfFormChosen,
               attrs: pfConfigurationAttributesFromMeta(meta, 'network_redirect_delay.unit'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'network_redirect_delay.unit', 'Unit')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'network_redirect_delay.unit', i18n.t('Unit'))
             }
           ]
         },
@@ -126,7 +126,7 @@ export const pfConfigurationCaptivePortalViewFields = (context = {}) => {
               key: 'image_path',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'image_path'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'image_path', 'Path')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'image_path', i18n.t('Path'))
             }
           ]
         },
@@ -138,7 +138,7 @@ export const pfConfigurationCaptivePortalViewFields = (context = {}) => {
               key: 'request_timeout',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'request_timeout'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'request_timeout', 'Timeout')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'request_timeout', i18n.t('Timeout'))
             }
           ]
         },
@@ -251,7 +251,7 @@ export const pfConfigurationCaptivePortalViewFields = (context = {}) => {
               key: 'rate_limiting_threshold',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'rate_limiting_threshold'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'rate_limiting_threshold', 'Threshold')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'rate_limiting_threshold', i18n.t('Threshold'))
             }
           ]
         },
@@ -268,7 +268,7 @@ export const pfConfigurationCaptivePortalViewFields = (context = {}) => {
                   rows: 5
                 }
               },
-              validators: pfConfigurationValidatorsFromMeta(meta, 'other_domain_names', 'Domains')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'other_domain_names', i18n.t('Domains'))
             }
           ]
         }

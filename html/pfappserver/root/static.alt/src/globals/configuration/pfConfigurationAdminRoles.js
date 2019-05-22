@@ -450,7 +450,7 @@ export const pfConfigurationAdminRoleViewFields = (context = {}) => {
                 }
               },
               validators: {
-                ...pfConfigurationValidatorsFromMeta(meta, 'id', 'Name'),
+                ...pfConfigurationValidatorsFromMeta(meta, 'id', i18n.t('Name')),
                 ...{
                   [i18n.t('Admin Role exists.')]: not(and(required, conditional(isNew || isClone), hasAdminRoles, adminRoleExists))
                 }
@@ -465,7 +465,7 @@ export const pfConfigurationAdminRoleViewFields = (context = {}) => {
               key: 'description',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'description'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'description', 'Description')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'description', i18n.t('Description'))
             }
           ]
         },
@@ -524,7 +524,7 @@ export const pfConfigurationAdminRoleViewFields = (context = {}) => {
               key: 'allowed_access_levels',
               component: pfFormChosen,
               attrs: pfConfigurationAttributesFromMeta(meta, 'allowed_access_levels'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'allowed_access_levels', 'Access Levels')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'allowed_access_levels', i18n.t('Access Levels'))
             }
           ]
         },
@@ -536,7 +536,7 @@ export const pfConfigurationAdminRoleViewFields = (context = {}) => {
               key: 'allowed_roles',
               component: pfFormChosen,
               attrs: pfConfigurationAttributesFromMeta(meta, 'allowed_roles'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'allowed_roles', 'Roles')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'allowed_roles', i18n.t('Roles'))
             }
           ]
         },
@@ -548,7 +548,7 @@ export const pfConfigurationAdminRoleViewFields = (context = {}) => {
               key: 'allowed_access_durations',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'allowed_access_durations'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'allowed_access_durations', 'Durations')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'allowed_access_durations', i18n.t('Durations'))
             }
           ]
         },
@@ -567,7 +567,7 @@ export const pfConfigurationAdminRoleViewFields = (context = {}) => {
                   }
                 }
               },
-              validators: pfConfigurationValidatorsFromMeta(meta, 'allowed_unreg_date', 'Datetime')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'allowed_unreg_date', i18n.t('Datetime'))
             }
           ]
         },
@@ -579,7 +579,7 @@ export const pfConfigurationAdminRoleViewFields = (context = {}) => {
               key: 'allowed_actions',
               component: pfFormChosen,
               attrs: pfConfigurationAttributesFromMeta(meta, 'allowed_actions'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'allowed_actions', 'Actions')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'allowed_actions', i18n.t('Actions'))
             }
           ]
         }
@@ -596,7 +596,7 @@ export const pfConfigurationAdminRoleViewFields = (context = {}) => {
               key: 'allowed_node_roles',
               component: pfFormChosen,
               attrs: pfConfigurationAttributesFromMeta(meta, 'allowed_node_roles'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'allowed_node_roles', 'Roles')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'allowed_node_roles', i18n.t('Roles'))
             }
           ]
         }

@@ -25,7 +25,7 @@ export const pfConfigurationFencingViewFields = (context = {}) => {
               key: 'wait_for_redirect',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'wait_for_redirect'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'wait_for_redirect', 'Wait')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'wait_for_redirect', i18n.t('Wait'))
             }
           ]
         },
@@ -42,7 +42,7 @@ export const pfConfigurationFencingViewFields = (context = {}) => {
                   rows: 3
                 }
               },
-              validators: pfConfigurationValidatorsFromMeta(meta, 'whitelist', 'Whitelist')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'whitelist', i18n.t('Whitelist'))
             }
           ]
         },
@@ -59,7 +59,7 @@ export const pfConfigurationFencingViewFields = (context = {}) => {
                   rows: 3
                 }
               },
-              validators: pfConfigurationValidatorsFromMeta(meta, 'range', 'Range')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'range', i18n.t('Range'))
             }
           ]
         },
@@ -89,7 +89,7 @@ export const pfConfigurationFencingViewFields = (context = {}) => {
                   rows: 3
                 }
               },
-              validators: pfConfigurationValidatorsFromMeta(meta, 'passthroughs', 'Domains')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'passthroughs', i18n.t('Domains'))
             }
           ]
         },
@@ -108,7 +108,7 @@ export const pfConfigurationFencingViewFields = (context = {}) => {
                   rows: 3
                 }
               },
-              validators: pfConfigurationValidatorsFromMeta(meta, 'proxy_passthroughs', 'Domains')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'proxy_passthroughs', i18n.t('Domains'))
             }
           ]
         },
@@ -138,7 +138,7 @@ export const pfConfigurationFencingViewFields = (context = {}) => {
                   rows: 3
                 }
               },
-              validators: pfConfigurationValidatorsFromMeta(meta, 'isolation_passthroughs', 'Domains')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'isolation_passthroughs', i18n.t('Domains'))
             }
           ]
         },
@@ -168,7 +168,7 @@ export const pfConfigurationFencingViewFields = (context = {}) => {
                   rows: 3
                 }
               },
-              validators: pfConfigurationValidatorsFromMeta(meta, 'interception_proxy_port', 'Ports')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'interception_proxy_port', i18n.t('Ports'))
             }
           ]
         }

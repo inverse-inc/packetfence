@@ -110,7 +110,7 @@ export const pfConfigurationMaintenanceTaskFields = {
             }
           },
           validators: {
-            ...pfConfigurationValidatorsFromMeta(meta, 'id', 'Name'),
+            ...pfConfigurationValidatorsFromMeta(meta, 'id', i18n.t('Name')),
             ...{
               [i18n.t('Maintenance Task exists.')]: not(and(required, conditional(isNew || isClone), hasMaintenanceTasks, maintenanceTaskExists))
             }
@@ -128,7 +128,7 @@ export const pfConfigurationMaintenanceTaskFields = {
           key: 'batch',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'batch'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'batch', 'Batch')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'batch', i18n.t('Batch'))
         }
       ]
     }
@@ -147,7 +147,7 @@ export const pfConfigurationMaintenanceTaskFields = {
               rows: 5
             }
           },
-          validators: pfConfigurationValidatorsFromMeta(meta, 'certificates', 'Certificates')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'certificates', i18n.t('Certificates'))
         }
       ]
     }
@@ -161,13 +161,13 @@ export const pfConfigurationMaintenanceTaskFields = {
           key: 'delay.interval',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'delay.interval'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'delay.interval', 'Interval')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'delay.interval', i18n.t('Interval'))
         },
         {
           key: 'delay.unit',
           component: pfFormChosen,
           attrs: pfConfigurationAttributesFromMeta(meta, 'delay.unit'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'delay.unit', 'Unit')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'delay.unit', i18n.t('Unit'))
         }
       ]
     }
@@ -181,13 +181,13 @@ export const pfConfigurationMaintenanceTaskFields = {
           key: 'delete_window.interval',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'delete_window.interval'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'delete_window.interval', 'Interval')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'delete_window.interval', i18n.t('Interval'))
         },
         {
           key: 'delete_window.unit',
           component: pfFormChosen,
           attrs: pfConfigurationAttributesFromMeta(meta, 'delete_window.unit'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'delete_window.unit', 'Unit')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'delete_window.unit', i18n.t('Unit'))
         }
       ]
     }
@@ -215,13 +215,13 @@ export const pfConfigurationMaintenanceTaskFields = {
           key: 'interval.interval',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'interval.interval'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'interval.interval', 'Interval')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'interval.interval', i18n.t('Interval'))
         },
         {
           key: 'interval.unit',
           component: pfFormChosen,
           attrs: pfConfigurationAttributesFromMeta(meta, 'interval.unit'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'interval.unit', 'Unit')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'interval.unit', i18n.t('Unit'))
         }
       ]
     }
@@ -265,7 +265,7 @@ export const pfConfigurationMaintenanceTaskFields = {
           key: 'rotate_batch',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'rotate_batch'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'rotate_batch', 'Batch')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'rotate_batch', i18n.t('Batch'))
         }
       ]
     }
@@ -279,13 +279,13 @@ export const pfConfigurationMaintenanceTaskFields = {
           key: 'rotate_timeout.interval',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'rotate_timeout.interval'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'rotate_timeout.interval', 'Interval')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'rotate_timeout.interval', i18n.t('Interval'))
         },
         {
           key: 'rotate_timeout.unit',
           component: pfFormChosen,
           attrs: pfConfigurationAttributesFromMeta(meta, 'rotate_timeout.unit'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'rotate_timeout.unit', 'Unit')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'rotate_timeout.unit', i18n.t('Unit'))
         }
       ]
     }
@@ -299,13 +299,13 @@ export const pfConfigurationMaintenanceTaskFields = {
           key: 'rotate_window.interval',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'rotate_window.interval'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'rotate_window.interval', 'Interval')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'rotate_window.interval', i18n.t('Interval'))
         },
         {
           key: 'rotate_window.unit',
           component: pfFormChosen,
           attrs: pfConfigurationAttributesFromMeta(meta, 'rotate_window.unit'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'rotate_window.unit', 'Unit')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'rotate_window.unit', i18n.t('Unit'))
         }
       ]
     }
@@ -334,13 +334,13 @@ export const pfConfigurationMaintenanceTaskFields = {
           key: 'timeout.interval',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'timeout.interval'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'timeout.interval', 'Interval')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'timeout.interval', i18n.t('Interval'))
         },
         {
           key: 'timeout.unit',
           component: pfFormChosen,
           attrs: pfConfigurationAttributesFromMeta(meta, 'timeout.unit'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'timeout.unit', 'Unit')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'timeout.unit', i18n.t('Unit'))
         }
       ]
     }
@@ -354,13 +354,13 @@ export const pfConfigurationMaintenanceTaskFields = {
           key: 'unreg_window.interval',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'unreg_window.interval'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'unreg_window.interval', 'Interval')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'unreg_window.interval', i18n.t('Interval'))
         },
         {
           key: 'unreg_window.unit',
           component: pfFormChosen,
           attrs: pfConfigurationAttributesFromMeta(meta, 'unreg_window.unit'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'unreg_window.unit', 'Unit')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'unreg_window.unit', i18n.t('Unit'))
         }
       ]
     }
@@ -374,13 +374,13 @@ export const pfConfigurationMaintenanceTaskFields = {
           key: 'window.interval',
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'window.interval'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'window.interval', 'Interval')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'window.interval', i18n.t('Interval'))
         },
         {
           key: 'window.unit',
           component: pfFormChosen,
           attrs: pfConfigurationAttributesFromMeta(meta, 'window.unit'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'window.unit', 'Unit')
+          validators: pfConfigurationValidatorsFromMeta(meta, 'window.unit', i18n.t('Unit'))
         }
       ]
     }

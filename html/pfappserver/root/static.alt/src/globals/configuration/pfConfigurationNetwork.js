@@ -38,13 +38,13 @@ export const pfConfigurationNetworkViewFields = (context = {}) => {
               key: 'dhcp_rate_limiting.interval',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'dhcp_rate_limiting.interval'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'dhcp_rate_limiting.interval', 'Interval')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'dhcp_rate_limiting.interval', i18n.t('Interval'))
             },
             {
               key: 'dhcp_rate_limiting.unit',
               component: pfFormChosen,
               attrs: pfConfigurationAttributesFromMeta(meta, 'dhcp_rate_limiting.unit'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'dhcp_rate_limiting.unit', 'Unit')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'dhcp_rate_limiting.unit', i18n.t('Unit'))
             }
           ]
         },
@@ -69,7 +69,7 @@ export const pfConfigurationNetworkViewFields = (context = {}) => {
               key: 'rogueinterval',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'rogueinterval'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'rogueinterval', 'Interval')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'rogueinterval', i18n.t('Interval'))
             }
           ]
         },
@@ -146,7 +146,7 @@ export const pfConfigurationNetworkViewFields = (context = {}) => {
               key: 'interfaceSNAT',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'interfaceSNAT'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'interfaceSNAT', 'Interface')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'interfaceSNAT', i18n.t('Interface'))
             }
           ]
         }

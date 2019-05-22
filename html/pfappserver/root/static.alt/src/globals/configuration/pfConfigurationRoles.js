@@ -124,7 +124,7 @@ export const pfConfigurationRoleViewFields = (context = {}) => {
                 }
               },
               validators: {
-                ...pfConfigurationValidatorsFromMeta(meta, 'id', 'Name'),
+                ...pfConfigurationValidatorsFromMeta(meta, 'id', i18n.t('Name')),
                 ...{
                   [i18n.t('Role exists.')]: not(and(required, conditional(isNew || isClone), hasRoles, roleExists))
                 }
@@ -139,7 +139,7 @@ export const pfConfigurationRoleViewFields = (context = {}) => {
               key: 'notes',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'notes'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'notes', 'Description')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'notes', i18n.t('Description'))
             }
           ]
         },
@@ -151,7 +151,7 @@ export const pfConfigurationRoleViewFields = (context = {}) => {
               key: 'max_nodes_per_pid',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'max_nodes_per_pid'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'max_nodes_per_pid', 'Max')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'max_nodes_per_pid', i18n.t('Max'))
             }
           ]
         }

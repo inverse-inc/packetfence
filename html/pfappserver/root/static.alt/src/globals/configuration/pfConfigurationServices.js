@@ -258,7 +258,7 @@ export const pfConfigurationServiceViewFields = (context = {}) => {
               key: 'pfdhcplistener_packet_size',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'pfdhcplistener_packet_size'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'pfdhcplistener_packet_size', 'Size')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'pfdhcplistener_packet_size', i18n.t('Size'))
             }
           ]
         },

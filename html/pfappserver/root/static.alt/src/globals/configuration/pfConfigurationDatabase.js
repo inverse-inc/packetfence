@@ -24,7 +24,7 @@ export const pfConfigurationDatabaseViewFields = (context = {}) => {
               key: 'host',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'host'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'host', 'Host')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'host', i18n.t('Host'))
             }
           ]
         },
@@ -36,7 +36,7 @@ export const pfConfigurationDatabaseViewFields = (context = {}) => {
               key: 'port',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'port'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'port', 'Port')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'port', i18n.t('Port'))
             }
           ]
         },
@@ -48,7 +48,7 @@ export const pfConfigurationDatabaseViewFields = (context = {}) => {
               key: 'db',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'db'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'db', 'Database')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'db', i18n.t('Database'))
             }
           ]
         },
@@ -60,7 +60,7 @@ export const pfConfigurationDatabaseViewFields = (context = {}) => {
               key: 'user',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'user'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'user', 'User')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'user', i18n.t('User'))
             }
           ]
         },
@@ -72,7 +72,7 @@ export const pfConfigurationDatabaseViewFields = (context = {}) => {
               key: 'pass',
               component: pfFormPassword,
               attrs: pfConfigurationAttributesFromMeta(meta, 'pass'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'user', 'Password')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'user', i18n.t('Password'))
             }
           ]
         }

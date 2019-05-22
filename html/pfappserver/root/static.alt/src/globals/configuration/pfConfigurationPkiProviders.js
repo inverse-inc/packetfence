@@ -132,7 +132,7 @@ export const pfConfigurationPkiProviderViewFields = (context = {}) => {
                 }
               },
               validators: {
-                ...pfConfigurationValidatorsFromMeta(meta, 'id', 'Name'),
+                ...pfConfigurationValidatorsFromMeta(meta, 'id', i18n.t('Name')),
                 ...{
                   [i18n.t('PKI Provider exists.')]: not(and(required, conditional(isNew || isClone), hasPkiProviders, pkiProviderExists))
                 }
@@ -142,14 +142,14 @@ export const pfConfigurationPkiProviderViewFields = (context = {}) => {
         },
         {
           if: ['scep'].includes(providerType),
-          label: i18n.t('Url'),
+          label: 'URL',
           text: i18n.t('The url used to connect to the SCEP PKI service.'),
           fields: [
             {
               key: 'url',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'url'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'url', 'Url')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'url', 'URL')
             }
           ]
         },
@@ -162,7 +162,7 @@ export const pfConfigurationPkiProviderViewFields = (context = {}) => {
               key: 'proto',
               component: pfFormChosen,
               attrs: pfConfigurationAttributesFromMeta(meta, 'proto'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'proto', 'Protocol')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'proto', i18n.t('Protocol'))
             }
           ]
         },
@@ -175,7 +175,7 @@ export const pfConfigurationPkiProviderViewFields = (context = {}) => {
               key: 'host',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'host'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'host', 'Host')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'host', i18n.t('Host'))
             }
           ]
         },
@@ -188,7 +188,7 @@ export const pfConfigurationPkiProviderViewFields = (context = {}) => {
               key: 'port',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'port'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'port', 'Port')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'port', i18n.t('Port'))
             }
           ]
         },
@@ -201,7 +201,7 @@ export const pfConfigurationPkiProviderViewFields = (context = {}) => {
               key: 'username',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'username'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'username', 'Username')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'username', i18n.t('Username'))
             }
           ]
         },
@@ -214,7 +214,7 @@ export const pfConfigurationPkiProviderViewFields = (context = {}) => {
               key: 'username',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'username'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'username', 'Username')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'username', i18n.t('Username'))
             }
           ]
         },
@@ -227,7 +227,7 @@ export const pfConfigurationPkiProviderViewFields = (context = {}) => {
               key: 'password',
               component: pfFormPassword,
               attrs: pfConfigurationAttributesFromMeta(meta, 'password'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'password', 'Password')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'password', i18n.t('Password'))
             }
           ]
         },
@@ -240,7 +240,7 @@ export const pfConfigurationPkiProviderViewFields = (context = {}) => {
               key: 'profile',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'profile'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'profile', 'Profile')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'profile', i18n.t('Profile'))
             }
           ]
         },
@@ -253,7 +253,7 @@ export const pfConfigurationPkiProviderViewFields = (context = {}) => {
               key: 'country',
               component: pfFormChosen,
               attrs: pfConfigurationAttributesFromMeta(meta, 'country'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'country', 'Country')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'country', i18n.t('Country'))
             }
           ]
         },
@@ -266,7 +266,7 @@ export const pfConfigurationPkiProviderViewFields = (context = {}) => {
               key: 'state',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'state'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'state', 'State')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'state', i18n.t('State'))
             }
           ]
         },
@@ -279,7 +279,7 @@ export const pfConfigurationPkiProviderViewFields = (context = {}) => {
               key: 'locality',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'locality'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'locality', 'Locality')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'locality', i18n.t('Locality'))
             }
           ]
         },
@@ -292,7 +292,7 @@ export const pfConfigurationPkiProviderViewFields = (context = {}) => {
               key: 'organization',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'organization'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'organization', 'Organization')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'organization', i18n.t('Organization'))
             }
           ]
         },
@@ -305,7 +305,7 @@ export const pfConfigurationPkiProviderViewFields = (context = {}) => {
               key: 'organizational_unit',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'organizational_unit'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'organizational_unit', 'Unit')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'organizational_unit', i18n.t('Unit'))
             }
           ]
         },
@@ -318,7 +318,7 @@ export const pfConfigurationPkiProviderViewFields = (context = {}) => {
               key: 'cn_attribute',
               component: pfFormChosen,
               attrs: pfConfigurationAttributesFromMeta(meta, 'cn_attribute'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'cn_attribute', 'Attribute')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'cn_attribute', i18n.t('Attribute'))
             }
           ]
         },
@@ -331,7 +331,7 @@ export const pfConfigurationPkiProviderViewFields = (context = {}) => {
               key: 'cn_format',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'cn_format'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'cn_format', 'Format')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'cn_format', i18n.t('Format'))
             }
           ]
         },
@@ -358,7 +358,7 @@ export const pfConfigurationPkiProviderViewFields = (context = {}) => {
               key: 'client_cert_path',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'client_cert_path'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'client_cert_path', 'Path')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'client_cert_path', i18n.t('Path'))
             }
           ]
         },
@@ -371,7 +371,7 @@ export const pfConfigurationPkiProviderViewFields = (context = {}) => {
               key: 'client_key_path',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'client_key_path'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'client_key_path', 'Path')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'client_key_path', i18n.t('Path'))
             }
           ]
         },
@@ -384,7 +384,7 @@ export const pfConfigurationPkiProviderViewFields = (context = {}) => {
               key: 'ca_cert_path',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'ca_cert_path'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'ca_cert_path', 'Path')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'ca_cert_path', i18n.t('Path'))
             }
           ]
         },
@@ -397,7 +397,7 @@ export const pfConfigurationPkiProviderViewFields = (context = {}) => {
               key: 'server_cert_path',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'server_cert_path'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'server_cert_path', 'Path')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'server_cert_path', i18n.t('Path'))
             }
           ]
         }

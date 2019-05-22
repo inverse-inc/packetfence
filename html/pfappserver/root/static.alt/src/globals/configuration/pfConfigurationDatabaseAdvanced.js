@@ -24,7 +24,7 @@ export const pfConfigurationDatabaseAdvancedViewFields = (context = {}) => {
               key: 'key_buffer_size',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'key_buffer_size'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'key_buffer_size', 'Size')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'key_buffer_size', i18n.t('Size'))
             }
           ]
         },
@@ -36,7 +36,7 @@ export const pfConfigurationDatabaseAdvancedViewFields = (context = {}) => {
               key: 'innodb_buffer_pool_size',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'innodb_buffer_pool_size'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'innodb_buffer_pool_size', 'Size')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'innodb_buffer_pool_size', i18n.t('Size'))
             }
           ]
         },
@@ -48,7 +48,7 @@ export const pfConfigurationDatabaseAdvancedViewFields = (context = {}) => {
               key: 'innodb_additional_mem_pool_size',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'innodb_additional_mem_pool_size'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'innodb_additional_mem_pool_size', 'Size')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'innodb_additional_mem_pool_size', i18n.t('Size'))
             }
           ]
         },
@@ -60,7 +60,7 @@ export const pfConfigurationDatabaseAdvancedViewFields = (context = {}) => {
               key: 'query_cache_size',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'query_cache_size'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'query_cache_size', 'Size')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'query_cache_size', i18n.t('Size'))
             }
           ]
         },
@@ -72,7 +72,7 @@ export const pfConfigurationDatabaseAdvancedViewFields = (context = {}) => {
               key: 'thread_concurrency',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'thread_concurrency'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'thread_concurrency', 'Concurrency')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'thread_concurrency', i18n.t('Concurrency'))
             }
           ]
         },
@@ -84,7 +84,7 @@ export const pfConfigurationDatabaseAdvancedViewFields = (context = {}) => {
               key: 'max_connections',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'max_connections'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'max_connections', 'Connections')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'max_connections', i18n.t('Connections'))
             }
           ]
         },
@@ -96,7 +96,7 @@ export const pfConfigurationDatabaseAdvancedViewFields = (context = {}) => {
               key: 'table_cache',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'table_cache'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'table_cache', 'Cache')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'table_cache', i18n.t('Cache'))
             }
           ]
         },
@@ -108,7 +108,7 @@ export const pfConfigurationDatabaseAdvancedViewFields = (context = {}) => {
               key: 'thread_cache_size',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'thread_cache_size'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'thread_cache_size', 'Size')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'thread_cache_size', i18n.t('Size'))
             }
           ]
         },
@@ -120,7 +120,7 @@ export const pfConfigurationDatabaseAdvancedViewFields = (context = {}) => {
               key: 'max_allowed_packet',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'max_allowed_packet'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'max_allowed_packet', 'Packets')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'max_allowed_packet', i18n.t('Packets'))
             }
           ]
         },
@@ -132,7 +132,7 @@ export const pfConfigurationDatabaseAdvancedViewFields = (context = {}) => {
               key: 'performance_schema',
               component: pfFormChosen,
               attrs: pfConfigurationAttributesFromMeta(meta, 'performance_schema'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'performance_schema', 'Schema')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'performance_schema', i18n.t('Schema'))
             }
           ]
         },
@@ -144,7 +144,7 @@ export const pfConfigurationDatabaseAdvancedViewFields = (context = {}) => {
               key: 'max_connect_errors',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'max_connect_errors'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'max_connect_errors', 'Errors')
+              validators: pfConfigurationValidatorsFromMeta(meta, 'max_connect_errors', i18n.t('Errors'))
             }
           ]
         }
