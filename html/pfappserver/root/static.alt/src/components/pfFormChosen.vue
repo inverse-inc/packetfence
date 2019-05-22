@@ -247,9 +247,13 @@ export default {
 
   /* show placeholder even when empty */
   &.is-empty {
-    .multiselect__input {
+    .multiselect__input,
+    .multiselect__placeholder {
       width: 100%!important;
       position: relative!important;
+    }
+    .multiselect__placeholder {
+      display: none;
     }
   }
   &.is-empty:not(.is-focus) {

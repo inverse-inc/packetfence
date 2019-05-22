@@ -131,31 +131,30 @@ export const pfConfigurationAttributesFromMeta = (meta = {}, key = null) => {
       attrs.preserveSearch = false
       attrs.allowEmpty = (!(key in meta && 'required' in Object.keys(meta[key])))
       attrs.clearOnSelect = true
-      attrs.placeholder = i18n.t('Type to search')
+      attrs.placeholder = i18n.t('Type to search.')
       attrs.showNoOptions = false
       attrs.optionsSearchFunction = (chosen, query) => { // wrap function
         const f = pfConfigurationOptionsSearchFunction(allowedLookup)
-        if (query) {
-          return f(chosen, query)
-        } else {
+        if (!query) {
           switch (key) {
-            case 'oses':
-              return [
-                ...[
-                  { text: 'Windows Phone OS', value: '33507' },
-                  { text: 'Mac OS X or macOS', value: '2' },
-                  { text: 'Android OS', value: '33453' },
-                  { text: 'Windows OS', value: '1' },
-                  { text: 'BlackBerry OS', value: '33471' },
-                  { text: 'iOS', value: '33450' },
-                  { text: 'Linux OS', value: '5' }
-                ],
-                ...f(chosen, query)
-              ]
-            default:
-              return f(chosen, query)
+            case 'oses': // include common os choices
+              return [...new Set(
+                [
+                  ...[
+                    { text: 'Windows Phone OS', value: '33507' },
+                    { text: 'Mac OS X or macOS', value: '2' },
+                    { text: 'Android OS', value: '33453' },
+                    { text: 'Windows OS', value: '1' },
+                    { text: 'BlackBerry OS', value: '33471' },
+                    { text: 'iOS', value: '33450' },
+                    { text: 'Linux OS', value: '5' }
+                  ],
+                  ...f(chosen, query)
+                ]
+              )]
           }
         }
+        return f(chosen, query)
       }
     }
   }
@@ -233,13 +232,13 @@ export const pfConfigurationValidatorsFromMeta = (meta = {}, key = null, fieldNa
               case 'array': // ignore
               case 'string': // ignore
                 break
-              default: // TODO: remove post-devel
-                throw new Error(`Unhandled meta type: ${meta[key].type}`)
+              default:
+                console.error(`Unhandled meta type: ${meta[key].type}`)
                 // break
             }
             break
-          default: // TODO: remove post-devel
-            throw new Error(`Unhandled meta: ${property}`)
+          default:
+            console.error(`Unhandled meta: ${property}`)
             // break
         }
       })
