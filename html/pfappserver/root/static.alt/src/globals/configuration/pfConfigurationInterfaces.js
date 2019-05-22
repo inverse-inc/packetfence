@@ -368,7 +368,7 @@ export const pfConfigurationInterfaceViewFields = (context = {}) => {
           fields: [
             {
               key: 'dns',
-              component: pfFormInput,
+              component: pfFormInput
             }
           ]
         },
