@@ -166,12 +166,20 @@ export default {
     },
     activeModuleTypes () {
       let types = {}
+      let sortedTypes = []
       this.items.forEach(module => {
         if (module.type !== 'Root') {
           types[module.type] = true
         }
       })
-      return Object.keys(types)
+      this.moduleTypes.forEach(group => {
+        group.types.forEach(item => {
+          if (types[item.type]) {
+            sortedTypes.push(item.type)
+          }
+        })
+      })
+      return sortedTypes
     }
   },
   methods: {
