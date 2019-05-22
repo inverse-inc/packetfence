@@ -64,20 +64,22 @@ sub build_multi_zone {
     # Ensure the default cluster has at least an empty hashref
     $tmp_cfg{DEFAULT} = {};
 
-    my @clusters;
+    my %clusters_uniq;
     foreach my $section (@{$self->{ordered_sections}}){
         # we don't want double groups
         if ($section =~ m/^([a-zA-Z0-9]+)\s[a-zA-Z0-9]+$/i) {
-            push @clusters, $1;
+            $clusters_uniq{$1} = 1;
         }
     }
 
+    my @clusters = keys(%clusters_uniq);
+
     foreach my $cluster (@clusters) {
-        map { 
+        map {
             $_ =~ s/^$cluster //g;
             $tmp_cfg{$cluster}{$_} = $cfg->{"$cluster $_"};
         } $self->GroupMembers($cluster);
-        my $ordered_sections = [ map{ 
+        my $ordered_sections = [ map{
             $_ =~ s/^$cluster //g ? $_ : ();
         } @{$self->{ordered_sections}}];
         $tmp_cfg{$cluster} = $self->build_single_cluster($cluster, $ordered_sections, $tmp_cfg{$cluster});
