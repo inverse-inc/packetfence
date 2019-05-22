@@ -224,6 +224,13 @@ export const pfConfigurationAuthenticationSourceFields = {
             field: {
               component: pfFieldRule,
               attrs: {
+                default: {
+                  id: null,
+                  description: null,
+                  match: 'all',
+                  actions: [ { type: 'set_access_level', value: null } ],
+                  conditions: []
+                },
                 matchLabel: i18n.t('Select rule match'),
                 actions: {
                   component: pfFieldTypeValue,
@@ -416,6 +423,13 @@ export const pfConfigurationAuthenticationSourceFields = {
             field: {
               component: pfFieldRule,
               attrs: {
+                default: {
+                  id: null,
+                  description: null,
+                  match: 'all',
+                  actions: [ { type: 'set_role', value: 'default' } ],
+                  conditions: []
+                },
                 matchLabel: i18n.t('Select rule match'),
                 actions: {
                   component: pfFieldTypeValue,
