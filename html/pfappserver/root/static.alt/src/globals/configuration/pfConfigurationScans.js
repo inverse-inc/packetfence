@@ -346,6 +346,7 @@ export const pfConfigurationScanEngineViewFields = (context = {}) => {
           ]
         },
         {
+          if: ['nessus', 'nessus6', 'openvas', 'rapid7'].includes(scanType),
           label: i18n.t('OS'),
           text: i18n.t('Nodes with the selected OS will be affected.'),
           fields: [
