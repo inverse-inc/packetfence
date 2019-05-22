@@ -4,8 +4,8 @@
     :disabled="isLoading"
     :isDeletable="isDeletable"
     :form="getForm"
-    :model="wrixLocation"
-    :vuelidate="$v.wrixLocation"
+    :model="form"
+    :vuelidate="$v.form"
     :isNew="isNew"
     :isClone="isClone"
     @validations="setValidations($event)"
@@ -23,7 +23,7 @@
       </h4>
     </template>
     <template slot="footer">
-      <b-card-footer @mouseenter="$v.wrixLocation.$touch()">
+      <b-card-footer @mouseenter="$v.form.$touch()">
         <pf-button-save :disabled="invalidForm" :isLoading="isLoading">
           <template v-if="isNew">{{ $t('Create') }}</template>
           <template v-else-if="isClone">{{ $t('Clone') }}</template>
@@ -82,13 +82,13 @@ export default {
   },
   data () {
     return {
-      wrixLocation: defaults(this), // will be overloaded with the data from the store
-      wrixLocationValidations: {} // will be overloaded with data from the pfConfigView,
+      form: defaults(this), // will be overloaded with the data from the store
+      formValidations: {} // will be overloaded with data from the pfConfigView,
     }
   },
   validations () {
     return {
-      wrixLocation: this.wrixLocationValidations
+      form: this.formValidations
     }
   },
   computed: {
@@ -105,7 +105,7 @@ export default {
       }
     },
     isDeletable () {
-      if (this.isNew || this.isClone || ('not_deletable' in this.wrixLocation && this.wrixLocation.not_deletable)) {
+      if (this.isNew || this.isClone || ('not_deletable' in this.form && this.form.not_deletable)) {
         return false
       }
       return true
@@ -120,17 +120,17 @@ export default {
     },
     create (event) {
       const ctrlKey = this.ctrlKey
-      this.$store.dispatch(`${this.storeName}/createWrixLocation`, this.wrixLocation).then(response => {
+      this.$store.dispatch(`${this.storeName}/createWrixLocation`, this.form).then(response => {
         if (ctrlKey) { // [CTRL] key pressed
           this.close()
         } else {
-          this.$router.push({ name: 'wrixLocation', params: { id: this.wrixLocation.id } })
+          this.$router.push({ name: 'wrixLocation', params: { id: this.form.id } })
         }
       })
     },
     save (event) {
       const ctrlKey = this.ctrlKey
-      this.$store.dispatch(`${this.storeName}/updateWrixLocation`, this.wrixLocation).then(response => {
+      this.$store.dispatch(`${this.storeName}/updateWrixLocation`, this.form).then(response => {
         if (ctrlKey) { // [CTRL] key pressed
           this.close()
         }
@@ -142,16 +142,14 @@ export default {
       })
     },
     setValidations (validations) {
-      this.$set(this, 'wrixLocationValidations', validations)
+      this.$set(this, 'formValidations', validations)
     }
   },
   created () {
     if (this.id) {
-      this.$store.dispatch(`${this.storeName}/getWrixLocation`, this.id).then(data => {
-        this.wrixLocation = Object.assign({}, data)
-        if (this.isClone) {
-          this.wrixLocation.id = null
-        }
+      this.$store.dispatch(`${this.storeName}/getWrixLocation`, this.id).then(form => {
+        if (this.isClone) form.id = `${form.id}-${this.$i18n.t('copy')}`
+        this.form = form
       })
     }
   },

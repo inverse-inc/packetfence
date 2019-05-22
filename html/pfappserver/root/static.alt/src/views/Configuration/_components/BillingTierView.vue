@@ -126,6 +126,7 @@ export default {
         if (this.id) {
           // existing
           this.$store.dispatch(`${this.storeName}/getBillingTier`, this.id).then(form => {
+            if (this.isClone) form.id = `${form.id}-${this.$i18n.t('copy')}`
             this.form = form
           })
         } else {

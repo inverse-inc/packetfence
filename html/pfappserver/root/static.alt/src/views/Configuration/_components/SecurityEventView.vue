@@ -106,6 +106,7 @@ export default {
       if (this.id) {
         // existing
         promise = this.$store.dispatch(`${this.storeName}/getSecurityEvent`, this.id).then(form => {
+          if (this.isClone) form.id = `${form.id}-${this.$i18n.t('copy')}`
           this.form = form
           return form
         })
