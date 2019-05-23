@@ -9,7 +9,7 @@
         <b-navbar-nav v-show="isAuthenticated">
           <b-nav-item to="/status" :active="$route.path.startsWith('/status')" v-can:read.some="[['reports', 'services']]">{{ $t('Status') }}</b-nav-item>
           <b-nav-item to="/reports" :active="$route.path.startsWith('/report')" v-can:read="'reports'">{{ $t('Reports') }}</b-nav-item>
-          <b-nav-item to="/auditing" :active="$route.path.startsWith('/auditing')" v-can:read.som="['radius_log', 'dhcp_option_82']">{{ $t('Auditing') }}</b-nav-item>
+          <b-nav-item to="/auditing" :active="$route.path.startsWith('/auditing')" v-can:read.some="[['radius_log', 'dhcp_option_82']]">{{ $t('Auditing') }}</b-nav-item>
           <b-nav-item to="/nodes" :active="$route.path.startsWith('/node')" v-can:read="'nodes'">{{ $t('Nodes') }}</b-nav-item>
           <b-nav-item to="/users" :active="$route.path.startsWith('/user')" v-can:read="'users'">{{ $t('Users') }}</b-nav-item>
           <b-nav-item to="/configuration" :active="$route.path.startsWith('/configuration')" v-can:read="'configuration_main'">{{ $t('Configuration') }}</b-nav-item>
