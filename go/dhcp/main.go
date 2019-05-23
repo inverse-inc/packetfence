@@ -308,7 +308,9 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 		for option, value := range options {
 			key := []byte(option.String())
 			key[0] = key[0] | ('a' - 'A')
-			Options[string(key)] = Tlv.Tlvlist[int(option)].Transform.String(value)
+			if _, ok := Tlv.Tlvlist[int(option)]; ok {
+				Options[string(key)] = Tlv.Tlvlist[int(option)].Transform.String(value)
+			}
 		}
 
 		log.LoggerWContext(ctx).Debug(p.CHAddr().String() + " " + msgType.String() + " xID " + sharedutils.ByteToString(p.XId()))
