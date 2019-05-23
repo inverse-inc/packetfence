@@ -11,13 +11,9 @@
 
 <script>
 import { createDebouncer } from 'promised-debounce'
-import pfMixinCtrlKey from '@/components/pfMixinCtrlKey'
 
 export default {
   name: 'pfButtonRefresh',
-  mixins: [
-    pfMixinCtrlKey
-  ],
   data () {
     return {
       num: 0,
@@ -35,6 +31,9 @@ export default {
   computed: {
     rotate () {
       return this.num * 360
+    },
+    ctrlKey () {
+      return this.$store.getters['events/ctrlKey']
     }
   },
   methods: {

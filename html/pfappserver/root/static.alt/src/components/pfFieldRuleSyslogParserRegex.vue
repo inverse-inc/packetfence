@@ -84,13 +84,9 @@ import uuidv4 from 'uuid/v4'
 import pfFormFields from '@/components/pfFormFields'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
-import pfMixinCtrlKey from '@/components/pfMixinCtrlKey'
 
 export default {
-  name: 'pf-field-rule-syslog-parser-regex',
-  mixins: [
-    pfMixinCtrlKey
-  ],
+  name: 'pfFieldRuleSyslogParserRegex',
   components: {
     pfFormFields,
     pfFormInput,
@@ -220,6 +216,9 @@ export default {
     forwardListeners () {
       const { input, ...listeners } = this.$listeners
       return listeners
+    },
+    ctrlKey () {
+      return this.$store.getters['events/ctrlKey']
     }
   },
   methods: {

@@ -260,7 +260,6 @@ import pfFormInput from '@/components/pfFormInput'
 import pfFormPassword from '@/components/pfFormPassword'
 import pfFormTextarea from '@/components/pfFormTextarea'
 import pfFormToggle from '@/components/pfFormToggle'
-import pfMixinCtrlKey from '@/components/pfMixinCtrlKey'
 import { pfConfigurationActions } from '@/globals/configuration/pfConfiguration'
 import { pfFormatters as formatter } from '@/globals/pfFormatters'
 import {
@@ -296,7 +295,6 @@ export default {
     pfFormToggle
   },
   mixins: [
-    pfMixinCtrlKey,
     validationMixin
   ],
   props: {
@@ -695,6 +693,9 @@ export default {
     },
     visibleNodeFields () {
       return this.nodeFields.filter(field => field.visible || field.locked)
+    },
+    ctrlKey () {
+      return this.$store.getters['events/ctrlKey']
     }
   },
   methods: {

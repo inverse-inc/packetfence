@@ -62,8 +62,6 @@
 import pfFormToggle from '@/components/pfFormToggle'
 import pfButtonSave from '@/components/pfButtonSave'
 import pfButtonDelete from '@/components/pfButtonDelete'
-import pfMixinCtrlKey from '@/components/pfMixinCtrlKey'
-import pfMixinEscapeKey from '@/components/pfMixinEscapeKey'
 import { isFilenameWithExtension } from '@/globals/pfValidators'
 const { validationMixin } = require('vuelidate')
 const { required } = require('vuelidate/lib/validators')
@@ -72,8 +70,6 @@ const aceEditor = require('vue2-ace-editor')
 export default {
   name: 'ConnectionProfileFileView',
   mixins: [
-    pfMixinCtrlKey,
-    pfMixinEscapeKey,
     validationMixin
   ],
   components: {
@@ -150,6 +146,12 @@ export default {
     },
     invalidForm () {
       return this.isNew ? this.$v.newFilename.$invalid : !this.contentModified
+    },
+    ctrlKey () {
+      return this.$store.getters['events/ctrlKey']
+    },
+    escapeKey () {
+      return this.$store.getters['events/escapeKey']
     }
   },
   methods: {
@@ -257,6 +259,11 @@ export default {
       node.classList.remove('h-100')
     })
     window.removeEventListener('resize', this.resizeEditor)
+  },
+  watch: {
+    escapeKey (pressed) {
+      if (pressed) this.close()
+    }
   }
 }
 </script>
