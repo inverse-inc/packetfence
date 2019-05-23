@@ -133,6 +133,7 @@ const getters = {
   escapeKey: state => state.focus && state.event.keyCode === state.keyCodes['Escape'],
   altShiftAKey: state => state.focus && state.event.altKey && state.event.shiftKey && state.event.keyCode === state.keyCodes['KeyA'],
   altShiftCKey: state => state.focus && state.event.altKey && state.event.shiftKey && state.event.keyCode === state.keyCodes['KeyC'],
+  altShiftFKey: state => state.focus && state.event.altKey && state.event.shiftKey && state.event.keyCode === state.keyCodes['KeyF'],
   altShiftNKey: state => state.focus && state.event.altKey && state.event.shiftKey && state.event.keyCode === state.keyCodes['KeyN'],
   altShiftRKey: state => state.focus && state.event.altKey && state.event.shiftKey && state.event.keyCode === state.keyCodes['KeyR'],
   altShiftSKey: state => state.focus && state.event.altKey && state.event.shiftKey && state.event.keyCode === state.keyCodes['KeyS'],
