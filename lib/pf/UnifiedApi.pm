@@ -46,6 +46,15 @@ has log => sub {
     return MojoX::Log::Log4perl->new("$log_conf_dir/pfperl-api.conf",5 * 60);
 };
 
+my @ALLOWED_OPTIONS = qw(
+  allowed_roles
+  allowed_node_roles
+  allowed_access_levels
+  allowed_actions
+  allowed_unreg_date
+  allowed_access_durations
+);
+
 our @FINGERBANK_ROUTES = (
     {
         name            => "Combinations",
@@ -566,6 +575,10 @@ sub setup_api_v1_nodes_routes {
         ],
     });
 
+    my $collection_route_lookup = $self->add_lookup_route($collection_route);
+    $self->add_allowed_options($collection_route_lookup);
+    my $resource_route_lookup = $self->add_lookup_route($resource_route);
+    $self->add_allowed_options($resource_route_lookup);
     return ( $collection_route, $resource_route );
 }
 
@@ -1819,6 +1832,27 @@ sub add_fingerbank_lookup {
         my $name = $r->{name};
         $froute->register_sub_action({name => "${name}.search", controller => "Fingerbank::${name}", action => 'search', path => "$r->{collection_path}/search", method => 'POST'});
     }
+
+    return;
+}
+
+
+=head2 add_allowed_options
+
+add_allowed_options
+
+=cut
+
+sub add_allowed_options {
+    my ($self, $route) = @_;
+    $route->register_sub_actions(
+        {
+            method     => 'GET',
+            actions    => \@ALLOWED_OPTIONS,
+            controller => "Config::AdminRoles"
+        }
+    );
+    return;
 }
 
 =head1 AUTHOR
