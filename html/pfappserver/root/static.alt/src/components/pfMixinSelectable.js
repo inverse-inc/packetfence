@@ -96,6 +96,14 @@ export default {
     },
     noInitBindKeys: Boolean
   },
+  computed: {
+    altAKey () {
+      return this.$store.getters['events/altAKey']
+    },
+    altNKey () {
+      return this.$store.getters['events/altNKey']
+    }
+  },
   methods: {
     forceUpdate () {
       if (this.forceUpdateTimeout) clearTimeout(this.forceUpdateTimeout)
@@ -140,22 +148,6 @@ export default {
         this.selectValues = this.selectValues.reduce((x, y) => subset.includes(y) ? x : [...x, y], [])
       }
     },
-    onKeyDown (event) {
-      switch (true) {
-        case (event.altKey && event.keyCode === 65): // ALT+A
-          event.preventDefault()
-          if ('isLoading' in this && !this.isLoading) {
-            this.selectValues = this.tableValues
-          }
-          break
-        case (event.altKey && event.keyCode === 78): // ALT+N
-          event.preventDefault()
-          if ('isLoading' in this && !this.isLoading) {
-            this.selectValues = []
-          }
-          break
-      }
-    },
     searchableStoreName () {
       if (this.storeName) {
         return this.storeName + '_searchable'
@@ -197,6 +189,20 @@ export default {
       },
       immediate: true,
       deep: true
+    },
+    altAKey (pressed) {
+      if (pressed && !this.noInitBindKeys) {
+        if ('isLoading' in this && !this.isLoading) {
+          this.selectValues = this.tableValues
+        }
+      }
+    },
+    altNKey (pressed) {
+      if (pressed && !this.noInitBindKeys) {
+        if ('isLoading' in this && !this.isLoading) {
+          this.selectValues = []
+        }
+      }
     }
   },
   created () {
@@ -211,17 +217,9 @@ export default {
       throw new Error(`Missing column 'actions' in properties of component ${this.$options.name}`)
     }
   },
-  mounted () {
-    if (!this.noInitBindKeys) {
-      document.addEventListener('keydown', this.onKeyDown)
-    }
-  },
   beforeDestroy () {
     if (this.forceUpdateTimeout) {
       clearTimeout(this.forceUpdateTimeout)
-    }
-    if (!this.noInitBindKeys) {
-      document.removeEventListener('keydown', this.onKeyDown)
     }
   }
 }
