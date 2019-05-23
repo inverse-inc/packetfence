@@ -233,11 +233,13 @@ export const pfConfigurationValidatorsFromMeta = (meta = {}, key = null, fieldNa
               case 'string': // ignore
                 break
               default:
+                // eslint-disable-next-line
                 console.error(`Unhandled meta type: ${meta[key].type}`)
                 // break
             }
             break
           default:
+            // eslint-disable-next-line
             console.error(`Unhandled meta: ${property}`)
             // break
         }
