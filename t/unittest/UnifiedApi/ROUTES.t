@@ -94,7 +94,10 @@ sub walk {
     }
 
     if ($action) {
-        push @{$meta->{actions}}, {controller => $controller, action => $action, name => $route->name};
+        if (!exists $meta->{seen}{$controller}{$action}) {
+            $meta->{seen}{$controller}{$action} = undef;
+            push @{$meta->{actions}}, {controller => $controller, action => $action, name => $route->name};
+        }
     }
 
     my $children = $route->children;
