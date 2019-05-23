@@ -11,7 +11,7 @@
           <b-input-group-prepend>
             <icon class="h-auto" name="search" scale=".75"></icon>
           </b-input-group-prepend>
-          <b-form-input v-model="filter" class="border-0" type="text" :placeholder="$t('Filter')"></b-form-input>
+          <b-form-input v-model="filter" class="border-0" type="text" :placeholder="$t('Filter')" ref="filter" v-b-tooltip.hover.bottom.d300 title="ALT+SHIFT+F"></b-form-input>
           <b-input-group-append v-if="filter">
             <b-btn @click="filter = ''"><icon name="times-circle"></icon></b-btn>
           </b-input-group-append>
@@ -124,6 +124,9 @@ export default {
         return _filterSection(section)
       })
       return filteredSections.filter(section => section !== undefined)
+    },
+    altShiftFKey () {
+      return this.$store.getters['events/altShiftFKey']
     }
   },
   methods: {
@@ -152,6 +155,15 @@ export default {
           }
         })
       }
+    },
+    focusFilter () {
+      const { $refs: { filter: { $el } = {} } = {} } = this
+      if ($el) {
+        $el.focus()
+        this.$nextTick(() => {
+          $el.select()
+        })
+      }
     }
   },
   watch: {
@@ -163,7 +175,13 @@ export default {
     },
     value (newValue) {
       this.findActiveSections(newValue, [])
+    },
+    altShiftFKey (pressed) {
+      if (pressed) this.focusFilter()
     }
+  },
+  mounted () {
+    this.focusFilter()
   }
 }
 </script>
