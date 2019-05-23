@@ -130,7 +130,13 @@ const getters = {
   altKey: state => state.focus && state.event.altKey,
   ctrlKey: state => state.focus && state.event.ctrlKey,
   shiftKey: state => state.focus && state.event.shiftKey,
-  escapeKey: state => state.focus && state.event.keyCode === state.keyCodes['Escape']
+  escapeKey: state => state.focus && state.event.keyCode === state.keyCodes['Escape'],
+  altShiftAKey: state => state.focus && state.event.altKey && state.event.shiftKey && state.event.keyCode === state.keyCodes['KeyA'],
+  altShiftCKey: state => state.focus && state.event.altKey && state.event.shiftKey && state.event.keyCode === state.keyCodes['KeyC'],
+  altShiftNKey: state => state.focus && state.event.altKey && state.event.shiftKey && state.event.keyCode === state.keyCodes['KeyN'],
+  altShiftRKey: state => state.focus && state.event.altKey && state.event.shiftKey && state.event.keyCode === state.keyCodes['KeyR'],
+  altShiftSKey: state => state.focus && state.event.altKey && state.event.shiftKey && state.event.keyCode === state.keyCodes['KeyS'],
+  altShiftUKey: state => state.focus && state.event.altKey && state.event.shiftKey && state.event.keyCode === state.keyCodes['KeyU'],
 }
 
 const actions = {
@@ -141,6 +147,7 @@ const actions = {
     window.addEventListener('focus', (event) => dispatch('onFocus', event))
   },
   onKeyDown: ({ commit }, event) => {
+console.log('keydown', event)
     commit('KEY_DOWN', event)
   },
   onKeyUp: ({ commit }, event) => {
