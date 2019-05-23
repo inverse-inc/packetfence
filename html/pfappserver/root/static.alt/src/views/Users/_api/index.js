@@ -1,5 +1,10 @@
 import apiCall from '@/utils/api'
 
+const encodePID = (pid) => {
+  // 1. replace '/' with '~' (caddy workaround), 2. encodeURI
+  return encodeURI(pid.replace('/', '~'))
+}
+
 export default {
   all: params => {
     if (params.sort) {
@@ -20,17 +25,17 @@ export default {
     })
   },
   user: pid => {
-    return apiCall.get(`user/${pid}`).then(response => {
+    return apiCall.get(`user/${encodePID(pid)}`).then(response => {
       return response.data.item
     })
   },
   nodes: pid => {
-    return apiCall.get(`user/${pid}/nodes`).then(response => {
+    return apiCall.get(`user/${encodePID(pid)}/nodes`).then(response => {
       return response.data.items
     })
   },
   securityEvents: pid => {
-    return apiCall.get(`user/${pid}/security_events`).then(response => {
+    return apiCall.get(`user/${encodePID(pid)}/security_events`).then(response => {
       return response.data.items
     })
   },
@@ -42,7 +47,7 @@ export default {
   },
   updateUser: body => {
     const patch = body.quiet ? 'patchQuiet' : 'patch'
-    return apiCall[patch](`user/${body.pid}`, body).then(response => {
+    return apiCall[patch](`user/${encodePID(body.pid)}`, body).then(response => {
       return response.data
     })
   },
@@ -51,13 +56,13 @@ export default {
   },
   createPassword: body => {
     const post = body.quiet ? 'postQuiet' : 'post'
-    return apiCall[post](`user/${body.pid}/password`, body).then(response => {
+    return apiCall[post](`user/${encodePID(body.pid)}/password`, body).then(response => {
       return response.data
     })
   },
   updatePassword: body => {
     const patch = body.quiet ? 'patchQuiet' : 'patch'
-    return apiCall[patch](`user/${body.pid}/password`, body).then(response => {
+    return apiCall[patch](`user/${encodePID(body.pid)}/password`, body).then(response => {
       return response.data
     })
   },
@@ -72,7 +77,7 @@ export default {
     })
   },
   unassignUserNodes: pid => {
-    return apiCall.post(`user/${pid}/unassign_nodes`)
+    return apiCall.post(`user/${encodePID(pid)}/unassign_nodes`)
   },
   bulkRegisterNodes: body => {
     return apiCall.post(`users/bulk_register`, body).then(response => {
