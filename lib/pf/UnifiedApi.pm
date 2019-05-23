@@ -826,6 +826,8 @@ sub setup_api_v1_config_bases_routes {
     );
 
     $collection_route->register_sub_action({ action => 'test_smtp', method => 'POST'});
+    $self->add_fingerbank_lookup($self->add_lookup_route($collection_route));
+    $self->add_fingerbank_lookup($self->add_lookup_route($resource_route));
     return ($collection_route, $resource_route);
 }
 
@@ -868,6 +870,8 @@ sub setup_api_v1_config_device_registrations_routes {
         "api.v1.Config.DeviceRegistrations"
     );
 
+    $self->add_fingerbank_lookup($self->add_lookup_route($collection_route));
+    $self->add_fingerbank_lookup($self->add_lookup_route($resource_route));
     return ($collection_route, $resource_route);
 }
 
@@ -993,6 +997,8 @@ sub setup_api_v1_config_provisionings_routes {
         "api.v1.Config.Provisionings"
     );
 
+    $self->add_fingerbank_lookup($self->add_lookup_route($collection_route));
+    $self->add_fingerbank_lookup($self->add_lookup_route($resource_route));
     return ($collection_route, $resource_route);
 }
 
@@ -1055,7 +1061,6 @@ sub setup_api_v1_config_scans_routes {
 
     $self->add_fingerbank_lookup($self->add_lookup_route($collection_route));
     $self->add_fingerbank_lookup($self->add_lookup_route($resource_route));
-
     return ($collection_route, $resource_route);
 }
 
@@ -1151,6 +1156,8 @@ sub setup_api_v1_config_security_events_routes {
         "api.v1.Config.SecurityEvents"
     );
 
+    $self->add_fingerbank_lookup($self->add_lookup_route($collection_route));
+    $self->add_fingerbank_lookup($self->add_lookup_route($resource_route));
     return ($collection_route, $resource_route);
 }
 
