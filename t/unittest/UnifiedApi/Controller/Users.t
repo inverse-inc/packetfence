@@ -32,7 +32,7 @@ my $t = Test::Mojo->new('pf::UnifiedApi');
 #This test will running last
 use Test::NoWarnings;
 my $batch = 5;
-plan tests => $batch * (2 + 2 * $batch) + 41;
+plan tests => $batch * (2 + 2 * $batch) + 42;
 
 my $base_url = "/api/v1/user";
 
@@ -44,7 +44,8 @@ my $base_url = "/api/v1/user";
     my $url = "$base_url/$id";
     $t->post_ok("/api/v1/users/" => json => { pid => $pid })
       ->status_is(201)
-      ->header_is(Location => $url);
+      ->header_is(Location => $url)
+      ->json_is("/id", $pid);
 
     my $location = $t->tx->res->headers->header('Location');
     $t->get_ok($location)
