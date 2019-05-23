@@ -91,6 +91,9 @@ export default {
   computed: {
     isLoading () {
       return this.$store.getters[`${this.storeName}/isLoading`]
+    },
+    escapeKey () {
+      return this.$store.getters['events/escapeKey']
     }
   },
   methods: {
@@ -105,12 +108,6 @@ export default {
     close () {
       this.$router.push({ name: 'radiuslogs' })
     },
-    onKeyup (event) {
-      switch (event.keyCode) {
-        case 27: // escape
-          this.close()
-      }
-    },
     formatRadius (string) {
       if (string) return string.replace(/, /g, '\n')
     }
@@ -118,11 +115,10 @@ export default {
   created () {
     this.init()
   },
-  mounted () {
-    document.addEventListener('keyup', this.onKeyup)
-  },
-  beforeDestroy () {
-    document.removeEventListener('keyup', this.onKeyup)
+  watch: {
+    escapeKey (pressed) {
+      if (pressed) this.close()
+    }
   }
 }
 </script>
