@@ -266,8 +266,9 @@ sub render_create {
     }
 
     my $id = $obj->{$self->primary_key};
-    $id =~ s#/#~#g;
-    $self->res->headers->location($self->make_location_url($id));
+    my $location_id = $id;
+    $location_id =~ s#/#~#g;
+    $self->res->headers->location($self->make_location_url($location_id));
     return $self->render(json => { id => $id , message => "'$id' created"}, status => $status);
 }
 
