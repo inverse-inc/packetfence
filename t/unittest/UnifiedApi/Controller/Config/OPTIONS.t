@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 15;
+use Test::More tests => 18;
 
 #This test will running last
 use Test::Mojo;
@@ -33,6 +33,10 @@ my $t = Test::Mojo->new('pf::UnifiedApi');
 
 my $true = bless( do { \( my $o = 1 ) }, 'JSON::PP::Boolean' );
 my $false = bless( do { \( my $o = 0 ) }, 'JSON::PP::Boolean' );
+
+$t->options_ok("/api/v1/config/scans?type=rapid7")
+  ->status_is(200)
+  ->json_is("/meta/oses/item/allowed_lookup/search_path",  "/api/v1/config/scans/lookup/fingerbank/devices/search");
 
 $t->options_ok("/api/v1/config/floating_devices")
   ->status_is(200)

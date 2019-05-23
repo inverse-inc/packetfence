@@ -906,8 +906,9 @@ sub field_allowed_lookup {
         my $fingerbank_model = $field->fingerbank_model;
         my $name = $fingerbank_model->_parseClassName;
         my $path = $FB_MODEL_2_PATH{$name};
+        my $url = $self->url_for;
         return {
-            search_path => "/api/v1/fingerbank/all/$path/search",
+            search_path => "$url/lookup/fingerbank/$path/search",
             field_name  => $fingerbank_model->value_field,
             value_name  => 'id',
         };

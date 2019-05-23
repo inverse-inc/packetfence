@@ -46,6 +46,49 @@ has log => sub {
     return MojoX::Log::Log4perl->new("$log_conf_dir/pfperl-api.conf",5 * 60);
 };
 
+our @FINGERBANK_ROUTES = (
+    {
+        name            => "Combinations",
+        collection_path => "/combinations",
+        resource_path   => "/combination/#combination_id"
+    },
+    {
+        name            => "Devices",
+        collection_path => "/devices",
+        resource_path   => "/device/#device_id"
+    },
+    {
+        name            => "DHCP6Enterprises",
+        collection_path => "/dhcp6_enterprises",
+        resource_path   => "/dhcp6_enterprise/#dhcp6_enterprise_id"
+    },
+    {
+        name            => "DHCP6Fingerprints",
+        collection_path => "/dhcp6_fingerprints",
+        resource_path   => "/dhcp6_fingerprint/#dhcp6_fingerprint_id"
+    },
+    {
+        name            => "DHCPFingerprints",
+        collection_path => "/dhcp_fingerprints",
+        resource_path   => "/dhcp_fingerprint/#dhcp_fingerprint_id"
+    },
+    {
+        name            => "DHCPVendors",
+        collection_path => "/dhcp_vendors",
+        resource_path   => "/dhcp_vendor/#dhcp_vendor_id"
+    },
+    {
+        name            => "MacVendors",
+        collection_path => "/mac_vendors",
+        resource_path   => "/mac_vendor/#mac_vendor_id"
+    },
+    {
+        name            => "UserAgents",
+        collection_path => "/user_agents",
+        resource_path   => "/user_agent/#user_agent_id"
+    },
+);
+
 =head2 startup
 
 Setting up routes
@@ -1010,8 +1053,25 @@ sub setup_api_v1_config_scans_routes {
         "api.v1.Config.Scans"
     );
 
+    $self->add_fingerbank_lookup($self->add_lookup_route($collection_route));
+    $self->add_fingerbank_lookup($self->add_lookup_route($resource_route));
+
     return ($collection_route, $resource_route);
 }
+
+
+=head2 add_lookup_route
+
+add_lookup_route
+
+=cut
+
+sub add_lookup_route {
+    my ($self, $route) = @_;
+    my $prefix = $route->name;
+    return $route->any("/lookup")->to(controller=> undef)->name("${prefix}.Lookup");
+}
+
 
 =head2 setup_api_v1_config_switch_groups_routes
 
@@ -1630,14 +1690,10 @@ sub setup_api_v1_fingerbank_routes {
     my $upstream = $root->any("/upstream")->to(scope => "Upstream")->name( $root->name . ".Upstream");
     my $local_route = $root->any("/local")->to(scope => "Local")->name( $root->name . ".Local");
     my $all_route = $root->any("/all")->to(scope => "All")->name( $root->name . ".All");
-    $self->setup_api_v1_std_fingerbank_routes($all_route, $upstream, $local_route, "Combinations", "/combinations", "/combination/#combination_id");
-    $self->setup_api_v1_std_fingerbank_routes($all_route, $upstream, $local_route, "Devices", "/devices", "/device/#device_id");
-    $self->setup_api_v1_std_fingerbank_routes($all_route, $upstream, $local_route, "DHCP6Enterprises", "/dhcp6_enterprises", "/dhcp6_enterprise/#dhcp6_enterprise_id");
-    $self->setup_api_v1_std_fingerbank_routes($all_route, $upstream, $local_route, "DHCP6Fingerprints", "/dhcp6_fingerprints", "/dhcp6_fingerprint/#dhcp6_fingerprint_id");
-    $self->setup_api_v1_std_fingerbank_routes($all_route, $upstream, $local_route, "DHCPFingerprints", "/dhcp_fingerprints", "/dhcp_fingerprint/#dhcp_fingerprint_id");
-    $self->setup_api_v1_std_fingerbank_routes($all_route, $upstream, $local_route, "DHCPVendors", "/dhcp_vendors", "/dhcp_vendor/#dhcp_vendor_id");
-    $self->setup_api_v1_std_fingerbank_routes($all_route, $upstream, $local_route, "MacVendors", "/mac_vendors", "/mac_vendor/#mac_vendor_id");
-    $self->setup_api_v1_std_fingerbank_routes($all_route, $upstream, $local_route, "UserAgents", "/user_agents", "/user_agent/#user_agent_id");
+    for my $r (@FINGERBANK_ROUTES) {
+        $self->setup_api_v1_std_fingerbank_routes($all_route, $upstream, $local_route, $r->{name}, $r->{collection_path}, $r->{resource_path});
+    }
+
     return ;
 }
 
@@ -1740,6 +1796,22 @@ sub setup_api_v1_emails_route {
     $resource_route->register_sub_action({ method => 'POST', action => 'preview', path => 'preview'});
     $resource_route->register_sub_action({ method => 'POST', action => 'send_email', path => 'send'});
     return ;
+}
+
+=head2 add_fingerbank_lookup
+
+add_fingerbank_lookup
+
+=cut
+
+sub add_fingerbank_lookup {
+    my ($self, $route) = @_;
+    my $prefix = $route->name;
+    my $froute = $route->any("/fingerbank")->to(scope => "All")->name("${prefix}.Fingerbank");
+    for my $r (@FINGERBANK_ROUTES) {
+        my $name = $r->{name};
+        $froute->register_sub_action({name => "${name}.search", controller => "Fingerbank::${name}", action => 'search', path => "$r->{collection_path}/search", method => 'POST'});
+    }
 }
 
 =head1 AUTHOR
