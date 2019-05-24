@@ -1380,6 +1380,9 @@ fi
 %exclude                /usr/local/pf/addons/pfconfig/pfconfig.init
 
 %changelog
+* Fri May 24 2019 Inverse <info@inverse.ca> - 9.0.1-1
+- New release 9.0.1
+
 * Wed May 15 2019 Inverse <info@inverse.ca> - 9.0.0-1
 - New release 9.0.0
 
