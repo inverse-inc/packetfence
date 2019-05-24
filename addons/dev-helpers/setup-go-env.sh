@@ -1,12 +1,24 @@
 #!/bin/bash
 
+GOVERSION=$1
+
+die() {
+    echo "$(basename $0): $@" >&2 ; exit 1
+}
+
+
 if [ -d /usr/local/go ]; then
   echo "/usr/local/go exists, refusing to setup"
 else
-  set -x
-
   echo "Setting up golang environment for PacketFence"
-  GOVERSION=`strings /usr/local/pf/sbin/pfhttpd | egrep -o 'go[0-9]+\.[0-9]+(\.[0-9])*' | head -1`
+
+  if [ -z "$GOVERSION" ]; then
+    echo "Trying to detect Go version based on installed binaries"
+    GOVERSION=`strings /usr/local/pf/sbin/pfhttpd | egrep -o 'go[0-9]+\.[0-9]+(\.[0-9])*' | head -1`
+  fi
+  declare -p GOVERSION
+  [ -z "$GOVERSION" ] && die "not set: GOVERSION"
+
   wget https://storage.googleapis.com/golang/$GOVERSION.linux-amd64.tar.gz -O /tmp/$GOVERSION.linux-amd64.tar.gz
   tar -C /usr/local -xzf /tmp/$GOVERSION.linux-amd64.tar.gz
   rm /tmp/$GOVERSION.linux-amd64.tar.gz
