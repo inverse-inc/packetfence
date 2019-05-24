@@ -16,7 +16,7 @@ Version 9.0.1 released on 2019-05-24
 
 Enhancements
 ++++++++++++
-* Improved display of RADIUS audit log RADIUS tab (#4473)
+* Improved display of RADIUS audit log from RADIUS tab (#4473)
 * Add '-copy' to the ID when cloning a configuration resource (#4468)
 * Better visual distinction when the database is in read-only mode (#4464)
 * Domain join is prompted after creating a domain (#4544)
