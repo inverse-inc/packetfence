@@ -9,7 +9,6 @@
           <b-row class="align-items-center px-0" no-gutters>
             <b-col cols="auto" class="mr-auto">
               <h4 class="d-inline mb-0" v-t="'DHCPv6 Fingerprints'"></h4>
-              <b-badge class="ml-2" variant="secondary" v-t="scope"></b-badge>
             </b-col>
             <b-col cols="auto" align="right" class="flex-grow-0">
               <b-button-group>
