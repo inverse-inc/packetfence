@@ -99,11 +99,19 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
   @import "../../node_modules/bootstrap/scss/functions";
   @import "../styles/variables";
 
-  .fixed-top {
+  .progress.fixed-top {
     background-color: $gray-700;
+  }
+
+  .progress {
+    overflow: visible !important;
+  }
+
+  .progress-bar {
+    box-shadow: 0 0 10px rgba($primary,.7);
   }
 </style>
