@@ -2133,7 +2133,8 @@ As a security precaution, this option will only reuse 802.1X credentials if ther
 VLAN Filter Definition
 ~~~~~~~~~~~~~~~~~~~~~~
 
-We added the ability to specify filters directly in the portion of code that re-evaluates the VLAN or do a call to the API.
+We added the ability to specify filters directly in the portion of code that re-evaluates the VLAN or do a call to the API. These filters can
+be defined in _Configuration -> Advanced Access Configuration -> Filter engines_.
 
 These rules are available in different scopes:
 
@@ -2351,6 +2352,7 @@ RADIUS Filter Definition
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 We added the ability to specify filters directly in the portion of code that return radius attributes or do a call to the API.
+These filters can be defined in _Configuration -> Advanced Access Configuration -> Filter engines_.
 
 These rules are available in thoses scopes:
 
