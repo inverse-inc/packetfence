@@ -116,13 +116,13 @@ const state = {
   keyDown: false,
   mouseDown: false,
   focus: true,
-  clickEvent: {},
   documentEvent: {
     keyCode: null,
     altKey: false,
     ctrlKey: false,
     shiftKey: false
   },
+  mouseEvent: {},
   windowEvent: {},
   windowSize: {
     clientHeight: null,
@@ -132,8 +132,8 @@ const state = {
 }
 
 const getters = {
-  clickEvent: state => state.clickEvent,
   documentEvent: state => state.documentEvent,
+  mouseEvent: state => state.mouseEvent,
   windowEvent: state => state.windowEvent,
   windowSize: state => state.windowSize,
   isKey: state => key => (state.focus && (key in state.keyCodes) && (state.documentEvent.keyCode || null) === state.keyCodes[key]),
@@ -194,11 +194,11 @@ const actions = {
 
 const mutations = {
   BODY_MOUSE_DOWN: (state, event) => {
-    state.clickEvent = event
+    state.mouseEvent = event
     state.mouseDown = true
   },
   BODY_MOUSE_UP: (state, event) => {
-    state.clickEvent = event
+    state.mouseEvent = event
     state.mouseDown = false
   },
   KEY_DOWN: (state, event) => {
