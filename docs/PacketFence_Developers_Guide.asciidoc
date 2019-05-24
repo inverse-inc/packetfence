@@ -1011,23 +1011,85 @@ http://packetfence.org/bugs/view.php?id=1085[issue #1085].
 * Add switch to the chart in `README.network-devices`
 
 
-Developer recipes
------------------
+== Developer recipes
 
-Running development version
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Bleeding edge
-^^^^^^^^^^^^^
+=== Running development version
+
+
+==== Bleeding edge
 
 For day to day development one can run a checkout of the current development branch in
 `/usr/local/pf/` and develop there within a working setup.
 
-Care should be taken not to commit local configuration files changes and files not in the
+===== Steps
+
+. Install PacketFence packages from devel (see next section) cleanly and do an initial configuration
+. Stop all services
+. Install dependencies:
++
+[source,bash]
+----
+# Debian
+apt install build-essential -y
+
+# CentOS
+yum groupinstall "Development Tools" -y
+----
+. Run following commands:
++
+[source,bash]
+----
+mv /usr/local/pf/ /usr/local/pf-pkg
+cd /usr/local/
+git clone https://github.com/inverse-inc/packetfence.git pf
+mv conf conf-git-pristine
+mv raddb config-raddb-pristine
+ln -s /usr/local/pf-pkg/conf conf
+ln -s /usr/local/pf-pkg/raddb raddb
+chown pf:pf var/control
+mkdir /usr/local/pf/var/ssl_mutex
+----
++
+
+. Install (at least) link:https://github.com/nodesource/distributions/#table-of-contents[NodeJS] 8 to build JavaScript files for webadmin
+. Compile JavaScript files ([command]`sudo` is important to avoid permissions issues):
++
+[source,bash]
+----
+cd html/pfappserver/root/static.alt/
+sudo make vendor
+sudo make dev
+----
++
+
+. Fix permissions and start `packetfence-config` service:
++
+[source,bash]
+----
+cd /usr/local/pf
+make bin/pfcmd
+make fingerbank
+make permissions
+systemctl start packetfence-config
+----
++
+
+. Install Golang environment
++
+[source,bash]
+----
+cd /usr/local/pf/go
+make go-env
+----
++
+
+WARNING: Care should be taken not to commit local configuration files changes and files not in the
 repository.
 
-Not so bleeding edge
-^^^^^^^^^^^^^^^^^^^^
+
+===== Not so bleeding edge
+
 
 Using the development `yum` repository and upgrade PacketFence often is a good way to proceed.
 Check our https://packetfence.org/download/snapshots.html[snapshots download page] for
