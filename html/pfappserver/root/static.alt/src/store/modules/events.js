@@ -114,7 +114,9 @@ const state = {
     Quote: 222
   },
   keyDown: false,
+  mouseDown: false,
   focus: true,
+  clickEvent: {},
   documentEvent: {
     keyCode: null,
     altKey: false,
@@ -130,6 +132,7 @@ const state = {
 }
 
 const getters = {
+  clickEvent: state => state.clickEvent,
   documentEvent: state => state.documentEvent,
   windowEvent: state => state.windowEvent,
   windowSize: state => state.windowSize,
@@ -138,6 +141,7 @@ const getters = {
   keyCode: state => state.documentEvent.keyCode,
   focus: state => state.focus,
   keyDown: state => state.focus && state.keyDown,
+  mouseDown: state => state.focus && state.mouseDown,
   altKey: state => state.focus && state.documentEvent.altKey,
   ctrlKey: state => state.focus && state.documentEvent.ctrlKey,
   shiftKey: state => state.focus && state.documentEvent.shiftKey,
@@ -156,12 +160,20 @@ const getters = {
 
 const actions = {
   bind: ({ commit, dispatch }) => {
+    document.body.addEventListener('mousedown', (event) => dispatch('onBodyMouseDown', event))
+    document.body.addEventListener('mouseup', (event) => dispatch('onBodyMouseUp', event))
     document.addEventListener('keydown', (event) => dispatch('onKeyDown', event))
     document.addEventListener('keyup', (event) => dispatch('onKeyUp', event))
     window.addEventListener('blur', (event) => dispatch('onBlur', event))
     window.addEventListener('focus', (event) => dispatch('onFocus', event))
     window.addEventListener('resize', (event) => dispatch('onResize', event))
     commit('RESIZE', null)  // init windowSize
+  },
+  onBodyMouseDown: ({ commit }, event) => {
+    commit('BODY_MOUSE_DOWN', event)
+  },
+  onBodyMouseUp: ({ commit }, event) => {
+    commit('BODY_MOUSE_UP', event)
   },
   onKeyDown: ({ commit }, event) => {
     commit('KEY_DOWN', event)
@@ -181,6 +193,14 @@ const actions = {
 }
 
 const mutations = {
+  BODY_MOUSE_DOWN: (state, event) => {
+    state.clickEvent = event
+    state.mouseDown = true
+  },
+  BODY_MOUSE_UP: (state, event) => {
+    state.clickEvent = event
+    state.mouseDown = false
+  },
   KEY_DOWN: (state, event) => {
     state.documentEvent = event // cache the last event
     state.keyDown = true
@@ -198,6 +218,7 @@ const mutations = {
     state.windowEvent = event
     state.focus = false
     state.keyDown = false
+    state.mouseDown = false
   },
   FOCUS: (state, event) => {
     state.documentEvent = { // reset the last event when re-focused to avoid residual key-presses before on blur
