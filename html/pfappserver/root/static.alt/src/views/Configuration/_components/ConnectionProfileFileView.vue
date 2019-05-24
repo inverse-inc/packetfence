@@ -152,6 +152,9 @@ export default {
     },
     escapeKey () {
       return this.$store.getters['events/escapeKey']
+    },
+    windowSize () {
+      return this.$store.getters['events/windowSize']
     }
   },
   methods: {
@@ -250,19 +253,24 @@ export default {
     this.parentNodes.forEach(node => {
       node.classList.add('h-100')
     })
-
-    window.addEventListener('resize', this.resizeEditor)
   },
   beforeDestroy () {
     // Remove height constraint on all parent nodes
     this.parentNodes.forEach(node => {
       node.classList.remove('h-100')
     })
-    window.removeEventListener('resize', this.resizeEditor)
   },
   watch: {
     escapeKey (pressed) {
       if (pressed) this.close()
+    },
+    windowSize: {
+      handler: function (a, b) {
+        if (a.clientWidth !== b.clientWidth || a.clientHeight !== b.clientHeight) {
+          this.resizeEditor()
+        }
+      },
+      deep: true
     }
   }
 }
