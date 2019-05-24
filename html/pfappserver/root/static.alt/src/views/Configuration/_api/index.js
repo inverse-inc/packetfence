@@ -1,8 +1,5 @@
 import apiCall from '@/utils/api'
-
-export const encodeURI = (uri) => {
-  return uri.replace('/', '~') // fix: caddy issue - can't encode /'s
-}
+import encode from '@/utils/encode'
 
 export default {
 
@@ -1112,12 +1109,12 @@ export default {
     })
   },
   switche: id => {
-    return apiCall.get(`config/switch/${encodeURI(id)}`).then(response => {
+    return apiCall.get(`config/switch/${encode.switch_id(id)}`).then(response => {
       return response.data.item
     })
   },
   switchOptions: id => {
-    return apiCall.options(`config/switch/${encodeURI(id)}`).then(response => {
+    return apiCall.options(`config/switch/${encode.switch_id(id)}`).then(response => {
       return response.data
     })
   },
@@ -1128,12 +1125,12 @@ export default {
   },
   updateSwitch: data => {
     const patch = data.quiet ? 'patchQuiet' : 'patch'
-    return apiCall[patch](`config/switch/${encodeURI(data.id)}`, data).then(response => {
+    return apiCall[patch](`config/switch/${encode.switch_id(data.id)}`, data).then(response => {
       return response.data
     })
   },
   deleteSwitch: id => {
-    return apiCall.delete(`config/switch/${encodeURI(id)}`)
+    return apiCall.delete(`config/switch/${encode.switch_id(id)}`)
   },
 
   /**
@@ -1150,17 +1147,17 @@ export default {
     })
   },
   switchGroup: id => {
-    return apiCall.get(`config/switch_group/${encodeURI(id)}`).then(response => {
+    return apiCall.get(`config/switch_group/${encode.switch_id(id)}`).then(response => {
       return response.data.item
     })
   },
   switchGroupMembers: id => {
-    return apiCall.get(`config/switch_group/${encodeURI(id)}/members`).then(response => {
+    return apiCall.get(`config/switch_group/${encode.switch_id(id)}/members`).then(response => {
       return response.data.items
     })
   },
   switchGroupOptions: id => {
-    return apiCall.options(`config/switch_group/${encodeURI(id)}`).then(response => {
+    return apiCall.options(`config/switch_group/${encode.switch_id(id)}`).then(response => {
       return response.data
     })
   },
@@ -1170,12 +1167,12 @@ export default {
     })
   },
   updateSwitchGroup: data => {
-    return apiCall.patch(`config/switch_group/${encodeURI(data.id)}`, data).then(response => {
+    return apiCall.patch(`config/switch_group/${encode.switch_id(data.id)}`, data).then(response => {
       return response.data
     })
   },
   deleteSwitchGroup: id => {
-    return apiCall.delete(`config/switch_group/${encodeURI(id)}`)
+    return apiCall.delete(`config/switch_group/${encode.switch_id(id)}`)
   },
 
   /**
