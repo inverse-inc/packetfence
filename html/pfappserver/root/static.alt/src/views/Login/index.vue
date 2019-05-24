@@ -12,7 +12,7 @@
                             {{ message.text }}
                         </b-alert>
                         <b-form-group :label="$t('Username')" label-for="username" label-cols="4">
-                            <b-form-input id="username" ref="username" type="text" v-model="username" v-autofocus required></b-form-input>
+                            <b-form-input id="username" ref="username" type="text" v-model="username" v-focus required></b-form-input>
                         </b-form-group>
                         <b-form-group :label="$t('Password')" label-for="password" label-cols="4">
                             <b-form-input id="password" type="password" v-model="password" required></b-form-input>
@@ -34,13 +34,6 @@ export default {
   name: 'Login',
   components: {
     pfButtonSave
-  },
-  directives: {
-    autofocus: {
-      inserted: (el) => {
-        el.focus()
-      }
-    }
   },
   data () {
     return {
@@ -68,7 +61,6 @@ export default {
         this.message = { level: 'warning', text: this.$i18n.t('Your session has expired') }
       })
     }
-    this.$refs.username.focus()
   },
   methods: {
     login () {
