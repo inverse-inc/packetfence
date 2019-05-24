@@ -102,6 +102,9 @@ export default {
     }
   },
   computed: {
+    windowSize () {
+      return this.$store.getters['events/windowSize']
+    }
   },
   methods: {
     queueRender () {
@@ -147,20 +150,6 @@ export default {
       }, options)]
       Plotly.react(this.$refs.plotly, this.data, this.report.chart.layout, { displayModeBar: true, scrollZoom: true, displaylogo: false, showLink: false })
     },
-    getWindowWidth (event) {
-      const width = document.documentElement.clientWidth
-      if (event && width !== this.windowWidth) {
-        this.queueRender()
-      }
-      this.windowWidth = width
-    },
-    getWindowHeight (event) {
-      const height = document.documentElement.clientHeight
-      if (event && height !== this.windowHeight) {
-        this.queueRender()
-      }
-      this.windowHeight = height
-    },
     onChartSizeChange (chartSizeLimit) {
       this.chartSizeLimit = chartSizeLimit
       this.queueRender()
@@ -170,14 +159,6 @@ export default {
       this.$emit('changeDatetimeEnd', format(new Date(), 'YYYY-MM-DD HH:mm:ss'))
       this.$emit('changeDatetimeStart', format(subSeconds(new Date(), period), 'YYYY-MM-DD HH:mm:ss'))
     }
-  },
-  mounted () {
-    this.$nextTick(() => {
-      window.addEventListener('resize', this.getWindowWidth)
-      window.addEventListener('resize', this.getWindowHeight)
-      this.getWindowWidth()
-      this.getWindowHeight()
-    })
   },
   watch: {
     items: {
@@ -207,14 +188,20 @@ export default {
         this.$emit('changeDatetimeEnd', a)
         this.maxStartDatetime = a
       }
+    },
+    windowSize: {
+      handler: function (a, b) {
+        if (a.clientWidth !== b.clientWidth || a.clientHeight !== b.clientHeight) {
+          this.queueRender()
+        }
+      },
+      deep: true
     }
   },
   beforeDestroy () {
     if (this.timeoutRender) {
       clearTimeout(this.timeoutRender)
     }
-    window.removeEventListener('resize', this.getWindowWidth)
-    window.removeEventListener('resize', this.getWindowHeight)
   }
 }
 </script>

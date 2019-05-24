@@ -6,6 +6,8 @@
  *    to bind/unbind document listeners multiple-times throughout the
  *    application.
  */
+import { createDebouncer } from 'promised-debounce'
+
 const state = {
   keyCodes: {
     Backspace: 8,
@@ -113,45 +115,55 @@ const state = {
   },
   keyDown: false,
   focus: true,
-  event: {
+  documentEvent: {
     keyCode: null,
     altKey: false,
     ctrlKey: false,
     shiftKey: false
-  }
+  },
+  windowEvent: {},
+  windowSize: {
+    clientHeight: null,
+    clientWidth: null
+  },
+  $windowSizeDebouncer: createDebouncer()
 }
 
 const getters = {
-  isKey: state => key => (state.focus && (key in state.keyCodes) && (state.event.keyCode || null) === state.keyCodes[key]),
-  isKeyCode: state => keyCode => (state.focus && (state.event.keyCode || null) === keyCode),
-  keyCode: state => state.event.keyCode,
+  documentEvent: state => state.documentEvent,
+  windowEvent: state => state.windowEvent,
+  windowSize: state => state.windowSize,
+  isKey: state => key => (state.focus && (key in state.keyCodes) && (state.documentEvent.keyCode || null) === state.keyCodes[key]),
+  isKeyCode: state => keyCode => (state.focus && (state.documentEvent.keyCode || null) === keyCode),
+  keyCode: state => state.documentEvent.keyCode,
   focus: state => state.focus,
   keyDown: state => state.focus && state.keyDown,
-  altKey: state => state.focus && state.event.altKey,
-  ctrlKey: state => state.focus && state.event.ctrlKey,
-  shiftKey: state => state.focus && state.event.shiftKey,
-  escapeKey: state => state.focus && state.event.keyCode === state.keyCodes['Escape'],
-  altAKey: state => state.focus && state.event.altKey && !state.event.shiftKey && state.event.keyCode === state.keyCodes['KeyA'],
-  altNKey: state => state.focus && state.event.altKey && !state.event.shiftKey && state.event.keyCode === state.keyCodes['KeyN'],
-  altRKey: state => state.focus && state.event.altKey && !state.event.shiftKey && state.event.keyCode === state.keyCodes['KeyR'],
-  altShiftAKey: state => state.focus && state.event.altKey && state.event.shiftKey && state.event.keyCode === state.keyCodes['KeyA'],
-  altShiftCKey: state => state.focus && state.event.altKey && state.event.shiftKey && state.event.keyCode === state.keyCodes['KeyC'],
-  altShiftFKey: state => state.focus && state.event.altKey && state.event.shiftKey && state.event.keyCode === state.keyCodes['KeyF'],
-  altShiftNKey: state => state.focus && state.event.altKey && state.event.shiftKey && state.event.keyCode === state.keyCodes['KeyN'],
-  altShiftRKey: state => state.focus && state.event.altKey && state.event.shiftKey && state.event.keyCode === state.keyCodes['KeyR'],
-  altShiftSKey: state => state.focus && state.event.altKey && state.event.shiftKey && state.event.keyCode === state.keyCodes['KeyS'],
-  altShiftUKey: state => state.focus && state.event.altKey && state.event.shiftKey && state.event.keyCode === state.keyCodes['KeyU'],
+  altKey: state => state.focus && state.documentEvent.altKey,
+  ctrlKey: state => state.focus && state.documentEvent.ctrlKey,
+  shiftKey: state => state.focus && state.documentEvent.shiftKey,
+  escapeKey: state => state.focus && state.documentEvent.keyCode === state.keyCodes['Escape'],
+  altAKey: state => state.focus && state.documentEvent.altKey && !state.documentEvent.shiftKey && state.documentEvent.keyCode === state.keyCodes['KeyA'],
+  altNKey: state => state.focus && state.documentEvent.altKey && !state.documentEvent.shiftKey && state.documentEvent.keyCode === state.keyCodes['KeyN'],
+  altRKey: state => state.focus && state.documentEvent.altKey && !state.documentEvent.shiftKey && state.documentEvent.keyCode === state.keyCodes['KeyR'],
+  altShiftAKey: state => state.focus && state.documentEvent.altKey && state.documentEvent.shiftKey && state.documentEvent.keyCode === state.keyCodes['KeyA'],
+  altShiftCKey: state => state.focus && state.documentEvent.altKey && state.documentEvent.shiftKey && state.documentEvent.keyCode === state.keyCodes['KeyC'],
+  altShiftFKey: state => state.focus && state.documentEvent.altKey && state.documentEvent.shiftKey && state.documentEvent.keyCode === state.keyCodes['KeyF'],
+  altShiftNKey: state => state.focus && state.documentEvent.altKey && state.documentEvent.shiftKey && state.documentEvent.keyCode === state.keyCodes['KeyN'],
+  altShiftRKey: state => state.focus && state.documentEvent.altKey && state.documentEvent.shiftKey && state.documentEvent.keyCode === state.keyCodes['KeyR'],
+  altShiftSKey: state => state.focus && state.documentEvent.altKey && state.documentEvent.shiftKey && state.documentEvent.keyCode === state.keyCodes['KeyS'],
+  altShiftUKey: state => state.focus && state.documentEvent.altKey && state.documentEvent.shiftKey && state.documentEvent.keyCode === state.keyCodes['KeyU'],
 }
 
 const actions = {
-  bind: ({ dispatch }) => {
+  bind: ({ commit, dispatch }) => {
     document.addEventListener('keydown', (event) => dispatch('onKeyDown', event))
     document.addEventListener('keyup', (event) => dispatch('onKeyUp', event))
     window.addEventListener('blur', (event) => dispatch('onBlur', event))
     window.addEventListener('focus', (event) => dispatch('onFocus', event))
+    window.addEventListener('resize', (event) => dispatch('onResize', event))
+    commit('RESIZE', null)  // init windowSize
   },
   onKeyDown: ({ commit }, event) => {
-console.log('keydown', event)
     commit('KEY_DOWN', event)
   },
   onKeyUp: ({ commit }, event) => {
@@ -162,16 +174,19 @@ console.log('keydown', event)
   },
   onFocus: ({ commit }, event) => {
     commit('FOCUS', event)
+  },
+  onResize: ({ commit }, event) => {
+    commit('RESIZE', event)
   }
 }
 
 const mutations = {
   KEY_DOWN: (state, event) => {
-    state.event = event // cache the last event
+    state.documentEvent = event // cache the last event
     state.keyDown = true
   },
   KEY_UP: (state, event) => {
-    state.event = { // reset the last event on keyup
+    state.documentEvent = { // reset the last event on keyup
       keyCode: null,
       altKey: false,
       ctrlKey: false,
@@ -180,17 +195,32 @@ const mutations = {
     state.keyDown = false
   },
   BLUR: (state, event) => {
+    state.windowEvent = event
     state.focus = false
     state.keyDown = false
   },
   FOCUS: (state, event) => {
-    state.event = { // reset the last event when re-focused to avoid residual key-presses before on blur
+    state.documentEvent = { // reset the last event when re-focused to avoid residual key-presses before on blur
       keyCode: null,
       altKey: false,
       ctrlKey: false,
       shiftKey: false
     }
+    state.windowEvent = event
     state.focus = true
+  },
+  RESIZE: (state, event) => {
+    state.$windowSizeDebouncer({ // debounce windowsSize mutations
+      handler: () => {
+        const { documentElement: { clientWidth = state.document.clientWidth, clientHeight = state.document.clientHeight } = {} } = document
+        state.windowEvent = event
+        state.windowSize = {
+          clientHeight,
+          clientWidth
+        }
+      },
+      time: 300
+    })
   }
 }
 
