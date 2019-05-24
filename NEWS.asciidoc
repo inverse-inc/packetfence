@@ -11,6 +11,30 @@ This is a list of noteworthy changes across releases.
 For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE.asciidoc file.
 
+Version 9.0.1 released on 2019-05-24
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Enhancements
+++++++++++++
+* Improved display of RADIUS audit log RADIUS tab (#4473)
+* Add '-copy' to the ID when cloning a configuration resource (#4468)
+* Better visual distinction when the database is in read-only mode (#4464)
+* Domain join is prompted after creating a domain (#4544)
+* Added current hostname to help page
+
+Bug Fixes
++++++++++
+* Fixed Aruba Instant access switch module compilation error
+* Fixed violations to security events upgrade script to use the .rpmsave file during the upgrade
+* Fixed user visualization when the username contains a '/' or '\' (#4531 and #4570)
+* Fixed missing 'Signing' tab in mobileconfig provisioner configuration section (#4533)
+* Fixed missing 'Compliance' tab in OPSWAT provisioner configuration section
+* Fixed issue when defining multiple DNS servers in inline
+* Fixed issue where not all security events are visible when triggering a security event on a node (#4550)
+* Fixed issue with multi-cluster configuration generation
+* Fixed issue with WMI scan engine rules failing to be saved (#4559)
+
+
 Version 9.0.0 released on 2019-05-15
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
