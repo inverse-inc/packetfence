@@ -106,4 +106,11 @@ export default {
   .fixed-top {
     background-color: $gray-700;
   }
+
+  .progress {
+    overflow: visible !important;
+  }
+  .progress /deep/ .progress-bar {
+    box-shadow: 0 0 10px rgba($primary,.7);
+  }
 </style>

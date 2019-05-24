@@ -129,7 +129,8 @@ export const pfConfigurationScanEngineViewFields = (context = {}) => {
     scanType = null, // from router,
     options: {
       meta = {}
-    }
+    },
+    form = {}
   } = context
   return [
     {
@@ -438,10 +439,17 @@ export const pfConfigurationScanEngineViewFields = (context = {}) => {
                           collapseObject: true,
                           placeholder: i18n.t('Click to select a rule'),
                           trackBy: 'value',
-                          label: 'text'
+                          label: 'text',
+                          multiple: false
                         }
+                      },
+                      validators: {
+                        [i18n.t('Duplicate Rule.')]: conditional((value) => {
+                          return !(form.wmi_rules.filter(v => v === value).length > 1)
+                        })
                       }
                     }
+
                   }
                 },
                 invalidFeedback: [

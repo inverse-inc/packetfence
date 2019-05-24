@@ -100,6 +100,8 @@ import 'vue-awesome/icons/user-plus'
 import 'vue-awesome/icons/user-secret'
 import 'vue-awesome/icons/wifi'
 
+import './directives/focus'
+
 import store from './store'
 import router from './router'
 import filters from './utils/filters'
