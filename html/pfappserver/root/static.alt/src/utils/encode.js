@@ -3,7 +3,7 @@ const encode = {
     return encodeURI(pid.replace('/', '~'))
   },
   switch_id (id) {
-    return uri.replace('/', '~')
+    return id.replace('/', '~')
   }
 }
 
