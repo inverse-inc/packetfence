@@ -193,4 +193,10 @@ $(function() {
       this.click()
     }
   });
+
+  $('.disable-on-click').on('click', function(e){
+    var target = $(e.target);
+    target.attr("disabled", true);
+  });
 });
+
