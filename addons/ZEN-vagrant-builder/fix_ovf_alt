@@ -14,7 +14,7 @@ if hasattr(fp,'decode'):
 
 fp = fp.replace('<OperatingSystemSection ovf:id="80">', '<OperatingSystemSection ovf:id="101">')
 
-fp = fp.replace('<vssd:VirtualSystemType>virtualbox-2.2', '<vssd:VirtualSystemType>vmx-7')
+fp = fp.replace('<vssd:VirtualSystemType>virtualbox-2.2', '<vssd:VirtualSystemType>vmx-07')
 
 fp = fp.replace('<rasd:Caption>sataController', '<rasd:Caption>scsiController')
 fp = fp.replace('<rasd:Description>SATA Controller', '<rasd:Description>SCSI Controller')
