@@ -25,6 +25,8 @@ authorize {
 		&control:PacketFence-Request-Time := 0
 		&control:Load-Balance-Key := "%{Calling-Station-ID} %{User-Name}"
 	}
+	# Unable this line if you want to enable the mac-auth rate limiting
+	#packetfence-rate-limit
 	packetfence-set-realm-if-machine
 	packetfence-set-tenant-id
 	rewrite_calling_station_id

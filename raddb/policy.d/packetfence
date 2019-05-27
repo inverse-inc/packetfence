@@ -209,3 +209,50 @@ packetfence-control-ntlm-failure {
   }
 }
 
+packetfence-rate-limit {
+  update control {
+    Cache-Status-Only = 'yes'
+  }
+  rate_limit
+  if (ok) {
+    rate_limit
+    update {
+      &control:Tmp-Integer-8 := "%{expr: 1 + %{%{&control:Tmp-Integer-8}:-0}}"
+    }
+    rate_limit
+  }
+  else {
+    update {
+      &control:Tmp-Integer-8 := 1
+    }
+    rate_limit
+  }
+  rate_limit
+  if (ok) {
+    rate_limit
+    # Allow 2 request then reject for the TTL time (10s)
+    if (&control:Tmp-Integer-8 > 2) {
+      reject
+    }
+  }
+}
+
+packetfence-decrement-rate-limit {
+  update control {
+    Cache-Status-Only = 'yes'
+  }
+  rate_limit
+  if (ok) {
+    rate_limit
+    update {
+      &control:Tmp-Integer-8 := "%{expr: %{&control:Tmp-Integer-8} - 1}"
+    }
+    rate_limit
+  }
+  else {
+    update {
+      &control:Tmp-Integer-8 := 0
+    }
+    rate_limit
+  }
+}

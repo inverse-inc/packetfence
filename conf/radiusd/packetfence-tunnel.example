@@ -27,6 +27,8 @@ authorize {
 			&EAP-Type := TTLS
 		}
 	}
+	# Uncomment this line if you enabled the rate limiting
+	#packetfence-decrement-rate-limit
 	packetfence-set-realm-if-machine
 	packetfence-set-tenant-id
 	#
