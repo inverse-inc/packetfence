@@ -50,7 +50,7 @@ func (mapping *adminRoleMapping) IsAllowed(method, path string, roles map[string
 
 const ALLOW_ANY = "*"
 
-func makeStdAdminRoleMapping(prefix, base string, readonly_bases ...string) adminRoleMapping {
+func makeStdAdminRoleMapping(prefix, base string, additional_read_actions ...string) adminRoleMapping {
 	mapping := adminRoleMapping{
 		prefix: prefix,
 		base:   base,
@@ -64,12 +64,8 @@ func makeStdAdminRoleMapping(prefix, base string, readonly_bases ...string) admi
 		},
 	}
 
-	for _, readonly_base := range readonly_bases {
-		mapping.allowedActionsForMethods["GET"] = append(mapping.allowedActionsForMethods["GET"], readonly_base+"_READ")
-	}
-
+	mapping.allowedActionsForMethods["GET"] = append(mapping.allowedActionsForMethods["GET"], additional_read_actions...)
 	return mapping
-
 }
 
 var systemAdminRoleMapping = makeStdAdminRoleMapping("", "SYSTEM")
@@ -97,7 +93,7 @@ var pathAdminRolesMap = []adminRoleMapping{
 	makeStdAdminRoleMapping(apiPrefix+"/user/", "USERS"),
 	makeStdAdminRoleMapping(apiPrefix+"/users", "USERS"),
 
-	makeStdAdminRoleMapping(apiPrefix+"/fingerbank", "FINGERBANK"),
+	makeStdAdminRoleMapping(apiPrefix+"/fingerbank", "FINGERBANK", "NODES_READ", "NODES_CREATE", "NODES_UPDATE", "SCAN_CREATE", "SCAN_READ", "SCAN_UPDATE"),
 
 	makeStdAdminRoleMapping(apiPrefix+"/service/", "SERVICES"),
 	makeStdAdminRoleMapping(apiPrefix+"/services", "SERVICES"),
@@ -111,7 +107,7 @@ var pathAdminRolesMap = []adminRoleMapping{
 	makeStdAdminRoleMapping(apiPrefix+"/radius_audit_logs", "RADIUS_LOG"),
 
 	makeStdAdminRoleMapping(configApiPrefix+"/admin_role/", "ADMIN_ROLES"),
-	makeStdAdminRoleMapping(configApiPrefix+"/admin_roles", "ADMIN_ROLES", "NODES", "USERS", "USERS_SOURCES"),
+	makeStdAdminRoleMapping(configApiPrefix+"/admin_roles", "ADMIN_ROLES", "NODES_READ", "NODES_CREATE", "NODES_UPDATE", "USERS", "USERS_SOURCES"),
 	makeStdAdminRoleMapping(configApiPrefix+"/base/", "CONFIGURATION_MAIN"),
 	makeStdAdminRoleMapping(configApiPrefix+"/bases", "CONFIGURATION_MAIN"),
 	makeStdAdminRoleMapping(configApiPrefix+"/billing_tier/", "BILLING_TIER"),
