@@ -1031,10 +1031,11 @@ For day to day development one can run a checkout of the current development bra
 [source,bash]
 ----
 # Debian
-apt install build-essential -y
+apt install -y build-essential libipset-dev pkg-config
 
 # CentOS
-yum groupinstall "Development Tools" -y
+yum groupinstall -y "Development Tools"
+yum install -y ipset-devel
 ----
 . Run following commands:
 +
@@ -1043,6 +1044,7 @@ yum groupinstall "Development Tools" -y
 mv /usr/local/pf/ /usr/local/pf-pkg
 cd /usr/local/
 git clone https://github.com/inverse-inc/packetfence.git pf
+cd pf
 mv conf conf-git-pristine
 mv raddb config-raddb-pristine
 ln -s /usr/local/pf-pkg/conf conf
@@ -1081,6 +1083,7 @@ systemctl start packetfence-config
 ----
 cd /usr/local/pf/go
 make go-env
+/usr/local/pf/addons/packages/build-go.sh build /usr/local/pf /usr/local/pf/sbin/
 ----
 +
 
