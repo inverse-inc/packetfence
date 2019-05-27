@@ -695,7 +695,6 @@ export default {
       sections: [],
       pingNetdataInterval: 1000 * 30, // ms
       alarmsInterval: 1000 * 60
-      ]
     }
   },
   computed: {
