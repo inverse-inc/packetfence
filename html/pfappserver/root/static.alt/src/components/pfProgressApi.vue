@@ -3,79 +3,44 @@
 </template>
 
 <script>
-import apiCall from '@/utils/api'
 import { createDebouncer } from 'promised-debounce'
 
 export default {
-  name: 'pf-progress-api',
+  name: 'pfProgressApi',
   data () {
     return {
-      visible: true,
-      debounce: 300,
-      lastActive: 0,
-      onParPercentile: 75, // @ the estimated time set the progress bar to this %
-      percentage: 0,
-      interval: null,
-      $debouncer: createDebouncer()
+      visible: false,
+      visibleTimeout: 1000 // 1.0 seconds
     }
   },
   methods: {
-    setPercentage () {
-      // f(x) = 1 - e^(-k * i)
-      //   k = -ln(1 - x) / i
-      const eta = apiCall.queue.getEta()
-      const now = (new Date()).getTime()
-      const x = (eta - this.lastActive)
-      const i = (now - this.lastActive)
-      const k = -(Math.log(1 - (this.onParPercentile / 100)) / x)
-      const p = (1 - Math.exp(-k * i))
-      this.percentage = (isNaN(p)) ? 100 : (p * 100)
-    },
     show () {
-      if (!this.$debouncer) {
-        this.$debouncer = createDebouncer()
-      }
       this.visible = true
-      this.lastActive = (new Date()).getTime()
-      if (!this.interval) {
-        this.interval = setInterval(this.setPercentage(), 100)
-      }
     },
     hide () {
-      const _this = this
       if (!this.$debouncer) {
         this.$debouncer = createDebouncer()
       }
-      clearInterval(this.interval)
-      this.percentage = 100
       this.$debouncer({
         handler: () => {
-          if (!_this.active) {
-            _this.visible = false
+          if (!this.isLoading) {
+            this.visible = false
           }
         },
-        time: 1000 // 1 second
+        time: this.visibleTimeout
       })
     }
   },
   computed: {
-    queue: {
-      get () {
-        return apiCall.queue.cache
-      },
-      set (newCache) {
-        apiCall.queue.cache = newCache
-      }
+    isLoading () {
+      return this.$store.getters['performance/isLoading']
     },
-    active () {
-      return this.queue.length > 0
-    },
-    variant () {
-      return 'success'
+    percentage () {
+      return this.$store.getters['performance/getPercentage']
     }
   },
   watch: {
-    active: {
+    isLoading: {
       handler (after, before) {
         if (after) {
           this.show()
@@ -84,16 +49,6 @@ export default {
         }
       },
       immediate: true
-    },
-    queue: {
-      handler (after, before) {
-        if (after.length === 0) {
-          this.hide()
-        } else {
-          this.setPercentage()
-        }
-      },
-      deep: true
     }
   }
 }
