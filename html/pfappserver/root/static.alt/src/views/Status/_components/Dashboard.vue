@@ -606,10 +606,10 @@ export default {
           name: this.$i18n.t('Logs'),
           groups: [
             {
-              name: this.$i18n.t('packetfence.log'),
+              name: 'packetfence.log',
               items: [
                 {
-                  title: this.$i18n.t('Numbers of events'),
+                  title: this.$i18n.t('Number of events'),
                   metric: 'packetfence.logs.packetfence_log',
                   mode: modes.COMBINED,
                   library: libs.DYGRAPH,
@@ -618,10 +618,10 @@ export default {
               ]
             },
             {
-              name: this.$i18n.t('pfdhcp.log'),
+              name: 'pfdhcp.log',
               items: [
                 {
-                  title: this.$i18n.t('Numbers of events'),
+                  title: this.$i18n.t('Number of events'),
                   metric: 'packetfence.logs.pfdhcp_log',
                   mode: modes.COMBINED,
                   library: libs.DYGRAPH,
@@ -630,10 +630,10 @@ export default {
               ]
             },
             {
-              name: this.$i18n.t('load_balancer.log'),
+              name: 'load_balancer.log',
               items: [
                 {
-                  title: this.$i18n.t('Numbers of events'),
+                  title: this.$i18n.t('Number of events'),
                   metric: 'packetfence.logs.load_balancer_log',
                   mode: modes.COMBINED,
                   library: libs.DYGRAPH,
@@ -642,10 +642,10 @@ export default {
               ]
             },
             {
-              name: this.$i18n.t('radius.log'),
+              name: 'radius.log',
               items: [
                 {
-                  title: this.$i18n.t('Numbers of events'),
+                  title: this.$i18n.t('Number of events'),
                   metric: 'packetfence.logs.radius_log',
                   mode: modes.COMBINED,
                   library: libs.DYGRAPH,
@@ -654,10 +654,10 @@ export default {
               ]
             },
             {
-              name: this.$i18n.t('mariadb_error.log'),
+              name: 'mariadb_error.log',
               items: [
                 {
-                  title: this.$i18n.t('Numbers of events'),
+                  title: this.$i18n.t('Number of events'),
                   metric: 'packetfence.logs.mariadb_error_log',
                   mode: modes.COMBINED,
                   library: libs.DYGRAPH,
@@ -666,10 +666,10 @@ export default {
               ]
             },
             {
-              name: this.$i18n.t('pfmon.log'),
+              name: 'pfmon.log',
               items: [
                 {
-                  title: this.$i18n.t('Numbers of events'),
+                  title: this.$i18n.t('Number of events'),
                   metric: 'packetfence.logs.pfmon_log',
                   mode: modes.COMBINED,
                   library: libs.DYGRAPH,
@@ -678,10 +678,10 @@ export default {
               ]
             },
             {
-              name: this.$i18n.t('fingerbank.log'),
+              name: 'fingerbank.log',
               items: [
                 {
-                  title: this.$i18n.t('Numbers of events'),
+                  title: this.$i18n.t('Number of events'),
                   metric: 'packetfence.logs.fingerbank_log',
                   mode: modes.COMBINED,
                   library: libs.DYGRAPH,

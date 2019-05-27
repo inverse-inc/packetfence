@@ -576,7 +576,7 @@ END;
             </div>
               <div class="card-block">
                 <div class="row-flex">
-                    [% graph("packetfence.logs.packetfence_log", "Numbers of events") | none %]
+                    [% graph("packetfence.logs.packetfence_log", "Number of events") | none %]
                 </div>
               </div>
           </div>
@@ -586,7 +586,7 @@ END;
             </div>
               <div class="card-block">
                 <div class="row-flex">
-                    [% graph("packetfence.logs.pfdhcp_log", "Numbers of events") | none %]
+                    [% graph("packetfence.logs.pfdhcp_log", "Number of events") | none %]
                 </div>
               </div>
           </div>
@@ -596,7 +596,7 @@ END;
             </div>
               <div class="card-block">
                 <div class="row-flex">
-                    [% graph("packetfence.logs.load_balancer_log", "Numbers of events") | none %]
+                    [% graph("packetfence.logs.load_balancer_log", "Number of events") | none %]
                 </div>
               </div>
             </div>
@@ -607,7 +607,7 @@ END;
             </div>
               <div class="card-block">
                 <div class="row-flex">
-                    [% graph("packetfence.logs.radius_log", "Numbers of events") | none %]
+                    [% graph("packetfence.logs.radius_log", "Number of events") | none %]
                 </div>
               </div>
           </div>
@@ -617,7 +617,7 @@ END;
             </div>
               <div class="card-block">
                 <div class="row-flex">
-                    [% graph("packetfence.logs.mariadb_error_log", "Numbers of events") | none %]
+                    [% graph("packetfence.logs.mariadb_error_log", "Number of events") | none %]
                 </div>
               </div>
           </div>
@@ -627,7 +627,7 @@ END;
             </div>
               <div class="card-block">
                 <div class="row-flex">
-                    [% graph("packetfence.logs.pfmon_log", "Numbers of events") | none %]
+                    [% graph("packetfence.logs.pfmon_log", "Number of events") | none %]
                 </div>
               </div>
           </div>
@@ -637,7 +637,7 @@ END;
             </div>
               <div class="card-block">
                 <div class="row-flex">
-                    [% graph("packetfence.logs.fingerbank_log", "Numbers of events") | none %]
+                    [% graph("packetfence.logs.fingerbank_log", "Number of events") | none %]
                 </div>
               </div>
           </div>
