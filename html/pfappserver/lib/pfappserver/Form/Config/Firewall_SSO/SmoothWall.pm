@@ -1,44 +1,17 @@
-package pf::constants::firewallsso;
+package pfappserver::Form::Config::Firewall_SSO::SmoothWall;
 
 =head1 NAME
 
-pf::constants::firewallsso - constants for firewallsso objects
-
-=cut
+pfappserver::Form::Config::Firewall_SSO::SmoothWall - Web form to add a SmoothWall firewall
 
 =head1 DESCRIPTION
 
-pf::constants::firewallsso
+Form definition to create or update a SmoothWall firewall.
 
 =cut
 
-use strict;
-use warnings;
-use base qw(Exporter);
-use Readonly;
-
-our @EXPORT_OK = qw($SYSLOG_TRANSPORT $HTTP_TRANSPORT $UNKNOWN);
-
-Readonly::Scalar our $SYSLOG_TRANSPORT => "syslog";
-Readonly::Scalar our $HTTP_TRANSPORT => "http";
-Readonly::Scalar our $UNKNOWN => "unknown";
-
-Readonly::Scalar our $FIREWALL_TYPES => [
-    "BarracudaNG",
-    "Checkpoint",
-    "FortiGate",
-    "Iboss",
-    "JuniperSRX",
-    "PaloAlto",
-    "WatchGuard",
-    "JSONRPC",
-    "LightSpeedRocket",
-    "SmoothWall",
-];
-
-=head1 AUTHOR
-
-Inverse inc. <info@inverse.ca>
+use HTML::FormHandler::Moose;
+extends 'pfappserver::Form::Config::Firewall_SSO::FortiGate';
 
 =head1 COPYRIGHT
 
@@ -46,7 +19,7 @@ Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 
-This program is free software; you can redistribute it and::or
+This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
@@ -63,6 +36,6 @@ USA.
 
 =cut
 
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
+
 1;
-
-

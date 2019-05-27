@@ -151,7 +151,7 @@ export const pfConfigurationFirewallViewFields = (context) => {
           ]
         },
         {
-          if: ['BarracudaNG', 'Checkpoint', 'FortiGate', 'Iboss', 'JuniperSRX', 'WatchGuard'].includes(firewallType),
+          if: ['BarracudaNG', 'Checkpoint', 'FortiGate', 'Iboss', 'JuniperSRX', 'WatchGuard', 'LightSpeedRocket', 'SmoothWall'].includes(firewallType),
           label: i18n.t('Secret or Key'),
           fields: [
             {
@@ -175,7 +175,7 @@ export const pfConfigurationFirewallViewFields = (context) => {
           ]
         },
         {
-          if: ['BarracudaNG', 'Checkpoint', 'FortiGate', 'Iboss', 'JuniperSRX', 'WatchGuard', 'JSONRPC'].includes(firewallType),
+          if: ['BarracudaNG', 'Checkpoint', 'FortiGate', 'Iboss', 'JuniperSRX', 'WatchGuard', 'JSONRPC', 'LightSpeedRocket', 'SmoothWall'].includes(firewallType),
           label: i18n.t('Port of the service'),
           text: i18n.t('If you use an alternative port, please specify.'),
           fields: [

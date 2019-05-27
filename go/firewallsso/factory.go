@@ -19,6 +19,8 @@ func NewFactory(ctx context.Context) Factory {
 	f.typeRegistry["BarracudaNG"] = reflect.TypeOf(&BarracudaNG{}).Elem()
 	f.typeRegistry["Iboss"] = reflect.TypeOf(&Iboss{}).Elem()
 	f.typeRegistry["PaloAlto"] = reflect.TypeOf(&PaloAlto{}).Elem()
+	f.typeRegistry["LightSpeedRocket"] = reflect.TypeOf(&FortiGate{}).Elem()
+	f.typeRegistry["SmoothWall"] = reflect.TypeOf(&FortiGate{}).Elem()
 	f.typeRegistry["FortiGate"] = reflect.TypeOf(&FortiGate{}).Elem()
 	f.typeRegistry["Checkpoint"] = reflect.TypeOf(&Checkpoint{}).Elem()
 	f.typeRegistry["WatchGuard"] = reflect.TypeOf(&WatchGuard{}).Elem()
