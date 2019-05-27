@@ -33,7 +33,7 @@ const route = {
       }
     },
     {
-      path: 'dynamic/chart/:id([a-zA-Z0-9-_]+)',
+      path: 'dynamic/chart/:id([a-zA-Z0-9-_ ]+)',
       name: 'dynamicReportChart',
       component: DynamicReportChart,
       props: (route) => ({ storeName: '$_reports', id: route.params.id, query: route.query.query }),
