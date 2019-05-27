@@ -15,6 +15,7 @@ pf::UnifiedApi::Controller::RestRoute
 use strict;
 use warnings;
 use Mojo::Base 'pf::UnifiedApi::Controller';
+use Mojo::Util qw(url_unescape);
 
 sub list {
     my ($self) = @_;
@@ -54,6 +55,13 @@ sub replace {
 sub search {
     my ($self) = @_;
     return $self->render_error(404, "Unimplemented");
+}
+
+sub escape_url_param {
+    my ($self, $param) = @_;
+    $param = url_unescape($param);
+    $param =~ s/~/\//g;
+    return $param;
 }
 
 =head1 AUTHOR

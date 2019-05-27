@@ -19,7 +19,6 @@ use Mojo::JSON qw(decode_json);
 use pf::error qw(is_error);
 use pf::log;
 use pf::util qw(expand_csv);
-use Mojo::Util qw(url_unescape);
 use pf::UnifiedApi::Search::Builder;
 use pf::UnifiedApi::OpenAPI::Generator::Crud;
 
@@ -246,13 +245,6 @@ Get id of current resource
 sub id {
     my ($self) = @_;
     return $self->escape_url_param($self->stash->{$self->url_param_name});
-}
-
-sub escape_url_param {
-    my ($self, $param) = @_;
-    $param = url_unescape($param);
-    $param =~ s/~/\//g;
-    return $param;
 }
 
 sub create_error_msg {
