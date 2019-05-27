@@ -386,7 +386,7 @@ export default {
           key: 'nas_port_type',
           label: this.$i18n.t('NAS Port Type'),
           sortable: true,
-          visible: false
+          visible: true
         },
         {
           key: 'radius_source_ip_address',
