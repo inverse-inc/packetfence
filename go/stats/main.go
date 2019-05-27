@@ -14,12 +14,11 @@ import (
 	"time"
 
 	"github.com/coreos/go-systemd/daemon"
+	"github.com/hpcloud/tail"
 	"github.com/inverse-inc/packetfence/go/db"
+	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/sharedutils"
-
-	"github.com/hpcloud/tail"
-	"github.com/inverse-inc/packetfence/go/log"
 	statsd "gopkg.in/alexcesaro/statsd.v2"
 	ldap "gopkg.in/ldap.v2"
 	"layeh.com/radius"
@@ -435,7 +434,7 @@ func tailFile(stats pfconfigdriver.PfStats, config tail.Config, done chan bool) 
 		return
 	}
 
-	proxypassthrough := make(map[*regexp.Regexp]string)
+	wordMatch := make(map[*regexp.Regexp]string)
 
 	rgxs := strings.Split(stats.Match, ",")
 	statsdns := strings.Split(stats.StatsdNS, ",")
@@ -445,11 +444,11 @@ func tailFile(stats pfconfigdriver.PfStats, config tail.Config, done chan bool) 
 		if err != nil {
 			continue
 		}
-		proxypassthrough[regex] = statsdns[pos]
+		wordMatch[regex] = statsdns[pos]
 	}
 
 	for line := range t.Lines {
-		for k, v := range proxypassthrough {
+		for k, v := range wordMatch {
 			if k.Match([]byte(line.Text)) {
 				StatsdClient.Count(v, 1)
 			}
