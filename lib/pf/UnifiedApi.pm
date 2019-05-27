@@ -46,15 +46,6 @@ has log => sub {
     return MojoX::Log::Log4perl->new("$log_conf_dir/pfperl-api.conf",5 * 60);
 };
 
-my @ALLOWED_OPTIONS = qw(
-  allowed_roles
-  allowed_node_roles
-  allowed_access_levels
-  allowed_actions
-  allowed_unreg_date
-  allowed_access_durations
-);
-
 our @FINGERBANK_ROUTES = (
     {
         name            => "Combinations",
@@ -575,10 +566,6 @@ sub setup_api_v1_nodes_routes {
         ],
     });
 
-    my $collection_route_lookup = $self->add_lookup_route($collection_route);
-    $self->add_allowed_options($collection_route_lookup);
-    my $resource_route_lookup = $self->add_lookup_route($resource_route);
-    $self->add_allowed_options($resource_route_lookup);
     return ( $collection_route, $resource_route );
 }
 
@@ -839,8 +826,6 @@ sub setup_api_v1_config_bases_routes {
     );
 
     $collection_route->register_sub_action({ action => 'test_smtp', method => 'POST'});
-    $self->add_fingerbank_lookup($self->add_lookup_route($collection_route));
-    $self->add_fingerbank_lookup($self->add_lookup_route($resource_route));
     return ($collection_route, $resource_route);
 }
 
@@ -883,8 +868,6 @@ sub setup_api_v1_config_device_registrations_routes {
         "api.v1.Config.DeviceRegistrations"
     );
 
-    $self->add_fingerbank_lookup($self->add_lookup_route($collection_route));
-    $self->add_fingerbank_lookup($self->add_lookup_route($resource_route));
     return ($collection_route, $resource_route);
 }
 
@@ -1010,8 +993,6 @@ sub setup_api_v1_config_provisionings_routes {
         "api.v1.Config.Provisionings"
     );
 
-    $self->add_fingerbank_lookup($self->add_lookup_route($collection_route));
-    $self->add_fingerbank_lookup($self->add_lookup_route($resource_route));
     return ($collection_route, $resource_route);
 }
 
@@ -1072,24 +1053,8 @@ sub setup_api_v1_config_scans_routes {
         "api.v1.Config.Scans"
     );
 
-    $self->add_fingerbank_lookup($self->add_lookup_route($collection_route));
-    $self->add_fingerbank_lookup($self->add_lookup_route($resource_route));
     return ($collection_route, $resource_route);
 }
-
-
-=head2 add_lookup_route
-
-add_lookup_route
-
-=cut
-
-sub add_lookup_route {
-    my ($self, $route) = @_;
-    my $prefix = $route->name;
-    return $route->any("/lookup")->to(controller=> undef)->name("${prefix}.Lookup");
-}
-
 
 =head2 setup_api_v1_config_switch_groups_routes
 
@@ -1169,8 +1134,6 @@ sub setup_api_v1_config_security_events_routes {
         "api.v1.Config.SecurityEvents"
     );
 
-    $self->add_fingerbank_lookup($self->add_lookup_route($collection_route));
-    $self->add_fingerbank_lookup($self->add_lookup_route($resource_route));
     return ($collection_route, $resource_route);
 }
 
@@ -1816,43 +1779,6 @@ sub setup_api_v1_emails_route {
     $resource_route->register_sub_action({ method => 'POST', action => 'preview', path => 'preview'});
     $resource_route->register_sub_action({ method => 'POST', action => 'send_email', path => 'send'});
     return ;
-}
-
-=head2 add_fingerbank_lookup
-
-add_fingerbank_lookup
-
-=cut
-
-sub add_fingerbank_lookup {
-    my ($self, $route) = @_;
-    my $prefix = $route->name;
-    my $froute = $route->any("/fingerbank")->to(scope => "All")->name("${prefix}.Fingerbank");
-    for my $r (@FINGERBANK_ROUTES) {
-        my $name = $r->{name};
-        $froute->register_sub_action({name => "${name}.search", controller => "Fingerbank::${name}", action => 'search', path => "$r->{collection_path}/search", method => 'POST'});
-    }
-
-    return;
-}
-
-
-=head2 add_allowed_options
-
-add_allowed_options
-
-=cut
-
-sub add_allowed_options {
-    my ($self, $route) = @_;
-    $route->register_sub_actions(
-        {
-            method     => 'GET',
-            actions    => \@ALLOWED_OPTIONS,
-            controller => "Config::AdminRoles"
-        }
-    );
-    return;
 }
 
 =head1 AUTHOR
