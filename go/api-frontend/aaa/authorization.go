@@ -18,106 +18,156 @@ var configApiPrefix = apiPrefix + "/config"
 var configNamespaceRe = regexp.MustCompile("^" + regexp.QuoteMeta(configApiPrefix))
 
 type adminRoleMapping struct {
-	prefix string
-	role   string
+	prefix                   string
+	base                     string
+	allowedActionsForMethods map[string][]string
+}
+
+func (mapping *adminRoleMapping) IsAllowed(method, path string, roles map[string]bool) error {
+	if mapping.base == ALLOW_ANY {
+		return nil
+	}
+
+	// Handle special case for search
+	if method == "POST" && strings.HasSuffix(path, "/search") {
+		action := mapping.base + "_READ"
+		if _, ok := roles[action]; ok {
+			return nil
+		}
+	}
+
+	if actions, found := mapping.allowedActionsForMethods[method]; found {
+		for _, action := range actions {
+			if _, ok := roles[action]; ok {
+				return nil
+			}
+		}
+	}
+
+	msg := fmt.Sprintf("Unauthorized access, lacking the administrative role to access %s for %s", path, method)
+	return errors.New(msg)
 }
 
 const ALLOW_ANY = "*"
 
+func makeStdAdminRoleMapping(prefix, base string, readonly_bases ...string) adminRoleMapping {
+	mapping := adminRoleMapping{
+		prefix: prefix,
+		base:   base,
+		allowedActionsForMethods: map[string][]string{
+			"GET":     {base + "_READ"},
+			"OPTIONS": {base + "_READ"},
+			"POST":    {base + "_CREATE"},
+			"PUT":     {base + "_UPDATE"},
+			"PATCH":   {base + "_UPDATE"},
+			"DELETE":  {base + "_DELETE"},
+		},
+	}
+
+	for _, readonly_base := range readonly_bases {
+		mapping.allowedActionsForMethods["GET"] = append(mapping.allowedActionsForMethods["GET"], readonly_base+"_READ")
+	}
+
+	return mapping
+
+}
+
+var systemAdminRoleMapping = makeStdAdminRoleMapping("", "SYSTEM")
+
 var pathAdminRolesMap = []adminRoleMapping{
-	adminRoleMapping{prefix: apiPrefix + "/preference/", role: ALLOW_ANY},
-	adminRoleMapping{prefix: apiPrefix + "/preferences", role: ALLOW_ANY},
+	makeStdAdminRoleMapping(apiPrefix+"/preference/", ALLOW_ANY),
+	makeStdAdminRoleMapping(apiPrefix+"/preferences", ALLOW_ANY),
 
-	adminRoleMapping{prefix: apiPrefix + "/auth_log/", role: "NODES"},
-	adminRoleMapping{prefix: apiPrefix + "/auth_logs", role: "NODES"},
-	adminRoleMapping{prefix: apiPrefix + "/class/", role: "SECURITY_EVENTS"},
-	adminRoleMapping{prefix: apiPrefix + "/classes", role: "SECURITY_EVENTS"},
-	adminRoleMapping{prefix: apiPrefix + "/ip4log/", role: "NODES"},
-	adminRoleMapping{prefix: apiPrefix + "/ip4logs", role: "NODES"},
-	adminRoleMapping{prefix: apiPrefix + "/ip6log/", role: "NODES"},
-	adminRoleMapping{prefix: apiPrefix + "/ip6logs", role: "NODES"},
-	adminRoleMapping{prefix: apiPrefix + "/locationlog/", role: "NODES"},
-	adminRoleMapping{prefix: apiPrefix + "/locationlogs", role: "NODES"},
-	adminRoleMapping{prefix: apiPrefix + "/node/", role: "NODES"},
-	adminRoleMapping{prefix: apiPrefix + "/nodes", role: "NODES"},
-	adminRoleMapping{prefix: apiPrefix + "/node_categories", role: "NODES"},
-	adminRoleMapping{prefix: apiPrefix + "/node_category/", role: "NODES"},
-	adminRoleMapping{prefix: apiPrefix + "/security_event/", role: "SECURITY_EVENTS"},
-	adminRoleMapping{prefix: apiPrefix + "/security_events", role: "SECURITY_EVENTS"},
-	adminRoleMapping{prefix: apiPrefix + "/user/", role: "USERS"},
-	adminRoleMapping{prefix: apiPrefix + "/users", role: "USERS"},
+	makeStdAdminRoleMapping(apiPrefix+"/auth_log/", "NODES"),
+	makeStdAdminRoleMapping(apiPrefix+"/auth_logs", "NODES"),
+	makeStdAdminRoleMapping(apiPrefix+"/class/", "SECURITY_EVENTS"),
+	makeStdAdminRoleMapping(apiPrefix+"/classes", "SECURITY_EVENTS"),
+	makeStdAdminRoleMapping(apiPrefix+"/ip4log/", "NODES"),
+	makeStdAdminRoleMapping(apiPrefix+"/ip4logs", "NODES"),
+	makeStdAdminRoleMapping(apiPrefix+"/ip6log/", "NODES"),
+	makeStdAdminRoleMapping(apiPrefix+"/ip6logs", "NODES"),
+	makeStdAdminRoleMapping(apiPrefix+"/locationlog/", "NODES"),
+	makeStdAdminRoleMapping(apiPrefix+"/locationlogs", "NODES"),
+	makeStdAdminRoleMapping(apiPrefix+"/node/", "NODES"),
+	makeStdAdminRoleMapping(apiPrefix+"/nodes", "NODES"),
+	makeStdAdminRoleMapping(apiPrefix+"/node_categories", "NODES"),
+	makeStdAdminRoleMapping(apiPrefix+"/node_category/", "NODES"),
+	makeStdAdminRoleMapping(apiPrefix+"/security_event/", "SECURITY_EVENTS"),
+	makeStdAdminRoleMapping(apiPrefix+"/security_events", "SECURITY_EVENTS"),
+	makeStdAdminRoleMapping(apiPrefix+"/user/", "USERS"),
+	makeStdAdminRoleMapping(apiPrefix+"/users", "USERS"),
 
-	adminRoleMapping{prefix: apiPrefix + "/fingerbank", role: "FINGERBANK"},
+	makeStdAdminRoleMapping(apiPrefix+"/fingerbank", "FINGERBANK"),
 
-	adminRoleMapping{prefix: apiPrefix + "/service/", role: "SERVICES"},
-	adminRoleMapping{prefix: apiPrefix + "/services", role: "SERVICES"},
+	makeStdAdminRoleMapping(apiPrefix+"/service/", "SERVICES"),
+	makeStdAdminRoleMapping(apiPrefix+"/services", "SERVICES"),
 
-	adminRoleMapping{prefix: apiPrefix + "/reports/", role: "REPORTS"},
-	adminRoleMapping{prefix: apiPrefix + "/dynamic_reports", role: "REPORTS"},
-	adminRoleMapping{prefix: apiPrefix + "/dynamic_report/", role: "REPORTS"},
-	adminRoleMapping{prefix: apiPrefix + "/radius_audit_log/", role: "RADIUS_LOG"},
-	adminRoleMapping{prefix: apiPrefix + "/dhcp_option82s", role: "DHCP_OPTION_82"},
-	adminRoleMapping{prefix: apiPrefix + "/dhcp_option82/", role: "DHCP_OPTION_82"},
-	adminRoleMapping{prefix: apiPrefix + "/radius_audit_logs", role: "RADIUS_LOG"},
+	makeStdAdminRoleMapping(apiPrefix+"/reports/", "REPORTS"),
+	makeStdAdminRoleMapping(apiPrefix+"/dynamic_reports", "REPORTS"),
+	makeStdAdminRoleMapping(apiPrefix+"/dynamic_report/", "REPORTS"),
+	makeStdAdminRoleMapping(apiPrefix+"/radius_audit_log/", "RADIUS_LOG"),
+	makeStdAdminRoleMapping(apiPrefix+"/dhcp_option82s", "DHCP_OPTION_82"),
+	makeStdAdminRoleMapping(apiPrefix+"/dhcp_option82/", "DHCP_OPTION_82"),
+	makeStdAdminRoleMapping(apiPrefix+"/radius_audit_logs", "RADIUS_LOG"),
 
-	adminRoleMapping{prefix: configApiPrefix + "/admin_role/", role: "ADMIN_ROLES"},
-	adminRoleMapping{prefix: configApiPrefix + "/admin_roles", role: "ADMIN_ROLES"},
-	adminRoleMapping{prefix: configApiPrefix + "/base/", role: "CONFIGURATION_MAIN"},
-	adminRoleMapping{prefix: configApiPrefix + "/bases", role: "CONFIGURATION_MAIN"},
-	adminRoleMapping{prefix: configApiPrefix + "/billing_tier/", role: "BILLING_TIER"},
-	adminRoleMapping{prefix: configApiPrefix + "/billing_tiers", role: "BILLING_TIER"},
-	adminRoleMapping{prefix: configApiPrefix + "/certificate/", role: "CONFIGURATION_MAIN"},
-	adminRoleMapping{prefix: configApiPrefix + "/certificates", role: "CONFIGURATION_MAIN"},
-	adminRoleMapping{prefix: configApiPrefix + "/checkup", role: ALLOW_ANY},
-	adminRoleMapping{prefix: configApiPrefix + "/cluster_status", role: "SERVICES"},
-	adminRoleMapping{prefix: configApiPrefix + "/connection_profile/", role: "CONNECTION_PROFILES"},
-	adminRoleMapping{prefix: configApiPrefix + "/connection_profiles", role: "CONNECTION_PROFILES"},
-	adminRoleMapping{prefix: configApiPrefix + "/device_registration/", role: "DEVICE_REGISTRATION"},
-	adminRoleMapping{prefix: configApiPrefix + "/device_registrations", role: "DEVICE_REGISTRATION"},
-	adminRoleMapping{prefix: configApiPrefix + "/domain/", role: "DOMAIN"},
-	adminRoleMapping{prefix: configApiPrefix + "/domains", role: "DOMAIN"},
-	adminRoleMapping{prefix: configApiPrefix + "/fingerbank_setting/", role: "FINGERBANK"},
-	adminRoleMapping{prefix: configApiPrefix + "/fingerbank_settings", role: "FINGERBANK"},
-	adminRoleMapping{prefix: configApiPrefix + "/firewall/", role: "FIREWALL_SSO"},
-	adminRoleMapping{prefix: configApiPrefix + "/firewalls", role: "FIREWALL_SSO"},
-	adminRoleMapping{prefix: configApiPrefix + "/floating_device/", role: "FLOATING_DEVICES"},
-	adminRoleMapping{prefix: configApiPrefix + "/floating_devices", role: "FLOATING_DEVICES"},
-	adminRoleMapping{prefix: configApiPrefix + "/interface/", role: "INTERFACES"},
-	adminRoleMapping{prefix: configApiPrefix + "/interfaces", role: "INTERFACES"},
-	adminRoleMapping{prefix: configApiPrefix + "/l2_network/", role: "INTERFACES"},
-	adminRoleMapping{prefix: configApiPrefix + "/l2_networks", role: "INTERFACES"},
-	adminRoleMapping{prefix: configApiPrefix + "/maintenance_task/", role: "PFMON"},
-	adminRoleMapping{prefix: configApiPrefix + "/maintenance_tasks", role: "PFMON"},
-	adminRoleMapping{prefix: configApiPrefix + "/pki_provider/", role: "PKI_PROVIDER"},
-	adminRoleMapping{prefix: configApiPrefix + "/pki_providers", role: "PKI_PROVIDER"},
-	adminRoleMapping{prefix: configApiPrefix + "/portal_module/", role: "PORTAL_MODULE"},
-	adminRoleMapping{prefix: configApiPrefix + "/portal_modules", role: "PORTAL_MODULE"},
-	adminRoleMapping{prefix: configApiPrefix + "/provisioning", role: "PROVISIONING"},
-	adminRoleMapping{prefix: configApiPrefix + "/provisionings/", role: "PROVISIONING"},
-	adminRoleMapping{prefix: configApiPrefix + "/realm/", role: "REALM"},
-	adminRoleMapping{prefix: configApiPrefix + "/realms", role: "REALM"},
-	adminRoleMapping{prefix: configApiPrefix + "/role/", role: "USERS_ROLES"},
-	adminRoleMapping{prefix: configApiPrefix + "/roles", role: "USERS_ROLES"},
-	adminRoleMapping{prefix: configApiPrefix + "/routed_network/", role: "INTERFACES"},
-	adminRoleMapping{prefix: configApiPrefix + "/routed_networks", role: "INTERFACES"},
-	adminRoleMapping{prefix: configApiPrefix + "/scan/", role: "SCAN"},
-	adminRoleMapping{prefix: configApiPrefix + "/scans", role: "SCAN"},
-	adminRoleMapping{prefix: configApiPrefix + "/security_event/", role: "SECURITY_EVENTS"},
-	adminRoleMapping{prefix: configApiPrefix + "/security_events", role: "SECURITY_EVENTS"},
-	adminRoleMapping{prefix: configApiPrefix + "/source/", role: "USERS_SOURCES"},
-	adminRoleMapping{prefix: configApiPrefix + "/sources", role: "USERS_SOURCES"},
-	adminRoleMapping{prefix: configApiPrefix + "/switch/", role: "SWITCHES"},
-	adminRoleMapping{prefix: configApiPrefix + "/switch_group/", role: "SWITCHES"},
-	adminRoleMapping{prefix: configApiPrefix + "/switch_groups", role: "SWITCHES"},
-	adminRoleMapping{prefix: configApiPrefix + "/switches", role: "SWITCHES"},
-	adminRoleMapping{prefix: configApiPrefix + "/syslog_forwarder/", role: "SYSLOG"},
-	adminRoleMapping{prefix: configApiPrefix + "/syslog_forwarders", role: "SYSLOG"},
-	adminRoleMapping{prefix: configApiPrefix + "/syslog_parser/", role: "PFDETECT"},
-	adminRoleMapping{prefix: configApiPrefix + "/syslog_parsers", role: "PFDETECT"},
-	adminRoleMapping{prefix: configApiPrefix + "/traffic_shaping_policies", role: "TRAFFIC_SHAPING"},
-	adminRoleMapping{prefix: configApiPrefix + "/traffic_shaping_policy/", role: "TRAFFIC_SHAPING"},
-	adminRoleMapping{prefix: configApiPrefix + "/wmi_rule/", role: "WMI"},
-	adminRoleMapping{prefix: configApiPrefix + "/wmi_rules", role: "WMI"},
+	makeStdAdminRoleMapping(configApiPrefix+"/admin_role/", "ADMIN_ROLES"),
+	makeStdAdminRoleMapping(configApiPrefix+"/admin_roles", "ADMIN_ROLES", "NODES", "USERS", "USERS_SOURCES"),
+	makeStdAdminRoleMapping(configApiPrefix+"/base/", "CONFIGURATION_MAIN"),
+	makeStdAdminRoleMapping(configApiPrefix+"/bases", "CONFIGURATION_MAIN"),
+	makeStdAdminRoleMapping(configApiPrefix+"/billing_tier/", "BILLING_TIER"),
+	makeStdAdminRoleMapping(configApiPrefix+"/billing_tiers", "BILLING_TIER"),
+	makeStdAdminRoleMapping(configApiPrefix+"/certificate/", "CONFIGURATION_MAIN"),
+	makeStdAdminRoleMapping(configApiPrefix+"/certificates", "CONFIGURATION_MAIN"),
+	makeStdAdminRoleMapping(configApiPrefix+"/checkup", ALLOW_ANY),
+	makeStdAdminRoleMapping(configApiPrefix+"/cluster_status", "SERVICES"),
+	makeStdAdminRoleMapping(configApiPrefix+"/connection_profile/", "CONNECTION_PROFILES"),
+	makeStdAdminRoleMapping(configApiPrefix+"/connection_profiles", "CONNECTION_PROFILES"),
+	makeStdAdminRoleMapping(configApiPrefix+"/device_registration/", "DEVICE_REGISTRATION"),
+	makeStdAdminRoleMapping(configApiPrefix+"/device_registrations", "DEVICE_REGISTRATION"),
+	makeStdAdminRoleMapping(configApiPrefix+"/domain/", "DOMAIN"),
+	makeStdAdminRoleMapping(configApiPrefix+"/domains", "DOMAIN"),
+	makeStdAdminRoleMapping(configApiPrefix+"/fingerbank_setting/", "FINGERBANK"),
+	makeStdAdminRoleMapping(configApiPrefix+"/fingerbank_settings", "FINGERBANK"),
+	makeStdAdminRoleMapping(configApiPrefix+"/firewall/", "FIREWALL_SSO"),
+	makeStdAdminRoleMapping(configApiPrefix+"/firewalls", "FIREWALL_SSO"),
+	makeStdAdminRoleMapping(configApiPrefix+"/floating_device/", "FLOATING_DEVICES"),
+	makeStdAdminRoleMapping(configApiPrefix+"/floating_devices", "FLOATING_DEVICES"),
+	makeStdAdminRoleMapping(configApiPrefix+"/interface/", "INTERFACES"),
+	makeStdAdminRoleMapping(configApiPrefix+"/interfaces", "INTERFACES"),
+	makeStdAdminRoleMapping(configApiPrefix+"/l2_network/", "INTERFACES"),
+	makeStdAdminRoleMapping(configApiPrefix+"/l2_networks", "INTERFACES"),
+	makeStdAdminRoleMapping(configApiPrefix+"/maintenance_task/", "PFMON"),
+	makeStdAdminRoleMapping(configApiPrefix+"/maintenance_tasks", "PFMON"),
+	makeStdAdminRoleMapping(configApiPrefix+"/pki_provider/", "PKI_PROVIDER"),
+	makeStdAdminRoleMapping(configApiPrefix+"/pki_providers", "PKI_PROVIDER"),
+	makeStdAdminRoleMapping(configApiPrefix+"/portal_module/", "PORTAL_MODULE"),
+	makeStdAdminRoleMapping(configApiPrefix+"/portal_modules", "PORTAL_MODULE"),
+	makeStdAdminRoleMapping(configApiPrefix+"/provisioning", "PROVISIONING"),
+	makeStdAdminRoleMapping(configApiPrefix+"/provisionings/", "PROVISIONING"),
+	makeStdAdminRoleMapping(configApiPrefix+"/realm/", "REALM"),
+	makeStdAdminRoleMapping(configApiPrefix+"/realms", "REALM"),
+	makeStdAdminRoleMapping(configApiPrefix+"/role/", "USERS_ROLES"),
+	makeStdAdminRoleMapping(configApiPrefix+"/roles", "USERS_ROLES"),
+	makeStdAdminRoleMapping(configApiPrefix+"/routed_network/", "INTERFACES"),
+	makeStdAdminRoleMapping(configApiPrefix+"/routed_networks", "INTERFACES"),
+	makeStdAdminRoleMapping(configApiPrefix+"/scan/", "SCAN"),
+	makeStdAdminRoleMapping(configApiPrefix+"/scans", "SCAN"),
+	makeStdAdminRoleMapping(configApiPrefix+"/security_event/", "SECURITY_EVENTS"),
+	makeStdAdminRoleMapping(configApiPrefix+"/security_events", "SECURITY_EVENTS"),
+	makeStdAdminRoleMapping(configApiPrefix+"/source/", "USERS_SOURCES"),
+	makeStdAdminRoleMapping(configApiPrefix+"/sources", "USERS_SOURCES"),
+	makeStdAdminRoleMapping(configApiPrefix+"/switch/", "SWITCHES"),
+	makeStdAdminRoleMapping(configApiPrefix+"/switch_group/", "SWITCHES"),
+	makeStdAdminRoleMapping(configApiPrefix+"/switch_groups", "SWITCHES"),
+	makeStdAdminRoleMapping(configApiPrefix+"/switches", "SWITCHES"),
+	makeStdAdminRoleMapping(configApiPrefix+"/syslog_forwarder/", "SYSLOG"),
+	makeStdAdminRoleMapping(configApiPrefix+"/syslog_forwarders", "SYSLOG"),
+	makeStdAdminRoleMapping(configApiPrefix+"/syslog_parser/", "PFDETECT"),
+	makeStdAdminRoleMapping(configApiPrefix+"/syslog_parsers", "PFDETECT"),
+	makeStdAdminRoleMapping(configApiPrefix+"/traffic_shaping_policies", "TRAFFIC_SHAPING"),
+	makeStdAdminRoleMapping(configApiPrefix+"/traffic_shaping_policy/", "TRAFFIC_SHAPING"),
+	makeStdAdminRoleMapping(configApiPrefix+"/wmi_rule/", "WMI"),
+	makeStdAdminRoleMapping(configApiPrefix+"/wmi_rules", "WMI"),
 }
 
 var methodSuffixMap = map[string]string{
@@ -234,50 +284,28 @@ func (tam *TokenAuthorizationMiddleware) isAuthorizedTenantId(ctx context.Contex
 }
 
 func (tam *TokenAuthorizationMiddleware) isAuthorizedAdminActions(ctx context.Context, method, path string, roles map[string]bool) (bool, error) {
-
-	var baseAdminRole string
+	var roleMapping adminRoleMapping
+	found := false
 	for _, o := range pathAdminRolesMap {
-		base := o.prefix
-		role := o.role
-		if strings.HasPrefix(path, base) && role != "" {
-			baseAdminRole = role
+		if strings.HasPrefix(path, o.prefix) && o.base != "" {
+			roleMapping = o
+			found = true
 			break
 		}
 	}
 
-	// If its still empty, then we'll default to SYSTEM
-	if baseAdminRole == "" {
+	// If not found, use default
+	if found == false {
 		log.LoggerWContext(ctx).Debug(fmt.Sprintf("Can't find admin role for path %s, using SYSTEM", path))
-		baseAdminRole = "SYSTEM"
+		roleMapping = systemAdminRoleMapping
 	}
 
-	suffix := methodSuffixMap[method]
-
-	if suffix == "" {
-		msg := fmt.Sprintf("Impossible to find admin role suffix for unknown method %s", method)
-		log.LoggerWContext(ctx).Warn(msg)
-		return false, errors.New(msg)
+	if err := roleMapping.IsAllowed(method, path, roles); err != nil {
+		log.LoggerWContext(ctx).Debug(err.Error())
+		return false, err
 	}
 
-	// Rewrite suffix for search
-	if method == "POST" && strings.HasSuffix(path, "/search") {
-		suffix = "_READ"
-	}
-
-	if baseAdminRole == ALLOW_ANY {
-		return true, nil
-	}
-
-	adminRole := baseAdminRole + suffix
-
-	if _, ok := roles[adminRole]; ok {
-		log.LoggerWContext(ctx).Debug("Access is authorized for this request")
-		return true, nil
-	} else {
-		msg := fmt.Sprintf("Unauthorized access, lacking the %s administrative role", adminRole)
-		log.LoggerWContext(ctx).Debug(msg)
-		return false, errors.New(msg)
-	}
+	return true, nil
 }
 
 func (tam *TokenAuthorizationMiddleware) isAuthorizedConfigNamespace(ctx context.Context, path string, tokenTenantId int) (bool, error) {
