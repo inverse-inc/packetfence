@@ -14,6 +14,7 @@ pf::task::pfsnmp_parsing
 
 use strict;
 use warnings;
+use base 'pf::task';
 use pf::log;
 use pf::Redis;
 use pf::SwitchFactory;
