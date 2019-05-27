@@ -51,7 +51,7 @@ sub search {
     my $limit = $json->{limit} // 25;
     my $page = (($json->{cursor} // 0) / $limit);
 
-    my $report = pf::factory::report->new($self->stash('report_id'));
+    my $report = pf::factory::report->new($self->id);
     my %info = (
         page => ($page + 1),
         sql_abstract_search => $where,
@@ -98,7 +98,7 @@ Get a dynamic report
 
 sub resource {
     my ($self) = @_;
-    my $report_id = $self->stash('report_id');
+    my $report_id = $self->id;
     my $cs = $self->configStore;
     if($cs->hasId($report_id)) {
         $self->stash->{report} = $cs->read($report_id, "id");
@@ -108,6 +108,11 @@ sub resource {
         $self->render_error(404, "Report $report_id not found");
         return $FALSE;
     }
+}
+
+sub id {
+    my ($self) = @_;
+    return $self->escape_url_param($self->stash('report_id'));
 }
 
 =head2 resource
