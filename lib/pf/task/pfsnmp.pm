@@ -14,6 +14,7 @@ pf::task::pfsnmp
 
 use strict;
 use warnings;
+use base 'pf::task';
 use pf::log;
 use pf::SwitchFactory;
 use pf::role::custom;
