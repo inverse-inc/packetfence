@@ -127,6 +127,7 @@ our $BINARIES_DIRECTORY = "/usr/local/pf/sbin";
 our $BINARIES_SIGN_KEY_ID = "A0030E2C";
 
 our $ALT_ADMIN_DIRECTORY = "/usr/local/pf/html/pfappserver/root/static.alt/dist";
+our $ALT_ADMIN_INDEX = "/usr/local/pf/html/pfappserver/root/admin/v-index.tt";
 our $ALT_ADMIN_PATCH_WD = "/usr/local/pf/html/pfappserver/root/static.alt";
 our $ALT_ADMIN_URL = "https://inverse.ca/downloads/PacketFence/CentOS7/binaries";
 
@@ -342,10 +343,17 @@ sub download_and_install_alt_admin {
     print "Starting patching process.......\n";
     my $patch_path = "$ALT_ADMIN_DIRECTORY";
     my $archive_path = "$ALT_ADMIN_PATCH_WD/static.alt.tgz";
+
     my $data = get_url("$ALT_ADMIN_URL/maintenance/$PF_RELEASE/static.alt.tgz.sig");
     write_file("$archive_path-maintenance-encrypted", $data);
     
+    $data = get_url("$ALT_ADMIN_URL/maintenance/$PF_RELEASE/v-index.tt.sig");
+    write_file("$ALT_ADMIN_INDEX-maintenance-encrypted", $data);
+    
     my $result = system("gpg --always-trust --batch --yes --output $archive_path-maintenance-decrypted --decrypt $archive_path-maintenance-encrypted");
+    die "Cannot validate the binary signature\n" if $result != 0;
+
+    $result = system("gpg --always-trust --batch --yes --output $ALT_ADMIN_INDEX-maintenance-decrypted --decrypt $ALT_ADMIN_INDEX-maintenance-encrypted");
     die "Cannot validate the binary signature\n" if $result != 0;
 
     my $time = time;
@@ -355,6 +363,10 @@ sub download_and_install_alt_admin {
 
     system("tar -C $ALT_ADMIN_PATCH_WD -xf $archive_path");
     die "Failed to extract administration interface archive in $patch_path\n" if($? != 0);
+
+    rename($ALT_ADMIN_INDEX, "$ALT_ADMIN_INDEX-pre-maintenance-$time") or die "Cannot admin index $ALT_ADMIN_INDEX: $!\n";
+    rename("$ALT_ADMIN_INDEX-maintenance-decrypted", $ALT_ADMIN_INDEX) or die "Cannot rename file: $!\n";
+    unlink("$ALT_ADMIN_INDEX-maintenance-encrypted") or warn "Couldn't delete temporary download file, everything will keep working but the stale file will still be there ($!)\n";
 
     my ($login,$pass,$uid,$gid) = getpwnam('pf')
         or die "pf not in passwd file";
