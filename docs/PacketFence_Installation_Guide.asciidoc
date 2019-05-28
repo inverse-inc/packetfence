@@ -3251,7 +3251,7 @@ image::openvas/report-format-id.png[alt="OpenVAS report format ID"]
 WMI
 ^^^
 
-You just have to enable WMI on each Micrsofot Windows devices with a GPO from Active Directory.
+You just have to enable WMI on each Microsoft Windows devices with a GPO from Active Directory.
 
 Configuration
 ~~~~~~~~~~~~~
