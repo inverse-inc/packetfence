@@ -74,8 +74,14 @@ sub _allowed_roles {
     if (@roles == 0) {
         @items = $self->default_roles();
     } else {
-        my ($status, $iter) = pf::dal::nodecategory->search(
+        my ($status, $iter) = pf::dal::node_category->search(
+            -columns => [qw(category_id|value name|text)],
+            -where => {
+                name => \@roles,
+            },
+            -with_class => undef,
         );
+        @items = $iter->all();
     }
 
     return $self->render( json => { items => \@items } );
