@@ -565,8 +565,8 @@ sub field_meta {
     if ($type ne 'array' && $type ne 'object') {
         if (defined (my $allowed = $self->field_allowed($field))) {
             $meta->{allowed} = $allowed;
-        } elsif (defined (my $allowed_lookup = $self->field_allowed_lookup($field))) {
-            $meta->{allowed_lookup} = $allowed_lookup;
+        } elsif (defined (my $allowed_lookup = $self->field_lookup($field))) {
+            $meta->{lookup} = $allowed_lookup;
         }
     }
 
@@ -883,9 +883,9 @@ sub field_allowed {
     return $allowed;
 }
 
-=head2 field_allowed_lookup
+=head2 field_lookup
 
-field_allowed_lookup
+field_lookup
 
 =cut
 
@@ -900,17 +900,19 @@ my %FB_MODEL_2_PATH = (
     User_Agent        => 'user_agents',
 );
 
-sub field_allowed_lookup {
+sub field_lookup {
     my ($self, $field) = @_;
     if ($field->isa("pfappserver::Form::Field::FingerbankSelect") || $field->isa("pfappserver::Form::Field::FingerbankField")) {
         my $fingerbank_model = $field->fingerbank_model;
         my $name = $fingerbank_model->_parseClassName;
         my $path = $FB_MODEL_2_PATH{$name};
-        my $url = $self->url_for;
         return {
-            search_path => "$url/lookup/fingerbank/$path/search",
+            url => "/api/v1/fingerbank/all/$path/search",
+            method => 'POST',
+            search => {
             field_name  => $fingerbank_model->value_field,
             value_name  => 'id',
+            },
         };
     }
 

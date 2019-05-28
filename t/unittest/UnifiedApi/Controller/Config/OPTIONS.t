@@ -36,7 +36,17 @@ my $false = bless( do { \( my $o = 0 ) }, 'JSON::PP::Boolean' );
 
 $t->options_ok("/api/v1/config/scans?type=rapid7")
   ->status_is(200)
-  ->json_is("/meta/oses/item/allowed_lookup/search_path",  "/api/v1/config/scans/lookup/fingerbank/devices/search");
+  ->json_is(
+    "/meta/oses/item/lookup",
+    {
+        url    => "/api/v1/fingerbank/all/devices/search",
+        method => "POST",
+        search => {
+            field_name => 'name',
+            value_name => 'id',
+        },
+    }
+);
 
 $t->options_ok("/api/v1/config/floating_devices")
   ->status_is(200)
