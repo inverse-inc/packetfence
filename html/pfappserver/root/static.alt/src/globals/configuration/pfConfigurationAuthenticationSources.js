@@ -857,7 +857,6 @@ export const pfConfigurationAuthenticationSourceFields = {
     }
   },
   host_port_encryption: ({ form = {}, options: { meta = {} } } = {}) => {
-
     const portHelper = () => {
       let helper = null
       switch (form.encryption) {
