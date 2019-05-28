@@ -22,6 +22,7 @@ use List::MoreUtils qw(uniq);
 use pf::admin_roles;
 use pf::dal::node_category;
 use pf::nodecategory;
+use pf::Authentication::constants;
 
 has 'config_store_class' => 'pf::ConfigStore::AdminRoles';
 has 'form_class' => 'pfappserver::Form::Config::AdminRoles';
@@ -135,7 +136,7 @@ default_allowed_actions
 
 sub default_allowed_actions {
     my ($self) = @_;
-    return;
+    return map {@$_} values %Actions::ACTIONS;
 }
 
 sub allowed_unreg_date {
