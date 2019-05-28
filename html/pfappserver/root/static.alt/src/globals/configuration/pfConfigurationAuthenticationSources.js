@@ -4,6 +4,7 @@ import pfFieldAttributeOperatorValue from '@/components/pfFieldAttributeOperator
 import pfFieldRule from '@/components/pfFieldRule'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormFields from '@/components/pfFormFields'
+import pfFormHtml from '@/components/pfFormHtml'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormPassword from '@/components/pfFormPassword'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
@@ -855,7 +856,26 @@ export const pfConfigurationAuthenticationSourceFields = {
       ]
     }
   },
-  host_port_encryption: ({ options: { meta = {} } } = {}) => {
+  host_port_encryption: ({ form = {}, options: { meta = {} } } = {}) => {
+
+    const portHelper = () => {
+      let helper = null
+      switch (form.encryption) {
+        case 'none':
+        case 'starttls':
+          if (~~form.port !== 389) {
+            helper = i18n.t('Port {port} is standard for {encryption} encryption.', { encryption: form.encryption.toUpperCase(), port: 389 })
+          }
+          break
+        case 'ssl':
+          if (~~form.port !== 636) {
+            helper = i18n.t('Port {port} is standard for {encryption} encryption.', { encryption: form.encryption.toUpperCase(), port: 636 })
+          }
+          break
+      }
+      return helper
+    }
+
     return {
       label: i18n.t('Host'),
       fields: [
@@ -890,6 +910,15 @@ export const pfConfigurationAuthenticationSourceFields = {
           component: pfFormChosen,
           attrs: pfConfigurationAttributesFromMeta(meta, 'encryption'),
           validators: pfConfigurationValidatorsFromMeta(meta, 'encryption', i18n.t('Encryption'))
+        },
+        {
+          if: portHelper() !== null,
+          component: pfFormHtml,
+          attrs: {
+            html: `<div class="alert alert-warning p-1 mb-0 ml-1">
+              <strong>${i18n.t('Note')}:</strong> ${portHelper()}
+            </div>`
+          }
         }
       ]
     }
