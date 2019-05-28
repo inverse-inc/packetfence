@@ -804,6 +804,7 @@ sub setup_api_v1_config_admin_roles_routes {
         "api.v1.Config.AdminRoles"
     );
 
+    $collection_route->register_sub_actions({method => 'GET', actions => [qw(allowed_roles allowed_node_roles allowed_access_levels allowed_actions allowed_unreg_date allowed_access_durations)] });
     return ($collection_route, $resource_route);
 }
 
