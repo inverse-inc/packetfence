@@ -163,7 +163,7 @@ export default {
 .disconnected .portal-module {
   flex-basis: 100%;
   border-width: $portal-module-border-width 0 0 0;
-  margin-bottom: -1rem;
+  margin-bottom: $portal-module-border-width;
   background-color: rgba($white, .2);
   background-position: 0 0%,0% 0,0 0%,100% 0%;
   background-size: $portal-module-border-width 16px;
