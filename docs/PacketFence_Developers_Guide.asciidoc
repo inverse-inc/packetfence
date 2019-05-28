@@ -1022,10 +1022,18 @@ http://packetfence.org/bugs/view.php?id=1085[issue #1085].
 For day to day development one can run a checkout of the current development branch in
 `/usr/local/pf/` and develop there within a working setup.
 
-===== Steps
+===== Initial setup
 
 . Install PacketFence packages from devel (see next section) cleanly and do an initial configuration
-. Stop all services
+. Stop all services:
++
+[source,bash]
+----
+/usr/local/pf/bin/pfcmd service pf stop
+systemctl stop packetfence-config packetfence-mariadb packetfence-redis-cache
+----
++
+
 . Install dependencies:
 +
 [source,bash]
@@ -1037,6 +1045,8 @@ apt install -y build-essential libipset-dev pkg-config
 yum groupinstall -y "Development Tools"
 yum install -y ipset-devel
 ----
++
+
 . Run following commands:
 +
 [source,bash]
@@ -1045,27 +1055,38 @@ mv /usr/local/pf/ /usr/local/pf-pkg
 cd /usr/local/
 git clone https://github.com/inverse-inc/packetfence.git pf
 cd pf
-mv conf conf-git-pristine
-mv raddb config-raddb-pristine
-ln -s /usr/local/pf-pkg/conf conf
-ln -s /usr/local/pf-pkg/raddb raddb
-chown pf:pf var/control
+// mv conf conf-git-pristine
+// mv raddb config-raddb-pristine
+// ln -s /usr/local/pf-pkg/conf conf
+// ln -s /usr/local/pf-pkg/raddb raddb
+// chown pf:pf var/control
+make devel
 mkdir /usr/local/pf/var/ssl_mutex
 ----
 +
 
 . Install (at least) link:https://github.com/nodesource/distributions/#table-of-contents[NodeJS] 8 to build JavaScript files for webadmin
-. Compile JavaScript files ([command]`sudo` is important to avoid permissions issues):
+. Compile JavaScript files for web admin ([command]`sudo` is important to avoid permissions issues):
 +
 [source,bash]
 ----
-cd html/pfappserver/root/static.alt/
+cd /usr/local/pf/html/pfappserver/root/static.alt/
 sudo make vendor
 sudo make dev
 ----
 +
 
-. Fix permissions and start `packetfence-config` service:
+. Compile JavaScript files for captive portal ([command]`sudo` is important to avoid permissions issues):
++
+[source,bash]
+----
+cd /usr/local/pf/html/common
+sudo make vendor
+sudo make dev
+----
++
+
+. Fix permissions and start `packetfence-config` and `packetfence-redis-cache` service:
 +
 [source,bash]
 ----
@@ -1073,11 +1094,11 @@ cd /usr/local/pf
 make bin/pfcmd
 make fingerbank
 make permissions
-systemctl start packetfence-config
+systemctl start packetfence-config packetfence-redis-cache
 ----
 +
 
-. Install Golang environment
+. Install Golang environment and build Golang binaries
 +
 [source,bash]
 ----
@@ -1091,7 +1112,31 @@ WARNING: Care should be taken not to commit local configuration files changes an
 repository.
 
 
-===== Not so bleeding edge
+===== Day to day usage
+
+. Update your git copy:
++
+[source,bash]
+----
+git pull
+----
++
+. Test a pull request
++
+[source,bash]
+----
+git checkout BRANCH_NAME
+git pull
+----
++
+
+
+. Recompile JavaScript files (see # section)
+
+
+
+
+==== Not so bleeding edge
 
 
 Using the development `yum` repository and upgrade PacketFence often is a good way to proceed.
