@@ -3274,7 +3274,7 @@ There are common parameters for each scan engines:
   OS: Only devices with this Operating System will be affected (Optional)
   Duration: Approximate duration of scan (Progress bar on the captive portal)
   Scan before registration: Trigger the scan when the device appear on the registration vlan
-  Scan after registration: Trigger the scan just after registration on the captive portal
+  Scan on registration: Trigger the scan just after registration on the captive portal
   Scan after registration: Trigger the scan on the production network (pfdhcplistener must receive production dhcp traffic)
   802.1X: Even if the auto-registration has been enabled, the scan will be trigger on a EAP connection
   802.1X types: comma delimited EAP type that will trigger the scan if 802.1X above has been enabled
