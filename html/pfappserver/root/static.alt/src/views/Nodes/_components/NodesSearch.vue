@@ -144,6 +144,9 @@
         <template slot="device_score" slot-scope="data">
           <pf-fingerbank-score :score="data.value"></pf-fingerbank-score>
         </template>
+        <template slot="locationlog.switch_ip" slot-scope="data">
+          <b-button variant="link" :to="{ name: 'switch', params: { id: data.value } }">{{ data.value }}</b-button>
+        </template>
         <template slot="empty">
           <pf-empty-table :isLoading="isLoading">{{ $t('No node found') }}</pf-empty-table>
         </template>
