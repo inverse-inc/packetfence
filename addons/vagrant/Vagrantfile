@@ -1,0 +1,105 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# Require YAML module
+require 'yaml'
+ 
+# Read YAML file with box details
+inventory = YAML.load_file('inventory/hosts')
+
+Vagrant.configure("2") do |pfservers|
+
+  ## Global settings for pfservers
+
+  # use same private key on all machines
+  pfservers.ssh.insert_key = false
+  
+  # disable default rule
+  pfservers.vm.network "forwarded_port", guest: 22, host: 2222, id: "ssh", disabled: true
+
+  # provisionners
+  # Sync timezone with host
+  pfservers.vm.provision "shell", inline: "sudo rm /etc/localtime && sudo ln -s /usr/share/zoneinfo/#{inventory['all']['vars']['tz']} /etc/localtime", run: "always"
+
+  # Allow SSH as root with insecure_private_key
+  pfservers.vm.provision "ssh", type:"shell", inline: "sudo mkdir -p /root/.ssh && sudo cp /home/vagrant/.ssh/authorized_keys /root/.ssh/"
+
+  # Provision with ansible
+  pfservers.vm.provision "ansible" do |ansible|
+    ansible.playbook = "site.yml"
+    ansible.become = true
+    ansible.config_file = "ansible.cfg"
+    # ansible.extra_vars = "../extra_config.yml"
+    # ansible.tags = ['all', 'vagrant']
+    # only for debug
+    #ansible.verbose = "-v"
+  end
+
+  # loop on host(s) in 'stable' group in inventory to create VM(s)  
+  inventory['all']['children']['pfservers']['children']['stable']['hosts'].each do |server,details|
+    # don't start automatically virtual machines
+    pfservers.vm.define server, autostart: false do |srv|
+      srv.vm.box = details['box']
+      srv.vm.hostname = server
+
+      # set new rule for webadmin
+      srv.vm.network "forwarded_port", guest: 1443, host: details['admin_port'], host_ip: "127.0.0.1", auto_correct: true
+
+      # set new rule for ssh
+      srv.vm.network "forwarded_port", guest: 22, host: details['ssh_port'], host_ip: "127.0.0.1", auto_correct: true
+
+      # mgmt
+      srv.vm.network "private_network", ip: details['mgmt_ip']
+      
+      # registration
+      srv.vm.network "private_network", ip: details['reg_ip']
+
+      # isolation
+      srv.vm.network "private_network", ip: details['iso_ip']
+
+      srv.vm.provider "libvirt" do |v|
+        v.cpus = 2
+        v.memory = "4096"
+      end
+      
+      srv.vm.provider "virtualbox" do |v|
+        v.cpus = 2
+        v.memory = "4096"
+      end
+    end
+  end
+
+  # loop on host(s) in 'dev' group in inventory to create VM(s)  
+  inventory['all']['children']['pfservers']['children']['dev']['hosts'].each do |server,details|
+    # don't start automatically virtual machines
+    pfservers.vm.define server, autostart: false do |srv|
+      srv.vm.box = details['box']
+      srv.vm.hostname = server
+
+      # set new rule for webadmin
+      srv.vm.network "forwarded_port", guest: 1443, host: details['admin_port'], host_ip: "127.0.0.1", auto_correct: true
+
+      # set new rule for ssh
+      srv.vm.network "forwarded_port", guest: 22, host: details['ssh_port'], host_ip: "127.0.0.1", auto_correct: true
+
+      # mgmt
+      srv.vm.network "private_network", ip: details['mgmt_ip']
+      
+      # registration
+      srv.vm.network "private_network", ip: details['reg_ip']
+
+      # isolation
+      srv.vm.network "private_network", ip: details['iso_ip']
+
+      srv.vm.provider "libvirt" do |v|
+        v.cpus = 2
+        v.memory = "4096"
+      end
+      
+      srv.vm.provider "virtualbox" do |v|
+        v.cpus = 2
+        v.memory = "4096"
+      end
+    end
+  end
+end

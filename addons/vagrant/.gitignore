@@ -1,0 +1,6 @@
+# ---> Vagrant
+.vagrant/
+
+# Emacs
+*~
+\#*\#
