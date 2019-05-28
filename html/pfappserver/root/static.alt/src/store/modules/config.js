@@ -550,7 +550,7 @@ const getters = {
   connectionProfilesList: state => {
     if (!state.connectionProfiles) return []
     return state.connectionProfiles.map((item) => {
-      return { value: item.id, name: item.id, text: `${item.id} - ${item.description}` }
+      return { value: item.id, name: item.id, text: ((item.description) ? `${item.id} - ${item.description}` : `${item.id}`) }
     })
   },
   portalModulesList: state => {
@@ -568,13 +568,13 @@ const getters = {
   rolesList: state => {
     if (!state.roles) return []
     return state.roles.map((item) => {
-      return { value: item.category_id, name: item.name, text: `${item.name} - ${item.notes}` }
+      return { value: item.category_id, name: item.name, text: ((item.notes) ? `${item.name} - ${item.notes}` : `${item.name}`) }
     })
   },
   sourcesList: state => {
     if (!state.sources) return []
     return state.sources.map((item) => {
-      return { value: item.id, name: item.description, text: `${item.id} - ${item.description}` }
+      return { value: item.id, name: item.description, text: ((item.description) ? `${item.id} - ${item.description}` : `${item.id}`) }
     })
   },
   ssidsList: state => { // TODO - replace once `config/ssid` endpoint is available
