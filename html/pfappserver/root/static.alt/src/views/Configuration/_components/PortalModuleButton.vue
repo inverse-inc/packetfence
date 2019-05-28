@@ -2,8 +2,8 @@
   <div class="portal-module" :class="{ disabled: disabled }" @mouseout="delayHideButtons()">
     <transition name="slide-top-quick">
       <div class="front" @click="showButtons()" v-if="!buttonsVisible">
-        <h6 class="text-truncate"><icon class="mb-1" :style="{ color: module.color }" name="circle"></icon> <span class="portal-module-type ml-1">{{ getModuleTypeName(module.type) }}</span></h6>
-        <div class="portal-module-label text-truncate">{{ module.description }}</div>
+        <h6 class="text-truncate w-75"><icon class="mb-1" :style="{ color: module.color }" name="circle"></icon> <span class="portal-module-type ml-1">{{ getModuleTypeName(module.type) }}</span></h6>
+        <div class="portal-module-label w-75 text-truncate">{{ module.description }}</div>
       </div>
     </transition>
     <transition name="slide-bottom-quick" v-if="!disabled">
@@ -130,6 +130,9 @@ export default {
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    max-width: $portal-module-width;
+    margin: auto;
+    text-align: center;
   }
   .back {
     flex-direction: row;
@@ -155,6 +158,15 @@ export default {
   + .portal-module-col .portal-module-row .connector-arrow {
     color: $portal-module-connector-hover-color;
   }
+}
+
+.disconnected .portal-module {
+  flex-basis: 100%;
+  border-width: $portal-module-border-width 0 0 0;
+  margin-bottom: -1rem;
+  background-color: rgba($white, .2);
+  background-position: 0 0%,0% 0,0 0%,100% 0%;
+  background-size: $portal-module-border-width 16px;
 }
 
 /* Dense version */

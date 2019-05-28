@@ -21,8 +21,8 @@
             </div>
             </template>
           </div>
-          <b-row align-v="center" class="pt-5">
-            <icon class="connector-arrow" name="circle"></icon>
+          <b-row align-v="center" class="pt-5 pl-3 row-nowrap">
+            <icon class="connector-circle" name="circle"></icon>
             <portal-module :id="rootModule.id" :modules="items" :storeName="storeName" :minimize="minimize" />
           </b-row>
         </div>
@@ -215,16 +215,27 @@ export default {
         let module = this.getModule(id)
         if (module) {
           let modules = module.modules
-          let mlevel = level + 1
+          let mlevel = level
+          const isChained = (module.type === 'Chained')
+          if (!isChained) {
+            mlevel++
+          }
           if (mlevel > count) {
             count = mlevel
           }
+          let max_level = mlevel
           if (modules) {
             modules.forEach(mid => {
-              _module(mid, mlevel)
+              if (isChained) {
+                max_level = _module(mid, max_level)
+              } else {
+                max_level = Math.max(max_level, _module(mid, mlevel))
+              }
             })
           }
+          return max_level
         }
+        return level
       }
       if (rootModule) {
         _module(rootModule.id, 0)
