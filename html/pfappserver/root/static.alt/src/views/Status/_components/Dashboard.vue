@@ -6,7 +6,12 @@
         <pf-button-service service="netdata" class="mr-1" restart start></pf-button-service>
       </b-alert>
       <b-tabs nav-class="nav-fill">
-        <b-tab v-for="section in sections" :title="section.name" :key="section.name">
+        <b-tab v-for="(section, index) in sections" :title="section.name" :key="section.name">
+          <b-row align-h="center" v-if="index === 0"><!-- Show uptime on first tab only -->
+            <b-col class="mt-3 text-center" :md="Math.max(parseInt(12/cluster.length), 3)" v-for="({ management_ip, host}, i) in cluster" :key="management_ip">
+              <badge :ip="management_ip" :chart="'system.uptime'" :label="`${host} - uptime`" :colors="palette(i)" />
+            </b-col>
+          </b-row>
           <template v-for="group in section.groups">
             <!-- Named groups are rendered inside a card -->
             <component :is="group.name ? 'b-card' : 'div'" class="mt-3" :key="group.name" :title="group.name">
@@ -55,12 +60,14 @@
 </template>
 
 <script>
+import Badge from './Badge'
 import Chart, { modes, libs, palettes } from './Chart'
 import pfButtonService from '@/components/pfButtonService'
 
 export default {
   name: 'Dashboard',
   components: {
+    Badge,
     Chart,
     pfButtonService
   },
