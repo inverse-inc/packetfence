@@ -33,7 +33,6 @@ const getters = {
       const i = (now - min)
       const k = -(Math.log(1 - (onParPercentile / 100)) / x)
       const p = (1 - Math.exp(-k * i))
-      const percentage = (isNaN(p)) ? 100 : Math.min(p * 100, 100)
       return (isNaN(p)) ? 100 : Math.min(p * 100, 100)
     }
   },
