@@ -94,7 +94,7 @@ export default {
                     d3pie_smallsegmentgrouping_enabled: 'true',
                     decimal_digits: 0
                   },
-                  cols: 3
+                  cols: 4
                 },
                 {
                   title: this.$i18n.t('Connected devices per connection type'),
@@ -105,7 +105,7 @@ export default {
                     decimal_digits: 0,
                     colors: palettes[1]
                   },
-                  cols: 3
+                  cols: 4
                 },
                 {
                   title: this.$i18n.t('Connected devices per SSID'),
@@ -118,7 +118,7 @@ export default {
                     decimal_digits: 0,
                     colors: palettes[2]
                   },
-                  cols: 3
+                  cols: 4
                 }
               ]
             },
