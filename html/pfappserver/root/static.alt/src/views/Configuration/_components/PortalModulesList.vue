@@ -223,17 +223,17 @@ export default {
           if (mlevel > count) {
             count = mlevel
           }
-          let max_level = mlevel
+          let maxLevel = mlevel
           if (modules) {
             modules.forEach(mid => {
               if (isChained) {
-                max_level = _module(mid, max_level)
+                maxLevel = _module(mid, maxLevel)
               } else {
-                max_level = Math.max(max_level, _module(mid, mlevel))
+                maxLevel = Math.max(maxLevel, _module(mid, mlevel))
               }
             })
           }
-          return max_level
+          return maxLevel
         }
         return level
       }
