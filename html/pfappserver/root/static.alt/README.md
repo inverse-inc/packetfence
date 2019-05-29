@@ -46,7 +46,7 @@ Since this is a SPA (Single-Page Application), it is currently accessible from `
 * [vue-timeago](https://github.com/egoist/vue-timeago) -- show relative time
 * [Plotly](https://plot.ly/javascript/reference/) -- svg charts
 * [date-fns](https://date-fns.org/docs/Getting-Started) -- datetime utils
-* [vue-bootstrap-datetimepicker](http://eonasdan.github.io/bootstrap-datetimepicker/) -- datetime input form element
+* [tail.datetime](https://github.pytes.net/tail.DateTime/) -- datetime picker
 * [papaparse](https://www.papaparse.com/) -- parse CSV
 * [uuid](https://www.npmjs.com/package/uuid) -- RFC4122 UUIDs
 * [vue-multiselect](https://vue-multiselect.js.org/) -- multi-select/chosen component
