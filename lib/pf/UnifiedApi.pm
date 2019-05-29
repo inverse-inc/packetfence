@@ -716,6 +716,7 @@ sub setup_api_v1_std_crud_collection_routes {
     $root->register_sub_action({path => '', action => 'list', method => 'GET'});
     $root->register_sub_action({path => '', action => 'create', method => 'POST'});
     $root->register_sub_action({action => 'search', method => 'POST'});
+    $root->register_sub_action({path => '', action => 'options', method => 'OPTIONS'});
     return ;
 }
 
@@ -731,6 +732,7 @@ sub setup_api_v1_std_crud_resource_routes {
     $root->register_sub_action({path => '', action => 'update', method => 'PATCH'});
     $root->register_sub_action({path => '', action => 'replace', method => 'PUT'});
     $root->register_sub_action({path => '', action => 'remove', method => 'DELETE'});
+    $root->register_sub_action({path => '', action => 'resource_options', method => 'OPTIONS'});
     return ;
 }
 

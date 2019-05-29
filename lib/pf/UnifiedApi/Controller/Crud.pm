@@ -447,6 +447,15 @@ sub build_search_info {
     };
 }
 
+sub options {
+    my ($self);
+    return $self->render(json => {});
+}
+
+sub resource_options {
+    return $self->render(json => {});
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
