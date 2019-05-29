@@ -25,7 +25,7 @@ BEGIN {
     use setup_test_config;
 }
 #run tests
-use Test::More tests => 89;
+use Test::More tests => 92;
 use Test::Mojo;
 use Test::NoWarnings;
 my $t = Test::Mojo->new('pf::UnifiedApi');
@@ -80,6 +80,31 @@ my %values = (
     "UTC_Timezone"                 => "UTC_Timezone",
     "MAC_Address"                  => "MAC_Address",
 );
+
+my $true = bless( do { \( my $o = 1 ) }, 'JSON::PP::Boolean' );
+my $false = bless( do { \( my $o = 0 ) }, 'JSON::PP::Boolean' );
+
+$t->options_ok('/api/v1/wrix_locations')
+  ->status_is(200)
+  ->json_is(
+    {
+        meta => {
+            (
+                map {
+                    $_ => {
+                        default     => undef,
+                        placeholder => undef,
+                        required    => $_ eq 'id' ? $true : $false,
+                        type        => 'string',
+                      }
+                } keys %values
+            )
+        },
+        status => 200,
+    }
+);
+
+exit;
 
 $t->post_ok('/api/v1/wrix_locations' => json => \%values)
   ->status_is(201);

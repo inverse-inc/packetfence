@@ -448,12 +448,99 @@ sub build_search_info {
 }
 
 sub options {
-    my ($self);
-    return $self->render(json => {});
+    my ($self) = @_;
+    return $self->render(json => { meta => $self->meta_from_dal($self->dal) });
 }
 
 sub resource_options {
+    my ($self) = @_;
     return $self->render(json => {});
+}
+
+=head2 meta_from_dal
+
+meta_from_dal
+
+=cut
+
+sub meta_from_dal {
+    my ($self, $dal) = @_;
+    my %meta;
+    my $dal_meta = $dal->get_meta;
+    for my $field_name (keys %$dal_meta) {
+        $meta{$field_name} = $self->field_meta($field_name, $dal_meta->{$field_name});
+    }
+    return \%meta;
+}
+
+=head2 field_meta
+
+field_meta
+
+=cut
+
+sub field_meta {
+    my ($self, $field_name, $dal_field_meta) = @_;
+    my %field_meta;
+    $field_meta{type} = $self->field_type($field_name, $dal_field_meta);
+    $field_meta{required} = $self->field_required($field_name, $dal_field_meta);
+    $field_meta{default} = $self->field_default($field_name, $dal_field_meta);
+    $field_meta{placeholder} = $self->field_placeholder($field_name, $dal_field_meta);
+    return \%field_meta;
+}
+
+=head2 field_required
+
+field_required
+
+=cut
+
+sub field_required {
+    my ($self, $field_name, $dal_field_meta) = @_;
+    return $dal_field_meta->{is_nullable} ? $self->json_false : $self->json_true;
+}
+
+=head2 field_type
+
+field_type
+
+=cut
+
+sub field_type {
+    my ($self, $field_name, $dal_field_meta) = @_;
+    return "string";
+}
+
+=head2 field_default
+
+field_default
+
+=cut
+
+sub field_default {
+    my ($self, $field_name, $dal_field_meta) = @_;
+    my $default;
+    if (exists $dal_field_meta->{default}) {
+        $default = $dal_field_meta->{default};
+    }
+
+    return $default;
+}
+
+=head2 field_placeholder
+
+field_placeholder
+
+=cut
+
+sub field_placeholder {
+    my ($self, $field_name, $dal_field_meta) = @_;
+    my $placeholder;
+    if (exists $dal_field_meta->{placeholder}) {
+        $placeholder = $dal_field_meta->{placeholder};
+    }
+
+    return $placeholder;
 }
 
 =head1 AUTHOR
