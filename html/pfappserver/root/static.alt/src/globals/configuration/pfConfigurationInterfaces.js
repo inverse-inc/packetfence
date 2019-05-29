@@ -457,6 +457,20 @@ export const pfConfigurationInterfaceViewFields = (context = {}) => {
           ]
         },
         {
+          if: ['inlinel2'].includes(form.type),
+          label: i18n.t('Enable CoA'),
+          text: i18n.t('This will try to send a CoA to the equipment to reevaluate the access.'),
+          fields: [
+            {
+              key: 'coa',
+              component: pfFormRangeToggle,
+              attrs: {
+                values: { checked: 'enabled', unchecked: 'disabled' }
+              }
+            }
+          ]
+        },
+        {
           if: ['none', 'management'].includes(form.type),
           label: i18n.t('High availability'),
           fields: [

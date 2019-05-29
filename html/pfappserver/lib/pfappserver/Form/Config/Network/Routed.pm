@@ -79,6 +79,14 @@ has_field 'nat_enabled' => (
     label => 'Enable NATting',
 );
 
+has_field 'coa' => (
+    type => 'Toggle',
+    checkbox_value => "enabled",
+    unchecked_value => "disabled",
+    default => "disabled",
+    label => 'Enable CoA',
+);
+
 has_field 'dhcpd' =>
   (
    type => 'Toggle',

@@ -54,7 +54,8 @@ BEGIN {
         locationlog_set_session
         locationlog_get_session
         locationlog_last_entry_mac
-        
+        locationlog_last_entry_non_inline_mac
+
         locationlog_unique_ssids
     );
 }
@@ -63,6 +64,8 @@ use pf::config qw(
     $WIRED
     $NO_VOIP
     $VOIP
+    $INLINE
+    %connection_type_to_str
 );
 use pf::db;
 use pf::dal;
@@ -603,6 +606,25 @@ sub locationlog_unique_ssids {
         },
         -order_by => 'ssid',
     });
+}
+
+=item locationlog_last_entry_non_inline_mac
+
+Return the last locationlog entry for a mac that is not inline even if it's open or close.
+
+=cut
+
+sub locationlog_last_entry_non_inline_mac {
+   my ($mac) = @_;
+   $mac = clean_mac($mac);
+   return _db_item({
+       -where => {
+           mac => $mac,
+           connection_type => { "!=" => $connection_type_to_str{$INLINE} },
+       },
+       -order_by => { -desc => 'start_time' },
+       -limit => 1,
+   });
 }
 
 =back
