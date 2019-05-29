@@ -20,6 +20,8 @@
           <b-dropdown-item :to="{ name: 'newSyslogParser', params: { syslogParserType: 'suricata' } }">Suricata</b-dropdown-item>
           <b-dropdown-item :to="{ name: 'newSyslogParser', params: { syslogParserType: 'suricata_md5' } }">Suricata MD5</b-dropdown-item>
         </b-dropdown>
+        <pf-button-service service="pfdetect" class="ml-1" restart start stop :disabled="isLoading"></pf-button-service>
+        <pf-button-service service="pfqueue" class="ml-1" restart start stop :disabled="isLoading"></pf-button-service>
       </template>
       <template slot="emptySearch" slot-scope="state">
         <pf-empty-table :isLoading="state.isLoading">{{ $t('No syslog parsers found') }}</pf-empty-table>
@@ -47,6 +49,7 @@
 
 <script>
 import pfButtonDelete from '@/components/pfButtonDelete'
+import pfButtonService from '@/components/pfButtonService'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
@@ -58,6 +61,7 @@ export default {
   name: 'SyslogParsersList',
   components: {
     pfButtonDelete,
+    pfButtonService,
     pfConfigList,
     pfEmptyTable,
     pfFormRangeToggle
