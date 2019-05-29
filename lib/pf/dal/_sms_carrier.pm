@@ -41,14 +41,12 @@ BEGIN {
     );
 
     %DEFAULTS = (
-        id => '',
         name => undef,
         email_pattern => '',
         created => '',
     );
 
     @INSERTABLE_FIELDS = qw(
-        id
         name
         email_pattern
         created
@@ -57,7 +55,7 @@ BEGIN {
     %FIELDS_META = (
         id => {
             type => 'INT',
-            is_auto_increment => 0,
+            is_auto_increment => 1,
             is_primary_key => 1,
             is_nullable => 0,
         },

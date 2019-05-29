@@ -47,6 +47,7 @@ my %values = (
     ifDesc              => 'test ifDesc',
     start_time          => '0000-00-00 00:00:01',
     end_time            => '0000-00-00 00:00:02',
+    voip                => 'no',
 );
 my $status = pf::dal::locationlog->create(\%values);
 

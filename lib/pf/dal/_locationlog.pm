@@ -55,6 +55,7 @@ BEGIN {
         realm
         session_id
         ifDesc
+        voip
     );
 
     %DEFAULTS = (
@@ -76,6 +77,7 @@ BEGIN {
         realm => undef,
         session_id => undef,
         ifDesc => undef,
+        voip => 'no',
     );
 
     @INSERTABLE_FIELDS = qw(
@@ -97,6 +99,7 @@ BEGIN {
         realm
         session_id
         ifDesc
+        voip
     );
 
     %FIELDS_META = (
@@ -214,6 +217,16 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 1,
         },
+        voip => {
+            type => 'ENUM',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+            enums_values => {
+                'no' => 1,
+                'yes' => 1,
+            },
+        },
     );
 
     @PRIMARY_KEYS = qw(
@@ -240,6 +253,7 @@ BEGIN {
         locationlog.realm
         locationlog.session_id
         locationlog.ifDesc
+        locationlog.voip
     );
 
 }
