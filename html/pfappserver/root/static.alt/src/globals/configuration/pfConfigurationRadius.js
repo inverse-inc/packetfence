@@ -12,11 +12,12 @@ export const pfConfigurationRadiusViewFields = (context = {}) => {
   const {
     options: {
       meta = {}
-    }
+    },
+    form = {}
   } = context
   return [
     {
-      tab: null,
+      tab: i18n.t('General'),
       fields: [
         {
           label: i18n.t('EAP Auth Types'),
@@ -207,6 +208,95 @@ export const pfConfigurationRadiusViewFields = (context = {}) => {
             }
           ]
         }
+      ]
+    },
+    {
+      tab: 'OCSP',
+      fields: [
+        {
+          label: i18n.t('Enable'),
+          text: i18n.t('Enable OCSP checking.'),
+          fields: [
+            {
+              key: 'ocsp_enable',
+              component: pfFormRangeToggle,
+              attrs: {
+                values: { checked: 'yes', unchecked: 'no' }
+              }
+            }
+          ]
+        },
+        {
+          label: i18n.t('Override Responder URL'),
+          text: i18n.t('Override the OCSP Responder URL from the certificate.'),
+          fields: [
+            {
+              key: 'ocsp_override_cert_url',
+              component: pfFormRangeToggle,
+              attrs: {
+                values: { checked: 'yes', unchecked: 'no' }
+              }
+            }
+          ]
+        },
+        {
+          if: form.ocsp_override_cert_url === 'yes',
+          label: i18n.t('Responder URL'),
+          text: i18n.t('The overridden OCSP Responder URL.'),
+          fields: [
+            {
+              key: 'ocsp_url',
+              component: pfFormInput,
+              attrs: pfConfigurationAttributesFromMeta(meta, 'ocsp_url'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'ocsp_url', i18n.t('URL'))
+            }
+          ]
+        },
+        {
+          label: i18n.t('Use nonce'),
+          text: i18n.t('If the OCSP Responder can not cope with nonce in the request, then it can be disabled here.'),
+          fields: [
+            {
+              key: 'ocsp_use_nonce',
+              component: pfFormRangeToggle,
+              attrs: {
+                values: { checked: 'yes', unchecked: 'no' }
+              }
+            }
+          ]
+        },
+        {
+          label: i18n.t('Response timeout'),
+          text: i18n.t('Number of seconds to wait for the OCSP response. 0 uses system default.'),
+          fields: [
+            {
+              key: 'ocsp_timeout',
+              component: pfFormInput,
+              attrs: {
+                ...pfConfigurationAttributesFromMeta(meta, 'ocsp_timeout'),
+                ...{
+                  type: 'number',
+                  step: 1
+                }
+              },
+              validators: pfConfigurationValidatorsFromMeta(meta, 'ocsp_timeout', i18n.t('Timeout'))
+            }
+          ]
+        },
+        {
+          label: i18n.t('Response softfail'),
+          text: i18n.t(`Treat OCSP response errors as 'soft' failures and still accept the certificate.`),
+          fields: [
+            {
+              key: 'ocsp_softfail',
+              component: pfFormRangeToggle,
+              attrs: {
+                values: { checked: 'yes', unchecked: 'no' }
+              }
+            }
+          ]
+        }
+
       ]
     }
   ]

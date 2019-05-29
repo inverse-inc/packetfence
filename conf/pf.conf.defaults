@@ -1167,6 +1167,36 @@ normalize_radius_machine_auth_username=disabled
 # Which attributes to use to get the username from a RADIUS request
 # The order of the attributes are listed in this configuration parameter is followed while performing the lookup
 username_attributes=PacketFence-UserNameAttribute,TLS-Client-Cert-Subject-Alt-Name-Upn,TLS-Client-Cert-Common-Name,User-Name
+#
+# radius_configuration.ocsp_enable
+#
+# Enable OCSP checking.
+ocsp_enable = no
+#
+# radius_configuration.ocsp_override_cert_url
+#
+# Override the OCSP Responder URL from the certificate.
+ocsp_override_cert_url = yes
+#
+# radius_configuration.ocsp_url
+#
+# The overridden OCSP Responder URL.
+ocsp_url = http://127.0.0.1/ocsp/
+#
+# radius_configuration.ocsp_use_nonce
+#
+# If the OCSP Responder can not cope with nonce in the request, then it can be disabled here.
+ocsp_use_nonce = yes
+#
+# radius_configuration.ocsp_timeout
+#
+# Number of seconds to wait for the OCSP response. 0 uses system default.
+ocsp_timeout = 0
+#
+# radius_configuration.soft_fail
+#
+# Treat OCSP response errors as 'soft' failures and still accept the certificate.
+ocsp_softfail = no
 
 [pfdhcp]
 #

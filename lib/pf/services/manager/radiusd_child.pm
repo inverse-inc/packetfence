@@ -494,6 +494,7 @@ sub generate_radiusd_eapconf {
     my $radius_configuration = $Config{radius_configuration};
     my %vars = (
         install_dir => $install_dir,
+        radius_configuration => $radius_configuration,
         eap_fast_opaque_key => $radius_configuration->{eap_fast_opaque_key},
         eap_fast_authority_identity => $radius_configuration->{eap_fast_authority_identity},
         (map { $_ => 1 } (split ( /\s*,\s*/, $radius_configuration->{eap_authentication_types} // ''))),
