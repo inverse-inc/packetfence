@@ -17,6 +17,8 @@ use warnings;
 use base ('pf::Switch::Aruba');
 use pf::constants qw($TRUE);
 use pf::node qw(node_attributes);
+use pf::util::radius qw(perform_disconnect perform_coa);
+use Try::Tiny;
 
 sub description { 'Aruba Instant Access' };
 
