@@ -33,7 +33,7 @@ const route = {
       props: (route) => ({ storeName: '$_radius_logs', query: route.query.query }),
       meta: {
         can: 'read radius_log',
-        fail: '/nodes'
+        fail: '/auditing/dhcpoption82s/search'
       }
     },
     {
@@ -56,7 +56,8 @@ const route = {
       component: DhcpOption82LogsSearch,
       props: (route) => ({ storeName: '$_dhcpoption82_logs', query: route.query.query }),
       meta: {
-        can: 'read dhcp_option_82'
+        can: 'read dhcp_option_82',
+        fail: '/nodes'
       }
     },
     {
