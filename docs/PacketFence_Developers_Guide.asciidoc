@@ -431,8 +431,8 @@ slowly disappear.
     SQL
 
 
-HTTP JSON API
--------------
+== HTTP JSON API
+
 
 PacketFence provides an HTTP JSON API which exposes most of its functionality. 
 
@@ -446,33 +446,67 @@ Users access the API on TCP port 9999 over a secure connection (HTTPS).
 
 Authentication can be done using either the webservices credentials or any credentials that are valid on the web admin interface.
 
-How to use the API
-~~~~~~~~~~~~~~~~~~
+=== How to use the API
+
+==== On a PacketFence server
+
+The [command]`pfperl-api` command located in [filename]`/usr/local/pf/sbin/`
+directory can be use directly from a PacketFence server to query the API without having to specify an authentication token
+and extra-parameters.
+
+Example to get your general configuration:
+
+[source,bash]
+----
+/usr/local/pf/sbin/pfperl-api get /api/v1/config/base/general \
+| python -m json.tool
+----
+
+Example to create a node:
+
+[source,bash]
+----
+/usr/local/pf/sbin/pfperl-api get -M POST /api/v1/nodes/ \
+-c '{"mac":"22:33:44:55:66:77","pid":"host/MYCOMPUTER"}' \
+| python -m json.tool
+----
+
+
+==== On a different computer
 
 NOTE: The API specification mentionned above provides ready-to-use curl commands through the "Try it out" button.
 
 First, get an authentication token with the webservices credentials or an admin account:
 
- curl -X POST "https://PF_MANAGEMENT_IP:9999/api/v1/login" \
- -H  "accept: application/json" \
- -H  "Content-Type: application/json" \
- -d "{\"username\":\"admin\",\"password\":\"admin\"}" \
- --insecure |
- python -m json.tool
+[source,bash]
+----
+curl -X POST "https://PF_MANAGEMENT_IP:9999/api/v1/login" \
+-H  "accept: application/json" \
+-H  "Content-Type: application/json" \
+-d "{\"username\":\"admin\",\"password\":\"admin\"}" \
+--insecure |
+python -m json.tool
+----
 
 You will get following response :
 
+[source,json]
+----
  {
     "token": "MY_TOKEN"
  }
+----
 
-Then use this token to query the API. The following example fetches the domains configuration:
+Then use this token to query the API. The following example fetches the general configuration:
 
- curl -X GET "https://PF_MANAGEMENT_IP:9999/api/v1/config/domains" \
- -H  "accept: application/json" \
- -H  "Authorization: MY_TOKEN" \
- --insecure |
- python -m json.tool
+[source,bash]
+----
+curl -X GET "https://PF_MANAGEMENT_IP:9999/api/v1/config/base/general" \
+-H  "accept: application/json" \
+-H  "Authorization: MY_TOKEN" \
+--insecure |
+python -m json.tool
+----
 
 Although the API should mostly stay the same, backward compatibility is not 100% guaranteed for the moment until the v1 API reaches full maturity.
 
