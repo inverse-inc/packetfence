@@ -20,7 +20,7 @@ with qw(
 
 use pfappserver::Form::Field::Duration;
 use pf::Authentication::Source::SponsorEmailSource;
-use pf::config qw(%Doc_Config);
+use pf::config qw(%Config %Doc_Config);
 
 # Form fields
 
@@ -72,7 +72,7 @@ has_field 'lang' =>
   (
    type => 'Select',
    label => 'Language for sponsor email',
-   default => '',
+   default => $Config{advanced}{language},
    options_method => \&lang_options,
    tags => { after_element => \&help,
              help => 'Language for sponsor email.' },
