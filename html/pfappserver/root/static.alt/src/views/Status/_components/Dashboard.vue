@@ -700,7 +700,7 @@ export default {
     getAlarms () {
       if (this.$store.state[this.storeName].allCharts) {
         this.cluster.forEach(({ management_ip: ip }) => {
-          this.$store.dispatch(`${this.storeName}/alarms`, ip).then(({ hostname, alarms }) => {
+          this.$store.dispatch(`${this.storeName}/alarms`, ip).then(({ hostname, alarms = {} } = {}) => {
             Object.keys(alarms).forEach(path => {
               const alarm = alarms[path]
               const label = alarm.chart.split('.')[0].replace(/_/g, ' ') + ' - ' + alarm.family

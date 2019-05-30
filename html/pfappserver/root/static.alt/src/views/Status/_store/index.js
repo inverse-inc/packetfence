@@ -322,15 +322,21 @@ const actions = {
       return response
     })
   },
-  getCluster: ({ state, commit }) => {
+  getCluster: ({ state, dispatch, commit }) => {
     if (state.cluster) {
       return state.cluster
     }
     if (state.clusterStatus !== types.LOADING) {
       commit('CLUSTER_REQUEST')
       return api.cluster().then(servers => {
-        commit('CLUSTER_UPDATED', servers)
-        return servers
+        if (servers.length) {
+          commit('CLUSTER_UPDATED', servers)
+        } else {
+          dispatch('system/getSummary', null, { root: true }).then(summary => {
+            const server = [{ host: summary.hostname, management_ip: '127.0.0.1' }]
+            commit('CLUSTER_UPDATED', server)
+          })
+        }
       }).catch(() => {
         commit('CLUSTER_ERROR')
       })
@@ -462,11 +468,7 @@ const mutations = {
   },
   CLUSTER_UPDATED: (state, servers) => {
     state.clusterStatus = types.SUCCESS
-    if (servers.length > 0) {
-      state.cluster = servers
-    } else {
-      state.cluster = [{ host: 'localhost', management_ip: '127.0.0.1' }]
-    }
+    state.cluster = servers
   },
   CLUSTER_ERROR: (state) => {
     state.clusterServicesStatus = types.ERROR

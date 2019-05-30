@@ -15,7 +15,6 @@ const actions = {
     return new Promise((resolve, reject) => {
       api.login(user).then(response => {
         const token = response.data.token
-        dispatch('system/getSummary', null, { root: true })
         dispatch('session/update', token, { root: true }).then(() => {
           commit('LOGIN_SUCCESS', token)
           resolve(response)
