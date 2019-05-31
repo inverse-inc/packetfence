@@ -7,7 +7,6 @@
     :vuelidate="$v.form"
     @validations="formValidations = $event"
     @save="save"
-    :services="['radiusd-acct', 'radiusd-auth']"
   >
     <template slot="header" is="b-card-header">
       <h4 class="mb-0">
@@ -19,7 +18,9 @@
         <pf-button-save :disabled="invalidForm" :isLoading="isLoading" class="mr-1">
           <template>{{ $t('Save') }}</template>
         </pf-button-save>
-        <b-button :disabled="isLoading" class="mr-1" variant="outline-secondary" @click="init()">{{ $t('Reset') }}</b-button>
+        <b-button :disabled="isLoading" class="mr-3" variant="outline-secondary" @click="init()">{{ $t('Reset') }}</b-button>
+        <pf-button-service class="mr-1" service="radiusd-acct" restart start stop></pf-button-service>
+        <pf-button-service service="radiusd-auth" restart start stop></pf-button-service>
       </b-card-footer>
     </template>
   </pf-config-view>
@@ -28,6 +29,7 @@
 <script>
 import pfConfigView from '@/components/pfConfigView'
 import pfButtonSave from '@/components/pfButtonSave'
+import pfButtonService from '@/components/pfButtonService'
 import {
   pfConfigurationRadiusViewFields as fields
 } from '@/globals/configuration/pfConfigurationRadius'
@@ -41,7 +43,8 @@ export default {
   ],
   components: {
     pfConfigView,
-    pfButtonSave
+    pfButtonSave,
+    pfButtonService
   },
   data () {
     return {
