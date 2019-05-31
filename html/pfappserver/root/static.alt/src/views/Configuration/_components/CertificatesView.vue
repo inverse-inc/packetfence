@@ -97,6 +97,14 @@
         <!-- View mode -->
         <transition name="fade" mode="out-in" appear>
           <b-form v-show="!editMode[id]">
+            <b-alert variant="warning" :show="isModified[id]" fade>
+              <h4 class="alert-heading" v-t="'Warning'"></h4>
+              <p>
+                {{ $t('Some services must be restarted to load the new certificate.') }}
+                <span v-if="id === 'http'" v-html="$t('The {service} service needs to be restarted from the command-line.', { service: $strong('httpd.admin') })"></span>
+              </p>
+              <pf-button-service class="mr-1" v-for="service in services[id]" :key="service" :service="service" restart start stop></pf-button-service>
+            </b-alert>
             <b-form-group label-cols-md="3" label-size="lg" :label="$t('Certificate')">
               <b-container fluid>
                 <b-row align-v="center" v-if="info[id].lets_encrypt">
@@ -170,6 +178,7 @@
 
 <script>
 import pfButtonSave from '@/components/pfButtonSave'
+import pfButtonService from '@/components/pfButtonService'
 import pfField from '@/components/pfField'
 import pfFormFields from '@/components/pfFormFields'
 import pfFormInput from '@/components/pfFormInput'
@@ -190,6 +199,7 @@ export default {
   ],
   components: {
     pfButtonSave,
+    pfButtonService,
     pfFormFields,
     pfFormInput,
     pfFormRangeToggle,
@@ -215,8 +225,10 @@ export default {
       letsEncryptState: '',
       letsEncryptMsg: '',
       initCerts: ['http', 'radius'],
+      services: { 'http': ['haproxy-portal', 'httpd.admin'], 'radius': ['radiusd-acct', 'radiusd-auth'] },
       sortedCerts: [],
       editMode: {},
+      isModified: {},
       csrMode: false,
       csrForm: {
         common_name: '',
@@ -335,6 +347,7 @@ export default {
         this.$store.dispatch(`${this.storeName}/getCertificateInfo`, id).then(info => {
           this.$set(this.info, id, info)
           this.editMode[id] = false // go back to certificate info
+          this.isModified[id] = true
         })
         this.$store.dispatch('notification/info', { message: this.$i18n.t('{certificate} certificate saved', { certificate: id.toUpperCase() }) })
       }).finally(() => window.scrollTo(0, 0))
