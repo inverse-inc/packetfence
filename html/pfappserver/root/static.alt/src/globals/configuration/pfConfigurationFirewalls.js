@@ -139,7 +139,7 @@ export const pfConfigurationFirewallViewFields = (context) => {
           ]
         },
         {
-          if: ['BarracudaNG', 'JSONRPC'].includes(firewallType),
+          if: ['BarracudaNG', 'JSONRPC', 'FamilyZone'].includes(firewallType),
           label: i18n.t('Username'),
           fields: [
             {
@@ -151,7 +151,7 @@ export const pfConfigurationFirewallViewFields = (context) => {
           ]
         },
         {
-          if: ['BarracudaNG', 'Checkpoint', 'FortiGate', 'Iboss', 'JuniperSRX', 'WatchGuard', 'LightSpeedRocket', 'SmoothWall'].includes(firewallType),
+          if: ['BarracudaNG', 'Checkpoint', 'FortiGate', 'Iboss', 'JuniperSRX', 'WatchGuard', 'LightSpeedRocket', 'SmoothWall', 'FamilyZone'].includes(firewallType),
           label: i18n.t('Secret or Key'),
           fields: [
             {
@@ -197,6 +197,19 @@ export const pfConfigurationFirewallViewFields = (context) => {
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'vsys'),
               validators: pfConfigurationValidatorsFromMeta(meta, 'vsys', i18n.t('Number'))
+            }
+          ]
+        },
+        {
+          if: ['FamilyZone'].includes(firewallType),
+          label: i18n.t('Region'),
+          text: i18n.t('Please define the Virtual System number. This only has an effect when used with the HTTP transport.'),
+          fields: [
+            {
+              key: 'region',
+              component: pfFormInput,
+              attrs: pfConfigurationAttributesFromMeta(meta, 'region'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'region', i18n.t('Region'))
             }
           ]
         },

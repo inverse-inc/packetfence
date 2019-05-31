@@ -31,8 +31,12 @@ use pfappserver::Form::Config::Firewall_SSO::FortiGate;
 use pfappserver::Form::Config::Firewall_SSO::JSONRPC;
 use pfappserver::Form::Config::Firewall_SSO::PaloAlto;
 use pfappserver::Form::Config::Firewall_SSO::JuniperSRX;
+<<<<<<< HEAD
 use pfappserver::Form::Config::Firewall_SSO::LightSpeedRocket;
 use pfappserver::Form::Config::Firewall_SSO::SmoothWall;
+=======
+use pfappserver::Form::Config::Firewall_SSO::FamilyZone;
+>>>>>>> Added admin gui part
 
 our %TYPES_TO_FORMS = (
     map { $_ => "pfappserver::Form::Config::Firewall_SSO::$_" } qw(
@@ -46,6 +50,7 @@ our %TYPES_TO_FORMS = (
       JuniperSRX
       LightSpeedRocket
       SmoothWall
+      FamilyZone
     )
 );
 
