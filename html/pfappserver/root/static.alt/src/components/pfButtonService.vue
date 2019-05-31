@@ -30,7 +30,7 @@
     <b-dropdown-divider v-if="!isLoading"></b-dropdown-divider>
     <b-dropdown-item v-if="canEnable" @click="doEnable"><icon name="toggle-on" class="mr-1" @click.stop="onClick"></icon> {{ $t('Enable') }}</b-dropdown-item>
     <b-dropdown-item v-if="canDisable" @click="doDisable"><icon name="toggle-off" class="mr-1" @click.stop="onClick"></icon> {{ $t('Disable') }}</b-dropdown-item>
-    <b-dropdown-item v-if="canRestart" @click="doRestart"><icon name="circle-notch" class="mr-1" @click.stop="onClick"></icon> {{ $t('Restart') }}</b-dropdown-item>
+    <b-dropdown-item v-if="canRestart" @click="doRestart"><icon name="redo" class="mr-1" @click.stop="onClick"></icon> {{ $t('Restart') }}</b-dropdown-item>
     <b-dropdown-item v-if="canStart" @click="doStart"><icon name="play" class="mr-1" @click.stop="onClick"></icon> {{ $t('Start') }}</b-dropdown-item>
     <b-dropdown-item v-if="canStop" @click="doStop"><icon name="stop" class="mr-1" @click.stop="onClick"></icon> {{ $t('Stop') }}</b-dropdown-item>
   </b-dropdown>
