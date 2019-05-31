@@ -14,7 +14,7 @@
         @keyup.native="onChange($event)"
         @change.native="onChange($event)"
       />
-      <b-input-group-append>
+      <b-input-group-append v-if="readonly || disabled || test">
         <b-button v-if="readonly || disabled" class="input-group-text" tabindex="-1" disabled><icon name="lock"></icon></b-button>
         <b-button-group v-else-if="test" rel="testResultGroup">
           <b-button v-if="testResult !== null" variant="light" disabled tabindex="-1">
