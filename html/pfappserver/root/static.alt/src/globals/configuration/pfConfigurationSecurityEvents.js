@@ -86,6 +86,7 @@ export const pfConfigurationSecurityEventViewFields = (context = {}) => {
   const {
     isNew = false,
     isClone = false,
+    id = '',
     form = {},
     options: {
       meta = {}
@@ -102,6 +103,7 @@ export const pfConfigurationSecurityEventViewFields = (context = {}) => {
               key: 'enabled',
               component: pfFormRangeToggle,
               attrs: {
+                disabled: id === 'defaults',
                 values: { checked: 'Y', unchecked: 'N' },
                 colors: { checked: 'var(--success)', unchecked: 'var(--danger)' }
               }
