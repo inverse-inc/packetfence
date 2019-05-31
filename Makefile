@@ -50,9 +50,11 @@ docs/docbook/xsl/import-fo.xsl:
 		$<.fo \
 		-pdf docs/$@
 
-html: $(patsubst %.asciidoc,%.html,$(notdir $(wildcard docs/PacketFence_*.asciidoc)))
+HTML = $(patsubst %.asciidoc,%.html, $(notdir $(wildcard docs/PacketFence_*.asciidoc)))
 
-%.html : docs/%.asciidoc
+html: $(HTML)
+
+%.html: docs/%.asciidoc
 	asciidoctor \
 		-D docs/html \
 		-n \
@@ -63,6 +65,9 @@ html/pfappserver/root/static/doc:
 	make html
 	cp -a docs/html/* html/pfappserver/root/static/doc
 	cp -a docs/images/* html/pfappserver/root/static/images
+
+html/pfappserver/root/static/doc/index.js: $(HTML)
+	find html/pfappserver/root/static/doc -type f  -iname  '*.html' -printf "{\"name\":\"%f\", \"size\":%s, \"last_modifed\" : %T@}\n" | jq -s '{ items: [ .[] |  {name, size, last_modifed : (.last_modifed*1000 | floor)} ] }' > html/pfappserver/root/static/doc/index.js
 
 pfcmd.help:
 	/usr/local/pf/bin/pfcmd help > docs/pfcmd.help

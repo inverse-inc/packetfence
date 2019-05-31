@@ -56,7 +56,7 @@ Source: http://www.packetfence.org/downloads/PacketFence/src/%{real_name}-%{vers
 %global logfiles packetfence.log snmptrapd.log pfdetect pfmon security_event.log httpd.admin.audit.log
 %global logdir /usr/local/pf/logs
 
-BuildRequires: gettext, httpd, ipset-devel, pkgconfig
+BuildRequires: gettext, httpd, ipset-devel, pkgconfig, jq
 # Required to build documentation
 # See docs/docbook/README.asciidoc for more info about installing requirements.
 # TODO fop on EL5 is actually xmlgraphics-fop
@@ -428,8 +428,8 @@ done
     done
 %endif
 
-# Build the HTML doc for pfappserver
-make html
+# Build the HTML doc index for pfappserver
+make html/pfappserver/root/static/doc/index.js
 
 # build pfcmd C wrapper
 gcc -g0 src/pfcmd.c -o bin/pfcmd
