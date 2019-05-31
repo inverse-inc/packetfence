@@ -78,6 +78,13 @@ const types = {
   ERROR: 'error'
 }
 
+export const blacklistedServices = [ // prevent start|stop|restart control on these services
+  'api-frontend',
+  'httpd.admin',
+  'pf',
+  'pfperl-api'
+]
+
 // Default values
 const state = {
   cache: {}, // items details

@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import api from '../_api'
+import { blacklistedServices } from '@/store/modules/services'
 
 const STORAGE_CHARTS_KEY = 'dashboard-charts'
 
@@ -28,13 +29,6 @@ const state = {
   clusterServices: [],
   clusterServicesStatus: ''
 }
-
-const blacklistedServices = [ // prevent start|stop|restart control on these services
-  'api-frontend',
-  'httpd.admin',
-  'pf',
-  'pfperl-api'
-]
 
 const getters = {
   isLoading: state => state.allChartsStatus === types.LOADING,

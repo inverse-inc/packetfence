@@ -37,6 +37,8 @@
 </template>
 
 <script>
+import { blacklistedServices } from '@/store/modules/services'
+
 export default {
   name: 'pfButtonService',
   props: {
@@ -111,7 +113,7 @@ export default {
       return (this.status.alive)
     },
     isError () {
-      return (this.status.status === 'error')
+      return (this.status.status === 'error') || blacklistedServices.find(bls => bls === this.service)
     },
     forwardListeners () {
       const { input, ...listeners } = this.$listeners
