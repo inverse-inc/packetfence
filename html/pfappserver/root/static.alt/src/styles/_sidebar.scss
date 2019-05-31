@@ -108,6 +108,9 @@ $sidebar-item-padding-right: map-get($spacers, 1);
     }
   }
 }
+.active .pf-sidebar-item [role=button] {
+  color: $component-active-color;
+}
 
 // Don't resize icons
 .pf-sidenav svg {
