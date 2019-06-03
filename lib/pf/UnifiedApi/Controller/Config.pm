@@ -877,7 +877,7 @@ sub field_allowed {
     }
 
     if ($allowed) {
-        $allowed = $self->map_options($allowed);
+        $allowed = $self->map_options($field, $allowed);
     }
 
     return $allowed;
@@ -923,8 +923,8 @@ map_options
 =cut
 
 sub map_options {
-    my ($self, $options) = @_;
-    return [ map { $self->map_option($_) } @$options ];
+    my ($self, $field, $options) = @_;
+    return [ map { $self->map_option($field, $_) } @$options ];
 }
 
 =head2 map_option
@@ -934,15 +934,16 @@ map_option
 =cut
 
 sub map_option {
-    my ($self, $option) = @_;
+    my ($self, $field, $option) = @_;
     my %hash = %$option;
 
     if (exists $hash{label}) {
         $hash{text} = (delete $hash{label} // '') . "";
+        $hash{text} = $field->_localize($hash{text}) if $field->localize_labels;
     }
 
     if (exists $hash{options}) {
-       $hash{options} = $self->map_options($hash{options});
+       $hash{options} = $self->map_options($field, $hash{options});
        delete $hash{value};
     } elsif (exists $hash{value} && defined $hash{value} && $hash{value} eq '') {
         return;
