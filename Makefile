@@ -81,12 +81,14 @@ pfcmd.help:
 
 .PHONY: configurations
 
+configurations: SHELL:=/bin/bash
 configurations:
 	find -type f -name '*.example' -print0 | while read -d $$'\0' file; do cp -n $$file "$$(dirname $$file)/$$(basename $$file .example)"; done
 	touch /usr/local/pf/conf/pf.conf
 
 .PHONY: configurations_force
 
+configurations_hard: SHELL:=/bin/bash
 configurations_hard:
 	find -type f -name '*.example' -print0 | while read -d $$'\0' file; do cp $$file "$$(dirname $$file)/$$(basename $$file .example)"; done
 	touch /usr/local/pf/conf/pf.conf
