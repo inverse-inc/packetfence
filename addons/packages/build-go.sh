@@ -7,6 +7,10 @@ PFSRC="$2"
 BINDST="$3"
 DEBPATH="$4"
 
+function die() {
+    echo "$(basename $0): $@" >&2 ; exit 1
+}
+
 function usage {
   echo "----------------------------------------------------------------------------"
   echo "Usage        : build-go.sh test|build [args]"
@@ -87,7 +91,7 @@ $GOPATH/bin/govendor sync
 if build_mode; then
   # Create any binaries here and make sure to move them to the BINDST specified
   for service in pfhttpd pfdhcp pfdns pfstats pfdetect;do
-      make $service
+      make $service || die "make $service failed"
       mv $service $BINDST/
   done
 
