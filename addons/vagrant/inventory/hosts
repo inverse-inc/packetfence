@@ -17,6 +17,8 @@ all:
               iso_ip: 192.168.100.110
               ansible_host: 127.0.0.1
               ansible_port: "{{ ssh_port }}"
+              cpus: 1
+              memory: 4096
             pfdeb9stable:
               box: debian/stretch64
               admin_port: 1943
@@ -26,6 +28,8 @@ all:
               iso_ip: 192.168.104.110
               ansible_host: 127.0.0.1
               ansible_port: "{{ ssh_port }}"
+              cpus: 1
+              memory: 8192
             pfdeb10stable:
               box: debian/buster64
               admin_port: 1743
@@ -35,6 +39,8 @@ all:
               iso_ip: 192.168.102.110
               ansible_host: 127.0.0.1
               ansible_port: "{{ ssh_port }}"
+              cpus: 1
+              memory: 8192
         dev:
           hosts:
             pfcendev:
@@ -46,6 +52,8 @@ all:
               iso_ip: 192.168.100.10
               ansible_host: 127.0.0.1
               ansible_port: "{{ ssh_port }}"
+              cpus: 1
+              memory: 4096
             pfdeb10dev:
               box: debian/buster64
               admin_port: 1643
@@ -55,6 +63,8 @@ all:
               iso_ip: 192.168.102.10
               ansible_host: 127.0.0.1
               ansible_port: "{{ ssh_port }}"
+              cpus: 1
+              memory: 8192
             pfdeb9dev:
               box: debian/stretch64
               admin_port: 1843
@@ -64,6 +74,7 @@ all:
               iso_ip: 192.168.104.10
               ansible_host: 127.0.0.1
               ansible_port: "{{ ssh_port }}"
-
+              cpus: 1
+              memory: 8192
   vars:
     tz: Europe/Paris
