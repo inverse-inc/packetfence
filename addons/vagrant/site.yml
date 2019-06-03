@@ -2,6 +2,8 @@
 - hosts: pfservers
   name: install pf on standalone
   become: True
+
+  roles:
     - role: pf.install
 
 
