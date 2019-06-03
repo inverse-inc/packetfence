@@ -58,9 +58,11 @@ Vagrant.configure("2") do |pfservers|
       # isolation
       srv.vm.network "private_network", ip: details['iso_ip']
 
-      srv.vm.provider "libvirt" do |v|
+      srv.vm.provider "libvirt" do |v,override|
         v.cpus = 2
         v.memory = "4096"
+        # don't use NFS
+        override.vm.synced_folder './', '/vagrant', type: 'rsync'
       end
       
       srv.vm.provider "virtualbox" do |v|
