@@ -1,3 +1,4 @@
 ---
-- src: pf.common
-- src: pf.install
+# - src: pf.common
+# - src: pf.install
+- src: geerlingguy.nodejs

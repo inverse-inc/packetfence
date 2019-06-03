@@ -3,4 +3,7 @@
   name: install pf on standalone
   become: True
   roles:
+    - role: geerlingguy.nodejs
+      vars:
+        nodejs_version: "8.x"
     - role: pf.install
