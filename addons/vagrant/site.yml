@@ -2,8 +2,27 @@
 - hosts: pfservers
   name: install pf on standalone
   become: True
+    - role: pf.install
+
+
+- hosts: dev
+  name: install additionnal stuff for dev machines
+  become: True
+
   roles:
     - role: geerlingguy.nodejs
       vars:
         nodejs_version: "8.x"
-    - role: pf.install
+
+    # to avoid collission with pfdns
+    - role: gcoop-libre.systemd_resolved
+      vars:
+        nameserver1: 8.8.8.8
+      when: ansible_os_family == 'Debian'
+
+  tasks:
+    - name: install debian dependencies
+      apt:
+        name: build-essential libipset-dev pkg-config gettext
+        state: latest
+      when: ansible_os_family == 'Debian'

@@ -2,3 +2,4 @@
 # - src: pf.common
 # - src: pf.install
 - src: geerlingguy.nodejs
+- src: gcoop-libre.systemd_resolved
