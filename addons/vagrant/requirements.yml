@@ -2,4 +2,9 @@
 # - src: pf.common
 # - src: pf.install
 - src: geerlingguy.nodejs
-- src: gcoop-libre.systemd_resolved
+
+# to have latest fix
+#- src: gcoop-libre.systemd_resolved
+- src: https://github.com/gcoop-libre/ansible_role_systemd_resolved
+  version: master
+
