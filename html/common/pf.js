@@ -194,8 +194,9 @@ $(function() {
     }
   });
 
-  $('.disable-on-click').on('click', function(e){
+  $('.disable-on-click').one('click', function(e){
     var target = $(e.target);
+    target.click();
     target.attr("disabled", true);
   });
 });
