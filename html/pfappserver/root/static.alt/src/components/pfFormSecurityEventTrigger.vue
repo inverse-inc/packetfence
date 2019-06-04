@@ -110,6 +110,7 @@ const categoryOptions = {
     accounting: i18n.t('Accounting')
   },
   event: {
+    custom: i18n.t('Custom'),
     detect: i18n.t('Detect'),
     internal: i18n.t('Internal'),
     nessus: 'Nessus',
@@ -506,6 +507,16 @@ export default {
                         typeLabel: this.$i18n.t('Select trigger type'),
                         valueLabel: this.$i18n.t('Select trigger value'),
                         fields: [
+                          {
+                            value: 'custom',
+                            text: categoryOptions.event.custom,
+                            types: [fieldType.SUBSTRING],
+                            validators: {
+                              value: {
+                                [this.$i18n.t('Value required.')]: required
+                              }
+                            }
+                          },
                           {
                             value: 'detect',
                             text: categoryOptions.event.detect,
