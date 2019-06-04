@@ -1207,6 +1207,7 @@ Once this is done proceed to restart the following services on nodes A and B **o
  /usr/local/pf/bin/pfcmd service haproxy-db restart
  /usr/local/pf/bin/pfcmd service haproxy-portal restart
  /usr/local/pf/bin/pfcmd service keepalived restart
+ /usr/local/pf/bin/pfcmd service radiusd restart
 
 Then, we should tell C to ignore A and B in their cluster configuration. In order to do so, execute the following commands on node C while changing `node-A-hostname` and `node-B-hostname` by the hostname of nodes A and B respectively.
 
