@@ -146,8 +146,8 @@ install: build
 	echo $(C_ID) > $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/conf/git_commit_id
 	#Documentation
 	# install html and images dirs in pfappserver for embedded doc
-	make html/pfappserver/root/static/doc/index.js
 	install -d -m0755 $(CURDIR)/debian/packetfence-doc$(PREFIX)/$(NAME)/html/pfappserver/root/static/doc
+	make html/pfappserver/root/static/doc/index.js
 	for i in `find * -name "*.html" -path 'docs/html/*' -type f`; do \
 		install -m0644 $$i $(CURDIR)/debian/packetfence-doc$(PREFIX)/$(NAME)/html/pfappserver/root/static/doc/; \
 	done
