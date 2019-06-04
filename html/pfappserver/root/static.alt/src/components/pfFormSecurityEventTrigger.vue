@@ -718,17 +718,23 @@ export default {
     },
     updateCategory (category) {
       this.popover[category] = false
-      Object.assign(this.trigger[category], JSON.parse(JSON.stringify(this.triggerCopy[category])))
+      this.trigger[category] = JSON.parse(JSON.stringify(this.triggerCopy[category]))
       if (category === 'usage') {
-        this.trigger[category].typeValue.value =
-          this.trigger[category].direction +
-          bytes.toHuman(this.trigger[category].limit, 0, true).replace(/ /, '').toUpperCase() + 'B' +
-          this.trigger[category].interval
+        Object.assign(this.trigger[category], {
+          typeValue: {
+            type: 'accounting',
+            value: this.trigger[category].direction +
+              bytes.toHuman(this.trigger[category].limit, 0, true).replace(/ /, '').toUpperCase() + 'B' +
+              this.trigger[category].interval
+          }
+        })
       }
       let { conditions, typeValue } = this.trigger[category]
       if (typeValue) {
         conditions = [typeValue]
       }
+      // Assign new values to model
+      Object.keys(categoryOptions[category]).forEach(field => delete this.value[field])
       conditions.forEach(condition => {
         let { type: field, value } = condition
         let newValue = value
