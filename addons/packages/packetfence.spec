@@ -428,9 +428,6 @@ done
     done
 %endif
 
-# Build the HTML doc index for pfappserver
-make html/pfappserver/root/static/doc/index.js
-
 # build pfcmd C wrapper
 gcc -g0 src/pfcmd.c -o bin/pfcmd
 # build ntlm_auth_wrapper
@@ -568,6 +565,10 @@ cp -r html $RPM_BUILD_ROOT/usr/local/pf/
 
 # install html and images dirs in pfappserver for embedded doc
 %{__install} -d -m0755 $RPM_BUILD_ROOT/usr/local/pf/html/pfappserver/root/static/doc
+
+# Build the HTML doc index for pfappserver
+make html/pfappserver/root/static/doc/index.js
+
 for i in `find * -name "*.html" -path 'docs/html/*' -type f`; do \
 	%{__install} -m0644 $i $RPM_BUILD_ROOT/usr/local/pf/html/pfappserver/root/static/doc/; \
 done
