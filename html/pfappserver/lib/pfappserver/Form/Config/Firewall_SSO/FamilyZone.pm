@@ -41,9 +41,20 @@ has_field 'region' =>
    default => 1,
   );
 
+has_field 'deviceid' =>
+  (
+   type => 'Text',
+   label => 'deviceid',
+    tags => { after_element => \&help,
+             help => 'Please define the device id.' },
+   default => 1,
+  );
+
+
+
 has_block definition =>
   (
-   render_list => [ qw(id type region password categories networks cache_updates cache_timeout username_format default_realm) ],
+   render_list => [ qw(id type region deviceid password categories networks cache_updates cache_timeout username_format default_realm) ],
   );
 
 =head1 COPYRIGHT

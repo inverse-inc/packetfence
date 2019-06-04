@@ -214,6 +214,19 @@ export const pfConfigurationFirewallViewFields = (context) => {
           ]
         },
         {
+          if: ['FamilyZone'].includes(firewallType),
+          label: i18n.t('DeviceID'),
+          text: i18n.t('Please define the DeviceID.'),
+          fields: [
+            {
+              key: 'deviceid',
+              component: pfFormInput,
+              attrs: pfConfigurationAttributesFromMeta(meta, 'deviceid'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'deviceid', i18n.t('DeviceID'))
+            }
+          ]
+        },
+        {
           if: ['PaloAlto'].includes(firewallType),
           label: i18n.t('Transport'),
           fields: [
