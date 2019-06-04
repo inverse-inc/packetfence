@@ -131,7 +131,7 @@ export default {
       })
     },
     close () {
-      this.$router.push({ name: 'security_events' })
+      this.$router.back()
     },
     create () {
       this.$store.dispatch(`${this.storeName}/createSecurityEvent`, this.form).then(response => {

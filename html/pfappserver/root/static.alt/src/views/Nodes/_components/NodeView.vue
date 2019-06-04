@@ -637,7 +637,7 @@ export default {
       return this.$i18n.t('Node has no open wired connections.')
     },
     close () {
-      this.$router.push({ name: 'nodes' })
+      this.$router.back()
     },
     refresh () {
       this.$store.dispatch('$_nodes/refreshNode', this.mac)

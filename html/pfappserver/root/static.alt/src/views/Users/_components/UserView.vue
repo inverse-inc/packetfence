@@ -710,7 +710,7 @@ export default {
       })
     },
     close () {
-      this.$router.push({ name: 'users' })
+      this.$router.back()
     },
     refresh () {
       this.$store.dispatch('$_users/refreshUser', this.pid)
