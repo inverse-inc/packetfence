@@ -45,6 +45,7 @@ use pf::config qw(
     $WIRELESS
     $WEBAUTH
     $VIRTUAL
+    %ConfigNetworks
 );
 use pf::inline::custom $INLINE_API_LEVEL;
 use pf::iptables;
@@ -59,6 +60,7 @@ use pf::cluster;
 use pf::constants::dhcp qw($DEFAULT_LEASE_LENGTH);
 use pf::ip4log;
 use pf::Connection::ProfileFactory;
+use NetAddr::IP;
 
 use Readonly;
 
@@ -83,10 +85,9 @@ sub reevaluate_access {
 
     $logger->info("re-evaluating access ($function called)");
     $opts{'force'} = '1' if ($function eq 'admin_modify');
-
+    my $ip = pf::ip4log::mac2ip($mac);
     if(isenabled($Config{advanced}{sso_on_access_reevaluation})){
         my $node = node_attributes($mac);
-        my $ip = pf::ip4log::mac2ip($mac);
         if($ip){
             my $firewallsso_method = ( $node->{status} eq $STATUS_REGISTERED ) ? "Update" : "Stop";
             my $client = pf::client::getClient();
@@ -114,6 +115,25 @@ sub reevaluate_access {
         );
         if ( $inline->isInlineEnforcementRequired($mac) ) {
             $client->notify( 'firewall', %data );
+            $ip = new NetAddr::IP::Lite clean_ip($ip);
+            foreach my $network ( keys %ConfigNetworks ) {
+
+                next if ( !pf::config::is_network_type_inline($network) );
+                my $net_addr = NetAddr::IP->new($network,$ConfigNetworks{$network}{'netmask'});
+                my $reg_net = NetAddr::IP->new('127.0.0.1','255.0.0.0');
+                if (exists($ConfigNetworks{$network}{'reg_network'})) {
+                    my $reg_ip = NetAddr::IP->new($ConfigNetworks{$network}{'reg_network'});
+                    $reg_net = NetAddr::IP->new($reg_ip->network());
+                }
+                if ($net_addr->contains($ip) || $reg_net->contains($ip)) {
+                    if (isenabled($ConfigNetworks{$network}{'coa'})) {
+                        my $locationlog = locationlog_last_entry_non_inline_mac($mac);
+                        if ( $locationlog ) {
+                            return _vlan_reevaluation($mac, $locationlog);
+                        }
+                    }
+                }
+            }
         }
         else {
             $logger->debug("is already properly enforced in firewall, no change required");

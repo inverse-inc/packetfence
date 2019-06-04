@@ -184,7 +184,7 @@ export const pfConfigurationRoutedNetworkViewFields = (context = {}) => {
         {
           if: form.type === 'inlinel3',
           label: i18n.t('Enable CoA'),
-          text: i18n.t('This will try to send a CoA to the equipment to reevaluate the access.'),
+          text: i18n.t('Enabling this will send a CoA request to the equipment to reevaluate network access of endpoints.'),
           fields: [
             {
               key: 'coa',

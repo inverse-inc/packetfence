@@ -47,7 +47,6 @@ use pf::constants::parking qw($PARKING_IPSET_NAME);
 use pf::constants::node qw($STATUS_UNREGISTERED);
 use pf::api::unifiedapiclient;
 use pf::config::cluster;
-use pf::locationlog qw(locationlog_last_entry_non_inline_mac);
 
 Readonly my $FW_TABLE_FILTER => 'filter';
 Readonly my $FW_TABLE_MANGLE => 'mangle';
@@ -420,10 +419,6 @@ sub update_node {
                         "role_id" => "".$id,
                         "ip"      => $srcip
                     });
-                }
-                if (isenabled($ConfigNetworks{$network}{'coa'})) {
-                   my $locationlog = locationlog_last_entry_non_inline_mac($srcmac);
-		   pf::node::_vlan_reevaluation($srcmac, $locationlog);
                 }
             }
 

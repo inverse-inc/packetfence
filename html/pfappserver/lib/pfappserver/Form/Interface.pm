@@ -110,6 +110,13 @@ has_field 'reg_network' =>
              help => 'When split network by role is enabled then this network will be used as the registration network (example: 192.168.0.1/24).' },
   );
 
+has_field 'coa' => (
+    type => 'Toggle',
+    checkbox_value => "enabled",
+    unchecked_value => "disabled",
+    default => "disabled",
+    label => 'Enable CoA',
+);
 
 =head2 options_type
 
