@@ -16,9 +16,11 @@
  *      example :moments="['-1 hours', '1 hours', '1 days', '1 weeks', '1 months', '1 quarters', '1 years']"
  -->
  <template>
-  <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="columnLabel"
-    :state="isValid()" :invalid-feedback="getInvalidFeedback()"
+  <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="columnLabel" :state="isValid()"
     class="pf-form-datetime" :class="{ 'mb-0': !columnLabel, 'is-focus': focus}">
+    <template slot="invalid-feedback">
+      <icon name="circle-notch" spin v-if="!getInvalidFeedback()"></icon> {{ feedbackState }}
+    </template>
     <b-input-group class="pf-form-datetime-input-group">
       <b-input-group-prepend v-if="prependText">
         <div class="input-group-text">

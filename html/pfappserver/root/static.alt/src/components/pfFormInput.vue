@@ -1,7 +1,9 @@
 <template>
-  <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="columnLabel"
-    :state="isValid()" :invalid-feedback="getInvalidFeedback()"
+  <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="columnLabel" :state="isValid()"
     class="pf-form-input" :class="{ 'mb-0': !columnLabel }">
+    <template slot="invalid-feedback">
+      <icon name="circle-notch" spin v-if="!getInvalidFeedback()"></icon> {{ feedbackState }}
+    </template>
     <b-input-group>
       <b-form-input
         v-model="inputValue"

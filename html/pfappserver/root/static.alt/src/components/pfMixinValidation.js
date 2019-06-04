@@ -8,18 +8,14 @@ export default {
   props: {
     vuelidate: {
       type: Object,
-      default: null
+      default: undefined
     },
     invalidFeedback: {
-      default: null
+      default: undefined
     },
     highlightValid: {
       type: Boolean,
-      default: false
-    },
-    validationDebounce: {
-      type: Number,
-      default: 300
+      default: undefined
     },
     filter: {
       type: RegExp,
@@ -34,28 +30,48 @@ export default {
       default: null
     }
   },
+  data () {
+    return {
+      validDebouncerTime: 300,
+      validDebouncer: createDebouncer(),
+      validState: undefined, // true = is-valid (green-border), false = not-valid (red-border), null = none (no-border)
+      feedbackDebouncerTime: 1500,
+      feedbackDebouncer: createDebouncer(),
+      feedbackState: undefined,
+      vuelidateDebouncerTime: 300,
+      vuelidateDebouncer: createDebouncer()
+    }
+  },
   methods: {
     isValid () {
-      if (this.vuelidate && this.vuelidate.$dirty) {
-        if (this.vuelidate.$invalid) {
-          return false
-        } else if (this.highlightValid) {
-          return true
-        }
-      }
-      if (this.keyName in this.$store.state.session.formErrors) {
-        return false
-      }
-      return null
+      this.validDebouncer({
+        handler: () => {
+          if (this.vuelidate && this.vuelidate.$dirty) {
+            if (this.vuelidate.$anyError) {
+              this.$set(this, 'validState', false) // red border
+              return
+            } else if (this.highlightValid) {
+              this.$set(this, 'validState', true) // green border
+              return
+            }
+          }
+          if (this.keyName in this.$store.state.session.formErrors) {
+            this.$set(this, 'validState', false) // red border
+            return
+          }
+          this.$set(this, 'validState', null) // no border
+        },
+        time: this.validDebouncerTime
+      })
+      return this.validState
     },
     validate () {
-      const _this = this
       if (this.vuelidate && '$touch' in this.vuelidate) {
-        this.$validationDebouncer({
+        this.vuelidateDebouncer({
           handler: () => {
-            _this.vuelidate.$touch()
+            this.vuelidate.$touch()
           },
-          time: this.validationDebounce
+          time: this.vuelidateDebouncerTime
         })
       }
     },
@@ -95,27 +111,81 @@ export default {
       return feedback
     },
     getInvalidFeedback () {
-      let feedback = []
-      if (this.vuelidate) {
-        // automatically generated feedback
-        if ('$params' in this.vuelidate) {
-          Object.entries(this.vuelidate.$params).forEach(([param, validator]) => {
-            if (this.vuelidate[param] === false) feedback.push(param)
-          })
-        }
-      }
-      if (feedback.length === 0 && this.invalidFeedback) {
-        // manually defined feedback
-        feedback.push(this.stringifyFeedback(this.invalidFeedback))
-      }
-      if (this.keyName in this.$store.state.session.formErrors) {
-        // errors from last POST, PUT, PATCH or DELETE
-        feedback.push(this.$store.state.session.formErrors[this.keyName])
-      }
-      return feedback.join('\n')
+      this.feedbackDebouncer({
+        handler: () => {
+          let feedback = []
+          const {
+            validState = null,
+            vuelidate: {
+              $params = null
+            } = {},
+            invalidFeedback = null,
+            $store: {
+              state: {
+                session: {
+                  formErrors: {
+                    [this.keyName]: formErrors = null
+                  } = {}
+                } = {}
+              } = {}
+            } = {}
+          } = this
+          if (validState === false && $params) { // automatically generated feedback
+            Object.entries($params).forEach(([param, validator]) => {
+              if (this.vuelidate[param] === false) feedback.push(param)
+            })
+          }
+          if (invalidFeedback) { // manually defined feedback
+            feedback.push(this.stringifyFeedback(invalidFeedback))
+          }
+          if (formErrors) { // server defined errors from last POST, PUT, PATCH or DELETE
+            feedback.push(formErrors)
+          }
+          this.feedbackState = feedback.join('\n')
+        },
+        time: this.feedbackDebouncerTime
+      })
+      return this.feedbackState
     }
   },
   created () {
-    this.$validationDebouncer = createDebouncer()
+    this.$set(this, 'validState', null) // make reactive
+  },
+  watch: {
+    inputValue: {
+      handler (a, b) {
+        if (JSON.stringify(a) !== JSON.stringify(b)) {
+          this.isValid()
+        }
+      },
+      deep: true,
+      immediate: true
+    },
+    vuelidate: {
+      handler (a, b) {
+        if (JSON.stringify(a) !== JSON.stringify(b)) {
+          this.validDebouncer({
+            handler: () => {
+              if (a.$dirty) {
+                if (a.$anyError) {
+                  this.$set(this, 'validState', false) // red border
+                  return
+                } else if (this.highlightValid) {
+                  this.$set(this, 'validState', true) // green border
+                  return
+                }
+              }
+              if (this.keyName in this.$store.state.session.formErrors) {
+                this.$set(this, 'validState', false) // red border
+                return
+              }
+              this.$set(this, 'validState', null) // no border
+            },
+            time: this.validDebouncerTime
+          })
+        }
+      },
+      deep: true
+    }
   }
 }
