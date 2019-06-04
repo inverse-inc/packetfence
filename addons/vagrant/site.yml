@@ -15,6 +15,7 @@
     - role: geerlingguy.nodejs
       vars:
         nodejs_version: "8.x"
+      tags: nodejs
 
     # to avoid collission with pfdns
     # - role: gcoop-libre.systemd_resolved
@@ -22,5 +23,6 @@
       vars:
         nameserver1: 8.8.8.8
       when: ansible_os_family == 'Debian'
+      tags: resolved
 
     - role: pf.dev
