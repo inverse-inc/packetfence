@@ -22,9 +22,4 @@
         nameserver1: 8.8.8.8
       when: ansible_os_family == 'Debian'
 
-  tasks:
-    - name: install debian dependencies
-      apt:
-        name: build-essential libipset-dev pkg-config gettext
-        state: latest
-      when: ansible_os_family == 'Debian'
+    - role: pf.dev
