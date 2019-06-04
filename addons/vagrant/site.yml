@@ -17,7 +17,8 @@
         nodejs_version: "8.x"
 
     # to avoid collission with pfdns
-    - role: gcoop-libre.systemd_resolved
+    # - role: gcoop-libre.systemd_resolved
+    - role: ansible_role_systemd_resolved
       vars:
         nameserver1: 8.8.8.8
       when: ansible_os_family == 'Debian'
