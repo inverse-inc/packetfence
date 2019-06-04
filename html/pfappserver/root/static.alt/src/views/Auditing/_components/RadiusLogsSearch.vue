@@ -52,8 +52,16 @@
         <template slot="auth_status" slot-scope="log">
           <b-badge pill :variant="(['Accept', 'CoA-ACK', 'Disconnect-ACK'].includes(log.item.auth_status)) ? 'success' : 'danger'" class="ml-1">{{ log.item.auth_status }}</b-badge>
         </template>
-        <template slot="mac" slot-scope="data">
-          <router-link :to="{ path: `/node/${data.value}` }"><mac v-text="data.value"></mac></router-link>
+        <template slot="node_status" slot-scope="{ value }">
+          <b-badge pill variant="success" v-if="value === 'reg'">{{ $t('Registered') }}</b-badge>
+          <b-badge pill variant="warning" v-else-if="value === 'pending'">{{ $t('Pending') }}</b-badge>
+          <b-badge pill variant="light" v-else>{{ $t('Unregistered') }}</b-badge>
+        </template>
+        <template slot="mac" slot-scope="{ value }">
+          <router-link :to="{ path: `/node/${value}` }"><mac v-text="value"></mac></router-link>
+        </template>
+        <template slot="is_phone" slot-scope="{ value }">
+          <icon v-if="parseInt(value) > 0" name="check"></icon>
         </template>
       </b-table>
     </div>

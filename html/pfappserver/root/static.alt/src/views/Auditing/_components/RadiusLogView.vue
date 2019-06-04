@@ -112,7 +112,7 @@ export default {
       }
     },
     formatRadius (string) {
-      return string.replace(/, /g, '\n')
+      if (string) return string.replace(/, /g, '\n')
     }
   },
   created () {
