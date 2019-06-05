@@ -5,6 +5,7 @@
 
   roles:
     - role: pf.install
+      tags: install
 
 
 - hosts: dev
@@ -18,7 +19,6 @@
       tags: nodejs
 
     # to avoid collission with pfdns
-    # - role: gcoop-libre.systemd_resolved
     - role: ansible_role_systemd_resolved
       vars:
         nameserver1: 8.8.8.8
