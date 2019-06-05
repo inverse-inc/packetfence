@@ -1,7 +1,15 @@
 #!/bin/bash
 
-echo "Create all necessary files..."
+die() {
+    echo "$(basename $0): $@" >&2 ; exit 1
+}
 
+log_section() {
+   printf '=%.0s' {1..72} ; printf "\n"
+   printf "=\t%s\n" "" "$@" ""
+}
+
+log_section "Create all necessary files"
 cd /usr/local/pf
 make devel
 make conf/ssl/server.pem
@@ -11,27 +19,26 @@ cp ../pf-pkg/conf/pfconfig.conf conf/
 cp ../pf-pkg/conf/currently-at conf/
 ln -s /usr/local/pf/raddb/sites-available/status /usr/local/pf/raddb/sites-enabled/status
 
-
-echo "Build web admin..."
+log_section "Build web admin"
 cd /usr/local/pf/html/pfappserver/root/static.alt/
 sudo make vendor
 sudo make dev
 
-echo "Build captive portal..."
+log_section "Build captive portal"
 cd /usr/local/pf/html/common
 sudo make vendor
 sudo make dev
 
-echo "Build Golang environment..."
+log_section "Build Golang environment"
 cd /usr/local/pf/go
 make go-env
 /usr/local/pf/addons/packages/build-go.sh build /usr/local/pf /usr/local/pf/sbin/
 
-echo "Fix permissions and start services..."
+log_section "Fix permissions and start services"
 cd /usr/local/pf
 make permissions
 systemctl start packetfence-mariadb
 systemctl start packetfence-config packetfence-redis-cache
 
-echo "Start all PF services..."
+log_section "Start all PF services"
 /usr/local/pf/bin/pfcmd service pf restart
