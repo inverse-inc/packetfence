@@ -1,7 +1,7 @@
 <template>
   <button type="button" :aria-label="$t('Refresh')" :disabled="isLoading || disabled"
     class="pfButtonRefresh mx-3"
-    v-b-tooltip.hover.left.d300 :title="$t('Refresh [ALT+R]')"
+    v-b-tooltip.hover.left.d300 :title="$t('Refresh [Alt + R]')"
     @click="click"
   >
     <icon v-if="interval" name="history" :style="`transform: rotate(${rotate}deg) scaleX(-1)`" :class="{ 'text-primary': ctrlKey }"></icon>

@@ -15,9 +15,9 @@
             :ref="'parser-' + index"
             :file="file"
             :fields="fields"
-            :storeName="storeName"
-            :defaultStaticMapping="defaultStaticMapping"
-            :eventsListen="tabIndex === index"
+            :store-name="storeName"
+            :default-static-mapping="defaultStaticMapping"
+            :events-listen="tabIndex === index"
             @input="onImport"
           ></pf-csv-parse>
         </b-tab>

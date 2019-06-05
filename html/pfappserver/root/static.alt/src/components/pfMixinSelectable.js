@@ -48,8 +48,8 @@
  *     <b-table ... >
  *       <template slot="HEAD_actions" slot-scope="head">
  *         <input type="checkbox" id="checkallnone" v-model="selectAll" @change="onSelectAllChange" @click.stop>
- *         <b-tooltip target="checkallnone" placement="right" v-if="selectValues.length === tableValues.length">{{$t('Select None [ALT+N]')}}</b-tooltip>
- *         <b-tooltip target="checkallnone" placement="right" v-else>{{$t('Select All [ALT+A]')}}</b-tooltip>
+ *         <b-tooltip target="checkallnone" placement="right" v-if="selectValues.length === tableValues.length">{{$t('Select None [Alt + N]')}}</b-tooltip>
+ *         <b-tooltip target="checkallnone" placement="right" v-else>{{$t('Select All [Alt + A]')}}</b-tooltip>
  *       </template>
  *     </b-table>
  *

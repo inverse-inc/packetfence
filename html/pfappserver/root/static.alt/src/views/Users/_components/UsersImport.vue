@@ -16,8 +16,8 @@
               :ref="'parser-' + index"
               :file="file"
               :fields="fields"
-              :storeName="storeName"
-              :eventsListen="tabIndex === index"
+              :store-name="storeName"
+              :events-listen="tabIndex === index"
               @input="onImport"
             >
               <b-tab :title="$t('Import Options')">
