@@ -71,7 +71,7 @@ export default {
   },
   data () {
     return {
-      debug: process.env.VUE_APP_DEBUG
+      debug: process.env.VUE_APP_DEBUG === 'true'
     }
   },
   computed: {

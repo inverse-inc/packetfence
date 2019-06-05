@@ -3,7 +3,8 @@ module.exports = {
   outputDir: 'dist',
   indexPath: '../../admin/v-index.tt',
   css: {
-    sourceMap: process.env.VUE_APP_DEBUG
+    sourceMap: process.env.VUE_APP_DEBUG === 'true',
+    extract: process.env.VUE_APP_DEBUG !== 'true'
   },
   pluginOptions: {
     i18n: {
@@ -14,7 +15,7 @@ module.exports = {
     }
   },
   chainWebpack: config => {
-    if (process.env.VUE_APP_DEBUG) {
+    if (process.env.VUE_APP_DEBUG === 'true') {
       config.optimization.minimize(false)
       config.optimization.delete('minimizer')
     }
