@@ -66,6 +66,10 @@ export default {
       type: String,
       default: null,
       required: true
+    },
+    noInitBindKeys: {
+      type: Boolean,
+      default: false
     }
   },
   data () {
