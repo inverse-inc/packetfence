@@ -4,9 +4,9 @@ import DhcpOption82LogsStore from '../_store/dhcpOption82Logs'
 import RadiusLogsSearch from '../_components/RadiusLogsSearch'
 import DhcpOption82LogsSearch from '../_components/DhcpOption82LogsSearch'
 
-const AuditingView = () => import(/* webpackChunkName: "RadiusLogs" */ '../')
-const RadiusLogView = () => import(/* webpackChunkName: "RadiusLogs" */ '../_components/RadiusLogView')
-const DhcpOption82LogView = () => import(/* webpackChunkName: "RadiusLogs" */ '../_components/DhcpOption82LogView')
+const AuditingView = () => import(/* webpackChunkName: "Auditing" */ '../')
+const RadiusLogView = () => import(/* webpackChunkName: "Auditing" */ '../_components/RadiusLogView')
+const DhcpOption82LogView = () => import(/* webpackChunkName: "Auditing" */ '../_components/DhcpOption82LogView')
 
 const route = {
   path: '/auditing',

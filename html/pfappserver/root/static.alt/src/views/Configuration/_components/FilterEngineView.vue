@@ -30,9 +30,8 @@
 </template>
 
 <script>
+import aceEditor from 'vue2-ace-editor'
 import pfButtonSave from '@/components/pfButtonSave'
-
-const aceEditor = require('vue2-ace-editor')
 
 export default {
   name: 'FilterEngineView',
@@ -49,14 +48,6 @@ export default {
       type: String,
       default: null,
       required: true
-    },
-    mode: {
-      type: String,
-      default: 'ini'
-    },
-    theme: {
-      type: String,
-      default: 'cobalt'
     }
   },
   data () {
@@ -97,8 +88,8 @@ export default {
     initEditor (instance) {
       // Load ACE editor extensions
       require('brace/ext/language_tools')
-      require(`brace/mode/${this.mode}`)
-      require(`brace/theme/${this.theme}`)
+      require('brace/mode/ini')
+      require('brace/theme/cobalt')
       this.editor = instance
       this.editor.setAutoScrollEditorIntoView(true)
       this.$nextTick(() => {

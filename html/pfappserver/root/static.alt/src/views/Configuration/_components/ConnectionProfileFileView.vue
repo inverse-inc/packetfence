@@ -42,7 +42,7 @@
           </b-row>
         </b-container>
         <div class="flex-grow-1 overflow-hidden border-top border-right border-bottom border-left" ref="editorContainer" v-else>
-          <ace-editor v-model="content" theme="chrome" lang="html" :height="editorHeight" @init="initEditor"></ace-editor>
+          <ace-editor v-model="content" theme="cobalt" lang="html" :height="editorHeight" @init="initEditor"></ace-editor>
         </div>
       </div>
       <b-card-footer @mouseenter="isNew && $v.newFilename.$touch()">
@@ -59,13 +59,13 @@
 </template>
 
 <script>
+import aceEditor from 'vue2-ace-editor'
 import pfFormToggle from '@/components/pfFormToggle'
 import pfButtonSave from '@/components/pfButtonSave'
 import pfButtonDelete from '@/components/pfButtonDelete'
 import { isFilenameWithExtension } from '@/globals/pfValidators'
 const { validationMixin } = require('vuelidate')
 const { required } = require('vuelidate/lib/validators')
-const aceEditor = require('vue2-ace-editor')
 
 export default {
   name: 'ConnectionProfileFileView',
@@ -176,7 +176,7 @@ export default {
       // Load ACE editor extensions
       require('brace/ext/language_tools')
       require('brace/mode/html')
-      require('brace/theme/chrome')
+      require('brace/theme/cobalt')
       this.editor = instance
       this.editor.setAutoScrollEditorIntoView(true)
       this.$nextTick(() => {

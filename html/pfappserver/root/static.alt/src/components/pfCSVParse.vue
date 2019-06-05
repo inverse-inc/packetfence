@@ -50,8 +50,8 @@
         <b-tab :title="$t('CSV File Contents')">
           <ace-editor
             v-model="file.result"
-            :lang="mode"
-            :theme="theme"
+            lang="ini"
+            theme="cobalt"
             :height="editorHeight"
             :options="editorOptions"
             @init="initEditor"
@@ -300,6 +300,7 @@
 
 <script>
 /* eslint key-spacing: ["error", { "mode": "minimum" }] */
+import aceEditor from 'vue2-ace-editor'
 import Papa from 'papaparse'
 import uuidv4 from 'uuid/v4'
 import pfFormChosen from '@/components/pfFormChosen'
@@ -320,7 +321,6 @@ import {
   required
 } from 'vuelidate/lib/validators'
 
-const aceEditor = require('vue2-ace-editor')
 const { validationMixin } = require('vuelidate')
 
 export default {
@@ -351,14 +351,6 @@ export default {
     fields: {
       type: Array,
       default: null
-    },
-    mode: {
-      type: String,
-      default: 'ini'
-    },
-    theme: {
-      type: String,
-      default: 'cobalt'
     },
     defaultStaticMapping: {
       type: Array,
@@ -645,8 +637,8 @@ export default {
     initEditor (instance) {
       // Load ACE editor extensions
       require('brace/ext/language_tools')
-      require(`brace/mode/${this.mode}`)
-      require(`brace/theme/${this.theme}`)
+      require('brace/mode/ini')
+      require('brace/theme/cobalt')
       this.editor = instance
       this.editor.setAutoScrollEditorIntoView(true)
     }
