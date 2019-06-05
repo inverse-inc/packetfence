@@ -66,8 +66,8 @@ html/pfappserver/root/static/doc:
 	cp -a docs/html/* html/pfappserver/root/static/doc
 	cp -a docs/images/* html/pfappserver/root/static/images
 
-html/pfappserver/root/static/doc/index.js: $(HTML)
-	find html/pfappserver/root/static/doc -type f  -iname  '*.html' -printf "{\"name\":\"%f\", \"size\":%s, \"last_modifed\" : %T@}\n" | jq -s '{ items: [ .[] |  {name, size, last_modifed : (.last_modifed*1000 | floor)} ] }' > html/pfappserver/root/static/doc/index.js
+docs/html/index.js: $(HTML)
+	find $$(dirname "$@") -type f  -iname  '*.html' -printf "{\"name\":\"%f\", \"size\":%s, \"last_modifed\" : %T@}\n" | jq -s '{ items: [ .[] |  {name, size, last_modifed : (.last_modifed*1000 | floor)} ] }' > $@
 
 pfcmd.help:
 	/usr/local/pf/bin/pfcmd help > docs/pfcmd.help
