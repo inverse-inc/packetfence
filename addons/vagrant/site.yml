@@ -26,3 +26,4 @@
       tags: resolved
 
     - role: pf.dev
+      tags: dev
