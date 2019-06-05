@@ -15,7 +15,9 @@ all:
 	@echo " 'PacketFence_Developers_Guide.pdf' will build the Developers guide in PDF"
 	@echo " 'PacketFence_Network_Devices_Configuration_Guide.pdf' will build the Network Devices Configuration guide in PDF"
 
-pdf: docs/docbook/xsl/titlepage-fo.xsl docs/docbook/xsl/import-fo.xsl $(patsubst %.asciidoc,%.pdf,$(notdir $(wildcard docs/PacketFence_*.asciidoc)))
+ASCIIDOCS := $(notdir $(wildcard docs/PacketFence_*.asciidoc))
+
+pdf: docs/docbook/xsl/titlepage-fo.xsl docs/docbook/xsl/import-fo.xsl $(patsubst %.asciidoc,%.pdf,$(ASCIIDOCS))
 
 docs/docbook/xsl/titlepage-fo.xsl: docs/docbook/xsl/titlepage-fo.xml
 	xsltproc \
@@ -50,7 +52,7 @@ docs/docbook/xsl/import-fo.xsl:
 		$<.fo \
 		-pdf docs/$@
 
-HTML = $(patsubst %.asciidoc,%.html, $(notdir $(wildcard docs/PacketFence_*.asciidoc)))
+HTML = $(patsubst %.asciidoc,%.html, $(ASCIIDOCS))
 
 html: $(HTML)
 
