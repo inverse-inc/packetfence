@@ -260,7 +260,6 @@ import pfFormInput from '@/components/pfFormInput'
 import pfFormPassword from '@/components/pfFormPassword'
 import pfFormTextarea from '@/components/pfFormTextarea'
 import pfFormToggle from '@/components/pfFormToggle'
-import pfMixinCtrlKey from '@/components/pfMixinCtrlKey'
 import { pfConfigurationActions } from '@/globals/configuration/pfConfiguration'
 import { pfFormatters as formatter } from '@/globals/pfFormatters'
 import {
@@ -296,7 +295,6 @@ export default {
     pfFormToggle
   },
   mixins: [
-    pfMixinCtrlKey,
     validationMixin
   ],
   props: {
@@ -695,6 +693,12 @@ export default {
     },
     visibleNodeFields () {
       return this.nodeFields.filter(field => field.visible || field.locked)
+    },
+    ctrlKey () {
+      return this.$store.getters['events/ctrlKey']
+    },
+    escapeKey () {
+      return this.$store.getters['events/escapeKey']
     }
   },
   methods: {
@@ -755,12 +759,6 @@ export default {
       }
       this.$store.dispatch('$_users/updatePassword', data)
     },
-    onKeyup (event) {
-      switch (event.keyCode) {
-        case 27: // escape
-          this.close()
-      }
-    },
     toggleDeviceColumn (column) {
       const index = this.nodeFields.findIndex(field => field.key === column.key)
       this.$set(this.nodeFields[index], 'visible', !this.nodeFields[index].visible)
@@ -768,10 +766,11 @@ export default {
   },
   mounted () {
     this.init()
-    document.addEventListener('keyup', this.onKeyup)
   },
-  beforeDestroy () {
-    document.removeEventListener('keyup', this.onKeyup)
+  watch: {
+    escapeKey (pressed) {
+      if (pressed) this.close()
+    }
   }
 }
 </script>

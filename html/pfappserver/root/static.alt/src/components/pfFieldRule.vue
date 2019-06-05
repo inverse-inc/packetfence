@@ -94,13 +94,9 @@ import uuidv4 from 'uuid/v4'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormFields from '@/components/pfFormFields'
 import pfFormInput from '@/components/pfFormInput'
-import pfMixinCtrlKey from '@/components/pfMixinCtrlKey'
 
 export default {
-  name: 'pf-field-rule',
-  mixins: [
-    pfMixinCtrlKey
-  ],
+  name: 'pfFieldRule',
   components: {
     pfFormChosen,
     pfFormFields,
@@ -243,6 +239,9 @@ export default {
     forwardListeners () {
       const { input, ...listeners } = this.$listeners
       return listeners
+    },
+    ctrlKey () {
+      return this.$store.getters['events/ctrlKey']
     }
   },
   methods: {

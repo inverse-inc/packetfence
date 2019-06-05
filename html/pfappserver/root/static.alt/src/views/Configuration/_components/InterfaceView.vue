@@ -46,8 +46,6 @@
 import pfConfigView from '@/components/pfConfigView'
 import pfButtonDelete from '@/components/pfButtonDelete'
 import pfButtonSave from '@/components/pfButtonSave'
-import pfMixinCtrlKey from '@/components/pfMixinCtrlKey'
-import pfMixinEscapeKey from '@/components/pfMixinEscapeKey'
 import {
   pfConfigurationInterfaceViewFields as fields
 } from '@/globals/configuration/pfConfigurationInterfaces'
@@ -56,9 +54,7 @@ const { validationMixin } = require('vuelidate')
 export default {
   name: 'InterfaceView',
   mixins: [
-    validationMixin,
-    pfMixinCtrlKey,
-    pfMixinEscapeKey
+    validationMixin
   ],
   components: {
     pfButtonDelete,
@@ -116,6 +112,12 @@ export default {
     },
     isVlan () {
       return (this.form && this.form.master)
+    },
+    ctrlKey () {
+      return this.$store.getters['events/ctrlKey']
+    },
+    escapeKey () {
+      return this.$store.getters['events/escapeKey']
     }
   },
   methods: {
@@ -160,6 +162,11 @@ export default {
   },
   created () {
     this.init()
+  },
+  watch: {
+    escapeKey (pressed) {
+      if (pressed) this.close()
+    }
   }
 }
 </script>

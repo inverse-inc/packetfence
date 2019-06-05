@@ -619,6 +619,9 @@ export default {
           ]
         }
       }
+    },
+    mouseDown () {
+      return this.$store.getters['events/mouseDown']
     }
   },
   watch: {
@@ -651,6 +654,9 @@ export default {
           }
         })
       }
+    },
+    mouseDown (pressed) {
+      if (pressed) this.onBodyClick()
     }
   },
   methods: {
@@ -808,12 +814,6 @@ export default {
   },
   created () {
     this.init()
-  },
-  mounted () {
-    document.body.addEventListener('click', this.onBodyClick)
-  },
-  beforeDestroy () {
-    document.body.removeEventListener('click', this.onBodyClick)
   }
 }
 </script>

@@ -35,8 +35,6 @@
 import pfConfigView from '@/components/pfConfigView'
 import pfButtonSave from '@/components/pfButtonSave'
 import pfButtonService from '@/components/pfButtonService'
-import pfMixinCtrlKey from '@/components/pfMixinCtrlKey'
-import pfMixinEscapeKey from '@/components/pfMixinEscapeKey'
 import {
   pfConfigurationDefaultsFromMeta as defaults
 } from '@/globals/configuration/pfConfiguration'
@@ -48,9 +46,7 @@ const { validationMixin } = require('vuelidate')
 export default {
   name: 'Layer2NetworkView',
   mixins: [
-    validationMixin,
-    pfMixinCtrlKey,
-    pfMixinEscapeKey
+    validationMixin
   ],
   components: {
     pfConfigView,
@@ -96,6 +92,12 @@ export default {
         labelCols: 3,
         fields: fields(this)
       }
+    },
+    ctrlKey () {
+      return this.$store.getters['events/ctrlKey']
+    },
+    escapeKey () {
+      return this.$store.getters['events/escapeKey']
     }
   },
   methods: {
@@ -127,6 +129,11 @@ export default {
   },
   created () {
     this.init()
+  },
+  watch: {
+    escapeKey (pressed) {
+      if (pressed) this.close()
+    }
   }
 }
 </script>
