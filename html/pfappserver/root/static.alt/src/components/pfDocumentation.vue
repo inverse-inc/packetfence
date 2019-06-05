@@ -1,6 +1,6 @@
 <template>
-  <b-row class="documentViewer" :class="{ 'hidden': !showViewer }">
-    <b-col cols="12" md="3" xl="2" class="pf-sidebar d-print-none">
+  <b-row class="documentViewer" ref="documentViewer" :class="{ 'hidden': !showViewer }">
+    <b-col cols="12" md="3" xl="2" class="pf-sidebar d-print-none h-100 border-gray border-bottom" ref="documentList">
       <!-- filter -->
       <div class="pf-sidebar-filter d-flex align-items-center">
         <b-input-group>
@@ -22,18 +22,24 @@
           exact-active-class="active"
           @click.stop.prevent="loadDocument(document)"
         >
-          <div class="pf-sidebar-item" :class="{ 'ml-3': indent }">
+          <div class="pf-sidebar-item">
             <text-highlight :queries="[filter]">{{ document.text }}</text-highlight>
             <icon class="mx-1" name="info-circle"></icon>
           </div>
         </b-nav-item>
       </b-nav>
     </b-col>
-    <b-col cols="12" md="9" xl="10" class="mt-3 mb-3">
-      <b-card no-body class="document" :class="{ 'fullscreen': fullscreen }">
+    <b-col cols="12" md="9" xl="10" class="mt-3 border-gray border-bottom pb-3">
+      <!-- slot -->
+      <b-card v-if="hasDefaultSlot" no-body class="mb-3">
+        <slot/>
+      </b-card>
+
+      <!-- document viewer -->
+      <b-card no-body class="document h-100" :class="{ 'fullscreen': fullscreen }">
         <b-card-header>
           <template v-if="!fullscreen">
-            <b-button-close @click="closeViewer" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')" class="ml-3"><icon name="times"></icon></b-button-close>
+            <b-button-close @click="closeViewer" v-b-tooltip.hover.left.d300 :title="$t('Close')" class="ml-3"><icon name="times"></icon></b-button-close>
             <b-button-close @click="toggleFullscreen" v-b-tooltip.hover.left.d300 :title="$t('Show Fullscreen')" class="ml-3"><icon name="expand"></icon></b-button-close>
           </template>
           <b-button-close v-else @click="toggleFullscreen" v-b-tooltip.hover.left.d300 :title="$t('Exit Fullscreen [ESC]')" class="ml-3"><icon name="compress"></icon></b-button-close>
@@ -41,11 +47,10 @@
         </b-card-header>
 
         <!-- HTML document -->
-        <b-embed ref="document" name="documentFrame" class="h-100" type="iframe" aspect="16by9"
+        <iframe ref="document" name="documentFrame" class="h-100" frameborder="0"
           :src="`/static/doc/${path}${(hash) ? '#' + hash : ''}`"
           @load="initDocument()"
-          allowfullscreen
-        ></b-embed>
+        ></iframe>
 
         <!-- IMG viewer -->
         <b-modal v-model="showImageModal" size="xl" centered id="imageModal" scrollable hide-footer>
@@ -89,6 +94,9 @@ export default {
     },
     fullscreen () {
       return this.$store.state.documentation.fullscreen
+    },
+    hasDefaultSlot () {
+      return 'default' in this.$slots
     }
   },
   methods: {
@@ -196,12 +204,24 @@ export default {
     this.$store.dispatch('documentation/getDocuments')
   },
   watch: {
+    showViewer: function (a, b) {
+      if (a) { // shown
+        this.$refs.documentList.scrollTop = 0
+        this.focusFilter()
+      }
+    },
     fullscreen: {
       handler: function (a, b) {
-        if (a) {
-          if (!document.body.classList.contains('no-scroll')) document.body.classList.add('no-scroll')
-        } else {
-          if (document.body.classList.contains('no-scroll')) document.body.classList.remove('no-scroll')
+        if (a) { // fullscreen
+          if (!document.body.classList.contains('modal-open')) { // hide body scrollbar
+            document.body.classList.add('modal-open')
+            document.body.setAttribute('style', 'padding-right: 14px;')
+          }
+        } else { // not fullscreen
+          if (document.body.classList.contains('modal-open')) { // show body scrollbar
+            document.body.classList.remove('modal-open')
+            document.body.setAttribute('style', '')
+          }
         }
       }
     }
@@ -210,10 +230,6 @@ export default {
 </script>
 
 <style lang="scss">
-  body.no-scroll {
-    overflow-x: hidden;
-    overflow-y: hidden;
-  }
   .documentViewer {
     transition: all 300ms ease;
     max-height: 100vh;
@@ -221,6 +237,9 @@ export default {
       overflow-x: hidden;
       overflow-y: hidden;
       max-height: 0vh;
+    }
+    .pf-sidebar {
+      overflow-y: auto;
     }
   }
   .document {
@@ -232,7 +251,7 @@ export default {
       border: none !important;
       overflow-y: auto;
       overflow-x: hidden;
-      z-index: 1036;
+      z-index: 1045;
     }
   }
 </style>

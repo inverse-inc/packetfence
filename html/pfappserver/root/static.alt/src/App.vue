@@ -53,7 +53,32 @@
       <icon class="pr-2" name="lock"></icon> {{ $t('The database is in readonly mode. Not all functionality is available.') }}
     </b-container>
     <b-container :class="{ 'pt-6': !readonlyMode }" fluid>
-      <pf-documentation  v-show="isAuthenticated"/>
+      <pf-documentation v-show="isAuthenticated">
+        <b-row align-v="center" class="px-3 py-1">
+          <b-col>
+            <b-button-group class="ml-1" size="sm">
+              <b-button variant="primary" disabled v-t="'Packetfence Version'"/>
+              <b-button variant="outline-primary" disabled class="font-weight-bold">
+                {{ version }}
+                <icon class="mx-1" name="circle-notch" spin v-if="!version"></icon>
+              </b-button>
+            </b-button-group>
+            <b-button-group class="ml-1" size="sm">
+              <b-button variant="primary" disabled v-t="'Server Hostname'"/>
+              <b-button variant="outline-primary" disabled class="font-weight-bold">
+                {{ hostname }}
+                <icon class="mx-1" name="circle-notch" spin v-if="!hostname"></icon>
+              </b-button>
+            </b-button-group>
+          </b-col>
+          <b-col cols="auto" align="right">
+            <b-link href="https://inverse.ca/" target="_blank"><img alt="Inverse" src="/static/img/inverse.small.png"></b-link>
+            <b-button href="https://packetfence.org/support.html#/commercial" target="_blank" class="ml-1" size="sm">
+              {{ $t('Support Inquiry') }}<icon class="ml-1" name="external-link-alt"> </icon>
+            </b-button>
+          </b-col>
+        </b-row>
+      </pf-documentation>
       <router-view/>
     </b-container>
     <!-- Show login form if session expires -->
@@ -116,6 +141,9 @@ export default {
     altShiftCKey () {
       return this.$store.getters['events/altShiftCKey'] && this.$can('read', 'configuration_main')
     },
+    altShiftHKey () {
+      return this.$store.getters['events/altShiftHKey']
+    },
     altShiftNKey () {
       return this.$store.getters['events/altShiftNKey'] && this.$can('read', 'nodes')
     },
@@ -127,6 +155,12 @@ export default {
     },
     altShiftUKey () {
       return this.$store.getters['events/altShiftUKey'] && this.$can('read', 'users')
+    },
+    version () {
+      return this.$store.getters['system/version']
+    },
+    hostname () {
+      return this.$store.getters['system/hostname']
     }
   },
   methods: {
@@ -166,6 +200,9 @@ export default {
     },
     altShiftCKey (pressed) {
       if (pressed) this.$router.push('/configuration')
+    },
+    altShiftHKey (pressed) {
+      if (pressed) this.$store.dispatch('documentation/toggleViewer')
     },
     altShiftNKey (pressed) {
       if (pressed) this.$router.push('/nodes')

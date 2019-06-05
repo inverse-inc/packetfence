@@ -2,7 +2,6 @@
 * "documentation" store module
 */
 import Vue from 'vue'
-import store from '@/store'
 import { documentationCall } from '@/utils/api'
 
 const api = {
@@ -22,7 +21,7 @@ const types = {
 const state = {
   documents: false,
   fullscreen: false,
-  showViewer: true,
+  showViewer: false,
   message: '',
   requestStatus: ''
 }
@@ -58,11 +57,18 @@ const actions = {
       commit('VIEWER_CLOSE')
     }
   },
-  toggleFullscreen: ({ commit, state }) => {
-    if (state.fullscreen) {
-      commit('FULLSCREEN_OFF')
+  toggleViewer: ({ commit, state }) => {
+    if (!state.showViewer) {
+      commit('VIEWER_OPEN')
     } else {
+      commit('VIEWER_CLOSE')
+    }
+  },
+  toggleFullscreen: ({ commit, state }) => {
+    if (!state.fullscreen) {
       commit('FULLSCREEN_ON')
+    } else {
+      commit('FULLSCREEN_OFF')
     }
   }
 }
@@ -85,16 +91,16 @@ const mutations = {
     }
   },
   VIEWER_OPEN: (state) => {
-    state.showViewer = true
+    Vue.set(state, 'showViewer', true)
   },
   VIEWER_CLOSE: (state) => {
-    state.showViewer = false
-  },
-  FULLSCREEN_OFF: (state) => {
-    state.fullscreen = false
+    Vue.set(state, 'showViewer', false)
   },
   FULLSCREEN_ON: (state) => {
-    state.fullscreen = true
+    Vue.set(state, 'fullscreen', true)
+  },
+  FULLSCREEN_OFF: (state) => {
+    Vue.set(state, 'fullscreen', false)
   }
 }
 

@@ -1,5 +1,9 @@
 @import "../../node_modules/bootstrap/scss/navbar";
 
+.navbar {
+  z-index: 1040 !important;
+}
+
 .navbar-toggler {
     border-width: 0;
 }

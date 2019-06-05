@@ -120,7 +120,7 @@ Vue.use(VueScrollTo, {
     container: "body",
     duration: 300,
     easing: "ease",
-    offset: -130, // navbar height + margins
+    offset: -215, // navbar height + margins
     force: true,
     cancelable: true,
     onStart: false,
