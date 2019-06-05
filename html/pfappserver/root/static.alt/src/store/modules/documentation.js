@@ -22,9 +22,9 @@ const types = {
 const state = {
   documents: false,
   fullscreen: false,
+  showViewer: true,
   message: '',
   requestStatus: ''
-
 }
 
 const getters = {
@@ -47,6 +47,16 @@ const actions = {
         reject(err)
       })
     })
+  },
+  openViewer: ({ commit, state }) => {
+    if (!state.showViewer) {
+      commit('VIEWER_OPEN')
+    }
+  },
+  closeViewer: ({ commit, state }) => {
+    if (state.showViewer) {
+      commit('VIEWER_CLOSE')
+    }
   },
   toggleFullscreen: ({ commit, state }) => {
     if (state.fullscreen) {
@@ -73,6 +83,12 @@ const mutations = {
     if (message) {
       state.message = message
     }
+  },
+  VIEWER_OPEN: (state) => {
+    state.showViewer = true
+  },
+  VIEWER_CLOSE: (state) => {
+    state.showViewer = false
   },
   FULLSCREEN_OFF: (state) => {
     state.fullscreen = false

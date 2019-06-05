@@ -1,5 +1,5 @@
 <template>
-  <b-row>
+  <b-row class="documentViewer" :class="{ 'hidden': !showViewer }">
     <b-col cols="12" md="3" xl="2" class="pf-sidebar d-print-none">
       <!-- filter -->
       <div class="pf-sidebar-filter d-flex align-items-center">
@@ -33,21 +33,21 @@
       <b-card no-body class="document" :class="{ 'fullscreen': fullscreen }">
         <b-card-header>
           <template v-if="!fullscreen">
-            <b-button-close @click="close" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')" class="ml-3"><icon name="times"></icon></b-button-close>
+            <b-button-close @click="closeViewer" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')" class="ml-3"><icon name="times"></icon></b-button-close>
             <b-button-close @click="toggleFullscreen" v-b-tooltip.hover.left.d300 :title="$t('Show Fullscreen')" class="ml-3"><icon name="expand"></icon></b-button-close>
           </template>
           <b-button-close v-else @click="toggleFullscreen" v-b-tooltip.hover.left.d300 :title="$t('Exit Fullscreen [ESC]')" class="ml-3"><icon name="compress"></icon></b-button-close>
           <h4 class="mb-0" v-t="title"></h4>
         </b-card-header>
 
-        <!-- document viewer -->
+        <!-- HTML document -->
         <b-embed ref="document" name="documentFrame" class="h-100" type="iframe" aspect="16by9"
           :src="`/static/doc/${path}${(hash) ? '#' + hash : ''}`"
           @load="initDocument()"
           allowfullscreen
         ></b-embed>
 
-        <!-- image viewer -->
+        <!-- IMG viewer -->
         <b-modal v-model="showImageModal" size="xl" centered id="imageModal" scrollable hide-footer>
           <template slot="modal-title">{{ image.alt }}</template>
           <div class="p-3 text-center">
@@ -83,6 +83,9 @@ export default {
       }).sort((a, b) => {
         return a.text.localeCompare(b.text)
       })
+    },
+    showViewer () {
+      return this.$store.state.documentation.showViewer
     },
     fullscreen () {
       return this.$store.state.documentation.fullscreen
@@ -169,6 +172,12 @@ export default {
       console.log('setHash', hash)
       this.$set(this, 'hash', hash)
     },
+    openViewer () {
+      this.$store.dispatch('documentation/openViewer')
+    },
+    closeViewer () {
+      this.$store.dispatch('documentation/closeViewer')
+    },
     toggleFullscreen () {
       this.$store.dispatch('documentation/toggleFullscreen')
     }
@@ -204,6 +213,15 @@ export default {
   body.no-scroll {
     overflow-x: hidden;
     overflow-y: hidden;
+  }
+  .documentViewer {
+    transition: all 300ms ease;
+    max-height: 100vh;
+    &.hidden {
+      overflow-x: hidden;
+      overflow-y: hidden;
+      max-height: 0vh;
+    }
   }
   .document {
     &.fullscreen {
