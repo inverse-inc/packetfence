@@ -144,7 +144,7 @@ raddb/certs/server.crt:
 raddb/sites-enabled:
 	mkdir raddb/sites-enabled
 	cd raddb/sites-enabled;\
-	for f in packetfence packetfence-tunnel dynamic-clients;\
+	for f in packetfence packetfence-tunnel dynamic-clients status;\
 		do ln -s ../sites-available/$$f $$f;\
 	done
 
