@@ -17,7 +17,6 @@ mkdir /usr/local/pf/var/ssl_mutex
 cp ../pf-pkg/conf/pf.conf conf/
 cp ../pf-pkg/conf/pfconfig.conf conf/
 cp ../pf-pkg/conf/currently-at conf/
-ln -s /usr/local/pf/raddb/sites-available/status /usr/local/pf/raddb/sites-enabled/status
 
 log_section "Build web admin"
 cd /usr/local/pf/html/pfappserver/root/static.alt/
@@ -34,7 +33,7 @@ cd /usr/local/pf/go
 make go-env
 /usr/local/pf/addons/packages/build-go.sh build /usr/local/pf /usr/local/pf/sbin/
 
-log_section "Fix permissions and start services"
+log_section "Fix permissions and start unmanaged services"
 cd /usr/local/pf
 make permissions
 systemctl start packetfence-mariadb
