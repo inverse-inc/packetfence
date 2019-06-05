@@ -115,7 +115,7 @@ const state = {
   },
   keyDown: false,
   mouseDown: false,
-  focus: true,
+  focus: false,
   documentEvent: {
     keyCode: null,
     altKey: false,
@@ -145,17 +145,17 @@ const getters = {
   altKey: state => state.focus && state.documentEvent.altKey,
   ctrlKey: state => state.focus && state.documentEvent.ctrlKey,
   shiftKey: state => state.focus && state.documentEvent.shiftKey,
-  escapeKey: state => state.focus && state.documentEvent.keyCode === state.keyCodes['Escape'],
-  altAKey: state => state.focus && state.documentEvent.altKey && !state.documentEvent.shiftKey && state.documentEvent.keyCode === state.keyCodes['KeyA'],
-  altNKey: state => state.focus && state.documentEvent.altKey && !state.documentEvent.shiftKey && state.documentEvent.keyCode === state.keyCodes['KeyN'],
-  altRKey: state => state.focus && state.documentEvent.altKey && !state.documentEvent.shiftKey && state.documentEvent.keyCode === state.keyCodes['KeyR'],
-  altShiftAKey: state => state.focus && state.documentEvent.altKey && state.documentEvent.shiftKey && state.documentEvent.keyCode === state.keyCodes['KeyA'],
-  altShiftCKey: state => state.focus && state.documentEvent.altKey && state.documentEvent.shiftKey && state.documentEvent.keyCode === state.keyCodes['KeyC'],
-  altShiftFKey: state => state.focus && state.documentEvent.altKey && state.documentEvent.shiftKey && state.documentEvent.keyCode === state.keyCodes['KeyF'],
-  altShiftNKey: state => state.focus && state.documentEvent.altKey && state.documentEvent.shiftKey && state.documentEvent.keyCode === state.keyCodes['KeyN'],
-  altShiftRKey: state => state.focus && state.documentEvent.altKey && state.documentEvent.shiftKey && state.documentEvent.keyCode === state.keyCodes['KeyR'],
-  altShiftSKey: state => state.focus && state.documentEvent.altKey && state.documentEvent.shiftKey && state.documentEvent.keyCode === state.keyCodes['KeyS'],
-  altShiftUKey: state => state.focus && state.documentEvent.altKey && state.documentEvent.shiftKey && state.documentEvent.keyCode === state.keyCodes['KeyU'],
+  escapeKey: state => state.focus && state.documentEvent.keyCode === state.keyCodes.Escape,
+  altAKey: state => state.focus && state.documentEvent.altKey && !state.documentEvent.shiftKey && state.documentEvent.keyCode === state.keyCodes.KeyA,
+  altNKey: state => state.focus && state.documentEvent.altKey && !state.documentEvent.shiftKey && state.documentEvent.keyCode === state.keyCodes.KeyN,
+  altRKey: state => state.focus && state.documentEvent.altKey && !state.documentEvent.shiftKey && state.documentEvent.keyCode === state.keyCodes.KeyR,
+  altShiftAKey: state => state.focus && state.documentEvent.altKey && state.documentEvent.shiftKey && state.documentEvent.keyCode === state.keyCodes.KeyA,
+  altShiftCKey: state => state.focus && state.documentEvent.altKey && state.documentEvent.shiftKey && state.documentEvent.keyCode === state.keyCodes.KeyC,
+  altShiftFKey: state => state.focus && state.documentEvent.altKey && state.documentEvent.shiftKey && state.documentEvent.keyCode === state.keyCodes.KeyF,
+  altShiftNKey: state => state.focus && state.documentEvent.altKey && state.documentEvent.shiftKey && state.documentEvent.keyCode === state.keyCodes.KeyN,
+  altShiftRKey: state => state.focus && state.documentEvent.altKey && state.documentEvent.shiftKey && state.documentEvent.keyCode === state.keyCodes.KeyR,
+  altShiftSKey: state => state.focus && state.documentEvent.altKey && state.documentEvent.shiftKey && state.documentEvent.keyCode === state.keyCodes.KeyS,
+  altShiftUKey: state => state.focus && state.documentEvent.altKey && state.documentEvent.shiftKey && state.documentEvent.keyCode === state.keyCodes.KeyU
 }
 
 const actions = {
@@ -167,7 +167,7 @@ const actions = {
     window.addEventListener('blur', (event) => dispatch('onBlur', event))
     window.addEventListener('focus', (event) => dispatch('onFocus', event))
     window.addEventListener('resize', (event) => dispatch('onResize', event))
-    commit('RESIZE', null)  // init windowSize
+    commit('RESIZE', null) // init windowSize
   },
   onBodyMouseDown: ({ commit }, event) => {
     commit('BODY_MOUSE_DOWN', event)
