@@ -115,7 +115,7 @@ conf/unified_api_system_pass:
 	date +%s | sha256sum | base64 | head -c 32 > /usr/local/pf/conf/unified_api_system_pass
 
 conf/currently-at: conf/pf-release
-        cat conf/pf-release > conf/currently-at
+	cat conf/pf-release > conf/currently-at
 
 bin/pfcmd: src/pfcmd.c
 	$(CC) -O2 -g -std=c99  -Wall $< -o $@
