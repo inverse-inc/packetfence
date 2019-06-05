@@ -53,6 +53,7 @@ Since this is a SPA (Single-Page Application), it is currently accessible from `
 * [vuedraggable](https://github.com/SortableJS/Vue.Draggable) -- draggable component
 * [vue2-ace-editor](https://github.com/chairuosen/vue2-ace-editor) -- packaging of ace
  * [ace](https://ace.c9.io/)
+* [vue-scrollto](https://www.npmjs.com/package/vue-scrollto) -- animated scrolling
 
 ## Files Structure
 

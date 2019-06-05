@@ -52,7 +52,8 @@
     <b-container v-if="readonlyMode" class="bg-danger text-white text-center pt-6" fluid>
       <icon class="pr-2" name="lock"></icon> {{ $t('The database is in readonly mode. Not all functionality is available.') }}
     </b-container>
-    <b-container fluid :class="{ 'pt-6': !readonlyMode }">
+    <b-container :class="{ 'pt-6': !readonlyMode }" fluid>
+      <pf-documentation  v-show="isAuthenticated"/>
       <router-view/>
     </b-container>
     <!-- Show login form if session expires -->
@@ -62,6 +63,7 @@
 
 <script>
 import IconCounter from '@/components/IconCounter'
+import pfDocumentation from '@/components/pfDocumentation'
 import pfFormLogin from '@/components/pfFormLogin'
 import pfNotificationCenter from '@/components/pfNotificationCenter'
 import pfProgressApi from '@/components/pfProgressApi'
@@ -70,6 +72,7 @@ export default {
   name: 'app',
   components: {
     IconCounter,
+    pfDocumentation,
     pfFormLogin,
     pfNotificationCenter,
     pfProgressApi

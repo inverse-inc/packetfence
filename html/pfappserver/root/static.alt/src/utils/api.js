@@ -165,4 +165,8 @@ export const pfappserverCall = axios.create({
   baseURL: '/admin/'
 })
 
+export const documentationCall = axios.create({
+  baseURL: '/static/doc/'
+})
+
 export default apiCall
