@@ -9,7 +9,7 @@
  *
  *  Basic Usage:
  *
- *  <pf-csv-parse @input="onImport" :file="file" :fields="fields" no-init-bind-keys></pf-csv-parse>
+ *  <pf-csv-parse @input="onImport" :file="file" :fields="fields"></pf-csv-parse>
  *
  *  Properties:
  *
@@ -33,7 +33,7 @@
  *      ...
  *    ]
  *
- *    `no-init-bind-keys` -- for pfMixinSelectable, don't bind onKeyDown for multiple instances
+ *    `event-listen` (boolean) -- listen to keyboard/mouse events
  *
  *  Events:
  *
@@ -364,7 +364,6 @@ export default {
       type: Array,
       default: () => { return [] }
     }
-
   },
   data () {
     return {

@@ -94,7 +94,10 @@ export default {
       type: Number,
       default: null
     },
-    noInitBindKeys: Boolean
+    eventsListen: {
+      type: Boolean,
+      default: true
+    }
   },
   computed: {
     altAKey () {
@@ -191,15 +194,15 @@ export default {
       deep: true
     },
     altAKey (pressed) {
-      if (pressed && !this.noInitBindKeys) {
-        if ('isLoading' in this && !this.isLoading) {
+      if (pressed && this.eventsListen) {
+        if (!('isLoading' in this) || !this.isLoading) {
           this.selectValues = this.tableValues
         }
       }
     },
     altNKey (pressed) {
-      if (pressed && !this.noInitBindKeys) {
-        if ('isLoading' in this && !this.isLoading) {
+      if (pressed && this.eventsListen) {
+        if (!('isLoading' in this) || !this.isLoading) {
           this.selectValues = []
         }
       }

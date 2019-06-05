@@ -11,7 +11,15 @@
             <b-button-close class="ml-2 text-white" @click.stop.prevent="closeFile(index)" v-b-tooltip.hover.left.d300 :title="$t('Close File')"><icon name="times"></icon></b-button-close>
             {{ file.name }}
           </template>
-          <pf-csv-parse @input="onImport" :ref="'parser-' + index" :file="file" :fields="fields" :storeName="storeName" :defaultStaticMapping="defaultStaticMapping" no-init-bind-keys></pf-csv-parse>
+          <pf-csv-parse
+            :ref="'parser-' + index"
+            :file="file"
+            :fields="fields"
+            :storeName="storeName"
+            :defaultStaticMapping="defaultStaticMapping"
+            :eventsListen="tabIndex === index"
+            @input="onImport"
+          ></pf-csv-parse>
         </b-tab>
         <template slot="tabs">
           <pf-form-upload @load="files = $event" :multiple="true" :cumulative="true" accept="text/*, .csv">{{ $t('Open CSV File') }}</pf-form-upload>
@@ -66,10 +74,6 @@ export default {
       type: String,
       default: null,
       required: true
-    },
-    noInitBindKeys: {
-      type: Boolean,
-      default: false
     }
   },
   data () {
@@ -193,12 +197,6 @@ export default {
     closeFile (index) {
       this.files.splice(index, 1)
     },
-    onKeyDown (event) {
-      // pass event to selected child component
-      if (this.$refs['parser-' + this.tabIndex] && this.$refs['parser-' + this.tabIndex].length) {
-        this.$refs['parser-' + this.tabIndex][0].onKeyDown(event)
-      }
-    },
     onImport (values, parser) {
       // track progress
       this.progressValue = 1
@@ -278,18 +276,8 @@ export default {
       })
     }
   },
-  mounted () {
-    if (!this.noInitBindKeys) {
-      document.addEventListener('keydown', this.onKeyDown)
-    }
-  },
   created () {
     this.$store.dispatch('config/getRoles')
-  },
-  beforeDestroy () {
-    if (!this.noInitBindKeys) {
-      document.removeEventListener('keydown', this.onKeyDown)
-    }
   }
 }
 </script>
