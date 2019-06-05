@@ -38,6 +38,7 @@ cd /usr/local/pf
 make permissions
 systemctl start packetfence-mariadb
 systemctl start packetfence-config packetfence-redis-cache
+systemctl start rsyslog
 
 log_section "Start all PF services"
 /usr/local/pf/bin/pfcmd service pf restart
