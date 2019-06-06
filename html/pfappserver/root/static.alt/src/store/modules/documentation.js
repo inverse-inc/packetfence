@@ -9,6 +9,11 @@ const api = {
     return documentationCall.get('index.js').then(response => {
       return response.data.items
     })
+  },
+  getDocument: (filename) => {
+    return documentationCall.get(filename).then(response => {
+      return response.data
+    })
   }
 }
 
@@ -19,7 +24,8 @@ const types = {
 }
 
 const state = {
-  documents: false,
+  cache: {},
+  index: false,
   fullscreen: false,
   showViewer: false,
   message: '',
@@ -28,21 +34,36 @@ const state = {
 
 const getters = {
   isLoading: state => state.requestStatus === types.LOADING,
-  documents: state => state.documents
+  index: state => state.index
 }
 
 const actions = {
-  getDocuments: ({ commit, state }) => {
-    if (state.documents) {
-      return Promise.resolve(state.documents)
+  getIndex: ({ commit, state }) => {
+    if (state.index) {
+      return Promise.resolve(state.index)
     }
-    commit('DOCUMENTS_REQUEST')
+    commit('INDEX_REQUEST')
     return new Promise((resolve, reject) => {
       api.getDocuments().then(data => {
-        commit('DOCUMENTS_SUCCESS', data)
-        resolve(state.documents)
+        commit('INDEX_SUCCESS', data)
+        resolve(state.index)
       }).catch(err => {
-        commit('DOCUMENTS_ERROR', err.response)
+        commit('INDEX_ERROR', err.response)
+        reject(err)
+      })
+    })
+  },
+  getDocument: ({ commit, state }, filename) => {
+    if (state.cache && filename in state.cache) {
+      return Promise.resolve(state.cache[filename])
+    }
+    commit('DOCUMENT_REQUEST')
+    return new Promise((resolve, reject) => {
+      api.getDocument(filename).then(response => {
+        commit('DOCUMENT_SUCCESS', { filename, response })
+        resolve(state.cache[filename])
+      }).catch(err => {
+        commit('DOCUMENT_ERROR', err.response)
         reject(err)
       })
     })
@@ -61,6 +82,7 @@ const actions = {
     if (!state.showViewer) {
       commit('VIEWER_OPEN')
     } else {
+      commit('FULLSCREEN_OFF')
       commit('VIEWER_CLOSE')
     }
   },
@@ -74,20 +96,38 @@ const actions = {
 }
 
 const mutations = {
-  DOCUMENTS_REQUEST: (state) => {
+  INDEX_REQUEST: (state) => {
     state.requestStatus = types.LOADING
     state.message = ''
   },
-  DOCUMENTS_SUCCESS: (state, data) => {
-    Vue.set(state, 'documents', data)
+  INDEX_SUCCESS: (state, data) => {
+    Vue.set(state, 'index', data)
     state.requestStatus = types.SUCCESS
     state.message = ''
   },
-  DOCUMENTS_ERROR: (state, data) => {
+  INDEX_ERROR: (state, data) => {
     state.requestStatus = types.ERROR
     const { response: { data: { message } = {} } = {} } = data
     if (message) {
       state.message = message
+    }
+  },
+  DOCUMENT_REQUEST: (state) => {
+    state.requestStatus = types.LOADING
+    state.message = ''
+  },
+  DOCUMENT_SUCCESS: (state, data) => {
+    Vue.set(state.cache, data.filename, data.response)
+    state.requestStatus = types.SUCCESS
+    state.message = ''
+  },
+  DOCUMENT_ERROR: (state, data) => {
+    state.requestStatus = types.ERROR
+    if (data) {
+      const { response: { data: { message } = {} } = {} } = data
+      if (message) {
+        state.message = message
+      }
     }
   },
   VIEWER_OPEN: (state) => {

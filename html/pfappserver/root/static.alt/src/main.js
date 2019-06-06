@@ -1,7 +1,6 @@
 import Vue from 'vue'
 import BootstrapVue from 'bootstrap-vue'
 import i18n from '@/utils/locale'
-import VueScrollTo from 'vue-scrollto'
 import VueTimeago from 'vue-timeago'
 import Icon from 'vue-awesome/components/Icon'
 import 'vue-awesome/icons/arrow-circle-right'
@@ -116,19 +115,6 @@ Vue.config.productionTip = process.env.NODE_ENV === 'production'
 Vue.config.devtools = process.env.VUE_APP_DEBUG === 'true'
 Vue.config.performance = process.env.VUE_APP_DEBUG === 'true'
 
-Vue.use(VueScrollTo, {
-    container: "body",
-    duration: 300,
-    easing: "ease",
-    offset: -215, // navbar height + margins
-    force: true,
-    cancelable: true,
-    onStart: false,
-    onDone: false,
-    onCancel: false,
-    x: false,
-    y: true
- })
 Vue.use(VueTimeago, {
   name: 'Timeago',
   locale: undefined,

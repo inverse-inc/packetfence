@@ -17,7 +17,7 @@
         </b-btn>
       </div>
       <b-nav class="pf-sidenav" vertical>
-        <b-nav-item v-for="document in filteredDocuments" :key="document.name"
+        <b-nav-item v-for="document in filteredIndex" :key="document.name"
           :active="document.text === title"
           exact-active-class="active"
           @click.stop.prevent="loadDocument(document)"
@@ -42,13 +42,13 @@
             <b-button-close @click="closeViewer" v-b-tooltip.hover.left.d300 :title="$t('Close')" class="ml-3"><icon name="times"></icon></b-button-close>
             <b-button-close @click="toggleFullscreen" v-b-tooltip.hover.left.d300 :title="$t('Show Fullscreen')" class="ml-3"><icon name="expand"></icon></b-button-close>
           </template>
-          <b-button-close v-else @click="toggleFullscreen" v-b-tooltip.hover.left.d300 :title="$t('Exit Fullscreen [ESC]')" class="ml-3"><icon name="compress"></icon></b-button-close>
+          <b-button-close v-else @click="toggleFullscreen" v-b-tooltip.hover.left.d300 :title="$t('Exit Fullscreen')" class="ml-3"><icon name="compress"></icon></b-button-close>
           <h4 class="mb-0" v-t="title"></h4>
         </b-card-header>
 
         <!-- HTML document -->
         <iframe ref="document" name="documentFrame" class="h-100" frameborder="0"
-          :src="`/static/doc/${path}${(hash) ? '#' + hash : ''}`"
+          :src="`/static/doc/${path}`"
           @load="initDocument()"
         ></iframe>
 
@@ -65,6 +65,7 @@
 </template>
 
 <script>
+import VueScrollTo from 'vue-scrollto'
 import TextHighlight from 'vue-text-highlight'
 
 export default {
@@ -73,15 +74,15 @@ export default {
     TextHighlight
   },
   computed: {
-    documents () {
-      return this.$store.state.documentation.documents
+    index () {
+      return this.$store.state.documentation.index
     },
-    filteredDocuments () {
-      if (!(this.documents && 'length' in this.documents)) {
+    filteredIndex () {
+      if (!(this.index && 'length' in this.index)) {
         return []
       }
       const re = new RegExp(this.filter, 'i')
-      return this.documents.map(document => {
+      return this.index.map(document => {
         return { ...document, ...{ text: document.name.replace(/\.html/g, '').replace(/_/g, ' ').replace(/^PacketFence /, '') } }
       }).filter(document => {
         return re.test(document.text)
@@ -101,12 +102,18 @@ export default {
   },
   methods: {
     loadDocument (document) {
-      this.title = document.text
-      this.setPath(document.name)
-      this.$scrollTo(this.$refs.document)
+      this.$set(this, 'title', document.text)
+      this.$set(this, 'path', document.name)
+      this.$nextTick(() => {
+        this.scrollToTop()
+      })
     },
     initDocument () {
+      const here = new URL(window.location.href)
       const documentFrame = window.frames['documentFrame'].document.body
+      documentFrame.addEventListener('click', (event) => { // iframe clicks blur the parent window
+        window.focus() // regain focus
+      })
       // rewrite links
       const links = [...documentFrame.getElementsByTagName('a')]
       links.forEach((link, index) => {
@@ -119,37 +126,51 @@ export default {
           case url.hostname === 'pf_management_ip':
           case url.hostname === '%3Cyour_captive_portal_ip%3E':
           case url.hostname === '_ip_address_of_packetfence':
+          case url.hostname === here.hostname:
             const re = new RegExp('^/static/doc/')
             if (re.test(url.pathname)) { // link to an other document
-              link.className += ' document-link' // add class to style document links
+              link.classList.add('internal-link') // add class to style document links
               link.target = '_self'
               link.href = 'javascript:void(0);' // disable default link
               link.addEventListener('click', (event) => {
-                this.setHash(url.hash)
+                event.preventDefault()
                 const path = url.pathname.replace('/static/doc/', '')
                 if (path !== this.path) {
-                  this.setPath(path)
-                } else {
-                  this.$scrollTo(this.$refs.document)
+                  this.$set(this, 'path', path)
+                } else if (url.hash.charAt(0) === '#') {
+                  const { $refs: { document: { contentWindow: { document: iframeDocument } = {} } = {} } = {} } = this
+                  if (iframeDocument) {
+                    const iframeHtml = iframeDocument.getElementsByTagName('html')[0]
+                    if (iframeHtml) {
+                      const section = iframeDocument.getElementById(url.hash.substr(1))
+                      if (section) {
+                        VueScrollTo.scrollTo(section, 300, { // animated scroll to hash in iframe
+                          container: iframeHtml,
+                          cancelable: false
+                        })
+                        return false
+                      }
+                    }
+                  }
                 }
               })
               return
             }
             // replace href with current hostname:port
-            const here = new URL(window.location.href)
             url.port = '1443'
             url.hostname = here.hostname
             link.href = url.toString()
             break
         }
         // unhandled URLs
-        link.className += ' external-link' // add class to style external links
-        link.target = '_blank'  // open in a new tab
+        link.classList.add('external-link') // add class to style external links
+        link.target = '_blank' // open in a new tab
       })
       // rewrite images
       const images = [...documentFrame.getElementsByTagName('img')]
       images.forEach((image, index) => {
-        const width = image.naturalWidth, height = image.naturalHeight
+        const width = image.naturalWidth
+        const height = image.naturalHeight
         if (width >= 100 || height >= 100) { // ignore thumbnails
           image.setAttribute('style', 'cursor: pointer')
           image.setAttribute('title', this.$i18n.t('Click to expand'))
@@ -159,26 +180,12 @@ export default {
           })
         }
       })
-      this.$nextTick(() => {
-        this.$scrollTo(this.$refs.document)
-      })
     },
     focusFilter () {
       this.$refs.filter.$el.focus()
       this.$nextTick(() => {
         this.$refs.filter.$el.select()
       })
-    },
-    setPath (path) {
-      console.log('setPath', path)
-      this.$set(this, 'path', path)
-    },
-    setHash (hash) {
-      while (hash.charAt(0) === '#') { // remove leading '#'
-        hash = hash.substr(1)
-      }
-      console.log('setHash', hash)
-      this.$set(this, 'hash', hash)
     },
     openViewer () {
       this.$store.dispatch('documentation/openViewer')
@@ -188,24 +195,31 @@ export default {
     },
     toggleFullscreen () {
       this.$store.dispatch('documentation/toggleFullscreen')
+    },
+    scrollToTop () {
+      VueScrollTo.scrollTo('.navbar', 300, { // animated scroll to top of page
+        cancelable: false
+      })
     }
   },
   data () {
     return {
+      filter: '',
       title: 'Administration Guide',
       path: 'PacketFence_Administration_Guide.html',
-      hash: null,
-      filter: '',
       showImageModal: false,
       image: false
     }
   },
   mounted () {
-    this.$store.dispatch('documentation/getDocuments')
+    this.$store.dispatch('documentation/getIndex')
   },
   watch: {
     showViewer: function (a, b) {
       if (a) { // shown
+        this.$nextTick(() => {
+          this.scrollToTop()
+        })
         this.$refs.documentList.scrollTop = 0
         this.focusFilter()
       }
@@ -217,11 +231,13 @@ export default {
             document.body.classList.add('modal-open')
             document.body.setAttribute('style', 'padding-right: 14px;')
           }
+          this.$store.dispatch('events/unbind')
         } else { // not fullscreen
           if (document.body.classList.contains('modal-open')) { // show body scrollbar
             document.body.classList.remove('modal-open')
             document.body.setAttribute('style', '')
           }
+          this.$store.dispatch('events/bind')
         }
       }
     }
