@@ -16,8 +16,7 @@ all:
 	@echo " 'PacketFence_Network_Devices_Configuration_Guide.pdf' will build the Network Devices Configuration guide in PDF"
 
 ASCIIDOCS := $(notdir $(wildcard docs/PacketFence_*.asciidoc))
-
-pdf: docs/docbook/xsl/titlepage-fo.xsl docs/docbook/xsl/import-fo.xsl $(patsubst %.asciidoc,%.pdf,$(ASCIIDOCS))
+PDFS = $(patsubst %.asciidoc,docs/%.pdf, $(ASCIIDOCS))
 
 docs/docbook/xsl/titlepage-fo.xsl: docs/docbook/xsl/titlepage-fo.xml
 	xsltproc \
@@ -35,7 +34,7 @@ docs/docbook/xsl/import-fo.xsl:
 	</xsl:stylesheet>" \
 	> docs/docbook/xsl/import-fo.xsl
 
-%.pdf : docs/%.asciidoc docs/docbook/xsl/titlepage-fo.xsl docs/docbook/xsl/import-fo.xsl
+docs/%.pdf : docs/%.asciidoc docs/docbook/xsl/titlepage-fo.xsl docs/docbook/xsl/import-fo.xsl
 	asciidoc \
 		-a docinfo2 \
 		-b docbook \
@@ -50,13 +49,13 @@ docs/docbook/xsl/import-fo.xsl:
 	fop \
 		-c docs/fonts/fop-config.xml \
 		$<.fo \
-		-pdf docs/$@
+		-pdf $@
 
-HTML = $(patsubst %.asciidoc,%.html, $(ASCIIDOCS))
+pdf: $(PDFS)
 
-html: $(HTML)
+HTML = $(patsubst %.asciidoc,docs/html/%.html, $(ASCIIDOCS))
 
-%.html: docs/%.asciidoc
+docs/html/%.html: docs/%.asciidoc
 	asciidoctor \
 		-D docs/html \
 		-n \
@@ -70,6 +69,8 @@ html/pfappserver/root/static/doc:
 
 docs/html/index.js: $(HTML)
 	find $$(dirname "$@") -type f  -iname  '*.html' -printf "{\"name\":\"%f\", \"size\":%s, \"last_modifed\" : %T@}\n" | jq -s '{ items: [ .[] |  {name, size, last_modifed : (.last_modifed*1000 | floor)} ] }' > $@
+
+html: $(HTML) docs/html/index.js
 
 pfcmd.help:
 	/usr/local/pf/bin/pfcmd help > docs/pfcmd.help
