@@ -51,6 +51,8 @@ docs/%.pdf : docs/%.asciidoc docs/docbook/xsl/titlepage-fo.xsl docs/docbook/xsl/
 		$<.fo \
 		-pdf $@
 
+.PHONY: pdf
+
 pdf: $(PDFS)
 
 HTML = $(patsubst %.asciidoc,docs/html/%.html, $(ASCIIDOCS))
@@ -69,6 +71,8 @@ html/pfappserver/root/static/doc:
 
 docs/html/index.js: $(HTML)
 	find $$(dirname "$@") -type f  -iname  '*.html' -printf "{\"name\":\"%f\", \"size\":%s, \"last_modifed\" : %T@}\n" | jq -s '{ items: [ .[] |  {name, size, last_modifed : (.last_modifed*1000 | floor)} ] }' > $@
+
+.PHONY: html
 
 html: $(HTML) docs/html/index.js
 
