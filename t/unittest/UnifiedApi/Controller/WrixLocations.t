@@ -104,8 +104,6 @@ $t->options_ok('/api/v1/wrix_locations')
     }
 );
 
-exit;
-
 $t->post_ok('/api/v1/wrix_locations' => json => \%values)
   ->status_is(201);
 
