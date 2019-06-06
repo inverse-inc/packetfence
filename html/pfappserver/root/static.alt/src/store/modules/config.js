@@ -1217,7 +1217,7 @@ const actions = {
   },
   getSources: ({ state, getters, commit }) => {
     if (getters.isLoadingSources) {
-      return
+      throw new Error('config/getSources: another task is already in progress')
     }
     if (!state.sources) {
       commit('SOURCES_REQUEST')

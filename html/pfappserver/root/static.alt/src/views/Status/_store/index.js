@@ -1,3 +1,6 @@
+/**
+* "$_status" store module
+*/
 import Vue from 'vue'
 import api from '../_api'
 import { blacklistedServices } from '@/store/modules/services'
@@ -68,6 +71,7 @@ const actions = {
       }).catch(err => {
         commit('ALL_CHARTS_ERROR')
         commit('session/CHARTS_ERROR', err.response, { root: true })
+        throw err
       })
     }
   },
@@ -99,6 +103,7 @@ const actions = {
         commit('session/CHARTS_ERROR', err.response, { root: true })
       })
     }
+    throw new Error('$_status/alarms: another task is already in progress')
   },
   getServices: ({ state, commit }) => {
     if (state.services.length > 0) {
@@ -117,8 +122,10 @@ const actions = {
       }).catch(err => {
         commit('SERVICES_ERROR')
         commit('session/API_ERROR', err.response, { root: true })
+        throw err
       })
     }
+    throw new Error('$_status/getServices: another task is already in progress')
   },
   disableService: ({ state, commit }, id) => {
     const index = state.services.findIndex(service => service.name === id)
@@ -331,10 +338,12 @@ const actions = {
             commit('CLUSTER_UPDATED', server)
           })
         }
-      }).catch(() => {
+      }).catch(err => {
         commit('CLUSTER_ERROR')
+        throw err
       })
     }
+    throw new Error('$_status/getCluster: another task is already in progress')
   },
   getClusterServices: ({ state, commit }) => {
     if (state.clusterServicesStatus !== types.LOADING) {
@@ -342,8 +351,9 @@ const actions = {
       return api.clusterServices().then(servers => {
         commit('CLUSTER_SERVICES_UPDATED', servers)
         return servers
-      }).catch(() => {
+      }).catch(err => {
         commit('CLUSTER_SERVICES_ERROR')
+        throw err
       })
     }
   }

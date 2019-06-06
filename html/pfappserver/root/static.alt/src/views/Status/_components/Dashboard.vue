@@ -632,7 +632,7 @@ export default {
       return this.new_chart.value !== null && this.new_chart.cols > 0 && this.new_chart.library !== null
     },
     cluster () {
-      return this.$store.state[this.storeName].cluster
+      return this.$store.state[this.storeName].cluster || []
     }
   },
   methods: {
