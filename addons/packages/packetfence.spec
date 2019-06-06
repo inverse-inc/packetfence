@@ -563,16 +563,15 @@ rm -rf $RPM_BUILD_ROOT/usr/local/pf/docs/images
 rm -rf $RPM_BUILD_ROOT/usr/local/pf/docs/api
 cp -r html $RPM_BUILD_ROOT/usr/local/pf/
 
-# install html and images dirs in pfappserver for embedded doc
-%{__install} -d -m0755 $RPM_BUILD_ROOT/usr/local/pf/html/pfappserver/root/static/doc
-
 # Build the HTML doc index for pfappserver
 make html
-make docs/html/index.js
 
+# install html and images dirs in pfappserver for embedded doc
+%{__install} -d -m0755 $RPM_BUILD_ROOT/usr/local/pf/html/pfappserver/root/static/doc
 for i in `find docs/html "(" -name "*.html" -or -name "*.js" ")"  -type f`; do \
 	%{__install} -m0644 $i $RPM_BUILD_ROOT/usr/local/pf/html/pfappserver/root/static/doc/; \
 done
+
 %{__install} -d -m0755 $RPM_BUILD_ROOT/usr/local/pf/html/pfappserver/root/static/images
 for i in `find * -path 'docs/images/*' -type f`; do \
 	%{__install} -m0644 $i $RPM_BUILD_ROOT/usr/local/pf/html/pfappserver/root/static/images/; \
