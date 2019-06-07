@@ -263,8 +263,8 @@ export default {
   data () {
     return {
       filter: '',
-      title: 'Administration Guide',
-      path: 'PacketFence_Administration_Guide.html',
+      title: '',
+      path: '',
       showImageModal: false,
       image: false
     }
@@ -275,6 +275,10 @@ export default {
   watch: {
     showViewer: function (a, b) {
       if (a) { // shown
+        if (!this.path) { // initial title/path
+          this.title = 'Administration Guide'
+          this.path = 'PacketFence_Administration_Guide.html'
+        }
         this.$nextTick(() => {
           this.scrollToTop()
         })
