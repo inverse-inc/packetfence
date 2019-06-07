@@ -1,13 +1,17 @@
 package pool
 
 import (
+	"context"
+	"github.com/inverse-inc/packetfence/go/log"
 	"testing"
 )
+
+var ctx = log.LoggerNewContext(context.Background())
 
 func TestReserveIPIndex(t *testing.T) {
 	cap := uint64(5)
 	algo := Random
-	dp := NewDHCPPool(cap, algo)
+	dp := NewDHCPPool(ctx, cap, algo)
 
 	var err error
 
@@ -50,7 +54,7 @@ func TestReserveIPIndex(t *testing.T) {
 func TestFreeIPIndex(t *testing.T) {
 	cap := uint64(5)
 	algo := Random
-	dp := NewDHCPPool(cap, algo)
+	dp := NewDHCPPool(ctx, cap, algo)
 
 	var err error
 	mac := "00:11:22:33:44:55"
@@ -96,7 +100,7 @@ func TestFreeIPIndex(t *testing.T) {
 func TestGetFreeIPIndex(t *testing.T) {
 	cap := uint64(1000)
 	algo := Random
-	dp := NewDHCPPool(cap, algo)
+	dp := NewDHCPPool(ctx, cap, algo)
 
 	var err error
 	mac := "00:11:22:33:44:55"
@@ -136,7 +140,7 @@ func TestGetFreeIPIndex(t *testing.T) {
 	// No two pool orders should be the same when getting IPs
 	// This has a very minimal chance of failing even if the code works
 	// If it does, go buy yourself a 6/49
-	dp2 := NewDHCPPool(cap, algo)
+	dp2 := NewDHCPPool(ctx, cap, algo)
 
 	order2 := []uint64{}
 
@@ -162,7 +166,7 @@ func TestGetFreeIPIndex(t *testing.T) {
 func TestFreeIPsRemaining(t *testing.T) {
 	cap := uint64(1000)
 	algo := Random
-	dp := NewDHCPPool(cap, algo)
+	dp := NewDHCPPool(ctx, cap, algo)
 
 	var expected uint64
 	var got uint64
@@ -211,7 +215,7 @@ func TestFreeIPsRemaining(t *testing.T) {
 func TestCapacity(t *testing.T) {
 	cap := uint64(1000)
 	algo := Random
-	dp := NewDHCPPool(cap, algo)
+	dp := NewDHCPPool(ctx, cap, algo)
 
 	if dp.Capacity() != cap {
 		t.Error("Pool capacity not equal the one provided at instantiation")

@@ -176,6 +176,7 @@ func main() {
 	router.HandleFunc("/api/v1/dhcp/stats/{int:.*}/{network:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}", handleStats).Methods("GET")
 	router.HandleFunc("/api/v1/dhcp/stats/{int:.*}", handleStats).Methods("GET")
 	router.HandleFunc("/api/v1/dhcp/debug/{int:.*}/{role:(?:[^/]*)}", handleDebug).Methods("GET")
+	router.HandleFunc("/api/v1/dhcp/detectduplicates/{int:.*}", handleDuplicates).Methods("GET")
 	router.HandleFunc("/api/v1/dhcp/options/network/{network:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}", handleOverrideNetworkOptions).Methods("POST")
 	router.HandleFunc("/api/v1/dhcp/options/network/{network:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}", handleRemoveNetworkOptions).Methods("DELETE")
 	router.HandleFunc("/api/v1/dhcp/options/mac/{mac:(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}}", handleOverrideOptions).Methods("POST")
@@ -238,6 +239,7 @@ func (I *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 
 	var handler DHCPHandler
 	var NetScope net.IPNet
+
 	options := p.ParseOptions()
 	answer.MAC = p.CHAddr()
 
@@ -347,13 +349,18 @@ func (I *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 			// Static assign IP address ?
 			if position, ok := handler.ipAssigned[p.CHAddr().String()]; ok {
 				free = int(position)
+				log.LoggerWContext(ctx).Debug("Static IP found")
 				goto reply
 			}
 			// Search in the cache if the mac address already get assigned
+			log.LoggerWContext(ctx).Debug("Search in the cache if an IP has already been assigned")
 			if x, found := handler.hwcache.Get(p.CHAddr().String()); found {
 				log.LoggerWContext(ctx).Debug("Found in the cache that a IP has already been assigned")
 				// Test if we find the the mac address at the index
 				_, returnedMac, err := handler.available.GetMACIndex(uint64(x.(int)))
+				if err != nil {
+					log.LoggerWContext(ctx).Debug(err.Error())
+				}
 				if returnedMac == p.CHAddr().String() {
 					free = x.(int)
 				} else if returnedMac == FreeMac {
@@ -363,7 +370,10 @@ func (I *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 
 					// Reserve the ip
 					err, returnedMac = handler.available.ReserveIPIndex(uint64(x.(int)), p.CHAddr().String())
-					if err != nil && returnedMac == p.CHAddr().String() {
+					if err != nil {
+						log.LoggerWContext(ctx).Debug(err.Error())
+					}
+					if err == nil && returnedMac == p.CHAddr().String() {
 						free = x.(int)
 					} else {
 						// Something went wrong to reserve the ip retry
@@ -381,10 +391,14 @@ func (I *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 				}
 				goto reply
 			}
+			log.LoggerWContext(ctx).Debug("Not Found in the cache that a IP has already been assigned")
 
 		retry:
+
 			// Search for the next available ip in the pool
+			log.LoggerWContext(ctx).Debug("Search if there is still available IP in the pool")
 			if handler.available.FreeIPsRemaining() > 0 {
+				log.LoggerWContext(ctx).Debug("Still available IP in the pool")
 				var element uint32
 				// Check if the device request a specific ip
 				if p.ParseOptions()[50] != nil && firstTry {
@@ -392,20 +406,24 @@ func (I *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 					element = uint32(binary.BigEndian.Uint32(p.ParseOptions()[50])) - uint32(binary.BigEndian.Uint32(handler.start.To4()))
 					// Test if we find the the mac address at the index
 					_, returnedMac, err := handler.available.GetMACIndex(uint64(element))
-					if returnedMac == p.CHAddr().String() {
+					if err != nil {
+						log.LoggerWContext(ctx).Debug(err.Error())
+					}
+					if err == nil && returnedMac == p.CHAddr().String() {
 						log.LoggerWContext(ctx).Debug("The IP asked by the device is available in the pool")
 						free = int(element)
-					} else if returnedMac == FreeMac {
+					} else if err == nil && returnedMac == FreeMac {
 						log.LoggerWContext(ctx).Debug("The IP asked by the device is available in the pool")
 						// The ip is free use it
 						err, returnedMac = handler.available.ReserveIPIndex(uint64(element), p.CHAddr().String())
 						// Reserve the ip
 						if err != nil {
+							log.LoggerWContext(ctx).Debug(err.Error())
 							// The ip is not available
 							firstTry = false
 							goto retry
 						}
-						if returnedMac == p.CHAddr().String() {
+						if err == nil && returnedMac == p.CHAddr().String() {
 							log.LoggerWContext(ctx).Debug("The IP asked by the device is available in the pool")
 							free = int(element)
 						}
@@ -422,7 +440,7 @@ func (I *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 					freeu64, _, err := handler.available.GetFreeIPIndex(p.CHAddr().String())
 
 					if err != nil {
-						log.LoggerWContext(ctx).Error("Unable to get free IP address, DHCP pool is full")
+						log.LoggerWContext(ctx).Error(err.Error())
 						return answer
 					}
 					free = int(freeu64)

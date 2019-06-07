@@ -1,7 +1,9 @@
 package pool
 
 import (
+	"context"
 	"errors"
+	"github.com/inverse-inc/packetfence/go/log"
 	"math/rand"
 	"sort"
 	"strconv"
@@ -22,23 +24,28 @@ const Random = 1
 const OldestReleased = 2
 
 type DHCPPool struct {
-	lock      *sync.Mutex
+	lock      *sync.RWMutex
 	free      map[uint64]bool
 	mac       map[uint64]string
 	capacity  uint64
 	released  map[uint64]int64
 	algorithm int
+	ctx       context.Context
+	statsd   *statsd.Client
 }
 
 // NewDHCPPool constructor
-func NewDHCPPool(capacity uint64, algorithm int) *DHCPPool {
+func NewDHCPPool(capacity uint64, context context.Context) *DHCPPool {
+	log.SetProcessName("pfdhcp")
+	ctx := log.LoggerNewContext(context)
 	d := &DHCPPool{
-		lock:      &sync.Mutex{},
-		free:      make(map[uint64]bool),
-		mac:       make(map[uint64]string),
-		capacity:  capacity,
+		lock:     &sync.RWMutex{},
+		free:     make(map[uint64]bool),
+		mac:      make(map[uint64]string),
 		released:  make(map[uint64]int64),
 		algorithm: algorithm,
+		capacity: capacity,
+		ctx:      ctx,
 	}
 	for i := uint64(0); i < d.capacity; i++ {
 		d.free[i] = true
@@ -49,8 +56,9 @@ func NewDHCPPool(capacity uint64, algorithm int) *DHCPPool {
 
 // Compare what we have in the cache with what we have in the pool
 func (dp *DHCPPool) GetIssues(macs []string) ([]string, map[uint64]string) {
-	dp.lock.Lock()
-	defer dp.lock.Unlock()
+	dp.lock.RLock()
+	defer dp.lock.RUnlock()
+	defer dp.timeTrack(time.Now(), "GetIssues")
 	var found bool
 	found = false
 	var inPoolNotInCache []string
@@ -101,7 +109,7 @@ func (dp *DHCPPool) GetIssues(macs []string) ([]string, map[uint64]string) {
 func (dp *DHCPPool) ReserveIPIndex(index uint64, mac string) (error, string) {
 	dp.lock.Lock()
 	defer dp.lock.Unlock()
-
+	defer dp.timeTrack(time.Now(), "ReserveIPIndex")
 	if index >= dp.capacity {
 		return errors.New("Trying to reserve an IP that is outside the capacity of this pool"), FreeMac
 	}
@@ -119,7 +127,7 @@ func (dp *DHCPPool) ReserveIPIndex(index uint64, mac string) (error, string) {
 func (dp *DHCPPool) FreeIPIndex(index uint64) error {
 	dp.lock.Lock()
 	defer dp.lock.Unlock()
-
+	defer dp.timeTrack(time.Now(), "FreeIPIndex")
 	if !dp.IndexInPool(index) {
 		return errors.New("Trying to free an IP that is outside the capacity of this pool")
 	}
@@ -136,9 +144,9 @@ func (dp *DHCPPool) FreeIPIndex(index uint64) error {
 
 // Check if the IP is free at the index
 func (dp *DHCPPool) IsFreeIPAtIndex(index uint64) bool {
-	dp.lock.Lock()
-	defer dp.lock.Unlock()
-
+	dp.lock.RLock()
+	defer dp.lock.RUnlock()
+	defer dp.timeTrack(time.Now(), "IsFreeIPAtIndex")
 	if !dp.IndexInPool(index) {
 		return false
 	}
@@ -152,9 +160,9 @@ func (dp *DHCPPool) IsFreeIPAtIndex(index uint64) bool {
 
 // Check if the IP is free at the index
 func (dp *DHCPPool) GetMACIndex(index uint64) (uint64, string, error) {
-	dp.lock.Lock()
-	defer dp.lock.Unlock()
-
+	dp.lock.RLock()
+	defer dp.lock.RUnlock()
+	defer dp.timeTrack(time.Now(), "GetMACIndex")
 	if !dp.IndexInPool(index) {
 		return index, FreeMac, errors.New("The index is not part of the pool")
 	}
@@ -170,7 +178,7 @@ func (dp *DHCPPool) GetMACIndex(index uint64) (uint64, string, error) {
 func (dp *DHCPPool) GetFreeIPIndex(mac string) (uint64, string, error) {
 	dp.lock.Lock()
 	defer dp.lock.Unlock()
-
+	defer dp.timeTrack(time.Now(), "GetFreeIPIndex")
 	if len(dp.free) == 0 {
 		return 0, FreeMac, errors.New("DHCP pool is full")
 	}
@@ -216,17 +224,26 @@ func (dp *DHCPPool) GetFreeIPIndex(mac string) (uint64, string, error) {
 
 // Returns whether or not a specific index is in the capacity of the pool
 func (dp *DHCPPool) IndexInPool(index uint64) bool {
+	defer dp.timeTrack(time.Now(), "IndexInPool")
 	return index < dp.capacity
 }
 
 // Returns the amount of free IPs in the pool
 func (dp *DHCPPool) FreeIPsRemaining() uint64 {
-	dp.lock.Lock()
-	defer dp.lock.Unlock()
+	dp.lock.RLock()
+	defer dp.lock.RUnlock()
+	defer dp.timeTrack(time.Now(), "FreeIPsRemaining")
 	return uint64(len(dp.free))
 }
 
 // Returns the capacity of the pool
 func (dp *DHCPPool) Capacity() uint64 {
+	defer dp.timeTrack(time.Now(), "Capacity")
 	return dp.capacity
+}
+
+func (dp *DHCPPool) timeTrack(start time.Time, name string) {
+
+	elapsed := time.Since(start)
+	log.LoggerWContext(dp.ctx).Debug(name + " took " + elapsed.String())
 }
