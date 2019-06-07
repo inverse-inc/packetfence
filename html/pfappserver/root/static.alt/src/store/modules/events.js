@@ -173,7 +173,6 @@ const actions = {
     commit('RESIZE', null) // init windowSize
   },
   onBodyMouseDown: ({ commit }, event) => {
-console.log('onBodyMouseDown')
     commit('BODY_MOUSE_DOWN', event)
   },
   onBodyMouseUp: ({ commit }, event) => {
@@ -186,11 +185,9 @@ console.log('onBodyMouseDown')
     commit('KEY_UP', event)
   },
   onBlur: ({ commit }, event) => {
-console.log('onBlur')
     commit('BLUR', event)
   },
   onFocus: ({ commit }, event) => {
-console.log('onBlur')
     commit('FOCUS', event)
   },
   onResize: ({ commit }, event) => {
