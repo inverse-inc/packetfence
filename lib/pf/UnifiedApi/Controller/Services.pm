@@ -40,7 +40,6 @@ sub cluster_status {
 
     my @results;
     for my $server (@servers) {
-        print "$server->{management_ip} \n";
         my $client = pf::api::unifiedapiclient->new;
         $client->host($server->{management_ip});
         my $stat = $client->call("GET", "/api/v1/services/status_all", {});
