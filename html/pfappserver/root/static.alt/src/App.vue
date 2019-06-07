@@ -143,11 +143,11 @@ export default {
       })
     },
     setLanguage (lang) {
-      this.$store.dispatch('session/setLanguage', { i18n: this.$i18n, lang })
+      this.$store.dispatch('session/setLanguage', { lang })
     }
   },
   created () {
-    this.$store.dispatch('session/setLanguage', { i18n: this.$i18n, lang: 'en' })
+    this.$store.dispatch('session/setLanguage', { lang: 'en' })
   },
   watch: {
     altShiftAKey (pressed) {
