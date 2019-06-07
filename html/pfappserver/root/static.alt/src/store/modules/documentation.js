@@ -34,7 +34,8 @@ const state = {
 
 const getters = {
   isLoading: state => state.requestStatus === types.LOADING,
-  index: state => state.index
+  index: state => state.index,
+  showViewer: state => state.showViewer
 }
 
 const actions = {
