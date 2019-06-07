@@ -428,6 +428,9 @@ done
     done
 %endif
 
+# Build the HTML doc index for pfappserver
+make html
+
 # build pfcmd C wrapper
 gcc -g0 src/pfcmd.c -o bin/pfcmd
 # build ntlm_auth_wrapper
@@ -562,9 +565,6 @@ rm -rf $RPM_BUILD_ROOT/usr/local/pf/docs/fonts
 rm -rf $RPM_BUILD_ROOT/usr/local/pf/docs/images
 rm -rf $RPM_BUILD_ROOT/usr/local/pf/docs/api
 cp -r html $RPM_BUILD_ROOT/usr/local/pf/
-
-# Build the HTML doc index for pfappserver
-make html
 
 # install html and images dirs in pfappserver for embedded doc
 %{__install} -d -m0755 $RPM_BUILD_ROOT/usr/local/pf/html/pfappserver/root/static/doc
