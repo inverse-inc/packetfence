@@ -114,6 +114,64 @@ export default {
       documentFrame.addEventListener('click', (event) => { // iframe clicks blur the parent window
         window.focus() // regain focus
       })
+      // inject css
+      const styles = `
+        /*
+         * default styles
+        */
+        body {
+          font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+          font-style: normal;
+          font-variant: normal;
+        }
+        h1, h2, h3, h4, h5, h6,
+        #toctitle, .sidebarblock > .content > .title {
+          font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,Noto Sans,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji;
+          font-weight: 300;
+          font-style: normal;
+          color: #495057 !important;
+          margin-top: 1em !important;
+          margin-bottom: .5em !important;
+          line-height: 1.0125em;
+        }
+        code,
+        .content > pre {
+          color: #ba3925;
+        }
+        .note {
+          background-color: #fff3cd;
+          border-color: #ffeeba;
+          padding: .75rem 1.25rem;
+          margin-bottom: 1.25em;
+        }
+        .note > table,
+        .note > table tr th,
+        .note > table tr td {
+          color: #856404 !important;
+          margin-bottom: 0;
+        }
+        .imageblock > .content {
+          text-align: center;
+        }
+        .imageblock > .content > img {
+          margin: 1.25em 0;
+        }
+
+        /*
+         * custom styles
+        */
+        .external-link {
+          background: transparent url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><path d="M576 24v127.984c0 21.461-25.96 31.98-40.971 16.971l-35.707-35.709-243.523 243.523c-9.373 9.373-24.568 9.373-33.941 0l-22.627-22.627c-9.373-9.373-9.373-24.569 0-33.941L442.756 76.676l-35.703-35.705C391.982 25.9 402.656 0 424.024 0H552c13.255 0 24 10.745 24 24zM407.029 270.794l-16 16A23.999 23.999 0 0 0 384 303.765V448H64V128h264a24.003 24.003 0 0 0 16.97-7.029l16-16C376.089 89.851 365.381 64 344 64H48C21.49 64 0 85.49 0 112v352c0 26.51 21.49 48 48 48h352c26.51 0 48-21.49 48-48V287.764c0-21.382-25.852-32.09-40.971-16.97z" fill="#2156a5"></path></svg>') right top no-repeat !important;
+          background-size: auto 100%;
+          padding-right: 28px;
+        }
+      `
+      const head = window.frames['documentFrame'].document.getElementsByTagName('head')[0]
+      let css = document.createElement('style')
+      css.type = 'text/css'
+      css.appendChild(document.createTextNode(styles))
+      head.appendChild(css)
+
       // rewrite links
       const links = [...documentFrame.getElementsByTagName('a')]
       links.forEach((link, index) => {
