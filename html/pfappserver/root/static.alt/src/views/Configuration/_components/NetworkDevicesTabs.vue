@@ -5,10 +5,10 @@
     </b-card-header>
     <b-tabs ref="tabs" v-model="tabIndex" card>
       <b-tab :title="$t('Switches')" @click="changeTab('switches')" no-body>
-        <switches-list />
+        <switches-list storeName="$_switches" />
       </b-tab>
       <b-tab :title="$t('Switch Groups')" @click="changeTab('switch_groups')" no-body>
-        <switch-groups-list />
+        <switch-groups-list storeName="$_switch_groups" />
       </b-tab>
     </b-tabs>
   </b-card>
