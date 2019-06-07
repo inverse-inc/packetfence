@@ -812,7 +812,7 @@ sub readWithoutInheritedRaw {
     my ($self, $id, $idKey) = @_;
     my $section = $self->_formatSectionName($id);
     my $config = $self->cachedConfig;
-    if ( !$config->SectionExists($id) ) {
+    if ( !$config->SectionExists($section) ) {
         return undef;
     }
 
