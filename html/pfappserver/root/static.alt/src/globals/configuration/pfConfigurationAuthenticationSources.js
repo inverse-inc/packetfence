@@ -891,7 +891,7 @@ export const pfConfigurationAuthenticationSourceFields = {
         },
         {
           text: ':',
-          class: 'mx-1 font-weight-bold'
+          class: 'ml-1 font-weight-bold'
         },
         {
           key: 'port',
@@ -899,7 +899,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           attrs: {
             ...pfConfigurationAttributesFromMeta(meta, 'port'),
             ...{
-              class: 'col-sm-1'
+              class: 'mx-1 col-sm-2'
             }
           },
           validators: pfConfigurationValidatorsFromMeta(meta, 'port', i18n.t('Port'))
@@ -907,7 +907,12 @@ export const pfConfigurationAuthenticationSourceFields = {
         {
           key: 'encryption',
           component: pfFormChosen,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'encryption'),
+          attrs: {
+            ...pfConfigurationAttributesFromMeta(meta, 'encryption'),
+            ...{
+              class: 'col-sm-2'
+            }
+          },
           validators: pfConfigurationValidatorsFromMeta(meta, 'encryption', i18n.t('Encryption'))
         },
         {
@@ -1269,7 +1274,12 @@ export const pfConfigurationAuthenticationSourceFields = {
         {
           key: 'protocol',
           component: pfFormChosen,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'protocol'),
+          attrs: {
+            ...pfConfigurationAttributesFromMeta(meta, 'protocol'),
+            ...{
+              class: 'col-sm-2'
+            }
+          },
           validators: pfConfigurationValidatorsFromMeta(meta, 'protocol', i18n.t('Protocol'))
         },
         {
@@ -1278,14 +1288,14 @@ export const pfConfigurationAuthenticationSourceFields = {
           attrs: {
             ...pfConfigurationAttributesFromMeta(meta, 'host'),
             ...{
-              class: 'col-sm-4'
+              class: 'mx-1 col-sm-4'
             }
           },
           validators: pfConfigurationValidatorsFromMeta(meta, 'host', i18n.t('Host'))
         },
         {
           text: ':',
-          class: 'mx-1 font-weight-bold'
+          class: 'font-weight-bold'
         },
         {
           key: 'port',
@@ -1293,7 +1303,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           attrs: {
             ...pfConfigurationAttributesFromMeta(meta, 'port'),
             ...{
-              class: 'col-sm-1'
+              class: 'mx-1 col-sm-2'
             }
           },
           validators: pfConfigurationValidatorsFromMeta(meta, 'port', i18n.t('Port'))

@@ -27,21 +27,21 @@
             <b-input-group>
               <template v-for="field in row.fields">
                 <span v-if="field.text" :key="field.index" :class="field.class">{{ field.text }}</span>
-                  <component v-else-if="!('if' in field) || field.if"
-                    v-bind="field.attrs"
-                    v-on="kebabCaseListeners(field.listeners)"
-                    :key="field.key"
-                    :keyName="field.key"
-                    :is="field.component || defaultComponent"
-                    :is-loading="isLoading"
-                    :vuelidate="getVuelidateModel(field.key)"
-                    :class="getClass(row, field)"
-                    :value="getValue(field.key)"
-                    :disabled="(field.attrs && field.attrs.disabled) || disabled"
-                    @input="setValue(field.key, $event)"
-                    @validations="setComponentValidations(field.key, $event)"
-                    v-once
-                  ></component>
+                <component v-else-if="!('if' in field) || field.if"
+                  v-bind="field.attrs"
+                  v-on="kebabCaseListeners(field.listeners)"
+                  :key="field.key"
+                  :keyName="field.key"
+                  :is="field.component || defaultComponent"
+                  :is-loading="isLoading"
+                  :vuelidate="getVuelidateModel(field.key)"
+                  :class="getClass(row, field)"
+                  :value="getValue(field.key)"
+                  :disabled="(field.attrs && field.attrs.disabled) || disabled"
+                  @input="setValue(field.key, $event)"
+                  @validations="setComponentValidations(field.key, $event)"
+                  v-once
+                ></component>
               </template>
             </b-input-group>
             <b-form-text v-if="row.text" v-html="row.text"></b-form-text>
@@ -220,7 +220,6 @@ export default {
       if ('attrs' in field && `class` in field.attrs) { // if class is defined
         c.push(field.attrs.class) // use manual definition
       } else if (row.fields.length === 1) { // else if row is singular
-        c.push('mx-1')
         c.push('col-sm-12') // use entire width
       }
       return c.join(' ')
