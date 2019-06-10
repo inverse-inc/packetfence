@@ -19,6 +19,7 @@
       <b-nav class="pf-sidenav" vertical>
         <b-nav-item v-for="document in filteredIndex" :key="document.name"
           :active="document.text === title"
+          :disabled="isLoading"
           exact-active-class="active"
           @click.stop.prevent="loadDocument(document)"
         >
@@ -47,10 +48,23 @@
         </b-card-header>
 
         <!-- HTML document -->
-        <iframe ref="document" name="documentFrame" class="h-100" frameborder="0"
+        <iframe v-show="!isLoading" ref="document" name="documentFrame" class="h-100" frameborder="0"
           :src="`/static/doc/${path}`"
           @load="initDocument()"
         ></iframe>
+        <template v-if="isLoading">
+          <b-container class="my-5 h-100">
+            <b-row class="justify-content-md-center text-secondary h-100">
+              <b-col cols="12" md="auto" class="align-self-center">
+                <b-media>
+                  <icon name="circle-notch" scale="2" slot="aside" spin></icon>
+                  <h4>{{ $t('Loading Documentation') }}</h4>
+                  <p class="font-weight-light">{{ title }}</p>
+                </b-media>
+              </b-col>
+            </b-row>
+          </b-container>
+        </template>
 
         <!-- IMG viewer -->
         <b-modal v-model="showImageModal" size="xl" centered id="imageModal" scrollable hide-footer>
@@ -102,6 +116,7 @@ export default {
   },
   methods: {
     loadDocument (document) {
+      this.isLoading = true
       this.$set(this, 'title', document.text)
       this.$set(this, 'path', document.name)
       this.$nextTick(() => {
@@ -238,6 +253,7 @@ export default {
           })
         }
       })
+      this.isLoading = false
     },
     focusFilter () {
       this.$refs.filter.$el.focus()
@@ -266,7 +282,8 @@ export default {
       title: '',
       path: '',
       showImageModal: false,
-      image: false
+      image: false,
+      isLoading: false
     }
   },
   mounted () {
@@ -278,6 +295,7 @@ export default {
         if (!this.path) { // initial title/path
           this.title = 'Administration Guide'
           this.path = 'PacketFence_Administration_Guide.html'
+          this.isLoading = true
         }
         this.$nextTick(() => {
           this.scrollToTop()
