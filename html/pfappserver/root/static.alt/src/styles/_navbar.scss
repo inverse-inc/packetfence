@@ -1,7 +1,7 @@
 @import "../../node_modules/bootstrap/scss/navbar";
 
 .navbar {
-  z-index: 1040 !important;
+  z-index: $zindex-modal-backdrop !important;
 }
 
 .navbar-toggler {
