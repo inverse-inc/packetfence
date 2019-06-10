@@ -25,7 +25,7 @@
         >
           <div class="pf-sidebar-item">
             <text-highlight :queries="[filter]">{{ document.text }}</text-highlight>
-            <icon class="mx-1" name="info-circle"></icon>
+            <icon class="mx-1" name="info-circle" v-show="document.text === title"></icon>
           </div>
         </b-nav-item>
       </b-nav>
