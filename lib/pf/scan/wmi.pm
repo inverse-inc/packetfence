@@ -64,7 +64,7 @@ sub new {
         $self->{'_' . $value} = $data{$value};
     }
 
-    $self->{'_oses'} = ['Windows'];
+    $self->{'_oses'} = ['Windows OS'];
     return $self;
 }
 
