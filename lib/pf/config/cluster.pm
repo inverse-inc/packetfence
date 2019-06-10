@@ -83,7 +83,10 @@ Set the configuration version for this server
 
 sub set_config_version {
     my ($ver) = @_;
-    return write_file($config_version_file, $ver);
+    my $old_umask = umask(0002);
+    my $results = write_file($config_version_file, { perms => 0660}, $ver);
+    umask($old_umask);
+    return $results;
 }
 
 =head2 get_config_version
