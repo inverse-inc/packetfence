@@ -117,6 +117,9 @@ export default {
   methods: {
     loadDocument (document) {
       this.isLoading = true
+      setTimeout(() => {
+        this.isLoading = false // in case of error
+      }, 3000)
       this.$set(this, 'title', document.text)
       this.$set(this, 'path', document.name)
       this.$nextTick(() => {
@@ -201,32 +204,22 @@ export default {
           case url.hostname === '_ip_address_of_packetfence':
           case url.hostname === here.hostname:
             const re = new RegExp('^/static/doc/')
-            if (re.test(url.pathname)) { // link to an other document
+            if (re.test(url.pathname)) { // link to other local document
               link.classList.add('internal-link') // add class to style document links
               link.target = '_self'
               link.href = 'javascript:void(0);' // disable default link
-              link.addEventListener('click', (event) => {
-                event.preventDefault()
-                const path = url.pathname.replace('/static/doc/', '')
-                if (path !== this.path) {
+              const path = url.pathname.replace('/static/doc/', '')
+              if (path !== this.path) {
+                link.addEventListener('click', (event) => {
+                  event.preventDefault()
                   this.$set(this, 'path', path)
-                } else if (url.hash.charAt(0) === '#') {
-                  const { $refs: { document: { contentWindow: { document: iframeDocument } = {} } = {} } = {} } = this
-                  if (iframeDocument) {
-                    const iframeHtml = iframeDocument.getElementsByTagName('html')[0]
-                    if (iframeHtml) {
-                      const section = iframeDocument.getElementById(url.hash.substr(1))
-                      if (section) {
-                        VueScrollTo.scrollTo(section, 300, { // animated scroll to hash in iframe
-                          container: iframeHtml,
-                          cancelable: false
-                        })
-                        return false
-                      }
-                    }
-                  }
-                }
-              })
+                })
+              } else if (url.hash.charAt(0) === '#') {
+                link.addEventListener('click', (event) => {
+                  event.preventDefault()
+                  this.scrollToSection(url.hash.substr(1))
+                })
+              }
               return
             }
             // replace href with current hostname:port
@@ -269,6 +262,19 @@ export default {
     },
     toggleFullscreen () {
       this.$store.dispatch('documentation/toggleFullscreen')
+    },
+    scrollToSection (section) {
+      const { $refs: { document: { contentWindow: { document: iframeDocument } = {} } = {} } = {} } = this
+      if (iframeDocument) {
+        const iframeHtml = iframeDocument.getElementsByTagName('html')[0]
+        if (iframeHtml) {
+          VueScrollTo.scrollTo(iframeDocument.getElementById(section), 300, { // animated scroll to hash in iframe
+            container: iframeHtml,
+            cancelable: false
+          })
+        }
+      }
+      return false
     },
     scrollToTop () {
       VueScrollTo.scrollTo('.navbar', 300, { // animated scroll to top of page
