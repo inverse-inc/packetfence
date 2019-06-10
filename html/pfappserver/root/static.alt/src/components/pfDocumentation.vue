@@ -404,28 +404,30 @@ export default {
 </script>
 
 <style lang="scss">
-  .documentViewer {
-    transition: all 300ms ease;
-    max-height: 100vh;
-    &.hidden {
-      overflow-x: hidden;
-      overflow-y: hidden;
-      max-height: 0vh;
-    }
-    .pf-sidebar {
-      overflow-y: auto;
-    }
+@import "../styles/variables";
+
+.documentViewer {
+  transition: all 300ms ease;
+  max-height: 100vh;
+  &.hidden {
+    overflow-x: hidden;
+    overflow-y: hidden;
+    max-height: 0vh;
   }
-  .document {
-    &.fullscreen {
-      position: fixed !important;
-      top: 0 !important;
-      left: 0 !important;
-      width: 100% !important;
-      border: none !important;
-      overflow-y: auto;
-      overflow-x: hidden;
-      z-index: 1045;
-    }
+  .pf-sidebar {
+    overflow-y: auto;
   }
+}
+.document {
+  &.fullscreen {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    border: none !important;
+    overflow-y: auto;
+    overflow-x: hidden;
+    z-index: $zindex-modal-backdrop;
+  }
+}
 </style>
