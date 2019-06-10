@@ -24,17 +24,17 @@ func main() {
 		message := make([]byte, 1464)
 		rlen, _, err := conn.ReadFromUDP(message[:])
 		if err != nil {
-			panic(err)
+			fmt.Println(err.Error())
 		}
 
 		if err := nf.Decode(message[:rlen]); err != nil {
-			panic(err)
+			fmt.Println(err.Error())
 		}
 		if nf.Version != 5 {
-			panic("Invalid version")
+			fmt.Println("Invalid version")
 		}
 		if nf.Count != 30 {
-			panic("Invalid record count")
+			fmt.Println("Invalid record count")
 		}
 
 		spew.Dump(nf.Recs)
