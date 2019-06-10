@@ -48,7 +48,7 @@
         </b-card-header>
 
         <!-- HTML document -->
-        <iframe v-show="!isLoading" ref="document" name="documentFrame" class="h-100" frameborder="0"
+        <iframe v-show="!isLoading" v-if="path" ref="document" name="documentFrame" class="h-100" frameborder="0"
           :src="`/static/doc/${path}`"
           @load="initDocument()"
         ></iframe>
@@ -87,28 +87,43 @@ export default {
   components: {
     TextHighlight
   },
+  data () {
+    return {
+      filter: '',
+      showImageModal: false,
+      image: false,
+      isLoading: false
+    }
+  },
   computed: {
     index () {
-      return this.$store.state.documentation.index
+      return this.$store.getters['documentation/index']
     },
     filteredIndex () {
       if (!(this.index && 'length' in this.index)) {
         return []
       }
       const re = new RegExp(this.filter, 'i')
-      return this.index.map(document => {
-        return { ...document, ...{ text: document.name.replace(/\.html/g, '').replace(/_/g, ' ').replace(/^PacketFence /, '') } }
-      }).filter(document => {
+      return this.index.filter(document => {
         return re.test(document.text)
       }).sort((a, b) => {
         return a.text.localeCompare(b.text)
       })
     },
     showViewer () {
-      return this.$store.state.documentation.showViewer
+      return this.$store.getters['documentation/showViewer']
     },
     fullscreen () {
-      return this.$store.state.documentation.fullscreen
+      return this.$store.getters['documentation/fullscreen']
+    },
+    path () {
+      return this.$store.getters['documentation/path']
+    },
+    hash () {
+      return this.$store.getters['documentation/hash']
+    },
+    title () {
+      return this.$store.getters['documentation/title']
     },
     hasDefaultSlot () {
       return 'default' in this.$slots
@@ -116,15 +131,7 @@ export default {
   },
   methods: {
     loadDocument (document) {
-      this.isLoading = true
-      setTimeout(() => {
-        this.isLoading = false // in case of error
-      }, 3000)
-      this.$set(this, 'title', document.text)
-      this.$set(this, 'path', document.name)
-      this.$nextTick(() => {
-        this.scrollToTop()
-      })
+      this.$store.dispatch('documentation/setPath', document.name)
     },
     initDocument () {
       const here = new URL(window.location.href)
@@ -255,12 +262,12 @@ export default {
               if (path !== this.path) {
                 link.addEventListener('click', (event) => {
                   event.preventDefault()
-                  this.$set(this, 'path', path)
+                  this.$store.dispatch('documentation/setPath', path)
                 })
               } else if (url.hash.charAt(0) === '#') {
                 link.addEventListener('click', (event) => {
                   event.preventDefault()
-                  this.scrollToSection(url.hash.substr(1))
+                  this.$store.dispatch('documentation/setHash', url.hash.substr(1))
                 })
               }
               return
@@ -289,7 +296,15 @@ export default {
           })
         }
       })
+      if (this.isLoadingTimeout) {
+        clearTimeout(this.isLoadingTimeout)
+      }
       this.isLoading = false
+      if (this.hash) {
+        this.$nextTick(() => {
+          this.scrollToSection(this.hash)
+        })
+      }
     },
     focusFilter () {
       this.$refs.filter.$el.focus()
@@ -325,25 +340,11 @@ export default {
       })
     }
   },
-  data () {
-    return {
-      filter: '',
-      title: '',
-      path: '',
-      showImageModal: false,
-      image: false,
-      isLoading: false
-    }
-  },
-  mounted () {
-    this.$store.dispatch('documentation/getIndex')
-  },
   watch: {
     showViewer: function (a, b) {
       if (a) { // shown
         if (!this.path) { // initial title/path
-          this.title = 'Administration Guide'
-          this.path = 'PacketFence_Administration_Guide.html'
+          this.$store.dispatch('documentation/setPath', 'PacketFence_Administration_Guide.html')
           this.isLoading = true
         }
         this.$nextTick(() => {
@@ -351,6 +352,11 @@ export default {
         })
         this.$refs.documentList.scrollTop = 0
         this.focusFilter()
+        if (this.hash) {
+          this.$nextTick(() => {
+            this.scrollToSection(this.hash)
+          })
+        }
       }
     },
     fullscreen: {
@@ -369,7 +375,30 @@ export default {
           this.$store.dispatch('events/bind')
         }
       }
+    },
+    path: {
+      handler: function (a, b) {
+        if (a) {
+          this.isLoading = true
+          this.isLoadingTimeout = setTimeout(() => {
+            this.isLoading = false // in case of error
+          }, 3000)
+          this.$nextTick(() => {
+            this.scrollToTop()
+          })
+        }
+      }
+    },
+    hash: {
+      handler: function (a, b) {
+        if (a) {
+          this.scrollToSection(a)
+        }
+      }
     }
+  },
+  mounted () {
+    this.$store.dispatch('documentation/getIndex')
   }
 }
 </script>

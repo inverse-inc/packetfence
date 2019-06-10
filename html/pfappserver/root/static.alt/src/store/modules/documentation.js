@@ -26,6 +26,8 @@ const types = {
 const state = {
   cache: {},
   index: false,
+  path: false,
+  hash: false,
   fullscreen: false,
   showViewer: false,
   message: '',
@@ -35,7 +37,19 @@ const state = {
 const getters = {
   isLoading: state => state.requestStatus === types.LOADING,
   index: state => state.index,
-  showViewer: state => state.showViewer
+  path: state => state.path,
+  hash: state => state.hash,
+  fullscreen: state => state.fullscreen,
+  showViewer: state => state.showViewer,
+  title: state => {
+    if (state.index && state.index.length > 0) {
+      const document = state.index.find(document => document.name === state.path)
+      if (document) {
+        return document.text
+      }
+    }
+    return ''
+  }
 }
 
 const actions = {
@@ -93,6 +107,17 @@ const actions = {
     } else {
       commit('FULLSCREEN_OFF')
     }
+  },
+  setPath: ({ commit, state }, path) => {
+    if (state.path !== path) {
+      commit('SET_PATH', path)
+    }
+  },
+  setHash: ({ commit, state }, hash) => {
+    hash = (hash.charAt(0) === '#') ? hash.substr(1) : hash
+    if (state.hash !== hash) {
+      commit('SET_HASH', hash)
+    }
   }
 }
 
@@ -102,7 +127,9 @@ const mutations = {
     state.message = ''
   },
   INDEX_SUCCESS: (state, data) => {
-    Vue.set(state, 'index', data)
+    Vue.set(state, 'index', data.map(document => {
+      return { ...document, ...{ text: document.name.replace(/\.html/g, '').replace(/_/g, ' ').replace(/^PacketFence /, '') } }
+    }))
     state.requestStatus = types.SUCCESS
     state.message = ''
   },
@@ -142,6 +169,13 @@ const mutations = {
   },
   FULLSCREEN_OFF: (state) => {
     Vue.set(state, 'fullscreen', false)
+  },
+  SET_PATH: (state, path) => {
+    Vue.set(state, 'path', path)
+    Vue.set(state, 'hash', false)
+  },
+  SET_HASH: (state, hash) => {
+    Vue.set(state, 'hash', hash)
   }
 }
 
