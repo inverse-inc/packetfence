@@ -26,9 +26,8 @@ const route = {
       beforeEnter: (to, from, next) => {
         Promise.all([
           store.dispatch('config/getSources'),
-          store.dispatch('$_status/getCluster'),
           store.dispatch('$_status/allCharts')
-        ]).then(() => {
+        ]).finally(() => {
           next()
         })
       },

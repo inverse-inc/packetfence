@@ -6,6 +6,7 @@ import Vue from 'vue'
 import Acl from 'vue-browser-acl'
 import router from '@/router'
 import apiCall from '@/utils/api'
+import i18n from '@/utils/locale'
 
 const STORAGE_TOKEN_KEY = 'user-token'
 
@@ -126,16 +127,16 @@ const actions = {
     })
   },
   setLanguage: ({ state }, params) => {
-    if (params.i18n.locale !== params.lang || state.languages.indexOf(params.lang) < 0) {
+    if (i18n.locale !== params.lang || state.languages.indexOf(params.lang) < 0) {
       if (state.languages.indexOf(params.lang) < 0) {
         return api.getLanguage(params.lang).then(response => {
           let messages = response.data.item.lexicon
-          params.i18n.setLocaleMessage(params.lang, messages)
+          i18n.setLocaleMessage(params.lang, messages)
           state.languages.push(params.lang)
-          return setI18nLanguage(params.i18n, params.lang)
+          return setI18nLanguage(params.lang)
         })
       }
-      return Promise.resolve(setI18nLanguage(params.i18n, params.lang))
+      return Promise.resolve(setI18nLanguage(params.lang))
     }
     return Promise.resolve(params.lang)
   }
@@ -183,7 +184,7 @@ const mutations = {
   }
 }
 
-function setI18nLanguage (i18n, lang) {
+function setI18nLanguage (lang) {
   i18n.locale = lang
   apiCall.defaults.headers.common['Accept-Language'] = lang
   document.querySelector('html').setAttribute('lang', lang)

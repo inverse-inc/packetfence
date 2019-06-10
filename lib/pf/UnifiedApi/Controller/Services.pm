@@ -32,7 +32,11 @@ sub resource {
 sub cluster_status {
     my ($self) = @_;
     my @services = @pf::services::ALL_MANAGERS;
-    my @servers = pf::cluster::enabled_servers;
+    my @servers = $self->param('server') ? (pf::cluster::find_server_by_hostname($self->param('server')) // ()) : pf::cluster::enabled_servers;
+
+    unless(@servers) {
+        return $self->render_error(404, "No servers to fetch status from. If you supplied the server parameter, ensure that this host exists in the cluster.");
+    }
 
     my @results;
     for my $server (@servers) {

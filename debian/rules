@@ -144,14 +144,14 @@ install: build
 	install -d -m2770 $(CURDIR)/debian/packetfence-redis-cache$(PREFIX)/$(NAME)/var/redis_cache
 	install -m0600 conf/redis_cache.conf.example $(CURDIR)/debian/packetfence-redis-cache$(PREFIX)/$(NAME)/conf/redis_cache.conf
 	echo $(C_ID) > $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/conf/git_commit_id
+	make html
 	#Documentation
 	# install html and images dirs in pfappserver for embedded doc
 	install -d -m0755 $(CURDIR)/debian/packetfence-doc$(PREFIX)/$(NAME)/html/pfappserver/root/static/doc
-	make html
-	make docs/html/index.js
 	for i in `find "docs/html" "(" -name "*.html" -or -iname "*.js" ")" -type f`; do \
 		install -m0644 $$i $(CURDIR)/debian/packetfence-doc$(PREFIX)/$(NAME)/html/pfappserver/root/static/doc/; \
 	done
+
 	install -d -m0755 $(CURDIR)/debian/packetfence-doc$(PREFIX)/$(NAME)/html/pfappserver/root/static/images
 	for i in `find * -path 'docs/images/*' -type f`; do \
 		install -m0644 $$i $(CURDIR)/debian/packetfence-doc$(PREFIX)/$(NAME)/html/pfappserver/root/static/images/; \

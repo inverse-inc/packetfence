@@ -288,6 +288,7 @@ export default {
   .multiselect__option {
     min-height: $input-height;
     padding: $input-padding-y $input-padding-x;
+    font-size: $font-size-base;
   }
   .multiselect__tags {
     padding-right: 40px;
