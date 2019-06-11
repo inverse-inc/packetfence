@@ -333,7 +333,7 @@ func (I *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 			GlobalTransactionLock.Unlock(id)
 			return answer
 		}
-		GlobalTransactionCache.Set(cacheKey, 1, time.Duration(1)*time.Second)
+		GlobalTransactionCache.Set(cacheKey, 3, time.Duration(1)*time.Second)
 		GlobalTransactionLock.Unlock(id)
 
 		prettyType := "DHCP" + strings.ToUpper(msgType.String())
