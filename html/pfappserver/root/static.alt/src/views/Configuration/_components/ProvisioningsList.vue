@@ -5,7 +5,10 @@
     >
       <template slot="pageHeader">
         <b-card-header>
-          <h4 class="mb-0" v-t="'Provisioning'"></h4>
+          <h4 class="mb-0">
+            {{ $t('Provisioning') }}
+            <pf-button-help class="ml-1" url="PacketFence_Installation_Guide.html#provision" />
+          </h4>
         </b-card-header>
       </template>
       <template slot="buttonAdd">
@@ -40,6 +43,7 @@
 
 <script>
 import pfButtonDelete from '@/components/pfButtonDelete'
+import pfButtonHelp from '@/components/pfButtonHelp'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import {
@@ -50,6 +54,7 @@ export default {
   name: 'provisionings-list',
   components: {
     pfButtonDelete,
+    pfButtonHelp,
     pfConfigList,
     pfEmptyTable
   },

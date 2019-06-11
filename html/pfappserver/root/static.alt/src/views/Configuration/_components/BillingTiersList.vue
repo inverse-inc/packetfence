@@ -4,7 +4,12 @@
       :config="config"
     >
       <template slot="pageHeader">
-        <b-card-header><h4 class="mb-0" v-t="'Billing Tiers'"></h4></b-card-header>
+        <b-card-header>
+          <h4 class="mb-0">
+            {{ $t('Billing Tiers') }}
+            <pf-button-help class="ml-1" url="PacketFence_Installation_Guide.html#_billing_engine" />
+          </h4>
+        </b-card-header>
       </template>
       <template slot="buttonAdd">
         <b-button variant="outline-primary" :to="{ name: 'newBillingTier' }">{{ $t('New Billing Tier') }}</b-button>
@@ -24,6 +29,7 @@
 
 <script>
 import pfButtonDelete from '@/components/pfButtonDelete'
+import pfButtonHelp from '@/components/pfButtonHelp'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import {
@@ -34,6 +40,7 @@ export default {
   name: 'billing-tiers-list',
   components: {
     pfButtonDelete,
+    pfButtonHelp,
     pfConfigList,
     pfEmptyTable
   },

@@ -3,6 +3,12 @@
     <pf-config-list
       :config="config"
     >
+      <template slot="pageHeader">
+        <h4 class="mb-0 p-4">
+          {{ $t('Active Directory Domains') }}
+          <pf-button-help class="ml-1" url="PacketFence_Installation_Guide.html#_microsoft_active_directory_ad" />
+        </h4>
+      </template>
       <template slot="buttonAdd">
         <b-button variant="outline-primary" :to="{ name: 'newDomain' }">{{ $t('New Domain') }}</b-button>
       </template>
@@ -100,6 +106,7 @@
 
 <script>
 import pfButtonDelete from '@/components/pfButtonDelete'
+import pfButtonHelp from '@/components/pfButtonHelp'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import pfFormInput from '@/components/pfFormInput'
@@ -117,6 +124,7 @@ export default {
   name: 'domains-list',
   components: {
     pfButtonDelete,
+    pfButtonHelp,
     pfConfigList,
     pfEmptyTable,
     pfFormInput,
