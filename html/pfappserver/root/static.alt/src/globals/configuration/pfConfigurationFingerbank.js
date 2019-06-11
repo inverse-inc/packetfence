@@ -1720,7 +1720,7 @@ export const pfConfigurationFingerbankMacVendorOptionsSearchFunction = (chosen, 
   } else { // subsequent queries
     const currentOption = chosen.options.find(option => option.value === chosen.value) // cache current value
     return api.fingerbankSearchMacVendors({
-      query: { op: 'and', values: [{ op: 'or', values: [{ field: 'name', op: 'contains', value: query }] }] },
+      query: { op: 'and', values: [{ op: 'or', values: [{ field: 'name', op: 'contains', value: query }, { field: 'mac', op: 'contains', value: query }] }] },
       fields: ['mac', 'name'],
       sort: ['name'],
       cursor: 0,
