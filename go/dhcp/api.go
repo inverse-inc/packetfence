@@ -333,32 +333,36 @@ func decodeOptions(b string) (map[dhcp.OptionCode][]byte, error) {
 	return dhcpOptions, nil
 }
 
-func (h *Interface) handleAPIReq(Request APIReq) interface{} {
+func extractMembers(v Network) ([]Node, []string, int) {
+	var Members []Node
+	var Macs []string
+	id, _ := GlobalTransactionLock.Lock()
+	members := v.dhcpHandler.hwcache.Items()
+	GlobalTransactionLock.Unlock(id)
+	var Count int
+	Count = 0
+	for i, item := range members {
+		Count++
+		result := make(net.IP, 4)
+		binary.BigEndian.PutUint32(result, binary.BigEndian.Uint32(v.dhcpHandler.start.To4())+uint32(item.Object.(int)))
+		_, mac, _ := v.dhcpHandler.available.GetMACIndex(uint64(item.Object.(int)))
+		error := "0"
+		if i != mac {
+			error = "1"
+		}
+		Macs = append(Macs, i)
+		Members = append(Members, Node{IP: result.String(), Mac: i, Pool: mac, Error: error, EndsAt: time.Unix(0, item.Expiration)})
+	}
+	return Members, Macs, Count
+}
+
+func (h *Interface) handleApiReq(Request ApiReq) interface{} {
 	var stats []Stats
 
-	// Send back stats
 	if Request.Req == "duplicates" {
 		for _, v := range h.network {
+			Members, Macs, _ := extractMembers(v)
 
-			var Members []Node
-			var Macs []string
-			id, _ := GlobalTransactionLock.Lock()
-			members := v.dhcpHandler.hwcache.Items()
-			GlobalTransactionLock.Unlock(id)
-			var Count int
-			Count = 0
-			for i, item := range members {
-				Count++
-				result := make(net.IP, 4)
-				binary.BigEndian.PutUint32(result, binary.BigEndian.Uint32(v.dhcpHandler.start.To4())+uint32(item.Object.(int)))
-				_, mac, _ := v.dhcpHandler.available.GetMACIndex(uint64(item.Object.(int)))
-				error := "0"
-				if i != mac {
-					error = "1"
-				}
-				Macs = append(Macs, i)
-				Members = append(Members, Node{IP: result.String(), Mac: i, Pool: mac, Error: error, EndsAt: time.Unix(0, item.Expiration)})
-			}
 			inPoolNotInCache, DuplicateInPool := v.dhcpHandler.available.GetIssues(Macs)
 			var DupInPool map[string]string
 			DupInPool = make(map[string]string)
@@ -373,7 +377,6 @@ func (h *Interface) handleAPIReq(Request APIReq) interface{} {
 		return stats
 	}
 
-	// Send back stats
 	if Request.Req == "stats" {
 		for _, v := range h.network {
 			ipv4Addr, _, erro := net.ParseCIDR(Request.NetWork + "/32")
@@ -398,27 +401,8 @@ func (h *Interface) handleAPIReq(Request APIReq) interface{} {
 					Options[key.String()] = Tlv.Tlvlist[int(key)].Transform.String(value)
 				}
 			}
-
-			var Members []Node
-			var Macs []string
-			id, _ := GlobalTransactionLock.Lock()
-			members := v.dhcpHandler.hwcache.Items()
-			GlobalTransactionLock.Unlock(id)
+			Members, _, Count := extractMembers(v)
 			var Status string
-			var Count int
-			Count = 0
-			for i, item := range members {
-				Count++
-				result := make(net.IP, 4)
-				binary.BigEndian.PutUint32(result, binary.BigEndian.Uint32(v.dhcpHandler.start.To4())+uint32(item.Object.(int)))
-				_, mac, _ := v.dhcpHandler.available.GetMACIndex(uint64(item.Object.(int)))
-				error := "0"
-				if i != mac {
-					error = "1"
-				}
-				Macs = append(Macs, i)
-				Members = append(Members, Node{IP: result.String(), Mac: i, Pool: mac, Error: error, EndsAt: time.Unix(0, item.Expiration)})
-			}
 			_, reserved := IPsFromRange(v.dhcpHandler.ipReserved)
 			if reserved != 1 {
 				Count = Count + reserved
