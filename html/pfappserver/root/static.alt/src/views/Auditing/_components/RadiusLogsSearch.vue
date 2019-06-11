@@ -123,19 +123,35 @@ export default {
     return {
       // Fields must match the database schema
       fields: [ // keys match with b-form-select
+
         {
-          value: 'created_at',
-          text: 'Created',
-          types: [conditionType.DATETIME]
-        },
-        {
-          value: 'user_name',
-          text: 'Username',
+          value: 'auth_status',
+          text: 'Auth Status',
           types: [conditionType.SUBSTRING]
         },
         {
-          value: 'mac',
-          text: 'MAC Address',
+          value: 'auth_type',
+          text: 'Auth Type',
+          types: [conditionType.SUBSTRING]
+        },
+        {
+          value: 'auto_reg',
+          text: 'Auto Registration',
+          types: [conditionType.SUBSTRING]
+        },
+        {
+          value: 'called_station_id',
+          text: 'Called Station ID',
+          types: [conditionType.SUBSTRING]
+        },
+        {
+          value: 'calling_station_id',
+          text: 'Calling Station ID',
+          types: [conditionType.SUBSTRING]
+        },
+        {
+          value: 'computer_name',
+          text: 'Computer name',
           types: [conditionType.SUBSTRING]
         },
         {
@@ -144,9 +160,54 @@ export default {
           types: [conditionType.CONNECTION_PROFILE]
         },
         {
+          value: 'connection_type',
+          text: 'Connection Type',
+          types: [conditionType.SUBSTRING]
+        },
+        {
+          value: 'created_at',
+          text: 'Created',
+          types: [conditionType.DATETIME]
+        },
+        {
           value: 'pf_domain',
           text: 'Domain',
           types: [conditionType.DOMAIN]
+        },
+        {
+          value: 'eap_type',
+          text: 'EAP Type',
+          types: [conditionType.SUBSTRING]
+        },
+        {
+          value: 'event_type',
+          text: 'Event Type',
+          types: [conditionType.SUBSTRING]
+        },
+        {
+          value: 'ifindex',
+          text: 'IfIndex',
+          types: [conditionType.SUBSTRING]
+        },
+        {
+          value: 'ip',
+          text: 'IP Address',
+          types: [conditionType.SUBSTRING]
+        },
+        {
+          value: 'is_phone',
+          text: 'Is a Phone',
+          types: [conditionType.YESNO]
+        },
+        {
+          value: 'mac',
+          text: 'MAC Address',
+          types: [conditionType.SUBSTRING]
+        },
+        {
+          value: 'nas_identifier',
+          text: 'NAS identifier',
+          types: [conditionType.SUBSTRING]
         },
         {
           value: 'nas_ip_address',
@@ -154,44 +215,109 @@ export default {
           types: [conditionType.SUBSTRING]
         },
         {
+          value: 'nas_port',
+          text: 'NAS Port',
+          types: [conditionType.SUBSTRING]
+        },
+        {
+          value: 'nas_port_id',
+          text: 'NAS Port ID',
+          types: [conditionType.SUBSTRING]
+        },
+        {
           value: 'nas_port_type',
           text: 'NAS Port Type',
-          types: [conditionType.NAS_PORT_TYPE]
+          types: [conditionType.SUBSTRING]
         },
         {
           value: 'node_status',
           text: 'Node Status',
-          types: [conditionType.NODE_STATUS]
+          types: [conditionType.SUBSTRING]
+        },
+        {
+          value: 'pf_domain',
+          text: 'Domain',
+          types: [conditionType.SUBSTRING]
+        },
+        {
+          value: 'profile',
+          text: 'Profile',
+          types: [conditionType.SUBSTRING]
+        },
+        {
+          value: 'radius_reply',
+          text: 'RADIUS Reply',
+          types: [conditionType.SUBSTRING]
+        },
+        {
+          value: 'radius_request',
+          text: 'RADIUS Request',
+          types: [conditionType.SUBSTRING]
+        },
+        {
+          value: 'radius_source_ip_address',
+          text: 'RADIUS Source IP Address',
+          types: [conditionType.SUBSTRING]
         },
         {
           value: 'realm',
           text: 'Realm',
-          types: [conditionType.REALM]
+          types: [conditionType.SUBSTRING]
+        },
+        {
+          value: 'reason',
+          text: 'Reason',
+          types: [conditionType.SUBSTRING]
         },
         {
           value: 'request_time',
           text: 'Request Time',
-          types: [conditionType.INTEGER]
+          types: [conditionType.SUBSTRING]
         },
         {
           value: 'role',
           text: 'Role',
-          types: [conditionType.ROLE]
+          types: [conditionType.SUBSTRING]
         },
         {
           value: 'source',
           text: 'Source',
-          types: [conditionType.SOURCE]
+          types: [conditionType.SUBSTRING]
+        },
+        {
+          value: 'ssid',
+          text: 'Wi-Fi Network SSID',
+          types: [conditionType.SUBSTRING]
+        },
+        {
+          value: 'stripped_user_name',
+          text: 'Stripped User Name',
+          types: [conditionType.SUBSTRING]
         },
         {
           value: 'switch_id',
-          text: 'Switch Group',
-          types: [conditionType.SWITCH_GROUP]
+          text: 'Switch ID',
+          types: [conditionType.SUBSTRING]
         },
         {
-          value: 'is_phone',
-          text: 'Is a Phone',
-          types: [conditionType.YESNO]
+          value: 'switch_ip_address',
+          text: 'Switch IP Address',
+          types: [conditionType.SUBSTRING]
+        },
+        {
+          value: 'switch_mac',
+          text: 'Switch MAC',
+          types: [conditionType.SUBSTRING]
+        },
+        {
+          value: 'user_name',
+          text: 'User Name',
+          types: [conditionType.SUBSTRING]
+        },
+        {
+          value: 'uuid',
+          text: 'Unique ID',
+          types: [conditionType.SUBSTRING]
         }
       ],
       columns: [
