@@ -296,7 +296,6 @@ func (d *Interfaces) readConfig() {
 
 						// Initialize dhcp pool
 						available := pool.NewDHCPPool(ctx, uint64(dhcp.IPRange(net.ParseIP(ConfNet.DhcpStart), net.ParseIP(ConfNet.DhcpEnd))), algorithm)
-						available := pool.NewDHCPPool(uint64(dhcp.IPRange(net.ParseIP(ConfNet.DhcpStart), net.ParseIP(ConfNet.DhcpEnd))), ctx)
 						DHCPScope.available = available
 
 						// Initialize hardware cache
