@@ -5,6 +5,7 @@ import (
 	"crypto/sha1"
 	"encoding/hex"
 	"fmt"
+	"strings"
 	"github.com/google/uuid"
 	"github.com/inverse-inc/packetfence/go/log"
 )
@@ -44,7 +45,7 @@ func (fw *FamilyZone) startHttp(ctx context.Context, info map[string]string, tim
 	h := sha1.New()
 	h.Write([]byte(s))
 	sha1_hash := hex.EncodeToString(h.Sum(nil))
-	resp, err := fw.getHttpClient(ctx).Get("https://login." + fw.Region + ".linewize.net/login/agent?deviceid=" + fw.DeviceID + "&mac=" + info["mac"] + "&ip=" + info["ip"] + "&username=" + info["username"] + "&agent=PacketFence&hash=" + sha1_hash + "&salt=" + id.String())
+	resp, err := fw.getHttpClient(ctx).Get("https://login." + fw.Region + ".linewize.net/login/agent?deviceid=" + fw.DeviceID + "&mac=" + info["mac"] + "&ip=" + info["ip"] + "&username=" + strings.ToLower(info["username"]) + "&agent=PacketFence&hash=" + sha1_hash + "&salt=" + id.String())
 
 	if err != nil {
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("Error contacting FamilyZone: %s", err))
