@@ -32,7 +32,7 @@ const {
 } = require('vuelidate/lib/validators')
 
 export const pfConfigurationOptionsSearchFunction = (context) => {
-  const { field_name: fieldName, value_name: valueName, search_path: url } = context
+  const { url, search: { field_name: fieldName, value_name: valueName } = {} } = context
   return function (chosen, query) {
     let currentOptions = []
     if (chosen.value) {
@@ -106,16 +106,16 @@ export const pfConfigurationAttributesFromMeta = (meta = {}, key = null) => {
         meta = _meta // swap ref to child
       }
     }
-    let { [key]: { allowed, allowed_lookup: allowedLookup, placeholder, type, item } = {} } = meta
+    let { [key]: { allowed, lookup, placeholder, type, item } = {} } = meta
     switch (type) {
       case 'array':
         attrs.multiple = true // pfFormChosen
         attrs.clearOnSelect = false // pfFormChosen
         attrs.closeOnSelect = false // pfFormChosen
         if (item) {
-          const { allowed: itemAllowed, allowed_lookup: itemAllowedLookup } = item
+          const { allowed: itemAllowed, lookup: itemLookup } = item
           if (itemAllowed) allowed = itemAllowed
-          else if (itemAllowedLookup) allowedLookup = itemAllowedLookup
+          else if (itemLookup) lookup = itemLookup
         }
         break
       case 'integer':
@@ -125,7 +125,7 @@ export const pfConfigurationAttributesFromMeta = (meta = {}, key = null) => {
     }
     if (placeholder) attrs.placeholder = placeholder
     if (allowed) attrs.options = allowed
-    else if (allowedLookup) {
+    else if (lookup) {
       attrs.searchable = true
       attrs.internalSearch = false
       attrs.preserveSearch = false
@@ -134,7 +134,7 @@ export const pfConfigurationAttributesFromMeta = (meta = {}, key = null) => {
       attrs.placeholder = i18n.t('Type to search.')
       attrs.showNoOptions = false
       attrs.optionsSearchFunction = (chosen, query) => { // wrap function
-        const f = pfConfigurationOptionsSearchFunction(allowedLookup)
+        const f = pfConfigurationOptionsSearchFunction(lookup)
         if (!query) {
           switch (key) {
             case 'oses': // include common os choices
@@ -198,8 +198,8 @@ export const pfConfigurationValidatorsFromMeta = (meta = {}, key = null, fieldNa
         switch (property) {
           case 'allowed': // ignore
           case 'default': // ignore
+          case 'lookup': // ignore
           case 'placeholder': // ignore
-          case 'allowed_lookup': // ignore
             break
           case 'item': // ignore
             // TODO

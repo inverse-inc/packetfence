@@ -633,20 +633,20 @@ export default {
         this.trigger[category].conditions.forEach(condition => {
           let { type: field, value } = condition
           if (field && value) {
-            let { [field]: { allowed_lookup: allowedLookup, type, item } = {} } = newMeta.triggers.item.properties
+            let { [field]: { lookup, type, item } = {} } = newMeta.triggers.item.properties
             if (type === 'array' && item) {
-              const { allowed_lookup: itemAllowedLookup } = item
-              if (itemAllowedLookup) {
+              const { lookup: itemLookup } = item
+              if (itemLookup) {
                 // value is an array
                 value.forEach((query, index) => {
-                  this.expandValue({ allowedLookup: itemAllowedLookup, trackBy: 'value', label: 'name' }, query).then(item => {
+                  this.expandValue({ lookup: itemLookup, trackBy: 'value', label: 'name' }, query).then(item => {
                     this.$set(value, index, item)
                     this.triggerCopy = JSON.parse(JSON.stringify(this.trigger))
                   })
                 })
               }
-            } else if (allowedLookup) {
-              this.expandValue({ allowedLookup, trackBy: 'value', label: 'name' }, value).then(item => {
+            } else if (lookup) {
+              this.expandValue({ lookup, trackBy: 'value', label: 'name' }, value).then(item => {
                 condition.value = item
                 this.triggerCopy = JSON.parse(JSON.stringify(this.trigger))
               })
@@ -713,7 +713,7 @@ export default {
       this.triggerCopy = JSON.parse(JSON.stringify(this.trigger))
     },
     expandValue (context, value) {
-      const { allowedLookup: { field_name: fieldName, value_name: valueName, search_path: url }, trackBy, label } = context
+      const { lookup: { field_name: fieldName, value_name: valueName, search_path: url }, trackBy, label } = context
       return apiCall.request({
         url,
         method: 'post',
@@ -757,10 +757,10 @@ export default {
         let newValue = value
         if (field && value) {
           // Collapse object
-          let { [field]: { allowed_lookup: allowedLookup, type, item } = {} } = this.meta.triggers.item.properties
+          let { [field]: { lookup, type, item } = {} } = this.meta.triggers.item.properties
           if (type === 'array' && item) {
-            const { allowed_lookup: itemAllowedLookup } = item
-            if (itemAllowedLookup) {
+            const { lookup: itemLookup } = item
+            if (itemLookup) {
               // value is an array
               let values = []
               value.forEach((expandedValue, index) => {
@@ -768,7 +768,7 @@ export default {
               })
               newValue = values
             }
-          } else if (allowedLookup) {
+          } else if (lookup) {
             newValue = value.value
           }
         }
