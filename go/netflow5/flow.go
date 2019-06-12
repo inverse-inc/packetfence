@@ -2,6 +2,7 @@ package netflow5
 
 import "net"
 
+// Flow
 type Flow struct {
 	SrcAddr  [4]byte // 4
 	DstAddr  [4]byte // 8
@@ -15,26 +16,56 @@ type Flow struct {
 	nSrcPort uint16  // 34
 	nDstPort uint16  // 36
 	pad1     byte    // 37
-	TcpFlags byte    // 38
-	Proto    byte    // 39
-	Tos      byte    // 40
-	nSrcAs   uint16  // 42
-	nDstAs   uint16  // 44
-	SrcMask  uint8   // 45
-	DstMask  uint8   // 46
-	pad2     [2]byte // 48
+	// TcpFlags cumulative OR of TCP flags.
+	TcpFlags byte // 38
+	// Proto IP protocol type (for example, TCP = 6; UDP = 17)
+	Proto byte // 39
+	// Tos IP type of service (ToS)
+	Tos    byte   // 40
+	nSrcAs uint16 // 42
+	nDstAs uint16 // 44
+	// SrcMask Source address prefix mask bits
+	SrcMask uint8 // 45
+	// DstMask Destination address prefix mask bits
+	DstMask uint8   // 46
+	pad2    [2]byte // 48
 }
 
+// SrcIP returns the source IP address of the flow.
 func (flow *Flow) SrcIP() net.IP { return net.IP(flow.SrcAddr[:]) }
+
+// DstIP returns the destination IP address of the flow.
 func (flow *Flow) DstIP() net.IP { return net.IP(flow.DstAddr[:]) }
+
+// NextIP returns the next IP address of the flow.
 func (flow *Flow) NextIP() net.IP { return net.IP(flow.NextAddr[:]) }
-func (flow *Flow) DPkts() uint32   { return Ntoh32(flow.nDPkts) }
+
+// DPkts returns number of packets in the flow.
+func (flow *Flow) DPkts() uint32 { return Ntoh32(flow.nDPkts) }
+
+// DOctets returns total number of Layer 3 bytes in the packets of the flow.
 func (flow *Flow) DOctets() uint32 { return Ntoh32(flow.nDOctets) }
-func (flow *Flow) First() uint32   { return Ntoh32(flow.nFirst) }
-func (flow *Flow) Last() uint32    { return Ntoh32(flow.nLast) }
+
+// First returns system uptime at start of flow.
+func (flow *Flow) First() uint32 { return Ntoh32(flow.nFirst) }
+
+// Last returns system uptime at the time the last packet of the flow was received.
+func (flow *Flow) Last() uint32 { return Ntoh32(flow.nLast) }
+
+// SrcPort returns TCP/UDP source port number or equivalent.
 func (flow *Flow) SrcPort() uint16 { return Ntoh16(flow.nSrcPort) }
+
+// DstPort TCP/UDP destination port number or equivalent.
 func (flow *Flow) DstPort() uint16 { return Ntoh16(flow.nDstPort) }
-func (flow *Flow) SrcAs() uint16   { return Ntoh16(flow.nSrcAs) }
-func (flow *Flow) DstAs() uint16   { return Ntoh16(flow.nDstAs) }
-func (flow *Flow) Input() uint16   { return Ntoh16(flow.nInput) }
-func (flow *Flow) Output() uint16  { return Ntoh16(flow.nOutput) }
+
+// SrcAs returns Autonomous system number of the source, either origin or peer.
+func (flow *Flow) SrcAs() uint16 { return Ntoh16(flow.nSrcAs) }
+
+// DstAs returns Autonomous system number of the destination, either origin or peer
+func (flow *Flow) DstAs() uint16 { return Ntoh16(flow.nDstAs) }
+
+// Input returns SNMP index of input interface
+func (flow *Flow) Input() uint16 { return Ntoh16(flow.nInput) }
+
+// Output returns SNMP index of output interface
+func (flow *Flow) Output() uint16 { return Ntoh16(flow.nOutput) }
