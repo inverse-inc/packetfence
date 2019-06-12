@@ -3,6 +3,7 @@ import Vuex from 'vuex'
 import config from './modules/config'
 import events from './modules/events'
 import notification from './modules/notification'
+import performance from './modules/performance'
 import pfqueue from './modules/pfqueue'
 import preferences from './modules/preferences'
 import saveSearch from './modules/saveSearch'
@@ -20,6 +21,7 @@ export default new Vuex.Store({
     config,
     events,
     notification,
+    performance,
     pfqueue,
     preferences,
     saveSearch,
