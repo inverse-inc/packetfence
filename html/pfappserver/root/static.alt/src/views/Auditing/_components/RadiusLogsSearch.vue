@@ -334,7 +334,7 @@ export default {
           label: this.$i18n.t('ID'),
           sortable: true,
           visible: true,
-          locked: false
+          locked: true
         },
         {
           key: 'auth_status',
