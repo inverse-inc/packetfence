@@ -54,32 +54,14 @@
     <b-container v-if="readonlyMode" class="bg-danger text-white text-center pt-6" fluid>
       <icon class="pr-2" name="lock"></icon> {{ $t('The database is in readonly mode. Not all functionality is available.') }}
     </b-container>
-    <b-container :class="{ 'pt-6': !readonlyMode }" fluid>
+    <b-container :class="{ 'pt-6': !readonlyMode, 'pf-documentation-container': isAuthenticated, 'pf-documentation-active': showDocumentationViewer }" fluid>
       <pf-documentation v-show="isAuthenticated">
-        <b-row align-v="center" class="px-3 py-1">
-          <b-col>
-            <b-button-group class="ml-1" size="sm">
-              <b-button variant="primary" disabled v-t="'Packetfence Version'"/>
-              <b-button variant="outline-primary" disabled class="font-weight-bold">
-                {{ version }}
-                <icon class="mx-1" name="circle-notch" spin v-if="!version"></icon>
-              </b-button>
-            </b-button-group>
-            <b-button-group class="ml-1" size="sm">
-              <b-button variant="primary" disabled v-t="'Server Hostname'"/>
-              <b-button variant="outline-primary" disabled class="font-weight-bold">
-                {{ hostname }}
-                <icon class="mx-1" name="circle-notch" spin v-if="!hostname"></icon>
-              </b-button>
-            </b-button-group>
-          </b-col>
-          <b-col cols="auto" align="right">
-            <b-link href="https://inverse.ca/" target="_blank"><img alt="Inverse" src="/static/img/inverse.small.png"></b-link>
-            <b-button href="https://packetfence.org/support.html#/commercial" target="_blank" class="ml-1" size="sm">
-              {{ $t('Support Inquiry') }}<icon class="ml-1" name="external-link-alt"> </icon>
-            </b-button>
-          </b-col>
-        </b-row>
+        <div class="py-1 pl-3" v-show="version">
+          <b-form-text v-t="'Packetfence Version'"/> {{ version }}
+        </div>
+        <div class="py-1 pl-3" v-show="hostname">
+          <b-form-text v-t="'Server Hostname'"/> {{ hostname }}
+        </div>
       </pf-documentation>
       <router-view/>
     </b-container>

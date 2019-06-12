@@ -1,70 +1,56 @@
 <template>
-  <b-row class="documentViewer" ref="documentViewer" :class="{ 'hidden': !showViewer }">
-    <b-col cols="12" md="3" xl="2" class="pf-sidebar d-print-none h-100 border-gray border-bottom" ref="documentList">
-      <!-- filter -->
-      <div class="pf-sidebar-filter d-flex align-items-center">
-        <b-input-group>
-          <b-input-group-prepend>
-            <icon class="h-auto" name="search" scale=".75"></icon>
-          </b-input-group-prepend>
-          <b-form-input ref="filter" v-model="filter" type="text" :placeholder="$t('Filter')"></b-form-input>
-          <b-input-group-append v-if="filter">
-            <b-btn @click="filter = ''"><icon name="times-circle"></icon></b-btn>
-          </b-input-group-append>
-        </b-input-group>
-        <b-btn class="pf-sidebar-filter-toggle d-md-none p-0 ml-3" variant="link" v-b-toggle.pf-sidebar-links>
-          <icon name="bars"></icon>
-        </b-btn>
+  <b-row class="pf-documentation overflow-hidden">
+    <b-col md="3" xl="2" class="pf-sidebar border-bottom d-print-none" ref="documentList">
+      <div class="pf-sidebar-links mt-3">
+        <b-nav class="pf-sidenav" vertical>
+          <b-nav-item v-for="document in index" :key="document.name"
+            :active="document.text === title"
+            :disabled="isLoading"
+            exact-active-class="active"
+            @click.stop.prevent="loadDocument(document)">
+            <div class="pf-sidebar-item">
+              {{ document.text }} <icon class="mx-1" name="info-circle" v-show="document.text === title"></icon>
+            </div>
+          </b-nav-item>
+        </b-nav>
+        <!-- info + support link -->
+        <hr />
+        <slot />
+        <div class="m-3">
+          <b-button href="https://packetfence.org/support.html#/commercial" target="_blank" size="sm" block>
+            {{ $t('Support Inquiry') }}<icon class="ml-1" name="external-link-alt"> </icon>
+          </b-button>
+        </div>
       </div>
-      <b-nav class="pf-sidenav" vertical>
-        <b-nav-item v-for="document in filteredIndex" :key="document.name"
-          :active="document.text === title"
-          :disabled="isLoading"
-          exact-active-class="active"
-          @click.stop.prevent="loadDocument(document)"
-        >
-          <div class="pf-sidebar-item">
-            <text-highlight :queries="[filter]">{{ document.text }}</text-highlight>
-            <icon class="mx-1" name="info-circle" v-show="document.text === title"></icon>
-          </div>
-        </b-nav-item>
-      </b-nav>
     </b-col>
-    <b-col cols="12" md="9" xl="10" class="mt-3 border-gray border-bottom pb-3">
-      <!-- slot -->
-      <b-card v-if="hasDefaultSlot" no-body class="mb-3">
-        <slot/>
-      </b-card>
-
+    <b-col md="9" xl="10" class="border-gray border-bottom py-2">
       <!-- document viewer -->
-      <b-card no-body class="document h-100" :class="{ 'fullscreen': fullscreen }">
+      <b-card no-body class="pf-documentation-document" :class="{ 'fullscreen': fullscreen }">
         <b-card-header>
           <template v-if="!fullscreen">
             <b-button-close @click="closeViewer" v-b-tooltip.hover.left.d300 :title="$t('Close')" class="ml-3"><icon name="times"></icon></b-button-close>
             <b-button-close @click="toggleFullscreen" v-b-tooltip.hover.left.d300 :title="$t('Show Fullscreen')" class="ml-3"><icon name="expand"></icon></b-button-close>
           </template>
           <b-button-close v-else @click="toggleFullscreen" v-b-tooltip.hover.left.d300 :title="$t('Exit Fullscreen')" class="ml-3"><icon name="compress"></icon></b-button-close>
-          <h4 class="mb-0" v-t="title"></h4>
+          <h4 class="d-inline mb-0 mr-3">{{ title }}</h4>
         </b-card-header>
 
         <!-- HTML document -->
-        <iframe v-show="!isLoading" v-if="path" ref="document" name="documentFrame" class="h-100" frameborder="0"
+        <iframe v-show="!isLoading" v-if="path" ref="document" name="documentFrame" frameborder="0" class="pf-documentation-frame"
           :src="`/static/doc/${path}`"
           @load="initDocument()"
         ></iframe>
-        <template v-if="isLoading">
-          <b-container class="my-5 h-100">
-            <b-row class="justify-content-md-center text-secondary h-100">
-              <b-col cols="12" md="auto" class="align-self-center">
-                <b-media>
-                  <icon name="circle-notch" scale="2" slot="aside" spin></icon>
-                  <h4>{{ $t('Loading Documentation') }}</h4>
-                  <p class="font-weight-light">{{ title }}</p>
-                </b-media>
-              </b-col>
-            </b-row>
-          </b-container>
-        </template>
+        <b-container class="pf-documentation-frame my-5" v-if="isLoading">
+          <b-row class="justify-content-md-center text-secondary h-100">
+            <b-col cols="12" md="auto" class="align-self-center">
+              <b-media>
+                <icon name="circle-notch" scale="2" slot="aside" spin></icon>
+                <h4>{{ $t('Loading Documentation') }}</h4>
+                <p class="font-weight-light">{{ title }}</p>
+              </b-media>
+            </b-col>
+          </b-row>
+        </b-container>
 
         <!-- IMG viewer -->
         <b-modal v-model="showImageModal" size="xl" centered id="imageModal" scrollable hide-footer>
@@ -89,7 +75,6 @@ export default {
   },
   data () {
     return {
-      filter: '',
       showImageModal: false,
       image: false,
       isLoading: false
@@ -97,18 +82,7 @@ export default {
   },
   computed: {
     index () {
-      return this.$store.getters['documentation/index']
-    },
-    filteredIndex () {
-      if (!(this.index && 'length' in this.index)) {
-        return []
-      }
-      const re = new RegExp(this.filter, 'i')
-      return this.index.filter(document => {
-        return re.test(document.text)
-      }).sort((a, b) => {
-        return a.text.localeCompare(b.text)
-      })
+      return this.$store.getters['documentation/index'] || []
     },
     showViewer () {
       return this.$store.getters['documentation/showViewer']
@@ -148,6 +122,7 @@ export default {
           font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
           font-style: normal;
           font-variant: normal;
+          font-size: .9rem;
         }
         h1, h2, h3, h4, h5, h6,
         #toctitle, .sidebarblock > .content > .title {
@@ -229,9 +204,9 @@ export default {
          * custom styles
         */
         .external-link {
-          background: transparent url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><path d="M576 24v127.984c0 21.461-25.96 31.98-40.971 16.971l-35.707-35.709-243.523 243.523c-9.373 9.373-24.568 9.373-33.941 0l-22.627-22.627c-9.373-9.373-9.373-24.569 0-33.941L442.756 76.676l-35.703-35.705C391.982 25.9 402.656 0 424.024 0H552c13.255 0 24 10.745 24 24zM407.029 270.794l-16 16A23.999 23.999 0 0 0 384 303.765V448H64V128h264a24.003 24.003 0 0 0 16.97-7.029l16-16C376.089 89.851 365.381 64 344 64H48C21.49 64 0 85.49 0 112v352c0 26.51 21.49 48 48 48h352c26.51 0 48-21.49 48-48V287.764c0-21.382-25.852-32.09-40.971-16.97z" fill="#2156a5"></path></svg>') right top no-repeat !important;
-          background-size: auto 100%;
-          padding-right: 28px;
+          background: transparent url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" xml:space="preserve" width="1em" height="1em"><path d="M576 24v127.984c0 21.461-25.96 31.98-40.971 16.971l-35.707-35.709-243.523 243.523c-9.373 9.373-24.568 9.373-33.941 0l-22.627-22.627c-9.373-9.373-9.373-24.569 0-33.941L442.756 76.676l-35.703-35.705C391.982 25.9 402.656 0 424.024 0H552c13.255 0 24 10.745 24 24zM407.029 270.794l-16 16A23.999 23.999 0 0 0 384 303.765V448H64V128h264a24.003 24.003 0 0 0 16.97-7.029l16-16C376.089 89.851 365.381 64 344 64H48C21.49 64 0 85.49 0 112v352c0 26.51 21.49 48 48 48h352c26.51 0 48-21.49 48-48V287.764c0-21.382-25.852-32.09-40.971-16.97z" fill="%232156a5"></path></svg>') right top no-repeat !important;
+          background-size: 1em;
+          padding-right: 1.25em;
         }
       `
       const head = window.frames['documentFrame'].document.getElementsByTagName('head')[0]
@@ -306,12 +281,6 @@ export default {
         })
       }
     },
-    focusFilter () {
-      this.$refs.filter.$el.focus()
-      this.$nextTick(() => {
-        this.$refs.filter.$el.select()
-      })
-    },
     openViewer () {
       this.$store.dispatch('documentation/openViewer')
     },
@@ -344,14 +313,13 @@ export default {
     showViewer: function (a, b) {
       if (a) { // shown
         if (!this.path) { // initial title/path
-          this.$store.dispatch('documentation/setPath', 'PacketFence_Administration_Guide.html')
+          this.$store.dispatch('documentation/setPath', 'PacketFence_Installation_Guide.html')
           this.isLoading = true
         }
         this.$nextTick(() => {
           this.scrollToTop()
         })
         this.$refs.documentList.scrollTop = 0
-        this.focusFilter()
         if (this.hash) {
           this.$nextTick(() => {
             this.scrollToSection(this.hash)
@@ -364,13 +332,13 @@ export default {
         if (a) { // fullscreen
           if (!document.body.classList.contains('modal-open')) { // hide body scrollbar
             document.body.classList.add('modal-open')
-            document.body.setAttribute('style', 'padding-right: 14px;')
+            document.body.classList.add('pf-documentation-fullscreen')
           }
           this.$store.dispatch('events/unbind')
         } else { // not fullscreen
           if (document.body.classList.contains('modal-open')) { // show body scrollbar
             document.body.classList.remove('modal-open')
-            document.body.setAttribute('style', '')
+            document.body.classList.remove('pf-documentation-fullscreen')
           }
           this.$store.dispatch('events/bind')
         }
@@ -404,30 +372,54 @@ export default {
 </script>
 
 <style lang="scss">
-@import "../styles/variables";
+  @import "../../node_modules/bootstrap/scss/functions";
+  @import "../../node_modules/bootstrap/scss/mixins/breakpoints";
+  @import "../styles/variables";
 
-.documentViewer {
-  transition: all 300ms ease;
-  max-height: 100vh;
-  &.hidden {
-    overflow-x: hidden;
-    overflow-y: hidden;
-    max-height: 0vh;
+  $pf-documentation-height: 50vh;
+
+  .pf-documentation {
+    height: $pf-documentation-height;
+    .pf-sidebar {
+      overflow-y: auto;
+      @include media-breakpoint-up(md) {
+        @supports (position: sticky) {
+          top: 0;
+          max-height: calc(#{$pf-documentation-height});
+        }
+      }
+    }
+    .pf-documentation-frame {
+      height: calc(#{$pf-documentation-height} - #{map-get($spacers, 6)} - 2 * #{map-get($spacers, 2)});
+    }
   }
-  .pf-sidebar {
-    overflow-y: auto;
+  .pf-documentation-document {
+    &.fullscreen {
+      position: fixed !important;
+      z-index: $zindex-modal-backdrop;
+      top: 0 !important;
+      right: 0 !important;
+      bottom: 0 !important;
+      left: 0 !important;
+      overflow-x: hidden;
+      overflow-y: auto;
+      width: 100% !important;
+      border: none !important;
+    }
   }
-}
-.document {
-  &.fullscreen {
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    width: 100% !important;
-    border: none !important;
-    overflow-y: auto;
-    overflow-x: hidden;
-    z-index: $zindex-modal-backdrop;
+  .pf-documentation-container > .row {
+    transition: all 300ms ease;
   }
-}
+  .pf-documentation-active > .row {
+    transform: translateY(0);
+  }
+  .pf-documentation-container:not(.pf-documentation-active) > .row {
+    transform: translateY(-#{$pf-documentation-height});
+  }
+  .pf-documentation-fullscreen {
+    .pf-documentation,
+    .pf-documentation .pf-documentation-frame {
+      height: calc(100vh - #{map-get($spacers, 6)});
+    }
+  }
 </style>
