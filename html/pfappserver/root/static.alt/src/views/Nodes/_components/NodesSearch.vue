@@ -373,19 +373,19 @@ export default {
           icon: 'sitemap'
         },
         {
-          value: 'locationlog.switch_port',
+          value: 'locationlog.port',
           text: this.$i18n.t('Source Switch Port'),
           types: [conditionType.INTEGER],
           icon: 'sitemap'
         },
         {
-          value: 'locationlog.switch_port_description',
+          value: 'locationlog.ifDesc',
           text: this.$i18n.t('Source Switch Port Description'),
           types: [conditionType.SUBSTRING],
           icon: 'sitemap'
         },
         {
-          value: 'locationlog.switch_description',
+          value: 'locationlog.ifDesc',
           text: this.$i18n.t('Source Switch Description'),
           types: [conditionType.SUBSTRING],
           icon: 'sitemap'
@@ -619,19 +619,19 @@ export default {
           visible: false
         },
         {
-          key: 'locationlog.switch_port',
+          key: 'locationlog.port',
           label: this.$i18n.t('Switch Port'),
           sortable: true,
           visible: false
         },
         {
-          key: 'locationlog.switch_port_description',
+          key: 'locationlog.ifDesc',
           label: this.$i18n.t('Switch Port Description'),
           sortable: true,
           visible: false
         },
         {
-          key: 'locationlog.switch_description',
+          key: 'locationlog.ifDesc',
           label: this.$i18n.t('Switch Description'),
           sortable: true,
           visible: false
