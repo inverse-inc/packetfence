@@ -713,10 +713,10 @@ export default {
       this.triggerCopy = JSON.parse(JSON.stringify(this.trigger))
     },
     expandValue (context, value) {
-      const { lookup: { field_name: fieldName, value_name: valueName, search_path: url }, trackBy, label } = context
+      const { lookup: { url, method, search: { field_name: fieldName, value_name: valueName } }, trackBy, label } = context
       return apiCall.request({
         url,
-        method: 'post',
+        method,
         baseURL: '', // reset
         data: {
           query: { op: 'and', values: [{ op: 'and', values: [{ field: valueName, op: 'equals', value }] }] },

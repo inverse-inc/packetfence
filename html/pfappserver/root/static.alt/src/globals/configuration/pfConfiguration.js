@@ -32,7 +32,7 @@ const {
 } = require('vuelidate/lib/validators')
 
 export const pfConfigurationOptionsSearchFunction = (context) => {
-  const { url, search: { field_name: fieldName, value_name: valueName } = {} } = context
+  const { url, method, search: { field_name: fieldName, value_name: valueName } = {} } = context
   return function (chosen, query) {
     let currentOptions = []
     if (chosen.value) {
@@ -44,7 +44,7 @@ export const pfConfigurationOptionsSearchFunction = (context) => {
     if (!chosen.optionsSearchFunctionInitialized) { // first query - presearch current value
       return apiCall.request({
         url,
-        method: 'post',
+        method,
         baseURL: '', // reset
         data: {
           query: {
@@ -69,7 +69,7 @@ export const pfConfigurationOptionsSearchFunction = (context) => {
     } else { // subsequent queries
       return apiCall.request({
         url,
-        method: 'post',
+        method,
         baseURL: '', // reset
         data: {
           query: { op: 'and', values: [{ op: 'or', values: [{ field: fieldName, op: 'contains', value: `${query.trim()}` }] }] },
