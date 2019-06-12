@@ -1911,6 +1911,15 @@ To upgrade the database schema, run the following command:
 
 Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 9.0.0).
 
+Admin roles configuration
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In order to upgrade the Admin rights, run the following commands
+
+  cd /usr/local/pf
+  sed -i "s/SERVICES/SERVICES_READ/g" /usr/local/pf/conf/adminroles.conf 
+  sed -i "s/REPORTS/REPORTS_READ/g" /usr/local/pf/conf/adminroles.conf
+
 Upgrading from a version prior to X.Y.Z
 ---------------------------------------
 
