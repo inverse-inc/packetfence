@@ -1714,7 +1714,7 @@ export const pfConfigurationFingerbankMacVendorOptionsSearchFunction = (chosen, 
       limit: 100
     }).then(response => {
       return response.items.map(item => {
-        return { value: item.mac, text: item.name }
+        return { value: item.mac, text: `${item.mac.toUpperCase()} - ${item.name}` }
       })
     })
   } else { // subsequent queries
@@ -1729,7 +1729,7 @@ export const pfConfigurationFingerbankMacVendorOptionsSearchFunction = (chosen, 
       return [
         ...((currentOption) ? [currentOption] : []), // current option first
         ...response.items.map(item => {
-          return { value: item.mac, text: item.name }
+          return { value: item.mac, text: `${item.mac.toUpperCase()} - ${item.name}` }
         }).filter(item => {
           return JSON.stringify(item) !== JSON.stringify(currentOption) // remove duplicate current option
         })
