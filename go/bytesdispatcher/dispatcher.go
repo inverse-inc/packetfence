@@ -2,6 +2,7 @@ package bytesdispatcher
 
 import (
 	"github.com/inverse-inc/packetfence/go/bytearraypool"
+	"sync"
 )
 
 type BytesHandler func([]byte)
@@ -12,16 +13,22 @@ type Worker struct {
 	bytesHandler  BytesHandler
 	byteArrayPool *bytearraypool.ByteArrayPool
 	StopChannel   chan struct{}
+	waitGroup     *sync.WaitGroup
 }
 
-func NewWorker(workerPool chan chan []byte, bytesHandler BytesHandler, byteArrayPool *bytearraypool.ByteArrayPool) *Worker {
-	return &Worker{
-		WorkerPool:    workerPool,
-		bytesHandler:  bytesHandler,
-		byteArrayPool: byteArrayPool,
-		JobChannel:    make(chan []byte),
-		StopChannel:   make(chan struct{}),
-	}
+func NewWorker(workerPool chan chan []byte, bytesHandler BytesHandler, byteArrayPool *bytearraypool.ByteArrayPool, waitGroup *sync.WaitGroup) *Worker {
+	w := &Worker{}
+	InitWorker(w, workerPool, bytesHandler, byteArrayPool, waitGroup)
+	return w
+}
+
+func InitWorker(w *Worker, workerPool chan chan []byte, bytesHandler BytesHandler, byteArrayPool *bytearraypool.ByteArrayPool, waitGroup *sync.WaitGroup) {
+	w.WorkerPool = workerPool
+	w.bytesHandler = bytesHandler
+	w.byteArrayPool = byteArrayPool
+	w.JobChannel = make(chan []byte)
+	w.StopChannel = make(chan struct{})
+	w.waitGroup = waitGroup
 }
 
 func (w *Worker) HandleBytes(bytes []byte) {
@@ -31,7 +38,7 @@ func (w *Worker) HandleBytes(bytes []byte) {
 
 func (w *Worker) Start() {
 	go func() {
-
+		defer w.waitGroup.Done()
 	LOOP:
 		for {
 			// register the current worker into the worker queue.
@@ -51,6 +58,8 @@ func (w *Worker) Start() {
 		select {
 		case job := <-w.JobChannel:
 			w.HandleBytes(job)
+		default:
+			return
 		}
 	}()
 }
@@ -68,7 +77,8 @@ type Dispatcher struct {
 	bytesHandler  BytesHandler
 	JobQueue      chan []byte
 	WorkerPool    chan chan []byte
-	QuitChannels  []chan struct{}
+	Workers       []Worker
+	waitGroup     sync.WaitGroup
 }
 
 func NewDispatcher(maxWorkers, jobQueueSize int, bytesHandler BytesHandler, byteArrayPool *bytearraypool.ByteArrayPool) *Dispatcher {
@@ -78,7 +88,6 @@ func NewDispatcher(maxWorkers, jobQueueSize int, bytesHandler BytesHandler, byte
 		byteArrayPool: byteArrayPool,
 		JobQueue:      make(chan []byte, jobQueueSize),
 		WorkerPool:    make(chan chan []byte, maxWorkers),
-		QuitChannels:  make([]chan struct{}, maxWorkers),
 	}
 }
 
@@ -94,12 +103,22 @@ func (d *Dispatcher) SubmitJob(job []byte) {
 
 func (d *Dispatcher) Run() {
 	// starting n number of workers
+	d.Workers = make([]Worker, d.maxWorkers)
+	d.waitGroup.Add(d.maxWorkers)
 	for i := 0; i < d.maxWorkers; i++ {
-		worker := NewWorker(d.WorkerPool, d.bytesHandler, d.byteArrayPool)
-		worker.Start()
+		InitWorker(&d.Workers[i], d.WorkerPool, d.bytesHandler, d.byteArrayPool, &d.waitGroup)
+		d.Workers[i].Start()
 	}
 
 	go d.dispatch()
+}
+
+func (d *Dispatcher) Stop() {
+	for i := range d.Workers {
+		d.Workers[i].Stop()
+	}
+
+	d.waitGroup.Wait()
 }
 
 func (d *Dispatcher) dispatch() {

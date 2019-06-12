@@ -1,12 +1,13 @@
 package processor
 
 import (
-    "net"
+	"errors"
 	"github.com/inverse-inc/packetfence/go/bytearraypool"
 	"github.com/inverse-inc/packetfence/go/bytesdispatcher"
 	"github.com/inverse-inc/packetfence/go/netflow5"
-    "runtime"
-    "errors"
+	"net"
+	"runtime"
+	"strings"
 	"unsafe"
 )
 
@@ -20,6 +21,7 @@ type Processor struct {
 	MaxPacketSize     int
 	ByteArrayPoolSize int
 	byteArrayPool     *bytearraypool.ByteArrayPool
+	stopChan          chan struct{}
 }
 
 func (p *Processor) setDefaults() {
@@ -53,6 +55,10 @@ func (p *Processor) setDefaults() {
 
 		p.Conn = conn
 	}
+
+	if p.stopChan == nil {
+		p.stopChan = make(chan struct{}, 1)
+	}
 }
 
 func BytesHandlerForNetFlow5Handler(h Handler) bytesdispatcher.BytesHandler {
@@ -70,17 +76,48 @@ func (p *Processor) dispatcher() *bytesdispatcher.Dispatcher {
 	return bytesdispatcher.NewDispatcher(p.Workers, p.BacklogSize, BytesHandlerForNetFlow5Handler(p.Handler), p.byteArrayPool)
 }
 
+func (p *Processor) Stop() {
+	c := p.stopChan
+	p.stopChan = nil
+	c <- struct{}{}
+	p.Conn.Close()
+}
+
+func (p *Processor) isCloseError(err error) bool {
+	if p.stopChan != nil {
+		return false
+	}
+
+	str := err.Error()
+	return strings.Contains(str, "use of closed network connection")
+}
+
 func (p *Processor) Start() {
 	p.setDefaults()
 	dispatcher := p.dispatcher()
 	dispatcher.Run()
+	stopChan := p.stopChan
+
+LOOP:
 	for {
 		buffer := p.byteArrayPool.Get()
 		rlen, remote, err := p.Conn.ReadFrom(buffer)
 		if err != nil {
+			if p.isCloseError(err) {
+				break
+			}
+
 			panic(err)
 		}
 		_, _ = rlen, remote
 		dispatcher.SubmitJob(buffer)
+		select {
+		case <-stopChan:
+			break LOOP
+		default:
+			continue
+		}
 	}
+
+	dispatcher.Stop()
 }
