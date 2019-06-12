@@ -35,7 +35,7 @@ import FencingView from './FencingView'
 import ParkingView from './ParkingView'
 
 export default {
-  name: 'NetworksTabs',
+  name: 'networks-tabs',
   components: {
     NetworkView,
     InterfacesList,

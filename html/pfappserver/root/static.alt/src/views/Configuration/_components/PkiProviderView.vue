@@ -52,7 +52,7 @@ import {
 const { validationMixin } = require('vuelidate')
 
 export default {
-  name: 'PkiProviderView',
+  name: 'pki-provider-view',
   mixins: [
     validationMixin
   ],

@@ -43,7 +43,7 @@ import {
 } from '@/globals/configuration/pfConfigurationMaintenanceTasks'
 
 export default {
-  name: 'MaintenanceTasksList',
+  name: 'maintenance-tasks-list',
   components: {
     pfButtonDelete,
     pfButtonService,

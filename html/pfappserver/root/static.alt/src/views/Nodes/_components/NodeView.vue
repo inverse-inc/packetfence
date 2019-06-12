@@ -370,7 +370,7 @@ const { validationMixin } = require('vuelidate')
 const { required } = require('vuelidate/lib/validators')
 
 export default {
-  name: 'NodeView',
+  name: 'node-view',
   components: {
     'timeline': Timeline,
     pfButtonSave,

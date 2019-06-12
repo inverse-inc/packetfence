@@ -47,7 +47,7 @@ import {
 const { validationMixin } = require('vuelidate')
 
 export default {
-  name: 'TrafficShapingView',
+  name: 'traffic-shaping-view',
   mixins: [
     validationMixin
   ],

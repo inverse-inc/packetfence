@@ -44,7 +44,7 @@ import {
 } from '@/globals/configuration/pfConfigurationFirewalls'
 
 export default {
-  name: 'FirewallsList',
+  name: 'firewalls-list',
   components: {
     pfButtonDelete,
     pfConfigList,

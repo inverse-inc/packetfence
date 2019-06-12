@@ -22,7 +22,7 @@
 import pfFormRow from '@/components/pfFormRow'
 
 export default {
-  name: 'DhcpOption82LogView',
+  name: 'dhcp-option82-log-view',
   components: {
     pfFormRow
   },

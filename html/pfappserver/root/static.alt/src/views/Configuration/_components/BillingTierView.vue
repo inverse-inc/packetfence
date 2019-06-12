@@ -51,7 +51,7 @@ import {
 const { validationMixin } = require('vuelidate')
 
 export default {
-  name: 'BillingTierView',
+  name: 'billing-tier-view',
   mixins: [
     validationMixin
   ],

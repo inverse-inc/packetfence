@@ -112,7 +112,7 @@ import pfSearch from '@/components/pfSearch'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 
 export default {
-  name: 'DynamicReportChart',
+  name: 'dynamic-report-chart',
   mixins: [
     pfMixinSearchable
   ],

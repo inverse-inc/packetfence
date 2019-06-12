@@ -26,7 +26,7 @@ import {
 } from '@/globals/configuration/pfConfigurationSwitchGroups'
 
 export default {
-  name: 'SwitchGroupsList',
+  name: 'switch-groups-list',
   components: {
     pfButtonDelete,
     pfConfigList,

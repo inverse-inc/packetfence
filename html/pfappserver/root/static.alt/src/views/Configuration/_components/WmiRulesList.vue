@@ -35,7 +35,7 @@ import {
 } from '@/globals/configuration/pfConfigurationWmiRules'
 
 export default {
-  name: 'WmiRulesList',
+  name: 'wmi-rules-list',
   components: {
     pfButtonDelete,
     pfConfigList,

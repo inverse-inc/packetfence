@@ -43,7 +43,7 @@
 import TextHighlight from 'vue-text-highlight'
 
 export default {
-  name: 'pfSidebarItem',
+  name: 'pf-sidebar-item',
   components: {
     TextHighlight
   },

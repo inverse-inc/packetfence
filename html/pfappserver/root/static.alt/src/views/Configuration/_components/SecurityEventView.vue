@@ -41,7 +41,7 @@ import {
 const { validationMixin } = require('vuelidate')
 
 export default {
-  name: 'SecurityEventView',
+  name: 'security-event-view',
   mixins: [
     validationMixin
   ],

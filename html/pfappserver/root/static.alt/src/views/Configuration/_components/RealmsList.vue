@@ -46,7 +46,7 @@ import {
 } from '@/globals/configuration/pfConfigurationRealms'
 
 export default {
-  name: 'RealmsList',
+  name: 'realms-list',
   components: {
     pfButtonDelete,
     pfConfigList,

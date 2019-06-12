@@ -34,7 +34,7 @@ import {
 const { validationMixin } = require('vuelidate')
 
 export default {
-  name: 'DatabaseView',
+  name: 'database-view',
   mixins: [
     validationMixin
   ],

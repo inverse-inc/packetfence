@@ -32,7 +32,7 @@ import {
 } from '@/globals/configuration/pfConfigurationTrafficShapingPolicies'
 
 export default {
-  name: 'DomainsList',
+  name: 'domains-list',
   components: {
     pfButtonDelete,
     pfConfigList,

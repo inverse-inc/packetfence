@@ -75,7 +75,7 @@
  *
 **/
 export default {
-  name: 'pfMixinSelectable',
+  name: 'pf-mixin-selectable',
   props: {
     storeName: { // from router
       type: String,

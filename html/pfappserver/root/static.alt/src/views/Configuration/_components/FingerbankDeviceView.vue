@@ -49,7 +49,7 @@ import {
 const { validationMixin } = require('vuelidate')
 
 export default {
-  name: 'FingerbankDeviceView',
+  name: 'fingerbank-device-view',
   mixins: [
     validationMixin
   ],

@@ -51,7 +51,7 @@ import FingerbankMacVendorsList from './FingerbankMacVendorsList'
 import FingerbankUserAgentsList from './FingerbankUserAgentsList'
 
 export default {
-  name: 'FingerbankTabs',
+  name: 'fingerbank-tabs',
   components: {
     FingerbankGeneralSettingView,
     FingerbankDeviceChangeDetectionView,

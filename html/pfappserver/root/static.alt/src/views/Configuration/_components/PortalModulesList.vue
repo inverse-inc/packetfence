@@ -75,7 +75,7 @@ import {
 } from '@/globals/configuration/pfConfigurationPortalModules'
 
 export default {
-  name: 'PortalModulesList',
+  name: 'portal-modules-list',
   mixins: [
     pfMixinSearchable
   ],

@@ -197,7 +197,7 @@ import {
 } from '@/globals/configuration/pfConfigurationRoutedNetworks'
 
 export default {
-  name: 'InterfacesList',
+  name: 'interfaces-list',
   components: {
     pfButtonDelete,
     pfButtonService,

@@ -47,7 +47,7 @@ import pfEmptyTable from '@/components/pfEmptyTable'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 
 export default {
-  name: 'ClusterServices',
+  name: 'cluster-services',
   components: {
     pfEmptyTable,
     pfFormRangeToggle

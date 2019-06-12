@@ -34,7 +34,7 @@ import {
 const { validationMixin } = require('vuelidate')
 
 export default {
-  name: 'SnmpTrapView',
+  name: 'snmp-trap-view',
   mixins: [
     validationMixin
   ],

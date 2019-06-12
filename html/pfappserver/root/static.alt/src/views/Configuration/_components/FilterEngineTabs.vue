@@ -20,7 +20,7 @@
 import FilterEngineView from './FilterEngineView'
 
 export default {
-  name: 'FilterEngineTabs',
+  name: 'filter-engine-tabs',
   components: {
     FilterEngineView
   },

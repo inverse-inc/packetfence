@@ -52,7 +52,7 @@ import {
 const { validationMixin } = require('vuelidate')
 
 export default {
-  name: 'SyslogParserView',
+  name: 'syslog-parser-view',
   mixins: [
     validationMixin
   ],

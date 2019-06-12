@@ -37,7 +37,7 @@ import {
 } from '@/globals/configuration/pfConfigurationSyslogForwarders'
 
 export default {
-  name: 'SyslogForwardersList',
+  name: 'syslog-forwarders-list',
   components: {
     pfButtonDelete,
     pfConfigList,

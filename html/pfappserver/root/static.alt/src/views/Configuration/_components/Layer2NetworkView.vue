@@ -44,7 +44,7 @@ import {
 const { validationMixin } = require('vuelidate')
 
 export default {
-  name: 'Layer2NetworkView',
+  name: 'layer2-network-view',
   mixins: [
     validationMixin
   ],

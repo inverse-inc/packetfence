@@ -52,7 +52,7 @@ import {
 const { validationMixin } = require('vuelidate')
 
 export default {
-  name: 'ScanEngineView',
+  name: 'scan-engine-view',
   mixins: [
     validationMixin
   ],

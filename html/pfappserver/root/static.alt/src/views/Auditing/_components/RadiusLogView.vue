@@ -69,7 +69,7 @@
 import pfFormRow from '@/components/pfFormRow'
 
 export default {
-  name: 'RadiusLogView',
+  name: 'radius-log-view',
   components: {
     pfFormRow
   },

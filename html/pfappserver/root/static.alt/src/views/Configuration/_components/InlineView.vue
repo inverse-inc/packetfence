@@ -34,7 +34,7 @@ import {
 const { validationMixin } = require('vuelidate')
 
 export default {
-  name: 'InlineView',
+  name: 'inline-view',
   mixins: [
     validationMixin
   ],

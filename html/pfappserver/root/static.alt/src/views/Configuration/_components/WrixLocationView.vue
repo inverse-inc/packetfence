@@ -48,7 +48,7 @@ import {
 const { validationMixin } = require('vuelidate')
 
 export default {
-  name: 'WrixLocationView',
+  name: 'wrix-location-view',
   mixins: [
     validationMixin
   ],

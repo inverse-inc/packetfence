@@ -54,7 +54,7 @@ import {
 } from '@/globals/configuration/pfConfigurationConnectionProfiles'
 
 export default {
-  name: 'ConnectionProfilesList',
+  name: 'connection-profiles-list',
   components: {
     pfButtonDelete,
     pfConfigList,

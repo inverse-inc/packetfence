@@ -49,7 +49,7 @@ import {
 const { validationMixin } = require('vuelidate')
 
 export default {
-  name: 'FingerbankMacVendorView',
+  name: 'fingerbank-mac-vendor-view',
   mixins: [
     validationMixin
   ],

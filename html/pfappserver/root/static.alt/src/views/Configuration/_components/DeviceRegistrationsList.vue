@@ -31,7 +31,7 @@ import {
 } from '@/globals/configuration/pfConfigurationDeviceRegistrations'
 
 export default {
-  name: 'DeviceRegistrationsList',
+  name: 'device-registrations-list',
   components: {
     pfButtonDelete,
     pfConfigList,

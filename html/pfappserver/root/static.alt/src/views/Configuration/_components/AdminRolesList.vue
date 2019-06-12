@@ -34,7 +34,7 @@ import {
 } from '@/globals/configuration/pfConfigurationAdminRoles'
 
 export default {
-  name: 'AdminRolesList',
+  name: 'admin-roles-list',
   components: {
     pfButtonDelete,
     pfConfigList,

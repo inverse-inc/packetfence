@@ -19,7 +19,7 @@ import ScanEnginesList from './ScanEnginesList'
 import WmiRulesList from './WmiRulesList'
 
 export default {
-  name: 'ScanTabs',
+  name: 'scan-tabs',
   components: {
     ScanEnginesList,
     WmiRulesList

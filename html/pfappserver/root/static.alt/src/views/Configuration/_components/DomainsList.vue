@@ -114,7 +114,7 @@ import {
 const { validationMixin } = require('vuelidate')
 
 export default {
-  name: 'DomainsList',
+  name: 'domains-list',
   components: {
     pfButtonDelete,
     pfConfigList,

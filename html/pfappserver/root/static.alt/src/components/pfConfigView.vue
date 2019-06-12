@@ -67,7 +67,7 @@ import pfMixinValidation from '@/components/pfMixinValidation'
 import { createDebouncer } from 'promised-debounce'
 
 export default {
-  name: 'pfConfigView',
+  name: 'pf-config-view',
   components: {
     pfButtonSave,
     pfButtonDelete

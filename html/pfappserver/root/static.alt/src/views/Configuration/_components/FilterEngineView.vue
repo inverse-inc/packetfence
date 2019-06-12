@@ -34,7 +34,7 @@ import aceEditor from 'vue2-ace-editor'
 import pfButtonSave from '@/components/pfButtonSave'
 
 export default {
-  name: 'FilterEngineView',
+  name: 'filter-engine-view',
   components: {
     pfButtonSave,
     aceEditor

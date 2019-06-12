@@ -74,7 +74,7 @@ import {
 } from '@/globals/configuration/pfConfigurationFingerbank'
 
 export default {
-  name: 'FingerbankDevicesList',
+  name: 'fingerbank-devices-list',
   components: {
     pfButtonDelete,
     pfConfigList,

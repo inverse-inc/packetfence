@@ -53,7 +53,7 @@ import {
 const { validationMixin } = require('vuelidate')
 
 export default {
-  name: 'DomainView',
+  name: 'domain-view',
   mixins: [
     validationMixin
   ],

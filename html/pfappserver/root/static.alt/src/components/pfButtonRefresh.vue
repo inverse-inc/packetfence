@@ -13,7 +13,7 @@
 import { createDebouncer } from 'promised-debounce'
 
 export default {
-  name: 'pfButtonRefresh',
+  name: 'pf-button-refresh',
   data () {
     return {
       num: 0,

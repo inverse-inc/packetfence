@@ -49,7 +49,7 @@ import {
 const { validationMixin } = require('vuelidate')
 
 export default {
-  name: 'FingerbankDhcpVendorView',
+  name: 'fingerbank-dhcp-vendor-view',
   mixins: [
     validationMixin
   ],

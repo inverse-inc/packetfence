@@ -37,7 +37,7 @@ import {
 } from '@/globals/configuration/pfConfigurationScans'
 
 export default {
-  name: 'ProfilingDevicesList',
+  name: 'profiling-devices-list',
   components: {
     pfButtonDelete,
     pfConfigList,

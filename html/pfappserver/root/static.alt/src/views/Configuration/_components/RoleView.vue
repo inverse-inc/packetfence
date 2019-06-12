@@ -50,7 +50,7 @@ import {
 const { validationMixin } = require('vuelidate')
 
 export default {
-  name: 'RoleView',
+  name: 'role-view',
   mixins: [
     validationMixin
   ],

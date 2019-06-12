@@ -39,7 +39,7 @@ import pfFormInput from '@/components/pfFormInput'
 import pfFormRow from '@/components/pfFormRow'
 
 export default {
-  name: 'UsersPreview',
+  name: 'users-preview',
   components: {
     pfFormInput,
     pfFormRow

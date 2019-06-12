@@ -4,7 +4,7 @@
 import { createDebouncer } from 'promised-debounce'
 
 export default {
-  name: 'pfMixinValidation',
+  name: 'pf-mixin-validation',
   props: {
     vuelidate: {
       type: Object,

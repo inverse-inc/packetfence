@@ -52,7 +52,7 @@ import {
 const { validationMixin } = require('vuelidate')
 
 export default {
-  name: 'FirewallView',
+  name: 'firewall-view',
   mixins: [
     validationMixin
   ],

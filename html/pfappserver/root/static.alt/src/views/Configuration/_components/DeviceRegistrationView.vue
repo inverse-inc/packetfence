@@ -51,7 +51,7 @@ import {
 const { validationMixin } = require('vuelidate')
 
 export default {
-  name: 'DeviceRegistrationView',
+  name: 'device-registration-view',
   mixins: [
     validationMixin
   ],

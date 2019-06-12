@@ -52,7 +52,7 @@ import {
 const { validationMixin } = require('vuelidate')
 
 export default {
-  name: 'PortalModuleView',
+  name: 'portal-module-view',
   mixins: [
     validationMixin
   ],

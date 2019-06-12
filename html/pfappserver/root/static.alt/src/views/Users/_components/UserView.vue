@@ -280,7 +280,7 @@ import {
 const { validationMixin } = require('vuelidate')
 
 export default {
-  name: 'UserView',
+  name: 'user-view',
   components: {
     pfButtonSave,
     pfButtonDelete,

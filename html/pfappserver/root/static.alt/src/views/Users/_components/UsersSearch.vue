@@ -137,7 +137,7 @@ import pfFormToggle from '@/components/pfFormToggle'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 
 export default {
-  name: 'UsersSearch',
+  name: 'users-search',
   mixins: [
     pfMixinSelectable,
     pfMixinSearchable

@@ -31,7 +31,7 @@ import {
 } from '@/globals/configuration/pfConfigurationFloatingDevices'
 
 export default {
-  name: 'FloatingDevicesList',
+  name: 'floating-devices-list',
   components: {
     pfButtonDelete,
     pfConfigList,

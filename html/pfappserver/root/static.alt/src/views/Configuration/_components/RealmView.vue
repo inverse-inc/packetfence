@@ -51,7 +51,7 @@ import {
 const { validationMixin } = require('vuelidate')
 
 export default {
-  name: 'RealmView',
+  name: 'realm-view',
   mixins: [
     validationMixin
   ],

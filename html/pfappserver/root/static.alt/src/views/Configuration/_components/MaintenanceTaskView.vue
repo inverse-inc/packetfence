@@ -47,7 +47,7 @@ import {
 const { validationMixin } = require('vuelidate')
 
 export default {
-  name: 'MaintenanceTaskView',
+  name: 'maintenance-task-view',
   mixins: [
     validationMixin
   ],

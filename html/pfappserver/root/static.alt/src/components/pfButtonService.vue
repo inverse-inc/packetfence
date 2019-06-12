@@ -40,7 +40,7 @@
 import { blacklistedServices } from '@/store/modules/services'
 
 export default {
-  name: 'pfButtonService',
+  name: 'pf-button-service',
   props: {
     service: {
       type: String,

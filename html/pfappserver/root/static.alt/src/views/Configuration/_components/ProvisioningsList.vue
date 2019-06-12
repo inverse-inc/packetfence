@@ -47,7 +47,7 @@ import {
 } from '@/globals/configuration/pfConfigurationProvisionings'
 
 export default {
-  name: 'ProvisioningsList',
+  name: 'provisionings-list',
   components: {
     pfButtonDelete,
     pfConfigList,

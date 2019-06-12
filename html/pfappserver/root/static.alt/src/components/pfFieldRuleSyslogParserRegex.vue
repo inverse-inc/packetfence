@@ -86,7 +86,7 @@ import pfFormInput from '@/components/pfFormInput'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 
 export default {
-  name: 'pfFieldRuleSyslogParserRegex',
+  name: 'pf-field-rule-syslog-parser-regex',
   components: {
     pfFormFields,
     pfFormInput,

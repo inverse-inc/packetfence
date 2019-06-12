@@ -150,7 +150,7 @@ import {
 } from '@/globals/configuration/pfConfigurationAuthenticationSources'
 
 export default {
-  name: 'AuthenticationSourcesList',
+  name: 'authentication-sources-list',
   components: {
     pfButtonDelete,
     pfConfigList,

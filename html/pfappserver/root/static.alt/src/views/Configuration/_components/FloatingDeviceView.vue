@@ -51,7 +51,7 @@ import {
 const { validationMixin } = require('vuelidate')
 
 export default {
-  name: 'FloatingDeviceView',
+  name: 'floating-device-view',
   mixins: [
     validationMixin
   ],

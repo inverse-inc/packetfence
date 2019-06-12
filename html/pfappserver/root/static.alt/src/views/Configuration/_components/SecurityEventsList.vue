@@ -53,7 +53,7 @@ import {
 } from '@/globals/configuration/pfConfigurationSecurityEvents'
 
 export default {
-  name: 'SecurityEventsList',
+  name: 'security-events-list',
   components: {
     pfButtonDelete,
     pfConfigList,

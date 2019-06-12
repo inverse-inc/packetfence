@@ -52,7 +52,7 @@ import {
 const { validationMixin } = require('vuelidate')
 
 export default {
-  name: 'FingerbankGeneralSettingView',
+  name: 'fingerbank-general-setting-view',
   mixins: [
     validationMixin
   ],

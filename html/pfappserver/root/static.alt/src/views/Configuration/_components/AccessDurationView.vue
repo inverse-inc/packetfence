@@ -36,7 +36,7 @@ import {
 const { validationMixin } = require('vuelidate')
 
 export default {
-  name: 'AccessDurationView',
+  name: 'access-duration-view',
   mixins: [
     validationMixin
   ],

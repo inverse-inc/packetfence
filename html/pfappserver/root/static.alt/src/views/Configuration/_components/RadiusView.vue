@@ -37,7 +37,7 @@ import {
 const { validationMixin } = require('vuelidate')
 
 export default {
-  name: 'RadiusView',
+  name: 'radius-view',
   mixins: [
     validationMixin
   ],

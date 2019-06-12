@@ -79,7 +79,7 @@ import pfSearch from '@/components/pfSearch'
 import pfFormToggle from '@/components/pfFormToggle'
 
 export default {
-  name: 'RadiusLogsSearch',
+  name: 'radius-logs-search',
   mixins: [
     pfMixinSearchable
   ],

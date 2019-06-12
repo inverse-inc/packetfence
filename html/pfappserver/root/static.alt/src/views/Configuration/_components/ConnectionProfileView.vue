@@ -57,7 +57,7 @@ import {
 const { validationMixin } = require('vuelidate')
 
 export default {
-  name: 'ConnectionProfileView',
+  name: 'connection-profile-view',
   mixins: [
     validationMixin
   ],

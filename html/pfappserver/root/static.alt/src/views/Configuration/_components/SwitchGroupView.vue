@@ -51,7 +51,7 @@ import {
 const { validationMixin } = require('vuelidate')
 
 export default {
-  name: 'SwitchGroupView',
+  name: 'switch-group-view',
   mixins: [
     validationMixin
   ],

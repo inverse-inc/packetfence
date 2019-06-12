@@ -47,7 +47,7 @@ import {
 } from '@/globals/configuration/pfConfigurationFingerbank'
 
 export default {
-  name: 'FingerbankMacVendorsList',
+  name: 'fingerbank-mac-vendors-list',
   components: {
     pfButtonDelete,
     pfConfigList,

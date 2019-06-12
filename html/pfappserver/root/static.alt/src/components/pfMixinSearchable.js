@@ -39,7 +39,7 @@ import SearchableStore from '@/store/base/searchable'
 import pfSearch from '@/components/pfSearch'
 
 export default {
-  name: 'pfMixinSearchable',
+  name: 'pf-mixin-searchable',
   components: {
     pfSearch
   },

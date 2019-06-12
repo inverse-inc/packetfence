@@ -51,7 +51,7 @@ import {
 const { validationMixin } = require('vuelidate')
 
 export default {
-  name: 'SwitchView',
+  name: 'switch-view',
   mixins: [
     validationMixin
   ],

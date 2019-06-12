@@ -34,7 +34,7 @@ import {
 const { validationMixin } = require('vuelidate')
 
 export default {
-  name: 'CiscoMobilityServicesEngineView',
+  name: 'cisco-mobility-services-engine-view',
   mixins: [
     validationMixin
   ],

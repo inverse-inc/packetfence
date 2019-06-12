@@ -19,7 +19,7 @@ import DomainsList from './DomainsList'
 import RealmsList from './RealmsList'
 
 export default {
-  name: 'DomainsTabs',
+  name: 'domains-tabs',
   components: {
     DomainsList,
     RealmsList

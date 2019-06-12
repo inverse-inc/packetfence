@@ -51,7 +51,7 @@ import {
 const { validationMixin } = require('vuelidate')
 
 export default {
-  name: 'WmiRuleView',
+  name: 'wmi-rule-view',
   mixins: [
     validationMixin
   ],

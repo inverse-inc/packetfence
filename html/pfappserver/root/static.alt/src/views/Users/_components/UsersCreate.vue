@@ -315,7 +315,7 @@ import { pfConfigurationActions } from '@/globals/configuration/pfConfiguration'
 const { validationMixin } = require('vuelidate')
 
 export default {
-  name: 'UsersCreate',
+  name: 'users-create',
   components: {
     pfFormChosen,
     pfFormDatetime,

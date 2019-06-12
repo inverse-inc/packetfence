@@ -56,7 +56,7 @@ import {
 const { validationMixin } = require('vuelidate')
 
 export default {
-  name: 'RoutedNetworkView',
+  name: 'routed-network-view',
   mixins: [
     validationMixin
   ],

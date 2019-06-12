@@ -79,7 +79,7 @@ import {
 const { validationMixin } = require('vuelidate')
 
 export default {
-  name: 'NodesCreate',
+  name: 'nodes-create',
   components: {
     pfFormAutocomplete,
     pfFormDatetime,

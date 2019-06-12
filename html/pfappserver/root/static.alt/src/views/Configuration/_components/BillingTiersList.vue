@@ -31,7 +31,7 @@ import {
 } from '@/globals/configuration/pfConfigurationBillingTiers'
 
 export default {
-  name: 'BillingTiersList',
+  name: 'billing-tiers-list',
   components: {
     pfButtonDelete,
     pfConfigList,

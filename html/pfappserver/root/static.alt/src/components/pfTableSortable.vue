@@ -74,7 +74,7 @@ import draggable from 'vuedraggable'
 import pfEmptyTable from '@/components/pfEmptyTable'
 
 export default {
-  name: 'pfTableSortable',
+  name: 'pf-table-sortable',
   components: {
     draggable,
     pfEmptyTable

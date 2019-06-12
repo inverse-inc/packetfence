@@ -68,7 +68,7 @@ import pfSearch from '@/components/pfSearch'
 import pfFormToggle from '@/components/pfFormToggle'
 
 export default {
-  name: 'DhcpOption82LogsSearch',
+  name: 'dhcp-option82-logs-search',
   mixins: [
     pfMixinSearchable
   ],

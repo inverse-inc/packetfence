@@ -52,7 +52,7 @@ import {
 const { validationMixin } = require('vuelidate')
 
 export default {
-  name: 'SyslogForwarderView',
+  name: 'syslog-forwarder-view',
   mixins: [
     validationMixin
   ],

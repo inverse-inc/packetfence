@@ -76,7 +76,7 @@ import {
 import pfReportChart from '@/components/pfReportChart'
 
 export default {
-  name: 'StandardReportChart',
+  name: 'standard-report-chart',
   components: {
     pfEmptyTable,
     pfReportChart

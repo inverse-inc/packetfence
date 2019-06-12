@@ -49,7 +49,7 @@ import {
 const { validationMixin } = require('vuelidate')
 
 export default {
-  name: 'FingerbankDhcpv6FingerprintView',
+  name: 'fingerbank-dhcpv6-fingerprint-view',
   mixins: [
     validationMixin
   ],

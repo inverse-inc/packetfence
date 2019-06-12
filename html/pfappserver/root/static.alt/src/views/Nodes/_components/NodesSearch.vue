@@ -178,7 +178,7 @@ import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import convert from '@/utils/convert'
 
 export default {
-  name: 'NodesSearch',
+  name: 'nodes-search',
   mixins: [
     pfMixinSelectable,
     pfMixinSearchable

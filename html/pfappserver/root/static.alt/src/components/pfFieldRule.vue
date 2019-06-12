@@ -96,7 +96,7 @@ import pfFormFields from '@/components/pfFormFields'
 import pfFormInput from '@/components/pfFormInput'
 
 export default {
-  name: 'pfFieldRule',
+  name: 'pf-field-rule',
   components: {
     pfFormChosen,
     pfFormFields,

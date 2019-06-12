@@ -19,7 +19,7 @@ import SwitchesList from './SwitchesList'
 import SwitchGroupsList from './SwitchGroupsList'
 
 export default {
-  name: 'NetworkDeviceTabs',
+  name: 'network-device-tabs',
   components: {
     SwitchesList,
     SwitchGroupsList

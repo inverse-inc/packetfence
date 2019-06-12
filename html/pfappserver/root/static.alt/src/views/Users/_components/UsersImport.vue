@@ -158,7 +158,7 @@ import {
 const { validationMixin } = require('vuelidate')
 
 export default {
-  name: 'UsersImport',
+  name: 'users-import',
   components: {
     'pf-csv-parse': pfCSVParse,
     pfFormDatetime,

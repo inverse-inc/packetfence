@@ -68,7 +68,7 @@ const { validationMixin } = require('vuelidate')
 const { required } = require('vuelidate/lib/validators')
 
 export default {
-  name: 'ConnectionProfileFileView',
+  name: 'connection-profile-file-view',
   mixins: [
     validationMixin
   ],

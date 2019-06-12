@@ -63,7 +63,7 @@ import {
 } from '@/globals/pfValidators'
 
 export default {
-  name: 'NodesImport',
+  name: 'nodes-import',
   components: {
     'pf-csv-parse': pfCSVParse,
     'pf-progress': pfProgress,

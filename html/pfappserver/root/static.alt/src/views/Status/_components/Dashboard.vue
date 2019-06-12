@@ -65,7 +65,7 @@ import Chart, { modes, libs, palettes } from './Chart'
 import pfButtonService from '@/components/pfButtonService'
 
 export default {
-  name: 'Dashboard',
+  name: 'dashboard',
   components: {
     Badge,
     Chart,
