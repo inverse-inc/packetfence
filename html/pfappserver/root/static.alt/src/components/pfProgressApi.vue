@@ -6,7 +6,7 @@
 import { createDebouncer } from 'promised-debounce'
 
 export default {
-  name: 'pfProgressApi',
+  name: 'pf-progress-api',
   data () {
     return {
       visible: false,
