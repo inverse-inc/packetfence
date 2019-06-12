@@ -85,12 +85,12 @@ export default {
       }
     },
     visibleColumns () {
-      return this.columns.filter(column => column.visible)
+      return this.columns.filter(column => column.locked || column.visible)
     },
     searchFields () {
       return [...(new Set([ // unique array
         ...this.searchableOptions.defaultSortKeys, // always include default keys
-        ...this.visibleColumns.filter(column => !column.locked).map(column => column.key)
+        ...this.visibleColumns.map(column => column.key)
       ]))]
     },
     items () {
@@ -233,7 +233,7 @@ export default {
     },
     toggleColumn (column) {
       column.visible = !column.visible
-      this.$store.dispatch(`${this.searchableStoreName}/setVisibleColumns`, this.columns.filter(column => column.visible).map(column => column.key))
+      this.$store.dispatch(`${this.searchableStoreName}/setVisibleColumns`, this.columns.filter(column => column.locked || column.visible).map(column => column.key))
       this.$store.dispatch(`${this.searchableStoreName}/setSearchFields`, this.searchFields)
       if (column.visible) {
         this.$store.dispatch(`${this.searchableStoreName}/search`, this.requestPage)
