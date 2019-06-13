@@ -90,6 +90,7 @@ const actions = {
   },
   closeViewer: ({ commit, state }) => {
     if (state.showViewer) {
+      commit('FULLSCREEN_OFF')
       commit('VIEWER_CLOSE')
     }
   },
