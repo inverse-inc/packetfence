@@ -118,6 +118,10 @@ func (d *Dispatcher) Stop() {
 		d.Workers[i].Stop()
 	}
 
+	d.Wait()
+}
+
+func (d *Dispatcher) Wait() {
 	d.waitGroup.Wait()
 }
 
