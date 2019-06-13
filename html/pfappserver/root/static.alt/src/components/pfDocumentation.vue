@@ -363,6 +363,11 @@ export default {
           this.scrollToSection(a)
         }
       }
+    },
+    '$route' (to, from) {
+      if (from.path.split('/')[1] !== to.path.split('/')[1]) {
+        this.$store.dispatch('documentation/closeViewer')
+      }
     }
   },
   mounted () {
