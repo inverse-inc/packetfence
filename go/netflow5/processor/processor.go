@@ -11,14 +11,26 @@ import (
 	"unsafe"
 )
 
-type Handler func(header *netflow5.Header, i int, flow *netflow5.Flow)
+type FlowHandler func(header *netflow5.Header, i int, flow *netflow5.Flow)
 
 type Processor struct {
-	Conn              net.PacketConn
-	Handler           Handler
-	Workers           int
-	BacklogSize       int
-	MaxPacketSize     int
+	// Conn a net.PacketConn.
+	// Default : UDPConn listining at 127.0.0.1:2055.
+	Conn net.PacketConn
+	// Handler a FlowHandler function to handle the netflow5 flows
+	// Required.
+	Handler FlowHandler
+	// Workers the number of worker to work on the queue
+	// Default : The number of CPUS
+	Workers int
+	// Backlog how many packets are can be queued before being processed
+	// Defaults : 100
+	Backlog int
+	// PacketSize size of packet going to be received
+	// Default : 2048
+	PacketSize int
+	// ByteArrayPoolSize the number byte arrays to have avialable in the pool.
+	// Default : Twice as many workers
 	ByteArrayPoolSize int
 	byteArrayPool     *bytearraypool.ByteArrayPool
 	stopChan          chan struct{}
@@ -33,19 +45,19 @@ func (p *Processor) setDefaults() {
 		p.Workers = runtime.GOMAXPROCS(0)
 	}
 
-	if p.MaxPacketSize <= 0 {
-		p.MaxPacketSize = 2048
+	if p.PacketSize <= 0 {
+		p.PacketSize = 2048
 	}
 
-	if p.BacklogSize <= 0 {
-		p.BacklogSize = 100
+	if p.Backlog <= 0 {
+		p.Backlog = 100
 	}
 
 	if p.ByteArrayPoolSize <= 0 {
 		p.ByteArrayPoolSize = p.Workers * 2
 	}
 
-	p.byteArrayPool = bytearraypool.NewByteArrayPool(p.ByteArrayPoolSize, p.MaxPacketSize)
+	p.byteArrayPool = bytearraypool.NewByteArrayPool(p.ByteArrayPoolSize, p.PacketSize)
 
 	if p.Conn == nil {
 		conn, err := net.ListenPacket("udp", "127.0.0.1:2055")
@@ -61,7 +73,7 @@ func (p *Processor) setDefaults() {
 	}
 }
 
-func BytesHandlerForNetFlow5Handler(h Handler) bytesdispatcher.BytesHandler {
+func bytesHandlerForNetFlow5Handler(h FlowHandler) bytesdispatcher.BytesHandler {
 	return func(buffer []byte) {
 		var data *netflow5.NetFlow5
 		data = (*netflow5.NetFlow5)(unsafe.Pointer(&buffer[0]))
@@ -73,9 +85,10 @@ func BytesHandlerForNetFlow5Handler(h Handler) bytesdispatcher.BytesHandler {
 }
 
 func (p *Processor) dispatcher() *bytesdispatcher.Dispatcher {
-	return bytesdispatcher.NewDispatcher(p.Workers, p.BacklogSize, BytesHandlerForNetFlow5Handler(p.Handler), p.byteArrayPool)
+	return bytesdispatcher.NewDispatcher(p.Workers, p.Backlog, bytesHandlerForNetFlow5Handler(p.Handler), p.byteArrayPool)
 }
 
+// Stop stops the processor.
 func (p *Processor) Stop() {
 	c := p.stopChan
 	p.stopChan = nil
@@ -92,6 +105,7 @@ func (p *Processor) isCloseError(err error) bool {
 	return strings.Contains(str, "use of closed network connection")
 }
 
+// Start starts the processor.
 func (p *Processor) Start() {
 	p.setDefaults()
 	dispatcher := p.dispatcher()
