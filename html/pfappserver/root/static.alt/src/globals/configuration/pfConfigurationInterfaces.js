@@ -165,12 +165,12 @@ export const pfConfigurationInterfacesListColumns = [
   {
     key: 'is_running',
     label: i18n.t('Status'),
-    sortable: false,
     visible: true
   },
   {
     key: 'id',
     label: i18n.t('Logical Name'),
+    required: true,
     sortable: true,
     visible: true,
     sort: pfConfigurationInterfacesSortColumns.id
@@ -211,27 +211,22 @@ export const pfConfigurationInterfacesListColumns = [
   {
     key: 'type',
     label: i18n.t('Type'),
-    sortable: false,
     visible: true,
     formatter: pfConfigurationInterfacesTypeFormatter
   },
   {
     key: 'additional_listening_daemons',
     label: i18n.t('Daemons'),
-    sortable: false,
     visible: true
   },
   {
     key: 'high_availability',
     label: i18n.t('High Availability'),
-    sortable: false,
     visible: true
   },
   {
     key: 'buttons',
     label: '',
-    sortable: false,
-    visible: false,
     locked: true
   }
 ]

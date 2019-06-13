@@ -457,8 +457,6 @@ export default {
         {
           key: 'actions',
           label: this.$i18n.t('Actions'),
-          sortable: false,
-          visible: true,
           locked: true,
           formatter: (value, key, item) => {
             return item.mac
@@ -467,8 +465,7 @@ export default {
         {
           key: 'tenant_id',
           label: this.$i18n.t('Tenant'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'status',
@@ -485,6 +482,7 @@ export default {
         {
           key: 'mac',
           label: this.$i18n.t('MAC Address'),
+          required: true,
           sortable: true,
           visible: true
         },
@@ -492,7 +490,6 @@ export default {
           key: 'detect_date',
           label: this.$i18n.t('Detected Date'),
           sortable: true,
-          visible: false,
           formatter: formatter.datetimeIgnoreZero,
           class: 'text-nowrap'
         },
@@ -500,7 +497,6 @@ export default {
           key: 'regdate',
           label: this.$i18n.t('Registration Date'),
           sortable: true,
-          visible: false,
           formatter: formatter.datetimeIgnoreZero,
           class: 'text-nowrap'
         },
@@ -508,7 +504,6 @@ export default {
           key: 'unregdate',
           label: this.$i18n.t('Unregistration Date'),
           sortable: true,
-          visible: false,
           formatter: formatter.datetimeIgnoreZero,
           class: 'text-nowrap'
         },
@@ -533,8 +528,7 @@ export default {
         {
           key: 'ip6log.ip',
           label: this.$i18n.t('IPv6 Address'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'device_class',
@@ -545,44 +539,37 @@ export default {
         {
           key: 'device_manufacturer',
           label: this.$i18n.t('Device Manufacturer'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'device_score',
           label: this.$i18n.t('Device Score'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'device_type',
           label: this.$i18n.t('Device Type'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'device_version',
           label: this.$i18n.t('Device Version'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'dhcp6_enterprise',
           label: this.$i18n.t('DHCPv6 Enterprise'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'dhcp6_fingerprint',
           label: this.$i18n.t('DHCPv6 Fingerprint'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'dhcp_fingerprint',
           label: this.$i18n.t('DHCP Fingerprint'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'category_id',
@@ -594,93 +581,78 @@ export default {
         {
           key: 'locationlog.connection_type',
           label: this.$i18n.t('Connection Type'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'locationlog.session_id',
           label: this.$i18n.t('Session ID'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'locationlog.switch',
           label: this.$i18n.t('Switch Identifier'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'locationlog.switch_ip',
           label: this.$i18n.t('Switch IP Address'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'locationlog.switch_mac',
           label: this.$i18n.t('Switch MAC Address'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'locationlog.port',
           label: this.$i18n.t('Switch Port'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'locationlog.ifDesc',
           label: this.$i18n.t('Switch Port Description'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'locationlog.ifDesc',
           label: this.$i18n.t('Switch Description'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'locationlog.ssid',
           label: this.$i18n.t('SSID'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'locationlog.vlan',
           label: this.$i18n.t('VLAN'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'bypass_vlan',
           label: this.$i18n.t('Bypass VLAN'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'bypass_role_id',
           label: this.$i18n.t('Bypass Role'),
           sortable: true,
-          visible: false,
           formatter: formatter.bypassRoleId
         },
         {
           key: 'notes',
           label: this.$i18n.t('Notes'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'voip',
           label: this.$i18n.t('VoIP'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'last_arp',
           label: this.$i18n.t('Last ARP'),
           sortable: true,
-          visible: false,
           formatter: formatter.datetimeIgnoreZero,
           class: 'text-nowrap'
         },
@@ -688,45 +660,38 @@ export default {
           key: 'last_dhcp',
           label: this.$i18n.t('Last DHCP'),
           sortable: true,
-          visible: false,
           formatter: formatter.datetimeIgnoreZero,
           class: 'text-nowrap'
         },
         {
           key: 'machine_account',
           label: this.$i18n.t('Machine Account'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'autoreg',
           label: this.$i18n.t('Auto Registration'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'bandwidth_balance',
           label: this.$i18n.t('Bandwidth Balance'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'time_balance',
           label: this.$i18n.t('Time Balance'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'user_agent',
           label: this.$i18n.t('User Agent'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'security_event.open_security_event_id',
           label: this.$i18n.t('Security Event Open'),
           sortable: true,
-          visible: false,
           class: 'text-nowrap',
           formatter: formatter.securityEventIdsToDescCsv
         },
@@ -735,7 +700,6 @@ export default {
           key: 'security_event.open_count',
           label: this.$i18n.t('Security Event Open Count'),
           sortable: true,
-          visible: false,
           class: 'text-nowrap'
         },
         */
@@ -743,7 +707,6 @@ export default {
           key: 'security_event.close_security_event_id',
           label: this.$i18n.t('Security Event Closed'),
           sortable: true,
-          visible: false,
           class: 'text-nowrap',
           formatter: formatter.securityEventIdsToDescCsv
         }
@@ -752,7 +715,6 @@ export default {
           key: 'security_event.close_count',
           label: this.$i18n.t('Security Event Closed Count'),
           sortable: true,
-          visible: false,
           class: 'text-nowrap'
         }
         */

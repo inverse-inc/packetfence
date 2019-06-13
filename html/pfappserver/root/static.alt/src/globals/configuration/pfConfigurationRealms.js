@@ -24,6 +24,7 @@ export const pfConfigurationRealmsListColumns = [
   {
     key: 'id',
     label: i18n.t('Name'),
+    required: true,
     sortable: true,
     visible: true
   },
@@ -36,13 +37,11 @@ export const pfConfigurationRealmsListColumns = [
   {
     key: 'radius_auth',
     label: i18n.t('RADIUS Authentication'),
-    sortable: false,
     visible: true
   },
   {
     key: 'radius_acct',
     label: i18n.t('RADIUS Accounting'),
-    sortable: false,
     visible: true
   },
   {
@@ -66,8 +65,6 @@ export const pfConfigurationRealmsListColumns = [
   {
     key: 'buttons',
     label: '',
-    sortable: false,
-    visible: true,
     locked: true
   }
 ]

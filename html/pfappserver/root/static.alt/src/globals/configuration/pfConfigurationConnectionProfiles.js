@@ -274,6 +274,7 @@ export const pfConfigurationConnectionProfilesListColumns = [
   {
     key: 'status',
     label: i18n.t('Status'),
+    required: true,
     sortable: true,
     visible: true
   },
@@ -292,8 +293,6 @@ export const pfConfigurationConnectionProfilesListColumns = [
   {
     key: 'buttons',
     label: '',
-    sortable: false,
-    visible: true,
     locked: true
   }
 ]
@@ -968,6 +967,7 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
                     key: 'name',
                     label: i18n.t('Name'),
                     class: 'w-50',
+                    required: true,
                     sortable: true
                   },
                   {
@@ -987,8 +987,6 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
                   {
                     key: 'buttons',
                     label: '',
-                    sortable: false,
-                    visible: true,
                     locked: true
                   }
                 ],

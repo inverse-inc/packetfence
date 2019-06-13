@@ -27,6 +27,7 @@ export const pfConfigurationSecurityEventsListColumns = [
   {
     key: 'enabled',
     label: i18n.t('Status'),
+    required: true,
     sortable: true,
     visible: true
   },
@@ -51,20 +52,16 @@ export const pfConfigurationSecurityEventsListColumns = [
   {
     key: 'template',
     label: i18n.t('Template'),
-    sortable: false,
     visible: true
   },
   {
     key: 'vlan',
     label: i18n.t('Target Category'),
-    sortable: false,
     visible: true
   },
   {
     key: 'buttons',
     label: '',
-    sortable: false,
-    visible: true,
     locked: true
   }
 ]

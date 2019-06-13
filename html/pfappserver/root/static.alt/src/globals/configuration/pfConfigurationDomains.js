@@ -25,6 +25,7 @@ export const pfConfigurationDomainsListColumns = [
   {
     key: 'id',
     label: i18n.t('Identifier'),
+    required: true,
     sortable: true,
     visible: true
   },
@@ -43,15 +44,11 @@ export const pfConfigurationDomainsListColumns = [
   {
     key: 'joined',
     label: i18n.t('Test Join'),
-    sortable: true,
-    visible: true,
     locked: true
   },
   {
     key: 'buttons',
     label: '',
-    sortable: false,
-    visible: true,
     locked: true
   }
 ]

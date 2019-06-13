@@ -35,6 +35,7 @@ export const pfConfigurationAuthenticationSourcesListColumns = [
   {
     key: 'id',
     label: i18n.t('Name'),
+    required: true,
     sortable: true,
     visible: true
   },
@@ -53,8 +54,6 @@ export const pfConfigurationAuthenticationSourcesListColumns = [
   {
     key: 'buttons',
     label: '',
-    sortable: false,
-    visible: true,
     locked: true
   }
 ]

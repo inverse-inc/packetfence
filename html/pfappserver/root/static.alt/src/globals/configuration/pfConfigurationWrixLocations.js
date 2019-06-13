@@ -20,14 +20,13 @@ export const pfConfigurationWrixLocationsListColumns = [
   {
     key: 'id',
     label: i18n.t('WRIX Identifier'),
+    required: true,
     sortable: true,
     visible: true
   },
   {
     key: 'buttons',
     label: '',
-    sortable: false,
-    visible: true,
     locked: true
   }
 ]

@@ -23,6 +23,7 @@ export const pfConfigurationWmiRulesListColumns = [
   {
     key: 'id',
     label: i18n.t('WMI Rule'),
+    required: true,
     sortable: true,
     visible: true
   },
@@ -41,8 +42,6 @@ export const pfConfigurationWmiRulesListColumns = [
   {
     key: 'buttons',
     label: '',
-    sortable: false,
-    visible: true,
     locked: true
   }
 ]

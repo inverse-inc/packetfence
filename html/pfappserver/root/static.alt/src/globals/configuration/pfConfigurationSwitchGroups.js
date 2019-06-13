@@ -35,6 +35,7 @@ export const pfConfigurationSwitchGroupsListColumns = [
   {
     key: 'id',
     label: i18n.t('Identifier'),
+    required: true,
     sortable: true,
     visible: true
   },
@@ -59,8 +60,6 @@ export const pfConfigurationSwitchGroupsListColumns = [
   {
     key: 'buttons',
     label: '',
-    sortable: false,
-    visible: true,
     locked: true
   }
 ]
