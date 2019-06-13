@@ -5,7 +5,15 @@ import (
 	"sync"
 )
 
-type BytesHandler func([]byte)
+type BytesHandler interface {
+    HandleBytes([]byte)
+}
+
+type BytesHandlerFunc func([]byte)
+
+func (f BytesHandlerFunc) HandleBytes(bytes []byte) {
+    f(bytes)
+}
 
 type Worker struct {
 	WorkerPool    chan chan []byte
@@ -33,7 +41,7 @@ func InitWorker(w *Worker, workerPool chan chan []byte, bytesHandler BytesHandle
 
 func (w *Worker) HandleBytes(bytes []byte) {
 	defer w.byteArrayPool.Put(bytes)
-	w.bytesHandler(bytes)
+	w.bytesHandler.HandleBytes(bytes)
 }
 
 func (w *Worker) Start() {
