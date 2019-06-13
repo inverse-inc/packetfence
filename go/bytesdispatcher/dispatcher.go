@@ -5,58 +5,54 @@ import (
 	"sync"
 )
 
+// BytesHandler an interface for handling bytes
 type BytesHandler interface {
-    HandleBytes([]byte)
+	HandleBytes([]byte)
 }
 
+// BytesHandlerFunc a wrapper interface for function for BytesHandler
 type BytesHandlerFunc func([]byte)
 
 func (f BytesHandlerFunc) HandleBytes(bytes []byte) {
-    f(bytes)
+	f(bytes)
 }
 
-type Worker struct {
-	WorkerPool    chan chan []byte
-	JobChannel    chan []byte
+type worker struct {
+	workerPool    chan chan []byte
+	jobChannel    chan []byte
 	bytesHandler  BytesHandler
 	byteArrayPool *bytearraypool.ByteArrayPool
-	StopChannel   chan struct{}
+	stopChannel   chan struct{}
 	waitGroup     *sync.WaitGroup
 }
 
-func NewWorker(workerPool chan chan []byte, bytesHandler BytesHandler, byteArrayPool *bytearraypool.ByteArrayPool, waitGroup *sync.WaitGroup) *Worker {
-	w := &Worker{}
-	InitWorker(w, workerPool, bytesHandler, byteArrayPool, waitGroup)
-	return w
-}
-
-func InitWorker(w *Worker, workerPool chan chan []byte, bytesHandler BytesHandler, byteArrayPool *bytearraypool.ByteArrayPool, waitGroup *sync.WaitGroup) {
-	w.WorkerPool = workerPool
+func initWorker(w *worker, workerPool chan chan []byte, bytesHandler BytesHandler, byteArrayPool *bytearraypool.ByteArrayPool, waitGroup *sync.WaitGroup) {
+	w.workerPool = workerPool
 	w.bytesHandler = bytesHandler
 	w.byteArrayPool = byteArrayPool
-	w.JobChannel = make(chan []byte)
-	w.StopChannel = make(chan struct{})
+	w.jobChannel = make(chan []byte)
+	w.stopChannel = make(chan struct{})
 	w.waitGroup = waitGroup
 }
 
-func (w *Worker) HandleBytes(bytes []byte) {
+func (w *worker) handleBytes(bytes []byte) {
 	defer w.byteArrayPool.Put(bytes)
 	w.bytesHandler.HandleBytes(bytes)
 }
 
-func (w *Worker) Start() {
+func (w *worker) start() {
 	go func() {
 		defer w.waitGroup.Done()
 	LOOP:
 		for {
 			// register the current worker into the worker queue.
-			w.WorkerPool <- w.JobChannel
+			w.workerPool <- w.jobChannel
 
 			select {
-			case job := <-w.JobChannel:
-				w.HandleBytes(job)
+			case job := <-w.jobChannel:
+				w.handleBytes(job)
 
-			case <-w.StopChannel:
+			case <-w.stopChannel:
 				// we have received a signal to stop
 				break LOOP
 			}
@@ -64,71 +60,77 @@ func (w *Worker) Start() {
 
 		// Handle any leftover jobs
 		select {
-		case job := <-w.JobChannel:
-			w.HandleBytes(job)
+		case job := <-w.jobChannel:
+			w.handleBytes(job)
 		default:
 			return
 		}
 	}()
 }
 
-func (w *Worker) Stop() {
+func (w *worker) stop() {
 	go func() {
-		w.StopChannel <- struct{}{}
+		w.stopChannel <- struct{}{}
 	}()
 }
 
+// Dispatcher dispatches work to a set of workers
 type Dispatcher struct {
 	// A pool of workers channels that are registered with the dispatcher
 	maxWorkers    int
 	byteArrayPool *bytearraypool.ByteArrayPool
 	bytesHandler  BytesHandler
-	JobQueue      chan []byte
-	WorkerPool    chan chan []byte
-	Workers       []Worker
+	jobQueue      chan []byte
+	workerPool    chan chan []byte
+	workers       []worker
 	waitGroup     sync.WaitGroup
 }
 
+// NewDispatcher create a new Dispatcher
 func NewDispatcher(maxWorkers, jobQueueSize int, bytesHandler BytesHandler, byteArrayPool *bytearraypool.ByteArrayPool) *Dispatcher {
 	return &Dispatcher{
 		maxWorkers:    maxWorkers,
 		bytesHandler:  bytesHandler,
 		byteArrayPool: byteArrayPool,
-		JobQueue:      make(chan []byte, jobQueueSize),
-		WorkerPool:    make(chan chan []byte, maxWorkers),
+		jobQueue:      make(chan []byte, jobQueueSize),
+		workerPool:    make(chan chan []byte, maxWorkers),
 	}
 }
 
+// SubmitJob submit a byte array to be processed
 func (d *Dispatcher) SubmitJob(job []byte) {
 	select {
-	case d.JobQueue <- job:
+	case d.jobQueue <- job:
 	default:
 		go func() {
-			d.JobQueue <- job
+			d.jobQueue <- job
 		}()
 	}
 }
 
+// Run the dispatcher
 func (d *Dispatcher) Run() {
 	// starting n number of workers
-	d.Workers = make([]Worker, d.maxWorkers)
+	d.workers = make([]worker, d.maxWorkers)
 	d.waitGroup.Add(d.maxWorkers)
 	for i := 0; i < d.maxWorkers; i++ {
-		InitWorker(&d.Workers[i], d.WorkerPool, d.bytesHandler, d.byteArrayPool, &d.waitGroup)
-		d.Workers[i].Start()
+		initWorker(&d.workers[i], d.workerPool, d.bytesHandler, d.byteArrayPool, &d.waitGroup)
+		d.workers[i].start()
 	}
 
 	go d.dispatch()
 }
 
+// Stop the dispatcher
 func (d *Dispatcher) Stop() {
-	for i := range d.Workers {
-		d.Workers[i].Stop()
+	for i := range d.workers {
+		d.workers[i].stop()
 	}
 
 	d.Wait()
 }
 
+// Wait for all the workers to be finished
 func (d *Dispatcher) Wait() {
 	d.waitGroup.Wait()
 }
@@ -137,15 +139,15 @@ func (d *Dispatcher) dispatch() {
 	for {
 		select {
 		// a job request has been received
-		case job := <-d.JobQueue:
+		case job := <-d.jobQueue:
 			select {
 			// Take care of it right away
-			case jobChannel := <-d.WorkerPool:
+			case jobChannel := <-d.workerPool:
 				jobChannel <- job
 			// No workers available put it in a go routine
 			default:
 				go func(job []byte) {
-					jobChannel := <-d.WorkerPool
+					jobChannel := <-d.workerPool
 					jobChannel <- job
 				}(job)
 			}
