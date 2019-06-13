@@ -11,7 +11,15 @@ import (
 	"unsafe"
 )
 
-type FlowHandler func(header *netflow5.Header, i int, flow *netflow5.Flow)
+type FlowHandler interface {
+    HandleFlow(header *netflow5.Header, i int, flow *netflow5.Flow)
+}
+
+type FlowHandlerFunc func(header *netflow5.Header, i int, flow *netflow5.Flow)
+
+func (f FlowHandlerFunc) HandleFlow(header *netflow5.Header, i int, flow *netflow5.Flow) {
+    f(header, i, flow)
+}
 
 type Processor struct {
 	// Conn a net.PacketConn.
@@ -77,14 +85,16 @@ func (p *Processor) setDefaults() {
 }
 
 func bytesHandlerForNetFlow5Handler(h FlowHandler) bytesdispatcher.BytesHandler {
-	return func(buffer []byte) {
-		var data *netflow5.NetFlow5
-		data = (*netflow5.NetFlow5)(unsafe.Pointer(&buffer[0]))
-		count := data.Header.Length()
-		for i := 0; i < int(count); i++ {
-			h(&data.Header, i, &data.Flows[i])
-		}
-	}
+	return bytesdispatcher.BytesHandlerFunc(
+        func(buffer []byte) {
+            var data *netflow5.NetFlow5
+            data = (*netflow5.NetFlow5)(unsafe.Pointer(&buffer[0]))
+            count := data.Header.Length()
+            for i := 0; i < int(count); i++ {
+                h.HandleFlow(&data.Header, i, &data.Flows[i])
+            }
+        },
+    )
 }
 
 // Stop stops the processor.
