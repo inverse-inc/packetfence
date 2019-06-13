@@ -21,7 +21,7 @@ type Processor struct {
 	// Required.
 	Handler FlowHandler
 	// Workers the number of worker to work on the queue
-	// Default : The number of CPUS
+	// Default : The number of runtime.GOMAXPROCS
 	Workers int
 	// Backlog how many packets are can be queued before being processed
 	// Defaults : 100
@@ -34,6 +34,7 @@ type Processor struct {
 	ByteArrayPoolSize int
 	byteArrayPool     *bytearraypool.ByteArrayPool
 	stopChan          chan struct{}
+	dispatcher        *bytesdispatcher.Dispatcher
 }
 
 func (p *Processor) setDefaults() {
@@ -71,6 +72,8 @@ func (p *Processor) setDefaults() {
 	if p.stopChan == nil {
 		p.stopChan = make(chan struct{}, 1)
 	}
+
+	p.dispatcher = bytesdispatcher.NewDispatcher(p.Workers, p.Backlog, bytesHandlerForNetFlow5Handler(p.Handler), p.byteArrayPool)
 }
 
 func bytesHandlerForNetFlow5Handler(h FlowHandler) bytesdispatcher.BytesHandler {
@@ -84,16 +87,18 @@ func bytesHandlerForNetFlow5Handler(h FlowHandler) bytesdispatcher.BytesHandler 
 	}
 }
 
-func (p *Processor) dispatcher() *bytesdispatcher.Dispatcher {
-	return bytesdispatcher.NewDispatcher(p.Workers, p.Backlog, bytesHandlerForNetFlow5Handler(p.Handler), p.byteArrayPool)
-}
-
 // Stop stops the processor.
 func (p *Processor) Stop() {
 	c := p.stopChan
 	p.stopChan = nil
 	c <- struct{}{}
 	p.Conn.Close()
+}
+
+// StopAndWait stops the processor and wait for the dispatcher to cleanup
+func (p *Processor) StopAndWait() {
+	p.Stop()
+	p.dispatcher.Wait()
 }
 
 func (p *Processor) isCloseError(err error) bool {
@@ -108,7 +113,7 @@ func (p *Processor) isCloseError(err error) bool {
 // Start starts the processor.
 func (p *Processor) Start() {
 	p.setDefaults()
-	dispatcher := p.dispatcher()
+	dispatcher := p.dispatcher
 	dispatcher.Run()
 	stopChan := p.stopChan
 
