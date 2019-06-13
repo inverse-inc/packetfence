@@ -348,12 +348,14 @@ const actions = {
   getClusterServices: ({ state, commit }) => {
     if (state.clusterServicesStatus !== types.LOADING) {
       commit('CLUSTER_SERVICES_REQUEST')
-      return api.clusterServices().then(servers => {
-        commit('CLUSTER_SERVICES_UPDATED', servers)
-        return servers
-      }).catch(err => {
-        commit('CLUSTER_SERVICES_ERROR')
-        throw err
+      Promise.all(state.cluster.map(server => {
+        return api.clusterServices(server.host).then(server => {
+          commit('CLUSTER_SERVICES_UPDATED', server)
+        }).catch(() => {
+          // Ignore error -- don't let Promise.all immediately rejects with an error
+        })
+      })).then(() => {
+        commit('CLUSTER_SERVICES_UPDATED')
       })
     }
   }
@@ -480,9 +482,13 @@ const mutations = {
   CLUSTER_SERVICES_REQUEST: (state) => {
     state.clusterServicesStatus = types.LOADING
   },
-  CLUSTER_SERVICES_UPDATED: (state, servers) => {
-    state.clusterServicesStatus = types.SUCCESS
-    state.clusterServices = servers
+  CLUSTER_SERVICES_UPDATED: (state, server) => {
+    if (server) {
+      state.clusterServices.push(server)
+    } else {
+      // No more data -- done fetching services
+      state.clusterServicesStatus = types.SUCCESS
+    }
   },
   CLUSTER_SERVICES_ERROR: (state) => {
     state.clusterStatus = types.ERROR
