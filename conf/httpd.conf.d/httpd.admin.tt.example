@@ -58,6 +58,12 @@
   <IfModule !mod_apreq2.c>
     LoadModule apreq_module /usr/lib/apache2/modules/mod_apreq2.so
   </IfModule>
+  <IfModule !mod_deflate.c>
+    LoadModule deflate_module /usr/lib/apache2/modules/mod_deflate.so
+  </IfModule>
+  <IfModule !mod_filter.c>
+    LoadModule filter_module /usr/lib/apache2/modules/mod_filter.so
+  </IfModule>
   <IfModule !mod_env.c>
       LoadModule env_module /usr/lib/apache2/modules/mod_env.so
   </IfModule>
@@ -120,6 +126,12 @@
   </IfModule>
   <IfModule !mod_apreq2.c>
     LoadModule apreq_module modules/mod_apreq2.so
+  </IfModule>
+  <IfModule !mod_deflate.c>
+    LoadModule deflate_module modules/mod_deflate.so
+  </IfModule>
+  <IfModule !mod_filter.c>
+    LoadModule filter_module modules/mod_filter.so
   </IfModule>
   <IfModule !mod_headers.c>
     LoadModule headers_module modules/mod_headers.so
@@ -257,7 +269,7 @@ SetEnvIf Request_URI "netdata" is_netdata
       ProxyRequests off
       ProxyPreserveHost on
       ProxyVia off
-      #Html cleanup for the portal preview
+      # HTML cleanup for the portal preview
       ProxyRequests off
       ProxyPass /portal_preview/ http://[% preview_ip %]/
       ProxyPassReverse /portal_preview/ http://[% preview_ip %]/
@@ -278,11 +290,14 @@ SetEnvIf Request_URI "netdata" is_netdata
       # for HTTPS (if the virtualhost is HTTPS, use this)
       RewriteRule "^/netdata/([A-Za-z0-9\._-]+)$" https://%{HTTP_HOST}/netdata/$1/ [L,R=301]
 
-      #API access from the admin
+      # API access from the admin
       SSLProxyVerify none
       SSLProxyCheckPeerCN off
       SSLProxyCheckPeerName off
       SSLProxyCheckPeerExpire off
+
+      # Deflate text resources
+      AddOutputFilterByType DEFLATE text/html text/plain text/css application/javascript application/json
 
       <Location /api >
         ProxyPass "https://127.0.0.1:9999/api" connectiontimeout=5 timeout=600 keepalive=on
