@@ -70,6 +70,9 @@ sub getInterfaceForGateway {
 
         my $network = $interfaces_ref->{$interface}->{'network'};
         my $netmask = $interfaces_ref->{$interface}->{'netmask'};
+
+        next if(!defined($network) or !defined($netmask));
+
         my $subnet  = new Net::Netmask($network, $netmask);
 
         return $interface if ( $subnet->match($gateway) );
