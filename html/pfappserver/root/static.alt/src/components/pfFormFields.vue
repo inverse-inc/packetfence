@@ -75,13 +75,11 @@
 <script>
 import uuidv4 from 'uuid/v4'
 import draggable from 'vuedraggable'
-import pfMixinCtrlKey from '@/components/pfMixinCtrlKey'
 import pfMixinValidation from '@/components/pfMixinValidation'
 
 export default {
   name: 'pf-form-fields',
   mixins: [
-    pfMixinCtrlKey,
     pfMixinValidation
   ],
   components: {
@@ -163,6 +161,9 @@ export default {
     },
     canDel () {
       return (!this.disabled && (!this.minFields || this.minFields < this.value.length))
+    },
+    ctrlKey () {
+      return this.$store.getters['events/ctrlKey']
     }
   },
   methods: {

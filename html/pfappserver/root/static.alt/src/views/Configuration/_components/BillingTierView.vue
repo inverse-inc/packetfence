@@ -42,8 +42,6 @@
 import pfConfigView from '@/components/pfConfigView'
 import pfButtonSave from '@/components/pfButtonSave'
 import pfButtonDelete from '@/components/pfButtonDelete'
-import pfMixinCtrlKey from '@/components/pfMixinCtrlKey'
-import pfMixinEscapeKey from '@/components/pfMixinEscapeKey'
 import {
   pfConfigurationDefaultsFromMeta as defaults
 } from '@/globals/configuration/pfConfiguration'
@@ -55,9 +53,7 @@ const { validationMixin } = require('vuelidate')
 export default {
   name: 'BillingTierView',
   mixins: [
-    validationMixin,
-    pfMixinCtrlKey,
-    pfMixinEscapeKey
+    validationMixin
   ],
   components: {
     pfConfigView,
@@ -116,6 +112,12 @@ export default {
         return false
       }
       return true
+    },
+    ctrlKey () {
+      return this.$store.getters['events/ctrlKey']
+    },
+    escapeKey () {
+      return this.$store.getters['events/escapeKey']
     }
   },
   methods: {
@@ -178,6 +180,9 @@ export default {
       handler: function (a, b) {
         this.init()
       }
+    },
+    escapeKey (pressed) {
+      if (pressed) this.close()
     }
   }
 }

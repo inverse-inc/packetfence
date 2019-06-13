@@ -124,6 +124,9 @@ export default {
         return _filterSection(section)
       })
       return filteredSections.filter(section => section !== undefined)
+    },
+    altShiftFKey () {
+      return this.$store.getters['events/altShiftFKey']
     }
   },
   methods: {
@@ -152,6 +155,15 @@ export default {
           }
         })
       }
+    },
+    focusFilter () {
+      const { $refs: { filter: { $el } = {} } = {} } = this
+      if ($el) {
+        $el.focus()
+        this.$nextTick(() => {
+          $el.select()
+        })
+      }
     }
   },
   watch: {
@@ -163,7 +175,13 @@ export default {
     },
     value (newValue) {
       this.findActiveSections(newValue, [])
+    },
+    altShiftFKey (pressed) {
+      if (pressed) this.focusFilter()
     }
+  },
+  mounted () {
+    this.focusFilter()
   }
 }
 </script>

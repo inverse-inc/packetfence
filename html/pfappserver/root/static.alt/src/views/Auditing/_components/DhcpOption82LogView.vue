@@ -44,6 +44,9 @@ export default {
   computed: {
     isLoading () {
       return this.$store.getters[`${this.storeName}/isLoading`]
+    },
+    escapeKey () {
+      return this.$store.getters['events/escapeKey']
     }
   },
   methods: {
@@ -57,22 +60,15 @@ export default {
     },
     close () {
       this.$router.push({ name: 'dhcpoption82s' })
-    },
-    onKeyup (event) {
-      switch (event.keyCode) {
-        case 27: // escape
-          this.close()
-      }
     }
-  },
-  mounted () {
-    document.addEventListener('keyup', this.onKeyup)
   },
   created () {
     this.init()
   },
-  beforeDestroy () {
-    document.removeEventListener('keyup', this.onKeyup)
+  watch: {
+    escapeKey (pressed) {
+      if (pressed) this.close()
+    }
   }
 }
 </script>

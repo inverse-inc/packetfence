@@ -135,5 +135,8 @@ new Vue({
   render: h => h(App),
   router,
   store,
-  i18n
+  i18n,
+  mounted () {
+    store.dispatch('events/bind')
+  }
 }).$mount('#app')

@@ -1,6 +1,5 @@
 <template>
   <div>
-
     <b-card no-body>
       <b-progress height="2px" :value="progressValue" :max="progressTotal" v-show="progressValue > 0 && progressValue < progressTotal"></b-progress>
       <b-card-header>
@@ -13,7 +12,14 @@
               <b-button-close class="ml-2 text-white" @click.stop.prevent="closeFile(index)" v-b-tooltip.hover.left.d300 :title="$t('Close File')"><icon name="times"></icon></b-button-close>
               {{ $t(file.name) }}
             </template>
-            <pf-csv-parse @input="onImport" :ref="'parser-' + index" :file="file" :fields="fields" :storeName="storeName" no-init-bind-keys>
+            <pf-csv-parse
+              :ref="'parser-' + index"
+              :file="file"
+              :fields="fields"
+              :storeName="storeName"
+              :eventsListen="tabIndex === index"
+              @input="onImport"
+            >
               <b-tab :title="$t('Import Options')">
                 <b-form-group label-cols="3" :label="$t('Registration Window')">
                   <b-row>
@@ -474,12 +480,6 @@ export default {
     closeFile (index) {
       this.files.splice(index, 1)
     },
-    onKeyDown (event) {
-      // pass event to selected child component
-      if (this.$refs['parser-' + this.tabIndex] && this.$refs['parser-' + this.tabIndex].length) {
-        this.$refs['parser-' + this.tabIndex][0].onKeyDown(event)
-      }
-    },
     onImport (values, parser) {
       let createdUsers = []
       // track progress
@@ -567,18 +567,8 @@ export default {
       })
     }
   },
-  mounted () {
-    if (!this.noInitBindKeys) {
-      document.addEventListener('keydown', this.onKeyDown)
-    }
-  },
   created () {
     this.$store.dispatch('config/getSources')
-  },
-  beforeDestroy () {
-    if (!this.noInitBindKeys) {
-      document.removeEventListener('keydown', this.onKeyDown)
-    }
   }
 }
 </script>

@@ -11,13 +11,9 @@
 
 <script>
 import { createDebouncer } from 'promised-debounce'
-import pfMixinCtrlKey from '@/components/pfMixinCtrlKey'
 
 export default {
   name: 'pfButtonRefresh',
-  mixins: [
-    pfMixinCtrlKey
-  ],
   data () {
     return {
       num: 0,
@@ -35,17 +31,15 @@ export default {
   computed: {
     rotate () {
       return this.num * 360
+    },
+    ctrlKey () {
+      return this.$store.getters['events/ctrlKey']
+    },
+    altRKey () {
+      return this.$store.getters['events/altRKey']
     }
   },
   methods: {
-    onKey (event) {
-      switch (true) {
-        case (event.altKey && event.keyCode === 82): // ALT+R
-          event.preventDefault()
-          this.refresh(event)
-          break
-      }
-    },
     click (event) {
       if (this.ctrlKey) {
         if (this.interval) { // clear interval
@@ -78,13 +72,16 @@ export default {
       })
     }
   },
-  mounted () {
-    document.addEventListener('keydown', this.onKey)
-  },
   beforeDestroy () {
-    document.removeEventListener('keydown', this.onKey)
     if (this.interval) {
       clearInterval(this.interval)
+    }
+  },
+  watch: {
+    altRKey (pressed) {
+      if (pressed) {
+        this.refresh(event)
+      }
     }
   }
 }

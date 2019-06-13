@@ -7,12 +7,12 @@
       </b-navbar-brand>
       <b-collapse is-nav id="navbar">
         <b-navbar-nav v-show="isAuthenticated">
-          <b-nav-item to="/status" :active="$route.path.startsWith('/status')" v-can:read.some="[['reports', 'services']]">{{ $t('Status') }}</b-nav-item>
-          <b-nav-item to="/reports" :active="$route.path.startsWith('/report')" v-can:read="'reports'">{{ $t('Reports') }}</b-nav-item>
-          <b-nav-item to="/auditing" :active="$route.path.startsWith('/auditing')" v-can:read.some="[['radius_log', 'dhcp_option_82']]">{{ $t('Auditing') }}</b-nav-item>
-          <b-nav-item to="/nodes" :active="$route.path.startsWith('/node')" v-can:read="'nodes'">{{ $t('Nodes') }}</b-nav-item>
-          <b-nav-item to="/users" :active="$route.path.startsWith('/user')" v-can:read="'users'">{{ $t('Users') }}</b-nav-item>
-          <b-nav-item to="/configuration" :active="$route.path.startsWith('/configuration')" v-can:read="'configuration_main'">{{ $t('Configuration') }}</b-nav-item>
+          <b-nav-item v-b-tooltip.hover.bottom.d300 title="ALT+SHIFT+S" to="/status" :active="$route.path.startsWith('/status')" v-can:read.some="[['reports', 'services']]">{{ $t('Status') }}</b-nav-item>
+          <b-nav-item v-b-tooltip.hover.bottom.d300 title="ALT+SHIFT+R" to="/reports" :active="$route.path.startsWith('/report')" v-can:read="'reports'">{{ $t('Reports') }}</b-nav-item>
+          <b-nav-item v-b-tooltip.hover.bottom.d300 title="ALT+SHIFT+A" to="/auditing" :active="$route.path.startsWith('/auditing')" v-can:read.some="[['radius_log', 'dhcp_option_82']]">{{ $t('Auditing') }}</b-nav-item>
+          <b-nav-item v-b-tooltip.hover.bottom.d300 title="ALT+SHIFT+N" to="/nodes" :active="$route.path.startsWith('/node')" v-can:read="'nodes'">{{ $t('Nodes') }}</b-nav-item>
+          <b-nav-item v-b-tooltip.hover.bottom.d300 title="ALT+SHIFT+U" to="/users" :active="$route.path.startsWith('/user')" v-can:read="'users'">{{ $t('Users') }}</b-nav-item>
+          <b-nav-item v-b-tooltip.hover.bottom.d300 title="ALT+SHIFT+C" to="/configuration" :active="$route.path.startsWith('/configuration')" v-can:read="'configuration_main'">{{ $t('Configuration') }}</b-nav-item>
         </b-navbar-nav>
         <div class="ml-auto"></div>
         <b-badge class="mr-1" v-if="debug" :variant="apiOK? 'success' : 'danger'">API</b-badge>
@@ -98,6 +98,24 @@ export default {
     },
     chartsOK () {
       return this.$store.state.session.charts
+    },
+    altShiftAKey () {
+      return this.$store.getters['events/altShiftAKey'] && (this.$can('read', 'radius_log') || this.$can('read', 'dhcp_option_82'))
+    },
+    altShiftCKey () {
+      return this.$store.getters['events/altShiftCKey'] && this.$can('read', 'configuration_main')
+    },
+    altShiftNKey () {
+      return this.$store.getters['events/altShiftNKey'] && this.$can('read', 'nodes')
+    },
+    altShiftRKey () {
+      return this.$store.getters['events/altShiftRKey'] && this.$can('read', 'reports')
+    },
+    altShiftSKey () {
+      return this.$store.getters['events/altShiftSKey'] && (this.$can('read', 'reports') || this.$can('read', 'services'))
+    },
+    altShiftUKey () {
+      return this.$store.getters['events/altShiftUKey'] && this.$can('read', 'users')
     }
   },
   methods: {
@@ -130,6 +148,26 @@ export default {
   },
   created () {
     this.$store.dispatch('session/setLanguage', { i18n: this.$i18n, lang: 'en' })
+  },
+  watch: {
+    altShiftAKey (pressed) {
+      if (pressed) this.$router.push('/auditing')
+    },
+    altShiftCKey (pressed) {
+      if (pressed) this.$router.push('/configuration')
+    },
+    altShiftNKey (pressed) {
+      if (pressed) this.$router.push('/nodes')
+    },
+    altShiftRKey (pressed) {
+      if (pressed) this.$router.push('/reports')
+    },
+    altShiftSKey (pressed) {
+      if (pressed) this.$router.push('/status')
+    },
+    altShiftUKey (pressed) {
+      if (pressed) this.$router.push('/users')
+    }
   }
 }
 </script>
