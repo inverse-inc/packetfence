@@ -41,31 +41,31 @@ func (flow *Flow) DstIP() net.IP { return net.IP(flow.DstAddr[:]) }
 func (flow *Flow) NextIP() net.IP { return net.IP(flow.NextAddr[:]) }
 
 // DPkts returns number of packets in the flow.
-func (flow *Flow) DPkts() uint32 { return Ntoh32(flow.nDPkts) }
+func (flow *Flow) DPkts() uint32 { return ntoh32(flow.nDPkts) }
 
 // DOctets returns total number of Layer 3 bytes in the packets of the flow.
-func (flow *Flow) DOctets() uint32 { return Ntoh32(flow.nDOctets) }
+func (flow *Flow) DOctets() uint32 { return ntoh32(flow.nDOctets) }
 
 // First returns system uptime at start of flow.
-func (flow *Flow) First() uint32 { return Ntoh32(flow.nFirst) }
+func (flow *Flow) First() uint32 { return ntoh32(flow.nFirst) }
 
 // Last returns system uptime at the time the last packet of the flow was received.
-func (flow *Flow) Last() uint32 { return Ntoh32(flow.nLast) }
+func (flow *Flow) Last() uint32 { return ntoh32(flow.nLast) }
 
 // SrcPort returns TCP/UDP source port number or equivalent.
-func (flow *Flow) SrcPort() uint16 { return Ntoh16(flow.nSrcPort) }
+func (flow *Flow) SrcPort() uint16 { return ntoh16(flow.nSrcPort) }
 
 // DstPort TCP/UDP destination port number or equivalent.
-func (flow *Flow) DstPort() uint16 { return Ntoh16(flow.nDstPort) }
+func (flow *Flow) DstPort() uint16 { return ntoh16(flow.nDstPort) }
 
 // SrcAs returns Autonomous system number of the source, either origin or peer.
-func (flow *Flow) SrcAs() uint16 { return Ntoh16(flow.nSrcAs) }
+func (flow *Flow) SrcAs() uint16 { return ntoh16(flow.nSrcAs) }
 
 // DstAs returns Autonomous system number of the destination, either origin or peer
-func (flow *Flow) DstAs() uint16 { return Ntoh16(flow.nDstAs) }
+func (flow *Flow) DstAs() uint16 { return ntoh16(flow.nDstAs) }
 
 // Input returns SNMP index of input interface
-func (flow *Flow) Input() uint16 { return Ntoh16(flow.nInput) }
+func (flow *Flow) Input() uint16 { return ntoh16(flow.nInput) }
 
 // Output returns SNMP index of output interface
-func (flow *Flow) Output() uint16 { return Ntoh16(flow.nOutput) }
+func (flow *Flow) Output() uint16 { return ntoh16(flow.nOutput) }
