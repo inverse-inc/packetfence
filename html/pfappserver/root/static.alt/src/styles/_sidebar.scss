@@ -18,13 +18,9 @@ $sidebar-item-padding-right: map-get($spacers, 1);
     @supports (position: sticky) {
       position: sticky;
       z-index: $zindex-dropdown;
-      top: ($spacer * 4);
+      top: map-get($spacers, 6);
       max-height: calc(100vh - #{$spacer * 4});
     }
-  }
-
-  @include media-breakpoint-up(xl) {
-    flex: 0 1 320px;
   }
 }
 
