@@ -143,6 +143,25 @@ sub options_additional_listening_daemons {
         qw(portal radius dhcp dns dhcp-listener);
 }
 
+=head2 deDup
+
+checks for duplicates types
+
+=cut
+
+
+sub deDup {
+        my $self = shift;
+        my $daemonN = shift;
+        if ( defined $self->value->{type} && any { $_ eq $self->value->{type} } @_ ) {
+            my %daemons = map { $_ => 1 } @{$self->value->{additional_listening_daemons}};
+            if ( exists($daemons{$daemonN}) ) {
+                my $index = firstidx { $_ eq $daemonN } @{$self->value->{additional_listening_daemons}};
+                splice @{$self->value->{additional_listening_daemons}}, $index, 1;
+            }
+        }
+    }
+
 =head2 validate
 
 Force DNS to be defined when the 'inline' type is selected
@@ -158,18 +177,6 @@ sub validate {
         }
     }
 
-    sub deDup {
-        my $self = shift;
-        my $daemonN = shift;
-        if ( defined $self->value->{type} && any { $_ eq $self->value->{type} } @_ ) {
-            my %daemons = map { $_ => 1 } @{$self->value->{additional_listening_daemons}};
-            if ( exists($daemons{$daemonN}) ) {
-                my $index = firstidx { $_ eq $daemonN } @{$self->value->{additional_listening_daemons}};
-                splice @{$self->value->{additional_listening_daemons}}, $index, 1;
-            }
-        }
-    }
-
     $self->deDup('portal',qw(vlan-registration vlan-isolation dns-enforcement inline inlinel2 portal));
 
     $self->deDup('radius',qw(radius));
@@ -179,6 +186,7 @@ sub validate {
     $self->deDup('dhcp',qw(dhcp));
 
     $self->deDup('dhcp-listener',qw(dhcp-listener));
+
 }
 
 =head1 COPYRIGHT
