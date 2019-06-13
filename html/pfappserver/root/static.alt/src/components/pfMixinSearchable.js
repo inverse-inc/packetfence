@@ -90,7 +90,7 @@ export default {
     searchFields () {
       return [...(new Set([ // unique array
         ...this.searchableOptions.defaultSortKeys, // always include default keys
-        ...this.visibleColumns.map(column => column.key)
+        ...this.visibleColumns.filter(column => !column.exclude).map(column => column.key)
       ]))]
     },
     items () {

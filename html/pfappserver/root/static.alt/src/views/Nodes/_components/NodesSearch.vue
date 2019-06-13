@@ -459,6 +459,7 @@ export default {
           label: this.$i18n.t('Actions'),
           sortable: false,
           visible: true,
+          exclude: true,
           locked: true,
           formatter: (value, key, item) => {
             return item.mac
