@@ -21,14 +21,13 @@ export const pfConfigurationTrafficShapingPoliciesListColumns = [
   {
     key: 'id',
     label: i18n.t('Traffic Shaping Policy Name'),
+    required: true,
     sortable: true,
     visible: true
   },
   {
     key: 'buttons',
     label: '',
-    sortable: false,
-    visible: true,
     locked: true
   }
 ]

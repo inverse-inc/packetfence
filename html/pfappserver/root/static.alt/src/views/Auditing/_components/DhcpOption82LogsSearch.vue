@@ -160,16 +160,15 @@ export default {
         {
           key: 'mac',
           label: this.$i18n.t('MAC Address'),
+          required: true,
           sortable: true,
-          visible: true,
-          locked: true
+          visible: true
         },
         {
           key: 'circuit_id_string',
           label: this.$i18n.t('Circuit ID String'),
           sortable: true,
-          visible: true,
-          locked: false
+          visible: true
         },
         {
           key: 'host',

@@ -506,7 +506,7 @@ export default {
         {
           key: 'buttons',
           label: '',
-          sortable: false,
+          locked: true,
           class: 'text-right'
         }
       ],

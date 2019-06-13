@@ -21,6 +21,7 @@ export const pfConfigurationSyslogForwardersListColumns = [
   {
     key: 'id',
     label: i18n.t('Syslog Name'),
+    required: true,
     sortable: true,
     visible: true
   },
@@ -33,8 +34,6 @@ export const pfConfigurationSyslogForwardersListColumns = [
   {
     key: 'buttons',
     label: '',
-    sortable: false,
-    visible: true,
     locked: true
   }
 ]

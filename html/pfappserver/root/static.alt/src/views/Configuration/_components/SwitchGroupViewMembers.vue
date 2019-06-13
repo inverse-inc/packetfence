@@ -86,6 +86,7 @@ export default {
         {
           key: 'id',
           label: i18n.t('Identifier'),
+          required: true,
           sortable: true,
           visible: true
         },
@@ -104,8 +105,6 @@ export default {
         {
           key: 'buttons',
           label: '',
-          sortable: false,
-          visible: true,
           locked: true,
           class: 'text-right'
         }

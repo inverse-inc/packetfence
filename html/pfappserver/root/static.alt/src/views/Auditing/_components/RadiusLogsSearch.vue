@@ -324,9 +324,9 @@ export default {
         {
           key: 'id',
           label: this.$i18n.t('ID'),
+          required: true,
           sortable: true,
-          visible: true,
-          locked: true
+          visible: true
         },
         {
           key: 'auth_status',
@@ -343,38 +343,32 @@ export default {
         {
           key: 'auth_type',
           label: this.$i18n.t('Auth Type'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'auto_reg',
           label: this.$i18n.t('Auto Reg'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'calling_station_id',
           label: this.$i18n.t('Calling Station ID'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'computer_name',
           label: this.$i18n.t('Computer Name'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'eap_type',
           label: this.$i18n.t('EAP Type'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'event_type',
           label: this.$i18n.t('Event Type'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'ip',
@@ -397,44 +391,37 @@ export default {
         {
           key: 'pf_domain',
           label: this.$i18n.t('Domain'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'profile',
           label: this.$i18n.t('Profile'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'realm',
           label: this.$i18n.t('Realm'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'reason',
           label: this.$i18n.t('Reason'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'role',
           label: this.$i18n.t('Role'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'source',
           label: this.$i18n.t('Source'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'stripped_user_name',
           label: this.$i18n.t('Stripped User Name'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'user_name',
@@ -451,44 +438,37 @@ export default {
         {
           key: 'switch_id',
           label: this.$i18n.t('Switch'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'switch_mac',
           label: this.$i18n.t('Switch MAC'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'switch_ip_address',
           label: this.$i18n.t('Switch IP Address'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'called_station_id',
           label: this.$i18n.t('Called Station ID'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'connection_type',
           label: this.$i18n.t('Connection Type'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'ifindex',
           label: this.$i18n.t('IfIndex'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'nas_identifier',
           label: this.$i18n.t('NAS ID'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'nas_ip_address',
@@ -499,14 +479,12 @@ export default {
         {
           key: 'nas_port',
           label: this.$i18n.t('NAS Port'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'nas_port_id',
           label: this.$i18n.t('NAS Port ID'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'nas_port_type',
@@ -517,32 +495,27 @@ export default {
         {
           key: 'radius_source_ip_address',
           label: this.$i18n.t('RADIUS Source IP Address'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'ssid',
           label: this.$i18n.t('SSID'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'request_time',
           label: this.$i18n.t('Request Time'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'radius_request',
           label: this.$i18n.t('RADIUS Request'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'radius_reply',
           label: this.$i18n.t('RADIUS Reply'),
-          sortable: true,
-          visible: false
+          sortable: true
         }
       ],
       sortBy: 'created_at',
