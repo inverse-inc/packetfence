@@ -1584,10 +1584,16 @@ sub setup_api_v1_services_routes {
     my ($self, $root) = @_;
     my $collection_route = $root->any("/services")->to(controller => "Services")->name("api.v1.Config.Services");
     $collection_route->register_sub_action({action => 'list', path => '', method => 'GET'});
-    $collection_route->register_sub_actions({actions => [qw(status_all cluster_status)], method => 'GET'});
+    $collection_route->register_sub_actions({actions => [qw(status_all)], method => 'GET'});
     my $resource_route = $root->under("/service/#service_id")->to("Services#resource")->name("api.v1.Config.Services.resource");
     $self->add_subroutes($resource_route, "Services", "GET", qw(status));
     $self->add_subroutes($resource_route, "Services", "POST", qw(start stop restart enable disable));
+    
+    my $cs_collection_route = $collection_route->any("/cluster_statuses")->to(controller => "Services::ClusterStatuses")->name("api.v1.Config.Services.ClusterStatuses");
+    $cs_collection_route->register_sub_action({action => 'list', path => '', method => 'GET'});
+    my $cs_resource_route = $root->under("/services/cluster_status/#server_id")->to("Services::ClusterStatuses#resource")->name("api.v1.Config.Services.ClusterStatuses.resource");
+    $cs_resource_route->register_sub_action({action => 'get', path => '', method => 'GET'});
+
     return ($collection_route, $resource_route);
 }
 
