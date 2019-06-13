@@ -73,6 +73,7 @@ export default {
       this.$store.dispatch('$_bases/optionsAlerting').then(options => {
         this.options = options
         this.$store.dispatch('$_bases/getAlerting').then(form => {
+          form.test_emailaddr = form.emailaddr // copy recipients into SMTP test
           this.form = form
         })
       })

@@ -250,6 +250,16 @@ export const isVLAN = (value) => {
   return ~~value === parseFloat(value) && ~~value >= 1 && ~~value <= 4096
 }
 
+export const emailsCsv = (value) => {
+  if (!value) return true
+  const emailRegex = /(^$|^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$)/
+  const emails = value.split(',')
+  for (var i = 0; i < emails.length; i++) {
+    if (!emailRegex.test(emails[i].trim())) return false
+  }
+  return true
+}
+
 export const compareDate = (comparison, date = new Date(), dateFormat = 'YYYY-MM-DD HH:mm:ss', allowZero = true) => {
   return (0, _common.withParams)({
     type: 'compareDate',

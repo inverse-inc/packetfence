@@ -10,7 +10,8 @@ import {
   pfConfigurationValidatorsFromMeta
 } from '@/globals/configuration/pfConfiguration'
 import {
-  isPort
+  isPort,
+  emailsCsv
 } from '@/globals/pfValidators'
 import {
   email
@@ -181,7 +182,7 @@ export const pfConfigurationAlertingViewFields = (context = {}) => {
                 }
               },
               validators: {
-                [i18n.t('Invalid email address.')]: email
+                [i18n.t('Invalid email address.')]: emailsCsv
               }
             }
           ]
