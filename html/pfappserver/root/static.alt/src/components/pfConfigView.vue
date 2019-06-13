@@ -67,7 +67,7 @@ import pfMixinValidation from '@/components/pfMixinValidation'
 import { createDebouncer } from 'promised-debounce'
 
 export default {
-  name: 'pf-config-view',
+  name: 'pfConfigView',
   components: {
     pfButtonSave,
     pfButtonDelete
@@ -157,7 +157,7 @@ export default {
         if (!(first in model)) this.$set(model, first, {})
         return this.setValue(remainder.join('.'), value, model[first])
       }
-      model[key] = value
+      this.$set(model, key, value)
     },
     getVuelidateModel (key, model = this.vuelidate) {
       if (key) {
@@ -181,7 +181,7 @@ export default {
           setEachFieldValue(remainder.join('.'), value, model[first])
           return
         }
-        model[key] = value
+        this.$set(model, key, value)
       }
       if (this.form.fields.length > 0) {
         this.form.fields.forEach(tab => {
