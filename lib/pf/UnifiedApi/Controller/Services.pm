@@ -29,26 +29,6 @@ sub resource {
     return undef;
 }
 
-sub cluster_status {
-    my ($self) = @_;
-    my @services = @pf::services::ALL_MANAGERS;
-    my @servers = $self->param('server') ? (pf::cluster::find_server_by_hostname($self->param('server')) // ()) : pf::cluster::enabled_servers;
-
-    unless(@servers) {
-        return $self->render_error(404, "No servers to fetch status from. If you supplied the server parameter, ensure that this host exists in the cluster.");
-    }
-
-    my @results;
-    for my $server (@servers) {
-        my $client = pf::api::unifiedapiclient->new;
-        $client->host($server->{management_ip});
-        my $stat = $client->call("GET", "/api/v1/services/status_all", {});
-        push @results, { host => $server->{host}, services => $stat->{items} };
-    }
-
-    $self->render(json => { items => \@results });
-}
-
 sub list {
     my ($self) = @_;
     $self->render(json => { items => [ map {$_->name} grep { $_->name ne 'pf' } @pf::services::ALL_MANAGERS ] });
