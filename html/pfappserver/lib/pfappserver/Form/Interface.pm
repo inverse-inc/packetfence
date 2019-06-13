@@ -140,7 +140,7 @@ sub options_additional_listening_daemons {
     my $self = shift;
 
     return map { { value => $_, label => $_ } }
-        qw(portal radius dhcp dns);
+        qw(portal radius dhcp dns dhcp-listener);
 }
 
 =head2 validate
@@ -152,52 +152,33 @@ Force DNS to be defined when the 'inline' type is selected
 sub validate {
     my $self = shift;
 
-    if (defined $self->value->{type} &&
-        ( $self->value->{type} eq 'inlinel2' or
-          $self->value->{type} eq 'inline' )
-        ) {
+    if (defined $self->value->{type} && ( $self->value->{type} eq 'inlinel2' or $self->value->{type} eq 'inline' ) ) {
         unless ($self->value->{dns}) {
             $self->field('dns')->add_error('Please specify your DNS server.');
         }
     }
 
-    # Remove 'portal' additional listening daemon on already enabled httpd.portal interfaces
-    # TODO: Make a list of interface type rather than this ugly "or" - dwuelfrath@inverse.ca 2015.06.11
-    my @types = qw(vlan-registration vlan-isolation dns-enforcement inline inlinel2 portal);
-    if ( defined $self->value->{type} && any { $_ eq $self->value->{type} } @types ) {
-        my %daemons = map { $_ => 1 } @{$self->value->{additional_listening_daemons}};
-        if ( exists($daemons{'portal'}) ) {
-            my $index = firstidx { $_ eq 'portal' } @{$self->value->{additional_listening_daemons}};
-            splice @{$self->value->{additional_listening_daemons}}, $index, 1;
+    sub deDup {
+        my $self = shift;
+        my $daemonN = shift;
+        if ( defined $self->value->{type} && any { $_ eq $self->value->{type} } @_ ) {
+            my %daemons = map { $_ => 1 } @{$self->value->{additional_listening_daemons}};
+            if ( exists($daemons{$daemonN}) ) {
+                my $index = firstidx { $_ eq $daemonN } @{$self->value->{additional_listening_daemons}};
+                splice @{$self->value->{additional_listening_daemons}}, $index, 1;
+            }
         }
     }
-    # Remove double radius type if exist
-    @types = qw(radius);
-    if ( defined $self->value->{type} && any { $_ eq $self->value->{type} } @types ) {
-        my %daemons = map { $_ => 1 } @{$self->value->{additional_listening_daemons}};
-        if ( exists($daemons{'radius'}) ) {
-            my $index = firstidx { $_ eq 'radius' } @{$self->value->{additional_listening_daemons}};
-            splice @{$self->value->{additional_listening_daemons}}, $index, 1;
-        }
-    }
-    # Remove double dns type if exist
-    @types = qw(dns);
-    if ( defined $self->value->{type} && any { $_ eq $self->value->{type} } @types ) {
-        my %daemons = map { $_ => 1 } @{$self->value->{additional_listening_daemons}};
-        if ( exists($daemons{'dns'}) ) {
-            my $index = firstidx { $_ eq 'dns' } @{$self->value->{additional_listening_daemons}};
-            splice @{$self->value->{additional_listening_daemons}}, $index, 1;
-        }
-    }
-    # Remove double dhcp type if exist
-    @types = qw(dhcp);
-    if ( defined $self->value->{type} && any { $_ eq $self->value->{type} } @types ) {
-        my %daemons = map { $_ => 1 } @{$self->value->{additional_listening_daemons}};
-        if ( exists($daemons{'dhcp'}) ) {
-            my $index = firstidx { $_ eq 'dhcp' } @{$self->value->{additional_listening_daemons}};
-            splice @{$self->value->{additional_listening_daemons}}, $index, 1;
-        }
-    }
+
+    $self->deDup('portal',qw(vlan-registration vlan-isolation dns-enforcement inline inlinel2 portal));
+
+    $self->deDup('radius',qw(radius));
+
+    $self->deDup('dns',qw(dns));
+
+    $self->deDup('dhcp',qw(dhcp));
+
+    $self->deDup('dhcp-listener',qw(dhcp-listener));
 }
 
 =head1 COPYRIGHT
