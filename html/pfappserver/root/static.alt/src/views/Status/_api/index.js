@@ -82,9 +82,9 @@ export default {
       return response.data.items
     })
   },
-  clusterServices: () => {
-    return apiCall.get('services/cluster_status').then(response => {
-      return response.data.items
+  clusterServices: host => {
+    return apiCall.get(`services/cluster_status/${host}`).then(response => {
+      return response.data.item
     })
   }
 }

@@ -68,7 +68,7 @@ export default {
     },
     services () {
       const allServices = this.$store.state[this.storeName].clusterServices.map(server => {
-        return server.services.map(service => service.name)
+        return server.services.map(service => service.id)
       })
       return this.uniqueServices(...allServices)
     },
@@ -88,7 +88,7 @@ export default {
         let statuses = { service }
         this.servers.forEach(server => {
           const { services = {} } = this.$store.state[this.storeName].clusterServices.find(o => o.host === server)
-          const { status } = services.find(o => o.name === service)
+          const status = services.find(o => o.id === service)
           statuses[server] = status
         })
         return statuses
