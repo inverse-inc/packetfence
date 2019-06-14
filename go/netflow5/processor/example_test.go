@@ -15,7 +15,7 @@ func HandleNetFlowV5(header *netflow5.Header, i int, flow *netflow5.Flow) {
 
 func ExampleProcessor_Start() {
 	processor := processor.Processor{
-		Handler: HandleNetFlowV5,
+		Handler: processor.FlowHandlerFunc(HandleNetFlowV5),
 	}
 
 	processor.Start()
@@ -28,7 +28,7 @@ func ExampleProcessor_Start_conn() {
 	}
 
 	processor := processor.Processor{
-		Handler: HandleNetFlowV5,
+		Handler: processor.FlowHandlerFunc(HandleNetFlowV5),
 		Conn:    conn,
 	}
 
@@ -37,7 +37,7 @@ func ExampleProcessor_Start_conn() {
 
 func ExampleProcessor_Stop() {
 	processor := processor.Processor{
-		Handler: HandleNetFlowV5,
+		Handler: processor.FlowHandlerFunc(HandleNetFlowV5),
 	}
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
