@@ -13,12 +13,13 @@ type BytesHandler interface {
 // BytesHandlerFunc a wrapper interface for function for BytesHandler
 type BytesHandlerFunc func([]byte)
 
+// HandleBytes calls f(bytes)
 func (f BytesHandlerFunc) HandleBytes(bytes []byte) {
 	f(bytes)
 }
 
 type worker struct {
-	workerPool    chan chan []byte
+	workerPool    chan<- chan []byte
 	jobChannel    chan []byte
 	bytesHandler  BytesHandler
 	byteArrayPool *bytearraypool.ByteArrayPool
@@ -26,7 +27,7 @@ type worker struct {
 	waitGroup     *sync.WaitGroup
 }
 
-func initWorker(w *worker, workerPool chan chan []byte, bytesHandler BytesHandler, byteArrayPool *bytearraypool.ByteArrayPool, waitGroup *sync.WaitGroup) {
+func initWorker(w *worker, workerPool chan<- chan []byte, bytesHandler BytesHandler, byteArrayPool *bytearraypool.ByteArrayPool, waitGroup *sync.WaitGroup) {
 	w.workerPool = workerPool
 	w.bytesHandler = bytesHandler
 	w.byteArrayPool = byteArrayPool
@@ -118,7 +119,7 @@ func (d *Dispatcher) Run() {
 		d.workers[i].start()
 	}
 
-	go d.dispatch()
+	go d.dispatch(d.jobQueue, d.workerPool)
 }
 
 // Stop the dispatcher
@@ -135,19 +136,19 @@ func (d *Dispatcher) Wait() {
 	d.waitGroup.Wait()
 }
 
-func (d *Dispatcher) dispatch() {
+func (d *Dispatcher) dispatch(jobQueue <-chan []byte, workerPool <-chan chan []byte) {
 	for {
 		select {
 		// a job request has been received
-		case job := <-d.jobQueue:
+		case job := <-jobQueue:
 			select {
 			// Take care of it right away
-			case jobChannel := <-d.workerPool:
+			case jobChannel := <-workerPool:
 				jobChannel <- job
 			// No workers available put it in a go routine
 			default:
 				go func(job []byte) {
-					jobChannel := <-d.workerPool
+					jobChannel := <-workerPool
 					jobChannel <- job
 				}(job)
 			}

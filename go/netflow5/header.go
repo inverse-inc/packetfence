@@ -1,5 +1,6 @@
 package netflow5
 
+// Header in memory layout of a netflow header
 type Header struct {
 	nVersion          uint16
 	nLength           uint16
@@ -9,8 +10,8 @@ type Header struct {
 	nFlowSequence     uint32
     // EngineType Type of flow-switching engine
 	EngineType        uint8
-    // EngineId Slot number of the flow-switching engine
-	EngineId          uint8
+    // EngineID Slot number of the flow-switching engine
+	EngineID          uint8
 	nSamplingInterval uint16
 }
 

@@ -2,7 +2,7 @@ package netflow5
 
 import "net"
 
-// Flow
+// Flow in memory layout of a netflow5 flow
 type Flow struct {
 	SrcAddr  [4]byte // 4
 	DstAddr  [4]byte // 8
@@ -16,8 +16,8 @@ type Flow struct {
 	nSrcPort uint16  // 34
 	nDstPort uint16  // 36
 	pad1     byte    // 37
-	// TcpFlags cumulative OR of TCP flags.
-	TcpFlags byte // 38
+	// TCPFlags cumulative OR of TCP flags.
+	TCPFlags byte // 38
 	// Proto IP protocol type (for example, TCP = 6; UDP = 17)
 	Proto byte // 39
 	// Tos IP type of service (ToS)
