@@ -13,9 +13,6 @@ import {
   isPort,
   emailsCsv
 } from '@/globals/pfValidators'
-import {
-  email
-} from 'vuelidate/lib/validators'
 
 export const pfConfigurationAlertingViewFields = (context = {}) => {
   const {
