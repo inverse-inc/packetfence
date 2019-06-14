@@ -11,16 +11,23 @@ import (
 	"unsafe"
 )
 
+// FlowHandler the handler for a netflow 5 flow
 type FlowHandler interface {
 	HandleFlow(header *netflow5.Header, i int, flow *netflow5.Flow)
 }
 
+// The FlowHandlerFunc type is an adapter to allow the use of
+// ordinary functions as Flow handlers. If f is a function
+// with the appropriate signature, FlowHandlerFunc(header, i, flow) is a
+// Handler that calls f.
 type FlowHandlerFunc func(header *netflow5.Header, i int, flow *netflow5.Flow)
 
+// HandleFlow calls f(header, i, flow)
 func (f FlowHandlerFunc) HandleFlow(header *netflow5.Header, i int, flow *netflow5.Flow) {
 	f(header, i, flow)
 }
 
+// Processor the processor for netflow 5 flows
 type Processor struct {
 	// Conn a net.PacketConn.
 	// Default : UDPConn listining at 127.0.0.1:2055.

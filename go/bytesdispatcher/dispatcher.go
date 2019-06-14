@@ -10,7 +10,10 @@ type BytesHandler interface {
 	HandleBytes([]byte)
 }
 
-// BytesHandlerFunc a wrapper interface for function for BytesHandler
+// The BytesHandlerFunc type is an adapter to allow the use of
+// ordinary functions as a []byte handlers. If f is a function
+// with the appropriate signature, BytesHandlerFunc(bytes) is a
+// Handler that calls f.
 type BytesHandlerFunc func([]byte)
 
 // HandleBytes calls f(bytes)
