@@ -19,7 +19,7 @@
             <pf-empty-table :isLoading="isLoading" text="">{{ $t('No Services found') }}</pf-empty-table>
           </template>
           <template v-for="server in servers" :slot="server" slot-scope="{ item: { [server]: status } }">
-            <div class="container-status small" :key="server">
+            <div class="container-status small" v-if="status" :key="server">
               <b-row class="row-nowrap">
                   <b-col>{{ $t('Alive') }}</b-col>
                   <b-col cols="auto">
