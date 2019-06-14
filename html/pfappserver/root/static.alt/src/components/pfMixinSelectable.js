@@ -107,14 +107,6 @@ export default {
       return this.$store.getters['events/altNKey']
     }
   },
-  computed: {
-    altAKey () {
-      return this.$store.getters['events/altAKey']
-    },
-    altNKey () {
-      return this.$store.getters['events/altNKey']
-    }
-  },
   methods: {
     forceUpdate () {
       if (this.forceUpdateTimeout) clearTimeout(this.forceUpdateTimeout)
