@@ -493,9 +493,6 @@ sub setType {
     my $type = $interface_ref->{type} || 'none';
     my ($status, $network_ref, $status_msg);
 
-    # we ignore interface type 'Other' (it basically means unsupported in configurator)
-    return if ( $type =~ /^other$/i );
-
     # we delete interface type 'None'
     if ( $type =~ /^none$/i && !$interface_ref->{high_availability} ) {
         $logger->debug("Deleting $interface interface");

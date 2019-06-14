@@ -34,7 +34,8 @@ export const pfConfigurationInterfaceDaemons = [
   { value: 'dhcp', text: 'dhcp' },
   { value: 'dns', text: 'dns' },
   { value: 'portal', text: 'portal' },
-  { value: 'radius', text: 'radius' }
+  { value: 'radius', text: 'radius' },
+  { value: 'dhcp-listener', text: 'dhcp-listener' }
 
 ]
 
