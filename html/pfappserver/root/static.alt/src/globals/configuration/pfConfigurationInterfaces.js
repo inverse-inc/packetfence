@@ -30,7 +30,7 @@ export const pfConfigurationInterfaceTypes = [
   { value: 'other', text: i18n.t('Other') }
 ]
 
-export const pfCongigurationInterfaceDaemons = [
+export const pfConfigurationInterfaceDaemons = [
   { value: 'dhcp', text: 'dhcp' },
   { value: 'dns', text: 'dns' },
   { value: 'portal', text: 'portal' },
@@ -351,7 +351,7 @@ export const pfConfigurationInterfaceViewFields = (context = {}) => {
                 allowEmpty: true,
                 clearOnSelect: false,
                 closeOnSelect: false,
-                options: pfCongigurationInterfaceDaemons
+                options: pfCongifurationInterfaceDaemons
               }
             }
           ]
