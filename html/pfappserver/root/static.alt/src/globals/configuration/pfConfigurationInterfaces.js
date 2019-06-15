@@ -352,7 +352,7 @@ export const pfConfigurationInterfaceViewFields = (context = {}) => {
                 allowEmpty: true,
                 clearOnSelect: false,
                 closeOnSelect: false,
-                options: pfCongifurationInterfaceDaemons
+                options: pfConfigurationInterfaceDaemons
               }
             }
           ]
