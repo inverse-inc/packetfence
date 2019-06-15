@@ -297,7 +297,7 @@ export default {
       throw new Error(`Missing 'columns' in data of component ${this.$options.name}`)
     } else {
       this.columns.forEach((column, cIndex) => {
-          this.$set(this.columns[cIndex], 'visible', !!column.visible)
+        this.$set(this.columns[cIndex], 'visible', !!column.visible)
       })
     }
     const { searchableOptions: { defaultRoute, defaultSortKeys, defaultSearchCondition, searchApiEndpoint } = {} } = this
