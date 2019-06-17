@@ -232,13 +232,9 @@ BEGIN {
         %ConfigReport
         %ConfigSurvey
         %ConfigRoles
-<<<<<<< HEAD
-        %ConfigDeviceRegistration
+        %ConfigSelfService
         %ConfigAuthenticationLdap
         %ConfigAuthenticationRadius
-=======
-        %ConfigSelfService
->>>>>>> sed device registration into self service
     );
 }
 
