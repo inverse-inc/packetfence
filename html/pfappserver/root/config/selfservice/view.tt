@@ -10,7 +10,7 @@
   </div>
 
   <div class="modal-body">
-    [% form.block('global_definition').render | none %]
+    [% form.block('definition').render | none %]
     <h4 class="configuration-section-title">Status page</h4>
     [% form.block('status_definition').render | none %]
     <h4 class="configuration-section-title">Device registration</h4>

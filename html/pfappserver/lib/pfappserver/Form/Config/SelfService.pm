@@ -67,7 +67,7 @@ has_field 'device_registration_allowed_devices' =>
    fingerbank_model => "fingerbank::Model::Device",
   );
 
-has_block global_definition =>
+has_block definition =>
   (
    render_list => [ qw(id description) ],
   );
