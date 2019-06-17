@@ -46,12 +46,12 @@ import {
   pfConfigurationDefaultsFromMeta as defaults
 } from '@/globals/configuration/pfConfiguration'
 import {
-  pfConfigurationDeviceRegistrationViewFields as fields
-} from '@/globals/configuration/pfConfigurationDeviceRegistrations'
+  pfConfigurationSelfServiceViewFields as fields
+} from '@/globals/configuration/pfConfigurationSelfServices'
 const { validationMixin } = require('vuelidate')
 
 export default {
-  name: 'device-registration-view',
+  name: 'self-service-view',
   mixins: [
     validationMixin
   ],
@@ -124,7 +124,7 @@ export default {
         this.options = options
         if (this.id) {
           // existing
-          this.$store.dispatch(`${this.storeName}/getDeviceRegistration`, this.id).then(form => {
+          this.$store.dispatch(`${this.storeName}/getSelfService`, this.id).then(form => {
             if (this.isClone) form.id = `${form.id}-${this.$i18n.t('copy')}`
             this.form = form
           })
@@ -135,31 +135,31 @@ export default {
       })
     },
     close () {
-      this.$router.push({ name: 'device_registrations' })
+      this.$router.push({ name: 'selfServices' })
     },
     clone () {
-      this.$router.push({ name: 'cloneDeviceRegistration' })
+      this.$router.push({ name: 'cloneSelfService' })
     },
     create () {
       const ctrlKey = this.ctrlKey
-      this.$store.dispatch(`${this.storeName}/createDeviceRegistration`, this.form).then(response => {
+      this.$store.dispatch(`${this.storeName}/createSelfService`, this.form).then(response => {
         if (ctrlKey) { // [CTRL] key pressed
           this.close()
         } else {
-          this.$router.push({ name: 'device_registration', params: { id: this.form.id } })
+          this.$router.push({ name: 'selfService', params: { id: this.form.id } })
         }
       })
     },
     save () {
       const ctrlKey = this.ctrlKey
-      this.$store.dispatch(`${this.storeName}/updateDeviceRegistration`, this.form).then(response => {
+      this.$store.dispatch(`${this.storeName}/updateSelfService`, this.form).then(response => {
         if (ctrlKey) { // [CTRL] key pressed
           this.close()
         }
       })
     },
     remove () {
-      this.$store.dispatch(`${this.storeName}/deleteDeviceRegistration`, this.id).then(response => {
+      this.$store.dispatch(`${this.storeName}/deleteSelfService`, this.id).then(response => {
         this.close()
       })
     }

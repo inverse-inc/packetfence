@@ -1,5 +1,5 @@
 /**
-* "$_device_registrations" store module
+* "$_self_services" store module
 */
 import Vue from 'vue'
 import api from '../_api'
@@ -29,14 +29,14 @@ const actions = {
       sort: 'id',
       fields: ['id', 'description'].join(',')
     }
-    return api.deviceRegistrations(params).then(response => {
+    return api.selfServices(params).then(response => {
       return response.items
     })
   },
   options: ({ commit }, id) => {
     commit('ITEM_REQUEST')
     if (id) {
-      return api.deviceRegistrationOptions(id).then(response => {
+      return api.selfServiceOptions(id).then(response => {
         commit('ITEM_SUCCESS')
         return response
       }).catch((err) => {
@@ -44,7 +44,7 @@ const actions = {
         throw err
       })
     } else {
-      return api.deviceRegistrationsOptions().then(response => {
+      return api.selfServicesOptions().then(response => {
         commit('ITEM_SUCCESS')
         return response
       }).catch((err) => {
@@ -53,12 +53,12 @@ const actions = {
       })
     }
   },
-  getDeviceRegistration: ({ state, commit }, id) => {
+  getSelfService: ({ state, commit }, id) => {
     if (state.cache[id]) {
       return Promise.resolve(state.cache[id]).then(cache => JSON.parse(JSON.stringify(cache)))
     }
     commit('ITEM_REQUEST')
-    return api.deviceRegistration(id).then(item => {
+    return api.selfService(id).then(item => {
       commit('ITEM_REPLACED', item)
       return JSON.parse(JSON.stringify(item))
     }).catch((err) => {
@@ -66,9 +66,9 @@ const actions = {
       throw err
     })
   },
-  createDeviceRegistration: ({ commit }, data) => {
+  createSelfService: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.createDeviceRegistration(data).then(response => {
+    return api.createSelfService(data).then(response => {
       commit('ITEM_REPLACED', data)
       return response
     }).catch(err => {
@@ -76,9 +76,9 @@ const actions = {
       throw err
     })
   },
-  updateDeviceRegistration: ({ commit }, data) => {
+  updateSelfService: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.updateDeviceRegistration(data).then(response => {
+    return api.updateSelfService(data).then(response => {
       commit('ITEM_REPLACED', data)
       return response
     }).catch(err => {
@@ -86,9 +86,9 @@ const actions = {
       throw err
     })
   },
-  deleteDeviceRegistration: ({ commit }, data) => {
+  deleteSelfService: ({ commit }, data) => {
     commit('ITEM_REQUEST', types.DELETING)
-    return api.deleteDeviceRegistration(data).then(response => {
+    return api.deleteSelfService(data).then(response => {
       commit('ITEM_DESTROYED', data)
       return response
     }).catch(err => {

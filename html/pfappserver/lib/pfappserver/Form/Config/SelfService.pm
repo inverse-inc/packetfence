@@ -22,7 +22,7 @@ has_field 'id' =>
    label => 'Profile Name',
    required => 1,
    messages => { required => 'Please specify a name of the Self Service Portal entry.' },
-   apply => [ pfappserver::Base::Form::id_validator('self service ID') ]
+   apply => [ pfappserver::Base::Form::id_validator('self service ID') ],
    tags => {
       option_pattern => \&pfappserver::Base::Form::id_pattern,
    }
