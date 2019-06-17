@@ -99,7 +99,7 @@ export default {
             { name: this.$i18n.t('Provisioners'), path: '/configuration/provisionings' },
             { name: this.$i18n.t('Portal Modules'), path: '/configuration/portal_modules' },
             { name: this.$i18n.t('Access Duration'), path: '/configuration/access_duration' },
-            { name: this.$i18n.t('Device Registration'), path: '/configuration/device_registrations' }
+            { name: this.$i18n.t('Self Service Portal'), path: '/configuration/self_services' }
           ]
         },
         {

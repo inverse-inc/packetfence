@@ -226,38 +226,38 @@ export default {
   /**
    * Device Registration
    */
-  deviceRegistrations: params => {
-    return apiCall.get('config/device_registrations', { params }).then(response => {
+  selfServices: params => {
+    return apiCall.get('config/self_services', { params }).then(response => {
       return response.data
     })
   },
-  deviceRegistrationsOptions: () => {
-    return apiCall.options('config/device_registrations').then(response => {
+  selfServicesOptions: () => {
+    return apiCall.options('config/self_services').then(response => {
       return response.data
     })
   },
-  deviceRegistration: id => {
-    return apiCall.get(`config/device_registration/${id}`).then(response => {
+  selfService: id => {
+    return apiCall.get(`config/self_service/${id}`).then(response => {
       return response.data.item
     })
   },
-  deviceRegistrationOptions: id => {
-    return apiCall.options(`config/device_registration/${id}`).then(response => {
+  selfServiceOptions: id => {
+    return apiCall.options(`config/self_service/${id}`).then(response => {
       return response.data
     })
   },
-  createDeviceRegistration: data => {
-    return apiCall.post('config/device_registrations', data).then(response => {
+  createSelfService: data => {
+    return apiCall.post('config/self_services', data).then(response => {
       return response.data
     })
   },
-  updateDeviceRegistration: data => {
-    return apiCall.patch(`config/device_registration/${data.id}`, data).then(response => {
+  updateSelfService: data => {
+    return apiCall.patch(`config/self_service/${data.id}`, data).then(response => {
       return response.data
     })
   },
-  deleteDeviceRegistration: id => {
-    return apiCall.delete(`config/device_registration/${id}`)
+  deleteSelfService: id => {
+    return apiCall.delete(`config/self_service/${id}`)
   },
 
   /**

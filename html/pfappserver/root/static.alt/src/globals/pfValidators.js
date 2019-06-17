@@ -326,8 +326,8 @@ export const hasConnectionProfiles = (value, component) => {
   })
 }
 
-export const hasDeviceRegistrations = (value, component) => {
-  return store.dispatch('config/getDeviceRegistrations').then((response) => {
+export const hasSelfServices = (value, component) => {
+  return store.dispatch('config/getSelfServices').then((response) => {
     return (response.length > 0)
   }).catch(() => {
     return true
@@ -558,11 +558,11 @@ export const connectionProfileExists = (value, component) => {
   })
 }
 
-export const deviceRegistrationExists = (value, component) => {
+export const selfServiceExists = (value, component) => {
   if (!value) return true
-  return store.dispatch('config/getDeviceRegistrations').then((response) => {
+  return store.dispatch('config/getSelfServices').then((response) => {
     if (response.length === 0) return true
-    return (response.filter(deviceRegistration => deviceRegistration.id.toLowerCase() === value.toLowerCase()).length > 0)
+    return (response.filter(selfService => selfService.id.toLowerCase() === value.toLowerCase()).length > 0)
   }).catch(() => {
     return true
   })

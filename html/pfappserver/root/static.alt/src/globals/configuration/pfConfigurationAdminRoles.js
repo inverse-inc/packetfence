@@ -142,10 +142,10 @@ export const pfConfigurationAdminRoleActions = [
   {
     group: 'Device Registration',
     items: [
-      { text: 'Device Registration - Create', value: 'DEVICE_REGISTRATION_CREATE' },
-      { text: 'Device Registration - Delete', value: 'DEVICE_REGISTRATION_DELETE' },
-      { text: 'Device Registration - Read', value: 'DEVICE_REGISTRATION_READ' },
-      { text: 'Device Registration - Update', value: 'DEVICE_REGISTRATION_UPDATE' }
+      { text: 'Device Registration - Create', value: 'SELF_SERVICE_CREATE' },
+      { text: 'Device Registration - Delete', value: 'SELF_SERVICE_DELETE' },
+      { text: 'Device Registration - Read', value: 'SELF_SERVICE_READ' },
+      { text: 'Device Registration - Update', value: 'SELF_SERVICE_UPDATE' }
     ]
   },
   {
@@ -157,10 +157,10 @@ export const pfConfigurationAdminRoleActions = [
   {
     group: 'RADIUS Domains',
     items: [
-      { text: 'RADIUS Domains - Create', value: 'DEVICE_REGISTRATION_CREATE' },
-      { text: 'RADIUS Domains - Delete', value: 'DEVICE_REGISTRATION_DELETE' },
-      { text: 'RADIUS Domains - Read', value: 'DEVICE_REGISTRATION_READ' },
-      { text: 'RADIUS Domains - Update', value: 'DEVICE_REGISTRATION_UPDATE' }
+      { text: 'RADIUS Domains - Create', value: 'SELF_SERVICE_CREATE' },
+      { text: 'RADIUS Domains - Delete', value: 'SELF_SERVICE_DELETE' },
+      { text: 'RADIUS Domains - Read', value: 'SELF_SERVICE_READ' },
+      { text: 'RADIUS Domains - Update', value: 'SELF_SERVICE_UPDATE' }
     ]
   },
   {
