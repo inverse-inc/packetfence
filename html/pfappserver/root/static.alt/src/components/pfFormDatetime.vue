@@ -196,8 +196,8 @@ export default {
       return format
     },
     toggle (event) {
-      let picker = this.$refs.input.dp
-      picker.toggle()
+      let picker = this.$refs.input.$el
+      picker.focus()
     },
     reset (event) {
       this.inputValue = this.initialValue
