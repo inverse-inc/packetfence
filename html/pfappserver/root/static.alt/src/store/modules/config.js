@@ -1609,8 +1609,8 @@ const mutations = {
   PORTAL_MODULES_REQUEST: (state) => {
     state.portalModulesStatus = types.LOADING
   },
-  PORTAL_MODULES_UPDATED: (state, portalModles) => {
-    state.portalModles = portalModles
+  PORTAL_MODULES_UPDATED: (state, portalModules) => {
+    state.portalModules = portalModules
     state.portalModulesStatus = types.SUCCESS
   },
   PROVISIONINGS_REQUEST: (state) => {
