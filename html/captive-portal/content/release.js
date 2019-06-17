@@ -15,9 +15,12 @@ $(function() {
     $('#detectionError').removeClass('hide');
   }; 
 
-  if(vars.network_logoff_popup != 0) {
+  if (vars.network_logoff_popup != 0) {
     window.network_logoff_popup = "http://"+vars.hostname+"/networklogoff";
   }
+
+  // Initialize progress bar (requires timerbar.js)
+  initTimerbar();
 
   setTimeout(function() {
     // Start network detection after an initial delay
