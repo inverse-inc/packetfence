@@ -562,7 +562,7 @@ export const pfConfigurationAdminRoleViewFields = (context = {}) => {
                 ...pfConfigurationAttributesFromMeta(meta, 'allowed_unreg_date'),
                 ...{
                   config: {
-                    format: 'YYYY-MM-DD'
+                    datetimeFormat: 'YYYY-MM-DD'
                   }
                 }
               },

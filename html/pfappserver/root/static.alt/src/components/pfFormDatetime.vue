@@ -120,7 +120,7 @@ export default {
     return {
       defaultConfig: {
         allowInput: true,
-        dateFormat: 'YYYY-MM-DD HH:mm:ss',
+        datetimeFormat: 'YYYY-MM-DD HH:mm:ss',
         time_24hr: true
       },
       initialValue: undefined,
@@ -133,8 +133,8 @@ export default {
         return this.value
       },
       set (newValue) {
-        const dateFormat = Object.assign(this.defaultConfig, this.config).dateFormat
-        const value = (newValue === null) ? dateFormat.replace(/[a-z]/gi, '0') : newValue
+        const datetimeFormat = this.combinedConfig.datetimeFormat
+        const value = (newValue === null) ? datetimeFormat.replace(/[a-z]/gi, '0') : newValue
         this.$emit('input', value)
       }
     },
@@ -144,11 +144,14 @@ export default {
         maxDate: (this.max === '0000-00-00 00:00:00') ? new Date(8640000000000000) : this.max
       }
       let config = { ...this.defaultConfig, ...minMaxConfig, ...this.config }
-      if ('dateFormat' in config) {
-        config.dateFormat = this.convertFormat(config.dateFormat)
-        if (/[HhGiSsK]+/.test(config.dateFormat)) {
+      if ('datetimeFormat' in config) {
+        config.datetimeFormat = this.convertFormat(config.datetimeFormat)
+        if (/[HhGiSsK]+/.test(config.datetimeFormat)) {
           config.enableTime = true
           config.enableSeconds = true
+        } else {
+          config.enableTime = false
+          config.enableSeconds = false
         }
       }
       switch (this.locale) {
@@ -178,8 +181,8 @@ export default {
         ['MM', 'm'], // 2 digit month (01-31)
         ['M', 'n'], // 1-2 digit month (1-31)
         ['DD', 'd'], // 2 digit day (01-31)
-        ['D', 'j'], // 1-2 digit day (1-31)
         ['Do', 'J'], // 1st, 2nd, ..., 31st
+        ['D', 'j'], // 1-2 digit day (1-31)
         ['dddd', 'l'], // Sunday, Monday, ..., Saturday
         ['ddd', 'D'], // Sun, Mon, ..., Sat
         ['HH', 'H'], // 2 digit hour (01-23)
@@ -241,67 +244,67 @@ export default {
       let [amount, key] = this.moments[index].split(' ', 2)
       amount = parseInt(amount)
       // allow [CTRL/CMD]+[CLICK] for cumulative change
-      const dateFormat = this.config.dateFormat
-      const base = (event.ctrlKey || event.metaKey) ? parse(this.inputValue, dateFormat) || new Date() : new Date()
+      const datetimeFormat = this.config.datetimeFormat
+      const base = (event.ctrlKey || event.metaKey) ? parse(this.inputValue, datetimeFormat) || new Date() : new Date()
       if (validMomentKeys.includes(key)) {
         switch (key) {
           case 'years':
-            this.inputValue = format(addYears(base, amount), dateFormat)
+            this.inputValue = format(addYears(base, amount), datetimeFormat)
             break
           case 'quarters':
-            this.inputValue = format(addQuarters(base, amount), dateFormat)
+            this.inputValue = format(addQuarters(base, amount), datetimeFormat)
             break
           case 'months':
-            this.inputValue = format(addMonths(base, amount), dateFormat)
+            this.inputValue = format(addMonths(base, amount), datetimeFormat)
             break
           case 'weeks':
-            this.inputValue = format(addWeeks(base, amount), dateFormat)
+            this.inputValue = format(addWeeks(base, amount), datetimeFormat)
             break
           case 'days':
-            this.inputValue = format(addDays(base, amount), dateFormat)
+            this.inputValue = format(addDays(base, amount), datetimeFormat)
             break
           case 'hours':
-            this.inputValue = format(addHours(base, amount), dateFormat)
+            this.inputValue = format(addHours(base, amount), datetimeFormat)
             break
           case 'minutes':
-            this.inputValue = format(addMinutes(base, amount), dateFormat)
+            this.inputValue = format(addMinutes(base, amount), datetimeFormat)
             break
           case 'seconds':
-            this.inputValue = format(addSeconds(base, amount), dateFormat)
+            this.inputValue = format(addSeconds(base, amount), datetimeFormat)
             break
           case 'milliseconds':
-            this.inputValue = format(addMilliseconds(base, amount), dateFormat)
+            this.inputValue = format(addMilliseconds(base, amount), datetimeFormat)
             break
           default:
-            this.inputValue = format(base, dateFormat)
+            this.inputValue = format(base, datetimeFormat)
         }
       }
     },
     formatIsTimeOnly () {
-      let dateFormat = this.defaultConfig.dateFormat
+      let datetimeFormat = this.combinedConfig.datetimeFormat
       if ('input' in this.$refs && 'dp' in this.$refs.input) {
-        return !(/[MQDdEeWwYgX]+/.test(dateFormat))
+        return !(/[MQDdEeWwYgX]+/.test(datetimeFormat))
       }
       return false
     }
   },
   created () {
     // dereference inputValue and assign initialValue
-    const dateFormat = Object.assign(this.defaultConfig, this.config).dateFormat
+    const datetimeFormat = this.combinedConfig.datetimeFormat
     if (this.inputValue instanceof Date) {
       // instanceof Date, convert to String
-      this.inputValue = format(this.inputValue, dateFormat)
+      this.inputValue = format(this.inputValue, datetimeFormat)
     }
-    if (this.inputValue && this.inputValue !== dateFormat.replace(/[a-z]/gi, '0')) {
+    if (this.inputValue && this.inputValue !== datetimeFormat.replace(/[a-z]/gi, '0')) {
       // non-zero value, store for reset
-      this.initialValue = format(this.inputValue, dateFormat)
+      this.initialValue = format(this.inputValue, datetimeFormat)
     }
     // normalize (floor) min/max
     if (this.min) {
-      this.min = parse(format((this.min instanceof Date && dateFnsIsValid(this.min) ? this.min : parse(this.min)), dateFormat))
+      this.min = parse(format((this.min instanceof Date && dateFnsIsValid(this.min) ? this.min : parse(this.min)), datetimeFormat))
     }
     if (this.max) {
-      this.max = parse(format((this.max instanceof Date && dateFnsIsValid(this.max) ? this.max : parse(this.max)), dateFormat))
+      this.max = parse(format((this.max instanceof Date && dateFnsIsValid(this.max) ? this.max : parse(this.max)), datetimeFormat))
     }
   }
 }
