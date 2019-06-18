@@ -1026,7 +1026,7 @@ export default {
     applyBulkSecurityEvent (securityEvent) {
       const macs = this.selectValues.map(item => item.mac)
       if (macs.length > 0) {
-        this.$store.dispatch(`${this.storeName}/bulkApplySecurityEvent`, { vid: securityEvent.vid, items: macs }).then(items => {
+        this.$store.dispatch(`${this.storeName}/bulkApplySecurityEvent`, { security_event_id: securityEvent.id, items: macs }).then(items => {
           let successCount = 0
           let skippedCount = 0
           let failedCount = 0
