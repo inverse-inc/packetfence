@@ -64,6 +64,7 @@ type Query struct {
 	encoding string
 	method   string
 	ns       string
+	basens   string
 }
 
 // Get the payload to send to pfconfig based on the Query attributes
@@ -270,29 +271,31 @@ func transferMetadata(ctx context.Context, o1 interface{}, o2 interface{}) {
 func createQuery(ctx context.Context, o PfconfigObject) Query {
 	query := Query{}
 
-	query.ns = metadataFromField(ctx, o, "PfconfigNS")
+	query.basens = metadataFromField(ctx, o, "PfconfigNS")
 
-	if metadataFromField(ctx, o, "PfconfigHostnameOverlay") == "yes" && !nsHasOverlayRe.MatchString(query.ns) {
-		query.ns = query.ns + "(" + myHostname + ")"
+	if metadataFromField(ctx, o, "PfconfigHostnameOverlay") == "yes" && !nsHasOverlayRe.MatchString(query.basens) {
+		query.basens = query.basens + "(" + myHostname + ")"
 	}
 
 	if GetClusterSummary(ctx).ClusterEnabled == 1 {
-		if metadataFromField(ctx, o, "PfconfigClusterNameOverlay") == "yes" && !nsHasOverlayRe.MatchString(query.ns) {
+		if metadataFromField(ctx, o, "PfconfigClusterNameOverlay") == "yes" && !nsHasOverlayRe.MatchString(query.basens) {
 			clusterName := FindClusterName(ctx)
 			if clusterName == "" {
 				panic("Can't determine cluster name for this host")
 			}
 
-			query.ns = query.ns + "(" + clusterName + ")"
+			query.basens = query.basens + "(" + clusterName + ")"
 		}
 	}
 
 	// Make sure the namespace is normalized
-	query.ns = normalizeNamespace(ctx, query.ns)
+	query.basens = normalizeNamespace(ctx, query.basens)
 
 	query.method = metadataFromField(ctx, o, "PfconfigMethod")
 	if query.method == "hash_element" {
-		query.ns = query.ns + ";" + metadataFromField(ctx, o, "PfconfigHashNS")
+		query.ns = query.basens + ";" + metadataFromField(ctx, o, "PfconfigHashNS")
+	} else {
+		query.ns = query.basens
 	}
 	query.encoding = "json"
 	return query
@@ -312,7 +315,8 @@ func FindClusterName(ctx context.Context) string {
 // If the LoadedAt field was set before the namespace control file, then the resource isn't valid anymore
 // If the namespace control file doesn't exist, the resource is considered invalid
 func IsValid(ctx context.Context, o PfconfigObject) bool {
-	ns := normalizeNamespace(ctx, metadataFromField(ctx, o, "PfconfigNS"))
+	q := createQuery(ctx, o)
+	ns := q.basens
 	controlFile := "/usr/local/pf/var/control/" + ns + "-control"
 
 	stat, err := os.Stat(controlFile)
