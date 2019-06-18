@@ -342,7 +342,7 @@ export default {
       border-bottom-right-radius: $border-radius;
     }
     .flatpickr-input {
-      background-color: $input-focus-bg;
+      background-color: transparent;
       border-right: 2px solid $white;
       padding: .375rem .75rem;
       font-size: .9rem;
@@ -350,6 +350,8 @@ export default {
       line-height: 1.5;
       color: #4c555a;
       font-family: inherit;
+      flex: 1;
+      outline: 0;
     }
   }
   &.is-focus .pf-form-datetime-input-group {
