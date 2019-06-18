@@ -379,6 +379,10 @@ $t->options_ok("/api/v1/config/base/general")
             timezone => {
                 allowed => [
                     {
+                        text => "",
+                        value => ""
+                    },
+                    {
                         text => "Africa/Abidjan",
                         value => "Africa/Abidjan"
                     },
