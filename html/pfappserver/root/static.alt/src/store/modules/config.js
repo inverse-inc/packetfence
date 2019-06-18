@@ -567,9 +567,12 @@ const getters = {
   },
   rolesList: state => {
     if (!state.roles) return []
-    return state.roles.map((item) => {
-      return { value: item.category_id, name: item.name, text: ((item.notes) ? `${item.name} - ${item.notes}` : `${item.name}`) }
-    })
+    return [
+      ...[{ value: null, name: i18n.t('NONE'), text: i18n.t('NONE') }],
+      ...state.roles.map((item) => {
+        return { value: item.category_id, name: item.name, text: ((item.notes) ? `${item.name} - ${item.notes}` : `${item.name}`) }
+      })
+    ]
   },
   sourcesList: state => {
     if (!state.sources) return []
