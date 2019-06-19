@@ -568,7 +568,7 @@ const getters = {
   rolesList: state => {
     if (!state.roles) return []
     return [
-      ...[{ value: null, name: i18n.t('NONE'), text: i18n.t('NONE') }],
+      ...[{ value: null, name: i18n.t('empty - None'), text: i18n.t('empty - None') }],
       ...state.roles.map((item) => {
         return { value: item.category_id, name: item.name, text: ((item.notes) ? `${item.name} - ${item.notes}` : `${item.name}`) }
       })
