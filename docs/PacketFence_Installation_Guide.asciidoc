@@ -3692,7 +3692,7 @@ Under the section `tls-config tls-common`, search for `private_key_file', `certi
  * the server certificate issued by your CA for your PacketFence server,
  * the public key of your CA.
 
-If you have an `OCSP` capable PKI you can configure it in the section `OSCP` in the eap.conf file.
+If you have an `OCSP` capable PKI you can configure it in the section `OCSP` in the eap.conf file.
 
 Lastely you will need to restart RADIUS to ensure the use of the new configuration and certificates. Please do the following:
 
