@@ -24,9 +24,9 @@
               :vuelidate="$v.single.status"
             />
             <pf-form-select :column-label="$t('Role')"
-             v-model="single.category"
+             v-model="single.category_id"
              :options="roles"
-              :vuelidate="$v.single.category"
+              :vuelidate="$v.single.category_id"
             />
             <pf-form-datetime :column-label="$t('Unregistration')"
               v-model="single.unregdate"
