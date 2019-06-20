@@ -19,6 +19,7 @@ extends qw(pf::UnifiedApi::Search::Builder);
 use pf::dal::node;
 use pf::dal::locationlog;
 use pf::dal::radacct;
+use pf::util qw(clean_mac);
 use pf::constants qw($ZERO_DATE);
 
 our @LOCATION_LOG_JOIN = (
@@ -200,8 +201,29 @@ our %ALLOWED_JOIN_FIELDS = (
         group_by => 1,
         column_spec => \"GROUP_CONCAT(security_event_close.security_event_id) AS `security_event.close_security_event_id`"
     },
+    'mac' => {
+        rewrite_query => \&rewrite_mac_query,
+    }
 );
 
+sub rewrite_mac_query {
+    my ( $self, $s, $q ) = @_;
+    my $op = $q->{op};
+    if ( $op ne "equals" && $op ne "not_equals" ) {
+        return ( 200, $q );
+    }
+
+    my $value       = $q->{value};
+    my $cleaned_mac = clean_mac($value);
+    if ( $cleaned_mac eq "0" ) {
+        my $mac = defined $value ? $value : "(null)";
+        return ( 422,  { message => "Mac $mac is not a valid mac" } );
+    }
+
+    my %new_query = %$q;
+    $new_query{value} = $cleaned_mac;
+    return ( 200, \%new_query );
+}
 
 sub non_searchable {
     my ($self, $s, $q) = @_;
