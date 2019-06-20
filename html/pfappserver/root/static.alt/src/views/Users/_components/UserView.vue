@@ -91,12 +91,12 @@
           />
           <pf-form-datetime :column-label="$t('Anniversary')"
             v-model="userContent.anniversary"
-            :config="{format: 'YYYY-MM-DD'}"
+            :config="{datetimeFormat: 'YYYY-MM-DD'}"
             :vuelidate="$v.userContent.anniversary"
           />
           <pf-form-datetime :column-label="$t('Birthday')"
             v-model="userContent.birthday"
-            :config="{format: 'YYYY-MM-DD'}"
+            :config="{datetimeFormat: 'YYYY-MM-DD'}"
             :vuelidate="$v.userContent.birthday"
           />
           <pf-form-input :column-label="$t('Psk')"
@@ -131,14 +131,14 @@
             <b-row>
               <b-col>
                 <pf-form-datetime v-model="userContent.valid_from"
-                  :config="{format: 'YYYY-MM-DD'}"
+                  :config="{datetimeFormat: 'YYYY-MM-DD'}"
                   :vuelidate="$v.userContent.valid_from"
                 />
               </b-col>
               <p class="pt-2"><icon name="long-arrow-alt-right"></icon></p>
               <b-col>
                 <pf-form-datetime v-model="userContent.expiration"
-                  :config="{format: 'YYYY-MM-DD'}"
+                  :config="{datetimeFormat: 'YYYY-MM-DD'}"
                   :vuelidate="$v.userContent.expiration"
                 />
               </b-col>

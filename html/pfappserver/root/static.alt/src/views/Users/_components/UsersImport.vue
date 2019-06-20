@@ -26,7 +26,7 @@
                     <b-col>
                       <pf-form-datetime v-model="localUser.valid_from"
                         :min="new Date()"
-                        :config="{format: 'YYYY-MM-DD'}"
+                        :config="{datetimeFormat: 'YYYY-MM-DD'}"
                         :vuelidate="$v.localUser.valid_from"
                       />
                     </b-col>
@@ -34,7 +34,7 @@
                     <b-col>
                       <pf-form-datetime v-model="localUser.expiration"
                         :min="new Date()"
-                        :config="{format: 'YYYY-MM-DD'}"
+                        :config="{datetimeFormat: 'YYYY-MM-DD'}"
                         :vuelidate="$v.localUser.expiration"
                       />
                     </b-col>

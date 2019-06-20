@@ -165,7 +165,7 @@
                     <!-- BEGIN DATE -->
                     <pf-form-datetime v-else-if="isFieldType(dateValueType, staticMapping[index])"
                     v-model="staticMapping[index].value"
-                    :config="{format: 'YYYY-MM-DD'}"
+                    :config="{datetimeFormat: 'YYYY-MM-DD'}"
                     :class="{ 'border-danger': $v.staticMapping[index].value.$anyError }"
                     :vuelidate="$v.staticMapping[index].value"
                     ></pf-form-datetime>
@@ -173,7 +173,7 @@
                     <!-- BEGIN DATETIME -->
                     <pf-form-datetime v-else-if="isFieldType(datetimeValueType, staticMapping[index])"
                     v-model="staticMapping[index].value"
-                    :config="{format: 'YYYY-MM-DD HH:mm:ss'}"
+                    :config="{datetimeFormat: 'YYYY-MM-DD HH:mm:ss'}"
                     :class="{ 'border-danger': $v.staticMapping[index].value.$anyError }"
                     :vuelidate="$v.staticMapping[index].value"
                     ></pf-form-datetime>

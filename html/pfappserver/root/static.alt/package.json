@@ -22,6 +22,7 @@
     "vue-awesome": "^3.5.3",
     "vue-bootstrap-datetimepicker": "^5.0.1",
     "vue-browser-acl": "^0.10.0",
+    "vue-flatpickr-component": "^8.1.2",
     "vue-i18n": "^8.11.2",
     "vue-multiselect": "^2.1.6",
     "vue-router": "^3.0.6",

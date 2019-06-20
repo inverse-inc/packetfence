@@ -57,7 +57,7 @@
       <pf-form-datetime v-else-if="isAttributeType(timeConditionType)"
         v-model="localValue"
         ref="localValue"
-        :config="{useCurrent: false, format: 'HH:mm'}"
+        :config="{useCurrent: false, datetimeFormat: 'HH:mm'}"
         placeholder="HH:mm"
         :vuelidate="valueVuelidateModel"
         :invalid-feedback="valueInvalidFeedback"
