@@ -9,7 +9,6 @@
           <b-col sm="12">
             <pf-form-input :column-label="$t('MAC')"
               v-model="single.mac"
-              :filter="globals.regExp.stringMac"
               :vuelidate="$v.single.mac"
             />
             <pf-form-autocomplete :column-label="$t('Owner')"
@@ -68,6 +67,7 @@ import {
   required
 } from 'vuelidate/lib/validators'
 import {
+  isMacAddress,
   userExists,
   nodeExists
 } from '@/globals/pfValidators'
@@ -118,6 +118,7 @@ export default {
           // additional custom validations ...
           mac: {
             [this.$i18n.t('MAC address required.')]: required,
+            [this.$i18n.t('Invalid MAC address.')]: isMacAddress,
             [this.$i18n.t('MAC address exists.')]: nodeExists
           },
           pid: {
