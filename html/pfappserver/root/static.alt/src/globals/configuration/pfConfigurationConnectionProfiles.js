@@ -21,13 +21,13 @@ import {
   conditional,
   hasConnectionProfiles,
   connectionProfileExists,
+  isMacAddress,
   isPort,
   limitSiblingFields
 } from '@/globals/pfValidators'
 
 const {
   required,
-  macAddress,
   maxLength
 } = require('vuelidate/lib/validators')
 
@@ -174,7 +174,7 @@ export const pfConfigurationConnectionProfileFilters = {
       },
       match: {
         [i18n.t('Match required.')]: required,
-        [i18n.t('Invalid MAC Address.')]: macAddress
+        [i18n.t('Invalid MAC address.')]: isMacAddress
       }
     }
   },

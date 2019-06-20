@@ -208,6 +208,11 @@ export const isHex = (value) => {
   return /^[0-9a-f]+$/i.test(value)
 }
 
+export const isMacAddress = (value) => {
+  if (!value) return true
+  return value.toLowerCase().replace(/[^0-9a-f]/g, '').length === 12
+}
+
 export const isOUI = (separator = ':') => {
   return (0, _common.withParams)({
     type: 'isOUI',
@@ -648,7 +653,13 @@ export const maintenanceTaskExists = (value, component) => {
 }
 
 export const nodeExists = (value, component) => {
-  if (!value || value.length !== 17) return true
+  if (!value) return true
+  // standardize MAC address
+  value = value.toLowerCase().replace(/[^0-9a-f]/g, '').split('').reduce((a, c, i) => {
+    a += ((i % 2) === 0 || i >= 11) ? c : c + ':'
+    return a
+  })
+  if (value.length !== 17) return true
   return store.dispatch('$_nodes/exists', value).then(() => {
     return false
   }).catch(() => {
