@@ -206,6 +206,7 @@ sub make_join_specs {
     foreach my $f (@{$s->{found_fields} // []}) {
         if (exists $allow_joins->{$f}) {
             my $jf = $allow_joins->{$f};
+            next if !exists $jf->{join_spec};
             my $namespace = $jf->{namespace};
             next if exists $found{$namespace};
             $found{$namespace} = 1;
@@ -408,7 +409,9 @@ sub rewrite_query {
     my $status = 200;
     if ($self->is_table_field($s, $f)) {
         $query->{field} = $s->{dal}->table . "." . $f;
-    } elsif ($self->is_field_rewritable($s, $f)) {
+    }
+
+    if ($self->is_field_rewritable($s, $f)) {
         my $allowed = $self->allowed_join_fields;
         my $cb = $allowed->{$f}{rewrite_query};
         ($status, $query) = $self->$cb($s, $query);
