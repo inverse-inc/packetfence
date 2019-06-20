@@ -427,12 +427,10 @@ span.flatpickr-weekday {
 .flatpickr-day.selected.startRange + .endRange:not(:nth-child(7n+1)),
 .flatpickr-day.startRange.startRange + .endRange:not(:nth-child(7n+1)),
 .flatpickr-day.endRange.startRange + .endRange:not(:nth-child(7n+1)) {
-  -webkit-box-shadow: -10px 0 0 $primary;
-          box-shadow: -10px 0 0 $primary;
+  box-shadow: -10px 0 0 $primary;
 }
 .flatpickr-day.week.selected {
   border-radius: 0;
-  -webkit-box-shadow: -5px 0 0 $primary, 5px 0 0 $primary;
-          box-shadow: -5px 0 0 $primary, 5px 0 0 $primary;
+  box-shadow: -5px 0 0 $primary, 5px 0 0 $primary;
 }
 </style>

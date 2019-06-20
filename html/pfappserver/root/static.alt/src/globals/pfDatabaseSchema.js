@@ -65,10 +65,10 @@ export const buildValidationFromColumnSchemas = (...columnSchemas) => {
           })
           break
         case (columnSchema.type === pfDatetime):
-          if ('format' in columnSchema) {
-            let allowZero = (columnSchema.default && columnSchema.default === columnSchema.format.replace(/[a-z]/gi, '0'))
+          if ('datetimeFormat' in columnSchema) {
+            let allowZero = (columnSchema.default && columnSchema.default === columnSchema.datetimeFormat.replace(/[a-z]/gi, '0'))
             Object.assign(validation, {
-              [i18n.t('Invalid date.')]: isDateFormat(columnSchema.format, allowZero)
+              [i18n.t('Invalid date.')]: isDateFormat(columnSchema.datetimeFormat, allowZero)
             })
           }
           break

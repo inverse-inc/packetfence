@@ -398,8 +398,8 @@ export const pfConfigurationActions = {
         [i18n.t('Duplicate action.')]: limitSiblingFields('type', 0)
       },
       value: {
-        [i18n.t('Future date required.')]: compareDate('>=', new Date(), schema.node.unregdate.format, false),
-        [i18n.t('Invalid date.')]: isDateFormat(schema.node.unregdate.format)
+        [i18n.t('Future date required.')]: compareDate('>=', new Date(), schema.node.unregdate.datetimeFormat, false),
+        [i18n.t('Invalid date.')]: isDateFormat(schema.node.unregdate.datetimeFormat)
       }
     }
   }
