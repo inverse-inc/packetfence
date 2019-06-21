@@ -1,7 +1,6 @@
 import i18n from '@/utils/locale'
 import { mysqlLimits as sqlLimits } from '@/globals/mysqlLimits'
 import {
-  and,
   inArray,
   isDateFormat,
   isMacAddress
@@ -9,7 +8,6 @@ import {
 import {
   email,
   maxLength,
-  minLength,
   maxValue,
   minValue,
   numeric
