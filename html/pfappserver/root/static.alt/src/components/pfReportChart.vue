@@ -216,9 +216,6 @@ export default {
 </style>
 
 <style lang="scss" scoped>
-@import "../../node_modules/bootstrap/scss/functions";
-@import "../styles/variables";
-
 /**
  * Disable selection when double-clicking legend
  */

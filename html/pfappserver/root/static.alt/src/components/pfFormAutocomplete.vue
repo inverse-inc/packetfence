@@ -155,9 +155,6 @@ export default {
 </script>
 
 <style lang="scss">
-@import "../../node_modules/bootstrap/scss/functions";
-@import "../styles/variables";
-
 .pf-autocomplete {
     position: relative;
     // Input field

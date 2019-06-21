@@ -55,9 +55,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  @import "../../node_modules/bootstrap/scss/functions";
-  @import "../styles/variables";
-
   .fixed-top {
     background-color: $gray-700;
   }

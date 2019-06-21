@@ -144,10 +144,6 @@ export default {
 </script>
 
 <style lang="scss">
-@import "../../node_modules/bootstrap/scss/functions";
-@import "../styles/variables";
-@import "../../node_modules/bootstrap/scss/root";
-
 :root { /* defaults */
   --range-height: 22px;
   --range-background-color: #{$input-placeholder-color};

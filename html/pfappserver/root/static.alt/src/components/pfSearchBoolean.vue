@@ -221,9 +221,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "../../node_modules/bootstrap/scss/functions";
-@import "../styles/variables";
-
 .draghandle {
   line-height: 1em;
 }

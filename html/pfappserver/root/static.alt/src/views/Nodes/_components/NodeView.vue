@@ -913,9 +913,6 @@ export default {
 </script>
 
 <style lang="scss">
-@import "../../../../node_modules/bootstrap/scss/functions";
-@import "../../../styles/variables";
-
 $vis-item-bg: theme-color("primary");
 $vis-item-color: $white;
 

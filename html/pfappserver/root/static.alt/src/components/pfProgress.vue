@@ -1,3 +1,6 @@
+<!--
+https://github.com/bvaughn/progress-estimator
+-->
 <template>
     <b-progress class="fixed-top" height="4px" :value="percentage" v-show="visible"></b-progress>
 </template>
@@ -72,10 +75,7 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
-  @import "../../node_modules/bootstrap/scss/functions";
-  @import "../styles/variables";
-
+<style lang="scss">
   .progress.fixed-top {
     background-color: $gray-700;
   }

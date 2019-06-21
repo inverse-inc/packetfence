@@ -223,9 +223,6 @@ export default {
 </script>
 
 <style lang="scss">
-@import "../../node_modules/bootstrap/scss/functions";
-@import "../styles/variables";
-
 $colorChecked: $blue;
 $colorUnchecked: $gray-500;
 $margin: 3px;

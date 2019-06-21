@@ -237,11 +237,6 @@ export default {
 </script>
 
 <style lang="scss">
-@import "../../node_modules/bootstrap/scss/functions";
-@import "../../node_modules/bootstrap/scss/mixins/border-radius";
-@import "../../node_modules/bootstrap/scss/mixins/box-shadow";
-@import "../styles/variables";
-
 /**
  * Adjust is-invalid and is-focus borders
  */

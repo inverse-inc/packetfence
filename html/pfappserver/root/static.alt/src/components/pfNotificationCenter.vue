@@ -118,11 +118,6 @@ export default {
 </script>
 
 <style lang="scss">
-@import "../../node_modules/bootstrap/scss/functions";
-@import "../../node_modules/bootstrap/scss/mixins/breakpoints";
-@import "../../node_modules/bootstrap/scss/mixins/box-shadow";
-@import "../styles/variables";
-
 $enable-shadows: true;
 
 .notifications-toasts {

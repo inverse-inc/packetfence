@@ -342,9 +342,6 @@ export default {
 </style>
 
 <style lang="scss" scoped>
-@import "../../../../node_modules/bootstrap/scss/functions";
-@import "../../../styles/variables";
-
 /**
  * Add btn-primary color(s) on hover
  */

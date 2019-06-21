@@ -151,11 +151,6 @@ export default {
 </script>
 
 <style lang="scss">
-@import "../../node_modules/bootstrap/scss/functions";
-@import "../../node_modules/bootstrap/scss/mixins/border-radius";
-@import "../../node_modules/bootstrap/scss/mixins/transition";
-@import "../styles/variables";
-
 .pfTableSortable {
   color: #495057;
   border-spacing: 2px;

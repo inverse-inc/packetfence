@@ -819,9 +819,6 @@ export default {
 </script>
 
 <style lang="scss">
-@import "../../node_modules/bootstrap/scss/functions";
-@import "../styles/variables";
-
 /**
  * Position the "or" badge bellow each trigger except the last one
  */
