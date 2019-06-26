@@ -44,7 +44,7 @@ export default {
   },
   computed: {
     cluster () {
-      return this.$store.state.$_status.cluster
+      return this.$store.state.$_status.cluster || []
     }
   },
   mounted () {
