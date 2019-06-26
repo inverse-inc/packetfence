@@ -25,6 +25,11 @@ export default {
           path: '/status/dashboard'
         },
         {
+          name: this.$i18n.t('Network'),
+          path: '/status/network',
+          can: 'read nodes'
+        },
+        {
           name: this.$i18n.t('Services'),
           path: '/status/services',
           can: 'read services'

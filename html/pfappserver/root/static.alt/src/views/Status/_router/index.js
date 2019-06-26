@@ -2,6 +2,7 @@ import store from '@/store'
 import StatusView from '../'
 import StatusStore from '../_store'
 import Dashboard from '../_components/Dashboard'
+import Network from '../_components/Network'
 import Services from '../_components/Services'
 import Queue from '../_components/Queue'
 import ClusterServices from '../_components/ClusterServices'
@@ -37,6 +38,15 @@ const route = {
       meta: {
         can: 'read reports',
         fail: { path: '/auditing', replace: true }
+      }
+    },
+    {
+      path: 'network',
+      component: Network,
+      props: { storeName: 'network' },
+      meta: {
+        can: 'read nodes',
+        fail: { path: '/status/dashboard', replace: true }
       }
     },
     {
