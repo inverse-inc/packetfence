@@ -208,21 +208,14 @@ our %ALLOWED_JOIN_FIELDS = (
 
 sub rewrite_mac_query {
     my ( $self, $s, $q ) = @_;
-    my $op = $q->{op};
-    if ( $op ne "equals" && $op ne "not_equals" ) {
-        return ( 200, $q );
-    }
 
     my $value       = $q->{value};
     my $cleaned_mac = clean_mac($value);
-    if ( $cleaned_mac eq "0" ) {
-        my $mac = defined $value ? $value : "(null)";
-        return ( 422,  { message => "Mac $mac is not a valid mac" } );
+    if ( $cleaned_mac ne "0" ) {
+        $q->{value} = $cleaned_mac;
     }
 
-    my %new_query = %$q;
-    $new_query{value} = $cleaned_mac;
-    return ( 200, \%new_query );
+    return ( 200, $q );
 }
 
 sub non_searchable {
