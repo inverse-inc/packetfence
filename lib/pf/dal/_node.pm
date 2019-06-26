@@ -484,19 +484,6 @@ sub get_meta {
     return \%FIELDS_META;
 }
 
-=head2 _insert_data
-
-Create the hash for inserting into a table
-Overriding so that we can clean the MAC
-
-=cut
-
-sub _insert_data {
-    my ($self) = @_;
-    $self->{mac} = clean_mac($self->{mac});
-    return $self->SUPER::_insert_data();
-}
- 
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
