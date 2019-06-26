@@ -27,6 +27,8 @@ use base qw(pf::dal);
 use Role::Tiny::With;
 with qw(pf::dal::roles::has_tenant_id);
 
+use pf::util;
+
 our @FIELD_NAMES;
 our @INSERTABLE_FIELDS;
 our @PRIMARY_KEYS;
@@ -480,6 +482,19 @@ Get the meta data for node
 
 sub get_meta {
     return \%FIELDS_META;
+}
+
+=head2 _insert_data
+
+Create the hash for inserting into a table
+Overriding so that we can clean the MAC
+
+=cut
+
+sub _insert_data {
+    my ($self) = @_;
+    $self->{mac} = clean_mac($self->{mac});
+    return $self->SUPER::_insert_data();
 }
  
 =head1 AUTHOR
