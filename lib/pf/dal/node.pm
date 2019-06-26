@@ -160,6 +160,9 @@ sub _insert_data {
     if ($data->{detect_date} eq '0000-00-00 00:00:00') {
        $data->{detect_date} = $self->now;
     }
+
+    $data->{mac} = clean_mac($data->{mac});
+
     return $status, $data;
 }
 
@@ -241,19 +244,6 @@ sub to_hash_fields {
     return [@pf::dal::_node::FIELD_NAMES, qw(category bypass_role), @LOCATION_LOG_GETTERS];
 }
 
-=head2 _insert_data
-
-Create the hash for inserting into a table
-Overriding so that we can clean the MAC
-
-=cut
-
-sub _insert_data {
-    my ($self) = @_;
-    $self->{mac} = clean_mac($self->{mac});
-    return $self->SUPER::_insert_data();
-}
- 
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
