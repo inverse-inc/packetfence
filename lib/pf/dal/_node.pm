@@ -27,8 +27,6 @@ use base qw(pf::dal);
 use Role::Tiny::With;
 with qw(pf::dal::roles::has_tenant_id);
 
-use pf::util;
-
 our @FIELD_NAMES;
 our @INSERTABLE_FIELDS;
 our @PRIMARY_KEYS;
