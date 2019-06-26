@@ -53,10 +53,10 @@ sub getVlanFromPool {
     return $args->{'vlan'} if $self->rangeValidator($args->{'vlan'});
     my $range = Number::Range->new($args->{'vlan'});
     my $vlan;
-    if ($Config{advanced}{vlan_pool_technique} eq $POOL_USERNAMEHASH) {
+    if ($args->{'profile'}->{'_vlan_pool_technique'} eq $POOL_USERNAMEHASH ) {
         $logger->trace("Use $POOL_USERNAMEHASH algorithm for VLAN pool");
         $vlan = $self->getVlanByUsername($args, $range);
-    } elsif ($Config{advanced}{vlan_pool_technique} eq $POOL_RANDOM) {
+    } elsif ($args->{'profile'}->{'_vlan_pool_technique'} eq $POOL_RANDOM) {
         $logger->trace("Use $POOL_RANDOM algorithm for VLAN pool");
         $vlan = $self->getRandomVlanInPool($args, $range);
     } else {

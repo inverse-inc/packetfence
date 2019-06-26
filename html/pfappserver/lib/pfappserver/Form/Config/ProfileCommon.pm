@@ -27,6 +27,7 @@ use pf::ConfigStore::DeviceRegistration;
 use pf::ConfigStore::PortalModule;
 use pf::web::constants;
 use pf::constants::Connection::Profile;
+use pf::constants::role qw( $POOL_USERNAMEHASH $POOL_RANDOM $POOL_ROUND_ROBBIN );
 use pfappserver::Form::Field::Duration;
 use pfappserver::Base::Form;
 with 'pfappserver::Base::Form::Role::Help';
@@ -41,7 +42,7 @@ The main definition block
 
 has_block 'definition' =>
   (
-    render_list => [qw(id description root_module preregistration autoregister reuse_dot1x_credentials dot1x_recompute_role_from_portal dot1x_unset_on_unmatch dpsk default_psk_key unreg_on_acct_stop)],
+    render_list => [qw(id description root_module preregistration autoregister reuse_dot1x_credentials dot1x_recompute_role_from_portal dot1x_unset_on_unmatch dpsk default_psk_key unreg_on_acct_stop vlan_pool_technique)],
   );
 
 =head2 captive_portal
@@ -526,6 +527,25 @@ has_field 'access_registration_when_registered' =>
              help => 'This allows already registered users to be able to re-register their device by first accessing the status page and then accessing the portal. This is useful to allow users to extend their access even though they are already registered.' },
   );
 
+=head2 vlan_pool
+
+Control the vlan pool technique you want to use
+
+=cut
+
+has_field 'vlan_pool_technique' =>
+  (
+   type => 'Select',
+   multiple => 0,
+   required => 1,
+   label => 'Vlan Pool Technique',
+   options_method => \&options_vlan_pool,
+   element_class => ['chzn-select'],
+   default => "round_robbin",
+   tags => { after_element => \&help,
+             help => 'The Vlan Pool Technique to use' },
+  );
+
 =head1 METHODS
 
 =head2 options_locale
@@ -597,6 +617,18 @@ sub options_root_module {
     my $cs = pf::ConfigStore::PortalModule->new;
     return map { $_->{type} eq "Root" ? { value => $_->{id}, label => $_->{description} } : () } @{$cs->readAll("id")};
 }
+
+=head2 options_vlan_pool
+
+Returns the list of the vlan pool technique
+
+=cut
+
+sub options_vlan_pool {
+
+    return map{ { value => $_, label => $_ } } ( $POOL_ROUND_ROBBIN, $POOL_RANDOM, $POOL_USERNAMEHASH );
+}
+
 
 =head2 validate
 

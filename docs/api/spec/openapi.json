@@ -716,10 +716,6 @@
                      "update_iplog_with_accounting" : {
                         "description" : "Use the information included in the accounting to update the iplog",
                         "type" : "string"
-                     },
-                     "vlan_pool_technique" : {
-                        "description" : "The algorithm used to calculate the VLAN in a VLAN pool. <a target=\"_blank\" href=\"/static/doc/PacketFence_Installation_Guide.html#_roles_management\"><i class=\"icon-question-circle-o\"></i></a> ",
-                        "type" : "string"
                      }
                   },
                   "type" : "object"
@@ -1799,6 +1795,10 @@
                },
                "unreg_on_acct_stop" : {
                   "description" : "This activates automatic deregistation of devices for the profile if PacketFence receives a RADIUS accounting stop.",
+                  "type" : "string"
+               },
+               "vlan_pool_technique" : {
+                  "description" : "The algorithm used to calculate the VLAN in a VLAN pool. <a target=\"_blank\" href=\"/static/doc/PacketFence_Installation_Guide.html#_roles_management\"><i class=\"icon-question-circle-o\"></i></a> ",
                   "type" : "string"
                }
             },

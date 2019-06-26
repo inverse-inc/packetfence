@@ -450,7 +450,6 @@ type PfConfAdvanced struct {
 	AdminCspSecurityHeaders          string   `json:"admin_csp_security_headers"`
 	Multihost                        string   `json:"multihost"`
 	SsoOnAccessReevaluation          string   `json:"sso_on_access_reevaluation"`
-	VlanPoolTechnique                string   `json:"vlan_pool_technique"`
 	DisablePfDomainAuth              string   `json:"disable_pf_domain_auth"`
 	TimingStatsLevel                 string   `json:"timing_stats_level"`
 	SsoOnDhcp                        string   `json:"sso_on_dhcp"`
