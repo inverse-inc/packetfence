@@ -1923,6 +1923,19 @@ In order to upgrade the Admin rights, run the following commands
 Upgrading from a version prior to X.Y.Z
 ---------------------------------------
 
+ntlm_auth allow mschapv2 only
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+To support ntlmv2 only in Active Directory ( 'Network Security: LAN Manager authentication level' setting changed to 'Send NTLMv2 Response Only. Refuse LM & NTLM') a configuration paramater has been added in the ntlm_auth call in FreeRADIUS (conf/radiusd/mschap.conf) --allow-mschapv2
+
+https://samba-technical.samba.narkive.com/2pdJidyq/pr-patch-added-msv1-0-allow-msvchapv2-flag-to-ntlm-auth
+
+If your Active Directory doesn't support that mode then feel free to remove this configuration parameter.
+
+
+Database schema
+^^^^^^^^^^^^^^^
+
 Changes have been made to the database schema. You will need to update it accordingly.
 An SQL upgrade script has been provided to upgrade the database from the X.X schema to X.Y.
 
