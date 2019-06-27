@@ -4621,6 +4621,8 @@ It will install WinPCAP, nssm, launch a configurator to ask for interface, IP an
 
 When you will be asked for a host IP and port, specify PacketFence management IP and 767 as the UDP port.
 
+WARNING: On some versions of Windows, the `getmac` command will return invalid output when running the installer in a language other than English. In order to workaround the issue, change your Windows language to English, then logout/login and run the installer again.
+
 The project page can be found https://github.com/inverse-inc/packetfence-dhcp-forwarder[here].
 
 Linux-based Sensor
