@@ -1440,7 +1440,7 @@ export const pfConfigurationAuthenticationSourceFields = {
   },
   searchattributes: ({ options: { meta = {} } } = {}) => {
     return {
-      label: i18n.t('Username Attribute'),
+      label: i18n.t('Search Attributes'),
       text: i18n.t('Other attributes that can be used as the username (requires to restart the radiusd service to be effective).'),
       fields: [
         {
