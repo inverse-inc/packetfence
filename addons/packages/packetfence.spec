@@ -904,6 +904,7 @@ fi
                         /usr/local/pf/conf/*.example
 %config(noreplace)      /usr/local/pf/conf/adminroles.conf
 %config(noreplace)      /usr/local/pf/conf/allowed_device_oui.txt
+%config                 /usr/local/pf/conf/ui.conf
                         /usr/local/pf/conf/allowed_device_oui.txt.example
 %config(noreplace)      /usr/local/pf/conf/apache_filters.conf
                         /usr/local/pf/conf/apache_filters.conf.example
