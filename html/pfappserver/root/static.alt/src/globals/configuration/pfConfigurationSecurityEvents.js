@@ -165,7 +165,7 @@ export const pfConfigurationSecurityEventViewFields = (context = {}) => {
         },
         {
           label: i18n.t('Event Triggers'),
-          if: (form.triggers),
+          if: (form.triggers && form.triggers.length),
           fields: [
             {
               component: pfFormSecurityEventTriggerHeader
