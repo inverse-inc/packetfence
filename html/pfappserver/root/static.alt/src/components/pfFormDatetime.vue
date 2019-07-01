@@ -245,7 +245,7 @@ export default {
       amount = parseInt(amount)
       // allow [CTRL/CMD]+[CLICK] for cumulative change
       const datetimeFormat = this.config.datetimeFormat
-      const base = (event.ctrlKey || event.metaKey) ? parse(this.inputValue, datetimeFormat) || new Date() : new Date()
+      const base = (event.actionKey || event.metaKey) ? parse(this.inputValue, datetimeFormat) || new Date() : new Date()
       if (validMomentKeys.includes(key)) {
         switch (key) {
           case 'years':

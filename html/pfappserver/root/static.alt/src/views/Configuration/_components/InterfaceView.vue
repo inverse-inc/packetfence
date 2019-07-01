@@ -31,7 +31,7 @@
         <pf-button-save :disabled="invalidForm" :isLoading="isLoading">
           <template v-if="isNew">{{ $t('Create') }}</template>
           <template v-else-if="isClone">{{ $t('Clone') }}</template>
-          <template v-else-if="ctrlKey">{{ $t('Save & Close') }}</template>
+          <template v-else-if="actionKey">{{ $t('Save & Close') }}</template>
           <template v-else>{{ $t('Save') }}</template>
         </pf-button-save>
         <b-button :disabled="isLoading" class="ml-1" variant="outline-secondary" @click="init()">{{ $t('Reset') }}</b-button>
@@ -113,8 +113,8 @@ export default {
     isVlan () {
       return (this.form && this.form.master)
     },
-    ctrlKey () {
-      return this.$store.getters['events/ctrlKey']
+    actionKey () {
+      return this.$store.getters['events/actionKey']
     },
     escapeKey () {
       return this.$store.getters['events/escapeKey']
@@ -137,9 +137,9 @@ export default {
       this.$router.push({ name: 'interfaces' })
     },
     create () {
-      const ctrlKey = this.ctrlKey
+      const actionKey = this.actionKey
       this.$store.dispatch(`${this.storeName}/createInterface`, this.form).then(response => {
-        if (ctrlKey) { // [CTRL] key pressed
+        if (actionKey) { // [CTRL] key pressed
           this.close()
         } else {
           this.$router.push({ name: 'interface', params: { id: `${this.form.id}.${this.form.vlan}` } })
@@ -147,9 +147,9 @@ export default {
       })
     },
     save () {
-      const ctrlKey = this.ctrlKey
+      const actionKey = this.actionKey
       this.$store.dispatch(`${this.storeName}/updateInterface`, this.form).then(response => {
-        if (ctrlKey) { // [CTRL] key pressed
+        if (actionKey) { // [CTRL] key pressed
           this.close()
         }
       })

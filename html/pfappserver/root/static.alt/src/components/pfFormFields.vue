@@ -56,13 +56,13 @@
             </template>
             <template slot="append">
               <icon name="minus-circle" v-if="canDel"
-                :class="['cursor-pointer mx-1', { 'text-primary': ctrlKey, 'text-secondary': !ctrlKey }]"
+                :class="['cursor-pointer mx-1', { 'text-primary': actionKey, 'text-secondary': !actionKey }]"
                 v-b-tooltip.hover.left.d300
-                :title="ctrlKey ? $t('Delete All') : $t('Delete Row')"
+                :title="actionKey ? $t('Delete All') : $t('Delete Row')"
                 @click.native.stop.prevent="rowDel(index)"></icon>
               <icon name="plus-circle" v-if="canAdd"
-                :class="['cursor-pointer mx-1', { 'text-primary': ctrlKey, 'text-secondary': !ctrlKey }]"
-                v-b-tooltip.hover.left.d300 :title="ctrlKey ? $t('Clone Row') : $t('Add Row')"
+                :class="['cursor-pointer mx-1', { 'text-primary': actionKey, 'text-secondary': !actionKey }]"
+                v-b-tooltip.hover.left.d300 :title="actionKey ? $t('Clone Row') : $t('Add Row')"
                 @click.native.stop.prevent="rowAdd(index + 1)"></icon>
             </template>
           </component>
@@ -162,12 +162,12 @@ export default {
     canDel () {
       return (!this.disabled && (!this.minFields || this.minFields < this.value.length))
     },
-    ctrlKey () {
-      return this.$store.getters['events/ctrlKey']
+    actionKey () {
+      return this.$store.getters['events/actionKey']
     }
   },
   methods: {
-    rowAdd (index = 0, clone = this.ctrlKey) {
+    rowAdd (index = 0, clone = this.actionKey) {
       let inputValue = this.inputValue || []
       let length = inputValue.length
       let newRow = (clone && (index - 1) in inputValue)
@@ -182,7 +182,7 @@ export default {
       }
       this.$set(this.validations, index, {})
       // focus the type element in new row
-      if (!clone) { // Bugfix: focusing pfFormChosen steals ctrlKey's onkeyup event
+      if (!clone) { // Bugfix: focusing pfFormChosen steals actionKey's onkeyup event
         this.$nextTick(() => { // wait until DOM updates with new row
           this.focus('component-' + index)
         })
@@ -190,7 +190,7 @@ export default {
       this.emitValidations()
       this.forceUpdate()
     },
-    rowDel (index, deleteAll = this.ctrlKey) {
+    rowDel (index, deleteAll = this.actionKey) {
       let length = this.inputValue.length
       if (deleteAll) {
         for (let i = length - 1; i >= 0; i--) { // delete all, bottom-up

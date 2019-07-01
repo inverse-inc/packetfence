@@ -26,7 +26,7 @@
         <pf-button-save :disabled="invalidForm" :isLoading="isLoading" class="mr-1">
           <template v-if="isNew">{{ $t('Create') }}</template>
           <template v-else-if="isClone">{{ $t('Clone') }}</template>
-          <template v-else-if="ctrlKey">{{ $t('Save & Close') }}</template>
+          <template v-else-if="actionKey">{{ $t('Save & Close') }}</template>
           <template v-else>{{ $t('Save') }}</template>
         </pf-button-save>
         <b-button :disabled="isLoading" class="mr-1" variant="outline-secondary" @click="init()">{{ $t('Reset') }}</b-button>
@@ -110,8 +110,8 @@ export default {
         fields: fields(this)
       }
     },
-    ctrlKey () {
-      return this.$store.getters['events/ctrlKey']
+    actionKey () {
+      return this.$store.getters['events/actionKey']
     },
     escapeKey () {
       return this.$store.getters['events/escapeKey']
@@ -139,9 +139,9 @@ export default {
       this.$router.push({ name: 'cloneRoutedNetwork' })
     },
     create () {
-      const ctrlKey = this.ctrlKey
+      const actionKey = this.actionKey
       this.$store.dispatch(`${this.storeName}/createRoutedNetwork`, this.form).then(response => {
-        if (ctrlKey) { // [CTRL] key pressed
+        if (actionKey) { // [CTRL] key pressed
           this.close()
         } else {
           this.$router.push({ name: 'routed_network', params: { id: this.form.id } })
@@ -149,9 +149,9 @@ export default {
       })
     },
     save () {
-      const ctrlKey = this.ctrlKey
+      const actionKey = this.actionKey
       this.$store.dispatch(`${this.storeName}/updateRoutedNetwork`, this.form).then(response => {
-        if (ctrlKey) { // [CTRL] key pressed
+        if (actionKey) { // [CTRL] key pressed
           this.close()
         }
       })

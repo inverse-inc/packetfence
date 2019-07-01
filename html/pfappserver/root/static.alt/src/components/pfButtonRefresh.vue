@@ -4,8 +4,8 @@
     v-b-tooltip.hover.left.d300 :title="$t('Refresh [Alt + R]')"
     @click="click"
   >
-    <icon v-if="interval" name="history" :style="`transform: rotate(${rotate}deg) scaleX(-1)`" :class="{ 'text-primary': ctrlKey }"></icon>
-    <icon v-else name="redo" :style="`transform: rotate(${rotate}deg)`" :class="{ 'text-primary': ctrlKey }"></icon>
+    <icon v-if="interval" name="history" :style="`transform: rotate(${rotate}deg) scaleX(-1)`" :class="{ 'text-primary': actionKey }"></icon>
+    <icon v-else name="redo" :style="`transform: rotate(${rotate}deg)`" :class="{ 'text-primary': actionKey }"></icon>
   </button>
 </template>
 
@@ -32,8 +32,8 @@ export default {
     rotate () {
       return this.num * 360
     },
-    ctrlKey () {
-      return this.$store.getters['events/ctrlKey']
+    actionKey () {
+      return this.$store.getters['events/actionKey']
     },
     altRKey () {
       return this.$store.getters['events/altRKey']
@@ -41,7 +41,7 @@ export default {
   },
   methods: {
     click (event) {
-      if (this.ctrlKey) {
+      if (this.actionKey) {
         if (this.interval) { // clear interval
           clearInterval(this.interval)
           this.interval = false

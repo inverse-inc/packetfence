@@ -20,7 +20,7 @@
     <template slot="footer">
       <b-card-footer @mouseenter="$v.form.$touch()">
         <pf-button-save :disabled="invalidForm" :isLoading="isLoading" class="mr-1">
-          <template v-if="ctrlKey">{{ $t('Save & Close') }}</template>
+          <template v-if="actionKey">{{ $t('Save & Close') }}</template>
           <template v-else>{{ $t('Save') }}</template>
         </pf-button-save>
         <b-button :disabled="isLoading" class="mr-1" variant="outline-secondary" @click="init()">{{ $t('Reset') }}</b-button>
@@ -93,8 +93,8 @@ export default {
         fields: fields(this)
       }
     },
-    ctrlKey () {
-      return this.$store.getters['events/ctrlKey']
+    actionKey () {
+      return this.$store.getters['events/actionKey']
     },
     escapeKey () {
       return this.$store.getters['events/escapeKey']
@@ -119,9 +119,9 @@ export default {
       this.$router.push({ name: 'interfaces' })
     },
     save () {
-      const ctrlKey = this.ctrlKey
+      const actionKey = this.actionKey
       this.$store.dispatch(`${this.storeName}/updateLayer2Network`, this.form).then(response => {
-        if (ctrlKey) { // [CTRL] key pressed
+        if (actionKey) { // [CTRL] key pressed
           this.close()
         }
       })

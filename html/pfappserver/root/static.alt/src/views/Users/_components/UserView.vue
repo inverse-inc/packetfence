@@ -235,7 +235,7 @@
       </b-tabs>
       <b-card-footer @mouseenter="$v.$touch()">
         <pf-button-save class="mr-1" v-if="ifTab(['Profile', 'Actions', 'Custom Fields'])" :disabled="invalidForm" :isLoading="isLoading">
-          <template v-if="ctrlKey">{{ $t('Save & Close') }}</template>
+          <template v-if="actionKey">{{ $t('Save & Close') }}</template>
           <template v-else>{{ $t('Save') }}</template>
         </pf-button-save>
         <pf-button-delete class="mr-3" v-if="ifTab(['Profile', 'Custom Fields']) && !isDefaultUser" :disabled="isLoading" :confirm="$t('Delete User?')" @on-delete="deleteUser()"/>
@@ -660,8 +660,8 @@ export default {
     visibleNodeFields () {
       return this.nodeFields.filter(field => field.visible || field.locked)
     },
-    ctrlKey () {
-      return this.$store.getters['events/ctrlKey']
+    actionKey () {
+      return this.$store.getters['events/actionKey']
     },
     escapeKey () {
       return this.$store.getters['events/escapeKey']
@@ -686,12 +686,12 @@ export default {
       this.$store.dispatch('$_users/refreshUser', this.pid)
     },
     save () {
-      const ctrlKey = this.ctrlKey
+      const actionKey = this.actionKey
       this.$store.dispatch('$_users/updateUser', this.userContent).then(response => {
         if (this.hasPassword) {
           this.$store.dispatch('$_users/updatePassword', Object.assign({ quiet: true }, this.userContent))
         }
-        if (ctrlKey) { // [CTRL] key pressed
+        if (actionKey) { // [CTRL] key pressed
           this.close()
         }
       })

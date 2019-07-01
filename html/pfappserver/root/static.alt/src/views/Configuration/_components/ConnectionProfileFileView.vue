@@ -48,7 +48,7 @@
       <b-card-footer @mouseenter="isNew && $v.newFilename.$touch()">
         <pf-button-save :disabled="invalidForm" :isLoading="!invalidForm && isLoading">
           <template v-if="isNew">{{ $t('Create') }}</template>
-          <template v-else-if="ctrlKey">{{ $t('Save & Close') }}</template>
+          <template v-else-if="actionKey">{{ $t('Save & Close') }}</template>
           <template v-else>{{ $t('Save') }}</template>
         </pf-button-save>
         <pf-button-delete v-if="deletable" class="ml-1" :disabled="isLoading" :confirm="$t('Delete file?')" @on-delete="remove($event, true)"/>
@@ -147,8 +147,8 @@ export default {
     invalidForm () {
       return this.isNew ? this.$v.newFilename.$invalid : !this.contentModified
     },
-    ctrlKey () {
-      return this.$store.getters['events/ctrlKey']
+    actionKey () {
+      return this.$store.getters['events/actionKey']
     },
     escapeKey () {
       return this.$store.getters['events/escapeKey']
@@ -195,7 +195,7 @@ export default {
       this.editor.focus()
     },
     save () {
-      const ctrlKey = this.ctrlKey
+      const actionKey = this.actionKey
       const action = this.deletable || this.revertible ? 'update' : 'create'
       let params = {
         id: this.id,
@@ -204,7 +204,7 @@ export default {
       }
       if (this.isNew) params.filename += '/' + this.newFilename
       this.$store.dispatch(`${this.storeName}/${action}File`, params).then(response => {
-        if (ctrlKey) { // [CTRL] key pressed
+        if (actionKey) { // [CTRL] key pressed
           this.close()
         } else {
           if (this.isNew) {

@@ -25,11 +25,11 @@
     <template slot="footer">
       <b-card-footer @mouseenter="$v.form.$touch()">
         <pf-button-save :disabled="invalidForm" :isLoading="isLoading">
-          <template v-if="isNew && !ctrlKey">{{ $t('Create & Join') }}</template>
-          <template v-else-if="isNew && ctrlKey">{{ $t('Create') }}</template>
-          <template v-else-if="isClone && !ctrlKey">{{ $t('Clone & Join') }}</template>
-          <template v-else-if="isClone && ctrlKey">{{ $t('Clone') }}</template>
-          <template v-else-if="!isNew && !isClone && !ctrlKey">{{ $t('Save') }}</template>
+          <template v-if="isNew && !actionKey">{{ $t('Create & Join') }}</template>
+          <template v-else-if="isNew && actionKey">{{ $t('Create') }}</template>
+          <template v-else-if="isClone && !actionKey">{{ $t('Clone & Join') }}</template>
+          <template v-else-if="isClone && actionKey">{{ $t('Clone') }}</template>
+          <template v-else-if="!isNew && !isClone && !actionKey">{{ $t('Save') }}</template>
           <template v-else>{{ $t('Save & Join') }}</template>
         </pf-button-save>
         <b-button :disabled="isLoading" class="ml-1" variant="outline-secondary" @click="init()">{{ $t('Reset') }}</b-button>
@@ -112,8 +112,8 @@ export default {
       }
       return true
     },
-    ctrlKey () {
-      return this.$store.getters['events/ctrlKey']
+    actionKey () {
+      return this.$store.getters['events/actionKey']
     },
     escapeKey () {
       return this.$store.getters['events/escapeKey']
@@ -142,9 +142,9 @@ export default {
       this.$router.push({ name: 'cloneDomain' })
     },
     create () {
-      const ctrlKey = this.ctrlKey
+      const actionKey = this.actionKey
       this.$store.dispatch(`${this.storeName}/createDomain`, this.form).then(response => {
-        if (!ctrlKey) {
+        if (!actionKey) {
           this.$router.push({ name: 'domains', params: { autoJoinDomain: this.form } })
         } else {
           this.$router.push({ name: 'domain', params: { id: this.form.id } })
@@ -152,9 +152,9 @@ export default {
       })
     },
     save () {
-      const ctrlKey = this.ctrlKey
+      const actionKey = this.actionKey
       this.$store.dispatch(`${this.storeName}/updateDomain`, this.form).then(response => {
-        if ((this.isNew && !ctrlKey) || (this.isClone && !ctrlKey) || (!this.isNew && !this.isClone && ctrlKey)) {
+        if ((this.isNew && !actionKey) || (this.isClone && !actionKey) || (!this.isNew && !this.isClone && actionKey)) {
           this.$router.push({ name: 'domains', params: { autoJoinDomain: this.form } })
         }
       })
