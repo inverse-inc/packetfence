@@ -1616,6 +1616,19 @@ export const pfConfigurationAuthenticationSourceFields = {
       ]
     }
   },
+  sp_cert_path: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Path to Service Provider cert (x509)'),
+      fields: [
+        {
+          key: 'sp_cert_path',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'sp_cert_path'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'sp_cert_path', i18n.t('Path'))
+        }
+      ]
+    }
+  },
   sp_entity_id: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Service Provider entity ID'),
@@ -2191,6 +2204,7 @@ export const pfConfigurationAuthenticationSourceViewFields = (context) => {
             pfConfigurationAuthenticationSourceFields.description(context),
             pfConfigurationAuthenticationSourceFields.sp_entity_id(context),
             pfConfigurationAuthenticationSourceFields.sp_key_path(context),
+            pfConfigurationAuthenticationSourceFields.sp_cert_path(context),
             pfConfigurationAuthenticationSourceFields.idp_entity_id(context),
             pfConfigurationAuthenticationSourceFields.idp_metadata_path(context),
             pfConfigurationAuthenticationSourceFields.idp_cert_path(context),
