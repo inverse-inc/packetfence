@@ -137,7 +137,8 @@ export default {
     return {
       uuid:                 uuidv4(), // unique id for multiple instances of this component
       actionValidations:    {}, // overloaded from actions (pf-form-fields) child component
-      conditionValidations: {} // overloaded from conditions (pf-form-fields) child component
+      conditionValidations: {}, // overloaded from conditions (pf-form-fields) child component
+      visible: true
     }
   },
   computed: {
@@ -252,14 +253,12 @@ export default {
       const { $refs: { [this.uuidStr('collapse')]: ref } } = this
       if (ref && ref.$el.id === this.uuidStr('collapse')) {
         this.visible = false
-        ref.show = false
       }
     },
     expand () {
       const { $refs: { [this.uuidStr('collapse')]: ref } } = this
       if (ref && ref.$el.id === this.uuidStr('collapse')) {
         this.visible = true
-        ref.show = true
       }
     },
     toggle () {
