@@ -50,7 +50,7 @@
           <pf-form-row :column-label="$t('NAS Port')">{{ item.nas_port }}</pf-form-row>
           <pf-form-row :column-label="$t('NAS Port Identifer')">{{ item.nas_port_id }}</pf-form-row>
           <pf-form-row :column-label="$t('NAS Port Type')">{{ item.nas_port_type }}</pf-form-row>
-          <pf-form-row :column-label="$t('RADIUS Spurce IP Address')">{{ item.radius_source_ip_address }}</pf-form-row>
+          <pf-form-row :column-label="$t('RADIUS Source IP Address')">{{ item.radius_source_ip_address }}</pf-form-row>
           <pf-form-row :column-label="$t('Wi-Fi Network SSID')">{{ item.ssid }}</pf-form-row>
         </b-tab>
 
