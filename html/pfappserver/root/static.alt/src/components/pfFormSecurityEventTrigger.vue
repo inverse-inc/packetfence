@@ -58,6 +58,7 @@
           <template slot="header" is="b-card-header"><h5 class="m-0" v-text="forms[category].title"></h5></template>
           <template slot="footer" is="b-card-footer" class="text-right" @mouseenter="$v.triggerCopy[category].$touch()">
             <pf-button size="sm" variant="outline-secondary" class="mr-1" @click="resetCategory(category)">{{ $t('Cancel') }}</pf-button>
+            <pf-button size="sm" variant="danger" class="mr-1" v-if="forms[category].deletable" @click="removeCategory(category)">{{ $t('Delete') }}</pf-button>
             <pf-button-save size="sm" :disabled="invalidForm(category)" @click="updateCategory(category)">{{ $t('OK') }}</pf-button-save>
           </template>
         </pf-config-view>
@@ -433,9 +434,10 @@ export default {
         usage: {
           description: () => {
             const { direction, limit, interval } = this.trigger.usage
-            return direction ? `${bytes.toHuman(limit, 0, true)} ${directionOptions[direction]}/${intervalOptions[interval]}` : this.$i18n.t('Any data usage')
+            return direction ? `${bytes.toHuman(limit, 0, true)}B ${directionOptions[direction]}/${intervalOptions[interval]}` : this.$i18n.t('Any data usage')
           },
           title: this.$i18n.t('Usage'),
+          deletable: true,
           fields: [
             {
               tab: null, // ignore tabs
@@ -494,6 +496,7 @@ export default {
             return type ? `${categoryOptions.event[type]}: ${value}` : this.$i18n.t('Any event')
           },
           title: this.$i18n.t('Event'),
+          deletable: true,
           fields: [
             {
               tab: null, // ignore tabs
@@ -656,7 +659,7 @@ export default {
       }
     },
     mouseDown (pressed) {
-      if (pressed) this.onBodyClick()
+      if (pressed) this.onBodyClick(this.$store.state.events.mouseEvent)
     }
   },
   methods: {
@@ -783,6 +786,10 @@ export default {
       console.debug(`reset category ${category}`)
       this.popover[category] = false
       this.triggerCopy[category] = JSON.parse(JSON.stringify(this.trigger[category]))
+    },
+    removeCategory (category) {
+      this.popover[category] = false
+      this.trigger[category] = {}
     },
     onBodyClick ($event) {
       if (Object.values(this.popover).includes(true)) {
