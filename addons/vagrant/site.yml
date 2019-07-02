@@ -19,5 +19,5 @@
         nodejs_version: "8.x"
       tags: nodejs
       
-    - role: inverse_inc.packetfence.packetfence_.dev
+    - role: inverse_inc.packetfence.packetfence_dev
       tags: dev
