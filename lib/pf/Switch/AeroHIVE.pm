@@ -252,7 +252,7 @@ sub returnRadiusAccessAccept {
             $radius_reply_ref = {
                 'Tunnel-Medium-Type' => $RADIUS::IP,
                 'Tunnel-Type' => $RADIUS::GRE,
-                'Tunnel-Private-Group-ID' => $role,
+                'Tunnel-Private-Group-ID' => $role . "",
             };
         }
 
@@ -266,7 +266,7 @@ sub returnRadiusAccessAccept {
              %$radius_reply_ref,
             'Tunnel-Medium-Type' => $RADIUS::ETHERNET,
             'Tunnel-Type' => $RADIUS::VLAN,
-            'Tunnel-Private-Group-ID' => $args->{'vlan'},
+            'Tunnel-Private-Group-ID' => $args->{'vlan'} . "",
         };
 
         $logger->info("Returning ACCEPT with VLAN: $args->{'vlan'}");
