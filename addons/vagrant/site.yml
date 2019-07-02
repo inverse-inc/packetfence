@@ -4,9 +4,10 @@
   become: True
 
   roles:
-    - role: pf.install
+    - role: inverse_inc.packetfence.packetfence_common
       tags: install
-
+    - role: inverse_inc.packetfence.packetfence_install
+      tags: install
 
 - hosts: dev
   name: install additionnal stuff for dev machines
@@ -17,13 +18,6 @@
       vars:
         nodejs_version: "8.x"
       tags: nodejs
-
-    # to avoid collission with pfdns
-    - role: ansible_role_systemd_resolved
-      vars:
-        nameserver1: 8.8.8.8
-      when: ansible_os_family == 'Debian'
-      tags: resolved
-
-    - role: pf.dev
+      
+    - role: inverse_inc.packetfence.packetfence_.dev
       tags: dev
