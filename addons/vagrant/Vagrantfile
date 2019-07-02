@@ -27,7 +27,6 @@ Vagrant.configure("2") do |pfservers|
   # Provision with ansible
   pfservers.vm.provision "ansible" do |ansible|
     ansible.playbook = "site.yml"
-    ansible.become = true
     ansible.config_file = "ansible.cfg"
     ansible.inventory_path = "inventory"
     ansible.galaxy_role_file = "requirements.yml"
