@@ -754,8 +754,9 @@ export default {
         conditions = [typeValue]
       }
       // Assign new values to model
-      if (this.value)
+      if (this.value) {
         Object.keys(categoryOptions[category]).forEach(field => delete this.value[field])
+      }
       conditions.forEach(condition => {
         let { type: field, value } = condition
         let newValue = value
