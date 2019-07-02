@@ -60,7 +60,7 @@ sub getVoipVsa {
     return (
         'Tunnel-Medium-Type' => $RADIUS::ETHERNET,
         'Tunnel-Type' => $RADIUS::VLAN,
-        'Tunnel-Private-Group-ID' => $self->{_voiceVlan},
+        'Tunnel-Private-Group-ID' => $self->{_voiceVlan} . "",
     );
 }
 

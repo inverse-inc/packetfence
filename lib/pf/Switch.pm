@@ -2838,7 +2838,7 @@ sub returnRadiusAccessAccept {
             $radius_reply_ref = {
                 'Tunnel-Medium-Type' => $RADIUS::ETHERNET,
                 'Tunnel-Type' => $RADIUS::VLAN,
-                'Tunnel-Private-Group-ID' => $args->{'vlan'},
+                'Tunnel-Private-Group-ID' => $args->{'vlan'} . "",
             };
         }
         else {
