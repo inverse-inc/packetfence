@@ -324,7 +324,8 @@ sub find_device_class {
     my $logger = get_logger;
     my $result = cache()->compute("pf::fingerbank::find_device_class($top_level_parent,$device_name)", sub {
         my $timer = pf::StatsD::Timer->new({level => 7, stat => "pf::fingerbank::find_device_class::cache-compute"});
-        while (my ($k, $other_device_id) = each(%fingerbank::Constant::DEVICE_CLASS_IDS)) {
+        foreach my $k (@fingerbank::Constant::DEVICE_CLASS_LOOKUP_ORDER) {
+            my $other_device_id = $fingerbank::Constant::DEVICE_CLASS_IDS{$k};
             $logger->debug("Checking if device $device_name is a $other_device_id");
             my $is_a = fingerbank::Model::Device->is_a($device_name, $other_device_id);
             if(!defined($is_a)) {
