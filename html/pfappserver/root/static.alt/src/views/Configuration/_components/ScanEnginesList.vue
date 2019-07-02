@@ -37,7 +37,7 @@ import {
 } from '@/globals/configuration/pfConfigurationScans'
 
 export default {
-  name: 'profiling-devices-list',
+  name: 'scan-engines-list',
   components: {
     pfButtonDelete,
     pfConfigList,
@@ -52,7 +52,6 @@ export default {
   },
   data () {
     return {
-      scanEngines: [], // all scan engines
       config: config(this)
     }
   },
@@ -65,11 +64,6 @@ export default {
         this.$router.go() // reload
       })
     }
-  },
-  created () {
-    this.$store.dispatch(`${this.storeName}/allScanEngines`).then(data => {
-      this.scanEngines = data
-    })
   }
 }
 </script>
