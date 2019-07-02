@@ -24,6 +24,7 @@ pf::cmd::pf::renew_lets_encrypt
 use strict;
 use warnings;
 use pf::cluster;
+use pf::constants;
 use pf::constants::exit_code qw($EXIT_SUCCESS $EXIT_FAILURE);
 use pf::config::util;
 use pf::util;
@@ -33,6 +34,7 @@ use pf::services;
 use File::Slurp qw(read_file);
 
 our $RECORDED;
+our $DID_AT_LEAST_ONE;
 
 use base qw(pf::base::cmd::action_cmd);
 
@@ -74,10 +76,12 @@ sub action_all {
 sub renew_and_email {
     my ($self, $resource) = @_;
     my $res = $self->renew_lets_encrypt();
-    pfmailer(
-        subject => "Let's Encrypt certificate renewal",
-        message => $RECORDED,
-    );
+    if($DID_AT_LEAST_ONE) {
+        pfmailer(
+            subject => "Let's Encrypt certificate renewal",
+            message => $RECORDED,
+        );
+    }
     return $res;
 }
 
@@ -106,6 +110,9 @@ sub renew_lets_encrypt {
         unless(isenabled(pf::ssl::lets_encrypt::resource_state($resource))) {
             $self->print_and_record("- Let's Encrypt is not enabled for $resource. Skipping renewal. \n");
             next;
+        }
+        else {
+            $DID_AT_LEAST_ONE = $TRUE;
         }
 
         $self->print_and_record("- Renewing certificate resource $resource \n");
