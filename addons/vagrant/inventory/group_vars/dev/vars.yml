@@ -1,7 +1,0 @@
----
-centos:
-  repo: packetfence-devel
-deb:
-  repos:
-    - debian
-    - debian-devel

@@ -1,6 +1,0 @@
----
-centos:
-  repo: packetfence
-deb:
-  repos:
-    - debian
