@@ -12,7 +12,7 @@ log_section() {
 log_section "Create all necessary files"
 cd /usr/local/pf
 make devel
-make conf/ssl/server.pem
+make conf/ssl/server.pem > /dev/null
 mkdir /usr/local/pf/var/ssl_mutex
 cp ../pf-pkg/conf/pf.conf conf/
 cp ../pf-pkg/conf/pfconfig.conf conf/
