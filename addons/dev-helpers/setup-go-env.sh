@@ -19,7 +19,7 @@ else
   declare -p GOVERSION
   [ -z "$GOVERSION" ] && die "not set: GOVERSION"
 
-  wget https://storage.googleapis.com/golang/$GOVERSION.linux-amd64.tar.gz -O /tmp/$GOVERSION.linux-amd64.tar.gz
+  wget -q https://storage.googleapis.com/golang/$GOVERSION.linux-amd64.tar.gz -O /tmp/$GOVERSION.linux-amd64.tar.gz
   tar -C /usr/local -xzf /tmp/$GOVERSION.linux-amd64.tar.gz
   rm /tmp/$GOVERSION.linux-amd64.tar.gz
 
