@@ -16,7 +16,14 @@ make conf/ssl/server.pem > /dev/null
 mkdir /usr/local/pf/var/ssl_mutex
 cp ../pf-pkg/conf/pf.conf conf/
 cp ../pf-pkg/conf/pfconfig.conf conf/
-cp ../pf-pkg/conf/currently-at conf/
+make conf/currently-at
+
+log_section "Untracked some file before generation"
+cat >> .git/info/exclude <<EOF
+html/common/styles.css
+html/common/styles.css.map
+html/pfappserver/root/static.alt/package-lock.json
+EOF
 
 log_section "Build web admin"
 cd /usr/local/pf/html/pfappserver/root/static.alt/
