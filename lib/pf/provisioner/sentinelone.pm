@@ -253,16 +253,18 @@ sub authorize {
         return $FALSE;
     }
     else {
-        if($info->{is_uninstalled}) {
+        if($info->{is_uninstalled} || $info->{isUninstalled}) {
             $logger->info("Agent is uninstalled on device");
             return $FALSE;
         }
-        elsif(!$info->{is_active}){
+        elsif($info->{is_active} || $info->{isActive}){
+            $logger->info("Agent is installed and active.");
+            return $TRUE;
+        }
+        else {
             $logger->info("Agent is not active on device");
             return $FALSE;
         }
-        $logger->info("Agent is installed and active.");
-        return $TRUE;
     }
 }
 
@@ -335,7 +337,7 @@ sub pollAndEnforce {
     my $uninstalled_devices = $self->uninstalled_devices($timeframe);
 
     foreach my $device (@$uninstalled_devices) {
-        my $macs = $device->{data}->{mac_addresses};
+        my $macs = $device->{data}->{mac_addresses} // $device->{data}->{macAddresses};
         foreach my $mac (@$macs){
             $logger->info("$mac has uninstalled the SentinelOne agent. Verifying if it is handled of this provisioner.");
             my $profile = pf::Connection::ProfileFactory->instantiate($mac);
