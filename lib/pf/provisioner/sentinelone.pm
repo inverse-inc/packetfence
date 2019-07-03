@@ -16,7 +16,7 @@ use warnings;
 use Moo;
 extends 'pf::provisioner';
 
-use JSON::MaybeXS qw( decode_json );
+use JSON::MaybeXS qw(decode_json encode_json);
 use pf::constants;
 use pf::util qw(clean_mac);
 use LWP::UserAgent;
@@ -86,6 +86,14 @@ URI to download the Mac OSX agent
 
 has mac_osx_agent_download_uri => (is => 'rw');
 
+=head2 api_version
+
+The API version to use
+
+=cut
+
+has api_version => (is => 'lazy');
+
 =head1 Methods
 
 =head2 _token_cache_key
@@ -130,12 +138,14 @@ sub fetch_token {
 
     my $ua = LWP::UserAgent->new();
 
-    my $req = HTTP::Request::Common::POST($self->_build_uri("login"), [username => $self->api_username, password => $self->api_password]);
+    my $req = HTTP::Request::Common::POST($self->_build_uri("login"), Content => encode_json({username => $self->api_username, password => $self->api_password}), 'Content-Type' => 'application/json');
 
     my $res = $ua->request($req);
 
+    print $res->decoded_content;
+
     if($res->is_success){
-        my $info = decode_json($res->decoded_content);
+        my $info = $self->_extract_data_from_response(decode_json($res->decoded_content));
         my $token = $info->{token};
         $logger->debug("Got token : $token");
         return $token;
@@ -162,7 +172,7 @@ sub fetch_agent_info {
         return $res;
     }
     else {
-        my $devices = decode_json($res->decoded_content()); 
+        my $devices = $self->_extract_data_from_response(decode_json($res->decoded_content())); 
         if(scalar(@$devices) == 0){
             $logger->info("Cannot find $mac on Sentinel One server");
             return $FALSE;
@@ -192,19 +202,20 @@ sub execute_request {
         return $res;
     }
     else {
-        if($res->code == $STATUS::FORBIDDEN){
+        if($res->code == $STATUS::FORBIDDEN || $res->code == $STATUS::UNAUTHORIZED){
             # We try again but with a fully refreshed token
             $self->cache->remove($self->_token_cache_key);
             $res = $self->_execute_request($req);
             if($res->is_success){
                 return $res;
             }
-            elsif($res->code == $STATUS::FORBIDDEN){
+            elsif($res->code == $STATUS::FORBIDDEN || $res->code == $STATUS::UNAUTHORIZED){
                 get_logger->error("Cannot authenticate against SentinelOne API. Please check your configuration.");
                 return $pf::provisioner::COMMUNICATION_FAILED;
             }
         }
     }
+    get_logger->error("Failure while communicating with SentinelOne API: ".$res->status_line);
     return $pf::provisioner::COMMUNICATION_FAILED;
 }
 
@@ -262,15 +273,51 @@ Build the API URI based on the configuration
 =cut
 
 sub _build_uri {
-    my ($self, $type) = @_;
+    my ($self, $type, $version) = @_;
+    $version //= $self->api_version;
     my $URIS = {
-        login => "/web/api/v1.6/users/login",
-        agent_info => "/web/api/v1.6/agents",
-        activities => "/web/api/v1.6/activities",
+        login => "/web/api/$version/users/login",
+        agent_info => "/web/api/$version/agents",
+        activities => "/web/api/$version/activities",
     };
     my $path = $URIS->{$type};
     return $self->protocol."://".$self->host.":".$self->port."/$path";
 }
+
+sub _extract_data_from_response {
+    my ($self, $response, $version) = @_;
+    $version //= $self->api_version;
+
+    if ($version eq "v1.6") {
+        return $response;
+    }
+    else {
+        return $response->{data};
+    }
+}
+
+=head2 _build_api_version
+
+Detects the API version (currently supporting v1.R68 and v2.0)
+
+=cut
+
+sub _build_api_version {
+    my ($self) = @_;
+
+    #Try request on v1.6, if it fails with a 404, then we'll assume we use v2.0 since its the only 2 API versions we support
+    my $ua = LWP::UserAgent->new();
+    my $req = HTTP::Request::Common::POST($self->_build_uri("login", "v1.6"), Content => encode_json({username => $self->api_username, password => $self->api_password}), 'Content-Type' => 'application/json');
+    my $res = $ua->request($req);
+
+    if($res->code ne "404"){
+        return "v1.6";
+    }
+    else {
+        return "v2.0";
+    }
+}
+
 
 =head2 pollAndEnforce
 
@@ -322,7 +369,7 @@ sub uninstalled_devices {
         return $res;
     }
     else {
-        my $devices = decode_json($res->decoded_content()); 
+        my $devices = $self->_extract_data_from_response(decode_json($res->decoded_content())); 
         return $devices;
     }
 }
