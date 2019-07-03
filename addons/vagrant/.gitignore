@@ -4,3 +4,6 @@
 # Emacs
 *~
 \#*\#
+
+# Ansible stuff
+roles/
