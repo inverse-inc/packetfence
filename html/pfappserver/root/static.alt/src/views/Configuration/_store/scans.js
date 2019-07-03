@@ -24,15 +24,6 @@ const getters = {
 }
 
 const actions = {
-  allScanEngines: () => {
-    const params = {
-      sort: 'id',
-      fields: ['id', 'description', 'class'].join(',')
-    }
-    return api.scanEngines(params).then(response => {
-      return response.items
-    })
-  },
   optionsById: ({ commit }, id) => {
     commit('ITEM_REQUEST')
     return api.scanEngineOptions(id).then(response => {
