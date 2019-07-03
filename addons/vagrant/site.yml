@@ -21,3 +21,15 @@
       
     - role: inverse_inc.packetfence.packetfence_dev
       tags: dev
+
+  tasks:
+    # We use another interface as management
+    - name: allow ssh on default interface for vagrant management
+      blockinfile:
+        path: "{{ packetfence_dev__pf_dir }}/conf/iptables.conf"
+        block: |
+          # allow SSH from Vagrant
+          -A INPUT --in-interface {{ ansible_default_ipv4['interface'] }} --jump ACCEPT
+        marker: "# {mark} ANSIBLE MANAGED BLOCK"
+        insertafter: "-A INPUT --in-interface lo --jump ACCEPT"
+      tags: vagrant
