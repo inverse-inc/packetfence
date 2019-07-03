@@ -87,33 +87,31 @@ Object.assign(apiCall, {
   }
 })
 
-apiCall.interceptors.request.use((request) => {
-  const { baseURL, method, url, params = {} } = request
-  store.dispatch('performance/startRequest', { method, url: `${baseURL}${url}`, params }) // start performance benchmark
-  return request
-})
-
 apiCall.interceptors.response.use((response) => {
-  const { config = {} } = response
-  store.dispatch('performance/stopRequest', config) // stop performance benchmark
-  if (response.data.message && !response.data.quiet) {
-    store.dispatch('notification/info', { message: response.data.message, url: response.config.url })
+  /* Intercept successful API call */
+  const { config = {}, data = {} } = response
+  if (data.message && !data.quiet) {
+    store.dispatch('notification/info', { message: data.message, url: config.url })
   }
   store.commit('session/API_OK')
   store.commit('session/FORM_OK')
   return response
 }, (error) => {
+  /* Intercept failed API call */
   const { config = {} } = error
-  store.dispatch('performance/dropRequest', config) // discard performance benchmark
   let icon = 'exclamation-triangle'
   if (error.response) {
     if (error.response.status === 401 || // unauthorized
-      (error.response.status === 404 && /token_info/.test(error.config.url))) {
-      let currentPath = router.currentRoute.fullPath
-      if (currentPath === '/') {
-        currentPath = document.location.hash.substring(1)
+      (error.response.status === 404 && /token_info/.test(config.url))) {
+      // Token has expired
+      if (!error.response.data.quiet) {
+        store.commit('session/EXPIRED')
+        // Reply request once the session is restored
+        return store.dispatch('session/resolveLogin').then(response => {
+          const { method, url, params, data } = config
+          return apiCall.request({ method, baseURL: '', url, params, data, headers: { 'X-Replay': 'true' } })
+        })
       }
-      router.push({ name: 'login', params: { expire: true, previousPath: currentPath } })
     } else if (error.response.data) {
       switch (error.response.status) {
         case 401:
@@ -136,13 +134,13 @@ apiCall.interceptors.response.use((response) => {
             let msg = `${err['field']}: ${err['message']}`
             // eslint-disable-next-line
             console.warn(msg)
-            store.dispatch('notification/danger', { icon, url: error.config.url, message: msg })
+            store.dispatch('notification/danger', { icon, url: config.url, message: msg })
           })
         }
         // eslint-disable-next-line
         console.groupEnd()
       }
-      if (['patch', 'post', 'put', 'delete'].includes(error.config.method) && error.response.data.errors) {
+      if (['patch', 'post', 'put', 'delete'].includes(config.method) && error.response.data.errors) {
         let formErrors = {}
         error.response.data.errors.forEach((err, errIndex) => {
           formErrors[err['field']] = err['message']
@@ -152,14 +150,14 @@ apiCall.interceptors.response.use((response) => {
         }
       }
       if (typeof error.response.data === 'string') {
-        store.dispatch('notification/danger', { icon, url: error.config.url, message: error.message })
+        store.dispatch('notification/danger', { icon, url: config.url, message: error.message })
       } else if (error.response.data.message && !error.response.data.quiet) {
-        store.dispatch('notification/danger', { icon, url: error.config.url, message: error.response.data.message })
+        store.dispatch('notification/danger', { icon, url: config.url, message: error.response.data.message })
       }
     }
   } else if (error.request) {
     store.commit('session/API_ERROR')
-    store.dispatch('notification/danger', { url: error.config.url, message: 'API server seems down' })
+    store.dispatch('notification/danger', { url: config.url, message: 'API server seems down' })
   }
   return Promise.reject(error)
 })

@@ -2,6 +2,8 @@
 * "performance" store module
 */
 import Vue from 'vue'
+import apiCall from '@/utils/api'
+import store from '@/store'
 
 const onParPercentile = 90 // @ the estimated time set the progress bar to this %
 
@@ -183,6 +185,26 @@ const mutations = {
     }
   }
 }
+
+// Intercept requests
+apiCall.interceptors.request.use((config) => {
+  const { baseURL, method, url, params = {}, headers } = config
+  if (!('X-Replay' in headers)) { // don't track duplicate requests (see utils/api.js)
+    store.dispatch('performance/startRequest', { method, url: `${baseURL}${url}`, params }) // start performance benchmark
+  }
+  return config
+})
+
+// Intercept responses
+apiCall.interceptors.response.use((response) => {
+  const { config = {} } = response
+  store.dispatch('performance/stopRequest', config) // stop performance benchmark
+  return response
+}, (error) => {
+  const { config = {} } = error
+  store.dispatch('performance/dropRequest', config) // discard performance benchmark
+  return Promise.reject(error)
+})
 
 export default {
   namespaced: true,

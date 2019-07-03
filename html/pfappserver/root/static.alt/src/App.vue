@@ -48,17 +48,21 @@
       <pf-notification-center :isAuthenticated="isAuthenticated" />
     </b-navbar>
     <pf-progress-api></pf-progress-api>
+    <!-- Show alert if the database is in read-only mode -->
     <b-container v-if="readonlyMode" class="bg-danger text-white text-center pt-6" fluid>
       <icon class="pr-2" name="lock"></icon> {{ $t('The database is in readonly mode. Not all functionality is available.') }}
     </b-container>
     <b-container fluid :class="{ 'pt-6': !readonlyMode }">
       <router-view/>
     </b-container>
+    <!-- Show login form if session expires -->
+    <pf-form-login :show-modal="isSessionExpired" modal></pf-form-login>
   </div>
 </template>
 
 <script>
 import IconCounter from '@/components/IconCounter'
+import pfFormLogin from '@/components/pfFormLogin'
 import pfNotificationCenter from '@/components/pfNotificationCenter'
 import pfProgressApi from '@/components/pfProgressApi'
 
@@ -66,6 +70,7 @@ export default {
   name: 'app',
   components: {
     IconCounter,
+    pfFormLogin,
     pfNotificationCenter,
     pfProgressApi
   },
@@ -77,6 +82,9 @@ export default {
   computed: {
     isAuthenticated () {
       return this.$store.getters['session/isAuthenticated']
+    },
+    isSessionExpired () {
+      return this.$store.state.session.expired
     },
     isPerfomingCheckup () {
       return this.$store.getters['config/isLoadingCheckup']

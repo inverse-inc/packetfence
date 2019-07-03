@@ -45,13 +45,22 @@ router.beforeEach((to, from, next) => {
   }
   /**
    * 3. Session token loaded from local storage
-   * 4. No token -- go back to login page
+   * 4. Token has expired -- go back to login page
+   * 5. No token -- go back to login page
    */
   if (to.name !== 'login') {
     store.dispatch('session/load').then(() => {
       next() // [3]
     }).catch(() => {
-      router.push({ name: 'login' }) // [4]
+      let currentPath = router.currentRoute.fullPath
+      if (currentPath === '/') {
+        currentPath = document.location.hash.substring(1)
+      }
+      if (store.state.session.token) {
+        router.push({ name: 'login', params: { expire: true, previousPath: currentPath } }) // [4]
+      } else {
+        router.push({ name: 'login' }) // [5]
+      }
       next()
     })
   } else {

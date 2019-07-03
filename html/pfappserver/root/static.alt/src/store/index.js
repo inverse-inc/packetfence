@@ -15,6 +15,12 @@ Vue.use(Vuex)
 
 const debug = process.env.NODE_ENV !== 'production'
 
+export const types = {
+  LOADING: 'loading',
+  SUCCESS: 'success',
+  ERROR: 'error'
+}
+
 export default new Vuex.Store({
   // actions,
   modules: {
