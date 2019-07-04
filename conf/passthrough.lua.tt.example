@@ -26,3 +26,26 @@ core.register_action("select", { "http-req" }, function(txn)
         end
     end
 end)
+
+core.register_action("admin", { "http-req" }, function(txn)
+    if ( string.match(txn.sf:path(), '^/api')) then
+        txn:set_var("req.action","api")
+    elseif ( string.match(txn.sf:path(), '^/static') ) then
+        txn:set_var("req.action","static")
+    elseif ( txn.sf:url_param("mgmtip") ) then
+        local ip = txn.sf:url_param("mgmtip")
+        local chunks = {ip:match("(%d+)%.(%d+)%.(%d+)%.(%d+)")}
+        if (#chunks == 4) then
+            for _,v in pairs(chunks) do
+                if (tonumber(v) < 0 or tonumber(v) > 255) then
+                    --do nothing
+                end
+            end
+            txn:set_var("req.action",ip .. "-api")
+        end
+
+    else
+        -- nothing, we let it go through for the admin
+    end
+end)
+
