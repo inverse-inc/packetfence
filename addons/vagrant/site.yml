@@ -32,7 +32,7 @@
   roles:
     - role: geerlingguy.nodejs
       vars:
-        nodejs_version: "8.x"
+        nodejs_version: "10.x"
       tags: nodejs
       
     - role: inverse_inc.packetfence.packetfence_dev
