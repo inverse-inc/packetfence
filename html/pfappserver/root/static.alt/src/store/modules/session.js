@@ -4,11 +4,10 @@
  */
 import Acl from 'vue-browser-acl'
 import Vue from 'vue'
-import apiCall from '@/utils/api'
 import i18n from '@/utils/locale'
 import qs from 'qs'
 import router from '@/router'
-import { pfappserverCall } from '@/utils/api'
+import apiCall, { pfappserverCall } from '@/utils/api'
 import { types } from '@/store'
 
 const STORAGE_TOKEN_KEY = 'user-token'
