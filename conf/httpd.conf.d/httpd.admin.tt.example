@@ -250,9 +250,6 @@ SetEnvIf Request_URI "netdata" is_netdata
       ErrorLog      "| /usr/bin/logger -thttpd_admin_err -plocal5.err" 
       CustomLog     "| /usr/bin/logger -thttpd_admin_access -plocal5.info" combined env=!is_netdata
       AllowEncodedSlashes on
-      SSLEngine on
-      Include  [% var_dir %]/conf/ssl-certificates.conf
-      SSLProxyEngine on
       RewriteEngine on
       ProxyRequests off
       ProxyPreserveHost on
@@ -277,17 +274,6 @@ SetEnvIf Request_URI "netdata" is_netdata
       RewriteRule "^/netdata/([A-Za-z0-9\._-]+)$" http://%{HTTP_HOST}/netdata/$1/ [L,R=301]
       # for HTTPS (if the virtualhost is HTTPS, use this)
       RewriteRule "^/netdata/([A-Za-z0-9\._-]+)$" https://%{HTTP_HOST}/netdata/$1/ [L,R=301]
-
-      #API access from the admin
-      SSLProxyVerify none
-      SSLProxyCheckPeerCN off
-      SSLProxyCheckPeerName off
-      SSLProxyCheckPeerExpire off
-
-      <Location /api >
-        ProxyPass "https://127.0.0.1:9999/api" connectiontimeout=5 timeout=600 keepalive=on
-        ErrorDocument 502 "/static/502.json"
-      </Location>
 
       <Location /portal_preview >
           SetEnv X_PORTAL default
@@ -323,13 +309,9 @@ SetEnvIf Request_URI "netdata" is_netdata
           Header add Set-Cookie "PF_PORTAL=%{X_PORTAL}e; Path=/portal_preview" env=X_PORTAL
       </Location>
 
-      Alias /static [% install_dir %]/html/pfappserver/root/static
       <Location / >
            SetHandler modperl
            PerlResponseHandler pfappserver
-      </Location>
-      <Location /static >
-           SetHandler default-handler
       </Location>
   </VirtualHost>
 
