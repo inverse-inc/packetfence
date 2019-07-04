@@ -189,6 +189,24 @@ sub EXISTS {
     });
 }
 
+=head2 all
+
+Method to fetch the whole namespace in one single call
+Use as a replacement of \%hash when there are a lot of keys
+Call it using tied(%hash)->all
+
+=cut
+
+sub all {
+    my ( $self ) = @_;
+    my $result = $self->compute_from_subcache("__PFCONFIG_ALL__", sub {
+        my $reply = $self->_get_from_socket("$self->{_namespace}");
+        my $result = defined($reply) ? $reply->{element} : undef;
+    });
+
+    return $result;
+}
+
 =head2 values
 
 Added method that can be called on the underlying object of the tied hash
