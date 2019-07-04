@@ -9,6 +9,22 @@
     - role: inverse_inc.packetfence.packetfence_install
       tags: install
 
+  tasks:
+    # We use another interface than the default as management
+    # it's possible to do this because current SSH session has not been cut
+    - name: allow ssh on default interface for vagrant management
+      blockinfile:
+        path: "{{ packetfence_install__conf_dir }}/iptables.conf"
+        block: |
+          # allow SSH for vagrant management
+          -A INPUT --in-interface {{ ansible_default_ipv4['interface'] }} --jump ACCEPT
+        marker: "# {mark} ANSIBLE MANAGED BLOCK"
+        insertafter: "-A INPUT --in-interface lo --jump ACCEPT"
+      tags: vagrant
+
+    - name: reboot to disable SELinux and apply previous iptable rule
+      reboot:
+
 - hosts: dev
   name: install additionnal stuff for dev machines
   become: True
@@ -22,14 +38,3 @@
     - role: inverse_inc.packetfence.packetfence_dev
       tags: dev
 
-  tasks:
-    # We use another interface as management
-    - name: allow ssh on default interface for vagrant management
-      blockinfile:
-        path: "{{ packetfence_dev__pf_dir }}/conf/iptables.conf"
-        block: |
-          # allow SSH from Vagrant
-          -A INPUT --in-interface {{ ansible_default_ipv4['interface'] }} --jump ACCEPT
-        marker: "# {mark} ANSIBLE MANAGED BLOCK"
-        insertafter: "-A INPUT --in-interface lo --jump ACCEPT"
-      tags: vagrant

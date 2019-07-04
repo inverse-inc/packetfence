@@ -12,10 +12,13 @@ log_section() {
 log_section "Create all necessary files"
 cd /usr/local/pf
 make devel
-make conf/ssl/server.pem > /dev/null
+make conf/ssl/server.pem
 mkdir /usr/local/pf/var/ssl_mutex
+# to keep settings made by packetfence_install role
 cp ../pf-pkg/conf/pf.conf conf/
 cp ../pf-pkg/conf/pfconfig.conf conf/
+# to keep iptables rule for vagrant management
+cp ../pf-pkg/conf/iptables.conf conf/
 make conf/currently-at
 
 log_section "Untracked some file before generation"
