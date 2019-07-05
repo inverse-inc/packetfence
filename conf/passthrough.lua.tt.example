@@ -43,6 +43,11 @@ core.register_action("admin", { "http-req" }, function(txn)
     -- if it's static content
     elseif ( string.match(txn.sf:path(), '^/static') ) then
         txn:set_var("req.action","static")
+    elseif ( string.match(txn.sf:path(), '^/netdata') ) then
+        local ip = txn.sf:path():match("(%d+%.%d+%.%d+%.%d+)")
+        local path = txn.sf:path():match("/netdata/%d+%.%d+%.%d+%.%d+(.*)")
+        txn:set_var("req.path", path)
+        txn:set_var("req.action",ip .. "-netdata")
     else
         -- do nothing, use teh default backend
     end

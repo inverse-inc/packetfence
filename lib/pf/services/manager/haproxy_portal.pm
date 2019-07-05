@@ -228,7 +228,18 @@ EOT
 
     my $mgmt_backend_ip_config;
     my $mgmt_backend_ip_api_config;
-    my $mgmt_srv_backend;
+    my $mgmt_srv_netdata .= <<"EOT";
+
+backend 127.0.0.1-netdata
+        option httpclose
+        option http_proxy
+        option forwardfor
+        acl paramsquery query -m found
+        http-request lua.admin
+        http-request set-uri http://127.0.0.1:19999%[var(req.path)]?%[query] if paramsquery
+        http-request set-uri http://127.0.0.1:19999%[var(req.path)] unless paramsquery
+EOT
+
     my $mgmt_api_backend;
 
     my $check = '';
@@ -244,15 +255,16 @@ EOT
 EOT
         $check = 'backup';
 
-        $mgmt_srv_backend .= <<"EOT";
+        $mgmt_srv_netdata .= <<"EOT";
 
-backend $mgmt_back_ip-admin
-        balance source
+backend $mgmt_back_ip-netdata
         option httpclose
+        option http_proxy
         option forwardfor
         acl paramsquery query -m found
-        http-request set-uri http://$mgmt_back_ip:1443%[path]?%[query] if paramsquery
-        http-request set-uri http://$mgmt_back_ip:1443%[path] unless paramsquery
+        http-request lua.admin
+        http-request set-uri http://$mgmt_back_ip:19999%[var(req.path)]?%[query] if paramsquery
+        http-request set-uri http://$mgmt_back_ip:19999%[var(req.path)] unless paramsquery
 EOT
 
         $mgmt_api_backend .= <<"EOT";
@@ -291,7 +303,7 @@ backend $mgmt_cluster_ip-admin
         option forwardfor
 $mgmt_backend_ip_config
 
-$mgmt_srv_backend
+$mgmt_srv_netdata
 
 $mgmt_api_backend
 
