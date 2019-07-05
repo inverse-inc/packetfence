@@ -86,5 +86,10 @@ export default {
     return apiCall.get(`services/cluster_status/${host}`).then(response => {
       return response.data.item
     })
+  },
+  clusterConfig: () => {
+    return apiCall.get('cluster/config').then(response => {
+      return response.data.item
+    })
   }
 }
