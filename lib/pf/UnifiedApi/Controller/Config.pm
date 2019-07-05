@@ -945,7 +945,7 @@ sub map_option {
     if (exists $hash{options}) {
        $hash{options} = $self->map_options($field, $hash{options});
        delete $hash{value};
-    } elsif (exists $hash{value} && defined $hash{value} && $hash{value} eq '') {
+    } elsif (exists $hash{value} && defined $hash{value} && $hash{value} eq '' && $field->required) {
         return;
     }
 
