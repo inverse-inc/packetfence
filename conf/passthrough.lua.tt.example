@@ -47,3 +47,12 @@ core.register_action("admin", { "http-req" }, function(txn)
         -- do nothing, use teh default backend
     end
 end)
+
+core.register_fetches("redirect", function(txn)
+     core.log(core.info, "redirect")
+    if ( string.match(txn.sf:path(), '^/$') or string.match(txn.sf:path(), '^$')) then
+        return 1
+    end
+    return 0
+end)
+

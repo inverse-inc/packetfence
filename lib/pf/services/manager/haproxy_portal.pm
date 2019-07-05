@@ -261,7 +261,7 @@ backend $mgmt_back_ip-api
         balance source
         option httpclose
         option forwardfor
-        server $mgmt_back_ip $mgmt_back_ip:9999 weight 1 maxconn 100 check $check ssl verify none
+        server $mgmt_back_ip $mgmt_back_ip:9999 weight 1 maxconn 100 ssl verify none
 EOT
 
     }
@@ -283,7 +283,7 @@ frontend admin-https-$mgmt_cluster_ip
         http-request lua.admin
         use_backend %[var(req.action)]
         default_backend $mgmt_cluster_ip-admin
-
+        http-request redirect location /admin/alt if { lua.redirect 1 }
 
 backend $mgmt_cluster_ip-admin
         balance source
