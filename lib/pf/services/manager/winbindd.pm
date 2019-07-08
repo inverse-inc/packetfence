@@ -37,7 +37,7 @@ has '+name' => (default => sub { 'winbindd'} );
 
 sub isManaged {
     my ($self) = @_;
-    return $TRUE if (keys %ConfigDomain);
+    return $TRUE if ($self->SUPER::isManaged && keys(%ConfigDomain));
     return $FALSE;
 }
 
