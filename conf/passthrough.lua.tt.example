@@ -35,7 +35,7 @@ core.register_action("admin", { "http-req" }, function(txn)
     -- if the request is for the api
     if ( string.match(txn.sf:path(), '^/api')) then
         -- if the header exist then use the corresponding backend
-        if (isempty(txn.sf:hdr("X-PacketFence-Server"))) then
+        if (isempty(txn.sf:hdr("X-PacketFence-Server")) or txn.sf:hdr("X-PacketFence-Server") == "null") then
             txn:set_var("req.action","api")
         else
             txn:set_var("req.action",txn.sf:hdr("X-PacketFence-Server") .. "-api")

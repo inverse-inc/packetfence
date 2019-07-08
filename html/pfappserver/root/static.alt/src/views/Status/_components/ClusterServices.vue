@@ -19,9 +19,11 @@
             <pf-empty-table :isLoading="isLoading" text="">{{ $t('No Services found') }}</pf-empty-table>
           </template>
           <template v-for="server in servers" :slot="`HEAD_${server}`" slot-scope="data">
-            {{ data.label }}
-            <b-button v-if="!isApiServer(server)" size="sm" variant="outline-success" class="ml-1" @click.stop.prevent="setApiServer(server)">{{ $t('Start Redirect') }} <icon class="ml-1" name="directions"></icon></b-button>
-            <b-button v-else size="sm" variant="outline-danger" class="ml-1" @click.stop.prevent="setApiServer()">{{ $t('Cancel Redirect') }} <icon class="ml-1" name="times"></icon></b-button>
+            <span :key="server.host">
+              {{ data.label }}
+              <b-button v-if="!isApiServer(server)" size="sm" variant="outline-success" class="ml-1" @click.stop.prevent="setApiServer(server)">{{ $t('Start Redirect') }} <icon class="ml-1" name="directions"></icon></b-button>
+              <b-button v-else size="sm" variant="outline-danger" class="ml-1" @click.stop.prevent="setApiServer()">{{ $t('Cancel Redirect') }} <icon class="ml-1" name="times"></icon></b-button>
+            </span>
           </template>
           <template v-for="server in servers" :slot="server" slot-scope="{ item: { [server]: status } }">
             <div class="container-status small" v-if="status" :key="server">
