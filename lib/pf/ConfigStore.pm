@@ -801,8 +801,7 @@ sub readInheritedRaw {
 
     if ($import) {
         my $section = $self->_formatSectionName($id);
-        my %myparams = map { $_ => 1 } $config->MyParameters($section);
-        $self->populateItem($import, $inherited, $section, grep { !exists $myparams{$_} && !exists $inherited->{$_}} $import->Parameters($section));
+        $self->populateItem($import, $inherited, $section, grep { !exists $inherited->{$_}} $import->Parameters($section));
     }
 
     return $inherited;
