@@ -21,6 +21,7 @@ use pf::log;
 use pf::util qw(expand_csv);
 use pf::UnifiedApi::Search::Builder;
 use pf::UnifiedApi::OpenAPI::Generator::Crud;
+use URI::Escape::XS qw(uri_unescape);
 
 our %OP_HAS_SUBQUERIES = (
     'and' => 1,
@@ -297,6 +298,7 @@ sub parent_data {
     my %data;
     my $captures = $self->stash->{'mojo.captures'};
     @data{values %$map} = @{$captures}{keys %$map};
+    %data = map { $_ => uri_unescape($data{$_}) } keys(%data);
 
     return \%data;
 }
