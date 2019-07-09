@@ -1,67 +1,67 @@
 <template>
-  <b-row class="pf-documentation overflow-hidden">
-    <b-col md="3" xl="2" class="pf-sidebar border-bottom d-print-none" ref="documentList">
-      <div class="pf-sidebar-links mt-3">
-        <b-nav class="pf-sidenav" vertical>
-          <b-nav-item v-for="document in index" :key="document.name"
-            :active="document.text === title"
-            :disabled="isLoading"
-            exact-active-class="active"
-            @click.stop.prevent="loadDocument(document)">
-            <div class="pf-sidebar-item">
-              {{ document.text }} <icon class="mx-1" name="info-circle" v-show="document.text === title"></icon>
+  <div class="pf-documentation overflow-hidden py-2 border-bottom border-gray">
+    <!-- document viewer -->
+    <b-card no-body class="pf-documentation-document" :class="{ 'fullscreen': fullscreen }">
+      <b-card-header>
+        <template v-if="!fullscreen">
+          <b-button-close @click="closeViewer" v-b-tooltip.hover.left.d300 :title="$t('Close')" class="ml-3"><icon name="times"></icon></b-button-close>
+          <b-button-close @click="toggleFullscreen" v-b-tooltip.hover.left.d300 :title="$t('Show Fullscreen')" class="ml-3"><icon name="expand"></icon></b-button-close>
+        </template>
+        <b-button-close v-else @click="toggleFullscreen" v-b-tooltip.hover.left.d300 :title="$t('Exit Fullscreen')" class="ml-3"><icon name="compress"></icon></b-button-close>
+        <h4 class="d-inline mb-0 mr-3">{{ title }}</h4>
+      </b-card-header>
+      <b-row no-gutters>
+        <b-col md="3" xl="2" class="pf-sidebar d-print-none" ref="documentList">
+          <div class="pf-sidebar-links mt-3">
+            <b-nav class="pf-sidenav" vertical>
+              <b-nav-item v-for="document in index" :key="document.name"
+                :active="document.text === title"
+                :disabled="isLoading"
+                exact-active-class="active"
+                @click.stop.prevent="loadDocument(document)">
+                <div class="pf-sidebar-item">
+                  {{ document.text }} <icon class="mx-1" name="info-circle" v-show="document.text === title"></icon>
+                </div>
+              </b-nav-item>
+            </b-nav>
+            <!-- info + support link -->
+            <hr />
+            <slot />
+            <div class="m-3">
+              <b-button href="https://packetfence.org/support.html#/commercial" target="_blank" size="sm" block>
+                {{ $t('Support Inquiry') }}<icon class="ml-1" name="external-link-alt"> </icon>
+              </b-button>
             </div>
-          </b-nav-item>
-        </b-nav>
-        <!-- info + support link -->
-        <hr />
-        <slot />
-        <div class="m-3">
-          <b-button href="https://packetfence.org/support.html#/commercial" target="_blank" size="sm" block>
-            {{ $t('Support Inquiry') }}<icon class="ml-1" name="external-link-alt"> </icon>
-          </b-button>
-        </div>
-      </div>
-    </b-col>
-    <b-col md="9" xl="10" class="border-gray border-bottom py-2">
-      <!-- document viewer -->
-      <b-card no-body class="pf-documentation-document" :class="{ 'fullscreen': fullscreen }">
-        <b-card-header>
-          <template v-if="!fullscreen">
-            <b-button-close @click="closeViewer" v-b-tooltip.hover.left.d300 :title="$t('Close')" class="ml-3"><icon name="times"></icon></b-button-close>
-            <b-button-close @click="toggleFullscreen" v-b-tooltip.hover.left.d300 :title="$t('Show Fullscreen')" class="ml-3"><icon name="expand"></icon></b-button-close>
-          </template>
-          <b-button-close v-else @click="toggleFullscreen" v-b-tooltip.hover.left.d300 :title="$t('Exit Fullscreen')" class="ml-3"><icon name="compress"></icon></b-button-close>
-          <h4 class="d-inline mb-0 mr-3">{{ title }}</h4>
-        </b-card-header>
-
-        <!-- HTML document -->
-        <iframe v-show="!isLoading" v-if="path" ref="document" name="documentFrame" frameborder="0" class="pf-documentation-frame"
-          :src="`/static/doc/${path}`"
-          @load="initDocument()"
-        ></iframe>
-        <b-container class="pf-documentation-frame my-5" v-if="isLoading">
-          <b-row class="justify-content-md-center text-secondary h-100">
-            <b-col cols="12" md="auto" class="align-self-center">
-              <b-media>
-                <icon name="circle-notch" scale="2" slot="aside" spin></icon>
-                <h4>{{ $t('Loading Documentation') }}</h4>
-                <p class="font-weight-light">{{ title }}</p>
-              </b-media>
-            </b-col>
-          </b-row>
-        </b-container>
-
-        <!-- IMG viewer -->
-        <b-modal v-model="showImageModal" size="xl" centered id="imageModal" scrollable hide-footer>
-          <template slot="modal-title">{{ image.alt }}</template>
-          <div class="p-3 text-center">
-            <img :src="image.src" :alt="image.alt" style="width: 100%; height: auto;" />
           </div>
-        </b-modal>
-      </b-card>
-    </b-col>
-  </b-row>
+        </b-col>
+        <b-col md="9" xl="10">
+          <!-- HTML document -->
+          <iframe v-show="!isLoading" v-if="path" ref="document" name="documentFrame" frameborder="0" class="pf-documentation-frame"
+            :src="`/static/doc/${path}`"
+            @load="initDocument()"
+          ></iframe>
+          <b-container class="pf-documentation-frame my-5" v-if="isLoading">
+            <b-row class="justify-content-md-center text-secondary h-100">
+              <b-col cols="12" md="auto" class="align-self-center">
+                <b-media>
+                  <icon name="circle-notch" scale="2" slot="aside" spin></icon>
+                  <h4>{{ $t('Loading Documentation') }}</h4>
+                  <p class="font-weight-light">{{ title }}</p>
+                </b-media>
+              </b-col>
+            </b-row>
+          </b-container>
+          <!-- IMG viewer -->
+          <b-modal v-model="showImageModal" size="xl" centered id="imageModal" scrollable hide-footer>
+            <template slot="modal-title">{{ image.alt }}</template>
+            <div class="p-3 text-center">
+              <img :src="image.src" :alt="image.alt" style="width: 100%; height: auto;" />
+            </div>
+          </b-modal>
+        </b-col>
+      </b-row>
+    </b-card>
+  </div>
 </template>
 
 <script>
@@ -377,24 +377,24 @@ export default {
 </script>
 
 <style lang="scss">
-  @import "../../node_modules/bootstrap/scss/functions";
-  @import "../../node_modules/bootstrap/scss/mixins/breakpoints";
-  @import "../styles/variables";
-
   $pf-documentation-height: 50vh;
+  $slide-in-duration: 0.3s;
+  $slide-out-duration: 0.15s;
 
   .pf-documentation {
+    display: none; // hidden by default
     height: $pf-documentation-height;
     .pf-sidebar {
       overflow-y: auto;
       @include media-breakpoint-up(md) {
         @supports (position: sticky) {
           top: 0;
-          max-height: calc(#{$pf-documentation-height});
+          max-height: calc(#{$pf-documentation-height} - #{map-get($spacers, 6)} - 2 * #{map-get($spacers, 2)});
         }
       }
     }
     .pf-documentation-frame {
+      width: 100%;
       height: calc(#{$pf-documentation-height} - #{map-get($spacers, 6)} - 2 * #{map-get($spacers, 2)});
     }
   }
@@ -402,7 +402,7 @@ export default {
     &.fullscreen {
       position: fixed !important;
       z-index: $zindex-modal-backdrop;
-      top: 0 !important;
+      top: #{map-get($spacers, 6)} !important; // navbar height
       right: 0 !important;
       bottom: 0 !important;
       left: 0 !important;
@@ -412,19 +412,42 @@ export default {
       border: none !important;
     }
   }
-  .pf-documentation-container > .row {
-    transition: all 300ms ease;
-  }
-  .pf-documentation-active > .row {
-    transform: translateY(0);
-  }
-  .pf-documentation-container:not(.pf-documentation-active) > .row {
-    transform: translateY(-#{$pf-documentation-height});
-  }
   .pf-documentation-fullscreen {
     .pf-documentation,
     .pf-documentation .pf-documentation-frame {
-      height: calc(100vh - #{map-get($spacers, 6)});
+      height: calc(100vh - #{map-get($spacers, 6)} - #{map-get($spacers, 5)}); // 100% view height - navbar height - card header height
     }
   }
+
+.pf-documentation-enter {
+  animation: slide-in-top $slide-in-duration cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
+  .pf-documentation {
+    display: block;
+  }
+}
+
+.pf-documentation-leave {
+  animation: slide-out-top $slide-out-duration cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
+  .pf-documentation {
+    display: block;
+  }
+}
+
+@keyframes slide-in-top {
+  0% {
+    transform: translateY(-#{$pf-documentation-height});
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-out-top {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-#{$pf-documentation-height});
+  }
+}
 </style>

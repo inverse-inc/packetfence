@@ -46,15 +46,15 @@
             <b-dropdown-item href="/admin/status" target="_blank">{{ $t('Switch to Old Admin') }}</b-dropdown-item>
           </b-nav-item-dropdown>
         </b-navbar-nav>
+        <pf-notification-center :isAuthenticated="isAuthenticated" />
       </b-collapse>
-      <pf-notification-center :isAuthenticated="isAuthenticated" />
     </b-navbar>
     <pf-progress-api></pf-progress-api>
     <!-- Show alert if the database is in read-only mode -->
     <b-container v-if="readonlyMode" class="bg-danger text-white text-center pt-6" fluid>
       <icon class="pr-2" name="lock"></icon> {{ $t('The database is in readonly mode. Not all functionality is available.') }}
     </b-container>
-    <b-container :class="{ 'pt-6': !readonlyMode, 'pf-documentation-container': isAuthenticated, 'pf-documentation-active': showDocumentationViewer }" fluid>
+    <b-container :class="[{ 'pt-6': !readonlyMode, 'pf-documentation-container': isAuthenticated }, documentationViewerClass]" fluid>
       <pf-documentation v-show="isAuthenticated">
         <div class="py-1 pl-3" v-show="version">
           <b-form-text v-t="'Packetfence Version'"/> {{ version }}
@@ -88,7 +88,8 @@ export default {
   },
   data () {
     return {
-      debug: process.env.VUE_APP_DEBUG
+      debug: process.env.VUE_APP_DEBUG,
+      documentationViewerClass: null
     }
   },
   computed: {
@@ -205,6 +206,16 @@ export default {
     },
     altShiftUKey (pressed) {
       if (pressed) this.$router.push('/users')
+    },
+    showDocumentationViewer: function (a, b) {
+      if (a) { // shown
+        this.documentationViewerClass = 'pf-documentation-enter'
+      } else {
+        this.documentationViewerClass = 'pf-documentation-leave'
+        setTimeout(() => {
+          this.documentationViewerClass = null
+        }, 300) // match the animation duration defined in pfDocumentation.vue
+      }
     }
   }
 }
