@@ -7,7 +7,12 @@
       @sort="sort"
     >
       <template slot="pageHeader">
-        <b-card-header><h4 class="mb-0" v-t="'Connection Profiles'"></h4></b-card-header>
+        <b-card-header>
+          <h4 class="mb-0">
+            {{ $t('Connection Profiles') }}
+            <pf-button-help class="ml-1" url="PacketFence_Installation_Guide.html#_connection_profiles" />
+          </h4>
+        </b-card-header>
       </template>
       <template slot="buttonAdd">
         <b-button variant="outline-primary" :to="{ name: 'newConnectionProfile' }">{{ $t('New Connection Profile') }}</b-button>
@@ -46,6 +51,7 @@
 
 <script>
 import pfButtonDelete from '@/components/pfButtonDelete'
+import pfButtonHelp from '@/components/pfButtonHelp'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
@@ -57,6 +63,7 @@ export default {
   name: 'connection-profiles-list',
   components: {
     pfButtonDelete,
+    pfButtonHelp,
     pfConfigList,
     pfEmptyTable,
     pfFormRangeToggle

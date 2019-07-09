@@ -136,28 +136,29 @@ const getters = {
   mouseEvent: state => state.mouseEvent,
   windowEvent: state => state.windowEvent,
   windowSize: state => state.windowSize,
-  isKey: state => key => (state.focus && (key in state.keyCodes) && (state.documentEvent.keyCode || null) === state.keyCodes[key]),
-  isKeyCode: state => keyCode => (state.focus && (state.documentEvent.keyCode || null) === keyCode),
+  isKey: state => key => (key in state.keyCodes) && (state.documentEvent.keyCode || null) === state.keyCodes[key],
+  isKeyCode: state => keyCode => (state.documentEvent.keyCode || null) === keyCode,
   keyCode: state => state.documentEvent.keyCode,
   focus: state => state.focus,
-  keyDown: state => state.focus && state.keyDown,
-  mouseDown: state => state.focus && state.mouseDown,
-  altKey: state => state.focus && state.documentEvent.altKey,
-  ctrlKey: state => state.focus && state.documentEvent.ctrlKey,
-  metaKey: state => state.focus && state.documentEvent.metaKey,
-  shiftKey: state => state.focus && state.documentEvent.shiftKey,
-  actionKey: state => state.focus && (state.documentEvent.ctrlKey || state.documentEvent.metaKey),
-  escapeKey: state => state.focus && state.documentEvent.keyCode === state.keyCodes.Escape,
-  altAKey: state => state.focus && state.documentEvent.altKey && !state.documentEvent.shiftKey && state.documentEvent.keyCode === state.keyCodes.KeyA,
-  altNKey: state => state.focus && state.documentEvent.altKey && !state.documentEvent.shiftKey && state.documentEvent.keyCode === state.keyCodes.KeyN,
-  altRKey: state => state.focus && state.documentEvent.altKey && !state.documentEvent.shiftKey && state.documentEvent.keyCode === state.keyCodes.KeyR,
-  altShiftAKey: state => state.focus && state.documentEvent.altKey && state.documentEvent.shiftKey && state.documentEvent.keyCode === state.keyCodes.KeyA,
-  altShiftCKey: state => state.focus && state.documentEvent.altKey && state.documentEvent.shiftKey && state.documentEvent.keyCode === state.keyCodes.KeyC,
-  altShiftFKey: state => state.focus && state.documentEvent.altKey && state.documentEvent.shiftKey && state.documentEvent.keyCode === state.keyCodes.KeyF,
-  altShiftNKey: state => state.focus && state.documentEvent.altKey && state.documentEvent.shiftKey && state.documentEvent.keyCode === state.keyCodes.KeyN,
-  altShiftRKey: state => state.focus && state.documentEvent.altKey && state.documentEvent.shiftKey && state.documentEvent.keyCode === state.keyCodes.KeyR,
-  altShiftSKey: state => state.focus && state.documentEvent.altKey && state.documentEvent.shiftKey && state.documentEvent.keyCode === state.keyCodes.KeyS,
-  altShiftUKey: state => state.focus && state.documentEvent.altKey && state.documentEvent.shiftKey && state.documentEvent.keyCode === state.keyCodes.KeyU
+  keyDown: state => state.keyDown,
+  mouseDown: state => state.mouseDown,
+  altKey: state => state.documentEvent.altKey,
+  ctrlKey: state => state.documentEvent.ctrlKey,
+  metaKey: state => state.documentEvent.metaKey,
+  shiftKey: state => state.documentEvent.shiftKey,
+  actionKey: state => state.documentEvent.ctrlKey || state.documentEvent.metaKey,
+  escapeKey: state => state.documentEvent.keyCode === state.keyCodes.Escape,
+  altAKey: state => state.documentEvent.altKey && !state.documentEvent.shiftKey && state.documentEvent.keyCode === state.keyCodes.KeyA,
+  altNKey: state => state.documentEvent.altKey && !state.documentEvent.shiftKey && state.documentEvent.keyCode === state.keyCodes.KeyN,
+  altRKey: state => state.documentEvent.altKey && !state.documentEvent.shiftKey && state.documentEvent.keyCode === state.keyCodes.KeyR,
+  altShiftAKey: state => state.documentEvent.altKey && state.documentEvent.shiftKey && state.documentEvent.keyCode === state.keyCodes.KeyA,
+  altShiftCKey: state => state.documentEvent.altKey && state.documentEvent.shiftKey && state.documentEvent.keyCode === state.keyCodes.KeyC,
+  altShiftFKey: state => state.documentEvent.altKey && state.documentEvent.shiftKey && state.documentEvent.keyCode === state.keyCodes.KeyF,
+  altShiftHKey: state => state.documentEvent.altKey && state.documentEvent.shiftKey && state.documentEvent.keyCode === state.keyCodes.KeyH,
+  altShiftNKey: state => state.documentEvent.altKey && state.documentEvent.shiftKey && state.documentEvent.keyCode === state.keyCodes.KeyN,
+  altShiftRKey: state => state.documentEvent.altKey && state.documentEvent.shiftKey && state.documentEvent.keyCode === state.keyCodes.KeyR,
+  altShiftSKey: state => state.documentEvent.altKey && state.documentEvent.shiftKey && state.documentEvent.keyCode === state.keyCodes.KeyS,
+  altShiftUKey: state => state.documentEvent.altKey && state.documentEvent.shiftKey && state.documentEvent.keyCode === state.keyCodes.KeyU
 }
 
 const actions = {
@@ -196,6 +197,7 @@ const actions = {
 
 const mutations = {
   BODY_MOUSE_DOWN: (state, event) => {
+    state.focus = true
     state.mouseEvent = event
     state.mouseDown = true
   },

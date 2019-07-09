@@ -4,7 +4,12 @@
       :config="config"
     >
       <template slot="pageHeader">
-        <b-card-header><h4 class="mb-0" v-t="'Security Events'"></h4></b-card-header>
+        <b-card-header>
+          <h4 class="mb-0">
+            {{ $t('Security Events') }}
+            <pf-button-help class="ml-1" url="PacketFence_Installation_Guide.html#_security_events" />
+          </h4>
+        </b-card-header>
       </template>
       <template slot="buttonAdd">
         <b-button variant="outline-primary" :to="{ name: 'newSecurityEvent' }">{{ $t('New Security Event') }}</b-button>
@@ -45,6 +50,7 @@
 
 <script>
 import pfButtonDelete from '@/components/pfButtonDelete'
+import pfButtonHelp from '@/components/pfButtonHelp'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
@@ -56,6 +62,7 @@ export default {
   name: 'security-events-list',
   components: {
     pfButtonDelete,
+    pfButtonHelp,
     pfConfigList,
     pfEmptyTable,
     pfFormRangeToggle

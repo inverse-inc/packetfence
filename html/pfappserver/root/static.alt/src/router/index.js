@@ -2,7 +2,6 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import store from '@/store'
 
-import HelpRoute from '@/views/Help/_router'
 import LoginRoute from '@/views/Login/_router'
 import StatusRoute from '@/views/Status/_router'
 import ReportsRoute from '@/views/Reports/_router'
@@ -20,7 +19,6 @@ const DefaultRoute = {
 
 let router = new Router({
   routes: [
-    HelpRoute,
     LoginRoute,
     StatusRoute,
     ReportsRoute,

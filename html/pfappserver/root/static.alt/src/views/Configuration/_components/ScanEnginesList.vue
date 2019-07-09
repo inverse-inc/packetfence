@@ -4,7 +4,12 @@
       :config="config"
     >
       <template slot="pageHeader">
-        <b-card-header><h4 class="mb-0" v-t="'Scan Engines'"></h4></b-card-header>
+        <b-card-header>
+          <h4 class="mb-0">
+            {{ $t('Scan Engines') }}
+            <pf-button-help class="ml-1" url="PacketFence_Installation_Guide.html#_scanner_definition" />
+          </h4>
+        </b-card-header>
       </template>
       <template slot="buttonAdd">
         <b-dropdown :text="$t('New Scan Engine')" variant="outline-primary">
@@ -30,6 +35,7 @@
 
 <script>
 import pfButtonDelete from '@/components/pfButtonDelete'
+import pfButtonHelp from '@/components/pfButtonHelp'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import {
@@ -40,6 +46,7 @@ export default {
   name: 'scan-engines-list',
   components: {
     pfButtonDelete,
+    pfButtonHelp,
     pfConfigList,
     pfEmptyTable
   },

@@ -10,7 +10,8 @@
   >
     <template slot="header" is="b-card-header">
       <h4 class="mb-0">
-        <span>{{ $t('Parking') }}</span>
+        {{ $t('Parking') }}
+        <pf-button-help class="ml-1" url="PacketFence_Installation_Guide.html#_parked_devices" />
       </h4>
     </template>
     <template slot="footer">
@@ -25,8 +26,9 @@
 </template>
 
 <script>
-import pfConfigView from '@/components/pfConfigView'
+import pfButtonHelp from '@/components/pfButtonHelp'
 import pfButtonSave from '@/components/pfButtonSave'
+import pfConfigView from '@/components/pfConfigView'
 import {
   pfConfigurationParkingViewFields as fields
 } from '@/globals/configuration/pfConfigurationParking'
@@ -39,8 +41,9 @@ export default {
     validationMixin
   ],
   components: {
-    pfConfigView,
-    pfButtonSave
+    pfButtonHelp,
+    pfButtonSave,
+    pfConfigView
   },
   data () {
     return {

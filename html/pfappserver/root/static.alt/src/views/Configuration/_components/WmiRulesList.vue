@@ -4,7 +4,12 @@
       :config="config"
     >
       <template slot="pageHeader">
-        <b-card-header><h4 class="mb-0" v-t="'WMI Rules'"></h4></b-card-header>
+        <b-card-header>
+          <h4 class="mb-0">
+            {{ $t('WMI Rules') }}
+            <pf-button-help class="ml-1" url="PacketFence_Installation_Guide.html#_wmi_rules_definition" />
+          </h4>
+        </b-card-header>
       </template>
       <template slot="buttonAdd">
         <b-button variant="outline-primary" :to="{ name: 'newWmiRule' }">{{ $t('New WMI Rule') }}</b-button>
@@ -28,6 +33,7 @@
 
 <script>
 import pfButtonDelete from '@/components/pfButtonDelete'
+import pfButtonHelp from '@/components/pfButtonHelp'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import {
@@ -38,6 +44,7 @@ export default {
   name: 'wmi-rules-list',
   components: {
     pfButtonDelete,
+    pfButtonHelp,
     pfConfigList,
     pfEmptyTable
   },
