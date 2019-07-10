@@ -16,6 +16,7 @@ import (
 )
 
 type Proxy struct {
+	Portal string
 }
 
 // NewProxy creates a new instance of proxy.
@@ -32,12 +33,25 @@ func NewProxy(ctx context.Context) *Proxy {
 func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	host := r.Host
+
+	query_portal := r.URL.Query()
+	if query_portal.Get("PORTAL") != "" {
+
+		p.Portal = query_portal.Get("PORTAL")
+	} else {
+
+		cookie_portal, err := r.Cookie("PF_PORTAL")
+		if err == nil {
+			p.Portal = cookie_portal.Value
+		}
+	}
+
 	rp := httputil.NewSingleHostReverseProxy(&url.URL{
 		Scheme: "http",
 		Host:   host,
 	})
 
-	rp.ModifyResponse = UpdateResponse
+	rp.ModifyResponse = p.UpdateResponse
 
 	// Uses most defaults of http.DefaultTransport with more aggressive timeouts
 	rp.Transport = &http.Transport{
@@ -55,12 +69,31 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	// Pass the context in the request
 	r = r.WithContext(ctx)
+
+	Referer := r.Header.Get("Referer")
+	r.Header.Set("Referer", strings.Replace(Referer, "/portal_preview", "", -1))
+	r.RequestURI = strings.Replace(r.RequestURI, "/portal_preview", "", -1)
+
 	rp.ServeHTTP(w, r)
 }
 
-func UpdateResponse(r *http.Response) error {
+func (p *Proxy) UpdateResponse(r *http.Response) error {
 
 	var URL []*url.URL
+	var LINK []string
+
+	r.Header["Location"] = []string{"/portal_preview" + r.Header.Get("Location")}
+
+	expire := time.Now().AddDate(0, 0, 1)
+
+	cookie := http.Cookie{
+		Name:    "PF_PORTAL",
+		Value:   p.Portal,
+		Expires: expire,
+		Path:    "/portal_preview",
+	}
+
+	r.Header.Add("Set-Cookie", cookie.String())
 
 	buf, _ := ioutil.ReadAll(r.Body)
 
@@ -75,22 +108,25 @@ func UpdateResponse(r *http.Response) error {
 		case tt == html.ErrorToken:
 			// End of the document, we're done
 			for _, v := range URL {
-				// spew.Dump(v)
 				urlOrig := v.String()
 				v.Path = "/portal_preview" + v.EscapedPath()
 				buf = bytes.Replace(buf, []byte(urlOrig), []byte(v.String()), -1)
+			}
+			for _, v := range LINK {
+				buf = bytes.Replace(buf, []byte(v), []byte("/portal_preview"+v), -1)
 			}
 			boeuf := bytes.NewBufferString("")
 			boeuf.Write(buf)
 
 			r.Body = ioutil.NopCloser(boeuf)
+
 			r.Header["Content-Length"] = []string{fmt.Sprint(boeuf.Len())}
 			return nil
 		case tt == html.StartTagToken:
 			t := z.Token()
 
-			// Check if the token is an <a> tag
-			isAnchor := t.Data == "a"
+			// Check if the token is an <a> or <form> tag
+			isAnchor := (t.Data == "a" || t.Data == "form")
 			if !isAnchor {
 				continue
 			}
@@ -105,8 +141,10 @@ func UpdateResponse(r *http.Response) error {
 			hasProto := strings.Index(link, "http") == 0
 
 			if hasProto {
-				foundLink, _ := url.Parse(link)
-				URL = append(URL, foundLink)
+				foundURL, _ := url.Parse(link)
+				URL = append(URL, foundURL)
+			} else {
+				LINK = append(LINK, link)
 			}
 		}
 	}
@@ -116,7 +154,11 @@ func UpdateResponse(r *http.Response) error {
 func getHref(t html.Token) (ok bool, href string) {
 	// Iterate over all of the Token's attributes until we find an "href"
 	for _, a := range t.Attr {
-		if a.Key == "href" {
+		switch {
+		case a.Key == "href":
+			href = a.Val
+			ok = true
+		case a.Key == "action":
 			href = a.Val
 			ok = true
 		}

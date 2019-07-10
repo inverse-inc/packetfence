@@ -489,6 +489,7 @@ var directives = []string{
 	"pfsso",
 	"pfipset",
 	"httpdispatcher",
+	"httpdportalpreview",
 }
 
 const (
