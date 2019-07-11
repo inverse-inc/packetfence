@@ -34,4 +34,7 @@
   root /usr/local/pf/html/pfappserver/root/static
 }
 
+:5252 {
+  root /usr/local/pf/html/parking
+}
 

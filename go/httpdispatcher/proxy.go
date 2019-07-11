@@ -423,9 +423,8 @@ func (p *Proxy) handleParking(ctx context.Context, w http.ResponseWriter, r *htt
 
 		if err == nil {
 			if p.HasSecurityEvents(ctx, MAC) {
-				r.Host = "parking"
 				spew.Dump("Parking detected " + MAC)
-				p.reverse(ctx, w, r, "127.0.0.1")
+				p.reverse(ctx, w, r, "127.0.0.1:5252")
 			} else {
 				spew.Dump("No Parking detected " + MAC)
 			}
