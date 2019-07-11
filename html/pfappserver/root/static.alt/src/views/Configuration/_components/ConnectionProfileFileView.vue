@@ -7,6 +7,9 @@
           <h4 class="my-2">
             <router-link class="mr-1" :to="{ name: 'connectionProfileFiles', id }">{{ $t('Connection Profile {id}', { id: id }) }}</router-link>
             <span>/ {{ path }}</span>
+            <b-button size="sm" variant="secondary" class="ml-2" :href="`/config/profile/${id}/preview/${filename}`" target="_blank">
+              {{ $t('Preview') }} <icon class="ml-1" name="external-link-alt"></icon>
+            </b-button>
           </h4>
           <b-form-group
             class="col col-md-4 ml-2 my-0"
