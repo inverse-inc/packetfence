@@ -469,6 +469,7 @@ export default {
           key: 'start_time',
           label: this.$i18n.t('Start Time'),
           sortable: true,
+          formatter: this.$options.filters.shortDateTime,
           class: 'text-nowrap'
         },
         {
@@ -489,12 +490,14 @@ export default {
           key: 'start_date',
           label: this.$i18n.t('Start Time'),
           sortable: true,
+          formatter: this.$options.filters.shortDateTime,
           class: 'text-nowrap'
         },
         {
           key: 'release_date',
           label: this.$i18n.t('Release Date'),
           sortable: true,
+          formatter: this.$options.filters.shortDateTime,
           class: 'text-nowrap'
         },
         {
