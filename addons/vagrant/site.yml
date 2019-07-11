@@ -22,7 +22,7 @@
         insertafter: "-A INPUT --in-interface lo --jump ACCEPT"
       tags: vagrant
 
-    - name: reboot to disable SELinux and apply previous iptable rule
+    - name: reboot to disable SELinux and apply previous iptables rule
       reboot:
 
 - hosts: dev
