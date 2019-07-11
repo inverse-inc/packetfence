@@ -81,8 +81,13 @@ func (p *Proxy) UpdateResponse(r *http.Response) error {
 
 	var URL []*url.URL
 	var LINK []string
-
-	r.Header["Location"] = []string{"/portal_preview" + r.Header.Get("Location")}
+	location, _ := url.Parse(r.Header.Get("Location"))
+	if location.Host != "" {
+		location.Path = "/portal_preview" + location.EscapedPath()
+		r.Header["Location"] = []string{location.String()}
+	} else {
+		r.Header["Location"] = []string{"/portal_preview" + r.Header.Get("Location")}
+	}
 
 	expire := time.Now().AddDate(0, 0, 1)
 
