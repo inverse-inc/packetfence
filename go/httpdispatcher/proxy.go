@@ -113,6 +113,8 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	p.handleParking(ctx, w, r)
+
 	if r.URL.Path == "/kindle-wifi/wifistub.html" {
 		log.LoggerWContext(ctx).Debug(fmt.Sprintln(host, "KINDLE WIFI PROBE HANDLING"))
 		w.WriteHeader(http.StatusOK)
