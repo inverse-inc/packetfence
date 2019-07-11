@@ -626,6 +626,42 @@ sub security_events {
     return $self->render(json => { items => \@security_events });
 }
 
+=head2 park
+
+park
+
+=cut
+
+sub park {
+    my ($self) = @_;
+    my ($status, $data) = $self->parse_json;
+    if (is_error($status)) {
+        return $self->render(json => $data, status => $status);
+    }
+    my $mac = $self->id;
+    my $ip = $data->{ip};
+    pf::parking::park($mac, $ip);
+    return $self->render(json => {});
+}
+
+=head2 unpark
+
+unpark
+
+=cut
+
+sub unpark {
+    my ($self) = @_;
+    my ($status, $data) = $self->parse_json;
+    if (is_error($status)) {
+        return $self->render(json => $data, status => $status);
+    }
+    my $mac = $self->id;
+    my $ip = $data->{ip};
+    my $results = pf::parking::unpark($mac, $ip);
+    return $self->render(json => {});
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
