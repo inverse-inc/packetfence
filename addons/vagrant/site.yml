@@ -21,9 +21,11 @@
         marker: "# {mark} ANSIBLE MANAGED BLOCK"
         insertafter: "-A INPUT --in-interface lo --jump ACCEPT"
       tags: vagrant
+      register: site_register_iptables_rule
 
-    - name: reboot to disable SELinux and apply previous iptables rule
-      reboot:
+    - name: apply new iptables rule for vagrant management
+      command: "{{ packetfence_install__pfcmd }} service iptables restart"
+      when: site_register_iptables_rule is changed
 
 - hosts: dev
   name: install additionnal stuff for dev machines
