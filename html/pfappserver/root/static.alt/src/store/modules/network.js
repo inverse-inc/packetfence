@@ -24,7 +24,7 @@ const state = {
   simulation: null, // d3 simulation
   isLoading: false,
   pollingInterval: false,
-  pollingIntervalMs: 1000,
+  pollingIntervalMs: 100,
   nodes: [],
   links: []
 }
@@ -97,7 +97,7 @@ const actions = {
     if (state.nodes.length === 0) {
       // 1st iteration
       dispatch('addNodes', [
-        { index: 0, x: null, y: null, type: 'packetfence' }
+        { id: 0, x: null, y: null, type: 'packetfence' }
       ])
     } else {
       // 2nd+ iterations
@@ -115,8 +115,13 @@ const actions = {
           type = (Math.ceil(Math.random() * 100) > 99) ? 'router' : 'node'
           break
       }
-      dispatch('addLinks', [{ source: source.index, target: length }])
+      dispatch('addLinks', [{ source: source.id, target: length }])
       dispatch('addNodes', [{ id: length, x: source.x, y: source.y, type }])
+    }
+
+    if (state.nodes.length === 50) {
+      clearInterval(state.pollingInterval)
+      commit('CLEAR_INTERVAL')
     }
   },
   setDimensions: ({ commit }, dimensions) => {
@@ -172,10 +177,10 @@ const mutations = {
     if (!state.initialized) {
       state.simulation = d3.forceSimulation(state.nodes)
         .stop()
-        .force('link', d3.forceLink(state.links).id(d => d.index))
+        .force('link', d3.forceLink(state.links).id(d => d.id))
         //.force('link', d3.forceLink(state.links).distance(10).strength(1))
-        .force('charge', d3.forceManyBody())
-        .force('center', d3.forceCenter(state.dimensions.width / 2, state.dimensions.height / 2))
+        .force('charge_force', d3.forceManyBody())
+        .force('center_force', d3.forceCenter(state.dimensions.width / 2, state.dimensions.height / 2))
         .force('collide', d3.forceCollide().radius(d => d.force).iterations(2))
         /*
         .on('tick', () => {

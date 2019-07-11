@@ -1,18 +1,15 @@
 <!--
 https://plnkr.co/edit/iadT0ikcpKELU0eaE9f6?p=preview
+https://bl.ocks.org/steveharoz/8c3e2524079a8c440df60c1ab72b5d03
 -->
 <template>
   <b-card no-body class="mt-3">
     <b-card-header>
       <h4 class="d-inline mb-0" v-t="'Network'"></h4>
-
-
-      # nodes: {{ graph.nodes.length }}
-<!--
-<pre>{{ JSON.stringify(graph.nodes, null, 2) }}</pre>
-<pre>{{ JSON.stringify(graph.links, null, 2) }}</pre>
--->
-
+<p># nodes: {{ graph.nodes.length }}</p>
+<p>zoom: {{ zoom }}</p>
+<p>centerX: {{ centerX }}</p>
+<p>centerY: {{ centerY }}</p>
     </b-card-header>
     <div class="card-body">
       <div ref="svgContainer">
@@ -21,11 +18,15 @@ https://plnkr.co/edit/iadT0ikcpKELU0eaE9f6?p=preview
           xmlns:xlink="http://www.w3.org/1999/xlink"
           width="100%"
           :height="dimensions.height+'px'"
-          @mousemove="drag($event)"
-          @mouseup="drop()"
-          v-show="graph.bounds.minX"
+          :viewBox="viewBoxString"
+          @click="mouseClickSvg($event)"
+          @mousedown.prevent="mouseDownSvg($event)"
+          @mousemove="mouseMoveSvg($event)"
+          @mouseout="mouseUpSvg($event)"
+          @mouseup="mouseUpSvg($event)"
+          @mousewheel.prevent="mouseWheelSvg($event)"
         >
-          <defs>
+          <defs v-once>
             <symbol id="packetfence" viewBox="0 0 120 75" preserveAspectRatio="xMinYMin slice">
                 <path d="M0.962,14.55l26.875,9.047l0.182,10.494l-27.057,-8.683l0,-10.858Z" />
                 <path d="M0.962,27.577l26.875,9.047l0.182,10.496l-27.057,-8.687l0,-10.856l0,0Z" />
@@ -46,48 +47,49 @@ https://plnkr.co/edit/iadT0ikcpKELU0eaE9f6?p=preview
               <path d="M624 416H381.54c-.74 19.81-14.71 32-32.74 32H288c-18.69 0-33.02-17.47-32.77-32H16c-8.8 0-16 7.2-16 16v16c0 35.2 28.8 64 64 64h512c35.2 0 64-28.8 64-64v-16c0-8.8-7.2-16-16-16zM576 48c0-26.4-21.6-48-48-48H112C85.6 0 64 21.6 64 48v336h512V48zm-64 272H128V64h384v256z"></path>
             </symbol>
           </defs>
-          <line v-for="link in graph.links"
-            v-bind="linkCoords(link)"
-            stroke="black"
-            stroke-width="2"
-          />
-          <!--
-          <circle v-for="(node, i) in nodes"
-            :cx="coords[i].x"
-            :cy="coords[i].y"
-            :r="20"
-            :fill="colors[Math.ceil(Math.sqrt(node.id))]"
-            stroke="white"
-            stroke-width="1"
-            @mousedown="currentMove = {x: $event.screenX, y: $event.screenY, node: node}"
-          />
-          -->
-          <template v-for="(node, i) in graph.nodes">
-            <!--- packetfence icon --->
-            <use v-if="node.type === 'packetfence'"
-              xlink:href="#packetfence"
- width="32" height="32"
-              :x="graph.coords[i].x - (32 / 2)"
-              :y="graph.coords[i].y - (32 / 2)"
-              fill="#000000"
+          <circle :cx="centerX" :cy="centerY" r="10" fill="#ff6600"/>
+          <g>
+            <line v-for="link in graph.links"
+              v-bind="linkCoords(link)"
+              stroke="black"
+              stroke-width="2"
             />
-            <!--- router icon --->
-            <use v-if="node.type === 'router'"
-              xlink:href="#router"
- width="32" height="32"
-              :x="graph.coords[i].x - (32 / 2)"
-              :y="graph.coords[i].y - (32 / 2)"
-              :fill="colors[Math.ceil(Math.sqrt(node.index))]"
-            />
-            <!--- laptop icon --->
-            <use v-if="node.type === 'node'"
-              xlink:href="#laptop"
- width="32" height="32"
-              :x="graph.coords[i].x - (32 / 2)"
-              :y="graph.coords[i].y - (32 / 2)"
-              :fill="colors[Math.ceil(Math.sqrt(node.index))]"
-            />
-          </template>
+            <template v-for="(node, i) in graph.nodes">
+              <!--- packetfence icon --->
+              <use v-if="node.type === 'packetfence'"
+                xlink:href="#packetfence"
+width="32" height="32"
+                :x="graph.coords[i].x - (32 / 2)"
+                :y="graph.coords[i].y - (32 / 2)"
+                fill="#000000"
+                @mouseover="hoverNode(node, $event)"
+                @mouseout="hoverNode(node)"
+                @click="clickNode(node, $event)"
+              />
+              <!--- router icon --->
+              <use v-if="node.type === 'router'"
+                xlink:href="#router"
+width="32" height="32"
+                :x="graph.coords[i].x - (32 / 2)"
+                :y="graph.coords[i].y - (32 / 2)"
+                :fill="colors[Math.ceil(Math.sqrt(node.index))]"
+                @mouseover="hoverNode(node, $event)"
+                @mouseout="hoverNode(node)"
+                @click="clickNode(node, $event)"
+              />
+              <!--- laptop icon --->
+              <use v-if="node.type === 'node'"
+                xlink:href="#laptop"
+width="32" height="32"
+                :x="graph.coords[i].x - (32 / 2)"
+                :y="graph.coords[i].y - (32 / 2)"
+                :fill="colors[Math.ceil(Math.sqrt(node.index))]"
+                @mouseover="hoverNode(node, $event)"
+                @mouseout="hoverNode(node)"
+                @click="clickNode(node, $event)"
+              />
+            </template>
+          </g>
         </svg>
       </div>
     </div>
@@ -120,10 +122,16 @@ export default {
         height: Math.max(document.documentElement.clientHeight, window.innerHeight || 0) - 40,
         width: 0
       },
-      padding: 20,
       colors: ['#2196F3', '#E91E63', '#7E57C2', '#009688', '#00BCD4', '#EF6C00', '#4CAF50', '#FF9800', '#F44336', '#CDDC39', '#9C27B0'],
-      currentMove: null,
-      lastNodes: null
+
+      // zoom/pan
+      lastX: null,
+      lastY: null,
+      minZoom: 0,
+      maxZoom: 10,
+      zoom: 0,
+      centerX: null,
+      centerY: null
     }
   },
   computed: {
@@ -140,6 +148,28 @@ export default {
     },
     windowSize () {
       return this.$store.getters['events/windowSize']
+    },
+    viewBox () {
+      let { dimensions: { height, width } = {}, centerX, centerY, zoom } = this
+      if (!centerX && width) { // initialize center (x)
+        centerX = this.centerX = width / 2
+      }
+      if(!centerY && height) { // initialize center (y)
+        centerY = this.centerY = height / 2
+      }
+      const divisor = Math.pow(2, zoom) // 0 = 1, 1 = 2, 2 = 4, 3 = 8, ...
+      const widthScaled = width / divisor
+      const heightScaled = height / divisor
+      return {
+        minX: centerX - (widthScaled / 2),
+        minY: centerY - (heightScaled / 2),
+        width: widthScaled,
+        height: heightScaled
+      }
+    },
+    viewBoxString () {
+      const { viewBox: { minX = 0, minY = 0, width = 0, height = 0 } = {} } = this
+      return `${minX} ${minY} ${width} ${height}`
     }
   },
   methods: {
@@ -151,10 +181,18 @@ export default {
         y2: this.graph.coords[link.target.index].y
       }
       return coords
-/*
-      console.log('>>> link', JSON.stringify(link, null, 2))
-      console.log('>>> coords', JSON.stringify(this.graph.coords[0], null, 2))
-*/
+    },
+    setCenter (x, y) {
+      const { dimensions: { height, width } = {}, centerX, centerY, zoom } = this
+      const divisor = Math.pow(2, zoom) // 0 = 1, 1 = 2, 2 = 4, 3 = 8, ...
+      // restrict min/max x bounds
+      const minX = width / divisor / 2
+      const maxX = width - minX
+      this.centerX = Math.min(Math.max(x, minX), maxX)
+      // restrict min/max y bounds
+      const minY = height / divisor / 2
+      const maxY = height - minY
+      this.centerY = Math.min(Math.max(y, minY), maxY)
     },
     setDimensions () {
       // get width of svg container
@@ -162,27 +200,68 @@ export default {
       this.$set(this.dimensions, 'width', width)
       this.$store.dispatch(`${this.storeName}/setDimensions`, this.dimensions)
     },
-    drag (event) {
-      /*
-      if (this.currentMove) {
-        this.currentMove.node.fx = this.currentMove.node.x - (this.currentMove.x - event.screenX) * (this.bounds.maxX - this.bounds.minX) / (this.svgWidth - 2 * this.padding)
-        this.currentMove.node.fy = this.currentMove.node.y -(this.currentMove.y - event.screenY) * (this.bounds.maxY - this.bounds.minY) / (this.svgHeight - 2 * this.padding)
-        this.currentMove.x = event.screenX
-        this.currentMove.y = event.screenY
-      }
-      */
+    mouseClickSvg (event) {
+      console.log('click Svg', event)
     },
-    drop () {
-      /*
-      if (this.currentMove) {
-        delete this.currentMove.node.fx
-        delete this.currentMove.node.fy
+    mouseDownSvg (event) {
+      const divisor = Math.pow(2, this.zoom)
+      const { viewBox: { minX, minY } = {} } = this
+      // get mouse delta and offset from top/left corner of current viewBox
+      const { offsetX, offsetY } = event
+      // calculate mouse offset from 0,0
+      this.lastX = (offsetX / divisor) + minX
+      this.lastY = (offsetY / divisor) + minY
+    },
+    mouseMoveSvg (event) {
+      if (this.lastX && this.lastY) {
+        const divisor = Math.pow(2, this.zoom)
+        const { viewBox: { minX, minY } = {} } = this
+        // get mouse delta and offset from top/left corner of current viewBox
+        const { offsetX, offsetY } = event
+        this.$nextTick(() => { // smoothen animation
+          const x = this.centerX + (this.lastX - ((offsetX / divisor) + minX))
+          const y = this.centerY + (this.lastY - ((offsetY / divisor) + minY))
+          this.setCenter(x, y)
+        })
       }
-      this.currentMove = null
-      this.simulation.alpha(1)
-      this.simulation.restart()
-      */
-    }
+    },
+    mouseUpSvg () {
+      this.lastX = null
+      this.lastY = null
+    },
+    mouseWheelSvg (event) {
+      const divisor = Math.pow(2, this.zoom)
+      const { viewBox: { minX, minY, width, height } = {}, centerX, centerY } = this
+      // get mouse delta and offset from top/left corner of current viewBox
+      const { /*deltaX = 0, */deltaY = 0, offsetX, offsetY } = event
+      // calculate mouse offset from 0,0
+      const [ svgX, svgY ] = [ (offsetX / divisor) + minX, (offsetY / divisor) + minY ]
+      // calculate mouse offset from center of current viewBox
+      const [deltaCenterX, deltaCenterY] = [svgX - centerX, svgY - centerY]
+      // handle zoom-in (-deltaY) and zoom-out (+deltaY)
+      //  automatically match center of mouse pointer, so the
+      //  x,y coord remains pinned at the mouse pointer after zoom.
+      if (deltaY < 0) { // zoom in
+        this.zoom = Math.min(++this.zoom, this.maxZoom)
+      } else if (deltaY > 0) { // zoom out
+        this.zoom = Math.max(--this.zoom, this.minZoom)
+      }
+      const factor = Math.pow(2, this.zoom) / divisor
+      // calculate new center x,y where the current mouse position remains pinned
+      const x = svgX - (deltaCenterX / factor)
+      const y = svgY - (deltaCenterY / factor)
+      this.setCenter(x, y)
+    },
+    hoverNode (node, event = null) {
+      if (event) { // mouseover
+        console.log('mouseover Node', event, node)
+      } else { // mouseout
+        console.log('mouseout Node', node)
+      }
+    },
+    clickNode (node, event = null) {
+      console.log('click Node', event, node)
+    },
   },
   mounted () {
     this.setDimensions()
