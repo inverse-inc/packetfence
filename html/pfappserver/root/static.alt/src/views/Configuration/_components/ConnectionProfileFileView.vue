@@ -218,7 +218,6 @@ export default {
             this.revertible = true
           }
           this.contentModified = false
-          this.$store.dispatch('notification/info', { message: this.$i18n.t('{filename} saved', { filename: this.filename }) })
         }
       })
     },
