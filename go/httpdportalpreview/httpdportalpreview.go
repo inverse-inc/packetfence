@@ -110,10 +110,10 @@ func (p *Proxy) UpdateResponse(r *http.Response) error {
 			for _, v := range URL {
 				urlOrig := v.String()
 				v.Path = "/portal_preview" + v.EscapedPath()
-				buf = bytes.Replace(buf, []byte(urlOrig), []byte(v.String()), -1)
+				buf = bytes.Replace(buf, []byte("\""+urlOrig+"\""), []byte("\""+v.String()+"\""), -1)
 			}
 			for _, v := range LINK {
-				buf = bytes.Replace(buf, []byte(v), []byte("/portal_preview"+v), -1)
+				buf = bytes.Replace(buf, []byte("\""+v+"\""), []byte("\""+"/portal_preview"+v+"\""), -1)
 			}
 			boeuf := bytes.NewBufferString("")
 			boeuf.Write(buf)
