@@ -56,6 +56,7 @@ func NewProxy(ctx context.Context) *Proxy {
 
 	passThrough = newProxyPassthrough(ctx)
 	passThrough.readConfig(ctx)
+	p.Configure(ctx)
 	return &p
 }
 
@@ -115,8 +116,8 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		if p.HasSecurityEvents(ctx, MAC) {
 			spew.Dump("Parking detected" + MAC)
 		}
-
 	}
+
 	if host == "" {
 		w.WriteHeader(http.StatusBadGateway)
 		return
@@ -234,7 +235,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 // Configure add default target in the deny list
-func (p *Proxy) Configure(ctx context.Context, port string) {
+func (p *Proxy) Configure(ctx context.Context) {
 	p.addToEndpointList(ctx, "localhost")
 	p.addToEndpointList(ctx, "127.0.0.1")
 
