@@ -425,6 +425,15 @@ func (p *Proxy) handleParking(ctx context.Context, w http.ResponseWriter, r *htt
 
 		if err == nil {
 			if p.HasSecurityEvents(ctx, MAC) {
+				if r.RequestURI == "/cgi-bin/release.pl" {
+					// Call the API
+					// if unpark_is_ok {
+					// r.RequestURI = "/back-on-network.html"
+					// } else {
+					// r.RequestURI = "/max-attempts.html"
+					// }
+					r.RequestURI = "/back-on-network.html"
+				}
 				spew.Dump("Parking detected " + MAC)
 				p.reverse(ctx, w, r, "127.0.0.1:5252")
 			} else {
