@@ -29,7 +29,7 @@ use base 'pfconfig::namespaces::config';
 sub init {
     my ($self, $host_id) = @_;
     $self->{file}            = $switches_config_file;
-    $self->{child_resources} = [ 'resource::default_switch', 'resource::switches_group', 'resource::switches_ranges', 'interfaces::management_network', 'resource::SwitchTypesConfigured', 'resource::cli_switches', 'resource::SwitchReverseLookup' ];
+    $self->{child_resources} = [ 'resource::default_switch', 'resource::switches_group', 'resource::switches_ranges', 'interfaces::management_network', 'resource::SwitchTypesConfigured', 'resource::cli_switches', 'resource::SwitchReverseLookup', 'resource::switches_list' ];
 
     $host_id //= "";
     $self->{management_network} = $self->{cache}->get_cache("interfaces::management_network($host_id)");
