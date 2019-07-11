@@ -3,6 +3,7 @@ package httpdispatcher
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"net"
 	"net/http"
@@ -20,6 +21,7 @@ import (
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/sharedutils"
+	"github.com/inverse-inc/packetfence/go/unifiedapiclient"
 )
 
 // Proxy structure
@@ -31,6 +33,7 @@ type Proxy struct {
 	IP4log            *sql.Stmt // prepared statement for ip4log queries
 	IP6log            *sql.Stmt // prepared statement for ip6log queries
 	Db                *sql.DB
+	apiClient         *unifiedapiclient.Client
 }
 
 type passthrough struct {
@@ -226,6 +229,7 @@ func (p *Proxy) Configure(ctx context.Context) {
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "httpd.dispatcher: database security_event prepared statement error: %s", err)
 	}
+	p.apiClient = unifiedapiclient.NewFromConfig(ctx)
 }
 
 func (p *passthrough) readConfig(ctx context.Context) {
@@ -426,13 +430,14 @@ func (p *Proxy) handleParking(ctx context.Context, w http.ResponseWriter, r *htt
 		if err == nil {
 			if p.HasSecurityEvents(ctx, MAC) {
 				if r.RequestURI == "/cgi-bin/release.pl" {
-					// Call the API
-					// if unpark_is_ok {
-					// r.RequestURI = "/back-on-network.html"
-					// } else {
-					// r.RequestURI = "/max-attempts.html"
-					// }
 					reqURL := r.URL
+					// Call the API
+					p.ApiCall(ctx, MAC)
+					// if unpark_is_ok {
+					// reqURL.Path = " "/back-on-network.html"
+					// } else {
+					// reqURL.Path = "/max-attempts.html"
+					// }
 					reqURL.Path = "/back-on-network.html"
 					r.URL = reqURL
 				}
@@ -472,4 +477,23 @@ func (p *Proxy) reverse(ctx context.Context, w http.ResponseWriter, r *http.Requ
 	r = r.WithContext(ctx)
 	rp.ServeHTTP(w, r)
 	log.LoggerWContext(ctx).Info(fmt.Sprintln(host, time.Since(t)))
+}
+
+func (p *Proxy) ApiCall(ctx context.Context, mac string) {
+
+	var raw json.RawMessage
+
+	err := p.apiClient.CallWithStringBody(ctx, "POST", "/api/v1/"+mac+"/unpark", "", &raw)
+	if err != nil {
+		log.LoggerWContext(ctx).Error("API error: " + err.Error())
+		return
+	}
+
+	if raw == nil {
+		log.LoggerWContext(ctx).Warn("Empty response from " + "POST" + " /api/v1/" + mac + "/unpark")
+		return
+	}
+	var json_data interface{}
+	json.Unmarshal([]byte(raw), &json_data)
+
 }
