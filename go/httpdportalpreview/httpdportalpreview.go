@@ -17,6 +17,8 @@ import (
 
 type Proxy struct {
 	Portal string
+	Scheme string
+	Host   string
 }
 
 // NewProxy creates a new instance of proxy.
@@ -46,6 +48,8 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	p.Host = r.Header.Get("X-Forwarded-From-Packetfence")
+	p.Scheme = r.Header.Get("X-Forwarded-Proto")
 	rp := httputil.NewSingleHostReverseProxy(&url.URL{
 		Scheme: "http",
 		Host:   host,
@@ -83,9 +87,8 @@ func (p *Proxy) UpdateResponse(r *http.Response) error {
 	var LINK []string
 	location, _ := url.Parse(r.Header.Get("Location"))
 	if location.Host != "" {
-		location.Scheme = "https"
-		// location.Scheme = r.Header.Get("X-Forwarded-Proto")
-		location.Host = r.Header.Get("X-Forwarded-From-Packetfence") + ":1443"
+		location.Scheme = p.Scheme
+		location.Host = p.Host + ":1443"
 		location.Path = "/portal_preview" + location.EscapedPath()
 		r.Header["Location"] = []string{location.String()}
 	} else {
