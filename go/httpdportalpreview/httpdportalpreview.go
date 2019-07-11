@@ -85,7 +85,7 @@ func (p *Proxy) UpdateResponse(r *http.Response) error {
 	if location.Host != "" {
 		location.Scheme = "https"
 		// location.Scheme = r.Header.Get("X-Forwarded-Proto")
-		location.Host = r.Header.Get("X-Forwarded-For-Packetfence") + ":1443"
+		location.Host = r.Header.Get("X-Forwarded-From-Packetfence") + ":1443"
 		location.Path = "/portal_preview" + location.EscapedPath()
 		r.Header["Location"] = []string{location.String()}
 	} else {

@@ -315,9 +315,8 @@ backend $mgmt_cluster_ip-portal
         acl paramsquery query -m found
         http-request set-header Host $portal_preview_ip
         http-request lua.admin
-        acl h_xportal_exists req.hdr(X_PORTAL) -m found
-        http-request add-header X_PORTAL %[var(req.path)] unless h_xportal_exists
         reqadd X-Forwarded-For-Packetfence:\\ 127.0.0.1
+        reqadd X-Forwarded-From-Packetfence:\\ $mgmt_cluster_ip
         http-request set-uri http://127.0.0.1:8890%[var(req.path)]?%[query] if paramsquery
         http-request set-uri http://127.0.0.1:8890%[var(req.path)] unless paramsquery
 
