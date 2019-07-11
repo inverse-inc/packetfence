@@ -145,7 +145,7 @@ export default {
       }
     },
     close (event) {
-      this.$router.push({ name: 'portal_modules' })
+      this.$router.back()
     },
     clone () {
       this.$router.push({ name: 'clonePortalModule' })
