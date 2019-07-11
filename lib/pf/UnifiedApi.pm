@@ -503,7 +503,7 @@ sub setup_api_v1_nodes_routes {
 
     $resource_route->register_sub_actions({
         method => 'POST',
-        actions => [ qw( register deregister restart_switchport reevaluate_access apply_security_event close_security_event fingerbank_refresh)],
+        actions => [ qw( register deregister restart_switchport reevaluate_access apply_security_event close_security_event fingerbank_refresh park unpark)],
     });
 
     $resource_route->register_sub_actions({
@@ -518,7 +518,7 @@ sub setup_api_v1_nodes_routes {
           bulk_register bulk_deregister bulk_close_security_events
           bulk_reevaluate_access bulk_restart_switchport bulk_apply_security_event
           bulk_apply_role bulk_apply_bypass_role bulk_fingerbank_refresh
-          bulk_apply_bypass_vlan park unpack
+          bulk_apply_bypass_vlan
           )
         ],
     });
