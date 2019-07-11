@@ -286,10 +286,6 @@ export const pfConfigurationActions = {
     text: i18n.t('Access level'),
     types: [fieldType.ADMINROLE],
     validators: {
-      type: {
-        /* Don't allow elsewhere */
-        [i18n.t('Duplicate action.')]: limitSiblingFields('type', 0)
-      },
       value: {
         [i18n.t('Value required.')]: required
       }
