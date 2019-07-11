@@ -108,31 +108,6 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	fqdn.ForceQuery = false
 	fqdn.RawQuery = ""
 
-	var ipAddress string
-
-	fwdAddress := r.Header.Get("X-Forwarded-For")
-	if fwdAddress != "" {
-
-		ipAddress = fwdAddress
-
-		// If we got an array... grab the first IP
-		ips := strings.Split(fwdAddress, ", ")
-		if len(ips) > 1 {
-			ipAddress = ips[0]
-		}
-	}
-
-	if ipAddress != "" {
-		MAC, err := p.IP2Mac(ctx, ipAddress)
-
-		if err == nil {
-			if p.HasSecurityEvents(ctx, MAC) {
-				spew.Dump("Parking detected" + MAC)
-			} else {
-				spew.Dump("No Parking detected" + MAC)
-			}
-		}
-	}
 	if host == "" {
 		w.WriteHeader(http.StatusBadGateway)
 		return
@@ -222,31 +197,8 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	log.LoggerWContext(ctx).Debug(fmt.Sprintln(host, "REVERSE"))
-	rp := httputil.NewSingleHostReverseProxy(&url.URL{
-		Scheme: "http",
-		Host:   host,
-	})
 
-	// Uses most defaults of http.DefaultTransport with more aggressive timeouts
-	rp.Transport = &http.Transport{
-		Proxy: http.ProxyFromEnvironment,
-		DialContext: (&net.Dialer{
-			Timeout:   2 * time.Second,
-			KeepAlive: 2 * time.Second,
-			DualStack: true,
-		}).DialContext,
-		MaxIdleConns:          100,
-		IdleConnTimeout:       90 * time.Second,
-		TLSHandshakeTimeout:   2 * time.Second,
-		ExpectContinueTimeout: 1 * time.Second,
-	}
-
-	t := time.Now()
-
-	// Pass the context in the request
-	r = r.WithContext(ctx)
-	rp.ServeHTTP(w, r)
-	log.LoggerWContext(ctx).Info(fmt.Sprintln(host, time.Since(t)))
+	p.reverse(ctx, w, r, host)
 }
 
 // Configure add default target in the deny list
@@ -449,4 +401,63 @@ func (p *Proxy) IP2Mac(ctx context.Context, ip string) (string, error) {
 	}
 
 	return mac, err
+}
+
+func (p *Proxy) handleParking(ctx context.Context, w http.ResponseWriter, r *http.Request) {
+	var ipAddress string
+
+	fwdAddress := r.Header.Get("X-Forwarded-For")
+	if fwdAddress != "" {
+
+		ipAddress = fwdAddress
+
+		// If we got an array... grab the first IP
+		ips := strings.Split(fwdAddress, ", ")
+		if len(ips) > 1 {
+			ipAddress = ips[0]
+		}
+	}
+
+	if ipAddress != "" {
+		MAC, err := p.IP2Mac(ctx, ipAddress)
+
+		if err == nil {
+			if p.HasSecurityEvents(ctx, MAC) {
+				r.Host = "parking"
+				spew.Dump("Parking detected " + MAC)
+				p.reverse(ctx, w, r, "127.0.0.1")
+			} else {
+				spew.Dump("No Parking detected " + MAC)
+			}
+		}
+	}
+}
+
+func (p *Proxy) reverse(ctx context.Context, w http.ResponseWriter, r *http.Request, host string) {
+
+	rp := httputil.NewSingleHostReverseProxy(&url.URL{
+		Scheme: "http",
+		Host:   host,
+	})
+
+	// Uses most defaults of http.DefaultTransport with more aggressive timeouts
+	rp.Transport = &http.Transport{
+		Proxy: http.ProxyFromEnvironment,
+		DialContext: (&net.Dialer{
+			Timeout:   2 * time.Second,
+			KeepAlive: 2 * time.Second,
+			DualStack: true,
+		}).DialContext,
+		MaxIdleConns:          100,
+		IdleConnTimeout:       90 * time.Second,
+		TLSHandshakeTimeout:   2 * time.Second,
+		ExpectContinueTimeout: 1 * time.Second,
+	}
+
+	t := time.Now()
+
+	// Pass the context in the request
+	r = r.WithContext(ctx)
+	rp.ServeHTTP(w, r)
+	log.LoggerWContext(ctx).Info(fmt.Sprintln(host, time.Since(t)))
 }

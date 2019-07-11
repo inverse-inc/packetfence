@@ -23,3 +23,15 @@
   root /usr/local/pf/conf/ssl/acme-challenge
 }
 
+:8890 {
+    logger {
+    level INFO
+  }
+  httpdportalpreview
+}
+
+:8889/static {
+  root /usr/local/pf/html/pfappserver/root/static
+}
+
+
