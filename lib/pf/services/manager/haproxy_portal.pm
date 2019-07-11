@@ -316,7 +316,6 @@ backend $mgmt_cluster_ip-portal
         http-request set-header Host $portal_preview_ip
         http-request lua.admin
         reqadd X-Forwarded-For-Packetfence:\\ 127.0.0.1
-	#reqadd X-Forwarded-From-Packetfence:\\ $mgmt_cluster_ip
         http-request set-uri http://127.0.0.1:8890%[var(req.path)]?%[query] if paramsquery
         http-request set-uri http://127.0.0.1:8890%[var(req.path)] unless paramsquery
 

@@ -15,6 +15,7 @@ import (
 	"golang.org/x/net/html"
 )
 
+// Proxy structure
 type Proxy struct {
 	Portal string
 	// Scheme string
@@ -36,21 +37,17 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	host := r.Host
 
-	query_portal := r.URL.Query()
-	if query_portal.Get("PORTAL") != "" {
+	queryPortal := r.URL.Query()
+	if queryPortal.Get("PORTAL") != "" {
 
-		p.Portal = query_portal.Get("PORTAL")
+		p.Portal = queryPortal.Get("PORTAL")
 	} else {
 
-		cookie_portal, err := r.Cookie("PF_PORTAL")
+		cookiePortal, err := r.Cookie("PF_PORTAL")
 		if err == nil {
-			p.Portal = cookie_portal.Value
+			p.Portal = cookiePortal.Value
 		}
 	}
-
-	// p.Host = r.Header.Get("X-Forwarded-From-Packetfence")
-
-	// p.Scheme = r.Header.Get("X-Forwarded-Proto")
 
 	rp := httputil.NewSingleHostReverseProxy(&url.URL{
 		Scheme: "http",
@@ -83,15 +80,14 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	rp.ServeHTTP(w, r)
 }
 
+// UpdateResponse rewrite the portal response
 func (p *Proxy) UpdateResponse(r *http.Response) error {
 
 	var URL []*url.URL
 	var LINK []string
 	location, _ := url.Parse(r.Header.Get("Location"))
 	if location.Host != "" {
-		// location.Scheme = p.Scheme
-		// location.Host = p.Host + ":1443"
-		// location.Path = "/portal_preview" + location.EscapedPath()
+
 		r.Header["Location"] = []string{"/portal_preview" + location.EscapedPath()}
 	} else {
 		r.Header["Location"] = []string{"/portal_preview" + r.Header.Get("Location")}
