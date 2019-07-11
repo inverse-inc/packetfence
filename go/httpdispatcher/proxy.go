@@ -432,7 +432,7 @@ func (p *Proxy) handleParking(ctx context.Context, w http.ResponseWriter, r *htt
 				if r.RequestURI == "/cgi-bin/release.pl" {
 					reqURL := r.URL
 					// Call the API
-					p.ApiCall(ctx, MAC)
+					p.ApiCall(ctx, MAC, ipAddress)
 					// if unpark_is_ok {
 					// reqURL.Path = " "/back-on-network.html"
 					// } else {
@@ -479,11 +479,15 @@ func (p *Proxy) reverse(ctx context.Context, w http.ResponseWriter, r *http.Requ
 	log.LoggerWContext(ctx).Info(fmt.Sprintln(host, time.Since(t)))
 }
 
-func (p *Proxy) ApiCall(ctx context.Context, mac string) {
+// ApiCall use to unpark a device
+func (p *Proxy) ApiCall(ctx context.Context, mac string, ip string) {
 
 	var raw json.RawMessage
 
-	err := p.apiClient.CallWithStringBody(ctx, "POST", "/api/v1/"+mac+"/unpark", "", &raw)
+	payload := map[string]string{"ip": ip}
+	data, err := json.Marshal(payload)
+
+	err = p.apiClient.CallWithStringBody(ctx, "POST", "/api/v1/node/"+mac+"/unpark", string(data), &raw)
 	if err != nil {
 		log.LoggerWContext(ctx).Error("API error: " + err.Error())
 		return

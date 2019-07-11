@@ -54,12 +54,6 @@ sub park {
             "type"        => "int",
         }]);
     }
-    if(isenabled($Config{parking}{show_parking_portal})){
-        get_logger->debug("Adding $ip to parking ipset");
-        pf::api::unifiedapiclient->default_client->call("POST", "/api/v1/ipset/add_ip/parking", {
-            "ip" => $ip,
-        });
-    }
 }
 
 =head2 unpark
@@ -94,16 +88,6 @@ sub remove_parking_actions {
     };
     if($@) {
         get_logger->error("Error while removing options from DHCP server: " . $@);
-    }
-
-    get_logger->debug("Removing $ip from parking ipset");
-    eval {
-        pf::api::unifiedapiclient->default_client->call("POST", "/api/v1/ipset/remove_ip/parking", {
-            "ip" => $ip,
-        });
-    };
-    if($@) {
-        get_logger->error("Error while removing device from parking: " . $@);
     }
 }
 
