@@ -2,24 +2,34 @@ package httpdispatcher
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"net"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"os"
 	"regexp"
 	"sync"
 	"text/template"
 	"time"
 
+	"github.com/davecgh/go-spew/spew"
+	"github.com/inverse-inc/packetfence/go/db"
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
+	"github.com/inverse-inc/packetfence/go/sharedutils"
 )
 
+// Proxy structure
 type Proxy struct {
 	endpointWhiteList []*regexp.Regexp
 	endpointBlackList []*regexp.Regexp
 	mutex             sync.Mutex
+	SecurityEvent     *sql.Stmt // prepared statement for security_event
+	IP4log            *sql.Stmt // prepared statement for ip4log queries
+	IP6log            *sql.Stmt // prepared statement for ip6log queries
+	Db                *sql.DB
 }
 
 type passthrough struct {
@@ -49,6 +59,7 @@ func NewProxy(ctx context.Context) *Proxy {
 	return &p
 }
 
+// Refresh the configuration
 func (p *Proxy) Refresh(ctx context.Context) {
 	passThrough.readConfig(ctx)
 }
@@ -95,6 +106,17 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	fqdn.ForceQuery = false
 	fqdn.RawQuery = ""
 
+	srcIP := r.Header.Get("X-Forwarded-For")
+	spew.Dump(srcIP)
+
+	MAC, err := p.IP2Mac(ctx, srcIP)
+
+	if err == nil {
+		if p.HasSecurityEvents(ctx, MAC) {
+			spew.Dump("Parking detected" + MAC)
+		}
+
+	}
 	if host == "" {
 		w.WriteHeader(http.StatusBadGateway)
 		return
@@ -215,6 +237,25 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func (p *Proxy) Configure(ctx context.Context, port string) {
 	p.addToEndpointList(ctx, "localhost")
 	p.addToEndpointList(ctx, "127.0.0.1")
+
+	db, err := db.DbFromConfig(ctx)
+	sharedutils.CheckError(err)
+	p.Db = db
+
+	p.IP4log, err = p.Db.Prepare("select mac from ip4log where ip = ? AND tenant_id = ?")
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "httpd.dispatcher: database ip4log prepared statement error: %s", err)
+	}
+
+	p.IP6log, err = p.Db.Prepare("select mac from ip6log where ip = ? AND tenant_id = ?")
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "pfdns: database ip6log prepared statement error: %s", err)
+	}
+
+	p.SecurityEvent, err = p.Db.Prepare("Select count(*) from security_event where security_event.security_event_id='1300003' and mac=? and status='open' AND tenant_id = ?")
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "httpd.dispatcher: database security_event prepared statement error: %s", err)
+	}
 }
 
 func (p *passthrough) readConfig(ctx context.Context) {
@@ -266,8 +307,8 @@ func (p *passthrough) readConfig(ctx context.Context) {
 		var NetIndex net.IPNet
 		var portalURL url.URL
 
-		var portal_url fqdn
-		portal_url.FQDN = make(map[*net.IPNet]*url.URL)
+		var portalUrl fqdn
+		portalUrl.FQDN = make(map[*net.IPNet]*url.URL)
 
 		var ConfNet pfconfigdriver.NetworkConf
 		ConfNet.PfconfigHashNS = key
@@ -300,6 +341,7 @@ func (p *passthrough) readConfig(ctx context.Context) {
 	p.PortalURL[index] = make(map[*net.IPNet]*url.URL)
 
 	p.PortalURL[index][&NetIndexDefault] = &portalURLDefault
+
 }
 
 // newProxyPassthrough instantiate a passthrough and return it
@@ -356,4 +398,39 @@ func (p *passthrough) checkDetectionMechanisms(ctx context.Context, e string) bo
 		}
 	}
 	return false
+}
+
+// HasSecurityEvents search for parking security event
+func (p *Proxy) HasSecurityEvents(ctx context.Context, mac string) bool {
+	security_event := false
+	var securityEventCount int
+	err := p.SecurityEvent.QueryRow(mac, 1).Scan(&securityEventCount)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "httpd.dispatcher: HasSecurityEvent %s %s\n", mac, err)
+	} else if securityEventCount != 0 {
+		security_event = true
+	}
+
+	return security_event
+}
+
+// IP2Mac search the mac associated to the ip
+func (p *Proxy) IP2Mac(ctx context.Context, ip string) (string, error) {
+	var (
+		mac string
+		err error
+	)
+	srcIP := net.ParseIP(ip)
+
+	if sharedutils.IsIPv4(srcIP) {
+		err = p.IP4log.QueryRow(ip, 1).Scan(&mac)
+	} else {
+		err = p.IP6log.QueryRow(ip, 1).Scan(&mac)
+	}
+
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "httpd.dispatcher: Ip2Mac mac for %s not found %s\n", ip, err)
+	}
+
+	return mac, err
 }
