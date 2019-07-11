@@ -432,7 +432,9 @@ func (p *Proxy) handleParking(ctx context.Context, w http.ResponseWriter, r *htt
 					// } else {
 					// r.RequestURI = "/max-attempts.html"
 					// }
-					r.RequestURI = "/back-on-network.html"
+					reqURL := r.URL
+					reqURL.Path = "/back-on-network.html"
+					r.URL = reqURL
 				}
 				spew.Dump("Parking detected " + MAC)
 				p.reverse(ctx, w, r, "127.0.0.1:5252")
