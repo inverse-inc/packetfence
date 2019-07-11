@@ -83,6 +83,8 @@ func (p *Proxy) UpdateResponse(r *http.Response) error {
 	var LINK []string
 	location, _ := url.Parse(r.Header.Get("Location"))
 	if location.Host != "" {
+		location.Scheme = r.Header.Get("X-Forwarded-Proto")
+		location.Host = location.Host + ":1443"
 		location.Path = "/portal_preview" + location.EscapedPath()
 		r.Header["Location"] = []string{location.String()}
 	} else {
