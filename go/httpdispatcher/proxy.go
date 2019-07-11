@@ -108,10 +108,12 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	fqdn.ForceQuery = false
 	fqdn.RawQuery = ""
 
-	ipAddress := r.RemoteAddr
+	var ipAddress string
 
 	fwdAddress := r.Header.Get("X-Forwarded-For")
 	if fwdAddress != "" {
+
+		ipAddress = fwdAddress
 
 		// If we got an array... grab the first IP
 		ips := strings.Split(fwdAddress, ", ")
@@ -120,16 +122,17 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	MAC, err := p.IP2Mac(ctx, ipAddress)
+	if ipAddress != "" {
+		MAC, err := p.IP2Mac(ctx, ipAddress)
 
-	if err == nil {
-		if p.HasSecurityEvents(ctx, MAC) {
-			spew.Dump("Parking detected" + MAC)
-		} else {
-			spew.Dump("No Parking detected" + MAC)
+		if err == nil {
+			if p.HasSecurityEvents(ctx, MAC) {
+				spew.Dump("Parking detected" + MAC)
+			} else {
+				spew.Dump("No Parking detected" + MAC)
+			}
 		}
 	}
-
 	if host == "" {
 		w.WriteHeader(http.StatusBadGateway)
 		return
