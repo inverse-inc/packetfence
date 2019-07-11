@@ -17,6 +17,7 @@ use warnings;
 use Mojo::Base 'pf::UnifiedApi::Controller::Crud';
 use pf::dal::node;
 use pf::fingerbank;
+use pf::parking;
 use pf::node;
 use pf::ip4log;
 use pf::constants qw($TRUE);
