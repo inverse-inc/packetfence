@@ -326,7 +326,7 @@ sub parse_dhcp_request {
     }
     # We call the parking on all DHCPREQUEST since the actions have to be done on all servers and all servers receive the DHCPREQUEST
     else {
-        $self->checkForParking($client_mac, $client_ip);
+        $self->checkForParking($client_mac);
     }
 
     # As per RFC2131 in a DHCPREQUEST if ciaddr is set and we broadcast, we are in re-binding state
@@ -429,7 +429,7 @@ Check if a device should be in parking and adjust the lease time through pfdhcp 
 =cut
 
 sub checkForParking {
-    my ($self, $client_mac, $client_ip) = @_;
+    my ($self, $client_mac) = @_;
 
     unless(defined($Config{parking}{threshold}) && $Config{parking}{threshold}){
         get_logger->trace("Not parking threshold configured, so will not try to do parking detection");
@@ -446,7 +446,7 @@ sub checkForParking {
     }
 
     if(security_event_count_open_security_event_id($client_mac, $PARKING_SECURITY_EVENT_ID)) {
-        pf::parking::trigger_parking($client_mac, $client_ip);
+        pf::parking::trigger_parking($client_mac);
     }
 
     my @locationlogs = locationlog_history_mac($client_mac);
@@ -496,7 +496,7 @@ sub checkForParking {
         # the locationlog entries will always be old.
         unless( $connection->isSNMP() ){
             $logger->warn("$client_mac STUCK on the registration role for $diff seconds $client_ip. Triggering parking security_event");
-            pf::parking::trigger_parking($client_mac, $client_ip);
+            pf::parking::trigger_parking($client_mac);
         }
         else {
             $logger->debug("Cannot trigger parking for $client_mac as it is connected via SNMP enforcement.");

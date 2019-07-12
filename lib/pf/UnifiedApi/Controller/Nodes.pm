@@ -660,7 +660,11 @@ sub unpark {
     my $mac = $self->id;
     my $ip = $data->{ip};
     my $results = pf::parking::unpark($mac, $ip);
-    return $self->render(json => {});
+    if (!$results) {
+        return $self->render_error(422, "Cannot unpark $mac");
+    }
+
+    return $self->render(json => {}, status => 200);
 }
 
 =head1 AUTHOR

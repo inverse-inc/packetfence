@@ -32,9 +32,9 @@ Will make sure the proper parking actions are applied
 =cut
 
 sub trigger_parking {
-    my ($mac,$ip) = @_;
+    my ($mac) = @_;
     if(security_event_count_open_security_event_id($mac, $PARKING_SECURITY_EVENT_ID) || security_event_trigger( { mac => $mac, tid => 'parking_detected', type => 'INTERNAL' } )){
-        park($mac,$ip);
+        park($mac);
     }
 }
 
@@ -45,7 +45,7 @@ Park a device by making its lease higher and by pointing it to another portal
 =cut
 
 sub park {
-    my ($mac,$ip) = @_;
+    my ($mac) = @_;
     get_logger->debug("Setting client in parking");
     if(isenabled($Config{parking}{place_in_dhcp_parking_group})){
         pf::api::unifiedapiclient->default_client->call("POST", "/api/v1/dhcp/options/mac/".$mac, [{
@@ -63,9 +63,9 @@ Attempt to unpark a device. The parking security_event needs to be successfully 
 =cut
 
 sub unpark {
-    my ($mac,$ip) = @_;
+    my ($mac) = @_;
     if(security_event_close($mac, $PARKING_SECURITY_EVENT_ID) != -1){
-        remove_parking_actions($mac,$ip);
+        remove_parking_actions($mac);
         return $TRUE;
     }
     else {
@@ -81,8 +81,8 @@ Remove the parking actions that were taken against an IP + MAC
 =cut
 
 sub remove_parking_actions {
-    my ($mac, $ip) = @_;
-    get_logger->info("Removing parking actions for $mac - $ip");
+    my ($mac) = @_;
+    get_logger->info("Removing parking actions for $mac");
     eval {
         pf::api::unifiedapiclient->default_client->call("DELETE", "/api/v1/dhcp/options/mac/$mac",{});
     };
