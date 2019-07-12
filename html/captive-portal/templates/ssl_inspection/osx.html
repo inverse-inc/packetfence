@@ -3,6 +3,19 @@
 <div class="u-padding">
 
   [% INCLUDE ssl_inspection/menu.html section = "osx" %]
+  
+  [% is_valid = application.request.user_agent.lower().match('safari|chrome|firefox|opera') %]
+
+  [% IF !is_valid %]
+  <div id="addMessage" class="o-media o-media--error u-padding u-margin-bottom">
+    <div class="o-media__img">[% flashIcon(level=error) %]</div>
+    <p class="o-media__body">
+      <p>Due to Apple restrictions on the registration browser you're currently using you may not be able to complete the process below and may need to use another browser to complete the process (Safari, Chrome, Firefox, Opera, etc).</p>
+      <p>In order to do so, close this window while making sure you select "Use Without Internet" if you are asked, and complete this process by visiting http://neverssl.com/ in your browser</p>
+      <p>You can still attempt to follow the instructions below but you will likely be unable to download the certificate.</p>
+    </p>
+  </div>
+  [% END %]
 
   <p>
     [% i18n("This network employs a technology called captive portal which allows the administrator(s) to restrict network access to trusted users. In order to prevent certificate security warnings when accessing this portal, the network's filtering unit must issue to your computer or mobile device a file called an SSL certificate.") %]
