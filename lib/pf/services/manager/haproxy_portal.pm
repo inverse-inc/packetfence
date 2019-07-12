@@ -28,6 +28,7 @@ use pf::config qw(
     @dhcplistener_ints
     $management_network
     @portal_ints
+    @internal_nets
 );
 use pf::file_paths qw(
     $generated_conf_dir
@@ -226,6 +227,7 @@ EOT
     my @mgmt_backend_ip = values %{pf::cluster::members_ips($mgmt_int)};
     push @mgmt_backend_ip, '127.0.0.1' if !@mgmt_backend_ip;
 
+    my $portal_preview_ip = portal_preview_ip();
     my $mgmt_backend_ip_config;
     my $mgmt_backend_ip_api_config;
     my $mgmt_srv_netdata .= <<"EOT";
@@ -321,9 +323,6 @@ backend $mgmt_cluster_ip-portal
 
 EOT
 
-
-EOT
-
     $tags{captiveportal_templates_path} = $captiveportal_templates_path;
     parse_template( \%tags, $self->haproxy_config_template, "$generated_conf_dir/".$self->name.".conf" );
 
@@ -354,6 +353,21 @@ EOT
     return 1;
 }
 
+
+=head2 portal_preview_ip
+
+The creates the portal preview ip addresss
+
+=cut
+
+sub portal_preview_ip {
+    my ($self) = @_;
+    if (!$cluster_enabled) {
+        return "127.0.0.1";
+    }
+    my  @ints = uniq (@internal_nets, @portal_ints);
+    return $ints[0]->{Tvip} ? $ints[0]->{Tvip} : $ints[0]->{Tip};
+}
 
 =head1 AUTHOR
 
