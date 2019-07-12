@@ -1022,118 +1022,55 @@ http://packetfence.org/bugs/view.php?id=1085[issue #1085].
 For day to day development one can run a checkout of the current development branch in
 `/usr/local/pf/` and develop there within a working setup.
 
+===== Prerequisites
+
+.Install following softwares:
+* link:https://www.vagrantup.com/docs/installation/[Vagrant] (>= 1.9.3)
+* Virtualbox if you wan to use Virtualbox as a provider for Vagrant
+* libvirt, KVM/QEMU and vagrant-libvirt if you want to use libvirt as a provider for Vagrant
+
 ===== Initial setup
 
-. Install PacketFence packages from devel (see next section) cleanly and do an initial configuration
-. Stop all services:
-+
+Following steps assume you use a CentOS machine but you can have same behavior
+under Debian.
+
+.Install Ansible, Mazer and PacketFence's source code:
 [source,bash]
 ----
-/usr/local/pf/bin/pfcmd service pf stop
-systemctl stop packetfence-config packetfence-mariadb packetfence-redis-cache
+sudo yum install -y epel-release
+sudo yum install -y git python-pip
+pip install --user ansible
+pip install --user mazer
+git clone https://github.com/inverse-inc/packetfence.git
 ----
-+
 
-. Install dependencies:
-+
+.Install PacketFence's collection and Ansible roles:
 [source,bash]
 ----
-# Debian
-apt install -y build-essential libipset-dev pkg-config
-
-# CentOS
-yum groupinstall -y "Development Tools"
-yum install -y ipset-devel
+cd packetfence/addons/vagrant
+mazer install --lockfile=collections_lockfile.yml
+ansible-galaxy install -r requirements.yml
 ----
-+
 
-. Run following commands:
-+
+.Start CentOS 7 virtual machine via Vagrant to set up development environment:
 [source,bash]
 ----
-mv /usr/local/pf/ /usr/local/pf-pkg
-cd /usr/local/
-git clone https://github.com/inverse-inc/packetfence.git pf
-cd pf
-// mv conf conf-git-pristine
-// mv raddb config-raddb-pristine
-// ln -s /usr/local/pf-pkg/conf conf
-// ln -s /usr/local/pf-pkg/raddb raddb
-// chown pf:pf var/control
-make devel
-mkdir /usr/local/pf/var/ssl_mutex
+vagrant up pfcendev
 ----
-+
 
-. Install (at least) link:https://github.com/nodesource/distributions/#table-of-contents[NodeJS] 8 to build JavaScript files for webadmin
-. Compile JavaScript files for web admin ([command]`sudo` is important to avoid permissions issues):
-+
+.Reboot virtual machine to disable SELinux:
 [source,bash]
 ----
-cd /usr/local/pf/html/pfappserver/root/static.alt/
-sudo make vendor
-sudo make dev
+vagrant reload pfcendev
 ----
-+
 
-. Compile JavaScript files for captive portal ([command]`sudo` is important to avoid permissions issues):
-+
-[source,bash]
-----
-cd /usr/local/pf/html/common
-sudo make vendor
-sudo make dev
-----
-+
+At the end of this process, you will have latest PacketFence's source code,
+running in a CentOS 7 virtual machine, located in [filename]`/usr/local/pf`
+with all dependencies installed as RPM packages. You can directly develop from
+[filename]`/usr/local/pf`.
 
-. Fix permissions and start `packetfence-config` and `packetfence-redis-cache` service:
-+
-[source,bash]
-----
-cd /usr/local/pf
-make bin/pfcmd
-make fingerbank
-make permissions
-systemctl start packetfence-config packetfence-redis-cache
-----
-+
-
-. Install Golang environment and build Golang binaries
-+
-[source,bash]
-----
-cd /usr/local/pf/go
-make go-env
-/usr/local/pf/addons/packages/build-go.sh build /usr/local/pf /usr/local/pf/sbin/
-----
-+
-
-WARNING: Care should be taken not to commit local configuration files changes and files not in the
-repository.
-
-
-===== Day to day usage
-
-. Update your git copy:
-+
-[source,bash]
-----
-git pull
-----
-+
-. Test a pull request
-+
-[source,bash]
-----
-git checkout BRANCH_NAME
-git pull
-----
-+
-
-
-. Recompile JavaScript files (see # section)
-
-
+Web admin should be reachable through management IP address of pfcendev
+machine, configured in [filename]`addons/vagrant/inventory/hosts`.
 
 
 ==== Not so bleeding edge
