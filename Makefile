@@ -66,6 +66,8 @@ docs/html/%.html: docs/%.asciidoc
 
 html/pfappserver/root/static/doc:
 	make html
+	mkdir html/pfappserver/root/static/doc
+	mkdir html/pfappserver/root/static/images
 	cp -a docs/html/* html/pfappserver/root/static/doc
 	cp -a docs/images/* html/pfappserver/root/static/images
 

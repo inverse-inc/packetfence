@@ -21,6 +21,9 @@ cp ../pf-pkg/conf/pfconfig.conf conf/
 cp ../pf-pkg/conf/iptables.conf conf/
 make conf/currently-at
 
+log_section "Build docs"
+make html/pfappserver/root/static/doc
+
 log_section "Build web admin"
 cd /usr/local/pf/html/pfappserver/root/static.alt/
 sudo make vendor
