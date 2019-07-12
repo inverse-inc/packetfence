@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net"
 	"net/http"
@@ -432,13 +433,12 @@ func (p *Proxy) handleParking(ctx context.Context, w http.ResponseWriter, r *htt
 				if r.RequestURI == "/cgi-bin/release.pl" {
 					reqURL := r.URL
 					// Call the API
-					p.ApiCall(ctx, MAC, ipAddress)
-					// if unpark_is_ok {
-					// reqURL.Path = " "/back-on-network.html"
-					// } else {
-					// reqURL.Path = "/max-attempts.html"
-					// }
-					reqURL.Path = "/back-on-network.html"
+					err = p.ApiCall(ctx, MAC, ipAddress)
+					if err == nil {
+						reqURL.Path = "/back-on-network.html"
+					} else {
+						reqURL.Path = "/max-attempts.html"
+					}
 					r.URL = reqURL
 				}
 				spew.Dump("Parking detected " + MAC)
@@ -480,7 +480,7 @@ func (p *Proxy) reverse(ctx context.Context, w http.ResponseWriter, r *http.Requ
 }
 
 // ApiCall use to unpark a device
-func (p *Proxy) ApiCall(ctx context.Context, mac string, ip string) {
+func (p *Proxy) ApiCall(ctx context.Context, mac string, ip string) error {
 
 	var raw json.RawMessage
 
@@ -490,14 +490,12 @@ func (p *Proxy) ApiCall(ctx context.Context, mac string, ip string) {
 	err = p.apiClient.CallWithStringBody(ctx, "POST", "/api/v1/node/"+mac+"/unpark", string(data), &raw)
 	if err != nil {
 		log.LoggerWContext(ctx).Error("API error: " + err.Error())
-		return
+		return err
 	}
 
 	if raw == nil {
 		log.LoggerWContext(ctx).Warn("Empty response from " + "POST" + " /api/v1/" + mac + "/unpark")
-		return
+		return errors.New("Empty response  from " + "POST" + " /api/v1/" + mac + "/unpark")
 	}
-	var json_data interface{}
-	json.Unmarshal([]byte(raw), &json_data)
-
+	return nil
 }
