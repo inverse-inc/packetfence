@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"strings"
+
 	"github.com/google/uuid"
 	"github.com/inverse-inc/packetfence/go/log"
 )
@@ -39,7 +40,8 @@ func (fw *FamilyZone) Start(ctx context.Context, info map[string]string, timeout
 func (fw *FamilyZone) startHttp(ctx context.Context, info map[string]string, timeout int) (bool, error) {
 	id, err := uuid.NewUUID()
 	if err != nil {
-		log.LoggerWContext(ctx).Info("Oups too bad")
+		log.LoggerWContext(ctx).Error(err.Error)
+		return false, err
 	}
 	s := fw.Password + "__" + info["username"] + "_PacketFence_" + id.String()
 	h := sha1.New()

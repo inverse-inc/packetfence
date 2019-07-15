@@ -23,7 +23,7 @@ has_field '+password' =>
    type => 'ObfuscatedText',
    label => 'Secret or Key',
    tags => { after_element => \&help,
-             help => 'If using the HTTP transport, specify the password for the Palo Alto API' },
+             help => 'Specify the password for the Family Zone API' },
    required => 0,
   );
 

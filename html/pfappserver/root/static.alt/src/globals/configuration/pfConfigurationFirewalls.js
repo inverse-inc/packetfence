@@ -203,7 +203,7 @@ export const pfConfigurationFirewallViewFields = (context) => {
         {
           if: ['FamilyZone'].includes(firewallType),
           label: i18n.t('Region'),
-          text: i18n.t('Please define the Virtual System number. This only has an effect when used with the HTTP transport.'),
+          text: i18n.t('Please define the region.'),
           fields: [
             {
               key: 'region',
