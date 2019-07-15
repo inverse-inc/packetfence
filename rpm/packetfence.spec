@@ -1,21 +1,21 @@
 # use 'global' variables (vs 'define' with local scope)
-%global package packetfence
-%global builddoc 0
-%global perl_version 5.10.1
-%global logfiles packetfence.log snmptrapd.log pfdetect pfmon security_event.log httpd.admin.audit.log
-%global logdir /usr/local/pf/logs
+%global     package packetfence
+%global     builddoc 0
+%global     perl_version 5.10.1
+%global     logfiles packetfence.log snmptrapd.log pfdetect pfmon security_event.log httpd.admin.audit.log
+%global     logdir /usr/local/pf/logs
 
-Name: %{package}-source
-Version: 9.0
-Release: 1%{?dist}
-Summary: PacketFence network registration / worm mitigation system
-Packager: Inverse inc. <support@inverse.ca>
-Group: System Environment/Daemons
-License: GPL
-URL: http://www.packetfence.org
-Source:
-BuildRoot: %{_tmppath}/%{package}-root
-Vendor: PacketFence, http://www.packetfence.org
+Name:       %{package}-source
+Version:    9.0
+Release:    1%{?dist}
+Summary:    PacketFence network registration / worm mitigation system
+Packager:   Inverse inc. <support@inverse.ca>
+Group:      System Environment/Daemons
+License:    GPL
+URL:        http://www.packetfence.org
+Source0:    %{package}-%{version}.tar.gz
+BuildRoot:  %{_tmppath}/%{package}-root
+Vendor:     PacketFence, http://www.packetfence.org
 
 BuildRequires: gettext, httpd, ipset-devel, pkgconfig, jq
 BuildRequires: asciidoc >= 8.6.2, fop, libxslt, docbook-style-xsl, xalan-j2
