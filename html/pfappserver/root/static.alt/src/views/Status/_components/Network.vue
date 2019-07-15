@@ -12,18 +12,29 @@ https://bl.ocks.org/steveharoz/8c3e2524079a8c440df60c1ab72b5d03
 <p>centerY: {{ centerY }}</p>
     </b-card-header>
     <div class="card-body">
-      <div ref="svgContainer">
-        <svg ref="svg"
+      <div ref="svgContainer" class="svgContainer">
+
+        <svg ref="svgDrag" class="svgDrag"
           xmlns="http://www.w3.org/2000/svg"
           xmlns:xlink="http://www.w3.org/1999/xlink"
           width="100%"
           :height="dimensions.height+'px'"
           :viewBox="viewBoxString"
-          @click="mouseClickSvg($event)"
-          @mousedown.prevent="mouseDownSvg($event)"
+          v-show="lastX && lastY"
           @mousemove="mouseMoveSvg($event)"
           @mouseout="mouseUpSvg($event)"
           @mouseup="mouseUpSvg($event)"
+        >
+          <!-- SVG layer for mouse x, y offset capture during mouse drag (panning) -->
+        </svg>
+
+        <svg ref="svgDraw" class="svgDraw"
+          xmlns="http://www.w3.org/2000/svg"
+          xmlns:xlink="http://www.w3.org/1999/xlink"
+          width="100%"
+          :height="dimensions.height+'px'"
+          :viewBox="viewBoxString"
+          @mousedown.prevent="mouseDownSvg($event)"
           @mousewheel.prevent="mouseWheelSvg($event)"
         >
           <defs v-once>
@@ -47,49 +58,47 @@ https://bl.ocks.org/steveharoz/8c3e2524079a8c440df60c1ab72b5d03
               <path d="M624 416H381.54c-.74 19.81-14.71 32-32.74 32H288c-18.69 0-33.02-17.47-32.77-32H16c-8.8 0-16 7.2-16 16v16c0 35.2 28.8 64 64 64h512c35.2 0 64-28.8 64-64v-16c0-8.8-7.2-16-16-16zM576 48c0-26.4-21.6-48-48-48H112C85.6 0 64 21.6 64 48v336h512V48zm-64 272H128V64h384v256z"></path>
             </symbol>
           </defs>
-          <circle :cx="centerX" :cy="centerY" r="10" fill="#ff6600"/>
-          <g>
-            <line v-for="link in graph.links"
-              v-bind="linkCoords(link)"
-              stroke="black"
-              stroke-width="2"
+          <line v-for="link in graph.links"
+            v-bind="linkCoords(link)"
+            stroke="#a8a8a8"
+            stroke-width="1"
+          />
+          <template v-for="(node, i) in graph.nodes">
+            <!--- packetfence icon --->
+            <use v-if="node.type === 'packetfence'"
+              xlink:href="#packetfence"
+width="32" height="32"
+              :x="graph.coords[i].x - (32 / 2)"
+              :y="graph.coords[i].y - (32 / 2)"
+              fill="#000000"
+              @mouseover="mouseOverNode(node, $event)"
+              @mouseout="mouseOutNode(node, $event)"
+              @click="clickNode(node, $event)"
             />
-            <template v-for="(node, i) in graph.nodes">
-              <!--- packetfence icon --->
-              <use v-if="node.type === 'packetfence'"
-                xlink:href="#packetfence"
+            <!--- router icon --->
+            <use v-if="node.type === 'router'"
+              xlink:href="#router"
 width="32" height="32"
-                :x="graph.coords[i].x - (32 / 2)"
-                :y="graph.coords[i].y - (32 / 2)"
-                fill="#000000"
-                @mouseover="hoverNode(node, $event)"
-                @mouseout="hoverNode(node)"
-                @click="clickNode(node, $event)"
-              />
-              <!--- router icon --->
-              <use v-if="node.type === 'router'"
-                xlink:href="#router"
+              :x="graph.coords[i].x - (32 / 2)"
+              :y="graph.coords[i].y - (32 / 2)"
+              :fill="colors[Math.ceil(Math.sqrt(node.index))]"
+              @mouseover="mouseOverNode(node, $event)"
+              @mouseout="mouseOutNode(node, $event)"
+              @click="clickNode(node, $event)"
+            />
+            <!--- laptop icon --->
+            <use v-if="node.type === 'node'"
+              xlink:href="#laptop"
 width="32" height="32"
-                :x="graph.coords[i].x - (32 / 2)"
-                :y="graph.coords[i].y - (32 / 2)"
-                :fill="colors[Math.ceil(Math.sqrt(node.index))]"
-                @mouseover="hoverNode(node, $event)"
-                @mouseout="hoverNode(node)"
-                @click="clickNode(node, $event)"
-              />
-              <!--- laptop icon --->
-              <use v-if="node.type === 'node'"
-                xlink:href="#laptop"
-width="32" height="32"
-                :x="graph.coords[i].x - (32 / 2)"
-                :y="graph.coords[i].y - (32 / 2)"
-                :fill="colors[Math.ceil(Math.sqrt(node.index))]"
-                @mouseover="hoverNode(node, $event)"
-                @mouseout="hoverNode(node)"
-                @click="clickNode(node, $event)"
-              />
-            </template>
-          </g>
+              :x="graph.coords[i].x - (32 / 2)"
+              :y="graph.coords[i].y - (32 / 2)"
+              :fill="colors[Math.ceil(Math.sqrt(node.index))]"
+              @mouseover="mouseOverNode(node, $event)"
+              @mouseout="mouseOutNode(node, $event)"
+              @click="clickNode(node, $event)"
+            />
+          </template>
+
         </svg>
       </div>
     </div>
@@ -200,9 +209,6 @@ export default {
       this.$set(this.dimensions, 'width', width)
       this.$store.dispatch(`${this.storeName}/setDimensions`, this.dimensions)
     },
-    mouseClickSvg (event) {
-      console.log('click Svg', event)
-    },
     mouseDownSvg (event) {
       const divisor = Math.pow(2, this.zoom)
       const { viewBox: { minX, minY } = {} } = this
@@ -252,12 +258,11 @@ export default {
       const y = svgY - (deltaCenterY / factor)
       this.setCenter(x, y)
     },
-    hoverNode (node, event = null) {
-      if (event) { // mouseover
-        console.log('mouseover Node', event, node)
-      } else { // mouseout
-        console.log('mouseout Node', node)
-      }
+    mouseOverNode (node, event = null) {
+      console.log('mouseover Node', event, node)
+    },
+    mouseOutNode (node, event = null) {
+      console.log('mouseout Node', event, node)
     },
     clickNode (node, event = null) {
       console.log('click Node', event, node)
@@ -282,3 +287,18 @@ export default {
   }
 }
 </script>
+
+<style lang="scss">
+.svgContainer {
+  position: relative;
+
+  .svgDrag {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+  }
+}
+
+</style>
