@@ -1,65 +1,23 @@
-# PacketFence RPM SPEC
-#
-# NEW (since git migration):
-#
-#   Expecting a standard tarball with packetfence-<version>/...
-# 
-# BUILDING FOR RELEASE
-# 
-# - Build
-#  - define ver <version>
-#  - define dist based on target distro (for centos/rhel => .el5)
-#  - define rev based on package revision (must be > 0 for proprer upgrade from snapshots)
-# ex:
-# cd /usr/src/redhat/
-# rpmbuild -ba --define 'version 3.3.0' --define 'dist .el5' --define 'rev 1' SPECS/packetfence.spec
-#
-#
-# BUILDING FOR A SNAPSHOT (PRE-RELEASE)
-#
-# - Build
-#  - define ver <version>
-#  - define snapshot 1
-#  - define dist based on target distro (for centos/rhel => .el5)
-#  - define rev to 0.<date> this way one can upgrade from snapshot to release
-# ex:
-# cd /usr/src/redhat/
-# rpmbuild -ba --define 'version 3.3.0' --define 'snapshot 1' --define 'dist .el5' --define 'rev 0.20100506' SPECS/packetfence.spec
-#
-Summary: PacketFence network registration / worm mitigation system
-%global real_name packetfence
+# use 'global' variables (vs 'define' with local scope)
+%global package packetfence
+%global builddoc 0
 %global perl_version 5.10.1
-Name: %{real_name}-source
-Version: %{ver}
-Release: %{rev}%{?dist}
-License: GPL
-Group: System Environment/Daemons
-URL: http://www.packetfence.org
-BuildRoot: %{_tmppath}/%{real_name}-%{version}-%{rev}-root
-# disables the creation of the debug package for our setuid C wrapper
-%define debug_package %{nil}
-
-Packager: Inverse inc. <support@inverse.ca>
-Vendor: PacketFence, http://www.packetfence.org
-
-# if --define 'snapshot 1' not written when calling rpmbuild then we assume it is to package a release
-%define is_release %{?snapshot:0}%{!?snapshot:1}
-%if %{is_release}
-# used for official releases
-Source: http://www.packetfence.org/downloads/PacketFence/src/%{real_name}-%{version}.tar.gz
-%else
-# used for snapshot releases
-Source: http://www.packetfence.org/downloads/PacketFence/src/%{real_name}-%{version}-%{rev}.tar.gz
-%endif
-
-# Log related globals
 %global logfiles packetfence.log snmptrapd.log pfdetect pfmon security_event.log httpd.admin.audit.log
 %global logdir /usr/local/pf/logs
 
+Name: %{package}-source
+Version: 9.0
+Release: 1%{?dist}
+Summary: PacketFence network registration / worm mitigation system
+Packager: Inverse inc. <support@inverse.ca>
+Group: System Environment/Daemons
+License: GPL
+URL: http://www.packetfence.org
+Source:
+BuildRoot: %{_tmppath}/%{package}-root
+Vendor: PacketFence, http://www.packetfence.org
+
 BuildRequires: gettext, httpd, ipset-devel, pkgconfig, jq
-# Required to build documentation
-# See docs/docbook/README.asciidoc for more info about installing requirements.
-# TODO fop on EL5 is actually xmlgraphics-fop
 BuildRequires: asciidoc >= 8.6.2, fop, libxslt, docbook-style-xsl, xalan-j2
 BuildRequires: gcc
 
@@ -76,12 +34,14 @@ heterogeneous networks. PacketFence provides features such as
 
 # arch-specific pfcmd-suid subpackage required us to move all of PacketFence
 # into a noarch subpackage and have the top level package virtual.
-%package -n %{real_name}
-Group: System Environment/Daemons
-Summary: PacketFence network registration / worm mitigation system
+%package -n %{package}
 BuildArch: noarch
 # TODO we might consider re-enabling this to simplify our SPEC
 AutoReqProv: 0
+
+# replaces the need for perl-suidperl which was deprecated in perl 5.12 (Fedora 14)
+Requires(pre): %{package}-pfcmd-suid
+Requires(pre): %{package}-ntlm-wrapper
 
 Requires: chkconfig, coreutils, grep, openssl, sed, tar, wget, gettext, conntrack-tools, patch, git
 # for process management
@@ -101,9 +61,6 @@ Requires: net-snmp-perl
 Requires: perl >= %{perl_version}
 Requires: MariaDB-server >= 10.1, MariaDB-client >= 10.1
 Requires: perl(DBD::mysql)
-# replaces the need for perl-suidperl which was deprecated in perl 5.12 (Fedora 14)
-Requires(pre): %{real_name}-pfcmd-suid
-Requires(pre): %{real_name}-ntlm-wrapper
 Requires: perl(Bit::Vector)
 Requires: perl(CGI::Session), perl(CGI::Session::Driver::chi) >= 1.0.3, perl(JSON) >= 2.90, perl(JSON::MaybeXS), perl(JSON::XS) >= 3
 Requires: perl-Switch, perl-Locale-Codes
@@ -324,22 +281,15 @@ Requires: perl(Test::NoWarnings), perl(Test::ParallelSubtest)
 # required for the fake CoA server
 Requires: perl(Net::UDP)
 # For managing the number of connections per device
-%if %{is_release}
-# used for official releases
-Requires: %{real_name}-config = %{version}
-Requires: %{real_name}-pfcmd-suid = %{version}
-%else
-# used for snapshot releases
-Requires: %{real_name}-config = %{version}-%{rev}%{?dist}
-Requires: %{real_name}-pfcmd-suid = %{version}-%{rev}%{?dist}
-%endif
+Requires: %{package}-config
+Requires: %{package}-pfcmd-suid
 Requires: haproxy >= 1.8.9, keepalived >= 1.4.3
 # CAUTION: we need to require the version we want for Fingerbank and ensure we don't want anything equal or above the next major release as it can add breaking changes
 Requires: fingerbank >= 4.1.3, fingerbank < 5.0.0
 Requires: fingerbank-collector >= 1.1.0, fingerbank-collector < 2.0.0
 Requires: perl(File::Tempdir)
 
-%description -n %{real_name}
+%description -n %{package}
 
 PacketFence is an open source network access control (NAC) system. 
 It can be used to effectively secure networks, from small to very large 
@@ -352,40 +302,40 @@ as
 * registration-based and scheduled vulnerability scans.
 
 
-%package -n %{real_name}-remote-arp-sensor
+%package -n %{package}-remote-arp-sensor
 Group: System Environment/Daemons
 Requires: perl >= %{perl_version}, perl(Config::IniFiles) >= 2.88, perl(IO::Socket::SSL), perl(XML::Parser), perl(Crypt::SSLeay), perl(LWP::Protocol::https), perl(Net::Pcap) >= 0.16, memcached, perl(Cache::Memcached)
 Requires: perl(Moo), perl(Data::MessagePack), perl(WWW::Curl)
-Conflicts: %{real_name}
+Conflicts: %{package}
 AutoReqProv: 0
 Summary: Files needed for sending MAC and IP addresses from ARP requests to PacketFence
 BuildArch: noarch
 
-%description -n %{real_name}-remote-arp-sensor
-The %{real_name}-remote-arp-sensor package contains the files needed
+%description -n %{package}-remote-arp-sensor
+The %{package}-remote-arp-sensor package contains the files needed
 for sending MAC and IP from ARP requests to a PacketFence server.
 
 
-%package -n %{real_name}-pfcmd-suid
+%package -n %{package}-pfcmd-suid
 Group: System Environment/Daemons
 BuildRequires: gcc
 AutoReqProv: 0
 Summary: Replace pfcmd by a C wrapper for suid
 
-%description -n %{real_name}-pfcmd-suid
-The %{real_name}-pfcmd-suid is a C wrapper to replace perl-suidperl dependency.
+%description -n %{package}-pfcmd-suid
+The %{package}-pfcmd-suid is a C wrapper to replace perl-suidperl dependency.
 See https://bugzilla.redhat.com/show_bug.cgi?id=611009
 
-%package -n %{real_name}-ntlm-wrapper
+%package -n %{package}-ntlm-wrapper
 Group: System Environment/Daemons
 BuildRequires: gcc
 AutoReqProv: 0
 Summary: C wrapper for logging ntlm_auth latency.
 
-%description -n %{real_name}-ntlm-wrapper
-The %{real_name}-ntlm-wrapper is a C wrapper around the ntlm_auth utility to log authentication times and success/failures. It can either/both log to syslog and send metrics to a StatsD server.
+%description -n %{package}-ntlm-wrapper
+The %{package}-ntlm-wrapper is a C wrapper around the ntlm_auth utility to log authentication times and success/failures. It can either/both log to syslog and send metrics to a StatsD server.
 
-%package -n %{real_name}-config
+%package -n %{package}-config
 Group: System Environment/Daemons
 Requires: perl(Cache::BDB)
 Requires: perl(Log::Fast)
@@ -393,12 +343,12 @@ AutoReqProv: 0
 Summary: Manage PacketFence Configuration
 BuildArch: noarch
 
-%description -n %{real_name}-config
-The %{real_name}-config is a daemon that manage PacketFence configuration.
+%description -n %{package}-config
+The %{package}-config is a daemon that manage PacketFence configuration.
 
 
 %prep
-%setup -q -n %{real_name}-%{version}
+%setup -q -n %{package}-%{version}
 
 %build
 
@@ -615,7 +565,7 @@ cd $curdir
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%pre -n %{real_name}
+%pre -n %{package}
 
 /usr/bin/systemctl --now mask mariadb
 # clean up the old systemd files if it's an upgrade
@@ -646,7 +596,7 @@ then
   exit
 fi
 
-%pre -n %{real_name}-remote-arp-sensor
+%pre -n %{package}-remote-arp-sensor
 
 if ! /usr/bin/id pf &>/dev/null; then
     if ! /bin/getent group  pf &>/dev/null; then
@@ -658,7 +608,7 @@ if ! /usr/bin/id pf &>/dev/null; then
     fi
 fi
 
-%pre -n %{real_name}-config
+%pre -n %{package}-config
 
 if ! /usr/bin/id pf &>/dev/null; then
     if ! /bin/getent group  pf &>/dev/null; then
@@ -671,7 +621,7 @@ if ! /usr/bin/id pf &>/dev/null; then
 fi
 
 
-%post -n %{real_name}
+%post -n %{package}
 if [ "$1" = "2" ]; then
     /usr/local/pf/bin/pfcmd service pf updatesystemd
     perl /usr/local/pf/addons/upgrade/add-default-params-to-auth.pl
@@ -781,48 +731,48 @@ echo Installation complete
 echo "  * Please fire up your Web browser and go to https://@ip_packetfence:1443/configurator to complete your PacketFence configuration."
 echo "  * Please stop your iptables service if you don't have access to configurator."
 
-%post -n %{real_name}-remote-arp-sensor
+%post -n %{package}-remote-arp-sensor
 echo "Adding PacketFence remote ARP Sensor startup script"
 /sbin/chkconfig --add pfarp
 
-%post -n %{real_name}-config
+%post -n %{package}-config
 chown pf.pf /usr/local/pf/conf/pfconfig.conf
 echo "Adding PacketFence config startup script"
 /bin/systemctl enable packetfence-config
 
-%preun -n %{real_name}
+%preun -n %{package}
 if [ $1 -eq 0 ] ; then
 /bin/systemctl set-default multi-user.target
 /bin/systemctl isolate multi-user.target
 fi
 
-%preun -n %{real_name}-remote-arp-sensor
+%preun -n %{package}-remote-arp-sensor
 if [ $1 -eq 0 ] ; then
         /sbin/service pfarp stop &>/dev/null || :
         /sbin/chkconfig --del pfarp
 fi
 
-%preun -n %{real_name}-config
+%preun -n %{package}-config
 if [ $1 -eq 0 ] ; then
 /bin/systemctl stop packetfence-config
 /bin/systemctl disable packetfence-config
 fi
 
-%postun -n %{real_name}
+%postun -n %{package}
 if [ $1 -eq 0 ]; then
         if /usr/bin/id pf &>/dev/null; then
                /usr/sbin/userdel pf || %logmsg "User \"pf\" could not be deleted."
         fi
 fi
 
-%postun -n %{real_name}-remote-arp-sensor
+%postun -n %{package}-remote-arp-sensor
 if [ $1 -eq 0 ]; then
         if /usr/bin/id pf &>/dev/null; then
                 /usr/sbin/userdel pf || %logmsg "User \"pf\" could not be deleted."
         fi
 fi
 
-%postun -n %{real_name}-config
+%postun -n %{package}-config
 if [ $1 -eq 0 ]; then
         if /usr/bin/id pf &>/dev/null; then
                 /usr/sbin/userdel pf || %logmsg "User \"pf\" could not be deleted."
@@ -835,7 +785,7 @@ fi
 # to a directory, RPM will automatically package every file in that 
 # directory, as well as every file in each subdirectory."
 # -- http://www.rpm.org/max-rpm/s1-rpm-inside-files-list.html
-%files -n %{real_name}
+%files -n %{package}
 
 %defattr(-, pf, pf)
 %attr(0644, root, root) /etc/systemd/system/packetfence.target
@@ -1352,7 +1302,7 @@ fi
 %config(noreplace)      /usr/local/pf/var/cache_control
 
 # Remote arp sensor file list
-%files -n %{real_name}-remote-arp-sensor
+%files -n %{package}-remote-arp-sensor
 %defattr(-, pf, pf)
 %dir                    /usr/local/pf
 %dir                    /usr/local/pf/conf
@@ -1362,13 +1312,13 @@ fi
 %dir                    /usr/local/pf/var
 %dir                    /usr/local/pf/var/run
 
-%files -n %{real_name}-pfcmd-suid
+%files -n %{package}-pfcmd-suid
 %attr(6755, root, root) /usr/local/pf/bin/pfcmd
 
-%files -n %{real_name}-ntlm-wrapper
+%files -n %{package}-ntlm-wrapper
 %attr(0755, root, root) /usr/local/pf/bin/ntlm_auth_wrapper
 
-%files -n %{real_name}-config
+%files -n %{package}-config
 %defattr(-, pf, pf)
 %attr(0644, root, root) /usr/lib/systemd/system/packetfence-config.service
 %dir                    /usr/local/pf
