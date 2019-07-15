@@ -430,7 +430,7 @@ func (p *Proxy) handleParking(ctx context.Context, w http.ResponseWriter, r *htt
 
 		if err == nil {
 			if p.HasSecurityEvents(ctx, MAC) {
-				if r.RequestURI == "/cgi-bin/release.pl" {
+				if r.RequestURI == "/release-parking" {
 					reqURL := r.URL
 					// Call the API
 					err = p.ApiCall(ctx, MAC, ipAddress)
