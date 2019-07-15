@@ -8,7 +8,8 @@ Packager:   Inverse inc. <support@inverse.ca>
 Group:      System Environment/Base
 License:    GPL
 URL:        http://www.packetfence.org
-Source0:    
+# don't use any source
+#Source0:
 BuildRoot:  %{_tmppath}/%{package}-root
 Vendor:     PacketFence, http://www.packetfence.org
 
