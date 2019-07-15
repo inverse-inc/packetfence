@@ -1,5 +1,4 @@
-%define     package packetfence-release
-Name:       %{package}
+Name:       packetfence-release
 Version:    2.0
 Release:    1%{?dist}
 BuildArch:  noarch
@@ -10,7 +9,7 @@ License:    GPL
 URL:        http://www.packetfence.org
 # don't use any source
 #Source0:
-BuildRoot:  %{_tmppath}/%{package}-root
+BuildRoot:  %{_tmppath}/%{name}-root
 Vendor:     PacketFence, http://www.packetfence.org
 
 %description
@@ -90,7 +89,7 @@ cp /etc/pki/rpm-gpg/RPM-GPG-KEY-PACKETFENCE-CENTOS %{buildroot}%{_sysconfdir}/pk
 %clean
 %{__rm} -rf %{buildroot}
 
-%files -n %{package}
+%files -n %{name}
 %defattr(0644, root, root)
 %config /etc/yum.repos.d/packetfence.repo
 /etc/pki/rpm-gpg/RPM-GPG-KEY-PACKETFENCE-CENTOS
