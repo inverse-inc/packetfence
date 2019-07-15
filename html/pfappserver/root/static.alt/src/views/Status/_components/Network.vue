@@ -36,9 +36,13 @@ https://bl.ocks.org/steveharoz/8c3e2524079a8c440df60c1ab72b5d03
           :viewBox="viewBoxString"
           @mousedown.prevent="mouseDownSvg($event)"
           @mousewheel.prevent="mouseWheelSvg($event)"
+          @keypress="keyPressSvg($event)"
         >
           <defs v-once>
-            <symbol id="packetfence" viewBox="0 0 120 75" preserveAspectRatio="xMinYMin slice">
+            <symbol id="packetfence" viewBox="0 0 32 32" zzzpreserveAspectRatio="xMidYMid meet">
+              <circle cx="16" cy="16" r="14" fill="#ffffff" stroke="#a8a8a8" stroke-width="1px" />
+              <circle cx="16" cy="16" r="11.75" fill="#000000" />
+              <g transform="scale(0.2) translate(20.25, 45)" viewBox="0 0 140 75" fill="#ffffff">
                 <path d="M0.962,14.55l26.875,9.047l0.182,10.494l-27.057,-8.683l0,-10.858Z" />
                 <path d="M0.962,27.577l26.875,9.047l0.182,10.496l-27.057,-8.687l0,-10.856l0,0Z" />
                 <path d="M91.87,23.96l26.876,9.045l0.181,10.496l-27.057,-8.685l0,-10.856l0,0Z" />
@@ -48,9 +52,11 @@ https://bl.ocks.org/steveharoz/8c3e2524079a8c440df60c1ab72b5d03
                 <path d="M72.751,17.265c3.187,0 5.771,2.592 5.771,5.791l0,26.596c0,3.199 -2.584,5.791 -5.771,5.791c-3.188,0 -5.772,-2.592 -5.772,-5.791l0,-26.596c0,-3.199 2.584,-5.791 5.772,-5.791" />
                 <path d="M35.413,14.732c1.565,-2.172 5.411,-17.492 5.411,-14.295l0.181,49.215c0,3.199 -2.584,5.791 -5.773,5.791c-3.186,0 -5.77,-2.592 -5.77,-5.791l0,-26.596c0,-3.199 4.085,-5.732 5.951,-8.324" />
                 <path d="M84.835,57.388c-1.564,2.17 -5.41,17.49 -5.41,14.293l-0.182,-49.215c0,-3.197 2.584,-5.789 5.774,-5.789c3.187,0 5.772,2.592 5.772,5.789l0,26.6c0,3.195 -4.085,5.73 -5.954,8.322" />
+              </g>
             </symbol>
 
             <symbol id="router" viewBox="0 0 32 32" preserveAspectRatio="xMinYMin slice">
+              <circle cx="16" cy="16" r="14" fill="#ffffff" stroke="#a8a8a8" stroke-width="1px" />
               <path d="M 16 4 C 9.3844277 4 4 9.3844277 4 16 C 4 22.615572 9.3844277 28 16 28 C 22.615572 28 28 22.615572 28 16 C 28 9.3844277 22.615572 4 16 4 z M 16 6 C 21.534692 6 26 10.465308 26 16 C 26 21.534692 21.534692 26 16 26 C 10.465308 26 6 21.534692 6 16 C 6 10.465308 10.465308 6 16 6 z M 16 8 L 13 11 L 15 11 L 15 14 L 17 14 L 17 11 L 19 11 L 16 8 z M 11 13 L 11 15 L 8 15 L 8 17 L 11 17 L 11 19 L 14 16 L 11 13 z M 21 13 L 18 16 L 21 19 L 21 17 L 24 17 L 24 15 L 21 15 L 21 13 z M 15 18 L 15 21 L 13 21 L 16 24 L 19 21 L 17 21 L 17 18 L 15 18 z"/>
             </symbol>
 
@@ -61,7 +67,7 @@ https://bl.ocks.org/steveharoz/8c3e2524079a8c440df60c1ab72b5d03
           <line v-for="link in graph.links"
             v-bind="linkCoords(link)"
             stroke="#a8a8a8"
-            stroke-width="1"
+            stroke-width="1px"
           />
           <template v-for="(node, i) in graph.nodes">
             <!--- packetfence icon --->
@@ -257,6 +263,9 @@ export default {
       const x = svgX - (deltaCenterX / factor)
       const y = svgY - (deltaCenterY / factor)
       this.setCenter(x, y)
+    },
+    keyPressSvg (event) {
+      console.log('keyUp Svg', event)
     },
     mouseOverNode (node, event = null) {
       console.log('mouseover Node', event, node)
