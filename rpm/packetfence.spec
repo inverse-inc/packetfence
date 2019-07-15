@@ -397,173 +397,173 @@ do
 done
 
 %install
-%{__rm} -rf $RPM_BUILD_ROOT
+%{__rm} -rf %{buildroot}
 # systemd targets
-%{__install} -D -m0644 conf/systemd/packetfence.target $RPM_BUILD_ROOT/etc/systemd/system/packetfence.target
-%{__install} -D -m0644 conf/systemd/packetfence-base.target $RPM_BUILD_ROOT/etc/systemd/system/packetfence-base.target
-%{__install} -D -m0644 conf/systemd/packetfence-cluster.target $RPM_BUILD_ROOT/etc/systemd/system/packetfence-cluster.target
+%{__install} -D -m0644 conf/systemd/packetfence.target %{buildroot}/etc/systemd/system/packetfence.target
+%{__install} -D -m0644 conf/systemd/packetfence-base.target %{buildroot}/etc/systemd/system/packetfence-base.target
+%{__install} -D -m0644 conf/systemd/packetfence-cluster.target %{buildroot}/etc/systemd/system/packetfence-cluster.target
 
-%{__install} -d $RPM_BUILD_ROOT/etc/systemd/system/packetfence-base.target.wants
-%{__install} -d $RPM_BUILD_ROOT/etc/systemd/system/packetfence.target.wants
-%{__install} -d $RPM_BUILD_ROOT/etc/systemd/system/packetfence-cluster.target.wants
+%{__install} -d %{buildroot}/etc/systemd/system/packetfence-base.target.wants
+%{__install} -d %{buildroot}/etc/systemd/system/packetfence.target.wants
+%{__install} -d %{buildroot}/etc/systemd/system/packetfence-cluster.target.wants
 # systemd slices
-%{__install} -D -m0644 conf/systemd/packetfence.slice $RPM_BUILD_ROOT/etc/systemd/system/packetfence.slice
-%{__install} -D -m0644 conf/systemd/packetfence-base.slice $RPM_BUILD_ROOT/etc/systemd/system/packetfence-base.slice
+%{__install} -D -m0644 conf/systemd/packetfence.slice %{buildroot}/etc/systemd/system/packetfence.slice
+%{__install} -D -m0644 conf/systemd/packetfence-base.slice %{buildroot}/etc/systemd/system/packetfence-base.slice
 # systemd services
-%{__install} -D -m0644 conf/systemd/packetfence-api-frontend.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-api-frontend.service
-%{__install} -D -m0644 conf/systemd/packetfence-config.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-config.service
-%{__install} -D -m0644 conf/systemd/packetfence-haproxy-portal.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-haproxy-portal.service
-%{__install} -D -m0644 conf/systemd/packetfence-haproxy-db.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-haproxy-db.service
-%{__install} -D -m0644 conf/systemd/packetfence-httpd.aaa.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-httpd.aaa.service
-%{__install} -D -m0644 conf/systemd/packetfence-httpd.admin.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-httpd.admin.service
-%{__install} -D -m0644 conf/systemd/packetfence-httpd.collector.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-httpd.collector.service
-%{__install} -D -m0644 conf/systemd/packetfence-httpd.parking.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-httpd.parking.service
-%{__install} -D -m0644 conf/systemd/packetfence-httpd.portal.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-httpd.portal.service
-%{__install} -D -m0644 conf/systemd/packetfence-httpd.proxy.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-httpd.proxy.service
-%{__install} -D -m0644 conf/systemd/packetfence-httpd.webservices.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-httpd.webservices.service
-%{__install} -D -m0644 conf/systemd/packetfence-iptables.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-iptables.service
-%{__install} -D -m0644 conf/systemd/packetfence-pfperl-api.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-pfperl-api.service
-%{__install} -D -m0644 conf/systemd/packetfence-keepalived.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-keepalived.service
-%{__install} -D -m0644 conf/systemd/packetfence-mariadb.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-mariadb.service
-%{__install} -D -m0644 conf/systemd/packetfence-pfbandwidthd.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-pfbandwidthd.service
-%{__install} -D -m0644 conf/systemd/packetfence-pfdetect.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-pfdetect.service
-%{__install} -D -m0644 conf/systemd/packetfence-pfdhcplistener.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-pfdhcplistener.service
-%{__install} -D -m0644 conf/systemd/packetfence-pfdns.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-pfdns.service
-%{__install} -D -m0644 conf/systemd/packetfence-pffilter.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-pffilter.service
-%{__install} -D -m0644 conf/systemd/packetfence-pfmon.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-pfmon.service
-%{__install} -D -m0644 conf/systemd/packetfence-pfqueue.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-pfqueue.service
-%{__install} -D -m0644 conf/systemd/packetfence-pfsso.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-pfsso.service
-%{__install} -D -m0644 conf/systemd/packetfence-httpd.dispatcher.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-httpd.dispatcher.service
-%{__install} -D -m0644 conf/systemd/packetfence-radiusd-acct.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-radiusd-acct.service
-%{__install} -D -m0644 conf/systemd/packetfence-radiusd-auth.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-radiusd-auth.service
-%{__install} -D -m0644 conf/systemd/packetfence-radiusd-cli.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-radiusd-cli.service
-%{__install} -D -m0644 conf/systemd/packetfence-radiusd-eduroam.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-radiusd-eduroam.service
-%{__install} -D -m0644 conf/systemd/packetfence-radiusd-load_balancer.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-radiusd-load_balancer.service
-%{__install} -D -m0644 conf/systemd/packetfence-radsniff.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-radsniff.service
-%{__install} -D -m0644 conf/systemd/packetfence-redis-cache.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-redis-cache.service
-%{__install} -D -m0644 conf/systemd/packetfence-redis_ntlm_cache.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-redis_ntlm_cache.service
-%{__install} -D -m0644 conf/systemd/packetfence-redis_queue.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-redis_queue.service
-%{__install} -D -m0644 conf/systemd/packetfence-routes.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-routes.service
-%{__install} -D -m0644 conf/systemd/packetfence-snmptrapd.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-snmptrapd.service
-%{__install} -D -m0644 conf/systemd/packetfence-tc.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-tc.service
-%{__install} -D -m0644 conf/systemd/packetfence-winbindd.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-winbindd.service
-%{__install} -D -m0644 conf/systemd/packetfence-pfdhcp.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-pfdhcp.service
-%{__install} -D -m0644 conf/systemd/packetfence-pfipset.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-pfipset.service
-%{__install} -D -m0644 conf/systemd/packetfence-netdata.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-netdata.service
-%{__install} -D -m0644 conf/systemd/packetfence-pfstats.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-pfstats.service
+%{__install} -D -m0644 conf/systemd/packetfence-api-frontend.service %{buildroot}/usr/lib/systemd/system/packetfence-api-frontend.service
+%{__install} -D -m0644 conf/systemd/packetfence-config.service %{buildroot}/usr/lib/systemd/system/packetfence-config.service
+%{__install} -D -m0644 conf/systemd/packetfence-haproxy-portal.service %{buildroot}/usr/lib/systemd/system/packetfence-haproxy-portal.service
+%{__install} -D -m0644 conf/systemd/packetfence-haproxy-db.service %{buildroot}/usr/lib/systemd/system/packetfence-haproxy-db.service
+%{__install} -D -m0644 conf/systemd/packetfence-httpd.aaa.service %{buildroot}/usr/lib/systemd/system/packetfence-httpd.aaa.service
+%{__install} -D -m0644 conf/systemd/packetfence-httpd.admin.service %{buildroot}/usr/lib/systemd/system/packetfence-httpd.admin.service
+%{__install} -D -m0644 conf/systemd/packetfence-httpd.collector.service %{buildroot}/usr/lib/systemd/system/packetfence-httpd.collector.service
+%{__install} -D -m0644 conf/systemd/packetfence-httpd.parking.service %{buildroot}/usr/lib/systemd/system/packetfence-httpd.parking.service
+%{__install} -D -m0644 conf/systemd/packetfence-httpd.portal.service %{buildroot}/usr/lib/systemd/system/packetfence-httpd.portal.service
+%{__install} -D -m0644 conf/systemd/packetfence-httpd.proxy.service %{buildroot}/usr/lib/systemd/system/packetfence-httpd.proxy.service
+%{__install} -D -m0644 conf/systemd/packetfence-httpd.webservices.service %{buildroot}/usr/lib/systemd/system/packetfence-httpd.webservices.service
+%{__install} -D -m0644 conf/systemd/packetfence-iptables.service %{buildroot}/usr/lib/systemd/system/packetfence-iptables.service
+%{__install} -D -m0644 conf/systemd/packetfence-pfperl-api.service %{buildroot}/usr/lib/systemd/system/packetfence-pfperl-api.service
+%{__install} -D -m0644 conf/systemd/packetfence-keepalived.service %{buildroot}/usr/lib/systemd/system/packetfence-keepalived.service
+%{__install} -D -m0644 conf/systemd/packetfence-mariadb.service %{buildroot}/usr/lib/systemd/system/packetfence-mariadb.service
+%{__install} -D -m0644 conf/systemd/packetfence-pfbandwidthd.service %{buildroot}/usr/lib/systemd/system/packetfence-pfbandwidthd.service
+%{__install} -D -m0644 conf/systemd/packetfence-pfdetect.service %{buildroot}/usr/lib/systemd/system/packetfence-pfdetect.service
+%{__install} -D -m0644 conf/systemd/packetfence-pfdhcplistener.service %{buildroot}/usr/lib/systemd/system/packetfence-pfdhcplistener.service
+%{__install} -D -m0644 conf/systemd/packetfence-pfdns.service %{buildroot}/usr/lib/systemd/system/packetfence-pfdns.service
+%{__install} -D -m0644 conf/systemd/packetfence-pffilter.service %{buildroot}/usr/lib/systemd/system/packetfence-pffilter.service
+%{__install} -D -m0644 conf/systemd/packetfence-pfmon.service %{buildroot}/usr/lib/systemd/system/packetfence-pfmon.service
+%{__install} -D -m0644 conf/systemd/packetfence-pfqueue.service %{buildroot}/usr/lib/systemd/system/packetfence-pfqueue.service
+%{__install} -D -m0644 conf/systemd/packetfence-pfsso.service %{buildroot}/usr/lib/systemd/system/packetfence-pfsso.service
+%{__install} -D -m0644 conf/systemd/packetfence-httpd.dispatcher.service %{buildroot}/usr/lib/systemd/system/packetfence-httpd.dispatcher.service
+%{__install} -D -m0644 conf/systemd/packetfence-radiusd-acct.service %{buildroot}/usr/lib/systemd/system/packetfence-radiusd-acct.service
+%{__install} -D -m0644 conf/systemd/packetfence-radiusd-auth.service %{buildroot}/usr/lib/systemd/system/packetfence-radiusd-auth.service
+%{__install} -D -m0644 conf/systemd/packetfence-radiusd-cli.service %{buildroot}/usr/lib/systemd/system/packetfence-radiusd-cli.service
+%{__install} -D -m0644 conf/systemd/packetfence-radiusd-eduroam.service %{buildroot}/usr/lib/systemd/system/packetfence-radiusd-eduroam.service
+%{__install} -D -m0644 conf/systemd/packetfence-radiusd-load_balancer.service %{buildroot}/usr/lib/systemd/system/packetfence-radiusd-load_balancer.service
+%{__install} -D -m0644 conf/systemd/packetfence-radsniff.service %{buildroot}/usr/lib/systemd/system/packetfence-radsniff.service
+%{__install} -D -m0644 conf/systemd/packetfence-redis-cache.service %{buildroot}/usr/lib/systemd/system/packetfence-redis-cache.service
+%{__install} -D -m0644 conf/systemd/packetfence-redis_ntlm_cache.service %{buildroot}/usr/lib/systemd/system/packetfence-redis_ntlm_cache.service
+%{__install} -D -m0644 conf/systemd/packetfence-redis_queue.service %{buildroot}/usr/lib/systemd/system/packetfence-redis_queue.service
+%{__install} -D -m0644 conf/systemd/packetfence-routes.service %{buildroot}/usr/lib/systemd/system/packetfence-routes.service
+%{__install} -D -m0644 conf/systemd/packetfence-snmptrapd.service %{buildroot}/usr/lib/systemd/system/packetfence-snmptrapd.service
+%{__install} -D -m0644 conf/systemd/packetfence-tc.service %{buildroot}/usr/lib/systemd/system/packetfence-tc.service
+%{__install} -D -m0644 conf/systemd/packetfence-winbindd.service %{buildroot}/usr/lib/systemd/system/packetfence-winbindd.service
+%{__install} -D -m0644 conf/systemd/packetfence-pfdhcp.service %{buildroot}/usr/lib/systemd/system/packetfence-pfdhcp.service
+%{__install} -D -m0644 conf/systemd/packetfence-pfipset.service %{buildroot}/usr/lib/systemd/system/packetfence-pfipset.service
+%{__install} -D -m0644 conf/systemd/packetfence-netdata.service %{buildroot}/usr/lib/systemd/system/packetfence-netdata.service
+%{__install} -D -m0644 conf/systemd/packetfence-pfstats.service %{buildroot}/usr/lib/systemd/system/packetfence-pfstats.service
 
-%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/addons
-%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/addons/AD
-%{__install} -d -m2770 $RPM_BUILD_ROOT/usr/local/pf/conf
-%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/conf/radiusd
-%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/conf/ssl
-%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/conf/ssl/acme-challenge
-%{__install} -d -m2775 $RPM_BUILD_ROOT%logdir
-%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/raddb/sites-enabled
-%{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/var
-%{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/var/cache
-%{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/var/cache/ntlm_cache_users
-%{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/var/redis_cache
-%{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/var/redis_queue
-%{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/var/redis_ntlm_cache
-%{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/var/ssl_mutex
-%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/conf
-%{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/var/run
-%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/rrd 
-%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/session
-%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/webadmin_cache
-%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/control
-%{__install} -d $RPM_BUILD_ROOT/etc/sudoers.d
-%{__install} -d $RPM_BUILD_ROOT/etc/cron.d
-touch $RPM_BUILD_ROOT/usr/local/pf/var/cache_control
-cp Makefile $RPM_BUILD_ROOT/usr/local/pf/
-cp -r bin $RPM_BUILD_ROOT/usr/local/pf/
-cp -r addons/pfconfig/ $RPM_BUILD_ROOT/usr/local/pf/addons/
-cp -r addons/captive-portal/ $RPM_BUILD_ROOT/usr/local/pf/addons/
-cp -r addons/dev-helpers/ $RPM_BUILD_ROOT/usr/local/pf/addons/
-cp -r addons/high-availability/ $RPM_BUILD_ROOT/usr/local/pf/addons/
-cp -r addons/integration-testing/ $RPM_BUILD_ROOT/usr/local/pf/addons/
-cp -r addons/packages/ $RPM_BUILD_ROOT/usr/local/pf/addons/
-cp -r addons/upgrade/ $RPM_BUILD_ROOT/usr/local/pf/addons/
-cp -r addons/watchdog/ $RPM_BUILD_ROOT/usr/local/pf/addons/
-cp -r addons/AD/* $RPM_BUILD_ROOT/usr/local/pf/addons/AD/
-cp -r addons/monit/ $RPM_BUILD_ROOT/usr/local/pf/addons/
-cp addons/*.pl $RPM_BUILD_ROOT/usr/local/pf/addons/
-cp addons/*.sh $RPM_BUILD_ROOT/usr/local/pf/addons/
-%{__install} -D packetfence.logrotate $RPM_BUILD_ROOT/etc/logrotate.d/packetfence
-%{__install} -D packetfence.rsyslog-drop-in.service $RPM_BUILD_ROOT/etc/systemd/system/rsyslog.service.d/packetfence.conf
-%{__install} -D packetfence.journald $RPM_BUILD_ROOT/usr/lib/systemd/journald.conf.d/01-packetfence.conf
-cp -r sbin $RPM_BUILD_ROOT/usr/local/pf/
-cp -r conf $RPM_BUILD_ROOT/usr/local/pf/
-cp -r raddb $RPM_BUILD_ROOT/usr/local/pf/
-mv packetfence.sudoers $RPM_BUILD_ROOT/etc/sudoers.d/packetfence
-mv packetfence.cron.d $RPM_BUILD_ROOT/etc/cron.d/packetfence
-mv addons/pfarp_remote/sbin/pfarp_remote $RPM_BUILD_ROOT/usr/local/pf/sbin
-mv addons/pfarp_remote/conf/pfarp_remote.conf $RPM_BUILD_ROOT/usr/local/pf/conf
+%{__install} -d %{buildroot}/usr/local/pf/addons
+%{__install} -d %{buildroot}/usr/local/pf/addons/AD
+%{__install} -d -m2770 %{buildroot}/usr/local/pf/conf
+%{__install} -d %{buildroot}/usr/local/pf/conf/radiusd
+%{__install} -d %{buildroot}/usr/local/pf/conf/ssl
+%{__install} -d %{buildroot}/usr/local/pf/conf/ssl/acme-challenge
+%{__install} -d -m2775 %{buildroot}%logdir
+%{__install} -d %{buildroot}/usr/local/pf/raddb/sites-enabled
+%{__install} -d -m2775 %{buildroot}/usr/local/pf/var
+%{__install} -d -m2775 %{buildroot}/usr/local/pf/var/cache
+%{__install} -d -m2775 %{buildroot}/usr/local/pf/var/cache/ntlm_cache_users
+%{__install} -d -m2775 %{buildroot}/usr/local/pf/var/redis_cache
+%{__install} -d -m2775 %{buildroot}/usr/local/pf/var/redis_queue
+%{__install} -d -m2775 %{buildroot}/usr/local/pf/var/redis_ntlm_cache
+%{__install} -d -m2775 %{buildroot}/usr/local/pf/var/ssl_mutex
+%{__install} -d %{buildroot}/usr/local/pf/var/conf
+%{__install} -d -m2775 %{buildroot}/usr/local/pf/var/run
+%{__install} -d %{buildroot}/usr/local/pf/var/rrd 
+%{__install} -d %{buildroot}/usr/local/pf/var/session
+%{__install} -d %{buildroot}/usr/local/pf/var/webadmin_cache
+%{__install} -d %{buildroot}/usr/local/pf/var/control
+%{__install} -d %{buildroot}/etc/sudoers.d
+%{__install} -d %{buildroot}/etc/cron.d
+touch %{buildroot}/usr/local/pf/var/cache_control
+cp Makefile %{buildroot}/usr/local/pf/
+cp -r bin %{buildroot}/usr/local/pf/
+cp -r addons/pfconfig/ %{buildroot}/usr/local/pf/addons/
+cp -r addons/captive-portal/ %{buildroot}/usr/local/pf/addons/
+cp -r addons/dev-helpers/ %{buildroot}/usr/local/pf/addons/
+cp -r addons/high-availability/ %{buildroot}/usr/local/pf/addons/
+cp -r addons/integration-testing/ %{buildroot}/usr/local/pf/addons/
+cp -r addons/packages/ %{buildroot}/usr/local/pf/addons/
+cp -r addons/upgrade/ %{buildroot}/usr/local/pf/addons/
+cp -r addons/watchdog/ %{buildroot}/usr/local/pf/addons/
+cp -r addons/AD/* %{buildroot}/usr/local/pf/addons/AD/
+cp -r addons/monit/ %{buildroot}/usr/local/pf/addons/
+cp addons/*.pl %{buildroot}/usr/local/pf/addons/
+cp addons/*.sh %{buildroot}/usr/local/pf/addons/
+%{__install} -D packetfence.logrotate %{buildroot}/etc/logrotate.d/packetfence
+%{__install} -D packetfence.rsyslog-drop-in.service %{buildroot}/etc/systemd/system/rsyslog.service.d/packetfence.conf
+%{__install} -D packetfence.journald %{buildroot}/usr/lib/systemd/journald.conf.d/01-packetfence.conf
+cp -r sbin %{buildroot}/usr/local/pf/
+cp -r conf %{buildroot}/usr/local/pf/
+cp -r raddb %{buildroot}/usr/local/pf/
+mv packetfence.sudoers %{buildroot}/etc/sudoers.d/packetfence
+mv packetfence.cron.d %{buildroot}/etc/cron.d/packetfence
+mv addons/pfarp_remote/sbin/pfarp_remote %{buildroot}/usr/local/pf/sbin
+mv addons/pfarp_remote/conf/pfarp_remote.conf %{buildroot}/usr/local/pf/conf
 rmdir addons/pfarp_remote/sbin
 rm addons/pfarp_remote/initrd/pfarp
 rmdir addons/pfarp_remote/initrd
 rmdir addons/pfarp_remote/conf
 rmdir addons/pfarp_remote
-cp -r ChangeLog $RPM_BUILD_ROOT/usr/local/pf/
-cp -r COPYING $RPM_BUILD_ROOT/usr/local/pf/
-cp -r db $RPM_BUILD_ROOT/usr/local/pf/
-cp -r docs $RPM_BUILD_ROOT/usr/local/pf/
-rm -rf $RPM_BUILD_ROOT/usr/local/pf/docs/archives
-rm -rf $RPM_BUILD_ROOT/usr/local/pf/docs/docbook
-rm -rf $RPM_BUILD_ROOT/usr/local/pf/docs/fonts
-rm -rf $RPM_BUILD_ROOT/usr/local/pf/docs/images
-rm -rf $RPM_BUILD_ROOT/usr/local/pf/docs/api
-cp -r html $RPM_BUILD_ROOT/usr/local/pf/
+cp -r ChangeLog %{buildroot}/usr/local/pf/
+cp -r COPYING %{buildroot}/usr/local/pf/
+cp -r db %{buildroot}/usr/local/pf/
+cp -r docs %{buildroot}/usr/local/pf/
+rm -rf %{buildroot}/usr/local/pf/docs/archives
+rm -rf %{buildroot}/usr/local/pf/docs/docbook
+rm -rf %{buildroot}/usr/local/pf/docs/fonts
+rm -rf %{buildroot}/usr/local/pf/docs/images
+rm -rf %{buildroot}/usr/local/pf/docs/api
+cp -r html %{buildroot}/usr/local/pf/
 
 # install html and images dirs in pfappserver for embedded doc
-%{__install} -d -m0755 $RPM_BUILD_ROOT/usr/local/pf/html/pfappserver/root/static/doc
+%{__install} -d -m0755 %{buildroot}/usr/local/pf/html/pfappserver/root/static/doc
 for i in `find docs/html "(" -name "*.html" -or -name "*.js" ")"  -type f`; do \
-	%{__install} -m0644 $i $RPM_BUILD_ROOT/usr/local/pf/html/pfappserver/root/static/doc/; \
+	%{__install} -m0644 $i %{buildroot}/usr/local/pf/html/pfappserver/root/static/doc/; \
 done
 
-%{__install} -d -m0755 $RPM_BUILD_ROOT/usr/local/pf/html/pfappserver/root/static/images
+%{__install} -d -m0755 %{buildroot}/usr/local/pf/html/pfappserver/root/static/images
 for i in `find * -path 'docs/images/*' -type f`; do \
-	%{__install} -m0644 $i $RPM_BUILD_ROOT/usr/local/pf/html/pfappserver/root/static/images/; \
+	%{__install} -m0644 $i %{buildroot}/usr/local/pf/html/pfappserver/root/static/images/; \
 done
 
-cp -r lib $RPM_BUILD_ROOT/usr/local/pf/
-cp -r go $RPM_BUILD_ROOT/usr/local/pf/
-cp -r NEWS.asciidoc $RPM_BUILD_ROOT/usr/local/pf/
-cp -r NEWS.old $RPM_BUILD_ROOT/usr/local/pf/
-cp -r README.md $RPM_BUILD_ROOT/usr/local/pf/
-cp -r README.network-devices $RPM_BUILD_ROOT/usr/local/pf/
-cp -r UPGRADE.asciidoc $RPM_BUILD_ROOT/usr/local/pf/
-cp -r UPGRADE.old $RPM_BUILD_ROOT/usr/local/pf/
+cp -r lib %{buildroot}/usr/local/pf/
+cp -r go %{buildroot}/usr/local/pf/
+cp -r NEWS.asciidoc %{buildroot}/usr/local/pf/
+cp -r NEWS.old %{buildroot}/usr/local/pf/
+cp -r README.md %{buildroot}/usr/local/pf/
+cp -r README.network-devices %{buildroot}/usr/local/pf/
+cp -r UPGRADE.asciidoc %{buildroot}/usr/local/pf/
+cp -r UPGRADE.old %{buildroot}/usr/local/pf/
 # logfiles
 for LOG in %logfiles; do
-    touch $RPM_BUILD_ROOT%logdir/$LOG
+    touch %{buildroot}%logdir/$LOG
 done
 #start create symlinks
 curdir=`pwd`
 
 #pf-schema.sql symlinks to current schema
-if [ ! -h "$RPM_BUILD_ROOT/usr/local/pf/db/pf-schema.sql" ]; then
-    cd $RPM_BUILD_ROOT/usr/local/pf/db
+if [ ! -h "%{buildroot}/usr/local/pf/db/pf-schema.sql" ]; then
+    cd %{buildroot}/usr/local/pf/db
     VERSIONSQL=$(ls pf-schema-* |sort -r | head -1)
     ln -f -s $VERSIONSQL ./pf-schema.sql
 fi
 
 #radius sites-enabled symlinks
 #We standardize the way to use site-available/sites-enabled for the RADIUS server
-cd $RPM_BUILD_ROOT/usr/local/pf/raddb/sites-enabled
+cd %{buildroot}/usr/local/pf/raddb/sites-enabled
 ln -s ../sites-available/dynamic-clients dynamic-clients
 ln -s ../sites-available/status status
 
 # Fingerbank symlinks
-cd $RPM_BUILD_ROOT/usr/local/pf/lib
+cd %{buildroot}/usr/local/pf/lib
 ln -s /usr/local/fingerbank/lib/fingerbank fingerbank
 
 cd $curdir
 #end create symlinks
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+rm -rf %{buildroot}
 
 %pre -n %{package}
 
