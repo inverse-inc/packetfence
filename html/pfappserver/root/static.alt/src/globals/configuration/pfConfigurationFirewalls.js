@@ -138,7 +138,7 @@ export const pfConfigurationFirewallViewFields = (context) => {
           ]
         },
         {
-          if: ['BarracudaNG', 'JSONRPC'].includes(firewallType),
+          if: ['BarracudaNG', 'JSONRPC', 'JuniperSRX'].includes(firewallType),
           label: i18n.t('Username'),
           fields: [
             {
