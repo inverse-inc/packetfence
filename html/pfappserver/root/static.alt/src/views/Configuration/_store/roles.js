@@ -70,6 +70,7 @@ const actions = {
     commit('ITEM_REQUEST')
     return api.createRole(data).then(response => {
       commit('ITEM_REPLACED', data)
+      commit('config/ROLES_UPDATED', false, { root: true })
       return response
     }).catch(err => {
       commit('ITEM_ERROR', err.response)
@@ -80,6 +81,7 @@ const actions = {
     commit('ITEM_REQUEST')
     return api.updateRole(data).then(response => {
       commit('ITEM_REPLACED', data)
+      commit('config/ROLES_UPDATED', false, { root: true })
       return response
     }).catch(err => {
       commit('ITEM_ERROR', err.response)
@@ -90,6 +92,7 @@ const actions = {
     commit('ITEM_REQUEST', types.DELETING)
     return api.deleteRole(data).then(response => {
       commit('ITEM_DESTROYED', data)
+      commit('config/ROLES_UPDATED', false, { root: true })
       return response
     }).catch(err => {
       commit('ITEM_ERROR', err.response)
