@@ -5,7 +5,7 @@
 %global     logdir /usr/local/pf/logs
 
 Name:       packetfence
-Version:    9.0
+Version:    9.0.1
 Release:    1%{?dist}
 BuildArch:  noarch
 Summary:    PacketFence network registration / worm mitigation system
