@@ -18,6 +18,7 @@ type Job struct {
 	err       error
 	schedule  scheduled
 	isRunning bool
+	doRun     func() bool
 	sync.RWMutex
 }
 
@@ -59,6 +60,11 @@ func Every(duration string) *Job {
 	r.delay = t.Nanoseconds()
 	j := new(Job)
 	j.schedule = r
+	return j
+}
+
+func (j *Job) DoRun(doRun func() bool) *Job {
+	j.doRun = doRun
 	return j
 }
 
@@ -109,7 +115,7 @@ func runJob(job *Job) {
 		return
 	}
 	rj.count += 1
-	if job.IsRunning() {
+	if job.IsRunning() || !job.doRun() {
 		return
 	}
 	job.setRunning(true)
