@@ -1,7 +1,6 @@
 /* -*- Mode: javascript; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 
-$(function() {
-
+function initTimerbar() {
   var timerbar = $('.c-timerbar');
   var time = window.waitTime || 25;
   var delay = time / 20;
@@ -24,4 +23,4 @@ $(function() {
   }
 
   incrCount();
-});
+}

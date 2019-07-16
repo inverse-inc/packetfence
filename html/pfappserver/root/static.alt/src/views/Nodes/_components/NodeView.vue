@@ -370,7 +370,7 @@ const { validationMixin } = require('vuelidate')
 const { required } = require('vuelidate/lib/validators')
 
 export default {
-  name: 'NodeView',
+  name: 'node-view',
   components: {
     'timeline': Timeline,
     pfButtonSave,
@@ -469,6 +469,7 @@ export default {
           key: 'start_time',
           label: this.$i18n.t('Start Time'),
           sortable: true,
+          formatter: this.$options.filters.shortDateTime,
           class: 'text-nowrap'
         },
         {
@@ -489,12 +490,14 @@ export default {
           key: 'start_date',
           label: this.$i18n.t('Start Time'),
           sortable: true,
+          formatter: this.$options.filters.shortDateTime,
           class: 'text-nowrap'
         },
         {
           key: 'release_date',
           label: this.$i18n.t('Release Date'),
           sortable: true,
+          formatter: this.$options.filters.shortDateTime,
           class: 'text-nowrap'
         },
         {
@@ -506,7 +509,7 @@ export default {
         {
           key: 'buttons',
           label: '',
-          sortable: false,
+          locked: true,
           class: 'text-right'
         }
       ],
@@ -594,6 +597,9 @@ export default {
     },
     invalidForm () {
       return this.$v.nodeContent.$invalid || this.$store.getters['$_nodes/isLoading']
+    },
+    escapeKey () {
+      return this.$store.getters['events/escapeKey']
     }
   },
   methods: {
@@ -637,7 +643,7 @@ export default {
       return this.$i18n.t('Node has no open wired connections.')
     },
     close () {
-      this.$router.push({ name: 'nodes' })
+      this.$router.back()
     },
     refresh () {
       this.$store.dispatch('$_nodes/refreshNode', this.mac)
@@ -666,12 +672,6 @@ export default {
       this.$store.dispatch('$_nodes/deleteNode', this.mac).then(response => {
         this.close()
       })
-    },
-    onKeyup (event) {
-      switch (event.keyCode) {
-        case 27: // escape
-          this.close()
-      }
     },
     redrawVis () {
       // buffer async calls to redraw
@@ -892,6 +892,9 @@ export default {
     },
     securityEvents (a, b) {
       if (a !== b) this.redrawVis()
+    },
+    escapeKey (pressed) {
+      if (pressed) this.close()
     }
   },
   created () {
@@ -903,10 +906,8 @@ export default {
   },
   mounted () {
     this.setupVis()
-    document.addEventListener('keyup', this.onKeyup)
   },
   beforeDestroy () {
-    document.removeEventListener('keyup', this.onKeyup)
     if (this.timeoutVis) {
       clearTimeout(this.timeoutVis)
     }
@@ -915,9 +916,6 @@ export default {
 </script>
 
 <style lang="scss">
-@import "../../../../node_modules/bootstrap/scss/functions";
-@import "../../../styles/variables";
-
 $vis-item-bg: theme-color("primary");
 $vis-item-color: $white;
 

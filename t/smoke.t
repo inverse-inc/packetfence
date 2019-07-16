@@ -31,6 +31,7 @@ my $cpuinfo = TestUtils::cpuinfo();
 
 my $JOBS = $ENV{'PF_SMOKE_TEST_JOBS'} || @$cpuinfo;
 my $SLOW_TESTS = $ENV{'PF_SMOKE_SLOW_TESTS'};
+my $NO_SERIAL_TESTS = $ENV{'PF_SMOKE_NO_SERIAL_TESTS'};
 our $db_setup_script = "/usr/local/pf/t/db/setup_test_db.pl";
 
 my $is_interactive = is_interactive();
@@ -70,7 +71,10 @@ create_test_db();
 my $aggregator = TAP::Parser::Aggregator->new;
 $aggregator->start();
 $par_harness->aggregate_tests( $aggregator, @par_tests );
-$ser_harness->aggregate_tests( $aggregator, @ser_tests );
+if (!$NO_SERIAL_TESTS) {
+    $ser_harness->aggregate_tests($aggregator, @ser_tests);
+}
+
 $aggregator->stop();
 $formatter->summary($aggregator);
 my $total  = $aggregator->total;

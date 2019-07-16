@@ -68,7 +68,7 @@ import pfSearch from '@/components/pfSearch'
 import pfFormToggle from '@/components/pfFormToggle'
 
 export default {
-  name: 'DhcpOption82LogsSearch',
+  name: 'dhcp-option82-logs-search',
   mixins: [
     pfMixinSearchable
   ],
@@ -160,6 +160,7 @@ export default {
         {
           key: 'mac',
           label: this.$i18n.t('MAC Address'),
+          required: true,
           sortable: true,
           visible: true
         },
@@ -167,8 +168,7 @@ export default {
           key: 'circuit_id_string',
           label: this.$i18n.t('Circuit ID String'),
           sortable: true,
-          visible: true,
-          locked: false
+          visible: true
         },
         {
           key: 'host',

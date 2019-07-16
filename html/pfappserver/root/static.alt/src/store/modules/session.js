@@ -2,10 +2,13 @@
 /**
  * "session" store module
  */
-import Vue from 'vue'
 import Acl from 'vue-browser-acl'
+import Vue from 'vue'
+import i18n from '@/utils/locale'
+import qs from 'qs'
 import router from '@/router'
-import apiCall from '@/utils/api'
+import apiCall, { pfappserverCall } from '@/utils/api'
+import { types } from '@/store'
 
 const STORAGE_TOKEN_KEY = 'user-token'
 
@@ -29,11 +32,19 @@ const ADMIN_ROLES_ACTIONS = [
 ]
 
 const api = {
+  login: user => {
+    return apiCall.postQuiet('login', user).then(response => {
+      apiCall.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`
+      // Perform login through pfappserver to obtain an HTTP cookie and therefore gain access to the previous Web admin.
+      pfappserverCall.post('login', qs.stringify(user), { 'Content-Type': 'application/x-www-form-urlencoded' })
+      return response
+    })
+  },
   setToken: (token) => {
     apiCall.defaults.headers.common['Authorization'] = `Bearer ${token}`
   },
   getTokenInfo: () => {
-    return apiCall.get('token_info')
+    return apiCall.getQuiet('token_info')
   },
   getTenants: () => {
     return apiCall.get('tenants')
@@ -44,8 +55,13 @@ const api = {
 }
 
 const state = {
+  loginStatus: '',
+  loginPromise: null,
+  loginResolver: null,
+  message: '',
   token: localStorage.getItem(STORAGE_TOKEN_KEY) || '',
   username: '',
+  expired: false,
   roles: [],
   tenant_id: [],
   tenants: [],
@@ -80,6 +96,7 @@ const setupAcl = (acl) => {
 }
 
 const getters = {
+  isLoading: state => state.loginStatus === types.LOADING,
   isAuthenticated: state => !!state.token && state.roles.length > 0
 }
 
@@ -114,6 +131,39 @@ const actions = {
     commit('USERNAME_DELETED')
     commit('ROLES_DELETED')
   },
+  resolveLogin: ({ state }) => {
+    if (state.loginPromise === null) {
+      state.loginPromise = new Promise(resolve => {
+        state.loginResolver = resolve
+      })
+    }
+    return state.loginPromise
+  },
+  login: ({ state, commit, dispatch }, user) => {
+    commit('LOGIN_REQUEST')
+    return api.login(user).then(response => {
+      const token = response.data.token
+      return dispatch('update', token).then(() => {
+        commit('LOGIN_SUCCESS', token)
+        if (state.loginResolver) {
+          state.loginResolver(response)
+          state.loginPromise = null
+        }
+      })
+    }).catch(err => {
+      commit('LOGIN_ERROR', err.response)
+      dispatch('delete')
+      throw err
+    })
+  },
+  logout: ({ dispatch }) => {
+    return new Promise((resolve, reject) => {
+      // Perform logout through pfappserver to delete the HTTP cookie
+      pfappserverCall.get('logout')
+      dispatch('delete')
+      resolve()
+    })
+  },
   getTokenInfo: ({ commit }) => {
     return api.getTokenInfo().then(response => {
       commit('USERNAME_UPDATED', response.data.item.username)
@@ -126,22 +176,34 @@ const actions = {
     })
   },
   setLanguage: ({ state }, params) => {
-    if (params.i18n.locale !== params.lang || state.languages.indexOf(params.lang) < 0) {
+    if (i18n.locale !== params.lang || state.languages.indexOf(params.lang) < 0) {
       if (state.languages.indexOf(params.lang) < 0) {
         return api.getLanguage(params.lang).then(response => {
           let messages = response.data.item.lexicon
-          params.i18n.setLocaleMessage(params.lang, messages)
+          i18n.setLocaleMessage(params.lang, messages)
           state.languages.push(params.lang)
-          return setI18nLanguage(params.i18n, params.lang)
+          return setI18nLanguage(params.lang)
         })
       }
-      return Promise.resolve(setI18nLanguage(params.i18n, params.lang))
+      return Promise.resolve(setI18nLanguage(params.lang))
     }
     return Promise.resolve(params.lang)
   }
 }
 
 const mutations = {
+  LOGIN_REQUEST: (state) => {
+    state.status = types.LOADING
+  },
+  LOGIN_SUCCESS: (state) => {
+    state.status = types.SUCCESS
+  },
+  LOGIN_ERROR: (state, response) => {
+    state.status = types.ERROR
+    if (response && response.data) {
+      state.message = response.data.message
+    }
+  },
   TOKEN_UPDATED: (state, token) => {
     state.token = token
   },
@@ -150,9 +212,13 @@ const mutations = {
   },
   USERNAME_UPDATED: (state, username) => {
     state.username = username
+    state.expired = false
   },
   USERNAME_DELETED: (state) => {
     state.username = ''
+  },
+  EXPIRED: (state) => {
+    state.expired = true
   },
   ROLES_UPDATED: (state, roles) => {
     state.roles = roles
@@ -183,7 +249,7 @@ const mutations = {
   }
 }
 
-function setI18nLanguage (i18n, lang) {
+function setI18nLanguage (lang) {
   i18n.locale = lang
   apiCall.defaults.headers.common['Accept-Language'] = lang
   document.querySelector('html').setAttribute('lang', lang)

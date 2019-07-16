@@ -73,7 +73,7 @@ Readonly::Scalar our $NEXPOSE_CATEGORIES => sub {
     return \%map;
 }->();
 
-Readonly::Scalar our $TRIGGER_MAP => {
+our $TRIGGER_MAP = {
   $TRIGGER_TYPE_INTERNAL => {
     "1100010" => "Rogue DHCP detection",
     "new_dhcp_info" => "DHCP packet received",

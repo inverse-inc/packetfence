@@ -37,7 +37,7 @@ import {
 } from '@/globals/configuration/pfConfigurationPkiProviders'
 
 export default {
-  name: 'PkiProvidersList',
+  name: 'pki-providers-list',
   components: {
     pfButtonDelete,
     pfConfigList,

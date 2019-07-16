@@ -47,7 +47,7 @@ import {
 } from '@/globals/configuration/pfConfigurationFingerbank'
 
 export default {
-  name: 'FingerbankDhcpv6FingerprintsList',
+  name: 'fingerbank-dhcpv6-fingerprints-list',
   components: {
     pfButtonDelete,
     pfConfigList,

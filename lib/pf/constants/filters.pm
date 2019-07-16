@@ -24,7 +24,7 @@ use pf::ConfigStore::ApacheFilters;
 use pf::ConfigStore::DNS_Filters;
 use pf::ConfigStore::SwitchFilters;
 
-our @EXPORT_OK = qw(%FILTERS_IDENTIFIERS %CONFIGSTORE_MAP %ENGINE_MAP);
+our @EXPORT_OK = qw(%FILTERS_IDENTIFIERS %CONFIGSTORE_MAP %ENGINE_MAP %FILTER_NAMES);
 
 our %FILTERS_IDENTIFIERS = (
     VLAN_FILTERS   => "vlan-filters",
@@ -51,6 +51,15 @@ our %ENGINE_MAP = (
     $FILTERS_IDENTIFIERS{APACHE_FILTERS} => $CONFIGSTORE_MAP{"apache-filters"}->pfconfigNamespace,
     $FILTERS_IDENTIFIERS{DNS_FILTERS}    => "FilterEngine::DNS_Scopes",
     $FILTERS_IDENTIFIERS{SWITCH_FILTERS}    => "FilterEngine::SwitchScopes",
+);
+
+our %FILTER_NAMES = (
+    vlan   => "VLAN filters",
+    radius => "RADIUS filters",
+    dhcp   => "DHCP filters",
+    apache => "Apache filters",
+    dns    => "DNS filters",
+    switch => "Switch filters",
 );
 
 =head1 AUTHOR

@@ -62,7 +62,7 @@ import pfFormChosen from '@/components/pfFormChosen'
 import i18n from '@/utils/locale'
 
 export default {
-  name: 'SwitchGroupViewMembers',
+  name: 'switch-group-view-members',
   components: {
     pfButtonDelete,
     pfEmptyTable,
@@ -86,6 +86,7 @@ export default {
         {
           key: 'id',
           label: i18n.t('Identifier'),
+          required: true,
           sortable: true,
           visible: true
         },
@@ -104,8 +105,6 @@ export default {
         {
           key: 'buttons',
           label: '',
-          sortable: false,
-          visible: true,
           locked: true,
           class: 'text-right'
         }

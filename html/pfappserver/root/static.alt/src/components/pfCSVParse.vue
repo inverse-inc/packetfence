@@ -9,7 +9,7 @@
  *
  *  Basic Usage:
  *
- *  <pf-csv-parse @input="onImport" :file="file" :fields="fields" no-init-bind-keys></pf-csv-parse>
+ *  <pf-csv-parse @input="onImport" :file="file" :fields="fields"></pf-csv-parse>
  *
  *  Properties:
  *
@@ -33,7 +33,7 @@
  *      ...
  *    ]
  *
- *    `no-init-bind-keys` -- for pfMixinSelectable, don't bind onKeyDown for multiple instances
+ *    `events-listen` (boolean) -- listen to keyboard/mouse events
  *
  *  Events:
  *
@@ -50,8 +50,8 @@
         <b-tab :title="$t('CSV File Contents')">
           <ace-editor
             v-model="file.result"
-            :lang="mode"
-            :theme="theme"
+            lang="ini"
+            theme="cobalt"
             :height="editorHeight"
             :options="editorOptions"
             @init="initEditor"
@@ -114,8 +114,8 @@
             <template slot="HEAD_actions" slot-scope="head">
               <div class="text-center">
                 <b-form-checkbox id="checkallnone" v-model="selectAll" @change="onSelectAllChange"></b-form-checkbox>
-                <b-tooltip target="checkallnone" placement="right" v-if="selectValues.length === tableValues.length">{{ $t('Select None [ALT+N]') }}</b-tooltip>
-                <b-tooltip target="checkallnone" placement="right" v-else>{{ $t('Select All [ALT+A]') }}</b-tooltip>
+                <b-tooltip target="checkallnone" placement="right" v-if="selectValues.length === tableValues.length">{{ $t('Select None [Alt + N]') }}</b-tooltip>
+                <b-tooltip target="checkallnone" placement="right" v-else>{{ $t('Select All [Alt + A]') }}</b-tooltip>
               </div>
             </template>
             <template slot="actions" slot-scope="data">
@@ -165,7 +165,7 @@
                     <!-- BEGIN DATE -->
                     <pf-form-datetime v-else-if="isFieldType(dateValueType, staticMapping[index])"
                     v-model="staticMapping[index].value"
-                    :config="{format: 'YYYY-MM-DD'}"
+                    :config="{datetimeFormat: 'YYYY-MM-DD'}"
                     :class="{ 'border-danger': $v.staticMapping[index].value.$anyError }"
                     :vuelidate="$v.staticMapping[index].value"
                     ></pf-form-datetime>
@@ -173,7 +173,7 @@
                     <!-- BEGIN DATETIME -->
                     <pf-form-datetime v-else-if="isFieldType(datetimeValueType, staticMapping[index])"
                     v-model="staticMapping[index].value"
-                    :config="{format: 'YYYY-MM-DD HH:mm:ss'}"
+                    :config="{datetimeFormat: 'YYYY-MM-DD HH:mm:ss'}"
                     :class="{ 'border-danger': $v.staticMapping[index].value.$anyError }"
                     :vuelidate="$v.staticMapping[index].value"
                     ></pf-form-datetime>
@@ -300,6 +300,7 @@
 
 <script>
 /* eslint key-spacing: ["error", { "mode": "minimum" }] */
+import aceEditor from 'vue2-ace-editor'
 import Papa from 'papaparse'
 import uuidv4 from 'uuid/v4'
 import pfFormChosen from '@/components/pfFormChosen'
@@ -320,7 +321,6 @@ import {
   required
 } from 'vuelidate/lib/validators'
 
-const aceEditor = require('vue2-ace-editor')
 const { validationMixin } = require('vuelidate')
 
 export default {
@@ -352,19 +352,10 @@ export default {
       type: Array,
       default: null
     },
-    mode: {
-      type: String,
-      default: 'ini'
-    },
-    theme: {
-      type: String,
-      default: 'cobalt'
-    },
     defaultStaticMapping: {
       type: Array,
       default: () => { return [] }
     }
-
   },
   data () {
     return {
@@ -646,8 +637,8 @@ export default {
     initEditor (instance) {
       // Load ACE editor extensions
       require('brace/ext/language_tools')
-      require(`brace/mode/${this.mode}`)
-      require(`brace/theme/${this.theme}`)
+      require('brace/mode/ini')
+      require('brace/theme/cobalt')
       this.editor = instance
       this.editor.setAutoScrollEditorIntoView(true)
     }

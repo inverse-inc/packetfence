@@ -65,7 +65,7 @@ authorize {
 	#  the other styles won't be checked.
 	#
 	suffix
-	%%authorize_filter%%
+%%authorize_filter%%
 	ntdomain
 
 	#

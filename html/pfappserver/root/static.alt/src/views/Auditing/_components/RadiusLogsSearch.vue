@@ -52,8 +52,16 @@
         <template slot="auth_status" slot-scope="log">
           <b-badge pill :variant="(['Accept', 'CoA-ACK', 'Disconnect-ACK'].includes(log.item.auth_status)) ? 'success' : 'danger'" class="ml-1">{{ log.item.auth_status }}</b-badge>
         </template>
-        <template slot="mac" slot-scope="data">
-          <router-link :to="{ path: `/node/${data.value}` }"><mac v-text="data.value"></mac></router-link>
+        <template slot="node_status" slot-scope="{ value }">
+          <b-badge pill variant="success" v-if="value === 'reg'">{{ $t('Registered') }}</b-badge>
+          <b-badge pill variant="warning" v-else-if="value === 'pending'">{{ $t('Pending') }}</b-badge>
+          <b-badge pill variant="light" v-else>{{ $t('Unregistered') }}</b-badge>
+        </template>
+        <template slot="mac" slot-scope="{ value }">
+          <router-link :to="{ path: `/node/${value}` }"><mac v-text="value"></mac></router-link>
+        </template>
+        <template slot="is_phone" slot-scope="{ value }">
+          <icon v-if="parseInt(value) > 0" name="check"></icon>
         </template>
       </b-table>
     </div>
@@ -71,7 +79,7 @@ import pfSearch from '@/components/pfSearch'
 import pfFormToggle from '@/components/pfFormToggle'
 
 export default {
-  name: 'RadiusLogsSearch',
+  name: 'radius-logs-search',
   mixins: [
     pfMixinSearchable
   ],
@@ -115,19 +123,35 @@ export default {
     return {
       // Fields must match the database schema
       fields: [ // keys match with b-form-select
+
         {
-          value: 'created_at',
-          text: 'Created',
-          types: [conditionType.DATETIME]
-        },
-        {
-          value: 'user_name',
-          text: 'Username',
+          value: 'auth_status',
+          text: 'Auth Status',
           types: [conditionType.SUBSTRING]
         },
         {
-          value: 'mac',
-          text: 'MAC Address',
+          value: 'auth_type',
+          text: 'Auth Type',
+          types: [conditionType.SUBSTRING]
+        },
+        {
+          value: 'auto_reg',
+          text: 'Auto Registration',
+          types: [conditionType.SUBSTRING]
+        },
+        {
+          value: 'called_station_id',
+          text: 'Called Station ID',
+          types: [conditionType.SUBSTRING]
+        },
+        {
+          value: 'calling_station_id',
+          text: 'Calling Station ID',
+          types: [conditionType.SUBSTRING]
+        },
+        {
+          value: 'computer_name',
+          text: 'Computer name',
           types: [conditionType.SUBSTRING]
         },
         {
@@ -136,9 +160,54 @@ export default {
           types: [conditionType.CONNECTION_PROFILE]
         },
         {
+          value: 'connection_type',
+          text: 'Connection Type',
+          types: [conditionType.SUBSTRING]
+        },
+        {
+          value: 'created_at',
+          text: 'Created',
+          types: [conditionType.DATETIME]
+        },
+        {
           value: 'pf_domain',
           text: 'Domain',
           types: [conditionType.DOMAIN]
+        },
+        {
+          value: 'eap_type',
+          text: 'EAP Type',
+          types: [conditionType.SUBSTRING]
+        },
+        {
+          value: 'event_type',
+          text: 'Event Type',
+          types: [conditionType.SUBSTRING]
+        },
+        {
+          value: 'ifindex',
+          text: 'IfIndex',
+          types: [conditionType.SUBSTRING]
+        },
+        {
+          value: 'ip',
+          text: 'IP Address',
+          types: [conditionType.SUBSTRING]
+        },
+        {
+          value: 'is_phone',
+          text: 'Is a Phone',
+          types: [conditionType.YESNO]
+        },
+        {
+          value: 'mac',
+          text: 'MAC Address',
+          types: [conditionType.SUBSTRING]
+        },
+        {
+          value: 'nas_identifier',
+          text: 'NAS identifier',
+          types: [conditionType.SUBSTRING]
         },
         {
           value: 'nas_ip_address',
@@ -146,44 +215,109 @@ export default {
           types: [conditionType.SUBSTRING]
         },
         {
+          value: 'nas_port',
+          text: 'NAS Port',
+          types: [conditionType.SUBSTRING]
+        },
+        {
+          value: 'nas_port_id',
+          text: 'NAS Port ID',
+          types: [conditionType.SUBSTRING]
+        },
+        {
           value: 'nas_port_type',
           text: 'NAS Port Type',
-          types: [conditionType.NAS_PORT_TYPE]
+          types: [conditionType.SUBSTRING]
         },
         {
           value: 'node_status',
           text: 'Node Status',
-          types: [conditionType.NODE_STATUS]
+          types: [conditionType.SUBSTRING]
+        },
+        {
+          value: 'pf_domain',
+          text: 'Domain',
+          types: [conditionType.SUBSTRING]
+        },
+        {
+          value: 'profile',
+          text: 'Profile',
+          types: [conditionType.SUBSTRING]
+        },
+        {
+          value: 'radius_reply',
+          text: 'RADIUS Reply',
+          types: [conditionType.SUBSTRING]
+        },
+        {
+          value: 'radius_request',
+          text: 'RADIUS Request',
+          types: [conditionType.SUBSTRING]
+        },
+        {
+          value: 'radius_source_ip_address',
+          text: 'RADIUS Source IP Address',
+          types: [conditionType.SUBSTRING]
         },
         {
           value: 'realm',
           text: 'Realm',
-          types: [conditionType.REALM]
+          types: [conditionType.SUBSTRING]
+        },
+        {
+          value: 'reason',
+          text: 'Reason',
+          types: [conditionType.SUBSTRING]
         },
         {
           value: 'request_time',
           text: 'Request Time',
-          types: [conditionType.INTEGER]
+          types: [conditionType.SUBSTRING]
         },
         {
           value: 'role',
           text: 'Role',
-          types: [conditionType.ROLE]
+          types: [conditionType.SUBSTRING]
         },
         {
           value: 'source',
           text: 'Source',
-          types: [conditionType.SOURCE]
+          types: [conditionType.SUBSTRING]
+        },
+        {
+          value: 'ssid',
+          text: 'Wi-Fi Network SSID',
+          types: [conditionType.SUBSTRING]
+        },
+        {
+          value: 'stripped_user_name',
+          text: 'Stripped User Name',
+          types: [conditionType.SUBSTRING]
         },
         {
           value: 'switch_id',
-          text: 'Switch Group',
-          types: [conditionType.SWITCH_GROUP]
+          text: 'Switch ID',
+          types: [conditionType.SUBSTRING]
         },
         {
-          value: 'is_phone',
-          text: 'Is a Phone',
-          types: [conditionType.YESNO]
+          value: 'switch_ip_address',
+          text: 'Switch IP Address',
+          types: [conditionType.SUBSTRING]
+        },
+        {
+          value: 'switch_mac',
+          text: 'Switch MAC',
+          types: [conditionType.SUBSTRING]
+        },
+        {
+          value: 'user_name',
+          text: 'User Name',
+          types: [conditionType.SUBSTRING]
+        },
+        {
+          value: 'uuid',
+          text: 'Unique ID',
+          types: [conditionType.SUBSTRING]
         }
       ],
       columns: [
@@ -198,9 +332,9 @@ export default {
         {
           key: 'id',
           label: this.$i18n.t('ID'),
+          required: true,
           sortable: true,
-          visible: true,
-          locked: false
+          visible: true
         },
         {
           key: 'auth_status',
@@ -217,38 +351,32 @@ export default {
         {
           key: 'auth_type',
           label: this.$i18n.t('Auth Type'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'auto_reg',
           label: this.$i18n.t('Auto Reg'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'calling_station_id',
           label: this.$i18n.t('Calling Station ID'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'computer_name',
           label: this.$i18n.t('Computer Name'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'eap_type',
           label: this.$i18n.t('EAP Type'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'event_type',
           label: this.$i18n.t('Event Type'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'ip',
@@ -271,44 +399,37 @@ export default {
         {
           key: 'pf_domain',
           label: this.$i18n.t('Domain'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'profile',
           label: this.$i18n.t('Profile'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'realm',
           label: this.$i18n.t('Realm'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'reason',
           label: this.$i18n.t('Reason'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'role',
           label: this.$i18n.t('Role'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'source',
           label: this.$i18n.t('Source'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'stripped_user_name',
           label: this.$i18n.t('Stripped User Name'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'user_name',
@@ -325,44 +446,37 @@ export default {
         {
           key: 'switch_id',
           label: this.$i18n.t('Switch'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'switch_mac',
           label: this.$i18n.t('Switch MAC'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'switch_ip_address',
           label: this.$i18n.t('Switch IP Address'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'called_station_id',
           label: this.$i18n.t('Called Station ID'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'connection_type',
           label: this.$i18n.t('Connection Type'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'ifindex',
           label: this.$i18n.t('IfIndex'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'nas_identifier',
           label: this.$i18n.t('NAS ID'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'nas_ip_address',
@@ -373,14 +487,12 @@ export default {
         {
           key: 'nas_port',
           label: this.$i18n.t('NAS Port'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'nas_port_id',
           label: this.$i18n.t('NAS Port ID'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'nas_port_type',
@@ -391,32 +503,27 @@ export default {
         {
           key: 'radius_source_ip_address',
           label: this.$i18n.t('RADIUS Source IP Address'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'ssid',
           label: this.$i18n.t('SSID'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'request_time',
           label: this.$i18n.t('Request Time'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'radius_request',
           label: this.$i18n.t('RADIUS Request'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'radius_reply',
           label: this.$i18n.t('RADIUS Reply'),
-          sortable: true,
-          visible: false
+          sortable: true
         }
       ],
       sortBy: 'created_at',

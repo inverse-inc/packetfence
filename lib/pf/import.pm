@@ -34,6 +34,7 @@ use pf::error;
 use pf::constants;
 use pf::config qw(%Config);
 use pf::node;
+use pf::nodecategory qw(nodecategory_lookup);
 use pf::person;
 use pf::util;
 

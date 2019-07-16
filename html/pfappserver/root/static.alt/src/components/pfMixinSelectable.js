@@ -48,8 +48,8 @@
  *     <b-table ... >
  *       <template slot="HEAD_actions" slot-scope="head">
  *         <input type="checkbox" id="checkallnone" v-model="selectAll" @change="onSelectAllChange" @click.stop>
- *         <b-tooltip target="checkallnone" placement="right" v-if="selectValues.length === tableValues.length">{{$t('Select None [ALT+N]')}}</b-tooltip>
- *         <b-tooltip target="checkallnone" placement="right" v-else>{{$t('Select All [ALT+A]')}}</b-tooltip>
+ *         <b-tooltip target="checkallnone" placement="right" v-if="selectValues.length === tableValues.length">{{$t('Select None [Alt + N]')}}</b-tooltip>
+ *         <b-tooltip target="checkallnone" placement="right" v-else>{{$t('Select All [Alt + A]')}}</b-tooltip>
  *       </template>
  *     </b-table>
  *
@@ -75,7 +75,7 @@
  *
 **/
 export default {
-  name: 'pfMixinSelectable',
+  name: 'pf-mixin-selectable',
   props: {
     storeName: { // from router
       type: String,
@@ -94,7 +94,18 @@ export default {
       type: Number,
       default: null
     },
-    noInitBindKeys: Boolean
+    eventsListen: {
+      type: Boolean,
+      default: true
+    }
+  },
+  computed: {
+    altAKey () {
+      return this.$store.getters['events/altAKey']
+    },
+    altNKey () {
+      return this.$store.getters['events/altNKey']
+    }
   },
   methods: {
     forceUpdate () {
@@ -140,22 +151,6 @@ export default {
         this.selectValues = this.selectValues.reduce((x, y) => subset.includes(y) ? x : [...x, y], [])
       }
     },
-    onKeyDown (event) {
-      switch (true) {
-        case (event.altKey && event.keyCode === 65): // ALT+A
-          event.preventDefault()
-          if ('isLoading' in this && !this.isLoading) {
-            this.selectValues = this.tableValues
-          }
-          break
-        case (event.altKey && event.keyCode === 78): // ALT+N
-          event.preventDefault()
-          if ('isLoading' in this && !this.isLoading) {
-            this.selectValues = []
-          }
-          break
-      }
-    },
     searchableStoreName () {
       if (this.storeName) {
         return this.storeName + '_searchable'
@@ -197,6 +192,20 @@ export default {
       },
       immediate: true,
       deep: true
+    },
+    altAKey (pressed) {
+      if (pressed && this.eventsListen) {
+        if (!('isLoading' in this) || !this.isLoading) {
+          this.selectValues = this.tableValues
+        }
+      }
+    },
+    altNKey (pressed) {
+      if (pressed && this.eventsListen) {
+        if (!('isLoading' in this) || !this.isLoading) {
+          this.selectValues = []
+        }
+      }
     }
   },
   created () {
@@ -211,17 +220,9 @@ export default {
       throw new Error(`Missing column 'actions' in properties of component ${this.$options.name}`)
     }
   },
-  mounted () {
-    if (!this.noInitBindKeys) {
-      document.addEventListener('keydown', this.onKeyDown)
-    }
-  },
   beforeDestroy () {
     if (this.forceUpdateTimeout) {
       clearTimeout(this.forceUpdateTimeout)
-    }
-    if (!this.noInitBindKeys) {
-      document.removeEventListener('keydown', this.onKeyDown)
     }
   }
 }

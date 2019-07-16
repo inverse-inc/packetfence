@@ -10,7 +10,8 @@
   >
     <template slot="header" is="b-card-header">
       <h4 class="mb-0">
-        <span>{{ $t('Access Duration') }}</span>
+        {{ $t('Access Duration') }}
+        <pf-button-help class="ml-1" url="PacketFence_Installation_Guide.html#_access_duration" />
       </h4>
     </template>
     <template slot="footer">
@@ -26,6 +27,7 @@
 
 <script>
 import pfConfigView from '@/components/pfConfigView'
+import pfButtonHelp from '@/components/pfButtonHelp'
 import pfButtonSave from '@/components/pfButtonSave'
 import {
   pfConfigurationAccessDurationViewFields as fields,
@@ -36,12 +38,13 @@ import {
 const { validationMixin } = require('vuelidate')
 
 export default {
-  name: 'AccessDurationView',
+  name: 'access-duration-view',
   mixins: [
     validationMixin
   ],
   components: {
     pfConfigView,
+    pfButtonHelp,
     pfButtonSave
   },
   props: {

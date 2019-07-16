@@ -24,6 +24,7 @@ export const pfConfigurationPkiProvidersListColumns = [
   {
     key: 'id',
     label: i18n.t('Name'),
+    required: true,
     sortable: true,
     visible: true
   },
@@ -42,8 +43,6 @@ export const pfConfigurationPkiProvidersListColumns = [
   {
     key: 'buttons',
     label: '',
-    sortable: false,
-    visible: true,
     locked: true
   }
 ]

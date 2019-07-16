@@ -59,7 +59,7 @@
       <pf-form-datetime v-else-if="isFieldType(datetimeValueType)"
         v-model="localMatch"
         ref="localMatch"
-        :config="{useCurrent: true, format: 'YYYY-MM-DD HH:mm:ss'}"
+        :config="{useCurrent: true, datetimeFormat: 'YYYY-MM-DD HH:mm:ss'}"
         :moments="moments"
         :vuelidate="matchVuelidateModel"
         :invalid-feedback="matchInvalidFeedback"

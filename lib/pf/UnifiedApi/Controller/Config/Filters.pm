@@ -16,7 +16,7 @@ pf::UnifiedApi::Controller::Config::Filters
 
 use strict;
 use warnings;
-use pf::constants::filters qw(%CONFIGSTORE_MAP);
+use pf::constants::filters qw(%FILTER_NAMES %CONFIGSTORE_MAP);
 use File::Slurp;
 use pf::util;
 use pf::error qw(is_error);
@@ -136,7 +136,7 @@ sub list {
     my ($self) = @_;
     return $self->render( json => {
         items => [
-           map { my $id = $_; $id =~ s/-filters//; { id => $id } } keys %CONFIGSTORE_MAP
+           map { { id => $_, name => $FILTER_NAMES{$_} } } sort keys %FILTER_NAMES
         ],
     } );
 }

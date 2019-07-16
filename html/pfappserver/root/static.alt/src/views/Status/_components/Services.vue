@@ -124,7 +124,7 @@ import pfEmptyTable from '@/components/pfEmptyTable'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 
 export default {
-  name: 'Services',
+  name: 'services',
   components: {
     pfEmptyTable,
     pfFormRangeToggle

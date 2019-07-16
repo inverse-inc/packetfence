@@ -1,12 +1,12 @@
 import store from '@/store'
 import UsersView from '../'
 import UsersStore from '../_store'
-import UsersSearch from '../_components/UsersSearch'
-import UsersCreate from '../_components/UsersCreate'
-import UsersPreview from '../_components/UsersPreview'
-import UserView from '../_components/UserView'
 
-const UsersImport = () => import(/* webpackChunkName: "Nodes" */ '../_components/UsersImport')
+const UsersSearch = () => import(/* webpackChunkName: "Users" */ '../_components/UsersSearch')
+const UsersCreate = () => import(/* webpackChunkName: "Users" */ '../_components/UsersCreate')
+const UsersPreview = () => import(/* webpackChunkName: "Users" */ '../_components/UsersPreview')
+const UserView = () => import(/* webpackChunkName: "Users" */ '../_components/UserView')
+const UsersImport = () => import(/* webpackChunkName: "Editor" */ '../_components/UsersImport')
 
 const route = {
   path: '/users',

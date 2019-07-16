@@ -1,40 +1,42 @@
 /**
  * Bootstrap common files
  */
-@import "../../node_modules/bootstrap/scss/functions";
+@import "bootstrap/scss/functions";
 @import "variables";
-@import "../../node_modules/bootstrap/scss/mixins";
-@import "../../node_modules/bootstrap/scss/print";
+@import "bootstrap/scss/mixins";
+@import "bootstrap/scss/root";
 @import "reboot";
 @import "type";
-@import "../../node_modules/bootstrap/scss/images";
-@import "../../node_modules/bootstrap/scss/code";
-@import "../../node_modules/bootstrap/scss/grid";
+@import "bootstrap/scss/images";
+@import "bootstrap/scss/code";
+@import "bootstrap/scss/grid";
 @import "tables";
 @import "forms";
 @import "buttons";
 @import "transitions";
 @import "dropdown";
-@import "../../node_modules/bootstrap/scss/button-group";
+@import "bootstrap/scss/button-group";
 @import "input-group";
 @import "custom-forms";
 @import "nav";
 @import "navbar";
 @import "card";
-@import "../../node_modules/bootstrap/scss/breadcrumb";
-@import "../../node_modules/bootstrap/scss/pagination";
-@import "../../node_modules/bootstrap/scss/badge";
-// @import "../../node_modules/bootstrap/scss/jumbotron";
+@import "bootstrap/scss/breadcrumb";
+@import "bootstrap/scss/pagination";
+@import "bootstrap/scss/badge";
+// @import "bootstrap/scss/jumbotron";
 @import "alert";
-@import "../../node_modules/bootstrap/scss/progress";
-@import "../../node_modules/bootstrap/scss/media";
-@import "../../node_modules/bootstrap/scss/list-group";
-@import "../../node_modules/bootstrap/scss/close";
-@import "../../node_modules/bootstrap/scss/modal";
-@import "../../node_modules/bootstrap/scss/tooltip";
+@import "bootstrap/scss/progress";
+@import "bootstrap/scss/media";
+@import "bootstrap/scss/list-group";
+@import "bootstrap/scss/close";
+@import "bootstrap/scss/modal";
+@import "bootstrap/scss/tooltip";
 @import "popover";
-// @import "../../node_modules/bootstrap/scss/carousel";
+// @import "bootstrap/scss/carousel";
+// @import "bootstrap/scss/spinners";
 @import "utilities";
+@import "bootstrap/scss/print";
 
 /**
  * Bootstrap documentation components

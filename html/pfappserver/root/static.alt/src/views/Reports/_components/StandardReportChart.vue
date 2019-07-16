@@ -18,21 +18,7 @@
     <div class="card-body">
       <b-row align-h="between" align-v="center">
         <b-col cols="auto" class="mr-auto">
-          <b-dropdown size="sm" variant="link" boundary="viewport" no-caret>
-            <template slot="button-content">
-              <icon name="columns" v-b-tooltip.hover.right.d1000 :title="$t('Visible Columns')"></icon>
-            </template>
-            <template v-for="column in columns">
-              <b-dropdown-item :key="column.key" v-if="column.locked" disabled>
-                <icon class="position-absolute mt-1" name="thumbtack"></icon>
-                <span class="ml-4">{{column.label}}</span>
-              </b-dropdown-item>
-              <a :key="column.key" v-else href="javascript:void(0)" :disabled="column.locked" class="dropdown-item" @click.stop="toggleColumn(column)">
-                <icon class="position-absolute mt-1" name="check" v-show="column.visible"></icon>
-                <span class="ml-4">{{column.label}}</span>
-              </a>
-            </template>
-          </b-dropdown>
+          <!-- padding -->
         </b-col>
         <b-col cols="auto">
           <b-container fluid>
@@ -76,7 +62,7 @@ import {
 import pfReportChart from '@/components/pfReportChart'
 
 export default {
-  name: 'StandardReportChart',
+  name: 'standard-report-chart',
   components: {
     pfEmptyTable,
     pfReportChart

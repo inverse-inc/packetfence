@@ -40,6 +40,7 @@
                   :disabled="(field.attrs && field.attrs.disabled) || disabled"
                   @input="setValue(field.key, $event)"
                   @validations="setComponentValidations(field.key, $event)"
+                  v-once
                 ></component>
               </template>
             </b-input-group>
@@ -50,7 +51,7 @@
       <slot name="footer">
         <b-card-footer @mouseenter="vuelidate.$touch()">
           <pf-button-save :disabled="invalidForm" :is-loading="isLoading">{{ isNew? $t('Create') : $t('Save') }}</pf-button-save>
-          <pf-button-delete v-if="isDeletable" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Config?')" @on-delete="remove($event)"/>
+          <pf-button-delete v-show="isDeletable" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Config?')" @on-delete="remove($event)"/>
         </b-card-footer>
       </slot>
     </b-card>
@@ -63,13 +64,13 @@ import pfButtonSave from '@/components/pfButtonSave'
 import pfButtonDelete from '@/components/pfButtonDelete'
 import pfFormInput from '@/components/pfFormInput'
 import pfMixinValidation from '@/components/pfMixinValidation'
+import { createDebouncer } from 'promised-debounce'
 
 export default {
   name: 'pfConfigView',
   components: {
     pfButtonSave,
-    pfButtonDelete,
-    pfFormInput
+    pfButtonDelete
   },
   mixins: [
     pfMixinValidation
@@ -208,6 +209,7 @@ export default {
           eachFieldValue[key] = this.componentValidations[key]
         }
       })
+      Object.freeze(eachFieldValue)
       return eachFieldValue
     },
     emitValidations () {
@@ -218,7 +220,6 @@ export default {
       if ('attrs' in field && `class` in field.attrs) { // if class is defined
         c.push(field.attrs.class) // use manual definition
       } else if (row.fields.length === 1) { // else if row is singular
-        c.push('mx-1')
         c.push('col-sm-12') // use entire width
       }
       return c.join(' ')
@@ -255,31 +256,26 @@ export default {
   watch: {
     model: {
       handler: function (a, b) {
-        this.$emit('validations', this.getExternalValidations())
-        this.tabKey = uuidv4() // redraw tabs
-        if (this.vuelidate.$dirty) {
-          this.$nextTick(() => {
-            this.vuelidate.$touch()
-          })
+        if (!this.$debouncerModel) {
+          this.$debouncerModel = createDebouncer()
         }
-      },
-      deep: true
-    },
-    vuelidate: {
-      handler: function (a, b) {
-      /**
-       * Vue's reactive model is broken for objects/arrays.
-       * When the vuelidate model is updated redraw the tabs so they pick
-       * up on validation changes outside their initiial rendering
-      **/
-        this.tabKey = uuidv4() // redraw tabs
+        this.$debouncerModel({
+          handler: () => {
+            this.emitValidations()
+            if (this.vuelidate.$dirty) {
+              this.$nextTick(() => {
+                this.vuelidate.$touch()
+              })
+            }
+          },
+          time: 300
+        })
       },
       deep: true
     }
   },
   mounted () {
     this.$store.commit('session/FORM_OK')
-    this.emitValidations()
   }
 }
 </script>

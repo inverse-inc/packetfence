@@ -196,7 +196,7 @@ sub processFingerbank {
     # DHCP filters (Fingerbank scope)
     # If there is a match, we override Fingerbank call
     my $dhcp_filter_rule = $self->filterEngine->filter('Fingerbank', $fingerbank_args);
-    unless ( $dhcp_filter_rule ) {
+    unless ( (keys %$dhcp_filter_rule) > 0 ) {
         $self->apiClient->notify('fingerbank_process', $fingerbank_args->{mac});
     }
 }

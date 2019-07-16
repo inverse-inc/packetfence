@@ -4,3 +4,9 @@
     cursor: pointer;
     outline: 0;
 }
+
+.table td,
+.table th {
+    // Default of bootstrap is to vertically align to the top
+    vertical-align: middle;
+}

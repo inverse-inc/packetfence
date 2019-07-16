@@ -25,6 +25,7 @@ export const pfConfigurationAdminRolesListColumns = [
   {
     key: 'id',
     label: i18n.t('Role Name'),
+    required: true,
     sortable: true,
     visible: true
   },
@@ -37,8 +38,6 @@ export const pfConfigurationAdminRolesListColumns = [
   {
     key: 'buttons',
     label: '',
-    sortable: false,
-    visible: true,
     locked: true
   }
 ]
@@ -563,7 +562,7 @@ export const pfConfigurationAdminRoleViewFields = (context = {}) => {
                 ...pfConfigurationAttributesFromMeta(meta, 'allowed_unreg_date'),
                 ...{
                   config: {
-                    format: 'YYYY-MM-DD'
+                    datetimeFormat: 'YYYY-MM-DD'
                   }
                 }
               },

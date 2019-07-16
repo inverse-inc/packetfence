@@ -31,7 +31,7 @@ import MaintenanceTasksList from './MaintenanceTasksList'
 import ServicesView from './ServicesView'
 
 export default {
-  name: 'MainTabs',
+  name: 'main-tabs',
   components: {
     GeneralView,
     AlertingView,

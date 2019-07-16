@@ -5,7 +5,10 @@
     >
       <template slot="pageHeader">
         <b-card-header>
-          <h4 class="mb-3" v-t="'Admin Roles'"></h4>
+          <h4 class="mb-3">
+            {{ $t('Admin Roles') }}
+            <pf-button-help class="ml-1" url="PacketFence_Installation_Guide.html#_admin_access" />
+          </h4>
           <p class="mb-0" v-t="'Define roles with specific access rights to the Web administration interface. Roles are assigned to users depending on their authentication source.'"></p>
         </b-card-header>
       </template>
@@ -27,6 +30,7 @@
 
 <script>
 import pfButtonDelete from '@/components/pfButtonDelete'
+import pfButtonHelp from '@/components/pfButtonHelp'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import {
@@ -34,9 +38,10 @@ import {
 } from '@/globals/configuration/pfConfigurationAdminRoles'
 
 export default {
-  name: 'AdminRolesList',
+  name: 'admin-roles-list',
   components: {
     pfButtonDelete,
+    pfButtonHelp,
     pfConfigList,
     pfEmptyTable
   },

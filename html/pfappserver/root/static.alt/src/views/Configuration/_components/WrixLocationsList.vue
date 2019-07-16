@@ -37,7 +37,7 @@ import {
 } from '@/globals/configuration/pfConfigurationWrixLocations'
 
 export default {
-  name: 'WrixLocationsList',
+  name: 'wrix-locations-list',
   components: {
     pfButtonDelete,
     pfConfigList,

@@ -22,6 +22,7 @@ use pf::api::queue;
 use pf::log;
 use pf::constants::node qw($NODE_DISCOVERED_TRIGGER_DELAY);
 use pf::constants qw($ZERO_DATE);
+use pf::util;
 use base qw(pf::dal::_node);
 
 our @LOCATION_LOG_GETTERS = qw(
@@ -160,6 +161,9 @@ sub _insert_data {
     if ($data->{detect_date} eq '0000-00-00 00:00:00') {
        $data->{detect_date} = $self->now;
     }
+
+    $data->{mac} = clean_mac($data->{mac});
+
     return $status, $data;
 }
 

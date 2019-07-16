@@ -46,11 +46,12 @@ Since this is a SPA (Single-Page Application), it is currently accessible from `
 * [vue-timeago](https://github.com/egoist/vue-timeago) -- show relative time
 * [Plotly](https://plot.ly/javascript/reference/) -- svg charts
 * [date-fns](https://date-fns.org/docs/Getting-Started) -- datetime utils
-* [vue-bootstrap-datetimepicker](http://eonasdan.github.io/bootstrap-datetimepicker/) -- datetime input form element
+* [vue-flatpickr-component](https://github.com/ankurk91/vue-flatpickr-component) -- datetime picker
 * [papaparse](https://www.papaparse.com/) -- parse CSV
 * [uuid](https://www.npmjs.com/package/uuid) -- RFC4122 UUIDs
 * [vue-multiselect](https://vue-multiselect.js.org/) -- multi-select/chosen component
 * [vuedraggable](https://github.com/SortableJS/Vue.Draggable) -- draggable component
+* [vue-scrollto](https://www.npmjs.com/package/vue-scrollto) -- animated scrolling
 * [vue2-ace-editor](https://github.com/chairuosen/vue2-ace-editor) -- packaging of ace
  * [ace](https://ace.c9.io/)
 

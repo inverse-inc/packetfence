@@ -140,6 +140,7 @@ sub deauthTechniques {
     my $default = $SNMP::SSH;
     my %tech = (
         $SNMP::SSH    => 'deauthenticateMacSSH',
+        $SNMP::RADIUS => 'deauthenticateMacRadius',
     );
 
     if (!defined($method) || !defined($tech{$method})) {
@@ -173,7 +174,7 @@ sub deauthenticateMacRadius {
 
 =item radiusDisconnect
 
-Sends a RADIUS Disconnect-Request to the NAS with the MAC as the Calling-Station-Id to disconnect.
+Sends a RADIUS Disconnect-Request to the NAS with the MAC as User-Name to disconnect.
 
 Has been tested with 6.18 Mikrotik OS version and doesn´t work yet
 
@@ -219,13 +220,12 @@ sub radiusDisconnect {
             LocalAddr => $self->deauth_source_ip($send_disconnect_to),
         };
 
-        # transforming MAC to the expected format 00-11-22-33-CA-FE
+        # transforming MAC to the expected format 00:11:22:33:CA:FE
         $mac = uc($mac);
-        $mac =~ s/:/-/g;
 
         # Standard Attributes
         my $attributes_ref = {
-            'Calling-Station-Id' => $mac,
+            'User-Name' => "$mac",
         };
 
         # merging additional attributes provided by caller to the standard attributes
@@ -275,7 +275,7 @@ sub returnRadiusAccessAccept {
     my $role = "";
     if ( (!$args->{'wasInline'} || ($args->{'wasInline'} && $args->{'vlan'} != 0) ) && isenabled($self->{_VlanMap})) {
         $radius_reply_ref = {
-            'Mikrotik-Wireless-VlanID' => $args->{'vlan'},
+            'Mikrotik-Wireless-VlanID' => $args->{'vlan'} . "",
             'Mikrotik-Wireless-VlanIDType' => "0",
         };
     }

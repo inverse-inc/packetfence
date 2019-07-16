@@ -32,6 +32,7 @@ base_conditions=activation.type:=:sms
 base_conditions_operator=all
 person_fields=Owner
 node_fields=MAC Address
+order_fields=-activation.expiration
 
 [Email-Registration]
 type=builtin

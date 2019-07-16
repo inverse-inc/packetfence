@@ -85,7 +85,7 @@ import pfFormDatetime from '@/components/pfFormDatetime'
 import pfFormPrefixMultiplier from '@/components/pfFormPrefixMultiplier'
 
 export default {
-  name: 'pfSearchBoolean',
+  name: 'pf-search-boolean',
   components: {
     draggable,
     pfFormDatetime,
@@ -221,9 +221,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "../../node_modules/bootstrap/scss/functions";
-@import "../styles/variables";
-
 .draghandle {
   line-height: 1em;
 }

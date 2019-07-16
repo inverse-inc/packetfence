@@ -32,7 +32,6 @@
 import pfConfigView from '@/components/pfConfigView'
 import pfButtonSave from '@/components/pfButtonSave'
 import pfButtonDelete from '@/components/pfButtonDelete'
-import pfMixinEscapeKey from '@/components/pfMixinEscapeKey'
 import {
   pfConfigurationDefaultsFromMeta as defaults
 } from '@/globals/configuration/pfConfiguration'
@@ -42,10 +41,9 @@ import {
 const { validationMixin } = require('vuelidate')
 
 export default {
-  name: 'SecurityEventView',
+  name: 'security-event-view',
   mixins: [
-    validationMixin,
-    pfMixinEscapeKey
+    validationMixin
   ],
   components: {
     pfConfigView,
@@ -98,6 +96,9 @@ export default {
     },
     roles () {
       return this.$store.getters['config/rolesList']
+    },
+    escapeKey () {
+      return this.$store.getters['events/escapeKey']
     }
   },
   methods: {
@@ -131,7 +132,7 @@ export default {
       })
     },
     close () {
-      this.$router.push({ name: 'security_events' })
+      this.$router.back()
     },
     create () {
       this.$store.dispatch(`${this.storeName}/createSecurityEvent`, this.form).then(response => {
@@ -162,6 +163,9 @@ export default {
       handler: function (a, b) {
         this.init()
       }
+    },
+    escapeKey (pressed) {
+      if (pressed) this.close()
     }
   }
 }

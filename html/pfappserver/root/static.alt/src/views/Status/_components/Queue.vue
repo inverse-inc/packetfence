@@ -75,7 +75,7 @@
 import pfEmptyTable from '@/components/pfEmptyTable'
 
 export default {
-  name: 'Queue',
+  name: 'queue',
   components: {
     pfEmptyTable
   },

@@ -1,7 +1,9 @@
 <template>
-  <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="columnLabel"
-    :state="isValid()" :invalid-feedback="getInvalidFeedback()"
+  <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="columnLabel" :state="isValid()"
     class="pf-form-input" :class="{ 'mb-0': !columnLabel }">
+    <template slot="invalid-feedback">
+      <icon name="circle-notch" spin v-if="!getInvalidFeedback()"></icon> {{ feedbackState }}
+    </template>
     <b-input-group>
       <b-form-input
         v-model="inputValue"
@@ -14,7 +16,7 @@
         @keyup.native="onChange($event)"
         @change.native="onChange($event)"
       />
-      <b-input-group-append>
+      <b-input-group-append v-if="readonly || disabled || test">
         <b-button v-if="readonly || disabled" class="input-group-text" tabindex="-1" disabled><icon name="lock"></icon></b-button>
         <b-button-group v-else-if="test" rel="testResultGroup">
           <b-button v-if="testResult !== null" variant="light" disabled tabindex="-1">
@@ -123,11 +125,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "../../node_modules/bootstrap/scss/functions";
-@import "../../node_modules/bootstrap/scss/mixins/border-radius";
-@import "../../node_modules/bootstrap/scss/mixins/transition";
-@import "../styles/variables";
-
 /**
  * Add btn-primary color(s) on hover
  */

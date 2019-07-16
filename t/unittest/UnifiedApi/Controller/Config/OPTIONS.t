@@ -163,78 +163,72 @@ $t->options_ok("/api/v1/config/syslog_parsers?type=regex")->status_is(200)
                                     api_method => {
                                         allowed => [
                                             {
-                                                text  => "add_person",
+                                                text => "Create new user account",
                                                 value => "add_person"
                                             },
                                             {
-                                                text  => "close_security_event",
+                                                text  => "Close security event",
                                                 value => "close_security_event"
                                             },
                                             {
-                                                text  => "deregister_node_ip",
+                                                text => "Deregister node by IP",
                                                 value => "deregister_node_ip"
                                             },
                                             {
-                                                text => "dynamic_register_node",
+                                                text  => "Register node by MAC",
                                                 value => "dynamic_register_node"
                                             },
                                             {
-                                                text  => "modify_node",
+                                                text  => "Modify node by MAC",
                                                 value => "modify_node"
                                             },
                                             {
-                                                text  => "modify_person",
+                                                text  => "Modify existing user",
                                                 value => "modify_person"
                                             },
                                             {
-                                                text  => "reevaluate_access",
+                                                text => "Reevaluate access by MAC",
                                                 value => "reevaluate_access"
                                             },
                                             {
-                                                text  => "register_node",
+                                                text => "Register a new node by PID",
                                                 value => "register_node"
                                             },
                                             {
-                                                text  => "register_node_ip",
+                                                text  => "Register node by IP",
                                                 value => "register_node_ip"
                                             },
                                             {
-                                                text =>
-                                                  "release_all_security_events",
-                                                value =>
-                                                  "release_all_security_events"
+                                                text => "Release all security events for node by MAC",
+                                                value => "release_all_security_events"
                                             },
                                             {
                                                 text  => "role_detail",
                                                 value => "role_detail"
                                             },
                                             {
-                                                text  => "trigger_scan",
+                                                text => "Launch a scan for the device",
                                                 value => "trigger_scan"
                                             },
                                             {
-                                                text =>
-                                                  "trigger_security_event",
-                                                value =>
-                                                  "trigger_security_event"
+                                                text => "Trigger a security event",
+                                                value => "trigger_security_event"
                                             },
                                             {
-                                                text  => "unreg_node_for_pid",
+                                                text => "Deregister node by PID",
                                                 value => "unreg_node_for_pid"
                                             },
                                             {
-                                                text  => "update_ip4log",
+                                                text => "Update ip4log by IP and MAC",
                                                 value => "update_ip4log"
                                             },
                                             {
-                                                text  => "update_ip6log",
+                                                text => "Update ip6log by IP and MAC",
                                                 value => "update_ip6log"
                                             },
                                             {
-                                                text =>
-                                                  "update_role_configuration",
-                                                value =>
-                                                  "update_role_configuration"
+                                                text => "Update role configuration",
+                                                value => "update_role_configuration"
                                             }
                                         ],
                                         default     => undef,
@@ -243,10 +237,10 @@ $t->options_ok("/api/v1/config/syslog_parsers?type=regex")->status_is(200)
                                         type        => "string"
                                     },
                                     api_parameters => {
-                                        default        => undef,
-                                        placeholder    => undef,
-                                        required       => $true,
-                                        type           => "string"
+                                        default     => undef,
+                                        placeholder => undef,
+                                        required    => $true,
+                                        type        => "string"
                                     }
                                 },
                                 required => $false,
@@ -257,36 +251,36 @@ $t->options_ok("/api/v1/config/syslog_parsers?type=regex")->status_is(200)
                             type        => "array"
                         },
                         ip_mac_translation => {
-                            default        => "enabled",
-                            placeholder    => undef,
-                            required       => $false,
-                            type           => "string"
+                            default     => "enabled",
+                            placeholder => undef,
+                            required    => $false,
+                            type        => "string"
                         },
                         last_if_match => {
-                            default        => undef,
-                            placeholder    => undef,
-                            required       => $false,
-                            type           => "string"
+                            default     => undef,
+                            placeholder => undef,
+                            required    => $false,
+                            type        => "string"
                         },
                         name => {
-                            default        => undef,
-                            placeholder    => undef,
-                            required       => $true,
-                            type           => "string"
+                            default     => undef,
+                            placeholder => undef,
+                            required    => $true,
+                            type        => "string"
                         },
                         rate_limit => {
-                            default     => {
+                            default => {
                                 interval => 0,
-                                unit => 's',
+                                unit     => 's',
                             },
                             placeholder => undef,
                             properties  => {
                                 interval => {
-                                    default        => 0,
-                                    min_value      => 0,
-                                    placeholder    => undef,
-                                    required       => $false,
-                                    type           => "integer"
+                                    default     => 0,
+                                    min_value   => 0,
+                                    placeholder => undef,
+                                    required    => $false,
+                                    type        => "integer"
                                 },
                                 unit => {
                                     allowed => [
@@ -329,10 +323,10 @@ $t->options_ok("/api/v1/config/syslog_parsers?type=regex")->status_is(200)
                             type     => "object"
                         },
                         regex => {
-                            default        => undef,
-                            placeholder    => undef,
-                            required       => $true,
-                            type           => "string"
+                            default     => undef,
+                            placeholder => undef,
+                            required    => $true,
+                            type        => "string"
                         }
                     },
                     required => $false,
@@ -341,7 +335,7 @@ $t->options_ok("/api/v1/config/syslog_parsers?type=regex")->status_is(200)
                 placeholder => undef,
                 required    => $false,
                 type        => "array"
-            },
+              },
             status => {
                 default        => "enabled",
                 placeholder    => undef,
@@ -384,6 +378,10 @@ $t->options_ok("/api/v1/config/base/general")
             },
             timezone => {
                 allowed => [
+                    {
+                        text => "",
+                        value => ""
+                    },
                     {
                         text => "Africa/Abidjan",
                         value => "Africa/Abidjan"

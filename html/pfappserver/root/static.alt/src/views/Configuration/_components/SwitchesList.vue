@@ -30,7 +30,7 @@ import {
 } from '@/globals/configuration/pfConfigurationSwitches'
 
 export default {
-  name: 'SwitchesList',
+  name: 'switches-list',
   components: {
     pfButtonDelete,
     pfConfigList,

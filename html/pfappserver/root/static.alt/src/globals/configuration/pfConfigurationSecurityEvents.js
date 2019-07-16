@@ -27,6 +27,7 @@ export const pfConfigurationSecurityEventsListColumns = [
   {
     key: 'enabled',
     label: i18n.t('Status'),
+    required: true,
     sortable: true,
     visible: true
   },
@@ -51,20 +52,16 @@ export const pfConfigurationSecurityEventsListColumns = [
   {
     key: 'template',
     label: i18n.t('Template'),
-    sortable: false,
     visible: true
   },
   {
     key: 'vlan',
     label: i18n.t('Target Category'),
-    sortable: false,
     visible: true
   },
   {
     key: 'buttons',
     label: '',
-    sortable: false,
-    visible: true,
     locked: true
   }
 ]
@@ -86,6 +83,7 @@ export const pfConfigurationSecurityEventViewFields = (context = {}) => {
   const {
     isNew = false,
     isClone = false,
+    id = '',
     form = {},
     options: {
       meta = {}
@@ -102,6 +100,7 @@ export const pfConfigurationSecurityEventViewFields = (context = {}) => {
               key: 'enabled',
               component: pfFormRangeToggle,
               attrs: {
+                disabled: id === 'defaults',
                 values: { checked: 'Y', unchecked: 'N' },
                 colors: { checked: 'var(--success)', unchecked: 'var(--danger)' }
               }
@@ -166,7 +165,7 @@ export const pfConfigurationSecurityEventViewFields = (context = {}) => {
         },
         {
           label: i18n.t('Event Triggers'),
-          if: (form.triggers),
+          if: (form.triggers && form.triggers.length),
           fields: [
             {
               component: pfFormSecurityEventTriggerHeader

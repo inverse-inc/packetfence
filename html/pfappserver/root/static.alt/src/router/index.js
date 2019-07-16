@@ -2,7 +2,6 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import store from '@/store'
 
-import HelpRoute from '@/views/Help/_router'
 import LoginRoute from '@/views/Login/_router'
 import StatusRoute from '@/views/Status/_router'
 import ReportsRoute from '@/views/Reports/_router'
@@ -20,7 +19,6 @@ const DefaultRoute = {
 
 let router = new Router({
   routes: [
-    HelpRoute,
     LoginRoute,
     StatusRoute,
     ReportsRoute,
@@ -45,13 +43,22 @@ router.beforeEach((to, from, next) => {
   }
   /**
    * 3. Session token loaded from local storage
-   * 4. No token -- go back to login page
+   * 4. Token has expired -- go back to login page
+   * 5. No token -- go back to login page
    */
   if (to.name !== 'login') {
     store.dispatch('session/load').then(() => {
       next() // [3]
     }).catch(() => {
-      router.push({ name: 'login' }) // [4]
+      let currentPath = router.currentRoute.fullPath
+      if (currentPath === '/') {
+        currentPath = document.location.hash.substring(1)
+      }
+      if (store.state.session.token) {
+        router.push({ name: 'login', params: { expire: true, previousPath: currentPath } }) // [4]
+      } else {
+        router.push({ name: 'login' }) // [5]
+      }
       next()
     })
   } else {

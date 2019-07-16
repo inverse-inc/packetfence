@@ -30,11 +30,12 @@ export const pfConfigurationInterfaceTypes = [
   { value: 'other', text: i18n.t('Other') }
 ]
 
-export const pfCongigurationInterfaceDaemons = [
+export const pfConfigurationInterfaceDaemons = [
   { value: 'dhcp', text: 'dhcp' },
   { value: 'dns', text: 'dns' },
   { value: 'portal', text: 'portal' },
-  { value: 'radius', text: 'radius' }
+  { value: 'radius', text: 'radius' },
+  { value: 'dhcp-listener', text: 'dhcp-listener' }
 
 ]
 
@@ -165,12 +166,12 @@ export const pfConfigurationInterfacesListColumns = [
   {
     key: 'is_running',
     label: i18n.t('Status'),
-    sortable: false,
     visible: true
   },
   {
     key: 'id',
     label: i18n.t('Logical Name'),
+    required: true,
     sortable: true,
     visible: true,
     sort: pfConfigurationInterfacesSortColumns.id
@@ -211,27 +212,22 @@ export const pfConfigurationInterfacesListColumns = [
   {
     key: 'type',
     label: i18n.t('Type'),
-    sortable: false,
     visible: true,
     formatter: pfConfigurationInterfacesTypeFormatter
   },
   {
     key: 'additional_listening_daemons',
     label: i18n.t('Daemons'),
-    sortable: false,
     visible: true
   },
   {
     key: 'high_availability',
     label: i18n.t('High Availability'),
-    sortable: false,
     visible: true
   },
   {
     key: 'buttons',
     label: '',
-    sortable: false,
-    visible: false,
     locked: true
   }
 ]
@@ -356,7 +352,7 @@ export const pfConfigurationInterfaceViewFields = (context = {}) => {
                 allowEmpty: true,
                 clearOnSelect: false,
                 closeOnSelect: false,
-                options: pfCongigurationInterfaceDaemons
+                options: pfConfigurationInterfaceDaemons
               }
             }
           ]

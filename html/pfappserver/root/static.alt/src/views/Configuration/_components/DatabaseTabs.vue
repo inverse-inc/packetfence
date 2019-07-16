@@ -19,7 +19,7 @@ import DatabaseView from './DatabaseView'
 import DatabaseAdvancedView from './DatabaseAdvancedView'
 
 export default {
-  name: 'DatabaseTabs',
+  name: 'database-tabs',
   components: {
     DatabaseView,
     DatabaseAdvancedView

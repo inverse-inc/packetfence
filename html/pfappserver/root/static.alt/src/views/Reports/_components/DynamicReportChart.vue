@@ -112,7 +112,7 @@ import pfSearch from '@/components/pfSearch'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 
 export default {
-  name: 'DynamicReportChart',
+  name: 'dynamic-report-chart',
   mixins: [
     pfMixinSearchable
   ],
@@ -342,9 +342,6 @@ export default {
 </style>
 
 <style lang="scss" scoped>
-@import "../../../../node_modules/bootstrap/scss/functions";
-@import "../../../styles/variables";
-
 /**
  * Add btn-primary color(s) on hover
  */

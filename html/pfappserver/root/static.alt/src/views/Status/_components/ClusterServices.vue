@@ -19,7 +19,7 @@
             <pf-empty-table :isLoading="isLoading" text="">{{ $t('No Services found') }}</pf-empty-table>
           </template>
           <template v-for="server in servers" :slot="server" slot-scope="{ item: { [server]: status } }">
-            <div class="container-status small" :key="server">
+            <div class="container-status small" v-if="status" :key="server">
               <b-row class="row-nowrap">
                   <b-col>{{ $t('Alive') }}</b-col>
                   <b-col cols="auto">
@@ -47,7 +47,7 @@ import pfEmptyTable from '@/components/pfEmptyTable'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 
 export default {
-  name: 'ClusterServices',
+  name: 'cluster-services',
   components: {
     pfEmptyTable,
     pfFormRangeToggle
@@ -68,7 +68,7 @@ export default {
     },
     services () {
       const allServices = this.$store.state[this.storeName].clusterServices.map(server => {
-        return server.services.map(service => service.name)
+        return server.services.map(service => service.id)
       })
       return this.uniqueServices(...allServices)
     },
@@ -88,7 +88,7 @@ export default {
         let statuses = { service }
         this.servers.forEach(server => {
           const { services = {} } = this.$store.state[this.storeName].clusterServices.find(o => o.host === server)
-          const { status } = services.find(o => o.name === service)
+          const status = services.find(o => o.id === service)
           statuses[server] = status
         })
         return statuses

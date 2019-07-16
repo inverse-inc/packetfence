@@ -43,13 +43,12 @@ export const pfConfigurationRoutedNetworksListColumns = [
   {
     key: 'id',
     label: i18n.t('Network'),
-    sortable: false,
+    required: true,
     visible: true
   },
   {
     key: 'type',
     label: i18n.t('Type'),
-    sortable: false,
     visible: true,
     formatter: pfConfigurationRoutedNetworksTypeFormatter
   },
@@ -80,8 +79,6 @@ export const pfConfigurationRoutedNetworksListColumns = [
   {
     key: 'buttons',
     label: '',
-    sortable: false,
-    visible: false,
     locked: true
   }
 ]

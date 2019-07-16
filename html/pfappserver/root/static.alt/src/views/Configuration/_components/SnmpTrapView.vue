@@ -10,7 +10,8 @@
   >
     <template slot="header" is="b-card-header">
       <h4 class="mb-0">
-        <span>{{ $t('SNMP') }}</span>
+        {{ $t('SNMP') }}
+        <pf-button-help class="ml-1" url="PacketFence_Installation_Guide.html#_snmp_traps_limit" />
       </h4>
     </template>
     <template slot="footer">
@@ -25,8 +26,9 @@
 </template>
 
 <script>
-import pfConfigView from '@/components/pfConfigView'
+import pfButtonHelp from '@/components/pfButtonHelp'
 import pfButtonSave from '@/components/pfButtonSave'
+import pfConfigView from '@/components/pfConfigView'
 import {
   pfConfigurationSnmpTrapViewFields as fields
 } from '@/globals/configuration/pfConfigurationSnmpTrap'
@@ -34,13 +36,14 @@ import {
 const { validationMixin } = require('vuelidate')
 
 export default {
-  name: 'SnmpTrapView',
+  name: 'snmp-trap-view',
   mixins: [
     validationMixin
   ],
   components: {
-    pfConfigView,
-    pfButtonSave
+    pfButtonHelp,
+    pfButtonSave,
+    pfConfigView
   },
   data () {
     return {

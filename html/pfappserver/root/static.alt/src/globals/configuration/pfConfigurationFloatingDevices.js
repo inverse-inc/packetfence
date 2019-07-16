@@ -20,6 +20,7 @@ export const pfConfigurationFloatingDevicesListColumns = [
   {
     key: 'id',
     label: 'MAC',
+    required: true,
     sortable: true,
     visible: true
   },
@@ -50,8 +51,6 @@ export const pfConfigurationFloatingDevicesListColumns = [
   {
     key: 'buttons',
     label: '',
-    sortable: false,
-    visible: true,
     locked: true
   }
 ]

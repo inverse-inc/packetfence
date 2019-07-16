@@ -1,7 +1,9 @@
 <template>
-  <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="columnLabel"
-    :state="isValid()" :invalid-feedback="getInvalidFeedback()"
+  <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="columnLabel" :state="isValid()"
     class="pf-form-chosen" :class="{ 'mb-0': !columnLabel, 'is-focus': focus, 'is-empty': !value, 'is-disabled': disabled }">
+    <template slot="invalid-feedback">
+      <icon name="circle-notch" spin v-if="!getInvalidFeedback()"></icon> {{ feedbackState }}
+    </template>
     <b-input-group>
       <multiselect
         v-model="inputValue"
@@ -235,11 +237,6 @@ export default {
 </script>
 
 <style lang="scss">
-@import "../../node_modules/bootstrap/scss/functions";
-@import "../../node_modules/bootstrap/scss/mixins/border-radius";
-@import "../../node_modules/bootstrap/scss/mixins/box-shadow";
-@import "../styles/variables";
-
 /**
  * Adjust is-invalid and is-focus borders
  */
@@ -249,8 +246,8 @@ export default {
   &.is-empty {
     .multiselect__input,
     .multiselect__placeholder {
-      width: 100%!important;
-      position: relative!important;
+      position: relative !important;
+      width: 100% !important;
     }
     .multiselect__placeholder {
       display: none;
@@ -262,15 +259,15 @@ export default {
     }
   }
 
-  /* disable all transitions */
   .multiselect__loading-enter-active,
   .multiselect__loading-leave-active,
   .multiselect__input,
   .multiselect__single,
+  .multiselect__tags,
   .multiselect__tag-icon,
   .multiselect__select,
   .multiselect-enter-active,.multiselect-leave-active {
-      transition: none !important;
+    transition: $custom-forms-transition;
   }
 
   .multiselect {
@@ -282,9 +279,14 @@ export default {
       margin-bottom: 0;
       font-size: $font-size-base;
   }
+  .multiselect__tags,
+  .multiselect__option {
+    min-height: $input-height;
+    padding: $input-padding-y $input-padding-x;
+    font-size: $font-size-base;
+  }
   .multiselect__tags {
-    min-height: auto;
-    padding: 4px 40px 4px 8px;
+    padding-right: 40px;
     border: 1px solid $input-focus-bg;
     background-color: $input-focus-bg;
     @include border-radius($border-radius);
@@ -323,17 +325,11 @@ export default {
   .multiselect__single {
     padding: 0px;
     margin: 0px;
-    background-color: $input-focus-bg;
+    background-color: transparent;
     color: $input-color;
     font-size: $font-size-base;
     &::placeholder {
       color: $input-placeholder-color;
-    }
-  }
-  &.is-disabled {
-    .multiselect__input,
-    .multiselect__single {
-      background-color: $input-disabled-bg;
     }
   }
   .multiselect__placeholder {

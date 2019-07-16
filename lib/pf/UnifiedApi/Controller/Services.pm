@@ -29,22 +29,6 @@ sub resource {
     return undef;
 }
 
-sub cluster_status {
-    my ($self) = @_;
-    my @services = @pf::services::ALL_MANAGERS;
-    my @servers = pf::cluster::enabled_servers;
-
-    my @results;
-    for my $server (@servers) {
-        my $client = pf::api::unifiedapiclient->new;
-        $client->host($server->{management_ip});
-        my $stat = $client->call("GET", "/api/v1/services/status_all", {});
-        push @results, { host => $server->{host}, services => $stat->{items} };
-    }
-
-    $self->render(json => { items => \@results });
-}
-
 sub list {
     my ($self) = @_;
     $self->render(json => { items => [ map {$_->name} grep { $_->name ne 'pf' } @pf::services::ALL_MANAGERS ] });

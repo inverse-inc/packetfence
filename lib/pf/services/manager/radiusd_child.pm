@@ -132,7 +132,11 @@ sub generate_radiusd_sitesconf {
         $tags{'accounting_sql'} = "# sql not activated because explicitly disabled in pf.conf";
     }
     if(isenabled($Config{radius_configuration}{filter_in_packetfence_authorize})){
-        $tags{'authorize_filter'} = "rest";
+        $tags{'authorize_filter'} .= <<"EOT";
+        if ( !EAP-Message ) {
+             rest
+        }
+EOT
     }
     else {
         $tags{'authorize_filter'} = "# filter not activated because explicitly disabled in pf.conf";

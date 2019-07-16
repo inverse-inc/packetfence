@@ -35,6 +35,7 @@ export const pfConfigurationAuthenticationSourcesListColumns = [
   {
     key: 'id',
     label: i18n.t('Name'),
+    required: true,
     sortable: true,
     visible: true
   },
@@ -53,8 +54,6 @@ export const pfConfigurationAuthenticationSourcesListColumns = [
   {
     key: 'buttons',
     label: '',
-    sortable: false,
-    visible: true,
     locked: true
   }
 ]
@@ -891,7 +890,7 @@ export const pfConfigurationAuthenticationSourceFields = {
         },
         {
           text: ':',
-          class: 'mx-1 font-weight-bold'
+          class: 'ml-1 font-weight-bold'
         },
         {
           key: 'port',
@@ -899,7 +898,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           attrs: {
             ...pfConfigurationAttributesFromMeta(meta, 'port'),
             ...{
-              class: 'col-sm-1'
+              class: 'mx-1 col-sm-2'
             }
           },
           validators: pfConfigurationValidatorsFromMeta(meta, 'port', i18n.t('Port'))
@@ -907,7 +906,12 @@ export const pfConfigurationAuthenticationSourceFields = {
         {
           key: 'encryption',
           component: pfFormChosen,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'encryption'),
+          attrs: {
+            ...pfConfigurationAttributesFromMeta(meta, 'encryption'),
+            ...{
+              class: 'col-sm-2'
+            }
+          },
           validators: pfConfigurationValidatorsFromMeta(meta, 'encryption', i18n.t('Encryption'))
         },
         {
@@ -1269,7 +1273,12 @@ export const pfConfigurationAuthenticationSourceFields = {
         {
           key: 'protocol',
           component: pfFormChosen,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'protocol'),
+          attrs: {
+            ...pfConfigurationAttributesFromMeta(meta, 'protocol'),
+            ...{
+              class: 'col-sm-2'
+            }
+          },
           validators: pfConfigurationValidatorsFromMeta(meta, 'protocol', i18n.t('Protocol'))
         },
         {
@@ -1278,14 +1287,14 @@ export const pfConfigurationAuthenticationSourceFields = {
           attrs: {
             ...pfConfigurationAttributesFromMeta(meta, 'host'),
             ...{
-              class: 'col-sm-4'
+              class: 'mx-1 col-sm-4'
             }
           },
           validators: pfConfigurationValidatorsFromMeta(meta, 'host', i18n.t('Host'))
         },
         {
           text: ':',
-          class: 'mx-1 font-weight-bold'
+          class: 'font-weight-bold'
         },
         {
           key: 'port',
@@ -1293,7 +1302,7 @@ export const pfConfigurationAuthenticationSourceFields = {
           attrs: {
             ...pfConfigurationAttributesFromMeta(meta, 'port'),
             ...{
-              class: 'col-sm-1'
+              class: 'mx-1 col-sm-2'
             }
           },
           validators: pfConfigurationValidatorsFromMeta(meta, 'port', i18n.t('Port'))
@@ -1431,7 +1440,7 @@ export const pfConfigurationAuthenticationSourceFields = {
   },
   searchattributes: ({ options: { meta = {} } } = {}) => {
     return {
-      label: i18n.t('Username Attribute'),
+      label: i18n.t('Search Attributes'),
       text: i18n.t('Other attributes that can be used as the username (requires to restart the radiusd service to be effective).'),
       fields: [
         {
@@ -1641,6 +1650,19 @@ export const pfConfigurationAuthenticationSourceFields = {
           component: pfFormChosen,
           attrs: pfConfigurationAttributesFromMeta(meta, 'sms_carriers'),
           validators: pfConfigurationValidatorsFromMeta(meta, 'sms_carriers', i18n.t('Carriers'))
+        }
+      ]
+    }
+  },
+  sp_cert_path: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Path to Service Provider cert (x509)'),
+      fields: [
+        {
+          key: 'sp_cert_path',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'sp_cert_path'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'sp_cert_path', i18n.t('Path'))
         }
       ]
     }
@@ -2220,6 +2242,7 @@ export const pfConfigurationAuthenticationSourceViewFields = (context) => {
             pfConfigurationAuthenticationSourceFields.description(context),
             pfConfigurationAuthenticationSourceFields.sp_entity_id(context),
             pfConfigurationAuthenticationSourceFields.sp_key_path(context),
+            pfConfigurationAuthenticationSourceFields.sp_cert_path(context),
             pfConfigurationAuthenticationSourceFields.idp_entity_id(context),
             pfConfigurationAuthenticationSourceFields.idp_metadata_path(context),
             pfConfigurationAuthenticationSourceFields.idp_cert_path(context),

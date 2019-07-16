@@ -28,10 +28,12 @@
         v-for="search in savedSearches"
         :key="search.name"
         :to="search.route"
-        class="saved-search ml-3"
+        class="saved-search"
       >
-        <icon class="float-right mx-1" name="trash-alt" role="button" @click.native.stop.prevent="deleteSavedSearch(search)"></icon>
-        <text-highlight :queries="[filter]">{{ search.name }}</text-highlight>
+        <div class="pf-sidebar-item ml-3">
+          <text-highlight :queries="[filter]">{{ search.name }}</text-highlight>
+          <icon class="mx-1" name="trash-alt" role="button" @click.native.stop.prevent="deleteSavedSearch(search)"></icon>
+        </div>
       </b-nav-item>
     </b-nav>
   </div>
@@ -41,7 +43,7 @@
 import TextHighlight from 'vue-text-highlight'
 
 export default {
-  name: 'pfSidebarItem',
+  name: 'pf-sidebar-item',
   components: {
     TextHighlight
   },
@@ -94,14 +96,8 @@ export default {
 </script>
 
 <style lang="scss">
-.pf-sidebar-item {
-  .pf-sidenav {
-    .pf-sidenav-group,
-    pf-sidebar-item {
-      padding-left: 0;
-    }
-  }
-}
+@import '../styles/variables';
+
 .saved-search {
   a {
     svg.fa-icon {
@@ -109,13 +105,13 @@ export default {
     }
   }
 }
-.saved-search:hover {
-  a {
-    svg.fa-icon {
-      visibility: visible;
-      &:hover {
-        color: var(--primary);
-      }
+.saved-search:hover a,
+.saved-search a.active {
+  svg.fa-icon {
+    visibility: visible;
+    color: rgba($body-bg, .7);
+    &:hover {
+      color: $body-bg;
     }
   }
 }

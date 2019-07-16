@@ -1,7 +1,9 @@
 <template>
-  <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="$t(columnLabel)"
-    :state="isValid()" :invalid-feedback="getInvalidFeedback()"
+  <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="$t(columnLabel)" :state="isValid()"
     class="pf-form-password" :class="{ 'mb-0': !columnLabel, 'is-focus': focus }">
+    <template slot="invalid-feedback">
+      <icon name="circle-notch" spin v-if="!getInvalidFeedback()"></icon> {{ feedbackState }}
+    </template>
     <b-input-group class="pf-form-password-input-group">
       <b-form-input
         v-model="inputValue"
@@ -47,8 +49,8 @@
       :target="uuid"
       :title="$t('Generate password')"
       :show.sync="showGenerator"
-      @shown="onGenertorShown"
-      @hidden="onGeneratorHidden">
+      @shown="showingGenerator = true"
+      @hidden="showingGenerator = false">
       <div ref="generator">
         <b-form-row>
           <b-col><b-form-input v-model="options.pwlength" type="range" min="6" max="32"></b-form-input></b-col>
@@ -131,6 +133,7 @@ export default {
       testMessage: null,
       isTesting: false,
       showGenerator: false,
+      showingGenerator: false,
       options: {
         pwlength: 8,
         upper: true,
@@ -152,6 +155,9 @@ export default {
       set (newValue) {
         this.$emit('input', newValue)
       }
+    },
+    mouseDown () {
+      return this.$store.getters['events/mouseDown']
     }
   },
   methods: {
@@ -196,28 +202,22 @@ export default {
       this.testMessage = null
       this.onChange(event)
     },
-    onGenertorShown () {
-      document.body.addEventListener('click', this.onBodyClick)
-    },
-    onGeneratorHidden () {
-      document.body.removeEventListener('click', this.onBodyClick)
-    },
     generatePassword () {
       this.inputValue = password.generate(this.options)
-    },
-    onBodyClick ($event) {
-      this.showGenerator = this.$refs.generator.contains($event.target)
+    }
+  },
+  watch: {
+    mouseDown (pressed) {
+      if (pressed && this.showingGenerator) {
+        const $event = this.$store.getters['events/mouseEvent']
+        this.showGenerator = this.$refs.generator.contains($event.target)
+      }
     }
   }
 }
 </script>
 
 <style lang="scss" scoped>
-@import "../../node_modules/bootstrap/scss/functions";
-@import "../../node_modules/bootstrap/scss/mixins/border-radius";
-@import "../../node_modules/bootstrap/scss/mixins/transition";
-@import "../styles/variables";
-
 /**
  * Adjust is-invalid and is-focus borders
  */

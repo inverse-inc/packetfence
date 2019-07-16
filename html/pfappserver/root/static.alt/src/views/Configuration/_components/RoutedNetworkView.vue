@@ -26,7 +26,7 @@
         <pf-button-save :disabled="invalidForm" :isLoading="isLoading" class="mr-1">
           <template v-if="isNew">{{ $t('Create') }}</template>
           <template v-else-if="isClone">{{ $t('Clone') }}</template>
-          <template v-else-if="ctrlKey">{{ $t('Save & Close') }}</template>
+          <template v-else-if="actionKey">{{ $t('Save & Close') }}</template>
           <template v-else>{{ $t('Save') }}</template>
         </pf-button-save>
         <b-button :disabled="isLoading" class="mr-1" variant="outline-secondary" @click="init()">{{ $t('Reset') }}</b-button>
@@ -47,8 +47,6 @@ import pfConfigView from '@/components/pfConfigView'
 import pfButtonSave from '@/components/pfButtonSave'
 import pfButtonDelete from '@/components/pfButtonDelete'
 import pfButtonService from '@/components/pfButtonService'
-import pfMixinCtrlKey from '@/components/pfMixinCtrlKey'
-import pfMixinEscapeKey from '@/components/pfMixinEscapeKey'
 import {
   pfConfigurationDefaultsFromMeta as defaults
 } from '@/globals/configuration/pfConfiguration'
@@ -58,11 +56,9 @@ import {
 const { validationMixin } = require('vuelidate')
 
 export default {
-  name: 'RoutedNetworkView',
+  name: 'routed-network-view',
   mixins: [
-    validationMixin,
-    pfMixinCtrlKey,
-    pfMixinEscapeKey
+    validationMixin
   ],
   components: {
     pfConfigView,
@@ -113,6 +109,12 @@ export default {
         labelCols: 3,
         fields: fields(this)
       }
+    },
+    actionKey () {
+      return this.$store.getters['events/actionKey']
+    },
+    escapeKey () {
+      return this.$store.getters['events/escapeKey']
     }
   },
   methods: {
@@ -137,9 +139,9 @@ export default {
       this.$router.push({ name: 'cloneRoutedNetwork' })
     },
     create () {
-      const ctrlKey = this.ctrlKey
+      const actionKey = this.actionKey
       this.$store.dispatch(`${this.storeName}/createRoutedNetwork`, this.form).then(response => {
-        if (ctrlKey) { // [CTRL] key pressed
+        if (actionKey) { // [CTRL] key pressed
           this.close()
         } else {
           this.$router.push({ name: 'routed_network', params: { id: this.form.id } })
@@ -147,9 +149,9 @@ export default {
       })
     },
     save () {
-      const ctrlKey = this.ctrlKey
+      const actionKey = this.actionKey
       this.$store.dispatch(`${this.storeName}/updateRoutedNetwork`, this.form).then(response => {
-        if (ctrlKey) { // [CTRL] key pressed
+        if (actionKey) { // [CTRL] key pressed
           this.close()
         }
       })
@@ -168,6 +170,9 @@ export default {
       handler: function (a, b) {
         this.init()
       }
+    },
+    escapeKey (pressed) {
+      if (pressed) this.close()
     }
   }
 }

@@ -20,7 +20,7 @@ New Features
 
 Enhancements
 ++++++++++++
-
+* Adjust Fingerbank device class lookup ordering for added precision of the device class
 
 Bug Fixes
 +++++++++

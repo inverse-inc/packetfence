@@ -31,7 +31,7 @@
         <pf-button-save :disabled="invalidForm" :isLoading="isLoading">
           <template v-if="isNew">{{ $t('Create') }}</template>
           <template v-else-if="isClone">{{ $t('Clone') }}</template>
-          <template v-else-if="ctrlKey">{{ $t('Save & Close') }}</template>
+          <template v-else-if="actionKey">{{ $t('Save & Close') }}</template>
           <template v-else>{{ $t('Save') }}</template>
         </pf-button-save>
         <b-button :disabled="isLoading" class="ml-1" variant="outline-secondary" @click="init()">{{ $t('Reset') }}</b-button>
@@ -46,19 +46,15 @@
 import pfConfigView from '@/components/pfConfigView'
 import pfButtonDelete from '@/components/pfButtonDelete'
 import pfButtonSave from '@/components/pfButtonSave'
-import pfMixinCtrlKey from '@/components/pfMixinCtrlKey'
-import pfMixinEscapeKey from '@/components/pfMixinEscapeKey'
 import {
   pfConfigurationInterfaceViewFields as fields
 } from '@/globals/configuration/pfConfigurationInterfaces'
 const { validationMixin } = require('vuelidate')
 
 export default {
-  name: 'InterfaceView',
+  name: 'interface-view',
   mixins: [
-    validationMixin,
-    pfMixinCtrlKey,
-    pfMixinEscapeKey
+    validationMixin
   ],
   components: {
     pfButtonDelete,
@@ -116,6 +112,12 @@ export default {
     },
     isVlan () {
       return (this.form && this.form.master)
+    },
+    actionKey () {
+      return this.$store.getters['events/actionKey']
+    },
+    escapeKey () {
+      return this.$store.getters['events/escapeKey']
     }
   },
   methods: {
@@ -135,9 +137,9 @@ export default {
       this.$router.push({ name: 'interfaces' })
     },
     create () {
-      const ctrlKey = this.ctrlKey
+      const actionKey = this.actionKey
       this.$store.dispatch(`${this.storeName}/createInterface`, this.form).then(response => {
-        if (ctrlKey) { // [CTRL] key pressed
+        if (actionKey) { // [CTRL] key pressed
           this.close()
         } else {
           this.$router.push({ name: 'interface', params: { id: `${this.form.id}.${this.form.vlan}` } })
@@ -145,9 +147,9 @@ export default {
       })
     },
     save () {
-      const ctrlKey = this.ctrlKey
+      const actionKey = this.actionKey
       this.$store.dispatch(`${this.storeName}/updateInterface`, this.form).then(response => {
-        if (ctrlKey) { // [CTRL] key pressed
+        if (actionKey) { // [CTRL] key pressed
           this.close()
         }
       })
@@ -160,6 +162,11 @@ export default {
   },
   created () {
     this.init()
+  },
+  watch: {
+    escapeKey (pressed) {
+      if (pressed) this.close()
+    }
   }
 }
 </script>

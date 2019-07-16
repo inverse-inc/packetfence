@@ -257,10 +257,6 @@ export default {
 </script>
 
 <style lang="scss">
-@import "../../node_modules/bootstrap/scss/functions";
-@import "../styles/variables";
-@import "../../node_modules/bootstrap/scss/root";
-
 @keyframes animateCursor {
   0%, 100% { background-color: rgba(0, 0, 0, 1); }
   10%, 90% { background-color: rgba(0, 0, 0, 0.8); }

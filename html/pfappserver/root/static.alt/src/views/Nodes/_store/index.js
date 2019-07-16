@@ -287,7 +287,7 @@ const actions = {
   },
   bulkApplySecurityEvent: ({ commit }, data) => {
     commit('NODE_REQUEST')
-    return api.bulkCloseSecurityEvents(data).then(response => {
+    return api.bulkApplySecurityEvent(data).then(response => {
       commit('NODE_BULK_SUCCESS', response)
       return response
     }).catch(err => {

@@ -9,7 +9,7 @@
 
 <script>
 export default {
-  name: 'pfButtonExportToCsv',
+  name: 'pf-button-export-to-csv',
   props: {
     disabled: {
       type: Boolean,

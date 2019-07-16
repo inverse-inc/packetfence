@@ -112,7 +112,8 @@ import 'bootstrap-vue/dist/bootstrap-vue.css'
 import 'vue2vis/dist/vue2vis.css'
 
 Vue.config.productionTip = process.env.NODE_ENV === 'production'
-Vue.config.devtools = process.env.VUE_APP_DEBUG
+Vue.config.devtools = process.env.VUE_APP_DEBUG === 'true'
+Vue.config.performance = process.env.VUE_APP_DEBUG === 'true'
 
 Vue.use(VueTimeago, {
   name: 'Timeago',
@@ -135,5 +136,8 @@ new Vue({
   render: h => h(App),
   router,
   store,
-  i18n
+  i18n,
+  mounted () {
+    store.dispatch('events/bind')
+  }
 }).$mount('#app')

@@ -56,7 +56,7 @@ Source: http://www.packetfence.org/downloads/PacketFence/src/%{real_name}-%{vers
 %global logfiles packetfence.log snmptrapd.log pfdetect pfmon security_event.log httpd.admin.audit.log
 %global logdir /usr/local/pf/logs
 
-BuildRequires: gettext, httpd, ipset-devel, pkgconfig
+BuildRequires: gettext, httpd, ipset-devel, pkgconfig, jq
 # Required to build documentation
 # See docs/docbook/README.asciidoc for more info about installing requirements.
 # TODO fop on EL5 is actually xmlgraphics-fop
@@ -428,7 +428,7 @@ done
     done
 %endif
 
-# Build the HTML doc for pfappserver
+# Build the HTML doc index for pfappserver
 make html
 
 # build pfcmd C wrapper
@@ -568,9 +568,10 @@ cp -r html $RPM_BUILD_ROOT/usr/local/pf/
 
 # install html and images dirs in pfappserver for embedded doc
 %{__install} -d -m0755 $RPM_BUILD_ROOT/usr/local/pf/html/pfappserver/root/static/doc
-for i in `find * -name "*.html" -path 'docs/html/*' -type f`; do \
+for i in `find docs/html "(" -name "*.html" -or -name "*.js" ")"  -type f`; do \
 	%{__install} -m0644 $i $RPM_BUILD_ROOT/usr/local/pf/html/pfappserver/root/static/doc/; \
 done
+
 %{__install} -d -m0755 $RPM_BUILD_ROOT/usr/local/pf/html/pfappserver/root/static/images
 for i in `find * -path 'docs/images/*' -type f`; do \
 	%{__install} -m0644 $i $RPM_BUILD_ROOT/usr/local/pf/html/pfappserver/root/static/images/; \
@@ -903,6 +904,7 @@ fi
                         /usr/local/pf/conf/*.example
 %config(noreplace)      /usr/local/pf/conf/adminroles.conf
 %config(noreplace)      /usr/local/pf/conf/allowed_device_oui.txt
+%config                 /usr/local/pf/conf/ui.conf
                         /usr/local/pf/conf/allowed_device_oui.txt.example
 %config(noreplace)      /usr/local/pf/conf/apache_filters.conf
                         /usr/local/pf/conf/apache_filters.conf.example

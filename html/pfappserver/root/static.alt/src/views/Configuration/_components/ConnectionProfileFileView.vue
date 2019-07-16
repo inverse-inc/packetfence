@@ -7,6 +7,9 @@
           <h4 class="my-2">
             <router-link class="mr-1" :to="{ name: 'connectionProfileFiles', id }">{{ $t('Connection Profile {id}', { id: id }) }}</router-link>
             <span>/ {{ path }}</span>
+            <b-button size="sm" variant="secondary" class="ml-2" :href="`/config/profile/${id}/preview/${filename}`" target="_blank">
+              {{ $t('Preview') }} <icon class="ml-1" name="external-link-alt"></icon>
+            </b-button>
           </h4>
           <b-form-group
             class="col col-md-4 ml-2 my-0"
@@ -42,13 +45,13 @@
           </b-row>
         </b-container>
         <div class="flex-grow-1 overflow-hidden border-top border-right border-bottom border-left" ref="editorContainer" v-else>
-          <ace-editor v-model="content" theme="chrome" lang="html" :height="editorHeight" @init="initEditor"></ace-editor>
+          <ace-editor v-model="content" theme="cobalt" lang="html" :height="editorHeight" @init="initEditor"></ace-editor>
         </div>
       </div>
       <b-card-footer @mouseenter="isNew && $v.newFilename.$touch()">
         <pf-button-save :disabled="invalidForm" :isLoading="!invalidForm && isLoading">
           <template v-if="isNew">{{ $t('Create') }}</template>
-          <template v-else-if="ctrlKey">{{ $t('Save & Close') }}</template>
+          <template v-else-if="actionKey">{{ $t('Save & Close') }}</template>
           <template v-else>{{ $t('Save') }}</template>
         </pf-button-save>
         <pf-button-delete v-if="deletable" class="ml-1" :disabled="isLoading" :confirm="$t('Delete file?')" @on-delete="remove($event, true)"/>
@@ -59,21 +62,17 @@
 </template>
 
 <script>
+import aceEditor from 'vue2-ace-editor'
 import pfFormToggle from '@/components/pfFormToggle'
 import pfButtonSave from '@/components/pfButtonSave'
 import pfButtonDelete from '@/components/pfButtonDelete'
-import pfMixinCtrlKey from '@/components/pfMixinCtrlKey'
-import pfMixinEscapeKey from '@/components/pfMixinEscapeKey'
 import { isFilenameWithExtension } from '@/globals/pfValidators'
 const { validationMixin } = require('vuelidate')
 const { required } = require('vuelidate/lib/validators')
-const aceEditor = require('vue2-ace-editor')
 
 export default {
-  name: 'ConnectionProfileFileView',
+  name: 'connection-profile-file-view',
   mixins: [
-    pfMixinCtrlKey,
-    pfMixinEscapeKey,
     validationMixin
   ],
   components: {
@@ -150,6 +149,15 @@ export default {
     },
     invalidForm () {
       return this.isNew ? this.$v.newFilename.$invalid : !this.contentModified
+    },
+    actionKey () {
+      return this.$store.getters['events/actionKey']
+    },
+    escapeKey () {
+      return this.$store.getters['events/escapeKey']
+    },
+    windowSize () {
+      return this.$store.getters['events/windowSize']
     }
   },
   methods: {
@@ -171,7 +179,7 @@ export default {
       // Load ACE editor extensions
       require('brace/ext/language_tools')
       require('brace/mode/html')
-      require('brace/theme/chrome')
+      require('brace/theme/cobalt')
       this.editor = instance
       this.editor.setAutoScrollEditorIntoView(true)
       this.$nextTick(() => {
@@ -190,7 +198,7 @@ export default {
       this.editor.focus()
     },
     save () {
-      const ctrlKey = this.ctrlKey
+      const actionKey = this.actionKey
       const action = this.deletable || this.revertible ? 'update' : 'create'
       let params = {
         id: this.id,
@@ -199,7 +207,7 @@ export default {
       }
       if (this.isNew) params.filename += '/' + this.newFilename
       this.$store.dispatch(`${this.storeName}/${action}File`, params).then(response => {
-        if (ctrlKey) { // [CTRL] key pressed
+        if (actionKey) { // [CTRL] key pressed
           this.close()
         } else {
           if (this.isNew) {
@@ -210,7 +218,6 @@ export default {
             this.revertible = true
           }
           this.contentModified = false
-          this.$store.dispatch('notification/info', { message: this.$i18n.t('{filename} saved', { filename: this.filename }) })
         }
       })
     },
@@ -248,15 +255,25 @@ export default {
     this.parentNodes.forEach(node => {
       node.classList.add('h-100')
     })
-
-    window.addEventListener('resize', this.resizeEditor)
   },
   beforeDestroy () {
     // Remove height constraint on all parent nodes
     this.parentNodes.forEach(node => {
       node.classList.remove('h-100')
     })
-    window.removeEventListener('resize', this.resizeEditor)
+  },
+  watch: {
+    escapeKey (pressed) {
+      if (pressed) this.close()
+    },
+    windowSize: {
+      handler: function (a, b) {
+        if (a.clientWidth !== b.clientWidth || a.clientHeight !== b.clientHeight) {
+          this.resizeEditor()
+        }
+      },
+      deep: true
+    }
   }
 }
 </script>

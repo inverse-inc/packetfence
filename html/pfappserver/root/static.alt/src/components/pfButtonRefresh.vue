@@ -1,23 +1,19 @@
 <template>
   <button type="button" :aria-label="$t('Refresh')" :disabled="isLoading || disabled"
     class="pfButtonRefresh mx-3"
-    v-b-tooltip.hover.left.d300 :title="$t('Refresh [ALT+R]')"
+    v-b-tooltip.hover.left.d300 :title="$t('Refresh [Alt + R]')"
     @click="click"
   >
-    <icon v-if="interval" name="history" :style="`transform: rotate(${rotate}deg) scaleX(-1)`" :class="{ 'text-primary': ctrlKey }"></icon>
-    <icon v-else name="redo" :style="`transform: rotate(${rotate}deg)`" :class="{ 'text-primary': ctrlKey }"></icon>
+    <icon v-if="interval" name="history" :style="`transform: rotate(${rotate}deg) scaleX(-1)`" :class="{ 'text-primary': actionKey }"></icon>
+    <icon v-else name="redo" :style="`transform: rotate(${rotate}deg)`" :class="{ 'text-primary': actionKey }"></icon>
   </button>
 </template>
 
 <script>
 import { createDebouncer } from 'promised-debounce'
-import pfMixinCtrlKey from '@/components/pfMixinCtrlKey'
 
 export default {
-  name: 'pfButtonRefresh',
-  mixins: [
-    pfMixinCtrlKey
-  ],
+  name: 'pf-button-refresh',
   data () {
     return {
       num: 0,
@@ -35,19 +31,17 @@ export default {
   computed: {
     rotate () {
       return this.num * 360
+    },
+    actionKey () {
+      return this.$store.getters['events/actionKey']
+    },
+    altRKey () {
+      return this.$store.getters['events/altRKey']
     }
   },
   methods: {
-    onKey (event) {
-      switch (true) {
-        case (event.altKey && event.keyCode === 82): // ALT+R
-          event.preventDefault()
-          this.refresh(event)
-          break
-      }
-    },
     click (event) {
-      if (this.ctrlKey) {
+      if (this.actionKey) {
         if (this.interval) { // clear interval
           clearInterval(this.interval)
           this.interval = false
@@ -78,13 +72,16 @@ export default {
       })
     }
   },
-  mounted () {
-    document.addEventListener('keydown', this.onKey)
-  },
   beforeDestroy () {
-    document.removeEventListener('keydown', this.onKey)
     if (this.interval) {
       clearInterval(this.interval)
+    }
+  },
+  watch: {
+    altRKey (pressed) {
+      if (pressed) {
+        this.refresh(event)
+      }
     }
   }
 }

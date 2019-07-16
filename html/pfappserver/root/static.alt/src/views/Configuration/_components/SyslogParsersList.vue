@@ -58,7 +58,7 @@ import {
 } from '@/globals/configuration/pfConfigurationSyslogParsers'
 
 export default {
-  name: 'SyslogParsersList',
+  name: 'syslog-parsers-list',
   components: {
     pfButtonDelete,
     pfButtonService,

@@ -122,3 +122,73 @@
     priority = 91000
     type = line
     dimension = pattern 'source.packetfence.dhcp_leases.percentused.*' '' last 1 1
+
+[logs.packetfence_log]
+    name = packetfence.packetfence_log
+    title = packetfence.log file events
+    family = packetfence
+    context = chart.context
+    units = Events
+    priority = 91000
+    type = line
+    dimension = pattern 'source.packetfence.packetfence_log.*' '' last 1 1
+
+[logs.pfdhcp_log]
+    name = packetfence.pfdhcp_log
+    title = pfdhcp.log file events
+    family = packetfence
+    context = chart.context
+    units = Events
+    priority = 91000
+    type = line
+    dimension = pattern 'source.packetfence.pfdhcp_log.*' '' last 1 1
+
+[logs.load_balancer_log]
+    name = packetfence.load_balancer.log
+    title = load_balancer.log file events
+    family = packetfence
+    context = chart.context
+    units = Events
+    priority = 91000
+    type = line
+    dimension = pattern 'source.packetfence.load_balancer_log.*' '' last 1 1
+
+[logs.radius_log]
+    name = packetfence.radius_log
+    title = radius.log file events
+    family = packetfence
+    context = chart.context
+    units = Events
+    priority = 91000
+    type = line
+    dimension = pattern 'source.packetfence.radius_log.*' '' last 1 1
+
+[logs.mariadb_error_log]
+    name = packetfence.mariadb_error_log
+    title = mariadb_error.log file events
+    family = packetfence
+    context = chart.context
+    units = Events
+    priority = 91000
+    type = line
+    dimension = pattern 'source.packetfence.mariadb_error_log.*' '' last 1 1
+
+[logs.pfmon_log]
+    name = packetfence.pfmon_log
+    title = pfmon.log file events
+    family = packetfence
+    context = chart.context
+    units = Events
+    priority = 91000
+    type = line
+    dimension = pattern 'source.packetfence.pfmon_log.*' '' last 1 1
+
+[logs.fingerbank_log]
+    name = packetfence.fingerbank_log
+    title = fingerbank.log file events
+    family = packetfence
+    context = chart.context
+    units = Events
+    priority = 91000
+    type = line
+    dimension = pattern 'source.packetfence.fingerbank_log.*' '' last 1 1

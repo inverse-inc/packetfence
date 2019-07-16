@@ -47,7 +47,7 @@ import {
 } from '@/globals/configuration/pfConfigurationFingerbank'
 
 export default {
-  name: 'FingerbankDhcpv6EnterprisesList',
+  name: 'fingerbank-dhcpv6-enterprises-list',
   components: {
     pfButtonDelete,
     pfConfigList,

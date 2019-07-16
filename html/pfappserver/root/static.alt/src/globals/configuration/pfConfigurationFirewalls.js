@@ -22,6 +22,7 @@ export const pfConfigurationFirewallsListColumns = [
   {
     key: 'id',
     label: i18n.t('Hostname or IP'),
+    required: true,
     sortable: true,
     visible: true
   },
@@ -40,8 +41,6 @@ export const pfConfigurationFirewallsListColumns = [
   {
     key: 'buttons',
     label: '',
-    sortable: false,
-    visible: true,
     locked: true
   }
 ]
@@ -139,7 +138,7 @@ export const pfConfigurationFirewallViewFields = (context) => {
           ]
         },
         {
-          if: ['BarracudaNG', 'JSONRPC', 'FamilyZone'].includes(firewallType),
+          if: ['BarracudaNG', 'JSONRPC', 'JuniperSRX', 'FamilyZone'].includes(firewallType),
           label: i18n.t('Username'),
           fields: [
             {

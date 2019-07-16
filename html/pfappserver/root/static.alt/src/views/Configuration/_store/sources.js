@@ -82,6 +82,19 @@ const actions = {
     })
   },
   createAuthenticationSource: ({ commit }, data) => {
+    // fix #4597
+    //  set administration_rules.actions.value = '1' where administration_rules.actions.type = 'mark_as_sponsor'
+    const { administration_rules: administrationRules = [] } = data
+    if (administrationRules && 'length' in administrationRules) {
+      administrationRules.forEach((administrationRule, rIndex) => {
+        const { actions = [] } = administrationRule
+        actions.forEach((action, aIndex) => {
+          if (action.type === 'mark_as_sponsor') {
+            data.administration_rules[rIndex].actions[aIndex].value = 1
+          }
+        })
+      })
+    }
     commit('ITEM_REQUEST')
     return api.createAuthenticationSource(data).then(response => {
       commit('ITEM_REPLACED', data)
@@ -92,6 +105,19 @@ const actions = {
     })
   },
   updateAuthenticationSource: ({ commit }, data) => {
+    // fix #4597
+    //  set administration_rules.actions.value = '1' where administration_rules.actions.type = 'mark_as_sponsor'
+    const { administration_rules: administrationRules = [] } = data
+    if (administrationRules && 'length' in administrationRules) {
+      administrationRules.forEach((administrationRule, rIndex) => {
+        const { actions = [] } = administrationRule
+        actions.forEach((action, aIndex) => {
+          if (action.type === 'mark_as_sponsor') {
+            data.administration_rules[rIndex].actions[aIndex].value = 1
+          }
+        })
+      })
+    }
     commit('ITEM_REQUEST')
     return api.updateAuthenticationSource(data).then(response => {
       commit('ITEM_REPLACED', data)

@@ -27,7 +27,7 @@
         <pf-button-save :disabled="invalidForm" :isLoading="isLoading">
           <template v-if="isNew">{{ $t('Create') }}</template>
           <template v-else-if="isClone">{{ $t('Clone') }}</template>
-          <template v-else-if="ctrlKey">{{ $t('Save & Close') }}</template>
+          <template v-else-if="actionKey">{{ $t('Save & Close') }}</template>
           <template v-else>{{ $t('Save') }}</template>
         </pf-button-save>
         <b-button :disabled="isLoading" class="ml-1" variant="outline-secondary" @click="init()">{{ $t('Reset') }}</b-button>
@@ -41,8 +41,6 @@
 import pfConfigView from '@/components/pfConfigView'
 import pfButtonSave from '@/components/pfButtonSave'
 import pfButtonDelete from '@/components/pfButtonDelete'
-import pfMixinCtrlKey from '@/components/pfMixinCtrlKey'
-import pfMixinEscapeKey from '@/components/pfMixinEscapeKey'
 import {
   pfConfigurationDefaultsFromMeta as defaults
 } from '@/globals/configuration/pfConfiguration'
@@ -52,11 +50,9 @@ import {
 const { validationMixin } = require('vuelidate')
 
 export default {
-  name: 'RoleView',
+  name: 'role-view',
   mixins: [
-    validationMixin,
-    pfMixinCtrlKey,
-    pfMixinEscapeKey
+    validationMixin
   ],
   components: {
     pfConfigView,
@@ -112,6 +108,12 @@ export default {
         return false
       }
       return true
+    },
+    actionKey () {
+      return this.$store.getters['events/actionKey']
+    },
+    escapeKey () {
+      return this.$store.getters['events/escapeKey']
     }
   },
   methods: {
@@ -137,9 +139,9 @@ export default {
       this.$router.push({ name: 'cloneRole' })
     },
     create () {
-      const ctrlKey = this.ctrlKey
+      const actionKey = this.actionKey
       this.$store.dispatch(`${this.storeName}/createRole`, this.form).then(response => {
-        if (ctrlKey) { // [CTRL] key pressed
+        if (actionKey) { // [CTRL] key pressed
           this.close()
         } else {
           this.$router.push({ name: 'role', params: { id: this.form.id } })
@@ -147,9 +149,9 @@ export default {
       })
     },
     save () {
-      const ctrlKey = this.ctrlKey
+      const actionKey = this.actionKey
       this.$store.dispatch(`${this.storeName}/updateRole`, this.form).then(response => {
-        if (ctrlKey) { // [CTRL] key pressed
+        if (actionKey) { // [CTRL] key pressed
           this.close()
         }
       })
@@ -173,6 +175,9 @@ export default {
       handler: function (a, b) {
         this.init()
       }
+    },
+    escapeKey (pressed) {
+      if (pressed) this.close()
     }
   }
 }

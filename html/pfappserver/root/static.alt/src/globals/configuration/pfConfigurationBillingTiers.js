@@ -22,6 +22,7 @@ export const pfConfigurationBillingTiersListColumns = [
   {
     key: 'id',
     label: i18n.t('Identifier'),
+    required: true,
     sortable: true,
     visible: true
   },
@@ -40,8 +41,6 @@ export const pfConfigurationBillingTiersListColumns = [
   {
     key: 'buttons',
     label: '',
-    sortable: false,
-    visible: true,
     locked: true
   }
 ]

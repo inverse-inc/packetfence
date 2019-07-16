@@ -6,7 +6,7 @@ import NodesSearch from '../_components/NodesSearch'
 
 const NodesCreate = () => import(/* webpackChunkName: "Nodes" */ '../_components/NodesCreate')
 const NodeView = () => import(/* webpackChunkName: "Nodes" */ '../_components/NodeView')
-const NodesImport = () => import(/* webpackChunkName: "Nodes" */ '../_components/NodesImport')
+const NodesImport = () => import(/* webpackChunkName: "Editor" */ '../_components/NodesImport')
 
 const route = {
   path: '/nodes',

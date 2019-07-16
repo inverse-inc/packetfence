@@ -34,7 +34,7 @@ import {
 const { validationMixin } = require('vuelidate')
 
 export default {
-  name: 'AdvancedView',
+  name: 'advanced-view',
   mixins: [
     validationMixin
   ],

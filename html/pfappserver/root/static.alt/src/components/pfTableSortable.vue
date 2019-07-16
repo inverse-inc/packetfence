@@ -1,8 +1,8 @@
 <template>
-  <div class="pfTableSortable" :class="{ 'hover': hover, 'striped': striped }" @mouseleave="onMouseLeave()">
+  <div class="pf-table-sortable" :class="{ 'hover': hover, 'striped': striped }" @mouseleave="onMouseLeave()">
 
     <!-- head -->
-    <b-row class="pfTableSortableHead" @mouseenter="onMouseLeave()" @mousemove="onMouseLeave()">
+    <b-row class="pf-table-sortable-head" @mouseenter="onMouseLeave()" @mousemove="onMouseLeave()">
       <b-col cols="1">
         <icon name="sort" class="text-secondary"></icon>
       </b-col>
@@ -11,7 +11,7 @@
       </b-col>
     </b-row>
     <b-row v-if="items.length === 0"
-      class="pfTableSortableEmpty justify-content-md-center"
+      class="pf-table-sortable-empty justify-content-md-center"
     >
       <b-col cols="12" md="auto">
         <slot name="empty" v-bind="{ isLoading }">
@@ -23,7 +23,7 @@
     <!-- body -->
     <template v-else>
       <b-row v-for="(item, itemIndex) in notSortableItems" :key="itemIndex"
-        class="pfTableSortableRow"
+        class="pf-table-sortable-row"
         @mouseenter="onMouseLeave()"
       >
         <b-col cols="1">
@@ -47,7 +47,7 @@
         @clone="onDraggable('clone', $event)"
       >
         <b-row v-for="(item, itemIndex) in sortableItems" :key="itemIndex"
-          class="pfTableSortableRow"
+          class="pf-table-sortable-row"
           @mouseenter="onMouseEnter(itemIndex)"
           @mousemove="onMouseEnter(itemIndex)"
         >
@@ -74,7 +74,7 @@ import draggable from 'vuedraggable'
 import pfEmptyTable from '@/components/pfEmptyTable'
 
 export default {
-  name: 'pfTableSortable',
+  name: 'pf-table-sortable',
   components: {
     draggable,
     pfEmptyTable
@@ -151,12 +151,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "../../node_modules/bootstrap/scss/functions";
-@import "../../node_modules/bootstrap/scss/mixins/border-radius";
-@import "../../node_modules/bootstrap/scss/mixins/transition";
-@import "../styles/variables";
-
-.pfTableSortable {
+.pf-table-sortable {
   color: #495057;
   border-spacing: 2px;
   .draghandle {
@@ -173,9 +168,9 @@ export default {
       border-color: transparent !important;
     }
     button.btn {
-      color: $white !important;
       border: 1px solid $white !important;
       border-color: $white !important;
+      color: $white !important;
     }
     input,
     select,
@@ -186,11 +181,11 @@ export default {
       border-color: transparent !important;
     }
   }
-  .pfTableSortableEmpty {
+  .pf-table-sortable-empty {
     background-color: rgba(0,0,0,.05);
     vertical-align: top;
   }
-  .pfTableSortableHead {
+  .pf-table-sortable-head {
     border-top: 1px solid #dee2e6;
     border-bottom: 2px solid #dee2e6;
     font-weight: bold;
@@ -199,12 +194,13 @@ export default {
       vertical-align: bottom;
     }
   }
-  .pfTableSortableRow {
+  .pf-table-sortable-row {
     border-top: 1px solid #dee2e6;
+    cursor: pointer;
   }
-  .pfTableSortableEmpty,
-  .pfTableSortableHead,
-  .pfTableSortableRow {
+  .pf-table-sortable-empty,
+  .pf-table-sortable-head,
+  .pf-table-sortable-row {
     border-color: #dee2e6;
     margin: 0;
     & > .col {
@@ -213,24 +209,23 @@ export default {
     }
     & > .col-1 {
       align-self: center!important;
-      padding: .75rem;
-      /*flex: 0 0 50px;*/
       max-width: 50px;
+      padding: .75rem;
       vertical-align: middle;
     }
   }
   &.striped {
-    .pfTableSortableRow {
+    .pf-table-sortable-row {
       &:nth-of-type(odd) {
         background-color: rgba(0,0,0,.05);
       }
     }
   }
   &.hover {
-    .pfTableSortableRow {
+    .pf-table-sortable-row {
       &:hover {
-        color: #495057;
         background-color: rgba(0,0,0,.075);
+        color: #495057;
       }
     }
   }

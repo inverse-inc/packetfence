@@ -30,12 +30,11 @@
 </template>
 
 <script>
+import aceEditor from 'vue2-ace-editor'
 import pfButtonSave from '@/components/pfButtonSave'
 
-const aceEditor = require('vue2-ace-editor')
-
 export default {
-  name: 'FilterEngineView',
+  name: 'filter-engine-view',
   components: {
     pfButtonSave,
     aceEditor
@@ -49,14 +48,6 @@ export default {
       type: String,
       default: null,
       required: true
-    },
-    mode: {
-      type: String,
-      default: 'ini'
-    },
-    theme: {
-      type: String,
-      default: 'cobalt'
     }
   },
   data () {
@@ -78,6 +69,9 @@ export default {
     },
     invalidForm () {
       return this.$store.getters[`${this.storeName}/isWaiting`]
+    },
+    windowSize () {
+      return this.$store.getters['events/windowSize']
     }
   },
   methods: {
@@ -94,8 +88,8 @@ export default {
     initEditor (instance) {
       // Load ACE editor extensions
       require('brace/ext/language_tools')
-      require(`brace/mode/${this.mode}`)
-      require(`brace/theme/${this.theme}`)
+      require('brace/mode/ini')
+      require('brace/theme/cobalt')
       this.editor = instance
       this.editor.setAutoScrollEditorIntoView(true)
       this.$nextTick(() => {
@@ -123,14 +117,22 @@ export default {
     this.parentNodes.forEach(node => {
       node.classList.add('h-100')
     })
-    window.addEventListener('resize', this.resizeEditor)
   },
   beforeDestroy () {
     // Remove height constraint on all parent nodes
     this.parentNodes.forEach(node => {
       node.classList.remove('h-100')
     })
-    window.removeEventListener('resize', this.resizeEditor)
+  },
+  watch: {
+    windowSize: {
+      handler: function (a, b) {
+        if (a.clientWidth !== b.clientWidth || a.clientHeight !== b.clientHeight) {
+          this.resizeEditor()
+        }
+      },
+      deep: true
+    }
   }
 }
 </script>

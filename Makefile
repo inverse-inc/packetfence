@@ -15,7 +15,8 @@ all:
 	@echo " 'PacketFence_Developers_Guide.pdf' will build the Developers guide in PDF"
 	@echo " 'PacketFence_Network_Devices_Configuration_Guide.pdf' will build the Network Devices Configuration guide in PDF"
 
-pdf: docs/docbook/xsl/titlepage-fo.xsl docs/docbook/xsl/import-fo.xsl $(patsubst %.asciidoc,%.pdf,$(notdir $(wildcard docs/PacketFence_*.asciidoc)))
+ASCIIDOCS := $(notdir $(wildcard docs/PacketFence_*.asciidoc))
+PDFS = $(patsubst %.asciidoc,docs/%.pdf, $(ASCIIDOCS))
 
 docs/docbook/xsl/titlepage-fo.xsl: docs/docbook/xsl/titlepage-fo.xml
 	xsltproc \
@@ -33,7 +34,7 @@ docs/docbook/xsl/import-fo.xsl:
 	</xsl:stylesheet>" \
 	> docs/docbook/xsl/import-fo.xsl
 
-%.pdf : docs/%.asciidoc docs/docbook/xsl/titlepage-fo.xsl docs/docbook/xsl/import-fo.xsl
+docs/%.pdf : docs/%.asciidoc docs/docbook/xsl/titlepage-fo.xsl docs/docbook/xsl/import-fo.xsl
 	asciidoc \
 		-a docinfo2 \
 		-b docbook \
@@ -48,11 +49,15 @@ docs/docbook/xsl/import-fo.xsl:
 	fop \
 		-c docs/fonts/fop-config.xml \
 		$<.fo \
-		-pdf docs/$@
+		-pdf $@
 
-html: $(patsubst %.asciidoc,%.html,$(notdir $(wildcard docs/PacketFence_*.asciidoc)))
+.PHONY: pdf
 
-%.html : docs/%.asciidoc
+pdf: $(PDFS)
+
+HTML = $(patsubst %.asciidoc,docs/html/%.html, $(ASCIIDOCS))
+
+docs/html/%.html: docs/%.asciidoc
 	asciidoctor \
 		-D docs/html \
 		-n \
@@ -63,6 +68,13 @@ html/pfappserver/root/static/doc:
 	make html
 	cp -a docs/html/* html/pfappserver/root/static/doc
 	cp -a docs/images/* html/pfappserver/root/static/images
+
+docs/html/index.js: $(HTML)
+	find $$(dirname "$@") -type f  -iname  '*.html' -printf "{\"name\":\"%f\", \"size\":%s, \"last_modifed\" : %T@}\n" | jq -s '{ items: [ .[] |  {name, size, last_modifed : (.last_modifed*1000 | floor)} ] }' > $@
+
+.PHONY: html
+
+html: $(HTML) docs/html/index.js
 
 pfcmd.help:
 	/usr/local/pf/bin/pfcmd help > docs/pfcmd.help

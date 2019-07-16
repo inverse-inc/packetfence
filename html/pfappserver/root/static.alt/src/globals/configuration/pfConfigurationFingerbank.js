@@ -404,6 +404,7 @@ export const pfConfigurationFingerbankCombinationsListColumns = [
   {
     key: 'id',
     label: i18n.t('Identifier'),
+    required: true,
     sortable: true,
     visible: true
   },
@@ -434,8 +435,6 @@ export const pfConfigurationFingerbankCombinationsListColumns = [
   {
     key: 'buttons',
     label: '',
-    sortable: false,
-    visible: true,
     locked: true
   }
 ]
@@ -708,6 +707,7 @@ export const pfConfigurationFingerbankDevicesListColumns = [
   {
     key: 'id',
     label: i18n.t('Identifier'),
+    required: true,
     sortable: true,
     visible: true
   },
@@ -738,8 +738,6 @@ export const pfConfigurationFingerbankDevicesListColumns = [
   {
     key: 'buttons',
     label: '',
-    sortable: false,
-    visible: true,
     locked: true
   }
 ]
@@ -909,6 +907,7 @@ export const pfConfigurationFingerbankDhcpFingerprintsListColumns = [
   {
     key: 'id',
     label: i18n.t('Identifier'),
+    required: true,
     sortable: true,
     visible: true
   },
@@ -933,8 +932,6 @@ export const pfConfigurationFingerbankDhcpFingerprintsListColumns = [
   {
     key: 'buttons',
     label: '',
-    sortable: false,
-    visible: true,
     locked: true
   }
 ]
@@ -1071,6 +1068,7 @@ export const pfConfigurationFingerbankDhcpVendorsListColumns = [
   {
     key: 'id',
     label: i18n.t('Identifier'),
+    required: true,
     sortable: true,
     visible: true
   },
@@ -1095,8 +1093,6 @@ export const pfConfigurationFingerbankDhcpVendorsListColumns = [
   {
     key: 'buttons',
     label: '',
-    sortable: false,
-    visible: true,
     locked: true
   }
 ]
@@ -1232,6 +1228,7 @@ export const pfConfigurationFingerbankDhcpv6FingerprintsListColumns = [
   {
     key: 'id',
     label: i18n.t('Identifier'),
+    required: true,
     sortable: true,
     visible: true
   },
@@ -1256,8 +1253,6 @@ export const pfConfigurationFingerbankDhcpv6FingerprintsListColumns = [
   {
     key: 'buttons',
     label: '',
-    sortable: false,
-    visible: true,
     locked: true
   }
 ]
@@ -1394,6 +1389,7 @@ export const pfConfigurationFingerbankDhcpv6EnterprisesListColumns = [
   {
     key: 'id',
     label: i18n.t('Identifier'),
+    required: true,
     sortable: true,
     visible: true
   },
@@ -1426,8 +1422,6 @@ export const pfConfigurationFingerbankDhcpv6EnterprisesListColumns = [
   {
     key: 'buttons',
     label: '',
-    sortable: false,
-    visible: true,
     locked: true
   }
 ]
@@ -1563,6 +1557,7 @@ export const pfConfigurationFingerbankMacVendorsListColumns = [
   {
     key: 'id',
     label: i18n.t('Identifier'),
+    required: true,
     sortable: true,
     visible: true
   },
@@ -1593,8 +1588,6 @@ export const pfConfigurationFingerbankMacVendorsListColumns = [
   {
     key: 'buttons',
     label: '',
-    sortable: false,
-    visible: true,
     locked: true
   }
 ]
@@ -1714,13 +1707,13 @@ export const pfConfigurationFingerbankMacVendorOptionsSearchFunction = (chosen, 
       limit: 100
     }).then(response => {
       return response.items.map(item => {
-        return { value: item.mac, text: item.name }
+        return { value: item.mac, text: `${item.mac.toUpperCase()} - ${item.name}` }
       })
     })
   } else { // subsequent queries
     const currentOption = chosen.options.find(option => option.value === chosen.value) // cache current value
     return api.fingerbankSearchMacVendors({
-      query: { op: 'and', values: [{ op: 'or', values: [{ field: 'name', op: 'contains', value: query }] }] },
+      query: { op: 'and', values: [{ op: 'or', values: [{ field: 'name', op: 'contains', value: query }, { field: 'mac', op: 'contains', value: query }] }] },
       fields: ['mac', 'name'],
       sort: ['name'],
       cursor: 0,
@@ -1729,7 +1722,7 @@ export const pfConfigurationFingerbankMacVendorOptionsSearchFunction = (chosen, 
       return [
         ...((currentOption) ? [currentOption] : []), // current option first
         ...response.items.map(item => {
-          return { value: item.mac, text: item.name }
+          return { value: item.mac, text: `${item.mac.toUpperCase()} - ${item.name}` }
         }).filter(item => {
           return JSON.stringify(item) !== JSON.stringify(currentOption) // remove duplicate current option
         })
@@ -1744,6 +1737,7 @@ export const pfConfigurationFingerbankUserAgentsListColumns = [
   {
     key: 'id',
     label: i18n.t('Identifier'),
+    required: true,
     sortable: true,
     visible: true
   },
@@ -1768,8 +1762,6 @@ export const pfConfigurationFingerbankUserAgentsListColumns = [
   {
     key: 'buttons',
     label: '',
-    sortable: false,
-    visible: true,
     locked: true
   }
 ]

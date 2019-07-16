@@ -1,15 +1,13 @@
 import i18n from '@/utils/locale'
 import { mysqlLimits as sqlLimits } from '@/globals/mysqlLimits'
 import {
-  and,
   inArray,
-  isDateFormat
+  isDateFormat,
+  isMacAddress
 } from '@/globals/pfValidators'
 import {
   email,
-  macAddress,
   maxLength,
-  minLength,
   maxValue,
   minValue,
   numeric
@@ -65,10 +63,10 @@ export const buildValidationFromColumnSchemas = (...columnSchemas) => {
           })
           break
         case (columnSchema.type === pfDatetime):
-          if ('format' in columnSchema) {
-            let allowZero = (columnSchema.default && columnSchema.default === columnSchema.format.replace(/[a-z]/gi, '0'))
+          if ('datetimeFormat' in columnSchema) {
+            let allowZero = (columnSchema.default && columnSchema.default === columnSchema.datetimeFormat.replace(/[a-z]/gi, '0'))
             Object.assign(validation, {
-              [i18n.t('Invalid date.')]: isDateFormat(columnSchema.format, allowZero)
+              [i18n.t('Invalid date.')]: isDateFormat(columnSchema.datetimeFormat, allowZero)
             })
           }
           break
@@ -87,7 +85,7 @@ export const buildValidationFromColumnSchemas = (...columnSchemas) => {
           break
         case (columnSchema.type === pfMac):
           Object.assign(validation, {
-            [i18n.t('Invalid MAC address.')]: and(minLength(17), maxLength(17), macAddress)
+            [i18n.t('Invalid MAC address.')]: isMacAddress
           })
           break
       }
@@ -118,22 +116,22 @@ export const pfDatabaseSchema = {
     ),
     detect_date: {
       type: pfDatetime,
-      format: 'YYYY-MM-DD HH:mm:ss',
+      datetimeFormat: 'YYYY-MM-DD HH:mm:ss',
       default: '0000-00-00 00:00:00'
     },
     regdate: {
       type: pfDatetime,
-      format: 'YYYY-MM-DD HH:mm:ss',
+      datetimeFormat: 'YYYY-MM-DD HH:mm:ss',
       default: '0000-00-00 00:00:00'
     },
     unregdate: {
       type: pfDatetime,
-      format: 'YYYY-MM-DD HH:mm:ss',
+      datetimeFormat: 'YYYY-MM-DD HH:mm:ss',
       default: '0000-00-00 00:00:00'
     },
     lastskip: {
       type: pfDatetime,
-      format: 'YYYY-MM-DD HH:mm:ss',
+      datetimeFormat: 'YYYY-MM-DD HH:mm:ss',
       default: '0000-00-00 00:00:00'
     },
     time_balance: Object.assign(
@@ -172,12 +170,12 @@ export const pfDatabaseSchema = {
     },
     last_arp: {
       type: pfDatetime,
-      format: 'YYYY-MM-DD HH:mm:ss',
+      datetimeFormat: 'YYYY-MM-DD HH:mm:ss',
       default: '0000-00-00 00:00:00'
     },
     last_dhcp: {
       type: pfDatetime,
-      format: 'YYYY-MM-DD HH:mm:ss',
+      datetimeFormat: 'YYYY-MM-DD HH:mm:ss',
       default: '0000-00-00 00:00:00'
     },
     dhcp_fingerprint: {
@@ -259,7 +257,7 @@ export const pfDatabaseSchema = {
     ),
     last_seen: {
       type: pfDatetime,
-      format: 'YYYY-MM-DD HH:mm:ss',
+      datetimeFormat: 'YYYY-MM-DD HH:mm:ss',
       default: '0000-00-00 00:00:00'
     }
   },
@@ -281,12 +279,12 @@ export const pfDatabaseSchema = {
     },
     valid_from: {
       type: pfDatetime,
-      format: 'YYYY-MM-DD HH:mm:ss',
+      datetimeFormat: 'YYYY-MM-DD HH:mm:ss',
       default: '0000-00-00 00:00:00'
     },
     expiration: {
       type: pfDatetime,
-      format: 'YYYY-MM-DD HH:mm:ss',
+      datetimeFormat: 'YYYY-MM-DD HH:mm:ss',
       default: ''
     },
     access_duration: {
@@ -314,7 +312,7 @@ export const pfDatabaseSchema = {
     ),
     unregdate: {
       type: pfDatetime,
-      format: 'YYYY-MM-DD HH:mm:ss',
+      datetimeFormat: 'YYYY-MM-DD HH:mm:ss',
       default: '0000-00-00 00:00:00'
     },
     login_remaining: Object.assign(

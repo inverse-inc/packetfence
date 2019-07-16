@@ -18,6 +18,7 @@ import {
   not,
   or,
   conditional,
+  isMacAddress,
   isPort,
   limitSiblingFields,
   restrictAllSiblingFields,
@@ -26,14 +27,14 @@ import {
 } from '@/globals/pfValidators'
 
 const {
-  required,
-  macAddress
+  required
 } = require('vuelidate/lib/validators')
 
 export const pfConfigurationSwitchesListColumns = [
   {
     key: 'id',
     label: i18n.t('Identifier'),
+    required: true,
     sortable: true,
     visible: true
   },
@@ -67,8 +68,6 @@ export const pfConfigurationSwitchesListColumns = [
   {
     key: 'buttons',
     label: '',
-    sortable: false,
-    visible: true,
     locked: true
   }
 ]
@@ -181,9 +180,9 @@ export const pfConfigurationSwitchActions = {
       },
       value: {
         [i18n.t('Value required.')]: required,
-        [i18n.t('Invalid MAC Address.')]: macAddress,
+        [i18n.t('Invalid MAC address.')]: isMacAddress,
         /* Don't allow duplicates */
-        [i18n.t('Duplicate MAC Address.')]: limitSiblingFields(['type', 'value'])
+        [i18n.t('Duplicate MAC address.')]: limitSiblingFields(['type', 'value'])
       }
     }
   },

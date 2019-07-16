@@ -91,12 +91,12 @@
           />
           <pf-form-datetime :column-label="$t('Anniversary')"
             v-model="userContent.anniversary"
-            :config="{format: 'YYYY-MM-DD'}"
+            :config="{datetimeFormat: 'YYYY-MM-DD'}"
             :vuelidate="$v.userContent.anniversary"
           />
           <pf-form-datetime :column-label="$t('Birthday')"
             v-model="userContent.birthday"
-            :config="{format: 'YYYY-MM-DD'}"
+            :config="{datetimeFormat: 'YYYY-MM-DD'}"
             :vuelidate="$v.userContent.birthday"
           />
           <pf-form-input :column-label="$t('Psk')"
@@ -131,14 +131,14 @@
             <b-row>
               <b-col>
                 <pf-form-datetime v-model="userContent.valid_from"
-                  :config="{format: 'YYYY-MM-DD'}"
+                  :config="{datetimeFormat: 'YYYY-MM-DD'}"
                   :vuelidate="$v.userContent.valid_from"
                 />
               </b-col>
               <p class="pt-2"><icon name="long-arrow-alt-right"></icon></p>
               <b-col>
                 <pf-form-datetime v-model="userContent.expiration"
-                  :config="{format: 'YYYY-MM-DD'}"
+                  :config="{datetimeFormat: 'YYYY-MM-DD'}"
                   :vuelidate="$v.userContent.expiration"
                 />
               </b-col>
@@ -235,7 +235,7 @@
       </b-tabs>
       <b-card-footer @mouseenter="$v.$touch()">
         <pf-button-save class="mr-1" v-if="ifTab(['Profile', 'Actions', 'Custom Fields'])" :disabled="invalidForm" :isLoading="isLoading">
-          <template v-if="ctrlKey">{{ $t('Save & Close') }}</template>
+          <template v-if="actionKey">{{ $t('Save & Close') }}</template>
           <template v-else>{{ $t('Save') }}</template>
         </pf-button-save>
         <pf-button-delete class="mr-3" v-if="ifTab(['Profile', 'Custom Fields']) && !isDefaultUser" :disabled="isLoading" :confirm="$t('Delete User?')" @on-delete="deleteUser()"/>
@@ -260,7 +260,6 @@ import pfFormInput from '@/components/pfFormInput'
 import pfFormPassword from '@/components/pfFormPassword'
 import pfFormTextarea from '@/components/pfFormTextarea'
 import pfFormToggle from '@/components/pfFormToggle'
-import pfMixinCtrlKey from '@/components/pfMixinCtrlKey'
 import { pfConfigurationActions } from '@/globals/configuration/pfConfiguration'
 import { pfFormatters as formatter } from '@/globals/pfFormatters'
 import {
@@ -281,7 +280,7 @@ import {
 const { validationMixin } = require('vuelidate')
 
 export default {
-  name: 'UserView',
+  name: 'user-view',
   components: {
     pfButtonSave,
     pfButtonDelete,
@@ -296,7 +295,6 @@ export default {
     pfFormToggle
   },
   mixins: [
-    pfMixinCtrlKey,
     validationMixin
   ],
   props: {
@@ -334,8 +332,7 @@ export default {
         {
           key: 'tenant_id',
           label: this.$i18n.t('Tenant'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'status',
@@ -346,12 +343,12 @@ export default {
         {
           key: 'online',
           label: this.$i18n.t('Online/Offline'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'mac',
           label: this.$i18n.t('MAC Address'),
+          required: true,
           sortable: true,
           visible: true
         },
@@ -359,7 +356,6 @@ export default {
           key: 'detect_date',
           label: this.$i18n.t('Detected Date'),
           sortable: true,
-          visible: false,
           formatter: formatter.datetimeIgnoreZero,
           class: 'text-nowrap'
         },
@@ -388,14 +384,12 @@ export default {
         {
           key: 'ip4log.ip',
           label: this.$i18n.t('IPv4 Address'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'ip6log.ip',
           label: this.$i18n.t('IPv6 Address'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'device_class',
@@ -406,124 +400,104 @@ export default {
         {
           key: 'device_manufacturer',
           label: this.$i18n.t('Device Manufacturer'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'device_score',
           label: this.$i18n.t('Device Score'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'device_type',
           label: this.$i18n.t('Device Type'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'device_version',
           label: this.$i18n.t('Device Version'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'dhcp6_enterprise',
           label: this.$i18n.t('DHCPv6 Enterprise'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'dhcp6_fingerprint',
           label: this.$i18n.t('DHCPv6 Fingerprint'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'dhcp_fingerprint',
           label: this.$i18n.t('DHCP Fingerprint'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'category_id',
           label: this.$i18n.t('Role'),
           sortable: true,
-          visible: false,
           formatter: formatter.categoryId
         },
         {
           key: 'locationlog.connection_type',
           label: this.$i18n.t('Connection Type'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'locationlog.session_id',
           label: this.$i18n.t('Session ID'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'locationlog.switch',
           label: this.$i18n.t('Switch Identifier'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'locationlog.switch_ip',
           label: this.$i18n.t('Switch IP Address'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'locationlog.switch_mac',
           label: this.$i18n.t('Switch MAC Address'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'locationlog.ssid',
           label: this.$i18n.t('SSID'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'locationlog.vlan',
           label: this.$i18n.t('VLAN'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'bypass_vlan',
           label: this.$i18n.t('Bypass VLAN'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'bypass_role_id',
           label: this.$i18n.t('Bypass Role'),
           sortable: true,
-          visible: false,
           formatter: formatter.bypassRoleId
         },
         {
           key: 'notes',
           label: this.$i18n.t('Notes'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'voip',
           label: this.$i18n.t('VoIP'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'last_arp',
           label: this.$i18n.t('Last ARP'),
           sortable: true,
-          visible: false,
           formatter: formatter.datetimeIgnoreZero,
           class: 'text-nowrap'
         },
@@ -531,45 +505,38 @@ export default {
           key: 'last_dhcp',
           label: this.$i18n.t('Last DHCP'),
           sortable: true,
-          visible: false,
           formatter: formatter.datetimeIgnoreZero,
           class: 'text-nowrap'
         },
         {
           key: 'machine_account',
           label: this.$i18n.t('Machine Account'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'autoreg',
           label: this.$i18n.t('Auto Registration'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'bandwidth_balance',
           label: this.$i18n.t('Bandwidth Balance'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'time_balance',
           label: this.$i18n.t('Time Balance'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'user_agent',
           label: this.$i18n.t('User Agent'),
-          sortable: true,
-          visible: false
+          sortable: true
         },
         {
           key: 'security_event.open_security_event_id',
           label: this.$i18n.t('Security Event Open'),
           sortable: true,
-          visible: false,
           class: 'text-nowrap',
           formatter: formatter.securityEventIdsToDescCsv
         },
@@ -578,7 +545,6 @@ export default {
           key: 'security_event.open_count',
           label: this.$i18n.t('Security Event Open Count'),
           sortable: true,
-          visible: false,
           class: 'text-nowrap'
         },
         */
@@ -586,7 +552,6 @@ export default {
           key: 'security_event.close_security_event_id',
           label: this.$i18n.t('Security Event Closed'),
           sortable: true,
-          visible: false,
           class: 'text-nowrap',
           formatter: formatter.securityEventIdsToDescCsv
         }
@@ -595,7 +560,6 @@ export default {
           key: 'security_event.close_count',
           label: this.$i18n.t('Security Event Closed Count'),
           sortable: true,
-          visible: false,
           class: 'text-nowrap'
         }
         */
@@ -611,6 +575,7 @@ export default {
         {
           key: 'security_event_id',
           label: this.$i18n.t('Event'),
+          required: true,
           sortable: true,
           formatter: formatter.securityEventIdToDesc
         },
@@ -639,7 +604,6 @@ export default {
         {
           key: 'buttons',
           label: '',
-          sortable: false,
           locked: true
         }
       ],
@@ -695,6 +659,12 @@ export default {
     },
     visibleNodeFields () {
       return this.nodeFields.filter(field => field.visible || field.locked)
+    },
+    actionKey () {
+      return this.$store.getters['events/actionKey']
+    },
+    escapeKey () {
+      return this.$store.getters['events/escapeKey']
     }
   },
   methods: {
@@ -710,18 +680,18 @@ export default {
       })
     },
     close () {
-      this.$router.push({ name: 'users' })
+      this.$router.back()
     },
     refresh () {
       this.$store.dispatch('$_users/refreshUser', this.pid)
     },
     save () {
-      const ctrlKey = this.ctrlKey
+      const actionKey = this.actionKey
       this.$store.dispatch('$_users/updateUser', this.userContent).then(response => {
         if (this.hasPassword) {
           this.$store.dispatch('$_users/updatePassword', Object.assign({ quiet: true }, this.userContent))
         }
-        if (ctrlKey) { // [CTRL] key pressed
+        if (actionKey) { // [CTRL] key pressed
           this.close()
         }
       })
@@ -755,12 +725,6 @@ export default {
       }
       this.$store.dispatch('$_users/updatePassword', data)
     },
-    onKeyup (event) {
-      switch (event.keyCode) {
-        case 27: // escape
-          this.close()
-      }
-    },
     toggleDeviceColumn (column) {
       const index = this.nodeFields.findIndex(field => field.key === column.key)
       this.$set(this.nodeFields[index], 'visible', !this.nodeFields[index].visible)
@@ -768,10 +732,11 @@ export default {
   },
   mounted () {
     this.init()
-    document.addEventListener('keyup', this.onKeyup)
   },
-  beforeDestroy () {
-    document.removeEventListener('keyup', this.onKeyup)
+  watch: {
+    escapeKey (pressed) {
+      if (pressed) this.close()
+    }
   }
 }
 </script>

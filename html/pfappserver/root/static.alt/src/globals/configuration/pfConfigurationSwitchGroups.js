@@ -17,6 +17,7 @@ import {
   not,
   or,
   conditional,
+  isMacAddress,
   isPort,
   limitSiblingFields,
   restrictAllSiblingFields,
@@ -27,7 +28,6 @@ import SwitchGroupViewMembers from '../../views/Configuration/_components/Switch
 
 const {
   required,
-  macAddress,
   maxLength
 } = require('vuelidate/lib/validators')
 
@@ -35,6 +35,7 @@ export const pfConfigurationSwitchGroupsListColumns = [
   {
     key: 'id',
     label: i18n.t('Identifier'),
+    required: true,
     sortable: true,
     visible: true
   },
@@ -59,8 +60,6 @@ export const pfConfigurationSwitchGroupsListColumns = [
   {
     key: 'buttons',
     label: '',
-    sortable: false,
-    visible: true,
     locked: true
   }
 ]
@@ -172,9 +171,9 @@ export const pfConfigurationSwitchGroupActions = {
       },
       value: {
         [i18n.t('Value required.')]: required,
-        [i18n.t('Invalid MAC Address.')]: macAddress,
+        [i18n.t('Invalid MAC address.')]: isMacAddress,
         /* Don't allow duplicates */
-        [i18n.t('Duplicate MAC Address.')]: limitSiblingFields(['type', 'value'])
+        [i18n.t('Duplicate MAC address.')]: limitSiblingFields(['type', 'value'])
       }
     }
   },

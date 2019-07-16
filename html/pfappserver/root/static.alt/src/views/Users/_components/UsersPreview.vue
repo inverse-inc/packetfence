@@ -37,13 +37,9 @@
 <script>
 import pfFormInput from '@/components/pfFormInput'
 import pfFormRow from '@/components/pfFormRow'
-import pfMixinEscapeKey from '@/components/pfMixinEscapeKey'
 
 export default {
-  name: 'UsersPreview',
-  mixins: [
-    pfMixinEscapeKey
-  ],
+  name: 'users-preview',
   components: {
     pfFormInput,
     pfFormRow
@@ -73,6 +69,9 @@ export default {
     },
     canSend () {
       return this.users.find(user => user.email)
+    },
+    escapeKey () {
+      return this.$store.getters['events/escapeKey']
     }
   },
   methods: {
@@ -125,6 +124,11 @@ export default {
         this.usersTemplates.push({ pid: user.pid, email: user.email, html: response.body })
       })
     })
+  },
+  watch: {
+    escapeKey (pressed) {
+      if (pressed) this.close()
+    }
   }
 }
 </script>

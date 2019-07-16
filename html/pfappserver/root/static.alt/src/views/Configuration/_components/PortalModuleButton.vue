@@ -86,9 +86,6 @@ export default {
 </script>
 
 <style lang="scss">
-@import "../../../../node_modules/bootstrap/scss/functions";
-@import "../../../styles/variables";
-
 .portal-module {
   position: relative;
   flex: 0 0 $portal-module-width;

@@ -567,9 +567,12 @@ const getters = {
   },
   rolesList: state => {
     if (!state.roles) return []
-    return state.roles.map((item) => {
-      return { value: item.category_id, name: item.name, text: ((item.notes) ? `${item.name} - ${item.notes}` : `${item.name}`) }
-    })
+    return [
+      ...[{ value: null, name: i18n.t('empty - None'), text: i18n.t('empty - None') }],
+      ...state.roles.map((item) => {
+        return { value: item.category_id, name: item.name, text: ((item.notes) ? `${item.name} - ${item.notes}` : `${item.name}`) }
+      })
+    ]
   },
   sourcesList: state => {
     if (!state.sources) return []
@@ -643,7 +646,7 @@ const actions = {
   },
   getAdminRoles: ({ state, getters, commit }) => {
     if (getters.isLoadingAdminRoles) {
-      return
+      return Promise.resolve(state.adminRoles)
     }
     if (!state.adminRoles) {
       commit('ADMIN_ROLES_REQUEST')
@@ -657,7 +660,7 @@ const actions = {
   },
   getBaseActiveActive: ({ state, getters, commit }) => {
     if (getters.isLoadingBaseActiveActive) {
-      return
+      return Promise.resolve(state.baseActiveActive)
     }
     if (!state.baseActiveActive) {
       commit('BASE_ACTIVE_ACTIVE_REQUEST')
@@ -671,7 +674,7 @@ const actions = {
   },
   getBaseAdvanced: ({ state, getters, commit }) => {
     if (getters.isLoadingBaseAdvanced) {
-      return
+      return Promise.resolve(state.baseAdvanced)
     }
     if (!state.baseAdvanced) {
       commit('BASE_ADVANCED_REQUEST')
@@ -685,7 +688,7 @@ const actions = {
   },
   getBaseAlerting: ({ state, getters, commit }) => {
     if (getters.isLoadingBaseAlerting) {
-      return
+      return Promise.resolve(state.baseAlerting)
     }
     if (!state.baseAlerting) {
       commit('BASE_ALERTING_REQUEST')
@@ -699,7 +702,7 @@ const actions = {
   },
   getBaseCaptivePortal: ({ state, getters, commit }) => {
     if (getters.isLoadingBaseCaptivePortal) {
-      return
+      return Promise.resolve(state.baseCaptivePortal)
     }
     if (!state.baseCaptivePortal) {
       commit('BASE_CAPTIVE_PORTAL_REQUEST')
@@ -713,7 +716,7 @@ const actions = {
   },
   getBaseDatabase: ({ state, getters, commit }) => {
     if (getters.isLoadingBaseDatabase) {
-      return
+      return Promise.resolve(state.baseDatabase)
     }
     if (!state.baseDatabase) {
       commit('BASE_DATABASE_REQUEST')
@@ -727,7 +730,7 @@ const actions = {
   },
   getBaseDatabaseAdvanced: ({ state, getters, commit }) => {
     if (getters.isLoadingBaseDatabaseAdvanced) {
-      return
+      return Promise.resolve(state.baseDatabaseAdvanced)
     }
     if (!state.baseDatabaseAdvanced) {
       commit('BASE_DATABASE_ADVANCED_REQUEST')
@@ -741,7 +744,7 @@ const actions = {
   },
   getBaseDatabaseEncryption: ({ state, getters, commit }) => {
     if (getters.isLoadingBaseDatabaseEncryption) {
-      return
+      return Promise.resolve(state.baseDatabaseEncryption)
     }
     if (!state.baseDatabaseEncryption) {
       commit('BASE_DATABASE_ENCRYPTION_REQUEST')
@@ -755,7 +758,7 @@ const actions = {
   },
   getBaseFencing: ({ state, getters, commit }) => {
     if (getters.isLoadingBaseFencing) {
-      return
+      return Promise.resolve(state.baseFencing)
     }
     if (!state.baseFencing) {
       commit('BASE_FENCING_REQUEST')
@@ -769,7 +772,7 @@ const actions = {
   },
   getBaseFingerbankDeviceChange: ({ state, getters, commit }) => {
     if (getters.isLoadingBaseFingerbankDeviceChange) {
-      return
+      return Promise.resolve(state.baseFingerbankDeviceChange)
     }
     if (!state.baseFingerbankDeviceChange) {
       commit('BASE_FINGERBANK_DEVICE_CHANGE_REQUEST')
@@ -783,7 +786,7 @@ const actions = {
   },
   getBaseGeneral: ({ state, getters, commit }) => {
     if (getters.isLoadingBaseGeneral) {
-      return
+      return Promise.resolve(state.baseGeneral)
     }
     if (!state.baseGeneral) {
       commit('BASE_GENERAL_REQUEST')
@@ -797,7 +800,7 @@ const actions = {
   },
   getBaseGuestsAdminRegistration: ({ state, getters, commit }) => {
     if (getters.isLoadingBaseGuestsAdminRegistration) {
-      return
+      return Promise.resolve(state.baseGuestsAdminRegistration)
     }
     if (!state.baseGuestsAdminRegistration) {
       commit('BASE_GUESTS_ADMIN_REGISTRATION_REQUEST')
@@ -811,7 +814,7 @@ const actions = {
   },
   getBaseInline: ({ state, getters, commit }) => {
     if (getters.isLoadingBaseInline) {
-      return
+      return Promise.resolve(state.baseInline)
     }
     if (!state.baseInline) {
       commit('BASE_INLINE_REQUEST')
@@ -825,7 +828,7 @@ const actions = {
   },
   getBaseMseTab: ({ state, getters, commit }) => {
     if (getters.isLoadingBaseMseTab) {
-      return
+      return Promise.resolve(state.baseMseTab)
     }
     if (!state.baseMseTab) {
       commit('BASE_MSE_TAB_REQUEST')
@@ -839,7 +842,7 @@ const actions = {
   },
   getBaseNetwork: ({ state, getters, commit }) => {
     if (getters.isLoadingBaseNetwork) {
-      return
+      return Promise.resolve(state.baseNetwork)
     }
     if (!state.baseNetwork) {
       commit('BASE_NETWORK_REQUEST')
@@ -853,7 +856,7 @@ const actions = {
   },
   getBaseNodeImport: ({ state, getters, commit }) => {
     if (getters.isLoadingBaseNodeImport) {
-      return
+      return Promise.resolve(state.baseNodeImport)
     }
     if (!state.baseNodeImport) {
       commit('BASE_NODE_IMPORT_REQUEST')
@@ -867,7 +870,7 @@ const actions = {
   },
   getBaseParking: ({ state, getters, commit }) => {
     if (getters.isLoadingBaseParking) {
-      return
+      return Promise.resolve(state.baseParking)
     }
     if (!state.baseParking) {
       commit('BASE_PARKING_REQUEST')
@@ -881,7 +884,7 @@ const actions = {
   },
   getBasePFDHCP: ({ state, getters, commit }) => {
     if (getters.isLoadingBasePFDHCP) {
-      return
+      return Promise.resolve(state.basePFDHCP)
     }
     if (!state.basePFDHCP) {
       commit('BASE_PFDHCP_REQUEST')
@@ -895,7 +898,7 @@ const actions = {
   },
   getBasePorts: ({ state, getters, commit }) => {
     if (getters.isLoadingBasePorts) {
-      return
+      return Promise.resolve(state.basePorts)
     }
     if (!state.basePorts) {
       commit('BASE_PORTS_REQUEST')
@@ -909,7 +912,7 @@ const actions = {
   },
   getBaseProvisioning: ({ state, getters, commit }) => {
     if (getters.isLoadingBaseProvisioning) {
-      return
+      return Promise.resolve(state.baseProvisioning)
     }
     if (!state.baseProvisioning) {
       commit('BASE_PROVISIONING_REQUEST')
@@ -923,7 +926,7 @@ const actions = {
   },
   getBaseRadiusConfiguration: ({ state, getters, commit }) => {
     if (getters.isLoadingBaseRadiusConfiguration) {
-      return
+      return Promise.resolve(state.baseRadiusConfiguration)
     }
     if (!state.baseRadiusConfiguration) {
       commit('BASE_RADIUS_CONFIGURATION_REQUEST')
@@ -937,7 +940,7 @@ const actions = {
   },
   getBaseServices: ({ state, getters, commit }) => {
     if (getters.isLoadingBaseServices) {
-      return
+      return Promise.resolve(state.baseServices)
     }
     if (!state.baseServices) {
       commit('BASE_SERVICES_REQUEST')
@@ -951,7 +954,7 @@ const actions = {
   },
   getBaseSNMPTraps: ({ state, getters, commit }) => {
     if (getters.isLoadingBaseSNMPTraps) {
-      return
+      return Promise.resolve(state.baseSNMPTraps)
     }
     if (!state.baseSNMPTraps) {
       commit('BASE_SNMP_TRAPS_REQUEST')
@@ -965,7 +968,7 @@ const actions = {
   },
   getBaseWebServices: ({ state, getters, commit }) => {
     if (getters.isLoadingBaseWebServices) {
-      return
+      return Promise.resolve(state.baseWebServices)
     }
     if (!state.baseWebServices) {
       commit('BASE_WEB_SERVICES_REQUEST')
@@ -979,7 +982,7 @@ const actions = {
   },
   getBillingTiers: ({ state, getters, commit }) => {
     if (getters.isLoadingBillingTiers) {
-      return
+      return Promise.resolve(state.billingTiers)
     }
     if (!state.billingTiers) {
       commit('BILLING_TIERS_REQUEST')
@@ -993,7 +996,7 @@ const actions = {
   },
   getConnectionProfiles: ({ state, getters, commit }) => {
     if (getters.isLoadingConnectionProfiles) {
-      return
+      return Promise.resolve(state.connectionProfiles)
     }
     if (!state.connectionProfiles) {
       commit('CONNECTION_PROFILES_REQUEST')
@@ -1007,7 +1010,7 @@ const actions = {
   },
   getDeviceRegistrations: ({ state, getters, commit }) => {
     if (getters.isLoadingDeviceRegistrations) {
-      return
+      return Promise.resolve(state.deviceRegistrations)
     }
     if (!state.deviceRegistrations) {
       commit('DEVICE_REGISTRATIONS_REQUEST')
@@ -1021,7 +1024,7 @@ const actions = {
   },
   getDomains: ({ state, getters, commit }) => {
     if (getters.isLoadingDomains) {
-      return
+      return Promise.resolve(state.domains)
     }
     if (!state.domains) {
       commit('DOMAINS_REQUEST')
@@ -1035,7 +1038,7 @@ const actions = {
   },
   getFirewalls: ({ state, getters, commit }) => {
     if (getters.isLoadingFirewalls) {
-      return
+      return Promise.resolve(state.firewalls)
     }
     if (!state.firewalls) {
       commit('FIREWALLS_REQUEST')
@@ -1049,7 +1052,7 @@ const actions = {
   },
   getFloatingDevices: ({ state, getters, commit }) => {
     if (getters.isLoadingFloatingDevices) {
-      return
+      return Promise.resolve(state.floatingDevices)
     }
     if (!state.floatingDevices) {
       commit('FLOATING_DEVICES_REQUEST')
@@ -1063,7 +1066,7 @@ const actions = {
   },
   getInterfaces: ({ state, getters, commit }) => {
     if (getters.isLoadingInterfaces) {
-      return
+      return Promise.resolve(state.interfaces)
     }
     if (!state.interfaces) {
       commit('INTERFACES_REQUEST')
@@ -1077,7 +1080,7 @@ const actions = {
   },
   getLayer2Networks: ({ state, getters, commit }) => {
     if (getters.isLoadingLayer2Networks) {
-      return
+      return Promise.resolve(state.layer2Networks)
     }
     if (!state.layer2Networks) {
       commit('LAYER2_NETWORKS_REQUEST')
@@ -1091,7 +1094,7 @@ const actions = {
   },
   getMaintenanceTasks: ({ state, getters, commit }) => {
     if (getters.isLoadingMaintenanceTasks) {
-      return
+      return Promise.resolve(state.maintenanceTasks)
     }
     if (!state.maintenanceTasks) {
       commit('MAINTENANCE_TASKS_REQUEST')
@@ -1105,7 +1108,7 @@ const actions = {
   },
   getPkiProviders: ({ state, getters, commit }) => {
     if (getters.isLoadingPkiProviders) {
-      return
+      return Promise.resolve(state.pkiProviders)
     }
     if (!state.pkiProviders) {
       commit('PKI_PROVIDERS_REQUEST')
@@ -1119,9 +1122,9 @@ const actions = {
   },
   getPortalModules: ({ state, getters, commit }) => {
     if (getters.isLoadingPortalModules) {
-      return
+      return Promise.resolve(state.portalModules)
     }
-    if (!state.portalModles) {
+    if (!state.portalModules) {
       commit('PORTAL_MODULES_REQUEST')
       return api.getPortalModules().then(response => {
         commit('PORTAL_MODULES_UPDATED', response.data.items)
@@ -1133,7 +1136,7 @@ const actions = {
   },
   getProvisionings: ({ state, getters, commit }) => {
     if (getters.isLoadingProvisionings) {
-      return
+      return Promise.resolve(state.provisionings)
     }
     if (!state.provisionings) {
       commit('PROVISIONINGS_REQUEST')
@@ -1147,7 +1150,7 @@ const actions = {
   },
   getRealms: ({ state, getters, commit }) => {
     if (getters.isLoadingRealms) {
-      return
+      return Promise.resolve(state.realms)
     }
     if (!state.realms) {
       commit('REALMS_REQUEST')
@@ -1161,7 +1164,7 @@ const actions = {
   },
   getRoles: ({ state, getters, commit }) => {
     if (getters.isLoadingRoles) {
-      return
+      return Promise.resolve(state.roles)
     }
     if (!state.roles) {
       commit('ROLES_REQUEST')
@@ -1175,7 +1178,7 @@ const actions = {
   },
   getRoutedNetworks: ({ state, getters, commit }) => {
     if (getters.isLoadingRoutedNetworks) {
-      return
+      return Promise.resolve(state.routedNetworks)
     }
     if (!state.routedNetworks) {
       commit('ROUTED_NETWORKS_REQUEST')
@@ -1189,7 +1192,7 @@ const actions = {
   },
   getScans: ({ state, getters, commit }) => {
     if (getters.isLoadingScans) {
-      return
+      return Promise.resolve(state.scans)
     }
     if (!state.scans) {
       commit('SCANS_REQUEST')
@@ -1203,7 +1206,7 @@ const actions = {
   },
   getSecurityEvents: ({ commit, getters, state }) => {
     if (getters.isLoadingSecurityEvents) {
-      return
+      return Promise.resolve(state.securityEvents)
     }
     if (!state.securityEvents) {
       commit('SECURITY_EVENTS_REQUEST')
@@ -1217,7 +1220,7 @@ const actions = {
   },
   getSources: ({ state, getters, commit }) => {
     if (getters.isLoadingSources) {
-      return
+      return Promise.resolve(state.sources)
     }
     if (!state.sources) {
       commit('SOURCES_REQUEST')
@@ -1231,7 +1234,7 @@ const actions = {
   },
   getSsids: ({ state, getters, commit }) => {
     if (getters.isLoadingSsids) {
-      return
+      return Promise.resolve(state.ssids)
     }
     if (!state.ssids) {
       commit('SSIDS_REQUEST')
@@ -1245,7 +1248,7 @@ const actions = {
   },
   getSwitches: ({ state, getters, commit }) => {
     if (getters.isLoadingSwitches) {
-      return
+      return Promise.resolve(state.switches)
     }
     if (!state.switches) {
       commit('SWICTHES_REQUEST')
@@ -1263,7 +1266,7 @@ const actions = {
   },
   getSwitchGroups: ({ state, getters, commit }) => {
     if (getters.isLoadingSwitchGroups) {
-      return
+      return Promise.resolve(state.switchGroups)
     }
     if (!state.switchGroups) {
       commit('SWICTH_GROUPS_REQUEST')
@@ -1277,7 +1280,7 @@ const actions = {
   },
   getSyslogForwarders: ({ state, getters, commit }) => {
     if (getters.isLoadingSyslogForwarders) {
-      return
+      return Promise.resolve(state.syslogForwarders)
     }
     if (!state.syslogForwarders) {
       commit('SYSLOG_FORWARDERS_REQUEST')
@@ -1291,7 +1294,7 @@ const actions = {
   },
   getSyslogParsers: ({ state, getters, commit }) => {
     if (getters.isLoadingSyslogParsers) {
-      return
+      return Promise.resolve(state.syslogParsers)
     }
     if (!state.syslogParsers) {
       commit('SYSLOG_PARSERS_REQUEST')
@@ -1305,7 +1308,7 @@ const actions = {
   },
   getTenants: ({ state, getters, commit }) => {
     if (getters.isLoadingTenants) {
-      return
+      return Promise.resolve(state.tenants)
     }
     if (!state.tenants) {
       commit('TENANTS_REQUEST')
@@ -1319,7 +1322,7 @@ const actions = {
   },
   getTrafficShapingPolicies: ({ state, getters, commit }) => {
     if (getters.isLoadingTrafficShapingPolicies) {
-      return
+      return Promise.resolve(state.trafficShapingPolicies)
     }
     if (!state.trafficShapingPolicies) {
       commit('TRAFFIC_SHAPING_POLICIES_REQUEST')
@@ -1333,7 +1336,7 @@ const actions = {
   },
   getWmiRules: ({ commit, getters, state }) => {
     if (getters.isLoadingWmiRules) {
-      return
+      return Promise.resolve(state.wmiRules)
     }
     if (!state.wmiRules) {
       commit('WMI_RULES_REQUEST')
@@ -1347,7 +1350,7 @@ const actions = {
   },
   getWrixLocations: ({ commit, getters, state }) => {
     if (getters.isLoadingWrixLocations) {
-      return
+      return Promise.resolve(state.wrixLocations)
     }
     if (!state.wrixLocations) {
       commit('WRIX_LOCATIONS_REQUEST')
@@ -1609,8 +1612,8 @@ const mutations = {
   PORTAL_MODULES_REQUEST: (state) => {
     state.portalModulesStatus = types.LOADING
   },
-  PORTAL_MODULES_UPDATED: (state, portalModles) => {
-    state.portalModles = portalModles
+  PORTAL_MODULES_UPDATED: (state, portalModules) => {
+    state.portalModules = portalModules
     state.portalModulesStatus = types.SUCCESS
   },
   PROVISIONINGS_REQUEST: (state) => {

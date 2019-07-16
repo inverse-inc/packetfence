@@ -37,7 +37,7 @@ import {
 const { validationMixin } = require('vuelidate')
 
 export default {
-  name: 'FencingView',
+  name: 'fencing-view',
   mixins: [
     validationMixin
   ],

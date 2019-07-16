@@ -58,6 +58,7 @@
           <template slot="header" is="b-card-header"><h5 class="m-0" v-text="forms[category].title"></h5></template>
           <template slot="footer" is="b-card-footer" class="text-right" @mouseenter="$v.triggerCopy[category].$touch()">
             <pf-button size="sm" variant="outline-secondary" class="mr-1" @click="resetCategory(category)">{{ $t('Cancel') }}</pf-button>
+            <pf-button size="sm" variant="danger" class="mr-1" v-if="forms[category].deletable" @click="removeCategory(category)">{{ $t('Delete') }}</pf-button>
             <pf-button-save size="sm" :disabled="invalidForm(category)" @click="updateCategory(category)">{{ $t('OK') }}</pf-button-save>
           </template>
         </pf-config-view>
@@ -110,6 +111,7 @@ const categoryOptions = {
     accounting: i18n.t('Accounting')
   },
   event: {
+    custom: i18n.t('Custom'),
     detect: i18n.t('Detect'),
     internal: i18n.t('Internal'),
     nessus: 'Nessus',
@@ -432,9 +434,10 @@ export default {
         usage: {
           description: () => {
             const { direction, limit, interval } = this.trigger.usage
-            return direction ? `${bytes.toHuman(limit, 0, true)} ${directionOptions[direction]}/${intervalOptions[interval]}` : this.$i18n.t('Any data usage')
+            return direction ? `${bytes.toHuman(limit, 0, true)}B ${directionOptions[direction]}/${intervalOptions[interval]}` : this.$i18n.t('Any data usage')
           },
           title: this.$i18n.t('Usage'),
+          deletable: true,
           fields: [
             {
               tab: null, // ignore tabs
@@ -493,6 +496,7 @@ export default {
             return type ? `${categoryOptions.event[type]}: ${value}` : this.$i18n.t('Any event')
           },
           title: this.$i18n.t('Event'),
+          deletable: true,
           fields: [
             {
               tab: null, // ignore tabs
@@ -506,6 +510,16 @@ export default {
                         typeLabel: this.$i18n.t('Select trigger type'),
                         valueLabel: this.$i18n.t('Select trigger value'),
                         fields: [
+                          {
+                            value: 'custom',
+                            text: categoryOptions.event.custom,
+                            types: [fieldType.SUBSTRING],
+                            validators: {
+                              value: {
+                                [this.$i18n.t('Value required.')]: required
+                              }
+                            }
+                          },
                           {
                             value: 'detect',
                             text: categoryOptions.event.detect,
@@ -608,6 +622,9 @@ export default {
           ]
         }
       }
+    },
+    mouseDown () {
+      return this.$store.getters['events/mouseDown']
     }
   },
   watch: {
@@ -640,6 +657,9 @@ export default {
           }
         })
       }
+    },
+    mouseDown (pressed) {
+      if (pressed) this.onBodyClick(this.$store.state.events.mouseEvent)
     }
   },
   methods: {
@@ -718,16 +738,24 @@ export default {
     },
     updateCategory (category) {
       this.popover[category] = false
-      Object.assign(this.trigger[category], JSON.parse(JSON.stringify(this.triggerCopy[category])))
+      this.trigger[category] = JSON.parse(JSON.stringify(this.triggerCopy[category]))
       if (category === 'usage') {
-        this.trigger[category].typeValue.value =
-          this.trigger[category].direction +
-          bytes.toHuman(this.trigger[category].limit, 0, true).replace(/ /, '').toUpperCase() + 'B' +
-          this.trigger[category].interval
+        Object.assign(this.trigger[category], {
+          typeValue: {
+            type: 'accounting',
+            value: this.trigger[category].direction +
+              bytes.toHuman(this.trigger[category].limit, 0, true).replace(/ /, '').toUpperCase() + 'B' +
+              this.trigger[category].interval
+          }
+        })
       }
       let { conditions, typeValue } = this.trigger[category]
       if (typeValue) {
         conditions = [typeValue]
+      }
+      // Assign new values to model
+      if (this.value) {
+        Object.keys(categoryOptions[category]).forEach(field => delete this.value[field])
       }
       conditions.forEach(condition => {
         let { type: field, value } = condition
@@ -761,6 +789,10 @@ export default {
       this.popover[category] = false
       this.triggerCopy[category] = JSON.parse(JSON.stringify(this.trigger[category]))
     },
+    removeCategory (category) {
+      this.popover[category] = false
+      this.trigger[category] = {}
+    },
     onBodyClick ($event) {
       if (Object.values(this.popover).includes(true)) {
         // At least one popover is opened
@@ -791,20 +823,11 @@ export default {
   },
   created () {
     this.init()
-  },
-  mounted () {
-    document.body.addEventListener('click', this.onBodyClick)
-  },
-  beforeDestroy () {
-    document.body.removeEventListener('click', this.onBodyClick)
   }
 }
 </script>
 
 <style lang="scss">
-@import "../../node_modules/bootstrap/scss/functions";
-@import "../styles/variables";
-
 /**
  * Position the "or" badge bellow each trigger except the last one
  */

@@ -50,7 +50,7 @@ import {
 } from '@/globals/configuration/pfConfigurationFingerbank'
 
 export default {
-  name: 'FingerbankUserAgentsList',
+  name: 'fingerbank-user-agents-list',
   components: {
     pfButtonDelete,
     pfConfigList,

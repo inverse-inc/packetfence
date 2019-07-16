@@ -18,6 +18,10 @@
     line-height: $font-size-base / $font-size-lg * $line-height-base;
 }
 
+.form-control {
+    transition: $custom-forms-transition;
+}
+
 .form-text {
     white-space: pre-line; /* allow \n to break */
 }

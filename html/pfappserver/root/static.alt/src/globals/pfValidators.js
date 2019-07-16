@@ -208,6 +208,11 @@ export const isHex = (value) => {
   return /^[0-9a-f]+$/i.test(value)
 }
 
+export const isMacAddress = (value) => {
+  if (!value) return true
+  return value.toLowerCase().replace(/[^0-9a-f]/g, '').length === 12
+}
+
 export const isOUI = (separator = ':') => {
   return (0, _common.withParams)({
     type: 'isOUI',
@@ -248,6 +253,16 @@ export const isPrice = (value) => {
 export const isVLAN = (value) => {
   if (!value) return true
   return ~~value === parseFloat(value) && ~~value >= 1 && ~~value <= 4096
+}
+
+export const emailsCsv = (value) => {
+  if (!value) return true
+  const emailRegex = /(^$|^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$)/
+  const emails = value.split(',')
+  for (var i = 0; i < emails.length; i++) {
+    if (!emailRegex.test(emails[i].trim())) return false
+  }
+  return true
 }
 
 export const compareDate = (comparison, date = new Date(), dateFormat = 'YYYY-MM-DD HH:mm:ss', allowZero = true) => {
@@ -638,7 +653,13 @@ export const maintenanceTaskExists = (value, component) => {
 }
 
 export const nodeExists = (value, component) => {
-  if (!value || value.length !== 17) return true
+  if (!value) return true
+  // standardize MAC address
+  value = value.toLowerCase().replace(/[^0-9a-f]/g, '').split('').reduce((a, c, i) => {
+    a += ((i % 2) === 0 || i >= 11) ? c : c + ':'
+    return a
+  })
+  if (value.length !== 17) return true
   return store.dispatch('$_nodes/exists', value).then(() => {
     return false
   }).catch(() => {

@@ -11,8 +11,8 @@
         :class="(valid) ? 'text-primary' : 'text-danger'"
         @click.prevent="click($event)"
       >
-        <icon v-if="visible" name="chevron-circle-down" class="mr-2" :class="{ 'text-primary': ctrlKey, 'text-secondary': !ctrlKey }"></icon>
-        <icon v-else name="chevron-circle-right" class="mr-2" :class="{ 'text-primary': ctrlKey, 'text-secondary': !ctrlKey }"></icon>
+        <icon v-if="visible" name="chevron-circle-down" class="mr-2" :class="{ 'text-primary': actionKey, 'text-secondary': !actionKey }"></icon>
+        <icon v-else name="chevron-circle-right" class="mr-2" :class="{ 'text-primary': actionKey, 'text-secondary': !actionKey }"></icon>
         <div>{{ localId || $t('New rule') }} <span v-if="localDescription">( {{ localDescription }} )</span></div>
       </b-col>
       <b-col v-if="$slots.append" sm="1" align-self="start" class="py-1 text-center col-form-label">
@@ -94,13 +94,9 @@ import uuidv4 from 'uuid/v4'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormFields from '@/components/pfFormFields'
 import pfFormInput from '@/components/pfFormInput'
-import pfMixinCtrlKey from '@/components/pfMixinCtrlKey'
 
 export default {
   name: 'pf-field-rule',
-  mixins: [
-    pfMixinCtrlKey
-  ],
   components: {
     pfFormChosen,
     pfFormFields,
@@ -141,7 +137,8 @@ export default {
     return {
       uuid:                 uuidv4(), // unique id for multiple instances of this component
       actionValidations:    {}, // overloaded from actions (pf-form-fields) child component
-      conditionValidations: {} // overloaded from conditions (pf-form-fields) child component
+      conditionValidations: {}, // overloaded from conditions (pf-form-fields) child component
+      visible: true
     }
   },
   computed: {
@@ -243,6 +240,9 @@ export default {
     forwardListeners () {
       const { input, ...listeners } = this.$listeners
       return listeners
+    },
+    actionKey () {
+      return this.$store.getters['events/actionKey']
     }
   },
   methods: {
@@ -253,14 +253,12 @@ export default {
       const { $refs: { [this.uuidStr('collapse')]: ref } } = this
       if (ref && ref.$el.id === this.uuidStr('collapse')) {
         this.visible = false
-        ref.show = false
       }
     },
     expand () {
       const { $refs: { [this.uuidStr('collapse')]: ref } } = this
       if (ref && ref.$el.id === this.uuidStr('collapse')) {
         this.visible = true
-        ref.show = true
       }
     },
     toggle () {
@@ -269,7 +267,7 @@ export default {
     },
     click (event) {
       this.toggle()
-      if (this.ctrlKey) { // [CTRL] + CLICK = toggle all siblings
+      if (this.actionKey) { // [CTRL] + CLICK = toggle all siblings
         this.$nextTick(() => {
           this.$emit('siblings', [(this.visible) ? 'expand' : 'collapse'])
         })

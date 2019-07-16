@@ -50,7 +50,7 @@ import {
 } from '@/globals/configuration/pfConfigurationFingerbank'
 
 export default {
-  name: 'FingerbankCombinationsList',
+  name: 'fingerbank-combinations-list',
   components: {
     pfButtonDelete,
     pfConfigList,

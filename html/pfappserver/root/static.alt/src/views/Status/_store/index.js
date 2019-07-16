@@ -1,5 +1,9 @@
+/**
+* "$_status" store module
+*/
 import Vue from 'vue'
 import api from '../_api'
+import { blacklistedServices } from '@/store/modules/services'
 
 const STORAGE_CHARTS_KEY = 'dashboard-charts'
 
@@ -28,13 +32,6 @@ const state = {
   clusterServices: [],
   clusterServicesStatus: ''
 }
-
-const blacklistedServices = [ // prevent start|stop|restart control on these services
-  'api-frontend',
-  'httpd.admin',
-  'pf',
-  'pfperl-api'
-]
 
 const getters = {
   isLoading: state => state.allChartsStatus === types.LOADING,
@@ -74,6 +71,7 @@ const actions = {
       }).catch(err => {
         commit('ALL_CHARTS_ERROR')
         commit('session/CHARTS_ERROR', err.response, { root: true })
+        throw err
       })
     }
   },
@@ -105,6 +103,7 @@ const actions = {
         commit('session/CHARTS_ERROR', err.response, { root: true })
       })
     }
+    throw new Error('$_status/alarms: another task is already in progress')
   },
   getServices: ({ state, commit }) => {
     if (state.services.length > 0) {
@@ -123,8 +122,10 @@ const actions = {
       }).catch(err => {
         commit('SERVICES_ERROR')
         commit('session/API_ERROR', err.response, { root: true })
+        throw err
       })
     }
+    throw new Error('$_status/getServices: another task is already in progress')
   },
   disableService: ({ state, commit }, id) => {
     const index = state.services.findIndex(service => service.name === id)
@@ -337,19 +338,24 @@ const actions = {
             commit('CLUSTER_UPDATED', server)
           })
         }
-      }).catch(() => {
+      }).catch(err => {
         commit('CLUSTER_ERROR')
+        throw err
       })
     }
+    throw new Error('$_status/getCluster: another task is already in progress')
   },
   getClusterServices: ({ state, commit }) => {
     if (state.clusterServicesStatus !== types.LOADING) {
       commit('CLUSTER_SERVICES_REQUEST')
-      return api.clusterServices().then(servers => {
-        commit('CLUSTER_SERVICES_UPDATED', servers)
-        return servers
-      }).catch(() => {
-        commit('CLUSTER_SERVICES_ERROR')
+      Promise.all(state.cluster.map(server => {
+        return api.clusterServices(server.host).then(server => {
+          commit('CLUSTER_SERVICES_UPDATED', server)
+        }).catch(() => {
+          // Ignore error -- don't let Promise.all immediately rejects with an error
+        })
+      })).then(() => {
+        commit('CLUSTER_SERVICES_UPDATED')
       })
     }
   }
@@ -476,9 +482,13 @@ const mutations = {
   CLUSTER_SERVICES_REQUEST: (state) => {
     state.clusterServicesStatus = types.LOADING
   },
-  CLUSTER_SERVICES_UPDATED: (state, servers) => {
-    state.clusterServicesStatus = types.SUCCESS
-    state.clusterServices = servers
+  CLUSTER_SERVICES_UPDATED: (state, server) => {
+    if (server) {
+      state.clusterServices.push(server)
+    } else {
+      // No more data -- done fetching services
+      state.clusterServicesStatus = types.SUCCESS
+    }
   },
   CLUSTER_SERVICES_ERROR: (state) => {
     state.clusterStatus = types.ERROR

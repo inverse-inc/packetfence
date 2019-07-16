@@ -3692,7 +3692,7 @@ Under the section `tls-config tls-common`, search for `private_key_file', `certi
  * the server certificate issued by your CA for your PacketFence server,
  * the public key of your CA.
 
-If you have an `OCSP` capable PKI you can configure it in the section `OSCP` in the eap.conf file.
+If you have an `OCSP` capable PKI you can configure it in the section `OCSP` in the eap.conf file.
 
 Lastely you will need to restart RADIUS to ensure the use of the new configuration and certificates. Please do the following:
 
@@ -4620,6 +4620,8 @@ https://inverse.ca/downloads/PacketFence/windows-dhcp-forwarder/DHCP%20Forwarder
 It will install WinPCAP, nssm, launch a configurator to ask for interface, IP and port, save the configuration, install and launch DHCP-Forwarder service.
 
 When you will be asked for a host IP and port, specify PacketFence management IP and 767 as the UDP port.
+
+WARNING: On some versions of Windows, the `getmac` command will return invalid output when running the installer in a language other than English. In order to workaround the issue, change your Windows language to English, then logout/login and run the installer again.
 
 The project page can be found https://github.com/inverse-inc/packetfence-dhcp-forwarder[here].
 

@@ -137,7 +137,7 @@ if $programname == "pfhttpd" then -/usr/local/pf/logs/packetfence.log
 if $programname == "pfipset" then -/usr/local/pf/logs/packetfence.log
 & stop
 
-if $programname == "pfdhcp" then -/usr/local/pf/logs/packetfence.log
+if $programname == "pfdhcp" then -/usr/local/pf/logs/pfdhcp.log
 & stop
 
 # MARIADB
