@@ -17,6 +17,7 @@ import (
 	netadv "github.com/simon/go-netadv"
 )
 
+// DHCPHandler struct
 type DHCPHandler struct {
 	ip            net.IP // Server IP to use
 	vip           net.IP
@@ -33,10 +34,12 @@ type DHCPHandler struct {
 	ipAssigned    map[string]uint32
 }
 
+// Interfaces struct
 type Interfaces struct {
 	intsNet []Interface
 }
 
+// Interface struct
 type Interface struct {
 	Name          string
 	intNet        *net.Interface
@@ -49,14 +52,15 @@ type Interface struct {
 	listenPort    int
 }
 
+// Network struct
 type Network struct {
 	network     net.IPNet
 	dhcpHandler *DHCPHandler
 	splittednet bool
 }
 
-const bootp_client = 68
-const bootp_server = 67
+const bootpClient = 68
+const bootpServer = 67
 
 func newDHCPConfig() *Interfaces {
 	var p Interfaces
@@ -77,18 +81,18 @@ func (d *Interfaces) readConfig() {
 
 	pfconfigdriver.FetchDecodeSocket(ctx, &keyConfNet)
 
-	var int_dhcp []string
+	var intDhcp []string
 
 	for _, vi := range DHCPinterfaces.Element {
-		for key, dhcp_int := range vi.(map[string]interface{}) {
+		for key, dhcpint := range vi.(map[string]interface{}) {
 			if key == "int" {
-				int_dhcp = append(int_dhcp, dhcp_int.(string))
+				intDhcp = append(intDhcp, dhcpint.(string))
 			}
 		}
 	}
 
 	wg := &sync.WaitGroup{}
-	for _, v := range sharedutils.RemoveDuplicates(append(interfaces.Element, int_dhcp...)) {
+	for _, v := range sharedutils.RemoveDuplicates(append(interfaces.Element, intDhcp...)) {
 
 		eth, err := net.InterfaceByName(v)
 
@@ -105,7 +109,7 @@ func (d *Interfaces) readConfig() {
 		ethIf.intNet = eth
 		ethIf.Name = eth.Name
 		ethIf.InterfaceType = "server"
-		ethIf.listenPort = bootp_server
+		ethIf.listenPort = bootpServer
 
 		adresses, _ := eth.Addrs()
 		for _, adresse := range adresses {

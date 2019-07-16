@@ -43,17 +43,17 @@ func (s *serveIfConn) WriteTo(b []byte, addr net.Addr) (n int, err error) {
 // import outside the std library.  Serving DHCP over multiple interfaces will
 // require your own dhcp4.ServeConn, as listening to broadcasts utilises all
 // interfaces (so you cannot have more than on listener).
-func ServeIf(ifIndex int, p *ipv4.PacketConn, handler Handler, jobs chan job, interfaceNet *Interface, ctx context.Context) error {
+func ServeIf(ctx context.Context, ifIndex int, p *ipv4.PacketConn, handler Handler, jobs chan job, interfaceNet *Interface) error {
 	if err := p.SetControlMessage(ipv4.FlagInterface, true); err != nil {
 		return err
 	}
-	return Serve(&serveIfConn{ifIndex: ifIndex, conn: p}, handler, jobs, interfaceNet, ctx)
+	return Serve(ctx, &serveIfConn{ifIndex: ifIndex, conn: p}, handler, jobs, interfaceNet)
 }
 
 // ListenAndServeIf listens on the UDP network address addr and then calls
 // Serve with handler to handle requests on incoming packets.
 // i.e. ListenAndServeIf("eth0",handler)
-func ListenAndServeIf(interfaceNet *Interface, handler Handler, jobs chan job, ctx context.Context) error {
+func ListenAndServeIf(ctx context.Context, interfaceNet *Interface, handler Handler, jobs chan job) error {
 	iface, err := net.InterfaceByName(interfaceNet.Name)
 	if err != nil {
 		return err
@@ -65,7 +65,7 @@ func ListenAndServeIf(interfaceNet *Interface, handler Handler, jobs chan job, c
 	}
 	defer p.Close()
 
-	return ServeIf(iface.Index, p, handler, jobs, interfaceNet, ctx)
+	return ServeIf(ctx, iface.Index, p, handler, jobs, interfaceNet)
 }
 
 func broadcastOpen(bindAddr net.IP, port int, ifname string) (*ipv4.PacketConn, error) {
@@ -103,10 +103,9 @@ func broadcastOpen(bindAddr net.IP, port int, ifname string) (*ipv4.PacketConn, 
 	return p, nil
 }
 
-// ListenAndServeIf listens on the UDP network address addr and then calls
+// ListenAndServeIfUnicast listens on the UDP network address addr and then calls
 // Serve with handler to handle requests on incoming packets.
-// i.e. ListenAndServeIf("eth0",handler)
-func ListenAndServeIfUnicast(interfaceNet *Interface, handler Handler, jobs chan job, ctx context.Context) error {
+func ListenAndServeIfUnicast(ctx context.Context, interfaceNet *Interface, handler Handler, jobs chan job) error {
 
 	iface, err := net.InterfaceByName(interfaceNet.Name)
 	if err != nil {
@@ -119,9 +118,10 @@ func ListenAndServeIfUnicast(interfaceNet *Interface, handler Handler, jobs chan
 	}
 	defer p.Close()
 
-	return ServeIf(iface.Index, p, handler, jobs, interfaceNet, ctx)
+	return ServeIf(ctx, iface.Index, p, handler, jobs, interfaceNet)
 }
 
+// UnicastOpen will listen on the specific port and on the specific interface.
 func UnicastOpen(interfaceNet *Interface) (*ipv4.PacketConn, error) {
 	s, err := syscall.Socket(syscall.AF_INET, syscall.SOCK_DGRAM, syscall.IPPROTO_UDP)
 	if err != nil {

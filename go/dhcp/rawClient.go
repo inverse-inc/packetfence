@@ -13,8 +13,6 @@ import (
 	"github.com/mdlayher/raw"
 )
 
-const UDP_HEADER_LEN = 8
-
 // A RawClient is a Wake-on-LAN client which operates directly on top of
 // Ethernet frames using raw sockets.  It can be used to send WoL magic packets
 // to other machines on a local network, using their hardware addresses.

@@ -28,21 +28,34 @@ import (
 	dhcp "github.com/krolaw/dhcp4"
 )
 
+// DHCPConfig global var
 var DHCPConfig *Interfaces
 
+// MySQLdatabase global var
 var MySQLdatabase *sql.DB
 
-var GlobalIpCache *cache.Cache
+// GlobalIPCache global var
+var GlobalIPCache *cache.Cache
+
+// GlobalMacCache global var
 var GlobalMacCache *cache.Cache
 
+// GlobalFilterCache global var
 var GlobalFilterCache *cache.Cache
 
+// GlobalTransactionCache global var
 var GlobalTransactionCache *cache.Cache
+
+// GlobalTransactionLock global var
 var GlobalTransactionLock *timedlock.RWLock
 
+// RequestGlobalTransactionCache global var
 var RequestGlobalTransactionCache *cache.Cache
 
+// VIP global var
 var VIP map[string]bool
+
+// VIPIp global var
 var VIPIp map[string]net.IP
 
 var ctx = context.Background()
@@ -51,7 +64,10 @@ var webservices pfconfigdriver.PfConfWebservices
 
 var intNametoInterface map[string]*Interface
 
+// FreeMac global var
 const FreeMac = "00:00:00:00:00:00"
+
+// FakeMac global var
 const FakeMac = "ff:ff:ff:ff:ff:ff"
 
 func main() {
@@ -62,7 +78,7 @@ func main() {
 	http.DefaultClient.Timeout = 10 * time.Second
 
 	// Initialize IP cache
-	GlobalIpCache = cache.New(5*time.Minute, 10*time.Minute)
+	GlobalIPCache = cache.New(5*time.Minute, 10*time.Minute)
 	// Initialize Mac cache
 	GlobalMacCache = cache.New(5*time.Minute, 10*time.Minute)
 
@@ -89,18 +105,18 @@ func main() {
 		var interfaces pfconfigdriver.ListenInts
 		pfconfigdriver.FetchDecodeSocket(ctx, &interfaces)
 
-		var int_dhcp []string
+		var intDhcp []string
 
 		for _, vi := range DHCPinterfaces.Element {
-			for key, dhcp_int := range vi.(map[string]interface{}) {
+			for key, dhcpint := range vi.(map[string]interface{}) {
 				if key == "int" {
-					int_dhcp = append(int_dhcp, dhcp_int.(string))
+					intDhcp = append(intDhcp, dhcpint.(string))
 				}
 			}
 		}
 
 		for {
-			DHCPConfig.detectVIP(sharedutils.RemoveDuplicates(append(interfaces.Element, int_dhcp...)))
+			DHCPConfig.detectVIP(sharedutils.RemoveDuplicates(append(interfaces.Element, intDhcp...)))
 
 			time.Sleep(3 * time.Second)
 		}
@@ -138,7 +154,7 @@ func main() {
 		// Create a channel for each interfaces
 		intNametoInterface[v.Name] = &v
 		go func() {
-			v.runUnicast(jobs, ctx)
+			v.runUnicast(ctx, jobs)
 		}()
 
 	}
@@ -147,7 +163,7 @@ func main() {
 	for _, v := range DHCPConfig.intsNet {
 		v := v
 		go func() {
-			v.run(jobs, ctx)
+			v.run(ctx, jobs)
 		}()
 	}
 
@@ -206,17 +222,18 @@ func main() {
 }
 
 // Broadcast Listener
-func (I *Interface) run(jobs chan job, ctx context.Context) {
+func (I *Interface) run(ctx context.Context, jobs chan job) {
 
-	ListenAndServeIf(I, I, jobs, ctx)
+	ListenAndServeIf(ctx, I, I, jobs)
 }
 
 // Unicast listener
-func (I *Interface) runUnicast(jobs chan job, ctx context.Context) {
+func (I *Interface) runUnicast(ctx context.Context, jobs chan job) {
 
-	ListenAndServeIfUnicast(I, I, jobs, ctx)
+	ListenAndServeIfUnicast(ctx, I, I, jobs)
 }
 
+// ServeDHCP function is the main function that will deal with the dhcp packet
 func (I *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.MessageType, srcIP net.Addr) (answer Answer) {
 
 	var handler DHCPHandler
@@ -241,7 +258,7 @@ func (I *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 				if x, found := NodeCache.Get(p.CHAddr().String()); found {
 					node = x.(NodeInfo)
 				} else {
-					node = NodeInformation(p.CHAddr(), ctx)
+					node = NodeInformation(ctx, p.CHAddr())
 					NodeCache.Set(p.CHAddr().String(), node, 3*time.Second)
 				}
 
@@ -294,7 +311,6 @@ func (I *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 
 		defer recoverName(options)
 
-
 		var Options map[string]string
 		Options = make(map[string]string)
 		for option, value := range options {
@@ -314,10 +330,9 @@ func (I *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 			log.LoggerWContext(ctx).Debug("Not answering to packet. Already in progress")
 			GlobalTransactionLock.Unlock(id)
 			return answer
-		} else {
-			GlobalTransactionCache.Set(cacheKey, 1, time.Duration(1)*time.Second)
-			GlobalTransactionLock.Unlock(id)
 		}
+		GlobalTransactionCache.Set(cacheKey, 1, time.Duration(1)*time.Second)
+		GlobalTransactionLock.Unlock(id)
 
 		prettyType := "DHCP" + strings.ToUpper(msgType.String())
 		clientMac := p.CHAddr().String()
@@ -534,11 +549,11 @@ func (I *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 			cacheKey := p.CHAddr().String() + " " + msgType.String() + " xID " + sharedutils.ByteToString(p.XId())
 
 			// In the event of a DHCPREQUEST, we do not reply if we're not the server ID in the request
-			serverIdBytes := options[dhcp.OptionServerIdentifier]
-			if len(serverIdBytes) == 4 {
-				serverId := net.IPv4(serverIdBytes[0], serverIdBytes[1], serverIdBytes[2], serverIdBytes[3])
-				if !serverId.Equal(handler.ip.To4()) {
-					log.LoggerWContext(ctx).Debug(fmt.Sprintf("Not replying to %s because this server didn't perform the offer (offered by %s, we are %s)", prettyType, serverId, handler.ip.To4()))
+			serverIDBytes := options[dhcp.OptionServerIdentifier]
+			if len(serverIDBytes) == 4 {
+				serverID := net.IPv4(serverIDBytes[0], serverIDBytes[1], serverIDBytes[2], serverIDBytes[3])
+				if !serverID.Equal(handler.ip.To4()) {
+					log.LoggerWContext(ctx).Debug(fmt.Sprintf("Not replying to %s because this server didn't perform the offer (offered by %s, we are %s)", prettyType, serverID, handler.ip.To4()))
 					return Answer{}
 				}
 			}
@@ -576,12 +591,12 @@ func (I *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 									Reply = false
 									GlobalTransactionLock.Unlock(id)
 									return answer
-								} else {
-									Reply = true
-									Index = index.(int)
-									RequestGlobalTransactionCache.Set(cacheKey, 1, time.Duration(1)*time.Second)
-									GlobalTransactionLock.Unlock(id)
 								}
+								Reply = true
+								Index = index.(int)
+								RequestGlobalTransactionCache.Set(cacheKey, 1, time.Duration(1)*time.Second)
+								GlobalTransactionLock.Unlock(id)
+
 								// So remove the ip from the cache
 							} else {
 								Reply = false
@@ -640,7 +655,7 @@ func (I *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 					}
 
 					// Update Global Caches
-					GlobalIpCache.Set(reqIP.String(), p.CHAddr().String(), cacheDuration)
+					GlobalIPCache.Set(reqIP.String(), p.CHAddr().String(), cacheDuration)
 					GlobalMacCache.Set(p.CHAddr().String(), reqIP.String(), cacheDuration)
 					// Update the cache
 					log.LoggerWContext(ctx).Info("DHCPACK on " + reqIP.String() + " to " + clientMac + " (" + clientHostname + ")")

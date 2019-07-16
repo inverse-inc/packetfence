@@ -8,6 +8,7 @@ import (
 	"golang.org/x/net/ipv4"
 )
 
+// Answer struct
 type Answer struct {
 	D     dhcp.Packet
 	IP    net.IP
@@ -15,6 +16,7 @@ type Answer struct {
 	SrcIP net.IP //Only for inline splitted network
 }
 
+// Handler interface
 type Handler interface {
 	ServeDHCP(ctx context.Context, req dhcp.Packet, msgType dhcp.MessageType, srcIP net.Addr) Answer
 }
@@ -41,7 +43,7 @@ type ServeConn interface {
 // Additionally, response packets may not return to the same
 // interface that the request was received from.  Writing a custom ServeConn,
 // or using ServeIf() can provide a workaround to this problem.
-func Serve(conn *serveIfConn, handler Handler, jobs chan job, interfaceNet *Interface, ctx context.Context) error {
+func Serve(ctx context.Context, conn *serveIfConn, handler Handler, jobs chan job, interfaceNet *Interface) error {
 
 	buffer := make([]byte, 1500)
 
