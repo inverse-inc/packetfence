@@ -24,7 +24,7 @@ import (
 var MySQLdatabase *sql.DB
 var apiClient = unifiedapiclient.NewFromConfig(ctx)
 
-func ProcessMetricConfig(ctx context.Context, conf pfconfigdriver.PfStats) error {
+func ProcessMetricConfig(ctx context.Context, conf pfconfigdriver.PfStats, dorun func() bool) error {
 
 	job := func() {}
 
@@ -243,13 +243,13 @@ func ProcessMetricConfig(ctx context.Context, conf pfconfigdriver.PfStats) error
 
 	switch strings.ToLower(conf.Randomize) {
 	case "1", "t", "true", "y", "yes":
-		_, err := interval.Every(conf.Interval).Randomize().Run(job)
+		_, err := interval.Every(conf.Interval).Randomize().DoRun(dorun).Run(job)
 		if err != nil {
 			return err
 		}
 
 	default:
-		_, err := interval.Every(conf.Interval).Run(job)
+		_, err := interval.Every(conf.Interval).DoRun(dorun).Run(job)
 		if err != nil {
 			return err
 		}
