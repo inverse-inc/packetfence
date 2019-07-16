@@ -10,6 +10,7 @@ https://bl.ocks.org/steveharoz/8c3e2524079a8c440df60c1ab72b5d03
 <p>zoom: {{ zoom }}</p>
 <p>centerX: {{ centerX }}</p>
 <p>centerY: {{ centerY }}</p>
+<p>miniMapLatch: {{ (miniMapLatch) ? 'Y' : 'N' }}
     </b-card-header>
     <div class="card-body">
       <div ref="svgContainer" class="svgContainer">
@@ -36,7 +37,6 @@ https://bl.ocks.org/steveharoz/8c3e2524079a8c440df60c1ab72b5d03
           :viewBox="viewBoxString"
           @mousedown.prevent="mouseDownSvg($event)"
           @mousewheel.prevent="mouseWheelSvg($event)"
-          @keypress="keyPressSvg($event)"
         >
           <defs v-once>
             <symbol id="packetfence" viewBox="0 0 32 32" zzzpreserveAspectRatio="xMidYMid meet">
@@ -105,6 +105,12 @@ width="32" height="32"
             />
           </template>
 
+          <rect class="innerMiniMap" v-bind="innerMiniMapProps" />
+          <rect class="outerMiniMap" v-bind="outerMiniMapProps"
+            @mousedown.stop="mouseDownMiniMap($event)"
+            @mousemove.capture="mouseMoveMiniMap($event)"
+          />
+
         </svg>
       </div>
     </div>
@@ -143,10 +149,12 @@ export default {
       lastX: null,
       lastY: null,
       minZoom: 0,
-      maxZoom: 10,
+      maxZoom: 4,
       zoom: 0,
       centerX: null,
-      centerY: null
+      centerY: null,
+      miniMapHeight: 150,
+      miniMapLatch: false
     }
   },
   computed: {
@@ -185,6 +193,33 @@ export default {
     viewBoxString () {
       const { viewBox: { minX = 0, minY = 0, width = 0, height = 0 } = {} } = this
       return `${minX} ${minY} ${width} ${height}`
+    },
+    innerMiniMapProps () {
+      const {
+        outerMiniMapProps: { x, y, width: outerMiniMapWidth, height: outerMiniMapHeight } = {},
+        viewBox: { minX = 0, minY = 0, width: viewBoxWidth = 0, height: viewBoxHeight = 0 } = {},
+        zoom,
+        centerX,
+        centerY
+      } = this
+      const divisor = Math.pow(2, zoom)
+      return {
+        x: minX + ((minX * outerMiniMapWidth) / (viewBoxWidth * divisor)),
+        y: minY + ((minY * outerMiniMapHeight) / (viewBoxHeight * divisor)),
+        width: outerMiniMapWidth / divisor,
+        height: outerMiniMapHeight / divisor
+      }
+    },
+    outerMiniMapProps () {
+      const { viewBox: { minX = 0, minY = 0, width = 0, height = 0 } = {}, zoom } = this
+      const divisor = Math.pow(2, zoom)
+      const aspectRatio = width / height
+      return {
+        x: minX,
+        y: minY,
+        width: (this.miniMapHeight * aspectRatio) / divisor,
+        height: this.miniMapHeight / divisor
+      }
     }
   },
   methods: {
@@ -264,9 +299,6 @@ export default {
       const y = svgY - (deltaCenterY / factor)
       this.setCenter(x, y)
     },
-    keyPressSvg (event) {
-      console.log('keyUp Svg', event)
-    },
     mouseOverNode (node, event = null) {
       console.log('mouseover Node', event, node)
     },
@@ -276,6 +308,26 @@ export default {
     clickNode (node, event = null) {
       console.log('click Node', event, node)
     },
+    mouseDownMiniMap (event) {
+      // get mouse delta and offset from top/left corner of current viewBox
+      const { offsetX, offsetY } = event
+      const {
+        outerMiniMapProps: { width: outerMiniMapWidth, height: outerMiniMapHeight } = {},
+        viewBox: { width: viewBoxWidth = 0, height: viewBoxHeight = 0 } = {}
+      } = this
+      const x = viewBoxWidth * ( offsetX / outerMiniMapWidth)
+      const y = viewBoxHeight * ( offsetY / outerMiniMapHeight)
+      this.setCenter(x, y)
+      this.miniMapLatch = true  // latch miniMapLatch
+    },
+    mouseMoveMiniMap (event) {
+      if (!(event.which)) {
+        this.miniMapLatch = false
+      }
+      if (this.miniMapLatch) {
+        this.mouseDownMiniMap(event)
+      }
+    }
   },
   mounted () {
     this.setDimensions()
@@ -307,6 +359,13 @@ export default {
     left: 0;
     right: 0;
     bottom: 0;
+  }
+
+  .outerMiniMap {
+    fill: rgba(0, 0, 0, 0.125);
+  }
+  .innerMiniMap {
+    fill: rgba(255, 255, 0, 0.5);
   }
 }
 
