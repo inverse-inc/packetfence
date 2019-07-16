@@ -14,11 +14,11 @@ import (
 	"time"
 
 	"github.com/coreos/go-systemd/daemon"
+	"github.com/hpcloud/tail"
 	"github.com/inverse-inc/packetfence/go/db"
+	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/sharedutils"
-
-	"github.com/inverse-inc/packetfence/go/log"
 	statsd "gopkg.in/alexcesaro/statsd.v2"
 	ldap "gopkg.in/ldap.v2"
 	"layeh.com/radius"
@@ -352,6 +352,35 @@ func main() {
 		}
 	}()
 
+	go func() {
+		var files []string
+
+		config := tail.Config{Follow: true, ReOpen: true, Location: &tail.SeekInfo{Offset: -10, Whence: os.SEEK_END}}
+
+		done := make(chan bool)
+
+		var keyConfStats pfconfigdriver.PfconfigKeys
+		keyConfStats.PfconfigNS = "config::Stats"
+		pfconfigdriver.FetchDecodeSocket(ctx, &keyConfStats)
+
+		for _, key := range keyConfStats.Keys {
+			var ConfStat pfconfigdriver.PfStats
+			ConfStat.PfconfigHashNS = key
+
+			pfconfigdriver.FetchDecodeSocket(ctx, &ConfStat)
+			switch ConfStat.Type {
+			case "tail_file":
+				files = append(files, ConfStat.File)
+
+				go tailFile(ConfStat, config, done)
+			}
+		}
+
+		for _ = range files {
+			<-done
+		}
+	}()
+
 	var Management pfconfigdriver.ManagementNetwork
 	pfconfigdriver.FetchDecodeSocket(ctx, &Management)
 
@@ -394,6 +423,40 @@ func main() {
 		}
 
 		go forward(fd)
+	}
+}
+
+func tailFile(stats pfconfigdriver.PfStats, config tail.Config, done chan bool) {
+	defer func() { done <- true }()
+	t, err := tail.TailFile(stats.File, config)
+	if err != nil {
+		log.LoggerWContext(ctx).Error(err.Error())
+		return
+	}
+
+	wordMatch := make(map[*regexp.Regexp]string)
+
+	rgxs := strings.Split(stats.Match, ",")
+	statsdns := strings.Split(stats.StatsdNS, ",")
+
+	for pos, rgx := range rgxs {
+		regex, err := regexp.Compile(rgx)
+		if err != nil {
+			continue
+		}
+		wordMatch[regex] = statsdns[pos]
+	}
+
+	for line := range t.Lines {
+		for k, v := range wordMatch {
+			if k.Match([]byte(line.Text)) {
+				StatsdClient.Count(v, 1)
+			}
+		}
+	}
+	err = t.Wait()
+	if err != nil {
+		log.LoggerWContext(ctx).Error(err.Error())
 	}
 }
 

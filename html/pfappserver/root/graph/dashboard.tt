@@ -38,10 +38,10 @@ END;
 
 
     [% FOREACH host IN hosts%]
-    
+
       <div class="col[% width %]">
           <div data-netdata="[% metric %]"
-          
+
           [% IF options.graph_per_host %]
           data-host="/netdata/[% host.value %]"
           [% ELSIF !options.nocluster %]
@@ -195,6 +195,7 @@ END;
                 <li [% IF tab == "endpoints" %]class="active"[% END %]><a data-toggle="pill" href="#endpoints">[% l('Endpoints') %]</a></li>
                 <li [% IF tab == "portal" %]class="active"[% END %]><a data-toggle="pill" href="#portal">[% l('Portal') %]</a></li>
                 <li [% IF tab == "queue" %]class="active"[% END %]><a data-toggle="pill" href="#queue">[% l('Queue') %]</a></li>
+                <li [% IF tab == "logs" %]class="active"[% END %]><a data-toggle="pill" href="#logs">[% l('Logs') %]</a></li>
             </ul>
         </div>
     </dIV>
@@ -208,48 +209,48 @@ END;
             </div>
             <div class="row-flex">
                 <div class="col6 card">
-                    [% 
+                    [%
                     graph(
-                      "packetfence.devices.registered_per_role", 
-                      "Registered devices per role", 
+                      "packetfence.devices.registered_per_role",
+                      "Registered devices per role",
                       {
-                        "nocluster" => 1, 
-                        "chart_library" => "d3pie", 
-                        "colors" => palette(0), 
+                        "nocluster" => 1,
+                        "chart_library" => "d3pie",
+                        "colors" => palette(0),
                         "height" => "250px"
                         "additional_html_tags" => ['data-d3pie-smallsegmentgrouping-value="0.5"', 'data-d3pie-smallsegmentgrouping-enabled="true"', 'data-decimal-digits="0"'],
                       }
-                    ) 
+                    )
                     | none %]
                 </div>
                 <div class="col6 card">
-                    [% 
+                    [%
                     graph(
-                      "packetfence.devices.connected_per_connection_type", 
-                      "Connected devices per connection type", 
+                      "packetfence.devices.connected_per_connection_type",
+                      "Connected devices per connection type",
                       {
-                        "nocluster" => 1, 
-                        "chart_library" => "d3pie", 
-                        "colors" => palette(1), 
+                        "nocluster" => 1,
+                        "chart_library" => "d3pie",
+                        "colors" => palette(1),
                         "height" => "250px"
                         "additional_html_tags" => ['data-decimal-digits="0"'],
                       }
-                    ) 
+                    )
                     | none %]
                 </div>
                 <div class="col6 card">
-                    [% 
+                    [%
                     graph(
-                      "packetfence.devices.connected_per_ssid", 
-                      "Connected devices per SSID", 
+                      "packetfence.devices.connected_per_ssid",
+                      "Connected devices per SSID",
                       {
-                        "nocluster" => 1, 
-                        "chart_library" => "d3pie", 
-                        "colors" => palette(2), 
+                        "nocluster" => 1,
+                        "chart_library" => "d3pie",
+                        "colors" => palette(2),
                         "height" => "250px"
                         "additional_html_tags" => ['data-d3pie-smallsegmentgrouping-value="0.5"', 'data-d3pie-smallsegmentgrouping-enabled="true"', 'data-decimal-digits="0"'],
                       }
-                    ) 
+                    )
                     | none %]
                 </div>
             </div>
@@ -259,24 +260,24 @@ END;
                         <div id="packetfence_devices_registered"></div>
                         <div class="counter_chart_title">[% l('Registered Devices') %]</div>
                     </div>
-                    [% 
+                    [%
                     graph(
-                      "statsd_gauge_source.packetfence.devices.registered", 
-                      "Devices currently registered", 
+                      "statsd_gauge_source.packetfence.devices.registered",
+                      "Devices currently registered",
                       {
-                        "nocluster" => 1, 
-                        "chart_library" => "dygraph", 
-                        "colors" => palette(0), 
+                        "nocluster" => 1,
+                        "chart_library" => "dygraph",
+                        "colors" => palette(0),
                         "height" => "100px"
                         "additional_html_tags" => [
-                          'data-decimal-digits="0"', 
-                          'data-show-value-of-gauge-at="packetfence_devices_registered"', 
-                          'data-dygraph-theme="sparkline"', 
+                          'data-decimal-digits="0"',
+                          'data-show-value-of-gauge-at="packetfence_devices_registered"',
+                          'data-dygraph-theme="sparkline"',
                           'data-dygraph-type="area"',
                           'data-dimensions="gauge"',
                         ],
                       }
-                    ) 
+                    )
                     | none %]
                 </div>
                 <div class="span3 card">
@@ -289,9 +290,9 @@ END;
                       "statsd_gauge_source.packetfence.security_events", 
                       "Open security events", 
                       {
-                        "nocluster" => 1, 
-                        "chart_library" => "dygraph", 
-                        "colors" => palette(1), 
+                        "nocluster" => 1,
+                        "chart_library" => "dygraph",
+                        "colors" => palette(1),
                         "height" => "100px"
                         "additional_html_tags" => [
                           'data-decimal-digits="0"', 
@@ -301,7 +302,7 @@ END;
                           'data-dimensions="gauge"',
                         ],
                       }
-                    ) 
+                    )
                     | none %]
                 </div>
             </div>
@@ -362,7 +363,7 @@ END;
                 </div>
               </div>
             </div>
-          
+
             <div class="card">
               <div class="card-title">
                 <h2>[% l('RADIUS Requests') %]</h2>
@@ -380,7 +381,7 @@ END;
                 </div>
               </div>
             </div>
-            
+
             <div class="card">
               <div class="card-title">
                 <h2>[% l('NTLM') %]</h2>
@@ -411,7 +412,7 @@ END;
               </div>
             </div>
             [% END %]
-          
+
             <div class="card">
               <div class="card-title">
                 <h2>[% l('Successful & Unsuccessful RADIUS Authentications') %]</h2>
@@ -495,7 +496,7 @@ END;
           </div>
 
         </div>
-        
+
         <div class="tab-pane[% IF tab == "portal" %] active[% END %]" id="portal">
           <div class="card">
             <div class="card-title">
@@ -530,7 +531,7 @@ END;
             </div>
           </div>
         </div>
-        
+
         <div class="tab-pane[% IF tab == "queue" %] active[% END %]" id="queue">
           <div class="card">
             <div class="card-title">
@@ -568,9 +569,79 @@ END;
               </div>
             </div>
           </div>
-
+        <div class="tab-pane[% IF tab == "logs" %] active[% END %]" id="logs">
+          <div class="card">
+            <div class="card-title">
+              <h2>[% l('packetfence.log') %]</h2>
+            </div>
+              <div class="card-block">
+                <div class="row-flex">
+                    [% graph("packetfence.logs.packetfence_log", "Number of events") | none %]
+                </div>
+              </div>
+          </div>
+          <div class="card">
+            <div class="card-title">
+              <h2>[% l('pfdhcp.log') %]</h2>
+            </div>
+              <div class="card-block">
+                <div class="row-flex">
+                    [% graph("packetfence.logs.pfdhcp_log", "Number of events") | none %]
+                </div>
+              </div>
+          </div>
+          <div class="card">
+            <div class="card-title">
+              <h2>[% l('load_balancer.log') %]</h2>
+            </div>
+              <div class="card-block">
+                <div class="row-flex">
+                    [% graph("packetfence.logs.load_balancer_log", "Number of events") | none %]
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">
+              <h2>[% l('radius.log') %]</h2>
+            </div>
+              <div class="card-block">
+                <div class="row-flex">
+                    [% graph("packetfence.logs.radius_log", "Number of events") | none %]
+                </div>
+              </div>
+          </div>
+          <div class="card">
+            <div class="card-title">
+              <h2>[% l('mariadb_error.log') %]</h2>
+            </div>
+              <div class="card-block">
+                <div class="row-flex">
+                    [% graph("packetfence.logs.mariadb_error_log", "Number of events") | none %]
+                </div>
+              </div>
+          </div>
+          <div class="card">
+            <div class="card-title">
+              <h2>[% l('pfmon.log') %]</h2>
+            </div>
+              <div class="card-block">
+                <div class="row-flex">
+                    [% graph("packetfence.logs.pfmon_log", "Number of events") | none %]
+                </div>
+              </div>
+          </div>
+          <div class="card">
+            <div class="card-title">
+              <h2>[% l('fingerbank.log') %]</h2>
+            </div>
+              <div class="card-block">
+                <div class="row-flex">
+                    [% graph("packetfence.logs.fingerbank_log", "Number of events") | none %]
+                </div>
+              </div>
+          </div>
         </div>
-        
     </div>
 
 </div>
