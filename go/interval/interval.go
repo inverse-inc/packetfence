@@ -63,6 +63,7 @@ func Every(duration string) *Job {
 	return j
 }
 
+// DoRun test if the job need to be run
 func (j *Job) DoRun(doRun func() bool) *Job {
 	j.doRun = doRun
 	return j
