@@ -478,7 +478,7 @@ cp addons/*.pl %{buildroot}/usr/local/pf/addons/
 cp addons/*.sh %{buildroot}/usr/local/pf/addons/
 %{__install} -D packetfence.logrotate %{buildroot}/etc/logrotate.d/packetfence
 %{__install} -D packetfence.rsyslog-drop-in.service %{buildroot}/etc/systemd/system/rsyslog.service.d/packetfence.conf
-# %{__install} -D packetfence.journald %{buildroot}%{systemdir}/journald.conf.d/01-packetfence.conf
+%{__install} -D packetfence.journald %{buildroot}%{systemddir}/journald.conf.d/01-packetfence.conf
 cp -r sbin %{buildroot}/usr/local/pf/
 cp -r conf %{buildroot}/usr/local/pf/
 cp -r raddb %{buildroot}/usr/local/pf/
@@ -781,7 +781,7 @@ fi
 
 %exclude                %{_unitdir}/packetfence-config.service
 %attr(0644, root, root) %{_unitdir}/packetfence-*.service
-# %attr(0644, root, root) %{systemdir}/journald.conf.d/01-packetfence.conf
+%attr(0644, root, root) %{systemddir}/journald.conf.d/01-packetfence.conf
 
 %dir %attr(0750, root,root) /etc/systemd/system/packetfence*target.wants
 %attr(0644, root, root) /etc/systemd/system/rsyslog.service.d/packetfence.conf
