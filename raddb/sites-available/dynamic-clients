@@ -113,7 +113,6 @@ server dynamic_clients {
             update {
                 &control:PacketFence-NasName := "%{sql: SELECT IFNULL((SELECT nasname FROM radius_nas WHERE nasname = '%{tolower:%{1}:%{2}:%{3}:%{4}:%{5}:%{6}}'), 0 ) }"
             }
-
         }
 
         # If the MAC was not found, try finding the IP
@@ -135,7 +134,7 @@ server dynamic_clients {
             update control {
                 # Do multiple SELECT statements to grab
                 # the various definitions.
-                &FreeRADIUS-Client-Shortname = "%{sql: SELECT shortname FROM radius_nas WHERE nasname = '%{control:PacketFence-NasName}'}"
+                &FreeRADIUS-Client-Shortname = "%{Packet-Src-IP-Address}/32"
 
                 &FreeRADIUS-Client-Secret = "%{sql: SELECT secret FROM radius_nas WHERE nasname = '%{control:PacketFence-NasName}'}"
 
