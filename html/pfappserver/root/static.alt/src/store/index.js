@@ -1,8 +1,8 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import config from './modules/config'
-import events from './modules/events'
 import documentation from './modules/documentation'
+import events from './modules/events'
 import notification from './modules/notification'
 import performance from './modules/performance'
 import pfqueue from './modules/pfqueue'
@@ -14,7 +14,8 @@ import system from './modules/system'
 
 Vue.use(Vuex)
 
-const debug = process.env.NODE_ENV !== 'production'
+const debug = process.env.VUE_APP_DEBUG === 'true'
+Vue.config.devtools = debug
 
 export const types = {
   LOADING: 'loading',
@@ -23,7 +24,6 @@ export const types = {
 }
 
 export default new Vuex.Store({
-  // actions,
   modules: {
     config,
     events,

@@ -132,7 +132,7 @@ for (const filter of Object.keys(filters)) {
 }
 
 /* eslint-disable no-new */
-new Vue({
+const app = new Vue({
   render: h => h(App),
   router,
   store,
@@ -141,3 +141,8 @@ new Vue({
     store.dispatch('events/bind')
   }
 }).$mount('#app')
+
+if (process.env.VUE_APP_DEBUG === 'true') {
+  // Configure Vue.js devtools (https://github.com/vuejs/vue-devtools)
+  window.__VUE_DEVTOOLS_GLOBAL_HOOK__.Vue = app.constructor
+}
