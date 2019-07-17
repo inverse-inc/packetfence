@@ -41,7 +41,7 @@ export default {
     }
   },
   mounted () {
-    if (this.cluster.length > 1) {
+    if (this.cluster && this.cluster.length > 1) {
       this.sections.push({
         name: this.$i18n.t('Cluster'),
         items: [
