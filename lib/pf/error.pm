@@ -104,7 +104,7 @@ Readonly::Scalar our $CREATED                           => 201;
 #Readonly::Scalar our $TEMPORARY_REDIRECT               => 307;
 
 Readonly::Scalar our $BAD_REQUEST                      => 400;
-#Readonly::Scalar our $UNAUTHORIZED                     => 401;
+Readonly::Scalar our $UNAUTHORIZED                     => 401;
 #Readonly::Scalar our $PAYMENT_REQUIRED                 => 402;
 Readonly::Scalar our $FORBIDDEN                         => 403;
 Readonly::Scalar our $NOT_FOUND                         => 404;
