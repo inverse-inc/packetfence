@@ -17,6 +17,7 @@ Version X.Y.Z released on xxxx-xx-xx
 New Features
 ++++++++++++
 * LightSpeedRocket and SmoothWall firewall sso support
+* Family Zone Firewall SSO support
 
 Enhancements
 ++++++++++++
