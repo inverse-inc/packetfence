@@ -34,6 +34,7 @@ Readonly::Scalar our $FIREWALL_TYPES => [
     "JSONRPC",
     "LightSpeedRocket",
     "SmoothWall",
+    "FamilyZone",
 ];
 
 =head1 AUTHOR

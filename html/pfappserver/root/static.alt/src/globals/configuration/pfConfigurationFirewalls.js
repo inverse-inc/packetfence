@@ -138,7 +138,7 @@ export const pfConfigurationFirewallViewFields = (context) => {
           ]
         },
         {
-          if: ['BarracudaNG', 'JSONRPC', 'JuniperSRX'].includes(firewallType),
+          if: ['BarracudaNG', 'JSONRPC', 'JuniperSRX', 'FamilyZone'].includes(firewallType),
           label: i18n.t('Username'),
           fields: [
             {
@@ -150,7 +150,7 @@ export const pfConfigurationFirewallViewFields = (context) => {
           ]
         },
         {
-          if: ['BarracudaNG', 'Checkpoint', 'FortiGate', 'Iboss', 'JuniperSRX', 'WatchGuard', 'LightSpeedRocket', 'SmoothWall'].includes(firewallType),
+          if: ['BarracudaNG', 'Checkpoint', 'FortiGate', 'Iboss', 'JuniperSRX', 'WatchGuard', 'LightSpeedRocket', 'SmoothWall', 'FamilyZone'].includes(firewallType),
           label: i18n.t('Secret or Key'),
           fields: [
             {
@@ -196,6 +196,32 @@ export const pfConfigurationFirewallViewFields = (context) => {
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'vsys'),
               validators: pfConfigurationValidatorsFromMeta(meta, 'vsys', i18n.t('Number'))
+            }
+          ]
+        },
+        {
+          if: ['FamilyZone'].includes(firewallType),
+          label: i18n.t('Region'),
+          text: i18n.t('Please define the region.'),
+          fields: [
+            {
+              key: 'region',
+              component: pfFormInput,
+              attrs: pfConfigurationAttributesFromMeta(meta, 'region'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'region', i18n.t('Region'))
+            }
+          ]
+        },
+        {
+          if: ['FamilyZone'].includes(firewallType),
+          label: i18n.t('DeviceID'),
+          text: i18n.t('Please define the DeviceID.'),
+          fields: [
+            {
+              key: 'deviceid',
+              component: pfFormInput,
+              attrs: pfConfigurationAttributesFromMeta(meta, 'deviceid'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'deviceid', i18n.t('DeviceID'))
             }
           ]
         },

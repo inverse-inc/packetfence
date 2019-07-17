@@ -12,6 +12,7 @@
         <b-dropdown :text="$t('New Firewall')" variant="outline-primary">
           <b-dropdown-item :to="{ name: 'newFirewall', params: { firewallType: 'BarracudaNG' } }">BarracudaNG</b-dropdown-item>
           <b-dropdown-item :to="{ name: 'newFirewall', params: { firewallType: 'Checkpoint' } }">Checkpoint</b-dropdown-item>
+          <b-dropdown-item :to="{ name: 'newFirewall', params: { firewallType: 'FamilyZone' } }">FamilyZone</b-dropdown-item>
           <b-dropdown-item :to="{ name: 'newFirewall', params: { firewallType: 'FortiGate' } }">FortiGate</b-dropdown-item>
           <b-dropdown-item :to="{ name: 'newFirewall', params: { firewallType: 'Iboss' } }">Iboss</b-dropdown-item>
           <b-dropdown-item :to="{ name: 'newFirewall', params: { firewallType: 'JuniperSRX' } }">JuniperSRX</b-dropdown-item>
