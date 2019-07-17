@@ -17,7 +17,6 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/inverse-inc/packetfence/go/db"
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
@@ -377,16 +376,16 @@ func (p *passthrough) checkDetectionMechanisms(ctx context.Context, e string) bo
 
 // HasSecurityEvents search for parking security event
 func (p *Proxy) HasSecurityEvents(ctx context.Context, mac string) bool {
-	security_event := false
+	securityEvent := false
 	var securityEventCount int
 	err := p.SecurityEvent.QueryRow(mac, 1).Scan(&securityEventCount)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "httpd.dispatcher: HasSecurityEvent %s %s\n", mac, err)
 	} else if securityEventCount != 0 {
-		security_event = true
+		securityEvent = true
 	}
 
-	return security_event
+	return securityEvent
 }
 
 // IP2Mac search the mac associated to the ip
@@ -433,7 +432,7 @@ func (p *Proxy) handleParking(ctx context.Context, w http.ResponseWriter, r *htt
 				if r.RequestURI == "/release-parking" {
 					reqURL := r.URL
 					// Call the API
-					err = p.ApiCall(ctx, MAC, ipAddress)
+					err = p.APICall(ctx, MAC, ipAddress)
 					if err == nil {
 						reqURL.Path = "/back-on-network.html"
 					} else {
@@ -441,10 +440,8 @@ func (p *Proxy) handleParking(ctx context.Context, w http.ResponseWriter, r *htt
 					}
 					r.URL = reqURL
 				}
-				spew.Dump("Parking detected " + MAC)
+				log.LoggerWContext(ctx).Info("Parking detected for " + MAC)
 				p.reverse(ctx, w, r, "127.0.0.1:5252")
-			} else {
-				spew.Dump("No Parking detected " + MAC)
 			}
 		}
 	}
@@ -479,8 +476,8 @@ func (p *Proxy) reverse(ctx context.Context, w http.ResponseWriter, r *http.Requ
 	log.LoggerWContext(ctx).Info(fmt.Sprintln(host, time.Since(t)))
 }
 
-// ApiCall use to unpark a device
-func (p *Proxy) ApiCall(ctx context.Context, mac string, ip string) error {
+// APICall use to unpark a device
+func (p *Proxy) APICall(ctx context.Context, mac string, ip string) error {
 
 	var raw json.RawMessage
 
