@@ -29,6 +29,11 @@ export const pfConfigurationRoutedNetworkTypes = [
   { value: 'vlan-registration', text: i18n.t('Registration') }
 ]
 
+export const pfConfigurationRoutedNetworkDHCPAlgo = [
+  { value: '1', text: i18n.t('Random') },
+  { value: '2', text: i18n.t('Oldest Released') }
+]
+
 export const pfConfigurationRoutedNetworkHtmlNote = `<div class="alert alert-warning">
   <strong>${i18n.t('Note')}</strong>
   ${i18n.t('Adding or modifying a network requires a restart of the pfdhcp and pfdns services for the changes to take place.')}
@@ -37,6 +42,11 @@ export const pfConfigurationRoutedNetworkHtmlNote = `<div class="alert alert-war
 export const pfConfigurationRoutedNetworksTypeFormatter = (value, key, item) => {
   if (value === null || value === '') return null
   return pfConfigurationRoutedNetworkTypes.find(type => type.value === value).text
+}
+
+export const pfConfigurationRoutedNetworkDHCPAlgoFormatter = (value, key, item) => {
+  if (value === null || value === '') return null
+  return pfConfigurationRoutedNetworkDHCPAlgo.find(type => type.value === value).text
 }
 
 export const pfConfigurationRoutedNetworksListColumns = [
@@ -204,6 +214,23 @@ export const pfConfigurationRoutedNetworkViewFields = (context = {}) => {
                 disabled: (form.fake_mac_enabled === 1),
                 values: { checked: 'enabled', unchecked: 'disabled' }
               }
+            }
+          ]
+        },
+        {
+          label: i18n.t('Algorithm'),
+          fields: [
+            {
+              key: 'algorithm',
+              component: pfFormChosen,
+              attrs: {
+                collapseObject: true,
+                placeholder: i18n.t('Click to choose the algorithm'),
+                trackBy: 'value',
+                label: 'text',
+                options: pfConfigurationRoutedNetworkDHCPAlgo
+              },
+              validators: pfConfigurationValidatorsFromMeta(meta, 'algorithm', i18n.t('Algorithm'))
             }
           ]
         },
