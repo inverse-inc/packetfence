@@ -86,10 +86,12 @@ export const blacklistedServices = [ // prevent start|stop|restart control on th
 ]
 
 // Default values
-const state = {
-  cache: {}, // items details
-  message: '',
-  requestStatus: ''
+const initialState = () => {
+  return {
+    cache: {}, // items details
+    message: '',
+    requestStatus: ''
+  }
 }
 
 const getters = {
@@ -252,12 +254,15 @@ const mutations = {
     if (response && response.data) {
       state.message = response.data.message
     }
+  },
+  $RESET: (state) => {
+    state = initialState()
   }
 }
 
 export default {
   namespaced: true,
-  state,
+  state: initialState(),
   getters,
   actions,
   mutations

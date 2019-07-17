@@ -14,10 +14,12 @@ const types = {
 }
 
 // Default values
-const state = {
-  cache: {}, // all searches, organized by `namespace`
-  message: '',
-  requestStatus: ''
+const initialState = () => {
+  return {
+    cache: {}, // all searches, organized by `namespace`
+    message: '',
+    requestStatus: ''
+  }
 }
 
 const getters = {
@@ -115,12 +117,15 @@ const mutations = {
   SAVED_SEARCH_SUCCESS: (state) => {
     state.requestStatus = types.SUCCESS
     state.message = ''
+  },
+  $RESET: (state) => {
+    state = initialState()
   }
 }
 
 export default {
   namespaced: true,
-  state,
+  state: initialState(),
   getters,
   actions,
   mutations

@@ -1,6 +1,7 @@
 <template>
     <b-form @submit.prevent="login">
-        <component :is="modal?'b-modal':'b-card'" v-model="showModal" no-body static lazy>
+        <component :is="modal?'b-modal':'b-card'" v-model="modalVisibility"
+          static lazy no-close-on-esc no-close-on-backdrop hide-header-close no-body>
             <template v-slot:[headerSlotName]>
                 <h4 class="mb-0" v-t="'Login to PacketFence Administration'"></h4>
             </template>
@@ -9,7 +10,7 @@
                     {{ message.text }}
                 </b-alert>
                 <b-form-group :label="$t('Username')" label-for="username" label-cols="4">
-                    <b-form-input id="username" ref="username" type="text" v-model="username" v-focus required></b-form-input>
+                    <b-form-input id="username" type="text" v-model="username" v-focus required :readonly="showModal === true"></b-form-input>
                 </b-form-group>
                 <b-form-group :label="$t('Password')" label-for="password" label-cols="4">
                     <b-form-input id="password" type="password" v-model="password" required></b-form-input>
@@ -17,6 +18,7 @@
             </component>
             <template v-slot:[footerSlotName] class="justify-content-start">
                 <pf-button-save type="submit" variant="primary" :isLoading="isLoading" :disabled="!validForm">{{ $t('Login') }}</pf-button-save>
+                <b-link class="ml-2" variant="outline-secondary" @click="logout" v-if="showModal === true">{{ $t('Use a different username') }}</b-link>
             </template>
         </component>
     </b-form>
@@ -34,7 +36,8 @@ export default {
     return {
       username: '',
       password: '',
-      message: {}
+      message: {},
+      modalVisibility: false
     }
   },
   props: {
@@ -70,14 +73,20 @@ export default {
       this.$store.dispatch('session/logout').then(() => {
         this.message = { level: 'warning', text: this.$i18n.t('Your session has expired') }
       })
+    } else if (this.$store.state.session.username) {
+      this.username = this.$store.state.session.username
     }
   },
   watch: {
     showModal (value) {
-      if (this.modal && value) {
-        this.$store.dispatch('session/logout').then(() => {
+      if (this.modal) {
+        this.modalVisibility = value
+        if (value) {
+          // Token has expired
+          this.username = this.$store.state.session.username
+          this.password = ''
           this.message = { level: 'warning', text: this.$i18n.t('Your session has expired') }
-        })
+        }
       }
     }
   },
@@ -92,6 +101,11 @@ export default {
         } else if (error.request) {
           this.message = { level: 'danger', text: this.$i18n.t('A networking error occurred. Is the API service running?') }
         }
+      })
+    },
+    logout () {
+      this.$store.dispatch('session/logout').then(() => {
+        this.$router.push('/logout')
       })
     }
   }

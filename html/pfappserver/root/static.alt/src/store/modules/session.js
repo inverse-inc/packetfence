@@ -152,7 +152,6 @@ const actions = {
       })
     }).catch(err => {
       commit('LOGIN_ERROR', err.response)
-      dispatch('delete')
       throw err
     })
   },
@@ -206,13 +205,14 @@ const mutations = {
   },
   TOKEN_UPDATED: (state, token) => {
     state.token = token
+    state.expired = false
   },
   TOKEN_DELETED: (state) => {
     state.token = ''
+    state.expired = false
   },
   USERNAME_UPDATED: (state, username) => {
     state.username = username
-    state.expired = false
   },
   USERNAME_DELETED: (state) => {
     state.username = ''

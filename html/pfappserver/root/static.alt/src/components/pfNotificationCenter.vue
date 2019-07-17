@@ -111,7 +111,7 @@ export default {
       notification.new = notification.unread = false
     },
     clear () {
-      this.$store.commit('notification/CLEAR')
+      this.$store.commit('notification/$RESET')
     }
   }
 }

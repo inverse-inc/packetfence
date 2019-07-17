@@ -5,9 +5,11 @@
 // import Vue from 'vue'
 import uuidv4 from 'uuid/v4'
 
-const state = {
-  all: [],
-  hideDelay: 5
+const initialState = () => {
+  return {
+    all: [],
+    hideDelay: 5
+  }
 }
 
 const getters = {}
@@ -92,14 +94,14 @@ const mutations = {
       }, state.hideDelay * 1000)
     }
   },
-  CLEAR: (state) => {
-    state.all = []
+  $RESET: (state) => {
+    state = initialState()
   }
 }
 
 export default {
   namespaced: true,
-  state,
+  state: initialState(),
   getters,
   actions,
   mutations

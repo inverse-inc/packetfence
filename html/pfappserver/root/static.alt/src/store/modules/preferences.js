@@ -82,9 +82,11 @@ const types = {
 }
 
 // Default values
-const state = {
-  message: '',
-  requestStatus: ''
+const initialState = () => {
+  return {
+    message: '',
+    requestStatus: ''
+  }
 }
 
 const getters = {
@@ -144,12 +146,15 @@ const mutations = {
     if (message) {
       state.message = message
     }
+  },
+  $RESET: (state) => {
+    state = initialState()
   }
 }
 
 export default {
   namespaced: true,
-  state,
+  state: initialState(),
   getters,
   actions,
   mutations
