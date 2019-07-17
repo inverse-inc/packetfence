@@ -390,16 +390,16 @@ func main() {
 			time.Sleep(3 * time.Second)
 		}
 	}()
-	var keyConfStats pfconfigdriver.PfconfigKeys
-	keyConfStats.PfconfigNS = "config::Stats"
-	keyConfStats.PfconfigHostnameOverlay = "yes"
-	pfconfigdriver.FetchDecodeSocket(ctx, &keyConfStats)
-	RegExpMetric := regexp.MustCompile("^metric .*")
 
 	db, err := db.DbFromConfig(ctx)
 	sharedutils.CheckError(err)
 	MySQLdatabase = db
 
+	var keyConfStats pfconfigdriver.PfconfigKeys
+	keyConfStats.PfconfigNS = "config::Stats"
+	keyConfStats.PfconfigHostnameOverlay = "yes"
+	pfconfigdriver.FetchDecodeSocket(ctx, &keyConfStats)
+	RegExpMetric := regexp.MustCompile("^metric .*")
 	for _, key := range keyConfStats.Keys {
 		var ConfStat pfconfigdriver.PfStats
 		ConfStat.PfconfigHashNS = key
@@ -407,11 +407,12 @@ func main() {
 		pfconfigdriver.FetchDecodeSocket(ctx, &ConfStat)
 
 		if RegExpMetric.MatchString(key) {
-			if (VIP[Management.Int] && ConfStat.Management == "true") || (ConfStat.Management == "false" || ConfStat.Management == "") {
-				err = ProcessMetricConfig(ctx, ConfStat)
-				if err != nil {
-					log.LoggerWContext(ctx).Error("Error while processing metric config: " + err.Error())
-				}
+			run := func() bool {
+				return (VIP[Management.Int] && ConfStat.Management == "true") || (ConfStat.Management == "false" || ConfStat.Management == "")
+			}
+			err = ProcessMetricConfig(ctx, ConfStat, run)
+			if err != nil {
+				log.LoggerWContext(ctx).Error("Error while processing metric config: " + err.Error())
 			}
 		}
 	}
