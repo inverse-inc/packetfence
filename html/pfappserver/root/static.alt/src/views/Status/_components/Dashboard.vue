@@ -695,7 +695,7 @@ export default {
                   cols: 12
                 }
               ]
-            },
+            }
           ] // groups
         } // Logs section
       ],
