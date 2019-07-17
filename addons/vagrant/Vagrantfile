@@ -104,7 +104,7 @@ Vagrant.configure("2") do |pfservers|
       srv.vm.network "private_network", ip: details['iso_ip']
 
       # provisioner for dev machines
-      srv.vm.provision "setup-dev-env", type: "shell", path: "setup-dev-env.sh"
+      srv.vm.provision "../dev-helpers/setup-dev-env", type: "shell", path: "setup-dev-env.sh"
 
       srv.vm.provider "libvirt" do |v,override|
         # don't use NFS, mount $PF
