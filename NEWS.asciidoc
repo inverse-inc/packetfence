@@ -24,6 +24,8 @@ Enhancements
 
 Bug Fixes
 +++++++++
+* Fixes pfstats queries /api/v1/dhcp/stats a lot of times (#4096)
+
 
 Version 9.0.1 released on 2019-05-24
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
