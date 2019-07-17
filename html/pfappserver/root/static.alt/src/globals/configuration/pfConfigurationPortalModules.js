@@ -1,3 +1,6 @@
+/**
+ * See modules under html/pfappserver/lib/pfappserver/Form/Config/PortalModule/
+ */
 import i18n from '@/utils/locale'
 import pfField from '@/components/pfField'
 import pfFieldTypeValue from '@/components/pfFieldTypeValue'
@@ -75,6 +78,7 @@ export const pfConfigurationPortalModuleTypes = () => {
         { type: 'Message', name: i18n.t('Message') },
         { type: 'Provisioning', name: i18n.t('Provisioning') },
         { type: 'SelectRole', name: i18n.t('Select Role') },
+        { type: 'SSL_Inspection', name: i18n.t('SSL Inspection') },
         { type: 'Survey', name: i18n.t('Survey') },
         { type: 'URL', name: i18n.t('URL') }
       ]
@@ -506,11 +510,39 @@ export const pfConfigurationPortalModuleFields = {
           key: 'source_id',
           component: pfFormChosen,
           attrs: {
-            ...pfConfigurationAttributesFromMeta(meta, 'source_id', i18n.t('Source')),
+            ...pfConfigurationAttributesFromMeta(meta, 'source_id'),
             ...{
               placeholder: i18n.t('Click to select a source')
             }
           }
+        }
+      ]
+    }
+  },
+  ssl_mobileconfig_path: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('SSL iOS profile URL'),
+      text: i18n.t('URL of an iOS mobileconfig profile to install the certificate.'),
+      fields: [
+        {
+          key: 'ssl_mobileconfig_path',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'ssl_mobileconfig_path'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'ssl_mobileconfig_path', 'SSL iOS profile URL')
+        }
+      ]
+    }
+  },
+  ssl_path: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('SSL Certificate URL'),
+      text: i18n.t('URL of the SSL certificate in X509 Base64 format.'),
+      fields: [
+        {
+          key: 'ssl_path',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'ssl_path'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'ssl_path', 'SSL Certificate URL')
         }
       ]
     }
@@ -915,6 +947,20 @@ export const pfConfigurationPortalModuleViewFields = (context = {}) => {
             pfConfigurationPortalModuleFields.id(context),
             pfConfigurationPortalModuleFields.description(context),
             pfConfigurationPortalModuleFields.template(context),
+            pfConfigurationPortalModuleFields.skipable(context),
+            pfConfigurationPortalModuleFields.actions(context)
+          ]
+        }
+      ]
+    case 'SSL_Inspection':
+      return [
+        {
+          tab: null, // ignore tabs
+          fields: [
+            pfConfigurationPortalModuleFields.id(context),
+            pfConfigurationPortalModuleFields.description(context),
+            pfConfigurationPortalModuleFields.ssl_path(context),
+            pfConfigurationPortalModuleFields.ssl_mobileconfig_path(context),
             pfConfigurationPortalModuleFields.skipable(context),
             pfConfigurationPortalModuleFields.actions(context)
           ]
