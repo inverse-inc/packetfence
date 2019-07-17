@@ -77,4 +77,4 @@ all:
               cpus: 1
               memory: 8192
   vars:
-    tz: Europe/Paris
+    tz: Etc/UTC
