@@ -212,7 +212,6 @@ binary-arch: build install
 	dh_installinit --name=packetfence-httpd.admin
 	dh_installinit --name=packetfence-httpd.collector
 	dh_installinit --name=packetfence-httpd.dispatcher
-	dh_installinit --name=packetfence-httpd.parking
 	dh_installinit --name=packetfence-httpd.portal
 	dh_installinit --name=packetfence-httpd.proxy
 	dh_installinit --name=packetfence-httpd.webservices
@@ -275,7 +274,6 @@ binary-arch: build install
 	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/bin/*
 	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/bin/cluster/*
 	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/sbin/*
-	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/html/parking/cgi-bin/*.pl
 	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/html/pfappserver/script/*.pl
 	dh_fixperms -X$(NAME)/bin -X$(NAME)/sbin -X$(NAME)/addons \
                 -X$(NAME)/conf/pfdetect_remote.conf \

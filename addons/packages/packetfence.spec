@@ -467,7 +467,6 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.aaa.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-httpd.aaa.service
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.admin.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-httpd.admin.service
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.collector.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-httpd.collector.service
-%{__install} -D -m0644 conf/systemd/packetfence-httpd.parking.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-httpd.parking.service
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.portal.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-httpd.portal.service
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.proxy.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-httpd.proxy.service
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.webservices.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-httpd.webservices.service
@@ -1098,8 +1097,6 @@ fi
                         /usr/local/pf/conf/httpd.conf.d/httpd.admin.tt.example
 %config                 /usr/local/pf/conf/httpd.conf.d/httpd.portal.tt
                         /usr/local/pf/conf/httpd.conf.d/httpd.portal.tt.example
-%config                 /usr/local/pf/conf/httpd.conf.d/httpd.parking.tt
-                        /usr/local/pf/conf/httpd.conf.d/httpd.parking.tt.example
 %config                 /usr/local/pf/conf/httpd.conf.d/httpd.proxy.tt
                         /usr/local/pf/conf/httpd.conf.d/httpd.proxy.tt.example
 %config                 /usr/local/pf/conf/httpd.conf.d/httpd.webservices.tt
@@ -1238,10 +1235,6 @@ fi
                         /usr/local/pf/html/captive-portal/templates/*
 %dir                    /usr/local/pf/html/common
                         /usr/local/pf/html/common/*
-                        /usr/local/pf/html/parking/back-on-network.html
-                        /usr/local/pf/html/parking/cgi-bin/release.pl
-                        /usr/local/pf/html/parking/index.html
-                        /usr/local/pf/html/parking/max-attempts.html
                         /usr/local/pf/html/pfappserver/
 %config(noreplace)      /usr/local/pf/html/pfappserver/pfappserver.conf
 %config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Admin.pm

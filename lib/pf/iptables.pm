@@ -189,10 +189,6 @@ sub iptables_generate {
 
     generate_domain_rules(\$tags{'filter_forward_domain'}, \$tags{'domain_postrouting'});
 
-    # HTTP parking related rule
-    $tags{'nat_prerouting_vlan'} .= "-A PREROUTING -p tcp --dport 80 -m set --match-set $pf::constants::parking::PARKING_IPSET_NAME src -j REDIRECT --to-port 5252\n";
-    $tags{'nat_prerouting_vlan'} .= "-A PREROUTING -p tcp --dport 443 -m set --match-set $pf::constants::parking::PARKING_IPSET_NAME src -j REDIRECT --to-port 5252\n";
-
     parse_template( \%tags, "$conf_dir/iptables.conf", "$generated_conf_dir/iptables.conf" );
     $self->iptables_restore("$generated_conf_dir/iptables.conf");
 }

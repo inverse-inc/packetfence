@@ -22,7 +22,6 @@ Services managed by PacketFence:
   httpd.admin          | Apache Web admin
   httpd.collector      | Apache Collector daemon
   httpd.dispatcher     | Captive portal dispatcher
-  httpd.parking        | Apache Parking Portal
   httpd.portal         | Apache Captive Portal
   httpd.proxy          | Apache Proxy Interception
   httpd.webservices    | Apache Webservices
