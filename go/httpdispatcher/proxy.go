@@ -26,14 +26,14 @@ import (
 
 // Proxy structure
 type Proxy struct {
-	endpointWhiteList []*regexp.Regexp
-	endpointBlackList []*regexp.Regexp
-	mutex             sync.Mutex
-	SecurityEvent     *sql.Stmt // prepared statement for security_event
-	IP4log            *sql.Stmt // prepared statement for ip4log queries
-	IP6log            *sql.Stmt // prepared statement for ip6log queries
-	Db                *sql.DB
-	apiClient         *unifiedapiclient.Client
+	endpointWhiteList    []*regexp.Regexp
+	endpointBlackList    []*regexp.Regexp
+	mutex                sync.Mutex
+	ParkingSecurityEvent *sql.Stmt // prepared statement for security_event
+	IP4log               *sql.Stmt // prepared statement for ip4log queries
+	IP6log               *sql.Stmt // prepared statement for ip6log queries
+	Db                   *sql.DB
+	apiClient            *unifiedapiclient.Client
 }
 
 type passthrough struct {
@@ -51,6 +51,9 @@ type fqdn struct {
 }
 
 var passThrough *passthrough
+
+// TenantID constant
+const TenantID = 1
 
 // NewProxy creates a new instance of proxy.
 // It sets request logger using rLogPath as output file or os.Stdout by default.
@@ -225,7 +228,7 @@ func (p *Proxy) Configure(ctx context.Context) {
 		fmt.Fprintf(os.Stderr, "pfdns: database ip6log prepared statement error: %s", err)
 	}
 
-	p.SecurityEvent, err = p.Db.Prepare("Select count(*) from security_event where security_event.security_event_id='1300003' and mac=? and status='open' AND tenant_id = ?")
+	p.ParkingSecurityEvent, err = p.Db.Prepare("Select count(*) from security_event where security_event.security_event_id='1300003' and mac=? and status='open' AND tenant_id = ?")
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "httpd.dispatcher: database security_event prepared statement error: %s", err)
 	}
@@ -378,7 +381,7 @@ func (p *passthrough) checkDetectionMechanisms(ctx context.Context, e string) bo
 func (p *Proxy) HasSecurityEvents(ctx context.Context, mac string) bool {
 	securityEvent := false
 	var securityEventCount int
-	err := p.SecurityEvent.QueryRow(mac, 1).Scan(&securityEventCount)
+	err := p.ParkingSecurityEvent.QueryRow(mac, 1).Scan(&securityEventCount)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "httpd.dispatcher: HasSecurityEvent %s %s\n", mac, err)
 	} else if securityEventCount != 0 {
@@ -397,9 +400,9 @@ func (p *Proxy) IP2Mac(ctx context.Context, ip string) (string, error) {
 	srcIP := net.ParseIP(ip)
 
 	if sharedutils.IsIPv4(srcIP) {
-		err = p.IP4log.QueryRow(ip, 1).Scan(&mac)
+		err = p.IP4log.QueryRow(ip, TenantID).Scan(&mac)
 	} else {
-		err = p.IP6log.QueryRow(ip, 1).Scan(&mac)
+		err = p.IP6log.QueryRow(ip, TenantID).Scan(&mac)
 	}
 
 	if err != nil {
@@ -432,7 +435,7 @@ func (p *Proxy) handleParking(ctx context.Context, w http.ResponseWriter, r *htt
 				if r.RequestURI == "/release-parking" {
 					reqURL := r.URL
 					// Call the API
-					err = p.APICall(ctx, MAC, ipAddress)
+					err = p.APIUnpark(ctx, MAC, ipAddress)
 					if err == nil {
 						reqURL.Path = "/back-on-network.html"
 					} else {
@@ -476,8 +479,8 @@ func (p *Proxy) reverse(ctx context.Context, w http.ResponseWriter, r *http.Requ
 	log.LoggerWContext(ctx).Info(fmt.Sprintln(host, time.Since(t)))
 }
 
-// APICall use to unpark a device
-func (p *Proxy) APICall(ctx context.Context, mac string, ip string) error {
+// APIUnpark use to unpark a device
+func (p *Proxy) APIUnpark(ctx context.Context, mac string, ip string) error {
 
 	var raw json.RawMessage
 
