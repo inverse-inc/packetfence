@@ -4,6 +4,7 @@ import (
 	"github.com/inverse-inc/packetfence/go/log"
 )
 
+// MysqlInsert function
 func MysqlInsert(key string, value string) bool {
 	if err := MySQLdatabase.PingContext(ctx); err != nil {
 		log.LoggerWContext(ctx).Error("Unable to ping database, reconnect: " + err.Error())
@@ -13,11 +14,11 @@ func MysqlInsert(key string, value string) bool {
 	if err != nil {
 		log.LoggerWContext(ctx).Error("Error while inserting into MySQL: " + err.Error())
 		return false
-	} else {
-		return true
 	}
+	return true
 }
 
+// MysqlGet function
 func MysqlGet(key string) (string, string) {
 	if err := MySQLdatabase.PingContext(ctx); err != nil {
 		log.LoggerWContext(ctx).Error("Unable to ping database, reconnect: " + err.Error())
@@ -29,18 +30,19 @@ func MysqlGet(key string) (string, string) {
 		return "", ""
 	}
 	var (
-		Id    string
+		ID    string
 		Value string
 	)
 	for rows.Next() {
-		err := rows.Scan(&Id, &Value)
+		err := rows.Scan(&ID, &Value)
 		if err != nil {
 			log.LoggerWContext(ctx).Crit(err.Error())
 		}
 	}
-	return Id, Value
+	return ID, Value
 }
 
+// MysqlDel function
 func MysqlDel(key string) bool {
 	if err := MySQLdatabase.PingContext(ctx); err != nil {
 		log.LoggerWContext(ctx).Error("Unable to ping database, reconnect: " + err.Error())

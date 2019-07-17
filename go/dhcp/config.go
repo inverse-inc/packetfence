@@ -17,6 +17,7 @@ import (
 	netadv "github.com/simon/go-netadv"
 )
 
+// DHCPHandler struct
 type DHCPHandler struct {
 	ip            net.IP // Server IP to use
 	vip           net.IP
@@ -33,24 +34,33 @@ type DHCPHandler struct {
 	ipAssigned    map[string]uint32
 }
 
+// Interfaces struct
 type Interfaces struct {
 	intsNet []Interface
 }
 
+// Interface struct
 type Interface struct {
-	Name    string
-	intNet  *net.Interface
-	network []Network
-	layer2  []*net.IPNet
-	Ipv4    net.IP
-	Ipv6    net.IP
+	Name          string
+	intNet        *net.Interface
+	network       []Network
+	layer2        []*net.IPNet
+	Ipv4          net.IP
+	Ipv6          net.IP
+	InterfaceType string
+	relayIP       net.IP
+	listenPort    int
 }
 
+// Network struct
 type Network struct {
 	network     net.IPNet
 	dhcpHandler *DHCPHandler
 	splittednet bool
 }
+
+const bootpClient = 68
+const bootpServer = 67
 
 func newDHCPConfig() *Interfaces {
 	var p Interfaces
@@ -71,18 +81,18 @@ func (d *Interfaces) readConfig() {
 
 	pfconfigdriver.FetchDecodeSocket(ctx, &keyConfNet)
 
-	var int_dhcp []string
+	var intDhcp []string
 
 	for _, vi := range DHCPinterfaces.Element {
-		for key, dhcp_int := range vi.(map[string]interface{}) {
+		for key, dhcpint := range vi.(map[string]interface{}) {
 			if key == "int" {
-				int_dhcp = append(int_dhcp, dhcp_int.(string))
+				intDhcp = append(intDhcp, dhcpint.(string))
 			}
 		}
 	}
 
 	wg := &sync.WaitGroup{}
-	for _, v := range sharedutils.RemoveDuplicates(append(interfaces.Element, int_dhcp...)) {
+	for _, v := range sharedutils.RemoveDuplicates(append(interfaces.Element, intDhcp...)) {
 
 		eth, err := net.InterfaceByName(v)
 
@@ -98,6 +108,8 @@ func (d *Interfaces) readConfig() {
 
 		ethIf.intNet = eth
 		ethIf.Name = eth.Name
+		ethIf.InterfaceType = "server"
+		ethIf.listenPort = bootpServer
 
 		adresses, _ := eth.Addrs()
 		for _, adresse := range adresses {
@@ -111,12 +123,14 @@ func (d *Interfaces) readConfig() {
 				continue
 			}
 
-			if IP.To16() != nil {
+			if IsIPv6(IP) {
 				ethIf.Ipv6 = IP
+				continue
 			}
-			if IP.To4() != nil {
+			if IsIPv4(IP) {
 				ethIf.Ipv4 = IP
 			}
+
 			ethIf.layer2 = append(ethIf.layer2, NetIP)
 
 			for _, key := range keyConfNet.Keys {
@@ -310,11 +324,6 @@ func (d *Interfaces) readConfig() {
 						options[dhcp.OptionRouter] = ShuffleGateway(ConfNet)
 						options[dhcp.OptionDomainName] = []byte(ConfNet.DomainName)
 						DHCPScope.options = options
-						if len(ConfNet.NextHop) > 0 {
-							DHCPScope.layer2 = false
-						} else {
-							DHCPScope.layer2 = true
-						}
 						DHCPNet.dhcpHandler = DHCPScope
 
 						ethIf.network = append(ethIf.network, DHCPNet)

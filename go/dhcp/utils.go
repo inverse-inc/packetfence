@@ -20,6 +20,7 @@ import (
 	dhcp "github.com/krolaw/dhcp4"
 )
 
+// NodeInfo struct
 type NodeInfo struct {
 	Mac      string
 	Status   string
@@ -51,8 +52,8 @@ func initiaLease(dhcpHandler *DHCPHandler, ConfNet pfconfigdriver.RessourseNetwo
 	var (
 		ipstr      string
 		mac        string
-		end_time   time.Time
-		start_time time.Time
+		endTime    time.Time
+		startTime  time.Time
 		reservedIP []net.IP
 		found      bool
 	)
@@ -62,7 +63,7 @@ func initiaLease(dhcpHandler *DHCPHandler, ConfNet pfconfigdriver.RessourseNetwo
 	dhcpHandler.ipReserved = ConfNet.IpReserved
 
 	for rows.Next() {
-		err := rows.Scan(&ipstr, &mac, &end_time, &start_time)
+		err := rows.Scan(&ipstr, &mac, &endTime, &startTime)
 		if err != nil {
 			log.LoggerWContext(ctx).Error(err.Error())
 			return
@@ -76,10 +77,10 @@ func initiaLease(dhcpHandler *DHCPHandler, ConfNet pfconfigdriver.RessourseNetwo
 		if found == false {
 			// Calculate the leasetime from the date in the database
 			var leaseDuration time.Duration
-			if end_time.IsZero() {
+			if endTime.IsZero() {
 				leaseDuration = dhcpHandler.leaseDuration
 			} else {
-				leaseDuration = end_time.Sub(now)
+				leaseDuration = endTime.Sub(now)
 			}
 			ip := net.ParseIP(ipstr)
 
@@ -89,12 +90,13 @@ func initiaLease(dhcpHandler *DHCPHandler, ConfNet pfconfigdriver.RessourseNetwo
 			dhcpHandler.available.ReserveIPIndex(uint64(position), mac)
 			// Add the mac in the cache
 			dhcpHandler.hwcache.Set(mac, int(position), leaseDuration)
-			GlobalIpCache.Set(ipstr, mac, leaseDuration)
+			GlobalIPCache.Set(ipstr, mac, leaseDuration)
 			GlobalMacCache.Set(mac, ipstr, leaseDuration)
 		}
 	}
 }
 
+// InterfaceScopeFromMac detect in which scope the mac is
 func InterfaceScopeFromMac(MAC string) string {
 	var NetWork string
 	if index, found := GlobalMacCache.Get(MAC); found {
@@ -145,7 +147,7 @@ func (d *Interfaces) detectVIP(interfaces []string) {
 				if VIP[v] == false {
 					log.LoggerWContext(ctx).Info(v + " got the VIP")
 					if h, ok := intNametoInterface[v]; ok {
-						go h.handleApiReq(ApiReq{Req: "initialease", NetInterface: v, NetWork: ""})
+						go h.handleAPIReq(APIReq{Req: "initialease", NetInterface: v, NetWork: ""})
 					}
 					VIP[v] = true
 				}
@@ -157,7 +159,8 @@ func (d *Interfaces) detectVIP(interfaces []string) {
 	}
 }
 
-func NodeInformation(target net.HardwareAddr, ctx context.Context) (r NodeInfo) {
+// NodeInformation return the node information
+func NodeInformation(ctx context.Context, target net.HardwareAddr) (r NodeInfo) {
 
 	rows, err := MySQLdatabase.Query("SELECT mac, status, IF(ISNULL(nc.name), '', nc.name) as category FROM node LEFT JOIN node_category as nc on node.category_id = nc.category_id WHERE mac = ?", target.String())
 	defer rows.Close()
@@ -186,35 +189,36 @@ func NodeInformation(target net.HardwareAddr, ctx context.Context) (r NodeInfo) 
 	return Node
 }
 
+// ShuffleDNS return the dns list
 func ShuffleDNS(ConfNet pfconfigdriver.RessourseNetworkConf) (r []byte) {
 	if ConfNet.ClusterIPs != "" {
 		if ConfNet.Dnsvip != "" {
 			return []byte(net.ParseIP(ConfNet.Dnsvip).To4())
-		} else {
-			return Shuffle(ConfNet.ClusterIPs)
 		}
+		return Shuffle(ConfNet.ClusterIPs)
 	}
 	if ConfNet.Dnsvip != "" {
 		return []byte(net.ParseIP(ConfNet.Dnsvip).To4())
-	} else {
-		return []byte(net.ParseIP(ConfNet.Dns).To4())
 	}
+	return []byte(net.ParseIP(ConfNet.Dns).To4())
 }
 
+// ShuffleGateway return the gateway list
 func ShuffleGateway(ConfNet pfconfigdriver.RessourseNetworkConf) (r []byte) {
 	if ConfNet.NextHop != "" {
 		return []byte(net.ParseIP(ConfNet.Gateway).To4())
 	} else if ConfNet.ClusterIPs != "" {
 		if ConfNet.Type == "inlinel2" && ConfNet.NatEnabled == "disabled" {
 			return []byte(net.ParseIP(ConfNet.Gateway).To4())
-		} else {
-			return Shuffle(ConfNet.ClusterIPs)
 		}
+		return Shuffle(ConfNet.ClusterIPs)
+
 	} else {
 		return []byte(net.ParseIP(ConfNet.Gateway).To4())
 	}
 }
 
+// Shuffle addresses
 func Shuffle(addresses string) (r []byte) {
 	var array []net.IP
 	for _, adresse := range strings.Split(addresses, ",") {
@@ -235,6 +239,7 @@ func Shuffle(addresses string) (r []byte) {
 	return slice
 }
 
+// ShuffleNetIP shuffle an array of net.IP
 func ShuffleNetIP(array []net.IP, randSrc int64) (r []byte) {
 
 	slice := make([]byte, 0, len(array))
@@ -254,6 +259,7 @@ func ShuffleNetIP(array []net.IP, randSrc int64) (r []byte) {
 	return slice
 }
 
+// ShuffleIP shuffle ip
 func ShuffleIP(a []byte, randSrc int64) (r []byte) {
 
 	var array []net.IP
@@ -264,9 +270,10 @@ func ShuffleIP(a []byte, randSrc int64) (r []byte) {
 	return ShuffleNetIP(array, randSrc)
 }
 
-func IPsFromRange(ip_range string) (r []net.IP, i int) {
+// IPsFromRange split ip range
+func IPsFromRange(iPrange string) (r []net.IP, i int) {
 	var iplist []net.IP
-	iprange := strings.Split(ip_range, ",")
+	iprange := strings.Split(iPrange, ",")
 	if len(iprange) >= 1 {
 		for _, rangeip := range iprange {
 			ips := strings.Split(rangeip, "-")
@@ -304,7 +311,7 @@ func ExcludeIP(dhcpHandler *DHCPHandler, ipRange string) []net.IP {
 	return excludeIPs
 }
 
-// Assign static IP address to a mac address and remove it from the pool
+// AssignIP static IP address to a mac address and remove it from the pool
 func AssignIP(dhcpHandler *DHCPHandler, ipRange string) (map[string]uint32, []net.IP) {
 	couple := make(map[string]uint32)
 	var iplist []net.IP
@@ -325,6 +332,7 @@ func AssignIP(dhcpHandler *DHCPHandler, ipRange string) (map[string]uint32, []ne
 	return couple, iplist
 }
 
+// AddDevicesOptions function add options on the fly
 func AddDevicesOptions(object string, leaseDuration *time.Duration, GlobalOptions map[dhcp.OptionCode][]byte) {
 	x, err := decodeOptions(object)
 	if err == nil {
@@ -339,6 +347,7 @@ func AddDevicesOptions(object string, leaseDuration *time.Duration, GlobalOption
 	}
 }
 
+// AddPffilterDevicesOptions add options on the fly from pffilter
 func AddPffilterDevicesOptions(info interface{}, GlobalOptions map[dhcp.OptionCode][]byte) error {
 	var err error
 	for key, value := range info.(map[string]interface{}) {
@@ -356,6 +365,7 @@ func AddPffilterDevicesOptions(info interface{}, GlobalOptions map[dhcp.OptionCo
 	return nil
 }
 
+// GetFromGlobalFilterCache retreive the global option from the cache
 func GetFromGlobalFilterCache(msgType string, mac string, Options map[string]string) interface{} {
 	var info interface{}
 	var err error
@@ -375,4 +385,14 @@ func GetFromGlobalFilterCache(msgType string, mac string, Options map[string]str
 		}
 	}
 	return info
+}
+
+// IsIPv4 test if the ip is v4
+func IsIPv4(address net.IP) bool {
+	return strings.Count(address.String(), ":") < 2
+}
+
+// IsIPv6 test if the ip is v6
+func IsIPv6(address net.IP) bool {
+	return strings.Count(address.String(), ":") >= 2
 }

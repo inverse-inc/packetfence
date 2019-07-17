@@ -8,17 +8,17 @@ import (
 	"golang.org/x/net/ipv4"
 )
 
+// Answer struct
 type Answer struct {
 	D     dhcp.Packet
 	IP    net.IP
 	MAC   net.HardwareAddr
-	Iface *net.Interface
-	SrcIP net.IP
-	Local bool
+	SrcIP net.IP //Only for inline splitted network
 }
 
+// Handler interface
 type Handler interface {
-	ServeDHCP(ctx context.Context, req dhcp.Packet, msgType dhcp.MessageType) Answer
+	ServeDHCP(ctx context.Context, req dhcp.Packet, msgType dhcp.MessageType, srcIP net.Addr) Answer
 }
 
 // ServeConn is the bare minimum connection functions required by Serve()
@@ -43,13 +43,13 @@ type ServeConn interface {
 // Additionally, response packets may not return to the same
 // interface that the request was received from.  Writing a custom ServeConn,
 // or using ServeIf() can provide a workaround to this problem.
-func Serve(conn ServeConn, handler Handler, jobs chan job, ctx context.Context) error {
+func Serve(ctx context.Context, conn *serveIfConn, handler Handler, jobs chan job, interfaceNet *Interface) error {
 
 	buffer := make([]byte, 1500)
 
 	for {
 
-		n, cm, addr, err := conn.ReadFromRaw(buffer)
+		n, _, addr, err := conn.ReadFromRaw(buffer)
 		if err != nil {
 			return err
 		}
@@ -75,7 +75,8 @@ func Serve(conn ServeConn, handler Handler, jobs chan job, ctx context.Context) 
 		}
 		var dhcprequest dhcp.Packet
 		dhcprequest = append([]byte(nil), req...)
-		jobe := job{dhcprequest, reqType, handler, addr, cm.Dst, ctx}
+		// addr is source ip address cm.Dst is the target
+		jobe := job{DHCPpacket: dhcprequest, msgType: reqType, Int: interfaceNet, handler: handler, clientAddr: addr, localCtx: ctx}
 		go func() {
 			jobs <- jobe
 		}()

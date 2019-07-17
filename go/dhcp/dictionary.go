@@ -8,29 +8,32 @@ import (
 	"strings"
 )
 
+// TlvList struct
 type TlvList struct {
 	Tlvlist map[int]TlvType
 }
 
+// TlvType struct
 type TlvType struct {
 	Option    string
 	Transform DataType
 }
 
+// DataType struct
 type DataType interface {
 	Value(a []byte) interface{}
 	String(a []byte) string
 	Encode(a string) []byte
 }
 
-var tlvIpAddr tlvIpAddrt
+var tlvIPAddr tlvIPAddrt
 
-type tlvIpAddrt struct{}
+type tlvIPAddrt struct{}
 
-func (s tlvIpAddrt) Value(a []byte) interface{} {
+func (s tlvIPAddrt) Value(a []byte) interface{} {
 	return a
 }
-func (s tlvIpAddrt) String(a []byte) string {
+func (s tlvIPAddrt) String(a []byte) string {
 	var IPS string
 	var temp []byte
 	var i int
@@ -56,7 +59,7 @@ func (s tlvIpAddrt) String(a []byte) string {
 	return IPS
 }
 
-func (s tlvIpAddrt) Encode(a string) []byte {
+func (s tlvIPAddrt) Encode(a string) []byte {
 	var array []net.IP
 	slice := make([]byte, 0, len(array))
 	for _, adresse := range strings.Split(a, ",") {
@@ -226,16 +229,23 @@ func (s tlvInt8t) Encode(a string) []byte {
 	return []byte(a)
 }
 
+// TlvTypeCn var
 var TlvTypeCn TlvTypeCnt
 
+// TlvTypeCnt var
 type TlvTypeCnt struct{}
 
+// Value function
 func (s TlvTypeCnt) Value(a []byte) interface{} {
 	return a
 }
+
+// String function
 func (s TlvTypeCnt) String(a []byte) string {
 	return "string"
 }
+
+// Encode function
 func (s TlvTypeCnt) Encode(a string) []byte {
 	return []byte(a)
 }
@@ -274,42 +284,43 @@ func (s extractFingerPrintt) Encode(a string) []byte {
 	return []byte(a)
 }
 
+// Tlv var
 var Tlv = TlvList{
 	Tlvlist: map[int]TlvType{
-		0:   TlvType{"Pad", tlvIpAddr},
-		1:   TlvType{"OptionSubnetMask", tlvIpAddr},
+		0:   TlvType{"Pad", tlvIPAddr},
+		1:   TlvType{"OptionSubnetMask", tlvIPAddr},
 		2:   TlvType{"OptionTimeOffset", tlvSTime},
-		3:   TlvType{"OptionRouter", tlvIpAddr},
-		4:   TlvType{"OptionTimeServer", tlvIpAddr},
-		5:   TlvType{"OptionNameServer", tlvIpAddr},
-		6:   TlvType{"OptionDomainNameServer", tlvIpAddr},
-		7:   TlvType{"OptionLogServer", tlvIpAddr},
-		8:   TlvType{"OptionCookieServer", tlvIpAddr},
-		9:   TlvType{"OptionLPRServer", tlvIpAddr},
-		10:  TlvType{"OptionImpressServer", tlvIpAddr},
-		11:  TlvType{"OptionResourceLocationServer", tlvIpAddr},
+		3:   TlvType{"OptionRouter", tlvIPAddr},
+		4:   TlvType{"OptionTimeServer", tlvIPAddr},
+		5:   TlvType{"OptionNameServer", tlvIPAddr},
+		6:   TlvType{"OptionDomainNameServer", tlvIPAddr},
+		7:   TlvType{"OptionLogServer", tlvIPAddr},
+		8:   TlvType{"OptionCookieServer", tlvIPAddr},
+		9:   TlvType{"OptionLPRServer", tlvIPAddr},
+		10:  TlvType{"OptionImpressServer", tlvIPAddr},
+		11:  TlvType{"OptionResourceLocationServer", tlvIPAddr},
 		12:  TlvType{"OptionHostName", tlvNstring},
 		13:  TlvType{"OptionBootFileSize", tlvShort},
 		14:  TlvType{"OptionMeritDumpFile", tlvNstring},
 		15:  TlvType{"OptionDomainName", tlvNstring},
-		16:  TlvType{"OptionSwapServer", tlvIpAddr},
+		16:  TlvType{"OptionSwapServer", tlvIPAddr},
 		17:  TlvType{"OptionRootPath", tlvNstring},
 		18:  TlvType{"OptionExtensionsPath", tlvNstring},
 		19:  TlvType{"OptionIPForwardingEnableDisable", tlvBool},
 		20:  TlvType{"OptionNonLocalSourceRoutingEnableDisable", tlvBool},
-		21:  TlvType{"OptionPolicyFilter", tlvIpAddr},
+		21:  TlvType{"OptionPolicyFilter", tlvIPAddr},
 		22:  TlvType{"OptionMaximumDatagramReassemblySize", tlvShort},
 		23:  TlvType{"OptionDefaultIPTimeToLive", tlvRangeByte},
 		24:  TlvType{"OptionPathMTUAgingTimeout", tlvSTime},
 		25:  TlvType{"OptionPathMTUPlateauTable", tlvRangeShort},
 		26:  TlvType{"OptionInterfaceMTU", tlvRangeShort},
 		27:  TlvType{"OptionAllSubnetsAreLocal", tlvBool},
-		28:  TlvType{"OptionBroadcastAddress", tlvIpAddr},
+		28:  TlvType{"OptionBroadcastAddress", tlvIPAddr},
 		29:  TlvType{"OptionPerformMaskDiscovery", tlvBool},
 		30:  TlvType{"OptionMaskSupplier", tlvBool},
 		31:  TlvType{"OptionPerformRouterDiscovery", tlvBool},
-		32:  TlvType{"OptionRouterSolicitationAddress", tlvIpAddr},
-		33:  TlvType{"OptionStaticRoute", tlvIpAddr},
+		32:  TlvType{"OptionRouterSolicitationAddress", tlvIPAddr},
+		33:  TlvType{"OptionStaticRoute", tlvIPAddr},
 		34:  TlvType{"OptionTrailerEncapsulation", tlvBool},
 		35:  TlvType{"OptionARPCacheTimeout", tlvSTime},
 		36:  TlvType{"OptionEthernetEncapsulation", tlvBool},
@@ -317,20 +328,20 @@ var Tlv = TlvList{
 		38:  TlvType{"OptionTCPKeepaliveInterval", tlvSTime},
 		39:  TlvType{"OptionTCPKeepaliveGarbage", tlvBool},
 		40:  TlvType{"OptionNetworkInformationServiceDomain", tlvNstring},
-		41:  TlvType{"OptionNetworkInformationServers", tlvIpAddr},
-		42:  TlvType{"OptionNetworkTimeProtocolServers", tlvIpAddr},
+		41:  TlvType{"OptionNetworkInformationServers", tlvIPAddr},
+		42:  TlvType{"OptionNetworkTimeProtocolServers", tlvIPAddr},
 		43:  TlvType{"OptionVendorSpecificInformation", tlvBlob},
-		44:  TlvType{"OptionNetBIOSOverTCPIPNameServer", tlvIpAddr},
-		45:  TlvType{"OptionNetBIOSOverTCPIPDatagramDistributionServer", tlvIpAddr},
+		44:  TlvType{"OptionNetBIOSOverTCPIPNameServer", tlvIPAddr},
+		45:  TlvType{"OptionNetBIOSOverTCPIPDatagramDistributionServer", tlvIPAddr},
 		46:  TlvType{"OptionNetBIOSOverTCPIPNodeType", tlvRangeByte},
 		47:  TlvType{"OptionNetBIOSOverTCPIPScope", tlvNstring},
-		48:  TlvType{"OptionXWindowSystemFontServer", tlvIpAddr},
-		49:  TlvType{"OptionXWindowSystemDisplayManager", tlvIpAddr},
-		50:  TlvType{"OptionRequestedIPAddress", tlvIpAddr},
+		48:  TlvType{"OptionXWindowSystemFontServer", tlvIPAddr},
+		49:  TlvType{"OptionXWindowSystemDisplayManager", tlvIPAddr},
+		50:  TlvType{"OptionRequestedIPAddress", tlvIPAddr},
 		51:  TlvType{"OptionIPAddressLeaseTime", tlvSTime},
 		52:  TlvType{"OptionOverload", tlvOverload},
 		53:  TlvType{"OptionDHCPMessageType", tlvMessage},
-		54:  TlvType{"OptionServerIdentifier", tlvIpAddr},
+		54:  TlvType{"OptionServerIdentifier", tlvIPAddr},
 		55:  TlvType{"OptionParameterRequestList", extractFingerPrint},
 		56:  TlvType{"OptionMessage", tlvNstring},
 		57:  TlvType{"OptionMaximumDHCPMessageSize", tlvShort},
@@ -341,18 +352,18 @@ var Tlv = TlvList{
 		62:  TlvType{"OptionNetwareIPDomain", tlvNstring},
 		63:  TlvType{"OptionNetwareIPInformation", tlvBlob},
 		64:  TlvType{"OptionNetworkInformationServicePlusDomain", tlvNstring},
-		65:  TlvType{"OptionNetworkInformationServicePlusServers", tlvIpAddr},
+		65:  TlvType{"OptionNetworkInformationServicePlusServers", tlvIPAddr},
 		66:  TlvType{"OptionTFTPServerName", tlvNstring},
 		67:  TlvType{"OptionBootFileName", tlvNstring},
-		68:  TlvType{"OptionMobileIPHomeAgent", tlvIpAddr},
-		69:  TlvType{"OptionSimpleMailTransportProtocol", tlvIpAddr},
-		70:  TlvType{"OptionPostOfficeProtocolServer", tlvIpAddr},
-		71:  TlvType{"OptionNetworkNewsTransportProtocol", tlvIpAddr},
-		72:  TlvType{"OptionDefaultWorldWideWebServer", tlvIpAddr},
-		73:  TlvType{"OptionDefaultFingerServer", tlvIpAddr},
-		74:  TlvType{"OptionDefaultInternetRelayChatServer", tlvIpAddr},
-		75:  TlvType{"OptionStreetTalkServer", tlvIpAddr},
-		76:  TlvType{"OptionStreetTalkDirectoryAssistance", tlvIpAddr},
+		68:  TlvType{"OptionMobileIPHomeAgent", tlvIPAddr},
+		69:  TlvType{"OptionSimpleMailTransportProtocol", tlvIPAddr},
+		70:  TlvType{"OptionPostOfficeProtocolServer", tlvIPAddr},
+		71:  TlvType{"OptionNetworkNewsTransportProtocol", tlvIPAddr},
+		72:  TlvType{"OptionDefaultWorldWideWebServer", tlvIPAddr},
+		73:  TlvType{"OptionDefaultFingerServer", tlvIPAddr},
+		74:  TlvType{"OptionDefaultInternetRelayChatServer", tlvIPAddr},
+		75:  TlvType{"OptionStreetTalkServer", tlvIPAddr},
+		76:  TlvType{"OptionStreetTalkDirectoryAssistance", tlvIPAddr},
 		77:  TlvType{"OptionUserClass", TlvTypeCn},
 		81:  TlvType{"OptionFQDN", tlvNstring},
 		82:  TlvType{"OptionRelayAgentInformation", tlvBlob},

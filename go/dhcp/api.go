@@ -47,12 +47,14 @@ type Stats struct {
 	DuplicateInPool  map[string]string `json:"DuplicateInPool"`
 }
 
+// Items struct
 type Items struct {
 	Items  []Stats `json:"items"`
 	Status string  `json:"status"`
 }
 
-type ApiReq struct {
+// APIReq struct
+type APIReq struct {
 	Req          string
 	NetInterface string
 	NetWork      string
@@ -60,18 +62,21 @@ type ApiReq struct {
 	Role         string
 }
 
+// Options Struct
 type Options struct {
 	Option dhcp.OptionCode `json:"option"`
 	Value  string          `json:"value"`
 	Type   string          `json:"type"`
 }
 
+// Info struct
 type Info struct {
 	Status  string `json:"status"`
 	Mac     string `json:"mac,omitempty"`
 	Network string `json:"network,omitempty"`
 }
 
+// OptionsFromFilter struct
 type OptionsFromFilter struct {
 	Option dhcp.OptionCode `json:"option"`
 	Type   string          `json:"type"`
@@ -80,7 +85,7 @@ type OptionsFromFilter struct {
 func handleIP2Mac(res http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 
-	if index, expiresAt, found := GlobalIpCache.GetWithExpiration(vars["ip"]); found {
+	if index, expiresAt, found := GlobalIPCache.GetWithExpiration(vars["ip"]); found {
 		var node = &Node{Mac: index.(string), IP: vars["ip"], EndsAt: expiresAt}
 
 		outgoingJSON, err := json.Marshal(node)
@@ -127,7 +132,7 @@ func handleAllStats(res http.ResponseWriter, req *http.Request) {
 	}
 	for _, i := range interfaces.Element {
 		if h, ok := intNametoInterface[i]; ok {
-			stat := h.handleApiReq(ApiReq{Req: "stats", NetInterface: i, NetWork: ""})
+			stat := h.handleAPIReq(APIReq{Req: "stats", NetInterface: i, NetWork: ""})
 			for _, s := range stat.([]Stats) {
 				result.Items = append(result.Items, s)
 			}
@@ -150,7 +155,7 @@ func handleStats(res http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 
 	if h, ok := intNametoInterface[vars["int"]]; ok {
-		stat := h.handleApiReq(ApiReq{Req: "stats", NetInterface: vars["int"], NetWork: vars["network"]})
+		stat := h.handleAPIReq(APIReq{Req: "stats", NetInterface: vars["int"], NetWork: vars["network"]})
 
 		outgoingJSON, err := json.Marshal(stat)
 
@@ -171,7 +176,7 @@ func handleDebug(res http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 
 	if h, ok := intNametoInterface[vars["int"]]; ok {
-		stat := h.handleApiReq(ApiReq{Req: "debug", NetInterface: vars["int"], Role: vars["role"]})
+		stat := h.handleAPIReq(APIReq{Req: "debug", NetInterface: vars["int"], Role: vars["role"]})
 
 		outgoingJSON, err := json.Marshal(stat)
 
@@ -307,7 +312,7 @@ func decodeOptions(b string) (map[dhcp.OptionCode][]byte, error) {
 	return dhcpOptions, nil
 }
 
-func (h *Interface) handleApiReq(Request ApiReq) interface{} {
+func (h *Interface) handleAPIReq(Request APIReq) interface{} {
 	var stats []Stats
 
 	// Send back stats
