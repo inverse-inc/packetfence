@@ -53,6 +53,14 @@ our @SyslogInfo = (
         'conditions' => [ '$syslogtag contains "httpd_collector"' ]
     },
     {
+        'name'       => 'httpd.parking.error',
+        'conditions' => [ '$syslogtag contains "httpd_parking_err"' ]
+    },
+    {
+        'name'       => 'httpd.parking.access',
+        'conditions' => [ '$syslogtag contains "httpd_parking"' ]
+    },
+    {
         'name'       => 'httpd.portal.error',
         'conditions' => [ '$syslogtag contains "httpd_portal_err"' ]
     },

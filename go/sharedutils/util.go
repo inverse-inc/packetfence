@@ -285,13 +285,3 @@ func RemoveDuplicates(elements []string) []string {
 	// Return the new slice.
 	return result
 }
-
-// IsIPv4 return true if the ip is an IPv4 address
-func IsIPv4(address net.IP) bool {
-	return strings.Count(address.String(), ":") < 2
-}
-
-// IsIPv6 return true if the ip is an IPv6 address
-func IsIPv6(address net.IP) bool {
-	return strings.Count(address.String(), ":") >= 2
-}

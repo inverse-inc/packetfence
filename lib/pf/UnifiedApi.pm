@@ -503,7 +503,7 @@ sub setup_api_v1_nodes_routes {
 
     $resource_route->register_sub_actions({
         method => 'POST',
-        actions => [ qw( register deregister restart_switchport reevaluate_access apply_security_event close_security_event fingerbank_refresh park unpark)],
+        actions => [ qw( register deregister restart_switchport reevaluate_access apply_security_event close_security_event fingerbank_refresh)],
     });
 
     $resource_route->register_sub_actions({
@@ -1571,7 +1571,6 @@ sub setup_api_v1_cluster_routes {
     my ($self, $root) = @_;
     my $resource_route = $root->any("/cluster")->to(controller => "Cluster")->name("api.v1.Cluster");;
     $resource_route->any(['GET'] => "/servers")->to(action => "servers")->name("api.v1.Cluster.servers");
-    $resource_route->any(['GET'] => "/config")->to(action => "config")->name("api.v1.Cluster.config");
     return (undef, $resource_route);
 }
 

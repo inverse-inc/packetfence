@@ -72,6 +72,12 @@ CHECK PROCESS packetfence-httpd.admin MATCHING "pf/var/conf/httpd.conf.d/httpd.a
     stop program  = "/usr/local/pf/bin/pfcmd service httpd.admin stop"
     if 3 restarts within 10 cycles then alert
 
+CHECK PROCESS packetfence-httpd.parking MATCHING "pf/var/conf/httpd.conf.d/httpd.parking"
+    group PacketFence
+    start program = "/usr/local/pf/bin/pfcmd service httpd.parking restart" with timeout 60 seconds
+    stop program  = "/usr/local/pf/bin/pfcmd service httpd.parking stop"
+    if 3 restarts within 10 cycles then alert
+
 CHECK PROCESS packetfence-httpd.portal MATCHING "pf/var/conf/httpd.conf.d/httpd.portal"
     group PacketFence
     start program = "/usr/local/pf/bin/pfcmd service httpd.portal restart" with timeout 60 seconds

@@ -46,6 +46,11 @@ if $syslogtag contains "pfdhcplistener" then -/usr/local/pf/logs/pfdhcplistener.
 & stop
 
 # HTTPD services 
+if $syslogtag contains "httpd_parking_err" then -/usr/local/pf/logs/httpd.parking.error
+& stop
+if $syslogtag contains "httpd_parking" then -/usr/local/pf/logs/httpd.parking.access
+& stop
+
 if $syslogtag contains "httpd_portal_err" then -/usr/local/pf/logs/httpd.portal.error
 & stop
 if $syslogtag contains "httpd_portal" then -/usr/local/pf/logs/httpd.portal.access

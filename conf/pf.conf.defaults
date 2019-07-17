@@ -415,6 +415,11 @@ httpd_admin=enabled
 # Should httpd.portal be started?
 httpd_portal=enabled
 #
+# services.httpd_parking
+#
+# Should httpd.parking be started?
+httpd_parking=enabled
+#
 # services.pfperl-api
 #
 # Should pfperl-api be started?

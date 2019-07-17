@@ -32,9 +32,9 @@ Will make sure the proper parking actions are applied
 =cut
 
 sub trigger_parking {
-    my ($mac) = @_;
+    my ($mac,$ip) = @_;
     if(security_event_count_open_security_event_id($mac, $PARKING_SECURITY_EVENT_ID) || security_event_trigger( { mac => $mac, tid => 'parking_detected', type => 'INTERNAL' } )){
-        park($mac);
+        park($mac,$ip);
     }
 }
 
@@ -45,7 +45,7 @@ Park a device by making its lease higher and by pointing it to another portal
 =cut
 
 sub park {
-    my ($mac) = @_;
+    my ($mac,$ip) = @_;
     get_logger->debug("Setting client in parking");
     if(isenabled($Config{parking}{place_in_dhcp_parking_group})){
         pf::api::unifiedapiclient->default_client->call("POST", "/api/v1/dhcp/options/mac/".$mac, [{
@@ -53,6 +53,12 @@ sub park {
             "value"       => "3600",
             "type"        => "int",
         }]);
+    }
+    if(isenabled($Config{parking}{show_parking_portal})){
+        get_logger->debug("Adding $ip to parking ipset");
+        pf::api::unifiedapiclient->default_client->call("POST", "/api/v1/ipset/add_ip/parking", {
+            "ip" => $ip,
+        });
     }
 }
 
@@ -63,9 +69,9 @@ Attempt to unpark a device. The parking security_event needs to be successfully 
 =cut
 
 sub unpark {
-    my ($mac) = @_;
+    my ($mac,$ip) = @_;
     if(security_event_close($mac, $PARKING_SECURITY_EVENT_ID) != -1){
-        remove_parking_actions($mac);
+        remove_parking_actions($mac,$ip);
         return $TRUE;
     }
     else {
@@ -81,13 +87,23 @@ Remove the parking actions that were taken against an IP + MAC
 =cut
 
 sub remove_parking_actions {
-    my ($mac) = @_;
-    get_logger->info("Removing parking actions for $mac");
+    my ($mac, $ip) = @_;
+    get_logger->info("Removing parking actions for $mac - $ip");
     eval {
         pf::api::unifiedapiclient->default_client->call("DELETE", "/api/v1/dhcp/options/mac/$mac",{});
     };
     if($@) {
         get_logger->error("Error while removing options from DHCP server: " . $@);
+    }
+
+    get_logger->debug("Removing $ip from parking ipset");
+    eval {
+        pf::api::unifiedapiclient->default_client->call("POST", "/api/v1/ipset/remove_ip/parking", {
+            "ip" => $ip,
+        });
+    };
+    if($@) {
+        get_logger->error("Error while removing device from parking: " . $@);
     }
 }
 

@@ -17,7 +17,6 @@ use warnings;
 use Mojo::Base 'pf::UnifiedApi::Controller::Crud';
 use pf::dal::node;
 use pf::fingerbank;
-use pf::parking;
 use pf::node;
 use pf::ip4log;
 use pf::constants qw($TRUE);
@@ -625,46 +624,6 @@ sub security_events {
     }
 
     return $self->render(json => { items => \@security_events });
-}
-
-=head2 park
-
-park
-
-=cut
-
-sub park {
-    my ($self) = @_;
-    my ($status, $data) = $self->parse_json;
-    if (is_error($status)) {
-        return $self->render(json => $data, status => $status);
-    }
-    my $mac = $self->id;
-    my $ip = $data->{ip};
-    pf::parking::park($mac, $ip);
-    return $self->render(json => {});
-}
-
-=head2 unpark
-
-unpark
-
-=cut
-
-sub unpark {
-    my ($self) = @_;
-    my ($status, $data) = $self->parse_json;
-    if (is_error($status)) {
-        return $self->render(json => $data, status => $status);
-    }
-    my $mac = $self->id;
-    my $ip = $data->{ip};
-    my $results = pf::parking::unpark($mac, $ip);
-    if (!$results) {
-        return $self->render_error(422, "Cannot unpark $mac");
-    }
-
-    return $self->render(json => {}, status => 200);
 }
 
 =head1 AUTHOR

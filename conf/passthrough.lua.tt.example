@@ -23,7 +23,7 @@ core.register_action("select", { "http-req" }, function(txn)
     elseif ( not ([% FOREACH host IN portal_host %] string.match(txn.sf:req_fhdr("Host"):lower(), '^[% host FILTER lower %][0-9:]*$') or[% END %] false ) ) then
         txn:set_var("req.action","proxy")
     else
-        if (txn.sf:path() == '/' or string.match(txn.sf:path() , '/release%-parking') ) then
+        if (txn.sf:path() == '/') then
             txn:set_var("req.action","proxy")
         elseif ( string.match(txn.sf:path(), '^/common') or string.match(txn.sf:path(), '^/content') or string.match(txn.sf:path(), '^/favicon.ico$') ) then
             txn:set_var("req.action","static")

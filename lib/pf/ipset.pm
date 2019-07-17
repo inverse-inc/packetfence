@@ -43,6 +43,7 @@ use pf::nodecategory;
 use pf::util;
 use pf::ip4log;
 use pf::authentication;
+use pf::constants::parking qw($PARKING_IPSET_NAME);
 use pf::constants::node qw($STATUS_UNREGISTERED);
 use pf::api::unifiedapiclient;
 use pf::config::cluster;
@@ -78,6 +79,9 @@ sub iptables_generate {
     my $cmd = "sudo ipset --destroy";
     my @lines = pf_run($cmd);
     my @roles = pf::nodecategory::nodecategory_view_all;
+
+    $cmd = "sudo ipset --create $PARKING_IPSET_NAME hash:ip 2>&1";
+    @lines  = pf_run($cmd);
 
     foreach my $network ( keys %ConfigNetworks ) {
         next if ( !pf::config::is_network_type_inline($network) );

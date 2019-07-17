@@ -1,33 +1,30 @@
-package pf::constants::parking;
+package pf::services::manager::httpd_parking;
 
 =head1 NAME
 
-pf::constants::parking - constants for parking object
+pf::services::manager::httpd_parking
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::constants::parking
+pf::services::manager::httpd_parking
 
 =cut
 
 use strict;
 use warnings;
-use base qw(Exporter);
-use Readonly;
+use Moo;
 
-our @EXPORT_OK = qw($PARKING_DHCP_GROUP_NAME $PARKING_IPSET_NAME $PARKING_SECURITY_EVENT_ID);
+extends 'pf::services::manager::httpd';
 
-Readonly our $PARKING_DHCP_GROUP_NAME => "parking";
+has '+name' => (default => sub { 'httpd.parking' } );
 
-Readonly our $PARKING_IPSET_NAME => "parking";
 
-Readonly our $PARKING_SECURITY_EVENT_ID => 1300003;
- 
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
+
 
 =head1 COPYRIGHT
 
@@ -35,7 +32,7 @@ Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 
-This program is free software; you can redistribute it and::or
+This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
@@ -53,4 +50,3 @@ USA.
 =cut
 
 1;
-
