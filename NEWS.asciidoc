@@ -24,6 +24,7 @@ Enhancements
 * Adjust Fingerbank device class lookup ordering for added precision of the device class
 * Track configuration change in local git repo
 * Randomize KeyBalanced to randomize the load balance in Freeradius Proxy.
+* Added support for SentinelOne's new API version (v2.0)
 
 Bug Fixes
 +++++++++
