@@ -142,8 +142,6 @@ sub fetch_token {
 
     my $res = $ua->request($req);
 
-    print $res->decoded_content;
-
     if($res->is_success){
         my $info = $self->_extract_data_from_response(decode_json($res->decoded_content));
         my $token = $info->{token};
