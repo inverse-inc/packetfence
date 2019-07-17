@@ -148,7 +148,7 @@ export const pfConfigurationRoutedNetworkViewFields = (context = {}) => {
                 label: 'text',
                 options: pfConfigurationRoutedNetworkTypes
               },
-              validators: pfConfigurationValidatorsFromMeta(meta, 'tpye', i18n.t('Type'))
+              validators: pfConfigurationValidatorsFromMeta(meta, 'type', i18n.t('Type'))
             }
           ]
         },
