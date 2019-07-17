@@ -1,10 +1,17 @@
 import store from '@/store'
 import bytes from '@/utils/bytes'
 import filters from '@/utils/filters'
+import i18n from '@/utils/locale'
+import { format } from 'date-fns'
+
+const locales = {
+  en: require('date-fns/locale/en'),
+  fr: require('date-fns/locale/fr')
+}
 
 export const pfFormatters = {
   datetimeIgnoreZero: (value, key, item) => {
-    return (value === '0000-00-00 00:00:00') ? '' : value
+    return (value === '0000-00-00 00:00:00') ? '' : format(value, i18n.t('MM/DD/YYYY hh:mm A'), { locale: locales[i18n.locale] })
   },
   categoryId: (value, key, item) => {
     if (!value) return null
