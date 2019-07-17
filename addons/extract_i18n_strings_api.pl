@@ -181,7 +181,7 @@ EOT
 
     foreach my $string (sort keys %strings) {
         foreach my $file (sort @{$strings{$string}}) {
-            print "# $file\n";
+            print "#: $file\n";
         }
         my @lines = split("\n", $string);
         if (@lines > 1) {
