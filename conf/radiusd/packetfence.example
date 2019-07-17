@@ -23,9 +23,9 @@ authorize {
 		&control:PacketFence-RPC-Proto = ${rpc_proto}
 		&control:Tmp-Integer-0 := "%l"
 		&control:PacketFence-Request-Time := 0
-		&control:Load-Balance-Key := "%{Calling-Station-ID} %{User-Name}"
 	}
 	packetfence-set-realm-if-machine
+	packetfence-balanced-key-policy
 	packetfence-set-tenant-id
 	rewrite_calling_station_id
 	rewrite_called_station_id
@@ -203,6 +203,7 @@ authenticate {
 preacct {
 	preprocess
 	packetfence-set-realm-if-machine
+	packetfence-balanced-key-policy
 	packetfence-set-tenant-id
 	set_calling_station_id
 	rewrite_calling_station_id
@@ -406,6 +407,7 @@ post-auth {
 #  Only a few modules currently have this method.
 #
 pre-proxy {
+	attr_filter.packetfence_pre_proxy
 	%%pre_proxy_filter%%
 }
 
