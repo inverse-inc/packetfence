@@ -1,0 +1,6 @@
+---
+packetfence_install__mgmt_interface:
+  id: "{{ ansible_eth1['device'] }}"
+  ip: "{{ ansible_eth1['ipv4']['address'] }}"
+  mask: "{{ ansible_eth1['ipv4']['netmask'] }}"
+  type: management,portal

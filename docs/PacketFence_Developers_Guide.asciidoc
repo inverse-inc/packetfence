@@ -1011,23 +1011,70 @@ http://packetfence.org/bugs/view.php?id=1085[issue #1085].
 * Add switch to the chart in `README.network-devices`
 
 
-Developer recipes
------------------
+== Developer recipes
 
-Running development version
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Bleeding edge
-^^^^^^^^^^^^^
+=== Running development version
+
+
+==== Bleeding edge
 
 For day to day development one can run a checkout of the current development branch in
 `/usr/local/pf/` and develop there within a working setup.
 
-Care should be taken not to commit local configuration files changes and files not in the
-repository.
+===== Prerequisites
 
-Not so bleeding edge
-^^^^^^^^^^^^^^^^^^^^
+.Install following softwares:
+* link:https://www.vagrantup.com/docs/installation/[Vagrant] (>= 1.9.3)
+* Virtualbox if you wan to use Virtualbox as a provider for Vagrant
+* libvirt, KVM/QEMU and vagrant-libvirt if you want to use libvirt as a provider for Vagrant
+
+===== Initial setup
+
+Following steps assume you use a CentOS machine but you can have same behavior
+under Debian.
+
+.Install Ansible, Mazer and PacketFence's source code:
+[source,bash]
+----
+sudo yum install -y epel-release
+sudo yum install -y git python-pip
+pip install --user ansible
+pip install --user mazer
+git clone https://github.com/inverse-inc/packetfence.git
+----
+
+.Install PacketFence's collection and Ansible roles:
+[source,bash]
+----
+cd packetfence/addons/vagrant
+mazer install --lockfile=collections_lockfile.yml
+ansible-galaxy install -r requirements.yml
+----
+
+.Start CentOS 7 virtual machine via Vagrant to set up development environment:
+[source,bash]
+----
+vagrant up pfcendev
+----
+
+.Reboot virtual machine to disable SELinux:
+[source,bash]
+----
+vagrant reload pfcendev
+----
+
+At the end of this process, you will have latest PacketFence's source code,
+running in a CentOS 7 virtual machine, located in [filename]`/usr/local/pf`
+with all dependencies installed as RPM packages. You can directly develop from
+[filename]`/usr/local/pf`.
+
+Web admin should be reachable through management IP address of pfcendev
+machine, configured in [filename]`addons/vagrant/inventory/hosts`.
+
+
+==== Not so bleeding edge
+
 
 Using the development `yum` repository and upgrade PacketFence often is a good way to proceed.
 Check our https://packetfence.org/download/snapshots.html[snapshots download page] for

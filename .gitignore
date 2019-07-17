@@ -49,11 +49,13 @@ raddb/eduroam.conf
 raddb/cli.conf
 raddb/sql.conf
 raddb/proxy.conf.inc
+raddb/clients.eduroam.conf.inc
 raddb/load_balancer.conf
 raddb/clients.conf.inc
 raddb/sites-available/packetfence
 raddb/sites-available/packetfence-tunnel
 raddb/sites-available/eduroam
+raddb/mods-enabled/mschap
 raddb/proxy.conf.loadbalancer
 raddb/radiusd_loadbalancer.conf
 conf/adminroles.conf
@@ -214,6 +216,7 @@ html/admin/traplog/
 # built by package or installer
 lib/pf/pfcmd/pfcmd_pregrammar.pm
 lib/fingerbank
+html/common/package-lock.json
 
 # directories that can be ignored
 logs/

@@ -1,0 +1,10 @@
+# ---> Vagrant
+.vagrant/
+
+# Emacs
+*~
+\#*\#
+
+### Ansible provisionner
+# dir created by vagrant during provisioning
+roles/

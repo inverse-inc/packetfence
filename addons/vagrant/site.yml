@@ -1,0 +1,42 @@
+---
+- hosts: pfservers
+  name: install pf on standalone
+  become: True
+
+  roles:
+    - role: inverse_inc.packetfence.packetfence_common
+      tags: install
+    - role: inverse_inc.packetfence.packetfence_install
+      tags: install
+
+  tasks:
+    # We use another interface than the default as management
+    # it's possible to do this because current SSH session has not been cut
+    - name: allow ssh on default interface for vagrant management
+      blockinfile:
+        path: "{{ packetfence_install__conf_dir }}/iptables.conf"
+        block: |
+          # allow SSH for vagrant management
+          -A INPUT --in-interface {{ ansible_default_ipv4['interface'] }} --jump ACCEPT
+        marker: "# {mark} ANSIBLE MANAGED BLOCK"
+        insertafter: "-A INPUT --in-interface lo --jump ACCEPT"
+      tags: vagrant
+      register: site_register_iptables_rule
+
+    - name: apply new iptables rule for vagrant management
+      command: "{{ packetfence_install__pfcmd }} service iptables restart"
+      when: site_register_iptables_rule is changed
+
+- hosts: dev
+  name: install additionnal stuff for dev machines
+  become: True
+
+  roles:
+    - role: geerlingguy.nodejs
+      vars:
+        nodejs_version: "10.x"
+      tags: nodejs
+      
+    - role: inverse_inc.packetfence.packetfence_dev
+      tags: dev
+

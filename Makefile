@@ -66,6 +66,8 @@ docs/html/%.html: docs/%.asciidoc
 
 html/pfappserver/root/static/doc:
 	make html
+	mkdir html/pfappserver/root/static/doc
+	mkdir html/pfappserver/root/static/images
 	cp -a docs/html/* html/pfappserver/root/static/doc
 	cp -a docs/images/* html/pfappserver/root/static/images
 
@@ -81,12 +83,14 @@ pfcmd.help:
 
 .PHONY: configurations
 
+configurations: SHELL:=/bin/bash
 configurations:
 	find -type f -name '*.example' -print0 | while read -d $$'\0' file; do cp -n $$file "$$(dirname $$file)/$$(basename $$file .example)"; done
 	touch /usr/local/pf/conf/pf.conf
 
 .PHONY: configurations_force
 
+configurations_hard: SHELL:=/bin/bash
 configurations_hard:
 	find -type f -name '*.example' -print0 | while read -d $$'\0' file; do cp $$file "$$(dirname $$file)/$$(basename $$file .example)"; done
 	touch /usr/local/pf/conf/pf.conf
@@ -111,6 +115,9 @@ conf/local_secret:
 
 conf/unified_api_system_pass:
 	date +%s | sha256sum | base64 | head -c 32 > /usr/local/pf/conf/unified_api_system_pass
+
+conf/currently-at: conf/pf-release
+	cat conf/pf-release > conf/currently-at
 
 bin/pfcmd: src/pfcmd.c
 	$(CC) -O2 -g -std=c99  -Wall $< -o $@
@@ -139,7 +146,7 @@ raddb/certs/server.crt:
 raddb/sites-enabled:
 	mkdir raddb/sites-enabled
 	cd raddb/sites-enabled;\
-	for f in packetfence packetfence-tunnel dynamic-clients;\
+	for f in packetfence packetfence-tunnel dynamic-clients status;\
 		do ln -s ../sites-available/$$f $$f;\
 	done
 

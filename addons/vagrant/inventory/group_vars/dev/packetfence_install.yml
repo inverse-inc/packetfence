@@ -1,0 +1,8 @@
+---
+packetfence_install__centos:
+  repo: packetfence-devel
+
+packetfence_install__deb:
+  repos:
+    - debian
+    - debian-devel
