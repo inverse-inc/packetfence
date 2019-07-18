@@ -29,8 +29,6 @@ server eduroam.cluster {
         authorize {
             suffix
             ntdomain
-            %%reject_realm%%
-            %%local_realm%%
             if(!NAS-IP-Address || NAS-IP-Address == "0.0.0.0"){
                     update request {
                             NAS-IP-Address := "%{Packet-Src-IP-Address}"

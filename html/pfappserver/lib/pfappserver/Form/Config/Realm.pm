@@ -127,6 +127,86 @@ has_field 'radius_acct_proxy_type' =>
              help => 'Home server pool type' },
   );
 
+has_field 'eduroam_options' =>
+  (
+   type => 'TextArea',
+   label => 'Eduroam Realm Options',
+   required => 0,
+   tags => { after_element => \&help,
+             help => 'You can add FreeRADIUS options in the realm definition' },
+  );
+
+has_field 'eduroam_radius_auth' =>
+  (
+   type => 'Select',
+   multiple => 1,
+   label => 'Eduroam RADIUS AUTH',
+   options_method => \&options_radius,
+   element_class => ['chzn-select'],
+   element_attr => {'data-placeholder' => 'Click to select a RADIUS Server'},
+   tags => { after_element => \&help,
+             help => 'The RADIUS Server(s) to proxy authentication' },
+  );
+
+has_field 'eduroam_radius_auth_proxy_type' =>
+  (
+   type => 'Select',
+   label => 'type',
+   required => 1,
+   options =>
+   [
+    { value => 'keyed-balance', label => 'Keyed Balance' },
+    { value => 'fail-over', label => 'Fail Over' },
+    { value => 'load-balance', label => 'Load Balance' },
+    { value => 'client-balance', label => 'Client Balance' },
+    { value => 'client-port-balance', label => 'Client Port Balance' },
+   ],
+   default => 'keyed-balance',
+   tags => { after_element => \&help,
+             help => 'Home server pool type' },
+  );
+
+  has_field 'eduroam_radius_auth_compute_in_pf' =>
+  (
+   type => 'Toggle',
+   checkbox_value => "enabled",
+   unchecked_value => "disabled",
+   default => "enabled",
+   label => 'Authorize from PacketFence',
+   tags => { after_element => \&help,
+             help => 'Should we forward the request to PacketFence to have a dynamic answer or do we use the remote proxy server answered attributes ?' },
+  );
+
+has_field 'eduroam_radius_acct' =>
+  (
+   type => 'Select',
+   multiple => 1,
+   label => 'Eduroam RADIUS ACCT',
+   options_method => \&options_radius,
+   element_class => ['chzn-select'],
+   element_attr => {'data-placeholder' => 'Click to select a RADIUS Server'},
+   tags => { after_element => \&help,
+             help => 'The RADIUS Server(s) to proxy accounting' },
+  );
+
+has_field 'eduroam_radius_acct_proxy_type' =>
+  (
+   type => 'Select',
+   label => 'type',
+   required => 1,
+   options =>
+   [
+    { value => 'keyed-balance', label => 'Keyed Balance' },
+    { value => 'fail-over', label => 'Fail Over' },
+    { value => 'load-balance', label => 'Load Balance' },
+    { value => 'client-balance', label => 'Client Balance' },
+    { value => 'client-port-balance', label => 'Client Port Balance' },
+   ],
+   default => 'load-balance',
+   tags => { after_element => \&help,
+             help => 'Home server pool type' },
+  );
+
 has_field 'radius_strip_username' =>
   (
    type => 'Toggle',

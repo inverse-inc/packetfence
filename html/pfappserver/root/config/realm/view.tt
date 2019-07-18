@@ -23,6 +23,15 @@
         [% form.field('radius_acct').render | none %]
         [% form.field('radius_acct_proxy_type').render | none %]
         </div>
+        <h2 style="text-align: center;"><span>Freeradius Eduroam Proxy Configuration</span></h2>
+        <div class="card-block">
+        [% form.field('eduroam_options').render | none %]
+        [% form.field('eduroam_radius_auth').render | none %]
+        [% form.field('eduroam_radius_auth_proxy_type').render | none %]
+        [% form.field('eduroam_radius_auth_compute_in_pf').render | none %]
+        [% form.field('eduroam_radius_acct').render | none %]
+        [% form.field('eduroam_radius_acct_proxy_type').render | none %]
+        </div>
         <h2 style="text-align: center;"><span>Stripping Configuration</span></h2>
         <div class="card-block">
         [% form.field('portal_strip_username').render | none %]

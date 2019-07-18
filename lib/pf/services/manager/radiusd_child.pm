@@ -372,30 +372,49 @@ EOT
         %tags = ();
         $tags{'template'} = "$conf_dir/raddb/sites-available/eduroam";
         $tags{'local_realm'} = '';
+        $tags{'eduroam_post_auth'} = '';
+        $tags{'local_realm_acct'} = '        if (User-Name =~ /@/) {';
+        my $found_acct = $FALSE;
         my @realms;
+        $tags{'local_realm'} .= << "EOT";
+            update control {
+                Proxy-To-Realm := "eduroam"
+            }
+EOT
         foreach my $realm ( @{$eduroam_authentication_source[0]{'local_realm'}} ) {
-             push (@realms, "Realm == \"$realm\"");
-        }
-        if (@realms) {
-            $tags{'local_realm'} .= '            if ( ';
-            $tags{'local_realm'} .=  join(' || ', @realms);
-            $tags{'local_realm'} .= ' ) {'."\n";
-            $tags{'local_realm'} .= <<"EOT";
-                update control {
-                    Proxy-To-Realm := "packetfence"
+            if ($pf::config::ConfigRealm{$realm}->{'eduroam_radius_auth'} ) {
+                if (isenabled($pf::config::ConfigRealm{$realm}->{'eduroam_radius_auth_compute_in_pf'})) {
+                    push (@realms, "Realm == \"eduroam.$realm\"");
                 }
-            } else {
+                $tags{'local_realm'} .= '            if ( Realm == "'.$realm.'" ) {'."\n";
+                $tags{'local_realm'} .= <<"EOT";
                 update control {
-                    Proxy-To-Realm := "eduroam"
+                    Proxy-To-Realm := "eduroam.$realm"
                 }
             }
 EOT
-        } else {
-        $tags{'local_realm'} = << "EOT";
+            } else {
+                $tags{'local_realm'} = << "EOT";
                 update control {
                     Proxy-To-Realm := "eduroam"
                 }
 EOT
+            }
+            if ($pf::config::ConfigRealm{$realm}->{'eduroam_radius_acct'} ) {
+                $found_acct = $TRUE;
+                $tags{'local_realm_acct'} .= '            if ( Realm == "'.$realm.'" ) {'."\n";
+                $tags{'local_realm_acct'} .= <<"EOT";
+                update control {
+                    Proxy-To-Realm := "eduroam.$realm"
+                }
+            }
+EOT
+            }
+        }
+        if ($found_acct) {
+            $tags{'local_realm_acct'} .= '        }';
+        } else {
+            $tags{'local_realm_acct'} = '';
         }
         $tags{'reject_realm'} = '';
         my @reject_realms;
@@ -409,6 +428,17 @@ EOT
             $tags{'reject_realm'} .= <<"EOT";
                 reject
             }
+EOT
+        }
+        if (@realms) {
+            $tags{'eduroam_post_auth'} .= '        if ( ';
+            $tags{'eduroam_post_auth'} .=  join(' || ', @realms);
+            $tags{'eduroam_post_auth'} .= ' ) {'."\n";
+            $tags{'eduroam_post_auth'} .= <<"EOT";
+                update request {
+                        Realm := "eduroam"
+                }
+        }
 EOT
         }
         parse_template( \%tags, "$conf_dir/radiusd/eduroam", "$install_dir/raddb/sites-available/eduroam" );
@@ -695,6 +725,68 @@ EOT
 }
 EOT
         }
+        # Generate Eduroam realms config
+	my $eduroam_options = $pf::config::ConfigRealm{$realm}->{'eduroam_options'} || '';
+        $tags{'eduroam_config'} .= <<"EOT";
+realm eduroam.$realm {
+$eduroam_options
+EOT
+        if ($pf::config::ConfigRealm{$realm}->{'eduroam_radius_auth'} ) {
+            $tags{'eduroam_config'} .= <<"EOT";
+auth_pool = eduroam_auth_pool_$realm
+EOT
+        }
+        if ($pf::config::ConfigRealm{$realm}->{'eduroam_radius_acct'}) {
+            $tags{'eduroam_config'} .= <<"EOT";
+acct_pool = eduroam_acct_pool_$realm
+EOT
+        }
+        if($pf::config::ConfigRealm{$realm}->{'eduroam_radius_auth'} || $pf::config::ConfigRealm{$realm}->{'eduroam_radius_acct'}) {
+            $tags{'eduroam_config'} .= <<"EOT";
+}
+
+EOT
+        }
+        if ($pf::config::ConfigRealm{$realm}->{'eduroam_radius_auth'} ) {
+            $tags{'eduroam_config'} .= <<"EOT";
+home_server_pool eduroam_auth_pool_$realm {
+type = $pf::config::ConfigRealm{$realm}->{'eduroam_radius_auth_proxy_type'}
+EOT
+            push(@radius_sources, split(',',$pf::config::ConfigRealm{$realm}->{'eduroam_radius_auth'}));
+            foreach my $radius (split(',',$pf::config::ConfigRealm{$realm}->{'eduroam_radius_auth'})) {
+
+                $tags{'eduroam_config'} .= <<"EOT";
+home_server = $radius
+EOT
+            }
+            $tags{'eduroam_config'} .= <<"EOT";
+}
+
+EOT
+        }
+        if ($pf::config::ConfigRealm{$realm}->{'eduroam_radius_acct'}) {
+            $tags{'eduroam_config'} .= <<"EOT";
+home_server_pool eduroam_acct_pool_$realm {
+type = $pf::config::ConfigRealm{$realm}->{'eduroam_radius_acct_proxy_type'}
+EOT
+            push(@radius_sources,split(',',$pf::config::ConfigRealm{$realm}->{'eduroam_radius_acct'}));
+            foreach my $radius (split(',',$pf::config::ConfigRealm{$realm}->{'eduroam_radius_acct'})) {
+
+                $tags{'eduroam_config'} .= <<"EOT";
+home_server = $radius
+EOT
+            }
+            $tags{'eduroam_config'} .= <<"EOT";
+}
+
+EOT
+        }
+         if(!$pf::config::ConfigRealm{$realm}->{'eduroam_radius_auth'} && !$pf::config::ConfigRealm{$realm}->{'eduroam_radius_acct'}) {
+            $tags{'eduroam_config'} .= <<"EOT";
+}
+
+EOT
+        }
     }
     foreach my $radius (uniq @radius_sources) {
         my $source = pf::authentication::getAuthenticationSource($radius);
@@ -866,48 +958,6 @@ EOT
         home_server =  eduroam$i.cluster
 EOT
                 $i++;
-            }
-            $tags{'local_realm'} = '';
-            my @realms;
-            foreach my $realm ( @{$eduroam_authentication_source[0]{'local_realm'}} ) {
-                 push (@realms, "Realm == \"$realm\"");
-            }
-            if (@realms) {
-                $tags{'local_realm'} .= 'if ( ';
-                $tags{'local_realm'} .=  join(' || ', @realms);
-                $tags{'local_realm'} .= ' ) {'."\n";
-                $tags{'local_realm'} .= <<"EOT";
-                update control {
-                    Proxy-To-Realm := "packetfence"
-                }
-            } else {
-                update control {
-                    Load-Balance-Key := "%{Calling-Station-Id}"
-                    Proxy-To-Realm := "eduroam.cluster"
-                }
-            }
-EOT
-            } else {
-$tags{'local_realm'} = << "EOT";
-                    update control {
-                        Load-Balance-Key := "%{Calling-Station-Id}"
-                        Proxy-To-Realm := "eduroam.cluster"
-                    }
-EOT
-            }
-            $tags{'reject_realm'} = '';
-            my @reject_realms;
-            foreach my $reject_realm ( @{$eduroam_authentication_source[0]{'reject_realm'}} ) {
-                 push (@reject_realms, "Realm == \"$reject_realm\"");
-            }
-            if (@reject_realms) {
-                $tags{'reject_realm'} .= 'if ( ';
-                $tags{'reject_realm'} .=  join(' || ', @reject_realms);
-                $tags{'reject_realm'} .= ' ) {'."\n";
-                $tags{'reject_realm'} .= <<"EOT";
-                reject
-            }
-EOT
             }
             parse_template( \%tags, "$conf_dir/radiusd/eduroam-cluster", "$install_dir/raddb/sites-enabled/eduroam-cluster" );
         } else {
