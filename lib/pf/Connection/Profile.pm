@@ -275,9 +275,9 @@ sub getProvisioners {
     return $self->{'_provisioners'};
 }
 
-sub getDeviceRegistration {
+sub getSelfService {
     my ($self) = @_;
-    return $self->{'_device_registration'};
+    return $self->{'_self_service'};
 }
 
 =item getSourcesAsObjects

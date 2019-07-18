@@ -6,7 +6,7 @@ import BasesStore from '../_store/bases'
 import BillingTiersStore from '../_store/billingTiers'
 import CertificatesStore from '../_store/certificates'
 import ConnectionProfilesStore from '../_store/connectionProfiles'
-import DeviceRegistrationsStore from '../_store/deviceRegistrations'
+import SelfServicesStore from '../_store/selfServices'
 import DomainsStore from '../_store/domains'
 import FiltersStore from '../_store/filters'
 import FingerbankStore from '../_store/fingerbank'
@@ -90,8 +90,8 @@ const PortalModuleView = () => import(/* webpackChunkName: "Configuration" */ '.
 const AccessDurationView = () => import(/* webpackChunkName: "Configuration" */ '../_components/AccessDurationView')
 const ProvisioningsList = () => import(/* webpackChunkName: "Configuration" */ '../_components/ProvisioningsList')
 const ProvisioningView = () => import(/* webpackChunkName: "Configuration" */ '../_components/ProvisioningView')
-const DeviceRegistrationsList = () => import(/* webpackChunkName: "Configuration" */ '../_components/DeviceRegistrationsList')
-const DeviceRegistrationView = () => import(/* webpackChunkName: "Configuration" */ '../_components/DeviceRegistrationView')
+const SelfServicesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/SelfServicesList')
+const SelfServiceView = () => import(/* webpackChunkName: "Configuration" */ '../_components/SelfServiceView')
 
 /* Network Configuration */
 const NetworkConfigurationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/NetworkConfigurationSection')
@@ -147,8 +147,8 @@ const route = {
     if (!store.state.$_connection_profiles) {
       store.registerModule('$_connection_profiles', ConnectionProfilesStore)
     }
-    if (!store.state.$_device_registrations) {
-      store.registerModule('$_device_registrations', DeviceRegistrationsStore)
+    if (!store.state.$_self_services) {
+      store.registerModule('$_self_services', SelfServicesStore)
     }
     if (!store.state.$_filters) {
       store.registerModule('$_filters', FiltersStore)
@@ -1218,35 +1218,35 @@ const route = {
       props: (route) => ({ storeName: '$_bases', query: route.query.query })
     },
     {
-      path: 'device_registrations',
-      name: 'device_registrations',
-      component: DeviceRegistrationsList,
-      props: (route) => ({ storeName: '$_device_registrations', query: route.query.query })
+      path: 'self_services',
+      name: 'self_services',
+      component: SelfServicesList,
+      props: (route) => ({ storeName: '$_self_services', query: route.query.query })
     },
     {
-      path: 'device_registrations/new',
-      name: 'newDeviceRegistration',
-      component: DeviceRegistrationView,
-      props: (route) => ({ storeName: '$_device_registrations', isNew: true })
+      path: 'self_services/new',
+      name: 'newSelfService',
+      component: SelfServiceView,
+      props: (route) => ({ storeName: '$_self_services', isNew: true })
     },
     {
-      path: 'device_registration/:id',
-      name: 'device_registration',
-      component: DeviceRegistrationView,
-      props: (route) => ({ storeName: '$_device_registrations', id: route.params.id }),
+      path: 'self_service/:id',
+      name: 'self_service',
+      component: SelfServiceView,
+      props: (route) => ({ storeName: '$_self_services', id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_device_registrations/getDeviceRegistration', to.params.id).then(object => {
+        store.dispatch('$_self_services/getSelfService', to.params.id).then(object => {
           next()
         })
       }
     },
     {
-      path: 'device_registration/:id/clone',
-      name: 'cloneDeviceRegistration',
-      component: DeviceRegistrationView,
-      props: (route) => ({ storeName: '$_device_registrations', id: route.params.id, isClone: true }),
+      path: 'self_service/:id/clone',
+      name: 'cloneSelfService',
+      component: SelfServiceView,
+      props: (route) => ({ storeName: '$_self_services', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_device_registrations/getDeviceRegistration', to.params.id).then(object => {
+        store.dispatch('$_self_services/getSelfService', to.params.id).then(object => {
           next()
         })
       }

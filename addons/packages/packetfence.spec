@@ -923,9 +923,9 @@ fi
 %config(noreplace)      /usr/local/pf/conf/pfdhcp.conf
 %config(noreplace)      /usr/local/pf/conf/portal_modules.conf
 %config                 /usr/local/pf/conf/portal_modules.conf.defaults
-%config(noreplace)      /usr/local/pf/conf/device_registration.conf
-%config                 /usr/local/pf/conf/device_registration.conf.defaults
-                        /usr/local/pf/conf/device_registration.conf.example
+%config(noreplace)      /usr/local/pf/conf/self_service.conf
+%config                 /usr/local/pf/conf/self_service.conf.defaults
+                        /usr/local/pf/conf/self_service.conf.example
 %config                 /usr/local/pf/conf/dhcp_fingerprints.conf
 %config(noreplace)      /usr/local/pf/conf/dhcp_filters.conf
                         /usr/local/pf/conf/dhcp_filters.conf.example
@@ -1219,7 +1219,7 @@ fi
                         /usr/local/pf/html/captive-portal/lib/*
 %config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Activate/Email.pm
 %config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Authenticate.pm
-%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/DeviceRegistration.pm
+%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/SelfService.pm
 %config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Enabler.pm
 %config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Node/Manager.pm
 %config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Redirect.pm

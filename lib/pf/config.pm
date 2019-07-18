@@ -166,8 +166,8 @@ our (
     %ConfigSurvey,
 #Roles
     %ConfigRoles,
-#device_Registration.conf
-    %ConfigDeviceRegistration,
+#self_service.conf
+    %ConfigSelfService,
 #ldap authentication sources
     %ConfigAuthenticationLdap,
 # Radius sources
@@ -232,7 +232,7 @@ BEGIN {
         %ConfigReport
         %ConfigSurvey
         %ConfigRoles
-        %ConfigDeviceRegistration
+        %ConfigSelfService
         %ConfigAuthenticationLdap
         %ConfigAuthenticationRadius
     );
@@ -307,7 +307,7 @@ tie %ConfigSurvey, 'pfconfig::cached_hash', 'config::Survey';
 
 tie %ConfigRoles, 'pfconfig::cached_hash', 'config::Roles';
 
-tie %ConfigDeviceRegistration, 'pfconfig::cached_hash', 'config::DeviceRegistration';
+tie %ConfigSelfService, 'pfconfig::cached_hash', 'config::SelfService';
 
 tie %ConfigAuthenticationLdap, 'pfconfig::cached_hash', 'resource::authentication_sources_ldap';
 

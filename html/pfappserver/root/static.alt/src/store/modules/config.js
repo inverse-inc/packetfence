@@ -87,8 +87,8 @@ const api = {
   getConnectionProfiles () {
     return apiCall({ url: 'config/connection_profiles', method: 'get' })
   },
-  getDeviceRegistrations () {
-    return apiCall({ url: 'config/device_registrations', method: 'get' })
+  getSelfServices () {
+    return apiCall({ url: 'config/self_services', method: 'get' })
   },
   getDomains () {
     return apiCall({ url: 'config/domains', method: 'get' })
@@ -229,8 +229,6 @@ const initialState = () => { // set intitial states to `false` (not `[]` or `{}`
     checkupStatus: '',
     connectionProfiles: false,
     connectionProfilesStatus: '',
-    deviceRegistrations: false,
-    deviceRegistrationsStatus: '',
     domains: false,
     domainsStatus: '',
     firewalls: false,
@@ -260,6 +258,8 @@ const initialState = () => { // set intitial states to `false` (not `[]` or `{}`
     scansStatus: '',
     securityEvents: false,
     securityEventsStatus: '',
+    selfServices: false,
+    selfServicesStatus: '',
     sources: false,
     sourcesStatus: '',
     ssids: false,
@@ -398,8 +398,8 @@ const getters = {
   isLoadingConnectionProfiles: state => {
     return state.connectionProfilesStatus === types.LOADING
   },
-  isLoadingDeviceRegistrations: state => {
-    return state.deviceRegistrationsStatus === types.LOADING
+  isLoadingSelfServices: state => {
+    return state.selfServicesStatus === types.LOADING
   },
   isLoadingDomains: state => {
     return state.domainsStatus === types.LOADING
@@ -1010,18 +1010,18 @@ const actions = {
       return Promise.resolve(state.connectionProfiles)
     }
   },
-  getDeviceRegistrations: ({ state, getters, commit }) => {
-    if (getters.isLoadingDeviceRegistrations) {
-      return Promise.resolve(state.deviceRegistrations)
+  getSelfServices: ({ state, getters, commit }) => {
+    if (getters.isLoadingSelfServices) {
+      return Promise.resolve(state.selfServices)
     }
-    if (!state.deviceRegistrations) {
-      commit('DEVICE_REGISTRATIONS_REQUEST')
-      return api.getDeviceRegistrations().then(response => {
-        commit('DEVICE_REGISTRATIONS_UPDATED', response.data.items)
-        return state.deviceRegistrations
+    if (!state.selfServices) {
+      commit('SELF_SERVICES_REQUEST')
+      return api.getSelfServices().then(response => {
+        commit('SELF_SERVICES_UPDATED', response.data.items)
+        return state.selfServices
       })
     } else {
-      return Promise.resolve(state.deviceRegistrations)
+      return Promise.resolve(state.selfServices)
     }
   },
   getDomains: ({ state, getters, commit }) => {
@@ -1552,12 +1552,12 @@ const mutations = {
     state.connectionProfiles = connectionProfiles
     state.connectionProfilesStatus = types.SUCCESS
   },
-  DEVICE_REGISTRATIONS_REQUEST: (state) => {
-    state.deviceRegistrationsStatus = types.LOADING
+  SELF_SERVICES_REQUEST: (state) => {
+    state.selfServicesStatus = types.LOADING
   },
-  DEVICE_REGISTRATIONS_UPDATED: (state, deviceRegistrations) => {
-    state.deviceRegistrations = deviceRegistrations
-    state.deviceRegistrationsStatus = types.SUCCESS
+  SELF_SERVICES_UPDATED: (state, selfServices) => {
+    state.selfServices = selfServices
+    state.selfServicesStatus = types.SUCCESS
   },
   DOMAINS_REQUEST: (state) => {
     state.domainsStatus = types.LOADING

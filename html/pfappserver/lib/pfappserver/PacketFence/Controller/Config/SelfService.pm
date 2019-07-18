@@ -1,14 +1,14 @@
-package pfappserver::PacketFence::Controller::Config::DeviceRegistration;
+package pfappserver::PacketFence::Controller::Config::SelfService;
 
 =head1 NAME
 
-pfappserver::PacketFence::Controller::Config::DeviceRegistration add documentation
+pfappserver::PacketFence::Controller::Config::SelfService add documentation
 
 =cut
 
 =head1 DESCRIPTION
 
-ConnectionDeviceRegistration
+ConnectionSelfService
 
 =cut
 
@@ -28,18 +28,18 @@ BEGIN {
 __PACKAGE__->config(
     action => {
         # Reconfigure the object dispatcher from pfappserver::Base::Controller::Crud
-        object => { Chained => '/', PathPart => 'config/device_registration', CaptureArgs => 1 },
+        object => { Chained => '/', PathPart => 'config/self_service', CaptureArgs => 1 },
         # Configure access rights
-        view   => { AdminRole => 'DEVICE_REGISTRATION_READ' },
-        list   => { AdminRole => 'DEVICE_REGISTRATION_READ' },
-        create => { AdminRole => 'DEVICE_REGISTRATION_CREATE' },
-        clone  => { AdminRole => 'DEVICE_REGISTRATION_CREATE' },
-        update => { AdminRole => 'DEVICE_REGISTRATION_UPDATE' },
-        remove => { AdminRole => 'DEVICE_REGISTRATION_DELETE' },
+        view   => { AdminRole => 'SELF_SERVICE_READ' },
+        list   => { AdminRole => 'SELF_SERVICE_READ' },
+        create => { AdminRole => 'SELF_SERVICE_CREATE' },
+        clone  => { AdminRole => 'SELF_SERVICE_CREATE' },
+        update => { AdminRole => 'SELF_SERVICE_UPDATE' },
+        remove => { AdminRole => 'SELF_SERVICE_DELETE' },
     },
     action_args => {
         # Setting the global model and form for all actions
-        '*' => { model => "Config::DeviceRegistration",form => "Config::DeviceRegistration" },
+        '*' => { model => "Config::SelfService",form => "Config::SelfService" },
     },
 );
 
@@ -62,12 +62,12 @@ before [qw(remove)] => sub {
     my $count = 0;
     my $id = $c->stash->{'id'};
     while (my ($id, $config) = each %Profiles_Config) {
-        $count ++ if $config->{device_registration} eq $id;
+        $count ++ if ($c->stash->{'id'} eq $config->{self_service});
     }
 
     if ($count > 0) {
         $c->response->status($STATUS::FORBIDDEN);
-        $c->stash->{status_msg} = "This device registration is used by at least a Connection Profile.";
+        $c->stash->{status_msg} = "This self service policy is used by at least a Connection Profile.";
         $c->stash->{current_view} = 'JSON';
         $c->detach();
     }

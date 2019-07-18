@@ -1,22 +1,40 @@
-package pfappserver::Controller::Config::DeviceRegistration;
+package pfappserver::Model::Config::SelfService;
 
 =head1 NAME
 
-pfappserver::Controller::Config::DeviceRegistration
-
-=head1 DESCRIPTION
-
-Place all customization for Controller::Config::DeviceRegistration here
+pfappserver::Model::Config::SelfService add documentation
 
 =cut
 
+=head1 DESCRIPTION
+
+pfappserver::Model::Config::SelfService
+
+=cut
+
+use HTTP::Status qw(:constants is_error is_success);
 use Moose;
+use namespace::autoclean;
+use pf::ConfigStore::SelfService;
 
-BEGIN { extends 'pfappserver::PacketFence::Controller::Config::DeviceRegistration'; }
+extends 'pfappserver::Base::Model::Config';
 
-=head1 AUTHOR
+=head2 Methods
 
-Inverse inc. <info@inverse.ca>
+=over
+
+=item _buildConfigStore
+
+buld the config store
+
+=cut
+
+sub _buildConfigStore { pf::ConfigStore::SelfService->new }
+
+
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
+
+=back
 
 =head1 COPYRIGHT
 
@@ -40,8 +58,5 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 USA.
 
 =cut
-
-
-__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;

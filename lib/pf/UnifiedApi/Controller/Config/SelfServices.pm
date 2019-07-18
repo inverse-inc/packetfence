@@ -1,41 +1,36 @@
-
-package pfappserver::Model::Config::DeviceRegistration;
+package pf::UnifiedApi::Controller::Config::SelfServices;
 
 =head1 NAME
 
-pfappserver::Model::Config::DeviceRegistration add documentation
+pf::UnifiedApi::Controller::Config::SelfServices - 
 
 =cut
 
 =head1 DESCRIPTION
 
-pfappserver::Model::Config::DeviceRegistration
+pf::UnifiedApi::Controller::Config::SelfServices
+
+
 
 =cut
 
-use HTTP::Status qw(:constants is_error is_success);
-use Moose;
-use namespace::autoclean;
-use pf::ConfigStore::DeviceRegistration;
-
-extends 'pfappserver::Base::Model::Config';
-
-=head2 Methods
-
-=over
-
-=item _buildConfigStore
-
-buld the config store
-
-=cut
-
-sub _buildConfigStore { pf::ConfigStore::DeviceRegistration->new }
+use strict;
+use warnings;
 
 
-__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
+use Mojo::Base qw(pf::UnifiedApi::Controller::Config);
 
-=back
+has 'config_store_class' => 'pf::ConfigStore::SelfService';
+has 'form_class' => 'pfappserver::Form::Config::SelfService';
+has 'primary_key' => 'self_service_id';
+
+use pf::ConfigStore::SelfService;
+use pfappserver::Form::Config::SelfService;
+
+ 
+=head1 AUTHOR
+
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
@@ -61,3 +56,4 @@ USA.
 =cut
 
 1;
+

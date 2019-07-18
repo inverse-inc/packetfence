@@ -768,10 +768,10 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
           label: i18n.t('Device registration'),
           fields: [
             {
-              key: 'device_registration',
+              key: 'self_service',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'device_registration'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'device_registration', i18n.t('Registration'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'self_service'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'self_service', i18n.t('Registration'))
             }
           ]
         }

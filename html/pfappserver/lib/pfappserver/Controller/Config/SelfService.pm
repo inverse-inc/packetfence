@@ -1,33 +1,19 @@
-package pf::UnifiedApi::Controller::Config::DeviceRegistrations;
+package pfappserver::Controller::Config::SelfService;
 
 =head1 NAME
 
-pf::UnifiedApi::Controller::Config::DeviceRegistrations - 
-
-=cut
+pfappserver::Controller::Config::SelfService
 
 =head1 DESCRIPTION
 
-pf::UnifiedApi::Controller::Config::DeviceRegistrations
-
-
+Place all customization for Controller::Config::SelfService here
 
 =cut
 
-use strict;
-use warnings;
+use Moose;
 
+BEGIN { extends 'pfappserver::PacketFence::Controller::Config::SelfService'; }
 
-use Mojo::Base qw(pf::UnifiedApi::Controller::Config);
-
-has 'config_store_class' => 'pf::ConfigStore::DeviceRegistration';
-has 'form_class' => 'pfappserver::Form::Config::DeviceRegistration';
-has 'primary_key' => 'device_registration_id';
-
-use pf::ConfigStore::DeviceRegistration;
-use pfappserver::Form::Config::DeviceRegistration;
-
- 
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
@@ -55,5 +41,7 @@ USA.
 
 =cut
 
-1;
 
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
+
+1;

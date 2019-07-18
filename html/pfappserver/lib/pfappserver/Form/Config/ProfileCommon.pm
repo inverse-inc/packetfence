@@ -23,7 +23,7 @@ use pf::authentication;
 use pf::ConfigStore::Provisioning;
 use pf::ConfigStore::BillingTiers;
 use pf::ConfigStore::Scan;
-use pf::ConfigStore::DeviceRegistration;
+use pf::ConfigStore::SelfService;
 use pf::ConfigStore::PortalModule;
 use pf::web::constants;
 use pf::constants::Connection::Profile;
@@ -465,16 +465,16 @@ has_field 'scans.contains' =>
     widget_wrapper => 'DynamicTableRow',
   );
 
-=head2 device_registration
+=head2 self_service
 
 The definition for Device registration Sources field
 
 =cut
 
-has_field 'device_registration' =>
+has_field 'self_service' =>
   (
     type => 'Select',
-    options_method => \&options_device_registration,
+    options_method => \&options_self_service,
   );
 
 
@@ -576,14 +576,14 @@ sub options_scan {
     return  map { { value => $_, label => $_ } } @{pf::ConfigStore::Scan->new->readAllIds};
 }
 
-=head2 options_device_registration
+=head2 options_self_service
 
-Returns the list of device_registration profile to be displayed
+Returns the list of self_service profile to be displayed
 
 =cut
 
-sub options_device_registration {
-    return  map { { value => $_, label => $_ } } '',@{pf::ConfigStore::DeviceRegistration->new->readAllIds};
+sub options_self_service {
+    return  map { { value => $_, label => $_ } } '',@{pf::ConfigStore::SelfService->new->readAllIds};
 }
 
 

@@ -2,13 +2,13 @@
 
 =head1 NAME
 
-DeviceRegistrations
+SelfServices
 
 =cut
 
 =head1 DESCRIPTION
 
-unit test for DeviceRegistrations
+unit test for SelfServices
 
 =cut
 
@@ -33,9 +33,9 @@ use Test::Mojo;
 use Test::NoWarnings;
 my $t = Test::Mojo->new('pf::UnifiedApi');
 
-my $collection_base_url = '/api/v1/config/device_registrations';
+my $collection_base_url = '/api/v1/config/self_services';
 
-my $base_url = '/api/v1/config/device_registration';
+my $base_url = '/api/v1/config/self_service';
 
 $t->get_ok($collection_base_url)
   ->status_is(200);

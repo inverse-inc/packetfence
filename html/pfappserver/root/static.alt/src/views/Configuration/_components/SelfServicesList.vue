@@ -12,7 +12,7 @@
         </b-card-header>
       </template>
       <template slot="buttonAdd">
-        <b-button variant="outline-primary" :to="{ name: 'newDeviceRegistration' }">{{ $t('New Device Registration') }}</b-button>
+        <b-button variant="outline-primary" :to="{ name: 'newSelfService' }">{{ $t('New Device Registration') }}</b-button>
       </template>
       <template slot="emptySearch" slot-scope="state">
         <pf-empty-table :isLoading="state.isLoading">{{ $t('No device registrations found') }}</pf-empty-table>
@@ -33,11 +33,11 @@ import pfButtonHelp from '@/components/pfButtonHelp'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import {
-  pfConfigurationDeviceRegistrationsListConfig as config
-} from '@/globals/configuration/pfConfigurationDeviceRegistrations'
+  pfConfigurationSelfServicesListConfig as config
+} from '@/globals/configuration/pfConfigurationSelfServices'
 
 export default {
-  name: 'device-registrations-list',
+  name: 'self-services-list',
   components: {
     pfButtonDelete,
     pfButtonHelp,
@@ -58,10 +58,10 @@ export default {
   },
   methods: {
     clone (item) {
-      this.$router.push({ name: 'cloneDeviceRegistration', params: { id: item.id } })
+      this.$router.push({ name: 'cloneSelfService', params: { id: item.id } })
     },
     remove (item) {
-      this.$store.dispatch(`${this.storeName}/deleteDeviceRegistration`, item.id).then(response => {
+      this.$store.dispatch(`${this.storeName}/deleteSelfService`, item.id).then(response => {
         this.$router.go() // reload
       })
     }

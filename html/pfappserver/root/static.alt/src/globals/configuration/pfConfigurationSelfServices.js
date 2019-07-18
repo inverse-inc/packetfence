@@ -10,15 +10,15 @@ import {
   and,
   not,
   conditional,
-  hasDeviceRegistrations,
-  deviceRegistrationExists
+  hasSelfServices,
+  selfServiceExists
 } from '@/globals/pfValidators'
 
 const {
   required
 } = require('vuelidate/lib/validators')
 
-export const pfConfigurationDeviceRegistrationsListColumns = [
+export const pfConfigurationSelfServicesListColumns = [
   {
     key: 'id',
     label: i18n.t('Identifier'),
@@ -39,7 +39,7 @@ export const pfConfigurationDeviceRegistrationsListColumns = [
   }
 ]
 
-export const pfConfigurationDeviceRegistrationsListFields = [
+export const pfConfigurationSelfServicesListFields = [
   {
     value: 'id',
     text: i18n.t('Identifier'),
@@ -52,17 +52,17 @@ export const pfConfigurationDeviceRegistrationsListFields = [
   }
 ]
 
-export const pfConfigurationDeviceRegistrationsListConfig = (context = {}) => {
+export const pfConfigurationSelfServicesListConfig = (context = {}) => {
   const { $i18n } = context
   return {
-    columns: pfConfigurationDeviceRegistrationsListColumns,
-    fields: pfConfigurationDeviceRegistrationsListFields,
+    columns: pfConfigurationSelfServicesListColumns,
+    fields: pfConfigurationSelfServicesListFields,
     rowClickRoute (item, index) {
-      return { name: 'device_registration', params: { id: item.id } }
+      return { name: 'self_service', params: { id: item.id } }
     },
     searchPlaceholder: $i18n.t('Search by identifier or description'),
     searchableOptions: {
-      searchApiEndpoint: 'config/device_registrations',
+      searchApiEndpoint: 'config/self_services',
       defaultSortKeys: ['id'],
       defaultSearchCondition: {
         op: 'and',
@@ -74,7 +74,7 @@ export const pfConfigurationDeviceRegistrationsListConfig = (context = {}) => {
           ]
         }]
       },
-      defaultRoute: { name: 'device_registrations' }
+      defaultRoute: { name: 'self_services' }
     },
     searchableQuickCondition: (quickCondition) => {
       return {
@@ -93,7 +93,7 @@ export const pfConfigurationDeviceRegistrationsListConfig = (context = {}) => {
   }
 }
 
-export const pfConfigurationDeviceRegistrationViewFields = (context = {}) => {
+export const pfConfigurationSelfServiceViewFields = (context = {}) => {
   const {
     isNew = false,
     isClone = false,
@@ -120,7 +120,7 @@ export const pfConfigurationDeviceRegistrationViewFields = (context = {}) => {
               validators: {
                 ...pfConfigurationValidatorsFromMeta(meta, 'id', i18n.t('Name')),
                 ...{
-                  [i18n.t('Name exists.')]: not(and(required, conditional(isNew || isClone), hasDeviceRegistrations, deviceRegistrationExists))
+                  [i18n.t('Name exists.')]: not(and(required, conditional(isNew || isClone), hasSelfServices, selfServiceExists))
                 }
               }
             }
@@ -137,27 +137,41 @@ export const pfConfigurationDeviceRegistrationViewFields = (context = {}) => {
             }
           ]
         },
+        { label: i18n.t('Status Page'), labelSize: 'lg' },
         {
-          label: i18n.t('Roles'),
-          text: i18n.t('The role to assign to devices registered from the specific portal. If none is specified, the role of the registrant is used.'),
+          label: i18n.t('Allowed roles'),
+          text: i18n.t('The list of roles that are allowed to unregister devices using the self-service portal. Leaving this empty will allow all users to unregister their devices.'),
           fields: [
             {
-              key: 'category',
+              key: 'roles_allowed_to_unregister',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'category'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'category', i18n.t('Roles'))
+              attrs: pfConfigurationAttributesFromMeta(meta, 'roles_allowed_to_unregister'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'roles_allowed_to_unregister', i18n.t('Allowed roles'))
+            }
+          ]
+        },
+        { label: i18n.t('Device Registration'), labelSize: 'lg' },
+        {
+          label: i18n.t('Role to assign'),
+          text: i18n.t('The role to assign to devices registered from the self-service portal. If none is specified, the role of the registrant is used.'),
+          fields: [
+            {
+              key: 'device_registration_role',
+              component: pfFormChosen,
+              attrs: pfConfigurationAttributesFromMeta(meta, 'device_registration_role'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'device_registration_role', i18n.t('Role to assign'))
             }
           ]
         },
         {
-          label: i18n.t('OS'),
+          label: i18n.t('Allowed OS'),
           text: i18n.t('List of OS which will be allowed to be register via the self service portal.'),
           fields: [
             {
-              key: 'allowed_devices',
+              key: 'device_registration_allowed_devices',
               component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'allowed_devices'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'allowed_devices', 'OS')
+              attrs: pfConfigurationAttributesFromMeta(meta, 'device_registration_allowed_devices'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'device_registration_allowed_devices', 'OS')
             }
           ]
         }
