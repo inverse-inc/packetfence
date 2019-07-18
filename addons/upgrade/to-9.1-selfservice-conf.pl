@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-to-8.2-selfservice-conf.pl
+to-9.1-selfservice-conf.pl
 
 =cut
 
@@ -90,7 +90,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2019 Inverse inc.
 
 =head1 LICENSE
 
