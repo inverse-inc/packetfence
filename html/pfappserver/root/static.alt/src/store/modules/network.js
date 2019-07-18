@@ -97,7 +97,7 @@ const actions = {
     if (state.nodes.length === 0) {
       // 1st iteration
       dispatch('addNodes', [
-        { id: 0, x: null, y: null, type: 'packetfence' }
+        { id: 0, x: null, y: null, type: 'packetfence', highlight: false }
       ])
     } else {
       // 2nd+ iterations
@@ -112,14 +112,14 @@ const actions = {
           type = 'router'
           break
         case 'router':
-          type = (Math.ceil(Math.random() * 100) > 99) ? 'router' : 'node'
+          type = (Math.ceil(Math.random() * 100) > 90) ? 'router' : 'node'
           break
       }
-      dispatch('addLinks', [{ source: source.id, target: length }])
-      dispatch('addNodes', [{ id: length, x: source.x, y: source.y, type }])
+      dispatch('addLinks', [{ source: source.id, target: length, highlight: false }])
+      dispatch('addNodes', [{ id: length, x: source.x, y: source.y, type, highlight: false }])
     }
 
-    if (state.nodes.length === 50) {
+    if (state.nodes.length === 100) {
       clearInterval(state.pollingInterval)
       commit('CLEAR_INTERVAL')
     }
@@ -134,7 +134,7 @@ const actions = {
     let newNodes = []
     let oldNodes = []
     nodes.forEach(node => {
-      let index = state.nodes.findIndex(n => n.id === node.id)
+      const index = state.nodes.findIndex(n => n.id === node.id)
       if (index > -1) {
         // exists, update
         oldNodes.push({ index, node })
@@ -169,6 +169,29 @@ const actions = {
     if (oldLinks.length > 0) {
       commit('UPDATE_LINKS', { getters, links: oldLinks })
     }
+  },
+  highlightNodeById: ({ commit, state }, id = null) => {
+    commit('UNHIGHLIGHT_NODES')
+    commit('UNHIGHLIGHT_LINKS')
+    while (id !== null) { // travel to center of tree [ (target|source) -> (target|source) -> ... ]
+      const nodeIndex = state.nodes.findIndex(n => n.id === id)
+      if (nodeIndex > -1) {
+        commit('HIGHLIGHT_NODE', nodeIndex)
+        const linkIndex = state.links.findIndex(link => {
+          const { target: { id: targetId } = {} } = link
+          return targetId === id
+        })
+        if (linkIndex > -1) {
+          commit('HIGHLIGHT_LINK', linkIndex)
+          const { source: { id: sourceId } = {} } = state.links[linkIndex]
+          id = sourceId
+        } else {
+          id = null
+        }
+      } else {
+        id = null
+      }
+    }
   }
 }
 
@@ -176,12 +199,57 @@ const mutations = {
   INITIALIZE: (state) => {
     if (!state.initialized) {
       state.simulation = d3.forceSimulation(state.nodes)
-        .stop()
-        .force('link', d3.forceLink(state.links).id(d => d.id))
+        .stop()  // pause animation until nodes/links exist
+        .force('link', d3.forceLink(state.links).id(d => d.id).distance((link, index) => {
+          const { target: { type } = {} } = link
+          switch (true) {
+            case type === 'router':
+              return 20  // default
+            default:
+              return 5
+          }
+        }).strength((link, index) => {
+          const { source: { links: sourceLinks } = {}, target: { type, links: targetLinks } = {} } = link
+          switch (true) {
+            case type === 'router':
+              return 1
+            default:
+              // reduce the strength of links connected to heavily-connected nodes, improving stability
+              return 1 / Math.min(sourceLinks, targetLinks)
+          }
+        })
+        )
         //.force('link', d3.forceLink(state.links).distance(10).strength(1))
         .force('charge_force', d3.forceManyBody())
-        .force('center_force', d3.forceCenter(state.dimensions.width / 2, state.dimensions.height / 2))
-        .force('collide', d3.forceCollide().radius(d => d.force).iterations(2))
+        //.force('center_force', d3.forceCenter(state.dimensions.width / 2, state.dimensions.height / 2))
+        .force('radial_force', d3.forceRadial((node, index) => {
+          const { type } = node
+          switch (true) {
+            case type === 'packetfence':
+              return 0
+            case type ==='router':
+              return 0.5
+            default:
+              return 1
+          }
+        }, state.dimensions.width / 2, state.dimensions.height / 2).strength(0.1))
+        /*
+        .force('collide', d3.forceCollide(10)
+          .radius((d) => {
+            const { type } = d
+            switch (true) {
+              case type === 'packetfence':
+                return 50
+              case type === 'router':
+                return 0
+              default:
+                return 2
+            }
+          })
+          .strength(1)
+          .iterations(2)
+        )
+        */
         /*
         .on('tick', () => {
 console.log('TICK')
@@ -230,14 +298,14 @@ console.log('TICK')
 
     state.simulation.nodes(state.nodes)
     state.simulation.force('link').links(state.links)
-    state.simulation.alpha(0.6).restart()
+    state.simulation.alpha(0.3).restart()
     // state.simulation.restart()
 
     /*
     // Feed to simulation
 		this.simulation
 			.nodes(this.graph.nodes);
-
+//
 		this.simulation.force("link")
 			.links(this.graph.links);
 
@@ -256,6 +324,26 @@ console.log('TICK')
     links.forEach(({ index = null, link = {} }) => {
       state.links[index] = link
     })
+  },
+  UNHIGHLIGHT_NODES: (state) => {
+    state.nodes.forEach((node, index) => {
+      if (node.highlight) {
+        state.nodes[index].highlight = false
+      }
+    })
+  },
+  HIGHLIGHT_NODE: (state, index) => {
+    state.nodes[index].highlight = true
+  },
+  UNHIGHLIGHT_LINKS: (state) => {
+    state.links.forEach((link, index) => {
+      if (link.highlight) {
+        state.links[index].highlight = false
+      }
+    })
+  },
+  HIGHLIGHT_LINK: (state, index) => {
+    state.links[index].highlight = true
   }
 }
 

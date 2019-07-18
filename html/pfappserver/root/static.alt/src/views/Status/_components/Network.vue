@@ -1,6 +1,7 @@
 <!--
 https://plnkr.co/edit/iadT0ikcpKELU0eaE9f6?p=preview
 https://bl.ocks.org/steveharoz/8c3e2524079a8c440df60c1ab72b5d03
+https://flowingdata.com/2012/08/02/how-to-make-an-interactive-network-visualization/
 -->
 <template>
   <b-card no-body class="mt-3">
@@ -35,14 +36,15 @@ https://bl.ocks.org/steveharoz/8c3e2524079a8c440df60c1ab72b5d03
           width="100%"
           :height="dimensions.height+'px'"
           :viewBox="viewBoxString"
+          :class="`zoom-${zoom}`"
           @mousedown.prevent="mouseDownSvg($event)"
           @mousewheel.prevent="mouseWheelSvg($event)"
         >
           <defs v-once>
             <symbol id="packetfence" viewBox="0 0 32 32" zzzpreserveAspectRatio="xMidYMid meet">
-              <circle cx="16" cy="16" r="14" fill="#ffffff" stroke="#a8a8a8" stroke-width="1px" />
-              <circle cx="16" cy="16" r="11.75" fill="#000000" />
-              <g transform="scale(0.2) translate(20.25, 45)" viewBox="0 0 140 75" fill="#ffffff">
+              <circle class="bg" cx="16" cy="16" r="14" />
+              <circle class="fg" cx="16" cy="16" r="11.75" />
+              <g class="icon" transform="scale(0.2) translate(20.25, 45)" viewBox="0 0 140 75">
                 <path d="M0.962,14.55l26.875,9.047l0.182,10.494l-27.057,-8.683l0,-10.858Z" />
                 <path d="M0.962,27.577l26.875,9.047l0.182,10.496l-27.057,-8.687l0,-10.856l0,0Z" />
                 <path d="M91.87,23.96l26.876,9.045l0.181,10.496l-27.057,-8.685l0,-10.856l0,0Z" />
@@ -56,19 +58,24 @@ https://bl.ocks.org/steveharoz/8c3e2524079a8c440df60c1ab72b5d03
             </symbol>
 
             <symbol id="router" viewBox="0 0 32 32" preserveAspectRatio="xMinYMin slice">
-              <circle cx="16" cy="16" r="14" fill="#ffffff" stroke="#a8a8a8" stroke-width="1px" />
-              <path d="M 16 4 C 9.3844277 4 4 9.3844277 4 16 C 4 22.615572 9.3844277 28 16 28 C 22.615572 28 28 22.615572 28 16 C 28 9.3844277 22.615572 4 16 4 z M 16 6 C 21.534692 6 26 10.465308 26 16 C 26 21.534692 21.534692 26 16 26 C 10.465308 26 6 21.534692 6 16 C 6 10.465308 10.465308 6 16 6 z M 16 8 L 13 11 L 15 11 L 15 14 L 17 14 L 17 11 L 19 11 L 16 8 z M 11 13 L 11 15 L 8 15 L 8 17 L 11 17 L 11 19 L 14 16 L 11 13 z M 21 13 L 18 16 L 21 19 L 21 17 L 24 17 L 24 15 L 21 15 L 21 13 z M 15 18 L 15 21 L 13 21 L 16 24 L 19 21 L 17 21 L 17 18 L 15 18 z"/>
+              <circle class="bg" cx="16" cy="16" r="14"/>
+              <path class="fg" d="M 16 4 C 9.3844277 4 4 9.3844277 4 16 C 4 22.615572 9.3844277 28 16 28 C 22.615572 28 28 22.615572 28 16 C 28 9.3844277 22.615572 4 16 4 z M 16 6 C 21.534692 6 26 10.465308 26 16 C 26 21.534692 21.534692 26 16 26 C 10.465308 26 6 21.534692 6 16 C 6 10.465308 10.465308 6 16 6 z M 16 8 L 13 11 L 15 11 L 15 14 L 17 14 L 17 11 L 19 11 L 16 8 z M 11 13 L 11 15 L 8 15 L 8 17 L 11 17 L 11 19 L 14 16 L 11 13 z M 21 13 L 18 16 L 21 19 L 21 17 L 24 17 L 24 15 L 21 15 L 21 13 z M 15 18 L 15 21 L 13 21 L 16 24 L 19 21 L 17 21 L 17 18 L 15 18 z"/>
             </symbol>
 
             <symbol id="laptop" viewBox="0 0 640 640" preserveAspectRatio="xMinYMin slice">
               <path d="M624 416H381.54c-.74 19.81-14.71 32-32.74 32H288c-18.69 0-33.02-17.47-32.77-32H16c-8.8 0-16 7.2-16 16v16c0 35.2 28.8 64 64 64h512c35.2 0 64-28.8 64-64v-16c0-8.8-7.2-16-16-16zM576 48c0-26.4-21.6-48-48-48H112C85.6 0 64 21.6 64 48v336h512V48zm-64 272H128V64h384v256z"></path>
             </symbol>
+
+            <symbol id="node" viewBox="0 0 32 32" preserveAspectRatio="xMinYMin slice">
+              <circle cx="16" cy="16" r="14" />
+            </symbol>
           </defs>
+
           <line v-for="link in graph.links"
             v-bind="linkCoords(link)"
-            stroke="#a8a8a8"
-            stroke-width="1px"
+            :class="[ 'link', { 'highlight': link.highlight } ]"
           />
+
           <template v-for="(node, i) in graph.nodes">
             <!--- packetfence icon --->
             <use v-if="node.type === 'packetfence'"
@@ -80,6 +87,7 @@ width="32" height="32"
               @mouseover="mouseOverNode(node, $event)"
               @mouseout="mouseOutNode(node, $event)"
               @click="clickNode(node, $event)"
+              :class="[ 'packetfence', { 'highlight': node.highlight } ]"
             />
             <!--- router icon --->
             <use v-if="node.type === 'router'"
@@ -87,21 +95,21 @@ width="32" height="32"
 width="32" height="32"
               :x="graph.coords[i].x - (32 / 2)"
               :y="graph.coords[i].y - (32 / 2)"
-              :fill="colors[Math.ceil(Math.sqrt(node.index))]"
               @mouseover="mouseOverNode(node, $event)"
               @mouseout="mouseOutNode(node, $event)"
               @click="clickNode(node, $event)"
+              :class="[ 'router', { 'highlight': node.highlight } ]"
             />
             <!--- laptop icon --->
             <use v-if="node.type === 'node'"
-              xlink:href="#laptop"
-width="32" height="32"
-              :x="graph.coords[i].x - (32 / 2)"
-              :y="graph.coords[i].y - (32 / 2)"
-              :fill="colors[Math.ceil(Math.sqrt(node.index))]"
+              xlink:href="#node"
+width="16" height="16"
+              :x="graph.coords[i].x - (16 / 2)"
+              :y="graph.coords[i].y - (16 / 2)"
               @mouseover="mouseOverNode(node, $event)"
               @mouseout="mouseOutNode(node, $event)"
               @click="clickNode(node, $event)"
+              :class="[ 'node', { 'highlight': node.highlight } ]"
             />
           </template>
 
@@ -110,6 +118,8 @@ width="32" height="32"
             @mousedown.stop="mouseDownMiniMap($event)"
             @mousemove.capture="mouseMoveMiniMap($event)"
           />
+
+          <circle :cx="dimensions.width / 2" :cy="dimensions.height / 2" r="4" fill="#ff000"/>
 
         </svg>
       </div>
@@ -143,7 +153,6 @@ export default {
         height: Math.max(document.documentElement.clientHeight, window.innerHeight || 0) - 40,
         width: 0
       },
-      colors: ['#2196F3', '#E91E63', '#7E57C2', '#009688', '#00BCD4', '#EF6C00', '#4CAF50', '#FF9800', '#F44336', '#CDDC39', '#9C27B0'],
 
       // zoom/pan
       lastX: null,
@@ -207,7 +216,8 @@ export default {
         x: minX + ((minX * outerMiniMapWidth) / (viewBoxWidth * divisor)),
         y: minY + ((minY * outerMiniMapHeight) / (viewBoxHeight * divisor)),
         width: outerMiniMapWidth / divisor,
-        height: outerMiniMapHeight / divisor
+        height: outerMiniMapHeight / divisor,
+        'stroke-width': `${1 / divisor}px`
       }
     },
     outerMiniMapProps () {
@@ -218,7 +228,9 @@ export default {
         x: minX,
         y: minY,
         width: (this.miniMapHeight * aspectRatio) / divisor,
-        height: this.miniMapHeight / divisor
+        height: this.miniMapHeight / divisor,
+        'stroke-width': `${1 / divisor}px`,
+        'stroke-dasharray': 2 / divisor
       }
     }
   },
@@ -301,9 +313,11 @@ export default {
     },
     mouseOverNode (node, event = null) {
       console.log('mouseover Node', event, node)
+      this.$store.dispatch(`${this.storeName}/highlightNodeById`, node.id)
     },
     mouseOutNode (node, event = null) {
       console.log('mouseout Node', event, node)
+      this.$store.dispatch(`${this.storeName}/highlightNodeById`, null)
     },
     clickNode (node, event = null) {
       console.log('click Node', event, node)
@@ -361,11 +375,102 @@ export default {
     bottom: 0;
   }
 
+  .svgDraw {
+    &.zoom-0 {
+      .packetfence,
+      .router,
+      .node,
+      .link {
+        stroke-width: 2;
+      }
+    }
+    &.zoom-1 {
+      .packetfence,
+      .router,
+      .node,
+      .link {
+        stroke-width: 1;
+      }
+    }
+    &.zoom-2 {
+      .packetfence,
+      .router,
+      .node,
+      .link {
+        stroke-width: 0.5;
+      }
+    }
+    &.zoom-3 {
+      .packetfence,
+      .router,
+      .node,
+      .link {
+        stroke-width: 0.25;
+      }
+    }
+    &.zoom-4 {
+      .packetfence,
+      .router,
+      .node,
+      .link {
+        stroke-width: 0.125;
+      }
+    }
+  }
+
+  .bg {
+    fill: var(--bg-fill);
+    stroke: var(--bg-stroke);
+  }
+  .fg {
+    fill: var(--fg-fill);
+  }
+  .icon {
+    fill: var(--icon-fill);
+  }
+
   .outerMiniMap {
-    fill: rgba(0, 0, 0, 0.125);
+    fill: rgba(255, 255, 255, 0.5);
+    stroke: rgba(0, 0, 0, 0.5);
   }
   .innerMiniMap {
-    fill: rgba(255, 255, 0, 0.5);
+    fill: rgba(0, 255, 0, 0.75);
+    stroke: rgba(0, 0, 0, 0.5);
+  }
+
+  .packetfence {
+    --bg-fill: rgba(255, 255, 255, 1);
+    --bg-stroke: rgba(128, 128, 128, 1);
+    --fg-fill: rgba(0, 0, 0, 1);
+    --icon-fill: rgba(255, 255, 255, 1);
+    &.highlight {
+      --fg-fill: rgba(255, 0, 0, 1);
+    }
+  }
+
+  .router {
+    --bg-fill: rgba(255, 255, 255, 1);
+    --bg-stroke: rgba(128, 128, 128, 1);
+    --fg-fill: rgba(128, 128, 128, 1);
+    &.highlight {
+      --bg-fill: rgba(255, 0, 0, 1);
+      --fg-fill: rgba(255, 255, 255, 1);
+    }
+  }
+
+  .node {
+    fill: rgba(192, 192, 192, 1);
+    stroke: rgba(128, 128, 128, 1);
+    &.highlight {
+      fill: rgba(255, 0, 0, 1);
+    }
+  }
+
+  .link {
+    stroke: rgba(192, 192, 192, 1);
+    &.highlight {
+      stroke: rgba(255, 0, 0, 1);
+    }
   }
 }
 
