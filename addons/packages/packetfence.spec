@@ -848,6 +848,7 @@ fi
 
 %exclude                /usr/lib/systemd/system/packetfence-config.service
 %attr(0644, root, root) /usr/lib/systemd/system/packetfence-*.service
+%attr(0644, root, root) /usr/lib/systemd/system/packetfence-*.path
 %attr(0644, root, root) /usr/lib/systemd/journald.conf.d/01-packetfence.conf
 
 %dir %attr(0750, root,root) /etc/systemd/system/packetfence*target.wants
@@ -1020,6 +1021,8 @@ fi
                         /usr/local/pf/conf/radiusd/mschap.conf.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/packetfence-cluster
                         /usr/local/pf/conf/radiusd/packetfence-cluster.example
+%config(noreplace)      /usr/local/pf/conf/radiusd/packetfence-pre-proxy
+                        /usr/local/pf/conf/radiusd/packetfence-pre-proxy.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/proxy.conf.inc
                         /usr/local/pf/conf/radiusd/proxy.conf.inc.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/proxy.conf.loadbalancer
