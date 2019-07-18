@@ -18,6 +18,7 @@ New Features
 ++++++++++++
 * LightSpeedRocket and SmoothWall firewall sso support
 * Family Zone Firewall SSO support
+* Added a way to forward eduroam local realm to a define radius server instead of packetfence.
 
 Enhancements
 ++++++++++++
