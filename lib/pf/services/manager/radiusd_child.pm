@@ -764,7 +764,7 @@ EOT
     parse_template( \%tags, "$conf_dir/radiusd/proxy.conf.loadbalancer", "$install_dir/raddb/proxy.conf.loadbalancer" );
 
     if(isenabled($Config{radius_configuration}{forward_key_balanced})){
-	   $tags{'PacketFence-KeyBalanced'} = "PacketFence-KeyBalanced                !* ANY,";
+       $tags{'PacketFence-KeyBalanced'} = "PacketFence-KeyBalanced                !* ANY,";
     } else {
         $tags{'PacketFence-KeyBalanced'} = "";
     }
