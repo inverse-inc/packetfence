@@ -33,6 +33,7 @@ use HTTP::Status qw(:constants);
 use pf::error qw(is_success);
 use pf::constants::api;
 use POSIX::AtFork;
+use pf::cluster;
 
 =head1 Attributes
 
@@ -116,8 +117,10 @@ use constant RESPONSE => 2;
 use constant NOTIFICATION => 2;
 
 my $default_client;
+my $management_client;
 sub CLONE {
     $default_client = pf::api::unifiedapiclient->new;
+    $management_client = pf::api::unifiedapiclient->new(host => pf::cluster::management_cluster_ip())
 }
 POSIX::AtFork->add_to_child(\&CLONE);
 CLONE();
@@ -133,6 +136,22 @@ Most requests should use this so that the token is shared across usages.
 
 sub default_client {
     return $default_client;
+}
+
+=head2 management_client
+
+Get the management client which points to the virtual IP address (in cluster) or the default client (in standalone)
+Most requests should use this when talking to management so that the token is shared across usages.
+
+=cut
+
+sub management_client {
+    if($cluster_enabled) {
+        return $management_client;
+    }
+    else {
+        return $default_client;
+    }
 }
 
 =head2 call
