@@ -1,12 +1,17 @@
 STATIC_FILES = ../admin/v-index.tt
 DYNAMIC_FILES = dist/css/* dist/js/* dist/js/*
 
+$(eval OUTPUT_RC="$(shell whoami;echo $$?)")
+$(eval OUTPUT="$(shell echo $(OUTPUT_RC) | sed -e "s/^\(.*\)\(.\{2\}\)$$/\1/")")
+export PATH := /usr/local/bin/:$(PATH)
+
 .PHONY: all vendor dev dist
 
 all:
 	@echo "Use 'make vendor' to update external libraries, 'make dev' to generate the static JS/CSS files and 'make dist' to commit the distribution version."
 
 vendor:
+	sudo chown -R $(OUTPUT) ~/.npm
 	npm install
 
 dev:
