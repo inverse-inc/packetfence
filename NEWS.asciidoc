@@ -26,6 +26,7 @@ Enhancements
 * Track configuration change in local git repo
 * Randomize KeyBalanced to randomize the load balance in Freeradius Proxy.
 * Added support for SentinelOne's new API version (v2.0)
+* Firewall SSO is now performed centrally on the management node of a cluster
 
 Bug Fixes
 +++++++++
