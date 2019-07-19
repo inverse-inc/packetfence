@@ -4,7 +4,8 @@ all:
 	@echo "Use 'make vendor' to update external libraries, 'make dev' to generate the stylesheet and 'make dist' to commit the distribution version."
 
 vendor:
-	npm install --unsafe-perm
+	sudo chown -R $(whoami) ~/.npm
+	npm install
 	sudo npm install -g grunt-cli
 
 dev:
