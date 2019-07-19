@@ -726,7 +726,7 @@ EOT
 EOT
         }
         # Generate Eduroam realms config
-	my $eduroam_options = $pf::config::ConfigRealm{$realm}->{'eduroam_options'} || '';
+    my $eduroam_options = $pf::config::ConfigRealm{$realm}->{'eduroam_options'} || '';
         $tags{'eduroam_config'} .= <<"EOT";
 realm eduroam.$realm {
 $eduroam_options
