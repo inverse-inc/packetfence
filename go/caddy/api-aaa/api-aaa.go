@@ -153,6 +153,7 @@ func (h ApiAAAHandler) handleTokenInfo(w http.ResponseWriter, r *http.Request, p
 	ctx := r.Context()
 	defer statsd.NewStatsDTiming(ctx).Send("api-aaa.token_info")
 
+	h.authentication.TouchTokenInfo(ctx, r)
 	info, expiration := h.authorization.GetTokenInfoFromBearerRequest(ctx, r)
 
 	if info != nil {
