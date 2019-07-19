@@ -48,7 +48,6 @@ our %TRIGGER_TYPE_TO_CONDITION_TYPE = (
     'provisioner'               => {type => 'equals',                   key  => 'last_provisioner_id',     event => $TRUE},
     'suricata_event'            => {type => 'starts_with',              key  => 'last_suricata_event',     event => $TRUE},
     'suricata_md5'              => {type => 'equals',                   key  => 'last_suricata_md5',       event => $TRUE},
-    'useragent'                 => {type => 'equals',                   key  => 'user_agent_id'},
     'role'                      => {type => 'equals',                   key  => 'role'},
     'switch'                    => {type => 'equals',                   key  => 'last_switch'},
     'switch_group'              => {type => 'switch_group',             key  => 'last_switch'},

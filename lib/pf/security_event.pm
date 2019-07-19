@@ -28,7 +28,6 @@ use pfconfig::cached_scalar;
 use fingerbank::Model::Device;
 use fingerbank::Model::DHCP_Fingerprint;
 use fingerbank::Model::DHCP_Vendor;
-use fingerbank::Model::User_Agent;
 use pf::security_event_config;
 use pf::node;
 use pf::StatsD::Timer;
@@ -521,7 +520,6 @@ sub info_for_security_event_engine {
         dhcp_vendor => "fingerbank::Model::DHCP_Vendor",
         dhcp6_fingerprint => "fingerbank::Model::DHCP6_Fingerprint",
         dhcp6_enterprise => "fingerbank::Model::DHCP6_Enterprise",
-        user_agent => "fingerbank::Model::User_Agent",
     };
     my $results = {};
     foreach my $attr (keys %$attr_map){
@@ -547,7 +545,6 @@ sub info_for_security_event_engine {
       dhcp6_enterprise_id => $results->{dhcp6_enterprise},
       mac => $mac,
       mac_vendor_id => $mac_vendor_id,
-      user_agent_id => $results->{user_agent},
       last_switch => $node_info->{'last_switch'},
       role => $node_info->{category},
       last_accounting_events => $accounting_history,
