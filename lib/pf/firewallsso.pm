@@ -55,7 +55,7 @@ sub do_sso {
     my $username = $node->{pid};
     my ($stripped_username, $realm) = pf::util::strip_username($username);
 
-    pf::api::unifiedapiclient->new->call("POST", "/api/v1/firewall_sso/".lc($postdata{method}), {
+    pf::api::unifiedapiclient->management_client->call("POST", "/api/v1/firewall_sso/".lc($postdata{method}), {
         ip                => $postdata{ip},
         mac               => $mac,
         # All values must be string for pfsso
