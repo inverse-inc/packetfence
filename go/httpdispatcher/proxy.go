@@ -143,9 +143,6 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
-		if (passThrough.checkDetectionMechanisms(ctx, fqdn.String()) || passThrough.URIException.MatchString(r.RequestURI)) && passThrough.SecureRedirect {
-			PortalURL.Scheme = "http"
-		}
 		log.LoggerWContext(ctx).Debug(fmt.Sprintln(host, "Redirect to the portal"))
 		PortalURL.RawQuery = "destination_url=" + r.Header.Get("X-Forwarded-Proto") + "://" + host + r.RequestURI
 		w.Header().Set("Location", PortalURL.String())
