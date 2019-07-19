@@ -1,6 +1,7 @@
 CSS_FILES = styles.css styles.css.map
 $(eval OUTPUT_RC="$(shell whoami;echo $$?)")
 $(eval OUTPUT="$(shell echo $(OUTPUT_RC) | sed -e "s/^\(.*\)\(.\{2\}\)$$/\1/")")
+export PATH := /usr/local/bin/:$(PATH)
 
 all:
 	@echo "Use 'make vendor' to update external libraries, 'make dev' to generate the stylesheet and 'make dist' to commit the distribution version."
