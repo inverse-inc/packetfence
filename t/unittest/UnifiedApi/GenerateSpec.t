@@ -209,7 +209,7 @@ cmp_deeply(
                 },
                 'self_service' => {
                     type => 'string',
-                    description => 'Device registration',
+                    description => 'Self service',
                 },
                 'dot1x_recompute_role_from_portal' => {
                     type => 'string',
