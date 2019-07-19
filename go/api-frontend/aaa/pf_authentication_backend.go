@@ -32,7 +32,7 @@ func NewPfAuthenticationBackend(ctx context.Context, url *url.URL, checkCert boo
 	tr := &http.Transport{
 		MaxIdleConnsPerHost:   30,
 		TLSHandshakeTimeout:   1 * time.Second,
-		ResponseHeaderTimeout: 5 * time.Second,
+		ResponseHeaderTimeout: 10 * time.Second,
 	}
 	tr.TLSClientConfig = &tls.Config{
 		InsecureSkipVerify: !checkCert,
