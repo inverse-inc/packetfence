@@ -55,6 +55,7 @@ type configStruct struct {
 		DNSInts           DNSInts
 	}
 	PfConf struct {
+		Advanced      PfConfAdvanced
 		General       PfConfGeneral
 		Fencing       PfConfFencing
 		CaptivePortal PfConfCaptivePortal
@@ -464,4 +465,6 @@ type PfConfAdvanced struct {
 	ActiveDirectoryOsJoinCheckBypass string   `json:"active_directory_os_join_check_bypass"`
 	PfperlApiTimeout                 string   `json:"pfperl_api_timeout"`
 	LdapAttributes                   []string `json:"ldap_attributes"`
+	ApiInactivityTimeout             int      `json:"api_inactivity_timeout"`
+	ApiMaxExpiration                 int      `json:"api_max_expiration"`
 }

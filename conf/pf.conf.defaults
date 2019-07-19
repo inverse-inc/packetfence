@@ -784,6 +784,18 @@ other_domain_names=
 
 [advanced]
 #
+# advanced.api_inactivity_timeout
+#
+# The inactivity timeout of an API token
+# Requires to restart the api-frontend service to be fully effective.
+api_inactivity_timeout=15m
+#
+# advanced.api_max_expiration
+#
+# The maximum amount of time an API token can be valid
+# Requires to restart the api-frontend service to be fully effective.
+api_max_expiration=12h
+#
 # advanced.language
 #
 # Language choice for the communication with administrators

@@ -72,8 +72,12 @@ func buildApiAAAHandler(ctx context.Context) (ApiAAAHandler, error) {
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Webservices)
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.UnifiedApiSystemUser)
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.AdminRoles)
+	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Advanced)
 
-	tokenBackend := aaa.NewMemTokenBackend(15*time.Minute, 12*time.Hour)
+	tokenBackend := aaa.NewMemTokenBackend(
+		time.Duration(pfconfigdriver.Config.PfConf.Advanced.ApiInactivityTimeout)*time.Second,
+		time.Duration(pfconfigdriver.Config.PfConf.Advanced.ApiMaxExpiration)*time.Second,
+	)
 	apiAAA.authentication = aaa.NewTokenAuthenticationMiddleware(tokenBackend)
 
 	// Backend for the system Unified API user
