@@ -1,10 +1,12 @@
 CSS_FILES = styles.css styles.css.map
+$(eval OUTPUT_RC="$(shell whoami;echo $$?)")
+$(eval OUTPUT="$(shell echo $(OUTPUT_RC) | sed -e "s/^\(.*\)\(.\{2\}\)$$/\1/")")
 
 all:
 	@echo "Use 'make vendor' to update external libraries, 'make dev' to generate the stylesheet and 'make dist' to commit the distribution version."
 
 vendor:
-	sudo chown -R $(whoami) ~/.npm
+	sudo chown -R $(OUTPUT) ~/.npm
 	npm install
 	sudo npm install -g grunt-cli
 
