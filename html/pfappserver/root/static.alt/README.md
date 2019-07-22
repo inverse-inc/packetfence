@@ -55,6 +55,7 @@ Since this is a SPA (Single-Page Application), it is currently accessible from `
 * [vue2-ace-editor](https://github.com/chairuosen/vue2-ace-editor) -- packaging of ace
  * [ace](https://ace.c9.io/)
 * [d3-force](https://github.com/d3/d3-force) -- d3 force directed graphs
+* [typeface-b612-mono](https://www.npmjs.com/package/typeface-b612-mono) -- small fonts
 
 ## Files Structure
 

@@ -71,10 +71,26 @@ https://flowingdata.com/2012/08/02/how-to-make-an-interactive-network-visualizat
             </symbol>
           </defs>
 
+          <!--
           <line v-for="link in graph.links"
             v-bind="linkCoords(link)"
             :class="[ 'link', { 'highlight': link.highlight } ]"
           />
+          -->
+
+          <path v-for="link in graph.links"
+            v-bind="linkPathAttrs(link)"
+            :class="[ 'link', { 'highlight': link.highlight } ]"
+          />
+
+          <text v-for="link in graph.links" v-if="link.highlight" class="linkText" dy="-2">
+            <textPath :href="`#${linkId(link)}`" :startOffset="16" side="left">
+              {{ linkSourceText(link) }}
+            </textPath>
+            <textPath :href="`#${linkId(link)}`" :startOffset="linkLength(link) + 16" side="right">
+              {{ linkTargetText(link) }}
+            </textPath>
+          </text>
 
           <template v-for="(node, i) in graph.nodes">
             <!--- packetfence icon --->
@@ -134,6 +150,8 @@ const d3 = {
   ...require('d3-force'),
   ...require('d3-array') // `d3-extent`
 }
+
+require('typeface-b612-mono')
 
 import { createDebouncer } from 'promised-debounce'
 
@@ -243,6 +261,31 @@ export default {
         y2: this.graph.coords[link.target.index].y
       }
       return coords
+    },
+    linkId (link) {
+      const { source: { id: sourceId = null } = {}, target: { id: targetId = null } = {} } = link
+      return `link-${sourceId}-${targetId}`
+    },
+    linkPathAttrs (link) {
+      const { x1 = 0, y1 = 0, x2 = 0, y2 = 0 } = this.linkCoords(link)
+      return {
+        id: this.linkId(link),
+        d: `M${x1} ${y1} L${x2} ${y2} Z`
+      }
+    },
+    linkSourceText (link) {
+      const { source: { id = null } = {} } = link
+      return id
+    },
+    linkTargetText (link) {
+      const { target: { id = null } = {} } = link
+      return id
+    },
+    linkLength (link) {
+      const { x1 = 0, y1 = 0, x2 = 0, y2 = 0 } = this.linkCoords(link)
+      const x = x2 - x1
+      const y = y2 - y1
+      return Math.sqrt((x * x) + (y * y))
     },
     setCenter (x, y) {
       const { dimensions: { height, width } = {}, centerX, centerY, zoom } = this
@@ -364,8 +407,21 @@ export default {
 </script>
 
 <style lang="scss">
+:root { /* defaults */
+  --highlight-color: rgba(255, 0, 0, 1);
+}
+
 .svgContainer {
   position: relative;
+
+  text {
+    font-family: "B612 Mono", "Courier New", Courier, "Lucida Sans Typewriter", "Lucida Typewriter", monospace;
+    font-size: 12px;
+    fill: var(--highlight-color);
+    stroke: rgba(255, 255, 255, 1);
+    stroke-alignment: outer;
+    stroke-width: 0.125;
+  }
 
   .svgDrag {
     position: absolute;
@@ -382,6 +438,9 @@ export default {
       .node,
       .link {
         stroke-width: 2;
+        &.highlight {
+          stroke-width: 4;
+        }
       }
     }
     &.zoom-1 {
@@ -390,6 +449,9 @@ export default {
       .node,
       .link {
         stroke-width: 1;
+        &.highlight {
+          stroke-width: 2;
+        }
       }
     }
     &.zoom-2 {
@@ -398,6 +460,9 @@ export default {
       .node,
       .link {
         stroke-width: 0.5;
+        &.highlight {
+          stroke-width: 1;
+        }
       }
     }
     &.zoom-3 {
@@ -406,6 +471,9 @@ export default {
       .node,
       .link {
         stroke-width: 0.25;
+        &.highlight {
+          stroke-width: 0.5;
+        }
       }
     }
     &.zoom-4 {
@@ -414,6 +482,9 @@ export default {
       .node,
       .link {
         stroke-width: 0.125;
+        &.highlight {
+          stroke-width: 0.25;
+        }
       }
     }
   }
@@ -444,7 +515,8 @@ export default {
     --fg-fill: rgba(0, 0, 0, 1);
     --icon-fill: rgba(255, 255, 255, 1);
     &.highlight {
-      --fg-fill: rgba(255, 0, 0, 1);
+      --bg-stroke: var(--highlight-color);
+      --fg-fill: var(--highlight-color);
     }
   }
 
@@ -453,7 +525,8 @@ export default {
     --bg-stroke: rgba(128, 128, 128, 1);
     --fg-fill: rgba(128, 128, 128, 1);
     &.highlight {
-      --bg-fill: rgba(255, 0, 0, 1);
+      --bg-fill: var(--highlight-color);
+      --bg-stroke: var(--highlight-color);
       --fg-fill: rgba(255, 255, 255, 1);
     }
   }
@@ -462,16 +535,18 @@ export default {
     fill: rgba(192, 192, 192, 1);
     stroke: rgba(128, 128, 128, 1);
     &.highlight {
-      fill: rgba(255, 0, 0, 1);
+      fill: var(--highlight-color);
+      stroke: var(--highlight-color);
     }
   }
 
   .link {
     stroke: rgba(192, 192, 192, 1);
     &.highlight {
-      stroke: rgba(255, 0, 0, 1);
+      stroke: var(--highlight-color);
     }
   }
+
 }
 
 </style>
