@@ -399,7 +399,7 @@ sub getRegisteredRole {
     if ( $args->{'connection_type'} && ( ( ($args->{'connection_type'} & $WIRED_MAC_AUTH) == $WIRED_MAC_AUTH ) || ( ($args->{'connection_type'} & $WIRELESS_MAC_AUTH) == $WIRELESS_MAC_AUTH ) || ( defined $args->{'user_name'} && $args->{'connection_type'} && ($args->{'connection_type'} & $EAP) == $EAP ) ) ) {
         my @sources = $profile->getFilteredAuthenticationSources($args->{'stripped_user_name'}, $args->{'realm'});
         my $eap = $FALSE;
-        if ($args->{'connection_type'} & $EAP) == $EAP ) {
+        if (($args->{'connection_type'} & $EAP) == $EAP ) {
             $eap = $TRUE;
             if ( isdisabled($profile->dot1xRecomputeRoleFromPortal)  || $args->{'autoreg'} == 1) {
                 $logger->info("Role has already been computed and we don't want to recompute it. Getting role from node_info" );
@@ -422,6 +422,7 @@ sub getRegisteredRole {
                 realm => $args->{realm},
                 context => $pf::constants::realm::RADIUS_CONTEXT,
             };
+            my %info;
             my $matched = pf::authentication::match2([@sources], $params);
             $source = $matched->{source_id};
             my $values = $matched->{values};
@@ -437,11 +438,11 @@ sub getRegisteredRole {
                 # Don't do a person lookup if autoreg (already did it);
                 pf::lookup::person::async_lookup_person($args->{'user_name'}, $source, $pf::constants::realm::RADIUS_CONTEXT) if !($args->{'autoreg'});
                 $portal = $profile->getName;
-                my %info = (
+                %info = (
                     'pid' => $args->{'user_name'},
                 );
             } else {
-                my %info = (
+                %info = (
                     'pid' => 'default',
                 );
             }
@@ -567,7 +568,7 @@ sub getNodeInfoForAutoReg {
     if ( $args->{'connection_type'} && ( ( ($args->{'connection_type'} & $WIRED_MAC_AUTH) == $WIRED_MAC_AUTH ) || ( ($args->{'connection_type'} & $WIRELESS_MAC_AUTH) == $WIRELESS_MAC_AUTH ) || ( defined $args->{'user_name'} && $args->{'connection_type'} && ($args->{'connection_type'} & $EAP) == $EAP ) ) ) {
         my @sources = $profile->getFilteredAuthenticationSources($args->{'stripped_user_name'}, $args->{'realm'});
         my $eap = $FALSE;
-        if ($args->{'connection_type'} & $EAP) == $EAP ) {
+        if (($args->{'connection_type'} & $EAP) == $EAP ) {
             $eap = $TRUE;
             $logger->debug("EAP connection with a username \"$args->{'user_name'}\". Trying to match rules from authentication sources.");
         } else {
@@ -812,7 +813,7 @@ sub makeParams {
         realm => $args->{realm},
         context => $pf::constants::realm::RADIUS_CONTEXT,
     };
-    $params{'stripped_user_name'} = $args->{'stripped_user_name'} if(defined($args->{'stripped_user_name'}));
+    $params->{'stripped_user_name'} = $args->{'stripped_user_name'} if(defined($args->{'stripped_user_name'}));
     return $params;
 }
 
