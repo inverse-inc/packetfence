@@ -396,65 +396,20 @@ sub getRegisteredRole {
         return $role;
     }
     # Try MAC_AUTH, then other EAP methods and finally anything else.
-    if ( $args->{'connection_type'} && ( ( ($args->{'connection_type'} & $WIRED_MAC_AUTH) == $WIRED_MAC_AUTH ) || ( ($args->{'connection_type'} & $WIRELESS_MAC_AUTH) == $WIRELESS_MAC_AUTH ) ) ) {
-        $logger->info("Connection type is MAC-AUTH. Getting role from node_info" );
+    if ( $args->{'connection_type'} && ( ( ($args->{'connection_type'} & $WIRED_MAC_AUTH) == $WIRED_MAC_AUTH ) || ( ($args->{'connection_type'} & $WIRELESS_MAC_AUTH) == $WIRELESS_MAC_AUTH ) || ( defined $args->{'user_name'} && $args->{'connection_type'} && ($args->{'connection_type'} & $EAP) == $EAP ) ) ) {
         my @sources = $profile->getFilteredAuthenticationSources($args->{'stripped_user_name'}, $args->{'realm'});
-        my @source = grep {uc($_->{'type'}) eq "AUTHORIZATION"} @sources;
-        if (@source) {
-            my $stripped_user = '';
-            $stripped_user = $args->{'stripped_user_name'} if(defined($args->{'stripped_user_name'}));
-            my $params = {
-                username => $args->{'user_name'},
-                connection_type => connection_type_to_str($args->{'connection_type'}),
-                SSID => $args->{'ssid'},
-                stripped_user_name => $stripped_user,
-                rule_class => 'authentication',
-                radius_request => $args->{radius_request},
-                realm => $args->{realm},
-                context => $pf::constants::realm::RADIUS_CONTEXT,
-            };
-            my $matched = pf::authentication::match2([@sources], $params);
-            $source = $matched->{source_id};
-            my $values = $matched->{values};
-            $role = $values->{$Actions::SET_ROLE};
-            my $unregdate = $values->{$Actions::SET_UNREG_DATE};
-            my $time_balance =  $values->{$Actions::SET_TIME_BALANCE};
-            my $bandwidth_balance =  $values->{$Actions::SET_BANDWIDTH_BALANCE};
-            my %info = (
-                'pid' => 'default',
-            );
-            if (defined $unregdate) {
-                $info{unregdate} = $unregdate;
-            }
-            if (defined $role) {
-                $info{category} = $role;
-            }
-            if (defined $time_balance) {
-                $info{time_balance} = pf::util::normalize_time($time_balance);
-            }
-            if (defined $bandwidth_balance) {
-                $info{bandwidth_balance} = pf::util::unpretty_bandwidth($bandwidth_balance);
-            }
-            if (blessed ($args->{node_info})) {
-                $args->{node_info}->merge(\%info);
-            }
-            else {
-                node_modify($args->{'mac'},%info);
+        my $eap = $FALSE;
+        if ($args->{'connection_type'} & $EAP) == $EAP ) {
+            $eap = $TRUE;
+            if ( isdisabled($profile->dot1xRecomputeRoleFromPortal)  || $args->{'autoreg'} == 1) {
+                $logger->info("Role has already been computed and we don't want to recompute it. Getting role from node_info" );
+                $role = $args->{'node_info'}->{'category'};
             }
         } else {
-            $role = $args->{'node_info'}->{'category'};
+            $logger->info("Connection type is MAC-AUTH. Getting role from node_info or Authorization source" );
+            @sources = grep {uc($_->{'type'}) eq "AUTHORIZATION"} @sources;
         }
-    }
-
-    # If it's an EAP connection with a username, we try to match that username with authentication sources to calculate
-    # the role based on the rules defined in the different authentication sources.
-    # FIRST HIT MATCH
-    elsif ( defined $args->{'user_name'} && $args->{'connection_type'} && ($args->{'connection_type'} & $EAP) == $EAP ) {
-        if ( isdisabled($profile->dot1xRecomputeRoleFromPortal)  || $args->{'autoreg'} == 1) {
-            $logger->info("Role has already been computed and we don't want to recompute it. Getting role from node_info" );
-            $role = $args->{'node_info'}->{'category'};
-        } else {
-            my @sources = $profile->getFilteredAuthenticationSources($args->{'stripped_user_name'}, $args->{'realm'});
+        if (@sources) {
             my $stripped_user = '';
             $stripped_user = $args->{'stripped_user_name'} if(defined($args->{'stripped_user_name'}));
             my $params = {
@@ -474,16 +429,22 @@ sub getRegisteredRole {
             my $unregdate = $values->{$Actions::SET_UNREG_DATE};
             my $time_balance =  $values->{$Actions::SET_TIME_BALANCE};
             my $bandwidth_balance =  $values->{$Actions::SET_BANDWIDTH_BALANCE};
-            pf::person::person_modify($args->{'user_name'},
-                'source'  => $source,
-                'portal'  => $profile->getName,
-            );
-            # Don't do a person lookup if autoreg (already did it);
-            pf::lookup::person::async_lookup_person($args->{'user_name'}, $source, $pf::constants::realm::RADIUS_CONTEXT) if !($args->{'autoreg'});
-            $portal = $profile->getName;
-            my %info = (
-                'pid' => $args->{'user_name'},
-            );
+            if ($eap) {
+                pf::person::person_modify($args->{'user_name'},
+                    'source'  => $source,
+                    'portal'  => $profile->getName,
+                );
+                # Don't do a person lookup if autoreg (already did it);
+                pf::lookup::person::async_lookup_person($args->{'user_name'}, $source, $pf::constants::realm::RADIUS_CONTEXT) if !($args->{'autoreg'});
+                $portal = $profile->getName;
+                my %info = (
+                    'pid' => $args->{'user_name'},
+                );
+            } else {
+                my %info = (
+                    'pid' => 'default',
+                );
+            }
             if (defined $unregdate) {
                 $info{unregdate} = $unregdate;
             }
@@ -502,6 +463,8 @@ sub getRegisteredRole {
             else {
                 node_modify($args->{'mac'},%info);
             }
+        } else {
+            $role = $args->{'node_info'}->{'category'};
         }
     }
     # If a user based role has been found by matching authentication sources rules, we return it
@@ -599,56 +562,69 @@ sub getNodeInfoForAutoReg {
         $node_info{'category'} = $VOICE_ROLE;
     }
 
+    # under MAC-AUTH we check with an authorized source
     # under 802.1X EAP, we trust the username provided since it authenticated
-    if (defined($args->{'connection_type'}) && (($args->{'connection_type'} & $EAP) == $EAP) && defined($args->{'user_name'})) {
-        $logger->debug("EAP connection with a username \"$args->{'user_name'}\". Trying to match rules from authentication sources.");
+    if ( $args->{'connection_type'} && ( ( ($args->{'connection_type'} & $WIRED_MAC_AUTH) == $WIRED_MAC_AUTH ) || ( ($args->{'connection_type'} & $WIRELESS_MAC_AUTH) == $WIRELESS_MAC_AUTH ) || ( defined $args->{'user_name'} && $args->{'connection_type'} && ($args->{'connection_type'} & $EAP) == $EAP ) ) ) {
         my @sources = $profile->getFilteredAuthenticationSources($args->{'stripped_user_name'}, $args->{'realm'});
-        my $stripped_user = '';
-        $stripped_user = $args->{'stripped_user_name'} if(defined($args->{'stripped_user_name'}));
-        my $params = {
-            username => $args->{'user_name'},
-            connection_type => connection_type_to_str($args->{'connection_type'}),
-            SSID => $args->{'ssid'},
-            stripped_user_name => $stripped_user,
-            radius_request => $args->{radius_request},
-            realm => $args->{realm},
-            context => $pf::constants::realm::RADIUS_CONTEXT,
-        };
-
-        my $matched = pf::authentication::match2([@sources], $params);
-        my $source = $matched->{source_id};
-
-        my $values = $matched->{values};
-        # Don't override vlan filter role
-        if (!defined($role)) {
-            $role = $values->{$Actions::SET_ROLE};
+        my $eap = $FALSE;
+        if ($args->{'connection_type'} & $EAP) == $EAP ) {
+            $eap = $TRUE;
+            $logger->debug("EAP connection with a username \"$args->{'user_name'}\". Trying to match rules from authentication sources.");
+        } else {
+            @sources = grep {uc($_->{'type'}) eq "AUTHORIZATION"} @sources;
         }
-        my $unregdate = $values->{$Actions::SET_UNREG_DATE};
-        my $time_balance =  $values->{$Actions::SET_TIME_BALANCE};
-        my $bandwidth_balance =  $values->{$Actions::SET_BANDWIDTH_BALANCE};        
-        $node_info{'time_balance'} = pf::util::normalize_time($time_balance) if (defined($time_balance));
-        $node_info{'bandwidth_balance'} = pf::util::unpretty_bandwidth($bandwidth_balance) if (defined($bandwidth_balance));
+        if (@sources) {
+            my $stripped_user = '';
+            $stripped_user = $args->{'stripped_user_name'} if(defined($args->{'stripped_user_name'}));
+            my $params = {
+                username => $args->{'user_name'},
+                connection_type => connection_type_to_str($args->{'connection_type'}),
+                SSID => $args->{'ssid'},
+                stripped_user_name => $stripped_user,
+                rule_class => 'authentication',
+                radius_request => $args->{radius_request},
+                realm => $args->{realm},
+                context => $pf::constants::realm::RADIUS_CONTEXT,
+            };
 
-        if ($source) {
-            pf::person::person_modify($args->{'user_name'},
-                'source'  => $source,
-                'portal'  => $profile->getName,
-            );
-            # Trigger a person lookup for 802.1x users
-            pf::lookup::person::async_lookup_person($args->{'user_name'}, $source, $pf::constants::realm::RADIUS_CONTEXT);
-        }
+            my $matched = pf::authentication::match2([@sources], $params);
+            my $source = $matched->{source_id};
 
-        if (defined $unregdate) {
-            $node_info{'unregdate'} = $unregdate;
-            if (defined $role) {
-                %node_info = (%node_info, (category => $role));
+            my $values = $matched->{values};
+            # Don't override vlan filter role
+            if (!defined($role)) {
+                $role = $values->{$Actions::SET_ROLE};
             }
-            %node_info = (%node_info, (source  => $source, portal => $profile->getName));
+            my $unregdate = $values->{$Actions::SET_UNREG_DATE};
+            my $time_balance =  $values->{$Actions::SET_TIME_BALANCE};
+            my $bandwidth_balance =  $values->{$Actions::SET_BANDWIDTH_BALANCE};
+            $node_info{'time_balance'} = pf::util::normalize_time($time_balance) if (defined($time_balance));
+            $node_info{'bandwidth_balance'} = pf::util::unpretty_bandwidth($bandwidth_balance) if (defined($bandwidth_balance));
+
+            if ($source) {
+                pf::person::person_modify($args->{'user_name'},
+                    'source'  => $source,
+                    'portal'  => $profile->getName,
+                );
+                if ($eap) {
+                    # Trigger a person lookup for 802.1x users
+                    pf::lookup::person::async_lookup_person($args->{'user_name'}, $source, $pf::constants::realm::RADIUS_CONTEXT);
+                }
+            }
+
+            if (defined $unregdate) {
+                $node_info{'unregdate'} = $unregdate;
+                if (defined $role) {
+                    %node_info = (%node_info, (category => $role));
+                }
+                %node_info = (%node_info, (source  => $source, portal => $profile->getName));
+            }
+            if (!defined($role) && isenabled($profile->dot1xUnsetOnUnmatch)) {
+                %node_info = (%node_info, (category => ''));
+            }
+            $node_info{'pid'} = $args->{'user_name'};
         }
-        if (!defined($role) && isenabled($profile->dot1xUnsetOnUnmatch)) {
-            %node_info = (%node_info, (category => ''));
-        }
-        $node_info{'pid'} = $args->{'user_name'};
+        $logger->warn("No category computed for autoreg") if (!(exists($node_info{'category'})) || $node_info{'category'} eq '');
     }
 
     # set the eap_type if it exist
@@ -817,6 +793,27 @@ sub filterVlan {
     $args->{'owner'}= person_view_simple($args->{'node_info'}->{'pid'});
     my $role = $filter->filter($scope, $args);
     return $role;
+}
+
+=head2 makeParams
+
+Function that return the param hash
+
+=cut
+
+sub makeParams {
+    my ( $args ) = @_;
+    my $params = {
+        username => $args->{'user_name'},
+        connection_type => connection_type_to_str($args->{'connection_type'}),
+        SSID => $args->{'ssid'},
+        rule_class => 'authentication',
+        radius_request => $args->{radius_request},
+        realm => $args->{realm},
+        context => $pf::constants::realm::RADIUS_CONTEXT,
+    };
+    $params{'stripped_user_name'} = $args->{'stripped_user_name'} if(defined($args->{'stripped_user_name'}));
+    return $params;
 }
 
 =head1 AUTHOR
