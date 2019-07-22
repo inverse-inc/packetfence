@@ -209,7 +209,6 @@
 /usr/local/pf/raddb/mods-available/logintime
 /usr/local/pf/raddb/mods-available/mac2ip
 /usr/local/pf/raddb/mods-available/mac2vlan
-/usr/local/pf/raddb/mods-available/mschap
 /usr/local/pf/raddb/mods-available/ntlm_auth
 /usr/local/pf/raddb/mods-available/opendirectory
 /usr/local/pf/raddb/mods-available/otp
