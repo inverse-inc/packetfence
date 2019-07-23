@@ -31,6 +31,42 @@ export const pfConfigurationAdvancedViewFields = (context = {}) => {
           ]
         },
         {
+          label: i18n.t('API inactivity timeout'),
+          text: i18n.t('The inactivity timeout of an API token. Requires to restart the api-frontend service to be fully effective.'),
+          fields: [
+            {
+              key: 'api_inactivity_timeout.interval',
+              component: pfFormInput,
+              attrs: pfConfigurationAttributesFromMeta(meta, 'api_inactivity_timeout.interval'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'api_inactivity_timeout.interval', i18n.t('Interval'))
+            },
+            {
+              key: 'api_inactivity_timeout.unit',
+              component: pfFormChosen,
+              attrs: pfConfigurationAttributesFromMeta(meta, 'api_inactivity_timeout.unit'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'api_inactivity_timeout.unit', i18n.t('Unit'))
+            }
+          ]
+        },
+        {
+          label: i18n.t('API token max expiration'),
+          text: i18n.t('The maximum amount of time an API token can be valid. Requires to restart the api-frontend service to be fully effective.'),
+          fields: [
+            {
+              key: 'api_max_expiration.interval',
+              component: pfFormInput,
+              attrs: pfConfigurationAttributesFromMeta(meta, 'api_max_expiration.interval'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'api_max_expiration.interval', i18n.t('Interval'))
+            },
+            {
+              key: 'api_max_expiration.unit',
+              component: pfFormChosen,
+              attrs: pfConfigurationAttributesFromMeta(meta, 'api_max_expiration.unit'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'api_max_expiration.unit', i18n.t('Unit'))
+            }
+          ]
+        },
+        {
           label: i18n.t('CSP headers for Admin'),
           text: i18n.t('(Experimental) Enforce Content-Security-Policy (CSP) HTTP response header in admin interface.'),
           fields: [
