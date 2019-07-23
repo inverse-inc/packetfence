@@ -284,9 +284,6 @@ func (p *passthrough) readConfig(ctx context.Context) {
 		var NetIndex net.IPNet
 		var portalURL url.URL
 
-		var portalUrl fqdn
-		portalUrl.FQDN = make(map[*net.IPNet]*url.URL)
-
 		var ConfNet pfconfigdriver.NetworkConf
 		ConfNet.PfconfigHashNS = key
 		pfconfigdriver.FetchDecodeSocket(ctx, &ConfNet)
