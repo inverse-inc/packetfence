@@ -312,6 +312,7 @@ type RessourseNetworkConf struct {
 	IpReserved              string    `json:"ip_reserved"`
 	IpAssigned              string    `json:"ip_assigned"`
 	Interface               Interface `json:"interface"`
+	Algorithm               string    `json:"algorithm"`
 }
 
 type PfRoles struct {

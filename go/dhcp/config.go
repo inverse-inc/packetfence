@@ -229,9 +229,9 @@ func (d *Interfaces) readConfig() {
 							sharedutils.Dec(ips)
 
 							DHCPScope.leaseRange = dhcp.IPRange(ip, ips)
-							algorithm, err := strconv.Atoi(ConfNet.Algorithm)
+							algorithm, _ := strconv.Atoi(ConfNet.Algorithm)
 							// Initialize dhcp pool
-							available := pool.NewDHCPPool(uint64(dhcp.IPRange(ip, ips)), strconv.Atoi(algorithm))
+							available := pool.NewDHCPPool(uint64(dhcp.IPRange(ip, ips)), algorithm)
 
 							DHCPScope.available = available
 
@@ -292,7 +292,7 @@ func (d *Interfaces) readConfig() {
 						DHCPScope.leaseDuration = time.Duration(seconds) * time.Second
 						DHCPScope.leaseRange = dhcp.IPRange(net.ParseIP(ConfNet.DhcpStart), net.ParseIP(ConfNet.DhcpEnd))
 
-						algorithm, err := strconv.Atoi(ConfNet.Algorithm)
+						algorithm, _ := strconv.Atoi(ConfNet.Algorithm)
 
 						// Initialize dhcp pool
 						available := pool.NewDHCPPool(uint64(dhcp.IPRange(net.ParseIP(ConfNet.DhcpStart), net.ParseIP(ConfNet.DhcpEnd))), algorithm)
