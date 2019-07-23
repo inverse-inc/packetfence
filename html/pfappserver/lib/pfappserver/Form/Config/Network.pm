@@ -50,6 +50,17 @@ has_field 'dhcp_max_lease_time' =>
    required_when => { 'fake_mac_enabled' => sub { $_[0] ne '1' } },
    messages => { required => 'Please specify the maximum DHCP lease time.' },
   );
+has_field 'algorithm' =>
+  (
+   type => 'Select',
+   label => 'DHCP Algorithm',
+   required => 1,
+   options => [
+        { value => $pf::constants::dhcp::RANDOM_ALGORITHM, label => 'Random'},
+        { value => $pf::constants::dhcp::OLDEST_RELEASED_ALGORITHM, label => 'Oldest Released'},
+   ],
+   default => $pf::constants::dhcp::RANDOM_ALGORITHM,
+  );
 has_field 'ip_reserved' =>
   (
    type => 'TextArea',

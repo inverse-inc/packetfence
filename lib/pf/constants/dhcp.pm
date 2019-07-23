@@ -25,6 +25,10 @@ Readonly our $DEFAULT_LEASE_LENGTH => 86400;
 Readonly our $DHCP_API_DEFAULT_TIMEOUT => 500;
 Readonly our $DHCP_API_DEFAULT_CONNECT_TIMEOUT => 500;
 
+# DHCP server select ip algorithm
+Readonly our $RANDOM_ALGORITHM => 1;
+Readonly our $OLDEST_RELEASED_ALGORITHM => 2;
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

@@ -1,4 +1,5 @@
 import i18n from '@/utils/locale'
+import pfFormChosen from '@/components/pfFormChosen'
 import pfFormHtml from '@/components/pfFormHtml'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormTextarea from '@/components/pfFormTextarea'
@@ -25,11 +26,27 @@ export const pfConfigurationLayer2NetworkHtmlNote = `<div class="alert alert-war
   ${i18n.t('Adding or modifying a network requires a restart of the pfdhcp and pfdns services for the changes to take place.')}
 </div>`
 
+export const pfConfigurationLayer2NetworkDHCPAlgo = [
+  { value: '1', text: i18n.t('Random') },
+  { value: '2', text: i18n.t('Oldest Released') }
+]
+
+export const pfConfigurationLayer2NetworkDHCPAlgoFormatter = (value, key, item) => {
+  if (value === null || value === '') return null
+  return pfConfigurationLayer2NetworkDHCPAlgo.find(type => type.value === value).text
+}
+
 export const pfConfigurationLayer2NetworksListColumns = [
   {
     key: 'id',
     label: i18n.t('Network'),
     sortable: false,
+    visible: true
+  },
+  {
+    key: 'algorithm',
+    label: i18n.t('Algorithm'),
+    sortable: true,
     visible: true
   },
   {
@@ -97,6 +114,23 @@ export const pfConfigurationLayer2NetworkViewFields = (context = {}) => {
                   [i18n.t('Invalid IP Address.')]: ipAddress
                 }
               }
+            }
+          ]
+        },
+        {
+          label: i18n.t('Algorithm'),
+          fields: [
+            {
+              key: 'algorithm',
+              component: pfFormChosen,
+              attrs: {
+                collapseObject: true,
+                placeholder: i18n.t('Click to choose the algorithm'),
+                trackBy: 'value',
+                label: 'text',
+                options: pfConfigurationLayer2NetworkDHCPAlgo
+              },
+              validators: pfConfigurationValidatorsFromMeta(meta, 'algorithm', i18n.t('Algorithm'))
             }
           ]
         },
