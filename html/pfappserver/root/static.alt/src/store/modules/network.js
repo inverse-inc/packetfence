@@ -96,9 +96,14 @@ const actions = {
   doPoll: ({ commit, dispatch, state }) => {
     if (state.nodes.length === 0) {
       // 1st iteration
-      dispatch('addNodes', [
-        { id: 0, x: null, y: null, type: 'packetfence', highlight: false }
-      ])
+      dispatch('addNodes', [{
+        id: 0,
+        x: null,
+        y: null,
+        type: 'packetfence',
+        highlight: false,
+        color: ['blue', 'red', 'yellow', 'green'][Math.floor(Math.random() * 4)]
+      }])
     } else {
       // 2nd+ iterations
       //  generate some random stuff
@@ -116,7 +121,14 @@ const actions = {
           break
       }
       dispatch('addLinks', [{ source: source.id, target: length, highlight: false }])
-      dispatch('addNodes', [{ id: length, x: source.x, y: source.y, type, highlight: false }])
+      dispatch('addNodes', [{
+        id: length,
+        x: source.x,
+        y: source.y,
+        type,
+        highlight: false,
+        color: ['blue', 'red', 'yellow', 'green'][Math.floor(Math.random() * 4)]
+      }])
     }
 
     if (state.nodes.length === 100) {
@@ -206,7 +218,7 @@ const mutations = {
             case type === 'router':
               return 20  // default
             default:
-              return 5
+              return 10
           }
         }).strength((link, index) => {
           const { source: { links: sourceLinks } = {}, target: { type, links: targetLinks } = {} } = link
@@ -215,7 +227,7 @@ const mutations = {
               return 1
             default:
               // reduce the strength of links connected to heavily-connected nodes, improving stability
-              return 1 / Math.min(sourceLinks, targetLinks)
+              return 1 / Math.max(sourceLinks, targetLinks)
           }
         })
         )

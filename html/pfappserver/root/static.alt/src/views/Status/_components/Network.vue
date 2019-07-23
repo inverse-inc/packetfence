@@ -84,11 +84,11 @@ https://flowingdata.com/2012/08/02/how-to-make-an-interactive-network-visualizat
           />
 
           <text v-for="link in graph.links" v-if="link.highlight" class="linkText" dy="-2">
-            <textPath :href="`#${linkId(link)}`" :startOffset="16" side="left">
-              {{ linkSourceText(link) }}
+            <textPath v-bind="linkSourceAttrs(link)">
+              ↦{{ linkSourceText(link) }}
             </textPath>
-            <textPath :href="`#${linkId(link)}`" :startOffset="linkLength(link) + 16" side="right">
-              {{ linkTargetText(link) }}
+            <textPath v-bind="linkTargetAttrs(link)">
+              ↦{{ linkTargetText(link) }}
             </textPath>
           </text>
 
@@ -125,7 +125,7 @@ width="16" height="16"
               @mouseover="mouseOverNode(node, $event)"
               @mouseout="mouseOutNode(node, $event)"
               @click="clickNode(node, $event)"
-              :class="[ 'node', { 'highlight': node.highlight } ]"
+              :class="[ 'node', node.color, { 'highlight': node.highlight } ]"
             />
           </template>
 
@@ -171,6 +171,8 @@ export default {
         height: Math.max(document.documentElement.clientHeight, window.innerHeight || 0) - 40,
         width: 0
       },
+
+      colors: [ 'blue', 'red', 'yellow', 'green' ],
 
       // zoom/pan
       lastX: null,
@@ -273,19 +275,43 @@ export default {
         d: `M${x1} ${y1} L${x2} ${y2} Z`
       }
     },
+    linkSourceAttrs (link) {
+      const {
+        source: { id: sourceId = null, type: sourceType } = {},
+        target: { id: targetId = null } = {}
+      } = link
+      const { x1 = 0, y1 = 0, x2 = 0, y2 = 0 } = this.linkCoords(link)
+      const x = x2 - x1
+      const y = y2 - y1
+      const l = Math.sqrt((x * x) + (y * y))
+      const sourceMargin = (sourceType === 'node') ? 8 : 16
+      return {
+        href: `#link-${sourceId}-${targetId}`,
+        startOffset: sourceMargin
+      }
+    },
     linkSourceText (link) {
       const { source: { id = null } = {} } = link
       return id
     },
-    linkTargetText (link) {
-      const { target: { id = null } = {} } = link
-      return id
-    },
-    linkLength (link) {
+    linkTargetAttrs (link) {
+      const {
+        source: { id: sourceId = null } = {},
+        target: { id: targetId = null, type: targetType } = {}
+      } = link
       const { x1 = 0, y1 = 0, x2 = 0, y2 = 0 } = this.linkCoords(link)
       const x = x2 - x1
       const y = y2 - y1
-      return Math.sqrt((x * x) + (y * y))
+      const l = Math.sqrt((x * x) + (y * y))
+      const targetMargin = (targetType === 'node') ? 8 : 16
+      return {
+        href: `#link-${sourceId}-${targetId}`,
+        startOffset: l + targetMargin
+      }
+    },
+    linkTargetText (link) {
+      const { target: { id = null } = {} } = link
+      return id
     },
     setCenter (x, y) {
       const { dimensions: { height, width } = {}, centerX, centerY, zoom } = this
@@ -355,12 +381,28 @@ export default {
       this.setCenter(x, y)
     },
     mouseOverNode (node, event = null) {
-      console.log('mouseover Node', event, node)
       this.$store.dispatch(`${this.storeName}/highlightNodeById`, node.id)
+      const { $refs: { svgDraw = {} } = {} } = this
+      // remove highlight class
+      svgDraw.classList.forEach(className => {
+        if (/^highlight-/.test(className)) {
+          svgDraw.classList.remove(className)
+        }
+      })
+      if (node.type === 'node') {
+        // add highlight class
+        svgDraw.classList.add(`highlight-${node.color}`)
+      }
     },
     mouseOutNode (node, event = null) {
-      console.log('mouseout Node', event, node)
       this.$store.dispatch(`${this.storeName}/highlightNodeById`, null)
+      const { $refs: { svgDraw = {} } = {} } = this
+      // remove highlight class
+      svgDraw.classList.forEach(className => {
+        if (/^highlight-/.test(className)) {
+          svgDraw.classList.remove(className)
+        }
+      })
     },
     clickNode (node, event = null) {
       console.log('click Node', event, node)
@@ -408,7 +450,14 @@ export default {
 
 <style lang="scss">
 :root { /* defaults */
-  --highlight-color: rgba(255, 0, 0, 1);
+  --color-black: rgba(0, 0, 0, 1);
+  --color-blue: rgba(66, 133, 244, 1);
+  --color-red: rgba(219, 68, 55, 1);
+  --color-yellow: rgba(244, 160, 0, 1);
+  --color-green: rgba(15, 157, 88, 1);
+
+  /* default highlight color */
+  --highlight-color: var(--color-black);
 }
 
 .svgContainer {
@@ -421,6 +470,7 @@ export default {
     stroke: rgba(255, 255, 255, 1);
     stroke-alignment: outer;
     stroke-width: 0.125;
+    transform-origin: center center;
   }
 
   .svgDrag {
@@ -432,6 +482,18 @@ export default {
   }
 
   .svgDraw {
+    &.highlight-blue {
+      --highlight-color: rgba(66, 133, 244, 1);
+    }
+    &.highlight-red {
+      --highlight-color: rgba(219, 68, 55, 1);
+    }
+    &.highlight-yellow {
+      --highlight-color: rgba(244, 160, 0, 1);
+    }
+    &.highlight-green {
+      --highlight-color: rgba(15, 157, 88, 1);
+    }
     &.zoom-0 {
       .packetfence,
       .router,
@@ -534,6 +596,18 @@ export default {
   .node {
     fill: rgba(192, 192, 192, 1);
     stroke: rgba(128, 128, 128, 1);
+    &.blue {
+      fill: var(--color-blue);
+    }
+    &.red {
+      fill: var(--color-red);
+    }
+    &.yellow {
+      fill: var(--color-yellow);
+    }
+    &.green {
+      fill: var(--color-green);
+    }
     &.highlight {
       fill: var(--highlight-color);
       stroke: var(--highlight-color);
