@@ -2,9 +2,10 @@ package pool
 
 import (
 	"context"
+	"testing"
+
 	"github.com/inverse-inc/packetfence/go/log"
 	statsd "gopkg.in/alexcesaro/statsd.v2"
-	"testing"
 )
 
 var ctx = log.LoggerNewContext(context.Background())
@@ -25,7 +26,7 @@ func TestReserveIPIndex(t *testing.T) {
 
 	// Try to reserve all the IPs
 	for i := uint64(0); i < dp.capacity; i++ {
-		err, returnedMac := dp.ReserveIPIndex(i, mac)
+		returnedMac, err := dp.ReserveIPIndex(i, mac)
 		if err != nil {
 			t.Error("Got an error and shouldn't have gotten one", err)
 		}
@@ -39,14 +40,14 @@ func TestReserveIPIndex(t *testing.T) {
 	}
 
 	// Try to reserve an IP again
-	err, _ = dp.ReserveIPIndex(3, mac)
+	_, err = dp.ReserveIPIndex(3, mac)
 
 	if err == nil {
 		t.Error("Didn't get an error when trying to double-reserve an IP")
 	}
 
 	// Try to reserve an IP outside the capacity
-	err, _ = dp.ReserveIPIndex(cap, mac)
+	_, err = dp.ReserveIPIndex(cap, mac)
 
 	if err == nil {
 		t.Error("Didn't get an error when trying to reserve an IP outside the capacity")

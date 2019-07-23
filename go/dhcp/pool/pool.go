@@ -3,12 +3,14 @@ package pool
 import (
 	"context"
 	"errors"
-	"github.com/inverse-inc/packetfence/go/log"
-	statsd "gopkg.in/alexcesaro/statsd.v2"
 	"math/rand"
 	"sort"
 	"strconv"
 	"sync"
+	"time"
+
+	"github.com/inverse-inc/packetfence/go/log"
+	statsd "gopkg.in/alexcesaro/statsd.v2"
 )
 
 // FreeMac is the Free Mac address constant
@@ -23,6 +25,7 @@ const Random = 1
 // OldestReleased ip constant
 const OldestReleased = 2
 
+// DHCPPool structure
 type DHCPPool struct {
 	lock      *sync.RWMutex
 	free      map[uint64]bool
@@ -31,7 +34,7 @@ type DHCPPool struct {
 	released  map[uint64]int64
 	algorithm int
 	ctx       context.Context
-	statsd   *statsd.Client
+	statsd    *statsd.Client
 }
 
 // NewDHCPPool constructor
@@ -39,14 +42,14 @@ func NewDHCPPool(context context.Context, capacity uint64, algorithm int, Statsd
 	log.SetProcessName("pfdhcp")
 	ctx := log.LoggerNewContext(context)
 	d := &DHCPPool{
-		lock:     &sync.RWMutex{},
-		free:     make(map[uint64]bool),
-		mac:      make(map[uint64]string),
+		lock:      &sync.RWMutex{},
+		free:      make(map[uint64]bool),
+		mac:       make(map[uint64]string),
 		released:  make(map[uint64]int64),
 		algorithm: algorithm,
-		capacity: capacity,
-		ctx:      ctx,
-		statsd:   StatsdClient,
+		capacity:  capacity,
+		ctx:       ctx,
+		statsd:    StatsdClient,
 	}
 	for i := uint64(0); i < d.capacity; i++ {
 		d.free[i] = true
@@ -55,7 +58,7 @@ func NewDHCPPool(context context.Context, capacity uint64, algorithm int, Statsd
 	return d
 }
 
-// Compare what we have in the cache with what we have in the pool
+// GetIssues Compare what we have in the cache with what we have in the pool
 func (dp *DHCPPool) GetIssues(macs []string) ([]string, map[uint64]string) {
 	dp.lock.RLock()
 	defer dp.lock.RUnlock()
@@ -107,26 +110,25 @@ func (dp *DHCPPool) GetIssues(macs []string) ([]string, map[uint64]string) {
 	return inPoolNotInCache, duplicateInPool
 }
 
-// Reserves an IP in the pool, returns an error if the IP has already been reserved
-func (dp *DHCPPool) ReserveIPIndex(index uint64, mac string) (error, string) {
+// ReserveIPIndex Reserves an IP in the pool, returns an error if the IP has already been reserved
+func (dp *DHCPPool) ReserveIPIndex(index uint64, mac string) (string, error) {
 	dp.lock.Lock()
 	defer dp.lock.Unlock()
 	t := dp.statsd.NewTiming()
 	defer dp.timeTrack(t, "ReserveIPIndex")
 	if index >= dp.capacity {
-		return errors.New("Trying to reserve an IP that is outside the capacity of this pool"), FreeMac
+		return FreeMac, errors.New("Trying to reserve an IP that is outside the capacity of this pool")
 	}
 
 	if _, free := dp.free[index]; free {
 		delete(dp.free, index)
 		dp.mac[index] = mac
-		return nil, mac
-	} else {
-		return errors.New("IP is already reserved"), FreeMac
+		return mac, nil
 	}
+	return FreeMac, errors.New("IP is already reserved")
 }
 
-// Frees an IP in the pool, returns an error if the IP is already free
+// FreeIPIndex Frees an IP in the pool, returns an error if the IP is already free
 func (dp *DHCPPool) FreeIPIndex(index uint64) error {
 	dp.lock.Lock()
 	defer dp.lock.Unlock()
@@ -138,15 +140,14 @@ func (dp *DHCPPool) FreeIPIndex(index uint64) error {
 
 	if _, free := dp.free[index]; free {
 		return errors.New("IP is already free")
-	} else {
-		dp.free[index] = true
-		dp.released[index] = time.Now().UnixNano()
-		delete(dp.mac, index)
-		return nil
 	}
+	dp.free[index] = true
+	dp.released[index] = time.Now().UnixNano()
+	delete(dp.mac, index)
+	return nil
 }
 
-// Check if the IP is free at the index
+// IsFreeIPAtIndex Check if the IP is free at the index
 func (dp *DHCPPool) IsFreeIPAtIndex(index uint64) bool {
 	dp.lock.RLock()
 	defer dp.lock.RUnlock()
@@ -158,12 +159,11 @@ func (dp *DHCPPool) IsFreeIPAtIndex(index uint64) bool {
 
 	if _, free := dp.free[index]; free {
 		return true
-	} else {
-		return false
 	}
+	return false
 }
 
-// Check if the IP is free at the index
+// GetMACIndex Check if the IP is free at the index
 func (dp *DHCPPool) GetMACIndex(index uint64) (uint64, string, error) {
 	dp.lock.RLock()
 	defer dp.lock.RUnlock()
@@ -175,12 +175,11 @@ func (dp *DHCPPool) GetMACIndex(index uint64) (uint64, string, error) {
 
 	if _, free := dp.free[index]; free {
 		return index, FreeMac, nil
-	} else {
-		return index, dp.mac[index], nil
 	}
+	return index, dp.mac[index], nil
 }
 
-// Returns a random free IP address, an error if the pool is full
+// GetFreeIPIndex Returns a random free IP address, an error if the pool is full
 func (dp *DHCPPool) GetFreeIPIndex(mac string) (uint64, string, error) {
 	dp.lock.Lock()
 	defer dp.lock.Unlock()
@@ -229,14 +228,14 @@ func (dp *DHCPPool) GetFreeIPIndex(mac string) (uint64, string, error) {
 	return available, mac, nil
 }
 
-// Returns whether or not a specific index is in the capacity of the pool
+// IndexInPool Returns whether or not a specific index is in the capacity of the pool
 func (dp *DHCPPool) IndexInPool(index uint64) bool {
 	t := dp.statsd.NewTiming()
 	defer dp.timeTrack(t, "IndexInPool")
 	return index < dp.capacity
 }
 
-// Returns the amount of free IPs in the pool
+// FreeIPsRemaining Returns the amount of free IPs in the pool
 func (dp *DHCPPool) FreeIPsRemaining() uint64 {
 	dp.lock.RLock()
 	defer dp.lock.RUnlock()
@@ -245,7 +244,7 @@ func (dp *DHCPPool) FreeIPsRemaining() uint64 {
 	return uint64(len(dp.free))
 }
 
-// Returns the capacity of the pool
+// Capacity Returns the capacity of the pool
 func (dp *DHCPPool) Capacity() uint64 {
 	t := dp.statsd.NewTiming()
 	defer dp.timeTrack(t, "Capacity")
