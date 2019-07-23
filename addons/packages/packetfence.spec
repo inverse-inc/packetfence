@@ -61,6 +61,7 @@ BuildRequires: gettext, httpd, ipset-devel, pkgconfig, jq
 # See docs/docbook/README.asciidoc for more info about installing requirements.
 # TODO fop on EL5 is actually xmlgraphics-fop
 BuildRequires: asciidoc >= 8.6.2, fop, libxslt, docbook-style-xsl, xalan-j2
+BuildRequires: asciidoctor
 BuildRequires: gcc
 
 %description
