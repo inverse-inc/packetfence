@@ -394,7 +394,7 @@ func (I *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 					handler.hwcache.Delete(p.CHAddr().String())
 
 					// Reserve the ip
-					err, returnedMac = handler.available.ReserveIPIndex(uint64(x.(int)), p.CHAddr().String())
+					returnedMac, err = handler.available.ReserveIPIndex(uint64(x.(int)), p.CHAddr().String())
 					if err != nil {
 						log.LoggerWContext(ctx).Error(err.Error())
 					}
@@ -440,7 +440,7 @@ func (I *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 					} else if err == nil && returnedMac == FreeMac {
 						log.LoggerWContext(ctx).Debug("The IP asked by the device is available in the pool")
 						// The ip is free use it
-						err, returnedMac = handler.available.ReserveIPIndex(uint64(element), p.CHAddr().String())
+						returnedMac, err = handler.available.ReserveIPIndex(uint64(element), p.CHAddr().String())
 						// Reserve the ip
 						if err != nil {
 							log.LoggerWContext(ctx).Error(err.Error())

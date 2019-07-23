@@ -176,7 +176,7 @@ func handleDuplicates(res http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 
 	if h, ok := intNametoInterface[vars["int"]]; ok {
-		stat := h.handleApiReq(ApiReq{Req: "duplicates", NetInterface: vars["int"], NetWork: vars["network"]})
+		stat := h.handleAPIReq(APIReq{Req: "duplicates", NetInterface: vars["int"], NetWork: vars["network"]})
 
 		outgoingJSON, err := json.Marshal(stat)
 
@@ -356,7 +356,7 @@ func extractMembers(v Network) ([]Node, []string, int) {
 	return Members, Macs, Count
 }
 
-func (h *Interface) handleApiReq(Request ApiReq) interface{} {
+func (h *Interface) handleAPIReq(Request APIReq) interface{} {
 	var stats []Stats
 
 	if Request.Req == "duplicates" {
