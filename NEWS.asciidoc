@@ -29,6 +29,7 @@ Enhancements
 * Firewall SSO is now performed centrally on the management node of a cluster
 * Added dhcp pool algorithm (Random/Oldest ip)
 * Improved support for Juniper switches running Junos 15 and above
+* Allow to configure the API token timeout
 
 Bug Fixes
 +++++++++
