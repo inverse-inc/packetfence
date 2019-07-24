@@ -172,6 +172,27 @@ func handleStats(res http.ResponseWriter, req *http.Request) {
 	return
 }
 
+func handleDuplicates(res http.ResponseWriter, req *http.Request) {
+	vars := mux.Vars(req)
+
+	if h, ok := intNametoInterface[vars["int"]]; ok {
+		stat := h.handleAPIReq(APIReq{Req: "duplicates", NetInterface: vars["int"], NetWork: vars["network"]})
+
+		outgoingJSON, err := json.Marshal(stat)
+
+		if err != nil {
+			unifiedapierrors.Error(res, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		fmt.Fprint(res, string(outgoingJSON))
+		return
+	}
+
+	unifiedapierrors.Error(res, "Interface not found", http.StatusNotFound)
+	return
+}
+
 func handleDebug(res http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 
@@ -312,10 +333,50 @@ func decodeOptions(b string) (map[dhcp.OptionCode][]byte, error) {
 	return dhcpOptions, nil
 }
 
+func extractMembers(v Network) ([]Node, []string, int) {
+	var Members []Node
+	var Macs []string
+	id, _ := GlobalTransactionLock.Lock()
+	members := v.dhcpHandler.hwcache.Items()
+	GlobalTransactionLock.Unlock(id)
+	var Count int
+	Count = 0
+	for i, item := range members {
+		Count++
+		result := make(net.IP, 4)
+		binary.BigEndian.PutUint32(result, binary.BigEndian.Uint32(v.dhcpHandler.start.To4())+uint32(item.Object.(int)))
+		_, mac, _ := v.dhcpHandler.available.GetMACIndex(uint64(item.Object.(int)))
+		error := "0"
+		if i != mac {
+			error = "1"
+		}
+		Macs = append(Macs, i)
+		Members = append(Members, Node{IP: result.String(), Mac: i, Pool: mac, Error: error, EndsAt: time.Unix(0, item.Expiration)})
+	}
+	return Members, Macs, Count
+}
+
 func (h *Interface) handleAPIReq(Request APIReq) interface{} {
 	var stats []Stats
 
-	// Send back stats
+	if Request.Req == "duplicates" {
+		for _, v := range h.network {
+			Members, Macs, _ := extractMembers(v)
+
+			inPoolNotInCache, DuplicateInPool := v.dhcpHandler.available.GetIssues(Macs)
+			var DupInPool map[string]string
+			DupInPool = make(map[string]string)
+			for key, val := range DuplicateInPool {
+				result2 := make(net.IP, 4)
+				binary.BigEndian.PutUint32(result2, binary.BigEndian.Uint32(v.dhcpHandler.start.To4())+uint32(key))
+				DupInPool[result2.String()] = val
+			}
+
+			stats = append(stats, Stats{EthernetName: Request.NetInterface, Net: v.network.String(), Category: v.dhcpHandler.role, Members: Members, Size: v.dhcpHandler.leaseRange, InPoolNotInCache: inPoolNotInCache, DuplicateInPool: DupInPool})
+		}
+		return stats
+	}
+
 	if Request.Req == "stats" {
 		for _, v := range h.network {
 			ipv4Addr, _, erro := net.ParseCIDR(Request.NetWork + "/32")
@@ -340,35 +401,8 @@ func (h *Interface) handleAPIReq(Request APIReq) interface{} {
 					Options[key.String()] = Tlv.Tlvlist[int(key)].Transform.String(value)
 				}
 			}
-
-			var Members []Node
-			var Macs []string
-			id, _ := GlobalTransactionLock.Lock()
-			members := v.dhcpHandler.hwcache.Items()
-			GlobalTransactionLock.Unlock(id)
+			Members, _, Count := extractMembers(v)
 			var Status string
-			var Count int
-			Count = 0
-			for i, item := range members {
-				Count++
-				result := make(net.IP, 4)
-				binary.BigEndian.PutUint32(result, binary.BigEndian.Uint32(v.dhcpHandler.start.To4())+uint32(item.Object.(int)))
-				_, mac, _ := v.dhcpHandler.available.GetMACIndex(uint64(item.Object.(int)))
-				error := "0"
-				if i != mac {
-					error = "1"
-				}
-				Macs = append(Macs, i)
-				Members = append(Members, Node{IP: result.String(), Mac: i, Pool: mac, Error: error, EndsAt: time.Unix(0, item.Expiration)})
-			}
-			inPoolNotInCache, DuplicateInPool := v.dhcpHandler.available.GetIssues(Macs)
-			var DupInPool map[string]string
-			DupInPool = make(map[string]string)
-			for key, val := range DuplicateInPool {
-				result2 := make(net.IP, 4)
-				binary.BigEndian.PutUint32(result2, binary.BigEndian.Uint32(v.dhcpHandler.start.To4())+uint32(key))
-				DupInPool[result2.String()] = val
-			}
 			_, reserved := IPsFromRange(v.dhcpHandler.ipReserved)
 			if reserved != 1 {
 				Count = Count + reserved
@@ -385,7 +419,7 @@ func (h *Interface) handleAPIReq(Request APIReq) interface{} {
 				Status = "Calculated available IP " + strconv.Itoa(v.dhcpHandler.leaseRange-Count) + " is different than what we have available in the pool " + strconv.Itoa(availableCount)
 			}
 
-			stats = append(stats, Stats{EthernetName: Request.NetInterface, Net: v.network.String(), Free: availableCount, Category: v.dhcpHandler.role, Options: Options, Members: Members, Status: Status, Size: v.dhcpHandler.leaseRange, Used: usedCount, PercentFree: percentfree, PercentUsed: percentused, InPoolNotInCache: inPoolNotInCache, DuplicateInPool: DupInPool})
+			stats = append(stats, Stats{EthernetName: Request.NetInterface, Net: v.network.String(), Free: availableCount, Category: v.dhcpHandler.role, Options: Options, Members: Members, Status: Status, Size: v.dhcpHandler.leaseRange, Used: usedCount, PercentFree: percentfree, PercentUsed: percentused})
 		}
 		return stats
 	}
