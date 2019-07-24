@@ -17,7 +17,7 @@ use warnings;
 
 use pf::log;
 use pf::security_event;
-use pf::constants::parking qw($PARKING_SECURITY_EVENT_ID $PARKING_DHCP_GROUP_NAME);
+use pf::constants::parking qw($PARKING_SECURITY_EVENT_ID $PARKING_DHCP_GROUP_NAME $PARKING_IPSET_NAME);
 use pf::constants;
 use pf::config qw(%Config);
 use pf::util;
