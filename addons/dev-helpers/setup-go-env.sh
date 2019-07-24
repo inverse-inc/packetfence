@@ -1,11 +1,9 @@
 #!/bin/bash
 
-# allow to use env variables
-# to override defaults
-GOVERSION=${GOVERSION:-go1.9.3}
-GOBIN=${GOBIN:-/usr/local/go/bin}
-#GOPATH=${GOPATH:-$HOME/gospace}
-GOPFDIR=src/github.com/inverse-inc/packetfence/
+# GOVERSION can be pass as environment variable
+
+# env variable can override default
+GO_PF_WORKSPACE=${GO_PF_WORKSPACE:-src/github.com/inverse-inc/packetfence}
 
 die() {
     echo "$(basename $0): $@" >&2 ; exit 1
@@ -54,14 +52,14 @@ fi
 
 # we are in a packer build
 if [ -n "$PACKER_BUILD_NAME" ]; then
-    mkdir -v -p $HOME/go/$GOPFDIR
+    mkdir -v -p $GOPATH/$GO_PF_WORKSPACE
 else
     setup
-    mkdir -v -p $GOPATH/src/github.com/inverse-inc/packetfence
-    if [ -d $GOPATH/src/github.com/inverse-inc/packetfence/go ]; then
-        echo "Directory $GOPATH/src/github.com/inverse-inc/packetfence/go already exists, cannot symlink it to /usr/local/pf/go"
+    mkdir -v -p $GOPATH/$GO_PF_WORKSPACE
+    if [ -d $GOPATH/$GO_PF_WORKSPACE/go ]; then
+        echo "Directory $GOPATH/$GO_PF_WORKSPACE/go already exists, cannot symlink it to /usr/local/pf/go"
     else
-        ln -s /usr/local/pf/go $GOPATH/src/github.com/inverse-inc/packetfence/go
+        ln -s /usr/local/pf/go $GOPATH/$GO_PF_WORKSPACE/go
     fi
 fi
 
