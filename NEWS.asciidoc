@@ -30,6 +30,7 @@ Enhancements
 * Added dhcp pool algorithm (Random/Oldest ip)
 * Improved support for Juniper switches running Junos 15 and above
 * Allow to configure the API token timeout
+* Moved vlan_pool_technique configuration parameter to the connection profile
 
 Bug Fixes
 +++++++++
