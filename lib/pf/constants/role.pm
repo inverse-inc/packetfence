@@ -31,6 +31,7 @@ our @EXPORT_OK = qw(
     $REJECT_ROLE
     $POOL_USERNAMEHASH
     $POOL_RANDOM
+    $POOL_ROUND_ROBBIN
 );
 
 our %EXPORT_TAGS = (
@@ -74,6 +75,7 @@ Constant used in the pool code
 
 Readonly::Scalar our $POOL_USERNAMEHASH  => 'username_hash';
 Readonly::Scalar our $POOL_RANDOM  => 'random';
+Readonly::Scalar our $POOL_ROUND_ROBBIN => 'round_robbin';
 
 =head1 AUTHOR
 

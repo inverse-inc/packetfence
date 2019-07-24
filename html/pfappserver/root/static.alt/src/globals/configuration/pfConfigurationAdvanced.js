@@ -305,18 +305,6 @@ export const pfConfigurationAdvancedViewFields = (context = {}) => {
           ]
         },
         {
-          label: i18n.t('VLAN pool technique'),
-          text: i18n.t('The algorithm used to calculate the VLAN in a VLAN pool.'),
-          fields: [
-            {
-              key: 'vlan_pool_technique',
-              component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'vlan_pool_technique'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'vlan_pool_technique', i18n.t('Algorithm'))
-            }
-          ]
-        },
-        {
           label: i18n.t('Disable OS AD join check'),
           text: i18n.t('Enable to bypass the operating system domain join verification.'),
           fields: [

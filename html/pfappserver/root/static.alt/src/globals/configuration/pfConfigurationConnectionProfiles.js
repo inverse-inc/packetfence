@@ -537,6 +537,18 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
           ]
         },
         {
+          label: i18n.t('VLAN pool technique'),
+          text: i18n.t('The algorithm used to calculate the VLAN in a VLAN pool.'),
+          fields: [
+            {
+              key: 'vlan_pool_technique',
+              component: pfFormChosen,
+              attrs: pfConfigurationAttributesFromMeta(meta, 'vlan_pool_technique'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'vlan_pool_technique', i18n.t('Algorithm'))
+            }
+          ]
+        },
+        {
           if: !isDefault,
           label: i18n.t('Filters'),
           fields: [
