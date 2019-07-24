@@ -2,33 +2,44 @@
     "description": "Images used in CI to build packetfence packages",
     "min_packer_version": "1.4.2",
     "variables": {
-        "GOPFDIR": "/root/go/src/github.com/inverse-inc/packetfence"
+        "go_version": "go1.9.3"
+        "go_path": "/root/go"
+        "go_pf_workspace": "src/github.com/inverse-inc/packetfence"
     },
     "builders": [
         {
             "name": "buildpkg-centos",
             "type": "docker",
             "image": "buildpkg/centos:7",
-            "commit": true
+            "commit": true,
+            "changes": [
+                "ENTRYPOINT /bin/bash"
+            ]
         },
         {
             "name": "buildpkg-debian",
             "type": "docker",
             "image": "buildpkg/debian:stretch",
-            "commit": true
+            "commit": true,
+            "changes": [
+                "ENTRYPOINT /bin/bash"
+            ]
         }
     ],
     "provisioners": [
         {
             "type": "shell",
             "script": "../../addons/dev-helpers/setup-go-env.sh",
-            "environment_vars": ["GOPATH=$HOME/go"]
+            "environment_vars": ["GOVERSION={{user `go_version`}}",
+                                 "GOPATH={{user `go_path`}}",
+                                 "GO_PF_WORKSPACE={{user `go_pf_workspace`}}"
+                                ]
 
         },
         {
             "type": "file",
             "source": "../../go",
-            "destination": "{{user `GOPFDIR`}}"
+            "destination": "{{user `go_path`}}/{{user `go_pf_workspace`}}"
         },
         {
             "type": "shell",
