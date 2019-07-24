@@ -1,3 +1,5 @@
+GOVERSION=go1.9.3
+
 .PHONY: processor-sha
 
 pfhttpd-sha:
@@ -50,6 +52,7 @@ clean-caddy-src:
 
 .PHONY: go-env
 
+go-env: GOVERSION:=$(GOVERSION)
 go-env:
 	/usr/local/pf/addons/dev-helpers/setup-go-env.sh
 
