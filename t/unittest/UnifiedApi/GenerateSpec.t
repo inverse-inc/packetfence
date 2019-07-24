@@ -317,6 +317,10 @@ cmp_deeply(
                     type => 'string',
                     description => 'This activates automatic deregistation of devices for the profile if PacketFence receives a RADIUS accounting stop.',
                 },
+                'vlan_pool_technique' => {
+                    type => 'string',
+                    'description' => 'The Vlan Pool Technique to use',
+                },
                 'network_logoff' => {
                     type => 'string',
                     description => 'This allows users to access the network logoff page (http://pf.pfdemo.org/networklogoff) in order to terminate their network access (switch their device back to unregistered)',

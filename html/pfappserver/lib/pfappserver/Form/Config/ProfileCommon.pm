@@ -537,7 +537,7 @@ has_field 'vlan_pool_technique' =>
   (
    type => 'Select',
    multiple => 0,
-   required => 1,
+   required => 0,
    label => 'Vlan Pool Technique',
    options_method => \&options_vlan_pool,
    element_class => ['chzn-select'],
