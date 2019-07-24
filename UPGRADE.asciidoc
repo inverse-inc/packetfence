@@ -1923,6 +1923,15 @@ In order to upgrade the Admin rights, run the following commands
 Upgrading from a version prior to X.Y.Z
 ---------------------------------------
 
+VLAN pool configuration
+^^^^^^^^^^^^^^^^^^^^^^^
+
+The VLAN pool strategy configuration has been moved to the connection profiles.
+
+In order to migrate the current setting of pf.conf into profiles.conf, you will need to run the following command:
+
+	/usr/local/pf/addons/upgrade/to-9.1-move-vlan-pool-technique-parameter.pl
+
 Changes have been made to the database schema. You will need to update it accordingly.
 An SQL upgrade script has been provided to upgrade the database from the X.X schema to X.Y.
 
@@ -1930,4 +1939,4 @@ To upgrade the database schema, run the following command:
 
   mysql -u root -p pf -v < /usr/local/pf/db/upgrade-X.X.X-X.Y.Z.sql
 
-  Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence X.Y.Z).
+Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence X.Y.Z).
