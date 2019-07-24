@@ -51,7 +51,7 @@ sub vhosts {
         } elsif ( $cluster_enabled ){
             push @vhosts, pf::cluster::current_server->{management_ip};
         } else {
-            push @vhosts, $management_network->{'Tip'};
+            push @vhosts, '127.0.0.1';
        }
     } else {
         push @vhosts, "0.0.0.0";

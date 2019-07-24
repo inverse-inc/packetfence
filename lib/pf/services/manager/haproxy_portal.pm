@@ -257,7 +257,8 @@ EOT
 EOT
         $check = 'backup';
 
-        $mgmt_srv_netdata .= <<"EOT";
+        if ($mgmt_back_ip ne '127.0.0.1') {
+            $mgmt_srv_netdata .= <<"EOT";
 
 backend $mgmt_back_ip-netdata
         option httpclose
@@ -268,7 +269,7 @@ backend $mgmt_back_ip-netdata
         http-request set-uri http://$mgmt_back_ip:19999%[var(req.path)]?%[query] if paramsquery
         http-request set-uri http://$mgmt_back_ip:19999%[var(req.path)] unless paramsquery
 EOT
-
+        }
         $mgmt_api_backend .= <<"EOT";
 
 backend $mgmt_back_ip-api
