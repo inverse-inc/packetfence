@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 
 # GOVERSION can be pass as environment variable
 
