@@ -12,6 +12,22 @@ const d3 = {
   ...require('d3-scale') // `d3.scalePow`
 }
 
+const getAngleFromCoords = (x1, y1, x2, y2) => {
+  const dx = x2 - x1
+  const dy = y2 - y1
+  let theta = Math.atan2(dy, dx)
+  theta *= 180 / Math.PI // radians to degrees
+  return (360 + theta) % 360
+}
+
+const getCoordFromCoordAngle = (x1, y1, angle, length) => {
+  const rads = angle * (Math.PI / 180) // degrees to radians
+  return {
+    x: x1 + (length * Math.cos(rads)),
+    y: y1 + (length * Math.sin(rads))
+  }
+}
+
 const state = {
   initialized: false,
   dimensions: { // svg dimensions
@@ -54,6 +70,18 @@ const getters = {
       return { x: 0, y: 0 }
     })
   },
+  coordBounded: (state, getters) => (coord) => {
+    const bounds = getters.bounds
+    if (JSON.stringify(bounds) !== JSON.stringify({ minX: 0, maxX: 0, minY: 0, maxY: 0 })) {
+      const xMult = (state.dimensions.width - 2 * state.padding) / (bounds.maxX - bounds.minX)
+      const yMult = (state.dimensions.height - 2 * state.padding) / (bounds.maxY - bounds.minY)
+      return {
+        x: state.padding + (coord.x - bounds.minX) * xMult,
+        y: state.padding + (coord.y - bounds.minY) * yMult
+      }
+    }
+    return { x: 0, y: 0 }
+  },
   extent: () => nodes => {
     return d3.extent(nodes, (d) => d.links)
   },
@@ -73,6 +101,57 @@ const getters = {
         }
       }
     })
+  },
+  tooltips: (state, getters) => {
+    const length = 5
+    let tooltips = []
+    state.nodes.filter(node => node.highlight).forEach((node, index, nodes) => {
+      const nodeBounded = getters.coordBounded(node)
+      let sourceNode = null
+      let sourceAngle = 0
+      let targetNode = null
+      let targetAngle = 0
+      let tooltipAngle = 0
+      let tooltipCoords = {}
+      let tooltipCoordsBounded = {}
+      switch (true) {
+        // inner node
+        case index === 0: // inner node (target only)
+          targetNode = nodes[index + 1]
+          targetAngle = getAngleFromCoords(node.x, node.y, targetNode.x, targetNode.y)
+          tooltipAngle = (180 + targetAngle) % 360  // reverse
+          tooltipCoords = getCoordFromCoordAngle(node.x, node.y, tooltipAngle, length)
+          tooltipCoordsBounded = getters.coordBounded(tooltipCoords)
+          tooltips.push({ node, line: { angle: tooltipAngle, x1: nodeBounded.x, y1: nodeBounded.y, x2: tooltipCoordsBounded.x, y2: tooltipCoordsBounded.y } })
+          break
+
+        // outer node
+        case index === nodes.length - 1: // outer node (source only)
+          sourceNode = nodes[index - 1]
+          sourceAngle = getAngleFromCoords(node.x, node.y, sourceNode.x, sourceNode.y)
+          tooltipAngle = (180 + sourceAngle) % 360 // reverse
+          tooltipCoords = getCoordFromCoordAngle(node.x, node.y, tooltipAngle, length)
+          tooltipCoordsBounded = getters.coordBounded(tooltipCoords)
+          tooltips.push({ node, line: { angle: tooltipAngle, x1: nodeBounded.x, y1: nodeBounded.y, x2: tooltipCoordsBounded.x, y2: tooltipCoordsBounded.y } })
+          break
+
+        // middle nodes (source and target)
+        default:
+          sourceNode = nodes[index - 1]
+          sourceAngle = getAngleFromCoords(node.x, node.y, sourceNode.x, sourceNode.y)
+          targetNode = nodes[index + 1]
+          targetAngle = getAngleFromCoords(node.x, node.y, targetNode.x, targetNode.y)
+          tooltipAngle = ((sourceAngle + targetAngle) / 2) % 360
+
+console.log(`id: ${node.id} source: ${sourceAngle} target: ${targetAngle} average: ${tooltipAngle}`)
+
+          tooltipCoords = getCoordFromCoordAngle(node.x, node.y, tooltipAngle, length)
+          tooltipCoordsBounded = getters.coordBounded(tooltipCoords)
+          tooltips.push({ node, line: { angle: tooltipAngle, x1: nodeBounded.x, y1: nodeBounded.y, x2: tooltipCoordsBounded.x, y2: tooltipCoordsBounded.y } })
+          break
+      }
+    })
+    return tooltips
   }
 }
 
@@ -131,7 +210,7 @@ const actions = {
       }])
     }
 
-    if (state.nodes.length === 100) {
+    if (state.nodes.length === 50) {
       clearInterval(state.pollingInterval)
       commit('CLEAR_INTERVAL')
     }

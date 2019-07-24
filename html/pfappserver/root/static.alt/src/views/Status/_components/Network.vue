@@ -7,11 +7,15 @@ https://flowingdata.com/2012/08/02/how-to-make-an-interactive-network-visualizat
   <b-card no-body class="mt-3">
     <b-card-header>
       <h4 class="d-inline mb-0" v-t="'Network'"></h4>
-<p># nodes: {{ graph.nodes.length }}</p>
+<p># nodes: {{ nodes.length }}</p>
 <p>zoom: {{ zoom }}</p>
-<p>centerX: {{ centerX }}</p>
-<p>centerY: {{ centerY }}</p>
-<p>miniMapLatch: {{ (miniMapLatch) ? 'Y' : 'N' }}
+<table><tr><td valign="top">
+  <p>nodes: <pre>{{ JSON.stringify(nodes.filter(node => node.highlight), null, 2) }}</pre></p>
+</td><td valign="top">
+  <p>tooltips: <pre>{{ JSON.stringify(tooltips, null, 2) }}</pre></p>
+</td><td valign="top">
+  <p>coords: <pre>{{ JSON.stringify(coords, null, 2) }}</pre></p>
+</td></tr></table>
     </b-card-header>
     <div class="card-body">
       <div ref="svgContainer" class="svgContainer">
@@ -30,13 +34,12 @@ https://flowingdata.com/2012/08/02/how-to-make-an-interactive-network-visualizat
           <!-- SVG layer for mouse x, y offset capture during mouse drag (panning) -->
         </svg>
 
-        <svg ref="svgDraw" class="svgDraw"
+        <svg ref="svgDraw" :class="[ 'svgDraw', `zoom-${zoom}`, { [`highlight-${highlight}`]: highlight } ]"
           xmlns="http://www.w3.org/2000/svg"
           xmlns:xlink="http://www.w3.org/1999/xlink"
           width="100%"
           :height="dimensions.height+'px'"
           :viewBox="viewBoxString"
-          :class="`zoom-${zoom}`"
           @mousedown.prevent="mouseDownSvg($event)"
           @mousewheel.prevent="mouseWheelSvg($event)"
         >
@@ -72,18 +75,18 @@ https://flowingdata.com/2012/08/02/how-to-make-an-interactive-network-visualizat
           </defs>
 
           <!--
-          <line v-for="link in graph.links"
+          <line v-for="link in links"
             v-bind="linkCoords(link)"
             :class="[ 'link', { 'highlight': link.highlight } ]"
           />
           -->
 
-          <path v-for="link in graph.links"
+          <path v-for="link in links"
             v-bind="linkPathAttrs(link)"
             :class="[ 'link', { 'highlight': link.highlight } ]"
           />
 
-          <text v-for="link in graph.links" v-if="link.highlight" class="linkText" dy="-2">
+          <text v-for="link in links" v-if="link.highlight" class="linkText" dy="-2">
             <textPath v-bind="linkSourceAttrs(link)">
               ↦{{ linkSourceText(link) }}
             </textPath>
@@ -92,13 +95,14 @@ https://flowingdata.com/2012/08/02/how-to-make-an-interactive-network-visualizat
             </textPath>
           </text>
 
-          <template v-for="(node, i) in graph.nodes">
+          <template v-for="(node, i) in nodes">
             <!--- packetfence icon --->
             <use v-if="node.type === 'packetfence'"
               xlink:href="#packetfence"
 width="32" height="32"
-              :x="graph.coords[i].x - (32 / 2)"
-              :y="graph.coords[i].y - (32 / 2)"
+              :id="`node-${node.id}`"
+              :x="coords[i].x - (32 / 2)"
+              :y="coords[i].y - (32 / 2)"
               fill="#000000"
               @mouseover="mouseOverNode(node, $event)"
               @mouseout="mouseOutNode(node, $event)"
@@ -109,8 +113,9 @@ width="32" height="32"
             <use v-if="node.type === 'router'"
               xlink:href="#router"
 width="32" height="32"
-              :x="graph.coords[i].x - (32 / 2)"
-              :y="graph.coords[i].y - (32 / 2)"
+              :id="`node-${node.id}`"
+              :x="coords[i].x - (32 / 2)"
+              :y="coords[i].y - (32 / 2)"
               @mouseover="mouseOverNode(node, $event)"
               @mouseout="mouseOutNode(node, $event)"
               @click="clickNode(node, $event)"
@@ -120,8 +125,9 @@ width="32" height="32"
             <use v-if="node.type === 'node'"
               xlink:href="#node"
 width="16" height="16"
-              :x="graph.coords[i].x - (16 / 2)"
-              :y="graph.coords[i].y - (16 / 2)"
+              :id="`node-${node.id}`"
+              :x="coords[i].x - (16 / 2)"
+              :y="coords[i].y - (16 / 2)"
               @mouseover="mouseOverNode(node, $event)"
               @mouseout="mouseOutNode(node, $event)"
               @click="clickNode(node, $event)"
@@ -136,6 +142,15 @@ width="16" height="16"
           />
 
           <circle :cx="dimensions.width / 2" :cy="dimensions.height / 2" r="4" fill="#ff000"/>
+
+          <line v-for="tooltip in tooltips" :key="`${tooltip.x}-${tooltip.y}`"
+            :x1="tooltip.line.x1"
+            :y1="tooltip.line.y1"
+            :x2="tooltip.line.x2"
+            :y2="tooltip.line.y2"
+            stroke="#000000"
+            stroke-width="5"
+          />
 
         </svg>
       </div>
@@ -183,20 +198,35 @@ export default {
       centerX: null,
       centerY: null,
       miniMapHeight: 150,
-      miniMapLatch: false
+      miniMapLatch: false,
+
+      tooltipDistance: 100
     }
   },
   computed: {
     isLoading () {
       return this.$store.state[this.storeName].isLoading
     },
-    graph () {
-      return {
-        bounds: this.$store.getters[`${this.storeName}/bounds`],
-        coords: this.$store.getters[`${this.storeName}/coords`],
-        links: this.$store.getters[`${this.storeName}/links`],
-        nodes: this.$store.getters[`${this.storeName}/nodes`]
-      }
+    bounds () {
+      return this.$store.getters[`${this.storeName}/bounds`]
+    },
+    coords () {
+      return this.$store.getters[`${this.storeName}/coords`]
+    },
+    links () {
+       return this.$store.getters[`${this.storeName}/links`]
+    },
+    linksHighlighted () {
+      return this.links.filter(link => link.highlight)
+    },
+    nodes () {
+      return this.$store.getters[`${this.storeName}/nodes`]
+    },
+    nodesHighlighted () {
+      return this.nodes.filter(node => node.highlight)
+    },
+    tooltips () {
+      return this.$store.getters[`${this.storeName}/tooltips`]
     },
     windowSize () {
       return this.$store.getters['events/windowSize']
@@ -257,10 +287,10 @@ export default {
   methods: {
     linkCoords (link) {
       const coords = {
-        x1: this.graph.coords[link.source.index].x,
-        y1: this.graph.coords[link.source.index].y,
-        x2: this.graph.coords[link.target.index].x,
-        y2: this.graph.coords[link.target.index].y
+        x1: this.coords[link.source.index].x,
+        y1: this.coords[link.source.index].y,
+        x2: this.coords[link.target.index].x,
+        y2: this.coords[link.target.index].y
       }
       return coords
     },
@@ -312,6 +342,9 @@ export default {
     linkTargetText (link) {
       const { target: { id = null } = {} } = link
       return id
+    },
+    tooltipAttrs (node) {
+
     },
     setCenter (x, y) {
       const { dimensions: { height, width } = {}, centerX, centerY, zoom } = this
@@ -382,27 +415,12 @@ export default {
     },
     mouseOverNode (node, event = null) {
       this.$store.dispatch(`${this.storeName}/highlightNodeById`, node.id)
-      const { $refs: { svgDraw = {} } = {} } = this
-      // remove highlight class
-      svgDraw.classList.forEach(className => {
-        if (/^highlight-/.test(className)) {
-          svgDraw.classList.remove(className)
-        }
-      })
-      if (node.type === 'node') {
-        // add highlight class
-        svgDraw.classList.add(`highlight-${node.color}`)
-      }
+      this.highlight = (node.type === 'node') ? node.color : null
     },
     mouseOutNode (node, event = null) {
+return
       this.$store.dispatch(`${this.storeName}/highlightNodeById`, null)
-      const { $refs: { svgDraw = {} } = {} } = this
-      // remove highlight class
-      svgDraw.classList.forEach(className => {
-        if (/^highlight-/.test(className)) {
-          svgDraw.classList.remove(className)
-        }
-      })
+      this.highlight = null
     },
     clickNode (node, event = null) {
       console.log('click Node', event, node)
