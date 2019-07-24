@@ -1,6 +1,8 @@
 #!/bin/bash
 
-GOVERSION=$1
+# if script called without args,
+# use environment variable
+GOVERSION=${1:-$GOVERSION}
 
 die() {
     echo "$(basename $0): $@" >&2 ; exit 1
