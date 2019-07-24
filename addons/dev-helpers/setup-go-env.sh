@@ -14,8 +14,12 @@ log_section() {
     printf "=\t%s\n" "" "$@" ""
 }
 
+log_subsection() {
+   printf "=\t%s\n" "" "$@" ""
+}
+
 install() {
-    log_section "Setting up golang environment for PacketFence"
+    log_section "Installing Golang environment for PacketFence"
 
     if [ -z "$GOVERSION" ]; then
         echo "Trying to detect Go version based on installed binaries"
@@ -24,28 +28,29 @@ install() {
     declare -p GOVERSION
     [ -z "$GOVERSION" ] && die "not set: GOVERSION"
 
+    log_subsection "Downloading Golang from upstream"
     curl -s https://storage.googleapis.com/golang/$GOVERSION.linux-amd64.tar.gz -o /tmp/$GOVERSION.linux-amd64.tar.gz
     tar -C /usr/local -xzf /tmp/$GOVERSION.linux-amd64.tar.gz
     rm /tmp/$GOVERSION.linux-amd64.tar.gz
 }
 
 setup() {
-    log_section "Setup variables for go environment"
     SETUP='
 export PATH=$PATH:/usr/local/go/bin
 export GOPATH=~/gospace
 export PATH=~/gospace/bin:$PATH'
-  echo "$SETUP" >> ~/.bashrc
-  eval "$SETUP"
+    echo "$SETUP" >> ~/.bashrc
+    eval "$SETUP"
 }
 
 # Main
 if [ -d /usr/local/go ]; then
-    echo "/usr/local/go exists, refusing to setup"
+    die "/usr/local/go exists, refusing to setup"
 else
     install
 fi
 
+log_section "Setup variables and directories for Golang environment"
 # we are in a packer build
 if [ -n "$PACKER_BUILD_NAME" ]; then
     mkdir -v -p $GOPATH/$GO_PF_WORKSPACE
@@ -53,9 +58,9 @@ else
     setup
     mkdir -v -p $GOPATH/$GO_PF_WORKSPACE
     if [ -d $GOPATH/$GO_PF_WORKSPACE/go ]; then
-        echo "Directory $GOPATH/$GO_PF_WORKSPACE/go already exists, cannot symlink it to /usr/local/pf/go"
+        die "Directory $GOPATH/$GO_PF_WORKSPACE/go already exists, cannot symlink it to /usr/local/pf/go"
     else
-        ln -s /usr/local/pf/go $GOPATH/$GO_PF_WORKSPACE/go
+        ln -s -v /usr/local/pf/go $GOPATH/$GO_PF_WORKSPACE/go
     fi
 fi
 
