@@ -1,43 +1,67 @@
 #!/bin/bash
 
-# if script called without args,
-# use environment variable
-GOVERSION=${1:-$GOVERSION}
+# allow to use env variables
+# to override defaults
+GOVERSION=${GOVERSION:-go1.9.3}
+GOBIN=${GOBIN:-/usr/local/go/bin}
+#GOPATH=${GOPATH:-$HOME/gospace}
+GOPFDIR=src/github.com/inverse-inc/packetfence/
 
 die() {
     echo "$(basename $0): $@" >&2 ; exit 1
 }
 
+log_section() {
+    printf '=%.0s' {1..72} ; printf "\n"
+    printf "=\t%s\n" "" "$@" ""
+}
 
-if [ -d /usr/local/go ]; then
-  echo "/usr/local/go exists, refusing to setup"
-else
-  echo "Setting up golang environment for PacketFence"
+log_subsection() {
+   printf "=\t%s\n" "" "$@" ""
+}
 
-  if [ -z "$GOVERSION" ]; then
-    echo "Trying to detect Go version based on installed binaries"
-    GOVERSION=`strings /usr/local/pf/sbin/pfhttpd | egrep -o 'go[0-9]+\.[0-9]+(\.[0-9])*' | head -1`
-  fi
-  declare -p GOVERSION
-  [ -z "$GOVERSION" ] && die "not set: GOVERSION"
+install() {
+    log_section "Setting up golang environment for PacketFence"
 
-  curl -s https://storage.googleapis.com/golang/$GOVERSION.linux-amd64.tar.gz -o /tmp/$GOVERSION.linux-amd64.tar.gz
-  tar -C /usr/local -xzf /tmp/$GOVERSION.linux-amd64.tar.gz
-  rm /tmp/$GOVERSION.linux-amd64.tar.gz
+    if [ -z "$GOVERSION" ]; then
+        echo "Trying to detect Go version based on installed binaries"
+        GOVERSION=`strings /usr/local/pf/sbin/pfhttpd | egrep -o 'go[0-9]+\.[0-9]+(\.[0-9])*' | head -1`
+    fi
+    declare -p GOVERSION
+    [ -z "$GOVERSION" ] && die "not set: GOVERSION"
 
-  SETUP='
+    curl -s https://storage.googleapis.com/golang/$GOVERSION.linux-amd64.tar.gz -o /tmp/$GOVERSION.linux-amd64.tar.gz
+    tar -C /usr/local -xzf /tmp/$GOVERSION.linux-amd64.tar.gz
+    rm /tmp/$GOVERSION.linux-amd64.tar.gz
+}
+
+setup() {
+    log_section "Setup variables for go environment"
+    SETUP='
 export PATH=$PATH:/usr/local/go/bin
 export GOPATH=~/gospace
 export PATH=~/gospace/bin:$PATH'
   echo "$SETUP" >> ~/.bashrc
   eval "$SETUP"
+}
 
-  mkdir -p $GOPATH/src/github.com/inverse-inc/packetfence
-
-  if [ -d $GOPATH/src/github.com/inverse-inc/packetfence/go ]; then
-    echo "Directory $GOPATH/src/github.com/inverse-inc/packetfence/go already exists, cannot symlink it to /usr/local/pf/go"
-  else
-    ln -s /usr/local/pf/go $GOPATH/src/github.com/inverse-inc/packetfence/go
-  fi
-
+# Main
+if [ -d /usr/local/go ]; then
+    echo "/usr/local/go exists, refusing to setup"
+else
+    install
 fi
+
+# we are in a packer build
+if [ -n "$PACKER_BUILD_NAME" ]; then
+    mkdir -v -p $HOME/go/$GOPFDIR
+else
+    setup
+    mkdir -v -p $GOPATH/src/github.com/inverse-inc/packetfence
+    if [ -d $GOPATH/src/github.com/inverse-inc/packetfence/go ]; then
+        echo "Directory $GOPATH/src/github.com/inverse-inc/packetfence/go already exists, cannot symlink it to /usr/local/pf/go"
+    else
+        ln -s /usr/local/pf/go $GOPATH/src/github.com/inverse-inc/packetfence/go
+    fi
+fi
+
