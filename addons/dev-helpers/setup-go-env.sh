@@ -14,10 +14,6 @@ log_section() {
     printf "=\t%s\n" "" "$@" ""
 }
 
-log_subsection() {
-   printf "=\t%s\n" "" "$@" ""
-}
-
 install() {
     log_section "Setting up golang environment for PacketFence"
 
