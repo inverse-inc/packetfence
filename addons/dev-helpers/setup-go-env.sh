@@ -1,9 +1,9 @@
 #!/bin/bash -e
 
-# GOVERSION can be pass as environment variable
+# GOVERSION, GOPATH can be pass as environment variable
 
 # env variable can override default
-GO_PF_WORKSPACE=${GO_PF_WORKSPACE:-src/github.com/inverse-inc/packetfence}
+GO_REPO=${GO_REPO:-github.com/inverse-inc/packetfence}
 
 die() {
     echo "$(basename $0): $@" >&2 ; exit 1
@@ -53,14 +53,16 @@ fi
 log_section "Setup variables and directories for Golang environment"
 # we are in a packer build
 if [ -n "$PACKER_BUILD_NAME" ]; then
-    mkdir -v -p $GOPATH/$GO_PF_WORKSPACE
+    declare -p GOPATH GO_REPO
+    mkdir -v -p $GOPATH/src/$GO_REPO
 else
     setup
-    mkdir -v -p $GOPATH/$GO_PF_WORKSPACE
-    if [ -d $GOPATH/$GO_PF_WORKSPACE/go ]; then
-        die "Directory $GOPATH/$GO_PF_WORKSPACE/go already exists, cannot symlink it to /usr/local/pf/go"
+    declare -p GOPATH GO_REPO
+    mkdir -v -p $GOPATH/src/$GO_REPO
+    if [ -d $GOPATH/src/$GO_REPO/go ]; then
+        die "Directory $GOPATH/src/$GO_REPO/go already exists, cannot symlink it to /usr/local/pf/go"
     else
-        ln -s -v /usr/local/pf/go $GOPATH/$GO_PF_WORKSPACE/go
+        ln -s -v /usr/local/pf/go $GOPATH/src/$GO_REPO/go
     fi
 fi
 

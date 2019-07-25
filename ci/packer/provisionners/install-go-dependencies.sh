@@ -3,8 +3,8 @@
 GOBIN=${GOBIN:-/usr/local/go/bin}
 GOPATH=${GOPATH:-$HOME/go}
 GOVENDOR=$GOPATH/bin/govendor
-APP=${APP:-inverse-inc/packetfence}
-GO_APP_WORKSPACE=${GO_APP_WORKSPACE:-src/github.com/$APP/go}
+GO_REPO=${GO_REPO:-github.com/inverse-inc/packetfence}
+EXTRA_PATH=${EXTRA_PATH}
 # needed by govendor to find go binary
 PATH=$GOBIN:$PATH
 
@@ -24,14 +24,17 @@ log_subsection() {
 get_govendor_binary() {
     log_section "Get govendor binary"
     # will place govendor binary in $HOME/go/bin
+    declare -p GOPATH
     $GOBIN/go get -u github.com/kardianos/govendor
 }
 
 get_app_dependencies() {
-    local app=$1
-    log_section "Get $1 Golang dependencies"
-    ( cd $GOPATH/$GO_APP_WORKSPACE; $GOVENDOR sync )
+    local repo=$1
+    local extra_path=$2
+    log_section "Get $repo/$extra_path Golang dependencies"
+    declare -p GOPATH repo extra_path
+    ( cd $GOPATH/src/$repo/$extra_path; $GOVENDOR sync )
 }
 
 get_govendor_binary
-get_app_dependencies $APP
+get_app_dependencies $GO_REPO $EXTRA_PATH
