@@ -51,9 +51,6 @@ else
   echo "Will place binaries in $BINDST"
 fi
 
-set -x
-
-
 if [ -z "$DEBPATH" ]; then
     export GOPATH=`mktemp -d`
 else
