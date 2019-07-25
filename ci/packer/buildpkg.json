@@ -2,8 +2,8 @@
     "description": "Images used in CI to build packetfence packages",
     "min_packer_version": "1.4.2",
     "variables": {
-        "go_version": "go1.9.3"
-        "go_path": "/root/go"
+        "go_version": "go1.9.3",
+        "go_path": "/root/go",
         "go_pf_workspace": "src/github.com/inverse-inc/packetfence"
     },
     "builders": [
@@ -43,7 +43,7 @@
         },
         {
             "type": "shell",
-            "script": "shell/install-go-dependencies.sh"
+            "script": "provisionners/install-go-dependencies.sh"
         }
     ],
     "post-processors": [
