@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-# GOVERSION, GOPATH can be pass as environment variable
+# GOVERSION, GOPATH can be pass as environment variables
 
 # env variable can override default
 GO_REPO=${GO_REPO:-github.com/inverse-inc/packetfence}
