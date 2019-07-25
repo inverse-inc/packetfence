@@ -102,23 +102,20 @@ const getters = {
       }
     })
   },
-  tooltips: (state, getters) => {
-    const length = 5
+  tooltips: (state, getters) => (length) => {
     let tooltips = []
     state.nodes.filter(node => node.highlight).forEach((node, index, nodes) => {
       const nodeBounded = getters.coordBounded(node)
-      let sourceNode = null
       let sourceAngle = 0
-      let targetNode = null
       let targetAngle = 0
       let tooltipAngle = 0
       let tooltipCoords = {}
       let tooltipCoordsBounded = {}
+let stroke = '#000000'
       switch (true) {
         // inner node
         case index === 0: // inner node (target only)
-          targetNode = nodes[index + 1]
-          targetAngle = getAngleFromCoords(node.x, node.y, targetNode.x, targetNode.y)
+          targetAngle = getAngleFromCoords(node.x, node.y, nodes[index + 1].x, nodes[index + 1].y)
           tooltipAngle = (180 + targetAngle) % 360  // reverse
           tooltipCoords = getCoordFromCoordAngle(node.x, node.y, tooltipAngle, length)
           tooltipCoordsBounded = getters.coordBounded(tooltipCoords)
@@ -127,8 +124,7 @@ const getters = {
 
         // outer node
         case index === nodes.length - 1: // outer node (source only)
-          sourceNode = nodes[index - 1]
-          sourceAngle = getAngleFromCoords(node.x, node.y, sourceNode.x, sourceNode.y)
+          sourceAngle = getAngleFromCoords(node.x, node.y, nodes[index - 1].x, nodes[index - 1].y)
           tooltipAngle = (180 + sourceAngle) % 360 // reverse
           tooltipCoords = getCoordFromCoordAngle(node.x, node.y, tooltipAngle, length)
           tooltipCoordsBounded = getters.coordBounded(tooltipCoords)
@@ -137,14 +133,13 @@ const getters = {
 
         // middle nodes (source and target)
         default:
-          sourceNode = nodes[index - 1]
-          sourceAngle = getAngleFromCoords(node.x, node.y, sourceNode.x, sourceNode.y)
-          targetNode = nodes[index + 1]
-          targetAngle = getAngleFromCoords(node.x, node.y, targetNode.x, targetNode.y)
+          sourceAngle = getAngleFromCoords(node.x, node.y, nodes[index - 1].x, nodes[index - 1].y)
+          targetAngle = getAngleFromCoords(node.x, node.y, nodes[index + 1].x, nodes[index + 1].y)
           tooltipAngle = ((sourceAngle + targetAngle) / 2) % 360
-
-console.log(`id: ${node.id} source: ${sourceAngle} target: ${targetAngle} average: ${tooltipAngle}`)
-
+          // reverse angle (180°) if angle is inside knuckle
+          if (Math.max(sourceAngle, targetAngle) - Math.min(sourceAngle, targetAngle) < 180) {
+            tooltipAngle = (tooltipAngle + 180) % 360
+          }
           tooltipCoords = getCoordFromCoordAngle(node.x, node.y, tooltipAngle, length)
           tooltipCoordsBounded = getters.coordBounded(tooltipCoords)
           tooltips.push({ node, line: { angle: tooltipAngle, x1: nodeBounded.x, y1: nodeBounded.y, x2: tooltipCoordsBounded.x, y2: tooltipCoordsBounded.y } })

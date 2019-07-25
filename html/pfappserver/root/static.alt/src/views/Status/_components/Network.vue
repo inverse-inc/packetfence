@@ -9,16 +9,10 @@ https://flowingdata.com/2012/08/02/how-to-make-an-interactive-network-visualizat
       <h4 class="d-inline mb-0" v-t="'Network'"></h4>
 <p># nodes: {{ nodes.length }}</p>
 <p>zoom: {{ zoom }}</p>
-<table><tr><td valign="top">
-  <p>nodes: <pre>{{ JSON.stringify(nodes.filter(node => node.highlight), null, 2) }}</pre></p>
-</td><td valign="top">
-  <p>tooltips: <pre>{{ JSON.stringify(tooltips, null, 2) }}</pre></p>
-</td><td valign="top">
-  <p>coords: <pre>{{ JSON.stringify(coords, null, 2) }}</pre></p>
-</td></tr></table>
+<p>viewBox: <pre>{{ JSON.stringify(viewBox, null, 2) }}</pre></p>
     </b-card-header>
     <div class="card-body">
-      <div ref="svgContainer" class="svgContainer">
+      <div ref="svgContainer" :class="[ 'svgContainer', { [`highlight-${highlight}`]: highlight } ]">
 
         <svg ref="svgDrag" class="svgDrag"
           xmlns="http://www.w3.org/2000/svg"
@@ -34,7 +28,7 @@ https://flowingdata.com/2012/08/02/how-to-make-an-interactive-network-visualizat
           <!-- SVG layer for mouse x, y offset capture during mouse drag (panning) -->
         </svg>
 
-        <svg ref="svgDraw" :class="[ 'svgDraw', `zoom-${zoom}`, { [`highlight-${highlight}`]: highlight } ]"
+        <svg ref="svgDraw" :class="[ 'svgDraw', `zoom-${zoom}` ]"
           xmlns="http://www.w3.org/2000/svg"
           xmlns:xlink="http://www.w3.org/1999/xlink"
           width="100%"
@@ -95,6 +89,13 @@ https://flowingdata.com/2012/08/02/how-to-make-an-interactive-network-visualizat
             </textPath>
           </text>
 
+          <line v-for="tooltip in tooltips" class="tt-link"
+            :x1="tooltip.line.x1"
+            :y1="tooltip.line.y1"
+            :x2="tooltip.line.x2"
+            :y2="tooltip.line.y2"
+          />
+
           <template v-for="(node, i) in nodes">
             <!--- packetfence icon --->
             <use v-if="node.type === 'packetfence'"
@@ -141,18 +142,17 @@ width="16" height="16"
             @mousemove.capture="mouseMoveMiniMap($event)"
           />
 
-          <circle :cx="dimensions.width / 2" :cy="dimensions.height / 2" r="4" fill="#ff000"/>
-
-          <line v-for="tooltip in tooltips" :key="`${tooltip.x}-${tooltip.y}`"
-            :x1="tooltip.line.x1"
-            :y1="tooltip.line.y1"
-            :x2="tooltip.line.x2"
-            :y2="tooltip.line.y2"
-            stroke="#000000"
-            stroke-width="5"
-          />
-
         </svg>
+
+        <div v-for="tooltip in tooltips" class="tt-anchor"
+          v-bind="tooltipAnchorAttrs(tooltip)">
+          <div class="tt-container">
+            <div class="tt-contents">
+              <pre>{{ JSON.stringify(tooltip, null, 2) }}</pre>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   </b-card>
@@ -200,7 +200,7 @@ export default {
       miniMapHeight: 150,
       miniMapLatch: false,
 
-      tooltipDistance: 100
+      tooltipDistance: 10
     }
   },
   computed: {
@@ -226,7 +226,10 @@ export default {
       return this.nodes.filter(node => node.highlight)
     },
     tooltips () {
-      return this.$store.getters[`${this.storeName}/tooltips`]
+      const divisor = Math.pow(2, this.zoom)
+      let tooltipDistance = this.tooltipDistance / divisor // scale length
+      tooltipDistance = Math.max(3.5, tooltipDistance) // enforce minimum length so tooltip does not overlap node
+      return this.$store.getters[`${this.storeName}/tooltips`](tooltipDistance)
     },
     windowSize () {
       return this.$store.getters['events/windowSize']
@@ -239,7 +242,7 @@ export default {
       if(!centerY && height) { // initialize center (y)
         centerY = this.centerY = height / 2
       }
-      const divisor = Math.pow(2, zoom) // 0 = 1, 1 = 2, 2 = 4, 3 = 8, ...
+      const divisor = Math.pow(2, zoom)
       const widthScaled = width / divisor
       const heightScaled = height / divisor
       return {
@@ -343,12 +346,9 @@ export default {
       const { target: { id = null } = {} } = link
       return id
     },
-    tooltipAttrs (node) {
-
-    },
     setCenter (x, y) {
       const { dimensions: { height, width } = {}, centerX, centerY, zoom } = this
-      const divisor = Math.pow(2, zoom) // 0 = 1, 1 = 2, 2 = 4, 3 = 8, ...
+      const divisor = Math.pow(2, zoom)
       // restrict min/max x bounds
       const minX = width / divisor / 2
       const maxX = width - minX
@@ -418,7 +418,6 @@ export default {
       this.highlight = (node.type === 'node') ? node.color : null
     },
     mouseOutNode (node, event = null) {
-return
       this.$store.dispatch(`${this.storeName}/highlightNodeById`, null)
       this.highlight = null
     },
@@ -444,6 +443,41 @@ return
       if (this.miniMapLatch) {
         this.mouseDownMiniMap(event)
       }
+    },
+    tooltipAnchorAttrs (tooltip) {
+      let { line: { angle, x1, y1, x2: x, y2: y } = {} } = tooltip
+      // set styles
+      let style = []
+      const {
+        dimensions: { height: dHeight, width: dWidth } = {},
+        viewBox: { minX, minY, width: vWidth, height: vHeight } = {}
+      } = this
+      if (x < minX || x > minX + vWidth || y < minY || y > minY + vHeight) {
+        style.push('display: none') // hide if tooltip is outside viewBox
+      } else {
+        // scale coords to absolute offset from outer container (x: 0, y: 0)
+        x = (x - minX) / vWidth * dWidth
+        y = (y - minY) / vHeight * dHeight
+      }
+      style.push(`top: ${y}px`, `left: ${x}px;`)
+      style = style.join('; ') // collapse
+      // set classes
+      const quad8 = Math.floor(((360 + angle - 22.5) % 360) / 45)
+      const vertical = ['bottom', 'bottom', 'bottom', false, 'top', 'top', 'top', false][quad8] // vertical position
+      const horizontal = ['right', false, 'left', 'left', 'left', false, 'right', 'right'][quad8] // horizontal position
+      let position = ''
+      switch (true) {
+        case (!!vertical && !!horizontal):
+          position = `${vertical}-${horizontal}`
+          break
+        case (!!vertical):
+          position = vertical
+          break
+        case (!!horizontal):
+          position = horizontal
+          break
+      }
+      return { style, class: position }
     }
   },
   mounted () {
@@ -480,6 +514,53 @@ return
 
 .svgContainer {
   position: relative;
+  overflow: hidden; /* prevent jitter from tooltip forcing window.clientHeight expansion */
+
+  &.highlight-blue {
+    --highlight-color: rgba(66, 133, 244, 1);
+  }
+  &.highlight-red {
+    --highlight-color: rgba(219, 68, 55, 1);
+  }
+  &.highlight-yellow {
+    --highlight-color: rgba(244, 160, 0, 1);
+  }
+  &.highlight-green {
+    --highlight-color: rgba(15, 157, 88, 1);
+  }
+
+  .tt-anchor {
+    position: absolute;
+    width: 0px;
+    height: 0px;
+    &.top .tt-contents { bottom: -1px; transform: translateX(-50%); }
+    &.top-right .tt-contents { bottom: -1px; left: -1px; }
+    &.right .tt-contents { transform: translateY(-50%); left: -1px; }
+    &.bottom-right .tt-contents { top: -1px; left: -1px; }
+    &.bottom .tt-contents { top: -1px; transform: translateX(-50%); }
+    &.bottom-left .tt-contents { top: -1px; right: -1px; }
+    &.left .tt-contents { transform: translateY(-50%); right: -1px; }
+    &.top-left .tt-contents { bottom: -1px; right: -1px; }
+    & > .tt-container {
+      position: relative;
+      & > .tt-contents {
+        position: absolute;
+        background: rgba(255, 255, 255, 1);
+        background-clip: padding-box;
+        border-color: var(--highlight-color);
+        border-radius: 4px;
+        border-style: solid;
+        border-width: 2px;
+        box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.125);
+        padding: 12px;
+      }
+    }
+  }
+
+  .tt-link {
+    stroke: var(--highlight-color);
+    /*stroke-linecap: round;*/
+  }
 
   text {
     font-family: "B612 Mono", "Courier New", Courier, "Lucida Sans Typewriter", "Lucida Typewriter", monospace;
@@ -500,18 +581,6 @@ return
   }
 
   .svgDraw {
-    &.highlight-blue {
-      --highlight-color: rgba(66, 133, 244, 1);
-    }
-    &.highlight-red {
-      --highlight-color: rgba(219, 68, 55, 1);
-    }
-    &.highlight-yellow {
-      --highlight-color: rgba(244, 160, 0, 1);
-    }
-    &.highlight-green {
-      --highlight-color: rgba(15, 157, 88, 1);
-    }
     &.zoom-0 {
       .packetfence,
       .router,
@@ -521,6 +590,10 @@ return
         &.highlight {
           stroke-width: 4;
         }
+      }
+      .tt-link {
+        stroke-width: 4;
+        stroke-dasharray: 4 4;
       }
     }
     &.zoom-1 {
@@ -533,6 +606,10 @@ return
           stroke-width: 2;
         }
       }
+      .tt-link {
+        stroke-width: 2;
+        stroke-dasharray: 2 2;
+      }
     }
     &.zoom-2 {
       .packetfence,
@@ -543,6 +620,10 @@ return
         &.highlight {
           stroke-width: 1;
         }
+      }
+      .tt-link {
+        stroke-width: 1;
+        stroke-dasharray: 1 1;
       }
     }
     &.zoom-3 {
@@ -555,6 +636,10 @@ return
           stroke-width: 0.5;
         }
       }
+      .tt-link {
+        stroke-width: 0.5;
+        stroke-dasharray: 0.5 0.5;
+      }
     }
     &.zoom-4 {
       .packetfence,
@@ -565,6 +650,10 @@ return
         &.highlight {
           stroke-width: 0.25;
         }
+      }
+      .tt-link {
+        stroke-width: 0.25;
+        stroke-dasharray: 0.25 0.25;
       }
     }
   }
