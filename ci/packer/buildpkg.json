@@ -8,7 +8,7 @@
     },
     "builders": [
         {
-            "name": "buildpkg-centos",
+            "name": "pfbuild-centos7",
             "type": "docker",
             "image": "buildpkg/centos:7",
             "commit": true,
@@ -17,14 +17,23 @@
             ]
         },
         {
-            "name": "buildpkg-debian",
+            "name": "pfbuild-stretch",
             "type": "docker",
             "image": "buildpkg/debian:stretch",
             "commit": true,
             "changes": [
                 "ENTRYPOINT /bin/bash"
             ]
-        }
+        },
+        {
+            "name": "pfbuild-buster",
+            "type": "docker",
+            "image": "buildpkg/debian:buster",
+            "commit": true,
+            "changes": [
+                "ENTRYPOINT /bin/bash"
+            ]
+        },
     ],
     "provisioners": [
         {
@@ -43,21 +52,30 @@
         },
         {
             "type": "shell",
-            "script": "provisionners/install-go-dependencies.sh"
+            "script": "provisionners/install-go-dependencies.sh",
+            "environment_vars": ["GOPATH={{user `go_path`}}",
+                                 "GO_APP_WORKSPACE={{user `go_pf_workspace`}}"
+                                ]
         }
     ],
     "post-processors": [
         {
             "type": "docker-tag",
-            "only": ["buildpkg-centos"],
-            "repository": "inverse-inc/buildpkg-pf",
-            "tag": "centos"
+            "only": ["pfbuild-centos7"],
+            "repository": "inverse-inc/pfbuild-centos",
+            "tag": "7"
         },
         {
             "type": "docker-tag",
-            "only": ["buildpkg-debian"],
-            "repository": "inverse-inc/buildpkg-pf",
-            "tag": "debian"
+            "only": ["pfbuild-stretch"],
+            "repository": "inverse-inc/pfbuild-debian",
+            "tag": "stretch"
+        }
+        {
+            "type": "docker-tag",
+            "only": ["pfbuild-buster"],
+            "repository": "inverse-inc/pfbuild-debian",
+            "tag": "buster"
         }
     ]
 }
