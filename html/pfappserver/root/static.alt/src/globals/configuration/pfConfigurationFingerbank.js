@@ -448,18 +448,15 @@ export const pfConfigurationFingerbankCombinationsListFields = [
 ]
 
 export const pfConfigurationFingerbankCombinationsListConfig = (context = {}) => {
-  const {
-    scope
-  } = context
   return {
     columns: pfConfigurationFingerbankCombinationsListColumns,
     fields: pfConfigurationFingerbankCombinationsListFields,
     rowClickRoute (item, index) {
-      return { name: 'fingerbankCombination', params: { scope: scope, id: item.id } }
+      return { name: 'fingerbankCombination', params: { id: item.id } }
     },
     searchPlaceholder: i18n.t('Search by identifier or device'),
     searchableOptions: {
-      searchApiEndpoint: `fingerbank/${scope}/combinations`,
+      searchApiEndpoint: `fingerbank/local/combinations`,
       defaultSortKeys: ['id'],
       defaultSearchCondition: {
         op: 'and',
@@ -1775,18 +1772,15 @@ export const pfConfigurationFingerbankUserAgentsListFields = [
 ]
 
 export const pfConfigurationFingerbankUserAgentsListConfig = (context = {}) => {
-  const {
-    scope
-  } = context
   return {
     columns: pfConfigurationFingerbankUserAgentsListColumns,
     fields: pfConfigurationFingerbankUserAgentsListFields,
     rowClickRoute (item, index) {
-      return { name: 'fingerbankUserAgent', params: { scope: scope, id: item.id } }
+      return { name: 'fingerbankUserAgent', params: { id: item.id } }
     },
     searchPlaceholder: i18n.t('Search by identifier or user agent'),
     searchableOptions: {
-      searchApiEndpoint: `fingerbank/${scope}/user_agents`,
+      searchApiEndpoint: `fingerbank/local/user_agents`,
       defaultSortKeys: ['id'],
       defaultSearchCondition: {
         op: 'and',

@@ -362,17 +362,17 @@ export default {
     })
   },
   fingerbankCombinations: params => {
-    return apiCall.get(`fingerbank/all/combinations`, { params }).then(response => {
+    return apiCall.get(`fingerbank/local/combinations`, { params }).then(response => {
       return response.data
     })
   },
   fingerbankSearchCombinations: body => {
-    return apiCall.post('fingerbank/all/combinations/search', body).then(response => {
+    return apiCall.post('fingerbank/local/combinations/search', body).then(response => {
       return response.data
     })
   },
   fingerbankCombination: id => {
-    return apiCall.get(`fingerbank/all/combination/${id}`).then(response => {
+    return apiCall.get(`fingerbank/local/combination/${id}`).then(response => {
       return response.data.item
     })
   },
@@ -558,17 +558,17 @@ export default {
     return apiCall.delete(`fingerbank/local/mac_vendor/${id}`)
   },
   fingerbankUserAgents: params => {
-    return apiCall.get(`fingerbank/all/user_agents`, { params }).then(response => {
+    return apiCall.get(`fingerbank/local/user_agents`, { params }).then(response => {
       return response.data
     })
   },
   fingerbankSearchUserAgents: body => {
-    return apiCall.post('fingerbank/all/user_agents/search', body).then(response => {
+    return apiCall.post('fingerbank/local/user_agents/search', body).then(response => {
       return response.data
     })
   },
   fingerbankUserAgent: id => {
-    return apiCall.get(`fingerbank/all/user_agent/${id}`).then(response => {
+    return apiCall.get(`fingerbank/local/user_agent/${id}`).then(response => {
       return response.data.item
     })
   },
