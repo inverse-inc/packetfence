@@ -59,7 +59,7 @@ sub nodes {
     my $default_node_pid = $data->{default_pid};
     my $default_category_id = $data->{default_category_id};
     my $default_voip = $data->{default_voip};
-    my $default_unregdate = $data->{default_unregdate};
+    my $default_unregdate = $data->{default_unregdate} // $ZERO_DATE;
 
     $logger->debug("CSV file import nodes from $tmpfilename ($filename, \"$delimiter\")");
 
@@ -97,7 +97,7 @@ sub nodes {
     my $csv = Text::CSV->new({ binary => 1, sep_char => $delimiter });
     my $result;
     while (my $row = $csv->getline($import_fh)) {
-        my ($pid, $mac, $node, %data, $result);
+        my ($pid, $mac, $node, %data);
         $result = undef;
         if($has_pid) {
             $pid = $row->[$index{'pid'}] || undef;
