@@ -25,7 +25,7 @@
     </template>
     <template slot="footer">
       <b-card-footer @mouseenter="$v.form.$touch()">
-        <pf-button-save :disabled="invalidForm" :isLoading="isLoading"">
+        <pf-button-save :disabled="invalidForm" :isLoading="isLoading">
           <template v-if="isNew">{{ $t('Create') }}</template>
           <template v-else-if="isClone">{{ $t('Clone') }}</template>
           <template v-else-if="actionKey">{{ $t('Save & Close') }}</template>
