@@ -1898,7 +1898,16 @@ Modifications to accounting cleanup
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Accounting cleanup is now done via a pfmon task (acct_cleanup) instead of the database backup and maintenance script. Make sure you adjust the cleanup window in pfmon's configuration (Configuration->System Maintenance->Maintenance) if necessary. Also note that the default retention for the accounting data has been lowered to 1 day instead of 1 week like it was before.
-  
+
+Admin roles configuration
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In order to upgrade the Admin rights, run the following commands
+
+  cd /usr/local/pf
+  sed -i "s/SERVICES/SERVICES_READ/g" /usr/local/pf/conf/adminroles.conf 
+  sed -i "s/REPORTS/REPORTS_READ/g" /usr/local/pf/conf/adminroles.conf
+
 Database schema
 ^^^^^^^^^^^^^^^
 
@@ -1911,14 +1920,6 @@ To upgrade the database schema, run the following command:
 
 Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 9.0.0).
 
-Admin roles configuration
-^^^^^^^^^^^^^^^^^^^^^^^^^
-
-In order to upgrade the Admin rights, run the following commands
-
-  cd /usr/local/pf
-  sed -i "s/SERVICES/SERVICES_READ/g" /usr/local/pf/conf/adminroles.conf 
-  sed -i "s/REPORTS/REPORTS_READ/g" /usr/local/pf/conf/adminroles.conf
 
 Upgrading from a version prior to X.Y.Z
 ---------------------------------------
