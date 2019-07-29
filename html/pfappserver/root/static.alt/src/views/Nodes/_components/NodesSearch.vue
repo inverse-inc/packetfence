@@ -295,6 +295,12 @@ export default {
           icon: 'calendar-alt'
         },
         {
+          value: 'last_seen',
+          text: this.$i18n.t('Last seen Date'),
+          types: [conditionType.DATETIME],
+          icon: 'calendar-alt'
+        },
+        {
           value: 'device_class',
           text: this.$i18n.t('Device Class'),
           types: [conditionType.SUBSTRING],
@@ -656,6 +662,13 @@ export default {
         {
           key: 'last_dhcp',
           label: this.$i18n.t('Last DHCP'),
+          sortable: true,
+          formatter: formatter.datetimeIgnoreZero,
+          class: 'text-nowrap'
+        },
+        {
+          key: 'last_seen',
+          label: this.$i18n.t('Last seen'),
           sortable: true,
           formatter: formatter.datetimeIgnoreZero,
           class: 'text-nowrap'
