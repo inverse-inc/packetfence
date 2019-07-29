@@ -21,19 +21,19 @@
         <span v-else-if="isClone" v-html="$t('Clone Fingerbank Combination {id}', { id: $strong(id) })"></span>
         <span v-else>{{ $t('New Fingerbank Combination') }}</span>
       </h4>
-      <b-badge class="ml-2" variant="secondary" v-t="scope"></b-badge>
+      <b-badge class="ml-2" variant="secondary" v-t="'local'"></b-badge>
     </template>
     <template slot="footer">
       <b-card-footer @mouseenter="$v.form.$touch()">
-        <pf-button-save :disabled="invalidForm" :isLoading="isLoading" v-if="scope === 'local'">
+        <pf-button-save :disabled="invalidForm" :isLoading="isLoading"">
           <template v-if="isNew">{{ $t('Create') }}</template>
           <template v-else-if="isClone">{{ $t('Clone') }}</template>
           <template v-else-if="ctrlKey">{{ $t('Save & Close') }}</template>
           <template v-else>{{ $t('Save') }}</template>
         </pf-button-save>
         <b-button :disabled="isLoading" class="ml-1" variant="outline-secondary" @click="init()">{{ $t('Reset') }}</b-button>
-        <b-button v-if="!isNew && !isClone && scope === 'local'" :disabled="isLoading" class="ml-1" variant="outline-primary" @click="clone()">{{ $t('Clone') }}</b-button>
-        <pf-button-delete v-if="isDeletable && scope === 'local'" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Fingerbank Combination?')" @on-delete="remove()"/>
+        <b-button v-if="!isNew && !isClone" :disabled="isLoading" class="ml-1" variant="outline-primary" @click="clone()">{{ $t('Clone') }}</b-button>
+        <pf-button-delete v-if="isDeletable" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Fingerbank Combination?')" @on-delete="remove()"/>
       </b-card-footer>
     </template>
   </pf-config-view>
@@ -59,10 +59,6 @@ export default {
     pfButtonDelete
   },
   props: {
-    scope: { // from router
-      type: String,
-      required: true
-    },
     storeName: { // from router
       type: String,
       default: null,
@@ -132,7 +128,7 @@ export default {
       this.$router.push({ name: 'fingerbankCombinations' })
     },
     clone () {
-      this.$router.push({ name: 'cloneFingerbankCombination', params: { scope: this.scope } })
+      this.$router.push({ name: 'cloneFingerbankCombination' })
     },
     create () {
       const ctrlKey = this.ctrlKey
@@ -140,7 +136,7 @@ export default {
         if (ctrlKey) { // [CTRL] key pressed
           this.close()
         } else {
-          this.$router.push({ name: 'fingerbankCombination', params: { scope: this.scope, id: response.id } })
+          this.$router.push({ name: 'fingerbankCombination', params: { id: response.id } })
         }
       })
     },

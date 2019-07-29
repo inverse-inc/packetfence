@@ -11,25 +11,18 @@
               <h4 class="d-inline mb-0" v-t="'DHCP Agents'"></h4>
               <b-badge class="ml-2" variant="secondary" v-t="scope"></b-badge>
             </b-col>
-            <b-col cols="auto" align="right" class="flex-grow-0">
-              <b-button-group>
-                <b-button v-t="'All'" :variant="(scope === 'all') ? 'primary' : 'outline-secondary'" @click="changeScope('all')"></b-button>
-                <b-button v-t="'Local'" :variant="(scope === 'local') ? 'primary' : 'outline-secondary'" @click="changeScope('local')"></b-button>
-                <b-button v-t="'Upstream'" :variant="(scope === 'upstream') ? 'primary' : 'outline-secondary'" @click="changeScope('upstream')"></b-button>
-              </b-button-group>
-            </b-col>
           </b-row>
         </b-card-header>
       </template>
-      <template slot="buttonAdd" v-if="scope === 'local'">
-        <b-button variant="outline-primary" :to="{ name: 'newFingerbankUserAgent', params: { scope: 'local' } }">{{ $t('New DHCP Agent') }}</b-button>
+      <template slot="buttonAdd">
+        <b-button variant="outline-primary" :to="{ name: 'newFingerbankUserAgent' }">{{ $t('New DHCP Agent') }}</b-button>
       </template>
       <template slot="emptySearch" slot-scope="state">
-        <pf-empty-table :isLoading="state.isLoading">{{ $t('No {scope} DHCP fingerprints found', { scope: ((scope !== 'all') ? scope : '') }) }}</pf-empty-table>
+        <pf-empty-table :isLoading="state.isLoading">{{ $t('No local DHCP fingerprints found') }}</pf-empty-table>
       </template>
       <template slot="buttons" slot-scope="item">
         <span class="float-right text-nowrap">
-          <pf-button-delete size="sm" v-if="!item.not_deletable && scope === 'local'" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete DHCP Agent?')" @on-delete="remove(item)" reverse/>
+          <pf-button-delete size="sm" v-if="!item.not_deletable" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete DHCP Agent?')" @on-delete="remove(item)" reverse/>
           <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(item)">{{ $t('Clone') }}</b-button>
         </span>
       </template>
@@ -63,11 +56,6 @@ export default {
       type: String,
       default: null,
       required: true
-    },
-    scope: {
-      type: String,
-      default: 'all',
-      required: false
     }
   },
   data () {
@@ -78,30 +66,18 @@ export default {
   },
   methods: {
     clone (item) {
-      this.$router.push({ name: 'cloneFingerbankUserAgent', params: { scope: this.scope, id: item.id } })
+      this.$router.push({ name: 'cloneFingerbankUserAgent', params: { id: item.id } })
     },
     remove (item) {
       this.$store.dispatch(`${this.storeName}/deleteUserAgent`, item.id).then(response => {
         this.$router.go() // reload
       })
-    },
-    changeScope (scope) {
-      this.scope = scope
     }
   },
   created () {
     this.$store.dispatch(`${this.storeName}/userAgents`).then(data => {
       this.data = data
     })
-  },
-  watch: {
-    scope: {
-      handler: function (a, b) {
-        if (a !== b) {
-          this.config = config(this) // reset config
-        }
-      }
-    }
   }
 }
 </script>

@@ -524,16 +524,16 @@ const route = {
       props: (route) => ({ tab: 'combinations', query: route.query.query })
     },
     {
-      path: 'fingerbank/:scope/combinations/new',
+      path: 'fingerbank/local/combinations/new',
       name: 'newFingerbankCombination',
       component: FingerbankCombinationView,
-      props: (route) => ({ scope: route.params.scope, isNew: true, storeName: '$_fingerbank' })
+      props: (route) => ({ isNew: true, storeName: '$_fingerbank' })
     },
     {
-      path: 'fingerbank/:scope/combination/:id',
+      path: 'fingerbank/local/combination/:id',
       name: 'fingerbankCombination',
       component: FingerbankCombinationView,
-      props: (route) => ({ scope: route.params.scope, id: route.params.id, storeName: '$_fingerbank' }),
+      props: (route) => ({ id: route.params.id, storeName: '$_fingerbank' }),
       beforeEnter: (to, from, next) => {
         store.dispatch('$_fingerbank/getCombination', to.params.id).then(object => {
           next()
@@ -541,10 +541,10 @@ const route = {
       }
     },
     {
-      path: 'fingerbank/:scope/combination/:id/clone',
+      path: 'fingerbank/local/combination/:id/clone',
       name: 'cloneFingerbankCombination',
       component: FingerbankCombinationView,
-      props: (route) => ({ scope: route.params.scope, id: route.params.id, isClone: true, storeName: '$_fingerbank' }),
+      props: (route) => ({ id: route.params.id, isClone: true, storeName: '$_fingerbank' }),
       beforeEnter: (to, from, next) => {
         store.dispatch('$_fingerbank/getCombination', to.params.id).then(object => {
           next()
@@ -768,16 +768,16 @@ const route = {
       props: (route) => ({ tab: 'user_agents', query: route.query.query })
     },
     {
-      path: 'fingerbank/:scope/user_agents/new',
+      path: 'fingerbank/local/user_agents/new',
       name: 'newFingerbankUserAgent',
       component: FingerbankUserAgentView,
-      props: (route) => ({ scope: route.params.scope, isNew: true, storeName: '$_fingerbank' })
+      props: (route) => ({ isNew: true, storeName: '$_fingerbank' })
     },
     {
-      path: 'fingerbank/:scope/user_agent/:id',
+      path: 'fingerbank/local/user_agent/:id',
       name: 'fingerbankUserAgent',
       component: FingerbankUserAgentView,
-      props: (route) => ({ scope: route.params.scope, id: route.params.id, storeName: '$_fingerbank' }),
+      props: (route) => ({ id: route.params.id, storeName: '$_fingerbank' }),
       beforeEnter: (to, from, next) => {
         store.dispatch('$_fingerbank/getUserAgent', to.params.id).then(object => {
           next()
@@ -785,10 +785,10 @@ const route = {
       }
     },
     {
-      path: 'fingerbank/:scope/user_agent/:id/clone',
+      path: 'fingerbank/local/user_agent/:id/clone',
       name: 'cloneFingerbankUserAgent',
       component: FingerbankUserAgentView,
-      props: (route) => ({ scope: route.params.scope, id: route.params.id, isClone: true, storeName: '$_fingerbank' }),
+      props: (route) => ({ id: route.params.id, isClone: true, storeName: '$_fingerbank' }),
       beforeEnter: (to, from, next) => {
         store.dispatch('$_fingerbank/getUserAgent', to.params.id).then(object => {
           next()
