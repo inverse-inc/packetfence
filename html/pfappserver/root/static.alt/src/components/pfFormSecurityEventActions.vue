@@ -134,23 +134,73 @@ export default {
       default: () => {}
     }
   },
-  data () {
-    return {
-      unreg: false,
-      autoreg: false
-    }
-  },
   computed: {
-    isolate: {
+    unreg: {
       get () {
-        return !!this.value.vlan
+        return this.value.actions && this.value.actions.includes('unreg')
       },
       set (newValue) {
+        let index
         if (newValue) {
-          const [{ value }] = this.metaOptions('vlan')
-          this.$set(this.value, 'vlan', value)
+          // add unreg
+          this.value.actions.push('unreg')
+          // remove autoreg
+          index = this.value.actions.indexOf('autoreg')
+          if (index >= 0) {
+            this.value.actions.splice(index, 1)
+          }
         } else {
-          this.$delete(this.value, 'vlan')
+          // add unreg
+          index = this.value.actions.indexOf('unreg')
+          if (index >= 0) {
+            this.value.actions.splice(index, 1)
+          }
+        }
+      }
+    },
+    autoreg: {
+      get () {
+        return this.value.actions && this.value.actions.includes('autoreg')
+      },
+      set (newValue) {
+        let index
+        if (newValue) {
+          // add autoreg
+          this.value.actions.push('autoreg')
+          // add role
+          this.value.actions.push('role')
+          // remove unreg
+          index = this.value.actions.indexOf('unreg')
+          if (index >= 0) {
+            this.value.actions.splice(index, 1)
+          }
+        } else {
+          // remove autoreg
+          index = this.value.actions.indexOf('autoreg')
+          if (index >= 0) {
+            this.value.actions.splice(index, 1)
+          }
+          // remove role
+          index = this.value.actions.indexOf('role')
+          if (index >= 0) {
+            this.value.actions.splice(index, 1)
+          }
+        }
+      }
+    },
+    isolate: {
+      get () {
+        return this.value.actions && this.value.actions.includes('reevaluate_access')
+      },
+      set (newValue) {
+        let index
+        if (newValue) {
+          this.value.actions.push('reevaluate_access')
+        } else {
+          index = this.value.actions.indexOf('reevaluate_access')
+          if (index >= 0) {
+            this.value.actions.splice(index, 1)
+          }
         }
       }
     },
