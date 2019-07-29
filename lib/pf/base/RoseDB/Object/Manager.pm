@@ -1,25 +1,20 @@
-package pf::Base::RoseDB::Object;
+package pf::base::RoseDB::Object::Manager;
 =head1 NAME
 
-pf::Base::RoseDB::Object add documentation
+pf::base::RoseDB::Object::Manager add documentation
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::Base::RoseDB::Object
+pf::base::RoseDB::Object::Manager
 
 =cut
 
 use strict;
 use warnings;
-use base 'Rose::DB::Object';
 
-use pf::RoseDB;
-
-sub init_db { pf::RoseDB->new() }
-
-1;
+use base qw(Rose::DB::Object::Manager);
 
 =head1 AUTHOR
 

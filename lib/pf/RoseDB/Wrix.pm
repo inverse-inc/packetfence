@@ -14,7 +14,7 @@ pf::RoseDB::Wrix
 use strict;
 use warnings;
 
-use base qw(pf::Base::RoseDB::Wrix);
+use base qw(pf::base::RoseDB::Wrix);
 
 =head1 AUTHOR
 

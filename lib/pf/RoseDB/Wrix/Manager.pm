@@ -13,7 +13,7 @@ pf::RoseDB::Wrix::Manager
 
 use strict;
 use warnings;
-use base qw(pf::Base::RoseDB::Wrix::Manager);
+use base qw(pf::base::RoseDB::Wrix::Manager);
 use pf::RoseDB::Wrix;
 use Text::CSV;
 use DateTime;

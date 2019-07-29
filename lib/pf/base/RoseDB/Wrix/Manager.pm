@@ -1,24 +1,26 @@
-package pf::Base::RoseDB::Object::Manager;
+package pf::base::RoseDB::Wrix::Manager;
+
 =head1 NAME
 
-pf::Base::RoseDB::Object::Manager add documentation
+pf::base::RoseDB::Wrix::Manager add documentation
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::Base::RoseDB::Object::Manager
+pf::base::RoseDB::Wrix::Manager
 
 =cut
 
 use strict;
-use warnings;
 
 use base qw(Rose::DB::Object::Manager);
 
-=head1 AUTHOR
+use pf::base::RoseDB::Wrix;
 
-Inverse inc. <info@inverse.ca>
+sub object_class { 'pf::base::RoseDB::Wrix' }
+
+__PACKAGE__->make_manager_methods('wrix');
 
 =head1 COPYRIGHT
 
@@ -44,4 +46,3 @@ USA.
 =cut
 
 1;
-
