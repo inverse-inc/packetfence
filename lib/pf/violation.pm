@@ -532,8 +532,9 @@ sub info_for_violation_engine {
             return is_success($status) ? $result->id : undef;
         });
     }
-    my ($mac_vendor) = $cache->compute_with_undef("pf::fingerbank::mac_vendor_from_mac_$mac", sub {
-        return pf::fingerbank::mac_vendor_from_mac($mac);
+    my ($mac_vendor_id) = $cache->compute_with_undef("mac_vendor_id_from_mac_$mac", sub {
+        my $mac_vendor = pf::fingerbank::mac_vendor_from_mac($mac);
+        return $mac_vendor ? $mac_vendor->id : undef;
     });
 
     my $info = {
@@ -543,7 +544,7 @@ sub info_for_violation_engine {
       dhcp6_fingerprint_id => $results->{dhcp6_fingerprint},
       dhcp6_enterprise_id => $results->{dhcp6_enterprise},
       mac => $mac,
-      mac_vendor_id => defined($mac_vendor) ? $mac_vendor->{id} : undef,
+      mac_vendor_id => $mac_vendor_id,
       user_agent_id => $results->{user_agent},
       last_switch => $node_info->{'last_switch'},
     };
