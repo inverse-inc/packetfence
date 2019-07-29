@@ -1,43 +1,28 @@
-package pf::Role::CHI::Driver::ComputeWithUndef;
+package pf::CHI::Role::Driver::FileUmask;
 
 =head1 NAME
 
-pf::Role::CHI::Driver::ComputeWithUndef
+pf::CHI::Role::Driver::FileUmask add documentation
 
 =cut
 
 =head1 DESCRIPTION
 
-Adds a method that caches undef results in compute
+pf::CHI::Role::Driver::FileUmask
 
 =cut
 
 use strict;
 use warnings;
 use Moo::Role;
-use pfconfig::util qw($undef_element);
 
-sub compute_with_undef {
-    my ($self, $key, $on_miss, $options) = @_;
-    my $return = $self->get($key);
-    if(defined($return) && ref($return) eq "pfconfig::undef_element"){
-        return undef;
-    }
-    elsif(defined($return)){
-        return $return;
-    }
+has umask_on_store =>
+  ( is => 'rw', default => sub { oct( 0002 ) } );
 
-    my $result = $on_miss->();
-    if(defined($result)){
-        $self->set($key,$result,$options);
-    }
-    else {
-        $self->set($key, $undef_element,$options);
-    }
-
-    return $result;
-}
-
+before store => sub {
+    my ( $self ) = @_;
+    umask $self->umask_on_store;
+};
 
 =head1 AUTHOR
 

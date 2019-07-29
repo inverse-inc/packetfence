@@ -1,26 +1,43 @@
-package pf::Role::CHI::Driver::Untaint;
+package pf::CHI::Role::Driver::ComputeWithUndef;
 
 =head1 NAME
 
-pf::Role::CHI::Driver::Untaint add documentation
+pf::CHI::Role::Driver::ComputeWithUndef
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::Role::CHI::Driver::Untaint
+Adds a method that caches undef results in compute
 
 =cut
 
 use strict;
 use warnings;
 use Moo::Role;
+use pfconfig::util qw($undef_element);
 
+sub compute_with_undef {
+    my ($self, $key, $on_miss, $options) = @_;
+    my $return = $self->get($key);
+    if(defined($return) && ref($return) eq "pfconfig::undef_element"){
+        return undef;
+    }
+    elsif(defined($return)){
+        return $return;
+    }
 
-around get_keys => sub {
-    my ( $orig, $self ) = @_;
-    return map { /^(.*)$/;$1 } $self->$orig;
-};
+    my $result = $on_miss->();
+    if(defined($result)){
+        $self->set($key,$result,$options);
+    }
+    else {
+        $self->set($key, $undef_element,$options);
+    }
+
+    return $result;
+}
+
 
 =head1 AUTHOR
 

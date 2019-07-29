@@ -1,14 +1,14 @@
-package pf::Role::CHI::Driver::FileUmask;
+package pf::CHI::Role::Driver::Untaint;
 
 =head1 NAME
 
-pf::Role::CHI::Driver::FileUmask add documentation
+pf::CHI::Role::Driver::Untaint add documentation
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::Role::CHI::Driver::FileUmask
+pf::CHI::Role::Driver::Untaint
 
 =cut
 
@@ -16,12 +16,10 @@ use strict;
 use warnings;
 use Moo::Role;
 
-has umask_on_store =>
-  ( is => 'rw', default => sub { oct( 0002 ) } );
 
-before store => sub {
-    my ( $self ) = @_;
-    umask $self->umask_on_store;
+around get_keys => sub {
+    my ( $orig, $self ) = @_;
+    return map { /^(.*)$/;$1 } $self->$orig;
 };
 
 =head1 AUTHOR

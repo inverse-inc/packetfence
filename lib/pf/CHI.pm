@@ -16,7 +16,7 @@ use strict;
 use warnings;
 use base qw(CHI);
 use Module::Pluggable
-  search_path => [ 'CHI::Driver', 'pf::Role::CHI' ],
+  search_path => [ 'CHI::Driver', 'pf::CHI::Role' ],
   sub_name    => '_preload_chi_drivers',
   require     => 1,
   inner       => 0,
@@ -135,7 +135,7 @@ sub chiConfigFromIniFile {
             my $value =  listify($storage->{$param});
             $storage->{$param} = [ map { split /\s*,\s*/, $_ } @$value ];
         }
-        push @{$storage->{traits}}, '+pf::Role::CHI::Driver::ComputeWithUndef';
+        push @{$storage->{traits}}, '+pf::CHI::Role::Driver::ComputeWithUndef';
     }
     setDefaultStorage($args{storage});
     setRawL1CacheAsLast($args{storage}{configfiles});
@@ -171,7 +171,7 @@ sub setFileDriverParams {
     $storage->{dir_create_mode} = $DIR_MODE;
     $storage->{file_create_mode} = oct('00664');
     $storage->{umask_on_store} = oct('00007');
-    $storage->{traits} = ['+pf::Role::CHI::Driver::FileUmask', '+pf::Role::CHI::Driver::Untaint'];
+    $storage->{traits} = ['+pf::CHI::Role::Driver::FileUmask', '+pf::CHI::Role::Driver::Untaint'];
 }
 
 sub setDBIDriverParams {
