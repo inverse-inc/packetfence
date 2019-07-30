@@ -79,9 +79,10 @@ if [ -d "$GOPATHPF" ]; then
     rsync -av go/ $GOPATHPF/go/
     echo "Go dirs synchronized"
     # refresh dependencies
-    ( cd $GOPATHPF/go ; $GOPATH/bin/govendor sync )
+    cd $GOPATHPF/go
+    $GOPATH/bin/govendor sync -v
     # change dir to use Makefile in build dir
-    cd go/
+    #cd go/
 else
     trap cleanup EXIT
     cd "$GOPATH"
