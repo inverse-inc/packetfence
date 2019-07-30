@@ -32,7 +32,7 @@ my $t = Test::Mojo->new('pf::UnifiedApi');
 #This test will running last
 use Test::NoWarnings;
 my $batch = 5;
-plan tests => $batch * (2 + 2 * $batch) + 42;
+plan tests => $batch * (2 + 2 * $batch) + 44;
 
 my $base_url = "/api/v1/user";
 
@@ -49,7 +49,9 @@ my $base_url = "/api/v1/user";
 
     my $location = $t->tx->res->headers->header('Location');
     $t->get_ok($location)
-      ->status_is(200);
+      ->status_is(200)
+      ->json_is("/item/has_password", 0)
+      ->json_hasnt("/item/password");
 }
 
 {

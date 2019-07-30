@@ -53,7 +53,9 @@ Remove the password field from the item
 
 sub cleanup_item {
     my ($self, $item) = @_;
-    delete $item->{password};
+    if (exists $item->{password}) {
+        $item->{has_password} =  defined (delete $item->{password}) ? $self->json_true : $self->json_false;
+    }
     $item = $self->SUPER::cleanup_item($item);
     if (exists $item->{category}) {
         $item->{category_name} = delete $item->{category};
