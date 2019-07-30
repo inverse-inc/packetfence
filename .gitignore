@@ -60,6 +60,7 @@ raddb/proxy.conf.loadbalancer
 raddb/radiusd_loadbalancer.conf
 conf/adminroles.conf
 conf/device_registration.conf
+conf/self_service.conf
 conf/pki_provider.conf
 conf/authentication.conf
 conf/floating_network_device.conf
