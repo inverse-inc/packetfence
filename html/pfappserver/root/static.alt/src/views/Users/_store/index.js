@@ -175,11 +175,14 @@ const actions = {
   updatePassword: ({ commit }, data) => {
     deflateActions(data)
     commit('USER_REQUEST')
-    return api.updatePassword(data).then(response => {
-      commit('USER_SUCCESS')
-      return response
-    }).catch(err => {
-      commit('USER_ERROR', err.response)
+    return new Promise((resolve, reject) => {
+      api.updatePassword(data).then(response => {
+        commit('USER_SUCCESS')
+        resolve(response)
+      }).catch(err => {
+        commit('USER_ERROR', err.response)
+        reject(err)
+      })
     })
   },
   previewEmail: ({ commit }, user) => {

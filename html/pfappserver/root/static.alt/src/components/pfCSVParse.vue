@@ -52,6 +52,7 @@
             v-model="file.result"
             :lang="mode"
             :theme="theme"
+            :disabled="isLoading"
             :height="editorHeight"
             :options="editorOptions"
             @init="initEditor"
@@ -61,27 +62,27 @@
         <b-tab :title="$t('CSV Parser Options')">
           <b-row>
             <b-col cols="6">
-              <pf-form-input v-model="config.encoding" :column-label="$t('Encoding')"
+              <pf-form-input v-model="config.encoding" :column-label="$t('Encoding')" :disabled="isLoading"
               :text="$t('The encoding to use when opening local files.')"/>
-              <pf-form-input v-model="config.delimiter" :column-label="$t('Delimiter')" placeholder="auto"
+              <pf-form-input v-model="config.delimiter" :column-label="$t('Delimiter')" placeholder="auto" :disabled="isLoading"
               :text="$t('The delimiting character. Leave blank to auto-detect from a list of most common delimiters.')"/>
-              <pf-form-input v-model="config.newline" :column-label="$t('Newline')" placeholder="auto"
+              <pf-form-input v-model="config.newline" :column-label="$t('Newline')" placeholder="auto" :disabled="isLoading"
               :text="$t('The newline sequence. Leave blank to auto-detect. Must be one of \\r, \\n, or \\r\\n.')"/>
-              <pf-form-toggle v-model="config.header" :column-label="$t('Header')"
+              <pf-form-toggle v-model="config.header" :column-label="$t('Header')" :disabled="isLoading"
               :values="{checked: true, unchecked: false}" text="If enbabled, the first row of parsed data will be interpreted as field names."
               >{{ (config.header) ? $t('Yes') : $t('No') }}</pf-form-toggle>
-              <pf-form-toggle v-model="config.skipEmptyLines" :column-label="$t('Skip Empty Lines')"
+              <pf-form-toggle v-model="config.skipEmptyLines" :column-label="$t('Skip Empty Lines')" :disabled="isLoading"
               :values="{checked: true, unchecked: false}" text="If enabled, lines that are completely empty (those which evaluate to an empty string) will be skipped."
               >{{ (config.skipEmptyLines) ? $t('Yes') : $t('No') }}</pf-form-toggle>
             </b-col>
             <b-col cols="6">
-              <pf-form-input v-model="config.quoteChar" :column-label="$t('Quote Character')"
+              <pf-form-input v-model="config.quoteChar" :column-label="$t('Quote Character')" :disabled="isLoading"
               :text="$t('The character used to quote fields. The quoting of all fields is not mandatory. Any field which is not quoted will correctly read.')"/>
-              <pf-form-input v-model="config.escapeChar" :column-label="$t('Escape Character')"
+              <pf-form-input v-model="config.escapeChar" :column-label="$t('Escape Character')" :disabled="isLoading"
               :text="$t('The character used to escape the quote character within a field. If not set, this option will default to the value of quoteChar, meaning that the default escaping of quote character within a quoted field is using the quote character two times.')"/>
-              <pf-form-input v-model="config.comments" :column-label="$t('Comments')"
+              <pf-form-input v-model="config.comments" :column-label="$t('Comments')" :disabled="isLoading"
               :text="$t('A string that indicates a comment (for example, \'#\' or \'//\').')"/>
-              <pf-form-input v-model="config.preview" :column-label="$t('Preview')"
+              <pf-form-input v-model="config.preview" :column-label="$t('Preview')" :disabled="isLoading"
               :text="$t('If > 0, only that many rows will be parsed.')"/>
             </b-col>
           </b-row>
@@ -113,14 +114,14 @@
             hover outlined responsive show-empty no-local-sorting striped>
             <template slot="HEAD_actions" slot-scope="head">
               <div class="text-center">
-                <b-form-checkbox id="checkallnone" v-model="selectAll" @change="onSelectAllChange"></b-form-checkbox>
-                <b-tooltip target="checkallnone" placement="right" v-if="selectValues.length === tableValues.length">{{ $t('Select None [ALT+N]') }}</b-tooltip>
-                <b-tooltip target="checkallnone" placement="right" v-else>{{ $t('Select All [ALT+A]') }}</b-tooltip>
+                <b-form-checkbox id="checkallnone" v-model="selectAll" :disabled="isLoading" @change="onSelectAllChange"></b-form-checkbox>
+                <b-tooltip target="checkallnone" placement="right" v-if="selectValues.length === tableValues.length">{{ $t('Select None [Alt + N]') }}</b-tooltip>
+                <b-tooltip target="checkallnone" placement="right" v-else>{{ $t('Select All [Alt + A]') }}</b-tooltip>
               </div>
             </template>
             <template slot="actions" slot-scope="data">
               <div class="text-center">
-                <b-form-checkbox :id="data.value" :value="data.item" :disabled="rowDisabled(data.index)" v-model="selectValues" @click.native.stop="onToggleSelected($event, data.index)">
+                <b-form-checkbox :id="data.value" :value="data.item" :disabled="isLoading || rowDisabled(data.index)" v-model="selectValues" @click.native.stop="onToggleSelected($event, data.index)">
                   <div v-if="rowMessage(data.index)" v-b-tooltip.hover.right :title="rowMessage(data.index)">
                     <icon name="exclamation-triangle" class="ml-1"></icon>
                   </div>
@@ -132,6 +133,7 @@
               <td v-for="column in data.columns" :key="column" :class="['p-1', {'table-danger': column === 1 && selectValues.length === 0 }]">
                 <pf-form-select v-if="column > 1"
                   v-model="tableMapping[column - 2]"
+                  :disabled="isLoading"
                   :vuelidate="$v.tableMapping"
                   >
                   <template slot="first">
@@ -151,7 +153,7 @@
 
                 <b-row align-v="start" class="mx-0 px-0 mb-3" v-for="(staticMap, index) in staticMapping" :key="index">
                   <b-col cols="3" class="ml-0 mr-1 px-0">
-                    <b-form-select v-model="staticMapping[index].key" :options="staticMappingOptions()"></b-form-select>
+                    <b-form-select v-model="staticMapping[index].key" :options="staticMappingOptions()" :disabled="isLoading"></b-form-select>
                   </b-col>
                   <b-col cols="8" class="mx-0 px-0">
 
@@ -159,6 +161,7 @@
                     <pf-form-input v-if="isFieldType(substringValueType, staticMapping[index])"
                     v-model="staticMapping[index].value"
                     :class="{ 'border-danger': $v.staticMapping[index].value.$anyError }"
+                    :disabled="isLoading"
                     :vuelidate="$v.staticMapping[index].value"
                     ></pf-form-input>
 
@@ -167,6 +170,7 @@
                     v-model="staticMapping[index].value"
                     :config="{format: 'YYYY-MM-DD'}"
                     :class="{ 'border-danger': $v.staticMapping[index].value.$anyError }"
+                    :disabled="isLoading"
                     :vuelidate="$v.staticMapping[index].value"
                     ></pf-form-datetime>
 
@@ -175,6 +179,7 @@
                     v-model="staticMapping[index].value"
                     :config="{format: 'YYYY-MM-DD HH:mm:ss'}"
                     :class="{ 'border-danger': $v.staticMapping[index].value.$anyError }"
+                    :disabled="isLoading"
                     :vuelidate="$v.staticMapping[index].value"
                     ></pf-form-datetime>
 
@@ -182,12 +187,14 @@
                     <pf-form-prefix-multiplier v-else-if="isFieldType(prefixmultiplierValueType, staticMapping[index])"
                     v-model="staticMapping[index].value"
                     :class="{ 'border-danger': $v.staticMapping[index].value.$anyError }"
+                    :disabled="isLoading"
                     :vuelidate="$v.staticMapping[index].value"
                     ></pf-form-prefix-multiplier>
 
                     <!-- BEGIN YESNO -->
                     <pf-form-toggle  v-else-if="isFieldType(yesnoValueType, staticMapping[index])"
                     v-model="staticMapping[index].value"
+                    :disabled="isLoading"
                     :values="{checked: 'yes', unchecked: 'no'}"
                     :vuelidate="$v.staticMapping[index].value"
                     >{{ (staticMapping[index].value === 'yes') ? $t('Yes') : $t('No') }}</pf-form-toggle>
@@ -197,6 +204,7 @@
                     :value="staticMapping[index].value"
                     label="name"
                     track-by="value"
+                    :disabled="isLoading"
                     :options="fieldTypeValues[genderValueType]()"
                     :vuelidate="$v.staticMapping[index].value"
                     @input="staticMapping[index].value = $event"
@@ -208,6 +216,7 @@
                     :value="staticMapping[index].value"
                     label="name"
                     track-by="value"
+                    :disabled="isLoading"
                     :options="fieldTypeValues[nodeStatusValueType]()"
                     :vuelidate="$v.staticMapping[index].value"
                     @input="staticMapping[index].value = $event"
@@ -219,6 +228,7 @@
                     :value="staticMapping[index].value"
                     label="name"
                     track-by="value"
+                    :disabled="isLoading"
                     :options="fieldTypeValues[roleValueType](context)"
                     :vuelidate="$v.staticMapping[index].value"
                     @input="staticMapping[index].value = $event"
@@ -230,6 +240,7 @@
                     :value="staticMapping[index].value"
                     label="name"
                     track-by="value"
+                    :disabled="isLoading"
                     :options="fieldTypeValues[sourceValueType](context)"
                     :vuelidate="$v.staticMapping[index].value"
                     @input="staticMapping[index].value = $event"
@@ -240,25 +251,26 @@
                     <pf-form-input v-else
                     v-model="staticMapping[index].value"
                     :class="{ 'border-danger': $v.staticMapping[index].value.$anyError }"
+                    :disabled="isLoading"
                     :vuelidate="$v.staticMapping[index].value"
                     ></pf-form-input>
 
                   </b-col>
                   <b-col>
-                    <icon name="trash-alt" class="my-2" style="cursor: pointer" @click.native="deleteStatic(index)" v-b-tooltip.hover.right.d300 :title="$t('Remove static field')"></icon>
+                    <icon name="trash-alt" class="my-2" style="cursor: pointer" @click.native="deleteStatic(index)" v-b-tooltip.hover.right.d300 :title="$t('Remove static field')" :disabled="isLoading"></icon>
                   </b-col>
                 </b-row>
 
                 <b-row fluid class="mx-0 px-0 mb-3" v-if="staticMappingOptions().filter(f => f.value && !f.disabled).length > 0">
                   <b-col cols="3" class="ml-0 mr-1 px-0">
-                    <b-form-select v-model="staticMappingNew" :options="staticMappingOptions()">
+                    <b-form-select v-model="staticMappingNew" :options="staticMappingOptions()" :disabled="isLoading">
                       <template slot="first">
                         <option :value="null" disabled>-- {{ $t('Choose static field') }} --</option>
                       </template>
                     </b-form-select>
                   </b-col>
                   <b-col cols="8" class="mx-0 px-0">
-                    <b-button type="button" variant="outline-secondary" :disabled="typeof staticMappingNew !== 'string'" @click.prevent="addStatic">
+                    <b-button type="button" variant="outline-secondary" :disabled="isLoading || typeof staticMappingNew !== 'string'" @click.prevent="addStatic">
                       <icon name="plus-circle" class="mr-1"></icon>
                       {{ $t('Add static field') }}
                     </b-button>
@@ -266,7 +278,7 @@
                 </b-row>
 
                 <b-container fluid class="mx-0 px-0 mt-3 footer-errors">
-                  <b-button type="submit" variant="primary" :disabled="$v.$anyError" @mouseenter="$v.$touch()">
+                  <b-button type="submit" variant="primary" :disabled="isLoading || $v.$anyError" @mouseenter="$v.$touch()">
                     <icon v-if="isLoading" name="circle-notch" spin class="mr-1"></icon>
                     <icon v-else name="download" class="mr-1"></icon>
                     {{ $t('Import') + ' ' + selectValues.length + ' ' + $t('selected rows') }}
@@ -363,6 +375,10 @@ export default {
     defaultStaticMapping: {
       type: Array,
       default: () => { return [] }
+    },
+    isLoading: {
+      type: Boolean,
+      default: false
     }
   },
   data () {
@@ -692,6 +708,12 @@ export default {
     }
   },
   watch: {
+    file: {
+      handler: function (a, b) {
+        this.parseDebounce()
+      },
+      deep: true
+    },
     config: {
       handler: function (a, b) {
         this.parseDebounce()

@@ -15,9 +15,10 @@
             :ref="'parser-' + index"
             :file="file"
             :fields="fields"
-            :storeName="storeName"
-            :defaultStaticMapping="defaultStaticMapping"
-            :eventsListen="tabIndex === index"
+            :store-name="storeName"
+            :default-static-mapping="defaultStaticMapping"
+            :events-listen="tabIndex === index"
+            :is-loading="isLoading"
             @input="onImport"
           ></pf-csv-parse>
         </b-tab>
@@ -53,6 +54,7 @@ import {
 import { pfFieldType as fieldType } from '@/globals/pfField'
 import { pfFormatters as formatter } from '@/globals/pfFormatters'
 import convert from '@/utils/convert'
+import strings from '@/utils/strings'
 import {
   required
 } from 'vuelidate/lib/validators'
@@ -190,7 +192,8 @@ export default {
         }
       ],
       progressTotal: 0,
-      progressValue: 0
+      progressValue: 0,
+      isLoading: false
     }
   },
   methods: {
@@ -198,56 +201,68 @@ export default {
       this.files.splice(index, 1)
     },
     onImport (values, parser) {
+      this.isLoading = true
       // track progress
+      let success = 0
+      let failed = 0
       this.progressValue = 1
       this.progressTotal = values.length + 1
       // track promise(s)
       Promise.all(values.map(value => {
-        // map child components' tableValue
-        let tableValue = parser.tableValues[value._tableValueIndex]
-        return this.$store.dispatch('$_nodes/exists', value.mac).then(results => {
-          // node exists
-          return this.updateNode(Object.assign({ quiet: true }, value)).then(results => {
-            if (results.status) {
-              tableValue._rowVariant = convert.statusToVariant({ status: results.status })
-            } else {
-              tableValue._rowVariant = 'success'
-            }
-            if (results.message) {
-              tableValue._rowMessage = this.$i18n.t(results.message)
-            }
-            return results
-          }).catch(err => {
-            throw err
+        // clean MAC
+        value.mac = strings.cleanMac(value.mac)
+        if (value.mac) {
+          // map child components' tableValue
+          let tableValue = parser.tableValues[value._tableValueIndex]
+          return this.$store.dispatch('$_nodes/exists', value.mac).then(results => {
+            // node exists
+            return this.updateNode(Object.assign({ quiet: true }, value)).then(results => {
+              if (results.status) {
+                tableValue._rowVariant = convert.statusToVariant({ status: results.status })
+              } else {
+                tableValue._rowVariant = 'success'
+              }
+              if (results.message) {
+                tableValue._rowMessage = this.$i18n.t(results.message)
+              }
+              success++
+              return results
+            }).catch(err => {
+              failed++
+              throw err
+            })
+          }).catch(() => {
+            // node not exists
+            return this.createNode(Object.assign({ quiet: true }, value)).then(results => {
+              if (results.status) {
+                tableValue._rowVariant = convert.statusToVariant({ status: results.status })
+              } else {
+                tableValue._rowVariant = 'success'
+              }
+              if (results.message) {
+                tableValue._rowMessage = this.$i18n.t(results.message)
+              }
+              success++
+              return results
+            }).catch(err => {
+              failed++
+              throw err
+            })
           })
-        }).catch(() => {
-          // node not exists
-          return this.createNode(Object.assign({ quiet: true }, value)).then(results => {
-            if (results.status) {
-              tableValue._rowVariant = convert.statusToVariant({ status: results.status })
-            } else {
-              tableValue._rowVariant = 'success'
-            }
-            if (results.message) {
-              tableValue._rowMessage = this.$i18n.t(results.message)
-            }
-            return results
-          }).catch(err => {
-            throw err
-          })
-        })
+        }
       })).then(values => {
         this.$store.dispatch('notification/info', {
           message: values.length + ' ' + this.$i18n.t('nodes imported'),
-          success: null,
-          skipped: null,
-          failed: null
+          success,
+          failed
         })
+        this.isLoading = false
       })
     },
     createNode (data) {
+      const nodeData = { quiet: true, ...data } // suppress notifications
       // eslint-disable-next-line
-      return this.$store.dispatch('$_nodes/createNode', data).then(results => {
+      return this.$store.dispatch('$_nodes/createNode', nodeData).then(results => {
         // does the data contain anything other than 'mac' or a private key (_*)?
         if (Object.keys(data).filter(key => key !== 'mac' && key.charAt(0) !== '_').length > 0) {
           // chain updateNode
@@ -266,8 +281,9 @@ export default {
       })
     },
     updateNode (data) {
+      const nodeData = { quiet: true, ...data } // suppress notifications
       // eslint-disable-next-line
-      return this.$store.dispatch('$_nodes/updateNode', data).then(results => {
+      return this.$store.dispatch('$_nodes/updateNode', nodeData).then(results => {
         return results
       }).catch(err => {
         throw err
