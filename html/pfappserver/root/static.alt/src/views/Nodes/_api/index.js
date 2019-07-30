@@ -85,12 +85,14 @@ export default {
     })
   },
   createNode: body => {
-    return apiCall.post('nodes', body).then(response => {
+    const post = body.quiet ? 'postQuiet' : 'post'
+    return apiCall[post]('nodes', body).then(response => {
       return response.data
     })
   },
   updateNode: body => {
-    return apiCall.patch(`node/${body.mac}`, body).then(response => {
+    const patch = body.quiet ? 'patchQuiet' : 'patch'
+    return apiCall[patch](`node/${body.mac}`, body).then(response => {
       return response.data
     })
   },

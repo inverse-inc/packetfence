@@ -18,6 +18,7 @@
               :fields="fields"
               :store-name="storeName"
               :events-listen="tabIndex === index"
+              :is-loading="isLoading"
               @input="onImport"
             >
               <b-tab :title="$t('Import Options')">
@@ -456,7 +457,8 @@ export default {
       },
       actionsValidations: {},
       progressTotal: 0,
-      progressValue: 0
+      progressValue: 0,
+      isLoading: false
     }
   },
   validations () {
@@ -481,8 +483,11 @@ export default {
       this.files.splice(index, 1)
     },
     onImport (values, parser) {
+      this.isLoading = true
       let createdUsers = []
       // track progress
+      let success = 0
+      let failed = 0
       this.progressValue = 1
       this.progressTotal = values.length + 1
       // track promise(s)
@@ -505,8 +510,10 @@ export default {
               tableValue._rowMessage = this.$i18n.t(results.message)
             }
             createdUsers.push(data)
+            success++
             return results
           }).catch(err => {
+            failed++
             throw err
           })
         }).catch(() => {
@@ -524,24 +531,26 @@ export default {
               tableValue._rowMessage = this.$i18n.t(results.message)
             }
             createdUsers.push(data)
+            success++
             return results
           }).catch(err => {
+            failed++
             throw err
           })
         })
       })).then(results => {
         this.$store.dispatch('notification/info', {
           message: results.length + ' ' + this.$i18n.t('users imported'),
-          success: null,
-          skipped: null,
-          failed: null
+          success,
+          failed
         })
         this.$store.commit(`${this.storeName}/CREATED_USERS_REPLACED`, createdUsers)
         this.showUsersPreviewModal = true
+        this.isLoading = false
       })
     },
     createUser (data) {
-      const userData = { quiet: true, ...data }
+      const userData = { quiet: true, ...data } // suppress notifications
       return this.$store.dispatch(`${this.storeName}/createUser`, userData).then(results => {
         return this.$store.dispatch(`${this.storeName}/createPassword`, userData).then(results => {
           return results
@@ -555,10 +564,12 @@ export default {
       })
     },
     updateUser (data) {
-      const userData = { quiet: true, ...data }
+      const userData = { quiet: true, ...data } // suppress notifications
       return this.$store.dispatch(`${this.storeName}/updateUser`, userData).then(results => {
         return this.$store.dispatch(`${this.storeName}/updatePassword`, userData).then(results => {
           return results
+        }).catch(err => {
+          throw err
         })
       }).catch(err => {
         throw err
