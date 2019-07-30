@@ -38,7 +38,7 @@ has_field 'loginUrl' =>
   (
    type => 'Text',
    default => 'login.microsoftonline.com',
-
+  );
 
 has_field 'host' =>
   (
