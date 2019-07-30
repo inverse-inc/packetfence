@@ -22,7 +22,7 @@ log_subsection() {
 }
 
 get_govendor_binary() {
-    log_section "Get govendor binary"
+    log_section "Getting govendor binary"
     # will place govendor binary in $HOME/go/bin
     declare -p GOPATH
     $GOBIN/go get -u github.com/kardianos/govendor
@@ -31,10 +31,21 @@ get_govendor_binary() {
 get_app_dependencies() {
     local repo=$1
     local extra_path=$2
-    log_section "Get $repo/$extra_path Golang dependencies"
+    log_section "Getting $repo/$extra_path Golang dependencies"
     declare -p GOPATH repo extra_path
     ( cd $GOPATH/src/$repo/$extra_path; $GOVENDOR sync )
 }
 
+clear_cache() {
+    local go_cache_dir=$GOPATH/.cache
+    log_section "Removing $go_cache_dir directory if present"
+    if [ -d "$go_cache_dir" ]; then
+        rm -rf $go_cache_dir
+    else
+        echo "No $go_cache_dir found"
+    fi
+}
+
 get_govendor_binary
 get_app_dependencies $GO_REPO $EXTRA_PATH
+clear_cache
