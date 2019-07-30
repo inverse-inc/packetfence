@@ -167,7 +167,7 @@ Requires: perl(Net::Cisco::MSE::REST)
 # We would need to port to the new 3.x API (tracked by #1313)
 Requires: perl(Net::Appliance::Session) = 1.36
 Requires: perl(Net::SSH2) >= 0.63
-Requires: perl(Net::OAuth2) >= 0.57
+Requires: perl(Net::OAuth2) >= 0.65
 # Required by configurator script, pf::config
 Requires: perl(Net::Interface)
 Requires: perl(Net::Netmask)
