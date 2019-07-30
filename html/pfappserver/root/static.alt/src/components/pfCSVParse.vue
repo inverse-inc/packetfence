@@ -94,7 +94,7 @@
           <b-container fluid v-if="items.length" class="overflow-auto">
             <b-row align-v="center" class="float-right">
               <b-form inline class="mb-0">
-                <b-form-select class="mb-3 mr-3" size="sm" v-model="pageSizeLimit" :options="[10,25,50,100]" :disabled="isLoading"
+                <b-form-select class="mb-3 mr-3" size="sm" v-model="pageSizeLimit" :options="pageSizeLimitOptions" :disabled="isLoading"
                 @input="onPageSizeChange" />
               </b-form>
               <b-pagination align="right" v-model="currentPage" :per-page="pageSizeLimit" :total-rows="totalRows" :disabled="isLoading"
@@ -705,6 +705,19 @@ export default {
         }))
       }
       return columns
+    },
+    pageSizeLimitOptions () {
+      let options = []
+      let cnt = 0
+      let mult = 10
+      const step = [1, 2.5, 5]
+      do {
+        options.push(step[cnt++ % 3] * mult)
+        if (cnt % 3 === 0) {
+          mult *= 10
+        }
+      } while(options[options.length - 1] < this.totalRows || 0)
+      return options
     }
   },
   watch: {
