@@ -63,7 +63,7 @@ has_field 'protocol' =>
 has_field 'access_token' =>
   (
    type => 'Text',
-   required => 1,
+   required => 0,
   );
 
   has_field 'agent_download_uri' =>
