@@ -279,12 +279,6 @@
 			"revisionTime": "2019-03-30T03:22:41Z"
 		},
 		{
-			"checksumSHA1": "rAnxK4LbUVYQh6VwXkq/89JaroY=",
-			"path": "github.com/go-sql-driver/mysql",
-			"revision": "cd4cb909ce1a31435164be29bf3682031f61539a",
-			"revisionTime": "2017-11-17T11:51:24Z"
-		},
-		{
 			"checksumSHA1": "luu+ud4XYZhlCoNnSAwCJlbh0Bg=",
 			"path": "github.com/go-stack/stack",
 			"revision": "259ab82a6cad3992b4e21ff5cac294ccb06474bc",
