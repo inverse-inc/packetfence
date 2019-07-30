@@ -354,6 +354,58 @@ export const pfConfigurationProvisioningFields = {
       ]
     }
   },
+  applicationID: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Application ID'),
+      fields: [
+        {
+          key: 'applicationID',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'applicationID'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'applicationID', i18n.t('Application ID'))
+        }
+      ]
+    }
+  },
+  applicationSecret: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Application Secret'),
+      fields: [
+        {
+          key: 'applicationSecret',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'applicationSecret'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'applicationSecret', i18n.t('Application Secret'))
+        }
+      ]
+    }
+  },
+  tenantID: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Tenant ID'),
+      fields: [
+        {
+          key: 'tenantID',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'tenantID'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'tenantID', i18n.t('Tenant ID'))
+        }
+      ]
+    }
+  },
+  loginUrl: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Login Url'),
+      fields: [
+        {
+          key: 'loginUrl',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'loginUrl'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'loginUrl', i18n.t('Login Url'))
+        }
+      ]
+    }
+  },
   critical_issues_threshold: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Critical issues threshold'),
@@ -1036,6 +1088,26 @@ export const pfConfigurationProvisioningViewFields = (context) => {
           ]
         }
       ]
+      case 'intune':
+        return [
+          {
+            tab: null, // ignore tabs
+            fields: [
+              pfConfigurationProvisioningFields.id(context),
+              pfConfigurationProvisioningFields.description(context),
+              pfConfigurationProvisioningFields.category(context),
+              pfConfigurationProvisioningFields.oses(context),
+              pfConfigurationProvisioningFields.applicationID(context),
+              pfConfigurationProvisioningFields.applicationSecret(context),
+              pfConfigurationProvisioningFields.tenantID(context),
+              pfConfigurationProvisioningFields.host(context),
+              pfConfigurationProvisioningFields.port(context),
+              pfConfigurationProvisioningFields.protocol(context),
+              pfConfigurationProvisioningFields.loginUrl(context),
+              pfConfigurationProvisioningFields.agent_download_uri(context)
+            ]
+          }
+        ]
     default:
       return [
         {
