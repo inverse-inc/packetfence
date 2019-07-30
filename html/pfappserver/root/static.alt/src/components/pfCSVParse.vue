@@ -33,7 +33,7 @@
  *      ...
  *    ]
  *
- *    `events-listen` (boolean) -- listen to keyboard/mouse events
+ *    `event-listen` (boolean) -- listen to keyboard/mouse events
  *
  *  Events:
  *
@@ -50,8 +50,8 @@
         <b-tab :title="$t('CSV File Contents')">
           <ace-editor
             v-model="file.result"
-            lang="ini"
-            theme="cobalt"
+            :lang="mode"
+            :theme="theme"
             :disabled="isLoading"
             :height="editorHeight"
             :options="editorOptions"
@@ -94,7 +94,7 @@
           <b-container fluid v-if="items.length" class="overflow-auto">
             <b-row align-v="center" class="float-right">
               <b-form inline class="mb-0">
-                <b-form-select class="mb-3 mr-3" size="sm" v-model="pageSizeLimit" :options="[10,25,50,100]" :disabled="isLoading"
+                <b-form-select class="mb-3 mr-3" size="sm" v-model="pageSizeLimit" :options="pageSizeLimitOptions" :disabled="isLoading"
                 @input="onPageSizeChange" />
               </b-form>
               <b-pagination align="right" v-model="currentPage" :per-page="pageSizeLimit" :total-rows="totalRows" :disabled="isLoading"
@@ -168,7 +168,7 @@
                     <!-- BEGIN DATE -->
                     <pf-form-datetime v-else-if="isFieldType(dateValueType, staticMapping[index])"
                     v-model="staticMapping[index].value"
-                    :config="{datetimeFormat: 'YYYY-MM-DD'}"
+                    :config="{format: 'YYYY-MM-DD'}"
                     :class="{ 'border-danger': $v.staticMapping[index].value.$anyError }"
                     :disabled="isLoading"
                     :vuelidate="$v.staticMapping[index].value"
@@ -177,7 +177,7 @@
                     <!-- BEGIN DATETIME -->
                     <pf-form-datetime v-else-if="isFieldType(datetimeValueType, staticMapping[index])"
                     v-model="staticMapping[index].value"
-                    :config="{datetimeFormat: 'YYYY-MM-DD HH:mm:ss'}"
+                    :config="{format: 'YYYY-MM-DD HH:mm:ss'}"
                     :class="{ 'border-danger': $v.staticMapping[index].value.$anyError }"
                     :disabled="isLoading"
                     :vuelidate="$v.staticMapping[index].value"
@@ -312,7 +312,6 @@
 
 <script>
 /* eslint key-spacing: ["error", { "mode": "minimum" }] */
-import aceEditor from 'vue2-ace-editor'
 import Papa from 'papaparse'
 import uuidv4 from 'uuid/v4'
 import pfFormChosen from '@/components/pfFormChosen'
@@ -333,6 +332,7 @@ import {
   required
 } from 'vuelidate/lib/validators'
 
+const aceEditor = require('vue2-ace-editor')
 const { validationMixin } = require('vuelidate')
 
 export default {
@@ -363,6 +363,14 @@ export default {
     fields: {
       type: Array,
       default: null
+    },
+    mode: {
+      type: String,
+      default: 'ini'
+    },
+    theme: {
+      type: String,
+      default: 'cobalt'
     },
     defaultStaticMapping: {
       type: Array,
@@ -653,8 +661,8 @@ export default {
     initEditor (instance) {
       // Load ACE editor extensions
       require('brace/ext/language_tools')
-      require('brace/mode/ini')
-      require('brace/theme/cobalt')
+      require(`brace/mode/${this.mode}`)
+      require(`brace/theme/${this.theme}`)
       this.editor = instance
       this.editor.setAutoScrollEditorIntoView(true)
     }
@@ -697,6 +705,19 @@ export default {
         }))
       }
       return columns
+    },
+    pageSizeLimitOptions () {
+      let options = []
+      let cnt = 0
+      let mult = 10
+      const step = [1, 2.5, 5]
+      do {
+        options.push(step[cnt++ % 3] * mult)
+        if (cnt % 3 === 0) {
+          mult *= 10
+        }
+      } while(options[options.length - 1] < this.totalRows || 0)
+      return options
     }
   },
   watch: {
