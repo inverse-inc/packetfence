@@ -91,6 +91,7 @@ conf/radiusd/mschap.conf
 conf/radiusd/packetfence
 conf/radiusd/packetfence-cli
 conf/radiusd/packetfence-cluster
+conf/radiusd/packetfence-pre-proxy
 conf/radiusd/packetfence-tunnel
 conf/radiusd/proxy.conf.inc
 conf/radiusd/proxy.conf.loadbalancer
