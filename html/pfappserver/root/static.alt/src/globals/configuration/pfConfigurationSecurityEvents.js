@@ -55,11 +55,6 @@ export const pfConfigurationSecurityEventsListColumns = [
     visible: true
   },
   {
-    key: 'vlan',
-    label: i18n.t('Target Category'),
-    visible: true
-  },
-  {
     key: 'buttons',
     label: '',
     locked: true
