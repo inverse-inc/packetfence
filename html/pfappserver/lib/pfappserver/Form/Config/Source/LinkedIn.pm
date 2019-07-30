@@ -93,6 +93,16 @@ has_field 'domains' =>
    tags => { after_element => \&help,
              help => 'Comma separated list of domains that will be resolve with the correct IP addresses.' },
   );
+has_field 'scope' =>
+  (
+   type => 'Text',
+   label => 'Scope',
+   required => 1,
+   default => pf::Authentication::Source::LinkedInSource->meta->get_attribute('scope')->default,
+   element_class => ['input-xlarge'],
+   tags => { after_element => \&help,
+             help => 'The permissions the application requests.' },
+  );
 
 =head1 COPYRIGHT
 

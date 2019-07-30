@@ -2416,6 +2416,7 @@ export const pfConfigurationAuthenticationSourceViewFields = (context) => {
             pfConfigurationAuthenticationSourceFields.authorize_path(context),
             { ...pfConfigurationAuthenticationSourceFields.access_token_path(context), ...{ label: i18n.t('API Token Path') } }, // re-label
             pfConfigurationAuthenticationSourceFields.access_token_param(context),
+            pfConfigurationAuthenticationSourceFields.access_scope(context),
             { ...pfConfigurationAuthenticationSourceFields.protected_resource_url(context), ...{ label: i18n.t('API URL of logged user') } }, // re-label
             pfConfigurationAuthenticationSourceFields.redirect_url(context),
             pfConfigurationAuthenticationSourceFields.domains(context),
