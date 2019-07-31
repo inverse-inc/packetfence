@@ -22,7 +22,6 @@ our %FUNCS = (
     'Date.Parse' => \&Parse,
 );
 
-
 sub Diff {
     my ($ctx, $unit, $a, $b) = @_;
     $unit = lc($unit);
@@ -33,7 +32,6 @@ sub Diff {
 sub Now {
    DateTime->now(); 
 }
-
 
 sub Parse {
     my ($ctx, $f, $string) = @_;
@@ -69,4 +67,3 @@ USA.
 =cut
 
 1;
-
