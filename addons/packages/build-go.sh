@@ -75,14 +75,10 @@ export GOBIN="$GOPATH/bin"
 GOPATHPF="$GOPATH/src/github.com/inverse-inc/packetfence"
 
 if [ -d "$GOPATHPF" ]; then
-    echo "$GOPATHPF already exists with outdated go/ dir"
-    rsync -av go/ $GOPATHPF/go/
-    echo "Go dirs synchronized"
-    # refresh dependencies
-    cd $GOPATHPF/go
-    $GOPATH/bin/govendor sync -v
-    # change dir to use Makefile in build dir
-    #cd go/
+    echo "$GOPATHPF already exists"
+
+    # # change dir to use Makefile in build dir
+    cd go/
 else
     trap cleanup EXIT
     cd "$GOPATH"
