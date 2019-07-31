@@ -490,8 +490,13 @@ export default {
       let failed = 0
       this.progressValue = 1
       this.progressTotal = values.length + 1
+      // create unique stack
+      let stack = {}
+      values.forEach(value => {
+        stack[value.pid] = value
+      })
       // track promise(s)
-      Promise.all(values.map(value => {
+      Promise.all(Object.values(stack).map(value => {
         // map child components' tableValue
         let tableValue = parser.tableValues[value._tableValueIndex]
         const data = {
@@ -514,7 +519,6 @@ export default {
             return results
           }).catch(err => {
             failed++
-            throw err
           })
         }).catch(() => {
           // user not exists
@@ -535,12 +539,12 @@ export default {
             return results
           }).catch(err => {
             failed++
-            throw err
           })
         })
       })).then(results => {
         this.$store.dispatch('notification/info', {
           message: results.length + ' ' + this.$i18n.t('users imported'),
+          skipped: (values.length - success - failed),
           success,
           failed
         })

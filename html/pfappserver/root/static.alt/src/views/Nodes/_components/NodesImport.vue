@@ -193,7 +193,9 @@ export default {
       ],
       progressTotal: 0,
       progressValue: 0,
-      isLoading: false
+      isLoading: false,
+      trackSuccess: 0,
+      trackFailed: 0
     }
   },
   methods: {
@@ -207,10 +209,14 @@ export default {
       let failed = 0
       this.progressValue = 1
       this.progressTotal = values.length + 1
+      // create unique stack
+      let stack = {}
+      values.forEach(value => {
+        value.mac = strings.cleanMac(value.mac) // clean MAC
+        stack[value.mac] = value
+      })
       // track promise(s)
-      Promise.all(values.map(value => {
-        // clean MAC
-        value.mac = strings.cleanMac(value.mac)
+      Promise.all(Object.values(stack).map(value => {
         if (value.mac) {
           // map child components' tableValue
           let tableValue = parser.tableValues[value._tableValueIndex]
@@ -248,9 +254,10 @@ export default {
             })
           })
         }
-      })).then(values => {
+      })).then(results => {
         this.$store.dispatch('notification/info', {
-          message: values.length + ' ' + this.$i18n.t('nodes imported'),
+          message: results.length + ' ' + this.$i18n.t('nodes imported'),
+          skipped: (values.length - success - failed),
           success,
           failed
         })

@@ -72,8 +72,8 @@ const getters = {
 }
 
 const actions = {
-  exists: ({ commit }, pid) => {
-    if (state.userExists.hasOwnProperty(pid)) {
+  exists: ({ state, commit }, pid) => {
+    if (pid in state.userExists) {
       if (state.userExists[pid]) {
         return Promise.resolve(true)
       }
