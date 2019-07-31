@@ -143,7 +143,7 @@ export default {
       ldapAttributeConditionType: authenticationConditionType.LDAPATTRIBUTE,
       substringConditionType:     authenticationConditionType.SUBSTRING,
       timeConditionType:          authenticationConditionType.TIME,
-      timePeriodConditionType:    authenticationConditionType.TIMEPERIOD
+      timePeriodConditionType:    authenticationConditionType.TIME_PERIOD
     }
   },
   computed: {

@@ -4,16 +4,16 @@ import i18n from '@/utils/locale'
 export const pfAuthenticationConditionType = {
   NONE:                    'none',
   CONNECTION:              'connection',
-  LDAPATTRIBUTE:           'ldap_attribute',
+  LDAPATTRIBUTE:           'ldapattribute',
   SUBSTRING:               'substring',
   TIME:                    'time',
-  TIMEPERIOD:              'timeperiod'
+  TIME_PERIOD:             'time_period'
 }
 
 export const pfAuthenticationConditionValue = {
   TEXT:                    'text',
   TIME:                    'time',
-  TIMEPERIOD:              'timeperiod'
+  TIME_PERIOD:             'time_period'
 }
 
 /**
@@ -49,8 +49,8 @@ pfAuthenticationConditionOperators[pfAuthenticationConditionType.TIME] = {
   'is after':              pfAuthenticationConditionValue.TIME
 }
 
-pfAuthenticationConditionOperators[pfAuthenticationConditionType.TIMEPERIOD] = {
-  'in_time_period':        pfAuthenticationConditionValue.TIMEPERIOD
+pfAuthenticationConditionOperators[pfAuthenticationConditionType.TIME_PERIOD] = {
+  'in_time_period':        pfAuthenticationConditionValue.TIME_PERIOD
 }
 
 /**

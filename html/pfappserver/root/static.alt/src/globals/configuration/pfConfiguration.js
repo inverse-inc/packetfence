@@ -179,6 +179,42 @@ export const pfConfigurationDefaultsFromMeta = (meta = {}) => {
   return defaults
 }
 
+export const pfConfigurationAuthenticationSourceRulesConditionFieldsFromMeta = (meta = {}, key = null) => {
+  let fields = []
+  if (Object.keys(meta).length > 0) {
+    while (key.includes('.')) { // handle dot-notation keys ('.')
+      let [ first, ...remainder ] = key.split('.')
+      if (!(first in meta)) return {}
+      key = remainder.join('.')
+      let { [first]: { item: { properties } = {} } } = meta
+      if (properties) {
+        meta = properties // swap ref to child
+      }
+    }
+    let { [key]: { allowed } = {} } = meta
+    if (allowed) {
+      allowed.forEach((item, index, allowed) => {
+        const { text, value, attributes: { ['data-type']: type } = {} } = item
+        fields.push({
+          text: i18n.t(text),
+          value,
+          types: [type],
+          validators: {
+            operator: {
+              [i18n.t('Operator required.')]: required
+            },
+            value: {
+              [i18n.t('Value required.')]: required,
+              [i18n.t('Maximum 255 characters.')]: maxLength(255)
+            }
+          }
+        })
+      })
+    }
+  }
+  return fields
+}
+
 export const pfConfigurationValidatorsFromMeta = (meta = {}, key = null, fieldName = 'Value') => {
   let validators = {}
   if (Object.keys(meta).length > 0) {
@@ -489,7 +525,7 @@ export const pfConfigurationConditions = {
   current_time_period: {
     value: 'current_time_period',
     text: i18n.t('Current time period'),
-    types: [authenticationConditionType.TIMEPERIOD],
+    types: [authenticationConditionType.TIME_PERIOD],
     validators: {
       operator: {
         [i18n.t('Operator required.')]: required
