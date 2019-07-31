@@ -4,7 +4,6 @@ import pfFormChosen from '@/components/pfFormChosen'
 import pfFormFields from '@/components/pfFormFields'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormRangeToggleDefault from '@/components/pfFormRangeToggleDefault'
-import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import pfFormPassword from '@/components/pfFormPassword'
 import pfFormTextarea from '@/components/pfFormTextarea'
 import {
@@ -509,12 +508,13 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
           fields: [
             {
               key: 'VlanMap',
-              component: pfFormRangeToggle,
+              component: pfFormRangeToggleDefault,
               attrs: {
                 tooltip: false,
-                values: { checked: 'Y', unchecked: 'N' },
+                values: { checked: 'Y', unchecked: 'N', default: placeholder('VlanMap') },
                 icons: { checked: 'check', unchecked: 'times' },
-                colors: { checked: 'var(--primary)' }
+                colors: { checked: 'var(--primary)', default: (placeholder('VlanMap') === 'Y') ? 'var(--primary)' : '' },
+                tooltips: { checked: i18n.t('Y'), unchecked: i18n.t('N'), default: i18n.t('Default ({default})', { default: placeholder('VlanMap') }) }
               }
             }
           ]
@@ -528,7 +528,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
         ].map(role => {
           return {
             label: role.label || role.id,
-            if: (form.VlanMap === 'Y'),
+            if: (form.VlanMap === 'Y' || !form.VlanMap && placeholder('VlanMap') === 'Y'),
             fields: [
               {
                 key: `${role.id}Vlan`,
@@ -545,12 +545,13 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
           fields: [
             {
               key: 'RoleMap',
-              component: pfFormRangeToggle,
+              component: pfFormRangeToggleDefault,
               attrs: {
                 tooltip: false,
-                values: { checked: 'Y', unchecked: 'N' },
+                values: { checked: 'Y', unchecked: 'N', default: placeholder('RoleMap') },
                 icons: { checked: 'check', unchecked: 'times' },
-                colors: { checked: 'var(--primary)' }
+                colors: { checked: 'var(--primary)', default: (placeholder('RoleMap') === 'Y') ? 'var(--primary)' : '' },
+                tooltips: { checked: i18n.t('Y'), unchecked: i18n.t('N'), default: i18n.t('Default ({default})', { default: placeholder('RoleMap') }) }
               }
             }
           ]
@@ -564,7 +565,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
         ].map(role => {
           return {
             label: role.label || role.id,
-            if: (form.RoleMap === 'Y'),
+            if: (form.RoleMap === 'Y' || !form.RoleMap && placeholder('RoleMap') === 'Y'),
             fields: [
               {
                 key: `${role.id}Role`,
@@ -581,12 +582,13 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
           fields: [
             {
               key: 'AccessListMap',
-              component: pfFormRangeToggle,
+              component: pfFormRangeToggleDefault,
               attrs: {
                 tooltip: false,
-                values: { checked: 'Y', unchecked: 'N' },
+                values: { checked: 'Y', unchecked: 'N', default: placeholder('AccessListMap') },
                 icons: { checked: 'check', unchecked: 'times' },
-                colors: { checked: 'var(--primary)' }
+                colors: { checked: 'var(--primary)', default: (placeholder('AccessListMap') === 'Y') ? 'var(--primary)' : '' },
+                tooltips: { checked: i18n.t('Y'), unchecked: i18n.t('N'), default: i18n.t('Default ({default})', { default: placeholder('AccessListMap') }) }
               }
             }
           ]
@@ -600,7 +602,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
         ].map(role => {
           return {
             label: role.label || role.id,
-            if: (form.AccessListMap === 'Y'),
+            if: (form.AccessListMap === 'Y' || !form.AccessListMap && placeholder('AccessListMap') === 'Y'),
             fields: [
               {
                 key: `${role.id}AccessList`,
@@ -622,12 +624,13 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
           fields: [
             {
               key: 'UrlMap',
-              component: pfFormRangeToggle,
+              component: pfFormRangeToggleDefault,
               attrs: {
                 tooltip: false,
-                values: { checked: 'Y', unchecked: 'N' },
+                values: { checked: 'Y', unchecked: 'N', default: placeholder('UrlMap') },
                 icons: { checked: 'check', unchecked: 'times' },
-                colors: { checked: 'var(--primary)' }
+                colors: { checked: 'var(--primary)', default: (placeholder('UrlMap') === 'Y') ? 'var(--primary)' : '' },
+                tooltips: { checked: i18n.t('Y'), unchecked: i18n.t('N'), default: i18n.t('Default ({default})', { default: placeholder('UrlMap') }) }
               }
             }
           ]
@@ -641,7 +644,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
         ].map(role => {
           return {
             label: role.label || role.id,
-            if: (form.UrlMap === 'Y'),
+            if: (form.UrlMap === 'Y' || !form.UrlMap && placeholder('UrlMap') === 'Y'),
             fields: [
               {
                 key: `${role.id}Url`,
