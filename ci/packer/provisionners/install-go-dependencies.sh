@@ -2,6 +2,7 @@
 
 GOBIN=${GOBIN:-/usr/local/go/bin}
 GOPATH=${GOPATH:-$HOME/go}
+GOROOT=/usr/local/go/
 GOVENDOR=$GOPATH/bin/govendor
 GO_REPO=${GO_REPO:-github.com/inverse-inc/packetfence}
 EXTRA_PATH=${EXTRA_PATH}
@@ -36,6 +37,15 @@ get_app_dependencies() {
     ( cd $GOPATH/src/$repo/$extra_path; $GOVENDOR sync )
 }
 
+move_vendor_dependencies() {
+    log_section "Moving vendor dependencies to $GOROOT"
+    local vendor_deps_dirs=$(find $GO_REPO/$EXTRA_PATH/vendor/* -maxdepth 0 -type d)
+    declare -p vendor_deps_dirs
+    for vendor_dir in vendor_deps_dirs; do
+        mv $vendor_dir $GOROOT/src
+    done
+}
+
 clear_cache() {
     local go_cache_dir=$GOPATH/.cache
     log_section "Removing $go_cache_dir directory if present"
@@ -48,4 +58,5 @@ clear_cache() {
 
 get_govendor_binary
 get_app_dependencies $GO_REPO $EXTRA_PATH
+move_vendor_dependencies
 clear_cache
