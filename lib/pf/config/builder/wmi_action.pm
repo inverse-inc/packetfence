@@ -80,20 +80,19 @@ sub cleanupBuildData {
 sub buildFilter {
     my ($self, $build_data, $parsed_conditions, $data) = @_;
     my $sub_condition = eval { $self->buildCondition($build_data, $parsed_conditions) };
-    if ($sub_condition) {
-        my $match_on_empty = isenabled($data->{match_on_empty}) ? 1 : 0;
-        my $module = ($data->{match} // '') eq 'all' ? 'pf::condition::multi_all' : 'pf::condition::multi_any';
-        push @{$build_data->{filters}}, pf::filter->new({
-            answer    => $data,
-            condition => $module->new(
-                condition => $sub_condition,
-                match_on_empty => $match_on_empty,
-            ),
-        });
-    } else {
-        $self->_error($build_data, $data->{_rule}, "Error building rule", $@)
+    if (!defined $sub_condition) {
+        $self->_error($build_data, $data->{_rule}, "Error building rule", $@);
+        return;
     }
 
+    my $module = ($data->{match} // '') eq 'all' ? 'pf::condition::multi_all' : 'pf::condition::multi_any';
+    push @{$build_data->{filters}}, pf::filter->new({
+        answer    => $data,
+        condition => $module->new(
+            condition => $sub_condition,
+            match_on_empty => isenabled($data->{match_on_empty}),
+        ),
+    });
 }
 
 =head2 buildCondition
