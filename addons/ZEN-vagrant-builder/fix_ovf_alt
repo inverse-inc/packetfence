@@ -22,6 +22,10 @@ fp = fp.replace('<rasd:ElementName>sataController', '<rasd:ElementName>scsiContr
 fp = fp.replace('<rasd:ResourceSubType>AHCI', '<rasd:ResourceSubType>lsilogic')
 fp = fp.replace('<rasd:ResourceType>20', '<rasd:ResourceType>6')
 
+fp = fp.replace('ideController0', 'SCSIController')
+fp = fp.replace('ideController1', 'SCSIController')
+fp = fp.replace('<rasd:Description>IDE Controller', '<rasd:Description>SCSI Controller')
+
 end = fp.find('<rasd:Caption>sound')
 start = fp.rfind('<Item>', 0, end)
 fp = fp[:start] + '<Item ovf:required="false">' + fp[start+len('<Item>'):]
