@@ -193,9 +193,7 @@ export default {
       ],
       progressTotal: 0,
       progressValue: 0,
-      isLoading: false,
-      trackSuccess: 0,
-      trackFailed: 0
+      isLoading: false
     }
   },
   methods: {
