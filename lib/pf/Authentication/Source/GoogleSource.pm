@@ -21,8 +21,8 @@ has 'site' => (isa => 'Str', is => 'rw', default => 'https://accounts.google.com
 has 'authorize_path' => (isa => 'Str', is => 'rw', default => '/o/oauth2/auth');
 has 'access_token_path' => (isa => 'Str', is => 'rw', default => '/o/oauth2/token');
 has 'access_token_param' => (isa => 'Str', is => 'rw', default => 'oauth_token');
-has 'scope' => (isa => 'Str', is => 'rw', default => 'https://www.googleapis.com/auth/userinfo.email');
-has 'protected_resource_url' => (isa => 'Str', is => 'rw', default => 'https://www.googleapis.com/oauth2/v2/userinfo');
+has 'scope' => (isa => 'Str', is => 'rw', default => 'openid email profile');
+has 'protected_resource_url' => (isa => 'Str', is => 'rw', default => 'https://openidconnect.googleapis.com/v1/userinfo');
 has 'redirect_url' => (isa => 'Str', is => 'rw', required => 1, default => 'https://<hostname>/oauth2/callback');
 has 'domains' => (isa => 'Str', is => 'rw', required => 1, default => '*.google.com,*.gstatic.com,googleapis.com,accounts.youtube.com,*.googleusercontent.com');
 
