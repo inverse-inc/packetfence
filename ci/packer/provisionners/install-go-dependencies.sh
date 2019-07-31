@@ -30,19 +30,17 @@ get_govendor_binary() {
 }
 
 get_app_dependencies() {
-    local repo=$1
-    local extra_path=$2
-    log_section "Getting $repo/$extra_path Golang dependencies"
-    declare -p GOPATH repo extra_path
-    ( cd $GOPATH/src/$repo/$extra_path; $GOVENDOR sync )
+    log_section "Getting $PACKAGE_DIR Golang dependencies"
+    declare -p PACKAGE_DIR
+    ( cd $PACKAGE_DIR; $GOVENDOR sync )
 }
 
 move_vendor_dependencies() {
     log_section "Moving vendor dependencies to $GOROOT"
-    local vendor_deps_dirs=$(find $GO_REPO/$EXTRA_PATH/vendor/* -maxdepth 0 -type d)
-    declare -p vendor_deps_dirs
-    for vendor_dir in vendor_deps_dirs; do
-        mv $vendor_dir $GOROOT/src
+    local vendor_repos=$(find $VENDOR_DIR/* -maxdepth 0 -type d)
+    for vendor_repo in $vendor_repos; do
+        echo "Moving $vendor_repo to $GOROOT/src"
+        mv $vendor_repo $GOROOT/src
     done
 }
 
@@ -56,7 +54,15 @@ clear_cache() {
     fi
 }
 
+if [ -n "$EXTRA_PATH" ]; then
+    PACKAGE_DIR=$GOPATH/src/$GO_REPO/$EXTRA_PATH
+else
+    PACKAGE_DIR=$GOPATH/src/$GO_REPO
+fi
+VENDOR_DIR=$PACKAGE_DIR/vendor
+declare -p PACKAGE_DIR VENDOR_DIR
+
 get_govendor_binary
-get_app_dependencies $GO_REPO $EXTRA_PATH
+get_app_dependencies
 move_vendor_dependencies
 clear_cache
