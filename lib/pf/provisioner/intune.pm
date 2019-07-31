@@ -19,7 +19,8 @@ extends 'pf::provisioner';
 use JSON::MaybeXS qw( decode_json );
 use pf::util qw(clean_mac);
 use WWW::Curl::Easy;
-use XML::Simple;
+use WWW::Curl::Form;
+use pf::constants;
 use pf::log;
 use pf::ip4log;
 use pf::ConfigStore::Provisioning;
@@ -93,13 +94,38 @@ The access token to be authorized on the Microsoft Graph web API
 
 has access_token => (is => 'rw');
 
-=head2 agent_download_uri
+=head2 windows_agent_download_uri
 
-The URI to download the agent
+URI to download the windows agent
 
 =cut
 
-has agent_download_uri => (is => 'rw');
+has windows_agent_download_uri => (is => 'rw');
+
+=head2 mac_osx_agent_download_uri
+
+URI to download the Mac OSX agent
+
+=cut
+
+has mac_osx_agent_download_uri => (is => 'rw');
+
+=head2 ios_agent_download_uri
+
+URI to download the ios agent
+
+=cut
+
+has ios_agent_download_uri => (is => 'rw');
+
+=head2 android_agent_download_uri
+
+URI to download the Android agent
+
+=cut
+
+has android_agent_download_uri => (is => 'rw');
+
 
 sub get_access_token {
     my ($self) = @_;
@@ -112,7 +138,7 @@ sub refresh_access_token {
     my $logger = get_logger();
 
     my $curl = WWW::Curl::Easy->new;
-    my $url = $self->protocol."://".$self->host.":".$self->loginUrl."/".$self->tenantID."/oauth2/token";
+    my $url = $self->protocol."://".$self->loginUrl.":".$self->port."/".$self->tenantID."/oauth2/token";
 
     my $response_body = '';
     open(my $fileb, ">", \$response_body);
@@ -121,8 +147,14 @@ sub refresh_access_token {
     $curl->setopt(CURLOPT_HEADER, 0);
     $curl->setopt(CURLOPT_WRITEDATA,$fileb);
 
-    $curl->setopt(WWW::Curl::Easy::CURLOPT_HTTPHEADER(), ["client_id: ".$self->applicationID."\",\"client_secret: ".$self->applicationSecret."\",\"grant_type: client_credentials", "scope: https://graph.microsoft.com/Device.ReadWrite.All", "resource: https://graph.microsoft.com"]);
+    my $postdata = new WWW::Curl::Form;
+    $postdata->formadd("client_id",$self->applicationID);
+    $postdata->formadd("client_secret",$self->applicationSecret);
+    $postdata->formadd("grant_type","client_credentials");
+    $postdata->formadd("scope","https://graph.microsoft.com/Device.ReadWrite.All");
+    $postdata->formadd("resource","https://graph.microsoft.com");
 
+    $curl->setopt(CURLOPT_HTTPPOST, $postdata);
 
     my $curl_return_code = $curl->perform;
     my $curl_info = $curl->getinfo(CURLINFO_HTTP_CODE); # or CURLINFO_RESPONSE_CODE depending on libcurl version
@@ -138,6 +170,7 @@ sub refresh_access_token {
         my $access_token = $json_response->{'access_token'};
         if (defined $access_token && $access_token ne '') {
             $updated_config->{access_token} = $access_token;
+            $self->{'access_token'} = $access_token;
         }
         else {
             $logger->error("Cannot update the access token for $self->{id}");
@@ -171,6 +204,9 @@ sub get_device_info {
     my ($self, $mac) = @_;
     my $logger = get_logger();
 
+    unless ($self->get_access_token()) {
+        $self->refresh_access_token();
+    }
     my $access_token = $self->get_access_token();
     my $curl = WWW::Curl::Easy->new;
     my $url = $self->protocol.'://' . $self->host . ':' .  $self->port . '/v1.0/deviceManagement/managedDevices?$select=wiFiMacAddress,complianceState';
@@ -187,36 +223,18 @@ sub get_device_info {
 
     my $curl_return_code = $curl->perform;
     my $curl_info = $curl->getinfo(CURLINFO_HTTP_CODE); # or CURLINFO_RESPONSE_CODE depending on libcurl version
-
-    my $json_response = decode_json($response_body);
-    use Data::Dumper;
-    $logger->warn($json_response);
-    $access_token = $json_response->{'access_token'};
-
     return $self->decode_response($curl_info, $response_body);
-}
-
-sub validate_mac_in_intune {
-    my ($self, $mac) = @_;
-    my $logger = get_logger();
-    my $info = $self->get_device_info($mac);
-    if($info != $pf::provisioner::COMMUNICATION_FAILED){
-        return 1;
-    }
-    else{
-        return 0;
-    }
 }
 
 sub authorize {
     my ($self,$mac) = @_;
     my $logger = get_logger();
 
-    my $result = $self->validate_mac_in_intune($mac);
+    my $result = $self->get_device_info($mac);
     if( $result == $pf::provisioner::COMMUNICATION_FAILED){
         $logger->info("Graph access token is probably not valid anymore.");
         $self->refresh_access_token();
-        $result = $self->validate_mac_in_intune($mac);
+        $result = $self->get_device_info($mac);
     }
 
     if($result == $pf::provisioner::COMMUNICATION_FAILED){
@@ -225,89 +243,55 @@ sub authorize {
     }
     else{
         # take the opportunity to check compliance
-        $self->verify_compliance($mac);
-        return $result;
+        return $self->verify_compliance($mac, $result);
     }
 
 }
 
 sub verify_compliance {
-    my ($self, $mac) = @_;
+    my ($self, $mac, $info) = @_;
     my $logger = get_logger();
-    my $info = $self->get_device_info($mac);
+    # Format the mac to the azure format
+    my $azuremac = uc($mac);
+    $azuremac =~ s/://g;
+
+
     if($info != $pf::provisioner::COMMUNICATION_FAILED){
-        if($self->{critical_issues_threshold} != 0 && defined($info->{total_critical_issue}) && $info->{total_critical_issue} >= $self->{critical_issues_threshold}){
-            $logger->info("Device $mac is not compliant. Raising security_event");
-            pf::security_event::security_event_add($mac, $self->{non_compliance_security_event}, ());
-        }
-    }
-    else{
-        $logger->warn("Couldn't contact OPSWAT API to validate compliance of $mac");
-    }
-}
 
-sub pollAndEnforce {
-    my ($self, $timeframe) = @_;
-    my $logger = get_logger();
-    my $result = $self->get_status_changed_devices($timeframe);
-    if ( $result == $pf::provisioner::COMMUNICATION_FAILED ){
-        $logger->info("OPSWAT Oauth access token is probably not valid anymore.");
-        $self->refresh_access_token();
-        $result = $self->get_status_changed_devices($timeframe);
-    }
-
-    if ( $result == $pf::provisioner::COMMUNICATION_FAILED ){
-        $logger->error("Unable to contact the OPSWAT API to poll the changed devices.");
-    }
-    else{
-        foreach my $device (@{$result->{devices}}){
-            foreach my $mac (@{$device->{mac_addresses}}){
-                $self->verify_compliance($mac);
+        foreach my $entry (@{$info->{value}}) {
+            if ($entry->{wiFiMacAddress} eq $azuremac) {
+                $logger->warn($azuremac);
+                if ($entry->{complianceState} ne 'compliant') {
+                    $logger->info("Device $mac is not compliant. Raising security_event");
+                    pf::security_event::security_event_add($mac, $self->{non_compliance_security_event}, ());
+                    return $FALSE;
+                } else {
+                    return $TRUE;
+                }
             }
         }
+        return $FALSE;
     }
-}
-
-sub get_status_changed_devices {
-    my ($self, $timeframe) = @_;
-    my $logger = get_logger();
-
-    my $access_token = $self->get_access_token();
-    my $curl = WWW::Curl::Easy->new;
-    my $url = $self->protocol.'://' . $self->host . ':' .  $self->port . "/o/api/v2.1/devices/status_changed?age=$timeframe&access_token=$access_token";
-
-    $logger->debug("Calling OPSWAT API using URL : ".$url);
-
-    my $response_body = '';
-    open(my $fileb, ">", \$response_body);
-    $curl->setopt(CURLOPT_URL, $url );
-    $curl->setopt(CURLOPT_SSL_VERIFYPEER, 0) ;
-    $curl->setopt(CURLOPT_HEADER, 0);
-    $curl->setopt(CURLOPT_WRITEDATA,$fileb);
-
-    my $curl_return_code = $curl->perform;
-    my $curl_info = $curl->getinfo(CURLINFO_HTTP_CODE); # or CURLINFO_RESPONSE_CODE depending on libcurl version
-
-    $logger->info($curl_info);
-    $logger->info($response_body);
-
-    return $self->decode_response($curl_info, $response_body);
+    else{
+        $logger->warn("Couldn't contact Graph API to validate compliance of $mac");
+        return $FALSE;
+    }
 }
 
 sub decode_response {
     my ($self, $code, $response_body) = @_;
     my $logger = get_logger();
     if ( $code == 401 ) {
-        $logger->error("Unauthorized to contact OPSWAT");
+        $logger->error("Unauthorized to contact Graph");
         return $pf::provisioner::COMMUNICATION_FAILED;
     }
     elsif($code == 404) {
-        $logger->info("Device is not in OPSWAT Metadefender Endpoint. Assuming device doesn't have the agent.");
+        $logger->info("Device is not in Graph Endpoint. Assuming device doesn't have the agent.");
         my $json_response = decode_json($response_body);
         return $json_response;
     }
     elsif($code != 200){
-        $logger->error("Got error code $code when contacting the OPSWAT Metadefender Endpoint API. Here's the response body : $response_body");
+        $logger->error("Got error code $code when contacting the Graph API. Here's the response body : $response_body");
         return $pf::provisioner::COMMUNICATION_FAILED;
     }
     else {
@@ -356,3 +340,4 @@ USA.
 =cut
 
 1;
+

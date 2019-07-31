@@ -182,6 +182,19 @@ export const pfConfigurationProvisioningFields = {
       ]
     }
   },
+  android_agent_download_uri: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Android agent download URI'),
+      fields: [
+        {
+          key: 'android_agent_download_uri',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'android_agent_download_uri'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'android_agent_download_uri', 'URI')
+        }
+      ]
+    }
+  },
   api_password: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('API password'),
@@ -508,6 +521,19 @@ export const pfConfigurationProvisioningFields = {
       ]
     }
   },
+  ios_agent_download_uri: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('IOS agent download URI'),
+      fields: [
+        {
+          key: 'ios_agent_download_uri',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'ios_agent_download_uri'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'ios_agent_download_uri', 'URI')
+        }
+      ]
+    }
+  },
   mac_osx_agent_download_uri: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Mac OSX agent download URI'),
@@ -751,6 +777,19 @@ export const pfConfigurationProvisioningFields = {
           component: pfFormInput,
           attrs: pfConfigurationAttributesFromMeta(meta, 'win_agent_download_uri'),
           validators: pfConfigurationValidatorsFromMeta(meta, 'win_agent_download_uri', 'URI')
+        }
+      ]
+    }
+  },
+  windows_agent_download_uri: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Windows agent download URI'),
+      fields: [
+        {
+          key: 'windows_agent_download_uri',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'windows_agent_download_uri'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'windows_agent_download_uri', 'URI')
         }
       ]
     }
@@ -1088,26 +1127,29 @@ export const pfConfigurationProvisioningViewFields = (context) => {
           ]
         }
       ]
-      case 'intune':
-        return [
-          {
-            tab: null, // ignore tabs
-            fields: [
-              pfConfigurationProvisioningFields.id(context),
-              pfConfigurationProvisioningFields.description(context),
-              pfConfigurationProvisioningFields.category(context),
-              pfConfigurationProvisioningFields.oses(context),
-              pfConfigurationProvisioningFields.applicationID(context),
-              pfConfigurationProvisioningFields.applicationSecret(context),
-              pfConfigurationProvisioningFields.tenantID(context),
-              pfConfigurationProvisioningFields.host(context),
-              pfConfigurationProvisioningFields.port(context),
-              pfConfigurationProvisioningFields.protocol(context),
-              pfConfigurationProvisioningFields.loginUrl(context),
-              pfConfigurationProvisioningFields.agent_download_uri(context)
-            ]
-          }
-        ]
+    case 'intune':
+      return [
+        {
+          tab: null, // ignore tabs
+          fields: [
+            pfConfigurationProvisioningFields.id(context),
+            pfConfigurationProvisioningFields.description(context),
+            pfConfigurationProvisioningFields.category(context),
+            pfConfigurationProvisioningFields.oses(context),
+            pfConfigurationProvisioningFields.applicationID(context),
+            pfConfigurationProvisioningFields.applicationSecret(context),
+            pfConfigurationProvisioningFields.tenantID(context),
+            pfConfigurationProvisioningFields.host(context),
+            pfConfigurationProvisioningFields.port(context),
+            pfConfigurationProvisioningFields.protocol(context),
+            pfConfigurationProvisioningFields.loginUrl(context),
+            pfConfigurationProvisioningFields.android_agent_download_uri(context),
+            pfConfigurationProvisioningFields.ios_agent_download_uri(context),
+            pfConfigurationProvisioningFields.windows_agent_download_uri(context),
+            pfConfigurationProvisioningFields.mac_osx_agent_download_uri(context)
+          ]
+        }
+      ]
     default:
       return [
         {

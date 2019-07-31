@@ -3,7 +3,7 @@ package pfappserver::Form::Config::Provisioning::intune;
 =head1 NAME
 
 pfappserver::Form::Config::Provisioning - Web form for a switch
-                                                                                                                                                                                                                                                                                  
+
 =head1 DESCRIPTION
 
 =cut
@@ -66,15 +66,37 @@ has_field 'access_token' =>
    required => 0,
   );
 
-  has_field 'agent_download_uri' =>
+has_field 'windows_agent_download_uri' =>
   (
    type => 'Text',
    required => 1,
+   default => 'https://docs.microsoft.com/en-us/intune-user-help/using-your-windows-device-with-intune',
   );
 
- has_block definition =>
+has_field 'mac_osx_agent_download_uri' =>
   (
-   render_list => [ qw(id type description category oses tenantID applicationID applicationSecret loginUrl host port protocol access_token agent_download_uri) ],
+   type => 'Text',
+   required => 1,
+   default => 'https://portal.manage.microsoft.com',
+  );
+
+has_field 'ios_agent_download_uri' =>
+  (
+   type => 'Text',
+   required => 1,
+   default => 'https://apps.apple.com/us/app/intune-company-portal/id719171358',
+  );
+
+has_field 'android_agent_download_uri' =>
+  (
+   type => 'Text',
+   required => 1,
+   default => 'https://play.google.com/store/apps/details?id=com.microsoft.windowsintune.companyportal&hl=en_US',
+  );
+
+has_block definition =>
+  (
+   render_list => [ qw(id type description category oses tenantID applicationID applicationSecret loginUrl host port protocol access_token windows_agent_download_uri mac_osx_agent_download_uri ios_agent_download_uri android_agent_download_uri) ],
   );
 
 =head1 COPYRIGHT
