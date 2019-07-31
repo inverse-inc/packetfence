@@ -17,8 +17,8 @@ const getters = {
 }
 
 const actions = {
-  exists: ({ commit }, mac) => {
-    if (state.nodeExists.hasOwnProperty(mac)) {
+  exists: ({ state, commit }, mac) => {
+    if (mac in state.nodeExists) {
       if (state.nodeExists[mac]) {
         return Promise.resolve(true)
       }

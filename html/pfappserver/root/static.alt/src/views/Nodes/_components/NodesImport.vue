@@ -229,7 +229,6 @@ export default {
               return results
             }).catch(err => {
               failed++
-              throw err
             })
           }).catch(() => {
             // node not exists
@@ -246,7 +245,6 @@ export default {
               return results
             }).catch(err => {
               failed++
-              throw err
             })
           })
         }
