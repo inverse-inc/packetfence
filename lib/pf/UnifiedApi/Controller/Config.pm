@@ -252,6 +252,7 @@ sub form {
 
 sub cached_form_key {
     my ($self, $item, @args) = @_;
+    return $self->form_class;
 }
 
 sub cached_form {
