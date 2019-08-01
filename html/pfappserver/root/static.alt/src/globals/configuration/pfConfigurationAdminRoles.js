@@ -157,10 +157,10 @@ export const pfConfigurationAdminRoleActions = [
   {
     group: 'RADIUS Domains',
     items: [
-      { text: 'RADIUS Domains - Create', value: 'DEVICE_REGISTRATION_CREATE' },
-      { text: 'RADIUS Domains - Delete', value: 'DEVICE_REGISTRATION_DELETE' },
-      { text: 'RADIUS Domains - Read', value: 'DEVICE_REGISTRATION_READ' },
-      { text: 'RADIUS Domains - Update', value: 'DEVICE_REGISTRATION_UPDATE' }
+      { text: 'RADIUS Domains - Create', value: 'DOMAIN_CREATE' },
+      { text: 'RADIUS Domains - Delete', value: 'DOMAIN_DELETE' },
+      { text: 'RADIUS Domains - Read', value: 'DOMAIN_READ' },
+      { text: 'RADIUS Domains - Update', value: 'DOMAIN_UPDATE' }
     ]
   },
   {
