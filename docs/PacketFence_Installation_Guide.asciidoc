@@ -3786,6 +3786,11 @@ Symantec SEPM
 
 include::provisioner/sepm.asciidoc[]
 
+Microsoft Intune
+~~~~~~~~~~~~~~~~
+
+include::provisioner/intune.asciidoc[]
+
 PKI Integration
 ---------------
 
