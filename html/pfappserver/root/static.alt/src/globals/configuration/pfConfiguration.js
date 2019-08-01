@@ -419,8 +419,11 @@ export const pfConfigurationActions = {
   set_unreg_date: {
     value: 'set_unreg_date',
     text: i18n.t('Unregistration date'),
-    types: [fieldType.DATETIME],
-    moments: ['1 days', '1 weeks', '1 months', '1 years'],
+    /* TODO - Workaround for Issue #4672
+     * types: [fieldType.DATETIME],
+     * moments: ['1 days', '1 weeks', '1 months', '1 years'],
+     */
+    types: [fieldType.SUBSTRING],
     validators: {
       type: {
         /* Require "set_role" */
@@ -431,7 +434,6 @@ export const pfConfigurationActions = {
         [i18n.t('Duplicate action.')]: limitSiblingFields('type', 0)
       },
       value: {
-        [i18n.t('Future date required.')]: compareDate('>=', new Date(), schema.node.unregdate.format, false),
         [i18n.t('Invalid date.')]: isDateFormat(schema.node.unregdate.format)
       }
     }
