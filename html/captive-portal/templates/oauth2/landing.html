@@ -1,18 +1,14 @@
 <!-- [% source.type %] -->
 <form action="/oauth2/go" method="POST">
 
-  [% IF with_aup %]
   <div class="c-card u-padding u-padding-top-none">
     [% form.get_field('aup').render | none %]
   </div>
-  [% END %]
+      
+  <script src="/common/aup-autosubmit.js"></script>
 
-  <div class="c-card [% IF with_aup %]c-card--hidden c-card--disabled [% END %]o-layout o-layout--center u-padding">
-    <div class="o-layout__item u-1/1 u-2/3@tablet u-3/5@desktop">
-        <button type="submit" name="submit" class="c-btn c-btn--primary u-1/1">
-            [% i18n('Login') %]
-        </button>
-    </div>
-  </div>
+  <button id="button" type="submit" name="submit" class="c-btn c-btn--primary u-1/1 c-card--hidden">
+      [% i18n('Login') %]
+  </button>
 
 </form>
