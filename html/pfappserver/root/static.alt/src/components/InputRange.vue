@@ -115,9 +115,11 @@ export default {
       }
     },
     clickMin ($event) {
+      if (this.disabled) return
       this.$set(this, 'inputValue', this.min)
     },
     clickMax ($event) {
+      if (this.disabled) return
       this.$set(this, 'inputValue', this.max)
     },
     percent (value = this.inputValue) {
