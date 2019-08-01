@@ -76,8 +76,8 @@ Minimum Hardware Requirements
 The following provides a list of the minimum server hardware recommendations:
 
 [options="compact"]
-* Intel or AMD CPU 3 GHz
-* 8 GB of RAM
+* Intel or AMD CPU 3 GHz, 2 CPU cores
+* 12 GB of RAM (16 GB recommended)
 * 100 GB of disk space (RAID-1 recommended)
 * 1 network card (2 recommended)
 
@@ -109,7 +109,7 @@ The ZEN (Zero Effort NAC) edition of PacketFence allows you to rapidly get Packe
 Virtual Machine
 ^^^^^^^^^^^^^^^
 
-This setup has been tested using VMware ESXi, Fusion and Workstation products with 8 GB of RAM dedicated to the virtual machine. It might work using other VMware products.  To properly run the PacketFence virtual appliance, you need a CPU that supports long mode. In other words, you need to have a 64-bit capable CPU on your host. PacketFence ZEN comes in a pre-built virtual disk (OVF). If you are using an ESX type hypervisor, you need to import the OVF using vSphere Client (or vCenter).
+This setup has been tested using VMware ESXi, Fusion and Workstation products with 12 GB of RAM dedicated to the virtual machine. It might work using other VMware products.  To properly run the PacketFence virtual appliance, you need a CPU that supports long mode. In other words, you need to have a 64-bit capable CPU on your host. PacketFence ZEN comes in a pre-built virtual disk (OVF). If you are using an ESX type hypervisor, you need to import the OVF using vSphere Client (or vCenter).
 
 The virtual appliance passwords are:
 
