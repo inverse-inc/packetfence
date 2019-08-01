@@ -191,6 +191,15 @@ sub id_pattern {
     };
 }
 
+after clear => sub {
+    my ($self) = @_;
+    $self->additional_clear;
+};
+
+sub additional_clear {
+
+}
+
 =head1 COPYRIGHT
 
 Copyright (C) 2005-2019 Inverse inc.
