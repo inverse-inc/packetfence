@@ -257,8 +257,8 @@ sub cached_form_key {
 sub cached_form {
     my ($self, $item, @args) = @_;
     my $cached_form_key = $self->cached_form_key($item, @args);
-    if ($self->{$cached_form_key}){
-        my $form = $self->{$cached_form_key};
+    if ($FORMS{$cached_form_key}){
+        my $form = $FORMS{$cached_form_key};
         $self->reset_form($form, $item, @args);
         return $form;
     }
@@ -267,7 +267,7 @@ sub cached_form {
         return undef;
     }
 
-    return $self->{$cached_form_key} = $form;
+    return $FORMS{$cached_form_key} = $form;
 }
 
 =head2 reset_form
