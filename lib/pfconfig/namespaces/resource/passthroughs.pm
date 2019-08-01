@@ -27,6 +27,7 @@ sub init {
     my ($self) = @_;
     $self->{config}         = $self->{cache}->get_cache('config::Pf');
     $self->{authentication_sources} = $self->{cache}->get_cache('resource::authentication_sources');
+    $self->{provisioning} = $self->{cache}->get_cache('config::Provisioning');
 }
 
 =head2 build
@@ -56,9 +57,13 @@ sub build {
         map{
             ($_->isa("pf::Authentication::Source::OAuthSource") || $_->isa("pf::Authentication::Source::BillingSource") )
                 ? split(/\s*,\s*/, $_->{domains} // '')
-                : () 
+                : ()
         } @{$self->{authentication_sources} // []},
     );
+    push (@all_passthroughs, map{
+            split(/\s*,\s*/, $self->{provisioning}->{$_}->{domains} // '')
+        } keys $self->{provisioning});
+
 
     return $self->_build(\@all_passthroughs);
 }
@@ -67,8 +72,8 @@ sub _build {
     my ($self, $all_passthroughs) = @_;
     
     my %passthroughs = (
-        normal => {}, 
-        wildcard => {},  
+        normal => {},
+        wildcard => {},
     );
     foreach my $passthrough (@$all_passthroughs) {
         my ($domain, $ports) = $self->_new_passthrough($passthrough);

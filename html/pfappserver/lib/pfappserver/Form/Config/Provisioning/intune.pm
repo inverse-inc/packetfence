@@ -94,9 +94,21 @@ has_field 'android_agent_download_uri' =>
    default => 'https://play.google.com/store/apps/details?id=com.microsoft.windowsintune.companyportal&hl=en_US',
   );
 
+has_field 'domains' =>
+  (
+   type => 'Text',
+   label => 'Authorized domains',
+   required => 1,
+   default => 'play.google.com,portal.manage.microsoft.com,apps.apple.com,docs.microsoft.com',
+   element_attr => {'placeholder' => 'play.google.com,portal.manage.microsoft.com,apps.apple.com,docs.microsoft.com'},
+   element_class => ['input-xlarge'],
+   tags => { after_element => \&help,
+             help => 'Comma separated list of domains that will be resolve with the correct IP addresses.' },
+  );
+
 has_block definition =>
   (
-   render_list => [ qw(id type description category oses tenantID applicationID applicationSecret loginUrl host port protocol access_token windows_agent_download_uri mac_osx_agent_download_uri ios_agent_download_uri android_agent_download_uri) ],
+   render_list => [ qw(id type description category oses tenantID applicationID applicationSecret loginUrl host port protocol access_token windows_agent_download_uri mac_osx_agent_download_uri ios_agent_download_uri android_agent_download_uri domains) ],
   );
 
 =head1 COPYRIGHT

@@ -25,7 +25,7 @@ use base 'pfconfig::namespaces::config';
 sub init {
     my ($self) = @_;
     $self->{file} = $provisioning_config_file;
-    $self->{child_resources} = ['resource::ProvisioningReverseLookup'];
+    $self->{child_resources} = ['resource::ProvisioningReverseLookup', 'resource::passthroughs'];
 }
 
 sub build_child {

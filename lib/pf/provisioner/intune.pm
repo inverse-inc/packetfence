@@ -126,6 +126,13 @@ URI to download the Android agent
 
 has android_agent_download_uri => (is => 'rw');
 
+=head2 domains
+
+Domains that needs to be allowed to fetch the agent
+
+=cut
+
+has domains => (is => 'rw');
 
 sub get_access_token {
     my ($self) = @_;

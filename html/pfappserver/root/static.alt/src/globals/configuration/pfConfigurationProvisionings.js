@@ -806,6 +806,20 @@ export const pfConfigurationProvisioningFields = {
         }
       ]
     }
+  },
+  domains: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Authorized domains'),
+      text: i18n.t('Comma-separated list of domains that will be resolve with the correct IP addresses.'),
+      fields: [
+        {
+          key: 'domains',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'domains'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'domains', i18n.t('Domains'))
+        }
+      ]
+    }
   }
 }
 
@@ -1146,7 +1160,8 @@ export const pfConfigurationProvisioningViewFields = (context) => {
             pfConfigurationProvisioningFields.android_agent_download_uri(context),
             pfConfigurationProvisioningFields.ios_agent_download_uri(context),
             pfConfigurationProvisioningFields.windows_agent_download_uri(context),
-            pfConfigurationProvisioningFields.mac_osx_agent_download_uri(context)
+            pfConfigurationProvisioningFields.mac_osx_agent_download_uri(context),
+            pfConfigurationProvisioningFields.domains(context)
           ]
         }
       ]
