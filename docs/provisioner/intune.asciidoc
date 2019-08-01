@@ -32,6 +32,8 @@ Last thing, you need to add permissions on the API, to do that click on 'API per
  Device.ReadWrite.All
  DeviceManagementManagedDevices.Read.All
 
+And click on 'Grant admin consent for ...'
+
 Configure PacketFence
 ^^^^^^^^^^^^^^^^^^^^^
 
