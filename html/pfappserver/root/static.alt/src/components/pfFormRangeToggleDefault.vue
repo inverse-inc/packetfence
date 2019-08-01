@@ -129,7 +129,7 @@ export default {
         }
       },
       set (newValue) {
-        switch (newValue) {
+        switch (~~newValue) {
           case 0:
             this.$emit('input', this.values.unchecked)
             break
@@ -203,7 +203,7 @@ export default {
   methods: {
     tooltip () {
       if (this.tooltips === null) return null
-      switch (this.inputValue) {
+      switch (~~this.inputValue) {
         case 2:
           return ('checked' in this.tooltips) ? this.tooltips.checked : null
         case 1:
