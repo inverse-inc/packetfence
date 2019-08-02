@@ -58,6 +58,8 @@ raddb/sites-available/eduroam
 raddb/mods-enabled/mschap
 raddb/proxy.conf.loadbalancer
 raddb/radiusd_loadbalancer.conf
+raddb/mods-enabled/ldap_packetfence
+raddb/mods-config/attr_filter/packetfence-pre-proxy
 conf/adminroles.conf
 conf/device_registration.conf
 conf/self_service.conf
@@ -210,6 +212,7 @@ docs/*.fo
 docs/docbook/xsl/import-fo.xsl
 docs/docbook/xsl/titlepage-fo.xsl
 docs/docbook/*.docbook
+docs/html
 
 # trap stats graphs
 # TODO we should move them under var/
