@@ -21,6 +21,14 @@
         <!-- Edit mode -->
         <transition name="fade" mode="out-in">
           <b-form :key="'edit_' + id" @submit.prevent="save(id)" v-show="editMode[id]">
+            <b-alert variant="warning" :show="isModified[id]" fade>
+              <h4 class="alert-heading" v-t="'Warning'"></h4>
+              <p>
+                {{ $t('Some services must be restarted to load the new certificate.') }}
+                <span v-if="id === 'http'" v-html="$t('The {service} service needs to be restarted from the command-line.', { service: $strong('httpd.admin') })"></span>
+              </p>
+              <pf-button-service class="mr-1" v-for="service in services[id]" :key="service" :service="service" restart start stop></pf-button-service>
+            </b-alert>
             <!-- Let's Encrypt -->
             <pf-form-range-toggle
               v-model="certs[id].lets_encrypt"
