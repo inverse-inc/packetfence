@@ -7,6 +7,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"strings"
 
 	"net"
 	"net/url"
@@ -794,7 +795,7 @@ func (pf *pfdns) checkDetectionMechanisms(ctx context.Context, e string) bool {
 	return false
 }
 
-// Track timing for each function
+// logreply will log in the db the dns answer
 func (pf *pfdns) logreply(ctx context.Context, mac string, qname string, qtype string, reply *dns.Msg) {
 	var b bytes.Buffer
 	var re = regexp.MustCompile(`\s+`)
@@ -802,6 +803,8 @@ func (pf *pfdns) logreply(ctx context.Context, mac string, qname string, qtype s
 	for _, rr := range reply.Answer {
 		text := re.ReplaceAllString(rr.String(), " ")
 		b.WriteString(text)
+		b.WriteString(" ; ")
 	}
-	pf.DNSAudit.ExecContext(ctx, mac, qname, qtype, b.String())
+
+	pf.DNSAudit.ExecContext(ctx, mac, qname, qtype, strings.TrimRight(b.String(), " ; "))
 }
