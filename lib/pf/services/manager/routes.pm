@@ -225,6 +225,8 @@ sub manageStaticRoute {
                         if (isenabled($net{'split_network'})) {
                             my @categories = nodecategory_view_all();
                             my $count = @categories;
+                            $count++;
+                            push @categories, {'name' => 'registration'};
                             my $len = $current_network->masklen;
                             my $cidr = (ceil(log($count)/log(2)) + $len);
                             if ($cidr > 30) {
