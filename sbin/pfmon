@@ -52,6 +52,7 @@ use pf::ConfigStore::Provisioning;
 use pf::factory::provisioner;
 use pf::SwitchFactory;
 use pf::radius_audit_log;
+use pf::dns_audit_log;
 use pf::StatsD;
 use pf::person;
 use pf::fingerbank;

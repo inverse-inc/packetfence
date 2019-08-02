@@ -46,5 +46,28 @@ export default {
     return apiCall.get(['radius_audit_log', id]).then(response => {
       return response.data.item
     })
+  },
+  allDnsLogs: params => {
+    if (params.sort) {
+      params.sort = params.sort.join(',')
+    } else {
+      params.sort = 'created_at,mac'
+    }
+    if (params.fields) {
+      params.fields = params.fields.join(',')
+    }
+    return apiCall.get('dns_audit_logs', { params }).then(response => {
+      return response.data
+    })
+  },
+  searchDnsLogs: body => {
+    return apiCall.post('dns_audit_logs/search', body).then(response => {
+      return response.data
+    })
+  },
+  getDnsLog: id => {
+    return apiCall.get(`dns_audit_log/${id}`).then(response => {
+      return response.data.item
+    })
   }
 }

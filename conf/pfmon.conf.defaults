@@ -492,6 +492,43 @@ timeout=10s
 # How long to keep a radius_audit_log_cleanup entry before deleting it
 window=1D
 
+[dns_audit_log_cleanup]
+#
+# type
+#
+# The type of task to perform
+type=dns_audit_log_cleanup
+#
+# description
+#
+# The description of task to perform
+description=Controls the cleanup of the dns_audit_log table. Entries older than the window will be removed from the table.
+#
+# status
+#
+# If the task dns_audit_log_cleanup is enabled
+status=enabled
+#
+# interval
+#
+# At which interval to run the dns audit log cleanup pfmon task
+interval=60s
+#
+# batch
+#
+# How many dns_audit_log_cleanup entries to clean up in one run
+batch=100
+#
+# timeout
+#
+# How long a dns_audit_log_cleanup job can run
+timeout=10s
+#
+# window
+#
+# How long to keep a dns_audit_log_cleanup entry before deleting it
+window=1h
+
 [security_event_maintenance]
 #
 # type

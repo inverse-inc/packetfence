@@ -220,6 +220,7 @@ sub setup_api_v1_crud_routes {
     $self->setup_api_v1_dhcp_option82s_routes($root);
     $self->setup_api_v1_auth_logs_routes($root);
     $self->setup_api_v1_radius_audit_logs_routes($root);
+    $self->setup_api_v1_dns_audit_logs_routes($root);
     $self->setup_api_v1_wrix_locations_routes($root);
     $self->setup_api_v1_security_events_routes($root);
     $self->setup_api_v1_node_categories_routes($root);
@@ -373,6 +374,25 @@ sub setup_api_v1_radius_audit_logs_routes {
         "RadiusAuditLogs",
         "/radius_audit_logs",
         "/radius_audit_log/#radius_audit_log_id",
+    );
+
+    return ($collection_route, $resource_route);
+}
+
+=head2 setup_api_v1_dns_audit_logs_routes
+
+setup_api_v1_dns_audit_logs_routes
+
+=cut
+
+sub setup_api_v1_dns_audit_logs_routes {
+    my ($self, $root) = @_;
+    my ($collection_route, $resource_route) =
+      $self->setup_api_v1_std_crud_routes(
+        $root,
+        "DnsAuditLogs",
+        "/dns_audit_logs",
+        "/dns_audit_log/#dns_audit_log_id",
     );
 
     return ($collection_route, $resource_route);
