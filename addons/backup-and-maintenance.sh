@@ -40,6 +40,11 @@ NODE2_HOSTNAME=''
 NODE1_IP=''
 NODE2_IP=''
 
+# Only for MariaDB remote clusters
+MARIADB_REMOTE_CLUSTER=0
+# should be equal to return of hostname command
+MARIADB_BACKUP_SERVER_HOSTNAME=''
+
 # Create the backup directory
 if [ ! -d "$BACKUP_DIRECTORY" ]; then
     mkdir -p $BACKUP_DIRECTORY
@@ -74,26 +79,38 @@ else
     echo "ERROR: There is not enough space in $BACKUP_DIRECTORY to safely backup files. Skipping the backup." > /usr/local/pf/var/backup_files.status
 fi 
 
-SHOULD_BACKUP=1
-IS_CLUSTER=0
-# If we are using Galera cluster and that we're not the first server in the galera incomming addresses, we will not backup
-if [ -f /var/lib/mysql/grastate.dat ]; then
-    IS_CLUSTER=1
-    FIRST_SERVER=`mysql -u$REP_USER -p$REP_PWD -e 'show status like "wsrep_incoming_addresses";' | tail -1 | awk '{ print $2 }' | awk -F "," '{ print $1 }' | awk -F ":" '{ print $1 }'`
-    if ! ip a | grep $FIRST_SERVER > /dev/null; then
-        SHOULD_BACKUP=0
-        echo "Not the first server of the cluster: database backup canceled."
-        exit $BACKUPRC
+should_backup(){
+    # Default choices
+    SHOULD_BACKUP=1
+    MARIADB_LOCAL_CLUSTER=0
+    # If we are using Galera cluster and that we're not the first server in the galera incomming addresses, we will not backup
+    if [ -f /var/lib/mysql/grastate.dat ]; then
+        MARIADB_LOCAL_CLUSTER=1
+        FIRST_SERVER=`mysql -u$REP_USER -p$REP_PWD -e 'show status like "wsrep_incoming_addresses";' | tail -1 | awk '{ print $2 }' | awk -F "," '{ print $1 }' | awk -F ":" '{ print $1 }'`
+        if ! ip a | grep $FIRST_SERVER > /dev/null; then
+            SHOULD_BACKUP=0
+            echo "Not the first server of the cluster: database backup canceled."
+            exit $BACKUPRC
+        else
+            echo -e "First server of the cluster : database backup will start.\n"
+        fi
+    elif [ $MARIADB_REMOTE_CLUSTER -eq 1 ]; then
+        PF_SERVER_HOSTNAME=$(hostname)
+        if [ "$MARIADB_BACKUP_SERVER_HOSTNAME" == "$PF_SERVER_HOSTNAME" ]; then
+            echo "Backup server detected: database backup will start"
+        else
+            SHOULD_BACKUP=0
+            echo "Server not configured to do DB backups: database backup canceled."
+            exit $BACKUPRC
+        fi
     else
-        echo -e "First server of the cluster : database backup will start.\n"
+        echo "Database backup will start"
     fi
-fi
+}
 
-# Is the database running on the current server and should we be running a backup ?
-if [ $SHOULD_BACKUP -eq 1 ] && { [ -f /var/run/mysqld/mysqld.pid ] || [ -f /var/run/mariadb/mariadb.pid ] || [ -f /var/lib/mysql/`hostname`.pid ]; }; then
-
+backup_db(){
     /usr/local/pf/addons/database-cleaner.pl --table=locationlog_archive --date-field=end_time --older-than="1 MONTH"
-    
+
     # Check to see if Percona XtraBackup is installed
     if hash innobackupex 2>/dev/null; then
         echo -e "Percona XtraBackup is available. Will proceed using it for DB backup to avoid locking tables and easier recovery process. \n"
@@ -103,10 +120,15 @@ if [ $SHOULD_BACKUP -eq 1 ] && { [ -f /var/run/mysqld/mysqld.pid ] || [ -f /var/
     BACKUPS_AVAILABLE_SPACE=`df --output=avail $BACKUP_DIRECTORY | awk 'NR == 2 { print $1  }'`
     MYSQL_USED_SPACE=`du -s /var/lib/mysql | awk '{ print $1 }'`
     if (( $BACKUPS_AVAILABLE_SPACE > (( $MYSQL_USED_SPACE /2 )) )); then 
-
-        if [ $IS_CLUSTER -eq 1 ]; then
+        if [ $MARIADB_LOCAL_CLUSTER -eq 1 ]; then
              echo "Temporarily stopping Galera cluster sync for DB backup"
              mysql -u$REP_USER -p$REP_PWD -e 'set global wsrep_desync=ON;'
+        elif [ $MARIADB_REMOTE_CLUSTER -eq 1 ]; then
+             echo "Temporarily stopping remote Galera cluster sync for DB backup"
+             # We couldn't use the local socket
+             mysql -u$REP_USER -p$REP_PWD -h $DB_HOST -e 'set global wsrep_desync=ON;'
+        else
+            echo "Not a Galera cluster, nothing to stop"
         fi
 
         if [ $PERCONA_XTRABACKUP_INSTALLED -eq 1 ]; then
@@ -114,10 +136,12 @@ if [ $SHOULD_BACKUP -eq 1 ] && { [ -f /var/run/mysqld/mysqld.pid ] || [ -f /var/
             echo "----- Backup started on `date +%F_%Hh%M` -----" >> /usr/local/pf/logs/innobackup.log
             INNO_TMP="/tmp/pf-innobackups"
             mkdir -p $INNO_TMP
-            if [ $IS_CLUSTER -eq 1 ]; then
-                innobackupex --defaults-file=/usr/local/pf/var/conf/mariadb.conf -user=$REP_USER --password=$REP_PWD  --no-timestamp --stream=xbstream --tmpdir=$INNO_TMP $INNO_TMP 2>> /usr/local/pf/logs/innobackup.log | gzip - > $BACKUP_DIRECTORY/$BACKUP_DB_FILENAME-innobackup-`date +%F_%Hh%M`.xbstream.gz
+            if [ $MARIADB_LOCAL_CLUSTER -eq 1 ]; then
+                innobackupex --defaults-file=/usr/local/pf/var/conf/mariadb.conf --user=$REP_USER --password=$REP_PWD  --no-timestamp --stream=xbstream --tmpdir=$INNO_TMP $INNO_TMP 2>> /usr/local/pf/logs/innobackup.log | gzip - > $BACKUP_DIRECTORY/$BACKUP_DB_FILENAME-innobackup-`date +%F_%Hh%M`.xbstream.gz
+            elif [ "$MARIADB_REMOTE_CLUSTER" -eq 1 ]; then
+                innobackupex --defaults-file=/usr/local/pf/var/conf/mariadb.conf --user=$REP_USER --password=$REP_PWD --host=$DB_HOST --no-timestamp --stream=xbstream --tmpdir=$INNO_TMP $INNO_TMP 2>> /usr/local/pf/logs/innobackup.log | gzip - > $BACKUP_DIRECTORY/$BACKUP_DB_FILENAME-innobackup-`date +%F_%Hh%M`.xbstream.gz
             else
-                innobackupex --defaults-file=/usr/local/pf/var/conf/mariadb.conf  --user=$DB_USER --password=$DB_PWD  --no-timestamp --stream=xbstream --tmpdir=$INNO_TMP $INNO_TMP 2>> /usr/local/pf/logs/innobackup.log | gzip - > $BACKUP_DIRECTORY/$BACKUP_DB_FILENAME-innobackup-`date +%F_%Hh%M`.xbstream.gz
+                innobackupex --defaults-file=/usr/local/pf/var/conf/mariadb.conf --user=$DB_USER --password=$DB_PWD --no-timestamp --stream=xbstream --tmpdir=$INNO_TMP $INNO_TMP 2>> /usr/local/pf/logs/innobackup.log | gzip - > $BACKUP_DIRECTORY/$BACKUP_DB_FILENAME-innobackup-`date +%F_%Hh%M`.xbstream.gz
             fi
             tail -1 /usr/local/pf/logs/innobackup.log | grep 'completed OK!'
             BACKUPRC=$?
@@ -141,16 +165,31 @@ if [ $SHOULD_BACKUP -eq 1 ] && { [ -f /var/run/mysqld/mysqld.pid ] || [ -f /var/
                 echo "OK" > /usr/local/pf/var/backup_db.status
             fi
         fi
-        
-        if [ $IS_CLUSTER -eq 1 ]; then
+
+        if [ $MARIADB_LOCAL_CLUSTER -eq 1 ]; then
              echo "Reenabling Galera cluster sync"
              mysql -u$REP_USER -p$REP_PWD -e 'set global wsrep_desync=OFF;'
+        elif [ $MARIADB_REMOTE_CLUSTER -eq 1 ]; then
+             echo "Reenabling Galera cluster sync"
+             mysql -u$REP_USER -p$REP_PWD -h $DB_HOST -e 'set global wsrep_desync=OFF;'
+        else
+            echo "Not a Galera cluster, nothing to reenable"
         fi
 
     else 
         echo "There is not enough space in $BACKUP_DIRECTORY to safely backup the database. Skipping backup." >&2
         echo "There is not enough space in $BACKUP_DIRECTORY to safely backup the database. Skipping backup." > /usr/local/pf/var/backup_db.status
     fi
+}
+
+should_backup
+# Is the database running on the current server and should we be running a backup ?
+if [ $SHOULD_BACKUP -eq 1 ] && { [ -f /var/run/mysqld/mysqld.pid ] || [ -f /var/run/mariadb/mariadb.pid ] || [ -f /var/lib/mysql/`hostname`.pid ]; }; then
+    backup_db
+elif [ $SHOULD_BACKUP -eq 1 ] && [ $MARIADB_REMOTE_CLUSTER -eq 1 ]; then
+    backup_db
+else
+    echo "Nothing to do"
 fi
 
 # Replicate the db backups between both servers
