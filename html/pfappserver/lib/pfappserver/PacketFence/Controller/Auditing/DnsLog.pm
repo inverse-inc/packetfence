@@ -46,7 +46,7 @@ __PACKAGE__->config(
 
 sub index :Path :Args(0) :AdminRole('DNS_LOG_READ') {
     my ( $self, $c ) = @_;
-#    $c->stash(template => 'radiuslog/search.tt', from_form => "#empty");
+#    $c->stash(template => 'dnslog/search.tt', from_form => "#empty");
 #
     my $id = $c->user->id;
     my ($status, $saved_searches) = $c->model("SavedSearch::DnsLog")->read_all($id);
@@ -134,7 +134,7 @@ controller dispatcher
 
 =cut
 
-sub object :Chained('/') :PathPart('radiuslog') :CaptureArgs(1) {
+sub object :Chained('/') :PathPart('dnslog') :CaptureArgs(1) {
     my ( $self, $c, $id ) = @_;
 
     my ($status, $item_data) = $c->model('Auditing::DnsLog')->view($id);

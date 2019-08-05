@@ -1,5 +1,5 @@
 /**
-* "$_radius_logs" store module
+* "$_dns_logs" store module
 */
 import Vue from 'vue'
 import api from '../_api'
@@ -10,7 +10,7 @@ const STORAGE_VISIBLE_COLUMNS_KEY = 'dnslogs-visible-columns'
 // Default values
 const state = {
   results: [], // search results
-  cache: {}, // radius log details
+  cache: {}, // dns log details
   message: '',
   itemStatus: '',
   searchStatus: '',

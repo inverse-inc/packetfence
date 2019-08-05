@@ -8,7 +8,7 @@ pfappserver::PacketFence::Controller::SavedSearch::DnsLog - Saved Search for Dns
 
 =head1 DESCRIPTION
 
-RadiusLog
+DnsLog
 
 =cut
 

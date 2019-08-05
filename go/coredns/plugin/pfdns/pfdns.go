@@ -156,8 +156,6 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 
 	var answer *dns.Msg
 
-	// defer pf.logreply(ctx, mac, state.QName(), state.Type(), a, answer)
-
 	var status = "unreg"
 	var category string
 	err = pf.Nodedb.QueryRow(mac, 1).Scan(&status, &category)
