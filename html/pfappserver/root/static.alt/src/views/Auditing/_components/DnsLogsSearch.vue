@@ -152,6 +152,13 @@ export default {
           formatter: formatter.datetimeIgnoreZero
         },
         {
+          key: 'id',
+          label: this.$i18n.t('ID'),
+          required: true,
+          sortable: true,
+          visible: true
+        },
+        {
           key: 'ip',
           label: this.$i18n.t('IP Address'),
           sortable: true,
@@ -207,7 +214,7 @@ export default {
         }).length !== condition.values[0].values.length
     },
     onRowClick (item, index) {
-      this.$router.push({ name: 'dnslogs', params: { mac: item.mac } })
+      this.$router.push({ name: 'dnslog', params: { id: item.id } })
     }
   }
 }

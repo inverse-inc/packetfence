@@ -29,7 +29,7 @@ export default {
       default: null,
       required: true
     },
-    mac: String // from router
+    id: String // from router
   },
   data () {
     return {
@@ -48,7 +48,7 @@ export default {
   },
   methods: {
     init () {
-      this.$store.dispatch(`${this.storeName}/getItem`, this.mac).then(item => {
+      this.$store.dispatch(`${this.storeName}/getItem`, this.id).then(item => {
         this.item = item
       })
     },
