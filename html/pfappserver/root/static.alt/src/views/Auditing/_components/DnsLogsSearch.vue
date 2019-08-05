@@ -5,7 +5,7 @@
       <div class="float-right"><pf-form-toggle v-model="advancedMode">{{ $t('Advanced') }}</pf-form-toggle></div>
       <h4 class="mb-0" v-t="'Search DNS Audit Logs'"></h4>
     </b-card-header>
-    <pf-search :quick-with-fields="false" quick-placeholder="Search by MAC or username" save-search-namespace="radiuslogs"
+    <pf-search :quick-with-fields="false" quick-placeholder="Search by MAC" save-search-namespace="dnslogs"
       :fields="fields" :advanced-mode="advancedMode" :condition="condition" :storeName="storeName"
       @submit-search="onSearch" @reset-search="onReset"></pf-search>
     <div class="card-body">
@@ -36,7 +36,7 @@
               </b-form>
               <b-pagination class="mr-3" align="right" :per-page="pageSizeLimit" :total-rows="totalRows" v-model="currentPage" :disabled="isLoading"
                 @change="onPageChange" />
-              <pf-button-export-to-csv class="mb-3" filename="radiuslogs.csv" :disabled="isLoading"
+              <pf-button-export-to-csv class="mb-3" filename="dnslogs.csv" :disabled="isLoading"
                 :columns="columns" :data="items"
               />
             </b-row>
@@ -49,19 +49,8 @@
         <template slot="empty">
           <pf-empty-table :isLoading="isLoading">{{ $t('No logs found') }}</pf-empty-table>
         </template>
-        <template slot="auth_status" slot-scope="log">
-          <b-badge pill :variant="(['Accept', 'CoA-ACK', 'Disconnect-ACK'].includes(log.item.auth_status)) ? 'success' : 'danger'" class="ml-1">{{ log.item.auth_status }}</b-badge>
-        </template>
-        <template slot="node_status" slot-scope="{ value }">
-          <b-badge pill variant="success" v-if="value === 'reg'">{{ $t('Registered') }}</b-badge>
-          <b-badge pill variant="warning" v-else-if="value === 'pending'">{{ $t('Pending') }}</b-badge>
-          <b-badge pill variant="light" v-else>{{ $t('Unregistered') }}</b-badge>
-        </template>
-        <template slot="mac" slot-scope="{ value }">
-          <router-link :to="{ path: `/node/${value}` }"><mac v-text="value"></mac></router-link>
-        </template>
-        <template slot="is_phone" slot-scope="{ value }">
-          <icon v-if="parseInt(value) > 0" name="check"></icon>
+        <template slot="mac" slot-scope="data">
+          <router-link :to="{ path: `/node/${data.value}` }"><mac v-text="data.value"></mac></router-link>
         </template>
       </b-table>
     </div>
@@ -79,7 +68,7 @@ import pfSearch from '@/components/pfSearch'
 import pfFormToggle from '@/components/pfFormToggle'
 
 export default {
-  name: 'radius-logs-search',
+  name: 'DnsLogsSearch',
   mixins: [
     pfMixinSearchable
   ],
@@ -94,20 +83,18 @@ export default {
     searchableOptions: {
       type: Object,
       default: () => ({
-        searchApiEndpoint: 'radius_audit_logs',
+        searchApiEndpoint: 'dns_audit_logs',
         defaultSortKeys: ['created_at', 'mac'],
-        defaultSortDesc: true,
         defaultSearchCondition: {
           op: 'and',
           values: [{
             op: 'or',
             values: [
-              { field: 'mac', op: 'contains', value: null },
-              { field: 'user_name', op: 'contains', value: null }
+              { field: 'mac', op: 'contains', value: null }
             ]
           }]
         },
-        defaultRoute: { name: 'radiuslogs' }
+        defaultRoute: { name: 'dnslogs' }
       })
     },
     tableValues: {
@@ -193,7 +180,7 @@ export default {
           {
             op: 'or',
             values: [
-              { field: 'mac', op: 'contains', value: quickCondition },
+              { field: 'mac', op: 'contains', value: quickCondition }
             ]
           }
         ]
@@ -208,7 +195,7 @@ export default {
         }).length !== condition.values[0].values.length
     },
     onRowClick (item, index) {
-      this.$router.push({ name: 'radiuslog', params: { id: item.id } })
+      this.$router.push({ name: 'dnslogs', params: { mac: item.mac } })
     }
   }
 }
