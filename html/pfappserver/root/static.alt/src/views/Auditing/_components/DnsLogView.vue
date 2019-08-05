@@ -5,6 +5,7 @@
         <b-button-close @click="close" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
         <h4 class="mb-0">{{ $t('DNS Log Entry')}} <strong v-text="id"></strong></h4>
       </b-card-header>
+      <pf-form-row :column-label="$t('IP Address')">{{ item.ip }}</pf-form-row>
       <pf-form-row :column-label="$t('MAC Address')">{{ item.mac }}</pf-form-row>
       <pf-form-row :column-label="$t('Qname')">{{ item.qname }}</pf-form-row>
       <pf-form-row :column-label="$t('Qtype')">{{ item.qtype }}</pf-form-row>

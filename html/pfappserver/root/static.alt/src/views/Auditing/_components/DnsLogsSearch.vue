@@ -84,7 +84,7 @@ export default {
       type: Object,
       default: () => ({
         searchApiEndpoint: 'dns_audit_logs',
-        defaultSortKeys: ['created_at', 'mac', 'qname', 'answer'],
+        defaultSortKeys: ['created_at', 'ip', 'mac', 'qname', 'answer'],
         defaultSearchCondition: {
           op: 'and',
           values: [{
@@ -117,6 +117,11 @@ export default {
           types: [conditionType.DATETIME]
         },
         {
+          value: 'ip',
+          text: 'IP Address',
+          types: [conditionType.SUBSTRING]
+        },
+        {
           value: 'mac',
           text: 'MAC Address',
           types: [conditionType.SUBSTRING]
@@ -145,6 +150,12 @@ export default {
           visible: true,
           class: 'text-nowrap',
           formatter: formatter.datetimeIgnoreZero
+        },
+        {
+          key: 'ip',
+          label: this.$i18n.t('IP Address'),
+          sortable: true,
+          visible: true
         },
         {
           key: 'mac',
@@ -180,7 +191,8 @@ export default {
           {
             op: 'or',
             values: [
-              { field: 'mac', op: 'contains', value: quickCondition }
+              { field: 'mac', op: 'contains', value: quickCondition },
+              { field: 'ip', op: 'contains', value: quickCondition }
             ]
           }
         ]

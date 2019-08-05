@@ -41,6 +41,7 @@ use pf::db;
 our $logger = get_logger();
 
 our @FIELDS = qw(
+    ip
     mac
     qname
     qtype

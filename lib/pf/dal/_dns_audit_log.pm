@@ -39,7 +39,8 @@ BEGIN {
         id
         tenant_id
         created_at
-        mac
+        ip
+	mac
         qname
         qtype
         answer
@@ -55,7 +56,8 @@ BEGIN {
 
     @INSERTABLE_FIELDS = qw(
         tenant_id
-        mac
+        ip
+	mac
         qname
         qtype
         answer
@@ -80,7 +82,13 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 0,
         },
-        mac => {
+        ip => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
+	mac => {
             type => 'CHAR',
             is_auto_increment => 0,
             is_primary_key => 0,
@@ -114,7 +122,8 @@ BEGIN {
         dns_audit_log.id
         dns_audit_log.tenant_id
         dns_audit_log.created_at
-        dns_audit_log.mac
+        dns_audit_log.ip
+	dns_audit_log.mac
         dns_audit_log.qname
         dns_audit_log.qtype
         dns_audit_log.answer
