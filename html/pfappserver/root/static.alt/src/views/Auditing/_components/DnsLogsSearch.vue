@@ -84,7 +84,7 @@ export default {
       type: Object,
       default: () => ({
         searchApiEndpoint: 'dns_audit_logs',
-        defaultSortKeys: ['created_at', 'mac'],
+        defaultSortKeys: ['created_at', 'mac', 'qname', 'answer'],
         defaultSearchCondition: {
           op: 'and',
           values: [{
