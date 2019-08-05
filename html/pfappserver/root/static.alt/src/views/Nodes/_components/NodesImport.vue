@@ -231,7 +231,7 @@ export default {
               }
               success++
               return results
-            }).catch(err => {
+            }).catch(() => {
               failed++
             })
           }).catch(() => {
@@ -247,7 +247,7 @@ export default {
               }
               success++
               return results
-            }).catch(err => {
+            }).catch(() => {
               failed++
             })
           })

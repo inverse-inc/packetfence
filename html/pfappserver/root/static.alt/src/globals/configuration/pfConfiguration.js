@@ -10,7 +10,6 @@ import {
   and,
   not,
   conditional,
-  compareDate,
   isDateFormat,
   hasSources,
   sourceExists,
@@ -194,7 +193,7 @@ export const pfConfigurationAuthenticationSourceRulesConditionFieldsFromMeta = (
     let { [key]: { allowed } = {} } = meta
     if (allowed) {
       allowed.forEach((item, index, allowed) => {
-        const { text, value, attributes: { ['data-type']: type } = {} } = item
+        const { text, value, attributes: { 'data-type': type } = {} } = item
         fields.push({
           text: i18n.t(text),
           value,

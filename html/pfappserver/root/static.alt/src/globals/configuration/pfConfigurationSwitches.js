@@ -528,7 +528,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
         ].map(role => {
           return {
             label: role.label || role.id,
-            if: (form.VlanMap === 'Y' || !form.VlanMap && placeholder('VlanMap') === 'Y'),
+            if: (form.VlanMap === 'Y' || (!form.VlanMap && placeholder('VlanMap') === 'Y')),
             fields: [
               {
                 key: `${role.id}Vlan`,
@@ -565,7 +565,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
         ].map(role => {
           return {
             label: role.label || role.id,
-            if: (form.RoleMap === 'Y' || !form.RoleMap && placeholder('RoleMap') === 'Y'),
+            if: (form.RoleMap === 'Y' || (!form.RoleMap && placeholder('RoleMap') === 'Y')),
             fields: [
               {
                 key: `${role.id}Role`,
@@ -602,7 +602,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
         ].map(role => {
           return {
             label: role.label || role.id,
-            if: (form.AccessListMap === 'Y' || !form.AccessListMap && placeholder('AccessListMap') === 'Y'),
+            if: (form.AccessListMap === 'Y' || (!form.AccessListMap && placeholder('AccessListMap') === 'Y')),
             fields: [
               {
                 key: `${role.id}AccessList`,
@@ -644,7 +644,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
         ].map(role => {
           return {
             label: role.label || role.id,
-            if: (form.UrlMap === 'Y' || !form.UrlMap && placeholder('UrlMap') === 'Y'),
+            if: (form.UrlMap === 'Y' || (!form.UrlMap && placeholder('UrlMap') === 'Y')),
             fields: [
               {
                 key: `${role.id}Url`,

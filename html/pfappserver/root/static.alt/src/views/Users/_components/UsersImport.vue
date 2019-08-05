@@ -517,7 +517,7 @@ export default {
             createdUsers.push(data)
             success++
             return results
-          }).catch(err => {
+          }).catch(() => {
             failed++
           })
         }).catch(() => {
@@ -537,7 +537,7 @@ export default {
             createdUsers.push(data)
             success++
             return results
-          }).catch(err => {
+          }).catch(() => {
             failed++
           })
         })

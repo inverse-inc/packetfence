@@ -716,7 +716,7 @@ export default {
         if (cnt % 3 === 0) {
           mult *= 10
         }
-      } while(options[options.length - 1] < this.totalRows || 0)
+      } while (options[options.length - 1] < this.totalRows || 0)
       return options
     }
   },

@@ -11,7 +11,6 @@ import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import pfFormTextarea from '@/components/pfFormTextarea'
 import {
   pfConfigurationActions,
-  pfConfigurationConditions,
   pfConfigurationAttributesFromMeta,
   pfConfigurationAuthenticationSourceRulesConditionFieldsFromMeta,
   pfConfigurationValidatorsFromMeta
