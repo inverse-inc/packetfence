@@ -5,7 +5,7 @@
       <div class="float-right"><pf-form-toggle v-model="advancedMode">{{ $t('Advanced') }}</pf-form-toggle></div>
       <h4 class="mb-0" v-t="'Search DNS Audit Logs'"></h4>
     </b-card-header>
-    <pf-search :quick-with-fields="false" quick-placeholder="Search by MAC" save-search-namespace="dnslogs"
+    <pf-search :quick-with-fields="false" quick-placeholder="Search by MAC or IP" save-search-namespace="dnslogs"
       :fields="fields" :advanced-mode="advancedMode" :condition="condition" :storeName="storeName"
       @submit-search="onSearch" @reset-search="onReset"></pf-search>
     <div class="card-body">

@@ -1296,7 +1296,8 @@ CREATE TABLE `dns_audit_log` (
   `answer` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `created_at` (`created_at`),
-  KEY `mac` (`mac`)
+  KEY `mac` (`mac`),
+  KEY `ip` (`ip`)
 ) ENGINE=InnoDB;
 
 --
