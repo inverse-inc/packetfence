@@ -70,7 +70,7 @@ has_field 'windows_agent_download_uri' =>
   (
    type => 'Text',
    required => 1,
-   default => 'https://docs.microsoft.com/en-us/intune-user-help/using-your-windows-device-with-intune',
+   default => 'https://www.microsoft.com/en-us/p/company-portal/9wzdncrfj3pz',
   );
 
 has_field 'mac_osx_agent_download_uri' =>
@@ -100,7 +100,7 @@ has_field 'domains' =>
    label => 'Authorized domains',
    required => 1,
    default => 'play.google.com,portal.manage.microsoft.com,apps.apple.com,docs.microsoft.com',
-   element_attr => {'placeholder' => 'play.google.com,portal.manage.microsoft.com,apps.apple.com,docs.microsoft.com'},
+   element_attr => {'placeholder' => 'play.google.com,portal.manage.microsoft.com,apps.apple.com'},
    element_class => ['input-xlarge'],
    tags => { after_element => \&help,
              help => 'Comma separated list of domains that will be resolve with the correct IP addresses.' },
