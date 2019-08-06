@@ -1924,6 +1924,14 @@ Once completed, update the file /usr/local/pf/conf/currently-at to match the new
 Upgrading from a version prior to X.Y.Z
 ---------------------------------------
 
+Linkedin OAuth2
+^^^^^^^^^^^^^^^
+
+The LinkedIn API calls have changed drastically.
+On top of the new LinkedIn modules that are part of the update, you will need to change the following parameter in all your existing LinkedIn sources:
+
+ API URL of logged user -> https://api.linkedin.com/v2/emailAddress?q=members&projection=(elements*(handle~))
+
 VLAN pool configuration
 ^^^^^^^^^^^^^^^^^^^^^^^
 
