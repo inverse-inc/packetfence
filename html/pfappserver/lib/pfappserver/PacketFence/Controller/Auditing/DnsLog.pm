@@ -91,13 +91,13 @@ sub search :Local :Args(0) :AdminRole('DNS_LOG_READ') {
     if ($request->param('export')) {
         $c->stash({
             current_view => 'CSV',
-            columns      => [@pf::dns_audit_log::DNS_FIELDS,],
+            columns      => [@pf::dns_audit_log::FIELDS,],
         });
     }
     else {
         $c->stash({
             columns => [sort @pf::dns_audit_log::FIELDS],
-            display_columns => [qw(mac request reply)],
+            display_columns => [qw(mac qname answer)],
         });
     }
     $c->response->status($status);

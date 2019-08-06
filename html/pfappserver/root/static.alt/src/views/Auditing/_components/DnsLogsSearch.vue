@@ -84,7 +84,7 @@ export default {
       type: Object,
       default: () => ({
         searchApiEndpoint: 'dns_audit_logs',
-        defaultSortKeys: ['created_at', 'ip', 'mac', 'qname', 'scope', 'answer'],
+        defaultSortKeys: ['created_at', 'ip', 'mac', 'qname', 'scope'],
         defaultSearchCondition: {
           op: 'and',
           values: [{
@@ -178,7 +178,8 @@ export default {
         {
           key: 'qname',
           label: this.$i18n.t('Qname'),
-          sortable: true
+          sortable: true,
+          visible: true
         },
         {
           key: 'qtype',
@@ -188,12 +189,14 @@ export default {
         {
           key: 'scope',
           label: this.$i18n.t('Scope'),
-          sortable: true
+          sortable: true,
+          visible: true
         },
         {
           key: 'answer',
           label: this.$i18n.t('Answer'),
-          sortable: true
+          sortable: true,
+          visible: true
         }
       ],
       sortBy: 'created_at',
