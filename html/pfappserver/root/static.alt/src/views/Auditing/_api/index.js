@@ -1,4 +1,6 @@
 import apiCall from '@/utils/api'
+import store from '@/store'
+import Vue from 'vue'
 
 export default {
   allDhcpOption82Logs: params => {
@@ -68,6 +70,16 @@ export default {
   getDnsLog: id => {
     return apiCall.get(`dns_audit_log/${id}`).then(response => {
       return response.data.item
+    })
+  },
+  setPassthroughs: passthroughs => {
+    return apiCall.patch('config/base/fencing', { passthroughs: passthroughs.join(',') }).then(response => {
+      // Clear cached values
+      Vue.set(store.state.config, 'baseFencing', false)
+      if (store.state.$_bases) {
+        Vue.set(store.state.$_bases.cache, 'fencing', false)
+      }
+      return response
     })
   }
 }

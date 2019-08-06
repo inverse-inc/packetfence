@@ -11,6 +11,17 @@
     <div class="card-body">
       <b-row align-h="between" align-v="center">
         <b-col cols="auto" class="mr-auto">
+          <b-dropdown size="sm" variant="link" :disabled="isLoading || selectValues.length === 0" no-caret no-flip>
+            <template slot="button-content">
+              <icon name="cog" v-b-tooltip.hover.top.d300 :title="$t('Bulk Actions')"></icon>
+            </template>
+            <b-dropdown-item @click="addToPassthroughs()">
+              <icon class="position-absolute mt-1" name="door-open"></icon>
+              <span class="ml-4">{{ $t('Add to Passthroughs') }}</span>
+            </b-dropdown-item>
+          </b-dropdown>
+        </b-col>
+        <b-col cols="auto" class="mr-auto">
           <b-dropdown size="sm" variant="link" no-caret>
             <template slot="button-content">
               <icon name="columns" v-b-tooltip.hover.right :title="$t('Visible Columns')"></icon>
@@ -46,11 +57,23 @@
       <b-table class="table-clickable" :items="items" :fields="visibleColumns" :sort-by="sortBy" :sort-desc="sortDesc"
         @sort-changed="onSortingChanged" @row-clicked="onRowClick"
         show-empty responsive hover no-local-sorting striped>
+        <template slot="HEAD_actions">
+          <b-form-checkbox id="checkallnone" v-model="selectAll" @change="onSelectAllChange"></b-form-checkbox>
+          <b-tooltip target="checkallnone" placement="right" v-if="selectValues.length === tableValues.length">{{ $t('Select None [Alt + N]') }}</b-tooltip>
+          <b-tooltip target="checkallnone" placement="right" v-else>{{ $t('Select All [Alt + A]') }}</b-tooltip>
+        </template>
+        <template slot="actions" slot-scope="data">
+          <div class="text-nowrap">
+            <b-form-checkbox :id="data.value" :value="data.item" v-model="selectValues" @click.native.stop="onToggleSelected($event, data.index)"></b-form-checkbox>
+            <icon name="exclamation-triangle" class="ml-1" v-if="tableValues[data.index] && tableValues[data.index]._rowMessage" v-b-tooltip.hover.right :title="tableValues[data.index]._rowMessage"></icon>
+          </div>
+        </template>
+        <template slot="mac" slot-scope="{ value }">
+          <router-link :to="{ path: `/node/${value}` }"><mac v-text="value"></mac></router-link>
+        </template>
+        <div slot="answer" slot-scope="{ value }" v-html="value"></div>
         <template slot="empty">
           <pf-empty-table :isLoading="isLoading">{{ $t('No logs found') }}</pf-empty-table>
-        </template>
-        <template slot="mac" slot-scope="data">
-          <router-link :to="{ path: `/node/${data.value}` }"><mac v-text="data.value"></mac></router-link>
         </template>
       </b-table>
     </div>
@@ -58,18 +81,21 @@
 </template>
 
 <script>
+import api from '../_api'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import { pfFormatters as formatter } from '@/globals/pfFormatters'
 import pfButtonExportToCsv from '@/components/pfButtonExportToCsv'
 import pfMixinSearchable from '@/components/pfMixinSearchable'
+import pfMixinSelectable from '@/components/pfMixinSelectable'
 import pfProgress from '@/components/pfProgress'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import pfSearch from '@/components/pfSearch'
 import pfFormToggle from '@/components/pfFormToggle'
 
 export default {
-  name: 'DnsLogsSearch',
+  name: 'dns-logs-search',
   mixins: [
+    pfMixinSelectable,
     pfMixinSearchable
   ],
   components: {
@@ -113,41 +139,49 @@ export default {
 
         {
           value: 'created_at',
-          text: 'Created',
+          text: this.$i18n.t('Created'),
           types: [conditionType.DATETIME]
         },
         {
           value: 'ip',
-          text: 'IP Address',
+          text: this.$i18n.t('IP Address'),
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'mac',
-          text: 'MAC Address',
+          text: this.$i18n.t('MAC Address'),
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'qname',
-          text: 'Dns request',
+          text: this.$i18n.t('DNS Request'),
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'qtype',
-          text: 'DNS Type',
+          text: this.$i18n.t('DNS Type'),
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'scope',
-          text: 'Scope',
+          text: this.$i18n.t('Scope'),
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'answer',
-          text: 'DNS Answer',
+          text: this.$i18n.t('DNS Answer'),
           types: [conditionType.SUBSTRING]
         }
       ],
       columns: [
+        {
+          key: 'actions',
+          label: this.$i18n.t('Actions'),
+          locked: true,
+          formatter: (value, key, item) => {
+            return item.id
+          }
+        },
         {
           key: 'created_at',
           label: this.$i18n.t('Created At'),
@@ -228,6 +262,18 @@ export default {
     },
     onRowClick (item, index) {
       this.$router.push({ name: 'dnslog', params: { id: item.id } })
+    },
+    addToPassthroughs () {
+      const domains = this.selectValues.map(item => item.qname)
+      this.$store.dispatch('config/getBaseFencing').then(fencing => {
+        let passthroughs = fencing.passthroughs.split(/,/).filter(passthrough => passthrough.length) // TODO - #4063, deprecate comma-separated lists
+        domains.forEach(domain => {
+          if (!passthroughs.includes(domain)) {
+            passthroughs.push(domain)
+          }
+        })
+        api.setPassthroughs(passthroughs)
+      })
     }
   }
 }
