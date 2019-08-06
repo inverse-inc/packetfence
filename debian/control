@@ -123,7 +123,7 @@ Depends: ${misc:Depends}, vlan,
  liblog-any-adapter-perl,
  liblog-any-adapter-log4perl-perl,
 # oauth2
- libnet-oauth2-perl (>=0.57),
+ libnet-oauth2-perl (>=0.65),
 # used by Captive Portal authentication modules
  libauthen-radius-perl (>=0.24), libauthen-krb5-simple-perl,
 # used by bin/pftest
