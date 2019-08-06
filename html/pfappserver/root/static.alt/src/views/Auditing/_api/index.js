@@ -51,7 +51,7 @@ export default {
     if (params.sort) {
       params.sort = params.sort.join(',')
     } else {
-      params.sort = 'created_at,mac'
+      params.sort = 'created_at'
     }
     if (params.fields) {
       params.fields = params.fields.join(',')

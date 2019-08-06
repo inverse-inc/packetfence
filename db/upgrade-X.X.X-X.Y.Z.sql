@@ -63,6 +63,7 @@ CREATE TABLE `dns_audit_log` (
   `mac` char(17) NOT NULL,
   `qname` varchar(255) DEFAULT NULL,
   `qtype` varchar(255) DEFAULT NULL,
+  `scope` varchar(22) DEFAULT NULL,
   `answer` varchar(255) DEFAULT NULL,
    PRIMARY KEY (`id`),
    KEY `created_at` (`created_at`),

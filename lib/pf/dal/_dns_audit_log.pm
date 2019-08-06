@@ -43,6 +43,7 @@ BEGIN {
 	mac
         qname
         qtype
+        scope
         answer
     );
 
@@ -51,6 +52,7 @@ BEGIN {
         mac => '',
         qname => undef,
         qtype => undef,
+        scope => undef,
         answer => undef,
     );
 
@@ -60,6 +62,7 @@ BEGIN {
 	mac
         qname
         qtype
+        scope
         answer
     );
 
@@ -106,6 +109,12 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 1,
         },
+        scope => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
         answer => {
             type => 'VARCHAR',
             is_auto_increment => 0,
@@ -126,6 +135,7 @@ BEGIN {
 	dns_audit_log.mac
         dns_audit_log.qname
         dns_audit_log.qtype
+        dns_audit_log.scope
         dns_audit_log.answer
     );
 

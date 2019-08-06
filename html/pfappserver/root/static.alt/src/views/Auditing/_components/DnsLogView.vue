@@ -10,6 +10,7 @@
       <pf-form-row :column-label="$t('Qname')">{{ item.qname }}</pf-form-row>
       <pf-form-row :column-label="$t('Qtype')">{{ item.qtype }}</pf-form-row>
       <pf-form-row :column-label="$t('Answer')">{{ item.answer }}</pf-form-row>
+      <pf-form-row :column-label="$t('Scope')">{{ item.scope }}</pf-form-row>
       <pf-form-row :column-label="$t('Created At')">{{ item.created_at }}</pf-form-row>
     </b-card>
   </b-form>
