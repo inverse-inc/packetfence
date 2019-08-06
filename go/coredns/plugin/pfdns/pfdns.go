@@ -801,8 +801,8 @@ func (pf *pfdns) logreply(ctx context.Context, ip string, mac string, qname stri
 	for _, rr := range reply.Answer {
 		text := re.ReplaceAllString(rr.String(), " ")
 		b.WriteString(text)
-		b.WriteString(" ; ")
+		b.WriteString(" \n ")
 	}
 
-	pf.DNSAudit.ExecContext(ctx, ip, mac, qname, qtype, scope, strings.TrimRight(b.String(), " ; "))
+	pf.DNSAudit.ExecContext(ctx, ip, mac, strings.TrimRight(qname, "."), qtype, scope, strings.TrimRight(b.String(), " \n "))
 }
