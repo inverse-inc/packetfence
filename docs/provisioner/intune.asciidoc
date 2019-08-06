@@ -5,11 +5,11 @@ endif::[]
 
 Configure from the Azure portal
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-You will first need to connect to the Azure portal and be sure that you have the intune licences.
+You will first need to connect to the Azure portal and be sure that you have the Intune licences.
 
 Creating the application
 ++++++++++++++++++++++++ 
-Once you are logged in the portal you need to create a application to allow the access to the Graph API.
+Once you are logged in the portal you need to create an application to allow the access to the Graph API.
 
 Click on 'Azure Active Directory' and on 'App registrations' and on 'New registration'
 
@@ -55,7 +55,7 @@ Now configure this new provisioner with the information you got above.
 * The default Login URL should work. 
 * The port and protocol should be left to default.
 * The 'Agent download uri' should be ok.
-* Authorized domains needs to be adapted to allow the device to reach the download uri (per example google play needs multiples domain to be able to install the agent).
+* Authorized domains need to be adapted to allow the device to reach the download URI (per example google play needs multiple domains to be able to install the agent).
 
 Add the provisioner to the profile
 ++++++++++++++++++++++++++++++++++

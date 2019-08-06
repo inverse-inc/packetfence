@@ -103,7 +103,7 @@ has_field 'domains' =>
    element_attr => {'placeholder' => 'play.google.com,portal.manage.microsoft.com,apps.apple.com'},
    element_class => ['input-xlarge'],
    tags => { after_element => \&help,
-             help => 'Comma separated list of domains that will be resolve with the correct IP addresses.' },
+             help => 'Comma-separated list of domains that will be resolved with the correct IP addresses.' },
   );
 
 has_block definition =>
