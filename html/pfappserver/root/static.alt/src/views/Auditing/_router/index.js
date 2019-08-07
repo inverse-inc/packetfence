@@ -103,7 +103,7 @@ const route = {
       meta: {
         can: 'read dns_log'
       }
-    },
+    }
   ]
 }
 

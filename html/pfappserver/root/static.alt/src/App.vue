@@ -121,7 +121,7 @@ export default {
       return this.$store.state.session.charts
     },
     altShiftAKey () {
-      return this.$store.getters['events/altShiftAKey'] && (this.$can('read', 'radius_log') || this.$can('read', 'dhcp_option_82') || this.$can('read', 'dns_log') )
+      return this.$store.getters['events/altShiftAKey'] && (this.$can('read', 'radius_log') || this.$can('read', 'dhcp_option_82') || this.$can('read', 'dns_log'))
     },
     altShiftCKey () {
       return this.$store.getters['events/altShiftCKey'] && this.$can('read', 'configuration_main')
