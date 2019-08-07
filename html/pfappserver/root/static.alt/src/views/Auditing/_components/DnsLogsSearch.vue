@@ -20,8 +20,6 @@
               <span class="ml-4">{{ $t('Add to Passthroughs') }}</span>
             </b-dropdown-item>
           </b-dropdown>
-        </b-col>
-        <b-col cols="auto" class="mr-auto">
           <b-dropdown size="sm" variant="link" no-caret>
             <template slot="button-content">
               <icon name="columns" v-b-tooltip.hover.right :title="$t('Visible Columns')"></icon>
