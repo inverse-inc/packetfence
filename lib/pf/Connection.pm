@@ -205,6 +205,11 @@ sub identifyType {
     }
 
     # Handling EAP connection
+    # Get the first eap type
+    if (ref($eap_type) eq 'ARRAY') {
+        $eap_type = $eap_type->[0];
+    }
+
     if(defined($eap_type) && ($eap_type ne 0)) {
         $self->isEAP($TRUE);
         $self->subType($eap_type);
