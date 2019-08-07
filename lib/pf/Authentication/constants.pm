@@ -20,14 +20,14 @@ use pf::constants qw($TRUE $FALSE);
 use base qw(Exporter);
 our @EXPORT_OK = qw($LOCAL_ACCOUNT_UNLIMITED_LOGINS $LOGIN_SUCCESS $LOGIN_FAILURE $LOGIN_CHALLENGE $DEFAULT_LDAP_READ_TIMEOUT $DEFAULT_LDAP_WRITE_TIMEOUT $DEFAULT_LDAP_CONNECTION_TIMEOUT $HASH_PASSWORDS_DEFAULT);
 
-Readonly our $LOCAL_ACCOUNT_UNLIMITED_LOGINS => "0";
-Readonly our $LOGIN_SUCCESS => $TRUE;
-Readonly our $LOGIN_FAILURE => $FALSE;
-Readonly our $LOGIN_CHALLENGE => 2;
-Readonly our $DEFAULT_LDAP_READ_TIMEOUT => 10;
-Readonly our $DEFAULT_LDAP_WRITE_TIMEOUT => 5;
-Readonly our $DEFAULT_LDAP_CONNECTION_TIMEOUT => 1;
-Readonly our $HASH_PASSWORDS_DEFAULT => 'bcrypt';
+Readonly::Scalar our $LOCAL_ACCOUNT_UNLIMITED_LOGINS => "0";
+Readonly::Scalar our $LOGIN_SUCCESS => $TRUE;
+Readonly::Scalar our $LOGIN_FAILURE => $FALSE;
+Readonly::Scalar our $LOGIN_CHALLENGE => 2;
+Readonly::Scalar our $DEFAULT_LDAP_READ_TIMEOUT => 10;
+Readonly::Scalar our $DEFAULT_LDAP_WRITE_TIMEOUT => 5;
+Readonly::Scalar our $DEFAULT_LDAP_CONNECTION_TIMEOUT => 1;
+Readonly::Scalar our $HASH_PASSWORDS_DEFAULT => 'bcrypt';
 
 
 =head1 Rules
