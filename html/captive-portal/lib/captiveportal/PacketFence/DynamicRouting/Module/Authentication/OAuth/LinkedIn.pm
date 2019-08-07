@@ -27,8 +27,8 @@ The e-mail is returned as a quoted string
 
 sub _decode_response {
     my ($self, $response) = @_;
-    my $response = decode_json($response->content());
-    return {email => $response->{elements}->[0]->{'handle~'}->{emailAddress}};
+    my $data = decode_json($response->content());
+    return {email => $data->{elements}->[0]->{'handle~'}->{emailAddress}};
 }
 
 =head1 AUTHOR
