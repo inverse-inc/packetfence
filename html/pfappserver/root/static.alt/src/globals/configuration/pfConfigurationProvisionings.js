@@ -820,6 +820,32 @@ export const pfConfigurationProvisioningFields = {
         }
       ]
     }
+  },
+  table_for_mac: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('MAC table name'),
+      fields: [
+        {
+          key: 'table_for_mac',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'table_for_mac'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'table_for_mac', i18n.t('Mac table name'))
+        }
+      ]
+    }
+  },
+  table_for_agent: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Agent table name'),
+      fields: [
+        {
+          key: 'table_for_agent',
+          component: pfFormInput,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'table_for_agent'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'table_for_agent', i18n.t('Agent table name'))
+        }
+      ]
+    }
   }
 }
 
@@ -1097,6 +1123,24 @@ export const pfConfigurationProvisioningViewFields = (context) => {
             pfConfigurationProvisioningFields.protocol(context),
             pfConfigurationProvisioningFields.api_uri(context),
             pfConfigurationProvisioningFields.agent_download_uri(context)
+          ]
+        }
+      ]
+    case 'servicenow':
+      return [
+        {
+          tab: null, // ignore tabs
+          fields: [
+            pfConfigurationProvisioningFields.id(context),
+            pfConfigurationProvisioningFields.description(context),
+            pfConfigurationProvisioningFields.category(context),
+            pfConfigurationProvisioningFields.oses(context),
+            pfConfigurationProvisioningFields.username(context),
+            pfConfigurationProvisioningFields.password(context),
+            pfConfigurationProvisioningFields.host(context),
+            pfConfigurationProvisioningFields.protocol(context),
+            pfConfigurationProvisioningFields.table_for_mac(context),
+            pfConfigurationProvisioningFields.table_for_agent(context),
           ]
         }
       ]
