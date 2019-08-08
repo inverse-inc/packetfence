@@ -96,6 +96,13 @@ has_field 'dhcpd' =>
    label => 'DHCP server',
    );
 
+has_field 'dev' =>
+  (
+   type => 'Text',
+   default => "",
+   label => 'Assign to the Network interface',
+   );
+
 =head2 update_fields
 
 Set the default network value
@@ -136,6 +143,7 @@ sub validate {
         }
     }
     my $interface = $interface_model->interfaceForDestination($self->value->{next_hop});
+    $interface = $self->value->{dev} if (defined($self->value->{dev}));
     unless ($interface) {
         $self->field('next_hop')->add_error("The router IP has no gateway on a network interface.");
     }

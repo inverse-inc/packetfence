@@ -61,7 +61,18 @@ has_field 'algorithm' =>
    ],
    default => $pf::constants::dhcp::RANDOM_ALGORITHM,
   );
-has_field 'ip_reserved' =>
+has_field 'pool_backend' =>
+  (
+   type => 'Select',
+   label => 'DHCP Pool Backend Type',
+   required => 1,
+   options => [
+        { value => $pf::constants::dhcp::MEMORY_POOL, label => 'Memory Pool'},
+        { value => $pf::constants::dhcp::MYSQL_POOL, label => 'Mysql Pool'},
+   ],
+   default => $pf::constants::dhcp::MEMORY_POOL,
+  );
+ has_field 'ip_reserved' =>
   (
    type => 'TextArea',
    label => 'IP Addresses reserved',

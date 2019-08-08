@@ -5,6 +5,7 @@ import (
 	"math"
 	"net"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -27,7 +28,7 @@ type DHCPHandler struct {
 	leaseDuration time.Duration // Lease period
 	hwcache       *cache.Cache
 	xid           *cache.Cache
-	available     *pool.DHCPPool // DHCPPool keeps track of the available IPs in the pool
+	available     pool.Backend // DHCPPool keeps track of the available IPs in the pool
 	layer2        bool
 	role          string
 	ipReserved    string
@@ -75,6 +76,9 @@ func (d *Interfaces) readConfig() {
 	var DHCPinterfaces pfconfigdriver.DHCPInts
 	pfconfigdriver.FetchDecodeSocket(ctx, &DHCPinterfaces)
 
+	var DHCPAdditionalinterfaces pfconfigdriver.DHCPAdditionalListen
+	pfconfigdriver.FetchDecodeSocket(ctx, &DHCPAdditionalinterfaces)
+
 	var keyConfNet pfconfigdriver.PfconfigKeys
 	keyConfNet.PfconfigNS = "config::Network"
 	keyConfNet.PfconfigHostnameOverlay = "yes"
@@ -82,6 +86,9 @@ func (d *Interfaces) readConfig() {
 	pfconfigdriver.FetchDecodeSocket(ctx, &keyConfNet)
 
 	var intDhcp []string
+
+	var interfacesDhcp []string
+	interfacesDhcp = sharedutils.RemoveDuplicates(append(interfaces.Element, DHCPAdditionalinterfaces.Element...))
 
 	for _, vi := range DHCPinterfaces.Element {
 		for key, dhcpint := range vi.(map[string]interface{}) {
@@ -92,7 +99,7 @@ func (d *Interfaces) readConfig() {
 	}
 
 	wg := &sync.WaitGroup{}
-	for _, v := range sharedutils.RemoveDuplicates(append(interfaces.Element, intDhcp...)) {
+	for _, v := range sharedutils.RemoveDuplicates(append(interfacesDhcp, intDhcp...)) {
 
 		eth, err := net.InterfaceByName(v)
 
@@ -112,6 +119,7 @@ func (d *Interfaces) readConfig() {
 		ethIf.listenPort = bootpServer
 
 		adresses, _ := eth.Addrs()
+		added := false
 		for _, adresse := range adresses {
 
 			var NetIP *net.IPNet
@@ -141,11 +149,14 @@ func (d *Interfaces) readConfig() {
 				if ConfNet.Dhcpd == "disabled" {
 					continue
 				}
-				if (NetIP.Contains(net.ParseIP(ConfNet.DhcpStart)) && NetIP.Contains(net.ParseIP(ConfNet.DhcpEnd))) || NetIP.Contains(net.ParseIP(ConfNet.NextHop)) {
+				NetInt := strings.Split(ConfNet.Dev, ",")
+
+				if !added && ((NetIP.Contains(net.ParseIP(ConfNet.DhcpStart)) && NetIP.Contains(net.ParseIP(ConfNet.DhcpEnd))) || NetIP.Contains(net.ParseIP(ConfNet.NextHop)) || (stringInSlice(ethIf.Name, NetInt))) {
 					if int(binary.BigEndian.Uint32(net.ParseIP(ConfNet.DhcpStart).To4())) > int(binary.BigEndian.Uint32(net.ParseIP(ConfNet.DhcpEnd).To4())) {
 						log.LoggerWContext(ctx).Error("Wrong configuration, check your network " + key)
 						continue
 					}
+					added = true
 					// IP per role
 					if ConfNet.SplitNetwork == "enabled" {
 						var keyConfRoles pfconfigdriver.PfconfigKeys
@@ -231,7 +242,7 @@ func (d *Interfaces) readConfig() {
 							DHCPScope.leaseRange = dhcp.IPRange(ip, ips)
 							algorithm, _ := strconv.Atoi(ConfNet.Algorithm)
 							// Initialize dhcp pool
-							available := pool.NewDHCPPool(ctx, uint64(dhcp.IPRange(ip, ips)), algorithm, StatsdClient)
+							available, _ := pool.Create(ctx, ConfNet.PoolBackend, uint64(dhcp.IPRange(ip, ips)), DHCPNet.network.IP.String()+Role, algorithm, StatsdClient, MySQLdatabase)
 
 							DHCPScope.available = available
 
@@ -295,7 +306,8 @@ func (d *Interfaces) readConfig() {
 						algorithm, _ := strconv.Atoi(ConfNet.Algorithm)
 
 						// Initialize dhcp pool
-						available := pool.NewDHCPPool(ctx, uint64(dhcp.IPRange(net.ParseIP(ConfNet.DhcpStart), net.ParseIP(ConfNet.DhcpEnd))), algorithm, StatsdClient)
+						available, _ := pool.Create(ctx, ConfNet.PoolBackend, uint64(dhcp.IPRange(net.ParseIP(ConfNet.DhcpStart), net.ParseIP(ConfNet.DhcpEnd))), DHCPNet.network.IP.String(), algorithm, StatsdClient, MySQLdatabase)
+
 						DHCPScope.available = available
 
 						// Initialize hardware cache

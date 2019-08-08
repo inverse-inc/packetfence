@@ -51,6 +51,22 @@ DELIMITER ;
 call ValidateVersion;
 DROP PROCEDURE IF EXISTS ValidateVersion;
 
+--
+-- Table structure for table `dhcppool`
+--
+\! echo "Creating table 'dhcppool'...";
+CREATE TABLE IF NOT EXISTS dhcppool (
+  id                    int(11) unsigned NOT NULL auto_increment,
+  pool_name             varchar(30) NOT NULL,
+  idx                   int(11) NOT NULL,
+  mac                   VARCHAR(30) NOT NULL,
+  free                  BOOLEAN NOT NULL default '1',
+  released              DATETIME(6) NULL default NULL,
+  PRIMARY KEY (id),
+  UNIQUE KEY dhcppool_poolname_idx (pool_name, idx),
+  KEY mac (mac),
+  KEY released (released)
+) ENGINE=INNODB;
 
 \! echo "Incrementing PacketFence schema version...";
 INSERT IGNORE INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION));

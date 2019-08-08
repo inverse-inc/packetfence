@@ -4910,6 +4910,80 @@ Once enabled, restart the pfdhcplistener and pfmon services.
 pfmon will query via SNMP all the switches to create a map (MAC <-> switch)
 pfdhcplistener will parse the DHCP Option 82 and will use the map to resolve the MAC to the switch and will update the locationlog of the device.
 
+GRE Tunnel
+~~~~~~~~~~
+
+If your isolation and registration network are not routable on the network between PacketFence and this network then you can create a GRE Tunnel between the network equipment and PacketFence.
+
+This setup has been tested in cluster mode but it should be easy to reproduce in standalone mode.
+
+First you need to create the GRE configuration, let's assume that on the other side you have a Centos 7 machine.
+
+ 172.19.0.5 is the recheable ip address of the remote Centos 7 machine.
+ 192.168.0.5 is a VIP on the packetfence side.
+ 10.0.0.1 and 10.0.0.2 are the ip addresses used inside the tunnel.
+ 172.20.0.0/24 is the remote registration network.
+
+On the PacketFence side edit the file /etc/sysconfig/metwork-script/ifcfg-gre1
+
+ DEVICE=gre1
+ BOOTPROTO=none
+ ONBOOT=yes
+ NM_CONTROLLED=no
+ TYPE=GRE
+ PEER_OUTER_IPADDR=172.19.0.5
+ PEER_INNER_IPADDR=10.0.0.2/32
+ MY_INNER_IPADDR=10.0.0.1/32
+ MY_OUTER_IPADDR=192.168.1.5
+
+On the other side edit the file /etc/sysconfig/metwork-script/ifcfg-gre1
+
+ DEVICE=gre1
+ BOOTPROTO=none
+ ONBOOT=yes
+ NM_CONTROLLED=no
+ TYPE=GRE
+ PEER_OUTER_IPADDR=192.168.1.5
+ PEER_INNER_IPADDR=10.0.0.1/32
+ MY_INNER_IPADDR=10.0.0.2/32
+ MY_OUTER_IPADDR=172.19.0.5
+
+And this file too edit the file /etc/sysconfig/metwork-script/route-gre1
+
+ 192.168.0.1 dev gre1
+
+Next on both side do:
+
+ ifup gre1
+
+and try to ping 10.0.0.1 and 10.0.0.2 it should succeed.
+
+Next step will be to add the VIP address on the PacketFence server, to do that edit the file /usr/local/pf/conf/cluster.conf and in the section CLUSTER interface ens192 (ens192 is your management interface)
+
+ [CLUSTER interface ens192]
+ ip=192.168.0.1
+ alias=192.168.0.5
+
+Last thing, you need to create a routed network in PacketFence by editing /usr/local/pf/conf/networks.conf
+
+ [172.20.0.0]
+ network=172.20.0.0
+ dns=172.20.0.10
+ gateway=172.20.0.1
+ domain-name=vlan-registration.packeytfence.org
+ pool_backend=mysql
+ named=enabled
+ netmask=255.255.255.0
+ dhcp_end=172.20.0.250
+ dev=gre1
+ dhcp_start=172.20.0.10
+ nat_enabled=1
+ dhcp_max_lease_time=30
+ dhcpd=enabled
+ fake_mac_enabled=0
+ type=vlan-registration
+ dhcp_default_lease_time=30
+
 Additional Integration
 ----------------------
 

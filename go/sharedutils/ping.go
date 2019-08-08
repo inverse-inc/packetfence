@@ -1,10 +1,8 @@
 package sharedutils
 
 import (
-	"bytes"
 	"errors"
 	"net"
-	"os"
 	"time"
 )
 
@@ -114,38 +112,21 @@ func parseICMPEcho(b []byte) (*icmpEcho, error) {
 	return p, nil
 }
 
-func Ping(address string, timeout int) bool {
-	err := Pinger(address, timeout)
+func Ping(srcIP net.IP, dstIP net.IP, ifname string, timeout int) bool {
+	err := Pinger(srcIP, dstIP, ifname, timeout)
 	return err == nil
 }
 
-func Pinger(address string, timeout int) error {
-	c, err := net.Dial("ip4:icmp", address)
-	if err != nil {
-		return err
-	}
+func Pinger(srcIP net.IP, dstIP net.IP, ifname string, timeout int) error {
+	c := Pingraw(srcIP, dstIP, ifname)
 	c.SetDeadline(time.Now().Add(time.Duration(timeout) * time.Second))
 	defer c.Close()
 
-	typ := icmpv4EchoRequest
-	xid, xseq := os.Getpid()&0xffff, 1
-	wb, err := (&icmpMessage{
-		Type: typ, Code: 0,
-		Body: &icmpEcho{
-			ID: xid, Seq: xseq,
-			Data: bytes.Repeat([]byte("Go Go Gadget Ping!!!"), 3),
-		},
-	}).Marshal()
-	if err != nil {
-		return err
-	}
-	if _, err = c.Write(wb); err != nil {
-		return err
-	}
 	var m *icmpMessage
-	rb := make([]byte, 20+len(wb))
+	var err error
+	rb := make([]byte, 1024)
 	for {
-		if _, err = c.Read(rb); err != nil {
+		if _, _, err = c.ReadFrom(rb); err != nil {
 			return err
 		}
 		rb = ipv4Payload(rb)

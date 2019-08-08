@@ -55,14 +55,14 @@ sub assign {
         $sql_query = "GRANT DROP ON $db.radius_nas TO ?\@${host} IDENTIFIED BY ?";
         $dbHandler->do($sql_query, undef, $user, $password);
         if ( $DBI::errstr ) {
-            $status_msg = "Error creating the user $user on database $db";
+            $status_msg = "Error changing grant permission on table radius_nas";
             $logger->warn("$DBI::errstr");
             return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
         }
         $sql_query = "GRANT SELECT ON mysql.proc TO ?\@${host} IDENTIFIED BY ?";
         $dbHandler->do($sql_query, undef, $user, $password);
         if ( $DBI::errstr ) {
-            $status_msg = "Error creating the user $user on database $db";
+            $status_msg = "Error changing grant permission on table mysql.proc";
             $logger->warn("$DBI::errstr");
             return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
         }

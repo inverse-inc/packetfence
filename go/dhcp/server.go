@@ -18,7 +18,7 @@ type Answer struct {
 
 // Handler interface
 type Handler interface {
-	ServeDHCP(ctx context.Context, req dhcp.Packet, msgType dhcp.MessageType, srcIP net.Addr) Answer
+	ServeDHCP(ctx context.Context, req dhcp.Packet, msgType dhcp.MessageType, srcIP net.Addr, srvIP net.IP) Answer
 }
 
 // ServeConn is the bare minimum connection functions required by Serve()

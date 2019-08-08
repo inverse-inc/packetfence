@@ -49,10 +49,11 @@ type configStruct struct {
 		Isolation    PassthroughsIsolationConf
 	}
 	Interfaces struct {
-		ListenInts        ListenInts
-		ManagementNetwork ManagementNetwork
-		DHCPInts          DHCPInts
-		DNSInts           DNSInts
+		ListenInts           ListenInts
+		ManagementNetwork    ManagementNetwork
+		DHCPInts             DHCPInts
+		DNSInts              DNSInts
+		DHCPAdditionalListen DHCPAdditionalListen
 	}
 	PfConf struct {
 		Advanced      PfConfAdvanced
@@ -221,6 +222,15 @@ type ListenInts struct {
 	Element                 []string
 }
 
+type DHCPAdditionalListen struct {
+	StructConfig
+	PfconfigMethod          string `val:"element"`
+	PfconfigNS              string `val:"resource::dhcp_additional_listen"`
+	PfconfigArray           string `val:"yes"`
+	PfconfigHostnameOverlay string `val:"yes"`
+	Element                 []string
+}
+
 type DHCPInts struct {
 	StructConfig
 	PfconfigMethod          string `val:"element"`
@@ -280,6 +290,7 @@ type NetworkConf struct {
 	RegNetwork              string `json:"reg_network"`
 	PortalFQDN              string `json:"portal_fqdn"`
 	Algorithm               string `json:"algorithm"`
+	PoolBackend             string `json:"pool_backend"`
 }
 
 type Interface struct {
@@ -315,7 +326,10 @@ type RessourseNetworkConf struct {
 	ClusterIPs              string    `json:"cluster_ips"`
 	IpReserved              string    `json:"ip_reserved"`
 	IpAssigned              string    `json:"ip_assigned"`
+	Dev                     string    `json:"dev"`
 	Interface               Interface `json:"interface"`
+	PortalFQDN              string    `json:"portal_fqdn"`
+	PoolBackend             string    `json:"pool_backend"`
 	Algorithm               string    `json:"algorithm"`
 }
 

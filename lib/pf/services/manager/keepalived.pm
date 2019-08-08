@@ -114,6 +114,13 @@ vrrp_instance $cfg->{'ip'} {
   preempt_delay 30
   virtual_ipaddress {
     $cluster_ip dev $interface
+EOT
+        if ($cluster_ip_alias ne '') {
+            $tags{'vrrp'} .= <<"EOT";
+    $cluster_ip_alias dev $interface
+EOT
+        }
+        $tags{'vrrp'} .= <<"EOT";
   }
 EOT
             if (isenabled($Config{'active_active'}{'vrrp_unicast'})) {

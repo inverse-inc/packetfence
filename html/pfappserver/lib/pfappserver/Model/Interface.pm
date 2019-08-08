@@ -274,6 +274,7 @@ sub get {
                 $result->{"$interface"}->{'coa'} = $network->{coa};
                 $result->{"$interface"}->{'reg_network'} = $network->{reg_network};
                 $result->{"$interface"}->{'network_iseditable'} = $TRUE;
+                $result->{"$interface"}->{'dev'} = $network->{dev};
             }
         }
         $result->{"$interface"}->{'type'} = $self->getType($interface_ref);
@@ -548,6 +549,7 @@ sub setType {
             $network_ref->{reg_network} = $interface_ref->{'reg_network'};
             $network_ref->{dhcp_start} = Net::Netmask->new(@{$interface_ref}{qw(ipaddress netmask)})->nth(10);
             $network_ref->{dhcp_end} = Net::Netmask->new(@{$interface_ref}{qw(ipaddress netmask)})->nth(-10);
+            $network_ref->{dev} = $interface_ref->{'dev'};
             $models->{network}->update_or_create($interface_ref->{network}, $network_ref);
         }
     }
