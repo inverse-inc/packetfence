@@ -24,6 +24,7 @@ use pf::dal::security_event;
 use pf::error qw(is_error);
 use pf::locationlog qw(locationlog_history_mac locationlog_view_open_mac);
 use pf::UnifiedApi::Search::Builder::Nodes;
+use pf::UnifiedApi::Search::Builder::NodesNetworkGraph;
 use pf::security_event;
 use pf::Connection;
 use pf::SwitchFactory;
@@ -624,6 +625,117 @@ sub security_events {
     }
 
     return $self->render(json => { items => \@security_events });
+}
+
+=head2 network_graph
+
+network_graph
+
+=cut
+
+sub network_graph {
+    my ($self) = @_;
+    my ($status, $search_info_or_error) = $self->build_search_info;
+    if (is_error($status)) {
+        return $self->render(json => $search_info_or_error, status => $status);
+    }
+
+    ($status, my $response) = $self->network_graph_search_builder->search($search_info_or_error);
+    if ( is_error($status) ) {
+        return $self->render_error(
+            $status,
+            $response->{message},
+            $response->{errors}
+        );
+    }
+    ($status, my $network_graph) = $self->map_to_network_graph($response);
+    if ( is_error($status) ) {
+        return $self->render_error(
+            $status,
+            $network_graph->{message},
+            $network_graph->{errors}
+        );
+    }
+
+    delete $response->{items};
+    $response->{network_graph} = $network_graph;
+
+    return $self->render(
+        json   =>  $response,
+        status => $status
+    );
+}
+
+=head2 network_graph_search_builder
+
+network_graph_search_builder
+
+=cut
+
+sub network_graph_search_builder {
+    return pf::UnifiedApi::Search::Builder::NodesNetworkGraph->new(); 
+}
+
+=head2 pf_network_graph_node
+
+pf_network_graph_node
+
+=cut
+
+sub pf_network_graph_node {
+    my ($self, $response) = @_;
+    return {
+        "type" => "packetfence",
+        "id" => "packetfence",
+    };
+}
+
+=head2 map_to_network_graph
+
+map_to_network_graph
+
+=cut
+
+sub map_to_network_graph {
+    my ($self, $response) = @_;
+    my @nodes = (
+        $self->pf_network_graph_node($response),
+    );
+    my @links;
+    my %network_graph = (
+      "type" => "NetworkGraph",
+      "label" => "PacketFence NetworkGraph",
+      "protocol" => "OLSR",
+      "version" => "9.01",
+      "metric" => undef,
+      nodes => \@nodes,
+      links => \@links,
+    );
+    my %switches_found;
+    my $unknown = {
+        id => "unknown",
+        type => "switch",
+    };
+    for my $node (@{$response->{items}}) {
+        my $id = $node->{mac};
+        push @nodes, {
+            "id" => $node->{mac},
+            "type" => "node",
+            properties => $node,
+        };
+
+        my $switch_id = $node->{"locationlog.switch"} // "unknown";
+        my $switch;
+        my $link = {"source" => $switch_id, "target" => $id};
+        push @links, $link;
+        if (!exists $switches_found{$switch_id}) {
+            push @nodes, { "id" => $switch_id, type => "switch" };
+            push @links, { "source" => "packetfence", "target" => $switch_id };
+            $switches_found{$switch_id} = undef;
+        }
+    }
+
+    return 200, \%network_graph;
 }
 
 =head1 AUTHOR
