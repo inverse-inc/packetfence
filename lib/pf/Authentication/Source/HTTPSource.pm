@@ -195,63 +195,52 @@ sub match {
         return undef;
     }
 
-    if (defined $result) {
-
-        my @actions = ();
-        my $action;
-
-        my $access_duration = $result->{'access_duration'};
-        if (defined $access_duration) {
-            $action =  pf::Authentication::Action->new({type => $Actions::SET_ACCESS_DURATION,
-                                                        value => $access_duration});
-            push(@actions, $action);
-        }
-
-        my $access_level = $result->{'access_level'};
-        if (defined $access_level ) {
-            $action =  pf::Authentication::Action->new({type => $Actions::SET_ACCESS_LEVEL,
-                                                        value => $access_level});
-            push(@actions, $action);
-        }
-
-        my $sponsor = $result->{'sponsor'};
-        if (defined($sponsor) && $sponsor == 1) {
-            $action =  pf::Authentication::Action->new({type => $Actions::MARK_AS_SPONSOR,
-                                                        value => 1});
-            push(@actions, $action);
-        }
-
-        my $unregdate = $result->{'unregdate'};
-        if (defined $unregdate) {
-            $action =  pf::Authentication::Action->new({type => $Actions::SET_UNREG_DATE,
-                                                        value => $unregdate});
-            push(@actions, $action);
-        }
-
-        my $category = $result->{'category'};
-        if (defined $category) {
-            $action =  pf::Authentication::Action->new({type => $Actions::SET_ROLE,
-                                                        value => $category});
-            push(@actions, $action);
-        }
-
-        my $time_balance = $result->{'time_balance'};
-        if (defined $time_balance) {
-            $action =  pf::Authentication::Action->new({type => $Actions::SET_TIME_BALANCE,
-                                                        value => $time_balance});
-            push(@actions, $action);
-        }
-
-        my $bandwidth_balance = $result->{'bandwidth_balance'};
-        if (defined $bandwidth_balance) {
-            $action =  pf::Authentication::Action->new({type => $Actions::SET_BANDWIDTH_BALANCE,
-                                                        value => $bandwidth_balance});
-            push(@actions, $action);
-        }
-        return \@actions;
+    if (!defined $result) {
+        return undef;
     }
 
-    return undef;
+    my @actions = ();
+
+    my $access_duration = $result->{'access_duration'};
+    if (defined $access_duration) {
+        push @actions, pf::Authentication::Action->new({type => $Actions::SET_ACCESS_DURATION, value => $access_duration});
+    }
+
+    my $access_level = $result->{'access_level'};
+    if (defined $access_level ) {
+        push @actions, pf::Authentication::Action->new({type => $Actions::SET_ACCESS_LEVEL, value => $access_level});
+    }
+
+    my $sponsor = $result->{'sponsor'};
+    if (defined($sponsor) && $sponsor == 1) {
+        push @actions, pf::Authentication::Action->new({type => $Actions::MARK_AS_SPONSOR, value => 1});
+    }
+
+    my $unregdate = $result->{'unregdate'};
+    if (defined $unregdate) {
+        push @actions, pf::Authentication::Action->new({type => $Actions::SET_UNREG_DATE, value => $unregdate});
+    }
+
+    my $category = $result->{'category'};
+    if (defined $category) {
+        push @actions, pf::Authentication::Action->new({type => $Actions::SET_ROLE, value => $category});
+    }
+
+    my $time_balance = $result->{'time_balance'};
+    if (defined $time_balance) {
+        push @actions, pf::Authentication::Action->new({type => $Actions::SET_TIME_BALANCE, value => $time_balance});
+    }
+
+    my $bandwidth_balance = $result->{'bandwidth_balance'};
+    if (defined $bandwidth_balance) {
+        push @actions, pf::Authentication::Action->new({type => $Actions::SET_BANDWIDTH_BALANCE, value => $bandwidth_balance});
+    }
+
+    return pf::Authentication::Rule->new(
+        id => "default",
+        class => $params->{rule_class},
+        actions => \@actions,
+    );
 }
 
 
