@@ -32,6 +32,14 @@ has_field 'id' =>
              help => 'Specify a unique identifier for your configuration.<br/>This doesn\'t have to be related to your domain' },
   );
 
+has_field 'status' => (
+    type            => 'Toggle',
+    label           => 'Enabled',
+    checkbox_value  => 'enabled',
+    unchecked_value => 'disabled',
+    default => 'enabled',
+);
+
 has_field 'workgroup' =>
   (
    type => 'Text',
