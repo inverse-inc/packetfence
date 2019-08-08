@@ -135,6 +135,11 @@ export default {
           types: [conditionType.SUBSTRING]
         },
         {
+          value: 'radius_ip',
+          text: 'Server IP',
+          types: [conditionType.SUBSTRING]
+        },
+        {
           value: 'auto_reg',
           text: 'Auto Registration',
           types: [conditionType.SUBSTRING]
@@ -343,6 +348,12 @@ export default {
           visible: true
         },
         {
+          key: 'radius_ip',
+          label: this.$i18n.t('Server IP'),
+          sortable: true,
+          visible: true
+        },
+        {
           key: 'mac',
           label: this.$i18n.t('MAC Address'),
           sortable: true,
@@ -382,7 +393,6 @@ export default {
           key: 'ip',
           label: this.$i18n.t('IP Address'),
           sortable: true,
-          visible: true
         },
         {
           key: 'is_phone',
