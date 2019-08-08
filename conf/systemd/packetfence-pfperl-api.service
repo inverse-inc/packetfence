@@ -5,7 +5,7 @@ Wants=packetfence-base.target packetfence-config.service packetfence-iptables.se
 
 [Service]
 Type=notify
-ExecStart=/usr/local/pf/sbin/pfperl-api prefork -m production -l http://127.0.0.1:8080 --pid-file /usr/local/pf/var/run/pfperl-api.pid
+ExecStart=/usr/local/pf/sbin/pfperl-api prefork -m production -l http://127.0.0.1:22224 --pid-file /usr/local/pf/var/run/pfperl-api.pid
 Slice=packetfence.slice
 Restart=on-failure
 KillMode=process
