@@ -415,7 +415,8 @@ is_deeply(
         'values'    => {
             'set_role'       => 'default',
             'set_unreg_date' => '2038-01-01'
-        }
+        },
+        rule_id => 'match_test',
     },
    "potd match rule"
 );
