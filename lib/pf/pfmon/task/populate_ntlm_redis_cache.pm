@@ -36,7 +36,8 @@ sub run {
     get_logger->debug("Calling populate_ntlm_redis_cache");
     foreach my $domain (keys(%ConfigDomain)) {
         $logger->trace("Checking if $domain has NTLM cache enabled");
-        if(isenabled($ConfigDomain{$domain}{ntlm_cache}) && isenabled($ConfigDomain{$domain}{ntlm_cache_batch})) {
+        my $domain_info = $ConfigDomain{$domain};
+        if (isenabled($domain_info->{status}) && isenabled($domain_info->{ntlm_cache}) && isenabled($domain_info->{ntlm_cache_batch})) {
             $logger->info("Synchronizing NTLM cache for domain $domain");
             my @args = ('queue_job', 'general', 'populate_ntlm_cache', $domain);
             # Call method on this server
