@@ -51,7 +51,7 @@ export default {
       this.visibleColumns.forEach(column => {
         if (column.formatter) formatters[column.key] = column.formatter
       })
-      const header = this.visibleColumns.map(column => column.label)
+      const header = this.visibleColumns.map(column => column.key)
       let keyMap = {} // build map to sort data same as header
       Object.keys(this.data[0]).forEach(key => {
         const idx = header.findIndex(column => column === key)
