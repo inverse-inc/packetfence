@@ -27,10 +27,11 @@ Enhancements
 * Randomize KeyBalanced to randomize the load balance in Freeradius Proxy.
 * Added support for SentinelOne's new API version (v2.0)
 * Firewall SSO is now performed centrally on the management node of a cluster
-* Added dhcp pool algorithm (Random/Oldest ip)
+* Added dhcp pool algorithm (Random/Oldest IP)
 * Improved support for Juniper switches running Junos 15 and above
 * Allow to configure the API token timeout
 * Moved vlan_pool_technique configuration parameter to the connection profile
+* Added the radius's targeted IP address in the radius audit log (help in cluster mode)
 
 Bug Fixes
 +++++++++
