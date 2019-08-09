@@ -300,6 +300,7 @@ ifeq ($(DIST),stretch)
 	dh_gencontrol -- '-Vpacketfence:dist=libclass-xsaccessor-perl,acl'
 endif
 	dh_md5sums
+	dh_gencontrol
 	dh_builddeb
 
 binary: binary-indep binary-arch
