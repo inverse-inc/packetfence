@@ -77,6 +77,7 @@ our @FIELDS = qw(
     radius_request
     radius_reply
     request_time
+    radius_ip
 );
 
 our @NODE_FIELDS = qw(
