@@ -8,6 +8,7 @@ all:
 
 vendor:
 	sudo chown -R $(OUTPUT) ~/.npm
+	sudo npm config set cache /tmp
 	npm install
 	sudo npm install -g grunt-cli
 
