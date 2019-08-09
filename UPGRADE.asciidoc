@@ -1924,6 +1924,12 @@ Once completed, update the file /usr/local/pf/conf/currently-at to match the new
 Upgrading from a version prior to X.Y.Z
 ---------------------------------------
 
+pfperl-api port
+^^^^^^^^^^^^^^^
+
+The port number changed for pfperl-api, you need to run this:
+/usr/local/pf/addons/upgrade/to-9.1-update-api.conf.sh
+
 Linkedin OAuth2
 ^^^^^^^^^^^^^^^
 

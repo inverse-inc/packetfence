@@ -32,6 +32,7 @@ Enhancements
 * Allow to configure the API token timeout
 * Moved vlan_pool_technique configuration parameter to the connection profile
 * Added the radius's targeted IP address in the radius audit log (help in cluster mode)
+* pfperl-api port number changed
 
 Bug Fixes
 +++++++++
