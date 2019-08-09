@@ -116,91 +116,6 @@ export default {
       // inject css
       const styles = `
         /*
-         * default styles
-        */
-        body {
-          font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-          font-style: normal;
-          font-variant: normal;
-          font-size: .9rem;
-        }
-        h1, h2, h3, h4, h5, h6,
-        #toctitle, .sidebarblock > .content > .title {
-          font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica Neue,Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
-          font-weight: 300;
-          font-style: normal;
-          color: #495057 !important;
-          margin-top: 1em !important;
-          margin-bottom: .5em !important;
-          line-height: 1.0125em;
-        }
-        code,
-        .content > pre {
-          color: #ba3925;
-        }
-        .caution > table tr td.icon > .title,
-        .note > table tr td.icon > .title,
-        .warning > table tr td.icon > .title {
-          font-family: "Droid Sans Mono","DejaVu Sans Mono",monospace;
-          font-weight: 400;
-          min-width: 100px;
-          text-align: center;
-        }
-        .caution {
-          color: #721c24;
-          background-color: #f8d7da;
-          border-color: #f5c6cb;
-          padding: .75rem .25rem;
-          margin-bottom: 1.25em;
-        }
-        .caution > table,
-        .caution > table tr th,
-        .caution > table tr td {
-          color: #721c24 !important;
-          margin-bottom: 0;
-        }
-        .caution > table tr td.content {
-          border-left: 1px dotted #721c24;
-        }
-        .note {
-          background-color: #fff3cd;
-          border-color: #ffeeba;
-          padding: .75rem .25rem;
-          margin-bottom: 1.25em;
-        }
-        .note > table,
-        .note > table tr th,
-        .note > table tr td {
-          color: #856404 !important;
-          margin-bottom: 0;
-        }
-        .note > table tr td.content {
-          border-left: 1px dotted #856404;
-        }
-        .warning {
-          color: #721c24;
-          background-color: #f8d7da;
-          border-color: #f5c6cb;
-          padding: .75rem .25rem;
-          margin-bottom: 1.25em;
-        }
-        .warning > table,
-        .warning > table tr th,
-        .warning > table tr td {
-          color: #721c24 !important;
-          margin-bottom: 0;
-        }
-        .warning > table tr td.content {
-          border-left: 1px dotted #721c24;
-        }
-        .imageblock > .content {
-          text-align: center;
-        }
-        .imageblock > .content > img {
-          margin: 1.25em 0;
-        }
-
-        /*
          * custom styles
         */
         .external-link {
@@ -293,7 +208,7 @@ export default {
     scrollToSection (section) {
       const { $refs: { document: { contentWindow: { document: iframeDocument } = {} } = {} } = {} } = this
       if (iframeDocument) {
-        const iframeHtml = iframeDocument.getElementsByTagName('html')[0]
+        const iframeHtml = iframeDocument.getElementById('guide')
         if (iframeHtml) {
           VueScrollTo.scrollTo(iframeDocument.getElementById(section), 300, { // animated scroll to hash in iframe
             container: iframeHtml,

@@ -61,7 +61,10 @@ docs/html/%.html: docs/%.asciidoc
 	asciidoctor \
 		-D docs/html \
 		-n \
+		-r /usr/local/pf/docs/html/asciidoctor-html.rb \
 		-a imagesdir=../images \
+		-a stylesdir=/usr/local/pf/html/pfappserver/root/static.alt/dist/css \
+		-a stylesheet=$(notdir $(wildcard /usr/local/pf/html/pfappserver/root/static.alt/dist/css/app*.css)) \
 		$<
 
 html/pfappserver/root/static/doc:

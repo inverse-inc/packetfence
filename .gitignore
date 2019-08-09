@@ -212,7 +212,7 @@ docs/*.fo
 docs/docbook/xsl/import-fo.xsl
 docs/docbook/xsl/titlepage-fo.xsl
 docs/docbook/*.docbook
-docs/html
+docs/html/*.html
 
 # trap stats graphs
 # TODO we should move them under var/
