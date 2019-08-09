@@ -12,6 +12,7 @@ all:
 
 vendor:
 	sudo chown -R $(OUTPUT) ~/.npm
+	npm config set cache /tmp
 	npm install
 
 dev:
