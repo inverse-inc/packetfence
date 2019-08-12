@@ -104,7 +104,7 @@ case "$1" in
                     update-rc.d $service remove > /dev/null 2>&1
                 fi
             fi
-            if [ ${DIST} = "jessie" ] || [ ${DIST} = "stretch" ]; then
+            if [ ${DIST} = "jessie" ] || [ ${DIST} = "stretch" ] || [ ${DIST} = "buster" ]; then
                 if [ -e "/lib/systemd/system/"$service".service" ] ; then
                     systemctl stop $service
                     systemctl disable $service
@@ -156,7 +156,7 @@ case "$1" in
         systemctl enable packetfence-iptables
         /usr/local/pf/bin/pfcmd service pf updatesystemd
         # On new stretch install this should work but not on upgrade
-        if [ ${DIST} = "stretch" ]; then
+        if [ ${DIST} = "stretch" ] || [ ${DIST} = "buster" ]; then
             set +e
             /usr/bin/mysql -uroot -e "update mysql.user set plugin='' where User='root'"
             /usr/bin/mysql -uroot -e "flush privileges"

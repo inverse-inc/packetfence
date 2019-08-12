@@ -21,7 +21,7 @@ DIST=$(lsb_release -c -s)
 
 case "$1" in
     configure)
-        if [ ${DIST} = "jessie" ] || [ ${DIST} = "stretch" ]; then
+        if [ ${DIST} = "jessie" ] || [ ${DIST} = "stretch" ] || [ ${DIST} = "buster" ]; then
             systemctl enable packetfence-remote-arp-sensor
         fi
         if [ ${DIST} = "wheezy" ] || [ ${DIST} = "precise" ]; then

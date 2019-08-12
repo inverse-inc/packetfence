@@ -31,7 +31,7 @@ case "$1" in
         if [ ${DIST} = "wheezy" ] || [ ${DIST} = "precise" ]; then
             update-rc.d packetfence-remote-arp-sensor remove >/dev/null || exit 0
         fi
-        if [ ${DIST} = "jessie" ] || [ ${DIST} = "stretch" ]; then
+        if [ ${DIST} = "jessie" ] || [ ${DIST} = "stretch" ] || [ ${DIST} = "buster" ]; then
             systemctl disable packetfence-remote-arp-sensor
         fi
         rm /etc/init.d/packetfence-remote-arp-sensor

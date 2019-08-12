@@ -39,13 +39,10 @@ Depends: ${misc:Depends}, vlan,
 # freeradius
  freeradius (>= 3.0.18), freeradius-ldap,
  freeradius-mysql, freeradius-utils, freeradius-rest, freeradius-redis,
-# systemd sd_notify support
- libsystemd-daemon-perl,
 # binary
  make, binutils,
  samba,
  krb5-user,
- iproute,
  ipset,
  sudo,
  sscep,
