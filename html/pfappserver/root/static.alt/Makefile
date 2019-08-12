@@ -12,7 +12,7 @@ all:
 	@echo "Use 'make vendor' to update external libraries, 'make dev' to generate the static JS/CSS files and 'make dist' to commit the distribution version."
 
 vendor:
-	sudo chown -R $(OUTPUT) ~/.npm
+	#sudo chown -R $(OUTPUT) ~/.npm
 	npm install
 
 dev:

@@ -13,9 +13,9 @@ all:
 	@echo "Use 'make vendor' to update external libraries, 'make dev' to generate the static JS/CSS files and 'make dist' to commit the distribution version."
 
 vendor:
-	sudo chown -R $(OUTPUT) ~/.npm
-	sudo mkdir -p ~/.config/configstore
-	sudo chown -R $(OUTPUT) ~/.config
+	#sudo chown -R $(OUTPUT) ~/.npm
+	#sudo mkdir -p ~/.config/configstore
+	#sudo chown -R $(OUTPUT) ~/.config
 	npm install
 	sudo npm install -g grunt-cli
 	sudo npm install -g bower
