@@ -14,9 +14,9 @@ all:
 
 vendor:
 	sudo chown -R $(OUTPUT) ~/.npm
-	sudo chown -R $(OUTPUT) ~/.config
 	npm install
 	sudo npm install -g grunt-cli
+	sudo chown -R $(OUTPUT) ~/.config
 	sudo npm install -g bower
 	@if [ -d bower_components ]; then \
 	  bower update --allow-root; \
