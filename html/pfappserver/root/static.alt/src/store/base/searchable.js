@@ -35,7 +35,7 @@ class SearchableApi {
     })
   }
   item (id) {
-    return apiCall.get(`${this.endpoint}/${id}`).then(response => {
+    return apiCall.get([ ...this.endpoint.split('/'), id ]).then(response => {
       return response.data.item
     })
   }

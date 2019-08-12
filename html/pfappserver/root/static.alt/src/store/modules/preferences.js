@@ -34,7 +34,7 @@ const api = {
           }
         })
       }
-      return apiCall.getQuiet(`preference/${IDENTIFIER_PREFIX}${id}`).then(response => { // exists
+      return apiCall.getQuiet(['preference',  `${IDENTIFIER_PREFIX}${id}`]).then(response => { // exists
         const { data: { item: { value = null } = {} } = {} } = response
         if (value) {
           // eslint-disable-next-line
@@ -54,22 +54,22 @@ const api = {
             }
           }
         }
-        return apiCall.putQuiet(`preference/${IDENTIFIER_PREFIX}${id}`, body).then(response => {
+        return apiCall.putQuiet(['preference', `${IDENTIFIER_PREFIX}${id}`], body).then(response => {
           return response.data
         })
       }).catch(() => { // not exists
-        return apiCall.putQuiet(`preference/${IDENTIFIER_PREFIX}${id}`, body).then(response => {
+        return apiCall.putQuiet(['preference', `${IDENTIFIER_PREFIX}${id}`], body).then(response => {
           return response.data
         })
       })
     } else {
-      return apiCall.deleteQuiet(`preference/${IDENTIFIER_PREFIX}${id}`).then(response => {
+      return apiCall.deleteQuiet(['preference', `${IDENTIFIER_PREFIX}${id}`]).then(response => {
         return response
       })
     }
   },
   removePreference: id => {
-    return apiCall.deleteQuiet(`preference/${IDENTIFIER_PREFIX}${id}`).then(response => {
+    return apiCall.deleteQuiet(['preference', `${IDENTIFIER_PREFIX}${id}`]).then(response => {
       return response
     })
   }

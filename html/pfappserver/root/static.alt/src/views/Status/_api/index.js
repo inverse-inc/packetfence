@@ -23,12 +23,12 @@ export default {
     })
   },
   service: (name, action) => {
-    return apiCall.get(`service/${name}/${action}`).then(response => {
+    return apiCall.get(['service', name, action]).then(response => {
       return response.data
     })
   },
   disableService: name => {
-    return apiCall.post(`service/${name}/disable`).then(response => {
+    return apiCall.post(['service', name, 'disable']).then(response => {
       const { data: { disable } } = response
       if (parseInt(disable) > 0) {
         return response.data
@@ -38,7 +38,7 @@ export default {
     })
   },
   enableService: name => {
-    return apiCall.post(`service/${name}/enable`).then(response => {
+    return apiCall.post(['service', name, 'enable']).then(response => {
       const { data: { enable } } = response
       if (parseInt(enable) > 0) {
         return response.data
@@ -48,7 +48,7 @@ export default {
     })
   },
   restartService: name => {
-    return apiCall.post(`service/${name}/restart`).then(response => {
+    return apiCall.post(['service', name, 'restart']).then(response => {
       const { data: { restart } } = response
       if (parseInt(restart) > 0) {
         return response.data
@@ -58,7 +58,7 @@ export default {
     })
   },
   startService: name => {
-    return apiCall.post(`service/${name}/start`).then(response => {
+    return apiCall.post(['service', name, 'start']).then(response => {
       const { data: { start } } = response
       if (parseInt(start) > 0) {
         return response.data
@@ -68,7 +68,7 @@ export default {
     })
   },
   stopService: name => {
-    return apiCall.post(`service/${name}/stop`).then(response => {
+    return apiCall.post(['service', name, 'stop']).then(response => {
       const { data: { stop } } = response
       if (parseInt(stop) > 0) {
         return response.data
@@ -83,7 +83,7 @@ export default {
     })
   },
   clusterServices: host => {
-    return apiCall.get(`services/cluster_status/${host}`).then(response => {
+    return apiCall.get(['services', 'cluster_status', host]).then(response => {
       return response.data.item
     })
   }

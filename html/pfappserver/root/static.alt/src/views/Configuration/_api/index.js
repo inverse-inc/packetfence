@@ -17,12 +17,12 @@ export default {
     })
   },
   adminRole: id => {
-    return apiCall.get(`config/admin_role/${id}`).then(response => {
+    return apiCall.get(['config', 'admin_role', id]).then(response => {
       return response.data.item
     })
   },
   adminRoleOptions: id => {
-    return apiCall.options(`config/admin_role/${id}`).then(response => {
+    return apiCall.options(['config', 'admin_role', id]).then(response => {
       return response.data
     })
   },
@@ -32,12 +32,12 @@ export default {
     })
   },
   updateAdminRole: data => {
-    return apiCall.patch(`config/admin_role/${data.id}`, data).then(response => {
+    return apiCall.patch(['config', 'admin_role', data.id], data).then(response => {
       return response.data
     })
   },
   deleteAdminRole: id => {
-    return apiCall.delete(`config/admin_role/${id}`)
+    return apiCall.delete(['config', 'admin_role', id])
   },
 
   /**
@@ -49,17 +49,17 @@ export default {
     })
   },
   authenticationSourcesOptions: sourceType => {
-    return apiCall.options(`config/sources?type=${sourceType}`).then(response => {
+    return apiCall.options(['config', 'sources'], { params: { type: sourceType } }).then(response => {
       return response.data
     })
   },
   authenticationSource: id => {
-    return apiCall.get(`config/source/${id}`).then(response => {
+    return apiCall.get(['config', 'source', id]).then(response => {
       return response.data.item
     })
   },
   authenticationSourceOptions: id => {
-    return apiCall.options(`config/source/${id}`).then(response => {
+    return apiCall.options(['config', 'source', id]).then(response => {
       return response.data
     })
   },
@@ -69,12 +69,12 @@ export default {
     })
   },
   updateAuthenticationSource: data => {
-    return apiCall.patch(`config/source/${data.id}`, data).then(response => {
+    return apiCall.patch(['config', 'source', data.id], data).then(response => {
       return response.data
     })
   },
   deleteAuthenticationSource: id => {
-    return apiCall.delete(`config/source/${id}`)
+    return apiCall.delete(['config', 'source', id])
   },
   sortAuthenticationSources: data => {
     return apiCall.patch('config/sources/sort_items', data).then(response => {
@@ -82,7 +82,7 @@ export default {
     })
   },
   testAuthenticationSource: data => {
-    return apiCall.post(`config/sources/test`, data).then(response => {
+    return apiCall.post('config/sources/test', data).then(response => {
       return response
     })
   },
@@ -96,22 +96,22 @@ export default {
     })
   },
   base: id => {
-    return apiCall.get(`config/base/${id}`).then(response => {
+    return apiCall.get(['config', 'base', id]).then(response => {
       return response.data.item
     })
   },
   baseOptions: id => {
-    return apiCall.options(`config/base/${id}`).then(response => {
+    return apiCall.options(['config', 'base', id]).then(response => {
       return response.data
     })
   },
   updateBase: data => {
-    return apiCall.patch(`config/base/${data.id}`, data).then(response => {
+    return apiCall.patch(['config', 'base', data.id], data).then(response => {
       return response.data
     })
   },
   testSmtp: data => {
-    return apiCall.post(`config/bases/test_smtp`, data).then(response => {
+    return apiCall.post(['config', 'bases', 'test_smtp'], data).then(response => {
       return response.data
     })
   },
@@ -130,12 +130,12 @@ export default {
     })
   },
   billingTier: id => {
-    return apiCall.get(`config/billing_tier/${id}`).then(response => {
+    return apiCall.get(['config', 'billing_tier', id]).then(response => {
       return response.data.item
     })
   },
   billingTierOptions: id => {
-    return apiCall.options(`config/billing_tier/${id}`).then(response => {
+    return apiCall.options(['config', 'billing_tier', id]).then(response => {
       return response.data
     })
   },
@@ -145,19 +145,19 @@ export default {
     })
   },
   updateBillingTier: data => {
-    return apiCall.patch(`config/billing_tier/${data.id}`, data).then(response => {
+    return apiCall.patch(['config', 'billing_tier', data.id], data).then(response => {
       return response.data
     })
   },
   deleteBillingTier: id => {
-    return apiCall.delete(`config/billing_tier/${id}`)
+    return apiCall.delete(['config', 'billing_tier', id])
   },
 
   /**
    * Connection Profiles
    */
   connectionProfiles: params => {
-    return apiCall.get(`config/connection_profiles`, { params }).then(response => {
+    return apiCall.get(['config', 'connection_profiles'], { params }).then(response => {
       return response.data
     })
   },
@@ -167,12 +167,12 @@ export default {
     })
   },
   connectionProfile: id => {
-    return apiCall.get(`config/connection_profile/${id}`).then(response => {
+    return apiCall.get(['config', 'connection_profile', id]).then(response => {
       return response.data.item
     })
   },
   connectionProfileOptions: id => {
-    return apiCall.options(`config/connection_profile/${id}`).then(response => {
+    return apiCall.options(['config', 'connection_profile', id]).then(response => {
       return response.data
     })
   },
@@ -182,12 +182,12 @@ export default {
     })
   },
   updateConnectionProfile: data => {
-    return apiCall.patch(`config/connection_profile/${data.id}`, data).then(response => {
+    return apiCall.patch(['config', 'connection_profile', data.id], data).then(response => {
       return response.data
     })
   },
   deleteConnectionProfile: id => {
-    return apiCall.delete(`config/connection_profile/${id}`)
+    return apiCall.delete(['config', 'connection_profile', id])
   },
   sortConnectionProfiles: data => {
     return apiCall.patch('config/connection_profiles/sort_items', data).then(response => {
@@ -199,7 +199,7 @@ export default {
    * Connection Profiles Files
    */
   connectionProfileFiles: params => {
-    return apiCall.get(`config/connection_profile/${params.id}/files`, { params }).then(response => {
+    return apiCall.get(['config', 'connection_profile', params.id, 'files'], { params }).then(response => {
       return response.data
     })
   },
@@ -210,17 +210,17 @@ export default {
     })
   },
   createConnectionProfileFile: params => {
-    return apiCall.put(`config/connection_profile/${params.id}/files/${params.filename}`, params.content).then(response => {
+    return apiCall.put(['config', 'connection_profile', params.id, 'files', params.filename], params.content).then(response => {
       return response.data
     })
   },
   updateConnectionProfileFile: params => {
-    return apiCall.patch(`config/connection_profile/${params.id}/files/${params.filename}`, params.content).then(response => {
+    return apiCall.patch(['config', 'connection_profile', params.id, 'files', params.filename], params.content).then(response => {
       return response.data
     })
   },
   deleteConnectionProfileFile: params => {
-    return apiCall.delete(`config/connection_profile/${params.id}/files/${params.filename}`)
+    return apiCall.delete(['config', 'connection_profile', params.id, 'files', params.filename])
   },
 
   /**
@@ -237,12 +237,12 @@ export default {
     })
   },
   deviceRegistration: id => {
-    return apiCall.get(`config/device_registration/${id}`).then(response => {
+    return apiCall.get(['config', 'device_registration', id]).then(response => {
       return response.data.item
     })
   },
   deviceRegistrationOptions: id => {
-    return apiCall.options(`config/device_registration/${id}`).then(response => {
+    return apiCall.options(['config', 'device_registration', id]).then(response => {
       return response.data
     })
   },
@@ -252,12 +252,12 @@ export default {
     })
   },
   updateDeviceRegistration: data => {
-    return apiCall.patch(`config/device_registration/${data.id}`, data).then(response => {
+    return apiCall.patch(['config', 'device_registration', data.id], data).then(response => {
       return response.data
     })
   },
   deleteDeviceRegistration: id => {
-    return apiCall.delete(`config/device_registration/${id}`)
+    return apiCall.delete(['config', 'device_registration', id])
   },
 
   /**
@@ -274,12 +274,12 @@ export default {
     })
   },
   domain: id => {
-    return apiCall.get(`config/domain/${id}`).then(response => {
+    return apiCall.get(['config', 'domain', id]).then(response => {
       return response.data.item
     })
   },
   domainOptions: id => {
-    return apiCall.options(`config/domain/${id}`).then(response => {
+    return apiCall.options(['config', 'domain', id]).then(response => {
       return response.data
     })
   },
@@ -289,32 +289,32 @@ export default {
     })
   },
   updateDomain: data => {
-    return apiCall.patch(`config/domain/${data.id}`, data).then(response => {
+    return apiCall.patch(['config', 'domain', data.id], data).then(response => {
       return response.data
     })
   },
   deleteDomain: id => {
-    return apiCall.delete(`config/domain/${id}`)
+    return apiCall.delete(['config', 'domain', id])
   },
   testDomain: id => {
-    return apiCall.getQuiet(`config/domain/${id}/test_join`).then(response => {
+    return apiCall.getQuiet(['config', 'domain', id, 'test_join']).then(response => {
       return response.data
     }).catch(err => {
       throw err
     })
   },
   joinDomain: data => {
-    return apiCall.post(`config/domain/${data.id}/join`, data).then(response => {
+    return apiCall.post(['config', 'domain', data.id, 'join'], data).then(response => {
       return response.data
     })
   },
   rejoinDomain: data => {
-    return apiCall.post(`config/domain/${data.id}/rejoin`, data).then(response => {
+    return apiCall.post(['config', 'domain', data.id, 'rejoin'], data).then(response => {
       return response.data
     })
   },
   unjoinDomain: data => {
-    return apiCall.post(`config/domain/${data.id}/unjoin`, data).then(response => {
+    return apiCall.post(['config', 'domain', data.id, 'unjoin'], data).then(response => {
       return response.data
     })
   },
@@ -328,12 +328,12 @@ export default {
     })
   },
   filter: id => {
-    return apiCall.get(`config/filter/${id}`).then(response => {
+    return apiCall.get(['config', 'filter', id]).then(response => {
       return response.data
     })
   },
   updateFilter: (id, filter) => {
-    return apiCall.put(`config/filter/${id}`, filter).then(response => {
+    return apiCall.put(['config', 'filter', id], filter).then(response => {
       return response.data
     })
   },
@@ -342,12 +342,12 @@ export default {
    * Fingerbank Profiling
    */
   fingerbankAccountInfo: () => {
-    return apiCall.getQuiet(`fingerbank/account_info`).then(response => {
+    return apiCall.getQuiet(['fingerbank', 'account_info']).then(response => {
       return response.data
     })
   },
   fingerbankGeneralSettings: params => {
-    return apiCall.get(`config/fingerbank_settings`, { params }).then(response => {
+    return apiCall.get(['config', 'fingerbank_settings'], { params }).then(response => {
       return response.data.items
     })
   },
@@ -357,12 +357,12 @@ export default {
     })
   },
   fingerbankUpdateGeneralSetting: (id, params) => {
-    return apiCall.patch(`config/fingerbank_setting/${id}`, params).then(response => {
+    return apiCall.patch(['config', 'fingerbank_setting', id], params).then(response => {
       return response.data
     })
   },
   fingerbankCombinations: params => {
-    return apiCall.get(`fingerbank/local/combinations`, { params }).then(response => {
+    return apiCall.get(['fingerbank', 'local', 'combinations'], { params }).then(response => {
       return response.data
     })
   },
@@ -372,7 +372,7 @@ export default {
     })
   },
   fingerbankCombination: id => {
-    return apiCall.get(`fingerbank/local/combination/${id}`).then(response => {
+    return apiCall.get(['fingerbank', 'local', 'combination', id]).then(response => {
       return response.data.item
     })
   },
@@ -382,15 +382,15 @@ export default {
     })
   },
   fingerbankUpdateCombination: data => {
-    return apiCall.patch(`fingerbank/local/combination/${data.id}`, data).then(response => {
+    return apiCall.patch(['fingerbank', 'local', 'combination', data.id], data).then(response => {
       return response.data
     })
   },
   fingerbankDeleteCombination: id => {
-    return apiCall.delete(`fingerbank/local/combination/${id}`)
+    return apiCall.delete(['fingerbank', 'local', 'combination', id])
   },
   fingerbankDevices: params => {
-    return apiCall.get(`fingerbank/all/devices`, { params }).then(response => {
+    return apiCall.get(['fingerbank', 'all', 'devices'], { params }).then(response => {
       return response.data
     })
   },
@@ -400,7 +400,7 @@ export default {
     })
   },
   fingerbankDevice: id => {
-    return apiCall.get(`fingerbank/all/device/${id}`).then(response => {
+    return apiCall.get(['fingerbank', 'all', 'device', id]).then(response => {
       return response.data.item
     })
   },
@@ -410,15 +410,15 @@ export default {
     })
   },
   fingerbankUpdateDevice: data => {
-    return apiCall.patch(`fingerbank/local/device/${data.id}`, data).then(response => {
+    return apiCall.patch(['fingerbank', 'local', 'device', data.id], data).then(response => {
       return response.data
     })
   },
   fingerbankDeleteDevice: id => {
-    return apiCall.delete(`fingerbank/local/device/${id}`)
+    return apiCall.delete(['fingerbank', 'local', 'device', id])
   },
   fingerbankDhcpFingerprints: params => {
-    return apiCall.get(`fingerbank/all/dhcp_fingerprints`, { params }).then(response => {
+    return apiCall.get(['fingerbank', 'all', 'dhcp_fingerprints'], { params }).then(response => {
       return response.data
     })
   },
@@ -428,7 +428,7 @@ export default {
     })
   },
   fingerbankDhcpFingerprint: id => {
-    return apiCall.get(`fingerbank/all/dhcp_fingerprint/${id}`).then(response => {
+    return apiCall.get(['fingerbank', 'all', 'dhcp_fingerprint', id]).then(response => {
       return response.data.item
     })
   },
@@ -438,15 +438,15 @@ export default {
     })
   },
   fingerbankUpdateDhcpFingerprint: data => {
-    return apiCall.patch(`fingerbank/local/dhcp_fingerprint/${data.id}`, data).then(response => {
+    return apiCall.patch(['fingerbank', 'local', 'dhcp_fingerprint', data.id], data).then(response => {
       return response.data
     })
   },
   fingerbankDeleteDhcpFingerprint: id => {
-    return apiCall.delete(`fingerbank/local/dhcp_fingerprint/${id}`)
+    return apiCall.delete(['fingerbank', 'local', 'dhcp_fingerprint', id])
   },
   fingerbankDhcpVendors: params => {
-    return apiCall.get(`fingerbank/all/dhcp_vendors`, { params }).then(response => {
+    return apiCall.get(['fingerbank', 'all', 'dhcp_vendors'], { params }).then(response => {
       return response.data
     })
   },
@@ -456,7 +456,7 @@ export default {
     })
   },
   fingerbankDhcpVendor: id => {
-    return apiCall.get(`fingerbank/all/dhcp_vendor/${id}`).then(response => {
+    return apiCall.get(['fingerbank', 'all', 'dhcp_vendor', id]).then(response => {
       return response.data.item
     })
   },
@@ -466,15 +466,15 @@ export default {
     })
   },
   fingerbankUpdateDhcpVendor: data => {
-    return apiCall.patch(`fingerbank/local/dhcp_vendor/${data.id}`, data).then(response => {
+    return apiCall.patch(['fingerbank', 'local', 'dhcp_vendor', data.id], data).then(response => {
       return response.data
     })
   },
   fingerbankDeleteDhcpVendor: id => {
-    return apiCall.delete(`fingerbank/local/dhcp_vendor/${id}`)
+    return apiCall.delete(['fingerbank', 'local', 'dhcp_vendor', id])
   },
   fingerbankDhcpv6Fingerprints: params => {
-    return apiCall.get(`fingerbank/all/dhcp6_fingerprints`, { params }).then(response => {
+    return apiCall.get(['fingerbank', 'all', 'dhcp6_fingerprints'], { params }).then(response => {
       return response.data
     })
   },
@@ -484,7 +484,7 @@ export default {
     })
   },
   fingerbankDhcpv6Fingerprint: id => {
-    return apiCall.get(`fingerbank/all/dhcp6_fingerprint/${id}`).then(response => {
+    return apiCall.get(['fingerbank', 'all', 'dhcp6_fingerprint', id]).then(response => {
       return response.data.item
     })
   },
@@ -494,15 +494,15 @@ export default {
     })
   },
   fingerbankUpdateDhcpv6Fingerprint: data => {
-    return apiCall.patch(`fingerbank/local/dhcp6_fingerprint/${data.id}`, data).then(response => {
+    return apiCall.patch(['fingerbank', 'local', 'dhcp6_fingerprint', data.id], data).then(response => {
       return response.data
     })
   },
   fingerbankDeleteDhcpv6Fingerprint: id => {
-    return apiCall.delete(`fingerbank/local/dhcp6_fingerprint/${id}`)
+    return apiCall.delete(['fingerbank', 'local', 'dhcp6_fingerprint', id])
   },
   fingerbankDhcpv6Enterprises: params => {
-    return apiCall.get(`fingerbank/all/dhcp6_enterprises`, { params }).then(response => {
+    return apiCall.get(['fingerbank', 'all', 'dhcp6_enterprises'], { params }).then(response => {
       return response.data
     })
   },
@@ -512,7 +512,7 @@ export default {
     })
   },
   fingerbankDhcpv6Enterprise: id => {
-    return apiCall.get(`fingerbank/all/dhcp6_enterprise/${id}`).then(response => {
+    return apiCall.get(['fingerbank', 'all', 'dhcp6_enterprise', id]).then(response => {
       return response.data.item
     })
   },
@@ -522,15 +522,15 @@ export default {
     })
   },
   fingerbankUpdateDhcpv6Enterprise: data => {
-    return apiCall.patch(`fingerbank/local/dhcp6_enterprise/${data.id}`, data).then(response => {
+    return apiCall.patch(['fingerbank', 'local', 'dhcp6_enterprise', data.id], data).then(response => {
       return response.data
     })
   },
   fingerbankDeleteDhcpv6Enterprise: id => {
-    return apiCall.delete(`fingerbank/local/dhcp6_enterprise/${id}`)
+    return apiCall.delete(['fingerbank', 'local', 'dhcp6_enterprise', id])
   },
   fingerbankMacVendors: params => {
-    return apiCall.get(`fingerbank/all/mac_vendors`, { params }).then(response => {
+    return apiCall.get(['fingerbank', 'all', 'mac_vendors'], { params }).then(response => {
       return response.data
     })
   },
@@ -540,7 +540,7 @@ export default {
     })
   },
   fingerbankMacVendor: id => {
-    return apiCall.get(`fingerbank/all/mac_vendor/${id}`).then(response => {
+    return apiCall.get(['fingerbank', 'all', 'mac_vendor', id]).then(response => {
       return response.data.item
     })
   },
@@ -550,15 +550,15 @@ export default {
     })
   },
   fingerbankUpdateMacVendor: data => {
-    return apiCall.patch(`fingerbank/local/mac_vendor/${data.id}`, data).then(response => {
+    return apiCall.patch(['fingerbank', 'local', 'mac_vendor', data.id], data).then(response => {
       return response.data
     })
   },
   fingerbankDeleteMacVendor: id => {
-    return apiCall.delete(`fingerbank/local/mac_vendor/${id}`)
+    return apiCall.delete(['fingerbank', 'local', 'mac_vendor', id])
   },
   fingerbankUserAgents: params => {
-    return apiCall.get(`fingerbank/local/user_agents`, { params }).then(response => {
+    return apiCall.get(['fingerbank', 'local', 'user_agents'], { params }).then(response => {
       return response.data
     })
   },
@@ -568,7 +568,7 @@ export default {
     })
   },
   fingerbankUserAgent: id => {
-    return apiCall.get(`fingerbank/local/user_agent/${id}`).then(response => {
+    return apiCall.get(['fingerbank', 'local', 'user_agent', id]).then(response => {
       return response.data.item
     })
   },
@@ -578,12 +578,12 @@ export default {
     })
   },
   fingerbankUpdateUserAgent: data => {
-    return apiCall.patch(`fingerbank/local/user_agent/${data.id}`, data).then(response => {
+    return apiCall.patch(['fingerbank', 'local', 'user_agent', data.id], data).then(response => {
       return response.data
     })
   },
   fingerbankDeleteUserAgent: id => {
-    return apiCall.delete(`fingerbank/local/user_agent/${id}`)
+    return apiCall.delete(['fingerbank', 'local', 'user_agent', id])
   },
 
   /**
@@ -595,17 +595,17 @@ export default {
     })
   },
   firewallsOptions: firewallType => {
-    return apiCall.options(`config/firewalls?type=${firewallType}`).then(response => {
+    return apiCall.options(['config', 'firewalls'], { params: { type: firewallType } }).then(response => {
       return response.data
     })
   },
   firewall: id => {
-    return apiCall.get(`config/firewall/${id}`).then(response => {
+    return apiCall.get(['config', 'firewall', id]).then(response => {
       return response.data.item
     })
   },
   firewallOptions: id => {
-    return apiCall.options(`config/firewall/${id}`).then(response => {
+    return apiCall.options(['config', 'firewall', id]).then(response => {
       return response.data
     })
   },
@@ -615,12 +615,12 @@ export default {
     })
   },
   updateFirewall: data => {
-    return apiCall.patch(`config/firewall/${data.id}`, data).then(response => {
+    return apiCall.patch(['config', 'firewall', data.id], data).then(response => {
       return response.data
     })
   },
   deleteFirewall: id => {
-    return apiCall.delete(`config/firewall/${id}`)
+    return apiCall.delete(['config', 'firewall', id])
   },
 
   /**
@@ -637,12 +637,12 @@ export default {
     })
   },
   floatingDevice: id => {
-    return apiCall.get(`config/floating_device/${id}`).then(response => {
+    return apiCall.get(['config', 'floating_device', id]).then(response => {
       return response.data.item
     })
   },
   floatingDeviceOptions: id => {
-    return apiCall.options(`config/floating_device/${id}`).then(response => {
+    return apiCall.options(['config', 'floating_device', id]).then(response => {
       return response.data
     })
   },
@@ -652,12 +652,12 @@ export default {
     })
   },
   updateFloatingDevice: data => {
-    return apiCall.patch(`config/floating_device/${data.id}`, data).then(response => {
+    return apiCall.patch(['config', 'floating_device', data.id], data).then(response => {
       return response.data
     })
   },
   deleteFloatingDevice: id => {
-    return apiCall.delete(`config/floating_device/${id}`)
+    return apiCall.delete(['config', 'floating_device', id])
   },
 
   /**
@@ -669,7 +669,7 @@ export default {
     })
   },
   interface: id => {
-    return apiCall.get(`config/interface/${id}`).then(response => {
+    return apiCall.get(['config', 'interface', id]).then(response => {
       return response.data.item
     })
   },
@@ -679,22 +679,22 @@ export default {
     })
   },
   updateInterface: data => {
-    return apiCall.patch(`config/interface/${data.id}`, data).then(response => {
+    return apiCall.patch(['config', 'interface', data.id], data).then(response => {
       return response.data
     })
   },
   downInterface: id => {
-    return apiCall.post(`config/interface/${id}/down`).then(response => {
+    return apiCall.post(['config', 'interface', id, 'down']).then(response => {
       return response.data
     })
   },
   upInterface: id => {
-    return apiCall.post(`config/interface/${id}/up`).then(response => {
+    return apiCall.post(['config', 'interface', id, 'up']).then(response => {
       return response.data
     })
   },
   deleteInterface: id => {
-    return apiCall.delete(`config/interface/${id}`)
+    return apiCall.delete(['config', 'interface', id])
   },
 
   /**
@@ -711,17 +711,17 @@ export default {
     })
   },
   layer2Network: id => {
-    return apiCall.get(`config/l2_network/${id}`).then(response => {
+    return apiCall.get(['config', 'l2_network', id]).then(response => {
       return response.data.item
     })
   },
   layer2NetworkOptions: id => {
-    return apiCall.options(`config/l2_network/${id}`).then(response => {
+    return apiCall.options(['config', 'l2_network', id]).then(response => {
       return response.data
     })
   },
   updateLayer2Network: data => {
-    return apiCall.patch(`config/l2_network/${data.id}`, data).then(response => {
+    return apiCall.patch(['config', 'l2_network', data.id], data).then(response => {
       return response.data
     })
   },
@@ -740,12 +740,12 @@ export default {
     })
   },
   maintenanceTask: id => {
-    return apiCall.get(`config/maintenance_task/${id}`).then(response => {
+    return apiCall.get(['config', 'maintenance_task', id]).then(response => {
       return response.data.item
     })
   },
   maintenanceTaskOptions: id => {
-    return apiCall.options(`config/maintenance_task/${id}`).then(response => {
+    return apiCall.options(['config', 'maintenance_task', id]).then(response => {
       return response.data
     })
   },
@@ -755,12 +755,12 @@ export default {
     })
   },
   updateMaintenanceTask: data => {
-    return apiCall.patch(`config/maintenance_task/${data.id}`, data).then(response => {
+    return apiCall.patch(['config', 'maintenance_task', data.id], data).then(response => {
       return response.data
     })
   },
   deleteMaintenanceTask: id => {
-    return apiCall.delete(`config/maintenance_task/${id}`)
+    return apiCall.delete(['config', 'maintenance_task', id])
   },
 
   /**
@@ -772,17 +772,17 @@ export default {
     })
   },
   pkiProvidersOptions: providerType => {
-    return apiCall.options(`config/pki_providers?type=${providerType}`).then(response => {
+    return apiCall.options(['config', 'pki_providers'], { params: { type: providerType } }).then(response => {
       return response.data
     })
   },
   pkiProvider: id => {
-    return apiCall.get(`config/pki_provider/${id}`).then(response => {
+    return apiCall.get(['config', 'pki_provider', id]).then(response => {
       return response.data.item
     })
   },
   pkiProviderOptions: id => {
-    return apiCall.options(`config/pki_provider/${id}`).then(response => {
+    return apiCall.options(['config', 'pki_provider', id]).then(response => {
       return response.data
     })
   },
@@ -792,12 +792,12 @@ export default {
     })
   },
   updatePkiProvider: data => {
-    return apiCall.patch(`config/pki_provider/${data.id}`, data).then(response => {
+    return apiCall.patch(['config', 'pki_provider', data.id], data).then(response => {
       return response.data
     })
   },
   deletePkiProvider: id => {
-    return apiCall.delete(`config/pki_provider/${id}`)
+    return apiCall.delete(['config', 'pki_provider', id])
   },
 
   /**
@@ -809,17 +809,17 @@ export default {
     })
   },
   portalModulesOptions: sourceType => {
-    return apiCall.options(`config/portal_modules?type=${sourceType}`).then(response => {
+    return apiCall.options(['config', 'portal_modules'], { params: { type: sourceType } }).then(response => {
       return response.data
     })
   },
   portalModule: id => {
-    return apiCall.get(`config/portal_module/${id}`).then(response => {
+    return apiCall.get(['config', 'portal_module', id]).then(response => {
       return response.data.item
     })
   },
   portalModuleOptions: id => {
-    return apiCall.options(`config/portal_module/${id}`).then(response => {
+    return apiCall.options(['config', 'portal_module', id]).then(response => {
       return response.data
     })
   },
@@ -830,34 +830,34 @@ export default {
   },
   updatePortalModule: data => {
     const patch = data.quiet ? 'patchQuiet' : 'patch'
-    return apiCall[patch](`config/portal_module/${data.id}`, data).then(response => {
+    return apiCall[patch](['config', 'portal_module', data.id], data).then(response => {
       return response.data
     })
   },
   deletePortalModule: id => {
-    return apiCall.delete(`config/portal_module/${id}`)
+    return apiCall.delete(['config', 'portal_module', id])
   },
 
   /**
    * Provisionings
    */
   provisionings: params => {
-    return apiCall.get(`config/provisionings`, { params }).then(response => {
+    return apiCall.get(['config', 'provisionings'], { params }).then(response => {
       return response.data
     })
   },
   provisioningsOptions: provisioningType => {
-    return apiCall.options(`config/provisionings?type=${provisioningType}`).then(response => {
+    return apiCall.options(['config', 'provisionings'], { params: { type: provisioningType } }).then(response => {
       return response.data
     })
   },
   provisioning: id => {
-    return apiCall.get(`config/provisioning/${id}`).then(response => {
+    return apiCall.get(['config', 'provisioning', id]).then(response => {
       return response.data.item
     })
   },
   provisioningOptions: id => {
-    return apiCall.options(`config/provisioning/${id}`).then(response => {
+    return apiCall.options(['config', 'provisioning', id]).then(response => {
       return response.data
     })
   },
@@ -867,12 +867,12 @@ export default {
     })
   },
   updateProvisioning: data => {
-    return apiCall.patch(`config/provisioning/${data.id}`, data).then(response => {
+    return apiCall.patch(['config', 'provisioning', data.id], data).then(response => {
       return response.data
     })
   },
   deleteProvisioning: id => {
-    return apiCall.delete(`config/provisioning/${id}`)
+    return apiCall.delete(['config', 'provisioning', id])
   },
 
   /**
@@ -889,12 +889,12 @@ export default {
     })
   },
   realm: id => {
-    return apiCall.get(`config/realm/${id}`).then(response => {
+    return apiCall.get(['config', 'realm', id]).then(response => {
       return response.data.item
     })
   },
   realmOptions: id => {
-    return apiCall.options(`config/realm/${id}`).then(response => {
+    return apiCall.options(['config', 'realm', id]).then(response => {
       return response.data
     })
   },
@@ -904,12 +904,12 @@ export default {
     })
   },
   updateRealm: data => {
-    return apiCall.patch(`config/realm/${data.id}`, data).then(response => {
+    return apiCall.patch(['config', 'realm', data.id], data).then(response => {
       return response.data
     })
   },
   deleteRealm: id => {
-    return apiCall.delete(`config/realm/${id}`)
+    return apiCall.delete(['config', 'realm', id])
   },
 
   /**
@@ -926,12 +926,12 @@ export default {
     })
   },
   role: id => {
-    return apiCall.get(`config/role/${id}`).then(response => {
+    return apiCall.get(['config', 'role', id]).then(response => {
       return response.data.item
     })
   },
   roleOptions: id => {
-    return apiCall.options(`config/role/${id}`).then(response => {
+    return apiCall.options(['config', 'role', id]).then(response => {
       return response.data
     })
   },
@@ -941,12 +941,12 @@ export default {
     })
   },
   updateRole: data => {
-    return apiCall.patch(`config/role/${data.id}`, data).then(response => {
+    return apiCall.patch(['config', 'role', data.id], data).then(response => {
       return response.data
     })
   },
   deleteRole: id => {
-    return apiCall.delete(`config/role/${id}`)
+    return apiCall.delete(['config', 'role', id])
   },
 
   /**
@@ -963,12 +963,12 @@ export default {
     })
   },
   routedNetwork: id => {
-    return apiCall.get(`config/routed_network/${id}`).then(response => {
+    return apiCall.get(['config', 'routed_network', id]).then(response => {
       return response.data.item
     })
   },
   routedNetworkOptions: id => {
-    return apiCall.options(`config/routed_network/${id}`).then(response => {
+    return apiCall.options(['config', 'routed_network', id]).then(response => {
       return response.data
     })
   },
@@ -978,34 +978,34 @@ export default {
     })
   },
   updateRoutedNetwork: data => {
-    return apiCall.patch(`config/routed_network/${data.id}`, data).then(response => {
+    return apiCall.patch(['config', 'routed_network', data.id], data).then(response => {
       return response.data
     })
   },
   deleteRoutedNetwork: id => {
-    return apiCall.delete(`config/routed_network/${id}`)
+    return apiCall.delete(['config', 'routed_network', id])
   },
 
   /**
    * Scans
    */
   scanEngines: params => {
-    return apiCall.get(`config/scans`, { params }).then(response => {
+    return apiCall.get(['config', 'scans'], { params }).then(response => {
       return response.data
     })
   },
   scanEnginesOptions: scanType => {
-    return apiCall.options(`config/scans?type=${scanType}`).then(response => {
+    return apiCall.options(['config', 'scans'], { params: { type: scanType } }).then(response => {
       return response.data
     })
   },
   scanEngine: id => {
-    return apiCall.get(`config/scan/${id}`).then(response => {
+    return apiCall.get(['config', 'scan', id]).then(response => {
       return response.data.item
     })
   },
   scanEngineOptions: id => {
-    return apiCall.options(`config/scan/${id}`).then(response => {
+    return apiCall.options(['config', 'scan', id]).then(response => {
       return response.data
     })
   },
@@ -1015,12 +1015,12 @@ export default {
     })
   },
   updateScanEngine: data => {
-    return apiCall.patch(`config/scan/${data.id}`, data).then(response => {
+    return apiCall.patch(['config', 'scan', data.id], data).then(response => {
       return response.data
     })
   },
   deleteScanEngine: id => {
-    return apiCall.delete(`config/scan/${id}`)
+    return apiCall.delete(['config', 'scan', id])
   },
 
   /**
@@ -1037,12 +1037,12 @@ export default {
     })
   },
   securityEvent: id => {
-    return apiCall.get(`config/security_event/${id}`).then(response => {
+    return apiCall.get(['config', 'security_event', id]).then(response => {
       return response.data.item
     })
   },
   securityEventOptions: id => {
-    return apiCall.options(`config/security_event/${id}`).then(response => {
+    return apiCall.options(['config', 'security_event', id]).then(response => {
       return response.data
     })
   },
@@ -1053,39 +1053,39 @@ export default {
   },
   updateSecurityEvent: data => {
     const patch = data.quiet ? 'patchQuiet' : 'patch'
-    return apiCall[patch](`config/security_event/${data.id}`, data).then(response => {
+    return apiCall[patch](['config', 'security_event', data.id], data).then(response => {
       return response.data
     })
   },
   deleteSecurityEvent: id => {
-    return apiCall.delete(`config/security_event/${id}`)
+    return apiCall.delete(['config', 'security_event', id])
   },
 
   /**
    * SSL Certificates
    */
   certificate: id => {
-    return apiCall.get(`config/certificate/${id}`).then(response => {
+    return apiCall.get(['config', 'certificate', id]).then(response => {
       return response.data
     })
   },
   certificateInfo: id => {
-    return apiCall.get(`config/certificate/${id}/info`).then(response => {
+    return apiCall.get(['config', 'certificate', id, 'info']).then(response => {
       return response.data
     })
   },
   createCertificate: data => {
-    return apiCall.put(`config/certificate/${data.id}?check_chain=${data.check_chain}`, data).then(response => {
+    return apiCall.put(['config', 'certificate', data.id], data, { params: { check_chain: data.check_chain } }).then(response => {
       return response.data
     })
   },
   createLetsEncryptCertificate: data => {
-    return apiCall.put(`config/certificate/${data.id}/lets_encrypt`, data).then(response => {
+    return apiCall.put(['config', 'certificate', data.id, 'lets_encrypt'], data).then(response => {
       return response.data
     })
   },
   generateCertificateSigningRequest: data => {
-    return apiCall.post(`config/certificate/${data.id}/generate_csr`, data).then(response => {
+    return apiCall.post(['config', 'certificate', data.id, 'generate_csr'], data).then(response => {
       return response.data
     })
   },
@@ -1099,22 +1099,22 @@ export default {
    * Switches
    */
   switches: params => {
-    return apiCall.get(`config/switches`, { params }).then(response => {
+    return apiCall.get(['config', 'switches'], { params }).then(response => {
       return response.data
     })
   },
   switchesOptions: switchGroup => {
-    return apiCall.options(`config/switches?type=${switchGroup}`).then(response => {
+    return apiCall.options(['config', 'switches'], { params: { type: switchGroup } }).then(response => {
       return response.data
     })
   },
   switche: id => {
-    return apiCall.get(`config/switch/${encode.switch_id(id)}`).then(response => {
+    return apiCall.get(['config', 'switch', id]).then(response => {
       return response.data.item
     })
   },
   switchOptions: id => {
-    return apiCall.options(`config/switch/${encode.switch_id(id)}`).then(response => {
+    return apiCall.options(['config', 'switch', id]).then(response => {
       return response.data
     })
   },
@@ -1125,19 +1125,19 @@ export default {
   },
   updateSwitch: data => {
     const patch = data.quiet ? 'patchQuiet' : 'patch'
-    return apiCall[patch](`config/switch/${encode.switch_id(data.id)}`, data).then(response => {
+    return apiCall[patch](['config', 'switch', data.id], data).then(response => {
       return response.data
     })
   },
   deleteSwitch: id => {
-    return apiCall.delete(`config/switch/${encode.switch_id(id)}`)
+    return apiCall.delete(['config', 'switch', id])
   },
 
   /**
    * SwitchGroups
    */
   switchGroups: params => {
-    return apiCall.get(`config/switch_groups`, { params }).then(response => {
+    return apiCall.get(['config', 'switch_groups'], { params }).then(response => {
       return response.data
     })
   },
@@ -1147,17 +1147,17 @@ export default {
     })
   },
   switchGroup: id => {
-    return apiCall.get(`config/switch_group/${encode.switch_id(id)}`).then(response => {
+    return apiCall.get(['config', 'switch_group', id]).then(response => {
       return response.data.item
     })
   },
   switchGroupMembers: id => {
-    return apiCall.get(`config/switch_group/${encode.switch_id(id)}/members`).then(response => {
+    return apiCall.get(['config', 'switch_group', id, 'members']).then(response => {
       return response.data.items
     })
   },
   switchGroupOptions: id => {
-    return apiCall.options(`config/switch_group/${encode.switch_id(id)}`).then(response => {
+    return apiCall.options(['config', 'switch_group', id]).then(response => {
       return response.data
     })
   },
@@ -1167,12 +1167,12 @@ export default {
     })
   },
   updateSwitchGroup: data => {
-    return apiCall.patch(`config/switch_group/${encode.switch_id(data.id)}`, data).then(response => {
+    return apiCall.patch(['config', 'switch_group', data.id], data).then(response => {
       return response.data
     })
   },
   deleteSwitchGroup: id => {
-    return apiCall.delete(`config/switch_group/${encode.switch_id(id)}`)
+    return apiCall.delete(['config', 'switch_group', id])
   },
 
   /**
@@ -1184,17 +1184,17 @@ export default {
     })
   },
   syslogForwardersOptions: syslogForwarderType => {
-    return apiCall.options(`config/syslog_forwarders?type=${syslogForwarderType}`).then(response => {
+    return apiCall.options(['config', 'syslog_forwarders', { params: { type: syslogForwarderType } }]).then(response => {
       return response.data
     })
   },
   syslogForwarder: id => {
-    return apiCall.get(`config/syslog_forwarder/${id}`).then(response => {
+    return apiCall.get(['config', 'syslog_forwarder', id]).then(response => {
       return response.data.item
     })
   },
   syslogForwarderOptions: id => {
-    return apiCall.options(`config/syslog_forwarder/${id}`).then(response => {
+    return apiCall.options(['config', 'syslog_forwarder', id]).then(response => {
       return response.data
     })
   },
@@ -1204,12 +1204,12 @@ export default {
     })
   },
   updateSyslogForwarder: data => {
-    return apiCall.patch(`config/syslog_forwarder/${data.id}`, data).then(response => {
+    return apiCall.patch(['config', 'syslog_forwarder', data.id], data).then(response => {
       return response.data
     })
   },
   deleteSyslogForwarder: id => {
-    return apiCall.delete(`config/syslog_forwarder/${id}`)
+    return apiCall.delete(['config', 'syslog_forwarder', id])
   },
 
   /**
@@ -1221,17 +1221,17 @@ export default {
     })
   },
   syslogParsersOptions: syslogParserType => {
-    return apiCall.options(`config/syslog_parsers?type=${syslogParserType}`).then(response => {
+    return apiCall.options(['config', 'syslog_parsers'], { params: { type: syslogParserType }}).then(response => {
       return response.data
     })
   },
   syslogParser: id => {
-    return apiCall.get(`config/syslog_parser/${id}`).then(response => {
+    return apiCall.get(['config', 'syslog_parser', id]).then(response => {
       return response.data.item
     })
   },
   syslogParserOptions: id => {
-    return apiCall.options(`config/syslog_parser/${id}`).then(response => {
+    return apiCall.options(['config', 'syslog_parser', id]).then(response => {
       return response.data
     })
   },
@@ -1241,12 +1241,12 @@ export default {
     })
   },
   updateSyslogParser: data => {
-    return apiCall.patch(`config/syslog_parser/${data.id}`, data).then(response => {
+    return apiCall.patch(['config', 'syslog_parser', data.id], data).then(response => {
       return response.data
     })
   },
   deleteSyslogParser: id => {
-    return apiCall.delete(`config/syslog_parser/${id}`)
+    return apiCall.delete(['config', 'syslog_parser', id])
   },
   dryRunSyslogParser: data => {
     return apiCall.post('config/syslog_parsers/dry_run', data).then(response => {
@@ -1268,12 +1268,12 @@ export default {
     })
   },
   trafficShapingPolicy: id => {
-    return apiCall.get(`config/traffic_shaping_policy/${id}`).then(response => {
+    return apiCall.get(['config', 'traffic_shaping_policy', id]).then(response => {
       return response.data.item
     })
   },
   trafficShapingPolicyOptions: id => {
-    return apiCall.options(`config/traffic_shaping_policy/${id}`).then(response => {
+    return apiCall.options(['config', 'traffic_shaping_policy', id]).then(response => {
       return response.data
     })
   },
@@ -1283,12 +1283,12 @@ export default {
     })
   },
   updateTrafficShapingPolicy: data => {
-    return apiCall.patch(`config/traffic_shaping_policy/${data.id}`, data).then(response => {
+    return apiCall.patch(['config', 'traffic_shaping_policy', data.id], data).then(response => {
       return response.data
     })
   },
   deleteTrafficShapingPolicy: id => {
-    return apiCall.delete(`config/traffic_shaping_policy/${id}`)
+    return apiCall.delete(['config', 'traffic_shaping_policy', id])
   },
 
   /**
@@ -1305,12 +1305,12 @@ export default {
     })
   },
   wmiRule: id => {
-    return apiCall.get(`config/wmi_rule/${id}`).then(response => {
+    return apiCall.get(['config', 'wmi_rule', id]).then(response => {
       return response.data.item
     })
   },
   wmiRuleOptions: id => {
-    return apiCall.options(`config/wmi_rule/${id}`).then(response => {
+    return apiCall.options(['config', 'wmi_rule', id]).then(response => {
       return response.data
     })
   },
@@ -1320,12 +1320,12 @@ export default {
     })
   },
   updateWmiRule: data => {
-    return apiCall.patch(`config/wmi_rule/${data.id}`, data).then(response => {
+    return apiCall.patch(['config', 'wmi_rule', data.id], data).then(response => {
       return response.data
     })
   },
   deleteWmiRule: id => {
-    return apiCall.delete(`config/wmi_rule/${id}`)
+    return apiCall.delete(['config', 'wmi_rule', id])
   },
 
   /**
@@ -1337,7 +1337,7 @@ export default {
     })
   },
   wrixLocation: id => {
-    return apiCall.get(`wrix_location/${id}`).then(response => {
+    return apiCall.get(['wrix_location', id]).then(response => {
       return response.data.item
     })
   },
@@ -1347,11 +1347,11 @@ export default {
     })
   },
   updateWrixLocation: data => {
-    return apiCall.patch(`wrix_location/${data.id}`, data).then(response => {
+    return apiCall.patch(['wrix_location', data.id], data).then(response => {
       return response.data
     })
   },
   deleteWrixLocation: id => {
-    return apiCall.delete(`wrix_location/${id}`)
+    return apiCall.delete(['wrix_location', id])
   }
 }
