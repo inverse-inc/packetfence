@@ -14,7 +14,7 @@ all:
 
 vendor:
 	sudo chown -R $(OUTPUT) ~/.npm
-	sudo mkdir ~/.config
+	sudo mkdir -p ~/.config/configstore
 	sudo chown -R $(OUTPUT) ~/.config
 	npm install
 	sudo npm install -g grunt-cli
