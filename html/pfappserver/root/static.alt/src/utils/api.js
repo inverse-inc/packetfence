@@ -38,7 +38,7 @@ methodsWithData.forEach((method) => {
  * Add new "quiet" methods that won't trigger any message in the notification center.
  */
 
- Object.assign(apiCall, {
+Object.assign(apiCall, {
   deleteQuiet (url) {
     return this.request({
       method: 'delete',
