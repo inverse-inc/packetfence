@@ -14,7 +14,9 @@ all:
 
 vendor:
 	sudo chown -R $(OUTPUT) ~/.npm
-	sudo npm install
+	mkdir ~/.config
+	sudo chown -R $(OUTPUT) ~/.config
+	npm install
 	sudo npm install -g grunt-cli
 	sudo npm install -g bower
 	@if [ -d bower_components ]; then \
