@@ -72,7 +72,7 @@ export default {
     })
   },
   unassignUserNodes: pid => {
-    return apiCall.post(['user', id, 'unassign_nodes'])
+    return apiCall.post(['user', pid, 'unassign_nodes'])
   },
   bulkRegisterNodes: body => {
     return apiCall.post(['users', 'bulk_register'], body).then(response => {

@@ -1,5 +1,4 @@
 import apiCall from '@/utils/api'
-import encode from '@/utils/encode'
 
 export default {
 
@@ -1221,7 +1220,7 @@ export default {
     })
   },
   syslogParsersOptions: syslogParserType => {
-    return apiCall.options(['config', 'syslog_parsers'], { params: { type: syslogParserType }}).then(response => {
+    return apiCall.options(['config', 'syslog_parsers'], { params: { type: syslogParserType } }).then(response => {
       return response.data
     })
   },
