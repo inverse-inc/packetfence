@@ -15,12 +15,12 @@ export default {
     })
   },
   report: id => {
-    return apiCall.get(`dynamic_report/${id}`).then(response => {
+    return apiCall.get(['dynamic_report', id]).then(response => {
       return response.data.item
     })
   },
   searchReport: body => {
-    return apiCall.post(`dynamic_report/${body.id}/search`, body).then(response => {
+    return apiCall.post(['dynamic_report', body.id, 'search'], body).then(response => {
       return response.data.items
     })
   }

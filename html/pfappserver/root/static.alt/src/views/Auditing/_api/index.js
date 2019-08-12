@@ -20,7 +20,7 @@ export default {
     })
   },
   getDhcpOption82Log: mac => {
-    return apiCall.get(`dhcp_option82/${mac}`).then(response => {
+    return apiCall.get(['dhcp_option82', mac]).then(response => {
       return response.data.item
     })
   },
@@ -43,7 +43,7 @@ export default {
     })
   },
   getRadiusLog: id => {
-    return apiCall.get(`radius_audit_log/${id}`).then(response => {
+    return apiCall.get(['radius_audit_log', id]).then(response => {
       return response.data.item
     })
   }

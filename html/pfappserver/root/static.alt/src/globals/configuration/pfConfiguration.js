@@ -41,11 +41,9 @@ export const pfConfigurationOptionsSearchFunction = (context) => {
     }
     if (!query) return currentOptions
     if (!chosen.optionsSearchFunctionInitialized) { // first query - presearch current value
-      return apiCall.request({
+      return apiCall.post(
         url,
-        method: 'post',
-        baseURL: '', // reset
-        data: {
+        {
           query: {
             op: 'and',
             values: [{
@@ -59,25 +57,29 @@ export const pfConfigurationOptionsSearchFunction = (context) => {
           sort: [fieldName],
           cursor: 0,
           limit: 100
+        },
+        {
+          baseURL: '', // reset
         }
-      }).then(response => {
+      ).then(response => {
         return response.data.items.map(item => {
           return { [chosen.trackBy]: item[valueName].toString(), [chosen.label]: item[fieldName] }
         })
       })
     } else { // subsequent queries
-      return apiCall.request({
+      return apiCall.post(
         url,
-        method: 'post',
-        baseURL: '', // reset
-        data: {
+        {
           query: { op: 'and', values: [{ op: 'or', values: [{ field: fieldName, op: 'contains', value: `${query.trim()}` }] }] },
           fields: [fieldName, valueName],
           sort: [fieldName],
           cursor: 0,
           limit: chosen.optionsLimit - currentOptions.length
+        },
+        {
+          baseURL: '', // reset
         }
-      }).then(response => {
+      ).then(response => {
         return [
           ...((currentOptions) ? [...currentOptions] : []), // current option first
           ...response.data.items.map(item => {

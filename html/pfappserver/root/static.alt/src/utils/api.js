@@ -5,11 +5,42 @@ const apiCall = axios.create({
   baseURL: '/api/v1/'
 })
 
-Object.assign(apiCall, {
+/**
+ * Remap some aliases to accept an array as the URL.
+ * When the URL is an array, each segment will be URL-encoded before building the final URL.
+ */
+
+function _encodeURL (url) {
+  if (Array.isArray(url)) {
+    return url.map(segment => encodeURIComponent(segment.replace('/', '~'))).join('/')
+  } else {
+    return url
+  }
+}
+
+const methodsWithoutData = ['delete', 'get', 'head', 'options']
+methodsWithoutData.forEach((method) => {
+  apiCall[method] = (url, config = {}) => {
+    return apiCall.request({ ...config, method, url: _encodeURL(url) })
+  }
+})
+
+const methodsWithData = ['post', 'put', 'patch']
+methodsWithData.forEach((method) => {
+  apiCall[method] = (url, data, config = {}) => {
+    return apiCall.request({ ...config, method, url: _encodeURL(url), data })
+  }
+})
+
+/**
+ * Add new "quiet" methods that won't trigger any message in the notification center.
+ */
+
+ Object.assign(apiCall, {
   deleteQuiet (url) {
     return this.request({
       method: 'delete',
-      url,
+      url: _encodeURL(url),
       transformResponse: [data => {
         let jsonData
         try {
@@ -24,7 +55,7 @@ Object.assign(apiCall, {
   getQuiet (url) {
     return this.request({
       method: 'get',
-      url,
+      url: _encodeURL(url),
       transformResponse: [data => {
         let jsonData
         try {
@@ -39,7 +70,7 @@ Object.assign(apiCall, {
   patchQuiet (url, data) {
     return this.request({
       method: 'patch',
-      url,
+      url: _encodeURL(url),
       data,
       transformResponse: [data => {
         let jsonData
@@ -55,7 +86,7 @@ Object.assign(apiCall, {
   postQuiet (url, data) {
     return this.request({
       method: 'post',
-      url,
+      url: _encodeURL(url),
       data,
       transformResponse: [data => {
         let jsonData
@@ -71,7 +102,7 @@ Object.assign(apiCall, {
   putQuiet (url, data) {
     return this.request({
       method: 'put',
-      url,
+      url: _encodeURL(url),
       data,
       transformResponse: [data => {
         let jsonData
@@ -85,6 +116,14 @@ Object.assign(apiCall, {
     })
   }
 })
+
+/**
+ * Intercept responses to
+ *
+ * - detect messages in payload and display them in the notification center;
+ * - detect if the token has expired;
+ * - detect errors assigned to specific form fields.
+ */
 
 apiCall.interceptors.response.use((response) => {
   /* Intercept successful API call */
@@ -161,10 +200,16 @@ apiCall.interceptors.response.use((response) => {
   return Promise.reject(error)
 })
 
+/**
+ * Axios instance for previous Web admin
+ */
 export const pfappserverCall = axios.create({
   baseURL: '/admin/'
 })
 
+/**
+ * Axios instance to access documentation guides
+ */
 export const documentationCall = axios.create({
   baseURL: '/static/doc/'
 })
