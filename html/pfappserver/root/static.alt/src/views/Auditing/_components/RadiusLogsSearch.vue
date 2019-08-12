@@ -392,7 +392,7 @@ export default {
         {
           key: 'ip',
           label: this.$i18n.t('IP Address'),
-          sortable: true,
+          sortable: true
         },
         {
           key: 'is_phone',
