@@ -5,6 +5,7 @@ CSS_FILES = css/styles.css css/styles.css.map
 $(eval OUTPUT_RC="$(shell whoami;echo $$?)")
 $(eval OUTPUT="$(shell echo $(OUTPUT_RC) | sed -e "s/^\(.*\)\(.\{2\}\)$$/\1/")")
 export PATH := /usr/local/bin/:$(PATH)
+export npm_config_cache = /tmp
 
 .PHONY: all vendor dev dist
 

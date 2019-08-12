@@ -4,6 +4,7 @@ DYNAMIC_FILES = dist/css/* dist/js/* dist/js/*
 $(eval OUTPUT_RC="$(shell whoami;echo $$?)")
 $(eval OUTPUT="$(shell echo $(OUTPUT_RC) | sed -e "s/^\(.*\)\(.\{2\}\)$$/\1/")")
 export PATH := /usr/local/bin/:$(PATH)
+export npm_config_cache = /tmp
 
 .PHONY: all vendor dev dist
 
@@ -12,7 +13,6 @@ all:
 
 vendor:
 	sudo chown -R $(OUTPUT) ~/.npm
-	sudo npm config set cache /tmp
 	npm install
 
 dev:
