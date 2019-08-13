@@ -5343,6 +5343,25 @@ Built-in roles
  * User Manager: Provides the user the ability to manage other users.
  * Security Event Manager: Provides the user the ability to manage the security events (trigger, open, close) for the nodes.
 
+Guest pre-registration
+~~~~~~~~~~~~~~~~~~~~~~
+
+Pre-registration is disabled by default. Once enabled, PacketFence's firewall and Apache ACLs allow access to the `/signup` page on the portal even from a remote location. All that should be required from the administrators is to open up their perimeter firewall to allow access to PacketFence's management interface IP on port 443 and make sure a domain name to reach said IP is configured (and that the SSL cert matches it). Then you can promote the pre-registration link from your extranet web site: https://<hostname>/signup.
+
+To minimally configure guest pre-registration, you must make sure that the following statement is set under `[guests_self_registration]` in `/usr/local/pf/conf/pf.conf`:
+
+  [guests_self_registration]
+  preregistration=enabled
+
+This parameter should be configured from the *Configuration -> Policies and Access Control -> Connection Profiles -> Profile Name* section.
+
+CAUTION: A valid MTA configured in PacketFence is needed to correctly relay emails related to the guest module. If _localhost_ is used as smtpserver, make sure that a MTA is installed and configured on the server.
+
+CAUTION: Pre-registration increases the attack surface of the PacketFence system since a subset of it's functionality is exposed on the Internet. Make sure you understand the risks, apply the critical operating system updates and apply PacketFence's security fixes.
+
+NOTE: A 'portal' interface type is required to use this feature. A 'portal' interface type can be added to any network interface using the web admin GUI.
+
+
 Content-Security-Policy (CSP)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The Content-Security-Policy HTTP response header tells modern browsers what can be accessed from a generated web page. The default policy is pushed for both the captive portal and the admin interfaces and enforces that everything the browser executes comes from within PacketFence, with the exception of the configured network detection host that is by default the Inverse IP address.
@@ -5481,189 +5500,5 @@ Restore the database dump (filename without .gz extension):
 Restart PacketFence:
 
  # /usr/local/pf/bin/pfcmd service pf restart
-
-
-Optional components
--------------------
-
-Blocking malicious activities with security events 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Policy security events allow you to restrict client system access based on security events of certain policies. For example, if you do not allow P2P type traffic on your network, and you are running the appropriate software to detect it and trigger a security event for a given client, PacketFence will give that client a "blocked" page which can be customized to your wishes.
-
-In order to be able to block malicious activities, installation and configuration of a PacketFence compatible IDS is required. PacketFence currently support Snort, Suricata and Security Onion.
-
-Suricata
-^^^^^^^^
-
-Installation
-++++++++++++
-
-Since the Suricata IDS is not packaged with the distros (except maybe Fedora, which we do not officially support), you need to build it the "old" way.
-
-The OISF provides a really well written how-to for that. It's available here: https://redmine.openinfosecfoundation.org/projects/suricata/wiki/CentOS5
-
-
-Configuration
-+++++++++++++
-
-You will need to follow the configuration below related to the Suricata configuration (Syslog).
-
-Security Events
-^^^^^^^^^^^^^^^
-
-In order to make PacketFence react to the Snort alerts, you need to explicitly tell the software to do so. Otherwise, the alerts will be discarded. This is quite simple to accomplish. In fact, you need to create a security event and add the Snort alert SID in the trigger section of a security event.
-
-PacketFence security events are configured in 'Configuration->Compliance->Security Events'
-
-The example below will guide you to create a security event that will isolate device that have generated Peer-to-peer traffic and that are using Mac OSX or have a malware and are using Microsoft Windows
-
-Security Event Definition
-+++++++++++++++++++++++++
-
-First you need to configure the security event definition
-
-image::violation-definition.png[scaledwidth="100%",alt="Security event definition"]
-
-Where :
-[options="compact"]
-* `Enabled` is whether or not the security event is currently activated (should be `ON`).
-* `Identifier` is the security event ID. Any integer except 1200000-120099 which is reserved for required administration security events.
-* `Description` is the user friendly description of the security event.
-* `Actions` is the list of actions to be executed when this security event is raised.
-** `Unregister node` will unregister the node.
-** `Send email to owner` will email the security event details to the owner of the device. Will only work if the person has it's email field populated.
-** `Send email to admin` will email the security event details to the address specified in `[alerting].emailaddr`, using `[alerting].smtpserver`. Multiple `emailaddr` can be separated by comma.
-** `Reevaluate access` will place the device in the destination VLAN configured in the security event. It opens a security event and leaves it open. If it is not there, the security event is opened and then automatically closed.
-** `Log message` will log the security event in the log file security_event.log.
-** `External command` will execute a command on the operating system when this security event is raised.
-** `Close a security event` will close an existing security event for this device when this one is raised.
-** `Set role` will modify the role of the device.
-** `Enforce provisioning` will trigger a check of compliance on the provisioners defined for the device.
-* `Priority` defines the order onto which security events should be handled should there be more than one for a device.
-* `Whitelisted Roles` is the list of roles that are not affected by this security event.
-
-Triggers
-++++++++
-
-Next, in the `Triggers` tab, you need to define the triggers that will raise the security event. In the case of this example it will be these two cases :
-* A device that has generated Peer-to-peer traffic and that is using MAC OSX.
-* A device that has been detected as being a rogue DHCP.
-
-Click the `+` sign at the top right in order to create a new trigger, then in the dropdown select `Suricata`.
-
-A menu will appear into which you can select `ET P2P` which will match all P2P alerts from Suricata.
-
-Once you added this trigger, select `Device` from the dropdown and enter `38` which is the device identifier for Mac OSX.
-
-Next hit the `<` button, then the `+` to add another trigger.
-
-Select the type `Internal`, then in the menu that appears below it, select `Rogue DHCP detection` and click `Add`.
-
-image::violation-triggers.png[scaledwidth="100%",alt="Security event triggers"]
-
-Remediation
-+++++++++++
-
-Next, in the `Remediation` tab, you can configure the behavior when a client gets isolated.
-
-image::violation-remediation.png[scaledwidth="100%",alt="Security event remediation"]
-
-Where :
-[options="compact"]
-* `Auto Enable` is whether or not the user can release the security event himself after acknowledging the message on the captive portal.
-* `Max Enables` is the amount of time a user can use the `Auto Enable` functionality. After this amount of times, he will not be able to release the security event and it will have to be manually release by an administrator using the PacketFence administration interface.
-* `Grace` is Amount of time before the security event can reoccur. This is useful to allow hosts time (in the example 2 minutes) to download tools to fix their issue, or shutoff their peer-to-peer application.
-* `Dynamic Window` will only work for accounting security events. The security event will be opened according to the time you set in the accounting security event (ie. You have an accounting security event for 10GB/month. If you bust the bandwidth after 3 days, the security event will open and the release date will be set for the last day of the current month).
-* `Window` is the amount of time before a security event will be closed automatically. Instead of allowing people to reactivate the network, you may want to open a security event for a defined amount of time instead.
-* `Delay by` is the delay before triggering the security event.
-* `Template` is the HTML template the host will be redirected to while in security event. You can create new templates from the Connection Profiles configuration section.
-* `Button text` is the text of the button that is used when the user is releasing the security event directly from the captive portal.
-
-Advanced
-++++++++
-
-In the `Advanced` tab you configure the destination VLAN of the device when it has the `Reevaluate access` action and its redirection URL when the user is released.
-
-
-Guests Management
-~~~~~~~~~~~~~~~~~
-
-PacketFence supports the ability to manage guests by establishing expire dates and assign different roles which will permit different accesses to the network resources.
-
-Guests can self-register themselves using an activation code sent to their mobile phone or they can use their email address and receive and activation link to activate their network access.
-
-PacketFence has the option to have guests sponsored their access by local staff. Once a guest requests a sponsored access an email is sent to the sponsor and the sponsor must click on a link and authenticate in order to enable his access.
-
-Moreover, PacketFence also has the option for guests to request their access in advance. Confirmation by email and by a sponsor are the two pre-registration techniques supported at this point.
-
-The admin GUI allow PacketFence administrators or guests managers to create single accounts, multiple accounts using a prefix (ie.: guest1, guest2, guest3...) or import data from a CSV to create accounts. Access duration and expected arrival date are also customizable.
-
-Usage
-^^^^^
-
-Guest self-registration
-+++++++++++++++++++++++
-
-Self-registration is enabled by default. It is part of the connection profile and can be accessed on the registration page by clicking the *Sign up* link.
-
-image::screenshot-captive-portal.png[alt="Captive portal screenshot"]
-
-Managed guests
-++++++++++++++
-
-Part of the web administration interface, the guests management interface is enabled by default. It is accessible through the *Users -> Create* menu.
-
-Guest pre-registration
-++++++++++++++++++++++
-
-Pre-registration is disabled by default. Once enabled, PacketFence's firewall and Apache ACLs allow access to the `/signup` page on the portal even from a remote location. All that should be required from the administrators is to open up their perimeter firewall to allow access to PacketFence's management interface IP on port 443 and make sure a domain name to reach said IP is configured (and that the SSL cert matches it). Then you can promote the pre-registration link from your extranet web site: https://<hostname>/signup.
-
-CAUTION: Pre-registration increases the attack surface of the PacketFence system since a subset of it's functionality is exposed on the Internet. Make sure you understand the risks, apply the critical operating system updates and apply PacketFence's security fixes.
-
-NOTE: A 'portal' interface type is required to use this feature. A 'portal' interface type can be added to any network interface using the web admin GUI.
-
-Configuration
-^^^^^^^^^^^^^
-
-Access Duration
-+++++++++++++++
-
-Default values are located in `/usr/local/pf/conf/pf.conf.defaults` and documentation for every settings is available in `/usr/local/pf/conf/documentations.conf`.
-
-  [guests_admin_registration]
-  access_duration_choices=1h,3h,12h,1D,2D,3D,5D
-  default_access_duration=12h
-
-The format of the duration is as follow:
-
-  <DURATION><DATETIME_UNIT>[<PERIOD_BASE><OPERATOR><DURATION><DATE_UNIT>]
-
-Let's explain the meaning of each parameter:
-
-[options="compact"]
-* `DURATION`: a number corresponding to the period duration.
-* `DATETIME_UNIT`: a character corresponding to the units of the date or time duration; either s (seconds), m (minutes), h (hours), D (days), W (weeks), M (months), or Y (years).
-* `PERIOD_BASE`: either F (fixed) or R (relative). A relative period is computed from the beginning of the period unit. Weeks start on Monday.
-* `OPERATOR`: either + or -. The duration following the operator is added or subtracted from the base duration.
-* `DATE_UNIT`: a character corresponding to the units of the extended duration. Limited to date units (D (days), W (weeks), M (months), or Y (years)).
-
-These parameters should be configured from the *Configuration -> Advanced Access Configuration -> Access Duration* section of the Web admin interface.
-
-From the Users page of the PacketFence Web admin interface, it is possible to set the access duration of users, change their password and more.
-
-Guest pre-registration
-++++++++++++++++++++++
-
-To minimally configure guest pre-registration, you must make sure that the following statement is set under `[guests_self_registration]` in `/usr/local/pf/conf/pf.conf`:
-
-  [guests_self_registration]
-  preregistration=enabled
-
-This parameter should be configured from the *Configuration -> Policies and Access Control -> Connection Profiles -> Profile Name* section.
-
-Finally, it is advised that you read the whole guest self-registration section since pre-registration is simply a twist of the self-registration process.
-
-CAUTION: A valid MTA configured in PacketFence is needed to correctly relay emails related to the guest module. If _localhost_ is used as smtpserver, make sure that a MTA is installed and configured on the server.
 
 // vim: set syntax=asciidoc tabstop=2 shiftwidth=2 expandtab:
