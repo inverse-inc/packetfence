@@ -19,6 +19,7 @@ use pf::dal::node;
 use pf::fingerbank;
 use pf::parking;
 use pf::node;
+use List::MoreUtils qw(part);
 use pf::ip4log;
 use pf::constants qw($TRUE);
 use pf::dal::security_event;
@@ -676,7 +677,7 @@ network_graph
 
 sub network_graph {
     my ($self) = @_;
-    my ($status, $search_info_or_error) = $self->build_search_info;
+    my ($status, $search_info_or_error) = $self->build_network_graph_info();
     if (is_error($status)) {
         return $self->render(json => $search_info_or_error, status => $status);
     }
@@ -689,7 +690,7 @@ sub network_graph {
             $response->{errors}
         );
     }
-    ($status, my $network_graph) = $self->map_to_network_graph($response);
+    ($status, my $network_graph) = $self->map_to_network_graph($search_info_or_error, $response);
     if ( is_error($status) ) {
         return $self->render_error(
             $status,
@@ -705,6 +706,27 @@ sub network_graph {
         json   =>  $response,
         status => $status
     );
+}
+
+=head2 build_network_graph_info
+
+build_network_graph_info
+
+=cut
+
+sub build_network_graph_info {
+    my ($self) = @_;
+    my ($status, $search_info_or_error) = $self->build_search_info;
+    if (is_error($status)) {
+        return $status, $search_info_or_error;
+    }
+
+    my $fields = $search_info_or_error->{fields};
+    my ($switch_fields, $db_fields) = part { /^switch\./ ? 0 : 1 } @$fields;
+    s/^node\.// for @$db_fields;
+    $search_info_or_error->{fields} = $db_fields;
+    $search_info_or_error->{switch_fields} = $switch_fields;
+    return $status, $search_info_or_error;
 }
 
 =head2 network_graph_search_builder
@@ -738,45 +760,65 @@ map_to_network_graph
 =cut
 
 sub map_to_network_graph {
-    my ($self, $response) = @_;
+    my ($self, $search_info, $response) = @_;
     my @nodes = (
         $self->pf_network_graph_node($response),
     );
     my @links;
     my %network_graph = (
-      "type" => "NetworkGraph",
-      "label" => "PacketFence NetworkGraph",
-      "protocol" => "OLSR",
-      "version" => "9.01",
-      "metric" => undef,
+      type => "NetworkGraph",
+      label => "PacketFence NetworkGraph",
+      protocol => "OLSR",
+      version => "9.01",
+      metric => undef,
       nodes => \@nodes,
       links => \@links,
     );
     my %switches_found;
-    my $unknown = {
-        id => "unknown",
-        type => "switch",
-    };
     for my $node (@{$response->{items}}) {
         my $id = $node->{mac};
         push @nodes, {
-            "id" => $node->{mac},
-            "type" => "node",
+            id => $id,
+            type => "node",
             properties => $node,
         };
 
         my $switch_id = $node->{"locationlog.switch"} // "unknown";
-        my $switch;
-        my $link = {"source" => $switch_id, "target" => $id};
-        push @links, $link;
+        push @links, { source => $switch_id, target => $id };
         if (!exists $switches_found{$switch_id}) {
-            push @nodes, { "id" => $switch_id, type => "switch" };
-            push @links, { "source" => "packetfence", "target" => $switch_id };
+            push @nodes, $self->pf_network_graph_switch($search_info, $switch_id);
+            push @links, { source => "packetfence", target => $switch_id };
             $switches_found{$switch_id} = undef;
         }
     }
 
     return 200, \%network_graph;
+}
+
+
+=head2 pf_network_graph_switch
+
+pf_network_graph_switch
+
+=cut
+
+sub pf_network_graph_switch {
+    my ($self, $search_info, $switch_id) = @_;
+    my %switch = ( id => $switch_id, type => "switch" );
+    if ($switch_id eq "unknown" || !exists $pf::SwitchFactory::SwitchConfig{$switch_id}) {
+        $switch{id} = 'unknown';
+        return \%switch;
+    }
+
+    my $config = $pf::SwitchFactory::SwitchConfig{$switch_id};
+    my %properties;
+    $switch{properties} = \%properties;
+    for my $field (@{$search_info->{switch_fields}}) {
+        $field =~ s/^switch\.//;
+        $properties{$field} = exists $config->{$field} ? $config->{$field} : undef;
+    }
+
+    return \%switch;
 }
 
 =head1 AUTHOR
