@@ -36,7 +36,7 @@ const state = {
   },
   limit: 1000,
   sizeRange: [5, 10],
-  padding: 20,
+  padding: 100,
   simulation: null, // d3 simulation
   isLoading: false,
   pollingInterval: false,
@@ -111,9 +111,8 @@ const getters = {
       let tooltipAngle = 0
       let tooltipCoords = {}
       let tooltipCoordsBounded = {}
-let stroke = '#000000'
       switch (true) {
-        // inner node
+
         case index === 0: // inner node (target only)
           targetAngle = getAngleFromCoords(node.x, node.y, nodes[index + 1].x, nodes[index + 1].y)
           tooltipAngle = (180 + targetAngle) % 360  // reverse
@@ -122,7 +121,6 @@ let stroke = '#000000'
           tooltips.push({ node, line: { angle: tooltipAngle, x1: nodeBounded.x, y1: nodeBounded.y, x2: tooltipCoordsBounded.x, y2: tooltipCoordsBounded.y } })
           break
 
-        // outer node
         case index === nodes.length - 1: // outer node (source only)
           sourceAngle = getAngleFromCoords(node.x, node.y, nodes[index - 1].x, nodes[index - 1].y)
           tooltipAngle = (180 + sourceAngle) % 360 // reverse
@@ -131,8 +129,7 @@ let stroke = '#000000'
           tooltips.push({ node, line: { angle: tooltipAngle, x1: nodeBounded.x, y1: nodeBounded.y, x2: tooltipCoordsBounded.x, y2: tooltipCoordsBounded.y } })
           break
 
-        // middle nodes (source and target)
-        default:
+        default: // middle nodes (source and target)
           sourceAngle = getAngleFromCoords(node.x, node.y, nodes[index - 1].x, nodes[index - 1].y)
           targetAngle = getAngleFromCoords(node.x, node.y, nodes[index + 1].x, nodes[index + 1].y)
           tooltipAngle = ((sourceAngle + targetAngle) / 2) % 360
