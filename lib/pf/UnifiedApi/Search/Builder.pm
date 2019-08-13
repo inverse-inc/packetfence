@@ -357,7 +357,17 @@ Checks if a field is a table field
 
 sub is_table_field {
     my ($self, $s, $f) = @_;
-    return exists $s->{dal}->get_meta->{$f};
+    my $dal = $s->{dal};
+    if ( exists $dal->get_meta->{$f} ) {
+        return 1;
+    }
+
+    my $table = $dal->table;
+    if ($f =~ /\Q$table\E\.(.*)$/ ) {
+        return exists $dal->get_meta->{$1};
+    }
+
+    return 0;
 }
 
 =head2 $self->verify_query($search_info, $query)
@@ -408,7 +418,9 @@ sub rewrite_query {
     my $f = $query->{field};
     my $status = 200;
     if ($self->is_table_field($s, $f)) {
-        $query->{field} = $s->{dal}->table . "." . $f;
+        if ($f !~ /\./) {
+            $query->{field} = $s->{dal}->table . "." . $f;
+        }
     }
 
     if ($self->is_field_rewritable($s, $f)) {
