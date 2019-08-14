@@ -806,7 +806,7 @@ sub pf_network_graph_switch {
     my ($self, $search_info, $switch_id) = @_;
     my %switch = ( id => $switch_id, type => "switch" );
     if ($switch_id eq "unknown" || !exists $pf::SwitchFactory::SwitchConfig{$switch_id}) {
-        $switch{id} = 'unknown';
+        $switch{type} = "unknown";
         return \%switch;
     }
 
