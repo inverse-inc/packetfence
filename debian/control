@@ -45,7 +45,7 @@ Depends: ${misc:Depends}, vlan,
  krb5-user,
  ipset,
  sudo,
- sscep,
+ strongswan-scepclient,
  patch,
  git,
 # process management
