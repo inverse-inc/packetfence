@@ -34,7 +34,7 @@ const api = {
           }
         })
       }
-      return apiCall.getQuiet(['preference',  `${IDENTIFIER_PREFIX}${id}`]).then(response => { // exists
+      return apiCall.getQuiet(['preference', `${IDENTIFIER_PREFIX}${id}`]).then(response => { // exists
         const { data: { item: { value = null } = {} } = {} } = response
         if (value) {
           // eslint-disable-next-line

@@ -59,7 +59,7 @@ export const pfConfigurationOptionsSearchFunction = (context) => {
           limit: 100
         },
         {
-          baseURL: '', // reset
+          baseURL: '' // reset
         }
       ).then(response => {
         return response.data.items.map(item => {
@@ -77,7 +77,7 @@ export const pfConfigurationOptionsSearchFunction = (context) => {
           limit: chosen.optionsLimit - currentOptions.length
         },
         {
-          baseURL: '', // reset
+          baseURL: '' // reset
         }
       ).then(response => {
         return [
