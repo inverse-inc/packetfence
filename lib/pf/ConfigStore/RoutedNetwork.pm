@@ -24,13 +24,13 @@ with 'pf::ConfigStore::Filtered';
 
 =cut
 
-=head2 filter
+=head2 filterSection
 
 Filter the sections of this ConfigStore
 
 =cut
 
-sub filter { 
+sub filterSection {
     my ($self, $section) = @_;
     return $self->cachedConfig->exists($section, "next_hop");
 }

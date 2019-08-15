@@ -24,7 +24,7 @@ Override _Sections and apply filter on them
 
 sub _Sections {
     my ($self) = @_;
-    return grep { $self->filter($_) } $self->cachedConfig->Sections();
+    return grep { $self->filterSection($_) } $self->cachedConfig->Sections();
 }
 
 =head2 hasId
@@ -37,7 +37,7 @@ sub hasId {
     my ($self, $id ) = @_;
     my $config = $self->cachedConfig;
     my $section = $self->_formatSectionName($id);
-    return $self->filter($section) && $config->SectionExists($section);
+    return $self->filterSection($section) && $config->SectionExists($section);
 }
 
 =back

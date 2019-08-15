@@ -27,7 +27,7 @@ BEGIN {
     use Moo;
     extends 'pf::ConfigStore';
     with 'pf::ConfigStore::Filtered';
-    sub filter {
+    sub filterSection {
         $_[1] =~ /^\S+$/
     }
 }
