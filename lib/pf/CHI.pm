@@ -44,9 +44,7 @@ Log::Any::Adapter->set('Log4perl');
 
 my @PRELOADED_CHI_DRIVERS;
 
-
-Hash::Merge::specify_behavior(
-    {
+my %SPECS = (
     #Always take the value from the right side
     'SCALAR' => {
         'SCALAR' => sub {$_[1]},
@@ -71,9 +69,11 @@ Hash::Merge::specify_behavior(
             Hash::Merge::_merge_hashes($_[0], $_[1]);
         },
       },
-    },
-    'PF_CHI_MERGE'
 );
+
+my $merger = Hash::Merge->new();
+$merger->specify_behavior(\%SPECS, 'PF_CHI_MERGE');
+$merger->set_behavior('PF_CHI_MERGE');
 
 our @CACHE_NAMESPACES = qw(configfilesdata configfiles httpd.admin httpd.portal pfdns switch.overlay ldap_auth fingerbank firewall_sso switch accounting clustering person_lookup route_int provisioning switch_distributed pfdhcp_api openvas_scans local_mac);
 
@@ -139,20 +139,18 @@ sub chiConfigFromIniFile {
     }
     setDefaultStorage($args{storage});
     setRawL1CacheAsLast($args{storage}{configfiles});
-    my $merge = Hash::Merge->new('PF_CHI_MERGE');
-    my $config = $merge->merge( \%DEFAULT_CONFIG, \%args );
+    my $config = $merger->merge( \%DEFAULT_CONFIG, \%args );
     return $config;
 }
 
 sub setDefaultStorage {
     my ($storageUnits) = @_;
     my $defaults = delete $storageUnits->{DEFAULT} || \%DEFAULT_STORAGE;
-    my $merge = Hash::Merge->new('PF_CHI_MERGE');
     foreach my $name (@CACHE_NAMESPACES) {
         $storageUnits->{$name} = {} unless exists $storageUnits->{$name};
         my $clonedDefaults = Clone::clone($defaults);
         my $storage = $storageUnits->{$name};
-        %$storage = %{$merge->merge( $storage, $clonedDefaults )};
+        %$storage = %{$merger->merge( $storage, $clonedDefaults )};
     }
 }
 
@@ -228,7 +226,6 @@ sub preload_chi_drivers {
     }
 }
 
-
 __PACKAGE__->config(chiConfigFromIniFile());
 
 =head2 listify
@@ -254,8 +251,6 @@ sub get_redis_config {
     delete @$config{qw(redis redis_class redis_options prefix driver traits)};
     return $config;
 }
-
-
 
 =head1 AUTHOR
 
