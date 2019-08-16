@@ -4,27 +4,28 @@
       <h4 class="d-inline mb-0" v-t="'Network'"></h4>
     </b-card-header>
     <div class="card-body">
-
       <pf-network-graph ref="networkGraph"
-        :storeName="storeName"
         :dimensions="dimensions"
-        :bounds="bounds"
-        :coords="coords"
-        :links="links"
         :nodes="nodes"
+        :links="links"
+        :options="options"
         :is-loading="isLoading"
-        :mini-map-height="150"
-        :tooltip-distance="10"
-        :min-zoom="0"
-        :max-zoom="4"
       />
-
     </div>
   </b-card>
 </template>
 
 <script>
 import pfNetworkGraph from '@/components/pfNetworkGraph'
+import apiCall from '@/utils/api'
+
+const api = {
+  networkGraph: body => {
+    return apiCall.post('nodes/network_graph', body).then(response => {
+      return response.data
+    })
+  }
+}
 
 export default {
   name: 'network',
@@ -43,24 +44,39 @@ export default {
       dimensions: {
         height: Math.max(document.documentElement.clientHeight, window.innerHeight || 0) - 40,
         width: 0
+      },
+      nodes: [],
+      links: [],
+      options: {
+        tooltipDistance: 10,
+        miniMapHeight: 150,
+        minZoom: 0,
+        maxZoom: 5
+      },
+      pollingIntervalMs: 60000,
+      pollingInterval: false,
+      query: {
+        cursor: 0,
+        limit: '100',
+        fields: ['mac', 'tenant_id', 'status', 'detect_date', 'regdate', 'unregdate', 'computername', 'pid', 'device_manufacturer', 'category_id', 'last_seen'],
+        sort: ['last_seen DESC'],
+        query: {
+          op: 'and',
+          values: [{
+              op: 'or',
+              values: [{
+                  field: 'last_seen',
+                  op: 'greater_than_equals',
+                  value: '2018-08-13 15:28:35'
+              }]
+          }]
+        }
       }
     }
   },
   computed: {
     isLoading () {
       return this.$store.state[this.storeName].isLoading
-    },
-    bounds () {
-      return this.$store.getters[`${this.storeName}/bounds`]
-    },
-    coords () {
-      return this.$store.getters[`${this.storeName}/coords`]
-    },
-    links () {
-      return this.$store.getters[`${this.storeName}/links`]
-    },
-    nodes () {
-      return this.$store.getters[`${this.storeName}/nodes`]
     },
     windowSize () {
       return this.$store.getters['events/windowSize']
@@ -71,15 +87,34 @@ export default {
       // get width of svg container
       const { $refs: { networkGraph: { $el: { offsetWidth: width = 0 } = {} } = {} } = {} } = this
       this.$set(this.dimensions, 'width', width)
-      this.$store.dispatch(`${this.storeName}/setDimensions`, this.dimensions)
+    },
+    startPolling () {
+      this.stopPolling()
+      this.pollingInterval = setInterval(() => {
+        this.doPoll()
+      }, this.pollingIntervalMs)
+      this.doPoll()
+    },
+    stopPolling () {
+      if (this.pollingInterval) {
+        clearInterval(this.pollingInterval)
+        this.pollingInterval = false
+      }
+    },
+    doPoll () {
+      api.networkGraph(this.query).then(response => {
+        const { network_graph: { nodes, links } = {} } = response
+        this.$set(this, 'nodes', nodes)
+        this.$set(this, 'links', links)
+      })
     }
   },
   mounted () {
     this.setDimensions()
-    this.$store.dispatch(`${this.storeName}/startPolling`)
+    this.startPolling()
   },
   beforeDestroy () {
-    this.$store.dispatch(`${this.storeName}/stopPolling`)
+    this.stopPolling()
   },
   watch: {
     windowSize: {
