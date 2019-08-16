@@ -16,17 +16,11 @@ type FamilyZone struct {
 	FirewallSSO
 	Username string `json:"username"`
 	Password string `json:"password"`
-	Region   string `json:"region"`
 	DeviceID string `json:"deviceid"`
 }
 
 // Firewall specific init
 func (fw *FamilyZone) initChild(ctx context.Context) error {
-	// Set a default value for vsys if there is none
-	if fw.Region == "" {
-		log.LoggerWContext(ctx).Debug("Setting default value for Region as it isn't defined")
-		fw.Region = "syd-1"
-	}
 	return nil
 }
 
@@ -48,7 +42,8 @@ func (fw *FamilyZone) startHttp(ctx context.Context, info map[string]string, tim
 	h := sha1.New()
 	h.Write([]byte(s))
 	sha1Hash := hex.EncodeToString(h.Sum(nil))
-	resp, err := fw.getHttpClient(ctx).Get("https://login." + fw.Region + ".linewize.net/login/agent?deviceid=" + fw.DeviceID + "&mac=" + info["mac"] + "&ip=" + info["ip"] + "&username=" + strings.ToLower(info["username"]) + "&agent=PacketFence&hash=" + sha1Hash + "&salt=" + id.String())
+
+	resp, err := fw.getHttpClient(ctx).Get("https://" + fw.PfconfigHashNS + "/login/agent?deviceid=" + fw.DeviceID + "&mac=" + info["mac"] + "&ip=" + info["ip"] + "&username=" + strings.ToLower(info["username"]) + "&agent=PacketFence&hash=" + sha1Hash + "&salt=" + id.String())
 
 	if err != nil {
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("Error contacting FamilyZone: %s", err))

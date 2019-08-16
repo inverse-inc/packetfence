@@ -32,15 +32,6 @@ has_field 'type' =>
    type => 'Hidden',
   );
 
-has_field 'region' =>
-  (
-   type => 'Text',
-   label => 'Region ',
-    tags => { after_element => \&help,
-             help => 'Please define the Region.' },
-   default => 1,
-  );
-
 has_field 'deviceid' =>
   (
    type => 'Text',
@@ -54,7 +45,7 @@ has_field 'deviceid' =>
 
 has_block definition =>
   (
-   render_list => [ qw(id type region deviceid password categories networks cache_updates cache_timeout username_format default_realm) ],
+   render_list => [ qw(id type deviceid password categories networks cache_updates cache_timeout username_format default_realm) ],
   );
 
 =head1 COPYRIGHT
