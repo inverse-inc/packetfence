@@ -118,6 +118,7 @@ export const pfConfigurationFirewallViewFields = (context) => {
       fields: [
         {
           label: i18n.t('Hostname or IP Address'),
+          text: ['FamilyZone'].includes(firewallType) ? i18n.t('Include the region in the FQDN when using the cloud version (ex: login.myregion.linewize.net).') : null,
           fields: [
             {
               key: 'id',
@@ -196,19 +197,6 @@ export const pfConfigurationFirewallViewFields = (context) => {
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'vsys'),
               validators: pfConfigurationValidatorsFromMeta(meta, 'vsys', i18n.t('Number'))
-            }
-          ]
-        },
-        {
-          if: ['FamilyZone'].includes(firewallType),
-          label: i18n.t('Region'),
-          text: i18n.t('Please define the region.'),
-          fields: [
-            {
-              key: 'region',
-              component: pfFormInput,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'region'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'region', i18n.t('Region'))
             }
           ]
         },
