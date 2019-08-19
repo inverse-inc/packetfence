@@ -51,7 +51,7 @@ export default {
         tooltipDistance: 10,
         miniMapHeight: 150,
         minZoom: 0,
-        maxZoom: 5
+        maxZoom: 8
       },
       pollingIntervalMs: 60000,
       pollingInterval: false,

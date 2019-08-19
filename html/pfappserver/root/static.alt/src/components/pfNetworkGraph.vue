@@ -4,179 +4,168 @@ https://bl.ocks.org/steveharoz/8c3e2524079a8c440df60c1ab72b5d03
 https://flowingdata.com/2012/08/02/how-to-make-an-interactive-network-visualization/
 -->
 <template>
+  <div ref="svgContainer" :class="[ 'svgContainer', { [`highlight highlight-${highlight}`]: highlight } ]">
 
-  <div>
-  <!--
-    <pre>{{ JSON.stringify(config, null, 2) }}</pre>
-    <pre>{{ JSON.stringify(bounds, null, 2) }}</pre>
-    <pre>{{ JSON.stringify(nodes.map(n => { return { type: n.type, x: n.x, y: n.y } }), null, 2) }}</pre>
-    <pre>{{ JSON.stringify(localNodes, null, 2) }}</pre>
-    <pre>{{ JSON.stringify(localLinks, null, 2) }}</pre>
-  -->
+    <!-- SVG drag layer (for event capture only) -->
+    <svg ref="svgDrag" class="svgDrag"
+      xmlns="http://www.w3.org/2000/svg"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      width="100%"
+      :height="dimensions.height+'px'"
+      :viewBox="viewBoxString"
+      v-show="lastX && lastY"
+      @mousemove="mouseMoveSvg($event)"
+      @mouseout="mouseUpSvg($event)"
+      @mouseup="mouseUpSvg($event)"
+    ></svg>
 
-    <div ref="svgContainer" :class="[ 'svgContainer', { [`highlight-${highlight}`]: highlight } ]">
+    <!-- SVG draw layer -->
+    <svg ref="svgDraw" :class="[ 'svgDraw', `zoom-${zoom}` ]"
+      xmlns="http://www.w3.org/2000/svg"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      width="100%"
+      :height="dimensions.height+'px'"
+      :viewBox="viewBoxString"
+      @mousedown.prevent="mouseDownSvg($event)"
+      @mousewheel.prevent="mouseWheelSvg($event)"
+    >
+      <defs v-once>
+        <!-- symbol definitions -->
+        <symbol id="packetfence" viewBox="0 0 32 32">
+          <circle class="bg" cx="16" cy="16" r="14" />
+          <circle class="fg" cx="16" cy="16" r="11.75" />
+          <g class="icon" transform="scale(0.2) translate(20.25, 45)" viewBox="0 0 140 75">
+            <path d="M0.962,14.55l26.875,9.047l0.182,10.494l-27.057,-8.683l0,-10.858Z" />
+            <path d="M0.962,27.577l26.875,9.047l0.182,10.496l-27.057,-8.687l0,-10.856l0,0Z" />
+            <path d="M91.87,23.96l26.876,9.045l0.181,10.496l-27.057,-8.685l0,-10.856l0,0Z" />
+            <path d="M91.87,36.988l26.876,9.046l0.181,10.493l-27.057,-8.684l0,-10.855l0,0Z" />
+            <path d="M48.22,17.265c3.187,0 5.771,2.592 5.771,5.791l0,26.596c0,3.199 -2.584,5.791 -5.771,5.791c-3.188,0 -5.772,-2.592 -5.772,-5.791l0,-26.596c0,-3.199 2.584,-5.791 5.772,-5.791" />
+            <path d="M60.485,17.265c3.188,0 5.772,2.592 5.772,5.791l0,26.596c0,3.199 -2.584,5.791 -5.772,5.791c-3.187,0 -5.771,-2.592 -5.771,-5.791l0,-26.596c0,-3.199 2.584,-5.791 5.771,-5.791" />
+            <path d="M72.751,17.265c3.187,0 5.771,2.592 5.771,5.791l0,26.596c0,3.199 -2.584,5.791 -5.771,5.791c-3.188,0 -5.772,-2.592 -5.772,-5.791l0,-26.596c0,-3.199 2.584,-5.791 5.772,-5.791" />
+            <path d="M35.413,14.732c1.565,-2.172 5.411,-17.492 5.411,-14.295l0.181,49.215c0,3.199 -2.584,5.791 -5.773,5.791c-3.186,0 -5.77,-2.592 -5.77,-5.791l0,-26.596c0,-3.199 4.085,-5.732 5.951,-8.324" />
+            <path d="M84.835,57.388c-1.564,2.17 -5.41,17.49 -5.41,14.293l-0.182,-49.215c0,-3.197 2.584,-5.789 5.774,-5.789c3.187,0 5.772,2.592 5.772,5.789l0,26.6c0,3.195 -4.085,5.73 -5.954,8.322" />
+          </g>
+        </symbol>
 
-      <!-- SVG drag layer (for event capture only) -->
-      <svg ref="svgDrag" class="svgDrag"
-        xmlns="http://www.w3.org/2000/svg"
-        xmlns:xlink="http://www.w3.org/1999/xlink"
-        width="100%"
-        :height="dimensions.height+'px'"
-        :viewBox="viewBoxString"
-        v-show="lastX && lastY"
-        @mousemove="mouseMoveSvg($event)"
-        @mouseout="mouseUpSvg($event)"
-        @mouseup="mouseUpSvg($event)"
-      ></svg>
+        <symbol id="switch" viewBox="0 0 32 32" preserveAspectRatio="xMinYMin slice">
+          <circle class="bg" cx="16" cy="16" r="14"/>
+          <path class="fg" d="M 16 4 C 9.3844277 4 4 9.3844277 4 16 C 4 22.615572 9.3844277 28 16 28 C 22.615572 28 28 22.615572 28 16 C 28 9.3844277 22.615572 4 16 4 z M 16 6 C 21.534692 6 26 10.465308 26 16 C 26 21.534692 21.534692 26 16 26 C 10.465308 26 6 21.534692 6 16 C 6 10.465308 10.465308 6 16 6 z M 16 8 L 13 11 L 15 11 L 15 14 L 17 14 L 17 11 L 19 11 L 16 8 z M 11 13 L 11 15 L 8 15 L 8 17 L 11 17 L 11 19 L 14 16 L 11 13 z M 21 13 L 18 16 L 21 19 L 21 17 L 24 17 L 24 15 L 21 15 L 21 13 z M 15 18 L 15 21 L 13 21 L 16 24 L 19 21 L 17 21 L 17 18 L 15 18 z"/>
+        </symbol>
 
-      <!-- SVG draw layer -->
-      <svg ref="svgDraw" :class="[ 'svgDraw', `zoom-${zoom}` ]"
-        xmlns="http://www.w3.org/2000/svg"
-        xmlns:xlink="http://www.w3.org/1999/xlink"
-        width="100%"
-        :height="dimensions.height+'px'"
-        :viewBox="viewBoxString"
-        @mousedown.prevent="mouseDownSvg($event)"
-        @mousewheel.prevent="mouseWheelSvg($event)"
-      >
-        <defs v-once>
-          <!-- symbol definitions -->
-          <symbol id="packetfence" viewBox="0 0 32 32">
-            <circle class="bg" cx="16" cy="16" r="14" />
-            <circle class="fg" cx="16" cy="16" r="11.75" />
-            <g class="icon" transform="scale(0.2) translate(20.25, 45)" viewBox="0 0 140 75">
-              <path d="M0.962,14.55l26.875,9.047l0.182,10.494l-27.057,-8.683l0,-10.858Z" />
-              <path d="M0.962,27.577l26.875,9.047l0.182,10.496l-27.057,-8.687l0,-10.856l0,0Z" />
-              <path d="M91.87,23.96l26.876,9.045l0.181,10.496l-27.057,-8.685l0,-10.856l0,0Z" />
-              <path d="M91.87,36.988l26.876,9.046l0.181,10.493l-27.057,-8.684l0,-10.855l0,0Z" />
-              <path d="M48.22,17.265c3.187,0 5.771,2.592 5.771,5.791l0,26.596c0,3.199 -2.584,5.791 -5.771,5.791c-3.188,0 -5.772,-2.592 -5.772,-5.791l0,-26.596c0,-3.199 2.584,-5.791 5.772,-5.791" />
-              <path d="M60.485,17.265c3.188,0 5.772,2.592 5.772,5.791l0,26.596c0,3.199 -2.584,5.791 -5.772,5.791c-3.187,0 -5.771,-2.592 -5.771,-5.791l0,-26.596c0,-3.199 2.584,-5.791 5.771,-5.791" />
-              <path d="M72.751,17.265c3.187,0 5.771,2.592 5.771,5.791l0,26.596c0,3.199 -2.584,5.791 -5.771,5.791c-3.188,0 -5.772,-2.592 -5.772,-5.791l0,-26.596c0,-3.199 2.584,-5.791 5.772,-5.791" />
-              <path d="M35.413,14.732c1.565,-2.172 5.411,-17.492 5.411,-14.295l0.181,49.215c0,3.199 -2.584,5.791 -5.773,5.791c-3.186,0 -5.77,-2.592 -5.77,-5.791l0,-26.596c0,-3.199 4.085,-5.732 5.951,-8.324" />
-              <path d="M84.835,57.388c-1.564,2.17 -5.41,17.49 -5.41,14.293l-0.182,-49.215c0,-3.197 2.584,-5.789 5.774,-5.789c3.187,0 5.772,2.592 5.772,5.789l0,26.6c0,3.195 -4.085,5.73 -5.954,8.322" />
-            </g>
-          </symbol>
+        <symbol id="laptop" viewBox="0 0 640 640" preserveAspectRatio="xMinYMin slice">
+          <path d="M624 416H381.54c-.74 19.81-14.71 32-32.74 32H288c-18.69 0-33.02-17.47-32.77-32H16c-8.8 0-16 7.2-16 16v16c0 35.2 28.8 64 64 64h512c35.2 0 64-28.8 64-64v-16c0-8.8-7.2-16-16-16zM576 48c0-26.4-21.6-48-48-48H112C85.6 0 64 21.6 64 48v336h512V48zm-64 272H128V64h384v256z"></path>
+        </symbol>
 
-          <symbol id="switch" viewBox="0 0 32 32" preserveAspectRatio="xMinYMin slice">
-            <circle class="bg" cx="16" cy="16" r="14"/>
-            <path class="fg" d="M 16 4 C 9.3844277 4 4 9.3844277 4 16 C 4 22.615572 9.3844277 28 16 28 C 22.615572 28 28 22.615572 28 16 C 28 9.3844277 22.615572 4 16 4 z M 16 6 C 21.534692 6 26 10.465308 26 16 C 26 21.534692 21.534692 26 16 26 C 10.465308 26 6 21.534692 6 16 C 6 10.465308 10.465308 6 16 6 z M 16 8 L 13 11 L 15 11 L 15 14 L 17 14 L 17 11 L 19 11 L 16 8 z M 11 13 L 11 15 L 8 15 L 8 17 L 11 17 L 11 19 L 14 16 L 11 13 z M 21 13 L 18 16 L 21 19 L 21 17 L 24 17 L 24 15 L 21 15 L 21 13 z M 15 18 L 15 21 L 13 21 L 16 24 L 19 21 L 17 21 L 17 18 L 15 18 z"/>
-          </symbol>
+        <symbol id="node" viewBox="0 0 32 32" preserveAspectRatio="xMinYMin slice">
+          <circle cx="16" cy="16" r="14" />
+        </symbol>
 
-          <symbol id="laptop" viewBox="0 0 640 640" preserveAspectRatio="xMinYMin slice">
-            <path d="M624 416H381.54c-.74 19.81-14.71 32-32.74 32H288c-18.69 0-33.02-17.47-32.77-32H16c-8.8 0-16 7.2-16 16v16c0 35.2 28.8 64 64 64h512c35.2 0 64-28.8 64-64v-16c0-8.8-7.2-16-16-16zM576 48c0-26.4-21.6-48-48-48H112C85.6 0 64 21.6 64 48v336h512V48zm-64 272H128V64h384v256z"></path>
-          </symbol>
+        <symbol id="unknown" viewBox="0 0 32 32" preserveAspectRatio="xMinYMin slice">
+          <circle cx="16" cy="16" r="14" />
+        </symbol>
+      </defs>
 
-          <symbol id="node" viewBox="0 0 32 32" preserveAspectRatio="xMinYMin slice">
-            <circle cx="16" cy="16" r="14" />
-          </symbol>
+      <!-- links -->
+      <path v-for="link in localLinks" :key="linkId(link)"
+        v-bind="linkPathAttrs(link)"
+        :class="[ 'link', { 'highlight': link.highlight } ]"
+      />
 
-          <symbol id="unknown" viewBox="0 0 32 32" preserveAspectRatio="xMinYMin slice">
-            <circle cx="16" cy="16" r="14" />
-          </symbol>
-        </defs>
+      <!-- highlighted link text paths -->
+      <text v-if="link.highlight" v-for="link in localLinks" :key="`${link.source.id}-${link.target.id}`" class="linkText" dy="-2">
+        <textPath v-bind="linkSourceAttrs(link)">
+          ↦{{ linkSourceText(link) }}
+        </textPath>
+        <textPath v-bind="linkTargetAttrs(link)">
+          ↦{{ linkTargetText(link) }}
+        </textPath>
+      </text>
 
-        <!-- links -->
-        <path v-for="link in localLinks" :key="linkId(link)"
-          v-bind="linkPathAttrs(link)"
-          :class="[ 'link', { 'highlight': link.highlight } ]"
+      <!-- tooltip handles/lines -->
+      <line v-for="tooltip in tooltips" :key="tooltip.node.id" class="tt-link"
+        :x1="tooltip.line.x1"
+        :y1="tooltip.line.y1"
+        :x2="tooltip.line.x2"
+        :y2="tooltip.line.y2"
+      />
+
+      <!-- nodes -->
+      <template v-for="(node, i) in localNodes">
+
+        <!--- packetfence icon --->
+        <use v-if="node.type === 'packetfence'" :key="node.id"
+          xlink:href="#packetfence"
+          width="32" height="32"
+          :id="`node-${node.id}`"
+          :x="coords[i].x - (32 / 2)"
+          :y="coords[i].y - (32 / 2)"
+          fill="#000000"
+          @mouseover="mouseOverNode(node, $event)"
+          @mouseout="mouseOutNode(node, $event)"
+          @click="clickNode(node, $event)"
+          :class="[ 'packetfence', { 'highlight': node.highlight } ]"
         />
 
-        <!-- highlighted link text paths -->
-        <text v-if="link.highlight" v-for="link in localLinks" :key="`${link.source.id}-${link.target.id}`" class="linkText" dy="-2">
-          <textPath v-bind="linkSourceAttrs(link)">
-            ↦{{ linkSourceText(link) }}
-          </textPath>
-          <textPath v-bind="linkTargetAttrs(link)">
-            ↦{{ linkTargetText(link) }}
-          </textPath>
-        </text>
-
-        <!-- tooltip handles/lines -->
-        <line v-for="tooltip in tooltips" :key="tooltip.node.id" class="tt-link"
-          :x1="tooltip.line.x1"
-          :y1="tooltip.line.y1"
-          :x2="tooltip.line.x2"
-          :y2="tooltip.line.y2"
+        <!--- switch icon --->
+        <use v-if="node.type === 'switch'" :key="node.id"
+          xlink:href="#switch"
+          width="32" height="32"
+          :id="`node-${node.id}`"
+          :x="coords[i].x - (32 / 2)"
+          :y="coords[i].y - (32 / 2)"
+          @mouseover="mouseOverNode(node, $event)"
+          @mouseout="mouseOutNode(node, $event)"
+          @click="clickNode(node, $event)"
+          :class="[ 'switch', { 'highlight': node.highlight } ]"
         />
 
-        <!-- nodes -->
-        <template v-for="(node, i) in localNodes">
-
-          <!--- packetfence icon --->
-          <use v-if="node.type === 'packetfence'" :key="node.id"
-            xlink:href="#packetfence"
-            width="32" height="32"
-            :id="`node-${node.id}`"
-            :x="coords[i].x - (32 / 2)"
-            :y="coords[i].y - (32 / 2)"
-            fill="#000000"
-            @mouseover="mouseOverNode(node, $event)"
-            @mouseout="mouseOutNode(node, $event)"
-            @click="clickNode(node, $event)"
-            :class="[ 'packetfence', { 'highlight': node.highlight } ]"
-          />
-
-          <!--- switch icon --->
-          <use v-if="node.type === 'switch'" :key="node.id"
-            xlink:href="#switch"
-            width="32" height="32"
-            :id="`node-${node.id}`"
-            :x="coords[i].x - (32 / 2)"
-            :y="coords[i].y - (32 / 2)"
-            @mouseover="mouseOverNode(node, $event)"
-            @mouseout="mouseOutNode(node, $event)"
-            @click="clickNode(node, $event)"
-            :class="[ 'switch', { 'highlight': node.highlight } ]"
-          />
-
-          <!--- node icon --->
-          <use v-if="node.type === 'node'" :key="node.id"
-            xlink:href="#node"
-            width="16" height="16"
-            :id="`node-${node.id}`"
-            :x="coords[i].x - (16 / 2)"
-            :y="coords[i].y - (16 / 2)"
-            @mouseover="mouseOverNode(node, $event)"
-            @mouseout="mouseOutNode(node, $event)"
-            @click="clickNode(node, $event)"
-            :class="[ 'node', node.color, { 'highlight': node.highlight } ]"
-          />
-
-          <!--- unknown icon --->
-          <use v-if="node.type === 'unknown'" :key="node.id"
-            xlink:href="#unknown"
-            width="32" height="32"
-            :id="`node-${node.id}`"
-            :x="coords[i].x - (32 / 2)"
-            :y="coords[i].y - (32 / 2)"
-            @mouseover="mouseOverNode(node, $event)"
-            @mouseout="mouseOutNode(node, $event)"
-            @click="clickNode(node, $event)"
-            :class="[ 'unknown', { 'highlight': node.highlight } ]"
-          />
-
-        </template>
-
-        <!-- mini map -->
-        <rect v-if="showMiniMap" class="innerMiniMap" v-bind="innerMiniMapProps" />
-        <rect v-if="showMiniMap" class="outerMiniMap" v-bind="outerMiniMapProps"
-          @mousedown.stop="mouseDownMiniMap($event)"
-          @mousemove.capture="mouseMoveMiniMap($event)"
+        <!--- node icon --->
+        <use v-if="node.type === 'node'" :key="node.id"
+          xlink:href="#node"
+          width="16" height="16"
+          :id="`node-${node.id}`"
+          :x="coords[i].x - (16 / 2)"
+          :y="coords[i].y - (16 / 2)"
+          @mouseover="mouseOverNode(node, $event)"
+          @mouseout="mouseOutNode(node, $event)"
+          @click="clickNode(node, $event)"
+          :class="[ 'node', node.color, { 'highlight': node.highlight } ]"
         />
 
-      </svg>
+        <!--- unknown icon --->
+        <use v-if="node.type === 'unknown'" :key="node.id"
+          xlink:href="#unknown"
+          width="32" height="32"
+          :id="`node-${node.id}`"
+          :x="coords[i].x - (32 / 2)"
+          :y="coords[i].y - (32 / 2)"
+          @mouseover="mouseOverNode(node, $event)"
+          @mouseout="mouseOutNode(node, $event)"
+          @click="clickNode(node, $event)"
+          :class="[ 'unknown', { 'highlight': node.highlight } ]"
+        />
 
-      <!-- tooltip body -->
-      <div v-for="tooltip in tooltips" :key="tooltip.node.id" class="tt-anchor"
-        v-bind="tooltipAnchorAttrs(tooltip)">
-        <div class="tt-container">
-          <div class="tt-contents">
-            <pre>{{ JSON.stringify(tooltip, null, 2) }}</pre>
-          </div>
+      </template>
+
+      <!-- mini map -->
+      <rect v-if="showMiniMap" class="innerMiniMap" v-bind="innerMiniMapProps" />
+      <rect v-if="showMiniMap" class="outerMiniMap" v-bind="outerMiniMapProps"
+        @mousedown.stop="mouseDownMiniMap($event)"
+        @mousemove.capture="mouseMoveMiniMap($event)"
+      />
+
+    </svg>
+
+    <!-- tooltip body -->
+    <div v-for="tooltip in tooltips" :key="tooltip.node.id" class="tt-anchor"
+      v-bind="tooltipAnchorAttrs(tooltip)">
+      <div class="tt-container">
+        <div class="tt-contents">
+          <pre>{{ JSON.stringify(tooltip, null, 2) }}</pre>
         </div>
       </div>
-
     </div>
+
   </div>
 </template>
 
@@ -353,7 +342,7 @@ export default {
     },
     tooltips () {
       let tooltips = []
-      this.localNodes.filter(node => node.highlight).forEach((node, index, nodes) => {
+      this.localNodes.filter(node => node.tooltip).forEach((node, index, nodes) => {
         const nodeBounded = this.coordBounded(node)
         let sourceAngle = 0
         let targetAngle = 0
@@ -363,8 +352,12 @@ export default {
         switch (true) {
 
           case index === 0: // inner node (target only)
-            targetAngle = getAngleFromCoords(node.x, node.y, nodes[index + 1].x, nodes[index + 1].y)
-            tooltipAngle = (180 + targetAngle) % 360  // reverse
+            if (nodes.length === 1) { // only the center node is highlighted
+              tooltipAngle = 270 // upward
+            } else {
+              targetAngle = getAngleFromCoords(node.x, node.y, nodes[index + 1].x, nodes[index + 1].y)
+              tooltipAngle = (180 + targetAngle) % 360  // reverse
+            }
             tooltipCoords = getCoordFromCoordAngle(node.x, node.y, tooltipAngle, this.tooltipDistance)
             tooltipCoordsBounded = this.coordBounded(tooltipCoords)
             tooltips.push({ node, line: { angle: tooltipAngle, x1: nodeBounded.x, y1: nodeBounded.y, x2: tooltipCoordsBounded.x, y2: tooltipCoordsBounded.y } })
@@ -396,23 +389,8 @@ export default {
     },
     tooltipDistance () {
       const divisor = Math.pow(2, this.zoom)
-      let tooltipDistance = this.config.tooltipDistance / divisor // scale length
-      return Math.max(3.5, tooltipDistance) // enforce minimum length to prevent overlapping
+      return this.config.tooltipDistance / divisor // scale length
     }
-    /*
-    linksHighlighted () {
-      return this.links.filter(link => link.highlight)
-    },
-    nodesHighlighted () {
-      return this.nodes.filter(node => node.highlight)
-    },
-    tooltips () {
-      const divisor = Math.pow(2, this.zoom)
-      let tooltipDistance = this.tooltipDistance / divisor // scale length
-      tooltipDistance = Math.max(3.5, tooltipDistance) // enforce minimum length to prevent overlapping
-      return this.$store.getters[`${this.storeName}/tooltips`](tooltipDistance)
-    }
-    */
   },
   methods: {
     init () {
@@ -423,7 +401,6 @@ export default {
           .force('x', d3.forceX())
           .force('y', d3.forceY())
       }
-      console.log('INIT')
     },
     linkCoords (link) {
       const {
@@ -548,7 +525,7 @@ export default {
     },
     mouseOverNode (node, event = null) {
       this.highlightNodeById(node.id) // highlight node
-      this.highlight = (node.type === 'node') ? node.color : null
+      this.highlight = (node.type === 'node' && 'color' in node && node.color) ? node.color : 'none'
     },
     mouseOutNode (node, event = null) {
       this.highlightNodeById(null) // unhighlight node
@@ -560,10 +537,17 @@ export default {
     highlightNodeById (id) {
       this.unhighlightNodes()
       this.unhighlightLinks()
+      // highlight all target nodes linked to this source node
+      this.localLinks.filter(link => link.source.id === id).forEach(link => {
+        this.$set(link, 'highlight', true) // highlight link
+        this.$set(link.target, 'highlight', true) // highlight target node
+      })
+      // traverse tree from node to center 'packetfence' node.
       while (id !== null) { // travel to center of tree [ (target|source) -> (target|source) -> ... ]
         const nodeIndex = this.localNodes.findIndex(n => n.id === id)
         if (nodeIndex > -1) {
           this.$set(this.localNodes[nodeIndex], 'highlight', true) // highlight node
+          this.$set(this.localNodes[nodeIndex], 'tooltip', true) // show node tooltip
           const linkIndex = this.localLinks.findIndex(link => {
             const { target: { id: targetId } = {} } = link
             return targetId === id
@@ -584,6 +568,9 @@ export default {
       this.localNodes.forEach((node, index) => {
         if (node.highlight) {
           this.$set(this.localNodes[index], 'highlight', false)
+        }
+        if (node.tooltip) {
+          this.$set(this.localNodes[index], 'tooltip', false)
         }
       })
     },
@@ -650,13 +637,13 @@ export default {
       return { style, class: position }
     },
     coordBounded (coord) {
-      const bounds = this.bounds
-      if (JSON.stringify(bounds) !== JSON.stringify({ minX: 0, maxX: 0, minY: 0, maxY: 0 })) {
-        const xMult = (this.dimensions.width - (2 * this.config.padding)) / (bounds.maxX - bounds.minX)
-        const yMult = (this.dimensions.height - (2 * this.config.padding)) / (bounds.maxY - bounds.minY)
+      const { minX = 0, maxX = 0, minY = 0, maxY = 0 } = this.bounds
+      if ((minX | maxX | minY | maxY) !== 0) { // not all zero's
+        const xMult = (this.dimensions.width - (2 * this.config.padding)) / (maxX - minX)
+        const yMult = (this.dimensions.height - (2 * this.config.padding)) / (maxY - minY)
         return {
-          x: this.config.padding + (coord.x - bounds.minX) * xMult,
-          y: this.config.padding + (coord.y - bounds.minY) * yMult
+          x: this.config.padding + (coord.x - minX) * xMult,
+          y: this.config.padding + (coord.y - minY) * yMult
         }
       }
       return { x: 0, y: 0 }
@@ -761,6 +748,27 @@ export default {
 .svgContainer {
   position: relative;
   /*overflow: hidden; /* prevent jitter from tooltip forcing window.clientHeight expansion */
+
+  .packetfence,
+  .switch,
+  .node,
+  .unknown,
+  .link {
+    transition: opacity 300ms ease, fill 300ms ease, stroke 300ms ease;
+  }
+
+  &.highlight {
+    .packetfence,
+    .switch,
+    .node,
+    .unknown,
+    .link {
+      opacity: 0.6;
+      &.highlight {
+        opacity: 1.0;
+      }
+    }
+  }
 
   &.highlight-blue {
     --highlight-color: rgba(66, 133, 244, 1);
@@ -905,6 +913,70 @@ export default {
       .tt-link {
         stroke-width: 0.25;
         stroke-dasharray: 0.25 0.25;
+      }
+    }
+    &.zoom-5 {
+      .packetfence,
+      .switch,
+      .node,
+      .unknown,
+      .link {
+        stroke-width: 0.0625;
+        &.highlight {
+          stroke-width: 0.125;
+        }
+      }
+      .tt-link {
+        stroke-width: 0.125;
+        stroke-dasharray: 0.125 0.125;
+      }
+    }
+    &.zoom-6 {
+      .packetfence,
+      .switch,
+      .node,
+      .unknown,
+      .link {
+        stroke-width: 0.03125;
+        &.highlight {
+          stroke-width: 0.0625;
+        }
+      }
+      .tt-link {
+        stroke-width: 0.0625;
+        stroke-dasharray: 0.0625 0.0625;
+      }
+    }
+    &.zoom-7 {
+      .packetfence,
+      .switch,
+      .node,
+      .unknown,
+      .link {
+        stroke-width: 0.015625;
+        &.highlight {
+          stroke-width: 0.03125;
+        }
+      }
+      .tt-link {
+        stroke-width: 0.03125;
+        stroke-dasharray: 0.03125 0.03125;
+      }
+    }
+    &.zoom-8 {
+      .packetfence,
+      .switch,
+      .node,
+      .unknown,
+      .link {
+        stroke-width: 0.0078125;
+        &.highlight {
+          stroke-width: 0.015625;
+        }
+      }
+      .tt-link {
+        stroke-width: 0.015625;
+        stroke-dasharray: 0.015625 0.015625;
       }
     }
   }
