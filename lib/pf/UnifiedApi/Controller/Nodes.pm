@@ -805,17 +805,20 @@ pf_network_graph_switch
 sub pf_network_graph_switch {
     my ($self, $search_info, $switch_id) = @_;
     my %switch = ( id => $switch_id, type => "switch" );
-    if ($switch_id eq "unknown" || !exists $pf::SwitchFactory::SwitchConfig{$switch_id}) {
+    if ( $switch_id eq "unknown" ) {
         $switch{type} = "unknown";
         return \%switch;
     }
 
-    my $config = $pf::SwitchFactory::SwitchConfig{$switch_id};
+    my $cfg =
+      exists $pf::SwitchFactory::SwitchConfig{$switch_id}
+      ? $pf::SwitchFactory::SwitchConfig{$switch_id}
+      : {};
     my %properties;
     $switch{properties} = \%properties;
-    for my $field (@{$search_info->{switch_fields}}) {
+    for my $field ( @{ $search_info->{switch_fields} } ) {
         $field =~ s/^switch\.//;
-        $properties{$field} = exists $config->{$field} ? $config->{$field} : undef;
+        $properties{$field} = exists $cfg->{$field} ? $cfg->{$field} : undef;
     }
 
     return \%switch;
