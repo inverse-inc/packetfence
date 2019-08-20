@@ -31,7 +31,7 @@ use pf::file_paths qw(
 );
 use pf::IniFiles;
 use Hash::Merge;
-use List::MoreUtils qw(uniq any);
+use List::MoreUtils qw(uniq);
 use List::Util qw(first);
 use DBI;
 use Scalar::Util qw(tainted reftype);
@@ -39,6 +39,7 @@ use pf::log;
 use Log::Any::Adapter;
 use pf::Redis;
 use CHI::Driver;
+use pf::CHI::db;
 Log::Any::Adapter->set('Log4perl');
 
 my @PRELOADED_CHI_DRIVERS;
@@ -175,23 +176,7 @@ sub setFileDriverParams {
 
 sub setDBIDriverParams {
     my ($storage, $dbi) = @_;
-    $storage->{dbh} = \&getDbi;
-}
-
-=head2 getDbi
-
-Get the DBI using the database config from pf.conf
-
-=cut
-
-sub getDbi {
-    unless(defined($dbi_info)) {
-        my $pf_config = pf::IniFiles->new( -file => $pf_config_file, -allowempty => 1, -import => $pf_default_config) or die "Cannot open $pf_config_file";
-        ($dbi_info->{db},$dbi_info->{host},$dbi_info->{port},$dbi_info->{user},$dbi_info->{pass}) = @{sectionData($pf_config, "database")}{qw(db host port user pass)};
-    }
-    return DBI->connect( "dbi:mysql:dbname=".$dbi_info->{db}.";host=".$dbi_info->{host}.";port=".$dbi_info->{port},
-    $dbi_info->{user}, $dbi_info->{pass}, { RaiseError => 0, PrintError => 0 } );
-
+    $storage->{dbh} = \&pf::CHI::db::db_connect;
 }
 
 sub setRawL1CacheAsLast {
