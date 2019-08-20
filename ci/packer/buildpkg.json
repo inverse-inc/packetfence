@@ -1,0 +1,85 @@
+{
+    "description": "Images used in CI to build packetfence packages",
+    "min_packer_version": "1.4.2",
+    "variables": {
+        "builder_prefix": "pfbuild",
+        "docker_user": "buildpkg",
+        "pf_root": "../..",
+        "go_version": "go1.9.3",
+        "go_path": "/root/go",
+        "go_repo": "github.com/inverse-inc/packetfence"
+    },
+    "builders": [
+        {
+            "name": "{{user `builder_prefix`}}-centos7",
+            "type": "docker",
+            "image": "{{user `docker_user`}}/centos:7",
+            "commit": true,
+            "changes": [
+                "ENTRYPOINT /bin/bash"
+            ]
+        },
+        {
+            "name": "{{user `builder_prefix`}}-stretch",
+            "type": "docker",
+            "image": "{{user `docker_user`}}/debian:stretch",
+            "commit": true,
+            "changes": [
+                "ENTRYPOINT /bin/bash"
+            ]
+        },
+        {
+            "name": "{{user `builder_prefix`}}-buster",
+            "type": "docker",
+            "image": "{{user `docker_user`}}/debian:buster",
+            "commit": true,
+            "changes": [
+                "ENTRYPOINT /bin/bash"
+            ]
+        }
+    ],
+    "provisioners": [
+        {
+            "type": "shell",
+            "script": "{{user `pf_root`}}/addons/dev-helpers/setup-go-env.sh",
+            "environment_vars": ["GOVERSION={{user `go_version`}}",
+                                 "GOPATH={{user `go_path`}}",
+                                 "GO_REPO={{user `go_repo`}}"
+                                ]
+
+        },
+        {
+            "type": "file",
+            "source": "{{user `pf_root`}}/go",
+            "destination": "{{user `go_path`}}/src/{{user `go_repo`}}"
+        },
+        {
+            "type": "shell",
+            "script": "provisionners/install-go-dependencies.sh",
+            "environment_vars": ["GOPATH={{user `go_path`}}",
+                                 "GO_REPO={{user `go_repo`}}",
+                                 "EXTRA_PATH=go"
+                                ]
+        }
+    ],
+    "post-processors": [
+        {
+            "type": "docker-tag",
+            "only": ["{{user `builder_prefix`}}-centos7"],
+            "repository": "inverseinc/{{user `builder_prefix`}}-centos",
+            "tag": "7"
+        },
+        {
+            "type": "docker-tag",
+            "only": ["{{user `builder_prefix`}}-stretch"],
+            "repository": "inverseinc/{{user `builder_prefix`}}-debian",
+            "tag": "stretch"
+        },
+        {
+            "type": "docker-tag",
+            "only": ["{{user `builder_prefix`}}-buster"],
+            "repository": "inverseinc/{{user `builder_prefix`}}-debian",
+            "tag": "buster"
+        }
+    ]
+}
