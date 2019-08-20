@@ -66,19 +66,19 @@
         {
             "type": "docker-tag",
             "only": ["{{user `builder_prefix`}}-centos7"],
-            "repository": "inverse-inc/{{user `builder_prefix`}}-centos",
+            "repository": "inverseinc/{{user `builder_prefix`}}-centos",
             "tag": "7"
         },
         {
             "type": "docker-tag",
             "only": ["{{user `builder_prefix`}}-stretch"],
-            "repository": "inverse-inc/{{user `builder_prefix`}}-debian",
+            "repository": "inverseinc/{{user `builder_prefix`}}-debian",
             "tag": "stretch"
         },
         {
             "type": "docker-tag",
             "only": ["{{user `builder_prefix`}}-buster"],
-            "repository": "inverse-inc/{{user `builder_prefix`}}-debian",
+            "repository": "inverseinc/{{user `builder_prefix`}}-debian",
             "tag": "buster"
         }
     ]
