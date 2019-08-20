@@ -118,10 +118,12 @@ sub store {
     my $expires_at = defined($expires_in) ? time + $expires_in : 2147483641;
 
     my $dbh = $self->dbh->();
-    my $sth = $dbh->prepare_cached( $self->sql_strings->{store} );
+    my $sql_strings = $self->sql_strings;
+    my $sth = $dbh->prepare_cached( $sql_strings->{store} );
     if ( not $sth->execute( $self->namespaced_key($key), $data, $expires_at ) ) {
-        if ( $self->sql_strings->{store2} ) {
-            my $sth = $dbh->prepare_cached( $self->sql_strings->{store2} )
+        my $store2 = $sql_strings->{store2};
+        if ($store2) {
+            my $sth = $dbh->prepare_cached($store2)
               or croak $dbh->errstr;
             $sth->execute( $data, $expires_at, $self->namespaced_key($key) )
               or croak $sth->errstr;
