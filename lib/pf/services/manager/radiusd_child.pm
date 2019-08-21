@@ -421,19 +421,6 @@ EOT
                 }
             }
 EOT
-            $tags{'local_realm_exception'} .= '            if ( ';
-            $tags{'local_realm_exception'} .=  join(' || ', @local_realms);
-            $tags{'local_realm_exception'} .= ' ) {'."\n";
-            $tags{'local_realm_exception'} .= <<"EOT";
-                update control {
-                    Proxy-To-Realm := "packetfence"
-                }
-            } else {
-                reject
-            }
-EOT
-        } else {
-            $tags{'local_realm_exception'} .= 'reject';
         }
         if ($found_acct) {
             $tags{'local_realm_acct'} .= '        }';
