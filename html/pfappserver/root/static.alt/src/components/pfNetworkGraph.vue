@@ -813,6 +813,15 @@ export default {
     dimensions: {
       handler: function (a, b) {
         this.force()
+        // limit centerX, centerY within viewBox (fixes out-of-bounds after resize)
+        const { dimensions: { width = 0, height = 0 }, zoom } = this
+        const divisor = Math.pow(2, zoom)
+        const minCenterX = width / (divisor * 2)
+        const maxCenterX = width - (width / (divisor * 2))
+        const minCenterY = height / (divisor * 2)
+        const maxCenterY = height - (height / (divisor * 2))
+        this.$set(this, 'centerX', Math.max(Math.min(this.centerX, maxCenterX), minCenterX))
+        this.$set(this, 'centerY', Math.max(Math.min(this.centerY, maxCenterY), minCenterY))
       },
       deep: true
     },
