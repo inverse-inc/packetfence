@@ -393,12 +393,6 @@ EOT
                 }
             }
 EOT
-            } else {
-                $tags{'local_realm'} = << "EOT";
-                update control {
-                    Proxy-To-Realm := "eduroam"
-                }
-EOT
             }
             if ($pf::config::ConfigRealm{$realm}->{'eduroam_radius_acct'} ) {
                 $found_acct = $TRUE;
@@ -410,6 +404,23 @@ EOT
             }
 EOT
             }
+        }
+        my @local_realms;
+        foreach my $realm ( @{$eduroam_authentication_source[0]{'local_realm'}} ) {
+            if (!$pf::config::ConfigRealm{$realm}->{'eduroam_radius_auth'} ) {
+                push (@local_realms, "Realm == \"$realm\"");
+            }
+        }
+        if (@local_realms) {
+            $tags{'local_realm'} .= '            if ( ';
+            $tags{'local_realm'} .=  join(' || ', @local_realms);
+            $tags{'local_realm'} .= ' ) {'."\n";
+            $tags{'local_realm'} .= <<"EOT";
+                update control {
+                    Proxy-To-Realm := "packetfence"
+                }
+            }
+EOT
         }
         if ($found_acct) {
             $tags{'local_realm_acct'} .= '        }';
