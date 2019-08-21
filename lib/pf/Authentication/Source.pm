@@ -190,7 +190,7 @@ sub match {
         if ($self->match_rule($rule, $params, $extra)) {
             $logger->info("Matched rule (".$rule->{'id'}.") in source ".$self->id.", returning actions.");
             $self->postMatchProcessing;
-            return $rule->{'actions'};
+            return $rule;
         }
 
     } # foreach my $rule ( @{$self->{'rules'}} ) {

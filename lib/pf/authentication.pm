@@ -323,11 +323,12 @@ sub match {
     $logger->info("Using sources ".join(', ', (map {$_->id} @sources))." for matching");
 
     foreach my $source (@sources) {
-        $actions = $source->match($params, $action, $extra);
-        unless (defined $actions) {
+        my $rule = $source->match($params, $action, $extra);
+        unless (defined $rule) {
             $logger->trace(sub {"Skipped " . $source->id });
             next;
         }
+        $actions = $rule->{actions};
         if (defined $allowed_actions) {
 
             # Return the value only if the action matches
@@ -408,9 +409,10 @@ sub match2 {
     $logger->info("Using sources ".join(', ', (map {$_->id} @sources))." for matching");
 
     foreach my $source (@sources) {
-        $actions = $source->match($params, undef, $extra);
-        next unless defined $actions;
+        my $rule = $source->match($params, undef, $extra);
+        next unless defined $rule;
         my %values;
+        $actions = $rule->{actions};
         foreach my $action (@$actions) {
             my $value = $action->value;
             my $type  = $action->type;
@@ -418,12 +420,13 @@ sub match2 {
             $type = $Actions::MAPPED_ACTIONS{$type} if exists $Actions::MAPPED_ACTIONS{$type};
             $values{$type} = $value;
         }
-        my %results = (
+
+        return {
             source_id => $source->id,
             actions => $actions,
             values => \%values,
-        );
-        return \%results;
+            rule_id => $rule->{id},
+        };
     }
 
     return undef;

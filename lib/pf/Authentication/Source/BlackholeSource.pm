@@ -84,13 +84,17 @@ sub available_actions {
 
 sub match {
     my ($self, $params) = @_;
-    return [ 
-        pf::Authentication::Action->new({
-            type    => $Actions::SET_ROLE,
-            value   => $REJECT_ROLE,
-            class   => pf::Authentication::Action->getRuleClassForAction($Actions::SET_ROLE),
-        }) 
-    ];
+    return pf::Authentication::Rule->new(
+        id => $self->id,
+        class => $Rules::AUTH,
+        actions => [
+            pf::Authentication::Action->new({
+                type    => $Actions::SET_ROLE,
+                value   => $REJECT_ROLE,
+                class   => pf::Authentication::Action->getRuleClassForAction($Actions::SET_ROLE),
+            })
+        ],
+    );
        
 }
 

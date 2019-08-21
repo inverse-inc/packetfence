@@ -61,7 +61,7 @@ sub _run {
                 my $matched;
                 foreach my $class ( @Rules::CLASSES ) {
                     if( $matched = pf::authentication::match2([$source], {username => $user, rule_class => $class, context => $context})) {
-                        print $colors->{success},$indent ,"Matched against ",$source->id," for '$class' rules\n";
+                        print $colors->{success},$indent ,"Matched against ",$source->id," for '$class' rule $matched->{rule_id}\n";
                         {
                             local $indent = $indent x 2;
                             foreach my $action (@{$matched->{actions}}) {
