@@ -40,7 +40,7 @@ BEGIN {
         tenant_id
         created_at
         ip
-	mac
+        mac
         qname
         qtype
         scope
@@ -49,6 +49,7 @@ BEGIN {
 
     %DEFAULTS = (
         tenant_id => '1',
+        ip => '',
         mac => '',
         qname => undef,
         qtype => undef,
@@ -59,7 +60,7 @@ BEGIN {
     @INSERTABLE_FIELDS = qw(
         tenant_id
         ip
-	mac
+        mac
         qname
         qtype
         scope
@@ -91,7 +92,7 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 0,
         },
-	mac => {
+        mac => {
             type => 'CHAR',
             is_auto_increment => 0,
             is_primary_key => 0,
@@ -132,7 +133,7 @@ BEGIN {
         dns_audit_log.tenant_id
         dns_audit_log.created_at
         dns_audit_log.ip
-	dns_audit_log.mac
+        dns_audit_log.mac
         dns_audit_log.qname
         dns_audit_log.qtype
         dns_audit_log.scope
