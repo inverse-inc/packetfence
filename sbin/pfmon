@@ -254,6 +254,7 @@ sub runtask {
     if($pid) {
         $CHILDREN{$pid} = $task;
     } elsif ($pid == 0) {
+        srand();
         $SIG{CHLD} = "DEFAULT";
         $IS_CHILD = 1;
         Log::Log4perl::MDC->put('tid', $$);
