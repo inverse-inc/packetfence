@@ -92,7 +92,7 @@ https://flowingdata.com/2012/08/02/how-to-make-an-interactive-network-visualizat
       <!-- nodes -->
       <template v-for="(node, i) in localNodes">
 
-        <!--- packetfence icon --->
+        <!-- packetfence icon -->
         <use v-if="node.type === 'packetfence'" :key="node.id"
           xlink:href="#packetfence"
           width="32" height="32"
@@ -106,7 +106,7 @@ https://flowingdata.com/2012/08/02/how-to-make-an-interactive-network-visualizat
           :class="[ 'packetfence', { 'highlight': node.highlight } ]"
         />
 
-        <!--- switch icon --->
+        <!-- switch icon -->
         <use v-if="node.type === 'switch'" :key="node.id"
           xlink:href="#switch"
           width="32" height="32"
@@ -119,7 +119,7 @@ https://flowingdata.com/2012/08/02/how-to-make-an-interactive-network-visualizat
           :class="[ 'switch', { 'highlight': node.highlight } ]"
         />
 
-        <!--- node icon --->
+        <!-- node icon -->
         <use v-if="node.type === 'node'" :key="node.id"
           xlink:href="#node"
           width="16" height="16"
@@ -132,7 +132,7 @@ https://flowingdata.com/2012/08/02/how-to-make-an-interactive-network-visualizat
           :class="[ 'node', node.color, { 'highlight': node.highlight } ]"
         />
 
-        <!--- unknown icon --->
+        <!-- unknown icon -->
         <use v-if="node.type === 'unknown'" :key="node.id"
           xlink:href="#unknown"
           width="32" height="32"
@@ -249,8 +249,11 @@ export default {
       highlight: false,
 
       defaults: { // default options
-        tooltipDistance: 10,
-        miniMapHeight: 150,
+        layout: 'radial',
+        tooltipDistance: 50,
+        miniMapHeight: undefined,
+        miniMapWidth: undefined,
+        miniMapPosition: 'bottom-left',
         minZoom: 0,
         maxZoom: 4,
         padding: 100
@@ -310,32 +313,68 @@ export default {
       return `${minX} ${minY} ${width} ${height}`
     },
     showMiniMap () {
-      return ~~this.config.miniMapHeight > 0 && ~~this.config.maxZoom > 0
+      return (~~this.config.miniMapHeight > 0 || ~~this.config.miniMapWidth > 0) && ~~this.config.maxZoom > ~~this.config.minZoom
     },
     innerMiniMapProps () {
       const {
-        outerMiniMapProps: { width: outerMiniMapWidth, height: outerMiniMapHeight } = {},
+        outerMiniMapProps: { x = 0, y = 0, width: outerMiniMapWidth, height: outerMiniMapHeight } = {},
         viewBox: { minX = 0, minY = 0, width: viewBoxWidth = 0, height: viewBoxHeight = 0 } = {},
         zoom
       } = this
       const divisor = Math.pow(2, zoom)
       return {
-        x: minX + ((minX * outerMiniMapWidth) / (viewBoxWidth * divisor)),
-        y: minY + ((minY * outerMiniMapHeight) / (viewBoxHeight * divisor)),
+        x: x + ((minX * outerMiniMapWidth) / (viewBoxWidth * divisor)),
+        y: y + ((minY * outerMiniMapHeight) / (viewBoxHeight * divisor)),
         width: outerMiniMapWidth / divisor,
         height: outerMiniMapHeight / divisor,
         'stroke-width': `${1 / divisor}px`
       }
     },
     outerMiniMapProps () {
-      const { viewBox: { minX = 0, minY = 0, width = 0, height = 0 } = {}, zoom } = this
+      const { viewBox: { minX = 0, minY = 0, width: viewBoxWidth = 0, height: viewBoxHeight = 0 } = {}, zoom } = this
       const divisor = Math.pow(2, zoom)
-      const aspectRatio = width / height
+      const aspectRatio = viewBoxWidth / viewBoxHeight
+      let miniMapHeight = 0
+      let miniMapWidth = 0
+      switch (true) {
+        case ~~this.config.miniMapHeight > 0 && ~~this.config.miniMapWidth > 0:
+          miniMapHeight = this.config.miniMapHeight / divisor
+          miniMapWidth = this.config.miniMapWidth / divisor
+          break
+        case ~~this.config.miniMapHeight > 0:
+          miniMapHeight = this.config.miniMapHeight / divisor
+          miniMapWidth = (this.config.miniMapHeight * aspectRatio) / divisor
+          break
+        case ~~this.config.miniMapWidth > 0:
+          miniMapWidth = this.config.miniMapWidth / divisor
+          miniMapHeight = this.config.miniMapWidth / (divisor * aspectRatio)
+          break
+      }
+      let miniMapX = 0
+      let miniMapY = 0
+      switch (this.config.miniMapPosition) {
+        case 'top-right':
+          miniMapX = minX + viewBoxWidth - miniMapWidth
+          miniMapY = minY
+          break
+        case 'bottom-right':
+          miniMapX = minX + viewBoxWidth - miniMapWidth
+          miniMapY = minY + viewBoxHeight - miniMapHeight
+          break
+        case 'bottom-left':
+          miniMapX = minX
+          miniMapY = minY + viewBoxHeight - miniMapHeight
+          break
+        case 'top-left':
+        default:
+          miniMapX = minX
+          miniMapY = minY
+      }
       return {
-        x: minX,
-        y: minY,
-        width: (this.config.miniMapHeight * aspectRatio) / divisor,
-        height: this.config.miniMapHeight / divisor,
+        x: miniMapX,
+        y: miniMapY,
+        width: miniMapWidth,
+        height: miniMapHeight,
         'stroke-width': `${1 / divisor}px`,
         'stroke-dasharray': 2 / divisor
       }
@@ -349,9 +388,9 @@ export default {
         let tooltipAngle = 0
         let tooltipCoords = {}
         let tooltipCoordsBounded = {}
-        switch (true) {
+        switch (index) {
 
-          case index === 0: // inner node (target only)
+          case 0: // inner node (target only)
             if (nodes.length === 1) { // only the center node is highlighted
               tooltipAngle = 270 // upward
             } else {
@@ -363,7 +402,7 @@ export default {
             tooltips.push({ node, line: { angle: tooltipAngle, x1: nodeBounded.x, y1: nodeBounded.y, x2: tooltipCoordsBounded.x, y2: tooltipCoordsBounded.y } })
             break
 
-          case index === nodes.length - 1: // outer node (source only)
+          case nodes.length - 1: // outer node (source only)
             sourceAngle = getAngleFromCoords(node.x, node.y, nodes[index - 1].x, nodes[index - 1].y)
             tooltipAngle = (180 + sourceAngle) % 360 // reverse
             tooltipCoords = getCoordFromCoordAngle(node.x, node.y, tooltipAngle, this.tooltipDistance)
@@ -394,13 +433,108 @@ export default {
   },
   methods: {
     init () {
-      if (!this.simulation) {
-        this.simulation = d3.forceSimulation(this.localNodes)
-          .force('charge', d3.forceManyBody().strength(d => -100))
-          .force('link', d3.forceLink(this.localLinks))
-          .force('x', d3.forceX())
-          .force('y', d3.forceY())
-      }
+      this.simulation = d3.forceSimulation(this.localNodes)
+      this.force()
+    },
+    force () {
+        this.simulation
+
+        /*
+        .force('center', d3.forceCenter()
+          .x(this.dimensions.width / 2)
+          .y(this.dimensions.height / 2)
+        )
+        */
+
+        /* `charge` force - repel nodes from each other */
+        .force('charge', d3.forceManyBody()
+          .strength(-30)
+        )
+
+        /* `collide` force - prevents nodes from overlapping */
+        /*
+        .force('collide', d3.forceCollide()
+          .radius((d) => {
+            const { type } = d
+            switch (type) {
+              case 'packetfence':
+                return 64 + 1
+              case 'switch':
+              case 'unknown':
+                return 32 + 1
+              default:
+                return 16 + 1
+            }
+          })
+          .strength(0.125)
+          .iterations(16)
+        )
+        */
+
+        /* `radial` force - circle of specified radius at x, y */
+        .force('radial', d3.forceRadial()
+          .radius((node, index) => {
+            const { type } = node
+            switch (type) {
+              case 'packetfence':
+                return 0
+              case 'switch':
+              case 'unknown':
+                return this.dimensions.height * 0.45 // inner ring: 45% of height
+              default:
+                return this.dimensions.height * 0.90 // outer ring: 90% of height
+            }
+          })
+          .x(this.dimensions.width / 2)
+          .y(this.dimensions.height / 2)
+          .strength((node, index) => {
+            const { type } = node
+            switch (type) {
+              case 'packetfence':
+                return 0
+              case 'switch':
+              case 'unknown':
+                return 1
+              default:
+                return 0.5
+            }
+          })
+        )
+
+        //.force('link', d3.forceLink(this.localLinks))
+        //.force('x', d3.forceX())
+        //.force('y', d3.forceY())
+        /*
+        .force('link', d3.forceLink(this.localLinks)
+          .distance((link, index) => {
+            const { target: { type } = {} } = link
+            switch (type) {
+              case 'switch':
+              case 'unknown':
+                return 200  // default
+              default:
+                return 100
+            }
+          })
+          .strength((link, index) => {
+            const { source: { id: sourceId } = {}, target: { id: targetId, type } = {} } = link
+            switch (type) {
+              case 'switch':
+              case 'unknown':
+                return 1
+              default:
+                // reduce the strength of links connected to heavily-connected nodes, improving stability
+                const sourceLinks = this.localLinks.filter(l => l.source.id === sourceId).length
+                const targetLinks = this.localLinks.filter(l => l.target.id === targetId).length
+                return 1 / Math.max(sourceLinks, targetLinks)
+            }
+          })
+        )
+        */
+
+
+
+        .alpha(1)
     },
     linkCoords (link) {
       const {
@@ -582,14 +716,36 @@ export default {
       })
     },
     mouseDownMiniMap (event) {
-      // get mouse delta and offset from top/left corner of current viewBox
-      const { offsetX, offsetY } = event
       const {
-        outerMiniMapProps: { width: outerMiniMapWidth, height: outerMiniMapHeight } = {},
-        viewBox: { width: viewBoxWidth = 0, height: viewBoxHeight = 0 } = {}
+        dimensions: { height: svgHeight, width: svgWidth },
+        outerMiniMapProps: { width: outerMiniMapWidth, height: outerMiniMapHeight },
+        viewBox: { width: viewBoxWidth, height: viewBoxHeight },
+        zoom
       } = this
-      const x = viewBoxWidth * (offsetX / outerMiniMapWidth)
-      const y = viewBoxHeight * (offsetY / outerMiniMapHeight)
+      const divisor = Math.pow(2, zoom)
+      const { offsetX, offsetY } = event
+      let mouseX = 0
+      let mouseY = 0
+      switch (this.config.miniMapPosition) {
+        case 'top-right':
+          mouseX = (outerMiniMapWidth * divisor) - (svgWidth - offsetX)
+          mouseY = offsetY
+          break
+        case 'bottom-right':
+          mouseX = (outerMiniMapWidth * divisor) - (svgWidth - offsetX)
+          mouseY = (outerMiniMapHeight * divisor) - (svgHeight - offsetY)
+          break
+        case 'bottom-left':
+          mouseX = offsetX
+          mouseY = (outerMiniMapHeight * divisor) - (svgHeight - offsetY)
+          break
+        case 'top-left':
+        default:
+          mouseX = offsetX
+          mouseY = offsetY
+      }
+      const x = viewBoxWidth * (mouseX / outerMiniMapWidth)
+      const y = viewBoxHeight * (mouseY / outerMiniMapHeight)
       this.setCenter(x, y)
       this.miniMapLatch = true // latch miniMapLatch
     },
@@ -653,6 +809,13 @@ export default {
     this.init()
   },
   watch: {
+    /* watch `dimensions` prop and rebuild simulation forces on resize */
+    dimensions: {
+      handler: function (a, b) {
+        this.force()
+      },
+      deep: true
+    },
     /* watch `node` prop and rebuild private `localNodes` data on change */
     nodes: {
       handler: function (a, b) {
@@ -677,7 +840,20 @@ export default {
               break
             case !(id in $b): // insert
               index = this.localNodes.length
-              this.$set(this.localNodes, index, { ...{ x: 0, y: 0 }, ...a[index] })
+
+              if (a[index].type === 'packetfence') {
+                // always center packetfence node
+                this.$set(this.localNodes, index, {
+                  ...{ fx: this.dimensions.width / 2, fy: this.dimensions.height / 2 }, // fx = fixed x, y
+                  ...a[index]
+                })
+              } else {
+                this.$set(this.localNodes, index, {
+                  ...{ x: this.dimensions.width / 2, y: this.dimensions.height / 2 },
+                  ...a[index]
+                })
+              }
+
               break
             default: // delete
               index = $b[id]
@@ -725,7 +901,7 @@ export default {
               this.$delete(this.localLinks, index)
           }
         })
-        this.simulation.force('link').links(this.localLinks) // push links to simulation
+        // this.simulation.force('link').links(this.localLinks) // push links to simulation
       },
       deep: true
     }
@@ -993,11 +1169,11 @@ export default {
   }
 
   .outerMiniMap {
-    fill: rgba(255, 255, 255, 0.5);
+    fill: rgba(0, 123, 255, 0.125);
     stroke: rgba(0, 0, 0, 0.5);
   }
   .innerMiniMap {
-    fill: rgba(0, 255, 0, 0.75);
+    fill: rgba(0, 123, 255, 1);
     stroke: rgba(0, 0, 0, 0.5);
   }
 

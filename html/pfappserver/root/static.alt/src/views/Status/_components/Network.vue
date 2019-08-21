@@ -48,10 +48,13 @@ export default {
       nodes: [],
       links: [],
       options: {
-        tooltipDistance: 10,
-        miniMapHeight: 150,
+        layout: 'radial',
+        tooltipDistance: 50,
+        miniMapHeight: undefined,
+        miniMapWidth: 200,
+        miniMapPosition: 'bottom-left',
         minZoom: 0,
-        maxZoom: 8
+        maxZoom: 4
       },
       pollingIntervalMs: 60000,
       pollingInterval: false,
@@ -67,7 +70,7 @@ export default {
               values: [{
                   field: 'last_seen',
                   op: 'greater_than_equals',
-                  value: '2018-08-13 15:28:35'
+                  value: '2000-01-01 00:00:00'
               }]
           }]
         }
@@ -103,7 +106,29 @@ export default {
     },
     doPoll () {
       api.networkGraph(this.query).then(response => {
-        const { network_graph: { nodes, links } = {} } = response
+        let { network_graph: { nodes, links } = {} } = response
+        /*
+        // improve layout by sorting nodes by source id
+        nodes = nodes.sort((a, b) => {
+          const { source: aSourceId = null } = links.find(l => l.target === a.id) || {}
+          const { source: bSourceId = null } = links.find(l => l.target === b.id) || {}
+          switch (true) {
+            case aSourceId.localeCompare(bSourceId) === -1:
+              return -1
+            case aSourceId.localeCompare(bSourceId) === 1:
+              return 1
+            case a.id.localeCompare(b.id) === -1:
+              return -1
+            case a.id.localeCompare(b.id) === 1:
+              return 1
+            default:
+              return 0
+          }
+        })
+        links = links.sort((a, b) => {
+          return a.source.localeCompare(b.source)
+        })
+        */
         this.$set(this, 'nodes', nodes)
         this.$set(this, 'links', links)
       })
