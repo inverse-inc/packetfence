@@ -73,7 +73,7 @@ authorize {
 %%local_realm%%
         }
         else {
-                reject
+%%local_realm_exception%%
         }
 	#
 	#  This module takes care of EAP-MD5, EAP-TLS, and EAP-LEAP
