@@ -3,12 +3,12 @@
    <div class="o-layout o-layout--center u-padding">
 
     <div class="o-layout__item u-1/1 u-2/3@tablet u-3/5@desktop">
-      [% IF choose_access_duration.size > 1 %]
+      [% IF set_access_durations.size > 1 %]
       <div class="input-container">
         <label>[% i18n("Access duration") %]</label>
         <select name="access_duration">
           <option value="">[% i18n('Select access duration') %]</option>
-          [% FOREACH access_duration IN choose_access_duration %]
+          [% FOREACH access_duration IN set_access_durations %]
           <option value='[% access_duration.value %]'>[% access_duration.label %]</option>
           [% END %]
         </select>

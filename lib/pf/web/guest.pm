@@ -66,7 +66,7 @@ our $VERSION = 1.41;
 
 our $SPONSOR_CONFIRMED_TEMPLATE = "activation/sponsor_accepted.html";
 our $SPONSOR_LOGIN_TEMPLATE = "activation/sponsor_login.html";
-our $SPONSOR_CHOOSE_ACCESS_DURATION_TEMPLATE = "activation/sponsor_choose_access_duration.html";
+our $SPONSOR_SET_ACCESS_DURATIONS_TEMPLATE = "activation/sponsor_set_access_durations.html";
 
 # flag used in URLs
 Readonly our $GUEST_REGISTRATION => "guest-register";

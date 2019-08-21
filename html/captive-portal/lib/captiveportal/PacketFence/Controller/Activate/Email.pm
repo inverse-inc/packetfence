@@ -124,11 +124,11 @@ sub login : Private {
     );
 }
 
-=head2 choose_access_duration
+=head2 set_access_durations
 
 =cut
 
-sub choose_access_duration : Private {
+sub set_access_durations : Private {
     my ( $self, $c ) = @_;
     if ( $c->has_errors ) {
         $c->stash->{txt_auth_error} = join(' ', grep { ref ($_) eq '' } @{$c->error});
@@ -136,7 +136,7 @@ sub choose_access_duration : Private {
     }
     $c->stash(
         title => "Choose the access duration",
-        template => $pf::web::guest::SPONSOR_CHOOSE_ACCESS_DURATION_TEMPLATE,
+        template => $pf::web::guest::SPONSOR_SET_ACCESS_DURATIONS_TEMPLATE,
     );
 }
 
@@ -190,13 +190,13 @@ sub doSponsorRegistration : Private {
                 $self->showError($c,"does not have permission to sponsor a user");
                 $c->detach('login');
             }
-            if ($values->{$Actions::CHOOSE_ACCESS_DURATION}) {
+            if ($values->{$Actions::SET_ACCESS_DURATIONS}) {
                 if ($request->param("access_duration")) {
                     pf::activation::set_unregdate('sponsor',$activation_record->{'activation_code'}, pf::config::access_duration($request->param("access_duration")));
                 } else {
-                    my @options_duration = map { { value => $_, label => $_ } } split(',', $values->{$Actions::CHOOSE_ACCESS_DURATION});
-                    $c->stash->{choose_access_duration} = \@options_duration;
-                    $c->detach('choose_access_duration');
+                    my @options_duration = map { { value => $_, label => $_ } } split(',', $values->{$Actions::SET_ACCESS_DURATIONS});
+                    $c->stash->{set_access_durations} = \@options_duration;
+                    $c->detach('set_access_durations');
                 }
             }
         }

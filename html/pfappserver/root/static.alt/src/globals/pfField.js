@@ -19,6 +19,7 @@ export const pfFieldType = {
   /* Promise based field types */
   ADMINROLE:               'adminrole',
   DURATION:                'duration',
+  DURATIONS:               'durations',
   OPTIONS:                 'options',
   REALM:                   'realm',
   ROLE:                    'role',
@@ -40,6 +41,10 @@ pfFieldTypeValues[pfFieldType.ADMINROLE] = ({ $store }) => {
   return $store.getters['config/adminRolesList']
 }
 pfFieldTypeValues[pfFieldType.DURATION] = ({ $store }) => {
+  $store.dispatch('config/getBaseGuestsAdminRegistration')
+  return $store.getters['config/accessDurationsList']
+}
+pfFieldTypeValues[pfFieldType.DURATIONS] = ({ $store }) => {
   $store.dispatch('config/getBaseGuestsAdminRegistration')
   return $store.getters['config/accessDurationsList']
 }
