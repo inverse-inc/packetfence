@@ -1924,6 +1924,17 @@ Once completed, update the file /usr/local/pf/conf/currently-at to match the new
 Upgrading from a version prior to X.Y.Z
 ---------------------------------------
 
+Custom authentication sources
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Any custom pf::Authentication::Source that overrides the match method.
+Needs to return the matching pf::Authentication::Rule instead of the array of actions.
+
+Disable domain
+^^^^^^^^^^^^^^
+
+Run addons/upgrade/to-9.1-add-domain-conf.pl to add status=enabled to each section.
+
 pfperl-api port
 ^^^^^^^^^^^^^^^
 
