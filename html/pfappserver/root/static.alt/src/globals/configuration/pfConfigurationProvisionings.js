@@ -810,7 +810,7 @@ export const pfConfigurationProvisioningFields = {
   domains: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Authorized domains'),
-      text: i18n.t('Comma-separated list of domains that will be resolve with the correct IP addresses.'),
+      text: i18n.t('A comma-separated list of domains that will be resolved with the correct IP addresses.'),
       fields: [
         {
           key: 'domains',

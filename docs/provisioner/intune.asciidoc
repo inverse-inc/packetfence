@@ -5,7 +5,7 @@ endif::[]
 
 Configure from the Azure portal
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-You will first need to connect to the Azure portal and be sure that you have the Intune licences.
+You will first need to connect to the Azure portal and be sure that you have the Intune licenses.
 
 Creating the application
 ++++++++++++++++++++++++ 
@@ -27,7 +27,7 @@ Next click on 'Certificates & secrets' and 'New client secret' , this will provi
 
 image::Azure_Application_4.png[scaledwidth="100%",alt="Azure Password"]
 
-Last thing, you need to add permissions on the API, to do that click on 'API permissions' and 'Microsoft Graph' then on the right pane select 'Application permissions' and add:
+The last thing, you need to add permissions on the API, to do that click on 'API permissions' and 'Microsoft Graph' then on the right pane select 'Application permissions' and add:
 
  Device.ReadWrite.All
  DeviceManagementManagedDevices.Read.All
@@ -54,7 +54,7 @@ Now configure this new provisioner with the information you got above.
 * The default host should work.
 * The default Login URL should work. 
 * The port and protocol should be left to default.
-* The 'Agent download uri' should be ok.
+* The 'Agent download URI' should be ok.
 * Authorized domains need to be adapted to allow the device to reach the download URI (per example google play needs multiple domains to be able to install the agent).
 
 Add the provisioner to the profile
@@ -68,6 +68,6 @@ Testing
 ^^^^^^^
 You can now test that the installation of the OPSWAT Metadefender Endpoint client is mandatory after the device registration.
 Connect a device to your test network and register like you normally would.
-At the end of the registration process you will be presented a page asking you to install the Intune client on your device.
-After you install the client click continue. If your access is enabled than this means the connectivity between PacketFence and Azure is good.
+At the end of the registration process, you will be presented a page asking you to install the Intune client on your device.
+After you install the client click continue. If your access is enabled then this means the connectivity between PacketFence and Azure is good.
 
