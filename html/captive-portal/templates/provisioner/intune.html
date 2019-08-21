@@ -1,0 +1,45 @@
+
+<div class="o-layout--center u-padding">
+  <h5>[% i18n("To complete your network activation you need to install the Intune client.") %]</h5>
+  <p>[% i18n("Once the application is installed, click 'Continue' to activate your network connection") %]</p>
+
+  <div class="o-layout">
+    <div class="o-layout__item u-1/1 u-2/3@tablet u-3/5@desktop">
+      [% IF provisioner.windows_agent_download_uri.defined %]
+      <a href="[% provisioner.windows_agent_download_uri %]" class="c-btn c-btn--primary u-1/1" target="_blank">
+        <div class="o-flag o-flag--light o-flag--center">
+          <div class="o-flag__img">[% svgIcon(id='microsoft-windows-icon',size='small') %]</div>
+          <p class="o-flag__body">[% i18n("Download Windows Agent") %]</p>
+        </div>
+      </a>
+      [% END %]
+      [% IF provisioner.mac_osx_agent_download_uri.defined %]
+      <a href="[% provisioner.mac_osx_agent_download_uri %]" class="c-btn c-btn--primary u-1/1 u-margin-top" target="_blank">
+        <div class="o-flag o-flag--light o-flag--center">
+          <div class="o-flag__img">[% svgIcon(id='apple-icon',size='small') %]</div>
+          <p class="o-flag__body">[% i18n("Download Mac OSX Agent") %]</p>
+        </div>
+      </a>
+      [% END %]
+      [% IF provisioner.ios_agent_download_uri.defined %]
+      <a href="[% provisioner.ios_agent_download_uri %]" class="c-btn c-btn--primary u-1/1 u-margin-top" target="_blank">
+        <div class="o-flag o-flag--light o-flag--center">
+          <div class="o-flag__img">[% svgIcon(id='apple-icon',size='small') %]</div>
+          <p class="o-flag__body">[% i18n("Download IOS Agent") %]</p>
+        </div>
+      </a>
+      [% END %]
+      [% IF provisioner.android_agent_download_uri.defined %]
+      <a href="[% provisioner.android_agent_download_uri %]" class="c-btn c-btn--primary u-1/1 u-margin-top" target="_blank">
+        <div class="o-flag o-flag--light o-flag--center">
+          <div class="o-flag__img">[% svgIcon(id='ic_android_black_24px',size='small') %]</div>
+          <p class="o-flag__body">[% i18n("Download Android Agent") %]</p>
+        </div>
+      </a>
+      [% END %]
+
+      <a href="/captive-portal" class="c-btn c-btn--secondary c-btn--ghost u-1/1 u-margin-top">
+        [% i18n("Continue") %]
+      </a>
+    </div>
+

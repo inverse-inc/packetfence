@@ -1,0 +1,73 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:imagesdir: ../images
+endif::[]
+
+Configure from the Azure portal
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+You will first need to connect to the Azure portal and be sure that you have the Intune licenses.
+
+Creating the application
+++++++++++++++++++++++++ 
+Once you are logged in the portal you need to create an application to allow the access to the Graph API.
+
+Click on 'Azure Active Directory' and on 'App registrations' and on 'New registration'
+
+image::Azure_Application_1.png[scaledwidth="100%",alt="Azure add application"]
+
+Set a name for the application (in this case PacketFence) and choose as 'Supported account types' : 'Accounts in this organizational directory only' and click 'Register'
+
+image::Azure_Application_2.png[scaledwidth="100%",alt="Azure define application"]
+
+On the next page you will be able to configure the application, first copy the 'Application (client ID)' and the 'Directory (tenant ID)', you will need them to define your provisioner.
+
+image::Azure_Application_3.png[scaledwidth="100%",alt="Azure ID"]
+
+Next click on 'Certificates & secrets' and 'New client secret' , this will provide you the password to use for the application (Save it right now because you won't be able to have it after).
+
+image::Azure_Application_4.png[scaledwidth="100%",alt="Azure Password"]
+
+The last thing, you need to add permissions on the API, to do that click on 'API permissions' and 'Microsoft Graph' then on the right pane select 'Application permissions' and add:
+
+ Device.ReadWrite.All
+ DeviceManagementManagedDevices.Read.All
+
+And click on 'Grant admin consent for ...'
+
+Configure PacketFence
+^^^^^^^^^^^^^^^^^^^^^
+
+Create a new provisioner
+++++++++++++++++++++++++
+Login in the PacketFence administration interface, then go in the 'Configuration' tab, then in 'Provisioners'.
+Click 'Add provisioner' then select Microsoft Intune.
+
+image::intune-pf-config.png[scaledwidth="100%",alt="Intune PacketFence configuration"]
+
+Now configure this new provisioner with the information you got above.
+
+* The Provisioning ID is the friendly name of the provisioner.
+* The Application ID is the 'Application (client ID)'.
+* The Application Secret is the 'Client secret'.
+* The Tenant ID is the 'Directory (tenant ID)'.
+* The Client Secret is the secret of the application you created in the developer account.
+* The default host should work.
+* The default Login URL should work. 
+* The port and protocol should be left to default.
+* The 'Agent download URI' should be ok.
+* Authorized domains need to be adapted to allow the device to reach the download URI (per example google play needs multiple domains to be able to install the agent).
+
+Add the provisioner to the profile
+++++++++++++++++++++++++++++++++++
+Now that you have created the provisioner, go in the 'Connection Profiles' menu on the left and select the default portal.
+Click 'Add Provisioner' and select the new Microsoft Intune provisioner that was created earlier.
+
+image::intune-portal.png[scaledwidth="100%",alt="OPSWAT portal configuration"]
+
+Testing
+^^^^^^^
+You can now test that the installation of the OPSWAT Metadefender Endpoint client is mandatory after the device registration.
+Connect a device to your test network and register like you normally would.
+At the end of the registration process, you will be presented a page asking you to install the Intune client on your device.
+After you install the client click continue. If your access is enabled then this means the connectivity between PacketFence and Azure is good.
+
