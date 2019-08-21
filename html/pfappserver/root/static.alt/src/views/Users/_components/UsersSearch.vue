@@ -18,7 +18,7 @@
             </template>
             <b-dropdown-item @click="applyBulkCloseSecurityEvent()">
               <icon class="position-absolute mt-1" name="ban"></icon>
-              <span class="ml-4">{{ $t('Clear Security Event') }}</span>
+              <span class="ml-4">{{ $t('Close Security Event') }}</span>
             </b-dropdown-item>
             <b-dropdown-item @click="applyBulkRegister()">
               <icon class="position-absolute mt-1" name="plus-circle"></icon>
@@ -594,8 +594,9 @@ export default {
               this.setRowVariant(index, 'warning')
             }
           })
+          const securityEventString = this.$i18n.tc('Applied 1 security event | Applied {securityEventCount} security events', securityEventCount, { securityEventCount })
           this.$store.dispatch('notification/info', {
-            message: this.$i18n.t('Applied {securityEventCount} security events for {userCount} users.', { securityEventCount: securityEventCount, userCount: this.selectValues.length }),
+            message: this.$i18n.tc('{securityEventString} for 1 user. | {securityEventString} for {userCount} users.', this.selectValues.length, { securityEventString, userCount: this.selectValues.length }),
             success: securityEventCount
           })
         }).catch(() => {
@@ -620,8 +621,9 @@ export default {
               this.setRowVariant(index, 'warning')
             }
           })
+          const securityEventString = this.$i18n.tc('Closed 1 security event | Closed {securityEventCount} security events', securityEventCount, { securityEventCount })
           this.$store.dispatch('notification/info', {
-            message: this.$i18n.t('Closed {securityEventCount} security events for {userCount} users.', { securityEventCount: securityEventCount, userCount: this.selectValues.length }),
+            message: this.$i18n.tc('{securityEventString} for 1 user. | {securityEventString} for {userCount} users.', this.selectValues.length, { securityEventString, userCount: this.selectValues.length }),
             success: securityEventCount
           })
         }).catch(() => {
@@ -646,8 +648,9 @@ export default {
               this.setRowVariant(index, 'warning')
             }
           })
+          const nodeString = this.$i18n.tc('Registered 1 node | Registered {nodeCount} nodes', nodeCount, { nodeCount })
           this.$store.dispatch('notification/info', {
-            message: this.$i18n.t('Registered {nodeCount} nodes for {userCount} users.', { nodeCount: nodeCount, userCount: this.selectValues.length }),
+            message: this.$i18n.tc('{nodeString} for 1 user. | {nodeString} for {userCount} users.', this.selectValues.length, { nodeString, userCount: this.selectValues.length }),
             success: nodeCount
           })
         }).catch(() => {
@@ -672,8 +675,9 @@ export default {
               this.setRowVariant(index, 'warning')
             }
           })
+          const nodeString = this.$i18n.tc('Deregistered 1 node | Deregistered {nodeCount} nodes', nodeCount, { nodeCount })
           this.$store.dispatch('notification/info', {
-            message: this.$i18n.t('Deregistered {nodeCount} nodes for {userCount} users.', { nodeCount: nodeCount, userCount: this.selectValues.length }),
+            message: this.$i18n.tc('{nodeString} for 1 user. | {nodeString} for {userCount} users.', this.selectValues.length, { nodeString, userCount: this.selectValues.length }),
             success: nodeCount
           })
         }).catch(() => {
@@ -698,8 +702,9 @@ export default {
               this.setRowVariant(index, 'warning')
             }
           })
+          const nodeString = this.$i18n.tc('Applied role on 1 node | Applied role on {nodeCount} nodes', nodeCount, { nodeCount })
           this.$store.dispatch('notification/info', {
-            message: this.$i18n.t('Applied role on {nodeCount} nodes for {userCount} users.', { nodeCount: nodeCount, userCount: this.selectValues.length }),
+            message: this.$i18n.tc('{nodeString} for 1 user. | {nodeString} for {userCount} users.', this.selectValues.length, { nodeString, userCount: this.selectValues.length }),
             success: nodeCount
           })
         }).catch(() => {
@@ -724,8 +729,9 @@ export default {
               this.setRowVariant(index, 'warning')
             }
           })
+          const nodeString = this.$i18n.tc('Applied bypass role on 1 node | Applied bypass role on {nodeCount} nodes', nodeCount, { nodeCount })
           this.$store.dispatch('notification/info', {
-            message: this.$i18n.t('Applied bypass role on {nodeCount} nodes for {userCount} users.', { nodeCount: nodeCount, userCount: this.selectValues.length }),
+            message: this.$i18n.tc('{nodeString} for 1 user. | {nodeString} for {userCount} users.', this.selectValues.length, { nodeString, userCount: this.selectValues.length }),
             success: nodeCount
           })
         }).catch(() => {
@@ -750,8 +756,9 @@ export default {
               this.setRowVariant(index, 'warning')
             }
           })
+          const nodeString = this.$i18n.tc('Reevaluated access on 1 node | Reevaluated access on {nodeCount} nodes', nodeCount, { nodeCount })
           this.$store.dispatch('notification/info', {
-            message: this.$i18n.t('Reevaluated access on {nodeCount} nodes for {userCount} users.', { nodeCount: nodeCount, userCount: this.selectValues.length }),
+            message: this.$i18n.tc('{nodeString} for 1 user. | {nodeString} for {userCount} users.', this.selectValues.length, { nodeString, userCount: this.selectValues.length }),
             success: nodeCount
           })
         }).catch(() => {
@@ -776,8 +783,9 @@ export default {
               this.setRowVariant(index, 'warning')
             }
           })
+          const fingerbankString = this.$i18n.tc('Refreshed fingerbank on 1 node | Refreshed fingerbank on {nodeCount} nodes', nodeCount, { nodeCount })
           this.$store.dispatch('notification/info', {
-            message: this.$i18n.t('Refreshed fingerbank on {nodeCount} nodes for {userCount} users.', { nodeCount: nodeCount, userCount: this.selectValues.length }),
+            message: this.$i18n.tc('{fingerbankString} for 1 user. | {fingerbankString} for {userCount} users.', this.selectValues.length, { fingerbankString, userCount: this.selectValues.length }),
             success: nodeCount
           })
         }).catch(() => {
@@ -798,7 +806,7 @@ export default {
             this.setRowVariant(index, 'success')
           })
           this.$store.dispatch('notification/info', {
-            message: this.$i18n.t('Deleted {userCount} users.', { userCount: this.selectValues.length }),
+            message: this.$i18n.tc('Deleted 1 user. | Deleted {userCount} users.', this.selectValues.length, { userCount: this.selectValues.length }),
             success: nodeCount
           })
           this.$refs.pfSearch.onSubmit() // resubmit search

@@ -17,7 +17,7 @@
             </template>
             <b-dropdown-item @click="applyBulkCloseSecurityEvent()">
               <icon class="position-absolute mt-1" name="ban"></icon>
-              <span class="ml-4">{{ $t('Clear Security Event') }}</span>
+              <span class="ml-4">{{ $t('Close Security Event') }}</span>
             </b-dropdown-item>
             <b-dropdown-item @click="applyBulkRegister()">
               <icon class="position-absolute mt-1" name="plus-circle"></icon>
@@ -794,7 +794,7 @@ export default {
             this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
           })
           this.$store.dispatch('notification/info', {
-            message: this.$i18n.t('Closed security events on {nodeCount} nodes.', { nodeCount: items.length }),
+            message: this.$i18n.tc('Closed security events on 1 node. | Closed security events on {nodeCount} nodes.', items.length, { nodeCount: items.length }),
             success: successCount,
             skipped: skippedCount,
             failed: failedCount
@@ -828,7 +828,7 @@ export default {
             this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
           })
           this.$store.dispatch('notification/info', {
-            message: this.$i18n.t('Registered {nodeCount} nodes.', { nodeCount: items.length }),
+            message: this.$i18n.tc('Registered 1 node. | Registered {nodeCount} nodes.', items.length, { nodeCount: items.length }),
             success: successCount,
             skipped: skippedCount,
             failed: failedCount
@@ -862,7 +862,7 @@ export default {
             this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
           })
           this.$store.dispatch('notification/info', {
-            message: this.$i18n.t('Deregistered {nodeCount} nodes.', { nodeCount: items.length }),
+            message: this.$i18n.tc('Deregistered 1 node. | Deregistered {nodeCount} nodes.', items.length, { nodeCount: items.length }),
             success: successCount,
             skipped: skippedCount,
             failed: failedCount
@@ -894,7 +894,7 @@ export default {
             this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
           })
           this.$store.dispatch('notification/info', {
-            message: this.$i18n.t('Reevaluated access on {nodeCount} nodes.', { nodeCount: items.length }),
+            message: this.$i18n.tc('Reevaluated access on 1 node. | Reevaluated access on {nodeCount} nodes.', items.length, { nodeCount: items.length }),
             success: successCount,
             skipped: skippedCount,
             failed: failedCount
@@ -926,7 +926,7 @@ export default {
             this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
           })
           this.$store.dispatch('notification/info', {
-            message: this.$i18n.t('Restarted switch port on {nodeCount} nodes.', { nodeCount: items.length }),
+            message: this.$i18n.tc('Restarted switch port on 1 node. | Restarted switch port on {nodeCount} nodes.', items.length, { nodeCount: items.length }),
             success: successCount,
             skipped: skippedCount,
             failed: failedCount
@@ -958,7 +958,7 @@ export default {
             this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
           })
           this.$store.dispatch('notification/info', {
-            message: this.$i18n.t('Refreshed fingerbank on {nodeCount} nodes.', { nodeCount: items.length }),
+            message: this.$i18n.tc('Refreshed fingerbank on 1 node. | Refreshed fingerbank on {nodeCount} nodes.', items.length, { nodeCount: items.length }),
             success: successCount,
             skipped: skippedCount,
             failed: failedCount
@@ -992,7 +992,7 @@ export default {
             this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
           })
           this.$store.dispatch('notification/info', {
-            message: this.$i18n.t('Applied role on {nodeCount} nodes.', { nodeCount: items.length }),
+            message: this.$i18n.tc('Applied role on 1 node. | Applied role on {nodeCount} nodes.', items.length, { nodeCount: items.length }),
             success: successCount,
             skipped: skippedCount,
             failed: failedCount
@@ -1026,7 +1026,7 @@ export default {
             this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
           })
           this.$store.dispatch('notification/info', {
-            message: this.$i18n.t('Applied bypass role on {nodeCount} nodes.', { nodeCount: items.length }),
+            message: this.$i18n.tc('Applied bypass role on 1 node. | Applied bypass role on {nodeCount} nodes.', items.length, { nodeCount: items.length }),
             success: successCount,
             skipped: skippedCount,
             failed: failedCount
@@ -1058,7 +1058,7 @@ export default {
             this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
           })
           this.$store.dispatch('notification/info', {
-            message: this.$i18n.t('Applied security event on {nodeCount} nodes.', { nodeCount: items.length }),
+            message: this.$i18n.tc('Applied security event on 1 node. | Applied security event on {nodeCount} nodes.', items.length, { nodeCount: items.length }),
             success: successCount,
             skipped: skippedCount,
             failed: failedCount
@@ -1097,7 +1097,7 @@ export default {
             this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
           })
           this.$store.dispatch('notification/info', {
-            message: this.$i18n.t('Applied bypass VLAN on {nodeCount} nodes.', { nodeCount: items.length }),
+            message: this.$i18n.tc('Applied bypass VLAN on 1 node. | Applied bypass VLAN on {nodeCount} nodes.', items.length, { nodeCount: items.length }),
             success: successCount,
             skipped: skippedCount,
             failed: failedCount
