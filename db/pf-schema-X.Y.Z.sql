@@ -1281,6 +1281,25 @@ CREATE TABLE user_preference (
   PRIMARY KEY (`tenant_id`, `pid`, `id`)
 ) ENGINE=InnoDB;
 
+--
+-- Table structure for table `dns_audit_log`
+--
+
+CREATE TABLE `dns_audit_log` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `tenant_id` int(11) NOT NULL DEFAULT '1',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `ip` varchar(45) NOT NULL,
+  `mac` char(17) NOT NULL,
+  `qname` varchar(255) DEFAULT NULL,
+  `qtype` varchar(255) DEFAULT NULL,
+  `scope` varchar(22) DEFAULT NULL,
+  `answer` varchar(255) DEFAULT NULL,
+   PRIMARY KEY (`id`),
+   KEY `created_at` (`created_at`),
+   KEY `mac` (`mac`),
+   KEY `ip` (`ip`)
+) ENGINE=InnoDB;
 
 --
 -- Updating to current version

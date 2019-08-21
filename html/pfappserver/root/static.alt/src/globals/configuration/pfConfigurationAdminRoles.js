@@ -278,6 +278,12 @@ export const pfConfigurationAdminRoleActions = [
     ]
   },
   {
+    group: 'DNS Audit Log',
+    items: [
+      { text: 'DNS Audit Log - Read', value: 'DNS_LOG_READ' }
+    ]
+  },
+  {
     group: 'RADIUS Realms',
     items: [
       { text: 'RADIUS Realms - Create', value: 'REALM_CREATE' },

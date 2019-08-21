@@ -29,6 +29,11 @@ export default {
           name: this.$i18n.t('Option82'),
           path: '/auditing/dhcpoption82s/search',
           saveSearchNamespace: 'dhcpoption82s'
+        },
+        {
+          name: this.$i18n.t('DNS Audit Logs'),
+          path: '/auditing/dnslogs/search',
+          saveSearchNamespace: 'dnslogs'
         }
       ]
     }

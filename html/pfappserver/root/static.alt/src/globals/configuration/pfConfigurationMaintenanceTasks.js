@@ -626,6 +626,21 @@ export const pfConfigurationMaintenanceTaskViewFields = (context) => {
           ]
         }
       ]
+    case 'dns_audit_log_cleanup':
+      return [
+        {
+          tab: null, // ignore tabs
+          fields: [
+            pfConfigurationMaintenanceTaskFields.id(context),
+            pfConfigurationMaintenanceTaskFields.description(context),
+            pfConfigurationMaintenanceTaskFields.status(context),
+            pfConfigurationMaintenanceTaskFields.interval(context),
+            pfConfigurationMaintenanceTaskFields.batch(context),
+            pfConfigurationMaintenanceTaskFields.timeout(context),
+            pfConfigurationMaintenanceTaskFields.window(context)
+          ]
+        }
+      ]
     case 'security_event_maintenance':
       return [
         {
