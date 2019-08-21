@@ -372,6 +372,7 @@ EOT
         %tags = ();
         $tags{'template'} = "$conf_dir/raddb/sites-available/eduroam";
         $tags{'local_realm'} = '';
+        $tags{'local_realm_exception'} = '';
         $tags{'eduroam_post_auth'} = '';
         $tags{'local_realm_acct'} = '        if (User-Name =~ /@/) {';
         my $found_acct = $FALSE;
