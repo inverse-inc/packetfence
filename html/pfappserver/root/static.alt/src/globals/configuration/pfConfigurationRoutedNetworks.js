@@ -189,6 +189,20 @@ export const pfConfigurationRoutedNetworkViewFields = (context = {}) => {
           ]
         },
         {
+          if: form.type === 'inlinel3',
+          label: i18n.t('Enable CoA'),
+          text: i18n.t('Enabling this will send a CoA request to the equipment to reevaluate network access of endpoints.'),
+          fields: [
+            {
+              key: 'coa',
+              component: pfFormRangeToggle,
+              attrs: {
+                values: { checked: 'enabled', unchecked: 'disabled' }
+              }
+            }
+          ]
+        },
+        {
           label: null, /* no label */
           fields: [
             {

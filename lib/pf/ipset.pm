@@ -407,7 +407,7 @@ sub update_node {
             }
             #Add in ipset session if the ip change
             if ($net_addr->contains($src_ip)) {
-                 if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
+                if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
                     call_ipsetd("/ipset/mark_ip_layer3?local=0",{
                         "network" => $network,
                         "role_id" => "".$id,
