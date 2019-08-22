@@ -416,7 +416,7 @@ sub getSourceArgs {
             }
         }
     }
-    for my $r (qw(realms searchattributes local_realm reject_realm)) {
+    for my $r (qw(realms searchattributes sources local_realm reject_realm)) {
         $args->{$r} //= [];
         if (ref($args->{$r}) ne "ARRAY" ) {
             $args->{$r} = [$args->{$r}];

@@ -37,6 +37,7 @@ our %TYPE_TO_EXPANDED_FIELDS = (
     Eduroam => [qw(local_realm reject_realm)],
     AD => [qw(searchattributes)],
     LDAP => [qw(searchattributes)],
+    SponsorEmail => [qw(sources)],
 );
 
 sub _fields_expanded {

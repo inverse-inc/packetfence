@@ -318,6 +318,22 @@ export const pfConfigurationActions = {
       }
     }
   },
+  set_access_durations: {
+    value: 'set_access_durations',
+    text: i18n.t('Sponsor access durations'),
+    types: [fieldType.DURATIONS],
+    validators: {
+      type: {
+        /* Require "mark_as_sponsor" */
+        [i18n.t('Action requires "Mark as sponsor".')]: requireAllSiblingFields('type', 'mark_as_sponsor'),
+        /* Don't allow elsewhere */
+        [i18n.t('Duplicate action.')]: limitSiblingFields('type', 0)
+      },
+      value: {
+        [i18n.t('Value required.')]: required
+      }
+    }
+  },
   set_access_level: {
     value: 'set_access_level',
     text: i18n.t('Access level'),

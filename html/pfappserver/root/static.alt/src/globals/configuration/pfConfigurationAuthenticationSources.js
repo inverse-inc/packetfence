@@ -238,9 +238,15 @@ export const pfConfigurationAuthenticationSourceFields = {
                     typeLabel: i18n.t('Select action type'),
                     valueLabel: i18n.t('Select action value'),
                     fields: [
-                      pfConfigurationActions.set_access_level,
-                      pfConfigurationActions.mark_as_sponsor,
-                      pfConfigurationActions.set_tenant_id
+                      ...[
+                        pfConfigurationActions.set_access_level,
+                        pfConfigurationActions.mark_as_sponsor,
+                        pfConfigurationActions.set_tenant_id
+                      ],
+                      ...((['AD', 'LDAP'].includes(sourceType))
+                        ? [pfConfigurationActions.set_access_durations]
+                        : []
+                      )
                     ]
                   },
                   invalidFeedback: [
@@ -1654,6 +1660,20 @@ export const pfConfigurationAuthenticationSourceFields = {
       ]
     }
   },
+  sources: ({ options: { meta = {} } } = {}) => {
+    return {
+      label: i18n.t('Associated Sources'),
+      text: i18n.t('Sources that will be associated with this source (For the Sponsor)'),
+      fields: [
+        {
+          key: 'sources',
+          component: pfFormChosen,
+          attrs: pfConfigurationAttributesFromMeta(meta, 'sources'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'sources', i18n.t('Sources'))
+        }
+      ]
+    }
+  },
   sp_cert_path: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Path to Service Provider cert (x509)'),
@@ -2318,6 +2338,7 @@ export const pfConfigurationAuthenticationSourceViewFields = (context) => {
           fields: [
             pfConfigurationAuthenticationSourceFields.id(context),
             pfConfigurationAuthenticationSourceFields.description(context),
+            pfConfigurationAuthenticationSourceFields.sources(context),
             pfConfigurationAuthenticationSourceFields.allow_localdomain(context),
             pfConfigurationAuthenticationSourceFields.banned_domains(context),
             pfConfigurationAuthenticationSourceFields.allowed_domains(context),

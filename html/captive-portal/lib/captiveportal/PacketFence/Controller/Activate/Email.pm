@@ -124,6 +124,22 @@ sub login : Private {
     );
 }
 
+=head2 set_access_durations
+
+=cut
+
+sub set_access_durations : Private {
+    my ( $self, $c ) = @_;
+    if ( $c->has_errors ) {
+        $c->stash->{txt_auth_error} = join(' ', grep { ref ($_) eq '' } @{$c->error});
+        $c->clear_errors;
+    }
+    $c->stash(
+        title => "Choose the access duration",
+        template => $pf::web::guest::SPONSOR_SET_ACCESS_DURATIONS_TEMPLATE,
+    );
+}
+
 =head2 doSponsorRegistration
 
 =cut
@@ -165,15 +181,30 @@ sub doSponsorRegistration : Private {
             }
             # Verify if the user has the role mark as sponsor
             my $source_match = $c->user_session->{source_match} || $c->user_session->{source_id};
-            my $value = pf::authentication::match($source_match, {username => $c->user_session->{"username"}, rule_class => $Rules::ADMIN, 'context' => $pf::constants::realm::PORTAL_CONTEXT}, $Actions::MARK_AS_SPONSOR);
-            unless (defined $value) {
+            my $matched = pf::authentication::match2($source_match, {username => $c->user_session->{"username"}, rule_class => $Rules::ADMIN, 'context' => $pf::constants::realm::PORTAL_CONTEXT});
+            my $values = $matched->{values};
+
+            unless (defined $values->{$Actions::MARK_AS_SPONSOR}) {
                 $c->log->error( $c->user_session->{"username"} . " does not have permission to sponsor a user"  );
                 $c->user_session->{username} = undef;
                 $self->showError($c,"does not have permission to sponsor a user");
                 $c->detach('login');
             }
+            if ($values->{$Actions::SET_ACCESS_DURATIONS}) {
+                if ($request->param("access_duration")) {
+                    pf::activation::set_unregdate('sponsor',$activation_record->{'activation_code'}, pf::config::access_duration($request->param("access_duration")));
+                } else {
+                    my @options_duration = map { { value => $_, label => $_ } } split(',', $values->{$Actions::SET_ACCESS_DURATIONS});
+                    if (scalar(@options_duration) eq 1) {
+                        pf::activation::set_unregdate('sponsor',$activation_record->{'activation_code'}, pf::config::access_duration($values->{$Actions::SET_ACCESS_DURATIONS}));
+                    } else {
+                        my @options_duration = map { { value => $_, label => $_ } } split(',', $values->{$Actions::SET_ACCESS_DURATIONS});
+                        $c->stash->{set_access_durations} = \@options_duration;
+                        $c->detach('set_access_durations');
+                    }
+		}
+            }
         }
-
         # handling log out (not exposed to the UI at this point)
         # TODO: if we ever expose it, we'll need to alter the form action to make sure to trim it
         # otherwise we'll submit our authentication but with ?action=logout so it'll delete the session right away

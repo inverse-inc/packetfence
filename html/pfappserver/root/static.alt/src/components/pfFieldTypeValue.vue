@@ -25,7 +25,7 @@
     </b-col>
     <b-col sm="6" align-self="start" class="pl-1">
 
-      <!-- Types: OPTIONS, ADMINROLE, ROLE, ROLE_BY_NAME, TENANT, DURATION, TIME_BALANCE -->
+      <!-- Types: OPTIONS, ADMINROLE, ROLE, ROLE_BY_NAME, TENANT, DURATION, DURATIONS, TIME_BALANCE -->
       <pf-form-chosen v-if="
           isFieldType(optionsType) ||
           isFieldType(adminroleValueType) ||
@@ -33,6 +33,7 @@
           isFieldType(roleByNameValueType) ||
           isFieldType(tenantValueType) ||
           isFieldType(durationValueType) ||
+          isFieldType(durationsValueType) ||
           isFieldType(timeBalanceValueType)
         "
         v-model="localValue"
@@ -41,6 +42,7 @@
         ref="localValue"
         label="name"
         track-by="value"
+        :multiple="isFieldType(durationsValueType)"
         :placeholder="placeholder"
         :vuelidate="valueVuelidateModel"
         :invalid-feedback="valueInvalidFeedback"
@@ -153,6 +155,7 @@ export default {
       /* Promise based field types */
       adminroleValueType:       fieldType.ADMINROLE,
       durationValueType:        fieldType.DURATION,
+      durationsValueType:       fieldType.DURATIONS,
       roleValueType:            fieldType.ROLE,
       roleByNameValueType:      fieldType.ROLE_BY_NAME,
       tenantValueType:          fieldType.TENANT
