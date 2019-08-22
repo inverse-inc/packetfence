@@ -143,6 +143,19 @@ innodb_file_per_table
 
 max_connections=[% max_connections %]
 
+[% IF masterslave %]
+[% IF masterslavemode == "SLAVE" %]
+server-id = 4
+
+gtid_domain_id = 25
+
+log_slave_updates
+log_bin=mariadb-bin
+innodb-read-only=ON
+
+[% END %]
+[% END %]
+
 [% IF cluster_enabled %]
 #
 # * Galera-related settings
@@ -168,6 +181,18 @@ wsrep_dirty_reads=ON
 #
 # Optional setting
 wsrep_slave_threads=1
+
+[% IF masterslave %]
+[% IF masterslavemode == "MASTER" %]
+wsrep_gtid_mode=ON
+wsrep_gtid_domain_id=22
+log_slave_updates=ON
+log_bin=mariadb-bin
+gtid_domain_id=[% server_id %]
+[% END %]
+
+[% END %]
+
 [% END %]
 
 [mysqld_safe]

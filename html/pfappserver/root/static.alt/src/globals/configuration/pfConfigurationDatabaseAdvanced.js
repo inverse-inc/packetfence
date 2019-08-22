@@ -147,6 +147,30 @@ export const pfConfigurationDatabaseAdvancedViewFields = (context = {}) => {
               validators: pfConfigurationValidatorsFromMeta(meta, 'max_connect_errors', i18n.t('Errors'))
             }
           ]
+        },
+        {
+          label: i18n.t('Master/Slave mode'),
+          text: i18n.t('Do you want to enable master slave configuration?'),
+          fields: [
+            {
+              key: 'masterslave',
+              component: pfFormChosen,
+              attrs: pfConfigurationAttributesFromMeta(meta, 'masterslave'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'masterslave', i18n.t('Mode'))
+            }
+          ]
+        },
+        {
+          label: i18n.t('Mode'),
+          text: i18n.t('Select the mode of the server between Master or Slave.'),
+          fields: [
+            {
+              key: 'masterslavemode',
+              component: pfFormChosen,
+              attrs: pfConfigurationAttributesFromMeta(meta, 'masterslavemode'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'masterslavemode', i18n.t('Mode'))
+            }
+          ]
         }
       ]
     }

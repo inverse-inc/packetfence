@@ -333,6 +333,16 @@ performance_schema=OFF
 #
 # The max_connect_errors MySQL configuration attribute. Only change if you know what you are doing. Will only affect a locally running MySQL server.
 max_connect_errors=100
+#
+# database_advanced.masterslave
+#
+# The masterslave configuration to enable or disable the master/slave configuration.
+masterslave=OFF
+#
+# database_advanced.masterslavemode
+#
+# The masterslavemode configuration to select MASTER or SLAVE mode.
+masterslavemode=MASTER
 
 [services]
 # services.pfipset
