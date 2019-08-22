@@ -1167,20 +1167,14 @@ export const pfConfigurationAuthenticationSourceFields = {
   },
   password_rotation: ({ options: { meta = {} } } = {}) => {
     return {
-      label: i18n.t('Password Rotation Period'),
+      label: i18n.t('Password rotation duration'),
       text: i18n.t('Period of time after the password must be rotated.'),
       fields: [
         {
-          key: 'password_rotation.interval',
-          component: pfFormInput,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'password_rotation.interval'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'password_rotation.interval', i18n.t('Interval'))
-        },
-        {
-          key: 'password_rotation.unit',
+          key: 'password_rotation',
           component: pfFormChosen,
-          attrs: pfConfigurationAttributesFromMeta(meta, 'password_rotation.unit'),
-          validators: pfConfigurationValidatorsFromMeta(meta, 'password_rotation.unit', i18n.t('Unit'))
+          attrs: pfConfigurationAttributesFromMeta(meta, 'password_rotation'),
+          validators: pfConfigurationValidatorsFromMeta(meta, 'password_rotation', i18n.t('Duration'))
         }
       ]
     }
