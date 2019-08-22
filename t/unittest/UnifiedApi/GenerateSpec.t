@@ -75,51 +75,55 @@ is_deeply(
                 server_name => {
                     type => 'string',
                     description => 'This server\'s name (account name) in your Active Directory. \'%h\' is a placeholder for this server hostname. In a cluster, you must use %h and ensure your hostnames are less than 14 characters. You can mix \'%h\' with a prefix or suffix (ex: \'pf-%h\') ',
-				},
+                },
                 sticky_dc => {
                     type => 'string',
                     description => 'This is used to specify a sticky domain controller to connect to. If not specified, default \'*\' will be used to connect to any available domain controller',
-				},
+                },
                 dns_name => {
                     type => 'string',
                     description => 'The DNS name (FQDN) of the domain.'
-				},
+                },
                 ou => {
                     type => 'string',
                     description => 'Precreate the computer account in a specific OU. The OU string read from top to bottom without RDNs and delimited by a \'/\'. E.g. "Computers/Servers/Unix"',
-				},
+                },
                 registration => {
                     type => 'string',
                     description => 'If this option is enabled, the device will be able to reach the Active Directory from the registration VLAN.',
-				},
+                },
                 ntlm_cache => {
                     type => 'string',
                     description => 'Should the NTLM cache be enabled for this domain?',
-				},
+                },
                 ntlm_cache_source => {
                     type => 'string',
                     description => 'The source to use to connect to your Active Directory server for NTLM caching.',
-				},
+                },
                 ntlm_cache_filter => {
                     type => 'string',
                     description => 'An LDAP query to filter out the users that should be cached.',
-				},
+                },
                 ntlm_cache_expiry => {
                     type => 'integer',
                     description => 'The amount of seconds an entry should be cached. This should be adjusted to twice the value of maintenance.populate_ntlm_redis_cache_interval if using the batch mode.',
-				},
+                },
                 ntlm_cache_batch => {
                     type => 'string',
                     description => 'When this is enabled, all users matching the LDAP filter will be inserted in the cache via a background job (maintenance.populate_ntlm_redis_cache_interval controls the interval).',
-				},
+                },
                 ntlm_cache_batch_one_at_a_time => {
                     type => 'string',
                     description => 'Whether or not to fetch users on your AD one by one instead of doing a single batch fetch. This is useful when your AD is loaded or experiencing issues during the sync. Note that this makes the batch job much longer and is about 4 times slower when enabled.',
-				},
+                },
                 ntlm_cache_on_connection => {
                     type => 'string',
                     description => 'When this is enabled, an async job will cache the NTLM credentials of the user every time he connects.',
-				},
+                },
+                status => {
+                    type => 'string',
+                    description => 'Enabled',
+                }
             },
             required => [qw(
                 id
