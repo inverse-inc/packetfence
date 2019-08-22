@@ -195,9 +195,14 @@ sub doSponsorRegistration : Private {
                     pf::activation::set_unregdate('sponsor',$activation_record->{'activation_code'}, pf::config::access_duration($request->param("access_duration")));
                 } else {
                     my @options_duration = map { { value => $_, label => $_ } } split(',', $values->{$Actions::SET_ACCESS_DURATIONS});
-                    $c->stash->{set_access_durations} = \@options_duration;
-                    $c->detach('set_access_durations');
-                }
+                    if (scalar(@options_duration) eq 1) {
+                        pf::activation::set_unregdate('sponsor',$activation_record->{'activation_code'}, pf::config::access_duration($values->{$Actions::SET_ACCESS_DURATIONS}));
+                    } else {
+                        my @options_duration = map { { value => $_, label => $_ } } split(',', $values->{$Actions::SET_ACCESS_DURATIONS});
+                        $c->stash->{set_access_durations} = \@options_duration;
+                        $c->detach('set_access_durations');
+                    }
+		}
             }
         }
         # handling log out (not exposed to the UI at this point)
