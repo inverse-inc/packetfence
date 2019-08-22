@@ -320,7 +320,7 @@ export const pfConfigurationActions = {
   },
   set_access_durations: {
     value: 'set_access_durations',
-    text: i18n.t('Access durations'),
+    text: i18n.t('Sponsor access durations'),
     types: [fieldType.DURATIONS],
     validators: {
       type: {

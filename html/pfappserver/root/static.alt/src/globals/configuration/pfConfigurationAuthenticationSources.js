@@ -238,15 +238,15 @@ export const pfConfigurationAuthenticationSourceFields = {
                     typeLabel: i18n.t('Select action type'),
                     valueLabel: i18n.t('Select action value'),
                     fields: [
-                      ...((['AD', 'LDAP'].includes(sourceType))
-                        ? [pfConfigurationActions.set_access_durations]
-                        : []
-                      ),
                       ...[
                         pfConfigurationActions.set_access_level,
                         pfConfigurationActions.mark_as_sponsor,
                         pfConfigurationActions.set_tenant_id
-                      ]
+                      ],
+                      ...((['AD', 'LDAP'].includes(sourceType))
+                        ? [pfConfigurationActions.set_access_durations]
+                        : []
+                      )
                     ]
                   },
                   invalidFeedback: [

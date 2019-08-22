@@ -318,11 +318,10 @@ export default {
           fields: [
             pfConfigurationActions.set_access_duration,
             pfConfigurationActions.set_access_level,
-            // pfConfigurationActions.set_bandwidth_balance,
             pfConfigurationActions.mark_as_sponsor,
             pfConfigurationActions.set_role,
-            // pfConfigurationActions.set_tenant_id,
-            // pfConfigurationActions.set_time_balance,
+            pfConfigurationActions.set_access_durations,
+            pfConfigurationActions.set_tenant_id,
             pfConfigurationActions.set_unreg_date
           ]
         }
