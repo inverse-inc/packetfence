@@ -3,6 +3,7 @@
 %global     perl_version 5.10.1
 %global     logfiles packetfence.log snmptrapd.log pfdetect pfmon security_event.log httpd.admin.audit.log
 %global     logdir /usr/local/pf/logs
+%global     debug_package %{nil}
 
 Name:       packetfence
 Version:    9.0.1
@@ -122,7 +123,7 @@ Requires: perl(Net::Cisco::MSE::REST)
 # We would need to port to the new 3.x API (tracked by #1313)
 Requires: perl(Net::Appliance::Session) = 1.36
 Requires: perl(Net::SSH2) >= 0.63
-Requires: perl(Net::OAuth2) >= 0.57
+Requires: perl(Net::OAuth2) >= 0.65
 # Required by configurator script, pf::config
 Requires: perl(Net::Interface)
 Requires: perl(Net::Netmask)
@@ -284,7 +285,7 @@ Requires: %{name}-config
 Requires: %{name}-pfcmd-suid
 Requires: haproxy >= 1.8.9, keepalived >= 1.4.3
 # CAUTION: we need to require the version we want for Fingerbank and ensure we don't want anything equal or above the next major release as it can add breaking changes
-Requires: fingerbank >= 4.1.3, fingerbank < 5.0.0
+Requires: fingerbank >= 4.1.4, fingerbank < 5.0.0
 Requires: fingerbank-collector >= 1.1.0, fingerbank-collector < 2.0.0
 Requires: perl(File::Tempdir)
 
@@ -376,7 +377,7 @@ make bin/ntlm_auth_wrapper
 echo %{git_commit} > conf/git_commit_id
 
 # build golang binaries
-addons/packages/build-go.sh build `pwd` `pwd`/sbin
+GOPATH=$HOME/go addons/packages/build-go.sh build `pwd` `pwd`/sbin
 
 find -name '*.example' -print0 | while read -d $'\0' file
 do
@@ -399,6 +400,7 @@ done
 # systemd services
 %{__install} -D -m0644 conf/systemd/packetfence-api-frontend.service %{buildroot}%{_unitdir}/packetfence-api-frontend.service
 %{__install} -D -m0644 conf/systemd/packetfence-config.service %{buildroot}%{_unitdir}/packetfence-config.service
+%{__install} -D -m0644 conf/systemd/packetfence-tracking-config.service %{buildroot}%{_unitdir}/packetfence-tracking-config.service
 %{__install} -D -m0644 conf/systemd/packetfence-haproxy-portal.service %{buildroot}%{_unitdir}/packetfence-haproxy-portal.service
 %{__install} -D -m0644 conf/systemd/packetfence-haproxy-db.service %{buildroot}%{_unitdir}/packetfence-haproxy-db.service
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.aaa.service %{buildroot}%{_unitdir}/packetfence-httpd.aaa.service
@@ -438,6 +440,8 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence-pfipset.service %{buildroot}%{_unitdir}/packetfence-pfipset.service
 %{__install} -D -m0644 conf/systemd/packetfence-netdata.service %{buildroot}%{_unitdir}/packetfence-netdata.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfstats.service %{buildroot}%{_unitdir}/packetfence-pfstats.service
+# systemd path
+%{__install} -D -m0644 conf/systemd/packetfence-tracking-config.path %{buildroot}%{_unitdir}/packetfence-tracking-config.path
 
 %{__install} -d %{buildroot}/usr/local/pf/addons
 %{__install} -d %{buildroot}/usr/local/pf/addons/AD
@@ -782,6 +786,7 @@ fi
 
 %exclude                %{_unitdir}/packetfence-config.service
 %attr(0644, root, root) %{_unitdir}/packetfence-*.service
+%attr(0644, root, root) %{_unitdir}/packetfence-*.path
 %attr(0644, root, root) %{systemddir}/journald.conf.d/01-packetfence.conf
 
 %dir %attr(0750, root,root) /etc/systemd/system/packetfence*target.wants
@@ -856,9 +861,9 @@ fi
 %config(noreplace)      /usr/local/pf/conf/pfdhcp.conf
 %config(noreplace)      /usr/local/pf/conf/portal_modules.conf
 %config                 /usr/local/pf/conf/portal_modules.conf.defaults
-%config(noreplace)      /usr/local/pf/conf/device_registration.conf
-%config                 /usr/local/pf/conf/device_registration.conf.defaults
-                        /usr/local/pf/conf/device_registration.conf.example
+%config(noreplace)      /usr/local/pf/conf/self_service.conf
+%config                 /usr/local/pf/conf/self_service.conf.defaults
+                        /usr/local/pf/conf/self_service.conf.example
 %config                 /usr/local/pf/conf/dhcp_fingerprints.conf
 %config(noreplace)      /usr/local/pf/conf/dhcp_filters.conf
                         /usr/local/pf/conf/dhcp_filters.conf.example
@@ -954,6 +959,8 @@ fi
                         /usr/local/pf/conf/radiusd/mschap.conf.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/packetfence-cluster
                         /usr/local/pf/conf/radiusd/packetfence-cluster.example
+%config(noreplace)      /usr/local/pf/conf/radiusd/packetfence-pre-proxy
+                        /usr/local/pf/conf/radiusd/packetfence-pre-proxy.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/proxy.conf.inc
                         /usr/local/pf/conf/radiusd/proxy.conf.inc.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/proxy.conf.loadbalancer
