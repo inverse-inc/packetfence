@@ -304,7 +304,17 @@ sub authorize {
 
     if (defined($switch_params)) {
         foreach my $key (keys %{$switch_params}) {
-            $switch->{$key} = $switch_params->{$key};
+            if (ref($switch_params->{$key}) eq 'ARRAY') {
+                foreach my $param (@{$switch_params->{$key}}) {
+                    if ($param  =~ /([a-zA-Z_-]*)\s*=>\s*(.*)/) {
+                        $switch->{$key}->{$1} = $2;
+                    }
+                }
+            } elsif ($switch_params->{$key} =~ /([a-zA-Z_-]*)\s*=>\s*(.*)/) {
+                $switch->{$key}->{$1} = $2;
+            } else {
+                $switch->{$key} = $switch_params->{$key};
+            }
         }
     }
 
