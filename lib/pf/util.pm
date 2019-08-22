@@ -1092,7 +1092,7 @@ sub normalize_time {
     my ($date) = @_;
     return undef if (!defined($date));
     if ( $date =~ /^\d+$/ ) {
-        return ($date);
+        return int($date + 0);
 
     } else {
         my ( $num, $modifier ) = $date =~ /^(\d+)($pf::constants::config::TIME_MODIFIER_RE)/ or return (0);
