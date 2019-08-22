@@ -324,6 +324,8 @@ export const pfConfigurationActions = {
     types: [fieldType.DURATIONS],
     validators: {
       type: {
+        /* Require "mark_as_sponsor" */
+        [i18n.t('Action requires "Mark as sponsor".')]: requireAllSiblingFields('type', 'mark_as_sponsor'),
         /* Don't allow elsewhere */
         [i18n.t('Duplicate action.')]: limitSiblingFields('type', 0)
       },
