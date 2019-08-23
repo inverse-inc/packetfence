@@ -54,17 +54,6 @@ all:
               ansible_port: "{{ ssh_port }}"
               cpus: 1
               memory: 4096
-            pfdeb10dev:
-              box: debian/buster64
-              admin_port: 1643
-              ssh_port: 2400
-              mgmt_ip: 172.17.1.12
-              reg_ip: 192.168.101.10
-              iso_ip: 192.168.102.10
-              ansible_host: 127.0.0.1
-              ansible_port: "{{ ssh_port }}"
-              cpus: 1
-              memory: 8192
             pfdeb9dev:
               box: debian/stretch64
               admin_port: 1843
@@ -76,5 +65,17 @@ all:
               ansible_port: "{{ ssh_port }}"
               cpus: 1
               memory: 8192
+            pfdeb10dev:
+              box: debian/buster64
+              admin_port: 1643
+              ssh_port: 2400
+              mgmt_ip: 172.17.1.12
+              reg_ip: 192.168.101.10
+              iso_ip: 192.168.102.10
+              ansible_host: 127.0.0.1
+              ansible_port: "{{ ssh_port }}"
+              cpus: 1
+              memory: 8192
+
   vars:
     tz: Etc/UTC
