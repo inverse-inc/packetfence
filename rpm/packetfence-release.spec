@@ -1,6 +1,6 @@
 Name:       packetfence-release
 Version:    2.0.0
-Release:    1%{?dist}
+Release:	20190822065914.0.feature~ci~build~pkg~rpm.olab%{?dist}
 BuildArch:  noarch
 Summary:    PacketFence release file and RPM repository configuration
 Packager:   Inverse inc. <support@inverse.ca>
