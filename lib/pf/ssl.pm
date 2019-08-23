@@ -342,7 +342,7 @@ sub verify_chain {
     }
     write_file($tmpinter, $bundle);
 
-    my $result = `/bin/bash -c "echo '$cert_str' | openssl verify -verbose -CAfile <(cat /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem $tmpinter)"`;
+    my $result = `/bin/bash -c "echo '$cert_str' | openssl verify -verbose -CAfile <(cat $ca_bundle_file $tmpinter)"`;
     unlink $tmpinter;
 
     if($? != 0) {
