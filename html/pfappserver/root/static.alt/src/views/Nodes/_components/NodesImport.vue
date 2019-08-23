@@ -45,7 +45,6 @@
 
 <script>
 import pfCSVParse from '@/components/pfCSVParse'
-import pfProgress from '@/components/pfProgress'
 import pfFormUpload from '@/components/pfFormUpload'
 import {
   pfDatabaseSchema as schema,
@@ -68,8 +67,7 @@ export default {
   name: 'nodes-import',
   components: {
     'pf-csv-parse': pfCSVParse,
-    'pf-progress': pfProgress,
-    'pf-form-upload': pfFormUpload
+    pfFormUpload
   },
   props: {
     storeName: { // from router
