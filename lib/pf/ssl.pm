@@ -22,6 +22,8 @@ use LWP::UserAgent;
 use pf::util;
 use pf::log;
 use pf::cluster;
+use pf::config qw($OS);
+use Readonly;
 
 use Crypt::OpenSSL::RSA;
 use Crypt::OpenSSL::X509;
@@ -35,6 +37,8 @@ use pf::file_paths qw(
     $radius_ca_cert
     $radius_server_key
 );
+
+Readonly::Scalar our $ca_bundle_file => set_ca_bundle_path();
 
 =head2 certs_map
 
@@ -397,6 +401,23 @@ sub install_to_file {
     }
 
     return @errors;
+}
+
+=head2 set_ca_bundle_path
+
+Set OS specific path for CA bundle file
+
+=cut
+
+sub set_ca_bundle_path {
+    if ($OS eq 'debian') {
+        get_logger->info("debian detected")
+        return '/etc/ssl/certs/ca-certificates.crt';
+    }
+    elsif ($OS eq 'rhel') {
+        get_logger->info("rhel detected")
+        return '/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem';
+    }
 }
 
 =head1 AUTHOR
