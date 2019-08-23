@@ -77,6 +77,40 @@ all:
               ansible_port: "{{ ssh_port }}"
               cpus: 1
               memory: 8192
-
+        nightly:
+          hosts:
+            pfcennight:
+              box: centos/7
+              admin_port: 2043
+              ssh_port: 2800
+              mgmt_ip: 172.17.1.16
+              reg_ip: 192.168.99.210
+              iso_ip: 192.168.100.210
+              ansible_host: 127.0.0.1
+              ansible_port: "{{ ssh_port }}"
+              cpus: 1
+              memory: 4096
+            pfdeb9night:
+              box: debian/stretch64
+              admin_port: 2143
+              ssh_port: 2900
+              mgmt_ip: 172.17.1.17
+              reg_ip: 192.168.103.210
+              iso_ip: 192.168.104.210
+              ansible_host: 127.0.0.1
+              ansible_port: "{{ ssh_port }}"
+              cpus: 1
+              memory: 8192
+            pfdeb10night:
+              box: debian/buster64
+              admin_port: 2243
+              ssh_port: 3000
+              mgmt_ip: 172.17.1.18
+              reg_ip: 192.168.101.210
+              iso_ip: 192.168.102.210
+              ansible_host: 127.0.0.1
+              ansible_port: "{{ ssh_port }}"
+              cpus: 1
+              memory: 8192
   vars:
     tz: Etc/UTC
