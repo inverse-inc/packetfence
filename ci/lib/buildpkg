@@ -1,0 +1,76 @@
+#!/bin/bash
+set -o nounset -o pipefail -o errexit
+
+die() {
+    echo "$(basename $0): $@" >&2 ; exit 1
+}
+
+log_section() {
+   printf '=%.0s' {1..72} ; printf "\n"
+   printf "=\t%s\n" "" "$@" ""
+}
+
+log_subsection() {
+   printf "=\t%s\n" "" "$@" ""
+}
+
+get_release() {
+    # RELEASE_ID is for example : debian ubuntu mint
+    # RELEASE_NAME is for example : jessie xenial
+    RELEASE=$(ci-release)
+    RELEASE_ID=$(cut -d/ -f1 <<< $RELEASE)
+    RELEASE_NAME=$(cut -d/ -f2 <<< $RELEASE)
+    declare -p RELEASE RELEASE_ID RELEASE_NAME
+}
+
+get_package_info() {
+    log_subsection "Getting package informations ..."
+    SPEC_FILE=rpm/packetfence.spec
+    RPM_PACKAGE_NAME=$(rpmspec -q --queryformat="%{name}\n" $SPEC_FILE | head -n1)
+    RPM_PACKAGE_VERSION=$(rpmspec -q --queryformat="%{version}\n" $SPEC_FILE | head -n1)
+    RPM_SOURCE_TAR="$RPM_PACKAGE_NAME-$RPM_PACKAGE_VERSION.tar"
+
+    declare -p RPM_PACKAGE_NAME RPM_PACKAGE_VERSION RPM_SOURCE_TAR
+    # [ -z "$RPM_PACKAGE_NAME" ] && die "not set: RPM_PACKAGE_NAME"
+    # [ -z "$RPM_PACKAGE_VERSION" ] && die "not set: RPM_PACKAGE_VERSION"
+    # [ -z "$RPM_SOURCE_TAR" ] && die "not set: RPM_SOURCE_TAR"
+}
+
+create_tar_archive() {
+    SPEC_DIR=$(readlink -e $(dirname $SPEC_FILE))
+    SOURCE_DIR="$SPEC_DIR/.."
+    declare -p SPEC_DIR SOURCE_DIR
+    log_subsection "Creating tar archive ..."
+    (cd .. ; tar c -f $RPM_SOURCE_TAR $SOURCE_DIR )
+}
+
+rpm_prepare() {
+    log_section "Prepare RPM tree"
+    get_package_info
+    create_tar_archive
+    ci-build-pkg rpm
+}
+
+deb_prepare() {
+    log_section "Prepare DEB tree"
+    # missing
+    ci-build-pkg debian
+    return
+}
+
+## main
+log_section "Get release"
+get_release
+case "$RELEASE_ID" in
+    debian|ubuntu)     deb_prepare $@ ;;
+    centos|rhel)       rpm_prepare $@ ;;
+    *)                 die "Unknown release id: $RELEASE_ID"
+esac
+
+# temp to keep current build system in parallel with new on
+# rm -v addons/packages/*.spec
+# yum install epel-release -y
+# CI_BUILDPKG_DEP_ONLY="yes" /nqb-gitlab-buildpkg/gitlab-buildpkg-tools/usr/bin/ci-build-pkg
+
+# get_package_info
+# create_tar_archive
