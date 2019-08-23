@@ -411,11 +411,11 @@ Set OS specific path for CA bundle file
 
 sub set_ca_bundle_path {
     if ($OS eq 'debian') {
-        get_logger->info("debian detected")
+        get_logger->info("debian detected");
         return '/etc/ssl/certs/ca-certificates.crt';
     }
     elsif ($OS eq 'rhel') {
-        get_logger->info("rhel detected")
+        get_logger->info("rhel detected");
         return '/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem';
     }
 }
