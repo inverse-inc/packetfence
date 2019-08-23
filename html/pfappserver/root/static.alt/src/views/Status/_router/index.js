@@ -11,6 +11,9 @@ const route = {
   name: 'status',
   redirect: '/status/dashboard',
   component: StatusView,
+  meta: {
+    transitionDelay: 300 * 2 // See _transitions.scss => $slide-bottom-duration
+  },
   beforeEnter: (to, from, next) => {
     if (!store.state.$_status) {
       // Register store module only once
