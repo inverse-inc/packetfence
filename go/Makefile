@@ -52,9 +52,8 @@ clean-caddy-src:
 
 .PHONY: go-env
 
-go-env: GOVERSION:=$(GOVERSION)
 go-env:
-	/usr/local/pf/addons/dev-helpers/setup-go-env.sh
+	GOVERSION=$(GOVERSION) /usr/local/pf/addons/dev-helpers/setup-go-env.sh
 
 .PHONY: test
 
