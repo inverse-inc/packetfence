@@ -835,21 +835,16 @@ lockSwitch
 
 sub lockSwitch {
     my ($self, $switch, $trap) = @_;
-    my $trapIfIndex = $trap->{trapIfIndex};
-    my $lock = $switch->getExclusiveLockForScope("ifindex:$trapIfIndex", 1);
+    my $lock = $switch->getExclusiveLockForScope("ifindex:" . $trap->{trapIfIndex}, 1);
     unless ($lock) {
-        my $switchId = $self->{_id};
-        my $trapType = $trap->{trapType};
-        if (!pf::rate_limiter::is_pass_limit("trap.${switchId}.${trapIfIndex}.$trapType", 2, 60)) {
-            # If IfIndex switch combo is being worked on requeue trap
-            $self->requeueTrap($trap);
-            $logger->debug("requeuing trap for $switchId : $trapIfIndex");
-            # If there is a down trap coming in then signal the up trap to stop
-            if ($trapType eq 'down') {
-                my $redis = pf::Redis->new;
-                my $key = makeKillKey($switch, $trap);
-                $redis->set($key, 1);
-            }
+        # If IfIndex switch combo is being worked on requeue trap
+        $self->requeueTrap($trap);
+        $logger->debug("requeuing trap for $switch->{_id} : $trap->{trapIfIndex}");
+        # If there is a down trap coming in then signal the up trap to stop
+        if ($trap->{trapType} eq 'down') {
+            my $redis = pf::Redis->new;
+            my $key = makeKillKey($switch, $trap);
+            $redis->set($key, 1);
         }
     }
     return $lock;
