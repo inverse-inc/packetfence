@@ -27,7 +27,7 @@ https://flowingdata.com/2012/08/02/how-to-make-an-interactive-network-visualizat
       :height="dimensions.height+'px'"
       :viewBox="viewBoxString"
       @mousedown.prevent="mouseDownSvg($event)"
-      @mousewheel.prevent="mouseWheelSvg($event)"
+      @mousewheel="mouseWheelSvg($event)"
     >
       <defs v-once>
         <!-- symbol definitions -->
@@ -129,7 +129,7 @@ https://flowingdata.com/2012/08/02/how-to-make-an-interactive-network-visualizat
           @mouseover="mouseOverNode(node, $event)"
           @mouseout="mouseOutNode(node, $event)"
           @click="clickNode(node, $event)"
-          :class="[ 'node', node.color, { 'highlight': node.highlight } ]"
+          :class="[ 'node', color(node), { 'highlight': node.highlight } ]"
         />
 
         <!-- unknown icon -->
@@ -194,11 +194,29 @@ const getCoordFromCoordAngle = (x1, y1, angle, length) => {
   }
 }
 
-const cleanId = (id) => {
-  return id
-    .replace(/^[^a-z0-9]/gi,'') // trim head
-    .replace(/[^a-z0-9]$/gi, '') // trim tail
-    .replace(/[^a-z0-9]/gi, '-') // replace all
+const explodeProperties = (properties = {}) => {
+  let explodedProperties = {}
+  Object.keys(properties).forEach(key => {
+    if (key.includes('.')) { // handle dot-notation keys ('.')
+      const [ first, ...remainder ] = key.split('.')
+      if (!(first in explodedProperties)) {
+        explodedProperties[first] = {}
+      }
+      explodedProperties[first] = {
+        ...explodedProperties[first],
+        ...explodeProperties({ [remainder.join('.')]: properties[key] })
+      }
+    } else {
+      explodedProperties[key] = properties[key]
+    }
+  })
+  return explodedProperties
+}
+
+const cleanNodeProperties = (node = {}) => {
+  const { id, type, properties = {} } = node
+  const props = { id, type, properties: explodeProperties(properties) }
+  return props
 }
 
 require('typeface-b612-mono') // custom pixel font
@@ -250,13 +268,15 @@ export default {
 
       defaults: { // default options
         layout: 'radial',
-        tooltipDistance: 50,
+        palette: 'status',
         miniMapHeight: undefined,
         miniMapWidth: undefined,
         miniMapPosition: 'bottom-left',
         minZoom: 0,
         maxZoom: 4,
-        padding: 100
+        mouseWheelZoom: true,
+        padding: 25,
+        tooltipDistance: 50
       }
     }
   },
@@ -434,10 +454,24 @@ export default {
   methods: {
     init () {
       this.simulation = d3.forceSimulation(this.localNodes)
+        //.velocityDecay(0.5) // default: 0.4
       this.force()
+    },
+    start () {
+      if (this.simulation) {
+        this.simulation.restart()
+      }
+    },
+    stop () {
+      if (this.simulation) {
+        this.simulation.stop()
+      }
     },
     force () {
         this.simulation
+
+        .alphaDecay(1 - Math.pow(0.001, 0.0000075 * this.localNodes.length)) // default: 1 - Math.pow(0.001 / 1 / 300)
+
 
         /*
         .force('center', d3.forceCenter()
@@ -448,30 +482,28 @@ export default {
 
         /* `charge` force - repel nodes from each other */
         .force('charge', d3.forceManyBody()
-          .strength(-30)
+          .strength(-10)
         )
 
         /* `collide` force - prevents nodes from overlapping */
-        /*
         .force('collide', d3.forceCollide()
           .radius((d) => {
             const { type } = d
             switch (type) {
               case 'packetfence':
-                return 64 + 1
+                return 64 + 2
               case 'switch':
               case 'unknown':
-                return 32 + 1
+                return 32 + 2
               default:
-                return 16 + 1
+                return 16 + 2
             }
           })
           .strength(0.125)
           .iterations(16)
         )
-        */
 
-        /* `radial` force - circle of specified radius at x, y */
+        /* `radial` force - orient on circle of specified radius centered at x, y */
         .force('radial', d3.forceRadial()
           .radius((node, index) => {
             const { type } = node
@@ -480,9 +512,9 @@ export default {
                 return 0
               case 'switch':
               case 'unknown':
-                return this.dimensions.height * 0.45 // inner ring: 45% of height
+                return this.dimensions.height * 0.5 // inner ring: 50% of height
               default:
-                return this.dimensions.height * 0.90 // outer ring: 90% of height
+                return this.dimensions.height // outer ring: 100% of height
             }
           })
           .x(this.dimensions.width / 2)
@@ -531,8 +563,6 @@ export default {
           })
         )
         */
-
-
 
         .alpha(1)
     },
@@ -635,31 +665,34 @@ export default {
       this.lastY = null
     },
     mouseWheelSvg (event) {
-      const divisor = Math.pow(2, this.zoom)
-      const { viewBox: { minX, minY } = {}, centerX, centerY } = this
-      // get mouse delta and offset from top/left corner of current viewBox
-      const { deltaY = 0, offsetX, offsetY } = event
-      // calculate mouse offset from 0,0
-      const [ svgX, svgY ] = [ (offsetX / divisor) + minX, (offsetY / divisor) + minY ]
-      // calculate mouse offset from center of current viewBox
-      const [deltaCenterX, deltaCenterY] = [svgX - centerX, svgY - centerY]
-      // handle zoom-in (-deltaY) and zoom-out (+deltaY)
-      //  automatically match center of mouse pointer, so the
-      //  x,y coord remains pinned at the mouse pointer after zoom.
-      if (deltaY < 0) { // zoom in
-        this.zoom = Math.min(++this.zoom, this.config.maxZoom)
-      } else if (deltaY > 0) { // zoom out
-        this.zoom = Math.max(--this.zoom, this.config.minZoom)
+      if (this.config.mouseWheelZoom) {
+        event.preventDefault() // don't scroll
+        const divisor = Math.pow(2, this.zoom)
+        const { viewBox: { minX, minY } = {}, centerX, centerY } = this
+        // get mouse delta and offset from top/left corner of current viewBox
+        const { deltaY = 0, offsetX, offsetY } = event
+        // calculate mouse offset from 0,0
+        const [ svgX, svgY ] = [ (offsetX / divisor) + minX, (offsetY / divisor) + minY ]
+        // calculate mouse offset from center of current viewBox
+        const [deltaCenterX, deltaCenterY] = [svgX - centerX, svgY - centerY]
+        // handle zoom-in (-deltaY) and zoom-out (+deltaY)
+        //  automatically match center of mouse pointer, so the
+        //  x,y coord remains pinned at the mouse pointer after zoom.
+        if (deltaY < 0) { // zoom in
+          this.zoom = Math.min(++this.zoom, this.config.maxZoom)
+        } else if (deltaY > 0) { // zoom out
+          this.zoom = Math.max(--this.zoom, this.config.minZoom)
+        }
+        const factor = Math.pow(2, this.zoom) / divisor
+        // calculate new center x,y at the current mouse position
+        const x = svgX - (deltaCenterX / factor)
+        const y = svgY - (deltaCenterY / factor)
+        this.setCenter(x, y)
       }
-      const factor = Math.pow(2, this.zoom) / divisor
-      // calculate new center x,y at the current mouse position
-      const x = svgX - (deltaCenterX / factor)
-      const y = svgY - (deltaCenterY / factor)
-      this.setCenter(x, y)
     },
     mouseOverNode (node, event = null) {
       this.highlightNodeById(node.id) // highlight node
-      this.highlight = (node.type === 'node' && 'color' in node && node.color) ? node.color : 'none'
+      this.highlight = (node.type === 'node') ? this.color(node) : 'none'
     },
     mouseOutNode (node, event = null) {
       this.highlightNodeById(null) // unhighlight node
@@ -803,6 +836,45 @@ export default {
         }
       }
       return { x: 0, y: 0 }
+    },
+    color (node) {
+      switch (this.config.palette) {
+        case 'autoreg':
+          switch (node.properties.autoreg) {
+            case 'yes':
+              return 'green'
+            case 'no':
+              return 'red'
+          }
+          break
+        case 'online':
+          switch (node.properties.online) {
+            case 'on':
+              return 'green'
+            case 'off':
+              return 'red'
+            case 'unknown':
+              return 'yellow'
+          }
+          break
+        case 'voip':
+          switch (node.properties.voip) {
+            case 'yes':
+              return 'green'
+            case 'no':
+              return 'red'
+          }
+          break
+        case 'status':
+        default:
+          switch (node.properties.status) {
+            case 'reg':
+              return 'green'
+            case 'unreg':
+              return 'red'
+          }
+      }
+      return 'black'
     }
   },
   created () {
@@ -841,35 +913,44 @@ export default {
           }
           return map
         }, [])
+        let $d = [] // deferred delete indexes
+        this.stop() // stop simulation
         $u.forEach((id, index) => {
           switch (true) {
             case (id in $a && id in $b): // update
               index = $a[id]
-              this.$set(this.localNodes, index, { ...this.localNodes[index], ...a[index] })
+              this.$set(this.localNodes, index, {
+                ...this.localNodes[index],
+                ...cleanNodeProperties(a[index])
+              })
               break
             case !(id in $b): // insert
               index = this.localNodes.length
-
               if (a[index].type === 'packetfence') {
                 // always center packetfence node
                 this.$set(this.localNodes, index, {
                   ...{ fx: this.dimensions.width / 2, fy: this.dimensions.height / 2 }, // fx = fixed x, y
-                  ...a[index]
+                  ...cleanNodeProperties(a[index])
                 })
               } else {
                 this.$set(this.localNodes, index, {
                   ...{ x: this.dimensions.width / 2, y: this.dimensions.height / 2 },
-                  ...a[index]
+                  ...cleanNodeProperties(a[index])
                 })
               }
-
               break
             default: // delete
               index = $b[id]
-              this.$delete(this.localNodes, index)
+              // defer unsorted deletion during loop, avoid subsequent index mismatches
+              $d.push(index)
           }
         })
+        $d.sort((a, b) => b - a).forEach(index => { // reverse sort, delete bottom-up
+          this.$delete(this.localNodes, index)
+        })
         this.simulation.nodes(this.localNodes) // push nodes to simulation
+        this.start() // start simulation
+        this.force() // reset forces
       },
       deep: true
     },
@@ -891,6 +972,8 @@ export default {
           }
           return map
         }, [])
+        let $d = [] // deferred delete indexes
+        this.stop() // stop simulation
         $u.forEach((id, index) => {
           switch (true) {
             case (id in $a && id in $b): // update
@@ -907,10 +990,16 @@ export default {
               break
             default: // delete
               index = $b[id]
-              this.$delete(this.localLinks, index)
+              // defer unsorted deletion during loop, avoid subsequent index mismatches
+              $d.push(index)
           }
         })
+        $d.sort((a, b) => b - a).forEach(index => { // reverse sort, delete bottom-up
+          this.$delete(this.localLinks, index)
+        })
         // this.simulation.force('link').links(this.localLinks) // push links to simulation
+        this.start() // start simulation
+        this.force() // reset forces
       },
       deep: true
     }

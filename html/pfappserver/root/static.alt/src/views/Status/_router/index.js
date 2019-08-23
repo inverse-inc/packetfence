@@ -42,6 +42,7 @@ const route = {
     },
     {
       path: 'network',
+      name: 'statusNetwork',
       component: Network,
       props: { storeName: 'network' },
       meta: {
