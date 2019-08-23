@@ -162,9 +162,9 @@ Now, restart `packetfence-config` and reload the configuration. You will see err
 Configure cluster.conf
 ^^^^^^^^^^^^^^^^^^^^^^
 
-In order to create a new cluster, you need to configure `/usr/local/pf/conf/cluster.conf` *on the first server* of your cluster.
+In order to create a new cluster, you need to configure [file]`/usr/local/pf/conf/cluster.conf` *on the first server* of your cluster.
 
-You will need to configure it with your server hostname. To get it use : `hostname` in a command line.
+You will need to configure it with your server hostname. Use : [command]`hostname` command (without any arguments) to get it.
 
 In the case of this example it will be 'pf1.example.com'.
 
