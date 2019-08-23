@@ -1,24 +1,33 @@
 <template>
     <b-form @submit.prevent="login">
-        <component :is="modal?'b-modal':'b-card'" v-model="modalVisibility"
+        <component :is="modal?'b-modal':'b-card'" v-model="showModal"
           static lazy no-close-on-esc no-close-on-backdrop hide-header-close no-body>
             <template v-slot:[headerSlotName]>
-                <h4 class="mb-0" v-t="'Login to PacketFence Administration'"></h4>
+                <h4 class="mb-0" v-if="sessionTime" v-t="'Your session will expires soon'"></h4>
+                <h4 class="mb-0" v-else v-t="'Login to PacketFence Administration'"></h4>
             </template>
             <component :is="modal?'div':'b-card-body'">
                 <b-alert :variant="message.level" :show="message.text" fade>
                     {{ message.text }}
                 </b-alert>
-                <b-form-group :label="$t('Username')" label-for="username" label-cols="4">
-                    <b-form-input id="username" type="text" v-model="username" v-focus required :readonly="showModal === true"></b-form-input>
-                </b-form-group>
-                <b-form-group :label="$t('Password')" label-for="password" label-cols="4">
-                    <b-form-input id="password" type="password" v-model="password" required></b-form-input>
-                </b-form-group>
+                <template v-if="sessionTime == false">
+                  <b-form-group :label="$t('Username')" label-for="username" label-cols="4">
+                      <b-form-input id="username" type="text" v-model="username" v-focus required :readonly="modal"></b-form-input>
+                  </b-form-group>
+                  <b-form-group :label="$t('Password')" label-for="password" label-cols="4">
+                      <b-form-input id="password" type="password" v-model="password" required></b-form-input>
+                  </b-form-group>
+                </template>
             </component>
             <template v-slot:[footerSlotName] class="justify-content-start">
-                <pf-button-save type="submit" variant="primary" :isLoading="isLoading" :disabled="!validForm">{{ $t('Login') }}</pf-button-save>
-                <b-link class="ml-2" variant="outline-secondary" @click="logout" v-if="showModal === true">{{ $t('Use a different username') }}</b-link>
+                <template v-if="sessionTime">
+                  <b-link variant="outline-secondary" @click="logout">{{ $t('Logout now') }}</b-link>
+                  <b-button class="ml-2" variant="primary" @click="extendSession()" v-t="'Extend Session'"><b-button>
+                </template>
+                <template v-else>
+                  <b-link variant="outline-secondary" @click="logout" v-if="modal">{{ $t('Use a different username') }}</b-link>
+                  <pf-button-save type="submit" class="ml-2" variant="primary" :isLoading="isLoading" :disabled="!validForm">{{ $t('Login') }}</pf-button-save>
+                </template>
             </template>
         </component>
     </b-form>
@@ -26,6 +35,8 @@
 
 <script>
 import pfButtonSave from '@/components/pfButtonSave'
+
+const EXPIRATION_DELAY = 60 // in seconds
 
 export default {
   name: 'pf-form-login',
@@ -37,15 +48,13 @@ export default {
       username: '',
       password: '',
       message: {},
-      modalVisibility: false
+      showModal: false,
+      sessionTime: false,
+      sessionTimer: false
     }
   },
   props: {
     modal: {
-      type: Boolean,
-      default: false
-    },
-    showModal: {
       type: Boolean,
       default: false
     }
@@ -56,6 +65,9 @@ export default {
     },
     footerSlotName () {
       return this.modal ? 'modal-footer' : 'footer'
+    },
+    isSessionAlive () {
+      return this.$store.getters['session/getSessionTime']() !== false
     },
     isLoading () {
       return this.$store.getters['session/isLoading']
@@ -76,24 +88,18 @@ export default {
     } else if (this.$store.state.session.username) {
       this.username = this.$store.state.session.username
     }
-  },
-  watch: {
-    showModal (value) {
-      if (this.modal) {
-        this.modalVisibility = value
-        if (value) {
-          // Token has expired
-          this.username = this.$store.state.session.username
-          this.password = ''
-          this.message = { level: 'warning', text: this.$i18n.t('Your session has expired') }
-        }
-      }
+    if (this.modal) {
+      // Watch for session state change from external sources
+      this.$watch('isSessionAlive', () => { this.updateSessionTime() })
     }
   },
   methods: {
     login () {
-      this.message = false
       this.$store.dispatch('session/login', { username: this.username, password: this.password }).then(response => {
+        if (this.modal) {
+          this.updateSessionTime()
+          this.$store.dispatch('notification/status_success', { message: this.$i18n.t('Login successful') })
+        }
         this.$emit('login', response)
       }, error => {
         if (error.response) {
@@ -103,10 +109,40 @@ export default {
         }
       })
     },
+    extendSession () {
+      this.$store.dispatch('session/getTokenInfo').then(() => {
+        this.updateSessionTime()
+        this.$store.dispatch('notification/info', { message: this.$i18n.t('Your session has been successfully extended.') })
+      }, () => {
+        this.$store.commit('session/EXPIRED')
+      })
+    },
     logout () {
       this.$store.dispatch('session/logout').then(() => {
         this.$router.push('/logout')
       })
+    },
+    updateSessionTime () {
+      this.sessionTime = this.$store.getters['session/getSessionTime']()
+      this.username = this.$store.state.session.username
+      if (this.sessionTime === false) {
+        // Token has expired
+        this.password = ''
+        this.message = { level: 'warning', text: this.$i18n.t('Your session has expired') }
+        this.showModal = !!this.$store.state.session.token
+        clearTimeout(this.sessionTimer)
+      } else {
+        if (this.sessionTime < EXPIRATION_DELAY) {
+          // Token will expire soon
+          this.showModal = true
+          this.message = { level: 'warning', text: this.$i18n.t('Your session will expire in {seconds} seconds', { seconds: this.sessionTime > 0 ? this.sessionTime : 0 }) }
+          this.sessionTimer = setTimeout(this.updateSessionTime, 1000) // update message every second
+        } else {
+          // Check back later
+          this.showModal = false
+          this.sessionTimer = setTimeout(this.updateSessionTime, (this.sessionTime - EXPIRATION_DELAY) * 1000)
+        }
+      }
     }
   }
 }

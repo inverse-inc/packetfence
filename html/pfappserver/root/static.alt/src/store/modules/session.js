@@ -61,6 +61,7 @@ const state = {
   message: '',
   token: localStorage.getItem(STORAGE_TOKEN_KEY) || '',
   username: '',
+  expires_at: null,
   expired: false,
   roles: [],
   tenant_id: [],
@@ -97,7 +98,17 @@ const setupAcl = (acl) => {
 
 const getters = {
   isLoading: state => state.loginStatus === types.LOADING,
-  isAuthenticated: state => !!state.token && state.roles.length > 0
+  isAuthenticated: state => !!state.token && state.roles.length > 0,
+  getSessionTime: state => () => {
+    if (state.expires_at) {
+      const now = new Date()
+      if (now >= state.expires_at) {
+        return false
+      }
+      return parseInt((state.expires_at - now) / 1000, 10)
+    }
+    return false
+  }
 }
 
 const actions = {
@@ -128,6 +139,7 @@ const actions = {
     localStorage.removeItem(STORAGE_TOKEN_KEY)
     if (Vue.$acl) Vue.$acl = Vue.$acl.reset()
     commit('TOKEN_DELETED')
+    commit('EXPIRES_AT_DELETED')
     commit('USERNAME_DELETED')
     commit('ROLES_DELETED')
   },
@@ -166,6 +178,7 @@ const actions = {
   getTokenInfo: ({ commit }) => {
     return api.getTokenInfo().then(response => {
       commit('USERNAME_UPDATED', response.data.item.username)
+      commit('EXPIRES_AT_UPDATED', response.data.item.expires_at)
       return response.data.item.admin_actions
     })
   },
@@ -219,6 +232,13 @@ const mutations = {
   },
   EXPIRED: (state) => {
     state.expired = true
+    state.expires_at = null
+  },
+  EXPIRES_AT_UPDATED: (state, expiresAt) => {
+    state.expires_at = new Date(expiresAt)
+  },
+  EXPIRES_AT_DELETED: (state) => {
+    state.expires_at = null
   },
   ROLES_UPDATED: (state, roles) => {
     state.roles = roles

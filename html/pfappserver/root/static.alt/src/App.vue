@@ -66,7 +66,7 @@
       <router-view/>
     </b-container>
     <!-- Show login form if session expires -->
-    <pf-form-login :show-modal="isSessionExpired" modal></pf-form-login>
+    <pf-form-login modal></pf-form-login>
   </div>
 </template>
 
@@ -95,9 +95,6 @@ export default {
   computed: {
     isAuthenticated () {
       return this.$store.getters['session/isAuthenticated']
-    },
-    isSessionExpired () {
-      return this.$store.state.session.expired
     },
     isPerfomingCheckup () {
       return this.$store.getters['config/isLoadingCheckup']
