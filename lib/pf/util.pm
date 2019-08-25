@@ -101,6 +101,7 @@ BEGIN {
         validate_unregdate
         find_outgoing_srcip
         mcmp make_string_cmp make_string_rcmp make_num_rcmp make_num_cmp
+        mac2dec
     );
 }
 
@@ -1611,6 +1612,11 @@ sub make_num_cmp {
     return sub {
         $_[0]->{$key} <=> $_[1]->{$key}
     };
+}
+
+sub mac2dec {
+    my ($mac) = @_;
+    return join (".",  map { hex($_) } split( /:/, $mac ));
 }
 
 =back

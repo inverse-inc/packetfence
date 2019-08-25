@@ -16,10 +16,29 @@ our (
     @STRIP_FILENAME_FROM_EXCEPTIONS_TESTS,
     @NORMALIZE_TIME_TESTS,
     @EXPAND_CSV_TESTS,
-    @VALID_UNREG_DATE_TESTS
+    @VALID_UNREG_DATE_TESTS,
+    @MAC2DEC
 );
 
 BEGIN {
+    @MAC2DEC = (
+        {
+            in  => "aa:bb:cc:dd:ee:ff",
+            out => "170.187.204.221.238.255",
+            msg => "mac2dec aa:bb:cc:dd:ee:ff -> 170.187.204.221.238.255",
+        },
+        {
+            in  => "11:22:33:44:55:66",
+            out => "17.34.51.68.85.102",
+            msg => "mac2dec 11:22:33:44:55:66 -> 17.34.51.68.85.102",
+        },
+        {
+            in  => "ff:ee:dd:cc:bb:aa",
+            out => "255.238.221.204.187.170",
+            msg => "mac2dec ff:ee:dd:cc:bb:aa -> 255.238.221.204.187.170",
+        },
+    );
+
     @INVALID_DATES = (
         {
             in  => undef,
@@ -212,7 +231,8 @@ BEGIN {
       scalar @INVALID_DATES +
       scalar @NORMALIZE_TIME_TESTS +
       scalar @EXPAND_CSV_TESTS +
-      scalar @VALID_UNREG_DATE_TESTS;
+      scalar @VALID_UNREG_DATE_TESTS +
+      scalar @MAC2DEC;
 }
 
 BEGIN {
@@ -338,6 +358,14 @@ for my $test (@STRIP_FILENAME_FROM_EXCEPTIONS_TESTS) {
 for my $test (@VALID_UNREG_DATE_TESTS) {
     is (
         validate_unregdate($test->{in}),
+        $test->{out},
+        $test->{msg}
+    )
+}
+
+for my $test (@MAC2DEC) {
+    is (
+        mac2dec($test->{in}),
         $test->{out},
         $test->{msg}
     )

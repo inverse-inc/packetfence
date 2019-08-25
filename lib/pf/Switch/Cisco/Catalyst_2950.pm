@@ -410,16 +410,12 @@ sub authorizeMAC {
 
     my @oid_value;
     if ($deauthMac) {
-        my $completeOid = $oid_cpsSecureMacAddrRowStatus . "." . $ifIndex . join(".", split(/:/, $deauthMac));
+        my $completeOid = $oid_cpsSecureMacAddrRowStatus . "." . $ifIndex . "." . mac2dec($deauthMac);
         push @oid_value, ( $completeOid, Net::SNMP::INTEGER, 6 );
     }
 
     if ($authMac) {
-        my @macArray = split( /:/, $authMac );
-        my $completeOid = $oid_cpsSecureMacAddrRowStatus . "." . $ifIndex;
-        foreach my $macPiece (@macArray) {
-            $completeOid .= "." . hex($macPiece);
-        }
+        my $completeOid = $oid_cpsSecureMacAddrRowStatus . "." . $ifIndex . "." . mac2dec($authMac);
         push @oid_value, ( $completeOid, Net::SNMP::INTEGER, 4 );
     }
 
