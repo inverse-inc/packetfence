@@ -192,11 +192,24 @@ authenticate {
 		# If there is already an NT-Password populated in the control, we'll try it
 		# In the event it fails, it will fallback to an ntlm_auth call below
 		if(&control:NT-Password && &control:NT-Password != "") {
+			update {
+				&control:PacketFence-NTCacheHash := 1
+			}
 			mschap_local {
 				reject = 2
 			}
 			if (reject || fail) {
 				packetfence-mschap-authenticate
+				update {
+					&control:PacketFence-NTCacheHash := 0
+				}
+			}
+                        update control {
+                            Cache-Status-Only = 'yes'
+                        }
+			PacketFence-NTCacheHash
+			if (notfound) {
+				PacketFence-NTCacheHash
 			}
 		}
 		else {
@@ -259,9 +272,15 @@ session {
 #  then update the inner-tunnel reply.
 post-auth {
 	packetfence-set-tenant-id
-        if !( ("%{client:shortname}" =~ /eduroam_tlrs/)  || (&request:PacketFence-SHortName && &request:PacketFence-ShortName =~ /eduroam_tlrs/)) {
-               rest
-        }
+	PacketFence-NTCacheHash
+	if (ok) {
+		update {
+			&request:PacketFence-NTCacheHash := &control:PacketFence-NTCacheHash
+		}
+	}
+	if !( ("%{client:shortname}" =~ /eduroam_tlrs/)  || (&request:PacketFence-SHortName && &request:PacketFence-ShortName =~ /eduroam_tlrs/)) {
+		rest
+	}
 	update {
 		&request:User-Password := "******"
 	}

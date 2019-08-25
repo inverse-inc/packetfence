@@ -26,6 +26,7 @@ Namespaces:
   switch
   switch.overlay
   local_mac
+  ntlm_cache_username_lookup
 
 Options:
 

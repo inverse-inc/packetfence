@@ -28,6 +28,9 @@ use File::Temp;
 use pf::Redis;
 use pf::constants::domain qw($NTLM_REDIS_CACHE_HOST $NTLM_REDIS_CACHE_PORT);
 use Socket;
+use pf::CHI;
+
+my $CHI_CACHE = pf::CHI->new( namespace => 'ntlm_cache_username_lookup' );
 
 =head2 fetch_valid_users
 
@@ -270,16 +273,23 @@ sub cache_user {
     my $config = $ConfigDomain{$domain};
     my $source = getAuthenticationSource($config->{ntlm_cache_source});
     return ($FALSE, "Invalid LDAP source $config->{ntlm_cache_source}") unless(defined($source));
-    
-    if($username =~ /^host\//) {
-        ($username, my $msg) = $source->findAtttributeFrom("servicePrincipalName", $username, "sAMAccountName");
-        return ($FALSE, $msg) unless($username);
-    }
-    elsif (lc($source->{'usernameattribute'}) ne lc('sAMAccountName')) {
-        ($username, my $msg) = $source->findAtttributeFrom($source->{'usernameattribute'}, $username, "sAMAccountName");
-        return ($FALSE, $msg) unless($username);
-    }
+    my $cache_key = "$domain.$username";
+    my $user = get_from_cache($cache_key);
+    unless($user){
+        if($username =~ /^host\//) {
+            ($username, my $msg) = $source->findAtttributeFrom("servicePrincipalName", $username, "sAMAccountName");
+            return ($FALSE, $msg) unless($username);
+        }
+        elsif (lc($source->{'usernameattribute'}) ne lc('sAMAccountName')) {
+            ($username, my $msg) = $source->findAtttributeFrom($source->{'usernameattribute'}, $username, "sAMAccountName");
+            return ($FALSE, $msg) unless($username);
+        }
+        set_to_cache($cache_key, $username);
 
+    }
+    if (defined($user)) {
+        $username = $user;
+    }
     my ($ntds_file, $msg) = secretsdump($domain, $source, "-just-dc-user '$username'");
     return ($FALSE, $msg) unless($ntds_file);
 
@@ -369,6 +379,31 @@ sub insert_user_in_redis_cache {
     $logger->info("Inserting '$key' => '$nthash'");
     $redis->set($key, $nthash, 'EX', $config->{ntlm_cache_expiry});
 }
+
+=head2 get_from_cache
+
+Get the value from the key
+
+=cut
+
+sub get_from_cache {
+    my ($key) = @_;
+
+    return $CHI_CACHE->get($key);
+}
+
+=head2 set_to_cache
+
+Set the value associated to the key
+
+=cut
+
+sub set_to_cache {
+    my ($key, $value) = @_;
+
+    $CHI_CACHE->set($key,$value);
+}
+
 
 =head1 AUTHOR
 
