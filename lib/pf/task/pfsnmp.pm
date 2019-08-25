@@ -675,12 +675,20 @@ sub handleSecureMacAddrViolationTrap {
                 $logger->info(
 "authorizing $trapMac (old entry $old_mac_to_remove) at new location $switch_id ifIndex $switch_port"
                 );
-                $switch->authorizeMAC($switch_port, $old_mac_to_remove, $trapMac, $switch->getVlan($switch_port),
-                    $correctVlanForThisNode);
+                if (!$switch->authorizeMAC($switch_port, $old_mac_to_remove, $trapMac, $switch->getVlan($switch_port),
+                    $correctVlanForThisNode)) {
+                    $logger->error(
+    "Unable to authorize $trapMac (old entry $old_mac_to_remove) at new location $switch_id ifIndex $switch_port"
+                    );
+                    return;
+                }
             }
             else {
                 $logger->info("authorizing $trapMac at new location $switch_id ifIndex $switch_port");
-                $switch->authorizeMAC($switch_port, 0, $trapMac, 0, $correctVlanForThisNode);
+                if (!$switch->authorizeMAC($switch_port, 0, $trapMac, 0, $correctVlanForThisNode)) {
+                    $logger->error("Unable to authorize $trapMac at new location $switch_id ifIndex $switch_port");
+                    return;
+                }
             }
 
             #set the right VLAN
@@ -740,9 +748,8 @@ sub do_port_security {
                     }
                     my $fakeMac = $oldSwitch->generateFakeMac( $is_old_voip, $old_port );
                     $logger->info("de-authorizing $mac (new entry $fakeMac) at old location $old_switch ifIndex $old_port");
-                    $oldSwitch->authorizeMAC( $old_port, $mac, $fakeMac,
-                        ( $is_old_voip ? $oldSwitch->getVoiceVlan($old_port) : $oldSwitch->getVlan($old_port) ),
-                        ( $is_old_voip ? $oldSwitch->getVoiceVlan($old_port) : $oldSwitch->getVlan($old_port) ) );
+                    my $port_to_auth = $is_old_voip ? $oldSwitch->getVoiceVlan($old_port) : $oldSwitch->getVlan($old_port);
+                    $oldSwitch->authorizeMAC( $old_port, $mac, $fakeMac, $port_to_auth, $port_to_auth);
                 } else {
                     $logger->info("MAC not found on node's previous switch secure table or switch inaccessible.");
                 }
@@ -754,14 +761,14 @@ sub do_port_security {
     # check if $mac is not already secured on another port (in case locationlog is outdated)
     my $secureMacAddrHashRef = $switch->getAllSecureMacAddresses();
     if ( exists( $secureMacAddrHashRef->{$mac} ) ) {
-        foreach my $ifIndex ( keys( %{ $secureMacAddrHashRef->{$mac} } ) ) {
+        my $ifIndexes = $secureMacAddrHashRef->{$mac};
+        foreach my $ifIndex ( keys( %{ $ifIndexes } ) ) {
             if ( $ifIndex == $switch_port ) {
                 return 'stopTrapHandling';
             } else {
-                foreach my $vlan (
-                    @{ $secureMacAddrHashRef->{$mac}->{$ifIndex} } )
-                {
-                    my $is_voice_vlan = ($vlan == $switch->getVoiceVlan($ifIndex));
+                my $voice_vlan = $switch->getVoiceVlan($ifIndex);
+                foreach my $vlan ( @{ $ifIndexes->{$ifIndex} } ) {
+                    my $is_voice_vlan = $voice_vlan == $vlan;
                     my $fakeMac = $switch->generateFakeMac($is_voice_vlan, $ifIndex);
                     $logger->info( "$mac is a secure MAC address at "
                             . $switch->{_id}

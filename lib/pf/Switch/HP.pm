@@ -339,10 +339,14 @@ sub authorizeMAC {
     my $logger = $self->logger;
 
     if ( ($deauthMac) && ( !$self->isFakeMac($deauthMac) ) ) {
-        $self->_authorizeMAC( $ifIndex, $deauthMac, 0 );
+        if (!$self->_authorizeMAC( $ifIndex, $deauthMac, 0 )) {
+            return 0;
+        }
     }
     if ( ($authMac) && ( !$self->isFakeMac($authMac) ) ) {
-        $self->_authorizeMAC( $ifIndex, $authMac, 1 );
+        if (!$self->_authorizeMAC( $ifIndex, $authMac, 1 )) {
+            return 0;
+        }
     }
     return 1;
 }
@@ -366,19 +370,11 @@ sub _authorizeMAC {
         return 1;
     }
 
-    #convert MAC into decimal
-    my @MACArray = split( /:/, $MACHexString );
-    my $MACDecString = '';
-    foreach my $hexPiece (@MACArray) {
-        if ( $MACDecString ne '' ) {
-            $MACDecString .= ".";
-        }
-        $MACDecString .= hex($hexPiece);
-    }
-
     if ( !$self->connectWrite() ) {
         return 0;
     }
+    #convert MAC into decimal
+    my $MACDecString = mac2dec($MACHexString);
 
     $logger->trace(
         "SNMP set_request for hpSecCfgStatus: $OID_hpSecCfgStatus.$hpSecCfgAddrGroupIndex.$ifIndex.$MACDecString"
