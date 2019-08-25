@@ -307,6 +307,7 @@ sub authorizeMAC {
                 "SNMP error tyring to remove or add secure rows to ifIndex $ifIndex in port-security table. "
                 . "This could be normal. Error message: ".$self->{_sessionWrite}->error()
             );
+            return 0;
         }
     }
     return 1;
