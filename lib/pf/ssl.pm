@@ -38,7 +38,9 @@ use pf::file_paths qw(
     $radius_server_key
 );
 
-Readonly::Scalar our $ca_bundle_file => set_ca_bundle_path();
+Readonly::Scalar our $OS_CA_CERT_FILE => get_ca_cert_file();
+Readonly::Scalar our $DEB_CA_CERT_FILE => '/etc/ssl/certs/ca-certificates.crt';
+Readonly::Scalar our $RHEL_CA_CERT_FILE => '/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem';
 
 =head2 certs_map
 
@@ -342,7 +344,7 @@ sub verify_chain {
     }
     write_file($tmpinter, $bundle);
 
-    my $result = `/bin/bash -c "echo '$cert_str' | openssl verify -verbose -CAfile <(cat $ca_bundle_file $tmpinter)"`;
+    my $result = `/bin/bash -c "echo '$cert_str' | openssl verify -verbose -CAfile <(cat $OS_CA_CERT_FILE $tmpinter)"`;
     unlink $tmpinter;
 
     if($? != 0) {
@@ -403,20 +405,22 @@ sub install_to_file {
     return @errors;
 }
 
-=head2 set_ca_bundle_path
+=head2 get_ca_cert_file
 
-Set OS specific path for CA bundle file
+Get OS specific file for CA certificates
 
 =cut
 
-sub set_ca_bundle_path {
+sub get_ca_cert_file {
     if ($OS eq 'debian') {
-        get_logger->info("debian detected");
-        return '/etc/ssl/certs/ca-certificates.crt';
+        return $DEB_CA_CERT_FILE;
     }
     elsif ($OS eq 'rhel') {
-        get_logger->info("rhel detected");
-        return '/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem';
+        return $RHEL_CA_CERT_FILE;
+    }
+    else {
+        get_logger->error("Unable to get CA certificates file");
+        return undef;
     }
 }
 
