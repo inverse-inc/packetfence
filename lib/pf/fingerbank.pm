@@ -18,7 +18,6 @@ use JSON::MaybeXS;
 use fingerbank::Model::DHCP_Fingerprint;
 use fingerbank::Model::DHCP_Vendor;
 use fingerbank::Model::MAC_Vendor;
-use fingerbank::Model::User_Agent;
 use fingerbank::Query;
 use fingerbank::FilePath;
 use fingerbank::Model::Endpoint;
@@ -48,7 +47,7 @@ use pf::util qw(isdisabled isenabled);
 # Do not remove, even if its not explicitely used. When taking collector requests out of the cache, this must be imported.
 use URI::http;
 
-our @fingerbank_based_security_event_triggers = ('Device', 'DHCP_Fingerprint', 'DHCP_Vendor', 'MAC_Vendor', 'User_Agent');
+our @fingerbank_based_security_event_triggers = ('Device', 'DHCP_Fingerprint', 'DHCP_Vendor', 'MAC_Vendor');
 
 our %ACTION_MAP = (
     "update-upstream-db" => sub {
