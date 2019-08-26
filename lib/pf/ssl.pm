@@ -22,6 +22,8 @@ use LWP::UserAgent;
 use pf::util;
 use pf::log;
 use pf::cluster;
+use pf::config qw($OS);
+use Readonly;
 
 use Crypt::OpenSSL::RSA;
 use Crypt::OpenSSL::X509;
@@ -35,6 +37,10 @@ use pf::file_paths qw(
     $radius_ca_cert
     $radius_server_key
 );
+
+Readonly::Scalar our $DEB_CA_CERT_FILE => '/etc/ssl/certs/ca-certificates.crt';
+Readonly::Scalar our $RHEL_CA_CERT_FILE => '/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem';
+Readonly::Scalar our $OS_CA_CERT_FILE => get_ca_cert_file();
 
 =head2 certs_map
 
@@ -338,7 +344,7 @@ sub verify_chain {
     }
     write_file($tmpinter, $bundle);
 
-    my $result = `/bin/bash -c "echo '$cert_str' | openssl verify -verbose -CAfile <(cat /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem $tmpinter)"`;
+    my $result = `/bin/bash -c "echo '$cert_str' | openssl verify -verbose -CAfile <(cat $OS_CA_CERT_FILE $tmpinter)"`;
     unlink $tmpinter;
 
     if($? != 0) {
@@ -397,6 +403,25 @@ sub install_to_file {
     }
 
     return @errors;
+}
+
+=head2 get_ca_cert_file
+
+Get OS specific file for CA certificates
+
+=cut
+
+sub get_ca_cert_file {
+    if ($OS eq 'debian') {
+        return $DEB_CA_CERT_FILE;
+    }
+    elsif ($OS eq 'rhel') {
+        return $RHEL_CA_CERT_FILE;
+    }
+    else {
+        get_logger->error("Unable to get CA certificates file");
+        return undef;
+    }
 }
 
 =head1 AUTHOR
