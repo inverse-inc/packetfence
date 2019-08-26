@@ -70,6 +70,9 @@ type configStruct struct {
 			PfconfigClusterNameOverlay string `val:"yes"`
 		}
 	}
+	Dns struct {
+		Configuration PfConfDns
+	}
 	UnifiedApiSystemUser UnifiedApiSystemUser
 }
 
@@ -468,4 +471,12 @@ type PfConfAdvanced struct {
 	LdapAttributes                   []string `json:"ldap_attributes"`
 	ApiInactivityTimeout             int      `json:"api_inactivity_timeout"`
 	ApiMaxExpiration                 int      `json:"api_max_expiration"`
+}
+
+type PfConfDns struct {
+	StructConfig
+	PfconfigMethod string `val:"hash_element"`
+	PfconfigNS     string `val:"config::Pf"`
+	PfconfigHashNS string `val:"dns_configuration"`
+	RecordDNS      string `json:"record_dns_in_sql"`
 }
