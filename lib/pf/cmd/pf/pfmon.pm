@@ -13,9 +13,13 @@ pfcmd pfmon <task> [options...]
 
 =over
 
+=item acct_cleanup
+
 =item acct_maintenance
 
 =item auth_log_cleanup
+
+=item certificates_check
 
 =item cleanup_chi_database_cache
 
@@ -37,6 +41,8 @@ pfcmd pfmon <task> [options...]
 
 =item option82_query
 
+=item password_of_the_day
+
 =item person_cleanup
 
 =item populate_ntlm_redis_cache
@@ -48,6 +54,8 @@ pfcmd pfmon <task> [options...]
 =item dns_audit_log_cleanup
 
 =item security_event_maintenance
+
+=item switch_cache_lldpLocalPort_description
 
 =back
 
