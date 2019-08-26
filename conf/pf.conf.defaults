@@ -1209,6 +1209,13 @@ ocsp_softfail = no
 # Send in the proxy request the attribute PacketFence-KeyBalanced to randomize the load balance in the next PacketFence RADIUS server
 forward_key_balanced=disabled
 
+[dns_configuration]
+#
+# dns_configuration.record_dns_in_sql
+#
+# Record dns requests and replies in SQL tables
+record_dns_in_sql=disabled
+
 [pfdhcp]
 #
 # pfdhcp.ip2mac_lookup

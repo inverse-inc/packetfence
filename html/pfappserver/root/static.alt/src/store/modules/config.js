@@ -69,6 +69,9 @@ const api = {
   getBaseRadiusConfiguration () {
     return apiCall({ url: 'config/base/radius_configuration', method: 'get' })
   },
+  getBaseDnsConfiguration () {
+    return apiCall({ url: 'config/base/dns_configuration', method: 'get' })
+  },
   getBaseServices () {
     return apiCall({ url: 'config/base/services', method: 'get' })
   },
@@ -218,6 +221,8 @@ const initialState = () => { // set intitial states to `false` (not `[]` or `{}`
     baseProvisioningStatus: '',
     baseRadiusConfiguration: false,
     baseRadiusConfigurationStatus: '',
+    baseDnsConfiguration: false,
+    baseDnsConfigurationStatus: '',
     baseSNMPTraps: false,
     baseSNMPTrapsStatus: '',
     baseServices: false,
@@ -940,6 +945,20 @@ const actions = {
       return Promise.resolve(state.baseRadiusConfiguration)
     }
   },
+  getBaseDnsConfiguration: ({ state, getters, commit }) => {
+    if (getters.isLoadingBaseDnsConfiguration) {
+      return Promise.resolve(state.baseDnsConfiguration)
+    }
+    if (!state.baseDnsConfiguration) {
+      commit('BASE_DNS_CONFIGURATION_REQUEST')
+      return api.getBaseDnsConfiguration().then(response => {
+        commit('BASE_DNS_CONFIGURATION_UPDATED', response.data.item)
+        return state.baseDnsConfiguration
+      })
+    } else {
+      return Promise.resolve(state.baseDnsConfiguration)
+    }
+  },
   getBaseServices: ({ state, getters, commit }) => {
     if (getters.isLoadingBaseServices) {
       return Promise.resolve(state.baseServices)
@@ -1513,6 +1532,13 @@ const mutations = {
   BASE_RADIUS_CONFIGURATION_UPDATED: (state, baseRadiusConfiguration) => {
     state.baseRadiusConfiguration = baseRadiusConfiguration
     state.baseRadiusConfigurationStatus = types.SUCCESS
+  },
+  BASE_DNS_CONFIGURATION_REQUEST: (state) => {
+    state.baseDnsConfigurationStatus = types.LOADING
+  },
+  BASE_DNS_CONFIGURATION_UPDATED: (state, baseDnsConfiguration) => {
+    state.baseDnsConfiguration = baseDnsConfiguration
+    state.baseDnsConfigurationStatus = types.SUCCESS
   },
   BASE_SERVICES_REQUEST: (state) => {
     state.baseServicesStatus = types.LOADING
