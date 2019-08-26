@@ -52,9 +52,9 @@ sub run {
         $expiring{$pid} //= {};
         $expiring{$pid}{$node->{mac}} = $node;
     }
-    
+
     while(my ($pid, $pid_nodes) = each(%expiring)) {
-        my $macs_list = join(",", keys(%$pid_nodes));
+        my $macs_list = join(",", sort(keys(%$pid_nodes)));
         $logger->info("Emailing $pid for his devices that are expiring soon (".$macs_list.")");
         my $key = isenabled($self->email_on_all_changes) ? "$pid-$macs_list" : $pid;
         $cache->compute($key, sub {
