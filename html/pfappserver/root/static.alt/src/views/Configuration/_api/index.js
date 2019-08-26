@@ -205,7 +205,7 @@ export default {
   },
   connectionProfileFile: params => {
     const get = params.quiet ? 'getQuiet' : 'get'
-    return apiCall[get](`config/connection_profile/${params.id}/files/${params.filename}`).then(response => {
+    return apiCall[get](['config', 'connection_profile', params.id, 'files', params.filename]).then(response => {
       return response.data
     })
   },

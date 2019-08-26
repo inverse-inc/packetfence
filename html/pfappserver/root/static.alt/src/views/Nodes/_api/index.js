@@ -92,7 +92,7 @@ export default {
   },
   updateNode: body => {
     const patch = body.quiet ? 'patchQuiet' : 'patch'
-    return apiCall[patch](`node/${body.mac}`, body).then(response => {
+    return apiCall[patch](['node', body.mac], body).then(response => {
       return response.data
     })
   },
