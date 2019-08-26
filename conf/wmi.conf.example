@@ -19,11 +19,10 @@ request=SELECT HotFixID,InstalledOn FROM Win32_QuickFixEngineering
 action= <<EOT
 [InstalledOn]
 operator = advance
-match = any
-match_on_empty = disabled
 value = Date.Diff('DAYS', Date.Now(), Date.Parse("%m/%d/%Y", ${InstalledOn})) > 30
 
 [1:InstalledOn]
+match=all
 action=trigger_security_event
 action_param = mac = $mac, tid = 888888, type = INTERNAL
 EOT
