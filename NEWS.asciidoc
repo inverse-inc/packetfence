@@ -33,6 +33,7 @@ Enhancements
 * Moved vlan_pool_technique configuration parameter to the connection profile
 * Added the radius's targeted IP address in the radius audit log (help in cluster mode)
 * pfperl-api port number changed
+* Autoreg for mac-auth with an authorize source
 
 Bug Fixes
 +++++++++
