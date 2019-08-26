@@ -13,6 +13,20 @@ action=trigger_security_event
 action_param = mac = $mac, tid = 888888, type = INTERNAL
 EOT
 
+[ServicePackUpdated]
+namespace=ROOT\cimv2
+request=SELECT HotFixID,InstalledOn FROM Win32_QuickFixEngineering
+action= <<EOT
+[InstalledOn]
+operator = advance
+value = Date.Diff('DAYS', Date.Now(), Date.Parse("%m/%d/%Y", ${InstalledOn})) > 30
+
+[1:InstalledOn]
+match=all
+action=trigger_security_event
+action_param = mac = $mac, tid = 888888, type = INTERNAL
+EOT
+
 # Detect the current user logged in and register the device
 [logged_user]
 namespace=ROOT\cimv2

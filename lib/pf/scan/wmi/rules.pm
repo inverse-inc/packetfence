@@ -20,6 +20,7 @@ use pf::log;
 use Net::WMIClient qw(wmiclient);
 use Config::IniFiles;
 use pf::api::jsonrpcclient;
+use List::Util qw(first);
 
 our %RULE_OPS = (
     is => sub { $_[0] eq $_[1] ? 1 : 0  },
@@ -51,39 +52,49 @@ Test all the rules
 =cut
 
 sub test {
-    my ($self, $rules) = @_;
+    my ($self, $scan) = @_;
     my $logger = $self->logger;
 
-    my @rules = split("\n",$rules->{'_wmi_rules'});
+    my @rules = split("\n", $scan->{'_wmi_rules'});
     my $success = 0;
-    foreach my $rule  ( @rules ) {
+    foreach my $rule (@rules) {
         my $rule_config = $pf::config::ConfigWmi{$rule};
-        my ($rc, $result) = $self->runWmi($rules,$rule_config);
+        if (!defined $rule_config) {
+            $logger->warn("Invalid rule '$rule' given");
+            next;
+        }
+
+        my ($rc, $result) = $self->runWmi($scan, $rule_config);
         if(!$rc) {
             $logger->error("Error rule wmi rule '$rule': $result");
             return $rc;
         }
+
         $success = $rc;
-        my $action = $rule_config->{'action'};
-        my %cfg;
-        tie %cfg, 'Config::IniFiles', ( -file => \$action );
-        foreach my $test  ( sort keys %cfg ) {
-            if ($test =~ /^\w+:(.*)$/) {
-                my $condition = $1;
-                $condition =~ s/(\w+)/$self->parse($cfg{$1},$result)/gee;
-                $condition =~ s/\|/ \|\| /g;
-                $condition =~ s/\&/ \&\& /g;
-                if (eval $condition) {
-                    $logger->info("Match WMI ".$rule." rule: ".$test." for ". $rules->{'_scanMac'});
-                    if ( defined($cfg{$test}->{'action'}) && $cfg{$test}->{'action'} ne '' ) {
-                        last if ($cfg{$test}->{'action'} =~ /allow/i);
-                        $self->dispatchAction($cfg{$test},$rules,shift @$result);
-                    }
-                }
+        $self->filterResponse($scan, $rule_config, $result);
+    }
+
+    return $success;
+}
+
+=item filterResponse
+
+filterResponse
+
+=cut
+
+sub filterResponse {
+    my ($self, $scan, $rule_config, $result) = @_;
+    foreach my $filter (@{$rule_config->{filters} // []}) {
+        if ( my $r =  $filter->match($result)) {
+            my $answer = $filter->answer;
+            if ( defined($answer->{'action'}) && $answer->{'action'} ne '' ) {
+                last if ($answer->{'action'} =~ /allow/i);
+                $self->dispatchAction($answer, $scan, $r);
             }
         }
     }
-    return $success;
+    return ;
 }
 
 =item runWMI
@@ -93,11 +104,11 @@ execute WMI command on the remote device
 =cut
 
 sub runWmi {
-    my ($self, $rules, $rule) = @_;
+    my ($self, $scan, $rule) = @_;
 
     my $request = {};
-    $request->{'Username'} = $rules->{'_domain'} .'/'. $rules->{'_username'} .'%'. $rules->{'_password'};
-    $request->{'Host'} = $rules->{'_scanIp'};
+    $request->{'Username'} = $scan->{'_domain'} .'/'. $scan->{'_username'} .'%'. $scan->{'_password'};
+    $request->{'Host'} = $scan->{'_scanIp'};
     $request->{'Query'} = $rule->{'request'};
     $request->{'Namespace'} = $rule->{'namespace'};
     $request->{'NameSpace'} = $rule->{'namespace'}; #this is to fix an issue in the lib WMIClient
@@ -133,42 +144,10 @@ sub parseResult {
     my @result;
     foreach my $answer (@answers) {
         my %response;
-        @response{@entries} = split(/\|/,$answer);
+        @response{@entries} = map { s/^"//;s/"$//;$_ } split(/\|/,$answer);
         push @result, \%response;
     }
     return \@result;
-}
-
-=item parse
-
-Parse all result and try to match
-
-=cut
-
-sub parse {
-    my ($self, $cfg, $result) = @_;
-    foreach my $value (@{$result}) {
-        return $TRUE if ($self->_match_rule_against_value($cfg,$value->{$cfg->{'attribute'}}));
-    }
-    return $FALSE;
-}
-
-=item _match_rule_against_value
-
-Matches the rule against a value
-
-=cut
-
-sub _match_rule_against_value {
-    my ($self, $rule, $value) = @_;
-
-    if (defined($value)) {
-        my $op = $rule->{'operator'};
-        if ($op && exists $RULE_OPS{$op}) {
-            return $RULE_OPS{$op}->($value, $rule->{'value'});
-        }
-    }
-    return $FALSE;
 }
 
 =item dispatchAction

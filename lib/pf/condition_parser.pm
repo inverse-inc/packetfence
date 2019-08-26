@@ -16,14 +16,28 @@ EXPR = OR || OR
 EXPR = OR
 OR   = CMP && CMP
 OR   = CMP
-CMP  = ID OP ID
-CMP  = ID OP STRING
+CMP  = VAL OP ID
+CMP  = VAL OP STRING
 CMP  = FACT
-OP   = '==' | '!=' | '=~' | '!~'
+OP   = '==' | '!=' | '=~' | '!~' | '>' | '>=' | '<' | '<='
+VAL  = ID
+VAL  = FUNC
+FUNC = ID '(' PARAMS ')'
+PARAMS = PARAM ',' PARAMS
+PARAMS = PARAM
+PARAM  = VAR
+PARAM  = STRING
+PARAM  = FUNC
+PARAM  = ID
+VAR    = '${' VAR_ID '}'
+VAR_ID = /[a-zA-Z0-9_]+(?:[\.-][a-zA-Z0-9_]+)*/
 FACT = ! FACT
 FACT = '(' EXPR ')'
 FACT = ID
-ID   = /a-zA-Z0-9_\./+
+FACT = FUNC
+ID   = /[a-zA-Z0-9_]+(\.[a-zA-Z0-9_])*/
+STRING = "'" /([^'\\]|\\'|\\\\)+/  "'"
+STRING = '"' /([^"\\]|\\"|\\\\)+/  '"'
 
 =cut
 
@@ -94,16 +108,15 @@ sub parse_condition_string {
 
 =head2 _parse_expr
 
-Handle an 'expr' expression
+ EXPR = OR || OR
+ EXPR = OR
 
 =cut
 
 sub _parse_expr {
-    # EXPR = OR || OR
-    # EXPR = OR
     my @expr;
     push @expr, _parse_or();
-    while (/\G\s*\|{1,2}/gc) {
+    while (_or_operator()) {
         push @expr, _parse_or();
     }
 
@@ -112,18 +125,25 @@ sub _parse_expr {
     return ['OR', @expr];
 }
 
+=head2 _or_operator
+
+Consume the or operator
+
+=cut
+
+sub _or_operator { /\G\s*\|{1,2}/gc }
+
 =head2 _parse_or
 
-Handle an 'or' expression
+OR   = CMP && CMP
+OR   = CMP
 
 =cut
 
 sub _parse_or {
-    # OR   = CMP && CMP
-    # OR   = CMP
     my @expr;
     push @expr, _parse_cmp();
-    while (/\G\s*\&{1,2}/gc) {
+    while (_and_operator()) {
         push @expr, _parse_cmp();
     }
 
@@ -132,29 +152,38 @@ sub _parse_or {
     return ['AND', @expr];
 }
 
+=head2 _and_operator
+
+Consume the and operator
+
+=cut
+
+sub _and_operator { /\G\s*\&{1,2}/gc }
+
 =head2 _parse_cmp
+
+CMP  = VAL OP ID
+CMP  = VAL OP STRING
+CMP  = FACT
 
 =cut
 
 sub _parse_cmp {
-    # CMP  = ID OP ID
-    # CMP  = ID OP STRING
-    # CMP  = FACT
     my $old_pos = pos();
-    if (/\G\s*([a-zA-Z0-9_\.]+)/gc) {
-        my $a = $1;
-        if (/\G\s*(==|!=|=~|!~)/gc) {
+    my $id = _parse_id();
+    if (defined $id) {
+        my $a = $id;
+        if (/\G\s*\(/gc) {
+            $a = _parse_func($id);
+        }
+
+        if (/\G\s*(==|!=|=~|!~|\<\=|\<|\>\=|\>)/gc) {
             my $op = $1;
-            my $b;
-            if (/\G\s*([a-zA-Z0-9_\.]+)/gc) {
-                $b = $1;
-            } elsif (/\G\s*"((?:[^"\\]|\\"|\\\\)*?)"/gc) {
-                $b = $1;
-                $b =~ s/\\"/"/g;
-                $b =~ s/\\\\/\\/g;
-            } else {
+            my $b = _parse_id() // _parse_string();
+            if (!defined $b) {
                 die format_parse_error("Invalid format", $_, pos);
             }
+
             return [$op,$a,$b];
         }
     }
@@ -162,16 +191,98 @@ sub _parse_cmp {
     return _parse_fact();
 }
 
+
+=head2 _parse_num
+
+_parse_num
+
+=cut
+
+sub _parse_num {
+    my $n;
+    if (/\G\s*([0-9]+)/gc) {
+        $n = $1 + 0;
+    }
+    return $n;
+}
+
+
+=head2 _parse_string
+
+_parse_string
+
+=cut
+
+sub _parse_string {
+    my ($self) = @_;
+    my $s = undef;
+    if (/\G\s*"((?:[^"\\]|\\"|\\\\)*?)"/gc) {
+        $s = $1;
+        $s =~ s/\\"/"/g;
+        $s =~ s/\\\\/\\/g;
+    } elsif (/\G\s*'((?:[^'\\]|\\'|\\\\)*?)'/gc) {
+        $s = $1;
+        $s =~ s/\\'/'/g;
+        $s =~ s/\\\\/\\/g;
+    }
+    return $s;
+}
+
+=head2 _parse_func
+
+_parse_func
+
+=cut
+
+sub _parse_func {
+    my $f = shift;
+    my @params;
+    my $b;
+    if (/\G\s*\)/gc) {
+        return ['FUNC', $f, \@params];
+    }
+
+    push @params, _parse_param();
+    while (/\G\s*,\s*/gc) {
+        push @params, _parse_param();
+    }
+
+    if (!/\G\s*\)/gc) {
+        die format_parse_error("Function $f is not closed ", $_, pos);
+    }
+
+    return ['FUNC', $f, \@params];
+}
+
+sub _parse_param {
+    my $p;
+    if (defined ( $p = _parse_id())) {
+        if (/\G\s*\(/gc) {
+            $p = _parse_func($p);
+        }
+    } elsif ( defined($p = _parse_var_id())) {
+        $p = ['VAR', $p];
+    } else {
+        $p = _parse_string();
+    }
+
+    if (!defined $p) {
+        format_parse_error("Invalid parameter", $_, pos);
+    }
+
+    return $p;
+}
+
 =head2 _parse_fact
 
-Handle a 'fact' expression
+FACT = ! FACT
+FACT = '(' EXPR ')'
+FACT = /a-zA-Z0-9_/+
+FACT = FUNC
 
 =cut
 
 sub _parse_fact {
-    # FACT = ! FACT
-    # FACT = '(' EXPR ')'
-    # FACT = /a-zA-Z0-9_/+
     my $pos = pos();
 
     #Check if it is a not expression !
@@ -191,10 +302,47 @@ sub _parse_fact {
     }
 
     #It is a simple id
-    return $1 if (/\G\s*([a-zA-Z0-9_\.]+)/gc);
+    my $id = _parse_id();
+    if (defined $id) {
+        if (/\G\s*\(/gc) {
+            return _parse_func($id);
+        }
+
+        return $id;
+    }
     #Reduce whitespace
     /\G\s*/gc;
     die format_parse_error("Invalid character(s)", $_, pos() );
+}
+
+=head2 _parse_id
+
+_parse_id
+
+=cut
+
+sub _parse_id {
+    my $id;
+    if (/\G\s*([a-zA-Z0-9_]+(?:\.[a-zA-Z0-9_]+)*)/gc) {
+        $id = $1;
+    }
+
+    return $id;
+}
+
+=head2 _parse_var_id
+
+_parse_var_id
+
+=cut
+
+sub _parse_var_id {
+    my $id;
+    if (/\G\s*\$\{([a-zA-Z0-9_]+(?:[\.-][a-zA-Z0-9_]+)*)\}/gc) {
+        $id = $1;
+    }
+
+    return $id;
 }
 
 our $MARKER  = '^';

@@ -16,7 +16,7 @@ use strict;
 use warnings;
 #
 use lib '/usr/local/pf/lib';
-our (@VALID_STRING_TESTS, @INVALID_STRINGS, $TEST_COUNT);
+our (@VALID_STRING_TESTS, @INVALID_STRINGS, @VALID_IDS, $TEST_COUNT);
 
 BEGIN {
     #include test libs
@@ -46,10 +46,14 @@ BEGIN {
         ['!!a', ['NOT', ['NOT', 'a']]],
         ['!(a && b)',  ['NOT', ['AND', 'a', 'b']]],
         ['a == b', ['==', 'a', 'b']],
+        ['a.x', 'a.x'],
         ['a.x == b', ['==', 'a.x', 'b']],
         ['a.x == "b"', ['==', 'a.x', 'b']],
+        ["a.x == 'b'", ['==', 'a.x', 'b']],
         ['a.x == "b\""', ['==', 'a.x', 'b"']],
+        ["a.x == 'b\\''", ['==', 'a.x', "b'"]],
         ['a.x == "b\\\\"', ['==', 'a.x', 'b\\']],
+        ["a.x == 'b\\\\'", ['==', 'a.x', "b\\"]],
         ['a == "b" && c == "d"', ['AND',['==', 'a', 'b'], ['==', 'c', 'd']]],
         ['a == ""', ['==', 'a', '']],
         ['a == b && c == d', ['AND', ['==', 'a', 'b'], ['==', 'c', 'd']]],
@@ -57,15 +61,36 @@ BEGIN {
         ['a =~ "^bob" && (c == d || c == e)', ['AND', ['=~', 'a', '^bob'], ['OR', ['==', 'c', 'd'],['==', 'c', 'e']]]],
         ["a == __NULL__ ", ['==', 'a' , '__NULL__']],
         ["a != __NULL__ ", ['!=', 'a' , '__NULL__']],
+        ["a > 6", ['>', 'a', 6]],
+        ["a >= 6", ['>=', 'a', 6]],
+        ["a < 6", ['<', 'a', 6]],
+        ["a <= 6", ['<=', 'a', 6]],
+        ["F() > 6", ['>', ['FUNC', 'F', []], 6]],
+        ['F("bob", ${fid}) > 6', ['>', ['FUNC', 'F', ['bob', ['VAR', 'fid']]], 6]],
+        ['F("bob") > 6', ['>', ['FUNC', 'F', ['bob']], 6]],
+        ['F(${bob}) == 6', ['==', ['FUNC', 'F', [['VAR', 'bob']]], 6]],
+        ['F(F(${bob})) == 6', [ '==', ['FUNC', 'F', [['FUNC', 'F', [['VAR', 'bob']]]]], 6]],
+        ['F()', ['FUNC', 'F', []]],
+        ['F("bob", ${bob})', ['FUNC', 'F', ["bob", ['VAR', 'bob']]]],
+        ["F('bob', \${bob})", ['FUNC', 'F', ["bob", ['VAR', 'bob']]]],
+        ['F(bob, ${bob})', ['FUNC', 'F', ["bob", ['VAR', 'bob']]]],
+    );
+
+    @VALID_IDS = (
+        "a.x",
+        "a1.x2",
     );
 
     @INVALID_STRINGS = (
         '(a', '(a) b',
         '(a;) && b',
-        ' a == "'
+        ' a == "',
+        'a.',
+        '.a',
+        'F(',
     );
 
-    $TEST_COUNT = 1 + (scalar @VALID_STRING_TESTS) + (scalar @INVALID_STRINGS);
+    $TEST_COUNT = 1 + (scalar @VALID_STRING_TESTS) + (scalar @INVALID_STRINGS) + (scalar @VALID_IDS);
 }
 
 use Test::More tests => $TEST_COUNT;
@@ -84,10 +109,15 @@ for my $test (@INVALID_STRINGS) {
     test_invalid_string($test);
 }
 
+for my $test (@VALID_IDS) {
+    local $_ = $test;
+    is($test, pf::condition_parser::_parse_id(), "Check if '$test' a valid id");
+}
+
 sub test_valid_string {
     my ($string, $expected) = @_;
     my ($array, $msg) = parse_condition_string($string);
-    is_deeply($expected, $array, "Check if '$string' is valid");
+    is_deeply($array, $expected, "Check if '$string' is valid");
     unless ($array){
         print "$msg\n";
     }
