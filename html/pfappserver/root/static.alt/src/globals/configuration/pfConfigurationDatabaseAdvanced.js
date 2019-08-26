@@ -171,6 +171,18 @@ export const pfConfigurationDatabaseAdvancedViewFields = (context = {}) => {
               validators: pfConfigurationValidatorsFromMeta(meta, 'masterslavemode', i18n.t('Mode'))
             }
           ]
+        },
+        {
+          label: i18n.t('Other MySQL Servers'),
+          text: i18n.t('Comma delimited IPv4 address of other member mysql members - note that this is only to sync the database.'),
+          fields: [
+            {
+              key: 'other_members',
+              component: pfFormInput,
+              attrs: pfConfigurationAttributesFromMeta(meta, 'other_members'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'other_members', 'Other MySQL Servers')
+            }
+          ]
         }
       ]
     }

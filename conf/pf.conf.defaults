@@ -343,6 +343,11 @@ masterslave=OFF
 #
 # The masterslavemode configuration to select MASTER or SLAVE mode.
 masterslavemode=MASTER
+#
+# database_advanced.other_members
+#
+# Comma delimited IPv4 address of other member mysql members - note that this is only to sync the database.
+other_members=
 
 [services]
 # services.pfipset
