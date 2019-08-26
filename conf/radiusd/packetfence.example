@@ -28,6 +28,7 @@ authorize {
 	packetfence-set-realm-if-machine
 	packetfence-balanced-key-policy
 	packetfence-set-tenant-id
+	packetfence-fake-calling-station-id
 	rewrite_calling_station_id
 	rewrite_called_station_id
 	#

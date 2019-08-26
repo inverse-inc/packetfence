@@ -1,5 +1,6 @@
 # normalize MAC addresses
 mac-addr-regexp = '([0-9a-f]{2})[^0-9a-f]?([0-9a-f]{2})[^0-9a-f]?([0-9a-f]{2})[^0-9a-f]?([0-9a-f]{2})[^0-9a-f]?([0-9a-f]{2})[^0-9a-f]?([0-9a-f]{2})'
+mac-addr-regexp-magic = '([0-9a-f]{2})[^0-9a-f]?([0-9a-f]{2})[^0-9a-f]?([0-9a-f]{2})[^0-9a-f]?([0-9a-f]{2})[^0-9a-f]?([0-9a-f]{2})[^0-9a-f]?([0-9a-f]{2}).*'
 # packetfence-local-auth
 # Try to get the Cleartext-Password from any of the pfguest, pfsponsor or pfsms
 # databases.
@@ -224,4 +225,21 @@ packetfence-balanced-key-policy {
             &control:Load-Balance-Key := "%{md5:%{Calling-Station-Id}%{User-Name}}"
         }
     }
+}
+
+packetfence-fake-calling-station-id {
+        if (!&Calling-Station-Id) {
+                update request {
+                    &Calling-Station-Id := "%{md5:&User-Name}"
+                }
+                if ( &Calling-Station-Id =~ /^${policy.mac-addr-regexp-magic}$/i ) {
+                        update request {
+                                &Calling-Station-Id := "%{tolower:%{1}:%{2}:%{3}:%{4}:%{5}:%{6}}"
+                        }
+                updated
+                }
+        }
+        else {
+                noop
+        }
 }
