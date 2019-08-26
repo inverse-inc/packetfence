@@ -38,9 +38,9 @@ use pf::file_paths qw(
     $radius_server_key
 );
 
-Readonly::Scalar our $OS_CA_CERT_FILE => get_ca_cert_file();
 Readonly::Scalar our $DEB_CA_CERT_FILE => '/etc/ssl/certs/ca-certificates.crt';
 Readonly::Scalar our $RHEL_CA_CERT_FILE => '/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem';
+Readonly::Scalar our $OS_CA_CERT_FILE => get_ca_cert_file();
 
 =head2 certs_map
 
