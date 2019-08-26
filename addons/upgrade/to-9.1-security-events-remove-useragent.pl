@@ -36,7 +36,12 @@ for my $section ($ini->Sections()) {
             my $trigger_hash = pfappserver::Form::Field::Trigger->inflate($trigger);
             delete $trigger_hash->{useragent};
             my $new_trigger = pfappserver::Form::Field::Trigger->deflate($trigger_hash);
-            push @$new_triggers, $new_trigger if $new_trigger;
+            if($new_trigger) {
+                push @$new_triggers, $new_trigger 
+            }
+            else {
+                print "Trigger for security event $section is now empty. The security event will never trigger automatically anymore.\n";
+            }
         }
         $ini->setval($section, 'trigger', join(',', @$new_triggers));
     }
