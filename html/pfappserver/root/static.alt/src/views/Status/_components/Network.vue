@@ -72,6 +72,7 @@
             </b-container>
           </b-col>
         </b-row>
+
         <pf-network-graph ref="networkGraph"
           :dimensions="dimensions"
           :nodes="nodes"
@@ -79,6 +80,7 @@
           :options="options"
           :is-loading="isLoading"
         />
+
       </div>
     </div>
   </b-card>
@@ -123,6 +125,7 @@ export default {
       links: [],
       options: {
         layout: 'radial',
+        legendPosition: 'bottom-right',
         palette: 'status', // autoreg|status|online|voip
         miniMapHeight: undefined,
         miniMapWidth: 200,

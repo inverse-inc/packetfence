@@ -156,7 +156,7 @@ https://flowingdata.com/2012/08/02/how-to-make-an-interactive-network-visualizat
 
     </svg>
 
-    <!-- tooltip body -->
+    <!-- tooltip -->
     <div v-for="tooltip in tooltips" :key="tooltip.node.id" class="tt-anchor"
       v-bind="tooltipAnchorAttrs(tooltip)">
       <div class="tt-container">
@@ -164,6 +164,13 @@ https://flowingdata.com/2012/08/02/how-to-make-an-interactive-network-visualizat
           <pre>{{ JSON.stringify(tooltip, null, 2) }}</pre>
         </div>
       </div>
+    </div>
+
+    <!-- legend -->
+    <div :class="[ 'legend', config.legendPosition ]" :style="{ padding: `${this.config.padding}px` }">
+      <ul class="mb-0">
+        <li v-for="legend in legends" :class="legend.color">{{ legend.text }}</li>
+      </ul>
     </div>
 
   </div>
@@ -265,10 +272,10 @@ export default {
       centerY: null,
       miniMapLatch: false,
       highlight: false,
-
       defaults: { // default options
         layout: 'radial',
         palette: 'status',
+        legendPosition: 'bottom-right',
         miniMapHeight: undefined,
         miniMapWidth: undefined,
         miniMapPosition: 'bottom-left',
@@ -277,6 +284,25 @@ export default {
         mouseWheelZoom: true,
         padding: 25,
         tooltipDistance: 50
+      },
+      palettes: {
+        autoreg: {
+          yes: 'green',
+          no: 'red'
+        },
+        online: {
+          on: 'green',
+          off: 'red',
+          unknown: 'yellow'
+        },
+        voip: {
+          yes: 'green',
+          no: 'red'
+        },
+        status: {
+          reg: 'green',
+          unreg: 'red'
+        }
       }
     }
   },
@@ -449,6 +475,15 @@ export default {
     tooltipDistance () {
       const divisor = Math.pow(2, this.zoom)
       return this.config.tooltipDistance / divisor // scale length
+    },
+    legends () {
+      if (Object.keys(this.palettes).includes(this.config.palette)) {
+        const palette = this.palettes[this.config.palette]
+        return Object.keys(palette).map(key => {
+          return { color: palette[key], text: `${this.config.palette}: ${key}`}
+        })
+      }
+      return []
     }
   },
   methods: {
@@ -470,7 +505,7 @@ export default {
     force () {
         this.simulation
 
-        .alphaDecay(1 - Math.pow(0.001, 0.0000075 * this.localNodes.length)) // default: 1 - Math.pow(0.001 / 1 / 300)
+        //.alphaDecay(1 - Math.pow(0.001, 0.0000075 * this.localNodes.length)) // default: 1 - Math.pow(0.001 / 1 / 300)
 
 
         /*
@@ -838,41 +873,11 @@ export default {
       return { x: 0, y: 0 }
     },
     color (node) {
-      switch (this.config.palette) {
-        case 'autoreg':
-          switch (node.properties.autoreg) {
-            case 'yes':
-              return 'green'
-            case 'no':
-              return 'red'
-          }
-          break
-        case 'online':
-          switch (node.properties.online) {
-            case 'on':
-              return 'green'
-            case 'off':
-              return 'red'
-            case 'unknown':
-              return 'yellow'
-          }
-          break
-        case 'voip':
-          switch (node.properties.voip) {
-            case 'yes':
-              return 'green'
-            case 'no':
-              return 'red'
-          }
-          break
-        case 'status':
-        default:
-          switch (node.properties.status) {
-            case 'reg':
-              return 'green'
-            case 'unreg':
-              return 'red'
-          }
+      if (Object.keys(this.palettes).includes(this.config.palette) && this.config.palette in node.properties) {
+        const value = node.properties[this.config.palette]
+        if (Object.keys(this.palettes[this.config.palette]).includes(value)) {
+          return this.palettes[this.config.palette][value]
+        }
       }
       return 'black'
     }
@@ -1088,6 +1093,55 @@ export default {
   .tt-link {
     stroke: var(--highlight-color);
     /*stroke-linecap: round;*/
+  }
+
+  .legend {
+    position: absolute;
+    font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,Noto Sans,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji;
+    font-size: .9rem;
+    font-weight: 400;
+    line-height: 24px;
+    &.top-right {
+      top: 0px;
+      right: 0px;
+    }
+    &.bottom-right {
+      bottom: 0px;
+      right: 0px;
+    }
+    &.bottom-left {
+      bottom: 0px;
+      left: 0px;
+    }
+    &.top-left {
+      top: 0px;
+      left: 0px;
+    }
+    & > ul {
+      & > li {
+        list-style-type: none;
+        position: relative;
+        &.blue::before {
+          color: var(--color-blue);
+        }
+        &.red::before {
+          color: var(--color-red);
+        }
+        &.yellow::before {
+          color: var(--color-yellow);
+        }
+        &.green::before {
+          color: var(--color-green);
+        }
+        &::before {
+          content: '\2022';
+          position: absolute;
+          left: -0.575em;
+          font-size: 48px;
+          line-height: 24px;
+        }
+      }
+    }
   }
 
   text {
