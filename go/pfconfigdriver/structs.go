@@ -60,6 +60,7 @@ type configStruct struct {
 		CaptivePortal PfConfCaptivePortal
 		Webservices   PfConfWebservices
 		Database      PfConfDatabase
+		Parking       PfConfParking
 	}
 	AdminRoles AdminRoles
 	Cluster    struct {
@@ -464,4 +465,15 @@ type PfConfAdvanced struct {
 	ActiveDirectoryOsJoinCheckBypass string   `json:"active_directory_os_join_check_bypass"`
 	PfperlApiTimeout                 string   `json:"pfperl_api_timeout"`
 	LdapAttributes                   []string `json:"ldap_attributes"`
+}
+
+type PfConfParking struct {
+	StructConfig
+	PfconfigMethod          string `val:"hash_element"`
+	PfconfigNS              string `val:"config::Pf"`
+	PfconfigHashNS          string `val:"parking"`
+	LeaseLength             string `json:"lease_length"`
+	Threshold               string `json:"threshold"`
+	PlaceInDhcpParkingGroup string `json:"place_in_dhcp_parking_group"`
+	ShowParkingPortal       string `json:"show_parking_portal"`
 }

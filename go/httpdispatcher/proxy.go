@@ -34,6 +34,7 @@ type Proxy struct {
 	IP6log               *sql.Stmt // prepared statement for ip6log queries
 	Db                   *sql.DB
 	apiClient            *unifiedapiclient.Client
+	ShowParkingPortal    bool
 }
 
 type passthrough struct {
@@ -233,6 +234,15 @@ func (p *Proxy) Configure(ctx context.Context) {
 		fmt.Fprintf(os.Stderr, "httpd.dispatcher: database security_event prepared statement error: %s", err)
 	}
 	p.apiClient = unifiedapiclient.NewFromConfig(ctx)
+
+	parking := pfconfigdriver.Config.PfConf.Parking
+
+	if parking.ShowParkingPortal == "enabled" {
+		p.ShowParkingPortal = true
+	} else {
+		p.ShowParkingPortal = false
+	}
+
 }
 
 func (p *passthrough) readConfig(ctx context.Context) {
@@ -428,7 +438,7 @@ func (p *Proxy) handleParking(ctx context.Context, w http.ResponseWriter, r *htt
 		MAC, err := p.IP2Mac(ctx, ipAddress)
 
 		if err == nil {
-			if p.HasSecurityEvents(ctx, MAC) {
+			if p.HasSecurityEvents(ctx, MAC) && p.ShowParkingPortal {
 				if r.RequestURI == "/release-parking" {
 					reqURL := r.URL
 					// Call the API
@@ -473,7 +483,7 @@ func (p *Proxy) reverse(ctx context.Context, w http.ResponseWriter, r *http.Requ
 	// Pass the context in the request
 	r = r.WithContext(ctx)
 	rp.ServeHTTP(w, r)
-	log.LoggerWContext(ctx).Info(fmt.Sprintln(host, time.Since(t)))
+	log.LoggerWContext(ctx).Info(fmt.Sprintln("request proxied to "+host, time.Since(t)))
 }
 
 // APIUnpark use to unpark a device
