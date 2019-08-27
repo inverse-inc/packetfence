@@ -44,10 +44,12 @@ sub search {
             $response->{errors}
         );
     }
-    local $_;
-    $response->{items} = [
-        map { $self->cleanup_item($_) } @{$response->{items} // []}
-    ];
+    unless ($search_info_or_error->{raw}) {
+        local $_;
+        $response->{items} = [
+            map { $self->cleanup_item($_) } @{$response->{items} // []}
+        ];
+    }
 
     return $self->render(
         json   => $response,
@@ -75,7 +77,7 @@ sub build_search_info {
                 exists $data_or_error->{$_}
                   ? ( $_ => $data_or_error->{$_} )
                   : ()
-            } qw(limit query fields sort cursor with_total_count)
+            } qw(limit query fields sort cursor with_total_count raw)
         )
     );
 
@@ -113,7 +115,10 @@ sub list {
     }
 
     my $items = $self->do_search($search_info_or_error);
-    $items = $self->cleanup_items($items);
+    if (!$search_info_or_error->{raw}) {
+        $items = $self->cleanup_items($items);
+    }
+
     $self->render(
         json => {
             items  => $items,
@@ -170,7 +175,7 @@ sub build_list_search_info {
                 exists $params->{$_}
                   ? ( $_ => $params->{$_} + 0 )
                   : ()
-            } qw(limit cursor)
+            } qw(limit cursor raw)
         ),
         (
             map {
