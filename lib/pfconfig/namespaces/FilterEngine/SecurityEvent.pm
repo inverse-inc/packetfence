@@ -71,7 +71,12 @@ sub build {
                 push @{$self->{bandwidth_expired_security_events}}, $security_event;
             }
         }
-        $security_event_condition = pf::condition::any->new({conditions => \@conditions});
+        next if @conditions == 0;
+        if (@conditions == 1) {
+            $security_event_condition = $conditions[0];
+        } else {
+            $security_event_condition = pf::condition::any->new({conditions => \@conditions});
+        }
         push @filters, pf::filter->new({answer => $security_event, condition => $security_event_condition});
     }
     my $engine = pf::filter_engine->new({ filters => \@filters });
