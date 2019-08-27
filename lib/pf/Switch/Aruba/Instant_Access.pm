@@ -60,7 +60,7 @@ sub radiusDisconnect {
         my $role = $roleResolver->getRoleForNode($mac, $self);
 
         my $node_info = node_attributes($mac);
-        # transforming MAC to the expected format 00-11-22-33-CA-FE
+        # transforming MAC to the expected format 00112233CAFE
         $mac = lc($mac);
         $mac =~ s/://g;
 
