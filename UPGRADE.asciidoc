@@ -1958,6 +1958,16 @@ In order to migrate the current setting of pf.conf into profiles.conf, you will 
 
 	/usr/local/pf/addons/upgrade/to-9.1-move-vlan-pool-technique-parameter.pl
 
+Remove Useragent Triggers
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The useragent and user_agent security event triggers have been deprecated. Performing HTTP User-Agent based detection is extremelly inefficient given the very dynamic nature of HTTP User-Agents. You should instead be using the device trigger which leverages the device profiling performed by Fingerbank. In order to remove any existing useragent trigger, execute the following script:
+
+   /usr/local/pf/addons/upgrade/to-9.1-security-events-remove-useragent.pl
+
+Database schema
+^^^^^^^^^^^^^^^
+
 Changes have been made to the database schema. You will need to update it accordingly.
 An SQL upgrade script has been provided to upgrade the database from the X.X schema to X.Y.
 
