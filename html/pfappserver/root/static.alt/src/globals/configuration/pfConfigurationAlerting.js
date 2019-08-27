@@ -164,7 +164,7 @@ export const pfConfigurationAlertingViewFields = (context = {}) => {
         },
         {
           label: i18n.t('SMTP test'),
-          text: i18n.t('The email address used to test the SMTP server.'),
+          text: i18n.t('Comma-delimited list of email address(es) to receive test message.'),
           fields: [
             {
               key: 'test_emailaddr',
