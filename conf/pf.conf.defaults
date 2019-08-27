@@ -1213,7 +1213,7 @@ forward_key_balanced=disabled
 #
 # dns_configuration.record_dns_in_sql
 #
-# Record dns requests and replies in SQL tables
+# Record dns requests and replies in SQL table
 record_dns_in_sql=disabled
 
 [pfdhcp]

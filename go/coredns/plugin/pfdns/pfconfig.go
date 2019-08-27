@@ -11,14 +11,16 @@ import (
 
 func (pf *pfdns) Refresh(ctx context.Context) {
 	// If some of the passthroughs were changed, we should reload
-	if !pfconfigdriver.IsValid(ctx, &pfconfigdriver.Config.Passthroughs.Registration) || !pfconfigdriver.IsValid(ctx, &pfconfigdriver.Config.Passthroughs.Isolation) || !pfconfigdriver.IsValid(ctx, &pfconfigdriver.Config.Dns.Configuration) {
+	if !pfconfigdriver.IsValid(ctx, &pfconfigdriver.Config.Passthroughs.Registration) || !pfconfigdriver.IsValid(ctx, &pfconfigdriver.Config.Passthroughs.Isolation) {
 		log.LoggerWContext(ctx).Info("Reloading passthroughs and flushing cache")
 		pf.PassthroughsInit()
 		pf.PassthroughsIsolationInit()
-		pf.DNSRecord()
 
 		pf.DNSFilter.Flush()
 		pf.IpsetCache.Flush()
+	}
+	if !pfconfigdriver.IsValid(ctx, &pfconfigdriver.Config.Dns.Configuration) {
+		pf.DNSRecord()
 	}
 }
 
