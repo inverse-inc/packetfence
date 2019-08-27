@@ -816,7 +816,7 @@ sub switches {
         my $is_group = $section =~ /^group/;
         my $data = $switches_conf{$section};
         my $group_section = {};
-        if (exists $data->{group}) {
+        if (exists $data->{group} && $data->{group} ne "default") {
             my $group = "group $data->{group}";
             if (exists $switches_conf{$group}) {
                 $group_section = $switches_conf{$group};
