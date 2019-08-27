@@ -141,7 +141,7 @@ sub inflate {
         $value = $1;
     }
 
-    for my $t (split(/\&/, $value)) {
+    for my $t (split(/\s*\&\s*/, $value)) {
         my ($k, $v) = split (/::/, $t, 2);
         $trigger{lc($k)} = $v;
     }
