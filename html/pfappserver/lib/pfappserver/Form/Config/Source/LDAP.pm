@@ -30,6 +30,7 @@ has_field 'host' =>
    element_class => ['input-small'],
    element_attr => {'placeholder' => ''},
    default => $META->get_attribute('host')->default,
+   required => 1,
   );
 has_field 'port' =>
   (
