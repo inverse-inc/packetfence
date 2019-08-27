@@ -1,6 +1,6 @@
 Name:       packetfence-release
 Version:    2.0.0
-Release:	20190822065914.0.feature~ci~build~pkg~rpm.olab%{?dist}
+Release:    1%{?dist}
 BuildArch:  noarch
 Summary:    PacketFence release file and RPM repository configuration
 Packager:   Inverse inc. <support@inverse.ca>
@@ -96,7 +96,7 @@ cp /etc/pki/rpm-gpg/RPM-GPG-KEY-PACKETFENCE-CENTOS %{buildroot}%{_sysconfdir}/pk
 
 
 %changelog
-* Sat Jul 13 2019 Nicolas Quiniou-Briand <nqb@inverse.ca> - 2.0-1
+* Sat Jul 13 2019 Nicolas Quiniou-Briand <nqb@inverse.ca> - 2.0.0-1
 - Adapt spec file to CI
 * Wed Apr 12 2017 Inverse inc. <info@inverse.ca> - 1.2-7
 - Permission fix. 
