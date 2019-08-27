@@ -41,7 +41,7 @@ has_field 'id' =>
    label => 'Name',
    required => 1,
    messages => { required => 'Please specify the name of the source entry' },
-   apply => [ pfappserver::Base::Form::id_validator('source name') ],
+   apply => [ pfappserver::Base::Form::id_validator('source name'), { check => qr/^([^\s\.])+$/, message => 'The name must not contain spaces or dots.' } ],
    tags => {
       option_pattern => \&pfappserver::Base::Form::id_pattern,
    },
