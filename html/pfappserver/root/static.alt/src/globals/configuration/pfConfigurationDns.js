@@ -2,10 +2,6 @@ import i18n from '@/utils/locale'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 
 export const pfConfigurationDnsViewFields = (context = {}) => {
-  const {
-    options: {
-    }
-  } = context
   return [
     {
       tab: null,
