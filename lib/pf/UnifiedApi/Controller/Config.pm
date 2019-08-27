@@ -51,6 +51,11 @@ sub search {
         ];
     }
 
+    my $fields = $search_info_or_error->{fields};
+    if (defined $fields && @$fields) {
+        $self->remove_fields($fields, $response->{items});
+    }
+
     return $self->render(
         json   => $response,
         status => $status
@@ -119,6 +124,11 @@ sub list {
         $items = $self->cleanup_items($items);
     }
 
+    my $fields = $search_info_or_error->{fields};
+    if (defined $fields && @$fields) {
+        $self->remove_fields($fields, $items);
+    }
+
     $self->render(
         json => {
             items  => $items,
@@ -155,6 +165,22 @@ sub do_search {
         $search_info->{limit},
         'id'
     );
+}
+
+=head2 remove_fields
+
+remove_fields
+
+=cut
+
+sub remove_fields {
+    my ($self, $fields, $items) = @_;
+    my $count = @$items;
+    for (my $i =0;$i<$count;$i++) {
+        my %new_item;
+        @new_item{@$fields} = @{$items->[$i]}{@$fields};
+        $items->[$i] = \%new_item;
+    }
 }
 
 =head2 build_list_search_info
