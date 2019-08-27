@@ -10,7 +10,7 @@
         <!-- Advanced Search Mode -->
         <div v-if="advancedMode">
           <b-form inline @submit.prevent="onSubmit" @reset.prevent="onReset">
-            <pf-search-boolean :model="condition" :fields="fields" :advancedMode="advancedMode"/>
+            <pf-search-boolean :model="advancedCondition" :fields="fields" :advancedMode="advancedMode"/>
             <b-container fluid class="text-right mt-3 px-0">
               <b-button class="mr-1" type="reset" variant="secondary">{{ $t('Clear') }}</b-button>
               <b-button-group>
@@ -97,6 +97,8 @@ const api = {
   networkGraph: body => {
     return apiCall.post('nodes/network_graph', body).then(response => {
       return response.data
+    }).catch((err) => {
+      throw err
     })
   }
 }
@@ -139,12 +141,22 @@ export default {
       palettes: ['autoreg', 'status', 'online', 'voip'], // available palettes
       pollingIntervalMs: 60000,
       pollingInterval: false,
-      advancedMode: false,
       saveSearchNamespace: 'network',
       saveSearchString: null,
       showSaveSearchModal: false,
       quickCondition: null,
-      condition: null,
+      advancedCondition: {
+        op: 'and',
+        values: [{
+          op: 'or',
+          values: [{
+            field: 'last_seen',
+            op: 'greater_than_equals',
+            value: '1970-01-01 00:00:00'
+          }]
+        }]
+      },
+      advancedMode: false,
       limit: 100,
       /**
        *  Fields on which a search can be defined.
@@ -410,70 +422,49 @@ export default {
     setDimensions () {
       // get width of svg container
       const { $refs: { networkGraph: { $el: { offsetWidth: width = 0 } = {} } = {} } = {} } = this
-      // this.$set(this.dimensions, 'height', width)
       this.$set(this.dimensions, 'width', width)
     },
     onSubmit () {
-      const { limit, condition: query } = this
-      const request = {
-        cursor: 0,
-        limit,
-        fields: [...(new Set([ // unique set
-          ...['mac'], // always include mac
-          ...this.palettes, // always include fields for palette colors
-          ...this.fields.map(f => f.value)
-        ]))],
-        sort: ['last_seen DESC'],
-        query: {
-          op: 'and',
-          values: [{
-            op: 'or',
-            values: [{
-              field: 'last_seen',
-              op: 'greater_than_equals',
-              value: '2000-01-01 00:00:00'
-            }]
-          }]
-        }
+      let query = null
+      const { limit, advancedMode } = this
+      if (advancedMode) {
+        const { advancedCondition = null } = this
+        query = advancedCondition
+      } else {
+        const { quickCondition = null } = this
+        query = this.buildCondition(quickCondition)
       }
-
-      // this.$set(this, 'nodes', this.nodes.filter(n => n.type === 'packetfence'))
-      // this.$set(this, 'links', [])
-
-      api.networkGraph(request).then(response => {
-        let { network_graph: { nodes, links } = {} } = response
-        /*
-        // improve layout by sorting nodes by source id
-        nodes = nodes.sort((a, b) => {
-          const { source: aSourceId = null } = links.find(l => l.target === a.id) || {}
-          const { source: bSourceId = null } = links.find(l => l.target === b.id) || {}
-          switch (true) {
-            case aSourceId.localeCompare(bSourceId) === -1:
-              return -1
-            case aSourceId.localeCompare(bSourceId) === 1:
-              return 1
-            case a.id.localeCompare(b.id) === -1:
-              return -1
-            case a.id.localeCompare(b.id) === 1:
-              return 1
-            default:
-              return 0
-          }
+      if (query) {
+        const request = {
+          cursor: 0,
+          limit,
+          fields: [...(new Set([ // unique set
+            ...['mac'], // always include mac
+            ...this.palettes, // always include fields for palette colors
+            ...this.fields.map(f => f.value)
+          ]))],
+          sort: ['last_seen DESC'],
+          query
+        }
+        api.networkGraph(request).then(response => {
+          let { network_graph: { nodes = [], links = [] } = {} } = response
+          this.nodes = nodes
+          this.links = links
+        }).catch((err) => {
+          this.nodes = []
+          this.links = []
         })
-        links = links.sort((a, b) => {
-          return a.source.localeCompare(b.source)
-        })
-        */
-
-
-        this.$set(this, 'nodes', nodes)
-        this.$set(this, 'links', links)
-      })
-
-
+      }
     },
     onReset () {
-console.log('onReset')
+      const { limit, advancedMode } = this
+      if (advancedMode) {
+        console.log('onReset', JSON.stringify(this.advancedCondition, null, 2))
+      } else {
+        this.quickCondition = null
+      }
+      this.nodes = []
+      this.links = []
     },
     focusSaveSearchInput () {
       this.$refs.saveSearchInput.focus()

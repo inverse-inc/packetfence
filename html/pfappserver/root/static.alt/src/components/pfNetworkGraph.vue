@@ -102,7 +102,6 @@ https://flowingdata.com/2012/08/02/how-to-make-an-interactive-network-visualizat
           fill="#000000"
           @mouseover="mouseOverNode(node, $event)"
           @mouseout="mouseOutNode(node, $event)"
-          @click="clickNode(node, $event)"
           :class="[ 'packetfence', { 'highlight': node.highlight } ]"
         />
 
@@ -115,21 +114,8 @@ https://flowingdata.com/2012/08/02/how-to-make-an-interactive-network-visualizat
           :y="coords[i].y - (32 / 2)"
           @mouseover="mouseOverNode(node, $event)"
           @mouseout="mouseOutNode(node, $event)"
-          @click="clickNode(node, $event)"
-          :class="[ 'switch', { 'highlight': node.highlight } ]"
-        />
-
-        <!-- node icon -->
-        <use v-if="node.type === 'node'" :key="node.id"
-          xlink:href="#node"
-          width="16" height="16"
-          :id="`node-${node.id}`"
-          :x="coords[i].x - (16 / 2)"
-          :y="coords[i].y - (16 / 2)"
-          @mouseover="mouseOverNode(node, $event)"
-          @mouseout="mouseOutNode(node, $event)"
-          @click="clickNode(node, $event)"
-          :class="[ 'node', color(node), { 'highlight': node.highlight } ]"
+          @mousedown="mouseDownNode(node, $event)"
+          :class="[ 'switch', 'pointer', { 'highlight': node.highlight } ]"
         />
 
         <!-- unknown icon -->
@@ -141,8 +127,20 @@ https://flowingdata.com/2012/08/02/how-to-make-an-interactive-network-visualizat
           :y="coords[i].y - (32 / 2)"
           @mouseover="mouseOverNode(node, $event)"
           @mouseout="mouseOutNode(node, $event)"
-          @click="clickNode(node, $event)"
           :class="[ 'unknown', { 'highlight': node.highlight } ]"
+        />
+
+        <!-- node icon -->
+        <use v-if="node.type === 'node'" :key="node.id"
+          xlink:href="#node"
+          width="16" height="16"
+          :id="`node-${node.id}`"
+          :x="coords[i].x - (16 / 2)"
+          :y="coords[i].y - (16 / 2)"
+          @mouseover="mouseOverNode(node, $event)"
+          @mouseout="mouseOutNode(node, $event)"
+          @mousedown="mouseDownNode(node, $event)"
+          :class="[ 'node', 'pointer', color(node), { 'highlight': node.highlight } ]"
         />
 
       </template>
@@ -167,7 +165,7 @@ https://flowingdata.com/2012/08/02/how-to-make-an-interactive-network-visualizat
     </div>
 
     <!-- legend -->
-    <div :class="[ 'legend', config.legendPosition ]" :style="{ padding: `${this.config.padding}px` }">
+    <div v-if="!lastX && !lastY" :class="[ 'legend', config.legendPosition ]" :style="{ padding: `${this.config.padding}px` }">
       <ul class="mb-0">
         <li v-for="legend in legends" :class="legend.color">{{ legend.text }}</li>
       </ul>
@@ -494,7 +492,9 @@ export default {
     },
     start () {
       if (this.simulation) {
-        this.simulation.restart()
+        this.$nextTick(() => {
+          this.simulation.restart()
+        })
       }
     },
     stop () {
@@ -602,10 +602,11 @@ export default {
         .alpha(1)
     },
     linkCoords (link) {
+      const { source: { index: sourceIndex = null } = {}, target: { index: targetIndex = null} = {} } = link
       const {
         coords: {
-          [link.source.index]: { x: x1 = 0, y: y1 = 0 } = {},
-          [link.target.index]: { x: x2 = 0, y: y2 = 0 } = {}
+          [sourceIndex]: { x: x1 = 0, y: y1 = 0 } = {},
+          [targetIndex]: { x: x2 = 0, y: y2 = 0 } = {}
         } = {}
       } = this
       return { x1, y1, x2, y2 }
@@ -733,8 +734,16 @@ export default {
       this.highlightNodeById(null) // unhighlight node
       this.highlight = null
     },
-    clickNode (node, event = null) {
-      console.log('click Node', event, node)
+    mouseDownNode (node, event = null) {
+      const { type = null } = node
+      switch (type) {
+        case 'node':
+          this.$router.push({ name: 'node', params: { mac: node.id } })
+          break
+        case 'switch':
+          this.$router.push({ name: 'switch', params: { id: node.id } })
+          break
+      }
     },
     highlightNodeById (id) {
       this.unhighlightNodes()
@@ -920,34 +929,34 @@ export default {
         }, [])
         let $d = [] // deferred delete indexes
         this.stop() // stop simulation
-        $u.forEach((id, index) => {
+        $u.forEach(id => {
+          let aIndex = $a[id]
+          let bIndex = $b[id]
+          let lIndex = this.localNodes.findIndex(node => node.id === id)
           switch (true) {
             case (id in $a && id in $b): // update
-              index = $a[id]
-              this.$set(this.localNodes, index, {
-                ...this.localNodes[index],
-                ...cleanNodeProperties(a[index])
+              this.$set(this.localNodes, lIndex, {
+                ...this.localNodes[lIndex],
+                ...cleanNodeProperties(a[aIndex])
               })
               break
             case !(id in $b): // insert
-              index = this.localNodes.length
-              if (a[index].type === 'packetfence') {
+              if (a[aIndex].type === 'packetfence') {
                 // always center packetfence node
-                this.$set(this.localNodes, index, {
+                this.$set(this.localNodes, this.localNodes.length, {
                   ...{ fx: this.dimensions.width / 2, fy: this.dimensions.height / 2 }, // fx = fixed x, y
-                  ...cleanNodeProperties(a[index])
+                  ...cleanNodeProperties(a[aIndex])
                 })
               } else {
-                this.$set(this.localNodes, index, {
+                this.$set(this.localNodes, this.localNodes.length, {
                   ...{ x: this.dimensions.width / 2, y: this.dimensions.height / 2 },
-                  ...cleanNodeProperties(a[index])
+                  ...cleanNodeProperties(a[aIndex])
                 })
               }
               break
             default: // delete
-              index = $b[id]
               // defer unsorted deletion during loop, avoid subsequent index mismatches
-              $d.push(index)
+              $d.push(lIndex)
           }
         })
         $d.sort((a, b) => b - a).forEach(index => { // reverse sort, delete bottom-up
@@ -956,57 +965,26 @@ export default {
         this.simulation.nodes(this.localNodes) // push nodes to simulation
         this.start() // start simulation
         this.force() // reset forces
-      },
-      deep: true
+      }
     },
     /* watch `link` prop and rebuild private `localLinks` data on change */
     links: {
       handler: function (a, b) {
-        let source
-        let target
-        // build lookup maps to determine insert/update/delete
-        const $a = a.reduce((map, link, index) => { // build id => index object map
-          map[`${link.source}-${link.target}`] = index; return map
-        }, {})
-        const $b = b.reduce((map, link, index) => { // build id => index object map
-          map[`${link.source}-${link.target}`] = index; return map
-        }, {})
-        const $u = [...a, ...b].reduce((map, link) => { // build unique link.id array
-          if (!map.includes(`${link.source}-${link.target}`)) {
-            map.push(`${link.source}-${link.target}`)
+        let links = []
+        a.forEach((link, index) => {
+          const { source: sourceId = {}, target: targetId = {} } = link
+          const sourceIndex = this.localNodes.findIndex(node => node.id === sourceId)
+          const targetIndex = this.localNodes.findIndex(node => node.id === targetId)
+          if (sourceIndex > -1 && targetIndex > -1) {
+            links.push({ source: this.localNodes[sourceIndex], target: this.localNodes[targetIndex] })
           }
-          return map
-        }, [])
-        let $d = [] // deferred delete indexes
+        })
         this.stop() // stop simulation
-        $u.forEach((id, index) => {
-          switch (true) {
-            case (id in $a && id in $b): // update
-              index = $a[id]
-              source = this.localNodes.find(node => node.id === a[index].source)
-              target = this.localNodes.find(node => node.id === a[index].target)
-              this.$set(this.localLinks, index, { source, target })
-              break
-            case !(id in $b): // insert
-              index = this.localLinks.length
-              source = this.localNodes.find(node => node.id === a[index].source)
-              target = this.localNodes.find(node => node.id === a[index].target)
-              this.$set(this.localLinks, index, { source, target })
-              break
-            default: // delete
-              index = $b[id]
-              // defer unsorted deletion during loop, avoid subsequent index mismatches
-              $d.push(index)
-          }
-        })
-        $d.sort((a, b) => b - a).forEach(index => { // reverse sort, delete bottom-up
-          this.$delete(this.localLinks, index)
-        })
+        this.$set(this, 'localLinks', links)
         // this.simulation.force('link').links(this.localLinks) // push links to simulation
         this.start() // start simulation
         this.force() // reset forces
-      },
-      deep: true
+      }
     }
   }
 }
@@ -1034,6 +1012,9 @@ export default {
   .unknown,
   .link {
     transition: opacity 300ms ease, fill 300ms ease, stroke 300ms ease;
+    &.pointer {
+      cursor: pointer;
+    }
   }
 
   &.highlight {
@@ -1101,6 +1082,7 @@ export default {
     font-size: .9rem;
     font-weight: 400;
     line-height: 24px;
+    background: rgba(255, 255, 255, 0.5);
     &.top-right {
       top: 0px;
       right: 0px;
