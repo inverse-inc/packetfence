@@ -63,6 +63,7 @@ sub _run {
             cluster_enabled => $cluster_enabled,
 
             server_ip => pf::cluster::current_server()->{management_ip},
+
             servers_ip => [uniq(split(',', $Config{database_advanced}{other_members}), (map { $_->{management_ip} } pf::cluster::mysql_servers()))],
 
             # TODO: have real configurable user
@@ -74,11 +75,24 @@ sub _run {
 
             db_config => $Config{database},
         );
-        if ($DISTRIB eq 'debian') {
-            $vars{'libgalera'} = '/usr/lib/galera/libgalera_smm.so';
-        } else {
-            $vars{'libgalera'} = '/usr/lib64/galera/libgalera_smm.so';
-        }
+    } elsif ($Config{database_advanced}{other_members} ne "" ) {
+        %vars = (
+            %vars,
+
+            cluster_enabled => 1,
+
+            server_ip => defined( $management_network->tag('vip') ) ? $management_network->tag('vip') : $management_network->tag('ip');
+            servers_ip => [uniq(split(',', $Config{database_advanced}{other_members}), (defined( $management_network->tag('vip') ) ? $management_network->tag('vip') : $management_network->tag('ip')))],
+
+            # TODO: have real configurable user
+            replication_user => $Config{active_active}{galera_replication_username},
+            replication_password => $Config{active_active}{galera_replication_password},
+
+            hostname => $host_id,
+            server_id => 999,
+
+            db_config => $Config{database},
+        );
     }
 
     my $maria_conf = "$install_dir/var/conf/mariadb.conf";
