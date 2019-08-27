@@ -182,7 +182,7 @@ sub build_list_search_info {
                 exists $params->{$_}
                   ? ( $_ => [expand_csv($params->{$_})] )
                   : ()
-            } qw(sort)
+            } qw(sort fields)
         )
     };
     return 200, $info;
