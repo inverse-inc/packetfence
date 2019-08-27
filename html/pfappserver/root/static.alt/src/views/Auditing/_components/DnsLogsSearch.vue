@@ -5,9 +5,9 @@
       <div class="float-right"><pf-form-toggle v-model="advancedMode">{{ $t('Advanced') }}</pf-form-toggle></div>
       <h4 class="mb-0" v-t="'Search DNS Audit Logs'"></h4>
     </b-card-header>
-    <pf-search :quick-with-fields="false" quick-placeholder="Search by MAC or IP" save-search-namespace="dnslogs"
-      :fields="fields" :advanced-mode="advancedMode" :condition="condition" :storeName="storeName"
-      @submit-search="onSearch" @reset-search="onReset"></pf-search>
+    <pf-search :quick-with-fields="false" :quick-placeholder="$t('Search by MAC or IP')" save-search-namespace="dnslogs"
+      :fields="fields" :storeName="storeName" :advanced-mode="advancedMode" :condition="condition"
+      @submit-search="onSearch" @reset-search="onReset" @import-search="onImport"></pf-search>
     <div class="card-body">
       <b-row align-h="between" align-v="center">
         <b-col cols="auto" class="mr-auto">
@@ -52,9 +52,18 @@
           </b-container>
         </b-col>
       </b-row>
-      <b-table class="table-clickable" :items="items" :fields="visibleColumns" :sort-by="sortBy" :sort-desc="sortDesc"
-        @sort-changed="onSortingChanged" @row-clicked="onRowClick"
-        show-empty responsive hover no-local-sorting striped>
+      <b-table
+        v-model="tableValues"
+        class="table-clickable"
+        :items="items"
+        :fields="visibleColumns"
+        :sort-by="sortBy"
+        :sort-desc="sortDesc"
+        @sort-changed="onSortingChanged"
+        @row-clicked="onRowClick"
+        @head-clicked="clearSelected"
+        show-empty responsive hover no-local-sorting striped
+      >
         <template slot="HEAD_actions">
           <b-form-checkbox id="checkallnone" v-model="selectAll" @change="onSelectAllChange"></b-form-checkbox>
           <b-tooltip target="checkallnone" placement="right" v-if="selectValues.length === tableValues.length">{{ $t('Select None [Alt + N]') }}</b-tooltip>
@@ -71,7 +80,7 @@
         </template>
         <div slot="answer" slot-scope="{ value }" v-html="value"></div>
         <template slot="empty">
-          <pf-empty-table :isLoading="isLoading">{{ $t('No logs found') }}</pf-empty-table>
+          <pf-empty-table :isLoading="isLoading" :text="$t('DNS Audit Logs not found or setting is disabled in configuration.')">{{ $t('No logs found') }}</pf-empty-table>
         </template>
       </b-table>
     </div>
@@ -108,22 +117,20 @@ export default {
       type: Object,
       default: () => ({
         searchApiEndpoint: 'dns_audit_logs',
-        defaultSortKeys: ['created_at', 'ip', 'mac', 'qname', 'scope'],
+        defaultSortKeys: ['created_at'],
+        defaultSortDesc: true,
         defaultSearchCondition: {
           op: 'and',
           values: [{
             op: 'or',
             values: [
-              { field: 'mac', op: 'contains', value: null }
+              { field: 'mac', op: 'contains', value: null },
+              { field: 'ip', op: 'contains', value: null }
             ]
           }]
         },
         defaultRoute: { name: 'dnslogs' }
       })
-    },
-    tableValues: {
-      type: Array,
-      default: () => []
     },
     storeName: {
       type: String,
@@ -132,9 +139,11 @@ export default {
   },
   data () {
     return {
+      tableValues: Array,
+      sortBy: 'created_at',
+      sortDesc: true,
       // Fields must match the database schema
       fields: [ // keys match with b-form-select
-
         {
           value: 'created_at',
           text: this.$i18n.t('Created'),
@@ -192,8 +201,7 @@ export default {
           key: 'id',
           label: this.$i18n.t('ID'),
           required: true,
-          sortable: true,
-          visible: true
+          sortable: true
         },
         {
           key: 'ip',
@@ -210,29 +218,26 @@ export default {
         {
           key: 'qname',
           label: this.$i18n.t('Qname'),
-          sortable: true,
+          sortable: false,
           visible: true
         },
         {
           key: 'qtype',
           label: this.$i18n.t('Qtype'),
-          sortable: true
+          sortable: false
         },
         {
           key: 'scope',
           label: this.$i18n.t('Scope'),
-          sortable: true,
-          visible: true
+          sortable: false
         },
         {
           key: 'answer',
           label: this.$i18n.t('Answer'),
-          sortable: true,
+          sortable: false,
           visible: true
         }
-      ],
-      sortBy: 'created_at',
-      sortDesc: true
+      ]
     }
   },
   methods: {

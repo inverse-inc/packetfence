@@ -769,7 +769,7 @@ const actions = {
       throw err
     })
   },
- getServices: ({ state, commit }) => {
+  getServices: ({ state, commit }) => {
     if (state.cache['services']) {
       return Promise.resolve(state.cache['services']).then(cache => JSON.parse(JSON.stringify(cache)))
     }
