@@ -19,6 +19,9 @@ func (pf *pfdns) Refresh(ctx context.Context) {
 		pf.DNSFilter.Flush()
 		pf.IpsetCache.Flush()
 	}
+	if !pfconfigdriver.IsValid(ctx, &pfconfigdriver.Config.Dns.Configuration) {
+		pf.DNSRecord()
+	}
 }
 
 func (pf *pfdns) PassthroughsInit() error {
@@ -56,6 +59,18 @@ func (pf *pfdns) PassthroughsIsolationInit() error {
 	for k, v := range pfconfigdriver.Config.Passthroughs.Isolation.Normal {
 		rgx, _ := regexp.Compile("^" + k + ".$")
 		pf.FqdnIsolationPort[rgx] = v
+	}
+	return nil
+}
+
+func (pf *pfdns) DNSRecord() error {
+	var ctx = context.Background()
+
+	pfconfigdriver.FetchDecodeSocket(ctx, &pfconfigdriver.Config.Dns.Configuration)
+	if pfconfigdriver.Config.Dns.Configuration.RecordDNS == "enabled" {
+		pf.recordDNS = true
+	} else {
+		pf.recordDNS = false
 	}
 	return nil
 }

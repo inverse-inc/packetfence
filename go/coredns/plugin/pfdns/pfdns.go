@@ -58,6 +58,7 @@ type pfdns struct {
 	PortalFQDN          map[int]map[*net.IPNet]*regexp.Regexp
 	mutex               sync.Mutex
 	detectionMechanisms []*regexp.Regexp
+	recordDNS           bool
 }
 
 // Ports array
@@ -803,6 +804,7 @@ func (pf *pfdns) logreply(ctx context.Context, ip string, mac string, qname stri
 		b.WriteString(text)
 		b.WriteString(" \n ")
 	}
-
-	pf.DNSAudit.ExecContext(ctx, ip, mac, strings.TrimRight(qname, "."), qtype, scope, strings.TrimRight(b.String(), " \n "))
+	if pf.recordDNS {
+		pf.DNSAudit.ExecContext(ctx, ip, mac, strings.TrimRight(qname, "."), qtype, scope, strings.TrimRight(b.String(), " \n "))
+	}
 }

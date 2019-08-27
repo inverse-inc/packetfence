@@ -112,6 +112,7 @@ const MaintenanceTaskView = () => import(/* webpackChunkName: "Configuration" */
 const DatabaseTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/DatabaseTabs')
 const ActiveActiveView = () => import(/* webpackChunkName: "Configuration" */ '../_components/ActiveActiveView')
 const RadiusView = () => import(/* webpackChunkName: "Configuration" */ '../_components/RadiusView')
+const DnsView = () => import(/* webpackChunkName: "Configuration" */ '../_components/DnsView')
 const AdminRolesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/AdminRolesList')
 const AdminRoleView = () => import(/* webpackChunkName: "Configuration" */ '../_components/AdminRoleView')
 
@@ -1509,6 +1510,12 @@ const route = {
       path: 'radius',
       name: 'radius',
       component: RadiusView,
+      props: (route) => ({ query: route.query.query })
+    },
+    {
+      path: 'dns',
+      name: 'dns',
+      component: DnsView,
       props: (route) => ({ query: route.query.query })
     },
     {

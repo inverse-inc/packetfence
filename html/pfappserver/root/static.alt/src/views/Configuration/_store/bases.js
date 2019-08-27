@@ -735,6 +735,40 @@ const actions = {
       throw err
     })
   },
+  getDnsConfiguration: ({ state, commit }) => {
+    if (state.cache['dns_configuration']) {
+      return Promise.resolve(state.cache['dns_configuration']).then(cache => JSON.parse(JSON.stringify(cache)))
+    }
+    commit('ITEM_REQUEST')
+    return api.base('dns_configuration').then(item => {
+      commit('ITEM_REPLACED', item)
+      return JSON.parse(JSON.stringify(item))
+    }).catch((err) => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
+  },
+  optionsDnsConfiguration: ({ commit }) => {
+    commit('ITEM_REQUEST')
+    return api.baseOptions('dns_configuration').then(response => {
+      commit('ITEM_SUCCESS')
+      return response
+    }).catch((err) => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
+  },
+  updateDnsConfiguration: ({ commit }, data) => {
+    commit('ITEM_REQUEST')
+    data.id = 'dns_configuration'
+    return api.updateBase(data).then(response => {
+      commit('ITEM_REPLACED', data)
+      return response
+    }).catch(err => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
+  },
   getServices: ({ state, commit }) => {
     if (state.cache['services']) {
       return Promise.resolve(state.cache['services']).then(cache => JSON.parse(JSON.stringify(cache)))
