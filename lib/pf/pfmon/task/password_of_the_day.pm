@@ -49,10 +49,10 @@ sub run {
         }
         my $password = pf::password::view($source->{id});
         if(defined($password)){
-            my $valid_from = $password->{valid_from};
-            $valid_from = DateTime::Format::MySQL->parse_datetime($valid_from);
-            $valid_from->set_time_zone("local");
-            if ( ($now->epoch - $valid_from->epoch) > pf::util::normalize_time($source->{password_rotation})) {
+            my $expiration = $password->{expiration};
+            $expiration = DateTime::Format::MySQL->parse_datetime($expiration);
+            $expiration->set_time_zone("local");
+            if ( $now->epoch > $expiration->epoch) {
                 $new_password = pf::password::generate($source->{id},[{type => 'valid_from', value => $now},{type => 'expiration', value => pf::config::access_duration($source->{password_rotation})}],undef,'0',$source);
                 $self->send_email(pid => $source->{id},password => $new_password, email => $source->{password_email_update}, expiration => pf::config::access_duration($source->{password_rotation}));
             }

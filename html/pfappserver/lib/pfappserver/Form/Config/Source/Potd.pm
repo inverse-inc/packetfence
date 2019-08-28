@@ -11,7 +11,9 @@ Form definition to create or update a potd user source.
 =cut
 
 use pf::person;
+use pf::config qw(%Config);
 use HTML::FormHandler::Moose;
+use pfappserver::Base::Form::Authentication::Action;
 use pf::Authentication::Source::PotdSource;
 extends 'pfappserver::Form::Config::Source';
 with qw(
@@ -47,10 +49,13 @@ has_field 'id' =>
 
 has_field 'password_rotation' =>
   (
-   type => 'Duration',
-   label => 'Password Rotation Period',
-   required => 1,
-   default => pfappserver::Form::Field::Duration->duration_inflate(pf::Authentication::Source::PotdSource->meta->get_attribute('password_rotation')->default),
+   type => 'Select',
+   label => 'Password rotation',
+   localize_labels => 1,
+   options_method => \&pfappserver::Base::Form::Authentication::Action::options_durations,
+   default_method => sub { $Config{'guests_admin_registration'}{'default_access_duration'} },
+   element_class => ['chzn-select', 'input-xxlarge'],
+   element_attr => {'data-placeholder' => 'Click to add a duration'},
    tags => { after_element => \&help,
              help => 'Period of time after the password must be rotated.' },
   );
