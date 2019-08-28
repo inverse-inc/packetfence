@@ -27,7 +27,7 @@
           <b-dropdown-item :to="{ name: 'newProvisioning', params: { provisioningType: 'symantec' } }">Symantec App Center</b-dropdown-item>
           <b-dropdown-item :to="{ name: 'newProvisioning', params: { provisioningType: 'windows' } }">Windows</b-dropdown-item>
           <b-dropdown-item :to="{ name: 'newProvisioning', params: { provisioningType: 'intune' } }">Microsoft Intune</b-dropdown-item>
-          <b-dropdown-item :to="{ name: 'newProvisioning', params: { provisioningType: 'servicenow' } }">Service Now</b-dropdown-item>
+          <b-dropdown-item :to="{ name: 'newProvisioning', params: { provisioningType: 'servicenow' } }">ServiceNow</b-dropdown-item>
         </b-dropdown>
       </template>
       <template slot="emptySearch" slot-scope="state">
