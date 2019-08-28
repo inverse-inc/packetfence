@@ -43,7 +43,8 @@
     "provisioners": [
         {
             "type": "ansible",
-            "playbook_file": "{{user `prov_dir`}}/site.yml"
+            "playbook_file": "{{user `prov_dir`}}/site.yml",
+            "galaxy_file": "{{user `prov_dir`}}/requirements.yml"
         },
         {
             "type": "file",
@@ -61,7 +62,7 @@
         },
         {
             "type": "shell",
-            "inline": ["curl https://gitlab.com/Orange-OpenSource/gitlab-buildpkg-tools/merge_requests/8.diff | git apply -v -p2 -",
+            "inline": ["curl -s https://gitlab.com/Orange-OpenSource/gitlab-buildpkg-tools/merge_requests/8.diff | git apply -v -p2 -",
                        "ci-build-pkg {{user `tmp_dir`}}"
                       ],
             "environment_vars": ["CI_BUILDPKG_DEP_ONLY=yes",
