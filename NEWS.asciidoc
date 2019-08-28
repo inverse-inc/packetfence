@@ -16,9 +16,9 @@ Version X.Y.Z released on xxxx-xx-xx
 
 New Features
 ++++++++++++
-* LightSpeedRocket and SmoothWall firewall sso support
-* Family Zone Firewall SSO support
-* Added a way to forward eduroam local realm to a define radius server instead of packetfence.
+* Family Zone, LightSpeedRocket and SmoothWall firewall SSO support
+* Added a way to forward Eduroam local realm to a specific RADIUS server
+* Added ServiceNow support
 
 Enhancements
 ++++++++++++
@@ -27,7 +27,7 @@ Enhancements
 * Randomize KeyBalanced to randomize the load balance in Freeradius Proxy.
 * Added support for SentinelOne's new API version (v2.0)
 * Firewall SSO is now performed centrally on the management node of a cluster
-* Added dhcp pool algorithm (Random/Oldest IP)
+* Added DHCP pool algorithm (Random/Oldest IP)
 * Improved support for Juniper switches running Junos 15 and above
 * Allow to configure the API token timeout
 * Moved vlan_pool_technique configuration parameter to the connection profile
