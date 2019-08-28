@@ -19,7 +19,7 @@ use pf::constants;
 use pf::UnifiedApi::OpenAPI::Generator::Config;
 use pf::UnifiedApi::GenerateSpec;
 use Mojo::Util qw(url_unescape);
-use pf::util qw(expand_csv);
+use pf::util qw(expand_csv isenabled);
 use pf::error qw(is_error);
 use pf::pfcmd::checkup ();
 use pf::UnifiedApi::Search::Builder::Config;
@@ -44,10 +44,17 @@ sub search {
             $response->{errors}
         );
     }
-    local $_;
-    $response->{items} = [
-        map { $self->cleanup_item($_) } @{$response->{items} // []}
-    ];
+    unless ($search_info_or_error->{raw}) {
+        local $_;
+        $response->{items} = [
+            map { $self->cleanup_item($_) } @{$response->{items} // []}
+        ];
+    }
+
+    my $fields = $search_info_or_error->{fields};
+    if (defined $fields && @$fields) {
+        $self->remove_fields($fields, $response->{items});
+    }
 
     return $self->render(
         json   => $response,
@@ -75,7 +82,7 @@ sub build_search_info {
                 exists $data_or_error->{$_}
                   ? ( $_ => $data_or_error->{$_} )
                   : ()
-            } qw(limit query fields sort cursor with_total_count)
+            } qw(limit query fields sort cursor with_total_count raw)
         )
     );
 
@@ -113,7 +120,15 @@ sub list {
     }
 
     my $items = $self->do_search($search_info_or_error);
-    $items = $self->cleanup_items($items);
+    if (!$search_info_or_error->{raw}) {
+        $items = $self->cleanup_items($items);
+    }
+
+    my $fields = $search_info_or_error->{fields};
+    if (defined $fields && @$fields) {
+        $self->remove_fields($fields, $items);
+    }
+
     $self->render(
         json => {
             items  => $items,
@@ -152,6 +167,22 @@ sub do_search {
     );
 }
 
+=head2 remove_fields
+
+remove_fields
+
+=cut
+
+sub remove_fields {
+    my ($self, $fields, $items) = @_;
+    my $count = @$items;
+    for (my $i =0;$i<$count;$i++) {
+        my %new_item;
+        @new_item{@$fields} = @{$items->[$i]}{@$fields};
+        $items->[$i] = \%new_item;
+    }
+}
+
 =head2 build_list_search_info
 
 build_list_search_info
@@ -177,7 +208,12 @@ sub build_list_search_info {
                 exists $params->{$_}
                   ? ( $_ => [expand_csv($params->{$_})] )
                   : ()
-            } qw(sort)
+            } qw(sort fields)
+        ),
+        (
+            map {
+                $_ => isenabled($params->{$_})
+            } qw(raw)
         )
     };
     return 200, $info;
