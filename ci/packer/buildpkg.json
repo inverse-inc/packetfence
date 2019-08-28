@@ -5,6 +5,7 @@
         "builder_prefix": "pfbuild",
         "docker_user": "buildpkg",
         "pf_root": "../..",
+        "tmp_dir": "/tmp",
         "go_version": "go1.9.3",
         "go_path": "/root/go",
         "go_repo": "github.com/inverse-inc/packetfence"
@@ -39,6 +40,28 @@
         }
     ],
     "provisioners": [
+        {
+            "type": "file",
+            "source": "{{user `pf_root`}}/rpm",
+            "destination": "{{user `tmp_dir`}}",
+            "only": ["{{user `builder_prefix`}}-centos7"]
+        },
+        {
+            "type": "file",
+            "source": "{{user `pf_root`}}/debian",
+            "destination": "{{user `tmp_dir`}}",
+            "only": ["{{user `builder_prefix`}}-stretch",
+                     "{{user `builder_prefix`}}-buster"
+                    ]
+        },
+        {
+            "type": "shell",
+            "inline": ["ci-build-pkg {{user `tmp_dir`}}"],
+            "environment_vars": ["CI_BUILDPKG_DEP_ONLY=yes",
+                                 "CI_COMMIT_REF_NAME=fakebranch"
+                                ]
+
+        },
         {
             "type": "shell",
             "script": "{{user `pf_root`}}/addons/dev-helpers/setup-go-env.sh",
