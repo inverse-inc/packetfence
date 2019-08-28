@@ -38,6 +38,7 @@ use pfappserver::Form::Config::Provisioning::sepm;
 use pfappserver::Form::Config::Provisioning::symantec;
 use pfappserver::Form::Config::Provisioning::windows;
 use pfappserver::Form::Config::Provisioning::intune;
+use pfappserver::Form::Config::Provisioning::servicenow;
 
 our %TYPES_TO_FORMS = (
     map { $_ => "pfappserver::Form::Config::Provisioning::$_" } qw(
@@ -55,6 +56,7 @@ our %TYPES_TO_FORMS = (
       symantec
       windows
       intune
+      servicenow
     )
 );
 
