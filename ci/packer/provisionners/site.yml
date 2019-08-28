@@ -1,0 +1,7 @@
+---
+- hosts: default
+  name: install packetfence repos
+  become: True
+
+  roles:
+    - role: inverse_inc.gitlab_buildpkg_tools
