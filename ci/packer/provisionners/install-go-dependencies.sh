@@ -2,7 +2,7 @@
 
 GOBIN=${GOBIN:-/usr/local/go/bin}
 GOPATH=${GOPATH:-$HOME/go}
-GOROOT=/usr/local/go/
+GOROOT=/usr/local/go
 GOVENDOR=$GOPATH/bin/govendor
 GO_REPO=${GO_REPO:-github.com/inverse-inc/packetfence}
 EXTRA_PATH=${EXTRA_PATH}
