@@ -23,3 +23,8 @@
   root /usr/local/pf/conf/ssl/acme-challenge
 }
 
+
+:5252 {
+  root /usr/local/pf/html/parking
+}
+

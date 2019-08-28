@@ -61,6 +61,7 @@ type configStruct struct {
 		CaptivePortal PfConfCaptivePortal
 		Webservices   PfConfWebservices
 		Database      PfConfDatabase
+		Parking       PfConfParking
 	}
 	AdminRoles AdminRoles
 	Cluster    struct {
@@ -479,4 +480,15 @@ type PfConfDns struct {
 	PfconfigNS     string `val:"config::Pf"`
 	PfconfigHashNS string `val:"dns_configuration"`
 	RecordDNS      string `json:"record_dns_in_sql"`
+}
+
+type PfConfParking struct {
+	StructConfig
+	PfconfigMethod          string `val:"hash_element"`
+	PfconfigNS              string `val:"config::Pf"`
+	PfconfigHashNS          string `val:"parking"`
+	LeaseLength             string `json:"lease_length"`
+	Threshold               string `json:"threshold"`
+	PlaceInDhcpParkingGroup string `json:"place_in_dhcp_parking_group"`
+	ShowParkingPortal       string `json:"show_parking_portal"`
 }

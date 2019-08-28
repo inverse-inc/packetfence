@@ -2,24 +2,39 @@ package httpdispatcher
 
 import (
 	"context"
+	"database/sql"
+	"encoding/json"
+	"errors"
 	"fmt"
 	"net"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"os"
 	"regexp"
+	"strings"
 	"sync"
 	"text/template"
 	"time"
 
+	"github.com/inverse-inc/packetfence/go/db"
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
+	"github.com/inverse-inc/packetfence/go/sharedutils"
+	"github.com/inverse-inc/packetfence/go/unifiedapiclient"
 )
 
+// Proxy structure
 type Proxy struct {
-	endpointWhiteList []*regexp.Regexp
-	endpointBlackList []*regexp.Regexp
-	mutex             sync.Mutex
+	endpointWhiteList    []*regexp.Regexp
+	endpointBlackList    []*regexp.Regexp
+	mutex                sync.Mutex
+	ParkingSecurityEvent *sql.Stmt // prepared statement for security_event
+	IP4log               *sql.Stmt // prepared statement for ip4log queries
+	IP6log               *sql.Stmt // prepared statement for ip6log queries
+	Db                   *sql.DB
+	apiClient            *unifiedapiclient.Client
+	ShowParkingPortal    bool
 }
 
 type passthrough struct {
@@ -38,6 +53,9 @@ type fqdn struct {
 
 var passThrough *passthrough
 
+// TenantID constant
+const TenantID = 1
+
 // NewProxy creates a new instance of proxy.
 // It sets request logger using rLogPath as output file or os.Stdout by default.
 // If whitePath of blackPath is not empty they are parsed to set endpoint lists.
@@ -46,9 +64,11 @@ func NewProxy(ctx context.Context) *Proxy {
 
 	passThrough = newProxyPassthrough(ctx)
 	passThrough.readConfig(ctx)
+	p.Configure(ctx)
 	return &p
 }
 
+// Refresh the configuration
 func (p *Proxy) Refresh(ctx context.Context) {
 	passThrough.readConfig(ctx)
 }
@@ -99,6 +119,8 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadGateway)
 		return
 	}
+
+	p.handleParking(ctx, w, r)
 
 	if r.URL.Path == "/kindle-wifi/wifistub.html" {
 		log.LoggerWContext(ctx).Debug(fmt.Sprintln(host, "KINDLE WIFI PROBE HANDLING"))
@@ -184,37 +206,43 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	log.LoggerWContext(ctx).Debug(fmt.Sprintln(host, "REVERSE"))
-	rp := httputil.NewSingleHostReverseProxy(&url.URL{
-		Scheme: "http",
-		Host:   host,
-	})
 
-	// Uses most defaults of http.DefaultTransport with more aggressive timeouts
-	rp.Transport = &http.Transport{
-		Proxy: http.ProxyFromEnvironment,
-		DialContext: (&net.Dialer{
-			Timeout:   2 * time.Second,
-			KeepAlive: 2 * time.Second,
-			DualStack: true,
-		}).DialContext,
-		MaxIdleConns:          100,
-		IdleConnTimeout:       90 * time.Second,
-		TLSHandshakeTimeout:   2 * time.Second,
-		ExpectContinueTimeout: 1 * time.Second,
-	}
-
-	t := time.Now()
-
-	// Pass the context in the request
-	r = r.WithContext(ctx)
-	rp.ServeHTTP(w, r)
-	log.LoggerWContext(ctx).Info(fmt.Sprintln(host, time.Since(t)))
+	p.reverse(ctx, w, r, host)
 }
 
 // Configure add default target in the deny list
-func (p *Proxy) Configure(ctx context.Context, port string) {
+func (p *Proxy) Configure(ctx context.Context) {
 	p.addToEndpointList(ctx, "localhost")
 	p.addToEndpointList(ctx, "127.0.0.1")
+
+	db, err := db.DbFromConfig(ctx)
+	sharedutils.CheckError(err)
+	p.Db = db
+
+	p.IP4log, err = p.Db.Prepare("select mac from ip4log where ip = ? AND tenant_id = ?")
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "httpd.dispatcher: database ip4log prepared statement error: %s", err)
+	}
+
+	p.IP6log, err = p.Db.Prepare("select mac from ip6log where ip = ? AND tenant_id = ?")
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "pfdns: database ip6log prepared statement error: %s", err)
+	}
+
+	p.ParkingSecurityEvent, err = p.Db.Prepare("Select count(*) from security_event where security_event.security_event_id='1300003' and mac=? and status='open' AND tenant_id = ?")
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "httpd.dispatcher: database security_event prepared statement error: %s", err)
+	}
+	p.apiClient = unifiedapiclient.NewFromConfig(ctx)
+
+	parking := pfconfigdriver.Config.PfConf.Parking
+
+	if parking.ShowParkingPortal == "enabled" {
+		p.ShowParkingPortal = true
+	} else {
+		p.ShowParkingPortal = false
+	}
+
 }
 
 func (p *passthrough) readConfig(ctx context.Context) {
@@ -266,9 +294,6 @@ func (p *passthrough) readConfig(ctx context.Context) {
 		var NetIndex net.IPNet
 		var portalURL url.URL
 
-		var portal_url fqdn
-		portal_url.FQDN = make(map[*net.IPNet]*url.URL)
-
 		var ConfNet pfconfigdriver.NetworkConf
 		ConfNet.PfconfigHashNS = key
 		pfconfigdriver.FetchDecodeSocket(ctx, &ConfNet)
@@ -300,6 +325,7 @@ func (p *passthrough) readConfig(ctx context.Context) {
 	p.PortalURL[index] = make(map[*net.IPNet]*url.URL)
 
 	p.PortalURL[index][&NetIndexDefault] = &portalURLDefault
+
 }
 
 // newProxyPassthrough instantiate a passthrough and return it
@@ -356,4 +382,127 @@ func (p *passthrough) checkDetectionMechanisms(ctx context.Context, e string) bo
 		}
 	}
 	return false
+}
+
+// HasSecurityEvents search for parking security event
+func (p *Proxy) HasSecurityEvents(ctx context.Context, mac string) bool {
+	securityEvent := false
+	var securityEventCount int
+	err := p.ParkingSecurityEvent.QueryRow(mac, 1).Scan(&securityEventCount)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "httpd.dispatcher: HasSecurityEvent %s %s\n", mac, err)
+	} else if securityEventCount != 0 {
+		securityEvent = true
+	}
+
+	return securityEvent
+}
+
+// IP2Mac search the mac associated to the ip
+func (p *Proxy) IP2Mac(ctx context.Context, ip string) (string, error) {
+	var (
+		mac string
+		err error
+	)
+	srcIP := net.ParseIP(ip)
+
+	if sharedutils.IsIPv4(srcIP) {
+		err = p.IP4log.QueryRow(ip, TenantID).Scan(&mac)
+	} else {
+		err = p.IP6log.QueryRow(ip, TenantID).Scan(&mac)
+	}
+
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "httpd.dispatcher: Ip2Mac mac for %s not found %s\n", ip, err)
+	}
+
+	return mac, err
+}
+
+func (p *Proxy) handleParking(ctx context.Context, w http.ResponseWriter, r *http.Request) {
+	var ipAddress string
+
+	fwdAddress := r.Header.Get("X-Forwarded-For")
+	if fwdAddress != "" {
+
+		ipAddress = fwdAddress
+
+		// If we got an array... grab the first IP
+		ips := strings.Split(fwdAddress, ", ")
+		if len(ips) > 1 {
+			ipAddress = ips[0]
+		}
+	}
+
+	if ipAddress != "" {
+		MAC, err := p.IP2Mac(ctx, ipAddress)
+
+		if err == nil {
+			if p.HasSecurityEvents(ctx, MAC) && p.ShowParkingPortal {
+				if r.RequestURI == "/release-parking" {
+					reqURL := r.URL
+					// Call the API
+					err = p.APIUnpark(ctx, MAC, ipAddress)
+					if err == nil {
+						reqURL.Path = "/back-on-network.html"
+					} else {
+						reqURL.Path = "/max-attempts.html"
+					}
+					r.URL = reqURL
+				}
+				log.LoggerWContext(ctx).Info("Parking detected for " + MAC)
+				p.reverse(ctx, w, r, "127.0.0.1:5252")
+			}
+		}
+	}
+}
+
+func (p *Proxy) reverse(ctx context.Context, w http.ResponseWriter, r *http.Request, host string) {
+
+	rp := httputil.NewSingleHostReverseProxy(&url.URL{
+		Scheme: "http",
+		Host:   host,
+	})
+
+	// Uses most defaults of http.DefaultTransport with more aggressive timeouts
+	rp.Transport = &http.Transport{
+		Proxy: http.ProxyFromEnvironment,
+		DialContext: (&net.Dialer{
+			Timeout:   2 * time.Second,
+			KeepAlive: 2 * time.Second,
+			DualStack: true,
+		}).DialContext,
+		MaxIdleConns:          100,
+		IdleConnTimeout:       90 * time.Second,
+		TLSHandshakeTimeout:   2 * time.Second,
+		ExpectContinueTimeout: 1 * time.Second,
+	}
+
+	t := time.Now()
+
+	// Pass the context in the request
+	r = r.WithContext(ctx)
+	rp.ServeHTTP(w, r)
+	log.LoggerWContext(ctx).Info(fmt.Sprintln("request proxied to "+host, time.Since(t)))
+}
+
+// APIUnpark use to unpark a device
+func (p *Proxy) APIUnpark(ctx context.Context, mac string, ip string) error {
+
+	var raw json.RawMessage
+
+	payload := map[string]string{"ip": ip}
+	data, err := json.Marshal(payload)
+
+	err = p.apiClient.CallWithStringBody(ctx, "POST", "/api/v1/node/"+mac+"/unpark", string(data), &raw)
+	if err != nil {
+		log.LoggerWContext(ctx).Error("API error: " + err.Error())
+		return err
+	}
+
+	if raw == nil {
+		log.LoggerWContext(ctx).Warn("Empty response from " + "POST" + " /api/v1/" + mac + "/unpark")
+		return errors.New("Empty response  from " + "POST" + " /api/v1/" + mac + "/unpark")
+	}
+	return nil
 }
