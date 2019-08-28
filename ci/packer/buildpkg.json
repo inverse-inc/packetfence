@@ -44,7 +44,8 @@
         {
             "type": "ansible",
             "playbook_file": "{{user `prov_dir`}}/site.yml",
-            "galaxy_file": "{{user `prov_dir`}}/requirements.yml"
+            "galaxy_file": "{{user `prov_dir`}}/requirements.yml",
+            "inventory_directory": "{{user `prov_dir`}}/inventory"
         },
         {
             "type": "file",
