@@ -5,6 +5,7 @@
         "builder_prefix": "pfbuild",
         "docker_user": "buildpkg",
         "pf_root": "../..",
+        "prov_dir": "provisionners",
         "tmp_dir": "/tmp",
         "go_version": "go1.9.3",
         "go_path": "/root/go",
@@ -40,6 +41,10 @@
         }
     ],
     "provisioners": [
+        {
+            "type": "ansible",
+            "playbook_file": "{{user `prov_dir`}}/site.yml"
+        },
         {
             "type": "file",
             "source": "{{user `pf_root`}}/rpm",
@@ -91,7 +96,7 @@
         },
         {
             "type": "shell",
-            "script": "provisionners/install-go-dependencies.sh",
+            "script": "{{user `prov_dir`}}/install-go-dependencies.sh",
             "environment_vars": ["GOPATH={{user `go_path`}}",
                                  "GO_REPO={{user `go_repo`}}",
                                  "EXTRA_PATH=go"
