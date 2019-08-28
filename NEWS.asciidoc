@@ -34,6 +34,7 @@ Enhancements
 * Added the radius's targeted IP address in the radius audit log (help in cluster mode)
 * pfperl-api port number changed
 * Autoreg for mac-auth with an authorize source
+* Parking portal has been moved in the haproxy and httpd.dispatcher services and deprecates the dedicated httpd.parking service
 
 Bug Fixes
 +++++++++
