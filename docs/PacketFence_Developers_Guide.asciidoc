@@ -1049,6 +1049,10 @@ http://packetfence.org/bugs/view.php?id=1085[issue #1085].
 * Add switch to the chart in `README.network-devices`
 
 
+== PacketFence builds
+
+include::../ci/packer/README.asciidoc[]
+
 == Developer recipes
 
 
