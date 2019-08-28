@@ -1,1 +1,17 @@
 === Packer
+
+To build PacketFence, we use link:http://packer.io[Packer] to create link:https://hub.docker.com/u/inverseinc[Docker images] that are then used in a GitLab pipeline.
+
+==== Prerequisites
+
+.Install following softwares:
+* http://packer.io/intro/getting-started/install.html[Packer] (>=1.4.2)
+* https://docs.docker.com/install/[Docker]
+
+==== How to build Docker images ?
+
+[source,bash]
+----
+cd ci/packer
+packer build buildpkg.json
+----
