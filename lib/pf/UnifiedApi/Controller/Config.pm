@@ -19,7 +19,7 @@ use pf::constants;
 use pf::UnifiedApi::OpenAPI::Generator::Config;
 use pf::UnifiedApi::GenerateSpec;
 use Mojo::Util qw(url_unescape);
-use pf::util qw(expand_csv);
+use pf::util qw(expand_csv isenabled);
 use pf::error qw(is_error);
 use pf::pfcmd::checkup ();
 use pf::UnifiedApi::Search::Builder::Config;
@@ -201,7 +201,7 @@ sub build_list_search_info {
                 exists $params->{$_}
                   ? ( $_ => $params->{$_} + 0 )
                   : ()
-            } qw(limit cursor raw)
+            } qw(limit cursor)
         ),
         (
             map {
@@ -209,6 +209,11 @@ sub build_list_search_info {
                   ? ( $_ => [expand_csv($params->{$_})] )
                   : ()
             } qw(sort fields)
+        ),
+        (
+            map {
+                $_ => isenabled($params->{$_})
+            } qw(raw)
         )
     };
     return 200, $info;
