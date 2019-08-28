@@ -80,6 +80,8 @@ our $TRIGGER_MAP = {
     "connection_type_change" => "Connection transport changed",
     "parking_detected" => "Parking detected",
     "node_discovered" => "Node discovered",
+    "new_dhcp_info_from_managed_network" => "DHCP packet received from managed network",
+    "new_dhcp_info_from_production_network" => "DHCP packet received from production network",
   },
   $TRIGGER_TYPE_PROVISIONER => {
     $TRIGGER_ID_PROVISIONER => "Check status",
