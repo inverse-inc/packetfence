@@ -242,7 +242,7 @@ mschap chrooted_mschap {
     # Call ntlm_auth through the logging wrapper. Make sure to preserve the -- separator to distinguish between
     # the args to the wrapper and those to the ntlm_auth executable itself
     ntlm_auth = "/usr/bin/sudo /usr/sbin/chroot /chroots/%{PacketFence-Domain} /usr/local/pf/bin/ntlm_auth_wrapper -p %%statsd_port%% -- \
-         --request-nt-key --username=%{%{control:AD-Samaccountname}:-%{%{Stripped-User-Name}:-%{mschap:User-Name:-None}}} --challenge=%{mschap:Challenge:-00} --nt-response=%{mschap:NT-Response:-00}"
+         --request-nt-key --username=%{%{control:AD-Samaccountname}:-%{%{Stripped-User-Name}:-%{mschap:User-Name:-None}}} --challenge=%{mschap:Challenge:-00} --nt-response=%{mschap:NT-Response:-00} %{PacketFence-NTLMv2-Only}"
 
 	# The default is to wait 10 seconds for ntlm_auth to
 	# complete.  This is a long time, and if it's taking that
@@ -385,7 +385,7 @@ mschap chrooted_mschap_machine {
 
         require_strong = yes
         ntlm_auth = "/usr/bin/sudo /usr/sbin/chroot /chroots/%{PacketFence-Domain} /usr/local/pf/bin/ntlm_auth_wrapper -p %%statsd_port%% -- \
-             --request-nt-key --username=%{mschap:User-Name:-None} --challenge=%{mschap:Challenge:-00} --nt-response=%{mschap:NT-Response:-00}"	
+             --request-nt-key --username=%{mschap:User-Name:-None} --challenge=%{mschap:Challenge:-00} --nt-response=%{mschap:NT-Response:-00} %{PacketFence-NTLMv2-Only}"
 
 
         allow_retry = no
@@ -398,7 +398,7 @@ mschap mschap_machine {
         require_encryption = yes
         require_strong = yes
         ntlm_auth = "/usr/local/pf/bin/ntlm_auth_wrapper -p %%statsd_port%% -- \
-             --request-nt-key --username=%{mschap:User-Name:-None} --challenge=%{mschap:Challenge:-00} --nt-response=%{mschap:NT-Response:-00}"	
+             --request-nt-key --username=%{mschap:User-Name:-None} --challenge=%{mschap:Challenge:-00} --nt-response=%{mschap:NT-Response:-00} %{PacketFence-NTLMv2-Only}"
         allow_retry = no
 	ntlm_auth_timeout = 3
 }

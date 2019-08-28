@@ -138,6 +138,14 @@ has_field 'registration' =>
              help => 'If this option is enabled, the device will be able to reach the Active Directory from the registration VLAN.' },
   );
 
+has_field 'ntlmv2_only' =>
+  (
+   type => 'Checkbox',
+   label => 'ntlmv2 only',
+   tags => { after_element => \&help,
+             help => 'If you enabled "Send NTLMv2 Response Only. Refuse LM & NTLM" (only allow ntlm v2) in Network Security: LAN Manager authentication level'},
+  );
+
 has_field 'ntlm_cache' =>
   (
    type => 'Toggle',

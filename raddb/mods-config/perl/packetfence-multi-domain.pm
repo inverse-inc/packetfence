@@ -77,6 +77,8 @@ sub authorize {
         $RAD_REQUEST{"PacketFence-Domain"} = $realm_config->{domain};
     }
 
+    $RAD_REQUEST{"PacketFence-NTLMv2-Only"} = $realm_config->{ntlmv2_only} ? '--allow-mschapv2' : '',
+
     # If it doesn't go into any of the conditions above, then the behavior will be the same as before (non chrooted ntlm_auth)
     return $RADIUS::RLM_MODULE_UPDATED;
 }

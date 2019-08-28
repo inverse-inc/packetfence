@@ -1968,6 +1968,9 @@ The useragent and user_agent security event triggers have been deprecated. Perfo
 Database schema
 ^^^^^^^^^^^^^^^
 
+Database schema
+^^^^^^^^^^^^^^^
+
 Changes have been made to the database schema. You will need to update it accordingly.
 An SQL upgrade script has been provided to upgrade the database from the X.X schema to X.Y.
 

@@ -38,4 +38,5 @@ DEFAULT
     PacketFence-Tenant-Id                 !* ANY,
     PacketFence-ShortName                 !* ANY,
     PacketFence-Proxied-From              !* ANY,
-    PacketFence-UserName                  !* ANY
+    PacketFence-UserName                  !* ANY,
+    PacketFence-NTLMv2-Only               !* ANY

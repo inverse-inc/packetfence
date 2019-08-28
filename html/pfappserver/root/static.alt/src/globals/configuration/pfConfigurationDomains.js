@@ -224,6 +224,19 @@ export const pfConfigurationDomainViewFields = (context = {}) => {
           ]
         },
         {
+          label: i18n.t('ntlmv2 only'),
+          text: i18n.t('If you enabled "Send NTLMv2 Response Only. Refuse LM & NTLM" (only allow ntlm v2) in Network Security: LAN Manager authentication level'),
+          fields: [
+            {
+              key: 'ntlmv2_only',
+              component: pfFormRangeToggle,
+              attrs: {
+                values: { checked: '1', unchecked: '0' }
+              }
+            }
+          ]
+        },
+        {
           label: i18n.t('Allow on registration'),
           text: i18n.t('If this option is enabled, the device will be able to reach the Active Directory from the registration VLAN.'),
           fields: [
