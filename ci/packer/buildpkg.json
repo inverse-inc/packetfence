@@ -60,7 +60,18 @@
             "environment_vars": ["CI_BUILDPKG_DEP_ONLY=yes",
                                  "CI_COMMIT_REF_NAME=fakebranch"
                                 ]
-
+        },
+        {
+            "type": "shell",
+            "inline": ["yum clean all"],
+            "only": ["{{user `builder_prefix`}}-centos7"]
+        },
+        {
+            "type": "shell",
+            "inline": ["apt-get clean"],
+            "only": ["{{user `builder_prefix`}}-stretch",
+                     "{{user `builder_prefix`}}-buster"
+                    ]
         },
         {
             "type": "shell",
