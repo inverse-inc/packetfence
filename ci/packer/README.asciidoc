@@ -41,4 +41,10 @@ We use Ansible to cover this steps. Python is already installed in Docker images
 ----
 cd ci/packer
 packer build buildpkg.json
+
+# only run this builder
+packer -only="pfbuild-centos7" buildpkg.json
+
+# ask what to do on error, if you want to look in container
+packer build -on-error ask -only="pfbuild-centos7" buildpkg.json
 ----
