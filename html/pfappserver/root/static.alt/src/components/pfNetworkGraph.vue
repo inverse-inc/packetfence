@@ -691,7 +691,7 @@ export default {
                 case 'node':
                   const { source: { id: switchId = 0 } = {} } = this.localLinks.find(l => l.target.id === node.id)
                   i = coordSwitchIndexes[switchId].nodes.findIndex(id => id === node.id)
-                  a = coordSwitchIndexes[switchId].a + (i * (360 / coordSwitchIndexes[switchId].nodes.length))
+                  a = coordSwitchIndexes[switchId].a + (((coordSwitchIndexes[switchId].nodes.length % 2 === 0) ? 1.5 : 1 ) * i * (360 / coordSwitchIndexes[switchId].nodes.length))
                   d = this.dimensions.width / 8
                   return getCoordFromCoordAngle(coordSwitchIndexes[switchId].x, coordSwitchIndexes[switchId].y, a, d).x
               }
@@ -713,7 +713,7 @@ export default {
                 case 'node':
                   const { source: { id: switchId = 0 } = {} } = this.localLinks.find(l => l.target.id === node.id)
                   i = coordSwitchIndexes[switchId].nodes.findIndex(id => id === node.id)
-                  a = coordSwitchIndexes[switchId].a + (i * (360 / coordSwitchIndexes[switchId].nodes.length))
+                  a = coordSwitchIndexes[switchId].a + (((coordSwitchIndexes[switchId].nodes.length % 2 === 0) ? 1.5 : 1 ) * i * (360 / coordSwitchIndexes[switchId].nodes.length))
                   d = this.dimensions.width / 8
                   return getCoordFromCoordAngle(coordSwitchIndexes[switchId].x, coordSwitchIndexes[switchId].y, a, d).y
               }
