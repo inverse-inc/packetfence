@@ -1,19 +1,15 @@
 ---
-gitlab_buildpkg_tools__ppa: []
+gitlab_buildpkg_tools__deb_keys:
+  - 'http://inverse.ca/downloads/APT-GPG-KEY-PACKETFENCE-DEBIAN'
+  - 'https://deb.nodesource.com/gpgkey/nodesource.gpg.key'
+
 gitlab_buildpkg_tools__deb_deps_repos:
   - name: packetfence-devel
-    baseurl: http://inverse.ca/downloads/PacketFence
-    gpgkey_url: http://inverse.ca/downloads/APT-GPG-KEY-PACKETFENCE-DEBIAN
-    extra_path: debian-devel
-    pool: '{{ ansible_distribution_release }}'
+    baseurl: 'http://inverse.ca/downloads/PacketFence/debian-devel {{ ansible_distribution_release }} {{ ansible_distribution_release }}'
   - name: packetfence
-    baseurl: http://inverse.ca/downloads/PacketFence
-    gpgkey_url: http://inverse.ca/downloads/APT-GPG-KEY-PACKETFENCE-DEBIAN
-    pool: '{{ ansible_distribution_release }}'
+    baseurl: 'http://inverse.ca/downloads/PacketFence/debian {{ ansible_distribution_release }} {{ ansible_distribution_release }}'
   - name: nodejs
-    baseurl: https://deb.nodesource.com/node_12.x
-    extra_path: ''
-    gpgkey_url: https://deb.nodesource.com/gpgkey/nodesource.gpg.key
+    baseurl: 'https://deb.nodesource.com/node_12.x {{ ansible_distribution_release }} main'
 
 # we only add repos, packages install will occur
 # during build depencies install from SPEC files
