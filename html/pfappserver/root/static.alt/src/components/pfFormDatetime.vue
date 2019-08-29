@@ -103,7 +103,8 @@ export default {
       type: String
     },
     config: {
-      type: Object
+      type: Object,
+      default: () => ({})
     },
     min: {
       type: String
@@ -244,7 +245,7 @@ export default {
       let [amount, key] = this.moments[index].split(' ', 2)
       amount = parseInt(amount)
       // allow [CTRL/CMD]+[CLICK] for cumulative change
-      const datetimeFormat = this.config.datetimeFormat
+      const datetimeFormat = this.config.datetimeFormat || this.defaultConfig.datetimeFormat
       const base = (event.actionKey || event.metaKey) ? parse(this.inputValue, datetimeFormat) || new Date() : new Date()
       if (validMomentKeys.includes(key)) {
         switch (key) {
