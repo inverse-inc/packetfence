@@ -123,7 +123,11 @@ is_deeply(
                 status => {
                     type => 'string',
                     description => 'Enabled',
-                }
+                },
+                ntlmv2_only => {
+                    type => 'string',
+                    description => 'If you enabled "Send NTLMv2 Response Only. Refuse LM & NTLM" (only allow ntlm v2) in Network Security: LAN Manager authentication level',
+                },
             },
             required => [qw(
                 id
