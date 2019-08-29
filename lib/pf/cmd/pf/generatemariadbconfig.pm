@@ -75,7 +75,7 @@ sub _run {
 
             db_config => $Config{database},
         );
-    } elsif ($Config{database_advanced}{other_members} ne "" ) {
+    } elsif ($Config{database_advanced}{other_members} ne "" && $Config{database_advanced}{masterslave} eq "OFF") {
         %vars = (
             %vars,
 
