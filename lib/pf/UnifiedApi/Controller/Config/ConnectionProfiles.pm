@@ -392,8 +392,7 @@ sub mergePaths {
             },
             no_chdir => 1
         },
-        $templateDir,
-        @parentDirs
+        grep { -e $_ } ( $templateDir, @parentDirs)
     );
 
     $root = $paths{''};;
