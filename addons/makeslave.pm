@@ -78,7 +78,7 @@ while (my $row = <$fh>) {
 }
 
 $output = `sudo mysql -u root -p'$mysql_root_password' -e "SET GLOBAL gtid_slave_pos = '$gtid'"`;
-$output = `sudo mysql -u root -p'$mysql_root_password' -e "CHANGE MASTER TO MASTER_HOST='mysql_master_ip', MASTER_PORT=3306, MASTER_USER='$replication_user', MASTER_PASSWORD='$replication_password', MASTER_USE_GTID=slave_pos"`;
+$output = `sudo mysql -u root -p'$mysql_root_password' -e "CHANGE MASTER TO MASTER_HOST='$mysql_master_ip', MASTER_PORT=3306, MASTER_USER='$replication_user', MASTER_PASSWORD='$replication_password', MASTER_USE_GTID=slave_pos"`;
 
 $output = `sudo mysql -u root -p'$mysql_root_password' -e "START SLAVE"`;
 
