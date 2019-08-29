@@ -158,7 +158,7 @@ export default {
                 {
                   title: this.$i18n.t('CPU usage'),
                   metric: 'system.cpu',
-                  mode: modes.COMBINED,
+                  mode: modes.SINGLE,
                   library: libs.DYGRAPH,
                   params: {
                     dimensions: 'user,system',
