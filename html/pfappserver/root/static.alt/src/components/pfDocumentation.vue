@@ -8,7 +8,7 @@
           <b-button-close @click="toggleFullscreen" v-b-tooltip.hover.left.d300 :title="$t('Show Fullscreen')" class="ml-3"><icon name="expand"></icon></b-button-close>
         </template>
         <b-button-close v-else @click="toggleFullscreen" v-b-tooltip.hover.left.d300 :title="$t('Exit Fullscreen')" class="ml-3"><icon name="compress"></icon></b-button-close>
-        <h4 class="d-inline mb-0 mr-3">{{ title }}</h4>
+        <h4 class="d-inline mb-0 mr-3"><icon class="mr-2" name="book"></icon>{{ title }}</h4>
       </b-card-header>
       <b-row no-gutters>
         <b-col md="3" xl="2" class="pf-sidebar d-print-none" ref="documentList">
@@ -19,9 +19,7 @@
                 :disabled="isLoading"
                 exact-active-class="active"
                 @click.stop.prevent="loadDocument(document)">
-                <div class="pf-sidebar-item">
-                  {{ document.text }} <icon class="mx-1" name="info-circle" v-show="document.text === title"></icon>
-                </div>
+                <div class="pf-sidebar-item">{{ document.text }}</div>
               </b-nav-item>
             </b-nav>
             <!-- info + support link -->

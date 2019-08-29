@@ -1,6 +1,6 @@
 <template>
   <span @click="loadHelp()">
-    <icon class="pf-button-help text-secondary" name="info-circle"
+    <icon class="pf-button-help text-secondary" name="regular/question-circle"
       :title="$t('Click to view {documentName}', { documentName })" v-b-tooltip.hover.top.d300
       v-bind="$attrs"
     ></icon>

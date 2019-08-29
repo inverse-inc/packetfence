@@ -28,7 +28,7 @@
             <b-dropdown-item to="/logout">{{ $t('Log out') }}</b-dropdown-item>
           </b-nav-item-dropdown>
           <b-nav-item @click="toggleDocumentationViewer" :active="showDocumentationViewer" v-b-tooltip.hover.bottom.d300 title="Alt + Shift + H">
-            <icon name="info-circle"></icon>
+            <icon name="question-circle"></icon>
           </b-nav-item>
           <b-nav-item-dropdown class="pf-label" right no-caret>
             <template slot="button-content">
