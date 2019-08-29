@@ -57,16 +57,20 @@
 
         <b-row align-h="between" align-v="center">
           <b-col cols="auto" class="mr-auto">
-...
+                <b-form inline class="mb-0">
+                  <b-button-group class="mr-3" size="sm">
+                    <b-button v-for="layout in layouts" :key="layout" @click="options.layout = layout" :variant="(options.layout === layout) ? 'primary' : 'light'">{{ layout }}</b-button>
+                  </b-button-group>
+                </b-form>
           </b-col>
           <b-col cols="auto">
             <b-container fluid>
               <b-row align-v="center">
                 <b-form inline class="mb-0">
-                  <b-form-select class="mb-3 mr-3" size="sm" v-model="options.palette" :options="palettes" :disabled="isLoading"/>
+                  <b-form-select class="mr-3" size="sm" v-model="options.palette" :options="palettes" :disabled="isLoading"/>
                 </b-form>
                 <b-form inline class="mb-0">
-                  <b-form-select class="mb-3 mr-3" size="sm" v-model="limit" :options="[25,50,100,200,500,1000]" :disabled="isLoading" @input="onSubmit"/>
+                  <b-form-select class="mr-3" size="sm" v-model="limit" :options="[25,50,100,200,500,1000]" :disabled="isLoading" @input="onSubmit"/>
                 </b-form>
               </b-row>
             </b-container>
@@ -127,7 +131,7 @@ export default {
       links: [],
       options: {
         layout: 'radial',
-        legendPosition: 'bottom-right',
+        legendPosition: 'top-right',
         palette: 'status', // autoreg|status|online|voip
         miniMapHeight: undefined,
         miniMapWidth: 200,
@@ -138,6 +142,7 @@ export default {
         padding: 25,
         tooltipDistance: 50
       },
+      layouts: ['radial', 'tree'], // available layouts
       palettes: ['autoreg', 'status', 'online', 'voip'], // available palettes
       pollingIntervalMs: 60000,
       pollingInterval: false,

@@ -159,7 +159,12 @@ https://flowingdata.com/2012/08/02/how-to-make-an-interactive-network-visualizat
       v-bind="tooltipAnchorAttrs(tooltip)">
       <div class="tt-container">
         <div class="tt-contents">
-          <pre>{{ JSON.stringify(tooltip, null, 2) }}</pre>
+          <!-- NODE -->
+          <pf-network-graph-tooltip-node v-if="['node'].includes(tooltip.node.type)"
+            :id="tooltip.node.id"/>
+          <pf-network-graph-tooltip-switch v-else-if="['switch', 'unknown'].includes(tooltip.node.type)"
+            :id="tooltip.node.id"/>
+          <pre v-else>{{ JSON.stringify(tooltip, null, 2) }}</pre>
         </div>
       </div>
     </div>
@@ -167,7 +172,7 @@ https://flowingdata.com/2012/08/02/how-to-make-an-interactive-network-visualizat
     <!-- legend -->
     <div v-if="!lastX && !lastY" :class="[ 'legend', config.legendPosition ]" :style="{ padding: `${this.config.padding}px` }">
       <ul class="mb-0">
-        <li v-for="legend in legends" :class="legend.color">{{ legend.text }}</li>
+        <li v-for="legend in legends" :class="legend.color">{{ legend.text }} <span v-if="legend.count > 0">({{ legend.count }})</span></li>
       </ul>
     </div>
 
@@ -226,8 +231,16 @@ const cleanNodeProperties = (node = {}) => {
 
 require('typeface-b612-mono') // custom pixel font
 
+
+import pfNetworkGraphTooltipNode from '@/components/pfNetworkGraphTooltipNode'
+import pfNetworkGraphTooltipSwitch from '@/components/pfNetworkGraphTooltipSwitch'
+
 export default {
   name: 'pf-network-graph',
+  components: {
+    pfNetworkGraphTooltipNode,
+    pfNetworkGraphTooltipSwitch
+  },
   props: {
     dimensions: { // svg dimensions
       type: Object,
@@ -478,7 +491,7 @@ export default {
       if (Object.keys(this.palettes).includes(this.config.palette)) {
         const palette = this.palettes[this.config.palette]
         return Object.keys(palette).map(key => {
-          return { color: palette[key], text: `${this.config.palette}: ${key}`}
+          return { color: palette[key], text: `${this.config.palette}: ${key}`, count: this.localNodes.filter(node => node.properties[this.config.palette] === key).length}
         })
       }
       return []
@@ -503,103 +516,216 @@ export default {
       }
     },
     force () {
-        this.simulation
+      /* `collide` force - prevents nodes from overlapping */
+      this.simulation.force('collide', d3.forceCollide()
+        .radius((d) => {
+          const { type } = d
+          switch (type) {
+            case 'packetfence':
+              return 64 + 2
+            case 'switch':
+            case 'unknown':
+              return 32 + 2
+            case 'node':
+            default:
+              return 16 + 2
+          }
+        })
+        .strength(0.125)
+        .iterations(16)
+      )
 
-        //.alphaDecay(1 - Math.pow(0.001, 0.0000075 * this.localNodes.length)) // default: 1 - Math.pow(0.001 / 1 / 300)
+      /* `charge` force - repel nodes from each other */
+      /*
+      this.simulation.force('charge', d3.forceManyBody()
+        .strength(-10)
+      )
+      */
 
+      const orderedSwitchIds = this.localLinks.filter(link => ['switch', 'unknown'].includes(link.target.type)).sort((a, b) => {
+        return (a.source.id > b.source.id) ? 1 : -1
+      }).map(link => link.target.id)
 
-        /*
-        .force('center', d3.forceCenter()
-          .x(this.dimensions.width / 2)
-          .y(this.dimensions.height / 2)
-        )
-        */
+      const orderedNodeIds = this.localLinks.filter(link => link.target.type === 'node').sort((a, b) => {
+        return (a.source.id === b.source.id)
+          ? (a.target.id > b.target.id) ? 1 : -1
+          : (a.source.id > b.source.id) ? 1 : -1
+      }).map(link => link.target.id)
 
-        /* `charge` force - repel nodes from each other */
-        .force('charge', d3.forceManyBody()
-          .strength(-10)
-        )
+      const minMaxSwitchIndexes = orderedSwitchIds.reduce((map, switchId, index) => {
+        if (!(switchId in map)) {
+          map[switchId] = {
+            min: orderedNodeIds.reduce((min, nodeId, index) => {
+              const link = this.localLinks.find(link => { return (link.source.id === switchId && link.target.id === nodeId) })
+              if (link) min = Math.min(min, index)
+              return min
+            }, orderedNodeIds.length),
+            max: orderedNodeIds.reduce((max, nodeId, index) => {
+              const link = this.localLinks.find(link => { return (link.source.id === switchId && link.target.id === nodeId) })
+              if (link) max = Math.max(max, index)
+              return max
+            }, 0)
+          }
+        }
+        return map
+      }, {})
 
-        /* `collide` force - prevents nodes from overlapping */
-        .force('collide', d3.forceCollide()
-          .radius((d) => {
-            const { type } = d
-            switch (type) {
-              case 'packetfence':
-                return 64 + 2
-              case 'switch':
-              case 'unknown':
-                return 32 + 2
-              default:
-                return 16 + 2
+      switch(this.config.layout) {
+        case 'radial':
+
+          /* `radial` force - orient on circle of specified radius centered at x, y */
+          this.simulation.force('radial', d3.forceRadial()
+            .radius((node, index) => {
+              const { type } = node
+              switch (type) {
+                case 'packetfence':
+                  return 0
+                case 'switch':
+                case 'unknown':
+                  return this.dimensions.height * 0.5 // inner ring: 50% of height
+                default:
+                  return this.dimensions.height // outer ring: 100% of height
+              }
+            })
+            .x(this.dimensions.width / 2)
+            .y(this.dimensions.height / 2)
+            .strength((node, index) => {
+              const { type } = node
+              switch (type) {
+                case 'packetfence':
+                  return 0
+                case 'switch':
+                case 'unknown':
+                  return 1
+                default:
+                  return 0.2
+              }
+            })
+          )
+
+          this.simulation.force('x', d3.forceX()
+            .x((node, index) => {
+              const x1 = this.dimensions.width / 2
+              const y1 = this.dimensions.height / 2
+              let i // index
+              let a // angle
+              let d // distance
+              switch (node.type) {
+                case 'packetfence':
+                  return x1
+                case 'switch':
+                case 'unknown':
+                  a = (((minMaxSwitchIndexes[node.id].min * (360 / orderedNodeIds.length)) + (minMaxSwitchIndexes[node.id].max * (360 / orderedNodeIds.length))) / 2) % 360
+                  d = this.dimensions.width / 4
+                  break
+                case 'node':
+                  i = orderedNodeIds.findIndex(id => id === node.id)
+                  a = i * (360 / orderedNodeIds.length)
+                  d = this.dimensions.width / 2
+                  break
+              }
+              return getCoordFromCoordAngle(x1, y1, a, d).x
+            })
+            .strength(0.25)
+          )
+
+          this.simulation.force('y', d3.forceY()
+            .y((node, index) => {
+              const x1 = this.dimensions.width / 2
+              const y1 = this.dimensions.height / 2
+              let i // index
+              let a // angle
+              let d // distance
+              switch (node.type) {
+                case 'packetfence':
+                  return y1
+                case 'switch':
+                case 'unknown':
+                  a = (((minMaxSwitchIndexes[node.id].min * (360 / orderedNodeIds.length)) + (minMaxSwitchIndexes[node.id].max * (360 / orderedNodeIds.length))) / 2) % 360
+                  d = this.dimensions.height / 4
+                  break
+                case 'node':
+                  i = orderedNodeIds.findIndex(id => id === node.id)
+                  a = i * (360 / orderedNodeIds.length)
+                  d = this.dimensions.height / 2
+                  break
+              }
+              return getCoordFromCoordAngle(x1, y1, a, d).y
+            })
+            .strength(0.25)
+          )
+          break
+
+        case 'tree':
+
+          const coordSwitchIndexes = orderedSwitchIds.reduce((map, switchId, index) => {
+            if (!(switchId in map)) {
+              const i = orderedSwitchIds.findIndex(id => id === switchId) // index
+              const a = i * (360 / orderedSwitchIds.length) // angle
+              const d = Math.min(this.dimensions.width, this.dimensions.height) * 3 / 8 // distance
+              map[switchId] = {
+                ...getCoordFromCoordAngle(this.dimensions.width / 2, this.dimensions.height / 2, a, d),
+                ...{
+                  a,
+                  d,
+                  nodes: this.localLinks.filter(link => link.source.id === switchId).sort((a, b) => {
+                    return (a.target.id > b.target.id) ? 1 : -1
+                  }).map(link => link.target.id)
+                }
+              }
             }
-          })
-          .strength(0.125)
-          .iterations(16)
-        )
+            return map
+          }, {})
 
-        /* `radial` force - orient on circle of specified radius centered at x, y */
-        .force('radial', d3.forceRadial()
-          .radius((node, index) => {
-            const { type } = node
-            switch (type) {
-              case 'packetfence':
-                return 0
-              case 'switch':
-              case 'unknown':
-                return this.dimensions.height * 0.5 // inner ring: 50% of height
-              default:
-                return this.dimensions.height // outer ring: 100% of height
-            }
-          })
-          .x(this.dimensions.width / 2)
-          .y(this.dimensions.height / 2)
-          .strength((node, index) => {
-            const { type } = node
-            switch (type) {
-              case 'packetfence':
-                return 0
-              case 'switch':
-              case 'unknown':
-                return 1
-              default:
-                return 0.5
-            }
-          })
-        )
+          this.simulation.force('x', d3.forceX()
+            .x((node, index) => {
+              let i // index
+              let a // angle
+              let d // distance
+              switch (node.type) {
+                case 'packetfence':
+                  return this.dimensions.width / 2
+                case 'switch':
+                case 'unknown':
+                 return coordSwitchIndexes[node.id].x
+                case 'node':
+                  const { source: { id: switchId = 0 } = {} } = this.localLinks.find(l => l.target.id === node.id)
+                  i = coordSwitchIndexes[switchId].nodes.findIndex(id => id === node.id)
+                  a = coordSwitchIndexes[switchId].a + (i * (360 / coordSwitchIndexes[switchId].nodes.length))
+                  d = this.dimensions.width / 8
+                  return getCoordFromCoordAngle(coordSwitchIndexes[switchId].x, coordSwitchIndexes[switchId].y, a, d).x
+              }
+            })
+            .strength(0.25)
+          )
 
-        //.force('link', d3.forceLink(this.localLinks))
-        //.force('x', d3.forceX())
-        //.force('y', d3.forceY())
-        /*
-        .force('link', d3.forceLink(this.localLinks)
-          .distance((link, index) => {
-            const { target: { type } = {} } = link
-            switch (type) {
-              case 'switch':
-              case 'unknown':
-                return 200  // default
-              default:
-                return 100
-            }
-          })
-          .strength((link, index) => {
-            const { source: { id: sourceId } = {}, target: { id: targetId, type } = {} } = link
-            switch (type) {
-              case 'switch':
-              case 'unknown':
-                return 1
-              default:
-                // reduce the strength of links connected to heavily-connected nodes, improving stability
-                const sourceLinks = this.localLinks.filter(l => l.source.id === sourceId).length
-                const targetLinks = this.localLinks.filter(l => l.target.id === targetId).length
-                return 1 / Math.max(sourceLinks, targetLinks)
-            }
-          })
-        )
-        */
+          this.simulation.force('y', d3.forceY()
+            .y((node, index) => {
+              let i // index
+              let a // angle
+              let d // distance
+              switch (node.type) {
+                case 'packetfence':
+                  return this.dimensions.height / 2
+                case 'switch':
+                case 'unknown':
+                 return coordSwitchIndexes[node.id].y
+                case 'node':
+                  const { source: { id: switchId = 0 } = {} } = this.localLinks.find(l => l.target.id === node.id)
+                  i = coordSwitchIndexes[switchId].nodes.findIndex(id => id === node.id)
+                  a = coordSwitchIndexes[switchId].a + (i * (360 / coordSwitchIndexes[switchId].nodes.length))
+                  d = this.dimensions.width / 8
+                  return getCoordFromCoordAngle(coordSwitchIndexes[switchId].x, coordSwitchIndexes[switchId].y, a, d).y
+              }
+            })
+            .strength(0.25)
+          )
+          break
 
-        .alpha(1)
+        default:
+          throw new Error(`Unhandled layout ${this.config.layout}`)
+      }
+      this.simulation.alpha(1)
     },
     linkCoords (link) {
       const { source: { index: sourceIndex = null } = {}, target: { index: targetIndex = null} = {} } = link
@@ -727,10 +853,12 @@ export default {
       }
     },
     mouseOverNode (node, event = null) {
+      this.stop()
       this.highlightNodeById(node.id) // highlight node
       this.highlight = (node.type === 'node') ? this.color(node) : 'none'
     },
     mouseOutNode (node, event = null) {
+      this.start()
       this.highlightNodeById(null) // unhighlight node
       this.highlight = null
     },
@@ -981,9 +1109,17 @@ export default {
         })
         this.stop() // stop simulation
         this.$set(this, 'localLinks', links)
-        // this.simulation.force('link').links(this.localLinks) // push links to simulation
         this.start() // start simulation
         this.force() // reset forces
+      }
+    },
+    'config.layout': {
+      handler: function (a, b) {
+        if (this.simulation && a !== b) {
+          this.stop()
+          this.init()
+          this.start()
+        }
       }
     }
   }
@@ -1066,7 +1202,7 @@ export default {
         border-style: solid;
         border-width: 2px;
         box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.125);
-        padding: 12px;
+        z-index: 4;
       }
     }
   }
