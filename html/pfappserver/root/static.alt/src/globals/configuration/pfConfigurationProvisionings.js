@@ -1140,7 +1140,7 @@ export const pfConfigurationProvisioningViewFields = (context) => {
             pfConfigurationProvisioningFields.host(context),
             pfConfigurationProvisioningFields.protocol(context),
             pfConfigurationProvisioningFields.table_for_mac(context),
-            pfConfigurationProvisioningFields.table_for_agent(context),
+            pfConfigurationProvisioningFields.table_for_agent(context)
           ]
         }
       ]
