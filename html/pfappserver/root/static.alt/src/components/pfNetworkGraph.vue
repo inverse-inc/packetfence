@@ -172,7 +172,7 @@ https://flowingdata.com/2012/08/02/how-to-make-an-interactive-network-visualizat
     <!-- legend -->
     <div v-if="!lastX && !lastY" :class="[ 'legend', config.legendPosition ]" :style="{ padding: `${this.config.padding}px` }">
       <ul class="mb-0">
-        <li v-for="legend in legends" :class="legend.color">{{ legend.text }} <span v-if="legend.count > 0">({{ legend.count }})</span></li>
+        <li v-for="legend in legends" :key="legend.color" :class="legend.color">{{ legend.text }} <span v-if="legend.count > 0">({{ legend.count }})</span></li>
       </ul>
     </div>
 
@@ -180,6 +180,9 @@ https://flowingdata.com/2012/08/02/how-to-make-an-interactive-network-visualizat
 </template>
 
 <script>
+import pfNetworkGraphTooltipNode from '@/components/pfNetworkGraphTooltipNode'
+import pfNetworkGraphTooltipSwitch from '@/components/pfNetworkGraphTooltipSwitch'
+
 // import multiple `d3-*` micro-libraries into same namespace,
 //  this has a smaller footprint than using full standalone `d3` library.
 const d3 = {
@@ -230,10 +233,6 @@ const cleanNodeProperties = (node = {}) => {
 }
 
 require('typeface-b612-mono') // custom pixel font
-
-
-import pfNetworkGraphTooltipNode from '@/components/pfNetworkGraphTooltipNode'
-import pfNetworkGraphTooltipSwitch from '@/components/pfNetworkGraphTooltipSwitch'
 
 export default {
   name: 'pf-network-graph',
@@ -446,13 +445,12 @@ export default {
         let tooltipCoords = {}
         let tooltipCoordsBounded = {}
         switch (index) {
-
           case 0: // inner node (target only)
             if (nodes.length === 1) { // only the center node is highlighted
               tooltipAngle = 270 // upward
             } else {
               targetAngle = getAngleFromCoords(node.x, node.y, nodes[index + 1].x, nodes[index + 1].y)
-              tooltipAngle = (180 + targetAngle) % 360  // reverse
+              tooltipAngle = (180 + targetAngle) % 360 // reverse
             }
             tooltipCoords = getCoordFromCoordAngle(node.x, node.y, tooltipAngle, this.tooltipDistance)
             tooltipCoordsBounded = this.coordBounded(tooltipCoords)
@@ -491,7 +489,7 @@ export default {
       if (Object.keys(this.palettes).includes(this.config.palette)) {
         const palette = this.palettes[this.config.palette]
         return Object.keys(palette).map(key => {
-          return { color: palette[key], text: `${this.config.palette}: ${key}`, count: this.localNodes.filter(node => node.properties[this.config.palette] === key).length}
+          return { color: palette[key], text: `${this.config.palette}: ${key}`, count: this.localNodes.filter(node => node.properties[this.config.palette] === key).length }
         })
       }
       return []
@@ -500,7 +498,6 @@ export default {
   methods: {
     init () {
       this.simulation = d3.forceSimulation(this.localNodes)
-        //.velocityDecay(0.5) // default: 0.4
       this.force()
     },
     start () {
@@ -532,7 +529,7 @@ export default {
           }
         })
         .strength(0.125)
-        .iterations(16)
+        .iterations(4)
       )
 
       /* `charge` force - repel nodes from each other */
@@ -570,8 +567,9 @@ export default {
         return map
       }, {})
 
-      switch(this.config.layout) {
+      switch (this.config.layout) {
         case 'radial':
+          this.simulation.velocityDecay(0.4) // default: 0.4
 
           /* `radial` force - orient on circle of specified radius centered at x, y */
           this.simulation.force('radial', d3.forceRadial()
@@ -657,6 +655,7 @@ export default {
           break
 
         case 'tree':
+          this.simulation.velocityDecay(0.5) // default: 0.4
 
           const coordSwitchIndexes = orderedSwitchIds.reduce((map, switchId, index) => {
             if (!(switchId in map)) {
@@ -687,11 +686,11 @@ export default {
                   return this.dimensions.width / 2
                 case 'switch':
                 case 'unknown':
-                 return coordSwitchIndexes[node.id].x
+                  return coordSwitchIndexes[node.id].x
                 case 'node':
                   const { source: { id: switchId = 0 } = {} } = this.localLinks.find(l => l.target.id === node.id)
                   i = coordSwitchIndexes[switchId].nodes.findIndex(id => id === node.id)
-                  a = coordSwitchIndexes[switchId].a + (((coordSwitchIndexes[switchId].nodes.length % 2 === 0) ? 1.5 : 1 ) * i * (360 / coordSwitchIndexes[switchId].nodes.length))
+                  a = coordSwitchIndexes[switchId].a + (((coordSwitchIndexes[switchId].nodes.length % 2 === 0) ? 1.5 : 1) * i * (360 / coordSwitchIndexes[switchId].nodes.length))
                   d = this.dimensions.width / 8
                   return getCoordFromCoordAngle(coordSwitchIndexes[switchId].x, coordSwitchIndexes[switchId].y, a, d).x
               }
@@ -709,11 +708,11 @@ export default {
                   return this.dimensions.height / 2
                 case 'switch':
                 case 'unknown':
-                 return coordSwitchIndexes[node.id].y
+                  return coordSwitchIndexes[node.id].y
                 case 'node':
                   const { source: { id: switchId = 0 } = {} } = this.localLinks.find(l => l.target.id === node.id)
                   i = coordSwitchIndexes[switchId].nodes.findIndex(id => id === node.id)
-                  a = coordSwitchIndexes[switchId].a + (((coordSwitchIndexes[switchId].nodes.length % 2 === 0) ? 1.5 : 1 ) * i * (360 / coordSwitchIndexes[switchId].nodes.length))
+                  a = coordSwitchIndexes[switchId].a + (((coordSwitchIndexes[switchId].nodes.length % 2 === 0) ? 1.5 : 1) * i * (360 / coordSwitchIndexes[switchId].nodes.length))
                   d = this.dimensions.width / 8
                   return getCoordFromCoordAngle(coordSwitchIndexes[switchId].x, coordSwitchIndexes[switchId].y, a, d).y
               }
@@ -728,7 +727,7 @@ export default {
       this.simulation.alpha(1)
     },
     linkCoords (link) {
-      const { source: { index: sourceIndex = null } = {}, target: { index: targetIndex = null} = {} } = link
+      const { source: { index: sourceIndex = null } = {}, target: { index: targetIndex = null } = {} } = link
       const {
         coords: {
           [sourceIndex]: { x: x1 = 0, y: y1 = 0 } = {},
@@ -1067,7 +1066,6 @@ export default {
         this.stop() // stop simulation
         $u.forEach(id => {
           let aIndex = $a[id]
-          let bIndex = $b[id]
           let lIndex = this.localNodes.findIndex(node => node.id === id)
           switch (true) {
             case (id in $a && id in $b): // update
