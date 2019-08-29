@@ -1,5 +1,25 @@
 ---
-- hosts: default
+- hosts: centos
+  name: install RPM keys and repos
+  gather_facts: False
+  become: True
+
+  vars:
+    upstream_rpm_keys:
+      - src_filename: nodesource.rpm.key
+        dst_filename: NODESOURCE-GPG-SIGNING-KEY-EL
+
+  tasks:
+    - name: Upload specific RPM keys
+      copy:
+        src: "upstream/{{ item['src_filename'] }}"
+        dest: "/etc/pki/rpm-gpg/{{ item['dst_filename'] }}"
+        owner: root
+        group: root
+        mode: '0644'
+      loop: '{{ upstream_rpm_keys }}'
+
+- hosts: ['centos','debian']
   name: install packetfence repos
   become: True
 
