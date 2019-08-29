@@ -323,9 +323,9 @@ export default {
     },
     bounds () {
       return {
-        minX: Math.min(0, ...this.localNodes.map(n => n.x)),
+        minX: Math.min(this.dimensions.width, ...this.localNodes.map(n => n.x)),
         maxX: Math.max(0, ...this.localNodes.map(n => n.x)),
-        minY: Math.min(0, ...this.localNodes.map(n => n.y)),
+        minY: Math.min(this.dimensions.height, ...this.localNodes.map(n => n.y)),
         maxY: Math.max(0, ...this.localNodes.map(n => n.y))
       }
     },
@@ -1026,7 +1026,6 @@ export default {
     /* watch `dimensions` prop and rebuild simulation forces on resize */
     dimensions: {
       handler: function (a, b) {
-        this.force()
         // limit centerX, centerY within viewBox (fixes out-of-bounds after resize)
         const { dimensions: { width = 0, height = 0 }, zoom } = this
         const divisor = Math.pow(2, zoom)
@@ -1036,6 +1035,15 @@ export default {
         const maxCenterY = height - (height / (divisor * 2))
         this.$set(this, 'centerX', Math.max(Math.min(this.centerX, maxCenterX), minCenterX))
         this.$set(this, 'centerY', Math.max(Math.min(this.centerY, maxCenterY), minCenterY))
+        // adjust fixed nodes x, y
+        this.localNodes.forEach((node, index) => {
+          if ('fx' in node && 'fy' in node) {
+            this.localNodes[index].fx = width / 2
+            this.localNodes[index].fy = height / 2
+          }
+        })
+        this.force()
+        this.start()
       },
       deep: true
     },
