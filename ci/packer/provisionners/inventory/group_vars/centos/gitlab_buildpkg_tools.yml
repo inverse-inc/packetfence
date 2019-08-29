@@ -1,0 +1,19 @@
+---
+gitlab_buildpkg_tools__ppa: []
+gitlab_buildpkg_tools__rpm_deps_repos:
+  - name: packetfence-devel
+    baseurl: http://inverse.ca/downloads/PacketFence
+    extra_path: devel
+    gpgkey_url: https://inverse.ca/downloads/RPM-GPG-KEY-PACKETFENCE-CENTOS
+  # - name: epel
+  #   baseurl: 'https://download.fedoraproject.org/pub/epel/7/$basearch/'
+  #   gpgkey_url: 'https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-7'
+  - name: nodejs
+    baseurl: 'https://rpm.nodesource.com/pub_12.x/el/7/$basearch'
+    gpgkey_url: /etc/pki/rpm-gpg/NODESOURCE-GPG-SIGNING-KEY-EL
+
+# we only add repos, packages install will occur
+# during build depencies install from SPEC files
+gitlab_buildpkg_tools__rpm_built_pkg: []
+  # - https://rpm.nodesource.com/pub_12.x/el/7/x86_64/nodesource-release-el7-1.noarch.rpm
+  # - http://mirror.centos.org/centos/7/extras/x86_64/Packages/epel-release-7-11.noarch.rpm

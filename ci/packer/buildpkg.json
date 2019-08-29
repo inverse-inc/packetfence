@@ -45,7 +45,19 @@
             "type": "ansible",
             "playbook_file": "{{user `prov_dir`}}/site.yml",
             "galaxy_file": "{{user `prov_dir`}}/requirements.yml",
-            "inventory_directory": "{{user `prov_dir`}}/inventory"
+            "inventory_directory": "{{user `prov_dir`}}/inventory",
+            "groups": ["centos"],
+            "only": ["{{user `builder_prefix`}}-centos7"]
+        },
+        {
+            "type": "ansible",
+            "playbook_file": "{{user `prov_dir`}}/site.yml",
+            "galaxy_file": "{{user `prov_dir`}}/requirements.yml",
+            "inventory_directory": "{{user `prov_dir`}}/inventory",
+            "groups": ["debian"],
+            "only": ["{{user `builder_prefix`}}-stretch",
+                     "{{user `builder_prefix`}}-buster"
+                    ]
         },
         {
             "type": "file",
