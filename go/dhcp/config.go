@@ -326,6 +326,11 @@ func (d *Interfaces) readConfig() {
 						options[dhcp.OptionRouter] = ShuffleGateway(ConfNet)
 						options[dhcp.OptionDomainName] = []byte(ConfNet.DomainName)
 						DHCPScope.options = options
+						if len(ConfNet.NextHop) > 0 {
+							DHCPScope.layer2 = false
+						} else {
+							DHCPScope.layer2 = true
+						}
 						DHCPNet.dhcpHandler = DHCPScope
 
 						ethIf.network = append(ethIf.network, DHCPNet)
