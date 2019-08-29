@@ -181,7 +181,7 @@ export const pfConfigurationConnectionProfileFilters = {
   switch_port: {
     value: 'switch_port',
     text: i18n.t('Switch Port'),
-    types: [fieldType.INTEGER],
+    types: [fieldType.SUBSTRING],
     validators: {
       type: {
         /* Don't allow elsewhere */
@@ -189,7 +189,7 @@ export const pfConfigurationConnectionProfileFilters = {
       },
       match: {
         [i18n.t('Match required.')]: required,
-        [i18n.t('Invalid Port Number.')]: isPort
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
       }
     }
   },
