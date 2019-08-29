@@ -191,15 +191,6 @@ sub id_pattern {
     };
 }
 
-after clear => sub {
-    my ($self) = @_;
-    $self->additional_clear;
-};
-
-sub additional_clear {
-
-}
-
 =head1 COPYRIGHT
 
 Copyright (C) 2005-2019 Inverse inc.
@@ -226,4 +217,3 @@ USA.
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;
-
