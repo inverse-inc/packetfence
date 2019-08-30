@@ -117,6 +117,16 @@ Object.assign(apiCall, {
   }
 })
 
+apiCall.interceptors.request.use((request) => {
+  const { baseURL, method, url, params = {} } = request
+  const apiServer = localStorage.getItem('X-PacketFence-Server') || null
+  if (apiServer) {
+    request.headers['X-PacketFence-Server'] = apiServer
+  }
+  store.dispatch('performance/startRequest', { method, url: `${baseURL}${url}`, params }) // start performance benchmark
+  return request
+})
+
 /**
  * Intercept responses to
  *

@@ -1,3 +1,7 @@
+local function isempty(s)
+  return s == nil or s == ''
+end
+
 -- Update host on the fly
 
 core.register_action("change_host", { 'http-req'}, function(txn)
@@ -26,3 +30,53 @@ core.register_action("select", { "http-req" }, function(txn)
         end
     end
 end)
+
+core.register_fetches("redirect", function(txn)
+    if ( string.match(txn.sf:path(), '^/$') or string.match(txn.sf:path(), '^$')) then
+        return 1
+    end
+    return 0
+end)
+
+core.register_action("admin", { "http-req" }, function(txn)
+    -- if the request is for the api
+    if ( string.match(txn.sf:path(), '^/api')) then
+        -- if the header exist then use the corresponding backend
+        if (isempty(txn.sf:hdr("X-PacketFence-Server")) or txn.sf:hdr("X-PacketFence-Server") == "null") then
+            txn:set_var("req.action","api")
+        else
+            txn:set_var("req.action",txn.sf:hdr("X-PacketFence-Server") .. "-api")
+        end
+    -- if it's static content
+    elseif ( string.match(txn.sf:path(), '^/static') ) then
+        txn:set_var("req.action","static")
+    elseif ( string.match(txn.sf:path(), '^/netdata') ) then
+        local ip = txn.sf:path():match("(%d+%.%d+%.%d+%.%d+)")
+        local path = txn.sf:path():match("/netdata/%d+%.%d+%.%d+%.%d+(.*)")
+        txn:set_var("req.path", path)
+        txn:set_var("req.action",ip .. "-netdata")
+    elseif ( string.match(txn.sf:path(), '^/portal_preview') ) then
+        --local params = parseurl(txn.sf:query())
+        local path = txn.sf:path():match("^/portal_preview(.*)")
+        txn:set_var("req.path", path)
+        txn:set_var("req.action","[% portal %]" .. "-portal")
+    else
+        -- do nothing, use teh default backend
+    end
+end)
+
+function urldecode(s)
+  s = s:gsub('+', ' ')
+       :gsub('%%(%x%x)', function(h)
+                           return string.char(tonumber(h, 16))
+                         end)
+  return s
+end
+
+function parseurl(s)
+  local ans = {}
+  for k,v in s:gmatch('([^&=?]-)=([^&=?]+)' ) do
+    ans[ k ] = urldecode(v)
+  end
+  return ans
+end

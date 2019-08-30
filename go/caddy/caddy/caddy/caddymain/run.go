@@ -26,6 +26,7 @@ import (
 	_ "github.com/inverse-inc/packetfence/go/caddy/cors"
 	_ "github.com/inverse-inc/packetfence/go/caddy/forwardproxy"
 	_ "github.com/inverse-inc/packetfence/go/caddy/httpdispatcher"
+	_ "github.com/inverse-inc/packetfence/go/caddy/httpdportalpreview"
 	_ "github.com/inverse-inc/packetfence/go/caddy/job-status"
 	_ "github.com/inverse-inc/packetfence/go/caddy/logger"
 	_ "github.com/inverse-inc/packetfence/go/caddy/pfconfig"
