@@ -320,6 +320,9 @@ export default {
     config () {
       return { ...this.defaults, ...this.options }
     },
+    scale () {
+      return Math.pow(2, this.zoom)
+    },
     bounds () {
       return {
         minX: Math.min(this.dimensions.width, ...this.localNodes.map(n => n.x)),
@@ -345,7 +348,7 @@ export default {
       })
     },
     viewBox () {
-      let { dimensions: { height, width } = {}, centerX, centerY, zoom } = this
+      let { dimensions: { height, width } = {}, centerX, centerY, scale } = this
       if (!centerX && width) { // initialize center (x)
         centerX = width / 2
         this.$set(this, 'centerX', centerX)
@@ -354,9 +357,8 @@ export default {
         centerY = height / 2
         this.$set(this, 'centerY', centerY)
       }
-      const divisor = Math.pow(2, zoom)
-      const widthScaled = width / divisor
-      const heightScaled = height / divisor
+      const widthScaled = width / scale
+      const heightScaled = height / scale
       return {
         minX: centerX - (widthScaled / 2),
         minY: centerY - (heightScaled / 2),
@@ -375,35 +377,33 @@ export default {
       const {
         outerMiniMapProps: { x = 0, y = 0, width: outerMiniMapWidth, height: outerMiniMapHeight } = {},
         viewBox: { minX = 0, minY = 0, width: viewBoxWidth = 0, height: viewBoxHeight = 0 } = {},
-        zoom
+        scale
       } = this
-      const divisor = Math.pow(2, zoom)
       return {
-        x: x + ((minX * outerMiniMapWidth) / (viewBoxWidth * divisor)),
-        y: y + ((minY * outerMiniMapHeight) / (viewBoxHeight * divisor)),
-        width: outerMiniMapWidth / divisor,
-        height: outerMiniMapHeight / divisor,
-        'stroke-width': `${1 / divisor}px`
+        x: x + ((minX * outerMiniMapWidth) / (viewBoxWidth * scale)),
+        y: y + ((minY * outerMiniMapHeight) / (viewBoxHeight * scale)),
+        width: outerMiniMapWidth / scale,
+        height: outerMiniMapHeight / scale,
+        'stroke-width': `${1 / scale}px`
       }
     },
     outerMiniMapProps () {
-      const { viewBox: { minX = 0, minY = 0, width: viewBoxWidth = 0, height: viewBoxHeight = 0 } = {}, zoom } = this
-      const divisor = Math.pow(2, zoom)
+      const { viewBox: { minX = 0, minY = 0, width: viewBoxWidth = 0, height: viewBoxHeight = 0 } = {}, scale } = this
       const aspectRatio = viewBoxWidth / viewBoxHeight
       let miniMapHeight = 0
       let miniMapWidth = 0
       switch (true) {
         case ~~this.config.miniMapHeight > 0 && ~~this.config.miniMapWidth > 0:
-          miniMapHeight = this.config.miniMapHeight / divisor
-          miniMapWidth = this.config.miniMapWidth / divisor
+          miniMapHeight = this.config.miniMapHeight / scale
+          miniMapWidth = this.config.miniMapWidth / scale
           break
         case ~~this.config.miniMapHeight > 0:
-          miniMapHeight = this.config.miniMapHeight / divisor
-          miniMapWidth = (this.config.miniMapHeight * aspectRatio) / divisor
+          miniMapHeight = this.config.miniMapHeight / scale
+          miniMapWidth = (this.config.miniMapHeight * aspectRatio) / scale
           break
         case ~~this.config.miniMapWidth > 0:
-          miniMapWidth = this.config.miniMapWidth / divisor
-          miniMapHeight = this.config.miniMapWidth / (divisor * aspectRatio)
+          miniMapWidth = this.config.miniMapWidth / scale
+          miniMapHeight = this.config.miniMapWidth / (scale * aspectRatio)
           break
       }
       let miniMapX = 0
@@ -431,8 +431,8 @@ export default {
         y: miniMapY,
         width: miniMapWidth,
         height: miniMapHeight,
-        'stroke-width': `${1 / divisor}px`,
-        'stroke-dasharray': 2 / divisor
+        'stroke-width': `${1 / scale}px`,
+        'stroke-dasharray': 2 / scale
       }
     },
     tooltips () {
@@ -534,8 +534,7 @@ export default {
       return tooltips
     },
     tooltipDistance () {
-      const divisor = Math.pow(2, this.zoom)
-      return this.config.tooltipDistance / divisor // scale length
+      return this.config.tooltipDistance / this.scale // scale length
     },
     legends () {
       if (Object.keys(this.palettes).includes(this.config.palette)) {
@@ -840,35 +839,32 @@ export default {
       return id
     },
     setCenter (x, y) {
-      const { dimensions: { height, width } = {}, zoom } = this
-      const divisor = Math.pow(2, zoom)
+      const { dimensions: { height, width } = {}, scale } = this
       // restrict min/max x bounds
-      const minX = width / divisor / 2
+      const minX = width / scale / 2
       const maxX = width - minX
       this.centerX = Math.min(Math.max(x, minX), maxX)
       // restrict min/max y bounds
-      const minY = height / divisor / 2
+      const minY = height / scale / 2
       const maxY = height - minY
       this.centerY = Math.min(Math.max(y, minY), maxY)
     },
     mouseDownSvg (event) {
-      const divisor = Math.pow(2, this.zoom)
-      const { viewBox: { minX, minY } = {} } = this
+      const { viewBox: { minX, minY } = {}, scale } = this
       // get mouse delta and offset from top/left corner of current viewBox
       const { offsetX, offsetY } = event
       // calculate mouse offset from 0,0
-      this.lastX = (offsetX / divisor) + minX
-      this.lastY = (offsetY / divisor) + minY
+      this.lastX = (offsetX / scale) + minX
+      this.lastY = (offsetY / scale) + minY
     },
     mouseMoveSvg (event) {
       if (this.lastX && this.lastY) {
-        const divisor = Math.pow(2, this.zoom)
-        const { viewBox: { minX, minY } = {} } = this
+        const { viewBox: { minX, minY } = {}, scale } = this
         // get mouse delta and offset from top/left corner of current viewBox
         const { offsetX, offsetY } = event
         this.$nextTick(() => { // smoothen animation
-          const x = this.centerX + (this.lastX - ((offsetX / divisor) + minX))
-          const y = this.centerY + (this.lastY - ((offsetY / divisor) + minY))
+          const x = this.centerX + (this.lastX - ((offsetX / scale) + minX))
+          const y = this.centerY + (this.lastY - ((offsetY / scale) + minY))
           this.setCenter(x, y)
         })
       }
@@ -880,12 +876,11 @@ export default {
     mouseWheelSvg (event) {
       if (this.config.mouseWheelZoom) {
         event.preventDefault() // don't scroll
-        const divisor = Math.pow(2, this.zoom)
-        const { viewBox: { minX, minY } = {}, centerX, centerY } = this
+        const { viewBox: { minX, minY } = {}, centerX, centerY, scale } = this
         // get mouse delta and offset from top/left corner of current viewBox
         const { deltaY = 0, offsetX, offsetY } = event
         // calculate mouse offset from 0,0
-        const [ svgX, svgY ] = [ (offsetX / divisor) + minX, (offsetY / divisor) + minY ]
+        const [ svgX, svgY ] = [ (offsetX / scale) + minX, (offsetY / scale) + minY ]
         // calculate mouse offset from center of current viewBox
         const [deltaCenterX, deltaCenterY] = [svgX - centerX, svgY - centerY]
         // handle zoom-in (-deltaY) and zoom-out (+deltaY)
@@ -896,7 +891,7 @@ export default {
         } else if (deltaY > 0) { // zoom out
           this.zoom = Math.max(--this.zoom, this.config.minZoom)
         }
-        const factor = Math.pow(2, this.zoom) / divisor
+        const factor = this.scale / scale
         // calculate new center x,y at the current mouse position
         const x = svgX - (deltaCenterX / factor)
         const y = svgY - (deltaCenterY / factor)
@@ -976,24 +971,23 @@ export default {
         dimensions: { height: svgHeight, width: svgWidth },
         outerMiniMapProps: { width: outerMiniMapWidth, height: outerMiniMapHeight },
         viewBox: { width: viewBoxWidth, height: viewBoxHeight },
-        zoom
+        scale
       } = this
-      const divisor = Math.pow(2, zoom)
       const { offsetX, offsetY } = event
       let mouseX = 0
       let mouseY = 0
       switch (this.config.miniMapPosition) {
         case 'top-right':
-          mouseX = (outerMiniMapWidth * divisor) - (svgWidth - offsetX)
+          mouseX = (outerMiniMapWidth * scale) - (svgWidth - offsetX)
           mouseY = offsetY
           break
         case 'bottom-right':
-          mouseX = (outerMiniMapWidth * divisor) - (svgWidth - offsetX)
-          mouseY = (outerMiniMapHeight * divisor) - (svgHeight - offsetY)
+          mouseX = (outerMiniMapWidth * scale) - (svgWidth - offsetX)
+          mouseY = (outerMiniMapHeight * scale) - (svgHeight - offsetY)
           break
         case 'bottom-left':
           mouseX = offsetX
-          mouseY = (outerMiniMapHeight * divisor) - (svgHeight - offsetY)
+          mouseY = (outerMiniMapHeight * scale) - (svgHeight - offsetY)
           break
         case 'top-left':
         default:
@@ -1091,12 +1085,11 @@ export default {
     dimensions: {
       handler: function (a, b) {
         // limit centerX, centerY within viewBox (fixes out-of-bounds after resize)
-        const { dimensions: { width = 0, height = 0 }, zoom } = this
-        const divisor = Math.pow(2, zoom)
-        const minCenterX = width / (divisor * 2)
-        const maxCenterX = width - (width / (divisor * 2))
-        const minCenterY = height / (divisor * 2)
-        const maxCenterY = height - (height / (divisor * 2))
+        const { dimensions: { width = 0, height = 0 }, scale } = this
+        const minCenterX = width / (scale * 2)
+        const maxCenterX = width - (width / (scale * 2))
+        const minCenterY = height / (scale * 2)
+        const maxCenterY = height - (height / (scale * 2))
         this.$set(this, 'centerX', Math.max(Math.min(this.centerX, maxCenterX), minCenterX))
         this.$set(this, 'centerY', Math.max(Math.min(this.centerY, maxCenterY), minCenterY))
         // adjust fixed nodes x, y
