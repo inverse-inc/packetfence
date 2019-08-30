@@ -149,7 +149,9 @@ export default {
       saveSearchString: null,
       showSaveSearchModal: false,
       quickCondition: null,
-      advancedCondition: {
+      advancedCondition: null,
+      advancedMode: false,
+      defaultCondition: {
         op: 'and',
         values: [{
           op: 'or',
@@ -160,7 +162,6 @@ export default {
           }]
         }]
       },
-      advancedMode: false,
       limit: 100,
       /**
        *  Fields on which a search can be defined.
@@ -552,6 +553,9 @@ export default {
           this.advancedCondition = JSON.parse(a)
           this.advancedMode = true
           this.onSubmit()
+        } else {
+          this.advancedCondition = this.defaultCondition
+          this.onReset()
         }
       },
       deep: true,

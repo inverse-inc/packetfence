@@ -92,7 +92,7 @@ https://flowingdata.com/2012/08/02/how-to-make-an-interactive-network-visualizat
       <!-- nodes -->
       <template v-for="(node, i) in localNodes">
 
-        <!-- packetfence icon -->
+        <!-- packetfence -->
         <use v-if="node.type === 'packetfence'" :key="node.id"
           xlink:href="#packetfence"
           width="32" height="32"
@@ -105,32 +105,44 @@ https://flowingdata.com/2012/08/02/how-to-make-an-interactive-network-visualizat
           :class="[ 'packetfence', { 'highlight': node.highlight } ]"
         />
 
-        <!-- switch icon -->
-        <use v-if="node.type === 'switch'" :key="node.id"
-          xlink:href="#switch"
-          width="32" height="32"
-          :id="`node-${node.id}`"
-          :x="coords[i].x - (32 / 2)"
-          :y="coords[i].y - (32 / 2)"
-          @mouseover="mouseOverNode(node, $event)"
-          @mouseout="mouseOutNode(node, $event)"
-          @mousedown="mouseDownNode(node, $event)"
-          :class="[ 'switch', 'pointer', { 'highlight': node.highlight } ]"
-        />
+        <!-- switch -->
+        <template v-if="node.type === 'switch'" :key="node.id">
+          <use
+            xlink:href="#switch"
+            width="32" height="32"
+            :id="`node-${node.id}`"
+            :x="coords[i].x - (32 / 2)"
+            :y="coords[i].y - (32 / 2)"
+            @mouseover="mouseOverNode(node, $event)"
+            @mouseout="mouseOutNode(node, $event)"
+            @mousedown="mouseDownNode(node, $event)"
+            :class="[ 'switch', 'pointer', { 'highlight': node.highlight } ]"
+          />
+          <text class="switchText" v-show="!node.highlight"
+            :x="coords[i].x" :y="coords[i].y"
+            dy="3" dx="16"
+          >↦{{ node.id }}</text>
+        </template>
 
-        <!-- unknown icon -->
-        <use v-if="node.type === 'unknown'" :key="node.id"
-          xlink:href="#unknown"
-          width="32" height="32"
-          :id="`node-${node.id}`"
-          :x="coords[i].x - (32 / 2)"
-          :y="coords[i].y - (32 / 2)"
-          @mouseover="mouseOverNode(node, $event)"
-          @mouseout="mouseOutNode(node, $event)"
-          :class="[ 'unknown', { 'highlight': node.highlight } ]"
-        />
+        <!-- unknown -->
+        <template v-if="node.type === 'unknown'" :key="node.id">
+          <use
+            xlink:href="#unknown"
+            width="32" height="32"
+            :id="`node-${node.id}`"
+            :x="coords[i].x - (32 / 2)"
+            :y="coords[i].y - (32 / 2)"
+            @mouseover="mouseOverNode(node, $event)"
+            @mouseout="mouseOutNode(node, $event)"
+            :class="[ 'unknown', { 'highlight': node.highlight } ]"
+          />
+          <text class="switchText" v-show="!node.highlight"
+            :x="coords[i].x" :y="coords[i].y"
+            dy="3" dx="16"
+          >↦{{ node.id }}</text>
+        </template>
 
-        <!-- node icon -->
+        <!-- node -->
         <use v-if="node.type === 'node'" :key="node.id"
           xlink:href="#node"
           width="16" height="16"
@@ -1605,6 +1617,10 @@ export default {
       top: 50%;
       transform: translateY(-50%);
     }
+  }
+
+  .switchText {
+    fill: #000000 !important;
   }
 }
 </style>
