@@ -18,7 +18,7 @@ all:
               ansible_host: 127.0.0.1
               ansible_port: "{{ ssh_port }}"
               cpus: 1
-              memory: 4096
+              memory: 6144
             pfdeb9dev:
               box: debian/stretch64
               admin_port: 1843
@@ -29,7 +29,7 @@ all:
               ansible_host: 127.0.0.1
               ansible_port: "{{ ssh_port }}"
               cpus: 1
-              memory: 8192
+              memory: 10240
             pfdeb10dev:
               box: debian/buster64
               admin_port: 1643
@@ -40,7 +40,7 @@ all:
               ansible_host: 127.0.0.1
               ansible_port: "{{ ssh_port }}"
               cpus: 1
-              memory: 8192
+              memory: 10240
 
         stable:
           hosts:
@@ -54,7 +54,7 @@ all:
               ansible_host: 127.0.0.1
               ansible_port: "{{ ssh_port }}"
               cpus: 1
-              memory: 4096
+              memory: 6144
             pfdeb9stable:
               box: debian/stretch64
               admin_port: 1943
@@ -65,7 +65,7 @@ all:
               ansible_host: 127.0.0.1
               ansible_port: "{{ ssh_port }}"
               cpus: 1
-              memory: 8192
+              memory: 10240
             pfdeb10stable:
               box: debian/buster64
               admin_port: 1743
@@ -76,7 +76,7 @@ all:
               ansible_host: 127.0.0.1
               ansible_port: "{{ ssh_port }}"
               cpus: 1
-              memory: 8192
+              memory: 10240
         nightly:
           hosts:
             pfcennight:
@@ -89,7 +89,7 @@ all:
               ansible_host: 127.0.0.1
               ansible_port: "{{ ssh_port }}"
               cpus: 1
-              memory: 4096
+              memory: 6144
             pfdeb9night:
               box: debian/stretch64
               admin_port: 2143
@@ -100,7 +100,7 @@ all:
               ansible_host: 127.0.0.1
               ansible_port: "{{ ssh_port }}"
               cpus: 1
-              memory: 8192
+              memory: 10240
             pfdeb10night:
               box: debian/buster64
               admin_port: 2243
@@ -111,6 +111,6 @@ all:
               ansible_host: 127.0.0.1
               ansible_port: "{{ ssh_port }}"
               cpus: 1
-              memory: 8192
+              memory: 10240
   vars:
     tz: Etc/UTC
