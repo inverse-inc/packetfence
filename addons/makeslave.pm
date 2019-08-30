@@ -27,11 +27,48 @@ print "Enter the pfconfig table name: ";
 my $pfconfig_table = <STDIN>;
 chomp $pfconfig_table;
 
-$output = `sudo mysql -u root -p'$mysql_root_password' -e "CREATE USER '$replication_user'\@'%' IDENTIFIED BY '$replication_password'"`;
+$output = `sudo mysql -u root -p'$mysql_root_password' -e "CREATE USER IF NOT EXISTS '$replication_user'\@'%' IDENTIFIED BY '$replication_password'"`;
+
+$output = `sudo mysql -u root -p'$mysql_root_password' -e "SET PASSWORD FOR '$replication_user'\@'%' = PASSWORD('$replication_password')"`;
 
 $output = `sudo mysql -u root -p'$mysql_root_password' -e "GRANT REPLICATION SLAVE ON *.*  TO '$replication_user'\@'%'"`;
 
-$output = `sudo mysql -u root -p'$mysql_root_password' pf -e "CREATE TABLE $pfconfig_table ( id VARCHAR(255),  value LONGBLOB,  PRIMARY KEY(id)) ENGINE=InnoDB"`;
+$output = `sudo mysql -u root -p'$mysql_root_password' -e "FLUSH PRIVILEGES"`;
+
+$output = `sudo mysql -u root -p'$mysql_root_password' pf -e "CREATE TABLE IF NOT EXISTS $pfconfig_table ( id VARCHAR(255),  value LONGBLOB,  PRIMARY KEY(id)) ENGINE=InnoDB"`;
+
+$output = `sudo mysql -u root -p'$mysql_root_password' -e "set global wsrep_desync=ON"`;
+
+@output = `sudo mysql -u root -p'$mysql_root_password' pf -e "SHOW MASTER STATUS\\G"`;
+
+my $position;
+my $file;
+
+foreach my $item (@output) {
+    if ($item =~ /\s+Position:\s+(\d+)\s+/ ) {
+        $position = $1;
+    }
+    if ($item =~ /\s+File:\s+([a-zA-Z0-9_\-\.]+)\s+/ ) {
+        $file = $1;
+    }
+}
+
+print "Position: $position";
+print "File: $file";
+
+@output = `sudo mysql -u root -p'$mysql_root_password' pf -e "SELECT BINLOG_GTID_POS('$file', $position)\\G"`;
+
+my $gtid;
+
+foreach my $item (@output) {
+    if ($item =~ /(\d+-\d+-\d+)$/) {
+        $gtid = $1;
+    }
+}
+
+print $gtid;
+
+$output = `sudo systemctl stop packetfence-mariadb`;
 
 my $pfconf = "/usr/local/pf/conf/pf.conf";
 my $pfconfigconf = "/usr/local/pf/conf/pfconfig.conf";
@@ -65,17 +102,7 @@ $output = `/usr/local/pf/bin/pfcmd generatemariadbconfig`;
 
 $output = `sudo systemctl restart packetfence-mariadb`;
 
- #Start slave
-
-open(my $fh, '<:encoding(UTF-8)', '/var/lib/mysql/xtrabackup_binlog_info')
-  or die "Could not open file '/var/lib/mysql/xtrabackup_binlog_info' $!";
-
-my $gtid;
-while (my $row = <$fh>) {
-    if ($row =~ /(\d+-\d+-\d+)$/) {
-        $gtid = $1;
-    }
-}
+#Start slave
 
 $output = `sudo mysql -u root -p'$mysql_root_password' -e "SET GLOBAL gtid_slave_pos = '$gtid'"`;
 $output = `sudo mysql -u root -p'$mysql_root_password' -e "CHANGE MASTER TO MASTER_HOST='$mysql_master_ip', MASTER_PORT=3306, MASTER_USER='$replication_user', MASTER_PASSWORD='$replication_password', MASTER_USE_GTID=slave_pos"`;
