@@ -176,6 +176,11 @@ https://flowingdata.com/2012/08/02/how-to-make-an-interactive-network-visualizat
       </ul>
     </div>
 
+    <!-- isLoading -->
+    <div class="loading">
+
+    </div>
+
   </div>
 </template>
 
@@ -262,6 +267,10 @@ export default {
       type: Array,
       default: () => { return [] },
       required: true
+    },
+    disabled: {
+      type: Boolean,
+      default: false
     },
     isLoading: {
       type: Boolean,
@@ -1018,11 +1027,11 @@ export default {
         style.push('display: none') // hide if tooltip is outside viewBox
       } else {
         // scale coords to absolute offset from outer container (x: 0, y: 0)
-        x = (x - minX) / vWidth * dWidth
-        y = (y - minY) / vHeight * dHeight
+        let absoluteX = (x - minX) / vWidth * dWidth
+        let absoluteY = (y - minY) / vHeight * dHeight
+        style.push(`top: ${absoluteY}px`, `left: ${absoluteX}px`)
       }
-      style.push(`top: ${y}px`, `left: ${x}px;`)
-      style = style.join('; ') // collapse
+      style = `${style.join('; ')};` // collapse
       // set classes
       const octa = Math.floor(((360 + angle - 22.5) % 360) / 45)
       let vertical = ['bottom', 'bottom', 'bottom', false, 'top', 'top', 'top', false][octa] // vertical position

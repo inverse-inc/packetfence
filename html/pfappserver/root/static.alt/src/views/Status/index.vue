@@ -27,6 +27,7 @@ export default {
         {
           name: this.$i18n.t('Network View'),
           path: '/status/network',
+          saveSearchNamespace: 'network',
           can: 'read nodes'
         },
         {

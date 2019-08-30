@@ -44,7 +44,7 @@ const route = {
       path: 'network',
       name: 'statusNetwork',
       component: Network,
-      props: { storeName: 'network' },
+      props: (route) => ({ query: route.query.query }),
       meta: {
         can: 'read nodes',
         fail: { path: '/status/dashboard', replace: true }

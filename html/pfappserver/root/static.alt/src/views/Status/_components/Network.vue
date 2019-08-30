@@ -5,7 +5,6 @@
       <h4 class="mb-0" v-t="'Network'"></h4>
     </b-card-header>
     <div class="card-body">
-
       <transition name="fade" mode="out-in">
         <!-- Advanced Search Mode -->
         <div v-if="advancedMode">
@@ -47,8 +46,8 @@
               <div class="input-group-text"><icon name="search"></icon></div>
             </div>
             <b-form-input v-model="quickCondition" type="text" :placeholder="$t('Search by...')"></b-form-input>
-            <b-button class="ml-1" type="reset" variant="secondary">{{ $t('Clear') }}</b-button>
-            <b-button class="ml-1" type="submit" variant="primary">{{ $t('Search') }}</b-button>
+            <b-button class="ml-1" type="reset" variant="secondary" :disabled="!quickCondition">{{ $t('Clear') }}</b-button>
+            <b-button class="ml-1" type="submit" variant="primary" :disabled="!quickCondition">{{ $t('Search') }}</b-button>
           </div>
         </b-form>
       </transition>
@@ -59,7 +58,7 @@
           <b-col cols="auto" class="mr-auto">
                 <b-form inline class="mb-0">
                   <b-button-group class="mr-3" size="sm">
-                    <b-button v-for="layout in layouts" :key="layout" @click="options.layout = layout" :variant="(options.layout === layout) ? 'primary' : 'light'">{{ layout }}</b-button>
+                    <b-button v-for="layout in layouts" :key="layout" @click="options.layout = layout" :variant="(options.layout === layout) ? 'primary' : 'light'" :disabled="isLoading">{{ layout }}</b-button>
                   </b-button-group>
                 </b-form>
           </b-col>
@@ -82,6 +81,7 @@
           :nodes="nodes"
           :links="links"
           :options="options"
+          :disabled="isLoading"
           :is-loading="isLoading"
         />
 
@@ -115,10 +115,9 @@ export default {
     pfSearchBoolean
   },
   props: {
-    storeName: { // from router
+    query: {
       type: String,
-      default: null,
-      required: true
+      default: null
     }
   },
   data () {
@@ -406,15 +405,19 @@ export default {
           types: [conditionType.PREFIXMULTIPLE],
           icon: 'balance-scale'
         }
-      ]
+      ],
+      isLoading: false
     }
   },
   computed: {
     condition () {
-      return this.defaultCondition
-    },
-    isLoading () {
-      return this.$store.state[this.storeName].isLoading
+      const { limit, advancedMode = false, advancedCondition = null, quickCondition = null } = this
+      if (advancedMode) {
+        return advancedCondition
+      } else if (quickCondition) {
+        return this.buildCondition(quickCondition)
+      }
+      return null
     },
     windowSize () {
       return this.$store.getters['events/windowSize']
@@ -430,32 +433,29 @@ export default {
       this.$set(this.dimensions, 'width', width)
     },
     onSubmit () {
-      let query = null
-      const { limit, advancedMode } = this
-      if (advancedMode) {
-        const { advancedCondition = null } = this
-        query = advancedCondition
-      } else {
-        const { quickCondition = null } = this
-        query = this.buildCondition(quickCondition)
-      }
+      this.isLoading = true
+      const { condition: query = null, fields, limit, palettes } = this
       if (query) {
         const request = {
           cursor: 0,
           limit,
           fields: [...(new Set([ // unique set
-            ...['mac'], // always include mac
-            ...this.palettes, // always include fields for palette colors
-            ...this.fields.map(f => f.value)
+            ...['mac', 'last_seen'], // always include `mac` and `last_seen`
+            ...palettes, // always include fields for palette colors
+            ...fields.map(f => f.value)
           ]))],
           sort: ['last_seen DESC'],
           query
         }
         api.networkGraph(request).then(response => {
+setTimeout(() => {
+          this.isLoading = false
+}, 3000)
           let { network_graph: { nodes = [], links = [] } = {} } = response
           this.nodes = nodes
           this.links = links
         }).catch((err) => {
+          this.isLoading = false
           this.nodes = []
           this.links = []
         })
@@ -537,10 +537,16 @@ export default {
       },
       deep: true
     },
-    quickCondition: {
+    query: {
       handler: function (a, b) {
-        this.condition = this.buildCondition(a)
+        if (a) {
+          // Import search parameters from URL query
+          this.advancedCondition = JSON.parse(a)
+          this.advancedMode = true
+          this.onSubmit()
+        }
       },
+      deep: true,
       immediate: true
     }
   }
