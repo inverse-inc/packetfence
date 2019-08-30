@@ -143,23 +143,6 @@ index aa6ec54f4e..17e83c5b17 100644
  ExecReload=/bin/kill -USR1 ${MAINPID}
  ExecStop=/bin/kill -WINCH ${MAINPID}
  # We want systemd to give httpd some time to finish gracefully, but still want
-diff --git a/conf/systemd/packetfence-httpd.parking.service b/conf/systemd/packetfence-httpd.parking.service
-index f893836e6c..88eb9a8451 100644
---- a/conf/systemd/packetfence-httpd.parking.service
-+++ b/conf/systemd/packetfence-httpd.parking.service
-@@ -9,9 +9,9 @@ After=packetfence-base.target packetfence-config.service packetfence-iptables.se
- StartLimitBurst=3
- StartLimitInterval=10
- Type=notify
--ExecStartPre=/usr/bin/rm -f /usr/local/pf/var/run/httpd.parking.pid
--ExecStartPre=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::httpd_parking' -e 'pf::services::manager::httpd_parking->new()->generateConfig()'
--ExecStart=/usr/sbin/httpd -f /usr/local/pf/var/conf/httpd.conf.d/httpd.parking -DFOREGROUND  -Drhel
-+ExecStartPre=/bin/rm -f /usr/local/pf/var/run/httpd.parking.pid
-+ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::httpd_parking' -e 'pf::services::manager::httpd_parking->new()->generateConfig()'
-+ExecStart=/usr/sbin/apache2 -f /usr/local/pf/var/conf/httpd.conf.d/httpd.parking -DFOREGROUND  -Ddebian
- ExecReload=/bin/kill -USR1 ${MAINPID}
- ExecStop=/bin/kill -WINCH ${MAINPID}
- # We want systemd to give httpd some time to finish gracefully, but still want
 diff --git a/conf/systemd/packetfence-httpd.portal.service b/conf/systemd/packetfence-httpd.portal.service
 index 2d65852f85..ad9107784b 100644
 --- a/conf/systemd/packetfence-httpd.portal.service
