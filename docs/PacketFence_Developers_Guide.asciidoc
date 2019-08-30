@@ -1106,6 +1106,13 @@ with all dependencies installed as RPM packages. You can directly develop from
 Web admin should be reachable through management IP address of pfcendev
 machine, configured in [filename]`addons/vagrant/inventory/hosts`.
 
+===== Keep your development environment up-to-date
+
+[source,bash]
+----
+git pull
+----
+
 
 ==== Not so bleeding edge
 
