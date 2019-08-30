@@ -437,6 +437,57 @@ export default {
     },
     tooltips () {
       let tooltips = []
+      const { minX, minY, width, height } = this.viewBox
+      const constrainTooltipAngle = (coords, angle) => { // keep tooltip overflow inside viewBox
+        const { x = 0, y = 0 } = coords
+        let quad = Math.floor(((360 + angle) % 360) / 90) // quadrant angle points to (0-3)
+        switch (true) { // top or bottom
+          case ((y < minY + (height / 8)) && [2, 3].includes(quad)): // y @ top-eighth
+            switch (quad) {
+              case 2: // 180 -> 270
+                angle = (angle - 90) % 360 // rotate ccw
+                break
+              case 3: // 270 -> 360
+                angle = (angle + 90) % 360 // rotate cw
+                break
+            }
+            break
+          case ((y > minY + (height * 7 / 8)) && [0, 1].includes(quad)): // y @ bottom-eighth
+            switch (quad) {
+              case 0: // 0 -> 90
+                angle = (angle - 90) % 360 // rotate ccw
+                break
+              case 1: // 90 -> 180
+                angle = (angle + 90) % 360 // rotate cw
+                break
+            }
+            break
+        }
+        quad = Math.floor(((360 + angle) % 360) / 90) // quadrant angle points to (0-3)
+        switch (true) { // left or right
+          case ((x > minX + (width * 7 / 8)) && [0, 3].includes(quad)): // x @ right-eighth
+            switch (quad) {
+              case 0: // 0 -> 90
+                angle = (angle + 90) % 360 // rotate cw
+                break
+              case 3: // 270 -> 360
+                angle = (angle - 90) % 360 // rotate ccw
+                break
+            }
+            break
+          case ((x < minX + (width / 8)) && [1, 2].includes(quad)): // x @ left-eighth
+            switch (quad) {
+              case 1: // 90 -> 180
+                angle = (angle - 90) % 360 // rotate ccw
+                break
+              case 2: // 180 -> 270
+                angle = (angle + 90) % 360 // rotate cw
+                break
+            }
+            break
+        }
+        return angle
+      }
       this.localNodes.filter(node => node.tooltip).forEach((node, index, nodes) => {
         const nodeBounded = this.coordBounded(node)
         let sourceAngle = 0
@@ -452,17 +503,17 @@ export default {
               targetAngle = getAngleFromCoords(node.x, node.y, nodes[index + 1].x, nodes[index + 1].y)
               tooltipAngle = (180 + targetAngle) % 360 // reverse
             }
+            tooltipAngle = constrainTooltipAngle(node, tooltipAngle)
             tooltipCoords = getCoordFromCoordAngle(node.x, node.y, tooltipAngle, this.tooltipDistance)
             tooltipCoordsBounded = this.coordBounded(tooltipCoords)
-            tooltips.push({ node, line: { angle: tooltipAngle, x1: nodeBounded.x, y1: nodeBounded.y, x2: tooltipCoordsBounded.x, y2: tooltipCoordsBounded.y } })
             break
 
           case nodes.length - 1: // outer node (source only)
             sourceAngle = getAngleFromCoords(node.x, node.y, nodes[index - 1].x, nodes[index - 1].y)
             tooltipAngle = (180 + sourceAngle) % 360 // reverse
+            tooltipAngle = constrainTooltipAngle(node, tooltipAngle)
             tooltipCoords = getCoordFromCoordAngle(node.x, node.y, tooltipAngle, this.tooltipDistance)
             tooltipCoordsBounded = this.coordBounded(tooltipCoords)
-            tooltips.push({ node, line: { angle: tooltipAngle, x1: nodeBounded.x, y1: nodeBounded.y, x2: tooltipCoordsBounded.x, y2: tooltipCoordsBounded.y } })
             break
 
           default: // middle nodes (source and target)
@@ -473,11 +524,12 @@ export default {
             if (Math.max(sourceAngle, targetAngle) - Math.min(sourceAngle, targetAngle) < 180) {
               tooltipAngle = (tooltipAngle + 180) % 360
             }
+            tooltipAngle = constrainTooltipAngle(node, tooltipAngle)
             tooltipCoords = getCoordFromCoordAngle(node.x, node.y, tooltipAngle, this.tooltipDistance)
             tooltipCoordsBounded = this.coordBounded(tooltipCoords)
-            tooltips.push({ node, line: { angle: tooltipAngle, x1: nodeBounded.x, y1: nodeBounded.y, x2: tooltipCoordsBounded.x, y2: tooltipCoordsBounded.y } })
             break
         }
+        tooltips.push({ node, line: { angle: tooltipAngle, x1: nodeBounded.x, y1: nodeBounded.y, x2: tooltipCoordsBounded.x, y2: tooltipCoordsBounded.y } })
       })
       return tooltips
     },
@@ -695,7 +747,7 @@ export default {
                   return getCoordFromCoordAngle(coordSwitchIndexes[switchId].x, coordSwitchIndexes[switchId].y, a, d).x
               }
             })
-            .strength(0.25)
+            .strength(0.5)
           )
 
           this.simulation.force('y', d3.forceY()
@@ -717,7 +769,7 @@ export default {
                   return getCoordFromCoordAngle(coordSwitchIndexes[switchId].x, coordSwitchIndexes[switchId].y, a, d).y
               }
             })
-            .strength(0.25)
+            .strength(0.5)
           )
           break
 
@@ -963,8 +1015,7 @@ export default {
     },
     tooltipAnchorAttrs (tooltip) {
       let { line: { angle, x2: x, y2: y } = {} } = tooltip
-      // set styles
-      let style = []
+      let style = [] // set styles
       const {
         dimensions: { height: dHeight, width: dWidth } = {},
         viewBox: { minX, minY, width: vWidth, height: vHeight } = {}
@@ -980,8 +1031,22 @@ export default {
       style = style.join('; ') // collapse
       // set classes
       const octa = Math.floor(((360 + angle - 22.5) % 360) / 45)
-      const vertical = ['bottom', 'bottom', 'bottom', false, 'top', 'top', 'top', false][octa] // vertical position
-      const horizontal = ['right', false, 'left', 'left', 'left', false, 'right', 'right'][octa] // horizontal position
+      let vertical = ['bottom', 'bottom', 'bottom', false, 'top', 'top', 'top', false][octa] // vertical position
+      let horizontal = ['right', false, 'left', 'left', 'left', false, 'right', 'right'][octa] // horizontal position
+      switch (true) { // keep tooltip overflow inside viewBox
+        case (y < minY + (vHeight / 16)): // y @ top-sixteenth
+          vertical = 'bottom'
+          break
+        case (y > minY + (vHeight * 15 / 16)): // y @ bottom-sixteenth
+          vertical = 'top'
+          break
+        case (x > minX + (vWidth * 15 / 16)): // x @ right-sixteenth
+          horizontal = 'left'
+          break
+        case (x < minX + (vWidth / 16)): // x @ left-sixteenth
+          horizontal = 'right'
+          break
+      }
       let position = ''
       switch (true) {
         case (!!vertical && !!horizontal):
