@@ -638,7 +638,7 @@ export default {
 
       const orderedNodeIds = this.localLinks.filter(link => link.target.type === 'node').sort((a, b) => {
         return (a.source.id === b.source.id)
-          ? (a.target.id > b.target.id) ? 1 : -1
+          ? (a.target.last_seen > b.target.last_seen) ? 1 : -1
           : (a.source.id > b.source.id) ? 1 : -1
       }).map(link => link.target.id)
 
@@ -761,7 +761,7 @@ export default {
                   a,
                   d,
                   nodes: this.localLinks.filter(link => link.source.id === switchId).sort((a, b) => {
-                    return (a.target.id > b.target.id) ? 1 : -1
+                    return (a.target.last_seen > b.target.last_seen) ? 1 : -1
                   }).map(link => link.target.id)
                 }
               }
