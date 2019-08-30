@@ -6,20 +6,20 @@
       <template slot="pageHeader">
         <b-card-header>
           <h4 class="mb-0">
-            {{ $t('Device Registration') }}
+            {{ $t('Self Service') }}
             <pf-button-help class="ml-1" url="PacketFence_Installation_Guide.html#_devices_registration" />
           </h4>
         </b-card-header>
       </template>
       <template slot="buttonAdd">
-        <b-button variant="outline-primary" :to="{ name: 'newSelfService' }">{{ $t('New Device Registration') }}</b-button>
+        <b-button variant="outline-primary" :to="{ name: 'newSelfService' }">{{ $t('New Self Service') }}</b-button>
       </template>
       <template slot="emptySearch" slot-scope="state">
-        <pf-empty-table :isLoading="state.isLoading">{{ $t('No device registrations found') }}</pf-empty-table>
+        <pf-empty-table :isLoading="state.isLoading">{{ $t('No Self Services found') }}</pf-empty-table>
       </template>
       <template slot="buttons" slot-scope="item">
         <span class="float-right text-nowrap">
-          <pf-button-delete size="sm" v-if="!item.not_deletable" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete Device Registration?')" @on-delete="remove(item)" reverse/>
+          <pf-button-delete size="sm" v-if="!item.not_deletable" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete Self Service?')" @on-delete="remove(item)" reverse/>
           <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(item)">{{ $t('Clone') }}</b-button>
         </span>
       </template>

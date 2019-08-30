@@ -777,7 +777,7 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
           ]
         },
         {
-          label: i18n.t('Device registration'),
+          label: i18n.t('Self service policy'),
           fields: [
             {
               key: 'self_service',

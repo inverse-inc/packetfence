@@ -140,12 +140,12 @@ export const pfConfigurationAdminRoleActions = [
     ]
   },
   {
-    group: 'Device Registration',
+    group: 'Self Service',
     items: [
-      { text: 'Device Registration - Create', value: 'SELF_SERVICE_CREATE' },
-      { text: 'Device Registration - Delete', value: 'SELF_SERVICE_DELETE' },
-      { text: 'Device Registration - Read', value: 'SELF_SERVICE_READ' },
-      { text: 'Device Registration - Update', value: 'SELF_SERVICE_UPDATE' }
+      { text: 'Self Service - Create', value: 'SELF_SERVICE_CREATE' },
+      { text: 'Self Service - Delete', value: 'SELF_SERVICE_DELETE' },
+      { text: 'Self Service - Read', value: 'SELF_SERVICE_READ' },
+      { text: 'Self Service - Update', value: 'SELF_SERVICE_UPDATE' }
     ]
   },
   {

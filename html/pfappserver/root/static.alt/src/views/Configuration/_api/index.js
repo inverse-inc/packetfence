@@ -223,7 +223,7 @@ export default {
   },
 
   /**
-   * Device Registration
+   * Self Service
    */
   selfServices: params => {
     return apiCall.get('config/self_services', { params }).then(response => {

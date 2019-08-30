@@ -17,9 +17,9 @@
     <template slot="header" is="b-card-header">
       <b-button-close @click="close" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
       <h4 class="mb-0">
-        <span v-if="!isNew && !isClone" v-html="$t('Device Registration {id}', { id: $strong(id) })"></span>
-        <span v-else-if="isClone" v-html="$t('Clone Device Registration {id}', { id: $strong(id) })"></span>
-        <span v-else>{{ $t('New Device Registration') }}</span>
+        <span v-if="!isNew && !isClone" v-html="$t('Self Service {id}', { id: $strong(id) })"></span>
+        <span v-else-if="isClone" v-html="$t('Clone Self Service {id}', { id: $strong(id) })"></span>
+        <span v-else>{{ $t('New Self Service') }}</span>
       </h4>
     </template>
     <template slot="footer">
@@ -32,7 +32,7 @@
         </pf-button-save>
         <b-button :disabled="isLoading" class="ml-1" variant="outline-secondary" @click="init()">{{ $t('Reset') }}</b-button>
         <b-button v-if="!isNew && !isClone" :disabled="isLoading" class="ml-1" variant="outline-primary" @click="clone()">{{ $t('Clone') }}</b-button>
-        <pf-button-delete v-if="isDeletable" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Device Registration?')" @on-delete="remove()"/>
+        <pf-button-delete v-if="isDeletable" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Self Service?')" @on-delete="remove()"/>
       </b-card-footer>
     </template>
   </pf-config-view>

@@ -150,7 +150,7 @@ export const pfConfigurationSelfServiceViewFields = (context = {}) => {
             }
           ]
         },
-        { label: i18n.t('Device Registration'), labelSize: 'lg' },
+        { label: i18n.t('Self Service'), labelSize: 'lg' },
         {
           label: i18n.t('Role to assign'),
           text: i18n.t('The role to assign to devices registered from the self-service portal. If none is specified, the role of the registrant is used.'),

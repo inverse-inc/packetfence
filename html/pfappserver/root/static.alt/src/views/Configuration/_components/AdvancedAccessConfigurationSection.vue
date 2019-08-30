@@ -13,7 +13,7 @@
             <dt v-t="'Provisioners:'"></dt> <dd v-t="'PacketFence can push provisioning agents on endpoints to auto-configure the WiFi connection during the registration process. You can configure the provisioning agents in this module.'"></dd>
             <dt v-t="'Portal Modules:'"></dt> <dd v-t="'The module allows you to deeply customize the captive portal workflows.'"></dd>
             <dt v-t="'Access Duration:'"></dt> <dd v-t="'This allows you to set the various access duration that will be available in your actions definition from your authentication sources.'"></dd>
-            <dt v-t="'Device Registration:'"></dt> <dd v-t="'This allows you to enable the device registration feature in PacketFence - which allows users to manually register endpoints from a portal page. A device registration need to be associated to a connection profile.'"></dd>
+            <dt v-t="'Self Service:'"></dt> <dd v-t="'This allows you to enable the self service feature in PacketFence - which allows users to manually register endpoints from a portal page and manage their registered devices. A self service policy need to be associated to a connection profile.'"></dd>
         </dl>
     </b-container>
 </template>
