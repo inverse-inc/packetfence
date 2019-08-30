@@ -75,7 +75,7 @@ html/pfappserver/root/static/doc:
 	cp -a docs/images/* html/pfappserver/root/static/images
 
 docs/html/index.js: $(HTML)
-	find $$(dirname "$@") -type f  -iname  '*.html' -printf "{\"name\":\"%f\", \"size\":%s, \"last_modifed\" : %T@}\n" | jq -s '{ items: [ .[] |  {name, size, last_modifed : (.last_modifed*1000 | floor)} ] }' > $@
+	find $$(dirname "$@") -type f  -iname  '*.html' -and -not -iname '*template*' -printf "{\"name\":\"%f\", \"size\":%s, \"last_modifed\" : %T@}\n" | jq -s '{ items: [ .[] |  {name, size, last_modifed : (.last_modifed*1000 | floor)} ] }' > $@
 
 .PHONY: html
 
