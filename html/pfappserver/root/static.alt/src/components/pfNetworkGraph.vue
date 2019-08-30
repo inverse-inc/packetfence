@@ -176,9 +176,30 @@ https://flowingdata.com/2012/08/02/how-to-make-an-interactive-network-visualizat
       </ul>
     </div>
 
-    <!-- isLoading -->
-    <div class="loading">
+    <!-- empty (no data) -->
+    <div class="emptyContainer" v-show="!isLoading && localNodes.length === 0 && localLinks.length === 0">
+      <b-row class="justify-content-md-center text-secondary">
+        <b-col cols="12" md="auto">
+          <b-media>
+            <icon name="search" scale="2" slot="aside"></icon>
+            <h4 v-t="'No Network Data'"></h4>
+            <p class="font-weight-light" v-t="'Please refine your search.'"></p>
+          </b-media>
+        </b-col>
+      </b-row>
+    </div>
 
+    <!-- loading -->
+    <div class="loadingContainer" v-show="isLoading">
+      <b-row class="justify-content-md-center text-secondary">
+        <b-col cols="12" md="auto">
+          <b-media>
+            <icon name="circle-notch" scale="2" slot="aside" spin></icon>
+            <h4 v-t="'Loading Network Data'"></h4>
+            <p class="font-weight-light" v-t="'Please wait...'"></p>
+          </b-media>
+        </b-col>
+      </b-row>
     </div>
 
   </div>
@@ -1568,6 +1589,21 @@ export default {
     stroke: rgba(192, 192, 192, 1);
     &.highlight {
       stroke: var(--highlight-color);
+    }
+  }
+
+  .emptyContainer,
+  .loadingContainer {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.5);
+    & > * {
+      position: relative;
+      top: 50%;
+      transform: translateY(-50%);
     }
   }
 }

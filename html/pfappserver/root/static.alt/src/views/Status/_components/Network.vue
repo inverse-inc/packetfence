@@ -448,11 +448,13 @@ export default {
           query
         }
         api.networkGraph(request).then(response => {
-setTimeout(() => {
           this.isLoading = false
-}, 3000)
           let { network_graph: { nodes = [], links = [] } = {} } = response
-          this.nodes = nodes
+          if (nodes.length ===1 && nodes.filter(n => n.type !== 'packetfence').length === 0) { // ignore single `packetfence` node
+            this.nodes = []
+          } else {
+            this.nodes = nodes
+          }
           this.links = links
         }).catch((err) => {
           this.isLoading = false
