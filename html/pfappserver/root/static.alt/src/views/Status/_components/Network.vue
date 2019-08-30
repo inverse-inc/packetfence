@@ -69,7 +69,7 @@
                   <b-form-select class="mr-3" size="sm" v-model="options.palette" :options="palettes" :disabled="isLoading"/>
                 </b-form>
                 <b-form inline class="mb-0">
-                  <b-form-select class="mr-3" size="sm" v-model="limit" :options="[25,50,100,200,500,1000]" :disabled="isLoading" @input="onSubmit"/>
+                  <b-form-select class="mr-3" size="sm" v-model="limit" :options="[25,50,100,200,500,1000]" :disabled="isLoading" @input="onLimit"/>
                 </b-form>
               </b-row>
             </b-container>
@@ -450,7 +450,7 @@ export default {
         api.networkGraph(request).then(response => {
           this.isLoading = false
           let { network_graph: { nodes = [], links = [] } = {} } = response
-          if (nodes.length ===1 && nodes.filter(n => n.type !== 'packetfence').length === 0) { // ignore single `packetfence` node
+          if (nodes.length === 1 && nodes.filter(n => n.type !== 'packetfence').length === 0) { // ignore single `packetfence` node
             this.nodes = []
           } else {
             this.nodes = nodes
@@ -472,6 +472,12 @@ export default {
       }
       this.nodes = []
       this.links = []
+    },
+    onLimit () {
+      // limit changed, submit search again if nodes already exist
+      if (this.nodes.filter(n => n.type !== 'packetfence').length > 0) { // ignore single `packetfence` node
+        this.onSubmit()
+      }
     },
     focusSaveSearchInput () {
       this.$refs.saveSearchInput.focus()
