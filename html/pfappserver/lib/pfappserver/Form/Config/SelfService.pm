@@ -55,6 +55,19 @@ has_field 'device_registration_role' =>
              help => 'The role to assign to devices registered from the self-service portal. If none is specified, the role of the registrant is used.' },
   );
 
+has_field 'device_registration_access_duration' =>
+  (
+   type => 'Duration',
+   label => 'Access duration to assign',
+   default => {
+    interval => 0,
+    unit => 's',
+   },
+   options_method => \&options_roles,
+   tags => { after_element => \&help,
+             help => 'The access duration to assign to devices registered from the self-service portal. If zero is specified, the access duration of the registrant is used.' },
+  );
+
 has_field 'device_registration_allowed_devices' =>
   (
    type => 'FingerbankSelect',
@@ -79,7 +92,7 @@ has_block status_definition =>
 
 has_block device_registration_definition =>
   (
-   render_list => [ qw(device_registration_role device_registration_allowed_devices) ],
+   render_list => [ qw(device_registration_role device_registration_access_duration device_registration_allowed_devices) ],
   );
 
 =head2 options_roles

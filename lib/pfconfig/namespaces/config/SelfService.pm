@@ -19,6 +19,7 @@ use warnings;
 
 use pfconfig::namespaces::config;
 use pf::file_paths qw($self_service_config_file $self_service_default_config_file);
+use pf::util;
 
 use base 'pfconfig::namespaces::config';
 
@@ -46,6 +47,7 @@ sub build_child {
 sub cleanup_after_read {
     my ( $self, $id, $data ) = @_;
     $self->expand_list( $data, qw(device_registration_allowed_devices roles_allowed_to_unregister) );
+    $data->{device_registration_access_duration} = $data->{device_registration_access_duration} ? normalize_time($data->{device_registration_access_duration}) : 0;
 }
 
 =head1 AUTHOR

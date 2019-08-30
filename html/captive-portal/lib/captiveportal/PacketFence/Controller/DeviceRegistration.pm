@@ -12,6 +12,7 @@ use pf::web;
 use pf::enforcement qw(reevaluate_access);
 use fingerbank::DB_Factory;
 use pf::constants::realm;
+use POSIX;
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
 
@@ -142,10 +143,17 @@ sub registerNode : Private {
                 $logger->debug("Gaming devices role is $role (from username $pid)");
             }
 
-            my $unregdate = pf::authentication::match( $source_id, $params, $Actions::SET_UNREG_DATE, undef, $c->user_session->{extra});
-            if ( defined $unregdate ) {
-                $logger->debug("Got unregdate $unregdate for username $pid");
-                $info{unregdate} = $unregdate;
+            my $duration = $ConfigSelfService{$device_reg_profile}{'device_registration_access_duration'};
+            if($duration > 0) {
+                $info{unregdate} = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + $duration));
+                $logger->debug("Got unregdate $info{unregdate} for username $pid through the self-service configuration");
+            }
+            else {
+                my $unregdate = pf::authentication::match( $source_id, $params, $Actions::SET_UNREG_DATE, undef, $c->user_session->{extra});
+                if ( defined $unregdate ) {
+                    $logger->debug("Got unregdate $unregdate for username $pid");
+                    $info{unregdate} = $unregdate;
+                }
             }
             my $time_balance = &pf::authentication::match( $source_id, $params, $Actions::SET_TIME_BALANCE);
             if ( defined $time_balance ) {

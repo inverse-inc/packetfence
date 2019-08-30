@@ -164,6 +164,24 @@ export const pfConfigurationSelfServiceViewFields = (context = {}) => {
           ]
         },
         {
+          label: i18n.t('Access duration to assign'),
+          text: i18n.t(`The access duration to assign to devices registered from the self-service portal. If zero is specified, the access duration of the registrant is used.`),
+          fields: [
+            {
+              key: 'device_registration_access_duration.interval',
+              component: pfFormInput,
+              attrs: pfConfigurationAttributesFromMeta(meta, 'device_registration_access_duration.interval'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'device_registration_access_duration.interval', i18n.t('Interval'))
+            },
+            {
+              key: 'device_registration_access_duration.unit',
+              component: pfFormChosen,
+              attrs: pfConfigurationAttributesFromMeta(meta, 'device_registration_access_duration.unit'),
+              validators: pfConfigurationValidatorsFromMeta(meta, 'device_registration_access_duration.unit', i18n.t('Unit'))
+            }
+          ]
+        },
+        {
           label: i18n.t('Allowed OS'),
           text: i18n.t('List of OS which will be allowed to be register via the self service portal.'),
           fields: [
