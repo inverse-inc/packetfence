@@ -29,6 +29,8 @@ has 'form_class';
 has 'openapi_generator_class' => 'pf::UnifiedApi::OpenAPI::Generator::Config';
 has 'search_builder_class' => "pf::UnifiedApi::Search::Builder::Config";
 
+our %FORMS;
+
 sub search {
     my ($self) = @_;
     my ($status, $search_info_or_error) = $self->build_search_info;
@@ -249,21 +251,52 @@ sub form {
 }
 
 sub cached_form_key {
-    'cached_form'
+    my ($self, $item, @args) = @_;
+    return $self->form_class;
 }
 
 sub cached_form {
     my ($self, $item, @args) = @_;
     my $cached_form_key = $self->cached_form_key($item, @args);
-    if ($self->{$cached_form_key}){
-        return $self->{$cached_form_key};
+    if (defined $cached_form_key) {
+        if ($FORMS{$cached_form_key}){
+            my $form = $FORMS{$cached_form_key};
+            $self->reset_form($form, $item, @args);
+            return $form;
+        }
     }
+
     my ($status, $form) = $self->form($item, @args);
     if (is_error($status)) {
         return undef;
     }
 
-    return $self->{$cached_form_key} = $form;
+    if (defined $cached_form_key) {
+        $FORMS{$cached_form_key} = $form;
+    }
+
+    return $form;
+}
+
+=head2 reset_form
+
+reset_form
+
+=cut
+
+sub reset_form {
+    my ($self, $form, $item, @args) = @_;
+    my %all_args = (
+        @{$self->form_parameters($item)},
+        @args,
+        user_roles => $self->stash->{'admin_roles'}
+    );
+    while (my ($k, $v) = each %all_args) {
+        if ($form->can($k)) {
+            $form->$k($v);
+        }
+    }
+    return;
 }
 
 sub resource {

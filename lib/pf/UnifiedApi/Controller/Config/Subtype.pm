@@ -48,8 +48,7 @@ sub type_lookup {
 
 sub cached_form_key {
     my ($self, $item, @args) = @_;
-    my $type = $item->{type};
-    return "cached_form_$type";
+    return $self->form_class_by_type($item->{type});
 }
 
 =head2 options
