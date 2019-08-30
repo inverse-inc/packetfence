@@ -1242,6 +1242,9 @@ fi
                         /usr/local/pf/html/captive-portal/templates/*
 %dir                    /usr/local/pf/html/common
                         /usr/local/pf/html/common/*
+                        /usr/local/pf/html/parking/back-on-network.html
+                        /usr/local/pf/html/parking/index.html
+                        /usr/local/pf/html/parking/max-attempts.html
                         /usr/local/pf/html/pfappserver/
 %config(noreplace)      /usr/local/pf/html/pfappserver/pfappserver.conf
 %config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Admin.pm
