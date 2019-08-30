@@ -284,6 +284,7 @@ export default {
     min-height: $input-height;
     padding: $input-padding-y $input-padding-x;
     font-size: $font-size-base;
+    line-height: $input-line-height;
   }
   .multiselect__tags {
     padding-right: 40px;
