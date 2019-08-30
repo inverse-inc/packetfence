@@ -4,8 +4,6 @@
 
 generator-data-access-layer.pl - Generate the stubs for the data access layer
 
-=cut
-
 =head1 DESCRIPTION
 
 generator-data-access-layer.pl - Generate the stubs for the data access layer
@@ -20,51 +18,26 @@ use Template;
 use Data::Dumper;
 use DateTime;
 use Getopt::Long;
-
+use List::MoreUtils qw(any);
 my $PF_DIR = '/usr/local/pf';
-
 our %OPTIONS = (
-    dbpass => '',,
-    dbuser => 'root',
+    dbpass => 'packet',
+    dbuser => 'pf_smoke_tester',
     schema => "$PF_DIR/db/pf-schema-X.Y.Z.sql",
 );
 
 GetOptions(\%OPTIONS, 'dbpass=s', 'dbuser=s', 'schema=s');
-
-my $output_path = "$PF_DIR/lib/pf/dal";
-
-my $db_name = "_pf_generated_$$";
-
-my $dbh = DBI->connect("DBI:mysql:host=localhost", $OPTIONS{dbuser}, $OPTIONS{dbpass}, {RaiseError => 1});
-
-$dbh->do("DROP DATABASE IF EXISTS $db_name");
-
-$dbh->do("CREATE DATABASE $db_name");
-
+my $db_name = "pf_smoke_test__dal_$$";
+my $dbuser  = $OPTIONS{dbuser};
+my $dbpass  = $OPTIONS{dbpass};
+my $dbh     = DBI->connect( "DBI:mysql:host=localhost", $dbuser, $dbpass, { RaiseError => 1 } );
+$dbh->do("DROP DATABASE IF EXISTS $db_name;") or die $dbh->errstr;
+$dbh->do("CREATE DATABASE $db_name;")         or die $dbh->errstr;
 my $schema = $OPTIONS{schema};
-
-system("mysql -u$OPTIONS{dbuser} -p$OPTIONS{dbpass} $db_name < $schema");
-
-# Check if there was an error running the command
-if ($?) {
-    print "Problem Created the schema from $schema\n";
-    exit $?;
-}
-
-$dbh->do("USE $db_name");
-
-my $tables = [];
-
-if (@ARGV) {
-    foreach my $table (@ARGV) {
-        my $infos = get_table_info($table);
-        push @$tables, @$infos;
-    }
-} else {
-    my $infos = get_table_info();
-    push @$tables, @$infos;
-}
-
+system("mysql -u\"$dbuser\" -p\"$dbpass\" $db_name < $schema");
+$dbh->do("USE $db_name;") or $dbh->errstr;
+my $tables = table_data($dbh, $db_name, @ARGV);
+my $output_path = "$PF_DIR/lib/pf/dal";
 my $tt = Template->new({
     OUTPUT_PATH  => "$PF_DIR/lib/pf/dal/",
     INCLUDE_PATH => "$PF_DIR/addons/dev-helpers/templates",
@@ -74,7 +47,6 @@ my $now = DateTime->now;
 my $base_template = "pf-dal.pm.tt";
 my $overload_template = "pf-dal-overload.pm.tt";
 
-#print Dumper($tables);
 for my $table (@$tables) {
     my $name = $table->{TABLE_NAME};
     my $class = "pf::dal::_${name}";
@@ -94,79 +66,57 @@ for my $table (@$tables) {
 }
 
 END {
-    $dbh->do("DROP DATABASE IF EXISTS $db_name") if $dbh;
-}
-
-
-
-=head2 get_table_info
-
-Get the Table Info
-
-=cut
-
-sub get_table_info {
-    my ($table) = @_;
-
-    ### Get a list of tables and views
-    my $tablesth = $dbh->table_info(undef, undef, $table);
-
-    my @tables;
-    while (my $table = $tablesth->fetchrow_hashref()) {
-        push @tables, $table;
-        {
-            my @cols;
-            my $sth = $dbh->column_info($table->{TABLE_CAT}, $table->{TABLE_SCHEM}, $table->{TABLE_NAME}, undef);
-            while (my $col = $sth->fetchrow_hashref()) {
-                if ($col->{COLUMN_NAME} eq 'tenant_id') {
-                    $table->{HAS_TENANT_ID} = 1;
-                }
-                add_additional_metadata_to_column($table, $col);
-                push @cols, $col;
-            }
-            @cols = sort { $a->{ORDINAL_POSITION} <=> $b->{ORDINAL_POSITION} } @cols;
-            $table->{cols} = \@cols;
-        }
-        {
-            my @keys;
-            my $sth = $dbh->primary_key_info($table->{TABLE_CAT}, $table->{TABLE_SCHEM}, $table->{TABLE_NAME});
-            while (my $key = $sth->fetchrow_hashref()) {
-                push @keys, $key;
-            }
-            @keys = sort { $a->{KEY_SEQ} <=> $b->{KEY_SEQ} } @keys;
-            $table->{'primary_keys'} = \@keys;
-        }
-        {
-            my @keys;
-            my $sth =
-              $dbh->foreign_key_info($table->{TABLE_CAT}, $table->{TABLE_SCHEM}, $table->{TABLE_NAME}, undef, undef, undef);
-            while (my $key = $sth->fetchrow_hashref()) {
-                push @keys, $key;
-            }
-            $table->{'foreign_key_info'} = \@keys;
-        }
-        if (0) {
-            my @indexes;
-            my $sth =
-              $dbh->statistics_info($table->{TABLE_CAT}, $table->{TABLE_SCHEM}, $table->{TABLE_NAME}, undef, undef);
-            while (my $index = $sth->fetchrow_hashref()) {
-                push @indexes, $index;
-            }
-            $table->{'indexes'} = \@indexes;
-        }
+    if ($dbh) {
+        $dbh->do("DROP DATABASE IF EXISTS $db_name") or die $dbh->errstr;
     }
-    return \@tables;
 }
 
-=head2 add_additional_metadata_to_column
+sub table_data {
+    my ($dbh, $db_name, @names) = @_;
+    my $table_name_clause = '';
+    if (@names) {
+        $table_name_clause = " AND TABLE_NAME in (" . join(',', ("?") x scalar @names ) .  ")";
+    }
+    my $sql =
+"SELECT TABLE_NAME, COLUMN_NAME, ORDINAL_POSITION, COLUMN_DEFAULT as COLUMN_DEF, IF(IS_NULLABLE = 'YES', 1, 0) AS NULLABLE, UPPER(DATA_TYPE) as TYPE_NAME, CHARACTER_MAXIMUM_LENGTH, CHARACTER_OCTET_LENGTH, NUMERIC_PRECISION as NUM_PREC_RADIX, NUMERIC_SCALE, DATETIME_PRECISION, COLUMN_TYPE, COLUMN_KEY, EXTRA, COLUMN_COMMENT, COLUMN_KEY LIKE '%PRI%' as mysql_is_pri_key, EXTRA LIKE '%auto_increment%' as mysql_is_auto_increment, IF(COLUMN_NAME = 'tenant_id', 1, NULL) as HAS_TENANT_ID FROM INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA = '$db_name' $table_name_clause ORDER BY TABLE_NAME, ORDINAL_POSITION";
+    my %tables;
+    for my $row (@{ $dbh->selectall_arrayref($sql, { Slice => {} }, @names) }) {
+        my $name = delete $row->{TABLE_NAME};
+        push @{ ($tables{$name} //= { TABLE_NAME => $name, INDEXES => index_data($dbh, $name) })->{cols} }, format_col($row);
+    }
 
-Add Additional Metadata To Column
+    my $tables = [ sort { $a->{TABLE_NAME} cmp $b->{TABLE_NAME} } values %tables ];
+    cleanup_table($dbh, $_) for @$tables;
+    return $tables;
+}
 
-=cut
+sub cleanup_table {
+    my ($dbh, $table) = @_;
+    local $_;
+    add_additional_metadata_to_column($table, $_) for @{$table->{cols}};
+    $table->{HAS_TENANT_ID} = any { $_->{HAS_TENANT_ID} } @{$table->{cols}};
+    $table->{primary_keys} = [ map { { COLUMN_NAME => $_->{Column_name} } } grep { $_->{Key_name} eq 'PRIMARY' } @{$table->{INDEXES}} ];
+}
 
-sub add_additional_metadata_to_column {
-    my ($table, $col) = @_;
-    $col->{pf_default_value} = make_default_value($table, $col);
+sub index_data {
+    my ($dbh, $name) = @_;
+    my $sql  = "SHOW INDEX FROM ${db_name}.${name}";
+    my $indexes = $dbh->selectall_arrayref( $sql, { Slice => {} } );
+    delete $_->{TABLE} for @{ $indexes };
+    return $indexes;
+}
+
+sub format_col {
+    my ($col) = @_;
+    if ( $col->{TYPE_NAME} eq 'ENUM' ) {
+        my $enum = $col->{COLUMN_TYPE};
+        $enum =~ s/enum\(//;
+        $enum =~ s/\)//;
+        $col->{mysql_values} =
+          [ map { s/^'//; s/'$//; $_ } split( /\s*,\s*/, $enum ) ];
+    }
+
+    return $col;
 }
 
 our %DEFAULT_VALUE_MAKERS = (
@@ -227,4 +177,40 @@ sub make_string_default_value {
     return "undef";
 }
 
+=head2 add_additional_metadata_to_column
 
+Add Additional Metadata To Column
+
+=cut
+
+sub add_additional_metadata_to_column {
+    my ($table, $col) = @_;
+    $col->{pf_default_value} = make_default_value($table, $col);
+}
+
+=head1 AUTHOR
+
+Inverse inc. <info@inverse.ca>
+
+=head1 COPYRIGHT
+
+Copyright (C) 2005-2019 Inverse inc.
+
+=head1 LICENSE
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+USA.
+
+=cut
