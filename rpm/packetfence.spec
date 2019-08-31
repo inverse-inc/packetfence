@@ -406,7 +406,6 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.aaa.service %{buildroot}%{_unitdir}/packetfence-httpd.aaa.service
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.admin.service %{buildroot}%{_unitdir}/packetfence-httpd.admin.service
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.collector.service %{buildroot}%{_unitdir}/packetfence-httpd.collector.service
-%{__install} -D -m0644 conf/systemd/packetfence-httpd.parking.service %{buildroot}%{_unitdir}/packetfence-httpd.parking.service
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.portal.service %{buildroot}%{_unitdir}/packetfence-httpd.portal.service
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.proxy.service %{buildroot}%{_unitdir}/packetfence-httpd.proxy.service
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.webservices.service %{buildroot}%{_unitdir}/packetfence-httpd.webservices.service
@@ -1042,8 +1041,6 @@ fi
                         /usr/local/pf/conf/httpd.conf.d/httpd.admin.tt.example
 %config                 /usr/local/pf/conf/httpd.conf.d/httpd.portal.tt
                         /usr/local/pf/conf/httpd.conf.d/httpd.portal.tt.example
-%config                 /usr/local/pf/conf/httpd.conf.d/httpd.parking.tt
-                        /usr/local/pf/conf/httpd.conf.d/httpd.parking.tt.example
 %config                 /usr/local/pf/conf/httpd.conf.d/httpd.proxy.tt
                         /usr/local/pf/conf/httpd.conf.d/httpd.proxy.tt.example
 %config                 /usr/local/pf/conf/httpd.conf.d/httpd.webservices.tt
@@ -1183,7 +1180,6 @@ fi
 %dir                    /usr/local/pf/html/common
                         /usr/local/pf/html/common/*
                         /usr/local/pf/html/parking/back-on-network.html
-                        /usr/local/pf/html/parking/cgi-bin/release.pl
                         /usr/local/pf/html/parking/index.html
                         /usr/local/pf/html/parking/max-attempts.html
                         /usr/local/pf/html/pfappserver/
