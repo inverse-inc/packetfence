@@ -1,0 +1,47 @@
+---
+packetfence_install__config_base_general:
+  hostname: "{{ ansible_distribution|lower }}"
+  domain: example.lan
+  dhcpservers: 10.0.0.1,192.168.122.1
+  timezone: "{{ ansible_date_time['tz'] }}"
+packetfence_install__config_base_alerting:
+  smtpserver: localhost
+  fromaddr: "{{ packetfence_install__config_base_general['hostname'] }}@{{ packetfence_install__config_base_general['domain'] }}"
+  emailaddr: "alerting@{{ packetfence_install__config_base_general['domain'] }}"
+  smtp_port: 1025
+  smtp_verifyssl: disabled
+  subjectprefix: PF UNDER TEST
+  smtp_timeout: 30
+packetfence_install__config_base_advanced:
+  hash_passwords: ntlm
+
+packetfence_install__api_calls:
+  - route: "{{ packetfence_install__api_config_endpoints['base'] }}/general"
+    method: PATCH
+    body:
+      id: general
+      dhcpservers: "{{ packetfence_install__config_base_general['dhcpservers'] }}"
+      domain: "{{ packetfence_install__config_base_general['domain'] }}"
+      hostname: "{{ packetfence_install__config_base_general['hostname'] }}"
+      timezone: "{{ packetfence_install__config_base_general['timezone'] }}"
+  - route: "{{ packetfence_install__api_config_endpoints['base'] }}/alerting"
+    method: PATCH
+    body:
+      id: alerting
+      smtpserver: "{{ packetfence_install__config_base_alerting['smtpserver'] }}"
+      fromaddr: "{{ packetfence_install__config_base_alerting['fromaddr'] }}"
+      emailaddr: "{{ packetfence_install__config_base_alerting['emailaddr'] }}"
+      smtp_port: "{{ packetfence_install__config_base_alerting['smtp_port'] }}"
+      smtp_verifyssl: "{{ packetfence_install__config_base_alerting['smtp_verifyssl'] }}"
+      subjectprefix: "{{ packetfence_install__config_base_alerting['subjectprefix'] }}"
+      smtp_timeout: "{{ packetfence_install__config_base_alerting['smtp_timeout'] }}"
+  # - route: "{{ packetfence_install__api_config_endpoints['fingerbank_setting'] }}/upstream"
+  #   method: PATCH
+  #   body:
+  #     id: upstream
+  #     api_key: "{{ packetfence_install__config_fingerbank_setting_upstream['api_key'] }}"
+  - route: "{{ packetfence_install__api_config_endpoints['base'] }}/advanced"
+    method: PATCH
+    body:
+      id: advanced
+      hash_passwords: "{{ packetfence_install__config_base_advanced['hash_passwords'] }}"

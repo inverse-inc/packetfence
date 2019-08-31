@@ -1,0 +1,54 @@
+---
+packetfence_install__users:
+
+# ALL
+- body_user:
+    pid: inverse
+    email: "inverse@{{ packetfence_install__config_base_general['domain'] }}"
+  body_user_password:
+    access_level: ALL
+    expiration: "2038-01-01 00:00:00"
+    password: secret
+    valid_from: "{{ ansible_date_time['date'] }} {{ ansible_date_time['time'] }}"
+
+# ALL_PF_ONLY
+- body_user:
+    pid: all_pf_only
+    email: "all_pf_only@{{ packetfence_install__config_base_general['domain'] }}"
+  body_user_password:
+    access_level: ALL_PF_ONLY
+    expiration: "2038-01-01 00:00:00"
+    password: secret
+    valid_from: "{{ ansible_date_time['date'] }} {{ ansible_date_time['time'] }}"
+
+# User manager
+- body_user:
+    pid: user_manager
+    email: "user_manager@{{ packetfence_install__config_base_general['domain'] }}"
+  body_user_password:
+    access_level: User Manager
+    expiration: "2038-01-01 00:00:00"
+    password: secret
+    valid_from: "{{ ansible_date_time['date'] }} {{ ansible_date_time['time'] }}"
+
+# Node manager
+- body_user:
+    pid: node_manager
+    email: "node_manager@{{ packetfence_install__config_base_general['domain'] }}"
+  body_user_password:
+    access_level: Node Manager
+    expiration: "2038-01-01 00:00:00"
+    password: secret
+    valid_from: "{{ ansible_date_time['date'] }} {{ ansible_date_time['time'] }}"
+
+# Security event manage    
+- body_user:
+    pid: security_event_manager
+    email: "security_event_manager@{{ packetfence_install__config_base_general['domain'] }}"
+  body_user_password:
+    access_level: Security Event Manager
+    expiration: "2038-01-01 00:00:00"
+    password: secret
+    valid_from: "{{ ansible_date_time['date'] }} {{ ansible_date_time['time'] }}"
+
+# Sponsor users

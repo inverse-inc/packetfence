@@ -1,0 +1,5 @@
+---
+packetfence_install__sources:
+  - id: Blackhole
+    description: Blackhole
+    type: Blackhole
