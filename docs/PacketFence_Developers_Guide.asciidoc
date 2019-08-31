@@ -1056,6 +1056,7 @@ http://packetfence.org/bugs/view.php?id=1085[issue #1085].
 For day to day development one can run a checkout of the current development branch in
 `/usr/local/pf/` and develop there within a working setup.
 
+[#dev-prerequisites]
 ===== Prerequisites
 
 .Install following softwares:
@@ -1063,6 +1064,7 @@ For day to day development one can run a checkout of the current development bra
 * Virtualbox if you wan to use Virtualbox as a provider for Vagrant
 * libvirt, KVM/QEMU and vagrant-libvirt if you want to use libvirt as a provider for Vagrant
 
+[#dev-setup]
 ===== Initial setup
 
 Following steps assume you use a CentOS machine but you can have same behavior
@@ -1109,10 +1111,30 @@ machine, configured in [filename]`addons/vagrant/inventory/hosts`.
 
 ==== Not so bleeding edge
 
+FIXME
 
-Using the development `yum` repository and upgrade PacketFence often is a good way to proceed.
-Check our https://packetfence.org/download/snapshots.html[snapshots download page] for
-instructions.
+===== Initial setup
+
+Install <<dev-prerequisites,development prerequisites>> and follow
+<<dev-setup,initial setup>> but in place of starting `pfcendev`, you can
+start:
+
+* `pfcennight`
+* `pfdeb9night`
+
+These machines will be auto-configured to install latest builds from development
+ repositories.
+
+===== Day to day usage
+
+To keep your machine up-to-date, you can run following commands:
+
+[source,bash]
+----
+cd packetfence/addons/vagrant
+vagrant provision --provision-with=config pfcennight
+vagrant provision --provision-with=config pfdeb9night
+----
 
 Make sure you read the `UPGRADE` document after every upgrades to avoid any surprises.
 
