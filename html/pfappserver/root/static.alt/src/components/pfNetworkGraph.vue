@@ -1220,11 +1220,11 @@ export default {
 
 <style lang="scss">
 :root { /* defaults */
-  --color-black: rgba(0, 0, 0, 1);
-  --color-blue: rgba(66, 133, 244, 1);
-  --color-red: rgba(219, 68, 55, 1);
-  --color-yellow: rgba(244, 160, 0, 1);
-  --color-green: rgba(15, 157, 88, 1);
+  --color-black: var(--dark);
+  --color-blue: var(--blue);
+  --color-red: var(--red);
+  --color-yellow: var(--yellow);
+  --color-green: var(--green);
 
   /* default highlight color */
   --highlight-color: var(--color-black);
