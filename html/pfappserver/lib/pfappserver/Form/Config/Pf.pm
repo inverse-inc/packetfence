@@ -170,8 +170,7 @@ sub field_list {
                 $field->{element_class} = ['chzn-deselect'];
                 $field->{element_attr} = {'data-placeholder' => 'Select a timezone'};
                 my @timezones = DateTime::TimeZone->all_names();
-                my @matched_options = map { m/^.+\/.+$/g } @timezones;
-                my @options = ({ value => '', label => ''}, map { { value => $_, label => $_ } } @matched_options);
+                my @options = ({ value => '', label => ''}, map { { value => $_, label => $_ } } @timezones);
                 $field->{options} = \@options;
                 last;
             };
