@@ -1,5 +1,5 @@
 ---
-packetfence_install__config_base_guest_admin_registration:
+packetfence_install__config_base_guests_admin_registration:
   access_duration_choices: '10m'
 packetfence_install__config_base_general:
   hostname: "{{ ansible_distribution|lower }}"
