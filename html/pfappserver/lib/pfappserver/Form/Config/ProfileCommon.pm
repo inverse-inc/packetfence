@@ -30,6 +30,7 @@ use pf::constants::Connection::Profile;
 use pf::constants::role qw( $POOL_USERNAMEHASH $POOL_RANDOM $POOL_ROUND_ROBBIN );
 use pfappserver::Form::Field::Duration;
 use pfappserver::Base::Form;
+use pf::config qw(%Profiles_Config);
 with 'pfappserver::Base::Form::Role::Help';
 
 =head1 BLOCKS
@@ -541,7 +542,7 @@ has_field 'vlan_pool_technique' =>
    label => 'Vlan Pool Technique',
    options_method => \&options_vlan_pool,
    element_class => ['chzn-select'],
-   default => "round_robbin",
+   default_method => \&field_default_value,
    tags => { after_element => \&help,
              help => 'The Vlan Pool Technique to use' },
   );
@@ -657,6 +658,17 @@ sub validate {
             last;
         }
     }
+}
+
+=head2 field_default_value
+
+field_default_value
+
+=cut
+
+sub field_default_value {
+    my ($f) = @_;
+    return $Profiles_Config{default}{$f->name};
 }
 
 =head1 AUTHOR
