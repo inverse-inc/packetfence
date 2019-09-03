@@ -18,8 +18,8 @@ packetfence_install__sources:
     administration_rules:
       - id: admins
         description: All admins
-        conditions:
-          match: all
+        conditions: []
+        match: all
         actions:
           - type: set_access_level
             value: ALL
@@ -37,8 +37,8 @@ packetfence_install__sources:
     authentication_rules:
       - id: set_guest_role
         description: set guest role
-        conditions:
-          match: all
+        conditions: []
+        match: all
         actions:
           - type: set_role
             value: guest
@@ -52,8 +52,8 @@ packetfence_install__sources:
     authentication_rules:
       - id: set_guest_role
         description: set guest role
-        conditions:
-          match: all
+        conditions: []
+        match: all
         actions:
           - type: set_role
             value: guest
@@ -65,8 +65,8 @@ packetfence_install__sources:
     type: Email
     banned_domains: "foo.{{ packetfence_install__config_base_general['domain'] }}, bar.{{ packetfence_install__config_base_general['domain'] }}"
     allowed_domains: "*.{{ packetfence_install__config_base_general['domain'] }}, *foo.ca, bar.ca"
-    activation_domain:
-    allow_localdomain:
+    activation_domain: ''
+    allow_localdomain: yes
     create_local_account: yes
     password_length: 15
     hash_passwords: ntlm
@@ -77,8 +77,8 @@ packetfence_install__sources:
     authentication_rules:
       - id: set_guest_role
         description: set guest role
-        conditions:
-          match: all
+        conditions: []
+        match: all
         actions:
           - type: set_role
             value: guest
