@@ -66,7 +66,7 @@
             <b-container fluid>
               <b-row align-v="center">
                 <b-form inline class="mb-0">
-                  <b-form-select class="mr-3" size="sm" v-model="options.palette" :options="palettes" :disabled="isLoading"/>
+                  <b-form-select class="mr-3" size="sm" v-model="options.palette" :options="Object.keys(palettes)" :disabled="isLoading"/>
                 </b-form>
                 <b-form inline class="mb-0">
                   <b-form-select class="mr-3" size="sm" v-model="limit" :options="[25,50,100,200,500,1000]" :disabled="isLoading" @input="onLimit"/>
@@ -81,6 +81,7 @@
           :nodes="nodes"
           :links="links"
           :options="options"
+          :palettes="palettes"
           :disabled="isLoading"
           :is-loading="isLoading"
         />
@@ -142,7 +143,25 @@ export default {
         tooltipDistance: 50
       },
       layouts: ['radial', 'tree'], // available layouts
-      palettes: ['autoreg', 'status', 'online', 'voip'], // available palettes
+      palettes: {
+        autoreg: {
+          yes: 'green',
+          no: 'red'
+        },
+        online: {
+          on: 'green',
+          off: 'red',
+          unknown: 'yellow'
+        },
+        voip: {
+          yes: 'green',
+          no: 'red'
+        },
+        status: {
+          reg: 'green',
+          unreg: 'red'
+        }
+      },
       pollingIntervalMs: 60000,
       pollingInterval: false,
       saveSearchNamespace: 'network',
@@ -442,7 +461,7 @@ export default {
           limit,
           fields: [...(new Set([ // unique set
             ...['mac', 'last_seen'], // always include `mac` and `last_seen`
-            ...palettes, // always include fields for palette colors
+            ...Object.keys(palettes), // always include fields for palette colors
             ...fields.map(f => f.value)
           ]))],
           sort: ['last_seen DESC'],

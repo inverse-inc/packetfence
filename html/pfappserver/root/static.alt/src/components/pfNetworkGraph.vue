@@ -308,6 +308,10 @@ export default {
     isLoading: {
       type: Boolean,
       default: false
+    },
+    palettes: {
+      type: Object,
+      default: () => { return {} }
     }
   },
   data () {
@@ -315,15 +319,13 @@ export default {
       simulation: null, // d3-force simulation
       localNodes: [], // private d3 nodes
       localLinks: [], // private d3 links
-
-      colors: [ 'blue', 'red', 'yellow', 'green' ],
-      lastX: null,
-      lastY: null,
-      zoom: 0,
-      centerX: null,
-      centerY: null,
-      miniMapLatch: false,
-      highlight: false,
+      lastX: null, // last mouseDown x
+      lastY: null, // last mouseDown y
+      zoom: 0, // user zoom level, bound by minZoom and maxZoom
+      centerX: null, // viewBox center x
+      centerY: null, // viewBox center y
+      miniMapLatch: false, // mouseDown @ miniMap
+      highlight: false, // mouseOver @ node
       defaults: { // default options
         layout: 'radial',
         palette: 'status',
@@ -336,25 +338,6 @@ export default {
         mouseWheelZoom: true,
         padding: 25,
         tooltipDistance: 50
-      },
-      palettes: {
-        autoreg: {
-          yes: 'green',
-          no: 'red'
-        },
-        online: {
-          on: 'green',
-          off: 'red',
-          unknown: 'yellow'
-        },
-        voip: {
-          yes: 'green',
-          no: 'red'
-        },
-        status: {
-          reg: 'green',
-          unreg: 'red'
-        }
       }
     }
   },
