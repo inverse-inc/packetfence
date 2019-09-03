@@ -33,7 +33,7 @@ packetfence_install__sources:
     type: Potd
     password_email_update: "foo@{{ packetfence_install__config_base_general['domain'] }}"
     password_length: 8
-    password_rotation: 12h
+    password_rotation: 10m
 
   - id: null_source
     description: null source
