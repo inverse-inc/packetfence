@@ -175,7 +175,7 @@ export default {
           types: [fieldType.ROLE],
           required: false,
           formatter: formatter.categoryIdFromIntOrString,
-          validators: buildValidationFromColumnSchemas(schema.node.category_id, {
+          validators: buildValidationFromColumnSchemas({
             [this.$i18n.t('Role does not exist.')]: categoryIdNumberExists,
             [this.$i18n.t('Role does not exist.')]: categoryIdStringExists
           })
