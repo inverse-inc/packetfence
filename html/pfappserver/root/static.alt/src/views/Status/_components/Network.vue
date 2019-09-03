@@ -432,8 +432,8 @@ export default {
       isLoading: false,
       liveMode: false,
       liveModeAllowed: false,
-      liveModeTimeout: false,
-      liveModeTimeoutMs: 3000
+      liveModeInterval: false,
+      liveModeIntervalMs: 3000
     }
   },
   computed: {
@@ -502,7 +502,7 @@ export default {
           this.liveModeAllowed = false
         }).then(() => { // finally
           if (!liveMode) this.isLoading = false
-          this.liveModeTimeoutMs = Math.max(this.liveModeTimeoutMs, performance.now() - start) // adjust polling interval
+          this.liveModeIntervalMs = Math.max(this.liveModeIntervalMs, performance.now() - start) // adjust polling interval
         })
       }
     },
@@ -576,9 +576,6 @@ export default {
       }
     }
   },
-  mounted () {
-    this.setDimensions()
-  },
   watch: {
     windowSize: {
       handler: function (a, b) {
@@ -614,21 +611,29 @@ export default {
       handler: function (a, b) {
         this.liveMode = false // disable live mode
         this.liveModeAllowed = false // disallow live mode
-        this.liveModeTimeoutMs = 3000 // reset interval
+        this.liveModeIntervalMs = 3000 // reset interval
       },
       deep: true
     },
     liveMode: {
       handler: function (a, b) {
-        if (this.liveModeTimeout) {
-          clearTimeout(this.liveModeTimeout)
+        if (this.liveModeInterval) {
+          clearInterval(this.liveModeInterval)
         }
         if (a) {
-          this.liveModeTimeout = setInterval(() => {
+          this.liveModeInterval = setInterval(() => {
             this.onSubmit(true)
-          }, this.liveModeTimeoutMs)
+          }, this.liveModeIntervalMs)
         }
       }
+    }
+  },
+  mounted () {
+    this.setDimensions()
+  },
+  beforeDestroy () {
+    if (this.liveModeInterval) {
+      clearTimeout(this.liveModeInterval)
     }
   }
 }
