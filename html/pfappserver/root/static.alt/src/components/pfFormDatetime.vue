@@ -131,7 +131,7 @@ export default {
   computed: {
     inputValue: {
       get () {
-        return this.value
+        return this.value === '0000-00-00 00:00:00' ? null : this.value
       },
       set (newValue) {
         const datetimeFormat = this.combinedConfig.datetimeFormat
