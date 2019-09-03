@@ -30,9 +30,6 @@ const actions = {
       fields: ['id'].join(',')
     }
     return api.bases(params).then(response => {
-      response.items.forEach((item) => {
-        commit('ITEM_REPLACED', item)
-      })
       return response.items
     })
   },

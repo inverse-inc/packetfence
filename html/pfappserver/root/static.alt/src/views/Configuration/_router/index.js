@@ -133,8 +133,6 @@ const route = {
     }
     if (!store.state.$_bases) {
       store.registerModule('$_bases', BasesStore)
-      // preload config/bases (all sections)
-      store.dispatch('$_bases/all')
     }
     if (!store.state.$_billing_tiers) {
       store.registerModule('$_billing_tiers', BillingTiersStore)
