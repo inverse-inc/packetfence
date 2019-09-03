@@ -344,6 +344,11 @@ masterslave=OFF
 # The masterslavemode configuration to select MASTER or SLAVE mode.
 masterslavemode=MASTER
 #
+# database_advanced.readonly
+#
+# The readonly configuration to enable or disable the readonly mode.
+readonly=OFF
+#
 # database_advanced.other_members
 #
 # Comma delimited IPv4 address of other member mysql members - note that this is only to sync the database.

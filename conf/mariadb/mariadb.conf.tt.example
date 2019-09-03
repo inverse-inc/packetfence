@@ -151,8 +151,9 @@ gtid_domain_id = 25
 
 log_slave_updates
 log_bin=mariadb-bin
+[% IF readonly == "ON" %]
 innodb-read-only=ON
-
+[% END %]
 [% END %]
 [% END %]
 

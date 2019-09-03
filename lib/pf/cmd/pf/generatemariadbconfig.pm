@@ -53,6 +53,7 @@ sub _run {
         max_connect_errors => $Config{database_advanced}{max_connect_errors},
         masterslave => $Config{database_advanced}{masterslave},
         masterslavemode => $Config{database_advanced}{masterslavemode},
+        readonly => $Config{database_advanced}{readonly},
     );
 
     # Only generate cluster configuration if there is more than 1 enabled host in the cluster

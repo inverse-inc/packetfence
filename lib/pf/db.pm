@@ -545,6 +545,13 @@ sub db_readonly_mode {
     my $readonly = $row->[0];
     # If readonly no need to check wsrep health
     return 1 if $readonly;
+    $sth = $dbh->prepare_cached('SELECT VARIABLE_VALUE from information_schema.GLOBAL_VARIABLES where VARIABLE_NAME=\'INNODB_READ_ONLY\'');
+    return 0 unless $sth->execute;
+    $row = $sth->fetch;
+    $sth->finish;
+    $readonly = $row->[0];
+    # If readonly no need to check wsrep health
+    return 1 if ($readonly eq 'ON');
     # If wsrep is not healthly then it is in readonly mode
     return !db_wsrep_healthy();
 }
