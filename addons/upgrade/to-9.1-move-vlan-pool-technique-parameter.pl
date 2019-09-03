@@ -16,31 +16,30 @@ use strict;
 use warnings;
 use lib qw(/usr/local/pf/lib);
 use pf::IniFiles;
-use pf::file_paths qw($pf_config_file $pf_default_file $profiles_default_config_file);
+use pf::file_paths qw($pf_config_file $pf_default_file $profiles_config_file $profiles_default_config_file);
 use pf::util;
 run_as_pf();
 
-my $ini_default = pf::IniFiles->new(-file => $pf_default_file, -allowempty => 1);
 my $ini = pf::IniFiles->new(-file => $pf_config_file, -allowempty => 1);
-my $profiles = pf::IniFiles->new(-file => $profiles_default_config_file, -allowempty => 1);
-if ($ini) {
-    if ($ini->exists('advanced', 'vlan_pool_technique')) {
-        my $val = $ini->val('advanced', 'vlan_pool_technique');
-        $ini->delval('advanced', 'vlan_pool_technique');
-        $profiles->newval('default', 'vlan_pool_technique', $val);
-    } elsif ($ini_default->exists('advanced', 'vlan_pool_technique')) {
-        my $val = $ini_default->val('advanced', 'vlan_pool_technique');
-        $ini_default->delval('advanced', 'vlan_pool_technique');
-        $profiles->newval('default', 'vlan_pool_technique', $val);
-    }
+my $profiles = pf::IniFiles->new(-file => $profiles_config_file, -allowempty => 1);
+my $profiles_default = pf::IniFiles->new(-file => $profiles_default_config_file, -allowempty => 1);
+unless ($ini) {
+    exit;
+}
 
+if (!$ini->exists('advanced', 'vlan_pool_technique')) {
+    exit;
+}
 
-    $ini->DeleteSection();
-    $ini->RewriteConfig();
-    $ini_default->DeleteSection();
-    $ini_default->RewriteConfig();
+my $val = $ini->val('advanced', 'vlan_pool_technique');
+$ini->delval('advanced', 'vlan_pool_technique');
+my $cur_val = $profiles_default->val('default', 'vlan_pool_technique');
+print "'$cur_val' ne '$val'\n";
+if ($cur_val ne $val) {
+    $profiles->newval('default', 'vlan_pool_technique', $val);
     $profiles->RewriteConfig();
 }
+$ini->RewriteConfig();
 
 =head1 AUTHOR
 
