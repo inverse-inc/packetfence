@@ -34,11 +34,31 @@ packetfence_install__sources:
     password_email_update: "foo@{{ packetfence_install__config_base_general['domain'] }}"
     password_length: 8
     password_rotation: 10m
+    authentication_rules:
+      - id: set_guest_role
+        description: set guest role
+        conditions:
+          match: all
+        actions:
+          - type: set_role
+            value: guest
+          - type: set_access_duration
+            value: 10m
 
   - id: null_source
     description: null source
     type: "Null"
     email_required: "yes" # quote to avoid boolean
+    authentication_rules:
+      - id: set_guest_role
+        description: set guest role
+        conditions:
+          match: all
+        actions:
+          - type: set_role
+            value: guest
+          - type: set_access_duration
+            value: 10m
 
   - id: email_source
     description: email source
@@ -55,4 +75,12 @@ packetfence_install__sources:
       interval: 12
       unit: h
     authentication_rules:
-    administration_rules:
+      - id: set_guest_role
+        description: set guest role
+        conditions:
+          match: all
+        actions:
+          - type: set_role
+            value: guest
+          - type: set_access_duration
+            value: 10m
