@@ -43,6 +43,7 @@ Bug Fixes
 * Fixes pfstats queries /api/v1/dhcp/stats a lot of times (#4096)
 * Fix duplicates reservation in the dhcp pool caused by a big registration/inline network and pfstats call
 * Fixed LinkedIn social login integration due to deprecated API calls from LinkedIn
+* Fixed the logic of "Use the RADIUS username instead of the TLS certificate common name when performing machine authentication."
 
 
 Version 9.0.1 released on 2019-05-24
