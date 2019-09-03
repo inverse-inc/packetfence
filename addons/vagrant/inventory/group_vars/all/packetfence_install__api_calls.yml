@@ -1,4 +1,6 @@
 ---
+packetfence_install__config_base_guest_admin_registration:
+  access_duration_choices: '10m'
 packetfence_install__config_base_general:
   hostname: "{{ ansible_distribution|lower }}"
   domain: example.lan
@@ -18,6 +20,11 @@ packetfence_install__config_base_advanced:
   hash_passwords: ntlm
 
 packetfence_install__api_calls:
+  - route: "{{ packetfence_install__api_config_endpoints['base'] }}/guests_admin_registration"
+    method: PATCH
+    body:
+      id: guests_admin_registration
+      access_duration_choices: "{{ packetfence_install__config_base_guests_admin_registration['access_duration_choices'] }}"
   - route: "{{ packetfence_install__api_config_endpoints['base'] }}/general"
     method: PATCH
     body:
