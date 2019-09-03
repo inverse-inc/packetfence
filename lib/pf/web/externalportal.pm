@@ -140,6 +140,7 @@ sub handle {
         $logger->error("Error in parsing external portal request from switch module");
         return $FALSE;
     }
+    Hash::Merge::set_behavior('RIGHT_PRECEDENT');
     %params = %{ merge(\%params, $switch_params) };
     
     $logger->debug(sub { use Data::Dumper; "Handling external portal request using the following parameters: " . Dumper(%params) });
