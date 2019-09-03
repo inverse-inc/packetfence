@@ -1,5 +1,11 @@
 <template>
   <b-card class="h-100" no-body>
+    <b-card-header>
+      <h4 class="mb-0">
+        {{ $t('Portal Modules') }}
+        <pf-button-help class="ml-1" url="PacketFence_Installation_Guide.html#_portal_modules" />
+      </h4>
+    </b-card-header>
     <!-- Visual representation of portal modules -->
     <b-tabs class="tab-pane-scroll flex-grow-1" :class="{ minimize: minimize }" v-model="tabIndex" card>
       <b-tab v-for="rootModule in rootModules" :key="rootModule.id" :title="rootModule.description">
@@ -67,6 +73,7 @@ import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import draggable from 'vuedraggable'
 import PortalModule from './PortalModule'
 import PortalModuleButton from './PortalModuleButton'
+import pfButtonHelp from '@/components/pfButtonHelp'
 import pfButtonSave from '@/components/pfButtonSave'
 import pfButtonDelete from '@/components/pfButtonDelete'
 import {
@@ -83,6 +90,7 @@ export default {
     draggable,
     PortalModule,
     PortalModuleButton,
+    pfButtonHelp,
     pfButtonSave,
     pfButtonDelete
   },
