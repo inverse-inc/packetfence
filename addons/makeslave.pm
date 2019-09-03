@@ -37,6 +37,11 @@ $output = `sudo mysql -u root -p'$mysql_root_password' -e "FLUSH PRIVILEGES"`;
 
 $output = `sudo mysql -u root -p'$mysql_root_password' pf -e "CREATE TABLE IF NOT EXISTS $pfconfig_table ( id VARCHAR(255),  value LONGBLOB,  PRIMARY KEY(id)) ENGINE=InnoDB"`;
 
+#$output = `sudo mysql -u root -p'$mysql_root_password' -e "set global wsrep_desync=ON"`;
+
+
+
+
 $output = `sudo systemctl stop packetfence-mariadb`;
 
 my $pfconf = "/usr/local/pf/conf/pf.conf";
@@ -110,4 +115,23 @@ $output = `sudo mysql -u root -p'$mysql_root_password' -e "SET GLOBAL gtid_slave
 $output = `sudo mysql -u root -p'$mysql_root_password' -e "CHANGE MASTER TO MASTER_HOST='$mysql_master_ip', MASTER_PORT=3306, MASTER_USER='$replication_user', MASTER_PASSWORD='$replication_password', MASTER_USE_GTID=slave_pos"`;
 
 $output = `sudo mysql -u root -p'$mysql_root_password' -e "START SLAVE"`;
+
+@output = `sudo mysql -u root -p'$mysql_root_password' -e "select VARIABLE_VALUE from information_schema.GLOBAL_STATUS where VARIABLE_NAME=\'SLAVE_RUNNING\'\\G"`;
+
+sleep 10;
+
+foreach my $item (@output) {
+    print $item."\n";
+    if ($item =~ /VARIABLE_VALUE:\s+ON\s*/ ) {
+        $inipfconf{"database_advanced"}{"readonly"} = "ON";
+        tied( %inipfconf )->RewriteConfig($pfconf);
+
+        $output = `/usr/local/pf/bin/pfcmd configreload hard`;
+        $output = `/usr/local/pf/bin/pfcmd generatemariadbconfig`;
+
+        $output = `sudo systemctl restart packetfence-mariadb`;
+
+        print "Slave connected";
+    }
+}
 
