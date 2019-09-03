@@ -56,20 +56,21 @@
 
         <b-row align-h="between" align-v="center">
           <b-col cols="auto" class="mr-auto">
-                <b-form inline class="mb-0">
-                  <b-button-group class="mr-3" size="sm">
-                    <b-button v-for="layout in layouts" :key="layout" @click="options.layout = layout" :variant="(options.layout === layout) ? 'primary' : 'light'" :disabled="isLoading">{{ layout }}</b-button>
-                  </b-button-group>
-                </b-form>
+            <pf-form-range-toggle class="mr-3" v-model="liveMode" :disabled="isLoading || !liveModeAllowed">{{ $t('Live') }}</pf-form-range-toggle>
           </b-col>
           <b-col cols="auto">
             <b-container fluid>
               <b-row align-v="center">
                 <b-form inline class="mb-0">
-                  <b-form-select class="mr-3" size="sm" v-model="options.palette" :options="Object.keys(palettes)" :disabled="isLoading"/>
+                  <b-button-group class="ml-3" size="sm">
+                    <b-button v-for="layout in layouts" :key="layout" @click="options.layout = layout" :variant="(options.layout === layout) ? 'primary' : 'light'" :disabled="isLoading">{{ layout }}</b-button>
+                  </b-button-group>
                 </b-form>
                 <b-form inline class="mb-0">
-                  <b-form-select class="mr-3" size="sm" v-model="limit" :options="[25,50,100,200,500,1000]" :disabled="isLoading" @input="onLimit"/>
+                  <b-form-select class="ml-3" size="sm" v-model="options.palette" :options="Object.keys(palettes)" :disabled="isLoading"/>
+                </b-form>
+                <b-form inline class="mb-0">
+                  <b-form-select class="ml-3" size="sm" v-model="limit" :options="[25,50,100,200,500,1000]" :disabled="isLoading" @input="onLimit"/>
                 </b-form>
               </b-row>
             </b-container>
@@ -92,6 +93,7 @@
 </template>
 
 <script>
+import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import pfFormToggle from '@/components/pfFormToggle'
 import pfNetworkGraph from '@/components/pfNetworkGraph'
 import pfSearchBoolean from '@/components/pfSearchBoolean'
@@ -111,6 +113,7 @@ const api = {
 export default {
   name: 'network',
   components: {
+    pfFormRangeToggle,
     pfFormToggle,
     pfNetworkGraph,
     pfSearchBoolean
@@ -426,12 +429,16 @@ export default {
           icon: 'balance-scale'
         }
       ],
-      isLoading: false
+      isLoading: false,
+      liveMode: false,
+      liveModeAllowed: false,
+      liveModeTimeout: false,
+      liveModeTimeoutMs: 3000
     }
   },
   computed: {
     condition () {
-      const { limit, advancedMode = false, advancedCondition = null, quickCondition = null } = this
+      const { advancedMode = false, advancedCondition = null, quickCondition = null } = this
       if (advancedMode) {
         return advancedCondition
       } else if (quickCondition) {
@@ -463,8 +470,8 @@ export default {
         this.$set(this.dimensions, 'height', documentHeight - networkGraphTop - padding)
       }
     },
-    onSubmit () {
-      this.isLoading = true
+    onSubmit (liveMode = false) {
+      if (!liveMode) this.isLoading = true
       const { condition: query = null, fields, limit, palettes } = this
       if (query) {
         const request = {
@@ -478,8 +485,8 @@ export default {
           sort: ['last_seen DESC'],
           query
         }
+        const start = performance.now()
         api.networkGraph(request).then(response => {
-          this.isLoading = false
           let { network_graph: { nodes = [], links = [] } = {} } = response
           if (nodes.length === 1 && nodes.filter(n => n.type !== 'packetfence').length === 0) { // ignore single `packetfence` node
             this.nodes = []
@@ -487,15 +494,20 @@ export default {
             this.nodes = nodes
           }
           this.links = links
-        }).catch((err) => {
-          this.isLoading = false
+          this.liveModeAllowed = true
+        }).catch(() => {
           this.nodes = []
           this.links = []
+          this.liveMode = false
+          this.liveModeAllowed = false
+        }).then(() => { // finally
+          if (!liveMode) this.isLoading = false
+          this.liveModeTimeoutMs = Math.max(this.liveModeTimeoutMs, performance.now() - start) // adjust polling interval
         })
       }
     },
     onReset () {
-      const { limit, advancedMode } = this
+      const { advancedMode } = this
       if (advancedMode) {
         console.log('onReset', JSON.stringify(this.advancedCondition, null, 2))
       } else {
@@ -597,6 +609,26 @@ export default {
       },
       deep: true,
       immediate: true
+    },
+    condition: {
+      handler: function (a, b) {
+        this.liveMode = false // disable live mode
+        this.liveModeAllowed = false // disallow live mode
+        this.liveModeTimeoutMs = 3000 // reset interval
+      },
+      deep: true
+    },
+    liveMode: {
+      handler: function (a, b) {
+        if (this.liveModeTimeout) {
+          clearTimeout(this.liveModeTimeout)
+        }
+        if (a) {
+          this.liveModeTimeout = setInterval(() => {
+            this.onSubmit(true)
+          }, this.liveModeTimeoutMs)
+        }
+      }
     }
   }
 }
