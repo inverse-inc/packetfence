@@ -41,7 +41,7 @@ packetfence_install__users:
     password: secret
     valid_from: "{{ ansible_date_time['date'] }} {{ ansible_date_time['time'] }}"
 
-# Security event manage    
+# Security event manager
 - body_user:
     pid: security_event_manager
     email: "security_event_manager@{{ packetfence_install__config_base_general['domain'] }}"
@@ -52,3 +52,12 @@ packetfence_install__users:
     valid_from: "{{ ansible_date_time['date'] }} {{ ansible_date_time['time'] }}"
 
 # Sponsor users
+- body_user:
+    pid: sponsor_user
+    email: "sponsor_user@{{ packetfence_install__config_base_general['domain'] }}"
+  body_user_password:
+    access_level: NONE
+    expiration: "2038-01-01 00:00:00"
+    password: secret
+    sponsor: 1
+    valid_from: "{{ ansible_date_time['date'] }} {{ ansible_date_time['time'] }}"
