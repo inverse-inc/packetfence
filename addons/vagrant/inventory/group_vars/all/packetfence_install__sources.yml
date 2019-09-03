@@ -34,8 +34,8 @@ packetfence_install__sources:
     password_email_update: "foo@{{ packetfence_install__config_base_general['domain'] }}"
     password_length: 8
     password_rotation:
-      interval: 10
-      unit: m
+      interval: 12
+      unit: h
 
   - id: null_source
     description: null source
@@ -54,7 +54,7 @@ packetfence_install__sources:
     hash_passwords: ntlm
     local_account_logins: 0
     email_activation_timeout:
-      interval: 10
-      unit: m
+      interval: 12
+      unit: h
     authentication_rules:
     administration_rules:
