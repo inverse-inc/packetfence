@@ -3053,6 +3053,13 @@ Parse the username from the RADIUS request
 
 sub parseRequestUsername {
     my ($self, $radius_request) = @_;
+    if (isenabled($Config{radius_configuration}{normalize_radius_machine_auth_username})) {
+        if ($radius_request->{'User-Name'} =~ /^host\//) {
+            if (exists($radius_request->{'TLS-Client-Cert-Common-Name'})) {
+                return $radius_request->{'User-Name'};
+            }
+        }
+    }
     foreach my $attribute (@{$Config{radius_configuration}{username_attributes}}) {
         if(exists($radius_request->{$attribute})) {
             my $user_name = $radius_request->{$attribute};
@@ -3061,6 +3068,7 @@ sub parseRequestUsername {
         }
     }
 }
+
 
 =item parseVPNRequest
 

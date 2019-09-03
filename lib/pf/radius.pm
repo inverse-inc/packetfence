@@ -199,8 +199,6 @@ sub authorize {
     #define the current connection value to instantiate the correct portal
     my $options = {};
 
-    $options->{'machine_account'} = '';
-
     # Handling machine auth detection
     if ( defined($user_name) && $user_name =~ /^host\// ) {
         $logger->info("is doing machine auth with account '$user_name'.");
@@ -367,27 +365,6 @@ AUDIT:
     $args->{'time'} = time;
     push @$RAD_REPLY_REF, $self->_addRadiusAudit($args);
     return $RAD_REPLY_REF;
-}
-
-=item normalize_username
-
-normalize username
-
-=cut
-
-sub normalize_username {
-    my ($username, $radius_request) = @_;
-    if (isdisabled($Config{radius_configuration}{normalize_radius_machine_auth_username})) {
-        return $username;
-    }
-    my $tls_username = $radius_request->{'TLS-Client-Cert-Common-Name'} // '';
-    if ($username eq $tls_username ) {
-       my $radius_username = $radius_request->{'User-Name'};
-       if ( "host/$tls_username" =~ /\Q$radius_username\E/i ) {
-            $username = $radius_username;
-       }
-    }
-    return $username;
 }
 
 =item accounting
@@ -1080,8 +1057,6 @@ sub radius_filter {
 
     $switch->setCurrentTenant();
     my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id, $ifDesc) = $switch->parseRequest($radius_request);
-
-    $user_name = normalize_username($user_name, $radius_request);
 
     if (!$mac) {
         return [$RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "Mac is empty")];
