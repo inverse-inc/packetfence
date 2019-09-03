@@ -1,5 +1,5 @@
 <template>
-  <b-card no-body class="mt-3">
+  <b-card no-body class="mt-3" ref="networkGraphContainer">
     <b-card-header>
       <div class="float-right"><pf-form-toggle v-model="advancedMode">{{ $t('Advanced') }}</pf-form-toggle></div>
       <h4 class="mb-0" v-t="'Network'"></h4>
@@ -124,7 +124,7 @@ export default {
   data () {
     return {
       dimensions: {
-        height: Math.max(document.documentElement.clientHeight, window.innerHeight || 0) - 40,
+        height: 0,
         width: 0
       },
       nodes: [],
@@ -451,6 +451,17 @@ export default {
       // get width of svg container
       const { $refs: { networkGraph: { $el: { offsetWidth: width = 0 } = {} } = {} } = {} } = this
       this.$set(this.dimensions, 'width', width)
+
+      if (this.advancedMode) {
+        this.$set(this.dimensions, 'height', width)
+      } else {
+        // get height of window document
+        const documentHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
+        const { $refs: { networkGraph: { $el = {} } = {} } = {} } = this
+        const { top: networkGraphTop } = $el.getBoundingClientRect()
+        const padding = 20 + 16 /* padding = 20, margin = 16 */
+        this.$set(this.dimensions, 'height', documentHeight - networkGraphTop - padding)
+      }
     },
     onSubmit () {
       this.isLoading = true
@@ -461,7 +472,7 @@ export default {
           limit,
           fields: [...(new Set([ // unique set
             ...['mac', 'last_seen'], // always include `mac` and `last_seen`
-            ...Object.keys(palettes), // always include fields for palette colors
+            ...Object.keys(palettes), // always include fields for palettes
             ...fields.map(f => f.value)
           ]))],
           sort: ['last_seen DESC'],
@@ -564,6 +575,13 @@ export default {
         }
       },
       deep: true
+    },
+    advancedMode: {
+      handler: function (a, b) {
+        setTimeout(() => {
+          this.setDimensions()
+        }, 300)
+      }
     },
     query: {
       handler: function (a, b) {

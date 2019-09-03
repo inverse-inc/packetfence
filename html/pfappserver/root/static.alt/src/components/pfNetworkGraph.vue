@@ -924,17 +924,19 @@ export default {
       }
     },
     mouseOverNode (node, event = null) {
-      this.stop()
+      this.stop() // pause animation
       this.highlightNodeById(node.id) // highlight node
       this.highlight = (node.type === 'node') ? this.color(node) : 'none'
     },
     mouseOutNode (node, event = null) {
-      this.start()
+      this.start() // unpause animation
       this.highlightNodeById(null) // unhighlight node
       this.highlight = null
     },
     mouseDownNode (node, event = null) {
       const { type = null } = node
+      console.log('mouseDownNode', node)
+      /*
       switch (type) {
         case 'node':
           this.$router.push({ name: 'node', params: { mac: node.id } })
@@ -943,6 +945,7 @@ export default {
           this.$router.push({ name: 'switch', params: { id: node.id } })
           break
       }
+      */
     },
     highlightNodeById (id) {
       this.unhighlightNodes()
