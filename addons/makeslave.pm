@@ -37,9 +37,26 @@ $output = `sudo mysql -u root -p'$mysql_root_password' -e "FLUSH PRIVILEGES"`;
 
 $output = `sudo mysql -u root -p'$mysql_root_password' pf -e "CREATE TABLE IF NOT EXISTS $pfconfig_table ( id VARCHAR(255),  value LONGBLOB,  PRIMARY KEY(id)) ENGINE=InnoDB"`;
 
-$output = `sudo mysql -u root -p'$mysql_root_password' -e "set global wsrep_desync=ON"`;
+$output = `sudo systemctl stop packetfence-mariadb`;
 
-@output = `sudo mysql -u root -p'$mysql_root_password' pf -e "SHOW MASTER STATUS\\G"`;
+my $pfconf = "/usr/local/pf/conf/pf.conf";
+my $pfconfigconf = "/usr/local/pf/conf/pfconfig.conf";
+
+my %inipfconf;
+tie %inipfconf, 'Config::IniFiles', ( -file => "$pfconf" );
+
+my %inipfconfigconf;
+tie %inipfconfigconf, 'Config::IniFiles', ( -file => "$pfconfigconf" );
+
+$inipfconf{"database"}{"host"} = '127.0.0.1';
+
+$inipfconfigconf{"mysql"}{"host"} = '127.0.0.1';
+$inipfconfigconf{"mysql"}{"table"} = $pfconfig_table;
+
+my $galera_replication_username = $inipfconf{"active_active"}{"galera_replication_username"};
+my $galera_replication_password = $inipfconf{"active_active"}{"galera_replication_password"};
+
+@output = `sudo mysql -u $galera_replication_username -p'$galera_replication_password' -h$mysql_master_ip -e "SHOW MASTER STATUS\\G"`;
 
 my $position;
 my $file;
@@ -56,7 +73,7 @@ foreach my $item (@output) {
 print "Position: $position";
 print "File: $file";
 
-@output = `sudo mysql -u root -p'$mysql_root_password' pf -e "SELECT BINLOG_GTID_POS('$file', $position)\\G"`;
+@output = `sudo mysql -u $galera_replication_username -p'$galera_replication_password' -h$mysql_master_ip -e "SELECT BINLOG_GTID_POS('$file', $position)\\G"`;
 
 my $gtid;
 
@@ -68,21 +85,6 @@ foreach my $item (@output) {
 
 print $gtid;
 
-$output = `sudo systemctl stop packetfence-mariadb`;
-
-my $pfconf = "/usr/local/pf/conf/pf.conf";
-my $pfconfigconf = "/usr/local/pf/conf/pfconfig.conf";
-
-my %inipfconf;
-tie %inipfconf, 'Config::IniFiles', ( -file => "$pfconf" );
-
-my %inipfconfigconf;
-tie %inipfconfigconf, 'Config::IniFiles', ( -file => "$pfconfigconf" );
-
-$inipfconf{"database"}{"host"} = '127.0.0.1';
-
-$inipfconfigconf{"mysql"}{"host"} = '127.0.0.1';
-$inipfconfigconf{"mysql"}{"table"} = $pfconfig_table;
 
 tied( %inipfconf )->RewriteConfig($pfconf);
 tied( %inipfconfigconf )->RewriteConfig($pfconfigconf);
