@@ -60,7 +60,7 @@ export const pfConfigurationGeneralViewFields = (context = {}) => {
         },
         {
           label: i18n.t('Timezone'),
-          text: i18n.t(`System's timezone in string format. List generated from Perl library DataTime::TimeZone. When left empty, it will use the timezone of the server.`),
+          text: i18n.t(`System's timezone in string format. List generated from Perl library DateTime::TimeZone. When left empty, it will use the timezone of the server.`),
           fields: [
             {
               key: 'timezone',
