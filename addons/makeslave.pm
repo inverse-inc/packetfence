@@ -123,15 +123,8 @@ sleep 10;
 foreach my $item (@output) {
     print $item."\n";
     if ($item =~ /VARIABLE_VALUE:\s+ON\s*/ ) {
-        $inipfconf{"database_advanced"}{"readonly"} = "ON";
-        tied( %inipfconf )->RewriteConfig($pfconf);
-
-        $output = `/usr/local/pf/bin/pfcmd configreload hard`;
-        $output = `/usr/local/pf/bin/pfcmd generatemariadbconfig`;
-
-        $output = `sudo systemctl restart packetfence-mariadb`;
-
-        print "Slave connected";
+        $output = `sudo mysql -u root -p'$mysql_root_password' -e "FLUSH TABLES WITH READ LOCK"`;
+        $output = `sudo mysql -u root -p'$mysql_root_password' -e "SET GLOBAL read_only = ON"`;
     }
 }
 
