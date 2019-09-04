@@ -1,8 +1,3 @@
-<!--
-https://plnkr.co/edit/iadT0ikcpKELU0eaE9f6?p=preview
-https://bl.ocks.org/steveharoz/8c3e2524079a8c440df60c1ab72b5d03
-https://flowingdata.com/2012/08/02/how-to-make-an-interactive-network-visualization/
--->
 <template>
   <div ref="svgContainer" :class="[ 'svgContainer', { [`highlight highlight-${highlight}`]: highlight } ]">
 
@@ -106,7 +101,7 @@ https://flowingdata.com/2012/08/02/how-to-make-an-interactive-network-visualizat
         />
 
         <!-- switch -->
-        <template v-if="node.type === 'switch'" :key="node.id">
+        <template v-if="node.type === 'switch'">
           <use
             xlink:href="#switch"
             width="32" height="32"
@@ -117,15 +112,17 @@ https://flowingdata.com/2012/08/02/how-to-make-an-interactive-network-visualizat
             @mouseout="mouseOutNode(node, $event)"
             @mousedown="mouseDownNode(node, $event)"
             :class="[ 'switch', 'pointer', { 'highlight': node.highlight } ]"
+            :key="node.id"
           />
           <text class="switchText" v-show="!node.highlight"
             :x="coords[i].x" :y="coords[i].y"
             dy="3" dx="16"
+            :key="node.id"
           >↦{{ node.id }}</text>
         </template>
 
         <!-- unknown -->
-        <template v-if="node.type === 'unknown'" :key="node.id">
+        <template v-if="node.type === 'unknown'">
           <use
             xlink:href="#unknown"
             width="32" height="32"
@@ -135,10 +132,12 @@ https://flowingdata.com/2012/08/02/how-to-make-an-interactive-network-visualizat
             @mouseover="mouseOverNode(node, $event)"
             @mouseout="mouseOutNode(node, $event)"
             :class="[ 'unknown', { 'highlight': node.highlight } ]"
+            :key="node.id"
           />
           <text class="switchText" v-show="!node.highlight"
             :x="coords[i].x" :y="coords[i].y"
             dy="3" dx="16"
+            :key="node.id"
           >↦{{ node.id }}</text>
         </template>
 
@@ -943,9 +942,9 @@ export default {
       this.highlight = null
     },
     mouseDownNode (node, event = null) {
-      const { type = null } = node
       console.log('mouseDownNode', node)
       /*
+      const { type = null } = node
       switch (type) {
         case 'node':
           this.$router.push({ name: 'node', params: { mac: node.id } })

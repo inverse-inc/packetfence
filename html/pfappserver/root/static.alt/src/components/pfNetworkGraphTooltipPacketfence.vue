@@ -24,7 +24,6 @@
 </template>
 
 <script>
-import apiCall from '@/utils/api'
 import pfFormRow from '@/components/pfFormRow'
 
 export default {
