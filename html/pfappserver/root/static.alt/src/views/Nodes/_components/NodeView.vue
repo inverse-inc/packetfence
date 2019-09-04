@@ -242,8 +242,6 @@
           </template>
           <b-table stacked="sm" :items="node.locations" :fields="locationFields" responsive show-empty striped>
               <template slot="switch" slot-scope="location">
-                {{ location.item.switch_ip }} / <mac>{{ location.item.switch_mac }}</mac><br/>
-                <b-badge class="mr-1"><icon name="wifi" class="align-baseline" scale=".6"></icon> {{ location.item.ssid }}</b-badge>
                 <b-button variant="link" :to="{ name: 'switch', params: { id: location.item.switch_ip } }">{{ location.item.switch_ip }}</b-button> / <mac>{{ location.item.switch_mac }}</mac><br/>
                 <b-badge class="mr-1" v-if="location.item.port">{{ $t('Port') }}: {{ location.item.port }} <span v-if="location.item.ifDesc">({{ location.item.ifDesc }})</span></b-badge>
                 <b-badge class="mr-1" v-if="location.item.ssid"><icon name="wifi" class="align-baseline" scale=".6"></icon> {{ location.item.ssid }}</b-badge>
