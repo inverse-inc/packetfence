@@ -62,7 +62,7 @@ sub build {
     );
     push (@all_passthroughs, map{
             split(/\s*,\s*/, $self->{provisioning}->{$_}->{domains} // '')
-        } keys $self->{provisioning});
+        } keys %{$self->{provisioning}});
 
 
     return $self->_build(\@all_passthroughs);
