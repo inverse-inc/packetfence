@@ -100,7 +100,7 @@ sub parseArgs {
     if (($action eq 'updatesystemd' || $action eq 'generateconfig') && $service eq 'pf') {
         @services = grep {$_ ne 'pf'} @pf::services::ALL_SERVICES;
     } else {
-        if($cluster_enabled && $service eq 'pf') {
+        if($service eq 'pf') {
             if ($action eq 'status') {
                 @services = ($service);
             } else {
