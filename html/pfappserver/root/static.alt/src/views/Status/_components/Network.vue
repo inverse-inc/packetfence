@@ -433,7 +433,7 @@ export default {
       liveMode: false,
       liveModeAllowed: false,
       liveModeInterval: false,
-      liveModeIntervalMs: 3000
+      liveModeIntervalMs: 60000
     }
   },
   computed: {
@@ -478,9 +478,11 @@ export default {
           cursor: 0,
           limit,
           fields: [...(new Set([ // unique set
-            ...['mac', 'last_seen'], // always include `mac` and `last_seen`
-            ...Object.keys(palettes), // always include fields for palettes
-            ...fields.map(f => f.value)
+            ...['mac', 'last_seen'].map(key => `node.${key}`), // include `node.mac` and `node.last_seen`
+            ...Object.keys(palettes).map(key => `node.${key}`), // include node fields for palettes
+            ...['description', 'type'].map(key => `switch.${key}`), // include `switch` data
+            ...['connection_type', 'port', 'realm', 'role', 'ssid', 'switch_mac', 'vlan'].map(key => `locationlog.${key}`) // include `locationlog` data
+            //...fields.map(f => f.value)
           ]))],
           sort: ['last_seen DESC'],
           query
@@ -611,7 +613,7 @@ export default {
       handler: function (a, b) {
         this.liveMode = false // disable live mode
         this.liveModeAllowed = false // disallow live mode
-        this.liveModeIntervalMs = 3000 // reset interval
+        this.liveModeIntervalMs = 60000 // reset interval
       },
       deep: true
     },

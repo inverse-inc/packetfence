@@ -4,14 +4,14 @@
       <h5 class="mb-0"><mac>{{ id }}</mac></h5>
     </b-card-header>
     <div class="card-body">
-      <b-container class="my-3" v-if="isLoading || isError">
+      <b-container class="my-3 px-0" v-if="isLoading || isError">
         <b-row class="justify-content-md-center text-secondary">
-            <b-col cols="12" md="auto">
+            <b-col cols="12" md="auto" class="w-100">
               <icon name="circle-notch" scale="2" spin v-if="isLoading"></icon>
               <b-media v-else>
                 <icon name="exclamation-triangle" scale="2" slot="aside"></icon>
-                <strong v-t="'Error'"></strong>
-                <p class="text-nowrap" v-t="'Node not found'"></p>
+                <strong v-t="'Node'"></strong>
+                <p class="text-nowrap" v-t="'Not found'"></p>
               </b-media>
             </b-col>
         </b-row>

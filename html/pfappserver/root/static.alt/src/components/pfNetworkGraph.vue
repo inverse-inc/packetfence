@@ -173,10 +173,15 @@ https://flowingdata.com/2012/08/02/how-to-make-an-interactive-network-visualizat
         <div class="tt-contents">
           <!-- NODE -->
           <pf-network-graph-tooltip-node v-if="['node'].includes(tooltip.node.type)"
-            :id="tooltip.node.id"/>
+            :id="tooltip.node.id"
+          />
+          <!-- SWITCH -->
           <pf-network-graph-tooltip-switch v-else-if="['switch', 'unknown'].includes(tooltip.node.type)"
-            :id="tooltip.node.id"/>
-          <pre v-else>{{ JSON.stringify(tooltip, null, 2) }}</pre>
+            :id="tooltip.node.id"
+            :properties="tooltip.node.properties"
+          />
+          <!-- PACKETFENCE -->
+          <pf-network-graph-tooltip-packetfence v-else-if="['packetfence'].includes(tooltip.node.type)"/>
         </div>
       </div>
     </div>
@@ -220,6 +225,7 @@ https://flowingdata.com/2012/08/02/how-to-make-an-interactive-network-visualizat
 <script>
 import pfNetworkGraphTooltipNode from '@/components/pfNetworkGraphTooltipNode'
 import pfNetworkGraphTooltipSwitch from '@/components/pfNetworkGraphTooltipSwitch'
+import pfNetworkGraphTooltipPacketfence from '@/components/pfNetworkGraphTooltipPacketfence'
 
 // import multiple `d3-*` micro-libraries into same namespace,
 //  this has a smaller footprint than using full standalone `d3` library.
@@ -276,7 +282,8 @@ export default {
   name: 'pf-network-graph',
   components: {
     pfNetworkGraphTooltipNode,
-    pfNetworkGraphTooltipSwitch
+    pfNetworkGraphTooltipSwitch,
+    pfNetworkGraphTooltipPacketfence
   },
   props: {
     dimensions: { // svg dimensions
@@ -552,6 +559,7 @@ export default {
             tooltipAngle = constrainTooltipAngle(node, tooltipAngle)
             tooltipCoords = getCoordFromCoordAngle(node.x, node.y, tooltipAngle, this.tooltipDistance)
             tooltipCoordsBounded = this.coordBounded(tooltipCoords)
+            node.properties = { ...node.properties, ...nodes[index + 1].properties } // overload properties from target, move node switch/locationlog properties to switch
             break
         }
         tooltips.push({ node, line: { angle: tooltipAngle, x1: nodeBounded.x, y1: nodeBounded.y, x2: tooltipCoordsBounded.x, y2: tooltipCoordsBounded.y } })
