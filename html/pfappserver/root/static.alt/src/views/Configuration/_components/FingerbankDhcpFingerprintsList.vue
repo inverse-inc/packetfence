@@ -74,7 +74,7 @@ export default {
   },
   methods: {
     clone (item) {
-      this.$router.push({ name: 'cloneFingerbankDhcpFingerprint', params: { scope: this.scope, id: item.id } })
+      this.$router.push({ name: 'cloneFingerbankDhcpFingerprint', params: { scope: 'local', id: item.id } })
     },
     remove (item) {
       this.$store.dispatch(`${this.storeName}/deleteDhcpFingerprint`, item.id).then(response => {

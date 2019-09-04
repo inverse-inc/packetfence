@@ -74,7 +74,7 @@ export default {
   },
   methods: {
     clone (item) {
-      this.$router.push({ name: 'cloneFingerbankDhcpv6Enterprise', params: { scope: this.scope, id: item.id } })
+      this.$router.push({ name: 'cloneFingerbankDhcpv6Enterprise', params: { scope: 'local', id: item.id } })
     },
     remove (item) {
       this.$store.dispatch(`${this.storeName}/deleteDhcpv6Enterprise`, item.id).then(response => {

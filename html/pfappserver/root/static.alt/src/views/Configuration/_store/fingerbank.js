@@ -199,6 +199,7 @@ const actions = {
   createCombination: ({ commit }, data) => {
     commit('COMBINATION_REQUEST')
     return api.fingerbankCreateCombination(data).then(response => {
+      data.id = response.id
       commit('COMBINATION_REPLACED', data)
       return response
     }).catch(err => {
@@ -251,6 +252,7 @@ const actions = {
   createDevice: ({ commit }, data) => {
     commit('DEVICE_REQUEST')
     return api.fingerbankCreateDevice(data).then(response => {
+      data.id = response.id
       commit('DEVICE_REPLACED', data)
       return response
     }).catch(err => {
@@ -303,6 +305,7 @@ const actions = {
   createDhcpFingerprint: ({ commit }, data) => {
     commit('DHCP_FINGERPRINT_REQUEST')
     return api.fingerbankCreateDhcpFingerprint(data).then(response => {
+      data.id = response.id
       commit('DHCP_FINGERPRINT_REPLACED', data)
       return response
     }).catch(err => {
@@ -355,6 +358,7 @@ const actions = {
   createDhcpVendor: ({ commit }, data) => {
     commit('DHCP_VENDOR_REQUEST')
     return api.fingerbankCreateDhcpVendor(data).then(response => {
+      data.id = response.id
       commit('DHCP_VENDOR_REPLACED', data)
       return response
     }).catch(err => {
@@ -407,6 +411,7 @@ const actions = {
   createDhcpv6Fingerprint: ({ commit }, data) => {
     commit('DHCPV6_FINGERPRINT_REQUEST')
     return api.fingerbankCreateDhcpv6Fingerprint(data).then(response => {
+      data.id = response.id
       commit('DHCPV6_FINGERPRINT_REPLACED', data)
       return response
     }).catch(err => {
@@ -459,6 +464,7 @@ const actions = {
   createDhcpv6Enterprise: ({ commit }, data) => {
     commit('DHCPV6_ENTERPRISE_REQUEST')
     return api.fingerbankCreateDhcpv6Enterprise(data).then(response => {
+      data.id = response.id
       commit('DHCPV6_ENTERPRISE_REPLACED', data)
       return response
     }).catch(err => {
@@ -511,6 +517,7 @@ const actions = {
   createMacVendor: ({ commit }, data) => {
     commit('MAC_VENDOR_REQUEST')
     return api.fingerbankCreateMacVendor(data).then(response => {
+      data.id = response.id
       commit('MAC_VENDOR_REPLACED', data)
       return response
     }).catch(err => {
@@ -563,6 +570,7 @@ const actions = {
   createUserAgent: ({ commit }, data) => {
     commit('USER_AGENT_REQUEST')
     return api.fingerbankCreateUserAgent(data).then(response => {
+      data.id = response.id
       commit('USER_AGENT_REPLACED', data)
       return response
     }).catch(err => {

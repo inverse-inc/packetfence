@@ -109,7 +109,7 @@ export default {
   },
   methods: {
     clone (item) {
-      this.$router.push({ name: 'cloneFingerbankDevice', params: { scope: this.scope, id: item.id } })
+      this.$router.push({ name: 'cloneFingerbankDevice', params: { scope: 'local', id: item.id } })
     },
     remove (item) {
       this.$store.dispatch(`${this.storeName}/deleteDevice`, item.id).then(response => {
