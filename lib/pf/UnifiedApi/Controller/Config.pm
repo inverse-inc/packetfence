@@ -126,6 +126,7 @@ sub list {
         $items = $self->cleanup_items($items);
     }
 
+
     my $fields = $search_info_or_error->{fields};
     if (defined $fields && @$fields) {
         $self->remove_fields($fields, $items);
@@ -297,6 +298,7 @@ sub reset_form {
             $form->$k($v);
         }
     }
+    $self->_build_fields;
     return;
 }
 
