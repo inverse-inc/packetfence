@@ -298,7 +298,7 @@ sub reset_form {
             $form->$k($v);
         }
     }
-    $self->_build_fields;
+    $form->_build_fields;
     return;
 }
 
