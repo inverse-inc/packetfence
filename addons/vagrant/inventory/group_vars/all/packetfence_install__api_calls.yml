@@ -5,9 +5,7 @@ packetfence_install__config_base_general:
   hostname: "{{ ansible_distribution|lower }}"
   domain: example.lan
   dhcpservers: 10.0.0.1,192.168.122.1
-  # temp https://github.com/inverse-inc/packetfence/issues/4768
-  # timezone: "{{ ansible_date_time['tz'] }}"
-  timezone: ""
+  timezone: "{{ ansible_date_time['tz'] }}"
 packetfence_install__config_base_alerting:
   smtpserver: localhost
   fromaddr: "{{ packetfence_install__config_base_general['hostname'] }}@{{ packetfence_install__config_base_general['domain'] }}"
