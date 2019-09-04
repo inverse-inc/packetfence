@@ -61,13 +61,19 @@ Vagrant.configure("2") do |pfservers|
         srv.vm.network "forwarded_port", guest: 22, host: details['ssh_port'], host_ip: "127.0.0.1", auto_correct: true
 
         # mgmt
-        srv.vm.network "private_network", ip: details['mgmt_ip'], libvirt__dhcp_enabled: false
+        # libvirt__forward_mode: "route" mean:
+        # Allow inbound, but only to our expected subnet. Allow outbound, but
+        # only from our expected subnet. Allow traffic between guests. Deny
+        # all other inbound. Deny all other outbound.
+        srv.vm.network "private_network", ip: details['mgmt_ip'], libvirt__dhcp_enabled: false, libvirt__forward_mode: "route"
 
         # registration
-        srv.vm.network "private_network", ip: details['reg_ip'], libvirt__dhcp_enabled: false
+        # libvirt__forward_mode: "none" mean:
+        # Allow traffic between guests. Deny inbound. Deny outbound.
+        srv.vm.network "private_network", ip: details['reg_ip'], libvirt__dhcp_enabled: false, libvirt__forward_mode: "none"
 
         # isolation
-        srv.vm.network "private_network", ip: details['iso_ip'], libvirt__dhcp_enabled: false
+        srv.vm.network "private_network", ip: details['iso_ip'], libvirt__dhcp_enabled: false, libvirt__forward_mode: "none"
 
         srv.vm.provider "libvirt" do |v|
           v.random_hostname = true
