@@ -28,7 +28,7 @@ use pf::ConfigStore::Profile;
 use Utils;
 my ($fh, $filename) = Utils::tempfileForConfigStore("pf::ConfigStore::Profile");
 
-use Test::More tests => 24;
+use Test::More tests => 28;
 use Test::Mojo;
 #This test will running last
 use Test::NoWarnings;
@@ -43,6 +43,12 @@ $t->get_ok($collection_base_url)
   ->json_is('/items/0/id', 'default');
 
 my $items = $t->tx->res->json->{items};
+
+$t->patch_ok("$base_url/default" => json => {sources => [qw(blackhole)]})
+  ->status_is(200);
+
+$t->patch_ok("$base_url/default" => json => {sources => [qw(blackhole htpasswd)]})
+  ->status_is(422);
 
 $t->get_ok("$base_url/default")
   ->status_is(200)

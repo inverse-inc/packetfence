@@ -112,6 +112,7 @@ sub update_fields {
 
 sub validate {
     my ($self) = @_;
+    $self->SUPER::validate();
     my $value = $self->value;
     my $advanced_filter = $value->{advanced_filter};
     if (@{$value->{filter}} == 0 && !defined $advanced_filter) {
