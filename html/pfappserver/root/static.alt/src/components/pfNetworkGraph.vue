@@ -559,6 +559,7 @@ export default {
             tooltipAngle = constrainTooltipAngle(node, tooltipAngle)
             tooltipCoords = getCoordFromCoordAngle(node.x, node.y, tooltipAngle, this.tooltipDistance)
             tooltipCoordsBounded = this.coordBounded(tooltipCoords)
+            node = JSON.parse(JSON.stringify(node)) // dereference (avoid permanent overload)
             node.properties = { ...node.properties, ...nodes[index + 1].properties } // overload properties from target, move node switch/locationlog properties to switch
             break
         }

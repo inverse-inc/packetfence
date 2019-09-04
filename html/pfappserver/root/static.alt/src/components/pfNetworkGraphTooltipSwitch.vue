@@ -3,7 +3,7 @@
     <b-card-header>
       <h5 class="mb-0"><mac>{{ id }}</mac></h5>
     </b-card-header>
-    <div class="card-body">
+    <div class="card-body" v-if="hasLocationLogProperties">
       <b-container fluid class="px-0">
         <b-row v-if="properties.locationlog.switch">
           <b-col cols="auto">
@@ -73,6 +73,11 @@ export default {
     properties: {
       type: Object,
       default: () => { return {} }
+    }
+  },
+  computed: {
+    hasLocationLogProperties () {
+      return 'locationlog' in this.properties && Object.keys(this.properties.locationlog).filter(key => this.properties.locationlog[key]).length > 0
     }
   }
 }
