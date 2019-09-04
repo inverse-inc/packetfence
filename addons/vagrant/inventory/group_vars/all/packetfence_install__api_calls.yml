@@ -10,7 +10,7 @@ packetfence_install__config_base_alerting:
   smtpserver: localhost
   fromaddr: "{{ packetfence_install__config_base_general['hostname'] }}@{{ packetfence_install__config_base_general['domain'] }}"
   emailaddr: "alerting@{{ packetfence_install__config_base_general['domain'] }}"
-  smtp_port: 1025
+  smtp_port: 25
   smtp_verifyssl: disabled
   subjectprefix: PF UNDER TEST
   smtp_timeout: 30
