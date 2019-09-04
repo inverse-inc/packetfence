@@ -8,20 +8,20 @@
         <b-card-header>
           <b-row class="align-items-center px-0" no-gutters>
             <b-col cols="auto" class="mr-auto">
-              <h4 class="d-inline mb-0" v-t="'DHCP Agents'"></h4>
+              <h4 class="d-inline mb-0" v-t="'User Agents'"></h4>
             </b-col>
           </b-row>
         </b-card-header>
       </template>
       <template slot="buttonAdd">
-        <b-button variant="outline-primary" :to="{ name: 'newFingerbankUserAgent' }">{{ $t('New DHCP Agent') }}</b-button>
+        <b-button variant="outline-primary" :to="{ name: 'newFingerbankUserAgent' }">{{ $t('New User Agent') }}</b-button>
       </template>
       <template slot="emptySearch" slot-scope="state">
-        <pf-empty-table :isLoading="state.isLoading">{{ $t('No local DHCP fingerprints found') }}</pf-empty-table>
+        <pf-empty-table :isLoading="state.isLoading">{{ $t('No user agents found') }}</pf-empty-table>
       </template>
       <template slot="buttons" slot-scope="item">
         <span class="float-right text-nowrap">
-          <pf-button-delete size="sm" v-if="!item.not_deletable" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete DHCP Agent?')" @on-delete="remove(item)" reverse/>
+          <pf-button-delete size="sm" v-if="!item.not_deletable" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete User Agent?')" @on-delete="remove(item)" reverse/>
           <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(item)">{{ $t('Clone') }}</b-button>
         </span>
       </template>
