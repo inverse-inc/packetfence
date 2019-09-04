@@ -131,8 +131,6 @@ sub authorize {
     $switch->setCurrentTenant();
     my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id, $ifDesc) = $switch->parseRequest($radius_request);
 
-    $user_name = normalize_username($user_name, $radius_request);
-
     if (!$mac) {
         return [$RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "Mac is empty")];
     }
