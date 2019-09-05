@@ -110,9 +110,8 @@ sub update_fields {
 
 =cut
 
-sub validate {
+after validate => sub {
     my ($self) = @_;
-    $self->SUPER::validate();
     my $value = $self->value;
     my $advanced_filter = $value->{advanced_filter};
     if (@{$value->{filter}} == 0 && !defined $advanced_filter) {
@@ -126,7 +125,7 @@ sub validate {
             $self->field('advanced_filter')->add_error("Advanced filter is invalid");
         }
     }
-}
+};
 
 =head2 definition
 
