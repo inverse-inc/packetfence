@@ -336,7 +336,14 @@ sub process_pkt {
                 }
 
                 # If its a DHCPREQUEST, we take the IP address from the option
-                my $dhcp_ip = ( $dhcp->{'op'} == 1 && $dhcp->{'options'}{'53'} == 3 ) ? $dhcp->{'options'}{'50'} : $dhcp->{yiaddr};
+                my $dhcp_ip;
+                if ( $dhcp->{'op'} == 1 && $dhcp->{'options'}{'53'} == 3 && defined($dhcp->{'options'}{'50'}) ) {
+                    $dhcp_ip = $dhcp->{'options'}{'50'};
+                } elsif ( defined($dhcp->{yiaddr}) && $dhcp->{yiaddr} ne "0.0.0.0") {
+                    $dhcp_ip = $dhcp->{yiaddr};
+                } else {
+                    $dhcp_ip = $dhcp->{ciaddr};
+                }
                 my $rate_limit_key;
                 if(defined($dhcp_ip)) {
                     # Key is with BOOT type, DHCP type, IP and MAC
