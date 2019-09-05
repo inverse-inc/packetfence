@@ -267,6 +267,7 @@ func (I *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 
 	options := p.ParseOptions()
 	answer.MAC = p.CHAddr()
+	answer.SrcIP = I.Ipv4
 
 	ctx = log.AddToLogContext(ctx, "mac", answer.MAC.String())
 
