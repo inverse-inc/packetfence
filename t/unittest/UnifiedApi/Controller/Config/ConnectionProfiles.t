@@ -28,7 +28,7 @@ use pf::ConfigStore::Profile;
 use Utils;
 my ($fh, $filename) = Utils::tempfileForConfigStore("pf::ConfigStore::Profile");
 
-use Test::More tests => 28;
+use Test::More tests => 32;
 use Test::Mojo;
 #This test will running last
 use Test::NoWarnings;
@@ -48,6 +48,12 @@ $t->patch_ok("$base_url/default" => json => {sources => [qw(blackhole)]})
   ->status_is(200);
 
 $t->patch_ok("$base_url/default" => json => {sources => [qw(blackhole htpasswd)]})
+  ->status_is(422);
+
+$t->patch_ok("$base_url/blackhole" => json => {sources => [qw(blackhole)]})
+  ->status_is(200);
+
+$t->patch_ok("$base_url/blackhole" => json => {sources => [qw(blackhole htpasswd)]})
   ->status_is(422);
 
 $t->get_ok("$base_url/default")
