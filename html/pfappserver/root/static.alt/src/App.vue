@@ -180,7 +180,11 @@ export default {
     }
   },
   created () {
-    this.$store.dispatch('session/setLanguage', { lang: 'en' })
+    const lang = window.navigator.language.split(/-/)[0]
+    if (!['en', 'fr'].includes(lang)) {
+      lang = 'en'
+    }
+    this.$store.dispatch('session/setLanguage', { lang })
   },
   watch: {
     altShiftAKey (pressed) {
