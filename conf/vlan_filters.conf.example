@@ -313,7 +313,7 @@
 # [3:3]
 # scope = RegisteredRole
 # action = trigger_security_event
-# action_param = mac = $mac, tid = 1100010, type = INTERNAL
+# action_param = mac = $mac, tid = SOMETHING_HAPPENED, type = CUSTOM
 #
 # It means that if the SSID is OpenWrt-SECURE then we send a API call to the function trigger_security_event and
 # trigger the security_event 1100010

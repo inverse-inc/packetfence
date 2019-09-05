@@ -10,7 +10,7 @@ value = Google
 
 [1:Google]
 action=trigger_security_event
-action_param = mac = $mac, tid = 888888, type = INTERNAL
+action_param = mac = $mac, tid = GOOGLE_SOFTWARE_INSTALLED, type = CUSTOM
 EOT
 
 [ServicePackUpdated]
@@ -24,7 +24,7 @@ value = Date.Diff('DAYS', Date.Now(), Date.Parse("%m/%d/%Y", ${InstalledOn})) > 
 [1:InstalledOn]
 match=all
 action=trigger_security_event
-action_param = mac = $mac, tid = 888888, type = INTERNAL
+action_param = mac = $mac, tid = SERVICE_PACK_OUTDATED, type = CUSTOM
 EOT
 
 # Detect the current user logged in and register the device
