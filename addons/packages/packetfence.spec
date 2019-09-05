@@ -575,10 +575,9 @@ for i in `find docs/html "(" -name "*.html" -or -name "*.js" ")"  -type f`; do \
 	%{__install} -m0644 $i $RPM_BUILD_ROOT/usr/local/pf/html/pfappserver/root/static/doc/; \
 done
 
-%{__install} -d -m0755 $RPM_BUILD_ROOT/usr/local/pf/html/pfappserver/root/static/images
-for i in `find * -path 'docs/images/*' -type f`; do \
-	%{__install} -m0644 $i $RPM_BUILD_ROOT/usr/local/pf/html/pfappserver/root/static/images/; \
-done
+# images
+%{__make} DESTDIR=%{buildroot} images
+
 
 cp -r lib $RPM_BUILD_ROOT/usr/local/pf/
 cp -r go $RPM_BUILD_ROOT/usr/local/pf/

@@ -151,11 +151,9 @@ install: build
 	for i in `find "docs/html" "(" -name "*.html" -or -iname "*.js" ")" -type f`; do \
 		install -m0644 $$i $(CURDIR)/debian/packetfence-doc$(PREFIX)/$(NAME)/html/pfappserver/root/static/doc/; \
 	done
+	# images
+	make DESTDIR=$(CURDIR)/debian/packetfence-doc images
 
-	install -d -m0755 $(CURDIR)/debian/packetfence-doc$(PREFIX)/$(NAME)/html/pfappserver/root/static/images
-	for i in `find * -path 'docs/images/*' -type f`; do \
-		install -m0644 $$i $(CURDIR)/debian/packetfence-doc$(PREFIX)/$(NAME)/html/pfappserver/root/static/images/; \
-	done
 	#Portal javascript/css
 	rm -f $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/html/common/styles.css
 	rm -f $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/html/common/styles.css.map
