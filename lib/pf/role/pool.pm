@@ -135,10 +135,10 @@ sub getRoundRobin {
     }
     my $last_reg_node = node_last_reg_non_inline_on_category($args->{'mac'}, $args->{'user_role'});
     my $last_reg_mac = $last_reg_node->{mac};
-    $logger->debug("Last registered node in role $args->{'user_role'} is $last_reg_mac");
     my @array = $range->range;
 
     if (defined($last_reg_mac) && $last_reg_mac ne '') {
+        $logger->debug("Last registered node in role $args->{'user_role'} is $last_reg_mac");
         my $new_vlan;
         my $last_reg_mac_info = node_view($last_reg_mac);
         $logger->debug("Last VLAN assigned to registered device: ".$last_reg_mac_info->{'last_vlan'});
