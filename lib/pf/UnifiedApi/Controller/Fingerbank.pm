@@ -18,7 +18,9 @@ use Mojo::Base 'pf::UnifiedApi::Controller::RestRoute';
 use Mojo::Util qw(url_unescape);
 use pf::UnifiedApi::Search::Builder::Fingerbank;
 use fingerbank::API;
+use pf::cluster;
 use pf::fingerbank;
+use pf::constants;
 
 =head2 url_param_name
 
@@ -310,6 +312,18 @@ sub update {
 
     pf::fingerbank::sync_local_db();
     $self->render(status => 200, json => { message => "$id updated"});
+}
+
+=head2 update_upstream_db
+
+update_upstream_db
+
+=cut
+
+sub update_upstream_db {
+    my ($self) = @_;
+    pf::cluster::notify_each_server('fingerbank_update_component', action => "update-upstream-db", email_admin => $TRUE, fork_to_queue => $TRUE);
+    $self->render(status => 200, json => { message => "Successfully dispatched update request for Fingerbank upstream DB. An email will follow for status"});
 }
 
 =head1 AUTHOR

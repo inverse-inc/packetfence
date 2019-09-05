@@ -144,7 +144,7 @@ sub setup_api_v1_routes {
     my ($self, $api_v1_route) = @_;
     $self->setup_api_v1_crud_routes($api_v1_route);
     $self->setup_api_v1_config_routes($api_v1_route->any("/config")->name("api.v1.Config"));
-    $self->setup_api_v1_fingerbank_routes($api_v1_route->any("/fingerbank")->name("api.v1.Fingerbank"));
+    $self->setup_api_v1_fingerbank_routes($api_v1_route->any("/fingerbank")->to(controller => 'Fingerbank')->name("api.v1.Fingerbank"));
     $self->setup_api_v1_reports_routes($api_v1_route->any("/reports")->name("api.v1.Reports"));
     $self->setup_api_v1_dynamic_reports_routes($api_v1_route);
     $self->setup_api_v1_services_routes($api_v1_route);
@@ -1651,8 +1651,8 @@ setup_api_v1_fingerbank_routes
 
 sub setup_api_v1_fingerbank_routes {
     my ($self, $root) = @_;
-    $root->any(['GET'] => '/account_info')->to("Fingerbank#account_info")->name("api.v1.Fingerbank.account_info");
-
+    $root->register_sub_action({ action => "update_upstream_db", method => "POST"});
+    $root->register_sub_action({ action => "account_info", method => "GET" });
     my $upstream = $root->any("/upstream")->to(scope => "Upstream")->name( $root->name . ".Upstream");
     my $local_route = $root->any("/local")->to(scope => "Local")->name( $root->name . ".Local");
     my $all_route = $root->any("/all")->to(scope => "All")->name( $root->name . ".All");
