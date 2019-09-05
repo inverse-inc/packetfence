@@ -77,6 +77,21 @@ html/pfappserver/root/static/doc:
 docs/html/index.js: $(HTML)
 	find $$(dirname "$@") -type f  -iname  '*.html' -and -not -iname '*template*' -printf "{\"name\":\"%f\", \"size\":%s, \"last_modifed\" : %T@}\n" | jq -s '{ items: [ .[] |  {name, size, last_modifed : (.last_modifed*1000 | floor)} ] }' > $@
 
+.PHONY: images
+
+images:
+	@echo "install images dir and all subdirectories"
+	for subdir in `find docs/images/* -type d -printf "%f\n"` ; do \
+		install -d -m0755 $(DESTDIR)/usr/local/pf/html/pfappserver/root/static/images/$$subdir ; \
+		for img in `find docs/images/$$subdir -type f`; do \
+			install -m0644 $$img $(DESTDIR)/usr/local/pf/html/pfappserver/root/static/images/$$subdir ; \
+		done \
+	done
+	@echo "install only images at depth0 in images/ directory"
+	for img in `find docs/images/* -maxdepth 0 -type f`; do \
+		install -m0644 $$img $(DESTDIR)/usr/local/pf/html/pfappserver/root/static/images/ ; \
+	done
+
 .PHONY: html
 
 html: $(HTML) docs/html/index.js
