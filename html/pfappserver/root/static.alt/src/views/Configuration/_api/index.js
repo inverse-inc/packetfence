@@ -381,6 +381,11 @@ export default {
     })
   },
   fingerbankUpdateCombination: data => {
+    Object.keys(data).forEach(key => {
+      if (/^not_/.test(key)) {  // remove fields starting with 'not_'
+        delete data[key]
+      }
+    })
     return apiCall.patch(['fingerbank', 'local', 'combination', data.id], data).then(response => {
       return response.data
     })
