@@ -1516,6 +1516,14 @@ sub setup_api_v1_reports_routes {
       ->to("Reports#nodebandwidth_range")
       ->name("api.v1.Reports.nodebandwidth_range");
     $root
+      ->any(['GET'] => "/userbandwidth")
+      ->to("Reports#userbandwidth_all")
+      ->name("api.v1.Reports.userbandwidth_all");
+    $root
+      ->any(['GET'] => "/userbandwidth/#start/#end")
+      ->to("Reports#userbandwidth_range")
+      ->name("api.v1.Reports.userbandwidth_range");
+    $root
       ->any(['GET'] => "/topauthenticationfailures/mac/#start/#end")
       ->to("Reports#topauthenticationfailures_by_mac")
       ->name("api.v1.Reports.topauthenticationfailures_by_mac");

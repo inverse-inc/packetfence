@@ -935,6 +935,40 @@ export const pfReportCategories = [
           options: pfReportChartOptions.pie,
           layout: pfReportChartLayout.pie
         }
+      },
+      {
+        name: i18n.t('User Bandwidth'),
+        tabs: [
+          {
+            name: i18n.t('All'),
+            path: 'userbandwidth',
+            range: {
+              optional: true
+            }
+          }
+        ],
+        columns: [
+          pfReportColumns.pid,
+          pfReportColumns.acctinput,
+          pfReportColumns.acctinputoctets,
+          pfReportColumns.acctoutput,
+          pfReportColumns.acctoutputoctets,
+          pfReportColumns.accttotal,
+          pfReportColumns.accttotaloctets,
+          pfReportColumns.percent
+        ],
+        chart: {
+          labels: (items) => {
+            items.pop() // pop Total
+            return items.map(item => item.pid)
+          },
+          values: (items) => {
+            items.pop() // pop Total
+            return items.map(item => item.accttotaloctets)
+          },
+          options: pfReportChartOptions.pie,
+          layout: pfReportChartLayout.pie
+        }
       }
     ]
   },

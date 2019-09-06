@@ -193,6 +193,18 @@ sub nodebandwidth_range {
     $self->render(json => { items => [report_nodebandwidth($start, $end)]});
 }
 
+sub userbandwidth_all {
+    my ($self) = @_;
+    $self->render(json => { items => [report_userbandwidth_all()]});
+}
+
+sub userbandwidth_range {
+    my ($self) = @_;
+    my $start = $self->_get_datetime($self->param('start'));
+    my $end = $self->_get_datetime($self->param('end'));
+    $self->render(json => { items => [report_userbandwidth($start, $end)]});
+}
+
 sub topauthenticationfailures_by_mac {
     my ($self) = @_;
     my $start = $self->_get_datetime($self->param('start'));
