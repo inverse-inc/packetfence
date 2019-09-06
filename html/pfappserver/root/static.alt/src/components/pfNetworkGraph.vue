@@ -42,6 +42,11 @@
           </g>
         </symbol>
 
+        <symbol id="switch-group" viewBox="0 0 512 512" preserveAspectRatio="xMinYMin slice">
+          <circle class="bg" cx="256" cy="256" r="224"/>
+          <path class="fg" d="M257 8C120 8 9 119 9 256s111 248 248 248 248-111 248-248S394 8 257 8zm-49.5 374.8L81.8 257.1l125.7-125.7 35.2 35.4-24.2 24.2-11.1-11.1-77.2 77.2 77.2 77.2 26.6-26.6-53.1-52.9 24.4-24.4 77.2 77.2-75 75.2zm99-2.2l-35.2-35.2 24.1-24.4 11.1 11.1 77.2-77.2-77.2-77.2-26.5 26.5 53.1 52.9-24.4 24.4-77.2-77.2 75-75L432.2 255 306.5 380.6z"/>
+        </symbol>
+
         <symbol id="switch" viewBox="0 0 32 32" preserveAspectRatio="xMinYMin slice">
           <circle class="bg" cx="16" cy="16" r="14"/>
           <path class="fg" d="M 16 4 C 9.3844277 4 4 9.3844277 4 16 C 4 22.615572 9.3844277 28 16 28 C 22.615572 28 28 22.615572 28 16 C 28 9.3844277 22.615572 4 16 4 z M 16 6 C 21.534692 6 26 10.465308 26 16 C 26 21.534692 21.534692 26 16 26 C 10.465308 26 6 21.534692 6 16 C 6 10.465308 10.465308 6 16 6 z M 16 8 L 13 11 L 15 11 L 15 14 L 17 14 L 17 11 L 19 11 L 16 8 z M 11 13 L 11 15 L 8 15 L 8 17 L 11 17 L 11 19 L 14 16 L 11 13 z M 21 13 L 18 16 L 21 19 L 21 17 L 24 17 L 24 15 L 21 15 L 21 13 z M 15 18 L 15 21 L 13 21 L 16 24 L 19 21 L 17 21 L 17 18 L 15 18 z"/>
@@ -99,6 +104,27 @@
           @mouseout="mouseOutNode(node, $event)"
           :class="[ 'packetfence', { 'highlight': node.highlight } ]"
         />
+
+        <!-- switch-group -->
+        <template v-if="node.type === 'switch-group'">
+          <use
+            xlink:href="#switch-group"
+            width="32" height="32"
+            :id="`node-${node.id}`"
+            :x="coords[i].x - (32 / 2)"
+            :y="coords[i].y - (32 / 2)"
+            @mouseover="mouseOverNode(node, $event)"
+            @mouseout="mouseOutNode(node, $event)"
+            @mousedown="mouseDownNode(node, $event)"
+            :class="[ 'switch-group', 'pointer', { 'highlight': node.highlight } ]"
+            :key="node.id"
+          />
+          <text class="switchText" v-show="!node.highlight"
+            :x="coords[i].x" :y="coords[i].y"
+            dy="3" dx="16"
+            :key="node.id"
+          >↦{{ node.id }}</text>
+        </template>
 
         <!-- switch -->
         <template v-if="node.type === 'switch'">
@@ -604,6 +630,7 @@ export default {
           switch (type) {
             case 'packetfence':
               return 64 + 2
+            case 'switch-group':
             case 'switch':
             case 'unknown':
               return 32 + 2
@@ -623,7 +650,7 @@ export default {
       )
       */
 
-      const orderedSwitchIds = this.localLinks.filter(link => ['switch', 'unknown'].includes(link.target.type)).sort((a, b) => {
+      const orderedSwitchIds = this.localLinks.filter(link => ['switch-group', 'switch', 'unknown'].includes(link.target.type)).sort((a, b) => {
         return (a.source.id > b.source.id) ? 1 : -1
       }).map(link => link.target.id)
 
@@ -662,6 +689,7 @@ export default {
               switch (type) {
                 case 'packetfence':
                   return 0
+                case 'switch-group':
                 case 'switch':
                 case 'unknown':
                   return this.dimensions.height * 0.5 // inner ring: 50% of height
@@ -676,6 +704,7 @@ export default {
               switch (type) {
                 case 'packetfence':
                   return 0
+                case 'switch-group':
                 case 'switch':
                 case 'unknown':
                   return 1
@@ -695,6 +724,7 @@ export default {
               switch (node.type) {
                 case 'packetfence':
                   return x1
+                case 'switch-group':
                 case 'switch':
                 case 'unknown':
                   a = (((minMaxSwitchIndexes[node.id].min * (360 / orderedNodeIds.length)) + (minMaxSwitchIndexes[node.id].max * (360 / orderedNodeIds.length))) / 2) % 360
@@ -721,6 +751,7 @@ export default {
               switch (node.type) {
                 case 'packetfence':
                   return y1
+                case 'switch-group':
                 case 'switch':
                 case 'unknown':
                   a = (((minMaxSwitchIndexes[node.id].min * (360 / orderedNodeIds.length)) + (minMaxSwitchIndexes[node.id].max * (360 / orderedNodeIds.length))) / 2) % 360
@@ -768,6 +799,7 @@ export default {
               switch (node.type) {
                 case 'packetfence':
                   return this.dimensions.width / 2
+                case 'switch-group':
                 case 'switch':
                 case 'unknown':
                   return coordSwitchIndexes[node.id].x
@@ -790,6 +822,7 @@ export default {
               switch (node.type) {
                 case 'packetfence':
                   return this.dimensions.height / 2
+                case 'switch-group':
                 case 'switch':
                 case 'unknown':
                   return coordSwitchIndexes[node.id].y
@@ -1243,6 +1276,7 @@ export default {
   /*overflow: hidden; /* prevent jitter from tooltip forcing window.clientHeight expansion */
 
   .packetfence,
+  .switch-group,
   .switch,
   .node,
   .unknown,
@@ -1255,6 +1289,7 @@ export default {
 
   &.highlight {
     .packetfence,
+    .switch-group,
     .switch,
     .node,
     .unknown,
@@ -1383,6 +1418,7 @@ export default {
   .svgDraw {
     &.zoom-0 {
       .packetfence,
+      .switch-group,
       .switch,
       .node,
       .unknown,
@@ -1399,6 +1435,7 @@ export default {
     }
     &.zoom-1 {
       .packetfence,
+      .switch-group,
       .switch,
       .node,
       .unknown,
@@ -1415,6 +1452,7 @@ export default {
     }
     &.zoom-2 {
       .packetfence,
+      .switch-group,
       .switch,
       .node,
       .unknown,
@@ -1431,6 +1469,7 @@ export default {
     }
     &.zoom-3 {
       .packetfence,
+      .switch-group,
       .switch,
       .node,
       .unknown,
@@ -1447,6 +1486,7 @@ export default {
     }
     &.zoom-4 {
       .packetfence,
+      .switch-group,
       .switch,
       .node,
       .unknown,
@@ -1463,6 +1503,7 @@ export default {
     }
     &.zoom-5 {
       .packetfence,
+      .switch-group,
       .switch,
       .node,
       .unknown,
@@ -1479,6 +1520,7 @@ export default {
     }
     &.zoom-6 {
       .packetfence,
+      .switch-group,
       .switch,
       .node,
       .unknown,
@@ -1495,6 +1537,7 @@ export default {
     }
     &.zoom-7 {
       .packetfence,
+      .switch-group,
       .switch,
       .node,
       .unknown,
@@ -1511,6 +1554,7 @@ export default {
     }
     &.zoom-8 {
       .packetfence,
+      .switch-group,
       .switch,
       .node,
       .unknown,
@@ -1555,6 +1599,17 @@ export default {
     &.highlight {
       --bg-stroke: var(--highlight-color);
       --fg-fill: var(--highlight-color);
+    }
+  }
+
+  .switch-group {
+    --bg-fill: rgba(255, 255, 255, 1);
+    --bg-stroke: rgba(128, 128, 128, 1);
+    --fg-fill: rgba(128, 128, 128, 1);
+    &.highlight {
+      --bg-fill: var(--highlight-color);
+      --bg-stroke: var(--highlight-color);
+      --fg-fill: rgba(255, 255, 255, 1);
     }
   }
 
