@@ -48,18 +48,6 @@ const actions = {
       })
     })
   },
-  refreshNode: ({ state, commit, dispatch }, mac) => {
-    if (state.nodes[mac]) {
-      commit('NODE_DESTROYED', mac)
-    }
-    commit('NODE_REQUEST')
-    dispatch('getNode', mac).then(() => {
-      commit('NODE_SUCCESS')
-    }).catch(err => {
-      commit('USER_ERROR', err.response)
-      return err
-    })
-  },
   getNode: ({ state, commit }, mac) => {
     if (state.nodes[mac]) {
       return Promise.resolve(state.nodes[mac])
@@ -122,11 +110,15 @@ const actions = {
       // Fetch locationlogs
       api.locationlogs(mac).then(datas => {
         commit('NODE_UPDATED', { mac, prop: 'locations', data: datas })
+      }).catch(() => {
+        // noop
       })
 
       // Fetch security_events
       api.security_events(mac).then(datas => {
         commit('NODE_UPDATED', { mac, prop: 'security_events', data: datas })
+      }).catch(() => {
+        // noop
       })
 
       // Fetch fingerbank
@@ -142,15 +134,25 @@ const actions = {
       // Fetch dhcpoption82
       api.dhcpoption82(mac).then(items => {
         commit('NODE_UPDATED', { mac, prop: 'dhcpoption82', data: items })
+      }).catch(() => {
+        // noop
       })
 
       // Fetch Rapid7
       api.rapid7Info(mac).then(items => {
         commit('NODE_UPDATED', { mac, prop: 'rapid7', data: items })
+      }).catch(() => {
+        // noop
       })
 
       return state.nodes[mac]
     })
+  },
+  refreshNode: ({ state, commit, dispatch }, mac) => {
+    if (state.nodes[mac]) {
+      commit('NODE_DESTROYED', mac)
+    }
+    return dispatch('getNode', mac)
   },
   createNode: ({ commit }, data) => {
     commit('NODE_REQUEST')
