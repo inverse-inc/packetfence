@@ -67,6 +67,10 @@ const state = {
     cache: {},
     message: '',
     status: ''
+  },
+  updateDatabase: {
+    message: '',
+    status: ''
   }
 }
 
@@ -102,7 +106,9 @@ const getters = {
   isMacVendorsLoading: state => state.macVendors.status === types.LOADING,
 
   isUserAgentsWaiting: state => [types.LOADING, types.DELETING].includes(state.userAgents.status),
-  isUserAgentsLoading: state => state.userAgents.status === types.LOADING
+  isUserAgentsLoading: state => state.userAgents.status === types.LOADING,
+
+  isUpdateDatabaseLoading: state => state.updateDatabase.status === types.LOADING
 }
 
 const actions = {
@@ -597,6 +603,16 @@ const actions = {
       commit('USER_AGENT_ERROR', err.response)
       throw err
     })
+  },
+  updateDatabase: ({ commit }, data) => {
+    commit('UPDATE_DATABASE_REQUEST')
+    return api.fingerbankUpdateDatabase().then(response => {
+      commit('UPDATE_DATABASE_SUCCESS')
+      return response
+    }).catch(err => {
+      commit('UPDATE_DATABASE_ERROR', err.response)
+      throw err
+    })
   }
 }
 
@@ -764,6 +780,19 @@ const mutations = {
     if (response && response.data) {
       state.userAgents.message = response.data.message
     }
+  },
+  UPDATE_DATABASE_REQUEST: (state, type) => {
+    state.updateDatabase.status = type || types.LOADING
+    state.updateDatabase.message = ''
+  },
+  UPDATE_DATABASE_ERROR: (state, response) => {
+    state.updateDatabase.status = types.ERROR
+    if (response && response.data) {
+      state.updateDatabase.message = response.data.message
+    }
+  },
+  UPDATE_DATABASE_SUCCESS: (state) => {
+    state.updateDatabase.status = types.SUCCESS
   }
 }
 

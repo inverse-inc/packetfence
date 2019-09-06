@@ -508,19 +508,19 @@ const route = {
       path: 'fingerbank/general_settings',
       name: 'fingerbankGeneralSettings',
       component: FingerbankTabs,
-      props: (route) => ({ tab: 'general_settings', query: route.query.query })
+      props: (route) => ({ tab: 'general_settings', query: route.query.query, storeName: '$_fingerbank' })
     },
     {
       path: 'fingerbank/device_change_detection',
       name: 'fingerbankDeviceChangeDetection',
       component: FingerbankTabs,
-      props: (route) => ({ tab: 'device_change_detection', query: route.query.query })
+      props: (route) => ({ tab: 'device_change_detection', query: route.query.query, storeName: '$_fingerbank' })
     },
     {
       path: 'fingerbank/combinations',
       name: 'fingerbankCombinations',
       component: FingerbankTabs,
-      props: (route) => ({ tab: 'combinations', query: route.query.query })
+      props: (route) => ({ tab: 'combinations', query: route.query.query, storeName: '$_fingerbank' })
     },
     {
       path: 'fingerbank/local/combinations/new',
@@ -554,13 +554,13 @@ const route = {
       path: 'fingerbank/devices',
       name: 'fingerbankDevices',
       component: FingerbankTabs,
-      props: (route) => ({ tab: 'devices', query: route.query.query })
+      props: (route) => ({ tab: 'devices', query: route.query.query, storeName: '$_fingerbank' })
     },
     {
       path: 'fingerbank/devices/:parentId',
       name: 'fingerbankDevicesByParentId',
       component: FingerbankTabs,
-      props: (route) => ({ parentId: route.params.parentId, tab: 'devices', query: route.query.query })
+      props: (route) => ({ parentId: route.params.parentId, tab: 'devices', query: route.query.query, storeName: '$_fingerbank' })
     },
     {
       path: 'fingerbank/:scope/devices/new',
@@ -594,7 +594,7 @@ const route = {
       path: 'fingerbank/dhcp_fingerprints',
       name: 'fingerbankDhcpFingerprints',
       component: FingerbankTabs,
-      props: (route) => ({ tab: 'dhcp_fingerprints', query: route.query.query })
+      props: (route) => ({ tab: 'dhcp_fingerprints', query: route.query.query, storeName: '$_fingerbank' })
     },
     {
       path: 'fingerbank/:scope/dhcp_fingerprints/new',
@@ -628,7 +628,7 @@ const route = {
       path: 'fingerbank/dhcp_vendors',
       name: 'fingerbankDhcpVendors',
       component: FingerbankTabs,
-      props: (route) => ({ tab: 'dhcp_vendors', query: route.query.query })
+      props: (route) => ({ tab: 'dhcp_vendors', query: route.query.query, storeName: '$_fingerbank' })
     },
     {
       path: 'fingerbank/:scope/dhcp_vendors/new',
@@ -662,7 +662,7 @@ const route = {
       path: 'fingerbank/dhcpv6_fingerprints',
       name: 'fingerbankDhcpv6Fingerprints',
       component: FingerbankTabs,
-      props: (route) => ({ tab: 'dhcpv6_fingerprints', query: route.query.query })
+      props: (route) => ({ tab: 'dhcpv6_fingerprints', query: route.query.query, storeName: '$_fingerbank' })
     },
     {
       path: 'fingerbank/:scope/dhcpv6_fingerprints/new',
@@ -696,7 +696,7 @@ const route = {
       path: 'fingerbank/dhcpv6_enterprises',
       name: 'fingerbankDhcpv6Enterprises',
       component: FingerbankTabs,
-      props: (route) => ({ tab: 'dhcpv6_enterprises', query: route.query.query })
+      props: (route) => ({ tab: 'dhcpv6_enterprises', query: route.query.query, storeName: '$_fingerbank' })
     },
     {
       path: 'fingerbank/:scope/dhcpv6_enterprises/new',
@@ -730,7 +730,7 @@ const route = {
       path: 'fingerbank/mac_vendors',
       name: 'fingerbankMacVendors',
       component: FingerbankTabs,
-      props: (route) => ({ tab: 'mac_vendors', query: route.query.query })
+      props: (route) => ({ tab: 'mac_vendors', query: route.query.query, storeName: '$_fingerbank' })
     },
     {
       path: 'fingerbank/:scope/mac_vendors/new',
@@ -764,7 +764,7 @@ const route = {
       path: 'fingerbank/user_agents',
       name: 'fingerbankUserAgents',
       component: FingerbankTabs,
-      props: (route) => ({ tab: 'user_agents', query: route.query.query })
+      props: (route) => ({ tab: 'user_agents', query: route.query.query, storeName: '$_fingerbank' })
     },
     {
       path: 'fingerbank/local/user_agents/new',

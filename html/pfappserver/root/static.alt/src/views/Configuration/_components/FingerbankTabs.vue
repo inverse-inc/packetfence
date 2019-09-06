@@ -1,7 +1,11 @@
 <template>
   <b-card no-body>
     <b-card-header>
-      <h4 class="mb-0" v-t="'Fingerbank Profiling'"></h4>
+      <h4 class="mb-3" v-t="'Fingerbank Profiling'"></h4>
+      <b-button class="mb-1" size="sm" variant="outline-primary" :disabled="isUpdateDatabaseLoading" @click="updateDatabase()">
+        <icon class="mr-1" name="sync" :spin="isUpdateDatabaseLoading"></icon>
+        {{ $t('Update Fingerbank Database') }}
+      </b-button>
     </b-card-header>
     <b-tabs ref="tabs" v-model="tabIndex" card>
       <b-tab :title="$t('General Settings')" @click="changeTab('general_settings')">
@@ -72,6 +76,11 @@ export default {
     parentId: {
       type: String,
       default: null
+    },
+    storeName: { // from router
+      type: String,
+      default: null,
+      required: true
     }
   },
   computed: {
@@ -88,11 +97,17 @@ export default {
         'mac_vendors',
         'user_agents'
       ].indexOf(this.tab)
+    },
+    isUpdateDatabaseLoading () {
+      return this.$store.getters[`${this.storeName}/isUpdateDatabaseLoading`]
     }
   },
   methods: {
     changeTab (path) {
       this.$router.push(`/configuration/fingerbank/${path}`)
+    },
+    updateDatabase () {
+      this.$store.dispatch(`${this.storeName}/updateDatabase`)
     }
   }
 }

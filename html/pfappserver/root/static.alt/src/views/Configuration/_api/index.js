@@ -584,6 +584,11 @@ export default {
   fingerbankDeleteUserAgent: id => {
     return apiCall.delete(['fingerbank', 'local', 'user_agent', id])
   },
+  fingerbankUpdateDatabase: () => {
+    return apiCall.post(['fingerbank', 'update_upstream_db'], {}).then(response => {
+      return response.data
+    })
+  },
 
   /**
    * Firewalls
