@@ -220,7 +220,6 @@ sub setup_api_v1_crud_routes {
     $self->setup_api_v1_dhcp_option82s_routes($root);
     $self->setup_api_v1_auth_logs_routes($root);
     $self->setup_api_v1_radius_audit_logs_routes($root);
-    $self->setup_api_v1_dns_audit_logs_routes($root);
     $self->setup_api_v1_wrix_locations_routes($root);
     $self->setup_api_v1_security_events_routes($root);
     $self->setup_api_v1_node_categories_routes($root);
@@ -379,25 +378,6 @@ sub setup_api_v1_radius_audit_logs_routes {
     return ($collection_route, $resource_route);
 }
 
-=head2 setup_api_v1_dns_audit_logs_routes
-
-setup_api_v1_dns_audit_logs_routes
-
-=cut
-
-sub setup_api_v1_dns_audit_logs_routes {
-    my ($self, $root) = @_;
-    my ($collection_route, $resource_route) =
-      $self->setup_api_v1_std_crud_routes(
-        $root,
-        "DnsAuditLogs",
-        "/dns_audit_logs",
-        "/dns_audit_log/#dns_audit_log_id",
-    );
-
-    return ($collection_route, $resource_route);
-}
-
 =head2 setup_api_v1_ip4logs_routes
 
 setup_api_v1_ip4logs_routes
@@ -523,7 +503,7 @@ sub setup_api_v1_nodes_routes {
 
     $resource_route->register_sub_actions({
         method => 'POST',
-        actions => [ qw( register deregister restart_switchport reevaluate_access apply_security_event close_security_event fingerbank_refresh park unpark)],
+        actions => [ qw( register deregister restart_switchport reevaluate_access apply_security_event close_security_event fingerbank_refresh)],
     });
 
     $resource_route->register_sub_actions({
@@ -538,7 +518,7 @@ sub setup_api_v1_nodes_routes {
           bulk_register bulk_deregister bulk_close_security_events
           bulk_reevaluate_access bulk_restart_switchport bulk_apply_security_event
           bulk_apply_role bulk_apply_bypass_role bulk_fingerbank_refresh
-          bulk_apply_bypass_vlan
+          bulk_apply_bypass_vlan network_graph
           )
         ],
     });
@@ -1515,6 +1495,14 @@ sub setup_api_v1_reports_routes {
       ->any(['GET'] => "/nodebandwidth/#start/#end")
       ->to("Reports#nodebandwidth_range")
       ->name("api.v1.Reports.nodebandwidth_range");
+    $root
+      ->any(['GET'] => "/userbandwidth")
+      ->to("Reports#userbandwidth_all")
+      ->name("api.v1.Reports.userbandwidth_all");
+    $root
+      ->any(['GET'] => "/userbandwidth/#start/#end")
+      ->to("Reports#userbandwidth_range")
+      ->name("api.v1.Reports.userbandwidth_range");
     $root
       ->any(['GET'] => "/topauthenticationfailures/mac/#start/#end")
       ->to("Reports#topauthenticationfailures_by_mac")

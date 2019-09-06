@@ -38,6 +38,8 @@ BEGIN {
         report_osclassbandwidth_year
         report_nodebandwidth
         report_nodebandwidth_all
+        report_userbandwidth
+        report_userbandwidth_all
         report_topsponsor_all
         report_os
         report_os_all
@@ -346,6 +348,7 @@ sub report_db_prepare {
         WHERE radacct_log.timestamp BETWEEN ? AND ?
         GROUP BY radacct.callingstationid
         HAVING radacct.callingstationid IS NOT NULL
+          AND  radacct.callingstationid != ''
         ORDER BY accttotaloctets DESC
         LIMIT 25;
     ]);
@@ -359,6 +362,36 @@ sub report_db_prepare {
         LEFT JOIN radacct ON radacct_log.acctuniqueid = radacct.acctuniqueid
         GROUP BY radacct.callingstationid
         HAVING radacct.callingstationid IS NOT NULL
+          AND  radacct.callingstationid != ''
+        ORDER BY accttotaloctets DESC
+        LIMIT 25;
+    ]);
+
+    $report_statements->{'report_userbandwidth_sql'} = get_db_handle()->prepare(qq [
+        SELECT node.pid as pid,
+            SUM(radacct_log.acctinputoctets) AS acctinputoctets,
+            SUM(radacct_log.acctoutputoctets) AS acctoutputoctets,
+            SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets) AS accttotaloctets
+        FROM radacct_log
+        LEFT JOIN radacct ON radacct_log.acctuniqueid = radacct.acctuniqueid
+        LEFT JOIN node ON node.mac = radacct.callingstationid
+        WHERE radacct_log.timestamp BETWEEN ? AND ?
+          AND node.pid IS NOT NULL
+        GROUP BY node.pid
+        ORDER BY accttotaloctets DESC
+        LIMIT 25;
+    ]);
+
+    $report_statements->{'report_userbandwidth_all_sql'} = get_db_handle()->prepare(qq [
+        SELECT node.pid as pid,
+            SUM(radacct_log.acctinputoctets) AS acctinputoctets,
+            SUM(radacct_log.acctoutputoctets) AS acctoutputoctets,
+            SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets) AS accttotaloctets
+        FROM radacct_log
+        LEFT JOIN radacct ON radacct_log.acctuniqueid = radacct.acctuniqueid
+        LEFT JOIN node ON node.mac = radacct.callingstationid
+        WHERE node.pid IS NOT NULL
+        GROUP BY node.pid
         ORDER BY accttotaloctets DESC
         LIMIT 25;
     ]);
@@ -940,7 +973,7 @@ sub report_ssid_active {
 
 =item _report_osclassbandwidth_with_range
 
-Reporting - OS Class bandwitdh usage
+Reporting - OS Class bandwidth usage
 
 Sub that supports a range from now til $range window.
 
@@ -981,7 +1014,7 @@ sub report_osclassbandwidth {
 
 =item report_osclassbandwidth_all
 
-Reporting - OS Class bandwitdh usage - All time
+Reporting - OS Class bandwidth usage - All time
 
 =cut
 
@@ -1002,7 +1035,7 @@ sub report_osclassbandwidth_all {
 
 =item report_osclassbandwidth_day
 
-Reporting - OS Class bandwitdh usage for the last 24 hours
+Reporting - OS Class bandwidth usage for the last 24 hours
 
 =cut
 
@@ -1012,7 +1045,7 @@ sub report_osclassbandwidth_day {
 
 =item report_osclassbandwidth_week
 
-Reporting - OS Class bandwitdh usage for the last week
+Reporting - OS Class bandwidth usage for the last week
 
 =cut
 
@@ -1022,7 +1055,7 @@ sub report_osclassbandwidth_week {
 
 =item report_osclassbandwidth_month
 
-Reporting - OS Class bandwitdh usage for the last month
+Reporting - OS Class bandwidth usage for the last month
 
 =cut
 
@@ -1032,7 +1065,7 @@ sub report_osclassbandwidth_month {
 
 =item report_osclassbandwidth_year
 
-Reporting - OS Class bandwitdh usage for the last year
+Reporting - OS Class bandwidth usage for the last year
 
 =cut
 
@@ -1042,7 +1075,7 @@ sub report_osclassbandwidth_year {
 
 =item report_nodebandwidth
 
-Reporting - node bandwitdh usage for a specific period
+Reporting - Node bandwidth usage for a specific period
 
 =cut
 
@@ -1091,7 +1124,7 @@ sub report_nodebandwidth {
 
 =item report_nodebandwidth_all
 
-Reporting - Node bandwitdh usage for the top 25 consumers
+Reporting - Node bandwidth usage for the top 25 consumers
 
 =cut
 
@@ -1136,6 +1169,101 @@ sub report_nodebandwidth_all {
     return (@return_data);
 }
 
+=item report_userbandwidth
+
+Reporting - User bandwidth usage for a specific period
+
+=cut
+
+sub report_userbandwidth {
+    my ($start, $end) = @_;
+
+    my @data = db_data(REPORT, $report_statements, 'report_userbandwidth_sql', $start, $end);
+    my %totalbw = ( 'inoctets' => 0, 'outoctets' => 0, 'bothoctets' => 0 );
+    my @return_data;
+
+    # loop in the data once the calculate the totals
+    foreach my $record (@data) {
+        $totalbw{'inoctets'} += $record->{'acctinputoctets'};
+        $totalbw{'outoctets'} += $record->{'acctoutputoctets'};
+        $totalbw{'bothoctets'} += $record->{'accttotaloctets'};
+    }
+
+    # loop on it again to assign the values
+    foreach my $record (@data) {
+        $record->{'percent'} = sprintf( "%.1f", ( $record->{'accttotaloctets'} / $totalbw{'bothoctets'} ) * 100 );
+        $record->{'acctinput'} = pf::util::pretty_bandwidth($record->{'acctinputoctets'});
+        $record->{'acctoutput'} = pf::util::pretty_bandwidth($record->{'acctoutputoctets'});
+        $record->{'accttotal'} = pf::util::pretty_bandwidth($record->{'accttotaloctets'});
+        push @return_data, $record;
+    }
+
+    # convert to human friendly format
+    foreach my $direction (keys %totalbw) {
+        my $direction_pretty = $direction;
+        $direction_pretty =~ s/octets$//;
+        $totalbw{$direction_pretty} = pf::util::pretty_bandwidth($totalbw{$direction});
+    }
+
+    push @return_data, {
+        'pid' => "Total",
+        'acctinputoctets' => $totalbw{'inoctets'},
+        'acctoutputoctets' => $totalbw{'outoctets'},
+        'accttotaloctets' => $totalbw{'bothoctets'},
+        'acctinput' => $totalbw{'in'},
+        'acctoutput' => $totalbw{'out'},
+        'accttotal' => $totalbw{'both'},
+        'percent' => "100",
+    };
+    return (@return_data);
+}
+
+=item report_userbandwidth_all
+
+Reporting - User bandwidth usage for the top 25 consumers
+
+=cut
+
+sub report_userbandwidth_all {
+    my @data = db_data(REPORT, $report_statements, 'report_userbandwidth_all_sql');
+    my %totalbw = ( 'inoctets' => 0, 'outoctets' => 0, 'bothoctets' => 0 );
+    my @return_data;
+
+    # loop in the data once the calculate the totals
+    foreach my $record (@data) {
+        $totalbw{'inoctets'} += $record->{'acctinputoctets'};
+        $totalbw{'outoctets'} += $record->{'acctoutputoctets'};
+        $totalbw{'bothoctets'} += $record->{'accttotaloctets'};
+    }
+
+    # loop on it again to assign the values
+    foreach my $record (@data) {
+        $record->{'percent'} = sprintf( "%.1f", ( $record->{'accttotaloctets'} / $totalbw{'bothoctets'} ) * 100 );
+        $record->{'acctinput'} = pf::util::pretty_bandwidth($record->{'acctinputoctets'});
+        $record->{'acctoutput'} = pf::util::pretty_bandwidth($record->{'acctoutputoctets'});
+        $record->{'accttotal'} = pf::util::pretty_bandwidth($record->{'accttotaloctets'});
+        push @return_data, $record;
+    }
+
+    # convert to human friendly format
+    foreach my $direction (keys %totalbw) {
+        my $direction_pretty = $direction;
+        $direction_pretty =~ s/octets$//;
+        $totalbw{$direction_pretty} = pf::util::pretty_bandwidth($totalbw{$direction});
+    }
+
+    push @return_data, {
+        'pid' => "Total",
+        'acctinputoctets' => $totalbw{'inoctets'},
+        'acctoutputoctets' => $totalbw{'outoctets'},
+        'accttotaloctets' => $totalbw{'bothoctets'},
+        'acctinput' => $totalbw{'in'},
+        'acctoutput' => $totalbw{'out'},
+        'accttotal' => $totalbw{'both'},
+        'percent' => "100",
+    };
+    return (@return_data);
+}
 
 =item _report_topauthenticationfailures_by_mac
 

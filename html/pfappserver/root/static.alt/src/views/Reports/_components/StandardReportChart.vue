@@ -13,39 +13,55 @@
       </b-tab>
     </b-tabs>
 
-    <pf-report-chart v-if="report.chart" :report="report" :range="range && (range.optional || range.mandatory)" :items="items" :datetime-start="datetimeStart" :datetime-end="datetimeEnd" @changeDatetimeStart="onChangeDatetimeStart" @changeDatetimeEnd="onChangeDatetimeEnd" class="mt-3"></pf-report-chart>
+    <pf-report-chart v-if="report.chart"
+      :report="report"
+      :range="range && (range.optional || range.mandatory)"
+      :items="items"
+      :datetime-start="datetimeStart"
+      :datetime-end="datetimeEnd"
+      :is-loading="isLoading"
+      @changeDatetimeStart="onChangeDatetimeStart"
+      @changeDatetimeEnd="onChangeDatetimeEnd"
+      class="mt-3"
+    ></pf-report-chart>
 
     <div class="card-body">
-      <b-row align-h="between" align-v="center">
-        <b-col cols="auto" class="mr-auto">
-          <!-- padding -->
-        </b-col>
-        <b-col cols="auto">
-          <b-container fluid>
-            <b-row align-v="center">
-              <b-form inline class="mb-0">
-                <b-form-select class="mb-3 mr-3" size="sm" v-model="pageSizeLimit" :options="[25,50,100,200,500,1000]" :disabled="isLoading"
-                  @input="onPageSizeChange" />
-              </b-form>
-              <b-pagination align="right" v-model="currentPage" :per-page="pageSizeLimit" :total-rows="totalRows" :disabled="isLoading"
-                @change="onPageChange" />
-            </b-row>
-          </b-container>
-        </b-col>
-      </b-row>
-      <b-table :items="items" :fields="visibleColumns" :per-page="pageSizeLimit" :current-page="requestPage" :sort-by="sortBy" :sort-desc="sortDesc" :sort-compare="sortCompare"
+      <b-table :items="items" :fields="visibleColumns" :sort-by="sortBy" :sort-desc="sortDesc" :sort-compare="sortCompare"
         @sort-changed="onSortingChanged" show-empty responsive hover striped v-model="tableValues">
         <template slot="empty">
           <pf-empty-table :isLoading="isLoading">{{ $t('No data found') }}</pf-empty-table>
         </template>
+        <template slot="callingstationid" slot-scope="data">
+          <template v-if="data.value !== 'Total'">
+            <router-link :to="{ name: 'node', params: { mac: data.value } }"><mac>{{ data.value }}</mac></router-link>
+          </template>
+          <template v-else>
+            {{ data.value }}
+          </template>
+        </template>
         <template slot="mac" slot-scope="data">
-          <router-link :to="{ path: `/node/${data.value}` }">{{ data.value }}</router-link>
+          <template v-if="data.value !== 'Total'">
+            <router-link :to="{ name: 'node', params: { mac: data.value } }"><mac>{{ data.value }}</mac></router-link>
+          </template>
+          <template v-else>
+            {{ data.value }}
+          </template>
         </template>
         <template slot="owner" slot-scope="data">
-          <router-link :to="{ path: `/user/${data.value}` }">{{ data.value }}</router-link>
+          <template v-if="data.value !== 'Total'">
+            <router-link :to="{ name: 'user', params: { pid: data.value } }">{{ data.value }}</router-link>
+          </template>
+          <template v-else>
+            {{ data.value }}
+          </template>
         </template>
         <template slot="pid" slot-scope="data">
-          <router-link :to="{ path: `/user/${data.value}` }">{{ data.value }}</router-link>
+          <template v-if="data.value !== 'Total'">
+            <router-link :to="{ name: 'user', params: { pid: data.value } }">{{ data.value }}</router-link>
+          </template>
+          <template v-else>
+            {{ data.value }}
+          </template>
         </template>
       </b-table>
     </div>
@@ -143,14 +159,14 @@ export default {
     },
     apiCall () {
       if (!this.apiEndpoint) return
+      this.items = []
       this.isLoading = true
-      let _this = this
       apiCall.get(this.apiEndpoint, {}).then(response => {
-        _this.items = response.data.items
-        _this.requestPage = 1
-        _this.isLoading = false
+        this.items = response.data.items
+        this.requestPage = 1
+        this.isLoading = false
       }).catch(err => {
-        _this.isLoading = false
+        this.isLoading = false
         return err
       })
     },
@@ -207,6 +223,7 @@ export default {
     },
     tabIndex (a, b) {
       if (a !== b) {
+        this.items = []
         /**
          * mandatory `replace`,
          * `push` confuses beforeRouteEnter, beforeRouteUpdate w/ history.go(-1)

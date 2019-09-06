@@ -205,7 +205,7 @@ export default {
       })
       names.sort((a, b) => b.localeCompare(a)) // reversed sort
       const [ last, ...csv ] = names // group
-      if (csv.length) {
+      if (csv) {
         return this.$i18n.t('Search for {csv} or {last}', { csv: csv.reverse().join(', '), last: last })
       } else {
         return this.$i18n.t('Search for {only}', { only: last })
