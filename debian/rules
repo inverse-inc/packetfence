@@ -144,15 +144,6 @@ install: build
 	install -d -m2770 $(CURDIR)/debian/packetfence-redis-cache$(PREFIX)/$(NAME)/var/redis_cache
 	install -m0600 conf/redis_cache.conf.example $(CURDIR)/debian/packetfence-redis-cache$(PREFIX)/$(NAME)/conf/redis_cache.conf
 	echo $(C_ID) > $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/conf/git_commit_id
-	make html
-	#Documentation
-	# install html and images dirs in pfappserver for embedded doc
-	install -d -m0755 $(CURDIR)/debian/packetfence-doc$(PREFIX)/$(NAME)/html/pfappserver/root/static/doc
-	for i in `find "docs/html" "(" -name "*.html" -or -iname "*.js" ")" -type f`; do \
-		install -m0644 $$i $(CURDIR)/debian/packetfence-doc$(PREFIX)/$(NAME)/html/pfappserver/root/static/doc/; \
-	done
-	# images
-	make DESTDIR=$(CURDIR)/debian/packetfence-doc images
 
 	#Portal javascript/css
 	rm -f $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/html/common/styles.css
@@ -167,6 +158,17 @@ install: build
 	make -C html/pfappserver/root/static/ light-dist
 	make -C html/pfappserver/root/static.alt/ vendor
 	make -C html/pfappserver/root/static.alt/ light-dist
+
+	# Documentation
+	make html
+	# install html and images dirs in pfappserver for embedded doc
+	install -d -m0755 $(CURDIR)/debian/packetfence-doc$(PREFIX)/$(NAME)/html/pfappserver/root/static/doc
+	for i in `find "docs/html" "(" -name "*.html" -or -iname "*.js" ")" -type f`; do \
+		install -m0644 $$i $(CURDIR)/debian/packetfence-doc$(PREFIX)/$(NAME)/html/pfappserver/root/static/doc/; \
+	done
+	# images
+	make DESTDIR=$(CURDIR)/debian/packetfence-doc images
+
 	install -d -m0755 $(CURDIR)/debian/packetfence-pfappserver-javascript$(PREFIX)/$(NAME)/html/pfappserver/root/static
 	for i in `find * -wholename "*js/pfappserver.*" -o -wholename "*js/reports.*" -o -wholename "*js/auditing.*" -o -wholename "*js/configuration.*" -o -wholename "*js/vendor/bootstrap.min.js*" -o -wholename "*js/vendor/jquery.min.*" -o -wholename "*js/vendor/jquery-ui.min.js*" -o -wholename "*js/vendor/jquery-extra.min.js*" -o -wholename "*js/vendor/raphael.min.js*" -o -wholename "*js/vendor/ace/*.js" -o -wholename "*js/vendor/fitty.min.js*" -o -wholename "*css/styles.css" -o -wholename "*css/styles.css.map" -path 'html/pfappserver/root/static/*' -type f`; do \
 		install -D -m0644 $$i $(CURDIR)/debian/packetfence-pfappserver-javascript$(PREFIX)/$(NAME)/$$i; \
