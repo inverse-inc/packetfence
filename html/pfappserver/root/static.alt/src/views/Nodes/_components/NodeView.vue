@@ -76,7 +76,7 @@
           <p class="h3 border border-left-0 border-top-0 border-right-0 pb-3 mb-3">{{ $t('Edit Node') }}</p>
           -->
           <b-row>
-            <b-col>
+            <b-col v-if="node">
               <pf-form-row class="text-nowrap" :column-label="$t('Computer Name')">
                 {{ node.computername }}
               </pf-form-row>
@@ -152,7 +152,7 @@
 
         <b-tab title="Fingerbank">
           <b-row>
-            <b-col>
+            <b-col v-if="node">
               <pf-form-row class="text-nowrap" :column-label="$t('Device Class')">
                 {{ node.device_class }}
               </pf-form-row>
@@ -216,9 +216,10 @@
 
         <b-tab title="IPv4 Addresses">
           <template slot="title">
-            {{ $t('IPv4') }} <b-badge pill v-if="node.ip4 && node.ip4.history && node.ip4.history.length > 0" variant="light" class="ml-1">{{ node.ip4.history.length }}</b-badge>
+            {{ $t('IPv4') }} <b-badge pill v-if="node && node.ip4 && node.ip4.history && node.ip4.history.length > 0" variant="light" class="ml-1">{{ node.ip4.history.length }}</b-badge>
           </template>
-          <b-table stacked="sm" :items="node.ip4.history" :fields="iplogFields" v-if="node.ip4" responsive show-empty striped>
+          <b-table v-if="node && node.ip4"
+            stacked="sm" :items="node.ip4.history" :fields="iplogFields" responsive show-empty striped>
             <template slot="empty">
               <pf-empty-table :isLoading="isLoading" text="">{{ $t('No IPv4 addresses found') }}</pf-empty-table>
             </template>
@@ -227,9 +228,10 @@
 
         <b-tab title="IPv6 Addresses">
           <template slot="title">
-            {{ $t('IPv6') }} <b-badge pill v-if="node.ip6 && node.ip6.history && node.ip6.history.length > 0" variant="light" class="ml-1">{{ node.ip6.history.length }}</b-badge>
+            {{ $t('IPv6') }} <b-badge pill v-if="node && node.ip6 && node.ip6.history && node.ip6.history.length > 0" variant="light" class="ml-1">{{ node.ip6.history.length }}</b-badge>
           </template>
-          <b-table stacked="sm" :items="node.ip6.history" :fields="iplogFields" v-if="node.ip6" responsive show-empty striped>
+          <b-table v-if="node && node.ip6"
+            stacked="sm" :items="node.ip6.history" :fields="iplogFields" responsive show-empty striped>
             <template slot="empty">
               <pf-empty-table :isLoading="isLoading" text="">{{ $t('No IPv6 addresses found') }}</pf-empty-table>
             </template>
@@ -238,9 +240,10 @@
 
         <b-tab title="Location">
           <template slot="title">
-            {{ $t('Location') }} <b-badge pill v-if="node.locations && node.locations.length > 0" variant="light" class="ml-1">{{ node.locations.length }}</b-badge>
+            {{ $t('Location') }} <b-badge pill v-if="node && node.locations && node.locations.length > 0" variant="light" class="ml-1">{{ node.locations.length }}</b-badge>
           </template>
-          <b-table stacked="sm" :items="node.locations" :fields="locationFields" responsive show-empty striped>
+          <b-table v-if="node"
+            stacked="sm" :items="node.locations" :fields="locationFields" responsive show-empty striped>
               <template slot="switch" slot-scope="location">
                 <b-button variant="link" :to="{ name: 'switch', params: { id: location.item.switch_ip } }">{{ location.item.switch_ip }}</b-button> / <mac>{{ location.item.switch_mac }}</mac><br/>
                 <b-badge class="mr-1" v-if="location.item.port">{{ $t('Port') }}: {{ location.item.port }} <span v-if="location.item.ifDesc">({{ location.item.ifDesc }})</span></b-badge>
@@ -259,9 +262,10 @@
 
         <b-tab title="SecurityEvents">
           <template slot="title">
-            {{ $t('Security Events') }} <b-badge pill v-if="node.security_events && node.security_events.length > 0" variant="light" class="ml-1">{{ node.security_events.length }}</b-badge>
+            {{ $t('Security Events') }} <b-badge pill v-if="node && node.security_events && node.security_events.length > 0" variant="light" class="ml-1">{{ node.security_events.length }}</b-badge>
           </template>
-          <b-table stacked="sm" :items="node.security_events" :fields="securityEventFields" :sortBy="securityEventSortBy" :sortDesc="securityEventSortDesc" responsive show-empty striped>
+          <b-table v-if="node"
+            stacked="sm" :items="node.security_events" :fields="securityEventFields" :sortBy="securityEventSortBy" :sortDesc="securityEventSortDesc" responsive show-empty striped>
             <template slot="description" slot-scope="security_event">
               <icon v-if="!securityEventDescription(security_event.item.security_event_id)" name="circle-notch" spin></icon>
               <router-link v-else :to="{ path: `/configuration/security_event/${security_event.item.security_event_id}` }">{{ securityEventDescription(security_event.item.security_event_id) }}</router-link>
@@ -290,9 +294,10 @@
 
         <b-tab title="Option82">
           <template slot="title">
-            {{ $t('Option82') }} <b-badge pill v-if="node.dhcpoption82 && node.dhcpoption82.length > 0" variant="light" class="ml-1">{{ node.dhcpoption82.length }}</b-badge>
+            {{ $t('Option82') }} <b-badge pill v-if="node && node.dhcpoption82 && node.dhcpoption82.length > 0" variant="light" class="ml-1">{{ node.dhcpoption82.length }}</b-badge>
           </template>
-          <b-table stacked="sm" :items="node.dhcpoption82" :fields="dhcpOption82Fields" v-if="node.dhcpoption82" responsive show-empty striped>
+          <b-table v-if="node && node.dhcpoption82"
+            stacked="sm" :items="node.dhcpoption82" :fields="dhcpOption82Fields" responsive show-empty striped>
             <template slot="empty">
               <pf-empty-table :isLoading="isLoading" text="">{{ $t('No DHCP option82 logs found') }}</pf-empty-table>
             </template>
@@ -629,13 +634,13 @@ export default {
       })
     },
     canReevaluateAccess (node) {
-      return (node.locations && node.locations.length > 0)
+      return (node && node.locations && node.locations.length > 0)
     },
     cannotReevaluateAccessTooltip (node) {
       return this.$i18n.t('Node has no locations.')
     },
     canRestartSwitchport (node) {
-      return (node.locations && node.locations.filter(node =>
+      return (node && node.locations && node.locations.filter(node =>
         node.end_time === '0000-00-00 00:00:00' && // require zero end_time
         network.connectionTypeToAttributes(node.connection_type).isWired // require 'Wired'
       ).length > 0)
@@ -647,7 +652,9 @@ export default {
       this.$router.back()
     },
     refresh () {
-      this.$store.dispatch('$_nodes/refreshNode', this.mac)
+      this.$store.dispatch('$_nodes/refreshNode', this.mac).then(node => {
+        this.nodeContent = node
+      })
     },
     connectionSubType (type) {
       if (type && eapType[type]) {
@@ -681,163 +688,164 @@ export default {
     },
     setupVis () {
       const node = this.$store.state.$_nodes.nodes[this.mac]
-      const _this = this
-      if (node.detect_date && node.detect_date !== '0000-00-00 00:00:00') {
-        _this.addVisGroup({
-          id: this.mac + '-seen',
-          content: this.$i18n.t('Seen')
-        })
-        _this.addVisItem({
-          id: 'detect',
-          group: this.mac + '-seen',
-          start: new Date(node.detect_date),
-          end: (node.last_seen && node.last_seen !== '0000-00-00 00:00:00' && node.last_seen !== node.detect_date) ? new Date(node.last_seen) : null,
-          content: this.$i18n.t('Detected')
-        })
-      } else if (node.last_seen && node.last_seen !== '0000-00-00 00:00:00') {
-        _this.addVisGroup({
-          id: this.mac + '-seen',
-          content: this.$i18n.t('Seen')
-        })
-        this.addVisItem({
-          id: 'last_seen',
-          group: this.mac + '-seen',
-          start: new Date(node.last_seen),
-          content: this.$i18n.t('Last Seen')
-        })
-      }
-      if (node.regdate && node.regdate !== '0000-00-00 00:00:00') {
-        _this.addVisGroup({
-          id: this.mac + '-registered',
-          content: this.$i18n.t('Registered')
-        })
-        _this.addVisItem({
-          id: 'regdate',
-          group: this.mac + '-registered',
-          start: new Date(node.regdate),
-          end: (node.unregdate && node.unregdate !== '0000-00-00 00:00:00' && node.unregdate !== node.regdate) ? new Date(node.unregdate) : null,
-          content: this.$i18n.t('Registered')
-        })
-      }
-      if (node.last_arp && node.last_arp !== '0000-00-00 00:00:00') {
-        _this.addVisGroup({
-          id: this.mac + '-general',
-          content: this.$i18n.t('General')
-        })
-        _this.addVisItem({
-          id: 'last_arp',
-          group: this.mac + '-general',
-          start: new Date(node.last_arp),
-          content: this.$i18n.t('Last ARP')
-        })
-      }
-      if (node.last_dhcp && node.last_dhcp !== '0000-00-00 00:00:00') {
-        _this.addVisGroup({
-          id: this.mac + '-general',
-          content: this.$i18n.t('General')
-        })
-        _this.addVisItem({
-          id: 'last_dhcp',
-          group: this.mac + '-general',
-          start: new Date(node.last_dhcp),
-          content: this.$i18n.t('Last DHCP')
-        })
-      }
-      if (node.lastskip && node.lastskip !== '0000-00-00 00:00:00') {
-        _this.addVisGroup({
-          id: this.mac + '-general',
-          content: this.$i18n.t('General')
-        })
-        _this.addVisItem({
-          id: 'lastskip',
-          group: this.mac + '-general',
-          start: new Date(node.lastskip),
-          content: this.$i18n.t('Last Skip')
-        })
-      }
-      try {
-        node.ip4.history.forEach(function (ip4, index, ip4s) {
-          _this.addVisGroup({
-            id: _this.mac + '-ipv4',
-            content: _this.$i18n.t('IPv4 Addresses')
+      if (node) {
+        if (node.detect_date && node.detect_date !== '0000-00-00 00:00:00') {
+          this.addVisGroup({
+            id: this.mac + '-seen',
+            content: this.$i18n.t('Seen')
           })
-          _this.addVisItem({
-            id: 'ipv4-' + ip4.ip,
-            group: _this.mac + '-ipv4',
-            start: new Date(ip4.start_time),
-            end: (ip4.end_time !== '0000-00-00 00:00:00' && ip4.end_time !== ip4.start_time) ? new Date(ip4.end_time) : null,
-            content: ip4.ip
+          this.addVisItem({
+            id: 'detect',
+            group: this.mac + '-seen',
+            start: new Date(node.detect_date),
+            end: (node.last_seen && node.last_seen !== '0000-00-00 00:00:00' && node.last_seen !== node.detect_date) ? new Date(node.last_seen) : null,
+            content: this.$i18n.t('Detected')
           })
-        })
-      } catch (e) {
-        // noop
-      }
-      try {
-        node.ip6.history.forEach(function (ip6, index, ip6s) {
-          _this.addVisGroup({
-            id: _this.mac + '-ipv6',
-            content: _this.$i18n.t('IPv6 Addresses')
+        } else if (node.last_seen && node.last_seen !== '0000-00-00 00:00:00') {
+          this.addVisGroup({
+            id: this.mac + '-seen',
+            content: this.$i18n.t('Seen')
           })
-          _this.addVisItem({
-            id: 'ipv6-' + ip6.ip,
-            group: _this.mac + '-ipv6',
-            start: new Date(ip6.start_time),
-            end: (ip6.end_time !== '0000-00-00 00:00:00' && ip6.end_time !== ip6.start_time) ? new Date(ip6.end_time) : null,
-            content: ip6.ip
+          this.addVisItem({
+            id: 'last_seen',
+            group: this.mac + '-seen',
+            start: new Date(node.last_seen),
+            content: this.$i18n.t('Last Seen')
           })
-        })
-      } catch (e) {
-        // noop
-      }
-      try {
-        node.locations.forEach(function (location, index, locations) {
-          _this.addVisGroup({
-            id: _this.mac + '-location',
-            content: _this.$i18n.t('Locations')
+        }
+        if (node.regdate && node.regdate !== '0000-00-00 00:00:00') {
+          this.addVisGroup({
+            id: this.mac + '-registered',
+            content: this.$i18n.t('Registered')
           })
-          _this.addVisItem({
-            id: 'location-' + location.id,
-            group: _this.mac + '-location',
-            start: new Date(location.start_time),
-            end: (location.end_time && location.end_time !== '0000-00-00 00:00:00' && location.end_time !== location.start_time) ? new Date(location.end_time) : null,
-            content: location.ssid + '/' + _this.$i18n.t('Role') + ':' + location.role + '/VLAN:' + location.vlan
+          this.addVisItem({
+            id: 'regdate',
+            group: this.mac + '-registered',
+            start: new Date(node.regdate),
+            end: (node.unregdate && node.unregdate !== '0000-00-00 00:00:00' && node.unregdate !== node.regdate) ? new Date(node.unregdate) : null,
+            content: this.$i18n.t('Registered')
           })
-        })
-      } catch (e) {
-        // noop
-      }
-      try {
-        node.security_events.forEach(function (securityEvent, index, securityEvents) {
-          _this.addVisGroup({
-            id: _this.mac + '-security_event',
-            content: _this.$i18n.t('Security Events')
+        }
+        if (node.last_arp && node.last_arp !== '0000-00-00 00:00:00') {
+          this.addVisGroup({
+            id: this.mac + '-general',
+            content: this.$i18n.t('General')
           })
-          _this.addVisItem({
-            id: 'security_event' + securityEvent.security_event_id,
-            group: _this.mac + '-security_event',
-            start: new Date(securityEvent.start_date),
-            end: (securityEvent.release_date !== '0000-00-00 00:00:00' && securityEvent.release_date !== securityEvent.start_date) ? new Date(securityEvent.release_date) : null,
-            content: _this.securityEventDescription(securityEvent.security_event_id)
+          this.addVisItem({
+            id: 'last_arp',
+            group: this.mac + '-general',
+            start: new Date(node.last_arp),
+            content: this.$i18n.t('Last ARP')
           })
-        })
-      } catch (e) {
-        // noop
-      }
-      try {
-        node.dhcpoption82.forEach(function (dhcpoption82, index, dhcpoption82s) {
-          _this.addVisGroup({
-            id: _this.mac + '-dhcpoption82',
-            content: _this.$i18n.t('DHCP Option 82')
+        }
+        if (node.last_dhcp && node.last_dhcp !== '0000-00-00 00:00:00') {
+          this.addVisGroup({
+            id: this.mac + '-general',
+            content: this.$i18n.t('General')
           })
-          _this.addVisItem({
-            id: 'dhcpoption82' + dhcpoption82.created_at,
-            group: _this.mac + '-dhcpoption82',
-            start: new Date(dhcpoption82.created_at),
-            content: ((dhcpoption82.switch_id) ? (dhcpoption82.switch_id + '/') : '') + ((dhcpoption82.port) ? _this.$i18n.t('Port') + ':' + dhcpoption82.port + '/' : '') + 'VLAN:' + dhcpoption82.vlan
+          this.addVisItem({
+            id: 'last_dhcp',
+            group: this.mac + '-general',
+            start: new Date(node.last_dhcp),
+            content: this.$i18n.t('Last DHCP')
           })
-        })
-      } catch (e) {
-        // noop
+        }
+        if (node.lastskip && node.lastskip !== '0000-00-00 00:00:00') {
+          this.addVisGroup({
+            id: this.mac + '-general',
+            content: this.$i18n.t('General')
+          })
+          this.addVisItem({
+            id: 'lastskip',
+            group: this.mac + '-general',
+            start: new Date(node.lastskip),
+            content: this.$i18n.t('Last Skip')
+          })
+        }
+        try {
+          node.ip4.history.forEach(function (ip4, index, ip4s) {
+            this.addVisGroup({
+              id: this.mac + '-ipv4',
+              content: this.$i18n.t('IPv4 Addresses')
+            })
+            this.addVisItem({
+              id: 'ipv4-' + ip4.ip,
+              group: this.mac + '-ipv4',
+              start: new Date(ip4.start_time),
+              end: (ip4.end_time !== '0000-00-00 00:00:00' && ip4.end_time !== ip4.start_time) ? new Date(ip4.end_time) : null,
+              content: ip4.ip
+            })
+          })
+        } catch (e) {
+          // noop
+        }
+        try {
+          node.ip6.history.forEach(function (ip6, index, ip6s) {
+            this.addVisGroup({
+              id: this.mac + '-ipv6',
+              content: this.$i18n.t('IPv6 Addresses')
+            })
+            this.addVisItem({
+              id: 'ipv6-' + ip6.ip,
+              group: this.mac + '-ipv6',
+              start: new Date(ip6.start_time),
+              end: (ip6.end_time !== '0000-00-00 00:00:00' && ip6.end_time !== ip6.start_time) ? new Date(ip6.end_time) : null,
+              content: ip6.ip
+            })
+          })
+        } catch (e) {
+          // noop
+        }
+        try {
+          node.locations.forEach(function (location, index, locations) {
+            this.addVisGroup({
+              id: this.mac + '-location',
+              content: this.$i18n.t('Locations')
+            })
+            this.addVisItem({
+              id: 'location-' + location.id,
+              group: this.mac + '-location',
+              start: new Date(location.start_time),
+              end: (location.end_time && location.end_time !== '0000-00-00 00:00:00' && location.end_time !== location.start_time) ? new Date(location.end_time) : null,
+              content: location.ssid + '/' + this.$i18n.t('Role') + ':' + location.role + '/VLAN:' + location.vlan
+            })
+          })
+        } catch (e) {
+          // noop
+        }
+        try {
+          node.security_events.forEach(function (securityEvent, index, securityEvents) {
+            this.addVisGroup({
+              id: this.mac + '-security_event',
+              content: this.$i18n.t('Security Events')
+            })
+            this.addVisItem({
+              id: 'security_event' + securityEvent.security_event_id,
+              group: this.mac + '-security_event',
+              start: new Date(securityEvent.start_date),
+              end: (securityEvent.release_date !== '0000-00-00 00:00:00' && securityEvent.release_date !== securityEvent.start_date) ? new Date(securityEvent.release_date) : null,
+              content: this.securityEventDescription(securityEvent.security_event_id)
+            })
+          })
+        } catch (e) {
+          // noop
+        }
+        try {
+          node.dhcpoption82.forEach(function (dhcpoption82, index, dhcpoption82s) {
+            this.addVisGroup({
+              id: this.mac + '-dhcpoption82',
+              content: this.$i18n.t('DHCP Option 82')
+            })
+            this.addVisItem({
+              id: 'dhcpoption82' + dhcpoption82.created_at,
+              group: this.mac + '-dhcpoption82',
+              start: new Date(dhcpoption82.created_at),
+              content: ((dhcpoption82.switch_id) ? (dhcpoption82.switch_id + '/') : '') + ((dhcpoption82.port) ? this.$i18n.t('Port') + ':' + dhcpoption82.port + '/' : '') + 'VLAN:' + dhcpoption82.vlan
+            })
+          })
+        } catch (e) {
+          // noop
+        }
       }
     },
     addVisGroup (group) {
