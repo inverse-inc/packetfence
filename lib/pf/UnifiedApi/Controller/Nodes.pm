@@ -15,10 +15,12 @@ pf::UnifiedApi::Controller::Nodes
 use strict;
 use warnings;
 use Mojo::Base 'pf::UnifiedApi::Controller::Crud';
+use NetAddr::IP;
 use pf::dal::node;
 use pf::fingerbank;
 use pf::parking;
 use pf::node;
+use List::Util qw(first);
 use List::MoreUtils qw(part);
 use pf::ip4log;
 use pf::constants qw($TRUE);
