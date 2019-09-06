@@ -180,7 +180,7 @@ export default {
     }
   },
   created () {
-    const lang = window.navigator.language.split(/-/)[0]
+    let lang = window.navigator.language.split(/-/)[0]
     if (!['en', 'fr'].includes(lang)) {
       lang = 'en'
     }
