@@ -1697,21 +1697,21 @@ export const pfConfigurationFingerbankMacVendorOptionsSearchFunction = (chosen, 
   if (!query) return []
   if (chosen.value !== null && chosen.options.length === 0) { // first query - presearch current value
     return api.fingerbankSearchMacVendors({
-      query: { op: 'and', values: [{ op: 'or', values: [{ field: 'mac', op: 'equals', value: query }] }] },
-      fields: ['mac', 'name'],
+      query: { op: 'and', values: [{ op: 'or', values: [{ field: 'id', op: 'equals', value: query }, { field: 'name', op: 'contains', value: query }, { field: 'mac', op: 'contains', value: query }] }] },
+      fields: ['id', 'mac', 'name'],
       sort: ['name'],
       cursor: 0,
       limit: 100
     }).then(response => {
       return response.items.map(item => {
-        return { value: item.mac, text: `${item.mac.toUpperCase()} - ${item.name}` }
+        return { value: item.id, text: `${item.mac.toUpperCase()} - ${item.name}` }
       })
     })
   } else { // subsequent queries
     const currentOption = chosen.options.find(option => option.value === chosen.value) // cache current value
     return api.fingerbankSearchMacVendors({
-      query: { op: 'and', values: [{ op: 'or', values: [{ field: 'name', op: 'contains', value: query }, { field: 'mac', op: 'contains', value: query }] }] },
-      fields: ['mac', 'name'],
+      query: { op: 'and', values: [{ op: 'or', values: [{ field: 'id', op: 'contains', value: query }, { field: 'name', op: 'contains', value: query }, { field: 'mac', op: 'contains', value: query }] }] },
+      fields: ['id', 'mac', 'name'],
       sort: ['name'],
       cursor: 0,
       limit: 100
@@ -1719,7 +1719,7 @@ export const pfConfigurationFingerbankMacVendorOptionsSearchFunction = (chosen, 
       return [
         ...((currentOption) ? [currentOption] : []), // current option first
         ...response.items.map(item => {
-          return { value: item.mac, text: `${item.mac.toUpperCase()} - ${item.name}` }
+          return { value: item.id, text: `${item.mac.toUpperCase()} - ${item.name}` }
         }).filter(item => {
           return JSON.stringify(item) !== JSON.stringify(currentOption) // remove duplicate current option
         })

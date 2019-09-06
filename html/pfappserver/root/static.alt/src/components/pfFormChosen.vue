@@ -196,10 +196,11 @@ export default {
   methods: {
     onFocus (event) {
       this.focus = true
-      this.onSearchChange() // initial (empty) search
+      this.onSearchChange(this.inputValue)
     },
     onBlur (event) {
       this.focus = false
+      this.onSearchChange(this.inputValue)
     },
     onSearchChange (query) {
       if (this.optionsSearchFunction) {
