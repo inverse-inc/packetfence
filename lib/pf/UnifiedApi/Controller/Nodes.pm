@@ -30,6 +30,7 @@ use pf::UnifiedApi::Search::Builder::NodesNetworkGraph;
 use pf::security_event;
 use pf::Connection;
 use pf::SwitchFactory;
+use pf::util qw(valid_ip);
 use pf::Connection::ProfileFactory;
 
 has 'search_builder_class' => 'pf::UnifiedApi::Search::Builder::Nodes';
@@ -764,6 +765,8 @@ sub map_to_network_graph {
     my @nodes = (
         $self->pf_network_graph_node($response),
     );
+    $search_info->{switch_group_found} = {};
+    $search_info->{switches_found} = {};
     my @links;
     my %network_graph = (
       type => "NetworkGraph",
@@ -774,7 +777,6 @@ sub map_to_network_graph {
       nodes => \@nodes,
       links => \@links,
     );
-    my %switches_found;
     for my $node (@{$response->{items}}) {
         my $id = $node->{mac};
         push @nodes, {
@@ -785,43 +787,101 @@ sub map_to_network_graph {
 
         my $switch_id = $node->{"locationlog.switch"} // "unknown";
         push @links, { source => $switch_id, target => $id };
-        if (!exists $switches_found{$switch_id}) {
-            push @nodes, $self->pf_network_graph_switch($search_info, $switch_id);
-            push @links, { source => "packetfence", target => $switch_id };
-            $switches_found{$switch_id} = undef;
-        }
+        $self->add_switch_to_network_graph($search_info, \%network_graph, $switch_id);
     }
 
     return 200, \%network_graph;
 }
 
 
-=head2 pf_network_graph_switch
+=head2 add_switch_to_network_graph
 
-pf_network_graph_switch
+add_switch_to_network_graph
 
 =cut
 
-sub pf_network_graph_switch {
-    my ($self, $search_info, $switch_id) = @_;
+sub add_switch_to_network_graph {
+    my ($self, $search_info, $network_graph, $switch_id) = @_;
+    my $switches_found = $search_info->{switches_found};
+    if (!exists $switches_found->{$switch_id}) {
+        my ($switch, $link, $group) = $self->pf_network_graph_switch_info($search_info, $network_graph, $switch_id);
+        push @{$network_graph->{nodes}}, $switch;
+        push @{$network_graph->{links}}, $link;
+        $switches_found->{$switch_id} = undef;
+        $self->add_swith_group_to_network_graph($search_info, $network_graph, $group);
+    }
+}
+
+=head2 add_swith_group_to_network_graph
+
+add_swith_group_to_network_graph
+
+=cut
+
+sub add_swith_group_to_network_graph {
+    my ($self, $search_info, $network_graph, $group) = @_;
+    return unless defined $group;
+    my $switch_group_found = $search_info->{switch_group_found};
+    my $id = $group->{id};
+    if (!exists $switch_group_found->{$id} ) {
+        push @{$network_graph->{nodes}}, $group;
+        push @{$network_graph->{links}}, { source => "packetfence", "target" => $id };
+        $switch_group_found->{$id} = undef;
+    }
+}
+
+=head2 pf_network_graph_switch_info
+
+pf_network_graph_switch_info
+
+=cut
+
+sub pf_network_graph_switch_info {
+    my ($self, $search_info, $network_graph, $switch_id) = @_;
     my %switch = ( id => $switch_id, type => "switch" );
+    my %link = ( source => "packetfence", "target" => $switch_id );
     if ( $switch_id eq "unknown" ) {
         $switch{type} = "unknown";
-        return \%switch;
+        return (\%switch, \%link, undef);
     }
 
-    my $cfg =
-      exists $pf::SwitchFactory::SwitchConfig{$switch_id}
-      ? $pf::SwitchFactory::SwitchConfig{$switch_id}
-      : {};
-    my %properties;
-    $switch{properties} = \%properties;
-    for my $field ( @{ $search_info->{switch_fields} } ) {
-        $field =~ s/^switch\.//;
-        $properties{$field} = exists $cfg->{$field} ? $cfg->{$field} : undef;
+    my $cfg = get_switch_data($switch_id);
+    if (defined $cfg) {
+        my %properties;
+        $switch{properties} = \%properties;
+        for my $field ( @{ $search_info->{switch_fields} } ) {
+            $field =~ s/^switch\.//;
+            $properties{$field} = exists $cfg->{$field} ? $cfg->{$field} : undef;
+        }
+        my $group_id = ($cfg->{group} // "default" ) . "-group";
+        $link{source} = $group_id;
+        my %group = ( "id" => $group_id , type => "switch-group" );
+        return (\%switch, \%link, \%group);
     }
 
-    return \%switch;
+    return (\%switch, \%link, undef);
+}
+
+
+=head2 get_switch_data
+
+get_switch_data
+
+=cut
+
+sub get_switch_data {
+    my ($switch_id) = @_;
+    if (exists $pf::SwitchFactory::SwitchConfig{$switch_id}) {
+        return $pf::SwitchFactory::SwitchConfig{$switch_id};
+    }
+
+    return undef unless valid_ip($switch_id);
+    my $ip = NetAddr::IP->new($switch_id);
+    if (my $rangeConfig = first { $ip->within($_->[0]) } @pf::SwitchFactory::SwitchRanges) {
+        return $pf::SwitchFactory::SwitchConfig{$rangeConfig->[1]};
+    }
+
+    return undef;
 }
 
 =head1 AUTHOR
