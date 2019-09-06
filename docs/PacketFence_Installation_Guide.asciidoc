@@ -2094,6 +2094,9 @@ You have access to the following attributes:
      fingerbank_info.score
      fingerbank_info.version
      fingerbank_info.mobile
+     radius_request.User-Name
+     radius_request.NAS-IP-Address
+     radius_request.NAS-Port-Id
 
  From the current connection:
      connection_sub_type
@@ -2123,11 +2126,152 @@ Examples (Match machine authentication on secure wireless ssid)
 
 Examples (Match a device that did machine authentication in a previous connection and connect on ssid Secure)
 
-* node_info.machine_account != "" && ssid == Secure
+* machine_account != "" && ssid == Secure
+
+Examples (Match a device that does user authentication and did machine authentication on a secure ssid)
+
+* last_connection_type == "Wireless-802.11-EAP" && machine_account != "" && last_dot1x_username !~ "^host/"
+
+Examples (Match a device that does user authentication and never did machine authentication on a secure ssid)
+
+* last_connection_type == "Wireless-802.11-EAP" && ( machine_account == "" || machine_account == __NULL__ ) && last_dot1x_username !~ "^host/"
 
 Examples (Match a device that never did a machine authentication (BYOD))
 
-* node_info.machine_account == __NULL__
+* machine_account == __NULL__
+
+Here and example of attributes that can be tested:
+
+          'radius_request' => {
+                                'NAS-Port-Type' => 15,
+                                'Service-Type' => 2,
+                                'State' => '0x7cfd15627dba0f5a45baee16526652a6',
+                                'Called-Station-Id' => '00:8e:73:5d:f6:9e',
+                                'FreeRADIUS-Proxied-To' => '127.0.0.1',
+                                'Realm' => 'null',
+                                'EAP-Type' => 26,
+                                'NAS-IP-Address' => '172.30.255.13',
+                                'NAS-Port-Id' => 'GigabitEthernet1/0/30',
+                                'SQL-User-Name' => 'gwten',
+                                'Calling-Station-Id' => '00:11:22:33:44:55',
+                                'PacketFence-Domain' => 'ZAYM',
+                                'Cisco-AVPair' => 'service-type=Framed',
+                                'User-Name' => 'zaym',
+                                'Event-Timestamp' => 'Aug 15 2019 17:10:03 BST',
+                                'EAP-Message' => '0x024700061a03',
+                                'Framed-IP-Address' => '172.30.250.149',
+                                'NAS-Port' => 50130,
+                                'Stripped-User-Name' => 'gwten',
+                                'Framed-MTU' => 1500
+                              },
+          'autoreg' => 'yes',
+          'last_port' => '37',
+          'device_class' => 'Windows OS',
+          'bandwidth_balance' => undef,
+          'bypass_role' => undef,
+          'device_type' => 'Windows OS',
+          'pid' => 'gwten',
+          'dhcp6_enterprise' => '',
+          'last_seen' => \[
+                             'NOW()'
+                           ],
+          'dhcp6_fingerprint' => '',
+          'category' => 'Wire',
+          'mac' => '00:11:22:33:44:55',
+          'portal' => 'Wire',
+          'lastskip' => '0000-00-00 00:00:00',
+          'eap_type' => 26,
+          'last_dhcp' => '0000-00-00 00:00:00',
+          'user_agent' => 'ccmhttp',
+          'computername' => 'zamtop',
+          'dhcp_fingerprint' => '1,15,3,6,44,46,47,31,33,121,249,43',
+          'detect_date' => '2019-08-15 15:33:30',
+          'last_vlan' => '0',
+          'last_connection_sub_type' => 26,
+          'fingerbank_info' => {
+                                 'device_fq' => 'Operating System/Windows OS',
+                                 'device_name' => 'Windows OS',
+                                 'version' => '',
+                                 'score' => '73',
+                                 'mobile' => 0,
+                                 'device_hierarchy_names' => [
+                                                             'Windows OS',
+                                                             'Operating System'
+                                                             ],
+                                 'device_hierarchy_ids' => [
+                                                             1,
+                                                             16879
+                                                           ]
+                               },
+          'bypass_role_id' => undef,
+          'last_role' => 'Wire',
+          'dhcp_vendor' => 'MSFT 5.0',
+          'unregdate' => '2019-08-15 20:10:04',
+          'last_switch' => '172.20.20.1',
+          'auto_registered' => 1,
+          '__from_table' => 1,
+          'source' => 'Wire',
+          'last_ifDesc' => 'GigabitEthernet1/0/30',
+          'device_version' => '',
+          'status' => 'reg',
+          'bypass_vlan' => undef,
+          'regdate' => '2019-08-15 17:10:04',
+          'last_dot1x_username' => 'zayme',
+          'tenant_id' => '1',
+          'category_id' => '166',
+          'machine_account' => '',
+          'last_connection_type' => 'Ethernet-EAP',
+          'last_ssid' => '',
+          'realm' => 'null',
+          'last_ip' => '172.20.20.2',
+          'device_score' => '73',
+          'last_arp' => '0000-00-00 00:00:00',
+          'last_start_timestamp' => '1565885356',
+          'stripped_user_name' => 'zayme',
+          '__old_data' => {
+                            'autoreg' => 'yes',
+                            'device_class' => 'Windows OS',
+                            'bandwidth_balance' => undef,
+                            'bypass_role' => undef,
+                            'device_type' => 'Windows OS',
+                            'pid' => 'gwten',
+                            'dhcp6_enterprise' => '',
+                            'last_seen' => '2019-08-15 16:09:16',
+                            'dhcp6_fingerprint' => '',
+                            'category' => 'Wire',
+                            'mac' => '00:11:22:33:44:55',
+                            'lastskip' => '0000-00-00 00:00:00',
+                            'last_dhcp' => '0000-00-00 00:00:00',
+                            'user_agent' => 'ccmhttp',
+                            'dhcp_fingerprint' => '1,15,3,6,44,46,47,31,33,121,249,43',
+                            'computername' => 'zamtop',
+                            'detect_date' => '2019-08-15 15:33:30',
+                            'bypass_role_id' => undef,
+                            'dhcp_vendor' => 'MSFT 5.0',
+                            'unregdate' => '2019-08-15 20:09:16',
+                            'device_version' => '',
+                            'status' => 'reg',
+                            'bypass_vlan' => undef,
+                            'regdate' => '2019-08-15 17:09:16',
+                            'category_id' => '166',
+                            'tenant_id' => '1',
+                            'machine_account' => undef,
+                            'last_arp' => '0000-00-00 00:00:00',
+                            'device_score' => '73',
+                            'voip' => 'no',
+                            'device_manufacturer' => 'Toshiba',
+                            'notes' => 'AUTO-REGISTERED',
+                            'time_balance' => undef,
+                            'sessionid' => undef
+                          },
+          'voip' => 'no',
+          'device_manufacturer' => 'Toshiba',
+          'notes' => 'AUTO-REGISTERED',
+          'time_balance' => undef,
+          'last_switch_mac' => '00:8e:73:5d:f6:9e',
+          'sessionid' => undef,
+          'last_start_time' => '2019-08-15 16:09:16'
+
 
 PacketFence relies extensively on Apache for its captive portal, administrative interface and Web services. The PacketFence Apache configuration is located in `/usr/local/pf/conf/httpd.conf.d/`.
 
