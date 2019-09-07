@@ -382,7 +382,7 @@ export default {
   },
   fingerbankUpdateCombination: data => {
     Object.keys(data).forEach(key => {
-      if (/^not_/.test(key)) {  // remove fields starting with 'not_'
+      if (/^not_/.test(key)) { // remove fields starting with 'not_'
         delete data[key]
       }
     })
