@@ -215,24 +215,31 @@ in the pf.conf configuration file.
 
 sub options_durations {
     my $self = shift;
-    my @options_values = $self->form->_get_allowed_options('allowed_access_durations');
-    my $durations;
-    if(@options_values) {
-        $durations = pf::web::util::get_translated_time_hash(
-            \@options_values,
-            $self->form->languages()->[0]
-        );
-    } else {
-        my $default_choices = $Config{'guests_admin_registration'}{'access_duration_choices'};
-        my @choices = uniq admin_allowed_options_all([$self->form->user_roles],'allowed_access_durations'), split (/\s*,\s*/, $default_choices);
-        $durations = pf::web::util::get_translated_time_hash(
-            \@choices,
-            $self->form->languages()->[0]
-        );
-    }
-    my @options = map { $durations->{$_}[0] => $durations->{$_}[1] } sort { $a <=> $b } keys %$durations;
+    my $form = $self->form;
+    my @options_values = $form->_get_allowed_options('allowed_access_durations');
+    if (@options_values) {
+        return make_durations_options($form, \@options_values);
+    };
 
-    return \@options;
+    my $default_choices = $Config{'guests_admin_registration'}{'access_duration_choices'};
+    my @choices = uniq admin_allowed_options_all([$form->user_roles],'allowed_access_durations'), split (/\s*,\s*/, $default_choices);
+    return make_durations_options($form, \@choices);
+}
+
+=head2 make_durations_options
+
+make_durations_options
+
+=cut
+
+sub make_durations_options {
+    my ($form, $choices) = @_;
+    my $durations = pf::web::util::get_translated_time_array(
+        $choices,
+        $form->languages()->[0]
+    );
+
+    return map { {value => $_->[1], label => $_->[2]} } sort { $a->[0] <=> $b->[0] } @$durations;
 }
 
 =head2 options_durations_absolute
@@ -244,26 +251,15 @@ in the pf.conf configuration file.
 
 sub options_durations_absolute {
     my $self = shift;
-    my @options_values = $self->form->_get_allowed_options('allowed_access_durations');
-    @options_values = grep { $_ =~ /^(\d+)($TIME_MODIFIER_RE)$/} @options_values;
-    my $durations;
-    if(@options_values) {
-        $durations = pf::web::util::get_translated_time_hash(
-            \@options_values,
-            $self->form->languages()->[0]
-        );
-    } else {
-        my $default_choices = $Config{'guests_admin_registration'}{'access_duration_choices'};
-        my @choices = uniq admin_allowed_options_all([$self->form->user_roles],'allowed_access_durations'), split (/\s*,\s*/, $default_choices);
-        @choices = grep { $_ =~ /^(\d+)($TIME_MODIFIER_RE)$/} @choices;
-        $durations = pf::web::util::get_translated_time_hash(
-            \@choices,
-            $self->form->languages()->[0]
-        );
-    }
-    my @options = map { $durations->{$_}[0] => $durations->{$_}[1] } sort { $a <=> $b } keys %$durations;
+    my $form = $self->form;
+    my @options_values = grep { $_ =~ /^(\d+)($TIME_MODIFIER_RE)$/} $form->_get_allowed_options('allowed_access_durations');
+    if (@options_values) {
+        return make_durations_options($form, \@options_values);
+    };
 
-    return \@options;
+    my $default_choices = $Config{'guests_admin_registration'}{'access_duration_choices'};
+    my @choices = grep { $_ =~ /^(\d+)($TIME_MODIFIER_RE)$/} uniq admin_allowed_options_all([$form->user_roles],'allowed_access_durations'), split (/\s*,\s*/, $default_choices);
+    return make_durations_options($form, \@choices);
 }
 
 =head2 validate
