@@ -334,16 +334,15 @@ Return values:
 =cut
 
 sub validate_password {
-    my ( $pid, $password ) = @_;
-
+    my ( $pid, $password, $allow_potd) = @_;
     my $logger = get_logger();
     my ($status, $iter) = pf::dal::password->search(
         -where => {
-            pid => $pid,
+            'password.pid' => $pid,
+            'person.potd' => $allow_potd ? 'yes' : ['no', undef],
         },
-        -columns => [qw(pid password UNIX_TIMESTAMP(valid_from)|valid_from), 'UNIX_TIMESTAMP(DATE_FORMAT(expiration,"%Y-%m-%d 23:59:59"))|expiration', qw(access_duration category)],
+        -columns => [qw(password.pid|pid password.password|password UNIX_TIMESTAMP(valid_from)|valid_from), 'UNIX_TIMESTAMP(DATE_FORMAT(expiration,"%Y-%m-%d 23:59:59"))|expiration', qw(password.access_duration|access_duration password.category|category person.potd|potd)],
         #To avoid a join
-        -from => pf::dal::password->table,
         -limit => 1,
     );
 

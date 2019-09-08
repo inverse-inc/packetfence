@@ -44,7 +44,7 @@ sub available_attributes {
 sub authenticate {
    my ( $self, $username, $password ) = @_;
 
-   my $result = pf::password::validate_password($username, $password);
+   my $result = pf::password::validate_password($username, $password, 1);
 
    if ($result == $pf::password::AUTH_SUCCESS) {
      return ($TRUE, $AUTH_SUCCESS_MSG);
