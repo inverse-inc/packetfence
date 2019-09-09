@@ -255,9 +255,7 @@ import pfNetworkGraphTooltipPacketfence from '@/components/pfNetworkGraphTooltip
 // import multiple `d3-*` micro-libraries into same namespace,
 //  this has a smaller footprint than using full standalone `d3` library.
 const d3 = {
-  ...require('d3-force'),
-  ...require('d3-array'), // `d3.extent`
-  ...require('d3-scale') // `d3.scalePow`
+  ...require('d3-force')
 }
 
 const getAngleFromCoords = (x1, y1, x2, y2) => {
