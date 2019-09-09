@@ -35,7 +35,7 @@ use pf::config::cluster;
 
 our %SwitchConfig;
 tie %SwitchConfig, 'pfconfig::cached_hash', "config::Switch($host_id)";
-my @SwitchRanges;
+our @SwitchRanges;
 tie @SwitchRanges, 'pfconfig::cached_array', 'resource::switches_ranges';
 our %SwitchTypesConfigured;
 tie %SwitchTypesConfigured, 'pfconfig::cached_hash', 'resource::SwitchTypesConfigured';

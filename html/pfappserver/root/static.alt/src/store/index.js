@@ -26,8 +26,8 @@ export const types = {
 export default new Vuex.Store({
   modules: {
     config,
-    events,
     documentation,
+    events,
     notification,
     performance,
     pfqueue,

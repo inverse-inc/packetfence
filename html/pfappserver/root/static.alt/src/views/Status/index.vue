@@ -25,6 +25,12 @@ export default {
           path: '/status/dashboard'
         },
         {
+          name: this.$i18n.t('Network View'),
+          path: '/status/network',
+          saveSearchNamespace: 'network',
+          can: 'read nodes'
+        },
+        {
           name: this.$i18n.t('Services'),
           path: '/status/services',
           can: 'read services'
@@ -39,7 +45,7 @@ export default {
   },
   computed: {
     cluster () {
-      return this.$store.state.$_status.cluster
+      return this.$store.state.$_status.cluster || []
     }
   },
   mounted () {
