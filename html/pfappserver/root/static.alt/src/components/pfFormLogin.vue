@@ -36,7 +36,7 @@
 <script>
 import pfButtonSave from '@/components/pfButtonSave'
 
-const EXPIRATION_DELAY = 60 // in seconds
+const EXPIRATION_DELAY = 60 * 1000 // in miliseconds
 
 export default {
   name: 'pf-form-login',
@@ -90,7 +90,7 @@ export default {
     }
     if (this.modal) {
       // Watch for session state change from external sources
-      this.$watch('isSessionAlive', () => { this.updateSessionTime() })
+      this.$watch('isSessionAlive', () => { this.updateSessionTimeVerified() })
     }
   },
   methods: {
@@ -110,37 +110,62 @@ export default {
       })
     },
     extendSession () {
+      if (this.sessionTimer) clearTimeout(this.sessionTimer)
       this.$store.dispatch('session/getTokenInfo').then(() => {
-        this.updateSessionTime()
+        this.updateSessionTimeVerified()
         this.$store.dispatch('notification/info', { message: this.$i18n.t('Your session has been successfully extended.') })
       }, () => {
         this.$store.commit('session/EXPIRED')
       })
     },
     logout () {
-      this.$store.dispatch('session/logout').then(() => {
-        this.$router.push('/logout')
-      })
+      if (this.sessionTimer) clearTimeout(this.sessionTimer)
+      this.showModal = false
+      this.$router.push('/logout')
     },
     updateSessionTime () {
       this.sessionTime = this.$store.getters['session/getSessionTime']()
+      if (this.sessionTime === false || this.sessionTime < EXPIRATION_DELAY) {
+        // Verify with server without affecting the expiration date
+        this.$store.dispatch('session/getTokenInfo', true).catch(() => {
+          this.$store.commit('session/EXPIRED')
+        }).finally(() => {
+          this.updateSessionTimeVerified()
+        })
+      } else {
+        // Check back later
+        this.showModal = false
+        clearTimeout(this.sessionTimer)
+        this.sessionTimer = setTimeout(this.updateSessionTime, (this.sessionTime - EXPIRATION_DELAY))
+      }
+    },
+    updateSessionTimeVerified () {
+      this.sessionTime = this.$store.getters['session/getSessionTime']()
       this.username = this.$store.state.session.username
+      if (this.sessionTimer) clearTimeout(this.sessionTimer)
       if (this.sessionTime === false) {
         // Token has expired
         this.password = ''
         this.message = { level: 'warning', text: this.$i18n.t('Your session has expired') }
         this.showModal = !!this.$store.state.session.token
-        clearTimeout(this.sessionTimer)
-      } else {
-        if (this.sessionTime < EXPIRATION_DELAY) {
-          // Token will expire soon
-          this.showModal = true
-          this.message = { level: 'warning', text: this.$i18n.t('Your session will expire in {seconds} seconds', { seconds: this.sessionTime > 0 ? this.sessionTime : 0 }) }
-          this.sessionTimer = setTimeout(this.updateSessionTime, 1000) // update message every second
+      } else if (this.sessionTime < EXPIRATION_DELAY) {
+        // Token will expire soon
+        const secs = Math.floor(this.sessionTime / 1000)
+        this.showModal = true
+        this.message = { level: 'warning', text: this.$i18n.t('Your session will expire in {seconds} seconds', { seconds: secs > 0 ? secs : 0 }) }
+        if (secs > 0 && secs % 15 > 0) {
+          this.sessionTimer = setTimeout(this.updateSessionTimeVerified, 1000) // Update message in 1 second
         } else {
-          // Check back later
-          this.showModal = false
-          this.sessionTimer = setTimeout(this.updateSessionTime, (this.sessionTime - EXPIRATION_DELAY) * 1000)
+          this.sessionTimer = setTimeout(this.updateSessionTime, 1000) // Verify token with server
+        }
+      } else {
+        // Check back later
+        this.showModal = false
+        if (this.sessionTime <= EXPIRATION_DELAY + 5000) {
+          // Don't verify token with server if within 5 seconds
+          this.sessionTimer = setTimeout(this.updateSessionTimeVerified, (this.sessionTime - EXPIRATION_DELAY))
+        } else {
+          this.sessionTimer = setTimeout(this.updateSessionTime, (this.sessionTime - EXPIRATION_DELAY))
         }
       }
     }

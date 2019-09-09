@@ -43,8 +43,10 @@ const api = {
   setToken: (token) => {
     apiCall.defaults.headers.common['Authorization'] = `Bearer ${token}`
   },
-  getTokenInfo: () => {
-    return apiCall.getQuiet('token_info')
+  getTokenInfo: (readonly) => {
+    let url = 'token_info'
+    if (readonly) url += '?no-expiration-extension=1'
+    return apiCall.getQuiet(url)
   },
   getTenants: () => {
     return apiCall.get('tenants')
@@ -105,7 +107,7 @@ const getters = {
       if (now >= state.expires_at) {
         return false
       }
-      return parseInt((state.expires_at - now) / 1000, 10)
+      return (state.expires_at - now)
     }
     return false
   }
@@ -175,8 +177,8 @@ const actions = {
       resolve()
     })
   },
-  getTokenInfo: ({ commit }) => {
-    return api.getTokenInfo().then(response => {
+  getTokenInfo: ({ commit }, readonly = false) => {
+    return api.getTokenInfo(readonly).then(response => {
       commit('USERNAME_UPDATED', response.data.item.username)
       commit('EXPIRES_AT_UPDATED', response.data.item.expires_at)
       return response.data.item.admin_actions
