@@ -603,6 +603,21 @@ export default {
         })
       }
       return []
+    },
+    nodeSiblingsById () {
+      return (id) => {
+        const node = this.localNodes.find(node => node.id === id)
+        if (node) {
+          const { source: { id: parentId = undefined } = {} } = node
+          if (parentId) {
+            return this.nodeChildrenById(parentId)
+          }
+        }
+        return []
+      }
+    },
+    nodeChildrenById () {
+      return (id) => this.localLinks.filter(link => link.source.id === id).map(link => link.target)
     }
   },
   methods: {
@@ -976,17 +991,6 @@ export default {
     },
     mouseDownNode (node, event = null) {
       console.log('mouseDownNode', node)
-      /*
-      const { type = null } = node
-      switch (type) {
-        case 'node':
-          this.$router.push({ name: 'node', params: { mac: node.id } })
-          break
-        case 'switch':
-          this.$router.push({ name: 'switch', params: { id: node.id } })
-          break
-      }
-      */
     },
     highlightNodeById (id) {
       this.unhighlightNodes()
@@ -996,26 +1000,19 @@ export default {
         this.$set(link, 'highlight', true) // highlight link
         this.$set(link.target, 'highlight', true) // highlight target node
       })
-      // traverse tree from node to center 'packetfence' node.
-      while (id !== null) { // travel to center of tree [ (target|source) -> (target|source) -> ... ]
-        const nodeIndex = this.localNodes.findIndex(n => n.id === id)
-        if (nodeIndex > -1) {
-          this.$set(this.localNodes[nodeIndex], 'highlight', true) // highlight node
-          this.$set(this.localNodes[nodeIndex], 'tooltip', true) // show node tooltip
-          const linkIndex = this.localLinks.findIndex(link => {
-            const { target: { id: targetId } = {} } = link
-            return targetId === id
-          })
-          if (linkIndex > -1) {
-            this.$set(this.localLinks[linkIndex], 'highlight', true) // highlight link
-            const { source: { id: sourceId } = {} } = this.localLinks[linkIndex]
-            id = sourceId
-          } else {
-            id = null
-          }
-        } else {
-          id = null
-        }
+      var source = this.localNodes.find(node => node.id === id)
+      while (source !== undefined) { // travel to center of tree [ (target|source) -> (target|source) -> ... ]
+        this.$set(source, 'highlight', true) // highlight node
+        this.$set(source, 'tooltip', true) // show node tooltip
+        const { id: sourceId } = source
+        this.localLinks.filter(link => {
+          const { target: { id: targetId } = {} } = link
+          return targetId === sourceId
+        }).map(link => {
+          this.$set(link, 'highlight', true)
+        })
+        // eslint-disable-next-line no-redeclare
+        var { source = undefined } = source // recurse source
       }
     },
     unhighlightNodes () {
@@ -1238,6 +1235,8 @@ export default {
           const targetIndex = this.localNodes.findIndex(node => node.id === targetId)
           if (sourceIndex > -1 && targetIndex > -1) {
             links.push({ source: this.localNodes[sourceIndex], target: this.localNodes[targetIndex] })
+            // set reference from target (child) to source (parent)
+            this.$set(this.localNodes[targetIndex], 'source', this.localNodes[sourceIndex])
           }
         })
         this.stop() // stop simulation
