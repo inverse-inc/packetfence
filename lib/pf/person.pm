@@ -347,7 +347,7 @@ Clean all persons that are not the owner of a node and that are not a local acco
 
 sub person_cleanup {
     my @to_delete = map { $_->{pid} } persons_without_nodes();
-    my $now = DateTime->now();
+    my $now = DateTime->now(time_zone => 'local');
     foreach my $pid (@to_delete) {
         if($pf::constants::BUILTIN_USERS{$pid}){
             get_logger->debug("User $pid is set for deletion but is a built-in user. Not deleting...");
@@ -361,6 +361,7 @@ sub person_cleanup {
                 next;
             }
             $expiration = DateTime::Format::MySQL->parse_datetime($expiration);
+            $expiration->set_time_zone('local');
             my $cmp = DateTime->compare($now, $expiration);
             if($cmp < 0){
                 get_logger->debug("Not deleting $pid because the local account is still valid.");
