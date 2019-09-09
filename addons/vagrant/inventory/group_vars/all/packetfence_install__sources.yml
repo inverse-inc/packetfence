@@ -1,4 +1,6 @@
 ---
+# Don't use simple quote to avoid issue when YAML
+# is convert to JSON
 packetfence_install__sources:
 
   - id: Blackhole
@@ -66,8 +68,8 @@ packetfence_install__sources:
     banned_domains: "foo.{{ packetfence_install__config_base_general['domain'] }}, bar.{{ packetfence_install__config_base_general['domain'] }}"
     allowed_domains: "*.{{ packetfence_install__config_base_general['domain'] }}, *foo.ca, bar.ca"
     activation_domain: ''
-    allow_localdomain: True
-    create_local_account: True
+    allow_localdomain: "yes"
+    create_local_account: "yes"
     password_length: 15
     hash_passwords: ntlm
     local_account_logins: 0
