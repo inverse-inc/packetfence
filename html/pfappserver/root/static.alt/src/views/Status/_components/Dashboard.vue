@@ -700,7 +700,9 @@ export default {
         } // Logs section
       ],
       sections: [],
+      pingNetdataTimer: false,
       pingNetdataInterval: 1000 * 30, // ms
+      getAlarmsTimer: false,
       alarmsInterval: 1000 * 60
     }
   },
@@ -768,7 +770,7 @@ export default {
         // We have a list of charts; check if the first one is still available.
         // In case of an error, the interceptor will set CHART_ERROR
         this.$store.dispatch(`${this.storeName}/getChart`, firstChart.id)
-        setTimeout(this.pingNetdata, this.pingNetdataInterval)
+        this.pingNetdataTimer = setTimeout(this.pingNetdata, this.pingNetdataInterval)
       } else {
         // No charts yet
         this.$store.dispatch('services/getService', 'netdata').then(service => {
@@ -777,11 +779,11 @@ export default {
               this.$store.dispatch(`${this.storeName}/allCharts`).then(() => {
                 this.init()
                 this.initNetdata()
-                setTimeout(this.pingNetdata, this.pingNetdataInterval)
+                this.pingNetdataTimer = setTimeout(this.pingNetdata, this.pingNetdataInterval)
               })
             }, 20000) // wait until netdata is ready
           } else {
-            setTimeout(this.pingNetdata, this.pingNetdataInterval)
+            this.pingNetdataTimer = setTimeout(this.pingNetdata, this.pingNetdataInterval)
           }
         })
       }
@@ -815,11 +817,11 @@ export default {
                 })
               }
             })
-            setTimeout(this.getAlarms, this.alarmsInterval)
+            this.getAlarmsTimer = setTimeout(this.getAlarms, this.alarmsInterval)
           })
         })
       } else {
-        setTimeout(this.getAlarms, this.alarmsInterval)
+        this.getAlarmsTimer = setTimeout(this.getAlarms, this.alarmsInterval)
       }
     },
     moduleCharts (module) {
@@ -876,13 +878,17 @@ export default {
     if (this.$store.state[this.storeName].allCharts) {
       this.init()
     }
-    setTimeout(this.pingNetdata, this.pingNetdataInterval)
+    this.pingNetdataTimer = setTimeout(this.pingNetdata, this.pingNetdataInterval)
   },
   mounted () {
     if (this.$store.state[this.storeName].allCharts) {
       this.initNetdata()
       this.getAlarms()
     }
+  },
+  beforeDestroy () {
+    if (this.pingNetdataTimer) clearTimeout(this.pingNetdataTimer)
+    if (this.getAlarmsTimer) clearTimeout(this.getAlarmsTimer)
   }
 }
 </script>
