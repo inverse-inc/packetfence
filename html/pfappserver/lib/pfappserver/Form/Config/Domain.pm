@@ -21,16 +21,24 @@ use pf::authentication;
 use Sys::Hostname;
 
 ## Definition
-has_field 'id' =>
-  (
-   type => 'Text',
-   label => 'Identifier',
-   required => 1,
-   maxlength => 10,
-   messages => { required => 'Please specify an identifier' },
-   tags => { after_element => \&help,
-             help => 'Specify a unique identifier for your configuration.<br/>This doesn\'t have to be related to your domain' },
-  );
+has_field 'id' => (
+    type      => 'Text',
+    label     => 'Identifier',
+    required  => 1,
+    maxlength => 10,
+    messages  => { required => 'Please specify an identifier' },
+    tags      => {
+        after_element => \&help,
+        help => 'Specify a unique identifier for your configuration.<br/>This doesn\'t have to be related to your domain',
+        option_pattern => sub {
+            return {
+                regex => "^[0-9a-zA-Z]+\$",
+                message =>
+"The id is invalid. The id can only contain alphanumeric characters.",
+            };
+        },
+    },
+);
 
 has_field 'status' => (
     type            => 'Toggle',
