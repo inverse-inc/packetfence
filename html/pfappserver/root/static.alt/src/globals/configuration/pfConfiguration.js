@@ -254,7 +254,7 @@ export const pfConfigurationValidatorsFromMeta = (meta = {}, key = null, fieldNa
             validators = { ...validators, ...{ [i18n.t('Maximum {maxLength} characters.', { maxLength: meta[key].max_length })]: maxLength(meta[key].max_length) } }
             break
           case 'pattern':
-            validators = { ...validators, ...{ [i18n.t('Invalid {fieldName}.', { fieldName: meta[key].pattern.message })]: isPattern(meta[key].pattern.regex) } }
+            validators = { ...validators, ...{ [meta[key].pattern.message]: isPattern(meta[key].pattern.regex) } }
             break
           case 'required':
             if (meta[key].required === true) { // only if `true`
