@@ -14,6 +14,7 @@ pf::ConfigStore::BillingTiers
 use strict;
 use warnings;
 use Moo;
+use pf::constants;
 use pf::file_paths qw($billing_tiers_config_file);
 extends 'pf::ConfigStore';
 with 'pf::ConfigStore::Role::ReverseLookup';
@@ -30,7 +31,11 @@ canDelete
 
 sub canDelete {
     my ($self, $id) = @_;
-    return !$self->isInProfile('billing_tiers', $id) && $self->SUPER::canDelete($id);
+    if ($self->isInProfile('billing_tiers', $id)) {
+        return "Used in a profile", $FALSE;
+    }
+
+    return $self->SUPER::canDelete($id);
 }
 
 =head1 AUTHOR

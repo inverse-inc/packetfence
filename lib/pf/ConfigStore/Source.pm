@@ -14,6 +14,7 @@ pf::ConfigStore::Source
 
 use HTTP::Status qw(:constants is_error is_success);
 use Moo;
+use pf::constants;
 use namespace::autoclean;
 use pf::file_paths qw($authentication_config_file);
 use Sort::Naturally qw(nsort);
@@ -54,7 +55,11 @@ canDelete
 
 sub canDelete {
     my ($self, $id) = @_;
-    return !$self->isInProfile('sources', $id) && $self->SUPER::canDelete($id);
+    if ($self->isInProfile('sources', $id)) {
+        return "Used in a profile", $FALSE;
+    }
+
+    return $self->SUPER::canDelete($id);
 }
 
 =head2 _Sections

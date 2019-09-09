@@ -458,8 +458,9 @@ sub remove {
     my ($self) = @_;
     my $id = $self->id;
     my $cs = $self->config_store;
-    if (!$cs->remove($id, 'id')) {
-        return $self->render_error(422, "Unable to delete $id");
+    my ($msg, $deleted) = $cs->remove($id, 'id');
+    if (!$deleted) {
+        return $self->render_error(422, "Unable to delete $id - $msg");
     }
 
     return unless($self->commit($cs));

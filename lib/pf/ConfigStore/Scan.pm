@@ -16,6 +16,7 @@ use warnings;
 use Moo;
 use pf::file_paths qw($scan_config_file);
 extends 'pf::ConfigStore';
+use pf::constants;
 with 'pf::ConfigStore::Role::ReverseLookup';
 use pfconfig::cached_hash;
 tie our %ProfileReverseLookup, 'pfconfig::cached_hash', 'resource::ProfileReverseLookup';
@@ -32,7 +33,11 @@ canDelete
 
 sub canDelete {
     my ($self, $id) = @_;
-    return !$self->isInProfile('scans', $id) && $self->SUPER::canDelete($id);
+    if ($self->isInProfile('scans', $id)) {
+        return "Used in a profile", $FALSE;
+    }
+
+    return $self->SUPER::canDelete($id);
 }
 
 =head2 cleanupAfterRead

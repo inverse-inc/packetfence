@@ -21,7 +21,7 @@ use pf::file_paths qw(
 );
 extends 'pf::ConfigStore';
 with 'pf::ConfigStore::Role::ReverseLookup';
-
+use pf::constants;
 use pf::log;
 
 sub configFile { $portal_modules_config_file};
@@ -38,10 +38,15 @@ canDelete
 
 sub canDelete {
     my ( $self, $id ) = @_;
-    return
-         !$self->isInProfile( 'root_module', $id )
-      && !$self->isInPortalModules( 'modules', $id )
-      && $self->SUPER::canDelete($id);
+    if ($self->isInProfile('root_module', $id)) {
+        return "Used in a profile", $FALSE;
+    }
+
+    if ($self->isInPortalModules('modules', $id)) {
+        return "Used in a portal module", $FALSE;
+    }
+
+    return $self->SUPER::canDelete($id);
 }
 
 =head2 cleanupAfterRead

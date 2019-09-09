@@ -16,6 +16,7 @@ use warnings;
 use Moo;
 use pf::file_paths qw($self_service_config_file $self_service_default_config_file);
 use pf::util;
+use pf::constants;
 extends 'pf::ConfigStore';
 with 'pf::ConfigStore::Role::ReverseLookup';
 
@@ -33,7 +34,11 @@ canDelete
 
 sub canDelete {
     my ($self, $id) = @_;
-    return !$self->isInProfile('self_service', $id) && $self->SUPER::canDelete($id);
+    if ($self->isInProfile('self_service', $id)) {
+        return "Used in a profile", $FALSE;
+    }
+
+    return $self->SUPER::canDelete($id);
 }
 
 =head2 cleanupAfterRead

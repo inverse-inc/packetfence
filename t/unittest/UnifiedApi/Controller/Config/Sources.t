@@ -26,7 +26,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 8;
+use Test::More tests => 10;
 use Test::Mojo;
 use Utils;
 use pf::ConfigStore::Source;
@@ -49,6 +49,9 @@ $t->post_ok($collection_base_url => json => {})
 
 $t->post_ok($collection_base_url, {'Content-Type' => 'application/json'} => '{')
   ->status_is(400);
+
+$t->delete_ok("$base_url/sms")
+  ->status_is(422);
 
 =head1 AUTHOR
 

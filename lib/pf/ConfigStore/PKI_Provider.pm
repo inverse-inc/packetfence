@@ -15,6 +15,7 @@ pf::ConfigStore::PKI_Provider
 use HTTP::Status qw(:constants is_error is_success);
 use Moo;
 use namespace::autoclean;
+use pf::constants;
 use pf::file_paths qw($pki_provider_config_file);
 extends 'pf::ConfigStore';
 with 'pf::ConfigStore::Role::ReverseLookup';
@@ -31,7 +32,11 @@ canDelete
 
 sub canDelete {
     my ($self, $id) = @_;
-    return !$self->isInProvisioning('pki_provider', $id) && $self->SUPER::canDelete($id);
+    if ($self->isInProvisioning('pki_provider', $id)) {
+        return "Use in a provisioner", $FALSE;
+    }
+
+    return $self->SUPER::canDelete($id);
 }
 
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};

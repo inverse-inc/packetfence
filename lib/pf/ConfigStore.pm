@@ -475,10 +475,13 @@ Removes an existing item
 
 sub remove {
     my ($self, $id) = @_;
-    if (!$self->canDelete($id)) {
-        return $FALSE;
+    my ($msg, $deletable) = $self->canDelete($id);
+    if (!$deletable) {
+        return $msg, $deletable;
     }
-    return $self->cachedConfig->DeleteSection($self->_formatSectionName($id));
+
+    my $deleted = $self->cachedConfig->DeleteSection($self->_formatSectionName($id));
+    return "Removed", $deleted;
 }
 
 =head2 remove_always
@@ -509,15 +512,15 @@ sub canDelete {
     my $realSectionName = $self->_formatSectionName($id);
     my $default_section = $self->default_section;
     if ($default_section && $default_section eq $realSectionName) {
-        return $FALSE;
+        return "Cannot delete a standard item", $FALSE;
     }
 
     my $import = $self->cachedConfig->{imported};
     if ($import && $import->SectionExists($realSectionName)) {
-        return $FALSE;
+        return "Cannot delete a standard item", $FALSE;
     }
 
-    return $TRUE;
+    return "", $TRUE;
 }
 
 =head2 Copy
