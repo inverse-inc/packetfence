@@ -367,7 +367,9 @@ export default {
         maxZoom: 4,
         mouseWheelZoom: true,
         padding: 25,
-        tooltipDistance: 50
+        tooltipDistance: 50,
+        sort: 'last_seen',
+        order: 'ASC' // 'ASC' or 'DESC'
       }
     }
   },
@@ -616,6 +618,64 @@ export default {
     },
     nodeChildrenById () {
       return (id) => this.localLinks.filter(link => link.source.id === id).map(link => link.target)
+    },
+    nodeAngleById () {
+      return (id) => {
+        const sibilings = this.nodeSiblingsById(id) // including self
+        const eachAngle = 360 / siblings.length
+        const index = siblings.findIndex(node => node.id === id)
+        const node = siblings[index]
+        if ('source' in node) {
+          let startAngle = this.nodeAngleById(node.source.id)
+        } else {
+          let startAngle = 270
+        }
+        if (siblings.length % 2 === 0) { // w/ even # of nodes
+          startAngle += eachAngle / 2 // add extra 1/2 angle to prevent overlap @ startAngle
+        }
+        const nodeAngle = (startAngle + (eachAngle * index)) % 360
+      }
+    },
+    sortedNodes () {
+      const getMinMaxPropertyFromSwitch = (switche) => {
+        return this.localLinks.filter(node => node.source.id === switche.id).reduce((limits, link, index) => {
+          let { min = undefined, max = undefined } = limits
+          const { target: { type } = {} } = link
+          if (type !== 'node') {
+            const { min: sMin, max: sMax } = getMinMaxPropertyFromSwitch(link.target) // recurse
+            min = (min === undefined) ? sMin : ((min.localeCompare(sMin) === 1) ? sMin : min)
+            max = (max === undefined) ? sMax : ((max.localeCompare(sMax) === -1) ? sMax : max)
+          } else {
+            const { target: { properties: { [this.config.sort]: prop } = {} } = {} } = link
+            min = (min === undefined) ? prop : ((min.localeCompare(prop) === 1) ? prop : min)
+            max = (max === undefined) ? prop : ((max.localeCompare(prop) === -1) ? prop : max)
+          }
+          return { min, max }
+        }, { min: undefined, max: undefined })
+      }
+      const order = (this.config.order === 'ASC') ? 1 : -1 // order multiplier
+      return JSON.parse(JSON.stringify(this.localNodes)).sort((a, b) => { // dereference, sort
+        const { id: idA, type: typeA, properties: { [this.config.sort]: propA } = {} } = a
+        const { id: idB, type: typeB, properties: { [this.config.sort]: propB } = {} } = b
+        if (typeA === 'node' && typeB === 'node') {
+          return (propA === propB) ? idA.localeCompare(idB) : (propA.localeCompare(propB) * order)
+        } else if (typeA === 'node') {
+          return 1 * order // switch (non-node) first
+        } else if (typeB === 'node') {
+          return -1 * order // switch (non-node) first
+        } else {
+          const { min: minA, max: maxA } = getMinMaxPropertyFromSwitch(a)
+          const { min: minB, max: maxB } = getMinMaxPropertyFromSwitch(b)
+          switch (order) {
+            case -1: // ascending
+              return (minA === minB) ? idA.localeCompare(idB) : minA.localeCompare(minB)
+              break
+            case 1: // descending
+              return (minA === minB) ? idA.localeCompare(idB) : maxA.localeCompare(maxB)
+              break
+          }
+        }
+      })
     }
   },
   methods: {
