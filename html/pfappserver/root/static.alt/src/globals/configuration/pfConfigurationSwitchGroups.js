@@ -4,8 +4,8 @@ import pfFormChosen from '@/components/pfFormChosen'
 import pfFormFields from '@/components/pfFormFields'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormPassword from '@/components/pfFormPassword'
+import pfFormRangeToggleDefault from '@/components/pfFormRangeToggleDefault'
 import pfFormTextarea from '@/components/pfFormTextarea'
-import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import {
   pfConfigurationAttributesFromMeta,
   pfConfigurationValidatorsFromMeta
@@ -208,6 +208,11 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
     roles = [] // all roles
   } = context
 
+  const placeholder = (key = null) => {
+    const { [key]: { placeholder = null } = {} } = meta
+    return placeholder
+  }
+
   return [
     {
       tab: i18n.t('Definition'),
@@ -294,9 +299,12 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
           fields: [
             {
               key: 'useCoA',
-              component: pfFormRangeToggle,
+              component: pfFormRangeToggleDefault,
               attrs: {
-                values: { checked: 'Y', unchecked: 'N' }
+                values: { checked: 'Y', unchecked: 'N', default: placeholder('useCoA') },
+                icons: { checked: 'check', unchecked: 'times' },
+                colors: { checked: 'var(--primary)', default: (placeholder('useCoA') === 'Y') ? 'var(--primary)' : '' },
+                tooltips: { checked: i18n.t('Y'), unchecked: i18n.t('N'), default: i18n.t('Default ({default})', { default: placeholder('useCoA') }) }
               }
             }
           ]
@@ -307,9 +315,12 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
           fields: [
             {
               key: 'cliAccess',
-              component: pfFormRangeToggle,
-              attrs: {
-                values: { checked: 'Y', unchecked: 'N' }
+              component: pfFormRangeToggleDefault,
+               attrs: {
+                values: { checked: 'Y', unchecked: 'N', default: placeholder('cliAccess') },
+                icons: { checked: 'check', unchecked: 'times' },
+                colors: { checked: 'var(--primary)', default: (placeholder('cliAccess') === 'Y') ? 'var(--primary)' : '' },
+                tooltips: { checked: i18n.t('Y'), unchecked: i18n.t('N'), default: i18n.t('Default ({default})', { default: placeholder('cliAccess') }) }
               }
             }
           ]
@@ -320,9 +331,12 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
           fields: [
             {
               key: 'ExternalPortalEnforcement',
-              component: pfFormRangeToggle,
+              component: pfFormRangeToggleDefault,
               attrs: {
-                values: { checked: 'Y', unchecked: 'N' }
+                values: { checked: 'Y', unchecked: 'N', default: placeholder('ExternalPortalEnforcement') },
+                icons: { checked: 'check', unchecked: 'times' },
+                colors: { checked: 'var(--primary)', default: (placeholder('ExternalPortalEnforcement') === 'Y') ? 'var(--primary)' : '' },
+                tooltips: { checked: i18n.t('Y'), unchecked: i18n.t('N'), default: i18n.t('Default ({default})', { default: placeholder('ExternalPortalEnforcement') }) }
               }
             }
           ]
@@ -332,9 +346,12 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
           fields: [
             {
               key: 'VoIPEnabled',
-              component: pfFormRangeToggle,
+              component: pfFormRangeToggleDefault,
               attrs: {
-                values: { checked: 'Y', unchecked: 'N' }
+                values: { checked: 'Y', unchecked: 'N', default: placeholder('VoIPEnabled') },
+                icons: { checked: 'check', unchecked: 'times' },
+                colors: { checked: 'var(--primary)', default: (placeholder('VoIPEnabled') === 'Y') ? 'var(--primary)' : '' },
+                tooltips: { checked: i18n.t('Y'), unchecked: i18n.t('N'), default: i18n.t('Default ({default})', { default: placeholder('VoIPEnabled') }) }
               }
             }
           ]
@@ -345,9 +362,12 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
           fields: [
             {
               key: 'VoIPLLDPDetect',
-              component: pfFormRangeToggle,
+              component: pfFormRangeToggleDefault,
               attrs: {
-                values: { checked: 'Y', unchecked: 'N' }
+                values: { checked: 'Y', unchecked: 'N', default: placeholder('VoIPLLDPDetect') },
+                icons: { checked: 'check', unchecked: 'times' },
+                colors: { checked: 'var(--primary)', default: (placeholder('VoIPLLDPDetect') === 'Y') ? 'var(--primary)' : '' },
+                tooltips: { checked: i18n.t('Y'), unchecked: i18n.t('N'), default: i18n.t('Default ({default})', { default: placeholder('VoIPLLDPDetect') }) }
               }
             }
           ]
@@ -358,9 +378,12 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
           fields: [
             {
               key: 'VoIPCDPDetect',
-              component: pfFormRangeToggle,
+              component: pfFormRangeToggleDefault,
               attrs: {
-                values: { checked: 'Y', unchecked: 'N' }
+                values: { checked: 'Y', unchecked: 'N', default: placeholder('VoIPCDPDetect') },
+                icons: { checked: 'check', unchecked: 'times' },
+                colors: { checked: 'var(--primary)', default: (placeholder('VoIPCDPDetect') === 'Y') ? 'var(--primary)' : '' },
+                tooltips: { checked: i18n.t('Y'), unchecked: i18n.t('N'), default: i18n.t('Default ({default})', { default: placeholder('VoIPCDPDetect') }) }
               }
             }
           ]
@@ -371,9 +394,12 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
           fields: [
             {
               key: 'VoIPDHCPDetect',
-              component: pfFormRangeToggle,
+              component: pfFormRangeToggleDefault,
               attrs: {
-                values: { checked: 'Y', unchecked: 'N' }
+                values: { checked: 'Y', unchecked: 'N', default: placeholder('VoIPDHCPDetect') },
+                icons: { checked: 'check', unchecked: 'times' },
+                colors: { checked: 'var(--primary)', default: (placeholder('VoIPDHCPDetect') === 'Y') ? 'var(--primary)' : '' },
+                tooltips: { checked: i18n.t('Y'), unchecked: i18n.t('N'), default: i18n.t('Default ({default})', { default: placeholder('VoIPDHCPDetect') }) }
               }
             }
           ]
@@ -384,9 +410,12 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
           fields: [
             {
               key: 'uplink_dynamic',
-              component: pfFormRangeToggle,
+              component: pfFormRangeToggleDefault,
               attrs: {
-                values: { checked: 'dynamic', unchecked: 'static' }
+                values: { checked: 'dynamic', unchecked: 'static', default: placeholder('uplink_dynamic') },
+                icons: { checked: 'check', unchecked: 'times' },
+                colors: { checked: 'var(--primary)', default: (placeholder('uplink_dynamic') === 'Y') ? 'var(--primary)' : '' },
+                tooltips: { checked: i18n.t('Y'), unchecked: i18n.t('N'), default: i18n.t('Default ({default})', { default: (placeholder('uplink_dynamic') === 'dynamic') ? 'Y' : 'N' }) }
               },
               listeners: {
                 checked: (value) => {
@@ -399,7 +428,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
         {
           label: i18n.t('Static Uplinks'),
           text: i18n.t('Comma-separated list of the switch uplinks.'),
-          if: (form.uplink_dynamic !== 'dynamic'),
+          if: ((form.uplink_dynamic && form.uplink_dynamic !== 'dynamic') || (!form.uplink_dynamic && placeholder('uplink_dynamic') !== 'dynamic')),
           fields: [
             {
               key: 'uplink',
@@ -408,7 +437,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
               validators: {
                 ...pfConfigurationValidatorsFromMeta(meta, 'uplink', i18n.t('Uplinks')),
                 ...{
-                  [i18n.t('Uplinks required.')]: or(required, conditional(form.uplink_dynamic === 'dynamic'))
+                  [i18n.t('Uplinks required.')]: and(required, conditional(form.uplink_dynamic === 'dynamic'))
                 }
               }
             }
@@ -461,9 +490,13 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
           fields: [
             {
               key: 'VlanMap',
-              component: pfFormRangeToggle,
+              component: pfFormRangeToggleDefault,
               attrs: {
-                values: { checked: 'Y', unchecked: 'N' }
+                tooltip: false,
+                values: { checked: 'Y', unchecked: 'N', default: placeholder('VlanMap') },
+                icons: { checked: 'check', unchecked: 'times' },
+                colors: { checked: 'var(--primary)', default: (placeholder('VlanMap') === 'Y') ? 'var(--primary)' : '' },
+                tooltips: { checked: i18n.t('Y'), unchecked: i18n.t('N'), default: i18n.t('Default ({default})', { default: placeholder('VlanMap') }) }
               }
             }
           ]
@@ -471,12 +504,13 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
         ...[
           { id: 'registration', label: i18n.t('registration') },
           { id: 'isolation', label: i18n.t('isolation') },
+          { id: 'macDetection', label: i18n.t('macDetection') },
           { id: 'inline', label: i18n.t('inline') },
           ...roles
         ].map(role => {
           return {
             label: role.label || role.id,
-            if: (form.VlanMap === 'Y'),
+            if: (form.VlanMap === 'Y' || (!form.VlanMap && placeholder('VlanMap') === 'Y')),
             fields: [
               {
                 key: `${role.id}Vlan`,
@@ -493,9 +527,13 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
           fields: [
             {
               key: 'RoleMap',
-              component: pfFormRangeToggle,
+              component: pfFormRangeToggleDefault,
               attrs: {
-                values: { checked: 'Y', unchecked: 'N' }
+                tooltip: false,
+                values: { checked: 'Y', unchecked: 'N', default: placeholder('RoleMap') },
+                icons: { checked: 'check', unchecked: 'times' },
+                colors: { checked: 'var(--primary)', default: (placeholder('RoleMap') === 'Y') ? 'var(--primary)' : '' },
+                tooltips: { checked: i18n.t('Y'), unchecked: i18n.t('N'), default: i18n.t('Default ({default})', { default: placeholder('RoleMap') }) }
               }
             }
           ]
@@ -503,12 +541,13 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
         ...[
           { id: 'registration', label: i18n.t('registration') },
           { id: 'isolation', label: i18n.t('isolation') },
+          { id: 'macDetection', label: i18n.t('macDetection') },
           { id: 'inline', label: i18n.t('inline') },
           ...roles
         ].map(role => {
           return {
             label: role.label || role.id,
-            if: (form.RoleMap === 'Y'),
+            if: (form.RoleMap === 'Y' || (!form.RoleMap && placeholder('RoleMap') === 'Y')),
             fields: [
               {
                 key: `${role.id}Role`,
@@ -525,9 +564,13 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
           fields: [
             {
               key: 'AccessListMap',
-              component: pfFormRangeToggle,
+              component: pfFormRangeToggleDefault,
               attrs: {
-                values: { checked: 'Y', unchecked: 'N' }
+                tooltip: false,
+                values: { checked: 'Y', unchecked: 'N', default: placeholder('AccessListMap') },
+                icons: { checked: 'check', unchecked: 'times' },
+                colors: { checked: 'var(--primary)', default: (placeholder('AccessListMap') === 'Y') ? 'var(--primary)' : '' },
+                tooltips: { checked: i18n.t('Y'), unchecked: i18n.t('N'), default: i18n.t('Default ({default})', { default: placeholder('AccessListMap') }) }
               }
             }
           ]
@@ -535,12 +578,13 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
         ...[
           { id: 'registration', label: i18n.t('registration') },
           { id: 'isolation', label: i18n.t('isolation') },
+          { id: 'macDetection', label: i18n.t('macDetection') },
           { id: 'inline', label: i18n.t('inline') },
           ...roles
         ].map(role => {
           return {
             label: role.label || role.id,
-            if: (form.AccessListMap === 'Y'),
+            if: (form.AccessListMap === 'Y' || (!form.AccessListMap && placeholder('AccessListMap') === 'Y')),
             fields: [
               {
                 key: `${role.id}AccessList`,
@@ -562,9 +606,13 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
           fields: [
             {
               key: 'UrlMap',
-              component: pfFormRangeToggle,
+              component: pfFormRangeToggleDefault,
               attrs: {
-                values: { checked: 'Y', unchecked: 'N' }
+                tooltip: false,
+                values: { checked: 'Y', unchecked: 'N', default: placeholder('UrlMap') },
+                icons: { checked: 'check', unchecked: 'times' },
+                colors: { checked: 'var(--primary)', default: (placeholder('UrlMap') === 'Y') ? 'var(--primary)' : '' },
+                tooltips: { checked: i18n.t('Y'), unchecked: i18n.t('N'), default: i18n.t('Default ({default})', { default: placeholder('UrlMap') }) }
               }
             }
           ]
@@ -572,12 +620,13 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
         ...[
           { id: 'registration', label: i18n.t('registration') },
           { id: 'isolation', label: i18n.t('isolation') },
+          { id: 'macDetection', label: i18n.t('macDetection') },
           { id: 'inline', label: i18n.t('inline') },
           ...roles
         ].map(role => {
           return {
             label: role.label || role.id,
-            if: (form.UrlMap === 'Y'),
+            if: (form.UrlMap === 'Y' || (!form.UrlMap && placeholder('UrlMap') === 'Y')),
             fields: [
               {
                 key: `${role.id}Url`,
@@ -1008,50 +1057,3 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
     }
   ]
 }
-
-/*
-export const pfConfigurationSwitchGroupViewPlaceholders = (context = {}) => {
-  // TODO: replace with inherited defaults from conf/switches.conf.defaults
-  return {
-    vlans: '1,2,3,4,5',
-    normalVlan: '1',
-    registrationVlan: '2',
-    isolationVlan: '3',
-    voiceVlan: '5',
-    inlineVlan: '6',
-    REJECTVlan: '-1',
-    voiceRole: 'voice',
-    inlineRole: 'inline',
-    TenantId: '1',
-    mode: 'production',
-    macSearchesMaxNb: '30',
-    macSearchesSleepInterval: '2',
-    uplink: 'dynamic',
-    cliTransport: 'Telnet',
-    SNMPVersion: '1',
-    SNMPCommunityRead: 'public',
-    SNMPCommunityWrite: 'private',
-    SNMPVersionTrap: '1',
-    SNMPCommunityTrap: 'public',
-    wsTransport: 'http'
-  }
-}
-
-export const pfConfigurationSwitchGroupViewDefaults = (context = {}) => {
-  // TODO: replace with inherited defaults from conf/switches.conf.defaults
-  return {
-    id: null,
-    AccessListMap: 'N',
-    cliAccess: 'N',
-    ExternalPortalEnforcement: 'N',
-    RoleMap: 'N',
-    UrlMap: 'N',
-    useCoA: 'Y',
-    VlanMap: 'Y',
-    VoIPEnabled: 'N',
-    VoIPCDPDetect: 'Y',
-    VoIPDHCPDetect: 'Y',
-    VoIPLLDPDetect: 'Y'
-  }
-}
-*/

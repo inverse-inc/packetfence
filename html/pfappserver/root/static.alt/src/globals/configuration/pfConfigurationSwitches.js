@@ -3,8 +3,8 @@ import pfFieldTypeValue from '@/components/pfFieldTypeValue'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormFields from '@/components/pfFormFields'
 import pfFormInput from '@/components/pfFormInput'
-import pfFormRangeToggleDefault from '@/components/pfFormRangeToggleDefault'
 import pfFormPassword from '@/components/pfFormPassword'
+import pfFormRangeToggleDefault from '@/components/pfFormRangeToggleDefault'
 import pfFormTextarea from '@/components/pfFormTextarea'
 import {
   pfConfigurationAttributesFromMeta,
@@ -433,7 +433,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
                 values: { checked: 'dynamic', unchecked: 'static', default: placeholder('uplink_dynamic') },
                 icons: { checked: 'check', unchecked: 'times' },
                 colors: { checked: 'var(--primary)', default: (placeholder('uplink_dynamic') === 'Y') ? 'var(--primary)' : '' },
-                tooltips: { checked: i18n.t('Y'), unchecked: i18n.t('N'), default: i18n.t('Default ({default})', { default: (placeholder('uplink_dynamic') === 'dynamic') ? 'Y' : 'N' }) }
+                tooltips: { checked: i18n.t('Y'), unchecked: i18n.t('N'), default: i18n.t('Default ({default})', { default: placeholder('uplink_dynamic') === 'dynamic') ? 'Y' : 'N' }) }
               },
               listeners: {
                 checked: (value) => {
