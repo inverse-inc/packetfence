@@ -16,20 +16,20 @@ Version X.Y.Z released on xxxx-xx-xx
 
 New Features
 ++++++++++++
-* Added Microsoft Intune support
+* Network vizualization
+* Microsoft Intune and ServiceNow support
 * Family Zone, LightSpeedRocket and SmoothWall firewall SSO support
-* Added a way to forward Eduroam local realm to a specific RADIUS server
-* Added ServiceNow support
-* Added a new DNS audit log module
+* New way to forward Eduroam local realm to a specific RADIUS server
+* New DNS auditing log module
 
 Enhancements
 ++++++++++++
 * Adjust Fingerbank device class lookup ordering for added precision of the device class
-* Track configuration change in local git repo
-* Randomize KeyBalanced to randomize the load balance in Freeradius Proxy.
-* Added support for SentinelOne's new API version (v2.0)
+* Track configuration changes in local git repository
+* Randomize KeyBalanced to randomize the load-balancing in FreeRADIUS Proxy.
+* Support for SentinelOne's new API version (v2.0)
 * Firewall SSO is now performed centrally on the management node of a cluster
-* Added DHCP pool algorithm (Random/Oldest IP)
+* Added DHCP pool algorithm (random/oldest IP)
 * Improved support for Juniper switches running Junos 15 and above
 * Allow to configure the API token timeout
 * Moved vlan_pool_technique configuration parameter to the connection profile
@@ -40,10 +40,10 @@ Enhancements
 
 Bug Fixes
 +++++++++
-* Fixes pfstats queries /api/v1/dhcp/stats a lot of times (#4096)
-* Fix duplicates reservation in the dhcp pool caused by a big registration/inline network and pfstats call
-* Fixed LinkedIn social login integration due to deprecated API calls from LinkedIn
-* Fixed the logic of "Use the RADIUS username instead of the TLS certificate common name when performing machine authentication."
+* pfstats queries /api/v1/dhcp/stats are taking a lot of time (#4096)
+* Duplicate reservations in the DHCP pool caused by a big registration/inline network and pfstats call
+* LinkedIn social login integration due to deprecated API calls from LinkedIn
+* Fixed the logic of "Use the RADIUS username instead of the TLS certificate common name when performing machine authentication"
 
 
 Version 9.0.1 released on 2019-05-24
