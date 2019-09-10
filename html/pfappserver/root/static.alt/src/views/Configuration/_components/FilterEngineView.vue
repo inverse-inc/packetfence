@@ -97,6 +97,7 @@ export default {
     initEditor (instance) {
       // Load ACE editor extensions
       require('brace/ext/language_tools')
+      require('brace/ext/searchbox')
       require(`brace/mode/${this.mode}`)
       require(`brace/theme/${this.theme}`)
       this.editor = instance
