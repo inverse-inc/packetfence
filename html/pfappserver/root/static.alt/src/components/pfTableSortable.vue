@@ -115,7 +115,7 @@ export default {
   },
   computed: {
     visibleFields () {
-      return this.fields.filter(field => field.visible)
+      return this.fields.filter(field => field.locked || field.visible)
     },
     sortableItems () {
       return this.items.filter(item => !item.not_sortable)
