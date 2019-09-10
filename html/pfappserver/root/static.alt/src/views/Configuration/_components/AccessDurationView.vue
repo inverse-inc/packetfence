@@ -10,8 +10,7 @@
   >
     <template slot="header" is="b-card-header">
       <h4 class="mb-0">
-        {{ $t('Access Duration') }}
-        <pf-button-help class="ml-1" url="PacketFence_Installation_Guide.html#_access_duration" />
+        <span>{{ $t('Access Duration') }}</span>
       </h4>
     </template>
     <template slot="footer">
