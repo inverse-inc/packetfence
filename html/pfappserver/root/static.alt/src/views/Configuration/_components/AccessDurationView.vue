@@ -26,7 +26,6 @@
 
 <script>
 import pfConfigView from '@/components/pfConfigView'
-import pfButtonHelp from '@/components/pfButtonHelp'
 import pfButtonSave from '@/components/pfButtonSave'
 import {
   pfConfigurationAccessDurationViewFields as fields,
@@ -43,7 +42,6 @@ export default {
   ],
   components: {
     pfConfigView,
-    pfButtonHelp,
     pfButtonSave
   },
   props: {
