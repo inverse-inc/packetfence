@@ -988,6 +988,7 @@ export default {
       this.highlight = null
     },
     mouseDownNode (node, event = null) {
+      // eslint-disable-next-line
       console.log('mouseDownNode', node)
     },
     highlightNodeById (id) {
