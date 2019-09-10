@@ -316,7 +316,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
             {
               key: 'cliAccess',
               component: pfFormRangeToggleDefault,
-               attrs: {
+              attrs: {
                 values: { checked: 'Y', unchecked: 'N', default: placeholder('cliAccess') },
                 icons: { checked: 'check', unchecked: 'times' },
                 colors: { checked: 'var(--primary)', default: (placeholder('cliAccess') === 'Y') ? 'var(--primary)' : '' },

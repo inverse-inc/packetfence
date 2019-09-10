@@ -433,7 +433,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
                 values: { checked: 'dynamic', unchecked: 'static', default: placeholder('uplink_dynamic') },
                 icons: { checked: 'check', unchecked: 'times' },
                 colors: { checked: 'var(--primary)', default: (placeholder('uplink_dynamic') === 'Y') ? 'var(--primary)' : '' },
-                tooltips: { checked: i18n.t('Y'), unchecked: i18n.t('N'), default: i18n.t('Default ({default})', { default: placeholder('uplink_dynamic') === 'dynamic') ? 'Y' : 'N' }) }
+                tooltips: { checked: i18n.t('Y'), unchecked: i18n.t('N'), default: i18n.t('Default ({default})', { default: (placeholder('uplink_dynamic') === 'dynamic') ? 'Y' : 'N' }) }
               },
               listeners: {
                 checked: (value) => {
