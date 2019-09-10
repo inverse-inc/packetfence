@@ -404,6 +404,7 @@ sub getRegisteredRole {
             if ( isdisabled($profile->dot1xRecomputeRoleFromPortal)  || $args->{'autoreg'} == 1) {
                 $logger->info("Role has already been computed and we don't want to recompute it. Getting role from node_info" );
                 $role = $args->{'node_info'}->{'category'};
+                @sources = ();
             }
         } else {
             $logger->info("Connection type is MAC-AUTH. Getting role from node_info or Authorization source" );
