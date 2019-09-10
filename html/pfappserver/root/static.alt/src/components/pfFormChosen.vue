@@ -32,9 +32,16 @@
         @close="onBlur"
       >
         <b-media slot="noResult" class="text-secondary" md="auto">
-          <icon name="search" scale="2" slot="aside" class="ml-2"></icon>
-          <strong>{{ $t('No results') }}</strong>
-          <b-form-text class="font-weight-light">{{ $t('Please refine your search.') }}</b-form-text>
+          <template v-if="loading">
+            <icon name="circle-notch" spin scale="2" slot="aside" class="mt-1 ml-2"></icon>
+            <strong>{{ $t('Loading results') }}</strong>
+            <b-form-text class="font-weight-light">{{ $t('Please wait...') }}</b-form-text>
+          </template>
+          <template v-else>
+            <icon name="search" scale="2" slot="aside" class="mt-1 ml-2"></icon>
+            <strong>{{ $t('No results') }}</strong>
+            <b-form-text class="font-weight-light">{{ $t('Please refine your search.') }}</b-form-text>
+          </template>
         </b-media>
       </multiselect>
       <b-input-group-append v-if="readonly || disabled">
