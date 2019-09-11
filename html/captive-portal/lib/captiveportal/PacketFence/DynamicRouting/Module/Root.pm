@@ -86,7 +86,8 @@ sub release {
     # One last check for the security_events
     return unless($self->handle_security_events());
 
-    return $self->app->redirect("http://" . $self->app->request->header("host") . "/access?lang=".$self->app->session->{lang}) unless($self->app->request->path eq "access");
+    my $lang = $self->app->session->{lang} // "";
+    return $self->app->redirect("http://" . $self->app->request->header("host") . "/access?lang=$lang") unless($self->app->request->path eq "access");
 
     get_logger->info("Releasing device");
 
