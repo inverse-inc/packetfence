@@ -168,12 +168,12 @@
 <script>
 import pfButtonExportToCsv from '@/components/pfButtonExportToCsv'
 import pfEmptyTable from '@/components/pfEmptyTable'
-import { pfFormatters as formatter } from '@/globals/pfFormatters'
 import pfMixinSearchable from '@/components/pfMixinSearchable'
 import pfMixinSelectable from '@/components/pfMixinSelectable'
 import pfFingerbankScore from '@/components/pfFingerbankScore'
 import pfFormToggle from '@/components/pfFormToggle'
 import pfProgress from '@/components/pfProgress'
+import { pfFormatters as formatter } from '@/globals/pfFormatters'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import convert from '@/utils/convert'
 

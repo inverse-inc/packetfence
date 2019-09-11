@@ -1,7 +1,7 @@
 <template>
   <b-modal id="usersListModal" size="lg" :title="$t('The following user have been created')" :visible="value"
     no-close-on-backdrop no-close-on-esc lazy scrollable>
-    <b-table stacked="sm"
+    <b-table
       :items="users"
       :fields="visibleUsersFields"
       :sortBy="usersSortBy"

@@ -194,7 +194,7 @@
             </b-col>
           </b-row>
 
-          <b-table stacked="sm" :items="userContent.nodes" :fields="visibleNodeFields" :sortBy="nodeSortBy" :sortDesc="nodeSortDesc" show-empty responsive striped>
+          <b-table :items="userContent.nodes" :fields="visibleNodeFields" :sortBy="nodeSortBy" :sortDesc="nodeSortDesc" show-empty responsive striped>
             <template slot="status" slot-scope="node">
               <b-badge pill variant="success" v-if="node.item.status === 'reg'">{{ $t('registered') }}</b-badge>
               <b-badge pill variant="secondary" v-else-if="node.item.status === 'unreg'">{{ $t('unregistered') }}</b-badge>
@@ -213,7 +213,7 @@
           <template slot="title">
             {{ $t('Security Events') }} <b-badge pill v-if="userContent.security_events && userContent.security_events.length > 0" variant="light" class="ml-1">{{ userContent.security_events.length }}</b-badge>
           </template>
-          <b-table stacked="sm" :items="userContent.security_events" :fields="securityEventFields" :sortBy="securityEventSortBy" :sortDesc="securityEventSortDesc" show-empty responsive striped>
+          <b-table :items="userContent.security_events" :fields="securityEventFields" :sortBy="securityEventSortBy" :sortDesc="securityEventSortDesc" show-empty responsive striped>
             <template slot="status" slot-scope="securityEvent">
               <b-badge pill variant="success" v-if="securityEvent.item.status === 'open'">{{ $t('open') }}</b-badge>
               <b-badge pill variant="secondary" v-else-if="securityEvent.item.status === 'closed'">{{ $t('closed') }}</b-badge>
