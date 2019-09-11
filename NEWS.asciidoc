@@ -16,7 +16,7 @@ Version X.Y.Z released on xxxx-xx-xx
 
 New Features
 ++++++++++++
-* Network vizualization
+* Network visualization
 * Microsoft Intune and ServiceNow support
 * Family Zone, LightSpeedRocket and SmoothWall firewall SSO support
 * New way to forward Eduroam local realm to a specific RADIUS server
