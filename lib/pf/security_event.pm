@@ -170,7 +170,7 @@ sub security_event_modify {
         $existing->{release_date} = $ZERO_DATE;
     }
 
-    $status = $existing->save();
+    $status = $existing->update();
 
     return (is_success($status));
 }
