@@ -218,7 +218,13 @@ export const pfConfigurationInterfacesListColumns = [
   {
     key: 'additional_listening_daemons',
     label: i18n.t('Daemons'),
-    visible: true
+    visible: true,
+    formatter: (value, key, item) => {
+      if (value.constructor === Array && value.length > 0) {
+        return value
+      }
+      return null // otherwise '[]' is displayed in cell
+    }
   },
   {
     key: 'high_availability',
