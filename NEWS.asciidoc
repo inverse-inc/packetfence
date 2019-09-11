@@ -33,7 +33,7 @@ Enhancements
 * Improved support for Juniper switches running Junos 15 and above
 * Allow to configure the API token timeout
 * Moved vlan_pool_technique configuration parameter to the connection profile
-* Added the RADUIUS' targeted IP address in the RADIUS audit log (help in cluster mode)
+* Added the RADIUS' targeted IP address in the RADIUS audit log (help in cluster mode)
 * pfperl-api port number changed to 22224
 * Autoreg for mac-auth with an authorize source
 * Parking portal has been moved in the haproxy and httpd.dispatcher services and deprecates the dedicated httpd.parking service
