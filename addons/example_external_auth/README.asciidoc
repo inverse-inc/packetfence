@@ -1,6 +1,6 @@
 First install php on your server
 
-Then add the following in /usr/local/pf/conf/httpd.conf.d/httpd.admin
+Then add the following in /usr/local/pf/conf/httpd.conf.d/httpd.admin.tt
 ```
 Listen 10000
 LoadModule php5_module modules/libphp5.so
