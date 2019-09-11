@@ -204,22 +204,22 @@ export default {
   },
   connectionProfileFile: params => {
     const get = params.quiet ? 'getQuiet' : 'get'
-    return apiCall[get](['config', 'connection_profile', params.id, 'files', params.filename]).then(response => {
+    return apiCall[get](['config', 'connection_profile', params.id, 'files', ...params.filename.split('/')]).then(response => {
       return response.data
     })
   },
   createConnectionProfileFile: params => {
-    return apiCall.put(['config', 'connection_profile', params.id, 'files', params.filename], params.content).then(response => {
+    return apiCall.put(['config', 'connection_profile', params.id, 'files', ...params.filename.split('/')], params.content).then(response => {
       return response.data
     })
   },
   updateConnectionProfileFile: params => {
-    return apiCall.patch(['config', 'connection_profile', params.id, 'files', params.filename], params.content).then(response => {
+    return apiCall.patch(['config', 'connection_profile', params.id, 'files', ...params.filename.split('/')], params.content).then(response => {
       return response.data
     })
   },
   deleteConnectionProfileFile: params => {
-    return apiCall.delete(['config', 'connection_profile', params.id, 'files', params.filename])
+    return apiCall.delete(['config', 'connection_profile', params.id, 'files', ...params.filename.split('/')])
   },
 
   /**
