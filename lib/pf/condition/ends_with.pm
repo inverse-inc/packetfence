@@ -41,7 +41,7 @@ sub match {
     my ($self,$arg) = @_;
     my $value = quotemeta $self->value;
     return 0 if(!defined($arg));
-    return $arg =~ /$value\z/;
+    return $arg =~ /$value\z/i;
 }
 
 =head1 AUTHOR
