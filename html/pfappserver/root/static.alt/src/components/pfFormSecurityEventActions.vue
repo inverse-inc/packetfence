@@ -280,6 +280,21 @@ export default {
       }
       return options
     }
+  },
+  watch: {
+    'value.target_category': { // add 'role' to actions if target_category is set, otherwise remove
+      handler: function (a, b) {
+        if (a) {
+          this.value.actions.push('role')
+        } else {
+          const index = this.value.actions.indexOf('role')
+          if (index >= 0) {
+            this.value.actions.splice(index, 1)
+          }
+        }
+      },
+      immediate: true
+    }
   }
 }
 </script>
