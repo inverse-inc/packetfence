@@ -405,7 +405,7 @@ export default {
         newline: '', // auto-detect
         quoteChar: '"',
         escapeChar: '"',
-        header: true,
+        header: false,
         trimHeaders: true,
         dynamicTyping: false,
         preview: '',
