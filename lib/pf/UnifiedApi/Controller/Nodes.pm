@@ -77,7 +77,7 @@ deregister
 
 sub deregister {
     my ($self) = @_;
-    my $mac = $self->stash->{node_id};
+    my $mac = $self->id;
     my ($status, $data) = $self->parse_json;
     if (is_error($status)) {
         return $self->render(json => $data, status => $status);
@@ -197,7 +197,7 @@ fingerbank_info
 
 sub fingerbank_info {
     my ($self) = @_;
-    my $mac = $self->stash->{node_id};
+    my $mac = $self->id;
     return $self->render(status => 200, json => { item => pf::node::fingerbank_info($mac) });
 }
 
@@ -209,7 +209,7 @@ fingerbank_refresh
 
 sub fingerbank_refresh {
     my ($self) = @_;
-    my $mac = $self->stash->{node_id};
+    my $mac = $self->id;
     unless (pf::fingerbank::process($mac, $TRUE)) {
         return $self->render_error(500, "Couldn't refresh device profiling through Fingerbank");
     }
@@ -274,7 +274,7 @@ sub close_security_event {
     if (is_error($status)) {
         return $self->render(json => $data, status => $status);
     }
-    my $mac = $self->param('node_id');
+    my $mac = $self->id;
     my $security_event_id = $data->{security_event_id};
     my $security_event = security_event_exist_id($security_event_id);
     if (!$security_event || $security_event->{mac} ne $mac ) {
@@ -438,7 +438,7 @@ sub apply_security_event {
     if (is_error($status)) {
         return $self->render(json => $data, status => $status);
     }
-    my $mac = $self->param('node_id');
+    my $mac = $self->id;
     my $security_event_id = $data->{security_event_id};
     my ($last_id) = security_event_add($mac, $security_event_id, ( 'force' => $TRUE ));
 
@@ -530,7 +530,7 @@ restart_switchport
 
 sub restart_switchport {
     my ($self) = @_;
-    my $mac = $self->param('node_id');
+    my $mac = $self->id;
     my ($status, $msg) = $self->do_restart_switchport($mac);
     if (is_error($status)) {
         return $self->render_error($status, $msg);
@@ -578,7 +578,7 @@ reevaluate_access
 
 sub reevaluate_access {
     my ($self) = @_;
-    my $mac = $self->param('node_id');
+    my $mac = $self->id;
     my $result = pf::enforcement::reevaluate_access($mac, "admin_modify");
     unless ($result) {
         return $self->render_error($STATUS::UNPROCESSABLE_ENTITY, "unable reevaluate access for $mac");

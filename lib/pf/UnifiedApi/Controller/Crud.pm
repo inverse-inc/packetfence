@@ -179,6 +179,8 @@ sub search_builder {
 
 sub resource {
     my ($self) = @_;
+    my $url_param_name = $self->url_param_name;
+    $self->stash($url_param_name => $self->escape_url_param($self->stash->{$url_param_name}));
     my ($status, $item) = $self->do_get($self->get_lookup_info);
     if (is_error($status)) {
         return $self->render_error($status, "Unable to get resource with this identifier");
