@@ -132,7 +132,6 @@ const actions = {
     commit('GENERAL_SETTINGS_REQUEST')
     const params = {
       sort: 'id',
-      fields: ['id'].join(',')
     }
     return api.fingerbankGeneralSettings(params).then(response => {
       // response is split multipart, refactor required
