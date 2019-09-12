@@ -46,12 +46,6 @@
           </span>
         </b-button>
       </template>
-      <template slot="mobile" slot-scope="data">
-        <icon name="circle" :class="{ 'text-success': data.mobile === 1, 'text-danger': data.mobile === 0 }"></icon>
-      </template>
-      <template slot="tablet" slot-scope="data">
-        <icon name="circle" :class="{ 'text-success': data.tablet === 1, 'text-danger': data.tablet === 0 }"></icon>
-      </template>
       <template slot="approved" slot-scope="data">
         <icon name="circle" :class="{ 'text-success': data.approved === 1, 'text-danger': data.approved === 0 }"></icon>
       </template>
