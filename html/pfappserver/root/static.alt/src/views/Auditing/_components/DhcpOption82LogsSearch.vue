@@ -3,7 +3,7 @@
     <pf-progress :active="isLoading"></pf-progress>
     <b-card-header>
       <div class="float-right"><pf-form-toggle v-model="advancedMode">{{ $t('Advanced') }}</pf-form-toggle></div>
-      <h4 class="mb-0" v-t="'Search DHCP Option82 Logs'"></h4>
+      <h4 class="mb-0" v-t="'Search DHCP Option 82 Logs'"></h4>
     </b-card-header>
     <pf-search :quick-with-fields="false" quick-placeholder="Search by MAC" save-search-namespace="dhcpoption82s"
       :fields="fields" :advanced-mode="advancedMode" :condition="condition" :storeName="storeName"

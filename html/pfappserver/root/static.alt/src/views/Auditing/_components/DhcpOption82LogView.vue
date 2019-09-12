@@ -9,7 +9,7 @@
       <pf-form-row :column-label="$t('Circuit ID String')">{{ item.circuit_id_string }}</pf-form-row>
       <pf-form-row :column-label="$t('Host')">{{ item.host }}</pf-form-row>
       <pf-form-row :column-label="$t('Module')">{{ item.module }}</pf-form-row>
-      <pf-form-row :column-label="$t('Option82 Switch')">{{ item.option82_switch }}</pf-form-row>
+      <pf-form-row :column-label="$t('DHCP Option 82 Switch')">{{ item.option82_switch }}</pf-form-row>
       <pf-form-row :column-label="$t('Port')">{{ item.port }}</pf-form-row>
       <pf-form-row :column-label="$t('Switch ID')">{{ item.switch_id }}</pf-form-row>
       <pf-form-row :column-label="$t('DHCP Option 82 VLAN')">{{ item.vlan }}</pf-form-row>

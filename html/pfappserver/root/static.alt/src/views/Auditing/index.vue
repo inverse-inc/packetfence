@@ -26,7 +26,7 @@ export default {
           saveSearchNamespace: 'radiuslogs'
         },
         {
-          name: this.$i18n.t('Option82'),
+          name: this.$i18n.t('DHCP Option 82'),
           path: '/auditing/dhcpoption82s/search',
           saveSearchNamespace: 'dhcpoption82s'
         },
