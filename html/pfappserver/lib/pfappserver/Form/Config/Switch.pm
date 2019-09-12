@@ -84,7 +84,7 @@ has_field 'useCoA' =>
   (
    type => 'Toggle',
    label => 'Use CoA',
-   default => 'enabled',
+   default => 'Y',
    tags => { after_element => \&help,
              help => 'Use CoA when available to deauthenticate the user. When disabled, RADIUS Disconnect will be used instead if it is available.' },
   );
