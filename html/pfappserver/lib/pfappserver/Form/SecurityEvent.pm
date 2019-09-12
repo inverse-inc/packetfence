@@ -25,6 +25,7 @@ use pf::constants::role qw(@ROLES);
 use pf::config qw(%Config %Profiles_Config);
 use pf::Connection::ProfileFactory;
 use pf::web::util;
+use Scalar::Util qw(looks_like_number);
 use pf::admin_roles;
 use pf::file_paths qw($captiveportal_profile_templates_path $captiveportal_templates_path);
 use pf::action;
@@ -32,6 +33,7 @@ use pf::log;
 use pf::constants::security_event qw($MAX_SECURITY_EVENT_ID %NON_WHITELISTABLE_ROLES);
 use pf::class qw(class_next_security_event_id);
 use pf::security_event_config;
+my $ID_ERR_MSG = "The security event ID should be between 1 and 2000000000";
 
 # Form select options
 has 'triggers' => ( is => 'ro' );
@@ -45,14 +47,28 @@ has_field 'enabled' =>
    widget => 'Switch',
    label => 'Enabled',
   );
+
 has_field 'id' =>
   (
    type => 'Text',
    label => 'Identifier',
    default_method => \&class_next_security_event_id,
+   apply => [
+    {check => qr/^([0-9a-zA-Z]+|defaults)$/, message => $ID_ERR_MSG },
+   ],
+   required => 1,
    messages => { required => 'Please specify an identifier for the security event.' },
-   tags => { after_element => \&help,
-             help => 'Use a number above 1500000 if you want to be able to delete this security event later.' },
+   tags => {
+       after_element  => \&help,
+       option_pattern => sub {
+           return {
+               regex => "^([0-9a-zA-Z]+|defaults)\$",
+               message => "The id must be a number.",
+           };
+       },
+       help =>
+   'Use a number above 1500000 if you want to be able to delete this security event later.'
+     },
   );
 has_field 'desc' =>
   (
@@ -425,10 +441,8 @@ sub validate_id {
     my ($self, $field) = @_;
     my $val = $field->value;
     return if $val eq 'defaults';
-
-    if($val <= 0 || $val > $MAX_SECURITY_EVENT_ID) {
-        $field->add_error('The security event ID should be between 1 and 2000000000');
-        return;
+    if (!looks_like_number($val) || $val <= 0 || $val > $MAX_SECURITY_EVENT_ID) {
+        $field->add_error($ID_ERR_MSG);
     }
 }
 

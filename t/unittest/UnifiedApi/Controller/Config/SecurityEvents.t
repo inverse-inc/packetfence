@@ -26,7 +26,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 14;
+use Test::More tests => 16;
 use Test::Mojo;
 use pf::ConfigStore::SecurityEvents;
 
@@ -53,6 +53,9 @@ my $json1 = $t->tx->res->json;
 is(scalar @{$json1->{items}}, $limit, "returned $limit items");
 
 $t->post_ok($collection_base_url => json => {})
+  ->status_is(422);
+
+$t->post_ok($collection_base_url => json => {id => "bob"})
   ->status_is(422);
 
 $t->post_ok($collection_base_url, {'Content-Type' => 'application/json'} => '{')
