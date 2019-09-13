@@ -16,10 +16,35 @@ with 'pfappserver::Base::Form::Role::Help';
 with 'pfappserver::Base::Form::Role::Defaults';
 use pfconfig::cached_hash;
 use pf::log;
+use fingerbank::API;
+use pf::error qw(is_error);
 tie our %Doc_Config, 'pfconfig::cached_hash', 'config::FingerbankDoc';
 tie our %Defaults, 'pfconfig::cached_hash', 'config::FingerbankSettingsDefaults';
 
 has 'section' => ( is => 'ro' );
+
+my %FIELD_VALIDATORS = (
+    'upstream.api_key' => sub {
+      my (undef, $field) = @_;
+      my $key = $field->value;
+      my ($result, undef) = fingerbank::API->new_from_config->test_key($key);
+      if(is_error($result)) {
+        $field->add_error("Invalid API key provided");
+      }
+    },
+);
+
+=head2 validator_for_field
+
+Get the validator for a field
+
+=cut
+
+sub validator_for_field {
+    my ($self, $field) = @_;
+
+    return $FIELD_VALIDATORS{$field};
+}
 
 =head2 build_field_info
 
@@ -46,6 +71,11 @@ sub build_field_info {
             },
         }
     };
+
+    if (my $validate_method = $self->validator_for_field("$section.$name")) {
+        $field->{validate_method} = $validate_method;
+    }
+
     my $type = $doc->{type};
     my $method = "build_${type}_field";
     $self->$method($field, $section, $name, $doc);
