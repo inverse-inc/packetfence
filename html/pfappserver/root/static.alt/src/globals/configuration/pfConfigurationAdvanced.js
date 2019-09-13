@@ -8,12 +8,18 @@ import {
   pfConfigurationValidatorsFromMeta
 } from '@/globals/configuration/pfConfiguration'
 
+const {
+  requiredIf
+} = require('vuelidate/lib/validators')
+
 export const pfConfigurationAdvancedViewFields = (context = {}) => {
   const {
     options: {
       meta = {}
-    }
+    },
+    form = {}
   } = context
+
   return [
     {
       tab: null,
@@ -38,13 +44,27 @@ export const pfConfigurationAdvancedViewFields = (context = {}) => {
               key: 'api_inactivity_timeout.interval',
               component: pfFormInput,
               attrs: pfConfigurationAttributesFromMeta(meta, 'api_inactivity_timeout.interval'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'api_inactivity_timeout.interval', i18n.t('Interval'))
+              validators: {
+                ...pfConfigurationValidatorsFromMeta(meta, 'api_inactivity_timeout.interval', i18n.t('Interval')),
+                ...{
+                  [i18n.t('Interval required.')]: requiredIf(() => {
+                    return 'api_inactivity_timeout' in form && form.api_inactivity_timeout.unit !== null
+                  })
+                }
+              }
             },
             {
               key: 'api_inactivity_timeout.unit',
               component: pfFormChosen,
               attrs: pfConfigurationAttributesFromMeta(meta, 'api_inactivity_timeout.unit'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'api_inactivity_timeout.unit', i18n.t('Unit'))
+              validators: {
+                ...pfConfigurationValidatorsFromMeta(meta, 'api_inactivity_timeout.unit', i18n.t('Unit')),
+                ...{
+                  [i18n.t('Unit required.')]: requiredIf(() => {
+                    return 'api_inactivity_timeout' in form && form.api_inactivity_timeout.interval !== null
+                  })
+                }
+              }
             }
           ]
         },
