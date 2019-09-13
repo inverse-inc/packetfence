@@ -252,6 +252,8 @@ import pfNetworkGraphTooltipNode from '@/components/pfNetworkGraphTooltipNode'
 import pfNetworkGraphTooltipSwitch from '@/components/pfNetworkGraphTooltipSwitch'
 import pfNetworkGraphTooltipPacketfence from '@/components/pfNetworkGraphTooltipPacketfence'
 
+require('typeface-b612-mono') // custom pixel font
+
 // import multiple `d3-*` micro-libraries into same namespace,
 //  this has a smaller footprint than using full standalone `d3` library.
 const d3 = {
@@ -298,8 +300,6 @@ const cleanNodeProperties = (node = {}) => {
   const props = { id, type, properties: explodeProperties(properties) }
   return props
 }
-
-require('typeface-b612-mono') // custom pixel font
 
 export default {
   name: 'pf-network-graph',
@@ -370,7 +370,8 @@ export default {
         tooltipDistance: 50,
         sort: 'last_seen',
         order: 'ASC' // 'ASC' or 'DESC'
-      }
+      },
+      layouts: ['radial', 'tree']
     }
   },
   computed: {
@@ -676,6 +677,148 @@ export default {
           }
         }
       })
+    },
+    structuredNodes () {
+      const sourcerer = {
+        // proxy handler - circular structure
+        //  appends 'parent' to each 'targets' item that references (proxies) the immediate parent,
+        //  allowing access to a childs' parent without reprocessing the entire object.
+        set: (target, prop, value) => {
+          if (prop === 'targets' && value.constructor === Array) {
+            return target[prop] = value.map((v, i) => {
+              var p = new Proxy({ parent: target }, sourcerer)
+              for (let k in v) {
+                p[k] = v[k]
+              }
+              return p
+            })
+          } else {
+            return target[prop] = value
+          }
+        }
+      }
+      return (sourceId = 'packetfence') => {
+        const { id, type } = this.localNodes.find(node => node.id === sourceId)
+        let min // minimum property
+        let max // maximum property
+        let num = 0 // total # of nodes
+        let targets = this.localLinks.filter(link => link.source.id === sourceId).map(link => {
+          const { target: { id, type, properties: { [this.config.sort]: prop } = {} } = {} } = link
+          switch (type) {
+            case 'node':
+              min = (min === undefined) ? prop : ((min.localeCompare(prop) === 1) ? prop : min)
+              max = (max === undefined) ? prop : ((min.localeCompare(prop) === -1) ? prop : max)
+              num++
+              return { id, type, min: prop, max: prop }
+            default: // everything else
+              const { num: cNum, min: cMin, max: cMax, targets } = this.structuredNodes(id) // recurse
+              num += cNum
+              min = (min === undefined) ? cMin : ((min.localeCompare(cMin) === 1) ? cMin : min)
+              max = (max === undefined) ? cMax : ((min.localeCompare(cMin) === -1) ? cMax : max)
+              return { id, type, num: cNum, min: cMin, max: cMax, targets }
+          }
+        }).sort((a, b) => {
+          const order = (this.config.order === 'ASC') ? 1 : -1 // order multiplier
+          switch (this.config.order) {
+            case 'ASC':
+              return a.min.localeCompare(b.min); break
+            case 'DESC':
+              return b.max.localeCompare(a.max); break
+            default:
+              return 0
+          }
+        })
+        let struct = new Proxy({ id, type, num, min, max }, sourcerer)
+        struct.targets = targets
+        // struct = { id, type, num, min, max, targets: }
+        return struct
+      }
+    },
+    forceCollideRadius () {
+      return (node) => {
+        const { type } = node
+        switch (type) {
+          case 'packetfence':
+          case 'switch-group':
+          case 'switch':
+          case 'unknown':
+            return 32 + 2
+          case 'node':
+            return 16 + 2
+          default:
+            console.error(`unhandled type '${type}'.`)
+        }
+      }
+    },
+    forceRadialRadius () {
+      return (node) => {
+        const { type } = node
+        switch (type) {
+          case 'packetfence':
+            return 0
+          case 'switch-group':
+          case 'switch':
+          case 'unknown':
+            return this.dimensions.height * 0.5 // inner ring: 50% of height
+          case 'node':
+            return this.dimensions.height // outer ring: 100% of height
+          default:
+            console.error(`unhandled type '${type}'.`)
+        }
+      }
+    },
+    forceRadialStrength () {
+      return (node) => {
+        const { type } = node
+        switch (type) {
+          case 'packetfence':
+            return 0
+          case 'switch-group':
+          case 'switch':
+          case 'unknown':
+            return 1
+          case 'node':
+            return 0.2
+          default:
+            console.error(`unhandled type '${type}'.`)
+        }
+      }
+    },
+    forceXY () {
+      const structuredNodes = this.structuredNodes
+      return (node) => {
+        switch (this.config.layout) {
+          case 'radial':
+            /**
+            * 'radial' force - rendered outside-in
+            *  - node(s) on outer ring - evenly distributed
+            *  - switch(es) on middle ring - using average angle of its target nodes
+            *  - switch-group(s) on inner ring - using average angle of its target switches
+            *  - packetfence - centered
+            **/
+            break
+
+          case 'tree':
+            /**
+            * 'tree' force - rendered inside-out
+            *  - packetfence - centered
+            *  - switch-group(s) on inner ring - evenly distributed around source (packetfence)
+            *  - switch(es) on middle ring - evenly distributed around source (switch-group)
+            *  - node(s) on outer ring - evenly distributed around source (switch)
+            **/
+            break
+        }
+      }
+    },
+    forceX () {
+      return (node) => {
+        return this.forceXY(node).x
+      }
+    },
+    forceY () {
+      return (node) => {
+        return this.forceXY(node).y
+      }
     }
   },
   methods: {
@@ -695,7 +838,192 @@ export default {
         this.simulation.stop()
       }
     },
+
     force () {
+      /* `collide` force - prevents nodes from overlapping */
+      this.simulation.force('collide', d3.forceCollide()
+        .radius(this.forceCollideRadius)
+        .strength(0.125)
+        .iterations(4)
+      )
+
+      /* `charge` force - repel nodes from each other */
+      /*
+      this.simulation.force('charge', d3.forceManyBody()
+        .strength(-10)
+      )
+      */
+
+      const orderedSwitchIds = this.localLinks.filter(link => ['switch-group', 'switch', 'unknown'].includes(link.target.type)).sort((a, b) => {
+        return (a.source.id > b.source.id) ? 1 : -1
+      }).map(link => link.target.id)
+
+      const orderedNodeIds = this.localLinks.filter(link => link.target.type === 'node').sort((a, b) => {
+        return (a.source.id === b.source.id)
+          ? (a.target.last_seen > b.target.last_seen) ? 1 : -1
+          : (a.source.id > b.source.id) ? 1 : -1
+      }).map(link => link.target.id)
+
+      const minMaxSwitchIndexes = orderedSwitchIds.reduce((map, switchId, index) => {
+        if (!(switchId in map)) {
+          map[switchId] = {
+            min: orderedNodeIds.reduce((min, nodeId, index) => {
+              const link = this.localLinks.find(link => { return (link.source.id === switchId && link.target.id === nodeId) })
+              if (link) min = Math.min(min, index)
+              return min
+            }, orderedNodeIds.length),
+            max: orderedNodeIds.reduce((max, nodeId, index) => {
+              const link = this.localLinks.find(link => { return (link.source.id === switchId && link.target.id === nodeId) })
+              if (link) max = Math.max(max, index)
+              return max
+            }, 0)
+          }
+        }
+        return map
+      }, {})
+
+      switch (this.config.layout) {
+        case 'radial':
+          this.simulation.velocityDecay(0.4) // default: 0.4
+
+          /* `radial` force - orient on circle of specified radius centered at x, y */
+          this.simulation.force('radial', d3.forceRadial()
+            .radius(this.forceRadialRadius)
+            .strength(this.forceRadialStrength)
+            .x(this.dimensions.width / 2)
+            .y(this.dimensions.height / 2)
+          )
+
+          this.simulation.force('x', d3.forceX()
+            .x((node, index) => {
+              const x1 = this.dimensions.width / 2
+              const y1 = this.dimensions.height / 2
+              let i // index
+              let a // angle
+              let d // distance
+              switch (node.type) {
+                case 'packetfence':
+                  return x1
+                case 'switch-group':
+                case 'switch':
+                case 'unknown':
+                  a = (((minMaxSwitchIndexes[node.id].min * (360 / orderedNodeIds.length)) + (minMaxSwitchIndexes[node.id].max * (360 / orderedNodeIds.length))) / 2) % 360
+                  d = this.dimensions.width / 4
+                  break
+                case 'node':
+                  i = orderedNodeIds.findIndex(id => id === node.id)
+                  a = i * (360 / orderedNodeIds.length)
+                  d = this.dimensions.width / 2
+                  break
+              }
+              return getCoordFromCoordAngle(x1, y1, a, d).x
+            })
+            .strength(0.25)
+          )
+
+          this.simulation.force('y', d3.forceY()
+            .y((node, index) => {
+              const x1 = this.dimensions.width / 2
+              const y1 = this.dimensions.height / 2
+              let i // index
+              let a // angle
+              let d // distance
+              switch (node.type) {
+                case 'packetfence':
+                  return y1
+                case 'switch-group':
+                case 'switch':
+                case 'unknown':
+                  a = (((minMaxSwitchIndexes[node.id].min * (360 / orderedNodeIds.length)) + (minMaxSwitchIndexes[node.id].max * (360 / orderedNodeIds.length))) / 2) % 360
+                  d = this.dimensions.height / 4
+                  break
+                case 'node':
+                  i = orderedNodeIds.findIndex(id => id === node.id)
+                  a = i * (360 / orderedNodeIds.length)
+                  d = this.dimensions.height / 2
+                  break
+              }
+              return getCoordFromCoordAngle(x1, y1, a, d).y
+            })
+            .strength(0.25)
+          )
+          break
+
+        case 'tree':
+          this.simulation.velocityDecay(0.5) // default: 0.4
+
+          const coordSwitchIndexes = orderedSwitchIds.reduce((map, switchId, index) => {
+            if (!(switchId in map)) {
+              const i = orderedSwitchIds.findIndex(id => id === switchId) // index
+              const a = i * (360 / orderedSwitchIds.length) // angle
+              const d = Math.min(this.dimensions.width, this.dimensions.height) * 3 / 8 // distance
+              map[switchId] = {
+                ...getCoordFromCoordAngle(this.dimensions.width / 2, this.dimensions.height / 2, a, d),
+                ...{
+                  a,
+                  d,
+                  nodes: this.localLinks.filter(link => link.source.id === switchId).sort((a, b) => {
+                    return (a.target.last_seen > b.target.last_seen) ? 1 : -1
+                  }).map(link => link.target.id)
+                }
+              }
+            }
+            return map
+          }, {})
+
+          this.simulation.force('x', d3.forceX()
+            .x((node, index) => {
+              let i // index
+              let a // angle
+              let d // distance
+              switch (node.type) {
+                case 'packetfence':
+                  return this.dimensions.width / 2
+                case 'switch-group':
+                case 'switch':
+                case 'unknown':
+                  return coordSwitchIndexes[node.id].x
+                case 'node':
+                  const { source: { id: switchId = 0 } = {} } = this.localLinks.find(l => l.target.id === node.id)
+                  i = coordSwitchIndexes[switchId].nodes.findIndex(id => id === node.id)
+                  a = coordSwitchIndexes[switchId].a + (((coordSwitchIndexes[switchId].nodes.length % 2 === 0) ? 1.5 : 1) * i * (360 / coordSwitchIndexes[switchId].nodes.length))
+                  d = this.dimensions.width / 8
+                  return getCoordFromCoordAngle(coordSwitchIndexes[switchId].x, coordSwitchIndexes[switchId].y, a, d).x
+              }
+            })
+            .strength(0.5)
+          )
+
+          this.simulation.force('y', d3.forceY()
+            .y((node, index) => {
+              let i // index
+              let a // angle
+              let d // distance
+              switch (node.type) {
+                case 'packetfence':
+                  return this.dimensions.height / 2
+                case 'switch-group':
+                case 'switch':
+                case 'unknown':
+                  return coordSwitchIndexes[node.id].y
+                case 'node':
+                  const { source: { id: switchId = 0 } = {} } = this.localLinks.find(l => l.target.id === node.id)
+                  i = coordSwitchIndexes[switchId].nodes.findIndex(id => id === node.id)
+                  a = coordSwitchIndexes[switchId].a + (((coordSwitchIndexes[switchId].nodes.length % 2 === 0) ? 1.5 : 1) * i * (360 / coordSwitchIndexes[switchId].nodes.length))
+                  d = this.dimensions.width / 8
+                  return getCoordFromCoordAngle(coordSwitchIndexes[switchId].x, coordSwitchIndexes[switchId].y, a, d).y
+              }
+            })
+            .strength(0.5)
+          )
+          break
+
+        default:
+          throw new Error(`Unhandled layout ${this.config.layout}`)
+      }
+      this.simulation.alpha(1)
+    },
+    forceOld () {
       /* `collide` force - prevents nodes from overlapping */
       this.simulation.force('collide', d3.forceCollide()
         .radius((d) => {
@@ -1202,6 +1530,9 @@ export default {
       return 'black'
     }
   },
+  mounted () {
+    this.$emit('layouts', this.layouts)
+  },
   created () {
     this.init()
   },
@@ -1302,6 +1633,11 @@ export default {
         this.$set(this, 'localLinks', links)
         this.start() // start simulation
         this.force() // reset forces
+
+console.log('structuredNodes-1', this.structuredNodes().id)
+console.log('structuredNodes-2', this.structuredNodes().targets[0].id)
+console.log('structuredNodes-3', this.structuredNodes().targets[0].parent.id)
+
       }
     },
     'config.layout': {
