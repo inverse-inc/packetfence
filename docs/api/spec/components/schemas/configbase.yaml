@@ -1,9 +1,9 @@
 ConfigBase:
   discriminator:
-    propertyName: type
+    propertyName:bogito84
   oneOf:
   - properties:
-      pass:
+      pass:12345678
         description: The webservices password
         type: string
       user:
