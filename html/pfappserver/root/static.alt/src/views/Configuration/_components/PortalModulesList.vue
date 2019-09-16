@@ -49,7 +49,8 @@
         <b-tab title-link-class="text-nowrap" v-for="moduleType in activeModuleTypes" :key="moduleType">
           <template slot="title"><icon :style="{ color: getColorByType(moduleType) }" name="circle" scale=".5"></icon> {{ getModuleTypeName(moduleType) }}</template>
           <draggable element="b-row" :list="getModulesByType(moduleType)" :move="validateMove"
-            :options="{ group: { name: 'portal-module', pull: 'clone', revertClone: true, put: false }, ghostClass: 'portal-module-row-ghost', dragClass: 'portal-module-row-drag' }">
+            :group="{ name: 'portal-module', pull: 'clone', revertClone: true, put: false }"
+            ghost-class="portal-module-row-ghost" drag-class="portal-module-row-drag">
             <portal-module :id="mid" v-for="mid in getModulesByType(moduleType)" :module="getModule(mid)" :modules="items" :key="mid" :storeName="storeName" v-show="mid" is-root></portal-module>
           </draggable>
         </b-tab>
@@ -141,6 +142,12 @@ export default {
         {
           key: 'type',
           label: this.$i18n.t('Type'),
+          sortable: true,
+          visible: true
+        },
+        {
+          key: 'modules',
+          label: this.$i18n.t('Modules'),
           sortable: true,
           visible: true
         }
