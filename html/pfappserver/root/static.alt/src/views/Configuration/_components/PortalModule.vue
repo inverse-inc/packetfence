@@ -94,7 +94,7 @@ export default {
       get () {
         if (this.currentModule.modules) {
           const modules = this.currentModule.modules.filter(id => this.modules.find(module => module.id === id))
-          if (modules.length) return modules
+          if (modules.length || this.currentModule.type === 'Root') return modules
         }
         return false
       },
