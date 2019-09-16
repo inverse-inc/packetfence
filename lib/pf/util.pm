@@ -478,12 +478,15 @@ This safely modifies the contents of a file using a rename
 =cut
 
 sub safe_file_update {
-    my ($file, $contents) = @_;
+    my ($file, $contents, $binmode) = @_;
     my ($volume, $dir, $filename) = File::Spec->splitpath($file);
     $dir = '.' if $dir eq '';
     # Creates a new file in the same directory to ensure it is on the same filesystem
     pf_make_dir($dir);
     my $temp = File::Temp->new(DIR => $dir) or die "cannot create temp file in $dir";
+    if (defined $binmode) {
+        binmode($temp, $binmode);
+    }
     syswrite $temp, $contents;
     $temp->flush;
     close $temp;

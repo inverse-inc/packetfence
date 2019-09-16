@@ -192,9 +192,9 @@ sub replace_file {
        return $self->render_error(412, "'$file' does not exists");
     }
 
-    my $content = $self->req->body;
+    my $content = $self->req->text;
     eval {
-        pf::util::safe_file_update($path, $content);
+        pf::util::safe_file_update($path, $content, ":encoding(UTF-8)");
     };
     if ($@) {
        return $self->render_error(422, "Error writing to the '$file'");
