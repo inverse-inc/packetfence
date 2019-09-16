@@ -35,7 +35,16 @@
     text-transform: uppercase;
   }
 
-  input, select {
+  label.radio {
+    display: block;
+    padding-top: $inuit-global-spacing-unit-small;
+    width: 100%;
+    font-size: inherit;
+    font-weight: inherit;
+    text-transform: none;
+  }
+
+  input:not([type=radio]), select {
     border: 2px solid $pf-input-border;
     border-radius: .25rem;
     background-color: $pf-input-background;
