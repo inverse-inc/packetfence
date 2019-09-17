@@ -157,7 +157,7 @@ sub new_file {
        return $self->render_error(412, "'$file' already exists");
     }
 
-    my $content = $self->req->body;
+    my $content = $self->req->text;
     eval {
         my (undef, $file_parent_dir, undef) = splitpath($path);
         pf_make_dir($file_parent_dir);
