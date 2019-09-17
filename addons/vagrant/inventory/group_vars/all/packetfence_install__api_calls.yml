@@ -2,7 +2,7 @@
 packetfence_install__config_base_guests_admin_registration:
   access_duration_choices: '10m,20m'
 packetfence_install__config_base_general:
-  hostname: "{{ ansible_distribution|lower }}"
+  hostname: pf
   domain: example.lan
   dhcpservers: 10.0.0.1,192.168.122.1
   timezone: "{{ ansible_date_time['tz'] }}"
