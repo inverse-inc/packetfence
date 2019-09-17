@@ -148,7 +148,7 @@ Finally, for some operations (like VoIP), PacketFence still need to have SNMP ac
  snmp-server community ciscoRead ro
  snmp-server community ciscoWrite rw
 
-NOTE: You can refer to the Cisco Catalyst documentation for more options.  The latest documentation is available here: http://www.cisco.com/en/US/docs/switches/lan/catalyst2960/software/release/15.0_1_se/configuration/guide/sw8021x.html
+NOTE: You can refer to the http://www.cisco.com/en/US/docs/switches/lan/catalyst2960/software/release/15.0_1_se/configuration/guide/sw8021x.html[Cisco Catalyst documentation] for more options.
 
 
 Save the Configuration
