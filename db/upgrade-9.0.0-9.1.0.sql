@@ -1,5 +1,5 @@
 --
--- PacketFence SQL schema upgrade from X.X.X to X.Y.Z
+-- PacketFence SQL schema upgrade from 9.0.0 to 9.1.0
 --
 
 
@@ -8,8 +8,8 @@
 --
 
 SET @MAJOR_VERSION = 9;
-SET @MINOR_VERSION = 0;
-SET @SUBMINOR_VERSION = 9;
+SET @MINOR_VERSION = 1;
+SET @SUBMINOR_VERSION = 0;
 
 SET @PREV_MAJOR_VERSION = 9;
 SET @PREV_MINOR_VERSION = 0;

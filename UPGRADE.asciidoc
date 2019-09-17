@@ -1921,7 +1921,7 @@ To upgrade the database schema, run the following command:
 Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 9.0.0).
 
 
-Upgrading from a version prior to X.Y.Z
+Upgrading from a version prior to 9.1.0
 ---------------------------------------
 
 Now possible to disable a domain
@@ -1966,10 +1966,10 @@ Database schema
 ^^^^^^^^^^^^^^^
 
 Changes have been made to the database schema. You will need to update it accordingly.
-An SQL upgrade script has been provided to upgrade the database from the X.X schema to X.Y.
+An SQL upgrade script has been provided to upgrade the database from the 9.0 schema to 9.1.
 
 To upgrade the database schema, run the following command:
 
-  mysql -u root -p pf -v < /usr/local/pf/db/upgrade-X.X.X-X.Y.Z.sql
+  mysql -u root -p pf -v < /usr/local/pf/db/upgrade-9.0.0-9.1.0.sql
 
-Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence X.Y.Z).
+Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 9.1.0).
