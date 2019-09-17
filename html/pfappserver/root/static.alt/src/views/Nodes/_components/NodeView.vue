@@ -362,7 +362,6 @@ import pfFormToggle from '@/components/pfFormToggle'
 import { mysqlLimits as sqlLimits } from '@/globals/mysqlLimits'
 import { pfEapType as eapType } from '@/globals/pfEapType'
 import { pfRegExp as regExp } from '@/globals/pfRegExp'
-import { pfFormatters as formatter } from '@/globals/pfFormatters'
 import {
   pfDatabaseSchema as schema,
   buildValidationFromTableSchemas
@@ -371,6 +370,7 @@ import {
   pfSearchConditionType as conditionType,
   pfSearchConditionValues as conditionValues
 } from '@/globals/pfSearch'
+import filters from '@/utils/filters'
 import network from '@/utils/network'
 
 const { validationMixin } = require('vuelidate')
@@ -440,14 +440,14 @@ export default {
           key: 'start_time',
           label: this.$i18n.t('Start Time'),
           sortable: true,
-          formatter: formatter.shortDateTime,
+          formatter: filters.shortDateTime,
           class: 'text-nowrap'
         },
         {
           key: 'end_time',
           label: this.$i18n.t('End Time'),
           sortable: true,
-          formatter: formatter.shortDateTime,
+          formatter: filters.shortDateTime,
           class: 'text-nowrap'
         },
         {
@@ -478,14 +478,14 @@ export default {
           key: 'start_time',
           label: this.$i18n.t('Start Time'),
           sortable: true,
-          formatter: formatter.shortDateTime,
+          formatter: filters.shortDateTime,
           class: 'text-nowrap'
         },
         {
           key: 'end_time',
           label: this.$i18n.t('End Time'),
           sortable: true,
-          formatter: formatter.shortDateTime,
+          formatter: filters.shortDateTime,
           class: 'text-nowrap'
         }
       ],
@@ -501,14 +501,14 @@ export default {
           key: 'start_date',
           label: this.$i18n.t('Start Time'),
           sortable: true,
-          formatter: formatter.shortDateTime,
+          formatter: filters.shortDateTime,
           class: 'text-nowrap'
         },
         {
           key: 'release_date',
           label: this.$i18n.t('Release Date'),
           sortable: true,
-          formatter: formatter.shortDateTime,
+          formatter: filters.shortDateTime,
           class: 'text-nowrap'
         },
         {
@@ -531,7 +531,7 @@ export default {
           key: 'created_at',
           label: this.$i18n.t('Created At'),
           sortable: true,
-          formatter: formatter.shortDateTime,
+          formatter: filters.shortDateTime,
           class: 'text-nowrap'
         },
         {
