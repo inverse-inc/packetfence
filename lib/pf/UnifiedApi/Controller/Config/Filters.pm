@@ -89,7 +89,7 @@ sub replace {
         return $self->render_error($status, "Invalid $id file" ,$errors);
     }
 
-    my $body = $self->req->body;
+    my $body = $self->req->text;
     $body .= "\n" if $body !~ m/\n\z/s;
     pf::util::safe_file_update($self->fileName, $body);
     my ($success, $msg) = $self->configStore->commitPfconfig();
@@ -108,7 +108,7 @@ Is a filter valid
 
 sub isFilterValid {
     my ($self) = @_;
-    my $body = $self->req->body;
+    my $body = $self->req->text;
     $body .= "\n" if $body !~ m/\n\z/s;
     my %args = $self->configStore->configIniFilesArgs();
     $args{'-file'} = \$body;
