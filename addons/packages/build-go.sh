@@ -1,16 +1,11 @@
-#!/bin/bash -e
+#!/bin/bash
 
-# GOPATH can be pass as environment variable
 PATH="/usr/local/go/bin:$PATH"
 
 MODE="$1"
 PFSRC="$2"
 BINDST="$3"
 DEBPATH="$4"
-
-function die() {
-    echo "$(basename $0): $@" >&2 ; exit 1
-}
 
 function usage {
   echo "----------------------------------------------------------------------------"
@@ -28,11 +23,6 @@ function test_mode {
 function build_mode {
   [[ "$MODE" == "build" ]]
   return $?
-}
-
-# Exit hook to cleanup the tmp GOPATH when exiting
-function cleanup {
-  rm -rf "$GOPATH"
 }
 
 if ! test_mode && ! build_mode ; then
@@ -57,53 +47,47 @@ else
   echo "Will place binaries in $BINDST"
 fi
 
-if [ -z "$GOPATH" ]; then
-    if [ -z "$DEBPATH" ]; then
-        export GOPATH=`mktemp -d`
-    else
-        export GOPATH=`mktemp -d -p $DEBPATH`
-    fi
+set -x
+
+
+if [ -z "$DEBPATH" ]; then
+    export GOPATH=`mktemp -d`
 else
-    declare -p GOPATH
-    echo "GOPATH already set"
+    export GOPATH=`mktemp -d -p $DEBPATH`
 fi
 
 export GOPATH
 
 export GOBIN="$GOPATH/bin"
 
+# Exit hook to cleanup the tmp GOPATH when exiting
+function cleanup {
+  rm -rf "$GOPATH"
+}
+trap cleanup EXIT
+
+cd "$GOPATH"
 GOPATHPF="$GOPATH/src/github.com/inverse-inc/packetfence"
+mkdir -p $GOPATHPF
 
-if [ -d "$GOPATHPF" ]; then
-    echo "$GOPATHPF already exists"
 
-    # # change dir to use Makefile in build dir
-    cd go/
-else
-    trap cleanup EXIT
-    cd "$GOPATH"
-    mkdir -p $GOPATHPF
-    
-    
-    find $PFSRC -maxdepth 1 -type d ! -path '*/debian' ! -path '*/logs' ! -path '*/var' ! -path '*/docs' ! -path '*/t' ! -path '*/db' ! -path '*/addons' ! -path '*/.tx' -exec cp -a {} "$GOPATHPF/" \;
-    
-    cd "$GOPATHPF"
-    
-    cd go
-    
-    # Ensure current binaries are available through path
-    export PATH="$GOBIN:$PATH"
-    
-    # Install the dependencies
-    go get -u github.com/kardianos/govendor
-    $GOPATH/bin/govendor sync
-fi
+find $PFSRC -maxdepth 1 -type d ! -path '*/debian' ! -path '*/logs' ! -path '*/var' ! -path '*/docs' ! -path '*/t' ! -path '*/db' ! -path '*/addons' ! -path '*/.tx' -exec cp -a {} "$GOPATHPF/" \;
 
+cd "$GOPATHPF"
+
+cd go
+
+# Ensure current binaries are available through path
+export PATH="$GOBIN:$PATH"
+
+# Install the dependencies
+go get -u github.com/kardianos/govendor
+$GOPATH/bin/govendor sync
 
 if build_mode; then
   # Create any binaries here and make sure to move them to the BINDST specified
   for service in pfhttpd pfdhcp pfdns pfstats pfdetect;do
-      make $service || die "make $service failed"
+      make $service
       mv $service $BINDST/
   done
 
