@@ -18,7 +18,7 @@ all:
               ansible_host: 127.0.0.1
               ansible_port: "{{ ssh_port }}"
               cpus: 1
-              memory: 4096
+              memory: 6144
             pfdeb9dev:
               box: debian/stretch64
               admin_port: 1843
@@ -54,7 +54,7 @@ all:
               ansible_host: 127.0.0.1
               ansible_port: "{{ ssh_port }}"
               cpus: 1
-              memory: 4096
+              memory: 6144
             pfdeb9stable:
               box: debian/stretch64
               admin_port: 1943
@@ -89,7 +89,7 @@ all:
               ansible_host: 127.0.0.1
               ansible_port: "{{ ssh_port }}"
               cpus: 1
-              memory: 4096
+              memory: 6144
             pfdeb9night:
               box: debian/stretch64
               admin_port: 2143
