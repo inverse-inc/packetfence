@@ -122,6 +122,7 @@ sub before_dispatch_cb {
     # To allow dispatching with encoded slashes
     my $req = $c->req;
     my $headers = $req->headers;
+    $req->default_charset('UTF-8');
     $c->stash(
         {
             path        => $req->url->path,
