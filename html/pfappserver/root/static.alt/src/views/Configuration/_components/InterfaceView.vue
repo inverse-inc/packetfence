@@ -15,7 +15,7 @@
     @save="save"
     @remove="remove"
   >
-    <template slot="header" is="b-card-header">
+    <template v-slot:header>
       <b-button-close @click="close" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
       <template>
         <h4 class="d-inline mb-0">
@@ -26,7 +26,7 @@
         <b-badge v-if="isVlan" class="ml-2" variant="secondary">VLAN {{ form.vlan }}</b-badge>
       </template>
     </template>
-    <template slot="footer">
+    <template v-slot:footer>
       <b-card-footer @mouseenter="$v.form.$touch()">
         <pf-button-save :disabled="invalidForm" :isLoading="isLoading">
           <template v-if="isNew">{{ $t('Create') }}</template>

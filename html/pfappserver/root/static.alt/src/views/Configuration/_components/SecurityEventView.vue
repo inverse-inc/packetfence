@@ -13,7 +13,7 @@
     @save="save"
     @remove="remove"
   >
-    <template slot="header" is="b-card-header">
+    <template v-slot:header>
       <b-button-close @click="close" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
       <h4 class="mb-0">
         <span v-if="!isNew && !isClone" v-html="$t('Security Event {id}', { id: $strong(id) })"></span>
@@ -21,9 +21,11 @@
         <span v-else>{{ $t('New Security Event') }}</span>
       </h4>
     </template>
-    <template slot="footer" is="b-card-footer" @mouseenter="$v.form.$touch()">
-      <pf-button-save :disabled="invalidForm" :isLoading="isLoading">{{ isNew? $t('Create') : $t('Save') }}</pf-button-save>
-      <pf-button-delete v-if="!isNew" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Security Event?')" @on-delete="remove()"/>
+    <template v-slot:footer>
+      <b-card-footer @mouseenter="$v.form.$touch()">
+        <pf-button-save :disabled="invalidForm" :isLoading="isLoading">{{ isNew? $t('Create') : $t('Save') }}</pf-button-save>
+        <pf-button-delete v-if="!isNew" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Security Event?')" @on-delete="remove()"/>
+      </b-card-footer>
     </template>
   </pf-config-view>
 </template>

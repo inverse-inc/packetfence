@@ -13,7 +13,7 @@
     </b-container>
     <b-tabs v-model="tabIndex" card v-else>
       <b-tab v-for="id in sortedCerts" :key="id" @click="changeTab(id)">
-        <template slot="title">
+        <template v-slot:title>
           <icon scale=".5" :class="info[id].cert_key_match.success ? 'text-success' : 'text-danger'" name="circle"></icon>
           <icon scale=".5" :class="info[id].chain_is_valid.success ? 'text-success' : 'text-danger'" name="circle" class="fa-overlap mr-1" ></icon>
           {{ id.toUpperCase() }}
@@ -140,7 +140,7 @@
               </b-container>
             </b-form-group>
             <b-form-group label-cols-md="3" label-size="lg" v-for="(intermediate, index) in info[id].intermediate_cas" :key="intermediate">
-              <template slot="label">{{ $t('Intermediate') }} <b-badge>{{ index + 1 }}</b-badge></template>
+              <template v-slot:label>{{ $t('Intermediate') }} <b-badge>{{ index + 1 }}</b-badge></template>
               <b-container fluid>
                 <pf-form-row class="align-items-baseline" v-for="(value, key) in intermediate" :key="key" :column-label="$t(key)">
                   {{ value }}
@@ -161,7 +161,7 @@
       :ok-title="csr ? $t('Copy to clipboard') : $t('Generate')" @ok="generateCSR($event)"
       :ok-disabled="$v.csrForm.$invalid"
       :cancel-title="$t('Cancel')" @cancel="toggleCSRModal">
-      <div slot="modal-title">
+      <div v-slot:modal-title>
         <span v-html="csrModalTitle"></span>
       </div>
       <b-form @submit.prevent="generateCSR($event)" v-show="!csr">

@@ -9,7 +9,7 @@
       <b-tabs ref="tabs" v-model="tabIndex" card>
 
         <b-tab title="Node Information">
-          <template slot="title">
+          <template v-slot:title>
             {{ $t('Node Information') }}
           </template>
           <pf-form-row :column-label="$t('MAC Address')"><mac>{{ item.mac }}</mac></pf-form-row>
@@ -56,7 +56,7 @@
         </b-tab>
 
         <b-tab title="Switch Information">
-          <template slot="title">
+          <template v-slot:title>
             {{ $t('Switch Information') }}
           </template>
           <pf-form-row :column-label="$t('Switch Identifier')">{{ item.switch_id }}</pf-form-row>

@@ -33,7 +33,9 @@
           </b-row>
         </div>
       </b-tab>
-      <b-button class="ml-3 mb-1" variant="outline-primary" slot="tabs" :to="{ name: 'newPortalModule', params: { moduleType: 'Root' } }">{{ $t('New Root Module') }}</b-button>
+      <template v-slot:tabs-end>
+        <b-button class="ml-3 mb-1" variant="outline-primary" :to="{ name: 'newPortalModule', params: { moduleType: 'Root' } }">{{ $t('New Root Module') }}</b-button>
+      </template>
       <!-- Loading progress indicator -->
       <b-container class="my-5" v-if="isLoading && !items.length">
         <b-row class="justify-content-md-center text-secondary">
@@ -47,22 +49,24 @@
     <b-card-footer class="card-footer-fixed disconnect">
       <b-tabs small card>
         <b-tab title-link-class="text-nowrap" v-for="moduleType in activeModuleTypes" :key="moduleType">
-          <template slot="title"><icon :style="{ color: getColorByType(moduleType) }" name="circle" scale=".5"></icon> {{ getModuleTypeName(moduleType) }}</template>
+          <template v-slot:title><icon :style="{ color: getColorByType(moduleType) }" name="circle" scale=".5"></icon> {{ getModuleTypeName(moduleType) }}</template>
           <draggable element="b-row" :list="getModulesByType(moduleType)" :move="validateMove"
             :group="{ name: 'portal-module', pull: 'clone', revertClone: true, put: false }"
             ghost-class="portal-module-row-ghost" drag-class="portal-module-row-drag">
             <portal-module :id="mid" v-for="mid in getModulesByType(moduleType)" :module="getModule(mid)" :modules="items" :key="mid" :storeName="storeName" v-show="mid" is-root></portal-module>
           </draggable>
         </b-tab>
-        <b-dropdown :text="$t('New Module')" class="text-nowrap pr-3 ml-3 mb-1" size="sm" variant="outline-primary" boundary="viewport" slot="tabs">
-          <template v-for="group in moduleTypes">
-            <b-dropdown-header class="text-secondary" v-t="group.name" :key="group.name"></b-dropdown-header>
-            <b-dropdown-item v-for="moduleType in group.types" :key="moduleType.name" :to="{ name: 'newPortalModule', params: { moduleType: moduleType.type } }">
-              <icon :style="{ color: moduleType.color }" class="mb-1" name="circle" scale=".5"></icon> {{ moduleType.name }}
-            </b-dropdown-item>
-            <b-dropdown-divider :key="group.name"></b-dropdown-divider>
-          </template>
-        </b-dropdown>
+        <template v-slot:tabs-end>
+          <b-dropdown :text="$t('New Module')" class="text-nowrap pr-3 ml-3 mb-1" size="sm" variant="outline-primary" boundary="viewport">
+            <template v-for="group in moduleTypes">
+              <b-dropdown-header class="text-secondary" v-t="group.name" :key="group.name"></b-dropdown-header>
+              <b-dropdown-item v-for="moduleType in group.types" :key="moduleType.name" :to="{ name: 'newPortalModule', params: { moduleType: moduleType.type } }">
+                <icon :style="{ color: moduleType.color }" class="mb-1" name="circle" scale=".5"></icon> {{ moduleType.name }}
+              </b-dropdown-item>
+              <b-dropdown-divider :key="group.name"></b-dropdown-divider>
+            </template>
+          </b-dropdown>
+        </template>
       </b-tabs>
     </b-card-footer>
   </b-card>

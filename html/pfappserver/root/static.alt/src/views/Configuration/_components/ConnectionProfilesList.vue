@@ -6,7 +6,7 @@
       :sortable="true"
       @sort="sort"
     >
-      <template slot="pageHeader">
+      <template v-slot:pageHeader>
         <b-card-header>
           <h4 class="mb-0">
             {{ $t('Connection Profiles') }}
@@ -14,20 +14,20 @@
           </h4>
         </b-card-header>
       </template>
-      <template slot="buttonAdd">
+      <template v-slot:buttonAdd>
         <b-button variant="outline-primary" :to="{ name: 'newConnectionProfile' }">{{ $t('New Connection Profile') }}</b-button>
       </template>
-      <template slot="emptySearch" slot-scope="state">
+      <template v-slot:emptySearch="state">
         <pf-empty-table :isLoading="state.isLoading">{{ $t('No connection profiles found') }}</pf-empty-table>
       </template>
-      <template slot="buttons" slot-scope="item">
+      <template v-slot:cell(buttons)="item">
         <span class="float-right text-nowrap">
           <pf-button-delete size="sm" v-if="!item.not_deletable" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete Connection Profile?')" @on-delete="remove(item)" reverse/>
           <b-button size="sm" variant="outline-secondary" class="mr-1" @click.stop.prevent="preview(item)">{{ $t('Preview') }} <icon class="ml-1" name="external-link-alt"></icon></b-button>
           <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(item)">{{ $t('Clone') }}</b-button>
         </span>
       </template>
-      <template slot="status" slot-scope="data">
+      <template v-slot:cell(status)="data">
         <pf-form-range-toggle v-if="data.not_deletable"
           v-model="data.status"
           :values="{ checked: 'enabled', unchecked: 'disabled' }"

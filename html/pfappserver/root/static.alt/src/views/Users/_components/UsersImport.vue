@@ -8,7 +8,7 @@
       <div class="card-body p-0">
         <b-tabs ref="tabs" v-model="tabIndex" card pills>
           <b-tab v-for="(file, index) in files" :key="file.name + file.lastModified" :title="file.name" no-body>
-            <template slot="title">
+            <template v-slot:title>
               <b-button-close class="ml-2 text-white" @click.stop.prevent="closeFile(index)" v-b-tooltip.hover.left.d300 :title="$t('Close File')"><icon name="times"></icon></b-button-close>
               {{ $t(file.name) }}
             </template>
@@ -99,16 +99,16 @@
               </b-tab>
             </pf-csv-parse>
           </b-tab>
-          <template slot="tabs">
+          <template v-slot:tabs-end>
             <pf-form-upload @load="files = $event" :multiple="true" :cumulative="true" accept="text/*, .csv">{{ $t('Open CSV File') }}</pf-form-upload>
           </template>
-          <div slot="empty" class="text-center text-muted">
+          <div v-slot:empty class="text-center text-muted">
             <b-container class="my-5">
               <b-row class="justify-content-md-center text-secondary">
                   <b-col cols="12" md="auto">
                     <icon v-if="isLoading" name="sync" scale="2" spin></icon>
                     <b-media v-else>
-                      <icon name="file" scale="2" slot="aside"></icon>
+                      <template v-slot:aside><icon name="file" scale="2"></icon></template>
                       <h4>{{ $t('There are no open CSV files') }}</h4>
                     </b-media>
                   </b-col>

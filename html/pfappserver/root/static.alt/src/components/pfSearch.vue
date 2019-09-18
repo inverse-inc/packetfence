@@ -39,7 +39,7 @@
       </b-form>
       <b-modal v-model="showExportJsonModal" size="lg" centered id="exportJsonModal" :title="$t('Export to JSON')">
         <b-form-textarea ref="exportJsonTextarea" v-model="jsonCondition" :rows="3" :max-rows="3" readonly></b-form-textarea>
-        <div slot="modal-footer">
+        <div v-slot:modal-footer>
           <b-button variant="secondary" class="mr-1" @click="showExportJsonModal=false">{{ $t('Cancel') }}</b-button>
           <b-button variant="primary" @click="copyJsonTextarea">{{ $t('Copy to Clipboard') }}</b-button>
         </div>
@@ -47,7 +47,7 @@
       <b-modal v-model="showImportJsonModal" size="lg" centered id="importJsonModal" :title="$t('Import from JSON')" @shown="focusImportJsonTextarea">
         <b-card v-if="importJsonError" class="mb-3" bg-variant="danger" text-variant="white"><icon name="exclamation-triangle" class="mr-1"></icon>{{ importJsonError }}</b-card>
         <b-form-textarea ref="importJsonTextarea" v-model="importJsonString" :rows="3" :max-rows="3" :placeholder="$t('Enter JSON')"></b-form-textarea>
-        <div slot="modal-footer">
+        <div v-slot:modal-footer>
           <b-button variant="secondary" class="mr-1" @click="showImportJsonModal=false">{{ $t('Cancel') }}</b-button>
           <b-button variant="primary" @click="importJsonTextarea">{{ $t('Import JSON') }}</b-button>
         </div>
@@ -55,7 +55,7 @@
       <b-modal v-model="showSaveSearchModal" size="sm" centered id="saveSearchModal" :title="$t('Save Search')" @shown="focusSaveSearchInput">
         <b-form-input ref="saveSearchInput" v-model="saveSearchString" type="text"
           :placeholder="$t('Enter a unique name')" @keyup="keyUpSaveSearchInput"/>
-        <div slot="modal-footer">
+        <div v-slot:modal-footer>
           <b-button variant="secondary" class="mr-1" @click="showSaveSearchModal=false">{{ $t('Cancel') }}</b-button>
           <b-button variant="primary" @click="saveSearch">{{ $t('Save') }}</b-button>
         </div>

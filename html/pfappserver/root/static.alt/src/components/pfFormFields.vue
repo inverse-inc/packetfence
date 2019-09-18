@@ -46,7 +46,7 @@
             no-gutter
             class="m-1"
           >
-            <template slot="prepend">
+            <template v-slot:prepend>
               <div class="draghandle" v-if="sortable && !disabled && hover === index && inputValue.length > 1">
                 <icon name="th" v-b-tooltip.hover.left.d300 :title="$t('Click and drag to re-order')"></icon>
               </div>
@@ -54,7 +54,7 @@
                 {{ index + 1 }}
               </div>
             </template>
-            <template slot="append">
+            <template v-slot:append>
               <icon name="minus-circle" v-if="canDel"
                 :class="['cursor-pointer mx-1', { 'text-primary': actionKey, 'text-secondary': !actionKey }]"
                 v-b-tooltip.hover.left.d300

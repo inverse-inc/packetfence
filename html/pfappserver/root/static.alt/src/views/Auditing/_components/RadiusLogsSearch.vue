@@ -12,7 +12,7 @@
       <b-row align-h="between" align-v="center">
         <b-col cols="auto" class="mr-auto">
           <b-dropdown size="sm" variant="link" no-caret>
-            <template slot="button-content">
+            <template v-slot:button-content>
               <icon name="columns" v-b-tooltip.hover.right :title="$t('Visible Columns')"></icon>
             </template>
             <template v-for="column in columns">
@@ -46,21 +46,21 @@
       <b-table class="table-clickable" :items="items" :fields="visibleColumns" :sort-by="sortBy" :sort-desc="sortDesc"
         @sort-changed="onSortingChanged" @row-clicked="onRowClick"
         show-empty responsive hover no-local-sorting striped>
-        <template slot="empty">
+        <template v-slot:empty>
           <pf-empty-table :isLoading="isLoading">{{ $t('No logs found') }}</pf-empty-table>
         </template>
-        <template slot="auth_status" slot-scope="log">
+        <template v-slot:cell(auth_status)="log">
           <b-badge pill :variant="(['Accept', 'CoA-ACK', 'Disconnect-ACK'].includes(log.item.auth_status)) ? 'success' : 'danger'" class="ml-1">{{ log.item.auth_status }}</b-badge>
         </template>
-        <template slot="node_status" slot-scope="{ value }">
+        <template v-slot:cell(node_status)="{ value }">
           <b-badge pill variant="success" v-if="value === 'reg'">{{ $t('Registered') }}</b-badge>
           <b-badge pill variant="warning" v-else-if="value === 'pending'">{{ $t('Pending') }}</b-badge>
           <b-badge pill variant="light" v-else>{{ $t('Unregistered') }}</b-badge>
         </template>
-        <template slot="mac" slot-scope="{ value }">
+        <template v-slot:cell(mac)="{ value }">
           <router-link :to="{ path: `/node/${value}` }"><mac v-text="value"></mac></router-link>
         </template>
-        <template slot="is_phone" slot-scope="{ value }">
+        <template v-slot:cell(is_phone)="{ value }">
           <icon v-if="parseInt(value) > 0" name="check"></icon>
         </template>
       </b-table>

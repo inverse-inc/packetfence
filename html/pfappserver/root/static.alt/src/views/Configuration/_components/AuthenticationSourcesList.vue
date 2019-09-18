@@ -32,10 +32,10 @@
           striped
           @end="sort(internalSources, $event)"
         >
-          <template slot="empty">
+          <template v-slot:empty>
             <pf-empty-table :isLoading="isLoading" :text="$t('Click the button to define a new source.')">{{ $t('No internal sources defined') }}</pf-empty-table>
           </template>
-          <template slot="buttons" slot-scope="{ item }">
+          <template v-slot:cell(buttons)="{ item }">
             <span class="float-right text-nowrap">
               <pf-button-delete size="sm" v-if="!item.not_deletable" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete Source?')" @on-delete="remove(item)" reverse/>
               <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(item)">{{ $t('Clone') }}</b-button>
@@ -72,10 +72,10 @@
           striped
           @end="sort(externalSources, $event)"
         >
-          <template slot="empty">
+          <template v-slot:empty>
             <pf-empty-table :isLoading="isLoading" :text="$t('Click the button to define a new source.')">{{ $t('No external sources defined') }}</pf-empty-table>
           </template>
-          <template slot="buttons" slot-scope="{ item }">
+          <template v-slot:cell(buttons)="{ item }">
             <span class="float-right text-nowrap">
               <pf-button-delete size="sm" v-if="!item.not_deletable" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete Source?')" @on-delete="remove(item)" reverse/>
               <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(item)">{{ $t('Clone') }}</b-button>
@@ -99,10 +99,10 @@
           striped
           @end="sort(exclusiveSources, $event)"
         >
-          <template slot="empty">
+          <template v-slot:empty>
             <pf-empty-table :isLoading="isLoading" :text="$t('Click the button to define a new source.')">{{ $t('No exclusive source defined') }}</pf-empty-table>
           </template>
-          <template slot="buttons" slot-scope="{ item }">
+          <template v-slot:cell(buttons)="{ item }">
             <span class="float-right text-nowrap">
               <pf-button-delete size="sm" v-if="!item.not_deletable" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete Source?')" @on-delete="remove(item)" reverse/>
               <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(item)">{{ $t('Clone') }}</b-button>
@@ -127,10 +127,10 @@
           striped
           @end="sort(billingSources, $event)"
         >
-          <template slot="empty">
+          <template v-slot:empty>
             <pf-empty-table :isLoading="isLoading" :text="$t('Click the button to define a new source.')">{{ $t('No billing sources defined') }}</pf-empty-table>
           </template>
-          <template slot="buttons" slot-scope="{ item }">
+          <template v-slot:cell(buttons)="{ item }">
             <span class="float-right text-nowrap">
               <pf-button-delete size="sm" v-if="!item.not_deletable" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete Source?')" @on-delete="remove(item)" reverse/>
               <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(item)">{{ $t('Clone') }}</b-button>

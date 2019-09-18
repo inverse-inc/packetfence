@@ -13,14 +13,14 @@
     @save="save"
     @remove="remove"
   >
-    <template slot="header" is="b-card-header">
+    <template v-slot:header>
       <b-button-close @click="close" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
       <h4 class="mb-0">
         <span v-if="!isNew" v-html="$t('Maintenance Task {id}', { id: $strong(id) })"></span>
         <span v-else>{{ $t('New Maintenance Task') }}</span>
       </h4>
     </template>
-    <template slot="footer">
+    <template v-slot:footer>
       <b-card-footer @mouseenter="$v.form.$touch()">
         <pf-button-save :disabled="invalidForm" :isLoading="isLoading">
           <template v-if="isNew">{{ $t('Create') }}</template>

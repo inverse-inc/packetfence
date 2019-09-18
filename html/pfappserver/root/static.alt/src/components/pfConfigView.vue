@@ -1,14 +1,14 @@
 <template>
   <b-form @submit.prevent="(isNew || isClone) ? create($event) : save($event)" class="pf-config-view">
     <b-card no-body v-bind="$attrs" :class="cardClass">
-      <slot name="header">
-        <b-card-header>
+      <b-card-header>
+        <slot name="header">
           <b-button-close @click="close" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
           <h4 class="mb-0">
             <span>{{ $t('Configuration Template') }}</span>
           </h4>
-        </b-card-header>
-      </slot>
+        </slot>
+      </b-card-header>
       <b-tabs v-if="form.fields[0].tab || form.fields.length > 1" v-model="tabIndex" :key="tabKey" card>
         <b-tab v-for="(tab, t) in form.fields" :key="t" v-if="!('if' in tab) || tab.if"
           :disabled="tab.disabled"

@@ -18,8 +18,8 @@
         <b-badge class="mr-1" v-if="debug" :variant="apiOK? 'success' : 'danger'">API</b-badge>
         <b-badge class="mr-1" v-if="debug" :variant="chartsOK? 'success' : 'danger'">dashboard</b-badge>
         <b-navbar-nav v-show="isAuthenticated">
-          <b-nav-item-dropdown class="pf-label" right>
-            <template slot="button-content">
+          <b-nav-item-dropdown right>
+            <template v-slot:button-content>
               <icon name="user-circle"></icon> {{ username }}
             </template>
             <b-dropdown-item-button v-if="$i18n.locale == 'en'" @click="setLanguage('fr')">Français</b-dropdown-item-button>
@@ -30,8 +30,8 @@
           <b-nav-item @click="toggleDocumentationViewer" :active="showDocumentationViewer" v-b-tooltip.hover.bottom.d300 title="Alt + Shift + H">
             <icon name="question-circle"></icon>
           </b-nav-item>
-          <b-nav-item-dropdown class="pf-label" right no-caret>
-            <template slot="button-content">
+          <b-nav-item-dropdown right no-caret>
+            <template v-slot:button-content>
               <icon-counter name="tools" v-model="isProcessing" variant="bg-dark">
                 <icon name="circle-notch" spin>
               </icon-counter>

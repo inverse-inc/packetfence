@@ -14,7 +14,7 @@
     @save="save"
     @remove="remove"
   >
-    <template slot="header" is="b-card-header">
+    <template v-slot:header>
       <b-button-close @click="close" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
       <h4 class="d-inline mb-0">
         <span v-if="!isNew && !isClone" v-html="$t('Fingerbank DHCP Vendor {id}', { id: $strong(id) })"></span>
@@ -23,7 +23,7 @@
       </h4>
       <b-badge class="ml-2" variant="secondary" v-t="scope"></b-badge>
     </template>
-    <template slot="footer">
+    <template v-slot:footer>
       <b-card-footer @mouseenter="$v.form.$touch()">
         <pf-button-save :disabled="invalidForm" :isLoading="isLoading" v-if="scope === 'local'">
           <template v-if="isNew || isClone">{{ $t('Create') }}</template>

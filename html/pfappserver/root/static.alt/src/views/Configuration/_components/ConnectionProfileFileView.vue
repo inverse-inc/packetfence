@@ -24,7 +24,7 @@
         <b-form-row class="align-items-center">
           <b-col cols="auto" class="mr-auto">
             <b-dropdown size="sm" variant="outline-secondary" :disabled="isLoading">
-              <template slot="button-content">
+              <template v-slot:button-content>
                 <icon name="code" :title="$t('Insert variable')"></icon> {{ $t('Insert variable') }}
               </template>
               <b-dropdown-item v-for="variable in variables" :key="variable" @click="insertVariable(variable)">

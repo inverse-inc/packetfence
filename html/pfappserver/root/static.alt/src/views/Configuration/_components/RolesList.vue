@@ -3,7 +3,7 @@
     <pf-config-list
       :config="config"
     >
-      <template slot="pageHeader">
+      <template v-slot:pageHeader>
         <b-card-header>
           <h4 class="mb-0">
             {{ $t('Roles') }}
@@ -11,13 +11,13 @@
           </h4>
         </b-card-header>
       </template>
-      <template slot="buttonAdd">
+      <template v-slot:buttonAdd>
         <b-button variant="outline-primary" :to="{ name: 'newRole' }">{{ $t('New Role') }}</b-button>
       </template>
-      <template slot="emptySearch" slot-scope="state">
+      <template v-slot:emptySearch="state">
         <pf-empty-table :isLoading="state.isLoading">{{ $t('No roles found') }}</pf-empty-table>
       </template>
-      <template slot="buttons" slot-scope="item">
+      <template v-slot:cell(buttons)="item">
         <span class="float-right text-nowrap">
           <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(item)">{{ $t('Clone') }}</b-button>
           <b-button v-if="isInline" size="sm" variant="outline-primary" class="mr-1" :to="trafficShapingRoute(item.id)">{{ $t('Traffic Shaping') }}</b-button>

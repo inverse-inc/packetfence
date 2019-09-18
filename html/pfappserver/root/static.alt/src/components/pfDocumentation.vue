@@ -42,7 +42,7 @@
             <b-row class="justify-content-md-center text-secondary h-100">
               <b-col cols="12" md="auto" class="align-self-center">
                 <b-media>
-                  <icon name="circle-notch" scale="2" slot="aside" spin></icon>
+                  <template v-slot:aside><icon name="circle-notch" scale="2" spin></icon></template>
                   <h4>{{ $t('Loading Documentation') }}</h4>
                   <p class="font-weight-light">{{ title }}</p>
                 </b-media>
@@ -51,7 +51,7 @@
           </b-container>
           <!-- IMG viewer -->
           <b-modal v-model="showImageModal" size="xl" centered id="imageModal" scrollable hide-footer>
-            <template slot="modal-title">{{ image.alt }}</template>
+            <template v-slot:modal-title>{{ image.alt }}</template>
             <div class="p-3 text-center">
               <img :src="image.src" :alt="image.alt" style="width: 100%; height: auto;" />
             </div>

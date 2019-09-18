@@ -43,10 +43,10 @@
  *
  *     <b-table ... @head-clicked="clearSelected" ... />
  *
- *   6. declare a 'HEAD_actions' slot in <b-table/>:
+ *   6. declare a 'head(actions)' slot in <b-table/>:
  *
  *     <b-table ... >
- *       <template slot="HEAD_actions" slot-scope="head">
+ *       <template v-slot:head(actions)="head">
  *         <input type="checkbox" id="checkallnone" v-model="selectAll" @change="onSelectAllChange" @click.stop>
  *         <b-tooltip target="checkallnone" placement="right" v-if="selectValues.length === tableValues.length">{{$t('Select None [Alt + N]')}}</b-tooltip>
  *         <b-tooltip target="checkallnone" placement="right" v-else>{{$t('Select All [Alt + A]')}}</b-tooltip>
@@ -56,7 +56,7 @@
  *   7. declare a 'actions' slot in <b-table/>:
  *
  *     <b-table ... >
- *       <template slot="actions" slot-scope="data">
+ *       <template v-slot:cell(actions)="data">
  *         <input type="checkbox" :id="data.value" :value="data.item" v-model="selectValues" @click.stop="onToggleSelected($event, data.index)">
  *         <icon name="exclamation-triangle" class="ml-1" v-if="tableValues[data.index]._rowMessage" v-b-tooltip.hover.right :title="tableValues[data.index]._rowMessage"></icon>
  *       </template>

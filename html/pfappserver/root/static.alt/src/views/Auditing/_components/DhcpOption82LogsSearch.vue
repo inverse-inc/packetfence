@@ -12,7 +12,7 @@
       <b-row align-h="between" align-v="center">
         <b-col cols="auto" class="mr-auto">
           <b-dropdown size="sm" variant="link" no-caret>
-            <template slot="button-content">
+            <template v-slot:button-content>
               <icon name="columns" v-b-tooltip.hover.right :title="$t('Visible Columns')"></icon>
             </template>
             <template v-for="column in columns">
@@ -46,10 +46,10 @@
       <b-table class="table-clickable" :items="items" :fields="visibleColumns" :sort-by="sortBy" :sort-desc="sortDesc"
         @sort-changed="onSortingChanged" @row-clicked="onRowClick"
         show-empty responsive hover no-local-sorting striped>
-        <template slot="empty">
+        <template v-slot:empty>
           <pf-empty-table :isLoading="isLoading">{{ $t('No logs found') }}</pf-empty-table>
         </template>
-        <template slot="mac" slot-scope="data">
+        <template v-slot:cell(mac)="data">
           <router-link :to="{ path: `/node/${data.value}` }"><mac v-text="data.value"></mac></router-link>
         </template>
       </b-table>

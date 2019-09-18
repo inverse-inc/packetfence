@@ -8,13 +8,13 @@
     @validations="formValidations = $event"
     @save="save"
   >
-    <template slot="header" is="b-card-header">
+    <template v-slot:header>
       <h4 class="mb-0">
         {{ $t('SNMP') }}
         <pf-button-help class="ml-1" url="PacketFence_Installation_Guide.html#_snmp_traps_limit" />
       </h4>
     </template>
-    <template slot="footer">
+    <template v-slot:footer>
       <b-card-footer @mouseenter="$v.form.$touch()">
         <pf-button-save :disabled="invalidForm" :isLoading="isLoading">
           <template>{{ $t('Save') }}</template>

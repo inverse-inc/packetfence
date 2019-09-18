@@ -9,7 +9,7 @@
       <b-tabs ref="tabs" v-model="tabIndex" card>
 
         <b-tab title="Profile" active>
-          <template slot="title">
+          <template v-slot:title>
             {{ $t('Profile') }}
           </template>
           <pf-form-input :column-label="$t('Username (PID)')"
@@ -111,7 +111,7 @@
         </b-tab>
 
         <b-tab title="Password" v-if="hasPassword">
-          <template slot="title">
+          <template v-slot:title>
             {{ $t('Password') }}
           </template>
           <pf-form-password :column-label="$t('Password')" generate
@@ -160,7 +160,7 @@
         </b-tab>
 
         <b-tab title="Custom Fields">
-          <template slot="title">
+          <template v-slot:title>
             {{ $t('Custom Fields') }}
           </template>
           <b-form-row>
@@ -171,13 +171,13 @@
         </b-tab>
 
         <b-tab title="Devices">
-          <template slot="title">
+          <template v-slot:title>
             {{ $t('Devices') }} <b-badge pill v-if="hasNodes" variant="light" class="ml-1">{{ userContent.nodes.length }}</b-badge>
           </template>
           <b-row align-h="between" align-v="center">
             <b-col cols="auto" class="mr-auto">
               <b-dropdown size="sm" class="mb-2" variant="link" :disabled="isLoading || !hasNodes" no-caret>
-                <template slot="button-content">
+                <template v-slot:button-content>
                   <icon name="columns" v-b-tooltip.hover.top.d300.window :title="$t('Visible Columns')"></icon>
                 </template>
                 <template v-for="column in nodeFields">
@@ -195,39 +195,39 @@
           </b-row>
 
           <b-table :items="userContent.nodes" :fields="visibleNodeFields" :sortBy="nodeSortBy" :sortDesc="nodeSortDesc" show-empty responsive striped>
-            <template slot="status" slot-scope="node">
+            <template v-slot:cell(status)="node">
               <b-badge pill variant="success" v-if="node.item.status === 'reg'">{{ $t('registered') }}</b-badge>
               <b-badge pill variant="secondary" v-else-if="node.item.status === 'unreg'">{{ $t('unregistered') }}</b-badge>
               <span v-else>{{ node.item.status }}</span>
             </template>
-            <template slot="mac" slot-scope="node">
+            <template v-slot:cell(mac)="node">
               <b-button variant="link" :to="`../../node/${node.item.mac}`">{{ node.item.mac }}</b-button>
             </template>
-            <template slot="empty">
+            <template v-slot:empty>
               <pf-empty-table :isLoading="isLoading" text="">{{ $t('No devices found') }}</pf-empty-table>
             </template>
           </b-table>
         </b-tab>
 
         <b-tab title="Security Events">
-          <template slot="title">
+          <template v-slot:title>
             {{ $t('Security Events') }} <b-badge pill v-if="userContent.security_events && userContent.security_events.length > 0" variant="light" class="ml-1">{{ userContent.security_events.length }}</b-badge>
           </template>
           <b-table :items="userContent.security_events" :fields="securityEventFields" :sortBy="securityEventSortBy" :sortDesc="securityEventSortDesc" show-empty responsive striped>
-            <template slot="status" slot-scope="securityEvent">
+            <template v-slot:cell(status)="securityEvent">
               <b-badge pill variant="success" v-if="securityEvent.item.status === 'open'">{{ $t('open') }}</b-badge>
               <b-badge pill variant="secondary" v-else-if="securityEvent.item.status === 'closed'">{{ $t('closed') }}</b-badge>
               <span v-else>{{ securityEvent.item.status }}</span>
             </template>
-            <template slot="mac" slot-scope="securityEvent">
+            <template v-slot:cell(mac)="securityEvent">
               <b-button variant="link" :to="`../../node/${securityEvent.item.mac}`"><mac>{{ securityEvent.item.mac }}</mac></b-button>
             </template>
-            <template slot="buttons" slot-scope="securityEvent">
+            <template v-slot:cell(buttons)="securityEvent">
               <span class="float-right text-nowrap">
                 <b-button size="sm" v-if="securityEvent.item.status === 'open'" variant="outline-danger" :disabled="isLoading" @click="closeSecurityEvent(securityEvent)">{{ $t('Close Event') }}</b-button>
               </span>
             </template>
-            <template slot="empty">
+            <template v-slot:empty>
               <pf-empty-table :isLoading="isLoading" text="">{{ $t('No security events found') }}</pf-empty-table>
             </template>
           </b-table>

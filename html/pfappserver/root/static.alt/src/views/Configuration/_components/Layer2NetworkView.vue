@@ -11,13 +11,13 @@
     @save="save"
     @remove="remove"
   >
-    <template slot="header" is="b-card-header">
+    <template v-slot:header>
       <b-button-close @click="close" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
       <h4 class="mb-0">
         <span v-html="$t('Layer2 Network {id}', { id: $strong(id) })"></span>
       </h4>
     </template>
-    <template slot="footer">
+    <template v-slot:footer>
       <b-card-footer @mouseenter="$v.form.$touch()">
         <pf-button-save :disabled="invalidForm" :isLoading="isLoading" class="mr-1">
           <template v-if="actionKey">{{ $t('Save & Close') }}</template>

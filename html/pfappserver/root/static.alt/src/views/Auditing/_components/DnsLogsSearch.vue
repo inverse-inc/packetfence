@@ -12,7 +12,7 @@
       <b-row align-h="between" align-v="center">
         <b-col cols="auto" class="mr-auto">
           <b-dropdown size="sm" variant="link" :disabled="isLoading || selectValues.length === 0" no-caret no-flip>
-            <template slot="button-content">
+            <template v-slot:button-content>
               <icon name="cog" v-b-tooltip.hover.top.d300 :title="$t('Bulk Actions')"></icon>
             </template>
             <b-dropdown-item @click="addToPassthroughs()">
@@ -21,7 +21,7 @@
             </b-dropdown-item>
           </b-dropdown>
           <b-dropdown size="sm" variant="link" no-caret>
-            <template slot="button-content">
+            <template v-slot:button-content>
               <icon name="columns" v-b-tooltip.hover.right :title="$t('Visible Columns')"></icon>
             </template>
             <template v-for="column in columns">
@@ -64,22 +64,22 @@
         @head-clicked="clearSelected"
         show-empty responsive hover no-local-sorting striped
       >
-        <template slot="HEAD_actions">
+        <template v-slot:head(actions)>
           <b-form-checkbox id="checkallnone" v-model="selectAll" @change="onSelectAllChange"></b-form-checkbox>
           <b-tooltip target="checkallnone" placement="right" v-if="selectValues.length === tableValues.length">{{ $t('Select None [Alt + N]') }}</b-tooltip>
           <b-tooltip target="checkallnone" placement="right" v-else>{{ $t('Select All [Alt + A]') }}</b-tooltip>
         </template>
-        <template slot="actions" slot-scope="data">
+        <template v-slot:cell(actions)="data">
           <div class="text-nowrap">
             <b-form-checkbox :id="data.value" :value="data.item" v-model="selectValues" @click.native.stop="onToggleSelected($event, data.index)"></b-form-checkbox>
             <icon name="exclamation-triangle" class="ml-1" v-if="tableValues[data.index] && tableValues[data.index]._rowMessage" v-b-tooltip.hover.right :title="tableValues[data.index]._rowMessage"></icon>
           </div>
         </template>
-        <template slot="mac" slot-scope="{ value }">
+        <template v-slot:cell(mac)="{ value }">
           <router-link :to="{ path: `/node/${value}` }"><mac v-text="value"></mac></router-link>
         </template>
-        <div slot="answer" slot-scope="{ value }" v-html="value"></div>
-        <template slot="empty">
+        <div v-slot:cell(answer)="{ value }" v-html="value"></div>
+        <template v-slot:empty>
           <pf-empty-table :isLoading="isLoading" :text="$t('DNS Audit Logs not found or setting is disabled in configuration.(You can enable this setting in Configuration->System Configuration->DNS Configuration)')">{{ $t('No logs found') }}</pf-empty-table>
         </template>
       </b-table>

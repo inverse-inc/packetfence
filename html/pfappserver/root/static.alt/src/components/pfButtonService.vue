@@ -6,7 +6,7 @@
     v-on="forwardListeners"
     :disabled="isError"
   >
-    <template slot="button-content">
+    <template v-slot:button-content>
       <icon :name="buttonIcon.name" :spin="buttonIcon.spin" class="mr-1"></icon>
       {{ buttonText }}
     </template>

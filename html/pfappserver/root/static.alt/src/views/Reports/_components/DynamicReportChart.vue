@@ -53,7 +53,7 @@
       <b-row align-h="between" align-v="center">
         <b-col cols="auto" class="mr-auto">
           <b-dropdown size="sm" variant="link" no-caret>
-            <template slot="button-content">
+            <template v-slot:button-content>
               <icon name="columns" v-b-tooltip.hover.right :title="$t('Visible Columns')"></icon>
             </template>
             <template v-for="column in columns">
@@ -87,13 +87,13 @@
       <b-table :items="items" :fields="visibleColumns" :sort-by="sortBy" :sort-desc="sortDesc"
         @sort-changed="onSortingChanged"
         show-empty responsive hover no-local-sorting no-provider-sorting striped>
-        <template slot="empty">
+        <template v-slot:empty>
           <pf-empty-table :isLoading="isLoading">{{ $t('No report data found') }}</pf-empty-table>
         </template>
-        <template v-for="nodeField in nodeFields" :slot="nodeField" slot-scope="data">
+        <template v-for="nodeField in nodeFields" :v-slot:nodeField="data">
           <router-link :key="nodeField" :to="{ path: `/node/${data.value}` }">{{ data.value }}</router-link>
         </template>
-        <template v-for="personField in personFields" :slot="personField" slot-scope="data">
+        <template v-for="personField in personFields" :v-slot:personField="data">
           <router-link :key="personField" :to="{ path: `/user/${data.value}` }">{{ data.value }}</router-link>
         </template>
       </b-table>
