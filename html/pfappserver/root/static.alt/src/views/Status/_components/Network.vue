@@ -85,6 +85,7 @@
           :palettes="palettes"
           :disabled="isLoading"
           :is-loading="isLoading"
+          @layouts="layouts = $event"
         />
 
       </div>
@@ -143,9 +144,11 @@ export default {
         maxZoom: 4,
         mouseWheelZoom: true,
         padding: 25,
-        tooltipDistance: 50
+        tooltipDistance: 50,
+        sort: 'last_seen',
+        order: 'DESC'
       },
-      layouts: ['radial', 'tree'], // available layouts
+      layouts: [], // available layouts
       palettes: {
         autoreg: {
           yes: 'green',
@@ -184,7 +187,7 @@ export default {
           }]
         }]
       },
-      limit: 100,
+      limit: 5,
       /**
        *  Fields on which a search can be defined.
        *  The names must match the database schema.
@@ -483,7 +486,7 @@ export default {
             ...['description', 'type'].map(key => `switch.${key}`), // include `switch` data
             ...['connection_type', 'port', 'realm', 'role', 'ssid', 'switch_mac', 'vlan'].map(key => `locationlog.${key}`) // include `locationlog` data
           ]))],
-          sort: ['last_seen DESC'],
+          sort: [`${this.options.sort} ${this.options.order}`],
           query
         }
         const start = performance.now()
