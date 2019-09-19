@@ -18,7 +18,7 @@ use strict;
 use warnings;
 
 [% content %]
- 
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

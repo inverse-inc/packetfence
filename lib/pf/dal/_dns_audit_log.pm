@@ -238,7 +238,7 @@ Get the meta data for dns_audit_log
 sub get_meta {
     return \%FIELDS_META;
 }
- 
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
