@@ -140,7 +140,7 @@ requires: perl(Const::Fast)
 # Perl core modules but still explicitly defined just in case distro's core perl get stripped
 Requires: perl(Time::HiRes)
 # Required for inline mode.
-Requires: ipset = 6.38, ipset-symlink
+Requires: ipset >= 7.1, ipset-symlink
 Requires: sudo
 Requires: perl(File::Which), perl(NetAddr::IP)
 Requires: perl(Net::LDAP)
@@ -1384,6 +1384,9 @@ fi
 %exclude                /usr/local/pf/addons/pfconfig/pfconfig.init
 
 %changelog
+* Wed Sep 17 2019 Inverse <info@inverse.ca> - 9.1.0-1
+- New release 9.1.0
+
 * Wed May 15 2019 Inverse <info@inverse.ca> - 9.0.0-1
 - New release 9.0.0
 
