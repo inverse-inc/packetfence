@@ -621,6 +621,7 @@ rm -rf $RPM_BUILD_ROOT
 
 /usr/bin/systemctl --now mask mariadb
 /usr/bin/systemctl --now mask nfs-config
+/usr/bin/systemctl --now mask systemd-logind
 # clean up the old systemd files if it's an upgrade
 if [ "$1" = "2"   ]; then
     /usr/bin/systemctl disable packetfence-redis-cache
