@@ -620,7 +620,6 @@ rm -rf $RPM_BUILD_ROOT
 %pre -n %{real_name}
 
 /usr/bin/systemctl --now mask mariadb
-/usr/bin/systemctl --now mask nfs-config
 /usr/bin/systemctl stop systemd-logind
 /usr/bin/systemctl --now mask systemd-logind
 /usr/bin/systemctl daemon-reload
