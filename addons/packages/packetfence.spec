@@ -1385,7 +1385,7 @@ fi
 
 %changelog
 * Wed Sep 17 2019 Inverse <info@inverse.ca> - 9.1.0-1
-- New release 9.0.0
+- New release 9.1.0
 
 * Wed May 15 2019 Inverse <info@inverse.ca> - 9.0.0-1
 - New release 9.0.0
