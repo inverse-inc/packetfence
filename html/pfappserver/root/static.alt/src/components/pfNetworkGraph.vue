@@ -61,6 +61,11 @@
         </symbol>
       </defs>
 
+      <!-- background to capture node mouseout event -->
+      <rect fill-opacity="0" :x="viewBox.minX" :y="viewBox.minY" :width="viewBox.width" :height="viewBox.height"
+        @mouseover="mouseOutNode($event)"
+      />
+
       <!-- links -->
       <path v-for="link in localLinks" :key="linkId(link)"
         v-bind="linkPathAttrs(link)"
@@ -97,7 +102,6 @@
           :y="coords[i].y - (32 / 2)"
           fill="#000000"
           @mouseover="mouseOverNode(node, $event)"
-          @mouseout="mouseOutNode(node, $event)"
           :class="[ 'packetfence', { 'highlight': node.highlight } ]"
         />
 
@@ -110,8 +114,6 @@
             :x="coords[i].x - (32 / 2)"
             :y="coords[i].y - (32 / 2)"
             @mouseover="mouseOverNode(node, $event)"
-            @mouseout="mouseOutNode(node, $event)"
-            @mousedown="mouseDownNode(node, $event)"
             :class="[ 'switch-group', 'pointer', { 'highlight': node.highlight } ]"
             :key="node.id"
           />
@@ -131,8 +133,6 @@
             :x="coords[i].x - (32 / 2)"
             :y="coords[i].y - (32 / 2)"
             @mouseover="mouseOverNode(node, $event)"
-            @mouseout="mouseOutNode(node, $event)"
-            @mousedown="mouseDownNode(node, $event)"
             :class="[ 'switch', 'pointer', { 'highlight': node.highlight } ]"
             :key="node.id"
           />
@@ -152,7 +152,6 @@
             :x="coords[i].x - (32 / 2)"
             :y="coords[i].y - (32 / 2)"
             @mouseover="mouseOverNode(node, $event)"
-            @mouseout="mouseOutNode(node, $event)"
             :class="[ 'unknown', { 'highlight': node.highlight } ]"
             :key="node.id"
           />
@@ -171,8 +170,6 @@
           :x="coords[i].x - (16 / 2)"
           :y="coords[i].y - (16 / 2)"
           @mouseover="mouseOverNode(node, $event)"
-          @mouseout="mouseOutNode(node, $event)"
-          @mousedown="mouseDownNode(node, $event)"
           :class="[ 'node', 'pointer', color(node), { 'highlight': node.highlight } ]"
         />
 
@@ -189,7 +186,8 @@
 
     <!-- tooltip -->
     <div v-for="tooltip in tooltips" :key="tooltip.node.id" class="tt-anchor"
-      v-bind="tooltipAnchorAttrs(tooltip)">
+      v-bind="tooltipAnchorAttrs(tooltip)"
+    >
       <div class="tt-container">
         <div class="tt-contents">
           <!-- NODE -->
@@ -198,6 +196,11 @@
           />
           <!-- SWITCH -->
           <pf-network-graph-tooltip-switch v-else-if="['switch', 'unknown'].includes(tooltip.node.type)"
+            :id="tooltip.node.id"
+            :properties="tooltip.node.properties"
+          />
+          <!-- SWITCH GROUP -->
+          <pf-network-graph-tooltip-switch-group v-else-if="['switch-group'].includes(tooltip.node.type)"
             :id="tooltip.node.id"
             :properties="tooltip.node.properties"
           />
@@ -246,6 +249,7 @@
 <script>
 import pfNetworkGraphTooltipNode from '@/components/pfNetworkGraphTooltipNode'
 import pfNetworkGraphTooltipSwitch from '@/components/pfNetworkGraphTooltipSwitch'
+import pfNetworkGraphTooltipSwitchGroup from '@/components/pfNetworkGraphTooltipSwitchGroup'
 import pfNetworkGraphTooltipPacketfence from '@/components/pfNetworkGraphTooltipPacketfence'
 
 require('typeface-b612-mono') // custom pixel font
@@ -302,6 +306,7 @@ export default {
   components: {
     pfNetworkGraphTooltipNode,
     pfNetworkGraphTooltipSwitch,
+    pfNetworkGraphTooltipSwitchGroup,
     pfNetworkGraphTooltipPacketfence
   },
   props: {
@@ -345,6 +350,7 @@ export default {
       simulation: null, // d3-force simulation
       localNodes: [], // private d3 nodes
       localLinks: [], // private d3 links
+      localTooltips: [], // private d3 tooltips
       lastX: null, // last mouseDown x
       lastY: null, // last mouseDown y
       zoom: 0, // user zoom level, bound by minZoom and maxZoom
@@ -352,6 +358,7 @@ export default {
       centerY: null, // viewBox center y
       miniMapLatch: false, // mouseDown @ miniMap
       highlight: false, // mouseOver @ node
+      highlightNodeId: false, // last highlighted node
       defaults: { // default options
         layout: 'radial',
         palette: 'status',
@@ -363,7 +370,6 @@ export default {
         maxZoom: 4,
         mouseWheelZoom: true,
         padding: 25,
-        tooltipDistance: 50,
         sort: 'last_seen',
         order: 'ASC' // 'ASC' or 'DESC'
       },
@@ -490,109 +496,21 @@ export default {
       }
     },
     tooltips () {
-      let tooltips = []
-      const { minX, minY, width, height } = this.viewBox
-      const constrainTooltipAngle = (coords, angle) => { // keep tooltip overflow inside viewBox
-        const { x = 0, y = 0 } = coords
-        let quad = Math.floor(((360 + angle) % 360) / 90) // quadrant angle points to (0-3)
-        switch (true) { // top or bottom
-          case ((y < minY + (height / 8)) && [2, 3].includes(quad)): // y @ top-eighth
-            switch (quad) {
-              case 2: // 180 -> 270
-                angle = (angle - 90) % 360 // rotate ccw
-                break
-              case 3: // 270 -> 360
-                angle = (angle + 90) % 360 // rotate cw
-                break
-            }
-            break
-          case ((y > minY + (height * 7 / 8)) && [0, 1].includes(quad)): // y @ bottom-eighth
-            switch (quad) {
-              case 0: // 0 -> 90
-                angle = (angle - 90) % 360 // rotate ccw
-                break
-              case 1: // 90 -> 180
-                angle = (angle + 90) % 360 // rotate cw
-                break
-            }
-            break
-        }
-        quad = Math.floor(((360 + angle) % 360) / 90) // quadrant angle points to (0-3)
-        switch (true) { // left or right
-          case ((x > minX + (width * 7 / 8)) && [0, 3].includes(quad)): // x @ right-eighth
-            switch (quad) {
-              case 0: // 0 -> 90
-                angle = (angle + 90) % 360 // rotate cw
-                break
-              case 3: // 270 -> 360
-                angle = (angle - 90) % 360 // rotate ccw
-                break
-            }
-            break
-          case ((x < minX + (width / 8)) && [1, 2].includes(quad)): // x @ left-eighth
-            switch (quad) {
-              case 1: // 90 -> 180
-                angle = (angle - 90) % 360 // rotate ccw
-                break
-              case 2: // 180 -> 270
-                angle = (angle + 90) % 360 // rotate cw
-                break
-            }
-            break
-        }
-        return angle
-      }
-      this.localNodes.filter(node => node.tooltip).forEach((node, index, nodes) => {
+      return this.localTooltips.filter(tooltip => !('fx' in tooltip || 'fy' in tooltip)).map(tooltipBounded => {
+        const node = this.localNodes.find(node => node.id === tooltipBounded.id)
         const nodeBounded = this.coordBounded(node)
-        let sourceAngle = 0
-        let targetAngle = 0
-        let tooltipAngle = 0
-        let tooltipCoords = {}
-        let tooltipCoordsBounded = {}
-        switch (index) {
-          case 0: // inner node (target only)
-            if (nodes.length === 1) { // only the center node is highlighted
-              tooltipAngle = 270 // upward
-            } else {
-              targetAngle = getAngleFromCoords(node.x, node.y, nodes[index + 1].x, nodes[index + 1].y)
-              tooltipAngle = (180 + targetAngle) % 360 // reverse
-            }
-            tooltipAngle = constrainTooltipAngle(node, tooltipAngle)
-            tooltipCoords = getCoordFromCoordAngle(node.x, node.y, tooltipAngle, this.tooltipDistance)
-            tooltipCoordsBounded = this.coordBounded(tooltipCoords)
-            break
-
-          case nodes.length - 1: // outer node (source only)
-            sourceAngle = getAngleFromCoords(node.x, node.y, nodes[index - 1].x, nodes[index - 1].y)
-            tooltipAngle = (180 + sourceAngle) % 360 // reverse
-            tooltipAngle = constrainTooltipAngle(node, tooltipAngle)
-            tooltipCoords = getCoordFromCoordAngle(node.x, node.y, tooltipAngle, this.tooltipDistance)
-            tooltipCoordsBounded = this.coordBounded(tooltipCoords)
-            break
-
-          default: // middle nodes (source and target)
-            sourceAngle = getAngleFromCoords(node.x, node.y, nodes[index - 1].x, nodes[index - 1].y)
-            targetAngle = getAngleFromCoords(node.x, node.y, nodes[index + 1].x, nodes[index + 1].y)
-            tooltipAngle = ((sourceAngle + targetAngle) / 2) % 360
-            // reverse angle (180°) if angle is inside knuckle
-            if (Math.max(sourceAngle, targetAngle) - Math.min(sourceAngle, targetAngle) < 180) {
-              tooltipAngle = (tooltipAngle + 180) % 360
-            }
-            tooltipAngle = constrainTooltipAngle(node, tooltipAngle)
-            tooltipCoords = getCoordFromCoordAngle(node.x, node.y, tooltipAngle, this.tooltipDistance)
-            tooltipCoordsBounded = this.coordBounded(tooltipCoords)
-            // node = JSON.parse(JSON.stringify(node)) // dereference (avoid permanent overload)
-            const { id, type, properties } = node
-            node = JSON.parse(JSON.stringify({ id, type, properties })) // dereference (avoid permanent overload)
-            node.properties = { ...node.properties, ...nodes[index + 1].properties } // overload properties from target, move node switch/locationlog properties to switch
-            break
+        const angle = getAngleFromCoords(nodeBounded.x, nodeBounded.y, tooltipBounded.x, tooltipBounded.y)
+        return {
+          node,
+          line: {
+            angle,
+            x1: nodeBounded.x,
+            y1: nodeBounded.y,
+            x2: tooltipBounded.x,
+            y2: tooltipBounded.y
+          }
         }
-        tooltips.push({ node, line: { angle: tooltipAngle, x1: nodeBounded.x, y1: nodeBounded.y, x2: tooltipCoordsBounded.x, y2: tooltipCoordsBounded.y } })
       })
-      return tooltips
-    },
-    tooltipDistance () {
-      return this.config.tooltipDistance / this.scale // scale length
     },
     legends () {
       if (Object.keys(this.palettes).includes(this.config.palette)) {
@@ -602,21 +520,6 @@ export default {
         })
       }
       return []
-    },
-    nodeSiblingsById () {
-      return (id) => {
-        const node = this.localNodes.find(node => node.id === id)
-        if (node) {
-          const { source: { id: parentId = undefined } = {} } = node
-          if (parentId) {
-            return this.nodeChildrenById(parentId)
-          }
-        }
-        return []
-      }
-    },
-    nodeChildrenById () {
-      return (id) => this.localLinks.filter(link => link.source.id === id).map(link => link.target)
     },
     sortedNodes () {
       const getMinMaxPropertyFromSwitch = (switche) => {
@@ -797,7 +700,7 @@ export default {
                   }
                   return distance
                 }
-                const getNodeCoordAngle = (localNode, n = 0) => {
+                const getNodeCoordAngle = (localNode) => {
                   const sortedNode = this.sortedNodes.find(n => n.id === localNode.id)
                   if (!('source' in sortedNode)) { // packetfence node
                     const angle = shift
@@ -805,7 +708,7 @@ export default {
                     const y = this.dimensions.height / 2
                     return { angle, x, y }
                   } else { // everything else
-                    const { angle: sourceAngle, x: sourceX, y: sourceY } = getNodeCoordAngle(sortedNode.source, ++n)
+                    const { angle: sourceAngle, x: sourceX, y: sourceY } = getNodeCoordAngle(sortedNode.source)
                     const siblings = sortedNode.source.targets.length
                     let offset = sortedNode.source.targets.findIndex(target => target.id === localNode.id)
                     if (sortedNode.source.id !== 'packetfence' && siblings % 2 === 0) { // even # of siblings
@@ -1016,15 +919,100 @@ export default {
       this.stop() // pause animation
       this.highlightNodeById(node.id) // highlight node
       this.highlight = (node.type === 'node') ? this.color(node) : 'none'
+      // tooltips
+      if (this.highlightNodeId !== node.id) {
+        this.highlightNodeId = node.id
+        const { centerX, centerY, dimensions: { width, height } } = this
+        const highlightedNodes = this.localNodes.filter(node => node.tooltip)
+        this.$set(this, 'localTooltips', [
+          ...highlightedNodes.map(node => {
+            const { id, type, properties } = node
+            const { x, y } = this.coordBounded(node)
+            return JSON.parse(JSON.stringify({ id, type, properties, x, y }))
+          }),
+          ...highlightedNodes.map(node => {
+            const { id } = node
+            const { x: fx, y: fy } = this.coordBounded(node)
+            return JSON.parse(JSON.stringify({ id: `${id}-fixed`, fx, fy }))
+          })
+        ])
+        // link force from tooltip to node (self)
+        let selfLinks = []
+        highlightedNodes.map(node => {
+          const { id } = node
+          selfLinks.push({ source: id, target: `${id}-fixed` })
+        })
+        // link force from tooltip to other nodes
+        let nodeLinks = []
+        highlightedNodes.map(node => {
+          const { id } = node
+          highlightedNodes.map(other => {
+            const { id: otherId } = other
+            if (otherId !== id) {
+              if (nodeLinks.filter(link =>
+                ([link.source, link.target].includes(id) && [link.source, link.target].includes(`${otherId}-fixed`))
+              ).length === 0) {
+                nodeLinks.push({ source: id, target: `${otherId}-fixed` })
+              }
+            }
+          })
+        })
+        // link force from tooltip to other tooltips
+        let tooltipLinks = []
+        highlightedNodes.map(node => {
+          const { id } = node
+          highlightedNodes.map(other => {
+            const { id: otherId } = other
+            if (otherId !== id) {
+              if (tooltipLinks.filter(link =>
+                ([link.source, link.target].includes(id) && [link.source, link.target].includes(otherId))
+              ).length === 0) {
+                tooltipLinks.push({ source: otherId, target: id })
+              }
+            }
+          })
+        })
+        this.tooltipSimulation = d3.forceSimulation(this.localTooltips)
+          .alphaDecay(1 - Math.pow(0.001, 1 / 50)) // default: 1 - Math.pow(0.001, 1 / 300)
+          .velocityDecay(0.8) // default: 0.4
+          .force('x', d3.forceX() // force: tooltip w/ center x
+            .x(centerX)
+            .strength(0.5)
+          )
+          .force('y', d3.forceY() // force: tooltip w/ center y
+            .y(centerY)
+            .strength(0.5)
+          )
+          .force('selfLinks', d3.forceLink(selfLinks) // force: tooltip w/ node
+            .id((d) => d.id)
+            .distance(Math.min(width, height) / 8)
+            .strength(0.5)
+            .iterations(4)
+          )
+          .force('nodeLinks', d3.forceLink(nodeLinks) // force: tooltip w/ other nodes
+            .id((d) => d.id)
+            .distance(Math.min(width, height) / 2)
+            .strength(0.5)
+            .iterations(2)
+          )
+          .force('tooltipLinks', d3.forceLink(tooltipLinks) // force: tooltip w/ other tooltips
+            .id((d) => d.id)
+            .distance(Math.min(width, height) / 2)
+            .strength(0.5)
+            .iterations(8)
+          )
+          .restart()
+      }
     },
-    mouseOutNode (node, event = null) {
+    mouseOutNode (event = null) {
       this.start() // unpause animation
       this.highlightNodeById(null) // unhighlight node
-      this.highlight = null
+      this.highlight = false
+      this.localTooltips = []
+      this.highlightNodeId = false
     },
     mouseDownNode (node, event = null) {
-      // eslint-disable-next-line
-      console.log('mouseDownNode', node)
+      // TODO
     },
     highlightNodeById (id) {
       this.unhighlightNodes()
@@ -1108,58 +1096,27 @@ export default {
       }
     },
     tooltipAnchorAttrs (tooltip) {
-      let { line: { angle, x2: x, y2: y } = {} } = tooltip
+      let { line: { x2: x, y2: y } = {} } = tooltip
       let style = [] // set styles
       const {
         dimensions: { height: dHeight, width: dWidth } = {},
         viewBox: { minX, minY, width: vWidth, height: vHeight } = {}
       } = this
-      if (x < minX || x > minX + vWidth || y < minY || y > minY + vHeight) {
-        style.push('display: none') // hide if tooltip is outside viewBox
-      } else {
-        // scale coords to absolute offset from outer container (x: 0, y: 0)
-        let absoluteX = (x - minX) / vWidth * dWidth
-        let absoluteY = (y - minY) / vHeight * dHeight
-        style.push(`top: ${absoluteY}px`, `left: ${absoluteX}px`)
-      }
+      // scale coords to absolute offset from outer container (x: 0, y: 0)
+      let absoluteX = (x - minX) / vWidth * dWidth
+      let absoluteY = (y - minY) / vHeight * dHeight
+      style.push(`top: ${absoluteY}px`, `left: ${absoluteX}px`)
       style = `${style.join('; ')};` // collapse
-      // set classes
-      const octa = Math.floor(((360 + angle - 22.5) % 360) / 45)
-      let vertical = ['bottom', 'bottom', 'bottom', false, 'top', 'top', 'top', false][octa] // vertical position
-      let horizontal = ['right', false, 'left', 'left', 'left', false, 'right', 'right'][octa] // horizontal position
-      switch (true) { // keep tooltip overflow inside viewBox
-        case (y < minY + (vHeight / 16)): // y @ top-sixteenth
-          vertical = 'bottom'
-          break
-        case (y > minY + (vHeight * 15 / 16)): // y @ bottom-sixteenth
-          vertical = 'top'
-          break
-        case (x > minX + (vWidth * 15 / 16)): // x @ right-sixteenth
-          horizontal = 'left'
-          break
-        case (x < minX + (vWidth / 16)): // x @ left-sixteenth
-          horizontal = 'right'
-          break
-      }
-      let position = ''
-      switch (true) {
-        case (!!vertical && !!horizontal):
-          position = `${vertical}-${horizontal}`
-          break
-        case (!!vertical):
-          position = vertical
-          break
-        case (!!horizontal):
-          position = horizontal
-          break
-      }
-      return { style, class: position }
+      return { style }
     },
     coordBounded (coord) {
-      const { minX = 0, maxX = 0, minY = 0, maxY = 0 } = this.bounds
+      const {
+        bounds: { minX = 0, maxX = 0, minY = 0, maxY = 0 } = {},
+        dimensions: { height, width } = {}
+      } = this
       if ((minX | maxX | minY | maxY) !== 0) { // not all zero's
-        const xMult = (this.dimensions.width - (2 * this.config.padding)) / (maxX - minX)
-        const yMult = (this.dimensions.height - (2 * this.config.padding)) / (maxY - minY)
+        const xMult = (width - (2 * this.config.padding)) / (maxX - minX)
+        const yMult = (height - (2 * this.config.padding)) / (maxY - minY)
         return {
           x: this.config.padding + (coord.x - minX) * xMult,
           y: this.config.padding + (coord.y - minY) * yMult
@@ -1327,10 +1284,13 @@ export default {
   --highlight-color: var(--color-black);
 }
 
+@keyframes fadein {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
 .svgContainer {
   position: relative;
-  /*overflow: hidden; /* prevent jitter from tooltip forcing window.clientHeight expansion */
-
   .packetfence,
   .switch-group,
   .switch,
@@ -1349,8 +1309,9 @@ export default {
     .switch,
     .node,
     .unknown,
-    .link {
-      opacity: 0.6;
+    .link,
+    .switchText {
+      opacity: 0.25;
       &.highlight {
         opacity: 1.0;
       }
@@ -1374,14 +1335,7 @@ export default {
     position: absolute;
     width: 0px;
     height: 0px;
-    &.top .tt-contents { bottom: 0px; transform: translateX(-50%); }
-    &.top-right .tt-contents { bottom: 0px; left: 0px; }
-    &.right .tt-contents { transform: translateY(-50%); left: 0px; }
-    &.bottom-right .tt-contents { top: 0px; left: 0px; }
-    &.bottom .tt-contents { top: 0px; transform: translateX(-50%); }
-    &.bottom-left .tt-contents { top: 0px; right: 0px; }
-    &.left .tt-contents { transform: translateY(-50%); right: 0px; }
-    &.top-left .tt-contents { bottom: 0px; right: 0px; }
+    animation: fadein 300ms;
     & > .tt-container {
       position: relative;
       & > .tt-contents {
@@ -1393,6 +1347,7 @@ export default {
         border-style: solid;
         border-width: 2px;
         box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.125);
+        transform: translate(-50%, -50%);
         z-index: 4;
       }
     }

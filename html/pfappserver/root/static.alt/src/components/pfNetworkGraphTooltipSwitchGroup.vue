@@ -1,7 +1,7 @@
 <template>
-  <b-card no-body class="pf-network-graph-tooltip-switch">
+  <b-card no-body class="pf-network-graph-tooltip-switch-group">
     <b-card-header>
-      <h5 class="mb-0 text-nowrap">{{ $t('Switch') }}</h5>
+      <h5 class="mb-0 text-nowrap">{{ $t('Switch Group') }}</h5>
       <p class="mb-0"><mac>{{ id }}</mac></p>
     </b-card-header>
     <div class="card-body" v-if="isLoading || !isError">
@@ -13,22 +13,22 @@
         </b-row>
       </b-container>
       <b-container fluid class="container px-0" v-else-if="!isError">
-        <b-row v-if="switche.description">
+        <b-row v-if="switchGroup.description">
           <b-col cols="auto">
             <p class="py-0 col-form-label text-left text-nowrap" v-text="'Decription'"></p>
-            <p class="mb-2" v-text="switche.description"></p>
+            <p class="mb-2" v-text="switchGroup.description"></p>
           </b-col>
         </b-row>
-        <b-row v-if="switche.type">
+        <b-row v-if="switchGroup.type">
           <b-col cols="auto">
             <p class="py-0 col-form-label text-left text-nowrap" v-text="'Type'"></p>
-            <p class="mb-2" v-text="switche.type"></p>
+            <p class="mb-2" v-text="switchGroup.type"></p>
           </b-col>
         </b-row>
-        <b-row v-if="switche.mode">
+        <b-row v-if="switchGroup.mode">
           <b-col cols="auto">
             <p class="py-0 col-form-label text-left text-nowrap" v-text="'Mode'"></p>
-            <p class="mb-2" v-text="switche.mode"></p>
+            <p class="mb-2" v-text="switchGroup.mode"></p>
           </b-col>
         </b-row>
       </b-container>
@@ -41,7 +41,7 @@ import apiCall from '@/utils/api'
 import pfFormRow from '@/components/pfFormRow'
 
 export default {
-  name: 'pf-network-graph-tooltip-switch',
+  name: 'pf-network-graph-tooltip-switch-group',
   components: {
     pfFormRow
   },
@@ -56,7 +56,7 @@ export default {
   },
   data () {
     return {
-      switche: false,
+      switchGroup: false,
       isLoading: false,
       isError: false
     }
@@ -64,15 +64,11 @@ export default {
   methods: {
     init () {
       this.isLoading = true
-      apiCall.getQuiet(`config/switch/${this.id}`).then(response => {
-        this.switche = response.data.item
+      apiCall.getQuiet(`config/switch_group/${this.id}`).then(response => {
+        this.switchGroup = response.data.item
         this.isLoading = false
       }).catch(err => {
-        if (Object.keys(this.properties).length > 0) {
-          this.switche = this.properties // inherit properties from node
-        } else {
-          this.isError = err
-        }
+        this.isError = err
         this.isLoading = false
       })
     }
@@ -96,7 +92,7 @@ export default {
   to   { max-height: 500px; overflow-y: initial; }
 }
 
-.pf-network-graph-tooltip-switch {
+.pf-network-graph-tooltip-switch-group {
   .container {
     animation: expandheight 300ms;
     overflow-x: initial;

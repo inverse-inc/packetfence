@@ -144,7 +144,6 @@ export default {
         maxZoom: 4,
         mouseWheelZoom: true,
         padding: 25,
-        tooltipDistance: 50,
         sort: 'last_seen',
         order: 'DESC'
       },
@@ -168,7 +167,7 @@ export default {
           unreg: 'red'
         }
       },
-      pollingIntervalMs: 60000,
+      pollingIntervalMs: 10000,
       pollingInterval: false,
       saveSearchNamespace: 'network',
       saveSearchString: null,
@@ -187,7 +186,7 @@ export default {
           }]
         }]
       },
-      limit: 5,
+      limit: 100,
       /**
        *  Fields on which a search can be defined.
        *  The names must match the database schema.
