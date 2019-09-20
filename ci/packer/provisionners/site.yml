@@ -4,15 +4,10 @@
   gather_facts: False
   become: True
 
-  vars:
-    upstream_rpm_keys:
-      - src_filename: nodesource.rpm.key
-        dst_filename: NODESOURCE-GPG-SIGNING-KEY-EL
-
   tasks:
     - name: Upload specific RPM keys
       copy:
-        src: "upstream/{{ item['src_filename'] }}"
+        src: "upstream/rpm_keys/{{ item['src_filename'] }}"
         dest: "/etc/pki/rpm-gpg/{{ item['dst_filename'] }}"
         owner: root
         group: root
