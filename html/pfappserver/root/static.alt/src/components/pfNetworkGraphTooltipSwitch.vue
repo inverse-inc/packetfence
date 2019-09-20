@@ -25,12 +25,6 @@
             <p class="mb-2" v-text="switche.type"></p>
           </b-col>
         </b-row>
-        <b-row v-if="switche.mode">
-          <b-col cols="auto">
-            <p class="py-0 col-form-label text-left text-nowrap" v-text="'Mode'"></p>
-            <p class="mb-2" v-text="switche.mode"></p>
-          </b-col>
-        </b-row>
       </b-container>
     </div>
   </b-card>

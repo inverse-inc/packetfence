@@ -56,18 +56,40 @@
 
         <b-row align-h="between" align-v="center">
           <b-col cols="auto" class="mr-auto">
-            <pf-form-range-toggle class="mr-3" v-model="liveMode" :disabled="isLoading || !liveModeAllowed">{{ $t('Live') }}</pf-form-range-toggle>
+
+            <b-input-group class="mb-0" size="sm">
+              <b-input-group-prepend is-text>
+                <pf-form-range-toggle class="inline mt-n2" v-model="liveMode" :disabled="isLoading || !liveModeAllowed"></pf-form-range-toggle>
+              </b-input-group-prepend>
+              <b-dropdown variant="light" :text="$t('Live View')" :disabled="isLoading || !liveModeAllowed">
+                <b-dropdown-item v-for="timeout in [5000, 10000, 15000, 30000, 60000, 120000, 300000]" :key="timeout"
+                  :active="liveMode === true && liveModeIntervalMs === timeout"
+                  @click="liveMode = true; liveModeIntervalMs = timeout"
+                >{{ $t('{duration} seconds', { duration: timeout / 1E3 }) }}</b-dropdown-item>
+              </b-dropdown>
+            </b-input-group>
           </b-col>
           <b-col cols="auto">
             <b-container fluid>
               <b-row align-v="center">
                 <b-form inline class="mb-0">
                   <b-button-group class="ml-3" size="sm">
-                    <b-button v-for="layout in layouts" :key="layout" @click="options.layout = layout" :variant="(options.layout === layout) ? 'primary' : 'light'" :disabled="isLoading">{{ layout }}</b-button>
+                    <b-button disabled variant="outline-primary"><icon name="window-maximize" class="mx-1"/></b-button>
+                    <b-button @click="dimensions.fit = 'min'" :variant="(dimensions.fit === 'min') ? 'primary' : 'outline-primary'" :disabled="isLoading">{{ $t('Minimize') }}</b-button>
+                    <b-button @click="dimensions.fit = 'max'" :variant="(dimensions.fit === 'max') ? 'primary' : 'outline-primary'" :disabled="isLoading">{{ $t('Maximize') }}</b-button>
                   </b-button-group>
                 </b-form>
                 <b-form inline class="mb-0">
-                  <b-form-select class="ml-3" size="sm" v-model="options.palette" :options="Object.keys(palettes)" :disabled="isLoading"/>
+                  <b-button-group class="ml-3" size="sm">
+                    <b-button disabled variant="outline-primary"><icon name="project-diagram" class="mx-1"/></b-button>
+                    <b-button v-for="layout in layouts" :key="layout" @click="options.layout = layout" :variant="(options.layout === layout) ? 'primary' : 'outline-primary'" :disabled="isLoading">{{ layout }}</b-button>
+                  </b-button-group>
+                </b-form>
+                <b-form inline class="mb-0">
+                  <b-button-group class="ml-3" size="sm">
+                    <b-button disabled variant="outline-primary"><icon name="palette" class="mx-1"/></b-button>
+                    <b-button v-for="palette in Object.keys(palettes)" :key="palette" @click="options.palette = palette" :variant="(options.palette === palette) ? 'primary' : 'outline-primary'" :disabled="isLoading">{{ palette }}</b-button>
+                  </b-button-group>
                 </b-form>
                 <b-form inline class="mb-0">
                   <b-form-select class="ml-3" size="sm" v-model="limit" :options="[25,50,100,200,500,1000]" :disabled="isLoading" @input="onLimit"/>
@@ -129,7 +151,8 @@ export default {
     return {
       dimensions: {
         height: 0,
-        width: 0
+        width: 0,
+        fit: 'min'
       },
       nodes: [],
       links: [],
@@ -167,8 +190,6 @@ export default {
           unreg: 'red'
         }
       },
-      pollingIntervalMs: 10000,
-      pollingInterval: false,
       saveSearchNamespace: 'network',
       saveSearchString: null,
       showSaveSearchModal: false,
@@ -435,7 +456,7 @@ export default {
       liveMode: false,
       liveModeAllowed: false,
       liveModeInterval: false,
-      liveModeIntervalMs: 60000
+      liveModeIntervalMs: 30000
     }
   },
   computed: {
@@ -460,8 +481,7 @@ export default {
       // get width of svg container
       const { $refs: { networkGraph: { $el: { offsetWidth: width = 0 } = {} } = {} } = {} } = this
       this.$set(this.dimensions, 'width', width)
-
-      if (this.advancedMode) {
+      if (this.dimensions.fit === 'max') {
         this.$set(this.dimensions, 'height', width)
       } else {
         // get height of window document
@@ -512,8 +532,7 @@ export default {
     onReset () {
       const { advancedMode } = this
       if (advancedMode) {
-        // eslint-disable-next-line
-        console.log('onReset', JSON.stringify(this.advancedCondition, null, 2))
+        this.advancedCondition = this.defaultCondition
       } else {
         this.quickCondition = null
       }
@@ -521,8 +540,7 @@ export default {
       this.links = []
     },
     onLimit () {
-      // limit changed, submit search again if nodes already exist
-      if (this.nodes.filter(n => n.type !== 'packetfence').length > 0) { // ignore single `packetfence` node
+      if (this.condition) {
         this.onSubmit()
       }
     },
@@ -581,6 +599,16 @@ export default {
     }
   },
   watch: {
+    advancedMode: {
+      handler: function (a, b) {
+         this.setDimensions()
+      }
+    },
+    'dimensions.fit': {
+      handler: function (a, b) {
+        this.setDimensions()
+      }
+    },
     windowSize: {
       handler: function (a, b) {
         if (a.clientWidth !== b.clientWidth || a.clientHeight !== b.clientHeight) {
@@ -588,13 +616,6 @@ export default {
         }
       },
       deep: true
-    },
-    advancedMode: {
-      handler: function (a, b) {
-        setTimeout(() => {
-          this.setDimensions()
-        }, 300)
-      }
     },
     query: {
       handler: function (a, b) {
@@ -615,7 +636,6 @@ export default {
       handler: function (a, b) {
         this.liveMode = false // disable live mode
         this.liveModeAllowed = false // disallow live mode
-        this.liveModeIntervalMs = 60000 // reset interval
       },
       deep: true
     },
