@@ -1349,6 +1349,8 @@ export default {
         box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.125);
         transform: translate(-50%, -50%);
         z-index: 4;
+        max-width: 175px;
+        width: 175px;
       }
     }
   }

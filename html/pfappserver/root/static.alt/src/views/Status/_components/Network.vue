@@ -489,7 +489,11 @@ export default {
         const { $refs: { networkGraph: { $el = {} } = {} } = {} } = this
         const { top: networkGraphTop } = $el.getBoundingClientRect()
         const padding = 20 + 16 /* padding = 20, margin = 16 */
-        this.$set(this.dimensions, 'height', documentHeight - networkGraphTop - padding)
+        const height = documentHeight - networkGraphTop - padding
+        this.$set(this.dimensions, 'height', height)
+        if (height < 0) {
+          setTimeout(this.setDimensions, 100) // try again when DOM is ready
+        }
       }
     },
     onSubmit (liveMode = false) {
@@ -601,7 +605,7 @@ export default {
   watch: {
     advancedMode: {
       handler: function (a, b) {
-         this.setDimensions()
+        this.setDimensions()
       }
     },
     'dimensions.fit': {
@@ -624,9 +628,6 @@ export default {
           this.advancedCondition = JSON.parse(a)
           this.advancedMode = true
           this.onSubmit()
-        } else {
-          this.advancedCondition = this.defaultCondition
-          this.onReset()
         }
       },
       deep: true,
@@ -636,6 +637,9 @@ export default {
       handler: function (a, b) {
         this.liveMode = false // disable live mode
         this.liveModeAllowed = false // disallow live mode
+        if (JSON.stringify(a) !== this.query) {
+          this.$router.push({ query: null }) // clear URL query variable
+        }
       },
       deep: true
     },
@@ -654,6 +658,7 @@ export default {
   },
   mounted () {
     this.setDimensions()
+    this.advancedCondition = this.defaultCondition
   },
   beforeDestroy () {
     if (this.liveModeInterval) {
