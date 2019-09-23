@@ -105,7 +105,7 @@ sub build {
         }
 
         die "Missing mandatory element ip or netmask on interface $int"
-            if ( $type =~ /internal|managed|management|portal|radius|dhcp|dns/ && !defined($int_obj) );
+            if ( $type =~ /internal|managed|management|portal|radius|dhcp$|dns/ && !defined($int_obj) );
 
         foreach my $type ( split( /\s*,\s*/, $type ) ) {
             if ( $type eq 'internal' ) {
