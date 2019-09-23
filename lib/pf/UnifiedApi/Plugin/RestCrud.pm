@@ -87,7 +87,7 @@ If no controller is defined then will use the parent route controller
 
 sub register_action {
     my ($route, $args) = @_;
-    my $method = $args->{method};
+    my $method = delete $args->{method};
     if (!defined $method || !exists $ALLOWED_METHODS{$method}) {
         die "invalid method given ". ($method // "undef" );
     }
@@ -97,12 +97,11 @@ sub register_action {
         die "no action is defined"
     }
 
-    my $path = $args->{path} // "/$action";
-    my $controller = $args->{controller};
-    my $name = $args->{name} // $action;
+    my $path = delete $args->{path} // "/$action";
+    my $name = delete $args->{name} // $action;
     return
       $route->any([$method] => $path)
-            ->to( action => $action, ( defined $controller ? ( controller => $controller ) : () ))
+            ->to(%$args)
             ->name( $route->name . ".$name" );
 }
 
