@@ -390,6 +390,7 @@ sub create {
     delete $item->{id};
     $cs->create($id, $item);
     return unless($self->commit($cs));
+    $self->stash( $self->primary_key => $id );
     $self->res->headers->location($self->make_location_url($id));
     $self->render(status => 201, json => { id => $id, message => "'$id' created" });
 }
@@ -1073,6 +1074,32 @@ sub fix_permissions {
     my $result = pf::util::fix_files_permissions();
     chomp($result);
     return $self->render(json => { message => $result });
+}
+
+
+sub audit_request {
+    my ($self) = @_;
+    my $status =  $self->res->code;
+    my $stash = $self->stash;
+    if (is_error($status) || !$stash->{auditable}) {
+        return;
+    }
+
+    my $req = $self->req;
+    my $method = $req->method;
+    my $path = $req->url->path;
+    my $body = $req->body;
+    my $current_user = $stash->{current_user};
+    my $log = pf::dal::admin_api_audit_log->new({
+        user_name => $current_user,
+        method => $method,
+        request => $body,
+        status => $status,
+        action => $self->match->endpoint->name,
+        url => $path,
+        object_id => $self->id,
+    });
+    $log->insert;
 }
 
 =head1 AUTHOR
