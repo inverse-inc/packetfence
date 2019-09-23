@@ -18,6 +18,32 @@ use strict;
 use warnings;
 
 use base qw(pf::dal::_admin_api_audit_log);
+use pf::StatsD::Timer;
+
+sub cleanup {
+    my $timer = pf::StatsD::Timer->new( { sample_rate => 0.2 } );
+    my ($class, $expire_seconds, $batch, $time_limit) = @_;
+    my $logger = $class->logger;
+    $logger->debug( sub { "calling admin_api_audit_log->cleanup with time=$expire_seconds batch=$batch timelimit=$time_limit"; });
+
+    if ( $expire_seconds eq "0" ) {
+        $logger->debug("Not deleting because the window is 0");
+        return;
+    }
+    my $now        = pf::dal->now();
+    my %search = (
+        -where => {
+            created_at => {
+                "<" => \[ 'DATE_SUB(?, INTERVAL ? SECOND)', $now, $expire_seconds ]
+            },
+        },
+        -limit => $batch,
+        -no_auto_tenant_id => 1,
+    );
+
+    $class->batch_remove(\%search, $time_limit);
+    return;
+}
  
 =head1 AUTHOR
 
