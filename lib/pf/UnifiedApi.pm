@@ -714,7 +714,7 @@ setup_api_v1_std_crud_collection_routes
 sub setup_api_v1_std_crud_collection_routes {
     my ($self, $root) = @_;
     $root->register_sub_action({path => '', action => 'list', method => 'GET'});
-    $root->register_sub_action({path => '', action => 'create', method => 'POST'});
+    $root->register_sub_action({path => '', action => 'create', method => 'POST', auditable => 1});
     $root->register_sub_action({action => 'search', method => 'POST'});
     return ;
 }
@@ -728,9 +728,9 @@ setup_api_v1_std_crud_resource_routes
 sub setup_api_v1_std_crud_resource_routes {
     my ($self, $root) = @_;
     $root->register_sub_action({path => '', action => 'get', method => 'GET'});
-    $root->register_sub_action({path => '', action => 'update', method => 'PATCH'});
-    $root->register_sub_action({path => '', action => 'replace', method => 'PUT'});
-    $root->register_sub_action({path => '', action => 'remove', method => 'DELETE'});
+    $root->register_sub_action({path => '', action => 'update', method => 'PATCH', auditable => 1});
+    $root->register_sub_action({path => '', action => 'replace', method => 'PUT', auditable => 1});
+    $root->register_sub_action({path => '', action => 'remove', method => 'DELETE', auditable => 1});
     return ;
 }
 

@@ -18,6 +18,7 @@ use Mojo::Base 'pf::UnifiedApi::Controller::RestRoute';
 use Mojo::JSON qw(decode_json);
 use pf::error qw(is_error);
 use pf::log;
+use pf::dal::admin_api_audit_log;
 use pf::util qw(expand_csv);
 use pf::UnifiedApi::Search::Builder;
 use pf::UnifiedApi::OpenAPI::Generator::Crud;
@@ -264,6 +265,7 @@ sub render_create {
     my $location_id = $id;
     $location_id =~ s#/#~#g;
     $self->res->headers->location($self->make_location_url($location_id));
+    $self->stash( $self->url_param_name => $id );
     return $self->render(json => { id => $id , message => "'$id' created"}, status => $status);
 }
 
@@ -449,6 +451,31 @@ sub build_search_info {
             } qw(limit query fields sort cursor with_total_count)
         )
     };
+}
+
+sub audit_request {
+    my ($self) = @_;
+    my $status =  $self->res->code;
+    my $stash = $self->stash;
+    if (is_error($status) || !$stash->{auditable}) {
+        return;
+    }
+
+    my $req = $self->req;
+    my $method = $req->method;
+    my $path = $req->url->path;
+    my $body = $req->body;
+    my $current_user = $stash->{current_user};
+    my $log = pf::dal::admin_api_audit_log->new({
+        user_name => $current_user,
+        method => $method,
+        request => $body,
+        status => $status,
+        action => $self->match->endpoint->name,
+        url => $path,
+        object_id => $self->id,
+    });
+    $log->insert;
 }
 
 =head1 AUTHOR
