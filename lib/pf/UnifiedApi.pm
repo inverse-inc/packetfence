@@ -103,6 +103,7 @@ after_dispatch_cb
 
 sub after_dispatch_cb {
     my ($c) = @_;
+    $c->audit_request if $c->can("audit_request");
     my $app = $c->app;
     my $max = $app->{max_requests_handled} //= add_jitter( $MAX_REQUEST_HANDLED, $REQUEST_HANDLED_JITTER );
     if (++$app->{requests_handled} >= $max) {
