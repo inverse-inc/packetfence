@@ -1051,7 +1051,7 @@ http://packetfence.org/bugs/view.php?id=1085[issue #1085].
 
 == PacketFence builds
 
-include::../ci/packer/README.asciidoc[]
+include::packer/README.asciidoc[]
 
 == Developer recipes
 
