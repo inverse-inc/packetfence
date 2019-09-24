@@ -70,6 +70,20 @@
     <slot>
       <b-button class="ml-3"><icon name="upload"></icon> {{ $t('Upload') }}</b-button>
     </slot>
+    <b-modal v-if="showErrorModal" v-model="showErrorModal" centered
+      :title="$t('Upload Error')"
+      @hide="clearFirstError()"
+    >
+      <b-media>
+        <icon name="exclamation-triangle" scale="2" slot="aside" class="text-danger"></icon>
+        <h4>{{ firstError.name }}</h4>
+        <p class="font-weight-light mt-3 mb-0">{{ firstError.error.message }}</p>
+        <p class="font-weight-light mt-3 mb-0 text-pre text-black-50">Ref: {{ firstError.error.name }} (#{{ firstError.error.code}})</p>
+      </b-media>
+      <div slot="modal-footer">
+        <b-button variant="primary" @click="clearFirstError()">{{ $t('Continue') }}</b-button>
+      </div>
+    </b-modal>
   </div>
 </template>
 
@@ -98,6 +112,11 @@ export default {
       default: ''
     }
   },
+  data () {
+    return {
+      showErrorModal: false
+    }
+  },
   methods: {
     uploadFiles (event) {
       if (!this.cumulative) {
@@ -106,20 +125,91 @@ export default {
       const files = event.target.files
       Array.from(files).forEach((file, index, files) => {
         let reader = new FileReader()
+        reader.onprogress = ((localupload) => {
+          return (e) => {
+            let percent = 0
+            if (e.lengthComputable) {
+              percent = Math.round((e.loaded / e.total) * 100)
+            }
+            const { lastModified, name, size, type } = localupload
+            const newUpload = {
+              percent,
+              result: false,
+              lastModified,
+              name,
+              size,
+              type,
+              reader,
+              error: false
+            }
+            const fileIndex = this.files.findIndex(file => `${file.name}-${file.lastModified}` === `${newUpload.name}-${newUpload.lastModified}`)
+            if (fileIndex > -1) {
+              this.$set(this.files, fileIndex, newUpload)
+            } else {
+              this.$set(this.files, this.files.length, newUpload)
+            }
+            if (this.cumulative || this.files.length === files.length) {
+              this.$emit('files', this.files)
+            }
+          }
+        })(file)
         reader.onload = ((localfile) => {
           return (e) => {
-            let newfile = {
+            const { lastModified, name, size, type } = localfile
+            const newFile = {
+              percent: 100,
               result: e.target.result,
-              lastModified: localfile.lastModified,
-              name: localfile.name,
-              size: localfile.size,
-              type: localfile.type
+              lastModified,
+              name,
+              size,
+              type,
+              reader,
+              error: false
             }
-            // prevent duplicates
-            if (this.files.map(file => { return file.name + file.lastModified }).includes(newfile.name + newfile.lastModified)) return
-            this.files.push(newfile)
+            const fileIndex = this.files.findIndex(file => `${file.name}-${file.lastModified}` === `${newFile.name}-${newFile.lastModified}`)
+            if (fileIndex > -1) {
+              this.$set(this.files, fileIndex, newFile)
+            } else {
+              this.$set(this.files, this.files.length, newFile)
+            }
             if (this.cumulative || this.files.length === files.length) {
-              this.$emit('load', this.files)
+              this.$emit('files', this.files)
+            }
+          }
+        })(file)
+        reader.onabort = ((localfile) => {
+          return (e) => {
+            const { lastModified, name } = localfile
+            const fileIndex = this.files.findIndex(file => `${file.name}-${file.lastModified}` === `${name}-${lastModified}`)
+            this.$delete(this.files, fileIndex)
+          }
+        })(file)
+        reader.onerror = ((localfile) => {
+          return (e) => {
+            const { lastModified, name, size, type } = localfile
+            const { target: { error: { code: errorCode, message: errorMessage, name: errorName } = {} } = {} } = e
+            const newFile = {
+              percent: 0,
+              result: false,
+              lastModified,
+              name,
+              size,
+              type,
+              reader,
+              error: {
+                code: errorCode,
+                message: errorMessage,
+                name: errorName
+              }
+            }
+            const fileIndex = this.files.findIndex(file => `${file.name}-${file.lastModified}` === `${newFile.name}-${newFile.lastModified}`)
+            if (fileIndex > -1) {
+              this.$set(this.files, fileIndex, newFile)
+            } else {
+              this.$set(this.files, this.files.length, newFile)
+            }
+            if (this.cumulative || this.files.length === files.length) {
+              this.$emit('files', this.files)
             }
           }
         })(file)
@@ -127,10 +217,35 @@ export default {
       })
       // clear the input to allow re-upload
       this.$refs.uploadform.reset()
+    },
+    clearFirstError () {
+      this.showErrorModal = false
+      this.$nextTick(() => {
+        const fileIndex = this.files.findIndex(file => file.error)
+        this.$delete(this.files, fileIndex)
+      })
+    }
+  },
+  computed: {
+    errors () {
+      return this.files.filter(file => file.error)
+    },
+    firstError () {
+      return (this.errors.length > 0) ? this.errors[0] : false
     }
   },
   mounted () {
     this.files = []
+  },
+  watch: {
+    firstError: {
+      handler: function (a, b) {
+        if (a) {
+          this.showErrorModal = true
+        }
+      },
+      deep: true
+    }
   }
 }
 </script>

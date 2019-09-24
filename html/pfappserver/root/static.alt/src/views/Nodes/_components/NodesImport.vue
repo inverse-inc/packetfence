@@ -6,12 +6,29 @@
     </b-card-header>
     <div class="card-body p-0">
       <b-tabs ref="tabs" v-model="tabIndex" card pills>
-        <b-tab v-for="(file, index) in files" :key="file.name + file.lastModified" :title="file.name" no-body>
+        <b-tab v-for="(file, index) in files" :key="file.name + file.lastModified"
+          :title="file.name" :title-link-class="(file.percent === 100) ? ['bg-primary', 'text-light'] : ['bg-light', 'text-primary']"
+          no-body
+        >
           <template v-slot:title>
-            <b-button-close class="ml-2 text-white" @click.stop.prevent="closeFile(index)" v-b-tooltip.hover.left.d300 :title="$t('Close File')"><icon name="times"></icon></b-button-close>
-            {{ file.name }}
+            <template v-if="file.percent === 100">
+              <b-button-close class="ml-2 text-white" @click.stop.prevent="closeFile(index)" v-b-tooltip.hover.left.d300 :title="$t('Close File')">
+                <icon name="times" class="align-top ml-1"></icon>
+              </b-button-close>
+              {{ file.name }}
+            </template>
+            <template v-else>
+              <b-button-close class="ml-2 text-primary" @click.stop.prevent="file.reader.abort()" v-b-tooltip.hover.left.d300 :title="$t('Abort Upload')">
+                <icon name="times" class="align-top ml-1"></icon>
+              </b-button-close>
+              {{ file.name }}
+              <b-progress class="mt-n1" :value="file.percent" max="100" height="2px">
+                <b-progress-bar variant="success" :value="file.percent"/>
+                <b-progress-bar variant="danger" :value="100 - file.percent"/>
+              </b-progress>
+            </template>
           </template>
-          <pf-csv-parse
+          <pf-csv-parse v-if="file.result"
             :ref="'parser-' + index"
             :file="file"
             :fields="fields"
@@ -23,7 +40,7 @@
           ></pf-csv-parse>
         </b-tab>
         <template v-slot:tabs-end>
-          <pf-form-upload @load="files = $event" :multiple="true" :cumulative="true" accept="text/*, .csv">{{ $t('Open CSV File') }}</pf-form-upload>
+          <pf-form-upload @files="files = $event" :multiple="true" :cumulative="true" accept="text/*, .csv">{{ $t('Open CSV File') }}</pf-form-upload>
         </template>
         <template v-slot:empty>
           <div class="text-center text-muted">
