@@ -20,18 +20,21 @@
             "name": "{{user `builder_prefix`}}-centos-7",
             "type": "docker",
             "image": "{{user `docker_user`}}/centos:7",
+            "run_command": ["-d", "-i", "-t", "--", "{{.Image}}"],
             "commit": true
         },
         {
             "name": "{{user `builder_prefix`}}-stretch",
             "type": "docker",
             "image": "{{user `docker_user`}}/debian:stretch",
+            "run_command": ["-d", "-i", "-t", "--", "{{.Image}}"],
             "commit": true
         },
         {
             "name": "{{user `builder_prefix`}}-buster",
             "type": "docker",
             "image": "{{user `docker_user`}}/debian:buster",
+            "run_command": ["-d", "-i", "-t", "--", "{{.Image}}"],
             "commit": true
         }
     ],
