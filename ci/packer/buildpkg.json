@@ -19,19 +19,19 @@
         {
             "name": "{{user `builder_prefix`}}-centos-7",
             "type": "docker",
-            "image": "{{user `docker_user`}}/centos-7",
+            "image": "{{user `docker_user`}}/centos:7",
             "commit": true
         },
         {
             "name": "{{user `builder_prefix`}}-stretch",
             "type": "docker",
-            "image": "{{user `docker_user`}}/debian-stretch",
+            "image": "{{user `docker_user`}}/debian:stretch",
             "commit": true
         },
         {
             "name": "{{user `builder_prefix`}}-buster",
             "type": "docker",
-            "image": "{{user `docker_user`}}/debian-buster",
+            "image": "{{user `docker_user`}}/debian:buster",
             "commit": true
         }
     ],
@@ -137,7 +137,8 @@
             "tag": "{{user `image_version`}}"
         },
         {
-            "type": "docker-push"
+            "type": "docker-push",
+            "login": true
         }
     ]
 }
