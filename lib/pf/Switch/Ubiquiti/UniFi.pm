@@ -195,14 +195,14 @@ sub _deauthenticateMacWithHTTP {
     my $response = $ua->post("$base_url/api/login", Content => '{"username":"'.$username.'", "password":"'.$password.'"}');
 
     unless($response->is_success) {
-        $logger->error("Can't login on the Unifi controller: ".$response->status_line);
+        $logger->error("Can't login on the UniFi controller: ".$response->status_line);
         return;
     }
 
     $response = $ua->get("$base_url/api/self/sites");
 
     unless($response->is_success) {
-        $logger->error("Can't have the site list from the Unifi controller: ".$response->status_line);
+        $logger->error("Can't have the site list from the UniFi controller: ".$response->status_line);
         return;
     }
 
@@ -218,11 +218,11 @@ sub _deauthenticateMacWithHTTP {
     }
 
     unless($response->is_success) {
-        $logger->error("Can't send request on the Unifi controller: ".$response->status_line);
+        $logger->error("Can't send request on the UniFi controller: ".$response->status_line);
         return;
     }
 
-    $logger->info("Switched status on the Unifi controller using command $command");
+    $logger->info("Switched status on the UniFi controller using command $command");
 }
 
 
