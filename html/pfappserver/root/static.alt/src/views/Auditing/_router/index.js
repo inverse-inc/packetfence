@@ -2,14 +2,17 @@ import store from '@/store'
 import RadiusLogsStore from '../_store/radiusLogs'
 import DhcpOption82LogsStore from '../_store/dhcpOption82Logs'
 import DnsLogsStore from '../_store/dnsLogs'
+import AdminApiAuditLogs from '../_store/adminApiAuditLogs'
 import RadiusLogsSearch from '../_components/RadiusLogsSearch'
 import DhcpOption82LogsSearch from '../_components/DhcpOption82LogsSearch'
 import DnsLogsSearch from '../_components/DnsLogsSearch'
+import AdminApiAuditLogsSearch from '../_components/AdminApiAuditLogsSearch'
 
 const AuditingView = () => import(/* webpackChunkName: "Auditing" */ '../')
 const RadiusLogView = () => import(/* webpackChunkName: "Auditing" */ '../_components/RadiusLogView')
 const DhcpOption82LogView = () => import(/* webpackChunkName: "Auditing" */ '../_components/DhcpOption82LogView')
 const DnsLogView = () => import(/* webpackChunkName: "Auditing" */ '../_components/DnsLogView')
+const AdminApiAuditLogView = () => import(/* webpackChunkName: "Auditing" */ '../_components/AdminApiAuditLogView')
 
 const route = {
   path: '/auditing',
@@ -28,6 +31,9 @@ const route = {
     }
     if (!store.state.$_dns_logs) {
       store.registerModule('$_dns_logs', DnsLogsStore)
+    }
+    if (!store.state.$_admin_api_audit_logs) {
+      store.registerModule('$_admin_api_audit_logs', AdminApiAuditLogs)
     }
     next()
   },
@@ -102,6 +108,30 @@ const route = {
       },
       meta: {
         can: 'read dns_log'
+      }
+    },
+    {
+      path: 'admin_api_audit_logs/search',
+      name: 'admin_api_audit_logs',
+      component: AdminApiAuditLogsSearch,
+      props: (route) => ({ storeName: '$_admin_api_audit_logs', query: route.query.query }),
+      meta: {
+        can: 'read admin_api_audit_log',
+        fail: '/auditing/admin_api_audit_logs/search'
+      }
+    },
+    {
+      path: 'admin_api_audit_log/:id',
+      name: 'admin_api_audit_log',
+      component: AdminApiAuditLogView,
+      props: (route) => ({ storeName: '$_admin_api_audit_logs', id: route.params.id }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_admin_api_audit_logs/getItem', to.params.id).then(admin_api_audit_logs => {
+          next()
+        })
+      },
+      meta: {
+        can: 'read admin_api_audit_log'
       }
     }
   ]
