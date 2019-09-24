@@ -1,1 +1,1 @@
-ci/packer/README.asciidoc
+../../docs/packer/README.asciidoc
