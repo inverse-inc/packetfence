@@ -7,7 +7,7 @@ pf::Switch::Ubiquiti::UniFi
 =head1 SYNOPSIS
 
 The pf::Switch::Ubiquiti::UniFi module implements an object oriented interface to
-manage UniFi  controllers
+manage UniFi controllers
 
 =head1 STATUS
 
