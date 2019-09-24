@@ -6,6 +6,7 @@
         "docker_user": "buildpkg",
         "pf_root": "../..",
         "prov_dir": "provisionners",
+        "files_dir": "files",
         "tmp_dir": "/tmp",
         "go_version": "go1.9.3",
         "go_path": "/root/go",
@@ -18,28 +19,19 @@
             "name": "{{user `builder_prefix`}}-centos7",
             "type": "docker",
             "image": "{{user `docker_user`}}/centos:7",
-            "commit": true,
-            "changes": [
-                "ENTRYPOINT /bin/bash"
-            ]
+            "commit": true
         },
         {
             "name": "{{user `builder_prefix`}}-stretch",
             "type": "docker",
             "image": "{{user `docker_user`}}/debian:stretch",
-            "commit": true,
-            "changes": [
-                "ENTRYPOINT /bin/bash"
-            ]
+            "commit": true
         },
         {
             "name": "{{user `builder_prefix`}}-buster",
             "type": "docker",
             "image": "{{user `docker_user`}}/debian:buster",
             "commit": true,
-            "changes": [
-                "ENTRYPOINT /bin/bash"
-            ]
         }
     ],
     "provisioners": [
@@ -117,6 +109,11 @@
                                  "GO_REPO={{user `go_repo`}}",
                                  "EXTRA_PATH={{user `go_extra_path`}}"
                                 ]
+        },
+        {
+            "type": "file",
+            "source": "{{user `files_dir`}}/golang-env.sh",
+            "destination": "/etc/profile.d/"
         }
     ],
     "post-processors": [
