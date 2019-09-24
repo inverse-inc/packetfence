@@ -1,7 +1,5 @@
 SHELL = /bin/sh
 
-buildpkg:
+buildpkg: buildpkg.json
+	packer validate $@.json
 	packer build -on-error abort $@.json
-
-validate: buildpkg.json
-	packer validate $^
