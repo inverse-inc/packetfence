@@ -35,15 +35,6 @@ get_app_dependencies() {
     ( cd $PACKAGE_DIR; $GOVENDOR sync )
 }
 
-move_vendor_dependencies() {
-    log_section "Moving vendor dependencies to $GOROOT"
-    local vendor_repos=$(find $VENDOR_DIR/* -maxdepth 0 -type d)
-    for vendor_repo in $vendor_repos; do
-        echo "Moving $vendor_repo to $GOROOT/src"
-        mv $vendor_repo $GOROOT/src
-    done
-}
-
 clear_cache() {
     local go_cache_dir=$GOPATH/.cache
     log_section "Removing $go_cache_dir directory if present"
@@ -64,5 +55,4 @@ declare -p PACKAGE_DIR VENDOR_DIR
 
 get_govendor_binary
 get_app_dependencies
-move_vendor_dependencies
 clear_cache
