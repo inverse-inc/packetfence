@@ -32,7 +32,7 @@
             "name": "{{user `builder_prefix`}}-buster",
             "type": "docker",
             "image": "{{user `docker_user`}}/debian-buster",
-            "commit": true,
+            "commit": true
         }
     ],
     "provisioners": [
@@ -135,6 +135,9 @@
             "only": ["{{user `builder_prefix`}}-buster"],
             "repository": "inverseinc/{{user `builder_prefix`}}-debian-buster",
             "tag": "{{user `image_version`}}"
+        },
+        {
+            "type": "docker-push"
         }
     ]
 }
