@@ -13,7 +13,7 @@
         "go_repo": "github.com/inverse-inc/packetfence",
         "go_extra_path": "go",
         "go_vendor_dir": "{{user `go_extra_path`}}/vendor",
-        "image_version": "0.0.1"
+        "image_version": "0.0.3"
     },
     "builders": [
         {
@@ -21,21 +21,36 @@
             "type": "docker",
             "image": "{{user `docker_user`}}/centos:7",
             "run_command": ["-d", "-i", "-t", "--", "{{.Image}}"],
-            "commit": true
+            "commit": true,
+            "changes": [
+                "ENV GOPATH {{user `go_path`}}",
+                "ENV PATH /usr/local/go/bin:$PATH",
+                "ENV GO_REPO $GOPATH/{{user `go_repo`}}/{{user `go_extra_path`}}"
+            ]
         },
         {
             "name": "{{user `builder_prefix`}}-stretch",
             "type": "docker",
             "image": "{{user `docker_user`}}/debian:stretch",
             "run_command": ["-d", "-i", "-t", "--", "{{.Image}}"],
-            "commit": true
+            "commit": true,
+            "changes": [
+                "ENV GOPATH {{user `go_path`}}",
+                "ENV PATH /usr/local/go/bin:$PATH",
+                "ENV GO_REPO $GOPATH/{{user `go_repo`}}/{{user `go_extra_path`}}"
+            ]
         },
         {
             "name": "{{user `builder_prefix`}}-buster",
             "type": "docker",
             "image": "{{user `docker_user`}}/debian:buster",
             "run_command": ["-d", "-i", "-t", "--", "{{.Image}}"],
-            "commit": true
+            "commit": true,
+            "changes": [
+                "ENV GOPATH {{user `go_path`}}",
+                "ENV PATH /usr/local/go/bin:$PATH",
+                "ENV GO_REPO $GOPATH/{{user `go_repo`}}/{{user `go_extra_path`}}"
+            ]
         }
     ],
     "provisioners": [
@@ -113,11 +128,6 @@
                                  "GO_REPO={{user `go_repo`}}",
                                  "EXTRA_PATH={{user `go_extra_path`}}"
                                 ]
-        },
-        {
-            "type": "file",
-            "source": "{{user `files_dir`}}/golang-env.sh",
-            "destination": "/etc/profile.d/"
         }
     ],
     "post-processors": [
