@@ -282,7 +282,7 @@ setup_api_v1_config_misc_routes
 
 sub setup_api_v1_config_misc_routes {
     my ($self, $root) = @_;
-    $root->register_sub_action({ controller => 'Config', action => 'fix_permissions', method => 'POST' });
+    $root->register_sub_action({ controller => 'Config', action => 'fix_permissions', method => 'POST', auditable => 1 });
     $root->register_sub_action({ controller => 'Config', action => 'checkup', method => 'GET' });
     return ;
 }
@@ -468,7 +468,7 @@ sub setup_api_v1_users_routes {
     );
 
     $resource_route->register_sub_action({ method => 'GET', action => 'security_events' });
-    $resource_route->register_sub_actions({ method => 'POST', actions => [qw(unassign_nodes close_security_events)] });
+    $resource_route->register_sub_actions({ method => 'POST', actions => [qw(unassign_nodes close_security_events)], auditable => 1 });
     $collection_route->register_sub_actions(
         {
             method  => 'POST',
@@ -479,7 +479,8 @@ sub setup_api_v1_users_routes {
                   bulk_apply_role bulk_apply_bypass_role bulk_fingerbank_refresh
                   bulk_delete
                   )
-            ]
+            ],
+            auditable => 1,
         }
     );
     my ($sub_collection_route, $sub_resource_route) = 
@@ -500,10 +501,10 @@ sub setup_api_v1_users_routes {
 
     my $password_route = $resource_route->any("/password")->to(controller => "Users::Password")->name("api.v1.Users.resource.Password");
     $password_route->register_sub_action({path => '', action => 'get', method => 'GET'});
-    $password_route->register_sub_action({path => '', action => 'remove', method => 'DELETE'});
-    $password_route->register_sub_action({path => '', action => 'update', method => 'PATCH'});
-    $password_route->register_sub_action({path => '', action => 'replace', method => 'PUT'});
-    $password_route->register_sub_action({path => '', action => 'create', method => 'POST'});
+    $password_route->register_sub_action({path => '', action => 'remove', method => 'DELETE', auditable => 1});
+    $password_route->register_sub_action({path => '', action => 'update', method => 'PATCH', auditable => 1});
+    $password_route->register_sub_action({path => '', action => 'replace', method => 'PUT', auditable => 1});
+    $password_route->register_sub_action({path => '', action => 'create', method => 'POST', auditable => 1});
 
     return ($collection_route, $resource_route);
 }
@@ -527,6 +528,7 @@ sub setup_api_v1_nodes_routes {
     $resource_route->register_sub_actions({
         method => 'POST',
         actions => [ qw( register deregister restart_switchport reevaluate_access apply_security_event close_security_event fingerbank_refresh park unpark)],
+        auditable => 1,
     });
 
     $resource_route->register_sub_actions({
@@ -541,9 +543,16 @@ sub setup_api_v1_nodes_routes {
           bulk_register bulk_deregister bulk_close_security_events
           bulk_reevaluate_access bulk_restart_switchport bulk_apply_security_event
           bulk_apply_role bulk_apply_bypass_role bulk_fingerbank_refresh
-          bulk_apply_bypass_vlan network_graph
+          bulk_apply_bypass_vlan
           )
         ],
+        auditable => 1
+    });
+
+    $collection_route->register_sub_action({
+        method => 'POST',
+        action => 'network_graph',
+        auditable => 1
     });
 
     return ( $collection_route, $resource_route );
@@ -764,9 +773,9 @@ setup_api_v1_standard_config_collection_routes
 sub setup_api_v1_std_config_collection_routes {
     my ($self, $root, $name, $controller) = @_;
     $root->register_sub_action({path => '', action => 'list', method => 'GET'});
-    $root->register_sub_action({path => '', action => 'create', method => 'POST'});
+    $root->register_sub_action({path => '', action => 'create', method => 'POST', auditable => 1});
     $root->register_sub_action({path => '', action => 'options', method => 'OPTIONS'});
-    $root->register_sub_action({action => 'sort_items', method => 'PATCH'});
+    $root->register_sub_action({action => 'sort_items', method => 'PATCH', auditable => 1});
     $root->register_sub_action({action => 'search', method => 'POST'});
     return ;
 }
@@ -780,9 +789,9 @@ setup_api_v1_std_config_resource_routes
 sub setup_api_v1_std_config_resource_routes {
     my ($self, $root) = @_;
     $root->register_sub_action({path => '', action => 'get', method => 'GET'});
-    $root->register_sub_action({path => '', action => 'update', method => 'PATCH'});
-    $root->register_sub_action({path => '', action => 'replace', method => 'PUT'});
-    $root->register_sub_action({path => '', action => 'remove', method => 'DELETE'});
+    $root->register_sub_action({path => '', action => 'update', method => 'PATCH', auditable => 1});
+    $root->register_sub_action({path => '', action => 'replace', method => 'PUT', auditable => 1});
+    $root->register_sub_action({path => '', action => 'remove', method => 'DELETE', auditable => 1});
     $root->register_sub_action({path => '', action => 'resource_options', method => 'OPTIONS'});
     return ;
 }
@@ -889,7 +898,7 @@ sub setup_api_v1_config_domains_routes {
         "api.v1.Config.Domains"
     );
     $resource_route->register_sub_action({path => '/test_join', action => 'test_join', method => 'GET'});
-    $resource_route->register_sub_actions({method=> 'POST', actions => [qw(join unjoin rejoin)]});
+    $resource_route->register_sub_actions({method=> 'POST', actions => [qw(join unjoin rejoin)], auditable => 1});
     return ($collection_route, $resource_route);
 }
 
@@ -1255,7 +1264,7 @@ sub setup_api_v1_config_switches_routes {
         "api.v1.Config.Switches"
     );
 
-    $resource_route->any(['POST'] => "/invalidate_cache")->to("Config::Switches#invalidate_cache")->name("api.v1.Config.Switches.invalidate_cache");
+    $resource_route->any(['POST'] => "/invalidate_cache")->to("Config::Switches#invalidate_cache", auditable => 1)->name("api.v1.Config.Switches.invalidate_cache");
 
     return ($collection_route, $resource_route);
 }
@@ -1590,12 +1599,12 @@ sub setup_api_v1_config_interfaces_routes {
     my $controller = "Config::Interfaces";
     my $collection_route = $root->any("/interfaces")->to(controller => $controller)->name($name);
     $collection_route->register_sub_action({path => '', action => 'list', method => 'GET'});
-    $collection_route->register_sub_action({path => '', action => 'create', method => 'POST'});
+    $collection_route->register_sub_action({path => '', action => 'create', method => 'POST', auditable => 1});
     my $resource_route = $root->under("/interface/#interface_id")->to(controller => "Config::Interfaces", action => "resource")->name("$name.resource");
     $resource_route->register_sub_action({path => '', action => 'get', method => 'GET'});
-    $resource_route->register_sub_action({path => '', action => 'update', method => 'PATCH'});
-    $resource_route->register_sub_action({path => '', action => 'delete', method => 'DELETE'});
-    $resource_route->register_sub_actions({method=> 'POST', actions => [qw(up down)]});
+    $resource_route->register_sub_action({path => '', action => 'update', method => 'PATCH', auditable => 1});
+    $resource_route->register_sub_action({path => '', action => 'delete', method => 'DELETE', auditable => 1});
+    $resource_route->register_sub_actions({method=> 'POST', actions => [qw(up down)], auditable => 1});
     return ($collection_route, $resource_route);
 }
 
@@ -1741,13 +1750,13 @@ sub setup_api_v1_std_local_fingerbank_routes {
     my $root_name = $root->name;
     my $collection_route = $root->any($collection_path)->to(controller => $controller )->name("${root_name}.${name}");
     $collection_route->register_sub_action({ method => 'GET', action => 'list', path => ''});
-    $collection_route->register_sub_action({ method => 'POST', action => 'create', path => ''});
+    $collection_route->register_sub_action({ method => 'POST', action => 'create', path => '', auditable => 1});
     $collection_route->register_sub_action({ method => 'POST', action => 'search'});
     my $resource_route = $root->under($resource_path)->to(controller=> $controller, action => "resource")->name("${root_name}.${name}.resource");
     $resource_route->register_sub_action({ method => 'GET', action => 'get', path => ''});
-    $resource_route->register_sub_action({ method => 'DELETE', action => 'remove', path => ''});
-    $resource_route->register_sub_action({ method => 'PUT', action => 'replace', path => ''});
-    $resource_route->register_sub_action({ method => 'PATCH', action => 'update', path => ''});
+    $resource_route->register_sub_action({ method => 'DELETE', action => 'remove', path => '', auditable => 1});
+    $resource_route->register_sub_action({ method => 'PUT', action => 'replace', path => '', auditable => 1});
+    $resource_route->register_sub_action({ method => 'PATCH', action => 'update', path => '', auditable => 1});
     return ;
 }
 
