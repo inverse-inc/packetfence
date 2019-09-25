@@ -654,7 +654,7 @@ export default {
                         offset += siblings[t].num || 1
                       }
                     }
-                  } while ('source' in source && ({ id, source, source: { targets: siblings = null } = {}  } = source))
+                  } while ('source' in source && ({ id, source, source: { targets: siblings = null } = {} } = source))
                   return offset
                 }, 0)
                 angle = ((360 / totalNum * offset) + shift) % 360
