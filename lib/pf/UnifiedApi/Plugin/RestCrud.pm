@@ -49,8 +49,9 @@ sub register_actions {
         die "invalid method given ". ($method // "undef" );
     }
     my %subroutes;
-    for my $action (@{$args->{actions}}) {
-        $subroutes{$action} = $route->register_sub_action({method => $method, action => $action});
+    my $actions = delete $args->{actions};
+    for my $action (@{$actions}) {
+        $subroutes{$action} = $route->register_sub_action({%$args, action => $action});
     }
     return \%subroutes;
 }
