@@ -1,5 +1,5 @@
 --                                                                                                                     
--- PacketFence SQL schema upgrade from 9.1.0 to 9.2.0
+-- PacketFence SQL schema upgrade from 9.1.0 to 9.1.9
 --                                                                                                                     
                                                                                                                        
 
@@ -10,7 +10,9 @@
 SET @MAJOR_VERSION = 9;
 SET @MINOR_VERSION = 1;
 SET @SUBMINOR_VERSION = 9;
-                                                                                                                       
+
+
+
 SET @PREV_MAJOR_VERSION = 9;
 SET @PREV_MINOR_VERSION = 1;
 SET @PREV_SUBMINOR_VERSION = 0;
@@ -47,5 +49,27 @@ END
 DELIMITER ;                                                                                                            
 call ValidateVersion;                                                                                                  
 DROP PROCEDURE IF EXISTS ValidateVersion;
+
+--
+-- Table structure for table `admin_api_audit_log`
+--
+
+CREATE TABLE `admin_api_audit_log` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `tenant_id` int(11) NOT NULL DEFAULT '1',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `user_name` varchar(255) DEFAULT NULL,
+  `action` varchar(255) DEFAULT NULL,
+  `object_id` varchar(255) DEFAULT NULL,
+  `url` varchar(255) DEFAULT NULL,
+  `method` varchar(10) DEFAULT NULL,
+  `request` TEXT,
+  `status` int NOT NULL,
+   PRIMARY KEY (`id`),
+   KEY `action` (`action`),
+   KEY `user_name` (`user_name`),
+   KEY `object_id_action` (`object_id`, `action`),
+   KEY `created_at` (`created_at`)
+) ENGINE=InnoDB;
 
 INSERT INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION)); 
