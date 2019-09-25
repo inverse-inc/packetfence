@@ -39,9 +39,6 @@
             </div>
             <b-form-input v-model="quickCondition" type="text" :placeholder="$t('Search by...')"></b-form-input>
             <b-button class="ml-1" type="reset" variant="secondary" :disabled="!quickCondition">{{ $t('Clear') }}</b-button>
-            <!--
-            <b-button class="ml-1" type="submit" variant="primary" :disabled="!quickCondition">{{ $t('Search') }}</b-button>
-            -->
             <b-button-group class="ml-1" :disabled="!quickCondition">
               <b-button type="submit" variant="primary">{{ $t('Search') }}</b-button>
               <b-dropdown variant="primary" right>
@@ -646,8 +643,17 @@ export default {
         if (a) {
           // Import search parameters from URL query
           this.advancedCondition = JSON.parse(a)
-          this.advancedMode = true
           this.onSubmit()
+          // inspect advancedCondition and compare w/ buildCondition
+          const { advancedCondition: { values: { [0]: { values: { [0]: { value } } } } } = {} } = this
+          if (value && JSON.stringify(this.buildCondition(value)) === JSON.stringify(this.advancedCondition)) {
+            // query is built from quickCondition
+            this.quickCondition = value
+            this.advancedMode = false
+          } else {
+            // query is custom
+            this.advancedMode = true
+          }
         }
       },
       deep: true,
