@@ -7,4 +7,5 @@
       gem:
         name: "{{ item['name'] }}"
         state: latest
+        user_install: no
       loop: '{{ asciidoctor_gems }}'
