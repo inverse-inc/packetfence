@@ -57,18 +57,23 @@ export default {
   },
   methods: {
     init () {
-      this.isLoading = true
-      apiCall.getQuiet(`config/switch/${this.id}`).then(response => {
-        this.switche = response.data.item
-        this.isLoading = false
-      }).catch(err => {
-        if (Object.keys(this.properties).length > 0) {
-          this.switche = this.properties // inherit properties from node
-        } else {
-          this.isError = err
-        }
-        this.isLoading = false
-      })
+      if (this.id !== 'unknown') {
+        this.isLoading = true
+        apiCall.getQuiet(`config/switch/${this.id}`).then(response => {
+          this.switche = response.data.item
+          this.isLoading = false
+        }).catch(err => {
+          if (Object.keys(this.properties).length > 0) {
+            this.switche = this.properties // inherit properties from node
+          } else {
+            this.isError = err
+          }
+          this.isLoading = false
+        })
+      } else {
+        // id 'unknown'
+        this.switche = this.properties // inherit properties from node
+      }
     }
   },
   mounted () {
