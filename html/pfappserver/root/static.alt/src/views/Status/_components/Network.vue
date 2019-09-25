@@ -30,14 +30,6 @@
               </b-button-group>
             </b-container>
           </b-form>
-          <b-modal v-model="showSaveSearchModal" size="sm" centered id="saveSearchModal" :title="$t('Save Search')" @shown="focusSaveSearchInput">
-            <b-form-input ref="saveSearchInput" v-model="saveSearchString" type="text"
-              :placeholder="$t('Enter a unique name')" @keyup="keyUpSaveSearchInput"/>
-            <div slot="modal-footer">
-              <b-button variant="secondary" class="mr-1" @click="showSaveSearchModal=false">{{ $t('Cancel') }}</b-button>
-              <b-button variant="primary" @click="saveSearch">{{ $t('Save') }}</b-button>
-            </div>
-          </b-modal>
         </div>
         <!-- Quick Search Mode -->
         <b-form @submit.prevent="onSubmit" @reset.prevent="onReset" v-else>
@@ -47,30 +39,84 @@
             </div>
             <b-form-input v-model="quickCondition" type="text" :placeholder="$t('Search by...')"></b-form-input>
             <b-button class="ml-1" type="reset" variant="secondary" :disabled="!quickCondition">{{ $t('Clear') }}</b-button>
-            <b-button class="ml-1" type="submit" variant="primary" :disabled="!quickCondition">{{ $t('Search') }}</b-button>
+            <b-button-group class="ml-1" :disabled="!quickCondition">
+              <b-button type="submit" variant="primary">{{ $t('Search') }}</b-button>
+              <b-dropdown variant="primary" right>
+                <b-dropdown-header>{{ $t('Saved Searches') }}</b-dropdown-header>
+                <b-dropdown-item @click="showSaveSearchModal=true">
+                  <icon class="position-absolute mt-1" name="save"></icon>
+                  <span class="ml-4">{{ $t('Save Search') }}</span>
+                </b-dropdown-item>
+                <template v-if="savedSearches.length > 0">
+                  <b-dropdown-item v-for="search in savedSearches" :key="search.name" :to="search.route">
+                    <icon class="position-absolute mt-1" name="trash-alt" @click.native.stop.prevent="deleteSavedSearch(search)"></icon>
+                    <span class="ml-4">{{ search.name }}</span>
+                  </b-dropdown-item>
+                </template>
+              </b-dropdown>
+            </b-button-group>
           </div>
         </b-form>
       </transition>
 
+      <!-- Saved Search Modal -->
+      <b-modal v-model="showSaveSearchModal" size="sm" centered id="saveSearchModal" :title="$t('Save Search')" @shown="focusSaveSearchInput">
+        <b-form-input ref="saveSearchInput" v-model="saveSearchString" type="text"
+          :placeholder="$t('Enter a unique name')" @keyup="keyUpSaveSearchInput"/>
+        <div slot="modal-footer">
+          <b-button variant="secondary" class="mr-1" @click="showSaveSearchModal=false">{{ $t('Cancel') }}</b-button>
+          <b-button variant="primary" @click="saveSearch">{{ $t('Save') }}</b-button>
+        </div>
+      </b-modal>
+
       <div class="mt-3">
 
         <b-row align-h="between" align-v="center">
-          <b-col cols="auto" class="mr-auto">
-            <pf-form-range-toggle class="mr-3" v-model="liveMode" :disabled="isLoading || !liveModeAllowed">{{ $t('Live') }}</pf-form-range-toggle>
+          <b-col cols="auto" class="px-0">
+            <b-input-group class="mb-0 mx-3" size="sm">
+              <b-input-group-prepend is-text>
+                <pf-form-range-toggle class="inline mt-n2" v-model="liveMode" :disabled="isLoading || !liveModeAllowed"></pf-form-range-toggle>
+              </b-input-group-prepend>
+              <b-dropdown variant="light" size="sm" :text="$t('Live View')" :disabled="isLoading || !liveModeAllowed">
+                <b-dropdown-item v-for="timeout in liveModeIntervalMsOptions" :key="timeout"
+                  :active="liveMode === true && liveModeIntervalMs === timeout"
+                  @click="liveMode = true; liveModeIntervalMs = timeout"
+                >{{ $t('{duration} seconds', { duration: timeout / 1E3 }) }}</b-dropdown-item>
+              </b-dropdown>
+            </b-input-group>
+          </b-col>
+          <b-col cols="auto" class="pr-0">
+            <b-input-group class="mb-0 mr-3" size="sm" :prepend="$t('Sort')">
+              <b-form-select size="sm" v-model="options.sort" :options="sortOptions" :disabled="isLoading" @input="onSort"/>
+              <b-form-select size="sm" v-model="options.order" :options="['ASC', 'DESC']" :disabled="isLoading" @input="onSort"/>
+            </b-input-group>
+          </b-col>
+          <b-col cols="auto" class="pr-0 mr-auto">
+            <b-input-group class="mb-0 mr-3" size="sm" :prepend="$t('Limit')">
+              <b-form-select size="sm" v-model="limit" :options="limitOptions" :disabled="isLoading" @input="onLimit"/>
+            </b-input-group>
           </b-col>
           <b-col cols="auto">
             <b-container fluid>
               <b-row align-v="center">
                 <b-form inline class="mb-0">
-                  <b-button-group class="ml-3" size="sm">
-                    <b-button v-for="layout in layouts" :key="layout" @click="options.layout = layout" :variant="(options.layout === layout) ? 'primary' : 'light'" :disabled="isLoading">{{ layout }}</b-button>
+                  <b-button-group class="mr-3" size="sm">
+                    <b-button disabled variant="outline-primary"><icon name="window-maximize" class="mx-1"/></b-button>
+                    <b-button @click="dimensions.fit = 'min'" :variant="(dimensions.fit === 'min') ? 'primary' : 'outline-primary'" :disabled="isLoading">{{ $t('Minimize') }}</b-button>
+                    <b-button @click="dimensions.fit = 'max'" :variant="(dimensions.fit === 'max') ? 'primary' : 'outline-primary'" :disabled="isLoading">{{ $t('Maximize') }}</b-button>
                   </b-button-group>
                 </b-form>
                 <b-form inline class="mb-0">
-                  <b-form-select class="ml-3" size="sm" v-model="options.palette" :options="Object.keys(palettes)" :disabled="isLoading"/>
+                  <b-button-group class="mr-3" size="sm">
+                    <b-button disabled variant="outline-primary"><icon name="project-diagram" class="mx-1"/></b-button>
+                    <b-button v-for="layout in layouts" :key="layout" @click="options.layout = layout" :variant="(options.layout === layout) ? 'primary' : 'outline-primary'" :disabled="isLoading">{{ layout }}</b-button>
+                  </b-button-group>
                 </b-form>
                 <b-form inline class="mb-0">
-                  <b-form-select class="ml-3" size="sm" v-model="limit" :options="[25,50,100,200,500,1000]" :disabled="isLoading" @input="onLimit"/>
+                  <b-button-group size="sm">
+                    <b-button disabled variant="outline-primary"><icon name="palette" class="mx-1"/></b-button>
+                    <b-button v-for="palette in Object.keys(palettes)" :key="palette" @click="options.palette = palette" :variant="(options.palette === palette) ? 'primary' : 'outline-primary'" :disabled="isLoading">{{ palette }}</b-button>
+                  </b-button-group>
                 </b-form>
               </b-row>
             </b-container>
@@ -85,6 +131,7 @@
           :palettes="palettes"
           :disabled="isLoading"
           :is-loading="isLoading"
+          @layouts="layouts = $event"
         />
 
       </div>
@@ -128,7 +175,8 @@ export default {
     return {
       dimensions: {
         height: 0,
-        width: 0
+        width: 0,
+        fit: 'min'
       },
       nodes: [],
       links: [],
@@ -143,9 +191,10 @@ export default {
         maxZoom: 4,
         mouseWheelZoom: true,
         padding: 25,
-        tooltipDistance: 50
+        sort: 'last_seen',
+        order: 'DESC'
       },
-      layouts: ['radial', 'tree'], // available layouts
+      layouts: [], // available layouts
       palettes: {
         autoreg: {
           yes: 'green',
@@ -165,8 +214,6 @@ export default {
           unreg: 'red'
         }
       },
-      pollingIntervalMs: 60000,
-      pollingInterval: false,
       saveSearchNamespace: 'network',
       saveSearchString: null,
       showSaveSearchModal: false,
@@ -185,6 +232,7 @@ export default {
         }]
       },
       limit: 100,
+      limitOptions: [25, 50, 100, 200, 500, 1000],
       /**
        *  Fields on which a search can be defined.
        *  The names must match the database schema.
@@ -433,7 +481,8 @@ export default {
       liveMode: false,
       liveModeAllowed: false,
       liveModeInterval: false,
-      liveModeIntervalMs: 60000
+      liveModeIntervalMs: 30000,
+      liveModeIntervalMsOptions: [5000, 10000, 15000, 30000, 60000, 120000, 300000]
     }
   },
   computed: {
@@ -451,6 +500,9 @@ export default {
     },
     savedSearches () {
       return this.$store.getters['saveSearch/cache'][this.saveSearchNamespace] || []
+    },
+    sortOptions () {
+      return this.fields
     }
   },
   methods: {
@@ -458,8 +510,7 @@ export default {
       // get width of svg container
       const { $refs: { networkGraph: { $el: { offsetWidth: width = 0 } = {} } = {} } = {} } = this
       this.$set(this.dimensions, 'width', width)
-
-      if (this.advancedMode) {
+      if (this.dimensions.fit === 'max') {
         this.$set(this.dimensions, 'height', width)
       } else {
         // get height of window document
@@ -467,23 +518,28 @@ export default {
         const { $refs: { networkGraph: { $el = {} } = {} } = {} } = this
         const { top: networkGraphTop } = $el.getBoundingClientRect()
         const padding = 20 + 16 /* padding = 20, margin = 16 */
-        this.$set(this.dimensions, 'height', documentHeight - networkGraphTop - padding)
+        const height = documentHeight - networkGraphTop - padding
+        this.$set(this.dimensions, 'height', height)
+        if (height < 0) {
+          setTimeout(this.setDimensions, 100) // try again when DOM is ready
+        }
       }
     },
     onSubmit (liveMode = false) {
-      if (!liveMode) this.isLoading = true
       const { condition: query = null, limit, palettes } = this
       if (query) {
+        if (!liveMode) this.isLoading = true
         const request = {
           cursor: 0,
           limit,
           fields: [...(new Set([ // unique set
             ...['mac', 'last_seen'].map(key => `node.${key}`), // include `node.mac` and `node.last_seen`
+            ...[this.options.sort].map(key => (key.includes('.')) ? key : `node.${key}`), // include `options`.`sort`
             ...Object.keys(palettes).map(key => `node.${key}`), // include node fields for palettes
             ...['description', 'type'].map(key => `switch.${key}`), // include `switch` data
             ...['connection_type', 'port', 'realm', 'role', 'ssid', 'switch_mac', 'vlan'].map(key => `locationlog.${key}`) // include `locationlog` data
           ]))],
-          sort: ['last_seen DESC'],
+          sort: [`${this.options.sort} ${this.options.order}`],
           query
         }
         const start = performance.now()
@@ -495,7 +551,12 @@ export default {
             this.nodes = nodes
           }
           this.links = links
-          this.liveModeAllowed = true
+          if (!this.advancedMode) {
+            this.advancedCondition = this.buildCondition(this.quickCondition)
+          }
+          this.$nextTick(() => {
+            this.liveModeAllowed = true
+          })
         }).catch(() => {
           this.nodes = []
           this.links = []
@@ -508,19 +569,18 @@ export default {
       }
     },
     onReset () {
-      const { advancedMode } = this
-      if (advancedMode) {
-        // eslint-disable-next-line
-        console.log('onReset', JSON.stringify(this.advancedCondition, null, 2))
-      } else {
-        this.quickCondition = null
-      }
+      this.advancedCondition = this.defaultCondition
+      this.quickCondition = null
       this.nodes = []
       this.links = []
     },
     onLimit () {
-      // limit changed, submit search again if nodes already exist
-      if (this.nodes.filter(n => n.type !== 'packetfence').length > 0) { // ignore single `packetfence` node
+      if (this.condition) {
+        this.onSubmit()
+      }
+    },
+    onSort () {
+      if (this.condition) {
         this.onSubmit()
       }
     },
@@ -579,6 +639,16 @@ export default {
     }
   },
   watch: {
+    advancedMode: {
+      handler: function (a, b) {
+        this.setDimensions()
+      }
+    },
+    'dimensions.fit': {
+      handler: function (a, b) {
+        this.setDimensions()
+      }
+    },
     windowSize: {
       handler: function (a, b) {
         if (a.clientWidth !== b.clientWidth || a.clientHeight !== b.clientHeight) {
@@ -587,23 +657,22 @@ export default {
       },
       deep: true
     },
-    advancedMode: {
-      handler: function (a, b) {
-        setTimeout(() => {
-          this.setDimensions()
-        }, 300)
-      }
-    },
     query: {
       handler: function (a, b) {
         if (a) {
           // Import search parameters from URL query
           this.advancedCondition = JSON.parse(a)
-          this.advancedMode = true
+          // inspect advancedCondition and compare w/ buildCondition
+          const { advancedCondition: { values: { 0: { values: { 0: { value } } } } } = {} } = this
+          if (value && JSON.stringify(this.buildCondition(value)) === JSON.stringify(this.advancedCondition)) {
+            // query is built from quickCondition
+            this.quickCondition = value
+            this.advancedMode = false
+          } else {
+            // query is custom
+            this.advancedMode = true
+          }
           this.onSubmit()
-        } else {
-          this.advancedCondition = this.defaultCondition
-          this.onReset()
         }
       },
       deep: true,
@@ -613,7 +682,9 @@ export default {
       handler: function (a, b) {
         this.liveMode = false // disable live mode
         this.liveModeAllowed = false // disallow live mode
-        this.liveModeIntervalMs = 60000 // reset interval
+        if (this.query && JSON.stringify(a) !== this.query) {
+          this.$router.push({ query: null }) // clear URL query variable
+        }
       },
       deep: true
     },
@@ -632,6 +703,9 @@ export default {
   },
   mounted () {
     this.setDimensions()
+    if (!this.query) {
+      this.advancedCondition = this.defaultCondition
+    }
   },
   beforeDestroy () {
     if (this.liveModeInterval) {
