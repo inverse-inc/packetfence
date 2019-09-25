@@ -1,11 +1,11 @@
 SHELL = /bin/sh
-VERSION = $(shell git describe | sed s/packetfence-//)
+DOCKER_TAG = latest
+INACTIVE_BUILDS = 'pfbuild-buster'
 
 buildpkg: buildpkg.json
 	packer validate $@.json
-	packer build -on-error abort -var 'image_version=$(VERSION)' $@.json
+	packer build -var 'image_tag=$(DOCKER_TAG)' -except=$(INACTIVE_BUILDS) $@.json
 
 .PHONY : variables
 variables:
 	@echo SHELL: $(SHELL)
-	@echo VERSION: $(VERSION)
