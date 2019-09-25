@@ -13,7 +13,7 @@
         "go_repo": "github.com/inverse-inc/packetfence",
         "go_extra_path": "go",
         "go_vendor_dir": "{{user `go_extra_path`}}/vendor",
-        "image_version": "0.0.3"
+        "image_version": "latest"
     },
     "builders": [
         {
@@ -25,7 +25,7 @@
             "changes": [
                 "ENV GOPATH {{user `go_path`}}",
                 "ENV PATH /usr/local/go/bin:$PATH",
-                "ENV GO_REPO $GOPATH/{{user `go_repo`}}/{{user `go_extra_path`}}"
+                "ENV GO_REPO $GOPATH/src/{{user `go_repo`}}/{{user `go_extra_path`}}"
             ]
         },
         {
@@ -37,7 +37,7 @@
             "changes": [
                 "ENV GOPATH {{user `go_path`}}",
                 "ENV PATH /usr/local/go/bin:$PATH",
-                "ENV GO_REPO $GOPATH/{{user `go_repo`}}/{{user `go_extra_path`}}"
+                "ENV GO_REPO $GOPATH/src/{{user `go_repo`}}/{{user `go_extra_path`}}"
             ]
         },
         {
@@ -49,7 +49,7 @@
             "changes": [
                 "ENV GOPATH {{user `go_path`}}",
                 "ENV PATH /usr/local/go/bin:$PATH",
-                "ENV GO_REPO $GOPATH/{{user `go_repo`}}/{{user `go_extra_path`}}"
+                "ENV GO_REPO $GOPATH/src/{{user `go_repo`}}/{{user `go_extra_path`}}"
             ]
         }
     ],
