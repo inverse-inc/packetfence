@@ -1,4 +1,4 @@
-- hosts: ['centos','debian']
+- hosts: rubygems
   name: install ruby gems
   become: True
 

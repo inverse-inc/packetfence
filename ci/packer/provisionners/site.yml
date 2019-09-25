@@ -1,6 +1,6 @@
 ---
 - hosts: centos
-  name: install RPM keys and repos
+  name: install RPM keys
   gather_facts: False
   become: True
 
@@ -15,8 +15,10 @@
       loop: '{{ upstream_rpm_keys }}'
 
 - hosts: ['centos','debian']
-  name: install packetfence repos
+  name: install upstream repos needed to install build requires
   become: True
 
   roles:
     - role: inverse_inc.gitlab_buildpkg_tools
+
+- import_playbook: playbooks/rubygems.yml
