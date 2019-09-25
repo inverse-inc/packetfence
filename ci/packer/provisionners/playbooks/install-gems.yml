@@ -1,0 +1,10 @@
+- hosts: ['centos','debian']
+  name: install ruby gems
+  become: True
+
+  tasks:
+    - name: Install asciidoctor gems
+      gem:
+        name: "{{ item['name'] }}"
+        state: latest
+      loop: '{{ asciidoctor_gems }}'
