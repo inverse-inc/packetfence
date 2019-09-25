@@ -24,19 +24,11 @@ Your GOPATH will be setup in ~/gospace when using `make go-env`.
 
 ## Pulling the dependencies
 
-Dependencies should be pulled using 'govendor' which is used for dependency management.
+Dependencies use go modules and will be fetched automatically during build time
 
-In order to install govendor:
-
-```
-# go get -u github.com/kardianos/govendor
-```
-
-Then pull the dependencies of PacketFence. Be patient as it can take a few minutes to download.
+You will also need ipset-devel which can be installed using the following command:
 
 ```
-# cd $GOPATH/src/github.com/inverse-inc/packetfence/go
-# govendor sync
 # yum install ipset-devel
 ```
 
@@ -126,15 +118,19 @@ In order to start the test pfconfig process:
 # cd /usr/local/pf/t && ./pfconfig-test
 ```
 
-In order to test while taking vendoring into consideration, you need to call govendor instead of go to execute the tests.
-
-Then you can proceed to execute all or some of the Golang unit tests:
+You can proceed to execute all or some of the Golang unit tests:
 
 ```
-# cd $GOPATH/src/github.com/inverse-inc/packetfence/go
-# govendor test ./...
+# cd /usr/local/pf/go
+# go test ./...
 
-# cd $GOPATH/src/github.com/inverse-inc/packetfence/go/firewallsso/lib
-# govendor test
+# cd /usr/local/pf/go/firewallsso/lib
+# go test
 ```
 
+In order to run all the tests easily you can also do:
+
+```
+cd /usr/local/pf/go
+make test
+```

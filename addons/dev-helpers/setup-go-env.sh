@@ -50,19 +50,6 @@ else
     install
 fi
 
-log_section "Setup variables and directories for Golang environment"
-# we are in a packer build
-if [ -n "$PACKER_BUILD_NAME" ]; then
-    declare -p GOPATH GO_REPO
-    mkdir -v -p $GOPATH/src/$GO_REPO
-else
-    setup
-    declare -p GOPATH GO_REPO
-    mkdir -v -p $GOPATH/src/$GO_REPO
-    if [ -d $GOPATH/src/$GO_REPO/go ]; then
-        die "Directory $GOPATH/src/$GO_REPO/go already exists, cannot symlink it to /usr/local/pf/go"
-    else
-        ln -s -v /usr/local/pf/go $GOPATH/src/$GO_REPO/go
-    fi
-fi
+cd /usr/local/pf/go
+go mod download
 

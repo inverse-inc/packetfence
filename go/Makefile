@@ -59,7 +59,7 @@ go-env:
 
 test:
 	/usr/local/pf/t/pfconfig-test ;\
-	PFCONFIG_TESTING=y govendor test ./...
+	PFCONFIG_TESTING=y go test ./...
 
 all: pfhttpd pfdhcp pfdns pfstats pfdetect
 
