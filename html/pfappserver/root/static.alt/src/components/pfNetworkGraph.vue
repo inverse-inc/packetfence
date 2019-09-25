@@ -646,7 +646,7 @@ export default {
             switch (type) {
               case 'node':
                 offset = this.sortedNodes.filter(n => n.id === id).reduce((offset, node) => {
-                  let { id, source, source: { targets: siblings = null } = {} } = node
+                  let { id, source = {}, source: { targets: siblings = null } = {} } = node
                   do {
                     if (siblings) {
                       for (let t = 0; t < siblings.length; t++) {
@@ -666,7 +666,7 @@ export default {
               case 'switch':
               case 'unknown':
                 offset = this.sortedNodes.filter(n => n.id === id).reduce((offset, node) => {
-                  let { id, source, source: { targets: siblings = null } = {} } = node
+                  let { id, source = {}, source: { targets: siblings = null } = {} } = node
                   do {
                     if (siblings) {
                       for (let t = 0; t < siblings.length; t++) {
