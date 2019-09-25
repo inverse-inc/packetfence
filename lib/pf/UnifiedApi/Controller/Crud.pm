@@ -461,12 +461,27 @@ sub audit_request {
         return;
     }
 
+    my $record = $self->make_audit_record();
+    my $log = pf::dal::admin_api_audit_log->new($record);
+    $log->insert;
+}
+
+=head2 make_audit_record
+
+make_audit_record
+
+=cut
+
+sub make_audit_record {
+    my ($self) = @_;
+    my $stash = $self->stash;
+    my $status =  $self->res->code;
     my $req = $self->req;
     my $method = $req->method;
     my $path = $req->url->path;
     my $body = $req->body;
     my $current_user = $stash->{current_user};
-    my $log = pf::dal::admin_api_audit_log->new({
+    return {
         user_name => $current_user,
         method => $method,
         request => $body,
@@ -474,8 +489,7 @@ sub audit_request {
         action => $self->match->endpoint->name,
         url => $path,
         object_id => $self->id,
-    });
-    $log->insert;
+    }
 }
 
 =head1 AUTHOR
