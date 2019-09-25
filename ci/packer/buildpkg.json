@@ -128,13 +128,13 @@
                                  "GO_REPO={{user `go_repo`}}",
                                  "EXTRA_PATH={{user `go_extra_path`}}"
                                 ]
-        }
+        },
         {
             "type": "ansible",
             "playbook_file": "{{user `prov_dir`}}/site.yml",
             "inventory_directory": "{{user `prov_dir`}}/inventory",
-            "groups": ["rubygems"],
-        },
+            "groups": ["rubygems"]
+        }
     ],
     "post-processors": [
         {
