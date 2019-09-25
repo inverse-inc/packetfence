@@ -2,7 +2,6 @@
 
 To build PacketFence, we use link:http://packer.io[Packer] to create link:https://hub.docker.com/u/inverseinc[Docker images] that are then used in a GitLab pipeline.
 
-
 === Anatomy of Packer template
 
 PacketFence rely on link:https://hub.docker.com/u/buildpkg[buildpkg Docker
@@ -11,21 +10,45 @@ link:https://gitlab.com/Orange-OpenSource/gitlab-buildpkg-tools[gitlab-buildpkg-
 template ([filename]`buildpkg.json`) use these images as base to build
 inverseinc Docker images.
 
-==== Custom
+==== Custom build dependencies
 
 To start building PacketFence, we need to install specific things in images
 like:
-* custom repositories to install RPM or DEB packages
-* install upstream softwares necessary to build PacketFence if we can't use repo
+* custom repositories and GPG keys to install RPM or DEB packages
+* install and configure upstream softwares necessary to build PacketFence if we can't use packages
 
-We use Ansible to cover these steps. Python is already installed in Docker images.
+We use Ansible and shell scripts to cover these steps. It's possible because Python is already
+installed in link:https://hub.docker.com/u/buildpkg[buildpkg Docker
+images].
 
+When GPG keys from upstream repos can't be download automatically from Internet, we store them in
+[filename]`ci/packer/provisionner/upstream` to upload them in Docker images.
 
-==== Build dependencies
+==== Build dependencies in packages specs
+
+Build dependencies need to be install in Docker images before starting build
+process. We rely on [package]`gitlab-buildpkg-tools` to automatically install
+those dependencies based on packages specifications file. Consequently, all
+build requires need to be define in packages specifications file.
 
 ==== Golang environment
 
+We use Packer to set up a Golang environment in order to build Golang binaries in Docker images.
+
+Because a [command]`go build` command need to be run inside a `_$GOPATH_`, we follow these steps in Docker images:
+. Install Golang and set up `_$GOPATH_`
+. Create [filename]`src/github.com/inverse-inc/packetfence/go` tree in `_$GOPATH_`
+. Upload [filename]`vendor` directory in [filename]`$GOPATH/src/github.com/inverse-inc/packetfence/go`
+. Download all Golang dependencies in [filename]`vendor` directory using [command]`govendor sync`
+
+We also set environment variables in Docker images, using `ENV` directives, to simplify usage of [command]`go` commands.
+
 ==== Clean up
+To make Docker images lightweight, we make a clean up at end of the process.
+
+=== Pipeline
+
+To trigger new build of images, we use a GitLab pipeline.
 
 === How to build Docker images ?
 
@@ -35,6 +58,10 @@ We use Ansible to cover these steps. Python is already installed in Docker image
 * http://packer.io/intro/getting-started/install.html[Packer] (>=1.4.2)
 * https://docs.docker.com/install/[Docker]
 * Ansible
+
+==== Makefile
+
+A [filename]`Makefile` is provided to simplify creation a new Docker images.
 
 ==== Commands
 [source,bash]
