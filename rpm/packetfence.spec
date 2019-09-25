@@ -20,7 +20,7 @@ Vendor:     PacketFence, http://www.packetfence.org
 
 BuildRequires: gettext, httpd, ipset-devel, pkgconfig, jq
 BuildRequires: asciidoc >= 8.6.2, fop, libxslt, docbook-style-xsl, xalan-j2
-BuildRequires: asciidoctor
+BuildRequires: ruby, rubygems
 BuildRequires: gcc
 BuildRequires: systemd
 
