@@ -551,10 +551,12 @@ export default {
             this.nodes = nodes
           }
           this.links = links
-          this.liveModeAllowed = true
           if (!this.advancedMode) {
             this.advancedCondition = this.buildCondition(this.quickCondition)
           }
+          this.$nextTick(() => {
+            this.liveModeAllowed = true
+          })
         }).catch(() => {
           this.nodes = []
           this.links = []

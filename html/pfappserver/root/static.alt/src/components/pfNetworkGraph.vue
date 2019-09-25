@@ -646,15 +646,15 @@ export default {
             switch (type) {
               case 'node':
                 offset = this.sortedNodes.filter(n => n.id === id).reduce((offset, node) => {
-                  let { id, source = {} } = node
+                  let { id, source, source: { targets: siblings = null } = {} } = node
                   do {
-                    if (source && 'targets' in source) {
-                      for (let t = 0; t < source.targets.length; t++) {
-                        if (source.targets[t].id === id) break
-                        offset += source.targets[t].num || 1
+                    if (siblings) {
+                      for (let t = 0; t < siblings.length; t++) {
+                        if (siblings[t].id === id) break
+                        offset += siblings[t].num || 1
                       }
                     }
-                  } while ('source' in source && ({ id, source } = source))
+                  } while ('source' in source && ({ id, source, source: { targets: siblings = null } = {}  } = source))
                   return offset
                 }, 0)
                 angle = ((360 / totalNum * offset) + shift) % 360
@@ -666,15 +666,15 @@ export default {
               case 'switch':
               case 'unknown':
                 offset = this.sortedNodes.filter(n => n.id === id).reduce((offset, node) => {
-                  let { id, source = {} } = node
+                  let { id, source, source: { targets: siblings = null } = {} } = node
                   do {
-                    if (source && 'targets' in source) {
-                      for (let t = 0; t < source.targets.length; t++) {
-                        if (source.targets[t].id === id) break
-                        offset += source.targets[t].num
+                    if (siblings) {
+                      for (let t = 0; t < siblings.length; t++) {
+                        if (siblings[t].id === id) break
+                        offset += siblings[t].num
                       }
                     }
-                  } while ('source' in source && ({ id, source } = source))
+                  } while ('source' in source && ({ id, source, source: { targets: siblings = null } = {} } = source))
                   return offset
                 }, 0) + ((num - 1) / 2)
                 angle = ((360 / totalNum * offset) + shift) % 360
@@ -1372,8 +1372,7 @@ export default {
         box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.125);
         transform: translate(-50%, -50%);
         z-index: 4;
-        max-width: 175px;
-        width: 175px;
+        min-width: 175px;
       }
     }
   }

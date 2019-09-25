@@ -12,7 +12,7 @@
           </b-col>
         </b-row>
       </b-container>
-      <b-container fluid class="container px-0" v-else-if="!isError">
+      <b-container class="container px-0" v-else-if="!isError">
         <b-row v-if="node.device_class">
           <b-col cols="auto">
             <p class="py-0 col-form-label text-left text-nowrap" v-text="'Device Class'"></p>
