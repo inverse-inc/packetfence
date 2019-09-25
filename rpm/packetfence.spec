@@ -96,7 +96,7 @@ requires: perl(Const::Fast)
 # Perl core modules but still explicitly defined just in case distro's core perl get stripped
 Requires: perl(Time::HiRes)
 # Required for inline mode.
-Requires: ipset >= 6.38, ipset-symlink
+Requires: ipset = 6.38, ipset-symlink
 Requires: sudo
 Requires: perl(File::Which), perl(NetAddr::IP)
 Requires: perl(Net::LDAP)
@@ -514,10 +514,8 @@ for i in `find docs/html "(" -name "*.html" -or -name "*.js" ")"  -type f`; do \
 	%{__install} -m0644 $i %{buildroot}/usr/local/pf/html/pfappserver/root/static/doc/; \
 done
 
-%{__install} -d -m0755 %{buildroot}/usr/local/pf/html/pfappserver/root/static/images
-for i in `find * -path 'docs/images/*' -type f`; do \
-	%{__install} -m0644 $i %{buildroot}/usr/local/pf/html/pfappserver/root/static/images/; \
-done
+# images
+%{__make} DESTDIR=%{buildroot} images
 
 cp -r lib %{buildroot}/usr/local/pf/
 cp -r go %{buildroot}/usr/local/pf/
@@ -560,6 +558,15 @@ rm -rf %{buildroot}
 %pre
 
 /usr/bin/systemctl --now mask mariadb
+
+# This (extremelly) ugly hack below will make the current processes part of a cgroup other than the one for user-0.slice
+# This will allow for the current shells that are opened to be protected against stopping when we'll be calling isolate below which stops user-0.slice
+# New shells will not be placed into user-0.slice since systemd-logind will be disabled and masked
+/bin/bash -c "/usr/bin/systemctl status user-0.slice | /usr/bin/egrep -o '─[0-9]+' | /usr/bin/sed 's/─//g' | /usr/bin/xargs -I{} /bin/bash -c '/usr/bin/kill -0 {} > /dev/null 2>/dev/null && /usr/bin/echo {} > /sys/fs/cgroup/systemd/tasks'"
+/usr/bin/systemctl stop systemd-logind
+/usr/bin/systemctl --now mask systemd-logind
+/usr/bin/systemctl daemon-reload
+
 # clean up the old systemd files if it's an upgrade
 if [ "$1" = "2"   ]; then
     /usr/bin/systemctl disable packetfence-redis-cache
