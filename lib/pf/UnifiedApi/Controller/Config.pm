@@ -24,6 +24,7 @@ use pf::util qw(expand_csv isenabled);
 use pf::error qw(is_error);
 use pf::pfcmd::checkup ();
 use pf::UnifiedApi::Search::Builder::Config;
+use pf::dal::admin_api_audit_log;
 
 has 'config_store_class';
 has 'form_class';
