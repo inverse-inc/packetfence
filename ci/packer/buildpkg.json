@@ -97,18 +97,6 @@
         },
         {
             "type": "shell",
-            "inline": ["yum clean all"],
-            "only": ["{{user `builder_prefix`}}-centos-7"]
-        },
-        {
-            "type": "shell",
-            "inline": ["apt-get clean"],
-            "only": ["{{user `builder_prefix`}}-stretch",
-                     "{{user `builder_prefix`}}-buster"
-                    ]
-        },
-        {
-            "type": "shell",
             "script": "{{user `pf_root`}}/addons/dev-helpers/setup-go-env.sh",
             "environment_vars": ["GOVERSION={{user `go_version`}}",
                                  "GOPATH={{user `go_path`}}",
@@ -134,7 +122,24 @@
             "playbook_file": "{{user `prov_dir`}}/site.yml",
             "inventory_directory": "{{user `prov_dir`}}/inventory",
             "groups": ["rubygems"]
-        }
+        },
+        {
+            "type": "shell",
+            "inline": ["rm -rf {{user `tmp_dir`}}/rpm",
+                       "yum clean all",
+                      ],
+            "only": ["{{user `builder_prefix`}}-centos-7"]
+        },
+        {
+            "type": "shell",
+            "inline": ["rm -rf {{user `tmp_dir`}}/debian",
+                       "apt-get clean"
+                      ],
+            "only": ["{{user `builder_prefix`}}-stretch",
+                     "{{user `builder_prefix`}}-buster"
+                    ]
+        },
+
     ],
     "post-processors": [
         {
