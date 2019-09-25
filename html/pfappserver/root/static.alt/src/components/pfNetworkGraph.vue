@@ -354,8 +354,8 @@ export default {
       lastX: null, // last mouseDown x
       lastY: null, // last mouseDown y
       zoom: 0, // user zoom level, bound by minZoom and maxZoom
-      centerX: null, // viewBox center x
-      centerY: null, // viewBox center y
+      centerX: 0, // viewBox center x
+      centerY: 0, // viewBox center y
       miniMapLatch: false, // mouseDown @ miniMap
       highlight: false, // mouseOver @ node
       highlightNodeId: false, // last highlighted node
@@ -392,14 +392,19 @@ export default {
       }
     },
     coords () {
-      const { minX = 0, maxX = 0, minY = 0, maxY = 0 } = this.bounds
+      const {
+        bounds: { minX = 0, maxX = 0, minY = 0, maxY = 0 } = {},
+        dimensions: { height = 0, width = 0 } = {}
+      } = this
       if ((minX | maxX | minY | maxY) !== 0) { // not all zero's
-        const xMult = (this.dimensions.width - (2 * this.config.padding)) / (maxX - minX)
-        const yMult = (this.dimensions.height - (2 * this.config.padding)) / (maxY - minY)
+        const xMult = (width - (2 * this.config.padding)) / (maxX - minX)
+        const yMult = (height - (2 * this.config.padding)) / (maxY - minY)
         return this.localNodes.map(node => {
+          const x = this.config.padding + (node.x - minX) * xMult
+          const y = this.config.padding + (node.y - minY) * yMult
           return {
-            x: this.config.padding + (node.x - minX) * xMult,
-            y: this.config.padding + (node.y - minY) * yMult
+            x: isNaN(x) ? 0 : x,
+            y: isNaN(y) ? 0 : y
           }
         })
       }
@@ -528,12 +533,12 @@ export default {
           const { target: { type } = {} } = link
           if (type !== 'node') {
             const { min: sMin, max: sMax } = getMinMaxPropertyFromSwitch(link.target) // recurse
-            min = (min === undefined) ? sMin : ((min.localeCompare(sMin) === 1) ? sMin : min)
-            max = (max === undefined) ? sMax : ((max.localeCompare(sMax) === -1) ? sMax : max)
+            min = ([undefined, null].includes(min)) ? sMin : ((min.localeCompare(sMin) === 1) ? sMin : min)
+            max = ([undefined, null].includes(max)) ? sMax : ((max.localeCompare(sMax) === -1) ? sMax : max)
           } else {
             const { target: { properties: { [this.config.sort]: prop } = {} } = {} } = link
-            min = (min === undefined) ? prop : ((min.localeCompare(prop) === 1) ? prop : min)
-            max = (max === undefined) ? prop : ((max.localeCompare(prop) === -1) ? prop : max)
+            min = ([undefined, null].includes(min)) ? prop : ((min.localeCompare(prop) === 1) ? prop : min)
+            max = ([undefined, null].includes(max)) ? prop : ((max.localeCompare(prop) === -1) ? prop : max)
           }
           return { min, max }
         }, { min: undefined, max: undefined })
@@ -543,7 +548,19 @@ export default {
         const { id: idA, type: typeA, properties: { [this.config.sort]: propA } = {} } = a
         const { id: idB, type: typeB, properties: { [this.config.sort]: propB } = {} } = b
         if (typeA === 'node' && typeB === 'node') {
-          return (propA === propB) ? idA.localeCompare(idB) : (propA.localeCompare(propB) * order)
+          switch (true) {
+            case propA === propB:
+              return idA.localeCompare(idB)
+              // break
+            case !propA && propB:
+              return 1 * order
+              // break
+            case propA && !propB:
+              return -1 * order
+              // break
+            default:
+              return idA.localeCompare(idB)
+          }
         } else if (typeA === 'node') {
           return 1 * order // switch (non-node) first
         } else if (typeB === 'node') {
@@ -802,7 +819,12 @@ export default {
           [targetIndex]: { x: x2 = 0, y: y2 = 0 } = {}
         } = {}
       } = this
-      return { x1, y1, x2, y2 }
+      return {
+        x1: (isNaN(x1)) ? 0 : x1,
+        y1: (isNaN(y1)) ? 0 : y1,
+        x2: (isNaN(x2)) ? 0 : x2,
+        y2: (isNaN(y2)) ? 0 : y2
+      }
     },
     linkId (link) {
       let { source = {}, target = {} } = link
@@ -1110,16 +1132,17 @@ export default {
       return { style }
     },
     coordBounded (coord) {
+      const { x = 0, y = 0 } = coord
       const {
         bounds: { minX = 0, maxX = 0, minY = 0, maxY = 0 } = {},
-        dimensions: { height, width } = {}
+        dimensions: { height = 0, width = 0 } = {}
       } = this
       if ((minX | maxX | minY | maxY) !== 0) { // not all zero's
         const xMult = (width - (2 * this.config.padding)) / (maxX - minX)
         const yMult = (height - (2 * this.config.padding)) / (maxY - minY)
         return {
-          x: this.config.padding + (coord.x - minX) * xMult,
-          y: this.config.padding + (coord.y - minY) * yMult
+          x: this.config.padding + (x - minX) * xMult,
+          y: this.config.padding + (y - minY) * yMult
         }
       }
       return { x: 0, y: 0 }
