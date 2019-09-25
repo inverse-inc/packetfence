@@ -50,7 +50,7 @@ fi
 set -x
 
 
-cd "$PFSRC"
+cd "$PFSRC/go"
 
 if build_mode; then
   # Create any binaries here and make sure to move them to the BINDST specified
