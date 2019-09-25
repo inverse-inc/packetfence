@@ -30,14 +30,6 @@
               </b-button-group>
             </b-container>
           </b-form>
-          <b-modal v-model="showSaveSearchModal" size="sm" centered id="saveSearchModal" :title="$t('Save Search')" @shown="focusSaveSearchInput">
-            <b-form-input ref="saveSearchInput" v-model="saveSearchString" type="text"
-              :placeholder="$t('Enter a unique name')" @keyup="keyUpSaveSearchInput"/>
-            <div slot="modal-footer">
-              <b-button variant="secondary" class="mr-1" @click="showSaveSearchModal=false">{{ $t('Cancel') }}</b-button>
-              <b-button variant="primary" @click="saveSearch">{{ $t('Save') }}</b-button>
-            </div>
-          </b-modal>
         </div>
         <!-- Quick Search Mode -->
         <b-form @submit.prevent="onSubmit" @reset.prevent="onReset" v-else>
@@ -47,10 +39,38 @@
             </div>
             <b-form-input v-model="quickCondition" type="text" :placeholder="$t('Search by...')"></b-form-input>
             <b-button class="ml-1" type="reset" variant="secondary" :disabled="!quickCondition">{{ $t('Clear') }}</b-button>
+            <!--
             <b-button class="ml-1" type="submit" variant="primary" :disabled="!quickCondition">{{ $t('Search') }}</b-button>
+            -->
+            <b-button-group class="ml-1" :disabled="!quickCondition">
+              <b-button type="submit" variant="primary">{{ $t('Search') }}</b-button>
+              <b-dropdown variant="primary" right>
+                <b-dropdown-header>{{ $t('Saved Searches') }}</b-dropdown-header>
+                <b-dropdown-item @click="showSaveSearchModal=true">
+                  <icon class="position-absolute mt-1" name="save"></icon>
+                  <span class="ml-4">{{ $t('Save Search') }}</span>
+                </b-dropdown-item>
+                <template v-if="savedSearches.length > 0">
+                  <b-dropdown-item v-for="search in savedSearches" :key="search.name" :to="search.route">
+                    <icon class="position-absolute mt-1" name="trash-alt" @click.native.stop.prevent="deleteSavedSearch(search)"></icon>
+                    <span class="ml-4">{{ search.name }}</span>
+                  </b-dropdown-item>
+                </template>
+              </b-dropdown>
+            </b-button-group>
           </div>
         </b-form>
       </transition>
+
+      <!-- Saved Search Modal -->
+      <b-modal v-model="showSaveSearchModal" size="sm" centered id="saveSearchModal" :title="$t('Save Search')" @shown="focusSaveSearchInput">
+        <b-form-input ref="saveSearchInput" v-model="saveSearchString" type="text"
+          :placeholder="$t('Enter a unique name')" @keyup="keyUpSaveSearchInput"/>
+        <div slot="modal-footer">
+          <b-button variant="secondary" class="mr-1" @click="showSaveSearchModal=false">{{ $t('Cancel') }}</b-button>
+          <b-button variant="primary" @click="saveSearch">{{ $t('Save') }}</b-button>
+        </div>
+      </b-modal>
 
       <div class="mt-3">
 
