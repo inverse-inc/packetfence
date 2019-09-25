@@ -8,13 +8,14 @@
         :size="size"
         @focus="suspendInterrupt($event)"
         @blur="stopInterrupt($event)" />
-      <b-button
-        type="submit"
-        :variant="variant"
-        :size="size"
-        slot="append">
-        <slot>{{ $t('Confirm') }}</slot>
-      </b-button>
+      <template v-slot:append>
+        <b-button
+          type="submit"
+          :variant="variant"
+          :size="size">
+          <slot>{{ $t('Confirm') }}</slot>
+        </b-button>
+      </template>
     </b-input-group>
     <b-button
       v-else

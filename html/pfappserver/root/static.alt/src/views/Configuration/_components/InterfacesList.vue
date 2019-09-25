@@ -29,10 +29,10 @@
             responsive
             fixed
           >
-            <template slot="empty">
+            <template v-slot:empty>
               <pf-empty-table :isLoading="isInterfacesLoading">{{ $t('No interfaces found') }}</pf-empty-table>
             </template>
-            <template slot="is_running" slot-scope="data">
+            <template v-slot:cell(is_running)="data">
               <pf-form-range-toggle
                 v-model="data.item.is_running"
                 :values="{ checked: true, unchecked: false }"
@@ -43,21 +43,21 @@
                 @click.stop.prevent
               >{{ (data.item.is_running === true) ? $t('up') : $t('down') }}</pf-form-range-toggle>
             </template>
-            <template slot="id" slot-scope="data">
+            <template v-slot:cell(id)="data">
               <span class="text-nowrap mr-2">{{ data.item.name }}</span>
               <b-badge v-if="data.item.vlan" variant="secondary">VLAN {{ data.item.vlan }}</b-badge>
             </template>
-            <template slot="network" slot-scope="data">
+            <template v-slot:cell(network)="data">
               <router-link v-if="layer2NetworkIds.includes(data.value)" :to="{ name: 'layer2_network', params: { id: data.value } }">{{ data.value }}</router-link>
               <template v-else>{{ data.value }}</template>
             </template>
-            <template slot="additional_listening_daemons" slot-scope="data">
+            <template v-slot:cell(additional_listening_daemons)="data">
               <b-badge v-for="(daemon, index) in data.item.additional_listening_daemons" :key="index" class="mr-1" variant="secondary">{{ daemon }}</b-badge>
             </template>
-            <template slot="high_availability" slot-scope="data">
+            <template v-slot:cell(high_availability)="data">
               <icon name="circle" :class="{ 'text-success': data.item.high_availability === 1, 'text-danger': data.item.high_availability === 0 }"></icon>
             </template>
-            <template slot="buttons" slot-scope="data">
+            <template v-slot:cell(buttons)="data">
               <span v-if="data.item.vlan"
                 class="float-right text-nowrap"
               >
@@ -111,10 +111,10 @@
             responsive
             fixed
           >
-            <template slot="empty">
+            <template v-slot:empty>
               <pf-empty-table :isLoading="isLayer2NetworksLoading">{{ $t('No layer2 networks found') }}</pf-empty-table>
             </template>
-            <template slot="dhcpd" slot-scope="data">
+            <template v-slot:cell(dhcpd)="data">
               <icon name="circle" :class="{ 'text-success': data.item.dhcpd === 'enabled', 'text-danger': data.item.dhcpd === 'disabled' }"></icon>
             </template>
           </b-table>
@@ -161,13 +161,13 @@
             responsive
             fixed
           >
-            <template slot="empty">
+            <template v-slot:empty>
               <pf-empty-table :isLoading="isRoutedNetworksLoading">{{ $t('No routed networks found') }}</pf-empty-table>
             </template>
-            <template slot="dhcpd" slot-scope="data">
+            <template v-slot:cell(dhcpd)="data">
               <icon name="circle" :class="{ 'text-success': data.item.dhcpd === 'enabled', 'text-danger': data.item.dhcpd === 'disabled' }"></icon>
             </template>
-            <template slot="buttons" slot-scope="data">
+            <template v-slot:cell(buttons)="data">
               <span class="float-right text-nowrap">
                 <pf-button-delete size="sm" variant="outline-danger" class="mr-1" :disabled="isRoutedNetworksLoading" :confirm="$t('Delete Routed Network?')" @on-delete="removeRoutedNetwork(data.item)" reverse/>
                 <b-button size="sm" variant="outline-primary" class="mr-1" :disabled="isRoutedNetworksLoading" @click.stop.prevent="cloneRoutedNetwork(data.item)">{{ $t('Clone') }}</b-button>

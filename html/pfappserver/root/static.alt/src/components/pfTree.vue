@@ -3,7 +3,7 @@
     <b-table :items="items" :fields="fields" :class="'mb-0 table-clickable table-rowindent-' + level" :sort-by="sortBy" :sort-desc="false"
       small fixed hover show-empty no-local-sorting
       @sort-changed="onSortingChanged" @row-clicked="onRowClick">
-      <template slot="name" slot-scope="row">
+      <template v-slot:cell(name)="row">
         <div class="text-lowercase" variant="link"
           v-if="childrenIf(row.item)"
           :disabled="row.item[childrenKey].length === 0">
@@ -15,7 +15,7 @@
             <icon class="mr-1" name="regular/file"></icon> {{ row.item.name }}
         </div>
       </template>
-      <template slot="buttons" slot-scope="{ item }">
+      <template v-slot:cell(buttons)="{ item }">
         <div class="text-right text-nowrap" v-if="!childrenIf(item)">
           <pf-button-delete size="sm" variant="outline-danger" class="mr-1" :disabled="isLoading" reverse
             v-if="!item.not_deletable" :confirm="$t('Delete?')" @on-delete="onNodeDelete(path + item.name)"/>
@@ -25,7 +25,7 @@
             v-if="previewPath" :href="previewPath(item)" target="_blank">{{ $t('Preview') }} <icon class="ml-1" name="external-link-alt"></icon></b-button>
         </div>
       </template>
-      <template slot="row-details" slot-scope="row">
+      <template v-slot:row-details="row">
         <transition name="fade" mode="out-in">
         <pf-tree
           v-if="childrenIf(row.item)"
@@ -47,7 +47,7 @@
           :level="level + 1"></pf-tree>
         </transition>
       </template>
-      <template slot="empty">
+      <template v-slot:empty>
         <b-container v-if="isLoading" class="my-5">
           <b-row class="justify-content-md-center">
             <b-col cols="12" md="auto">

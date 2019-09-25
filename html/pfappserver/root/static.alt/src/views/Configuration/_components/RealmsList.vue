@@ -2,39 +2,39 @@
   <pf-config-list
     :config="config"
   >
-    <template slot="pageHeader">
+    <template v-slot:pageHeader>
       <h4 class="mb-0 p-4">
         {{ $t('Realms') }}
         <pf-button-help class="ml-1" url="PacketFence_Installation_Guide.html#_default_domain_configuration" />
       </h4>
     </template>
-    <template slot="buttonAdd">
+    <template v-slot:buttonAdd>
       <b-button variant="outline-primary" :to="{ name: 'newRealm' }">{{ $t('New Realm') }}</b-button>
     </template>
-    <template slot="emptySearch" slot-scope="state">
+    <template v-slot:emptySearch="state">
       <pf-empty-table :isLoading="state.isLoading">{{ $t('No realms found') }}</pf-empty-table>
     </template>
-    <template slot="radius_auth" slot-scope="data">
+    <template v-slot:cell(radius_auth)="data">
       <template v-if="data.radius_auth.length === 0">&nbsp;<!-- hide empty --></template>
       <b-badge v-else v-for="(item, index) in data.radius_auth" :key="index" class="ml-2" variant="secondary">{{ item }}</b-badge>
     </template>
-    <template slot="radius_acct" slot-scope="data">
+    <template v-slot:cell(radius_acct)="data">
       <template v-if="data.radius_acct.length === 0">&nbsp;<!-- hide empty --></template>
       <b-badge v-else v-for="(item, index) in data.radius_acct" :key="index" class="ml-2" variant="secondary">{{ item }}</b-badge>
     </template>
-    <template slot="portal_strip_username" slot-scope="data">
+    <template v-slot:cell(portal_strip_username)="data">
       <icon name="circle" :class="{ 'text-success': data.portal_strip_username === 'enabled', 'text-danger': data.portal_strip_username === 'disabled' }"
         v-b-tooltip.hover.left.d300 :title="$t(data.portal_strip_username)"></icon>
     </template>
-    <template slot="admin_strip_username" slot-scope="data">
+    <template v-slot:cell(admin_strip_username)="data">
       <icon name="circle" :class="{ 'text-success': data.admin_strip_username === 'enabled', 'text-danger': data.admin_strip_username === 'disabled' }"
         v-b-tooltip.hover.left.d300 :title="$t(data.admin_strip_username)"></icon>
     </template>
-    <template slot="radius_strip_username" slot-scope="data">
+    <template v-slot:cell(radius_strip_username)="data">
       <icon name="circle" :class="{ 'text-success': data.radius_strip_username === 'enabled', 'text-danger': data.radius_strip_username === 'disabled' }"
         v-b-tooltip.hover.left.d300 :title="$t(data.radius_strip_username)"></icon>
     </template>
-    <template slot="buttons" slot-scope="item">
+    <template v-slot:cell(buttons)="item">
       <span class="float-right text-nowrap">
         <pf-button-delete size="sm" v-if="!item.not_deletable" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete Realm?')" @on-delete="remove(item)" reverse/>
         <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(item)">{{ $t('Clone') }}</b-button>

@@ -55,11 +55,13 @@
           :vuelidate="$v.triggerCopy[category]"
           @validations="triggerValidations[category] = $event"
           border-variant="light">
-          <template slot="header" is="b-card-header"><h5 class="m-0" v-text="forms[category].title"></h5></template>
-          <template slot="footer" is="b-card-footer" class="text-right" @mouseenter="$v.triggerCopy[category].$touch()">
-            <pf-button size="sm" variant="outline-secondary" class="mr-1" @click="resetCategory(category)">{{ $t('Cancel') }}</pf-button>
-            <pf-button size="sm" variant="danger" class="mr-1" v-if="forms[category].deletable" @click="removeCategory(category)">{{ $t('Delete') }}</pf-button>
-            <pf-button-save size="sm" :disabled="invalidForm(category)" @click="updateCategory(category)">{{ $t('OK') }}</pf-button-save>
+          <template v-slot:header><h5 class="m-0" v-text="forms[category].title"></h5></template>
+          <template v-slot:footer>
+            <b-card-footer class="text-right" @mouseenter="$v.triggerCopy[category].$touch()">
+              <pf-button size="sm" variant="outline-secondary" class="mr-1" @click="resetCategory(category)">{{ $t('Cancel') }}</pf-button>
+              <pf-button size="sm" variant="danger" class="mr-1" v-if="forms[category].deletable" @click="removeCategory(category)">{{ $t('Delete') }}</pf-button>
+              <pf-button-save size="sm" :disabled="invalidForm(category)" @click="updateCategory(category)">{{ $t('OK') }}</pf-button-save>
+            </b-card-footer>
           </template>
         </pf-config-view>
       </div>

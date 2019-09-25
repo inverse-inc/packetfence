@@ -6,7 +6,7 @@
 
     <b-tabs ref="tabs" v-model="tabIndex" card>
       <b-tab v-for="tab in tabs" :key="report.category + report.name + tab.name" :title="tab.name" no-body>
-        <template slot="title">
+        <template v-slot:title>
           {{ $t(tab.name) }}
         </template>
         <!-- TABS ARE ONLY VISUAL, NOTHING HERE... -->
@@ -28,10 +28,10 @@
     <div class="card-body">
       <b-table :items="items" :fields="visibleColumns" :sort-by="sortBy" :sort-desc="sortDesc" :sort-compare="sortCompare"
         @sort-changed="onSortingChanged" show-empty responsive hover striped v-model="tableValues">
-        <template slot="empty">
+        <template v-slot:empty>
           <pf-empty-table :isLoading="isLoading">{{ $t('No data found') }}</pf-empty-table>
         </template>
-        <template slot="callingstationid" slot-scope="data">
+        <template v-slot:cell(callingstationid)="data">
           <template v-if="data.value !== 'Total'">
             <router-link :to="{ name: 'node', params: { mac: data.value } }"><mac>{{ data.value }}</mac></router-link>
           </template>
@@ -39,7 +39,7 @@
             {{ data.value }}
           </template>
         </template>
-        <template slot="mac" slot-scope="data">
+        <template v-slot:cell(mac)="data">
           <template v-if="data.value !== 'Total'">
             <router-link :to="{ name: 'node', params: { mac: data.value } }"><mac>{{ data.value }}</mac></router-link>
           </template>
@@ -47,7 +47,7 @@
             {{ data.value }}
           </template>
         </template>
-        <template slot="owner" slot-scope="data">
+        <template v-slot:cell(owner)="data">
           <template v-if="data.value !== 'Total'">
             <router-link :to="{ name: 'user', params: { pid: data.value } }">{{ data.value }}</router-link>
           </template>
@@ -55,7 +55,7 @@
             {{ data.value }}
           </template>
         </template>
-        <template slot="pid" slot-scope="data">
+        <template v-slot:cell(pid)="data">
           <template v-if="data.value !== 'Total'">
             <router-link :to="{ name: 'user', params: { pid: data.value } }">{{ data.value }}</router-link>
           </template>

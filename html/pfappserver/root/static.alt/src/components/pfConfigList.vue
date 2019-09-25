@@ -39,12 +39,14 @@
         striped
         @end="sort"
       >
-        <slot name="emptySearch" slot="empty" v-bind="{ isLoading }">
-          <pf-empty-table :isLoading="isLoading">{{ $t('No results found') }}</pf-empty-table>
-        </slot>
+        <template v-slot:empty>
+          <slot name="emptySearch" v-bind="{ isLoading }">
+            <pf-empty-table :isLoading="isLoading">{{ $t('No results found') }}</pf-empty-table>
+          </slot>
+        </template>
         <!-- Proxy all possible column slots ([field]) into pf-table-sortable slots -->
-        <template v-for="column in config.columns" :slot="column.key" slot-scope="data">
-          <slot :name="column.key" v-bind="data.item">{{ data.item[column.key] }}</slot>
+        <template v-for="column in config.columns" v-slot:[cell(column.key)]="data">
+          <slot :name="cell(column.key)" v-bind:item="data.item">{{ data.item[column.key] }}</slot>
         </template>
       </pf-table-sortable>
 
@@ -61,18 +63,20 @@
         fixed
         striped
       >
-        <slot name="emptySearch" slot="empty" v-bind="{ isLoading }">
-          <pf-empty-table :isLoading="isLoading">{{ $t('No results found') }}</pf-empty-table>
-        </slot>
+        <template v-slot:empty>
+          <slot name="emptySearch" v-bind="{ isLoading }">
+              <pf-empty-table :isLoading="isLoading">{{ $t('No results found') }}</pf-empty-table>
+          </slot>
+        </template>
         <!-- Proxy all possible column slots ([field], HEAD_[field], FOOT_[field]) into b-table slots -->
-        <template v-for="column in config.columns" :slot="column.key" slot-scope="data">
-          <slot :name="column.key" v-bind="data.item">{{ data.item[column.key] }}</slot>
+        <template v-for="column in config.columns" v-slot:[cell(column.key)]="data">
+          <slot :name="cell(column.key)" v-bind="data.item">{{ data.item[column.key] }}</slot>
         </template>
-        <template v-for="column in config.columns" :slot="'HEAD_' + column.key" slot-scope="data">
-          <slot :name="'HEAD_' + column.key">{{ data.label }}</slot>
+        <template v-for="column in config.columns" v-slot:[head(column.key)]="data">
+          <slot :name="head(column.key)">{{ data.label }}</slot>
         </template>
-        <template v-for="column in config.columns" :slot="'FOOT_' + column.key" slot-scope="data">
-          <slot :name="'FOOT_' + column.key">{{ data.label }}</slot>
+        <template v-for="column in config.columns" v-slot:[foot(column.key)]="data">
+          <slot :name="foot(column.key)">{{ data.label }}</slot>
         </template>
       </b-table>
 
@@ -165,6 +169,15 @@ export default {
     }
   },
   methods: {
+    head (name) {
+      return `head(${name})`
+    },
+    cell (name) {
+      return `cell(${name})`
+    },
+    foot (name) {
+      return `foot(${name})`
+    },
     onRowClick (item, index) {
       this.$router.push(this.config.rowClickRoute(item, index))
     },

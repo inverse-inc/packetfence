@@ -15,7 +15,7 @@
         <!-- Forward default slot -->
         <slot/>
         <!-- Forward named slots -->
-        <slot name="first" slot="first"/>
+        <slot name="first" v-slot:first/>
         <!-- END SLOTS -->
       </b-form-select>
     </b-input-group>

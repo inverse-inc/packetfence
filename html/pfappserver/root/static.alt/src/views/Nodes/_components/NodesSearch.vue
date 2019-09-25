@@ -12,7 +12,7 @@
       <b-row align-h="between" align-v="center">
         <b-col cols="auto" class="mr-auto">
           <b-dropdown size="sm" variant="link" :disabled="isLoading || selectValues.length === 0" no-caret no-flip>
-            <template slot="button-content">
+            <template v-slot:button-content>
               <icon name="cog" v-b-tooltip.hover.top.d300 :title="$t('Bulk Actions')"></icon>
             </template>
             <b-dropdown-item @click="applyBulkCloseSecurityEvent()">
@@ -72,7 +72,7 @@
             </b-dropdown-item>
           </b-dropdown>
           <b-dropdown size="sm" variant="link" no-caret>
-            <template slot="button-content">
+            <template v-slot:button-content>
               <icon name="columns" v-b-tooltip.hover.top.d300.window :title="$t('Visible Columns')"></icon>
             </template>
             <template v-for="column in columns">
@@ -115,39 +115,39 @@
         @head-clicked="clearSelected"
         show-empty responsive hover no-local-sorting striped
       >
-        <template slot="HEAD_actions" slot-scope="head">
+        <template v-slot:head(actions)="head">
           <b-form-checkbox id="checkallnone" v-model="selectAll" @change="onSelectAllChange"></b-form-checkbox>
           <b-tooltip target="checkallnone" placement="right" v-if="selectValues.length === tableValues.length">{{ $t('Select None [Alt + N]') }}</b-tooltip>
           <b-tooltip target="checkallnone" placement="right" v-else>{{ $t('Select All [Alt + A]') }}</b-tooltip>
         </template>
-        <template slot="actions" slot-scope="data">
+        <template v-slot:cell(actions)="data">
           <div class="text-nowrap">
             <b-form-checkbox :id="data.value" :value="data.item" v-model="selectValues" @click.native.stop="onToggleSelected($event, data.index)"></b-form-checkbox>
             <icon name="exclamation-triangle" class="ml-1" v-if="tableValues[data.index]._rowMessage" v-b-tooltip.hover.right :title="tableValues[data.index]._rowMessage"></icon>
           </div>
         </template>
-        <template slot="status" slot-scope="data">
+        <template v-slot:cell(status)="data">
           <b-badge pill variant="success" v-if="data.value === 'reg'">{{ $t('registered') }}</b-badge>
           <b-badge pill variant="light" v-else>{{ $t('unregistered') }}</b-badge>
         </template>
-        <template slot="online" slot-scope="data">
+        <template v-slot:cell(online)="data">
           <b-badge pill variant="success" v-if="data.value === 'on'">{{ $t('on') }}</b-badge>
           <b-badge pill variant="danger" v-else-if="data.value === 'off'">{{ $t('off') }}</b-badge>
           <b-badge pill variant="info" v-else>{{ $t('unknown') }}</b-badge>
         </template>
-        <template slot="mac" slot-scope="data">
+        <template v-slot:cell(mac)="data">
           <mac v-text="data.value"></mac>
         </template>
-        <template slot="pid" slot-scope="data">
+        <template v-slot:cell(pid)="data">
           <b-button variant="link" :to="{ name: 'user', params: { pid: data.value } }">{{ data.value }}</b-button>
         </template>
-        <template slot="device_score" slot-scope="data">
+        <template v-slot:cell(device_score)="data">
           <pf-fingerbank-score :score="data.value"></pf-fingerbank-score>
         </template>
-        <template slot="locationlog.switch_ip" slot-scope="data">
+        <template v-slot:cell(locationlog.switch_ip)="data">
           <b-button variant="link" :to="{ name: 'switch', params: { id: data.value } }">{{ data.value }}</b-button>
         </template>
-        <template slot="empty">
+        <template v-slot:empty>
           <pf-empty-table :isLoading="isLoading">{{ $t('No node found') }}</pf-empty-table>
         </template>
       </b-table>
@@ -157,7 +157,7 @@
         <b-form-input ref="bypassVlanInput" v-model="bypassVlanString" type="text" :placeholder="$t('Enter a VLAN')"/>
         <b-form-text v-t="'Leave empty to clear bypass VLAN.'"></b-form-text>
       </b-form-group>
-      <div slot="modal-footer">
+      <div v-slot:modal-footer>
         <b-button variant="secondary" class="mr-1" @click="showBypassVlanModal=false">{{ $t('Cancel') }}</b-button>
         <b-button variant="primary" @click="applyBulkBypassVlan()">{{ $t('Apply') }}</b-button>
       </div>

@@ -3,19 +3,19 @@
     ref="pfConfigList"
     :config="config"
   >
-    <template slot="pageHeader">
+    <template v-slot:pageHeader>
       <b-card-header>
         <h4 class="mb-3" v-t="'Maintenance Tasks'"></h4>
         <p class="mb-0" v-t="'Enabling or disabling a task as well as modifying its interval requires a restart of pfmon to be fully effective.'"></p>
       </b-card-header>
     </template>
-    <template slot="buttonAdd">
+    <template v-slot:buttonAdd>
       <pf-button-service service="pfmon" class="mr-1" restart start stop :disabled="isLoading"></pf-button-service>
     </template>
-    <template slot="emptySearch" slot-scope="state">
-        <pf-empty-table :isLoading="state.isLoading">{{ $t('No maintenance tasks found') }}</pf-empty-table>
+    <template v-slot:emptySearch="state">
+      <pf-empty-table :isLoading="state.isLoading">{{ $t('No maintenance tasks found') }}</pf-empty-table>
     </template>
-    <template slot="status" slot-scope="data">
+    <template v-slot:cell(status)="data">
       <pf-form-range-toggle
         v-model="data.status"
         :values="{ checked: 'enabled', unchecked: 'disabled' }"
@@ -26,7 +26,7 @@
         @click.stop.prevent
       >{{ (data.status === 'enabled') ? $t('Enabled') : $t('Disabled') }}</pf-form-range-toggle>
     </template>
-    <template slot="interval" slot-scope="item">
+    <template v-slot:cell(interval)="item">
       {{ item.interval.interval }}{{ item.interval.unit }}
     </template>
   </pf-config-list>

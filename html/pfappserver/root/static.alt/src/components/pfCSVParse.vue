@@ -112,14 +112,14 @@
             @row-clicked="onRowClick"
             @head-clicked="clearSelected"
             hover outlined responsive show-empty no-local-sorting striped>
-            <template slot="HEAD_actions" slot-scope="head">
+            <template v-slot:head(actions)="head">
               <div class="text-center">
                 <b-form-checkbox id="checkallnone" v-model="selectAll" :disabled="isLoading" @change="onSelectAllChange"></b-form-checkbox>
                 <b-tooltip target="checkallnone" placement="right" v-if="selectValues.length === tableValues.length">{{ $t('Select None [Alt + N]') }}</b-tooltip>
                 <b-tooltip target="checkallnone" placement="right" v-else>{{ $t('Select All [Alt + A]') }}</b-tooltip>
               </div>
             </template>
-            <template slot="actions" slot-scope="data">
+            <template v-slot:cell(actions)="data">
               <div class="text-center">
                 <b-form-checkbox :id="data.value" :value="data.item" :disabled="isLoading || rowDisabled(data.index)" v-model="selectValues" @click.native.stop="onToggleSelected($event, data.index)">
                   <div v-if="rowMessage(data.index)" v-b-tooltip.hover.right :title="rowMessage(data.index)">
@@ -129,14 +129,14 @@
               </div>
             </template>
 
-            <template slot="top-row" slot-scope="data">
+            <template v-slot:top-row="data">
               <td v-for="column in data.columns" :key="column" :class="['p-1', {'table-danger': column === 1 && selectValues.length === 0 }]">
                 <pf-form-select v-if="column > 1"
                   v-model="tableMapping[column - 2]"
                   :disabled="isLoading"
                   :vuelidate="$v.tableMapping"
                   >
-                  <template slot="first">
+                  <template v-slot:first>
                     <option :value="null">-- {{ $t('Ignore field') }} --</option>
                   </template>
                   <optgroup :label="$t('Required fields')">
@@ -148,7 +148,7 @@
                 </pf-form-select>
               </td>
             </template>
-            <template slot="bottom-row" slot-scope="data" class="bg-white">
+            <template v-slot:bottom-row="data" class="bg-white">
               <td :colspan="data.columns">
 
                 <b-row align-v="start" class="mx-0 px-0 mb-3" v-for="(staticMap, index) in staticMapping" :key="index">
@@ -264,7 +264,7 @@
                 <b-row fluid class="mx-0 px-0 mb-3" v-if="staticMappingOptions().filter(f => f.value && !f.disabled).length > 0">
                   <b-col cols="3" class="ml-0 mr-1 px-0">
                     <b-form-select v-model="staticMappingNew" :options="staticMappingOptions()" :disabled="isLoading">
-                      <template slot="first">
+                      <template v-slot:first>
                         <option :value="null" disabled>-- {{ $t('Choose static field') }} --</option>
                       </template>
                     </b-form-select>
@@ -296,7 +296,7 @@
               <b-col cols="12" md="auto">
                 <icon v-if="isLoading" name="sync" scale="2" spin></icon>
                 <b-media v-else>
-                  <icon name="ruler-combined" scale="2" slot="aside"></icon>
+                  <template v-slot:aside><icon name="ruler-combined" scale="2"></icon></template>
                   <h5 v-t="'CSV could not be parsed'"></h5>
                   <p class="font-weight-light">{{ $t('Please refine CSV parser options.') }}</p>
                 </b-media>

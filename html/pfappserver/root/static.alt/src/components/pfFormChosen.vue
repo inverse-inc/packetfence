@@ -1,7 +1,7 @@
 <template>
   <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="columnLabel" :state="isValid()"
     class="pf-form-chosen" :class="{ 'mb-0': !columnLabel, 'is-focus': focus, 'is-empty': !value, 'is-disabled': disabled }">
-    <template slot="invalid-feedback">
+    <template v-slot:invalid-feedback>
       <icon name="circle-notch" spin v-if="!getInvalidFeedback()"></icon> {{ feedbackState }}
     </template>
     <b-input-group>
@@ -33,18 +33,20 @@
         @open="onFocus"
         @close="onBlur"
       >
-        <b-media slot="noResult" class="text-secondary" md="auto">
-          <template v-if="loading">
-            <icon name="circle-notch" spin scale="2" slot="aside" class="mt-1 ml-2"></icon>
-            <strong>{{ $t('Loading results') }}</strong>
-            <b-form-text class="font-weight-light">{{ $t('Please wait...') }}</b-form-text>
-          </template>
-          <template v-else>
-            <icon name="search" scale="2" slot="aside" class="mt-1 ml-2"></icon>
-            <strong>{{ $t('No results') }}</strong>
-            <b-form-text class="font-weight-light">{{ $t('Please refine your search.') }}</b-form-text>
-          </template>
-        </b-media>
+        <template v-slot:noResult>
+          <b-media class="text-secondary" md="auto">
+            <template v-if="loading">
+              <template v-slot:aside><icon name="circle-notch" spin scale="2" class="mt-1 ml-2"></icon></template>
+              <strong>{{ $t('Loading results') }}</strong>
+              <b-form-text class="font-weight-light">{{ $t('Please wait...') }}</b-form-text>
+            </template>
+            <template v-else>
+              <template v-slot:aside><icon name="search" scale="2" class="mt-1 ml-2"></icon></template>
+              <strong>{{ $t('No results') }}</strong>
+              <b-form-text class="font-weight-light">{{ $t('Please refine your search.') }}</b-form-text>
+            </template>
+          </b-media>
+        </template>
       </multiselect>
       <b-input-group-append v-if="readonly || disabled">
         <b-button class="input-group-text" tabindex="-1" disabled><icon name="lock"></icon></b-button>

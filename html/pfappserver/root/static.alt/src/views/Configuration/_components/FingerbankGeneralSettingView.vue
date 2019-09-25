@@ -8,7 +8,7 @@
     @validations="formValidations = $event"
     @save="save"
   >
-    <template slot="header" is="b-card-header">
+    <template v-slot:header>
       <h4 class="mb-0">
         <span>{{ $t('Account information on api.fingerbank.org') }}</span>
         <b-button v-if="accountInfo" size="sm" variant="secondary" class="ml-2" :href="urlSSO" target="_blank">
@@ -31,7 +31,7 @@
         </b-row>
       </template>
     </template>
-    <template slot="footer">
+    <template v-slot:footer>
       <b-card-footer @mouseenter="$v.form.$touch()">
         <pf-button-save :disabled="invalidForm" :isLoading="isLoading">
           <template>{{ $t('Save') }}</template>

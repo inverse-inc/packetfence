@@ -13,7 +13,7 @@
         <b-col cols="auto" class="mr-auto">
 
           <b-dropdown size="sm" variant="link" :disabled="isLoading || selectValues.length === 0" no-caret>
-            <template slot="button-content">
+            <template v-slot:button-content>
               <icon name="cog" v-b-tooltip.hover.top.d300 :title="$t('Bulk Actions')"></icon>
             </template>
             <b-dropdown-item @click="applyBulkCloseSecurityEvent()">
@@ -73,7 +73,7 @@
 
           </b-dropdown>
           <b-dropdown size="sm" variant="link" no-caret>
-            <template slot="button-content">
+            <template v-slot:button-content>
               <icon name="columns" v-b-tooltip.hover.top.d300.window :title="$t('Visible Columns')"></icon>
             </template>
             <template v-for="column in columns">
@@ -107,18 +107,18 @@
       <b-table class="table-clickable" :items="items" :fields="visibleColumns" :sort-by="sortBy" :sort-desc="sortDesc" v-model="tableValues"
         @sort-changed="onSortingChanged" @row-clicked="onRowClick" @head-clicked="clearSelected"
         show-empty responsive hover no-local-sorting striped>
-        <template slot="HEAD_actions" slot-scope="head">
+        <template v-slot:head(actions)="head">
           <b-form-checkbox id="checkallnone" v-model="selectAll" :disabled="isLoading" @change="onSelectAllChange"></b-form-checkbox>
           <b-tooltip target="checkallnone" placement="right" v-if="selectValues.length === tableValues.length">{{ $t('Select None [Alt + N]') }}</b-tooltip>
           <b-tooltip target="checkallnone" placement="right" v-else>{{ $t('Select All [Alt + A]') }}</b-tooltip>
         </template>
-        <template slot="actions" slot-scope="data">
+        <template v-slot:cell(actions)="data">
           <b-form-checkbox :disabled="isLoading" :id="data.value" :value="data.item" v-model="selectValues" @click.native.stop="onToggleSelected($event, data.index)"></b-form-checkbox>
           <!--
           <icon name="exclamation-triangle" class="ml-1" v-if="tableValues[data.index]._rowMessage" v-b-tooltip.hover.right.d300 :title="tableValues[data.index]._rowMessage"></icon>
           -->
         </template>
-        <template slot="empty">
+        <template v-slot:empty>
           <pf-empty-table :isLoading="isLoading">{{ $t('No user found') }}</pf-empty-table>
         </template>
       </b-table>

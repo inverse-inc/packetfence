@@ -18,7 +18,7 @@
  <template>
   <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="columnLabel" :state="isValid()"
     class="pf-form-datetime" :class="{ 'mb-0': !columnLabel, 'is-focus': focus}">
-    <template slot="invalid-feedback">
+    <template v-slot:invalid-feedback>
       <icon name="circle-notch" spin v-if="!getInvalidFeedback()"></icon> {{ feedbackState }}
     </template>
     <b-input-group class="pf-form-datetime-input-group">

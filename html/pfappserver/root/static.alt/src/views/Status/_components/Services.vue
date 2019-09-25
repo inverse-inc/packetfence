@@ -17,10 +17,10 @@
           fixed
           striped
         >
-          <template slot="empty">
+          <template v-slot:empty>
             <pf-empty-table :isLoading="isLoading">{{ $t('No Services found') }}</pf-empty-table>
           </template>
-          <template slot="enabled" slot-scope="service">
+          <template v-slot:cell(enabled)="service">
             <pf-form-range-toggle
               v-model="service.item.enabled"
               :values="{ checked: true, unchecked: false }"
@@ -30,7 +30,7 @@
               @click.stop.prevent
             >{{ (service.item.enabled === true) ? $t('Enabled') : $t('Disabled') }}</pf-form-range-toggle>
           </template>
-          <template slot="alive" slot-scope="service">
+          <template v-slot:cell(alive)="service">
             <pf-form-range-toggle
               v-model="service.item.alive"
               :values="{ checked: true, unchecked: false }"
@@ -40,7 +40,7 @@
               @click.stop.prevent
             >{{ (service.item.alive === true) ? $t('Running') : $t('Stopped') }}</pf-form-range-toggle>
           </template>
-          <template slot="pid" slot-scope="service">
+          <template v-slot:cell(pid)="service">
             <icon v-if="![200, 'error'].includes(service.item.status)" name="circle-notch" spin></icon>
             <span v-else-if="service.item.alive">{{ service.item.pid }}</span>
           </template>
@@ -77,17 +77,17 @@
           fixed
           striped
         >
-          <template slot="empty">
+          <template v-slot:empty>
             <pf-empty-table :isLoading="isLoading">{{ $t('No Services found') }}</pf-empty-table>
           </template>
-          <template slot="name" slot-scope="service" class="align-items-center">
+          <template v-slot:cell(name)="service" class="align-items-center">
             <icon v-if="!service.item.alive && service.item.managed"
               name="exclamation-triangle" size="sm" class="text-danger mr-1" v-b-tooltip.hover.top.d300 :title="$t('Service {name} is required with this configuration.', { name: service.item.name})"></icon>
             <icon v-if="service.item.alive && !service.item.managed"
               name="exclamation-triangle" size="sm" class="text-success mr-1" v-b-tooltip.hover.top.d300 :title="$t('Service {name} is not required with this configuration.', { name: service.item.name})"></icon>
             {{ service.item.name }}
           </template>
-          <template slot="enabled" slot-scope="service">
+          <template v-slot:cell(enabled)="service">
             <pf-form-range-toggle
               v-model="service.item.enabled"
               :values="{ checked: true, unchecked: false }"
@@ -97,7 +97,7 @@
               @click.stop.prevent
             >{{ (service.item.enabled === true) ? $t('Enabled') : $t('Disabled') }}</pf-form-range-toggle>
           </template>
-          <template slot="alive" slot-scope="service" class="text-nowrap">
+          <template v-slot:cell(alive)="service" class="text-nowrap">
             <pf-form-range-toggle
               v-model="service.item.alive"
               :values="{ checked: true, unchecked: false }"
@@ -109,7 +109,7 @@
               @click.stop.prevent
             >{{ (service.item.alive === true) ? $t('Running') : $t('Stopped') }}</pf-form-range-toggle>
           </template>
-          <template slot="pid" slot-scope="service">
+          <template v-slot:cell(pid)="service">
             <icon v-if="![200, 'error'].includes(service.item.status)" name="circle-notch" spin></icon>
             <span v-else-if="service.item.alive">{{ service.item.pid }}</span>
           </template>

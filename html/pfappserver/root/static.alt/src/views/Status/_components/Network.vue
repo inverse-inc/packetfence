@@ -63,7 +63,7 @@
       <b-modal v-model="showSaveSearchModal" size="sm" centered id="saveSearchModal" :title="$t('Save Search')" @shown="focusSaveSearchInput">
         <b-form-input ref="saveSearchInput" v-model="saveSearchString" type="text"
           :placeholder="$t('Enter a unique name')" @keyup="keyUpSaveSearchInput"/>
-        <div slot="modal-footer">
+        <div v-slot:modal-footer>
           <b-button variant="secondary" class="mr-1" @click="showSaveSearchModal=false">{{ $t('Cancel') }}</b-button>
           <b-button variant="primary" @click="saveSearch">{{ $t('Save') }}</b-button>
         </div>

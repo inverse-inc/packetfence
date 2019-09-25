@@ -30,7 +30,7 @@
           {{ itemIndex + 1 }}
         </b-col>
         <b-col v-for="(field, fieldIndex) in visibleFields" :key="fieldIndex" @click.stop="clickRow(item)">
-          <slot :name="field.key" v-bind="{ item }">{{ item[field.key] }}</slot>
+          <slot :name="cell(field.key)" v-bind="{ item }">{{ item[field.key] }}</slot>
         </b-col>
       </b-row>
       <draggable
@@ -60,7 +60,7 @@
             </template>
           </b-col>
           <b-col v-for="(field, fieldIndex) in visibleFields" :key="fieldIndex" @click.stop="clickRow(item)">
-            <slot :name="field.key" v-bind="{ item }">{{ item[field.key] }}</slot>
+            <slot :name="cell(field.key)" v-bind="{ item }">{{ item[field.key] }}</slot>
           </b-col>
         </b-row>
       </draggable>
@@ -125,6 +125,9 @@ export default {
     }
   },
   methods: {
+    cell (name) {
+      return `cell(${name})`
+    },
     clickRow (item) {
       this.$emit('row-clicked', item)
     },
