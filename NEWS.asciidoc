@@ -17,10 +17,9 @@ Version X.Y.Z released on xxxx-xx-xx
 New Features
 ++++++++++++
 
-
 Enhancements
 ++++++++++++
-
+* Network visualization now supports custom sorting, min/max graph sizing, variable real-time network live-view, and infinite depth of switch-group inheritance.
 
 Bug Fixes
 +++++++++
