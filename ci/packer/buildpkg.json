@@ -102,7 +102,6 @@
                                  "GOPATH={{user `go_path`}}",
                                  "GO_REPO={{user `go_repo`}}/{{user `go_extra_path`}}"
                                 ]
-
         },
         {
             "type": "file",
@@ -126,7 +125,7 @@
         {
             "type": "shell",
             "inline": ["rm -rf {{user `tmp_dir`}}/rpm",
-                       "yum clean all",
+                       "yum clean all"
                       ],
             "only": ["{{user `builder_prefix`}}-centos-7"]
         },
@@ -138,7 +137,7 @@
             "only": ["{{user `builder_prefix`}}-stretch",
                      "{{user `builder_prefix`}}-buster"
                     ]
-        },
+        }
 
     ],
     "post-processors": [
