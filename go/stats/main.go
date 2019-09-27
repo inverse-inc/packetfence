@@ -127,8 +127,13 @@ func (s ldaptype) Test(source interface{}, ctx context.Context) {
 	t := StatsdClient.NewTiming()
 	sources := strings.Split(source.(pfconfigdriver.AuthenticationSourceLdap).Host, ",")
 	for num, src := range sources {
-		l, err := ldap.Dial("tcp", fmt.Sprintf("%s:%s", src, source.(pfconfigdriver.AuthenticationSourceLdap).Port))
-
+		var l *Conn
+		var err error
+		if source.(pfconfigdriver.AuthenticationSourceLdap).Encryption != "ssl" {
+			l, err = ldap.Dial("tcp", fmt.Sprintf("%s:%s", src, source.(pfconfigdriver.AuthenticationSourceLdap).Port))
+		} else {
+			l, err = ldap.DialTLS("tcp", fmt.Sprintf("%s:%s", src, source.(pfconfigdriver.AuthenticationSourceLdap).Port), &tls.Config{InsecureSkipVerify: true})
+		}
 		if err != nil {
 			StatsdClient.Gauge("source."+source.(pfconfigdriver.AuthenticationSourceLdap).Type+"."+source.(pfconfigdriver.AuthenticationSourceLdap).PfconfigHashNS+strconv.Itoa(num), 0)
 			log.LoggerWContext(ctx).Error("Error connecting to LDAP source: " + err.Error())
@@ -137,6 +142,7 @@ func (s ldaptype) Test(source interface{}, ctx context.Context) {
 			// Reconnect with TLS
 			if source.(pfconfigdriver.AuthenticationSourceLdap).Encryption != "none" {
 				err = l.StartTLS(&tls.Config{InsecureSkipVerify: true})
+
 				if err != nil {
 					log.LoggerWContext(ctx).Crit("Error connecting to LDAP source using TLS: " + err.Error())
 				}
