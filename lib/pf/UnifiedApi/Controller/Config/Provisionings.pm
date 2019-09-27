@@ -64,6 +64,14 @@ sub type_lookup {
     return \%TYPES_TO_FORMS;
 }
  
+=head2 fields_to_mask
+
+fields_to_mask
+
+=cut
+
+sub fields_to_mask { qw(access_token refresh_token password passcode private_key applicationSecret access_token) }
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
@@ -92,4 +100,3 @@ USA.
 =cut
 
 1;
-

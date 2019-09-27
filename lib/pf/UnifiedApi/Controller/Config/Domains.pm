@@ -128,6 +128,14 @@ sub rejoin {
     $self->handle_domain_operation("rejoin");
 }
 
+=head2 fields_to_mask
+
+fields_to_mask
+
+=cut
+
+sub fields_to_mask { qw(bind_pass password) }
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
