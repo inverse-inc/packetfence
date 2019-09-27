@@ -93,7 +93,7 @@ func updateClusterRequest(ctx context.Context, origReq *http.Request) {
 }
 
 func (IPSET *pfIPSET) mac2ip(ctx context.Context, Mac string, Set ipset.IPSet) []string {
-	r := "((?:[0-9]{1,3}.){3}(?:[0-9]{1,3}))," + Mac
+	r := "(?i)((?:[0-9]{1,3}.){3}(?:[0-9]{1,3}))," + Mac
 
 	rgx := regexp.MustCompile(r)
 
@@ -215,7 +215,7 @@ func (IPSET *pfIPSET) detectType(ctx context.Context) error {
 }
 
 func validateMac(mac string) (string, bool) {
-	re := regexp.MustCompile("(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}")
+	re := regexp.MustCompile("(?i)(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}")
 	if re.Match([]byte(mac)) {
 		return mac, true
 	}
