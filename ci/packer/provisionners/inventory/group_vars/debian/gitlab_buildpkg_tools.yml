@@ -13,4 +13,4 @@ gitlab_buildpkg_tools__deb_deps_repos:
 
 # we only add repos, packages install will occur
 # during build depencies install from SPEC files
-gitlab_buildpkg_tools__deb_built_pkg: []
+gitlab_buildpkg_tools__deb_pkgs: []
