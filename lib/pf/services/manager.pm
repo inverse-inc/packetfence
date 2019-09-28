@@ -419,10 +419,10 @@ checks if process is alive
 sub isAlive {
     my ($self) = @_;
     my $logger = get_logger();
-    my $name = $self->{name};
-    my $res = system("sudo systemctl status packetfence-$name &> /dev/null");
+    my $target = $self->systemdTarget;
+    my $res = system("sudo systemctl -q is-active $target &> /dev/null");
     my $alive = $res == 0 ? 1 : 0;
-    $logger->debug("sudo systemctl status packetfence-$name returned code $res");
+    $logger->debug("sudo systemctl -q is-active $target returned code $res");
     return $alive;
 }
 
