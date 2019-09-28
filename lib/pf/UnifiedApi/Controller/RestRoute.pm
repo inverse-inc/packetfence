@@ -59,6 +59,7 @@ sub search {
 
 sub escape_url_param {
     my ($self, $param) = @_;
+    return $param unless defined $param;
     $param = url_unescape($param);
     $param =~ s/~/\//g;
     return $param;
