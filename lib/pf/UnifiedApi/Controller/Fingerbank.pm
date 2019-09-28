@@ -303,9 +303,17 @@ sub update {
 
     my $old_item = $self->item;
     my $new_item = {%$old_item, %$new_data};
+    my $model = $self->fingerbank_model;
+    my $db = fingerbank::DB_Factory->instantiate(schema => 'Local');
+    my $source =  $db->handle->source($model->_parseClassName);
+    my %data;
+    for my $c ($source->columns) {
+        next if !exists $new_item->{$c};
+        $data{$c} = $new_item->{$c};
+    }
 
     my $id = $self->id;
-    my ($status, $message) = $self->fingerbank_model->update($id, $new_item);
+    my ($status, $message) = $model->update($id, \%data);
     if (is_error($status)) {
         $self->render_error($status, $message);
     }

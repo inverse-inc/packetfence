@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 18;
+use Test::More tests => 24;
 use Test::Mojo;
 
 #This test will running last
@@ -47,6 +47,15 @@ $t->get_ok($location)
   ->status_is(200)
   ->json_is("/item/mac" => "00:22:33")
   ->json_is("/item/name" => "me");
+
+$t->patch_ok($location => json => { "garabage_field_$$" =>  \1, mac => "00:22:44" })
+  ->status_is(200);
+
+$t->get_ok($location)
+  ->status_is(200)
+  ->json_is("/item/mac" => "00:22:44")
+  ->json_is("/item/name" => "me");
+
 
 $t->post_ok("/api/v1/fingerbank/local/mac_vendors/search" => json =>{ query => {op => "equals", field => "name", value => "me"}})
   ->status_is(200)
