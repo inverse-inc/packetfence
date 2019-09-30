@@ -224,7 +224,7 @@ fields_to_mask
 
 =cut
 
-sub fields_to_mask { qw(radius_secret client_secret api_key shared_secret_direct shared_secret client_secret) }
+sub fields_to_mask { qw(radius_secret client_secret api_key shared_secret_direct shared_secret secret) }
 
 =head1 AUTHOR
 
