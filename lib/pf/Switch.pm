@@ -63,6 +63,9 @@ use File::Spec::Functions;
 use File::FcntlLock;
 use JSON::MaybeXS;
 
+our $DEFAULT_COA_PORT = 1700;
+our $DEFAULT_DISCONNECT_PORT = 3799;
+
 #
 # %TRAP_NORMALIZERS
 # A hash of cisco trap normalizers
@@ -3740,6 +3743,16 @@ sub getCiscoAvPairAttribute {
     );
 
     return ;
+}
+
+sub coaPort {
+    my ($self) = @_;
+    return $self->{'_coaPort'} || $DEFAULT_COA_PORT;
+}
+
+sub disconnectPort {
+    my ($self) = @_;
+    return $self->{'_disconnectPort'} || $DEFAULT_DISCONNECT_PORT;
 }
 
 =back
