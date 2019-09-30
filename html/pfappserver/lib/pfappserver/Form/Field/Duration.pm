@@ -50,6 +50,7 @@ sub _wrapper_class { [qw(compound-input-btn-group)] }
 has_field 'interval' =>
   (
    type => 'PosInteger',
+   required => 1,
    do_label => 0,
    widget_wrapper => 'None',
    apply => [ { check => qr/^[0-9]+$/ } ],
@@ -57,6 +58,7 @@ has_field 'interval' =>
 has_field 'unit' =>
   (
    type => 'Select',
+   required => 1,
    do_label => 0,
    localize_labels => 1,
    tags => { no_errors => 1 },
