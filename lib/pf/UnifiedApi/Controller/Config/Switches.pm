@@ -73,6 +73,12 @@ sub standardPlaceholder {
     return $self->_cleanup_placeholder($self->cleanup_item($values));
 }
 
+sub form_parameters {
+    [
+        inactive => [ qw(always_trigger) ],
+    ];
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
