@@ -254,13 +254,13 @@ func (IPSET *pfIPSET) IPSEThandleLayer2(ctx context.Context, Ip string, Mac stri
 		r := ipset.Test(v.Name, Ip)
 		if r == nil {
 			IPSET.jobs <- job{"Del", v.Name, Ip}
-			logger.Info("Removed " + Ip + " from " + v.Name)
+			logger.Info("Removed " + Ip + " from " + v.Name + " Mac: " + Mac)
 		}
 		// Delete all entries with old ip addresses
 		Ips := IPSET.mac2ip(ctx, Mac, v)
 		for _, i := range Ips {
 			IPSET.jobs <- job{"Del", v.Name, i}
-			logger.Info("Removed " + i + " from " + v.Name)
+			logger.Info("Removed old ip " + i + " from " + v.Name + " Mac: " + Mac)
 		}
 	}
 	// Add to the new ipset session
@@ -269,7 +269,7 @@ func (IPSET *pfIPSET) IPSEThandleLayer2(ctx context.Context, Ip string, Mac stri
 	if Type == "Reg" {
 		// Add to the ip ipset session
 		IPSET.jobs <- job{"Add", "PF-iL2_ID" + RoleId + "_" + Network, Ip}
-		logger.Info("Added " + Ip + " to PF-iL2_ID" + RoleId + "_" + Network)
+		logger.Info("Added " + Ip + " to PF-iL2_ID" + RoleId + "_" + Network + " Mac: " + Mac)
 	}
 }
 
