@@ -293,7 +293,7 @@ $t->options_ok("/api/v1/config/syslog_parsers?type=regex")->status_is(200)
                                     default     => 0,
                                     min_value   => 0,
                                     placeholder => undef,
-                                    required    => $false,
+                                    required    => $true,
                                     type        => "integer"
                                 },
                                 unit => {
@@ -329,7 +329,7 @@ $t->options_ok("/api/v1/config/syslog_parsers?type=regex")->status_is(200)
                                     ],
                                     default     => 's',
                                     placeholder => undef,
-                                    required    => $false,
+                                    required    => $true,
                                     type        => "string"
                                 }
                             },
