@@ -1,5 +1,5 @@
 --                                                                                                                     
--- PacketFence SQL schema upgrade from X.X.X to X.Y.Z
+-- PacketFence SQL schema upgrade from 9.1.0 to 9.2.0
 --                                                                                                                     
                                                                                                                        
 
@@ -7,13 +7,13 @@
 -- Setting the major/minor/sub-minor version of the DB                                                                 
 --                                                                                                                     
 
-SET @MAJOR_VERSION = X; 
-SET @MINOR_VERSION = Y;
-SET @SUBMINOR_VERSION = Z;                                                                                             
+SET @MAJOR_VERSION = 9;
+SET @MINOR_VERSION = 1;
+SET @SUBMINOR_VERSION = 9;
                                                                                                                        
-SET @PREV_MAJOR_VERSION = X;                                                                                           
-SET @PREV_MINOR_VERSION = X;
-SET @PREV_SUBMINOR_VERSION = X;                                                                                        
+SET @PREV_MAJOR_VERSION = 9;
+SET @PREV_MINOR_VERSION = 1;
+SET @PREV_SUBMINOR_VERSION = 0;
                                                                                                                        
 
 --                                                                                                                     
@@ -46,6 +46,6 @@ END
 
 DELIMITER ;                                                                                                            
 call ValidateVersion;                                                                                                  
-
+DROP PROCEDURE IF EXISTS ValidateVersion;
 
 INSERT INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION)); 
