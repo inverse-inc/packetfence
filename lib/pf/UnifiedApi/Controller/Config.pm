@@ -16,6 +16,7 @@ use strict;
 use warnings;
 use Mojo::Base qw(pf::UnifiedApi::Controller::RestRoute);
 use pf::constants;
+use List::MoreUtils qw(any);
 use pf::UnifiedApi::OpenAPI::Generator::Config;
 use pf::UnifiedApi::GenerateSpec;
 use Mojo::Util qw(url_unescape);
@@ -669,8 +670,29 @@ sub field_extra_meta {
             $self->field_integer_meta($field, \%extra);
         }
     }
+    if ($field->has_required_when) {
+        my $required_when = $self->field_required_when($field, $meta, $parent_meta);
+        if (defined $required_when) {
+            $extra{required_when} = $required_when;
+        }
+    }
 
     return %extra;
+}
+
+=head2 field_required_when
+
+field_required_when
+
+=cut
+
+sub field_required_when {
+    my ($self, $field, $meta, $parent_meta) = @_;
+    my $required_when = $field->required_when;
+    if (any { ref $_ } values %$required_when) {
+        return undef;
+    }
+    return $required_when;
 }
 
 =head2 field_meta_object_properties

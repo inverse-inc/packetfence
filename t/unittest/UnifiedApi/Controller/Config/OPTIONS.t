@@ -127,6 +127,20 @@ $t->options_ok("/api/v1/config/syslog_parsers")
     }
 );
 
+$t->options_ok("/api/v1/config/provisionings?type=mobileconfig")
+  ->status_is(200)->json_is(
+    "/meta/server_certificate_path",
+    {
+        default       => undef,
+        placeholder   => undef,
+        required      => $false,
+        required_when => {
+            eap_type => 25,
+        },
+        type => "string"
+    }
+  );
+
 $t->options_ok("/api/v1/config/syslog_parsers?type=regex")->status_is(200)
   ->json_is(
     {
