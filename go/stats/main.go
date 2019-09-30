@@ -140,7 +140,7 @@ func (s ldaptype) Test(source interface{}, ctx context.Context) {
 		} else {
 			defer l.Close()
 			// Reconnect with TLS
-			if source.(pfconfigdriver.AuthenticationSourceLdap).Encryption != "none" {
+			if source.(pfconfigdriver.AuthenticationSourceLdap).Encryption == "starttls" {
 				err = l.StartTLS(&tls.Config{InsecureSkipVerify: true})
 
 				if err != nil {
