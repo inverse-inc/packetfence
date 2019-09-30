@@ -127,7 +127,7 @@ func (s ldaptype) Test(source interface{}, ctx context.Context) {
 	t := StatsdClient.NewTiming()
 	sources := strings.Split(source.(pfconfigdriver.AuthenticationSourceLdap).Host, ",")
 	for num, src := range sources {
-		var l *Conn
+		var l *ldap.Conn
 		var err error
 		if source.(pfconfigdriver.AuthenticationSourceLdap).Encryption != "ssl" {
 			l, err = ldap.Dial("tcp", fmt.Sprintf("%s:%s", src, source.(pfconfigdriver.AuthenticationSourceLdap).Port))
