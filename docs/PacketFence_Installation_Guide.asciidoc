@@ -1228,18 +1228,26 @@ Local authentication
 image::internal-eduroam-authentication.png[scaledwidth="100%",alt="Internal eduroam authentication"]
 
 1: The device connects on the eduroam SSID.
-2: The access point forward the authentication request to the wireless controller.
-3: The controller sends the radius authentication to PacketFence on port 11812.
-4: PacketFence checks if it's a local REALM.
-5: If it's local REALM, PacketFence does a NTLM request to the AD to verify the identity.
-5a: The AD validated the credentials.
-5b: The AD did not validate the credentials. PacketFence sends a Radius Reject 
-5c: After a successful NTLM authentication, PacketFence returns a Radius Acess Accept to the wireless controller to apply the production VLAN for that mac address.
-6: If it's a not local REALM, PacketFence proxy the radius request to the eduroam servers
-7: The eduroam servers validate the identity
-8: PacketFence returns a Radius Acess Accept to the wireless controller to apply the production VLAN for that mac address.
 
-In order for PacketFence to allow Eduroam authentication configure the following steps:
+2: The access point forward the authentication request to the wireless controller.
+
+3: The controller sends the radius authentication to PacketFence on port 11812.
+
+4: PacketFence checks if it's a local REALM.
+
+5: If it's local REALM, PacketFence does a NTLM request to the AD to verify the identity.
+
+5a: The AD validated the credentials.
+
+5b: The AD did not validate the credentials. PacketFence sends a Radius Reject 
+
+5c: After a successful NTLM authentication, PacketFence returns a Radius Acess Accept to the wireless controller to apply the production VLAN for that mac address.
+
+6: If it's a not local REALM, PacketFence proxy the radius request to the eduroam servers
+
+7: The eduroam servers validate the identity
+
+8: PacketFence returns a Radius Acess Accept to the wireless controller to apply the production VLAN for that mac address.
 
 Configure the Eduroam source
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
