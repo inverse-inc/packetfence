@@ -1220,7 +1220,65 @@ _____________________
 
 PacketFence supports Eduroam and allows participating institutions to authenticate both locally visiting users from other institutions as well as allowing other institutions to authenticate local users.
 
-In order for PacketFence to allow Eduroam authentication, you need to configure an exclusive Eduroam source in Configuration->Authentication Sources and restart the RADIUS and IPTables services.
+Understanding of the eduroam authentication workflow.
+
+Local authentication
+^^^^^^^^^^^^^^^^^^^^
+
+image::internal-eduroam-authentication.png[scaledwidth="100%",alt="Internal eduroam authentication"]
+
+* The device connects on the eduroam SSID.
+* The access point forward the authentication request to the wireless controller.
+* The controller sends the radius authentication to PacketFence on port 11812.
+* PacketFence checks if it's a local REALM.
+* If it's local REALM, PacketFence does a NTLM request to the AD to verify the identity.
+** The AD validated the credentials.
+** The AD did not validate the credentials. PacketFence sends a Radius Reject 
+** After a successful NTLM authentication, PacketFence returns a Radius Acess Accept to the wireless controller to apply the production VLAN for that mac address.
+* If it's a not local REALM, PacketFence proxy the radius request to the eduroam servers
+* The eduroam servers validate the identity
+* PacketFence returns a Radius Acess Accept to the wireless controller to apply the production VLAN for that mac address.
+
+In order for PacketFence to allow Eduroam authentication configure the following steps:
+
+Configure the Eduroam source
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Go to the PacketFence administration web interface and go to *Configuration -> Policies and Access Control -> Authentication Sources*.
+
+Local *Exclusive Sources* and click on 'New excluse source' then 'Eduroam'.
+
+The information to setup that source could be found on the eduroam platform.
+
+Create the Connection Profile for local authentication
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Go to *Configuration -> Policies and Access Control -> Connection Profiles -> New Connection Profile*
+
+Create the Connection Profile named 'Local and external eduroam authentication' Check "Automatically register devices" then create a SSID filter 'eduroam'. Make sure to add the Active Directory source to match on the local users.
+
+
+Inbound authentication (TLRS to PF)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+image::inbound-eduroam-authentication.png[scaledwidth="100%",alt="Inbound eduroam authentication"]
+
+1: Eduroam sends the radius authentication to a public IP address (NAT/PAT) bound to PacketFence on the management IP address (Management VIP for a cluster) on port 1812.
+2: PacketFence forwards the NTLM request to the Active Directory.
+3a: User identity successfuly authentication on the AD.
+3b: NTLM request fails because of a bad identity
+4: PacketFence replies to the Eduroam servers either a RADIUS Access Accept for a sucessful authentication or a RADIUS Access Reject for an unsuccessful authentication. PacketFence sets the REALM to eduroam for any sucessful authentication.
+
+First, you need to refer to the previous step 'Configure the Eduroam source'.
+
+Once the source is configured, you will need to create a new Connection profile.
+
+Create the Connection Profile for outbound authentication
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Go to *Configuration -> Policies and Access Control -> Connection Profiles -> New Connection Profile*
+
+Create the Connection Profile named 'External eduroam authentication' Check "Automatically register devices" then create a REALM filter 'eduroam'. Next, make sure to add the Eduroam source previouly created. 
 
 SAML Authentication
 ~~~~~~~~~~~~~~~~~~~
