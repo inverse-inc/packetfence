@@ -1265,7 +1265,9 @@ image::inbound-eduroam-authentication.png[scaledwidth="100%",alt="Inbound eduroa
 
 1. Eduroam sends the radius authentication to a public IP address (NAT/PAT) bound to PacketFence on the management IP address (Management VIP for a cluster) on port 1812.
 2. PacketFence forwards the NTLM request to the Active Directory.
+
 3a. User identity successfuly authentication on the AD.
+
 3b. NTLM request fails because of a bad identity
 4. PacketFence replies to the Eduroam servers either a RADIUS Access Accept for a sucessful authentication or a RADIUS Access Reject for an unsuccessful authentication. PacketFence sets the REALM to eduroam for any sucessful authentication.
 
