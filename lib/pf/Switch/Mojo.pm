@@ -134,7 +134,7 @@ sub radiusDisconnect {
         $send_disconnect_to = $self->{'_controllerIp'};
     }
     # On which port we have to send the CoA-Request ?
-    my $nas_port = $self->{'_disconnectPort'} || '3799';
+    my $nas_port = $self->disconnectPort();
     # allowing client code to override where we connect with NAS-IP-Address
     $send_disconnect_to = $add_attributes_ref->{'NAS-IP-Address'}
         if (defined($add_attributes_ref->{'NAS-IP-Address'}));
