@@ -1227,17 +1227,17 @@ Local authentication
 
 image::internal-eduroam-authentication.png[scaledwidth="100%",alt="Internal eduroam authentication"]
 
-* The device connects on the eduroam SSID.
-* The access point forward the authentication request to the wireless controller.
-* The controller sends the radius authentication to PacketFence on port 11812.
-* PacketFence checks if it's a local REALM.
-* If it's local REALM, PacketFence does a NTLM request to the AD to verify the identity.
-** The AD validated the credentials.
-** The AD did not validate the credentials. PacketFence sends a Radius Reject 
-** After a successful NTLM authentication, PacketFence returns a Radius Acess Accept to the wireless controller to apply the production VLAN for that mac address.
-* If it's a not local REALM, PacketFence proxy the radius request to the eduroam servers
-* The eduroam servers validate the identity
-* PacketFence returns a Radius Acess Accept to the wireless controller to apply the production VLAN for that mac address.
+1. The device connects on the eduroam SSID.
+2. The access point forward the authentication request to the wireless controller.
+3. The controller sends the radius authentication to PacketFence on port 11812.
+4. PacketFence checks if it's a local REALM.
+5. If it's local REALM, PacketFence does a NTLM request to the AD to verify the identity.
+5a. The AD validated the credentials.
+5b. The AD did not validate the credentials. PacketFence sends a Radius Reject 
+5c. After a successful NTLM authentication, PacketFence returns a Radius Acess Accept to the wireless controller to apply the production VLAN for that mac address.
+6. If it's a not local REALM, PacketFence proxy the radius request to the eduroam servers
+7. The eduroam servers validate the identity
+8. PacketFence returns a Radius Acess Accept to the wireless controller to apply the production VLAN for that mac address.
 
 In order for PacketFence to allow Eduroam authentication configure the following steps:
 
@@ -1263,11 +1263,11 @@ Inbound authentication (TLRS to PF)
 
 image::inbound-eduroam-authentication.png[scaledwidth="100%",alt="Inbound eduroam authentication"]
 
-1: Eduroam sends the radius authentication to a public IP address (NAT/PAT) bound to PacketFence on the management IP address (Management VIP for a cluster) on port 1812.
-2: PacketFence forwards the NTLM request to the Active Directory.
-3a: User identity successfuly authentication on the AD.
-3b: NTLM request fails because of a bad identity
-4: PacketFence replies to the Eduroam servers either a RADIUS Access Accept for a sucessful authentication or a RADIUS Access Reject for an unsuccessful authentication. PacketFence sets the REALM to eduroam for any sucessful authentication.
+1. Eduroam sends the radius authentication to a public IP address (NAT/PAT) bound to PacketFence on the management IP address (Management VIP for a cluster) on port 1812.
+2. PacketFence forwards the NTLM request to the Active Directory.
+3a. User identity successfuly authentication on the AD.
+3b. NTLM request fails because of a bad identity
+4. PacketFence replies to the Eduroam servers either a RADIUS Access Accept for a sucessful authentication or a RADIUS Access Reject for an unsuccessful authentication. PacketFence sets the REALM to eduroam for any sucessful authentication.
 
 First, you need to refer to the previous step 'Configure the Eduroam source'.
 
