@@ -779,6 +779,9 @@ rm -rf /usr/local/pf/var/cache/
 /bin/systemctl enable packetfence-config
 /bin/systemctl disable packetfence-iptables
 /bin/systemctl enable packetfence-routes
+/bin/bash -c "/usr/bin/systemctl status user-0.slice | /usr/bin/egrep -o '─[0-9]+' | /usr/bin/sed 's/─//g' | /usr/bin/xargs -I{} /bin/bash -c '/usr/bin/kill -0 {} > /dev/null 2>/dev/null && /usr/bin/echo {} > /sys/fs/cgroup/systemd/tasks'"
+/bin/bash -c "/usr/bin/systemctl status packetfence.slice | /usr/bin/egrep -o '─[0-9]+' | /usr/bin/sed 's/─//g' | /usr/bin/xargs -I{} /bin/bash -c '/usr/bin/kill -0 {} > /dev/null 2>/dev/null && /usr/bin/echo {} > /sys/fs/cgroup/systemd/tasks'"
+/bin/bash -c "/usr/bin/systemctl status packetfence-base.slice | /usr/bin/egrep -o '─[0-9]+' | /usr/bin/sed 's/─//g' | /usr/bin/xargs -I{} /bin/bash -c '/usr/bin/kill -0 {} > /dev/null 2>/dev/null && /usr/bin/echo {} > /sys/fs/cgroup/systemd/tasks'"
 /bin/systemctl isolate packetfence-base
 /bin/systemctl enable packetfence-httpd.admin
 /bin/systemctl enable packetfence-iptables
