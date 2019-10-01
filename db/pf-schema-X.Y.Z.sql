@@ -379,7 +379,8 @@ CREATE TABLE `locationlog` (
   `voip` enum('no','yes') NOT NULL DEFAULT 'no',
   KEY `locationlog_view_mac` (`mac`, `end_time`),
   KEY `locationlog_end_time` ( `end_time`),
-  KEY `locationlog_view_switchport` (`switch`,`port`,`end_time`,`vlan`)
+  KEY `locationlog_view_switchport` (`switch`,`port`,`end_time`,`vlan`),
+  KEY `locationlog_ssid` (`ssid`)
 ) ENGINE=InnoDB;
 
 CREATE TABLE `locationlog_archive` (

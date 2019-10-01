@@ -72,4 +72,10 @@ CREATE TABLE `admin_api_audit_log` (
    KEY `created_at` (`created_at`)
 ) ENGINE=InnoDB;
 
+--
+-- Add an index on ssid on the locationlog
+--
+
+ALTER TABLE locationlog ADD INDEX `locationlog_ssid` (`ssid`);
+
 INSERT INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION)); 
