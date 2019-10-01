@@ -308,7 +308,13 @@ sub authorizeMAC {
     );
     my $result
         = $self->{_sessionWrite}->set_request( -varbindlist => \@oid_value );
-    return ( defined($result) );
+    if (!$result) {
+        $logger->error("SNMP error tyring to perform auth of $authMac "
+                                          . "Error message: ".$self->{_sessionWrite}->error());
+        return 0;
+    }
+
+    return 1;
 }
 
 =head1 AUTHOR

@@ -340,11 +340,15 @@ sub authorizeMAC {
 
     if ( ($deauthMac) && ( !$self->isFakeMac($deauthMac) ) ) {
         if (!$self->_authorizeMAC( $ifIndex, $deauthMac, 0 )) {
-            return 0;
+             $logger->warn("SNMP error tyring to perform de-auth of $deauthMac. This could be normal. "
+                                          . "Error message: ".$self->{_sessionWrite}->error());
         }
     }
+
     if ( ($authMac) && ( !$self->isFakeMac($authMac) ) ) {
         if (!$self->_authorizeMAC( $ifIndex, $authMac, 1 )) {
+             $logger->error("SNMP error tyring to perform auth of $authMac "
+                                          . "Error message: ".$self->{_sessionWrite}->error());
             return 0;
         }
     }

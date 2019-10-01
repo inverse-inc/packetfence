@@ -119,6 +119,7 @@ sub authorizeMAC {
                     "Error authorizing $authMac ( $mac_oid ) on ifIndex $ifIndex: " .
                     $self->{_sessionWrite}->error
             );
+            return 0;
         } else {
             $logger->info(
                     "Authorizing $authMac ( $mac_oid ) on ifIndex $ifIndex"

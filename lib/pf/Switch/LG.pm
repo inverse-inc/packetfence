@@ -226,6 +226,7 @@ sub authorizeMAC {
             $logger->error(
                     "Error authorizing $authMac ( $mac_oid ) on ifIndex $ifIndex, vlan $authVlan: " .
                     $self->{_sessionWrite}->error );
+            return 0;
         } else {
             $logger->info( "Authorizing $authMac ( $mac_oid ) on ifIndex $ifIndex, vlan $authVlan" );
         }

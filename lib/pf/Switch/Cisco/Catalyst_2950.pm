@@ -423,6 +423,8 @@ sub authorizeMAC {
         $logger->trace("SNMP set_request for cpsSecureMacAddrRowStatus");
         my $result = $self->{_sessionWrite}->set_request( -varbindlist => \@oid_value );
         if (!$result) {
+             $logger->error("SNMP error tyring to perform auth of $authMac "
+                                          . "Error message: ".$self->{_sessionWrite}->error());
             return 0;
         }
     }
