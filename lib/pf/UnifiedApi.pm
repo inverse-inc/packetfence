@@ -322,6 +322,8 @@ sub setup_api_v1_locationlogs_routes {
         "/locationlog/#locationlog_id",
     );
 
+    $collection_route->register_sub_action({ action => 'ssids', method => 'GET' });
+
     return ($collection_route, $resource_route);
 }
 
