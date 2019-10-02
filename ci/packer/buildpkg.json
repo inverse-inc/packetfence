@@ -92,10 +92,7 @@
         {
             "type": "shell",
             "script": "{{user `pf_root`}}/addons/dev-helpers/setup-go-env.sh",
-            "environment_vars": ["GOVERSION={{user `go_version`}}",
-                                 "GOPATH={{user `go_path`}}",
-                                 "GO_REPO={{user `go_repo`}}/{{user `go_extra_path`}}"
-                                ]
+            "environment_vars": ["GOVERSION={{user `go_version`}}"]
         },
         {
             "type": "ansible",
