@@ -62,6 +62,24 @@ use pf::access_filter::radius;
 use File::Spec::Functions;
 use File::FcntlLock;
 use JSON::MaybeXS;
+use pf::SwitchSupports qw(
+    -FloatingDevice
+    -ExternalPortal
+    -WebFormRegistration
+    -WiredMacAuth
+    -WiredDot1x
+    -WirelessMacAuth
+    -WirelessDot1x
+    -RadiusVoip
+    -RoleBasedEnforcement
+    -AccessListBasedEnforcement
+    -SaveConfig
+    -Cdp
+    -Lldp
+    RadiusDynamicVlanAssignment
+    -MABFloatingDevices
+    -VPN
+);
 
 #
 # %TRAP_NORMALIZERS
@@ -81,220 +99,8 @@ our %TRAP_NORMALIZERS = (
 
 =cut
 
-=item supportsFloatingDevice
-
-Returns 1 if switch type supports floating network devices
-
-=cut
-
-sub supportsFloatingDevice {
-    my ( $self ) = @_;
-    my $logger = $self->logger;
-
-    $logger->error("Floating devices are not supported on switch type " . ref($self));
-    return $FALSE;
-}
-
-=item supportsExternalPortal
-
-Returns 1 if switch type supports external captive portal
-
-=cut
-
-sub supportsExternalPortal {
-    my ( $self ) = @_;
-    my $logger = $self->logger;
-
-    $logger->debug("External captive portal is not supported on switch type " . ref($self));
-    return $FALSE;
-}
-
-=item supportsWebFormRegistration
-
-Returns 1 if switch type supports web form registration (for release of the external captive portal)
-
-=cut
-
-sub supportsWebFormRegistration {
-    my ( $self ) = @_;
-    my $logger = $self->logger;
-
-    $logger->debug("Web form registration is not supported on switch type " . ref($self));
-    return $FALSE;
-}
-
-=item supportsWiredMacAuth
-
-Returns 1 if switch type supports Wired MAC Authentication (Wired Access Authorization through RADIUS)
-
-=cut
-
-sub supportsWiredMacAuth {
-    my ( $self ) = @_;
-    my $logger = $self->logger;
-
-    $logger->error(
-        "Wired MAC Authentication (Wired Access Authorization through RADIUS) "
-        . "is not supported on switch type " . ref($self) . ". Please let us know what hardware you are using."
-    );
-    return $FALSE;
-}
-
-=item supportsWiredDot1x - Returns 1 if switch type supports Wired 802.1X
-
-=cut
-
-sub supportsWiredDot1x {
-    my ( $self ) = @_;
-    my $logger = $self->logger;
-
-    $logger->error(
-        "Wired 802.1X is not supported on switch type " . ref($self) . ". "
-        . "Please let us know what hardware you are using."
-    );
-    return $FALSE;
-}
-
-=item supportsWirelessMacAuth
-
-Returns 1 if switch type supports Wireless MAC Authentication (RADIUS Authentication)
-
-=cut
-
-sub supportsWirelessMacAuth {
-    my ( $self ) = @_;
-    my $logger = $self->logger;
-
-    $logger->error(
-        "Wireless MAC Authentication is not supported on switch type " . ref($self) . ". "
-        . "Please let us know what hardware you are using."
-    );
-    return $FALSE;
-}
-
-=item supportsWirelessDot1x - Returns 1 if switch type supports Wireless 802.1X (aka WPA-Enterprise)
-
-=cut
-
-sub supportsWirelessDot1x {
-    my ( $self ) = @_;
-    my $logger = $self->logger;
-
-    $logger->error(
-        "Wireless 802.1X (WPA-Enterprise) is not supported on switch type " . ref($self) . ". "
-        . "Please let us know what hardware you are using."
-    );
-    return $FALSE;
-}
-
-=item supportsRadiusVoip
-
-=cut
-
-sub supportsRadiusVoip {
-    my ( $self ) = @_;
-    my $logger = $self->logger;
-
-    $logger->warn(
-        "RADIUS Authentication of IP Phones is not supported on switch type " . ref($self) . ". "
-        . "Please let us know what hardware you are using."
-    );
-    return $FALSE;
-}
-
-=item supportsRoleBasedEnforcement
-
-=cut
-
-sub supportsRoleBasedEnforcement {
-    my ( $self ) = @_;
-    my $logger = $self->logger;
-
-    if (defined($self->{'_roles'}) && %{$self->{'_roles'}}) {
-        $logger->trace(
-            "Role-based Network Access Control is not supported on network device type " . ref($self) . ". "
-        );
-    }
-    return $FALSE;
-}
-
-sub supportsAccessListBasedEnforcement {
-    my ( $self ) = @_;
-    my $logger = $self->logger;
-    $logger->trace("Access list based enforcement is not supported on network device type " . ref($self) . ". ");
-    return $FALSE;
-}
-
-
-=item supportsRoamingAccounting
-
-=cut
-
-sub supportsRoamingAccounting {
-    my ( $self ) = @_;
-    my $logger = $self->logger;
-    $logger->trace("Update of the locationlog based on accounting data is not supported on network device type " . ref($self) . ". ");
-    return $FALSE;
-}
-
-=item supportsSaveConfig
-
-=cut
-
-sub supportsSaveConfig {
-    my ( $self ) = @_;
-    my $logger = $self->logger;
-    return $FALSE;
-}
-
-=item supportsCdp
-
-Does the network device supports Cisco Discovery Protocol (CDP)
-
-=cut
-
-sub supportsCdp {
-    my ( $self ) = @_;
-    my $logger = $self->logger;
-    return $FALSE;
-}
-
-=item supportsLldp
-
-Does the network device supports Link-Layer Discovery Protocol (LLDP)
-
-=cut
-
-sub supportsLldp {
-    my ( $self ) = @_;
-    my $logger = $self->logger;
-    return $FALSE;
-}
-
-=item supportsRadiusDynamicVlanAssignment
-
-=cut
-
-sub supportsRadiusDynamicVlanAssignment { return $TRUE; }
-
-=item inlineCapabilities
-
-=cut
-
 # inline capabilities
 sub inlineCapabilities { return; }
-
-sub supportsMABFloatingDevices {
-    my ( $self ) = @_;
-    my $logger = $self->logger;
-    return $FALSE;
-}
-
-=item supportsVPN
-
-=cut
-
-sub supportsVPN { return $FALSE; }
 
 sub vpnAttributes { return $FALSE; }
 
