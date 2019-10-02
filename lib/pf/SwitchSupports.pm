@@ -13,17 +13,20 @@ pf::SwitchSupports
 use strict;
 use warnings;
 use pf::constants;
+use List::MoreUtils qw(uniq);
 
 sub import {
     my ($class, @args) = @_;
     my ($package, $filename, $line) = caller;
     {
+        my %parents = map { $_ => 1} ($package->can("supports") ?  $package->supports() : ());
         my @supports;
         no strict qw(refs);
         for my $s (@args) {
             if ($s =~ /^-(.*)$/) {
                 {
                     my $n = $1;
+                    delete $parents{$n};
                     *{"${package}::supports$n"} = sub {
                         my $proto = $_[0];
                         my $class = ref($proto) || $proto;
@@ -36,6 +39,9 @@ sub import {
                 push @supports, $s;
             }
         }
+        push @supports, keys %parents;
+        @supports = uniq @supports;
+        @supports = sort @supports;
         *{"${package}::supports"} = sub { @supports };
     }
 }
