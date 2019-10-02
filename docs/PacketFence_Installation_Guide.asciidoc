@@ -1275,7 +1275,7 @@ image::inbound-eduroam-authentication.png[scaledwidth="100%",alt="Inbound eduroa
 
 2: PacketFence forwards the NTLM request to the Active Directory.
 
-3a: User identity successfuly authentication on the AD.
+3a: Successful user identify authentication on the AD
 
 3b: NTLM request fails because of a bad identity
 
@@ -1285,7 +1285,7 @@ First, you need to refer to the previous step `Configure the Eduroam source`.
 
 Once the source is configured, you will need to create a new connection profile.
 
-Create the Connection Profile for outbound authentication
+Create the connection profile for outbound authentication
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Go to *Configuration -> Policies and Access Control -> Connection Profiles -> New Connection Profile*
