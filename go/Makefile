@@ -1,4 +1,4 @@
-GOVERSION=go1.9.3
+GOVERSION=go1.13.1
 
 .PHONY: processor-sha
 
@@ -53,7 +53,7 @@ clean-caddy-src:
 .PHONY: go-env
 
 go-env:
-	GOVERSION=$(GOVERSION) /usr/local/pf/addons/dev-helpers/setup-go-env.sh
+	GOVERSION=$(GOVERSION) ../addons/dev-helpers/setup-go-env.sh
 
 .PHONY: test
 
