@@ -8,7 +8,7 @@
         "prov_dir": "provisionners",
         "files_dir": "files",
         "tmp_dir": "/tmp",
-        "go_version": "go1.9.3",
+        "go_version": "{{env `GOVERSION`}}",
         "go_path": "/root/go",
         "go_repo": "github.com/inverse-inc/packetfence",
         "go_extra_path": "go",
@@ -23,9 +23,7 @@
             "run_command": ["-d", "-i", "-t", "--", "{{.Image}}"],
             "commit": true,
             "changes": [
-                "ENV GOPATH {{user `go_path`}}",
-                "ENV PATH /usr/local/go/bin:$PATH",
-                "ENV GO_REPO $GOPATH/src/{{user `go_repo`}}/{{user `go_extra_path`}}"
+                "ENV PATH /usr/local/go/bin:$PATH"
             ]
         },
         {
@@ -35,9 +33,7 @@
             "run_command": ["-d", "-i", "-t", "--", "{{.Image}}"],
             "commit": true,
             "changes": [
-                "ENV GOPATH {{user `go_path`}}",
-                "ENV PATH /usr/local/go/bin:$PATH",
-                "ENV GO_REPO $GOPATH/src/{{user `go_repo`}}/{{user `go_extra_path`}}"
+                "ENV PATH /usr/local/go/bin:$PATH"
             ]
         },
         {
@@ -47,9 +43,7 @@
             "run_command": ["-d", "-i", "-t", "--", "{{.Image}}"],
             "commit": true,
             "changes": [
-                "ENV GOPATH {{user `go_path`}}",
-                "ENV PATH /usr/local/go/bin:$PATH",
-                "ENV GO_REPO $GOPATH/src/{{user `go_repo`}}/{{user `go_extra_path`}}"
+                "ENV PATH /usr/local/go/bin:$PATH"
             ]
         }
     ],
@@ -101,19 +95,6 @@
             "environment_vars": ["GOVERSION={{user `go_version`}}",
                                  "GOPATH={{user `go_path`}}",
                                  "GO_REPO={{user `go_repo`}}/{{user `go_extra_path`}}"
-                                ]
-        },
-        {
-            "type": "file",
-            "source": "{{user `pf_root`}}/{{user `go_vendor_dir`}}",
-            "destination": "{{user `go_path`}}/src/{{user `go_repo`}}/{{user `go_vendor_dir`}}"
-        },
-        {
-            "type": "shell",
-            "script": "{{user `prov_dir`}}/install-go-dependencies.sh",
-            "environment_vars": ["GOPATH={{user `go_path`}}",
-                                 "GO_REPO={{user `go_repo`}}",
-                                 "EXTRA_PATH={{user `go_extra_path`}}"
                                 ]
         },
         {
