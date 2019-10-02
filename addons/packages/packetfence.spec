@@ -621,8 +621,6 @@ rm -rf $RPM_BUILD_ROOT
 
 /usr/bin/systemctl --now mask mariadb
 
-# Disable selinux
-setenforce 0
 # This (extremelly) ugly hack below will make the current processes part of a cgroup other than the one for user-0.slice
 # This will allow for the current shells that are opened to be protected against stopping when we'll be calling isolate below which stops user-0.slice
 # New shells will not be placed into user-0.slice since systemd-logind will be disabled and masked
