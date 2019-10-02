@@ -3,7 +3,7 @@
     "min_packer_version": "1.4.2",
     "variables": {
         "builder_prefix": "pfbuild",
-        "docker_user": "buildpkg",
+        "buildpkg_user": "buildpkg",
         "pf_root": "../..",
         "prov_dir": "provisionners",
         "files_dir": "files",
@@ -22,7 +22,7 @@
         {
             "name": "{{user `builder_prefix`}}-centos-7",
             "type": "docker",
-            "image": "{{user `docker_user`}}/centos:7",
+            "image": "{{user `buildpkg_user`}}/centos:7",
             "run_command": ["-d", "-i", "-t", "--", "{{.Image}}"],
             "commit": true,
             "changes": [
@@ -32,7 +32,7 @@
         {
             "name": "{{user `builder_prefix`}}-stretch",
             "type": "docker",
-            "image": "{{user `docker_user`}}/debian:stretch",
+            "image": "{{user `buildpkg_user`}}/debian:stretch",
             "run_command": ["-d", "-i", "-t", "--", "{{.Image}}"],
             "commit": true,
             "changes": [
@@ -42,7 +42,7 @@
         {
             "name": "{{user `builder_prefix`}}-buster",
             "type": "docker",
-            "image": "{{user `docker_user`}}/debian:buster",
+            "image": "{{user `buildpkg_user`}}/debian:buster",
             "run_command": ["-d", "-i", "-t", "--", "{{.Image}}"],
             "commit": true,
             "changes": [
