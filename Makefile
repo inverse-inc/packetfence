@@ -210,6 +210,3 @@ test:
 
 update_samsung_dns_filter:
 	bash /usr/local/pf/addons/update-samsung-dns-filter.sh
-
-go-sync:
-	cp -af ./go $$GOPATH/src/github.com/inverse-inc/packetfence/
