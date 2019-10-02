@@ -1,6 +1,5 @@
-SHELL = /bin/sh
-DOCKER_TAG = latest
-ACTIVE_BUILDS= 'pfbuild-centos-7,pfbuild-stretch'
+include ../../config.mk
+ACTIVE_BUILDS = 'pfbuild-centos-7,pfbuild-stretch'
 
 .PHONY: all
 all: buildpkg
@@ -8,8 +7,8 @@ all: buildpkg
 .PHONY: buildpkg
 buildpkg:
 	packer validate $@.json
-	packer build -var 'image_tag=$(DOCKER_TAG)' -only=$(ACTIVE_BUILDS) $@.json
+	DOCKER_TAG=$(DOCKER_TAG) GOVERSION=$(GOVERSION) packer build -only=$(ACTIVE_BUILDS) $@.json
 
 .PHONY: variables
 variables:
-	@echo SHELL: $(SHELL)
+	$(foreach var,$(.VARIABLES),$(info $(var) = $($(var))))
