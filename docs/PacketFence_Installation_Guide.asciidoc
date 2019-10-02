@@ -188,6 +188,11 @@ Explicitly instruct NetworkManager to never interact with your DNS configuration
   echo "[main]
   dns=none" > /etc/NetworkManager/conf.d/99-no-dns.conf
   service NetworkManager restart
+  
+You also need to disable systemd-logind and reboot:
+
+  /usr/bin/systemctl --now mask systemd-logind
+  reboot
 
 RHEL 7.x
 ++++++++
