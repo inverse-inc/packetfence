@@ -1229,41 +1229,41 @@ image::internal-eduroam-authentication.png[scaledwidth="100%",alt="Internal edur
 
 1: The device connects on the eduroam SSID.
 
-2: The access point forward the authentication request to the wireless controller.
+2: The access point forwards the authentication request to the wireless controller.
 
-3: The controller sends the radius authentication to PacketFence on port 11812.
+3: The controller sends the RADIUS authentication to PacketFence on port 11812.
 
 4: PacketFence checks if it's a local REALM.
 
-5: If it's local REALM, PacketFence does a NTLM request to the AD to verify the identity.
+5: If it's local REALM, PacketFence does a NTLM request to the Active Directory (AD) domain controller to verify the identity.
 
 5a: The AD validated the credentials.
 
-5b: The AD did not validate the credentials. PacketFence sends a Radius Reject 
+5b: The AD did not validate the credentials. PacketFence sends a RADIUS Reject 
 
-5c: After a successful NTLM authentication, PacketFence returns a Radius Acess Accept to the wireless controller to apply the production VLAN for that mac address.
+5c: After a successful NTLM authentication, PacketFence returns a Radius Acess Accept to the wireless controller to apply the production VLAN for that MAC address.
 
-6: If it's a not local REALM, PacketFence proxy the radius request to the eduroam servers
+6: If it's a not local REALM, PacketFence proxies the radius request to the eduroam servers
 
 7: The eduroam servers validate the identity
 
-8: PacketFence returns a Radius Acess Accept to the wireless controller to apply the production VLAN for that mac address.
+8: PacketFence returns a Radius Acess Accept to the wireless controller to apply the production VLAN for that MAC address.
 
 Configure the Eduroam source
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Go to the PacketFence administration web interface and go to *Configuration -> Policies and Access Control -> Authentication Sources*.
+Open the PacketFence administration web interface and go to *Configuration -> Policies and Access Control -> Authentication Sources*.
 
-Local *Exclusive Sources* and click on 'New excluse source' then 'Eduroam'.
+Local *Exclusive Sources* and click on `New excluse source` then `Eduroam`.
 
-The information to setup that source could be found on the eduroam platform.
+The information to configure that source could be found on the eduroam platform.
 
-Create the Connection Profile for local authentication
+Create the connection profile for local authentication
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Go to *Configuration -> Policies and Access Control -> Connection Profiles -> New Connection Profile*
 
-Create the Connection Profile named 'Local and external eduroam authentication' Check "Automatically register devices" then create a SSID filter 'eduroam'. Make sure to add the Active Directory source to match on the local users.
+Create a connection profile named `Local and external eduroam authentication` Check "Automatically register devices" then create a SSID filter `eduroam`. Make sure to add the Active Directory source to match on the local users.
 
 
 Inbound authentication (TLRS to PF)
@@ -1271,7 +1271,7 @@ Inbound authentication (TLRS to PF)
 
 image::inbound-eduroam-authentication.png[scaledwidth="100%",alt="Inbound eduroam authentication"]
 
-1: Eduroam sends the radius authentication to a public IP address (NAT/PAT) bound to PacketFence on the management IP address (Management VIP for a cluster) on port 1812.
+1: Eduroam sends the RADIUS authentication to a public IP address (NAT/PAT) bound to PacketFence on the management IP address (Management VIP for a cluster) on port 1812.
 
 2: PacketFence forwards the NTLM request to the Active Directory.
 
@@ -1279,18 +1279,18 @@ image::inbound-eduroam-authentication.png[scaledwidth="100%",alt="Inbound eduroa
 
 3b: NTLM request fails because of a bad identity
 
-4: PacketFence replies to the Eduroam servers either a RADIUS Access Accept for a sucessful authentication or a RADIUS Access Reject for an unsuccessful authentication. PacketFence sets the REALM to eduroam for any sucessful authentication.
+4: PacketFence replies to the Eduroam servers either a RADIUS Access Accept for a sucessful authentication or a RADIUS access reject for an unsuccessful authentication. PacketFence sets the REALM to eduroam for all successful authentications.
 
-First, you need to refer to the previous step 'Configure the Eduroam source'.
+First, you need to refer to the previous step `Configure the Eduroam source`.
 
-Once the source is configured, you will need to create a new Connection profile.
+Once the source is configured, you will need to create a new connection profile.
 
 Create the Connection Profile for outbound authentication
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Go to *Configuration -> Policies and Access Control -> Connection Profiles -> New Connection Profile*
 
-Create the Connection Profile named 'External eduroam authentication' Check "Automatically register devices" then create a REALM filter 'eduroam'. Next, make sure to add the Eduroam source previouly created. 
+Create the Connection Profile named `External eduroam authentication` Check `Automatically register devices` then create a REALM filter `eduroam`. Next, make sure to add the eduroam source previouly created. 
 
 SAML Authentication
 ~~~~~~~~~~~~~~~~~~~
@@ -1301,7 +1301,7 @@ First, transfer the Identity Provider metadata on the PacketFence server. In thi
 
 Then, transfer the certificate and CA certificate of the Identity provider on the server. In this example, they will be under the paths `/usr/local/pf/conf/ssl/idp.crt` and `/usr/local/pf/conf/ssl/idp-ca.crt`. If it is a self-signed certificate, then you will be able to use it as the CA in the PacketFence configuration.
 
-Then, to configure SAML in PacketFence, go in 'Configuration -> Policies and Access Control -> Sources' and then create a new Internal source of the type SAML and configure it.
+Then, to configure SAML in PacketFence, go in `Configuration -> Policies and Access Control -> Sources` and then create a new Internal source of the type SAML and configure it.
 
 image::saml-packetfence-config.png[scaledwidth="100%",alt="SAML PacketFence configuration"]
 
