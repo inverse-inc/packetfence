@@ -34,13 +34,25 @@ install() {
     rm /tmp/$GOVERSION.linux-amd64.tar.gz
 }
 
+setup() {
+    SETUP='
+export PATH=/usr/local/go/bin:$PATH'
+    echo "$SETUP" >> ~/.bashrc
+    eval "$SETUP"
+}
+
 # Main
 if [ -d /usr/local/go ]; then
     die "/usr/local/go exists, refusing to setup"
 else
     install
+
+    # we are *NOT* in a packer build, need to setup env variables
+    if [ -z "$PACKER_BUILD_NAME" ]; then
+        setup
+    fi
+    declare -p GO_REPO PATH
 fi
 
-cd $GO_REPO
-go mod download
+( cd $GO_REPO ; go mod download )
 
