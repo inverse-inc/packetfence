@@ -1,9 +1,9 @@
 #!/bin/bash -e
 
-# GOVERSION, GOPATH can be pass as environment variables
+# GOVERSION and GO_REPO can be pass as environment variables
 
 # env variable can override default
-GO_REPO=${GO_REPO:-github.com/inverse-inc/packetfence}
+GO_REPO=${GO_REPO:-/usr/local/pf/go}
 
 die() {
     echo "$(basename $0): $@" >&2 ; exit 1
@@ -34,15 +34,6 @@ install() {
     rm /tmp/$GOVERSION.linux-amd64.tar.gz
 }
 
-setup() {
-    SETUP='
-export PATH=$PATH:/usr/local/go/bin
-export GOPATH=~/gospace
-export PATH=~/gospace/bin:$PATH'
-    echo "$SETUP" >> ~/.bashrc
-    eval "$SETUP"
-}
-
 # Main
 if [ -d /usr/local/go ]; then
     die "/usr/local/go exists, refusing to setup"
@@ -50,6 +41,6 @@ else
     install
 fi
 
-cd /usr/local/pf/go
+cd $GO_REPO
 go mod download
 
