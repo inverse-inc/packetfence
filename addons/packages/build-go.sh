@@ -55,7 +55,6 @@ cd "$PFSRC/go"
 if build_mode; then
   # Create any binaries here and make sure to move them to the BINDST specified
   for service in pfhttpd pfdhcp pfdns pfstats pfdetect;do
-      rm -f $service
       make $service
       mv $service $BINDST/
   done
