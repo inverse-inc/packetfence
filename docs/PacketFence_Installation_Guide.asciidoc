@@ -1252,7 +1252,7 @@ image::internal-eduroam-authentication.png[scaledwidth="100%",alt="Internal edur
 Configure the Eduroam source
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Open the PacketFence administration web interface and go to *Configuration -> Policies and Access Control -> Authentication Sources*.
+Open the PacketFence administration web interface and go to _Configuration -> Policies and Access Control -> Authentication Sources_.
 
 Local *Exclusive Sources* and click on `New excluse source` then `Eduroam`.
 
@@ -1261,9 +1261,9 @@ The information to configure that source could be found on the eduroam platform.
 Create the connection profile for local authentication
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Go to *Configuration -> Policies and Access Control -> Connection Profiles -> New Connection Profile*
+Go to _Configuration -> Policies and Access Control -> Connection Profiles -> New Connection Profile_
 
-Create a connection profile named `Local and external eduroam authentication` Check "Automatically register devices" then create a SSID filter `eduroam`. Make sure to add the Active Directory source to match on the local users.
+Create a connection profile named `Local and external eduroam authentication` Check `Automatically register devices` then create a SSID filter `eduroam`. Make sure to add the Active Directory source to match on the local users.
 
 
 Inbound authentication (TLRS to PF)
@@ -1288,7 +1288,7 @@ Once the source is configured, you will need to create a new connection profile.
 Create the connection profile for outbound authentication
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Go to *Configuration -> Policies and Access Control -> Connection Profiles -> New Connection Profile*
+Go to _Configuration -> Policies and Access Control -> Connection Profiles -> New Connection Profile_
 
 Create the Connection Profile named `External eduroam authentication` Check `Automatically register devices` then create a REALM filter `eduroam`. Next, make sure to add the eduroam source previouly created. 
 
