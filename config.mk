@@ -1,0 +1,1 @@
+GOVERSION = go1.13.1

@@ -1,4 +1,4 @@
-GOVERSION=go1.13.1
+include ../../config.mk
 
 .PHONY: pfhttpd-sha
 pfhttpd-sha:
