@@ -1,3 +1,6 @@
 pfhttpd
+pfdns
+pfdhcp
+pfstats
+pfdetect
 Caddyfile
-vendor/
