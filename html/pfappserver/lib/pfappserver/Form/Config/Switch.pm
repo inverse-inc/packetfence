@@ -670,6 +670,7 @@ sub options_type {
     my $V2 = $pf::SwitchFactory::TemplateSwitches{'::VENDORS'} // {};
     foreach my $v ( uniq sort ( keys %$V1, keys %$V2)) {
         my @switches =
+          map { {%{$_}} }
           sort { $a->{value} cmp $b->{value} } (
               (
                 exists $V1->{$v} ? @{ $V1->{$v} } : ()

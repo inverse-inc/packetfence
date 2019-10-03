@@ -245,7 +245,7 @@ sub buildVendorsList {
         my $vendor = shift @p;
         #Include only concrete classes indictated by the existence of the description method
         if ($module->can('description')) {
-            push @{$VENDORS{$vendor}}, { value => $switch, label => $module->description };
+            push @{$VENDORS{$vendor}}, { value => $switch, label => $module->description, supports => [$module->supports] };
         }
     }
 }
