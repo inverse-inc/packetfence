@@ -378,9 +378,8 @@ make bin/ntlm_auth_wrapper
 echo %{git_commit} > conf/git_commit_id
 
 # build golang binaries
-make go-sync
-make -C $GOPATH/src/github.com/inverse-inc/packetfence/go all
-make -C $GOPATH/src/github.com/inverse-inc/packetfence/go SBINDIR=%{buildroot}/sbin copy
+make -C go all
+make -C go SBINDIR=%{buildroot}/sbin copy
 
 find -name '*.example' -print0 | while read -d $'\0' file
 do
