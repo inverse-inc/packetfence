@@ -5,7 +5,8 @@
 
 include ../../config.mk
 ACTIVE_BUILDS = 'pfbuild-centos-7,pfbuild-stretch'
-PARALLEL = true
+# workaround for https://github.com/hashicorp/packer/issues/7904
+PARALLEL = false
 
 .PHONY: all
 all: buildpkg
