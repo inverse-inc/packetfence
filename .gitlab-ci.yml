@@ -8,7 +8,8 @@ stages:
 
 ### VARIABLES
 variables:
-  PACKERDIR: ci/packer
+  CIDIR: ci
+  PACKERDIR: $CIDIR/packer
 
 ### TEMPLATES
 
