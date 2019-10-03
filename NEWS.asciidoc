@@ -16,6 +16,7 @@ Version X.Y.Z released on xxxx-xx-xx
 
 New Features
 ++++++++++++
+* Allow to force the access duration when using device registration
 
 Enhancements
 ++++++++++++
