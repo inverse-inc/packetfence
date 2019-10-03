@@ -1,3 +1,8 @@
+# All variables defined below can be considered as defaults
+# for packer invocation. They can be override by:
+# - environment variables (VAR=value make -e target)
+# - command variables (make VAR=VALUE target)
+
 include ../../config.mk
 ACTIVE_BUILDS = 'pfbuild-centos-7,pfbuild-stretch'
 PARALLEL = true
