@@ -94,6 +94,39 @@ def convert_document node
     result << docinfo_content
   end
 
+  result << %(<style>
+[data-lang] div:before {
+  color: #c1c7cd;
+  width: 24px;
+  display: inline-block;
+  margin-left: -1em;
+  margin-right: 1em;
+  overflow: hidden;
+  font-size: 12px;
+  text-align: right;
+  user-select: none;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+ -ms-user-select: none;
+ -moz-user-select: none;
+  background-color: transparent;
+ -webkit-user-select: none;
+}
+[data-lang] {
+  counter-reset: line;
+}
+.numbered div {
+  counter-increment: line;
+}
+.numbered > div:not(:only-child):before {
+  content: counter(line);
+}
+[data-lang=bash] div:before {
+  content: '#';
+}
+</style>)
+
   result << '</head>'
   body_attrs = node.id ? [%(id="#{node.id}")] : []
   if (sectioned = node.sections?) && (node.attr? 'toc-class') && (node.attr? 'toc') && (node.attr? 'toc-placement', 'auto')
@@ -326,6 +359,7 @@ def convert_listing node
   nowrap = (node.option? 'nowrap') || !(node.document.attr? 'prewrap')
   if node.style == 'source'
     lang = node.attr 'language'
+    numbered = node.attr 'linenums'
     if (syntax_hl = node.document.syntax_highlighter)
       opts = syntax_hl.highlight? ? {
         css_mode: ((doc_attrs = node.document.attributes)[%(#{syntax_hl.name}-css)] || :class).to_sym,
@@ -333,7 +367,7 @@ def convert_listing node
       } : {}
       opts[:nowrap] = nowrap
     else
-      pre_open = %(<pre class="highlight#{nowrap ? ' nowrap' : ''} bg-secondary text-white rounded p-3"><code class="#{lang ? %[ language-#{lang}" data-lang="#{lang}] : ''}">)
+      pre_open = %(<pre class="highlight#{nowrap ? ' nowrap' : ''} bg-secondary text-white #{node.title? ? 'rounded-bottom': 'rounded'} p-3"><code class="#{numbered ? 'numbered ' : ''}#{lang ? %[language-#{lang}" data-lang="#{lang}] : ''}">)
       pre_close = '</code></pre>'
     end
   else
@@ -341,21 +375,23 @@ def convert_listing node
     pre_close = '</pre>'
   end
   id_attribute = node.id ? %( id="#{node.id}") : ''
-  title_element = node.title? ? %(<div class="title">#{node.captioned_title}</div>\n) : ''
+  title_element = node.title? ? %(<div class="bg-dark text-white rounded-top p-1 pl-3">#{node.captioned_title}</div>\n) : ''
+  lines = node.content.lines.map { |line| %(<div>#{line}</div>) }
   %(<div#{id_attribute} class="listingblock#{(role = node.role) ? " #{role}" : ''}">
 #{title_element}<div class="content">
-#{syntax_hl ? (syntax_hl.format node, lang, opts) : pre_open + (node.content || '') + pre_close}
+#{syntax_hl ? (syntax_hl.format node, lang, opts) : pre_open + (lines.join || '') + pre_close}
 </div>
 </div>)
 end
 
 def convert_literal node
   id_attribute = node.id ? %( id="#{node.id}") : ''
-  title_element = node.title? ? %(<div class="title">#{node.title}</div>\n) : ''
+  title_element = node.title? ? %(<div class="bg-dark text-white rounded-top p-1 pl-3">#{node.title}</div>\n) : ''
   nowrap = !(node.document.attr? 'prewrap') || (node.option? 'nowrap')
+  lines = node.content.lines.map { |line| %(<div>#{line}</div>) }
   %(<div#{id_attribute} class="literalblock#{(role = node.role) ? " #{role}" : ''}">
 #{title_element}<div class="content">
-<pre class="bg-secondary text-white rounded p-3 #{nowrap ? 'nowrap' : ''}">#{node.content}</pre>
+<pre class="bg-secondary text-white #{node.title? ? 'rounded-bottom': 'rounded'} p-3 #{nowrap ? 'nowrap' : ''}">#{lines.join}</pre>
 </div>
 </div>)
 end

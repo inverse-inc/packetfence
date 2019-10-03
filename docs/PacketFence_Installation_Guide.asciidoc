@@ -159,7 +159,10 @@ On Debian
 
 Make sure your system is up to date and your yum or apt-get database is updated. On a RHEL-based system, do:
 
-  yum update
+[source,bash]
+----
+yum update
+----
 
 On a Debian system, do:
 
@@ -185,14 +188,20 @@ NOTE: Applies to CentOS and Scientific Linux but only the x86_64 architecture is
 
 Explicitly instruct NetworkManager to never interact with your DNS configuration (https://bugzilla.redhat.com/show_bug.cgi?id=1344303[Source]):
 
-  echo "[main]
-  dns=none" > /etc/NetworkManager/conf.d/99-no-dns.conf
-  service NetworkManager restart
-  
+[source,bash]
+----
+echo "[main]
+dns=none" > /etc/NetworkManager/conf.d/99-no-dns.conf
+service NetworkManager restart
+----
+
 You also need to disable systemd-logind and reboot:
 
-  /usr/bin/systemctl --now mask systemd-logind
-  reboot
+[source,bash]
+----
+/usr/bin/systemctl --now mask systemd-logind
+reboot
+----
 
 RHEL 7.x
 ++++++++
@@ -201,8 +210,11 @@ NOTE: These are extra steps are required for RHEL 7 systems only, excluding deri
 
 Red Hat Enterprise Linux users need to take an additional setup step. If you are not using the RHN Subscription Management from Red Hat you need to enable the optional and extras channels by running the following as root:
 
-  subscription-manager repos --enable rhel-7-server-optional-rpms
-  subscription-manager repos --enable rhel-7-server-extras-rpms
+[source,bash]
+----
+subscription-manager repos --enable rhel-7-server-optional-rpms
+subscription-manager repos --enable rhel-7-server-extras-rpms
+----
 
 Software Installation
 ^^^^^^^^^^^^^^^^^^^^^
@@ -212,13 +224,19 @@ RHEL / CentOS
 
 In order to use the PacketFence repository:
 
-  yum localinstall http://packetfence.org/downloads/PacketFence/RHEL7/`uname -i`/RPMS/packetfence-release-1.2-7.el7.centos.noarch.rpm
+[source,bash]
+----
+yum localinstall http://packetfence.org/downloads/PacketFence/RHEL7/`uname -i`/RPMS/packetfence-release-1.2-7.el7.centos.noarch.rpm
+----
 
 Once the repository is defined, you can install PacketFence with all its
 dependencies, and the required external services (database
 server, DHCP server, RADIUS server) using:
 
-  yum install --enablerepo=packetfence packetfence
+[source,bash]
+----
+yum install --enablerepo=packetfence packetfence
+----
 
 Debian
 ++++++
@@ -299,6 +317,7 @@ Connect to that switch over SSH as an admin.
 Enable 802.1X
 ^^^^^^^^^^^^^
 As a first configuration step, you need to enable 802.1X globally on the switch.  To do so, use the following:
+
 
    dot1x system-auth-control
 
@@ -519,13 +538,13 @@ PacketFence can authenticate users that register devices via the captive portal 
 * Windows Live (OAuth 2)
 * Password of the day
 
-and many others. Moreover, PacketFence can also authenticate users defined in its own internal SQL database. Authentication sources can be created from PacketFence administrative GUI - from the *Configuration -> Policies and Access Control -> Authentication Sources* section. Authentication sources, rules, conditions and actions are stored in the `conf/authentication.conf` configuration file.
+and many others. Moreover, PacketFence can also authenticate users defined in its own internal SQL database. Authentication sources can be created from PacketFence administrative GUI - from the 'Configuration -> Policies and Access Control -> Authentication Sources' section. Authentication sources, rules, conditions and actions are stored in the `conf/authentication.conf` configuration file.
 
 Each authentication sources you define will have a set of rules, conditions and actions.
 
 Multiple authentication sources can be defined, and will be tested in the order specified (note that they can be reordered from the GUI by dragging them around). Each source can have multiple rules, which will also be tested in the order specified. Rules can also be reordered, just like sources. Finally, conditions can be defined for a rule to match certain criteria. If the criteria match (one or more), actions are then applied and rules testing stop, across all sources as this is a "first match wins" operation.
 
-When no condition is defined, the rule will be considered as a catch-all. When a catch-all is defined, all actions will be applied for any users that match in the authentication source. Once a source is defined, it can be used from *Configuration -> Policies and Access Control -> Connection Profiles*. Each connection profile has a list of authentication sources to use.
+When no condition is defined, the rule will be considered as a catch-all. When a catch-all is defined, all actions will be applied for any users that match in the authentication source. Once a source is defined, it can be used from 'Configuration -> Policies and Access Control -> Connection Profiles'. Each connection profile has a list of authentication sources to use.
 
 In the previous section, you configured two authentication sources: Microsoft Active Directory and the Null sources. They were both catch-all sources.
 
@@ -626,11 +645,11 @@ In our previous configuration examples, we made use of two roles that come by de
 Adding Roles
 ~~~~~~~~~~~~
 
-Roles in PacketFence can be created from *Configuration -> Policies and Access Control -> Roles*. From this interface, you can also limit the number of devices users belonging to certain roles can register.
+Roles in PacketFence can be created from 'Configuration -> Policies and Access Control -> Roles'. From this interface, you can also limit the number of devices users belonging to certain roles can register.
 
-Roles are dynamically computed by PacketFence, based on the rules (ie., a set of conditions and actions) from authentication sources, using a first-match wins algorithm. Roles are then matched to VLAN or VLAN pool or internal roles or ACL on equipment from the *Configuration -> Policies and Access Control -> Switches* module. For a VLAN pool instead of defining a VLAN identifier, you can set a value like that: 20..23,27..30 - which means that the VLAN returned by PacketFence can be 20 to 23 and 27 to 30 (inclusively). There are three algorithms: one based on a hash of the username (default one), another one based on a round-robin (last registered device +1) and one that selects a VLAN randomly in the pool.
+Roles are dynamically computed by PacketFence, based on the rules (ie., a set of conditions and actions) from authentication sources, using a first-match wins algorithm. Roles are then matched to VLAN or VLAN pool or internal roles or ACL on equipment from the 'Configuration -> Policies and Access Control -> Switches' module. For a VLAN pool instead of defining a VLAN identifier, you can set a value like that: 20..23,27..30 - which means that the VLAN returned by PacketFence can be 20 to 23 and 27 to 30 (inclusively). There are three algorithms: one based on a hash of the username (default one), another one based on a round-robin (last registered device +1) and one that selects a VLAN randomly in the pool.
 
-*Configuration -> Policies and Access Control -> Roles*, click on 'Add role'. Provide the following information:
+'Configuration -> Policies and Access Control -> Roles', click on 'Add role'. Provide the following information:
 
 [options="compact"]
  * Name: employee
@@ -651,7 +670,7 @@ Now, we want to assign roles to employees and their corporate machines using Act
 Using the Employee Role
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-From the *Configuration -> Policies and Access Control -> Authentication Sources*, we select *Add source -> AD*. We provide the following information:
+From the 'Configuration -> Policies and Access Control -> Authentication Sources', we select 'Add source -> AD'. We provide the following information:
 
 [options="compact"]
 * *Name:* ad1
@@ -663,7 +682,7 @@ From the *Configuration -> Policies and Access Control -> Authentication Sources
 * *Bind DN:* CN=Administrator,CN=Users,DC=acme,DC=local
 * *Password:* acme123
 
-Then, we add an 'Authentication rules' by clicking on the *Add rule* button and provide the following information:
+Then, we add an 'Authentication rules' by clicking on the 'Add rule' button and provide the following information:
 
 [options="compact"]
 * *Name:* employees
@@ -957,11 +976,17 @@ If this didn't help, run FreeRADIUS in debug mode. To do so, start it using the 
 
 For the authentication radius process:
 
-  # radiusd -X -d /usr/local/pf/raddb -n auth
+[source,bash]
+----
+radiusd -X -d /usr/local/pf/raddb -n auth
+----
 
 For the accounting radius process:
 
-  # radiusd -X -d /usr/local/pf/raddb -n acct
+[source,bash]
+----
+radiusd -X -d /usr/local/pf/raddb -n acct
+----
 
 Additionally there is a `raddebug` tool that can extract debug logs from a
 running FreeRADIUS daemon. PacketFence's FreeRADIUS is pre-configured with such support.
@@ -973,13 +998,19 @@ b. Run `raddebug` as root (less secure!)
 
 Now you can run `raddebug` easily:
 
-  raddebug -t 300 -f /usr/local/pf/var/run/radiusd.sock
+[source,bash]
+----
+raddebug -t 300 -f /usr/local/pf/var/run/radiusd.sock
+----
 
 The above will output FreeRADIUS' authentication debug logs for 5 minutes.
 
 Use the following to debug radius accounting:
 
-  raddebug -t 300 -f /usr/local/pf/var/run/radiusd-acct.sock
+[source,bash]
+----
+raddebug -t 300 -f /usr/local/pf/var/run/radiusd-acct.sock
+----
 
 See `man raddebug` for all the options.
 
@@ -992,7 +1023,7 @@ This section details most of the authentication mechasnisms supported by PacketF
 Microsoft Active Directory (AD)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Go in the Administration interface under *Configuration -> Policies and Access Control -> Domains -> Active Directory Domains*.
+Go in the Administration interface under 'Configuration -> Policies and Access Control -> Domains -> Active Directory Domains'.
 
 NOTE: If you can't access this section and you have previously configured your server to bind to a domain externally to PacketFence, make sure you run `/usr/local/pf/addons/AD/migrate.pl`
 
@@ -1026,7 +1057,7 @@ NOTE: Under certain conditions, the test join may show as unsuccessful in the Ad
 Default Domain Configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-You should now define the domain you want to use as the default one by creating the following realm in *Configuration -> Policies and Access Control -> Domains -> REALMS*
+You should now define the domain you want to use as the default one by creating the following realm in 'Configuration -> Policies and Access Control -> Domains -> REALMS'.
 
 image::domain-default-realm.png[scaledwidth="100%",alt="Adding the default realm"]
 
@@ -1035,9 +1066,9 @@ Next, restart PacketFence in *Status -> Services*
 Multiple Domains Authentication
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-First configure your domains in *Configuration -> Policies and Access Control -> Domains -> Active Directory Domains*.
+First configure your domains in 'Configuration -> Policies and Access Control -> Domains -> Active Directory Domains'.
 
-Once they are configured, go in *Configuration -> Policies and Access Control -> Domains -> REALMS*.
+Once they are configured, go in 'Configuration -> Policies and Access Control -> Domains -> REALMS'.
 
 Create a new realm that matches the DNS name of your domain *AND* one that matches your workgroup. In the case of this example, it will be DOMAIN.NET and DOMAIN.
 
@@ -1073,17 +1104,17 @@ You must enable the passthrough option in your PacketFence configuration (fencin
 Google
 ^^^^^^
 In order to use Google as a OAuth2 provider, you need to get an API key to access their services.  Sign up here : http://code.google.com/apis/console.
-In the Google APIs Console, go into *Credentials -> Create Credentials -> OAuth client ID -> Web Application, then enter a name and make sure you use this URI for the "Authorized redirect URIs" field : https://YOUR_PORTAL_HOSTNAME/oauth2/callback.  Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
+In the Google APIs Console, go into 'Credentials -> Create Credentials -> OAuth client ID -> Web Application', then enter a name and make sure you use this URI for the "Authorized redirect URIs" field : https://YOUR_PORTAL_HOSTNAME/oauth2/callback.  Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
 Save to get the Client ID and Client secret.
 
 You can keep the default configuration, modify the App ID & App Secret (Given by Google on the developer platform) and Portal URL (https://YOUR_PORTAL_HOSTNAME/oauth2/callback).
 
 Also, add the following Authorized domains : *.google.com, *.google.ca, *.google.fr, *.gstatic.com,googleapis.com,accounts.youtube.com (Make sure that you have the google domain from your country like Canada => *.google.ca, France => *.google.fr, etc...)
 
-Once you have your client id, and API key, you need to configure the OAuth2 provider. This can be done by adding a Google OAuth2 authentication source from *Configuration -> Policies and Access Control -> Authentication Sources*.
+Once you have your client id, and API key, you need to configure the OAuth2 provider. This can be done by adding a Google OAuth2 authentication source from 'Configuration -> Policies and Access Control -> Authentication Sources'.
 Remember to add the Authentication Rules with at least two Actions (example: Role and Access duration).
 
-Moreover, don't forget to add Google as a *Source* from your connection profile definition, available from *Configuration -> Policies and Access Control -> Connection Profiles and Pages*.
+Moreover, don't forget to add Google as a *Source* from your connection profile definition, available from 'Configuration -> Policies and Access Control -> Connection Profiles and Pages'.
 
 Facebook
 ^^^^^^^^
@@ -1091,18 +1122,18 @@ To use Facebook as an authentication source, you also need an API code and a sec
 https://YOUR_PORTAL_HOSTNAME/oauth2/callback
 Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
 
-To find the secret, go in your newly created app, and click on *Settings -> Basic*.
+To find the secret, go in your newly created app, and click on 'Settings -> Basic'.
 
-While in *Settings -> Basic*, add YOUR_PORTAL_HOSTNAME in the *App Domains* field. Next, you will need to add the product *Facebook Login*. Click on *Set up*, and choose *Web* platform. Go through the 5 steps, then on the left side of the screen, go in settings under Facebook Login. For *Valid OAuth Redirect URIs*, enter https://YOUR_PORTAL_HOSTNAME/oauth2/callback and then save changes.
+While in 'Settings -> Basic', add YOUR_PORTAL_HOSTNAME in the *App Domains* field. Next, you will need to add the product *Facebook Login*. Click on *Set up*, and choose *Web* platform. Go through the 5 steps, then on the left side of the screen, go in settings under Facebook Login. For *Valid OAuth Redirect URIs*, enter https://YOUR_PORTAL_HOSTNAME/oauth2/callback and then save changes.
 
 Also, add the following Authorized domains : *.facebook.com, *.fbcdn.net, *.akamaihd.net (May change)
 
-Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a Facebook OAuth2 authentication source from *Configuration -> Policies and Access Control -> Authentication Sources*.
+Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a Facebook OAuth2 authentication source from 'Configuration -> Policies and Access Control -> Authentication Sources'.
 Remember to add the Authentication Rules with at least two Actions (example: Role and Access duration).
 
 You can keep the default configuration, modify the App ID & App Secret (Given by Facebook on the developer platform) and Portal URL (https://YOUR_PORTAL_HOSTNAME/oauth2/callback).
 
-Moreover, don't forget to add Facebook as a *Source* from your connection profile definition, available from *Configuration -> Policies and Access Control -> Connection Profiles and Pages*.
+Moreover, don't forget to add Facebook as a *Source* from your connection profile definition, available from 'Configuration -> Policies and Access Control -> Connection Profiles and Pages'.
 
 CAUTION: By allowing OAuth through Facebook, you will give Facebook access to the users while they are sitting in the registration VLAN.
 
@@ -1113,10 +1144,10 @@ https://YOUR_PORTAL_HOSTNAME/oauth2/callback
 
 Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
 
-Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a GitHub OAuth2 authentication source from *Configuration -> Policies and Access Control -> Authentication Sources*.
+Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a GitHub OAuth2 authentication source from 'Configuration -> Policies and Access Control -> Authentication Sources'.
 Remember to add the Authentication Rules with at least two Actions (example: Role and Access duration).
 
-Moreover, don't forget to add GitHub as a *Source* from your connection profile definition, available from *Configuration -> Policies and Access Control -> Connection Profiles and Pages*.
+Moreover, don't forget to add GitHub as a *Source* from your connection profile definition, available from 'Configuration -> Policies and Access Control -> Connection Profiles and Pages'.
 
 Instagram
 ^^^^^^^^^
@@ -1125,19 +1156,19 @@ https://YOUR_PORTAL_HOSTNAME/oauth2/callback
 
 Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
 
-Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a Instagram OAuth2 authentication source from *Configuration -> Policies and Access Control -> Authentication Sources*.
+Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a Instagram OAuth2 authentication source from 'Configuration -> Policies and Access Control -> Authentication Sources'.
 Remember to add the Authentication Rules with at least two Actions (example: Role and Access duration).
 
-Moreover, don't forget to add Instagram as a *Source* from your connection profile definition, available from *Configuration -> Policies and Access Control -> Connection Profiles and Pages*.
+Moreover, don't forget to add Instagram as a *Source* from your connection profile definition, available from 'Configuration -> Policies and Access Control -> Connection Profiles and Pages'.
 
 Kickbox
 ^^^^^^^
-To use Kickbox, you need a API key. To get one, first create an account on <https://kickbox.io>, then navigate to <https://app.kickbox.com/settings/keys>. Click on *API Keys -> Create Key*. Pick a name and choose *Production* mode and *Single* verification.
+To use Kickbox, you need a API key. To get one, first create an account on <https://kickbox.io>, then navigate to <https://app.kickbox.com/settings/keys>. Click on 'API Keys -> Create Key'. Pick a name and choose 'Production' mode and 'Single' verification.
 
-Once you have your API key, you need to configure the OAuth2 provider. This can be done by adding a Kickbox authentication source from *Configuration -> Policies and Access Control -> Authentication Sources*.
+Once you have your API key, you need to configure the OAuth2 provider. This can be done by adding a Kickbox authentication source from 'Configuration -> Policies and Access Control -> Authentication Sources'.
 Remember to add the Authentication Rules with at least two Actions (example: Role and Access duration).
 
-Moreover, don't forget to add Kickbox as a *Source* from your connection profile definition, available from *Configuration -> Policies and Access Control -> Connection Profiles and Pages*.
+Moreover, don't forget to add Kickbox as a 'Source' from your connection profile definition, available from 'Configuration -> Policies and Access Control -> Connection Profiles and Pages'.
 
 LinkedIn
 ^^^^^^^^
@@ -1146,10 +1177,10 @@ https://YOUR_PORTAL_HOSTNAME/oauth2/callback
 
 Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
 
-Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a LinkedIn OAuth2 authentication source from *Configuration -> Policies and Access Control -> Authentication Sources*.
+Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a LinkedIn OAuth2 authentication source from 'Configuration -> Policies and Access Control -> Authentication Sources'.
 Remember to add the Authentication Rules with at least two Actions (example: Role and Access duration).
 
-Moreover, don't forget to add LinkedIn as a *Source* from your connection profile definition, available from *Configuration -> Policies and Access Control -> Connection Profiles and Pages*.
+Moreover, don't forget to add LinkedIn as a 'Source' from your connection profile definition, available from 'Configuration -> Policies and Access Control -> Connection Profiles and Pages'.
 
 NOTE: When testing LinkedIn OAuth2, use a different LinkedIn account to setup the application and to test the Source in the captive portal.
 
@@ -1163,10 +1194,10 @@ Of course, replace the hostname with the values from `general.hostname` and `gen
 
 OpenID connect have different ways to be configured, make sure to create a client ID and a client secret to work with PacketFence.
 
-Once you have your information, you need to configure the OAuth2 provider. This can be done by adding an OpenID OAuth2 authentication source from *Configuration -> Policies and Access Control -> Authentication Sources*.
+Once you have your information, you need to configure the OAuth2 provider. This can be done by adding an OpenID OAuth2 authentication source from 'Configuration -> Policies and Access Control -> Authentication Sources'.
 Remember to add the Authentication Rules with at least two Actions (example: Role and Access duration).
 
-Moreover, don't forget to add OpenID as a *Source* from your connection profile definition, available from *Configuration -> Policies and Access Control -> Connection Profiles and Pages*.
+Moreover, don't forget to add OpenID as a 'Source' from your connection profile definition, available from 'Configuration -> Policies and Access Control -> Connection Profiles and Pages'.
 
 Pinterest
 ^^^^^^^^^
@@ -1175,19 +1206,19 @@ https://YOUR_PORTAL_HOSTNAME/oauth2/callback
 
 Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
 
-Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a Pinterest OAuth2 authentication source from *Configuration -> Policies and Access Control -> Authentication Sources*.
+Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a Pinterest OAuth2 authentication source from 'Configuration -> Policies and Access Control -> Authentication Sources'.
 Remember to add the Authentication Rules with at least two Actions (example: Role and Access duration).
 
-Moreover, don't forget to add Pinterest as a *Source* from your connection profile definition, available from *Configuration -> Policies and Access Control -> Connection Profiles and Pages*.
+Moreover, don't forget to add Pinterest as a 'Source' from your connection profile definition, available from 'Configuration -> Policies and Access Control -> Connection Profiles and Pages'.
 
 Twilio
 ^^^^^^
 To use Twilio, first create an account on <https://www.twilio.com>. From the console (dashboard) <https://www.twilio.com/console> create a *3rd Party Integration*. Note the *Account SID* and *Auth Token* for later use. From the Phone Manager <https://www.twilio.com/console/phone-numbers/incoming> click the "+" button to *Buy a number* with _SMS_ capability - no payment is needed to start using this phone number right away.
 
-Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a Twilio OAuth2 authentication source from *Configuration -> Policies and Access Control -> Authentication Sources*. Enter your *Account SID*, *Auth Token* and *Phone Number (From)* from above.
+Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a Twilio OAuth2 authentication source from 'Configuration -> Policies and Access Control -> Authentication Sources'. Enter your 'Account SID', 'Auth Token' and 'Phone Number (From)' from above.
 Remember to add the Authentication Rules with at least two Actions (example: Role and Access duration).
 
-Moreover, don't forget to add Twilio as a *Source* from your connection profile definition, available from *Configuration -> Policies and Access Control -> Connection Profiles and Pages*.
+Moreover, don't forget to add Twilio as a 'Source' from your connection profile definition, available from 'Configuration -> Policies and Access Control -> Connection Profiles and Pages'.
 
 Twitter
 ^^^^^^^
@@ -1196,20 +1227,20 @@ https://YOUR_PORTAL_HOSTNAME/oauth2/callback
 
 Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
 
-Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a Twitter OAuth2 authentication source from *Configuration -> Policies and Access Control -> Authentication Sources*.
+Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a Twitter OAuth2 authentication source from 'Configuration -> Policies and Access Control -> Authentication Sources'.
 Remember to add the Authentication Rules with at least two Actions (example: Role and Access duration).
 
-Moreover, don't forget to add Twitter as a *Source* from your connection profile definition, available from *Configuration -> Policies and Access Control -> Connection Profiles and Pages*.
+Moreover, don't forget to add Twitter as a 'Source' from your connection profile definition, available from 'Configuration -> Policies and Access Control -> Connection Profiles and Pages'.
 
 Windows Live
 ^^^^^^^^^^^^
 To use Windows live, you also need an API code and a secret key.  To get one, you need to create an App here: https://account.live.com/developers/applications.  When you create your App, make sure you specify the following as the Callback URL
-https://YOUR_PORTAL_HOSTNAME/oauth2/callback replacing the hostname with the values from `general.hostname` and `general.domain`, and check *Live SDK support*.
+https://YOUR_PORTAL_HOSTNAME/oauth2/callback replacing the hostname with the values from `general.hostname` and `general.domain`, and check 'Live SDK support'.
 
-Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a WindowsLive OAuth2 authentication source from *Configuration -> Policies and Access Control -> Authentication Sources*.
+Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a WindowsLive OAuth2 authentication source from 'Configuration -> Policies and Access Control -> Authentication Sources'.
 Remember to add the Authentication Rules with at least two Actions (example: Role and Access duration).
 
-Moreover, don't forget to add WindowsLive as a *Source* from your connection profile definition, available from *Configuration -> Policies and Access Control -> Connection Profiles and Pages*.
+Moreover, don't forget to add WindowsLive as a 'Source' from your connection profile definition, available from 'Configuration -> Policies and Access Control -> Connection Profiles and Pages'.
 
 Eduroam
 ~~~~~~~
@@ -1786,56 +1817,58 @@ Configuring your survey
 
 Next, you will have to configure your survey in `/usr/local/pf/conf/survey.conf`. Here is an example of a survey:
 
+[source,ini,numbered]
+----
+[survey1]
+description=Mustard Turkey Sandwich Brothers
 
-  [survey1]
-  description=Mustard Turkey Sandwich Brothers
+[survey1 field gender]
+label=What is your gender?
+type=Select
+choices=<<EOT
+M|Male
+F|Female
+EOT
+required=yes
 
-  [survey1 field gender]
-  label=What is your gender?
-  type=Select
-  choices=<<EOT
-  M|Male
-  F|Female
-  EOT
-  required=yes
+[survey1 field firstname]
+label=What is your firstname?
+type=Text
+required=yes
 
-  [survey1 field firstname]
-  label=What is your firstname?
-  type=Text
-  required=yes
+[survey1 field lastname]
+label=What is your lastname?
+type=Text
+required=yes
 
-  [survey1 field lastname]
-  label=What is your lastname?
-  type=Text
-  required=yes
+[survey1 field sandwich_quality]
+label=On a scale of 1 to 5, how good was your sandwich today?
+type=Scale
+minimum=1
+maximum=5
+required=yes
 
-  [survey1 field sandwich_quality]
-  label=On a scale of 1 to 5, how good was your sandwich today?
-  type=Scale
-  minimum=1
-  maximum=5
-  required=yes
+[survey1 field prefered_sandwich]
+label=What is your prefered sandwich?
+type=Select
+choices= <<EOT
+Classic|Classic
+Extra Turkey|Sandwich with extra turkey
+Extra Mustard|Sandwich with extra mustard
+EOT
+required=yes
 
-  [survey1 field prefered_sandwich]
-  label=What is your prefered sandwich?
-  type=Select
-  choices= <<EOT
-  Classic|Classic
-  Extra Turkey|Sandwich with extra turkey
-  Extra Mustard|Sandwich with extra mustard
-  EOT
-  required=yes
+[survey1 field comments]
+label=Enter any additionnal comments here
+type=TextArea
+required=no
 
-  [survey1 field comments]
-  label=Enter any additionnal comments here
-  type=TextArea
-  required=no
+[survey1 data ssid]
+query=node.last_ssid
 
-  [survey1 data ssid]
-  query=node.last_ssid
-
-  [survey1 data ip]
-  query=ip
+[survey1 data ip]
+query=ip
+----
 
 NOTE: Make sure you reload the configuration after setting it up by doing `/usr/local/pf/bin/pfcmd configreload hard`
 
@@ -1883,10 +1916,13 @@ Exploring the collected data
 
 All the data that is collected in the example survey will be stored in a table named `survey_survey1`. You can create 'Custom Reports' on your survey tables via `/usr/local/pf/conf/report.conf`. Here is an example for the survey created above:
 
-  [survey1]
-  description=My first survey report
-  base_table=survey_survey1
-  columns=firstname as "Firstname", lastname as "Lastname", prefered_sandwich as "Prefered Sandwich", gender as "Gender"
+[source,ini,numbered]
+----
+[survey1]
+description=My first survey report
+base_table=survey_survey1
+columns=firstname as "Firstname", lastname as "Lastname", prefered_sandwich as "Prefered Sandwich", gender as "Gender"
+----
 
 NOTE: Make sure you reload the configuration after setting it up by doing `/usr/local/pf/bin/pfcmd configreload hard`
 
@@ -2037,14 +2073,18 @@ When configured, connection profiles will override default values for which it i
 
 Here are the different configuration parameters that can be set for each connection profiles. The only mandatory parameter is "filter", otherwise, PacketFence won't be able to correctly apply the connection profile. The parameters must be set in conf/profiles.conf:
 
-  [profilename1]
-  description = the description of your connection profile
-  filter = the name of the SSID for which you'd like to apply the profile, or the VLAN number
-  sources = comma-separated list of authentications sources (IDs) to use
+.conf/profiles.conf
+[source,ini,numbered]
+----
+[profilename1]
+description = the description of your connection profile
+filter = the name of the SSID for which you'd like to apply the profile, or the VLAN number
+sources = comma-separated list of authentications sources (IDs) to use
+----
 
-Connection profiles should be managed from PacketFence's Web administrative GUI - from the *Configuration -> Policies and Access Control -> Connection Profiles* section. Adding a connection profile from that interface will correctly copy templates over - which can then be modified as you wish.
+Connection profiles should be managed from PacketFence's Web administrative GUI - from the 'Configuration -> Policies and Access Control -> Connection Profiles' section. Adding a connection profile from that interface will correctly copy templates over - which can then be modified as you wish.
 
-* Filters under *Configuration -> Policies and Access Control -> Connection Profile -> Profile Name -> Filters*
+* Filters under 'Configuration -> Policies and Access Control -> Connection Profile -> Profile Name -> Filters'
 
 PacketFence offers the following filters: Connection Type, Network, Node Role, Port, realm, SSID, Switch, Switch Port, URI, VLAN and Time period.
 
@@ -2058,13 +2098,13 @@ Example with the most common ones:
 
 CAUTION: Node role will take effect only with a 802.1X connection or if you use VLAN filters.
 
-* Advanced filter under *Configuration -> Policies and Access Control -> Connection Profile -> Profile Name -> Advanced Filter*
+* Advanced filter under 'Configuration -> Policies and Access Control -> Connection Profile -> Profile Name -> Advanced Filter'
 
 In this section you are able to define an advanced filter in order to match specific attributes.
 
 You have access to the following attributes:
 
- From the database (mean that it comes from a previous connection):
+.From the database (mean that it comes from a previous connection):
      autoreg
      status
      bypass_vlan
@@ -2103,7 +2143,7 @@ You have access to the following attributes:
      radius_request.NAS-IP-Address
      radius_request.NAS-Port-Id
 
- From the current connection:
+.From the current connection:
      connection_sub_type
      connection_type
      switch
@@ -2114,14 +2154,14 @@ You have access to the following attributes:
      realm
      machine_account
 
- Operator:
+.Operator:
      && and
      || or
      != is not equal
      == equal
      ()
 
- Special value
+.Special value
     __NULL__ the value is NULL in the database
 
 
@@ -2147,6 +2187,8 @@ Examples (Match a device that never did a machine authentication (BYOD))
 
 Here and example of attributes that can be tested:
 
+[source,perl,numbered]
+----
           'radius_request' => {
                                 'NAS-Port-Type' => 15,
                                 'Service-Type' => 2,
@@ -2276,7 +2318,7 @@ Here and example of attributes that can be tested:
           'last_switch_mac' => '00:8e:73:5d:f6:9e',
           'sessionid' => undef,
           'last_start_time' => '2019-08-15 16:09:16'
-
+----
 
 PacketFence relies extensively on Apache for its captive portal, administrative interface and Web services. The PacketFence Apache configuration is located in `/usr/local/pf/conf/httpd.conf.d/`.
 
@@ -2330,8 +2372,9 @@ And can be defined using different criteria like:
 
 Below are several common examples of VLAN filters usage.
 
-EXAMPLE: prevent a device from connecting when its role is "default", the SSID is "SECURE", the current time is between 11am and 2pm, from Monday to Friday and as a registered device
-
+.EXAMPLE: revent a device from connecting when its role is "default", the SSID is "SECURE", the current time is between 11am and 2pm, from Monday to Friday and as a registered device
+[source,ini,numbered]
+----
   [category]
   filter = node_info.category
   operator = is
@@ -2350,9 +2393,11 @@ EXAMPLE: prevent a device from connecting when its role is "default", the SSID i
   [1:category&ssid&time]
   scope = RegisteredRole
   role = nointernet
+----
 
-EXAMPLE: create a security violaton if the SSID is OPEN and the owner is igmout
-
+.EXAMPLE: create a security violaton if the SSID is OPEN and the owner is igmout
+[source,ini,numbered]
+----
   [igmout]
   filter = owner.pid
   operator = is
@@ -2367,9 +2412,11 @@ EXAMPLE: create a security violaton if the SSID is OPEN and the owner is igmout
   scope = RegisteredRole
   action = trigger_security_event
   action_param = mac = $mac, tid = 1100012, type = INTERNAL
+----
 
-EXAMPLE: autoregister the device and assign the role staff to each device where the username is igmout.
-
+.EXAMPLE: autoregister the device and assign the role staff to each device where the username is igmout.
+[source,ini,numbered]
+----
   [igmout]
   filter = username
   operator = is
@@ -2387,9 +2434,11 @@ EXAMPLE: autoregister the device and assign the role staff to each device where 
   [4:igmout&secure]
   scope = NodeInfoForAutoReg
   role = staff
+----
 
-EXAMPLE: autoregister all Windows devices and assign them the role default.
-
+.EXAMPLE: autoregister all Windows devices and assign them the role default.
+[source,ini,numbered]
+----
   [Windows_AutoReg]
   filter = fingerbank_info.device_hierarchy_names
   operator = includes
@@ -2402,10 +2451,11 @@ EXAMPLE: autoregister all Windows devices and assign them the role default.
   [WINDOWS_ROLE:Windows_devices]
   scope = NodeInfoForAutoReg
   role = default
+----
 
-
-EXAMPLE: filter a MAC address and reject it by assigning the role REJECT.
-
+.EXAMPLE: filter a MAC address and reject it by assigning the role REJECT.
+[source,ini,numbered]
+----
   [MAC]
   filter = node_info.mac
   operator = match
@@ -2419,9 +2469,11 @@ EXAMPLE: filter a MAC address and reject it by assigning the role REJECT.
   [REJECT:MAC&SSID_Open]
   scope = RegistrationRole
   role = REJECT
+----
 
-EXAMPLE: autoregister devices using dot1x/EAP over wired or wireless and that are not pending
-
+.EXAMPLE: autoregister devices using dot1x/EAP over wired or wireless and that are not pending
+[source,ini,numbered]
+----
   [not_pending]
   filter = node_info.status
   operator = is_not
@@ -2444,9 +2496,11 @@ EXAMPLE: autoregister devices using dot1x/EAP over wired or wireless and that ar
   [autoreg_wired_dot1x:wired_dot1x&not_pending]
   scope = AutoRegister
   role = default
+----
 
-EXAMPLE: auto set Avaya and Polycom as phones by matching vendor MAC, and set to default role
-
+.EXAMPLE: auto set Avaya and Polycom as phones by matching vendor MAC, and set to default role
+[source,ini,numbered]
+----
   [Polycom]
   filter = node_info.mac
   operator = regex
@@ -2460,9 +2514,11 @@ EXAMPLE: auto set Avaya and Polycom as phones by matching vendor MAC, and set to
   [set_voip:(avaya|Polycom)]
   scope = IsPhone
   role = default
+----
 
-EXAMPLE: Refuse user authentication without prior machine authentication
-
+.EXAMPLE: Refuse user authentication without prior machine authentication
+[source,ini,numbered]
+----
   [EthernetEAP]
   filter = connection_type
   operator = is
@@ -2487,9 +2543,11 @@ EXAMPLE: Refuse user authentication without prior machine authentication
   [REJECT_NO_MACHINE_AUTH:EthernetEAP&!machine]
   scope = RegistrationRole
   role = REJECT
+----
 
-EXAMPLE: autoregister printers and scanners
-
+.EXAMPLE: autoregister printers and scanners
+[source,ini,numbered]
+----
   [printers]
   filter = node_info.device_class
   operator = is
@@ -2507,16 +2565,20 @@ EXAMPLE: autoregister printers and scanners
   [printers_role:(printers)]
   scope = NodeInfoForAutoReg
   role = printers
+----
 
 You can also add notes to the device using filters. Here you can see how to add a note to all HP Printers.
 
+[source,ini,numbered]
+----
   [Add_Note_HP_Printer:HP_Printer]
   scope = RegisteredRole
   role = printers
   action = modify_node
   action_param = mac = $mac, notes = HP PRINTER
+----
 
-You can have a look in the file vlan_filters.conf, there are some examples on how to use and define filters.
+You can have a look in the file `vlan_filters.conf`, there are some examples on how to use and define filters.
 
 RADIUS Filter Definition
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -2642,6 +2704,7 @@ EAP Authentication against OpenLDAP
 To authenticate 802.1X connection against OpenLDAP you need to define the LDAP connection in `/usr/local/pf/raddb/modules/ldap` and
 be sure that the user password is define as a NTHASH or as clear text.
 
+[source,radius,numbered]
 ----
   ldap openldap {
     server = "ldap.acme.com"
@@ -2673,6 +2736,7 @@ be sure that the user password is define as a NTHASH or as clear text.
 
 Next in `/usr/local/pf/raddb/sites-available/packetfence-tunnel` add in the authorize section:
 
+[source,radius,numbered]
 ----
 authorize {
         suffix
@@ -2705,32 +2769,34 @@ In `/usr/local/pf/conf/radiusd/packetfence-tunnel` uncomment the line `# packetf
 This will activate the feature for any local account on the PacketFence server. You can restrict which accounts can be used by commenting the appropriate line in `/usr/local/pf/raddb/policy.d/packetfence`.
 For example, if you would want to deactivate this feature for accounts created via SMS, you would have the following :
 
-    packetfence-local-auth {
-        # Disable ntlm_auth
-        update control {
-            &MS-CHAP-Use-NTLM-Auth := No
-        }
-        # Check password table for local user
-        pflocal
+[source,radius,numbered]
+----
+packetfence-local-auth {
+    # Disable ntlm_auth
+    update control {
+        &MS-CHAP-Use-NTLM-Auth := No
+    }
+    # Check password table for local user
+    pflocal
+    if (fail || notfound) {
+        # Check password table with email and password for a sponsor registration
+        pfguest
         if (fail || notfound) {
-            # Check password table with email and password for a sponsor registration
-            pfguest
+            # Check password table with email and password for a guest registration
+            pfsponsor
             if (fail || notfound) {
-                # Check password table with email and password for a guest registration
-                pfsponsor
+                # *Don't* check activation table with phone number and PIN code
+                # pfsms <--- This line was commented out
                 if (fail || notfound) {
-                    # *Don't* check activation table with phone number and PIN code
-                    # pfsms <--- This line was commented out
-                    if (fail || notfound) {
-                        update control {
-                           &MS-CHAP-Use-NTLM-Auth := Yes
-                        }
+                    update control {
+                       &MS-CHAP-Use-NTLM-Auth := Yes
                     }
                 }
             }
         }
     }
-
+}
+----
 
 NOTE: For this feature to work, the users' passwords must be stored in clear text in the database. This is configurable via `advanced.hash_passwords`.
 
@@ -2741,6 +2807,7 @@ The goal here is to use the local user to authenticate 802.1X device.
 
 Edit `/usr/local/pf/conf/radiusd/packetfence-tunnel`
 
+[source,radius,numbered]
 ----
 # Uncomment the following line to enable local PEAP authentication
 packetfence-local-auth
@@ -2759,6 +2826,7 @@ This section will allow you to limit a brute force attack and prevent the lockin
 
 Edit `/usr/local/pf/conf/radiusd/packetfence-tunnel`
 
+[source,radius,numbered]
 ----
 # Uncomment the following lines to enable this feature
 packetfence-control-ntlm-failure
@@ -2773,6 +2841,7 @@ Testing
 
 Test your setup with `radtest` using the following command and make sure you get an `Access-Accept` answer:
 
+[source,radius,numbered]
 ----
 # radtest dd9999 Abcd1234 localhost:18120 12 testing123
 Sending Access-Request of id 74 to 127.0.0.1 port 18120
@@ -2848,7 +2917,7 @@ image::ACME1.png[scaledwidth="100%",alt="ACME RADIUS Source"]
 
 $src_ip is a way to dynamically use the correct source ip address of the system in case of multiples network interfaces.
 
-Next go in Configuration ->  Policies and Access Control -> REALMS, and add a new realm.
+Next go in 'Configuration -> Policies and Access Control -> REALMS', and add a new realm.
 
 image::acme.com.png[scaledwidth="100%",alt="ACME Realm Configuration"]
 image::acme.com.2.png[scaledwidth="100%",alt="ACME Realm Configuration"]
@@ -2975,7 +3044,7 @@ The first step is to create the syslog regex parser and then create the security
 Syslog regex parser configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-To create the syslog regex parser you will need to go to *Configuration -> Integration -> Syslog Parsers -> Add a Syslog Parser -> regex*
+To create the syslog regex parser you will need to go to 'Configuration -> Integration -> Syslog Parsers -> Add a Syslog Parser -> regex'
 
 Here is the configuration of the syslog regex parser:
 
@@ -3145,36 +3214,45 @@ On Security Onion:
 
  * Enable Inverse repository for Security Onion:
 
-  sudo bash -c 'cat << EOL >/etc/apt/sources.list.d/securityonion-inverse.list
-  deb http://inverse.ca/downloads/PacketFence/securityonion trusty trusty
-  EOL'
+[source,bash]
+----
+sudo bash -c 'cat << EOL >/etc/apt/sources.list.d/securityonion-inverse.list
+deb http://inverse.ca/downloads/PacketFence/securityonion trusty trusty
+EOL'
 
-  gpg --keyserver keyserver.ubuntu.com --recv 19CDA6A9810273C4
-  gpg --export --armor 19CDA6A9810273C4 | sudo apt-key add -
+gpg --keyserver keyserver.ubuntu.com --recv 19CDA6A9810273C4
+gpg --export --armor 19CDA6A9810273C4 | sudo apt-key add -
+----
 
  * Install RCDCAP
 
+[source,bash]
+----
   sudo apt-get update
   sudo apt-get install rcdcap
+----
 
   * Modify network file (/etc/network/inferfaces) so that eth2 has an IP and a proper MTU. Decapsulated traffic will be injected on mon1. Make sure that the configuration is similar to the following:
 
-  auto eth2
-  iface eth2 inet static
-    address 10.10.10.10
-    netmask 255.255.255.240
-    up ip link set $IFACE arp on up
-    up ip link set dev $IFACE mtu 1900
-    post-up ethtool -G $IFACE rx 4096; for i in rx tx sg tso ufo gso gro lro; do ethtool -K $IFACE $i off; done
-    post-up echo 1 > /proc/sys/net/ipv6/conf/$IFACE/disable_ipv6
+[source,ini,numbered]
+----
+auto eth2
+iface eth2 inet static
+  address 10.10.10.10
+  netmask 255.255.255.240
+  up ip link set $IFACE arp on up
+  up ip link set dev $IFACE mtu 1900
+  post-up ethtool -G $IFACE rx 4096; for i in rx tx sg tso ufo gso gro lro; do ethtool -K $IFACE $i off; done
+  post-up echo 1 > /proc/sys/net/ipv6/conf/$IFACE/disable_ipv6
 
-  auto mon1
-  iface mon1 inet manual
-    pre-up rcdcap -i eth1 --erspan --tap-persist --tap-device $IFACE --expression "host 172.16.0.1" -d
-    up ip link set $IFACE promisc on arp off up
-    down ip link set $IFACE promisc off down
-    post-up ethtool -G $IFACE rx ; for i in rx tx sg tso ufo gso gro lro; do ethtool -K $IFACE $i off; done
-    post-up echo 1 > /proc/sys/net/ipv6/conf/$IFACE/disable_ipv6
+auto mon1
+iface mon1 inet manual
+  pre-up rcdcap -i eth1 --erspan --tap-persist --tap-device $IFACE --expression "host 172.16.0.1" -d
+  up ip link set $IFACE promisc on arp off up
+  down ip link set $IFACE promisc off down
+  post-up ethtool -G $IFACE rx ; for i in rx tx sg tso ufo gso gro lro; do ethtool -K $IFACE $i off; done
+  post-up echo 1 > /proc/sys/net/ipv6/conf/$IFACE/disable_ipv6
+----
 
   * Rerun Security Onion wizard and make sure to skip network configuration step. Make sure that mon1 is selected for monitoring purposes, note that eth2 doesn't need to.
 

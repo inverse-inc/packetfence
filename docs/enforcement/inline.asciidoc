@@ -11,9 +11,9 @@ The inline enforcement is a very convenient method for performing access control
 An important configuration parameter to have in mind when configuring inline enforcement is that the DNS reached by these users should be your actual production DNS server - which shouldn't be in the same broadcast domain as your inline users. The next section shows you how to configure the proper inline interface and it is in this section that you should refer to the proper production DNS.
 
 Inline enforcement uses `ipset` to mark nodes as registered, unregistered and isolated.
-It is also now possible to use multiple inline interfaces. A node registered on the first inline interface is marked with an IP:MAC tuple (for L2, only ip for L3), so when the node tries to register on an other inline interface, PacketFence detects that the node is already registered on the first inline network. It is also possible to enable `inline.should_reauth_on_vlan_change` to force users to reauthenticate when they change inline network - you can change this from *Configuration->Network Configuration->Inline* - by checking or not the 'Reauthenticate node' checkbox.
+It is also now possible to use multiple inline interfaces. A node registered on the first inline interface is marked with an IP:MAC tuple (for L2, only ip for L3), so when the node tries to register on an other inline interface, PacketFence detects that the node is already registered on the first inline network. It is also possible to enable `inline.should_reauth_on_vlan_change` to force users to reauthenticate when they change inline network - you can change this from 'Configuration->Network Configuration->Inline' - by checking or not the 'Reauthenticate node' checkbox.
 
-By default the inline traffic is forwarded through the management network interface but it is possible to specify another one by adding in `pf.conf` the option `interfaceSNAT` in inline section of the `pf.conf` configuration file. Alternatively, you can change this from *Configuration->Network Configuration->Inline* in the 'SNAT Interface' section. It is a comma delimited list of network interfaces like eth0,eth1.2. It's also possible to specify a network that will be routed instead of using NAT by adding in `conf/networks.conf` an option `nat=no` under one or more network sections (take care of the routing table of the PacketFence server).
+By default the inline traffic is forwarded through the management network interface but it is possible to specify another one by adding in `pf.conf` the option `interfaceSNAT` in inline section of the `pf.conf` configuration file. Alternatively, you can change this from 'Configuration->Network Configuration->Inline' in the 'SNAT Interface' section. It is a comma delimited list of network interfaces like eth0,eth1.2. It's also possible to specify a network that will be routed instead of using NAT by adding in `conf/networks.conf` an option `nat=no` under one or more network sections (take care of the routing table of the PacketFence server).
 
 Preparating the Operating System
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -39,7 +39,7 @@ Note that PacketFence will provide these services on its inline interface:
 * PacketFence provides its own DHCP service. It will take care of IP address distribution in our Inline network. PacketFence will not provide DHCP services on the management network - this is the responsibility of your own infrastructure.
 * PacketFence provides its own DNS service. However, for the inline mode, you will also need to provide access to the DNS server of your infrastructure.
 
-From *Configuration->Network Configuration->Interfaces*, click on the `ens192` logical name. Provide the following information:
+From 'Configuration->Network Configuration->Interfaces', click on the `ens192` logical name. Provide the following information:
 
     IP Address: 192.168.2.1
     Netmask: 255.255.255.0
@@ -60,7 +60,7 @@ Please refer to the following table for IP and subnet information :
 |ens192          |Inline        |192.168.2.0/24    |192.168.2.1    |192.168.2.1  
 |===================================================================================
 
-Finally, from *Status->Services*, restart the `haproxy-portal`, `httpd.portal`, `pfdhcp`, `iptables`, `pfdhcplistener`, `pfdns` services.
+Finally, from 'Status->Services', restart the `haproxy-portal`, `httpd.portal`, `pfdhcp`, `iptables`, `pfdhcplistener`, `pfdns` services.
 
 
 Network Devices
@@ -89,7 +89,7 @@ Adding Connection Profile for Inline
 
 Next thing we do is to add a new connection profile - for devices coming from the inline network. We want to show users the captive portal with our Null authentication sources.
 
-From *Configuration->Policies and Access Control->Connection Profiles*, click on 'Add Profile'. Provide the following information:
+From 'Configuration->Policies and Access Control->Connection Profiles', click on 'Add Profile'. Provide the following information:
 
  * Profile Name: inline
  * Filters: If *any* Network 192.168.2.0/24
@@ -125,6 +125,6 @@ Advanced Inline Topics
 Traffic Shaping
 ^^^^^^^^^^^^^^^
 
-It's possible to enable traffic shaping based on the role of the device. In order to enable it you need to go in *Configuration -> Network Configuration -> Inline Traffic Shaping* and select the role you want to define a limit. Set a upload and download speed limit and save.
+It's possible to enable traffic shaping based on the role of the device. In order to enable it you need to go in 'Configuration -> Network Configuration -> Inline Traffic Shaping' and select the role you want to define a limit. Set a upload and download speed limit and save.
 
 Next restart the `tc` service to apply the new rules.
