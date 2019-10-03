@@ -1,0 +1,25 @@
+---
+### COMMON PARAMETERS
+
+### STAGES
+stages:
+  - build_images
+
+
+### VARIABLES
+variables:
+  PACKERDIR: ci/packer
+
+### TEMPLATES
+
+### JOBS
+buildpkg:
+  stage: build_images
+  script:
+    - make -e -C $PACKERDIR buildpkg
+  only:
+    changes:
+      - "rpm/*.spec"
+      - debian/control
+  tags:
+    - shell
