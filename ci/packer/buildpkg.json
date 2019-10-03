@@ -126,11 +126,12 @@
             {
                 "type": "docker-tag",
                 "only": ["{{user `builder_prefix`}}-centos-7"],
-                "repository": "inverseinc/{{user `builder_prefix`}}-centos-7",
+                "repository": "{{user `docker_user`}}/{{user `builder_prefix`}}-centos-7",
                 "tag": "{{user `image_tag`}}"
             },
             {
                 "type": "docker-push",
+                "only": ["{{user `builder_prefix`}}-centos-7"],
                 "login": true,
                 "login_username": "{{user `docker_user`}}",
                 "login_password": "{{user `docker_password`}}",
@@ -141,11 +142,12 @@
             {
                 "type": "docker-tag",
                 "only": ["{{user `builder_prefix`}}-stretch"],
-                "repository": "inverseinc/{{user `builder_prefix`}}-debian-stretch",
+                "repository": "{{user `docker_user`}}/{{user `builder_prefix`}}-debian-stretch",
                 "tag": "{{user `image_tag`}}"
             },
             {
                 "type": "docker-push",
+                "only": ["{{user `builder_prefix`}}-stretch"],
                 "login": true,
                 "login_username": "{{user `docker_user`}}",
                 "login_password": "{{user `docker_password`}}",
@@ -156,11 +158,12 @@
             {
                 "type": "docker-tag",
                 "only": ["{{user `builder_prefix`}}-buster"],
-                "repository": "inverseinc/{{user `builder_prefix`}}-debian-buster",
+                "repository": "{{user `docker_user`}}/{{user `builder_prefix`}}-debian-buster",
                 "tag": "{{user `image_tag`}}"
             },
             {
                 "type": "docker-push",
+                "only": ["{{user `builder_prefix`}}-buster"],
                 "login": true,
                 "login_username": "{{user `docker_user`}}",
                 "login_password": "{{user `docker_password`}}",
