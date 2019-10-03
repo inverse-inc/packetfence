@@ -75,7 +75,7 @@ Will be activated only if HTTP is selected as a deauth method
 
 sub supportsWebFormRegistration {
     my ($self) = @_;
-    return $self->{_deauthMethod} eq $SNMP::HTTP;
+    return ($self->{_deauthMethod} // '') eq $SNMP::HTTP ? $TRUE : $FALSE;
 }
 
 =item getVersion
