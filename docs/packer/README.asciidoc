@@ -75,3 +75,7 @@ packer -only="pfbuild-centos7" buildpkg.json
 # ask what to do on error, if you want to look in container
 packer build -on-error ask -only="pfbuild-centos-7" buildpkg.json
 ----
+
+=== Troubleshooting
+
+You can troubleshoot issue in Packer builds by setting environment variable `_$PACKER_LOG_` environment variable to `1`.
