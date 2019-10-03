@@ -52,18 +52,18 @@ sub description { 'Aruba 5400 Switch' }
 
 # CAPABILITIES
 # access technology supported
-sub supportsWiredMacAuth { return $TRUE; }
-sub supportsWiredDot1x { return $TRUE; }
 # VoIP technology supported
-sub supportsRadiusVoip { return $TRUE; }
+use pf::SwitchSupports qw(
+    WiredMacAuth
+    WiredDot1x
+    RadiusVoip
+    AccessListBasedEnforcement
+);
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$PORT); }
 
 #Insert your voice vlan name, not the ID.
 our $VOICEVLANAME = "voip";
-
-# Downloadable ACLs
-sub supportsAccessListBasedEnforcement { return $TRUE }
 
 =over
 

@@ -80,9 +80,11 @@ sub description { '3COM SS4500' }
 
 =cut
 
-sub supportsWiredMacAuth { return $SNMP::TRUE; } 
-sub supportsRadiusVoip { return $SNMP::TRUE; }
-sub supportsLldp { return $SNMP::TRUE; }
+use pf::SwitchSupports qw(
+    WiredMacAuth
+    RadiusVoip
+    Lldp
+);
 
 
 sub getVersion {

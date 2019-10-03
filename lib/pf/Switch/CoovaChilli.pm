@@ -34,8 +34,10 @@ use pf::constants::role qw($REJECT_ROLE);
 
 sub description { 'CoovaChilli' }
 
-sub supportsExternalPortal { return $TRUE; }
-sub supportsWebFormRegistration { return $TRUE }
+use pf::SwitchSupports qw(
+    ExternalPortal
+    WebFormRegistration
+);
 
 
 =head1 METHODS

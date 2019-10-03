@@ -43,9 +43,11 @@ use pf::Switch::Meraki::MR_v2;
 # CAPABILITIES
 # access technology supported
 sub description { 'Meraki switch MS220_8' }
-sub supportsWiredMacAuth { return $TRUE; }
-sub supportsWiredDot1x { return $TRUE; }
-sub supportsRadiusVoip { return $TRUE; }
+use pf::SwitchSupports qw(
+    WiredMacAuth
+    WiredDot1x
+    RadiusVoip
+);
 
 sub isVoIPEnabled {
     my ($self) = @_;

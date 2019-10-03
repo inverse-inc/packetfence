@@ -27,8 +27,10 @@ use pf::util::radius qw(perform_coa);
 
 # CAPABILITIES
 # special features
-sub supportsSaveConfig { return $TRUE; }
-sub supportsCdp { return $TRUE; }
+use pf::SwitchSupports qw(
+    SaveConfig
+    Cdp
+);
 
 #
 # %TRAP_NORMALIZERS

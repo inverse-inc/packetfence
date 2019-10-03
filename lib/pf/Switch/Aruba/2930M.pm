@@ -24,7 +24,9 @@ use pf::util;
 use pf::radius::constants;
 sub description {'Aruba 2930M Series'}
 
-sub supportsAccessListBasedEnforcement { return $TRUE }
+use pf::SwitchSupports qw(
+    AccessListBasedEnforcement
+);
 
 =head2 returnRadiusAccessAccept
 

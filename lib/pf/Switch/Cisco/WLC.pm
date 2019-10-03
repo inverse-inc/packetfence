@@ -131,19 +131,23 @@ sub description { 'Cisco Wireless Controller (WLC)' }
 
 # CAPABILITIES
 # access technology supported
-sub supportsWirelessDot1x { return $TRUE; }
-sub supportsWirelessMacAuth { return $TRUE; }
-sub supportsRoleBasedEnforcement { return $TRUE; }
-sub supportsWiredMacAuth { return $TRUE; }
-sub supportsWiredDot1x { return $TRUE; }
+use pf::SwitchSupports qw(
+    WirelessDot1x
+    WirelessMacAuth
+    RoleBasedEnforcement
+    WiredMacAuth
+    WiredDot1x
+    ExternalPortal
+);
 
 # disabling special features supported by generic Cisco's but not on WLCs
-sub supportsSaveConfig { return $FALSE; }
-sub supportsCdp { return $FALSE; }
-sub supportsLldp { return $FALSE; }
+use pf::SwitchSupports qw(
+    -SaveConfig
+    -Cdp
+    -Lldp
+);
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$SSID); }
-sub supportsExternalPortal { return $TRUE; }
 
 =item deauthenticateMacDefault
 

@@ -43,10 +43,12 @@ sub description { return "Cambium" }
 
 # CAPABILITIES
 # access technology supported
-sub supportsWirelessDot1x { return $TRUE; }
-sub supportsWirelessMacAuth { return $TRUE; }
-sub supportsExternalPortal { return $TRUE; }
-sub supportsWebFormRegistration { return $TRUE }
+use pf::SwitchSupports qw(
+    WirelessDot1x
+    WirelessMacAuth
+    ExternalPortal
+    WebFormRegistration
+);
 sub inlineCapabilities { return ($MAC,$PORT); }
 
 sub getVersion {

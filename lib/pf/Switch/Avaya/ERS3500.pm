@@ -24,7 +24,9 @@ use Net::SNMP;
 
 use base ('pf::Switch::Avaya');
 
-sub supportsRadiusDynamicVlanAssignment { return $SNMP::TRUE; }
+use pf::SwitchSupports qw(
+    RadiusDynamicVlanAssignment
+);
 
 sub description { 'Avaya ERS 3500 Series' }
 

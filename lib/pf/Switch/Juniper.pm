@@ -43,9 +43,11 @@ use pf::util;
 
 # capabilities
 # TODO implement supportsSnmpTraps globally
-sub supportsSnmpTraps { return $FALSE; }
-sub supportsWiredMacAuth { return $TRUE; }
-sub supportsWiredDot1x { return $FALSE; }
+use pf::SwitchSupports qw(
+    WiredMacAuth
+    -SnmpTraps
+    -WiredDot1x
+);
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$PORT); }
 

@@ -59,10 +59,12 @@ sub description { 'Ruckus Wireless Controllers' }
 
 # CAPABILITIES
 # access technology supported
-sub supportsWirelessDot1x { return $TRUE; }
-sub supportsWirelessMacAuth { return $FALSE; }
-sub supportsExternalPortal { return $TRUE; }
-sub supportsRoleBasedEnforcement { return $TRUE; }
+use pf::SwitchSupports qw(
+    WirelessDot1x
+    -WirelessMacAuth
+    ExternalPortal
+    RoleBasedEnforcement
+);
 
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$SSID); }

@@ -63,13 +63,16 @@ use pf::util;
 
 # CAPABILITIES
 # access technology supported
-sub supportsRoleBasedEnforcement { return $TRUE; }
-sub supportsWirelessDot1x { return $TRUE; }
-sub supportsWirelessMacAuth { return $TRUE; }
+use pf::SwitchSupports qw(
+    RoleBasedEnforcement
+    WirelessDot1x
+    WirelessMacAuth
+    RoamingAccounting
+);
+
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$SSID); }
 # locationlog update capabilities
-sub supportsRoamingAccounting { return $TRUE };
 
 =item getVersion
 

@@ -57,15 +57,13 @@ sub description { 'Cisco ASA Firewall' }
 
 # CAPABILITIES
 # access technology supported
-sub supportsRadiusDynamicVlanAssignment { return $TRUE; }
-
-sub supportsAccessListBasedEnforcement { return $TRUE }
-
-sub supportsExternalPortal { return $TRUE; }
-
-sub supportsRoleBasedEnforcement { return $TRUE; }
-
-sub supportsVPN { return $TRUE; }
+use pf::SwitchSupports qw(
+    RadiusDynamicVlanAssignment
+    AccessListBasedEnforcement
+    ExternalPortal
+    RoleBasedEnforcement
+    VPN
+);
 
 =item identifyConnectionType
 

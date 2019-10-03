@@ -55,8 +55,10 @@ sub description { 'Avaya Wireless Controller' }
 
 # CAPABILITIES
 # access technology supported
-sub supportsWirelessDot1x { return $TRUE; }
-sub supportsWirelessMacAuth { return $TRUE; }
+use pf::SwitchSupports qw(
+    WirelessDot1x
+    WirelessMacAuth
+);
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$SSID); }
 

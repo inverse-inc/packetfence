@@ -31,8 +31,10 @@ use pf::config qw (
 use pf::util::radius qw(perform_disconnect);
 
 sub description { 'Ruckus SmartZone Wireless Controllers' }
-sub supportsWebFormRegistration { return $FALSE; }
-sub supportsWirelessMacAuth { return $TRUE; }
+use pf::SwitchSupports qw(
+    WirelessMacAuth
+    -WebFormRegistration
+);
 
 =over
 

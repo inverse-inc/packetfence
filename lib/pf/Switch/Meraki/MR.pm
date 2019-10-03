@@ -44,9 +44,11 @@ use pf::constants::role qw($REJECT_ROLE);
 # CAPABILITIES
 # access technology supported
 sub description { 'Meraki cloud controller' }
-sub supportsWirelessMacAuth { return $TRUE; }
-sub supportsExternalPortal { return $TRUE; }
-sub supportsWebFormRegistration { return $TRUE }
+use pf::SwitchSupports qw(
+    WirelessMacAuth
+    ExternalPortal
+    WebFormRegistration
+);
 
 =head2 getVersion - obtain image version information from switch
 

@@ -33,8 +33,10 @@ sub description { 'Huawei S5710' }
 
 =cut
 
-sub supportsWiredMacAuth { return $TRUE; }
-sub supportsWiredDot1x { return $TRUE; }
+use pf::SwitchSupports qw(
+    WiredMacAuth
+    WiredDot1x
+);
 
 =head2 getIfType
 

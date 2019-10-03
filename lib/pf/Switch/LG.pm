@@ -66,9 +66,11 @@ use pf::util;
 
 # CAPABILITIES
 # access technology supported
-sub supportsSnmpTraps { return $TRUE; }
-sub supportsWiredDot1x { return $TRUE; }
-sub supportsWiredMacAuth { return $TRUE; }
+use pf::SwitchSupports qw(
+    SnmpTraps
+    WiredDot1x
+    WiredMacAuth
+);
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$PORT); }
 

@@ -52,11 +52,13 @@ use pf::node qw(node_attributes);
 
 # CAPABILITIES
 # access technology supported
-sub supportsRoleBasedEnforcement { return $TRUE; }
-sub supportsWiredMacAuth { return $TRUE; }
-sub supportsWiredDot1x { return $TRUE; }
-sub supportsRadiusDynamicVlanAssignment { return $TRUE; }
-# sub supportsRadiusVoip { return $TRUE; }
+use pf::SwitchSupports qw(
+    RoleBasedEnforcement
+    WiredMacAuth
+    WiredDot1x
+    RadiusDynamicVlanAssignment
+);
+
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$PORT); }
 

@@ -60,9 +60,11 @@ sub description { 'Mojo Networks AP' }
 
 # CAPABILITIES
 # access technology supported
-sub supportsWirelessDot1x { return $TRUE; }
-sub supportsExternalPortal { return $TRUE; }
-sub supportsWebFormRegistration { return $TRUE }
+use pf::SwitchSupports qw(
+    WirelessDot1x
+    ExternalPortal
+    WebFormRegistration
+);
 
 =item getVersion - obtain image version information from switch
 

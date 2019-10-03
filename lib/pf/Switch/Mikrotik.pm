@@ -45,12 +45,14 @@ use pf::util::radius qw(perform_disconnect);
 
 # CAPABILITIES
 # access technology supported
-sub supportsWirelessMacAuth { return $TRUE; }
+use pf::SwitchSupports qw(
+    WirelessMacAuth
+    ExternalPortal
+    WebFormRegistration
+);
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$SSID); }
 
-sub supportsExternalPortal { return $TRUE; }
-sub supportsWebFormRegistration { return $TRUE }
 
 =item parseExternalPortalRequest
 
