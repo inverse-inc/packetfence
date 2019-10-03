@@ -14,9 +14,9 @@
         "go_extra_path": "go",
         "go_vendor_dir": "{{user `go_extra_path`}}/vendor",
         "image_tag": "{{env `DOCKER_TAG`}}",
-        "docker_user": "{{env `CI_REGISTRY_USER`}}",
-        "docker_password": "{{env `CI_REGISTRY_PASSWORD`}}",
-        "docker_registry": "{{env `CI_REGISTRY`}}"
+        "docker_user": "{{env `REGISTRY_USER`}}",
+        "docker_password": "{{env `REGISTRY_PASSWORD`}}",
+        "docker_registry": "{{env `REGISTRY`}}"
     },
     "builders": [
         {
