@@ -375,6 +375,10 @@ Start the `packetfence-iptables` service.
 * [ ] update website listing to add a new guide
 
 
+== Golang environment
+
+include::go/README.asciidoc[]
+
 Code conventions
 ----------------
 
