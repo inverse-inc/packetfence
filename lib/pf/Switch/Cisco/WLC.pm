@@ -138,10 +138,6 @@ use pf::SwitchSupports qw(
     WiredMacAuth
     WiredDot1x
     ExternalPortal
-);
-
-# disabling special features supported by generic Cisco's but not on WLCs
-use pf::SwitchSupports qw(
     -SaveConfig
     -Cdp
     -Lldp
