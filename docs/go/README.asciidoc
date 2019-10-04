@@ -30,7 +30,7 @@ You should then source your .bashrc to get the new environment variables:
 source ~/.bashrc
 ----
 
-You can a complete overview of your Golang environment with [command]`go env` command.
+You can get a complete overview of your Golang environment with [command]`go env` command.
 
 ==== Pulling the dependencies
 
