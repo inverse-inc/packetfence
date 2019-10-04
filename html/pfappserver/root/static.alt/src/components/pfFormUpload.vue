@@ -3,19 +3,25 @@
  *
  * Supports:
  *  multiple files
- *  drag-and-drop
  *  restrict by mime-type(s) and/or file extension(s)
+ *  automatic processing of file contents into result
  *
  * Basic Usage:
  *
  *  <template>
- *    <pf-form-upload @load="files = $event"></pf-form-upload>
+ *    <pf-form-upload @files="files = $event"></pf-form-upload>
  *  </template>
  *
  * Extended Usage:
  *
  *  <template>
- *    <pf-form-upload @load="files = $event" accept="text/*" :multiple="true" :cumulative="true" title="Upload File"></pf-form-upload>
+ *    <pf-form-upload @files="files = $event"
+ *      accept="text/*"
+ *      :multiple="true"
+ *      :cumulative="true"
+ *      title="Upload File"
+ *      read-as-text
+ *    ></pf-form-upload>
  *  </template>
  *
  * Properties:
@@ -38,21 +44,23 @@
  *    ]
  *
  *    `cumulative` (true|false) -- `files` accumulates with each upload (default: false)
- *      true: @load event emitted after every file is uploaded, `files` is never reset.
- *      false: @load event emitted once after all files are uploaded, `files` is reset on each upload.
+ *      true: @files event emitted after every file is uploaded, `files` is never reset.
+ *      false: @files event emitted once after all files are uploaded, `files` is reset on each upload.
  *
  *    `title` (string) -- optional title for mouseover hint (default: null)
  *
+ *    `read-as-text' (boolean) -- automatically process the file contents into result (default: false)
+ *
  * Events:
  *
- *    @load: emitted w/ `files` after all uploads are processed, contains an array
+ *    @files: emitted w/ `files` after all uploads are processed, contains an array
  *      of literal object, one-per-file (see: `files`  property).
  *
- * Styling:
+ * Slots:
  *
  *   The optional child elements (slot) can be used to restyle the upload button
  *
- *   <pf-form-upload @load="files = $event">
+ *   <pf-form-upload @files="files = $event">
  *     <b-button><icon variant="primary" name="upload"></icon> {{ $t('Custom Styled Button') }}</b-button>
  *   </pf-form-upload>
  *
@@ -88,6 +96,8 @@
 </template>
 
 <script>
+import FileStore from '@/store/base/file'
+
 export default {
   name: 'pf-form-upload',
   props: {
@@ -95,13 +105,13 @@ export default {
       type: String,
       default: '*/*'
     },
+    encoding: {
+      type: String,
+      default: 'utf-8'
+    },
     multiple: {
       type: Boolean,
       default: false
-    },
-    files: {
-      type: Array,
-      default: () => []
     },
     cumulative: {
       type: Boolean,
@@ -110,110 +120,56 @@ export default {
     title: {
       type: String,
       default: ''
+    },
+    readAsText: {
+      type: Boolean,
+      default: false
     }
   },
   data () {
     return {
-      showErrorModal: false
+      files: [],
+      showErrorModal: false,
     }
   },
   methods: {
+    storeNameFromFile (file) {
+      const { lastModified, name } = file
+      return `$_file/${name}/${lastModified}`
+    },
     uploadFiles (event) {
       if (!this.cumulative) {
         this.files = []
       }
-      const files = event.target.files
+      const { target: { files } = {} } = event
       Array.from(files).forEach((file, index, files) => {
-        let reader = new FileReader()
-        reader.onprogress = ((localupload) => {
-          return (e) => {
-            let percent = 0
-            if (e.lengthComputable) {
-              percent = Math.round((e.loaded / e.total) * 100)
-            }
-            const { lastModified, name, size, type } = localupload
-            const newUpload = {
-              percent,
-              result: false,
-              lastModified,
-              name,
-              size,
-              type,
-              reader,
-              error: false
-            }
-            const fileIndex = this.files.findIndex(file => `${file.name}-${file.lastModified}` === `${newUpload.name}-${newUpload.lastModified}`)
-            if (fileIndex > -1) {
-              this.$set(this.files, fileIndex, newUpload)
-            } else {
-              this.$set(this.files, this.files.length, newUpload)
-            }
-            if (this.cumulative || this.files.length === files.length) {
-              this.$emit('files', this.files)
-            }
-          }
-        })(file)
-        reader.onload = ((localfile) => {
-          return (e) => {
-            const { lastModified, name, size, type } = localfile
-            const newFile = {
-              percent: 100,
-              result: e.target.result,
-              lastModified,
-              name,
-              size,
-              type,
-              reader,
-              error: false
-            }
-            const fileIndex = this.files.findIndex(file => `${file.name}-${file.lastModified}` === `${newFile.name}-${newFile.lastModified}`)
-            if (fileIndex > -1) {
-              this.$set(this.files, fileIndex, newFile)
-            } else {
-              this.$set(this.files, this.files.length, newFile)
-            }
-            if (this.cumulative || this.files.length === files.length) {
-              this.$emit('files', this.files)
-            }
-          }
-        })(file)
-        reader.onabort = ((localfile) => {
-          return (e) => {
-            const { lastModified, name } = localfile
-            const fileIndex = this.files.findIndex(file => `${file.name}-${file.lastModified}` === `${name}-${lastModified}`)
-            this.$delete(this.files, fileIndex)
-          }
-        })(file)
-        reader.onerror = ((localfile) => {
-          return (e) => {
-            const { lastModified, name, size, type } = localfile
-            const { target: { error: { code: errorCode, message: errorMessage, name: errorName } = {} } = {} } = e
-            const newFile = {
-              percent: 0,
-              result: false,
-              lastModified,
-              name,
-              size,
-              type,
-              reader,
-              error: {
-                code: errorCode,
-                message: errorMessage,
-                name: errorName
-              }
-            }
-            const fileIndex = this.files.findIndex(file => `${file.name}-${file.lastModified}` === `${newFile.name}-${newFile.lastModified}`)
-            if (fileIndex > -1) {
-              this.$set(this.files, fileIndex, newFile)
-            } else {
-              this.$set(this.files, this.files.length, newFile)
-            }
-            if (this.cumulative || this.files.length === files.length) {
-              this.$emit('files', this.files)
-            }
-          }
-        })(file)
-        reader.readAsText(file)
+        const storeName = this.storeNameFromFile(file)
+        if (!this.$store.state[storeName]) { // Register store module only once
+          const fileStore = new FileStore(file)
+          this.$store.registerModule(storeName, fileStore.module())
+        }
+        if (this.readAsText) {
+          this.$store.dispatch(`${storeName}/readAsText`)
+        } else {
+          this.$store.dispatch(`${storeName}/readAsStream`)
+        }
+        this.$set(this.files, this.files.length, this.$store.getters[`${storeName}/file`])
+
+
+const lines = async () => {
+  const line = async (i) => {
+    return await this.files[this.files.length - 1].result[i]
+    //return await this.$store.dispatch(`${storeName}/readLine`, i)
+  }
+  let l
+  for(let i = 0; i <= 100; i++) {
+    l = await line(i)
+    console.log(`get lines[${i}]`, l)
+  }
+}
+lines()
+
+
       })
       // clear the input to allow re-upload
       this.$refs.uploadform.reset()
@@ -222,6 +178,9 @@ export default {
       this.showErrorModal = false
       this.$nextTick(() => {
         const fileIndex = this.files.findIndex(file => file.error)
+        const file = this.files[fileIndex]
+        const storeName = this.storeNameFromFile(file)
+        this.$store.unregisterModule(storeName)
         this.$delete(this.files, fileIndex)
       })
     }
@@ -243,6 +202,12 @@ export default {
         if (a) {
           this.showErrorModal = true
         }
+      },
+      deep: true
+    },
+    files: {
+      handler: function (a, b) {
+        this.$emit('files', a)
       },
       deep: true
     }
