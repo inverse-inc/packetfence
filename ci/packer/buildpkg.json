@@ -8,6 +8,7 @@
         "prov_dir": "provisionners",
         "files_dir": "files",
         "tmp_dir": "/tmp",
+        "ansible_extra_vars": "{{env `ANSIBLE_EXTRA_VARS`}}",
         "go_version": "{{env `GOVERSION`}}",
         "image_tag": "{{env `DOCKER_TAG`}}",
         "docker_user": "{{env `REGISTRY_USER`}}",
@@ -52,6 +53,7 @@
             "playbook_file": "{{user `prov_dir`}}/site.yml",
             "galaxy_file": "{{user `prov_dir`}}/requirements.yml",
             "inventory_directory": "{{user `prov_dir`}}/inventory",
+            "extra_arguments": ["--extra-vars", "{{user `ansible_extra_vars`}}"],
             "groups": ["centos"],
             "only": ["{{user `builder_prefix`}}-centos-7"]
         },
@@ -60,6 +62,7 @@
             "playbook_file": "{{user `prov_dir`}}/site.yml",
             "galaxy_file": "{{user `prov_dir`}}/requirements.yml",
             "inventory_directory": "{{user `prov_dir`}}/inventory",
+            "extra_arguments": ["--extra-vars", "{{user `ansible_extra_vars`}}"],
             "groups": ["debian"],
             "only": ["{{user `builder_prefix`}}-stretch",
                      "{{user `builder_prefix`}}-buster"
@@ -97,6 +100,7 @@
             "type": "ansible",
             "playbook_file": "{{user `prov_dir`}}/site.yml",
             "inventory_directory": "{{user `prov_dir`}}/inventory",
+            "extra_arguments": ["--extra-vars", "{{user `ansible_extra_vars`}}"],
             "groups": ["rubygems"]
         },
         {

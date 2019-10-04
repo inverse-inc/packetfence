@@ -14,4 +14,5 @@ gitlab_buildpkg_tools__rpm_deps_repos:
 
 # we only add repos, packages install will occur
 # during build depencies install from SPEC files
-gitlab_buildpkg_tools__rpm_pkgs: []
+gitlab_buildpkg_tools__deb_pkgs: '{{ lookup("env", "RPM_PACKAGES_NAME") if lookup("env", "RPM_PACKAGES_NAME")
+                                     else [] }}'

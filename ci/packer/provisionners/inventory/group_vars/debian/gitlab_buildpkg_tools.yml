@@ -13,4 +13,5 @@ gitlab_buildpkg_tools__deb_deps_repos:
 
 # we only add repos, packages install will occur
 # during build depencies install from SPEC files
-gitlab_buildpkg_tools__deb_pkgs: []
+gitlab_buildpkg_tools__deb_pkgs: '{{ lookup("env", "DEB_PACKAGES_NAME") if lookup("env", "DEB_PACKAGES_NAME")
+                                     else [] }}'
