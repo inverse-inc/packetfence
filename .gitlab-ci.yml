@@ -10,6 +10,8 @@ stages:
 variables:
   CIDIR: ci
   PACKERDIR: $CIDIR/packer
+  ANSIBLE_FORCE_COLOR: true
+  ANSIBLE_STDOUT_CALLBACK: yaml
 
 ### TEMPLATES
 
