@@ -2493,6 +2493,53 @@ On each interface (not uplink)
   voice vlan 100
   exit
 
+N1500 Series (FW >= 6.6.0.2)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+This configuration has been tested with firmware 6.6.0.2
+
+Global config settings:
+
+  aaa authentication login "defaultList" local
+  authentication enable
+  dot1x system-auth-control
+  aaa authentication dot1x default radius
+  aaa authorization network default radius
+  dot1x dynamic-vlan enable
+  radius-server key "useStrongerSecret"
+  radius-server host auth 192.168.1.5
+  name "PacketFence"
+
+802.1X interface configuration:
+
+  switchport voice detect auto
+  switchport mode general
+  switchport general pvid 135
+  switchport general allowed vlan add 2,135-136,999
+  authentication host-mode multi-domain
+  authentication periodic
+  dot1x timeout quiet-period 10
+  mab auth-type pap
+  authentication order mab
+  no authentication allow-unauth dhcp
+  lldp tlv-select system-description system-capabilities management-address
+  lldp notification
+  lldp med confignotification
+  switchport voice vlan 136
+
+Uplink port:
+
+  switchport mode trunk
+  switchport trunk allowed vlan 1-4096
+  authentication port-control force-authorized
+
+On other switch ports not managed by PacketFence:
+
+  switchport mode general
+  switchport general pvid x
+  switchport general allowed vlan add x
+  authentication port-control force-authorized
+
 
 N2000 Series (N2024P)
 ^^^^^^^^^^^^^^^^^^^^^
