@@ -21,8 +21,6 @@ buildpkg:
   script:
     - make -e -C $PACKERDIR buildpkg
   only:
-    changes:
-      - "rpm/*.spec"
-      - debian/control
+    - web
   tags:
     - shell
