@@ -1,0 +1,26 @@
+[default]
+vendor= # For Grouping in the type list
+radiusDisconnect=coa,disconnect  # Allowed values coa|disconnect|coa,disconnect
+acceptVlan = <<EOT
+Tunnel-Medium-Type  = 6
+Tunnel-Type = 13
+Tunnel-Private-Group-ID = $vlan
+EOT
+acceptRole = <<EOT
+Filter-Id = $role
+EOT
+reject=<<EOT
+Reply-Message = This node is not allowed to use this service
+EOT
+coa = <<EOT
+Calling-Station-Id = $mac
+NAS-IP-Address = $disconnectIp
+Cisco:Cisco-AVPair = subscriber:command=reauthenticate  #Attribute with a Vendor
+EOT
+disconnect=<<EOT
+Calling-Station-Id = $mac
+NAS-IP-Address = $disconnectIp
+EOT
+
+[Standard]
+description=Standard Switch
