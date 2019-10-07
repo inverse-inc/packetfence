@@ -1,3 +1,6 @@
+#==============================================================================
+# Variables
+#==============================================================================
 # use 'global' variables (vs 'define' with local scope)
 %global     builddoc 0
 %global     perl_version 5.10.1
@@ -5,6 +8,10 @@
 %global     logdir /usr/local/pf/logs
 %global     debug_package %{nil}
 
+
+#==============================================================================
+# Main package
+#==============================================================================
 Name:       packetfence
 Version:    9.1.0
 Release:    1%{?dist}
@@ -287,11 +294,17 @@ Requires: fingerbank >= 4.1.4, fingerbank < 5.0.0
 Requires: fingerbank-collector >= 1.1.0, fingerbank-collector < 2.0.0
 Requires: perl(File::Tempdir)
 
+#==============================================================================
+# Source preparation
+#==============================================================================
 %prep
 %setup -q -n %{name}-%{version}
 
-%build
 
+#==============================================================================
+# Build
+#==============================================================================
+%build
 # generate translations
 # TODO this is duplicated in debian/rules, we should aim to consolidate in a 'make' style step
 for TRANSLATION in de en es fr he_IL it nl pl_PL pt_BR; do
@@ -336,6 +349,9 @@ do
   cp $file "$(dirname $file)/$(basename $file .example)"
 done
 
+#==============================================================================
+# Installation
+#============================================================================
 %install
 %{__rm} -rf %{buildroot}
 # systemd targets
@@ -500,6 +516,9 @@ cd $curdir
 %clean
 rm -rf %{buildroot}
 
+#==============================================================================
+# Pre-installation
+#==============================================================================
 %pre
 
 /usr/bin/systemctl --now mask mariadb
@@ -540,6 +559,9 @@ then
   exit
 fi
 
+#==============================================================================
+# Post Installation
+#==============================================================================
 %post
 chown pf.pf /usr/local/pf/conf/pfconfig.conf
 echo "Adding PacketFence config startup script"
@@ -653,6 +675,9 @@ echo Installation complete
 echo "  * Please fire up your Web browser and go to https://@ip_packetfence:1443/configurator to complete your PacketFence configuration."
 echo "  * Please stop your iptables service if you don't have access to configurator."
 
+#==============================================================================
+# Pre uninstallation
+#==============================================================================
 %preun
 if [ $1 -eq 0 ] ; then
 /bin/systemctl stop packetfence-config
@@ -668,6 +693,9 @@ if [ $1 -eq 0 ]; then
         fi
 fi
 
+#==============================================================================
+# Packaged files
+#==============================================================================
 # TODO we should simplify this file manifest to the maximum keeping treating 
 # only special attributes explicitly 
 # "To make this situation a bit easier, if the %%files list contains a path
@@ -1183,6 +1211,9 @@ fi
 %dir                    /usr/local/pf/var/ssl_mutex
 %config(noreplace)      /usr/local/pf/var/cache_control
 
+#==============================================================================
+# Changelog
+#==============================================================================
 %changelog
 * Wed May 15 2019 Inverse <info@inverse.ca> - 9.0.0-1
 - New release 9.0.0
