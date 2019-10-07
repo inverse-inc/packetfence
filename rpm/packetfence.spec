@@ -24,6 +24,8 @@ BuildRequires: nodejs >= 12.0
 BuildRequires: gcc
 BuildRequires: systemd
 
+AutoReqProv: 0
+
 %description
 
 PacketFence is an open source network access control (NAC) system.
@@ -289,31 +291,6 @@ Requires: fingerbank >= 4.1.4, fingerbank < 5.0.0
 Requires: fingerbank-collector >= 1.1.0, fingerbank-collector < 2.0.0
 Requires: perl(File::Tempdir)
 
-%package remote-arp-sensor
-Group: System Environment/Daemons
-Requires: perl >= %{perl_version}, perl(Config::IniFiles) >= 2.88, perl(IO::Socket::SSL), perl(XML::Parser), perl(Crypt::SSLeay), perl(LWP::Protocol::https), perl(Net::Pcap) >= 0.16, memcached, perl(Cache::Memcached)
-Requires: perl(Moo), perl(Data::MessagePack), perl(WWW::Curl)
-Conflicts: %{name}
-AutoReqProv: 0
-Summary: Files needed for sending MAC and IP addresses from ARP requests to PacketFence
-BuildArch: noarch
-
-%description remote-arp-sensor
-The %{name}-remote-arp-sensor package contains the files needed
-for sending MAC and IP from ARP requests to a PacketFence server.
-
-# arch-specific pfcmd-suid subpackage required us to move all of PacketFence
-# into a noarch subpackage and have the top level package virtual.
-%package pfcmd-suid
-Group: System Environment/Daemons
-BuildRequires: gcc
-AutoReqProv: 0
-Summary: Replace pfcmd by a C wrapper for suid
-
-%description pfcmd-suid
-The %{name}-pfcmd-suid is a C wrapper to replace perl-suidperl dependency.
-See https://bugzilla.redhat.com/show_bug.cgi?id=611009
-
 %package ntlm-wrapper
 Group: System Environment/Daemons
 BuildRequires: gcc
@@ -488,13 +465,6 @@ cp -r conf %{buildroot}/usr/local/pf/
 cp -r raddb %{buildroot}/usr/local/pf/
 mv packetfence.sudoers %{buildroot}/etc/sudoers.d/packetfence
 mv packetfence.cron.d %{buildroot}/etc/cron.d/packetfence
-mv addons/pfarp_remote/sbin/pfarp_remote %{buildroot}/usr/local/pf/sbin
-mv addons/pfarp_remote/conf/pfarp_remote.conf %{buildroot}/usr/local/pf/conf
-rmdir addons/pfarp_remote/sbin
-rm addons/pfarp_remote/initrd/pfarp
-rmdir addons/pfarp_remote/initrd
-rmdir addons/pfarp_remote/conf
-rmdir addons/pfarp_remote
 cp -r ChangeLog %{buildroot}/usr/local/pf/
 cp -r COPYING %{buildroot}/usr/local/pf/
 cp -r db %{buildroot}/usr/local/pf/
@@ -594,18 +564,6 @@ if [ ! `id -u` = "0" ];
 then
   echo You must install this package as root!
   exit
-fi
-
-%pre remote-arp-sensor
-
-if ! /usr/bin/id pf &>/dev/null; then
-    if ! /bin/getent group  pf &>/dev/null; then
-        /usr/sbin/useradd -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf || \
-                echo Unexpected error adding user "pf" && exit
-    else
-        /usr/sbin/useradd -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf -g pf || \
-                echo Unexpected error adding user "pf" && exit
-    fi
 fi
 
 %pre config
@@ -731,10 +689,6 @@ echo Installation complete
 echo "  * Please fire up your Web browser and go to https://@ip_packetfence:1443/configurator to complete your PacketFence configuration."
 echo "  * Please stop your iptables service if you don't have access to configurator."
 
-%post remote-arp-sensor
-echo "Adding PacketFence remote ARP Sensor startup script"
-/sbin/chkconfig --add pfarp
-
 %post config
 chown pf.pf /usr/local/pf/conf/pfconfig.conf
 echo "Adding PacketFence config startup script"
@@ -744,12 +698,6 @@ echo "Adding PacketFence config startup script"
 if [ $1 -eq 0 ] ; then
 /bin/systemctl set-default multi-user.target
 /bin/systemctl isolate multi-user.target
-fi
-
-%preun remote-arp-sensor
-if [ $1 -eq 0 ] ; then
-        /sbin/service pfarp stop &>/dev/null || :
-        /sbin/chkconfig --del pfarp
 fi
 
 %preun config
@@ -762,13 +710,6 @@ fi
 if [ $1 -eq 0 ]; then
         if /usr/bin/id pf &>/dev/null; then
                /usr/sbin/userdel pf || %logmsg "User \"pf\" could not be deleted."
-        fi
-fi
-
-%postun remote-arp-sensor
-if [ $1 -eq 0 ]; then
-        if /usr/bin/id pf &>/dev/null; then
-                /usr/sbin/userdel pf || %logmsg "User \"pf\" could not be deleted."
         fi
 fi
 
@@ -1300,17 +1241,6 @@ fi
 %dir                    /usr/local/pf/var/redis_ntlm_cache
 %dir                    /usr/local/pf/var/ssl_mutex
 %config(noreplace)      /usr/local/pf/var/cache_control
-
-# Remote arp sensor file list
-%files remote-arp-sensor
-%defattr(-, pf, pf)
-%dir                    /usr/local/pf
-%dir                    /usr/local/pf/conf
-%config(noreplace)      /usr/local/pf/conf/pfarp_remote.conf
-%dir                    /usr/local/pf/sbin
-%attr(0755, pf, pf)     /usr/local/pf/sbin/pfarp_remote
-%dir                    /usr/local/pf/var
-%dir                    /usr/local/pf/var/run
 
 %files pfcmd-suid
 %attr(6755, root, root) /usr/local/pf/bin/pfcmd
