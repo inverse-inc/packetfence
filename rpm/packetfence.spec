@@ -41,9 +41,6 @@ heterogeneous networks. PacketFence provides features such as
 # TODO we might consider re-enabling this to simplify our SPEC
 AutoReqProv: 0
 
-# replaces the need for perl-suidperl which was deprecated in perl 5.12 (Fedora 14)
-Requires(pre): %{name}-ntlm-wrapper
-
 Requires: chkconfig, coreutils, grep, openssl, sed, tar, wget, gettext, conntrack-tools, patch, git
 # for process management
 Requires: rsyslog
@@ -288,15 +285,6 @@ Requires: haproxy >= 1.8.9, keepalived >= 1.4.3
 Requires: fingerbank >= 4.1.4, fingerbank < 5.0.0
 Requires: fingerbank-collector >= 1.1.0, fingerbank-collector < 2.0.0
 Requires: perl(File::Tempdir)
-
-%package ntlm-wrapper
-Group: System Environment/Daemons
-BuildRequires: gcc
-AutoReqProv: 0
-Summary: C wrapper for logging ntlm_auth latency.
-
-%description ntlm-wrapper
-The %{name}-ntlm-wrapper is a C wrapper around the ntlm_auth utility to log authentication times and success/failures. It can either/both log to syslog and send metrics to a StatsD server.
 
 %package config
 Group: System Environment/Daemons
@@ -774,9 +762,9 @@ fi
 %dir                    /usr/local/pf/addons/watchdog
 %attr(0755, pf, pf)     /usr/local/pf/addons/watchdog/*.sh
 %dir                    /usr/local/pf/bin
-%attr(0755, pf, pf)     /usr/local/pf/sbin/pfhttpd
-%attr(0755, pf, pf)     /usr/local/pf/bin/pfcmd.pl
 %attr(6755, root, root) /usr/local/pf/bin/pfcmd
+%attr(0755, root, root) /usr/local/pf/bin/ntlm_auth_wrapper
+%attr(0755, pf, pf)     /usr/local/pf/bin/pfcmd.pl
 %attr(0755, pf, pf)     /usr/local/pf/bin/pfcmd_vlan
 %attr(0755, pf, pf)     /usr/local/pf/bin/pftest
                         /usr/local/pf/bin/pflogger-packetfence
@@ -787,6 +775,7 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/pfupdate
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/maintenance
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/node
+%attr(0755, pf, pf)     /usr/local/pf/sbin/pfhttpd
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdetect
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdhcp
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdns
@@ -1240,9 +1229,6 @@ fi
 %dir                    /usr/local/pf/var/redis_ntlm_cache
 %dir                    /usr/local/pf/var/ssl_mutex
 %config(noreplace)      /usr/local/pf/var/cache_control
-
-%files ntlm-wrapper
-%attr(0755, root, root) /usr/local/pf/bin/ntlm_auth_wrapper
 
 %files config
 %defattr(-, pf, pf)

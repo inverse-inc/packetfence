@@ -141,9 +141,9 @@ bin/pfcmd: src/pfcmd.c
 	$(CC) -O2 -g -std=c99  -Wall $< -o $@
 
 bin/ntlm_auth_wrapper: src/ntlm_auth_wrap.c
-	cc -g -std=c99  -Wall  src/ntlm_auth_wrap.c -o bin/ntlm_auth_wrapper
+	$(CC) -g -std=c99 -Wall $< -o $@
 
-.PHONY:permissions
+.PHONY: permissions
 
 /etc/sudoers.d/packetfence.sudoers: packetfence.sudoers
 	cp packetfence.sudoers /etc/sudoers.d/packetfence
