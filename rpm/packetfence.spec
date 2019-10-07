@@ -42,7 +42,6 @@ heterogeneous networks. PacketFence provides features such as
 AutoReqProv: 0
 
 # replaces the need for perl-suidperl which was deprecated in perl 5.12 (Fedora 14)
-Requires(pre): %{name}-pfcmd-suid
 Requires(pre): %{name}-ntlm-wrapper
 
 Requires: chkconfig, coreutils, grep, openssl, sed, tar, wget, gettext, conntrack-tools, patch, git
@@ -284,7 +283,6 @@ Requires: perl(Test::NoWarnings), perl(Test::ParallelSubtest)
 Requires: perl(Net::UDP)
 # For managing the number of connections per device
 Requires: %{name}-config
-Requires: %{name}-pfcmd-suid
 Requires: haproxy >= 1.8.9, keepalived >= 1.4.3
 # CAUTION: we need to require the version we want for Fingerbank and ensure we don't want anything equal or above the next major release as it can add breaking changes
 Requires: fingerbank >= 4.1.4, fingerbank < 5.0.0
@@ -347,7 +345,7 @@ done
 %{__make} html
 
 # build pfcmd C wrapper
-gcc -g0 src/pfcmd.c -o bin/pfcmd
+%{__make} bin/pfcmd
 # build ntlm_auth_wrapper
 %{__make} bin/ntlm_auth_wrapper
 # Define git_commit_id
@@ -778,6 +776,7 @@ fi
 %dir                    /usr/local/pf/bin
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfhttpd
 %attr(0755, pf, pf)     /usr/local/pf/bin/pfcmd.pl
+%attr(6755, root, root) /usr/local/pf/bin/pfcmd
 %attr(0755, pf, pf)     /usr/local/pf/bin/pfcmd_vlan
 %attr(0755, pf, pf)     /usr/local/pf/bin/pftest
                         /usr/local/pf/bin/pflogger-packetfence
@@ -1241,9 +1240,6 @@ fi
 %dir                    /usr/local/pf/var/redis_ntlm_cache
 %dir                    /usr/local/pf/var/ssl_mutex
 %config(noreplace)      /usr/local/pf/var/cache_control
-
-%files pfcmd-suid
-%attr(6755, root, root) /usr/local/pf/bin/pfcmd
 
 %files ntlm-wrapper
 %attr(0755, root, root) /usr/local/pf/bin/ntlm_auth_wrapper
