@@ -33,21 +33,6 @@ BuildRequires: systemd
 
 AutoReqProv: 0
 
-%description
-
-PacketFence is an open source network access control (NAC) system.
-It can be used to effectively secure networks, from small to very large
-heterogeneous networks. PacketFence provides features such as
-* registration of new network devices
-* detection of abnormal network activities
-* isolation of problematic devices
-* remediation through a captive portal
-* registration-based and scheduled vulnerability scans.
-
-
-# TODO we might consider re-enabling this to simplify our SPEC
-AutoReqProv: 0
-
 Requires: chkconfig, coreutils, grep, openssl, sed, tar, wget, gettext, conntrack-tools, patch, git
 # for process management
 Requires: rsyslog
@@ -293,6 +278,17 @@ Requires: haproxy >= 1.8.9, keepalived >= 1.4.3
 Requires: fingerbank >= 4.1.4, fingerbank < 5.0.0
 Requires: fingerbank-collector >= 1.1.0, fingerbank-collector < 2.0.0
 Requires: perl(File::Tempdir)
+
+%description
+
+PacketFence is an open source network access control (NAC) system.
+It can be used to effectively secure networks, from small to very large
+heterogeneous networks. PacketFence provides features such as
+* registration of new network devices
+* detection of abnormal network activities
+* isolation of problematic devices
+* remediation through a captive portal
+* registration-based and scheduled vulnerability scans.
 
 #==============================================================================
 # Source preparation
