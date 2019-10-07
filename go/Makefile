@@ -69,7 +69,7 @@ all: pfhttpd pfdhcp pfdns pfstats pfdetect
 
 .PHONY: copy
 copy:
-	cp -f pfhttpd pfdhcp pfdns pfstats pfdetect $(SBINDIR)
+	cp -f pfhttpd pfdhcp pfdns pfstats pfdetect $(DESTDIR)$(SBINDIR)
 
 .PHONY: clean-coredns-src
 clean-coredns-src:
