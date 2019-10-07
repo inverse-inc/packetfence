@@ -8,7 +8,6 @@
 Name:       packetfence
 Version:    9.1.0
 Release:    1%{?dist}
-BuildArch:  noarch
 Summary:    PacketFence network registration / worm mitigation system
 Packager:   Inverse inc. <support@inverse.ca>
 Group:      System Environment/Daemons
