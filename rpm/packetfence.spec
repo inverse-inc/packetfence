@@ -368,18 +368,17 @@ done
 %endif
 
 # Build the HTML doc index for pfappserver
-make html
+%{__make} html
 
 # build pfcmd C wrapper
 gcc -g0 src/pfcmd.c -o bin/pfcmd
 # build ntlm_auth_wrapper
-make bin/ntlm_auth_wrapper
+%{__make} bin/ntlm_auth_wrapper
 # Define git_commit_id
 echo %{git_commit} > conf/git_commit_id
 
 # build golang binaries
-make -C go all
-make -C go SBINDIR=%{buildroot}/usr/local/pf/sbin copy
+%{__make} -C go all
 
 find -name '*.example' -print0 | while read -d $'\0' file
 do
@@ -507,6 +506,9 @@ rm -rf %{buildroot}/usr/local/pf/docs/fonts
 rm -rf %{buildroot}/usr/local/pf/docs/images
 rm -rf %{buildroot}/usr/local/pf/docs/api
 cp -r html %{buildroot}/usr/local/pf/
+
+# install Golang binaries
+%{__make} -C go SBINDIR=%{buildroot}/usr/local/pf/sbin copy
 
 # install html and images dirs in pfappserver for embedded doc
 %{__install} -d -m0755 %{buildroot}/usr/local/pf/html/pfappserver/root/static/doc
