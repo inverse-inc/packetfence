@@ -1114,7 +1114,7 @@ fi
 %config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Service.pm
 %config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/User.pm
 %config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/SecurityEvent.pm
-%dir                    /usr/local/pf/lib/
+                        /usr/local/pf/lib/
 %dir                    /usr/local/pf/lib/pfconfig
                         /usr/local/pf/lib/pfconfig/*
 %config(noreplace)      /usr/local/pf/lib/pf/floatingdevice/custom.pm
