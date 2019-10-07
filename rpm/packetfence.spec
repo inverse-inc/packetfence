@@ -541,20 +541,10 @@ then
   exit
 fi
 
-%pre config
-
-if ! /usr/bin/id pf &>/dev/null; then
-    if ! /bin/getent group  pf &>/dev/null; then
-        /usr/sbin/useradd -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf || \
-                echo Unexpected error adding user "pf" && exit
-    else
-        /usr/sbin/useradd -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf -g pf || \
-                echo Unexpected error adding user "pf" && exit
-    fi
-fi
-
-
 %post
+chown pf.pf /usr/local/pf/conf/pfconfig.conf
+echo "Adding PacketFence config startup script"
+
 if [ "$1" = "2" ]; then
     /usr/local/pf/bin/pfcmd service pf updatesystemd
     perl /usr/local/pf/addons/upgrade/add-default-params-to-auth.pl
@@ -664,34 +654,18 @@ echo Installation complete
 echo "  * Please fire up your Web browser and go to https://@ip_packetfence:1443/configurator to complete your PacketFence configuration."
 echo "  * Please stop your iptables service if you don't have access to configurator."
 
-%post config
-chown pf.pf /usr/local/pf/conf/pfconfig.conf
-echo "Adding PacketFence config startup script"
-/bin/systemctl enable packetfence-config
-
 %preun
-if [ $1 -eq 0 ] ; then
-/bin/systemctl set-default multi-user.target
-/bin/systemctl isolate multi-user.target
-fi
-
-%preun config
 if [ $1 -eq 0 ] ; then
 /bin/systemctl stop packetfence-config
 /bin/systemctl disable packetfence-config
+/bin/systemctl set-default multi-user.target
+/bin/systemctl isolate multi-user.target
 fi
 
 %postun
 if [ $1 -eq 0 ]; then
         if /usr/bin/id pf &>/dev/null; then
                /usr/sbin/userdel pf || %logmsg "User \"pf\" could not be deleted."
-        fi
-fi
-
-%postun config
-if [ $1 -eq 0 ]; then
-        if /usr/bin/id pf &>/dev/null; then
-                /usr/sbin/userdel pf || %logmsg "User \"pf\" could not be deleted."
         fi
 fi
 
