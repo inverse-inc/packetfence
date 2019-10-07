@@ -283,28 +283,14 @@ sub authorizeMAC {
 
     my @oid_value;
     if ($deauthMac) {
-        my @MACArray = split( /:/, $deauthMac );
-        my $MACDecString = '';
-        foreach my $hexPiece (@MACArray) {
-            if ( $MACDecString ne '' ) {
-                $MACDecString .= ".";
-            }
-            $MACDecString .= hex($hexPiece);
-        }
+        my $MACDecString = mac2dec($deauthMac);
         my $completeOid
             = "$OID_hpSecCfgStatus.$hpSecCfgAddrGroupIndex.$ifIndex.$MACDecString";
         push @oid_value, ( $completeOid, Net::SNMP::INTEGER, 6 );
     }
 
     if ($authMac) {
-        my @MACArray = split( /:/, $authMac );
-        my $MACDecString = '';
-        foreach my $hexPiece (@MACArray) {
-            if ( $MACDecString ne '' ) {
-                $MACDecString .= ".";
-            }
-            $MACDecString .= hex($hexPiece);
-        }
+        my $MACDecString = mac2dec($authMac);
         my $completeOid
             = "$OID_hpSecCfgStatus.$hpSecCfgAddrGroupIndex.$ifIndex.$MACDecString";
         push @oid_value, ( $completeOid, Net::SNMP::INTEGER, 4 );
@@ -322,7 +308,13 @@ sub authorizeMAC {
     );
     my $result
         = $self->{_sessionWrite}->set_request( -varbindlist => \@oid_value );
-    return ( defined($result) );
+    if (!$result) {
+        $logger->error("SNMP error tyring to perform auth of $authMac "
+                                          . "Error message: ".$self->{_sessionWrite}->error());
+        return 0;
+    }
+
+    return 1;
 }
 
 =head1 AUTHOR

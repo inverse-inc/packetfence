@@ -314,7 +314,12 @@ sub authorizeMAC {
         my $result = $self->{_sessionWrite}->set_request( -varbindlist => [
             "$OID_dot1qStaticUnicastStatus.$deauthVlan.$mac_oid.0", Net::SNMP::INTEGER, $SNMP::Q_BRIDGE::INVALID
         ]);
-        $logger->info("Deauthorizing $deauthMac ($mac_oid) on ifIndex $ifIndex, vlan $deauthVlan");
+        if ($result) {
+            $logger->info("Deauthorizing $deauthMac ($mac_oid) on ifIndex $ifIndex, vlan $deauthVlan");
+        } else {
+            $logger->warn("SNMP error Deauthorizing $deauthMac "
+                . "Error message: ".$self->{_sessionWrite}->error());
+        }
     }
 
     if ($authMac && !$self->isFakeMac($authMac)) {
@@ -335,8 +340,13 @@ sub authorizeMAC {
             "$OID_dot1qStaticUnicastStatus.$vlan.$mac_oid.0", Net::SNMP::INTEGER, $SNMP::Q_BRIDGE::PERMANENT,
             "$OID_dot1qStaticUnicastAllowedToGoTo.$vlan.$mac_oid.0", Net::SNMP::OCTET_STRING, $portList
         ]);
-        $logger->info("Authorizing $authMac ($mac_oid) on ifIndex $ifIndex, vlan $vlan "
-            . "(don't worry if VLAN is not ok, it'll be re-assigned later)");
+        if ($result) {
+            $logger->info("Authorizing $authMac ($mac_oid) on ifIndex $ifIndex, vlan $vlan "
+                . "(don't worry if VLAN is not ok, it'll be re-assigned later)");
+        } else {
+            $logger->error("SNMP error authorizing $authMac. Error message: ".$self->{_sessionWrite}->error());
+            return 0;
+        }
     }
     return 1;
 }

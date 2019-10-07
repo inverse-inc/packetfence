@@ -196,11 +196,7 @@ sub _deauthenticateMacSNMP {
 
     #format MAC
     if ( length($mac) == 17 ) {
-        my @macArray = split( /:/, $mac );
-        my $completeOid = $OID_bsnMobileStationDeleteAction;
-        foreach my $macPiece (@macArray) {
-            $completeOid .= "." . hex($macPiece);
-        }
+        my $completeOid = $OID_bsnMobileStationDeleteAction . "." . mac2dec($mac);
         $logger->trace(
             "SNMP set_request for bsnMobileStationDeleteAction: $completeOid"
         );

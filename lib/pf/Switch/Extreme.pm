@@ -1143,7 +1143,7 @@ sub authorizeMAC {
 
     # TODO: if it's a fake MAC we don't act on it (see #1070 for context)
     if ($authMac  && !$self->isFakeMac($authMac)) {
-        $self->_authorizeMAC($ifIndex, $authMac, $authVlan);
+        return $self->_authorizeMAC($ifIndex, $authMac, $authVlan);
     }
 
     return 1;
@@ -1184,7 +1184,7 @@ sub _authorizeMAC {
     };
 
     if ($response->fault) {
-        $logger->warn("error authorizing MAC: " . $response->faultstring
+        $logger->error("error authorizing MAC: " . $response->faultstring
             . " (Error code: " . $response->faultcode . ")");
         return 0;
     }

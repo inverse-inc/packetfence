@@ -566,7 +566,7 @@ sub authorizeMAC {
         $self->_authorizeMAC( $ifIndex, $deauthMac, 0 );
     }
     if ( ($authMac) && ( !$self->isFakeMac($authMac) ) ) {
-        $self->_authorizeMAC( $ifIndex, $authMac, 1 );
+        return $self->_authorizeMAC( $ifIndex, $authMac, 1 );
     }
     return 1;
 }
@@ -615,7 +615,7 @@ sub _authorizeMAC {
 
     return $TRUE if (defined($result));
 
-    $logger->warn("MAC authorize / deauthorize failed with " . $self->{_sessionWrite}->error());
+    $logger->error("MAC authorize / deauthorize failed with " . $self->{_sessionWrite}->error());
     return;
 }
 

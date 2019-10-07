@@ -1444,19 +1444,11 @@ sub getMacBridgePortHash {
 sub getIfIndexForThisMac {
     my ( $self, $mac ) = @_;
     my $logger   = $self->logger;
-    my @macParts = split( ':', $mac );
     my @uplinks  = $self->getUpLinks();
     my $OID_dot1dTpFdbPort       = '1.3.6.1.2.1.17.4.3.1.2';    #BRIDGE-MIB
     my $OID_dot1dBasePortIfIndex = '1.3.6.1.2.1.17.1.4.1.2';    #BRIDGE-MIB
 
-    my $oid
-        = $OID_dot1dTpFdbPort . "."
-        . hex( $macParts[0] ) . "."
-        . hex( $macParts[1] ) . "."
-        . hex( $macParts[2] ) . "."
-        . hex( $macParts[3] ) . "."
-        . hex( $macParts[4] ) . "."
-        . hex( $macParts[5] );
+    my $oid = $OID_dot1dTpFdbPort . "." . mac2dec($mac);
 
     foreach my $vlan ( values %{ $self->{_vlans} } ) {
         my $result = undef;
@@ -1517,18 +1509,10 @@ sub getIfIndexForThisMac {
 sub isMacInAddressTableAtIfIndex {
     my ( $self, $mac, $ifIndex ) = @_;
     my $logger = $self->logger;
-    my @macParts = split( ':', $mac );
     my $OID_dot1dTpFdbPort       = '1.3.6.1.2.1.17.4.3.1.2';    #BRIDGE-MIB
     my $OID_dot1dBasePortIfIndex = '1.3.6.1.2.1.17.1.4.1.2';    #BRIDGE-MIB
 
-    my $oid
-        = $OID_dot1dTpFdbPort . "."
-        . hex( $macParts[0] ) . "."
-        . hex( $macParts[1] ) . "."
-        . hex( $macParts[2] ) . "."
-        . hex( $macParts[3] ) . "."
-        . hex( $macParts[4] ) . "."
-        . hex( $macParts[5] );
+    my $oid = $OID_dot1dTpFdbPort . "." . mac2dec($mac);
 
     my $vlan = $self->getVlan($ifIndex);
 
@@ -2730,6 +2714,11 @@ sub authorizeMAC {
         $logger->debug("BROKEN SNMP fake set_request for cpsIfVlanSecureMacAddrRowStatus");
         my $result = $self->{_sessionWrite}
             ->set_request( -varbindlist => \@oid_value );
+        if (!$result) {
+            $logger->error("SNMP error tyring to perform auth of $authMac "
+                                          . "Error message: ".$self->{_sessionWrite}->error());
+            return 0;
+        }
     }
     return 1;
 }

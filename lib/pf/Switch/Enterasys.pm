@@ -214,6 +214,11 @@ sub authorizeMAC {
             "SNMP set_request for etsysMACLockingStaticEntryRowStatus");
         my $result = $self->{_sessionWrite}
             ->set_request( -varbindlist => \@oid_value );
+        if (!$result) {
+            $logger->error("SNMP error tyring to  authorize mac. "
+                . "Error message: ".$self->{_sessionWrite}->error());
+            return 0;
+        }
     }
     return 1;
 }

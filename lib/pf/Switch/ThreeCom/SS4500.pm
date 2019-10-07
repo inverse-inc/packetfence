@@ -384,9 +384,10 @@ sub _authorizeMacWithSnmp {
             "$oid_hwdot1qTpFdbSetOperate.$vlan.$mac_oid", Net::SNMP::INTEGER, $THREECOM::ADD,
         ]);
         if (!defined($result)) {
-            $logger->warn(
+            $logger->error(
                 "SNMP error tyring to perform auth. This could be normal. "
                 . "Error message: ".$self->{_sessionWrite}->error());
+            return 0;
         }
     }
     return 1;
