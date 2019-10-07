@@ -24,6 +24,7 @@ Enhancements
 
 Bug Fixes
 +++++++++
+* fixes #4737 (SNMP trap stuck in the queue)
 
 Version 9.1.0 released on 2019-09-17
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
