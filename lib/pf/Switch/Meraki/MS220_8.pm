@@ -33,7 +33,6 @@ use pf::config qw(
 use pf::constants;
 use pf::util;
 use pf::node;
-use pf::util::radius qw(perform_coa);
 use Try::Tiny;
 use pf::Switch::Meraki::MR_v2;
 

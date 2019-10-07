@@ -31,7 +31,7 @@ sub description { 'N1500 Series' }
 
 # importing switch constants
 use pf::Switch::constants;
-use pf::util::radius qw(perform_coa perform_disconnect);
+use pf::util::radius qw(perform_disconnect);
 
 # CAPABILITIES
 # access technology supported

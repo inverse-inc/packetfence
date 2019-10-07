@@ -30,7 +30,7 @@ sub description { 'Juniper EX 2200 Series running Junos 15' }
 use pf::Switch::constants;
 use pf::accounting qw(node_accounting_current_sessionid);
 use pf::node qw(node_attributes);
-use pf::util::radius qw(perform_coa perform_disconnect);
+use pf::util::radius qw(perform_disconnect);
 use Try::Tiny;
 use pf::util;
 

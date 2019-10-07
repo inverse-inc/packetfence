@@ -25,7 +25,7 @@ use pf::config qw(
 );
 use pf::Switch::constants;
 use pf::util qw(format_mac_as_cisco);
-use pf::util::radius qw(perform_coa perform_disconnect);
+use pf::util::radius qw(perform_coa);
 
 use base ('pf::Switch::Cisco::Aironet');
 
