@@ -444,15 +444,11 @@ cp -r ChangeLog %{buildroot}/usr/local/pf/
 cp -r COPYING %{buildroot}/usr/local/pf/
 cp -r db %{buildroot}/usr/local/pf/
 cp -r docs %{buildroot}/usr/local/pf/
-rm -rf %{buildroot}/usr/local/pf/docs/archives
 rm -rf %{buildroot}/usr/local/pf/docs/docbook
 rm -rf %{buildroot}/usr/local/pf/docs/fonts
 rm -rf %{buildroot}/usr/local/pf/docs/images
 rm -rf %{buildroot}/usr/local/pf/docs/api
 cp -r html %{buildroot}/usr/local/pf/
-
-# install Golang binaries
-%{__make} -C go SBINDIR=%{buildroot}/usr/local/pf/sbin copy
 
 # install html and images dirs in pfappserver for embedded doc
 %{__install} -d -m0755 %{buildroot}/usr/local/pf/html/pfappserver/root/static/doc
@@ -1001,28 +997,15 @@ fi
 %dir                    /usr/local/pf/db
                         /usr/local/pf/db/*
 %dir                    /usr/local/pf/docs
-%dir                    /usr/local/pf/docs/enforcement
-%doc                    /usr/local/pf/docs/enforcement/*
-%dir                    /usr/local/pf/docs/firewall
-%doc                    /usr/local/pf/docs/firewall/*
-%dir                    /usr/local/pf/docs/networkdevice
-%doc                    /usr/local/pf/docs/networkdevice/*
-%dir                    /usr/local/pf/docs/pki
-%doc                    /usr/local/pf/docs/pki/*
-%dir                    /usr/local/pf/docs/provisioner
-%doc                    /usr/local/pf/docs/provisioner/*
-%dir                    /usr/local/pf/html/pfappserver/root/static/doc
-%doc                    /usr/local/pf/html/pfappserver/root/static/doc/*
-%doc                    /usr/local/pf/docs/*.asciidoc
-%doc                    /usr/local/pf/docs/html/*
+%doc                    /usr/local/pf/docs/*
+%exclude                /usr/local/pf/docs/README.md
+%exclude                /usr/local/pf/docs/*.fo
 %if %{builddoc} == 1
 %doc                    /usr/local/pf/docs/*.pdf 
 %endif
-%doc                    /usr/local/pf/docs/*.xml
-%doc                    /usr/local/pf/docs/fdl-1.2.txt
-%dir                    /usr/local/pf/docs/includes
-%doc                    /usr/local/pf/docs/includes/*.asciidoc
-%doc                    /usr/local/pf/docs/pfcmd.help
+
+%dir                    /usr/local/pf/html/pfappserver/root/static/doc
+%doc                    /usr/local/pf/html/pfappserver/root/static/doc/*
 %dir                    /usr/local/pf/html
 %dir                    /usr/local/pf/html/captive-portal
                         /usr/local/pf/html/captive-portal/Changes
