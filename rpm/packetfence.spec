@@ -450,6 +450,9 @@ rm -rf %{buildroot}/usr/local/pf/docs/images
 rm -rf %{buildroot}/usr/local/pf/docs/api
 cp -r html %{buildroot}/usr/local/pf/
 
+# install Golang binaries
+%{__make} -C go DESTDIR=%{buildroot} copy
+
 # install html and images dirs in pfappserver for embedded doc
 %{__install} -d -m0755 %{buildroot}/usr/local/pf/html/pfappserver/root/static/doc
 for i in `find docs/html "(" -name "*.html" -or -name "*.js" ")"  -type f`; do \
@@ -999,9 +1002,9 @@ fi
 %dir                    /usr/local/pf/docs
 %doc                    /usr/local/pf/docs/*
 %exclude                /usr/local/pf/docs/README.md
-%exclude                /usr/local/pf/docs/*.fo
 %if %{builddoc} == 1
-%doc                    /usr/local/pf/docs/*.pdf 
+%doc                    /usr/local/pf/docs/*.pdf
+%exclude                /usr/local/pf/docs/*.fo
 %endif
 
 %dir                    /usr/local/pf/html/pfappserver/root/static/doc
