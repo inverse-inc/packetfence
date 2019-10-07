@@ -237,7 +237,7 @@ Get the meta data for dhcp_option82
 sub get_meta {
     return \%FIELDS_META;
 }
- 
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

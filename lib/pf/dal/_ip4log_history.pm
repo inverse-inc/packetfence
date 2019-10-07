@@ -210,7 +210,7 @@ Get the meta data for ip4log_history
 sub get_meta {
     return \%FIELDS_META;
 }
- 
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
