@@ -6,7 +6,7 @@
 %global     debug_package %{nil}
 
 Name:       packetfence
-Version:    9.0.1
+Version:    9.1.0
 Release:    1%{?dist}
 BuildArch:  noarch
 Summary:    PacketFence network registration / worm mitigation system
