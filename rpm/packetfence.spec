@@ -115,6 +115,7 @@ Requires: perl(Log::Any)
 Requires: perl(Log::Any::Adapter)
 Requires: perl(Log::Any::Adapter::Log4perl)
 Requires: perl(Log::Dispatch::Syslog)
+Requires: perl(Log::Fast)
 Requires: perl(Net::Cisco::MSE::REST)
 # Required by switch modules
 # Net::Appliance::Session specific version added because newer versions broke API compatibility (#1312)
@@ -223,6 +224,7 @@ Requires: perl(CHI::Driver::Redis)
 Requires: perl(File::Flock)
 Requires: perl(Perl::Version)
 Requires: perl(Cache::FastMmap)
+Requires: perl(Cache::BDB)
 Requires: perl(Moo) >= 1.003000
 Requires: perl(Term::ANSIColor)
 Requires: perl(IO::Interactive)
@@ -279,24 +281,11 @@ Requires: perl(Test::NoWarnings), perl(Test::ParallelSubtest)
 # required for the fake CoA server
 Requires: perl(Net::UDP)
 # For managing the number of connections per device
-Requires: %{name}-config
 Requires: haproxy >= 1.8.9, keepalived >= 1.4.3
 # CAUTION: we need to require the version we want for Fingerbank and ensure we don't want anything equal or above the next major release as it can add breaking changes
 Requires: fingerbank >= 4.1.4, fingerbank < 5.0.0
 Requires: fingerbank-collector >= 1.1.0, fingerbank-collector < 2.0.0
 Requires: perl(File::Tempdir)
-
-%package config
-Group: System Environment/Daemons
-Requires: perl(Cache::BDB)
-Requires: perl(Log::Fast)
-AutoReqProv: 0
-Summary: Manage PacketFence Configuration
-BuildArch: noarch
-
-%description config
-The %{name}-config is a daemon that manage PacketFence configuration.
-
 
 %prep
 %setup -q -n %{name}-%{version}
@@ -720,7 +709,6 @@ fi
 %attr(0644, root, root) /etc/systemd/system/packetfence-cluster.target
 %attr(0644, root, root) /etc/systemd/system/packetfence*.slice
 
-%exclude                %{_unitdir}/packetfence-config.service
 %attr(0644, root, root) %{_unitdir}/packetfence-*.service
 %attr(0644, root, root) %{_unitdir}/packetfence-*.path
 %attr(0644, root, root) %{systemddir}/journald.conf.d/01-packetfence.conf
@@ -753,6 +741,7 @@ fi
 %dir                    /usr/local/pf/addons/packages
                         /usr/local/pf/addons/packages/*
 %dir                    /usr/local/pf/addons/pfconfig
+%exclude                /usr/local/pf/addons/pfconfig/pfconfig.init
 %dir                    /usr/local/pf/addons/pfconfig/comparator
 %attr(0755, pf, pf)     /usr/local/pf/addons/pfconfig/comparator/*.pl
 %attr(0755, pf, pf)     /usr/local/pf/addons/pfconfig/comparator/*.sh
@@ -780,8 +769,11 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdhcp
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdns
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfstats
+%attr(0755, pf, pf)     /usr/local/pf/sbin/pfconfig
 %doc                    /usr/local/pf/ChangeLog
                         /usr/local/pf/conf/*.example
+%dir %attr(0770, pf pf) /usr/local/pf/conf
+%config(noreplace)      /usr/local/pf/conf/pfconfig.conf
 %config(noreplace)      /usr/local/pf/conf/adminroles.conf
 %config(noreplace)      /usr/local/pf/conf/allowed_device_oui.txt
 %config                 /usr/local/pf/conf/ui.conf
@@ -1148,8 +1140,9 @@ fi
 %config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Service.pm
 %config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/User.pm
 %config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/SecurityEvent.pm
-                        /usr/local/pf/lib
-%exclude                /usr/local/pf/lib/pfconfig*
+%dir                    /usr/local/pf/lib/
+%dir                    /usr/local/pf/lib/pfconfig
+                        /usr/local/pf/lib/pfconfig/*
 %config(noreplace)      /usr/local/pf/lib/pf/floatingdevice/custom.pm
 %config(noreplace)      /usr/local/pf/lib/pf/inline/custom.pm
 %config(noreplace)      /usr/local/pf/lib/pf/lookup/node.pm
@@ -1229,19 +1222,6 @@ fi
 %dir                    /usr/local/pf/var/redis_ntlm_cache
 %dir                    /usr/local/pf/var/ssl_mutex
 %config(noreplace)      /usr/local/pf/var/cache_control
-
-%files config
-%defattr(-, pf, pf)
-%attr(0644, root, root) %{_unitdir}/packetfence-config.service
-%dir                    /usr/local/pf
-%dir %attr(0770, pf pf) /usr/local/pf/conf
-%config(noreplace)      /usr/local/pf/conf/pfconfig.conf
-%dir                    /usr/local/pf/lib
-%dir                    /usr/local/pf/lib/pfconfig
-                        /usr/local/pf/lib/pfconfig/*
-%attr(0755, pf, pf)     /usr/local/pf/sbin/pfconfig
-%dir                    /usr/local/pf/addons/pfconfig
-%exclude                /usr/local/pf/addons/pfconfig/pfconfig.init
 
 %changelog
 * Wed May 15 2019 Inverse <info@inverse.ca> - 9.0.0-1
