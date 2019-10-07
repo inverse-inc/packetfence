@@ -21,6 +21,7 @@ New Features
 Enhancements
 ++++++++++++
 * Network visualization now supports custom sorting, min/max graph sizing, variable real-time network live-view, and infinite depth of switch-group inheritance.
+* Speedup the dal generation (#4824)
 
 Bug Fixes
 +++++++++
