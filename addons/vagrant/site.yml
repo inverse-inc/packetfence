@@ -1,5 +1,5 @@
 ---
-- hosts: pipeline
+- hosts: nightly
   name: install packetfence development packages
   become: True
 
