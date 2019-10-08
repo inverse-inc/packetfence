@@ -1,0 +1,3 @@
+---
+asciidoctor_gems:
+  - name: asciidoctor

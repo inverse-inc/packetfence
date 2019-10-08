@@ -1,9 +1,9 @@
 #!/bin/bash -e
 
-# GOVERSION, GOPATH can be pass as environment variables
+# GOVERSION and GO_REPO can be pass as environment variables
 
 # env variable can override default
-GO_REPO=${GO_REPO:-github.com/inverse-inc/packetfence}
+GO_REPO=${GO_REPO:-/usr/local/pf/go}
 
 die() {
     echo "$(basename $0): $@" >&2 ; exit 1
@@ -36,9 +36,7 @@ install() {
 
 setup() {
     SETUP='
-export PATH=$PATH:/usr/local/go/bin
-export GOPATH=~/gospace
-export PATH=~/gospace/bin:$PATH'
+export PATH=/usr/local/go/bin:$PATH'
     echo "$SETUP" >> ~/.bashrc
     eval "$SETUP"
 }
@@ -48,21 +46,15 @@ if [ -d /usr/local/go ]; then
     die "/usr/local/go exists, refusing to setup"
 else
     install
-fi
 
-log_section "Setup variables and directories for Golang environment"
-# we are in a packer build
-if [ -n "$PACKER_BUILD_NAME" ]; then
-    declare -p GOPATH GO_REPO
-    mkdir -v -p $GOPATH/src/$GO_REPO
-else
-    setup
-    declare -p GOPATH GO_REPO
-    mkdir -v -p $GOPATH/src/$GO_REPO
-    if [ -d $GOPATH/src/$GO_REPO/go ]; then
-        die "Directory $GOPATH/src/$GO_REPO/go already exists, cannot symlink it to /usr/local/pf/go"
+    # we are *NOT* in a packer build, need to setup env variables
+    if [ -z "$PACKER_BUILD_NAME" ]; then
+        setup
+        ( cd $GO_REPO ; go mod download )
     else
-        ln -s -v /usr/local/pf/go $GOPATH/src/$GO_REPO/go
+        # in a packer build, no need to pre-download
+        exit 0
     fi
+    declare -p GO_REPO PATH
 fi
 

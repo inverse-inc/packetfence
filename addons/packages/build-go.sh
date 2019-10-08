@@ -50,39 +50,7 @@ fi
 set -x
 
 
-if [ -z "$DEBPATH" ]; then
-    export GOPATH=`mktemp -d`
-else
-    export GOPATH=`mktemp -d -p $DEBPATH`
-fi
-
-export GOPATH
-
-export GOBIN="$GOPATH/bin"
-
-# Exit hook to cleanup the tmp GOPATH when exiting
-function cleanup {
-  rm -rf "$GOPATH"
-}
-trap cleanup EXIT
-
-cd "$GOPATH"
-GOPATHPF="$GOPATH/src/github.com/inverse-inc/packetfence"
-mkdir -p $GOPATHPF
-
-
-find $PFSRC -maxdepth 1 -type d ! -path '*/debian' ! -path '*/logs' ! -path '*/var' ! -path '*/docs' ! -path '*/t' ! -path '*/db' ! -path '*/addons' ! -path '*/.tx' -exec cp -a {} "$GOPATHPF/" \;
-
-cd "$GOPATHPF"
-
-cd go
-
-# Ensure current binaries are available through path
-export PATH="$GOBIN:$PATH"
-
-# Install the dependencies
-go get -u github.com/kardianos/govendor
-$GOPATH/bin/govendor sync
+cd "$PFSRC/go"
 
 if build_mode; then
   # Create any binaries here and make sure to move them to the BINDST specified

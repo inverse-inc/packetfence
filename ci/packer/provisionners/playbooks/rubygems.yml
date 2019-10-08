@@ -1,0 +1,14 @@
+- hosts: rubygems
+  name: install ruby gems
+  become: True
+
+  vars:
+    local_bin_dir: /usr/local/bin
+
+  tasks:
+    # workaround for https://github.com/ansible/ansible/issues/25142
+    - name: Install asciidoctor gems
+      command: "gem install {{ item['name'] }} --no-user-install -n {{ local_bin_dir }}"
+      args:
+        creates: "{{ local_bin_dir }}/{{ item['name'] }}"
+      loop: '{{ asciidoctor_gems }}'

@@ -1,0 +1,27 @@
+---
+### COMMON PARAMETERS
+
+### STAGES
+stages:
+  - build_images
+
+
+### VARIABLES
+variables:
+  CIDIR: ci
+  PACKERDIR: $CIDIR/packer
+  ANSIBLE_FORCE_COLOR: "true"
+  ANSIBLE_STDOUT_CALLBACK: yaml
+
+### TEMPLATES
+
+### JOBS
+buildpkg:
+  stage: build_images
+  script:
+    - make -e -C $PACKERDIR buildpkg
+  # job need to be explicitly started, not when we click "Run pipeline"
+  # will not block other stages/jobs
+  when: manual
+  tags:
+    - shell

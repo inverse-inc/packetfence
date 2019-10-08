@@ -1,0 +1,11 @@
+---
+# use to install RPM keys not available through a public URL
+#
+# src_filename: should be a filename in provisionners/upstream/rpm_keys dir
+# dst_filename: should be the name of a file created on OS in /etc/pki/rpm-gpg
+# 
+# Then we use dst_filename with gitlab-buildpkg-tools role to install those
+# rpm keys
+upstream_rpm_keys:
+  - src_filename: nodesource.rpm.key
+    dst_filename: NODESOURCE-GPG-SIGNING-KEY-EL

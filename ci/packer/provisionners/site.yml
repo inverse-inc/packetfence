@@ -1,0 +1,24 @@
+---
+- hosts: centos
+  name: install RPM keys
+  gather_facts: False
+  become: True
+
+  tasks:
+    - name: Upload specific RPM keys
+      copy:
+        src: "upstream/rpm_keys/{{ item['src_filename'] }}"
+        dest: "/etc/pki/rpm-gpg/{{ item['dst_filename'] }}"
+        owner: root
+        group: root
+        mode: '0644'
+      loop: '{{ upstream_rpm_keys }}'
+
+- hosts: ['centos','debian']
+  name: install upstream repos needed to install build requires
+  become: True
+
+  roles:
+    - role: inverse_inc.gitlab_buildpkg_tools
+
+- import_playbook: playbooks/rubygems.yml

@@ -3,83 +3,172 @@
     "min_packer_version": "1.4.2",
     "variables": {
         "builder_prefix": "pfbuild",
-        "docker_user": "buildpkg",
+        "buildpkg_user": "buildpkg",
         "pf_root": "../..",
-        "go_version": "go1.9.3",
-        "go_path": "/root/go",
-        "go_repo": "github.com/inverse-inc/packetfence"
+        "prov_dir": "provisionners",
+        "files_dir": "files",
+        "tmp_dir": "/tmp",
+        "ansible_extra_vars": "{{env `ANSIBLE_EXTRA_VARS`}}",
+        "go_version": "{{env `GOVERSION`}}",
+        "image_tag": "{{env `DOCKER_TAG`}}",
+        "docker_user": "{{env `REGISTRY_USER`}}",
+        "docker_password": "{{env `REGISTRY_PASSWORD`}}",
+        "docker_registry": "{{env `REGISTRY`}}"
     },
     "builders": [
         {
-            "name": "{{user `builder_prefix`}}-centos7",
+            "name": "{{user `builder_prefix`}}-centos-7",
             "type": "docker",
-            "image": "{{user `docker_user`}}/centos:7",
+            "image": "{{user `buildpkg_user`}}/centos:7",
+            "run_command": ["-d", "-i", "-t", "--", "{{.Image}}"],
             "commit": true,
             "changes": [
-                "ENTRYPOINT /bin/bash"
+                "ENV PATH /usr/local/go/bin:$PATH"
             ]
         },
         {
             "name": "{{user `builder_prefix`}}-stretch",
             "type": "docker",
-            "image": "{{user `docker_user`}}/debian:stretch",
+            "image": "{{user `buildpkg_user`}}/debian:stretch",
+            "run_command": ["-d", "-i", "-t", "--", "{{.Image}}"],
             "commit": true,
             "changes": [
-                "ENTRYPOINT /bin/bash"
+                "ENV PATH /usr/local/go/bin:$PATH"
             ]
         },
         {
             "name": "{{user `builder_prefix`}}-buster",
             "type": "docker",
-            "image": "{{user `docker_user`}}/debian:buster",
+            "image": "{{user `buildpkg_user`}}/debian:buster",
+            "run_command": ["-d", "-i", "-t", "--", "{{.Image}}"],
             "commit": true,
             "changes": [
-                "ENTRYPOINT /bin/bash"
+                "ENV PATH /usr/local/go/bin:$PATH"
             ]
         }
     ],
     "provisioners": [
         {
-            "type": "shell",
-            "script": "{{user `pf_root`}}/addons/dev-helpers/setup-go-env.sh",
-            "environment_vars": ["GOVERSION={{user `go_version`}}",
-                                 "GOPATH={{user `go_path`}}",
-                                 "GO_REPO={{user `go_repo`}}"
-                                ]
-
+            "type": "ansible",
+            "playbook_file": "{{user `prov_dir`}}/site.yml",
+            "galaxy_file": "{{user `prov_dir`}}/requirements.yml",
+            "inventory_directory": "{{user `prov_dir`}}/inventory",
+            "extra_arguments": ["--extra-vars", "{{user `ansible_extra_vars`}}"],
+            "groups": ["centos"],
+            "only": ["{{user `builder_prefix`}}-centos-7"]
+        },
+        {
+            "type": "ansible",
+            "playbook_file": "{{user `prov_dir`}}/site.yml",
+            "galaxy_file": "{{user `prov_dir`}}/requirements.yml",
+            "inventory_directory": "{{user `prov_dir`}}/inventory",
+            "extra_arguments": ["--extra-vars", "{{user `ansible_extra_vars`}}"],
+            "groups": ["debian"],
+            "only": ["{{user `builder_prefix`}}-stretch",
+                     "{{user `builder_prefix`}}-buster"
+                    ]
         },
         {
             "type": "file",
-            "source": "{{user `pf_root`}}/go",
-            "destination": "{{user `go_path`}}/src/{{user `go_repo`}}"
+            "source": "{{user `pf_root`}}/rpm",
+            "destination": "{{user `tmp_dir`}}",
+            "only": ["{{user `builder_prefix`}}-centos-7"]
+        },
+        {
+            "type": "file",
+            "source": "{{user `pf_root`}}/debian",
+            "destination": "{{user `tmp_dir`}}",
+            "only": ["{{user `builder_prefix`}}-stretch",
+                     "{{user `builder_prefix`}}-buster"
+                    ]
         },
         {
             "type": "shell",
-            "script": "provisionners/install-go-dependencies.sh",
-            "environment_vars": ["GOPATH={{user `go_path`}}",
-                                 "GO_REPO={{user `go_repo`}}",
-                                 "EXTRA_PATH=go"
+            "inline": ["curl -s https://gitlab.com/Orange-OpenSource/gitlab-buildpkg-tools/merge_requests/8.diff | git apply -v -p2 -",
+                       "ci-build-pkg {{user `tmp_dir`}}"
+                      ],
+            "environment_vars": ["CI_BUILDPKG_DEP_ONLY=yes",
+                                 "CI_COMMIT_REF_NAME=fakebranch"
                                 ]
+        },
+        {
+            "type": "shell",
+            "script": "{{user `pf_root`}}/addons/dev-helpers/setup-go-env.sh",
+            "environment_vars": ["GOVERSION={{user `go_version`}}"]
+        },
+        {
+            "type": "ansible",
+            "playbook_file": "{{user `prov_dir`}}/site.yml",
+            "inventory_directory": "{{user `prov_dir`}}/inventory",
+            "extra_arguments": ["--extra-vars", "{{user `ansible_extra_vars`}}"],
+            "groups": ["rubygems"]
+        },
+        {
+            "type": "shell",
+            "inline": ["rm -rf {{user `tmp_dir`}}/rpm",
+                       "yum clean all"
+                      ],
+            "only": ["{{user `builder_prefix`}}-centos-7"]
+        },
+        {
+            "type": "shell",
+            "inline": ["rm -rf {{user `tmp_dir`}}/debian",
+                       "apt-get clean"
+                      ],
+            "only": ["{{user `builder_prefix`}}-stretch",
+                     "{{user `builder_prefix`}}-buster"
+                    ]
         }
+
     ],
     "post-processors": [
-        {
-            "type": "docker-tag",
-            "only": ["{{user `builder_prefix`}}-centos7"],
-            "repository": "inverseinc/{{user `builder_prefix`}}-centos",
-            "tag": "7"
-        },
-        {
-            "type": "docker-tag",
-            "only": ["{{user `builder_prefix`}}-stretch"],
-            "repository": "inverseinc/{{user `builder_prefix`}}-debian",
-            "tag": "stretch"
-        },
-        {
-            "type": "docker-tag",
-            "only": ["{{user `builder_prefix`}}-buster"],
-            "repository": "inverseinc/{{user `builder_prefix`}}-debian",
-            "tag": "buster"
-        }
+        [
+            {
+                "type": "docker-tag",
+                "only": ["{{user `builder_prefix`}}-centos-7"],
+                "repository": "{{user `docker_user`}}/{{user `builder_prefix`}}-centos-7",
+                "tag": "{{user `image_tag`}}"
+            },
+            {
+                "type": "docker-push",
+                "only": ["{{user `builder_prefix`}}-centos-7"],
+                "login": true,
+                "login_username": "{{user `docker_user`}}",
+                "login_password": "{{user `docker_password`}}",
+                "login_server": "{{user `docker_registry`}}"
+            }
+        ],
+        [
+            {
+                "type": "docker-tag",
+                "only": ["{{user `builder_prefix`}}-stretch"],
+                "repository": "{{user `docker_user`}}/{{user `builder_prefix`}}-debian-stretch",
+                "tag": "{{user `image_tag`}}"
+            },
+            {
+                "type": "docker-push",
+                "only": ["{{user `builder_prefix`}}-stretch"],
+                "login": true,
+                "login_username": "{{user `docker_user`}}",
+                "login_password": "{{user `docker_password`}}",
+                "login_server": "{{user `docker_registry`}}"
+            }
+        ],
+        [
+            {
+                "type": "docker-tag",
+                "only": ["{{user `builder_prefix`}}-buster"],
+                "repository": "{{user `docker_user`}}/{{user `builder_prefix`}}-debian-buster",
+                "tag": "{{user `image_tag`}}"
+            },
+            {
+                "type": "docker-push",
+                "only": ["{{user `builder_prefix`}}-buster"],
+                "login": true,
+                "login_username": "{{user `docker_user`}}",
+                "login_password": "{{user `docker_password`}}",
+                "login_server": "{{user `docker_registry`}}"
+            }
+        ]
     ]
 }

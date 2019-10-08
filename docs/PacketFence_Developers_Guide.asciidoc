@@ -375,6 +375,10 @@ Start the `packetfence-iptables` service.
 * [ ] update website listing to add a new guide
 
 
+== Golang environment
+
+include::go/README.asciidoc[]
+
 Code conventions
 ----------------
 
@@ -1044,6 +1048,10 @@ http://packetfence.org/bugs/view.php?id=1085[issue #1085].
 * Add switch to the Network Devices Guide's switch chart
 * Add switch to the chart in `README.network-devices`
 
+
+== PacketFence builds
+
+include::packer/README.asciidoc[]
 
 == Developer recipes
 
