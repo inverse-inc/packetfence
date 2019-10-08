@@ -64,9 +64,6 @@ Vagrant.configure("2") do |pfservers|
         srv.vm.box = details['box']
         srv.vm.hostname = server
 
-        # set new rule for webadmin
-        srv.vm.network "forwarded_port", guest: 1443, host: details['admin_port'], host_ip: "127.0.0.1", auto_correct: true
-
         # set new rule for ssh
         srv.vm.network "forwarded_port", guest: 22, host: details['ssh_port'], host_ip: "127.0.0.1", auto_correct: true
 
