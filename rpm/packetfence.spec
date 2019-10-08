@@ -1036,7 +1036,7 @@ fi
                         /usr/local/pf/db/*
 %dir                    /usr/local/pf/docs
 %doc                    /usr/local/pf/docs/*
-%exclude                /usr/local/pf/docs/README.md
+%exclude                /usr/local/pf/docs/README.asciidoc
 %if %{builddoc} == 1
 %doc                    /usr/local/pf/docs/*.pdf
 %exclude                /usr/local/pf/docs/*.fo
