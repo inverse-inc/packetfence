@@ -15,7 +15,7 @@ use warnings;
 #
 use lib '/usr/local/pf/lib';
 
-our (@VALID_TEMPLATES, @INVALID_TEMPLATES);
+our (@VALID_TEMPLATES, @INVALID_TEMPLATES, @TEMPLATE_OUTPUT);
 BEGIN {
     #include test libs
     use lib qw(/usr/local/pf/t);
@@ -33,20 +33,55 @@ BEGIN {
         ['${bob}-kik', [['V', 'bob'], ['S', '-kik'] ]], 
         ['kik-$bob', [['S', 'kik-'], ['V', 'bob'] ]], 
         ['${bob($mac)}', ['F', 'bob', [['V', 'mac']]] ], 
+        ['${bob($mac, f())}', ['F', 'bob', [['V', 'mac'], ['F', 'f', []]]]],
+        ['${bob($mac, "james", f())}', ['F', 'bob', [['V', 'mac'], ['S', 'james'], ['F', 'f', []]]]],
+        ["\${bob(\$mac, 'james', f())}", ['F', 'bob', [['V', 'mac'], ['S', 'james'], ['F', 'f', []]]]],
         ['$bob.jones', ['K', ['bob', 'jones']] ], 
         ['$bob.jones-jr.sike', ['K', ['bob', 'jones-jr', 'sike']] ], 
+    );
+
+    @TEMPLATE_OUTPUT = (
+        {
+            tmpl  => 'bob',
+            input => {},
+            out   => 'bob',
+        },
+        {
+            tmpl  => '$bob',
+            input => { bob => 'bobby' },
+            out   => 'bobby',
+        },
+        {
+            tmpl  => '$bob.lastname',
+            input => { bob => { lastname => 'jones' } },
+            out   => 'jones',
+        },
+        {
+            tmpl => '${bob}-kik',
+            input => { bob => 'bobby' },
+            out   => 'bobby-kik',
+        },
+        {
+            tmpl => 'kik-${bob}',
+            input => { bob => 'bobby' },
+            out   => 'kik-bobby',
+        },
     );
 }
 
 use pf::mini_template;
 
-use Test::More tests => (scalar @VALID_TEMPLATES) + 1;
+use Test::More tests => (scalar @VALID_TEMPLATES) + (scalar @TEMPLATE_OUTPUT) + 1;
 
 #This test will running last
 use Test::NoWarnings;
 
 for my $test (@VALID_TEMPLATES) {
     test_valid_string(@$test);
+}
+
+for my $test (@TEMPLATE_OUTPUT) {
+    test_template_output($test);
 }
 
 sub test_valid_string {
@@ -57,6 +92,23 @@ sub test_valid_string {
         print "$msg\n";
     }
 }
+
+=head2 test_template_output
+
+test_template_output
+
+=cut
+
+sub test_template_output {
+    my ($test) = @_;
+    my $tmpl = $test->{tmpl};
+    my $template = pf::mini_template->new($tmpl);
+    my $out = $template->process($test->{input});
+    is ($out, $test->{out}, "testing '$tmpl'");
+}
+
+
+
 
 =head1 AUTHOR
 

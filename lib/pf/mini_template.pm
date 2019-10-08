@@ -13,6 +13,58 @@ pf::mini_template
 use strict;
 use warnings;
 
+sub new {
+    my ($proto, $text) = @_;
+    my $class = ref($proto) || $proto;
+    my ($tmpl, $msg) = parse_template($text);
+    return bless { text => $text, tmpl => $tmpl  }, $class;
+}
+
+sub process {
+    my ($self, $vars) = @_;
+    return $self->process_tmpl($self->{tmpl}, $vars);
+}
+
+sub process_tmpl {
+    my ($self, $tmpl, $vars) = @_;
+    my $type = $tmpl->[0];
+    if (!ref ($type)) {
+        return $self->process_simple_tmpl($tmpl, $vars);
+    }
+
+    local $_;
+    return join('', map {$self->process_tmpl($_, $vars)} @$tmpl);
+}
+
+sub process_simple_tmpl {
+    my ($self, $tmpl, $vars) = @_;
+    my $type = $tmpl->[0];
+    if ($type eq 'S') {
+        return $tmpl->[1];
+    } elsif ($type eq 'V') {
+        return $vars->{$tmpl->[1]};
+    } elsif ($type eq 'K') {
+        my @keys = @{$tmpl->[1]};
+        my $last = pop @keys;
+        my $v = $vars;
+        for my $k (@keys) {
+            if (!exists $v->{$k}) {
+                return '';
+            }
+
+            my $t = $v->{$k};
+            if (ref ($t) ne 'HASH') {
+                return $t;
+            }
+            $v = $t;
+        }
+        
+        return $v->{$last};
+    }
+
+    return '';
+}
+
 our $MARKER  = '^';
 our $HIGH_LIGHT = '~';
 
@@ -156,6 +208,21 @@ sub _parse_func_arg {
     
     if (/\G\$/gc) {
         return _parse_var_name();
+    }
+
+    if (/\G"(([^"]|\\")*)"/gc) {
+        return ['S', $1];
+    }
+
+    if (/\G'(([^']|\\')*)'/gc) {
+        return ['S', $1];
+    }
+
+    my @names = _parse_var_names();
+    if (@names) {
+        if (/\G\s*\(\s*/gc) {
+            return ['F', join('.', @names), _parse_func()];
+        }
     }
 
     die format_parse_error("Invalid function arg", $_, pos);
