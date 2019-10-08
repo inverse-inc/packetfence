@@ -1,15 +1,7 @@
 ---
-gitlab_buildpkg_tools__deb_keys:
-  - http://inverse.ca/downloads/APT-GPG-KEY-PACKETFENCE-DEBIAN
+# temp: https://github.com/inverse-inc/ansible-role-gitlab-buildpkg-tools/issues/6
+gitlab_buildpkg_tools__deb_pkgs: '{{ lookup("env", "DEB_PACKAGES_NAME") if lookup("env", "DEB_PACKAGES_NAME")
+                                     else [] }}'
 
-gitlab_buildpkg_tools__deb_deps_repos:
-  - name: packetfence-devel
-    baseurl: 'http://inverse.ca/downloads/PacketFence/debian-devel {{ ansible_distribution_release }} {{ ansible_distribution_release }}'
-    
-  - name: packetfence
-    baseurl: 'http://inverse.ca/downloads/PacketFence/debian {{ ansible_distribution_release }} {{ ansible_distribution_release }}'
-
-# no need to add extra key because PPA use same GPG public key as packetfence-devel current repo
-gitlab_buildpkg_tools__rpm_deps_repos:
-  - name: packetfence-devel
-    baseurl: http://inverse.ca/downloads/PacketFence/centos/$releasever/devel/$basearch
+gitlab_buildpkg_tools__rpm_pkgs: '{{ lookup("env", "RPM_PACKAGES_NAME") if lookup("env", "RPM_PACKAGES_NAME")
+                                     else [] }}'
