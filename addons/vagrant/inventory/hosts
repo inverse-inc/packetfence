@@ -6,10 +6,67 @@ all:
   children:
     pfservers:
       children:
+        pipeline:
+          hosts:
+            pfcen7ppa:
+              box: centos/7
+              admin_port: 1443
+              ssh_port: 2200
+              mgmt_ip: 172.17.1.10
+              reg_ip: 192.168.99.10
+              iso_ip: 192.168.100.10
+              ansible_host: 127.0.0.1
+              ansible_port: "{{ ssh_port }}"
+              cpus: 1
+              memory: 6144
+            pfcen8ppa:
+              box: centos/8
+              admin_port: 1443
+              ssh_port: 2200
+              mgmt_ip: 172.17.1.10
+              reg_ip: 192.168.99.10
+              iso_ip: 192.168.100.10
+              ansible_host: 127.0.0.1
+              ansible_port: "{{ ssh_port }}"
+              cpus: 1
+              memory: 6144
+            pfdeb9ppa:
+              box: debian/stretch64
+              admin_port: 1843
+              ssh_port: 2600
+              mgmt_ip: 172.17.1.14
+              reg_ip: 192.168.103.10
+              iso_ip: 192.168.104.10
+              ansible_host: 127.0.0.1
+              ansible_port: "{{ ssh_port }}"
+              cpus: 1
+              memory: 8192
+            pfdeb10ppa:
+              box: debian/buster64
+              admin_port: 1643
+              ssh_port: 2400
+              mgmt_ip: 172.17.1.12
+              reg_ip: 192.168.101.10
+              iso_ip: 192.168.102.10
+              ansible_host: 127.0.0.1
+              ansible_port: "{{ ssh_port }}"
+              cpus: 1
+              memory: 8192
         dev:
           hosts:
-            pfcendev:
+            pfcen7dev:
               box: centos/7
+              admin_port: 1443
+              ssh_port: 2200
+              mgmt_ip: 172.17.1.10
+              reg_ip: 192.168.99.10
+              iso_ip: 192.168.100.10
+              ansible_host: 127.0.0.1
+              ansible_port: "{{ ssh_port }}"
+              cpus: 1
+              memory: 6144
+            pfcen8dev:
+              box: centos/8
               admin_port: 1443
               ssh_port: 2200
               mgmt_ip: 172.17.1.10
@@ -44,8 +101,19 @@ all:
 
         stable:
           hosts:
-            pfcenstable:
+            pfcen7stable:
               box: centos/7
+              admin_port: 1543
+              ssh_port: 2300
+              mgmt_ip: 172.17.1.11
+              reg_ip: 192.168.99.110
+              iso_ip: 192.168.100.110
+              ansible_host: 127.0.0.1
+              ansible_port: "{{ ssh_port }}"
+              cpus: 1
+              memory: 6144
+            pfcen8stable:
+              box: centos/8
               admin_port: 1543
               ssh_port: 2300
               mgmt_ip: 172.17.1.11
@@ -79,8 +147,19 @@ all:
               memory: 8192
         nightly:
           hosts:
-            pfcennight:
+            pfcen7night:
               box: centos/7
+              admin_port: 2043
+              ssh_port: 2800
+              mgmt_ip: 172.17.1.16
+              reg_ip: 192.168.99.210
+              iso_ip: 192.168.100.210
+              ansible_host: 127.0.0.1
+              ansible_port: "{{ ssh_port }}"
+              cpus: 1
+              memory: 6144
+            pfcen8night:
+              box: centos/8
               admin_port: 2043
               ssh_port: 2800
               mgmt_ip: 172.17.1.16
