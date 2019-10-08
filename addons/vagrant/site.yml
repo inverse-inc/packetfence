@@ -1,4 +1,12 @@
 ---
+- hosts: pipeline
+  name: install packetfence development packages
+  become: True
+
+  roles:
+    - role: inverse_inc.gitlab_buildpkg_tools
+      tags: ci
+
 - hosts: pfservers
   name: install pf on standalone
   become: True
