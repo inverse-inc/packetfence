@@ -57,6 +57,16 @@ BEGIN {
             out   => 'jones',
         },
         {
+            tmpl  => '${bob.lastname}',
+            input => { bob => { lastname => 'jones' } },
+            out   => 'jones',
+        },
+        {
+            tmpl  => '$bob.lastname',
+            input => { bob => bless({ lastname => 'jones'}, "dummy") },
+            out   => 'jones',
+        },
+        {
             tmpl => '${bob}-kik',
             input => { bob => 'bobby' },
             out   => 'bobby-kik',
@@ -65,6 +75,21 @@ BEGIN {
             tmpl => 'kik-${bob}',
             input => { bob => 'bobby' },
             out   => 'kik-bobby',
+        },
+        {
+            tmpl  => '${uc($bob)}',
+            input => { bob => 'bobby' },
+            out   => 'BOBBY',
+        },
+        {
+            tmpl  => '${uc(join("-", split(":", $mac)))}',
+            input => { mac => 'aa:bb:cc:dd:ee:ff' },
+            out   => 'AA-BB-CC-DD-EE-FF',
+        },
+        {
+            tmpl  => '${substr(uc(join("-", split(":", $mac))), 0, 8)}',
+            input => { mac => 'aa:bb:cc:dd:ee:ff' },
+            out   => 'AA-BB-CC',
         },
     );
 }

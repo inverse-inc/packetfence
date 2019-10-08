@@ -12,6 +12,16 @@ pf::mini_template
 
 use strict;
 use warnings;
+use Scalar::Util qw(reftype);
+our %FUNCS = (
+    uc => sub { return uc($_[0]) },
+    lc => sub { return lc($_[0]) },
+    join => sub { my $r = shift; return join($r, @_); },
+    split => sub { return split($_[0], $_[1]) },
+    substr => sub { return substr($_[0], $_[1], $_[2]) }
+);
+
+sub supported_function { exists $FUNCS{$_[0] // ''} }
 
 sub new {
     my ($proto, $text) = @_;
@@ -22,7 +32,7 @@ sub new {
 
 sub process {
     my ($self, $vars) = @_;
-    return $self->process_tmpl($self->{tmpl}, $vars);
+    return join('', $self->process_tmpl($self->{tmpl}, $vars));
 }
 
 sub process_tmpl {
@@ -32,8 +42,7 @@ sub process_tmpl {
         return $self->process_simple_tmpl($tmpl, $vars);
     }
 
-    local $_;
-    return join('', map {$self->process_tmpl($_, $vars)} @$tmpl);
+    return map {my $t = $_; $self->process_tmpl($t, $vars)} @$tmpl;
 }
 
 sub process_simple_tmpl {
@@ -53,13 +62,21 @@ sub process_simple_tmpl {
             }
 
             my $t = $v->{$k};
-            if (ref ($t) ne 'HASH') {
-                return $t;
+            if (reftype ($t) ne 'HASH') {
+                return '';
             }
+
             $v = $t;
         }
         
         return $v->{$last};
+    } elsif ($type eq 'F') {
+        my $n = $tmpl->[1];
+        if (!exists $FUNCS{$n}) {
+            die "func $n is not defined\n";
+        }
+
+        return $FUNCS{$n}->(map {my $t = $_;$self->process_simple_tmpl($t, $vars)} @{$tmpl->[2]});
     }
 
     return '';
@@ -218,6 +235,14 @@ sub _parse_func_arg {
         return ['S', $1];
     }
 
+    if (/\G([0-9]+)/gc) {
+        return ['S', $1];
+    }
+
+    if (/\G([-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?)/gc) {
+        return ['S', $1];
+    }
+
     my @names = _parse_var_names();
     if (@names) {
         if (/\G\s*\(\s*/gc) {
@@ -256,4 +281,3 @@ USA.
 =cut
 
 1;
-
