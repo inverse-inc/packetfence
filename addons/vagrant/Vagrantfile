@@ -56,7 +56,7 @@ Vagrant.configure("2") do |pfservers|
     #ansible.verbose = "-v"
   end
 
-  # loop on host(s) in 'stable' group in inventory to create VM(s)
+  # loop on **all** host(s) in pfservers group in inventory to create VM(s)
   inventory['all']['children']['pfservers']['children'].each do |groups, hosts|
     hosts['hosts'].each do |server, details|
       # don't start automatically virtual machines
