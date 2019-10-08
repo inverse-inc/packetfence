@@ -6,74 +6,106 @@ all:
   children:
     pfservers:
       children:
+        dev:
+          hosts:
+            pfcen7dev:
+              box: centos/7
+              mgmt_ip: 172.17.1.10
+              reg_ip: 192.168.98.10
+              iso_ip: 192.168.99.10
+              cpus: 1
+              memory: 6144
+            pfcen8dev:
+              box: centos/8
+              mgmt_ip: 172.17.1.11
+              reg_ip: 192.168.100.11
+              iso_ip: 192.168.101.11
+              ansible_host: "{{ mgmt_ip }}"
+              cpus: 1
+              memory: 6144
+            pfdeb9dev:
+              box: debian/stretch64
+              mgmt_ip: 172.17.1.12
+              reg_ip: 192.168.102.12
+              iso_ip: 192.168.103.12
+              ansible_host: "{{ mgmt_ip }}"
+              cpus: 1
+              memory: 8192
+            pfdeb10dev:
+              box: debian/buster64
+              mgmt_ip: 172.17.1.13
+              reg_ip: 192.168.104.13
+              iso_ip: 192.168.105.13
+              ansible_host: "{{ mgmt_ip }}"
+              cpus: 1
+              memory: 8192
+
         stable:
           hosts:
-            pfcenstable:
+            pfcen7stable:
               box: centos/7
-              admin_port: 1543
-              ssh_port: 2300
-              mgmt_ip: 172.17.1.11
-              reg_ip: 192.168.99.110
-              iso_ip: 192.168.100.110
-              ansible_host: 127.0.0.1
-              ansible_port: "{{ ssh_port }}"
+              mgmt_ip: 172.17.1.14
+              reg_ip: 192.168.98.114
+              iso_ip: 192.168.99.114
+              ansible_host: "{{ mgmt_ip }}"
+              cpus: 1
+              memory: 6144
+            pfcen8stable:
+              box: centos/8
+              mgmt_ip: 172.17.1.15
+              reg_ip: 192.168.100.115
+              iso_ip: 192.168.101.115
+              ansible_host: "{{ mgmt_ip }}"
               cpus: 1
               memory: 6144
             pfdeb9stable:
               box: debian/stretch64
-              admin_port: 1943
-              ssh_port: 2700
-              mgmt_ip: 172.17.1.15
-              reg_ip: 192.168.103.110
-              iso_ip: 192.168.104.110
-              ansible_host: 127.0.0.1
-              ansible_port: "{{ ssh_port }}"
+              mgmt_ip: 172.17.1.16
+              reg_ip: 192.168.102.116
+              iso_ip: 192.168.103.116
+              ansible_host: "{{ mgmt_ip }}"
               cpus: 1
               memory: 8192
             pfdeb10stable:
               box: debian/buster64
-              admin_port: 1743
-              ssh_port: 2500
-              mgmt_ip: 172.17.1.13
-              reg_ip: 192.168.101.110
-              iso_ip: 192.168.102.110
-              ansible_host: 127.0.0.1
-              ansible_port: "{{ ssh_port }}"
+              mgmt_ip: 172.17.1.17
+              reg_ip: 192.168.104.117
+              iso_ip: 192.168.105.117
+              ansible_host: "{{ mgmt_ip }}"
               cpus: 1
               memory: 8192
-        dev:
+        nightly:
           hosts:
-            pfcendev:
+            pfcen7night:
               box: centos/7
-              admin_port: 1443
-              ssh_port: 2200
-              mgmt_ip: 172.17.1.10
-              reg_ip: 192.168.99.10
-              iso_ip: 192.168.100.10
-              ansible_host: 127.0.0.1
-              ansible_port: "{{ ssh_port }}"
+              mgmt_ip: 172.17.1.18
+              reg_ip: 192.168.98.218
+              iso_ip: 192.168.99.218
+              ansible_host: "{{ mgmt_ip }}"
               cpus: 1
               memory: 6144
-            pfdeb10dev:
-              box: debian/buster64
-              admin_port: 1643
-              ssh_port: 2400
-              mgmt_ip: 172.17.1.12
-              reg_ip: 192.168.101.10
-              iso_ip: 192.168.102.10
-              ansible_host: 127.0.0.1
-              ansible_port: "{{ ssh_port }}"
+            pfcen8night:
+              box: centos/8
+              mgmt_ip: 172.17.1.19
+              reg_ip: 192.168.100.219
+              iso_ip: 192.168.101.219
+              ansible_host: "{{ mgmt_ip }}"
+              cpus: 1
+              memory: 6144
+            pfdeb9night:
+              box: debian/stretch64
+              mgmt_ip: 172.17.1.20
+              reg_ip: 192.168.102.220
+              iso_ip: 192.168.103.220
+              ansible_host: "{{ mgmt_ip }}"
               cpus: 1
               memory: 8192
-            pfdeb9dev:
-              box: debian/stretch64
-              admin_port: 1843
-              ssh_port: 2600
-              mgmt_ip: 172.17.1.14
-              reg_ip: 192.168.103.10
-              iso_ip: 192.168.104.10
-              ansible_host: 127.0.0.1
-              ansible_port: "{{ ssh_port }}"
+            pfdeb10night:
+              box: debian/buster64
+              mgmt_ip: 172.17.1.21
+              reg_ip: 192.168.104.221
+              iso_ip: 192.168.105.221
+              ansible_host: "{{ mgmt_ip }}"
               cpus: 1
               memory: 8192
   vars:

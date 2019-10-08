@@ -15,9 +15,6 @@ Vagrant.configure("2") do |pfservers|
   
   # use same private key on all machines
   pfservers.ssh.insert_key = false
-  
-  # disable default rule
-  pfservers.vm.network "forwarded_port", guest: 22, host: 2222, id: "ssh", disabled: true
 
   # provisionners
   # Sync timezone with host
@@ -63,12 +60,6 @@ Vagrant.configure("2") do |pfservers|
       pfservers.vm.define server, autostart: false do |srv|
         srv.vm.box = details['box']
         srv.vm.hostname = server
-
-        # set new rule for webadmin
-        srv.vm.network "forwarded_port", guest: 1443, host: details['admin_port'], host_ip: "127.0.0.1", auto_correct: true
-
-        # set new rule for ssh
-        srv.vm.network "forwarded_port", guest: 22, host: details['ssh_port'], host_ip: "127.0.0.1", auto_correct: true
 
         # mgmt
         # libvirt__forward_mode: "route" mean:
