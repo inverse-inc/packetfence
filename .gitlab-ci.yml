@@ -53,7 +53,7 @@ variables:
 .deb_script:
   script:
     # TODO
-    - convert-to-native-package-on-the-fly
+    - ./$CI/debian/convert-to-native-package.sh
     # temp: to keep current build system in parallel with new on
     - ci-build-pkg $DEB_DIR
 
