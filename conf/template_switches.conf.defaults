@@ -13,6 +13,6 @@ reject=<<EOT
 Reply-Message = This node is not allowed to use this service
 EOT
 disconnect=<<EOT
-Calling-Station-Id = $mac
+Calling-Station-Id = ${macToEUI48($mac)}
 NAS-IP-Address = $disconnectIp
 EOT

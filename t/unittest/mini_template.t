@@ -87,6 +87,11 @@ BEGIN {
             out   => 'AA-BB-CC-DD-EE-FF',
         },
         {
+            tmpl  => '${macToEUI48($mac)}',
+            input => { mac => 'aa:bb:cc:dd:ee:ff' },
+            out   => 'AA-BB-CC-DD-EE-FF',
+        },
+        {
             tmpl  => '${substr(uc(join("-", split(":", $mac))), 0, 8)}',
             input => { mac => 'aa:bb:cc:dd:ee:ff' },
             out   => 'AA-BB-CC',

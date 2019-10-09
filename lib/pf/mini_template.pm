@@ -18,7 +18,8 @@ our %FUNCS = (
     lc => sub { return lc($_[0]) },
     join => sub { my $r = shift; return join($r, @_); },
     split => sub { return split($_[0], $_[1]) },
-    substr => sub { return substr($_[0], $_[1], $_[2]) }
+    substr => sub { return substr($_[0], $_[1], $_[2]) },
+    macToEUI48 => sub { my $m = shift; $m =~ s/:/-/g; return uc($m) },
 );
 
 sub supported_function { exists $FUNCS{$_[0] // ''} }
