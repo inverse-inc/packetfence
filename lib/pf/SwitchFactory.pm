@@ -173,6 +173,8 @@ sub instantiate {
         return 0;
     }
     $module = untaint_chain($module);
+    my $templateArgs = getTemplateArgs($type);
+
     # load the module to instantiate
 
     $logger->debug("creating new $module object");
@@ -183,9 +185,19 @@ sub instantiate {
          switchMac => $switch_mac,
          %$switch_data,
          %$switchOverlay,
+         %$templateArgs,
     });
 
     return $result;
+}
+
+sub getTemplateArgs {
+    my ($type) = @_;
+    if (defined $type && exists $TemplateSwitches{$type}) {
+        return { template => {%{$TemplateSwitches{$type}}} };
+    }
+
+    return {};
 }
 
 sub config {
