@@ -1,17 +1,28 @@
 ---
 ### COMMON PARAMETERS
+before_script:
+  - unset http_proxy ; unset https_proxy
+  - env | grep ^CI_
 
 ### STAGES
 stages:
   - build_images
-
+  - build_pkg
+  - sign
+  - publish
+  - install
 
 ### VARIABLES
 variables:
   CIDIR: ci
   PACKERDIR: $CIDIR/packer
+  RPM_DIR: rpm
+  DEB_DIR: debian
+  VAGRANT_DIR: addons/vagrant
+  # env variables
   ANSIBLE_FORCE_COLOR: "true"
   ANSIBLE_STDOUT_CALLBACK: yaml
+  RPM_PACKAGES_NAME: "['packetfence-release']"
 
 ### TEMPLATES
 .pfbuild_job:
@@ -19,7 +30,35 @@ variables:
   tags:
     - shell
 
-### JOBS
+.build_job:
+  stage: build_pkg
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - result/*
+  # only run jobs on schedules and on "stable" refs (for release)
+  only:
+    - schedules
+    - /^stable$/
+  tags:
+    - docker
+
+.rpm_script:
+  script:
+    - cp $RPM_DIR/.rpmmacros $HOME
+    # temp: to keep current build system in parallel with new on
+    - ci-build-pkg $RPM_DIR
+
+.deb_script:
+  script:
+    # TODO
+    - convert-to-native-package-on-the-fly
+    # temp: to keep current build system in parallel with new on
+    - ci-build-pkg $DEB_DIR
+
+### STAGES
+
+#### BUILD_IMAGES JOBS
 pfbuild_manual:
   extends: .pfbuild_job
   script:
@@ -39,3 +78,81 @@ pfbuild_release:
   only:
     - /^stable$/
 
+#### BUILD_PKG JOBS
+build_pkg_centos7:
+  image: inverseinc/pfbuild-centos-7
+  extends:
+    - .build_job
+    - .rpm_script
+
+
+# build_pkg_debian_stretch:
+#   image: inverseinc/pfbuild-debian-stretch
+#   extends:
+#     - .build_job
+#     - .deb_script
+
+
+### SIGN JOBS
+sign:
+  # only use when executor is docker
+  image: buildpkg/debian:stretch
+  stage: sign
+  script:
+    - ci-sign-pkg
+  dependencies:
+    #- build_pkg_debian_stretch
+    - build_pkg_centos7
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - result/*
+  tags:
+    - shell
+
+### PUBLISH JOBS
+pages:
+  # only use when executor is docker
+  image: buildpkg/debian:stretch
+  stage: publish
+  variables:
+    PAGES_DIR: public
+  environment:
+    name: PPA
+    url: http://${CI_PROJECT_NAMESPACE}.gitlab.io/
+  script:
+    - ci-pages-ppa
+    - ci-pages-home
+    - ci-pages-tree
+  dependencies:
+    - sign
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - public
+  tags:
+    - shell
+
+### INSTALL JOBS
+# install_centos7:
+#   stage: install
+#   script:
+#     - cd $VAGRANT_DIR ; vagrant up pfcen7night --provider=libvirt --destroy-on-error
+#   after_script:
+#     - cd $VAGRANT_DIR ; vagrant destroy -f pfcen7night
+#     - rm -rf $VAGRANT_DOTFILE_PATH roles/
+#   dependencies: []
+#   tags:
+#     - shell
+
+# install_debian_stretch:
+#   stage: install
+#   script:
+#     - cd $VAGRANT_DIR ; vagrant up pfdeb9night --provider=libvirt --destroy-on-error
+#   after_script:
+#     - cd $VAGRANT_DIR ; vagrant destroy -f pfdeb9night
+#     - rm -rf $VAGRANT_DOTFILE_PATH roles/
+#   dependencies: []
+#   tags:
+#     - shell
+>>>>>>> added back files
