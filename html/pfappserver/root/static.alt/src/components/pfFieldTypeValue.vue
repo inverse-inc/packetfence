@@ -55,6 +55,7 @@
         ref="localValue"
         :config="{useCurrent: true, datetimeFormat: 'YYYY-MM-DD HH:mm:ss'}"
         :moments="moments"
+        :placeholder="valuePlaceholder"
         :vuelidate="valueVuelidateModel"
         :invalid-feedback="valueInvalidFeedback"
         :disabled="disabled"
@@ -64,6 +65,7 @@
       <pf-form-prefix-multiplier v-else-if="isFieldType(prefixmultiplerValueType)"
         v-model="localValue"
         ref="localValue"
+        :placeholder="valuePlaceholder"
         :vuelidate="valueVuelidateModel"
         :invalid-feedback="valueInvalidFeedback"
         :disabled="disabled"
@@ -73,6 +75,7 @@
       <pf-form-input v-else-if="isFieldType(substringValueType)"
         v-model="localValue"
         ref="localValue"
+        :placeholder="valuePlaceholder"
         :vuelidate="valueVuelidateModel"
         :invalid-feedback="valueInvalidFeedback"
         :disabled="disabled"
@@ -84,6 +87,7 @@
         ref="localValue"
         type="number"
         step="1"
+        :placeholder="valuePlaceholder"
         :vuelidate="valueVuelidateModel"
         :invalid-feedback="valueInvalidFeedback"
         :disabled="disabled"
@@ -267,6 +271,9 @@ export default {
     valueInvalidFeedback () {
       return this.getInvalidFeedback('value')
     },
+    valuePlaceholder () {
+      return this.getPlaceholder()
+    },
     forwardListeners () {
       const { input, ...listeners } = this.$listeners
       return listeners
@@ -274,11 +281,12 @@ export default {
   },
   methods: {
     isFieldType (type) {
-      if (!this.localType) return false
-      const index = this.fields.findIndex(field => field.value === this.localType)
-      if (index >= 0) {
-        const field = this.fields[index]
-        if (field.types.includes(type)) return true
+      if (this.localType) {
+        const index = this.fields.findIndex(field => field.value === this.localType)
+        if (index >= 0) {
+          const field = this.fields[index]
+          if (field.types.includes(type)) return true
+        }
       }
       return false
     },
@@ -295,6 +303,18 @@ export default {
         })
       }
       return feedback.join('<br/>')
+    },
+    getPlaceholder () {
+      if (this.localType) {
+        const index = this.fields.findIndex(field => field.value === this.localType)
+        if (index >= 0) {
+          const field = this.fields[index]
+          if ('placeholder' in field) {
+            return field.placeholder
+          }
+        }
+      }
+      return null
     },
     buildLocalValidations () {
       const { field } = this
