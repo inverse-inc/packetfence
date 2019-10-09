@@ -39,6 +39,7 @@ our @SwitchRanges;
 tie @SwitchRanges, 'pfconfig::cached_array', 'resource::switches_ranges';
 our %SwitchTypesConfigured;
 tie %SwitchTypesConfigured, 'pfconfig::cached_hash', 'resource::SwitchTypesConfigured';
+tie our %TemplateSwitches, 'pfconfig::cached_hash', 'config::TemplateSwitches';
 
 #Loading all the switch modules ahead of time
 use Module::Pluggable
@@ -200,6 +201,10 @@ Get the module from the type
 
 sub getModule {
     my ($type) = @_;
+    if (exists $TemplateSwitches{$type}) {
+        $type = 'Template';
+    }
+
     unless(exists $TYPE_TO_MODULE{$type}) {
         my $module = "pf::Switch::$type";
         eval {
