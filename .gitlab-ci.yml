@@ -108,6 +108,10 @@ sign:
     expire_in: 1 day
     paths:
       - result/*
+  only:
+    - schedules
+    - web
+    - /^stable$/
   tags:
     - shell
 
@@ -131,6 +135,10 @@ pages:
     expire_in: 1 day
     paths:
       - public
+  only:
+    - schedules
+    - web
+    - /^stable$/
   tags:
     - shell
 
