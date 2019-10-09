@@ -54,8 +54,11 @@ variables:
   script:
     # TODO
     - ./$CI/debian/convert-to-native-package.sh
-    # temp: to keep current build system in parallel with new on
+    - echo "DEBUILD_DPKG_BUILDPACKAGE_OPTS='-Zgzip -zfast'" > ~/.devscripts
     - ci-build-pkg $DEB_DIR
+  variables:
+    # use to find asciidoctor installed in /usr/local/bin
+    DEBUILD_PREPEND_PATH: /usr/local/bin
 
 ### STAGES
 
