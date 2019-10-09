@@ -36,9 +36,10 @@ variables:
     expire_in: 1 day
     paths:
       - result/*
-  # only run jobs on schedules and on "stable" refs (for release)
+  # only run jobs on schedules OR on "stable" refs (for release) OR via "Run pipeline"
   only:
     - schedules
+    - web
     - /^stable$/
   tags:
     - docker
