@@ -1,5 +1,19 @@
 ---
 - hosts: nightly
+  name: upgrade OS to latest version
+  become: True
+
+  # to ensure nightly builds are always installed
+  # on latest distribution versions when vagrant boxes take time
+  # to be released
+  tasks:
+    - name: update to latest OS version
+      package:
+        name: '*'
+        state: latest
+      tags: upgrade
+
+- hosts: nightly
   name: install packetfence development packages
   become: True
 
