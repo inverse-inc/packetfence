@@ -664,12 +664,10 @@ Extract the descriptions from the various Switch modules.
 
 sub options_type {
     my $self = shift;
-
     # Sort vendors and switches for display
     my @modules;
     foreach my $vendor (sort keys %pf::SwitchFactory::VENDORS) {
-        my $vendors = $pf::SwitchFactory::VENDORS{$vendor};
-        my @switches = map {{ value => $_, label => $vendors->{$_} }} sort keys %$vendors;
+        my @switches = sort { $a->{value} cmp $b->{value} } @{$pf::SwitchFactory::VENDORS{$vendor}};
         push @modules, { group => $vendor,
                          options => \@switches,
                          value => '' };
