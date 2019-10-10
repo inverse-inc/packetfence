@@ -10,8 +10,10 @@ stages:
 variables:
   CIDIR: ci
   PACKERDIR: $CIDIR/packer
+  # env variables
   ANSIBLE_FORCE_COLOR: "true"
   ANSIBLE_STDOUT_CALLBACK: yaml
+  RPM_PACKAGES_NAME: "['packetfence-release']"
 
 ### TEMPLATES
 
@@ -23,5 +25,28 @@ buildpkg:
   # job need to be explicitly started, not when we click "Run pipeline"
   # will not block other stages/jobs
   when: manual
+  tags:
+    - shell
+
+### INSTALL JOBS
+install_centos7:
+  stage: install
+  script:
+    - cd $VAGRANT_DIR ; vagrant up pfcen7night --provider=libvirt --destroy-on-error
+  after_script:
+    - cd $VAGRANT_DIR ; vagrant destroy -f pfcen7night
+    - rm -rf $VAGRANT_DOTFILE_PATH roles/
+  dependencies: []
+  tags:
+    - shell
+
+install_debian_stretch:
+  stage: install
+  script:
+    - cd $VAGRANT_DIR ; vagrant up pfdeb9night --provider=libvirt --destroy-on-error
+  after_script:
+    - cd $VAGRANT_DIR ; vagrant destroy -f pfdeb9night
+    - rm -rf $VAGRANT_DOTFILE_PATH roles/
+  dependencies: []
   tags:
     - shell
