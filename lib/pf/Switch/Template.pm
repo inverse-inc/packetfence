@@ -90,7 +90,7 @@ sub returnRadiusAccessAccept {
     # Inline Vs. VLAN enforcement
     my $role = "";
     if ( (!$args->{'wasInline'} || ($args->{'wasInline'} && $args->{'vlan'} != 0) ) && isenabled($self->{_VlanMap})) {
-        my $vlanTemplate = $self->{_template}{acceptRole};
+        my $vlanTemplate = $self->{_template}{acceptVlan};
         if ( defined $vlanTemplate &&  defined($args->{'vlan'}) && $args->{'vlan'} ne "" && $args->{'vlan'} ne 0) {
             $logger->info("(".$self->{'_id'}.") Added VLAN $args->{'vlan'} to the returned RADIUS Access-Accept");
             my ($attrs, undef) = $self->makeRadiusAttributes($vlanTemplate, $args);
