@@ -11,31 +11,43 @@ all:
             pfcen7dev:
               box: centos/7
               mgmt_ip: 172.17.1.10
+              mgmt_netmask: "24"
               reg_ip: 192.168.98.10
+              reg_netmask: "24"
               iso_ip: 192.168.99.10
+              iso_netmask: "24"
               cpus: 1
               memory: 6144
             pfcen8dev:
               box: centos/8
               mgmt_ip: 172.17.1.11
+              mgmt_netmask: "24"
               reg_ip: 192.168.100.11
+              reg_netmask: "24"
               iso_ip: 192.168.101.11
+              iso_netmask: "24"
               ansible_host: "{{ mgmt_ip }}"
               cpus: 1
               memory: 6144
             pfdeb9dev:
               box: debian/stretch64
               mgmt_ip: 172.17.1.12
+              mgmt_netmask: "24"
               reg_ip: 192.168.102.12
+              reg_netmask: "24"
               iso_ip: 192.168.103.12
+              iso_netmask: "24"
               ansible_host: "{{ mgmt_ip }}"
               cpus: 1
               memory: 8192
             pfdeb10dev:
               box: debian/buster64
               mgmt_ip: 172.17.1.13
+              mgmt_netmask: "24"
               reg_ip: 192.168.104.13
+              reg_netmask: "24"
               iso_ip: 192.168.105.13
+              iso_netmask: "24"
               ansible_host: "{{ mgmt_ip }}"
               cpus: 1
               memory: 8192
@@ -45,32 +57,44 @@ all:
             pfcen7stable:
               box: centos/7
               mgmt_ip: 172.17.1.14
+              mgmt_netmask: "24"
               reg_ip: 192.168.98.114
+              reg_netmask: "24"
               iso_ip: 192.168.99.114
+              iso_netmask: "24"
               ansible_host: "{{ mgmt_ip }}"
               cpus: 1
               memory: 6144
             pfcen8stable:
               box: centos/8
               mgmt_ip: 172.17.1.15
+              mgmt_netmask: "24"
               reg_ip: 192.168.100.115
+              reg_netmask: "24"
               iso_ip: 192.168.101.115
+              iso_netmask: "24"
               ansible_host: "{{ mgmt_ip }}"
               cpus: 1
               memory: 6144
             pfdeb9stable:
               box: debian/stretch64
               mgmt_ip: 172.17.1.16
+              mgmt_netmask: "24"
               reg_ip: 192.168.102.116
+              reg_netmask: "24"
               iso_ip: 192.168.103.116
+              iso_netmask: "24"
               ansible_host: "{{ mgmt_ip }}"
               cpus: 1
               memory: 8192
             pfdeb10stable:
               box: debian/buster64
               mgmt_ip: 172.17.1.17
+              mgmt_netmask: "24"
               reg_ip: 192.168.104.117
+              reg_netmask: "24"
               iso_ip: 192.168.105.117
+              iso_netmask: "24"
               ansible_host: "{{ mgmt_ip }}"
               cpus: 1
               memory: 8192
@@ -79,32 +103,44 @@ all:
             pfcen7night:
               box: centos/7
               mgmt_ip: 172.17.1.18
+              mgmt_netmask: "24"
               reg_ip: 192.168.98.218
+              reg_netmask: "24"
               iso_ip: 192.168.99.218
+              iso_netmask: "24"
               ansible_host: "{{ mgmt_ip }}"
               cpus: 1
               memory: 6144
             pfcen8night:
               box: centos/8
               mgmt_ip: 172.17.1.19
+              mgmt_netmask: "24"
               reg_ip: 192.168.100.219
+              reg_netmask: "24"
               iso_ip: 192.168.101.219
+              iso_netmask: "24"
               ansible_host: "{{ mgmt_ip }}"
               cpus: 1
               memory: 6144
             pfdeb9night:
               box: debian/stretch64
               mgmt_ip: 172.17.1.20
+              mgmt_netmask: "24"
               reg_ip: 192.168.102.220
+              reg_netmask: "24"
               iso_ip: 192.168.103.220
+              iso_netmask: "24"
               ansible_host: "{{ mgmt_ip }}"
               cpus: 1
               memory: 8192
             pfdeb10night:
               box: debian/buster64
               mgmt_ip: 172.17.1.21
+              mgmt_netmask: "24"
               reg_ip: 192.168.104.221
+              reg_netmask: "24"
               iso_ip: 192.168.105.221
+              iso_netmask: "24"
               ansible_host: "{{ mgmt_ip }}"
               cpus: 1
               memory: 8192

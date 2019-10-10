@@ -76,15 +76,15 @@ Vagrant.configure("2") do |pfservers|
         # Allow inbound, but only to our expected subnet. Allow outbound, but
         # only from our expected subnet. Allow traffic between guests. Deny
         # all other inbound. Deny all other outbound.
-        srv.vm.network "private_network", ip: details['mgmt_ip'], libvirt__dhcp_enabled: false, libvirt__forward_mode: "route"
+        srv.vm.network "private_network", ip: details['mgmt_ip'], netmask: details['mgmt_netmask'], libvirt__dhcp_enabled: false, libvirt__forward_mode: "route"
 
         # registration
         # libvirt__forward_mode: "none" mean:
         # Allow traffic between guests. Deny inbound. Deny outbound.
-        srv.vm.network "private_network", ip: details['reg_ip'], libvirt__dhcp_enabled: false, libvirt__forward_mode: "none"
+        srv.vm.network "private_network", ip: details['reg_ip'], netmask: details['reg_netmask'], libvirt__dhcp_enabled: false, libvirt__forward_mode: "none"
 
         # isolation
-        srv.vm.network "private_network", ip: details['iso_ip'], libvirt__dhcp_enabled: false, libvirt__forward_mode: "none"
+        srv.vm.network "private_network", ip: details['iso_ip'], netmask: details['iso_netmask'], libvirt__dhcp_enabled: false, libvirt__forward_mode: "none"
 
         srv.vm.provider "libvirt" do |v|
           v.random_hostname = true
