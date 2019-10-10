@@ -52,13 +52,11 @@ variables:
 
 .deb_script:
   script:
-    # TODO
     - ./$CI/debian/convert-to-native-package.sh
     - echo "DEBUILD_DPKG_BUILDPACKAGE_OPTS='-Zgzip -zfast'" > ~/.devscripts
+    # use to find asciidoctor and go installed in custom locations
+    - echo "DEBUILD_PREPEND_PATH=/usr/local/bin:/usr/local/go/bin" >> ~/.devscripts
     - ci-build-pkg $DEB_DIR
-  variables:
-    # use to find asciidoctor installed in /usr/local/bin
-    DEBUILD_PREPEND_PATH: /usr/local/bin
 
 ### STAGES
 
@@ -89,13 +87,11 @@ build_pkg_centos7:
     - .build_job
     - .rpm_script
 
-
-# build_pkg_debian_stretch:
-#   image: inverseinc/pfbuild-debian-stretch
-#   extends:
-#     - .build_job
-#     - .deb_script
-
+build_pkg_debian_stretch:
+  image: inverseinc/pfbuild-debian-stretch
+  extends:
+    - .build_job
+    - .deb_script
 
 ### SIGN JOBS
 sign:
