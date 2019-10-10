@@ -2509,13 +2509,15 @@ Global config settings:
   radius-server key "useStrongerSecret"
   radius-server host auth 192.168.1.5
   name "PacketFence"
+  snmp-server community "private" rw
+  snmp-server community "public" ro
 
-802.1X interface configuration:
+802.1X/MAB with VoIP interface configuration:
 
   switchport voice detect auto
   switchport mode general
-  switchport general pvid 135
-  switchport general allowed vlan add 2,135-136,999
+  switchport general pvid 2
+  switchport general allowed vlan add 1-4093
   authentication host-mode multi-domain
   authentication periodic
   dot1x timeout quiet-period 10
@@ -2525,7 +2527,7 @@ Global config settings:
   lldp tlv-select system-description system-capabilities management-address
   lldp notification
   lldp med confignotification
-  switchport voice vlan 136
+  switchport voice vlan 100
 
 Uplink port:
 
