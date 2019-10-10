@@ -279,6 +279,60 @@ sub handleCoaOrDisconnect {
     return $self->handleDisconnect($mac, $add_attributes_ref);
 }
 
+=item deauthTechniques
+
+Return the reference to the deauth technique or the default deauth technique.
+
+=cut
+
+sub deauthTechniques {
+    my ($self, $method) = @_;
+    my $logger = $self->logger;
+    my $default = $SNMP::RADIUS;
+    my %tech = (
+        $SNMP::RADIUS => 'deauthenticateMacDefault',
+    );
+
+    if (!defined($method) || !defined($tech{$method})) {
+        $method = $default;
+    }
+    return $method,$tech{$method};
+}
+
+=item supporteddeauthTechniques
+
+return Default Deauthentication Method
+
+=cut
+
+sub supporteddeauthTechniques {
+    my ( $self ) = @_;
+
+    my %tech = (
+        'Default' => 'deauthenticateMacDefault',
+    );
+    return %tech;
+}
+
+=item deauthenticateMacDefault
+
+return Default Deauthentication Default technique
+
+=cut
+
+sub deauthenticateMacDefault {
+    my ( $self, $mac, $is_dot1x ) = @_;
+    my $logger = $self->logger;
+
+    if ( !$self->isProductionMode() ) {
+        $logger->info("not in production mode... we won't perform deauthentication");
+        return 1;
+    }
+
+    $logger->debug("deauthenticate $mac using RADIUS Disconnect-Request deauth method");
+    return $self->radiusDisconnect($mac);
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
