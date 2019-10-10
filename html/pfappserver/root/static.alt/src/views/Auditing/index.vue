@@ -34,6 +34,11 @@ export default {
           name: this.$i18n.t('DNS Audit Logs'),
           path: '/auditing/dnslogs/search',
           saveSearchNamespace: 'dnslogs'
+        },
+        {
+          name: this.$i18n.t('Admin Api Audit Logs'),
+          path: '/auditing/admin_api_audit_logs/search',
+          saveSearchNamespace: 'admin_api_audit_logs'
         }
       ]
     }

@@ -1,52 +1,25 @@
-package pf::UnifiedApi::Controller::Config::FingerbankSettings;
+package pf::UnifiedApi::Controller::AdminApiAuditLogs;
 
 =head1 NAME
 
-pf::UnifiedApi::Controller::Config::FingerbankSettings - 
+pf::UnifiedApi::Controller::AdminApiAuditLogs -
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::UnifiedApi::Controller::Config::FingerbankSettings
-
-
+pf::UnifiedApi::Controller::AdminApiAuditLogs
 
 =cut
 
 use strict;
 use warnings;
+use Mojo::Base 'pf::UnifiedApi::Controller::Crud';
+use pf::dal::admin_api_audit_log;
 
-
-use Mojo::Base qw(pf::UnifiedApi::Controller::Config);
-
-has 'config_store_class' => 'pf::ConfigStore::FingerbankSettings';
-has 'form_class' => 'pfappserver::Form::Config::FingerbankSetting';
-has 'primary_key' => 'fingerbank_setting_id';
-
-use pf::ConfigStore::FingerbankSettings;
-use pfappserver::Form::Config::FingerbankSetting;
-
-sub form_parameters {
-    my ($self, $item) = @_;
-    my $name = $self->id // $item->{id};
-    if (!defined $name) {
-        return [];
-    }
-    return [section => $name];
-}
-
-sub cached_form {
-    undef
-}
-
-=head2 fields_to_mask
-
-fields_to_mask
-
-=cut
-
-sub fields_to_mask { qw(api_key password) }
+has dal => 'pf::dal::admin_api_audit_log';
+has url_param_name => 'admin_api_audit_log_id';
+has primary_key => 'id';
 
 =head1 AUTHOR
 
@@ -76,3 +49,4 @@ USA.
 =cut
 
 1;
+

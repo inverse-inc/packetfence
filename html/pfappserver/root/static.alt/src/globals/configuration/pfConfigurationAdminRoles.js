@@ -284,6 +284,12 @@ export const pfConfigurationAdminRoleActions = [
     ]
   },
   {
+    group: 'Admin API Audit Log',
+    items: [
+      { text: 'Admin API Audit Log - Read', value: 'ADMIN_API_AUDIT_LOG_READ' }
+    ]
+  },
+  {
     group: 'RADIUS Realms',
     items: [
       { text: 'RADIUS Realms - Create', value: 'REALM_CREATE' },

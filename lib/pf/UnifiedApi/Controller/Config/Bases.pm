@@ -81,6 +81,14 @@ sub test_smtp {
     return $self->render(json => { message => 'Testing SMTP success' });
 }
 
+=head2 fields_to_mask
+
+fields_to_mask
+
+=cut
+
+sub fields_to_mask { qw(smtp_password pass galera_replication_password) }
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

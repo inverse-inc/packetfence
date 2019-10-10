@@ -218,6 +218,14 @@ sub options_with_no_type {
     return $output;
 }
 
+=head2 fields_to_mask
+
+fields_to_mask
+
+=cut
+
+sub fields_to_mask { qw(radius_secret client_secret api_key shared_secret_direct shared_secret secret) }
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

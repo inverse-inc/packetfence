@@ -20,10 +20,12 @@ use List::MoreUtils qw(any);
 use pf::UnifiedApi::OpenAPI::Generator::Config;
 use pf::UnifiedApi::GenerateSpec;
 use Mojo::Util qw(url_unescape);
+use Mojo::JSON qw(encode_json);
 use pf::util qw(expand_csv isenabled);
 use pf::error qw(is_error);
 use pf::pfcmd::checkup ();
 use pf::UnifiedApi::Search::Builder::Config;
+use pf::dal::admin_api_audit_log;
 
 has 'config_store_class';
 has 'form_class';
@@ -390,6 +392,7 @@ sub create {
     delete $item->{id};
     $cs->create($id, $item);
     return unless($self->commit($cs));
+    $self->stash( $self->primary_key => $id );
     $self->res->headers->location($self->make_location_url($id));
     $self->render(status => 201, json => { id => $id, message => "'$id' created" });
 }
@@ -1074,6 +1077,77 @@ sub fix_permissions {
     chomp($result);
     return $self->render(json => { message => $result });
 }
+
+
+sub audit_request {
+    my ($self) = @_;
+    my $status =  $self->res->code;
+    my $stash = $self->stash;
+    if (is_error($status) || !$stash->{auditable}) {
+        return;
+    }
+
+    my $record = $self->make_audit_record();
+    my $log = pf::dal::admin_api_audit_log->new($record);
+    $log->insert;
+}
+
+=head2 make_audit_record
+
+make_audit_record
+
+=cut
+
+sub make_audit_record {
+    my ($self) = @_;
+    my $stash = $self->stash;
+    my $status =  $self->res->code;
+    my $req = $self->req;
+    my $method = $req->method;
+    my $path = $req->url->path;
+    my $request = $self->make_audit_record_request();
+
+    my $current_user = $stash->{current_user};
+    return {
+        user_name => $current_user,
+        method => $method,
+        request => $request,
+        status => $status,
+        action => $self->match->endpoint->name,
+        url => $path,
+        object_id => $self->id,
+    }
+}
+
+=head2 make_audit_record_request
+
+make_audit_record_request
+
+=cut
+
+sub make_audit_record_request {
+    my ($self) = @_;
+    my $json = $self->req->json;
+    $self->cleanup_audit_record_request($json);
+    return encode_json($json);
+}
+
+=head2 cleanup_audit_record_request
+
+cleanup_audit_record_request
+
+=cut
+
+sub cleanup_audit_record_request {
+    my ($self, $request) = @_;
+    for my $f ($self->fields_to_mask) {
+        if (exists $request->{$f}) {
+            $request->{$f} = '************************';
+        }
+    }
+}
+
+sub fields_to_mask { qw(password) }
 
 =head1 AUTHOR
 

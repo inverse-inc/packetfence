@@ -9,7 +9,7 @@
         <b-navbar-nav v-show="isAuthenticated">
           <b-nav-item v-b-tooltip.hover.bottom.d300 title="Alt + Shift + S" to="/status" :active="$route.path.startsWith('/status')" v-can:read.some="[['reports', 'services']]">{{ $t('Status') }}</b-nav-item>
           <b-nav-item v-b-tooltip.hover.bottom.d300 title="Alt + Shift + R" to="/reports" :active="$route.path.startsWith('/report')" v-can:read="'reports'">{{ $t('Reports') }}</b-nav-item>
-          <b-nav-item v-b-tooltip.hover.bottom.d300 title="Alt + Shift + A" to="/auditing" :active="$route.path.startsWith('/auditing')" v-can:read.some="[['radius_log', 'dhcp_option_82', 'dns_log']]">{{ $t('Auditing') }}</b-nav-item>
+          <b-nav-item v-b-tooltip.hover.bottom.d300 title="Alt + Shift + A" to="/auditing" :active="$route.path.startsWith('/auditing')" v-can:read.some="[['radius_log', 'dhcp_option_82', 'dns_log', 'admin_api_audit_log']]">{{ $t('Auditing') }}</b-nav-item>
           <b-nav-item v-b-tooltip.hover.bottom.d300 title="Alt + Shift + N" to="/nodes" :active="$route.path.startsWith('/node')" v-can:read="'nodes'">{{ $t('Nodes') }}</b-nav-item>
           <b-nav-item v-b-tooltip.hover.bottom.d300 title="Alt + Shift + U" to="/users" :active="$route.path.startsWith('/user')" v-can:read="'users'">{{ $t('Users') }}</b-nav-item>
           <b-nav-item v-b-tooltip.hover.bottom.d300 title="Alt + Shift + C" to="/configuration" :active="$route.path.startsWith('/configuration')" v-can:read="'configuration_main'">{{ $t('Configuration') }}</b-nav-item>
@@ -118,7 +118,7 @@ export default {
       return this.$store.state.session.charts
     },
     altShiftAKey () {
-      return this.$store.getters['events/altShiftAKey'] && (this.$can('read', 'radius_log') || this.$can('read', 'dhcp_option_82') || this.$can('read', 'dns_log'))
+      return this.$store.getters['events/altShiftAKey'] && (this.$can('read', 'radius_log') || this.$can('read', 'dhcp_option_82') || this.$can('read', 'dns_log') || this.$can('read', 'admin_api_audit_log'))
     },
     altShiftCKey () {
       return this.$store.getters['events/altShiftCKey'] && this.$can('read', 'configuration_main')

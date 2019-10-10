@@ -1,54 +1,41 @@
-package pf::UnifiedApi::Controller::Config::FingerbankSettings;
+package pf::pfmon::task::admin_api_audit_log_cleanup;
 
 =head1 NAME
 
-pf::UnifiedApi::Controller::Config::FingerbankSettings - 
+pf::pfmon::task::admin_api_audit_log_cleanup - class for pfmon task dns audit log cleanup
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::UnifiedApi::Controller::Config::FingerbankSettings
-
-
+pf::pfmon::task::admin_api_audit_log_cleanup
 
 =cut
 
 use strict;
 use warnings;
+use Moose;
+use pf::dal::admin_api_audit_log;
+extends qw(pf::pfmon::task);
 
+has 'batch' => ( is => 'rw');
+has 'window' => ( is => 'rw', isa => 'PfInterval', coerce => 1 );
+has 'timeout' => ( is => 'rw', isa => 'PfInterval', coerce => 1 );
 
-use Mojo::Base qw(pf::UnifiedApi::Controller::Config);
+=head2 run
 
-has 'config_store_class' => 'pf::ConfigStore::FingerbankSettings';
-has 'form_class' => 'pfappserver::Form::Config::FingerbankSetting';
-has 'primary_key' => 'fingerbank_setting_id';
-
-use pf::ConfigStore::FingerbankSettings;
-use pfappserver::Form::Config::FingerbankSetting;
-
-sub form_parameters {
-    my ($self, $item) = @_;
-    my $name = $self->id // $item->{id};
-    if (!defined $name) {
-        return [];
-    }
-    return [section => $name];
-}
-
-sub cached_form {
-    undef
-}
-
-=head2 fields_to_mask
-
-fields_to_mask
+run the dns audit log cleanup task
 
 =cut
 
-sub fields_to_mask { qw(api_key password) }
+sub run {
+    my ($self) = @_;
+    my $window = $self->window;
+    pf::dal::admin_api_audit_log->cleanup($window, $self->batch, $self->timeout) if $window;
+}
 
 =head1 AUTHOR
+
 
 Inverse inc. <info@inverse.ca>
 
