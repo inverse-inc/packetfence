@@ -1222,6 +1222,11 @@ fi
 # Changelog
 #==============================================================================
 %changelog
+* Thu Oct 10 2019 Inverse <info@inverse.ca> - 9.1.9-1
+- Make only one packetfence package, arch dependent
+- Adapt spec file to CI
+- Use macros
+
 * Wed May 15 2019 Inverse <info@inverse.ca> - 9.0.0-1
 - New release 9.0.0
 
