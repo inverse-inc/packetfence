@@ -36,10 +36,6 @@ sub makeRadiusAttributes {
     my @vsas;
     my @attrs;
     for my $a (@{$attrs_tmpl // []}) {
-        if (defined $attrs_tmpl->{condition} && !$attrs_tmpl->{condition}->match($vars)) {
-            next;
-        }
-
         my $v = $a->{vendor};
         if ($v) {
             push @vsas, {vendor => $v, attribute => $a->{name}, value => $a->{tmpl}->process($vars) };
