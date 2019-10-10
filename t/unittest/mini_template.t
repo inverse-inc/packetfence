@@ -22,22 +22,161 @@ BEGIN {
     #Module for overriding configuration paths
     use setup_test_config;
     @VALID_TEMPLATES = (
-        ['bob', ['S', 'bob'] ], 
-        ['bob-jones', ['S', 'bob-jones'] ], 
-        ['$$bob', ['S', '$bob']], 
-        ['$$bob$$', ['S', '$bob$']], 
-        ['$bob', ['V', 'bob'] ], 
-        ['${bob}', ['V', 'bob'] ], 
-        ['${bob()}', ['F', 'bob', []] ], 
-        ['${bob.jones()}', ['F', 'bob.jones', []] ], 
-        ['${bob}-kik', [['V', 'bob'], ['S', '-kik'] ]], 
-        ['kik-$bob', [['S', 'kik-'], ['V', 'bob'] ]], 
-        ['${bob($mac)}', ['F', 'bob', [['V', 'mac']]] ], 
-        ['${bob($mac, f())}', ['F', 'bob', [['V', 'mac'], ['F', 'f', []]]]],
-        ['${bob($mac, "james", f())}', ['F', 'bob', [['V', 'mac'], ['S', 'james'], ['F', 'f', []]]]],
-        ["\${bob(\$mac, 'james', f())}", ['F', 'bob', [['V', 'mac'], ['S', 'james'], ['F', 'f', []]]]],
-        ['$bob.jones', ['K', ['bob', 'jones']] ], 
-        ['$bob.jones-jr.sike', ['K', ['bob', 'jones-jr', 'sike']] ], 
+        {
+            'tmpl' => [ 'S', 'bob' ],
+            'in'   => 'bob',
+            'info' => {},
+        },
+        {
+            'tmpl' => [ 'S', 'bob-jones' ],
+            'in'   => 'bob-jones',
+            'info' => {},
+        },
+        {
+            'tmpl' => [ 'S', '$bob' ],
+            'in'   => '$$bob',
+            'info' => {},
+        },
+        {
+            'tmpl' => [ 'S', '$bob$' ],
+            'in'   => '$$bob$$',
+            'info' => {},
+        },
+        {
+            'tmpl' => [ 'V', 'bob' ],
+            'in'   => '$bob',
+            'info' => {
+                vars => {
+                    bob => undef,
+                },
+            },
+        },
+        {
+            'tmpl' => [ 'V', 'bob' ],
+            'in'   => '${bob}',
+            'info' => {
+                vars => {
+                    bob => undef,
+                },
+            },
+        },
+        {
+            'tmpl' => [ 'F', 'bob', [] ],
+            'in' => '${bob()}',
+            'info' => {
+                funcs => {
+                    bob => undef,
+                },
+            },
+        },
+        {
+            'tmpl' => [ 'F', 'bob.jones', [] ],
+            'in' => '${bob.jones()}',
+            'info' => {
+                funcs => {
+                    'bob.jones' => undef,
+                },
+            },
+        },
+        {
+            'tmpl' => [ [ 'V', 'bob' ], [ 'S', '-kik' ] ],
+            'in' => '${bob}-kik',
+            'info' => {
+                vars => {
+                    'bob' => undef,
+                },
+            },
+        },
+        {
+            'tmpl' => [ [ 'S', 'kik-' ], [ 'V', 'bob' ] ],
+            'in' => 'kik-$bob',
+            'info' => {
+                vars => {
+                    'bob' => undef,
+                },
+            },
+        },
+        {
+            'tmpl' => [ 'F', 'bob', [ [ 'V', 'mac' ] ] ],
+            'in' => '${bob($mac)}',
+            'info' => {
+                funcs => {
+                    'bob' => undef,
+                },
+                vars => {
+                    'mac' => undef,
+                },
+            },
+        },
+        {
+            'tmpl' => [ 'F', 'bob', [ [ 'V', 'mac' ], [ 'F', 'f', [] ] ] ],
+            'in' => '${bob($mac, f())}',
+            'info' => {
+                funcs => {
+                    'bob' => undef,
+                    'f' => undef,
+                },
+                vars => {
+                    'mac' => undef,
+                },
+            },
+        },
+        {
+            'tmpl' => [
+                'F', 'bob',
+                [ [ 'V', 'mac' ], [ 'S', 'james' ], [ 'F', 'f', [] ] ]
+            ],
+            'in' => '${bob($mac, "james", f())}',
+            'info' => {
+                funcs => {
+                    'bob' => undef,
+                    'f' => undef,
+                },
+                vars => {
+                    'mac' => undef,
+                },
+            },
+        },
+        {
+            'tmpl' => [
+                'F', 'bob',
+                [ [ 'V', 'mac' ], [ 'S', 'james' ], [ 'F', 'f', [] ] ]
+            ],
+            'in' => '${bob($mac, \'james\', f())}',
+            'info' => {
+                funcs => {
+                    'bob' => undef,
+                    'f' => undef,
+                },
+                vars => {
+                    'mac' => undef,
+                },
+            },
+        },
+        {
+            'tmpl' => [ 'K', [ 'bob', 'jones' ] ],
+            'in' => '$bob.jones',
+            'info' => {
+                vars => {
+                    'bob' => {
+                        jones => undef,
+                    },
+                },
+            },
+        },
+        {
+            'tmpl' => [ 'K', [ 'bob', 'jones-jr', 'sike' ] ],
+            'in' => '$bob.jones-jr.sike',
+            'info' => {
+                vars => {
+                    'bob' => {
+                        'jones-jr' => {
+                            sike => undef,
+                        },
+                    },
+                },
+            },
+        }
     );
 
     @TEMPLATE_OUTPUT = (
@@ -101,13 +240,13 @@ BEGIN {
 
 use pf::mini_template;
 
-use Test::More tests => (scalar @VALID_TEMPLATES) + (scalar @TEMPLATE_OUTPUT) + 1;
+use Test::More tests => (scalar @VALID_TEMPLATES) * 2 + (scalar @TEMPLATE_OUTPUT) + 1;
 
 #This test will running last
 use Test::NoWarnings;
 
 for my $test (@VALID_TEMPLATES) {
-    test_valid_string(@$test);
+    test_valid_string($test);
 }
 
 for my $test (@TEMPLATE_OUTPUT) {
@@ -115,9 +254,11 @@ for my $test (@TEMPLATE_OUTPUT) {
 }
 
 sub test_valid_string {
-    my ($string, $expected) = @_;
-    my ($array, $msg) = pf::mini_template::parse_template($string);
-    is_deeply($array, $expected, "Check if '$string' is valid");
+    my ($test) = @_;
+    my $string = $test->{in};
+    my ($array, $info, $msg) = pf::mini_template::parse_template($string);
+    is_deeply($array, $test->{tmpl}, "Expected tmpl for '$string' is valid");
+    is_deeply($info, $test->{info}, "Expected info for '$string' is valid");
     unless ($array){
         print "$msg\n";
     }

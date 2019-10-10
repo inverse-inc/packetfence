@@ -13,6 +13,8 @@ pf::mini_template
 use strict;
 use warnings;
 use Scalar::Util qw(reftype);
+use pf::log;
+use Data::Dumper;
 our %FUNCS = (
     uc => sub { return uc($_[0]) },
     lc => sub { return lc($_[0]) },
@@ -20,6 +22,7 @@ our %FUNCS = (
     split => sub { return split($_[0], $_[1]) },
     substr => sub { return substr($_[0], $_[1], $_[2]) },
     macToEUI48 => sub { my $m = shift; $m =~ s/:/-/g; return uc($m) },
+    log => sub { get_logger()->info("mini_template:" . Dumper(\@_)  ); ''},
 );
 
 sub supported_function { exists $FUNCS{$_[0] // ''} }
@@ -27,8 +30,8 @@ sub supported_function { exists $FUNCS{$_[0] // ''} }
 sub new {
     my ($proto, $text) = @_;
     my $class = ref($proto) || $proto;
-    my ($tmpl, $msg) = parse_template($text);
-    return bless { text => $text, tmpl => $tmpl  }, $class;
+    my ($tmpl, $info, $msg) = parse_template($text);
+    return bless { text => $text, tmpl => $tmpl, info => $info }, $class;
 }
 
 sub process {
@@ -88,8 +91,9 @@ our $HIGH_LIGHT = '~';
 
 sub parse_template {
     local $_ = shift;
-    my $a = _reduce(_parse_text());
-    return $a, "";
+    my $info = {};
+    my $a = _reduce(_parse_text($info));
+    return $a, $info, "";
 }
 
 sub _parse_text {
@@ -104,10 +108,10 @@ sub _parse_text {
     }
 
     if ($t ne '') {
-        return [['S', $t], _parse_var()];
+        return [['S', $t], _parse_var($_[0])];
     }
 
-    return _parse_var()
+    return _parse_var($_[0])
 }
 
 sub _is_string {
@@ -141,7 +145,7 @@ sub _reduce {
 
 sub _parse_var {
     if (/\G\$/gc) {
-        return _reduce([['S', '$'], _reduce( _parse_text() )]);
+        return _reduce([['S', '$'], _reduce( _parse_text($_[0]) )]);
     }
     
     if (/\G{/gc) {
@@ -151,17 +155,24 @@ sub _parse_var {
         }
 
         if (/\G\s*\(\s*/gc) {
-            return ['F', join('.', @names), _parse_func()];
+            my $n = join('.', @names);
+            $_[0]->{funcs}{$n} = undef;
+            return ['F', $n, _parse_func($_[0])];
         }
 
         if (!/\G\s*\}/gc) {
             die "";
         }
+        if (@names == 1) {
+            $_[0]->{vars}{$names[0]} = undef;
+            return [['V', @names], _parse_text($_[0])];
+        }
 
-        return _reduce( [ (@names == 1) ? ['V', @names] : ['K', \@names], _parse_text()]);
+        _add_keys_to_info($_[0], @names);
+        return _reduce( [ ['K', \@names], _parse_text($_[0])]);
     }
 
-    return _reduce([_parse_var_name(), _parse_text()]);
+    return _reduce([_parse_var_name($_[0]), _parse_text($_[0])]);
 
 }
 
@@ -179,7 +190,24 @@ sub _parse_var_name {
         die format_parse_error("Invalid variable name", $_, pos);
     }
 
-    return (@names == 1) ? ['V', @names] : ['K', \@names];
+    if (@names == 1) {
+        $_[0]->{vars}{$names[0]} = undef;
+        return ['V', @names];
+    }
+
+    _add_keys_to_info($_[0], @names);
+    return ['K', \@names];
+}
+
+sub _add_keys_to_info {
+    my $info = shift;
+    my $vars = $info->{vars} //= {};
+    my $last = pop @_;
+    for my $k (@_) {
+        $vars = $vars->{$k} //= {};
+    }
+
+    $vars->{$last} = undef;
 }
 
 sub _parse_func {
@@ -188,12 +216,13 @@ sub _parse_func {
     }
 
     my @args;
-    push @args, _parse_func_arg();    
+    push @args, _parse_func_arg($_[0]);
     while (!/\G\s*\)\s*/gc) {
         if (!/\G\s*,\s*/gc) {
             die format_parse_error("No comma found", $_, pos);
         }
-        push @args, _parse_func_arg();    
+
+        push @args, _parse_func_arg($_[0]);
     }
 
     return \@args;
@@ -225,7 +254,7 @@ sub _parse_func_arg {
     }
     
     if (/\G\$/gc) {
-        return _parse_var_name();
+        return _parse_var_name($_[0]);
     }
 
     if (/\G"(([^"]|\\")*)"/gc) {
@@ -247,7 +276,9 @@ sub _parse_func_arg {
     my @names = _parse_var_names();
     if (@names) {
         if (/\G\s*\(\s*/gc) {
-            return ['F', join('.', @names), _parse_func()];
+            my $n = join('.', @names);
+            $_[0]->{funcs}{$n} = undef;
+            return ['F', $n, _parse_func($_[0])];
         }
     }
 
