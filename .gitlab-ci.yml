@@ -52,7 +52,7 @@ variables:
 
 .deb_script:
   script:
-    - ./$CI/debian/convert-to-native-package.sh
+    - ./$CIDIR/debian/convert-to-native-package.sh
     - echo "DEBUILD_DPKG_BUILDPACKAGE_OPTS='-Zgzip -zfast'" > ~/.devscripts
     # use to find asciidoctor and go installed in custom locations
     - echo "DEBUILD_PREPEND_PATH=/usr/local/bin:/usr/local/go/bin" >> ~/.devscripts
