@@ -101,7 +101,7 @@ sign:
   script:
     - ci-sign-pkg
   dependencies:
-    #- build_pkg_debian_stretch
+    - build_pkg_debian_stretch
     - build_pkg_centos7
   artifacts:
     expire_in: 1 day
