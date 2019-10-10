@@ -16,7 +16,10 @@ use base ('pf::Switch');
 use pf::util::radius qw(perform_coa perform_disconnect);
 use pf::Switch::constants;
 use pf::constants;
+use pf::util qw(isenabled);
 use pf::constants::role qw($REJECT_ROLE);
+use pf::access_filter::radius;
+use pf::roles::custom;
 
 our $DISCONNECT_TYPE_COA = 'coa';
 our $DISCONNECT_TYPE_DISCONNECT = 'disconnect';
