@@ -20,6 +20,7 @@ use pf::util qw(isenabled);
 use pf::constants::role qw($REJECT_ROLE);
 use pf::access_filter::radius;
 use pf::roles::custom;
+use pf::mini_template;
 
 our $DISCONNECT_TYPE_COA = 'coa';
 our $DISCONNECT_TYPE_DISCONNECT = 'disconnect';
