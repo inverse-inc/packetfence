@@ -19,10 +19,6 @@ variables:
   RPM_DIR: rpm
   DEB_DIR: debian
   VAGRANT_DIR: addons/vagrant
-  # env variables
-  ANSIBLE_FORCE_COLOR: "true"
-  ANSIBLE_STDOUT_CALLBACK: yaml
-  RPM_PACKAGES_NAME: "['packetfence-release']"
 
 ### TEMPLATES
 .pfbuild_job:
@@ -36,7 +32,7 @@ variables:
     expire_in: 1 day
     paths:
       - result/*
-  # only run jobs on schedules OR on "stable" refs (for release) OR via "Run pipeline"
+  # only run jobs on schedules *OR* on "stable" refs (for release) *OR* via "Run pipeline"
   only:
     - schedules
     - web
@@ -47,7 +43,6 @@ variables:
 .rpm_script:
   script:
     - cp $RPM_DIR/.rpmmacros $HOME
-    # temp: to keep current build system in parallel with new on
     - ci-build-pkg $RPM_DIR
 
 .deb_script:
@@ -101,8 +96,8 @@ sign:
   script:
     - ci-sign-pkg
   dependencies:
-    - build_pkg_debian_stretch
     - build_pkg_centos7
+    - build_pkg_debian_stretch
   artifacts:
     expire_in: 1 day
     paths:
@@ -140,27 +135,3 @@ pages:
     - /^stable$/
   tags:
     - shell
-
-### INSTALL JOBS
-# install_centos7:
-#   stage: install
-#   script:
-#     - cd $VAGRANT_DIR ; vagrant up pfcen7night --provider=libvirt --destroy-on-error
-#   after_script:
-#     - cd $VAGRANT_DIR ; vagrant destroy -f pfcen7night
-#     - rm -rf $VAGRANT_DOTFILE_PATH roles/
-#   dependencies: []
-#   tags:
-#     - shell
-
-# install_debian_stretch:
-#   stage: install
-#   script:
-#     - cd $VAGRANT_DIR ; vagrant up pfdeb9night --provider=libvirt --destroy-on-error
-#   after_script:
-#     - cd $VAGRANT_DIR ; vagrant destroy -f pfdeb9night
-#     - rm -rf $VAGRANT_DOTFILE_PATH roles/
-#   dependencies: []
-#   tags:
-#     - shell
->>>>>>> added back files
