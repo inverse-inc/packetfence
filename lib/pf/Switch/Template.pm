@@ -13,6 +13,7 @@ pf::Switch::Template
 use strict;
 use warnings;
 use base ('pf::Switch');
+use Try::Tiny;
 use pf::util::radius qw(perform_coa perform_disconnect);
 use pf::Switch::constants;
 use pf::constants;
