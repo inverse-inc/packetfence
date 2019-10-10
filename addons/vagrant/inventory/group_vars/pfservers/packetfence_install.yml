@@ -6,5 +6,5 @@ mgmt_interface_id: "{{ ansible_facts | dict2items | selectattr('value.ipv4', 'de
 packetfence_install__mgmt_interface:
   id: "{{ mgmt_interface_id['key'] }}"
   ip: "{{ mgmt_ip }}"
-  mask: 255.255.255.0
+  mask: "{{ mgmt_netmask }}"
   type: management,portal
