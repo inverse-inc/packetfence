@@ -30,7 +30,7 @@ use pf::Switch::constants;
 use pf::constants::role qw(@ROLES);
 use pf::SwitchFactory;
 use pf::util;
-use List::MoreUtils qw(any);
+use List::MoreUtils qw(any uniq);
 use pf::ConfigStore::SwitchGroup;
 use pf::ConfigStore::Switch;
 
@@ -666,11 +666,24 @@ sub options_type {
     my $self = shift;
     # Sort vendors and switches for display
     my @modules;
-    foreach my $vendor (sort keys %pf::SwitchFactory::VENDORS) {
-        my @switches = sort { $a->{value} cmp $b->{value} } @{$pf::SwitchFactory::VENDORS{$vendor}};
-        push @modules, { group => $vendor,
-                         options => \@switches,
-                         value => '' };
+    my $V1 = \%pf::SwitchFactory::VENDORS;
+    my $V2 = $pf::SwitchFactory::TemplateSwitches{'::VENDORS'} // {};
+    foreach my $v ( uniq sort ( keys %$V1, keys %$V2)) {
+        my @switches =
+          sort { $a->{value} cmp $b->{value} } (
+              (
+                exists $V1->{$v} ? @{ $V1->{$v} } : ()
+              ),
+              (
+                exists $V2->{$v} ? @{ $V2->{$v} } : ()
+              )
+        );
+        push @modules,
+          {
+            group   => $v,
+            options => \@switches,
+            value   => ''
+          };
     }
 
     return ({group => '', options => [{value => '', label => ''}], value => ''}, @modules);

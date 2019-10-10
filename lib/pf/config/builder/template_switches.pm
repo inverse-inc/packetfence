@@ -18,7 +18,6 @@ use pf::mini_template;
 sub buildEntry {
     my ($self, $buildData, $id, $entry) = @_;
     my $type = $id;
-    $type =~ s/ +/::/;
     $entry->{type} = $type;
     my @errors;
     for my $k (qw(acceptVlan acceptRole reject disconnect coa)) {
@@ -34,6 +33,9 @@ sub buildEntry {
         push @{$buildData->{errors}}, @errors;
         return undef;
     }
+
+    my ($vendor, undef) = split /::/, $type;
+    push @{$buildData->{entries}{'::VENDORS'}{$vendor}}, { value => $type, description => $entry->{description} };
 
     return $entry;
 }
