@@ -1,0 +1,88 @@
+---
+# Don't use simple quote to avoid issue when YAML
+# is convert to JSON
+packetfence_install__sources:
+
+  - id: Blackhole
+    description: Blackhole
+    type: Blackhole
+
+  - id: htpasswd_source
+    description: htpasswd source
+    realms:
+      - "null"
+    type: Htpasswd
+    path: /usr/local/pf/conf/htpasswd.conf
+    # extra fields to create file
+    user: inverse
+    password: secret
+    authentication_rules:
+    administration_rules:
+      - id: admins
+        description: All admins
+        conditions: []
+        match: all
+        actions:
+          - type: set_access_level
+            value: ALL
+
+  - id: potd_source
+    description: password of the day source
+    realms:
+      - "null"
+      - default
+      - local
+    type: Potd
+    password_email_update: "foo@{{ packetfence_install__config_base_general['domain'] }}"
+    password_length: 8
+    password_rotation: 10m
+    authentication_rules:
+      - id: set_guest_role
+        description: set guest role
+        conditions: []
+        match: all
+        actions:
+          - type: set_role
+            value: guest
+          - type: set_access_duration
+            value: 10m
+
+  - id: null_source
+    description: null source
+    type: "Null"
+    email_required: "yes" # quote to avoid boolean
+    authentication_rules:
+      - id: set_guest_role
+        description: set guest role
+        conditions: []
+        match: all
+        actions:
+          - type: set_role
+            value: guest
+          - type: set_access_duration
+            value: 10m
+
+  - id: email_source
+    description: email source
+    type: Email
+    banned_domains: "foo.{{ packetfence_install__config_base_general['domain'] }}, bar.{{ packetfence_install__config_base_general['domain'] }}"
+    allowed_domains: "*.{{ packetfence_install__config_base_general['domain'] }}, *foo.ca, bar.ca"
+    activation_domain: ''
+    allow_localdomain: "yes"
+    create_local_account: "yes"
+    password_length: 15
+    hash_passwords: ntlm
+    local_account_logins: 0
+    email_activation_timeout:
+      interval: 12
+      unit: h
+    authentication_rules:
+      - id: set_guest_role
+        description: set guest role
+        conditions: []
+        match: all
+        actions:
+          - type: set_role
+            value: guest
+          - type: set_access_duration
+            value: 10m

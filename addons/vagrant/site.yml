@@ -1,4 +1,26 @@
 ---
+- hosts: nightly
+  name: upgrade OS to latest version
+  become: True
+  tags: upgrade
+
+  # to ensure nightly builds are always installed
+  # on latest distribution versions when vagrant boxes take time
+  # to be released
+  tasks:
+    - name: update to latest OS version
+      package:
+        name: '*'
+        state: latest
+
+- hosts: nightly
+  name: install packetfence development packages
+  become: True
+
+  roles:
+    - role: inverse_inc.gitlab_buildpkg_tools
+      tags: ci
+
 - hosts: pfservers
   name: install pf on standalone
   become: True

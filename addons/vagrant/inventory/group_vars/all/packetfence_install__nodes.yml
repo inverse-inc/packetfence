@@ -1,0 +1,2 @@
+---
+# use "{{ '52:54:00' | random_mac }}" to generate nodes

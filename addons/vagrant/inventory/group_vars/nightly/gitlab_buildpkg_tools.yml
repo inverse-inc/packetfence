@@ -1,0 +1,7 @@
+---
+# temp: https://github.com/inverse-inc/ansible-role-gitlab-buildpkg-tools/issues/6
+gitlab_buildpkg_tools__deb_pkgs: '{{ lookup("env", "DEB_PACKAGES_NAME") if lookup("env", "DEB_PACKAGES_NAME")
+                                     else [] }}'
+
+gitlab_buildpkg_tools__rpm_pkgs: '{{ lookup("env", "RPM_PACKAGES_NAME") if lookup("env", "RPM_PACKAGES_NAME")
+                                     else [] }}'

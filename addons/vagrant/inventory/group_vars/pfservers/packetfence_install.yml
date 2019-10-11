@@ -1,6 +1,10 @@
 ---
+# hack to get id of mgmt interface based
+# on IP assigned by vagrant
+mgmt_interface_id: "{{ ansible_facts | dict2items | selectattr('value.ipv4', 'defined') | selectattr('value.ipv4.address', 'equalto', mgmt_ip) | first }}"
+
 packetfence_install__mgmt_interface:
-  id: "{{ ansible_eth1['device'] }}"
-  ip: "{{ ansible_eth1['ipv4']['address'] }}"
-  mask: "{{ ansible_eth1['ipv4']['netmask'] }}"
+  id: "{{ mgmt_interface_id['key'] }}"
+  ip: "{{ mgmt_ip }}"
+  mask: "{{ mgmt_netmask }}"
   type: management,portal

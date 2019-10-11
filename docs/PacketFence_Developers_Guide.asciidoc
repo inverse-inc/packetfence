@@ -1064,6 +1064,7 @@ include::packer/README.asciidoc[]
 For day to day development one can run a checkout of the current development branch in
 `/usr/local/pf/` and develop there within a working setup.
 
+[#dev-prerequisites]
 ===== Prerequisites
 
 .Install following softwares:
@@ -1071,6 +1072,7 @@ For day to day development one can run a checkout of the current development bra
 * Virtualbox if you wan to use Virtualbox as a provider for Vagrant
 * libvirt, KVM/QEMU and vagrant-libvirt if you want to use libvirt as a provider for Vagrant
 
+[#dev-setup]
 ===== Initial setup
 
 Following steps assume you use a CentOS machine but you can have same behavior
@@ -1097,13 +1099,13 @@ ansible-galaxy install -r requirements.yml
 .Start CentOS 7 virtual machine via Vagrant to set up development environment:
 [source,bash]
 ----
-vagrant up pfcendev
+vagrant up pfcen7dev
 ----
 
 .Reboot virtual machine to disable SELinux:
 [source,bash]
 ----
-vagrant reload pfcendev
+vagrant reload pfcen7dev
 ----
 
 At the end of this process, you will have latest PacketFence's source code,
@@ -1111,18 +1113,51 @@ running in a CentOS 7 virtual machine, located in [filename]`/usr/local/pf`
 with all dependencies installed as RPM packages. You can directly develop from
 [filename]`/usr/local/pf`.
 
-Web admin should be reachable through management IP address of pfcendev
+Web admin should be reachable through management IP address of pfcen7dev
 machine, configured in [filename]`addons/vagrant/inventory/hosts`.
 
 
 ==== Not so bleeding edge
 
+If you prefer to use packages, you can install latest PacketFence packages from nightly builds.
 
-Using the development `yum` repository and upgrade PacketFence often is a good way to proceed.
-Check our https://packetfence.org/download/snapshots.html[snapshots download page] for
-instructions.
+===== Initial setup
+
+Install <<dev-prerequisites,development prerequisites>> and follow
+<<dev-setup,initial setup>> but in place of starting `pfcen7dev`, you can
+start:
+
+* `pfcen7night`
+* `pfdeb9night`
+
+These machines will be auto-configured to install nightly builds from development
+repositories.
+
+===== Day to day usage
+
+To keep your machine up-to-date, you can run following commands:
+
+[source,bash]
+----
+cd packetfence/addons/vagrant
+vagrant provision --provision-with=config pfcen7night
+vagrant provision --provision-with=config pfdeb9night
+----
 
 Make sure you read the `UPGRADE` document after every upgrades to avoid any surprises.
+
+===== Running an Ansible playbook against Vagrant virtual machines
+
+If you want to use Ansible directly against Vagrant virtual machines, you can use following commands:
+
+[source,bash]
+----
+cd packetfence/addons/vagrant
+ansible-playbook site.yml --limit pfcen7night
+----
+
+It's possible because we use a static Ansible inventory. This inventory is
+also used by Vagrant to start virtual machines.
 
 New Exception handling techniques under testing
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
