@@ -30,12 +30,12 @@ sub buildEntry {
     }
 
     if (@errors) {
-        push @{$buildData->{errors}}, @errors;
+        push @{$buildData->{errors}}, { switch => $id, message => "Error building attributes", errors => \@errors };
         return undef;
     }
 
-    my ($vendor, undef) = split /::/, $type;
-    push @{$buildData->{entries}{'::VENDORS'}{$vendor}}, { value => $type, description => $entry->{description} };
+    my ($vendor, undef) = split /::/, $type, 2;
+    push @{$buildData->{entries}{'::VENDORS'}{$vendor}}, { value => $type, label => $entry->{description} };
 
     return $entry;
 }
@@ -54,13 +54,26 @@ make_radius_attribute
 
 sub make_radius_attribute {
     my ($errors, $ra) = @_;
-    my ($n, $tmpl) = split / *= */, $ra, 2;
+    my ($n, $tmpl_text) = split / *= */, $ra, 2;
     my $v;
     if ($n =~ /([^:]+):(.*)/) {
         $n = $2;
         $v = $1;
     }
-    return {name => $n, tmpl => pf::mini_template->new($tmpl), (defined $v ? (vendor => $v ) : () ) };
+
+    my $attr = {
+        name => $n, (defined $v ? (vendor => $v ) : () )
+    };
+
+    my $tmpl = eval {
+        pf::mini_template->new($tmpl_text)
+    };
+    if ($@) {
+        push @{$errors}, { %$attr, message => $@ };
+        return;
+    }
+    $attr->{tmpl} = $tmpl;
+    return $attr;
 }
 
 =head1 AUTHOR
