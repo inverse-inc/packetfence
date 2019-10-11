@@ -5,6 +5,7 @@ use File::Find ();
 use FindBin qw($Bin);;
 use lib "$Bin/../../../lib";
 use pf::mini_template;
+use pf::config::builder::template_switches;
 use Cwd 'abs_path';
 use pf::IniFiles;
 use pf::file_paths qw($template_switches_default_config_file);
@@ -25,6 +26,7 @@ my $def_dir = abs_path( "$Bin/../../../lib/pf/Switch" ) ;
 my $conf_dir = abs_path( "$Bin/../../../conf" ) ;
 
 my $default_ini = pf::IniFiles->new();
+my $builder = pf::config::builder::template_switches->new;
 # Traverse desired filesystems
 File::Find::find({wanted => \&wanted}, $def_dir);
 for my $file (sort @files) {
@@ -36,6 +38,19 @@ for my $file (sort @files) {
     my $ini = pf::IniFiles->new( -file => $file, -fallback => $name);
     unless ($ini) {
         print "error loading file '$file'\n";
+    }
+    my ($error, undef) = $builder->build($ini);
+    if ($error) {
+        $error = $error->[0];
+        print STDERR "  Error when building '$file'\n    $error->{message}\n";
+        for my $err (@{$error->{errors}}) {
+            print STDERR "      Attribute $err->{name}\n";
+            my $message = $err->{message};
+            $message =~ s/^/       /gm;
+            print STDERR $message,"\n";
+        }
+        print STDERR "Please fix error not updating '$template_switches_default_config_file'\n\n";
+        exit ;
     }
 
     $default_ini->AddSection($name);
