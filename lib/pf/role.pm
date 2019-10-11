@@ -406,10 +406,14 @@ sub getRegisteredRole {
                 $role = $args->{'node_info'}->{'category'};
                 @sources = ();
             }
-        } else {
-            $logger->info("Connection type is MAC-AUTH. Getting role from node_info or Authorization source" );
-            @sources = grep {uc($_->{'type'}) eq "AUTHORIZATION"} @sources;
-        }
+        } elsif ( ( ($args->{'connection_type'} & $WIRED_MAC_AUTH) == $WIRED_MAC_AUTH ) || ( ($args->{'connection_type'} & $WIRELESS_MAC_AUTH) == $WIRELESS_MAC_AUTH ) ) {
+		if ( isdisables($profile->macAuthRecomputeRoleFromPortal) ||  $args->{'autoreg'} == 1) {
+                    $logger->info("Connection type is MAC-AUTH. Getting role from node_info or Authorization source" );
+                    @sources = grep {uc($_->{'type'}) eq "AUTHORIZATION"} @sources;
+		} else {
+                    @sources = ();
+                }
+	}
         if (@sources) {
             my $stripped_user = '';
             $stripped_user = $args->{'stripped_user_name'} if(defined($args->{'stripped_user_name'}));

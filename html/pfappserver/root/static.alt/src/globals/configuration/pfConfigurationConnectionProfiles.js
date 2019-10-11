@@ -486,6 +486,19 @@ export const pfConfigurationConnectionProfileViewFields = (context = {}) => {
           ]
         },
         {
+          label: i18n.t('MAC Auth recompute role from portal'),
+          text: i18n.t('When enabled, PacketFence will not use the role initialy computed on the portal but will use an authorized source if defined to recompute the role.'),
+          fields: [
+            {
+              key: 'mac_auth_recompute_role_from_portal',
+              component: pfFormToggle,
+              attrs: {
+                values: { checked: 'enabled', unchecked: 'disabled' }
+              }
+            }
+          ]
+        },
+        {
           label: i18n.t('Dot1x unset on unmatch'),
           text: i18n.t('When enabled, PacketFence will unset the role of the device if no authentication sources returned one.'),
           fields: [

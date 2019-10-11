@@ -19,6 +19,7 @@ login_attempt_limit=0
 root_module=default_policy
 billing_tiers=
 dot1x_recompute_role_from_portal=enabled
+mac_auth_recompute_role_from_portal=disabled
 preregistration=disabled
 autoregister=disabled
 scans=

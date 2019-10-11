@@ -223,6 +223,10 @@ cmp_deeply(
                     type => 'string',
                     description => 'When enabled, PacketFence will not use the role initialy computed on the portal but will use the dot1x username to recompute the role.',
                 },
+                'mac_auth_recompute_role_from_portal' => {
+                    type => 'string',
+                    description => 'When enabled, PacketFence will not use the role initialy computed on the portal but will use an authorized source if defined to recompute the role.',
+                },
                 'filter' => {
                     type => 'array',
                     description => 'Filters',
