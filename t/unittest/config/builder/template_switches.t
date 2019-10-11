@@ -35,7 +35,7 @@ my $builder = pf::config::builder::template_switches->new;
 {
 
     my $conf = <<'CONF';
-[PacketFence Standard]
+[PacketFence::Standard]
 description=Standard Switch
 radiusDisconnect=disconnect 
 acceptVlan = <<EOT
@@ -60,7 +60,7 @@ CONF
     is_deeply(
         $switch_templates,
         {
-            'PacketFence Standard' => {
+            'PacketFence::Standard' => {
                 type => 'PacketFence::Standard',
                 description => 'Standard Switch',
                 radiusDisconnect => 'disconnect',
@@ -79,7 +79,14 @@ CONF
                     {name => 'Calling-Station-Id', tmpl => pf::mini_template->new('$mac') },
                     {name => 'NAS-IP-Address', tmpl => pf::mini_template->new('$disconnectIp') },
                 ]
-            }
+            },
+            "::VENDORS" => {
+                PacketFence => [
+                    {
+                        value => 'PacketFence::Standard', label => 'Standard Switch',
+                    },
+                ]
+            },
         },
         "Building the standard switch",
     );
@@ -87,8 +94,8 @@ CONF
 
 {
 
-    my $conf = <<'CONF';
-[PacketFence Standard]
+    my $conf= <<'CONF';
+[PacketFence::Standard]
 description=Standard Switch
 radiusDisconnect=disconnect 
 coa=<<EOT
@@ -103,7 +110,7 @@ CONF
     is_deeply(
         $switch_templates,
         {
-            'PacketFence Standard' => {
+            'PacketFence::Standard' => {
                 type => 'PacketFence::Standard',
                 description => 'Standard Switch',
                 radiusDisconnect => 'disconnect',
@@ -112,7 +119,14 @@ CONF
                     {name => 'NAS-IP-Address', tmpl => pf::mini_template->new('$disconnectIp') },
                     {name => 'Cisco-AVPair', tmpl => pf::mini_template->new('jisas=kksd'), vendor => 'Cisco' },
                 ]
-            }
+            },
+            "::VENDORS" => {
+                PacketFence => [
+                    {
+                        value => 'PacketFence::Standard', label => 'Standard Switch',
+                    },
+                ]
+            },
         },
         "Building the standard switch",
     );
