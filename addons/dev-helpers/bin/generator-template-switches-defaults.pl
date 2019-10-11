@@ -1,26 +1,14 @@
 #!/usr/bin/perl
 
 use strict;
-use File::Find ();
 use FindBin qw($Bin);;
 use lib "$Bin/../../../lib";
 use pf::mini_template;
 use pf::config::builder::template_switches;
+use pf::util::template_switch;
 use Cwd 'abs_path';
 use pf::IniFiles;
 use pf::file_paths qw($template_switches_default_config_file);
-
-# Set the variable $File::Find::dont_use_nlink if you're using AFS,
-# since AFS cheats.
-
-# for the convenience of &wanted calls, including -eval statements:
-use vars qw/*name *dir *prune/;
-*name   = *File::Find::name;
-*dir    = *File::Find::dir;
-*prune  = *File::Find::prune;
-
-sub wanted;
-my @files;
 
 my $def_dir = abs_path( "$Bin/../../../lib/pf/Switch" ) ;
 my $conf_dir = abs_path( "$Bin/../../../conf" ) ;
@@ -28,16 +16,17 @@ my $conf_dir = abs_path( "$Bin/../../../conf" ) ;
 my $default_ini = pf::IniFiles->new();
 my $builder = pf::config::builder::template_switches->new;
 # Traverse desired filesystems
-File::Find::find({wanted => \&wanted}, $def_dir);
+#File::Find::find({wanted => \&wanted}, $def_dir);
+print "Loading files from $def_dir\n";
+my @files = pf::util::template_switch::getDefFiles($def_dir);
 for my $file (sort @files) {
-    my $name = $file;
-    $name =~ s/\Q$def_dir\E\///;
-    $name =~ s/\//::/;
-    $name =~ s/\.def$//;
-    print "processing $name\n";
+    print " processing $file \n";
+    my $name = pf::util::template_switch::fileNameToModuleName($def_dir, $file);
     my $ini = pf::IniFiles->new( -file => $file, -fallback => $name);
     unless ($ini) {
-        print "error loading file '$file'\n";
+        print STDERR "Error loading file '$file'\n";
+        print STDERR "Please fix error not updating '$template_switches_default_config_file'\n\n";
+        exit;
     }
     my ($error, undef) = $builder->build($ini);
     if ($error) {
@@ -61,15 +50,6 @@ for my $file (sort @files) {
 
 $default_ini->WriteConfig($template_switches_default_config_file);
 
-
-sub wanted {
-    my ($dev,$ino,$mode,$nlink,$uid,$gid);
-
-    (($dev,$ino,$mode,$nlink,$uid,$gid) = lstat($_)) &&
-    -f _ &&
-    /^.*\.def\z/s
-    && push @files, $name;
-}
 
 =head1 AUTHOR
 
