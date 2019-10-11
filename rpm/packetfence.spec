@@ -14,7 +14,7 @@
 #==============================================================================
 Name:       packetfence
 Version:    9.1.9
-Release:    1%{?dist}
+Release:    2%{?dist}
 Summary:    PacketFence network registration / worm mitigation system
 Packager:   Inverse inc. <support@inverse.ca>
 Group:      System Environment/Daemons
@@ -31,6 +31,13 @@ BuildRequires: nodejs >= 12.0
 BuildRequires: gcc
 BuildRequires: systemd
 
+# To handle migration from several packetfence packages
+# to only one
+Obsoletes: %{name}-remote-arp-sensor
+Obsoletes: %{name}-pfcmd-suid
+Obsoletes: %{name}-ntlm-wrapper
+Obsoletes: %{name}-config
+
 AutoReqProv: 0
 
 Requires: chkconfig, coreutils, grep, openssl, sed, tar, wget, gettext, conntrack-tools, patch, git
@@ -42,7 +49,7 @@ Requires: httpd, mod_ssl
 Requires: mod_perl, mod_proxy_html
 requires: libapreq2
 Requires: redis
-Requires: freeradius >= 3.0.18-18, freeradius-mysql, freeradius-perl, freeradius-ldap, freeradius-utils, freeradius-redis, freeradius-rest, freeradius-radsniff >= 3.0.18
+Requires: freeradius >= 3.0.18-18, freeradius-mysql, freeradius-perl, freeradius-ldap, freeradius-utils, freeradius-redis, freeradius-rest, freeradius-radsniff
 Requires: make
 Requires: net-tools
 Requires: sscep
@@ -1222,6 +1229,10 @@ fi
 # Changelog
 #==============================================================================
 %changelog
+* Fri Oct 11 2019 Inverse <info@inverse.ca> - 9.1.9-2
+- Obsoletes old packetfence packages
+- Simplify FreeRADIUS dependencies
+
 * Thu Oct 10 2019 Inverse <info@inverse.ca> - 9.1.9-1
 - Make only one packetfence package, arch dependent
 - Adapt spec file to CI
