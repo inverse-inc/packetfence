@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 5;
+use Test::More tests => 7;
 
 #This test will running last
 use Test::NoWarnings;
@@ -129,6 +129,47 @@ CONF
             },
         },
         "Building the standard switch",
+    );
+}
+
+{
+
+    my $conf= <<'CONF';
+[PacketFence::Standard]
+description=Standard Switch
+radiusDisconnect=disconnect 
+coa=<<EOT
+Calling-Station-Id = $mac
+NAS-IP-Address = ${disconnectIp
+Cisco:Cisco-AVPair = jisas=kksd
+EOT
+CONF
+
+    my ($error, $switch_templates) = build_from_conf($conf);
+    is_deeply(
+        $error,
+        [
+            {
+                switch => 'PacketFence::Standard',
+                message => 'Error building attributes',
+                errors => [
+                    {
+                        name => 'NAS-IP-Address',
+                        message => q(parse error: no matching }
+${disconnectIp
+~~~~~~~~~~~~~ ^ 
+)
+                    }
+                ]
+            }
+        ],
+        "Error found"
+    );
+    is_deeply(
+        $switch_templates,
+        {
+        },
+        "An error was found",
     );
 }
 
