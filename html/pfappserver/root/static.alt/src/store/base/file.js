@@ -29,10 +29,9 @@ export default class FileStore {
          * public state(s)
         **/
         file: {
-          offsets: [], // temporary
-
           name: this.blob.name || null, // from File|Blob
           lastModified: this.blob.lastModified || null, // from File|Blob
+          lastModifiedDate: this.blob.lastModifiedDate || null, // from File|Blobs
           size: this.blob.size || null, // from File|Blob
           type: this.blob.type || null, // from File|Blob
           encoding: this.encoding || 'utf-8', // user defined character encoding
@@ -103,9 +102,9 @@ export default class FileStore {
         return new Promise((resolve, reject) => {
           const scan = async (index, start) => {
             const end = start + state.chunkSize
-            let offset
             if (index <= lineNumber && state.offsets[index - 1] !== null) {
               await dispatch('readSlice', { start, end }).then(result => {
+                let offset
                 for(let c = 0; c <= result.length; c++) {
                   offset = start + c
                   if (offset === state.file.size) { // EOF
@@ -114,6 +113,7 @@ export default class FileStore {
                     return
                   } else if (result[c] === 10) { // EOL
                     commit('SET_OFFSET', { index: index++, offset: offset + 1 })
+                    if (index > lineNumber) break
                   }
                 }
                 start += state.chunkSize
@@ -164,23 +164,6 @@ export default class FileStore {
         }
         reader.readAsText(state.blob, state.file.encoding)
       },
-      SET_READ_AS_STREAM: (state, dispatch) => {
-        state.file.result = new Proxy([], {
-          get: (target, prop, receiver) => {
-            if (`${+prop}` === prop) { // array index (integer)
-              return dispatch('readLine', +prop)
-            }
-            if (prop === 'length') {
-              return state.offsets.length
-            }
-            if (prop === 'toJSON') {
-return null
-//              return () => target
-            }
-            return Reflect.get(target, prop, receiver)
-          }
-        })
-      },
       SET_ENCODING: (state, encoding) => {
         state.encoding = encoding
       },
@@ -193,7 +176,6 @@ return null
         state.file.error = { code, message, name }
       },
       SET_OFFSET: (state, { index, offset }) => {
-console.log('SET_OFFSET', index, offset)
         state.offsets[index] = offset
       }
     }

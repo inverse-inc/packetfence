@@ -135,7 +135,7 @@ export default {
   methods: {
     storeNameFromFile (file) {
       const { lastModified, name } = file
-      return `$_file/${name}/${lastModified}`
+      return `file/${name}/${lastModified}`
     },
     uploadFiles (event) {
       if (!this.cumulative) {
@@ -143,45 +143,40 @@ export default {
       }
       const { target: { files } = {} } = event
       Array.from(files).forEach((file, index, files) => {
-        const storeName = this.storeNameFromFile(file)
-        if (!this.$store.state[storeName]) { // Register store module only once
-          const fileStore = new FileStore(file)
-          this.$store.registerModule(storeName, fileStore.module())
-        }
-        if (this.readAsText) {
-          this.$store.dispatch(`${storeName}/readAsText`)
+        const fileIndex = this.files.findIndex(f => f.name === file.name && f.lastModified === file.lastModified)
+        if (fileIndex > -1) {
+          this.$emit('focus', fileIndex)
         } else {
-          this.$store.dispatch(`${storeName}/readAsStream`)
+          const storeName = this.storeNameFromFile(file)
+          if (!this.$store.state[storeName]) { // Register store module only once
+            const fileStore = new FileStore(file)
+            this.$store.registerModule(storeName, fileStore.module())
+          }
+          if (this.readAsText) {
+            this.$store.dispatch(`${storeName}/readAsText`)
+          }
+          this.$set(this.files, this.files.length, this.$store.getters[`${storeName}/file`])
         }
-        this.$set(this.files, this.files.length, this.$store.getters[`${storeName}/file`])
-
-
-const lines = async () => {
-  const line = async (i) => {
-    return await this.files[this.files.length - 1].result[i]
-    //return await this.$store.dispatch(`${storeName}/readLine`, i)
-  }
-  let l
-  for(let i = 0; i <= 100; i++) {
-    l = await line(i)
-    console.log(`get lines[${i}]`, l)
-  }
-}
-lines()
-
-
       })
       // clear the input to allow re-upload
       this.$refs.uploadform.reset()
+    },
+    closeFile (file) {
+      const fileIndex = this.files.findIndex(f => f.name === file.name && f.lastModified === file.lastModified)
+      if (fileIndex > -1) {
+        this.files.splice(fileIndex, 1)
+        const storeName = this.storeNameFromFile(this.files[fileIndex])
+        if (this.$store.state[storeName]) {
+          this.$store.unregisterModule(storeName)
+        }
+      }
     },
     clearFirstError () {
       this.showErrorModal = false
       this.$nextTick(() => {
         const fileIndex = this.files.findIndex(file => file.error)
         const file = this.files[fileIndex]
-        const storeName = this.storeNameFromFile(file)
-        this.$store.unregisterModule(storeName)
-        this.$delete(this.files, fileIndex)
+        this.closeFile(file)
       })
     }
   },
@@ -207,7 +202,9 @@ lines()
     },
     files: {
       handler: function (a, b) {
-        this.$emit('files', a)
+        this.$emit('files', a.map(file => {
+          return { ...file, ...{ storeName: this.storeNameFromFile(file), close: () => { this.closeFile(file) } } }
+        }))
       },
       deep: true
     }
