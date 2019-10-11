@@ -48,10 +48,11 @@ variables:
 .deb_script:
   script:
     - ./$CIDIR/debian/convert-to-native-package.sh
-    - echo "DEBUILD_DPKG_BUILDPACKAGE_OPTS='-Zgzip -zfast'" > ~/.devscripts
-    # use to find asciidoctor and go installed in custom locations
-    - echo "DEBUILD_PREPEND_PATH=/usr/local/bin:/usr/local/go/bin" >> ~/.devscripts
+    - cp $CIDIR/debian/.devscripts $HOME
     - ci-build-pkg $DEB_DIR
+  variables:
+    QUILT_PATCHES: $DEB_DIR/patches
+
 
 ### STAGES
 
