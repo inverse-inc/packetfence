@@ -161,7 +161,7 @@ sub _parse_var {
         }
 
         if (!/\G\s*\}/gc) {
-            die "";
+            die format_parse_error("no matching }", $_, pos);
         }
         if (@names == 1) {
             $_[0]->{vars}{$names[0]} = undef;
