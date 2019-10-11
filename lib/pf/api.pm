@@ -68,6 +68,7 @@ use pf::dhcp::processor_v4();
 use pf::dhcp::processor_v6();
 use pf::util::dhcpv6();
 use pf::domain::ntlm_cache();
+use pf::access_filter::switch;
 use Hash::Merge qw (merge);
 
 use pf::constants::api;
@@ -336,34 +337,53 @@ sub firewallsso : Public {
 }
 
 sub ReAssignVlan : Public : Fork {
-    my ($class, %postdata )  = @_;
+    my ($class, $postdata )  = @_;
     my @require = qw(connection_type switch mac ifIndex);
-    my @found = grep {exists $postdata{$_}} @require;
+    my @found = grep {exists $postdata->{$_}} @require;
     return unless pf::util::validate_argv(\@require,  \@found);
 
     my $logger = pf::log::get_logger();
 
-    if ( not defined( $postdata{'connection_type'} )) {
+    if ( not defined( $postdata->{'connection_type'} )) {
         $logger->error("Connection type is unknown. Could not reassign VLAN.");
         return;
     }
 
-    my $switch = pf::SwitchFactory->instantiate( $postdata{'switch'}, {locationlog => pf::locationlog::locationlog_view_open_mac($postdata{'mac'})} );
+    my $switch = pf::SwitchFactory->instantiate( $postdata->{'switch'}, {locationlog => pf::locationlog::locationlog_view_open_mac($postdata->{'mac'})} );
     unless ($switch) {
-        $logger->error("switch $postdata{'switch'} not found for ReAssignVlan");
+        $logger->error("switch $postdata->{'switch'} not found for ReAssignVlan");
         return;
+    }
+
+    my $filter = pf::access_filter::switch->new;
+    my $switch_params = $filter->filter('reevaluate', $postdata);
+
+    if (defined($switch_params)) {
+        foreach my $key (keys %{$switch_params}) {
+            if (ref($switch_params->{$key}) eq 'ARRAY') {
+                foreach my $param (@{$switch_params->{$key}}) {
+                    if ($param  =~ /([a-zA-Z_-]*)\s*=>\s*(.*)/) {
+                        $switch->{$key}->{$1} = $2;
+                    }
+                }
+            } elsif ($switch_params->{$key} =~ /([a-zA-Z_-]*)\s*=>\s*(.*)/) {
+                $switch->{$key}->{$1} = $2;
+            } else {
+                $switch->{$key} = $switch_params->{$key};
+            }
+        }
     }
 
     sleep $pf::config::Config{'fencing'}{'wait_for_redirect'};
 
     # SNMP traps connections need to be handled specially to account for port-security etc.
-    if ( ($postdata{'connection_type'} & $pf::config::WIRED_SNMP_TRAPS) == $pf::config::WIRED_SNMP_TRAPS ) {
-        _reassignSNMPConnections($switch, $postdata{'mac'}, $postdata{'ifIndex'}, $postdata{'connection_type'} );
+    if ( ($postdata->{'connection_type'} & $pf::config::WIRED_SNMP_TRAPS) == $pf::config::WIRED_SNMP_TRAPS ) {
+        _reassignSNMPConnections($switch, $postdata->{'mac'}, $postdata->{'ifIndex'}, $postdata->{'connection_type'} );
     }
-    elsif ( $postdata{'connection_type'} & $pf::config::WIRED) {
+    elsif ( $postdata->{'connection_type'} & $pf::config::WIRED) {
         my ( $switchdeauthMethod, $deauthTechniques )
-            = $switch->wiredeauthTechniques( $switch->{_deauthMethod}, $postdata{'connection_type'} );
-        $switch->$deauthTechniques( $postdata{'ifIndex'}, $postdata{'mac'} );
+            = $switch->wiredeauthTechniques( $switch->{_deauthMethod}, $postdata->{'connection_type'} );
+        $switch->$deauthTechniques( $postdata->{'ifIndex'}, $postdata->{'mac'} );
     }
     else {
         $logger->error("Connection type is not wired. Could not reassign VLAN.");
@@ -377,32 +397,51 @@ ReAssignVlan_in_queue is use to localy use ReAssignVlan function in pfqueue to g
 =cut
 
 sub ReAssignVlan_in_queue : Public {
-    my ($class, %postdata )  = @_;
+    my ($class, $postdata )  = @_;
     my $client = pf::api::queue->new(queue => 'priority');
-    $client->notify( 'ReAssignVlan', %postdata );
+    $client->notify( 'ReAssignVlan', $postdata );
 }
 
 sub desAssociate : Public : Fork {
-    my ($class, %postdata )  = @_;
+    my ($class, $postdata )  = @_;
     my @require = qw(switch mac connection_type ifIndex);
-    my @found = grep {exists $postdata{$_}} @require;
+    my @found = grep {exists $postdata->{$_}} @require;
     return unless pf::util::validate_argv(\@require,  \@found);
 
     my $logger = pf::log::get_logger();
 
-    my $switch = pf::SwitchFactory->instantiate($postdata{'switch'}, {locationlog => pf::locationlog::locationlog_view_open_mac($postdata{'mac'})});
+    my $switch = pf::SwitchFactory->instantiate($postdata->{'switch'}, {locationlog => pf::locationlog::locationlog_view_open_mac($postdata->{'mac'})});
     unless ($switch) {
-        $logger->error("switch $postdata{'switch'} not found for desAssociate");
+        $logger->error("switch $postdata->{'switch'} not found for desAssociate");
         return;
     }
 
     my ($switchdeauthMethod, $deauthTechniques) = $switch->deauthTechniques($switch->{'_deauthMethod'});
 
+    my $filter = pf::access_filter::switch->new;
+    my $switch_params = $filter->filter('reevaluate', $postdata);
+
+    if (defined($switch_params)) {
+        foreach my $key (keys %{$switch_params}) {
+            if (ref($switch_params->{$key}) eq 'ARRAY') {
+                foreach my $param (@{$switch_params->{$key}}) {
+                    if ($param  =~ /([a-zA-Z_-]*)\s*=>\s*(.*)/) {
+                        $switch->{$key}->{$1} = $2;
+                    }
+                }
+            } elsif ($switch_params->{$key} =~ /([a-zA-Z_-]*)\s*=>\s*(.*)/) {
+                $switch->{$key}->{$1} = $2;
+            } else {
+                $switch->{$key} = $switch_params->{$key};
+            }
+        }
+    }
+
     # sleep long enough to give the device enough time to fetch the redirection page.
     sleep $pf::config::Config{'fencing'}{'wait_for_redirect'};
 
-    $logger->info("[$postdata{'mac'}] DesAssociating mac on switch (".$switch->{'_id'}.")");
-    $switch->$deauthTechniques($postdata{'mac'});
+    $logger->info("[$postdata->{'mac'}] DesAssociating mac on switch (".$switch->{'_id'}.")");
+    $switch->$deauthTechniques($postdata->{'mac'});
 }
 
 =head2 desAssociate_in_queue
@@ -412,9 +451,9 @@ desAssociate is use to localy use desAssociate function in pfqueue to get rid of
 =cut
 
 sub desAssociate_in_queue : Public {
-    my ($class, %postdata )  = @_;
+    my ($class, $postdata )  = @_;
     my $client = pf::api::queue->new(queue => 'priority');
-    $client->notify( 'desAssociate', %postdata );
+    $client->notify( 'desAssociate', $postdata );
 }
 
 

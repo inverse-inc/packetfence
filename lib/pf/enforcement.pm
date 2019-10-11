@@ -154,14 +154,32 @@ sub _vlan_reevaluation {
     my ( $mac, $locationlog_entry, %opts ) = @_;
     my $logger = get_logger();
 
-    if ( _should_we_reassign_vlan( $mac, $locationlog_entry, %opts ) ) {
+    my $args = {
+        switch => $locationlog_entry->{'switch'},
+        switch_mac => $locationlog_entry->{'switch_mac'},
+        switch_ip => $locationlog_entry->{'switch_ip'},
+        stripped_user_name => $locationlog_entry->{'stripped_user_name'},
+        realm => $locationlog_entry->{'$realm'},
+        mac => $mac,
+        ifIndex => $locationlog_entry->{'port'},
+        ifDesc => $locationlog_entry->{'ifDesc'},
+        user_name => $locationlog_entry->{'dot1x_username'},
+        session_id => $locationlog_entry->{'session_id'},
+        connection_type => $locationlog_entry->{'connection_type'},
+        connection_sub_type => $locationlog_entry->{'connection_sub_type'},
+        ssid => $locationlog_entry->{'ssid'},
+        role => $locationlog_entry->{'role'},
+        vlan => $locationlog_entry->{'vlan'},
+        node_info => pf::node::node_attributes($mac),
+	#profile => pf::Connection::ProfileFactory->instantiate($mac),
+        conn_type => str_to_connection_type($locationlog_entry->{'connection_type'} )
+    };
 
-        my $switch_id = $locationlog_entry->{'switch'} || 'unknown';
-        my $ifIndex   = $locationlog_entry->{'port'}   || 'unknown';
-        my $conn_type = str_to_connection_type( $locationlog_entry->{'connection_type'} );
-        $logger->info( "switch port is (".$switch_id.") ifIndex $ifIndex "
+    if ( _should_we_reassign_vlan( $mac, $args, %opts ) ) {
+
+        $logger->info( "switch port is (".$args->{'switch'}.") ifIndex ".$args->{'ifIndex'}
                 . "connection type: "
-                . $connection_type_explained{$conn_type} );
+                . $connection_type_explained{$args->{'conn_type'}} );
 
         my $client;
         my $cluster_deauth;
@@ -173,26 +191,21 @@ sub _vlan_reevaluation {
             $client = pf::api::queue->new(queue => 'priority');
             $cluster_deauth = 0;
         }
-        my %data = (
-            'switch'           => $switch_id,
-            'mac'              => $mac,
-            'connection_type'  => $conn_type,
-            'ifIndex'          => $ifIndex
-        );
-        if ( ( $conn_type & $WIRED ) == $WIRED ) {
-            $logger->debug("Calling API with ReAssign request on switch (".$switch_id.")");
+
+        if ( ( $args->{'conn_type'} & $WIRED ) == $WIRED ) {
+            $logger->debug("Calling API with ReAssign request on switch (".$args->{'switch'}.")");
             if ($cluster_deauth) {
-                $client->notify( 'ReAssignVlan_in_queue', %data );
+                $client->notify( 'ReAssignVlan_in_queue', $args );
             } else {
-                $client->notify( 'ReAssignVlan', %data );
+                $client->notify( 'ReAssignVlan', $args );
             }
         }
-        elsif ( ( ( $conn_type & $WIRELESS ) == $WIRELESS ) || ( ( $conn_type & $WEBAUTH ) == $WEBAUTH ) || ( ( $conn_type & $VIRTUAL ) == $VIRTUAL ) ) {
-            $logger->debug("Calling API with desAssociate request on switch (".$switch_id.")");
+        elsif ( ( ( $args->{'conn_type'} & $WIRELESS ) == $WIRELESS ) || ( ( $args->{'conn_type'} & $WEBAUTH ) == $WEBAUTH ) || ( ( $args->{'conn_type'} & $VIRTUAL ) == $VIRTUAL ) ) {
+            $logger->debug("Calling API with desAssociate request on switch (".$args->{'switch'}.")");
             if ($cluster_deauth) {
-                $client->notify( 'desAssociate_in_queue', %data );
+                $client->notify( 'desAssociate_in_queue', $args );
             } else {
-                $client->notify( 'desAssociate', %data );
+                $client->notify( 'desAssociate', $args );
             }
         }
         else {
@@ -213,44 +226,23 @@ Evaluates node's VLAN through L<pf::role>'s fetchRoleForNode (which can be redef
 =cut
 
 sub _should_we_reassign_vlan {
-    my ( $mac, $locationlog_entry, %opts ) = @_;
+    my ( $mac, $args, %opts ) = @_;
     my $logger = get_logger();
     if ( $opts{'force'} ) {
         $logger->info("VLAN reassignment is forced.");
         return $TRUE;
     }
 
-    my $switch_id       = $locationlog_entry->{'switch'};
-    my $switch_ip       = $locationlog_entry->{'switch_ip'};
-    my $switch_mac      = $locationlog_entry->{'switch_mac'};
-    my $ifIndex         = $locationlog_entry->{'port'};
-    my $currentVlan     = $locationlog_entry->{'vlan'};
-    my $connection_type = str_to_connection_type( $locationlog_entry->{'connection_type'} );
-    my $user_name       = $locationlog_entry->{'dot1x_username'};
-    my $ssid            = $locationlog_entry->{'ssid'};
-    my $role            = $locationlog_entry->{'role'};
-
-    $logger->info("is currentlog connected at (".$switch_ip.") ifIndex $ifIndex ".(defined $role ? "${role}" : "(undefined)"));
+    $logger->info("is currentlog connected at (".$args->{'switch_ip'}.") ifIndex $args->{'ifIndex'} ".(defined $args->{'role'} ? "$args->{'role'}" : "(undefined)"));
 
     my $role_obj = new pf::role::custom();
 
     # TODO avoidable load?
-    my $switch = pf::SwitchFactory->instantiate( { switch_mac => $switch_mac, switch_ip => $switch_ip } );
+    my $switch = pf::SwitchFactory->instantiate( { switch_mac => $args->{'switch_mac'}, switch_ip => $args->{'switch_ip'} } );
     if ( !$switch ) {
-        $logger->error("Can't instantiate switch (".$switch_ip.")! Check your configuration!");
+        $logger->error("Can't instantiate switch (".$args->{'switch_ip'}.")! Check your configuration!");
         return $FALSE;
     }
-
-    my $args = {
-        mac => $mac,
-        switch => $switch,
-        ifIndex => $ifIndex,
-        connection_type => $connection_type,
-        user_name => $user_name,
-        ssid => $ssid,
-        node_info => pf::node::node_attributes($mac),
-        profile => pf::Connection::ProfileFactory->instantiate($mac),
-    };
 
     my $newRole = $role_obj->fetchRoleForNode( $args );
     my $newCorrectVlan = $newRole->{vlan} || $switch->getVlanByName($newRole->{role});
@@ -258,13 +250,13 @@ sub _should_we_reassign_vlan {
     if (defined($newCorrectVlan)) {
         if ( $newCorrectVlan eq '-1' ) {
             $logger->info(
-                "VLAN reassignment required (current VLAN = $currentVlan but should be in VLAN $newCorrectVlan)"
+                "VLAN reassignment required (current VLAN = $args->{'vlan'} but should be in VLAN $newCorrectVlan)"
             );
             return $TRUE;
-        } elsif (defined($currentVlan)) {
-            if ( $newCorrectVlan ne $currentVlan ) {
+        } elsif (defined($args->{'vlan'})) {
+            if ( $newCorrectVlan ne $args->{'vlan'} ) {
                 $logger->info(
-                    "VLAN reassignment required (current VLAN = $currentVlan but should be in VLAN $newCorrectVlan)"
+                    "VLAN reassignment required (current VLAN = $args->{'vlan'} but should be in VLAN $newCorrectVlan)"
                 );
                 return $TRUE;
             }
@@ -272,15 +264,15 @@ sub _should_we_reassign_vlan {
     }
 
     # If the role in the locationlog is not defined and the new one is, then we reevaluate access
-    if (!defined($role) && defined($newRole->{role})) {
+    if (!defined($args->{'role'}) && defined($newRole->{role})) {
         $logger->info(
             "Reassignment required (current Role is undefined and should be in Role $newRole->{role})"
         );
         return $TRUE;
     }
-    elsif ($role ne $newRole->{role}) {
+    elsif ($args->{'role'} ne $newRole->{role}) {
         $logger->info(
-            "Reassignment required (current Role = $role but should be in Role $newRole->{role})"
+            "Reassignment required (current Role = $args->{'role'} but should be in Role $newRole->{role})"
         );
         return $TRUE;
     }
