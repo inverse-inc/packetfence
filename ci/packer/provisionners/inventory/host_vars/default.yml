@@ -1,2 +1,6 @@
 ---
-# common inventory file for all builds
+### common inventory file for all builds
+
+# disabled adding PPA key and repo in the pipeline
+# for packer builds
+gitlab_buildpkg_tools__ppa_enabled: False
