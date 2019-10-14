@@ -10,10 +10,11 @@
         "tmp_dir": "/tmp",
         "ansible_extra_vars": "{{env `ANSIBLE_EXTRA_VARS`}}",
         "go_version": "{{env `GOVERSION`}}",
-        "image_tag": "{{env `DOCKER_TAG`}}",
+        "docker_tag": "{{env `DOCKER_TAG`}}",
         "docker_user": "{{env `REGISTRY_USER`}}",
         "docker_password": "{{env `REGISTRY_PASSWORD`}}",
         "docker_registry": "{{env `REGISTRY`}}"
+
     },
     "builders": [
         {
@@ -125,7 +126,7 @@
                 "type": "docker-tag",
                 "only": ["{{user `builder_prefix`}}-centos-7"],
                 "repository": "{{user `docker_user`}}/{{user `builder_prefix`}}-centos-7",
-                "tag": "{{user `image_tag`}}"
+                "tag": "{{user `docker_tag`}}"
             },
             {
                 "type": "docker-push",
@@ -141,7 +142,7 @@
                 "type": "docker-tag",
                 "only": ["{{user `builder_prefix`}}-stretch"],
                 "repository": "{{user `docker_user`}}/{{user `builder_prefix`}}-debian-stretch",
-                "tag": "{{user `image_tag`}}"
+                "tag": "{{user `docker_tag`}}"
             },
             {
                 "type": "docker-push",
@@ -157,7 +158,7 @@
                 "type": "docker-tag",
                 "only": ["{{user `builder_prefix`}}-buster"],
                 "repository": "{{user `docker_user`}}/{{user `builder_prefix`}}-debian-buster",
-                "tag": "{{user `image_tag`}}"
+                "tag": "{{user `docker_tag`}}"
             },
             {
                 "type": "docker-push",

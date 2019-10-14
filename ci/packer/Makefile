@@ -16,6 +16,7 @@ pfbuild:
 	packer validate $@.json
 	DOCKER_TAG=$(DOCKER_TAG) \
 	GOVERSION=$(GOVERSION) \
+	REGISTRY=$(REGISTRY) \
 	packer build \
 	-only=$(ACTIVE_BUILDS) \
 	-parallel=$(PARALLEL) $@.json
