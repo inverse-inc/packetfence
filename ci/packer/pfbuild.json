@@ -84,9 +84,7 @@
         },
         {
             "type": "shell",
-            "inline": ["curl -s https://gitlab.com/Orange-OpenSource/gitlab-buildpkg-tools/merge_requests/8.diff | git apply -v -p2 -",
-                       "ci-build-pkg {{user `tmp_dir`}}"
-                      ],
+            "inline": ["ci-build-pkg {{user `tmp_dir`}}"],
             "environment_vars": ["CI_BUILDPKG_DEP_ONLY=yes",
                                  "CI_COMMIT_REF_NAME=fakebranch"
                                 ]
