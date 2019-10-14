@@ -9,10 +9,10 @@ ACTIVE_BUILDS = 'pfbuild-centos-7,pfbuild-stretch'
 PARALLEL = false
 
 .PHONY: all
-all: buildpkg
+all: pfbuild
 
-.PHONY: buildpkg
-buildpkg:
+.PHONY: pfbuild
+pfbuild:
 	packer validate $@.json
 	DOCKER_TAG=$(DOCKER_TAG) \
 	GOVERSION=$(GOVERSION) \

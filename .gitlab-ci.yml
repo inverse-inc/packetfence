@@ -16,10 +16,10 @@ variables:
 ### TEMPLATES
 
 ### JOBS
-buildpkg:
+pfbuild:
   stage: build_images
   script:
-    - make -e -C $PACKERDIR buildpkg
+    - make -e -C $PACKERDIR pfbuild
   # job need to be explicitly started, not when we click "Run pipeline"
   # will not block other stages/jobs
   when: manual
