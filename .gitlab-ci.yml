@@ -14,14 +14,28 @@ variables:
   ANSIBLE_STDOUT_CALLBACK: yaml
 
 ### TEMPLATES
-
-### JOBS
-pfbuild:
+.pfbuild_job:
   stage: build_images
-  script:
-    - make -e -C $PACKERDIR pfbuild
-  # job need to be explicitly started, not when we click "Run pipeline"
-  # will not block other stages/jobs
-  when: manual
   tags:
     - shell
+
+### JOBS
+pfbuild_manual:
+  extends: .pfbuild_job
+  script:
+    - make -e -C $PACKERDIR pfbuild
+  # job need to be explicitly started
+  # will not block other stages/jobs
+  # will not run when we click "Run pipeline"
+  when: manual
+
+# build a docker image at release
+# used to build maintenance binaries and assets for maintenance
+pfbuild_release:
+  extends: .pfbuild_job
+  script:
+    - PF_VERSION=$(awk '{ print $2 }' conf/pf-release)
+    - make -e -C $PACKERDIR DOCKER_TAG=$PF_VERSION pfbuild
+  only:
+    - /^stable$/
+
