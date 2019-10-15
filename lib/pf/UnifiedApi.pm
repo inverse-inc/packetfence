@@ -1334,6 +1334,7 @@ sub setup_api_v1_config_sources_routes {
     );
 
     $collection_route->any(['POST'] => "/test")->to("Config::Sources#test")->name("api.v1.Config.Sources.test");
+    $resource_route->register_sub_action({ method => 'GET', action => 'saml_metadata'});
 
     return ($collection_route, $resource_route);
 }
