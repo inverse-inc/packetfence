@@ -25,7 +25,7 @@ use pf::mini_template;
 
 our $DISCONNECT_TYPE_COA = 'coa';
 our $DISCONNECT_TYPE_DISCONNECT = 'disconnect';
-our $DISCONNECT_TYPE_BOTH = 'coa,disconnect';
+our $DISCONNECT_TYPE_BOTH = 'coaOrdisconnect';
 
 our %DISCONNECT_DISPATCH = (
     $DISCONNECT_TYPE_COA => \&handleCoa,
