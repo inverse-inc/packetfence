@@ -35,7 +35,7 @@ import (
 	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddytls"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy/telemetry"
 	"github.com/klauspost/cpuid"
-	"github.com/mholt/certmagic"
+	"github.com/julsemaan/certmagic"
 	lumberjack "gopkg.in/natefinch/lumberjack.v2"
 
 	_ "github.com/inverse-inc/packetfence/go/caddy/caddy/caddyhttp" // plug in the HTTP server type

@@ -22,7 +22,7 @@ import (
 
 	"github.com/inverse-inc/packetfence/go/caddy/caddy"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddytls"
-	"github.com/mholt/certmagic"
+	"github.com/julsemaan/certmagic"
 )
 
 func activateHTTPS(cctx caddy.Context) error {

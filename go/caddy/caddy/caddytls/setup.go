@@ -31,7 +31,7 @@ import (
 
 	"github.com/inverse-inc/packetfence/go/caddy/caddy"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy/telemetry"
-	"github.com/mholt/certmagic"
+	"github.com/julsemaan/certmagic"
 )
 
 func init() {

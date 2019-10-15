@@ -26,7 +26,7 @@ import (
 	"github.com/inverse-inc/packetfence/go/caddy/caddy"
 	"github.com/go-acme/lego/certcrypto"
 	"github.com/klauspost/cpuid"
-	"github.com/mholt/certmagic"
+	"github.com/julsemaan/certmagic"
 )
 
 // Config describes how TLS should be configured and used.

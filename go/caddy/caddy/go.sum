@@ -136,6 +136,8 @@ github.com/jonboulle/clockwork v0.1.0/go.mod h1:Ii8DK3G1RaLaWxj9trq07+26W01tbo22
 github.com/json-iterator/go v1.1.7/go.mod h1:KdQUCv79m/52Kvf8AW2vK1V8akMuk1QjK/uOdHXbAo4=
 github.com/julienschmidt/httprouter v0.0.0-20171027133709-e1b9828bc9e5 h1:cCilogrV2wjMmzBFOCJ6vVIMuaNesP9wHV8KX/z0Tp4=
 github.com/julienschmidt/httprouter v0.0.0-20171027133709-e1b9828bc9e5/go.mod h1:SYymIcj16QtmaHHD7aYtjjsJG7VTCxuUUipMqKk8s4w=
+github.com/julsemaan/certmagic v0.6.2-packetfence h1:+ksYeMzSwya/gooOFXiThr/nQq6KYIRchhQKAYI14sg=
+github.com/julsemaan/certmagic v0.6.2-packetfence/go.mod h1:qUHHIckmObrz7k+QCp23Siw8R7eQPjsSgIc7p9zmKCM=
 github.com/kisielk/errcheck v1.1.0/go.mod h1:EZBBE59ingxPouuu3KfxchcWSUPOHkagtvWXihfKN4Q=
 github.com/kisielk/errcheck v1.2.0/go.mod h1:/BMXB+zMLi60iA8Vv6Ksmxu/1UDYcXs4uQLJ+jE2L00=
 github.com/kisielk/gotool v1.0.0/go.mod h1:XhKaO+MFFWcvkIS/tQcRk01m1F5IRFswLeQ+oQHNcck=
