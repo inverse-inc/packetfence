@@ -13,12 +13,11 @@ require (
 	github.com/hashicorp/golang-lru v0.0.0-20180201235237-0fb14efe8c47 // indirect
 	github.com/inverse-inc/packetfence/go v0.0.0-00010101000000-000000000000
 	github.com/jimstudt/http-authentication v0.0.0-20140401203705-3eca13d6893a
-	github.com/julsemaan/certmagic v0.6.2-packetfence
+	github.com/julsemaan/certmagic v0.6.3-0.20191015203349-067e102ae4ff
 	github.com/klauspost/cpuid v1.2.0
 	github.com/kylelemons/godebug v0.0.0-20170820004349-d65d576e9348 // indirect
 	github.com/lucas-clemente/quic-clients v0.1.0 // indirect
 	github.com/lucas-clemente/quic-go v0.11.0
-	github.com/mholt/certmagic v0.6.2-0.20190624175158-6a42ef9fe8c2
 	github.com/naoina/go-stringutil v0.1.0 // indirect
 	github.com/naoina/toml v0.1.1
 	github.com/onsi/ginkgo v1.8.0 // indirect

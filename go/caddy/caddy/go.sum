@@ -37,6 +37,7 @@ github.com/coreos/pkg v0.0.0-20180928190104-399ea9e2e55f/go.mod h1:E3G3o1h8I7cfc
 github.com/cpuguy83/go-md2man v1.0.10/go.mod h1:SmD6nW6nTyfqj6ABTjUi3V3JVMnlJmwcJI5acqYI6dE=
 github.com/davecgh/go-spew v1.1.0 h1:ZDRjVQ15GmhC3fiQ8ni8+OwkZQO4DARzQgrnXU1Liz8=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
+github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/dgrijalva/jwt-go v3.2.0+incompatible/go.mod h1:E3ru+11k8xSBh+hMPgOLZmtrrCbhqsmaPHjLKYnJCaQ=
 github.com/dgryski/go-csnappy v0.0.0-20150721071530-9d18391da197/go.mod h1:pfVCdwZVFFTOLP28KMboesC928sunsjfJ5xnLQojTsM=
@@ -138,6 +139,12 @@ github.com/julienschmidt/httprouter v0.0.0-20171027133709-e1b9828bc9e5 h1:cCilog
 github.com/julienschmidt/httprouter v0.0.0-20171027133709-e1b9828bc9e5/go.mod h1:SYymIcj16QtmaHHD7aYtjjsJG7VTCxuUUipMqKk8s4w=
 github.com/julsemaan/certmagic v0.6.2-packetfence h1:+ksYeMzSwya/gooOFXiThr/nQq6KYIRchhQKAYI14sg=
 github.com/julsemaan/certmagic v0.6.2-packetfence/go.mod h1:qUHHIckmObrz7k+QCp23Siw8R7eQPjsSgIc7p9zmKCM=
+github.com/julsemaan/certmagic v0.6.3-0.20191015190623-b8f9e1bf1d0d h1:HKOl4XweMGPvvIErtYbkJOndaW8JhHdeo3VLq4/mLZE=
+github.com/julsemaan/certmagic v0.6.3-0.20191015190623-b8f9e1bf1d0d/go.mod h1:qUHHIckmObrz7k+QCp23Siw8R7eQPjsSgIc7p9zmKCM=
+github.com/julsemaan/certmagic v0.6.3-0.20191015190858-fbfc8eb1c1d3 h1:3hlejkfPM+uno9tEWw/11/WRSOUWqb68NmR6yXPQOe0=
+github.com/julsemaan/certmagic v0.6.3-0.20191015190858-fbfc8eb1c1d3/go.mod h1:dLn2sf7w2v1/S9MzxcjEB0hd7z7Nmy6RKTO78AeB+xI=
+github.com/julsemaan/certmagic v0.6.3-0.20191015203349-067e102ae4ff h1:w0Qihh9m1pTiC6UwwnRLI6b1hn07rjfM6D6kJIVYmmU=
+github.com/julsemaan/certmagic v0.6.3-0.20191015203349-067e102ae4ff/go.mod h1:dLn2sf7w2v1/S9MzxcjEB0hd7z7Nmy6RKTO78AeB+xI=
 github.com/kisielk/errcheck v1.1.0/go.mod h1:EZBBE59ingxPouuu3KfxchcWSUPOHkagtvWXihfKN4Q=
 github.com/kisielk/errcheck v1.2.0/go.mod h1:/BMXB+zMLi60iA8Vv6Ksmxu/1UDYcXs4uQLJ+jE2L00=
 github.com/kisielk/gotool v1.0.0/go.mod h1:XhKaO+MFFWcvkIS/tQcRk01m1F5IRFswLeQ+oQHNcck=
