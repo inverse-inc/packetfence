@@ -29,7 +29,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/erikdubbelboer/gspt"
 	"github.com/google/uuid"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddyfile"
@@ -73,7 +72,7 @@ func init() {
 	flag.BoolVar(&toJSON, "caddyfile-to-json", false, "From Caddyfile stdin to JSON stdout")
 	flag.BoolVar(&version, "version", false, "Show version")
 	flag.BoolVar(&validate, "validate", false, "Parse the Caddyfile but do not start the server")
-	flag.StringVar(&psName, "process-name", "pfhttpd", "Name of the process as shown by ps")
+	flag.StringVar(&psName, "log-name", "pfhttpd", "Name of the process as sent to syslog")
 
 	caddy.RegisterCaddyfileLoader("flag", caddy.LoaderFunc(confLoader))
 	caddy.SetDefaultCaddyfileLoader("default", caddy.LoaderFunc(defaultLoader))
@@ -82,7 +81,6 @@ func init() {
 // Run is Caddy's main() function.
 func Run() {
 	flag.Parse()
-	gspt.SetProcTitle(psName)
 	pflog.ProcessName = psName
 
 	module := getBuildModule()
