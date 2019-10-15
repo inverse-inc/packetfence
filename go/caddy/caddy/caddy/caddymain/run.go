@@ -29,17 +29,21 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/erikdubbelboer/gspt"
+	"github.com/google/uuid"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddyfile"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddytls"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy/telemetry"
-	"github.com/google/uuid"
 	"github.com/klauspost/cpuid"
 	"github.com/mholt/certmagic"
 	lumberjack "gopkg.in/natefinch/lumberjack.v2"
 
 	_ "github.com/inverse-inc/packetfence/go/caddy/caddy/caddyhttp" // plug in the HTTP server type
 	// This is where other plugins get plugged in (imported)
+
+	//PACKETFENCE
+	pflog "github.com/inverse-inc/packetfence/go/log"
 )
 
 func init() {
@@ -69,6 +73,7 @@ func init() {
 	flag.BoolVar(&toJSON, "caddyfile-to-json", false, "From Caddyfile stdin to JSON stdout")
 	flag.BoolVar(&version, "version", false, "Show version")
 	flag.BoolVar(&validate, "validate", false, "Parse the Caddyfile but do not start the server")
+	flag.StringVar(&psName, "process-name", "pfhttpd", "Name of the process as shown by ps")
 
 	caddy.RegisterCaddyfileLoader("flag", caddy.LoaderFunc(confLoader))
 	caddy.SetDefaultCaddyfileLoader("default", caddy.LoaderFunc(defaultLoader))
@@ -77,6 +82,8 @@ func init() {
 // Run is Caddy's main() function.
 func Run() {
 	flag.Parse()
+	gspt.SetProcTitle(psName)
+	pflog.ProcessName = psName
 
 	module := getBuildModule()
 	cleanModVersion := strings.TrimPrefix(module.Version, "v")
@@ -599,6 +606,7 @@ var (
 	printEnv        bool
 	validate        bool
 	disabledMetrics string
+	psName          string
 )
 
 // EnableTelemetry defines whether telemetry is enabled in Run.
