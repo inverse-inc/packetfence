@@ -42,6 +42,17 @@ import (
 	// This is where other plugins get plugged in (imported)
 
 	//PACKETFENCE
+	_ "github.com/inverse-inc/packetfence/go/caddy/api-aaa"
+	_ "github.com/inverse-inc/packetfence/go/caddy/cors"
+	_ "github.com/inverse-inc/packetfence/go/caddy/forwardproxy"
+	_ "github.com/inverse-inc/packetfence/go/caddy/httpdispatcher"
+	_ "github.com/inverse-inc/packetfence/go/caddy/job-status"
+	_ "github.com/inverse-inc/packetfence/go/caddy/logger"
+	_ "github.com/inverse-inc/packetfence/go/caddy/pfconfig"
+	_ "github.com/inverse-inc/packetfence/go/caddy/pfipset"
+	_ "github.com/inverse-inc/packetfence/go/caddy/pfsso"
+	_ "github.com/inverse-inc/packetfence/go/caddy/requestlimit"
+	_ "github.com/inverse-inc/packetfence/go/caddy/statsd"
 	pflog "github.com/inverse-inc/packetfence/go/log"
 )
 

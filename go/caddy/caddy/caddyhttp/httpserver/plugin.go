@@ -632,6 +632,9 @@ var directives = []string{
 	"timeouts",
 	"tls",
 
+	//PACKETFENCE
+	"requestlimit",
+
 	// services/utilities, or other directives that don't necessarily inject handlers
 	"startup",  // TODO: Deprecate this directive
 	"shutdown", // TODO: Deprecate this directive
@@ -640,6 +643,10 @@ var directives = []string{
 	"request_id",
 	"realip", // github.com/captncraig/caddy-realip
 	"git",    // github.com/abiosoft/caddy-git
+
+	//PACKETFENCE
+	"logger",
+	"statsd",
 
 	// directives that add listener middleware to the stack
 	"proxyprotocol", // github.com/mastercactapus/caddy-proxyprotocol
@@ -653,6 +660,11 @@ var directives = []string{
 	"minify", // github.com/hacdias/caddy-minify
 	"gzip",
 	"header",
+
+	// PACKETFENCE
+	"cors",
+	"pfconfigpool",
+
 	"geoip", // github.com/kodnaplakal/caddy-geoip
 	"errors",
 	"authz",        // github.com/casbin/caddy-authz
@@ -663,9 +675,16 @@ var directives = []string{
 	"expires",      // github.com/epicagency/caddy-expires
 	"forwardproxy", // github.com/caddyserver/forwardproxy
 	"basicauth",
+
+	//PACKETFENCE
+	"api-aaa",
+
+	//PACKETFENCE
+	// Job status that takes precedence over proxying
+	"job-status",
+
 	"redir",
 	"status",
-	"cors",      // github.com/captncraig/cors/caddy
 	"s3browser", // github.com/techknowlogick/caddy-s3browser
 	"nobots",    // github.com/Xumeiquer/nobots
 	"mime",
@@ -701,6 +720,12 @@ var directives = []string{
 	"restic",    // github.com/restic/caddy
 	"wkd",       // github.com/emersion/caddy-wkd
 	"dyndns",    // github.com/linkonoid/caddy-dyndns
+
+	// PACKETFENCE service implementations
+	"forwardproxy",
+	"pfsso",
+	"pfipset",
+	"httpdispatcher",
 }
 
 const (
