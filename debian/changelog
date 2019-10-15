@@ -1,6 +1,6 @@
 packetfence (9.1.9-1) unstable; urgency=low
 
-  * Version 9.1.9-1. Adapt Debian packaging to CI.
+  * Adapt Debian packaging to CI.
 
  -- Inverse <info@inverse.ca>  Wed, 15 May 2019 12:00:00 -0400
 
