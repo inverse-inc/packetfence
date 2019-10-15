@@ -271,6 +271,7 @@ func NewSingleHostReverseProxy(target *url.URL, without string, keepalive int, t
 			Dial:                  dialFunc,
 			TLSHandshakeTimeout:   defaultCryptoHandshakeTimeout,
 			ExpectContinueTimeout: 1 * time.Second,
+			ResponseHeaderTimeout: 10 * time.Minute,
 		}
 		if keepalive == 0 {
 			transport.DisableKeepAlives = true
