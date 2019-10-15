@@ -33,10 +33,10 @@ BuildRequires: systemd
 
 # To handle migration from several packetfence packages
 # to only one
-Obsoletes: %{name}-remote-arp-sensor
-Obsoletes: %{name}-pfcmd-suid
-Obsoletes: %{name}-ntlm-wrapper
-Obsoletes: %{name}-config
+Obsoletes: %{name}-remote-arp-sensor <= 9.1.0
+Obsoletes: %{name}-pfcmd-suid <= 9.1.0
+Obsoletes: %{name}-ntlm-wrapper <= 9.1.0
+Obsoletes: %{name}-config <= 9.1.0
 
 AutoReqProv: 0
 
