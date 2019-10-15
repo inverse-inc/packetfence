@@ -117,6 +117,7 @@ sub backwardCompatibleToAttributes {
 
     if (lc($type) =~/^virtual/ ) {
             $self->transport("Virtual");
+            $self->isCLI($TRUE);
     }
 
     # We check if SNMP. If so, we return immediately while setting the flag
