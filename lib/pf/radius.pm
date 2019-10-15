@@ -298,23 +298,7 @@ sub authorize {
     $args->{'user_role'} = $role->{role};
 
     my $filter = pf::access_filter::switch->new;
-    my $switch_params = $filter->filter('radius_authorize', $args);
-
-    if (defined($switch_params)) {
-        foreach my $key (keys %{$switch_params}) {
-            if (ref($switch_params->{$key}) eq 'ARRAY') {
-                foreach my $param (@{$switch_params->{$key}}) {
-                    if ($param  =~ /([a-zA-Z_-]*)\s*=>\s*(.*)/) {
-                        $switch->{$key}->{$1} = $2;
-                    }
-                }
-            } elsif ($switch_params->{$key} =~ /([a-zA-Z_-]*)\s*=>\s*(.*)/) {
-                $switch->{$key}->{$1} = $2;
-            } else {
-                $switch->{$key} = $switch_params->{$key};
-            }
-        }
-    }
+    $filter->filterSwitch('radius_authorize',\$switch, $args);
 
     if (isenabled($switch->{_VlanMap})) {
         $vlan = $switch->getVlanByName($role->{role}) if (isenabled($switch->{_VlanMap}));
