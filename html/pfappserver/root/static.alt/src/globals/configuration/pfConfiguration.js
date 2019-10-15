@@ -27,7 +27,8 @@ const {
   maxValue,
   minValue,
   numeric,
-  required
+  required,
+  url
 } = require('vuelidate/lib/validators')
 
 export const pfConfigurationOptionsSearchFunction = (context) => {
@@ -216,6 +217,35 @@ export const pfConfigurationAuthenticationSourceRulesConditionFieldsFromMeta = (
   return fields
 }
 
+export const pfConfigurationActionsFromMeta = (meta = {}, key = null) => {
+  let fields = []
+  if (Object.keys(meta).length > 0) {
+    while (key.includes('.')) { // handle dot-notation keys ('.')
+      let [ first, ...remainder ] = key.split('.')
+      if (!(first in meta)) return {}
+      key = remainder.join('.')
+      let { [first]: { item: { properties: _collectionMeta } = {}, properties: _meta } } = meta
+      if (_collectionMeta) {
+        meta = _collectionMeta // swap ref to child
+      } else {
+        meta = _meta // swap ref to child
+      }
+    }
+    let { [key]: { allowed } = {} } = meta
+    if (allowed) {
+      allowed.forEach(type => {
+        if (pfConfigurationActions[type.value]) {
+          fields.push(pfConfigurationActions[type.value])
+        } else {
+          // eslint-disable-next-line
+          console.error(`Unknown configuration action ${type.text} (${type.value})`)
+        }
+      })
+    }
+  }
+  return fields
+}
+
 export const pfConfigurationValidatorsFromMeta = (meta = {}, key = null, fieldName = 'Value') => {
   let validators = {}
   if (Object.keys(meta).length > 0) {
@@ -300,6 +330,65 @@ export const pfConfigurationLocales = [
 ].map(locale => { return { text: locale, value: locale } })
 
 export const pfConfigurationActions = {
+  bandwidth_balance_from_source: {
+    value: 'bandwidth_balance_from_source',
+    text: i18n.t('Set the bandwidth balance from the auth source'),
+    types: [fieldType.NONE],
+    validators: {
+      type: {
+        /* Don't allow elsewhere */
+        [i18n.t('Duplicate action.')]: limitSiblingFields('type', 0)
+      }
+    }
+  },
+  default_actions: {
+    value: 'default_actions',
+    text: i18n.t('Execute module default actions'),
+    types: [fieldType.NONE],
+    validators: {
+      type: {
+        /* Don't allow elsewhere */
+        [i18n.t('Duplicate action.')]: limitSiblingFields('type', 0)
+      }
+    }
+  },
+  destination_url: {
+    value: 'destination_url',
+    text: i18n.t('Destination URL'),
+    types: [fieldType.URL],
+    validators: {
+      type: {
+        /* Don't allow elsewhere */
+        [i18n.t('Duplicate action.')]: limitSiblingFields('type', 0)
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Value must be a URL.')]: url
+      }
+    }
+  },
+  on_failure: {
+    value: 'on_failure',
+    text: i18n.t('on_failure'),
+    types: [fieldType.ROOT_PORTAL_MODULE],
+    validators: {
+      type: {
+        /* Don't allow elsewhere */
+        [i18n.t('Duplicate action.')]: limitSiblingFields('type', 0)
+      }
+    }
+  },
+  on_success: {
+    value: 'on_success',
+    text: i18n.t('on_success'),
+    types: [fieldType.ROOT_PORTAL_MODULE],
+    validators: {
+      type: {
+        /* Don't allow elsewhere */
+        [i18n.t('Duplicate action.')]: limitSiblingFields('type', 0)
+      }
+    }
+  },
   set_access_duration: {
     value: 'set_access_duration',
     text: i18n.t('Access duration'),
@@ -308,8 +397,8 @@ export const pfConfigurationActions = {
       type: {
         /* Require "set_role" */
         [i18n.t('Action requires "Set Role".')]: requireAllSiblingFields('type', 'set_role'),
-        /* Restrict "set_unreg_date" */
-        [i18n.t('Action conflicts with "Unregistration date".')]: restrictAllSiblingFields('type', 'set_unreg_date'),
+        /* Restrict "set_unregdate" */
+        [i18n.t('Action conflicts with "Unregistration date".')]: restrictAllSiblingFields('type', 'set_unregdate'),
         /* Don't allow elsewhere */
         [i18n.t('Duplicate action.')]: limitSiblingFields('type', 0)
       },
@@ -371,14 +460,36 @@ export const pfConfigurationActions = {
       }
     }
   },
+  no_action: {
+    value: 'no_action',
+    text: i18n.t(`Don't do any action`),
+    types: [fieldType.NONE],
+    validators: {
+      type: {
+        /* Don't allow any other action */
+        [i18n.t('No other option must be defined.')]: limitSiblingFields([], 0)
+      }
+    }
+  },
+  role_from_source: {
+    value: 'role_from_source',
+    text: i18n.t('Set role from the authentication source'),
+    types: [fieldType.NONE],
+    validators: {
+      type: {
+        /* Don't allow elsewhere */
+        [i18n.t('Duplicate action.')]: limitSiblingFields('type', 0)
+      }
+    }
+  },
   set_role: {
     value: 'set_role',
     text: i18n.t('Role'),
     types: [fieldType.ROLE],
     validators: {
       type: {
-        /* When "Role" is selected, either "Time Balance" or "set_unreg_date" is required */
-        [i18n.t('Action requires either "Access duration" or "Unregistration date".')]: requireAnySiblingFields('type', 'set_access_duration', 'set_unreg_date'),
+        /* When "Role" is selected, either "Time Balance" or "set_unregdate" is required */
+        [i18n.t('Action requires either "Access duration" or "Unregistration date".')]: requireAnySiblingFields('type', 'set_access_duration', 'set_unregdate'),
         /* Don't allow elsewhere */
         [i18n.t('Duplicate action.')]: limitSiblingFields('type', 0)
       },
@@ -393,8 +504,8 @@ export const pfConfigurationActions = {
     types: [fieldType.ROLE_BY_NAME],
     validators: {
       type: {
-        /* When "Role" is selected, either "Time Balance" or "set_unreg_date" is required */
-        [i18n.t('Action requires either "Access duration" or "Unregistration date".')]: requireAnySiblingFields('type', 'set_access_duration', 'set_unreg_date'),
+        /* When "Role" is selected, either "Time Balance" or "set_unregdate" is required */
+        [i18n.t('Action requires either "Access duration" or "Unregistration date".')]: requireAnySiblingFields('type', 'set_access_duration', 'set_unregdate'),
         /* Don't allow elsewhere */
         [i18n.t('Duplicate action.')]: limitSiblingFields('type', 0)
       },
@@ -432,8 +543,8 @@ export const pfConfigurationActions = {
       }
     }
   },
-  set_unreg_date: {
-    value: 'set_unreg_date',
+  set_unregdate: {
+    value: 'set_unregdate',
     text: i18n.t('Unregistration date'),
     /* TODO - Workaround for Issue #4672
      * types: [fieldType.DATETIME],
@@ -451,6 +562,39 @@ export const pfConfigurationActions = {
       },
       value: {
         [i18n.t('Invalid date.')]: isDateFormat(schema.node.unregdate.datetimeFormat)
+      }
+    }
+  },
+  time_balance_from_source: {
+    value: 'time_balance_from_source',
+    text: i18n.t('Set the time balance from the auth source'),
+    types: [fieldType.NONE],
+    validators: {
+      type: {
+        /* Don't allow elsewhere */
+        [i18n.t('Duplicate action.')]: limitSiblingFields('type', 0)
+      }
+    }
+  },
+  unregdate_from_source: {
+    value: 'unregdate_from_source',
+    text: i18n.t('Set unregistration date from the authentication source'),
+    types: [fieldType.NONE],
+    validators: {
+      type: {
+        /* Don't allow elsewhere */
+        [i18n.t('Duplicate action.')]: limitSiblingFields('type', 0)
+      }
+    }
+  },
+  unregdate_from_sponsor_source: {
+    value: 'unregdate_from_sponsor_source',
+    text: i18n.t('Set unregistration date from the sponsor source'),
+    types: [fieldType.NONE],
+    validators: {
+      type: {
+        /* Don't allow elsewhere */
+        [i18n.t('Duplicate action.')]: limitSiblingFields('type', 0)
       }
     }
   }

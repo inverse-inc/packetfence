@@ -25,12 +25,13 @@
     </b-col>
     <b-col sm="6" align-self="start" class="pl-1">
 
-      <!-- Types: OPTIONS, ADMINROLE, ROLE, ROLE_BY_NAME, TENANT, DURATION, DURATIONS, TIME_BALANCE -->
+      <!-- Types: OPTIONS, ADMINROLE, ROLE, ROLE_BY_NAME, ROOT_PORTAL_MODULE, TENANT, DURATION, DURATIONS, TIME_BALANCE -->
       <pf-form-chosen v-if="
           isFieldType(optionsType) ||
           isFieldType(adminroleValueType) ||
           isFieldType(roleValueType) ||
           isFieldType(roleByNameValueType) ||
+          isFieldType(rootPortalModuleType) ||
           isFieldType(tenantValueType) ||
           isFieldType(durationValueType) ||
           isFieldType(durationsValueType) ||
@@ -158,6 +159,7 @@ export default {
       durationsValueType:       fieldType.DURATIONS,
       roleValueType:            fieldType.ROLE,
       roleByNameValueType:      fieldType.ROLE_BY_NAME,
+      rootPortalModuleType:     fieldType.ROOT_PORTAL_MODULE,
       tenantValueType:          fieldType.TENANT
     }
   },
