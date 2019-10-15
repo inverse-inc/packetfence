@@ -13,7 +13,15 @@ use pf::file_paths qw($template_switches_default_config_file);
 my $def_dir = abs_path( "$Bin/../../../lib/pf/Switch" ) ;
 my $conf_dir = abs_path( "$Bin/../../../conf" ) ;
 
-my $default_ini = pf::IniFiles->new();
+my $default_ini = pf::IniFiles->new( -fallback => '__GENERAL__');
+$default_ini->{fallback_used} = 1;
+#Adding the comments at the 
+$default_ini->AddSection('__GENERAL__');
+$default_ini->SetSectionComment(
+    '__GENERAL__',
+    "Do not edit file",
+    "Changes will be lost on upgrade",
+);
 my $builder = pf::config::builder::template_switches->new;
 # Traverse desired filesystems
 #File::Find::find({wanted => \&wanted}, $def_dir);
@@ -43,8 +51,17 @@ for my $file (sort @files) {
     }
 
     $default_ini->AddSection($name);
+    my @comments = $ini->GetSectionComment($name);
+    if (@comments && defined $comments[0]) {
+        $default_ini->SetSectionComment($name, @comments);
+    }
+
     for my $p ($ini->Parameters($name)) {
         $default_ini->newval($name, $p, $ini->val($name, $p));   
+        my @comments = $ini->GetParameterComment($name, $p);
+        if (@comments && defined $comments[0]) {
+            $default_ini->SetParameterComment($name, $p, @comments);
+        }
     }
 }
 

@@ -1,4 +1,9 @@
+# Do not edit file
+# Changes will be lost on upgrade
+
 [PacketFence::Standard]
+# Do not edit.
+# Any changes will be lost on upgrade.
 description=Standard Switch
 radiusDisconnect=disconnect
 acceptVlan= <<EOT
