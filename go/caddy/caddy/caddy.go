@@ -43,6 +43,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/coreos/go-systemd/daemon"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddyfile"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy/telemetry"
 )
@@ -183,6 +184,14 @@ func (i *Instance) ShutdownCallbacks() []error {
 // instance to replace i. Upon failure, i will not be replaced.
 func (i *Instance) Restart(newCaddyfile Input) (*Instance, error) {
 	log.Println("[INFO] Reloading")
+	daemon.SdNotify(true, "RELOADING=1")
+	defer func() {
+		// notify systemd that startup is complete
+		_, err := daemon.SdNotify(true, "READY=1")
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "Error sending systemd ready notification %s", err.Error())
+		}
+	}()
 
 	i.wg.Add(1)
 	defer i.wg.Done()
@@ -469,6 +478,14 @@ func (i *Instance) Caddyfile() Input {
 //
 // This function blocks until all the servers are listening.
 func Start(cdyfile Input) (*Instance, error) {
+	defer func() {
+		// notify systemd that startup is complete
+		_, err := daemon.SdNotify(true, "READY=1")
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "Error sending systemd ready notification %s", err.Error())
+		}
+	}()
+
 	inst := &Instance{serverType: cdyfile.ServerType(), wg: new(sync.WaitGroup), Storage: make(map[interface{}]interface{})}
 	err := startWithListenerFds(cdyfile, inst, nil)
 	if err != nil {
