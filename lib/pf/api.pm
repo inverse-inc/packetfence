@@ -356,23 +356,7 @@ sub ReAssignVlan : Public : Fork {
     }
 
     my $filter = pf::access_filter::switch->new;
-    my $switch_params = $filter->filter('reevaluate', $postdata);
-
-    if (defined($switch_params)) {
-        foreach my $key (keys %{$switch_params}) {
-            if (ref($switch_params->{$key}) eq 'ARRAY') {
-                foreach my $param (@{$switch_params->{$key}}) {
-                    if ($param  =~ /([a-zA-Z_-]*)\s*=>\s*(.*)/) {
-                        $switch->{$key}->{$1} = $2;
-                    }
-                }
-            } elsif ($switch_params->{$key} =~ /([a-zA-Z_-]*)\s*=>\s*(.*)/) {
-                $switch->{$key}->{$1} = $2;
-            } else {
-                $switch->{$key} = $switch_params->{$key};
-            }
-        }
-    }
+    $filter->filterSwitch('reevaluate',\$switch, $postdata);
 
     sleep $pf::config::Config{'fencing'}{'wait_for_redirect'};
 
@@ -419,23 +403,7 @@ sub desAssociate : Public : Fork {
     my ($switchdeauthMethod, $deauthTechniques) = $switch->deauthTechniques($switch->{'_deauthMethod'});
 
     my $filter = pf::access_filter::switch->new;
-    my $switch_params = $filter->filter('reevaluate', $postdata);
-
-    if (defined($switch_params)) {
-        foreach my $key (keys %{$switch_params}) {
-            if (ref($switch_params->{$key}) eq 'ARRAY') {
-                foreach my $param (@{$switch_params->{$key}}) {
-                    if ($param  =~ /([a-zA-Z_-]*)\s*=>\s*(.*)/) {
-                        $switch->{$key}->{$1} = $2;
-                    }
-                }
-            } elsif ($switch_params->{$key} =~ /([a-zA-Z_-]*)\s*=>\s*(.*)/) {
-                $switch->{$key}->{$1} = $2;
-            } else {
-                $switch->{$key} = $switch_params->{$key};
-            }
-        }
-    }
+    $filter->filterSwitch('reevaluate',\$switch, $postdata);
 
     # sleep long enough to give the device enough time to fetch the redirection page.
     sleep $pf::config::Config{'fencing'}{'wait_for_redirect'};
