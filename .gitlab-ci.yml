@@ -37,6 +37,7 @@ variables:
     - schedules
     - web
     - /^stable$/
+    - /^devel$/
   tags:
     - docker
 
@@ -49,6 +50,7 @@ variables:
   script:
     - ./$CIDIR/debian/convert-to-native-package.sh
     - cp $CIDIR/debian/.devscripts $HOME
+    - quilt push
     - ci-build-pkg $DEB_DIR
   variables:
     QUILT_PATCHES: $DEB_DIR/patches
@@ -107,6 +109,7 @@ sign:
     - schedules
     - web
     - /^stable$/
+    - /^devel$/
   tags:
     - shell
 
@@ -134,5 +137,6 @@ pages:
     - schedules
     - web
     - /^stable$/
+    - /^devel$/
   tags:
     - shell
