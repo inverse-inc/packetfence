@@ -1,3 +1,17 @@
+// Copyright 2015 Light Code Labs, LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package caddy
 
 import (
@@ -57,36 +71,56 @@ func (c *Controller) ServerType() string {
 // OnFirstStartup adds fn to the list of callback functions to execute
 // when the server is about to be started NOT as part of a restart.
 func (c *Controller) OnFirstStartup(fn func() error) {
-	c.instance.onFirstStartup = append(c.instance.onFirstStartup, fn)
+	c.instance.OnFirstStartup = append(c.instance.OnFirstStartup, fn)
 }
 
 // OnStartup adds fn to the list of callback functions to execute
 // when the server is about to be started (including restarts).
 func (c *Controller) OnStartup(fn func() error) {
-	c.instance.onStartup = append(c.instance.onStartup, fn)
+	c.instance.OnStartup = append(c.instance.OnStartup, fn)
 }
 
 // OnRestart adds fn to the list of callback functions to execute
 // when the server is about to be restarted.
 func (c *Controller) OnRestart(fn func() error) {
-	c.instance.onRestart = append(c.instance.onRestart, fn)
+	c.instance.OnRestart = append(c.instance.OnRestart, fn)
+}
+
+// OnRestartFailed adds fn to the list of callback functions to execute
+// if the server failed to restart.
+func (c *Controller) OnRestartFailed(fn func() error) {
+	c.instance.OnRestartFailed = append(c.instance.OnRestartFailed, fn)
 }
 
 // OnShutdown adds fn to the list of callback functions to execute
 // when the server is about to be shut down (including restarts).
 func (c *Controller) OnShutdown(fn func() error) {
-	c.instance.onShutdown = append(c.instance.onShutdown, fn)
+	c.instance.OnShutdown = append(c.instance.OnShutdown, fn)
 }
 
 // OnFinalShutdown adds fn to the list of callback functions to execute
 // when the server is about to be shut down NOT as part of a restart.
 func (c *Controller) OnFinalShutdown(fn func() error) {
-	c.instance.onFinalShutdown = append(c.instance.onFinalShutdown, fn)
+	c.instance.OnFinalShutdown = append(c.instance.OnFinalShutdown, fn)
 }
 
 // Context gets the context associated with the instance associated with c.
 func (c *Controller) Context() Context {
 	return c.instance.context
+}
+
+// Get safely gets a value from the Instance's storage.
+func (c *Controller) Get(key interface{}) interface{} {
+	c.instance.StorageMu.RLock()
+	defer c.instance.StorageMu.RUnlock()
+	return c.instance.Storage[key]
+}
+
+// Set safely sets a value on the Instance's storage.
+func (c *Controller) Set(key, val interface{}) {
+	c.instance.StorageMu.Lock()
+	c.instance.Storage[key] = val
+	c.instance.StorageMu.Unlock()
 }
 
 // NewTestController creates a new Controller for
@@ -99,12 +133,12 @@ func (c *Controller) Context() Context {
 // Used only for testing, but exported so plugins can
 // use this for convenience.
 func NewTestController(serverType, input string) *Controller {
-	var ctx Context
+	testInst := &Instance{serverType: serverType, Storage: make(map[interface{}]interface{})}
 	if stype, err := getServerType(serverType); err == nil {
-		ctx = stype.NewContext()
+		testInst.context = stype.NewContext(testInst)
 	}
 	return &Controller{
-		instance:           &Instance{serverType: serverType, context: ctx},
+		instance:           testInst,
 		Dispenser:          caddyfile.NewDispenser("Testfile", strings.NewReader(input)),
 		OncePerServerBlock: func(f func() error) error { return f() },
 	}

@@ -1,3 +1,17 @@
+// Copyright 2015 Light Code Labs, LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 // Package basicauth implements HTTP Basic Authentication for Caddy.
 //
 // This is useful for simple protections on a website, like requiring
@@ -7,18 +21,20 @@ package basicauth
 
 import (
 	"bufio"
+	"context"
 	"crypto/sha1"
 	"crypto/subtle"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
 	"sync"
 
-	"github.com/jimstudt/http-authentication/basic"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddyhttp/httpserver"
+	"github.com/jimstudt/http-authentication/basic"
 )
 
 // BasicAuth is middleware to protect resources with a username and password.
@@ -35,6 +51,16 @@ type BasicAuth struct {
 // ServeHTTP implements the httpserver.Handler interface.
 func (a BasicAuth) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
 	var protected, isAuthenticated bool
+	var realm string
+	var username string
+	var password string
+	var ok bool
+
+	// do not check for basic auth on OPTIONS call
+	if r.Method == http.MethodOptions {
+		// Pass-through when no paths match
+		return a.Next.ServeHTTP(w, r)
+	}
 
 	for _, rule := range a.Rules {
 		for _, res := range rule.Resources {
@@ -44,9 +70,10 @@ func (a BasicAuth) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error
 
 			// path matches; this endpoint is protected
 			protected = true
+			realm = rule.Realm
 
 			// parse auth header
-			username, password, ok := r.BasicAuth()
+			username, password, ok = r.BasicAuth()
 
 			// check credentials
 			if !ok ||
@@ -58,8 +85,14 @@ func (a BasicAuth) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error
 			// by this point, authentication was successful
 			isAuthenticated = true
 
-			// remove credentials from request to avoid leaking upstream
-			r.Header.Del("Authorization")
+			// let upstream middleware (e.g. fastcgi and cgi) know about authenticated
+			// user; this replaces the request with a wrapped instance
+			r = r.WithContext(context.WithValue(r.Context(),
+				httpserver.RemoteUserCtxKey, username))
+
+			// Provide username to be used in log by replacer
+			repl := httpserver.NewReplacer(r, nil, "-")
+			repl.Set("user", username)
 		}
 	}
 
@@ -67,8 +100,17 @@ func (a BasicAuth) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error
 		// browsers show a message that says something like:
 		// "The website says: <realm>"
 		// which is kinda dumb, but whatever.
-		w.Header().Set("WWW-Authenticate", "Basic realm=\"Restricted\"")
-		return http.StatusUnauthorized, nil
+		if realm == "" {
+			realm = "Restricted"
+		}
+		w.Header().Set("WWW-Authenticate", "Basic realm=\""+realm+"\"")
+
+		// Get a replacer so we can provide basic info for the authentication error.
+		repl := httpserver.NewReplacer(r, nil, "-")
+		repl.Set("user", username)
+		errstr := repl.Replace("BasicAuth: user \"{user}\" was not found or password was incorrect. {remote} {host} {uri} {proto}")
+		err := fmt.Errorf("%s", errstr)
+		return http.StatusUnauthorized, err
 	}
 
 	// Pass-through when no paths match
@@ -82,6 +124,7 @@ type Rule struct {
 	Username  string
 	Password  func(string) bool
 	Resources []string
+	Realm     string // See RFC 1945 and RFC 2617, default: "Restricted"
 }
 
 // PasswordMatcher determines whether a password matches a rule.
@@ -151,11 +194,15 @@ func PlainMatcher(passw string) PasswordMatcher {
 	// compare hashes of equal length instead of actual password
 	// to avoid leaking password length
 	passwHash := sha1.New()
-	passwHash.Write([]byte(passw))
+	if _, err := passwHash.Write([]byte(passw)); err != nil {
+		log.Printf("[ERROR] unable to write password hash: %v", err)
+	}
 	passwSum := passwHash.Sum(nil)
 	return func(pw string) bool {
 		pwHash := sha1.New()
-		pwHash.Write([]byte(pw))
+		if _, err := pwHash.Write([]byte(pw)); err != nil {
+			log.Printf("[ERROR] unable to write password hash: %v", err)
+		}
 		pwSum := pwHash.Sum(nil)
 		return subtle.ConstantTimeCompare([]byte(pwSum), []byte(passwSum)) == 1
 	}

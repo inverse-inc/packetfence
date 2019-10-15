@@ -1,6 +1,22 @@
+// Copyright 2015 Light Code Labs, LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package websocket
 
 import (
+	"strconv"
+
 	"github.com/inverse-inc/packetfence/go/caddy/caddy"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddyhttp/httpserver"
 )
@@ -31,21 +47,38 @@ func setup(c *caddy.Controller) error {
 
 func webSocketParse(c *caddy.Controller) ([]Config, error) {
 	var websocks []Config
-	var respawn bool
-
-	optionalBlock := func() (hadBlock bool, err error) {
-		for c.NextBlock() {
-			hadBlock = true
-			if c.Val() == "respawn" {
-				respawn = true
-			} else {
-				return true, c.Err("Expected websocket configuration parameter in block")
-			}
-		}
-		return
-	}
 
 	for c.Next() {
+		var respawn bool
+		var wsType string
+		var bufSize int
+
+		optionalBlock := func() (hadBlock bool, err error) {
+			for c.NextBlock() {
+				hadBlock = true
+				if c.Val() == "respawn" {
+					respawn = true
+				} else if c.Val() == "type" {
+					arg := c.RemainingArgs()
+					if len(arg) > 0 {
+						wsType = arg[0]
+					}
+				} else if c.Val() == "bufsize" {
+					arg := c.RemainingArgs()
+					if len(arg) > 0 {
+						var err error
+						bufSize, err = strconv.Atoi(arg[0])
+						if (bufSize < 0) || (err != nil) {
+							bufSize = 0
+						}
+					}
+				} else {
+					return true, c.Err("Expected websocket configuration parameter in block")
+				}
+			}
+			return
+		}
+
 		var val, path, command string
 
 		// Path or command; not sure which yet
@@ -83,11 +116,17 @@ func webSocketParse(c *caddy.Controller) ([]Config, error) {
 			return nil, err
 		}
 
+		if wsType == "" {
+			wsType = "lines"
+		}
+
 		websocks = append(websocks, Config{
 			Path:      path,
 			Command:   cmd,
 			Arguments: args,
 			Respawn:   respawn, // TODO: This isn't used currently
+			Type:      wsType,
+			BufSize:   bufSize,
 		})
 	}
 

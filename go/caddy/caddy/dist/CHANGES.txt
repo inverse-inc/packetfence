@@ -1,5 +1,296 @@
 CHANGES
 
+1.0.3 (August 14, 2019)
+- Hotfix for address parsing regression
+
+
+1.0.2 (August 13, 2019)
+- Built with Go 1.12.8 to patch HTTP/2 vulnerabilities
+- Static file server now serves pre-compressed Zstd files
+- websocket: Improvements for custom message types
+
+
+1.0.1 (July 2, 2019)
+- Move repo and module paths to github.com/inverse-inc/packetfence/go/caddy/caddy
+- New third-party plugin: pubsub
+- gzip: Automatically compress .wasm files
+- tls: Clean up locks from ACME operations on soft exit
+- tls: Deprecate 'max_certs' (use 'ask' instead)
+- tls: Improvements to on-demand TLS
+- Several other bug fixes
+
+
+1.0.0 (April 24, 2019)
+- Minor internal/linting improvements
+- EULA no longer applies
+- Backwards compatibility goal (see project repo)
+
+
+1.0.0-beta2 (April 20, 2019)
+- Continue migration to Go modules
+- Eliminate need for special build script
+- Internal changes for better compatibility
+
+
+1.0.0-beta1 (April 9, 2019)
+- Major internal changes (Go modules & remove vendor)
+- Rename -env flag to -envfile
+- New -env flag to print the environment
+- New 'dyndns' directive
+- proxy: Manipulate headers using regular expressions
+- A few bug fixes
+
+
+0.11.5 (March 4, 2019)
+- TLS 1.3
+- Built with Go 1.12
+- More organized output at startup
+- internal: Paths are now hidden from other middlewares
+- staticfiles: Allow HEAD method
+- tls: TLS 1.3 default max version (1.2 still default min)
+- tls: Better handling of empty ACME email addresses
+- tls: Removed CBC ciphers from defaults
+- Other minor improvements and bug fixes
+
+
+0.11.4 (February 15, 2019)
+- New -json-to-caddyfile and -caddyfile-to-json flags
+- Fix leaking logging goroutine on SIGUSR1
+- basicauth: Error is logged when authentication fails
+- proxy: Fix bug by re-adding pre-existing trailing slashes
+- tls: Fix bug related to certificate storage path
+
+
+0.11.3 (February 5, 2019)
+- New {server_port} placeholder
+- New third-party plugin: extauth
+- New flags -log-roll-mb and -log-roll-compress
+- basicauth: Bypass for OPTIONS method
+- errors/log: Ability to disable log rolling
+- proxy: New subdirective 'ca_certificates'
+- staticfiles: Require GET method to serve static files
+- tls: Fixes to self-signed certs, IP certs, email prompts, & more
+- SOLVED REGRESSIONS: #2356, #2414
+- A number of other important fixes and improvements
+
+
+0.11.2 (January 16, 2019)
+- Extracted automagic TLS code into CertMagic library
+- Add support for new clustering plugins
+- New placeholder: '{when_iso_local}'
+- New third-party plugins: s3browser, filebrowser
+- Removed third-party plugins: jekyll, hugo
+- bind: Support multiple interface values
+- import: Can now be used within directive blocks
+- proxy: Status 499 when clients close connection early
+- templates: No longer emit ETag and Last-Modified headers
+- tls: Support for the ACME TLS-ALPN-01 challenge
+- KNOWN/UNRESOLVED REGRESSIONS: #2356, #2414
+- Several bug fixes and minor improvements
+
+
+0.11.1 (November 12, 2018)
+- New -env-file flag to load environment from file
+- New event type 'instancerestart'
+- fastcgi: Strip PATH_INFO from SCRIPT_FILENAME
+- fastcgi: Add REQUEST_SCHEME to environment
+- gzip: Compress .m3u and .m3u8 files by default
+- telemetry: Honor CADDY_UUID_FILE env variable
+- templates: New .TLSVersion action
+- tls: Remove remaining RSA_CBC cipher suites from defaults
+- tls: Raise alert if no certificate matches exactly
+- Numerous other bug fixes and improvements
+
+
+0.11 (May 10, 2018)
+- Built with Go 1.10.2
+- Integrated optional telemetry client
+- proxy: Fixed file descriptor leak
+
+
+0.10.14 (April 19, 2018)
+- tls: Fix error handling bug when obtaining certificates
+
+
+0.10.13 (April 18, 2018)
+- New third-party plugin: supervisor
+- Updated QUIC
+- proxy: Fix transparent pass-thru of X-Forwarded-For
+- proxy: Configurable timeout to upstream
+- rewrite: Now supports regular expressions on single-line
+- tls: StrictHostMatching mode to prevent client auth bypass
+- tls: Disable client auth when using QUIC
+- tls: Require same client auth cert pools per hostname
+- tls: Prevent On-Demand TLS directory traversal
+- tls: Fix empty files when using ACME fails to obtain cert
+- Fixed test broken by 1.1.1.1 resolving
+- Improved Caddyfile parser robustness by fuzzing
+
+
+0.10.12 (March 27, 2018)
+- Switch to Let's Encrypt ACMEv2 production endpoint
+- Support for automated wildcard certificates
+- Support distributed solving of HTTP-01 challenge
+- New {labelN}, {tls_cipher}, and {tls_version} placeholders
+- Curly braces can now be escaped when not used as placeholders
+- New third-party plugin: geoip
+- Updated QUIC
+- fastcgi: Add SSL_CIPHER and SSL_PROTOCOL environment variables
+- log: New 'except' subdirective to exempt paths from logging
+- startup/shutdown: Removed in favor of 'on'
+- tls: Default minimum version is TLS 1.2
+- tls: Revert to fallback cert if no cert matches SNI
+- tls: New 'wildcard' subdirective to force automated wildcard cert
+- Several significant bug fixes and improvements!
+
+
+0.10.11 (February 20, 2018)
+- Built with Go 1.10
+- Reusable snippets for the Caddyfile
+- Updated QUIC
+- Auto-HTTPS certificates may be shared by multiple instances
+- Expand globbed values in -conf flag
+- Swap behavior of SIGTERM and SIGQUIT; ignore SIGHUP
+- 9 new DNS provider plugins for the ACME DNS challenge
+- New placeholder for {<Response-Header} values
+- basicauth: Username put in {user} placeholder
+- fastcgi: GET requests can now send a body
+- proxy: Service discovery with DNS SRV load balancing
+- request_id: Allow reusing request ID from header field
+- tls: Improved efficiency of many certificates and reloads
+- tls: Raise error if conflicting TLS configurations collide
+- tls: Raise TLS alert if SNI used and no cert matched
+- tls: Reject OCSP responses that expire after the certificate
+- tls: Clients can use SNI to request a specific certificate
+- tls: Add option for backend to approve on-demand certificate
+- tls: Synchronize maintenance of shared, managed certificates
+- Numerous fabulous bug fixes
+
+
+0.10.10 (October 9, 2017)
+- Built with Go 1.9.1
+- Removed Caddy-Sponsors header
+- New 'on' directive that deprecates 'startup' and 'shutdown'
+- Changed CASE_SENSITIVE_PATH default to false
+- fastcgi: Support for SRV upstreams
+- redir: Rules with if statements are not checked for duplicates
+- Several minor bug fixes
+
+
+0.10.9 (September 12, 2017)
+- EULA bundled with official binaries
+- Caddy-Sponsors header to indicate personal-use license
+- proxy: Support for QUIC backends
+- templates: Write proper status code if proxied
+- tls: Fix bug related to cert renewals
+
+
+0.10.8 (September 8, 2017)
+- NACL compilation support
+- Merge multiple consecutive slashes when comparing paths
+- A few other bug fixes
+
+
+0.10.7 (August 25, 2017)
+- Built with Go 1.9
+- New 3rd-party plugin directives: jekyll, awses, forwardproxy
+- Different exit codes
+- Plan 9 support
+- Graceful binary upgrades with SIGUSR2
+- internal: Support X-Accel-Redir without paths to protect
+- templates: Can execute templates loaded by other middleware
+- A few really good bug fixes
+
+
+0.10.6 (July 28, 2017)
+- fastcgi: Fix runtime error for 32-bit and ARM architectures
+
+
+0.10.5 (July 27, 2017)
+- Renamed requestid directive to request_id
+- Set default idle timeout of 5 minutes
+- New 3rd-party plugin directives: cache, nobots, webdav
+- New Unix timestamp placeholder {when_unix}
+- Improved MITM detection on iOS clients
+- errors, log: Fix log rolling parsing
+- gzip: Convert any ETag header to weak etag
+- fastcgi: Reverted persistent connections (issue #1736)
+- proxy: Added header loaded balancing policy
+- proxy: Fix hang on chunked WebSockets (e.g. with HomeAssistant)
+- Several other bug fixes and minor internal improvements
+
+
+0.10.4 (June 28, 2017)
+- Vendor all dependencies
+- Improve MITM detection, add experimental Tor browser support
+- New requestid directive to add request IDs to each request
+- New HTTP plugins supported: authz, grpc, gopkg, reauth, restic
+- browse: Refreshed default UI and added symlink indicators
+- errors, log: Added rotate_compress directive to compress rolled logs
+- markdown: Template files loaded at each request instead of just once
+- proxy: Allow multiple Server header fields on downstream response
+- proxy: Perform health checks by body substring
+- rewrite,redir: Added 'not_starts_with' and 'not_ends_with' operators
+- tls: New ca subdirective to specify CA endpoint per-site
+- Several bug fixes
+
+
+0.10.3 (May 19, 2017)
+- Replace 'maxrequestbody' directive with 'limits' directive
+- proxy: Configurable port for health check
+- proxy: New load balance policy: uri_hash
+- templates: Renamed .Push context action to .AddLink
+- tls: Allow narrower certificate renewal window at startup (#1680)
+- tls: Prefer ChaCha20 if hardware does not have AES-NI
+
+
+0.10.2 (May 2, 2017)
+- Hot fix for rule paths of "/" so that they match every request
+- fastcgi: Match request paths that don't start with "/" even if rule does
+
+
+0.10.1 (May 1, 2017)
+- Reduced memory usage for gzip, templates, and MITM detection
+- Fixed automatic HTTP->HTTPS redirects for sites with wildcard labels
+- proxy: Fix 'without' subdirective
+- A few other minor bug fixes and improvements
+
+
+0.10 (April 20, 2017)
+- Built on Go 1.8.1
+- HTTPS interception detection
+- Updated QUIC
+- SIGUSR1 (reload) now works with QUIC servers
+- New 'push' directive for HTTP/2 server push
+- New 'index' directive to change the names of index files
+- New -http-port and -https-port flags to change protocol ports
+- New -disable-http-challenge and -disable-tls-sni-challenge flags
+- New event hook plugin type
+- New listener middleware plugin type
+- New placeholders for cookie, query, and rewritten URI values
+- basicauth: Ability to customize realm
+- browse: Default template now sorts by name with directories first
+- errors, log: Roll all logs by default
+- errors, log: Ability to write to remote syslog
+- errors, log: Standardized, simplified directive syntax
+- log: Patched common log format by adding missing "-"
+- proxy: New 'max_conns' setting to limit connections to upstreams
+- proxy: New 'first' load balancing policy for first available host
+- proxy: Health checks respect Host and insecure_skip_verify settings
+- templates: New .RandomString action to add random padding to page
+- timeouts: Disabled default HTTP timeouts
+- tls: Settings now apply per-site rather than for entire listener
+- tls: New 'alpn' setting to disable either HTTP/2 or HTTP/1.1 on per-site basis
+- tls: Added curve X25519
+- tls: Added ChaCha20-Poly1305 cipher suites
+- tls: Renamed muststaple to must_staple
+- tls: Setting max_certs obtains certs during handshakes for all hostnames
+- Dozens of miscellaneous bug fixes and improvements
+- New website
+- New build infrastructure
+- New deployment system
+
+
 0.9.5 (January 24, 2017)
 - New -validate flag to only check a Caddyfile, then exit
 - New {when_iso} placeholder for timestamp ISO 8601 in UTC

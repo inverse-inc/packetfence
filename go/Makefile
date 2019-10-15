@@ -53,6 +53,7 @@ pfdetect:
 .PHONY: clean-caddy-src
 clean-caddy-src:
 	find caddy/ -type f -exec sed -i.bak "s'github.com/mholt/caddy'github.com/inverse-inc/packetfence/go/caddy/caddy'g" {} \; ; find . -name '*.bak' -delete
+	find caddy/ -type f -exec sed -i.bak "s'github.com/caddyserver/caddy'github.com/inverse-inc/packetfence/go/caddy/caddy'g" {} \; ; find . -name '*.bak' -delete
 	find caddy/caddy/ -name '*_test.go' -delete
 
 .PHONY: go-env
