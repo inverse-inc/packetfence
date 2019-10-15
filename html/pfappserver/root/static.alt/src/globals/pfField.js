@@ -15,6 +15,7 @@ export const pfFieldType = {
   SELECTMANY:              'selectmany',
   TIME_BALANCE:            'time_balance',
   YESNO:                   'yesno',
+  URL:                     'substring',
 
   /* Promise based field types */
   ADMINROLE:               'adminrole',
@@ -24,6 +25,7 @@ export const pfFieldType = {
   REALM:                   'realm',
   ROLE:                    'role',
   ROLE_BY_NAME:            'role_by_name',
+  ROOT_PORTAL_MODULE:      'root_portal_module',
   SOURCE:                  'source',
   SSID:                    'ssid',
   SWITCHE:                 'switche',
@@ -86,6 +88,13 @@ pfFieldTypeValues[pfFieldType.ROLE_BY_NAME] = (context = {}) => {
   }
   $store.dispatch('config/getRoles')
   return pfFieldTypeValues[pfFieldType.ROLE](context).map(role => { return { value: role.name, name: role.name } })
+}
+pfFieldTypeValues[pfFieldType.ROOT_PORTAL_MODULE] = ({ $store }) => {
+  if ($store === undefined) {
+    throw new Error('Missing `$store` in pfFieldTypeValues[pfFieldType.ROOT_PORTAL_MODULE](context)')
+  }
+  $store.dispatch('config/getPortalModules')
+  return $store.getters['config/rootPortalModulesList']
 }
 pfFieldTypeValues[pfFieldType.SOURCE] = ({ $store }) => {
   if ($store === undefined) {

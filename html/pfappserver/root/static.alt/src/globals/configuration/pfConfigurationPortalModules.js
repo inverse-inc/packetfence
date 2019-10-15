@@ -10,7 +10,7 @@ import pfFormInput from '@/components/pfFormInput'
 import pfFormTextarea from '@/components/pfFormTextarea'
 import pfFormToggle from '@/components/pfFormToggle'
 import {
-  pfConfigurationActions,
+  pfConfigurationActionsFromMeta,
   pfConfigurationAttributesFromMeta,
   pfConfigurationValidatorsFromMeta
 } from '@/globals/configuration/pfConfiguration'
@@ -129,7 +129,7 @@ export const pfConfigurationPortalModuleFields = {
       ]
     }
   },
-  actions: () => {
+  actions: ({ options: { meta = {} } } = {}) => {
     return {
       label: i18n.t('Actions'),
       fields: [
@@ -145,13 +145,7 @@ export const pfConfigurationPortalModuleFields = {
               attrs: {
                 typeLabel: i18n.t('Select action type'),
                 valueLabel: i18n.t('Select action value'),
-                fields: [
-                  pfConfigurationActions.set_role_by_name,
-                  pfConfigurationActions.set_access_duration,
-                  pfConfigurationActions.set_unreg_date,
-                  pfConfigurationActions.set_time_balance,
-                  pfConfigurationActions.set_bandwidth_balance
-                ]
+                fields: pfConfigurationActionsFromMeta(meta, 'actions.type')
               }
             }
           }
