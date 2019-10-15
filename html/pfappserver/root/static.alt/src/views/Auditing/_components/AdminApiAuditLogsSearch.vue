@@ -81,7 +81,6 @@
 </template>
 
 <script>
-import api from '../_api'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import { pfFormatters as formatter } from '@/globals/pfFormatters'
 import pfButtonExportToCsv from '@/components/pfButtonExportToCsv'

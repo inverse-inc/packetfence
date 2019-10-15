@@ -54,7 +54,7 @@ const route = {
       component: RadiusLogView,
       props: (route) => ({ storeName: '$_radius_logs', id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_radius_logs/getItem', to.params.id).then(radiuslog => {
+        store.dispatch('$_radius_logs/getItem', to.params.id).then(() => {
           next()
         })
       },
@@ -78,7 +78,7 @@ const route = {
       component: DhcpOption82LogView,
       props: (route) => ({ storeName: '$_dhcpoption82_logs', mac: route.params.mac }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_dhcpoption82_logs/getItem', to.params.mac).then(radiuslog => {
+        store.dispatch('$_dhcpoption82_logs/getItem', to.params.mac).then(() => {
           next()
         })
       },
@@ -102,7 +102,7 @@ const route = {
       component: DnsLogView,
       props: (route) => ({ storeName: '$_dns_logs', id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_dns_logs/getItem', to.params.id).then(dnslog => {
+        store.dispatch('$_dns_logs/getItem', to.params.id).then(() => {
           next()
         })
       },
@@ -126,7 +126,7 @@ const route = {
       component: AdminApiAuditLogView,
       props: (route) => ({ storeName: '$_admin_api_audit_logs', id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_admin_api_audit_logs/getItem', to.params.id).then(admin_api_audit_logs => {
+        store.dispatch('$_admin_api_audit_logs/getItem', to.params.id).then(() => {
           next()
         })
       },
