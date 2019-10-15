@@ -64,7 +64,7 @@ sub radiusDisconnect {
         my $connection_info = {
             nas_ip => $send_disconnect_to,
             secret => $self->{'_radiusSecret'},
-            LocalAddr => $self->deauth_source_ip(),
+            LocalAddr => $self->deauth_source_ip($send_disconnect_to),
         };
 
         my $acctsessionid = node_accounting_current_sessionid($mac);
