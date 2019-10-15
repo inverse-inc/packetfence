@@ -1,0 +1,118 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:imagesdir: ../images
+endif::[]
+
+Creating a new Switch via a Template
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To create a new Switch Template you must create a template file in the /usr/local/pf/lib/pf/Switch directory.
+The file must have the following pattern /usr/local/pf/lib/pf/Switch/<Vendor>/<SwitchName>.def
+
+For example to create a template for the vendor "Cyberdyne" and the switch "Switchinator 800".
+The file name is called /usr/local/pf/lib/pf/Switch/Cyberdyne/Switchinator800.def
+The file name must must only consist of alphanumeric characters and under scores and must begin with a letter.
+
+The file consist of parameter names and their values.
+
+Parameters required:
+
+* description      - The description of the switch.
+* radiusDisconnect - The RADIUS disconnect methods to use. Must be one of the following values coa|disconnect|coaOrdisconnect .
+
+Parameters for set of RADIUS attributes
+
+* acceptVlan - Attributes for setting up the vlan.
+* acceptRole - Attributes for setting up the role.
+* reject     - Attributes sent on rejection.
+* disconnect - Attributes sent on disconnect (required if radiusDisconnect is 'disconnect' or 'coaOrdisconnect')
+* coa        - Attributes sent on CoA (required if radiusDisconnect is 'coa' or 'coaOrdisconnect')
+
+Comments
+The line of a comment must begin with a '#'
+For example:
+# This is a comment
+
+Defining RADIUS Attributes.
+
+name = <<EOT
+Attribute-Name1 = value1
+Attribute-Name2 = value2
+EOT
+
+RADIUS Vendor Attributes for CoA
+name = <<EOT
+VendorName:Attribute-Name1 = value1
+VendorName:Attribute-Name2 = value2
+EOT
+
+Dynamic RADIUS Attribute Value Syntax
+
+Some values depends on the context of the current request.
+So here is mini templating language to format values.
+
+text replacement:  $name
+embedded text replacement:  start-${name}-end
+Functions: ${f1("",$var, f2())}
+
+Available variables for radius scope
+
+  * acceptVlan
+    * vlan
+    * mac
+  * coa
+    * vlan
+    * mac
+    * role
+  * acceptRole
+    * role
+    * mac
+  * disconnect
+    * disconnectIp
+    * mac
+  * reject
+    * mac
+
+Available functions
+
+  * macToEUI48($mac)            - format a mac to AA-BB-CC-DD-FF-EE format
+  * uc($string)                 - uppercases a string
+  * lc($string)                 - lowercases a string
+  * log($string)                - log a message to the log
+  * substr($str, $offset, $len) - Extracts a substring from a string
+  * split($sep, $str)           - Split a string by a seperator.
+  * join($sep, $a, $b, ..)      - Join a list of string with a seperator.
+
+Example
+....
+description = The Switchinator 800
+radiusDisconnect = disconnect
+
+acceptVlan = <<EOT
+Tunnel-Medium-Type = 6
+Tunnel-Type = 13
+Tunnel-Private-Group-ID = $vlan
+EOT
+
+acceptRole = <<EOT
+Filter-Id = $role
+EOT
+
+reject = <<EOT
+Reply-Message = Hasta la vista, baby.
+EOT
+
+disconnect = <<EOT
+Calling-Station-Id= ${macToEUI48($mac)}
+NAS-IP-Address = $disconnectIp
+EOT
+
+coa = <<EOT
+Calling-Station-Id= ${macToEUI48($mac)}
+NAS-IP-Address = $disconnectIp
+Cisco:Cisco-AVPair = subscriber:command=bounce-host-port
+EOT
+....
+
+Contributing
+~~~~~~~~~~~~
