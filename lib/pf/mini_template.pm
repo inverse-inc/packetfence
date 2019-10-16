@@ -91,6 +91,9 @@ our $HIGH_LIGHT = '~';
 
 sub parse_template {
     local $_ = shift;
+    if (!defined $_) {
+        die "cannot parse an undefined value";
+    }
     my $info = {};
     my $a = _reduce(_parse_text($info));
     return $a, $info, "";

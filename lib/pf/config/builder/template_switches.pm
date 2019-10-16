@@ -19,19 +19,19 @@ sub buildEntry {
     my ($self, $buildData, $id, $entry) = @_;
     my $type = $id;
     $entry->{type} = $type;
-    my @errors;
     for my $k (qw(acceptVlan acceptRole reject disconnect coa)) {
         next unless exists $entry->{$k};
-        my $ras = $entry->{$k};
+        my $ras = delete $entry->{$k};
         if (!defined $ras || $ras eq '') {
             next;
         }
-        $entry->{$k} = make_radius_attribute_set(\@errors, $ras);
-    }
 
-    if (@errors) {
-        push @{$buildData->{errors}}, { switch => $id, message => "Error building attributes", errors => \@errors };
-        return undef;
+        my ($ras_errors, $set) = make_radius_attribute_set($ras);
+        if (@$ras_errors) {
+            push @{$buildData->{errors}}, { switch => $id, message => "Error building RADIUS scope $k", errors => $ras_errors };
+        } else {
+            $entry->{$k} = $set;
+        }
     }
 
     my ($vendor, undef) = split /::/, $type, 2;
@@ -41,9 +41,10 @@ sub buildEntry {
 }
 
 sub make_radius_attribute_set {
-    my ($errors, $radius_attr_set) = @_;
-    my @set = map { make_radius_attribute($errors, $_)  } split /\n/, $radius_attr_set;
-    return \@set;
+    my ($radius_attr_set) = @_;
+    my @errors;
+    my @set = map { make_radius_attribute(\@errors, $_)  } split /\n/, $radius_attr_set;
+    return \@errors, \@set;
 }
 
 =head2 make_radius_attribute
@@ -55,6 +56,11 @@ make_radius_attribute
 sub make_radius_attribute {
     my ($errors, $ra) = @_;
     my ($n, $tmpl_text) = split / *= */, $ra, 2;
+    if (!defined $tmpl_text) {
+        push @{$errors}, { attr => $ra, message => "is not a valid radius attribute" };
+        return;
+    }
+
     my $v;
     if ($n =~ /([^:]+):(.*)/) {
         $n = $2;

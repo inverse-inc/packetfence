@@ -103,6 +103,9 @@ Calling-Station-Id = $mac
 NAS-IP-Address = $disconnectIp
 Cisco:Cisco-AVPair = jisas=kksd
 EOT
+reject =<<EOT
+Reply-Message = This node is not allowed to use this service
+EOT
 CONF
 
     my ($error, $switch_templates) = build_from_conf($conf);
@@ -118,7 +121,10 @@ CONF
                     {name => 'Calling-Station-Id', tmpl => pf::mini_template->new('$mac') },
                     {name => 'NAS-IP-Address', tmpl => pf::mini_template->new('$disconnectIp') },
                     {name => 'Cisco-AVPair', tmpl => pf::mini_template->new('jisas=kksd'), vendor => 'Cisco' },
-                ]
+                ],
+                reject => [
+                    { name => 'Reply-Message', tmpl => pf::mini_template->new('This node is not allowed to use this service')},
+                ],
             },
             "::VENDORS" => {
                 PacketFence => [
@@ -143,6 +149,10 @@ Calling-Station-Id = $mac
 NAS-IP-Address = ${disconnectIp
 Cisco:Cisco-AVPair = jisas=kksd
 EOT
+reject=<<EOT
+Reply-Message = This node is not allowed to use this service
+EOT
+disconnect= No Attribute
 CONF
 
     my ($error, $switch_templates) = build_from_conf($conf);
@@ -150,8 +160,18 @@ CONF
         $error,
         [
             {
+                'errors' => [
+                    {
+                        'attr'    => 'No Attribute',
+                        'message' => 'is not a valid radius attribute'
+                    }
+                ],
+                'switch'  => 'PacketFence::Standard',
+                'message' => 'Error building RADIUS scope disconnect'
+            },
+            {
                 switch => 'PacketFence::Standard',
-                message => 'Error building attributes',
+                message => 'Error building RADIUS scope coa',
                 errors => [
                     {
                         name => 'NAS-IP-Address',
@@ -168,8 +188,23 @@ ${disconnectIp
     is_deeply(
         $switch_templates,
         {
+            'PacketFence::Standard' => {
+                type => 'PacketFence::Standard',
+                description => 'Standard Switch',
+                radiusDisconnect => 'disconnect',
+                reject => [
+                    { name => 'Reply-Message', tmpl => pf::mini_template->new('This node is not allowed to use this service')},
+                ],
+            },
+            "::VENDORS" => {
+                PacketFence => [
+                    {
+                        value => 'PacketFence::Standard', label => 'Standard Switch',
+                    },
+                ]
+            },
         },
-        "An error was found",
+        "Still built after an error was found",
     );
 }
 
