@@ -839,6 +839,7 @@ sub switch_access {
         realm => $realm,
         user_name => $user_name,
         radius_request => $radius_request,
+        switch_group => $switch->{_group},
     };
 
     my $options = {};
