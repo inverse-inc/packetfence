@@ -3,59 +3,62 @@ ifdef::env-github[]
 :imagesdir: ../images
 endif::[]
 
-Creating a new Switch via a Template
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+== Creating a new Switch via a Template
 
 To create a new Switch Template you must create a template file in the /usr/local/pf/lib/pf/Switch directory.
 The file must have the following pattern /usr/local/pf/lib/pf/Switch/<Vendor>/<SwitchName>.def
 
-For example to create a template for the vendor "Cyberdyne" and the switch "Switchinator 800".
-The file name is called /usr/local/pf/lib/pf/Switch/Cyberdyne/Switchinator800.def
+For example to create a template for the vendor "Cyberdyne" and switch "Switchinator 800".
+The file name is /usr/local/pf/lib/pf/Switch/Cyberdyne/Switchinator800.def
 The file name must must only consist of alphanumeric characters and under scores and must begin with a letter.
 
 The file consist of parameter names and their values.
 
-Parameters required:
+=== Required Parameters
 
 * description      - The description of the switch.
 * radiusDisconnect - The RADIUS disconnect methods to use. Must be one of the following values coa|disconnect|coaOrdisconnect .
 
-Parameters for set of RADIUS attributes
+=== RADIUS scope Parameters
 
-* acceptVlan - Attributes for setting up the vlan.
-* acceptRole - Attributes for setting up the role.
-* reject     - Attributes sent on rejection.
-* disconnect - Attributes sent on disconnect (required if radiusDisconnect is 'disconnect' or 'coaOrdisconnect')
-* coa        - Attributes sent on CoA (required if radiusDisconnect is 'coa' or 'coaOrdisconnect')
+* acceptVlan - Attributes for accept vlan scope
+* acceptRole - Attributes for accept role scope.
+* reject     - Attributes for rejection scope.
+* disconnect - Attributes for disconnect scope (required if radiusDisconnect is 'disconnect' or 'coaOrdisconnect')
+* coa        - Attributes for CoA scope (required if radiusDisconnect is 'coa' or 'coaOrdisconnect')
 
-Comments
+=== Comments
+
 The line of a comment must begin with a '#'
 For example:
+....
 # This is a comment
+....
 
-Defining RADIUS Attributes.
 
-name = <<EOT
+=== Defining RADIUS Attributes.
+
+scopeName = <<EOT
 Attribute-Name1 = value1
 Attribute-Name2 = value2
 EOT
 
 RADIUS Vendor Attributes for CoA
-name = <<EOT
+scopeName = <<EOT
 VendorName:Attribute-Name1 = value1
 VendorName:Attribute-Name2 = value2
 EOT
 
-Dynamic RADIUS Attribute Value Syntax
+=== Dynamic RADIUS Attribute Value Syntax
 
 Some values depends on the context of the current request.
 So here is mini templating language to format values.
 
-text replacement:  $name
-embedded text replacement:  start-${name}-end
+Text replacement:  $name
+Embedded text replacement:  start-${name}-end
 Functions: ${f1("",$var, f2())}
 
-Available variables for radius scope
+==== Available variables for RADIUS scope
 
   * acceptVlan
     * vlan
@@ -73,7 +76,7 @@ Available variables for radius scope
   * reject
     * mac
 
-Available functions
+==== Available functions
 
   * macToEUI48($mac)            - format a mac to AA-BB-CC-DD-FF-EE format
   * uc($string)                 - uppercases a string
@@ -83,7 +86,7 @@ Available functions
   * split($sep, $str)           - Split a string by a seperator.
   * join($sep, $a, $b, ..)      - Join a list of string with a seperator.
 
-Example
+==== Full Working Example
 ....
 description = The Switchinator 800
 radiusDisconnect = disconnect
@@ -114,5 +117,3 @@ Cisco:Cisco-AVPair = subscriber:command=bounce-host-port
 EOT
 ....
 
-Contributing
-~~~~~~~~~~~~
