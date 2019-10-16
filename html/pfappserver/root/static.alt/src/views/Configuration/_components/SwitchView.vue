@@ -19,7 +19,7 @@
       <h4 class="mb-0">
         <span v-if="!isNew && !isClone" v-html="$t('Switch {id}', { id: $strong(id) })"></span>
         <span v-else-if="isClone" v-html="$t('Clone Switch {id}', { id: $strong(id) })"></span>
-        <span v-else>{{ $t('New {switchGroup} Switch', { switchGroup: this.switchGroup}) }}</span>
+        <span v-else v-html="$t('New {switchGroup} Switch', { switchGroup: $strong(switchGroup) })"></span>
       </h4>
     </template>
     <template v-slot:footer>
