@@ -27,6 +27,7 @@ my $builder = pf::config::builder::template_switches->new;
 #File::Find::find({wanted => \&wanted}, $def_dir);
 print "Loading files from $def_dir\n";
 my @files = pf::util::template_switch::getDefFiles($def_dir);
+my $SPACES = ' ';
 for my $file (sort @files) {
     print " processing $file \n";
     my $name = pf::util::template_switch::fileNameToModuleName($def_dir, $file);
@@ -36,15 +37,18 @@ for my $file (sort @files) {
         print STDERR "Please fix error not updating '$template_switches_default_config_file'\n\n";
         exit;
     }
-    my ($error, undef) = $builder->build($ini);
-    if ($error) {
-        $error = $error->[0];
-        print STDERR "  Error when building '$file'\n    $error->{message}\n";
-        for my $err (@{$error->{errors}}) {
-            print STDERR "      Attribute $err->{name}\n";
-            my $message = $err->{message};
-            $message =~ s/^/       /gm;
-            print STDERR $message,"\n";
+    my ($errors, undef) = $builder->build($ini);
+    if ($errors && @$errors) {
+        print STDERR $SPACES x 2, "Error when building '$file'\n";
+        foreach my $error (@$errors) {
+            print STDERR $SPACES x 3 ,"$error->{message}\n";
+            for my $err (@{$error->{errors}}) {
+                print STDERR $SPACES x 4,"Attribute $err->{name}\n";
+                my $message = $err->{message};
+                my $s4 = $SPACES x 5;
+                $message =~ s/^/$s4/egm;
+                print STDERR $message,"\n";
+            }
         }
         print STDERR "Please fix error not updating '$template_switches_default_config_file'\n\n";
         exit ;
