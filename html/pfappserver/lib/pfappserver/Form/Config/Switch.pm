@@ -782,13 +782,14 @@ sub validate {
     my $self = shift;
     my $config = pf::ConfigStore::Switch->new;
     my $groupConfig = pf::ConfigStore::SwitchGroup->new;
+    tie my %TemplateSwitches, 'pfconfig::cached_hash', 'config::TemplateSwitches';
 
     my @triggers;
     my $always = any { $_->{type} eq $ALWAYS } @{$self->value->{inlineTrigger}};
 
     if ($self->value->{type}) {
         my $type = 'pf::Switch::'. $self->value->{type};
-        if ($type->require()) {
+        if ($type->require() || $TemplateSwitches{$self->value->{type}}) {
             @triggers = map { $_->{type} } @{$self->value->{inlineTrigger}};
             if ( @triggers && !$always) {
                 # Make sure the selected switch type supports the selected inline triggers.
@@ -805,7 +806,7 @@ sub validate {
                 }
             }
         } else {
-            $self->field('type')->add_error("The chosen type is not supported.");
+            $self->field('type')->add_error("The chosen type (" . $self->value->{type} . ") is not supported.");
         }
     } else {
         my $group_name = $self->value->{group} || '';
