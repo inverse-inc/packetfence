@@ -581,6 +581,12 @@ const getters = {
       })
     ]
   },
+  rootPortalModulesList: state => {
+    if (!state.portalModules) return []
+    return state.portalModules.filter(item => item.type === 'Root').map((item) => {
+      return { value: item.id, name: item.description }
+    })
+  },
   sourcesList: state => {
     if (!state.sources) return []
     return state.sources.map((item) => {
