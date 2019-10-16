@@ -17,15 +17,15 @@ The file consist of parameter names and their values.
 === Required Parameters
 
 * description      - The description of the switch.
-* radiusDisconnect - The RADIUS disconnect methods to use. Must be one of the following values coa|disconnect|coaOrdisconnect .
+* radiusDisconnect - The RADIUS disconnect methods to use. Must be one of the following values coa|disconnect|coaOrDisconnect .
 
 === RADIUS scope Parameters
 
 * acceptVlan - Attributes for accept vlan scope
 * acceptRole - Attributes for accept role scope.
 * reject     - Attributes for rejection scope.
-* disconnect - Attributes for disconnect scope (required if radiusDisconnect is 'disconnect' or 'coaOrdisconnect')
-* coa        - Attributes for CoA scope (required if radiusDisconnect is 'coa' or 'coaOrdisconnect')
+* disconnect - Attributes for disconnect scope (required if radiusDisconnect is 'disconnect' or 'coaOrDisconnect')
+* coa        - Attributes for CoA scope (required if radiusDisconnect is 'coa' or 'coaOrDisconnect')
 
 === Comments
 
