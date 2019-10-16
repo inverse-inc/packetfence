@@ -162,7 +162,8 @@ CONF
             {
                 'errors' => [
                     {
-                        'attr'    => 'No Attribute',
+                        name      => 'unknown',
+                        'text'    => 'No Attribute',
                         'message' => 'is not a valid radius attribute'
                     }
                 ],
@@ -174,6 +175,7 @@ CONF
                 message => 'Error building RADIUS scope coa',
                 errors => [
                     {
+                        text => 'NAS-IP-Address = ${disconnectIp',
                         name => 'NAS-IP-Address',
                         message => q(parse error: no matching }
 ${disconnectIp

@@ -57,7 +57,7 @@ sub make_radius_attribute {
     my ($errors, $ra) = @_;
     my ($n, $tmpl_text) = split / *= */, $ra, 2;
     if (!defined $tmpl_text) {
-        push @{$errors}, { attr => $ra, message => "is not a valid radius attribute" };
+        push @{$errors}, { name => 'unknown', text => $ra, message => "is not a valid radius attribute" };
         return;
     }
 
@@ -75,7 +75,7 @@ sub make_radius_attribute {
         pf::mini_template->new($tmpl_text)
     };
     if ($@) {
-        push @{$errors}, { %$attr, message => $@ };
+        push @{$errors}, { %$attr, message => $@, text => $ra };
         return;
     }
     $attr->{tmpl} = $tmpl;
