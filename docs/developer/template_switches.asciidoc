@@ -60,20 +60,41 @@ Functions: ${f1("",$var, f2())}
 
 ==== Available variables for RADIUS scope
 
+  * acceptRole - (Same as acceptVlan)
+  * reject - (Same as acceptVlan)
   * acceptVlan
-    * vlan
+    * autoreg
+    * connection_sub_type
+    * connection_type
+    * eap_type
+    * fingerbank_info
+    * ifDesc
+    * ifIndex
+    * isPhone
     * mac
+    * nas_port_id
+    * nas_port_type
+    * node_info
+    * profile
+    * radius_request
+    * realm
+    * session_id
+    * source_ip
+    * ssid
+    * stripped_user_name
+    * switch
+    * switch_ip
+    * switch_mac
+    * user_name
+    * user_role
+    * wasInline
+    * vlan
   * coa
-    * vlan
     * mac
-    * role
-  * acceptRole
     * role
     * mac
   * disconnect
     * disconnectIp
-    * mac
-  * reject
     * mac
 
 ==== Available functions
