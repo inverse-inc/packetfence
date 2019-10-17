@@ -18,6 +18,7 @@ use pf::util::radius qw(perform_coa perform_disconnect);
 use pf::Switch::constants;
 use pf::constants;
 use pf::util qw(isenabled);
+use List::MoreUtils qw(uniq);
 use pf::constants::role qw($REJECT_ROLE);
 use pf::access_filter::radius;
 use pf::roles::custom;
@@ -32,6 +33,24 @@ our %DISCONNECT_DISPATCH = (
     $DISCONNECT_TYPE_DISCONNECT => \&handleDisconnect,
     $DISCONNECT_TYPE_BOTH => \&handleCoaOrDisconnect,
 );
+
+our %LOOKUP = (
+    last_accounting => \&lookupLastAccounting,
+);
+
+sub lookupLastAccounting {
+    my ($self, $args) = @_;
+    if (!exists $args->{mac}) {
+        return undef;
+    }
+
+    my $mac = $args->{mac};
+    if ($mac) {
+        return node_accounting_dynauth_attr($mac);
+    }
+
+    return undef;
+}
 
 sub makeRadiusAttributes {
     my ($self, $attrs_tmpl, $vars) = @_;
@@ -89,12 +108,14 @@ sub returnRadiusAccessAccept {
     return $kick if (defined($kick));
 
     # Inline Vs. VLAN enforcement
+    my %tmp_args = %$args;
     my $role = "";
-    if ( (!$args->{'wasInline'} || ($args->{'wasInline'} && $args->{'vlan'} != 0) ) && isenabled($self->{_VlanMap})) {
+    if ( (!$tmp_args{'wasInline'} || ($tmp_args{'wasInline'} && $tmp_args{'vlan'} != 0) ) && isenabled($self->{_VlanMap})) {
         my $vlanTemplate = $self->{_template}{acceptVlan};
-        if ( defined $vlanTemplate &&  defined($args->{'vlan'}) && $args->{'vlan'} ne "" && $args->{'vlan'} ne 0) {
+        if ( defined $vlanTemplate &&  defined($tmp_args{'vlan'}) && $tmp_args{'vlan'} ne "" && $tmp_args{'vlan'} ne 0) {
+            $self->updateArgsVariablesForSet($vlanTemplate, \%tmp_args);
             $logger->info("(".$self->{'_id'}.") Added VLAN $args->{'vlan'} to the returned RADIUS Access-Accept");
-            my ($attrs, undef) = $self->makeRadiusAttributes($vlanTemplate, $args);
+            my ($attrs, undef) = $self->makeRadiusAttributes($vlanTemplate, \%tmp_args);
             $radius_reply_ref = { @$attrs };
         } else {
             $logger->debug("(".$self->{'_id'}.") Received undefined VLAN. No VLAN added to RADIUS Access-Accept");
@@ -107,8 +128,10 @@ sub returnRadiusAccessAccept {
             $role = $self->getRoleByName($args->{'user_role'});
         }
         my $roleTemplate = $self->{_template}{acceptRole};
+        $tmp_args{role} = $role;
         if (defined $roleTemplate && defined($role) && $role ne "" ) {
-            my ($attrs, undef) = $self->makeRadiusAttributes($roleTemplate, { %$args, role => $role });
+            $self->updateArgsVariablesForSet($roleTemplate, \%tmp_args);
+            my ($attrs, undef) = $self->makeRadiusAttributes($roleTemplate, \%tmp_args);
             $radius_reply_ref = {
                 %$radius_reply_ref,
                 @$attrs,
@@ -207,6 +230,11 @@ sub handleDisconnect {
     }
 
     my $radiusDisconnect = $self->{_template}{disconnect};
+    my %args = (
+        disconnectIp => $send_disconnect_to,
+        mac => $mac,
+    );
+    $self->updateArgsVariablesForSet($radiusDisconnect, \%args);
     my ($attrs, $vsa) = $self->makeRadiusAttributes($radiusDisconnect, { disconnectIp => $send_disconnect_to, mac => $mac });
     # Standard Attributes
     my $attributes_ref = { @$attrs, %$add_attributes_ref };
@@ -257,7 +285,13 @@ sub handleCoa {
     }
 
     my $radiusDisconnect = $self->{_template}{coa};
-    my ($attrs, $vsa) = $self->makeRadiusAttributes($radiusDisconnect, { disconnectIp => $send_disconnect_to, mac => $mac, role => $role });
+    my %args = (
+        disconnectIp => $send_disconnect_to,
+        mac => $mac,
+        role => $role,
+    );
+    $self->updateArgsVariablesForSet($radiusDisconnect, \%args);
+    my ($attrs, $vsa) = $self->makeRadiusAttributes($radiusDisconnect, { disconnectIp => $send_disconnect_to, mac => $mac });
     # Standard Attributes
     my $attributes_ref = { @$attrs, %$add_attributes_ref };
     return perform_coa($connection_info, $attributes_ref, $vsa);
@@ -332,6 +366,21 @@ sub deauthenticateMacDefault {
 
     $logger->debug("deauthenticate $mac using RADIUS Disconnect-Request deauth method");
     return $self->radiusDisconnect($mac);
+}
+
+sub updateArgsVariablesForSet {
+    my ($self, $args, $set) = @_;
+    return if !defined $set;
+    my @vars;
+    for my $s (@$set) {
+        push @vars, keys %{$s->{tmpl}{info}{vars}//{}};
+    }
+    @vars = uniq @vars;
+    for my $v (@vars) {
+        if (!exists $args->{$v} && exists $LOOKUP{$v}) {
+            $args->{$v} = $LOOKUP{$v}->($self, $args);
+        }
+    }
 }
 
 =head1 AUTHOR

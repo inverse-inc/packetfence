@@ -16,6 +16,7 @@ use warnings;
 use lib '/usr/local/pf/lib';
 use pf::util::template_switch;
 use pf::config::builder::template_switches;
+use pf::Switch::Template;
 our @FILES;
 our $SWITCH_DIR;
 BEGIN {
@@ -28,7 +29,7 @@ BEGIN {
 }
 
 my $builder = pf::config::builder::template_switches->new;
-use Test::More tests => (scalar @FILES) + 1;
+use Test::More tests => (scalar @FILES) + 3;
 #This test will running last
 use Test::NoWarnings;
 for my $file (@FILES) {
@@ -41,6 +42,23 @@ for my $file (@FILES) {
 
     my ($error, undef) = $builder->build($ini);
     ok(!defined $error, "Building $file ");
+}
+
+{
+
+    local $pf::Switch::Template::LOOKUP{last_accounting} = sub { { a => 1, b => 2 } };
+    my %args = ();
+    my $set  = [
+        {
+            name => 'Reply-Message',
+            tmpl => pf::mini_template->new('$last_accounting')
+        },
+    ];
+    pf::Switch::Template->updateArgsVariablesForSet( \%args, $set );
+    is_deeply(\%args, { last_accounting => { a => 1, b => 2 }}, "updateArgsVariablesForSet filled in empty args");
+    %args = ( last_accounting => { c => 3, d => 4} );
+    pf::Switch::Template->updateArgsVariablesForSet( \%args, $set );
+    is_deeply(\%args, { last_accounting => { c => 3, d => 4 }}, "updateArgsVariablesForSet ignored existing args");
 }
 
 =head1 AUTHOR

@@ -71,6 +71,7 @@ Functions: ${f1("",$var, f2())}
     * ifDesc
     * ifIndex
     * isPhone
+    * last_accounting
     * mac
     * nas_port_id
     * nas_port_type
@@ -87,14 +88,15 @@ Functions: ${f1("",$var, f2())}
     * switch_mac
     * user_name
     * user_role
-    * wasInline
     * vlan
+    * wasInline
   * coa
+    * last_accounting
     * mac
     * role
-    * mac
   * disconnect
     * disconnectIp
+    * last_accounting
     * mac
 
 ==== Available functions
