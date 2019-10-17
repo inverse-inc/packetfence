@@ -1,6 +1,6 @@
 # PacketFence
 
-[![pipeline status](https://gitlab.com/inverse-inc/packetfence/badges/master/pipeline.svg)](https://gitlab.com/inverse-inc/packetfence/commits/master)
+[![pipeline status](https://gitlab.com/inverse-inc/packetfence/badges/devel/pipeline.svg)](https://gitlab.com/inverse-inc/packetfence/commits/devel)
 
 ## What is PacketFence?
 
