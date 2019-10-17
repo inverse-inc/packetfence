@@ -90,7 +90,39 @@ INSERT INTO locationlog_history (
     `switch_mac`, `stripped_user_name`, `realm`, `session_id`, `ifDesc`, `voip` 
     FROM locationlog WHERE end_time != '0000-00-00 00:00:00';
 
-DELETE FROM locationlog WHERE end_time != '0000-00-00 00:00:00';
+DELETE FROM locationlog 
+    WHERE
+    id IN (
+        SELECT * FROM (
+            SELECT
+                `locationlog2`.id 
+            FROM
+                locationlog as locationlog1 
+            LEFT OUTER JOIN
+                `locationlog` AS `locationlog2`         
+                    ON (
+                        (
+                            (
+                                `locationlog1`.`start_time` < `locationlog2`.`start_time`                     
+                                OR `locationlog1`.`start_time` IS NULL                     
+                                OR (
+                                    `locationlog1`.`start_time` = `locationlog2`.`start_time`                         
+                                    AND `locationlog1`.`id` < `locationlog2`.`id`                     
+                                )                 
+                            )                 
+                            AND `locationlog1`.`mac` = `locationlog2`.`mac`                 
+                            AND `locationlog1`.`tenant_id` = `locationlog2`.`tenant_id`             
+                        )         
+                    ) 
+            WHERE
+                (
+                    (
+                        `locationlog2`.`id` IS NOT NULL         
+                    )     
+                ) 
+        ) as x
+    );
+
 \! echo "Incrementing PacketFence schema version...";
 
 INSERT IGNORE INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION));
