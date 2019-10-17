@@ -1,0 +1,2 @@
+DEBUILD_DPKG_BUILDPACKAGE_OPTS='-Zgzip -zfast'
+DEBUILD_PREPEND_PATH=/usr/local/bin:/usr/local/go/bin

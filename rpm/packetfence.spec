@@ -1,87 +1,43 @@
-# PacketFence RPM SPEC
-#
-# NEW (since git migration):
-#
-#   Expecting a standard tarball with packetfence-<version>/...
-# 
-# BUILDING FOR RELEASE
-# 
-# - Build
-#  - define ver <version>
-#  - define dist based on target distro (for centos/rhel => .el5)
-#  - define rev based on package revision (must be > 0 for proprer upgrade from snapshots)
-# ex:
-# cd /usr/src/redhat/
-# rpmbuild -ba --define 'version 3.3.0' --define 'dist .el5' --define 'rev 1' SPECS/packetfence.spec
-#
-#
-# BUILDING FOR A SNAPSHOT (PRE-RELEASE)
-#
-# - Build
-#  - define ver <version>
-#  - define snapshot 1
-#  - define dist based on target distro (for centos/rhel => .el5)
-#  - define rev to 0.<date> this way one can upgrade from snapshot to release
-# ex:
-# cd /usr/src/redhat/
-# rpmbuild -ba --define 'version 3.3.0' --define 'snapshot 1' --define 'dist .el5' --define 'rev 0.20100506' SPECS/packetfence.spec
-#
-Summary: PacketFence network registration / worm mitigation system
-%global real_name packetfence
-%global perl_version 5.10.1
-Name: %{real_name}-source
-Version: %{ver}
-Release: %{rev}%{?dist}
-License: GPL
-Group: System Environment/Daemons
-URL: http://www.packetfence.org
-BuildRoot: %{_tmppath}/%{real_name}-%{version}-%{rev}-root
-# disables the creation of the debug package for our setuid C wrapper
-%define debug_package %{nil}
+#==============================================================================
+# Variables
+#==============================================================================
+# use 'global' variables (vs 'define' with local scope)
+%global     builddoc 0
+%global     perl_version 5.10.1
+%global     logfiles packetfence.log snmptrapd.log pfdetect pfmon security_event.log httpd.admin.audit.log
+%global     logdir /usr/local/pf/logs
+%global     debug_package %{nil}
 
-Packager: Inverse inc. <support@inverse.ca>
-Vendor: PacketFence, http://www.packetfence.org
 
-# if --define 'snapshot 1' not written when calling rpmbuild then we assume it is to package a release
-%define is_release %{?snapshot:0}%{!?snapshot:1}
-%if %{is_release}
-# used for official releases
-Source: http://www.packetfence.org/downloads/PacketFence/src/%{real_name}-%{version}.tar.gz
-%else
-# used for snapshot releases
-Source: http://www.packetfence.org/downloads/PacketFence/src/%{real_name}-%{version}-%{rev}.tar.gz
-%endif
-
-# Log related globals
-%global logfiles packetfence.log snmptrapd.log pfdetect pfmon security_event.log httpd.admin.audit.log
-%global logdir /usr/local/pf/logs
+#==============================================================================
+# Main package
+#==============================================================================
+Name:       packetfence
+Version:    9.1.9
+Release:    2%{?dist}
+Summary:    PacketFence network registration / worm mitigation system
+Packager:   Inverse inc. <support@inverse.ca>
+Group:      System Environment/Daemons
+License:    GPL
+URL:        http://www.packetfence.org
+Source0:    %{name}-%{version}.tar
+BuildRoot:  %{_tmppath}/%{name}-root
+Vendor:     PacketFence, http://www.packetfence.org
 
 BuildRequires: gettext, httpd, ipset-devel, pkgconfig, jq
-# Required to build documentation
-# See docs/docbook/README.asciidoc for more info about installing requirements.
-# TODO fop on EL5 is actually xmlgraphics-fop
 BuildRequires: asciidoc >= 8.6.2, fop, libxslt, docbook-style-xsl, xalan-j2
-BuildRequires: asciidoctor
+BuildRequires: ruby, rubygems
+BuildRequires: nodejs >= 12.0
 BuildRequires: gcc
+BuildRequires: systemd
 
-%description
+# To handle migration from several packetfence packages
+# to only one
+Obsoletes: %{name}-remote-arp-sensor <= 9.1.0
+Obsoletes: %{name}-pfcmd-suid <= 9.1.0
+Obsoletes: %{name}-ntlm-wrapper <= 9.1.0
+Obsoletes: %{name}-config <= 9.1.0
 
-PacketFence is an open source network access control (NAC) system.
-It can be used to effectively secure networks, from small to very large
-heterogeneous networks. PacketFence provides features such as
-* registration of new network devices
-* detection of abnormal network activities
-* isolation of problematic devices
-* remediation through a captive portal
-* registration-based and scheduled vulnerability scans.
-
-# arch-specific pfcmd-suid subpackage required us to move all of PacketFence
-# into a noarch subpackage and have the top level package virtual.
-%package -n %{real_name}
-Group: System Environment/Daemons
-Summary: PacketFence network registration / worm mitigation system
-BuildArch: noarch
-# TODO we might consider re-enabling this to simplify our SPEC
 AutoReqProv: 0
 
 Requires: chkconfig, coreutils, grep, openssl, sed, tar, wget, gettext, conntrack-tools, patch, git
@@ -93,7 +49,7 @@ Requires: httpd, mod_ssl
 Requires: mod_perl, mod_proxy_html
 requires: libapreq2
 Requires: redis
-Requires: freeradius >= 3.0.18-18, freeradius-mysql, freeradius-perl, freeradius-ldap, freeradius-utils, freeradius-redis, freeradius-rest, freeradius-radsniff >= 3.0.18-18
+Requires: freeradius >= 3.0.18-18, freeradius-mysql, freeradius-perl, freeradius-ldap, freeradius-utils, freeradius-redis, freeradius-rest, freeradius-radsniff
 Requires: make
 Requires: net-tools
 Requires: sscep
@@ -102,9 +58,6 @@ Requires: net-snmp-perl
 Requires: perl >= %{perl_version}
 Requires: MariaDB-server >= 10.1, MariaDB-client >= 10.1
 Requires: perl(DBD::mysql)
-# replaces the need for perl-suidperl which was deprecated in perl 5.12 (Fedora 14)
-Requires(pre): %{real_name}-pfcmd-suid
-Requires(pre): %{real_name}-ntlm-wrapper
 Requires: perl(Bit::Vector)
 Requires: perl(CGI::Session), perl(CGI::Session::Driver::chi) >= 1.0.3, perl(JSON) >= 2.90, perl(JSON::MaybeXS), perl(JSON::XS) >= 3
 Requires: perl-Switch, perl-Locale-Codes
@@ -161,6 +114,7 @@ Requires: perl(Log::Any)
 Requires: perl(Log::Any::Adapter)
 Requires: perl(Log::Any::Adapter::Log4perl)
 Requires: perl(Log::Dispatch::Syslog)
+Requires: perl(Log::Fast)
 Requires: perl(Net::Cisco::MSE::REST)
 # Required by switch modules
 # Net::Appliance::Session specific version added because newer versions broke API compatibility (#1312)
@@ -269,6 +223,7 @@ Requires: perl(CHI::Driver::Redis)
 Requires: perl(File::Flock)
 Requires: perl(Perl::Version)
 Requires: perl(Cache::FastMmap)
+Requires: perl(Cache::BDB)
 Requires: perl(Moo) >= 1.003000
 Requires: perl(Term::ANSIColor)
 Requires: perl(IO::Interactive)
@@ -325,84 +280,34 @@ Requires: perl(Test::NoWarnings), perl(Test::ParallelSubtest)
 # required for the fake CoA server
 Requires: perl(Net::UDP)
 # For managing the number of connections per device
-%if %{is_release}
-# used for official releases
-Requires: %{real_name}-config = %{version}
-Requires: %{real_name}-pfcmd-suid = %{version}
-%else
-# used for snapshot releases
-Requires: %{real_name}-config = %{version}-%{rev}%{?dist}
-Requires: %{real_name}-pfcmd-suid = %{version}-%{rev}%{?dist}
-%endif
 Requires: haproxy >= 1.8.9, keepalived >= 1.4.3
 # CAUTION: we need to require the version we want for Fingerbank and ensure we don't want anything equal or above the next major release as it can add breaking changes
 Requires: fingerbank >= 4.1.4, fingerbank < 5.0.0
 Requires: fingerbank-collector >= 1.1.0, fingerbank-collector < 2.0.0
 Requires: perl(File::Tempdir)
 
-%description -n %{real_name}
+%description
 
-PacketFence is an open source network access control (NAC) system. 
-It can be used to effectively secure networks, from small to very large 
-heterogeneous networks. PacketFence provides features such 
-as 
+PacketFence is an open source network access control (NAC) system.
+It can be used to effectively secure networks, from small to very large
+heterogeneous networks. PacketFence provides features such as
 * registration of new network devices
 * detection of abnormal network activities
 * isolation of problematic devices
-* remediation through a captive portal 
+* remediation through a captive portal
 * registration-based and scheduled vulnerability scans.
 
-
-%package -n %{real_name}-remote-arp-sensor
-Group: System Environment/Daemons
-Requires: perl >= %{perl_version}, perl(Config::IniFiles) >= 2.88, perl(IO::Socket::SSL), perl(XML::Parser), perl(Crypt::SSLeay), perl(LWP::Protocol::https), perl(Net::Pcap) >= 0.16, memcached, perl(Cache::Memcached)
-Requires: perl(Moo), perl(Data::MessagePack), perl(WWW::Curl)
-Conflicts: %{real_name}
-AutoReqProv: 0
-Summary: Files needed for sending MAC and IP addresses from ARP requests to PacketFence
-BuildArch: noarch
-
-%description -n %{real_name}-remote-arp-sensor
-The %{real_name}-remote-arp-sensor package contains the files needed
-for sending MAC and IP from ARP requests to a PacketFence server.
-
-
-%package -n %{real_name}-pfcmd-suid
-Group: System Environment/Daemons
-BuildRequires: gcc
-AutoReqProv: 0
-Summary: Replace pfcmd by a C wrapper for suid
-
-%description -n %{real_name}-pfcmd-suid
-The %{real_name}-pfcmd-suid is a C wrapper to replace perl-suidperl dependency.
-See https://bugzilla.redhat.com/show_bug.cgi?id=611009
-
-%package -n %{real_name}-ntlm-wrapper
-Group: System Environment/Daemons
-BuildRequires: gcc
-AutoReqProv: 0
-Summary: C wrapper for logging ntlm_auth latency.
-
-%description -n %{real_name}-ntlm-wrapper
-The %{real_name}-ntlm-wrapper is a C wrapper around the ntlm_auth utility to log authentication times and success/failures. It can either/both log to syslog and send metrics to a StatsD server.
-
-%package -n %{real_name}-config
-Group: System Environment/Daemons
-Requires: perl(Cache::BDB)
-Requires: perl(Log::Fast)
-AutoReqProv: 0
-Summary: Manage PacketFence Configuration
-BuildArch: noarch
-
-%description -n %{real_name}-config
-The %{real_name}-config is a daemon that manage PacketFence configuration.
-
-
+#==============================================================================
+# Source preparation
+#==============================================================================
 %prep
-%setup -q -n %{real_name}-%{version}
+%setup -q -n %{name}-%{version}
 
+
+#==============================================================================
+# Build
+#==============================================================================
 %build
-
 # generate translations
 # TODO this is duplicated in debian/rules, we should aim to consolidate in a 'make' style step
 for TRANSLATION in de en es fr he_IL it nl pl_PL pt_BR; do
@@ -429,202 +334,213 @@ done
     done
 %endif
 
+# Portal javascript/css
+%{__make} -C html/common/ vendor
+%{__make} -C html/common light-dist
+
+# Admin javascript/css
+%{__make} -C html/pfappserver/root/static/ vendor
+%{__make} -C html/pfappserver/root/static/ light-dist
+%{__make} -C html/pfappserver/root/static.alt/ vendor
+%{__make} -C html/pfappserver/root/static.alt/ light-dist
+
+
 # Build the HTML doc index for pfappserver
-make html
+%{__make} html
 
 # build pfcmd C wrapper
-gcc -g0 src/pfcmd.c -o bin/pfcmd
+%{__make} bin/pfcmd
 # build ntlm_auth_wrapper
-make bin/ntlm_auth_wrapper
+%{__make} bin/ntlm_auth_wrapper
 # Define git_commit_id
 echo %{git_commit} > conf/git_commit_id
 
 # build golang binaries
-addons/packages/build-go.sh build `pwd` `pwd`/sbin
+%{__make} -C go all
 
 find -name '*.example' -print0 | while read -d $'\0' file
 do
   cp $file "$(dirname $file)/$(basename $file .example)"
 done
 
+#==============================================================================
+# Installation
+#============================================================================
 %install
-%{__rm} -rf $RPM_BUILD_ROOT
+%{__rm} -rf %{buildroot}
 # systemd targets
-%{__install} -D -m0644 conf/systemd/packetfence.target $RPM_BUILD_ROOT/etc/systemd/system/packetfence.target
-%{__install} -D -m0644 conf/systemd/packetfence-base.target $RPM_BUILD_ROOT/etc/systemd/system/packetfence-base.target
-%{__install} -D -m0644 conf/systemd/packetfence-cluster.target $RPM_BUILD_ROOT/etc/systemd/system/packetfence-cluster.target
+%{__install} -D -m0644 conf/systemd/packetfence.target %{buildroot}/etc/systemd/system/packetfence.target
+%{__install} -D -m0644 conf/systemd/packetfence-base.target %{buildroot}/etc/systemd/system/packetfence-base.target
+%{__install} -D -m0644 conf/systemd/packetfence-cluster.target %{buildroot}/etc/systemd/system/packetfence-cluster.target
 
-%{__install} -d $RPM_BUILD_ROOT/etc/systemd/system/packetfence-base.target.wants
-%{__install} -d $RPM_BUILD_ROOT/etc/systemd/system/packetfence.target.wants
-%{__install} -d $RPM_BUILD_ROOT/etc/systemd/system/packetfence-cluster.target.wants
+%{__install} -d %{buildroot}/etc/systemd/system/packetfence-base.target.wants
+%{__install} -d %{buildroot}/etc/systemd/system/packetfence.target.wants
+%{__install} -d %{buildroot}/etc/systemd/system/packetfence-cluster.target.wants
 # systemd slices
-%{__install} -D -m0644 conf/systemd/packetfence.slice $RPM_BUILD_ROOT/etc/systemd/system/packetfence.slice
-%{__install} -D -m0644 conf/systemd/packetfence-base.slice $RPM_BUILD_ROOT/etc/systemd/system/packetfence-base.slice
+%{__install} -D -m0644 conf/systemd/packetfence.slice %{buildroot}/etc/systemd/system/packetfence.slice
+%{__install} -D -m0644 conf/systemd/packetfence-base.slice %{buildroot}/etc/systemd/system/packetfence-base.slice
 # systemd services
-%{__install} -D -m0644 conf/systemd/packetfence-api-frontend.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-api-frontend.service
-%{__install} -D -m0644 conf/systemd/packetfence-config.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-config.service
-%{__install} -D -m0644 conf/systemd/packetfence-tracking-config.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-tracking-config.service
-%{__install} -D -m0644 conf/systemd/packetfence-haproxy-portal.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-haproxy-portal.service
-%{__install} -D -m0644 conf/systemd/packetfence-haproxy-db.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-haproxy-db.service
-%{__install} -D -m0644 conf/systemd/packetfence-httpd.aaa.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-httpd.aaa.service
-%{__install} -D -m0644 conf/systemd/packetfence-httpd.admin.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-httpd.admin.service
-%{__install} -D -m0644 conf/systemd/packetfence-httpd.collector.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-httpd.collector.service
-%{__install} -D -m0644 conf/systemd/packetfence-httpd.portal.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-httpd.portal.service
-%{__install} -D -m0644 conf/systemd/packetfence-httpd.proxy.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-httpd.proxy.service
-%{__install} -D -m0644 conf/systemd/packetfence-httpd.webservices.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-httpd.webservices.service
-%{__install} -D -m0644 conf/systemd/packetfence-iptables.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-iptables.service
-%{__install} -D -m0644 conf/systemd/packetfence-pfperl-api.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-pfperl-api.service
-%{__install} -D -m0644 conf/systemd/packetfence-keepalived.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-keepalived.service
-%{__install} -D -m0644 conf/systemd/packetfence-mariadb.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-mariadb.service
-%{__install} -D -m0644 conf/systemd/packetfence-pfbandwidthd.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-pfbandwidthd.service
-%{__install} -D -m0644 conf/systemd/packetfence-pfdetect.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-pfdetect.service
-%{__install} -D -m0644 conf/systemd/packetfence-pfdhcplistener.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-pfdhcplistener.service
-%{__install} -D -m0644 conf/systemd/packetfence-pfdns.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-pfdns.service
-%{__install} -D -m0644 conf/systemd/packetfence-pffilter.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-pffilter.service
-%{__install} -D -m0644 conf/systemd/packetfence-pfmon.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-pfmon.service
-%{__install} -D -m0644 conf/systemd/packetfence-pfqueue.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-pfqueue.service
-%{__install} -D -m0644 conf/systemd/packetfence-pfsso.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-pfsso.service
-%{__install} -D -m0644 conf/systemd/packetfence-httpd.dispatcher.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-httpd.dispatcher.service
-%{__install} -D -m0644 conf/systemd/packetfence-radiusd-acct.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-radiusd-acct.service
-%{__install} -D -m0644 conf/systemd/packetfence-radiusd-auth.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-radiusd-auth.service
-%{__install} -D -m0644 conf/systemd/packetfence-radiusd-cli.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-radiusd-cli.service
-%{__install} -D -m0644 conf/systemd/packetfence-radiusd-eduroam.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-radiusd-eduroam.service
-%{__install} -D -m0644 conf/systemd/packetfence-radiusd-load_balancer.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-radiusd-load_balancer.service
-%{__install} -D -m0644 conf/systemd/packetfence-radsniff.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-radsniff.service
-%{__install} -D -m0644 conf/systemd/packetfence-redis-cache.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-redis-cache.service
-%{__install} -D -m0644 conf/systemd/packetfence-redis_ntlm_cache.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-redis_ntlm_cache.service
-%{__install} -D -m0644 conf/systemd/packetfence-redis_queue.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-redis_queue.service
-%{__install} -D -m0644 conf/systemd/packetfence-routes.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-routes.service
-%{__install} -D -m0644 conf/systemd/packetfence-snmptrapd.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-snmptrapd.service
-%{__install} -D -m0644 conf/systemd/packetfence-tc.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-tc.service
-%{__install} -D -m0644 conf/systemd/packetfence-winbindd.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-winbindd.service
-%{__install} -D -m0644 conf/systemd/packetfence-pfdhcp.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-pfdhcp.service
-%{__install} -D -m0644 conf/systemd/packetfence-pfipset.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-pfipset.service
-%{__install} -D -m0644 conf/systemd/packetfence-netdata.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-netdata.service
-%{__install} -D -m0644 conf/systemd/packetfence-pfstats.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-pfstats.service
+%{__install} -D -m0644 conf/systemd/packetfence-api-frontend.service %{buildroot}%{_unitdir}/packetfence-api-frontend.service
+%{__install} -D -m0644 conf/systemd/packetfence-config.service %{buildroot}%{_unitdir}/packetfence-config.service
+%{__install} -D -m0644 conf/systemd/packetfence-tracking-config.service %{buildroot}%{_unitdir}/packetfence-tracking-config.service
+%{__install} -D -m0644 conf/systemd/packetfence-haproxy-portal.service %{buildroot}%{_unitdir}/packetfence-haproxy-portal.service
+%{__install} -D -m0644 conf/systemd/packetfence-haproxy-db.service %{buildroot}%{_unitdir}/packetfence-haproxy-db.service
+%{__install} -D -m0644 conf/systemd/packetfence-httpd.aaa.service %{buildroot}%{_unitdir}/packetfence-httpd.aaa.service
+%{__install} -D -m0644 conf/systemd/packetfence-httpd.admin.service %{buildroot}%{_unitdir}/packetfence-httpd.admin.service
+%{__install} -D -m0644 conf/systemd/packetfence-httpd.collector.service %{buildroot}%{_unitdir}/packetfence-httpd.collector.service
+%{__install} -D -m0644 conf/systemd/packetfence-httpd.portal.service %{buildroot}%{_unitdir}/packetfence-httpd.portal.service
+%{__install} -D -m0644 conf/systemd/packetfence-httpd.proxy.service %{buildroot}%{_unitdir}/packetfence-httpd.proxy.service
+%{__install} -D -m0644 conf/systemd/packetfence-httpd.webservices.service %{buildroot}%{_unitdir}/packetfence-httpd.webservices.service
+%{__install} -D -m0644 conf/systemd/packetfence-iptables.service %{buildroot}%{_unitdir}/packetfence-iptables.service
+%{__install} -D -m0644 conf/systemd/packetfence-pfperl-api.service %{buildroot}%{_unitdir}/packetfence-pfperl-api.service
+%{__install} -D -m0644 conf/systemd/packetfence-keepalived.service %{buildroot}%{_unitdir}/packetfence-keepalived.service
+%{__install} -D -m0644 conf/systemd/packetfence-mariadb.service %{buildroot}%{_unitdir}/packetfence-mariadb.service
+%{__install} -D -m0644 conf/systemd/packetfence-pfbandwidthd.service %{buildroot}%{_unitdir}/packetfence-pfbandwidthd.service
+%{__install} -D -m0644 conf/systemd/packetfence-pfdetect.service %{buildroot}%{_unitdir}/packetfence-pfdetect.service
+%{__install} -D -m0644 conf/systemd/packetfence-pfdhcplistener.service %{buildroot}%{_unitdir}/packetfence-pfdhcplistener.service
+%{__install} -D -m0644 conf/systemd/packetfence-pfdns.service %{buildroot}%{_unitdir}/packetfence-pfdns.service
+%{__install} -D -m0644 conf/systemd/packetfence-pffilter.service %{buildroot}%{_unitdir}/packetfence-pffilter.service
+%{__install} -D -m0644 conf/systemd/packetfence-pfmon.service %{buildroot}%{_unitdir}/packetfence-pfmon.service
+%{__install} -D -m0644 conf/systemd/packetfence-pfqueue.service %{buildroot}%{_unitdir}/packetfence-pfqueue.service
+%{__install} -D -m0644 conf/systemd/packetfence-pfsso.service %{buildroot}%{_unitdir}/packetfence-pfsso.service
+%{__install} -D -m0644 conf/systemd/packetfence-httpd.dispatcher.service %{buildroot}%{_unitdir}/packetfence-httpd.dispatcher.service
+%{__install} -D -m0644 conf/systemd/packetfence-radiusd-acct.service %{buildroot}%{_unitdir}/packetfence-radiusd-acct.service
+%{__install} -D -m0644 conf/systemd/packetfence-radiusd-auth.service %{buildroot}%{_unitdir}/packetfence-radiusd-auth.service
+%{__install} -D -m0644 conf/systemd/packetfence-radiusd-cli.service %{buildroot}%{_unitdir}/packetfence-radiusd-cli.service
+%{__install} -D -m0644 conf/systemd/packetfence-radiusd-eduroam.service %{buildroot}%{_unitdir}/packetfence-radiusd-eduroam.service
+%{__install} -D -m0644 conf/systemd/packetfence-radiusd-load_balancer.service %{buildroot}%{_unitdir}/packetfence-radiusd-load_balancer.service
+%{__install} -D -m0644 conf/systemd/packetfence-radsniff.service %{buildroot}%{_unitdir}/packetfence-radsniff.service
+%{__install} -D -m0644 conf/systemd/packetfence-redis-cache.service %{buildroot}%{_unitdir}/packetfence-redis-cache.service
+%{__install} -D -m0644 conf/systemd/packetfence-redis_ntlm_cache.service %{buildroot}%{_unitdir}/packetfence-redis_ntlm_cache.service
+%{__install} -D -m0644 conf/systemd/packetfence-redis_queue.service %{buildroot}%{_unitdir}/packetfence-redis_queue.service
+%{__install} -D -m0644 conf/systemd/packetfence-routes.service %{buildroot}%{_unitdir}/packetfence-routes.service
+%{__install} -D -m0644 conf/systemd/packetfence-snmptrapd.service %{buildroot}%{_unitdir}/packetfence-snmptrapd.service
+%{__install} -D -m0644 conf/systemd/packetfence-tc.service %{buildroot}%{_unitdir}/packetfence-tc.service
+%{__install} -D -m0644 conf/systemd/packetfence-winbindd.service %{buildroot}%{_unitdir}/packetfence-winbindd.service
+%{__install} -D -m0644 conf/systemd/packetfence-pfdhcp.service %{buildroot}%{_unitdir}/packetfence-pfdhcp.service
+%{__install} -D -m0644 conf/systemd/packetfence-pfipset.service %{buildroot}%{_unitdir}/packetfence-pfipset.service
+%{__install} -D -m0644 conf/systemd/packetfence-netdata.service %{buildroot}%{_unitdir}/packetfence-netdata.service
+%{__install} -D -m0644 conf/systemd/packetfence-pfstats.service %{buildroot}%{_unitdir}/packetfence-pfstats.service
 # systemd path
-%{__install} -D -m0644 conf/systemd/packetfence-tracking-config.path $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-tracking-config.path
+%{__install} -D -m0644 conf/systemd/packetfence-tracking-config.path %{buildroot}%{_unitdir}/packetfence-tracking-config.path
 
-%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/addons
-%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/addons/AD
-%{__install} -d -m2770 $RPM_BUILD_ROOT/usr/local/pf/conf
-%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/conf/radiusd
-%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/conf/ssl
-%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/conf/ssl/acme-challenge
-%{__install} -d -m2775 $RPM_BUILD_ROOT%logdir
-%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/raddb/sites-enabled
-%{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/var
-%{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/var/cache
-%{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/var/cache/ntlm_cache_users
-%{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/var/redis_cache
-%{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/var/redis_queue
-%{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/var/redis_ntlm_cache
-%{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/var/ssl_mutex
-%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/conf
-%{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/var/run
-%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/rrd 
-%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/session
-%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/webadmin_cache
-%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/control
-%{__install} -d $RPM_BUILD_ROOT/etc/sudoers.d
-%{__install} -d $RPM_BUILD_ROOT/etc/cron.d
-touch $RPM_BUILD_ROOT/usr/local/pf/var/cache_control
-cp Makefile $RPM_BUILD_ROOT/usr/local/pf/
-cp -r bin $RPM_BUILD_ROOT/usr/local/pf/
-cp -r addons/pfconfig/ $RPM_BUILD_ROOT/usr/local/pf/addons/
-cp -r addons/captive-portal/ $RPM_BUILD_ROOT/usr/local/pf/addons/
-cp -r addons/dev-helpers/ $RPM_BUILD_ROOT/usr/local/pf/addons/
-cp -r addons/high-availability/ $RPM_BUILD_ROOT/usr/local/pf/addons/
-cp -r addons/integration-testing/ $RPM_BUILD_ROOT/usr/local/pf/addons/
-cp -r addons/packages/ $RPM_BUILD_ROOT/usr/local/pf/addons/
-cp -r addons/upgrade/ $RPM_BUILD_ROOT/usr/local/pf/addons/
-cp -r addons/watchdog/ $RPM_BUILD_ROOT/usr/local/pf/addons/
-cp -r addons/AD/* $RPM_BUILD_ROOT/usr/local/pf/addons/AD/
-cp -r addons/monit/ $RPM_BUILD_ROOT/usr/local/pf/addons/
-cp addons/*.pl $RPM_BUILD_ROOT/usr/local/pf/addons/
-cp addons/*.sh $RPM_BUILD_ROOT/usr/local/pf/addons/
-%{__install} -D packetfence.logrotate $RPM_BUILD_ROOT/etc/logrotate.d/packetfence
-%{__install} -D packetfence.rsyslog-drop-in.service $RPM_BUILD_ROOT/etc/systemd/system/rsyslog.service.d/packetfence.conf
-%{__install} -D packetfence.journald $RPM_BUILD_ROOT/usr/lib/systemd/journald.conf.d/01-packetfence.conf
-cp -r sbin $RPM_BUILD_ROOT/usr/local/pf/
-cp -r conf $RPM_BUILD_ROOT/usr/local/pf/
-cp -r raddb $RPM_BUILD_ROOT/usr/local/pf/
-mv packetfence.sudoers $RPM_BUILD_ROOT/etc/sudoers.d/packetfence
-mv packetfence.cron.d $RPM_BUILD_ROOT/etc/cron.d/packetfence
-mv addons/pfarp_remote/sbin/pfarp_remote $RPM_BUILD_ROOT/usr/local/pf/sbin
-mv addons/pfarp_remote/conf/pfarp_remote.conf $RPM_BUILD_ROOT/usr/local/pf/conf
-rmdir addons/pfarp_remote/sbin
-rm addons/pfarp_remote/initrd/pfarp
-rmdir addons/pfarp_remote/initrd
-rmdir addons/pfarp_remote/conf
-rmdir addons/pfarp_remote
-cp -r ChangeLog $RPM_BUILD_ROOT/usr/local/pf/
-cp -r COPYING $RPM_BUILD_ROOT/usr/local/pf/
-cp -r db $RPM_BUILD_ROOT/usr/local/pf/
-cp -r docs $RPM_BUILD_ROOT/usr/local/pf/
-rm -rf $RPM_BUILD_ROOT/usr/local/pf/docs/archives
-rm -rf $RPM_BUILD_ROOT/usr/local/pf/docs/docbook
-rm -rf $RPM_BUILD_ROOT/usr/local/pf/docs/fonts
-rm -rf $RPM_BUILD_ROOT/usr/local/pf/docs/images
-rm -rf $RPM_BUILD_ROOT/usr/local/pf/docs/api
-cp -r html $RPM_BUILD_ROOT/usr/local/pf/
+%{__install} -d %{buildroot}/usr/local/pf/addons
+%{__install} -d %{buildroot}/usr/local/pf/addons/AD
+%{__install} -d -m2770 %{buildroot}/usr/local/pf/conf
+%{__install} -d %{buildroot}/usr/local/pf/conf/radiusd
+%{__install} -d %{buildroot}/usr/local/pf/conf/ssl
+%{__install} -d %{buildroot}/usr/local/pf/conf/ssl/acme-challenge
+%{__install} -d -m2775 %{buildroot}%logdir
+%{__install} -d %{buildroot}/usr/local/pf/raddb/sites-enabled
+%{__install} -d -m2775 %{buildroot}/usr/local/pf/var
+%{__install} -d -m2775 %{buildroot}/usr/local/pf/var/cache
+%{__install} -d -m2775 %{buildroot}/usr/local/pf/var/cache/ntlm_cache_users
+%{__install} -d -m2775 %{buildroot}/usr/local/pf/var/redis_cache
+%{__install} -d -m2775 %{buildroot}/usr/local/pf/var/redis_queue
+%{__install} -d -m2775 %{buildroot}/usr/local/pf/var/redis_ntlm_cache
+%{__install} -d -m2775 %{buildroot}/usr/local/pf/var/ssl_mutex
+%{__install} -d %{buildroot}/usr/local/pf/var/conf
+%{__install} -d -m2775 %{buildroot}/usr/local/pf/var/run
+%{__install} -d %{buildroot}/usr/local/pf/var/rrd 
+%{__install} -d %{buildroot}/usr/local/pf/var/session
+%{__install} -d %{buildroot}/usr/local/pf/var/webadmin_cache
+%{__install} -d %{buildroot}/usr/local/pf/var/control
+%{__install} -d %{buildroot}/etc/sudoers.d
+%{__install} -d %{buildroot}/etc/cron.d
+touch %{buildroot}/usr/local/pf/var/cache_control
+cp Makefile %{buildroot}/usr/local/pf/
+cp -r bin %{buildroot}/usr/local/pf/
+cp -r addons/pfconfig/ %{buildroot}/usr/local/pf/addons/
+cp -r addons/captive-portal/ %{buildroot}/usr/local/pf/addons/
+cp -r addons/dev-helpers/ %{buildroot}/usr/local/pf/addons/
+cp -r addons/high-availability/ %{buildroot}/usr/local/pf/addons/
+cp -r addons/integration-testing/ %{buildroot}/usr/local/pf/addons/
+cp -r addons/packages/ %{buildroot}/usr/local/pf/addons/
+cp -r addons/upgrade/ %{buildroot}/usr/local/pf/addons/
+cp -r addons/watchdog/ %{buildroot}/usr/local/pf/addons/
+cp -r addons/AD/* %{buildroot}/usr/local/pf/addons/AD/
+cp -r addons/monit/ %{buildroot}/usr/local/pf/addons/
+cp addons/*.pl %{buildroot}/usr/local/pf/addons/
+cp addons/*.sh %{buildroot}/usr/local/pf/addons/
+%{__install} -D packetfence.logrotate %{buildroot}/etc/logrotate.d/packetfence
+%{__install} -D packetfence.rsyslog-drop-in.service %{buildroot}/etc/systemd/system/rsyslog.service.d/packetfence.conf
+%{__install} -D packetfence.journald %{buildroot}%{systemddir}/journald.conf.d/01-packetfence.conf
+cp -r sbin %{buildroot}/usr/local/pf/
+cp -r conf %{buildroot}/usr/local/pf/
+cp -r raddb %{buildroot}/usr/local/pf/
+mv packetfence.sudoers %{buildroot}/etc/sudoers.d/packetfence
+mv packetfence.cron.d %{buildroot}/etc/cron.d/packetfence
+cp -r ChangeLog %{buildroot}/usr/local/pf/
+cp -r COPYING %{buildroot}/usr/local/pf/
+cp -r db %{buildroot}/usr/local/pf/
+cp -r docs %{buildroot}/usr/local/pf/
+rm -rf %{buildroot}/usr/local/pf/docs/docbook
+rm -rf %{buildroot}/usr/local/pf/docs/fonts
+rm -rf %{buildroot}/usr/local/pf/docs/images
+rm -rf %{buildroot}/usr/local/pf/docs/api
+cp -r html %{buildroot}/usr/local/pf/
+
+# install Golang binaries
+%{__make} -C go DESTDIR=%{buildroot} copy
 
 # install html and images dirs in pfappserver for embedded doc
-%{__install} -d -m0755 $RPM_BUILD_ROOT/usr/local/pf/html/pfappserver/root/static/doc
+%{__install} -d -m0755 %{buildroot}/usr/local/pf/html/pfappserver/root/static/doc
 for i in `find docs/html "(" -name "*.html" -or -name "*.js" ")"  -type f`; do \
-	%{__install} -m0644 $i $RPM_BUILD_ROOT/usr/local/pf/html/pfappserver/root/static/doc/; \
+	%{__install} -m0644 $i %{buildroot}/usr/local/pf/html/pfappserver/root/static/doc/; \
 done
 
 # images
 %{__make} DESTDIR=%{buildroot} images
 
-
-cp -r lib $RPM_BUILD_ROOT/usr/local/pf/
-cp -r go $RPM_BUILD_ROOT/usr/local/pf/
-cp -r NEWS.asciidoc $RPM_BUILD_ROOT/usr/local/pf/
-cp -r NEWS.old $RPM_BUILD_ROOT/usr/local/pf/
-cp -r README.md $RPM_BUILD_ROOT/usr/local/pf/
-cp -r README.network-devices $RPM_BUILD_ROOT/usr/local/pf/
-cp -r UPGRADE.asciidoc $RPM_BUILD_ROOT/usr/local/pf/
-cp -r UPGRADE.old $RPM_BUILD_ROOT/usr/local/pf/
+cp -r lib %{buildroot}/usr/local/pf/
+cp -r go %{buildroot}/usr/local/pf/
+cp -r NEWS.asciidoc %{buildroot}/usr/local/pf/
+cp -r NEWS.old %{buildroot}/usr/local/pf/
+cp -r README.md %{buildroot}/usr/local/pf/
+cp -r README.network-devices %{buildroot}/usr/local/pf/
+cp -r UPGRADE.asciidoc %{buildroot}/usr/local/pf/
+cp -r UPGRADE.old %{buildroot}/usr/local/pf/
 # logfiles
 for LOG in %logfiles; do
-    touch $RPM_BUILD_ROOT%logdir/$LOG
+    touch %{buildroot}%logdir/$LOG
 done
 #start create symlinks
 curdir=`pwd`
 
 #pf-schema.sql symlinks to current schema
-if [ ! -h "$RPM_BUILD_ROOT/usr/local/pf/db/pf-schema.sql" ]; then
-    cd $RPM_BUILD_ROOT/usr/local/pf/db
+if [ ! -h "%{buildroot}/usr/local/pf/db/pf-schema.sql" ]; then
+    cd %{buildroot}/usr/local/pf/db
     VERSIONSQL=$(ls pf-schema-* |sort -r | head -1)
     ln -f -s $VERSIONSQL ./pf-schema.sql
 fi
 
 #radius sites-enabled symlinks
 #We standardize the way to use site-available/sites-enabled for the RADIUS server
-cd $RPM_BUILD_ROOT/usr/local/pf/raddb/sites-enabled
+cd %{buildroot}/usr/local/pf/raddb/sites-enabled
 ln -s ../sites-available/dynamic-clients dynamic-clients
 ln -s ../sites-available/status status
 
 # Fingerbank symlinks
-cd $RPM_BUILD_ROOT/usr/local/pf/lib
+cd %{buildroot}/usr/local/pf/lib
 ln -s /usr/local/fingerbank/lib/fingerbank fingerbank
 
 cd $curdir
 #end create symlinks
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+rm -rf %{buildroot}
 
-%pre -n %{real_name}
+#==============================================================================
+# Pre-installation
+#==============================================================================
+%pre
 
 /usr/bin/systemctl --now mask mariadb
 
 # This (extremelly) ugly hack below will make the current processes part of a cgroup other than the one for user-0.slice
 # This will allow for the current shells that are opened to be protected against stopping when we'll be calling isolate below which stops user-0.slice
 # New shells will not be placed into user-0.slice since systemd-logind will be disabled and masked
-/bin/bash -c "/usr/bin/systemctl status user-0.slice | /usr/bin/egrep -o '─[0-9]+' | /usr/bin/sed 's/─//g' | /usr/bin/xargs -I{} /bin/bash -c '/usr/bin/kill -0 {} > /dev/null 2>/dev/null && /usr/bin/echo {} > /sys/fs/cgroup/systemd/tasks'"
+/bin/bash -c "/usr/bin/systemctl status user-0.slice | /usr/bin/grep -E -o '─[0-9]+' | /usr/bin/sed 's/─//g' | /usr/bin/xargs -I{} /bin/bash -c '/usr/bin/kill -0 {} > /dev/null 2>/dev/null && /usr/bin/echo {} > /sys/fs/cgroup/systemd/tasks'"
 /usr/bin/systemctl stop systemd-logind
 /usr/bin/systemctl --now mask systemd-logind
 /usr/bin/systemctl daemon-reload
@@ -657,32 +573,13 @@ then
   exit
 fi
 
-%pre -n %{real_name}-remote-arp-sensor
+#==============================================================================
+# Post Installation
+#==============================================================================
+%post
+chown pf.pf /usr/local/pf/conf/pfconfig.conf
+echo "Adding PacketFence config startup script"
 
-if ! /usr/bin/id pf &>/dev/null; then
-    if ! /bin/getent group  pf &>/dev/null; then
-        /usr/sbin/useradd -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf || \
-                echo Unexpected error adding user "pf" && exit
-    else
-        /usr/sbin/useradd -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf -g pf || \
-                echo Unexpected error adding user "pf" && exit
-    fi
-fi
-
-%pre -n %{real_name}-config
-
-if ! /usr/bin/id pf &>/dev/null; then
-    if ! /bin/getent group  pf &>/dev/null; then
-        /usr/sbin/useradd -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf || \
-                echo Unexpected error adding user "pf" && exit
-    else
-        /usr/sbin/useradd -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf -g pf || \
-                echo Unexpected error adding user "pf" && exit
-    fi
-fi
-
-
-%post -n %{real_name}
 if [ "$1" = "2" ]; then
     /usr/local/pf/bin/pfcmd service pf updatesystemd
     perl /usr/local/pf/addons/upgrade/add-default-params-to-auth.pl
@@ -792,61 +689,34 @@ echo Installation complete
 echo "  * Please fire up your Web browser and go to https://@ip_packetfence:1443/configurator to complete your PacketFence configuration."
 echo "  * Please stop your iptables service if you don't have access to configurator."
 
-%post -n %{real_name}-remote-arp-sensor
-echo "Adding PacketFence remote ARP Sensor startup script"
-/sbin/chkconfig --add pfarp
-
-%post -n %{real_name}-config
-chown pf.pf /usr/local/pf/conf/pfconfig.conf
-echo "Adding PacketFence config startup script"
-/bin/systemctl enable packetfence-config
-
-%preun -n %{real_name}
+#==============================================================================
+# Pre uninstallation
+#==============================================================================
+%preun
 if [ $1 -eq 0 ] ; then
+/bin/systemctl stop packetfence-config
+/bin/systemctl disable packetfence-config
 /bin/systemctl set-default multi-user.target
 /bin/systemctl isolate multi-user.target
 fi
 
-%preun -n %{real_name}-remote-arp-sensor
-if [ $1 -eq 0 ] ; then
-        /sbin/service pfarp stop &>/dev/null || :
-        /sbin/chkconfig --del pfarp
-fi
-
-%preun -n %{real_name}-config
-if [ $1 -eq 0 ] ; then
-/bin/systemctl stop packetfence-config
-/bin/systemctl disable packetfence-config
-fi
-
-%postun -n %{real_name}
+%postun
 if [ $1 -eq 0 ]; then
         if /usr/bin/id pf &>/dev/null; then
                /usr/sbin/userdel pf || %logmsg "User \"pf\" could not be deleted."
         fi
 fi
 
-%postun -n %{real_name}-remote-arp-sensor
-if [ $1 -eq 0 ]; then
-        if /usr/bin/id pf &>/dev/null; then
-                /usr/sbin/userdel pf || %logmsg "User \"pf\" could not be deleted."
-        fi
-fi
-
-%postun -n %{real_name}-config
-if [ $1 -eq 0 ]; then
-        if /usr/bin/id pf &>/dev/null; then
-                /usr/sbin/userdel pf || %logmsg "User \"pf\" could not be deleted."
-        fi
-fi
-
+#==============================================================================
+# Packaged files
+#==============================================================================
 # TODO we should simplify this file manifest to the maximum keeping treating 
 # only special attributes explicitly 
-# "To make this situation a bit easier, if the %files list contains a path 
+# "To make this situation a bit easier, if the %%files list contains a path
 # to a directory, RPM will automatically package every file in that 
 # directory, as well as every file in each subdirectory."
 # -- http://www.rpm.org/max-rpm/s1-rpm-inside-files-list.html
-%files -n %{real_name}
+%files
 
 %defattr(-, pf, pf)
 %attr(0644, root, root) /etc/systemd/system/packetfence.target
@@ -854,10 +724,9 @@ fi
 %attr(0644, root, root) /etc/systemd/system/packetfence-cluster.target
 %attr(0644, root, root) /etc/systemd/system/packetfence*.slice
 
-%exclude                /usr/lib/systemd/system/packetfence-config.service
-%attr(0644, root, root) /usr/lib/systemd/system/packetfence-*.service
-%attr(0644, root, root) /usr/lib/systemd/system/packetfence-*.path
-%attr(0644, root, root) /usr/lib/systemd/journald.conf.d/01-packetfence.conf
+%attr(0644, root, root) %{_unitdir}/packetfence-*.service
+%attr(0644, root, root) %{_unitdir}/packetfence-*.path
+%attr(0644, root, root) %{systemddir}/journald.conf.d/01-packetfence.conf
 
 %dir %attr(0750, root,root) /etc/systemd/system/packetfence*target.wants
 %attr(0644, root, root) /etc/systemd/system/rsyslog.service.d/packetfence.conf
@@ -887,6 +756,7 @@ fi
 %dir                    /usr/local/pf/addons/packages
                         /usr/local/pf/addons/packages/*
 %dir                    /usr/local/pf/addons/pfconfig
+%exclude                /usr/local/pf/addons/pfconfig/pfconfig.init
 %dir                    /usr/local/pf/addons/pfconfig/comparator
 %attr(0755, pf, pf)     /usr/local/pf/addons/pfconfig/comparator/*.pl
 %attr(0755, pf, pf)     /usr/local/pf/addons/pfconfig/comparator/*.sh
@@ -896,7 +766,8 @@ fi
 %dir                    /usr/local/pf/addons/watchdog
 %attr(0755, pf, pf)     /usr/local/pf/addons/watchdog/*.sh
 %dir                    /usr/local/pf/bin
-%attr(0755, pf, pf)     /usr/local/pf/sbin/pfhttpd
+%attr(6755, root, root) /usr/local/pf/bin/pfcmd
+%attr(0755, root, root) /usr/local/pf/bin/ntlm_auth_wrapper
 %attr(0755, pf, pf)     /usr/local/pf/bin/pfcmd.pl
 %attr(0755, pf, pf)     /usr/local/pf/bin/pfcmd_vlan
 %attr(0755, pf, pf)     /usr/local/pf/bin/pftest
@@ -908,12 +779,16 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/pfupdate
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/maintenance
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/node
+%attr(0755, pf, pf)     /usr/local/pf/sbin/pfhttpd
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdetect
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdhcp
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdns
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfstats
+%attr(0755, pf, pf)     /usr/local/pf/sbin/pfconfig
 %doc                    /usr/local/pf/ChangeLog
                         /usr/local/pf/conf/*.example
+%dir %attr(0770, pf pf) /usr/local/pf/conf
+%config(noreplace)      /usr/local/pf/conf/pfconfig.conf
 %config(noreplace)      /usr/local/pf/conf/adminroles.conf
 %config(noreplace)      /usr/local/pf/conf/allowed_device_oui.txt
 %config                 /usr/local/pf/conf/ui.conf
@@ -1167,28 +1042,15 @@ fi
 %dir                    /usr/local/pf/db
                         /usr/local/pf/db/*
 %dir                    /usr/local/pf/docs
-%dir                    /usr/local/pf/docs/enforcement
-%doc                    /usr/local/pf/docs/enforcement/*
-%dir                    /usr/local/pf/docs/firewall
-%doc                    /usr/local/pf/docs/firewall/*
-%dir                    /usr/local/pf/docs/networkdevice
-%doc                    /usr/local/pf/docs/networkdevice/*
-%dir                    /usr/local/pf/docs/pki
-%doc                    /usr/local/pf/docs/pki/*
-%dir                    /usr/local/pf/docs/provisioner
-%doc                    /usr/local/pf/docs/provisioner/*
+%doc                    /usr/local/pf/docs/*
+%exclude                /usr/local/pf/docs/README.asciidoc
+%if %{builddoc} == 1
+%doc                    /usr/local/pf/docs/*.pdf
+%exclude                /usr/local/pf/docs/*.fo
+%endif
+
 %dir                    /usr/local/pf/html/pfappserver/root/static/doc
 %doc                    /usr/local/pf/html/pfappserver/root/static/doc/*
-%doc                    /usr/local/pf/docs/*.asciidoc
-%doc                    /usr/local/pf/docs/html/*
-%if %{builddoc} == 1
-%doc                    /usr/local/pf/docs/*.pdf 
-%endif
-%doc                    /usr/local/pf/docs/*.xml
-%doc                    /usr/local/pf/docs/fdl-1.2.txt
-%dir                    /usr/local/pf/docs/includes
-%doc                    /usr/local/pf/docs/includes/*.asciidoc
-%doc                    /usr/local/pf/docs/pfcmd.help
 %dir                    /usr/local/pf/html
 %dir                    /usr/local/pf/html/captive-portal
                         /usr/local/pf/html/captive-portal/Changes
@@ -1280,8 +1142,9 @@ fi
 %config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Service.pm
 %config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/User.pm
 %config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/SecurityEvent.pm
-                        /usr/local/pf/lib
-%exclude                /usr/local/pf/lib/pfconfig*
+                        /usr/local/pf/lib/
+%dir                    /usr/local/pf/lib/pfconfig
+                        /usr/local/pf/lib/pfconfig/*
 %config(noreplace)      /usr/local/pf/lib/pf/floatingdevice/custom.pm
 %config(noreplace)      /usr/local/pf/lib/pf/inline/custom.pm
 %config(noreplace)      /usr/local/pf/lib/pf/lookup/node.pm
@@ -1362,37 +1225,19 @@ fi
 %dir                    /usr/local/pf/var/ssl_mutex
 %config(noreplace)      /usr/local/pf/var/cache_control
 
-# Remote arp sensor file list
-%files -n %{real_name}-remote-arp-sensor
-%defattr(-, pf, pf)
-%dir                    /usr/local/pf
-%dir                    /usr/local/pf/conf
-%config(noreplace)      /usr/local/pf/conf/pfarp_remote.conf
-%dir                    /usr/local/pf/sbin
-%attr(0755, pf, pf)     /usr/local/pf/sbin/pfarp_remote
-%dir                    /usr/local/pf/var
-%dir                    /usr/local/pf/var/run
-
-%files -n %{real_name}-pfcmd-suid
-%attr(6755, root, root) /usr/local/pf/bin/pfcmd
-
-%files -n %{real_name}-ntlm-wrapper
-%attr(0755, root, root) /usr/local/pf/bin/ntlm_auth_wrapper
-
-%files -n %{real_name}-config
-%defattr(-, pf, pf)
-%attr(0644, root, root) /usr/lib/systemd/system/packetfence-config.service
-%dir                    /usr/local/pf
-%dir %attr(0770, pf pf) /usr/local/pf/conf
-%config(noreplace)      /usr/local/pf/conf/pfconfig.conf
-%dir                    /usr/local/pf/lib
-%dir                    /usr/local/pf/lib/pfconfig
-                        /usr/local/pf/lib/pfconfig/*
-%attr(0755, pf, pf)     /usr/local/pf/sbin/pfconfig
-%dir                    /usr/local/pf/addons/pfconfig
-%exclude                /usr/local/pf/addons/pfconfig/pfconfig.init
-
+#==============================================================================
+# Changelog
+#==============================================================================
 %changelog
+* Fri Oct 11 2019 Inverse <info@inverse.ca> - 9.1.9-2
+- Obsoletes old packetfence packages
+- Simplify FreeRADIUS dependencies
+
+* Thu Oct 10 2019 Inverse <info@inverse.ca> - 9.1.9-1
+- Make only one packetfence package, arch dependent
+- Adapt spec file to CI
+- Use macros
+
 * Wed May 15 2019 Inverse <info@inverse.ca> - 9.0.0-1
 - New release 9.0.0
 
@@ -1402,13 +1247,13 @@ fi
 * Wed Nov 07 2018 Inverse <info@inverse.ca> - 8.2.0-1
 - New release 8.2.0
 
-* Thu Jul 09 2018 Inverse <info@inverse.ca> - 8.1.0-1
+* Mon Jul 09 2018 Inverse <info@inverse.ca> - 8.1.0-1
 - New release 8.1.0
 
 * Thu Apr 26 2018 Inverse <info@inverse.ca> - 8.0.0-1
 - New release 8.0.0
 
-* Mon Jan 25 2018 Inverse <info@inverse.ca> - 7.4.0-1
+* Thu Jan 25 2018 Inverse <info@inverse.ca> - 7.4.0-1
 - New release 7.4.0
 
 * Mon Sep 25 2017 Inverse <info@inverse.ca> - 7.3.0-1
@@ -1444,7 +1289,7 @@ fi
 * Tue Jul 05 2016 Inverse <info@inverse.ca> - 6.2.0-1
 - New release 6.2.0
 
-* Tue Jun 22 2016 Inverse <info@inverse.ca> - 6.1.1-1
+* Wed Jun 22 2016 Inverse <info@inverse.ca> - 6.1.1-1
 - New release 6.1.1
 
 * Tue Jun 21 2016 Inverse <info@inverse.ca> - 6.1.0-1
@@ -1516,10 +1361,10 @@ fi
 * Thu Jun 26 2014 Inverse <info@inverse.ca> - 4.3.0-1
 - New release 4.3.0
 
-* Tue May 29 2014 Inverse <info@inverse.ca> - 4.2.2-1
+* Thu May 29 2014 Inverse <info@inverse.ca> - 4.2.2-1
 - New release 4.2.2
 
-* Tue May 16 2014 Inverse <info@inverse.ca> - 4.2.1-1
+* Fri May 16 2014 Inverse <info@inverse.ca> - 4.2.1-1
 - New release 4.2.1
 
 * Tue May  6 2014 Inverse <info@inverse.ca> - 4.2.0-1
@@ -1546,7 +1391,7 @@ fi
 * Fri Jul 12 2013 Francis Lachapelle <flachapelle@inverse.ca> - 4.0.2-1
 - New release 4.0.2
 
-* Thu May 8 2013 Francis Lachapelle <flachapelle@inverse.ca> - 4.0.0-1
+* Wed May 8 2013 Francis Lachapelle <flachapelle@inverse.ca> - 4.0.0-1
 - New release 4.0.0
 
 * Thu Jan 10 2013 Derek Wuelfrath <dwuelfrath@inverse.ca> - 3.6.1-1
@@ -1575,7 +1420,7 @@ fi
 * Fri Aug 24 2012 Olivier Bilodeau <obilodeau@inverse.ca>
 - Added clean to avoid filling up build systems.. Sorry about that.
 
-* Mon Aug 01 2012 Derek Wuelfrath <dwuelfrath@inverse.ca> - 3.5.0-1
+* Wed Aug 01 2012 Derek Wuelfrath <dwuelfrath@inverse.ca> - 3.5.0-1
 - New release 3.5.0
 
 * Thu Jul 12 2012 Francois Gaudreault <fgaudreault@inverse.ca>
@@ -1590,17 +1435,17 @@ fi
 * Wed Apr 25 2012 Francois Gaudreault <fgaudreault@inverse.ca>
 - Changing directory for raddb configuration
 
-* Thu Apr 23 2012 Olivier Bilodeau <obilodeau@inverse.ca> - 3.3.2-1
+* Mon Apr 23 2012 Olivier Bilodeau <obilodeau@inverse.ca> - 3.3.2-1
 - New release 3.3.2
 
 * Tue Apr 17 2012 Francois Gaudreault <fgaudreault@inverse.ca>
 - Dropped configuration package for FR.  We now have everything
 in /usr/local/pf
 
-* Thu Apr 16 2012 Olivier Bilodeau <obilodeau@inverse.ca> - 3.3.1-1
+* Mon Apr 16 2012 Olivier Bilodeau <obilodeau@inverse.ca> - 3.3.1-1
 - New release 3.3.1
 
-* Thu Apr 13 2012 Olivier Bilodeau <obilodeau@inverse.ca> - 3.3.0-2
+* Fri Apr 13 2012 Olivier Bilodeau <obilodeau@inverse.ca> - 3.3.0-2
 - New release 3.3.0 (for real this time!)
 - directories missing in tarball since git migration now created in install
 
@@ -1621,7 +1466,7 @@ in /usr/local/pf
 * Tue Feb 14 2012 Derek Wuelfrath <dwuelfrath@inverse.ca>
 - Added perl(LWP::UserAgent) dependency for billing engine
 
-* Fri Nov 23 2011 Olivier Bilodeau <obilodeau@inverse.ca> - 3.1.0-1
+* Wed Nov 23 2011 Olivier Bilodeau <obilodeau@inverse.ca> - 3.1.0-1
 - New release 3.1.0
 
 * Mon Nov 21 2011 Olivier Bilodeau <obilodeau@inverse.ca> - 3.0.3-1
@@ -1637,7 +1482,7 @@ in /usr/local/pf
 - New release 3.0.2
 
 * Mon Oct 03 2011 Francois Gaudreault <fgaudreault@inverse.ca>
-- Won't create symlinks in sites-enabled if they already exists
+- Won\'t create symlinks in sites-enabled if they already exists
 
 * Fri Sep 23 2011 Ludovic Marcotte <lmarcotte@inverse.ca> - 3.0.1-1
 - New release 3.0.1
@@ -1668,25 +1513,25 @@ in /usr/local/pf
 * Thu Jun 16 2011 Olivier Bilodeau <obilodeau@inverse.ca> - 2.2.1-1
 - New release 2.2.1
 
-* Mon May 15 2011 Francois Gaudreault <fgaudreault@inverse.ca>
+* Sun May 15 2011 Francois Gaudreault <fgaudreault@inverse.ca>
 - Added file freeradius-watchdog.sh
 
-* Thu May 03 2011 Olivier Bilodeau <obilodeau@inverse.ca> - 2.2.0-2
+* Tue May 03 2011 Olivier Bilodeau <obilodeau@inverse.ca> - 2.2.0-2
 - Package rebuilt to resolve issue #1212
 
 * Tue May 03 2011 Francois Gaudreault <fgaudreault@inverse.ca>
 - Fixed copy typo for the perl module backup file
 
-* Thu May 03 2011 Olivier Bilodeau <obilodeau@inverse.ca> - 2.2.0-1
+* Tue May 03 2011 Olivier Bilodeau <obilodeau@inverse.ca> - 2.2.0-1
 - New release 2.2.0
 
 * Wed Apr 13 2011 Francois Gaudreault <fgaudreault@inverse.ca>
 - Fixed problems in the install part for freeradius2 package
 
-* Wed Apr 12 2011 Francois Gaudreault <fgaudreault@inverse.ca>
+* Tue Apr 12 2011 Francois Gaudreault <fgaudreault@inverse.ca>
 - Added support for perl module configuration in the packetfence-
   freeradius2 package
->
+
 * Wed Mar 30 2011 Olivier Bilodeau <obilodeau@inverse.ca>
 - Added perl(Authen::Krb5::Simple) as a dependency. Required by new Kerberos
   Captive Portal authentication module.
@@ -1717,12 +1562,12 @@ in /usr/local/pf
 
 * Fri Feb 25 2011 Olivier Bilodeau <obilodeau@inverse.ca>
 - Added perl(Class::Inspector) as a dependency. Upstream SOAP::Lite depend
-  on it but current package doesn't provide it. See #1194.
+  on it but current package doesn\'t provide it. See #1194.
 
 * Fri Feb 18 2011 Olivier Bilodeau <obilodeau@inverse.ca>
 - Added perl(JSON) as a dependency
 
-* Thu Feb 11 2011 Olivier Bilodeau <obilodeau@inverse.ca>
+* Fri Feb 11 2011 Olivier Bilodeau <obilodeau@inverse.ca>
 - Explicitly remove fonts from package. For now.
 
 * Thu Feb 03 2011 Olivier Bilodeau <obilodeau@inverse.ca>
@@ -1761,7 +1606,7 @@ in /usr/local/pf
 
 * Wed Oct 27 2010 Olivier Bilodeau <obilodeau@inverse.ca>
 - Added new pf::web::custom module which is meant to be controlled by clients
-  (so we don't overwrite it by default)
+  (so we don\'t overwrite it by default)
 
 * Tue Oct 26 2010 Olivier Bilodeau <obilodeau@inverse.ca>
 - New dir and files for pf::services... submodules.
@@ -1774,13 +1619,13 @@ in /usr/local/pf
 * Fri Sep 24 2010 Olivier Bilodeau <obilodeau@inverse.ca>
 - Added lib/pf/*.pl to the file list for new lib/pf/mod_perl_require.pl
 
-* Tue Sep 22 2010 Olivier Bilodeau <obilodeau@inverse.ca>
+* Wed Sep 22 2010 Olivier Bilodeau <obilodeau@inverse.ca>
 - Version bump, doing 1.9.2 pre-release snapshots now
 - Removing perl-LWP-UserAgent-Determined as a dependency of remote-snort-sensor.
   See #882;
   http://www.packetfence.org/bugs/view.php?id=882
 
-* Tue Sep 22 2010 Olivier Bilodeau <obilodeau@inverse.ca> - 1.9.1-0
+* Wed Sep 22 2010 Olivier Bilodeau <obilodeau@inverse.ca> - 1.9.1-0
 - New upstream release 1.9.1
 
 * Tue Sep 21 2010 Olivier Bilodeau <obilodeau@inverse.ca>
@@ -1797,7 +1642,7 @@ in /usr/local/pf
 * Tue Jul 27 2010 Olivier Bilodeau <obilodeau@inverse.ca>
 - Added conf/admin.perm file to the files manifest
 
-* Tue Jul 15 2010 Olivier Bilodeau <obilodeau@inverse.ca> - 1.9.0
+* Thu Jul 15 2010 Olivier Bilodeau <obilodeau@inverse.ca> - 1.9.0
 - New upstream release 1.9.0
 
 * Tue May 18 2010 Olivier Bilodeau <obilodeau@inverse.ca>
@@ -1846,7 +1691,7 @@ in /usr/local/pf
   perl namespace version perl(Locale-gettext). Fixes #931;
   http://www.packetfence.org/mantis/view.php?id=931
 
-* Tue Mar 11 2010 Olivier Bilodeau <obilodeau@inverse.ca> - 1.8.8-0.20100311
+* Thu Mar 11 2010 Olivier Bilodeau <obilodeau@inverse.ca> - 1.8.8-0.20100311
 - Version bump to snapshot 20100311
 
 * Tue Jan 05 2010 Olivier Bilodeau <obilodeau@inverse.ca> - 1.8.7-1
@@ -1859,7 +1704,7 @@ in /usr/local/pf
   Fixes #882;
   http://www.packetfence.org/mantis/view.php?id=882
 
-* Tue Dec 04 2009 Olivier Bilodeau <obilodeau@inverse.ca> - 1.8.6-2
+* Fri Dec 04 2009 Olivier Bilodeau <obilodeau@inverse.ca> - 1.8.6-2
 - Fixed link to database schema
 - Rebuilt packages
 

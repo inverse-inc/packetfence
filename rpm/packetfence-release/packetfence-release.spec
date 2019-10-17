@@ -1,46 +1,16 @@
-# PacketFence RPM SPEC
-#
-# NEW (since git migration):
-#
-#   Expecting a standard tarball with packetfence-<version>/...
-# 
-# BUILDING FOR RELEASE
-# 
-# - Build
-#  - define ver <version>
-#  - define dist based on target distro (for centos/rhel => .el5)
-#  - define rev based on package revision (must be > 0 for proprer upgrade from snapshots)
-# ex:
-# cd /usr/src/redhat/
-# rpmbuild -ba --define 'ver 3.3.0' --define 'dist .el5' --define 'rev 1' SPECS/packetfence.spec
-#
-#
-# BUILDING FOR A SNAPSHOT (PRE-RELEASE)
-#
-# - Build
-#  - define ver <version>
-#  - define snapshot 1
-#  - define dist based on target distro (for centos/rhel => .el5)
-#  - define rev to 0.<date> this way one can upgrade from snapshot to release
-# ex:
-# cd /usr/src/redhat/
-# rpmbuild -ba --define 'ver 3.3.0' --define 'snapshot 1' --define 'dist .el5' --define 'rev 0.20100506' SPECS/packetfence.spec
-#
-Summary: PacketFence release file and RPM repository configuration
-%global real_name packetfence-release
-Name: %{real_name}
-Version: %{ver}
-Release: %{rev}%{?dist}
-License: GPL
-Group: System Environment/Base
-URL: http://www.packetfence.org
-BuildRoot: %{_tmppath}/%{real_name}-%{version}-%{rev}-root
-BuildArch: noarch
-# disables the creation of the debug package for our setuid C wrapper
-%define debug_package %{nil}
-
-Packager: Inverse inc. <support@inverse.ca>
-Vendor: PacketFence, http://www.packetfence.org
+Name:       packetfence-release
+Version:    2.0.0
+Release:    1%{?dist}
+BuildArch:  noarch
+Summary:    PacketFence release file and RPM repository configuration
+Packager:   Inverse inc. <support@inverse.ca>
+Group:      System Environment/Base
+License:    GPL
+URL:        http://www.packetfence.org
+# don't use any source
+#Source0:
+BuildRoot:  %{_tmppath}/%{name}-root
+Vendor:     PacketFence, http://www.packetfence.org
 
 %description
 
@@ -108,22 +78,26 @@ EOF
 
 
 %build
+
 %install
-rm -rf %{buildroot}
+%{__rm} -rf %{buildroot}
 mkdir -p %{buildroot}/etc/yum.repos.d/
 mkdir -p %{buildroot}/etc/pki/rpm-gpg/
-cp /etc/yum.repos.d/packetfence.repo $RPM_BUILD_ROOT/etc/yum.repos.d/packetfence.repo
-cp /etc/pki/rpm-gpg/RPM-GPG-KEY-PACKETFENCE-CENTOS $RPM_BUILD_ROOT%{_sysconfdir}/pki/rpm-gpg/RPM-GPG-KEY-PACKETFENCE-CENTOS
-%clean
-rm -rf $RPM_BUILD_ROOT
+cp /etc/yum.repos.d/packetfence.repo %{buildroot}/etc/yum.repos.d/packetfence.repo
+cp /etc/pki/rpm-gpg/RPM-GPG-KEY-PACKETFENCE-CENTOS %{buildroot}%{_sysconfdir}/pki/rpm-gpg/RPM-GPG-KEY-PACKETFENCE-CENTOS
 
-%files -n %{real_name}
+%clean
+%{__rm} -rf %{buildroot}
+
+%files -n %{name}
 %defattr(0644, root, root)
 %config /etc/yum.repos.d/packetfence.repo
 /etc/pki/rpm-gpg/RPM-GPG-KEY-PACKETFENCE-CENTOS
 
 
 %changelog
+* Sat Jul 13 2019 Nicolas Quiniou-Briand <nqb@inverse.ca> - 2.0.0-1
+- Adapt spec file to CI
 * Wed Apr 12 2017 Inverse inc. <info@inverse.ca> - 1.2-7
 - Permission fix. 
 
