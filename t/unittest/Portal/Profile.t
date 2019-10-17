@@ -17,7 +17,8 @@ use warnings;
 
 use lib '/usr/local/pf/lib';
 
-use Test::More;
+use Test::More tests => 12;
+use Test::Exception;
 
 BEGIN {
     #include test libs
@@ -27,8 +28,12 @@ BEGIN {
     use_ok("pf::Connection::ProfileFactory");
 }
 
+use JSON::MaybeXS;
+our $JSON = JSON->new->convert_blessed(1);
 
 my $profile = pf::Connection::ProfileFactory->instantiate("00:00:00:00:00:00", {});
+
+lives_ok { $JSON->encode($profile) } "Profile can be serialized to json";;
 
 is($profile->findScan("00:00:00:00:00:00", {device_type => "Microsoft Windows Kernel 6.0", category => "guest"})->{_id}, "test1",
     "Matching scan properly when OS + category match");

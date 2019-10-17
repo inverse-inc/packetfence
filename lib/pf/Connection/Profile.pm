@@ -669,6 +669,10 @@ sub unregOnAcctStop {
     return isenabled($self->{'_unreg_on_acct_stop'});
 }
 
+sub TO_JSON {
+    return {%{$_[0]}};
+}
+
 =back
 
 =head1 AUTHOR
