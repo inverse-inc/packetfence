@@ -73,7 +73,6 @@ has_block definition =>
 
 sub BUILD {
     my ($self) = @_;
-    $self->field('actions.contains')->field('type')->options([$self->options_actions]);
     $self->block('definition')->add_to_render_list(qw(id type description), $self->child_definition());
     $self->setup();
 }
@@ -105,22 +104,6 @@ sub remove_field {
             $self->add_field($field);
         }
     }
-}
-
-=head2 options_actions
-
-Options available for the actions
-
-=cut
-
-sub options_actions {
-    my ($self) = @_;
-    return map { 
-        {
-            value => $_,
-            label => $self->_localize($_),
-        }
-    } ("Select an option", @{$self->for_module->available_actions});
 }
 
 =head2 dynamic_tables

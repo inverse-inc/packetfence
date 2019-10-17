@@ -31,7 +31,7 @@ has_field 'type' =>
    do_label => 0,
    required => 1,
    widget_wrapper => 'None',
-   default => 'Select an option',
+   options_method => \&options_type,
   );
 
 has_field 'value' =>
@@ -71,6 +71,18 @@ sub action_deflate {
     my $type = $value->{type};
     my $joined_arguments = $value->{value};
     return "${type}(${joined_arguments})";
+}
+
+sub options_type {
+    my ($self) = @_;
+    my $form = $self->form;
+    return (
+        { value => '', label => $form->_localize('Select an option') },
+        (
+            map { { value => $_, label => $form->_localize($_), } }
+              @{ $form->for_module->available_actions }
+        )
+    );
 }
 
 =head1 COPYRIGHT
