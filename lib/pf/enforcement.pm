@@ -171,7 +171,7 @@ sub _vlan_reevaluation {
         role => $locationlog_entry->{'role'},
         vlan => $locationlog_entry->{'vlan'},
         node_info => pf::node::node_attributes($mac),
-	#profile => pf::Connection::ProfileFactory->instantiate($mac),
+        profile => pf::Connection::ProfileFactory->instantiate($mac),
         conn_type => str_to_connection_type($locationlog_entry->{'connection_type'} )
     };
 
