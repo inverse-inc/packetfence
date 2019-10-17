@@ -900,7 +900,7 @@ sub switch_access {
                 $args->{'isPhone'} ? $VOIP : $NO_VOIP, $VIRTUAL_VPN, undef, $user_name, undef, $stripped_user_name, $realm, $args->{'user_role'}, $ifDesc
             );
         } else {
-            my $profile = pf::Connection::ProfileFactory->instantiate("55:44:33:22:11:00",$options);
+            my $profile = pf::Connection::ProfileFactory->instantiate("de:fa:ce:db:ab:e0",$options);
             $args->{'profile'} = $profile;
             @sources = $profile->getFilteredAuthenticationSources($args->{'stripped_user_name'}, $args->{'realm'});
         }
