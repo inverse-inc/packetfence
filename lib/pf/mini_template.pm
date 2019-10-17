@@ -95,7 +95,7 @@ sub parse_template {
         die "cannot parse an undefined value";
     }
     my $info = {};
-    my $a = _reduce(_parse_text($info));
+    my $a = _optimize(_parse_text($info));
     return $a, $info, "";
 }
 
@@ -121,10 +121,11 @@ sub _is_string {
     ref ($_[0]) && $_[0][0] eq 'S';
 }
 
-sub _reduce {
+sub _optimize {
     if (@_ == 0) {
         return;
     }
+
     my $nodes = $_[0];
     if (@$nodes == 1 ) {
         return $nodes->[0];
@@ -148,7 +149,7 @@ sub _reduce {
 
 sub _parse_var {
     if (/\G\$/gc) {
-        return _reduce([['S', '$'], _reduce( _parse_text($_[0]) )]);
+        return _optimize([['S', '$'], _optimize( _parse_text($_[0]) )]);
     }
     
     if (/\G{/gc) {
@@ -172,11 +173,10 @@ sub _parse_var {
         }
 
         _add_keys_to_info($_[0], @names);
-        return _reduce( [ ['K', \@names], _parse_text($_[0])]);
+        return _optimize( [ ['K', \@names], _parse_text($_[0])]);
     }
 
-    return _reduce([_parse_var_name($_[0]), _parse_text($_[0])]);
-
+    return _optimize([_parse_var_name($_[0]), _parse_text($_[0])]);
 }
 
 sub _parse_var_names {
