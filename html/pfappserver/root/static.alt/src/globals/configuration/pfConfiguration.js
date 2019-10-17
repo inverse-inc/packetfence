@@ -851,7 +851,7 @@ export const pfConfigurationConditions = {
     }
   },
   switch: {
-    value: 'switch',
+    value: 'switch_id',
     text: i18n.t('Switch'),
     types: [authenticationConditionType.SUBSTRING],
     validators: {

@@ -97,7 +97,7 @@ sub common_attributes {
           { value => 'computer_name', type => $Conditions::SUBSTRING },
           { value => "mac", type => $Conditions::SUBSTRING },
           { value => "realm", type => $Conditions::SUBSTRING },
-          { value => "switch", type => $Conditions::SUBSTRING },
+          { value => "switch_id", type => $Conditions::SUBSTRING },
           { value => "switch_group", type => $Conditions::SUBSTRING },
           ];
 }

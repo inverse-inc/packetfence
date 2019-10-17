@@ -840,6 +840,7 @@ sub switch_access {
         user_name => $user_name,
         radius_request => $radius_request,
         switch_group => $switch->{_group},
+        switch_id => $switch->{_id},
     };
 
     my $options = {};
