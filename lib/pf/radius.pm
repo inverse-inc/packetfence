@@ -839,6 +839,8 @@ sub switch_access {
         realm => $realm,
         user_name => $user_name,
         radius_request => $radius_request,
+        switch_group => $switch->{_group},
+        switch_id => $switch->{_id},
     };
 
     my $options = {};
@@ -898,6 +900,10 @@ sub switch_access {
             $switch->synchronize_locationlog($port, undef, $mac,
                 $args->{'isPhone'} ? $VOIP : $NO_VOIP, $VIRTUAL_VPN, undef, $user_name, undef, $stripped_user_name, $realm, $args->{'user_role'}, $ifDesc
             );
+        } else {
+            my $profile = pf::Connection::ProfileFactory->instantiate("de:fa:ce:db:ab:e0",$options);
+            $args->{'profile'} = $profile;
+            @sources = $profile->getFilteredAuthenticationSources($args->{'stripped_user_name'}, $args->{'realm'});
         }
     }
     my ( $return, $message, $source_id, $extra ) = pf::authentication::authenticate( {
@@ -914,7 +920,10 @@ sub switch_access {
     if ($connection->isVPN()) {
         return $switch->returnAuthorizeVPN($args);
     } else {
-        my $matched = pf::authentication::match2($source_id, { username => $radius_request->{'User-Name'}, 'rule_class' => $Rules::ADMIN, 'context' => $pf::constants::realm::RADIUS_CONTEXT }, $extra);
+        my $merged = { %$options, %$args };
+        $merged->{'rule_class'} = $Rules::ADMIN;
+        $merged->{'context'} = $pf::constants::realm::RADIUS_CONTEXT;
+        my $matched = pf::authentication::match2($source_id, $merged, $extra);
         my $value = $matched->{values}{$Actions::SET_ACCESS_LEVEL} if $matched;
         if ($value) {
             my @values = split(',', $value);

@@ -140,7 +140,9 @@ pfFieldTypeValues[pfFieldType.CONNECTION_TYPE] = () => {
     { name: 'Ethernet-EAP', value: 'Ethernet-EAP' },
     { name: 'Ethernet-NoEAP', value: 'Ethernet-NoEAP' },
     { name: 'Wireless-Web-Auth', value: 'Wireless-Web-Auth' },
-    { name: 'Wireless-802.11-EAP', value: 'Wireless-802.11-EAP' }
+    { name: 'Wireless-802.11-EAP', value: 'Wireless-802.11-EAP' },
+    { name: 'VPN-Access', value: 'VPN-Access' },
+    { name: 'CLI-Access', value: 'CLI-Access' }
   ]
 }
 pfFieldTypeValues[pfFieldType.CONNECTION_SUB_TYPE] = () => {

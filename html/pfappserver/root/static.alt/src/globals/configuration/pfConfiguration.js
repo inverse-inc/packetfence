@@ -994,6 +994,34 @@ export const pfConfigurationConditions = {
       }
     }
   },
+  switch: {
+    value: 'switch_id',
+    text: i18n.t('Switch'),
+    types: [authenticationConditionType.SUBSTRING],
+    validators: {
+      operator: {
+        [i18n.t('Operator required.')]: required
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  switch_group: {
+    value: 'switch_group',
+    text: i18n.t('Switch Group'),
+    types: [authenticationConditionType.SUBSTRING],
+    validators: {
+      operator: {
+        [i18n.t('Operator required.')]: required
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
   'TLS-Cert-Common-Name': {
     value: 'TLS-Cert-Common-Name',
     text: i18n.t('TLS-Cert-Common-Name'),
