@@ -51,8 +51,47 @@ DELIMITER ;
 call ValidateVersion;
 DROP PROCEDURE IF EXISTS ValidateVersion;
 
+--
+-- Table structure for table `locationlog_history`
+--
 
+CREATE TABLE IF NOT EXISTS `locationlog_history` (
+  `id` int NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  `tenant_id` int NOT NULL DEFAULT 1,
+  `mac` varchar(17) default NULL,
+  `switch` varchar(17) NOT NULL default '',
+  `port` varchar(20) NOT NULL default '',
+  `vlan` varchar(50) default NULL,
+  `role` varchar(255) default NULL,
+  `connection_type` varchar(50) NOT NULL default '',
+  `connection_sub_type` varchar(50) default NULL,
+  `dot1x_username` varchar(255) NOT NULL default '',
+  `ssid` varchar(32) NOT NULL default '',
+  `start_time` datetime NOT NULL default '0000-00-00 00:00:00',
+  `end_time` datetime NOT NULL default '0000-00-00 00:00:00',
+  `switch_ip` varchar(17) DEFAULT NULL,
+  `switch_mac` varchar(17) DEFAULT NULL,
+  `stripped_user_name` varchar (255) DEFAULT NULL,
+  `realm`  varchar (255) DEFAULT NULL,
+  `session_id` VARCHAR(255) DEFAULT NULL,
+  `ifDesc` VARCHAR(255) DEFAULT NULL,
+  `voip` enum('no','yes') NOT NULL DEFAULT 'no',
+  KEY `locationlog_view_mac` (`mac`, `end_time`),
+  KEY `locationlog_end_time` ( `end_time`),
+  KEY `locationlog_view_switchport` (`switch`,`port`,`end_time`,`vlan`)
+) ENGINE=InnoDB;
+
+INSERT INTO locationlog_history (
+ `tenant_id`, `mac`, `switch`, `port`, `vlan`, `role`, `connection_type`, 
+ `connection_sub_type`, `dot1x_username`, `ssid`, `start_time`, `end_time`, `switch_ip`, 
+ `switch_mac`, `stripped_user_name`, `realm`, `session_id`, `ifDesc`, `voip`)  
+    SELECT `tenant_id`, `mac`, `switch`, `port`, `vlan`, `role`, `connection_type`, 
+    `connection_sub_type`, `dot1x_username`, `ssid`, `start_time`, `end_time`, `switch_ip`,
+    `switch_mac`, `stripped_user_name`, `realm`, `session_id`, `ifDesc`, `voip` 
+    FROM locationlog WHERE end_time != '0000-00-00 00:00:00';
+
+DELETE FROM locationlog WHERE end_time != '0000-00-00 00:00:00';
 \! echo "Incrementing PacketFence schema version...";
-INSERT IGNORE INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION));
 
+INSERT IGNORE INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION));
 \! echo "Upgrade completed successfully.";
