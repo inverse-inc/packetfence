@@ -5,3 +5,7 @@ h6, .h6 {
     font-size: $font-size-sm;
     font-weight: 600;
 }
+
+mark, .mark {
+    margin: -$mark-padding;
+}
