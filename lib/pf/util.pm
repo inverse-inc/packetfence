@@ -1356,6 +1356,10 @@ Check if a date is between 1970-01-01 and 2038-01-18 or 0000-MM-DD
 sub validate_unregdate {
     my ($date) = @_;
     my $valid = $FALSE;
+    if ($date eq "0000-00-00") {
+        return $TRUE;
+    }
+
     if ($date !~ /^0-(\d\d-\d\d)/) {
         return validate_date($date);
     }
