@@ -67,7 +67,7 @@
             <b-dropdown-divider></b-dropdown-divider>
 
             <b-dropdown-header>{{ $t('Apply Security Event') }}</b-dropdown-header>
-            <b-dropdown-item v-for="security_event in security_events" v-if="security_event.enabled ==='Y'" :key="security_event.id" @click="applyBulkSecurityEvent(security_event)" v-b-tooltip.hover.left.d300 :title="security_event.id">
+            <b-dropdown-item v-for="security_event in security_events" :key="security_event.id" @click="applyBulkSecurityEvent(security_event)" v-b-tooltip.hover.left.d300 :title="security_event.id">
               <span>{{security_event.desc}}</span>
             </b-dropdown-item>
 
@@ -127,7 +127,6 @@
 </template>
 
 <script>
-import pfButtonDelete from '@/components/pfButtonDelete'
 import pfButtonExportToCsv from '@/components/pfButtonExportToCsv'
 import pfProgress from '@/components/pfProgress'
 import pfEmptyTable from '@/components/pfEmptyTable'
@@ -143,7 +142,6 @@ export default {
     pfMixinSearchable
   ],
   components: {
-    pfButtonDelete,
     pfButtonExportToCsv,
     pfProgress,
     pfEmptyTable,
@@ -551,7 +549,7 @@ export default {
     },
     security_events () {
       this.$store.dispatch('config/getSecurityEvents')
-      return this.$store.getters['config/sortedSecurityEvents']
+      return this.$store.getters['config/sortedSecurityEvents'].filter(security_event => security_event.enabled === 'Y')
     }
   },
   methods: {
@@ -577,7 +575,7 @@ export default {
           }) >= 0
         }).length !== condition.values[0].values.length
     },
-    onRowClick (item, index) {
+    onRowClick (item) {
       this.$router.push({ name: 'user', params: { pid: item.pid } })
     },
     applyBulkSecurityEvent (securityEvent) {
@@ -585,7 +583,7 @@ export default {
       if (pids.length > 0) {
         this.$store.dispatch(`${this.storeName}/bulkApplySecurityEvent`, { vid: securityEvent.vid, items: pids }).then(items => {
           let securityEventCount = 0
-          items.forEach((item, _index, items) => {
+          items.forEach(item => {
             let index = this.tableValues.findIndex(value => value.pid === item.pid)
             if (item.security_events.length > 0) {
               securityEventCount += item.security_events.length
@@ -612,7 +610,7 @@ export default {
       if (pids.length > 0) {
         this.$store.dispatch(`${this.storeName}/bulkCloseSecurityEvents`, { items: pids }).then(items => {
           let securityEventCount = 0
-          items.forEach((item, _index, items) => {
+          items.forEach(item => {
             let index = this.tableValues.findIndex(value => value.pid === item.pid)
             if (item.security_events.length > 0) {
               securityEventCount += item.security_events.length
@@ -639,7 +637,7 @@ export default {
       if (pids.length > 0) {
         this.$store.dispatch(`${this.storeName}/bulkRegisterNodes`, { items: pids }).then(items => {
           let nodeCount = 0
-          items.forEach((item, _index, items) => {
+          items.forEach(item => {
             let index = this.tableValues.findIndex(value => value.pid === item.pid)
             if (item.nodes.length > 0) {
               nodeCount += item.nodes.length
@@ -666,7 +664,7 @@ export default {
       if (pids.length > 0) {
         this.$store.dispatch(`${this.storeName}/bulkDeregisterNodes`, { items: pids }).then(items => {
           let nodeCount = 0
-          items.forEach((item, _index, items) => {
+          items.forEach(item => {
             let index = this.tableValues.findIndex(value => value.pid === item.pid)
             if (item.nodes.length > 0) {
               nodeCount += item.nodes.length
@@ -693,7 +691,7 @@ export default {
       if (pids.length > 0) {
         this.$store.dispatch(`${this.storeName}/bulkApplyRole`, { category_id: role.category_id, items: pids }).then(items => {
           let nodeCount = 0
-          items.forEach((item, _index, items) => {
+          items.forEach(item => {
             let index = this.tableValues.findIndex(value => value.pid === item.pid)
             if (item.nodes.length > 0) {
               nodeCount += item.nodes.length
@@ -720,7 +718,7 @@ export default {
       if (pids.length > 0) {
         this.$store.dispatch(`${this.storeName}/bulkApplyBypassRole`, { bypass_role_id: role.category_id, items: pids }).then(items => {
           let nodeCount = 0
-          items.forEach((item, _index, items) => {
+          items.forEach(item => {
             let index = this.tableValues.findIndex(value => value.pid === item.pid)
             if (item.nodes.length > 0) {
               nodeCount += item.nodes.length
@@ -747,7 +745,7 @@ export default {
       if (pids.length > 0) {
         this.$store.dispatch(`${this.storeName}/bulkReevaluateAccess`, { items: pids }).then(items => {
           let nodeCount = 0
-          items.forEach((item, _index, items) => {
+          items.forEach(item => {
             let index = this.tableValues.findIndex(value => value.pid === item.pid)
             if (item.nodes.length > 0) {
               nodeCount += item.nodes.length
@@ -774,7 +772,7 @@ export default {
       if (pids.length > 0) {
         this.$store.dispatch(`${this.storeName}/bulkRefreshFingerbank`, { items: pids }).then(items => {
           let nodeCount = 0
-          items.forEach((item, _index, items) => {
+          items.forEach(item => {
             let index = this.tableValues.findIndex(value => value.pid === item.pid)
             if (item.nodes.length > 0) {
               nodeCount += item.nodes.length
@@ -801,7 +799,7 @@ export default {
       if (pids.length > 0) {
         this.$store.dispatch(`${this.storeName}/bulkDelete`, { items: pids }).then(items => {
           let nodeCount = 0
-          items.forEach((item, _index, items) => {
+          items.forEach(item => {
             let index = this.tableValues.findIndex(value => value.pid === item.pid)
             this.setRowVariant(index, 'success')
           })

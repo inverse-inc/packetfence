@@ -499,7 +499,7 @@ export default {
     create () {
       this.showUsersPreviewModal = false
       switch (this.modeIndex) {
-        case 0: // single
+        case 0: { // single
           const data = {
             ...this.single,
             ...this.localUser
@@ -511,7 +511,8 @@ export default {
             })
           })
           break
-        case 1: // multiple
+        }
+        case 1: { // multiple
           let createdUsers = []
           let promises = []
           const baseValue = {
@@ -526,7 +527,7 @@ export default {
               ...{ pid, password: pwd },
               ...baseValue
             }
-            promises.push(this.$store.dispatch(`${this.storeName}/exists`, pid).then(results => {
+            promises.push(this.$store.dispatch(`${this.storeName}/exists`, pid).then(() => {
               // user exists
               return this.$store.dispatch(`${this.storeName}/updateUser`, currentData).then(() => {
                 return this.$store.dispatch(`${this.storeName}/updatePassword`, currentData).then(() => {
@@ -553,6 +554,7 @@ export default {
             this.showUsersPreviewModal = true
           })
           break
+        }
         default:
           // noop
       }

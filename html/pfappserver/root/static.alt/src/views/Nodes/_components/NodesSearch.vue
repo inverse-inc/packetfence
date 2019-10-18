@@ -67,7 +67,7 @@
             </b-dropdown-item>
             <b-dropdown-divider></b-dropdown-divider>
             <b-dropdown-header>{{ $t('Apply Security Event') }}</b-dropdown-header>
-            <b-dropdown-item v-for="security_event in security_events" v-if="security_event.enabled ==='Y'" :key="security_event.id" @click="applyBulkSecurityEvent(security_event)" v-b-tooltip.hover.left.d300 :title="security_event.id">
+            <b-dropdown-item v-for="security_event in security_events" :key="security_event.id" @click="applyBulkSecurityEvent(security_event)" v-b-tooltip.hover.left.d300 :title="security_event.id">
               <span>{{security_event.desc}}</span>
             </b-dropdown-item>
           </b-dropdown>
@@ -746,7 +746,7 @@ export default {
     },
     security_events () {
       this.$store.dispatch('config/getSecurityEvents')
-      return this.$store.getters['config/sortedSecurityEvents']
+      return this.$store.getters['config/sortedSecurityEvents'].filter(security_event => security_event.enabled === 'Y')
     }
   },
   methods: {
@@ -772,7 +772,7 @@ export default {
           }) >= 0
         }).length !== condition.values[0].values.length
     },
-    onRowClick (item, index) {
+    onRowClick (item) {
       this.$router.push({ name: 'node', params: { mac: item.mac } })
     },
     applyBulkCloseSecurityEvent () {
@@ -782,7 +782,7 @@ export default {
           let successCount = 0
           let skippedCount = 0
           let failedCount = 0
-          items.forEach((item, _index, items) => {
+          items.forEach(item => {
             let index = this.tableValues.findIndex(value => value.mac === item.mac)
             switch (item.status) {
               case 'success': successCount++
@@ -814,7 +814,7 @@ export default {
           let successCount = 0
           let skippedCount = 0
           let failedCount = 0
-          items.forEach((item, _index, items) => {
+          items.forEach(item => {
             let index = this.tableValues.findIndex(value => value.mac === item.mac)
             switch (item.status) {
               case 'success':
@@ -848,7 +848,7 @@ export default {
           let successCount = 0
           let skippedCount = 0
           let failedCount = 0
-          items.forEach((item, _index, items) => {
+          items.forEach(item => {
             let index = this.tableValues.findIndex(value => value.mac === item.mac)
             switch (item.status) {
               case 'success':
@@ -882,7 +882,7 @@ export default {
           let successCount = 0
           let skippedCount = 0
           let failedCount = 0
-          items.forEach((item, _index, items) => {
+          items.forEach(item => {
             let index = this.tableValues.findIndex(value => value.mac === item.mac)
             switch (item.status) {
               case 'success': successCount++
@@ -914,7 +914,7 @@ export default {
           let successCount = 0
           let skippedCount = 0
           let failedCount = 0
-          items.forEach((item, _index, items) => {
+          items.forEach(item => {
             let index = this.tableValues.findIndex(value => value.mac === item.mac)
             switch (item.status) {
               case 'success': successCount++
@@ -946,7 +946,7 @@ export default {
           let successCount = 0
           let skippedCount = 0
           let failedCount = 0
-          items.forEach((item, _index, items) => {
+          items.forEach(item => {
             let index = this.tableValues.findIndex(value => value.mac === item.mac)
             switch (item.status) {
               case 'success': successCount++
@@ -978,7 +978,7 @@ export default {
           let successCount = 0
           let skippedCount = 0
           let failedCount = 0
-          items.forEach((item, _index, items) => {
+          items.forEach(item => {
             let index = this.tableValues.findIndex(value => value.mac === item.mac)
             switch (item.status) {
               case 'success':
@@ -1012,7 +1012,7 @@ export default {
           let successCount = 0
           let skippedCount = 0
           let failedCount = 0
-          items.forEach((item, _index, items) => {
+          items.forEach(item => {
             let index = this.tableValues.findIndex(value => value.mac === item.mac)
             switch (item.status) {
               case 'success':
@@ -1046,7 +1046,7 @@ export default {
           let successCount = 0
           let skippedCount = 0
           let failedCount = 0
-          items.forEach((item, _index, items) => {
+          items.forEach(item => {
             let index = this.tableValues.findIndex(value => value.mac === item.mac)
             switch (item.status) {
               case 'success': successCount++
@@ -1083,7 +1083,7 @@ export default {
           let successCount = 0
           let skippedCount = 0
           let failedCount = 0
-          items.forEach((item, _index, items) => {
+          items.forEach(item => {
             let index = this.tableValues.findIndex(value => value.mac === item.mac)
             switch (item.status) {
               case 'success':

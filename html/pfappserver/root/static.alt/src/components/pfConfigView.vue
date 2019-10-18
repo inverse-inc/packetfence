@@ -10,42 +10,46 @@
         </slot>
       </b-card-header>
       <b-tabs v-if="form.fields[0].tab || form.fields.length > 1" v-model="tabIndex" :key="tabKey" card>
-        <b-tab v-for="(tab, t) in form.fields" :key="t" v-if="!('if' in tab) || tab.if"
-          :disabled="tab.disabled"
-          :title-link-class="{ 'text-danger': getTabErrorCount(t) > 0 }"
-          :title="tab.tab"
-          no-body
-        ></b-tab>
+        <template v-for="(tab, t) in form.fields">
+          <b-tab v-if="!('if' in tab) || tab.if" :key="t"
+            :disabled="tab.disabled"
+            :title-link-class="{ 'text-danger': getTabErrorCount(t) > 0 }"
+            :title="tab.tab"
+            no-body
+          ></b-tab>
+        </template>
       </b-tabs>
       <template v-for="(tab, t) in form.fields">
         <div class="card-body" v-if="tab.fields" v-show="t === tabIndex" :key="t">
-          <b-form-group v-for="row in tab.fields" :key="row.key" v-if="!('if' in row) || row.if"
-            :label-cols="('label' in row && row.fields) ? form.labelCols : 0" :label="row.label" :label-size="row.labelSize" :label-class="[(row.label && row.fields) ? '' : 'text-left', (row.fields) ? '' : 'offset-sm-3']"
-            :state="isValid()" :invalid-feedback="getInvalidFeedback()"
-            class="input-element" :class="{ 'mb-0': !row.label, 'pt-3': !row.fields }"
-          >
-            <b-input-group>
-              <template v-for="field in row.fields">
-                <span v-if="field.text" :key="field.index" :class="field.class">{{ field.text }}</span>
-                <component v-else-if="!('if' in field) || field.if"
-                  v-bind="field.attrs"
-                  v-on="kebabCaseListeners(field.listeners)"
-                  :key="field.key"
-                  :keyName="field.key"
-                  :is="field.component || defaultComponent"
-                  :is-loading="isLoading"
-                  :vuelidate="getVuelidateModel(field.key)"
-                  :class="getClass(row, field)"
-                  :value="getValue(field.key)"
-                  :disabled="(field.attrs && field.attrs.disabled) || disabled"
-                  @input="setValue(field.key, $event)"
-                  @validations="setComponentValidations(field.key, $event)"
-                  v-once
-                ></component>
-              </template>
-            </b-input-group>
-            <b-form-text v-if="row.text" v-html="row.text"></b-form-text>
-          </b-form-group>
+          <template v-for="row in tab.fields">
+            <b-form-group v-if="!('if' in row) || row.if" :key="row.key"
+              :label-cols="('label' in row && row.fields) ? form.labelCols : 0" :label="row.label" :label-size="row.labelSize" :label-class="[(row.label && row.fields) ? '' : 'text-left', (row.fields) ? '' : 'offset-sm-3']"
+              :state="isValid()" :invalid-feedback="getInvalidFeedback()"
+              class="input-element" :class="{ 'mb-0': !row.label, 'pt-3': !row.fields }"
+            >
+              <b-input-group>
+                <template v-for="field in row.fields">
+                  <span v-if="field.text" :key="field.index" :class="field.class">{{ field.text }}</span>
+                  <component v-else-if="!('if' in field) || field.if"
+                    v-bind="field.attrs"
+                    v-on="kebabCaseListeners(field.listeners)"
+                    :key="field.key"
+                    :keyName="field.key"
+                    :is="field.component || defaultComponent"
+                    :is-loading="isLoading"
+                    :vuelidate="getVuelidateModel(field.key)"
+                    :class="getClass(row, field)"
+                    :value="getValue(field.key)"
+                    :disabled="(field.attrs && field.attrs.disabled) || disabled"
+                    @input="setValue(field.key, $event)"
+                    @validations="setComponentValidations(field.key, $event)"
+                    v-once
+                  ></component>
+                </template>
+              </b-input-group>
+              <b-form-text v-if="row.text" v-html="row.text"></b-form-text>
+            </b-form-group>
+          </template>
         </div>
       </template>
       <slot name="footer">
@@ -255,7 +259,7 @@ export default {
   },
   watch: {
     model: {
-      handler: function (a, b) {
+      handler: function () {
         if (!this.$debouncerModel) {
           this.$debouncerModel = createDebouncer()
         }
