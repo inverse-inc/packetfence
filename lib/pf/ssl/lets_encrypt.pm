@@ -56,6 +56,7 @@ sub obtain_certificate {
         debug => 2, 
         logger => get_logger,
         live => isenabled($Config{lets_encrypt}{live}),
+        version => 2,
     );
     $le->generate_account_key();
     $le->load_csr_key($key_path);
