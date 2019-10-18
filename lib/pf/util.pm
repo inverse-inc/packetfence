@@ -1360,7 +1360,7 @@ sub validate_unregdate {
         return $TRUE;
     }
 
-    if ($date !~ /^0-(\d\d-\d\d)/) {
+    if ($date !~ /^0{1,4}-(\d\d-\d\d)/) {
         return validate_date($date);
     }
 

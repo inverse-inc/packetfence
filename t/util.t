@@ -177,8 +177,13 @@ BEGIN {
         },
         {
             in  => '0000-01-31',
+            out => $TRUE,
+            msg => "Allow a zero year 0000-01-31"
+        },
+        {
+            in  => '0000-01-41',
             out => $FALSE,
-            msg => "Invalid zero year 0000-01-31"
+            msg => "Invalid month day with zero year 0000-01-41"
         },
         {
             in  => '0001-01-01',
@@ -199,6 +204,11 @@ BEGIN {
             in  => '2038-01-01',
             out => $TRUE,
             msg => "valid date 2038-01-01"
+        },
+        {
+            in  => '0000-00-00',
+            out => $TRUE,
+            msg => "valid date 0000-00-00",
         },
     );
 }
