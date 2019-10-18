@@ -33,7 +33,7 @@ sub filterRule {
         if (defined($rule->{'switch'}) && $rule->{'switch'} ne '') {
             my $switch = $rule->{'switch'};
             return $switch;
-        } elsif ($rule->{'scope'} eq 'radius_authorize') {
+        } elsif ($rule->{'scope'} eq 'radius_authorize' || $rule->{'scope'} eq 'reevaluate') {
             my $i = 1;
             $logger->info(evalParam($rule->{'log'},$args)) if defined($rule->{'log'});
             while (1) {
@@ -117,6 +117,34 @@ sub getEngineForScope {
         return $SwitchFilterEngineScopes{$scope};
     }
     return undef;
+}
+
+=head2 filterSwitch
+
+Filter the switch based off switch filters
+
+=cut
+
+sub filterSwitch {
+    my $timer = pf::StatsD::Timer->new({ sample_rate => 1});
+    my ($self, $scope, $switch, $args) = @_;
+    my $switch_params = $self->filter($scope, $args);
+
+    if (defined($switch_params)) {
+        foreach my $key (keys %{$switch_params}) {
+            if (ref($switch_params->{$key}) eq 'ARRAY') {
+                foreach my $param (@{$switch_params->{$key}}) {
+                    if ($param  =~ /([a-zA-Z_-]*)\s*=>\s*(.*)/) {
+                        $$switch->{$key}->{$1} = $2;
+                    }
+                }
+            } elsif ($switch_params->{$key} =~ /([a-zA-Z_-]*)\s*=>\s*(.*)/) {
+                $$switch->{$key}->{$1} = $2;
+            } else {
+                $$switch->{$key} = $switch_params->{$key};
+            }
+        }
+    }
 }
 
 

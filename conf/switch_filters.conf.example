@@ -6,6 +6,8 @@
 # It is possible to trigger rules / actions within the following specific connection flow scopes
 # - radius_authorize: Used when PacketFence receive a radius request
 # - external_portal: Used when an endpoint hit the captive portal for web authentication
+# - instantiate_module: Used when PacketFence instanciate a switch module
+# - reevaluate: Used when PacketFence reevaluate the access of the device
 #
 #
 # A "SWITCH Filter" configuration is mainly constituted of two (2) parts; rules(s)/condition(s) and action(s)
