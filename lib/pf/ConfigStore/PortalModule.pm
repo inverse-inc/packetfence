@@ -66,7 +66,9 @@ sub cleanupAfterRead {
     }
 
     # Multiple sources are stored in this special field to the admin forms can display it differently
-    $object->{multi_source_ids} = $object->{source_id}; 
+    if (exists $object->{source_id}) {
+        $object->{multi_source_ids} = [$self->split_list($object->{source_id})];
+    }
 }
 
 =head2 cleanupBeforeCommit
@@ -97,8 +99,6 @@ sub cleanupBeforeCommit {
 sub _fields_expanded {
     return qw(
     modules
-    source_id
-    multi_source_ids
     custom_fields
     fields_to_save
     actions
