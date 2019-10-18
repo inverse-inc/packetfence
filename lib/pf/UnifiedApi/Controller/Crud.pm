@@ -453,45 +453,6 @@ sub build_search_info {
     };
 }
 
-sub audit_request {
-    my ($self) = @_;
-    my $status =  $self->res->code;
-    my $stash = $self->stash;
-    if (is_error($status) || !$stash->{auditable}) {
-        return;
-    }
-
-    my $record = $self->make_audit_record();
-    my $log = pf::dal::admin_api_audit_log->new($record);
-    $log->insert;
-}
-
-=head2 make_audit_record
-
-make_audit_record
-
-=cut
-
-sub make_audit_record {
-    my ($self) = @_;
-    my $stash = $self->stash;
-    my $status =  $self->res->code;
-    my $req = $self->req;
-    my $method = $req->method;
-    my $path = $req->url->path;
-    my $body = $req->body;
-    my $current_user = $stash->{current_user};
-    return {
-        user_name => $current_user,
-        method => $method,
-        request => $body,
-        status => $status,
-        action => $self->match->endpoint->name,
-        url => $path,
-        object_id => $self->id,
-    }
-}
-
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

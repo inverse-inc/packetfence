@@ -18,6 +18,8 @@ use Mojo::Base 'Mojolicious::Controller';
 use pf::error qw(is_error);
 use JSON::MaybeXS qw();
 use pf::admin_roles;
+use pf::dal::admin_api_audit_log;
+use Mojo::JSON qw(encode_json);
 has activity_timeout => 300;
 has 'openapi_generator_class' => undef;
 
@@ -109,6 +111,76 @@ sub _get_allowed_options {
     my ($self, $option) = @_;
     return admin_allowed_options($self->stash->{user_roles}, $option);
 }
+
+sub audit_request {
+    my ($self) = @_;
+    my $status =  $self->res->code;
+    my $stash = $self->stash;
+    if (is_error($status) || !$stash->{auditable}) {
+        return;
+    }
+
+    my $record = $self->make_audit_record();
+    my $log = pf::dal::admin_api_audit_log->new($record);
+    $log->insert;
+}
+
+=head2 make_audit_record
+
+make_audit_record
+
+=cut
+
+sub make_audit_record {
+    my ($self) = @_;
+    my $stash = $self->stash;
+    my $status =  $self->res->code;
+    my $req = $self->req;
+    my $method = $req->method;
+    my $path = $req->url->path;
+    my $request = $self->make_audit_record_request();
+
+    my $current_user = $stash->{current_user};
+    return {
+        user_name => $current_user,
+        method => $method,
+        request => $request,
+        status => $status,
+        action => $self->match->endpoint->name,
+        url => $path,
+        object_id => $self->id,
+    }
+}
+
+=head2 make_audit_record_request
+
+make_audit_record_request
+
+=cut
+
+sub make_audit_record_request {
+    my ($self) = @_;
+    my $json = $self->req->json;
+    $self->cleanup_audit_record_request($json);
+    return encode_json($json);
+}
+
+=head2 cleanup_audit_record_request
+
+cleanup_audit_record_request
+
+=cut
+
+sub cleanup_audit_record_request {
+    my ($self, $request) = @_;
+    for my $f ($self->fields_to_mask) {
+        if (exists $request->{$f}) {
+            $request->{$f} = '************************';
+        }
+    }
+}
+
+sub fields_to_mask { qw(password) }
 
 =head1 AUTHOR
 

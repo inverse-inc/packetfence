@@ -169,7 +169,7 @@ Get id of current resource
 
 sub id {
     my ($self) = @_;
-    url_unescape($self->stash->{$self->url_param_name});
+    $self->escape_url_param($self->stash->{$self->url_param_name});
 }
 
 sub build_list_search_info {
