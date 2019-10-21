@@ -527,7 +527,7 @@ sub setup_api_v1_nodes_routes {
 
     $resource_route->register_sub_actions({
         method => 'POST',
-        actions => [ qw( register deregister restart_switchport reevaluate_access apply_security_event close_security_event fingerbank_refresh park unpark)],
+        actions => [ qw( register deregister restart_switchport reevaluate_access apply_security_event close_security_event fingerbank_refresh park unpark bulk_import) ],
         auditable => 1,
     });
 

@@ -886,6 +886,16 @@ sub get_switch_data {
     return undef;
 }
 
+=head2 bulk_import
+
+bulk_import
+
+=cut
+
+sub bulk_import {
+    my ($self) = @_;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
