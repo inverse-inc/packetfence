@@ -54,7 +54,6 @@ sub obtain_certificate {
 
     my $le = Crypt::LE->new(
         debug => 2, 
-        logger => get_logger,
         live => isenabled($Config{lets_encrypt}{live}),
         version => 2,
     );
