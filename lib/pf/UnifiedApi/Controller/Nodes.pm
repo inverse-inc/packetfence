@@ -25,7 +25,7 @@ use List::MoreUtils qw(part);
 use pf::ip4log;
 use pf::constants qw($TRUE);
 use pf::dal::security_event;
-use pf::error qw(is_error);
+use pf::error qw(is_error is_success);
 use pf::locationlog qw(locationlog_history_mac locationlog_view_open_mac);
 use pf::UnifiedApi::Search::Builder::Nodes;
 use pf::UnifiedApi::Search::Builder::NodesNetworkGraph;
@@ -911,19 +911,40 @@ sub bulk_import {
 
 sub import_item {
     my ($self, $item) = @_;
-    my @errors;
     my $status = 200;
+    my @errors = $self->import_item_check_for_errors($item);
+    if (@errors) {
+        $status = 422;
+    }
+
+    if (is_success($status)) {
+        #do something
+    }
+
+    return { data => $item, (scalar @errors ? (errors => \@errors) : () ), status => $status };
+}
+
+sub import_item_check_for_errors {
+    my ($self, $item) = @_;
+    my @errors;
     my $mac = $item->{mac};
     my $logger = get_logger();
     if (!$mac || !valid_mac($mac)) {
         my $message = defined $mac ? "Ignored invalid MAC ($mac)" : "mac is a required field";
         $logger->debug($message);
         push @errors, { message => $message };
-        $status = 422;
-        goto DONE;
     }
-DONE:
-    return { data => $item, (scalar @errors ? (errors => \@errors) : () ), status => $status };
+
+    my $pid = $item->{pid};
+    if ($pid) {
+        if($pid !~ /$pf::person::PID_RE/) {
+            my $message = "Ignored invalid PID ($pid)";
+            $logger->debug($message);
+            push @errors, { message => $message };
+        }
+    }
+
+    return @errors;
 }
 
 =head1 AUTHOR
