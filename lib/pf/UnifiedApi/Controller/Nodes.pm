@@ -23,7 +23,7 @@ use pf::node;
 use List::Util qw(first);
 use List::MoreUtils qw(part);
 use pf::ip4log;
-use pf::constants qw($TRUE);
+use pf::constants qw($TRUE $default_pid);
 use pf::dal::security_event;
 use pf::error qw(is_error is_success);
 use pf::locationlog qw(locationlog_history_mac locationlog_view_open_mac);
@@ -900,10 +900,27 @@ sub bulk_import {
         return $self->render(json => $data, status => $status);
     }
 
-    my @results;
     my $items = $data->{items} // [];
-    for my $item (@$items) {
-        push @results, $self->import_item($item);
+    my $count = @$items;
+    if ($count == 0) {
+        return $self->render(json => { items => [] });
+    }
+
+    my $stopOnError = $data->{ignoreAfterFirstError};
+    my @results;
+    $#results = $count - 1;
+    my $i;
+    for ($i=0;$i<$count;$i++) {
+        my $result = $self->import_item($items->[$i]);
+        $results[$i] = $result;
+        if ($stopOnError && exists $result->{errors} && @{$result->{errors}}) {
+            $i++;
+            last;
+        }
+    }
+
+    for (;$i<$count;$i++) {
+        $results[$i] =  { item => $items->[$i], status => 424, message => "Skipped" };
     }
 
     return $self->render(json => { items => \@results });
@@ -911,17 +928,25 @@ sub bulk_import {
 
 sub import_item {
     my ($self, $item) = @_;
-    my $status = 200;
     my @errors = $self->import_item_check_for_errors($item);
     if (@errors) {
-        $status = 422;
+        return { item => $item, errors => \@errors, message => 'Cannot save node', status => 422 };
     }
 
-    if (is_success($status)) {
-        #do something
+    my $logger = get_logger();
+    my $mac = $item->{mac};
+    my $pid = $item->{pid} || $default_pid;
+    my $node = node_view($mac);
+    if (!defined($node) || (ref($node) eq 'HASH' && $node->{'status'} ne $pf::node::STATUS_REGISTERED)) {
+        $logger->debug("Register MAC $mac ($pid)");
+        (my $result, my $msg) = node_register($mac, $pid, %$item);
+    } else {
+        $logger->debug("Modify already registered MAC $mac ($pid)");
+        my $result = node_modify($mac, %$item);
+        node_update_last_seen($mac);
     }
 
-    return { data => $item, (scalar @errors ? (errors => \@errors) : () ), status => $status };
+    return { item => $item, status => 200, isNew => ( defined $node ? $self->json_false : $self->json_true ) };
 }
 
 sub import_item_check_for_errors {
@@ -930,17 +955,17 @@ sub import_item_check_for_errors {
     my $mac = $item->{mac};
     my $logger = get_logger();
     if (!$mac || !valid_mac($mac)) {
-        my $message = defined $mac ? "Ignored invalid MAC ($mac)" : "mac is a required field";
+        my $message = defined $mac ? "Invalid MAC" : "MAC is a required field";
         $logger->debug($message);
-        push @errors, { message => $message };
+        push @errors, { field => "mac", message => $message };
     }
 
     my $pid = $item->{pid};
     if ($pid) {
         if($pid !~ /$pf::person::PID_RE/) {
-            my $message = "Ignored invalid PID ($pid)";
+            my $message = "Invalid PID ($pid)";
             $logger->debug($message);
-            push @errors, { message => $message };
+            push @errors, { field => "pid", message => $message };
         }
     }
 
