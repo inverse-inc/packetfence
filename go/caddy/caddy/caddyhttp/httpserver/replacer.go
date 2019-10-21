@@ -1,7 +1,25 @@
+// Copyright 2015 Light Code Labs, LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package httpserver
 
 import (
 	"bytes"
+	"crypto/sha256"
+	"crypto/x509"
+	"encoding/pem"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"net"
@@ -13,6 +31,9 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/inverse-inc/packetfence/go/caddy/caddy"
+	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddytls"
 )
 
 // requestReplacer is a strings.Replacer which is used to
@@ -86,20 +107,30 @@ func (lw *limitWriter) String() string {
 // emptyValue should be the string that is used in place
 // of empty string (can still be empty string).
 func NewReplacer(r *http.Request, rr *ResponseRecorder, emptyValue string) Replacer {
-	rb := newLimitWriter(MaxLogBodySize)
-	if r.Body != nil {
-		r.Body = struct {
-			io.Reader
-			io.Closer
-		}{io.TeeReader(r.Body, rb), io.Closer(r.Body)}
+	repl := &replacer{
+		request:          r,
+		responseRecorder: rr,
+		emptyValue:       emptyValue,
 	}
-	return &replacer{
-		request:            r,
-		requestBody:        rb,
-		responseRecorder:   rr,
-		customReplacements: make(map[string]string),
-		emptyValue:         emptyValue,
+
+	// extract customReplacements from a request replacer when present.
+	if existing, ok := r.Context().Value(ReplacerCtxKey).(*replacer); ok {
+		repl.requestBody = existing.requestBody
+		repl.customReplacements = existing.customReplacements
+	} else {
+		// if there is no existing replacer, build one from scratch.
+		rb := newLimitWriter(MaxLogBodySize)
+		if r.Body != nil {
+			r.Body = struct {
+				io.Reader
+				io.Closer
+			}{io.TeeReader(r.Body, rb), io.Closer(r.Body)}
+		}
+		repl.requestBody = rb
+		repl.customReplacements = make(map[string]string)
 	}
+
+	return repl
 }
 
 func canLogRequest(r *http.Request) bool {
@@ -114,6 +145,14 @@ func canLogRequest(r *http.Request) bool {
 	return false
 }
 
+// unescapeBraces finds escaped braces in s and returns
+// a string with those braces unescaped.
+func unescapeBraces(s string) string {
+	s = strings.Replace(s, "\\{", "{", -1)
+	s = strings.Replace(s, "\\}", "}", -1)
+	return s
+}
+
 // Replace performs a replacement of values on s and returns
 // the string with the replaced values.
 func (r *replacer) Replace(s string) string {
@@ -123,32 +162,59 @@ func (r *replacer) Replace(s string) string {
 	}
 
 	result := ""
+Placeholders: // process each placeholder in sequence
 	for {
-		idxStart := strings.Index(s, "{")
-		if idxStart == -1 {
-			// no placeholder anymore
-			break
-		}
-		idxEnd := strings.Index(s[idxStart:], "}")
-		if idxEnd == -1 {
-			// unpaired placeholder
-			break
-		}
-		idxEnd += idxStart
+		var idxStart, idxEnd int
 
-		// get a replacement
-		placeholder := s[idxStart : idxEnd+1]
+		idxOffset := 0
+		for { // find first unescaped opening brace
+			searchSpace := s[idxOffset:]
+			idxStart = strings.Index(searchSpace, "{")
+			if idxStart == -1 {
+				// no more placeholders
+				break Placeholders
+			}
+			if idxStart == 0 || searchSpace[idxStart-1] != '\\' {
+				// preceding character is not an escape
+				idxStart += idxOffset
+				break
+			}
+			// the brace we found was escaped
+			// search the rest of the string next
+			idxOffset += idxStart + 1
+		}
+
+		idxOffset = 0
+		for { // find first unescaped closing brace
+			searchSpace := s[idxStart+idxOffset:]
+			idxEnd = strings.Index(searchSpace, "}")
+			if idxEnd == -1 {
+				// unpaired placeholder
+				break Placeholders
+			}
+			if idxEnd == 0 || searchSpace[idxEnd-1] != '\\' {
+				// preceding character is not an escape
+				idxEnd += idxOffset + idxStart
+				break
+			}
+			// the brace we found was escaped
+			// search the rest of the string next
+			idxOffset += idxEnd + 1
+		}
+
+		// get a replacement for the unescaped placeholder
+		placeholder := unescapeBraces(s[idxStart : idxEnd+1])
 		replacement := r.getSubstitution(placeholder)
 
-		// append prefix + replacement
-		result += s[:idxStart] + replacement
+		// append unescaped prefix + replacement
+		result += strings.TrimPrefix(unescapeBraces(s[:idxStart]), "\\") + replacement
 
 		// strip out scanned parts
 		s = s[idxEnd+1:]
 	}
 
 	// append unscanned parts
-	return result + s
+	return result + unescapeBraces(s)
 }
 
 func roundDuration(d time.Duration) time.Duration {
@@ -181,6 +247,15 @@ func round(d, r time.Duration) time.Duration {
 	return d
 }
 
+// getPeerCert returns peer certificate
+func (r *replacer) getPeerCert() *x509.Certificate {
+	if r.request.TLS != nil && len(r.request.TLS.PeerCertificates) > 0 {
+		return r.request.TLS.PeerCertificates[0]
+	}
+
+	return nil
+}
+
 // getSubstitution retrieves value from corresponding key
 func (r *replacer) getSubstitution(key string) string {
 	// search custom replacements first
@@ -197,6 +272,29 @@ func (r *replacer) getSubstitution(key string) string {
 				return strings.Join(values, ",")
 			}
 		}
+	}
+	// search response headers then
+	if r.responseRecorder != nil && key[1] == '<' {
+		want := key[2 : len(key)-1]
+		for key, values := range r.responseRecorder.Header() {
+			// Header placeholders (case-insensitive)
+			if strings.EqualFold(key, want) {
+				return strings.Join(values, ",")
+			}
+		}
+	}
+	// next check for cookies
+	if key[1] == '~' {
+		name := key[2 : len(key)-1]
+		if cookie, err := r.request.Cookie(name); err == nil {
+			return cookie.Value
+		}
+	}
+	// next check for query argument
+	if key[1] == '?' {
+		query := r.request.URL.Query()
+		name := key[2 : len(key)-1]
+		return query.Get(name)
 	}
 
 	// search default replacements in the end
@@ -223,29 +321,27 @@ func (r *replacer) getSubstitution(key string) string {
 		}
 		return host
 	case "{path}":
-		// if a rewrite has happened, the original URI should be used as the path
-		// rather than the rewritten URI
-		path := r.request.Header.Get("Caddy-Rewrite-Original-URI")
-		if path == "" {
-			path = r.request.URL.Path
-		}
-		return path
+		u, _ := r.request.Context().Value(OriginalURLCtxKey).(url.URL)
+		return u.Path
 	case "{path_escaped}":
-		path := r.request.Header.Get("Caddy-Rewrite-Original-URI")
-		if path == "" {
-			path = r.request.URL.Path
-		}
-		return url.QueryEscape(path)
+		u, _ := r.request.Context().Value(OriginalURLCtxKey).(url.URL)
+		return url.QueryEscape(u.Path)
+	case "{request_id}":
+		reqid, _ := r.request.Context().Value(RequestIDCtxKey).(string)
+		return reqid
 	case "{rewrite_path}":
 		return r.request.URL.Path
 	case "{rewrite_path_escaped}":
 		return url.QueryEscape(r.request.URL.Path)
 	case "{query}":
-		return r.request.URL.RawQuery
+		u, _ := r.request.Context().Value(OriginalURLCtxKey).(url.URL)
+		return u.RawQuery
 	case "{query_escaped}":
-		return url.QueryEscape(r.request.URL.RawQuery)
+		u, _ := r.request.Context().Value(OriginalURLCtxKey).(url.URL)
+		return url.QueryEscape(u.RawQuery)
 	case "{fragment}":
-		return r.request.URL.Fragment
+		u, _ := r.request.Context().Value(OriginalURLCtxKey).(url.URL)
+		return u.Fragment
 	case "{proto}":
 		return r.request.Proto
 	case "{remote}":
@@ -261,13 +357,25 @@ func (r *replacer) getSubstitution(key string) string {
 		}
 		return port
 	case "{uri}":
-		return r.request.URL.RequestURI()
+		u, _ := r.request.Context().Value(OriginalURLCtxKey).(url.URL)
+		return u.RequestURI()
 	case "{uri_escaped}":
+		u, _ := r.request.Context().Value(OriginalURLCtxKey).(url.URL)
+		return url.QueryEscape(u.RequestURI())
+	case "{rewrite_uri}":
+		return r.request.URL.RequestURI()
+	case "{rewrite_uri_escaped}":
 		return url.QueryEscape(r.request.URL.RequestURI())
 	case "{when}":
 		return now().Format(timeFormat)
+	case "{when_iso_local}":
+		return now().Format(timeFormatISO)
 	case "{when_iso}":
 		return now().UTC().Format(timeFormatISOUTC)
+	case "{when_unix}":
+		return strconv.FormatInt(now().Unix(), 10)
+	case "{when_unix_ms}":
+		return strconv.FormatInt(nanoToMilliseconds(now().UnixNano()), 10)
 	case "{file}":
 		_, file := path.Split(r.request.URL.Path)
 		return file
@@ -286,11 +394,19 @@ func (r *replacer) getSubstitution(key string) string {
 		}
 		_, err := ioutil.ReadAll(r.request.Body)
 		if err != nil {
-			if _, ok := err.(MaxBytesExceeded); ok {
+			if err == ErrMaxBytesExceeded {
 				return r.emptyValue
 			}
 		}
 		return requestReplacer.Replace(r.requestBody.String())
+	case "{mitm}":
+		if val, ok := r.request.Context().Value(caddy.CtxKey("mitm")).(bool); ok {
+			if val {
+				return "likely"
+			}
+			return "unlikely"
+		}
+		return "unknown"
 	case "{status}":
 		if r.responseRecorder == nil {
 			return r.emptyValue
@@ -312,14 +428,120 @@ func (r *replacer) getSubstitution(key string) string {
 		}
 		elapsedDuration := time.Since(r.responseRecorder.start)
 		return strconv.FormatInt(convertToMilliseconds(elapsedDuration), 10)
+	case "{tls_protocol}":
+		if r.request.TLS != nil {
+			if name, err := caddytls.GetSupportedProtocolName(r.request.TLS.Version); err == nil {
+				return name
+			} else {
+				return "tls" // this should never happen, but guard in case
+			}
+		}
+		return r.emptyValue // because not using a secure channel
+	case "{tls_cipher}":
+		if r.request.TLS != nil {
+			if name, err := caddytls.GetSupportedCipherName(r.request.TLS.CipherSuite); err == nil {
+				return name
+			} else {
+				return "UNKNOWN" // this should never happen, but guard in case
+			}
+		}
+		return r.emptyValue
+	case "{tls_client_escaped_cert}":
+		cert := r.getPeerCert()
+		if cert != nil {
+			pemBlock := pem.Block{
+				Type:  "CERTIFICATE",
+				Bytes: cert.Raw,
+			}
+			return url.QueryEscape(string(pem.EncodeToMemory(&pemBlock)))
+		}
+		return r.emptyValue
+	case "{tls_client_fingerprint}":
+		cert := r.getPeerCert()
+		if cert != nil {
+			return fmt.Sprintf("%x", sha256.Sum256(cert.Raw))
+		}
+		return r.emptyValue
+	case "{tls_client_i_dn}":
+		cert := r.getPeerCert()
+		if cert != nil {
+			return cert.Issuer.String()
+		}
+		return r.emptyValue
+	case "{tls_client_raw_cert}":
+		cert := r.getPeerCert()
+		if cert != nil {
+			return string(cert.Raw)
+		}
+		return r.emptyValue
+	case "{tls_client_s_dn}":
+		cert := r.getPeerCert()
+		if cert != nil {
+			return cert.Subject.String()
+		}
+		return r.emptyValue
+	case "{tls_client_serial}":
+		cert := r.getPeerCert()
+		if cert != nil {
+			return fmt.Sprintf("%x", cert.SerialNumber)
+		}
+		return r.emptyValue
+	case "{tls_client_v_end}":
+		cert := r.getPeerCert()
+		if cert != nil {
+			return cert.NotAfter.In(time.UTC).Format("Jan 02 15:04:05 2006 MST")
+		}
+		return r.emptyValue
+	case "{tls_client_v_remain}":
+		cert := r.getPeerCert()
+		if cert != nil {
+			now := time.Now().In(time.UTC)
+			days := int64(cert.NotAfter.Sub(now).Seconds() / 86400)
+			return strconv.FormatInt(days, 10)
+		}
+		return r.emptyValue
+	case "{tls_client_v_start}":
+		cert := r.getPeerCert()
+		if cert != nil {
+			return cert.NotBefore.Format("Jan 02 15:04:05 2006 MST")
+		}
+		return r.emptyValue
+	case "{server_port}":
+		_, port, err := net.SplitHostPort(r.request.Host)
+		if err != nil {
+			if r.request.TLS != nil {
+				return "443"
+			} else {
+				return "80"
+			}
+		}
+		return port
+	default:
+		// {labelN}
+		if strings.HasPrefix(key, "{label") {
+			nStr := key[6 : len(key)-1] // get the integer N in "{labelN}"
+			n, err := strconv.Atoi(nStr)
+			if err != nil || n < 1 {
+				return r.emptyValue
+			}
+			labels := strings.Split(r.request.Host, ".")
+			if n > len(labels) {
+				return r.emptyValue
+			}
+			return labels[n-1]
+		}
 	}
 
 	return r.emptyValue
 }
 
-//convertToMilliseconds returns the number of milliseconds in the given duration
+func nanoToMilliseconds(d int64) int64 {
+	return d / 1e6
+}
+
+// convertToMilliseconds returns the number of milliseconds in the given duration
 func convertToMilliseconds(d time.Duration) int64 {
-	return d.Nanoseconds() / 1e6
+	return nanoToMilliseconds(d.Nanoseconds())
 }
 
 // Set sets key to value in the r.customReplacements map.
@@ -329,6 +551,7 @@ func (r *replacer) Set(key, value string) {
 
 const (
 	timeFormat        = "02/Jan/2006:15:04:05 -0700"
+	timeFormatISO     = "2006-01-02T15:04:05"  // ISO 8601 with timezone to be assumed as local
 	timeFormatISOUTC  = "2006-01-02T15:04:05Z" // ISO 8601 with timezone to be assumed as UTC
 	headerContentType = "Content-Type"
 	contentTypeJSON   = "application/json"

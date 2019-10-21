@@ -1,8 +1,23 @@
+// Copyright 2015 Light Code Labs, LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 // Package markdown is middleware to render markdown files as HTML
 // on-the-fly.
 package markdown
 
 import (
+	"log"
 	"net/http"
 	"os"
 	"path"
@@ -29,9 +44,6 @@ type Markdown struct {
 
 	// The list of markdown configurations
 	Configs []*Config
-
-	// The list of index files to try
-	IndexFiles []string
 }
 
 // Config stores markdown middleware configurations.
@@ -51,8 +63,19 @@ type Config struct {
 	// List of JavaScript files to load for each markdown file
 	Scripts []string
 
+	// The list of index files to try
+	IndexFiles []string
+
 	// Template(s) to render with
 	Template *template.Template
+
+	// a pair of template's name and its underlying file information
+	TemplateFiles map[string]*cachedFileInfo
+}
+
+type cachedFileInfo struct {
+	path string
+	fi   os.FileInfo
 }
 
 // ServeHTTP implements the http.Handler interface.
@@ -78,7 +101,7 @@ func (md Markdown) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error
 	var dirents []os.FileInfo
 	var lastModTime time.Time
 	fpath := r.URL.Path
-	if idx, ok := httpserver.IndexFile(md.FileSys, fpath, md.IndexFiles); ok {
+	if idx, ok := httpserver.IndexFile(md.FileSys, fpath, cfg.IndexFiles); ok {
 		// We're serving a directory index file, which may be a markdown
 		// file with a template.  Let's grab a list of files this directory
 		// URL points to, and pass that in to any possible template invocations,
@@ -120,7 +143,7 @@ func (md Markdown) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error
 	case err == nil: // nop
 	case os.IsPermission(err):
 		return http.StatusForbidden, err
-	case os.IsExist(err):
+	case os.IsNotExist(err):
 		return http.StatusNotFound, nil
 	default: // did we run out of FD?
 		return http.StatusInternalServerError, err
@@ -133,11 +156,10 @@ func (md Markdown) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error
 	}
 	lastModTime = latest(lastModTime, fs.ModTime())
 
-	ctx := httpserver.Context{
-		Root: md.FileSys,
-		Req:  r,
-		URL:  r.URL,
-	}
+	ctx := httpserver.NewContextWithHeader(w.Header())
+	ctx.Root = md.FileSys
+	ctx.Req = r
+	ctx.URL = r.URL
 	html, err := cfg.Markdown(title(fpath), f, dirents, ctx)
 	if err != nil {
 		return http.StatusInternalServerError, err
@@ -147,7 +169,9 @@ func (md Markdown) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error
 	w.Header().Set("Content-Length", strconv.Itoa(len(html)))
 	httpserver.SetLastModifiedHeader(w, lastModTime)
 	if r.Method == http.MethodGet {
-		w.Write(html)
+		if _, err := w.Write(html); err != nil {
+			log.Println("[ERROR] failed to write html response: ", err)
+		}
 	}
 	return http.StatusOK, nil
 }
@@ -167,5 +191,5 @@ func latest(t ...time.Time) time.Time {
 
 // title gives a backup generated title for a page
 func title(p string) string {
-	return strings.TrimRight(path.Base(p), path.Ext(p))
+	return strings.TrimSuffix(path.Base(p), path.Ext(p))
 }

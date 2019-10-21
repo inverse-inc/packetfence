@@ -1,9 +1,26 @@
+// Copyright 2015 Light Code Labs, LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package gzip
 
 import (
+	"compress/gzip"
 	"fmt"
+	"io/ioutil"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/inverse-inc/packetfence/go/caddy/caddy"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddyhttp/httpserver"
@@ -118,4 +135,49 @@ func gzipParse(c *caddy.Controller) ([]Config, error) {
 	}
 
 	return configs, nil
+}
+
+// pool gzip.Writer according to compress level
+// so we can reuse allocations over time
+var (
+	writerPool             = map[int]*sync.Pool{}
+	defaultWriterPoolIndex int
+)
+
+func initWriterPool() {
+	var i int
+	newWriterPool := func(level int) *sync.Pool {
+		return &sync.Pool{
+			New: func() interface{} {
+				w, _ := gzip.NewWriterLevel(ioutil.Discard, level)
+				return w
+			},
+		}
+	}
+	for i = gzip.BestSpeed; i <= gzip.BestCompression; i++ {
+		writerPool[i] = newWriterPool(i)
+	}
+
+	// add default writer pool
+	defaultWriterPoolIndex = i
+	writerPool[defaultWriterPoolIndex] = newWriterPool(gzip.DefaultCompression)
+}
+
+func getWriter(level int) *gzip.Writer {
+	index := defaultWriterPoolIndex
+	if level >= gzip.BestSpeed && level <= gzip.BestCompression {
+		index = level
+	}
+	w := writerPool[index].Get().(*gzip.Writer)
+	w.Reset(ioutil.Discard)
+	return w
+}
+
+func putWriter(level int, w *gzip.Writer) {
+	index := defaultWriterPoolIndex
+	if level >= gzip.BestSpeed && level <= gzip.BestCompression {
+		index = level
+	}
+	w.Close()
+	writerPool[index].Put(w)
 }
