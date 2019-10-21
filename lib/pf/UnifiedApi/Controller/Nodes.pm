@@ -894,6 +894,18 @@ bulk_import
 
 sub bulk_import {
     my ($self) = @_;
+    my ($status, $data) = $self->parse_json;
+    if (is_error($status)) {
+        return $self->render(json => $data, status => $status);
+    }
+
+    my @results;
+    my $items = $data->{items} // [];
+    for my $item (@$items) {
+
+    }
+
+    return $self->render(json => { items => \@results });
 }
 
 =head1 AUTHOR
