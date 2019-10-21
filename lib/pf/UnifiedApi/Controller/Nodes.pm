@@ -32,8 +32,9 @@ use pf::UnifiedApi::Search::Builder::NodesNetworkGraph;
 use pf::security_event;
 use pf::Connection;
 use pf::SwitchFactory;
-use pf::util qw(valid_ip);
+use pf::util qw(valid_ip valid_mac);
 use pf::Connection::ProfileFactory;
+use pf::log;
 
 has 'search_builder_class' => 'pf::UnifiedApi::Search::Builder::Nodes';
 
@@ -902,10 +903,27 @@ sub bulk_import {
     my @results;
     my $items = $data->{items} // [];
     for my $item (@$items) {
-
+        push @results, $self->import_item($item);
     }
 
     return $self->render(json => { items => \@results });
+}
+
+sub import_item {
+    my ($self, $item) = @_;
+    my @errors;
+    my $status = 200;
+    my $mac = $item->{mac};
+    my $logger = get_logger();
+    if (!$mac || !valid_mac($mac)) {
+        my $message = defined $mac ? "Ignored invalid MAC ($mac)" : "mac is a required field";
+        $logger->debug($message);
+        push @errors, { message => $message };
+        $status = 422;
+        goto DONE;
+    }
+DONE:
+    return { data => $item, (scalar @errors ? (errors => \@errors) : () ), status => $status };
 }
 
 =head1 AUTHOR
