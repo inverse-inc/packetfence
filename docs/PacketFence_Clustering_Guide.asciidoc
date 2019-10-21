@@ -1174,6 +1174,13 @@ Upgrading node C
 In order to be able to work on node C, we first need to stop all the PacketFence application services on it.
 
   # /usr/local/pf/bin/pfcmd service pf stop
+  
+Due to disconnection issues with the systemd-logind service while yum is performing the update, you need to ensure the service is stopped disabled. The last command will then ensure your current process is removed out of the user-0.slice.
+
+  /usr/bin/systemctl stop systemd-logind
+  /usr/bin/systemctl --now mask systemd-logind
+  /usr/bin/systemctl daemon-reload
+  /bin/bash -c "/usr/bin/systemctl status user-0.slice | /usr/bin/grep -E -o '─[0-9]+' | /usr/bin/sed 's/─//g' | /usr/bin/xargs -I{} /bin/bash -c '/usr/bin/kill -0 {} > /dev/null 2>/dev/null && /usr/bin/echo {} > /sys/fs/cgroup/systemd/tasks'"
 
 Next, upgrade your operating system and PacketFence on node C:
 
@@ -1275,6 +1282,13 @@ If you are happy about the state of your upgrade, you can continue on the steps 
 
 Upgrading nodes A and B
 ^^^^^^^^^^^^^^^^^^^^^^^
+
+Due to disconnection issues with the systemd-logind service while yum is performing the update, you need to ensure the service is stopped disabled. The last command will then ensure your current process is removed out of the user-0.slice.
+
+  /usr/bin/systemctl stop systemd-logind
+  /usr/bin/systemctl --now mask systemd-logind
+  /usr/bin/systemctl daemon-reload
+  /bin/bash -c "/usr/bin/systemctl status user-0.slice | /usr/bin/grep -E -o '─[0-9]+' | /usr/bin/sed 's/─//g' | /usr/bin/xargs -I{} /bin/bash -c '/usr/bin/kill -0 {} > /dev/null 2>/dev/null && /usr/bin/echo {} > /sys/fs/cgroup/systemd/tasks'"
 
 Next, upgrade your operating system and PacketFence on each server:
 
