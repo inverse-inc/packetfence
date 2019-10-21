@@ -117,7 +117,6 @@ sub backwardCompatibleToAttributes {
 
     if (lc($type) =~/^virtual/ ) {
             $self->transport("Virtual");
-            $self->isCLI($TRUE);
     }
 
     # We check if SNMP. If so, we return immediately while setting the flag
@@ -199,6 +198,7 @@ sub identifyType {
         $self->transport($nas_port_type =~ /^wireless/i ? "Wireless" : "Wired");
         if ($nas_port_type =~ /^virtual/i) {
             $self->transport("Virtual");
+            $self->isCLI($TRUE);
         }
     }
     else {

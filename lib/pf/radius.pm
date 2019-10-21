@@ -821,7 +821,7 @@ sub switch_access {
         source_ip => $source_ip,
         stripped_user_name => $stripped_user_name,
         realm => $realm,
-        user_name => $user_name,
+        username => $user_name,
         radius_request => $radius_request,
         switch_group => $switch->{_group},
         switch_id => $switch->{_id},
