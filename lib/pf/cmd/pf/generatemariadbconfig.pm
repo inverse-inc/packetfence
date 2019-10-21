@@ -52,7 +52,6 @@ sub _run {
         performance_schema => $Config{database_advanced}{performance_schema},
         max_connect_errors => $Config{database_advanced}{max_connect_errors},
         masterslave => $Config{database_advanced}{masterslave},
-        masterslavemode => $Config{database_advanced}{masterslavemode},
         readonly => $Config{database_advanced}{readonly},
     );
 
@@ -64,6 +63,8 @@ sub _run {
             cluster_enabled => $cluster_enabled,
 
             server_ip => pf::cluster::current_server()->{management_ip},
+
+	    masterslavemode => (defined(pf::cluster::current_server()->{masterslavemode}) ? "SLAVE" : "MASTER"),
 
             servers_ip => [uniq(split(',', $Config{database_advanced}{other_members})), (map { $_->{management_ip} } pf::cluster::mysql_servers())],
 

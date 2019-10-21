@@ -161,18 +161,6 @@ export const pfConfigurationDatabaseAdvancedViewFields = (context = {}) => {
           ]
         },
         {
-          label: i18n.t('Mode'),
-          text: i18n.t('Select the mode of the server between Master or Slave.'),
-          fields: [
-            {
-              key: 'masterslavemode',
-              component: pfFormChosen,
-              attrs: pfConfigurationAttributesFromMeta(meta, 'masterslavemode'),
-              validators: pfConfigurationValidatorsFromMeta(meta, 'masterslavemode', i18n.t('Mode'))
-            }
-          ]
-        },
-        {
           label: i18n.t('Other MySQL Servers'),
           text: i18n.t('Comma delimited IPv4 address of other member mysql members - note that this is only to sync the database.'),
           fields: [

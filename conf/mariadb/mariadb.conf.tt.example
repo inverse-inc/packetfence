@@ -151,9 +151,7 @@ gtid_domain_id = 25
 
 log_slave_updates
 log_bin=mariadb-bin
-[% IF readonly == "ON" %]
 innodb-read-only=ON
-[% END %]
 [% END %]
 [% END %]
 
@@ -184,7 +182,7 @@ wsrep_dirty_reads=ON
 wsrep_slave_threads=1
 
 [% IF masterslave %]
-[% IF masterslavemode == "MASTER" %]
+[% IF masterslavemode != "SLAVE" %]
 wsrep_gtid_mode=ON
 wsrep_gtid_domain_id=22
 log_slave_updates=ON
