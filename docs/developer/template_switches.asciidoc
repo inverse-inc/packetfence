@@ -38,66 +38,70 @@ For example:
 
 === Defining RADIUS Attributes.
 
+....
 scopeName = <<EOT
 Attribute-Name1 = value1
 Attribute-Name2 = value2
 EOT
+....
 
-RADIUS Vendor Attributes for CoA
+=== RADIUS Vendor Attributes for CoA
+....
 scopeName = <<EOT
 VendorName:Attribute-Name1 = value1
 VendorName:Attribute-Name2 = value2
 EOT
+....
 
 === Dynamic RADIUS Attribute Value Syntax
 
 Some values depends on the context of the current request.
 So here is mini templating language to format values.
 
-Text replacement:  $name
-Embedded text replacement:  start-${name}-end
-Functions: ${f1("",$var, f2())}
+* Text replacement:  $name
+* Embedded text replacement:  start-${name}-end
+* Functions: ${f1("",$var, f2())}
 
 ==== Available variables for RADIUS scope
 
   * acceptRole - (Same as acceptVlan)
   * reject - (Same as acceptVlan)
   * acceptVlan
-    * autoreg
-    * connection_sub_type
-    * connection_type
-    * eap_type
-    * fingerbank_info
-    * ifDesc
-    * ifIndex
-    * isPhone
-    * last_accounting
-    * mac
-    * nas_port_id
-    * nas_port_type
-    * node_info
-    * profile
-    * radius_request
-    * realm
-    * session_id
-    * source_ip
-    * ssid
-    * stripped_user_name
-    * switch
-    * switch_ip
-    * switch_mac
-    * user_name
-    * user_role
-    * vlan
-    * wasInline
+   ** autoreg
+   ** connection_sub_type
+   ** connection_type
+   ** eap_type
+   ** fingerbank_info
+   ** ifDesc
+   ** ifIndex
+   ** isPhone
+   ** last_accounting
+   ** mac
+   ** nas_port_id
+   ** nas_port_type
+   ** node_info
+   ** profile
+   ** radius_request
+   ** realm
+   ** session_id
+   ** source_ip
+   ** ssid
+   ** stripped_user_name
+   ** switch
+   ** switch_ip
+   ** switch_mac
+   ** user_name
+   ** user_role
+   ** vlan
+   ** wasInline
   * coa
-    * last_accounting
-    * mac
-    * role
+   ** last_accounting
+   ** mac
+   ** role
   * disconnect
-    * disconnectIp
-    * last_accounting
-    * mac
+   ** disconnectIp
+   ** last_accounting
+   ** mac
 
 ==== Available functions
 
