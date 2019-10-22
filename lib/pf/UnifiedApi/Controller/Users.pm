@@ -556,6 +556,7 @@ sub import_item {
     }
 
     my $pid = delete $item->{pid};
+    $item->{sponsor} = $self->stash->{current_user};
     my $exists = pf::person::person_exists($pid);
     my $result = person_modify($pid, %$item);
     if ($result) {
