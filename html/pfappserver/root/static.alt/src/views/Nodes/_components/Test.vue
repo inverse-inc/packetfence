@@ -24,6 +24,7 @@
             :default-static-mapping="defaultStaticMapping"
             :events-listen="tabIndex === index"
             :is-loading="isLoading"
+            :import-function="importFunction"
             @input="onImport"
             hover
             striped
@@ -96,7 +97,9 @@ export default {
           text: this.$i18n.t('MAC Address'),
           types: [fieldType.SUBSTRING],
           required: true,
-          validators: buildValidationFromColumnSchemas(schema.node.mac, { required })
+          validators: buildValidationFromColumnSchemas(schema.node.mac, {
+            [this.$i18n.t('MAC Address required.')]: required
+          })
         },
         {
           value: 'status',
@@ -204,6 +207,14 @@ export default {
     closeFile (index) {
       const file = this.files[index]
       file.close()
+    },
+    importFunction (payload) {
+      return new Promise((resolve, reject) => {
+        console.log('Test::importFunction', JSON.stringify(payload, null, 2))
+        setTimeout(() => {
+          resolve('xxx')
+        }, 3000)
+      })
     }
   }
 }

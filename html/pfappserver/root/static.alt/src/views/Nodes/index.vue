@@ -28,6 +28,10 @@ export default {
     sections () {
       return [
         {
+          name: this.$i18n.t('Test'),
+          path: '/nodes/test'
+        },
+        {
           name: this.$i18n.t('Search'),
           path: '/nodes/search',
           saveSearchNamespace: 'nodes'
