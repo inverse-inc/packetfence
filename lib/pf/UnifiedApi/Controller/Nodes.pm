@@ -906,14 +906,14 @@ sub bulk_import {
         return $self->render(json => { items => [] });
     }
 
-    my $stopOnError = $data->{ignoreAfterFirstError};
+    my $stopOnError = $data->{stopOnFirstError};
     my @results;
     $#results = $count - 1;
     my $i;
     for ($i=0;$i<$count;$i++) {
         my $result = $self->import_item($items->[$i]);
         $results[$i] = $result;
-        if ($stopOnError && exists $result->{errors} && @{$result->{errors}}) {
+        if ($stopOnError && is_error($result->{status} // 200)) {
             $i++;
             last;
         }

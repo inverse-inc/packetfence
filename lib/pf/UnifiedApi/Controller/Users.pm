@@ -528,7 +528,7 @@ sub bulk_import {
         return $self->render(json => { items => [] });
     }
 
-    my $stopOnError = $data->{ignoreAfterFirstError};
+    my $stopOnError = $data->{stopOnFirstError};
     my @results;
     $#results = $count - 1;
     my $i;
@@ -562,6 +562,7 @@ sub import_item {
     if ($result) {
         return { item => $item, status => 200, isNew => ( $exists ? $self->json_false : $self->json_true ) };
     }
+
     return { item => $item, status => 422, message => ""};
 }
 
