@@ -107,6 +107,22 @@ sub get_config_version {
     return $result;
 }
 
+=head2
+
+Get the configuration of a specific cluster
+
+=cut
+
+sub getClusterConfig {
+    my ($cluster_name) = @_;
+    my %cluster_servers;
+
+    tie %cluster_servers, 'pfconfig::cached_hash', "config::Cluster($cluster_name)";
+
+    return \%cluster_servers;
+
+}
+
 
 =head1 AUTHOR
 

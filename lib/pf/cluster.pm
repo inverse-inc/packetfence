@@ -112,7 +112,7 @@ Returns the @db_cluster_servers list without the servers that are disabled on th
 =cut
 
 sub db_enabled_servers {
-    return map { (-f node_disabled_file($_->{host})) ? () : $_ } @db_cluster_servers;
+    return map { (defined(${pf::config::cluster::getClusterConfig($clusters_hostname_map{$_->{host}})}{CLUSTER}{masterslavemode}) && ${pf::config::cluster::getClusterConfig($clusters_hostname_map{$_->{host}})}{CLUSTER}{masterslavemode} eq 'SLAVE' ) ? () : $_ } map { (-f node_disabled_file($_->{host})) ? () : $_ } @db_cluster_servers;
 }
 
 =head2 db_enabled_hosts
