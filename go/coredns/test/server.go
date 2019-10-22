@@ -10,7 +10,7 @@ import (
 	// Hook in CoreDNS.
 	_ "github.com/inverse-inc/packetfence/go/coredns/core"
 
-	"github.com/inverse-inc/packetfence/go/caddy/caddy"
+	"github.com/mholt/caddy"
 )
 
 var mu sync.Mutex

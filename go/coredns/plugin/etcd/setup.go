@@ -11,7 +11,7 @@ import (
 	"github.com/inverse-inc/packetfence/go/coredns/plugin/proxy"
 
 	etcdc "github.com/coreos/etcd/client"
-	"github.com/inverse-inc/packetfence/go/caddy/caddy"
+	"github.com/mholt/caddy"
 	"golang.org/x/net/context"
 )
 

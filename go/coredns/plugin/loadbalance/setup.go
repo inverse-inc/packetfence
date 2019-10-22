@@ -1,7 +1,7 @@
 package loadbalance
 
 import (
-	"github.com/inverse-inc/packetfence/go/caddy/caddy"
+	"github.com/mholt/caddy"
 	"github.com/inverse-inc/packetfence/go/coredns/core/dnsserver"
 	"github.com/inverse-inc/packetfence/go/coredns/plugin"
 )

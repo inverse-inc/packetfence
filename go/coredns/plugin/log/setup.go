@@ -9,7 +9,7 @@ import (
 	"github.com/inverse-inc/packetfence/go/coredns/plugin"
 	"github.com/inverse-inc/packetfence/go/coredns/plugin/pkg/response"
 
-	"github.com/inverse-inc/packetfence/go/caddy/caddy"
+	"github.com/mholt/caddy"
 	"github.com/miekg/dns"
 )
 

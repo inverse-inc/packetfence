@@ -12,8 +12,8 @@ import (
 	"github.com/inverse-inc/packetfence/go/coredns/plugin/dnstap/out"
 	"github.com/inverse-inc/packetfence/go/coredns/plugin/pkg/dnsutil"
 
-	"github.com/inverse-inc/packetfence/go/caddy/caddy"
-	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddyfile"
+	"github.com/mholt/caddy"
+	"github.com/mholt/caddy/caddyfile"
 )
 
 func init() {

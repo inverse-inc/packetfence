@@ -187,6 +187,7 @@ github.com/mdlayher/raw v0.0.0-20171214195253-9df8b4265df2/go.mod h1:rC/yE65s/Do
 github.com/mediocregopher/radix.v2 v0.0.0-20180603022615-94360be26253 h1:Vr5Q1i03Z36XuXdX1OQYUuJjnX7sYDLT3skT2VBgXrQ=
 github.com/mediocregopher/radix.v2 v0.0.0-20180603022615-94360be26253/go.mod h1:fLRUbhbSd5Px2yKUaGYYPltlyxi1guJz1vCmo1RQL50=
 github.com/mholt/archiver v0.0.0-20171012052341-26cf5bb32d07/go.mod h1:Dh2dOXnSdiLxRiPoVfIr/fI1TwETms9B8CTWfeh7ROU=
+github.com/mholt/caddy v0.9.5/go.mod h1:Wb1PlT4DAYSqOEd03MsqkdkXnTxA8v9pKjdpxbqM1kY=
 github.com/mholt/certmagic v0.6.2-0.20190624175158-6a42ef9fe8c2 h1:xKE9kZ5C8gelJC3+BNM6LJs1x21rivK7yxfTZMAuY2s=
 github.com/mholt/certmagic v0.6.2-0.20190624175158-6a42ef9fe8c2/go.mod h1:g4cOPxcjV0oFq3qwpjSA30LReKD8AoIfwAY9VvG35NY=
 github.com/miekg/dns v0.0.0-20180125103803-5364553f1ee9/go.mod h1:W1PPwlIAgtquWBMBEV9nkV9Cazfe8ScdGz/Lj7v3Nrg=

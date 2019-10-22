@@ -247,6 +247,7 @@ github.com/inconshreveable/mousetrap v1.0.0 h1:Z8tu5sraLXCXIcARxBp/8cbvlwVa7Z1NH
 github.com/inconshreveable/mousetrap v1.0.0/go.mod h1:PxqpIevigyE2G7u3NXJIT2ANytuPF1OarO4DADm73n8=
 github.com/inverse-inc/go-ipset v0.0.0-20190925174109-4d5749cc4aa6 h1:KMdDzhA+fJNDqTfoV0HShnKADp45Yk+cm9x0bgKTP2U=
 github.com/inverse-inc/go-ipset v0.0.0-20190925174109-4d5749cc4aa6/go.mod h1:unv1cVDLrlwXyLhg2b+QkK6rZ0GQ6DGbZOkGCfl10/M=
+github.com/inverse-inc/packetfence v0.0.0-20191021142437-789414441c4c h1:HDJDKSHaZfMhcbaWWHpEJ67pUUGlc+mqv1kSAhEUuB4=
 github.com/inverse-inc/packetfence/go v0.0.0-20191015112529-47dcd5f95b62/go.mod h1:AqUuzaoVHgI5nrU6yatlK7et93fgyVgjeK8CRnbV5JI=
 github.com/jcmturner/gofork v0.0.0-20190328161633-dc7c13fece03 h1:FUwcHNlEqkqLjLBdCp5PRlCFijNjvcYANOZXzCfXwCM=
 github.com/jcmturner/gofork v0.0.0-20190328161633-dc7c13fece03/go.mod h1:MK8+TM0La+2rjBD4jE12Kj1pCCxK7d2LK/UM3ncEo0o=
@@ -327,6 +328,8 @@ github.com/mediocregopher/radix.v2 v0.0.0-20180603022615-94360be26253 h1:Vr5Q1i0
 github.com/mediocregopher/radix.v2 v0.0.0-20180603022615-94360be26253/go.mod h1:fLRUbhbSd5Px2yKUaGYYPltlyxi1guJz1vCmo1RQL50=
 github.com/mholt/archiver v0.0.0-20171012052341-26cf5bb32d07 h1:0RlXCQ2FlNTTNXfeP9sJJmUau7SuL4rW7CMiYcLINv4=
 github.com/mholt/archiver v0.0.0-20171012052341-26cf5bb32d07/go.mod h1:Dh2dOXnSdiLxRiPoVfIr/fI1TwETms9B8CTWfeh7ROU=
+github.com/mholt/caddy v0.9.5 h1:SD+GMIovoXv01RL6gJwe0F2eQm4L9XykLhjMnr5F2wM=
+github.com/mholt/caddy v0.9.5/go.mod h1:Wb1PlT4DAYSqOEd03MsqkdkXnTxA8v9pKjdpxbqM1kY=
 github.com/mholt/certmagic v0.6.2-0.20190624175158-6a42ef9fe8c2 h1:xKE9kZ5C8gelJC3+BNM6LJs1x21rivK7yxfTZMAuY2s=
 github.com/mholt/certmagic v0.6.2-0.20190624175158-6a42ef9fe8c2/go.mod h1:g4cOPxcjV0oFq3qwpjSA30LReKD8AoIfwAY9VvG35NY=
 github.com/miekg/dns v0.0.0-20180125103803-5364553f1ee9 h1:DOXMx88h5hVmcBFC32EJdOq+5Hx/FjucgAmmOGFIq+o=

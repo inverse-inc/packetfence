@@ -3,7 +3,7 @@ package rewrite
 import (
 	"github.com/inverse-inc/packetfence/go/coredns/plugin/pkg/fuzz"
 
-	"github.com/inverse-inc/packetfence/go/caddy/caddy"
+	"github.com/mholt/caddy"
 )
 
 // Fuzz fuzzes rewrite.
