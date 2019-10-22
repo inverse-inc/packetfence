@@ -94,7 +94,7 @@ build_pkg_debian_stretch:
 ### SIGN JOBS
 sign:
   # only use when executor is docker
-  image: buildpkg/debian:stretch
+  image: buildpkg/debian:buster
   stage: sign
   script:
     - ci-sign-pkg
@@ -116,7 +116,7 @@ sign:
 ### PUBLISH JOBS
 pages:
   # only use when executor is docker
-  image: buildpkg/debian:stretch
+  image: buildpkg/debian:buster
   stage: publish
   variables:
     PAGES_DIR: public
