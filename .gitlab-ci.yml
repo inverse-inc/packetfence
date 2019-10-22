@@ -133,9 +133,10 @@ pages:
   stage: publish
   variables:
     PAGES_DIR: public
+    PAGES_HOST: gitlab.io
   environment:
     name: PPA
-    url: http://${CI_PROJECT_NAMESPACE}.gitlab.io/
+    url: http://${CI_PROJECT_NAMESPACE}.${PAGES_HOST}/${CI_PROJECT_NAME}
   script:
     - ci-pages-ppa
     - ci-pages-home
