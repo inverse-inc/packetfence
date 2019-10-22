@@ -556,14 +556,24 @@ sub import_item {
     }
 
     my $pid = delete $item->{pid};
-    $item->{sponsor} = $self->stash->{current_user};
+    $item->{sponsor} //= $self->stash->{current_user};
     my $exists = pf::person::person_exists($pid);
+    if ($exists) {
+        if ($request->{ignoreUpdateIfExists}) {
+            return { item => $item, status => 409, message => "Skip already exists"} ;
+        }
+    } else {
+        if ($request->{ignoreInsertIfNotExists}) {
+            return { item => $item, status => 404, message => "Skip does not exists"} ;
+        }
+    }
+
     my $result = person_modify($pid, %$item);
     if ($result) {
         return { item => $item, status => 200, isNew => ( $exists ? $self->json_false : $self->json_true ) };
     }
 
-    return { item => $item, status => 422, message => ""};
+    return { item => $item, status => 422, message => "Cannot save user"};
 }
 
 sub import_item_check_for_errors {
@@ -583,10 +593,6 @@ sub import_item_check_for_errors {
             my $message = "Invalid PID ($pid)";
             $logger->debug($message);
             push @errors, { field => "pid", message => $message };
-        }
-
-        if (!$request->{overwrite} && pf::person::person_exists($pid)) {
-            push @errors, { field => "pid", message => "$pid exists"};
         }
 
         if ($pid eq $default_pid || $pid eq $admin_pid) {

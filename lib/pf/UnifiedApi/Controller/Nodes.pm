@@ -911,7 +911,7 @@ sub bulk_import {
     $#results = $count - 1;
     my $i;
     for ($i=0;$i<$count;$i++) {
-        my $result = $self->import_item($items->[$i]);
+        my $result = $self->import_item($data, $items->[$i]);
         $results[$i] = $result;
         if ($stopOnError && is_error($result->{status} // 200)) {
             $i++;
@@ -927,8 +927,8 @@ sub bulk_import {
 }
 
 sub import_item {
-    my ($self, $item) = @_;
-    my @errors = $self->import_item_check_for_errors($item);
+    my ($self, $request, $item) = @_;
+    my @errors = $self->import_item_check_for_errors($request, $item);
     if (@errors) {
         return { item => $item, errors => \@errors, message => 'Cannot save node', status => 422 };
     }
@@ -937,6 +937,16 @@ sub import_item {
     my $mac = $item->{mac};
     my $pid = $item->{pid} || $default_pid;
     my $node = node_view($mac);
+    if ($node) {
+        if ($request->{ignoreUpdateIfExists}) {
+            return { item => $item, status => 409, message => "Skip already exists"} ;
+        }
+    } else {
+        if ($request->{ignoreInsertIfNotExists}) {
+            return { item => $item, status => 404, message => "Skip does not exists"} ;
+        }
+    }
+
     if (!defined($node) || (ref($node) eq 'HASH' && $node->{'status'} ne $pf::node::STATUS_REGISTERED)) {
         $logger->debug("Register MAC $mac ($pid)");
         (my $result, my $msg) = node_register($mac, $pid, %$item);
@@ -950,7 +960,7 @@ sub import_item {
 }
 
 sub import_item_check_for_errors {
-    my ($self, $item) = @_;
+    my ($self, $request, $item) = @_;
     my @errors;
     my $mac = $item->{mac};
     my $logger = get_logger();
