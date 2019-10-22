@@ -13,4 +13,4 @@ ExecReload=/bin/kill -USR2 $MAINPID
 Restart=on-failure
 
 [Install]
-WantedBy=packetfence-cluster.target
+WantedBy=packetfence.target

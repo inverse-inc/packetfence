@@ -155,7 +155,7 @@ innodb-read-only=ON
 [% END %]
 [% END %]
 
-[% IF cluster_enabled && masterslavemode != "SLAVE" %]
+[% IF cluster_enabled && masterslavemode == "MASTER" %]
 #
 # * Galera-related settings
 #

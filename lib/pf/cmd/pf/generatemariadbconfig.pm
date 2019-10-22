@@ -64,7 +64,7 @@ sub _run {
 
             server_ip => pf::cluster::current_server()->{management_ip},
 
-	    masterslavemode => (defined(pf::cluster::current_server()->{masterslavemode}) ? "SLAVE" : "MASTER"),
+            masterslavemode => (defined($ConfigCluster{CLUSTER}{masterslavemode}) ? "SLAVE" : "MASTER"),
 
             servers_ip => [uniq(split(',', $Config{database_advanced}{other_members})), (map { $_->{management_ip} } pf::cluster::mysql_servers())],
 
