@@ -173,6 +173,17 @@ cleanup_audit_record_request
 
 sub cleanup_audit_record_request {
     my ($self, $request) = @_;
+    if (exists $request->{items}) {
+        for my $item (@{$request->{items}}) {
+            $self->cleanup_audit_item($item);
+        }
+    }
+
+    $self->cleanup_audit_item($request);
+}
+
+sub cleanup_audit_item {
+    my ($self, $request) = @_;
     for my $f ($self->fields_to_mask) {
         if (exists $request->{$f}) {
             $request->{$f} = '************************';
