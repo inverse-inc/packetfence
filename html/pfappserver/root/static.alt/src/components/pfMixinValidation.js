@@ -75,7 +75,7 @@ export default {
         })
       }
     },
-    onChange (event) {
+    onChange () {
       if (this.filter) {
         // this.value is one char behind, wait until next tick for our v-model to update
         this.$nextTick(() => {
@@ -131,7 +131,7 @@ export default {
             } = {}
           } = this
           if (validState === false && $params) { // automatically generated feedback
-            Object.entries($params).forEach(([param, validator]) => {
+            Object.entries($params).forEach(([param]) => {
               if (this.vuelidate[param] === false) feedback.push(param)
             })
           }
