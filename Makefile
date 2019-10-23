@@ -15,7 +15,8 @@ all:
 	@echo " 'PacketFence_Developers_Guide.pdf' will build the Developers guide in PDF"
 	@echo " 'PacketFence_Network_Devices_Configuration_Guide.pdf' will build the Network Devices Configuration guide in PDF"
 
-ASCIIDOCS := $(notdir $(wildcard docs/PacketFence_*.asciidoc))
+DOCINFO_XMLS := $(notdir $(wildcard docs/PacketFence_*-docinfo.xml))
+ASCIIDOCS := $(patsubst %-docinfo.xml, %.asciidoc, $(DOCINFO_XMLS))
 PDFS = $(patsubst %.asciidoc,docs/%.pdf, $(ASCIIDOCS))
 
 docs/docbook/xsl/titlepage-fo.xsl: docs/docbook/xsl/titlepage-fo.xml
@@ -34,22 +35,24 @@ docs/docbook/xsl/import-fo.xsl:
 	</xsl:stylesheet>" \
 	> docs/docbook/xsl/import-fo.xsl
 
-docs/%.pdf : docs/%.asciidoc docs/docbook/xsl/titlepage-fo.xsl docs/docbook/xsl/import-fo.xsl
+docs/docbook/%.docbook: docs/%.asciidoc
 	asciidoc \
 		-a docinfo2 \
 		-b docbook \
 		-d book \
 		-f docs/docbook/docbook45.conf \
-		-o docs/docbook/$(notdir $<).docbook \
-		$<
+		-o $@ $<
+
+docs/%.fo: docs/docbook/%.docbook docs/docbook/xsl/titlepage-fo.xsl docs/docbook/xsl/import-fo.xsl
 	xsltproc \
-		-o $<.fo \
+		-o $@ \
 		docs/docbook/xsl/packetfence-fo.xsl \
-		docs/docbook/$(notdir $<).docbook
+		$<
+
+docs/%.pdf: docs/%.fo
 	fop \
 		-c docs/fonts/fop-config.xml \
-		$<.fo \
-		-pdf $@
+		$< -pdf $@
 
 .PHONY: pdf
 
