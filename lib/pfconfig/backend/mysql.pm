@@ -52,7 +52,6 @@ sub _get_db {
         return undef;
     }
     $self->{_db} = $db;
-    $self->{_table} = $cfg->{table};
     return $db;
 }
 
@@ -159,7 +158,7 @@ sub get {
         $self->clear();
     }
 
-    my $statement = $db->prepare( "SELECT value FROM $self->{_table} WHERE id=" . $db->quote($key) );
+    my $statement = $db->prepare( "SELECT value FROM keyed WHERE id=" . $db->quote($key) );
     eval {
         $statement->execute();
     };
@@ -191,7 +190,7 @@ sub set {
     $value = sereal_encode_with_object($ENCODER, $value);
     my $result;
     eval {
-        $result = $db->do( "REPLACE INTO $self->{_table} (id, value) VALUES(?,?)", undef, $key, $value );
+        $result = $db->do( "REPLACE INTO keyed (id, value) VALUES(?,?)", undef, $key, $value );
     };
     if($@){
         $logger->error("Couldn't insert in table. Error : $@");
@@ -213,7 +212,7 @@ sub remove {
         $self->_db_error();
         return 0;
     }
-    my $result = $db->do( "DELETE FROM $self->{_table} where id=?", undef, $key );
+    my $result = $db->do( "DELETE FROM keyed where id=?", undef, $key );
     return $result;
 }
 
@@ -230,7 +229,7 @@ sub clear {
         $self->_db_error();
         return 0;
     }
-    my $result = $db->do( "DELETE FROM $self->{_table}" );
+    my $result = $db->do( "DELETE FROM keyed" );
     return $result;
 }
 
@@ -249,7 +248,7 @@ sub list {
         return ();
     }
     
-    my $statement = $db->prepare( "SELECT id FROM $self->{_table}");
+    my $statement = $db->prepare( "SELECT id FROM keyed");
     eval {
         $statement->execute();
     };
@@ -277,7 +276,7 @@ sub list_matching {
         return ();
     }
 
-    my $statement = $db->prepare( "SELECT id FROM $self->{_table} where id regexp ".$db->quote($expression) );
+    my $statement = $db->prepare( "SELECT id FROM keyed where id regexp ".$db->quote($expression) );
     eval {
         $statement->execute();
     };
