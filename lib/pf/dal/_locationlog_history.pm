@@ -1,16 +1,16 @@
-package pf::dal::_locationlog;
+package pf::dal::_locationlog_history;
 
 =head1 NAME
 
-pf::dal::_locationlog - pf::dal implementation for the table locationlog
+pf::dal::_locationlog_history - pf::dal implementation for the table locationlog_history
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::dal::_locationlog
+pf::dal::_locationlog_history
 
-pf::dal implementation for the table locationlog
+pf::dal implementation for the table locationlog_history
 
 =cut
 
@@ -18,8 +18,8 @@ use strict;
 use warnings;
 
 ###
-### pf::dal::_locationlog is auto generated any change to this file will be lost
-### Instead change in the pf::dal::locationlog module
+### pf::dal::_locationlog_history is auto generated any change to this file will be lost
+### Instead change in the pf::dal::locationlog_history module
 ###
 
 use base qw(pf::dal);
@@ -36,6 +36,7 @@ our @COLUMN_NAMES;
 
 BEGIN {
     @FIELD_NAMES = qw(
+        id
         tenant_id
         mac
         switch
@@ -59,7 +60,7 @@ BEGIN {
 
     %DEFAULTS = (
         tenant_id => '1',
-        mac => '',
+        mac => undef,
         switch => '',
         port => '',
         vlan => undef,
@@ -102,17 +103,23 @@ BEGIN {
     );
 
     %FIELDS_META = (
+        id => {
+            type => 'INT',
+            is_auto_increment => 1,
+            is_primary_key => 1,
+            is_nullable => 0,
+        },
         tenant_id => {
             type => 'INT',
             is_auto_increment => 0,
-            is_primary_key => 1,
+            is_primary_key => 0,
             is_nullable => 0,
         },
         mac => {
             type => 'VARCHAR',
             is_auto_increment => 0,
-            is_primary_key => 1,
-            is_nullable => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
         },
         switch => {
             type => 'VARCHAR',
@@ -223,30 +230,30 @@ BEGIN {
     );
 
     @PRIMARY_KEYS = qw(
-        tenant_id
-        mac
+        id
     );
 
     @COLUMN_NAMES = qw(
-        locationlog.tenant_id
-        locationlog.mac
-        locationlog.switch
-        locationlog.port
-        locationlog.vlan
-        locationlog.role
-        locationlog.connection_type
-        locationlog.connection_sub_type
-        locationlog.dot1x_username
-        locationlog.ssid
-        locationlog.start_time
-        locationlog.end_time
-        locationlog.switch_ip
-        locationlog.switch_mac
-        locationlog.stripped_user_name
-        locationlog.realm
-        locationlog.session_id
-        locationlog.ifDesc
-        locationlog.voip
+        locationlog_history.id
+        locationlog_history.tenant_id
+        locationlog_history.mac
+        locationlog_history.switch
+        locationlog_history.port
+        locationlog_history.vlan
+        locationlog_history.role
+        locationlog_history.connection_type
+        locationlog_history.connection_sub_type
+        locationlog_history.dot1x_username
+        locationlog_history.ssid
+        locationlog_history.start_time
+        locationlog_history.end_time
+        locationlog_history.switch_ip
+        locationlog_history.switch_mac
+        locationlog_history.stripped_user_name
+        locationlog_history.realm
+        locationlog_history.session_id
+        locationlog_history.ifDesc
+        locationlog_history.voip
     );
 
 }
@@ -257,7 +264,7 @@ use Class::XSAccessor {
 
 =head2 _defaults
 
-The default values of locationlog
+The default values of locationlog_history
 
 =cut
 
@@ -267,7 +274,7 @@ sub _defaults {
 
 =head2 table_field_names
 
-Field names of locationlog
+Field names of locationlog_history
 
 =cut
 
@@ -277,7 +284,7 @@ sub table_field_names {
 
 =head2 primary_keys
 
-The primary keys of locationlog
+The primary keys of locationlog_history
 
 =cut
 
@@ -291,11 +298,11 @@ The table name
 
 =cut
 
-sub table { "locationlog" }
+sub table { "locationlog_history" }
 
 our $FIND_SQL = do {
     my $where = join(", ", map { "$_ = ?" } @PRIMARY_KEYS);
-    "SELECT * FROM `locationlog` WHERE $where;";
+    "SELECT * FROM `locationlog_history` WHERE $where;";
 };
 
 =head2 find_columns
@@ -310,7 +317,7 @@ sub find_columns {
 
 =head2 _find_one_sql
 
-The precalculated sql to find a single row locationlog
+The precalculated sql to find a single row locationlog_history
 
 =cut
 
@@ -320,7 +327,7 @@ sub _find_one_sql {
 
 =head2 _updateable_fields
 
-The updateable fields for locationlog
+The updateable fields for locationlog_history
 
 =cut
 
@@ -330,7 +337,7 @@ sub _updateable_fields {
 
 =head2 _insertable_fields
 
-The insertable fields for locationlog
+The insertable fields for locationlog_history
 
 =cut
 
@@ -340,7 +347,7 @@ sub _insertable_fields {
 
 =head2 get_meta
 
-Get the meta data for locationlog
+Get the meta data for locationlog_history
 
 =cut
 
