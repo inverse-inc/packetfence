@@ -1046,8 +1046,8 @@ This mean that the cluster will be in SLAVE mode and will use the db of the DC1 
 
 And we defined the type and the enforcement on all the interfaces.
 
-Prepare the master/slave replication
-++++++++++++++++++++++++++++++++++++
+Prepare and start the master/slave replication
+++++++++++++++++++++++++++++++++++++++++++++++
 
 First you need to have a backup of the current database with the position of the master in the binary log.
 To do that you first need to restart packetfence-mariadb on each servers of the main cluster.

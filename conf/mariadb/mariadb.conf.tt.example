@@ -182,7 +182,7 @@ wsrep_dirty_reads=ON
 wsrep_slave_threads=1
 
 [% IF masterslave %]
-[% IF masterslavemode != "SLAVE" %]
+[% IF masterslavemode == "MASTER" %]
 wsrep_gtid_mode=ON
 wsrep_gtid_domain_id=22
 log_slave_updates=ON
