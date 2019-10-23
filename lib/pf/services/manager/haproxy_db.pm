@@ -36,13 +36,16 @@ use pf::file_paths qw(
     $captiveportal_templates_path
 );
 
-use pf::constants qw($TRUE);
+use pf::constants qw($TRUE $FALSE);
 
 extends 'pf::services::manager::haproxy';
 
 has '+name' => (default => sub { 'haproxy-db' } );
 
 has '+haproxy_config_template' => (default => sub { "$conf_dir/haproxy-db.conf" });
+
+our $host_id = $pf::config::cluster::host_id;
+tie our %clusters_hostname_map, 'pfconfig::cached_hash', 'resource::clusters_hostname_map';
 
 sub generateConfig {
     my ($self,$quick) = @_;
@@ -68,9 +71,17 @@ sub generateConfig {
 
     my $i = 0;
     my @mysql_backend;
+
     if ($cluster_enabled) {
-        @mysql_backend = map { $_->{management_ip} } pf::cluster::mysql_servers();
         my $management_ip = pf::cluster::management_cluster_ip();
+        if ($self->isSlaveMode()) {
+            if ($self->getDBMaster()) {
+                 push(@mysql_backend, $self->getDBMaster());
+            }
+            push(@mysql_backend, $tags{'management_ip'});
+        } else {
+            @mysql_backend = map { $_->{management_ip} } pf::cluster::mysql_servers();
+        }
         $tags{'management_ip_frontend'} = <<"EOT";
 frontend  management_ip
     bind $management_ip:3306
@@ -118,10 +129,19 @@ sub isManaged {
 
 sub isSlaveMode {
     my ($self) = @_;
-    if ($pf::config::Config{'database_advanced'}{'masterslave'} eq 'ON' && $pf::config::Config{'database_advanced'}{'masterslavemode'} eq 'SLAVE') {
+    if (defined(${pf::config::cluster::getClusterConfig($clusters_hostname_map{$host_id})}{CLUSTER}{masterslavemode}) && ${pf::config::cluster::getClusterConfig($clusters_hostname_map{$host_id})}{CLUSTER}{masterslavemode} eq 'SLAVE' ) {
         return $TRUE;
     }
 }
+
+sub getDBMaster {
+    if (defined(${pf::config::cluster::getClusterConfig(${pf::config::cluster::getClusterConfig($clusters_hostname_map{$host_id})}{CLUSTER}{masterdb})}{CLUSTER}{management_ip})) {
+        return ${pf::config::cluster::getClusterConfig(${pf::config::cluster::getClusterConfig($clusters_hostname_map{$host_id})}{CLUSTER}{masterdb})}{CLUSTER}{management_ip};
+    } else {
+        return $FALSE;
+    }
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
