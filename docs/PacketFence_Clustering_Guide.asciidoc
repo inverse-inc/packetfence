@@ -1070,6 +1070,17 @@ Next, connect on the remote server and do the following:
  chown -R mysql: /var/lib/mysql
  service packetfence-mariadb start
 
+Last thing to do is to launch the script that will start the slave replication.
+To do that go on the remote server and launch:
+
+ /usr/local/pf/addons/makeslave.pm
+
+ Enter the MySQL root password: password
+ Enter the MySQL master ip address: 192.168.1.11
+
+
+Or if prefer to do the procedure to start the slave replication manually:
+
 Edit the file /var/lib/mysql/xtrabackup_binlog_info and note the file name and the position:
 
  mariadb-bin.000014      7473
