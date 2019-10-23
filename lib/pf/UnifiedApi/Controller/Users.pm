@@ -17,6 +17,7 @@ use warnings;
 use Mojo::Base 'pf::UnifiedApi::Controller::Crud';
 use pf::dal::person;
 use pf::dal::node;
+use pf::log;
 use pf::dal::security_event;
 use pf::security_event;
 use pf::constants;
@@ -506,6 +507,105 @@ sub bulk_delete {
     }
 
     return $self->render(json => { items => $results });
+}
+
+=head2 bulk_import
+
+bulk_import
+
+=cut
+
+sub bulk_import {
+    my ($self) = @_;
+    my ($status, $data) = $self->parse_json;
+    if (is_error($status)) {
+        return $self->render(json => $data, status => $status);
+    }
+
+    my $items = $data->{items} // [];
+    my $count = @$items;
+    if ($count == 0) {
+        return $self->render(json => { items => [] });
+    }
+
+    my $stopOnError = $data->{stopOnFirstError};
+    my @results;
+    $#results = $count - 1;
+    my $i;
+    for ($i=0;$i<$count;$i++) {
+        my $result = $self->import_item($data, $items->[$i]);
+        $results[$i] = $result;
+        if ($stopOnError && is_error($result->{status} // 200)) {
+            $i++;
+            last;
+        }
+    }
+
+    for (;$i<$count;$i++) {
+        $results[$i] =  { item => $items->[$i], status => 424, message => "Skipped" };
+    }
+
+    return $self->render(json => { items => \@results });
+}
+
+sub import_item {
+    my ($self, $request, $item) = @_;
+    my @errors = $self->import_item_check_for_errors($item);
+    if (@errors) {
+        return { item => $item, errors => \@errors, message => 'Cannot save user', status => 422 };
+    }
+
+    my $pid = delete $item->{pid};
+    $item->{sponsor} //= $self->stash->{current_user};
+    my $exists = pf::person::person_exists($pid);
+    if ($exists) {
+        if ($request->{ignoreUpdateIfExists}) {
+            return { item => $item, status => 409, message => "Skip already exists"} ;
+        }
+    } else {
+        if ($request->{ignoreInsertIfNotExists}) {
+            return { item => $item, status => 404, message => "Skip does not exists"} ;
+        }
+    }
+
+    my $result = person_modify($pid, %$item);
+    if ($result) {
+        return { item => $item, status => 200, isNew => ( $exists ? $self->json_false : $self->json_true ) };
+    }
+
+    return { item => $item, status => 422, message => "Cannot save user"};
+}
+
+sub import_item_check_for_errors {
+    my ($self, $request,  $item) = @_;
+    my @errors;
+    my $logger = get_logger();
+    for my $f (qw(password pid)) {
+        if (!exists $item->{$f} || !defined ($item->{$f}) ||  len($item->{$f}) == 0) {
+
+            push @errors, { field => "pid", message => "Missing" };
+        }
+    }
+
+    my $pid = $item->{pid};
+    if ($pid) {
+        if($pid !~ /$pf::person::PID_RE/) {
+            my $message = "Invalid PID ($pid)";
+            $logger->debug($message);
+            push @errors, { field => "pid", message => $message };
+        }
+
+        if ($pid eq $default_pid || $pid eq $admin_pid) {
+            push @errors, { field => "pid", message => "$pid cannot be updated via bulk import"};
+        }
+    }
+
+
+    if ($item->{'email'} && $item->{'email'} !~ /^[A-z0-9_.-]+@[A-z0-9_-]+(\.[A-z0-9_-]+)*\.[A-z]{2,6}$/) {
+        push @errors, { field => "email", message => 'invalid format' };
+    }
+
+    return @errors;
 }
 
 =head1 AUTHOR

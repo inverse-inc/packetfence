@@ -23,17 +23,18 @@ use pf::node;
 use List::Util qw(first);
 use List::MoreUtils qw(part);
 use pf::ip4log;
-use pf::constants qw($TRUE);
+use pf::constants qw($TRUE $default_pid);
 use pf::dal::security_event;
-use pf::error qw(is_error);
+use pf::error qw(is_error is_success);
 use pf::locationlog qw(locationlog_history_mac locationlog_view_open_mac);
 use pf::UnifiedApi::Search::Builder::Nodes;
 use pf::UnifiedApi::Search::Builder::NodesNetworkGraph;
 use pf::security_event;
 use pf::Connection;
 use pf::SwitchFactory;
-use pf::util qw(valid_ip);
+use pf::util qw(valid_ip valid_mac);
 use pf::Connection::ProfileFactory;
+use pf::log;
 
 has 'search_builder_class' => 'pf::UnifiedApi::Search::Builder::Nodes';
 
@@ -884,6 +885,101 @@ sub get_switch_data {
     }
 
     return undef;
+}
+
+=head2 bulk_import
+
+bulk_import
+
+=cut
+
+sub bulk_import {
+    my ($self) = @_;
+    my ($status, $data) = $self->parse_json;
+    if (is_error($status)) {
+        return $self->render(json => $data, status => $status);
+    }
+
+    my $items = $data->{items} // [];
+    my $count = @$items;
+    if ($count == 0) {
+        return $self->render(json => { items => [] });
+    }
+
+    my $stopOnError = $data->{stopOnFirstError};
+    my @results;
+    $#results = $count - 1;
+    my $i;
+    for ($i=0;$i<$count;$i++) {
+        my $result = $self->import_item($data, $items->[$i]);
+        $results[$i] = $result;
+        if ($stopOnError && is_error($result->{status} // 200)) {
+            $i++;
+            last;
+        }
+    }
+
+    for (;$i<$count;$i++) {
+        $results[$i] =  { item => $items->[$i], status => 424, message => "Skipped" };
+    }
+
+    return $self->render(json => { items => \@results });
+}
+
+sub import_item {
+    my ($self, $request, $item) = @_;
+    my @errors = $self->import_item_check_for_errors($request, $item);
+    if (@errors) {
+        return { item => $item, errors => \@errors, message => 'Cannot save node', status => 422 };
+    }
+
+    my $logger = get_logger();
+    my $mac = $item->{mac};
+    my $pid = $item->{pid} || $default_pid;
+    my $node = node_view($mac);
+    if ($node) {
+        if ($request->{ignoreUpdateIfExists}) {
+            return { item => $item, status => 409, message => "Skip already exists"} ;
+        }
+    } else {
+        if ($request->{ignoreInsertIfNotExists}) {
+            return { item => $item, status => 404, message => "Skip does not exists"} ;
+        }
+    }
+
+    if (!defined($node) || (ref($node) eq 'HASH' && $node->{'status'} ne $pf::node::STATUS_REGISTERED)) {
+        $logger->debug("Register MAC $mac ($pid)");
+        (my $result, my $msg) = node_register($mac, $pid, %$item);
+    } else {
+        $logger->debug("Modify already registered MAC $mac ($pid)");
+        my $result = node_modify($mac, %$item);
+        node_update_last_seen($mac);
+    }
+
+    return { item => $item, status => 200, isNew => ( defined $node ? $self->json_false : $self->json_true ) };
+}
+
+sub import_item_check_for_errors {
+    my ($self, $request, $item) = @_;
+    my @errors;
+    my $mac = $item->{mac};
+    my $logger = get_logger();
+    if (!$mac || !valid_mac($mac)) {
+        my $message = defined $mac ? "Invalid MAC" : "MAC is a required field";
+        $logger->debug($message);
+        push @errors, { field => "mac", message => $message };
+    }
+
+    my $pid = $item->{pid};
+    if ($pid) {
+        if($pid !~ /$pf::person::PID_RE/) {
+            my $message = "Invalid PID ($pid)";
+            $logger->debug($message);
+            push @errors, { field => "pid", message => $message };
+        }
+    }
+
+    return @errors;
 }
 
 =head1 AUTHOR

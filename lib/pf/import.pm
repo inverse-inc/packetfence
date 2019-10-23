@@ -121,7 +121,6 @@ sub nodes {
 
         $mac = clean_mac($mac);
         $pid ||= $default_node_pid || $default_pid;
-        $node = node_view($mac);
         %data =
           (
            'mac'         => $mac,
@@ -147,6 +146,7 @@ sub nodes {
             next;
         }
 
+        $node = node_view($mac);
         if (!defined($node) || (ref($node) eq 'HASH' && $node->{'status'} ne $pf::node::STATUS_REGISTERED)) {
             $logger->debug("Register MAC $mac ($pid)");
             ($result, my $msg) = node_register($mac, $pid, %data);
