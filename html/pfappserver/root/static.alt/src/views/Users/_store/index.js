@@ -324,6 +324,15 @@ const actions = {
     }).catch(err => {
       commit('USER_ERROR', err.response)
     })
+  },
+  bulkImport: ({ commit }, data) => {
+    commit('USER_REQUEST')
+    return api.bulkImport(data).then(response => {
+      commit('USER_BULK_SUCCESS', response)
+      return response
+    }).catch(err => {
+      commit('USER_ERROR', err.response)
+    })
   }
 }
 

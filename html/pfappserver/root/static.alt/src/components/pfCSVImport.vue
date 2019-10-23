@@ -78,7 +78,7 @@
             <b-row class="pf-csv-import-table-row" v-for="(_, rowIndex) in previewColumnCount" :key="rowIndex">
               <b-col>
                 <b-form-group
-                  :state="($v.importMapping.$anyError) ? false : null"
+                  :state="($v.importMapping.$invalid) ? false : null"
                   :invalid-feedback="getImportMappingVuelidateFeedback()"
                   class="my-1 pf-csv-import-form-group"
                 >
@@ -140,7 +140,7 @@
                   v-model="staticMapping[index].value"
                   :ref="staticMapping[index].key"
                   :disabled="isDisabled"
-                  :class="{ 'border-danger': $v.staticMapping[index].value.$anyError }"
+                  :class="{ 'border-danger': $v.staticMapping[index].value.$invalid }"
                   :vuelidate="$v.staticMapping[index].value"
                 ></pf-form-input>
 
@@ -150,7 +150,7 @@
                   :ref="staticMapping[index].key"
                   :config="{format: 'YYYY-MM-DD'}"
                   :disabled="isDisabled"
-                  :class="{ 'border-danger': $v.staticMapping[index].value.$anyError }"
+                  :class="{ 'border-danger': $v.staticMapping[index].value.$invalid }"
                   :vuelidate="$v.staticMapping[index].value"
                 ></pf-form-datetime>
 
@@ -160,7 +160,7 @@
                   :ref="staticMapping[index].key"
                   :config="{format: 'YYYY-MM-DD HH:mm:ss'}"
                   :disabled="isDisabled"
-                  :class="{ 'border-danger': $v.staticMapping[index].value.$anyError }"
+                  :class="{ 'border-danger': $v.staticMapping[index].value.$invalid }"
                   :vuelidate="$v.staticMapping[index].value"
                 ></pf-form-datetime>
 
@@ -169,7 +169,7 @@
                   v-model="staticMapping[index].value"
                   :ref="staticMapping[index].key"
                   :disabled="isDisabled"
-                  :class="{ 'border-danger': $v.staticMapping[index].value.$anyError }"
+                  :class="{ 'border-danger': $v.staticMapping[index].value.$invalid }"
                   :vuelidate="$v.staticMapping[index].value"
                 ></pf-form-prefix-multiplier>
 
@@ -239,7 +239,7 @@
                   v-model="staticMapping[index].value"
                   :ref="staticMapping[index].key"
                   :disabled="isDisabled"
-                  :class="{ 'border-danger': $v.staticMapping[index].value.$anyError }"
+                  :class="{ 'border-danger': $v.staticMapping[index].value.$invalid }"
                   :vuelidate="$v.staticMapping[index].value"
                 ></pf-form-input>
 
@@ -258,6 +258,12 @@
             </b-row>
           </div>
         </template>
+
+        <div v-if="$slots.default" class="mt-3">
+          <h4 v-t="'Additional Options'"></h4>
+          <p v-t="'Complete the following infomation.'"></p>
+          <slot name="default"/> <!-- extra content from parent component -->
+        </div>
       </div>
       <b-card-footer v-if="previewColumnCount > 0" @mouseenter="$v.$touch()">
         <b-row align-v="center">
@@ -339,11 +345,74 @@
     <b-modal :id="`importProgress-${uuid}`" size="lg" :title="$t('Import Progress')"
       centered scrollable hide-header-close no-close-on-backdrop no-close-on-esc no-stacking
     >
-      <h4>Hello World</h4>
+      <b-container>
+        <b-row class="justify-content-md-center text-secondary">
+          <b-col cols="12">
+            <b-media>
+              <template v-slot:aside>
+                <icon v-if="isImporting && importProgress.lastError" name="pause-circle" scale="2"></icon>
+                <icon v-else-if="isImporting" name="circle-notch" scale="2" spin></icon>
+                <icon v-else name="download" scale="2"></icon>
+              </template>
+              <template v-if="isImporting && importProgress.lastError">
+                <h4 v-if="isImporting" class="mb-0">{{ $t('Import paused') }}</h4>
+                <b-form-text v-t="'Review the error(s) below before continuing.'" class="mt-0 mb-3"></b-form-text>
+              </template>
+              <template v-else-if="isImporting">
+                <h4 v-if="isImporting" class="mb-0">{{ $t('Importing') }}</h4>
+                <b-form-text v-t="'This operation may take a few minutes.'" class="mt-0 mb-3"></b-form-text>
+              </template>
+              <template v-else>
+                <h4 class="mb-3">{{ $t('Import Statistics') }}</h4>
+              </template>
+              <b-row class="bg-light" align-v="center">
+                <b-col cols="10" class="small">{{ $t('Created') }}</b-col>
+                <b-col cols="2" class="text-right">{{ importProgress.insertCount }}</b-col>
+              </b-row>
+              <b-row align-v="center">
+                <b-col cols="10" class="small">{{ $t('Updated') }}</b-col>
+                <b-col cols="2" class="text-right">{{ importProgress.updateCount }}</b-col>
+              </b-row>
+              <b-row class="bg-light" align-v="center">
+                <b-col cols="10" class="small">{{ $t('Skipped') }}</b-col>
+                <b-col cols="2" class="text-right">{{ importProgress.skipCount }}</b-col>
+              </b-row>
+              <b-row align-v="center">
+                <b-col cols="10" class="small">{{ $t('Failed') }}</b-col>
+                <b-col cols="2" class="text-right">{{ importProgress.errorCount }}</b-col>
+              </b-row>
+              <b-row class="bg-light" align-v="center">
+                <b-col cols="10" class="small border-top">{{ $t('Total') }}</b-col>
+                <b-col cols="2" class="border-top text-right">{{ importProgress.lastLine }}</b-col>
+              </b-row>
+            </b-media>
+            <b-media v-if="importProgress.lastError" class="mt-3">
+              <template v-slot:aside>
+                <icon name="exclamation-circle" scale="2" class="text-danger"></icon>
+              </template>
+              <h4 class="mb-0">{{ $t('Import error(s) on line #{line}', { line: importProgress.lastError.line }) }}</h4>
+              <b-form-text v-t="'Review the error(s) below and choose an option to continue.'" class="mt-0"></b-form-text>
+              <template v-for="(error, index) in importProgress.lastError.errors" :key="error.key">
+                <b-row class="bg-light mt-3" align-v="center">
+                  <b-col cols="10" class="small">{{ error.field }} </b-col>
+                  <b-col cols="2" class="text-right my-1">{{ error.value }}</b-col>
+                </b-row>
+                <b-row>
+                  <b-col cols="10"></b-col>
+                  <b-col cols="2" class="small text-right text-danger my-1">{{ error.message }}</b-col>
+                </b-row>
+              </template>
+            </b-media>
+          </b-col>
+        </b-row>
+      </b-container>
+
       <template v-slot:modal-footer>
         <b-button variant="primary" @click="$bvModal.hide(`importProgress-${uuid}`)">{{ $t('Continue') }}</b-button>
       </template>
     </b-modal>
+
+    <pre>linesCount: {{ linesCount }}</pre>
 
   </b-form>
 </template>
@@ -417,7 +486,11 @@ export default {
       type: Boolean,
       default: false
     },
-    importFunction: {
+    isSlotError: {
+      type: Boolean,
+      default: false
+    },
+    importPromise: {
       type: Function,
       default: () => {}
     }
@@ -483,8 +556,16 @@ export default {
       staticMappingSelect: null,
 
       isImporting: false,
-      importErrors: [],
-      importModel: []
+      importProgress: {
+        insertCount: 0,
+        updateCount: 0,
+        skipCount: 0,
+        errorCount: 0,
+        lastError: false,
+        lastLine: 0,
+        resolve: false,
+        reject: false
+      }
     }
   },
   computed: {
@@ -529,12 +610,13 @@ export default {
     isMappingError () {
       const {
         $v: {
-          importMapping: { $anyError: importMappingError = false } = {},
-          staticMapping: { $anyError: staticMappingError = false } = {},
-          preview: { $anyError: previewError = false } = {}
-        } = {}
+          importMapping: { $invalid: importMappingError = false } = {},
+          staticMapping: { $invalid: staticMappingError = false } = {},
+          preview: { $invalid: previewError = false } = {}
+        } = {},
+        isSlotError = false
       } = this
-      return importMappingError || staticMappingError || previewError
+      return importMappingError || staticMappingError || previewError || isSlotError
     }
   },
   methods: {
@@ -676,15 +758,24 @@ export default {
       return feedback.join(' ').trim() || null
     },
     importAll () {
-
-      this.isImporting = true
-      this.$bvModal.show(`importProgress-${this.uuid}`)
+      const staticMapping = this.staticMapping.reduce((staticMapping, { key, value }) => {
+        staticMapping[key] = value
+        return staticMapping
+      }, {})
 
       const parseLines = async (start, length) => {
         return new Promise((resolve, reject) => {
-          this.readLines(start, length).then(async (lines) => {
+          this.readLines(start, length + 1).then(async (lines) => { // lookahead (+1 line) for pagination
             resolve(await Promise.all(
-              lines.map(async (line, index) => {
+              lines.filter((line, index) => {
+                if (line !== undefined) { // !EOF
+                  this.linesCount = Math.max(this.linesCount, start + index + 1)
+                  if (index < length) { // skip lookahead (+1 line)
+                    return true
+                  }
+                }
+                return false
+              }).map(async (line, index) => {
                 return new Promise((resolve, reject) => {
                   Papa.parse(line, {
                     ...this.config,
@@ -703,39 +794,96 @@ export default {
         })
       }
 
-      const staticMapping = this.staticMapping.reduce((staticMapping, { key, value }) => {
-        staticMapping[key] = value
-        return staticMapping
-      }, {})
+      const importLines = async (start, length) => {
+        await parseLines(start, length).then(async (lines) => {
+          const items = lines.reduce((items, { data, errors }) => {
+            if (data) {
+              items.push({
+                ...data.reduce((line, value, index) => {
+                  if (this.importMapping[index]) {
+                    line[this.importMapping[index]] = value
+                  }
+                  return line
+                }, {}),
+                ...staticMapping
+              })
+            }
+            return items
+          }, [])
 
-      let start = ((this.config.header) ? 1 : 0)
-      let length = 100
+          const { config: { stopOnFirstError, ignoreUpdateIfExists, ignoreInsertIfNotExists } = {} } = this
+          const payload = {
+            items,
+            stopOnFirstError,
+            ignoreInsertIfNotExists,
+            ignoreUpdateIfExists
+          }
 
-      parseLines(start, length).then(async (lines) => {
-        const zippedLines = lines.reduce((zippedLines, { data, errors }) => {
-          zippedLines.push({
-            ...data.reduce((line, value, index) => {
-              if (this.importMapping[index]) {
-                line[this.importMapping[index]] = value
+          await new Promise(async (resolve, reject) => {
+            await this.importPromise(payload).then((result) => {
+              for (const line of result) {
+                const { isNew, item, errors, message, status } = line
+                this.importProgress.lastLine++
+                if (errors) {
+                  this.importProgress.lastError = {
+                    line: this.importProgress.lastLine,
+                    errors: errors.map(error => {
+                      const { field: key, message } = error
+                      return {
+                        key,
+                        field: this.fields.find(field => field.value === key).text,
+                        message,
+                        value: item[key]
+                      }
+                    })
+                  }
+                  this.importProgress.resolve = resolve
+                  this.importProgress.reject = reject
+                  this.importProgress.errorCount++
+                  if (stopOnFirstError) {
+                    return
+                  }
+                } else {
+                  this.importProgress.lastError = false
+                  if (isNew) {
+                    this.importProgress.insertCount++
+                  } else {
+                    this.importProgress.updateCount++
+                  }
+                }
               }
-              return line
-            }, {}),
-            ...staticMapping
+              resolve() // continue processing
+            }).catch((err) => {
+              reject() // stop processing
+            })
           })
-          return zippedLines
-        }, [])
-
-        await this.importFunction(zippedLines).then((result) => {
-
-          console.log('resolved', result)
-        }).catch((err) => {
-
-          console.log('rejected', err)
         })
+      }
 
-        console.log('DONE')
+      const importAll = async () => {
+        const { config: { header, chunkSize: length } = {} } = this
+        let start = ((header) ? 1 : 0)
+        this.isImporting = true
+        this.$set(this, 'importProgress', { // reset counters
+          insertCount: 0,
+          updateCount: 0,
+          skipCount: start,
+          errorCount: 0,
+          lastError: false,
+          lastLine: start,
+          resolve: false,
+          reject: false
+        })
+        this.$bvModal.show(`importProgress-${this.uuid}`)
+        do {
+console.log('iteration', { start, length }, this.linesCount)
+          await importLines(start, length)
+        } while (this.linesCount >= start && (start += length))
+        this.isImporting = false
+console.log('DONE!!!')
+      }
 
-      })
+      importAll() // handle w/ asyncronous
     }
   },
   validations () {

@@ -118,5 +118,10 @@ export default {
     return apiCall.post(['users', 'bulk_delete'], body).then(response => {
       return response.data.items
     })
+  },
+  bulkImport: body => {
+    return apiCall.post(['users', 'bulk_import'], body).then(response => {
+      return response.data.items
+    })
   }
 }
