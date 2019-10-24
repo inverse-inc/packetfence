@@ -946,11 +946,11 @@ sub import_item {
     my $node = node_view($mac);
     if ($node) {
         if ($request->{ignoreUpdateIfExists}) {
-            return { item => $item, status => 409, message => "Skip already exists"} ;
+            return { item => $item, status => 409, message => "Skip already exists", isNew => $self->json_false} ;
         }
     } else {
         if ($request->{ignoreInsertIfNotExists}) {
-            return { item => $item, status => 404, message => "Skip does not exists"} ;
+            return { item => $item, status => 404, message => "Skip does not exists", isNew => $self->json_true} ;
         }
     }
 
