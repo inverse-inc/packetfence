@@ -152,7 +152,7 @@
             :field="actionField"
             :vuelidate="$v.userContent.actions"
             :invalid-feedback="[
-              { [$t('One or more errors exist.')]: !$v.userContent.actions.anyError }
+              { [$t('One or more errors exist.')]: $v.userContent.actions.$invalid }
             ]"
             @validations="actionsValidations = $event"
             sortable

@@ -37,11 +37,22 @@
         <template v-else>
           <!-- preview options -->
           <b-row align-v="center">
-            <b-col cols="auto">
+            <b-col cols="auto" class="mr-auto">
               <h4 v-t="'Import Mappings'"></h4>
               <p v-t="'Map the required fields and any optional static fields.'"></p>
             </b-col>
-            <b-col cols="auto" class="ml-auto">
+            <b-col cols="auto" class="ml-auto text-right pb-3">
+              <b-button :disabled="isDisabled || perPage === 1"
+                class="pr-3 text-secondary" variant="light" size="sm" pill
+                @click="deletePageColumn()"
+              ><icon name="minus-circle" class="mr-1"></icon> {{ $t('Remove Line') }}</b-button>
+
+              <b-button :disabled="isDisabled"
+                class="ml-2 pr-3 text-secondary" variant="light" size="sm" pill
+                @click="addPageColumn()"
+              ><icon name="plus-circle" class="mr-1"></icon> {{ $t('Add Line') }}</b-button>
+            </b-col>
+            <b-col cols="auto">
               <b-pagination
                 :value="page"
                 :total-rows="pageMax * perPage"
@@ -266,31 +277,21 @@
         </div>
       </div>
       <b-card-footer v-if="previewColumnCount > 0" @mouseenter="$v.$touch()">
-        <b-row align-v="center">
-          <b-col cols="auto">
-            <b-button variant="primary" :disabled="isDisabled || isMappingError" @click="importAll()">
-              <icon v-if="isImporting" name="circle-notch" spin class="mr-1"></icon>
-              <icon v-else name="download" class="mr-1"></icon>
-              {{ $t('Import') }}
-            </b-button>
-            <b-button variant="link" :disabled="isDisabled" v-b-modal="`importOptions-${uuid}`">Import Options</b-button>
-            <span v-if="isMappingError" class="ml-2">
-              <icon name="exclamation-circle" class="text-danger mr-1"/>
-              <span class="invalid-feedback d-inline" v-t="'Fix all errors before importing.'"></span>
-            </span>
-          </b-col>
-          <b-col cols="auto" class="ml-auto">
-            <b-button :disabled="isDisabled || perPage === 1"
-              class="pr-3 text-secondary" variant="light" size="sm" pill
-              @click="deletePageColumn()"
-            ><icon name="minus-circle" class="mr-1"></icon> {{ $t('Remove Line') }}</b-button>
-
-            <b-button :disabled="isDisabled"
-              class="ml-2 pr-3 text-secondary" variant="light" size="sm" pill
-              @click="addPageColumn()"
-            ><icon name="plus-circle" class="mr-1"></icon> {{ $t('Add Line') }}</b-button>
-          </b-col>
-        </b-row>
+        <b-button variant="primary" class="mr-1" :disabled="isDisabled || isMappingError" @click="importStart(false)">
+          <icon v-if="isImporting && !importProgress.dryRun" name="circle-notch" spin class="mr-1"></icon>
+          <icon v-else name="download" class="mr-1"></icon>
+          {{ $t('Import') }}
+        </b-button>
+        <b-button variant="outline-primary" class="mr-1" :disabled="isDisabled || isMappingError" @click="importStart(true)">
+          <icon v-if="isImporting && importProgress.dryRun" name="circle-notch" spin class="mr-1"></icon>
+          <icon v-else name="long-arrow-alt-down" class="mr-1"></icon>
+          {{ $t('Dry Run') }}
+        </b-button>
+        <b-button variant="link" class="mr-1" :disabled="isDisabled" v-b-modal="`importOptions-${uuid}`">Import Options</b-button>
+        <span v-if="isMappingError" class="ml-2">
+          <icon name="exclamation-circle" class="text-danger mr-1"/>
+          <span class="invalid-feedback d-inline" v-t="'Fix all errors before importing.'"></span>
+        </span>
       </b-card-footer>
     </b-card>
 
@@ -342,8 +343,11 @@
       </template>
     </b-modal>
 
-    <b-modal :id="`importProgress-${uuid}`" size="lg" :title="$t('Import Progress')"
-      centered scrollable hide-header-close no-close-on-backdrop no-close-on-esc no-stacking
+    <b-modal :id="`importProgress-${uuid}`" size="lg" :title="(importProgress.dryRun) ? $t('Dry Run Progress') : $t('Import Progress')"
+      centered scrollable no-stacking
+      :hide-header-close="isImporting"
+      :no-close-on-backdrop="isImporting"
+      :no-close-on-esc="isImporting"
     >
       <b-container>
         <b-row class="justify-content-md-center text-secondary">
@@ -355,42 +359,43 @@
                 <icon v-else name="download" scale="2"></icon>
               </template>
               <template v-if="isImporting && importProgress.lastError">
-                <h4 v-if="isImporting" class="mb-0">{{ $t('Import paused') }}</h4>
+                <h4 v-if="isImporting" class="mb-0">{{ (importProgress.dryRun) ? $t('Dry run paused') : $t('Import paused') }}</h4>
                 <b-form-text v-t="'Review the error(s) below before continuing.'" class="mt-0 mb-3"></b-form-text>
               </template>
               <template v-else-if="isImporting">
-                <h4 v-if="isImporting" class="mb-0">{{ $t('Importing') }}</h4>
+                <h4 class="mb-0">{{ importProgress.status }}...</h4>
                 <b-form-text v-t="'This operation may take a few minutes.'" class="mt-0 mb-3"></b-form-text>
               </template>
               <template v-else>
-                <h4 class="mb-3">{{ $t('Import Statistics') }}</h4>
+                <h4 class="mb-0">{{ importProgress.status }}</h4>
+                <b-form-text class="mt-0 mb-3">{{ $t('Review the statistics below.') }}</b-form-text>
               </template>
               <b-row class="bg-light" align-v="center">
-                <b-col cols="10" class="small">{{ $t('Created') }}</b-col>
+                <b-col cols="10">{{ $t('Created') }} <em v-if="importProgress.dryRun">({{ $t('not commited') }})</em></b-col>
                 <b-col cols="2" class="text-right">{{ importProgress.insertCount }}</b-col>
               </b-row>
               <b-row align-v="center">
-                <b-col cols="10" class="small">{{ $t('Updated') }}</b-col>
+                <b-col cols="10">{{ $t('Updated') }} <em v-if="importProgress.dryRun">({{ $t('not commited') }})</em></b-col>
                 <b-col cols="2" class="text-right">{{ importProgress.updateCount }}</b-col>
               </b-row>
               <b-row class="bg-light" align-v="center">
-                <b-col cols="10" class="small">{{ $t('Skipped') }}</b-col>
+                <b-col cols="10">{{ $t('Skipped') }}</b-col>
                 <b-col cols="2" class="text-right">{{ importProgress.skipCount }}</b-col>
               </b-row>
               <b-row align-v="center">
-                <b-col cols="10" class="small">{{ $t('Failed') }}</b-col>
+                <b-col cols="10">{{ $t('Failed') }}</b-col>
                 <b-col cols="2" class="text-right">{{ importProgress.errorCount }}</b-col>
               </b-row>
               <b-row class="bg-light" align-v="center">
-                <b-col cols="10" class="small border-top">{{ $t('Total') }}</b-col>
+                <b-col cols="10" class="border-top">{{ $t('Total') }}</b-col>
                 <b-col cols="2" class="border-top text-right">{{ importProgress.lastLine }}</b-col>
               </b-row>
             </b-media>
-            <b-media v-if="importProgress.lastError" class="mt-3">
+            <b-media v-if="isImporting && importProgress.lastError" class="mt-3">
               <template v-slot:aside>
                 <icon name="exclamation-circle" scale="2" class="text-danger"></icon>
               </template>
-              <h4 class="mb-0">{{ $t('Import error(s) on line #{line}', { line: importProgress.lastError.line }) }}</h4>
+              <h4 class="mb-0">{{ $t('Error(s) on line #{line}', { line: importProgress.lastError.line }) }}</h4>
               <b-form-text v-t="'Review the error(s) below and choose an option to continue.'" class="mt-0"></b-form-text>
               <template v-for="(error, index) in importProgress.lastError.errors" :key="error.key">
                 <b-row class="bg-light mt-3" align-v="center">
@@ -406,13 +411,17 @@
           </b-col>
         </b-row>
       </b-container>
-
       <template v-slot:modal-footer>
-        <b-button variant="primary" @click="$bvModal.hide(`importProgress-${uuid}`)">{{ $t('Continue') }}</b-button>
+        <template v-if="isImporting">
+          <template v-if="importProgress.lastError">
+            <b-button variant="outline-primary" @click="importSkipOne()" class="ml-1"><icon name="play" class="mr-1"></icon> {{ $t('Skip Error') }}</b-button>
+            <b-button variant="primary" @click="importSkipAll()" class="ml-1"><icon name="forward" class="mr-1"></icon> {{ $t('Skip All Errors') }}</b-button>
+          </template>
+          <b-button variant="danger" @click="importCancel()" class="ml-1"><icon name="stop" class="mr-1"></icon> {{ $t('Cancel') }}</b-button>
+        </template>
+        <b-button v-else variant="primary" @click="importClose()" class="ml-1">{{ $t('Close') }}</b-button>
       </template>
     </b-modal>
-
-    <pre>linesCount: {{ linesCount }}</pre>
 
   </b-form>
 </template>
@@ -557,14 +566,16 @@ export default {
 
       isImporting: false,
       importProgress: {
+        status: this.$i18n.t('Idle'),
         insertCount: 0,
         updateCount: 0,
         skipCount: 0,
         errorCount: 0,
         lastError: false,
         lastLine: 0,
-        resolve: false,
-        reject: false
+        promise: false,
+        dryRun: false,
+        exit: false
       }
     }
   },
@@ -757,7 +768,9 @@ export default {
       }
       return feedback.join(' ').trim() || null
     },
-    importAll () {
+    importStart (dryRun = false) {
+      this.importProgress.dryRun = dryRun
+
       const staticMapping = this.staticMapping.reduce((staticMapping, { key, value }) => {
         staticMapping[key] = value
         return staticMapping
@@ -765,6 +778,7 @@ export default {
 
       const parseLines = async (start, length) => {
         return new Promise((resolve, reject) => {
+          this.importProgress.status = this.$i18n.t('Reading file')
           this.readLines(start, length + 1).then(async (lines) => { // lookahead (+1 line) for pagination
             resolve(await Promise.all(
               lines.filter((line, index) => {
@@ -777,6 +791,7 @@ export default {
                 return false
               }).map(async (line, index) => {
                 return new Promise((resolve, reject) => {
+                  this.importProgress.status = this.$i18n.t('Parsing file')
                   Papa.parse(line, {
                     ...this.config,
                     ...{
@@ -815,75 +830,104 @@ export default {
           const payload = {
             items,
             stopOnFirstError,
-            ignoreInsertIfNotExists,
-            ignoreUpdateIfExists
+            ignoreInsertIfNotExists: ignoreInsertIfNotExists || dryRun ,
+            ignoreUpdateIfExists: ignoreUpdateIfExists || dryRun
           }
 
           await new Promise(async (resolve, reject) => {
-            await this.importPromise(payload).then((result) => {
-              for (const line of result) {
-                const { isNew, item, errors, message, status } = line
-                this.importProgress.lastLine++
-                if (errors) {
-                  this.importProgress.lastError = {
-                    line: this.importProgress.lastLine,
-                    errors: errors.map(error => {
-                      const { field: key, message } = error
-                      return {
-                        key,
-                        field: this.fields.find(field => field.value === key).text,
-                        message,
-                        value: item[key]
-                      }
-                    })
-                  }
-                  this.importProgress.resolve = resolve
-                  this.importProgress.reject = reject
-                  this.importProgress.errorCount++
-                  if (stopOnFirstError) {
-                    return
-                  }
-                } else {
-                  this.importProgress.lastError = false
-                  if (isNew) {
-                    this.importProgress.insertCount++
+            if (!this.importProgress.exit) this.importProgress.status = this.$i18n.t('Sending data')
+            this.importProgress.promise = { resolve, reject } // stash promise
+            await this.importPromise(payload, dryRun).then((result) => {
+              if (!this.importProgress.exit) this.importProgress.status = this.$i18n.t('Processing response')
+              if (result.constructor === Array && result.length > 0) {
+                for (const line of result) {
+                  const { isNew, item, errors, message, status } = line
+                  this.importProgress.lastLine++
+                  if (errors) {
+                    this.importProgress.lastError = {
+                      line: this.importProgress.lastLine,
+                      errors: errors.map(error => {
+                        const { field: key, message } = error
+                        return {
+                          key,
+                          field: this.fields.find(field => field.value === key).text,
+                          message,
+                          value: item[key]
+                        }
+                      })
+                    }
+                    this.importProgress.errorCount++
+                    if (stopOnFirstError) {
+                      return // pause processing
+                    }
                   } else {
-                    this.importProgress.updateCount++
+                    this.importProgress.lastError = false
+                    if (!dryRun && [404, 409].includes(status)) {
+                      this.importProgress.skipCount++
+                    } else if (isNew) {
+                      this.importProgress.insertCount++
+                    } else {
+                      this.importProgress.updateCount++
+                    }
                   }
                 }
+                resolve() // continue processing
               }
-              resolve() // continue processing
-            }).catch((err) => {
               reject() // stop processing
+            }).catch((err) => {
+              reject(err) // stop processing
             })
           })
         })
       }
 
-      const importAll = async () => {
+      const importStart = async (dryRun) => {
         const { config: { header, chunkSize: length } = {} } = this
-        let start = ((header) ? 1 : 0)
         this.isImporting = true
+        this.config.stopOnFirstError = true
         this.$set(this, 'importProgress', { // reset counters
+          status: this.$i18n.t('Initializing'),
           insertCount: 0,
           updateCount: 0,
-          skipCount: start,
+          skipCount: ((header) ? 1 : 0),
           errorCount: 0,
           lastError: false,
-          lastLine: start,
-          resolve: false,
-          reject: false
+          lastLine: ((header) ? 1 : 0),
+          promise: false,
+          exit: false,
+          dryRun
         })
         this.$bvModal.show(`importProgress-${this.uuid}`)
         do {
-console.log('iteration', { start, length }, this.linesCount)
-          await importLines(start, length)
-        } while (this.linesCount >= start && (start += length))
+          await importLines(this.importProgress.lastLine, length).catch((err) => {
+            this.importProgress.status = (this.importProgress.exit)
+              ? (dryRun) ? this.$i18n.t('Dry run cancelled') : this.$i18n.t('Import cancelled')
+              : (dryRun) ? this.$i18n.t('Dry run completed') : this.$i18n.t('Import completed')
+            this.importProgress.exit = true
+          })
+        } while (this.linesCount > this.importProgress.lastLine && !this.importProgress.exit)
         this.isImporting = false
-console.log('DONE!!!')
       }
 
-      importAll() // handle w/ asyncronous
+      importStart(dryRun) // handle w/ asyncronous
+    },
+    importCancel () {
+      this.importProgress.status = this.$i18n.t('Stopping')
+      this.importProgress.exit = true
+      this.importProgress.lastError = false
+      this.importProgress.promise.reject() // stop processing
+    },
+    importClose () {
+      this.$bvModal.hide(`importProgress-${this.uuid}`)
+    },
+    importSkipOne () {
+      this.importProgress.lastError = false
+      this.importProgress.promise.resolve() // continue processing
+    },
+    importSkipAll () {
+      this.config.stopOnFirstError = false
+      this.importProgress.lastError = false
+      this.importProgress.promise.resolve() // continue processing
     }
   },
   validations () {

@@ -6,16 +6,21 @@
       <b-form-select
         v-model="inputValue"
         v-bind="$attrs"
+        :class="{
+          [`bg-${backgroundVariant}`]: (backgroundVariant) ,
+          'border': (borderVariant), [`border-${borderVariant}`]: (borderVariant),
+          [`text-${textVariant}`]: (textVariant)
+        }"
         :state="isValid()"
         @input.native="validate()"
         @keyup.native="onChange($event)"
         @change.native="onChange($event)"
       >
         <!-- BEGIN SLOTS -->
-        <!-- Forward default slot -->
-        <slot/>
         <!-- Forward named slots -->
         <slot name="first" v-slot:first/>
+        <!-- Forward default slot -->
+        <slot/>
         <!-- END SLOTS -->
       </b-form-select>
     </b-input-group>
@@ -43,6 +48,18 @@ export default {
       default: 3
     },
     text: {
+      type: String,
+      default: null
+    },
+    textVariant: {
+      type: String,
+      default: null
+    },
+    backgroundVariant: {
+      type: String,
+      default: null
+    },
+    borderVariant: {
       type: String,
       default: null
     }

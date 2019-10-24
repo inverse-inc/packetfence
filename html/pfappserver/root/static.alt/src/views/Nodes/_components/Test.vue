@@ -347,7 +347,7 @@ export default {
       const file = this.files[index]
       file.close()
     },
-    importPromise (payload) {
+    importPromise (payload, dryRun) {
       return new Promise((resolve, reject) => {
         if ('items' in payload) {
           payload.items = payload.items.map(item => { // glue payload together with local slot
@@ -359,6 +359,7 @@ export default {
           })
         }
         this.$store.dispatch('$_nodes/bulkImport', payload).then(result => {
+          console.log('dryRun', dryRun)
           console.log('importPromise', result)
           // do something with the result, then Promise.resolve to continue processing
           resolve(result)
