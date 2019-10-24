@@ -111,7 +111,8 @@ sub join_domain {
     regenerate_configuration();
 
     $info //= $ConfigDomain{$domain};
-    (my $status, $output) = run("/usr/bin/sudo /sbin/ip netns exec $domain /usr/sbin/chroot $chroot_path net ads join -s /etc/samba/$domain.conf createcomputer=$info->{ou} -U '".escape_bind_user_string($info->{bind_dn}.'%'.$info->{bind_pass})."' 2>&1");
+    my $createcomputer = $info->{ou} ne "Computers" ? "createcomputer=$info->{ou}" : "";
+    (my $status, $output) = run("/usr/bin/sudo /sbin/ip netns exec $domain /usr/sbin/chroot $chroot_path net ads join -s /etc/samba/$domain.conf $createcomputer -U '".escape_bind_user_string($info->{bind_dn}.'%'.$info->{bind_pass})."' 2>&1");
     chomp($output);
     $logger->info("domain join : $output");
 
