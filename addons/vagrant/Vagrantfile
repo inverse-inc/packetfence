@@ -105,4 +105,15 @@ Vagrant.configure("2") do |pfservers|
       srv.vm.provision "setup-dev-env", type: "shell", path: "../dev-helpers/setup-dev-env.sh"
     end
   end
+  inventory['all']['children']['ecosystem']['hosts'].each do |server,details|
+    pfservers.vm.define server do |srv|
+      srv.vm.box = details['box']
+      srv.vm.hostname = server
+      srv.vm.network "private_network", ip: details['mgmt_ip'], netmask: details['mgmt_netmask'], libvirt__dhcp_enabled: false, libvirt__forward_mode: "route"
+
+      srv.vm.provider "libvirt" do |v|
+        v.random_hostname = true
+      end
+    end
+  end
 end

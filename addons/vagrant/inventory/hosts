@@ -4,6 +4,12 @@
 # also use as a Ansible inventory file to provision VMs
 all:
   children:
+    ecosystem:
+      hosts:
+        win2012:
+          box: jborean93/WindowsServer2012R2
+          mgmt_ip: 172.17.1.100
+          mgmt_netmask: 255.255.255.0
     pfservers:
       children:
         dev:
