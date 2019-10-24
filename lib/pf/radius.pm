@@ -885,11 +885,12 @@ sub switch_access {
             $switch->synchronize_locationlog($port, undef, $mac,
                 $args->{'isPhone'} ? $VOIP : $NO_VOIP, $VIRTUAL_VPN, undef, $user_name, undef, $stripped_user_name, $realm, $args->{'user_role'}, $ifDesc
             );
-        } else {
+        }
+    }
+    else {
             my $profile = pf::Connection::ProfileFactory->instantiate("de:fa:ce:db:ab:e0",$options);
             $args->{'profile'} = $profile;
             @sources = $profile->getFilteredAuthenticationSources($args->{'stripped_user_name'}, $args->{'realm'});
-        }
     }
     my ( $return, $message, $source_id, $extra ) = pf::authentication::authenticate( {
             'username' =>  $radius_request->{'User-Name'},
