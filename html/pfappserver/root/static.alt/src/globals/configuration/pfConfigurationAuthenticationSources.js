@@ -445,7 +445,7 @@ export const pfConfigurationAuthenticationSourceFields = {
                     fields: [
                       pfConfigurationActions.set_role_by_name,
                       pfConfigurationActions.set_access_duration,
-                      pfConfigurationActions.set_unreg_date,
+                      pfConfigurationActions.set_unregdate,
                       pfConfigurationActions.set_time_balance,
                       pfConfigurationActions.set_bandwidth_balance
                     ]

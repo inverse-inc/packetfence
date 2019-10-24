@@ -254,7 +254,7 @@
               :field="actionField"
               :vuelidate="$v.localUser.actions"
               :invalid-feedback="[
-                { [$t('One or more errors exist.')]: !$v.localUser.actions.anyError }
+                { [$t('One or more errors exist.')]: $v.localUser.actions.$invalid }
               ]"
               @validations="actionsValidations = $event"
               sortable
@@ -409,7 +409,7 @@ export default {
             pfConfigurationActions.set_role,
             pfConfigurationActions.set_access_durations,
             pfConfigurationActions.set_tenant_id,
-            pfConfigurationActions.set_unreg_date
+            pfConfigurationActions.set_unregdate
           ]
         }
       },
