@@ -117,10 +117,12 @@ sub getClusterConfig {
     my ($cluster_name) = @_;
     my %cluster_servers;
 
-    tie %cluster_servers, 'pfconfig::cached_hash', "config::Cluster($cluster_name)";
+    if ($cluster_enabled) {
+        tie %cluster_servers, 'pfconfig::cached_hash', "config::Cluster($cluster_name)";
 
-    return \%cluster_servers;
-
+        return \%cluster_servers;
+    }
+    return;
 }
 
 

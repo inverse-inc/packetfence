@@ -118,7 +118,7 @@ sub isManaged {
     my ($self) = @_;
     my $name = $self->name;
     if (isenabled($pf::config::Config{'services'}{$name})) {
-        if ($self->isSlaveMode()) {
+        if ($cluster_enabled && $self->isSlaveMode()) {
             return $TRUE;
         }
         return $cluster_enabled;
