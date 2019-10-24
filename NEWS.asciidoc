@@ -19,6 +19,8 @@ New Features
 * Allow to force the access duration when using device registration
 * Migrate to go mod for Golang binaries (#4832 and #4841)
 * Ready-to-use Docker images for PacketFence builds (#4841)
+* Added audit log for API and new admin interface
+* Added configuration based switch modules
 
 Enhancements
 ++++++++++++
