@@ -184,6 +184,10 @@ sub cleanup_audit_record_request {
 
 sub cleanup_audit_item {
     my ($self, $request) = @_;
+    if (ref($request) ne 'HASH') {
+        return;
+    }
+
     for my $f ($self->fields_to_mask) {
         if (exists $request->{$f}) {
             $request->{$f} = '************************';
