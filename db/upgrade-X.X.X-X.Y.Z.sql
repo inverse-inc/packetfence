@@ -123,6 +123,12 @@ DELETE FROM locationlog
         ) as x
     );
 
+ALTER TABLE `locationlog`
+    DROP PRIMARY KEY,
+    DROP COLUMN id,
+    ADD  PRIMARY KEY (`tenant_id`, `mac`),
+    ADD CONSTRAINT `locationlog_tenant_id` FOREIGN KEY(`tenant_id`) REFERENCES `tenant` (`id`);
+
 \! echo "Incrementing PacketFence schema version...";
 
 INSERT IGNORE INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION));

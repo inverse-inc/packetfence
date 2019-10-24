@@ -379,7 +379,8 @@ CREATE TABLE `locationlog` (
   PRIMARY KEY (`tenant_id`, `mac`),
   KEY `locationlog_view_mac` (`mac`, `end_time`),
   KEY `locationlog_end_time` ( `end_time`),
-  KEY `locationlog_view_switchport` (`switch`,`port`,`end_time`,`vlan`)
+  KEY `locationlog_view_switchport` (`switch`,`port`,`end_time`,`vlan`),
+  CONSTRAINT `locationlog_tenant_id` FOREIGN KEY (`tenant_id`) REFERENCES `tenant` (`id`)
 ) ENGINE=InnoDB;
 
 CREATE TABLE `locationlog_history` (
