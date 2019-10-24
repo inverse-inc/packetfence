@@ -49,6 +49,7 @@ our (
     $profiles_config_file, $profiles_default_config_file,
     #Other configuraton files variables
     $switches_config_file, $switches_default_config_file,
+    $template_switches_config_file, $template_switches_default_config_file,
     $security_events_config_file, $security_events_default_config_file,
     $authentication_config_file,
     $chi_config_file, $chi_defaults_config_file,
@@ -135,6 +136,7 @@ BEGIN {
         $unified_api_system_pass_file
         $profiles_config_file $profiles_default_config_file
         $switches_config_file $switches_default_config_file
+        $template_switches_config_file $template_switches_default_config_file
         $security_events_config_file $security_events_default_config_file
         $authentication_config_file
         $chi_config_file $chi_defaults_config_file
@@ -258,6 +260,8 @@ $fingerbank_collector_env_defaults_file = catfile($conf_dir, "fingerbank-collect
 $network_config_file    = catfile($conf_dir, "networks.conf");
 $switches_config_file   = catfile($conf_dir, "switches.conf");
 $switches_default_config_file   = catfile($conf_dir, "switches.conf.defaults");
+$template_switches_config_file   = catfile($conf_dir, "template_switches.conf");
+$template_switches_default_config_file   = catfile($conf_dir, "template_switches.conf.defaults");
 $profiles_config_file   = catfile($conf_dir, "profiles.conf");
 $profiles_default_config_file   = catfile($conf_dir, "profiles.conf.defaults");
 $floating_devices_file  = catfile($conf_dir, "floating_network_device.conf");  # TODO: To be deprecated. See $floating_devices_config_file

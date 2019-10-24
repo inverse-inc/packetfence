@@ -573,7 +573,6 @@ sub radiusDisconnect {
         my $roleResolver = pf::roles::custom->instance();
         my $role = $roleResolver->getRoleForNode($mac, $self);
 
-        my $node_info = node_attributes($mac);
         # transforming MAC to the expected format 00-11-22-33-CA-FE
         $mac = uc($mac);
         $mac =~ s/:/-/g;

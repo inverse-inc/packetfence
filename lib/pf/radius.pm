@@ -132,7 +132,8 @@ sub authorize {
     my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id, $ifDesc) = $switch->parseRequest($radius_request);
 
     if (!$mac) {
-        return [$RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "Mac is empty")];
+        $RAD_REPLY_REF = [$RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "Mac is empty")];
+        goto AUDIT;
     }
 
     Log::Log4perl::MDC->put( 'mac', $mac );

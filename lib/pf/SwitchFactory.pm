@@ -39,6 +39,7 @@ our @SwitchRanges;
 tie @SwitchRanges, 'pfconfig::cached_array', 'resource::switches_ranges';
 our %SwitchTypesConfigured;
 tie %SwitchTypesConfigured, 'pfconfig::cached_hash', 'resource::SwitchTypesConfigured';
+tie our %TemplateSwitches, 'pfconfig::cached_hash', 'config::TemplateSwitches';
 
 #Loading all the switch modules ahead of time
 use Module::Pluggable
@@ -172,6 +173,8 @@ sub instantiate {
         return 0;
     }
     $module = untaint_chain($module);
+    my $templateArgs = getTemplateArgs($type);
+
     # load the module to instantiate
 
     $logger->debug("creating new $module object");
@@ -182,9 +185,19 @@ sub instantiate {
          switchMac => $switch_mac,
          %$switch_data,
          %$switchOverlay,
+         %$templateArgs,
     });
 
     return $result;
+}
+
+sub getTemplateArgs {
+    my ($type) = @_;
+    if (defined $type && exists $TemplateSwitches{$type}) {
+        return { template => {%{$TemplateSwitches{$type}}} };
+    }
+
+    return {};
 }
 
 sub config {
@@ -200,6 +213,10 @@ Get the module from the type
 
 sub getModule {
     my ($type) = @_;
+    if (exists $TemplateSwitches{$type}) {
+        $type = 'Template';
+    }
+
     unless(exists $TYPE_TO_MODULE{$type}) {
         my $module = "pf::Switch::$type";
         eval {
@@ -228,8 +245,7 @@ sub buildVendorsList {
         my $vendor = shift @p;
         #Include only concrete classes indictated by the existence of the description method
         if ($module->can('description')) {
-            $VENDORS{$vendor} = {} unless ($VENDORS{$vendor});
-            $VENDORS{$vendor}->{$switch} = $module->description;
+            push @{$VENDORS{$vendor}}, { value => $switch, label => $module->description };
         }
     }
 }

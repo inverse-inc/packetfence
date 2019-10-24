@@ -30,7 +30,7 @@ use pf::Switch::constants;
 use pf::constants::role qw(@ROLES);
 use pf::SwitchFactory;
 use pf::util;
-use List::MoreUtils qw(any);
+use List::MoreUtils qw(any uniq);
 use pf::ConfigStore::SwitchGroup;
 use pf::ConfigStore::Switch;
 
@@ -664,15 +664,26 @@ Extract the descriptions from the various Switch modules.
 
 sub options_type {
     my $self = shift;
-
     # Sort vendors and switches for display
     my @modules;
-    foreach my $vendor (sort keys %pf::SwitchFactory::VENDORS) {
-        my $vendors = $pf::SwitchFactory::VENDORS{$vendor};
-        my @switches = map {{ value => $_, label => $vendors->{$_} }} sort keys %$vendors;
-        push @modules, { group => $vendor,
-                         options => \@switches,
-                         value => '' };
+    my $V1 = \%pf::SwitchFactory::VENDORS;
+    my $V2 = $pf::SwitchFactory::TemplateSwitches{'::VENDORS'} // {};
+    foreach my $v ( uniq sort ( keys %$V1, keys %$V2)) {
+        my @switches =
+          sort { $a->{value} cmp $b->{value} } (
+              (
+                exists $V1->{$v} ? @{ $V1->{$v} } : ()
+              ),
+              (
+                exists $V2->{$v} ? @{ $V2->{$v} } : ()
+              )
+        );
+        push @modules,
+          {
+            group   => $v,
+            options => \@switches,
+            value   => ''
+          };
     }
 
     return ({group => '', options => [{value => '', label => ''}], value => ''}, @modules);
@@ -771,13 +782,14 @@ sub validate {
     my $self = shift;
     my $config = pf::ConfigStore::Switch->new;
     my $groupConfig = pf::ConfigStore::SwitchGroup->new;
+    tie my %TemplateSwitches, 'pfconfig::cached_hash', 'config::TemplateSwitches';
 
     my @triggers;
     my $always = any { $_->{type} eq $ALWAYS } @{$self->value->{inlineTrigger}};
 
     if ($self->value->{type}) {
         my $type = 'pf::Switch::'. $self->value->{type};
-        if ($type->require()) {
+        if ($type->require() || $TemplateSwitches{$self->value->{type}}) {
             @triggers = map { $_->{type} } @{$self->value->{inlineTrigger}};
             if ( @triggers && !$always) {
                 # Make sure the selected switch type supports the selected inline triggers.
@@ -794,7 +806,7 @@ sub validate {
                 }
             }
         } else {
-            $self->field('type')->add_error("The chosen type is not supported.");
+            $self->field('type')->add_error("The chosen type (" . $self->value->{type} . ") is not supported.");
         }
     } else {
         my $group_name = $self->value->{group} || '';

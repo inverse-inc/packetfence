@@ -68,6 +68,8 @@ use pf::file_paths qw(
     @log_files
     $generated_conf_dir
     $pfdetect_config_file
+    $template_switches_config_file
+    $template_switches_default_config_file
 );
 use Crypt::OpenSSL::X509;
 use Date::Parse;
@@ -800,6 +802,8 @@ sub switches {
     require pf::ConfigStore::Switch;
     my $configStore = pf::ConfigStore::Switch->new;
     my %switches_conf;
+    my $defaults = pf::IniFiles->new(-file => $template_switches_default_config_file);
+    my $ini = pf::IniFiles->new(-file => $template_switches_config_file, -allowempty => 1, -import => $defaults);
 
     my @errors = @Config::IniFiles::errors;
     if ( scalar(@errors) ) {
@@ -838,9 +842,9 @@ sub switches {
             add_problem( $WARN, "switches.conf | Switch type for switch ($section) is not defined");
         } else {
             # check type
-            $type = "pf::Switch::$type";
-            $type = untaint_chain($type);
-            if ( !(eval "$type->require()" ) ) {
+            my $module = "pf::Switch::$type";
+            $module = untaint_chain($module);
+            if ( !(eval "$module->require()" ) && !$ini->SectionExists($type) ) {
                 add_problem( $WARN, "switches.conf | Switch type ($type) is invalid for switch $section" );
             }
         }

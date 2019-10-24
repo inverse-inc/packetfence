@@ -1,0 +1,19 @@
+# Do not edit file
+# Changes will be lost on upgrade
+
+[PacketFence::Standard]
+# Do not edit.
+# Any changes will be lost on upgrade.
+description=Standard Switch
+radiusDisconnect=disconnect
+acceptVlan= <<EOT
+Tunnel-Medium-Type  = 6
+Tunnel-Type = 13
+Tunnel-Private-Group-ID = $vlan
+EOT
+acceptRole=Filter-Id = $role
+reject=Reply-Message = This node is not allowed to use this service
+disconnect= <<EOT
+Calling-Station-Id = ${macToEUI48($mac)}
+NAS-IP-Address = $disconnectIp
+EOT

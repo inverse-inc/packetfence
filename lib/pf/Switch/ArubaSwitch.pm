@@ -235,7 +235,6 @@ sub radiusDisconnect {
         my $role = $roleResolver->getRoleForNode($mac, $self);
 
         my $acctsessionid = node_accounting_current_sessionid($mac);
-        my $node_info = node_attributes($mac);
         # transforming MAC to the expected format 00-11-22-33-CA-FE
         $mac = uc($mac);
         $mac =~ s/:/-/g;

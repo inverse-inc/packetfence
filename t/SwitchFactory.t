@@ -5,7 +5,7 @@ use warnings;
 use diagnostics;
 
 use lib '/usr/local/pf/lib';
-use Test::More tests => 60;
+use Test::More tests => 62;
 use Test::NoWarnings;
 
 BEGIN {
@@ -127,6 +127,9 @@ isa_ok($switch, 'pf::Switch::Cisco::Catalyst_2960');
 is("pf::Switch::Cisco::Catalyst_2960",ref $switch, "Got the correct switch type for 192.168.190.217");
 is($switch->{_id}, '192.168.190.217', "Proper id is set for 192.168.190.217");
 
+$switch = pf::SwitchFactory->instantiate('172.16.8.25');
+isa_ok($switch, 'pf::Switch::Template');
+is(ref($switch->{_template}), 'HASH', "template args are passed");
 
 =head1 AUTHOR
 

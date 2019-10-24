@@ -1042,12 +1042,12 @@ http://packetfence.org/bugs/view.php?id=1085[issue #1085].
 [options="compact"]
 * Tested model and firmware version should be documented in module's POD
 * Any bugs and limitations should be documented in module's POD
-* Add it to `pf/html/admin/configuration/switches_add.php` and `switches_edit.php`
 * Make sure that all tests pass
 * Add configuration documentation to the Network Devices Guide
 * Add switch to the Network Devices Guide's switch chart
 * Add switch to the chart in `README.network-devices`
 
+include::developer/template_switches.asciidoc[]
 
 == PacketFence builds
 

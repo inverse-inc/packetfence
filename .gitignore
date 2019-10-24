@@ -27,6 +27,7 @@ conf/caddy-services/*.conf
 conf/pfdns.conf
 conf/pfdhcp.conf
 conf/etcd.conf.yml
+conf/template_switches.conf
 bin/pfcmd
 bin/ntlm_auth_wrapper
 sbin/pfhttpd

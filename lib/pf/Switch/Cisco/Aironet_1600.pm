@@ -108,10 +108,6 @@ sub radiusDisconnect {
             LocalAddr => $self->deauth_source_ip($send_disconnect_to),
         };
 
-        $logger->debug("network device (".$self->{'_id'}.") supports roles. Evaluating role to be returned");
-        my $roleResolver = pf::roles::custom->instance();
-        my $role = $roleResolver->getRoleForNode($mac, $self);
-
         # Standard Attributes
         my $attributes_ref = {
             'Calling-Station-Id' => $mac,
