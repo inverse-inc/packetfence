@@ -913,14 +913,21 @@ sub bulk_import {
     for ($i=0;$i<$count;$i++) {
         my $result = $self->import_item($data, $items->[$i]);
         $results[$i] = $result;
-        if ($stopOnError && is_error($result->{status} // 200)) {
+        $status = $result->{status} // 200;
+        if ($stopOnError && $status == 422) {
             $i++;
             last;
         }
     }
 
     for (;$i<$count;$i++) {
-        $results[$i] =  { item => $items->[$i], status => 424, message => "Skipped" };
+        my $item = $items->[$i];
+        my $result = { item => $item, status => 424, message => "Skipped" };
+        $results[$i] =  $result;
+        my @errors = $self->import_item_check_for_errors($data, $item);
+        if (@errors) {
+            $result->{errors} = \@errors;
+        }
     }
 
     return $self->render(json => { items => \@results });
