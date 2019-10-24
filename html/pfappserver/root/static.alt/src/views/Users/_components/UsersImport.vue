@@ -451,7 +451,7 @@ export default {
             pfConfigurationActions.set_role,
             pfConfigurationActions.set_tenant_id,
             // pfConfigurationActions.set_time_balance,
-            pfConfigurationActions.set_unreg_date
+            pfConfigurationActions.set_unregdate
           ]
         }
       },
