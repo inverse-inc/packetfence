@@ -1027,7 +1027,7 @@ Go in the Administration interface under 'Configuration -> Policies and Access C
 
 NOTE: If you can't access this section and you have previously configured your server to bind to a domain externally to PacketFence, make sure you run `/usr/local/pf/addons/AD/migrate.pl`
 
-Click *Add Domain* and fill in the information about your domain.
+Click *New Domain* and fill in the information about your domain.
 
 image::domain-add.png[scaledwidth="100%",alt="Adding a new domain"]
 
