@@ -24,6 +24,23 @@ has dal => 'pf::dal::locationlog';
 has url_param_name => 'locationlog_id';
 has primary_key => 'id';
 
+sub ssids {
+    my ($self) = @_;
+    my ($status, $iter) = $self->dal->search(
+        -columns => [-distinct => qw(ssid)],
+        -where => {
+            ssid => {
+                "!=" => ""
+            }
+        }
+    );
+
+    if (is_error($status)) {
+        return $self->render_error($status, "Error finding ssids");
+    }
+
+    $self->render(json => {items => $iter->all(undef)});
+}
 
 =head1 AUTHOR
 
