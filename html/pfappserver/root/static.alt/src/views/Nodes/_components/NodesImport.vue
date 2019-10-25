@@ -1,46 +1,35 @@
 <template>
   <b-card no-body>
-    <b-progress height="2px" :value="progressValue" :max="progressTotal" v-show="progressValue > 0 && progressValue < progressTotal"></b-progress>
     <b-card-header>
       <h4 class="mb-0" v-t="'Import Nodes'"></h4>
     </b-card-header>
     <div class="card-body p-0">
       <b-tabs ref="tabs" v-model="tabIndex" card pills>
         <b-tab v-for="(file, index) in files" :key="file.name + file.lastModified"
-          :title="file.name" :title-link-class="(file.percent === 100) ? ['bg-primary', 'text-light'] : ['bg-light', 'text-primary']"
+          :title="file.name" :title-link-class="(tabIndex === index) ? ['bg-primary', 'text-light'] : ['bg-light', 'text-primary']"
           no-body
         >
           <template v-slot:title>
-            <template v-if="file.percent === 100">
-              <b-button-close class="ml-2 text-white" @click.stop.prevent="closeFile(index)" v-b-tooltip.hover.left.d300 :title="$t('Close File')">
-                <icon name="times" class="align-top ml-1"></icon>
-              </b-button-close>
-              {{ file.name }}
-            </template>
-            <template v-else>
-              <b-button-close class="ml-2 text-primary" @click.stop.prevent="file.reader.abort()" v-b-tooltip.hover.left.d300 :title="$t('Abort Upload')">
-                <icon name="times" class="align-top ml-1"></icon>
-              </b-button-close>
-              {{ file.name }}
-              <b-progress class="mt-n1" :value="file.percent" max="100" height="2px">
-                <b-progress-bar variant="success" :value="file.percent"/>
-                <b-progress-bar variant="danger" :value="100 - file.percent"/>
-              </b-progress>
-            </template>
+            <b-button-close class="ml-2" :class="(tabIndex === index) ? 'text-white' : 'text-primary'" @click.stop.prevent="closeFile(index)" v-b-tooltip.hover.left.d300 :title="$t('Close File')">
+              <icon name="times" class="align-top ml-1"></icon>
+            </b-button-close>
+            {{ file.name }}
           </template>
-          <pf-csv-parse v-if="file.result"
-            :ref="'parser-' + index"
+          <pf-csv-import
+            :ref="'import-' + index"
             :file="file"
             :fields="fields"
             :store-name="storeName"
             :default-static-mapping="defaultStaticMapping"
             :events-listen="tabIndex === index"
             :is-loading="isLoading"
-            @input="onImport"
-          ></pf-csv-parse>
+            :import-promise="importPromise"
+            hover
+            striped
+          ></pf-csv-import>
         </b-tab>
         <template v-slot:tabs-end>
-          <pf-form-upload @files="files = $event" :multiple="true" :cumulative="true" accept="text/*, .csv">{{ $t('Open CSV File') }}</pf-form-upload>
+          <pf-form-upload @files="files = $event" @focus="tabIndex = $event" :multiple="true" :cumulative="true" accept="text/*, .csv">{{ $t('Open CSV File') }}</pf-form-upload>
         </template>
         <template v-slot:empty>
           <div class="text-center text-muted">
@@ -63,7 +52,7 @@
 </template>
 
 <script>
-import pfCSVParse from '@/components/pfCSVParse'
+import pfCSVImport from '@/components/pfCSVImport'
 import pfFormUpload from '@/components/pfFormUpload'
 import {
   pfDatabaseSchema as schema,
@@ -71,8 +60,6 @@ import {
 } from '@/globals/pfDatabaseSchema'
 import { pfFieldType as fieldType } from '@/globals/pfField'
 import { pfFormatters as formatter } from '@/globals/pfFormatters'
-import convert from '@/utils/convert'
-import strings from '@/utils/strings'
 import {
   required
 } from 'vuelidate/lib/validators'
@@ -85,7 +72,7 @@ import {
 export default {
   name: 'nodes-import',
   components: {
-    'pf-csv-parse': pfCSVParse,
+    'pf-csv-import': pfCSVImport,
     pfFormUpload
   },
   props: {
@@ -208,107 +195,28 @@ export default {
           validators: buildValidationFromColumnSchemas(schema.node.voip)
         }
       ],
-      progressTotal: 0,
-      progressValue: 0,
       isLoading: false
     }
   },
   methods: {
+    abortFile (index) {
+      this.files[index].reader.abort()
+    },
     closeFile (index) {
-      this.files.splice(index, 1)
+      const file = this.files[index]
+      file.close()
     },
-    onImport (values, parser) {
-      this.isLoading = true
-      // track progress
-      let success = 0
-      let failed = 0
-      this.progressValue = 1
-      this.progressTotal = values.length + 1
-      // create unique stack
-      let stack = {}
-      values.forEach(value => {
-        value.mac = strings.cleanMac(value.mac) // clean MAC
-        stack[value.mac] = value
-      })
-      // track promise(s)
-      Promise.all(Object.values(stack).map(value => {
-        if (value.mac) {
-          // map child components' tableValue
-          let tableValue = parser.tableValues[value._tableValueIndex]
-          return this.$store.dispatch('$_nodes/exists', value.mac).then(results => {
-            // node exists
-            return this.updateNode(Object.assign({ quiet: true }, value)).then(results => {
-              if (results.status) {
-                tableValue._rowVariant = convert.statusToVariant({ status: results.status })
-              } else {
-                tableValue._rowVariant = 'success'
-              }
-              if (results.message) {
-                tableValue._rowMessage = this.$i18n.t(results.message)
-              }
-              success++
-              return results
-            }).catch(() => {
-              failed++
-            })
-          }).catch(() => {
-            // node not exists
-            return this.createNode(Object.assign({ quiet: true }, value)).then(results => {
-              if (results.status) {
-                tableValue._rowVariant = convert.statusToVariant({ status: results.status })
-              } else {
-                tableValue._rowVariant = 'success'
-              }
-              if (results.message) {
-                tableValue._rowMessage = this.$i18n.t(results.message)
-              }
-              success++
-              return results
-            }).catch(() => {
-              failed++
-            })
-          })
-        }
-      })).then(results => {
-        this.$store.dispatch('notification/info', {
-          message: results.length + ' ' + this.$i18n.t('nodes imported'),
-          skipped: (values.length - success - failed),
-          success,
-          failed
+    importPromise (payload, dryRun) {
+      return new Promise((resolve, reject) => {
+        this.$store.dispatch(`${this.storeName}/bulkImport`, payload).then(result => {
+          console.log('dryRun', dryRun)
+          console.log('importPromise', result)
+          // do something with the result, then Promise.resolve to continue processing
+          resolve(result)
+        }).catch(err => {
+          // do something with the error, then Promise.reject to stop processing
+          reject(err)
         })
-        this.isLoading = false
-      })
-    },
-    createNode (data) {
-      const nodeData = { quiet: true, ...data } // suppress notifications
-      // eslint-disable-next-line
-      return this.$store.dispatch('$_nodes/createNode', nodeData).then(results => {
-        // does the data contain anything other than 'mac' or a private key (_*)?
-        if (Object.keys(data).filter(key => key !== 'mac' && key.charAt(0) !== '_').length > 0) {
-          // chain updateNode
-          this.progressTotal += 1
-          return this.updateNode(data).then(results => {
-            return results
-          }).catch(err => {
-            throw err
-          })
-        }
-        return results
-      }).catch(err => {
-        throw err
-      }).finally(() => {
-        this.progressValue += 1
-      })
-    },
-    updateNode (data) {
-      const nodeData = { quiet: true, ...data } // suppress notifications
-      // eslint-disable-next-line
-      return this.$store.dispatch('$_nodes/updateNode', nodeData).then(results => {
-        return results
-      }).catch(err => {
-        throw err
-      }).finally(() => {
-        this.progressValue += 1
       })
     }
   },

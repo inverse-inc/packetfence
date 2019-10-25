@@ -372,7 +372,7 @@
                 <b-col cols="10">{{ $t('Created') }} <em v-if="importProgress.dryRun">({{ $t('not commited') }})</em></b-col>
                 <b-col cols="2" class="text-right">
                   <template v-if="importProgress.dryRun || config.ignoreInsertIfNotExists" size="lg">
-                    <icon name="lock" class="mr-1"/> {{ importProgress.insertCount }}
+                    {{ importProgress.insertCount }} <icon name="lock" class="ml-1"/>
                   </template>
                   <template v-else>{{ importProgress.insertCount }}</template>
                 </b-col>
@@ -381,7 +381,7 @@
                 <b-col cols="10">{{ $t('Updated') }} <em v-if="importProgress.dryRun">({{ $t('not commited') }})</em></b-col>
                 <b-col cols="2" class="text-right">
                   <template v-if="importProgress.dryRun || config.ignoreUpdateIfExists">
-                    <icon name="lock" class="mr-1"/> {{ importProgress.updateCount }}
+                    {{ importProgress.updateCount }} <icon name="lock" class="ml-1"/>
                   </template>
                   <template v-else>{{ importProgress.updateCount }}</template>
                 </b-col>
@@ -427,7 +427,13 @@
           </template>
           <b-button variant="danger" @click="importCancel()" class="ml-1"><icon name="stop" class="mr-1"></icon> {{ $t('Cancel') }}</b-button>
         </template>
-        <b-button v-else variant="primary" @click="importClose()" class="ml-1">{{ $t('Close') }}</b-button>
+        <template v-else>
+          <b-button v-if="importProgress.dryRun" variant="primary" class="mr-1" :disabled="isDisabled || isMappingError" @click="importStart(false)">
+            <icon name="download" class="mr-1"></icon>
+            {{ $t('Import') }}
+          </b-button>
+          <b-button variant="primary" @click="importClose()" class="ml-1">{{ $t('Close') }}</b-button>
+        </template>
       </template>
     </b-modal>
 
@@ -474,11 +480,6 @@ export default {
     validationMixin
   ],
   props: {
-    storeName: {
-      type: String,
-      default: null,
-      required: true
-    },
     file: {
       type: Object,
       default: null
