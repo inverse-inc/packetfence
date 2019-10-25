@@ -89,7 +89,7 @@
             <b-row class="pf-csv-import-table-row" v-for="(_, rowIndex) in previewColumnCount" :key="rowIndex">
               <b-col>
                 <b-form-group
-                  :state="($v.importMapping.$invalid) ? false : null"
+                  :state="($v && 'importMapping' in $v && $v.importMapping.$invalid) ? false : null"
                   :invalid-feedback="getImportMappingVuelidateFeedback()"
                   class="my-1 pf-csv-import-form-group"
                 >
@@ -141,117 +141,117 @@
                   <template v-slot:append>
                     <b-button @click="deleteStaticMapping(index)" variant="light" class="text-secondary pb-1" v-b-tooltip.hover.left.d300 :title="$t('Delete static field')"><icon name="times-circle"/></b-button>
                   </template>
-                  <b-form-select v-model="staticMapping[index].key" :options="staticMappingOptions" :disabled="isDisabled" @change="focusStaticMapping(staticMapping[index].key)"></b-form-select>
+                  <b-form-select v-model="staticMap.key" :options="staticMappingOptions" :disabled="isDisabled" @change="focusStaticMapping(staticMap.key)"></b-form-select>
                 </b-input-group>
               </b-col>
               <b-col>
 
                 <!-- BEGIN SUBSTRING -->
-                <pf-form-input v-if="isFieldType(substringValueType, staticMapping[index])"
-                  v-model="staticMapping[index].value"
-                  :ref="staticMapping[index].key"
+                <pf-form-input v-if="isFieldType(substringValueType, staticMap)"
+                  v-model="staticMap.value"
+                  :ref="staticMap.key"
                   :disabled="isDisabled"
-                  :class="{ 'border-danger': $v.staticMapping[index].value.$invalid }"
-                  :vuelidate="$v.staticMapping[index].value"
+                  :class="{ 'border-danger': getStaticMappingVuelidateValue(index).$invalid }"
+                  :vuelidate="getStaticMappingVuelidateValue(index)"
                 ></pf-form-input>
 
                 <!-- BEGIN DATE -->
-                <pf-form-datetime v-else-if="isFieldType(dateValueType, staticMapping[index])"
-                  v-model="staticMapping[index].value"
-                  :ref="staticMapping[index].key"
+                <pf-form-datetime v-else-if="isFieldType(dateValueType, staticMap)"
+                  v-model="staticMap.value"
+                  :ref="staticMap.key"
                   :config="{format: 'YYYY-MM-DD'}"
                   :disabled="isDisabled"
-                  :class="{ 'border-danger': $v.staticMapping[index].value.$invalid }"
-                  :vuelidate="$v.staticMapping[index].value"
+                  :class="{ 'border-danger': getStaticMappingVuelidateValue(index).$invalid }"
+                  :vuelidate="getStaticMappingVuelidateValue(index)"
                 ></pf-form-datetime>
 
                 <!-- BEGIN DATETIME -->
-                <pf-form-datetime v-else-if="isFieldType(datetimeValueType, staticMapping[index])"
-                  v-model="staticMapping[index].value"
-                  :ref="staticMapping[index].key"
+                <pf-form-datetime v-else-if="isFieldType(datetimeValueType, staticMap)"
+                  v-model="staticMap.value"
+                  :ref="staticMap.key"
                   :config="{format: 'YYYY-MM-DD HH:mm:ss'}"
                   :disabled="isDisabled"
-                  :class="{ 'border-danger': $v.staticMapping[index].value.$invalid }"
-                  :vuelidate="$v.staticMapping[index].value"
+                  :class="{ 'border-danger': getStaticMappingVuelidateValue(index).$invalid }"
+                  :vuelidate="getStaticMappingVuelidateValue(index)"
                 ></pf-form-datetime>
 
                 <!-- BEGIN PREFIXMULTIPLIER -->
-                <pf-form-prefix-multiplier v-else-if="isFieldType(prefixmultiplierValueType, staticMapping[index])"
-                  v-model="staticMapping[index].value"
-                  :ref="staticMapping[index].key"
+                <pf-form-prefix-multiplier v-else-if="isFieldType(prefixmultiplierValueType, staticMap)"
+                  v-model="staticMap.value"
+                  :ref="staticMap.key"
                   :disabled="isDisabled"
-                  :class="{ 'border-danger': $v.staticMapping[index].value.$invalid }"
-                  :vuelidate="$v.staticMapping[index].value"
+                  :class="{ 'border-danger': getStaticMappingVuelidateValue(index).$invalid }"
+                  :vuelidate="getStaticMappingVuelidateValue(index)"
                 ></pf-form-prefix-multiplier>
 
                 <!-- BEGIN YESNO -->
-                <pf-form-toggle  v-else-if="isFieldType(yesnoValueType, staticMapping[index])"
-                  v-model="staticMapping[index].value"
-                  :ref="staticMapping[index].key"
+                <pf-form-toggle  v-else-if="isFieldType(yesnoValueType, staticMap)"
+                  v-model="staticMap.value"
+                  :ref="staticMap.key"
                   :disabled="isDisabled"
                   :values="{checked: 'yes', unchecked: 'no'}"
-                  :vuelidate="$v.staticMapping[index].value"
-                >{{ (staticMapping[index].value === 'yes') ? $t('Yes') : $t('No') }}</pf-form-toggle>
+                  :vuelidate="getStaticMappingVuelidateValue(index)"
+                >{{ (staticMap.value === 'yes') ? $t('Yes') : $t('No') }}</pf-form-toggle>
 
                 <!-- BEGIN GENDER -->
-                <pf-form-chosen v-else-if="isFieldType(genderValueType, staticMapping[index])"
-                  :value="staticMapping[index].value"
+                <pf-form-chosen v-else-if="isFieldType(genderValueType, staticMap)"
+                  :value="staticMap.value"
                   label="name"
                   track-by="value"
-                  :ref="staticMapping[index].key"
+                  :ref="staticMap.key"
                   :disabled="isDisabled"
                   :options="fieldTypeValues[genderValueType]()"
-                  :vuelidate="$v.staticMapping[index].value"
-                  @input="staticMapping[index].value = $event"
+                  :vuelidate="getStaticMappingVuelidateValue(index)"
+                  @input="staticMap.value = $event"
                   collapse-object
                 ></pf-form-chosen>
 
                 <!-- BEGIN NODE_STATUS -->
-                <pf-form-chosen v-else-if="isFieldType(nodeStatusValueType, staticMapping[index])"
-                  :value="staticMapping[index].value"
+                <pf-form-chosen v-else-if="isFieldType(nodeStatusValueType, staticMap)"
+                  :value="staticMap.value"
                   label="name"
                   track-by="value"
-                  :ref="staticMapping[index].key"
+                  :ref="staticMap.key"
                   :disabled="isDisabled"
                   :options="fieldTypeValues[nodeStatusValueType]()"
-                  :vuelidate="$v.staticMapping[index].value"
-                  @input="staticMapping[index].value = $event"
+                  :vuelidate="getStaticMappingVuelidateValue(index)"
+                  @input="staticMap.value = $event"
                   collapse-object
                 ></pf-form-chosen>
 
                 <!-- BEGIN ROLE -->
-                <pf-form-chosen v-else-if="isFieldType(roleValueType, staticMapping[index])"
-                  :value="staticMapping[index].value"
+                <pf-form-chosen v-else-if="isFieldType(roleValueType, staticMap)"
+                  :value="staticMap.value"
                   label="name"
                   track-by="value"
-                  :ref="staticMapping[index].key"
+                  :ref="staticMap.key"
                   :disabled="isDisabled"
                   :options="fieldTypeValues[roleValueType](context)"
-                  :vuelidate="$v.staticMapping[index].value"
-                  @input="staticMapping[index].value = $event"
+                  :vuelidate="getStaticMappingVuelidateValue(index)"
+                  @input="staticMap.value = $event"
                   collapse-object
                 ></pf-form-chosen>
 
                 <!-- BEGIN SOURCE -->
-                <pf-form-chosen v-else-if="isFieldType(sourceValueType, staticMapping[index])"
-                  :value="staticMapping[index].value"
+                <pf-form-chosen v-else-if="isFieldType(sourceValueType, staticMap)"
+                  :value="staticMap.value"
                   label="name"
                   track-by="value"
-                  :ref="staticMapping[index].key"
+                  :ref="staticMap.key"
                   :disabled="isDisabled"
                   :options="fieldTypeValues[sourceValueType](context)"
-                  :vuelidate="$v.staticMapping[index].value"
-                  @input="staticMapping[index].value = $event"
+                  :vuelidate="getStaticMappingVuelidateValue(index)"
+                  @input="staticMap.value = $event"
                   collapse-object
                 ></pf-form-chosen>
 
                 <!-- BEGIN ***CATCHALL*** -->
                 <pf-form-input v-else
-                  v-model="staticMapping[index].value"
-                  :ref="staticMapping[index].key"
+                  v-model="staticMap.value"
+                  :ref="staticMap.key"
                   :disabled="isDisabled"
-                  :class="{ 'border-danger': $v.staticMapping[index].value.$invalid }"
-                  :vuelidate="$v.staticMapping[index].value"
+                  :class="{ 'border-danger': getStaticMappingVuelidateValue(index).$invalid }"
+                  :vuelidate="getStaticMappingVuelidateValue(index)"
                 ></pf-form-input>
 
               </b-col>
@@ -342,7 +342,7 @@
     </b-modal>
 
     <b-modal :id="`importProgress-${uuid}`" size="lg" :title="(importProgress.dryRun) ? $t('Dry Run Progress') : $t('Import Progress')"
-      centered scrollable no-stacking
+      centered scrollable
       :hide-header-close="isImporting"
       :no-close-on-backdrop="isImporting"
       :no-close-on-esc="isImporting"
@@ -570,7 +570,7 @@ export default {
       perPage: 3, // lines per page
 
       importMapping: [], // user selection(s) for existing import mappings
-      staticMapping: [], // user selection(s) for existing static mappings
+      staticMapping: this.defaultStaticMapping || [], // user selection(s) for existing static mappings
       staticMappingSelect: null,
 
       isImporting: false,
@@ -753,6 +753,10 @@ export default {
       }
       return false
     },
+    getStaticMappingVuelidateValue (index) {
+      const { $v: { staticMapping: { [index]: { value = { $invalid: false } } = {} } = {} } = {} } = this
+      return value
+    },
     getImportMappingVuelidateFeedback () {
       let feedback = []
       const { $v: { importMapping: vuelidate = {} } = {} } = this
@@ -892,6 +896,7 @@ export default {
             }).catch((err) => {
               reject(err) // stop processing
             })
+            this.$bvModal.show(`importProgress-${this.uuid}`) // re-open modal in case parent squashed it
           })
         })
       }
@@ -1045,8 +1050,9 @@ export default {
     importMapping: {
       handler (a, b) {
         this.$nextTick(() => {
-          if (this.$v.$anyDirty) {
-            this.$v.$touch()
+          const { $v: { $anyDirty = false, $touch = () => {} } = {} } = this
+          if ($anyDirty) {
+            $touch()
           }
         })
       },
@@ -1055,8 +1061,9 @@ export default {
     staticMapping: {
       handler (a, b) {
         this.$nextTick(() => {
-          if (this.$v.$anyDirty) {
-            this.$v.$touch()
+          const { $v: { $anyDirty = false, $touch = () => {} } = {} } = this
+          if ($anyDirty) {
+            $touch()
           }
         })
       },
