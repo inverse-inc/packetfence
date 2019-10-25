@@ -562,7 +562,7 @@ sub import_item {
         return { item => $item, errors => \@errors, message => 'Cannot save user', status => 422 };
     }
 
-    my $pid = delete $item->{pid};
+    my $pid = $item->{pid};
     $item->{sponsor} //= $self->stash->{current_user};
     my $exists = pf::person::person_exist($pid);
     if ($exists) {
