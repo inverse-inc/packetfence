@@ -477,7 +477,7 @@ sub setup_api_v1_users_routes {
                   bulk_register bulk_deregister bulk_close_security_events
                   bulk_reevaluate_access bulk_apply_security_event
                   bulk_apply_role bulk_apply_bypass_role bulk_fingerbank_refresh
-                  bulk_delete
+                  bulk_delete bulk_import
                   )
             ],
             auditable => 1,
