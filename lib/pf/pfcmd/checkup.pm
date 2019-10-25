@@ -380,8 +380,10 @@ sub network {
 
     # check that networks.conf is not empty when services.pfdhcp
     # is enabled
-    if (isenabled($Config{'services'}{'pfdhcp'}) && ((!-e $network_config_file ) || (-z $network_config_file ))){
-        add_problem( $WARN, "networks.conf is empty but services.dhcpd is enabled. Disable it to remove this warning." );
+    unless ($pf::config::cluster::multi_zone_enabled) {
+        if (isenabled($Config{'services'}{'pfdhcp'}) && ((!-e $network_config_file ) || (-z $network_config_file ))){
+            add_problem( $WARN, "networks.conf is empty but services.dhcpd is enabled. Disable it to remove this warning." );
+        }
     }
 
     foreach my $network (keys %ConfigNetworks) {
@@ -1268,23 +1270,24 @@ sub cluster {
         add_problem($FATAL, "current host ($pf::cluster::host_id) is missing from the cluster.conf file");
     }
 
-    # Check each member configuration
-    foreach my $server (@servers){
-        my $server_name = $server->{host};
-        if(!defined($server->{management_ip})){
-            add_problem($FATAL, "management_ip is not defined for $server_name")
-        }
-        elsif(!valid_ip($server->{management_ip})){
-            add_problem($FATAL, "management_ip is not a valid IP address for $server_name");
-        }
+    unless ($pf::config::cluster::multi_zone_enabled) {
+        # Check each member configuration
+        foreach my $server (@servers){
+            my $server_name = $server->{host};
+            if(!defined($server->{management_ip})){
+                add_problem($FATAL, "management_ip is not defined for $server_name")
+            }
+            elsif(!valid_ip($server->{management_ip})){
+                add_problem($FATAL, "management_ip is not a valid IP address for $server_name");
+            }
 
-        foreach my $int (@ints) {
-            unless(exists($server->{"interface ".$int->{name}})) {
-                add_problem($FATAL, "Interface $int->{name} is not defined for $server_name");
+            foreach my $int (@ints) {
+                unless(exists($server->{"interface ".$int->{name}})) {
+                    add_problem($FATAL, "Interface $int->{name} is not defined for $server_name");
+                }
             }
         }
     }
-
 }
 
 =item valid_fingerbank_device_id
