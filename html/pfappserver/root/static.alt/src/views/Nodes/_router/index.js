@@ -7,7 +7,6 @@ import NodesSearch from '../_components/NodesSearch'
 const NodesCreate = () => import(/* webpackChunkName: "Nodes" */ '../_components/NodesCreate')
 const NodeView = () => import(/* webpackChunkName: "Nodes" */ '../_components/NodeView')
 const NodesImport = () => import(/* webpackChunkName: "Editor" */ '../_components/NodesImport')
-const Test = () => import(/* webpackChunkName: "Editor" */ '../_components/Test')
 
 const route = {
   path: '/nodes',
@@ -67,12 +66,6 @@ const route = {
       meta: {
         can: 'read nodes'
       }
-    },
-    {
-      path: 'test',
-      component: Test,
-      props: { storeName: '$_nodes' },
-      meta: {}
     }
   ]
 }
