@@ -576,21 +576,26 @@ sub import_item {
     }
 
     my $result = person_modify($pid, %$item);
-    if ($result) {
-        return { item => $item, status => 200, isNew => ( $exists ? $self->json_false : $self->json_true ) };
+    if (!$result) {
+        return { item => $item, status => 422, message => "Cannot save user"};
     }
 
-    return { item => $item, status => 422, message => "Cannot save user"};
+    my @actions = (
+        { type => 'valid_from', value => $item->{valid_from} },
+        { type => 'expiration', value => $item->{expiration} },
+    );
+    $result = pf::password::generate($pid, \@actions, $item->{password});
+
+    return { item => $item, status => 200, password => $result, isNew => ( $exists ? $self->json_false : $self->json_true ) };
 }
 
 sub import_item_check_for_errors {
     my ($self, $request,  $item) = @_;
     my @errors;
     my $logger = get_logger();
-    for my $f (qw(password pid)) {
-        if (!exists $item->{$f} || !defined ($item->{$f}) ||  len($item->{$f}) == 0) {
-
-            push @errors, { field => "pid", message => "Missing" };
+    for my $f (qw(pid)) {
+        if (!exists $item->{$f} || !defined ($item->{$f}) ||  length($item->{$f}) == 0) {
+            push @errors, { field => $f, message => "Missing" };
         }
     }
 
