@@ -29,7 +29,7 @@ use pf::file_paths qw(
 );
 use pf::util;
 use pf::constants::config qw($DEFAULT_SMTP_PORT $DEFAULT_SMTP_PORT_SSL $DEFAULT_SMTP_PORT_TLS %ALERTING_PORTS);
-use List::MoreUtils qw(uniq);
+use List::MoreUtils qw(uniq any);
 use DateTime::TimeZone;
 
 use base 'pfconfig::namespaces::config';
@@ -102,6 +102,9 @@ sub build_child {
         $logger->debug("Doing the cluster overlaying for host $self->{host_id}");
         while(my ($key, $config) = (each %{$ConfigCluster{$self->{host_id}}})){
             if($key =~ /^interface /){
+                unless(any {$_ eq $key} @{$self->{ordered_sections}}) {
+                    push @{$self->{ordered_sections}}, $key;
+                }
                 $logger->debug("Reconfiguring interface $key with cluster information");
                 while(my ($param, $value) = each(%$config)) {
                     $Config{$key}{$param} = $value;
