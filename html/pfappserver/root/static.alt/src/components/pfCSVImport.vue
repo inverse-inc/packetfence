@@ -74,8 +74,8 @@
               <b-col class="text-nowrap">
                 {{ $t('Field Mappings') }}
               </b-col>
-              <template v-for="(_, colIndex) in new Array(perPage)" :key="">
-                <b-col class="text-nowrap">
+              <template v-for="(_, colIndex) in new Array(perPage)">
+                <b-col class="text-nowrap" :key="colIndex">
                   <template v-if="((perPage * page) - perPage + colIndex + 1) <= (linesCount - ((config.header) ? 1 : 0))">
                     {{ $t('Line') }} #{{ (perPage * page) - perPage + colIndex + 1 }}
                   </template>
@@ -118,8 +118,8 @@
                   </b-input-group>
                 </b-form-group>
               </b-col>
-              <template v-for="(_, colIndex) in new Array(perPage)" :key="">
-                <b-col :class="(importMapping[rowIndex]) ? 'text-black' : 'text-black-50'">
+              <template v-for="(_, colIndex) in new Array(perPage)">
+                <b-col :class="(importMapping[rowIndex]) ? 'text-black' : 'text-black-50'" :key="colIndex">
                   <template v-if="getPreviewVuelidateFeedback(colIndex, rowIndex)">
                     <!-- invalid -->
                     <icon name="exclamation-circle" class="text-danger mr-1"/> {{ getPreview(colIndex, rowIndex) }}
@@ -255,7 +255,7 @@
                 ></pf-form-input>
 
               </b-col>
-              <b-col v-for="(_) in new Array(perPage - 1)">-</b-col>
+              <b-col v-for="(_) in new Array(perPage - 1)" :key="_">-</b-col>
             </b-row>
             <b-row class="pf-csv-import-table-row" v-if="staticMappingOptions.filter(f => f.value && !f.disabled).length > 0">
               <b-col>
@@ -265,7 +265,7 @@
                   </template>
                 </b-form-select>
               </b-col>
-              <b-col v-for="(_) in new Array(perPage)"><!-- NOP --></b-col>
+              <b-col v-for="(_) in new Array(perPage)" :key="_"><!-- NOP --></b-col>
             </b-row>
           </div>
         </div>
@@ -405,12 +405,12 @@
               </template>
               <h4 class="mb-0">{{ $t('Error(s) on line #{line}', { line: importProgress.lastError.line }) }}</h4>
               <b-form-text v-t="'Review the error(s) below and choose an option to continue.'" class="mt-0"></b-form-text>
-              <template v-for="(error, index) in importProgress.lastError.errors" :key="error.key">
-                <b-row class="bg-light mt-3" align-v="center">
+              <template v-for="(error) in importProgress.lastError.errors">
+                <b-row class="bg-light mt-3" align-v="center" :key="error.key">
                   <b-col cols="10" class="small">{{ error.field }} </b-col>
                   <b-col cols="2" class="text-right my-1">{{ error.value }}</b-col>
                 </b-row>
-                <b-row>
+                <b-row :key="error.key">
                   <b-col cols="10"></b-col>
                   <b-col cols="2" class="small text-right text-danger my-1">{{ error.message }}</b-col>
                 </b-row>
@@ -521,15 +521,15 @@ export default {
       fieldTypeValues: fieldTypeValues, // @/globals/pfField
       context: this,
 
-      substringValueType:        fieldType.SUBSTRING,
-      dateValueType:             fieldType.DATE,
-      datetimeValueType:         fieldType.DATETIME,
+      substringValueType: fieldType.SUBSTRING,
+      dateValueType: fieldType.DATE,
+      datetimeValueType: fieldType.DATETIME,
       prefixmultiplierValueType: fieldType.PREFIXMULTIPLIER,
-      genderValueType:           fieldType.GENDER,
-      nodeStatusValueType:       fieldType.NODE_STATUS,
-      roleValueType:             fieldType.ROLE,
-      sourceValueType:           fieldType.SOURCE,
-      yesnoValueType:            fieldType.YESNO,
+      genderValueType: fieldType.GENDER,
+      nodeStatusValueType: fieldType.NODE_STATUS,
+      roleValueType: fieldType.ROLE,
+      sourceValueType: fieldType.SOURCE,
+      yesnoValueType: fieldType.YESNO,
 
       config: {
         // Papa parse config
@@ -656,13 +656,14 @@ export default {
     },
     loadPreview () {
       const parseLine = async (line) => {
+        // eslint-disable-next-line no-return-await
         return await new Promise((resolve, reject) => {
           Papa.parse(line, {
             ...this.config,
             ...{
               header: false, // overload, header is handled locally
               complete: (result) => {
-                const { data: { [0]: data } = {}, errors, meta } = result
+                const { data: { 0: data } = {}, errors, meta } = result
                 if (data) {
                   this.previewColumnCount = Math.max(this.previewColumnCount, data.length)
                 }
@@ -702,7 +703,7 @@ export default {
     resetPage () {
       this.lines = []
       this.preview = []
-      this.previewColumnCount =  0
+      this.previewColumnCount = 0
       this.setPage(1)
     },
     setPage (page) {
@@ -710,13 +711,13 @@ export default {
       this.loadPage(page)
     },
     addPageColumn () {
-      const { page, perPage} = this
+      const { page, perPage } = this
       const firstLine = (page * perPage) - perPage
       this.page = (firstLine + perPage + 1) / (perPage + 1)
       this.perPage++
     },
     deletePageColumn () {
-      const { page, perPage} = this
+      const { page, perPage } = this
       const firstLine = (page * perPage) - perPage
       this.page = (firstLine + perPage - 1) / (perPage - 1)
       this.perPage--
@@ -730,7 +731,7 @@ export default {
     },
     focusStaticMapping (key) {
       this.$nextTick(() => {
-        const { $refs: { [key]: { [0]: { focus } = {} } = {} } = {} } = this
+        const { $refs: { [key]: { 0: { focus } = {} } = {} } = {} } = this
         if (focus) {
           focus()
         }
@@ -816,7 +817,7 @@ export default {
                     ...{
                       header: false, // overload, header is handled locally
                       complete: (result) => {
-                        const { data: { [0]: data } = {}, errors } = result
+                        const { data: { 0: data } = {}, errors } = result
                         resolve({ data, errors })
                       }
                     }
@@ -849,7 +850,7 @@ export default {
           const payload = {
             items,
             stopOnFirstError,
-            ignoreInsertIfNotExists: ignoreInsertIfNotExists || dryRun ,
+            ignoreInsertIfNotExists: ignoreInsertIfNotExists || dryRun,
             ignoreUpdateIfExists: ignoreUpdateIfExists || dryRun
           }
 
@@ -860,7 +861,7 @@ export default {
               if (!this.importProgress.exit) this.importProgress.status = this.$i18n.t('Processing response')
               if (result.constructor === Array && result.length > 0) {
                 for (const line of result) {
-                  const { isNew, item, errors, message, status } = line
+                  const { isNew, item, errors, status } = line
                   this.importProgress.lastLine++
                   if (errors) {
                     this.importProgress.lastError = {
@@ -892,6 +893,7 @@ export default {
                 }
                 resolve() // continue processing
               }
+              // eslint-disable-next-line prefer-promise-reject-errors
               reject() // stop processing
             }).catch((err) => {
               reject(err) // stop processing
@@ -919,7 +921,7 @@ export default {
         })
         this.$bvModal.show(`importProgress-${this.uuid}`)
         do {
-          await importLines(this.importProgress.lastLine, length).catch((err) => {
+          await importLines(this.importProgress.lastLine, length).catch(() => {
             this.importProgress.status = (this.importProgress.exit)
               ? (dryRun) ? this.$i18n.t('Dry run cancelled') : this.$i18n.t('Import cancelled')
               : (dryRun) ? this.$i18n.t('Dry run completed') : this.$i18n.t('Import completed')

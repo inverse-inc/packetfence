@@ -110,7 +110,7 @@ export default class FileStore {
             if (index <= lineNumber && state.offsets[index - 1] !== null) {
               await dispatch('readSlice', { start, end }).then(result => {
                 let offset
-                for(let c = 0; c <= result.length; c++) {
+                for (let c = 0; c <= result.length; c++) {
                   offset = start + c
                   if (offset === state.file.size) { // EOF
                     commit('SET_OFFSET', { index, offset: null })

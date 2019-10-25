@@ -129,7 +129,7 @@ export default {
   data () {
     return {
       files: [],
-      showErrorModal: false,
+      showErrorModal: false
     }
   },
   methods: {

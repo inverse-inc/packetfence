@@ -132,14 +132,8 @@
         </template>
       </b-tabs>
     </div>
-
     <users-preview-modal v-model="showUsersPreviewModal" :store-name="storeName" />
-
   </b-card>
-</template>
-
-
-  </div>
 </template>
 
 <script>
@@ -161,7 +155,6 @@ import {
 } from '@/globals/pfDatabaseSchema'
 import { pfFieldType as fieldType } from '@/globals/pfField'
 import { pfFormatters as formatter } from '@/globals/pfFormatters'
-import convert from '@/utils/convert'
 import password from '@/utils/password'
 import {
   required
