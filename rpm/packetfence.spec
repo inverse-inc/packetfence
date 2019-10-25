@@ -1036,6 +1036,8 @@ fi
 %config(noreplace)      /usr/local/pf/conf/report.conf
                         /usr/local/pf/conf/report.conf.defaults
                         /usr/local/pf/conf/report.conf.example
+%config(noreplace)      /usr/local/pf/conf/template_switches.conf
+                        /usr/local/pf/conf/template_switches.conf.defaults
 %config(noreplace)      /usr/local/pf/conf/traffic_shaping.conf
                         /usr/local/pf/conf/traffic_shaping.conf.example
 %doc                    /usr/local/pf/COPYING
