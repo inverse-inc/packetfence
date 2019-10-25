@@ -24,7 +24,6 @@ New Features
 
 Enhancements
 ++++++++++++
-* CSV import now supports streaming FileReader allowing very large files to be processed.
 * Network visualization now supports custom sorting, min/max graph sizing, variable real-time network live-view, and infinite depth of switch-group inheritance.
 * Speedup the dal generation (#4824)
 
