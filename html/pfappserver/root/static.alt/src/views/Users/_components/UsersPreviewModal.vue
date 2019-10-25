@@ -1,6 +1,8 @@
 <template>
-  <b-modal id="usersListModal" size="lg" :title="$t('The following user have been created')" :visible="value"
-    no-close-on-backdrop no-close-on-esc lazy scrollable>
+  <b-modal id="usersListModal" size="lg" :title="$t('The following users have been created')"
+    centered no-close-on-backdrop no-close-on-esc lazy scrollable
+    @hidden="value = false" @shown="value = true"
+  >
     <b-table
       :items="users"
       :fields="visibleUsersFields"
@@ -8,7 +10,9 @@
       :sortDesc="usersSortDesc"
       show-empty responsive striped></b-table>
     <template v-slot:modal-footer>
-      <b-button variant="primary" class="float-right" @click="preview()" :disabled="isLoading">{{ $i18n.t('Preview') }}</b-button>
+      <div class="w-100">
+        <b-button variant="primary" class="float-right" @click="preview()" :disabled="isLoading">{{ $i18n.t('Preview') }}</b-button>
+      </div>
     </template>
   </b-modal>
 </template>
@@ -73,7 +77,6 @@ export default {
   },
   methods: {
     preview () {
-      // this.$bvModal.hide('usersListModal')
       this.value = false
       this.$router.push({ name: 'usersPreview' })
     }
@@ -83,6 +86,19 @@ export default {
       if (a.find(user => user.email)) {
         this.usersFields.find(field => field.key === 'email').visible = true
       }
+    },
+    value: {
+      handler (a, b) {
+        this.$emit('input', a)
+        if (a !== b) {
+          if (a) {
+            this.$bvModal.show('usersListModal')
+          } else {
+            this.$bvModal.hide('usersListModal')
+          }
+        }
+      },
+      immediate: true
     }
   }
 }
