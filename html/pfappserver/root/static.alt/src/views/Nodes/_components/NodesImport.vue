@@ -84,9 +84,6 @@ export default {
   },
   data () {
     return {
-      globals: {
-        schema: schema
-      },
       files: [],
       tabIndex: 0,
       defaultStaticMapping: [{ 'key': 'status', 'value': 'reg' }],
@@ -209,8 +206,6 @@ export default {
     importPromise (payload, dryRun) {
       return new Promise((resolve, reject) => {
         this.$store.dispatch(`${this.storeName}/bulkImport`, payload).then(result => {
-          console.log('dryRun', dryRun)
-          console.log('importPromise', result)
           // do something with the result, then Promise.resolve to continue processing
           resolve(result)
         }).catch(err => {
