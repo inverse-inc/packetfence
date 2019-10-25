@@ -66,6 +66,8 @@ sub _run {
 
             masterslavemode => (defined($ConfigCluster{CLUSTER}{masterslavemode}) ? "SLAVE" : "MASTER"),
 
+            slave_server_id => (unpack 'N', pack 'C4', split '\.', pf::cluster::current_server()->{management_ip}),
+
             servers_ip => [uniq(split(',', $Config{database_advanced}{other_members})), (map { $_->{management_ip} } pf::cluster::mysql_servers())],
 
             # TODO: have real configurable user
