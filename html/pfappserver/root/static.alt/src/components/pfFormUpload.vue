@@ -164,11 +164,11 @@ export default {
     closeFile (file) {
       const fileIndex = this.files.findIndex(f => f.name === file.name && f.lastModified === file.lastModified)
       if (fileIndex > -1) {
-        this.files.splice(fileIndex, 1)
         const storeName = this.storeNameFromFile(this.files[fileIndex])
         if (this.$store.state[storeName]) {
           this.$store.unregisterModule(storeName)
         }
+        this.files.splice(fileIndex, 1)
       }
     },
     clearFirstError () {

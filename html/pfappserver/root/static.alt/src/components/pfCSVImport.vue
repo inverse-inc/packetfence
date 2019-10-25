@@ -34,7 +34,7 @@
             </b-container>
           </div>
         </template>
-        <template v-else>
+        <div class="card p-3" v-else>
           <!-- preview options -->
           <b-row align-v="center">
             <b-col cols="auto" class="mr-auto">
@@ -268,11 +268,9 @@
               <b-col v-for="(_) in new Array(perPage)"><!-- NOP --></b-col>
             </b-row>
           </div>
-        </template>
+        </div>
 
-        <div v-if="$slots.default" class="mt-3">
-          <h4 v-t="'Additional Options'"></h4>
-          <p v-t="'Complete the following infomation.'"></p>
+        <div v-if="$slots.default && previewColumnCount > 0" class="mt-3">
           <slot name="default"/> <!-- extra content from parent component -->
         </div>
       </div>
@@ -372,11 +370,21 @@
               </template>
               <b-row class="bg-light" align-v="center">
                 <b-col cols="10">{{ $t('Created') }} <em v-if="importProgress.dryRun">({{ $t('not commited') }})</em></b-col>
-                <b-col cols="2" class="text-right">{{ importProgress.insertCount }}</b-col>
+                <b-col cols="2" class="text-right">
+                  <template v-if="importProgress.dryRun || config.ignoreInsertIfNotExists" size="lg">
+                    <icon name="lock" class="mr-1"/> {{ importProgress.insertCount }}
+                  </template>
+                  <template v-else>{{ importProgress.insertCount }}</template>
+                </b-col>
               </b-row>
               <b-row align-v="center">
                 <b-col cols="10">{{ $t('Updated') }} <em v-if="importProgress.dryRun">({{ $t('not commited') }})</em></b-col>
-                <b-col cols="2" class="text-right">{{ importProgress.updateCount }}</b-col>
+                <b-col cols="2" class="text-right">
+                  <template v-if="importProgress.dryRun || config.ignoreUpdateIfExists">
+                    <icon name="lock" class="mr-1"/> {{ importProgress.updateCount }}
+                  </template>
+                  <template v-else>{{ importProgress.updateCount }}</template>
+                </b-col>
               </b-row>
               <b-row class="bg-light" align-v="center">
                 <b-col cols="10">{{ $t('Skipped') }}</b-col>
@@ -655,7 +663,7 @@ export default {
               complete: (result) => {
                 const { data: { [0]: data } = {}, errors, meta } = result
                 if (data) {
-                  this.previewColumnCount = Math.max(this.previewColumnCount, data.length - 1)
+                  this.previewColumnCount = Math.max(this.previewColumnCount, data.length)
                 }
                 return resolve({ data, errors, meta })
               }
@@ -689,6 +697,12 @@ export default {
           return false
         })
       })
+    },
+    resetPage () {
+      this.lines = []
+      this.preview = []
+      this.previewColumnCount =  0
+      this.setPage(1)
     },
     setPage (page) {
       this.page = page
@@ -974,8 +988,8 @@ export default {
     'config.encoding': {
       handler (a, b) {
         if (a !== b) {
-          this.$store.dispatch(`${this.file.storeName}/setEncoding`, a)
-          this.loadPage()
+          this.$store.dispatch(`${this.file.storeName}/setEncoding`, a || 'utf-8')
+          this.resetPage()
         }
       },
       immediate: true
@@ -988,6 +1002,14 @@ export default {
     'config.header': {
       handler (a, b) {
         this.loadPage()
+      }
+    },
+    'config.newline': {
+      handler (a, b) {
+        if (a !== b) {
+          this.$store.dispatch(`${this.file.storeName}/setNewLine`, a || '\n')
+          this.resetPage()
+        }
       }
     },
     'config.quoteChar': {
@@ -1067,6 +1089,8 @@ export default {
     & > .col {
       align-self: center!important;
       padding: .75rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     & > .col-1 {
       align-self: center!important;

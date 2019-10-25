@@ -24,6 +24,7 @@ export default class FileStore {
         status: null,
         offsets: [0], // private map of line # => byte offset
         chunkSize: 1024 * 1024, // FileReader.slice chunk size (bytes)
+        newLine: '\n',
 
         /**
          * public state(s)
@@ -54,6 +55,10 @@ export default class FileStore {
       },
       setChunkSize: ({ commit }, size) => {
         commit('SET_CHUNK_SIZE', size)
+      },
+      setNewLine: ({ commit }, newLine) => {
+        commit('SET_NEW_LINE', newLine)
+        commit('RESET_OFFSETS')
       },
       readAsText: ({ commit, state }) => {
         commit('SET_READ_AS_TEXT')
@@ -111,7 +116,7 @@ export default class FileStore {
                     commit('SET_OFFSET', { index, offset: null })
                     resolve()
                     return
-                  } else if (result[c] === 10) { // EOL
+                  } else if (result[c] === state.newLine.charCodeAt(0)) { // EOL
                     commit('SET_OFFSET', { index: index++, offset: offset + 1 })
                     if (index > lineNumber) break
                   }
@@ -170,10 +175,16 @@ export default class FileStore {
       SET_CHUNK_SIZE: (state, chunkSize) => {
         state.chunkSize = chunkSize
       },
+      SET_NEW_LINE: (state, newLine) => {
+        state.newLine = newLine
+      },
       SET_ERROR: (state, error) => {
         state.status = types.ERROR
         const { code, message, name } = error
         state.file.error = { code, message, name }
+      },
+      RESET_OFFSETS: (state) => {
+        state.offsets = [0]
       },
       SET_OFFSET: (state, { index, offset }) => {
         state.offsets[index] = offset

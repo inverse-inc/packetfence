@@ -30,81 +30,88 @@
             hover
             striped
           >
-
-            <b-form-group label-cols="3" :label="$t('Registration Window')">
-              <b-row>
-                <b-col>
-                  <pf-form-datetime v-model="localUser.valid_from"
-                    :min="new Date()"
-                    :config="{datetimeFormat: 'YYYY-MM-DD'}"
-                    :vuelidate="$v.localUser.valid_from"
-                  />
-                </b-col>
-                <p class="pt-2"><icon name="long-arrow-alt-right"></icon></p>
-                <b-col>
-                  <pf-form-datetime v-model="localUser.expiration"
-                    :min="new Date()"
-                    :config="{datetimeFormat: 'YYYY-MM-DD'}"
-                    :vuelidate="$v.localUser.expiration"
-                  />
-                </b-col>
-              </b-row>
-            </b-form-group>
-            <pf-form-fields
-              v-model="localUser.actions"
-              :column-label="$t('Actions')"
-              :button-label="$t('Add Action')"
-              :field="actionField"
-              :vuelidate="$v.localUser.actions"
-              :invalid-feedback="[
-                { [$t('One or more errors exist.')]: $v.localUser.actions.$invalid }
-              ]"
-              @validations="actionsValidations = $event"
-              sortable
-            ></pf-form-fields>
-            <pf-form-row align-v="start" :column-label="$t('Password Options')">
-              <b-alert show variant="info">
-                {{ $t('When no password is imported, a random password is generated using the following criteria.') }}
-              </b-alert>
-              <b-row>
-                <b-col cols="6">
-                  <pf-form-input class="p-0" type="range" min="6" max="32"
-                    v-model="passwordGenerator.pwlength"
-                    :column-label="$t('Length')"
-                    :text="$t('{count} characters', { count: passwordGenerator.pwlength })"/>
-                  <pf-form-toggle
-                    v-model="passwordGenerator.upper"
-                    :column-label="$t('Uppercase')"
-                    :text="$t('Include uppercase characters')">ABC</pf-form-toggle>
-                  <pf-form-toggle
-                    v-model="passwordGenerator.lower"
-                    :column-label="$t('Lowercase')"
-                    :text="$t('Include lowercase characters')">abc</pf-form-toggle>
-                  <pf-form-toggle
-                    v-model="passwordGenerator.digits"
-                    :column-label="$t('Digits')"
-                    :text="$t('Include digits')">123</pf-form-toggle>
-                </b-col>
-                <b-col cols="6">
-                  <pf-form-toggle
-                    v-model="passwordGenerator.special"
-                    :column-label="$t('Special')"
-                    :text="$t('Include special characters')">!@#</pf-form-toggle>
-                  <pf-form-toggle
-                    v-model="passwordGenerator.brackets"
-                    :column-label="$t('Brackets/Parenthesis')"
-                    :text="$t('Include brackets')">({&lt;</pf-form-toggle>
-                  <pf-form-toggle
-                    v-model="passwordGenerator.high"
-                    :column-label="$t('Accentuated')"
-                    :text="$t('Include accentuated characters')">äæ±</pf-form-toggle>
-                  <pf-form-toggle
-                    v-model="passwordGenerator.ambiguous"
-                    :column-label="$t('Ambiguous')"
-                    :text="$t('Include ambiguous characters')">0Oo</pf-form-toggle>
-                </b-col>
-              </b-row>
-            </pf-form-row>
+            <b-card no-body>
+              <b-card-header>
+                <h4 v-t="'Additional User Options'"></h4>
+                <p class="mb-0" v-t="'Complete the following additional static fields.'"></p>
+              </b-card-header>
+              <div class="card-body">
+                <b-form-group label-cols="3" :label="$t('Registration Window')">
+                  <b-row>
+                    <b-col>
+                      <pf-form-datetime v-model="localUser.valid_from"
+                        :min="new Date()"
+                        :config="{datetimeFormat: 'YYYY-MM-DD'}"
+                        :vuelidate="$v.localUser.valid_from"
+                      />
+                    </b-col>
+                    <p class="pt-2"><icon name="long-arrow-alt-right"></icon></p>
+                    <b-col>
+                      <pf-form-datetime v-model="localUser.expiration"
+                        :min="new Date()"
+                        :config="{datetimeFormat: 'YYYY-MM-DD'}"
+                        :vuelidate="$v.localUser.expiration"
+                      />
+                    </b-col>
+                  </b-row>
+                </b-form-group>
+                <pf-form-fields
+                  v-model="localUser.actions"
+                  :column-label="$t('Actions')"
+                  :button-label="$t('Add Action')"
+                  :field="actionField"
+                  :vuelidate="$v.localUser.actions"
+                  :invalid-feedback="[
+                    { [$t('One or more errors exist.')]: $v.localUser.actions.$invalid }
+                  ]"
+                  @validations="actionsValidations = $event"
+                  sortable
+                ></pf-form-fields>
+                <pf-form-row align-v="start" :column-label="$t('Password Options')">
+                  <b-alert show variant="info">
+                    {{ $t('When no password is imported, a random password is generated using the following criteria.') }}
+                  </b-alert>
+                  <b-row>
+                    <b-col cols="6">
+                      <pf-form-input class="p-0" type="range" min="6" max="32"
+                        v-model="passwordGenerator.pwlength"
+                        :column-label="$t('Length')"
+                        :text="$t('{count} characters', { count: passwordGenerator.pwlength })"/>
+                      <pf-form-toggle
+                        v-model="passwordGenerator.upper"
+                        :column-label="$t('Uppercase')"
+                        :text="$t('Include uppercase characters')">ABC</pf-form-toggle>
+                      <pf-form-toggle
+                        v-model="passwordGenerator.lower"
+                        :column-label="$t('Lowercase')"
+                        :text="$t('Include lowercase characters')">abc</pf-form-toggle>
+                      <pf-form-toggle
+                        v-model="passwordGenerator.digits"
+                        :column-label="$t('Digits')"
+                        :text="$t('Include digits')">123</pf-form-toggle>
+                    </b-col>
+                    <b-col cols="6">
+                      <pf-form-toggle
+                        v-model="passwordGenerator.special"
+                        :column-label="$t('Special')"
+                        :text="$t('Include special characters')">!@#</pf-form-toggle>
+                      <pf-form-toggle
+                        v-model="passwordGenerator.brackets"
+                        :column-label="$t('Brackets/Parenthesis')"
+                        :text="$t('Include brackets')">({&lt;</pf-form-toggle>
+                      <pf-form-toggle
+                        v-model="passwordGenerator.high"
+                        :column-label="$t('Accentuated')"
+                        :text="$t('Include accentuated characters')">äæ±</pf-form-toggle>
+                      <pf-form-toggle
+                        v-model="passwordGenerator.ambiguous"
+                        :column-label="$t('Ambiguous')"
+                        :text="$t('Include ambiguous characters')">0Oo</pf-form-toggle>
+                    </b-col>
+                  </b-row>
+                </pf-form-row>
+              </div>
+            </b-card>
 
           </pf-csv-import>
         </b-tab>
@@ -331,7 +338,7 @@ export default {
             pfConfigurationActions.mark_as_sponsor,
             pfConfigurationActions.set_role,
             pfConfigurationActions.set_tenant_id,
-            pfConfigurationActions.set_unreg_date
+            pfConfigurationActions.set_unregdate
           ]
         }
       },
