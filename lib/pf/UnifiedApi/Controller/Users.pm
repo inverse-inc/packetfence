@@ -21,7 +21,7 @@ use pf::log;
 use pf::dal::security_event;
 use pf::security_event;
 use pf::constants;
-use pf::person qw(person_security_events person_unassign_nodes person_delete);
+use pf::person qw(person_security_events person_unassign_nodes person_delete person_modify);
 use pf::node;
 use pf::constants qw($default_pid);
 use pf::error qw(is_error);
@@ -557,14 +557,14 @@ sub bulk_import {
 
 sub import_item {
     my ($self, $request, $item) = @_;
-    my @errors = $self->import_item_check_for_errors($item);
+    my @errors = $self->import_item_check_for_errors($request, $item);
     if (@errors) {
         return { item => $item, errors => \@errors, message => 'Cannot save user', status => 422 };
     }
 
     my $pid = delete $item->{pid};
     $item->{sponsor} //= $self->stash->{current_user};
-    my $exists = pf::person::person_exists($pid);
+    my $exists = pf::person::person_exist($pid);
     if ($exists) {
         if ($request->{ignoreUpdateIfExists}) {
             return { item => $item, status => 409, message => "Skip already exists", isNew => $self->json_false } ;
@@ -594,8 +594,8 @@ sub import_item_check_for_errors {
     my @errors;
     my $logger = get_logger();
     for my $f (qw(pid)) {
-        if (!exists $item->{$f} || !defined ($item->{$f}) ||  length($item->{$f}) == 0) {
-            push @errors, { field => $f, message => "Missing" };
+        if ((!exists $item->{$f}) || !(defined ($item->{$f})) || length($item->{$f}) == 0) {
+            push @errors, { field => $f, message => "Missing $f" };
         }
     }
 
