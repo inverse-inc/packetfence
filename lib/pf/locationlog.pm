@@ -41,7 +41,6 @@ BEGIN {
         locationlog_view_open_switchport_no_VoIP
         locationlog_view_open_switchport_only_VoIP
 
-        locationlog_close_all
         locationlog_cleanup
 
         locationlog_insert_start
@@ -434,18 +433,6 @@ sub locationlog_synchronize {
             or $logger->warn("Unable to insert a locationlog entry.");
     }
     return 1;
-}
-
-sub locationlog_close_all {
-    my ($status, $rows) = pf::dal::locationlog->update_items(
-        -set => {
-            end_time => \'NOW()',
-        },
-        -where => {
-            end_time => $ZERO_DATE,
-        }
-    );
-    return ($rows);
 }
 
 sub locationlog_cleanup {
