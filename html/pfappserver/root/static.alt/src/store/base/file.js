@@ -24,7 +24,7 @@ export default class FileStore {
         status: null,
         offsets: [0], // private map of line # => byte offset
         chunkSize: 1024 * 1024, // FileReader.slice chunk size (bytes)
-        newLine: '\n',
+        newLine: [10], // \n
 
         /**
          * public state(s)
@@ -52,6 +52,7 @@ export default class FileStore {
     const actions = {
       setEncoding: ({ commit }, encoding) => {
         commit('SET_ENCODING', encoding)
+        commit('RESET_OFFSETS')
       },
       setChunkSize: ({ commit }, size) => {
         commit('SET_CHUNK_SIZE', size)
@@ -71,7 +72,7 @@ export default class FileStore {
           dispatch('buildOffset', lineIndex).then(() => {
             if (state.offsets.length > lineIndex + 1) {
               const start = state.offsets[lineIndex]
-              const end = state.offsets[lineIndex + 1] - 1
+              const end = state.offsets[lineIndex + 1] - state.newLine.length
               dispatch('readSlice', { start, end }).then(result => {
                 const decoded = new TextDecoder(state.file.encoding).decode(result)
                 resolve(decoded)
@@ -107,6 +108,7 @@ export default class FileStore {
         return new Promise((resolve, reject) => {
           const scan = async (index, start) => {
             const end = start + state.chunkSize
+            let match = 0
             if (index <= lineNumber && state.offsets[index - 1] !== null) {
               await dispatch('readSlice', { start, end }).then(result => {
                 let offset
@@ -116,9 +118,15 @@ export default class FileStore {
                     commit('SET_OFFSET', { index, offset: null })
                     resolve()
                     return
-                  } else if (result[c] === state.newLine.charCodeAt(0)) { // EOL
-                    commit('SET_OFFSET', { index: index++, offset: offset + 1 })
-                    if (index > lineNumber) break
+                  } else if (result[c] === state.newLine[match]) {
+                    match++
+                    if (match === state.newLine.length) { // EOL
+                      match = 0
+                      commit('SET_OFFSET', { index: index++, offset: offset + 1 })
+                      if (index > lineNumber) break
+                    }
+                  } else {
+                    match = 0
                   }
                 }
                 start += state.chunkSize
@@ -176,7 +184,7 @@ export default class FileStore {
         state.chunkSize = chunkSize
       },
       SET_NEW_LINE: (state, newLine) => {
-        state.newLine = newLine
+        state.newLine = newLine.split('').map(c => c.charCodeAt(0))
       },
       SET_ERROR: (state, error) => {
         state.status = types.ERROR
