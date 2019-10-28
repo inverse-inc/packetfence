@@ -1044,7 +1044,7 @@ Note that in the DC2 CLUSTER section we defined this 2 values:
 
 This mean that the cluster will be in SLAVE mode and will use the db of the DC1 cluster.
 
-And we defined the type and the enforcement on all the interfaces.
+And we MUST defined the type and the enforcement on all the interfaces.
 
 Prepare and start the master/slave replication
 ++++++++++++++++++++++++++++++++++++++++++++++
@@ -1078,6 +1078,7 @@ To do that go on the remote server and launch:
  Enter the MySQL root password: password
  Enter the MySQL master ip address: 192.168.1.11
 
+MySQL master ip address is the ip of the server where you fetched the backup file.
 
 Or if prefer to do the procedure to start the slave replication manually:
 
@@ -1095,11 +1096,13 @@ Go back on the server where you got the backup file and launch the following com
  | 22-2-10459                                  |
  +---------------------------------------------+
 
+ mysql -uroot -p
+ MariaDB [(none)]> GRANT REPLICATION SLAVE ON *.* TO  'pfcluster'@'%';
+ MariaDB [(none)]> FLUSH PRIVILEGES;
+
 Return on the remote server and do the following (pfcluster and clusterpf are replication username and password you will find in the pf.conf file and 192.168.1.11 is the server where you fetched the backup):
 
  SET GLOBAL gtid_slave_pos = '22-2-10459';
- GRANT REPLICATION SLAVE ON *.* TO  'pfcluster'@'%';
- FLUSH PRIVILEGES;
  CHANGE MASTER TO MASTER_HOST='192.168.1.11', MASTER_PORT=3306, MASTER_USER='pfcluster', MASTER_PASSWORD='clusterpf', MASTER_USE_GTID=slave_pos;
  START SLAVE;
 
