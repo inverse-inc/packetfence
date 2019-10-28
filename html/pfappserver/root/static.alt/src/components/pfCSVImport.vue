@@ -119,7 +119,7 @@
                 </b-form-group>
               </b-col>
               <template v-for="(_, colIndex) in new Array(perPage)">
-                <b-col :class="(importMapping[rowIndex]) ? 'text-black' : 'text-black-50'" :key="colIndex">
+                <b-col class="col-overflow-hidden" :class="(importMapping[rowIndex]) ? 'text-black' : 'text-black-50'" :key="colIndex">
                   <template v-if="getPreviewVuelidateFeedback(colIndex, rowIndex)">
                     <!-- invalid -->
                     <icon name="exclamation-circle" class="text-danger mr-1"/> {{ getPreview(colIndex, rowIndex) }}
@@ -1100,6 +1100,8 @@ export default {
     & > .col {
       align-self: center!important;
       padding: .75rem;
+    }
+    .col-overflow-hidden {
       overflow: hidden;
       text-overflow: ellipsis;
     }
