@@ -24,9 +24,9 @@ print "Enter the MySQL master ip address: ";
 my $mysql_master_ip = <STDIN>;
 chomp $mysql_master_ip;
 
-$output = `sudo mysql -u root -p'$mysql_root_password' -e "GRANT REPLICATION SLAVE ON *.*  TO '$replication_username'\@'%'"`;
+$output = `sudo mysql -u root -p'$mysql_root_password' -h$mysql_master_ip -e "GRANT REPLICATION SLAVE ON *.*  TO '$replication_username'\@'%'"`;
 
-$output = `sudo mysql -u root -p'$mysql_root_password' -e "FLUSH PRIVILEGES"`;
+$output = `sudo mysql -u root -p'$mysql_root_password' -h$mysql_master_ip -e "FLUSH PRIVILEGES"`;
 
 my $position_file = '/var/lib/mysql/xtrabackup_binlog_info';
 
@@ -35,24 +35,28 @@ open(my $fh, '<:encoding(UTF-8)', $position_file)
 
 my $position;
 my $file;
+my $gtid;
 
 while (my $row = <$fh>) {
-  chomp $row;
-  if ($row =~ /^([a-zA-Z0-9_\-\.]+)\s+(.*)$/ ) {
-      $file = $1;
-      $position = $2;
-  }
+    chomp $row;
+    if ($row =~ /^([a-zA-Z0-9_\-\.]+)\s+(\d+)(\s+)?(\d+-\d+-\d+)?$/ ) {
+        $file = $1;
+        $position = $2;
+        if (defined($4)) {
+            $gtid = $4;
+        }
+    }
 }
 
 close $fh;
 
-@output = `sudo mysql -u $replication_username -p'$replication_password' -h$mysql_master_ip -e "SELECT BINLOG_GTID_POS('$file', $position)\\G"`;
+if (!defined($gtid)) {
+    @output = `sudo mysql -u $replication_username -p'$replication_password' -h$mysql_master_ip -e "SELECT BINLOG_GTID_POS('$file', $position)\\G"`;
 
-my $gtid;
-
-foreach my $item (@output) {
-    if ($item =~ /(\d+-\d+-\d+)$/) {
-        $gtid = $1;
+    foreach my $item (@output) {
+        if ($item =~ /(\d+-\d+-\d+)$/) {
+            $gtid = $1;
+        }
     }
 }
 
