@@ -25,24 +25,6 @@ use pf::constants qw($ZERO_DATE);
 our @LOCATION_LOG_JOIN = (
     "=>{locationlog.mac=node.mac,node.tenant_id=locationlog.tenant_id,locationlog.end_time='$ZERO_DATE'}",
     'locationlog',
-    {
-        operator  => '=>',
-        condition => {
-            'node.mac'       => { '=' => { -ident => '%2$s.mac' } },
-            'node.tenant_id' => { '=' => { -ident => '%2$s.tenant_id' } },
-            'locationlog2.end_time' => $ZERO_DATE,
-            -or                     => [
-                '%1$s.start_time' => { '<' => { -ident => '%2$s.start_time' } },
-                '%1$s.start_time' => undef,
-                -and              => [
-                    '%1$s.start_time' =>
-                      { '=' => { -ident => '%2$s.start_time' } },
-                    '%1$s.id' => { '<' => { -ident => '%2$s.id' } },
-                ],
-            ],
-        },
-    },
-    'locationlog|locationlog2',
 );
 
 our @IP4LOG_JOIN = (
@@ -107,10 +89,6 @@ our %RADACCT_WHERE = (
     'r2.radacctid' => undef,
 );
 
-our %LOCATION_LOG_WHERE = (
-    'locationlog2.id' => undef,
-);
-
 our @NODE_CATEGORY_JOIN = (
     '=>{node.category_id=node_category.category_id}', 'node_category',
 );
@@ -172,7 +150,7 @@ our %ALLOWED_JOIN_FIELDS = (
         column_spec => \"IFNULL(node_category_bypass_role.name, '') as `node_category_bypass_role.name`",
     },
     map_dal_fields_to_join_spec("pf::dal::radacct", \@RADACCT_JOIN, \%RADACCT_WHERE),
-    map_dal_fields_to_join_spec("pf::dal::locationlog", \@LOCATION_LOG_JOIN, \%LOCATION_LOG_WHERE),
+    map_dal_fields_to_join_spec("pf::dal::locationlog", \@LOCATION_LOG_JOIN),
     'security_event.open_count' => {
         namespace => 'security_event_open',
         join_spec => \@SECURITY_EVENT_OPEN_JOIN,
