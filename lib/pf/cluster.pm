@@ -167,19 +167,21 @@ sub is_management {
         $logger->debug("Clustering is not enabled. Cannot be management node.");
         return 0;
     }
-    my $cluster_ip = management_cluster_ip();
-    my @all_ifs = Net::Interface->interfaces();
-    foreach my $inf (@all_ifs) {
-        my @masks = $inf->netmask(AF_INET());
-        my @addresses = $inf->address(AF_INET());
-        for my $i (0 .. $#masks) {
-            if (inet_ntoa($addresses[$i]) eq $cluster_ip) {
-                return 1;
+    if ($cluster_name eq $pf::cluster::master_multi_zone) {
+
+        my $cluster_ip = management_cluster_ip();
+        my @all_ifs = Net::Interface->interfaces();
+        foreach my $inf (@all_ifs) {
+            my @masks = $inf->netmask(AF_INET());
+            my @addresses = $inf->address(AF_INET());
+            for my $i (0 .. $#masks) {
+                if (inet_ntoa($addresses[$i]) eq $cluster_ip) {
+                    return 1;
+                }
             }
         }
     }
     return 0;
-
 }
 
 =head2 get_host_id

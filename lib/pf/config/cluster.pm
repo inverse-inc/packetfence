@@ -19,7 +19,7 @@ use warnings;
 use Exporter;
 our ( @ISA, @EXPORT );
 @ISA = qw(Exporter);
-@EXPORT = qw($cluster_enabled $multi_zone_enabled $host_id);
+@EXPORT = qw($cluster_enabled $multi_zone_enabled $host_id $master_multi_zone);
 
 use pf::log;
 use File::Slurp qw(read_file write_file);
@@ -54,6 +54,21 @@ our $cluster_enabled = sub {
     else {
         return $FALSE;
     }
+}->();
+
+our $master_multi_zone = sub {
+    my $cfg = cluster_ini_config();
+    return $FALSE unless($cfg);
+    my $multi_zone = $cfg->val('general', 'multi_zone');
+
+    if (isenabled($multi_zone)) {
+        foreach my $section ($cfg->Sections()) {
+            if ($section =~ /^(\w+)\s+CLUSTER/) {
+                return $1;
+            }
+        }
+    }
+    return $FALSE;
 }->();
 
 =head2 cluster_ini_config
