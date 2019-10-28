@@ -42,16 +42,24 @@ variables:
   tags:
     - docker
 
-.deploy_job:
+# use artifact from *sign* because we upload an existing Debian repo
+.deploy_deb_job:
   stage: upload
-  # only use when executor is docker
-  image: buildpkg/debian:buster
-  script:
-    - ci-deploy-pkg
   dependencies:
     - sign
-    - pages
+  # run job on runners tag with inverse AND shell
   tags:
+    - inverse
+    - shell
+
+# use artifact from *pages* job to upload only RPMS, not src.rpm
+.deploy_rpm_job:
+  stage: upload
+  dependencies:
+    - pages
+  # run job on runners tag with inverse AND shell
+  tags:
+    - inverse
     - shell
 
 .rpm_script:
@@ -156,22 +164,50 @@ pages:
     - shell
 
 ### UPLOAD JOBS
-deploy_devel:
+deploy_rpm_devel:
   extends:
-    - .deploy_job
+    - .deploy_rpm_job
   environment:
-    name: devel
-    url: http://inverse.ca/downloads/PacketFence
+    name: devel/x86_64
+    url: http://inverse.ca/downloads/PacketFence/RHEL7/${CI_ENVIRONMENT_SLUG}
+  script:
+    - 
   only:
     - schedules
     - web
     - /^devel$/
 
-deploy_release:
+deploy_rpm_release:
   extends:
-    - .deploy_job
+    - .deploy_rpm_job
   environment:
-    name: stable
-    url: http://inverse.ca/downloads/PacketFence
+    name: x86_64
+    url: http://inverse.ca/downloads/PacketFence/RHEL7/${CI_ENVIRONMENT_NAME}
+  script:
+    - 
+  only:
+    - /^stable$/
+
+deploy_deb_devel:
+  extends:
+    - .deploy_deb_job
+  environment:
+    name: debian-devel
+    url: http://inverse.ca/downloads/PacketFence/${CI_ENVIRONMENT_NAME}
+  script:
+    - 
+  only:
+    - schedules
+    - web
+    - /^devel$/
+
+deploy_deb_release:
+  extends:
+    - .deploy_deb_job
+  environment:
+    name: debian-lastrelease
+    url: http://inverse.ca/downloads/PacketFence/${CI_ENVIRONMENT_NAME}
+  script:
+    - 
   only:
     - /^stable$/
