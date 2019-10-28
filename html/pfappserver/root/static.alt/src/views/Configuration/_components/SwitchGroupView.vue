@@ -14,6 +14,11 @@
     @save="save"
     @remove="remove"
   >
+    <template v-slot:tabs-end>
+      <div class="flex-fill text-right">
+        <pf-form-toggle v-model="advancedMode">{{ $t('Advanced') }}</pf-form-toggle>
+      </div>
+    </template>
     <template v-slot:header>
       <b-button-close @click="close" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
       <h4 class="mb-0">
@@ -42,6 +47,7 @@
 import pfConfigView from '@/components/pfConfigView'
 import pfButtonSave from '@/components/pfButtonSave'
 import pfButtonDelete from '@/components/pfButtonDelete'
+import pfFormToggle from '@/components/pfFormToggle'
 import {
   pfConfigurationDefaultsFromMeta as defaults
 } from '@/globals/configuration/pfConfiguration'
@@ -58,7 +64,8 @@ export default {
   components: {
     pfConfigView,
     pfButtonSave,
-    pfButtonDelete
+    pfButtonDelete,
+    pfFormToggle
   },
   props: {
     storeName: { // from router
@@ -84,7 +91,8 @@ export default {
       form: {}, // will be overloaded with the data from the store
       formValidations: {}, // will be overloaded with data from the pfConfigView
       options: {},
-      roles: [] // all roles
+      roles: [], // all roles,
+      advancedMode: false
     }
   },
   validations () {
