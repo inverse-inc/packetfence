@@ -220,10 +220,7 @@ sub locationlog_view_open_mac {
     return _db_item({
         -where => {
             mac => $mac,
-            end_time => $ZERO_DATE,
         },
-        -limit => 1,
-        -order_by => { -desc => 'start_time' },
     });
 }
 
