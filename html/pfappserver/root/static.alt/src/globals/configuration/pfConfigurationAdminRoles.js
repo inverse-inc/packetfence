@@ -55,11 +55,11 @@ export const pfConfigurationAdminRolesListFields = [
   }
 ]
 
-export const pfConfigurationAdminRoleListConfig = (context = {}) => {
+export const pfConfigurationAdminRoleListConfig = () => {
   return {
     columns: pfConfigurationAdminRolesListColumns,
     fields: pfConfigurationAdminRolesListFields,
-    rowClickRoute (item, index) {
+    rowClickRoute (item) {
       return { name: 'admin_role', params: { id: item.id } }
     },
     searchPlaceholder: i18n.t('Search by name or description'),

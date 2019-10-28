@@ -39,7 +39,7 @@ export const pfConfigurationInterfaceDaemons = [
 
 ]
 
-export const pfConfigurationInterfacesTypeFormatter = (value, key, item) => {
+export const pfConfigurationInterfacesTypeFormatter = (value) => {
   if (value === null || value === '') return null
   return pfConfigurationInterfaceTypes.find(type => type.value === value).text
 }
@@ -219,7 +219,7 @@ export const pfConfigurationInterfacesListColumns = [
     key: 'additional_listening_daemons',
     label: i18n.t('Daemons'),
     visible: true,
-    formatter: (value, key, item) => {
+    formatter: (value) => {
       if (value.constructor === Array && value.length > 0) {
         return value
       }

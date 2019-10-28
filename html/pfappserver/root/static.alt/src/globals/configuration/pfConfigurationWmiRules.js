@@ -59,11 +59,11 @@ export const pfConfigurationWmiRulesListFields = [
   }
 ]
 
-export const pfConfigurationWmiRuleListConfig = (context = {}) => {
+export const pfConfigurationWmiRuleListConfig = () => {
   return {
     columns: pfConfigurationWmiRulesListColumns,
     fields: pfConfigurationWmiRulesListFields,
-    rowClickRoute (item, index) {
+    rowClickRoute (item) {
       return { name: 'wmiRule', params: { id: item.id } }
     },
     searchPlaceholder: i18n.t('Search by WMI rule or namespace'),

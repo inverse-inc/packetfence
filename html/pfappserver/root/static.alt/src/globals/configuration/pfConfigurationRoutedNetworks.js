@@ -39,12 +39,12 @@ export const pfConfigurationRoutedNetworkHtmlNote = `<div class="alert alert-war
   ${i18n.t('Adding or modifying a network requires a restart of the pfdhcp and pfdns services for the changes to take place.')}
 </div>`
 
-export const pfConfigurationRoutedNetworksTypeFormatter = (value, key, item) => {
+export const pfConfigurationRoutedNetworksTypeFormatter = (value) => {
   if (value === null || value === '') return null
   return pfConfigurationRoutedNetworkTypes.find(type => type.value === value).text
 }
 
-export const pfConfigurationRoutedNetworkDHCPAlgoFormatter = (value, key, item) => {
+export const pfConfigurationRoutedNetworkDHCPAlgoFormatter = (value) => {
   if (value === null || value === '') return null
   return pfConfigurationRoutedNetworkDHCPAlgo.find(type => type.value === value).text
 }

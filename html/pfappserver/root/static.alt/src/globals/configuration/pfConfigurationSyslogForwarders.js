@@ -51,11 +51,11 @@ export const pfConfigurationSyslogForwardersListFields = [
   }
 ]
 
-export const pfConfigurationSyslogForwardersListConfig = (context = {}) => {
+export const pfConfigurationSyslogForwardersListConfig = () => {
   return {
     columns: pfConfigurationSyslogForwardersListColumns,
     fields: pfConfigurationSyslogForwardersListFields,
-    rowClickRoute (item, index) {
+    rowClickRoute (item) {
       return { name: 'syslogForwarder', params: { id: item.id } }
     },
     searchPlaceholder: i18n.t('Search by Syslog name or type'),

@@ -76,11 +76,11 @@ export const pfConfigurationAuthenticationSourcesListFields = [
   }
 ]
 
-export const pfConfigurationAuthenticationSourceListConfig = (context = {}) => {
+export const pfConfigurationAuthenticationSourceListConfig = () => {
   return {
     columns: pfConfigurationAuthenticationSourcesListColumns,
     fields: pfConfigurationAuthenticationSourcesListFields,
-    rowClickRoute (item, index) {
+    rowClickRoute (item) {
       return { name: 'source', params: { id: item.id } }
     },
     searchPlaceholder: i18n.t('Search by name or description'),
@@ -308,7 +308,7 @@ export const pfConfigurationAuthenticationSourceFields = {
       ]
     }
   },
-  allow_localdomain: ({ options: { meta = {} } } = {}) => {
+  allow_localdomain: () => {
     return {
       label: i18n.t('Allow Local Domain'),
       text: i18n.t('Accept self-registration with email address from the local domain.'),
@@ -416,7 +416,7 @@ export const pfConfigurationAuthenticationSourceFields = {
       ]
     }
   },
-  authentication_rules: ({ options: { meta = {} }, sourceType = null } = {}) => {
+  authentication_rules: ({ options: { meta = {} } } = {}) => {
     return {
       label: 'Authentication Rules',
       fields: [
@@ -604,7 +604,7 @@ export const pfConfigurationAuthenticationSourceFields = {
       ]
     }
   },
-  cache_match: ({ options: { meta = {} } } = {}) => {
+  cache_match: () => {
     return {
       label: i18n.t('Cache match'),
       text: i18n.t('Will cache results of matching a rule.'),
@@ -686,7 +686,7 @@ export const pfConfigurationAuthenticationSourceFields = {
       ]
     }
   },
-  create_local_account: ({ options: { meta = {} } } = {}) => {
+  create_local_account: () => {
     return {
       label: i18n.t('Create Local Account'),
       text: i18n.t('Create a local account on the PacketFence system based on the username provided.'),
@@ -807,7 +807,7 @@ export const pfConfigurationAuthenticationSourceFields = {
       ]
     }
   },
-  email_required: ({ options: { meta = {} } } = {}) => {
+  email_required: () => {
     return {
       label: i18n.t('Email required'),
       fields: [
@@ -1085,7 +1085,7 @@ export const pfConfigurationAuthenticationSourceFields = {
       ]
     }
   },
-  monitor: ({ options: { meta = {} } } = {}) => {
+  monitor: () => {
     return {
       label: i18n.t('Monitor'),
       text: i18n.t('Do you want to monitor this source?'),
@@ -1478,7 +1478,7 @@ export const pfConfigurationAuthenticationSourceFields = {
       ]
     }
   },
-  send_email_confirmation: ({ options: { meta = {} } } = {}) => {
+  send_email_confirmation: () => {
     return {
       label: i18n.t('Send billing confirmation'),
       fields: [
@@ -1587,7 +1587,7 @@ export const pfConfigurationAuthenticationSourceFields = {
       ]
     }
   },
-  shuffle: ({ options: { meta = {} } } = {}) => {
+  shuffle: () => {
     return {
       label: i18n.t('Shuffle'),
       text: i18n.t('Randomly choose LDAP server to query.'),
@@ -1762,7 +1762,7 @@ export const pfConfigurationAuthenticationSourceFields = {
       ]
     }
   },
-  test_mode: ({ options: { meta = {} } } = {}) => {
+  test_mode: () => {
     return {
       label: i18n.t('Test mode'),
       fields: [
@@ -1856,7 +1856,7 @@ export const pfConfigurationAuthenticationSourceFields = {
       ]
     }
   },
-  validate_sponsor: ({ options: { meta = {} } } = {}) => {
+  validate_sponsor: () => {
     return {
       label: i18n.t('Sponsor Validation'),
       text: i18n.t('Force sponsor to authenticate when validating a guest request.'),

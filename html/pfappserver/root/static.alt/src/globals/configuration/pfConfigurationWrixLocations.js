@@ -39,11 +39,11 @@ export const pfConfigurationWrixLocationsListFields = [
   }
 ]
 
-export const pfConfigurationWrixLocationsListConfig = (context = {}) => {
+export const pfConfigurationWrixLocationsListConfig = () => {
   return {
     columns: pfConfigurationWrixLocationsListColumns,
     fields: pfConfigurationWrixLocationsListFields,
-    rowClickRoute (item, index) {
+    rowClickRoute (item) {
       return { name: 'wrixLocation', params: { id: item.id } }
     },
     searchPlaceholder: i18n.t('Search by WRIX Identifier'),
@@ -979,6 +979,6 @@ export const pfConfigurationWrixLocationViewFields = (context) => {
   ]
 }
 
-export const pfConfigurationWrixLocationViewDefaults = (context = {}) => {
+export const pfConfigurationWrixLocationViewDefaults = () => {
   return {}
 }

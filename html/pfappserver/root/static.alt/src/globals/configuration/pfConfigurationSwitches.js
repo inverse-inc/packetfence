@@ -99,7 +99,7 @@ export const pfConfigurationSwitchesListConfig = (context = {}) => {
   return {
     columns: pfConfigurationSwitchesListColumns,
     fields: pfConfigurationSwitchesListFields,
-    rowClickRoute (item, index) {
+    rowClickRoute (item) {
       return { name: 'switch', params: { id: item.id } }
     },
     searchPlaceholder: $i18n.t('Search by identifier or description'),
@@ -436,7 +436,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
                 tooltips: { checked: i18n.t('Y'), unchecked: i18n.t('N'), default: i18n.t('Default ({default})', { default: (placeholder('uplink_dynamic') === 'dynamic') ? 'Y' : 'N' }) }
               },
               listeners: {
-                checked: (value) => {
+                checked: () => {
                   form.uplink = null // clear uplink
                 }
               }

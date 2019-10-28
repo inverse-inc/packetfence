@@ -66,13 +66,20 @@ export const pfReportChartOptions = {
 export const pfReportSort = {
   role: (a, b) => {
     switch (true) {
-      case a === b: return 0
-      case !a: return -1
-      case !b: return 1
-      default:
+      case a === b: {
+        return 0
+      }
+      case !a: {
+        return -1
+      }
+      case !b: {
+        return 1
+      }
+      default: {
         const aName = store.state.config.roles.filter(role => role.category_id === a).map(role => role.name)[0]
         const bName = store.state.config.roles.filter(role => role.category_id === b).map(role => role.name)[0]
         return toString(aName).localeCompare(toString(bName), undefined, { numeric: true })
+      }
     }
   }
 }

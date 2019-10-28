@@ -266,11 +266,11 @@ export const pfConfigurationSecurityEventViewFields = (context = {}) => {
   ]
 }
 
-export const pfConfigurationSecurityEventListConfig = (context = {}) => {
+export const pfConfigurationSecurityEventListConfig = () => {
   return {
     columns: pfConfigurationSecurityEventsListColumns,
     fields: pfConfigurationSecurityEventsListFields,
-    rowClickRoute (item, index) {
+    rowClickRoute (item) {
       return { name: 'security_event', params: { id: item.id } }
     },
     searchPlaceholder: i18n.t('Search by identifier or description'),

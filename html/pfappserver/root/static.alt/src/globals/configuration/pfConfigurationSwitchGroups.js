@@ -87,11 +87,11 @@ export const pfConfigurationSwitchGroupsListFields = [
   }
 ]
 
-export const pfConfigurationSwitchGroupsListConfig = (context = {}) => {
+export const pfConfigurationSwitchGroupsListConfig = () => {
   return {
     columns: pfConfigurationSwitchGroupsListColumns,
     fields: pfConfigurationSwitchGroupsListFields,
-    rowClickRoute (item, index) {
+    rowClickRoute (item) {
       return { name: 'switch_group', params: { id: item.id } }
     },
     searchPlaceholder: i18n.t('Search by identifier or description'),
@@ -418,7 +418,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
                 tooltips: { checked: i18n.t('Y'), unchecked: i18n.t('N'), default: i18n.t('Default ({default})', { default: (placeholder('uplink_dynamic') === 'dynamic') ? 'Y' : 'N' }) }
               },
               listeners: {
-                checked: (value) => {
+                checked: () => {
                   form.uplink = null // clear uplink
                 }
               }

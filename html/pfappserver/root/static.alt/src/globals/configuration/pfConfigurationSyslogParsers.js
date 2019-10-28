@@ -69,11 +69,11 @@ export const pfConfigurationSyslogParsersListFields = [
   }
 ]
 
-export const pfConfigurationSyslogParsersListConfig = (context = {}) => {
+export const pfConfigurationSyslogParsersListConfig = () => {
   return {
     columns: pfConfigurationSyslogParsersListColumns,
     fields: pfConfigurationSyslogParsersListFields,
-    rowClickRoute (item, index) {
+    rowClickRoute (item) {
       return { name: 'syslogParser', params: { id: item.id } }
     },
     searchPlaceholder: i18n.t('Search by detector or type'),

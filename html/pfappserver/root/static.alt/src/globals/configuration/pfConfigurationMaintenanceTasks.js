@@ -55,11 +55,11 @@ export const pfConfigurationMaintenanceTasksListFields = [
   }
 ]
 
-export const pfConfigurationMaintenanceTasksListConfig = (context = {}) => {
+export const pfConfigurationMaintenanceTasksListConfig = () => {
   return {
     columns: pfConfigurationMaintenanceTasksListColumns,
     fields: pfConfigurationMaintenanceTasksListFields,
-    rowClickRoute (item, index) {
+    rowClickRoute (item) {
       return { name: 'maintenance_task', params: { id: item.id } }
     },
     searchPlaceholder: i18n.t('Search by name or description'),
@@ -192,7 +192,7 @@ export const pfConfigurationMaintenanceTaskFields = {
       ]
     }
   },
-  description: ({ options: { meta = {} } } = {}) => {
+  description: () => {
     return {
       label: i18n.t('Description'),
       fields: [
@@ -226,7 +226,7 @@ export const pfConfigurationMaintenanceTaskFields = {
       ]
     }
   },
-  process_switchranges: ({ options: { meta = {} } } = {}) => {
+  process_switchranges: () => {
     return {
       label: i18n.t('Process switchranges'),
       text: i18n.t('Whether or not a switch range should be expanded to process each of its IPs.'),
@@ -241,7 +241,7 @@ export const pfConfigurationMaintenanceTaskFields = {
       ]
     }
   },
-  rotate: ({ options: { meta = {} } } = {}, logName = 'ip4log') => {
+  rotate: (context, logName = 'ip4log') => {
     return {
       label: i18n.t('Rotate'),
       text: i18n.t(`Enable or disable ${logName} rotation (moving ${logName}_history records to ${logName}_archive)\nIf disabled, this task will delete from the ${logName}_history table rather than the ${logName}_archive.`),

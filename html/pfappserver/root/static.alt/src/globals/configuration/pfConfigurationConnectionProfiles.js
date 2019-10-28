@@ -315,7 +315,7 @@ export const pfConfigurationConnectionProfileListConfig = (context = {}) => {
   return {
     columns: pfConfigurationConnectionProfilesListColumns,
     fields: pfConfigurationConnectionProfilesListFields,
-    rowClickRoute (item, index) {
+    rowClickRoute (item) {
       return { name: 'connection_profile', params: { id: item.id } }
     },
     searchPlaceholder: $i18n.t('Search by identifier or description'),

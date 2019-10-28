@@ -66,11 +66,11 @@ export const pfConfigurationProvisioningsListFields = [
   }
 ]
 
-export const pfConfigurationProvisioningListConfig = (context = {}) => {
+export const pfConfigurationProvisioningListConfig = () => {
   return {
     columns: pfConfigurationProvisioningsListColumns,
     fields: pfConfigurationProvisioningsListFields,
-    rowClickRoute (item, index) {
+    rowClickRoute (item) {
       return { name: 'provisioning', params: { id: item.id } }
     },
     searchPlaceholder: i18n.t('Search by id or description'),
@@ -260,7 +260,7 @@ export const pfConfigurationProvisioningFields = {
       ]
     }
   },
-  broadcast: ({ options: { meta = {} } } = {}) => {
+  broadcast: () => {
     return {
       label: i18n.t('Broadcast network'),
       text: i18n.t('Uncheck this box if you are using a hidden SSID.'),
@@ -275,7 +275,7 @@ export const pfConfigurationProvisioningFields = {
       ]
     }
   },
-  can_sign_profile: ({ options: { meta = {} } } = {}) => {
+  can_sign_profile: () => {
     return {
       label: i18n.t('Sign Profile'),
       fields: [
@@ -452,7 +452,7 @@ export const pfConfigurationProvisioningFields = {
       ]
     }
   },
-  device_type_detection: ({ options: { meta = {} } } = {}) => {
+  device_type_detection: () => {
     return {
       label: i18n.t('Automatic device detection'),
       fields: [
@@ -466,7 +466,7 @@ export const pfConfigurationProvisioningFields = {
       ]
     }
   },
-  dpsk: ({ options: { meta = {} } } = {}) => {
+  dpsk: () => {
     return {
       label: i18n.t('Enable DPSK'),
       text: i18n.t('Define if the PSK needs to be generated'),
@@ -673,7 +673,7 @@ export const pfConfigurationProvisioningFields = {
       ]
     }
   },
-  query_computers: ({ options: { meta = {} } } = {}) => {
+  query_computers: () => {
     return {
       label: i18n.t('Query JAMF computers inventory'),
       fields: [
@@ -687,7 +687,7 @@ export const pfConfigurationProvisioningFields = {
       ]
     }
   },
-  query_mobiledevices: ({ options: { meta = {} } } = {}) => {
+  query_mobiledevices: () => {
     return {
       label: i18n.t('Query JAMF mobile devices inventory'),
       fields: [

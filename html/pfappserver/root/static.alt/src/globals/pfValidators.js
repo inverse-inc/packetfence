@@ -302,7 +302,7 @@ export const isFilenameWithExtension = (extensions = ['html']) => {
   })
 }
 
-export const hasAdminRoles = (value, component) => {
+export const hasAdminRoles = () => {
   return store.dispatch('config/getAdminRoles').then((response) => {
     return (response.length > 0)
   }).catch(() => {
@@ -310,7 +310,7 @@ export const hasAdminRoles = (value, component) => {
   })
 }
 
-export const hasBillingTiers = (value, component) => {
+export const hasBillingTiers = () => {
   return store.dispatch('config/getBillingTiers').then((response) => {
     return (response.length > 0)
   }).catch(() => {
@@ -318,7 +318,7 @@ export const hasBillingTiers = (value, component) => {
   })
 }
 
-export const hasConnectionProfiles = (value, component) => {
+export const hasConnectionProfiles = () => {
   return store.dispatch('config/getConnectionProfiles').then((response) => {
     return (response.length > 0)
   }).catch(() => {
@@ -326,7 +326,7 @@ export const hasConnectionProfiles = (value, component) => {
   })
 }
 
-export const hasSelfServices = (value, component) => {
+export const hasSelfServices = () => {
   return store.dispatch('config/getSelfServices').then((response) => {
     return (response.length > 0)
   }).catch(() => {
@@ -334,7 +334,7 @@ export const hasSelfServices = (value, component) => {
   })
 }
 
-export const hasDomains = (value, component) => {
+export const hasDomains = () => {
   return store.dispatch('config/getDomains').then((response) => {
     return (response.length > 0)
   }).catch(() => {
@@ -342,7 +342,7 @@ export const hasDomains = (value, component) => {
   })
 }
 
-export const hasFirewalls = (value, component) => {
+export const hasFirewalls = () => {
   return store.dispatch('config/getFirewalls').then((response) => {
     return (response.length > 0)
   }).catch(() => {
@@ -350,7 +350,7 @@ export const hasFirewalls = (value, component) => {
   })
 }
 
-export const hasFloatingDevices = (value, component) => {
+export const hasFloatingDevices = () => {
   return store.dispatch('config/getFloatingDevices').then((response) => {
     return (response.length > 0)
   }).catch(() => {
@@ -358,7 +358,7 @@ export const hasFloatingDevices = (value, component) => {
   })
 }
 
-export const hasInterfaces = (value, component) => {
+export const hasInterfaces = () => {
   return store.dispatch('config/getInterfaces').then((response) => {
     return (response.length > 0)
   }).catch(() => {
@@ -366,7 +366,7 @@ export const hasInterfaces = (value, component) => {
   })
 }
 
-export const hasLayer2Networks = (value, component) => {
+export const hasLayer2Networks = () => {
   return store.dispatch('config/getLayer2Networks').then((response) => {
     return (response.length > 0)
   }).catch(() => {
@@ -374,7 +374,7 @@ export const hasLayer2Networks = (value, component) => {
   })
 }
 
-export const hasMaintenanceTasks = (value, component) => {
+export const hasMaintenanceTasks = () => {
   return store.dispatch('config/getMaintenanceTasks').then((response) => {
     return (response.length > 0)
   }).catch(() => {
@@ -382,7 +382,7 @@ export const hasMaintenanceTasks = (value, component) => {
   })
 }
 
-export const hasPkiProviders = (value, component) => {
+export const hasPkiProviders = () => {
   return store.dispatch('config/getPkiProviders').then((response) => {
     return (response.length > 0)
   }).catch(() => {
@@ -390,7 +390,7 @@ export const hasPkiProviders = (value, component) => {
   })
 }
 
-export const hasPortalModules = (value, component) => {
+export const hasPortalModules = () => {
   return store.dispatch('config/getPortalModules').then((response) => {
     return (response.length > 0)
   }).catch(() => {
@@ -398,7 +398,7 @@ export const hasPortalModules = (value, component) => {
   })
 }
 
-export const hasProvisionings = (value, component) => {
+export const hasProvisionings = () => {
   return store.dispatch('config/getProvisionings').then((response) => {
     return (response.length > 0)
   }).catch(() => {
@@ -406,7 +406,7 @@ export const hasProvisionings = (value, component) => {
   })
 }
 
-export const hasRealms = (value, component) => {
+export const hasRealms = () => {
   return store.dispatch('config/getRealms').then((response) => {
     return (response.length > 0)
   }).catch(() => {
@@ -414,7 +414,7 @@ export const hasRealms = (value, component) => {
   })
 }
 
-export const hasRoles = (value, component) => {
+export const hasRoles = () => {
   return store.dispatch('config/getRoles').then((response) => {
     return (response.length > 0)
   }).catch(() => {
@@ -422,7 +422,7 @@ export const hasRoles = (value, component) => {
   })
 }
 
-export const hasRoutedNetworks = (value, component) => {
+export const hasRoutedNetworks = () => {
   return store.dispatch('config/getRoutedNetworks').then((response) => {
     return (response.length > 0)
   }).catch(() => {
@@ -430,7 +430,7 @@ export const hasRoutedNetworks = (value, component) => {
   })
 }
 
-export const hasScans = (value, component) => {
+export const hasScans = () => {
   return store.dispatch('config/getScans').then((response) => {
     return (response.length > 0)
   }).catch(() => {
@@ -438,7 +438,7 @@ export const hasScans = (value, component) => {
   })
 }
 
-export const hasSecurityEvents = (value, component) => {
+export const hasSecurityEvents = () => {
   return store.dispatch('config/getSecurityEvents').then((response) => {
     return (response.length > 0)
   }).catch(() => {
@@ -446,7 +446,7 @@ export const hasSecurityEvents = (value, component) => {
   })
 }
 
-export const hasSources = (value, component) => {
+export const hasSources = () => {
   return store.dispatch('config/getSources').then((response) => {
     return (response.length > 0)
   }).catch(() => {
@@ -454,7 +454,7 @@ export const hasSources = (value, component) => {
   })
 }
 
-export const hasSwitches = (value, component) => {
+export const hasSwitches = () => {
   return store.dispatch('config/getSwitches').then((response) => {
     return (response.length > 0)
   }).catch(() => {
@@ -462,7 +462,7 @@ export const hasSwitches = (value, component) => {
   })
 }
 
-export const hasSwitchGroups = (value, component) => {
+export const hasSwitchGroups = () => {
   return store.dispatch('config/getSwitchGroups').then((response) => {
     return (response.length > 0)
   }).catch(() => {
@@ -470,7 +470,7 @@ export const hasSwitchGroups = (value, component) => {
   })
 }
 
-export const hasSyslogForwarders = (value, component) => {
+export const hasSyslogForwarders = () => {
   return store.dispatch('config/getSyslogForwarders').then((response) => {
     return (response.length > 0)
   }).catch(() => {
@@ -478,7 +478,7 @@ export const hasSyslogForwarders = (value, component) => {
   })
 }
 
-export const hasSyslogParsers = (value, component) => {
+export const hasSyslogParsers = () => {
   return store.dispatch('config/getSyslogParsers').then((response) => {
     return (response.length > 0)
   }).catch(() => {
@@ -486,7 +486,7 @@ export const hasSyslogParsers = (value, component) => {
   })
 }
 
-export const hasTrafficShapingPolicies = (value, component) => {
+export const hasTrafficShapingPolicies = () => {
   return store.dispatch('config/getTrafficShapingPolicies').then((response) => {
     return (response.length > 0)
   }).catch(() => {
@@ -494,7 +494,7 @@ export const hasTrafficShapingPolicies = (value, component) => {
   })
 }
 
-export const hasWmiRules = (value, component) => {
+export const hasWmiRules = () => {
   return store.dispatch('config/getWmiRules').then((response) => {
     return (response.length > 0)
   }).catch(() => {
@@ -502,7 +502,7 @@ export const hasWmiRules = (value, component) => {
   })
 }
 
-export const hasWRIXLocations = (value, component) => {
+export const hasWRIXLocations = () => {
   return store.dispatch('config/getWrixLocations').then((response) => {
     return (response.length > 0)
   }).catch(() => {
@@ -510,7 +510,7 @@ export const hasWRIXLocations = (value, component) => {
   })
 }
 
-export const adminRoleExists = (value, component) => {
+export const adminRoleExists = (value) => {
   if (!value) return true
   return store.dispatch('config/getAdminRoles').then((response) => {
     return (response.filter(adminRole => adminRole.id.toLowerCase() === value.toLowerCase()).length > 0)
@@ -519,7 +519,7 @@ export const adminRoleExists = (value, component) => {
   })
 }
 
-export const billingTierExists = (value, component) => {
+export const billingTierExists = (value) => {
   if (!value) return true
   return store.dispatch('config/getBillingTiers').then((response) => {
     return (response.filter(billingTier => billingTier.id.toLowerCase() === value.toLowerCase()).length > 0)
@@ -528,7 +528,7 @@ export const billingTierExists = (value, component) => {
   })
 }
 
-export const categoryIdNumberExists = (value, component) => {
+export const categoryIdNumberExists = (value) => {
   if (!value || !/^\d+$/.test(value)) return true
   return store.dispatch('config/getRoles').then((response) => {
     if (response.length === 0) return true
@@ -538,7 +538,7 @@ export const categoryIdNumberExists = (value, component) => {
   })
 }
 
-export const categoryIdStringExists = (value, component) => {
+export const categoryIdStringExists = (value) => {
   if (!value || /^\d+$/.test(value)) return true
   return store.dispatch('config/getRoles').then((response) => {
     if (response.length === 0) return true
@@ -548,7 +548,7 @@ export const categoryIdStringExists = (value, component) => {
   })
 }
 
-export const connectionProfileExists = (value, component) => {
+export const connectionProfileExists = (value) => {
   if (!value) return true
   return store.dispatch('config/getConnectionProfiles').then((response) => {
     if (response.length === 0) return true
@@ -558,7 +558,7 @@ export const connectionProfileExists = (value, component) => {
   })
 }
 
-export const selfServiceExists = (value, component) => {
+export const selfServiceExists = (value) => {
   if (!value) return true
   return store.dispatch('config/getSelfServices').then((response) => {
     if (response.length === 0) return true
@@ -568,7 +568,7 @@ export const selfServiceExists = (value, component) => {
   })
 }
 
-export const domainExists = (value, component) => {
+export const domainExists = (value) => {
   if (!value) return true
   return store.dispatch('config/getDomains').then((response) => {
     if (response.length === 0) return true
@@ -578,7 +578,7 @@ export const domainExists = (value, component) => {
   })
 }
 
-export const firewallExists = (value, component) => {
+export const firewallExists = (value) => {
   if (!value) return true
   return store.dispatch('config/getFirewalls').then((response) => {
     if (response.length === 0) return true
@@ -588,7 +588,7 @@ export const firewallExists = (value, component) => {
   })
 }
 
-export const floatingDeviceExists = (value, component) => {
+export const floatingDeviceExists = (value) => {
   if (!value) return true
   return store.dispatch('config/getFloatingDevices').then((response) => {
     if (response.length === 0) return true
@@ -598,7 +598,7 @@ export const floatingDeviceExists = (value, component) => {
   })
 }
 
-export const interfaceExists = (value, component) => {
+export const interfaceExists = (value) => {
   if (!value) return true
   return store.dispatch('config/getInterfaces').then((response) => {
     if (response.length === 0) return true
@@ -623,7 +623,7 @@ export const interfaceVlanExists = (id) => {
   })
 }
 
-export const fingerbankCombinationExists = (value, component) => {
+export const fingerbankCombinationExists = (value) => {
   if (!value) return true
   return store.dispatch('fingerbank/getCombination', value).then(() => {
     return true
@@ -632,7 +632,7 @@ export const fingerbankCombinationExists = (value, component) => {
   })
 }
 
-export const layer2NetworkExists = (value, component) => {
+export const layer2NetworkExists = (value) => {
   if (!value) return true
   return store.dispatch('config/getLayer2Networks').then((response) => {
     if (response.length === 0) return true
@@ -642,7 +642,7 @@ export const layer2NetworkExists = (value, component) => {
   })
 }
 
-export const maintenanceTaskExists = (value, component) => {
+export const maintenanceTaskExists = (value) => {
   if (!value) return true
   return store.dispatch('config/getMaintenanceTasks').then((response) => {
     if (response.length === 0) return true
@@ -652,7 +652,7 @@ export const maintenanceTaskExists = (value, component) => {
   })
 }
 
-export const nodeExists = (value, component) => {
+export const nodeExists = (value) => {
   if (!value) return true
   // standardize MAC address
   value = value.toLowerCase().replace(/[^0-9a-f]/g, '').split('').reduce((a, c, i) => {
@@ -667,7 +667,7 @@ export const nodeExists = (value, component) => {
   })
 }
 
-export const pkiProviderExists = (value, component) => {
+export const pkiProviderExists = (value) => {
   if (!value) return true
   return store.dispatch('config/getPkiProviders').then((response) => {
     if (response.length === 0) return true
@@ -677,7 +677,7 @@ export const pkiProviderExists = (value, component) => {
   })
 }
 
-export const portalModuleExists = (value, component) => {
+export const portalModuleExists = (value) => {
   if (!value) return true
   return store.dispatch('config/getPortalModules').then((response) => {
     if (response.length === 0) return true
@@ -687,7 +687,7 @@ export const portalModuleExists = (value, component) => {
   })
 }
 
-export const provisioningExists = (value, component) => {
+export const provisioningExists = (value) => {
   if (!value) return true
   return store.dispatch('config/getProvisionings').then((response) => {
     if (response.length === 0) return true
@@ -697,7 +697,7 @@ export const provisioningExists = (value, component) => {
   })
 }
 
-export const realmExists = (value, component) => {
+export const realmExists = (value) => {
   if (!value) return true
   return store.dispatch('config/getRealms').then((response) => {
     if (response.length === 0) return true
@@ -707,7 +707,7 @@ export const realmExists = (value, component) => {
   })
 }
 
-export const roleExists = (value, component) => {
+export const roleExists = (value) => {
   if (!value) return true
   return store.dispatch('config/getRoles').then((response) => {
     if (response.length === 0) return true
@@ -717,7 +717,7 @@ export const roleExists = (value, component) => {
   })
 }
 
-export const routedNetworkExists = (value, component) => {
+export const routedNetworkExists = (value) => {
   if (!value) return true
   return store.dispatch('config/getRoutedNetworks').then((response) => {
     if (response.length === 0) return true
@@ -727,7 +727,7 @@ export const routedNetworkExists = (value, component) => {
   })
 }
 
-export const scanExists = (value, component) => {
+export const scanExists = (value) => {
   if (!value) return true
   return store.dispatch('config/getScans').then((response) => {
     if (response.length === 0) return true
@@ -737,7 +737,7 @@ export const scanExists = (value, component) => {
   })
 }
 
-export const securityEventExists = (value, component) => {
+export const securityEventExists = (value) => {
   if (!value) return true
   return store.dispatch('config/getSecurityEvents').then((response) => {
     if (response.length === 0) return true
@@ -747,7 +747,7 @@ export const securityEventExists = (value, component) => {
   })
 }
 
-export const sourceExists = (value, component) => {
+export const sourceExists = (value) => {
   if (!value) return true
   return store.dispatch('config/getSources').then((response) => {
     if (response.length === 0) return true
@@ -757,7 +757,7 @@ export const sourceExists = (value, component) => {
   })
 }
 
-export const switchExists = (value, component) => {
+export const switchExists = (value) => {
   if (!value) return true
   return store.dispatch('config/getSwitches').then((response) => {
     if (response.length === 0) return true
@@ -767,7 +767,7 @@ export const switchExists = (value, component) => {
   })
 }
 
-export const switchGroupExists = (value, component) => {
+export const switchGroupExists = (value) => {
   if (!value) return true
   return store.dispatch('config/getSwitchGroups').then((response) => {
     if (response.length === 0) return true
@@ -777,7 +777,7 @@ export const switchGroupExists = (value, component) => {
   })
 }
 
-export const syslogForwarderExists = (value, component) => {
+export const syslogForwarderExists = (value) => {
   if (!value) return true
   return store.dispatch('config/getSyslogForwarders').then((response) => {
     if (response.length === 0) return true
@@ -787,7 +787,7 @@ export const syslogForwarderExists = (value, component) => {
   })
 }
 
-export const syslogParserExists = (value, component) => {
+export const syslogParserExists = (value) => {
   if (!value) return true
   return store.dispatch('config/getSyslogParsers').then((response) => {
     if (response.length === 0) return true
@@ -797,7 +797,7 @@ export const syslogParserExists = (value, component) => {
   })
 }
 
-export const trafficShapingPolicyExists = (value, component) => {
+export const trafficShapingPolicyExists = (value) => {
   if (!value) return true
   return store.dispatch('config/getTrafficShapingPolicies').then((response) => {
     if (response.length === 0) return true
@@ -807,25 +807,25 @@ export const trafficShapingPolicyExists = (value, component) => {
   })
 }
 
-export const userExists = (value, component) => {
+export const userExists = (value) => {
   if (!value) return true
-  return store.dispatch('$_users/exists', value).then(results => {
+  return store.dispatch('$_users/exists', value).then(() => {
     return true
   }).catch(() => {
     return false
   })
 }
 
-export const userNotExists = (value, component) => {
+export const userNotExists = (value) => {
   if (!value) return true
-  return store.dispatch('$_users/exists', value).then(results => {
+  return store.dispatch('$_users/exists', value).then(() => {
     return false
   }).catch(() => {
     return true
   })
 }
 
-export const wmiRuleExists = (value, component) => {
+export const wmiRuleExists = (value) => {
   if (!value) return true
   return store.dispatch('config/getWmiRules').then((response) => {
     if (response.length === 0) return true
@@ -835,7 +835,7 @@ export const wmiRuleExists = (value, component) => {
   })
 }
 
-export const WRIXLocationExists = (value, component) => {
+export const WRIXLocationExists = (value) => {
   if (!value) return true
   return store.dispatch('config/getWrixLocations').then((response) => {
     if (response.length === 0) return true

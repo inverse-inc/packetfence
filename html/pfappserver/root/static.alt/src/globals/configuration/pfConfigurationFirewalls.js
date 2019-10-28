@@ -63,11 +63,11 @@ export const pfConfigurationFirewallsListFields = [
   }
 ]
 
-export const pfConfigurationFirewallsListConfig = (context = {}) => {
+export const pfConfigurationFirewallsListConfig = () => {
   return {
     columns: pfConfigurationFirewallsListColumns,
     fields: pfConfigurationFirewallsListFields,
-    rowClickRoute (item, index) {
+    rowClickRoute (item) {
       return { name: 'firewall', params: { id: item.id } }
     },
     searchPlaceholder: i18n.t('Search by hostname, ip, port or firewall type'),

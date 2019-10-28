@@ -57,7 +57,7 @@ export const pfConfigurationSelfServicesListConfig = (context = {}) => {
   return {
     columns: pfConfigurationSelfServicesListColumns,
     fields: pfConfigurationSelfServicesListFields,
-    rowClickRoute (item, index) {
+    rowClickRoute (item) {
       return { name: 'self_service', params: { id: item.id } }
     },
     searchPlaceholder: $i18n.t('Search by identifier or description'),

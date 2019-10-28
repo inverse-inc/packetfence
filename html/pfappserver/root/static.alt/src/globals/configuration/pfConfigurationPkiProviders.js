@@ -65,11 +65,11 @@ export const pfConfigurationPkiProvidersListFields = [
   }
 ]
 
-export const pfConfigurationPkiProviderListConfig = (context = {}) => {
+export const pfConfigurationPkiProviderListConfig = () => {
   return {
     columns: pfConfigurationPkiProvidersListColumns,
     fields: pfConfigurationPkiProvidersListFields,
-    rowClickRoute (item, index) {
+    rowClickRoute (item) {
       return { name: 'pki_provider', params: { id: item.id } }
     },
     searchPlaceholder: i18n.t('Search by name or description'),

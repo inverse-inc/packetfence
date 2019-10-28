@@ -81,7 +81,7 @@ export const pfConfigurationScanEngineListConfig = (context = {}) => {
   return {
     columns: pfConfigurationScanEngineListColumns,
     fields: pfConfigurationScanEngineListFields,
-    rowClickRoute (item, index) {
+    rowClickRoute (item) {
       return { name: 'scanEngine', params: { id: item.id } }
     },
     searchPlaceholder: $i18n.t('Search by name, ip, port or type'),

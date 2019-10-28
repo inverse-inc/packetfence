@@ -73,7 +73,7 @@ export const pfConfigurationFloatingDeviceListConfig = (context = {}) => {
   return {
     columns: pfConfigurationFloatingDevicesListColumns,
     fields: pfConfigurationFloatingDevicesListFields,
-    rowClickRoute (item, index) {
+    rowClickRoute (item) {
       return { name: 'floating_device', params: { id: item.id } }
     },
     searchPlaceholder: $i18n.t('Search by MAC or IP address'),

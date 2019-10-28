@@ -66,11 +66,11 @@ export const pfConfigurationDomainsListFields = [
   }
 ]
 
-export const pfConfigurationDomainsListConfig = (context = {}) => {
+export const pfConfigurationDomainsListConfig = () => {
   return {
     columns: pfConfigurationDomainsListColumns,
     fields: pfConfigurationDomainsListFields,
-    rowClickRoute (item, index) {
+    rowClickRoute (item) {
       return { name: 'domain', params: { id: item.id } }
     },
     searchPlaceholder: i18n.t('Search by name or workgroup'),

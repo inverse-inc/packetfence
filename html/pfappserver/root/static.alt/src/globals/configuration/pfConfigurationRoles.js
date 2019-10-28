@@ -57,11 +57,11 @@ export const pfConfigurationRolesListFields = [
   }
 ]
 
-export const pfConfigurationRoleListConfig = (context = {}) => {
+export const pfConfigurationRoleListConfig = () => {
   return {
     columns: pfConfigurationRolesListColumns,
     fields: pfConfigurationRolesListFields,
-    rowClickRoute (item, index) {
+    rowClickRoute (item) {
       return { name: 'role', params: { id: item.id } }
     },
     searchPlaceholder: i18n.t('Search by name or description'),

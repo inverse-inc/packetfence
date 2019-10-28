@@ -31,7 +31,7 @@ export const pfConfigurationLayer2NetworkDHCPAlgo = [
   { value: '2', text: i18n.t('Oldest Released') }
 ]
 
-export const pfConfigurationLayer2NetworkDHCPAlgoFormatter = (value, key, item) => {
+export const pfConfigurationLayer2NetworkDHCPAlgoFormatter = (value) => {
   if (value === null || value === '') return null
   return pfConfigurationLayer2NetworkDHCPAlgo.find(type => type.value === value).text
 }

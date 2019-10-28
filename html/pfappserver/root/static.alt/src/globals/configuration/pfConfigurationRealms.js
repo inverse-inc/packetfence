@@ -82,7 +82,7 @@ export const pfConfigurationRealmListConfig = (context = {}) => {
   return {
     columns: pfConfigurationRealmsListColumns,
     fields: pfConfigurationRealmsListFields,
-    rowClickRoute (item, index) {
+    rowClickRoute (item) {
       return { name: 'realm', params: { id: item.id } }
     },
     searchPlaceholder: $i18n.t('Search by name'),

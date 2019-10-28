@@ -10,7 +10,7 @@ const locales = {
 }
 
 export const pfFormatters = {
-  datetimeIgnoreZero: (value, key, item) => {
+  datetimeIgnoreZero: (value) => {
     return (value === '0000-00-00 00:00:00') ? '' : format(value, i18n.t('MM/DD/YYYY hh:mm A'), { locale: locales[i18n.locale] })
   },
   categoryId: (value, key, item) => {
@@ -20,7 +20,7 @@ export const pfFormatters = {
       return store.state.config.roles.filter(role => role.category_id === item.category_id).map(role => role.name)[0]
     }
   },
-  categoryIdFromIntOrString: (value, key, item) => {
+  categoryIdFromIntOrString: (value) => {
     if (!value) return null
     store.dispatch('config/getRoles')
     if (!/\d+/.test(value)) {
@@ -36,18 +36,18 @@ export const pfFormatters = {
       return store.state.config.roles.filter(role => role.category_id === item.bypass_role_id).map(role => role.name)[0]
     }
   },
-  securityEventIdToDesc: (value, key, item) => {
+  securityEventIdToDesc: (value) => {
     if (!value) return null
     store.dispatch('config/getSecurityEvents')
     return store.getters['config/sortedSecurityEvents'].filter(securityEvent => securityEvent.id === value).map(securityEvent => securityEvent.desc)[0]
   },
-  securityEventIdsToDescCsv: (value, key, item) => {
+  securityEventIdsToDescCsv: (value) => {
     if (!value) return null
     store.dispatch('config/getSecurityEvents')
     const uVids = [...new Set(value.split(',').filter(item => item))]
     return store.getters['config/sortedSecurityEvents'].filter(securityEvent => uVids.includes(securityEvent.id)).map(securityEvent => securityEvent.desc).join(', ')
   },
-  yesNoFromString: (value, key, item) => {
+  yesNoFromString: (value) => {
     if (value === null || value === '') return null
     switch (value.toLowerCase()) {
       case 'yes':
@@ -64,7 +64,7 @@ export const pfFormatters = {
         return null
     }
   },
-  genderFromString: (value, key, item) => {
+  genderFromString: (value) => {
     if (value === null || value === '') return null
     switch (value.toLowerCase()) {
       case 'm':
@@ -86,7 +86,7 @@ export const pfFormatters = {
     if (value === null || value === '' || ('type' in item && item.type === 'dir')) return null
     return bytes.toHuman(value, 2, true) + 'B'
   },
-  shortDateTime: (value, key, item) => {
+  shortDateTime: (value) => {
     return filters.shortDateTime(parseInt(value) * 1000)
   }
 }

@@ -195,7 +195,7 @@ export const pfConfigurationAuthenticationSourceRulesConditionFieldsFromMeta = (
     }
     let { [key]: { allowed } = {} } = meta
     if (allowed) {
-      allowed.forEach((item, index, allowed) => {
+      allowed.forEach((item) => {
         const { text, value, attributes: { 'data-type': type } = {} } = item
         fields.push({
           text: i18n.t(text),

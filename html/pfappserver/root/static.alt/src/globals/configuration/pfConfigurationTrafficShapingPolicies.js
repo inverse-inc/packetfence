@@ -40,11 +40,11 @@ export const pfConfigurationTrafficShapingPoliciesListFields = [
   }
 ]
 
-export const pfConfigurationTrafficShapingPoliciesListConfig = (context = {}) => {
+export const pfConfigurationTrafficShapingPoliciesListConfig = () => {
   return {
     columns: pfConfigurationTrafficShapingPoliciesListColumns,
     fields: pfConfigurationTrafficShapingPoliciesListFields,
-    rowClickRoute (item, index) {
+    rowClickRoute (item) {
       return { name: 'traffic_shaping', params: { id: item.id } }
     },
     searchPlaceholder: i18n.t('Search by name'),

@@ -58,7 +58,7 @@ pfAuthenticationConditionOperators[pfAuthenticationConditionType.TIME_PERIOD] = 
  */
 export const pfAuthenticationConditionValues = {}
 
-pfAuthenticationConditionValues[pfAuthenticationConditionType.CONNECTION] = (store) => {
+pfAuthenticationConditionValues[pfAuthenticationConditionType.CONNECTION] = () => {
   return [
     {
       group: i18n.t('Types'),

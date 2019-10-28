@@ -63,7 +63,7 @@ export const pfConfigurationBillingTiersListConfig = (context = {}) => {
   return {
     columns: pfConfigurationBillingTiersListColumns,
     fields: pfConfigurationBillingTiersListFields,
-    rowClickRoute (item, index) {
+    rowClickRoute (item) {
       return { name: 'billing_tier', params: { id: item.id } }
     },
     searchPlaceholder: $i18n.t('Search by identifier, name or description'),

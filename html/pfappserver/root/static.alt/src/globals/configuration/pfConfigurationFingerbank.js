@@ -447,11 +447,11 @@ export const pfConfigurationFingerbankCombinationsListFields = [
   }
 ]
 
-export const pfConfigurationFingerbankCombinationsListConfig = (context = {}) => {
+export const pfConfigurationFingerbankCombinationsListConfig = () => {
   return {
     columns: pfConfigurationFingerbankCombinationsListColumns,
     fields: pfConfigurationFingerbankCombinationsListFields,
-    rowClickRoute (item, index) {
+    rowClickRoute (item) {
       return { name: 'fingerbankCombination', params: { id: item.id } }
     },
     searchPlaceholder: i18n.t('Search by identifier or device'),
@@ -755,7 +755,7 @@ export const pfConfigurationFingerbankDevicesListConfig = (context = {}) => {
   return {
     columns: pfConfigurationFingerbankDevicesListColumns,
     fields: pfConfigurationFingerbankDevicesListFields,
-    rowClickRoute (item, index) {
+    rowClickRoute (item) {
       return { name: 'fingerbankDevice', params: { scope: scope, id: item.id } }
     },
     searchPlaceholder: i18n.t('Search by identifier or device'),
@@ -948,7 +948,7 @@ export const pfConfigurationFingerbankDhcpFingerprintsListConfig = (context = {}
   return {
     columns: pfConfigurationFingerbankDhcpFingerprintsListColumns,
     fields: pfConfigurationFingerbankDhcpFingerprintsListFields,
-    rowClickRoute (item, index) {
+    rowClickRoute (item) {
       return { name: 'fingerbankDhcpFingerprint', params: { scope: scope, id: item.id } }
     },
     searchPlaceholder: i18n.t('Search by identifier or DHCP fingerprint'),
@@ -1109,7 +1109,7 @@ export const pfConfigurationFingerbankDhcpVendorsListConfig = (context = {}) => 
   return {
     columns: pfConfigurationFingerbankDhcpVendorsListColumns,
     fields: pfConfigurationFingerbankDhcpVendorsListFields,
-    rowClickRoute (item, index) {
+    rowClickRoute (item) {
       return { name: 'fingerbankDhcpVendor', params: { scope: scope, id: item.id } }
     },
     searchPlaceholder: i18n.t('Search by identifier or DHCP vendor'),
@@ -1269,7 +1269,7 @@ export const pfConfigurationFingerbankDhcpv6FingerprintsListConfig = (context = 
   return {
     columns: pfConfigurationFingerbankDhcpv6FingerprintsListColumns,
     fields: pfConfigurationFingerbankDhcpv6FingerprintsListFields,
-    rowClickRoute (item, index) {
+    rowClickRoute (item) {
       return { name: 'fingerbankDhcpv6Fingerprint', params: { scope: scope, id: item.id } }
     },
     searchPlaceholder: i18n.t('Search by identifier or DHCPv6 fingerprint'),
@@ -1438,7 +1438,7 @@ export const pfConfigurationFingerbankDhcpv6EnterprisesListConfig = (context = {
   return {
     columns: pfConfigurationFingerbankDhcpv6EnterprisesListColumns,
     fields: pfConfigurationFingerbankDhcpv6EnterprisesListFields,
-    rowClickRoute (item, index) {
+    rowClickRoute (item) {
       return { name: 'fingerbankDhcpv6Enterprise', params: { scope: scope, id: item.id } }
     },
     searchPlaceholder: i18n.t('Search by identifier or DHCPv6 enterprise'),
@@ -1604,7 +1604,7 @@ export const pfConfigurationFingerbankMacVendorsListConfig = (context = {}) => {
   return {
     columns: pfConfigurationFingerbankMacVendorsListColumns,
     fields: pfConfigurationFingerbankMacVendorsListFields,
-    rowClickRoute (item, index) {
+    rowClickRoute (item) {
       return { name: 'fingerbankMacVendor', params: { scope: scope, id: item.id } }
     },
     searchPlaceholder: i18n.t('Search by identifier or MAC vendor'),
@@ -1771,11 +1771,11 @@ export const pfConfigurationFingerbankUserAgentsListFields = [
   }
 ]
 
-export const pfConfigurationFingerbankUserAgentsListConfig = (context = {}) => {
+export const pfConfigurationFingerbankUserAgentsListConfig = () => {
   return {
     columns: pfConfigurationFingerbankUserAgentsListColumns,
     fields: pfConfigurationFingerbankUserAgentsListFields,
-    rowClickRoute (item, index) {
+    rowClickRoute (item) {
       return { name: 'fingerbankUserAgent', params: { id: item.id } }
     },
     searchPlaceholder: i18n.t('Search by identifier or user agent'),
