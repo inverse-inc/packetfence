@@ -47,7 +47,6 @@ BEGIN {
         dot1x_username
         ssid
         start_time
-        end_time
         switch_ip
         switch_mac
         stripped_user_name
@@ -69,7 +68,6 @@ BEGIN {
         dot1x_username => '',
         ssid => '',
         start_time => '0000-00-00 00:00:00',
-        end_time => '0000-00-00 00:00:00',
         switch_ip => undef,
         switch_mac => undef,
         stripped_user_name => undef,
@@ -91,7 +89,6 @@ BEGIN {
         dot1x_username
         ssid
         start_time
-        end_time
         switch_ip
         switch_mac
         stripped_user_name
@@ -168,12 +165,6 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 0,
         },
-        end_time => {
-            type => 'DATETIME',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 0,
-        },
         switch_ip => {
             type => 'VARCHAR',
             is_auto_increment => 0,
@@ -239,7 +230,6 @@ BEGIN {
         locationlog.dot1x_username
         locationlog.ssid
         locationlog.start_time
-        locationlog.end_time
         locationlog.switch_ip
         locationlog.switch_mac
         locationlog.stripped_user_name
