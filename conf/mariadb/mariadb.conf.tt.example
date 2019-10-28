@@ -145,7 +145,7 @@ max_connections=[% max_connections %]
 
 [% IF masterslave %]
 [% IF masterslavemode == "SLAVE" %]
-server-id = 4
+server-id = [% slave_server_id %]
 
 gtid_domain_id = 25
 
