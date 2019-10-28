@@ -7,9 +7,9 @@
       :sortBy="usersSortBy"
       :sortDesc="usersSortDesc"
       show-empty responsive striped></b-table>
-    <div v-slot:modal-footer class="w-100">
+    <template v-slot:modal-footer>
       <b-button variant="primary" class="float-right" @click="preview()" :disabled="isLoading">{{ $i18n.t('Preview') }}</b-button>
-    </div>
+    </template>
   </b-modal>
 </template>
 

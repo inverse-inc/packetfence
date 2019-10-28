@@ -157,10 +157,10 @@
         <b-form-input ref="bypassVlanInput" v-model="bypassVlanString" type="text" :placeholder="$t('Enter a VLAN')"/>
         <b-form-text v-t="'Leave empty to clear bypass VLAN.'"></b-form-text>
       </b-form-group>
-      <div v-slot:modal-footer>
+      <template v-slot:modal-footer>
         <b-button variant="secondary" class="mr-1" @click="showBypassVlanModal=false">{{ $t('Cancel') }}</b-button>
         <b-button variant="primary" @click="applyBulkBypassVlan()">{{ $t('Apply') }}</b-button>
-      </div>
+      </template>
     </b-modal>
   </b-card>
 </template>

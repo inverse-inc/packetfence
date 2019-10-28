@@ -51,10 +51,12 @@
         <pf-form-password ref="passwordInput" v-model="join.password" :column-label="$t('Password')"
           :vuelidate="$v.join.password" v-on:keyup.13.native="keyupEnterModal()" />
       </b-form-group>
-      <div v-slot:modal-footer @mouseenter="$v.$touch()">
-        <b-button variant="secondary" class="mr-1" @click="join.showInputModal=false">{{ $t('Cancel') }}</b-button>
-        <b-button variant="primary" :disabled="invalidForm" @click="clickModal()">{{ $t('{type} {domain}', { type: join.type, domain: join.item.id }) }}</b-button>
-      </div>
+      <template v-slot:modal-footer>
+        <div @mouseenter="$v.$touch()">
+          <b-button variant="secondary" class="mr-1" @click="join.showInputModal=false">{{ $t('Cancel') }}</b-button>
+          <b-button variant="primary" :disabled="invalidForm" @click="clickModal()">{{ $t('{type} {domain}', { type: join.type, domain: join.item.id }) }}</b-button>
+        </div>
+      </template>
     </b-modal>
 
     <b-modal v-model="join.showWaitModal" size="lg" centered id="waitModal" :hide-footer="true">
