@@ -368,7 +368,6 @@ CREATE TABLE `locationlog` (
   `dot1x_username` varchar(255) NOT NULL default '',
   `ssid` varchar(32) NOT NULL default '',
   `start_time` datetime NOT NULL default '0000-00-00 00:00:00',
-  `end_time` datetime NOT NULL default '0000-00-00 00:00:00',
   `switch_ip` varchar(17) DEFAULT NULL,
   `switch_mac` varchar(17) DEFAULT NULL,
   `stripped_user_name` varchar (255) DEFAULT NULL,
@@ -377,9 +376,8 @@ CREATE TABLE `locationlog` (
   `ifDesc` VARCHAR(255) DEFAULT NULL,
   `voip` enum('no','yes') NOT NULL DEFAULT 'no',
   PRIMARY KEY (`tenant_id`, `mac`),
-  KEY `locationlog_view_mac` (`mac`, `end_time`),
-  KEY `locationlog_end_time` ( `end_time`),
-  KEY `locationlog_view_switchport` (`switch`,`port`,`end_time`,`vlan`),
+  KEY `locationlog_view_switchport` (`switch`,`port`,`vlan`),
+  KEY `locationlog_ssid` (`ssid`),
   CONSTRAINT `locationlog_tenant_id` FOREIGN KEY (`tenant_id`) REFERENCES `tenant` (`id`)
 ) ENGINE=InnoDB;
 
@@ -404,7 +402,7 @@ CREATE TABLE `locationlog_history` (
   `session_id` VARCHAR(255) DEFAULT NULL,
   `ifDesc` VARCHAR(255) DEFAULT NULL,
   `voip` enum('no','yes') NOT NULL DEFAULT 'no',
-  KEY `locationlog_view_mac` (`mac`, `end_time`),
+  KEY `locationlog_view_mac` (`tenant_id`, `mac`, `end_time`),
   KEY `locationlog_end_time` ( `end_time`),
   KEY `locationlog_view_switchport` (`switch`,`port`,`end_time`,`vlan`),
   KEY `locationlog_ssid` (`ssid`),
