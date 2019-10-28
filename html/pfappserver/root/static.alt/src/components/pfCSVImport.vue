@@ -537,7 +537,7 @@ export default {
         newline: '', // auto-detect
         quoteChar: '"',
         escapeChar: '"',
-        header: true,
+        header: false,
         trimHeaders: true,
         dynamicTyping: false,
         preview: '',
@@ -1018,7 +1018,8 @@ export default {
           this.$store.dispatch(`${this.file.storeName}/setNewLine`, a || '\n')
           this.resetPage()
         }
-      }
+      },
+      immediate: true
     },
     'config.quoteChar': {
       handler (a, b) {
