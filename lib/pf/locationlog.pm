@@ -44,7 +44,6 @@ BEGIN {
         locationlog_cleanup
 
         locationlog_insert_start
-        locationlog_update_end
         locationlog_update_end_mac
         locationlog_update_end_switchport_no_VoIP
         locationlog_update_end_switchport_only_VoIP
@@ -259,28 +258,6 @@ sub locationlog_insert_start {
     }
     my $status = pf::dal::locationlog->create(\%values);
     return (is_success($status));
-}
-
-sub locationlog_update_end {
-    my ( $switch, $ifIndex, $mac ) = @_;
-
-    my $logger = get_logger();
-    if ( defined($mac) ) {
-        $logger->info("locationlog_update_end called with mac=$mac");
-        locationlog_update_end_mac($mac);
-    } else {
-        $logger->info("locationlog_update_end called without mac");
-        my ($status, $rows) = pf::dal::locationlog->update_items(
-            -set => {
-                end_time => \'NOW()',
-            },
-            -where => {
-                port => $ifIndex,
-                switch => $switch,
-            }
-        );
-    }
-    return (1);
 }
 
 sub locationlog_update_end_switchport_no_VoIP {
