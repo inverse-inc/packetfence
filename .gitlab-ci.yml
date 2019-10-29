@@ -49,7 +49,7 @@ variables:
   variables:
     #DEPLOY_USER: see GitLab variables
     DEB_DEPLOY_DIR: ${CI_ENVIRONMENT_NAME}
-    DEPLOY_UPDATE: "ci-repo-deploy deb ${CI_ENVIRONMENT_NAME}"
+    DEPLOY_UPDATE: "/builds/bin/ci-repo-deploy deb ${CI_ENVIRONMENT_NAME}"
   script:
     - ./$CIDIR/upload/deploy-packages.sh deb
   # run job on runners tag with inverse AND shell
@@ -64,7 +64,7 @@ variables:
   variables:
     #DEPLOY_USER: see GitLab variables
     RPM_DEPLOY_DIR: ${CI_ENVIRONMENT_NAME}
-    DEPLOY_UPDATE: "ci-repo-deploy rpm ${CI_ENVIRONMENT_NAME}"
+    DEPLOY_UPDATE: "/builds/bin/ci-repo-deploy rpm ${CI_ENVIRONMENT_NAME}"
   script:
     - ./$CIDIR/upload/deploy-packages.sh rpm
   # run job on runners tag with inverse AND shell
