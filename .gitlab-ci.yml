@@ -42,7 +42,7 @@ variables:
   tags:
     - docker
 
-# use artifact from *sign* because we upload an existing Debian repo
+# use artifact from *sign* because we upload to an existing Debian repo
 .deploy_deb_job:
   stage: upload
   dependencies:
@@ -69,9 +69,6 @@ variables:
     DEPLOY_UPDATE: "ci-repo-deploy rpm ${CI_ENVIRONMENT_NAME}"
   script:
     - ./$CIDIR/upload/deploy-packages.sh rpm
-  only:
-    - schedules
-    - /^devel$/
   # run job on runners tag with inverse AND shell
   tags:
     - inverse
