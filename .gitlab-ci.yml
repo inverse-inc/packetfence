@@ -170,8 +170,12 @@ deploy_rpm_devel:
   environment:
     name: devel/x86_64
     url: http://inverse.ca/downloads/PacketFence/RHEL7/${CI_ENVIRONMENT_SLUG}
+  variables:
+    #DEPLOY_USER: see GitLab variables
+    RPM_DEPLOY_DIR: ${CI_ENVIRONMENT_NAME}
+    DEPLOY_UPDATE: "ci-repo-deploy rpm ${CI_ENVIRONMENT_NAME}"
   script:
-    - 
+    - ./$CIDIR/upload/deploy-packages.sh rpm
   only:
     - schedules
     - web
@@ -194,8 +198,12 @@ deploy_deb_devel:
   environment:
     name: debian-devel
     url: http://inverse.ca/downloads/PacketFence/${CI_ENVIRONMENT_NAME}
+  variables:
+    #DEPLOY_USER: see GitLab variables
+    DEB_DEPLOY_DIR: ${CI_ENVIRONMENT_NAME}
+    DEPLOY_UPDATE: "ci-repo-deploy deb ${CI_ENVIRONMENT_NAME}"
   script:
-    - 
+    - ./$CIDIR/upload/deploy-packages.sh deb
   only:
     - schedules
     - web
