@@ -165,9 +165,6 @@ sub locationlog_history_switchport {
 
 sub locationlog_view_open {
     return _db_list({
-        -where => {
-            end_time => $ZERO_DATE,
-        },
         -order_by => { -desc => 'start_time' },
     });
 }
@@ -179,7 +176,6 @@ sub locationlog_view_open_switchport {
             switch => $switch,
             port => $ifIndex,
             voip => $voip,
-            end_time => $ZERO_DATE,
         },
         -order_by => { -desc => 'start_time' },
     });
@@ -192,7 +188,6 @@ sub locationlog_view_open_switchport_no_VoIP {
             switch => $switch,
             port => $ifIndex,
             voip => { "!=" => "yes"},
-            end_time => $ZERO_DATE,
         },
         -order_by => { -desc => 'start_time' },
     });
@@ -205,7 +200,6 @@ sub locationlog_view_open_switchport_only_VoIP {
             switch => $switch,
             port => $ifIndex,
             voip => "yes",
-            end_time => $ZERO_DATE,
         },
         -limit => 1,
         -order_by => { -desc => 'start_time' },
@@ -252,25 +246,20 @@ sub locationlog_insert_start {
         ifDesc              => $ifDesc,
         start_time          => \'NOW()',
         voip                => $voip,
+        mac                 => lc($mac),
     );
-    if ( defined($mac) ) {
-        $values{mac} = lc($mac);
-    }
+
     my $status = pf::dal::locationlog->create(\%values);
     return (is_success($status));
 }
 
 sub locationlog_update_end_switchport_no_VoIP {
     my ( $switch, $ifIndex ) = @_;
-    my ($status, $rows) = pf::dal::locationlog->update_items(
-        -set => {
-            end_time => \'NOW()',
-        },
+    my ($status, $rows) = pf::dal::locationlog->remove_items(
         -where => {
             switch => $switch,
             port => $ifIndex,
             voip => {"!=" => "yes"},
-            end_time => $ZERO_DATE,
         },
     );
     return ($rows);
@@ -279,15 +268,11 @@ sub locationlog_update_end_switchport_no_VoIP {
 sub locationlog_update_end_switchport_only_VoIP {
     my ( $switch, $ifIndex ) = @_;
 
-    my ($status, $rows) = pf::dal::locationlog->update_items(
-        -set => {
-            end_time => \'NOW()',
-        },
+    my ($status, $rows) = pf::dal::locationlog->remove_items(
         -where => {
             switch => $switch,
             port => $ifIndex,
             voip => "yes",
-            end_time => $ZERO_DATE,
         },
     );
     return ($rows);
@@ -296,12 +281,8 @@ sub locationlog_update_end_switchport_only_VoIP {
 sub locationlog_update_end_mac {
     my ($mac, $tenant_id) = @_;
     my %options = (
-        -set => {
-            end_time => \'NOW()',
-        },
         -where => {
             mac => $mac,
-            end_time => $ZERO_DATE,
         }
     );
     if (defined $tenant_id) {
@@ -309,7 +290,7 @@ sub locationlog_update_end_mac {
         $options{-no_auto_tenant_id} = 1;
     }
 
-    my ($status, $rows) = pf::dal::locationlog->update_items(%options);
+    my ($status, $rows) = pf::dal::locationlog->remove_items(%options);
     return ($rows);
 }
 
@@ -360,6 +341,7 @@ sub locationlog_synchronize {
                 unless (defined (locationlog_update_end_mac($mac))) {
                     return (0);
                 }
+
                 locationlog_insert_start($switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, $locationlog_mac, $ifDesc, $voip_status);
 
                 # We just inserted an entry so we won't want to add another one
@@ -425,12 +407,11 @@ sub locationlog_cleanup {
 
     my $now = pf::dal->now();
 
-    my ($status, $rows) = pf::dal::locationlog->batch_remove(
+    my ($status, $rows) = pf::dal::locationlog_history->batch_remove(
         {
             -where => {
                 end_time => {
                      "<" => \[ 'DATE_SUB(?, INTERVAL ? SECOND)', $now, $expire_seconds ] ,
-                     "!=" => $ZERO_DATE,
                 },
             },
             -limit => $batch,
@@ -495,7 +476,6 @@ sub locationlog_get_session {
     return _db_item({
         -where => {
             session_id => $session_id,
-            end_time => $ZERO_DATE,
         },
         -order_by => { -desc => 'start_time' },
         -limit => 1,
@@ -510,7 +490,6 @@ sub locationlog_set_session {
        },
        -where => {
            mac => $mac,
-           end_time => $ZERO_DATE,
        }
    );
    return $rows;
@@ -541,6 +520,7 @@ sub _db_item {
     if (is_error($status)) {
         return (0);
     }
+
     return ($iter->next(undef));
 }
 
