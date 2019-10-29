@@ -186,6 +186,7 @@ deploy_rpm_devel:
     name: devel/x86_64
     url: http://inverse.ca/downloads/PacketFence/RHEL7/${CI_ENVIRONMENT_SLUG}
   only:
+    - web
     - schedules
     - /^devel$/
 
@@ -205,6 +206,7 @@ deploy_deb_devel:
     name: debian-devel
     url: http://inverse.ca/downloads/PacketFence/${CI_ENVIRONMENT_NAME}
   only:
+    - web
     - schedules
     - /^devel$/
 
