@@ -19,7 +19,7 @@ DEB_RESULT_DIR=${DEB_RESULT_DIR:-result/debian}
 
 rpm_deploy() {
     for release_name in $(ls $RPM_PUBLIC_DIR/*); do
-        src_dir="$RPM_PUBLIC_DIR/${release_name}/x86_64/"
+        src_dir="$RPM_PUBLIC_DIR/${release_name}/x86_64"
         dst_repo="$BASE_DIRECTORY/$RPM_DEPLOY_DIR"
         dst_dir="$DEPLOY_USER@$DEPLOY_HOST:$dst_repo"
         declare -p src_dir dst_dir
@@ -57,7 +57,3 @@ case $1 in
     deb) deb_deploy ;;
     *)   die "Missing argument"
 esac
-
-
-
-
