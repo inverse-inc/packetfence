@@ -37,11 +37,32 @@ func ConnectDb(ctx context.Context, user, pass, host, dbName string) (*sql.DB, e
 	db, err := sql.Open("mysql", uri)
 	db.SetMaxIdleConns(5)
 	db.SetMaxOpenConns(100)
-	db.SetConnMaxLifetime(time.Minute*5);
+	db.SetConnMaxLifetime(time.Minute * 5)
 	if err != nil {
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("Error while connecting to DB: %s", err))
 		return nil, err
 	} else {
 		return db, nil
 	}
+}
+
+func ReturnURI(ctx context.Context) string {
+
+	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Database)
+
+	dbConfig := pfconfigdriver.Config.PfConf.Database
+	host := dbConfig.Host
+	proto := "tcp"
+	if host == "localhost" {
+		proto = "unix"
+		if _, err := os.Stat("/etc/debian_version"); err == nil {
+			host = "/var/run/mysqld/mysqld.sock"
+
+		} else {
+			host = "/var/lib/mysql/mysql.sock"
+		}
+	}
+
+	uri := fmt.Sprintf("%s:%s@%s(%s)/%s?parseTime=true&loc=Local", dbConfig.User, dbConfig.Pass, proto, host, dbConfig.Db)
+	return uri
 }

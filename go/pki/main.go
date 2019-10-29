@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"database/sql"
 	"net/http"
 	"time"
 
@@ -10,11 +9,12 @@ import (
 	"github.com/inverse-inc/packetfence/go/db"
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/sharedutils"
+	"github.com/jinzhu/gorm"
 )
 
 // Handler struct
 type Handler struct {
-	database *sql.DB
+	database *gorm.DB
 	router   *mux.Router
 }
 
@@ -25,10 +25,12 @@ func main() {
 	ctx = log.LoggerNewContext(ctx)
 	pfpki := Handler{}
 
+	db, err := gorm.Open("mysql", db.ReturnURI)
+	defer db.Close()
+
 	// Default http timeout
 	http.DefaultClient.Timeout = 10 * time.Second
 
-	db, err := db.DbFromConfig(ctx)
 	sharedutils.CheckError(err)
 	pfpki.database = db
 
