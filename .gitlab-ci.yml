@@ -42,7 +42,6 @@ variables:
   tags:
     - docker
 
-# use artifact from *sign* because we upload to an existing Debian repo
 .deploy_deb_job:
   stage: upload
   dependencies:
@@ -58,11 +57,10 @@ variables:
     - inverse
     - shell
 
-# use artifact from *pages* job to upload only RPMS, not src.rpm
 .deploy_rpm_job:
   stage: upload
   dependencies:
-    - pages
+    - sign
   variables:
     #DEPLOY_USER: see GitLab variables
     RPM_DEPLOY_DIR: ${CI_ENVIRONMENT_NAME}
