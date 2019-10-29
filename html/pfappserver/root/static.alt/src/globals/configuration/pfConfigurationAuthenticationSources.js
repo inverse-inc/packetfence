@@ -890,7 +890,9 @@ export const pfConfigurationAuthenticationSourceFields = {
           attrs: {
             ...pfConfigurationAttributesFromMeta(meta, 'host'),
             ...{
-              class: 'col-sm-4'
+              class: 'col-sm-4',
+              placeholder: i18n.t('Enter a new host'),
+              tagPlaceholder: i18n.t('Click to add host')
             }
           },
           validators: pfConfigurationValidatorsFromMeta(meta, 'host', i18n.t('Host'))

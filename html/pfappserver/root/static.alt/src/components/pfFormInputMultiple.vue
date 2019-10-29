@@ -10,7 +10,6 @@
         v-bind="$attrs"
         v-on="forwardListeners"
         ref="input"
-        :placeholder="placeholder"
         :disabled="disabled"
         :state="isValid()"
         label="text"
@@ -18,7 +17,8 @@
         :multiple="true"
         :options="options"
         :taggable="true"
-        tag-placeholder="Add this new value"
+        :placeholder="proxyPlaceholder"
+        :tag-placeholder="proxyTagPlaceholder"
         @tag="addTag"
         @change.native="onChange($event)"
         @input.native="validate()"
@@ -77,6 +77,10 @@ export default {
     placeholder: {
       type: String,
       default: null
+    },
+    tagPlaceholder: {
+      type: String,
+      default: null
     }
   },
   data () {
@@ -106,6 +110,14 @@ export default {
     forwardListeners () {
       const { input, ...listeners } = this.$listeners
       return listeners
+    },
+    proxyPlaceholder () {
+      return (this.focus)
+        ? this.placeholder || this.$i18n.t('Enter a new value')
+        : '' // hide placeholder when not in focus
+    },
+    proxyTagPlaceholder () {
+      return this.tagPlaceholder || this.$i18n.t('Click to add value')
     }
   },
   methods: {
