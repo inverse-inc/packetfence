@@ -1073,7 +1073,7 @@ First configure your domains in 'Configuration -> Policies and Access Control ->
 
 Once they are configured, go in 'Configuration -> Policies and Access Control -> Domains -> REALMS'.
 
-Create a new realm that matches the DNS name of your domain *AND* one that matches your workgroup. In the case of this example, it will be DOMAIN.NET and DOMAIN.
+Create a new realm that matches the DNS name of your domain *AND* one that matches your workgroup. In the case of this example, it will be DOMAIN.NET tied to mydomain.
 
 image::domain-add-realm.png[scaledwidth="100%",alt="Adding a new realm"]
 
