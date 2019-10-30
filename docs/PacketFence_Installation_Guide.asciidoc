@@ -1037,9 +1037,12 @@ Where :
 * *Workgroup* is the workgroup of your domain in the old syntax (like NT4).
 * *DNS name of the domain* is the FQDN of your domain. The one that suffixes your account names.
 * *This server's name* is the name that the server's account will have in your Active Directory.
+* *Sticky DC* is the prefered domain controller to connect to.
+* *Active Directory server* is the IP or DNS name of one of the DC of the domain.
 * *DNS server* is the IP address of the DNS server of this domain. Make sure that the server you put there has the proper DNS entries for this domain.
-* *Username* is the username that will be used for binding to the server. This account must be a domain administrator.
-* *Password* is the password for the username defined above.
+* *OU* is the OU in the Active Directory where you want to create your computer account.
+* *ntlmv2 only* forces the NTLNM authentication (802.1x on AD) to use the NTLM version 2.
+* *Allow on registration* would allow devices in the registration network to communicate with the DC.
 
 NOTE: If you are using an Active/Active cluster, each member of the cluster must be joined separately. Please follow the instructions in the PacketFence Clustering Guide.
 
