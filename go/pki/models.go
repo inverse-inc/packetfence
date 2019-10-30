@@ -24,8 +24,10 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
 
+// Type of key
 type Type int
 
+// DSAKeyFormat is the format of a DSA key
 type DSAKeyFormat struct {
 	Version       int
 	P, Q, G, Y, X *big.Int
@@ -43,50 +45,54 @@ const (
 // CA struct
 type CA struct {
 	gorm.Model
-	Cn                  string   `json:"cn"`
-	Mail                []string `json:"mail"`
-	Organisation        []string `json:"organisation"`
-	Country             []string `json:"country"`
-	State               []string `json:"state"`
-	Locality            []string `json:"locality"`
-	StreetAddress       []string `json:"streetaddress"`
-	PostalCode          []string `json:"postalcode"`
-	KeyType             Type     `json:"keytype"`
-	KeySize             int      `json:"keysize"`
-	Digest              string   `json:"digest"`
-	KeyUsage            []string `json:"keyusage,omitempty"`
-	ExtendedKeyUsage    []string `json:"extendedkeyusage,omitempty"`
-	Days                int      `json:"days"`
-	CaKey               string   `json:"cakey,omitempty"`
-	CaCert              string   `json:"cacert,omitempty"`
-	IssuerKeyHashmd5    string   `json:"issuerkeyhashmd5,omitempty"`
-	IssuerKeyHashsha1   string   `json:"issuerkeyhashsha1,omitempty"`
-	IssuerKeyHashsha256 string   `json:"issuerkeyhashsha256,omitempty"`
-	IssuerKeyHashsha512 string   `json:"issuerkeyhashsha512,omitempty"`
+	Cn                  string `json:"cn"`
+	Mail                string `json:"mail"`
+	Organisation        string `json:"organisation"`
+	Country             string `json:"country"`
+	State               string `json:"state"`
+	Locality            string `json:"locality"`
+	StreetAddress       string `json:"streetaddress"`
+	PostalCode          string `json:"postalcode"`
+	KeyType             Type   `json:"keytype"`
+	KeySize             int    `json:"keysize"`
+	Digest              string `json:"digest"`
+	KeyUsage            string `json:"keyusage,omitempty"`
+	ExtendedKeyUsage    string `json:"extendedkeyusage,omitempty"`
+	Days                int    `json:"days"`
+	CaKey               string `json:"cakey,omitempty" gorm:"type:longtext"`
+	CaCert              string `json:"cacert,omitempty" gorm:"type:longtext"`
+	IssuerKeyHashmd5    string `json:"issuerkeyhashmd5,omitempty"`
+	IssuerKeyHashsha1   string `json:"issuerkeyhashsha1,omitempty"`
+	IssuerKeyHashsha256 string `json:"issuerkeyhashsha256,omitempty"`
+	IssuerKeyHashsha512 string `json:"issuerkeyhashsha512,omitempty"`
 }
 
-func (c *CA) new() {
+func (c CA) new() error {
 
 	ca := &x509.Certificate{
 		SerialNumber: big.NewInt(1653),
 		Subject: pkix.Name{
-			Organization:  c.Organisation,
-			Country:       c.Country,
-			Province:      c.State,
-			Locality:      c.Locality,
-			StreetAddress: c.StreetAddress,
-			PostalCode:    c.PostalCode,
+			Organization:  []string{c.Organisation},
+			Country:       []string{c.Country},
+			Province:      []string{c.State},
+			Locality:      []string{c.Locality},
+			StreetAddress: []string{c.StreetAddress},
+			PostalCode:    []string{c.PostalCode},
 		},
 		NotBefore:             time.Now(),
 		NotAfter:              time.Now().AddDate(0, 0, c.Days),
 		IsCA:                  true,
-		ExtKeyUsage:           c.extkeyusage(),
-		KeyUsage:              x509.KeyUsage(c.keyusage()),
+		ExtKeyUsage:           extkeyusage(c.ExtendedKeyUsage),
+		KeyUsage:              x509.KeyUsage(keyusage(c.KeyUsage)),
 		BasicConstraintsValid: true,
-		EmailAddresses:        c.Mail,
+		EmailAddresses:        []string{c.Mail},
 	}
 
-	priv, _ := GenerateKey(c.KeyType, c.KeySize)
+	priv, err := GenerateKey(c.KeyType, c.KeySize)
+
+	if err != nil {
+		return err
+	}
 
 	var pub crypto.PublicKey
 
@@ -115,10 +121,11 @@ func (c *CA) new() {
 	caBytes, err := x509.CreateCertificate(rand.Reader, ca, ca, pub, priv)
 	if err != nil {
 		log.LoggerWContext(ctx).Error("create ca failed", err)
-		return
+		return errors.New("create ca failed")
 	}
 
-	db, err := gorm.Open("mysql", db.ReturnURI)
+	db, err := gorm.Open("mysql", db.ReturnURI(ctx))
+
 	defer db.Close()
 	db.AutoMigrate(&CA{})
 
@@ -129,12 +136,13 @@ func (c *CA) new() {
 
 	db.Create(&CA{Cn: c.Cn, Mail: c.Mail, Organisation: c.Organisation, Country: c.Country, State: c.State, Locality: c.Locality, StreetAddress: c.StreetAddress, PostalCode: c.PostalCode, KeyType: c.KeyType, KeySize: c.KeySize, Digest: c.Digest, KeyUsage: c.KeyUsage, ExtendedKeyUsage: c.ExtendedKeyUsage, Days: c.Days, CaKey: keyOut.String(), CaCert: cert.String(), IssuerKeyHashmd5: c.IssuerKeyHashmd5, IssuerKeyHashsha1: c.IssuerKeyHashsha1, IssuerKeyHashsha256: c.IssuerKeyHashsha256, IssuerKeyHashsha512: c.IssuerKeyHashsha512})
 
+	return nil
 }
 
-func (c *CA) extkeyusage() []x509.ExtKeyUsage {
+func extkeyusage(ExtendedKeyUsage string) []x509.ExtKeyUsage {
 	// Set up extra key uses for certificate
 	extKeyUsage := make([]x509.ExtKeyUsage, 0)
-	for _, use := range c.ExtendedKeyUsage {
+	for _, use := range []string{ExtendedKeyUsage} {
 		v, _ := strconv.Atoi(use)
 		extKeyUsage = append(extKeyUsage, x509.ExtKeyUsage(v))
 	}
@@ -142,9 +150,9 @@ func (c *CA) extkeyusage() []x509.ExtKeyUsage {
 	return extKeyUsage
 }
 
-func (c *CA) keyusage() int {
+func keyusage(KeyUsage string) int {
 	keyUsage := 0
-	for _, use := range c.KeyUsage {
+	for _, use := range []string{KeyUsage} {
 		v, _ := strconv.Atoi(use)
 		keyUsage = keyUsage | v
 	}
@@ -230,9 +238,9 @@ func GenerateKey(keytype Type, size int) (key interface{}, err error) {
 type Profile struct {
 	gorm.Model
 	Name     string `json:"profile_name,omitempty"`
-	Ca       CA
+	Ca       CA     `json:"ca,omitempty" gorm:"foreignkey:Cn"`
 	Validity string `json:"validity,omitempty"`
-	KeyType  string `json:"keytype,omitempty"`
+	KeyType  Type   `json:"keytype,omitempty"`
 	KeySize  string `json:"keysize,omitempty"`
 	// Digest           string `json:"digest,omitempty"`
 	KeyUsage         string `json:"keyusage,omitempty"`
@@ -250,12 +258,12 @@ type Cert struct {
 	gorm.Model
 	Cn                   string  `json:"cn,omitempty"`
 	Mail                 string  `json:"mail,omitempty"`
-	PrivateKey           string  `json:"privatekey,omitempty"`
 	Streat               string  `json:"streat,omitempty"`
 	Organisation         string  `json:"organisation,omitempty"`
 	Country              string  `json:"country,omitempty"`
-	PubKey               string  `json:"publickey,omitempty"`
-	Profile              Profile `gorm:"foreignkey:Name"`
+	PrivateKey           string  `json:"privatekey,omitempty" gorm:"type:longtext"`
+	PubKey               string  `json:"publickey,omitempty" gorm:"type:longtext"`
+	Profile              Profile `json:"profile,omitempty" gorm:"foreignkey:Name"`
 	ValidUntil           string  `json:"validuntil,omitempty"`
 	Date                 string  `json:"date,omitempty"`
 	Revoked              string  `json:"revoked,omitempty"`
@@ -266,7 +274,13 @@ type Cert struct {
 	UserIssuerHashsha512 string  `json:"userissuerhashsha512,omitempty"`
 }
 
-// func (c *Cert) new(profile Profile) {
+func (c Cert) new() error {
+	return nil
+}
+
+func (p Profile) new() error {
+	return nil
+}
 
 // 	// Load CA
 // 	catls, err := tls.LoadX509KeyPair("ca.crt", "ca.key")
