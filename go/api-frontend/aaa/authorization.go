@@ -25,6 +25,8 @@ type adminRoleMapping struct {
 const ALLOW_ANY = "*"
 
 var pathAdminRolesMap = []adminRoleMapping{
+	adminRoleMapping{prefix: apiPrefix + "/current_user", role: ALLOW_ANY},
+
 	adminRoleMapping{prefix: apiPrefix + "/preference/", role: ALLOW_ANY},
 	adminRoleMapping{prefix: apiPrefix + "/preferences", role: ALLOW_ANY},
 
