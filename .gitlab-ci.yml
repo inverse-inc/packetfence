@@ -143,7 +143,7 @@ sign:
     - /^stable$/
     - /^devel$/
   tags:
-    - shell
+    - ci-shell
 
 ### PUBLISH JOBS
 pages:
@@ -172,7 +172,7 @@ pages:
     - /^stable$/
     - /^devel$/
   tags:
-    - shell
+    - ci-shell
 
 ### UPLOAD JOBS
 deploy_rpm_devel:
