@@ -8,7 +8,6 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/inverse-inc/packetfence/go/db"
 	"github.com/inverse-inc/packetfence/go/log"
-	"github.com/inverse-inc/packetfence/go/sharedutils"
 	"github.com/jinzhu/gorm"
 )
 
@@ -25,13 +24,12 @@ func main() {
 	ctx = log.LoggerNewContext(ctx)
 	pfpki := Handler{}
 
-	db, err := gorm.Open("mysql", db.ReturnURI)
+	db, _ := gorm.Open("mysql", db.ReturnURI)
 	defer db.Close()
 
 	// Default http timeout
 	http.DefaultClient.Timeout = 10 * time.Second
 
-	sharedutils.CheckError(err)
 	pfpki.database = db
 
 	pfpki.router = mux.NewRouter()

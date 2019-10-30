@@ -49,7 +49,7 @@ type CA struct {
 	Country             []string `json:"country"`
 	State               []string `json:"state"`
 	Locality            []string `json:"locality"`
-	StreatAddress       []string `json:"streataddress"`
+	StreetAddress       []string `json:"streetaddress"`
 	PostalCode          []string `json:"postalcode"`
 	KeyType             Type     `json:"keytype"`
 	KeySize             int      `json:"keysize"`
@@ -74,7 +74,7 @@ func (c *CA) new() {
 			Country:       c.Country,
 			Province:      c.State,
 			Locality:      c.Locality,
-			StreetAddress: c.StreatAddress,
+			StreetAddress: c.StreetAddress,
 			PostalCode:    c.PostalCode,
 		},
 		NotBefore:             time.Now(),
@@ -86,9 +86,8 @@ func (c *CA) new() {
 		EmailAddresses:        c.Mail,
 	}
 
-	// TODO DSA
 	priv, _ := GenerateKey(c.KeyType, c.KeySize)
-	// priv, _ := rsa.GenerateKey(rand.Reader, c.KeySize)
+
 	var pub crypto.PublicKey
 
 	keyOut := new(bytes.Buffer)
@@ -128,7 +127,7 @@ func (c *CA) new() {
 	// Public key
 	pem.Encode(cert, &pem.Block{Type: "CERTIFICATE", Bytes: caBytes})
 
-	db.Create(&CA{Cn: c.Cn, Mail: c.Mail, Organisation: c.Organisation, Country: c.Country, State: c.State, Locality: c.Locality, StreatAddress: c.StreatAddress, PostalCode: c.PostalCode, KeyType: c.KeyType, KeySize: c.KeySize, Digest: c.Digest, KeyUsage: c.KeyUsage, ExtendedKeyUsage: c.ExtendedKeyUsage, Days: c.Days, CaKey: keyOut.String(), CaCert: cert.String(), IssuerKeyHashmd5: c.IssuerKeyHashmd5, IssuerKeyHashsha1: c.IssuerKeyHashsha1, IssuerKeyHashsha256: c.IssuerKeyHashsha256, IssuerKeyHashsha512: c.IssuerKeyHashsha512})
+	db.Create(&CA{Cn: c.Cn, Mail: c.Mail, Organisation: c.Organisation, Country: c.Country, State: c.State, Locality: c.Locality, StreatAddress: c.StreetAddress, PostalCode: c.PostalCode, KeyType: c.KeyType, KeySize: c.KeySize, Digest: c.Digest, KeyUsage: c.KeyUsage, ExtendedKeyUsage: c.ExtendedKeyUsage, Days: c.Days, CaKey: keyOut.String(), CaCert: cert.String(), IssuerKeyHashmd5: c.IssuerKeyHashmd5, IssuerKeyHashsha1: c.IssuerKeyHashsha1, IssuerKeyHashsha256: c.IssuerKeyHashsha256, IssuerKeyHashsha512: c.IssuerKeyHashsha512})
 
 }
 
@@ -248,20 +247,69 @@ type Profile struct {
 
 // Cert struct
 type Cert struct {
-	Cn                   string `json:"cn,omitempty"`
-	Mail                 string `json:"mail,omitempty"`
-	X509                 string `json:"x509,omitempty"`
-	Streat               string `json:"streat,omitempty"`
-	Organisation         string `json:"organisation,omitempty"`
-	Country              string `json:"country,omitempty"`
-	PubKey               string `json:"pubkey,omitempty"`
-	Profile              Profile
-	ValidUntil           string `json:"validuntil,omitempty"`
-	Date                 string `json:"date,omitempty"`
-	Revoked              string `json:"revoked,omitempty"`
-	CRLReason            string `json:"crlreason,omitempty"`
-	UserIssuerHashmd5    string `json:"userissuerhashmd5,omitempty"`
-	UserIssuerHashsha1   string `json:"userissuerhashsha1,omitempty"`
-	UserIssuerHashsha256 string `json:"userissuerhashsha256,omitempty"`
-	UserIssuerHashsha512 string `json:"userissuerhashsha512,omitempty"`
+	gorm.Model
+	Cn                   string  `json:"cn,omitempty"`
+	Mail                 string  `json:"mail,omitempty"`
+	PrivateKey           string  `json:"privatekey,omitempty"`
+	Streat               string  `json:"streat,omitempty"`
+	Organisation         string  `json:"organisation,omitempty"`
+	Country              string  `json:"country,omitempty"`
+	PubKey               string  `json:"publickey,omitempty"`
+	Profile              Profile `gorm:"foreignkey:Name"`
+	ValidUntil           string  `json:"validuntil,omitempty"`
+	Date                 string  `json:"date,omitempty"`
+	Revoked              string  `json:"revoked,omitempty"`
+	CRLReason            string  `json:"crlreason,omitempty"`
+	UserIssuerHashmd5    string  `json:"userissuerhashmd5,omitempty"`
+	UserIssuerHashsha1   string  `json:"userissuerhashsha1,omitempty"`
+	UserIssuerHashsha256 string  `json:"userissuerhashsha256,omitempty"`
+	UserIssuerHashsha512 string  `json:"userissuerhashsha512,omitempty"`
 }
+
+// func (c *Cert) new(profile Profile) {
+
+// 	// Load CA
+// 	catls, err := tls.LoadX509KeyPair("ca.crt", "ca.key")
+// 	if err != nil {
+// 		panic(err)
+// 	}
+// 	ca, err := x509.ParseCertificate(catls.Certificate[0])
+// 	if err != nil {
+// 		panic(err)
+// 	}
+
+// 	// Prepare certificate
+// 	cert := &x509.Certificate{
+// 		SerialNumber: big.NewInt(1658),
+// 		Subject: pkix.Name{
+// 			Organization:  []string{"ORGANIZATION_NAME"},
+// 			Country:       []string{"COUNTRY_CODE"},
+// 			Province:      []string{"PROVINCE"},
+// 			Locality:      []string{"CITY"},
+// 			StreetAddress: []string{"ADDRESS"},
+// 			PostalCode:    []string{"POSTAL_CODE"},
+// 		},
+// 		NotBefore:    time.Now(),
+// 		NotAfter:     time.Now().AddDate(10, 0, 0),
+// 		SubjectKeyId: []byte{1, 2, 3, 4, 6},
+// 		ExtKeyUsage:  []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth, x509.ExtKeyUsageServerAuth},
+// 		KeyUsage:     x509.KeyUsageDigitalSignature,
+// 	}
+// 	priv, _ := rsa.GenerateKey(rand.Reader, 2048)
+// 	pub := &priv.PublicKey
+
+// 	// Sign the certificate
+// 	cert_b, err := x509.CreateCertificate(rand.Reader, cert, ca, pub, catls.PrivateKey)
+
+// 	// Public key
+// 	certOut, err := os.Create("bob.crt")
+// 	pem.Encode(certOut, &pem.Block{Type: "CERTIFICATE", Bytes: cert_b})
+// 	certOut.Close()
+// 	log.Print("written cert.pem\n")
+
+// 	// Private key
+// 	keyOut, err := os.OpenFile("bob.key", os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
+// 	pem.Encode(keyOut, &pem.Block{Type: "RSA PRIVATE KEY", Bytes: x509.MarshalPKCS1PrivateKey(priv)})
+// 	keyOut.Close()
+// 	log.Print("written key.pem\n")
+// }

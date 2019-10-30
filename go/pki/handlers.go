@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+
+	"github.com/davecgh/go-spew/spew"
 )
 
 // PostOptionsNewCA struct
@@ -38,7 +40,7 @@ type PostOptionsProfile struct {
 // Info struct
 type Info struct {
 	Status string `json:"status"`
-	CA     string `json:"mac,omitempty"`
+	CA     string `json:"name,omitempty"`
 }
 
 func newCA(res http.ResponseWriter, req *http.Request) {
@@ -48,14 +50,13 @@ func newCA(res http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		panic(err)
 	}
-	var o PostOptionsNewCA
+	var o CA
 
 	err = json.Unmarshal(body, &o)
 	if err != nil {
 		panic(err)
 	}
-
-	CA := o.CAName
+	spew.Dump(o)
 
 	// if CA == nil {
 	// 	handleError(res, http.StatusBadRequest)
@@ -64,7 +65,7 @@ func newCA(res http.ResponseWriter, req *http.Request) {
 
 	var result = map[string][]*Info{
 		"result": {
-			&Info{CA: CA, Status: "ACK"},
+			&Info{CA: o.Cn, Status: "ACK"},
 		},
 	}
 
