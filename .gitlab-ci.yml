@@ -180,7 +180,7 @@ deploy_rpm_devel:
     - .deploy_rpm_job
   environment:
     name: devel/x86_64
-    url: http://inverse.ca/downloads/PacketFence/RHEL7/${CI_ENVIRONMENT_SLUG}
+    url: http://packetfence.org/downloads/PacketFence/RHEL7/${CI_ENVIRONMENT_NAME}
   only:
     - web
     - schedules
@@ -191,7 +191,7 @@ deploy_rpm_release:
     - .deploy_rpm_job
   environment:
     name: x86_64
-    url: http://inverse.ca/downloads/PacketFence/RHEL7/${CI_ENVIRONMENT_NAME}
+    url: http://packetfence.org/downloads/PacketFence/RHEL7/${CI_ENVIRONMENT_NAME}
   only:
     - /^stable$/
 
@@ -200,7 +200,7 @@ deploy_deb_devel:
     - .deploy_deb_job
   environment:
     name: debian-devel
-    url: http://inverse.ca/downloads/PacketFence/${CI_ENVIRONMENT_NAME}
+    url: http://packetfence.org/downloads/PacketFence/${CI_ENVIRONMENT_NAME}
   only:
     - web
     - schedules
@@ -211,6 +211,6 @@ deploy_deb_release:
     - .deploy_deb_job
   environment:
     name: debian-lastrelease
-    url: http://inverse.ca/downloads/PacketFence/${CI_ENVIRONMENT_NAME}
+    url: http://packetfence.org/downloads/PacketFence/${CI_ENVIRONMENT_NAME}
   only:
     - /^stable$/
