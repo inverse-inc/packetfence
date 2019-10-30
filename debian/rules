@@ -182,7 +182,6 @@ install: build
 	done
 	#Golang binary
 	install -d -m0744 $(CURDIR)/debian/packetfence-golang-daemon$(PREFIX)/$(NAME)/sbin
-	#PATH=$$PATH:/usr/lib/go-1.7/bin && addons/packages/build-go.sh build $(CURDIR)/ $(CURDIR)/debian/packetfence-golang-daemon$(PREFIX)/$(NAME)/sbin $(CURDIR)/debian
 	make -C go all
 	make -C go DESTDIR=$(CURDIR)/debian/packetfence-golang-daemon copy
 
