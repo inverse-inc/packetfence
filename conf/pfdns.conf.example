@@ -10,7 +10,7 @@ proxy . /etc/resolv.conf
 }
 
 # all other domains are subject to interception
-:53 {
+.:53 {
     logger {
       level INFO
       processname pfdns
