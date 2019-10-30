@@ -1080,10 +1080,27 @@ image::domain-add-realm.png[scaledwidth="100%",alt="Adding a new realm"]
 Where :
 
 * *Realm* is either the DNS name (FQDN) of your domain or the workgroup
+* *Domain* is the Active Directory domain where PacketFence sends the NTLM request
 * *Realm options* are any realm options that you want to add to the FreeRADIUS configuration
 * *Domain* is the domain which is associated to this realm
+* *RADIUS Auth* is the RADIUS authentication server to proxy the request to
+* *Type* is the home server pool type
+* *Authorize from PacketFence* specifies if we forward the request to PacketFence to have a dynamic answer or do we use the remote proxy server answered attributes?
+* *RADIUS Acct* is the RADIUS accounting server to proxy the request to
+* *Type* is the home server pool type
+* *Eduroam Realm Options* You can add Eduroam FreeRADIUS options in the realm definition
+* *Eduroam RADIUS Auth* is the RADIUS Eduroam authentication server to proxy the request to
+* *Type* is the home server pool type
+* *Authorize from PacketFence* specifies if we forward the request to PacketFence to have a dynamic answer or do we use the remote proxy server answered attributes?
+* *Eduroam RADIUS Acct* is the RADIUS Eduroam accounting server to proxy the request to
+* *Type* is the home server pool type
+* *Strip on the portal* Should the usernames matching this realm be stripped when used on the captive portal
+* *Strip on the admin* Should the usernames matching this realm be stripped when used on the administration interface
+* *Strip in RADIUS authorization* Should the usernames matching this realm be stripped when used in the authorization phase of 802.1x
+* *Custom attributes* Allow to use custom attributes to authenticate 802.1x users (attributes are defined in the source)
+* *LDAP source* The LDAP Server to query the custom attributes
 
-*Now create the two other realms associated to your other domains.*
+*Now associate DEFAULT and NULL realms to your domains.*
 
 You should now have the following realm configuration
 
