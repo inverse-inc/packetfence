@@ -19,22 +19,27 @@ type Handler struct {
 
 var ctx = context.Background()
 
+// MySQLdatabase global var
+var database *gorm.DB
+
 func main() {
 	log.SetProcessName("pfpki")
 	ctx = log.LoggerNewContext(ctx)
 	pfpki := Handler{}
 
-	db, _ := gorm.Open("mysql", db.ReturnURI)
-	defer db.Close()
+	database, _ := gorm.Open("mysql", db.ReturnURI)
+	defer database.Close()
 
 	// Default http timeout
 	http.DefaultClient.Timeout = 10 * time.Second
 
-	pfpki.database = db
+	pfpki.database = database
 
 	pfpki.router = mux.NewRouter()
 	api := pfpki.router.PathPrefix("/api/v1").Subrouter()
-	api.HandleFunc("/pki/new_ca", newCA).Methods("POST")
+	api.HandleFunc("/pki/newca", newCA).Methods("POST")
+	api.HandleFunc("/pki/newprofile", newProfile).Methods("POST")
+	api.HandleFunc("/pki/newcert", newCert).Methods("POST")
 
 	srv := &http.Server{
 		Addr:        "127.0.0.1:12345",

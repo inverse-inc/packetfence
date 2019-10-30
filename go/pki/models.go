@@ -18,7 +18,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/inverse-inc/packetfence/go/db"
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
@@ -45,7 +44,7 @@ const (
 // CA struct
 type CA struct {
 	gorm.Model
-	Cn                  string `json:"cn"`
+	Cn                  string `json:"cn" gorm:"UNIQUE"`
 	Mail                string `json:"mail"`
 	Organisation        string `json:"organisation"`
 	Country             string `json:"country"`
@@ -61,10 +60,50 @@ type CA struct {
 	Days                int    `json:"days"`
 	CaKey               string `json:"cakey,omitempty" gorm:"type:longtext"`
 	CaCert              string `json:"cacert,omitempty" gorm:"type:longtext"`
-	IssuerKeyHashmd5    string `json:"issuerkeyhashmd5,omitempty"`
-	IssuerKeyHashsha1   string `json:"issuerkeyhashsha1,omitempty"`
-	IssuerKeyHashsha256 string `json:"issuerkeyhashsha256,omitempty"`
-	IssuerKeyHashsha512 string `json:"issuerkeyhashsha512,omitempty"`
+	IssuerKeyHashmd5    string `json:"issuerkeyhashmd5,omitempty" gorm:"UNIQUE_INDEX"`
+	IssuerKeyHashsha1   string `json:"issuerkeyhashsha1,omitempty" gorm:"UNIQUE_INDEX"`
+	IssuerKeyHashsha256 string `json:"issuerkeyhashsha256,omitempty" gorm:"UNIQUE_INDEX"`
+	IssuerKeyHashsha512 string `json:"issuerkeyhashsha512,omitempty" gorm:"UNIQUE_INDEX"`
+}
+
+// Profile struct
+type Profile struct {
+	gorm.Model
+	Name             string `json:"profile_name,omitempty" gorm:"UNIQUE"`
+	Ca               CA     `json:"ca,omitempty" gorm:"foreignkey:Cn"`
+	Validity         string `json:"validity,omitempty"`
+	KeyType          Type   `json:"keytype,omitempty"`
+	KeySize          string `json:"keysize,omitempty"`
+	Digest           string `json:"digest,omitempty"`
+	KeyUsage         string `json:"keyusage,omitempty"`
+	ExtendedKeyUsage string `json:"extendedkeyusage,omitempty"`
+	P12SmtpServer    string `json:"p12smtpserver,omitempty"`
+	P12MailPassword  string `json:"p12mailpassword,omitempty"`
+	P12MailSubject   string `json:"p12mailsubject,omitempty"`
+	P12MailFrom      string `json:"p12mailfrom,omitempty"`
+	P12MailHeader    string `json:"p12mailheader,omitempty"`
+	P12MailFooter    string `json:"p12mailfooter,omitempty"`
+}
+
+// Cert struct
+type Cert struct {
+	gorm.Model
+	Cn                   string  `json:"cn,omitempty"  gorm:"UNIQUE"`
+	Mail                 string  `json:"mail,omitempty"`
+	Streat               string  `json:"streat,omitempty"`
+	Organisation         string  `json:"organisation,omitempty"`
+	Country              string  `json:"country,omitempty"`
+	PrivateKey           string  `json:"privatekey,omitempty" gorm:"type:longtext"`
+	PubKey               string  `json:"publickey,omitempty" gorm:"type:longtext"`
+	Profile              Profile `json:"profile,omitempty" gorm:"foreignkey:Name"`
+	ValidUntil           string  `json:"validuntil,omitempty"`
+	Date                 string  `json:"date,omitempty"`
+	Revoked              string  `json:"revoked,omitempty"`
+	CRLReason            string  `json:"crlreason,omitempty"`
+	UserIssuerHashmd5    string  `json:"userissuerhashmd5,omitempty" gorm:"UNIQUE_INDEX"`
+	UserIssuerHashsha1   string  `json:"userissuerhashsha1,omitempty" gorm:"UNIQUE_INDEX"`
+	UserIssuerHashsha256 string  `json:"userissuerhashsha256,omitempty" gorm:"UNIQUE_INDEX"`
+	UserIssuerHashsha512 string  `json:"userissuerhashsha512,omitempty" gorm:"UNIQUE_INDEX"`
 }
 
 func (c CA) new() error {
@@ -124,17 +163,14 @@ func (c CA) new() error {
 		return errors.New("create ca failed")
 	}
 
-	db, err := gorm.Open("mysql", db.ReturnURI(ctx))
-
-	defer db.Close()
-	db.AutoMigrate(&CA{})
+	database.AutoMigrate(&CA{})
 
 	cert := new(bytes.Buffer)
 
 	// Public key
 	pem.Encode(cert, &pem.Block{Type: "CERTIFICATE", Bytes: caBytes})
 
-	db.Create(&CA{Cn: c.Cn, Mail: c.Mail, Organisation: c.Organisation, Country: c.Country, State: c.State, Locality: c.Locality, StreetAddress: c.StreetAddress, PostalCode: c.PostalCode, KeyType: c.KeyType, KeySize: c.KeySize, Digest: c.Digest, KeyUsage: c.KeyUsage, ExtendedKeyUsage: c.ExtendedKeyUsage, Days: c.Days, CaKey: keyOut.String(), CaCert: cert.String(), IssuerKeyHashmd5: c.IssuerKeyHashmd5, IssuerKeyHashsha1: c.IssuerKeyHashsha1, IssuerKeyHashsha256: c.IssuerKeyHashsha256, IssuerKeyHashsha512: c.IssuerKeyHashsha512})
+	database.Create(&CA{Cn: c.Cn, Mail: c.Mail, Organisation: c.Organisation, Country: c.Country, State: c.State, Locality: c.Locality, StreetAddress: c.StreetAddress, PostalCode: c.PostalCode, KeyType: c.KeyType, KeySize: c.KeySize, Digest: c.Digest, KeyUsage: c.KeyUsage, ExtendedKeyUsage: c.ExtendedKeyUsage, Days: c.Days, CaKey: keyOut.String(), CaCert: cert.String(), IssuerKeyHashmd5: c.IssuerKeyHashmd5, IssuerKeyHashsha1: c.IssuerKeyHashsha1, IssuerKeyHashsha256: c.IssuerKeyHashsha256, IssuerKeyHashsha512: c.IssuerKeyHashsha512})
 
 	return nil
 }
@@ -234,51 +270,14 @@ func GenerateKey(keytype Type, size int) (key interface{}, err error) {
 
 // }
 
-// Profile struct
-type Profile struct {
-	gorm.Model
-	Name     string `json:"profile_name,omitempty"`
-	Ca       CA     `json:"ca,omitempty" gorm:"foreignkey:Cn"`
-	Validity string `json:"validity,omitempty"`
-	KeyType  Type   `json:"keytype,omitempty"`
-	KeySize  string `json:"keysize,omitempty"`
-	// Digest           string `json:"digest,omitempty"`
-	KeyUsage         string `json:"keyusage,omitempty"`
-	ExtendedKeyUsage string `json:"extendedkeyusage,omitempty"`
-	P12SmtpServer    string `json:"p12smtpserver,omitempty"`
-	P12MailPassword  string `json:"p12mailpassword,omitempty"`
-	P12MailSubject   string `json:"p12mailsubject,omitempty"`
-	P12MailFrom      string `json:"p12mailfrom,omitempty"`
-	P12MailHeader    string `json:"p12mailheader,omitempty"`
-	P12MailFooter    string `json:"p12mailfooter,omitempty"`
-}
+func (p Profile) new() error {
+	database.AutoMigrate(&Profile{})
 
-// Cert struct
-type Cert struct {
-	gorm.Model
-	Cn                   string  `json:"cn,omitempty"`
-	Mail                 string  `json:"mail,omitempty"`
-	Streat               string  `json:"streat,omitempty"`
-	Organisation         string  `json:"organisation,omitempty"`
-	Country              string  `json:"country,omitempty"`
-	PrivateKey           string  `json:"privatekey,omitempty" gorm:"type:longtext"`
-	PubKey               string  `json:"publickey,omitempty" gorm:"type:longtext"`
-	Profile              Profile `json:"profile,omitempty" gorm:"foreignkey:Name"`
-	ValidUntil           string  `json:"validuntil,omitempty"`
-	Date                 string  `json:"date,omitempty"`
-	Revoked              string  `json:"revoked,omitempty"`
-	CRLReason            string  `json:"crlreason,omitempty"`
-	UserIssuerHashmd5    string  `json:"userissuerhashmd5,omitempty"`
-	UserIssuerHashsha1   string  `json:"userissuerhashsha1,omitempty"`
-	UserIssuerHashsha256 string  `json:"userissuerhashsha256,omitempty"`
-	UserIssuerHashsha512 string  `json:"userissuerhashsha512,omitempty"`
-}
-
-func (c Cert) new() error {
+	database.Create(&Profile{Name: p.Name, Ca: p.Ca, Validity: p.Validity, KeyType: p.KeyType, Digest: p.Digest, KeyUsage: p.KeyUsage, ExtendedKeyUsage: p.ExtendedKeyUsage, P12SmtpServer: p.P12SmtpServer, P12MailPassword: p.P12MailPassword, P12MailSubject: p.P12MailSubject, P12MailFrom: p.P12MailFrom, P12MailHeader: p.P12MailHeader, P12MailFooter: p.P12MailFooter})
 	return nil
 }
 
-func (p Profile) new() error {
+func (c Cert) new() error {
 	return nil
 }
 
