@@ -482,6 +482,8 @@ cp -r html %{buildroot}/usr/local/pf/
 
 # install Golang binaries
 %{__make} -C go DESTDIR=%{buildroot} copy
+# clean Golang binaries from build dir
+%{__make} -C go clean
 
 # install html and images dirs in pfappserver for embedded doc
 %{__install} -d -m0755 %{buildroot}/usr/local/pf/html/pfappserver/root/static/doc

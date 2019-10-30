@@ -1,4 +1,5 @@
 GOVERSION = go1.13.1
+GOBINARIES = pfhttpd pfdhcp pfdns pfstats pfdetect
 DOCKER_TAG = latest
 REGISTRY = docker.io
 SBINDIR = /usr/local/pf/sbin

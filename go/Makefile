@@ -66,11 +66,15 @@ test:
 	PFCONFIG_TESTING=y go test ./...
 
 .PHONY: all
-all: pfhttpd pfdhcp pfdns pfstats pfdetect
+all: $(GOBINARIES)
 
 .PHONY: copy
 copy:
-	cp -f pfhttpd pfdhcp pfdns pfstats pfdetect $(DESTDIR)$(SBINDIR)
+	cp -f $(GOBINARIES) $(DESTDIR)$(SBINDIR)
+
+.PHONY: clean
+clean:
+	rm -f $(GOBINARIES)
 
 .PHONY: clean-coredns-src
 clean-coredns-src:
