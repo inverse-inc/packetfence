@@ -15,6 +15,7 @@ use warnings;
 use Mojo::Base 'pf::UnifiedApi::Controller::RestRoute';
 use pf::admin_roles qw(admin_allowed_options %ADMIN_ROLES);
 use pf::Authentication::constants;
+use pf::config qw(%Config);
 
 sub allowed_options {
     my ($self, $option, $key, $standard_options) = @_;
@@ -54,9 +55,7 @@ sub allowed_actions {
 
 sub allowed_access_durations {
     my ($self) = @_;
-    my $stash = $self->stash;
-    my $roles = $stash->{admin_roles};
-    return $self->render_items( access_duration => admin_allowed_options($roles, 'allowed_access_durations'));
+    return $self->allowed_options('allowed_access_durations', 'access_duration', sub { split(/\s*,\s*/, $Config{'guests_admin_registration'}{'access_duration_choices'}) } );
 }
 
 sub render_items {
