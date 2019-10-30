@@ -14,6 +14,7 @@ DEPLOY_USER=${DEPLOY_USER:-reposync}
 DEPLOY_HOST=${DEPLOY_HOST:-pfbuilder.inverse}
 DEPLOY_UPDATE=${DEPLOY_UPDATE:-"hostname -f"}
 
+DEPLOY_SRPMS=${DEPLOY_SRPMS:-no}
 RPM_BASE_DIR=${RPM_BASE_DIR:-/var/www/repos/PacketFence/RHEL7}
 RPM_DEPLOY_DIR=${RPM_DEPLOY_DIR:-devel/x86_64}
 RPM_RESULT_DIR=${RPM_RESULT_DIR:-result/centos}
@@ -28,6 +29,13 @@ rpm_deploy() {
         dst_repo="$RPM_BASE_DIR/$RPM_DEPLOY_DIR"
         dst_dir="$DEPLOY_USER@$DEPLOY_HOST:$dst_repo"
         declare -p src_dir dst_dir
+
+        if [ "$DEPLOY_SRPMS" == "no" ]; then
+            rm -v $src_dir/*.src.rpm
+        else
+            echo "Keeping SRPMS according to '$DEPLOY_SRPMS' value"
+        fi
+
         echo "copy: $src_dir -> $dst_dir/RPMS"
         scp $src_dir/*.rpm $dst_dir/RPMS \
             || die "scp failed"

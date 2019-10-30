@@ -64,6 +64,7 @@ variables:
   variables:
     #DEPLOY_USER: see GitLab variables
     RPM_DEPLOY_DIR: ${CI_ENVIRONMENT_NAME}
+    DEPLOY_SRPMS: no
     DEPLOY_UPDATE: "/builds/bin/ci-repo-deploy rpm ${CI_ENVIRONMENT_NAME}"
   script:
     - ./$CIDIR/upload/deploy-packages.sh rpm
