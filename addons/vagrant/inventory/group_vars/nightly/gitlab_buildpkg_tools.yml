@@ -5,3 +5,8 @@ gitlab_buildpkg_tools__deb_pkgs: '{{ lookup("env", "DEB_PACKAGES_NAME") if looku
 
 gitlab_buildpkg_tools__rpm_pkgs: '{{ lookup("env", "RPM_PACKAGES_NAME") if lookup("env", "RPM_PACKAGES_NAME")
                                      else [] }}'
+
+# temp before 9.2: we need old and new GPG key because debian repo is
+# necessary when we want to use debian-devel
+gitlab_buildpkg_tools__deb_keys:
+  - 'http://inverse.ca/downloads/APT-GPG-KEY-PACKETFENCE-DEBIAN'
