@@ -51,26 +51,34 @@ func create(object interface{}, res http.ResponseWriter, req *http.Request) {
 		if err != nil {
 			panic(err)
 		}
-		v.new()
+		err = v.new()
 	case Cert:
 		err = json.Unmarshal(body, &v)
 		if err != nil {
 			panic(err)
 		}
-		v.new()
+		err = v.new()
 	case Profile:
 		err = json.Unmarshal(body, &v)
 		if err != nil {
 			panic(err)
 		}
-		v.new()
+		err = v.new()
 	default:
 		err = errors.New("invalid type")
 	}
 
+	var status string
+
+	if err != nil {
+		status = err.Error()
+	} else {
+		status = "ACK"
+	}
+
 	var result = map[string][]*Info{
 		"result": {
-			&Info{Status: err.Error()},
+			&Info{Status: status},
 		},
 	}
 
