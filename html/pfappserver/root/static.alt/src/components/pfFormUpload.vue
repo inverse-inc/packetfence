@@ -205,6 +205,9 @@ export default {
         this.$emit('files', a.map(file => {
           return { ...file, ...{ storeName: this.storeNameFromFile(file), close: () => { this.closeFile(file) } } }
         }))
+        setTimeout(() => { // $nextTick fails
+          this.$emit('focus', a.length - 1)
+        }, 300)
       },
       deep: true
     }
