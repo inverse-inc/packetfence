@@ -446,7 +446,6 @@ import pfFormChosen from '@/components/pfFormChosen'
 import pfFormDatetime from '@/components/pfFormDatetime'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormPrefixMultiplier from '@/components/pfFormPrefixMultiplier'
-import pfFormSelect from '@/components/pfFormSelect'
 import pfFormToggle from '@/components/pfFormToggle'
 
 import {
@@ -473,7 +472,6 @@ export default {
     pfFormDatetime,
     pfFormInput,
     pfFormPrefixMultiplier,
-    pfFormSelect,
     pfFormToggle
   },
   mixins: [
