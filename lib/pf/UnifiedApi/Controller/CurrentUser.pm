@@ -15,7 +15,7 @@ use warnings;
 use Mojo::Base 'pf::UnifiedApi::Controller::RestRoute';
 use pf::admin_roles qw(admin_allowed_options %ADMIN_ROLES);
 use pf::Authentication::constants;
-use pf::config qw(%Config);
+use pf::config qw(%Config %ConfigRoles);
 
 sub allowed_options {
     my ($self, $option, $key, $standard_options) = @_;
@@ -28,6 +28,10 @@ sub allowed_options {
     return $self->render_items($key, @options);
 }
 
+sub get_all_roles {
+    sort keys %ConfigRoles
+}
+
 sub allowed_unreg_date {
     my ($self) = @_;
     return $self->allowed_options('allowed_unreg_date', 'undeg_date', sub {} );
@@ -35,12 +39,12 @@ sub allowed_unreg_date {
 
 sub allowed_roles {
     my ($self) = @_;
-    return $self->allowed_options('allowed_roles', 'role', sub {} );
+    return $self->allowed_options('allowed_roles', 'role', \&get_all_roles );
 }
 
 sub allowed_node_roles {
     my ($self) = @_;
-    return $self->allowed_options('allowed_node_roles', 'role', sub {} );
+    return $self->allowed_options('allowed_node_roles', 'role', \&get_all_roles );
 }
 
 sub allowed_access_levels {
