@@ -11,7 +11,6 @@ import (
 	"github.com/inverse-inc/packetfence/go/db"
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/panichandler"
-	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/sharedutils"
 	"github.com/jinzhu/gorm"
 )
@@ -36,7 +35,7 @@ type Handler struct {
 func setup(c *caddy.Controller) error {
 	ctx := log.LoggerNewContext(context.Background())
 
-	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.Cluster.HostsIp)
+	Database, err := gorm.Open("mysql", db.ReturnURI)
 
 	pfpki, err := buildPfpkiHandler(ctx)
 
@@ -59,7 +58,6 @@ func buildPfpkiHandler(ctx context.Context) (Handler, error) {
 	// Default http timeout
 	http.DefaultClient.Timeout = 10 * time.Second
 
-	Database, err := gorm.Open("mysql", db.ReturnURI)
 	sharedutils.CheckError(err)
 
 	pfpki.router = mux.NewRouter()
