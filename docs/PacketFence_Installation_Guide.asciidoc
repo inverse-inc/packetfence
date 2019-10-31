@@ -1037,11 +1037,11 @@ Where :
 * *Workgroup* is the workgroup of your domain in the old syntax (like NT4).
 * *DNS name of the domain* is the FQDN of your domain. The one that suffixes your account names.
 * *This server's name* is the name that the server's account will have in your Active Directory.
-* *Sticky DC* is the prefered domain controller to connect to.
+* *Sticky DC* is the preferred domain controller to connect to.
 * *Active Directory server* is the IP or DNS name of one of the DC of the domain.
 * *DNS server* is the IP address of the DNS server of this domain. Make sure that the server you put there has the proper DNS entries for this domain.
 * *OU* is the OU in the Active Directory where you want to create your computer account.
-* *ntlmv2 only* forces the NTLNM authentication (802.1x on AD) to use the NTLM version 2.
+* *ntlmv2 only* forces the NTLNM authentication (802.1X on AD) to use the NTLM version 2.
 * *Allow on registration* would allow devices in the registration network to communicate with the DC.
 
 NOTE: If you are using an Active/Active cluster, each member of the cluster must be joined separately. Please follow the instructions in the PacketFence Clustering Guide.
@@ -1085,19 +1085,19 @@ Where :
 * *Domain* is the domain which is associated to this realm
 * *RADIUS Auth* is the RADIUS authentication server to proxy the request to
 * *Type* is the home server pool type
-* *Authorize from PacketFence* specifies if we forward the request to PacketFence to have a dynamic answer or do we use the remote proxy server answered attributes?
+* *Authorize from PacketFence* specifies if we forward the request to PacketFence to have a dynamic answer or do we use the remote proxy server answered attributes
 * *RADIUS Acct* is the RADIUS accounting server to proxy the request to
 * *Type* is the home server pool type
 * *Eduroam Realm Options* You can add Eduroam FreeRADIUS options in the realm definition
 * *Eduroam RADIUS Auth* is the RADIUS Eduroam authentication server to proxy the request to
 * *Type* is the home server pool type
-* *Authorize from PacketFence* specifies if we forward the request to PacketFence to have a dynamic answer or do we use the remote proxy server answered attributes?
+* *Authorize from PacketFence* specifies if we forward the request to PacketFence to have a dynamic answer or do we use the remote proxy server answered attributes
 * *Eduroam RADIUS Acct* is the RADIUS Eduroam accounting server to proxy the request to
 * *Type* is the home server pool type
 * *Strip on the portal* Should the usernames matching this realm be stripped when used on the captive portal
 * *Strip on the admin* Should the usernames matching this realm be stripped when used on the administration interface
-* *Strip in RADIUS authorization* Should the usernames matching this realm be stripped when used in the authorization phase of 802.1x
-* *Custom attributes* Allow to use custom attributes to authenticate 802.1x users (attributes are defined in the source)
+* *Strip in RADIUS authorization* Should the usernames matching this realm be stripped when used in the authorization phase of 802.1X
+* *Custom attributes* Allow to use custom attributes to authenticate 802.1X users (attributes are defined in the source)
 * *LDAP source* The LDAP Server to query the custom attributes
 
 *Now associate DEFAULT and NULL realms to your domain.*
