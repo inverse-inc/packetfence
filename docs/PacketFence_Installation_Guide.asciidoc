@@ -3777,11 +3777,7 @@ Notes on the configuration:
 * Scan before/on/after registration controls when the automated scans are started for the devices PacketFence sees. If you only want to start the scans manually, leave those unchecked.
 * You will not be able to select a scan template, site and scan engine when initially configuring the engine. First configure the access and credentials and edit the engine again to be able to select those from the available values in Rapid7.
 
-image::rapid7/rapid7-pf-1.png[scaledwidth="100%",alt="Rapid7 PacketFence config"]
-
-image::rapid7/rapid7-pf-2.png[scaledwidth="100%",alt="Rapid7 PacketFence config"]
-
-image::rapid7/rapid7-pf-3.png[scaledwidth="100%",alt="Rapid7 PacketFence config"]
+image::rapid7/rapid7-pf.png[scaledwidth="100%",alt="Rapid7 PacketFence config"]
 
 Assign the engine to a connection profile
 +++++++++++++++++++++++++++++++++++++++++
