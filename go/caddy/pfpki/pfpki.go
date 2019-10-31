@@ -38,10 +38,7 @@ func setup(c *caddy.Controller) error {
 	Database, err := gorm.Open("mysql", db.ReturnURI)
 
 	pfpki, err := buildPfpkiHandler(ctx)
-
-	if err != nil {
-		return err
-	}
+	sharedutils.CheckError(err)
 
 	httpserver.GetConfig(c).AddMiddleware(func(next httpserver.Handler) httpserver.Handler {
 		pfpki.Next = next
@@ -57,8 +54,6 @@ func buildPfpkiHandler(ctx context.Context) (Handler, error) {
 
 	// Default http timeout
 	http.DefaultClient.Timeout = 10 * time.Second
-
-	sharedutils.CheckError(err)
 
 	pfpki.router = mux.NewRouter()
 	api := pfpki.router.PathPrefix("/api/v1").Subrouter()
