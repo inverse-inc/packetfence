@@ -65,8 +65,16 @@ pfbuild_manual:
     - make -e -C $PACKERDIR pfbuild
   # job need to be explicitly started
   # will not block other stages/jobs
-  # will not run when we click "Run pipeline"
+  # will not run when we click "Run pipeline"0
   when: manual
+
+pfbuild_test:
+  extends: .pfbuild_job
+  script:
+    - export DOCKER_TAG=${CI_COMMIT_REF_NAME#feature/}
+    - make -e -C $PACKERDIR pfbuild
+  only:
+    - /^feature/packer-.*$/
 
 # build a docker image at release
 # used to build maintenance binaries and assets for maintenance
