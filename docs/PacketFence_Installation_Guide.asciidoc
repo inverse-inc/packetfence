@@ -2940,7 +2940,6 @@ $src_ip is a way to dynamically use the correct source ip address of the system 
 Next go in 'Configuration -> Policies and Access Control -> REALMS', and add a new realm.
 
 image::acme.com.png[scaledwidth="100%",alt="ACME Realm Configuration"]
-image::acme.com.2.png[scaledwidth="100%",alt="ACME Realm Configuration"]
 
 (type definition can be found here https://wiki.freeradius.org/features/Proxy)
 
