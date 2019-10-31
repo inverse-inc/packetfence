@@ -23,6 +23,7 @@ func init() {
 	})
 }
 
+// Database is the db connection
 var Database *gorm.DB
 
 // Handler struct
@@ -35,7 +36,7 @@ type Handler struct {
 func setup(c *caddy.Controller) error {
 	ctx := log.LoggerNewContext(context.Background())
 
-	Database, err := gorm.Open("mysql", db.ReturnURI)
+	Database, err = gorm.Open("mysql", db.ReturnURI)
 
 	pfpki, err := buildPfpkiHandler(ctx)
 	sharedutils.CheckError(err)
