@@ -87,18 +87,22 @@ sub iptables_generate {
         # Using the role ID in the name instead of the role name due to ipset name length constraint (max32)
         foreach my $role ( @roles ) {
             if ( $ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i ) {
-                $cmd = "sudo ipset --create PF-iL3_ID$role->{'category_id'}_$network bitmap:ip range $network/$inline_obj->{BITS} 2>&1";
+                $cmd = "sudo ipset --create PF-iL3_ID$role->{'category_id'}_$network bitmap:ip range $network/$inline_obj->{BITS} timeout $ConfigNetworks{$network}{'dhcp_default_lease_time'} 2>&1";
             } else {
-                $cmd = "sudo ipset --create PF-iL2_ID$role->{'category_id'}_$network bitmap:ip range $network/$inline_obj->{BITS} 2>&1";
+                $cmd = "sudo ipset --create PF-iL2_ID$role->{'category_id'}_$network bitmap:ip range $network/$inline_obj->{BITS} timeout $ConfigNetworks{$network}{'dhcp_default_lease_time'} 2>&1";
             }
             my @lines  = pf_run($cmd);
         }
 
         foreach my $IPTABLES_MARK ($IPTABLES_MARK_UNREG, $IPTABLES_MARK_REG, $IPTABLES_MARK_ISOLATION) {
             if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
-                $cmd = "sudo ipset --create pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network bitmap:ip range $network/$inline_obj->{BITS} 2>&1";
+                $cmd = "sudo ipset --create pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network bitmap:ip range $network/$inline_obj->{BITS} timeout $ConfigNetworks{$network}{'dhcp_default_lease_time'} 2>&1";
             } else {
-                $cmd = "sudo ipset --create pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network bitmap:ip,mac range $network/$inline_obj->{BITS} 2>&1";
+                if (isenabled($ConfigNetworks{$network}{'split_network'}) && ($IPTABLES_MARK eq $IPTABLES_MARK_UNREG) ) {
+                    $cmd = "sudo ipset --create pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network bitmap:ip,mac range $network/$inline_obj->{BITS} timeout 45 2>&1";
+                } else {
+                    $cmd = "sudo ipset --create pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network bitmap:ip,mac range $network/$inline_obj->{BITS} timeout $ConfigNetworks{$network}{'dhcp_default_lease_time'} 2>&1";
+                }
             }
             my @lines  = pf_run($cmd);
         }
