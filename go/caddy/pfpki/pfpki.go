@@ -24,7 +24,7 @@ func init() {
 	})
 }
 
-var database *gorm.DB
+var Database *gorm.DB
 
 // Handler struct
 type Handler struct {
@@ -59,7 +59,7 @@ func buildPfpkiHandler(ctx context.Context) (Handler, error) {
 	// Default http timeout
 	http.DefaultClient.Timeout = 10 * time.Second
 
-	database, err := gorm.Open("mysql", db.ReturnURI)
+	Database, err := gorm.Open("mysql", db.ReturnURI)
 	sharedutils.CheckError(err)
 
 	pfpki.router = mux.NewRouter()
