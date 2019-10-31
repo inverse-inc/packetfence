@@ -31,6 +31,7 @@ rpm_deploy() {
         declare -p src_dir dst_dir
 
         if [ "$DEPLOY_SRPMS" == "no" ]; then
+            echo "Removing SRPMS according to '$DEPLOY_SRPMS' value"
             rm -v $src_dir/*.src.rpm
         else
             echo "Keeping SRPMS according to '$DEPLOY_SRPMS' value"
