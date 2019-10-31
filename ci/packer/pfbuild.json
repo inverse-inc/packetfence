@@ -8,6 +8,7 @@
         "prov_dir": "provisionners",
         "files_dir": "files",
         "tmp_dir": "/tmp",
+        "yum_cache_dir": "/var/cache/yum",
         "ansible_extra_vars": "{{env `ANSIBLE_EXTRA_VARS`}}",
         "go_version": "{{env `GOVERSION`}}",
         "docker_tag": "{{env `DOCKER_TAG`}}",
@@ -105,7 +106,8 @@
         {
             "type": "shell",
             "inline": ["rm -rf {{user `tmp_dir`}}/rpm",
-                       "yum clean all"
+                       "yum clean all",
+                       "rm -rf {{user `yum_cache_dir`}}/*"
                       ],
             "only": ["{{user `builder_prefix`}}-centos-7"]
         },
