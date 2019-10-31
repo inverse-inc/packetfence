@@ -1100,7 +1100,7 @@ Where :
 * *Custom attributes* Allow to use custom attributes to authenticate 802.1x users (attributes are defined in the source)
 * *LDAP source* The LDAP Server to query the custom attributes
 
-*Now associate DEFAULT and NULL realms to your domains.*
+*Now associate DEFAULT and NULL realms to your domain.*
 
 You should now have the following realm configuration
 
