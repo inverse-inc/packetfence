@@ -6,11 +6,6 @@
       <b-form-select
         v-model="inputValue"
         v-bind="$attrs"
-        :class="{
-          [`bg-${backgroundVariant}`]: (backgroundVariant) ,
-          'border': (borderVariant), [`border-${borderVariant}`]: (borderVariant),
-          [`text-${textVariant}`]: (textVariant)
-        }"
         :state="isValid()"
         @input.native="validate()"
         @keyup.native="onChange($event)"
@@ -48,18 +43,6 @@ export default {
       default: 3
     },
     text: {
-      type: String,
-      default: null
-    },
-    textVariant: {
-      type: String,
-      default: null
-    },
-    backgroundVariant: {
-      type: String,
-      default: null
-    },
-    borderVariant: {
       type: String,
       default: null
     }
