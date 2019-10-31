@@ -38,7 +38,7 @@ func setup(c *caddy.Controller) error {
 
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.Cluster.HostsIp)
 
-	pfpki, err := buildPfpkiHandler(ctx)
+	pfpki, err := Handler(ctx)
 
 	if err != nil {
 		return err

@@ -18,7 +18,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
@@ -159,7 +158,6 @@ func (c CA) new() error {
 	}
 	caBytes, err := x509.CreateCertificate(rand.Reader, ca, ca, pub, priv)
 	if err != nil {
-		log.LoggerWContext(ctx).Error("create ca failed", err)
 		return errors.New("create ca failed")
 	}
 
