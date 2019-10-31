@@ -1,5 +1,5 @@
 ---
-- hosts: centos
+- hosts: ['devel_centos','stable_centos']
   name: install RPM keys
   gather_facts: False
   become: True
@@ -14,7 +14,7 @@
         mode: '0644'
       loop: '{{ upstream_rpm_keys }}'
 
-- hosts: ['centos','debian']
+- hosts: ['devel_centos', 'devel_debian', 'stable_centos', 'stable_debian']
   name: install upstream repos needed to install build requires
   become: True
 

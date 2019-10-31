@@ -72,11 +72,16 @@ pfbuild_manual:
 # used to build maintenance binaries and assets for maintenance
 pfbuild_release:
   extends: .pfbuild_job
+  variables:
+    ANSIBLE_CENTOS_GROUP: stable_centos
+    ANSIBLE_DEBIAN_GROUP: stable_debian
+    ANSIBLE_RUBYGEMS_GROUP: stable_rubygems
   script:
-    - PF_VERSION=$(awk '{ print $2 }' conf/pf-release)
+    # remove 'packetfence-' prefix
+    - export PF_VERSION=${CI_COMMIT_TAG#packetfence-}
     - make -e -C $PACKERDIR DOCKER_TAG=$PF_VERSION pfbuild
   only:
-    - /^stable$/
+    - /^packetfence-.*$/
 
 #### BUILD_PKG JOBS
 build_pkg_centos7:

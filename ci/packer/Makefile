@@ -1,4 +1,4 @@
-# All variables defined below can be considered as defaults
+# All variables defined below and in config.mk can be considered as defaults
 # for packer invocation. They can be override by:
 # - environment variables (VAR=value make -e target)
 # - command variables (make VAR=VALUE target)
@@ -17,6 +17,9 @@ pfbuild:
 	DOCKER_TAG=$(DOCKER_TAG) \
 	GOVERSION=$(GOVERSION) \
 	REGISTRY=$(REGISTRY) \
+	ANSIBLE_CENTOS_GROUP=$(ANSIBLE_CENTOS_GROUP) \
+	ANSIBLE_DEBIAN_GROUP=$(ANSIBLE_DEBIAN_GROUP) \
+	ANSIBLE_RUBYGEMS_GROUP=$(ANSIBLE_RUBYGEMS_GROUP) \
 	packer build \
 	-only=$(ACTIVE_BUILDS) \
 	-parallel=$(PARALLEL) $@.json
