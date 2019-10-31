@@ -173,5 +173,10 @@ export default {
     return apiCall.post(['nodes', 'bulk_apply_bypass_vlan'], body).then(response => {
       return response.data.items
     })
+  },
+  bulkImport: body => {
+    return apiCall.post(['nodes', 'bulk_import'], body).then(response => {
+      return response.data.items
+    })
   }
 }

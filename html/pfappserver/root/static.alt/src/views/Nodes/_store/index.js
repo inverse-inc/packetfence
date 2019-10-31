@@ -358,6 +358,15 @@ const actions = {
     }).catch(err => {
       commit('NODE_ERROR', err.response)
     })
+  },
+  bulkImport: ({ commit }, data) => {
+    commit('NODE_REQUEST')
+    return api.bulkImport(data).then(response => {
+      commit('NODE_BULK_SUCCESS', response)
+      return response
+    }).catch(err => {
+      commit('NODE_ERROR', err.response)
+    })
   }
 }
 

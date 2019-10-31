@@ -12,10 +12,10 @@
         @change.native="onChange($event)"
       >
         <!-- BEGIN SLOTS -->
-        <!-- Forward default slot -->
-        <slot/>
         <!-- Forward named slots -->
         <slot name="first" v-slot:first/>
+        <!-- Forward default slot -->
+        <slot/>
         <!-- END SLOTS -->
       </b-form-select>
     </b-input-group>

@@ -46,8 +46,8 @@ export default {
     isValid () {
       this.validDebouncer({
         handler: () => {
-          if (this.vuelidate && this.vuelidate.$dirty) {
-            if (this.vuelidate.$anyError) {
+          if (this.vuelidate) {
+            if (this.vuelidate.$invalid) {
               this.$set(this, 'validState', false) // red border
               return
             } else if (this.highlightValid) {
@@ -166,14 +166,12 @@ export default {
         if (JSON.stringify(a) !== JSON.stringify(b)) {
           this.validDebouncer({
             handler: () => {
-              if (a.$dirty) {
-                if (a.$anyError) {
-                  this.$set(this, 'validState', false) // red border
-                  return
-                } else if (this.highlightValid) {
-                  this.$set(this, 'validState', true) // green border
-                  return
-                }
+              if (a.$invalid) {
+                this.$set(this, 'validState', false) // red border
+                return
+              } else if (this.highlightValid) {
+                this.$set(this, 'validState', true) // green border
+                return
               }
               if (this.keyName in this.$store.state.session.formErrors) {
                 this.$set(this, 'validState', false) // red border

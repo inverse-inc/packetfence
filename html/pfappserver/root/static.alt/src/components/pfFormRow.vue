@@ -14,7 +14,7 @@ export default {
     },
     rowClass: {
       type: String,
-      default: 'my-1'
+      default: 'form-row'
     },
     columnLabel: {
       type: String

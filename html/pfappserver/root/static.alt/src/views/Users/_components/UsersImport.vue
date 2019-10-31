@@ -1,27 +1,38 @@
 <template>
-  <div>
-    <b-card no-body>
-      <b-progress height="2px" :value="progressValue" :max="progressTotal" v-show="progressValue > 0 && progressValue < progressTotal"></b-progress>
-      <b-card-header>
-        <h4 class="mb-0" v-t="'Import Users'"></h4>
-      </b-card-header>
-      <div class="card-body p-0">
-        <b-tabs ref="tabs" v-model="tabIndex" card pills>
-          <b-tab v-for="(file, index) in files" :key="file.name + file.lastModified" :title="file.name" no-body>
-            <template v-slot:title>
-              <b-button-close class="ml-2 text-white" @click.stop.prevent="closeFile(index)" v-b-tooltip.hover.left.d300 :title="$t('Close File')"><icon name="times"></icon></b-button-close>
-              {{ $t(file.name) }}
-            </template>
-            <pf-csv-parse
-              :ref="'parser-' + index"
-              :file="file"
-              :fields="fields"
-              :store-name="storeName"
-              :events-listen="tabIndex === index"
-              :is-loading="isLoading"
-              @input="onImport"
-            >
-              <b-tab :title="$t('Import Options')">
+  <b-card no-body>
+    <b-card-header>
+      <h4 class="mb-0" v-t="'Import Users'"></h4>
+    </b-card-header>
+    <div class="card-body p-0">
+      <b-tabs ref="tabs" v-model="tabIndex" card pills>
+        <b-tab v-for="(file, index) in files" :key="file.name + file.lastModified"
+          :title="file.name" :title-link-class="(tabIndex === index) ? ['bg-primary', 'text-light'] : ['bg-light', 'text-primary']"
+          no-body
+        >
+          <template v-slot:title>
+            <b-button-close class="ml-2" :class="(tabIndex === index) ? 'text-white' : 'text-primary'" @click.stop.prevent="closeFile(index)" v-b-tooltip.hover.left.d300 :title="$t('Close File')">
+              <icon name="times" class="align-top ml-1"></icon>
+            </b-button-close>
+            {{ file.name }}
+          </template>
+          <pf-csv-import
+            :ref="'import-' + index"
+            :file="file"
+            :fields="fields"
+            :store-name="storeName"
+            :events-listen="tabIndex === index"
+            :is-loading="isLoading"
+            :is-slot-error="$v.$invalid"
+            :import-promise="importPromise"
+            hover
+            striped
+          >
+            <b-card no-body>
+              <b-card-header>
+                <h4 v-t="'Additional User Options'"></h4>
+                <p class="mb-0" v-t="'Complete the following additional static fields.'"></p>
+              </b-card-header>
+              <div class="card-body">
                 <b-form-group label-cols="3" :label="$t('Registration Window')">
                   <b-row>
                     <b-col>
@@ -48,7 +59,7 @@
                   :field="actionField"
                   :vuelidate="$v.localUser.actions"
                   :invalid-feedback="[
-                    { [$t('One or more errors exist.')]: !$v.localUser.actions.anyError }
+                    { [$t('One or more errors exist.')]: $v.localUser.actions.$invalid }
                   ]"
                   @validations="actionsValidations = $event"
                   sortable
@@ -96,13 +107,16 @@
                     </b-col>
                   </b-row>
                 </pf-form-row>
-              </b-tab>
-            </pf-csv-parse>
-          </b-tab>
-          <template v-slot:tabs-end>
-            <pf-form-upload @load="files = $event" :multiple="true" :cumulative="true" accept="text/*, .csv">{{ $t('Open CSV File') }}</pf-form-upload>
-          </template>
-          <div v-slot:empty class="text-center text-muted">
+              </div>
+            </b-card>
+
+          </pf-csv-import>
+        </b-tab>
+        <template v-slot:tabs-end>
+          <pf-form-upload @files="files = $event" @focus="tabIndex = $event" :multiple="true" :cumulative="true" accept="text/*, .csv">{{ $t('Open CSV File') }}</pf-form-upload>
+        </template>
+        <template v-slot:empty>
+          <div class="text-center text-muted">
             <b-container class="my-5">
               <b-row class="justify-content-md-center text-secondary">
                   <b-col cols="12" md="auto">
@@ -115,18 +129,16 @@
               </b-row>
             </b-container>
           </div>
-        </b-tabs>
-      </div>
-    </b-card>
-
+        </template>
+      </b-tabs>
+    </div>
     <users-preview-modal v-model="showUsersPreviewModal" :store-name="storeName" />
-
-  </div>
+  </b-card>
 </template>
 
 <script>
 import { format } from 'date-fns'
-import pfCSVParse from '@/components/pfCSVParse'
+import pfCSVImport from '@/components/pfCSVImport'
 import pfFieldTypeValue from '@/components/pfFieldTypeValue'
 import pfFormDatetime from '@/components/pfFormDatetime'
 import pfFormFields from '@/components/pfFormFields'
@@ -143,7 +155,6 @@ import {
 } from '@/globals/pfDatabaseSchema'
 import { pfFieldType as fieldType } from '@/globals/pfField'
 import { pfFormatters as formatter } from '@/globals/pfFormatters'
-import convert from '@/utils/convert'
 import password from '@/utils/password'
 import {
   required
@@ -161,7 +172,7 @@ const { validationMixin } = require('vuelidate')
 export default {
   name: 'users-import',
   components: {
-    'pf-csv-parse': pfCSVParse,
+    'pf-csv-import': pfCSVImport,
     pfFormDatetime,
     pfFormFields,
     pfFormInput,
@@ -183,9 +194,6 @@ export default {
   },
   data () {
     return {
-      globals: {
-        schema: schema
-      },
       files: [],
       tabIndex: 0,
       fields: [
@@ -446,20 +454,66 @@ export default {
           fields: [
             pfConfigurationActions.set_access_duration,
             pfConfigurationActions.set_access_level,
-            // pfConfigurationActions.set_bandwidth_balance,
             pfConfigurationActions.mark_as_sponsor,
             pfConfigurationActions.set_role,
             pfConfigurationActions.set_tenant_id,
-            // pfConfigurationActions.set_time_balance,
             pfConfigurationActions.set_unregdate
           ]
         }
       },
       actionsValidations: {},
-      progressTotal: 0,
-      progressValue: 0,
-      isLoading: false
+      isLoading: false,
+      createdUsers: {}
     }
+  },
+  methods: {
+    abortFile (index) {
+      this.files[index].reader.abort()
+    },
+    closeFile (index) {
+      const file = this.files[index]
+      file.close()
+    },
+    importPromise (payload, dryRun) {
+      return new Promise((resolve, reject) => {
+        if ('items' in payload) {
+          payload.items = payload.items.map(item => { // glue payload together with local slot
+            let merged = { ...item, ...this.localUser }
+            if (!('password' in merged)) { // generate a unique password
+              merged.password = password.generate(this.passwordGenerator)
+            }
+            return merged
+          })
+        }
+        this.$store.dispatch(`${this.storeName}/bulkImport`, payload).then(result => {
+          // do something with the result, then Promise.resolve to continue processing
+          if (!dryRun) {
+            this.createdUsers = result.reduce((createdUsers, result) => {
+              const { item } = result
+              if ('pid' in item) {
+                createdUsers[item.pid] = (item.pid in createdUsers)
+                  ? { ...createdUsers[item.pid], ...item }
+                  : item
+              }
+              return createdUsers
+            }, this.createdUsers)
+            if (!result || result.length === 0) { // empty result when processing is completed
+              if (Object.values(this.createdUsers).length > 0) {
+                this.$store.commit(`${this.storeName}/CREATED_USERS_REPLACED`, Object.values(this.createdUsers))
+                this.showUsersPreviewModal = true
+              }
+            }
+          }
+          resolve(result)
+        }).catch(err => {
+          // do something with the error, then Promise.reject to stop processing
+          reject(err)
+        })
+      })
+    }
+  },
+  created () {
+    this.$store.dispatch('config/getSources')
   },
   validations () {
     return {
@@ -477,113 +531,6 @@ export default {
         actions: this.actionsValidations
       }
     }
-  },
-  methods: {
-    closeFile (index) {
-      this.files.splice(index, 1)
-    },
-    onImport (values, parser) {
-      this.isLoading = true
-      let createdUsers = []
-      // track progress
-      let success = 0
-      let failed = 0
-      this.progressValue = 1
-      this.progressTotal = values.length + 1
-      // create unique stack
-      let stack = {}
-      values.forEach(value => {
-        stack[value.pid] = value
-      })
-      // track promise(s)
-      Promise.all(Object.values(stack).map(value => {
-        // map child components' tableValue
-        let tableValue = parser.tableValues[value._tableValueIndex]
-        const data = {
-          ...this.localUser,
-          ...value
-        }
-        return this.$store.dispatch(`${this.storeName}/exists`, value.pid).then(results => {
-          // user exists
-          return this.updateUser(data).then(results => {
-            if (results.status) {
-              tableValue._rowVariant = convert.statusToVariant({ status: results.status })
-            } else {
-              tableValue._rowVariant = 'success'
-            }
-            if (results.message) {
-              tableValue._rowMessage = this.$i18n.t(results.message)
-            }
-            createdUsers.push(data)
-            success++
-            return results
-          }).catch(() => {
-            failed++
-          })
-        }).catch(() => {
-          // user not exists
-          if (!('password' in value)) {
-            data.password = password.generate(this.passwordGenerator)
-          }
-          return this.createUser(data).then(results => {
-            if (results.status) {
-              tableValue._rowVariant = convert.statusToVariant({ status: results.status })
-            } else {
-              tableValue._rowVariant = 'success'
-            }
-            if (results.message) {
-              tableValue._rowMessage = this.$i18n.t(results.message)
-            }
-            createdUsers.push(data)
-            success++
-            return results
-          }).catch(() => {
-            failed++
-          })
-        })
-      })).then(results => {
-        this.$store.dispatch('notification/info', {
-          message: results.length + ' ' + this.$i18n.t('users imported'),
-          skipped: (values.length - success - failed),
-          success,
-          failed
-        })
-        this.$store.commit(`${this.storeName}/CREATED_USERS_REPLACED`, createdUsers)
-        this.showUsersPreviewModal = true
-        this.isLoading = false
-      })
-    },
-    createUser (data) {
-      const userData = { quiet: true, ...data } // suppress notifications
-      return this.$store.dispatch(`${this.storeName}/createUser`, userData).then(results => {
-        return this.$store.dispatch(`${this.storeName}/createPassword`, userData).then(results => {
-          return results
-        }).catch(err => {
-          throw err
-        })
-      }).catch(err => {
-        throw err
-      }).finally(() => {
-        this.progressValue += 1
-      })
-    },
-    updateUser (data) {
-      const userData = { quiet: true, ...data } // suppress notifications
-      return this.$store.dispatch(`${this.storeName}/updateUser`, userData).then(results => {
-        return this.$store.dispatch(`${this.storeName}/updatePassword`, userData).then(results => {
-          return results
-        }).catch(err => {
-          throw err
-        })
-      }).catch(err => {
-        throw err
-      }).finally(() => {
-        this.progressValue += 1
-      })
-    }
-  },
-  created () {
-    this.$store.dispatch('config/getSources')
   }
 }
 </script>
