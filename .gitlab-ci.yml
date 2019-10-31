@@ -19,6 +19,9 @@ variables:
   RPM_DIR: rpm
   DEB_DIR: debian
   VAGRANT_DIR: addons/vagrant
+  # env variables
+  ANSIBLE_FORCE_COLOR: "true"
+  ANSIBLE_STDOUT_CALLBACK: yaml
 
 ### TEMPLATES
 .pfbuild_job:
