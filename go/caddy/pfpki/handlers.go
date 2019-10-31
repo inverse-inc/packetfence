@@ -1,4 +1,4 @@
-package main
+package pfpki
 
 import (
 	"encoding/json"
