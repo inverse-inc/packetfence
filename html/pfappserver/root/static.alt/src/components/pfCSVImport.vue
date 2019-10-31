@@ -515,7 +515,7 @@ export default {
     return {
       // expose globals
       bytes: bytes, // @/utils/bytes
-      encoding: encoding, // @/utils/bytes
+      encoding: encoding, // @/utils/encoding
       fieldTypeValues: fieldTypeValues, // @/globals/pfField
       context: this,
 
